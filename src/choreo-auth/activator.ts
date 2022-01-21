@@ -16,22 +16,37 @@
  * under the License.
  *
  */
+import * as vscode from 'vscode';
 import { commands, window } from "vscode";
 import { PALETTE_COMMANDS } from "../project/cmds/cmd-runner";
 import { CMP_PROJECT_ADD, sendTelemetryException } from "../telemetry";
 import { BallerinaExtension, ballerinaExtInstance } from "../core";
-import { OAuthListener } from "./auth-listener";
 import { deleteChoreoKeytarSession } from "./auth-session";
-import { initiateInbuiltAuth } from "./inbuilt-impl";
+import { initiateInbuiltAuth, OAuthTokenHandler } from "./inbuilt-impl";
 import { ChoreoAuthConfig } from "./config";
+import { URLSearchParams } from 'url';
 
 export let choreoAuthConfig: ChoreoAuthConfig;
 async function activate(extension: BallerinaExtension) {
+    vscode.window.registerUriHandler({
+        handleUri(uri: vscode.Uri): vscode.ProviderResult<void> {
+            if (uri.path === '/choreo-signin') {
+                const urlParams = new URLSearchParams(uri.query);
+                const authCode = urlParams.get('code');
+                if (authCode) {
+                    const tokenHandler = new OAuthTokenHandler(extension);
+                    tokenHandler.exchangeAuthToken(authCode);
+                } else {
+                    vscode.window.showErrorMessage(`Choreo Login Failed: Authorization code not found!`);
+                }
+            }
+        }
+    });
+
     choreoAuthConfig = new ChoreoAuthConfig();
     commands.registerCommand(PALETTE_COMMANDS.CHOREO_SIGNIN, async () => {
         try {
-            await new OAuthListener(3000, extension).StartProcess();
-            initiateInbuiltAuth(extension);
+            await initiateInbuiltAuth(extension);
         } catch (error) {
             if (error instanceof Error) {
                 sendTelemetryException(ballerinaExtInstance, error, CMP_PROJECT_ADD);

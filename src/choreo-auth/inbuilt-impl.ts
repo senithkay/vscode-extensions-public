@@ -19,7 +19,6 @@
 import vscode from "vscode";
 import axios from "axios";
 import { BallerinaExtension } from "../core";
-import { OAuthListener } from "./auth-listener";
 import { getChoreoKeytarSession, setChoreoKeytarSession } from "./auth-session";
 import jwt_decode from "jwt-decode";
 import { choreoAuthConfig } from "./activator";
@@ -35,8 +34,10 @@ const VSCodeTokenError = "Error while retreiving the VSCode token details!";
 const SessionExpired = "The session has expired, please login again!";
 
 export async function initiateInbuiltAuth(extension: BallerinaExtension) {
-    vscode.commands.executeCommand("vscode.open", vscode.Uri.parse(getAuthURL()));
-    await new OAuthListener(9000, extension).StartProcess();
+    const callbackUri = await vscode.env.asExternalUri(
+        vscode.Uri.parse(getAuthURL())
+    );
+    vscode.commands.executeCommand("vscode.open", callbackUri);
 }
 
 export class OAuthTokenHandler {
