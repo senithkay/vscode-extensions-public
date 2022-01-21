@@ -81,6 +81,8 @@ export function getFormElement(elementProps: FormElementProps, type: string) {
         });
     } else if (elementProps.model?.isRestParam) {
         type = "restParam";
+    } else if (type === "inclusion") {
+        return null; // TODO: Inclusion support will handle with this issue #10016
     }
 
     const FormElement = (Elements as any)[type];
