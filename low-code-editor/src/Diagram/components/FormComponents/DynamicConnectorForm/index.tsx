@@ -19,7 +19,7 @@ import { getFormElement } from "../../Portals/utils";
 import FormAccordion from "../FormAccordion";
 import { ExpressionInjectablesProps } from "../FormGenerator";
 import { FormElementProps, FormFieldChecks } from "../Types";
-import { isAllFieldsValid } from "../Utils";
+import { isAllDefaultableFields, isAllFieldsValid } from "../Utils";
 
 import { useStyles } from "./styles";
 export interface FormProps {
@@ -30,9 +30,6 @@ export interface FormProps {
     editPosition?: NodePosition;
     expandOptionals?: boolean;
 }
-
-const isAllDefaultableFields = (recordFields: FormField[]): boolean =>
-    recordFields?.every((field) => field.defaultValue || (field.fields && isAllDefaultableFields(field.fields)));
 
 export function Form(props: FormProps) {
     const { fields, onValidate, expressionInjectables, editPosition, expandOptionals} = props;
@@ -75,6 +72,10 @@ export function Form(props: FormProps) {
                 initialDiagnostics: field.initialDiagnostics,
             },
         };
+
+        if (field.typeName === "inclusion"){
+            field.defaultable = isAllDefaultableFields(field.inclusionType?.fields);
+        }
 
         const element = getFormElement(elementProps, field.typeName);
         if (element) {
