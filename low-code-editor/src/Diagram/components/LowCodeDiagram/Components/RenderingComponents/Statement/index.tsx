@@ -49,7 +49,7 @@ export function StatementC(props: StatementProps) {
                     <Respond model={model} />
                 </g>
             );
-        } else if ((viewState.isAction || viewState.isEndpoint) && !isVarTypeDescriptor(model)) {
+        } else if (viewState.isAction || viewState.isEndpoint) {
             if (viewState.isAction && !viewState.collapsed) {
                 statements.push(
                     <ActionInvocation model={clientInit} />

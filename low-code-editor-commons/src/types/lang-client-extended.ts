@@ -29,7 +29,7 @@ export interface STModification {
     isImport?: boolean;
 }
 
-export interface BallerinaModule {
+export interface BallerinaConstruct {
     id?: string;
     name: string;
     displayName?: string;
@@ -39,9 +39,9 @@ export interface BallerinaModule {
     icon?: string;
 }
 
-export interface Connector extends BallerinaModule { }
+export interface Connector extends BallerinaConstruct { }
 
-export interface Trigger extends BallerinaModule { }
+export interface Trigger extends BallerinaConstruct { }
 
 export interface Package {
     organization: string;
@@ -146,7 +146,7 @@ export interface TypeInfo {
     version?: string;
 }
 
-export interface BallerinaModulesRequest {
+export interface BallerinaConstructRequest {
     query: string;
     packageName?: string;
     organization?: string;
@@ -163,13 +163,13 @@ export interface BallerinaModulesRequest {
     targetFile?: string;
 }
 
-export interface BallerinaConnectorsRequest extends BallerinaModulesRequest { }
+export interface BallerinaConnectorsRequest extends BallerinaConstructRequest { }
 
-export interface BallerinaTriggersRequest extends BallerinaModulesRequest { }
+export interface BallerinaTriggersRequest extends BallerinaConstructRequest { }
 
 export interface BallerinaModuleResponse {
-    central: BallerinaModule[];
-    local?: BallerinaModule[];
+    central: BallerinaConstruct[];
+    local?: BallerinaConstruct[];
     error?: string;
 }
 
@@ -315,7 +315,6 @@ export interface Values {
 
 export interface PerformanceAnalyzerEndpointsRequest {
     documentIdentifier: DocumentIdentifier;
-    range: Range;
 }
 
 export interface GraphPoint {
