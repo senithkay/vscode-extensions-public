@@ -43,8 +43,6 @@ export class ChoreoAuthConfig {
     private googleFIdp: string = "google";
 
     constructor() {
-        debug(`VSCODE_CHOREO_APIM_CLIENT_ID: ${process.env.VSCODE_CHOREO_APIM_CLIENT_ID} \napimClientId: ${this.apimClientId}`);
-        debug(`VSCODE_CHOREO_APIM_TOKEN_ENDPOINT: ${process.env.VSCODE_CHOREO_APIM_TOKEN_ENDPOINT} \napimTokenUrl: ${this.apimTokenUrl}`);
     }
 
     public getApimClientId(): string {
