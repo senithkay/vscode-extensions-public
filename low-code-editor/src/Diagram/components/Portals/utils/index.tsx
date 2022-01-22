@@ -114,7 +114,11 @@ const isAllFieldsEmpty = (recordFields: FormField[]): boolean => recordFields?.e
 export function getParams(formFields: FormField[], depth = 1): string[] {
     const paramStrings: string[] = [];
     formFields.forEach(formField => {
-        const skipDefaultValue = (!formField.value && formField.typeName !== "record" && formField.defaultable) ||
+        const skipDefaultValue =
+            (!formField.value &&
+                formField.typeName !== "record" &&
+                formField.typeName !== "inclusion" &&
+                formField.defaultable) ||
             (formField.value && formField.defaultValue && formField.defaultValue === formField.value);
         let paramString: string = "";
         if (!skipDefaultValue) {
@@ -255,6 +259,9 @@ export function getParams(formFields: FormField[], depth = 1): string[] {
                 } else {
                     paramString += formField.value;
                 }
+            } else if (formField.typeName === "inclusion" && formField.inclusionType) {
+                const params = getParams([formField.inclusionType], depth + 1);
+                paramString += params;
             } else if (formField.typeName === "handle" && formField.value) {
                 paramString += formField.value;
             }
@@ -355,6 +362,12 @@ export function matchEndpointToFormField(endPoint: LocalVarDecl, formFields: For
                 const mappingConstructor: MappingConstructor = positionalArg.expression as MappingConstructor;
                 if (mappingConstructor) {
                     mapRecordLiteralToRecordTypeFormField(mappingConstructor.fields as SpecificField[], formField.fields);
+                    nextValueIndex++;
+                }
+            } else if (formField.typeName === "inclusion" && formField.inclusionType && formField.inclusionType.fields) {
+                const mappingConstructor: MappingConstructor = positionalArg.expression as MappingConstructor;
+                if (mappingConstructor) {
+                    mapRecordLiteralToRecordTypeFormField(mappingConstructor.fields as SpecificField[], formField.inclusionType?.fields);
                     nextValueIndex++;
                 }
             } else if (formField.typeName === "union") {

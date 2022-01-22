@@ -30,7 +30,7 @@ export function getForm(type: string, args: any) {
 
 export function isAllEmpty(allFieldChecks: Map<string, FormFieldChecks>): boolean {
     let result = true
-    allFieldChecks.forEach((fieldChecks, key) => {
+    allFieldChecks?.forEach((fieldChecks, key) => {
         if (!fieldChecks.isEmpty) {
             result = false;
         }
@@ -40,12 +40,16 @@ export function isAllEmpty(allFieldChecks: Map<string, FormFieldChecks>): boolea
 
 export function isAllIgnorable(fields: FormField[]): boolean {
     let result = true;
-    fields.forEach((field, key) => {
+    fields?.forEach((field, key) => {
         if (!(field.optional || field.defaultable)) {
             result = false;
         }
     });
     return result;
+}
+
+export function isAllDefaultableFields(recordFields: FormField[]): boolean {
+    return recordFields?.every((field) => field.defaultable || (field.fields && isAllDefaultableFields(field.fields)));
 }
 
 export function isAllFieldsValid(allFieldChecks: Map<string, FormFieldChecks>, model: FormField | FormField[], isRoot: boolean): boolean {
@@ -62,7 +66,7 @@ export function isAllFieldsValid(allFieldChecks: Map<string, FormFieldChecks>, m
         allFieldsIgnorable = isAllIgnorable(formFields);
     }
 
-    allFieldChecks.forEach(fieldChecks => {
+    allFieldChecks?.forEach(fieldChecks => {
         if (!canModelIgnore && !fieldChecks.canIgnore && (!fieldChecks.isValid || fieldChecks.isEmpty)) {
             result = false;
         }
