@@ -1,7 +1,8 @@
 import { DiagramCanvas } from "../../utils/components/canvas";
 import { CodeView } from "../../utils/components/code-view";
-import { TopLevelPlusWidget } from "../../utils/components/to-level-plus-widget";
+import { TopLevelPlusWidget } from "../../utils/components/top-level-plus-widget";
 import { getCurrentSpecFolder } from "../../utils/file-utils";
+import { FunctionForm } from "../../utils/forms/function-form";
 import { getIntegrationTestStoryURL } from "../../utils/story-url-utils"
 
 const BAL_FILE_PATH = "function/add-function-to-empty-file.bal";
@@ -14,18 +15,12 @@ describe('Add functions via Low Code', () => {
     it('Add a function to empty file', () => {
         DiagramCanvas.welcomeMessageShouldBeVisible();
         DiagramCanvas.clickTopLevelPlusButton();
-        TopLevelPlusWidget.clickPlusWidgetItem("Function");
-
-          cy        // click on the function option in plus widget.
-            .get('[data-testid="function-form"]')
-            .get('.view-lines')
-            .first()
-            .type('myfunction') // type 'myfunction' in the expression editor for fn name.
-            .get('button')
-            .contains("Save")
-            .click() // click save button.
-            .get('.function-signature .path-text')
-            .should('have.text', 'myfunction') // check if the added function signature is drawn.
+        TopLevelPlusWidget.clickOption("Function");
+        FunctionForm
+          .shouldBeVisible()
+          .typeFunctionName("myfunction")
+          .typeReturnType("json|error?")
+          .save();
 
       CodeView.currentCodeShouldBeEqualToFile(
           getCurrentSpecFolder() + "add-function.expected.bal");

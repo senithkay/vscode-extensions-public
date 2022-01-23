@@ -1,4 +1,4 @@
 
-function myfunction() returns error? {
+function myfunction() returns json|error? {
 
 }
