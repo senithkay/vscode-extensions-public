@@ -11,12 +11,12 @@ export class ExpressionEditor {
     }
 
     public type(text: string) {
-        this.getEditor().type(text);
+        this.getEditor().type("{esc}" +text); // Adding escpate first to close suggetions if any
         return this;
     }
 
     public clear() {
-        this.getEditor().type("{ctrl}a{del}");
+        this.getEditor().type("{ctrl}a{del}{esc}");
         return this;
     }
 

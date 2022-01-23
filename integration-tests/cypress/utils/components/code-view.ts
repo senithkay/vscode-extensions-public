@@ -1,13 +1,13 @@
-export class CodeView {
+export class SourceCode {
     
-    static currentCodeShouldBe(expectedContent: string) {
+    static shouldBe(expectedContent: string) {
         return cy.get('#file-content-holder')
             .should('have.text', expectedContent)
     }
 
-    static currentCodeShouldBeEqualToFile(expectedFile: string) {
+    static shouldBeEqualTo(expectedFile: string) {
         return cy.readFile(expectedFile).then((content) => {
-            return CodeView.currentCodeShouldBe(content);
+            return SourceCode.shouldBe(content);
         })
     }
 

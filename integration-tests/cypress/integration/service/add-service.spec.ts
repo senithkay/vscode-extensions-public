@@ -1,5 +1,8 @@
 import { DiagramCanvas } from "../../utils/components/canvas"
-import { TopLevelPlusWidget } from "../../utils/components/to-level-plus-widget"
+import { SourceCode } from "../../utils/components/code-view"
+import { TopLevelPlusWidget } from "../../utils/components/top-level-plus-widget"
+import { getCurrentSpecFolder } from "../../utils/file-utils"
+import { ServiceForm } from "../../utils/forms/service-form"
 import { getIntegrationTestStoryURL } from "../../utils/story-url-utils"
 
 describe('add a http service to an empty file', () => {
@@ -11,6 +14,14 @@ describe('add a http service to an empty file', () => {
         DiagramCanvas.welcomeMessageShouldBeVisible();
         DiagramCanvas.clickTopLevelPlusButton();
         TopLevelPlusWidget.clickOption("Service");
+        ServiceForm
+          .selectServiceType("HTTP")
+          .typeServicePath("/hello")
+          .clickDefineListenerline()
+          .typeListenerPort(9090)
+          .save();
+        SourceCode.shouldBeEqualTo(
+          getCurrentSpecFolder() + "add-service.expected.bal");
     })
 
   })
