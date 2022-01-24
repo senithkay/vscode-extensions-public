@@ -571,6 +571,25 @@ export function createModuleVarDecl(config: ModuleVariableFormState, targetPosit
     }
 }
 
+export function createModuleVarDeclWithoutInitialization(config: ModuleVariableFormState, targetPosition?: NodePosition,
+                                                         isLastMember?: boolean): STModification {
+    const { varName, varOptions, varType } = config;
+
+    return {
+        startLine: targetPosition ? targetPosition.startLine : 0,
+        endLine: targetPosition ? targetPosition.startLine : 0,
+        startColumn: isLastMember ? targetPosition.endColumn : 0,
+        endColumn: isLastMember ? targetPosition.endColumn : 0,
+        type: 'MODULE_VAR_DECL_WITHOUT_INIT',
+        config: {
+            'ACCESS_MODIFIER': varOptions.indexOf('public') > -1 ? 'public' : '',
+            'VAR_QUALIFIER': varOptions.indexOf('final') > -1 ? 'final' : '',
+            'VAR_TYPE': varType,
+            'VAR_NAME': varName
+        }
+    }
+}
+
 export function updateModuleVarDecl(config: ModuleVariableFormState, targetPosition: NodePosition): STModification {
     const { varName, varOptions, varType, varValue } = config;
 
