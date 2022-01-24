@@ -18,11 +18,13 @@ describe('add a http service to an empty file', () => {
         ServiceForm
           .selectServiceType("HTTP")
           .typeServicePath("/hello")
-          .clickDefineListenerInLine()
+          .clickDefineListenerline()
           .typeListenerPort(9090)
           .save();
         SourceCode.shouldBeEqualTo(
           getCurrentSpecFolder() + "add-service.expected.bal");
+        Canvas.clickTopLevelPlusButton(3);
+        TopLevelPlusWidget.clickOption("Resource");
     })
 
   })
