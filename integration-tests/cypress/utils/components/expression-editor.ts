@@ -16,7 +16,8 @@ export class ExpressionEditor {
     }
 
     public clear() {
-        this.getEditor().type("{ctrl}a{del}{esc}");
+        const clearKeyStroke = Cypress.platform == "darwin" ? "{selectall}{del}{esc}" : "{ctrl}a{del}{esc}";
+        this.getEditor().type(clearKeyStroke);
         return this;
     }
 
