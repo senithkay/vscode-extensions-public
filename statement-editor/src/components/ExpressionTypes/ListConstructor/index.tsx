@@ -33,11 +33,9 @@ interface ListConstructorProps {
 
 export function ListConstructorComponent(props: ListConstructorProps) {
     const { model, userInputs, isElseIfMember, diagnosticHandler } = props;
-    const stmtCtx = useContext(StatementEditorContext);
-    const { modelCtx } = stmtCtx;
-    const { currentModel } = modelCtx;
     const {
         modelCtx: {
+            currentModel,
             updateModel,
         }
     } = useContext(StatementEditorContext);
