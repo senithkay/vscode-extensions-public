@@ -1,4 +1,4 @@
-import { DiagramCanvas } from "../../utils/components/canvas"
+import { Canvas } from "../../utils/components/canvas"
 import { SourceCode } from "../../utils/components/code-view"
 import { TopLevelPlusWidget } from "../../utils/components/top-level-plus-widget"
 import { getCurrentSpecFolder } from "../../utils/file-utils"
@@ -11,13 +11,14 @@ describe('add a http service to an empty file', () => {
     })
   
     it('Displays add construct message', () => {
-        DiagramCanvas.welcomeMessageShouldBeVisible();
-        DiagramCanvas.clickTopLevelPlusButton();
+        Canvas
+          .welcomeMessageShouldBeVisible()
+          .clickTopLevelPlusButton();
         TopLevelPlusWidget.clickOption("Service");
         ServiceForm
           .selectServiceType("HTTP")
           .typeServicePath("/hello")
-          .clickDefineListenerline()
+          .clickDefineListenerInLine()
           .typeListenerPort(9090)
           .save();
         SourceCode.shouldBeEqualTo(

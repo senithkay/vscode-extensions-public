@@ -48,8 +48,9 @@ export function Service(props: ServiceProps) {
     const children: JSX.Element[] = []
 
     model.members.forEach(member => {
+        const startPosition = member.position?.startLine + ":" + member.position?.startColumn;
         children.push(
-            <div className={'service-member'}>
+            <div className={'service-member'}  data-start-position={startPosition} >
                 <TopLevelPlus
                     kind={model.kind}
                     targetPosition={member.position}

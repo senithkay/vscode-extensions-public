@@ -1,4 +1,4 @@
-import { DiagramCanvas } from "../../utils/components/canvas";
+import { Canvas } from "../../utils/components/canvas";
 import { SourceCode } from "../../utils/components/code-view";
 import { TopLevelPlusWidget } from "../../utils/components/top-level-plus-widget";
 import { getCurrentSpecFolder } from "../../utils/file-utils";
@@ -13,8 +13,9 @@ describe('Add functions via Low Code', () => {
   })
 
   it('Add a function to empty file', () => {
-    DiagramCanvas.welcomeMessageShouldBeVisible();
-    DiagramCanvas.clickTopLevelPlusButton();
+    Canvas
+      .welcomeMessageShouldBeVisible()
+      .clickTopLevelPlusButton();
     TopLevelPlusWidget.clickOption("Function");
     FunctionForm
       .shouldBeVisible()
@@ -24,6 +25,22 @@ describe('Add functions via Low Code', () => {
 
     SourceCode.shouldBeEqualTo(
       getCurrentSpecFolder() + "add-function.expected.bal");
+
+    Canvas.getFunction("myfunction")
+      .nameShouldBe("myfunction")
+      .shouldBeExpanded();
+
+    Canvas.clickTopLevelPlusButton(4);
+    TopLevelPlusWidget.clickOption("Function");
+    FunctionForm
+      .shouldBeVisible()
+      .typeFunctionName("getGreeting")
+      .typeReturnType("string")
+      .save();
+
+    
+    Canvas.getFunction("getGreeting")
+      .nameShouldBe("getGreeting");
 
     cy // verify if the generated code is correct.
       .get('[data-testid="diagram-canvas"]')
