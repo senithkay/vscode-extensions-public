@@ -30,13 +30,14 @@ describe("Code server smoke test", () => {
       timeout: 60000,
     }).should("be.visible");
     //Verify extension
-    cy.get("div[id='wso2.ballerina']", { timeout: 60000 }).contains(
-      "Ballerina SDK: Swan Lake"
-    );
+    // cy.get("div[id='wso2.ballerina']", { timeout: 60000 }).contains(
+    //   "Ballerina SDK: Swan Lake"
+    // );
     cy.get('a[class="action-label codicon codicon-extensions-view-icon"]', {
       timeout: 60000,
     }).click();
     cy.get('span[class="name"]').contains("Ballerina");
+
     // Go to package and open bal
     cy.get(
       'a[class="action-label codicon codicon-explorer-view-icon"]'
@@ -47,7 +48,8 @@ describe("Code server smoke test", () => {
         cy.xpath("//span[text()='test_package_01']").click();
       }
     });
-    cy.xpath("//span[text()='main.bal']").click();
+    cy.wait(5000);
+    cy.xpath("//span[text()='main.bal']").dblclick();
     // cy.get("div[aria-label='main.bal']").click();
     cy.wait(6000);
     //Verify the lines in opened bal
