@@ -50,7 +50,7 @@ describe("Code server smoke test", () => {
     });
     cy.wait(5000);
     cy.xpath("//span[text()='main.bal']").dblclick();
-    // cy.get("div[aria-label='main.bal']").click();
+
     cy.wait(6000);
     //Verify the lines in opened bal
     cy.get(".view-lines", { timeout: 60000 }).contains(
