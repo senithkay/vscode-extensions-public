@@ -25,6 +25,7 @@ import { TopLevelPlus } from "../../PlusButtons/TopLevelPlus";
 
 import { ServiceHeader } from "./ServiceHeader";
 import "./style.scss";
+import DefaultButtonSquare from "../../../../Buttons/DefaultButtonSquare";
 
 export const DEFAULT_SERVICE_WIDTH: number = 500;
 export const SERVICE_MARGIN_LEFT: number = 24.5;
@@ -85,10 +86,10 @@ export function Service(props: ServiceProps) {
     }
 
     function renderButtons() {
-        const tryItBtn = <p className={"action-text"} onClick={onClickTryIt}>Try it</p>
+        const tryItBtn = <DefaultButtonSquare  onClick={onClickTryIt}>Try it</DefaultButtonSquare>
 
         if (model.isRunnable) {
-            const runBtn = <p className={"action-text"} onClick={onClickRun}>Run</p>
+            const runBtn = <DefaultButtonSquare  onClick={onClickRun}>Run</DefaultButtonSquare>
             if (!isTriggerType) {
                 return [runBtn, tryItBtn];
             }

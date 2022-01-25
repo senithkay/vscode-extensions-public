@@ -24,6 +24,7 @@ import { DiagramOverlay, DiagramOverlayContainer } from "../../../../Portals/Ove
 import { InitialPlusTooltipBubble } from "./InitialPlusTooltipBubble";
 import { classMemberEntries, moduleLevelEntries, PlusMenuCategories, PlusOptionsSelector, triggerEntries } from "./PlusOptionsSelector";
 import "./style.scss";
+import { IconButton } from "@material-ui/core";
 
 export const PLUS_WIDTH = 16;
 export const PLUS_AND_OPTIONS_GAP = 6;
@@ -108,11 +109,13 @@ export const TopLevelPlus = (props: PlusProps) => {
                 {
                     !isDocumentEmpty ?
                         <Tooltip type={"heading-content"} placement="right" arrow={true} text={{ content: 'Add Construct' }}>
-                            <div>
+                            <IconButton>
                                 <TopLevelPlusIcon />
-                            </div>
+                            </IconButton>
                         </Tooltip>
-                        : <TopLevelPlusIcon />
+                        :  <IconButton>
+                                <TopLevelPlusIcon />
+                            </IconButton>
                 }
             </div>
             {

@@ -314,16 +314,6 @@
 .action-container{
     margin: 15px 15px 0;
     display: flex;
-    gap: 5px;
-
-    .action-text {
-        cursor: pointer;
-        padding: 2px 10px;
-        background: white;
-        width: fit-content;
-        font-size: 12px;
-        border-radius: 4px;
-        border: 1px solid #e6e7ec;
-        margin-bottom: 0;
-    }
+    gap: 5px; 
+     
 }
