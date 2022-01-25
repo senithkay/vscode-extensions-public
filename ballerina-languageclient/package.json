@@ -39,6 +39,7 @@
     "@wso2-enterprise/syntax-tree": "^1.0.0",
     "isomorphic-ws": "^4.0.1",
     "prepend-transform": "^0.0.1019",
+    "react-monaco-editor": "0.43.0",
     "vscode-jsonrpc": "^6.0.0",
     "vscode-languageclient": "^6.1.4",
     "vscode-languageserver-protocol": "^3.16.0",

@@ -3,7 +3,8 @@
     "version": "1.0.0",
     "description": "Ballerina Low Code Integration Tests",
     "scripts": {
-        "build": "cypress run --browser chrome --browser firefox",
+        "build": "echo 'not imlemented'",
+        "test": "cypress run --browser chrome --browser firefox",
         "cypress": "cypress open"
     },
     "devDependencies": {

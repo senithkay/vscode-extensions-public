@@ -26,21 +26,18 @@ describe('Add functions via Low Code', () => {
       .typeReturnType("json|error?")
       .save();
 
-    SourceCode.shouldBeEqualTo(
-      getCurrentSpecFolder() + "add-function.expected.bal");
-
     Canvas.getFunction("myfunction")
       .nameShouldBe("myfunction")
       .shouldBeExpanded()
       .getDiagram()
-      .shouldBeRenderedProperly();
-
-    BlockLevelPlusWidget.clickOption("Log");
+      .shouldBeRenderedProperly()
+      .getBlockLevelPlusWidget()
+      .clickOption("Log");
 
     LogForm
       .shouldBeVisible()
       .selectType("Debug")
-      .typeExpression(`"Hello World!"`)
+      .typeExpression(`"This is a debug message."`)
       .save();
 
     Canvas.clickTopLevelPlusButton(4);
@@ -55,6 +52,31 @@ describe('Add functions via Low Code', () => {
       .nameShouldBe("getGreeting")
       .expand()
       .getDiagram()
-      .shouldBeRenderedProperly();
+      .shouldBeRenderedProperly()
+      .getBlockLevelPlusWidget()
+      .clickOption("Log");
+
+    LogForm
+      .shouldBeVisible()
+      .selectType("Debug")
+      .typeExpression(`"This is a debug message."`)
+      .save();
+
+    // Add another log
+    Canvas.getFunction("getGreeting")
+      .getDiagram()
+      .clickDefaultWorkerPlusBtn(1)
+      .getBlockLevelPlusWidget()
+      .clickOption("Log");
+    
+    LogForm
+      .shouldBeVisible()
+      .selectType("Warn")
+      .typeExpression(`"This is a warning message."`)
+      .save();
+
+
+    SourceCode.shouldBeEqualTo(
+        getCurrentSpecFolder() + "add-function.expected.bal");
   })
 })
