@@ -81,6 +81,8 @@ export function runCommandWithConf(file: BallerinaProject | string, executor: st
     if (args && args.length > 0) {
         args.forEach((arg) => {
             try {
+                arg = arg.trim();
+                arg = /\s/g.test(arg) ? `"${arg}"` : arg;
                 argsList += arg.concat(' ');
             } catch (e) {
                 // error
