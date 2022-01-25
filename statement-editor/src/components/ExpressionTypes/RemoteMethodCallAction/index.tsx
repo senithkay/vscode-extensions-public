@@ -71,7 +71,7 @@ export function RemoteMethodCallActionComponent(props: RemoteMethodCallActionPro
     const expressionArgComponent = (
         <span>
             { model.arguments.length > 0 &&
-                model.arguments.map((argument: STNode, index: number) => (
+                (model.arguments.map((argument: STNode, index: number) => (
                     (STKindChecker.isCommaToken(argument)) ? (
                         <span
                             key={index}
@@ -92,6 +92,7 @@ export function RemoteMethodCallActionComponent(props: RemoteMethodCallActionPro
                         />
                     )
                 ))
+                )
             }
         </span>
     );

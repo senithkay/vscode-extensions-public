@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 Inc. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -15,13 +15,13 @@ import React, { ReactNode, useContext } from "react";
 import { CheckAction } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
+import { DEFAULT_EXPRESSIONS } from "../../../constants";
 import { VariableUserInputs } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { SuggestionsContext } from "../../../store/suggestions-context";
-import { isPositionsEquals } from "../../../utils";
+import { getSuggestionsBasedOnExpressionKind, isPositionsEquals } from "../../../utils";
 import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
-
 
 interface CheckActionProps {
     model: CheckAction
@@ -60,7 +60,7 @@ export function CheckActionComponent(props: CheckActionProps) {
         event.stopPropagation();
 
         expressionHandler(model.expression, false, false,
-            { expressionSuggestions: [], typeSuggestions: [], variableSuggestions: [] });
+            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS), typeSuggestions: [], variableSuggestions: [] });
     };
 
     return (

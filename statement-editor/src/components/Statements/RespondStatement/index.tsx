@@ -89,7 +89,15 @@ export function RespondStatementC(props: ReturnStatementProps) {
 
     return (
         <span>
-            {expressionComponent}
+            <button
+                className={classNames(
+                    statementEditorClasses.expressionElement,
+                    hasExpressionSelected && statementEditorClasses.expressionElementSelected
+                )}
+                onClick={onClickOnExpression}
+            >
+                {expressionComponent}
+            </button>
             <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>
                 {model.semicolonToken.value}
             </span>
