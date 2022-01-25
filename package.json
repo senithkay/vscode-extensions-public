@@ -88,25 +88,10 @@
                     "default": true,
                     "description": "Enable all code lens features."
                 },
-                "ballerina.codeLens.docs.enabled": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Enable documentation code lens feature."
-                },
                 "ballerina.codeLens.executor.enabled": {
                     "type": "boolean",
                     "default": true,
                     "description": "Enable executor code lens feature."
-                },
-                "ballerina.dataMapper.enabled": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "Enable data mapper code actions."
-                },
-                "ballerina.dataMapper.url": {
-                    "type": "string",
-                    "default": "https://datamapper.choreo.dev",
-                    "description": "Specify the URL of the data mapper backend host."
                 },
                 "ballerina.enableFileWatcher": {
                     "type": "boolean",

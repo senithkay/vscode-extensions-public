@@ -32,7 +32,8 @@ export class StringSplitter {
 
     public updateDocument(event: TextDocumentChangeEvent) {
         const editor = window.activeTextEditor;
-        if (!editor || !editor.document.fileName.endsWith('.bal') || event.contentChanges.length === 0) {
+        if (!editor || !editor.document.fileName.endsWith('.bal') || event.contentChanges.length === 0 || 
+                event.document.fileName.includes("extension-output-wso2.ballerina")) {
             return;
         }
         if (this instanceof BallerinaExtension) {

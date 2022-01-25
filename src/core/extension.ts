@@ -35,7 +35,8 @@ import { debug, log, getOutputChannel, outputChannel, isWindows } from '../utils
 import { AssertionError } from "assert";
 import {
     BALLERINA_HOME, ENABLE_ALL_CODELENS, ENABLE_EXECUTOR_CODELENS, ENABLE_TELEMETRY,
-    ENABLE_SEMANTIC_HIGHLIGHTING, OVERRIDE_BALLERINA_HOME, BALLERINA_LOW_CODE_MODE, ENABLE_PERFORMANCE_FORECAST
+    ENABLE_SEMANTIC_HIGHLIGHTING, OVERRIDE_BALLERINA_HOME, BALLERINA_LOW_CODE_MODE, ENABLE_PERFORMANCE_FORECAST,
+    ENABLE_DEBUG_LOG
 }
     from "./preferences";
 import TelemetryReporter from "vscode-extension-telemetry";
@@ -298,7 +299,8 @@ export class BallerinaExtension {
             if (params.affectsConfiguration(BALLERINA_HOME) || params.affectsConfiguration(OVERRIDE_BALLERINA_HOME)
                 || params.affectsConfiguration(ENABLE_ALL_CODELENS) ||
                 params.affectsConfiguration(ENABLE_EXECUTOR_CODELENS) ||
-                params.affectsConfiguration(BALLERINA_LOW_CODE_MODE)) {
+                params.affectsConfiguration(BALLERINA_LOW_CODE_MODE) ||
+                params.affectsConfiguration(ENABLE_DEBUG_LOG)) {
                 this.showMsgAndRestart(CONFIG_CHANGED);
             }
         });
