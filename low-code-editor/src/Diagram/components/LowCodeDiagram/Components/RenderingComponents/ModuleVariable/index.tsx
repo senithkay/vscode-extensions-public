@@ -149,7 +149,12 @@ export function ModuleVariable(props: ModuleVariableProps) {
                 editFormVisible && (
                     <FormGenerator
                         model={model}
-                        configOverlayFormStatus={{ formType: model.kind, isLoading: false }}
+                        configOverlayFormStatus={{
+                            formType: model.kind, isLoading: false,
+                            formArgs: {
+                                model
+                            }
+                        }}
                         onCancel={handleEditBtnCancel}
                         onSave={handleEditBtnCancel}
                     />
