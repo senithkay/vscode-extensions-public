@@ -37,6 +37,9 @@ describe("Code server smoke test", () => {
 
     //Verify service.bal diagram tab
     cy.get("div[title='service.bal Diagram']").contains("service.bal Diagram");
+    cy.wait(8000);
+    cy.matchImageSnapshot("home-page-first-render");
+    // home-page-first-render is name of snapshot image
   });
 
   it("Open a service bal source and verify the code rendered", () => {
