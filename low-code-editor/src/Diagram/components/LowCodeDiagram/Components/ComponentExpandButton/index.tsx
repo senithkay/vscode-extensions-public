@@ -11,8 +11,9 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import { IconButton } from '@material-ui/core';
 import React from 'react';
+
+import { IconButton } from '@material-ui/core';
 
 import ComponentCollapseIcon from '../../../../../assets/icons/ComponentCollapseIcon';
 import ComponentExpandIcon from '../../../../../assets/icons/ComponentExpandIcon';
@@ -30,7 +31,7 @@ export function ComponentExpandButton(props: ComponentExpandButtonProps) {
     return (
         <div className={'component-expand-icon-container'} >
             <IconButton onClick={onClick}  >
-                {isExpanded ? <ComponentExpandIcon />:<ComponentCollapseIcon />} 
+                {isExpanded ? <ComponentExpandIcon /> : <ComponentCollapseIcon />}
             </IconButton>
         </div>
     )

@@ -13,6 +13,7 @@
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline object-literal-shorthand align
 import React, { useEffect, useRef, useState } from "react";
 
+import { IconButton } from "@material-ui/core";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
@@ -24,7 +25,6 @@ import { DiagramOverlay, DiagramOverlayContainer } from "../../../../Portals/Ove
 import { InitialPlusTooltipBubble } from "./InitialPlusTooltipBubble";
 import { classMemberEntries, moduleLevelEntries, PlusMenuCategories, PlusOptionsSelector, triggerEntries } from "./PlusOptionsSelector";
 import "./style.scss";
-import { IconButton } from "@material-ui/core";
 
 export const PLUS_WIDTH = 16;
 export const PLUS_AND_OPTIONS_GAP = 6;

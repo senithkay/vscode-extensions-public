@@ -15,7 +15,7 @@ import Button from '@material-ui/core/Button';
 import { Theme, withStyles } from '@material-ui/core/styles';
 
 const DefaultButtonSquare = withStyles((theme: Theme) => ({
-  root: { 
+  root: {
     paddingLeft: theme.spacing(0.1),
     paddingRight: theme.spacing(0.1),
     paddingBottom: theme.spacing(0.5),

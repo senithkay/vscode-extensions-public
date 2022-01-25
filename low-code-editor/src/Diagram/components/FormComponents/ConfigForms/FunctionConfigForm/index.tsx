@@ -308,8 +308,8 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
                                 className={formClasses.addPropertyBtn}
                                 startIcon={<AddIcon />}
                             >
-                                
-                                Add parameter 
+
+                                Add parameter
                             </Button>
                         )}
                     </Section>

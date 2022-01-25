@@ -10,8 +10,9 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { IconButton } from '@material-ui/core';
 import React from 'react';
+
+import { IconButton } from '@material-ui/core';
 
 export default function DeleteButton(props: any) {
     const { onClick, ...restProps } = props;

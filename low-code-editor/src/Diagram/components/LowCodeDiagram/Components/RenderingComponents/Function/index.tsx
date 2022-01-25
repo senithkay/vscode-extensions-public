@@ -26,6 +26,7 @@ import { Provider as FunctionProvider } from "../../../../../../Contexts/Functio
 import { useOverlayRef, useSelectedStatus } from "../../../../../hooks";
 import { useStyles } from "../../../../../styles";
 import expandTracker from "../../../../../utils/expand-tracker";
+import DefaultButtonSquare from "../../../../Buttons/DefaultButtonSquare";
 import { Canvas } from "../../../Canvas";
 import { getNodeSignature } from "../../../Utils";
 import { BlockViewState, FunctionViewState } from "../../../ViewState";
@@ -39,7 +40,6 @@ import PanAndZoom from "./PanAndZoom";
 import { PerformanceBar } from "./perBar/PerformanceBar";
 import { ResourceHeader } from "./ResourceHeader";
 import "./style.scss";
-import DefaultButtonSquare from "../../../../Buttons/DefaultButtonSquare";
 
 export const FUNCTION_PLUS_MARGIN_TOP = 7.5;
 export const FUNCTION_PLUS_MARGIN_BOTTOM = 7.5;
@@ -146,9 +146,11 @@ export function Function(props: FunctionProps) {
 
     function renderButtons() {
         if (model.isRunnable) {
-            return <div className={"action-container"}>
-                    <DefaultButtonSquare onClick={onClickRun} variant="outlined" size="small" >Run</DefaultButtonSquare>
+            return (
+                    <div className={"action-container"}>
+                        <DefaultButtonSquare onClick={onClickRun} variant="outlined" size="small" >Run</DefaultButtonSquare>
                    </div>
+             )
         }
     }
 
