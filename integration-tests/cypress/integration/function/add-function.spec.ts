@@ -1,8 +1,10 @@
+import { BlockLevelPlusWidget } from "../../utils/components/block-level-plus-widget";
 import { Canvas } from "../../utils/components/canvas";
 import { SourceCode } from "../../utils/components/code-view";
 import { TopLevelPlusWidget } from "../../utils/components/top-level-plus-widget";
 import { getCurrentSpecFolder } from "../../utils/file-utils";
 import { FunctionForm } from "../../utils/forms/function-form";
+import { LogForm } from "../../utils/forms/log-form";
 import { getIntegrationTestStoryURL } from "../../utils/story-url-utils"
 
 const BAL_FILE_PATH = "function/add-function-to-empty-file.bal";
@@ -32,6 +34,14 @@ describe('Add functions via Low Code', () => {
       .shouldBeExpanded()
       .getDiagram()
       .shouldBeRenderedProperly();
+
+    BlockLevelPlusWidget.clickOption("Log");
+
+    LogForm
+      .shouldBeVisible()
+      .selectType("Debug")
+      .typeExpression(`"Hello World!"`)
+      .save();
 
     Canvas.clickTopLevelPlusButton(4);
     TopLevelPlusWidget.clickOption("Function");
