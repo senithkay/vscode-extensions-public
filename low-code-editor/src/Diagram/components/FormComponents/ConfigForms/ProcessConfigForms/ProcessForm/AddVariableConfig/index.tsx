@@ -274,7 +274,8 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                     {
                         varName: varName ? varName : "default",
                         varOptions: [],
-                        varType: selectedType ? selectedType : "var"
+                        varType: selectedType ? selectedType : "var",
+                        varValue: null
                     }
                 ))
             )

@@ -20,7 +20,7 @@ export const ModuleVarNameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
 export interface ModuleVariableFormState {
     varType: string;
     varName: string;
-    varValue?: string;
+    varValue: string;
     varOptions: string[];
 }
 
