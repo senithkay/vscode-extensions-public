@@ -39,6 +39,7 @@ import PanAndZoom from "./PanAndZoom";
 import { PerformanceBar } from "./perBar/PerformanceBar";
 import { ResourceHeader } from "./ResourceHeader";
 import "./style.scss";
+import DefaultButtonSquare from "../../../../Buttons/DefaultButtonSquare";
 
 export const FUNCTION_PLUS_MARGIN_TOP = 7.5;
 export const FUNCTION_PLUS_MARGIN_BOTTOM = 7.5;
@@ -145,7 +146,9 @@ export function Function(props: FunctionProps) {
 
     function renderButtons() {
         if (model.isRunnable) {
-            return <div className={"action-container"}><p className={"action-text"} onClick={onClickRun}>Run</p></div>
+            return <div className={"action-container"}>
+                    <DefaultButtonSquare onClick={onClickRun} variant="outlined" size="small" >Run</DefaultButtonSquare>
+                   </div>
         }
     }
 
