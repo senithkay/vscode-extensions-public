@@ -27,10 +27,10 @@
                 "background": {
                     "activeOnStart": true,
                     "beginsPattern": {
-                        "regexp": "Compilation (.*?)starting…"
+                        "regexp": "webpack --mode (.*?) --watch"
                     },
                     "endsPattern": {
-                        "regexp": "Compilation (.*?)finished"
+                        "regexp": "webpack (.*?) compiled (.*?)"
                     }
                 }
             },
