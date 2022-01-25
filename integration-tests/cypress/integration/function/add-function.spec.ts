@@ -17,6 +17,7 @@ describe('Add functions via Low Code', () => {
       .welcomeMessageShouldBeVisible()
       .clickTopLevelPlusButton();
     TopLevelPlusWidget.clickOption("Function");
+    
     FunctionForm
       .shouldBeVisible()
       .typeFunctionName("myfunction")
@@ -28,7 +29,9 @@ describe('Add functions via Low Code', () => {
 
     Canvas.getFunction("myfunction")
       .nameShouldBe("myfunction")
-      .shouldBeExpanded();
+      .shouldBeExpanded()
+      .getDiagram()
+      .shouldBeRenderedProperly();
 
     Canvas.clickTopLevelPlusButton(4);
     TopLevelPlusWidget.clickOption("Function");
@@ -37,17 +40,11 @@ describe('Add functions via Low Code', () => {
       .typeFunctionName("getGreeting")
       .typeReturnType("string")
       .save();
-
     
     Canvas.getFunction("getGreeting")
-      .nameShouldBe("getGreeting");
-
-    // cy // verify if the generated code is correct.
-    //   .get('[data-testid="diagram-canvas"]')
-    //   .should("be.visible") // verify if the diagram body is rendered correctly.
-    //   .get('.diagram-canvas .start-wrapper .start-button .start-text')
-    //   .should("be.visible")
-    //   .should("have.text", " START  ")
-
+      .nameShouldBe("getGreeting")
+      .expand()
+      .getDiagram()
+      .shouldBeRenderedProperly();
   })
 })

@@ -1,16 +1,8 @@
-import { contains } from "cypress/types/jquery";
 import { FunctionDiagram } from "./diagram";
 
 export class Function {
 
-    private diagramCanvas: Cypress.Chainable<JQuery<HTMLElement>>;
-    private functionSignature: Cypress.Chainable<JQuery<HTMLElement>>;
-
-
     public constructor(private container: Cypress.Chainable<JQuery<HTMLElement>>) {
-        container.within(() => {
-            this.functionSignature = cy.get(`.function-signature`).should("exist");
-        })
     }
 
     public nameShouldBe(fnName: string) {
@@ -27,8 +19,17 @@ export class Function {
         return this;
     }
 
-    public getDiagram() {
-        return this.diagramCanvas;
+    public expand() {
+        this.container.within(() => {
+            cy.get('.component-expand-icon-container')
+            .click({ force: true });
+        })
+        return this;
+    }
+
+
+    public getDiagram(): FunctionDiagram {
+       return new FunctionDiagram(this.container);
     }
 
 }
