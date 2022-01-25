@@ -19,6 +19,7 @@ import { useDiagramContext } from "../../../../../../Contexts/Diagram";
 import { useSelectedStatus } from "../../../../../hooks";
 import { getSTComponent } from "../../../../../utils";
 import expandTracker from "../../../../../utils/expand-tracker";
+import DefaultButtonSquare from "../../../../Buttons/DefaultButtonSquare";
 import { getServiceTypeFromModel } from "../../../../FormComponents/ConfigForms/ServiceConfigForm/util";
 import { getNodeSignature } from "../../../Utils";
 import { TopLevelPlus } from "../../PlusButtons/TopLevelPlus";
@@ -85,10 +86,10 @@ export function Service(props: ServiceProps) {
     }
 
     function renderButtons() {
-        const tryItBtn = <p className={"action-text"} onClick={onClickTryIt}>Try it</p>
+        const tryItBtn = <DefaultButtonSquare  onClick={onClickTryIt}>Try it</DefaultButtonSquare>
 
         if (model.isRunnable) {
-            const runBtn = <p className={"action-text"} onClick={onClickRun}>Run</p>
+            const runBtn = <DefaultButtonSquare  onClick={onClickRun}>Run</DefaultButtonSquare>
             if (!isTriggerType) {
                 return [runBtn, tryItBtn];
             }
