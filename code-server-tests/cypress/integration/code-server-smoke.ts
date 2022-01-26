@@ -17,11 +17,11 @@
 describe("Code server smoke test", () => {
   it("Validate vs code is opened without errors and Ballerina extension is present", () => {
     cy.visit(Cypress.env("workspaceUrl"));
-    // cy.get(".category-description-container > .category-title", {
-    //   timeout: 60000,
-    // })
-    //   .should("be.visible")
-    //   .contains("Get Started with VS Code");
+    cy.get(".category-description-container > .category-title", {
+      timeout: 60000,
+    })
+      .should("be.visible")
+      .contains("Get Started with VS Code");
     cy.get("body").should("not.contain", "error");
     cy.get("h2", {
       timeout: 60000,
