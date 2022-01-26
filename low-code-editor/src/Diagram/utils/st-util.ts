@@ -543,10 +543,9 @@ export function getMatchingConnector(actionInvo: STNode, stSymbolInfo: STSymbolI
                 };
             }
         }
-    } else if (viewState.isEndpoint && STKindChecker.isLocalVarDecl(actionInvo)) {
-        const variable = actionInvo as LocalVarDecl;
-        if (STKindChecker.isCaptureBindingPattern(variable.typedBindingPattern.bindingPattern)) {
-            const nameReference = variable.typedBindingPattern.typeDescriptor as QualifiedNameReference;
+    } else if (viewState.isEndpoint && (STKindChecker.isLocalVarDecl(actionInvo) || STKindChecker.isModuleVarDecl(actionInvo))) {
+        if (STKindChecker.isCaptureBindingPattern(actionInvo.typedBindingPattern.bindingPattern)) {
+            const nameReference = actionInvo.typedBindingPattern.typeDescriptor as QualifiedNameReference;
             const typeSymbol = nameReference.typeData?.typeSymbol;
             const module = typeSymbol?.moduleID;
             if (typeSymbol && module) {

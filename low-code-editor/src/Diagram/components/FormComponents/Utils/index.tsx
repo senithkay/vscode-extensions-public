@@ -89,6 +89,9 @@ export function generateDocUrl(org: string, module: string, method: string) {
 export function updateFunctionSignatureWithError(modifications: STModification[], activeFunction: FunctionDefinition) {
     const parametersStr = activeFunction.functionSignature.parameters.map((item) => item.source).join(",");
     let returnTypeStr = activeFunction.functionSignature.returnTypeDesc?.source.trim();
+    if (returnTypeStr?.includes("error")) {
+        return;
+    }
 
     if (returnTypeStr?.includes("?") || returnTypeStr?.includes("()")) {
         returnTypeStr = returnTypeStr + "|error";

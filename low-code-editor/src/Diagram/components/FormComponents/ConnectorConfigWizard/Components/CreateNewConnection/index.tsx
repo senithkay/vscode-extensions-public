@@ -43,6 +43,7 @@ interface CreateConnectorFormProps {
     responseStatus: number;
     expressionInjectables?: ExpressionInjectablesProps;
     targetPosition?: NodePosition;
+    isModuleEndpoint?: boolean;
 }
 
 interface NameState {
@@ -61,7 +62,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
     } = useContext(Context);
 
     const { onSave, onSaveNext, initFields, connectorConfig, onConfigNameChange, isNewConnectorInitWizard,
-            connector, expressionInjectables, targetPosition } = props;
+            connector, expressionInjectables, targetPosition, isModuleEndpoint } = props;
     const classes = useStyles();
     const wizardClasses = wizardStyles();
     const intl = useIntl();
@@ -224,7 +225,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                         <SecondaryButton text={backButtonLabel} fullWidth={false} onClick={onBackClick}/>
                     )} */}
                     <div className={classes.saveConnectorBtnHolder}>
-                        {!isNewConnectorInitWizard && (
+                        {(!isNewConnectorInitWizard || isModuleEndpoint) && (
                             <PrimaryButton
                                 text={intl.formatMessage({
                                     id: "lowcode.develop.connectorForms.saveAllConnectionBtn.text",
@@ -235,7 +236,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                                 onClick={handleOnSave}
                             />
                         )}
-                        {isNewConnectorInitWizard && (
+                        {isNewConnectorInitWizard && !isModuleEndpoint && (
                             <>
                                 <LinePrimaryButton
                                     text={intl.formatMessage({

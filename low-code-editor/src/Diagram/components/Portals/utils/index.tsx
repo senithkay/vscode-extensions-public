@@ -597,6 +597,15 @@ export function getAllVariablesForAi(symbolInfo: STSymbolInfo): { [key: string]:
             }
         });
     });
+    symbolInfo.moduleVariables.forEach((variableNode: STNode, type: string) => {
+        if (STKindChecker.isModuleVarDecl(variableNode) && !variableCollection[type]){
+            variableCollection[type] = {
+                "type": type,
+                "position": 0,
+                "isUsed": 0
+            }
+        }
+    });
     symbolInfo.localEndpoints.forEach((variableNodes: STNode, type: string) => {
         const variableDef: LocalVarDecl = variableNodes as LocalVarDecl;
         const variable: CaptureBindingPattern = variableDef.typedBindingPattern.bindingPattern as

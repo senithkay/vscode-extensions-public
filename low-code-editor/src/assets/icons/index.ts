@@ -38,6 +38,7 @@ export { default as ConfigurableIcon } from './Configurable';
 export { default as ServiceDeclaration } from './ServiceIcon';
 export { default as ConstantIcon } from './ConstantIcon';
 export { default as ConstDeclaration } from './ConstantIcon';
+export { default as ModuleConnectorDecl } from './ModuleConnectorIcon';
 export { default as TypeDefinitionIcon } from './RecordIcon';
 export { default as TypeDefinition } from './RecordIcon';
 export { default as RecordEditor } from './RecordIcon';

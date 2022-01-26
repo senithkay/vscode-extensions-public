@@ -89,6 +89,7 @@ export interface ConnectorConfigWizardProps {
     onClose: () => void;
     onSave: () => void;
     selectedConnector: LocalVarDecl;
+    isModuleEndpoint?: boolean;
     isAction?: boolean;
     expressionInjectables?: ExpressionInjectablesProps;
 }
@@ -112,6 +113,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
         onClose,
         onSave,
         selectedConnector,
+        isModuleEndpoint,
         isAction,
         expressionInjectables,
         connectorInfo,
@@ -207,12 +209,12 @@ export function ConnectorForm(props: FormGeneratorProps) {
             modifications.push(item.modification);
         });
         const isInitReturnError = getInitReturnType(functionDefInfo);
-        if (isInitReturnError && functionNode && STKindChecker.isFunctionDefinition(functionNode)) {
+        if (!isModuleEndpoint && isInitReturnError && functionNode && STKindChecker.isFunctionDefinition(functionNode)) {
             updateFunctionSignatureWithError(modifications, functionNode as FunctionDefinition);
         }
 
         const moduleName = getFormattedModuleName(connectorModule);
-        const endpointStatement = `${moduleName}:${connector.name} ${config.name} = ${
+        const endpointStatement = `${isModuleEndpoint ? "final " : ""}${moduleName}:${connector.name} ${config.name} = ${
             isInitReturnError ? "check" : ""
         } new (${getParams(config.connectorInit).join()});`;
 
@@ -438,6 +440,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
                     responseStatus={responseStatus}
                     expressionInjectables={expressionInjectables}
                     targetPosition={targetPosition}
+                    isModuleEndpoint={isModuleEndpoint}
                 />
             )}
             {formState === FormStates.ExistingConnection && !isNewConnectorInitWizard && (
@@ -453,6 +456,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
                     responseStatus={responseStatus}
                     expressionInjectables={expressionInjectables}
                     targetPosition={targetPosition}
+                    isModuleEndpoint={isModuleEndpoint}
                 />
             )}
         </div>

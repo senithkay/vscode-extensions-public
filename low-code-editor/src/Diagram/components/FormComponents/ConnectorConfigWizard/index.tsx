@@ -53,6 +53,7 @@ export interface ConnectorConfigWizardProps {
     onClose: () => void;
     onSave: () => void;
     selectedConnector?: LocalVarDecl;
+    isModuleEndpoint?: boolean;
     isAction?: boolean;
     isEdit?: boolean;
 }
@@ -97,6 +98,7 @@ export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
         onClose,
         onSave,
         selectedConnector,
+        isModuleEndpoint,
         isAction,
         isEdit,
         specialConnectorName
@@ -192,6 +194,7 @@ export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
                             targetPosition,
                             configWizardArgs: wizardState,
                             connectorInfo,
+                            isModuleEndpoint,
                             isAction,
                             onClose: handleClose,
                             onSave: handleSave,
