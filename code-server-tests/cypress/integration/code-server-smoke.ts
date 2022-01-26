@@ -40,6 +40,9 @@ describe("Code server smoke test", () => {
     //Verify service.bal diagram tab
     cy.get("div[title='service.bal Diagram']").contains("service.bal Diagram");
     cy.wait(8000);
+    cy.xpath(
+      "//div[@aria-label='service.bal Diagram']/div[@class='tab-actions']//a[@role='button']"
+    ).click();
     cy.matchImageSnapshot("Low-code-diagram");
     // home-page-first-render is name of snapshot image
   });
