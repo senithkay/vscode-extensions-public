@@ -20,11 +20,7 @@ describe("Code server smoke test", () => {
     cy.get("h2", {
       timeout: 60000,
     }).should("be.visible");
-    cy.get(".category-description-container > .category-title", {
-      timeout: 60000,
-    })
-      .should("be.visible")
-      .contains("Get Started with VS Code");
+
     cy.get("body").should("not.contain", "error");
 
     //Verify extension
