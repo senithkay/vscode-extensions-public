@@ -27,16 +27,6 @@ describe("Code server smoke test", () => {
 
     cy.get("body").should("not.contain", "error");
     cy.get("div[aria-label='Disable performance forecasting... ']").click();
-    cy.screenshot();
-    cy.get("body").then(($body) => {
-      if (
-        $body.find("class='action-label codicon codicon-notifications-clear'")
-          .length > 0
-      ) {
-        cy.get(
-          "class='action-label codicon codicon-notifications-clear'"
-        ).click();
-      }
     });
 
     //Verify extension
