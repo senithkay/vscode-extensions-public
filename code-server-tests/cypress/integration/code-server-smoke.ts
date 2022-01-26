@@ -74,7 +74,7 @@ describe("Code server smoke test", () => {
     // Undo the added code
     cy.get(
       ".editor-instance > .no-user-select > .overflow-guard > .monaco-scrollable-element > .lines-content > .view-lines"
-    ).type("{cmd}z{cmd}z{cmd}z");
+    ).type("{ctrl}z{ctrl}z{ctrl}z");
   });
 
   it("Run the Service and invoke api ", () => {
