@@ -15,6 +15,10 @@
 /// <reference types="cypress-xpath" />
 
 describe("Code server smoke test", () => {
+  after(() => {
+    cy.get("a[title='Close Panel']").click();
+  });
+
   it("Validate vs code is opened without errors and Ballerina extension is present", () => {
     cy.visit(Cypress.env("workspaceUrl"));
     cy.get("h2", {
@@ -64,17 +68,17 @@ describe("Code server smoke test", () => {
       }
     ).click();
     //Type some random string in to code
-    cy.get(
-      ".editor-instance > .no-user-select > .overflow-guard > .monaco-scrollable-element > .lines-content > .view-lines"
-    ).type("Some Random text");
-    //Verify there is an increase in problem status bar
-    cy.get("a[aria-label='No Problems']", { timeout: 60000 }).should(
-      "not.exist"
-    );
-    // Undo the added code
-    cy.get(
-      ".editor-instance > .no-user-select > .overflow-guard > .monaco-scrollable-element > .lines-content > .view-lines"
-    ).type("{control}z{control}z{control}z");
+    // cy.get(
+    //   ".editor-instance > .no-user-select > .overflow-guard > .monaco-scrollable-element > .lines-content > .view-lines"
+    // ).type("Some Random text");
+    // //Verify there is an increase in problem status bar
+    // cy.get("a[aria-label='No Problems']", { timeout: 60000 }).should(
+    //   "not.exist"
+    // );
+    // // Undo the added code
+    // cy.get(
+    //   ".editor-instance > .no-user-select > .overflow-guard > .monaco-scrollable-element > .lines-content > .view-lines"
+    // ).type("{control}z{control}z{control}z");
   });
 
   it("Run the Service and invoke api ", () => {
