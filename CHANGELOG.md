@@ -1,5 +1,26 @@
 # Change Log
 
+## **3.0.0**
+### Added
+- The `Ballerina Low-Code` activity. [#118](https://github.com/wso2/ballerina-plugin-vscode/issues/118)
+- [WSO2 Choreo](https://wso2.com/choreo/) integration.
+- Graphical editing capability.
+- The `Diagram Explorer` view.
+- The Ballerina testing activity. [#119](https://github.com/wso2/ballerina-plugin-vscode/issues/119) 
+- The readonly editor for Ballerina library source. [#97](https://github.com/wso2/ballerina-plugin-vscode/issues/97)
+- Ballerina semantic highlighting support. [#105](https://github.com/wso2/ballerina-plugin-vscode/issues/105)
+- The Swagger try out view. [#130](https://github.com/wso2/ballerina-plugin-vscode/issues/130)
+- The Ballerina configurable editor.
+- AI driven real-time performance forecasting.
+
+### Improved
+- Dynamic Language Server capability registration. [#91](https://github.com/wso2/ballerina-plugin-vscode/issues/91)
+- The Language Server client version. [#109](https://github.com/wso2/ballerina-plugin-vscode/issues/109)
+- Diagram and source parallel editing capability.
+
+### Fixed
+- Ballerina syntax highlighting [#120](https://github.com/wso2/ballerina-plugin-vscode/issues/120) [#121](https://github.com/wso2/ballerina-plugin-vscode/issues/121) [#122](https://github.com/wso2/ballerina-plugin-vscode/issues/122) [#123](https://github.com/wso2/ballerina-plugin-vscode/issues/123) [#126](https://github.com/wso2/ballerina-plugin-vscode/issues/126) [#128](https://github.com/wso2/ballerina-plugin-vscode/issues/128) [#129](https://github.com/wso2/ballerina-plugin-vscode/issues/129)
+
 ## **2.1.1**
 ### Improved
 - Ballerina syntax highlighting via TextMate grammar. [#105](https://github.com/wso2/ballerina-plugin-vscode/issues/105)
