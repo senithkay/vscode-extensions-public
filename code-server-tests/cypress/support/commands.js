@@ -23,35 +23,10 @@
 //
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
-import {
-  addMatchImageSnapshotCommand,
-  SnapshotOptions,
-} from "cypress-image-snapshot/command";
+import { addMatchImageSnapshotCommand } from "cypress-image-snapshot/command";
 
 addMatchImageSnapshotCommand({
   failureThreshold: 0.05, // threshold for entire image
   failureThresholdType: "percent", // percent of image or number of pixels
   capture: "viewport", // capture viewport in screenshot
 });
-
-declare global {
-  namespace Cypress {
-    interface Chainable {
-      /**
-       * Screenshot test the current page.
-       * @param name file name of the screenshot
-       * @param options general options
-       */
-      matchImageSnapshot(
-        name: string,
-        options?: SnapshotOptions
-      ): Chainable<Element>;
-
-      /**
-       * Screenshot test the current page.
-       * @param options general options
-       */
-      matchImageSnapshot(options?: SnapshotOptions): Chainable<Element>;
-    }
-  }
-}
