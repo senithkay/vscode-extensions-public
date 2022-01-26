@@ -28,6 +28,7 @@ import path from 'path';
 import { ANALYZETYPE } from './model';
 import { SHOW_GRAPH_COMMAND } from './activator';
 import { DefaultWebviewPanel } from './performanceGraphPanel';
+import { CMP_EDITOR_SUPPORT, sendTelemetryEvent, TM_EVENT_EDIT_SOURCE } from '../telemetry';
 
 export enum CODELENSE_TYPE {
     REALTIME,
@@ -63,6 +64,7 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
 
         workspace.onDidChangeTextDocument(async (activatedTextEditor) => {
             if (activatedTextEditor && activatedTextEditor.document.languageId === LANGUAGE.BALLERINA) {
+                sendTelemetryEvent(this.extension, TM_EVENT_EDIT_SOURCE, CMP_EDITOR_SUPPORT);
 
                 if (this.extension.getWebviewContext().isOpen &&
                     this.extension.getWebviewContext().type === WEBVIEW_TYPE.PERFORMANCE_FORECAST) {
