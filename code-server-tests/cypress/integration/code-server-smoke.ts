@@ -28,6 +28,17 @@ describe("Code server smoke test", () => {
     cy.get("body").should("not.contain", "error");
     cy.get("div[aria-label='Disable performance forecasting... ']").click();
     cy.screenshot();
+    cy.get("body").then(($body) => {
+      if (
+        $body.find("class='action-label codicon codicon-notifications-clear'")
+          .length > 0
+      ) {
+        cy.get(
+          "class='action-label codicon codicon-notifications-clear'"
+        ).click();
+      }
+    });
+
     //Verify extension
     cy.get("div[id='wso2.ballerina']", { timeout: 60000 }).contains(
       "Ballerina SDK: Swan Lake"
@@ -62,12 +73,12 @@ describe("Code server smoke test", () => {
 
   it("Verify issues are displayed in the status bar when code contains errors", () => {
     cy.get("a[aria-label='No Problems']").should("be.visible");
-    cy.get(
-      ".editor-instance > .no-user-select > .overflow-guard > .monaco-scrollable-element > .lines-content > .view-lines",
-      {
-        timeout: 60000,
-      }
-    ).click();
+    // cy.get(
+    //   ".editor-instance > .no-user-select > .overflow-guard > .monaco-scrollable-element > .lines-content > .view-lines",
+    //   {
+    //     timeout: 60000,
+    //   }
+    // ).click();
     //Type some random string in to code
     // cy.get(
     //   ".editor-instance > .no-user-select > .overflow-guard > .monaco-scrollable-element > .lines-content > .view-lines"
