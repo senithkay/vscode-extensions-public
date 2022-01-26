@@ -10,7 +10,7 @@
 - The readonly editor for Ballerina library source. [#97](https://github.com/wso2/ballerina-plugin-vscode/issues/97)
 - Ballerina semantic highlighting support. [#105](https://github.com/wso2/ballerina-plugin-vscode/issues/105)
 - The Swagger try out view. [#130](https://github.com/wso2/ballerina-plugin-vscode/issues/130)
-- Tge Ballerina configurable editor.
+- The Ballerina configurable editor.
 - AI driven real-time performance forecasting.
 
 ### Improved
