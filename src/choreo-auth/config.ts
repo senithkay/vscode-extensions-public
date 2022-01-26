@@ -24,6 +24,11 @@ export enum ChoreoSessionConfig {
     LoginTime = "login.time"
 }
 
+export enum ChoreoFidp {
+    Google = "google",
+    Anonymous = "choreoanonymous"
+}
+
 // Choreo V2 environment
 export class ChoreoAuthConfig {
     private loginUrl: string = "https://api.asgardeo.io/t/a/oauth2/authorize";
@@ -36,9 +41,10 @@ export class ChoreoAuthConfig {
     private vscodeClientId: string = "GWj5MzWNrOB28jX_wu5ZGu7I1VIa";
     private apimTokenUrl: string = process.env.VSCODE_CHOREO_APIM_TOKEN_ENDPOINT ?
         process.env.VSCODE_CHOREO_APIM_TOKEN_ENDPOINT : "https://sts.choreo.dev/oauth2/token";
+    private userRegistrationUrl: string = "https://app.choreo.dev/register-user";
 
     private scope: string = "openid+email+profile";
-    private googleFIdp: string = "google";
+    private fidp: ChoreoFidp = ChoreoFidp.Google;
 
     constructor() {
     }
@@ -75,7 +81,15 @@ export class ChoreoAuthConfig {
         return this.scope;
     }
 
-    public getGoogleFIdp(): string {
-        return this.googleFIdp;
+    public getFidp(): ChoreoFidp {
+        return this.fidp;
+    }
+
+    public setFidp(name: ChoreoFidp) {
+        this.fidp = name;
+    }
+
+    public getUserRegistrationUrl(): string {
+        return this.userRegistrationUrl;
     }
 }

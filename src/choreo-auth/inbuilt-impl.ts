@@ -22,6 +22,7 @@ import { BallerinaExtension } from "../core";
 import { getChoreoKeytarSession, setChoreoKeytarSession } from "./auth-session";
 import jwt_decode from "jwt-decode";
 import { choreoAuthConfig } from "./activator";
+import { ChoreoFidp } from "./config";
 
 const url = require('url');
 
@@ -31,6 +32,7 @@ const AccessTokenError = "Error while retreiving the access token details!";
 const ApimTokenError = "Error while retreiving the apim token details!";
 const RefreshTokenError = "Error while retreiving the refresh token details!";
 const VSCodeTokenError = "Error while retreiving the VSCode token details!";
+const AnonUserError = "Error while creating an anonymous user!";
 const SessionExpired = "The session has expired, please login again!";
 
 export async function initiateInbuiltAuth(extension: BallerinaExtension) {
@@ -98,6 +100,10 @@ export class OAuthTokenHandler {
         if (!token) {
             vscode.window.showErrorMessage(AUTH_FAIL + AccessTokenError);
             return;
+        }
+
+        if (choreoAuthConfig.getFidp() === ChoreoFidp.Anonymous) {
+            await this.registerAnonUser(token);
         }
 
         const params = new url.URLSearchParams({
@@ -239,12 +245,36 @@ export class OAuthTokenHandler {
         });
         this.extension.getChoreoSessionTreeProvider()?.refresh();
     }
+
+    public async registerAnonUser(token: string) {
+        const requestPayload = {
+            name: this.displayName,
+        };
+
+        await axios.post(
+            choreoAuthConfig.getUserRegistrationUrl(),
+            requestPayload,
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            }
+        ).then(async (response) => {
+            if (!response.data || !response.data['displayName']) {
+                vscode.window.showErrorMessage(AUTH_FAIL + AnonUserError);
+            }
+        }).catch((err) => {
+            vscode.window.showErrorMessage(AUTH_FAIL + AnonUserError + " " + err);
+        });
+    }
 }
 
 function getAuthURL(): string {
     // TODO: Use a PKCE generator here for the code_challenge.
     return `${choreoAuthConfig.getLoginUrl()}?response_mode=query&prompt=login&response_type=code`
         + `&code_challenge_method=S256&code_challenge=73a9Bme8uDFD1aJ1uJSpQ4i-srQvjGyLsZn5g5EKrgI`
-        + `&fidp=${choreoAuthConfig.getGoogleFIdp()}&redirect_uri=${choreoAuthConfig.getRedirectUri()}&`
+        + `&fidp=${choreoAuthConfig.getFidp()}&redirect_uri=${choreoAuthConfig.getRedirectUri()}&`
         + `client_id=${choreoAuthConfig.getClientId()}&scope=${choreoAuthConfig.getScope()}`;
 }
