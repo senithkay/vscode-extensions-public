@@ -118,16 +118,16 @@ export function AddRespondForm(props: RespondFormProps) {
     const respondStatementTooltipMessages = {
         title: intl.formatMessage({
             id: "lowcode.develop.configForms.respondStatementTooltipMessages.expressionEditor.tooltip.title",
-            defaultMessage: "Enter a Ballerina expression."
+            defaultMessage: "Press CTRL+Spacebar for suggestions."
         }),
         actionText: intl.formatMessage({
             id: "lowcode.develop.configForms.respondStatementTooltipMessages.expressionEditor.tooltip.actionText",
-            defaultMessage: "Learn Ballerina expressions"
+            defaultMessage: "Learn about Ballerina expressions here"
         }),
         actionLink: intl.formatMessage({
             id: "lowcode.develop.configForms.respondStatementTooltipMessages.expressionEditor.tooltip.actionTitle",
             defaultMessage: "{learnBallerina}"
-        }, { learnBallerina: BALLERINA_EXPRESSION_SYNTAX_PATH })
+        }, { learnBallerina: "https://lib.ballerina.io/ballerina/http/1.1.0-beta.1/clients/Caller#respond" })
     };
 
     const statusCodeComp: ReactNode = (

@@ -95,16 +95,16 @@ export function AddReturnForm(props: ReturnFormProps) {
     const returnStatementTooltipMessages = {
         title: intl.formatMessage({
             id: "lowcode.develop.configForms.returnStatementTooltipMessages.expressionEditor.tooltip.title",
-            defaultMessage: "Enter a Ballerina expression."
+            defaultMessage: "Press CTRL+Spacebar for suggestions."
         }),
         actionText: intl.formatMessage({
             id: "lowcode.develop.configForms.returnStatementTooltipMessages.expressionEditor.tooltip.actionText",
-            defaultMessage: "Learn Ballerina expressions"
+            defaultMessage: "Learn about Ballerina expressions here"
         }),
         actionLink: intl.formatMessage({
             id: "lowcode.develop.configForms.returnStatementTooltipMessages.expressionEditor.tooltip.actionTitle",
             defaultMessage: "{learnBallerina}"
-        }, { learnBallerina: BALLERINA_EXPRESSION_SYNTAX_PATH })
+        }, { learnBallerina: "https://ballerina.io/learn/by-example/" })
     };
 
     const initialSource = formArgs.model ? formArgs.model.source : getInitialSource(createReturnStatement(

@@ -154,16 +154,16 @@ export function AddForeachForm(props: ForeachProps) {
         expressionEditor: {
             title: intl.formatMessage({
                 id: "lowcode.develop.configForms.forEach.expressionEditor.tooltip.title",
-                defaultMessage: "Enter a Ballerina expression."
+                defaultMessage: "Press CTRL+Spacebar for suggestions."
             }),
             actionText: intl.formatMessage({
                 id: "lowcode.develop.configForms.forEach.expressionEditor.tooltip.actionText",
-                defaultMessage: "Learn Ballerina expressions"
+                defaultMessage: "Learn about Ballerina expressions here"
             }),
             actionLink: intl.formatMessage({
                 id: "lowcode.develop.configForms.forEach.expressionEditor.tooltip.actionTitle",
                 defaultMessage: "{learnBallerina}"
-            }, { learnBallerina: BALLERINA_EXPRESSION_SYNTAX_PATH })
+            }, { learnBallerina: "https://ballerina.io/learn/by-example/foreach-statement.html?is_ref_by_example=true" })
         },
         currentValueVariable: {
             title: intl.formatMessage({
