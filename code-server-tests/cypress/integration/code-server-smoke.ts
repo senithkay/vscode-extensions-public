@@ -77,7 +77,7 @@ describe("Code server smoke test", () => {
     ).type("{cmd}z{cmd}z{cmd}z");
   });
 
-  it("Run the Service and invoke api", () => {
+  it("Run the Service and invoke api ", () => {
     cy.get("a[title='Run']").click();
     cy.wait(38000);
     cy.get("div[class='outline-element monaco-breadcrumb-item']", {
