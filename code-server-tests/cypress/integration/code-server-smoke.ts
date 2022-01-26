@@ -15,18 +15,20 @@
 /// <reference types="cypress-xpath" />
 
 describe("Code server smoke test", () => {
-  after(() => {
-    cy.get("a[title='Close Panel']").click();
-  });
-
-  it("Validate vs code is opened without errors and Ballerina extension is present", () => {
+  before(() => {
     cy.visit(Cypress.env("workspaceUrl"));
     cy.get("h2", {
       timeout: 60000,
     }).should("be.visible");
+  });
+  after(() => {
+    // Close terminal panel
+    cy.get("a[title='Close Panel']").click();
+  });
+
+  it("Validate vs code is opened without errors and Diagram is rendered", () => {
     cy.get("body").should("not.contain", "error");
     cy.get("div[aria-label='Disable performance forecasting... ']").click();
-
     //Verify extension
     cy.get("div[id='wso2.ballerina']", { timeout: 60000 }).contains(
       "Ballerina SDK: Swan Lake"
@@ -35,12 +37,10 @@ describe("Code server smoke test", () => {
       timeout: 60000,
     }).click();
     cy.get('span[class="name"]').contains("Ballerina");
-
     //Verify service.bal diagram tab
     cy.get("div[title='service.bal Diagram']").contains("service.bal Diagram");
     cy.wait(8000);
     cy.matchImageSnapshot("Low-code-diagram");
-    // home-page-first-render is name of snapshot image
   });
 
   it("Open a service bal source and verify the code rendered", () => {
@@ -62,9 +62,6 @@ describe("Code server smoke test", () => {
   it("Run the Service and invoke api ", () => {
     cy.get("a[title='Run']").click();
     cy.wait(38000);
-    // cy.get("div[class='outline-element monaco-breadcrumb-item']", {
-    //   timeout: 38000,
-    // }).contains("service /hello ");
     cy.request({
       method: "GET",
       url: "http://localhost:9090/hello/sayHello?name=Test user",
