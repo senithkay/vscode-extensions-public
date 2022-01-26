@@ -261,7 +261,11 @@ export class OAuthTokenHandler {
                     'Authorization': "Bearer " + token
                 }
             }
-        ).catch((err) => {
+        ).then(async (response) => {
+            if (!response.data || !response.data['displayName']) {
+                vscode.window.showErrorMessage(AUTH_FAIL + AnonUserError);
+            }
+        }).catch((err) => {
             vscode.window.showErrorMessage(AUTH_FAIL + AnonUserError + " " + err);
         });
     }
