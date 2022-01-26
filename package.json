@@ -385,7 +385,7 @@
         "viewsWelcome": [
             {
                 "view": "sessionExplorer",
-                "contents": "Sign In to enable Choreo Features.\n[Sign In](command:ballerina.choreo.signin)\n[Try Anonymously](command:ballerina.choreo.signin)\nRefer to our documentation to learn more about [Choreo](https://wso2.com/choreo/).",
+                "contents": "Sign In to enable Choreo Features.\n[Sign In](command:ballerina.choreo.signin)\n[Try Anonymously](command:ballerina.choreo.anonymous.signin)\nRefer to our documentation to learn more about [Choreo](https://wso2.com/choreo/).",
                 "when": "isChoreoAuthEnabled"
             },
             {

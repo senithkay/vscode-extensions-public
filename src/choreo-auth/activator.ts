@@ -23,7 +23,7 @@ import { CMP_PROJECT_ADD, sendTelemetryException } from "../telemetry";
 import { BallerinaExtension, ballerinaExtInstance } from "../core";
 import { deleteChoreoKeytarSession } from "./auth-session";
 import { initiateInbuiltAuth, OAuthTokenHandler } from "./inbuilt-impl";
-import { ChoreoAuthConfig } from "./config";
+import { ChoreoAuthConfig, ChoreoFidp } from "./config";
 import { URLSearchParams } from 'url';
 
 export let choreoAuthConfig: ChoreoAuthConfig;
@@ -46,6 +46,18 @@ async function activate(extension: BallerinaExtension) {
     choreoAuthConfig = new ChoreoAuthConfig();
     commands.registerCommand(PALETTE_COMMANDS.CHOREO_SIGNIN, async () => {
         try {
+            await initiateInbuiltAuth(extension);
+        } catch (error) {
+            if (error instanceof Error) {
+                sendTelemetryException(ballerinaExtInstance, error, CMP_PROJECT_ADD);
+                window.showErrorMessage(error.message);
+            }
+        }
+    });
+
+    commands.registerCommand(PALETTE_COMMANDS.CHOREO_ANON_SIGNIN, async () => {
+        try {
+            choreoAuthConfig.setFidp(ChoreoFidp.Anonymous);
             await initiateInbuiltAuth(extension);
         } catch (error) {
             if (error instanceof Error) {
