@@ -84,9 +84,9 @@ describe("Code server smoke test", () => {
   it("Run the Service and invoke api ", () => {
     cy.get("a[title='Run']").click();
     cy.wait(38000);
-    cy.get("div[class='outline-element monaco-breadcrumb-item']", {
-      timeout: 38000,
-    }).contains("service /hello ");
+    // cy.get("div[class='outline-element monaco-breadcrumb-item']", {
+    //   timeout: 38000,
+    // }).contains("service /hello ");
     cy.request({
       method: "GET",
       url: "http://localhost:9090/hello/sayHello?name=Test user",
