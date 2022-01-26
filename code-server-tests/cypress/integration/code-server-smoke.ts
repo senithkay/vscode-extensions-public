@@ -59,28 +59,6 @@ describe("Code server smoke test", () => {
     }).contains("service /hello on new http:Listener(9090)");
   });
 
-  it("Verify issues are displayed in the status bar when code contains errors", () => {
-    cy.get("a[aria-label='No Problems']").should("be.visible");
-    // cy.get(
-    //   ".editor-instance > .no-user-select > .overflow-guard > .monaco-scrollable-element > .lines-content > .view-lines",
-    //   {
-    //     timeout: 60000,
-    //   }
-    // ).click();
-    //Type some random string in to code
-    // cy.get(
-    //   ".editor-instance > .no-user-select > .overflow-guard > .monaco-scrollable-element > .lines-content > .view-lines"
-    // ).type("Some Random text");
-    // //Verify there is an increase in problem status bar
-    // cy.get("a[aria-label='No Problems']", { timeout: 60000 }).should(
-    //   "not.exist"
-    // );
-    // // Undo the added code
-    // cy.get(
-    //   ".editor-instance > .no-user-select > .overflow-guard > .monaco-scrollable-element > .lines-content > .view-lines"
-    // ).type("{control}z{control}z{control}z");
-  });
-
   it("Run the Service and invoke api ", () => {
     cy.get("a[title='Run']").click();
     cy.wait(38000);
@@ -97,5 +75,23 @@ describe("Code server smoke test", () => {
       expect(resp.status).to.eq(200);
       expect(resp.body).to.eq("Hello, Test user");
     });
+  });
+
+  it("Verify issues are displayed in the status bar when code contains errors", () => {
+    cy.get("a[aria-label='No Problems']").should("be.visible");
+    cy.get(
+      ".editor-instance > .no-user-select > .overflow-guard > .monaco-scrollable-element > .lines-content > .view-lines",
+      {
+        timeout: 60000,
+      }
+    ).click();
+    // Type some random string in to code
+    cy.get(
+      ".editor-instance > .no-user-select > .overflow-guard > .monaco-scrollable-element > .lines-content > .view-lines"
+    ).type("Some Random text");
+    //Verify there is an increase in problem status bar
+    cy.get("a[aria-label='No Problems']", { timeout: 60000 }).should(
+      "not.exist"
+    );
   });
 });
