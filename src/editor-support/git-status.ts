@@ -22,15 +22,19 @@ import { commands, StatusBarAlignment, StatusBarItem, ThemeColor, window, worksp
 import { PALETTE_COMMANDS } from '../project';
 import { debug } from './../utils';
 import { hasDiagram } from '../diagram';
+import { CMP_GIT_STATUS, sendTelemetryEvent, TM_EVENT_GIT_COMMIT } from '../telemetry';
 const schedule = require('node-schedule');
 
 export class gitStatusBarItem {
     private statusBarItem: StatusBarItem;
     private baseDir: string = "";
     private git: SimpleGit | undefined;
+    private latestGitHash: string = "";
+    private extension: BallerinaExtension;
 
-    constructor() {
+    constructor(extension: BallerinaExtension) {
         this.statusBarItem = window.createStatusBarItem(StatusBarAlignment.Left, 100);
+        this.extension = extension;
     }
 
     updateGitStatus() {
@@ -73,6 +77,28 @@ export class gitStatusBarItem {
             this.git = simpleGit(options);
         }
     }
+
+    updateGitCommit() {
+        this.createSimpleGit();
+        if (!this.git) {
+            return;
+        }
+        this.git.log().then((value) => {
+            if (value.all.length == 0 || !value.latest) {
+                return;
+            }
+
+            if (this.latestGitHash === "") {
+                this.latestGitHash = value.latest.hash;
+                return;
+            }
+
+            if (this.latestGitHash != value.latest.hash) {
+                this.latestGitHash = value.latest.hash;
+                sendTelemetryEvent(this.extension, TM_EVENT_GIT_COMMIT, CMP_GIT_STATUS);
+            }
+        });
+    }
 }
 
 export function activate(ballerinaExtInstance: BallerinaExtension) {
@@ -81,7 +107,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
     }
 
     // Update status bar
-    const statusBarItem = new gitStatusBarItem();
+    const statusBarItem = new gitStatusBarItem(ballerinaExtInstance);
     ballerinaExtInstance.getCodeServerContext().statusBarItem = statusBarItem;
     workspace.onDidChangeTextDocument(_event => {
         if (hasDiagram) {
@@ -95,6 +121,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
     schedule.scheduleJob('*/10 * * * * *', function () {
         debug(`Updated the git status at ${new Date()}`)
         statusBarItem.updateGitStatus();
+        statusBarItem.updateGitCommit();
     });
 
     const commitAndPush = commands.registerCommand(PALETTE_COMMANDS.CHOREO_SYNC_CHANGES, () => {
