@@ -1,0 +1,26 @@
+# Publish a pre-release extension to marketplace
+name: Publish a pre-release VSCode Extension
+
+on:
+  push:
+    tags:
+      - "pre-release*"
+
+jobs:
+  build:
+    name: Package and publish
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Build project
+        uses: actions/setup-node@v1
+        with:
+          node-version: 16
+      - run: npm install -g vsce
+      - run: ./gradlew clean build -x test
+        env:
+          NPM_ACCESS_TOKEN: ${{ secrets.PUBLISH_PAT }}
+      - run: vsce package
+      - name: Publish the extension
+        run: vsce publish --pre-release -p ${{ secrets.VSCE_TOKEN }} --packagePath ballerina-3.0.0-preview.vsix
