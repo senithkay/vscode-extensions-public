@@ -26,7 +26,8 @@ describe("Code server smoke test", () => {
     }).should("be.visible");
 
     cy.get("body").should("not.contain", "error");
-
+    cy.get("div[aria-label='Disable performance forecasting... ']").click();
+    cy.screenshot();
     //Verify extension
     cy.get("div[id='wso2.ballerina']", { timeout: 60000 }).contains(
       "Ballerina SDK: Swan Lake"
