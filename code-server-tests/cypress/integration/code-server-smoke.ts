@@ -46,6 +46,9 @@ describe("Code server smoke test", () => {
     cy.xpath(
       "//div[@aria-label='service.bal Diagram']/div[@class='tab-actions']//a[@role='button']"
     ).click();
+    cy.xpath(
+      "//div[@aria-label='Welcome']/div[@class='tab-actions']//a[@role='button']"
+    ).click();
     // Verify code rendering
     cy.get(".view-lines", {
       timeout: 60000,
