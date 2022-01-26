@@ -40,7 +40,7 @@ describe("Code server smoke test", () => {
     //Verify service.bal diagram tab
     cy.get("div[title='service.bal Diagram']").contains("service.bal Diagram");
     cy.wait(8000);
-    cy.matchImageSnapshot("home-page-first-render");
+    cy.matchImageSnapshot("Low-code-diagram");
     // home-page-first-render is name of snapshot image
   });
 
