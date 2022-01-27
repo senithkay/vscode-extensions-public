@@ -9,8 +9,8 @@
  * this license, please see the license as well as any agreement you’ve
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
- */ 
-import { Theme, withStyles } from '@material-ui/core/styles'; 
+ */
+import { Theme, withStyles } from '@material-ui/core/styles';
 import Switch from '@material-ui/core/Switch';
 
 const PrimarySwitchToggle = withStyles((theme: Theme) => ({
@@ -22,7 +22,7 @@ const PrimarySwitchToggle = withStyles((theme: Theme) => ({
     '&$checked + $track': {
       backgroundColor: theme.palette.primary.main,
     },
-  },  
+  },
 }))(Switch) as typeof Switch;
 
 export default PrimarySwitchToggle;

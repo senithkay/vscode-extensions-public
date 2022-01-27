@@ -15,8 +15,9 @@ import * as React from "react";
 
 import { FormControlLabel, FormGroup, Switch } from "@material-ui/core";
 
-import { useStyles } from "./style";
 import PrimarySwitchToggle from "../../PrimarySwitchToggle";
+
+import { useStyles } from "./style";
 
 export interface StatementEditorButtonProps {
     handleChange?: () => void,
