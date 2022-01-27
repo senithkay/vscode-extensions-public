@@ -576,6 +576,7 @@ export class BallerinaExtension {
 
     public setDiagramActiveContext(value: boolean) {
         commands.executeCommand('setContext', 'isBallerinaDiagram', value);
+        this.documentContext.setActiveDiagram(value);
     }
 
     public setChoreoAuthEnabled(value: boolean) {
@@ -633,6 +634,7 @@ class DocumentContext {
     private diagramTreeElementClickedCallbacks: Array<(construct: ConstructIdentifier) => void> = [];
     private editorChangesCallbacks: Array<(change: Change) => void> = [];
     private latestDocument: Uri | undefined;
+    private activeDiagram: boolean = false;
 
     public diagramTreeElementClicked(construct: ConstructIdentifier): void {
         this.diagramTreeElementClickedCallbacks.forEach((callback) => {
@@ -663,6 +665,14 @@ class DocumentContext {
 
     public getLatestDocument(): Uri | undefined {
         return this.latestDocument;
+    }
+
+    public isActiveDiagram(): boolean {
+        return this.activeDiagram;
+    }
+
+    public setActiveDiagram(isActiveDiagram: boolean) {
+        this.activeDiagram = isActiveDiagram;
     }
 }
 
