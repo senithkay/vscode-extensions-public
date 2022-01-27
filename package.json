@@ -352,11 +352,6 @@
                 "command": "ballerina.pasteAsRecord",
                 "title": "Paste JSON as Record",
                 "category": "Ballerina"
-            },
-            {
-                "command": "ballerina.swaggerView.open",
-                "title": "Open Swagger View",
-                "category": "Ballerina"
             }
         ],
         "views": {
@@ -465,6 +460,28 @@
                     "command": "ballerina.project.run",
                     "group": "Ballerina",
                     "when": "resourceLangId == ballerina"
+                }
+            ],
+            "commandPalette": [
+                {
+                    "command": "ballerina.new.module",
+                    "when": "editorLangId != ballerina && !isBallerinaDiagram"
+                },
+                {
+                    "command": "ballerina.executeConfigEditor",
+                    "when": "editorLangId != ballerina && !isBallerinaDiagram"
+                },
+                {
+                    "command": "ballerina.show.source",
+                    "when": "editorLangId != ballerina && !isBallerinaDiagram"
+                },
+                {
+                    "command": "ballerina.source.debug",
+                    "when": "editorLangId != ballerina && !isBallerinaDiagram"
+                },
+                {
+                    "command": "ballerina.choreo.signin",
+                    "when": "editorLangId != ballerina && !isBallerinaDiagram"
                 }
             ]
         }
