@@ -77,29 +77,5 @@ export function ModuleConnectorForm(props: ModuleConnectorFormProps) {
                 />
             )}
         </>
-        // <FormControl data-testid="module-variable-config-form" className={formClasses.wizardFormControl}>
-        //     <FormHeaderSection
-        //         onCancel={onCancel}
-        //         formTitle={"lowcode.develop.configForms.ConstDecl.title"}
-        //         defaultMessage={"Constant"}
-        //         formType={formType}
-        //     />
-        //     <div className={formClasses.formContentWrapper}>
-        //         <div className={formClasses.formNameWrapper}>
-        //             <TextLabel
-        //                 textLabelId="lowcode.develop.configForms.ConstDecl.accessModifier"
-        //                 defaultMessage="Access Modifier :"
-        //                 required={true}
-        //             />
-        //         </div>
-        //     </div>
-        //     <FormActionButtons
-        //         cancelBtnText="Cancel"
-        //         cancelBtn={true}
-        //         saveBtnText="Save"
-        //         onSave={onSave}
-        //         onCancel={onCancel}
-        //     />
-        // </FormControl>
     );
 }

@@ -22,10 +22,11 @@ import { Diagnostic } from 'vscode-languageserver-protocol';
 
 import { AnalyzePayloadVisitor, initVisitor, positionVisitor, sizingVisitor } from '../..';
 import { CLIENT_SVG_HEIGHT, CLIENT_SVG_WIDTH } from "../../Diagram/components/LowCodeDiagram/Components/RenderingComponents/Connector/ConnectorHeader/ConnectorClientSVG";
+import { CONNECTOR_PROCESS_SVG_HEIGHT } from "../components/LowCodeDiagram/Components/RenderingComponents/Connector/ConnectorProcess/ConnectorProcessSVG";
 import { IFELSE_SVG_HEIGHT, IFELSE_SVG_WIDTH } from "../components/LowCodeDiagram/Components/RenderingComponents/IfElse/IfElseSVG";
 import { PROCESS_SVG_HEIGHT, PROCESS_SVG_WIDTH } from "../components/LowCodeDiagram/Components/RenderingComponents/Processor/ProcessSVG";
 import { RESPOND_SVG_HEIGHT, RESPOND_SVG_WIDTH } from "../components/LowCodeDiagram/Components/RenderingComponents/Respond/RespondSVG";
-import { EndpointViewState, FunctionViewState, PlusViewState, StatementViewState } from "../components/LowCodeDiagram/ViewState";
+import { EndpointViewState, FunctionViewState, PlusViewState, SimpleBBox, StatementViewState } from "../components/LowCodeDiagram/ViewState";
 import { ActionInvocationFinder } from '../visitors/action-invocation-finder';
 import { BlockStatementFinder } from '../visitors/block-statement-finder';
 import { DefaultConfig } from "../visitors/default";
@@ -257,7 +258,7 @@ export function getWarningsFromST(modulePart: ModulePart): Warning[] {
     return servicesWithEmptyBasePaths;
 }
 
-export function updateConnectorCX(maxContainerRightWidth: number, containerCX: number, allEndpoints: Map<string, Endpoint>) {
+export function updateConnectorCX(maxContainerRightWidth: number, containerCX: number, allEndpoints: Map<string, Endpoint>, startCY?: number) {
     const containerRightMostConerCX = maxContainerRightWidth + containerCX;
     let prevX = 0;
     let index: number = 0;
@@ -280,6 +281,11 @@ export function updateConnectorCX(maxContainerRightWidth: number, containerCX: n
         } else {
             mainEp.lifeLine.cx = prevX + (mainEp.bBox.w / 2) + DefaultConfig.epGap;
             prevX = mainEp.lifeLine.cx;
+        }
+
+        if (mainEp.isExternal) { // Render external endpoints align with the start element
+            mainEp.lifeLine.h += mainEp.lifeLine.cy - (startCY + (CONNECTOR_PROCESS_SVG_HEIGHT / 2));
+            mainEp.lifeLine.cy = startCY + (CONNECTOR_PROCESS_SVG_HEIGHT / 2);
         }
 
         updateActionTriggerCx(mainEp.lifeLine.cx, value.actions);
