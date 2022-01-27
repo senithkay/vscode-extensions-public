@@ -18,7 +18,6 @@ import { WhileStatement } from "@wso2-enterprise/syntax-tree";
 import { FormControl, Typography } from "@material-ui/core";
 
 import { FormField, FormActionButtons, FormHeaderSection, } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { createWhileStatement, getInitialSource } from "../../../../../../utils/modification-util";
 import ExpressionEditor, { ExpressionEditorProps } from "../../../../FormFieldComponents/ExpressionEditor";
@@ -164,7 +163,7 @@ export function AddWhileForm(props: WhileProps) {
                         <div className={classes.formCodeExpressionEndWrapper}>
                             <Typography variant='body2' className={classes.startCode}>while</Typography>
                             <div className={classes.formCodeExpressionField}>
-                                <ExpressionEditor {...expElementProps} hideLabelTooltips={true} />
+                                <ExpressionEditor {...expElementProps} />
                             </div>
                             <Typography variant='body2' className={classes.endCode}>{`{`}</Typography>
                         </div>

@@ -21,7 +21,6 @@ import { FormControl, Typography } from "@material-ui/core";
 
 import { FormField, FormActionButtons, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { Context } from "../../../../../../../Contexts/Diagram";
-import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
 import { getAllVariables } from "../../../../../../utils/mixins";
 import { createForeachStatement, getInitialSource } from "../../../../../../utils/modification-util";
 import { genVariableName } from "../../../../../Portals/utils";
@@ -308,7 +307,7 @@ export function AddForeachForm(props: ForeachProps) {
                             <Typography variant='body2' className={classnames(classes.endCode)}>in</Typography>
                             <div className={classes.formCodeExpressionLargeField}>
                                 <div className={classes.stmtEditorWrapper}>
-                                    <ExpressionEditor {...expElementProps} hideLabelTooltips={true} />
+                                    <ExpressionEditor {...expElementProps} />
                                 </div>
                             </div>
                             <Typography variant='body2' className={classes.endCode}>{`{`}</Typography>

@@ -20,7 +20,6 @@ import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor"
 import { LocalVarDecl, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../../../Contexts/Diagram";
-import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
 import { ADD_VARIABLE, LowcodeEvent, SAVE_VARIABLE } from "../../../../../../models";
 import { createModuleVarDecl, getInitialSource } from "../../../../../../utils/modification-util";
 import { getVariableNameFromST } from "../../../../../../utils/st-util";
@@ -297,7 +296,6 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
     const expressionEditor = (
         <div className="exp-wrapper">
             <ExpressionEditor
-                hideLabelTooltips={true}
                 {...expressionEditorConfig}
             />
         </div>

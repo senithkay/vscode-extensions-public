@@ -21,7 +21,6 @@ import { ControlPoint, RemoveCircleOutlineRounded } from "@material-ui/icons";
 
 import { FormActionButtons, FormField, FormHeaderSection, DiagramDiagnostic } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { Context } from "../../../../../../../Contexts/Diagram";
-import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
 import {
     createElseIfStatement,
     createElseStatement,
@@ -283,7 +282,7 @@ export function AddIfForm(props: IfProps) {
                         <div className={classes.formCodeExpressionEndWrapper}>
                             <Typography variant='body2' className={classes.startCode}>if</Typography>
                             <div className={classes.formCodeExpressionField}>
-                                <ExpressionEditor {...setElementProps(0)} hideLabelTooltips={true} />
+                                <ExpressionEditor {...setElementProps(0)}/>
                             </div>
                             <Typography variant='body2' className={classes.endCode}>{`{`}</Typography>
                         </div>

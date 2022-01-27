@@ -97,14 +97,15 @@ export function AddReturnForm(props: ReturnFormProps) {
             id: "lowcode.develop.configForms.returnStatementTooltipMessages.expressionEditor.tooltip.title",
             defaultMessage: "Press CTRL+Spacebar for suggestions."
         }),
-        actionText: intl.formatMessage({
-            id: "lowcode.develop.configForms.returnStatementTooltipMessages.expressionEditor.tooltip.actionText",
-            defaultMessage: "Learn about Ballerina expressions here"
-        }),
-        actionLink: intl.formatMessage({
-            id: "lowcode.develop.configForms.returnStatementTooltipMessages.expressionEditor.tooltip.actionTitle",
-            defaultMessage: "{learnBallerina}"
-        }, { learnBallerina: "https://ballerina.io/learn/by-example/" })
+        //TODO:Uncomment when Ballerina docs are available for Return 
+        // actionText: intl.formatMessage({
+        //     id: "lowcode.develop.configForms.returnStatementTooltipMessages.expressionEditor.tooltip.actionText",
+        //     defaultMessage: "Learn about Ballerina expressions here"
+        // }),
+        // actionLink: intl.formatMessage({
+        //     id: "lowcode.develop.configForms.returnStatementTooltipMessages.expressionEditor.tooltip.actionTitle",
+        //     defaultMessage: "{learnBallerina}"
+        // }, { learnBallerina: "https://ballerina.io/learn/by-example/" })
     };
 
     const initialSource = formArgs.model ? formArgs.model.source : getInitialSource(createReturnStatement(
@@ -149,8 +150,9 @@ export function AddReturnForm(props: ReturnFormProps) {
                             customProps={{
                                 validate: validateExpression,
                                 tooltipTitle: returnStatementTooltipMessages.title,
-                                tooltipActionText: returnStatementTooltipMessages.actionText,
-                                tooltipActionLink: returnStatementTooltipMessages.actionLink,
+                                //TODO:Uncomment when Ballerina docs are available for Return 
+                                // tooltipActionText: returnStatementTooltipMessages.actionText,
+                                // tooltipActionLink: returnStatementTooltipMessages.actionLink,
                                 interactive: true,
                                 customTemplate: {
                                     defaultCodeSnippet: 'return ;',
