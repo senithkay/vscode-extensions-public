@@ -97,7 +97,7 @@ export function AddReturnForm(props: ReturnFormProps) {
             id: "lowcode.develop.configForms.returnStatementTooltipMessages.expressionEditor.tooltip.title",
             defaultMessage: "Press CTRL+Spacebar for suggestions."
         }),
-        //TODO:Uncomment when Ballerina docs are available for Return 
+        // TODO:Uncomment when Ballerina docs are available for Return
         // actionText: intl.formatMessage({
         //     id: "lowcode.develop.configForms.returnStatementTooltipMessages.expressionEditor.tooltip.actionText",
         //     defaultMessage: "Learn about Ballerina expressions here"
@@ -150,7 +150,7 @@ export function AddReturnForm(props: ReturnFormProps) {
                             customProps={{
                                 validate: validateExpression,
                                 tooltipTitle: returnStatementTooltipMessages.title,
-                                //TODO:Uncomment when Ballerina docs are available for Return 
+                                // TODO:Uncomment when Ballerina docs are available for Return
                                 // tooltipActionText: returnStatementTooltipMessages.actionText,
                                 // tooltipActionLink: returnStatementTooltipMessages.actionLink,
                                 interactive: true,
