@@ -15,6 +15,8 @@
 /// <reference types="cypress-xpath" />
 
 describe("Code server smoke test", () => {
+  const testEndpoint = "http://localhost:9090/";
+
   before(() => {
     cy.visit(Cypress.env("workspaceUrl"));
     cy.get("h2", {
@@ -28,8 +30,9 @@ describe("Code server smoke test", () => {
 
   it("Validate vs code is opened without errors and Diagram is rendered", () => {
     cy.get("body").should("not.contain", "error");
+    //Disable performance forecasting
     cy.get("div[aria-label='Disable performance forecasting... ']").click();
-    //Verify extension
+    //Verify ballerina extension
     cy.get("div[id='wso2.ballerina']", { timeout: 60000 }).contains(
       "Ballerina SDK: Swan Lake"
     );
@@ -40,6 +43,8 @@ describe("Code server smoke test", () => {
     //Verify service.bal diagram tab
     cy.get("div[title='service.bal Diagram']").contains("service.bal Diagram");
     cy.wait(8000);
+    cy.screenshot();
+    //Take a snapshot of the diagram and compare with reference snapshot at /snapshots/code-server-smoke.ts/
     cy.matchImageSnapshot("Low-code-diagram");
   });
 
@@ -50,6 +55,7 @@ describe("Code server smoke test", () => {
     cy.xpath(
       "//div[@aria-label='service.bal Diagram']/div[@class='tab-actions']//a[@role='button']"
     ).click();
+    //Close welcome tab
     cy.xpath(
       "//div[@title='Welcome']/div[@class='tab-actions']//a[@role='button']"
     ).click();
@@ -64,7 +70,7 @@ describe("Code server smoke test", () => {
     cy.wait(38000);
     cy.request({
       method: "GET",
-      url: "http://localhost:9090/hello/sayHello?name=Test user",
+      url: testEndpoint + "hello/sayHello?name=Test user",
       headers: {
         accept: "text/plain",
       },
@@ -75,6 +81,7 @@ describe("Code server smoke test", () => {
   });
 
   it("Verify issues are displayed in the status bar when code contains errors", () => {
+    // Check no issues are displayed in status bar
     cy.get("a[aria-label='No Problems']").should("be.visible");
     cy.get(
       ".editor-instance > .no-user-select > .overflow-guard > .monaco-scrollable-element > .lines-content > .view-lines",
