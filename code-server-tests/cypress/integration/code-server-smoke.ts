@@ -40,6 +40,9 @@ describe("Code server smoke test", () => {
       timeout: 60000,
     }).click();
     cy.get('span[class="name"]').contains("Ballerina");
+    cy.get(
+      'a[class="action-label codicon codicon-extensions-view-icon"]'
+    ).click();
     //Verify service.bal diagram tab
     cy.get("div[title='service.bal Diagram']").contains("service.bal Diagram");
     cy.wait(8000);
