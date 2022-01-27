@@ -129,6 +129,9 @@ export async function addStatementToTargetLine(
     if (position?.startColumn && position?.endColumn && position?.endLine) {
         return getModifiedStatement(currentFileContent, currentStatement, position, getLangClient);
     } else {
+        if (!!position?.startColumn) {
+            currentStatement = " ".repeat(position.startColumn) + currentStatement;
+        }
         modelContent.splice(position?.startLine, 0, currentStatement);
         return modelContent.join('\n');
     }
