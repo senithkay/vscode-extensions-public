@@ -31,10 +31,15 @@ export function WorkerBody(props: DiagramProps) {
 
     const { model, viewState } = props;
     const pluses: React.ReactNode[] = [];
-    const children = getSTComponents(model.statements);
+    let children: React.ReactNode[] = [];
     let drafts: React.ReactNode[] = [];
     const controlFlowLines: React.ReactNode[] = [];
     const controlFlowExecutionTime: React.ReactNode[] = [];
+
+    if (viewState.hasWorkerDecl) {
+        children = children.concat(getSTComponents(model.namedWorkerDeclarator.workerInitStatements));
+    }
+    children = children.concat(getSTComponents(model.statements))
 
     for (const controlFlowLine of viewState.controlFlow.lineStates) {
         controlFlowLines.push(<ControlFlowLine controlFlowViewState={controlFlowLine} />);

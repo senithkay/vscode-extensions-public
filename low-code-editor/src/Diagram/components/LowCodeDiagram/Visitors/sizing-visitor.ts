@@ -150,34 +150,6 @@ class SizingVisitor implements Visitor {
         const viewState = node.viewState as ModuleMemberViewState;
     }
 
-    private beginFunctionTypeNode(node: ResourceAccessorDefinition | FunctionDefinition) {
-        const viewState: FunctionViewState = node.viewState as FunctionViewState;
-        const body: FunctionBodyBlock = node.functionBody as FunctionBodyBlock;
-        const bodyViewState: BlockViewState = body.viewState;
-
-        viewState.wrapper.h = viewState.topOffset + viewState.wrapper.offsetFromTop;
-        viewState.bBox.h = viewState.topOffset + viewState.wrapper.offsetFromTop;
-
-        // If body has no statements and doesn't have a end component
-        // Add the plus button to show up on the start end
-        if (!bodyViewState.isEndComponentAvailable && body.statements.length <= 0) {
-            const plusBtnViewState: PlusViewState = new PlusViewState();
-            if (!bodyViewState.draft && !viewState.initPlus) {
-                plusBtnViewState.index = body.statements.length;
-                plusBtnViewState.expanded = true;
-                plusBtnViewState.selectedComponent = "PROCESS";
-                plusBtnViewState.collapsedClicked = false;
-                plusBtnViewState.collapsedPlusDuoExpanded = false;
-                plusBtnViewState.isLast = true;
-                bodyViewState.plusButtons = [];
-                bodyViewState.plusButtons.push(plusBtnViewState);
-                viewState.initPlus = plusBtnViewState;
-            } else if (viewState.initPlus && viewState.initPlus.draftAdded) {
-                viewState.initPlus = undefined;
-            }
-        }
-    }
-
     public beginVisitFunctionDefinition(node: FunctionDefinition) {
         const viewState: FunctionViewState = node.viewState as FunctionViewState;
         const body: FunctionBodyBlock = node.functionBody as FunctionBodyBlock;
@@ -336,48 +308,6 @@ class SizingVisitor implements Visitor {
                 viewState.initPlus = plusBtnViewState;
             } else if (viewState.initPlus && viewState.initPlus.draftAdded) {
                 viewState.initPlus = undefined;
-            }
-        }
-    }
-
-    private endVisitFunctionTypeNode(node: FunctionDefinition) {
-        const viewState: FunctionViewState = node.viewState as FunctionViewState;
-        const body: FunctionBodyBlock = node.functionBody as FunctionBodyBlock;
-        const bodyViewState: BlockViewState = body.viewState;
-        const lifeLine = viewState.workerLine;
-        const trigger = viewState.trigger;
-        const end = viewState.end;
-
-        trigger.h = START_SVG_HEIGHT;
-        trigger.w = START_SVG_WIDTH;
-
-        end.bBox.w = STOP_SVG_WIDTH;
-        end.bBox.h = STOP_SVG_HEIGHT;
-
-        lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h;
-
-        if (STKindChecker.isExpressionFunctionBody(body) || body.statements.length > 0) {
-            lifeLine.h += end.bBox.offsetFromTop;
-        }
-
-        // adding end component height and + (plus) height for a resource
-        viewState.bBox.h += (lifeLine.h + end.bBox.h + (DefaultConfig.dotGap * 3) +
-            viewState.bottomOffset + viewState.wrapper.offsetFromBottom);
-
-        // setting default width with there are no statements in the function
-        const defaultWidth = (PROCESS_SVG_WIDTH + VARIABLE_NAME_WIDTH + ASSIGNMENT_NAME_WIDTH);
-
-        viewState.bBox.w = (trigger.w > bodyViewState.bBox.w ? trigger.w : bodyViewState.bBox.w);
-        if (viewState.bBox.w < defaultWidth) {
-            viewState.bBox.w = defaultWidth;
-        }
-
-        viewState.wrapper.h = viewState.bBox.h;
-
-        if (viewState.initPlus && viewState.initPlus.selectedComponent === "PROCESS") {
-            viewState.bBox.h += PLUS_HOLDER_STATEMENT_HEIGHT;
-            if (viewState.bBox.w < PLUS_HOLDER_WIDTH) {
-                viewState.bBox.w = PLUS_HOLDER_WIDTH;
             }
         }
     }
@@ -844,7 +774,22 @@ class SizingVisitor implements Visitor {
         }
         const blockViewState: BlockViewState = node.viewState;
         let index: number = 0;
-        node.statements.forEach((element) => {
+        if (blockViewState.hasWorkerDecl) {
+            index = this.initiateStatementSizing((node as FunctionBodyBlock).namedWorkerDeclarator.workerInitStatements, index, blockViewState);
+        }
+        index = this.initiateStatementSizing(node.statements, index, blockViewState);
+
+        // add END component dimensions for return statement
+        if (blockViewState.isEndComponentAvailable && !blockViewState.collapseView &&
+            !blockViewState.isEndComponentInMain) {
+            const returnViewState: StatementViewState = node.statements[node.statements.length - 1].viewState;
+            returnViewState.bBox.h = STOP_SVG_HEIGHT;
+            returnViewState.bBox.w = STOP_SVG_WIDTH;
+        }
+    }
+
+    private initiateStatementSizing(statements: STNode[], index: number, blockViewState: BlockViewState) {
+        statements.forEach((element) => {
             const stmtViewState: StatementViewState = element.viewState;
             const plusForIndex: PlusViewState = getPlusViewState(index, blockViewState.plusButtons);
 
@@ -864,20 +809,12 @@ class SizingVisitor implements Visitor {
 
             if (isSTActionInvocation(element)
                 && !haveBlockStatement(element)
-                && allEndpoints.has(stmtViewState.action.endpointName)
-                ) { // check if it's the same as actioninvocation
+                && allEndpoints.has(stmtViewState.action.endpointName)) { // check if it's the same as actioninvocation
                 stmtViewState.isAction = true;
             }
             ++index;
         });
-
-        // add END component dimensions for return statement
-        if (blockViewState.isEndComponentAvailable && !blockViewState.collapseView &&
-            !blockViewState.isEndComponentInMain) {
-            const returnViewState: StatementViewState = node.statements[node.statements.length - 1].viewState;
-            returnViewState.bBox.h = STOP_SVG_HEIGHT;
-            returnViewState.bBox.w = STOP_SVG_WIDTH;
-        }
+        return index;
     }
 
     private endSizingBlock(node: BlockStatement) {
@@ -888,9 +825,13 @@ class SizingVisitor implements Visitor {
         let height = 0;
         let width = 0;
         let index = 0;
+        const lastStatementIndex = blockViewState.hasWorkerDecl ? //node.statements.length; 
+            (node as FunctionBodyBlock).namedWorkerDeclarator.workerInitStatements.length + node.statements.length
+            : node.statements.length;
+
 
         // Add last plus button.
-        const plusViewState: PlusViewState = getPlusViewState(node.statements.length, blockViewState.plusButtons);
+        const plusViewState: PlusViewState = getPlusViewState(lastStatementIndex, blockViewState.plusButtons);
 
         if (plusViewState && plusViewState.draftAdded) {
             const draft: DraftStatementViewState = new DraftStatementViewState();
@@ -902,7 +843,7 @@ class SizingVisitor implements Visitor {
                 startLine: node.position.endLine, // todo: can't find the equivalent to position
                 startColumn: node.position.endColumn - 1
             };
-            blockViewState.draft = [node.statements.length, draft];
+            blockViewState.draft = [lastStatementIndex, draft];
             plusViewState.draftAdded = undefined;
         } else if (plusViewState && plusViewState.expanded) {
             if (plusViewState.selectedComponent === "STATEMENT") {
@@ -922,19 +863,49 @@ class SizingVisitor implements Visitor {
                 width = PLUS_HOLDER_WIDTH;
             }
         } else if (plusViewState?.collapsedClicked) {
-            plusViewState.index = node.statements.length;
+            plusViewState.index = lastStatementIndex;
             plusViewState.expanded = false;
         } else if (plusViewState && plusViewState.collapsedPlusDuoExpanded) {
             height += PLUS_SVG_HEIGHT;
         } else if (!plusViewState && !blockViewState.isEndComponentAvailable) {
             const plusBtnViewBox: PlusViewState = new PlusViewState();
-            plusBtnViewBox.index = node.statements.length;
+            plusBtnViewBox.index = lastStatementIndex;
             plusBtnViewBox.expanded = false;
             plusBtnViewBox.isLast = true;
             blockViewState.plusButtons.push(plusBtnViewBox);
         }
 
-        node.statements.forEach((element) => {
+        if (blockViewState.hasWorkerDecl) {
+            ({ index, height, width } = this.calculateStatementSizing((node as FunctionBodyBlock).namedWorkerDeclarator.workerInitStatements, index, blockViewState, height, width, lastStatementIndex)); 
+        }
+
+        ({ index, height, width } = this.calculateStatementSizing(node.statements, index, blockViewState, height, width, lastStatementIndex));
+
+        if (blockViewState.draft && blockViewState.draft[0] === lastStatementIndex) {
+            // Get the draft.
+            const draft = blockViewState.draft[1];
+            if (draft) {
+                const { h, w } = getDraftComponentSizes(draft.type, draft.subType);
+                draft.bBox.h = draft.bBox.offsetFromTop + h + draft.bBox.offsetFromBottom
+                draft.bBox.w = w;
+                height += draft.bBox.h;
+                if (width < draft.bBox.w) {
+                    width = draft.bBox.w;
+                }
+            }
+        }
+
+        if (height > 0) {
+            blockViewState.bBox.h = height;
+        }
+
+        if (width > 0) {
+            blockViewState.bBox.w = width;
+        }
+    }
+
+    private calculateStatementSizing(statements: STNode[], index: number, blockViewState: BlockViewState, height: number, width: number, lastStatementIndex: any) {
+        statements.forEach((element) => {
             const stmtViewState: StatementViewState = element.viewState;
             const plusForIndex: PlusViewState = getPlusViewState(index, blockViewState.plusButtons);
             if (!blockViewState.collapsed) {
@@ -954,12 +925,11 @@ class SizingVisitor implements Visitor {
                         // to make the next plus invisible if the current statement is not the last statement
                         // if ((stmtViewState.isEndpoint && stmtViewState.isAction) || (!stmtViewState.isEndpoint)) {
                         for (const invisiblePlusIndex of blockViewState.plusButtons) {
-                            if (invisiblePlusIndex.index > index && invisiblePlusIndex.index !== node.statements.length) {
+                            if (invisiblePlusIndex.index > index && invisiblePlusIndex.index !== lastStatementIndex) {
                                 invisiblePlusIndex.visible = false;
                             }
                         }
                         // }
-
                         plusForIndex.collapsedClicked = false;
                     } else {
                         height += blockViewState.collapseView.bBox.h;
@@ -977,7 +947,7 @@ class SizingVisitor implements Visitor {
                                 draft.selectedConnector = plusForIndex.draftSelectedConnector;
 
                                 draft.targetPosition = {
-                                    startLine: element.position.startLine, // todo: position?
+                                    startLine: element.position.startLine,
                                     startColumn: element.position.startColumn
                                 };
                                 blockViewState.draft = [index, draft];
@@ -1045,7 +1015,7 @@ class SizingVisitor implements Visitor {
                         draft.selectedConnector = plusForIndex.draftSelectedConnector;
 
                         draft.targetPosition = {
-                            startLine: element.position.startLine, // todo:position?
+                            startLine: element.position.startLine,
                             startColumn: element.position.startColumn
                         };
                         blockViewState.draft = [index, draft];
@@ -1082,7 +1052,7 @@ class SizingVisitor implements Visitor {
                     if ((stmtViewState.isEndpoint && stmtViewState.isAction && !stmtViewState.hidden) ||
                         (!stmtViewState.collapsed)) {
                         // Excluding return statement heights which is in the main function block
-                        if (!(blockViewState.isEndComponentInMain && (index === node.statements.length - 1))) {
+                        if (!(blockViewState.isEndComponentInMain && (index === lastStatementIndex - 1))) {
                             stmtViewState.bBox.h = stmtViewState.bBox.offsetFromTop + stmtViewState.bBox.h +
                                 stmtViewState.bBox.offsetFromBottom;
                             height += stmtViewState.bBox.h;
@@ -1111,28 +1081,7 @@ class SizingVisitor implements Visitor {
 
             ++index;
         });
-
-        if (blockViewState.draft && blockViewState.draft[0] === node.statements.length) {
-            // Get the draft.
-            const draft = blockViewState.draft[1];
-            if (draft) {
-                const { h, w } = getDraftComponentSizes(draft.type, draft.subType);
-                draft.bBox.h = draft.bBox.offsetFromTop + h + draft.bBox.offsetFromBottom
-                draft.bBox.w = w;
-                height += draft.bBox.h;
-                if (width < draft.bBox.w) {
-                    width = draft.bBox.w;
-                }
-            }
-        }
-
-        if (height > 0) {
-            blockViewState.bBox.h = height;
-        }
-
-        if (width > 0) {
-            blockViewState.bBox.w = width;
-        }
+        return { index, height, width };
     }
 }
 

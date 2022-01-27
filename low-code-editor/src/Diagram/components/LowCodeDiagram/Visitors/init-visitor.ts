@@ -237,6 +237,7 @@ class InitVisitor implements Visitor {
     public endVisitFunctionBodyBlock(node: FunctionBodyBlock, parent?: STNode) {
         const blockViewState: BlockViewState = node.viewState;
         blockViewState.connectors = allEndpoints;
+        blockViewState.hasWorkerDecl = !!node.namedWorkerDeclarator;
         currentFnBody = undefined;
     }
 
