@@ -104,6 +104,9 @@ export function runCommandWithConf(file: BallerinaProject | string, executor: st
     }
     terminal.sendText(isWindows() ? 'cls' : 'clear', true);
     terminal.show(true);
+    if (confPath !== '') {
+        terminal.sendText('echo $BAL_CONFIG_FILES');
+    }
     terminal.sendText(commandText, true);
 }
 
