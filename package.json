@@ -2,7 +2,7 @@
     "name": "ballerina",
     "displayName": "Ballerina",
     "description": "Ballerina Language support, debugging, graphical visualization, AI-based data-mapping and many more.",
-    "version": "3.0.0-preview",
+    "version": "3.0.0",
     "publisher": "wso2",
     "repository": {
         "type": "git",
@@ -88,26 +88,6 @@
                     "default": true,
                     "description": "Enable all code lens features."
                 },
-                "ballerina.codeLens.docs.enabled": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Enable documentation code lens feature."
-                },
-                "ballerina.codeLens.executor.enabled": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Enable executor code lens feature."
-                },
-                "ballerina.dataMapper.enabled": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "Enable data mapper code actions."
-                },
-                "ballerina.dataMapper.url": {
-                    "type": "string",
-                    "default": "https://datamapper.choreo.dev",
-                    "description": "Specify the URL of the data mapper backend host."
-                },
                 "ballerina.enableFileWatcher": {
                     "type": "boolean",
                     "default": true,
@@ -132,6 +112,11 @@
                     "type": "boolean",
                     "default": true,
                     "description": "Enable real-time performance forecasting."
+                },
+                "ballerina.enableLanguageServerDebug": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Enable Language Server debug mode."
                 }
             }
         },
@@ -367,11 +352,6 @@
                 "command": "ballerina.pasteAsRecord",
                 "title": "Paste JSON as Record",
                 "category": "Ballerina"
-            },
-            {
-                "command": "ballerina.swaggerView.open",
-                "title": "Open Swagger View",
-                "category": "Ballerina"
             }
         ],
         "views": {
@@ -400,7 +380,7 @@
         "viewsWelcome": [
             {
                 "view": "sessionExplorer",
-                "contents": "Sign In to enable Choreo Features.\n[Sign In](command:ballerina.choreo.signin)\n[Try Anonymously](command:ballerina.choreo.signin)\nRefer to our documentation to learn more about [Choreo](https://wso2.com/choreo/).",
+                "contents": "Sign In to enable Choreo Features.\n[Sign In](command:ballerina.choreo.signin)\n[Try Anonymously](command:ballerina.choreo.anonymous.signin)\nRefer to our documentation to learn more about [Choreo](https://wso2.com/choreo/).",
                 "when": "isChoreoAuthEnabled"
             },
             {
@@ -481,6 +461,28 @@
                     "group": "Ballerina",
                     "when": "resourceLangId == ballerina"
                 }
+            ],
+            "commandPalette": [
+                {
+                    "command": "ballerina.new.module",
+                    "when": "editorLangId != ballerina && !isBallerinaDiagram"
+                },
+                {
+                    "command": "ballerina.executeConfigEditor",
+                    "when": "editorLangId != ballerina && !isBallerinaDiagram"
+                },
+                {
+                    "command": "ballerina.show.source",
+                    "when": "editorLangId != ballerina && !isBallerinaDiagram"
+                },
+                {
+                    "command": "ballerina.source.debug",
+                    "when": "editorLangId != ballerina && !isBallerinaDiagram"
+                },
+                {
+                    "command": "ballerina.choreo.signin",
+                    "when": "editorLangId != ballerina && !isBallerinaDiagram"
+                }
             ]
         }
     },
@@ -488,7 +490,7 @@
     "scripts": {
         "vscode:prepublish": "webpack --mode production",
         "compile": "webpack --mode none",
-        "watch": "webpack --mode none --watch --info-verbosity verbose",
+        "watch": "webpack --mode none --watch",
         "update-version": "node ./scripts/update-version.js",
         "test-compile": "tsc -p ./",
         "test": "npm run test-compile && node ./out/test/runTest.js",
@@ -537,13 +539,13 @@
         "remap-istanbul": "^0.13.0",
         "rimraf": "^3.0.2",
         "tcp-port-used": "^1.0.2",
-        "ts-loader": "^6.0.2",
+        "ts-loader": "^9.2.6",
         "tslint": "^6.1.3",
         "typescript": "^4.4.3",
         "vsce": "^1.93.0",
         "vscode-debugadapter-testsupport": "^1.44.0",
-        "webpack": "^4.46.0",
-        "webpack-cli": "^3.3.3",
+        "webpack": "^5.66.0",
+        "webpack-cli": "^4.9.1",
         "yarn": "^1.22.11"
     },
     "extensionPack": [

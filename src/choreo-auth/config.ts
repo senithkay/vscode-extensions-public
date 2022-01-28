@@ -1,5 +1,3 @@
-import { debug } from "../utils";
-
 /**
  * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
@@ -23,40 +21,33 @@ export enum ChoreoSessionConfig {
     AccessToken = "access.token",
     DisplayName = "display.name",
     RefreshToken = "refresh.token",
-    LoginTime = "login.time"
+    LoginTime = "login.time",
+    TokenExpiration = "token.expiration.time"
 }
 
-// // Choreo V1 environment
-// export enum ChoreoAuthConfig {
-//     LoginUrl = "https://id.dv.choreo.dev/oauth2/authorize",
-//     RedirectUrl = "http://localhost:9000/",
-//     ClientId = "choreoportalapplication",
-//     ServerOrigin = "https://app.dv.choreo.dev/",
-//     TokenUrl = "https://app.dv.choreo.dev/auth/token",
-//     Prompt = "login",
-//     Scope = "openid name user",
-//     GoogleFIdp = "google-choreo",
-//     GitHubFIdp = "github-choreo",
-//     AnonymousFIdp = "anonymous"
-// }
+export enum ChoreoFidp {
+    Google = "google",
+    Anonymous = "choreoanonymous"
+}
 
 // Choreo V2 environment
 export class ChoreoAuthConfig {
-    private loginUrl: string = "https://id.dv.choreo.dev/oauth2/authorize";
-    private redirectUrl: string = "http://localhost:3000/login";
-    private clientId: string = "GEjPOPRsoMMlNrDuO8fqCBL4mS8a";
+    private loginUrl: string = "https://api.asgardeo.io/t/a/oauth2/authorize";
+    private tokenUrl: string = "https://api.asgardeo.io/t/a/oauth2/token";
+    private redirectUrl: string = "https://console.choreo.dev/vscode-auth";
+    private clientId: string = "aVKhTSUMu_QfEwmCtrcuWoLy92oa";
+
     private apimClientId: string = process.env.VSCODE_CHOREO_APIM_CLIENT_ID ? process.env.VSCODE_CHOREO_APIM_CLIENT_ID
-        : "Wxqy0liCfLBsdpXOhkcxZz6uLPka";
-    private vscodeClientId: string = "XR0UxDfbpjXEyp0Z2C4GuKy7Bdga";
-    private tokenUrl: string = "https://id.dv.choreo.dev/oauth2/token";
+        : "ciwnWuwZfbcdzBUcnkhKvi_mcBUa";
+    private vscodeClientId: string = "GWj5MzWNrOB28jX_wu5ZGu7I1VIa";
     private apimTokenUrl: string = process.env.VSCODE_CHOREO_APIM_TOKEN_ENDPOINT ?
-        process.env.VSCODE_CHOREO_APIM_TOKEN_ENDPOINT : "https://apim.preview-dv.choreo.dev/oauth2/token";
-    private scope: string = "openid";
-    private googleFIdp: string = "google-choreo";
+        process.env.VSCODE_CHOREO_APIM_TOKEN_ENDPOINT : "https://sts.choreo.dev/oauth2/token";
+    private userRegistrationUrl: string = "https://app.choreo.dev/register-user";
+
+    private scope: string = "openid+email+profile";
+    private fidp: ChoreoFidp = ChoreoFidp.Google;
 
     constructor() {
-        debug(`VSCODE_CHOREO_APIM_CLIENT_ID: ${process.env.VSCODE_CHOREO_APIM_CLIENT_ID} \napimClientId: ${this.apimClientId}`);
-        debug(`VSCODE_CHOREO_APIM_TOKEN_ENDPOINT: ${process.env.VSCODE_CHOREO_APIM_TOKEN_ENDPOINT} \napimTokenUrl: ${this.apimTokenUrl}`);
     }
 
     public getApimClientId(): string {
@@ -91,7 +82,15 @@ export class ChoreoAuthConfig {
         return this.scope;
     }
 
-    public getGoogleFIdp(): string {
-        return this.googleFIdp;
+    public getFidp(): ChoreoFidp {
+        return this.fidp;
+    }
+
+    public setFidp(name: ChoreoFidp) {
+        this.fidp = name;
+    }
+
+    public getUserRegistrationUrl(): string {
+        return this.userRegistrationUrl;
     }
 }

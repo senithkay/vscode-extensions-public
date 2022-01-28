@@ -17,7 +17,7 @@
  *
  */
 
-import { ballerinaExtInstance } from "../../core";
+import { ballerinaExtInstance, LANGUAGE } from "../../core";
 import { commands, window } from "vscode";
 import {
     TM_EVENT_PROJECT_ADD, TM_EVENT_ERROR_EXECUTE_PROJECT_ADD, CMP_PROJECT_ADD, sendTelemetryEvent, sendTelemetryException
@@ -31,7 +31,14 @@ function activateAddCommand() {
         try {
             sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_PROJECT_ADD, CMP_PROJECT_ADD);
 
-            const currentProject = await getCurrentBallerinaProject();
+            if (window.activeTextEditor && window.activeTextEditor.document.languageId != LANGUAGE.BALLERINA) {
+                window.showErrorMessage(MESSAGES.NOT_IN_PROJECT);
+                return;
+            }
+
+            const currentProject = ballerinaExtInstance.getDocumentContext().isActiveDiagram() ? await
+                getCurrentBallerinaProject(ballerinaExtInstance.getDocumentContext().getLatestDocument()?.toString())
+                : await getCurrentBallerinaProject();
             if (currentProject.kind === PROJECT_TYPE.SINGLE_FILE || !currentProject.path) {
                 sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_ERROR_EXECUTE_PROJECT_ADD, CMP_PROJECT_ADD,
                     MESSAGES.NOT_IN_PROJECT);

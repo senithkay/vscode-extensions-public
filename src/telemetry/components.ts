@@ -35,3 +35,7 @@ export const CMP_EXECUTOR_CODELENS = "component.executor.codelens";
 export const CMP_JSON_TO_RECORD = "component.jsonToRecord";
 export const CMP_LS_CLIENT_COMPLETIONS = "component.ls.client.completions";
 export const CMP_LS_CLIENT_DIAGNOSTICS = "component.ls.client.diagnostics";
+export const CMP_GIT_STATUS = "component.git.status";
+export const CMP_TRYIT_VIEW = "component.tryit.view";
+export const CMP_EDITOR_SUPPORT = "component.editor.support";
+export const CMP_CHOREO_AUTHENTICATION = "component.choreo.authentication";
