@@ -43,8 +43,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
     if (!ballerinaExtInstance.isAllCodeLensEnabled()) {
         return;
     }
-    if ((ballerinaExtInstance.isAllCodeLensEnabled() || ballerinaExtInstance.isExecutorCodeLensEnabled()) &&
-        isSupportedVersion(ballerinaExtInstance, VERSION.BETA, 1)) {
+    if (ballerinaExtInstance.isAllCodeLensEnabled() && isSupportedVersion(ballerinaExtInstance, VERSION.BETA, 1)) {
         languages.registerCodeLensProvider([{ language: LANGUAGE.BALLERINA }],
             new ExecutorCodeLensProvider(ballerinaExtInstance));
     }

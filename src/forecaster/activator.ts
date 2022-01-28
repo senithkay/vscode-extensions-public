@@ -83,7 +83,7 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
     });
     context.subscriptions.push(getEndpoints);
 
-    if ((ballerinaExtInstance.isAllCodeLensEnabled() || ballerinaExtInstance.isExecutorCodeLensEnabled())) {
+    if (ballerinaExtInstance.isAllCodeLensEnabled()) {
         languages.registerCodeLensProvider([{ language: LANGUAGE.BALLERINA }],
             new ExecutorCodeLensProvider(ballerinaExtInstance));
     }
