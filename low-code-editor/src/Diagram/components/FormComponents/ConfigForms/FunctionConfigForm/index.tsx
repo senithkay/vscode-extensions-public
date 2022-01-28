@@ -38,15 +38,14 @@ interface FunctionConfigFormProps {
     configOverlayFormStatus?: ConfigOverlayFormStatus;
     targetPosition?: NodePosition;
     onCancel: () => void;
-    onSave: () => void;
-    formType: string;
+    onSave: () => void;  
     isLastMember?: boolean;
 }
 
 export function FunctionConfigForm(props: FunctionConfigFormProps) {
     const MAIN_TEXT: string = "Main";
     const formClasses = useFormStyles();
-    const { targetPosition, model, onSave, onCancel, formType, configOverlayFormStatus, isLastMember } = props;
+    const { targetPosition, model, onSave, onCancel,   configOverlayFormStatus, isLastMember } = props;
     const isMainFunction: boolean = (configOverlayFormStatus.formName && configOverlayFormStatus.formName === MAIN_TEXT) || (model && model.functionName.value === MAIN_TEXT.toLowerCase());
     const [functionName, setFunctionName] = useState(isMainFunction ? MAIN_TEXT.toLowerCase() : "");
     const [parameters, setParameters] = useState<FunctionParam[]>([]);
@@ -283,8 +282,7 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
             <FormHeaderSection
                 onCancel={onCancel}
                 formTitle={"lowcode.develop.configForms.functionForms.title"}
-                defaultMessage={"Function"}
-                formType={formType}
+                defaultMessage={"Function"} 
             />
             <div className={formClasses.formContentWrapper}>
                 <div className={formClasses.formNameWrapper}>
