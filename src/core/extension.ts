@@ -31,7 +31,7 @@ import { exec, spawnSync } from 'child_process';
 import { LanguageClientOptions, State as LS_STATE, RevealOutputChannelOn, ServerOptions } from "vscode-languageclient/node";
 import { getServerOptions } from '../server/server';
 import { ExtendedLangClient } from './extended-language-client';
-import { debug, log, getOutputChannel, outputChannel, isWindows } from '../utils';
+import { debug, log, getOutputChannel, outputChannel, isWindows, isSupportedVersion, VERSION } from '../utils';
 import { AssertionError } from "assert";
 import {
     BALLERINA_HOME, ENABLE_ALL_CODELENS, ENABLE_TELEMETRY, ENABLE_SEMANTIC_HIGHLIGHTING, OVERRIDE_BALLERINA_HOME,
@@ -217,14 +217,13 @@ export class BallerinaExtension {
                 log(`Plugin version: ${pluginVersion}\nBallerina version: ${this.ballerinaVersion}`);
                 this.sdkVersion.text = `Ballerina SDK: ${this.ballerinaVersion}`;
 
-                if (!this.ballerinaVersion.match(SWAN_LAKE_REGEX)) {
+                if (!this.ballerinaVersion.match(SWAN_LAKE_REGEX) || (this.ballerinaVersion.match(SWAN_LAKE_REGEX) &&
+                    !isSupportedVersion(ballerinaExtInstance, VERSION.BETA, 3))) {
                     this.showMessageOldBallerina();
                     const message = `Ballerina version ${this.ballerinaVersion} is not supported. 
-                        The extension supports Ballerina Swan Lake version.`;
+                        The extension supports Ballerina Swan Lake Beta 3+ versions.`;
                     sendTelemetryEvent(this, TM_EVENT_ERROR_OLD_BAL_HOME_DETECTED, CMP_EXTENSION_CORE, message);
-                    throw new AssertionError({
-                        message: message
-                    });
+                    return;
                 }
 
                 // if Home is found load Language Server.
