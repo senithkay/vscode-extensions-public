@@ -63,13 +63,21 @@ export function CheckActionComponent(props: CheckActionProps) {
             { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS), typeSuggestions: [], variableSuggestions: [] });
     };
 
+    const buttonClassName = classNames(
+                                statementEditorClasses.expressionElement,
+                                hasExpressionSelected && statementEditorClasses.expressionElementSelected
+                            );
+    const spanClassName =  classNames(
+                                statementEditorClasses.expressionBlock,
+                                statementEditorClasses.expressionBlockDisabled
+                            );
     return (
         <span>
-            <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>
+            <span className={spanClassName}>
                 {model.checkKeyword.value}
             </span>
             <button
-                className={classNames(statementEditorClasses.expressionElement, hasExpressionSelected && statementEditorClasses.expressionElementSelected)}
+                className={buttonClassName}
                 onClick={onClickOnExpression}
             >
                 {expressionComponent}
