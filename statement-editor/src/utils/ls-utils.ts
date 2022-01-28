@@ -129,7 +129,7 @@ export async function addStatementToTargetLine(
     if (position?.startColumn && position?.endColumn && position?.endLine) {
         return getModifiedStatement(currentFileContent, currentStatement, position, getLangClient);
     } else {
-        //TODO: Change the backend to accomodate STModifications without endline and endcolumn values and then remove the following logic 
+        // TODO: Change the backend to accomodate STModifications without endline and endcolumn values and then remove the following logic
         if (!!position?.startColumn) {
             currentStatement = " ".repeat(position.startColumn) + currentStatement;
         }
