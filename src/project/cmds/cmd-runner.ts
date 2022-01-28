@@ -63,6 +63,7 @@ export enum MESSAGES {
 
 export const BAL_TOML = "Ballerina.toml";
 const TERMINAL_NAME = 'Terminal';
+const BAL_CONFIG_FILES = 'BAL_CONFIG_FILES';
 
 let terminal: Terminal;
 
@@ -98,14 +99,14 @@ export function runCommandWithConf(file: BallerinaProject | string, executor: st
         commandText = `${executor} ${cmd} ${argsList}`;
         let configEnv = {};
         if (confPath !== '') {
-            configEnv = { "BAL_CONFIG_FILES": confPath };
+            configEnv = { BAL_CONFIG_FILES: confPath };
         }
         terminal = window.createTerminal({ name: TERMINAL_NAME, cwd: filePath, env: configEnv });
     }
     terminal.sendText(isWindows() ? 'cls' : 'clear', true);
     terminal.show(true);
     if (confPath !== '') {
-        terminal.sendText('echo $BAL_CONFIG_FILES');
+        terminal.sendText(isWindows() ? `echo $Env:${BAL_CONFIG_FILES}` : `echo $${BAL_CONFIG_FILES}`);
     }
     terminal.sendText(commandText, true);
 }
