@@ -88,11 +88,6 @@
                     "default": true,
                     "description": "Enable all code lens features."
                 },
-                "ballerina.codeLens.executor.enabled": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Enable executor code lens feature."
-                },
                 "ballerina.enableFileWatcher": {
                     "type": "boolean",
                     "default": true,
