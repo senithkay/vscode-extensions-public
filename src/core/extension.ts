@@ -35,7 +35,7 @@ import { debug, log, getOutputChannel, outputChannel, isWindows, isSupportedVers
 import { AssertionError } from "assert";
 import {
     BALLERINA_HOME, ENABLE_ALL_CODELENS, ENABLE_TELEMETRY, ENABLE_SEMANTIC_HIGHLIGHTING, OVERRIDE_BALLERINA_HOME,
-    BALLERINA_LOW_CODE_MODE, ENABLE_PERFORMANCE_FORECAST, ENABLE_DEBUG_LOG
+    BALLERINA_LOW_CODE_MODE, ENABLE_PERFORMANCE_FORECAST, ENABLE_DEBUG_LOG, ENABLE_BALLERINA_LS_DEBUG
 }
     from "./preferences";
 import TelemetryReporter from "vscode-extension-telemetry";
@@ -227,7 +227,7 @@ export class BallerinaExtension {
 
                 // if Home is found load Language Server.
                 let serverOptions: ServerOptions;
-                serverOptions = getServerOptions(this.ballerinaCmd);
+                serverOptions = getServerOptions(this.ballerinaCmd, this);
                 this.langClient = new ExtendedLangClient('ballerina-vscode', 'Ballerina LS Client', serverOptions,
                     this.clientOptions, this, false);
 
@@ -295,8 +295,8 @@ export class BallerinaExtension {
         workspace.onDidChangeConfiguration((params: ConfigurationChangeEvent) => {
             if (params.affectsConfiguration(BALLERINA_HOME) || params.affectsConfiguration(OVERRIDE_BALLERINA_HOME)
                 || params.affectsConfiguration(ENABLE_ALL_CODELENS) ||
-                params.affectsConfiguration(BALLERINA_LOW_CODE_MODE) ||
-                params.affectsConfiguration(ENABLE_DEBUG_LOG)) {
+                params.affectsConfiguration(BALLERINA_LOW_CODE_MODE) || params.affectsConfiguration(ENABLE_DEBUG_LOG)
+                || params.affectsConfiguration(ENABLE_BALLERINA_LS_DEBUG)) {
                 this.showMsgAndRestart(CONFIG_CHANGED);
             }
         });
@@ -552,6 +552,13 @@ export class BallerinaExtension {
     public isBallerinaLowCodeMode(): boolean {
         return <boolean>workspace.getConfiguration().get(BALLERINA_LOW_CODE_MODE) ||
             process.env.LOW_CODE_MODE === 'true';
+    }
+
+    public enableLSDebug(): boolean {
+        if (!this.overrideBallerinaHome()) {
+            return false;
+        }
+        return <boolean>workspace.getConfiguration().get(ENABLE_BALLERINA_LS_DEBUG);
     }
 
     public enabledPerformanceForecasting(): boolean {
