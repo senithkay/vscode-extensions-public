@@ -8,6 +8,7 @@ ARG GIT_PAT
 # ARG CHOREO_SESSION_COOKIE
 ARG mainHtml=/usr/local/share/.config/yarn/global/node_modules/code-server/src/browser/pages/vscode.html
 ARG webViewMain=/usr/local/share/.config/yarn/global/node_modules/code-server/vendor/modules/code-oss-dev/out/vs/workbench/contrib/webview/browser/pre/main.js
+ARG CODE_SERVER_VERSION=3.12.0
 
 ENV LOW_CODE_MODE true
 ENV CODE_SERVER_ENV true
@@ -38,6 +39,7 @@ RUN curl -s https://api.github.com/repos/wso2/ballerina-plugin-vscode/releases |
     sed -i '/<\/body>/i <!-- Loader html -->\n<div class="loading"><div class='loader'><div></div></div></div>\n' $mainHtml && \
     sed -i 's/delete window.parent;//g' $webViewMain && \
     sed -i 's/delete window.top;//g' $webViewMain && \
-    sed -i 's/delete window.frameElement;//g' $webViewMain 
+    sed -i 's/delete window.frameElement;//g' $webViewMain && \
+    sed -i -e 's/{{CS_STATIC_BASE}}/https:\/\/unpkg.com\/code-server@'$CODE_SERVER_VERSION'/g' $mainHtml
 
 RUN echo "{\n\"workbench.startupEditor\": \"none\",\n\"window.dialogStyle\": \"custom\"}" > /config/data/User/settings.json
