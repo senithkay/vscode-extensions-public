@@ -23,7 +23,7 @@ import { ServerOptions, ExecutableOptions } from 'vscode-languageclient/node';
 import { isWindows } from '../utils';
 import { BallerinaExtension } from '../core';
 
-export function getServerOptions(ballerinaCmd: string, extension: BallerinaExtension | undefined): ServerOptions {
+export function getServerOptions(ballerinaCmd: string, extension?: BallerinaExtension): ServerOptions {
     debug(`Using Ballerina CLI command '${ballerinaCmd}' for Language server.`);
     let cmd = isWindows() ? getConvertedPath(ballerinaCmd) : ballerinaCmd;
     let args = ["start-language-server"];

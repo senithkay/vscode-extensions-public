@@ -555,10 +555,7 @@ export class BallerinaExtension {
     }
 
     public enableLSDebug(): boolean {
-        if (!this.overrideBallerinaHome()) {
-            return false;
-        }
-        return <boolean>workspace.getConfiguration().get(ENABLE_BALLERINA_LS_DEBUG);
+        return this.overrideBallerinaHome() && <boolean>workspace.getConfiguration().get(ENABLE_BALLERINA_LS_DEBUG);
     }
 
     public enabledPerformanceForecasting(): boolean {
