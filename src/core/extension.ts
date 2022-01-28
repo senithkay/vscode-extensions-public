@@ -86,6 +86,7 @@ export interface ChoreoSession {
     choreoCookie?: string;
     choreoRefreshToken?: string;
     choreoLoginTime?: Date;
+    tokenExpirationTime?: number;
 }
 
 interface CodeServerContext {
@@ -579,9 +580,10 @@ export class BallerinaExtension {
     }
 
     public getChoreoSession(): ChoreoSession {
-        if (this.choreoSession.loginStatus && this.choreoSession.choreoLoginTime) {
-            let tokenDuration = new Date().getTime() - new Date(this.choreoSession.choreoLoginTime).getTime();
-            if (tokenDuration > 3000000) {
+        if (this.choreoSession.loginStatus && this.choreoSession.choreoLoginTime
+            && this.choreoSession.tokenExpirationTime) {
+            let tokenDuration = (new Date().getTime() - new Date(this.choreoSession.choreoLoginTime).getTime()) / 1000;
+            if (tokenDuration > this.choreoSession.tokenExpirationTime) {
                 debug(`Exchanging refresh token. ${new Date()}`);
                 new OAuthTokenHandler(this).exchangeRefreshToken(this.choreoSession.choreoRefreshToken!);
             }

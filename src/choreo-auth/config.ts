@@ -21,7 +21,8 @@ export enum ChoreoSessionConfig {
     AccessToken = "access.token",
     DisplayName = "display.name",
     RefreshToken = "refresh.token",
-    LoginTime = "login.time"
+    LoginTime = "login.time",
+    TokenExpiration = "token.expiration.time"
 }
 
 export enum ChoreoFidp {

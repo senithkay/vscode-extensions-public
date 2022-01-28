@@ -17,7 +17,7 @@
  *
  */
 
- export interface ConfigProperty {
+export interface ConfigProperty {
     headerNames: string[];
     configs: ConfigValue[];
 }
