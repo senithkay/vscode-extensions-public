@@ -119,7 +119,7 @@ export const PerformanceForcast = ({ name, data }: PerformanceForcastProps) => {
                     User Count
                 </div>
             </div>
-            <a href="https://wso2.com/choreo/docs/observability/analyze-performance/">
+            <a href="https://wso2.com/choreo/docs/references/performance-analysis/">
                 How Performance Analyzer Works
             </a>
         </div>
