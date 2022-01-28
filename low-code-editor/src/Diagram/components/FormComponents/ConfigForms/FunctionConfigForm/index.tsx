@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useEffect, useRef, useState } from "react";
 
-import { Button, Divider, FormControl } from "@material-ui/core";
+import { Box, Button, Divider, FormControl } from "@material-ui/core";
 import { ConfigOverlayFormStatus, FormActionButtons, FormHeaderSection, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FunctionDefinition, NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
@@ -300,15 +300,15 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
                                 isEdit={!!model}
                                 paramCount={parameters.length}
                             />
-                        ) : (
-                            <Button
-                                onClick={openNewParamView}
-                                className={formClasses.addPropertyBtn}
-                                startIcon={<AddIcon />}
-                            >
-
-                                Add parameter
-                            </Button>
+                        ) : ( 
+                                <Button
+                                    onClick={openNewParamView}
+                                    className={formClasses.addParameterBtn}
+                                    startIcon={<AddIcon />}
+                                    color="primary"
+                                > 
+                                    Add parameter
+                                </Button> 
                         )}
                     </Section>
                     <Divider className={formClasses.sectionSeperatorHR} />
