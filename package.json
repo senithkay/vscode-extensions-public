@@ -112,6 +112,11 @@
                     "type": "boolean",
                     "default": true,
                     "description": "Enable real-time performance forecasting."
+                },
+                "ballerina.enableLanguageServerDebug": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Enable Language Server debug mode."
                 }
             }
         },
