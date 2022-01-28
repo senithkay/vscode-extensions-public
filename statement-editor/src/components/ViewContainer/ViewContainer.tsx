@@ -85,14 +85,13 @@ export function ViewContainer(props: ViewProps) {
     }
 
     useEffect(() => {
-        (async () => {
-            const partialST: STNode = await getPartialSTForStatement(
-                { codeSnippet: initialSource.trim() }, getLangClient);
-            if (STKindChecker.isLocalVarDecl(partialST) && initialSource === "EXPRESSION") {
-                partialST.kind = OTHER_STATEMENT;
-            }
-            setModel(partialST);
-        })();
+        if (!(config.type === "Custom" && !initialSource)) {
+            (async () => {
+                const partialST = await getPartialSTForStatement(
+                    { codeSnippet: initialSource.trim() }, getLangClient);
+                setModel(partialST);
+            })();
+        }
     }, []);
 
     useEffect(() => {
@@ -103,15 +102,21 @@ export function ViewContainer(props: ViewProps) {
     }, [model]);
 
     const updateModel = async (codeSnippet: string, position: NodePosition) => {
-        const stModification = {
-            startLine: position.startLine,
-            startColumn: position.startColumn,
-            endLine: position.endLine,
-            endColumn: position.endColumn,
-            newCodeSnippet: codeSnippet
+        let partialST: STNode;
+        if (model) {
+            const stModification = {
+                startLine: position.startLine,
+                startColumn: position.startColumn,
+                endLine: position.endLine,
+                endColumn: position.endColumn,
+                newCodeSnippet: codeSnippet
+            }
+            partialST = await getPartialSTForStatement(
+                { codeSnippet: model.source , stModification }, getLangClient);
+        } else {
+            partialST = await getPartialSTForStatement(
+                { codeSnippet }, getLangClient);
         }
-        const partialST: STNode = await getPartialSTForStatement(
-            { codeSnippet: model.source, stModification }, getLangClient);
         setModel(partialST);
 
         const newCurrentModel = getCurrentModel({
@@ -159,7 +164,7 @@ export function ViewContainer(props: ViewProps) {
     }
 
     return (
-        model && (
+        (
             <div className={overlayClasses.mainStatementWrapper}>
                 <div className={overlayClasses.statementExpressionWrapper}>
                     <StatementEditorContextProvider
