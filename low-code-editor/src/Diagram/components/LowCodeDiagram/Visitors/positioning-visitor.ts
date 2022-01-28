@@ -391,7 +391,75 @@ class PositioningVisitor implements Visitor {
         // Clean rendered labels
         blockViewState.controlFlow.executionTimeStates = [];
         blockViewState.controlFlow.lineStates = [];
-        node.statements.forEach((statement) => {
+
+        if (blockViewState.hasWorkerDecl) {
+            ({ height, index } = this.calculateStatementPosition(
+                (node as FunctionBodyBlock).namedWorkerDeclarator.workerInitStatements,
+                blockViewState, height, index, epGap));
+        }
+
+        ({ height, index } = this.calculateStatementPosition(node.statements, blockViewState, height, index, epGap));
+
+        if (!blockViewState.isEndComponentAvailable
+            && node.statements.length > 0 && node.statements[node.statements.length - 1]?.controlFlow?.isReached) {
+            const lastStatement = node.statements[node.statements.length - 1];
+            if (!(node.viewState as BlockViewState).isElseBlock) {
+                //  Adding last control flow line after last statement for any block
+                let lastLineY;
+                if (STKindChecker.isIfElseStatement(lastStatement)) {
+                    // For IfElse statements, the starting position of the end line starts at the bottom of last statement
+                    lastLineY = lastStatement.viewState.bBox.cy + lastStatement.viewState.bBox.h -
+                        blockViewState.bBox.offsetFromTop - blockViewState.bBox.offsetFromBottom;
+                } else {
+                    lastLineY = lastStatement.viewState.bBox.cy
+                }
+                const lastLine: ControlFlowLineState = {
+                    x: lastStatement.viewState.bBox.cx,
+                    y: lastLineY,
+                    h: blockViewState.bBox.cy + blockViewState.bBox.offsetFromTop + height - lastLineY,
+                };
+                blockViewState.controlFlow.lineStates.push(lastLine);
+            } else {
+                //  Adding last control flow line after last statement for else block
+                if (!STKindChecker.isReturnStatement(lastStatement)) {
+                    const endLineY = STKindChecker.isIfElseStatement(lastStatement)
+                        ? lastStatement.viewState.bBox.cy + lastStatement.viewState.bBox.h
+                        : lastStatement.viewState.bBox.cy;
+                    const lastLine: ControlFlowLineState = {
+                        x: lastStatement.viewState.bBox.cx,
+                        y: endLineY,
+                        h: blockViewState.bBox.cy + height - endLineY,
+                    }
+                    blockViewState.controlFlow.lineStates.push(lastLine);
+                }
+            }
+        }
+
+        // Get the last plus view state
+        const plusViewState: PlusViewState = getPlusViewState(node.statements.length, blockViewState.plusButtons);
+
+        if (blockViewState.draft && blockViewState.draft[0] === node.statements.length) {
+            const draft = blockViewState.draft[1];
+            if (draft) {
+                draft.bBox.cx = blockViewState.bBox.cx;
+                draft.bBox.cy = (blockViewState.bBox.cy + blockViewState.bBox.offsetFromTop + height);
+                height += draft.bBox.h;
+            }
+        }
+
+        if (plusViewState && plusViewState.expanded) {
+            plusViewState.bBox.cx = blockViewState.bBox.cx;
+        } else if (plusViewState && plusViewState.collapsedPlusDuoExpanded) {
+            plusViewState.bBox.cx = blockViewState.bBox.cx;
+            plusViewState.collapsedPlusDuoExpanded = false;
+        } else if (plusViewState) {
+            plusViewState.bBox.cy = blockViewState.bBox.cy + blockViewState.bBox.h;
+            plusViewState.bBox.cx = blockViewState.bBox.cx;
+        }
+    }
+
+    private calculateStatementPosition(statements: STNode[], blockViewState: BlockViewState, height: number, index: number, epGap: number) {
+        statements.forEach((statement) => {
             const statementViewState: StatementViewState = statement.viewState;
             statementViewState.bBox.cx = blockViewState.bBox.cx;
             statementViewState.bBox.cy = blockViewState.bBox.cy + statementViewState.bBox.offsetFromTop + height;
@@ -410,7 +478,7 @@ class PositioningVisitor implements Visitor {
 
             // Control flow execution time
             if (statement?.controlFlow?.executionTime !== undefined) {
-                const isIf = STKindChecker.isIfElseStatement(statement)
+                const isIf = STKindChecker.isIfElseStatement(statement);
                 // Neglect if width dueto drawing lines in left side
                 const offsetX = (isIf ? EXECUTION_TIME_IF_X_OFFSET : (statementViewState.bBox.w / 2) + EXECUTION_TIME_DEFAULT_X_OFFSET);
                 let offsetY;
@@ -442,9 +510,9 @@ class PositioningVisitor implements Visitor {
                     controlFlowLineState.y = blockViewState.bBox.cy - blockViewState.bBox.offsetFromBottom;
                     controlFlowLineState.h = statementViewState.bBox.cy - controlFlowLineState.y;
                 } else {
-                    const previousStatementViewState: StatementViewState = node.statements[index - 1].viewState;
+                    const previousStatementViewState: StatementViewState = statements[index - 1].viewState;
                     controlFlowLineState.x = statementViewState.bBox.cx;
-                    if (STKindChecker.isIfElseStatement(node.statements[index - 1])) {
+                    if (STKindChecker.isIfElseStatement(statements[index - 1])) {
                         controlFlowLineState.y = previousStatementViewState.bBox.cy + previousStatementViewState.bBox.h - previousStatementViewState.bBox.offsetFromBottom - statementViewState.bBox.offsetFromTop;
                         controlFlowLineState.h = statementViewState.bBox.cy - controlFlowLineState.y + previousStatementViewState.bBox.offsetFromBottom + statementViewState.bBox.offsetFromTop;
                     } else {
@@ -592,63 +660,7 @@ class PositioningVisitor implements Visitor {
             }
             ++index;
         });
-
-        if (!blockViewState.isEndComponentAvailable
-            && node.statements.length > 0 && node.statements[node.statements.length - 1]?.controlFlow?.isReached) {
-            const lastStatement = node.statements[node.statements.length - 1];
-            if (!(node.viewState as BlockViewState).isElseBlock) {
-                //  Adding last control flow line after last statement for any block
-                let lastLineY;
-                if (STKindChecker.isIfElseStatement(lastStatement)) {
-                    // For IfElse statements, the starting position of the end line starts at the bottom of last statement
-                    lastLineY = lastStatement.viewState.bBox.cy + lastStatement.viewState.bBox.h -
-                        blockViewState.bBox.offsetFromTop - blockViewState.bBox.offsetFromBottom;
-                } else {
-                    lastLineY = lastStatement.viewState.bBox.cy
-                }
-                const lastLine: ControlFlowLineState = {
-                    x: lastStatement.viewState.bBox.cx,
-                    y: lastLineY,
-                    h: blockViewState.bBox.cy + blockViewState.bBox.offsetFromTop + height - lastLineY,
-                };
-                blockViewState.controlFlow.lineStates.push(lastLine);
-            } else {
-                //  Adding last control flow line after last statement for else block
-                if (!STKindChecker.isReturnStatement(lastStatement)) {
-                    const endLineY = STKindChecker.isIfElseStatement(lastStatement)
-                        ? lastStatement.viewState.bBox.cy + lastStatement.viewState.bBox.h
-                        : lastStatement.viewState.bBox.cy;
-                    const lastLine: ControlFlowLineState = {
-                        x: lastStatement.viewState.bBox.cx,
-                        y: endLineY,
-                        h: blockViewState.bBox.cy + height - endLineY,
-                    }
-                    blockViewState.controlFlow.lineStates.push(lastLine);
-                }
-            }
-        }
-
-        // Get the last plus view state
-        const plusViewState: PlusViewState = getPlusViewState(node.statements.length, blockViewState.plusButtons);
-
-        if (blockViewState.draft && blockViewState.draft[0] === node.statements.length) {
-            const draft = blockViewState.draft[1];
-            if (draft) {
-                draft.bBox.cx = blockViewState.bBox.cx;
-                draft.bBox.cy = (blockViewState.bBox.cy + blockViewState.bBox.offsetFromTop + height);
-                height += draft.bBox.h;
-            }
-        }
-
-        if (plusViewState && plusViewState.expanded) {
-            plusViewState.bBox.cx = blockViewState.bBox.cx;
-        } else if (plusViewState && plusViewState.collapsedPlusDuoExpanded) {
-            plusViewState.bBox.cx = blockViewState.bBox.cx;
-            plusViewState.collapsedPlusDuoExpanded = false;
-        } else if (plusViewState) {
-            plusViewState.bBox.cy = blockViewState.bBox.cy + blockViewState.bBox.h;
-            plusViewState.bBox.cx = blockViewState.bBox.cx;
-        }
+        return { height, index };
     }
 
     public beginVisitForeachStatement(node: ForeachStatement) {
