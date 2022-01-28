@@ -211,10 +211,8 @@ export class BallerinaExtension {
             const pluginVersion = this.extension.packageJSON.version.split('-')[0];
             return this.getBallerinaVersion(this.ballerinaHome, this.overrideBallerinaHome()).then(runtimeVersion => {
                 this.ballerinaVersion = runtimeVersion.split('-')[0];
-                if (!this.overrideBallerinaHome()) {
-                    const { home } = this.autoDetectBallerinaHome();
-                    this.ballerinaHome = home;
-                }
+                const { home } = this.autoDetectBallerinaHome();
+                this.ballerinaHome = home;
                 log(`Plugin version: ${pluginVersion}\nBallerina version: ${this.ballerinaVersion}`);
                 this.sdkVersion.text = `Ballerina SDK: ${this.ballerinaVersion}`;
 
