@@ -165,8 +165,9 @@ export class OAuthTokenHandler {
                 let vscodeToken = response.data.access_token;
                 let refreshToken = response.data.refresh_token;
                 let loginTime = new Date();
+                let expirationTime = response.data.expires_in;
                 await setChoreoKeytarSession(String(vscodeToken), String(this.displayName),
-                    String(refreshToken), String(loginTime));
+                    String(refreshToken), String(loginTime), String(expirationTime));
 
                 await getChoreoKeytarSession().then((result) => {
                     this.extension.setChoreoSession(result);
@@ -213,8 +214,9 @@ export class OAuthTokenHandler {
                 let accessToken = response.data.access_token;
                 let newRefreshToken = response.data.refresh_token;
                 let loginTime = new Date();
+                let expirationTime = response.data.expires_in;
                 await setChoreoKeytarSession(String(accessToken), String(this.displayName),
-                    String(newRefreshToken), String(loginTime));
+                    String(newRefreshToken), String(loginTime), String(expirationTime));
 
                 await getChoreoKeytarSession().then((result) => {
                     this.extension.setChoreoSession(result);
