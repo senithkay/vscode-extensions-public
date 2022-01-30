@@ -22,6 +22,10 @@ import {
     FormField,
     FormFieldReturnType,
     FormHeaderSection,
+    LowcodeEvent,
+    SAVE_CONNECTOR,
+    SAVE_CONNECTOR_INIT,
+    SAVE_CONNECTOR_INVOKE,
     STModification,
     WizardType,
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
@@ -31,12 +35,6 @@ import {DocIcon} from "../../../../../../assets";
 import { Context, useDiagramContext } from "../../../../../../Contexts/Diagram";
 import { useFunctionContext } from "../../../../../../Contexts/Function";
 import { TextPreloaderVertical } from "../../../../../../PreLoader/TextPreloaderVertical";
-import {
-    LowcodeEvent,
-    SAVE_CONNECTOR,
-    SAVE_CONNECTOR_INIT,
-    SAVE_CONNECTOR_INVOKE
-} from "../../../../../models";
 import { getAllVariables } from "../../../../../utils/mixins";
 import {
     createImportStatement,

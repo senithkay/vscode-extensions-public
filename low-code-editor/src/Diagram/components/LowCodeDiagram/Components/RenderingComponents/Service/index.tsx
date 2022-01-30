@@ -11,15 +11,15 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js  jsx-wrap-multiline
-import React, { useState } from "react"
+import React, { useContext, useState } from "react"
 
 import { ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
 
-import { useDiagramContext } from "../../../../../../Contexts/Diagram";
 import { useSelectedStatus } from "../../../../../hooks";
 import { getSTComponent } from "../../../../../utils";
 import expandTracker from "../../../../../utils/expand-tracker";
 import { getServiceTypeFromModel } from "../../../../FormComponents/ConfigForms/ServiceConfigForm/util";
+import { Context } from "../../../Context/diagram";
 import { getNodeSignature } from "../../../Utils";
 import { TopLevelPlus } from "../../PlusButtons/TopLevelPlus";
 
@@ -35,7 +35,20 @@ export interface ServiceProps {
 
 export function Service(props: ServiceProps) {
     const { model } = props;
-    const { props: { stSymbolInfo } } = useDiagramContext();
+    const {
+        api: {
+            webView: {
+                showSwaggerView
+            },
+            project: {
+                run
+            }
+        },
+        props: {
+            isReadOnly,
+            stSymbolInfo
+        }
+    } = useContext(Context);
 
     const [isExpanded, setIsExpanded] = useSelectedStatus(model);
     const onExpandClick = () => {
@@ -59,17 +72,6 @@ export function Service(props: ServiceProps) {
             </div>
         );
     });
-
-    const {
-        api: {
-            webView: {
-                showSwaggerView
-            },
-            project: {
-                run
-            }
-        }
-    } = useDiagramContext();
 
     const onClickTryIt = async () => {
         let servicePath = "";
@@ -102,20 +104,23 @@ export function Service(props: ServiceProps) {
         <>
             <div className={'service'} >
                 <div className={"action-container"}>
-                    {renderButtons()}
+                    {!isReadOnly && renderButtons()}
                 </div>
                 <ServiceHeader model={model} isExpanded={isExpanded} onExpandClick={onExpandClick} />
                 <div className={'content-container'}>
                     {isExpanded && (
                         <>
                             {children}
-                            <TopLevelPlus
-                                kind={model.kind}
-                                targetPosition={model.closeBraceToken.position}
-                                isTriggerType={isTriggerType}
-                                isDocumentEmpty={model.members.length === 0}
-                                showCategorized={true}
-                            />
+                            {!isReadOnly && (
+                                <TopLevelPlus
+                                    kind={model.kind}
+                                    targetPosition={model.closeBraceToken.position}
+                                    isTriggerType={isTriggerType}
+                                    isDocumentEmpty={model.members.length === 0}
+                                    showCategorized={true}
+                                />
+                            )
+                            }
                         </>
                     )}
                 </div>

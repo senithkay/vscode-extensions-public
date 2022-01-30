@@ -19,7 +19,7 @@ import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../Contexts/Diagram";
 
-import { ConfigOverlayFormStatus, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ConfigOverlayFormStatus, STModification, SAVE_STATEMENT, LowcodeEvent } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { getAllVariables } from "../../../../utils/mixins";
 import {
     createPropertyStatement,
@@ -31,7 +31,6 @@ import { EndConfig, RespondConfig } from "../../Types";
 import { genVariableName } from "../../../Portals/utils";
 
 import { EndOverlayForm } from "./EndOverlayForm";
-import { SAVE_STATEMENT, LowcodeEvent } from "../../../../models";
 
 export interface AddEndFormProps {
     type: string;

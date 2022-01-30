@@ -12,7 +12,7 @@
  */
 import React, { useContext } from "react";
 
-import { Context } from "../../../../../../Contexts/Diagram";
+import { Context } from "../../../Context/diagram";
 import { BlockViewState } from "../../../ViewState";
 
 import { CollapseSVG, COLLAPSE_SVG_WIDTH_WITH_SHADOW } from "./CollapseSVG";

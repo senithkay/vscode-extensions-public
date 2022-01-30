@@ -13,19 +13,17 @@
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
 import React, { useContext, useState } from "react";
 
-import { WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ConfigOverlayFormStatus, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
-import { Context } from "../../../../../../Contexts/Diagram";
 import { getConditionConfig } from "../../../../../utils/diagram-util";
 import { DefaultConfig } from "../../../../../visitors/default";
-import { FormGenerator } from "../../../../FormComponents/FormGenerator";
 import { DeleteBtn } from "../../../Components/DiagramActions/DeleteBtn";
 import { DELETE_SVG_OFFSET, DELETE_SVG_WIDTH_WITH_SHADOW } from "../../../Components/DiagramActions/DeleteBtn/DeleteSVG";
 import { EditBtn } from "../../../Components/DiagramActions/EditBtn";
 import { EDIT_SVG_WIDTH_WITH_SHADOW } from "../../../Components/DiagramActions/EditBtn/EditSVG";
+import { Context } from "../../../Context/diagram";
 import { BlockViewState, EndViewState } from "../../../ViewState";
-import { DraftStatementViewState } from "../../../ViewState/draft";
 
 import { StopSVG, STOP_SVG_HEIGHT, STOP_SVG_HEIGHT_WITH_SHADOW, STOP_SVG_SHADOW_OFFSET, STOP_SVG_WIDTH_WITH_SHADOW } from "./StopSVG";
 import "./style.scss";
@@ -43,13 +41,12 @@ export function End(props: EndProps) {
             code: {
                 gotoSource
             },
-            configPanel: {
-                dispactchConfigOverlayForm: openNewReturnConfigForm,
+            edit: {
+                renderEditForm
             }
         },
         actions: {
             diagramCleanDraw,
-            toggleDiagramOverlay
         },
         props: {
             isCodeEditorActive,
@@ -62,11 +59,6 @@ export function End(props: EndProps) {
     } = useContext(Context);
 
     const { viewState, model, blockViewState, isExpressionFunction } = props;
-    const isDraftStatement: boolean = blockViewState
-        && blockViewState.draft[1] instanceof DraftStatementViewState;
-
-    const [isConfigWizardOpen, setConfigWizardOpen] = useState(false);
-    const [endConfigFormOverlayState, setEndConfigFormOverlayState] = useState(undefined);
 
     const compType = "end";
     let cx: number;
@@ -95,21 +87,10 @@ export function End(props: EndProps) {
             diagramCleanDraw(syntaxTree);
         }
     };
-    const onCancel = () => {
-        setConfigWizardOpen(false);
-        toggleDiagramOverlay();
-    }
 
     const onReturnEditClick = () => {
-        setConfigWizardOpen(true);
         const configOverrlayState = getConditionConfig('Return', model.position, WizardType.EXISTING, model.viewState, undefined, stSymbolInfo, model);
-        setEndConfigFormOverlayState(configOverrlayState);
-        openNewReturnConfigForm('Return', model.position, WizardType.EXISTING, model.viewState, undefined, stSymbolInfo, model);
-    }
-
-    const onSave = () => {
-        setConfigWizardOpen(false);
-        toggleDiagramOverlay();
+        renderEditForm(model, model.position, configOverrlayState as ConfigOverlayFormStatus);
     }
 
     let codeSnippet = "No return statement"
@@ -124,8 +105,6 @@ export function End(props: EndProps) {
             gotoSource({ startLine: position.startLine, startColumn: position.startColumn });
         }
     }
-
-    const draftVS = blockViewState?.draft[1] as DraftStatementViewState
 
     const component: React.ReactElement = ((!model?.viewState.collapsed || blockViewState) &&
         (
@@ -147,15 +126,6 @@ export function End(props: EndProps) {
                                 x={cx - (STOP_SVG_SHADOW_OFFSET / 2)}
                                 y={cy - (STOP_SVG_SHADOW_OFFSET / 2)}
                             >
-
-                                {isConfigWizardOpen && endConfigFormOverlayState &&
-                                    <FormGenerator
-                                        onCancel={onCancel}
-                                        onSave={onSave}
-                                        configOverlayFormStatus={endConfigFormOverlayState}
-                                    />
-                                }
-
                                 <DeleteBtn
                                     {...deleteTriggerPosition}
                                     model={model}

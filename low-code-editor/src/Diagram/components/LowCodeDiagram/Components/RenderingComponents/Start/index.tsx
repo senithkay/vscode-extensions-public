@@ -22,7 +22,7 @@ import {
     STKindChecker,
 } from "@wso2-enterprise/syntax-tree";
 
-import { Context } from "../../../../../../Contexts/Diagram";
+import { Context } from "../../../Context/diagram";
 import { PlusButton } from "../../PlusButtons/Plus";
 
 import {
@@ -67,7 +67,7 @@ export function StartButton(props: StartButtonProps) {
                 y={cy - (START_SVG_HEIGHT / 2)}
                 text="START"
             />
-            {block && initPlusAvailable && <PlusButton viewState={plusView} model={block} initPlus={true} />}
+            {block && initPlusAvailable && !isReadOnly && <PlusButton viewState={plusView} model={block} initPlus={true} />}
         </g>
     );
 }

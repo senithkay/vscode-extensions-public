@@ -17,10 +17,10 @@ import CloseIcon from '@material-ui/icons/Close';
 import { BallerinaConnectorInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { LocalVarDecl } from "@wso2-enterprise/syntax-tree";
 
-import { Context } from "../../../../../../../Contexts/Diagram";
 import { useFunctionContext } from "../../../../../../../Contexts/Function";
 import { OverlayBackground } from "../../../../../OverlayBackground";
 import { DiagramOverlay, DiagramOverlayContainer, DiagramOverlayPosition } from '../../../../../Portals/Overlay';
+import { Context } from "../../../../Context/diagram";
 import { PlusViewState } from "../../../../ViewState/plus";
 import { StatementOptions } from "../PlusElementOptions/StatementOptions";
 import "../style.scss";

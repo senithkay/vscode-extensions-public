@@ -14,33 +14,44 @@
 import React, { useContext, useState } from "react";
 
 import Container from "@material-ui/core/Container";
-import { ConfigOverlayFormStatus } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ConfigOverlayFormStatus, ConnectorConfigWizardProps, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { ModulePart, NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import classnames from 'classnames';
 
 import { Context as DiagramContext } from "../Contexts/Diagram";
 import { TextPreLoader } from "../PreLoader/TextPreLoader";
 
+import { ConnectorConfigWizard } from "./components/FormComponents/ConnectorConfigWizard";
 import { FormGenerator, FormGeneratorProps } from "./components/FormComponents/FormGenerator";
 import LowCodeDiagram from "./components/LowCodeDiagram";
-import { DataMapper } from './components/LowCodeDiagram/Components/RenderingComponents/DataMapper';
-import { DiagramDisableState } from "./components/LowCodeDiagram/DiagramState/DiagramDisableState";
 import { DiagramErrorState } from "./components/LowCodeDiagram/DiagramState/DiagramErrorState";
 import { ErrorList } from "./components/LowCodeDiagram/DiagramState/ErrorList";
 import { ViewState } from "./components/LowCodeDiagram/ViewState";
 import { OverlayBackground } from "./components/OverlayBackground";
 import "./style.scss";
 import { useStyles } from "./styles";
+import { removeStatement } from "./utils/modification-util";
 import { DefaultConfig } from "./visitors/default";
 
 export function Diagram() {
     const {
         api: {
             code: {
+                modifyDiagram,
                 gotoSource,
                 isMutationInProgress,
                 isModulePullInProgress,
                 loaderText
+            },
+            webView: {
+                showSwaggerView,
+                showDocumentationView
+            },
+            project: {
+                run
+            },
+            insights: {
+                onEvent
             }
         },
         props: {
@@ -49,6 +60,7 @@ export function Diagram() {
             syntaxTree,
             isLoadingAST,
             isReadOnly,
+            stSymbolInfo,
             error,
         },
     } = useContext(DiagramContext);
@@ -64,6 +76,8 @@ export function Diagram() {
     const [isErrorDetailsOpen, setIsErrorDetailsOpen] = useState(false);
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [formConfig, setFormConfig] = useState<FormGeneratorProps>(undefined);
+    const [isConnectorConfigWizardOpen, setIsConnectorConfigWizardOpen] = useState(false);
+    const [connectorConfigWizardProps, setConnectorConfigWizardProps] = useState<ConnectorConfigWizardProps>(undefined);
 
     React.useEffect(() => {
         setIsErrorStateDialogOpen(diagramErrors);
@@ -80,38 +94,108 @@ export function Diagram() {
         setIsErrorDetailsOpen(false);
     }
 
-    const handleDiagramAdd = (targetPosition: NodePosition, configOverlayFormStatus: ConfigOverlayFormStatus, onClose: () => void, onSave: () => void) => {
+    const handleDiagramAdd = (targetPosition: NodePosition, configOverlayFormStatus: ConfigOverlayFormStatus, onClose?: () => void, onSave?: () => void) => {
         setFormConfig({
             configOverlayFormStatus,
             onCancel: () => {
                 setIsFormOpen(false);
-                onClose();
+                if (onClose) {
+                    onClose();
+                }
             },
             onSave: () => {
                 setIsFormOpen(false);
-                onSave();
+                if (onSave) {
+                    onSave();
+                }
             },
             targetPosition
         });
         setIsFormOpen(true);
+        setIsConnectorConfigWizardOpen(false);
     };
 
-    const handleDiagramEdit = (model: STNode, targetPosition: NodePosition, configOverlayFormStatus: ConfigOverlayFormStatus, onClose: () => void, onSave: () => void) => {
+    const handleDiagramEdit = (model: STNode, targetPosition: NodePosition, configOverlayFormStatus: ConfigOverlayFormStatus, onClose?: () => void, onSave?: () => void) => {
         setFormConfig({
             model,
             configOverlayFormStatus,
             onCancel: () => {
                 setIsFormOpen(false);
-                onClose();
+                if (onClose) {
+                    onClose();
+                }
             },
             onSave: () => {
                 setIsFormOpen(false);
-                onSave();
+                if (onSave) {
+                    onSave();
+                }
             },
             targetPosition
         });
         setIsFormOpen(true);
+        setIsConnectorConfigWizardOpen(false);
     };
+
+    const handleConnectorConfigWizard = (connectorConfig: ConnectorConfigWizardProps) => {
+        setConnectorConfigWizardProps({
+            ...connectorConfig,
+            onSave: () => {
+                setIsConnectorConfigWizardOpen(false);
+                if (connectorConfig.onSave) {
+                    connectorConfig.onSave();
+                }
+            },
+            onClose: () => {
+                setIsConnectorConfigWizardOpen(false);
+                if (connectorConfig.onClose) {
+                    connectorConfig.onClose();
+                }
+            }
+        });
+        setIsFormOpen(false);
+        setIsConnectorConfigWizardOpen(true);
+    };
+
+    const handleDeleteComponent = (model: STNode, onDelete?: () => void) => {
+        const modifications: STModification[] = [];
+        // used configurable
+        const configurables: Map<string, STNode> = stSymbolInfo.configurables;
+        const usedConfigurables = Array.from(configurables.keys()).filter(config => model.source.includes(`${config}`));
+        const variableReferences: Map<string, STNode[]> = stSymbolInfo.variableNameReferences;
+
+        // delete unused configurables
+        usedConfigurables.forEach(configurable => {
+            // check used configurables usages
+            if (variableReferences.has(configurable) && variableReferences.get(configurable).length === 1) {
+                const deleteConfig: STModification = removeStatement(
+                    configurables.get(configurable).position
+                );
+                modifications.push(deleteConfig);
+            }
+        });
+
+        // delete action
+        const deleteAction: STModification = removeStatement(
+            model.position
+        );
+        modifications.push(deleteAction);
+
+        modifyDiagram(modifications);
+
+        // If onDelete callback is available invoke it.
+        if (onDelete) {
+            onDelete();
+        }
+    };
+
+    const handleCloseAllOpenedForms = (callBack: () => void) => {
+        setIsConnectorConfigWizardOpen(false);
+        setIsFormOpen(false);
+        if (callBack) {
+            callBack();
+        }
+    }
 
     const textLoader = (
         <div className={classes.progressContainer}>
@@ -178,16 +262,33 @@ export function Diagram() {
                     isReadOnly={isReadOnly}
                     api={{
                         edit: {
+                            deleteComponent: handleDeleteComponent,
                             renderAddForm: handleDiagramAdd,
-                            renderEditForm: handleDiagramEdit
+                            renderEditForm: handleDiagramEdit,
+                            renderConnectorWizard: handleConnectorConfigWizard,
+                            closeAllOpenedForms: handleCloseAllOpenedForms
                         },
                         code: {
-                            gotoSource
+                            gotoSource,
+                            modifyDiagram
+                        },
+                        webView: {
+                            showDocumentationView,
+                            showSwaggerView
+                        },
+                        project: {
+                            run
+                        },
+                        insights: {
+                            onEvent
                         }
                     }}
                 />
-                {isFormOpen && (
+                {isFormOpen && !isConnectorConfigWizardOpen && (
                     <FormGenerator {...formConfig} />
+                )}
+                {!isFormOpen && isConnectorConfigWizardOpen && (
+                    <ConnectorConfigWizard {...connectorConfigWizardProps} />
                 )}
             </Container>
         </div>

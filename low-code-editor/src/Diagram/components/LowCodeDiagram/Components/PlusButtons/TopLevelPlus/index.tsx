@@ -14,7 +14,6 @@
 import React, { useEffect, useRef, useState } from "react";
 
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
-import classNames from "classnames";
 
 import TopLevelPlusIcon from "../../../../../../assets/icons/TopLevelPlusIcon";
 import Tooltip from "../../../../../../components/TooltipV2";

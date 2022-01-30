@@ -191,7 +191,7 @@ export function OperationForm(props: OperationFormProps) {
 
     const outputTypeReplaceHint = intl.formatMessage({
         id: "lowcode.develop.configForms.outputTypeReplaceHint.text",
-        defaultMessage: "Replace the default record{} type with an already defined custom record type"
+        defaultMessage: "Replace the default record type with an already defined custom record type"
     });
 
     const connectorOperationsTooltipMessages = {

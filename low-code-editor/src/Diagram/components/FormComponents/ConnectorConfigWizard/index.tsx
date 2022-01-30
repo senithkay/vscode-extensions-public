@@ -19,16 +19,14 @@ import {
   BallerinaModule,
   Connector,
   ConnectorConfig,
+  ConnectorConfigWizardProps,
   FunctionDefinitionInfo,
   WizardType
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { LocalVarDecl, NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
+import { STNode } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../Contexts/Diagram";
 import { DefaultConfig } from "../../../visitors/default";
-import {
-  DiagramOverlayPosition,
-} from "../../Portals/Overlay";
 import { fetchConnectorInfo } from "../../Portals/utils";
 import { fetchConnectorsList } from "../ConfigForms/ConnectorList";
 import { SearchQueryParams } from "../ConfigForms/Marketplace";
@@ -41,19 +39,6 @@ export interface ConfigWizardState {
     connectorConfig: ConnectorConfig;
     model?: STNode;
     wizardType?: WizardType;
-}
-export interface ConnectorConfigWizardProps {
-    position: DiagramOverlayPosition;
-    connectorInfo: BallerinaConnectorInfo;
-    targetPosition: NodePosition;
-    // This prop is used to load connectors from statement menu
-    specialConnectorName?: string;
-    model?: STNode;
-    onClose: () => void;
-    onSave: () => void;
-    selectedConnector?: LocalVarDecl;
-    isAction?: boolean;
-    isEdit?: boolean;
 }
 
 export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {

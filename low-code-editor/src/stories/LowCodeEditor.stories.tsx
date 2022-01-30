@@ -1,11 +1,11 @@
 import React from 'react';
 
 import { ComponentStory } from '@storybook/react';
-import { Connector, STModification, STSymbolInfo, WizardType } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { Connector, LowcodeEvent, STModification, STSymbolInfo, WizardType } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { ModulePart, NodePosition, STNode } from '@wso2-enterprise/syntax-tree';
 
 import { ConditionConfig } from '../Diagram/components/FormComponents/Types';
-import { LowcodeEvent, TriggerType } from '../Diagram/models';
+import { TriggerType } from '../Diagram/models';
 import { sizingAndPositioningST } from '../DiagramGenerator/generatorUtil';
 
 import LowCodeEditor, { BlockViewState, LowCodeEditorProps } from './../index';

@@ -18,8 +18,8 @@ import { BallerinaConnectorInfo } from "@wso2-enterprise/ballerina-low-code-edti
 import { BlockStatement, FunctionBodyBlock, LocalVarDecl } from "@wso2-enterprise/syntax-tree";
 import cn from "classnames";
 
-import { useDiagramContext } from "../../../../../../Contexts/Diagram";
 import { DefaultConfig } from "../../../../../visitors/default";
+import { Context } from "../../../Context/diagram";
 import { BlockViewState } from "../../../ViewState";
 import { PlusViewState } from "../../../ViewState/plus";
 import { PlusElements } from "../../DialogBoxes/PlusHolder";
@@ -47,7 +47,7 @@ export const PlusButton = (props: PlusProps) => {
             isReadOnly
         },
         actions: { diagramCleanDraw, diagramRedraw },
-    } = useDiagramContext();
+    } = useContext(Context);
 
     const { viewState, model, initPlus } = props;
     const plusRef = useRef(null);
