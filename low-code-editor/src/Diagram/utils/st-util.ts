@@ -549,23 +549,23 @@ export function getMatchingConnector(actionInvo: STNode, stSymbolInfo: STSymbolI
                 };
             }
         }
-    } else if (viewState.isEndpoint && (STKindChecker.isLocalVarDecl(actionInvo) || STKindChecker.isModuleVarDecl(actionInvo))) {
-        if (STKindChecker.isCaptureBindingPattern(actionInvo.typedBindingPattern.bindingPattern)) {
-            const nameReference = actionInvo.typedBindingPattern.typeDescriptor as QualifiedNameReference;
-            const typeSymbol = nameReference.typeData?.typeSymbol;
-            const module = typeSymbol?.moduleID;
-            if (typeSymbol && module) {
-                connector = {
-                    name: typeSymbol.name,
-                    moduleName: module.moduleName,
-                    package: {
-                        organization: module.orgName,
-                        name: module.moduleName,
-                        version: module.version
-                    },
-                    functions: []
-                };
-            }
+    } else if ((viewState.isEndpoint || isEndpointNode(actionInvo))
+        && (STKindChecker.isLocalVarDecl(actionInvo) || STKindChecker.isModuleVarDecl(actionInvo))
+        && (STKindChecker.isQualifiedNameReference(actionInvo.typedBindingPattern.typeDescriptor))) {
+        const nameReference = actionInvo.typedBindingPattern.typeDescriptor as QualifiedNameReference;
+        const typeSymbol = nameReference.typeData?.typeSymbol;
+        const module = typeSymbol?.moduleID;
+        if (typeSymbol && module) {
+            connector = {
+                name: typeSymbol.name,
+                moduleName: module.moduleName,
+                package: {
+                    organization: module.orgName,
+                    name: module.moduleName,
+                    version: module.version
+                },
+                functions: []
+            };
         }
     }
 
@@ -576,6 +576,10 @@ export function isSTActionInvocation(node: STNode): RemoteMethodCallAction {
     const actionFinder: ActionInvocationFinder = new ActionInvocationFinder();
     traversNode(node, actionFinder);
     return actionFinder.getIsAction();
+}
+
+export function isEndpointNode(node: STNode): boolean {
+    return node && (STKindChecker.isLocalVarDecl(node) || STKindChecker.isModuleVarDecl(node)) && node.typeData?.isEndpoint;
 }
 
 export function haveBlockStatement(node: STNode): boolean {

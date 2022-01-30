@@ -40,6 +40,7 @@ import { getAllVariables as retrieveVariables } from "../../../utils/mixins";
 import {
     addConnectorToCache,
     getConnectorFromCache,
+    isEndpointNode,
     isSTActionInvocation
 } from "../../../utils/st-util";
 import * as Forms from "../../FormComponents/ConfigForms";
@@ -771,7 +772,7 @@ export async function fetchConnectorInfo(
                 }
             }
         } else if (
-            (viewState.isEndpoint || (STKindChecker.isModuleVarDecl(model) && model.typeData.isEndpoint)) &&
+            (viewState.isEndpoint || isEndpointNode(model)) &&
             STKindChecker.isCaptureBindingPattern(variable.typedBindingPattern.bindingPattern)
         ) {
             const endpointVarName = (variable.typedBindingPattern.bindingPattern as CaptureBindingPattern)
