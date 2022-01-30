@@ -40,6 +40,7 @@ import { PLUS_SVG_HEIGHT } from "../Components/PlusButtons/Plus/PlusAndCollapse/
 import { EXECUTION_TIME_DEFAULT_X_OFFSET, EXECUTION_TIME_IF_X_OFFSET } from "../Components/RenderingComponents/ControlFlowExecutionTime";
 import { BOTTOM_CURVE_SVG_WIDTH } from "../Components/RenderingComponents/IfElse/Else/BottomCurve";
 import { TOP_CURVE_SVG_HEIGHT } from "../Components/RenderingComponents/IfElse/Else/TopCurve";
+import { PROCESS_SVG_HEIGHT } from "../Components/RenderingComponents/Processor/ProcessSVG";
 import { START_SVG_SHADOW_OFFSET } from "../Components/RenderingComponents/Start/StartSVG";
 import {
     BlockViewState,
@@ -391,18 +392,23 @@ class PositioningVisitor implements Visitor {
         // Clean rendered labels
         blockViewState.controlFlow.executionTimeStates = [];
         blockViewState.controlFlow.lineStates = [];
+        const lastStatementIndex = blockViewState.hasWorkerDecl ? //node.statements.length; 
+            (node as FunctionBodyBlock).namedWorkerDeclarator.workerInitStatements.length + node.statements.length + 1
+            : node.statements.length;
 
         if (blockViewState.hasWorkerDecl) {
             ({ height, index } = this.calculateStatementPosition(
                 (node as FunctionBodyBlock).namedWorkerDeclarator.workerInitStatements,
                 blockViewState, height, index, epGap));
+            index++;
+            height += PROCESS_SVG_HEIGHT;
         }
 
         ({ height, index } = this.calculateStatementPosition(node.statements, blockViewState, height, index, epGap));
 
         if (!blockViewState.isEndComponentAvailable
-            && node.statements.length > 0 && node.statements[node.statements.length - 1]?.controlFlow?.isReached) {
-            const lastStatement = node.statements[node.statements.length - 1];
+            && node.statements.length > 0 && node.statements[lastStatementIndex]?.controlFlow?.isReached) {
+            const lastStatement = node.statements[lastStatementIndex];
             if (!(node.viewState as BlockViewState).isElseBlock) {
                 //  Adding last control flow line after last statement for any block
                 let lastLineY;
@@ -436,9 +442,9 @@ class PositioningVisitor implements Visitor {
         }
 
         // Get the last plus view state
-        const plusViewState: PlusViewState = getPlusViewState(node.statements.length, blockViewState.plusButtons);
+        const plusViewState: PlusViewState = getPlusViewState(lastStatementIndex, blockViewState.plusButtons);
 
-        if (blockViewState.draft && blockViewState.draft[0] === node.statements.length) {
+        if (blockViewState.draft && blockViewState.draft[0] === lastStatementIndex) {
             const draft = blockViewState.draft[1];
             if (draft) {
                 draft.bBox.cx = blockViewState.bBox.cx;

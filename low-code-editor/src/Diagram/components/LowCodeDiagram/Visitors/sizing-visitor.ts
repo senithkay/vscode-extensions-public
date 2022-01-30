@@ -826,7 +826,7 @@ class SizingVisitor implements Visitor {
         let width = 0;
         let index = 0;
         const lastStatementIndex = blockViewState.hasWorkerDecl ? //node.statements.length; 
-            (node as FunctionBodyBlock).namedWorkerDeclarator.workerInitStatements.length + node.statements.length
+            (node as FunctionBodyBlock).namedWorkerDeclarator.workerInitStatements.length + node.statements.length + 1
             : node.statements.length;
 
 
@@ -876,7 +876,9 @@ class SizingVisitor implements Visitor {
         }
 
         if (blockViewState.hasWorkerDecl) {
-            ({ index, height, width } = this.calculateStatementSizing((node as FunctionBodyBlock).namedWorkerDeclarator.workerInitStatements, index, blockViewState, height, width, lastStatementIndex)); 
+            ({ index, height, width } = this.calculateStatementSizing((node as FunctionBodyBlock).namedWorkerDeclarator.workerInitStatements, index, blockViewState, height, width, lastStatementIndex));
+            index++;
+            height += PROCESS_SVG_HEIGHT;
         }
 
         ({ index, height, width } = this.calculateStatementSizing(node.statements, index, blockViewState, height, width, lastStatementIndex));
