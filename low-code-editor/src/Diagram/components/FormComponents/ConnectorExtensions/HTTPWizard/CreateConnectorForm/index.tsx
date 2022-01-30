@@ -39,6 +39,7 @@ interface CreateConnectorFormProps {
     isNewConnectorInitWizard?: boolean;
     homePageEnabled: boolean;
     targetPosition?: NodePosition;
+    isModuleEndpoint?: boolean;
 }
 
 interface NameState {
@@ -48,7 +49,7 @@ interface NameState {
 }
 
 export function CreateConnectorForm(props: CreateConnectorFormProps) {
-    const { onSaveNext, functionDefinitions, connectorConfig, connector, isNewConnectorInitWizard, onSave, targetPosition } = props;
+    const { onSaveNext, functionDefinitions, connectorConfig, connector, isNewConnectorInitWizard, onSave, targetPosition, isModuleEndpoint } = props;
     const { props: { stSymbolInfo: symbolInfo } } = useContext(Context);
 
     const connectorConfigFormFields: FormField[] = connectorConfig && connectorConfig.connectorInit && connectorConfig.connectorInit.length > 0 ? connectorConfig.connectorInit : functionDefinitions.get("init") ? functionDefinitions.get("init").parameters : functionDefinitions.get("__init").parameters;
@@ -194,7 +195,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                 {/* <div className={wizardClasses.APIbtnWrapper}> */}
                 <div className={classes.wizardBtnHolder}>
                     <div className={classes.saveConnectorBtnHolder}>
-                        {!isNewConnectorInitWizard && (
+                        {(!isNewConnectorInitWizard || isModuleEndpoint) && (
                             <PrimaryButton
                                 text={intl.formatMessage({
                                     id: "lowcode.develop.connectorForms.saveHttpConnectionBtn.text",
@@ -205,7 +206,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                                 onClick={handleOnSave}
                             />
                         )}
-                        {isNewConnectorInitWizard && (
+                        {isNewConnectorInitWizard && !isModuleEndpoint && (
                             <>
                                 <LinePrimaryButton
                                     dataTestId={"http-save"}

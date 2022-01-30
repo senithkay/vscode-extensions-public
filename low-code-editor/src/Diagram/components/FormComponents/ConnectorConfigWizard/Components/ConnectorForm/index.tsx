@@ -45,13 +45,16 @@ import {
 } from "../../../../../utils/modification-util";
 import { ModuleIcon } from "../../../../LowCodeDiagram/Components/RenderingComponents/Connector/ConnectorHeader/ModuleIcon";
 import {
+    addAccessModifiers,
     genVariableName,
+    getAccessModifiers,
     getActionReturnType,
     getConnectorComponent,
     getFormattedModuleName,
     getInitReturnType,
     getParams,
 } from "../../../../Portals/utils";
+import { VariableOptions } from "../../../ConfigForms/ModuleVariableForm/util";
 import { wizardStyles as useFormStyles } from "../../../ConfigForms/style";
 import { ExpressionInjectablesProps, FormGeneratorProps, InjectableItem } from "../../../FormGenerator";
 import {
@@ -166,6 +169,10 @@ export function ConnectorForm(props: FormGeneratorProps) {
         config.action = new ActionConfig();
     }
 
+    if (isModuleEndpoint && model){
+        config.qualifiers = getAccessModifiers(model);
+    }
+
     const actionReturnType = getActionReturnType(selectedOperation, functionDefInfo);
     if (
         !isNewConnectorInitWizard &&
@@ -214,9 +221,11 @@ export function ConnectorForm(props: FormGeneratorProps) {
         }
 
         const moduleName = getFormattedModuleName(connectorModule);
-        const endpointStatement = `${isModuleEndpoint ? "final " : ""}${moduleName}:${connector.name} ${config.name} = ${
+        let endpointStatement = `${moduleName}:${connector.name} ${config.name} = ${
             isInitReturnError ? "check" : ""
         } new (${getParams(config.connectorInit).join()});`;
+
+        endpointStatement = addAccessModifiers(config.qualifiers, endpointStatement);
 
         if (isNewConnectorInitWizard && targetPosition) {
             const addImport: STModification = createImportStatement(
@@ -229,7 +238,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
             const addConnectorInit = createPropertyStatement(endpointStatement, targetPosition);
             modifications.push(addConnectorInit);
             onConnectorAddEvent();
-            if (checkDBConnector(moduleName)) {
+            if (checkDBConnector(moduleName) && !isModuleEndpoint) {
                 const closeStatement = `check ${config.name}.close();`;
                 const addCloseStatement = createPropertyStatement(closeStatement, targetPosition);
                 modifications.push(addCloseStatement);
@@ -473,6 +482,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
             targetPosition,
             model,
             selectedConnector,
+            isModuleEndpoint,
             isAction,
         });
     }
