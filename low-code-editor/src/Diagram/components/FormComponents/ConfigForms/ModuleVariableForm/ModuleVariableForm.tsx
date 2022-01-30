@@ -14,18 +14,11 @@ import React, { useEffect, useReducer } from 'react';
 import { FormattedMessage } from 'react-intl';
 
 import { Box, FormControl, FormHelperText, Typography } from '@material-ui/core';
-import { ExpressionEditorProps } from '@wso2-enterprise/ballerina-expression-editor';
-import {
-    FormActionButtons,
-    FormElementProps,
-    FormHeaderSection,
-    STModification
-} from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { ADD_VARIABLE, FormActionButtons, FormHeaderSection, LowcodeEvent, SAVE_VARIABLE, STModification } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { ModuleVarDecl, NodePosition } from '@wso2-enterprise/syntax-tree';
 
 import { VariableIcon } from '../../../../../assets/icons';
 import { useDiagramContext } from '../../../../../Contexts/Diagram';
-import { ADD_VARIABLE, LowcodeEvent, SAVE_VARIABLE } from '../../../../models';
 import { createModuleVarDecl, updateModuleVarDecl } from '../../../../utils/modification-util';
 import { getVariableNameFromST } from '../../../../utils/st-util';
 import { useStyles as useFormStyles } from "../../DynamicConnectorForm/style";

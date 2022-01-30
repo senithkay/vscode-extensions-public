@@ -11,10 +11,10 @@
  * associated services.
  */
 // tslint:disable-next-line: no-submodule-imports
-import { STNode } from "@wso2-enterprise/syntax-tree";
+import { LocalVarDecl, NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import { Diagnostic } from "vscode-languageserver-protocol";
 
-import { Connector } from "./lang-client-extended";
+import { BallerinaConnectorInfo, Connector } from "./lang-client-extended";
 
 export interface DiagramCoordinates {
     start: RectCoordinates;
@@ -114,3 +114,23 @@ export interface ComponentInitCoordinates {
     y: number;
     statement: STNode;
 }
+
+export interface DiagramOverlayPosition {
+    x: number,
+    y: number
+};
+
+export interface ConnectorConfigWizardProps {
+    position: DiagramOverlayPosition;
+    connectorInfo: BallerinaConnectorInfo;
+    targetPosition: NodePosition;
+    // This prop is used to load connectors from statement menu
+    specialConnectorName?: string;
+    model?: STNode;
+    onClose: () => void;
+    onSave: () => void;
+    selectedConnector?: LocalVarDecl;
+    isAction?: boolean;
+    isEdit?: boolean;
+}
+

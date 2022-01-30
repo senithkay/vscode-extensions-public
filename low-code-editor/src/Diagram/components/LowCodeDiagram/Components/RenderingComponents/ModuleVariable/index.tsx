@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useRef, useState } from "react"
+import React, { useContext, useRef, useState } from "react"
 
 import { Tooltip } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { CaptureBindingPattern, ModuleVarDecl, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
@@ -21,10 +21,8 @@ import ConfigurableIcon from "../../../../../../assets/icons/Configurable";
 import DeleteButton from "../../../../../../assets/icons/DeleteButton";
 import EditButton from "../../../../../../assets/icons/EditButton";
 import ModuleVariableIcon from "../../../../../../assets/icons/ModuleVariableIcon";
-import { useDiagramContext } from "../../../../../../Contexts/Diagram";
-import { removeStatement } from "../../../../../utils/modification-util";
-import { DeleteConfirmDialog } from "../../../../FormComponents/DialogBoxes/DeleteConfirmDialog";
-import { FormGenerator } from "../../../../FormComponents/FormGenerator";
+import Tooltip from "../../../../../../components/Tooltip";
+import { Context } from "../../../Context/diagram";
 
 import "./style.scss";
 
@@ -39,9 +37,22 @@ export interface ModuleVariableProps {
 
 export function ModuleVariable(props: ModuleVariableProps) {
     const { model } = props;
-    const { api: { code: { modifyDiagram } } } = useDiagramContext();
+    const {
+        api: {
+            edit: {
+                deleteComponent,
+                renderEditForm
+            },
+            code: {
+                modifyDiagram
+            }
+        },
+        props: {
+            isReadOnly
+        }
+    } = useContext(Context);
 
-    const [editFormVisible, setEditFormVisible] = useState(false);
+    // const [editFormVisible, setEditFormVisible] = useState(false);
     // const [deleteFormVisible, setDeleteFormVisible] = useState(false);
 
     const deleteBtnRef = useRef(null);
@@ -78,15 +89,11 @@ export function ModuleVariable(props: ModuleVariableProps) {
     }
 
     const hadnleOnDeleteConfirm = () => {
-        modifyDiagram([removeStatement(model.position)]);
+        deleteComponent(model);
     }
 
     const handleEditBtnClick = () => {
-        setEditFormVisible(true);
-    }
-
-    const handleEditBtnCancel = () => {
-        setEditFormVisible(false)
+        renderEditForm(model, model.position, { formType: model.kind, isLoading: false });
     }
 
     return (
@@ -115,16 +122,19 @@ export function ModuleVariable(props: ModuleVariableProps) {
                             <tspan x="0" y="0">{nameMaxWidth ? varName.slice(0, 20) + "..." : varName}</tspan>
                         </div>
                     </div>
-                    <div className={'module-variable-actions'}>
-                        <div className={classNames("edit-btn-wrapper", "show-on-hover")}>
-                            <EditButton onClick={handleEditBtnClick} />
-                        </div>
-                        <div className={classNames("delete-btn-wrapper", "show-on-hover")}>
-                            <div ref={deleteBtnRef}>
-                                <DeleteButton onClick={handleOnDeleteClick} />
+                    {!isReadOnly && (
+                        <div className={'module-variable-actions'}>
+                            <div className={classNames("edit-btn-wrapper", "show-on-hover")}>
+                                <EditButton onClick={handleEditBtnClick} />
+                            </div>
+                            <div className={classNames("delete-btn-wrapper", "show-on-hover")}>
+                                <div ref={deleteBtnRef}>
+                                    <DeleteButton onClick={handleOnDeleteClick} />
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    )
+                    }
                 </div>
             </div>
             {/* {
@@ -145,7 +155,7 @@ export function ModuleVariable(props: ModuleVariableProps) {
                     />
                 )
             } */}
-            {
+            {/* {
                 editFormVisible && (
                     <FormGenerator
                         model={model}
@@ -154,7 +164,7 @@ export function ModuleVariable(props: ModuleVariableProps) {
                         onSave={handleEditBtnCancel}
                     />
                 )
-            }
+            } */}
         </div>
     );
 }

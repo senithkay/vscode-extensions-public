@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js  jsx-wrap-multiline
 import React, { useContext, useState } from "react";
 
-import { DiagramDiagnostic, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ConfigOverlayFormStatus, DiagramDiagnostic, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     BlockStatement,
     IfElseStatement, NodePosition,
@@ -21,12 +21,10 @@ import {
     STNode
 } from "@wso2-enterprise/syntax-tree";
 
-import { Context } from "../../../../../../Contexts/Diagram";
 import { getDiagnosticInfo, getDraftComponent, getSTComponents } from "../../../../../utils";
 import { getConditionConfig, getRandomInt } from "../../../../../utils/diagram-util";
 import { findActualEndPositionOfIfElseStatement } from "../../../../../utils/st-util";
 import { DefaultConfig } from "../../../../../visitors/default";
-import { FormGenerator } from "../../../../FormComponents/FormGenerator";
 import { ElseIfConfig } from "../../../../FormComponents/Types";
 import { DeleteBtn } from "../../../Components/DiagramActions/DeleteBtn";
 import {
@@ -39,11 +37,12 @@ import {
     EDIT_SVG_OFFSET,
     EDIT_SVG_WIDTH_WITH_SHADOW
 } from "../../../Components/DiagramActions/EditBtn/EditSVG";
+import { Context } from "../../../Context/diagram";
 import { BlockViewState, ControlFlowLineState, ElseViewState, IfViewState } from "../../../ViewState";
 import { DraftStatementViewState } from "../../../ViewState/draft";
 import { PlusButton } from "../../PlusButtons/Plus";
 import { Collapse } from "../Collapse";
-import { CONDITION_ASSIGNMENT_NAME_WIDTH, ContitionAssignment } from "../ContitionAssignment";
+import { ConditionAssignment, CONDITION_ASSIGNMENT_NAME_WIDTH } from "../ConditionAssignment";
 import { ControlFlowLine } from "../ControlFlowLine";
 
 import { Else } from "./Else";
@@ -67,9 +66,13 @@ export function IfElse(props: IfElseProps) {
     const {
         state,
         actions: {
-            diagramCleanDraw, insertComponentStart, toggleDiagramOverlay
+            diagramCleanDraw, insertComponentStart
         },
         api: {
+            edit: {
+                renderAddForm,
+                renderEditForm
+            },
             code: {
                 gotoSource
             }
@@ -88,13 +91,26 @@ export function IfElse(props: IfElseProps) {
     const [isConfigWizardOpen, setConfigWizardOpen] = useState(false);
     const [ifElseConfigOverlayFormState, setIfElseConditionConfigState] = useState(undefined);
 
+    const onCancel = () => {
+        if (blockViewState) {
+            blockViewState.draft = undefined;
+            diagramCleanDraw(syntaxTree);
+        }
+        setConfigWizardOpen(false);
+        // toggleDiagramOverlay();
+    }
+
+    const onSave = () => {
+        setConfigWizardOpen(false);
+        // toggleDiagramOverlay();
+    }
+
     React.useEffect(() => {
         if (model === null && blockViewState) {
             const draftVS = viewState as DraftStatementViewState;
             const conditionConfigState = getConditionConfig(draftVS.subType, draftVS.targetPosition, WizardType.NEW,
                 blockViewState, undefined, stSymbolInfo);
-            setIfElseConditionConfigState(conditionConfigState);
-            toggleDiagramOverlay();
+            renderAddForm(draftVS.targetPosition, conditionConfigState as ConfigOverlayFormStatus, onCancel);
         }
     }, []);
 
@@ -104,20 +120,6 @@ export function IfElse(props: IfElseProps) {
             diagramCleanDraw(syntaxTree);
         }
     };
-
-    const onCancel = () => {
-        if (blockViewState) {
-            blockViewState.draft = undefined;
-            diagramCleanDraw(syntaxTree);
-        }
-        setConfigWizardOpen(false);
-        toggleDiagramOverlay();
-    }
-
-    const onSave = () => {
-        setConfigWizardOpen(false);
-        toggleDiagramOverlay();
-    }
 
     let codeSnippet = "IF ELSE CODE SNIPPET"
     let codeSnippetOnSvg = "IF"
@@ -190,7 +192,7 @@ export function IfElse(props: IfElseProps) {
                     diagnostics={errorSnippet}
                     openInCodeView={!isCodeEditorActive && !isWaitingOnWorkspace && model && model?.position && onClickOpenInCodeView}
                 />
-                <ContitionAssignment
+                <ConditionAssignment
                     x={x - (CONDITION_ASSIGNMENT_NAME_WIDTH + DefaultConfig.textAlignmentOffset)}
                     y={y - ((IFELSE_SVG_HEIGHT / 3) + DefaultConfig.dotGap)}
                     assignment={assignmentText}
@@ -207,7 +209,7 @@ export function IfElse(props: IfElseProps) {
                                 x={viewState.bBox.cx - (IFELSE_SHADOW_OFFSET / 2)}
                                 y={viewState.bBox.cy - (IFELSE_SHADOW_OFFSET / 2)}
                             >
-                                {model === null && blockViewState && isDraftStatement && ifElseConfigOverlayFormState &&
+                                {/* {model === null && blockViewState && isDraftStatement && ifElseConfigOverlayFormState &&
                                     // {model === null && blockViewState?.draft && isDraftStatement &&
                                     <FormGenerator
                                         onCancel={onCancel}
@@ -221,7 +223,7 @@ export function IfElse(props: IfElseProps) {
                                         onSave={onSave}
                                         configOverlayFormStatus={ifElseConfigOverlayFormState}
                                     />
-                                }
+                                } */}
                                 {!isConfigWizardOpen && !isDraftStatement &&
                                     <>
                                         <rect
@@ -317,14 +319,15 @@ export function IfElse(props: IfElseProps) {
         const onIfHeadClick = () => {
             const conditionExpression = getExpressions();
             const position = getExpressions()?.values[0]?.position;
-            setConfigWizardOpen(true);
+            // setConfigWizardOpen(true);
             const conditionConfigState = getConditionConfig("If", model.position, WizardType.EXISTING, undefined, {
                 type: "If",
                 conditionExpression,
                 conditionPosition: getExpressions()?.values[0]?.position,
                 model
             }, stSymbolInfo, model);
-            setIfElseConditionConfigState(conditionConfigState);
+            renderEditForm(model, model.position, conditionConfigState as ConfigOverlayFormStatus, onCancel);
+            // setIfElseConditionConfigState(conditionConfigState);
         };
 
 
@@ -374,7 +377,7 @@ export function IfElse(props: IfElseProps) {
                             conditionType={conditionType}
                             openInCodeView={!isCodeEditorActive && !isWaitingOnWorkspace && model && model?.position && onClickOpenInCodeView}
                         />
-                        <ContitionAssignment
+                        <ConditionAssignment
                             x={x - (CONDITION_ASSIGNMENT_NAME_WIDTH + DefaultConfig.textAlignmentOffset)}
                             y={y - ((IFELSE_SVG_HEIGHT / 3) + DefaultConfig.dotGap)}
                             assignment={assignmentText}
@@ -395,7 +398,7 @@ export function IfElse(props: IfElseProps) {
                                         y={viewState.bBox.cy + (IFELSE_SVG_HEIGHT / 3) - DefaultConfig.dotGap / 2}
                                         className="condition-rect"
                                     />
-                                    {model === null && blockViewState && isDraftStatement && ifElseConfigOverlayFormState &&
+                                    {/* {model === null && blockViewState && isDraftStatement && ifElseConfigOverlayFormState &&
                                         <FormGenerator
                                             onCancel={onCancel}
                                             onSave={onSave}
@@ -408,7 +411,7 @@ export function IfElse(props: IfElseProps) {
                                             onSave={onSave}
                                             configOverlayFormStatus={ifElseConfigOverlayFormState}
                                         />
-                                    }
+                                    } */}
                                     {(!isDraftStatement && !viewState?.isElseIf) &&
                                         <>
                                             <DeleteBtn
@@ -432,7 +435,7 @@ export function IfElse(props: IfElseProps) {
                     {isElseIfExist && <IfElse model={ifStatement.elseBody.elseBody} name={componentName} />}
                     {controlFlowLines}
                     {children}
-                    {pluses}
+                    {!isReadOnly && pluses}
                     {drafts}
                 </g>
             )

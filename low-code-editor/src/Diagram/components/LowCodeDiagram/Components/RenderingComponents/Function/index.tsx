@@ -21,14 +21,11 @@ import {
 import classNames from "classnames";
 import { v4 as uuid } from "uuid";
 
-import { Context, useDiagramContext } from "../../../../../../Contexts/Diagram";
 import { Provider as FunctionProvider } from "../../../../../../Contexts/Function";
 import { useOverlayRef, useSelectedStatus } from "../../../../../hooks";
 import { useStyles } from "../../../../../styles";
-import expandTracker from "../../../../../utils/expand-tracker";
-import DefaultButtonSquare from "../../../../Buttons/DefaultButtonSquare";
 import { Canvas } from "../../../Canvas";
-import { getNodeSignature } from "../../../Utils";
+import { Context } from "../../../Context/diagram";
 import { BlockViewState, FunctionViewState } from "../../../ViewState";
 import { End } from "../End";
 import { StartButton } from "../Start";
@@ -55,6 +52,11 @@ export function Function(props: FunctionProps) {
     const [overlayId] = useState(`function-overlay-${uuid()}`);
     const {
         props: { isWaitingOnWorkspace, isReadOnly, isCodeEditorActive },
+        api: {
+            project: {
+                run
+            }
+        }
     } = useContext(Context);
 
     const { model } = props;
@@ -118,14 +120,6 @@ export function Function(props: FunctionProps) {
         );
     }
 
-    const {
-        api: {
-            project: {
-                run
-            }
-        }
-    } = useDiagramContext();
-
     const functionBody = (
         <div className={"lowcode-diagram"}>
             <PerformanceBar model={model} />
@@ -179,7 +173,7 @@ export function Function(props: FunctionProps) {
                 />
             ) : (
                 <div >
-                    {renderButtons()}
+                    {!isReadOnly && renderButtons()}
                     <FunctionHeader
                         isExpanded={diagramExpanded}
                         model={model}

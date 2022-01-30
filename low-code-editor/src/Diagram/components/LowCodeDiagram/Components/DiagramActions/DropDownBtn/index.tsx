@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useState } from "react";
 
-import { Context } from "../../../../../../Contexts/Diagram"
+import { Context } from "../../../Context/diagram"
 import { DropDownMenu, DropDownMenuProps } from "../../DialogBoxes";
 
 import {

@@ -22,7 +22,7 @@ import "./style.scss"
 
 export let CONDITION_ASSIGNMENT_NAME_WIDTH = 125;
 
-export function ContitionAssignment(props: { x: number, y: number, assignment: string, className?: string, key_id: number }) {
+export function ConditionAssignment(props: { x: number, y: number, assignment: string, className?: string, key_id: number }) {
     const { assignment, className, key_id, ...xyProps } = props;
     const [textWidth, setTextWidth] = useState(CONDITION_ASSIGNMENT_NAME_WIDTH);
 

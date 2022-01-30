@@ -24,7 +24,6 @@ import { Diagnostic } from "vscode-languageserver-protocol";
 
 import { BlockViewState } from "..";
 import { ConditionConfig, DataMapperConfig } from "../Diagram/components/FormComponents/Types";
-import { LowcodeEvent } from "../Diagram/models";
 import { Warning } from "../Diagram/utils/st-util";
 import { PerformanceData } from "../DiagramGenerator/performanceUtil";
 
@@ -42,7 +41,6 @@ export interface UserState {
 }
 
 export interface LowCodeEditorState {
-    triggerUpdated: boolean; // FIXME Moving existing prop manipulated in memory into state
     isDataMapperShown: boolean;
     isConfigOverlayFormOpen: boolean;
     dataMapperConfig: DataMapperConfig;
@@ -58,7 +56,6 @@ export interface LowCodeEditorActions {
     dataMapperStart: (dataMapperConfig: DataMapperConfig) => void;
     toggleDiagramOverlay: () => void;
     updateDataMapperConfig: (dataMapperConfig: DataMapperConfig) => void;
-    setTriggerUpdated: (isUpdated: boolean) => void;
 }
 
 export interface LowCodeEditorAPI {
@@ -75,7 +72,7 @@ export interface LowCodeEditorAPI {
     }
     // This has to come from Lang-server
     insights: {
-        onEvent?: (event: LowcodeEvent) => void;
+        onEvent?: (event: any) => void;
     }
     code: {
         modifyDiagram: (mutations: STModification[], options?: any) => void;

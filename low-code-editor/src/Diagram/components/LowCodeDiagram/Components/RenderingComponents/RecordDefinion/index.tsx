@@ -20,9 +20,7 @@ import classNames from "classnames";
 import DeleteButton from "../../../../../../assets/icons/DeleteButton";
 import EditButton from "../../../../../../assets/icons/EditButton";
 import RecordIcon from "../../../../../../assets/icons/RecordIcon";
-import { Context } from "../../../../../../Contexts/Diagram";
-import { removeStatement } from "../../../../../utils/modification-util";
-import { FormGenerator } from "../../../../FormComponents/FormGenerator";
+import { Context } from "../../../Context/diagram";
 import { HeaderActions } from "../../../HeaderActions";
 
 import "./style.scss";
@@ -39,25 +37,25 @@ export function RecordDefinitionComponent(props: RecordDefComponentProps) {
     const { model } = props;
 
     const {
+        props: { isReadOnly },
         api: {
-            code: { modifyDiagram },
+            edit: { deleteComponent, renderEditForm }
         },
     } = useContext(Context);
 
     const [isExpanded, setIsExpanded] = useState(false);
-    const [isEditFormVisible, setIsEditFormVisible] = useState(false);
 
     const onExpandClick = () => {
         setIsExpanded(!isExpanded);
     };
     const handleDeleteConfirm = () => {
-        modifyDiagram([removeStatement(model.position)]);
+        deleteComponent(model);
     };
     const handleEditClick = () => {
-        setIsEditFormVisible(true);
-    };
-    const handleEditBtnCancel = () => {
-        setIsEditFormVisible(false);
+        renderEditForm(model, model.position, {
+            formType: STKindChecker.isRecordTypeDesc(model.typeDescriptor) ? "RecordEditor" : model.kind, isLoading: false
+        }
+        )
     };
 
     const component: JSX.Element[] = [];
@@ -96,14 +94,17 @@ export function RecordDefinitionComponent(props: RecordDefComponentProps) {
                             {varName}
                         </div>
                     </div>
-                    <div className="amendment-options">
-                        <div className={classNames("edit-btn-wrapper", "show-on-hover")}>
-                            <EditButton onClick={handleEditClick} />
+                    {!isReadOnly && (
+                        <div className="amendment-options">
+                            <div className={classNames("edit-btn-wrapper", "show-on-hover")}>
+                                <EditButton onClick={handleEditClick} />
+                            </div>
+                            <div className={classNames("delete-btn-wrapper", "show-on-hover")}>
+                                <DeleteButton onClick={handleDeleteConfirm} />
+                            </div>
                         </div>
-                        <div className={classNames("delete-btn-wrapper", "show-on-hover")}>
-                            <DeleteButton onClick={handleDeleteConfirm} />
-                        </div>
-                    </div>
+                    )
+                    }
                 </div>
                 <div className="record-separator" />
             </div>
@@ -138,18 +139,6 @@ export function RecordDefinitionComponent(props: RecordDefComponentProps) {
         <>
             <div id={"edit-div"} />
             {component}
-            {
-                isEditFormVisible && (
-                    <FormGenerator
-                        model={model}
-                        configOverlayFormStatus={{
-                            formType: STKindChecker.isRecordTypeDesc(model.typeDescriptor) ? "RecordEditor" : model.kind, isLoading: false
-                        }}
-                        onCancel={handleEditBtnCancel}
-                        onSave={handleEditBtnCancel}
-                    />
-                )
-            }
         </>
     );
 }

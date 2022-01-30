@@ -16,9 +16,8 @@ import React, { useContext, useState } from "react";
 import { STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 
-import { Context } from "../../../../../../Contexts/Diagram";
-import { removeStatement } from "../../../../../utils/modification-util";
 import { DefaultConfig } from "../../../../../visitors/default";
+import { Context } from "../../../Context/diagram";
 import { DeleteConfirmDialog } from "../../DialogBoxes";
 
 import { DeleteSVG } from "./DeleteSVG";
@@ -37,16 +36,19 @@ export interface DeleteBtnProps {
 
 export function DeleteBtn(props: DeleteBtnProps) {
     const {
-        props: { isReadOnly, stSymbolInfo },
-        api: { code: { modifyDiagram } }
+        props: { isReadOnly },
+
+        api: {
+            edit: {
+                deleteComponent
+            }
+        }
     } = useContext(Context);
 
-    const { cx, cy, model, onDraftDelete, createModifications, toolTipTitle, isButtonDisabled, isReferencedInCode, showOnRight } = props;
+    const { cx, cy, model, onDraftDelete, toolTipTitle, isButtonDisabled, isReferencedInCode, showOnRight } = props;
 
     const [isConfirmDialogActive, setConfirmDialogActive] = useState(false);
     const [, setBtnActive] = useState(false);
-
-    const modifications: STModification[] = [];
 
     const onMouseEnter = () => {
         setBtnActive(true);
@@ -76,30 +78,7 @@ export function DeleteBtn(props: DeleteBtnProps) {
     const onDeleteConfirm = () => {
         // delete logic
         if (model) {
-            // used configurable
-            const configurables: Map<string, STNode> = stSymbolInfo.configurables;
-            const usedConfigurables = Array.from(configurables.keys()).filter(config => model.source.includes(`${config}`));
-            const variableReferences: Map<string, STNode[]> = stSymbolInfo.variableNameReferences;
-
-            // delete unused configurables
-            usedConfigurables.forEach(configurable => {
-                // check used configurables usages
-                if (variableReferences.has(configurable) && variableReferences.get(configurable).length === 1) {
-                    const deleteConfig: STModification = removeStatement(
-                        configurables.get(configurable).position
-                    );
-                    modifications.push(deleteConfig);
-                }
-            });
-
-            // delete action
-            const deleteAction: STModification = removeStatement(
-                model.position
-            );
-            modifications.push(deleteAction);
-
-            modifyDiagram(modifications);
-            closeConfirmDialog();
+            deleteComponent(model, closeConfirmDialog)
         } else if (onDraftDelete) {
             onDraftDelete();
         }

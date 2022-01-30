@@ -19,9 +19,8 @@ import { ListenerDeclaration, STNode } from "@wso2-enterprise/syntax-tree";
 import DeleteButton from "../../../../../../assets/icons/DeleteButton";
 import EditButton from "../../../../../../assets/icons/EditButton";
 import ListenerIcon from "../../../../../../assets/icons/ListenerIcon";
-import { Context } from '../../../../../../Contexts/Diagram';
-import { removeStatement } from '../../../../../utils/modification-util';
-import { FormGenerator } from '../../../../FormComponents/FormGenerator';
+import Tooltip from '../../../../../../components/Tooltip';
+import { Context } from '../../../Context/diagram';
 
 import "./style.scss";
 
@@ -36,18 +35,18 @@ export function ListenerC(props: ListenerProps) {
     const { model } = props;
     const {
         props: {
-            stSymbolInfo
+            isReadOnly
         },
         api: {
-            code: {
-                modifyDiagram,
-                gotoSource
+            edit: {
+                deleteComponent,
+                renderEditForm
             }
         }
     } = useContext(Context);
 
     const [isEditable, setIsEditable] = useState(false);
-    const [editingEnabled, setEditingEnabled] = useState(false);
+    // const [editingEnabled, setEditingEnabled] = useState(false);
 
     const listenerModel: ListenerDeclaration = model as ListenerDeclaration;
     const listenerName = listenerModel.variableName.value;
@@ -67,23 +66,11 @@ export function ListenerC(props: ListenerProps) {
     };
 
     const handleDeleteBtnClick = () => {
-        modifyDiagram([
-            removeStatement(model.position)
-        ]);
+        deleteComponent(model);
     }
 
     const handleEditBtnClick = () => {
-        const supportedListenerType: boolean = listenerModel.initializer.parenthesizedArgList !== undefined;
-        if (supportedListenerType) {
-            setEditingEnabled(true);
-        } else {
-            const targetposition = model.position;
-            gotoSource({ startLine: targetposition.startLine, startColumn: targetposition.startColumn });
-        }
-    }
-
-    const handleEditBtnCancel = () => {
-        setEditingEnabled(false);
+        renderEditForm(model, model.position, { formType: model.kind, isLoading: false });
     }
 
     return (
@@ -114,7 +101,7 @@ export function ListenerC(props: ListenerProps) {
                             <tspan x="0" y="0">{nameMaxWidth ? listenerName.slice(0, 20) + "..." : listenerName}</tspan>
                         </div>
                     </div>
-                    {isEditable && (
+                    { !isReadOnly && isEditable && (
                         <div className={"listener-amendment-options"}>
                             <div className={"edit-btn-wrapper"}>
                                 <EditButton onClick={handleEditBtnClick} />
@@ -123,14 +110,6 @@ export function ListenerC(props: ListenerProps) {
                                 <DeleteButton onClick={handleDeleteBtnClick} />
                             </div>
                         </div>
-                    )}
-                    {editingEnabled && (
-                        <FormGenerator
-                            model={model}
-                            configOverlayFormStatus={{ formType: model.kind, isLoading: false }}
-                            onCancel={handleEditBtnCancel}
-                            onSave={handleEditBtnCancel}
-                        />
                     )}
                 </div>
             </div>
