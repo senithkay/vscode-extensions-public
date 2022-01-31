@@ -19,7 +19,7 @@ import { MESSAGE_TYPE } from "../types";
 
 import { DiagramGenErrorBoundary } from "./ErrorBoundrary";
 import {
-    getDefaultSelectedPosition, getLowcodeST, getModifyPosition, getSyntaxTree, isDeleteModificationAvailable,
+    getDefaultSelectedPosition, getLowcodeST, getSyntaxTree, isDeleteModificationAvailable,
     isUnresolvedModulesAvailable
 } from "./generatorUtil";
 import { addPerformanceData } from "./performanceUtil";
@@ -335,6 +335,9 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
         const langClient = await langClientPromise;
         if (currentTime - lastPerfUpdate > debounceTime) {
             const pfSession = await props.getPFSession();
+            if (!pfSession) {
+                return;
+            }
             const perfData = await addPerformanceData(vistedSyntaxTree, filePath, langClient, pfSession, props.showPerformanceGraph, props.getPerfDataFromChoreo);
             setPerformanceData(perfData);
             lastPerfUpdate = currentTime;

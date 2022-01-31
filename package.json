@@ -1,9 +1,9 @@
 {
   "name": "ballerina-low-code-editor-packages",
   "workspaces": [
+    "syntax-tree",
     "ballerina-languageclient",
     "lang-service",
-    "syntax-tree",
     "low-code-editor-commons",
     "statement-editor",
     "configurable-editor",
