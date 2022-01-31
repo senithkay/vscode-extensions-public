@@ -52,7 +52,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             width: '100%',
             marginRight: theme.spacing(0.625),
             position: 'relative',
-            marginTop: theme.spacing(0), 
+            marginTop: theme.spacing(0),
             '&:last-child': {
                 marginRight: 0
             }
@@ -617,7 +617,7 @@ export const useStyles = makeStyles((theme: Theme) =>
                     }
                 }
             }
-        }, 
+        },
         addPropertyBtn: {
             outline: "none",
             width: "max-content",
@@ -635,10 +635,10 @@ export const useStyles = makeStyles((theme: Theme) =>
             },
             marginTop: 6,
         },
-        addParameterBtn:{
-            paddingLeft:0,
+        addParameterBtn: {
+            paddingLeft: 0,
             marginTop: 6,
-            textTransform:'initial'
+            textTransform: 'initial'
         },
         sectionSeperatorHR: {
             margin: "1.5rem 0 1.5rem 0"

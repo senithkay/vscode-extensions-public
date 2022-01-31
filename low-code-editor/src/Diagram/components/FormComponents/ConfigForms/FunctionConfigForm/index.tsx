@@ -38,7 +38,7 @@ interface FunctionConfigFormProps {
     configOverlayFormStatus?: ConfigOverlayFormStatus;
     targetPosition?: NodePosition;
     onCancel: () => void;
-    onSave: () => void;  
+    onSave: () => void;
     isLastMember?: boolean;
 }
 
@@ -282,7 +282,7 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
             <FormHeaderSection
                 onCancel={onCancel}
                 formTitle={"lowcode.develop.configForms.functionForms.title"}
-                defaultMessage={"Function"} 
+                defaultMessage={"Function"}
             />
             <div className={formClasses.formContentWrapper}>
                 <div className={formClasses.formNameWrapper}>
@@ -300,15 +300,15 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
                                 isEdit={!!model}
                                 paramCount={parameters.length}
                             />
-                        ) : ( 
+                        ) : (
                                 <Button
                                     onClick={openNewParamView}
                                     className={formClasses.addParameterBtn}
                                     startIcon={<AddIcon />}
                                     color="primary"
-                                > 
+                                >
                                     Add parameter
-                                </Button> 
+                                </Button>
                         )}
                     </Section>
                     <Divider className={formClasses.sectionSeperatorHR} />
