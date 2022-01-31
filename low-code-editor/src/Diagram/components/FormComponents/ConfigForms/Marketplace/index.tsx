@@ -17,7 +17,7 @@ import { Box, CircularProgress, FormControl, Grid, Typography } from "@material-
 import { CloseRounded } from "@material-ui/icons";
 import {
     ADD_CONNECTOR,
-    BallerinaModule,
+    BallerinaConstruct,
     BallerinaModuleResponse,
     ButtonWithIcon,
     DiagramEditorLangClientInterface,
@@ -41,9 +41,9 @@ import SearchBar from "./SearchBar";
 import useStyles from "./style";
 
 export interface MarketplaceProps {
-    onSelect: (balModule: BallerinaModule, selectedBalModule: LocalVarDecl) => void;
+    onSelect: (balModule: BallerinaConstruct, selectedBalModule: LocalVarDecl) => void;
     onCancel?: () => void;
-    onChange?: (type: string, subType: string, balModule?: BallerinaModule) => void;
+    onChange?: (type: string, subType: string, balModule?: BallerinaConstruct) => void;
     viewState?: PlusViewState;
     collapsed?: (value: APIHeightStates) => void;
     balModuleType: BallerinaModuleType;
@@ -97,8 +97,8 @@ export function Marketplace(props: MarketplaceProps) {
     const currentPage = useRef(1);
     const fetchCount = useRef(0);
     const isLastPage = useRef(false);
-    const centralModules = useRef(new Map<string, BallerinaModule>());
-    const localModules = useRef(new Map<string, BallerinaModule>());
+    const centralModules = useRef(new Map<string, BallerinaConstruct>());
+    const localModules = useRef(new Map<string, BallerinaConstruct>());
 
     const pageLimit = 18;
 
@@ -111,7 +111,7 @@ export function Marketplace(props: MarketplaceProps) {
     let centralModuleComponents: ReactNode[] = [];
     let localModuleComponents: ReactNode[] = [];
 
-    const onSelectModule = (balModule: BallerinaModule) => {
+    const onSelectModule = (balModule: BallerinaConstruct) => {
         const event: LowcodeEvent = {
             type: ADD_CONNECTOR,
             name: balModule.displayName || balModule.package.name,
@@ -121,9 +121,9 @@ export function Marketplace(props: MarketplaceProps) {
         openConnectorHelp(balModule);
     };
 
-    const getModuleComponents = (balModules: Map<string, BallerinaModule>): ReactNode[] => {
+    const getModuleComponents = (balModules: Map<string, BallerinaConstruct>): ReactNode[] => {
         const componentList: ReactNode[] = [];
-        balModules?.forEach((module: BallerinaModule, key: string) => {
+        balModules?.forEach((module: BallerinaConstruct, key: string) => {
             const component = (
                 <ModuleCard key={key} module={module} onSelectModule={onSelectModule} columns={showFilters ? 2 : 3} />
             );
@@ -152,6 +152,7 @@ export function Marketplace(props: MarketplaceProps) {
         const langClient = await getDiagramEditorLangClient();
         const response: BallerinaModuleResponse = await props.fetchModulesList(queryParams, currentFile.path,
             langClient, userInfo);
+        localModules.current.clear();
         response.local?.forEach((module) => {
             localModules.current.set((module.package?.name || module.name), module);
         });
@@ -220,7 +221,6 @@ export function Marketplace(props: MarketplaceProps) {
     }
 
     const renderModulesList = (modulesListTitle: string, modules: ReactNode[]): ReactNode => {
-        // TODO: Uncomment this when the private triggers are enabled
         return (
             <>
                 {shortName !== "Triggers" ? (

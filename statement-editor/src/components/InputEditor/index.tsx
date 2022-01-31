@@ -31,6 +31,7 @@ import {
     StringLiteral
 } from "@wso2-enterprise/syntax-tree";
 import debounce from "lodash.debounce";
+import * as monaco from "monaco-editor";
 
 import * as c from "../../constants";
 import { SuggestionItem, VariableUserInputs } from "../../models/definitions";
@@ -41,7 +42,7 @@ import { getPartialSTForStatement } from "../../utils";
 import { useStatementEditorStyles } from "../styles";
 
 import {
-    acceptedCompletionKindForExpressions, acceptedCompletionKindForTypes
+    acceptedCompletionKindForExpressions, acceptedCompletionKindForTypes, EXPR_SCHEME, FILE_SCHEME
 } from "./constants";
 
 export interface InputEditorProps {
@@ -68,7 +69,7 @@ export function InputEditor(props: InputEditorProps) {
     const inputEditorCtx = useContext(InputEditorContext);
     const { expressionHandler } = useContext(SuggestionsContext);
     const { currentFile, getLangClient } = stmtCtx;
-    const fileURI = `expr://${currentFile.path}`;
+    const fileURI = monaco.Uri.file(currentFile.path).toString().replace(FILE_SCHEME, EXPR_SCHEME);
 
     const statementEditorClasses = useStatementEditorStyles();
 

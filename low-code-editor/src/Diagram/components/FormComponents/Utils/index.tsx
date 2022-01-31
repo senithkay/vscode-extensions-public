@@ -12,8 +12,12 @@
  */
 import React from "react";
 
-import { FormField } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ConnectorConfig, FormField, FormFieldReturnType, STModification, STSymbolInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FunctionDefinition, ModulePart, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
+import { getAllVariables } from "../../../utils/mixins";
+import { createImportStatement, createPropertyStatement, createQueryWhileStatement, updateFunctionSignature } from "../../../utils/modification-util";
+import { genVariableName } from "../../Portals/utils";
 import * as Forms from "../ConfigForms";
 import { FormFieldChecks } from "../Types";
 
@@ -26,7 +30,7 @@ export function getForm(type: string, args: any) {
 
 export function isAllEmpty(allFieldChecks: Map<string, FormFieldChecks>): boolean {
     let result = true
-    allFieldChecks.forEach((fieldChecks, key) => {
+    allFieldChecks?.forEach((fieldChecks, key) => {
         if (!fieldChecks.isEmpty) {
             result = false;
         }
@@ -36,12 +40,16 @@ export function isAllEmpty(allFieldChecks: Map<string, FormFieldChecks>): boolea
 
 export function isAllIgnorable(fields: FormField[]): boolean {
     let result = true;
-    fields.forEach((field, key) => {
+    fields?.forEach((field, key) => {
         if (!(field.optional || field.defaultable)) {
             result = false;
         }
     });
     return result;
+}
+
+export function isAllDefaultableFields(recordFields: FormField[]): boolean {
+    return recordFields?.every((field) => field.defaultable || (field.fields && isAllDefaultableFields(field.fields)));
 }
 
 export function isAllFieldsValid(allFieldChecks: Map<string, FormFieldChecks>, model: FormField | FormField[], isRoot: boolean): boolean {
@@ -58,7 +66,7 @@ export function isAllFieldsValid(allFieldChecks: Map<string, FormFieldChecks>, m
         allFieldsIgnorable = isAllIgnorable(formFields);
     }
 
-    allFieldChecks.forEach(fieldChecks => {
+    allFieldChecks?.forEach(fieldChecks => {
         if (!canModelIgnore && !fieldChecks.canIgnore && (!fieldChecks.isValid || fieldChecks.isEmpty)) {
             result = false;
         }
@@ -78,3 +86,96 @@ export function generateDocUrl(org: string, module: string, method: string) {
         : `${BALLERINA_CENTRAL_ROOT}/${org}/${module}/latest/clients/Client`
 }
 
+export function updateFunctionSignatureWithError(modifications: STModification[], activeFunction: FunctionDefinition) {
+    const parametersStr = activeFunction.functionSignature.parameters.map((item) => item.source).join(",");
+    let returnTypeStr = activeFunction.functionSignature.returnTypeDesc?.source.trim();
+
+    if (returnTypeStr?.includes("?") || returnTypeStr?.includes("()")) {
+        returnTypeStr = returnTypeStr + "|error";
+    } else if (returnTypeStr) {
+        returnTypeStr = returnTypeStr + "|error?";
+    } else {
+        returnTypeStr = "returns error?";
+    }
+
+    const functionSignature = updateFunctionSignature(activeFunction.functionName.value, parametersStr, returnTypeStr, {
+        ...activeFunction.functionSignature.position,
+        startColumn: activeFunction.functionName.position.startColumn,
+    });
+    if (functionSignature) {
+        modifications.push(functionSignature);
+    }
+}
+
+export function addReturnTypeImports(modifications: STModification[], returnType: FormFieldReturnType) {
+    if (returnType.importTypeInfo) {
+        returnType.importTypeInfo?.forEach((typeInfo) => {
+            const addImport: STModification = createImportStatement(typeInfo.orgName, typeInfo.moduleName, {
+                startColumn: 0,
+                startLine: 0,
+            });
+            const existsMod = modifications.find(
+                (modification) => JSON.stringify(addImport) === JSON.stringify(modification)
+            );
+            if (!existsMod) {
+                modifications.push(addImport);
+            }
+        });
+    }
+}
+
+export function checkDBConnector(connectorModule: string): boolean {
+    const dbConnectors = ["mysql", "mssql", "postgresql", "oracledb"]
+    if (dbConnectors.includes(connectorModule)) {
+        return true;
+    }
+    return false;
+}
+
+export function addDbExtraImport(modifications: STModification[], syntaxTree: STNode, orgName: string, moduleName: string) {
+    let importCounts: number = 0;
+    if (STKindChecker.isModulePart(syntaxTree)) {
+        (syntaxTree as ModulePart).imports?.forEach((imp) => {
+            if (
+                imp.typeData?.symbol.id.orgName === orgName &&
+                imp.typeData?.symbol.id.moduleName === `${moduleName}.driver`
+            ) {
+                importCounts = importCounts + 1;
+            }
+        });
+        if (importCounts === 0) {
+            if (checkDBConnector(moduleName)) {
+                const addDriverImport: STModification = createImportStatement(orgName, `${moduleName}.driver as _`, {
+                    startColumn: 0,
+                    startLine: 0,
+                });
+                modifications.push(addDriverImport);
+            }
+        }
+    }
+}
+
+export function addDbExtraStatements(
+    modifications: STModification[],
+    config: ConnectorConfig,
+    stSymbolInfo: STSymbolInfo,
+    targetPosition: NodePosition,
+    isAction: boolean
+) {
+    if (config.action.name === "query") {
+        const resultUniqueName = genVariableName("recordResult", getAllVariables(stSymbolInfo));
+        const returnTypeName = config.action.returnVariableName;
+        const addQueryWhileStatement = createQueryWhileStatement(resultUniqueName, returnTypeName, targetPosition);
+        modifications.push(addQueryWhileStatement);
+
+        const closeStreamStatement = `check ${returnTypeName}.close();`;
+        const addCloseStreamStatement = createPropertyStatement(closeStreamStatement, targetPosition);
+        modifications.push(addCloseStreamStatement);
+    }
+    if (!isAction) {
+        const resp = config.name;
+        const closeStatement = `check ${resp}.close();`;
+        const addCloseStatement = createPropertyStatement(closeStatement, targetPosition);
+        modifications.push(addCloseStatement);
+    }
+}

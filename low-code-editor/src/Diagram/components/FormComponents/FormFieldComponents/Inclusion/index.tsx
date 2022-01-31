@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 Inc. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -10,33 +10,28 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js
 import React from "react";
 
-import { FormField } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 import { getFormElement } from "../../../Portals/utils";
 import { useStyles } from "../../DynamicConnectorForm/style";
-import FormAccordion from "../../FormAccordion";
 import { ExpressionInjectablesProps } from "../../FormGenerator";
 import { FormElementProps, FormFieldChecks } from "../../Types";
 import { isAllEmpty, isAllFieldsValid } from "../../Utils";
 
-interface RecordProps {
+interface InclusionProps {
     validate?: (field: string, isInvalid: boolean, isEmpty: boolean, canIgnore?: boolean) => void;
     expressionInjectables?: ExpressionInjectablesProps;
     editPosition?: NodePosition;
 }
 
-export function Record(props: FormElementProps<RecordProps>) {
+export function Inclusion(props: FormElementProps<InclusionProps>) {
     const { model, customProps } = props;
     const { validate, expressionInjectables, editPosition } = customProps;
     const classes = useStyles();
     const allFieldChecks = React.useRef(new Map<string, FormFieldChecks>());
-
-    const recordFields: React.ReactNode[] = [];
-    const optionalRecordFields: React.ReactNode[] = [];
+    const includedField = model.inclusionType;
 
     const validateField = (field: string, isInvalid: boolean, isEmpty: boolean, canIgnore?: boolean) => {
         allFieldChecks.current.set(field, {
@@ -53,33 +48,19 @@ export function Record(props: FormElementProps<RecordProps>) {
         );
     };
 
-    model.fields?.map((field: FormField, index: any) => {
-        const elementProps: FormElementProps = {
-            model: field,
-            index,
-            customProps: {
-                validate: validateField,
-                expressionInjectables,
-                editPosition,
-                initialDiagnostics: field.initialDiagnostics,
-            }
-        };
-
-        const element = getFormElement(elementProps, field.typeName);
-        if (element) {
-            (field.defaultable || field.optional) ? optionalRecordFields.push(element) : recordFields.push(element);
+    const elementProps: FormElementProps = {
+        model: includedField,
+        customProps: {
+            validate: validateField,
+            expressionInjectables,
+            editPosition,
+            initialDiagnostics: includedField.initialDiagnostics,
         }
-    });
+    };
 
     return (
         <div className={classes.marginTB}>
-            <FormAccordion
-                title={model.displayAnnotation?.label || model.name}
-                depth={2}
-                mandatoryFields={recordFields}
-                optionalFields={optionalRecordFields}
-                isMandatory={!(model.defaultable || model.optional)}
-            />
+            {getFormElement(elementProps, includedField.typeName)}
         </div>
     );
 }

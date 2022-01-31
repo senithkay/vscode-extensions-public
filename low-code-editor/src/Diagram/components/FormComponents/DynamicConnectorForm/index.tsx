@@ -19,10 +19,9 @@ import { getFormElement } from "../../Portals/utils";
 import FormAccordion from "../FormAccordion";
 import { ExpressionInjectablesProps } from "../FormGenerator";
 import { FormElementProps, FormFieldChecks } from "../Types";
-import { isAllFieldsValid } from "../Utils";
+import { isAllDefaultableFields, isAllFieldsValid } from "../Utils";
 
 import { useStyles } from "./styles";
-
 export interface FormProps {
     fields: FormField[];
     onValidate?: (isRequiredFieldsFilled: boolean) => void;
@@ -31,9 +30,6 @@ export interface FormProps {
     editPosition?: NodePosition;
     expandOptionals?: boolean;
 }
-
-const isAllDefaultableFields = (recordFields: FormField[]): boolean =>
-    recordFields?.every((field) => field.defaultValue || (field.fields && isAllDefaultableFields(field.fields)));
 
 export function Form(props: FormProps) {
     const { fields, onValidate, expressionInjectables, editPosition, expandOptionals} = props;
@@ -64,43 +60,26 @@ export function Form(props: FormProps) {
         onValidate(isAllFieldsValid(allFieldChecks.current, fields, true));
     };
 
-    const fieldTypesList = ["string" , "int" , "boolean" , "float" , "decimal" , "array" , "map" , "union" , "enum", "json" , "httpRequest" , "handle", "object"]
     fields?.map((field, index) => {
-        if (!field.hide && (fieldTypesList.includes(field.typeName) || (field.typeName === 'record' && !field.isReference))) {
-            const elementProps: FormElementProps = {
-                model: field,
-                index,
-                customProps: {
-                    validate: validateField,
-                    tooltipTitle: field?.documentation ? field?.documentation : field.tooltip,
-                    expressionInjectables,
-                    editPosition,
-                    initialDiagnostics: field.initialDiagnostics,
-                },
-            };
+        const elementProps: FormElementProps = {
+            model: field,
+            index,
+            customProps: {
+                validate: validateField,
+                tooltipTitle: field?.documentation ? field?.documentation : field.tooltip,
+                expressionInjectables,
+                editPosition,
+                initialDiagnostics: field.initialDiagnostics,
+            },
+        };
 
-            let type = field.typeName;
-            // validate union types
-            // only union record types will get Union element
-            // other union types will get expression editor
-            if (field.typeName === "union"){
-                field.members?.forEach((subField: FormField) => {
-                    if (subField.typeName !== "record"){
-                        type = "expression";
-                    }
-                });
-            } else if (field.isRestParam) {
-                type = "restParam"
-            } else if (field.typeName === "handle"){
-                type = "expression";
-            } else if (field.typeName === "object"){
-                type = "expression";
-            }
-            const element = getFormElement(elementProps, type);
+        if (field.typeName === "inclusion"){
+            field.defaultable = isAllDefaultableFields(field.inclusionType?.fields);
+        }
 
-            if (element) {
-                field.defaultable || field.optional ? optionalElements.push(element) : requiredElements.push(element);
-            }
+        const element = getFormElement(elementProps, field.typeName);
+        if (element) {
+            field.defaultable || field.optional ? optionalElements.push(element) : requiredElements.push(element);
         }
     });
 

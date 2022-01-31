@@ -39,7 +39,10 @@ export function ListenerC(props: ListenerProps) {
         api: {
             edit: {
                 deleteComponent,
-                renderEditForm
+                renderEditForm,
+            },
+            code: {
+                gotoSource
             }
         }
     } = useContext(Context);
@@ -51,7 +54,7 @@ export function ListenerC(props: ListenerProps) {
     const listenerName = listenerModel.variableName.value;
     const listenerType = listenerModel.typeDescriptor.modulePrefix.value;
     let listenerPort = "";
-    listenerModel.initializer.parenthesizedArgList.arguments.forEach((argument) => {
+    listenerModel.initializer.parenthesizedArgList?.arguments.forEach((argument) => {
         listenerPort += argument.source?.trim();
     });
     const typeMaxWidth = listenerType.length >= 10;
@@ -69,7 +72,13 @@ export function ListenerC(props: ListenerProps) {
     }
 
     const handleEditBtnClick = () => {
-        renderEditForm(model, model.position, { formType: model.kind, isLoading: false });
+        const supportedListenerType: boolean = listenerModel.initializer.parenthesizedArgList !== undefined;
+        if (supportedListenerType) {
+            renderEditForm(model, model.position, { formType: model.kind, isLoading: false });
+        } else {
+            const targetposition = model.position;
+            gotoSource({ startLine: targetposition.startLine, startColumn: targetposition.startColumn });
+        }
     }
 
     return (
@@ -95,7 +104,7 @@ export function ListenerC(props: ListenerProps) {
                             <tspan x="0" y="0">{nameMaxWidth ? listenerName.slice(0, 20) + "..." : listenerName}</tspan>
                         </div>
                     </div>
-                    { !isReadOnly && isEditable && (
+                    {!isReadOnly && isEditable && (
                         <div className={"listener-amendment-options"}>
                             <div className={"edit-btn-wrapper"}>
                                 <EditButton onClick={handleEditBtnClick} />

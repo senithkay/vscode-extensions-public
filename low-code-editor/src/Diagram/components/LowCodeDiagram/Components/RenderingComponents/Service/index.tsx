@@ -18,6 +18,7 @@ import { ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
 import { useSelectedStatus } from "../../../../../hooks";
 import { getSTComponent } from "../../../../../utils";
 import expandTracker from "../../../../../utils/expand-tracker";
+import DefaultButtonSquare from "../../../../Buttons/DefaultButtonSquare";
 import { getServiceTypeFromModel } from "../../../../FormComponents/ConfigForms/ServiceConfigForm/util";
 import { Context } from "../../../Context/diagram";
 import { getNodeSignature } from "../../../Utils";
@@ -87,10 +88,10 @@ export function Service(props: ServiceProps) {
     }
 
     function renderButtons() {
-        const tryItBtn = <p className={"action-text"} onClick={onClickTryIt}>Try it</p>
+        const tryItBtn = <DefaultButtonSquare  onClick={onClickTryIt}>Try it</DefaultButtonSquare>
 
         if (model.isRunnable) {
-            const runBtn = <p className={"action-text"} onClick={onClickRun}>Run</p>
+            const runBtn = <DefaultButtonSquare  onClick={onClickRun}>Run</DefaultButtonSquare>
             if (!isTriggerType) {
                 return [runBtn, tryItBtn];
             }

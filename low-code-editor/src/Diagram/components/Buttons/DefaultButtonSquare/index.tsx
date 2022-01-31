@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 Inc. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -11,20 +11,17 @@
  * associated services.
  */
 
-.header-amendment-options {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    margin-bottom: -10px;
-    margin-Top: -10px;
+import Button from '@material-ui/core/Button';
+import { Theme, withStyles } from '@material-ui/core/styles';
 
-    .amendment-option {
-        width: 35px;
-        text-align: center;
-        padding-right: 5px;
+const DefaultButtonSquare = withStyles((theme: Theme) => ({
+  root: {
+    paddingLeft: theme.spacing(0.1),
+    paddingRight: theme.spacing(0.1),
+    paddingBottom: theme.spacing(0.5),
+    paddingTop: theme.spacing(0.5),
+    fontSize: theme.spacing(1.2),
+  },
+}))(Button) as typeof Button;
 
-        &:hover {
-            cursor: pointer;
-        }
-    }
-}
+export default DefaultButtonSquare;

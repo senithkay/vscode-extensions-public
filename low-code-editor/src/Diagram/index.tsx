@@ -14,8 +14,8 @@
 import React, { useContext, useState } from "react";
 
 import Container from "@material-ui/core/Container";
-import { ConfigOverlayFormStatus, ConnectorConfigWizardProps, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { ModulePart, NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
+import { ConfigOverlayFormStatus, ConnectorConfigWizardProps, LowcodeEvent, OPEN_LOW_CODE, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import classnames from 'classnames';
 
 import { Context as DiagramContext } from "../Contexts/Diagram";
@@ -83,6 +83,14 @@ export function Diagram() {
         setIsErrorStateDialogOpen(diagramErrors);
         setIsErrorDetailsOpen(diagramErrors);
     }, [diagramErrors, diagramWarnings])
+
+    React.useEffect(() => {
+        // Identify low-code open event
+        const event: LowcodeEvent = {
+            type: OPEN_LOW_CODE,
+        };
+        onEvent(event);
+    }, []);
 
     const openErrorDialog = () => {
         setIsErrorStateDialogOpen(true);

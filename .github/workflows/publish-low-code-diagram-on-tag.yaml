@@ -1,10 +1,9 @@
-name: "Daily Publish Low Code Editor"
+name: "Publish Low Code Editor from a created tag"
 
 on:
-  workflow_dispatch:
-    branches: [main]
-  schedule:
-    - cron: '0 0 * * *'
+  push:
+    tags:
+      - "v*"
 
 jobs:
   publish-package:
@@ -22,16 +21,6 @@ jobs:
         id: timestamp
         run: echo "::set-output name=timestamp::$(date +'%Y%m%d-%H%M')"
       - run: npm version prepatch --preid=${{ steps.timestamp.outputs.timestamp }} --workspaces
-      - name: Create tag
-        uses: actions/github-script@v5
-        with:
-          script: |
-            github.rest.git.createRef({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              ref: 'refs/tags/${{ steps.timestamp.outputs.timestamp }}',
-              sha: context.sha
-            })
       - run: npm run build
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}

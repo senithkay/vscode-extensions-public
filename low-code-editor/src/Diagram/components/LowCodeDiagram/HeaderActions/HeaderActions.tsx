@@ -19,6 +19,7 @@ import classNames from "classnames";
 
 import DeleteButton from "../../../../assets/icons/DeleteButton";
 import EditButton from "../../../../assets/icons/EditButton";
+import { UnsupportedConfirmButtons } from "../../FormComponents/DialogBoxes/UnsupportedConfirmButtons";
 import { ComponentExpandButton } from "../Components/ComponentExpandButton";
 import { Context } from "../Context/diagram";
 
@@ -33,6 +34,7 @@ export interface HeaderActionsProps {
     onExpandClick: () => void;
     onConfirmDelete: () => void;
     onConfirmEdit?: () => void;
+    unsupportedType?: boolean;
 }
 
 export function HeaderActions(props: HeaderActionsProps) {
@@ -44,12 +46,14 @@ export function HeaderActions(props: HeaderActionsProps) {
         onExpandClick,
         formType,
         onConfirmDelete,
-        onConfirmEdit
+        onConfirmEdit,
+        unsupportedType
     } = props;
 
     const {
         props: { isReadOnly },
         api: {
+            code: { gotoSource },
             edit: {
                 renderEditForm
             }
@@ -62,16 +66,28 @@ export function HeaderActions(props: HeaderActionsProps) {
     // const handleCancelDeleteBtn = () => setIsDeleteViewVisible(false);
 
     const [isEditViewVisible, setIsEditViewVisible] = useState(false);
+    const [isUnSupported, setIsUnSupported] = useState(false);
+    const handleEditBtnClick = () => {
+        if (unsupportedType) {
+            setIsUnSupported(true);
+        } else {
+            renderEditForm(model, model?.position, { formType: (formType ? formType : model.kind), isLoading: false }, handleEditBtnCancel, handleEditBtnCancel);
+        }
+    }
 
     const handleEditBtnCancel = () => setIsEditViewVisible(false);
-    const handleEditBtnClick = () => {
-        renderEditForm(model, model?.position, { formType: (formType ? formType : model.kind), isLoading: false }, handleEditBtnCancel, handleEditBtnCancel);
-        // setIsEditViewVisible(true);
-    }
     const handleEnumEditBtnConfirm = () => {
         // setIsEditViewVisible(false);
         // onConfirmEdit();
     }
+
+    const unsupportedEditConfirm = () => {
+        const targetposition = model.position;
+        setIsUnSupported(false);
+        gotoSource({ startLine: targetposition.startLine, startColumn: targetposition.startColumn });
+    }
+
+    const unSupportedEditCancel = () => setIsUnSupported(false);
 
     React.useEffect(() => {
         setIsDeleteViewVisible(false);
@@ -121,7 +137,8 @@ export function HeaderActions(props: HeaderActionsProps) {
                     onCancel={handleEditBtnCancel}
                     onSave={handleEditBtnCancel}
                 />
-            )} */}
+            )}*/}
+            {isUnSupported && <UnsupportedConfirmButtons onConfirm={unsupportedEditConfirm} onCancel={unSupportedEditCancel} />}
         </div>
     );
 }

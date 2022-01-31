@@ -58,3 +58,6 @@ export const SUGGEST_CAST_MAP : {[name: string]: string[]} = {
     "boolean": ["string", "json", "any", "anydata"],
     "xml": ["string"]
 }
+
+export const FILE_SCHEME = "file://";
+export const EXPR_SCHEME = "expr://";

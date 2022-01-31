@@ -13,9 +13,9 @@
 // tslint:disable: jsx-no-multiline-js
 // tslint:disable: ordered-imports
 import React, { useContext, useEffect, useState } from "react";
-import { FormattedMessage, useIntl } from "react-intl";
+import { useIntl } from "react-intl";
 
-import { Box, FormControl, Typography } from "@material-ui/core";
+import { FormControl } from "@material-ui/core";
 import { FormActionButtons, FormHeaderSection, ADD_OTHER_STATEMENT, LowcodeEvent, SAVE_OTHER_STATEMENT } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
 import { STNode } from "@wso2-enterprise/syntax-tree";

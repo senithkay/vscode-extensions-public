@@ -12,12 +12,11 @@
  */
 import React, { ReactNode } from "react";
 
-import { Avatar, Box, colors } from "@material-ui/core";
 import {
     ActionConfig,
     BallerinaConnectorInfo,
     BallerinaConnectorRequest,
-    BallerinaModule,
+    BallerinaConstruct,
     Connector,
     ConnectorConfig,
     DiagramEditorLangClientInterface,
@@ -47,10 +46,10 @@ import * as Forms from "../../FormComponents/ConfigForms";
 import { ConfigWizardState } from "../../FormComponents/ConnectorConfigWizard";
 import * as ConnectorExtension from "../../FormComponents/ConnectorExtensions";
 import * as Elements from "../../FormComponents/FormFieldComponents";
+import ExpressionEditor from "../../FormComponents/FormFieldComponents/ExpressionEditor";
 import { getUnionFormFieldName } from "../../FormComponents/FormFieldComponents/Union";
 import { FormElementProps } from "../../FormComponents/Types";
 import * as OverlayElement from "../../LowCodeDiagram/Components/DialogBoxes";
-import * as ConnectorIcons from "../../LowCodeDiagram/Components/RenderingComponents/Connector/Icon";
 import { DefaultConnectorIcon } from "../../LowCodeDiagram/Components/RenderingComponents/Connector/Icon/DefaultConnectorIcon";
 import { StatementViewState } from "../../LowCodeDiagram/ViewState";
 
@@ -69,25 +68,27 @@ export function getOverlayElement(
 }
 
 export function getFormElement(elementProps: FormElementProps, type: string) {
-    if (type) {
-        const FormElement = (Elements as any)[type];
-        // todo: check if this logic should be moved down to element component level
-        if (elementProps.model.value) {
-            if (type === 'xml') {
-                const xmlRegex = /xml\ \`(.*\n?)\`/g
-                const matchedRegex = xmlRegex.exec(elementProps.model.value);
-                elementProps.defaultValue = matchedRegex ? matchedRegex[1] : elementProps.model.value;
-            } else if (type === 'json') {
-                elementProps.defaultValue = elementProps.model.value;
-            }
-        }
-
-        return (
-            <FormElement {...elementProps} />
-        );
-    } else {
+    if (!(type && elementProps)) {
         return null;
     }
+
+    if (type === "union") {
+        // Show expression editor if members doesn't have a Record
+        elementProps.model?.members?.forEach((subField: FormField) => {
+            if (subField.typeName !== "record") {
+                type = "expression";
+            }
+        });
+    } else if (elementProps.model?.isRestParam) {
+        type = "restParam";
+    }
+
+    const FormElement = (Elements as any)[type];
+    if (FormElement){
+        return <FormElement {...elementProps} />;
+    }
+
+    return <ExpressionEditor {...elementProps} />;
 }
 
 export function getForm(type: string, args: any) {
@@ -113,7 +114,11 @@ const isAllFieldsEmpty = (recordFields: FormField[]): boolean => recordFields?.e
 export function getParams(formFields: FormField[], depth = 1): string[] {
     const paramStrings: string[] = [];
     formFields.forEach(formField => {
-        const skipDefaultValue = (!formField.value && formField.typeName !== "record" && formField.defaultable) ||
+        const skipDefaultValue =
+            (!formField.value &&
+                formField.typeName !== "record" &&
+                formField.typeName !== "inclusion" &&
+                formField.defaultable) ||
             (formField.value && formField.defaultValue && formField.defaultValue === formField.value);
         let paramString: string = "";
         if (!skipDefaultValue) {
@@ -254,6 +259,9 @@ export function getParams(formFields: FormField[], depth = 1): string[] {
                 } else {
                     paramString += formField.value;
                 }
+            } else if (formField.typeName === "inclusion" && formField.inclusionType) {
+                const params = getParams([formField.inclusionType], depth + 1);
+                paramString += params;
             } else if (formField.typeName === "handle" && formField.value) {
                 paramString += formField.value;
             }
@@ -354,6 +362,12 @@ export function matchEndpointToFormField(endPoint: LocalVarDecl, formFields: For
                 const mappingConstructor: MappingConstructor = positionalArg.expression as MappingConstructor;
                 if (mappingConstructor) {
                     mapRecordLiteralToRecordTypeFormField(mappingConstructor.fields as SpecificField[], formField.fields);
+                    nextValueIndex++;
+                }
+            } else if (formField.typeName === "inclusion" && formField.inclusionType && formField.inclusionType.fields) {
+                const mappingConstructor: MappingConstructor = positionalArg.expression as MappingConstructor;
+                if (mappingConstructor) {
+                    mapRecordLiteralToRecordTypeFormField(mappingConstructor.fields as SpecificField[], formField.inclusionType?.fields);
                     nextValueIndex++;
                 }
             } else if (formField.typeName === "union") {
@@ -505,7 +519,7 @@ export function getVaribaleNamesFromVariableDefList(asts: STNode[]) {
     return (asts as LocalVarDecl[]).map((item) => (item?.typedBindingPattern?.bindingPattern as CaptureBindingPattern)?.variableName?.value);
 }
 
-export function getModuleIcon(module: BallerinaModule, scale: number = 1): React.ReactNode {
+export function getModuleIcon(module: BallerinaConstruct, scale: number = 1): React.ReactNode {
     const width = 56 * scale;
     if (module?.icon || module?.package?.icon) {
         return (
@@ -565,19 +579,20 @@ export function getAllVariablesForAi(symbolInfo: STSymbolInfo): { [key: string]:
         variableNodes.forEach((variableNode) => {
             if (STKindChecker.isRequiredParam(variableNode)) {
                 // Handle function definition params
-                variableCollection[(variableNode as RequiredParam).paramName.value] = {
+                variableCollection[variableNode.paramName.value] = {
                     "type": type,
                     "position": 0,
                     "isUsed": 0
                 }
             } else if (STKindChecker.isLocalVarDecl(variableNode)) {
                 const variableDef: LocalVarDecl = variableNode as LocalVarDecl;
-                const variable: CaptureBindingPattern = variableDef.typedBindingPattern.bindingPattern as
-                    CaptureBindingPattern;
-                variableCollection[variable.variableName.value] = {
-                    "type": type,
-                    "position": 0,
-                    "isUsed": 0
+                if (STKindChecker.isCaptureBindingPattern(variableDef.typedBindingPattern.bindingPattern) &&
+                    variableDef.typedBindingPattern.bindingPattern.variableName) {
+                    variableCollection[variableDef.typedBindingPattern.bindingPattern.variableName.value] = {
+                        "type": type,
+                        "position": 0,
+                        "isUsed": 0
+                    }
                 }
             }
         });
@@ -642,12 +657,14 @@ export function getMapTo(_formFields: FormField[], targetPosition: NodePosition)
     return mapTo;
 }
 
-export async function fetchConnectorInfo(connector: Connector, model?: STNode, symbolInfo?: STSymbolInfo,
-                                         langServerURL?: string,
-                                         getDiagramEditorLangClient?: (url: string) => Promise<DiagramEditorLangClientInterface>,
-                                         userEmail?: string)
-                                         : Promise<ConfigWizardState> {
-
+export async function fetchConnectorInfo(
+    connector: Connector,
+    model?: STNode,
+    symbolInfo?: STSymbolInfo,
+    langServerURL?: string,
+    currentFilePath?: string,
+    getDiagramEditorLangClient?: (url: string) => Promise<DiagramEditorLangClientInterface>
+): Promise<ConfigWizardState> {
     // get form fields from browser cache
     let connectorInfo = getConnectorFromCache(connector);
     const functionDefInfo: Map<string, FunctionDefinitionInfo> = new Map();
@@ -655,17 +672,18 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
     const connectorRequest: BallerinaConnectorRequest = {};
 
     // Connector request with connector_id
-    if (!connectorInfo && connector && connector.id){
+    if (!connectorInfo && connector && connector.id) {
         connectorRequest.id = connector.id;
     }
 
     // Connector request with FQN
-    if (!connectorInfo && connector && connector.moduleName && connector.package){
+    if (!connectorInfo && connector && connector.moduleName && connector.package) {
         connectorRequest.name = connector.name;
         connectorRequest.moduleName = connector.moduleName;
         connectorRequest.orgName = connector.package.organization;
         connectorRequest.packageName = connector.package.name;
         connectorRequest.version = connector.package.version;
+        connectorRequest.targetFile = currentFilePath;
         // HACK: Http endpoint STNode will get 2.0.1 version, but Ballerina Central have only 2.0.0 version.
         if (connector.package.name === "http" && connector.package.version === "2.0.1") {
             connectorRequest.version = "2.0.0";
@@ -678,7 +696,7 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
         const connectorResp = await langClient?.getConnector(connectorRequest);
         if (connectorResp) {
             connectorInfo = connectorResp as BallerinaConnectorInfo;
-            if (connectorInfo?.name){
+            if (connectorInfo?.name) {
                 connector = connectorInfo;
                 // save form fields in browser cache
                 await addConnectorToCache(connectorInfo);
@@ -686,7 +704,7 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
         }
     }
 
-    if (!connectorInfo?.name){
+    if (!connectorInfo?.name) {
         return null;
     }
 
@@ -704,18 +722,18 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
             switch (model.kind) {
                 case "LocalVarDecl":
                     switch (variable.initializer.kind) {
-                        case 'TypeCastExpression':
-                            const initializer: TypeCastExpression = variable.initializer as TypeCastExpression
+                        case "TypeCastExpression":
+                            const initializer: TypeCastExpression = variable.initializer as TypeCastExpression;
                             remoteCall = (initializer.expression as CheckAction).expression as RemoteMethodCallAction;
                             break;
-                        case 'RemoteMethodCallAction':
+                        case "RemoteMethodCallAction":
                             remoteCall = variable.initializer as RemoteMethodCallAction;
                             break;
                         default:
                             remoteCall = (variable.initializer as CheckAction).expression;
                     }
-                    const bindingPattern: CaptureBindingPattern = variable.typedBindingPattern.bindingPattern as
-                        CaptureBindingPattern;
+                    const bindingPattern: CaptureBindingPattern = variable.typedBindingPattern
+                        .bindingPattern as CaptureBindingPattern;
                     returnVarName = bindingPattern.variableName.value;
                     break;
 
@@ -742,10 +760,9 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
                     matchActionToFormField(remoteCall, connectorConfig.action.fields);
                 }
             }
-
         } else if (viewState.isEndpoint) {
-            const bindingPattern: CaptureBindingPattern = variable.typedBindingPattern.bindingPattern as
-                CaptureBindingPattern;
+            const bindingPattern: CaptureBindingPattern = variable.typedBindingPattern
+                .bindingPattern as CaptureBindingPattern;
             const endpointVarName: string = bindingPattern.variableName.value;
             if (endpointVarName) {
                 connectorConfig.name = endpointVarName;
@@ -759,14 +776,16 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
         }
     }
 
-    connectorConfig.existingConnections = symbolInfo.variables.get(getFormattedModuleName(connector.package.name) + ":" + connector.name);
+    connectorConfig.existingConnections = symbolInfo.variables.get(
+        getFormattedModuleName(connector.package.name) + ":" + connector.name
+    );
 
     return {
         isLoading: false,
         connector,
         functionDefInfo,
         connectorConfig,
-        model
+        model,
     };
 }
 
@@ -1100,13 +1119,4 @@ export function getManualConnectionDetailsFromFormFields(formFields: FormField[]
 export function getManualConnectionTypeFromFormFields(formFields: FormField[]): any {
     const selectedType = (formFields[0]?.fields[0]?.selectedDataType) ? ((formFields[0]?.fields[0]?.selectedDataType)) : (formFields[0].selectedDataType)
     return selectedType
-}
-
-export function checkDBConnector(connectorModule: string): boolean {
-    let isDBConnectorStatus = false;
-    const dbConnectors = ["mysql", "mssql", "postgresql", "oracledb"]
-    if (dbConnectors.includes(connectorModule)) {
-        isDBConnectorStatus = true;
-    }
-    return isDBConnectorStatus;
 }
