@@ -66,7 +66,7 @@ export function VariableTypeInput(props: VariableTypeInputProps) {
             interactive: true,
             editPosition: position,
             customTemplate: overrideTemplate ? overrideTemplate : {
-                defaultCodeSnippet: ` |()  tempVar_${uuid().replaceAll('-', '_')} = ();`,
+                defaultCodeSnippet: `${value === 'var' ? '' : '|()'}  tempVar_${uuid().replaceAll('-', '_')} = ();`,
                 targetColumn: 1
             },
             hideExpand: true,

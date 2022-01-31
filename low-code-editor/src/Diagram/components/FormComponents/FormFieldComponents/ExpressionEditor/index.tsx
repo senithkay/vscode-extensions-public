@@ -482,6 +482,18 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     }, [statementType, expressionInjectables?.list?.length, customTemplate?.defaultCodeSnippet]);
 
     useEffect(() => {
+        // Revalidate the input, if template has changed
+        if (
+          customTemplate?.defaultCodeSnippet &&
+          monacoRef.current &&
+          monacoRef.current.editor.hasTextFocus()
+        ) {
+          const monacoModel = monacoRef.current.editor.getModel();
+          handleContentChange(monacoModel.getValue(), monacoModel.getEOL());
+        }
+    }, [customTemplate?.defaultCodeSnippet]);
+
+    useEffect(() => {
         // Programmatically focus exp-editor
         if (focus && customProps?.revertFocus) {
             monacoRef.current.editor.focus();
@@ -687,7 +699,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     };
 
     // ExpEditor onChange
-    const handleContentChange = async (currentContent: string, EOL: string, lastPressedKey: string) => {
+    const handleContentChange = async (currentContent: string, EOL: string, lastPressedKey?: string) => {
         if (onChange) {
             onChange(currentContent);
         }
