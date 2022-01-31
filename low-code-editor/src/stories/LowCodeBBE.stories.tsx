@@ -13,7 +13,17 @@ function getBBEFilePath(bbeID: string) {
   return balDist.balHome + "/examples/"  + bbeID + "/" + bbeID.replaceAll('-', '_') + ".bal";
 }
 
-bbesList.forEach(bbe => {
+export interface BBESample {
+  name: string;
+  url: string;
+}
+
+export interface BBE {
+  title: string;
+  samples: Array<BBESample>;
+}
+
+bbesList.forEach((bbe: BBE)  => {
   const stories = storiesOf('Low Code Editor/Testing/BBEs/' + bbe.title, module);
   bbe.samples.forEach((bbeItem) => {
     stories.add(
