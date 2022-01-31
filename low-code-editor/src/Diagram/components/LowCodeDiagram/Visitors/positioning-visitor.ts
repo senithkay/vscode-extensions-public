@@ -41,7 +41,7 @@ import { EXECUTION_TIME_DEFAULT_X_OFFSET, EXECUTION_TIME_IF_X_OFFSET } from "../
 import { BOTTOM_CURVE_SVG_WIDTH } from "../Components/RenderingComponents/IfElse/Else/BottomCurve";
 import { TOP_CURVE_SVG_HEIGHT } from "../Components/RenderingComponents/IfElse/Else/TopCurve";
 import { PROCESS_SVG_HEIGHT } from "../Components/RenderingComponents/Processor/ProcessSVG";
-import { START_SVG_SHADOW_OFFSET } from "../Components/RenderingComponents/Start/StartSVG";
+import { START_SVG_HEIGHT, START_SVG_SHADOW_OFFSET } from "../Components/RenderingComponents/Start/StartSVG";
 import {
     BlockViewState,
     CompilationUnitViewState,
@@ -400,8 +400,26 @@ class PositioningVisitor implements Visitor {
             ({ height, index } = this.calculateStatementPosition(
                 (node as FunctionBodyBlock).namedWorkerDeclarator.workerInitStatements,
                 blockViewState, height, index, epGap));
+
+
             index++;
-            height += PROCESS_SVG_HEIGHT;
+            height += PROCESS_SVG_HEIGHT + PLUS_SVG_HEIGHT;
+
+            (node as FunctionBodyBlock).namedWorkerDeclarator.namedWorkerDeclarations.forEach((workerDecl, i) => {
+                const workerDeclViewState = workerDecl.viewState as FunctionViewState;
+                const workerBodyViewState = workerDecl.workerBody.viewState as BlockViewState;
+                const startHeight = height + PLUS_SVG_HEIGHT * 2 + PROCESS_SVG_HEIGHT;
+
+                workerBodyViewState.bBox.cy = workerDeclViewState.bBox.cy
+                    = startHeight;
+                workerBodyViewState.bBox.cx = workerDeclViewState.bBox.cx = i === 0 ?
+                    blockViewState.bBox.cx + blockViewState.bBox.w / 2 + workerBodyViewState.bBox.w / 2
+                    : blockViewState.bBox.cx
+                    + (node as FunctionBodyBlock).namedWorkerDeclarator.namedWorkerDeclarations[i - 1].viewState.bBox.cx
+                    + workerBodyViewState.bBox.w / 2;
+
+                this.calculateStatementPosition(workerDecl.workerBody.statements, workerBodyViewState, (startHeight + START_SVG_HEIGHT + PLUS_SVG_HEIGHT), 0, epGap);
+            });
         }
 
         ({ height, index } = this.calculateStatementPosition(node.statements, blockViewState, height, index, epGap));

@@ -25,6 +25,7 @@ import {
     LocalVarDecl,
     ModulePart,
     ModuleVarDecl,
+    NamedWorkerDeclaration,
     ObjectMethodDefinition,
     OnFailClause,
     ResourceAccessorDefinition,
@@ -713,6 +714,14 @@ class SizingVisitor implements Visitor {
         }
     }
 
+    public beginVisitNamedWorkerDeclaration(node: NamedWorkerDeclaration) {
+        this.beginSizingBlock(node.workerBody);
+    }
+
+    public endVisitNamedWorkerDeclaration(node: NamedWorkerDeclaration) {
+        this.endSizingBlock(node.workerBody);
+    }
+
     private sizeStatement(node: STNode) {
         if (!node.viewState) {
             return;
@@ -878,7 +887,7 @@ class SizingVisitor implements Visitor {
         if (blockViewState.hasWorkerDecl) {
             ({ index, height, width } = this.calculateStatementSizing((node as FunctionBodyBlock).namedWorkerDeclarator.workerInitStatements, index, blockViewState, height, width, lastStatementIndex));
             index++;
-            height += PROCESS_SVG_HEIGHT;
+            height += PROCESS_SVG_HEIGHT + PLUS_SVG_HEIGHT;
         }
 
         ({ index, height, width } = this.calculateStatementSizing(node.statements, index, blockViewState, height, width, lastStatementIndex));

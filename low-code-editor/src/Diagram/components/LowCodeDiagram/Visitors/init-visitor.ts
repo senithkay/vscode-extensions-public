@@ -15,6 +15,7 @@ import {
     LocalVarDecl,
     ModulePart,
     ModuleVarDecl,
+    NamedWorkerDeclaration,
     ObjectMethodDefinition,
     OnFailClause,
     RemoteMethodCallAction,
@@ -364,6 +365,16 @@ class InitVisitor implements Visitor {
             node.blockStatement.viewState = viewState;
         }
     }
+
+    public beginVisitNamedWorkerDeclaration(node: NamedWorkerDeclaration) {
+        if (!node.viewState) {
+            node.viewState = new BlockViewState();
+        }
+        this.visitBlock(node.workerBody, node);
+    }
+
+    // public endVisitNamedWorkerDeclaration(node: NamedWorkerDeclaration) {
+    // }
 
     private initStatement(node: STNode, parent?: STNode) {
         node.viewState = new StatementViewState();

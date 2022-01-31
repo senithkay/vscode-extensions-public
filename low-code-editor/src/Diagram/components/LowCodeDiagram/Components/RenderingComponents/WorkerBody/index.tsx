@@ -38,6 +38,7 @@ export function WorkerBody(props: DiagramProps) {
 
     if (viewState.hasWorkerDecl) {
         children = children.concat(getSTComponents(model.namedWorkerDeclarator.workerInitStatements));
+        children = children.concat(getSTComponents(model.namedWorkerDeclarator.namedWorkerDeclarations))
     }
     children = children.concat(getSTComponents(model.statements))
 
