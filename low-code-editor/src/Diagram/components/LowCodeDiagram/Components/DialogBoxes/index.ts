@@ -11,4 +11,3 @@
  * associated services.
  */
 export * from "../../../FormComponents/DialogBoxes/DeleteConfirmDialog";
-export * from "./DropDown";
