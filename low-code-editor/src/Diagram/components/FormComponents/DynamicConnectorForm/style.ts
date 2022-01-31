@@ -641,7 +641,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             textTransform: 'initial'
         },
         sectionSeperatorHR: {
-            margin: "1.5rem 0 1.5rem 0"
+            margin: "1.5rem 0"
         },
         sectionSeparator: {
             borderBottom: "1px solid #D8D8D8",
