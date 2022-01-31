@@ -350,7 +350,7 @@ export function StatementOptions(props: StatementOptionsProps) {
                     data-testid="addHttp"
                     onClick={onSelectStatement.bind(undefined, "HTTP")}
                 >
-                    <div className="icon-wrapper">
+                    <div className="icon-wrapper icon-wrapper-http">
                         <HttpLogo />
                     </div>
                     <div className="text-label"><FormattedMessage id="lowcode.develop.plusHolder.plusElements.statements.httpConnectorStatement.title" defaultMessage="HTTP" /></div>
