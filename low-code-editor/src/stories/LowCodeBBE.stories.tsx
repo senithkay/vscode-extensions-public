@@ -20,7 +20,7 @@ export interface BBESample {
 
 export interface BBE {
   title: string;
-  samples: Array<BBESample>;
+  samples: BBESample[];
 }
 
 bbesList.forEach((bbe: BBE)  => {
