@@ -111,7 +111,7 @@ export function AddReturnForm(props: ReturnFormProps) {
         }, { learnBallerina: BALLERINA_EXPRESSION_SYNTAX_PATH })
     };
 
-    const initialSource = formArgs.model ? formArgs.model.source : getInitialSource(createReturnStatement(
+    const initialSource = getInitialSource(createReturnStatement(
         returnExpression ? returnExpression as string : 'EXPRESSION'
     ));
 

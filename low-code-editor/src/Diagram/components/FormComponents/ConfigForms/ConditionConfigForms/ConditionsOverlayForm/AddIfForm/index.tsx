@@ -229,7 +229,7 @@ export function AddIfForm(props: IfProps) {
         return source;
     }
 
-    const initialSource = formArgs.model ? formArgs.model.source : getCompleteSource();
+    const initialSource = getCompleteSource();
 
     const { handleStmtEditorToggle, stmtEditorComponent } = useStatementEditor(
         {

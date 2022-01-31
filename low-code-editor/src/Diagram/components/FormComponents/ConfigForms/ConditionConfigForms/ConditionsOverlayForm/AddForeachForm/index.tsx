@@ -228,7 +228,7 @@ export function AddForeachForm(props: ForeachProps) {
         defaultValue: conditionExpression.collection
     };
 
-    const initialSource = formArgs.model ? formArgs.model.source : getInitialSource(createForeachStatement(
+    const initialSource = getInitialSource(createForeachStatement(
         conditionExpression.collection ? conditionExpression.collection : 'EXPRESSION',
         conditionExpression.variable,
         selectedType

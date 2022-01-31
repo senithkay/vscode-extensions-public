@@ -58,10 +58,10 @@ export function AddWhileForm(props: WhileProps) {
     const intl = useIntl();
 
     const [isInvalid, setIsInvalid] = useState(true);
-    const [conditionState, setConditionState] = useState(condition);
+    const [conditionState] = useState(condition);
 
     const handleExpEditorChange = (value: string) => {
-        setConditionState({ ...conditionState, conditionExpression: value })
+        conditionState.conditionExpression = value;
     }
 
     const validateField = (fieldName: string, isInvalidFromField: boolean) => {
@@ -69,7 +69,7 @@ export function AddWhileForm(props: WhileProps) {
     }
 
     const handleStatementEditorChange = (partialModel: WhileStatement) => {
-        setConditionState({ ...conditionState, conditionExpression: partialModel.condition.source.trim() })
+        conditionState.conditionExpression = partialModel.condition.expression.source.trim();
     }
 
 
@@ -138,7 +138,7 @@ export function AddWhileForm(props: WhileProps) {
         defaultMessage: "Cancel"
     });
 
-    const initialSource = formArgs.model ? formArgs.model.source : getInitialSource(createWhileStatement(
+    const initialSource = getInitialSource(createWhileStatement(
         conditionState.conditionExpression ? conditionState.conditionExpression as string : 'EXPRESSION'
     ));
 
