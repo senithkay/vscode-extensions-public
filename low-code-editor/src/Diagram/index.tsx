@@ -14,9 +14,8 @@
 import React, { useContext, useState } from "react";
 
 import Container from "@material-ui/core/Container";
-import { ConfigOverlayFormStatus, ConnectorConfigWizardProps, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { ModulePart, NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
-import classnames from 'classnames';
+import { ConfigOverlayFormStatus, ConnectorConfigWizardProps, LowcodeEvent, OPEN_LOW_CODE, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { Context as DiagramContext } from "../Contexts/Diagram";
 import { TextPreLoader } from "../PreLoader/TextPreLoader";
@@ -24,11 +23,7 @@ import { TextPreLoader } from "../PreLoader/TextPreLoader";
 import { ConnectorConfigWizard } from "./components/FormComponents/ConnectorConfigWizard";
 import { FormGenerator, FormGeneratorProps } from "./components/FormComponents/FormGenerator";
 import LowCodeDiagram from "./components/LowCodeDiagram";
-import { DiagramErrorState } from "./components/LowCodeDiagram/DiagramState/DiagramErrorState";
-import { ErrorList } from "./components/LowCodeDiagram/DiagramState/ErrorList";
 import { ViewState } from "./components/LowCodeDiagram/ViewState";
-import { OverlayBackground } from "./components/OverlayBackground";
-import { LowcodeEvent, OPEN_LOW_CODE } from "./models";
 import "./style.scss";
 import { useStyles } from "./styles";
 import { removeStatement } from "./utils/modification-util";
@@ -70,20 +65,19 @@ export function Diagram() {
     const diagnosticInDiagram = diagnostics && diagnostics.length > 0;
     const numberOfErrors = diagnostics && diagnostics.length;
     const numberOfWarnings = (warnings && warnings.length);
-    const diagramErrors = diagnostics && diagnostics.length > 0;
-    const diagramWarnings = warnings && warnings.length > 0;
+    // const diagramErrors = diagnostics && diagnostics.length > 0;
+    // const diagramWarnings = warnings && warnings.length > 0;
     const warningsInDiagram = warnings && warnings.length > 0;
-    const [isErrorStateDialogOpen, setIsErrorStateDialogOpen] = useState(diagramErrors);
-    const [isErrorDetailsOpen, setIsErrorDetailsOpen] = useState(false);
+    // const [isErrorStateDialogOpen, setIsErrorStateDialogOpen] = useState(diagramErrors);
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [formConfig, setFormConfig] = useState<FormGeneratorProps>(undefined);
     const [isConnectorConfigWizardOpen, setIsConnectorConfigWizardOpen] = useState(false);
     const [connectorConfigWizardProps, setConnectorConfigWizardProps] = useState<ConnectorConfigWizardProps>(undefined);
 
-    React.useEffect(() => {
-        setIsErrorStateDialogOpen(diagramErrors);
-        setIsErrorDetailsOpen(diagramErrors);
-    }, [diagramErrors, diagramWarnings])
+    // React.useEffect(() => {
+    //     setIsErrorStateDialogOpen(diagramErrors);
+    //     setIsErrorDetailsOpen(diagramErrors);
+    // }, [diagramErrors, diagramWarnings])
 
     React.useEffect(() => {
         // Identify low-code open event
@@ -94,13 +88,11 @@ export function Diagram() {
     }, []);
 
     const openErrorDialog = () => {
-        setIsErrorStateDialogOpen(true);
-        setIsErrorDetailsOpen(true);
+        // setIsErrorStateDialogOpen(true);
     }
 
     const closeErrorDialog = () => {
-        setIsErrorStateDialogOpen(false);
-        setIsErrorDetailsOpen(false);
+        // setIsErrorStateDialogOpen(false);
     }
 
     const handleDiagramAdd = (targetPosition: NodePosition, configOverlayFormStatus: ConfigOverlayFormStatus, onClose?: () => void, onSave?: () => void) => {
@@ -212,21 +204,21 @@ export function Diagram() {
         </div>
     );
 
-    const diagramErrorMessage = (
-        <div className={classes.diagramErrorStateWrapper}>
-            <DiagramErrorState
-                x={5}
-                y={-100}
-                errorCount={numberOfErrors}
-                warningCount={numberOfWarnings}
-                onClose={closeErrorDialog}
-                onOpen={openErrorDialog}
-                isErrorMsgVisible={isErrorStateDialogOpen}
-            />
-        </div>
-    );
+    // const diagramErrorMessage = (
+    //     <div className={classes.diagramErrorStateWrapper}>
+    //         <DiagramErrorState
+    //             x={5}
+    //             y={-100}
+    //             errorCount={numberOfErrors}
+    //             warningCount={numberOfWarnings}
+    //             onClose={closeErrorDialog}
+    //             onOpen={openErrorDialog}
+    //             isErrorMsgVisible={isErrorStateDialogOpen}
+    //         />
+    //     </div>
+    // );
 
-    const diagramStatus = (diagnosticInDiagram || warningsInDiagram) ? diagramErrorMessage : null;
+    // const diagramStatus = (diagnosticInDiagram || warningsInDiagram) ? diagramErrorMessage : null;
 
     if (!syntaxTree) {
         if (isLoadingAST) {
@@ -258,13 +250,13 @@ export function Diagram() {
     return (
         <div id="canvas">
             {(codeTriggerredUpdateInProgress || isMutationInProgress || isModulePullInProgress) && textLoader}
-            {(diagnosticInDiagram || warningsInDiagram) && (
+            {/* {(diagnosticInDiagram || warningsInDiagram) && (
                 <div className={classnames(classes.diagramErrorStateWrapper)}>
                     {diagnosticInDiagram && <OverlayBackground />}
                     {diagramStatus}
                 </div>
-            )}
-            {isErrorDetailsOpen && <ErrorList />}
+            )} */}
+            {/* {isErrorDetailsOpen && <ErrorList />} */}
             <Container className={classes.DesignContainer}>
                 <LowCodeDiagram
                     syntaxTree={syntaxTree}
