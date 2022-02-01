@@ -1,4 +1,5 @@
 import { Function } from "./function";
+import { Service } from "./service";
 
 export class Canvas {
     
@@ -28,6 +29,12 @@ export class Canvas {
             .should('exist');
     }
 
+    private static getSvMemberContainer(svPath: string) {
+        return cy
+            .get(`#canvas .member-container .service .header-segment-path`)
+            .should('have.text', svPath);
+    }
+
     static getServiceAt(startLine: number, startColumn: number) {
         const element = this.getMemberContainerElementAt(startLine, startColumn, ".service");
 
@@ -36,6 +43,11 @@ export class Canvas {
     static getFunction(fnName: string) {
         const element = this.getFnMemberContainer(fnName);
         return new Function(element);
+    }
+
+    static getService(fnName: string) {
+        const element = this.getSvMemberContainer(fnName);
+        return new Service(element);
     }
 
 }
