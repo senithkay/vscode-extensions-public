@@ -1,6 +1,7 @@
 import {
     createProtocolConnection, ProtocolConnection
 } from 'vscode-languageserver-protocol';
+// tslint:disable-next-line: no-submodule-imports
 import { StreamMessageReader, StreamMessageWriter } from 'vscode-jsonrpc/node'
 import { BLCLogger } from "./BLCLogger";
 import { LSConnection } from "./LSConnection";
@@ -17,7 +18,7 @@ export class StdioConnection implements LSConnection {
         this._connection = createProtocolConnection(
             new StreamMessageReader(this._lsProcess.stdout),
             new StreamMessageWriter(this._lsProcess.stdin),
-            new BLCLogger);
+            new BLCLogger());
     }
 
     stop(): Promise<void> {

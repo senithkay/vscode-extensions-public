@@ -124,12 +124,6 @@ export interface DiagramEditorLangClientInterface extends BaseLangClientInterfac
     getDocumentSymbol: (
         params: DocumentSymbolParams
     ) => Thenable<DocumentSymbol[] | SymbolInformation[] | null>;
-    diagnostics: (
-        params: BallerinaProjectParams
-    ) => Thenable<PublishDiagnosticsParams[]>;
-    convert: (
-        params: JsonToRecordRequest
-    ) => Thenable<JsonToRecordResponse>;
     getPerfEndpoints: (
         params: PerformanceAnalyzerEndpointsRequest
     ) => Thenable<PerformanceAnalyzerResponse[]>;
@@ -138,5 +132,8 @@ export interface DiagramEditorLangClientInterface extends BaseLangClientInterfac
     ) => Thenable<GetSyntaxTreeResponse>;
     getExecutorPositions: (
         params: GetBallerinaProjectParams
-    ) => Thenable<ExecutorPositionsResponse>
+    ) => Thenable<ExecutorPositionsResponse>;
+    convertJsonToRecord: (
+        params: JsonToRecordRequest
+    ) => Thenable<JsonToRecordResponse>
 }

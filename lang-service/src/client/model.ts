@@ -361,8 +361,6 @@ export interface Trigger extends BallerinaConstruct {}
 
 export interface IBallerinaLangClient {
 
-    isInitialized: boolean;
-
     init: (params?: InitializeParams) => Thenable<InitializeResult>;
 
     getProjectAST: (params: GetProjectASTParams) => Thenable<GetProjectASTResponse>;

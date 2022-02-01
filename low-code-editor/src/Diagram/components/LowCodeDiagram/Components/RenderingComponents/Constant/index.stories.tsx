@@ -19,7 +19,7 @@ import constDecl from "./data/const-raw.json"
 import { Constant, ConstantProps } from "./index";
 
 export default {
-    title: 'Low Code Editor/Diagram/Constant',
+    title: 'Low Code Editor/Testing/Diagram/Constant',
     component: Constant,
 };
 

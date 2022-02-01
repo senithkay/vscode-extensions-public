@@ -1,0 +1,26 @@
+{
+    "name": "@wso2-enterprise/ballerina-low-code-integration-tests",
+    "version": "1.0.0",
+    "description": "Ballerina Low Code Integration Tests",
+    "scripts": {
+        "build": "echo 'not imlemented'",
+        "test": "cypress run --browser chrome --browser firefox",
+        "cypress": "cypress open"
+    },
+    "devDependencies": {
+        "@cypress/webpack-batteries-included-preprocessor": "^2.2.3",
+        "@cypress/webpack-preprocessor": "^5.11.0",
+        "@testing-library/cypress": "^8.0.2",
+        "cypress": "^9.2.1",
+        "typescript": "^4.4.2"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/wso2-enterprise/ballerina-low-code-editor.git"
+    },
+    "author": "wso2",
+    "license": "UNLICENSED",
+    "publishConfig": {
+        "registry": "https://npm.pkg.github.com/"
+    }
+}
