@@ -1,4 +1,5 @@
-import { FunctionDiagram } from "./diagram";
+import { ResourceFunction } from "./resource-function";
+import { methods } from "../type-utils";
 
 export class Service {
 
@@ -8,9 +9,9 @@ export class Service {
     public clickRun() {
         this.container.within(() => {
             cy.get('.action-container')
-            .contains("Run")
-            .should("have.text", "Run")
-            .click({ force: true });
+                .contains("Run")
+                .should("have.text", "Run")
+                .click({ force: true });
         });
         return this;
     }
@@ -18,18 +19,17 @@ export class Service {
     public clickTryIt() {
         this.container.within(() => {
             cy.get('.action-container')
-            .contains("Try it")
-            .should("have.text", "Try it")
-            .click({ force: true });
+                .contains("Try it")
+                .should("have.text", "Try it")
+                .click({ force: true });
         });
         return this;
     }
 
-    public nameShouldBe(fnName: string) {
+    public shouldHaveResources(count: number) {
         this.container.within(() => {
-            cy.get('.param-wrapper .param-container .path-text')
-                .first()
-                .should("have.text", fnName);
+            cy.get('.service-member')
+                .should("have.length", count);
         });
         return this;
     }
@@ -44,18 +44,18 @@ export class Service {
         return this;
     }
 
-    //.component-expand-icon-container
     public expandToggle() {
         this.container.within(() => {
             cy.get('.service-header .component-expand-icon-container')
-            .click({ force: true });
+                .click({ force: true });
         })
         return this;
     }
 
-
-    public getDiagram(): FunctionDiagram {
-       return new FunctionDiagram(this.container);
+    public getResourceFunction(method: methods, path: string): ResourceFunction {
+        const diagram = this.container.get(`.function-box .${method.toLowerCase()}`)
+            .contains(path).parent().parent().parent().parent();
+        return new ResourceFunction(diagram);
     }
 
 }

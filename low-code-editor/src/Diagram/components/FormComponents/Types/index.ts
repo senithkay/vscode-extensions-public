@@ -37,6 +37,7 @@ export interface FormElementProps<T = {}> extends FormElementEvents {
     currentValue?: string;
     tooltip?: string;
     hideLabelTooltips?: boolean;
+    hideLabel?: boolean;
 }
 
 export interface FormElementEvents {
