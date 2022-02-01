@@ -1,5 +1,7 @@
 import { BalleriaLanguageClient, WSConnection } from "@wso2-enterprise/ballerina-languageclient";
 
+import balDist from "./data/baldist.json";
+
 export const MOCK_SERVER_URL = "http://localhost:3000"
 export const LANG_SERVER_URL = "ws://localhost:9095"
 
@@ -27,4 +29,9 @@ export async function updateFileContent(filePath: string, text: string): Promise
     .then(response => {
       return response.json()
     }).then(result => result.success);
+}
+
+
+export function getProjectRoot() {
+  return balDist.projectRoot;
 }

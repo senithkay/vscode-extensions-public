@@ -6,6 +6,7 @@ const path = require("path");
 function copyBBEJson() {
     const storyDataDir = path.join(__dirname, "..", "src", "stories", "data");
     const balHome = execSync("bal home").toString().trim();
+    const projectPath = path.join(__dirname, "..", "..");
     cp(
         path.join(balHome, "examples", "index.json"),
         path.join(storyDataDir, "bbes.json"),
@@ -15,7 +16,8 @@ function copyBBEJson() {
     writeFile(path.join(storyDataDir, "baldist.json"),
 `
 {
-    "balHome": "${balHome}"
+    "balHome": "${balHome}",
+    "projectRoot": "${projectPath}"
 }
 `    ,
     (err) => err ? console.log("dist json make error: " + err ) : console.log("dist json make successful")
