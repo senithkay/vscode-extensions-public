@@ -133,10 +133,7 @@ export function InputEditor(props: InputEditorProps) {
         handleOnFocus(currentContent, "").then(() => {
             handleOnOutFocus().then();
         })
-        // TODO: context suggestions are disabled for other-statements with empty content until we enable editing varName & semicolon in statement editor
-        if (model) {
-            getContextBasedCompletions(placeHolders.indexOf(userInput) > -1 ? "" : userInput);
-        }
+        getContextBasedCompletions(placeHolders.indexOf(userInput) > -1 ? "" : userInput);
     }, [statementType]);
 
     useEffect(() => {
@@ -206,8 +203,7 @@ export function InputEditor(props: InputEditorProps) {
         })
         currentContent = currentStatement;
 
-        // TODO: context suggestions are disabled for other-statements with empty content until we enable editing varName & semicolon in statement editor
-        if (model && isEditing) {
+        if (isEditing) {
             getContextBasedCompletions(currentCodeSnippet != null ? currentCodeSnippet : userInput);
         }
     }
