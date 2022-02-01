@@ -22,7 +22,7 @@ import moduleVarDecl from "./data/module-var-raw.json"
 import { ModuleVariable, ModuleVariableProps } from "./index";
 
 export default {
-    title: 'Low Code Editor/Diagram/Module Variable',
+    title: 'Low Code Editor/Testing/Diagram/Module Variable',
     component: ModuleVariable,
 };
 

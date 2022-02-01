@@ -24,7 +24,7 @@ import { Constant, ConstantProps } from "./index";
 // tslint:disable-next-line: no-submodule-imports
 
 export default {
-    title: 'Low Code Editor/Diagram/Constant',
+    title: 'Low Code Editor/Testing/Diagram/Constant',
     component: Constant,
 };
 

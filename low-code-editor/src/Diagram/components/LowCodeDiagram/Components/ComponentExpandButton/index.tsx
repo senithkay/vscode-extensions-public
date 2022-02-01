@@ -13,6 +13,8 @@
 // tslint:disable: jsx-no-multiline-js
 import React from 'react';
 
+import { IconButton } from '@material-ui/core';
+
 import ComponentCollapseIcon from '../../../../../assets/icons/ComponentCollapseIcon';
 import ComponentExpandIcon from '../../../../../assets/icons/ComponentExpandIcon';
 
@@ -27,9 +29,10 @@ export function ComponentExpandButton(props: ComponentExpandButtonProps) {
     const { onClick, isExpanded } = props;
 
     return (
-        <div className={'component-expand-icon-container'} onClick={onClick}>
-            {isExpanded && <ComponentExpandIcon />}
-            {!isExpanded && <ComponentCollapseIcon />}
+        <div className={'component-expand-icon-container'} >
+            <IconButton onClick={onClick}  >
+                {isExpanded ? <ComponentExpandIcon /> : <ComponentCollapseIcon />}
+            </IconButton>
         </div>
     )
 

@@ -24,7 +24,7 @@ import listenerDecl from './data/listener-st-raw.json';
 import serviceDecl from "./data/service-raw.json";
 
 export default {
-    title: 'Low Code Editor/Diagram/Service Definition',
+    title: 'Low Code Editor/Testing/Diagram/Service Definition',
     component: Service,
 };
 

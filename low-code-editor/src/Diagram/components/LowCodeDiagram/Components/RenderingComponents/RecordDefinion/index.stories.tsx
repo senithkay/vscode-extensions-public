@@ -24,7 +24,7 @@ import { RecordDefComponentProps, RecordDefinitionComponent } from "./index";
 // tslint:disable-next-line: no-submodule-imports
 
 export default {
-    title: 'Low Code Editor/Diagram/TypeDefinion',
+    title: 'Low Code Editor/Testing/Diagram/TypeDefinion',
     component: RecordDefinitionComponent,
 };
 

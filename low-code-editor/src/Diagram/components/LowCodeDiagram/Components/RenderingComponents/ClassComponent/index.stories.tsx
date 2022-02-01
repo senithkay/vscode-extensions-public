@@ -24,7 +24,7 @@ import classDecl from "./story-data/classdef-st-raw.json";
 // tslint:disable-next-line: no-submodule-imports
 
 export default {
-    title: 'Low Code Editor/Diagram/Class Definition',
+    title: 'Low Code Editor/Testing/Diagram/Class Definition',
     component: ClassComponent,
 };
 

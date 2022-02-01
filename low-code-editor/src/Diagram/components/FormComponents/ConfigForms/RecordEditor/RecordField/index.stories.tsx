@@ -23,7 +23,7 @@ import { mockedEditorProps } from "../../ConditionConfigForms/ConditionsOverlayF
 import { RecordField } from "./index";
 
 export default {
-    title: 'Low Code Editor/Form/Record Editor/Record Field',
+    title: 'Low Code Editor/Testing/Form/Record Editor/Record Field',
     component: RecordField,
 };
 
