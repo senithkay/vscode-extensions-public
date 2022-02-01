@@ -44,6 +44,7 @@ export function VariableSuggestions(props: VariableSuggestionsProps) {
             variable = resourceAccessRegex.exec(inputEditorCtx.userInput) + suggestion.value;
         }
         updateModel(variable, model.position);
+        inputEditorCtx.onInputChange('');
         suggestionHandler();
     }
 
