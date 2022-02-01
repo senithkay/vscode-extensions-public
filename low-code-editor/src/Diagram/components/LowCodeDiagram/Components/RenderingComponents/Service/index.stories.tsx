@@ -17,6 +17,7 @@ import { STNode } from '@wso2-enterprise/syntax-tree';
 
 import { LowCodeEditorProps, STSymbolInfo } from '../../../../../..';
 import { Provider as DiagramProvider } from '../../../../../../Contexts/Diagram';
+import { mockedEditorProps } from '../../../../FormComponents/ConfigForms/ConditionConfigForms/ConditionsOverlayForm/AddWhileForm/index.stories';
 
 import { Service } from '.';
 import listenerDecl from './data/listener-st-raw.json';
@@ -47,7 +48,7 @@ symbolInfo.listeners.set("defaultListener", listenerDecl)
 
 const Template: Story<LowCodeEditorProps> = (args: LowCodeEditorProps) =>
 (
-    <DiagramProvider {...args} >
+    <DiagramProvider {...mockedEditorProps} {...args}>
         <Service model={(args as any).model} />
     </DiagramProvider>
 );
