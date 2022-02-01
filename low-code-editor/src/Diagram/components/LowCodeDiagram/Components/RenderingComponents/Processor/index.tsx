@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js align  jsx-wrap-multiline
 import React, { useContext, useState } from "react";
 
-import { WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ConfigOverlayFormStatus, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     AssignmentStatement,
     CallStatement,
@@ -25,17 +25,16 @@ import {
     STNode
 } from "@wso2-enterprise/syntax-tree";
 
-import { Context } from "../../../../../../Contexts/Diagram";
 import { getDiagnosticInfo } from "../../../../../utils";
 import { getOverlayFormConfig, getRandomInt } from "../../../../../utils/diagram-util";
 import { getMethodCallFunctionName, getStatementTypesFromST } from "../../../../../utils/st-util";
 import { DefaultConfig } from "../../../../../visitors/default";
-import { FormGenerator } from "../../../../FormComponents/FormGenerator";
 import { MethodCall } from "../../../../MethodCall";
 import { DeleteBtn } from "../../../Components/DiagramActions/DeleteBtn";
 import { DELETE_SVG_HEIGHT_WITH_SHADOW, DELETE_SVG_WIDTH_WITH_SHADOW } from "../../../Components/DiagramActions/DeleteBtn/DeleteSVG";
 import { EditBtn } from "../../../Components/DiagramActions/EditBtn";
 import { EDIT_SVG_OFFSET, EDIT_SVG_WIDTH_WITH_SHADOW } from "../../../Components/DiagramActions/EditBtn/EditSVG";
+import { Context } from "../../../Context/diagram";
 import { BlockViewState, StatementViewState } from "../../../ViewState";
 import { DraftStatementViewState } from "../../../ViewState/draft";
 import { Assignment } from "../Assignment";
@@ -52,10 +51,14 @@ export interface ProcessorProps {
 
 export function DataProcessor(props: ProcessorProps) {
     const {
-        actions: { diagramCleanDraw, toggleDiagramOverlay },
+        actions: { diagramCleanDraw },
         api: {
             code: {
                 gotoSource
+            },
+            edit: {
+                renderAddForm,
+                renderEditForm
             }
         },
         props: {
@@ -69,7 +72,6 @@ export function DataProcessor(props: ProcessorProps) {
     } = useContext(Context);
 
     const { model, blockViewState } = props;
-    const [configOverlayFormState, updateConfigOverlayFormState] = useState(undefined);
     const [isConfigWizardOpen, setConfigWizardOpen] = useState(false);
 
     const viewState: StatementViewState = model === null ? blockViewState.draft[1] : model.viewState;
@@ -142,13 +144,20 @@ export function DataProcessor(props: ProcessorProps) {
     const cy: number = viewState.bBox.cy;
     const variableName = (model === null ? "New " + processType : processName);
 
+    const onCancel = () => {
+        if (blockViewState) {
+            blockViewState.draft = undefined;
+            diagramCleanDraw(syntaxTree);
+        }
+        setConfigWizardOpen(false);
+    }
+
     React.useEffect(() => {
         if (model === null && blockViewState) {
             const draftVS = blockViewState.draft[1];
             const overlayFormConfig = getOverlayFormConfig(draftVS.subType, draftVS.targetPosition, WizardType.NEW,
                 blockViewState, undefined, stSymbolInfo);
-            updateConfigOverlayFormState(overlayFormConfig);
-            toggleDiagramOverlay();
+            renderAddForm(draftVS.targetPosition, overlayFormConfig as ConfigOverlayFormStatus, onCancel);
         }
     }, []);
 
@@ -156,23 +165,8 @@ export function DataProcessor(props: ProcessorProps) {
         if (blockViewState) {
             blockViewState.draft = undefined;
             diagramCleanDraw(syntaxTree);
-            toggleDiagramOverlay();
         }
     };
-
-    const onCancel = () => {
-        if (blockViewState) {
-            blockViewState.draft = undefined;
-            diagramCleanDraw(syntaxTree);
-        }
-        setConfigWizardOpen(false);
-        toggleDiagramOverlay();
-    }
-
-    const onSave = () => {
-        setConfigWizardOpen(false);
-        toggleDiagramOverlay();
-    }
 
     // let exsitingWizard: ReactNode = null;
     const onProcessClick = () => {
@@ -186,9 +180,7 @@ export function DataProcessor(props: ProcessorProps) {
             }
             const overlayFormConfig = getOverlayFormConfig(processType, model.position, WizardType.EXISTING,
                 blockViewState, undefined, stSymbolInfo, model);
-            updateConfigOverlayFormState(overlayFormConfig);
-            setConfigWizardOpen(true);
-            toggleDiagramOverlay();
+            renderEditForm(model, model.position, overlayFormConfig as ConfigOverlayFormStatus, onCancel);
         }
     };
 
@@ -310,22 +302,6 @@ export function DataProcessor(props: ProcessorProps) {
                                 x={cx - (PROCESS_SVG_SHADOW_OFFSET / 2)}
                                 y={cy - (PROCESS_SVG_SHADOW_OFFSET / 2)}
                             >
-
-                                {model === null && blockViewState && blockViewState.draft && isDraftStatement && configOverlayFormState &&
-                                    <FormGenerator
-                                        onCancel={onCancel}
-                                        onSave={onSave}
-                                        configOverlayFormStatus={configOverlayFormState}
-                                    />
-                                }
-
-                                {model && isConfigWizardOpen && configOverlayFormState &&
-                                    <FormGenerator
-                                        onCancel={onCancel}
-                                        onSave={onSave}
-                                        configOverlayFormStatus={configOverlayFormState}
-                                    />
-                                }
                                 {!isConfigWizardOpen && (
                                     <>
                                         <rect

@@ -13,13 +13,12 @@
 // tslint:disable: jsx-no-multiline-js
 // tslint:disable: jsx-wrap-multiline
 // tslint:disable: no-unused-expression
-import React, { useState } from "react"
+import React, { useContext, useState } from "react"
 
 import { EnumDeclaration, EnumMember, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import EnumIcon from "../../../../../../assets/icons/EnumIcon";
-import { useDiagramContext } from "../../../../../../Contexts/Diagram";
-import { removeStatement } from "../../../../../utils/modification-util";
+import { Context } from "../../../Context/diagram";
 import { HeaderActions } from "../../../HeaderActions";
 
 import "./style.scss";
@@ -32,20 +31,21 @@ export function EnumDeclarationComponent(props: EnumDeclarationComponentProps) {
     const { model } = props;
     const {
         api: {
-            code: { modifyDiagram, gotoSource },
+            code: { gotoSource },
+            edit: {
+                deleteComponent
+            }
         },
-    } = useDiagramContext();
+    } = useContext(Context);
     const [isExpanded, setIsExpanded] = useState(false);
-    const [editingEnabled, setEditingEnabled] = useState(false);
+    // const [editingEnabled, setEditingEnabled] = useState(false);
 
     const onExpandClick = () => {
         setIsExpanded(!isExpanded);
     }
 
     const handleDeleteConfirm = () => {
-        modifyDiagram([
-            removeStatement(model.position)
-        ]);
+        deleteComponent(model);
     }
 
     const handleEditBtnConfirm = () => {

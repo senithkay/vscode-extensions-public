@@ -20,9 +20,9 @@ import DeleteButton from "../../../../../../assets/icons/DeleteButton";
 import EditButton from "../../../../../../assets/icons/EditButton";
 import RecordIcon from "../../../../../../assets/icons/RecordIcon";
 import Tooltip from "../../../../../../components/Tooltip";
-import { useDiagramContext } from "../../../../../../Contexts/Diagram";
 import { removeStatement } from "../../../../../utils/modification-util";
 import { UnsupportedConfirmButtons } from "../../../../FormComponents/DialogBoxes/UnsupportedConfirmButtons";
+import { Context } from "../../../Context/diagram";
 import { ComponentExpandButton } from "../../ComponentExpandButton";
 import { RecordDefinitionComponent } from "../RecordDefinion";
 
@@ -39,7 +39,10 @@ export function TypeDefinitionComponent(props: TypeDefComponentProps) {
         api: {
             code: { modifyDiagram, gotoSource },
         },
-    } = useDiagramContext();
+        props: {
+            isReadOnly
+        }
+    } = useContext(Context);
 
     const [isEditable, setIsEditable] = useState(false);
     const [isExpanded, setIsExpanded] = useState(false);
@@ -128,7 +131,7 @@ export function TypeDefinitionComponent(props: TypeDefComponentProps) {
                                 <tspan x="0" y="0">{nameMaxWidth ? varName.slice(0, 20) + "..." : varName}</tspan>
                             </div>
                         </div>
-                        {isEditable && (
+                        {isEditable && !isReadOnly && (
                             <div className="type-amendment-options">
                                 <div className="type-edit">
                                     <EditButton onClick={handleEditBtnClick} />

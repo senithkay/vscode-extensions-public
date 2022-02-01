@@ -27,11 +27,11 @@ const reducer = (state: LowCodeEditorState, action: any) => {
                 ...state,
                 syntaxTree: sizingAndPositioning(action.payload),
             }
-        case 'SET_TRIGGER_UPDATED':
-            return {
-                ...state,
-                triggerUpdated: action.payload,
-            }
+        // case 'SET_TRIGGER_UPDATED':
+        //     return {
+        //         ...state,
+        //         triggerUpdated: action.payload,
+        //     }
         case 'DIAGRAM_REDRAW':
             return {
                 ...state,
@@ -105,11 +105,11 @@ const toggleDiagramOverlay = (dispatch: any) => {
     }
 }
 
-const setTriggerUpdated = (dispatch: any) => {
-    return (isUpdated: boolean) => {
-        dispatch({ type: 'SET_TRIGGER_UPDATED', payload: isUpdated })
-    }
-}
+// const setTriggerUpdated = (dispatch: any) => {
+//     return (isUpdated: boolean) => {
+//         dispatch({ type: 'SET_TRIGGER_UPDATED', payload: isUpdated })
+//     }
+// }
 
 const updateDataMapperConfig = (dispatch: any) => {
     return (dataMapperConfig: DataMapperConfig) => {
@@ -133,7 +133,7 @@ export const Provider: React.FC<LowCodeEditorProps> = (props) => {
         dataMapperStart: dataMapperStart(dispatch),
         toggleDiagramOverlay: toggleDiagramOverlay(dispatch),
         updateDataMapperConfig: updateDataMapperConfig(dispatch),
-        setTriggerUpdated: setTriggerUpdated(dispatch)
+        // setTriggerUpdated: setTriggerUpdated(dispatch)
     };
 
     return (

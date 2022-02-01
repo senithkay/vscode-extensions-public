@@ -311,7 +311,8 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
 
                                 Add parameter
                             </Button>
-                        )}
+                        )
+                        }
                     </Section>
                     <Divider className={formClasses.sectionSeperatorHR} />
                     <Section title={"Return Type"}>

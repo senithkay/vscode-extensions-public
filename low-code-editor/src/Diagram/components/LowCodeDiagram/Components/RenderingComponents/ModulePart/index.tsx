@@ -11,13 +11,13 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React from "react";
+import React, { useContext } from "react";
 
 import { ModulePart, STNode } from "@wso2-enterprise/syntax-tree";
 
-import { useDiagramContext } from "../../../../../../Contexts/Diagram";
 import { useStyles } from "../../../../../styles";
 import { getSTComponent } from "../../../../../utils";
+import { Context } from "../../../Context/diagram";
 import { TopLevelPlus } from "../../PlusButtons/TopLevelPlus";
 
 import './style.scss';
@@ -34,6 +34,7 @@ export interface ModulePartProps {
 export function ModulePartComponent(props: ModulePartProps) {
     const classes = useStyles();
     const { model } = props;
+    const { props: { isReadOnly } } = useContext(Context);
 
     const moduleMembers: JSX.Element[] = [];
 
@@ -41,8 +42,8 @@ export function ModulePartComponent(props: ModulePartProps) {
         const startPosition = member.position?.startLine + ":" + member.position?.startColumn;
         moduleMembers.push(
             <>
-                <div className={'member-container'} data-start-position={startPosition} >
-                    <TopLevelPlus kind={model.kind} targetPosition={member.position} showCategorized={true} />
+                <div className={'member-container'} >
+                    {!isReadOnly && <TopLevelPlus kind={model.kind} targetPosition={member.position} showCategorized={true} />}
                     {getSTComponent(member)}
                 </div>
             </>
@@ -53,16 +54,19 @@ export function ModulePartComponent(props: ModulePartProps) {
         <>
             <div id={'canvas-overlay'} className={classes.OverlayContainer} />
             {moduleMembers}
-            <div className={'member-container'} >
-                <TopLevelPlus
-                    kind={model.kind}
-                    targetPosition={model.eofToken.position}
-                    isDocumentEmpty={model.members.length === 0}
-                    isModuleLevel={true}
-                    isLastMember={true}
-                    showCategorized={true}
-                />
-            </div>
+            {!isReadOnly && (
+                <div className={'member-container'} >
+                    <TopLevelPlus
+                        kind={model.kind}
+                        targetPosition={model.eofToken.position}
+                        isDocumentEmpty={model.members.length === 0}
+                        isModuleLevel={true}
+                        isLastMember={true}
+                        showCategorized={true}
+                    />
+                </div>
+            )
+            }
         </>
     );
 }

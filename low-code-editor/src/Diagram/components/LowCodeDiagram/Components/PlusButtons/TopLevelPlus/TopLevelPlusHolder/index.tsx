@@ -14,10 +14,8 @@ import React from 'react';
 
 import { Divider } from '@material-ui/core';
 import { getConstructIcon } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
-import { NodePosition } from '@wso2-enterprise/syntax-tree';
 import classNames from 'classnames';
 
-import { CustomStatementIcon } from '../../../../../../../assets/icons';
 import { PlusMenuCategories, PlusMenuEntry } from '../PlusOptionsSelector';
 
 import './style.scss';

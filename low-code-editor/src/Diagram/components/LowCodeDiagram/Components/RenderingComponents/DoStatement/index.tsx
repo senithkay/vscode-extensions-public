@@ -14,9 +14,9 @@ import React, { useContext } from 'react';
 
 import { DoStatement as BallerinaDoStatement } from "@wso2-enterprise/syntax-tree";
 
-import { Context as DiagramContext } from "../../../../../../Contexts/Diagram";
 import { getDraftComponent, getSTComponents } from '../../../../../utils';
 import { DefaultConfig } from '../../../../../visitors/default';
+import { Context } from "../../../Context/diagram";
 import { DoViewState } from '../../../ViewState';
 import { PlusButton } from '../../PlusButtons/Plus';
 import { OnFailClause } from '../OnFail';
@@ -30,7 +30,7 @@ const DOTEXTWIDTH: number = 14;
 
 export function DoStatement(props: DoStatementProps) {
 
-    const { state, actions: { insertComponentStart } } = useContext(DiagramContext);
+    const { state, actions: { insertComponentStart }, props: { isReadOnly } } = useContext(Context);
 
     const { model } = props;
     const pluses: React.ReactNode[] = [];
@@ -69,7 +69,7 @@ export function DoStatement(props: DoStatementProps) {
             >
                 DO
             </text>
-            {pluses}
+            {!isReadOnly && pluses}
             {drafts}
             {children}
             {onFailBlock}

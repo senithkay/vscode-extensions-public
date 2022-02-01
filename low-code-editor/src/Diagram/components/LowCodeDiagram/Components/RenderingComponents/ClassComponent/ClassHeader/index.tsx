@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 
 import { ClassDefinition } from '@wso2-enterprise/syntax-tree';
 import classNames from 'classnames';
@@ -18,10 +18,8 @@ import classNames from 'classnames';
 import ClassIcon from '../../../../../../../assets/icons/ClassIcon';
 import DeleteButton from '../../../../../../../assets/icons/DeleteButton';
 import EditButton from '../../../../../../../assets/icons/EditButton';
-import { useDiagramContext } from '../../../../../../../Contexts/Diagram';
-import { removeStatement } from '../../../../../../utils/modification-util';
 import { UnsupportedConfirmButtons } from '../../../../../FormComponents/DialogBoxes/UnsupportedConfirmButtons';
-import { ComponentExpandButton } from '../../../../Components/ComponentExpandButton';
+import { Context } from '../../../../Context/diagram';
 import { HeaderWrapper } from '../../../../HeaderWrapper';
 
 interface ClassHeaderProps {
@@ -31,18 +29,20 @@ interface ClassHeaderProps {
 }
 
 export function ClassHeader(props: ClassHeaderProps) {
-    const { model, onExpandClick, isExpanded } = props;
+    const { model, onExpandClick } = props;
     const {
         api: {
-            code: { modifyDiagram, gotoSource },
+            code: { gotoSource },
+            edit: { deleteComponent }
         },
-    } = useDiagramContext();
+        props: {
+            isReadOnly
+        }
+    } = useContext(Context);
     const [editingEnabled, setEditingEnabled] = useState(false);
 
     const handleDeleteBtnClick = () => {
-        modifyDiagram([
-            removeStatement(model.position)
-        ]);
+        deleteComponent(model);
     }
 
     const handleEditBtnClick = () => {
@@ -59,6 +59,17 @@ export function ClassHeader(props: ClassHeaderProps) {
         gotoSource({ startLine: targetposition.startLine, startColumn: targetposition.startColumn });
     }
 
+    const editButtons = (
+        <div className="class-amendment-options">
+            <div className={classNames("class-component-edit", "show-on-hover")}>
+                <EditButton onClick={handleEditBtnClick} />
+            </div>
+            <div className={classNames("class-component-delete", "show-on-hover")}>
+                <DeleteButton onClick={handleDeleteBtnClick} />
+            </div>
+        </div>
+    );
+
     return (
         <HeaderWrapper
             className={'class-component-header'}
@@ -71,14 +82,7 @@ export function ClassHeader(props: ClassHeaderProps) {
                 <div className={"header-segment"}>Class</div>
                 <div className={"header-segment-path"}>{model.className.value}</div>
             </div>
-            <div className="class-amendment-options">
-                <div className={classNames("class-component-edit", "show-on-hover")}>
-                    <EditButton onClick={handleEditBtnClick} />
-                </div>
-                <div className={classNames("class-component-delete", "show-on-hover")}>
-                    <DeleteButton onClick={handleDeleteBtnClick} />
-                </div>
-            </div>
+            {!isReadOnly && editButtons}
             {editingEnabled && <UnsupportedConfirmButtons onConfirm={handleEditBtnConfirm} onCancel={handleEditBtnCancel} />}
         </HeaderWrapper>
     );

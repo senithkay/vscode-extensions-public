@@ -14,9 +14,6 @@ import React, { useState } from "react";
 
 import { ClassDefinition } from "@wso2-enterprise/syntax-tree";
 
-import { getSTComponent, getSTComponents } from "../../../../../utils";
-import { TopLevelPlus } from "../../PlusButtons/TopLevelPlus";
-
 import { ClassHeader } from "./ClassHeader";
 import './style.scss'
 

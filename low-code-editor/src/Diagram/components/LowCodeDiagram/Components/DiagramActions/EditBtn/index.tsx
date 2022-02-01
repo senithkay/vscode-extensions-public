@@ -15,7 +15,7 @@ import React, { useContext } from "react";
 
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
-import { Context } from "../../../../../../Contexts/Diagram";
+import { Context } from "../../../Context/diagram";
 
 import { EditSVG } from "./EditSVG";
 import "./style.scss";
