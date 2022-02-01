@@ -103,7 +103,7 @@ export const TopLevelPlus = (props: PlusProps) => {
     }
 
     return (
-        <div className="plus-container" ref={containerElement}>
+        <div className="plus-container" ref={containerElement} target-line={targetPosition.startLine}>
             <div className={'plus-btn-wrapper'} onClick={handlePlusClick}>
                 {
                     !isDocumentEmpty ?

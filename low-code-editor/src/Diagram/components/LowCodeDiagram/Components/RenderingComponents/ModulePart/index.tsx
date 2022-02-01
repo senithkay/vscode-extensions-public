@@ -39,6 +39,7 @@ export function ModulePartComponent(props: ModulePartProps) {
     const moduleMembers: JSX.Element[] = [];
 
     model.members.forEach((member: STNode) => {
+        const startPosition = member.position?.startLine + ":" + member.position?.startColumn;
         moduleMembers.push(
             <>
                 <div className={'member-container'} >

@@ -2,7 +2,7 @@ import React, { useCallback, useContext, useState } from "react";
 
 import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
-import { Context } from "../../Contexts/Diagram";
+import { Context } from "../../Diagram/components/LowCodeDiagram/Context/diagram";
 import { SelectedPosition } from "../../types";
 import { getNodeSignature } from "../components/LowCodeDiagram/Utils";
 import expandTracker from "../utils/expand-tracker";

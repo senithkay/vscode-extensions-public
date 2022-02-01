@@ -13,8 +13,6 @@ import { ASTDidChangeParams, ASTDidChangeResponse, BallerinaConnectorRequest, Ba
 // tslint:disable:no-object-literal-type-assertion
 export class EmptyLanguageClient implements IBallerinaLangClient {
 
-    public isInitialized: boolean = false;
-
     public init(params?: InitializeParams): Thenable<InitializeResult> {
         return Promise.reject();
     }
