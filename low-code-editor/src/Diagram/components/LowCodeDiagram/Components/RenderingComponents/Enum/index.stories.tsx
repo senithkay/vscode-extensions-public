@@ -15,9 +15,13 @@ import React from 'react';
 // tslint:disable-next-line: no-submodule-imports
 import { Story } from '@storybook/react/types-6-0';
 
+import { Provider as LowCodeEditorProvider } from '../../../../../../Contexts/Diagram';
+import { mockedEditorProps } from '../../../../FormComponents/ConfigForms/ConditionConfigForms/ConditionsOverlayForm/AddWhileForm/index.stories';
+
 import { EnumDeclarationComponent, EnumDeclarationComponentProps } from "./index";
 import enumConstantDef from "./story-data/enum-constant.json"
 import enumBaseDef from "./story-data/enum-raw.json"
+
 
 export default {
     title: 'Low Code Editor/Diagram/Enum Declaration',
@@ -25,8 +29,11 @@ export default {
 };
 
 
-const Template: Story<EnumDeclarationComponentProps> = (args: EnumDeclarationComponentProps) =>
-    <EnumDeclarationComponent {...args} />;
+const Template: Story<EnumDeclarationComponentProps> = (args: EnumDeclarationComponentProps) => (
+    <LowCodeEditorProvider {...mockedEditorProps} >
+        <EnumDeclarationComponent {...args} />
+    </LowCodeEditorProvider>
+);
 
 export const EnumComponent = Template.bind({});
 

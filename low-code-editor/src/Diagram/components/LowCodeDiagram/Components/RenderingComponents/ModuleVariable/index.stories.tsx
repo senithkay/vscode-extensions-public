@@ -15,6 +15,9 @@ import React from 'react';
 // tslint:disable-next-line: no-submodule-imports
 import { Story } from '@storybook/react/types-6-0';
 
+import { Provider as LowCodeEditorProvider} from '../../../../../../Contexts/Diagram';
+import { mockedEditorProps } from '../../../../FormComponents/ConfigForms/ConditionConfigForms/ConditionsOverlayForm/AddWhileForm/index.stories';
+
 import moduleVarDecl from "./data/module-var-raw.json"
 import { ModuleVariable, ModuleVariableProps } from "./index";
 
@@ -24,8 +27,11 @@ export default {
 };
 
 
-const Template: Story<ModuleVariableProps> = (args: ModuleVariableProps) =>
-    <ModuleVariable {...args} />;
+const Template: Story<ModuleVariableProps> = (args: ModuleVariableProps) => (
+    <LowCodeEditorProvider {...mockedEditorProps} >
+        <ModuleVariable {...args} />
+    </LowCodeEditorProvider>
+);
 
 export const ModuleVariableComponent = Template.bind({});
 ModuleVariableComponent.args = {

@@ -117,5 +117,11 @@ export const While = Template.bind({});
 While.args = {
     condition: {
         type: ''
+    },
+    formArgs: {
+        targetPosition: {
+            startLine: '',
+            endLine: ''
+        }
     }
 };

@@ -15,17 +15,24 @@ import React from 'react';
 // tslint:disable-next-line: no-submodule-imports
 import { Story } from '@storybook/react/types-6-0';
 
+import { Provider as LowCodeEditorProvider } from '../../../../../../Contexts/Diagram';
+import { mockedEditorProps } from '../../../../FormComponents/ConfigForms/ConditionConfigForms/ConditionsOverlayForm/AddWhileForm/index.stories';
+
 import recordDef from "./data/record-def-raw.json"
 import { RecordDefComponentProps, RecordDefinitionComponent } from "./index";
+
+// tslint:disable-next-line: no-submodule-imports
 
 export default {
     title: 'Low Code Editor/Diagram/TypeDefinion',
     component: RecordDefinitionComponent,
 };
 
-
-const Template: Story<RecordDefComponentProps> = (args: RecordDefComponentProps) =>
-    <RecordDefinitionComponent {...args} />;
+const Template: Story<RecordDefComponentProps> = (args: RecordDefComponentProps) => (
+    <LowCodeEditorProvider {...mockedEditorProps} >
+        <RecordDefinitionComponent {...args} />
+    </LowCodeEditorProvider>
+);
 
 export const RecordComponent = Template.bind({});
 RecordComponent.args = {

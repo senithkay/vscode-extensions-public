@@ -15,16 +15,24 @@ import React from 'react';
 // tslint:disable-next-line: no-submodule-imports
 import { Story } from '@storybook/react/types-6-0';
 
+import { Provider as LowCodeEditorProvider } from '../../../../../../Contexts/Diagram';
+import { mockedEditorProps } from '../../../../FormComponents/ConfigForms/ConditionConfigForms/ConditionsOverlayForm/AddWhileForm/index.stories';
+
 import constDecl from "./data/const-raw.json"
 import { Constant, ConstantProps } from "./index";
+
+// tslint:disable-next-line: no-submodule-imports
 
 export default {
     title: 'Low Code Editor/Diagram/Constant',
     component: Constant,
 };
 
-const Template: Story<ConstantProps> = (args: ConstantProps) =>
-    <Constant {...args} />;
+const Template: Story<ConstantProps> = (args: ConstantProps) => (
+    <LowCodeEditorProvider {...mockedEditorProps} >
+        <Constant {...args} />
+    </LowCodeEditorProvider>
+);
 
 export const ConstantComponent = Template.bind({});
 ConstantComponent.args = {

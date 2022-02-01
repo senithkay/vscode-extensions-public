@@ -15,8 +15,13 @@ import React from 'react';
 // tslint:disable-next-line: no-submodule-imports
 import { Story } from '@storybook/react/types-6-0';
 
+import { Provider as LowCodeEditorProvider  } from '../../../../../../Contexts/Diagram';
+import { mockedEditorProps } from '../../../../FormComponents/ConfigForms/ConditionConfigForms/ConditionsOverlayForm/AddWhileForm/index.stories';
+
 import listenerDecl from "./data/listener-decl-raw.json"
 import { Listener, ListenerProps } from "./index";
+
+// tslint:disable-next-line: no-submodule-imports
 
 export default {
     title: 'Low Code Editor/Diagram/Listener',
@@ -24,8 +29,12 @@ export default {
 };
 
 
-const Template: Story<ListenerProps> = (args: ListenerProps) =>
-    <Listener {...args} />;
+const Template: Story<ListenerProps> = (args: ListenerProps) => (
+    <LowCodeEditorProvider {...mockedEditorProps} >
+        <Listener {...args} />
+    </LowCodeEditorProvider>
+);
+
 
 export const ListenerComponent = Template.bind({});
 ListenerComponent.args = {

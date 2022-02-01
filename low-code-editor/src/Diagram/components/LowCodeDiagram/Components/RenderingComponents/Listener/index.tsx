@@ -35,9 +35,6 @@ export interface ListenerProps {
 export function ListenerC(props: ListenerProps) {
     const { model } = props;
     const {
-        props: {
-            stSymbolInfo
-        },
         api: {
             code: {
                 modifyDiagram,
