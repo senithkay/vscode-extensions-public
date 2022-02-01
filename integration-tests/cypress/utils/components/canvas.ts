@@ -31,8 +31,12 @@ export class Canvas {
 
     private static getSvMemberContainer(svPath: string) {
         return cy
-            .get(`#canvas .member-container .service .header-segment-path`)
-            .should('have.text', svPath);
+        .get(`#canvas .member-container .service .header-segment-path`)
+        .contains(svPath)
+        .should('have.text', svPath)
+        .parent()
+        .parent()
+        .parent();
     }
 
     static getServiceAt(startLine: number, startColumn: number) {

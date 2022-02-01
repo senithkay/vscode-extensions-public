@@ -11,7 +11,8 @@ describe('edit a http service', () => {
     })
   
     it('Edit Service', () => {
-        Canvas.getService("/hello");
+        Canvas.getService("/hello")
+        .expandToggle();
        
     })
 
