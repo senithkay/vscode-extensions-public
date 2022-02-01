@@ -47,7 +47,7 @@ export class gitStatusBarItem {
             if (error) {
                 this.statusBarItem.hide();
             } else if (status.files.length > 0 || status.ahead > 0) {
-                this.statusBarItem.text = `$(cloud-upload) Sync with Choreo upsteam`;
+                this.statusBarItem.text = `$(cloud-upload) Sync with Choreo upstream`;
                 this.statusBarItem.backgroundColor = new ThemeColor('statusBarItem.errorBackground');
                 this.statusBarItem.command = {
                     command: PALETTE_COMMANDS.CHOREO_SYNC_CHANGES,
@@ -55,7 +55,7 @@ export class gitStatusBarItem {
                 };
                 this.statusBarItem.show();
             } else {
-                this.statusBarItem.text = `$(compare-changes) In sync with Choreo upsteam`;
+                this.statusBarItem.text = `$(compare-changes) In sync with Choreo upstream`;
                 this.statusBarItem.backgroundColor = new ThemeColor('statusBarItem.activeBackground');
                 this.statusBarItem.show();
             }
