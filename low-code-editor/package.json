@@ -9,7 +9,7 @@
   "types": "build/index.d.ts",
   "typings": "build/index",
   "scripts": {
-    "prebuilds": "npm run lint",
+    "prebuild": "npm run lint",
     "build": "npm run build:webpack",
     "build:tsc": "tsc --pretty && npm run copy:assets",
     "build:webpack": "webpack --config webpack.config.js --mode=production",

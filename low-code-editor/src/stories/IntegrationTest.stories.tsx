@@ -10,7 +10,7 @@ import { getFileContent, langClientPromise, updateFileContent } from './story-ut
 
 const stories = storiesOf('Low Code Editor/IntegrationTest/project', module);
 
-testProject.balFiles.forEach(balFile => {
+testProject.balFiles.forEach((balFile: string)  => {
   const relativePath = balFile.substring(testProject.projectPath.length);
   stories.add(
     relativePath,
