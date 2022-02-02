@@ -15,9 +15,9 @@ import React, { useContext } from "react";
 
 import { OnFailClause as BallerinaOnFailClause } from "@wso2-enterprise/syntax-tree";
 
-import { Context as DiagramContext } from "../../../../../../Contexts/Diagram";
 import { getDraftComponent, getSTComponents } from "../../../../../utils";
 import { DefaultConfig } from "../../../../../visitors/default";
+import { Context as DiagramContext } from "../../../Context/diagram";
 import { BlockViewState, DoViewState, OnErrorViewState } from "../../../ViewState";
 import { PlusButton } from "../../PlusButtons/Plus";
 
@@ -34,7 +34,7 @@ const GLOBALERRORPATH = 127;
 const GLOBALERRORPATH_TEXT_WIDTH = 147;
 
 export function OnFailClause(props: OnFailClauseProps) {
-    const { state, actions: { insertComponentStart } } = useContext(DiagramContext);
+    const { props: {isReadOnly}, state, actions: { insertComponentStart } } = useContext(DiagramContext);
 
     const { model } = props;
 
@@ -89,7 +89,7 @@ export function OnFailClause(props: OnFailClauseProps) {
             >
                 ON FAIL
             </text>
-            {pluses}
+            {!isReadOnly && pluses}
             {drafts}
             {children}
         </g>

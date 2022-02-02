@@ -12,7 +12,7 @@
  */
 import React, { useContext } from "react";
 
-import { Context } from "../../../../../../../Contexts/Diagram"
+import { Context } from "../../../../Context/diagram"
 import "../style.scss";
 
 import { ColapseButtonSVG, COLLAPSE_BUTTON_SHADOW_OFFSET, COLLAPSE_BUTTON_SVG_HEIGHT_WITH_SHADOW, COLLAPSE_BUTTON_SVG_WIDTH, COLLAPSE_BUTTON_SVG_WIDTH_WITH_SHADOW } from "./CollapseButtonSVG";

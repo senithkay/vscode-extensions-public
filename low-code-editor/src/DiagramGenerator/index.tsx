@@ -3,7 +3,7 @@ import { IntlProvider } from "react-intl";
 import { monaco } from "react-monaco-editor";
 
 import { MuiThemeProvider } from "@material-ui/core/styles";
-import { Connector, DiagramDiagnostic, DiagramEditorLangClientInterface, STModification, STSymbolInfo, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { Connector, DiagramDiagnostic, LowcodeEvent, STModification, STSymbolInfo, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FunctionDefinition, ModulePart, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import cloneDeep from "lodash.clonedeep";
 import Mousetrap from 'mousetrap';
@@ -12,7 +12,6 @@ import LowCodeEditor, { BlockViewState, getSymbolInfo, InsertorDelete } from "..
 import "../assets/fonts/Glimer/glimer.css";
 import { ConditionConfig } from "../Diagram/components/FormComponents/Types";
 import { UndoRedoManager } from "../Diagram/components/FormComponents/UndoRedoManager";
-import { LowcodeEvent } from "../Diagram/models";
 import messages from '../lang/en.json';
 import { CirclePreloader } from "../PreLoader/CirclePreloader";
 import { MESSAGE_TYPE } from "../types";

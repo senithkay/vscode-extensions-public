@@ -15,6 +15,7 @@ import React, { ReactNode, useContext, useState } from "react";
 
 import { Divider } from "@material-ui/core";
 import cn from "classnames";
+import { LowcodeEvent, ADD_STATEMENT } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import {
     LogIcon,
@@ -30,16 +31,12 @@ import {
     ActionIcon,
 } from "../../../../../../../../assets/icons";
 
-import { Context } from "../../../../../../../../Contexts/Diagram";
+import { Context } from "../../../../../Context/diagram";
 import { PlusViewState } from "../../../../../ViewState";
 import Tooltip from "../../../../../../../../components/Tooltip";
 import "../../style.scss";
 import While from "../../../../../../../../assets/icons/While";
 import { FormattedMessage, useIntl } from "react-intl";
-import {
-    ADD_STATEMENT,
-    LowcodeEvent
-} from "../../../../../../../models";
 import { HttpLogo } from "../../../../RenderingComponents/Connector/Icon/HttpLogo";
 
 export const PROCESS_TYPES = [""];

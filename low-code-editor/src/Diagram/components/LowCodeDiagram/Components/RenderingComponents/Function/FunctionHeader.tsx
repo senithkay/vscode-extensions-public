@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React from "react";
+import React, { useContext } from "react";
 
 import {
     FunctionDefinition,
@@ -21,8 +21,7 @@ import {
 } from "@wso2-enterprise/syntax-tree";
 
 import FunctionIcon from "../../../../../../assets/icons/FunctionIcon";
-import { useDiagramContext } from "../../../../../../Contexts/Diagram";
-import { removeStatement } from "../../../../../utils/modification-util";
+import { Context } from "../../../Context/diagram";
 import { HeaderActions } from "../../../HeaderActions";
 import { HeaderWrapper } from "../../../HeaderWrapper";
 import { ComponentExpandButton } from "../../ComponentExpandButton";
@@ -40,13 +39,14 @@ export function FunctionHeader(props: FunctionHeaderProps) {
 
     const {
         api: {
-            code: { modifyDiagram },
+            edit: {
+                deleteComponent
+            }
         },
-    } = useDiagramContext();
+    } = useContext(Context);
 
     const onDeleteClick = () => {
-        const modification = removeStatement(model.position);
-        modifyDiagram([modification]);
+        deleteComponent(model)
     };
 
     return (

@@ -13,14 +13,12 @@
 // tslint:disable: jsx-no-multiline-js  jsx-wrap-multiline
 import React, { ReactNode, useContext, useState } from "react"
 
-import { WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ConfigOverlayFormStatus, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { ForeachStatement, NodePosition, STKindChecker, STNode, TypedBindingPattern } from "@wso2-enterprise/syntax-tree";
 
-import { Context } from "../../../../../../Contexts/Diagram";
 import { getDiagnosticInfo, getDraftComponent, getSTComponents } from "../../../../../utils";
 import { getConditionConfig, getRandomInt } from "../../../../../utils/diagram-util";
 import { DefaultConfig } from "../../../../../visitors/default";
-import { FormGenerator } from "../../../../FormComponents/FormGenerator";
 import { ForeachConfig } from "../../../../FormComponents/Types";
 import { DeleteBtn } from "../../../Components/DiagramActions/DeleteBtn";
 import {
@@ -33,10 +31,11 @@ import {
     EDIT_SVG_OFFSET,
     EDIT_SVG_WIDTH_WITH_SHADOW
 } from "../../../Components/DiagramActions/EditBtn/EditSVG";
+import { Context } from "../../../Context/diagram";
 import { BlockViewState, ForEachViewState } from "../../../ViewState";
 import { PlusButton } from "../../PlusButtons/Plus";
 import { Collapse } from "../Collapse";
-import { CONDITION_ASSIGNMENT_NAME_WIDTH, ContitionAssignment } from "../ContitionAssignment";
+import { ConditionAssignment, CONDITION_ASSIGNMENT_NAME_WIDTH } from "../ConditionAssignment";
 import { ControlFlowIterationCount, ControlFlowIterationCountProp, CONTROL_FLOW_ITERATION_COUNT_PADDING } from "../ControlFlowIterationCount"
 import { ControlFlowLine } from "../ControlFlowLine";
 
@@ -66,6 +65,9 @@ export function ForEach(props: ForeachProps) {
         api: {
             code: {
                 gotoSource
+            },
+            edit: {
+                renderEditForm
             }
         },
         props: {
@@ -81,7 +83,7 @@ export function ForEach(props: ForeachProps) {
     const { model } = props;
 
     const [isConfigWizardOpen, setConfigWizardOpen] = useState(false);
-    const [forEachConfigOverlayState, setForEachConfigOverlayState] = useState(undefined);
+    // const [forEachConfigOverlayState, setForEachConfigOverlayState] = useState(undefined);
 
     const pluses: React.ReactNode[] = [];
     const modelForeach: ForeachStatement = model as ForeachStatement;
@@ -169,15 +171,15 @@ export function ForEach(props: ForeachProps) {
             endLine: modelForeach.actionOrExpressionNode.position.endLine,
             endColumn: modelForeach.actionOrExpressionNode.position.endColumn,
         }
-        setConfigWizardOpen(true);
+        // setConfigWizardOpen(true);
         const conditionConfigFormState = getConditionConfig("ForEach", model.position, WizardType.EXISTING, undefined, {
             type: "ForEach",
             conditionExpression,
             conditionPosition: conditionUpdatePosition,
             model
-        }, stSymbolInfo, model)
-
-        setForEachConfigOverlayState(conditionConfigFormState);
+        }, stSymbolInfo, model);
+        renderEditForm(model, model.position, conditionConfigFormState as ConfigOverlayFormStatus, onCancel);
+        // setForEachConfigOverlayState(conditionConfigFormState);
     };
 
     const onDraftDelete = () => {
@@ -250,7 +252,7 @@ export function ForEach(props: ForeachProps) {
 
                 />
 
-                <ContitionAssignment
+                <ConditionAssignment
                     x={x - (CONDITION_ASSIGNMENT_NAME_WIDTH + DefaultConfig.textAlignmentOffset)}
                     y={y + FOREACH_SVG_HEIGHT / 5}
                     assignment={assignmentText}
@@ -270,13 +272,13 @@ export function ForEach(props: ForeachProps) {
                         x={viewState.bBox.cx - (FOREACH_SHADOW_OFFSET / 2)}
                         y={viewState.bBox.cy - (FOREACH_SHADOW_OFFSET / 2)}
                     >
-                        {model && isConfigWizardOpen &&
+                        {/* {model && isConfigWizardOpen &&
                             <FormGenerator
                                 onCancel={onCancel}
                                 onSave={onSave}
                                 configOverlayFormStatus={forEachConfigOverlayState}
                             />
-                        }
+                        } */}
                         {!isConfigWizardOpen &&
                             <>
                                 <rect
@@ -302,7 +304,7 @@ export function ForEach(props: ForeachProps) {
             <line className="life-line" {...lifeLineProps} />
             {(children.length !== 0) && <ColapseButtonSVG {...foldProps} onClick={handleFoldClick} />}
             {controlFlowLines}
-            {pluses}
+            {!isReadOnly && pluses}
             {children}
             {drafts}
         </g>
@@ -314,7 +316,7 @@ export function ForEach(props: ForeachProps) {
             <g className="foreach-polygon-wrapper" onClick={onForeachHeadClick}>
                 <ForeachSVG x={x - FOREACH_SVG_WIDTH_WITH_SHADOW / 2} y={y} text="FOR EACH" />
                 {/* <Assignment x={x - (FOREACH_SVG_WIDTH_WITH_SHADOW / 2 + ASSIGNMENT_NAME_WIDTH)} y={y + FOREACH_SVG_HEIGHT / 4} assignment={assignmentText} className="condition-assignment"/> */}
-                <ContitionAssignment
+                <ConditionAssignment
                     x={x - (CONDITION_ASSIGNMENT_NAME_WIDTH + DefaultConfig.textAlignmentOffset)}
                     y={y + FOREACH_SVG_HEIGHT / 5}
                     assignment={assignmentText}
@@ -334,13 +336,13 @@ export function ForEach(props: ForeachProps) {
                                 y={viewState.bBox.cy + (FOREACH_SVG_HEIGHT / 3)}
                                 className="forech-rect"
                             />
-                            {model && isConfigWizardOpen &&
+                            {/* {model && isConfigWizardOpen &&
                                 <FormGenerator
                                     onCancel={onCancel}
                                     onSave={onSave}
                                     configOverlayFormStatus={forEachConfigOverlayState}
                                 />
-                            }
+                            } */}
 
                             {!isConfigWizardOpen &&
                                 <>

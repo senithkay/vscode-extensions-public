@@ -11,16 +11,15 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React from "react";
+import React, { useContext } from "react";
 
 import { NodePosition, ResourceAccessorDefinition } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
 import { ErrorIcon, WarningIcon } from "../../../../../../assets/icons";
 import Tooltip from "../../../../../../components/TooltipV2";
-import { useDiagramContext } from "../../../../../../Contexts/Diagram";
 import { getDiagnosticInfo } from "../../../../../utils";
-import { removeStatement } from "../../../../../utils/modification-util";
+import { Context } from "../../../Context/diagram";
 import { HeaderActions } from "../../../HeaderActions";
 import { HeaderWrapper } from "../../../HeaderWrapper";
 
@@ -43,18 +42,20 @@ export function ResourceHeader(props: ResourceHeaderProps) {
 
     const {
         api: {
-            code: { modifyDiagram, gotoSource },
+            code: { gotoSource },
+            edit: {
+                deleteComponent
+            }
         },
         props: {
             isCodeEditorActive,
             isWaitingOnWorkspace,
             isReadOnly,
         }
-    } = useDiagramContext();
+    } = useContext(Context);
 
     const onDeleteClick = () => {
-        const modification = removeStatement(model.position);
-        modifyDiagram([modification]);
+        deleteComponent(model);
     };
 
     const onClickOpenInCodeView = () => {

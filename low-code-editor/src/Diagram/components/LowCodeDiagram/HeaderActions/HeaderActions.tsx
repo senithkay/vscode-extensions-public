@@ -12,18 +12,16 @@
  */
 
 // tslint:disable: jsx-no-multiline-js
-import React, { useRef, useState } from "react";
+import React, { useContext, useRef, useState } from "react";
 
-import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { STNode } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
 import DeleteButton from "../../../../assets/icons/DeleteButton";
 import EditButton from "../../../../assets/icons/EditButton";
-import { useDiagramContext } from "../../../../Contexts/Diagram";
-import { DeleteConfirmDialog } from "../../FormComponents/DialogBoxes/DeleteConfirmDialog";
 import { UnsupportedConfirmButtons } from "../../FormComponents/DialogBoxes/UnsupportedConfirmButtons";
-import { FormGenerator } from "../../FormComponents/FormGenerator";
 import { ComponentExpandButton } from "../Components/ComponentExpandButton";
+import { Context } from "../Context/diagram";
 
 import "./style.scss";
 
@@ -41,11 +39,6 @@ export interface HeaderActionsProps {
 
 export function HeaderActions(props: HeaderActionsProps) {
     const {
-        api: {
-            code: { gotoSource },
-        },
-    } = useDiagramContext();
-    const {
         model,
         isExpanded,
         deleteText,
@@ -56,6 +49,16 @@ export function HeaderActions(props: HeaderActionsProps) {
         onConfirmEdit,
         unsupportedType
     } = props;
+
+    const {
+        props: { isReadOnly },
+        api: {
+            code: { gotoSource },
+            edit: {
+                renderEditForm
+            }
+        },
+    } = useContext(Context);
 
     const deleteBtnRef = useRef(null);
     const [isDeleteViewVisible, setIsDeleteViewVisible] = useState(false);
@@ -68,15 +71,14 @@ export function HeaderActions(props: HeaderActionsProps) {
         if (unsupportedType) {
             setIsUnSupported(true);
         } else {
-            setIsEditViewVisible(true);
+            renderEditForm(model, model?.position, { formType: (formType ? formType : model.kind), isLoading: false }, handleEditBtnCancel, handleEditBtnCancel);
         }
     }
 
     const handleEditBtnCancel = () => setIsEditViewVisible(false);
-
     const handleEnumEditBtnConfirm = () => {
-        setIsEditViewVisible(false);
-        onConfirmEdit();
+        // setIsEditViewVisible(false);
+        // onConfirmEdit();
     }
 
     const unsupportedEditConfirm = () => {
@@ -93,14 +95,18 @@ export function HeaderActions(props: HeaderActionsProps) {
 
     return (
         <div className={"header-amendment-options"}>
-            <div className={classNames("amendment-option", "show-on-hover")}>
-                <EditButton onClick={handleEditBtnClick} />
-            </div>
-            <div className={classNames("amendment-option", "show-on-hover")}>
-                <div ref={deleteBtnRef}>
-                    <DeleteButton onClick={handleDeleteBtnClick} />
-                </div>
-            </div>
+            {!isReadOnly && (
+                <>
+                    <div className={classNames("amendment-option", "show-on-hover")}>
+                        <EditButton onClick={handleEditBtnClick} />
+                    </div>
+                    <div className={classNames("amendment-option", "show-on-hover")}>
+                        <div ref={deleteBtnRef}>
+                            <DeleteButton onClick={handleDeleteBtnClick} />
+                        </div>
+                    </div>
+                </>
+            )}
             <div className={classNames("amendment-option", "show-on-hover")}>
                 <ComponentExpandButton
                     isExpanded={isExpanded}
@@ -124,14 +130,14 @@ export function HeaderActions(props: HeaderActionsProps) {
                     isFunctionMember={false}
                 />
             )} */}
-            {isEditViewVisible && (
+            {/* {!isReadOnly && isEditViewVisible && (
                 <FormGenerator
                     model={model}
                     configOverlayFormStatus={{ formType: (formType ? formType : model.kind), isLoading: false }}
                     onCancel={handleEditBtnCancel}
                     onSave={handleEditBtnCancel}
                 />
-            )}
+            )}*/}
             {isUnSupported && <UnsupportedConfirmButtons onConfirm={unsupportedEditConfirm} onCancel={unSupportedEditCancel} />}
         </div>
     );

@@ -13,16 +13,14 @@
 import React, { useReducer } from 'react';
 
 import { FormControl } from '@material-ui/core';
-import { ConfigOverlayFormStatus, FormActionButtons, FormHeaderSection, PrimaryButton, SecondaryButton, STModification } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { ADD_CONFIGURABLE, ConfigOverlayFormStatus, FormActionButtons, FormHeaderSection, LowcodeEvent, STModification } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { CaptureBindingPattern, ModuleVarDecl, NodePosition } from '@wso2-enterprise/syntax-tree';
 import { v4 as uuid } from "uuid";
 
 import { useDiagramContext } from '../../../../../Contexts/Diagram';
-import { ADD_CONFIGURABLE, LowcodeEvent } from '../../../../models';
 import { createConfigurableDecl, updateConfigurableVarDecl } from '../../../../utils/modification-util';
 import { useStyles as useFormStyles } from "../../DynamicConnectorForm/style";
 import CheckBoxGroup from '../../FormFieldComponents/CheckBox';
-import { SelectDropdownWithButton } from '../../FormFieldComponents/DropDown/SelectDropdownWithButton';
 import ExpressionEditor, { ExpressionEditorProps } from '../../FormFieldComponents/ExpressionEditor';
 import { TextLabel } from '../../FormFieldComponents/TextField/TextLabel';
 import { InjectableItem } from '../../FormGenerator';

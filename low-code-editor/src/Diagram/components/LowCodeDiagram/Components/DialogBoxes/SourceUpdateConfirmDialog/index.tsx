@@ -18,7 +18,6 @@ import { Button } from "@material-ui/core";
 import { CloseRounded } from "@material-ui/icons";
 import { ButtonWithIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
-import { Context } from '../../../../../../Contexts/Diagram';
 import { OverlayBackground } from "../../../../OverlayBackground";
 import { DiagramOverlay, DiagramOverlayContainer, DiagramOverlayPosition } from "../../../../Portals/Overlay/index";
 
@@ -39,9 +38,6 @@ export const overlayPosition: DiagramOverlayPosition = {
 export function SourceUpdateConfirmDialog(props: SourceUpdateConfirmDialogProps) {
     const intl = useIntl();
     const { onConfirm, onCancel, title, subTitle } = props;
-    const {
-        actions: { setTriggerUpdated },
-    } = useContext(Context);
 
     const triggerUpdateWarningMessage = intl.formatMessage({
         id: "lowcode.develop.updateTrigger.triggerUpdateWarning.message.text",
@@ -50,7 +46,6 @@ export function SourceUpdateConfirmDialog(props: SourceUpdateConfirmDialogProps)
 
     const handleOnConfirm = () => {
         onConfirm();
-        setTriggerUpdated(true);
     }
 
     return (

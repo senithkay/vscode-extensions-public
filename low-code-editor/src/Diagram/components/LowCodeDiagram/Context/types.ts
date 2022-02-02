@@ -1,5 +1,5 @@
-import { ConfigOverlayFormStatus } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { ModulePart, NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
+import { ConfigOverlayFormStatus, ConnectorConfigWizardProps, LowcodeEvent, STModification, STSymbolInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 export interface LowCodeDiagramProps extends LowCodeDiagramProperties {
     api?: LowCodeDiagramAPI;
@@ -17,26 +17,11 @@ export interface LowCodeDiagramProperties {
     isReadOnly: boolean;
     error?: Error;
     selectedPosition?: SelectedPosition;
-    // currentAppType: AppType;
-    // currentApp: AppInfo;
-    // userInfo?: UserState;
-    // currentFile: ApplicationFile;
     stSymbolInfo?: STSymbolInfo;
-    // connectors?: BallerinaConnectorInfo[];
-    // diagnostics?: Diagnostic[];
-    // warnings?: Warning[];
-    // langServerURL: string;
-    // configOverlayFormStatus: ConfigOverlayFormStatus;
-    // configPanelStatus: ConfigPanelStatus;
-    // isConfigPanelOpen?: boolean;
-    // isCodeEditorActive: boolean;
-    // isLoadingAST?: boolean;
-    // isPerformanceViewOpen: boolean;
-    // isLoadingSuccess: boolean;
+    isCodeEditorActive?: boolean;
     isWaitingOnWorkspace?: boolean;
     isMutationProgress?: boolean;
-    // isCodeChangeInProgress: boolean;
-    // zoomStatus: ZoomStatus;
+    // isDiagramLoading?: boolean;
 }
 
 export interface LowCodeDiagramState {
@@ -61,9 +46,11 @@ export interface LowCodeDiagramActions {
 
 export interface LowCodeDiagramAPI {
     edit?: {
-        delete?: (targetPosition: NodePosition) => void;
-        renderEditForm?: (model: STNode, targetPosition: NodePosition, configOverlayFormStatus: ConfigOverlayFormStatus, onClose: () => void, onSave: () => void) => void;
-        renderAddForm?: (targetPosition: NodePosition, configOverlayFormStatus: ConfigOverlayFormStatus, onClose: () => void, onSave: () => void) => void;
+        deleteComponent?: (model: STNode, onDelete?: () => void) => void;
+        renderEditForm?: (model: STNode, targetPosition: NodePosition, configOverlayFormStatus: ConfigOverlayFormStatus, onClose?: () => void, onSave?: () => void) => void;
+        renderAddForm?: (targetPosition: NodePosition, configOverlayFormStatus: ConfigOverlayFormStatus, onClose?: () => void, onSave?: () => void) => void;
+        renderConnectorWizard?: (connectorConfigWizardProps: ConnectorConfigWizardProps) => void;
+        closeAllOpenedForms?: (callBack?: () => void) => void;
     };
 
     // FIXME Doesn't make sense to take these methods below from outside
@@ -86,7 +73,21 @@ export interface LowCodeDiagramAPI {
     };
 
     code?: {
-        gotoSource: (position: { startLine: number, startColumn: number }) => void;
+        modifyDiagram?: (mutations: STModification[], options?: any) => void;
+        gotoSource?: (position: { startLine: number, startColumn: number }) => void;
+    };
+
+    webView?: {
+        showSwaggerView?: (serviceName: string) => void;
+        showDocumentationView?: (url: string) => void;
+    };
+
+    project?: {
+        run: (args: any[]) => void;
+    };
+
+    insights: {
+        onEvent?: (event: LowcodeEvent) => void;
     }
 }
 
@@ -94,18 +95,3 @@ export interface SelectedPosition {
     startLine: number;
     startColumn: number;
 }
-
-export interface STSymbolInfo {
-    moduleEndpoints: Map<string, STNode>;
-    localEndpoints: Map<string, STNode>;
-    actions: Map<string, STNode>;
-    variables: Map<string, STNode[]>;
-    configurables: Map<string, STNode>;
-    callStatement: Map<string, STNode[]>;
-    variableNameReferences: Map<string, STNode[]>;
-    assignmentStatement: Map<string, STNode[]>;
-    recordTypeDescriptions: Map<string, STNode>;
-    listeners: Map<string, STNode>;
-    moduleVariables: Map<string, STNode>;
-}
-

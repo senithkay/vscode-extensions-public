@@ -21,8 +21,7 @@ import {
 } from "@wso2-enterprise/syntax-tree";
 
 import { ServiceIconLight } from "../../../../../../assets/icons/ServiceIcon";
-import { Context as DiagramContext } from "../../../../../../Contexts/Diagram";
-import { removeStatement } from "../../../../../utils/modification-util";
+import { Context as DiagramContext } from "../../../Context/diagram";
 import { HeaderActions } from "../../../HeaderActions";
 import { HeaderWrapper } from "../../../HeaderWrapper";
 
@@ -54,7 +53,7 @@ export function ServiceHeader(props: ServiceHeaderProps) {
     const {
         props: { stSymbolInfo },
         api: {
-            code: { modifyDiagram },
+            edit: {deleteComponent}
         },
     } = useContext(DiagramContext);
 
@@ -91,7 +90,7 @@ export function ServiceHeader(props: ServiceHeaderProps) {
     (unSupportedTypes.includes(serviceType)) ? isUnsupportedType = true : isUnsupportedType = false;
 
     const handleDeleteConfirm = () => {
-        modifyDiagram([removeStatement(model.position)]);
+        deleteComponent(model);
     };
 
     return (

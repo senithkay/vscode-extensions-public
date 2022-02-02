@@ -17,9 +17,9 @@ import { DiagramDiagnostic } from "@wso2-enterprise/ballerina-low-code-edtior-co
 import { BlockStatement, STNode } from "@wso2-enterprise/syntax-tree";
 import cn from "classnames";
 
-import { Context } from "../../../../../../../Contexts/Diagram";
 import { getDiagnosticInfo, getDraftComponent, getSTComponents } from "../../../../../../utils";
 import { DefaultConfig } from "../../../../../../visitors/default";
+import { Context } from "../../../../Context/diagram";
 import { ControlFlowLineState, ElseViewState } from "../../../../ViewState";
 import { PlusButton } from "../../../PlusButtons/Plus";
 import { Collapse } from "../../Collapse";
@@ -39,7 +39,7 @@ export interface ElseProps {
 }
 
 export function Else(props: ElseProps) {
-    const { state, actions: { insertComponentStart } } = useContext(Context);
+    const { state, actions: { insertComponentStart }, props: { isReadOnly } } = useContext(Context);
     const { model, defaultViewState, diagnostics } = props;
 
     let viewState: ElseViewState;
@@ -161,7 +161,7 @@ export function Else(props: ElseProps) {
             {components}
             {controlFlowLines}
             {children}
-            {pluses}
+            {isReadOnly && pluses}
             {drafts}
         </g>
     )
