@@ -16,7 +16,7 @@ import React from "react";
 import { NamedWorkerDeclaration } from "@wso2-enterprise/syntax-tree";
 
 import { FunctionViewState } from "../../../../ViewState";
-import { StartSVG, START_SVG_WIDTH } from "../../Start/StartSVG";
+import { StartSVG, START_SVG_HEIGHT, START_SVG_WIDTH } from "../../Start/StartSVG";
 
 interface WorkerHeadProps {
     model: NamedWorkerDeclaration
@@ -29,7 +29,7 @@ export function WorkerHead(props: WorkerHeadProps) {
     return (
         <StartSVG
             x={viewState.bBox.cx - (START_SVG_WIDTH / 2)}
-            y={viewState.bBox.cy - (START_SVG_WIDTH / 2)}
+            y={viewState.bBox.cy - (START_SVG_HEIGHT / 2)}
             text={model.workerName.value}
         />
     )

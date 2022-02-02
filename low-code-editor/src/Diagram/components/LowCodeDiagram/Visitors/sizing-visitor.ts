@@ -834,7 +834,7 @@ class SizingVisitor implements Visitor {
         let height = 0;
         let width = 0;
         let index = 0;
-        const lastStatementIndex = blockViewState.hasWorkerDecl ? //node.statements.length; 
+        const lastStatementIndex = blockViewState.hasWorkerDecl ? // node.statements.length;
             (node as FunctionBodyBlock).namedWorkerDeclarator.workerInitStatements.length + node.statements.length + 1
             : node.statements.length;
 
@@ -904,6 +904,14 @@ class SizingVisitor implements Visitor {
                     width = draft.bBox.w;
                 }
             }
+        }
+
+        if (blockViewState.hasWorkerDecl) {
+            let maxWorkerHeight = 0;
+            (node as FunctionBodyBlock).namedWorkerDeclarator.namedWorkerDeclarations.forEach(workerDecl => {
+                maxWorkerHeight = maxWorkerHeight < workerDecl.viewState.bBox.h && workerDecl.viewState.bBox.h
+            })
+
         }
 
         if (height > 0) {

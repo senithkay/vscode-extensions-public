@@ -392,7 +392,7 @@ class PositioningVisitor implements Visitor {
         // Clean rendered labels
         blockViewState.controlFlow.executionTimeStates = [];
         blockViewState.controlFlow.lineStates = [];
-        const lastStatementIndex = blockViewState.hasWorkerDecl ? //node.statements.length; 
+        const lastStatementIndex = blockViewState.hasWorkerDecl ? // node.statements.length;
             (node as FunctionBodyBlock).namedWorkerDeclarator.workerInitStatements.length + node.statements.length + 1
             : node.statements.length;
 
@@ -408,17 +408,17 @@ class PositioningVisitor implements Visitor {
             (node as FunctionBodyBlock).namedWorkerDeclarator.namedWorkerDeclarations.forEach((workerDecl, i) => {
                 const workerDeclViewState = workerDecl.viewState as FunctionViewState;
                 const workerBodyViewState = workerDecl.workerBody.viewState as BlockViewState;
-                const startHeight = height + PLUS_SVG_HEIGHT * 2 + PROCESS_SVG_HEIGHT;
-
-                workerBodyViewState.bBox.cy = workerDeclViewState.bBox.cy
-                    = startHeight;
+                const startHeight = height + PLUS_SVG_HEIGHT + PROCESS_SVG_HEIGHT;
+                workerDeclViewState.bBox.cy = startHeight;
+                workerBodyViewState.bBox.cy = startHeight + START_SVG_HEIGHT / 2 + PLUS_SVG_HEIGHT;
                 workerBodyViewState.bBox.cx = workerDeclViewState.bBox.cx = i === 0 ?
                     blockViewState.bBox.cx + blockViewState.bBox.w / 2 + workerBodyViewState.bBox.w / 2
                     : blockViewState.bBox.cx
                     + (node as FunctionBodyBlock).namedWorkerDeclarator.namedWorkerDeclarations[i - 1].viewState.bBox.cx
                     + workerBodyViewState.bBox.w / 2;
 
-                this.calculateStatementPosition(workerDecl.workerBody.statements, workerBodyViewState, (startHeight + START_SVG_HEIGHT + PLUS_SVG_HEIGHT), 0, epGap);
+                // this.calculateStatementPosition(workerDecl.workerBody.statements, workerBodyViewState, (startHeight + START_SVG_HEIGHT / 2 + PLUS_SVG_HEIGHT), 0, epGap);
+                this.beginVisitBlockStatement(workerDecl.workerBody);
             });
         }
 
