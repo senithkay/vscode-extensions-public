@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
+// tslint:disable-next-line:no-submodule-imports
 import { Story } from '@storybook/react/types-6-0';
 import { FunctionDefinition, ModulePart, STKindChecker } from '@wso2-enterprise/syntax-tree';
 
@@ -9,8 +10,6 @@ import { Provider } from '../../../../Context/diagram';
 import { LowCodeDiagramProps } from '../../../../Context/types';
 
 import { Function, FunctionProps  } from "./../";
-
-// tslint:disable-next-line:no-submodule-imports
 
 export default {
     title: 'Diagram/Component/Function',
@@ -34,8 +33,6 @@ const Template: Story<{ f1: string }> = (args: {f1: string }) => {
         api: {
             project: {
                 run: () => undefined
-            },
-            insights: {
             }
         }
     };

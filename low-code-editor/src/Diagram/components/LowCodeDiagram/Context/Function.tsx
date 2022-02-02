@@ -13,7 +13,7 @@
 
 import React from "react";
 
-import { FunctionProperties } from "../Diagram/components/LowCodeDiagram/Context/types";
+import { FunctionProperties } from "./types";
 
 const defaultState: FunctionProperties = {
     overlayId: '',
@@ -29,7 +29,7 @@ export const Provider: React.FC<FunctionProperties> = (props) => {
         <Context.Provider value={{ ...restProps }} >
             {props.children}
         </Context.Provider>
-    );
+    )
 }
 
 export const useFunctionContext = () => React.useContext(Context);

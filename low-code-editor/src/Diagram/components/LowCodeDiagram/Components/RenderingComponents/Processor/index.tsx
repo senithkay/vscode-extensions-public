@@ -50,26 +50,19 @@ export interface ProcessorProps {
 }
 
 export function DataProcessor(props: ProcessorProps) {
+    const diagramContext = useContext(Context);
+    const gotoSource = diagramContext?.api?.code?.gotoSource;
+    const renderAddForm = diagramContext?.api?.edit?.renderAddForm;
+    const renderEditForm = diagramContext?.api?.edit?.renderEditForm;
     const {
-        actions: { diagramCleanDraw },
-        api: {
-            code: {
-                gotoSource
-            },
-            edit: {
-                renderAddForm,
-                renderEditForm
-            }
-        },
-        props: {
-            isCodeEditorActive,
-            syntaxTree,
-            stSymbolInfo,
-            isMutationProgress,
-            isWaitingOnWorkspace,
-            isReadOnly,
-        }
-    } = useContext(Context);
+        isCodeEditorActive,
+        syntaxTree,
+        stSymbolInfo,
+        isMutationProgress,
+        isWaitingOnWorkspace,
+        isReadOnly,
+    } = diagramContext.props;
+    const { diagramCleanDraw } = diagramContext.actions;
 
     const { model, blockViewState } = props;
     const [isConfigWizardOpen, setConfigWizardOpen] = useState(false);
@@ -157,7 +150,9 @@ export function DataProcessor(props: ProcessorProps) {
             const draftVS = blockViewState.draft[1];
             const overlayFormConfig = getOverlayFormConfig(draftVS.subType, draftVS.targetPosition, WizardType.NEW,
                 blockViewState, undefined, stSymbolInfo);
-            renderAddForm(draftVS.targetPosition, overlayFormConfig as ConfigOverlayFormStatus, onCancel);
+            if (renderAddForm) {
+                renderAddForm(draftVS.targetPosition, overlayFormConfig as ConfigOverlayFormStatus, onCancel);
+            }
         }
     }, []);
 
@@ -180,12 +175,14 @@ export function DataProcessor(props: ProcessorProps) {
             }
             const overlayFormConfig = getOverlayFormConfig(processType, model.position, WizardType.EXISTING,
                 blockViewState, undefined, stSymbolInfo, model);
-            renderEditForm(model, model.position, overlayFormConfig as ConfigOverlayFormStatus, onCancel);
+            if (renderEditForm) {
+                renderEditForm(model, model.position, overlayFormConfig as ConfigOverlayFormStatus, onCancel);
+            }
         }
     };
 
     const onClickOpenInCodeView = () => {
-        if (model) {
+        if (model && gotoSource) {
             const position: NodePosition = model.position as NodePosition;
             gotoSource({ startLine: position.startLine, startColumn: position.startColumn });
         }
