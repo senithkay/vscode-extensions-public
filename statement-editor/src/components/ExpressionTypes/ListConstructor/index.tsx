@@ -21,6 +21,7 @@ import { SuggestionItem, VariableUserInputs } from "../../../models/definitions"
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { SuggestionsContext } from "../../../store/suggestions-context";
 import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
+import { addStatementToTargetLine, getContextBasedCompletions } from "../../../utils/ls-utils";
 import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
 
@@ -35,18 +36,33 @@ export function ListConstructorComponent(props: ListConstructorProps) {
     const { model, userInputs, isElseIfMember, diagnosticHandler } = props;
     const {
         modelCtx: {
+            statementModel,
             currentModel,
             updateModel,
-        }
+        },
+        currentFile,
+        formCtx: {
+            formModelPosition
+        },
+        getLangClient
     } = useContext(StatementEditorContext);
+    const fileURI = `expr://${currentFile.path}`;
 
     const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
 
     const onClickOnExpression = async (clickedExpression: STNode, event: any) => {
         event.stopPropagation();
+        const content: string = await addStatementToTargetLine(
+            currentFile.content, formModelPosition, statementModel.source, getLangClient);
+
+        const completions: SuggestionItem[] = await getContextBasedCompletions(
+            fileURI, content, formModelPosition, clickedExpression.position,
+            false, isElseIfMember, clickedExpression.source, getLangClient);
         expressionHandler(clickedExpression, false, false, {
-            expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS)
+            expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
+            typeSuggestions: [],
+            variableSuggestions: completions
         });
     };
 
@@ -88,6 +104,7 @@ export function ListConstructorComponent(props: ListConstructorProps) {
         </span>
     );
 
+    // TODO: By default select an expression on click on plus icon
     const onClickOnPlusIcon = () => {
         const newExpression = model.expressions.length !== 0 ? `, EXPRESSION ]` : `EXPRESSION ]`;
         updateModel(newExpression, model.closeBracket.position);
