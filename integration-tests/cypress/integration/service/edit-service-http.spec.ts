@@ -6,6 +6,7 @@ import { HttpForm } from "../../utils/forms/connectors/http-form"
 import { LogForm } from "../../utils/forms/log-form"
 import { ResourceForm } from "../../utils/forms/resource-form"
 import { ServiceForm } from "../../utils/forms/service-form"
+import { VariableFormBlockLevel } from "../../utils/forms/variable-form-block-level"
 import { getIntegrationTestStoryURL } from "../../utils/story-url-utils"
 
 describe('edit a http service', () => {
@@ -13,51 +14,42 @@ describe('edit a http service', () => {
       cy.visit(getIntegrationTestStoryURL("service/edit-existing-service-file.bal"))
     })
   
-    it('Edit Service', () => {
-      //   Canvas.getService("/hello")
-      //   .getResourceFunction("POST", "/")
-      //   .expand()
-      //   .getDiagram()
-      //   .shouldBeRenderedProperly()
-      //   .getBlockLevelPlusWidget()
-      //   .clickOption("Log");
-
-      //   LogForm
-      // .shouldBeVisible()
-      // .selectType("Debug")
-      // .typeExpression(`"This is a debug message."`)
-      // .save();
-
+    it('Edit service and add statements', () => {
       Canvas.getService("/hello")
         .getResourceFunction("POST", "/")
         .expand()
         .getDiagram()
         .shouldBeRenderedProperly()
         .getBlockLevelPlusWidget()
-        .clickOption("HTTP");
+        .clickOption("Variable");
 
-        HttpForm
-        .shouldBeVisible()
-        .waitForConnectorLoad()
-        .haveDefaultName()
-        .typeConnectionName("boo")
-        .typeUrl('"https://google.com"')
-        .continueToInvoke()
-        .selectOperation("GET")
-        .typeOperationPath('"foo"')
-        .saveAndDone();
+        VariableFormBlockLevel.shouldBeVisible()
+        .typeVariableType("int")
+        .typeVariableName("foo")
+        .isInitializeVariable()
+        .toggleInitializeVariable()
+        .valueExpressionShouldBeHidden()
+        .toggleInitializeVariable()
+        .typeVariableValue(123)
+        .save();
 
-        // ResourceForm
-        // .selectMethod("DELETE")
-        // .typePathName("hello")
-        // .save()
+        Canvas.getService("/hello")
+        .getResourceFunction("POST", "/")
+        .getDiagram()
+        .shouldBeRenderedProperly()
+        .clickDefaultWorkerPlusBtn(1)
+        .getBlockLevelPlusWidget()
+        .clickOption("Variable");
 
-        // Canvas.getService("/hello")
-        // .getResourceFunction("POST", "hello")
-        // .deleteResource();
+        VariableFormBlockLevel.shouldBeVisible()
+        .typeVariableType("string")
+        .typeVariableName("foo_string")
+        .isInitializeVariable()
+        .toggleInitializeVariable()
+        .valueExpressionShouldBeHidden()
+        .save();
 
-        // Canvas.getService("/hello")
-        // .shouldHaveResources(1);
+
        
     })
 
