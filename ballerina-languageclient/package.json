@@ -52,6 +52,10 @@
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wso2-enterprise/ballerina-low-code-editor.git"
+  },
   "engines": {
     "node": ">=0.10.3 <15"
   }
