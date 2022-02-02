@@ -16,7 +16,7 @@ import React, { useContext } from "react";
 import { ListConstructor, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
-import { DEFAULT_EXPRESSIONS } from "../../../constants";
+import { APPEND_EXPR_LIST_CONSTRUCTOR, DEFAULT_EXPRESSIONS, INIT_EXPR_LIST_CONSTRUCTOR } from "../../../constants";
 import { SuggestionItem, VariableUserInputs } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { SuggestionsContext } from "../../../store/suggestions-context";
@@ -104,9 +104,9 @@ export function ListConstructorComponent(props: ListConstructorProps) {
         </span>
     );
 
-    // TODO: By default select an expression on click on plus icon
-    const onClickOnPlusIcon = () => {
-        const newExpression = model.expressions.length !== 0 ? `, EXPRESSION ]` : `EXPRESSION ]`;
+    const onClickOnPlusIcon = (event: any) => {
+        event.stopPropagation();
+        const newExpression = model.expressions.length !== 0 ? APPEND_EXPR_LIST_CONSTRUCTOR : INIT_EXPR_LIST_CONSTRUCTOR;
         updateModel(newExpression, model.closeBracket.position);
     };
 
