@@ -38,11 +38,6 @@ export interface HeaderActionsProps {
 
 export function HeaderActions(props: HeaderActionsProps) {
     const {
-        api: {
-            code: { gotoSource },
-        },
-    } = useDiagramContext();
-    const {
         model,
         isExpanded,
         deleteText,
@@ -54,14 +49,10 @@ export function HeaderActions(props: HeaderActionsProps) {
         unsupportedType
     } = props;
 
-    const {
-        props: { isReadOnly },
-        api: {
-            edit: {
-                renderEditForm
-            }
-        },
-    } = useContext(Context);
+    const diagramContext = useContext(Context);
+    const { isReadOnly } = diagramContext.props;
+    const gotoSource = diagramContext?.api?.code?.gotoSource;
+    const renderEditForm = diagramContext?.api?.edit?.renderEditForm;
 
     const deleteBtnRef = useRef(null);
     const [isDeleteViewVisible, setIsDeleteViewVisible] = useState(false);
@@ -69,6 +60,16 @@ export function HeaderActions(props: HeaderActionsProps) {
     // const handleCancelDeleteBtn = () => setIsDeleteViewVisible(false);
 
     const [isEditViewVisible, setIsEditViewVisible] = useState(false);
+    const [isUnSupported, setIsUnSupported] = useState(false);
+    const handleEditBtnClick = () => {
+        if (unsupportedType) {
+            setIsUnSupported(true);
+        } else {
+            if (renderEditForm) {
+                renderEditForm(model, model?.position, { formType: (formType ? formType : model.kind), isLoading: false }, handleEditBtnCancel, handleEditBtnCancel);
+            }
+        }
+    }
 
     const handleEditBtnCancel = () => setIsEditViewVisible(false);
     const handleEditBtnClick = () => {
@@ -81,9 +82,11 @@ export function HeaderActions(props: HeaderActionsProps) {
     }
 
     const unsupportedEditConfirm = () => {
-        const targetposition = model.position;
-        setIsUnSupported(false);
-        gotoSource({ startLine: targetposition.startLine, startColumn: targetposition.startColumn });
+        if (model && gotoSource) {
+            const targetposition = model.position;
+            setIsUnSupported(false);
+            gotoSource({ startLine: targetposition.startLine, startColumn: targetposition.startColumn });
+        }
     }
 
     const unSupportedEditCancel = () => setIsUnSupported(false);

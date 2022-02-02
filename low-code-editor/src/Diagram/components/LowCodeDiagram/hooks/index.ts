@@ -1,11 +1,11 @@
 import React, { useCallback, useContext, useState } from "react";
 
-import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { STNode } from "@wso2-enterprise/syntax-tree";
 
-import { Context } from "../../Diagram/components/LowCodeDiagram/Context/diagram";
-import { SelectedPosition } from "../../types";
-import { getNodeSignature } from "../components/LowCodeDiagram/Utils";
-import expandTracker from "../utils/expand-tracker";
+import { SelectedPosition } from "../../../../types";
+import expandTracker from "../../../utils/expand-tracker";
+import { Context } from "../Context/diagram";
+import { getNodeSignature } from "../Utils";
 
 /**
  * A custom hook for diagram components which returns a boolean indicating if a given

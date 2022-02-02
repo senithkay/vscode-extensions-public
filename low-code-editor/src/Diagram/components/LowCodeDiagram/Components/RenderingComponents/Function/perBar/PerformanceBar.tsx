@@ -1,10 +1,10 @@
-import React from "react";
+import React, { useContext } from "react";
 
 import Tooltip from "@material-ui/core/Tooltip";
 import { FunctionDefinition } from "@wso2-enterprise/syntax-tree";
 
-import { useDiagramContext } from "../../../../../../../Contexts/Diagram";
 import { addAdvancedLabels } from "../../../../../../../DiagramGenerator/performanceUtil";
+import { Context } from "../../../../Context/diagram";
 
 import { generatePerfData } from "./PerformanceUtil";
 import "./style.scss";
@@ -18,7 +18,7 @@ export function PerformanceBar(props: PerformanceProps) {
     const {
         props: { performanceData },
         actions: { diagramCleanDraw },
-    } = useDiagramContext();
+    } = useContext(Context);
 
     const { concurrency, latency, tps, isPerfDataAvailable, isAdvancedPerfDataAvailable } = generatePerfData(model, performanceData);
 

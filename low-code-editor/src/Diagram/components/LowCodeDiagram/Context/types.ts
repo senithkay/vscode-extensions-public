@@ -1,4 +1,4 @@
-import { ConfigOverlayFormStatus, ConnectorConfigWizardProps, LowcodeEvent, STModification, STSymbolInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ConfigOverlayFormStatus, ConnectorConfigWizardProps, LowcodeEvent, PerformanceData, STModification, STSymbolInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 export interface LowCodeDiagramProps extends LowCodeDiagramProperties {
@@ -21,6 +21,7 @@ export interface LowCodeDiagramProperties {
     isCodeEditorActive?: boolean;
     isWaitingOnWorkspace?: boolean;
     isMutationProgress?: boolean;
+    performanceData?: Map<string, PerformanceData>;
     // isDiagramLoading?: boolean;
 }
 
@@ -86,7 +87,7 @@ export interface LowCodeDiagramAPI {
         run: (args: any[]) => void;
     };
 
-    insights: {
+    insights?: {
         onEvent?: (event: LowcodeEvent) => void;
     }
 }
@@ -94,4 +95,10 @@ export interface LowCodeDiagramAPI {
 export interface SelectedPosition {
     startLine: number;
     startColumn: number;
+}
+
+export interface FunctionProperties {
+    overlayId: string;
+    overlayNode: HTMLDivElement;
+    functionNode: STNode;
 }

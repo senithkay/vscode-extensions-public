@@ -9,3 +9,4 @@ export * from "./form-element-interface";
 export * from "./expression-configurable-interface";
 export * from "./library";
 export * from "./event";
+export * from "./performance"

@@ -25,7 +25,6 @@ import { Diagnostic } from "vscode-languageserver-protocol";
 import { BlockViewState } from "..";
 import { ConditionConfig, DataMapperConfig } from "../Diagram/components/FormComponents/Types";
 import { Warning } from "../Diagram/utils/st-util";
-import { PerformanceData } from "../DiagramGenerator/performanceUtil";
 
 export interface ZoomStatus {
     scale: number,
@@ -147,12 +146,6 @@ export interface LowCodeEditorProperties {
     selectedPosition?: SelectedPosition;
     performanceData?: Map<string, PerformanceData>;
     experimentalEnabled?: boolean;
-}
-
-export interface FunctionProperties {
-    overlayId: string;
-    overlayNode: HTMLDivElement;
-    functionNode: STNode;
 }
 
 export interface SelectedPosition {

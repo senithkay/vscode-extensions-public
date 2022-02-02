@@ -15,13 +15,11 @@ import React, { useContext, useState } from "react"
 
 import { ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
 
-import { useSelectedStatus } from "../../../../../hooks";
 import { getSTComponent } from "../../../../../utils";
-import expandTracker from "../../../../../utils/expand-tracker";
 import DefaultButtonSquare from "../../../../Buttons/DefaultButtonSquare";
 import { getServiceTypeFromModel } from "../../../../FormComponents/ConfigForms/ServiceConfigForm/util";
 import { Context } from "../../../Context/diagram";
-import { getNodeSignature } from "../../../Utils";
+import { useSelectedStatus } from "../../../hooks";
 import { TopLevelPlus } from "../../PlusButtons/TopLevelPlus";
 
 import { ServiceHeader } from "./ServiceHeader";
