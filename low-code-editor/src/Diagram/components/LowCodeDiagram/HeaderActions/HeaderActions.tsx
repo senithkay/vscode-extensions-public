@@ -50,15 +50,10 @@ export function HeaderActions(props: HeaderActionsProps) {
         unsupportedType
     } = props;
 
-    const {
-        props: { isReadOnly },
-        api: {
-            code: { gotoSource },
-            edit: {
-                renderEditForm
-            }
-        },
-    } = useContext(Context);
+    const diagramContext = useContext(Context);
+    const { isReadOnly } = diagramContext.props;
+    const gotoSource = diagramContext?.api?.code?.gotoSource;
+    const renderEditForm = diagramContext?.api?.edit?.renderEditForm;
 
     const deleteBtnRef = useRef(null);
     const [isDeleteViewVisible, setIsDeleteViewVisible] = useState(false);
@@ -71,7 +66,9 @@ export function HeaderActions(props: HeaderActionsProps) {
         if (unsupportedType) {
             setIsUnSupported(true);
         } else {
-            renderEditForm(model, model?.position, { formType: (formType ? formType : model.kind), isLoading: false }, handleEditBtnCancel, handleEditBtnCancel);
+            if (renderEditForm) {
+                renderEditForm(model, model?.position, { formType: (formType ? formType : model.kind), isLoading: false }, handleEditBtnCancel, handleEditBtnCancel);
+            }
         }
     }
 
@@ -82,9 +79,11 @@ export function HeaderActions(props: HeaderActionsProps) {
     }
 
     const unsupportedEditConfirm = () => {
-        const targetposition = model.position;
-        setIsUnSupported(false);
-        gotoSource({ startLine: targetposition.startLine, startColumn: targetposition.startColumn });
+        if (model && gotoSource) {
+            const targetposition = model.position;
+            setIsUnSupported(false);
+            gotoSource({ startLine: targetposition.startLine, startColumn: targetposition.startColumn });
+        }
     }
 
     const unSupportedEditCancel = () => setIsUnSupported(false);

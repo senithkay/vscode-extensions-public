@@ -58,6 +58,8 @@ export function Diagram() {
             isReadOnly,
             stSymbolInfo,
             error,
+            performanceData,
+            selectedPosition
         },
     } = useContext(DiagramContext);
 
@@ -250,17 +252,12 @@ export function Diagram() {
     return (
         <div id="canvas">
             {(codeTriggerredUpdateInProgress || isMutationInProgress || isModulePullInProgress) && textLoader}
-            {/* {(diagnosticInDiagram || warningsInDiagram) && (
-                <div className={classnames(classes.diagramErrorStateWrapper)}>
-                    {diagnosticInDiagram && <OverlayBackground />}
-                    {diagramStatus}
-                </div>
-            )} */}
-            {/* {isErrorDetailsOpen && <ErrorList />} */}
             <Container className={classes.DesignContainer}>
                 <LowCodeDiagram
                     syntaxTree={syntaxTree}
                     isReadOnly={isReadOnly}
+                    performanceData={performanceData}
+                    selectedPosition={selectedPosition}
                     api={{
                         edit: {
                             deleteComponent: handleDeleteComponent,

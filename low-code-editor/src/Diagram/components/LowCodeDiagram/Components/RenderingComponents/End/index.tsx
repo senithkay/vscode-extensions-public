@@ -36,27 +36,18 @@ export interface EndProps {
 }
 
 export function End(props: EndProps) {
+    const diagramContext = useContext(Context);
+    const gotoSource = diagramContext?.api?.code?.gotoSource;
+    const renderEditForm = diagramContext?.api?.edit?.renderEditForm;
     const {
-        api: {
-            code: {
-                gotoSource
-            },
-            edit: {
-                renderEditForm
-            }
-        },
-        actions: {
-            diagramCleanDraw,
-        },
-        props: {
-            isCodeEditorActive,
-            syntaxTree,
-            isMutationProgress,
-            isWaitingOnWorkspace,
-            stSymbolInfo,
-            isReadOnly,
-        }
-    } = useContext(Context);
+        isCodeEditorActive,
+        syntaxTree,
+        stSymbolInfo,
+        isMutationProgress,
+        isWaitingOnWorkspace,
+        isReadOnly,
+    } = diagramContext.props;
+    const { diagramCleanDraw } = diagramContext.actions;
 
     const { viewState, model, blockViewState, isExpressionFunction } = props;
 

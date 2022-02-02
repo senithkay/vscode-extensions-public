@@ -1,10 +1,9 @@
 import * as React from "react";
 
-import { DiagramEditorLangClientInterface, LowcodeEvent, PerformanceAnalyzerGraphResponse, PerformanceAnalyzerRealtimeResponse } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ANALYZE_TYPE, DiagramEditorLangClientInterface, LowcodeEvent, PerformanceAnalyzerGraphResponse, PerformanceAnalyzerRealtimeResponse } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { DiagramGenerator } from "..";
 import { DiagramGenErrorBoundary } from "../ErrorBoundrary";
-import { ANALYZE_TYPE } from "../performanceUtil";
 
 import './style.scss';
 

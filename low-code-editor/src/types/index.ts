@@ -16,7 +16,7 @@
 
 import {
     BallerinaConnectorInfo, ConfigOverlayFormStatus, ConfigPanelStatus, Connector,
-    DiagramEditorLangClientInterface, ExpressionEditorLangClientInterface, STModification,
+    DiagramEditorLangClientInterface, ExpressionEditorLangClientInterface, PerformanceData, STModification,
     STSymbolInfo, WizardType
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { ModulePart, NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
@@ -25,7 +25,6 @@ import { Diagnostic } from "vscode-languageserver-protocol";
 import { BlockViewState } from "..";
 import { ConditionConfig, DataMapperConfig } from "../Diagram/components/FormComponents/Types";
 import { Warning } from "../Diagram/utils/st-util";
-import { PerformanceData } from "../DiagramGenerator/performanceUtil";
 
 export interface ZoomStatus {
     scale: number,
@@ -141,12 +140,6 @@ export interface LowCodeEditorProperties {
     zoomStatus: ZoomStatus;
     selectedPosition?: SelectedPosition;
     performanceData?: Map<string, PerformanceData>;
-}
-
-export interface FunctionProperties {
-    overlayId: string;
-    overlayNode: HTMLDivElement;
-    functionNode: STNode;
 }
 
 export interface SelectedPosition {

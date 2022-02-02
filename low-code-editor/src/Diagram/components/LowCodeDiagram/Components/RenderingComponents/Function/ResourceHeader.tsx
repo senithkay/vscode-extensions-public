@@ -39,33 +39,25 @@ export function ResourceHeader(props: ResourceHeaderProps) {
     const sourceSnippet = model?.source;
     const diagnostics = model?.typeData?.diagnostics;
     const diagnosticMsgs = getDiagnosticInfo(diagnostics);
-
-    const {
-        api: {
-            code: { gotoSource },
-            edit: {
-                deleteComponent
-            }
-        },
-        props: {
-            isCodeEditorActive,
-            isWaitingOnWorkspace,
-            isReadOnly,
-        }
-    } = useContext(Context);
+    const diagramContext = useContext(Context);
+    const gotoSource = diagramContext?.api?.code?.gotoSource;
+    const deleteComponent = diagramContext?.api?.edit?.deleteComponent;
+    const { isCodeEditorActive, isWaitingOnWorkspace, isReadOnly } = diagramContext.props;
 
     const onDeleteClick = () => {
-        deleteComponent(model);
+        if (deleteComponent) {
+            deleteComponent(model);
+        }
     };
 
     const onClickOpenInCodeView = () => {
-        if (model) {
+        if (model && gotoSource) {
             const position: NodePosition = model.position as NodePosition;
             gotoSource({ startLine: position.startLine, startColumn: position.startColumn });
         }
     }
     const openInCodeView = !isReadOnly && !isCodeEditorActive &&
-                            !isWaitingOnWorkspace && model && model.position && onClickOpenInCodeView
+        !isWaitingOnWorkspace && model && model.position && onClickOpenInCodeView
 
     const errorIcon = diagnosticMsgs?.severity === "ERROR" ? <ErrorIcon /> : <WarningIcon />;
 

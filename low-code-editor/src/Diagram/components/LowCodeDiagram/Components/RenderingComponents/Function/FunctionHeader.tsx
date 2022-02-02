@@ -36,17 +36,13 @@ interface FunctionHeaderProps {
 
 export function FunctionHeader(props: FunctionHeaderProps) {
     const { model, onExpandClick, isExpanded } = props;
-
-    const {
-        api: {
-            edit: {
-                deleteComponent
-            }
-        },
-    } = useContext(Context);
+    const diagramContext = useContext(Context);
+    const deleteComponent = diagramContext?.api?.edit?.deleteComponent;
 
     const onDeleteClick = () => {
-        deleteComponent(model)
+        if (deleteComponent) {
+            deleteComponent(model);
+        }
     };
 
     return (
@@ -74,13 +70,13 @@ export function FunctionHeader(props: FunctionHeaderProps) {
                 </div>
             </div>
             {model.qualifierList.filter(qualifier => STKindChecker.isRemoteKeyword(qualifier)).length === 0 ? (
-            <HeaderActions
-                model={model}
-                deleteText="Are you sure you want to delete this function?"
-                isExpanded={isExpanded}
-                onExpandClick={onExpandClick}
-                onConfirmDelete={onDeleteClick}
-            />
+                <HeaderActions
+                    model={model}
+                    deleteText="Are you sure you want to delete this function?"
+                    isExpanded={isExpanded}
+                    onExpandClick={onExpandClick}
+                    onConfirmDelete={onDeleteClick}
+                />
             ) : (
                 <ComponentExpandButton
                     isExpanded={isExpanded}
