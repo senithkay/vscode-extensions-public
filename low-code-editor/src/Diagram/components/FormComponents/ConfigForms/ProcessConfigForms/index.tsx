@@ -173,11 +173,11 @@ export function ProcessConfigForm(props: any) {
                     const addCustomStatement: STModification = createPropertyStatement(customConfig.expression, modificationPosition, isLastMember);
                     modifications.push(addCustomStatement);
                 }
-                const event: LowcodeEvent = {
-                    type: SAVE_STATEMENT,
-                    name: processConfig.type
-                };
-                onEvent(event);
+                // const event: LowcodeEvent = {
+                //     type: SAVE_STATEMENT,
+                //     name: processConfig.type
+                // };
+                // onEvent(event);
             }
         }
         modifyDiagram(modifications);
