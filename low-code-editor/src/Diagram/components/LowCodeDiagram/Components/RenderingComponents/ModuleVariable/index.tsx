@@ -37,20 +37,11 @@ export interface ModuleVariableProps {
 
 export function ModuleVariable(props: ModuleVariableProps) {
     const { model } = props;
-    const {
-        api: {
-            edit: {
-                deleteComponent,
-                renderEditForm
-            },
-            code: {
-                modifyDiagram
-            }
-        },
-        props: {
-            isReadOnly
-        }
-    } = useContext(Context);
+    const diagramContext = useContext(Context);
+    const { isReadOnly } = diagramContext.props;
+    const deleteComponent = diagramContext?.api?.edit?.deleteComponent;
+    const renderEditForm = diagramContext?.api?.edit?.renderEditForm;
+    const modifyDiagram = diagramContext?.api?.code?.modifyDiagram;
 
     // const [editFormVisible, setEditFormVisible] = useState(false);
     // const [deleteFormVisible, setDeleteFormVisible] = useState(false);
