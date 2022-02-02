@@ -41,7 +41,7 @@ describe("Code server smoke test", () => {
     );
     cy.get('a[class="action-label codicon codicon-extensions-view-icon"]', {
       timeout: 60000,
-    }).click();
+    }).click({ force: true });
     cy.get('span[class="name"]').contains("Ballerina");
     cy.get(
       'a[class="action-label codicon codicon-extensions-view-icon"]'
@@ -70,9 +70,9 @@ describe("Code server smoke test", () => {
       "//div[@aria-label='main.bal Diagram']/div[@class='tab-actions']//a[@role='button']"
     ).click();
     //Close welcome tab
-    // cy.xpath(
-    //   "//div[@title='Welcome']/div[@class='tab-actions']//a[@role='button']"
-    // ).click();
+    cy.xpath(
+      "//div[@title='Welcome']/div[@class='tab-actions']//a[@role='button']"
+    ).click();
     // Verify code rendering
     cy.get(".view-lines", {
       timeout: 60000,
