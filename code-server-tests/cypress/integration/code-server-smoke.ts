@@ -45,7 +45,7 @@ describe("Code server smoke test", () => {
     cy.get('span[class="name"]').contains("Ballerina");
     cy.get(
       'a[class="action-label codicon codicon-extensions-view-icon"]'
-    ).click();
+    ).click({ force: true });
     //Close sync notification if visible
     cy.get("body").then((body) => {
       if (body.find("a[title='Sync changes with Choreo']").length > 0) {
