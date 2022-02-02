@@ -23,15 +23,18 @@ describe("Code server smoke test", () => {
       timeout: 60000,
     }).should("be.visible");
   });
-  after(() => {
-    // Close terminal panel
-    cy.get("a[title='Close Panel']").click();
-  });
 
   it("Validate vs code is opened without errors and Diagram is rendered", () => {
     cy.get("body").should("not.contain", "error");
     //Disable performance forecasting
-    cy.get("div[aria-label='Disable performance forecasting... ']").click();
+    cy.get("body").then((body) => {
+      if (
+        body.find("div[aria-label='Disable performance forecasting... ']")
+          .length > 0
+      ) {
+        cy.get("div[aria-label='Disable performance forecasting... ']").click();
+      }
+    });
     //Verify ballerina extension
     cy.get("div[id='wso2.ballerina']", { timeout: 60000 }).contains(
       "Ballerina SDK: Swan Lake"
@@ -43,47 +46,41 @@ describe("Code server smoke test", () => {
     cy.get(
       'a[class="action-label codicon codicon-extensions-view-icon"]'
     ).click();
-    //Verify service.bal diagram tab
-    cy.get("div[title='service.bal Diagram']").contains("service.bal Diagram");
+    //Close sync notification if visible
+    cy.get("body").then((body) => {
+      if (body.find("a[title='Sync changes with Choreo']").length > 0) {
+        cy.get(
+          "a[class='action-label codicon codicon-notifications-clear']"
+        ).click();
+      }
+    });
+    //Verify main.bal diagram tab
+    cy.get("div[title='main.bal Diagram']").contains("main.bal Diagram");
     cy.wait(8000);
     cy.screenshot();
     //Take a snapshot of the diagram and compare with reference snapshot at /snapshots/code-server-smoke.ts/
     cy.matchImageSnapshot("Low-code-diagram");
   });
 
-  it("Open a service bal source and verify the code rendered", () => {
+  it("Open main bal source and verify the code rendered", () => {
     cy.get("a[title='Show Source']").click();
     cy.wait(1000);
     // Close the diagram
     cy.xpath(
-      "//div[@aria-label='service.bal Diagram']/div[@class='tab-actions']//a[@role='button']"
+      "//div[@aria-label='main.bal Diagram']/div[@class='tab-actions']//a[@role='button']"
     ).click();
     //Close welcome tab
-    cy.xpath(
-      "//div[@title='Welcome']/div[@class='tab-actions']//a[@role='button']"
-    ).click();
+    // cy.xpath(
+    //   "//div[@title='Welcome']/div[@class='tab-actions']//a[@role='button']"
+    // ).click();
     // Verify code rendering
     cy.get(".view-lines", {
       timeout: 60000,
-    }).contains("service /hello on new http:Listener(9090)");
-  });
-
-  it("Run the Service and invoke api ", () => {
-    cy.get("a[title='Run']").click();
-    cy.wait(38000);
-    cy.request({
-      method: "GET",
-      url: testEndpoint + "hello/sayHello?name=Test user",
-      headers: {
-        accept: "text/plain",
-      },
-    }).then((resp) => {
-      expect(resp.status).to.eq(200);
-      expect(resp.body).to.eq("Hello, Test user");
-    });
+    }).contains("public function main() {");
   });
 
   it("Verify issues are displayed in the status bar when code contains errors", () => {
+    cy.get("body").should("not.contain", "error");
     // Check no issues are displayed in status bar
     cy.get("a[aria-label='No Problems']").should("be.visible");
     cy.get(
