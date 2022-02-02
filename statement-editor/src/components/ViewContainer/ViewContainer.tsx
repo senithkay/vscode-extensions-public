@@ -85,7 +85,7 @@ export function ViewContainer(props: ViewProps) {
     }
 
     useEffect(() => {
-        if (!(config.type === "Custom" && !initialSource)) {
+        if (!(config.type === "Custom") || initialSource) {
             (async () => {
                 const partialST = await getPartialSTForStatement(
                     { codeSnippet: initialSource.trim() }, getLangClient);
