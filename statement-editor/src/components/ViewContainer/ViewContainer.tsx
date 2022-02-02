@@ -31,6 +31,7 @@ import { VariableUserInputs } from '../../models/definitions';
 import { StatementEditorContextProvider } from "../../store/statement-editor-context";
 import { getCurrentModel, getModifications } from "../../utils";
 import { getPartialSTForStatement, sendDidChange } from "../../utils/ls-utils";
+import { createImportStatement } from "../../utils/statement-modifications";
 import { LeftPane } from '../LeftPane';
 import { useStatementEditorStyles } from "../styles";
 
@@ -154,6 +155,11 @@ export function ViewContainer(props: ViewProps) {
         setCurrentModel({model: newCurrentModel});
     }
 
+    const addModuleImport = (org: string, module: string) => {
+        const addImportStatement: STModification = createImportStatement(org, module);
+        applyModifications([addImportStatement]);
+    };
+
     const currentModelHandler = (cModel: STNode) => {
         setCurrentModel({
             model: cModel
@@ -199,6 +205,7 @@ export function ViewContainer(props: ViewProps) {
                         model={model}
                         currentModel={currentModel}
                         updateModel={updateModel}
+                        addModuleImport={addModuleImport}
                         formArgs={formArgs}
                         validateStatement={validateStatement}
                         applyModifications={applyModifications}

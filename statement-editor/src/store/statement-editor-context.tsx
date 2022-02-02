@@ -24,7 +24,8 @@ export const StatementEditorContext = React.createContext({
     modelCtx: {
         statementModel: null,
         currentModel: null,
-        updateModel: (codeSnippet: string, position: NodePosition) => {}
+        updateModel: (codeSnippet: string, position: NodePosition) => {},
+        addModuleImport: (org: string, module: string) => {}
     },
     formCtx: {
         formModelPosition: null
@@ -49,6 +50,7 @@ interface CtxProviderProps extends LowCodeEditorProps {
     model: STNode,
     currentModel: { model: STNode },
     updateModel?: (codeSnippet: string, position: NodePosition) => void,
+    addModuleImport?: (org: string, module: string) => void,
     formArgs?: any,
     validateStatement: (isValid: boolean) => void
 }
@@ -59,6 +61,7 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
         model,
         currentModel,
         updateModel,
+        addModuleImport,
         formArgs,
         validateStatement,
         getLibrariesList,
@@ -73,7 +76,8 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
                 modelCtx: {
                     statementModel: model,
                     currentModel,
-                    updateModel
+                    updateModel,
+                    addModuleImport
                 },
                 formCtx: {
                     formModelPosition: formArgs.formArgs.targetPosition
