@@ -35,14 +35,10 @@ export interface TypeDefComponentProps {
 
 export function TypeDefinitionComponent(props: TypeDefComponentProps) {
     const { model } = props;
-    const {
-        api: {
-            code: { modifyDiagram, gotoSource },
-        },
-        props: {
-            isReadOnly
-        }
-    } = useContext(Context);
+    const diagramContext = useContext(Context);
+    const { isReadOnly } = diagramContext.props;
+    const gotoSource = diagramContext?.api?.code?.gotoSource;
+    const modifyDiagram = diagramContext?.api?.code?.modifyDiagram;
 
     const [isEditable, setIsEditable] = useState(false);
     const [isExpanded, setIsExpanded] = useState(false);
