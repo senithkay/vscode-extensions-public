@@ -56,7 +56,7 @@ describe("Code server smoke test", () => {
     });
     //Verify main.bal diagram tab
     cy.get("div[title='main.bal Diagram']").contains("main.bal Diagram");
-    cy.wait(8000);
+    cy.wait(10000);
     cy.screenshot();
     //Take a snapshot of the diagram and compare with reference snapshot at /snapshots/code-server-smoke.ts/
     cy.matchImageSnapshot("Low-code-diagram");
