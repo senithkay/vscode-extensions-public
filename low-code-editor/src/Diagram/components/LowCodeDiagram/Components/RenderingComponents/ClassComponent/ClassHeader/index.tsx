@@ -30,15 +30,10 @@ interface ClassHeaderProps {
 
 export function ClassHeader(props: ClassHeaderProps) {
     const { model, onExpandClick } = props;
-    const {
-        api: {
-            code: { gotoSource },
-            edit: { deleteComponent }
-        },
-        props: {
-            isReadOnly
-        }
-    } = useContext(Context);
+    const diagramContext = useContext(Context);
+    const { isReadOnly } = diagramContext.props;
+    const deleteComponent = diagramContext?.api?.edit?.deleteComponent;
+    const gotoSource = diagramContext?.api?.code?.gotoSource;
     const [editingEnabled, setEditingEnabled] = useState(false);
 
     const handleDeleteBtnClick = () => {
