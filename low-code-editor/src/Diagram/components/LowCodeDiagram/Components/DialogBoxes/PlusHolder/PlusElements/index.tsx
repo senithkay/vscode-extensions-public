@@ -58,15 +58,9 @@ export const EXISTING_PLUS_HOLDER_API_HEIGHT_COLLAPSED = 660;
 export function PlusElements(props: PlusElementsProps) {
     const { position, onClose, onChange, initPlus, viewState, isResource, isCallerAvailable } = props;
     const {
-        props: { isCodeEditorActive, stSymbolInfo }
+        props: { isCodeEditorActive }
     } = useContext(Context);
     const { overlayId, overlayNode } = useFunctionContext();
-
-    // const [isAPICallsExisting] = useState(stSymbolInfo.endpoints && Array.from(stSymbolInfo.endpoints).length > 0);
-
-    if (stSymbolInfo.localEndpoints && Array.from(stSymbolInfo.localEndpoints).length > 0) {
-        viewState.isAPICallsExisting = true;
-    }
 
     const onStatementTypeSelect = (processType: string) => {
         switch (processType) {

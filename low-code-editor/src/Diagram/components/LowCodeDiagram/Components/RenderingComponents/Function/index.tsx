@@ -22,12 +22,12 @@ import classNames from "classnames";
 import { v4 as uuid } from "uuid";
 
 import { Provider as FunctionProvider } from "../../../../../../Contexts/Function";
-import { useOverlayRef, useSelectedStatus } from "../../../../../hooks";
 import { useStyles } from "../../../../../styles";
 import expandTracker from "../../../../../utils/expand-tracker";
 import DefaultButtonSquare from "../../../../Buttons/DefaultButtonSquare";
 import { Canvas } from "../../../Canvas";
 import { Context } from "../../../Context/diagram";
+import { useOverlayRef, useSelectedStatus } from "../../../hooks";
 import { BlockViewState, FunctionViewState } from "../../../ViewState";
 import { End } from "../End";
 import { StartButton } from "../Start";
@@ -50,16 +50,10 @@ export interface FunctionProps {
 
 export function Function(props: FunctionProps) {
     const classes = useStyles();
-    const { state } = useContext(Context);
     const [overlayId] = useState(`function-overlay-${uuid()}`);
-    const {
-        props: { isWaitingOnWorkspace, isReadOnly, isCodeEditorActive },
-        api: {
-            project: {
-                run
-            }
-        }
-    } = useContext(Context);
+    const diagramContext = useContext(Context);
+    const { isWaitingOnWorkspace, isReadOnly, isCodeEditorActive } = diagramContext.props;
+    const run = diagramContext?.api?.project?.run;
 
     const { model } = props;
 
@@ -137,16 +131,18 @@ export function Function(props: FunctionProps) {
     );
 
     const onClickRun = async () => {
-        run([]);
+        if (run) {
+            run([]);
+        }
     }
 
     function renderButtons() {
         if (model.isRunnable) {
             return (
-                    <div className={"action-container"}>
-                        <DefaultButtonSquare onClick={onClickRun} variant="outlined" size="small" >Run</DefaultButtonSquare>
-                   </div>
-             )
+                <div className={"action-container"}>
+                    <DefaultButtonSquare onClick={onClickRun} variant="outlined" size="small" >Run</DefaultButtonSquare>
+                </div>
+            )
         }
     }
 

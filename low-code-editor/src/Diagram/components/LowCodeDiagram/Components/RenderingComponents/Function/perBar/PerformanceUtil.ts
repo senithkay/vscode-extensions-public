@@ -1,6 +1,5 @@
+import { ANALYZE_TYPE, PerformanceData } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FunctionDefinition } from "@wso2-enterprise/syntax-tree";
-
-import { ANALYZE_TYPE, PerformanceData } from "../../../../../../../DiagramGenerator/performanceUtil";
 
 export function generatePerfData(model: FunctionDefinition, performanceData: Map<string, PerformanceData>) {
     let concurrency: string;
