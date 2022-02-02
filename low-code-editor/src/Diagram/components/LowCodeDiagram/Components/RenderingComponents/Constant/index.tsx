@@ -38,11 +38,9 @@ export interface ConstantProps {
 
 export function Constant(props: ConstantProps) {
     const { model } = props;
-    const {
-        api: {
-            code: { modifyDiagram, gotoSource },
-        },
-    } = useDiagramContext();
+    const diagramContext = useDiagramContext();
+    const modifyDiagram = diagramContext?.api?.code?.modifyDiagram;
+    const gotoSource = diagramContext?.api?.code?.gotoSource;
 
     const [deleteBtnEnabled, setDeleteBtnEnabled] = useState(false);
     const [editBtnEnabled, setEditBtnEnabled] = useState(false);
