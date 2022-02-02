@@ -53,11 +53,11 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
 
     // Insight event to send when loading the component
     useEffect(() => {
-        const event: LowcodeEvent = {
-            type: ADD_VARIABLE,
-            name: `${state.varType} ${state.varName} = ${state.varValue};`
-        };
-        onEvent(event);
+        // const event: LowcodeEvent = {
+        //     type: ADD_VARIABLE,
+        //     name: `${state.varType} ${state.varName} = ${state.varValue};`
+        // };
+        // onEvent(event);
       }, []);
 
     if (state.varOptions.indexOf(VariableOptions.PUBLIC) === -1) {
@@ -73,11 +73,11 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
         }
         modifyDiagram(modifications);
         onSave();
-        const event: LowcodeEvent = {
-            type: SAVE_VARIABLE,
-            name: `${state.varType} ${state.varName} = ${state.varValue};`
-        };
-        onEvent(event);
+        // const event: LowcodeEvent = {
+        //     type: SAVE_VARIABLE,
+        //     name: `${state.varType} ${state.varName} = ${state.varValue};`
+        // };
+        // onEvent(event);
     }
 
     const onAccessModifierChange = (modifierList: string[]) => {

@@ -12,7 +12,7 @@ import LowCodeEditor, { BlockViewState, getSymbolInfo, InsertorDelete } from "..
 import "../assets/fonts/Glimer/glimer.css";
 import { ConditionConfig } from "../Diagram/components/FormComponents/Types";
 import { UndoRedoManager } from "../Diagram/components/FormComponents/UndoRedoManager";
-import { LowcodeEvent } from "../Diagram/models";
+import { DIAGRAM_MODIFIED, LowcodeEvent } from "../Diagram/models";
 import messages from '../lang/en.json';
 import { CirclePreloader } from "../PreLoader/CirclePreloader";
 import { MESSAGE_TYPE } from "../types";
@@ -288,7 +288,13 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                             // TODO show error
                                         }
                                         setMutationInProgress(false);
-
+                                        if (mutations.length > 0) {
+                                            const event: LowcodeEvent = {
+                                                type: DIAGRAM_MODIFIED,
+                                                name: `${mutations[0].type}`
+                                            };
+                                            props.sendTelemetryEvent(event);
+                                        }
                                         await addPerfData(vistedSyntaxTree);
                                     },
                                     onMutate: (type: string, options: any) => undefined,
