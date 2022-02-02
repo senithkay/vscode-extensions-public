@@ -14,18 +14,18 @@ import { Theme, withStyles } from '@material-ui/core/styles';
 import Switch from '@material-ui/core/Switch';
 
 const PrimarySwitchToggle = withStyles((theme: Theme) => ({
-  switchBase: { 
+  switchBase: {
     color: theme.palette.primary.main,
-    '&$checked': { 
+    '&$checked': {
       color: theme.palette.primary.dark,
       '& + $track': {
         opacity: 0.8,
         color: theme.palette.primary.dark,
-        backgroundColor: theme.palette.primary.main, 
+        backgroundColor: theme.palette.primary.main,
       },
     },
   },
-  track: { 
+  track: {
     opacity: 1,
     backgroundColor: theme.palette.grey[300],
   },
