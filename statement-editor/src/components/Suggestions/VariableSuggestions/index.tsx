@@ -36,13 +36,15 @@ export function VariableSuggestions(props: VariableSuggestionsProps) {
             updateModel,
         }
     } = useContext(StatementEditorContext);
+    const resourceAccessRegex = /.+\./gm;
 
     const onClickVariableSuggestion = (suggestion: SuggestionItem) => {
         let variable = suggestion.value;
-        if (inputEditorCtx.userInput.endsWith('.')) {
-            variable = inputEditorCtx.userInput + suggestion.value;
+        if (inputEditorCtx.userInput.includes('.')) {
+            variable = resourceAccessRegex.exec(inputEditorCtx.userInput) + suggestion.value;
         }
         updateModel(variable, model.position);
+        inputEditorCtx.onInputChange('');
         suggestionHandler();
     }
 
