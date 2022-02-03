@@ -22,7 +22,6 @@ import { CaptureBindingPattern, FunctionDefinition, LocalVarDecl, NodePosition, 
 
 import { DocIcon } from "../../../../../assets";
 import { Context } from "../../../../../Contexts/Diagram";
-import { useFunctionContext } from "../../../../../Contexts/Function";
 import {
     createImportStatement,
     createPropertyStatement,
@@ -48,6 +47,7 @@ interface WizardProps {
     model?: STNode,
     selectedConnector?: LocalVarDecl;
     isAction?: boolean;
+    functionNode?: STNode;
 }
 
 enum InitFormState {
@@ -61,7 +61,7 @@ export function HTTPWizard(props: WizardProps) {
     const classes = useStyles();
     const wizardClasses = wizardStyles();
     const { functionDefinitions, connectorConfig, connector, onSave, onClose, isNewConnectorInitWizard, targetPosition,
-            model, selectedConnector, isAction } = props;
+            model, selectedConnector, isAction, functionNode } = props;
     const {
         api: {
             insights: {
@@ -75,7 +75,6 @@ export function HTTPWizard(props: WizardProps) {
             stSymbolInfo
         }
     } = useContext(Context);
-    const { functionNode } = useFunctionContext();
 
     const connectorInitFormFields: FormField[] = functionDefinitions.get("init")?.parameters;
     const enableConnectorInitalizePage = !isAction;

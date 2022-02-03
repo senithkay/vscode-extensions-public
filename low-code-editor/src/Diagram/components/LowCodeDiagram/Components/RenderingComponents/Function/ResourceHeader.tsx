@@ -40,7 +40,7 @@ export function ResourceHeader(props: ResourceHeaderProps) {
     const diagramContext = useContext(Context);
     const gotoSource = diagramContext?.api?.code?.gotoSource;
     const deleteComponent = diagramContext?.api?.edit?.deleteComponent;
-    const { isCodeEditorActive, isWaitingOnWorkspace, isReadOnly } = diagramContext.props;
+    const { isReadOnly } = diagramContext.props;
 
     const onDeleteClick = () => {
         if (deleteComponent) {
@@ -54,8 +54,7 @@ export function ResourceHeader(props: ResourceHeaderProps) {
             gotoSource({ startLine: position.startLine, startColumn: position.startColumn });
         }
     }
-    const openInCodeView = !isReadOnly && !isCodeEditorActive &&
-        !isWaitingOnWorkspace && model && model.position && onClickOpenInCodeView
+    const openInCodeView = !isReadOnly && model && model.position && onClickOpenInCodeView;
 
     const errorIcon = diagnosticMsgs?.severity === "ERROR" ? <ErrorIcon /> : <WarningIcon />;
 

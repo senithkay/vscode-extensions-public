@@ -39,7 +39,7 @@ export function useSelectedStatus(node: STNode, containerRef?: React.MutableRefO
         if (!expandTracker.isExpanded(getNodeSignature(node))) {
             setIsExpanded(isSelected);
         }
-    }, [isSelected])
+    }, [isSelected]);
 
     React.useEffect(() => {
         if (isExpanded) {

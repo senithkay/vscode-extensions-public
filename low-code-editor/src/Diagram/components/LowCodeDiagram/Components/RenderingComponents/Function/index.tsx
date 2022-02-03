@@ -21,10 +21,11 @@ import {
 import classNames from "classnames";
 import { v4 as uuid } from "uuid";
 
-import { Provider as FunctionProvider } from "../../../../../../Contexts/Function";
 import { useStyles } from "../../../../../styles";
+import DefaultButtonSquare from "../../../../Buttons/DefaultButtonSquare";
 import { Canvas } from "../../../Canvas";
 import { Context } from "../../../Context/diagram";
+import { Provider as FunctionProvider } from "../../../Context/Function";
 import { useOverlayRef, useSelectedStatus } from "../../../hooks";
 import { BlockViewState, FunctionViewState } from "../../../ViewState";
 import { End } from "../End";
@@ -50,7 +51,7 @@ export function Function(props: FunctionProps) {
     const classes = useStyles();
     const [overlayId] = useState(`function-overlay-${uuid()}`);
     const diagramContext = useContext(Context);
-    const { isWaitingOnWorkspace, isReadOnly, isCodeEditorActive } = diagramContext.props;
+    const { isReadOnly } = diagramContext.props;
     const run = diagramContext?.api?.project?.run;
 
     const { model } = props;
@@ -93,8 +94,6 @@ export function Function(props: FunctionProps) {
                 <>
                     {!isReadOnly &&
                         isInitPlusAvailable &&
-                        !isCodeEditorActive &&
-                        !isWaitingOnWorkspace &&
                         !viewState.initPlus.isTriggerDropdown && (
                             <WorkerLine viewState={viewState} />
                         )}

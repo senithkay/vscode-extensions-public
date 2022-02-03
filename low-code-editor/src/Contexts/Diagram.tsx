@@ -27,11 +27,6 @@ const reducer = (state: LowCodeEditorState, action: any) => {
                 ...state,
                 syntaxTree: sizingAndPositioning(action.payload),
             }
-        // case 'SET_TRIGGER_UPDATED':
-        //     return {
-        //         ...state,
-        //         triggerUpdated: action.payload,
-        //     }
         case 'DIAGRAM_REDRAW':
             return {
                 ...state,
@@ -58,10 +53,21 @@ const reducer = (state: LowCodeEditorState, action: any) => {
                 ...state,
                 dataMapperConfig: action.payload
             }
+        case 'UPDATE_CURRENT_FUNCTION_NODE':
+            return {
+                ...state,
+                currentFunctionNode: action.payload
+            }
         default:
             return state;
     }
 };
+
+const updateCurrentFunctionNode = (dispatch: any) => {
+    return (payload: any) => {
+        dispatch({ type: 'UPDATE_CURRENT_FUNCTION_NODE', payload });
+    };
+}
 
 const updateState = (dispatch: any) => {
     return (payload: any) => {
@@ -105,17 +111,12 @@ const toggleDiagramOverlay = (dispatch: any) => {
     }
 }
 
-// const setTriggerUpdated = (dispatch: any) => {
-//     return (isUpdated: boolean) => {
-//         dispatch({ type: 'SET_TRIGGER_UPDATED', payload: isUpdated })
-//     }
-// }
-
 const updateDataMapperConfig = (dispatch: any) => {
     return (dataMapperConfig: DataMapperConfig) => {
         dispatch({ type: 'UPDATE_DATAMAPPER_CONFIG', payload: dataMapperConfig })
     }
 }
+
 const defaultState: any = {};
 
 export const Context = React.createContext<LowCodeEditorContext>(defaultState); // FIXME: Add proper deafault state
@@ -133,7 +134,7 @@ export const Provider: React.FC<LowCodeEditorProps> = (props) => {
         dataMapperStart: dataMapperStart(dispatch),
         toggleDiagramOverlay: toggleDiagramOverlay(dispatch),
         updateDataMapperConfig: updateDataMapperConfig(dispatch),
-        // setTriggerUpdated: setTriggerUpdated(dispatch)
+        updateCurrentFunctionNode: updateCurrentFunctionNode(dispatch)
     };
 
     return (

@@ -18,18 +18,13 @@ export interface LowCodeDiagramProperties {
     error?: Error;
     selectedPosition?: SelectedPosition;
     stSymbolInfo?: STSymbolInfo;
-    isCodeEditorActive?: boolean;
-    isWaitingOnWorkspace?: boolean;
-    isMutationProgress?: boolean;
     performanceData?: Map<string, PerformanceData>;
-    // isDiagramLoading?: boolean;
 }
 
 export interface LowCodeDiagramState {
     triggerUpdated: boolean; // FIXME Moving existing prop manipulated in memory into state
     isDataMapperShown: boolean;
     isConfigOverlayFormOpen: boolean;
-    // dataMapperConfig: DataMapperConfig;
     targetPosition: NodePosition; // FIXME check and remove usage of update position if not used anymore
 }
 
@@ -39,10 +34,6 @@ export interface LowCodeDiagramActions {
     diagramRedraw: (payload: STNode) => void;
     insertComponentStart: (payload: NodePosition) => void;
     editorComponentStart: (payload: STNode) => void;
-    // dataMapperStart: (dataMapperConfig: DataMapperConfig) => void;
-    // toggleDiagramOverlay: () => void;
-    // updateDataMapperConfig: (dataMapperConfig: DataMapperConfig) => void;
-    // setTriggerUpdated: (isUpdated: boolean) => void;
 }
 
 export interface LowCodeDiagramAPI {
@@ -65,9 +56,6 @@ export interface LowCodeDiagramAPI {
     };
 
     configPanel?: {
-        // dispactchConfigOverlayForm: (type: string, targetPosition: NodePosition,
-        //                              wizardType: WizardType, blockViewState?: BlockViewState, config?: ConditionConfig,
-        //                              symbolInfo?: STSymbolInfo, model?: STNode) => void;
         closeConfigOverlayForm: () => void;
         configOverlayFormPrepareStart: () => void;
         closeConfigPanel: () => void;

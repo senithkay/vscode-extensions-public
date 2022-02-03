@@ -75,6 +75,7 @@ export { updatePerformanceLabels } from "./DiagramGenerator/performanceUtil";
 
 const LowCodeEditor: React.FC<Props> = (props: Props) => {
 
+    // TODO: Remove these as these are no longer in use
     const modifyTrigger = (
         triggerType: TriggerType,
         model?: any,
@@ -83,6 +84,7 @@ const LowCodeEditor: React.FC<Props> = (props: Props) => {
         props.api.code.onMutate("TRIGGER", { triggerType, model, configObject });
     };
 
+    // TODO: Remove these as these are no longer in use
     const modifyDiagram = (mutations: STModification[], options: any = {}) => {
         props.api.code.onMutate("DIAGRAM", { mutations, ...options });
     };
