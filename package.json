@@ -536,6 +536,7 @@
         "kill-port-process": "2.3.0",
         "mocha": "^9.0.0",
         "pako": "^2.0.4",
+        "pkce-challenge": "2.2.0",
         "remap-istanbul": "^0.13.0",
         "rimraf": "^3.0.2",
         "tcp-port-used": "^1.0.2",
