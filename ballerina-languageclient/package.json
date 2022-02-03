@@ -4,6 +4,9 @@
   "description": "Ballerina Language Server Client",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
+  "bin": {
+    "start-ws-lang-server": "command/index.js"
+  },
   "scripts": {
     "prebuild": "npm run clean && npm run lint",
     "clean": "rimraf lib && rimraf coverage && rimraf build",
@@ -22,6 +25,8 @@
     "@types/jest": "^27.0.2",
     "@types/node": "^16.11.1",
     "@types/ws": "^8.2.1",
+    "cors": "^2.8.5",
+    "express": "^4.17.2",
     "jest": "^27.2.5",
     "prettier": "^2.4.1",
     "ts-jest": "^27.0.7",
@@ -31,8 +36,10 @@
   },
   "dependencies": {
     "@types/vscode": "^1.61.0",
+    "@wso2-enterprise/syntax-tree": "^1.0.0",
     "isomorphic-ws": "^4.0.1",
     "prepend-transform": "^0.0.1019",
+    "react-monaco-editor": "0.43.0",
     "vscode-jsonrpc": "^6.0.0",
     "vscode-languageclient": "^6.1.4",
     "vscode-languageserver-protocol": "^3.16.0",
@@ -44,5 +51,12 @@
   "license": "UNLICENSED",
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wso2-enterprise/ballerina-low-code-editor.git"
+  },
+  "engines": {
+    "node": ">=0.10.3 <15"
   }
 }

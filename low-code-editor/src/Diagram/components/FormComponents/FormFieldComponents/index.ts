@@ -10,11 +10,11 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-
 import { Enum } from "./Enum";
 import { ExpressionEditorArray } from "./ExpressionEditorArray";
 import { ExpressionEditorMap } from "./ExpressionEditorMap";
-import { FormJson } from "./Json/FormJson"
+import { Inclusion } from "./Inclusion";
+import { FormJson } from "./Json/FormJson";
 import { LowCodeExpressionEditor } from "./LowCodeExpressionEditor";
 import { Record } from "./Record";
 import { RestParam } from "./RestParam";
@@ -33,6 +33,7 @@ export { LowCodeExpressionEditor as httpRequest };
 export { Union as union };
 export { Enum as enum };
 export { Record as record };
+export { Inclusion as inclusion };
 export { FormJson as json };
 export { XML as xml };
 export { RestParam as restParam };

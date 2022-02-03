@@ -1,0 +1,26 @@
+{
+  
+  "compilerOptions": {
+    "allowJs": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "noImplicitAny": false,
+    "resolveJsonModule": true,
+    "suppressImplicitAnyIndexErrors": true,
+    "declaration": true,
+    "lib": [
+      "es5",
+      "dom"
+    ],
+    "target": "es5",
+    "types": [
+      "cypress",
+      "node",
+      "@testing-library/cypress"
+    ],
+  },
+  "include": [
+    "**/*.ts"
+  ]
+}
