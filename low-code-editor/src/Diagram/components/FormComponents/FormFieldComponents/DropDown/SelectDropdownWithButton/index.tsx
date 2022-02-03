@@ -74,7 +74,7 @@ export function SelectDropdownWithButton(props: FormElementProps<SelectDropdownP
     const EmptyChevronIcon = () => <span/>;
 
     return (
-        <>
+        <div data-testid="select-drop-down" data-field-name={label}>
             {label ?
                 (customProps && optional ?
                     (
@@ -165,6 +165,6 @@ export function SelectDropdownWithButton(props: FormElementProps<SelectDropdownP
                     )
                 }
             </Select>
-        </>
+        </div>
     );
 }

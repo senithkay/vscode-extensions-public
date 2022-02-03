@@ -27,6 +27,7 @@ import { CaptureBindingPattern, ModuleVarDecl, NodePosition } from '@wso2-enterp
 import { v4 as uuid } from "uuid";
 
 import { Context, useDiagramContext } from '../../../../../Contexts/Diagram';
+import { ADD_CONFIGURABLE, LowcodeEvent } from '../../../../models';
 import { createConfigurableDecl, updateConfigurableVarDecl } from '../../../../utils/modification-util';
 import { useStyles as useFormStyles } from "../../DynamicConnectorForm/style";
 import CheckBoxGroup from '../../FormFieldComponents/CheckBox';
@@ -53,7 +54,7 @@ interface ConfigurableFormProps {
 
 export function ConfigurableForm(props: ConfigurableFormProps) {
     const formClasses = useFormStyles();
-    const { api: { code: { modifyDiagram } }, props: { stSymbolInfo } } = useDiagramContext();
+    const { api: { code: { modifyDiagram }, insights: { onEvent } }, props: { stSymbolInfo } } = useDiagramContext();
     const { onSave, onCancel, targetPosition, model, configOverlayFormStatus, formType, isLastMember } = props;
     const [state, dispatch] = useReducer(moduleVarFormReducer, getFormConfigFromModel(model, stSymbolInfo));
 
@@ -95,6 +96,11 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
             }
             modifyDiagram(modifications);
             onSave();
+            // const event: LowcodeEvent = {
+            //     type: ADD_CONFIGURABLE,
+            //     name: state.varName
+            // };
+            // onEvent(event);
         }
     }
 

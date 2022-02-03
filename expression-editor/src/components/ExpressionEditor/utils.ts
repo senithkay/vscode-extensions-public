@@ -767,7 +767,10 @@ export const getStandardExpCompletions = async ({
         !(completionResponse.kind && rejectedKinds.includes(completionResponse.kind as VSCodeCompletionItemKind)) &&
         completionResponse.label !== varName
     ));
+
+    const sortText: string[] = [];
     const lsCompletionItems: monaco.languages.CompletionItem[] = filteredCompletionItem.map((completionResponse: CompletionResponse, order: number) => {
+        sortText.push(completionResponse.sortText);
         if (completionResponse.kind === VSCodeCompletionItemKind.Field && completionResponse.additionalTextEdits) {
             return {
                 range: null,
@@ -811,6 +814,25 @@ export const getStandardExpCompletions = async ({
             }
         }
     });
+
+    // This is to sets fist completion selected
+    const initialSortedText = sortText.sort()[0];
+    const initialSortTextCompletions: monaco.languages.CompletionItem[] = [];
+    lsCompletionItems.forEach(completion => {
+        if (completion.sortText === initialSortedText) {
+            initialSortTextCompletions.push(completion);
+        }
+    });
+    const sortedItems: string[] = [];
+    initialSortTextCompletions.forEach(completion => {
+        sortedItems.push(completion.label as string);
+    });
+    const sortedText = sortedItems.sort()[0];
+    const initialItemCompletionIndex = lsCompletionItems.findIndex(item => item.label === sortedText);
+    if (initialItemCompletionIndex !== -1) {
+        lsCompletionItems[initialItemCompletionIndex].preselect = true;
+    }
+
     completionItems.push(...lsCompletionItems);
 
 

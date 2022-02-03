@@ -13,14 +13,14 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useState } from "react";
 
-import { BallerinaModule } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { BallerinaConstruct } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 
 import { DefaultConnectorIcon, DefaultIconProps } from "../Icon/DefaultConnectorIcon";
 
 export interface ModuleIconProps {
     node?: STNode;
-    module?: BallerinaModule;
+    module?: BallerinaConstruct;
     cx?: number;
     cy?: number;
     width?: number;

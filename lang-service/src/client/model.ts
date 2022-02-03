@@ -262,7 +262,7 @@ export interface TypeInfo {
     version?:    string;
 }
 
-export interface BallerinaModulesRequest {
+export interface BallerinaConstructRequest {
     query: string;
     packageName?: string;
     organization?: string;
@@ -278,23 +278,23 @@ export interface BallerinaModulesRequest {
     sort?: string;
     targetFile?: string;
 }
-export interface BallerinaConnectorsRequest extends BallerinaModulesRequest {}
+export interface BallerinaConnectorsRequest extends BallerinaConstructRequest {}
 
-export interface BallerinaTriggersRequest extends BallerinaModulesRequest {}
+export interface BallerinaTriggersRequest extends BallerinaConstructRequest {}
 
-export interface BallerinaModuleResponse {
-    central: BallerinaModule[];
-    local?: BallerinaModule[];
+export interface BallerinaConstructResponse {
+    central: BallerinaConstruct[];
+    local?: BallerinaConstruct[];
     error?: string;
 }
 
-export interface BallerinaConnectorsResponse extends BallerinaModuleResponse {
+export interface BallerinaConnectorsResponse extends BallerinaConstructResponse {
     central: Connector[];
     local?: Connector[];
     error?: string;
 }
 
-export interface BallerinaTriggersResponse extends BallerinaModuleResponse {
+export interface BallerinaTriggersResponse extends BallerinaConstructResponse {
     central: Trigger[];
     error?: string;
 }
@@ -345,7 +345,7 @@ export interface Package {
     modules?: any[];
 }
 
-export interface BallerinaModule {
+export interface BallerinaConstruct {
     id?: string;
     name: string;
     displayName?: string;
@@ -355,13 +355,11 @@ export interface BallerinaModule {
     icon?: string;
 }
 
-export interface Connector extends BallerinaModule {}
+export interface Connector extends BallerinaConstruct {}
 
-export interface Trigger extends BallerinaModule {}
+export interface Trigger extends BallerinaConstruct {}
 
 export interface IBallerinaLangClient {
-
-    isInitialized: boolean;
 
     init: (params?: InitializeParams) => Thenable<InitializeResult>;
 

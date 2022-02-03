@@ -16,6 +16,7 @@
  * under the License.
  *
  */
+import { monaco } from "react-monaco-editor";
 
 import { DiagramEditorLangClientInterface, ExecutorPosition, LineRange } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FunctionDefinition, ServiceDeclaration, STNode, traversNode, Visitor } from "@wso2-enterprise/syntax-tree";
@@ -25,7 +26,7 @@ export async function addExecutorPositions(st: any, langClient: DiagramEditorLan
 
     await langClient.getExecutorPositions({
         documentIdentifier: {
-            uri: `file://${file}`
+            uri: monaco.Uri.file(file).toString()
         }
     }).then((response: any) => {
         if (response.executorPositions) {
