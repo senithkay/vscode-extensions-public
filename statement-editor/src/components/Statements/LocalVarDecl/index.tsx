@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
+// tslint:disable: jsx-no-multiline-js
 import React, { ReactNode, useContext } from "react";
 
 import { LocalVarDecl } from "@wso2-enterprise/syntax-tree";
@@ -51,13 +51,15 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
 
     let typedBindingComponent: ReactNode;
     if (model.typedBindingPattern.bindingPattern.source) {
-        typedBindingComponent = <ExpressionComponent
-            model={model.typedBindingPattern}
-            userInputs={userInputs}
-            isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
-            isTypeDescriptor={false}
-        />
+        typedBindingComponent = (
+            <ExpressionComponent
+                model={model.typedBindingPattern}
+                userInputs={userInputs}
+                isElseIfMember={isElseIfMember}
+                diagnosticHandler={diagnosticHandler}
+                isTypeDescriptor={false}
+            />
+        )
     } else {
         const inputEditorProps = {
             statementType: model?.kind,
