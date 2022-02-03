@@ -123,7 +123,7 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
     const { handleStmtEditorToggle, stmtEditorComponent } = useStatementEditor(
         {
             label: intl.formatMessage({ id: "lowcode.develop.configForms.customStatement.statementEditor.label" }),
-            initialSource: formArgs?.model ? formArgs.model?.source : (expression ? expression : "EXPRESSION"),
+            initialSource: formArgs?.model ? formArgs.model?.source : (expression ? expression : null),
             formArgs: { formArgs },
             validForm: isFormValid,
             config,

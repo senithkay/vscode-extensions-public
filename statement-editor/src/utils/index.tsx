@@ -116,7 +116,7 @@ export function getStatementTypeComponent(
     isElseIfMember: boolean,
     diagnosticHandler: (diagnostics: string) => void
 ): ReactNode {
-    let StatementTypeComponent = (statementTypeComponents as any)[model.kind];
+    let StatementTypeComponent = (statementTypeComponents as any)[model?.kind];
 
     if (!StatementTypeComponent) {
         StatementTypeComponent = (statementTypeComponents as any)[c.OTHER_STATEMENT];
