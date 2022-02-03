@@ -1,1 +1,3 @@
-listener http:Listener dfghkj = new (1234);
+import ballerina/http;
+
+listener http:Listener listenerName = new (1234);
