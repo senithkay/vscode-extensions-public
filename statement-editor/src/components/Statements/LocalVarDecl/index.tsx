@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js
+// tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
 import React, { ReactNode, useContext } from "react";
 
 import { LocalVarDecl } from "@wso2-enterprise/syntax-tree";
@@ -23,6 +23,7 @@ import { SuggestionsContext } from "../../../store/suggestions-context";
 import { getSuggestionsBasedOnExpressionKind, isPositionsEquals } from "../../../utils";
 import { addStatementToTargetLine, getContextBasedCompletions } from "../../../utils/ls-utils";
 import { ExpressionComponent } from "../../Expression";
+import { InputEditor } from "../../InputEditor";
 import { useStatementEditorStyles } from "../../styles";
 
 interface LocalVarDeclProps {
@@ -48,15 +49,26 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
     const targetPosition = stmtCtx.formCtx.formModelPosition;
     const fileURI = `expr://${currentFile.path}`;
 
-    const typedBindingComponent: ReactNode = (
-        <ExpressionComponent
+    let typedBindingComponent: ReactNode;
+    if (model.typedBindingPattern.bindingPattern.source) {
+        typedBindingComponent = <ExpressionComponent
             model={model.typedBindingPattern}
             userInputs={userInputs}
             isElseIfMember={isElseIfMember}
             diagnosticHandler={diagnosticHandler}
             isTypeDescriptor={false}
         />
-    );
+    } else {
+        const inputEditorProps = {
+            statementType: model?.kind,
+            model,
+            userInputs,
+            diagnosticHandler,
+            isTypeDescriptor: false
+        };
+
+        typedBindingComponent = <InputEditor {...inputEditorProps} />
+    }
 
     const expressionComponent: ReactNode = (
         <ExpressionComponent
