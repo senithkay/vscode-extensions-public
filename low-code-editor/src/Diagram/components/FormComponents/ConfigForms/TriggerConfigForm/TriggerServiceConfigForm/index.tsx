@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 Inc. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -14,7 +14,7 @@ import React, { useEffect, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import { FormControl, Typography } from "@material-ui/core";
-import { BallerinaTriggerRequest, BallerinaTriggerResponse, DiagramEditorLangClientInterface, FormHeaderSection, ServiceType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { BallerinaTriggerRequest, BallerinaTriggerResponse, DiagramEditorLangClientInterface, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { AddIcon } from "../../../../../../assets/icons";
 import DeleteButton from "../../../../../../assets/icons/DeleteButton";
@@ -32,25 +32,19 @@ export function TriggerForm(props: FormGeneratorProps) {
     const { formArgs, isLoading, isLastMember } = configOverlayFormStatus;
     const { id, moduleName, displayAnnotation: { label } } = formArgs;
     const formClasses = useFormStyles();
+    const intl = useIntl();
+
     const [selectedChannels, setSelectedChannels] = useState<string[]>([]);
     const [addNewChannel, setNewChannel] = useState(false);
     const [channelList, setChannelList] = useState<string[]>([]);
-    const [unSelectedChannels, setUnSelectedChannels] = useState<string[]>(channelList);
     const [isTriggersLoading, setIsTriggersLoading] = useState(isLoading)
     const [triggerInfo, setTriggerInfo] = useState<BallerinaTriggerResponse>();
-    const [selectedServiceTypes, setSelectedServiceTypes] = useState<ServiceType[]>([]);
     const [isDropDownOpen, setIsDropDownOpen] = useState(false);
-    const addnewChannelView = () => setNewChannel(true);
-    const intl = useIntl();
+    const unSelectedChannels = channelList === undefined ? [] : channelList.filter((channel) => !selectedChannels.includes(channel));
+
     useEffect(() => {
         handleFetchTrigger(id);
     }, []);
-
-    useEffect(() => {
-        if (channelList.length !== 0) {
-            setUnSelectedChannels(channelList.filter((elements) => !selectedChannels.includes(elements)));
-        }
-    }, [selectedChannels]);
 
     const {
         api: {
@@ -58,6 +52,8 @@ export function TriggerForm(props: FormGeneratorProps) {
             code: { modifyDiagram }
         }
     } = useDiagramContext()
+
+    const addnewChannelView = () => setNewChannel(true);
 
     const handleFetchTrigger = async (triggerId: string) => {
         const langClient: DiagramEditorLangClientInterface = await getDiagramEditorLangClient();
@@ -68,22 +64,19 @@ export function TriggerForm(props: FormGeneratorProps) {
         setTriggerInfo(triggerData);
         if (triggerData.serviceTypes) {
             setChannelList(triggerData.serviceTypes.map(channel => channel.name));
-            setUnSelectedChannels(triggerData.serviceTypes.map(channel => channel.name));
             setIsTriggersLoading(false);
         }
     }
 
     const handleOnChannelSelect = (event: object, value: string, reason: string) => {
         setSelectedChannels([...selectedChannels, value]);
-        const serviceType = triggerInfo.serviceTypes.filter(type => type.name === value);
-        setSelectedServiceTypes([...selectedServiceTypes, ...serviceType]);
         setNewChannel(false);
-        setIsDropDownOpen(false);
     }
-    // TODO: The function needs to be removed once the default value is
-    // added from the ballerina central trigger api
+
+    // TODO: The function needs to be removed once the default value is added from the ballerina central trigger api
     // This function will add the defaultValue property to the linstenerParams
     const handleListenerParamTypes = (triggerData: BallerinaTriggerResponse, triggerlabel: string) => {
+        // TODO: Need to perform the below logic after checking the 'listenerConfig' type
         const listenerParamFields = triggerData.listenerParams[0].fields;
         const paramField = listenerParamFields.map((params) => {
             if (params.typeName === "string") {
@@ -99,31 +92,33 @@ export function TriggerForm(props: FormGeneratorProps) {
         triggerData.listenerParams[0] = { ...triggerData.listenerParams[0], fields: paramField }
         return triggerData.listenerParams;
     }
+
     const createTriggerCode = () => {
         let httpBased: boolean = true;
-        const triggerStr = triggerInfo.moduleName.split(".");
-        const triggerType = triggerStr[triggerStr.length - 1];
-        if (triggerType === 'sfdc' || triggerType === 'asb' || triggerType === 'salesforce') {
+        const triggerId = triggerInfo.moduleName.split(".");
+        const triggerAlias = triggerId[triggerId.length - 1];
+        const serviceTypes = triggerInfo.serviceTypes.filter((sTypes) => selectedChannels.includes(sTypes.name))
+        // TODO: This is a temporary fix till the central API supports the httpBased parameter
+        if (triggerAlias === 'asb' || triggerAlias === 'salesforce') {
             httpBased = false;
         }
-        const newListenerParams = handleListenerParamTypes(triggerInfo, triggerType)
+        const newListenerParams = handleListenerParamTypes(triggerInfo, triggerAlias)
         const newTriggerInfo = {
             ...triggerInfo,
-            serviceTypes: selectedServiceTypes,
-            triggerType, httpBased,
+            serviceTypes,
+            triggerType: triggerAlias,
+            httpBased,
             listenerParams: newListenerParams
         };
-        const httpStModification = [
-            createImportStatement("ballerina", "http", targetPosition),
+        // This is for initial imports only. Initially stModification import for nonHttpBased triggers
+        const stModification = [
             createImportStatement("ballerinax", moduleName, targetPosition),
             createTrigger(newTriggerInfo, targetPosition, isLastMember)
         ];
-
-        const nonHttpStModification = [
-            createImportStatement("ballerinax", moduleName, targetPosition),
-            createTrigger(newTriggerInfo, targetPosition, isLastMember)
-        ];
-        modifyDiagram(httpBased ? httpStModification : nonHttpStModification);
+        if (httpBased) {
+            stModification.push(createImportStatement("ballerina", "http", targetPosition))
+        }
+        modifyDiagram(stModification);
         onSave();
     }
 
@@ -135,15 +130,15 @@ export function TriggerForm(props: FormGeneratorProps) {
         setIsDropDownOpen(!isDropDownOpen)
     }
 
-    const SelectedTriggerItem = (prop: any) => {
+    const selectedTriggerItem = (channelName: string, key: number) => {
         return (
-            <div className={formClasses.headerWrapper}>
+            <div className={formClasses.headerWrapper} key={key}>
                 <div className={formClasses.headerLabel}>
-                    {prop.channelName}
+                    {channelName}
                 </div>
                 <div>
                     <DeleteButton
-                        onClick={onDeleteChannel.bind(this, prop.channelName)}
+                        onClick={onDeleteChannel.bind(this, channelName)}
                     />
                 </div>
             </div>
@@ -156,22 +151,24 @@ export function TriggerForm(props: FormGeneratorProps) {
         </div>
     )
 
-    const operationDropdownPlaceholder = intl.formatMessage({
-        id: "lowcode.develop.triggerConfigForm.placeholder",
-        defaultMessage: "Select Channel"
-    });
-    const dropDownForm = (
-        isTriggersLoading ? preLoader : (
-            <div className={formClasses.triggerDropDownList}>
-                <FormAutocomplete
-                    itemList={unSelectedChannels}
-                    onChange={handleOnChannelSelect}
-                    placeholder={operationDropdownPlaceholder}
-                    handleDropDownOpen={handleDropDownOpen}
-                />
-            </div>
+    const dropDownForm = () => {
+        const operationDropdownPlaceholder = intl.formatMessage({
+            id: "lowcode.develop.triggerConfigForm.placeholder",
+            defaultMessage: "Select Channel"
+        });
+        return (
+            isTriggersLoading ? preLoader : (
+                <div className={formClasses.triggerDropDownList}>
+                    <FormAutocomplete
+                        itemList={unSelectedChannels}
+                        onChange={handleOnChannelSelect}
+                        placeholder={operationDropdownPlaceholder}
+                        handleDropDownOpen={handleDropDownOpen}
+                    />
+                </div>
+            )
         )
-    )
+    }
 
     const addNewChannelButton = (
         <span onClick={addnewChannelView} className={formClasses.addPropertyBtn}    >
@@ -179,14 +176,13 @@ export function TriggerForm(props: FormGeneratorProps) {
             <p><FormattedMessage id="lowcode.develop.triggerConfigForm.trigger.addChannel.title" defaultMessage="Add Channel" /></p>
         </span>
     );
-
     const formActionButtons = (
         (!isTriggersLoading && !isDropDownOpen) ? (
             <div className={formClasses.formActionButton}>
                 <FormActionButtons
                     cancelBtnText="Cancel"
                     saveBtnText={"Create"}
-                    isMutationInProgress={selectedChannels?.length === 0}
+                    isMutationInProgress={selectedChannels.length === 0}
                     validForm={true}
                     onSave={createTriggerCode}
                     onCancel={onCancel}
@@ -212,8 +208,8 @@ export function TriggerForm(props: FormGeneratorProps) {
                         </Typography>
                     </div>
                     <div>
-                        {selectedChannels?.map((channel, index) => (<SelectedTriggerItem key={index} channelName={channel} />))}
-                        {addNewChannel || selectedChannels?.length === 0 ? dropDownForm : (unSelectedChannels?.length !== 0 ? addNewChannelButton : (null))}
+                        {selectedChannels.map((channel, index) => (selectedTriggerItem(channel, index)))}
+                        {addNewChannel || selectedChannels.length === 0 ? dropDownForm() : ((selectedChannels.length !== channelList.length) ? addNewChannelButton : (null))}
                     </div>
                     {formActionButtons}
                 </div>

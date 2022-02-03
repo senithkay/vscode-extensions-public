@@ -22,11 +22,12 @@ import classNames from "classnames";
 import { Section } from "../../../../../../components/ConfigPanel";
 import { Context } from "../../../../../../Contexts/Diagram";
 import { LowcodeEvent, SAVE_CONNECTOR } from "../../../../../models";
-import { checkDBConnector, checkVariableName, getManualConnectionDetailsFromFormFields } from "../../../../Portals/utils";
+import { checkVariableName, getManualConnectionDetailsFromFormFields } from "../../../../Portals/utils";
 import { Form } from "../../../DynamicConnectorForm";
 import { useStyles } from "../../../DynamicConnectorForm/style";
 import { FormTextInput } from "../../../FormFieldComponents/TextField/FormTextInput";
 import { ExpressionInjectablesProps } from "../../../FormGenerator";
+import { checkDBConnector } from "../../../Utils";
 import { wizardStyles } from "../../style";
 
 interface CreateConnectorFormProps {
@@ -141,7 +142,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         connectorConfig.connectorInit = configForm;
         openConnectorHelp(connector);
         onSave();
-        sendAppInsight();
+        // sendAppInsight();
     };
 
     const createEndpointNameLabel = intl.formatMessage({
@@ -179,7 +180,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         connectorConfig.connectorInit = configForm;
         openConnectorHelp(connector);
         onSaveNext();
-        sendAppInsight();
+        // sendAppInsight();
     };
 
     const isEnabled = isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName;

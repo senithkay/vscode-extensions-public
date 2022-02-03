@@ -45,7 +45,6 @@ import { OperationDropdown } from '../OperationDropdown';
 
 
 export interface OperationFormProps {
-    operations: ConnectorOperation[];
     selectedOperation: string;
     showConnectionName: boolean;
     onSave: () => void;
@@ -62,7 +61,7 @@ export interface OperationFormProps {
 export function OperationForm(props: OperationFormProps) {
     const { props: { stSymbolInfo }, api: { webView: { showDocumentationView } } } = useContext(Context);
     const symbolInfo: STSymbolInfo = stSymbolInfo;
-    const { operations, selectedOperation, showConnectionName, onSave, connectionDetails, onConnectionChange,
+    const { selectedOperation, showConnectionName, onSave, connectionDetails, onConnectionChange,
             mutationInProgress, isNewConnectorInitWizard, functionDefInfo, expressionInjectables, targetPosition, connectorInfo } = props;
     const wizardClasses = wizardStyles();
     const classes = useStyles();
@@ -203,6 +202,14 @@ export function OperationForm(props: OperationFormProps) {
     }
     };
 
+    const operations: ConnectorOperation[] = [];
+    if (functionDefInfo) {
+        functionDefInfo.forEach((value, key) => {
+            if (key !== "init") {
+                operations.push({ name: key, label: value.name });
+            }
+        });
+    }
     const operationLabel = operations.find(operation => operation.name === selectedOperationState)?.label;
 
     const onValidateOutputType = (fieldName: string, isInvalid: boolean) => {

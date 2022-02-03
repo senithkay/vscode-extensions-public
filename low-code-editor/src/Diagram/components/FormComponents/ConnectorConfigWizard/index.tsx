@@ -16,7 +16,7 @@ import { useIntl } from "react-intl";
 
 import {
   BallerinaConnectorInfo,
-  BallerinaModule,
+  BallerinaConstruct,
   Connector,
   ConnectorConfig,
   FunctionDefinitionInfo,
@@ -25,6 +25,7 @@ import {
 import { LocalVarDecl, NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../Contexts/Diagram";
+import { CONNECTOR_CLOSED, LowcodeEvent } from "../../../models";
 import { DefaultConfig } from "../../../visitors/default";
 import {
   DiagramOverlayPosition,
@@ -81,6 +82,9 @@ export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
             },
             configPanel: {
                 closeConfigOverlayForm: dispatchOverlayClose,
+            },
+            insights: {
+                onEvent
             }
         }
     } = useContext(Context);
@@ -136,7 +140,7 @@ export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
                     const langClient = await getDiagramEditorLangClient();
                     const ballerinaConnectorInfo = await fetchConnectorsList(queryParams, currentFile.path,
                         langClient, userInfo);
-                    connector = ballerinaConnectorInfo.central.find((balModule: BallerinaModule) =>
+                    connector = ballerinaConnectorInfo.central.find((balModule: BallerinaConstruct) =>
                         (balModule.moduleName === specialConnectorName.toLocaleLowerCase() &&
                             balModule.name === "Client")) as BallerinaConnectorInfo;
                 }
@@ -146,8 +150,8 @@ export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
                     model,
                     stSymbolInfo,
                     langServerURL,
-                    getDiagramEditorLangClient,
-                    userInfo?.user?.email
+                    currentFile.path,
+                    getDiagramEditorLangClient
                 );
                 if (connectorInfoResponse) {
                     connectorInfoResponse.wizardType = isEdit ? WizardType.EXISTING : WizardType.NEW;
@@ -165,6 +169,11 @@ export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
         onClose();
         dispatchOverlayClose();
         toggleDiagramOverlay();
+        // const event: LowcodeEvent = {
+        //     type: CONNECTOR_CLOSED,
+        //     name: connectorInfo?.displayName
+        // };
+        // onEvent(event);
     };
 
     const handleSave = () => {

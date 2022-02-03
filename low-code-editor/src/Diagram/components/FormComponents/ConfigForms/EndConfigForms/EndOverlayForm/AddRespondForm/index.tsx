@@ -164,7 +164,7 @@ export function AddRespondForm(props: RespondFormProps) {
         respondFormConfig.genType,
         respondFormConfig.variable,
         respondFormConfig.caller,
-        resExp
+        resExp ? resExp : "EXPRESSION"
     ));
 
     const { handleStmtEditorToggle, stmtEditorComponent } = useStatementEditor(

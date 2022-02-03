@@ -131,11 +131,11 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
 
     // Insight event to send when loading the component
     useEffect(() => {
-        const event: LowcodeEvent = {
-            type: ADD_VARIABLE,
-            name: config.config
-        };
-        onEvent(event);
+        // const event: LowcodeEvent = {
+        //     type: ADD_VARIABLE,
+        //     name: config.config
+        // };
+        // onEvent(event);
     }, []);
 
     const handleSave = () => {
@@ -148,11 +148,11 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
             config.config = selectedType + " " + varName + ";";
             onSave();
         }
-        const event: LowcodeEvent = {
-            type: SAVE_VARIABLE,
-            name: config.config
-        };
-        onEvent(event);
+        // const event: LowcodeEvent = {
+        //     type: SAVE_VARIABLE,
+        //     name: config.config
+        // };
+        // onEvent(event);
     };
 
     const saveVariableButtonText = intl.formatMessage({

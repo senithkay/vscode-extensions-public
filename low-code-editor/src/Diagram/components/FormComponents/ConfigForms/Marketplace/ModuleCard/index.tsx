@@ -1,15 +1,15 @@
 import React from "react";
 
 import { Grid } from "@material-ui/core";
-import { BallerinaModule } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { BallerinaConstruct } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { ModuleIcon } from "../../../../LowCodeDiagram/Components/RenderingComponents/Connector/ConnectorHeader/ModuleIcon";
 
 import useStyles from "./style";
 
 export interface ModuleCardProps {
-    onSelectModule: (balModule: BallerinaModule) => void;
-    module: BallerinaModule;
+    onSelectModule: (balModule: BallerinaConstruct) => void;
+    module: BallerinaConstruct;
     columns?: number;
 }
 

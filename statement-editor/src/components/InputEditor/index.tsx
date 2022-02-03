@@ -30,6 +30,7 @@ import {
     StringLiteral
 } from "@wso2-enterprise/syntax-tree";
 import debounce from "lodash.debounce";
+import * as monaco from "monaco-editor";
 
 import * as c from "../../constants";
 import { SuggestionItem, VariableUserInputs } from "../../models/definitions";
@@ -44,11 +45,11 @@ import {
 import { useStatementEditorStyles } from "../styles";
 
 import {
-    acceptedCompletionKindForExpressions, acceptedCompletionKindForTypes
+    acceptedCompletionKindForExpressions, acceptedCompletionKindForTypes, EXPR_SCHEME, FILE_SCHEME
 } from "./constants";
 
 export interface InputEditorProps {
-    model: STNode;
+    model?: STNode;
     statementType: any;
     diagnosticHandler: (diagnostics: string) => void;
     userInputs: VariableUserInputs;
@@ -72,7 +73,7 @@ export function InputEditor(props: InputEditorProps) {
     const inputEditorCtx = useContext(InputEditorContext);
     const { expressionHandler } = useContext(SuggestionsContext);
     const { currentFile, getLangClient } = stmtCtx;
-    const fileURI = `expr://${currentFile.path}`;
+    const fileURI = monaco.Uri.file(currentFile.path).toString().replace(FILE_SCHEME, EXPR_SCHEME);
 
     const statementEditorClasses = useStatementEditorStyles();
 
@@ -80,7 +81,9 @@ export function InputEditor(props: InputEditorProps) {
     let value: any;
     let kind: any;
 
-    if (STKindChecker.isStringLiteral(model)) {
+    if (!model) {
+        value = "";
+    } else if (STKindChecker.isStringLiteral(model)) {
         literalModel = model as StringLiteral;
         kind = c.STRING_LITERAL;
         value = literalModel.literalToken.value;
@@ -123,7 +126,7 @@ export function InputEditor(props: InputEditorProps) {
     const varName = userInputs && userInputs.varName ? userInputs.varName : "temp_" + (textLabel).replace(/[^A-Z0-9]+/ig, "");
     const varType = userInputs ? userInputs.selectedType : 'string';
     const isCustomTemplate = false;
-    let currentContent = stmtCtx.modelCtx.statementModel.source;
+    let currentContent = stmtCtx.modelCtx.statementModel ? stmtCtx.modelCtx.statementModel.source : "";
 
     const placeHolders: string[] = ['EXPRESSION', 'TYPE_DESCRIPTOR'];
 
@@ -229,7 +232,8 @@ export function InputEditor(props: InputEditorProps) {
                 triggerKind: 1
             },
             position: {
-                character: (targetPosition.startColumn + (model.position.startColumn) + codeSnippet.length),
+                character: model ? (targetPosition.startColumn + (model.position.startColumn) + codeSnippet.length) :
+                    (targetPosition.startColumn + codeSnippet.length),
                 line: targetPosition.startLine
             }
         }
@@ -271,7 +275,7 @@ export function InputEditor(props: InputEditorProps) {
         if (event.key === "Enter" || event.key === "Tab" || event.key === "Escape") {
             setIsEditing(false);
             if (userInput !== "") {
-                stmtCtx.modelCtx.updateModel(userInput, model.position);
+                stmtCtx.modelCtx.updateModel(userInput, model ? model.position : targetPosition);
                 expressionHandler(model, false, false, { expressionSuggestions: [] });
 
                 const ignore = handleOnOutFocus();
@@ -281,7 +285,7 @@ export function InputEditor(props: InputEditorProps) {
     };
 
     function addExpressionToTargetPosition(currentStmt: string, targetLine: number, targetColumn: number, codeSnippet: string, endColumn?: number): string {
-        if (STKindChecker.isIfElseStatement(stmtCtx.modelCtx.statementModel)) {
+        if (model && STKindChecker.isIfElseStatement(stmtCtx.modelCtx.statementModel)) {
             const splitStatement: string[] = currentStmt.split(/\n/g) || [];
             splitStatement.splice(targetLine, 1,
                 splitStatement[targetLine].slice(0, targetColumn) + codeSnippet + splitStatement[targetLine].slice(endColumn || targetColumn));
@@ -291,15 +295,15 @@ export function InputEditor(props: InputEditorProps) {
     }
 
     const inputChangeHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const currentStatement = stmtCtx.modelCtx.statementModel.source;
+        const currentStatement = stmtCtx.modelCtx.statementModel ? stmtCtx.modelCtx.statementModel.source : "";
         setUserInput(event.target.value);
         inputEditorCtx.onInputChange(event.target.value);
         const updatedStatement = addExpressionToTargetPosition(
             currentStatement,
-            model.position.startLine,
-            model.position.startColumn,
+            model ? model.position.startLine : 0,
+            model ? model.position.startColumn : 0,
             event.target.value ? event.target.value : "",
-            model.position.endColumn
+            model ? model.position.endColumn : 0
         );
         debouncedContentChange(updatedStatement, event.target.value);
     };

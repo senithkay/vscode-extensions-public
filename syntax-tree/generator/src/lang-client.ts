@@ -33,7 +33,7 @@ export async function genSyntaxTree(balFilePath: string) {
         await clientPromise;
         await client.didOpen({
             textDocument: {
-                uri: `file://${balFilePath}`,
+                uri: URI.file(balFilePath).toString(),
                 languageId: "ballerina",
                 text: data,
                 version: 1

@@ -70,6 +70,7 @@ export interface FormField {
     name?: string;
     displayName?: string;
     memberType?: FormField;
+    inclusionType?: FormField;
     selectedDataType?: string;
     description?: string;
     defaultValue?: any;

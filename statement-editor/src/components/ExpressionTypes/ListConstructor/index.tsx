@@ -16,7 +16,7 @@ import React, { useContext } from "react";
 import { ListConstructor, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
-import { DEFAULT_EXPRESSIONS } from "../../../constants";
+import { APPEND_EXPR_LIST_CONSTRUCTOR, DEFAULT_EXPRESSIONS, INIT_EXPR_LIST_CONSTRUCTOR } from "../../../constants";
 import { SuggestionItem, VariableUserInputs } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { SuggestionsContext } from "../../../store/suggestions-context";
@@ -34,26 +34,31 @@ interface ListConstructorProps {
 
 export function ListConstructorComponent(props: ListConstructorProps) {
     const { model, userInputs, isElseIfMember, diagnosticHandler } = props;
-    const stmtCtx = useContext(StatementEditorContext);
-    const { modelCtx } = stmtCtx;
-    const { currentModel } = modelCtx;
+    const {
+        modelCtx: {
+            statementModel,
+            currentModel,
+            updateModel,
+        },
+        currentFile,
+        formCtx: {
+            formModelPosition
+        },
+        getLangClient
+    } = useContext(StatementEditorContext);
+    const fileURI = `expr://${currentFile.path}`;
 
     const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
-    const { currentFile, getLangClient } = stmtCtx;
-    const targetPosition = stmtCtx.formCtx.formModelPosition;
-    const fileURI = `expr://${currentFile.path}`;
 
     const onClickOnExpression = async (clickedExpression: STNode, event: any) => {
         event.stopPropagation();
-
         const content: string = await addStatementToTargetLine(
-            currentFile.content, targetPosition, stmtCtx.modelCtx.statementModel.source, getLangClient);
+            currentFile.content, formModelPosition, statementModel.source, getLangClient);
 
         const completions: SuggestionItem[] = await getContextBasedCompletions(
-            fileURI, content, targetPosition, clickedExpression.position,
+            fileURI, content, formModelPosition, clickedExpression.position,
             false, isElseIfMember, clickedExpression.source, getLangClient);
-
         expressionHandler(clickedExpression, false, false, {
             expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
             typeSuggestions: [],
@@ -99,6 +104,12 @@ export function ListConstructorComponent(props: ListConstructorProps) {
         </span>
     );
 
+    const onClickOnPlusIcon = (event: any) => {
+        event.stopPropagation();
+        const newExpression = model.expressions.length !== 0 ? APPEND_EXPR_LIST_CONSTRUCTOR : INIT_EXPR_LIST_CONSTRUCTOR;
+        updateModel(newExpression, model.closeBracket.position);
+    };
+
     return (
         <span>
             <span
@@ -107,9 +118,15 @@ export function ListConstructorComponent(props: ListConstructorProps) {
                     statementEditorClasses.expressionBlockDisabled
                 )}
             >
-                &nbsp;{model.openBracket.value}
+                {model.openBracket.value}
             </span>
             {expressionComponent}
+            <button
+                className={statementEditorClasses.plusIconBorder}
+                onClick={onClickOnPlusIcon}
+            >
+                +
+            </button>
             <span
                 className={classNames(
                     statementEditorClasses.expressionBlock,
