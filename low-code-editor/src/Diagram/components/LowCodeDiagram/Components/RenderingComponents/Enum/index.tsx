@@ -29,14 +29,9 @@ export interface EnumDeclarationComponentProps {
 
 export function EnumDeclarationComponent(props: EnumDeclarationComponentProps) {
     const { model } = props;
-    const {
-        api: {
-            code: { gotoSource },
-            edit: {
-                deleteComponent
-            }
-        },
-    } = useContext(Context);
+    const diagramContext = useContext(Context);
+    const deleteComponent = diagramContext?.api?.edit?.deleteComponent;
+    const gotoSource = diagramContext?.api?.code?.gotoSource;
     const [isExpanded, setIsExpanded] = useState(false);
     // const [editingEnabled, setEditingEnabled] = useState(false);
 
