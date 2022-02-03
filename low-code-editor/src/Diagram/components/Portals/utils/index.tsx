@@ -12,6 +12,7 @@
  */
 import React, { ReactNode } from "react";
 
+import { ExpressionEditor } from "@wso2-enterprise/ballerina-expression-editor";
 import {
     ActionConfig,
     BallerinaConnectorInfo,
@@ -46,7 +47,6 @@ import * as Forms from "../../FormComponents/ConfigForms";
 import { ConfigWizardState } from "../../FormComponents/ConnectorConfigWizard";
 import * as ConnectorExtension from "../../FormComponents/ConnectorExtensions";
 import * as Elements from "../../FormComponents/FormFieldComponents";
-import ExpressionEditor from "../../FormComponents/FormFieldComponents/ExpressionEditor";
 import { getUnionFormFieldName } from "../../FormComponents/FormFieldComponents/Union";
 import * as OverlayElement from "../../LowCodeDiagram/Components/DialogBoxes";
 import { DefaultConnectorIcon } from "../../LowCodeDiagram/Components/RenderingComponents/Connector/Icon/DefaultConnectorIcon";
