@@ -25,7 +25,7 @@ import {
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
 import { Context } from "../../../../../../../Contexts/Diagram";
-import { createWhileStatement, getInitialSource } from "../../../../../../utils/modification-util";
+import { createWhileStatement, createWhileStatementWithBlock, getInitialSource } from "../../../../../../utils/modification-util";
 import { ExpressionEditorProps } from "@wso2-enterprise/ballerina-expression-editor";
 import { useStyles } from "../../../../DynamicConnectorForm/style";
 import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
@@ -138,9 +138,14 @@ export function AddWhileForm(props: WhileProps) {
         defaultMessage: "Cancel"
     });
 
-    const initialSource = getInitialSource(createWhileStatement(
-        conditionState.conditionExpression ? conditionState.conditionExpression as string : 'EXPRESSION'
-    ));
+    const initialSource = formArgs.model ? getInitialSource(createWhileStatementWithBlock(
+                                conditionState.conditionExpression ? conditionState.conditionExpression as string : 'EXPRESSION',
+                                (formArgs.model as WhileStatement).whileBody.statements.map(statement => {
+                                    return statement.source
+                                })
+                            )) : getInitialSource(createWhileStatement(
+                                conditionState.conditionExpression ? conditionState.conditionExpression as string : 'EXPRESSION'
+                            ));
 
     const { handleStmtEditorToggle, stmtEditorComponent } = useStatementEditor(
         {

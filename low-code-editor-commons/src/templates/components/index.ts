@@ -6,6 +6,10 @@ export default {
 foreach {{{ TYPE }}} {{{ VARIABLE }}} in {{{ COLLECTION }}} {
 
 }`,
+    FOREACH_STATEMENT_WITH_BLOCK: `
+foreach {{{ TYPE }}} {{{ VARIABLE }}} in {{{ COLLECTION }}} {
+    {{{ BLOCKSTATEMENTS }}}
+}`,
     IF_STATEMENT_CONDITION: '{{{ CONDITION }}}',
     IF_STATEMENT: `
 if {{{ CONDITION }}} {
@@ -18,13 +22,25 @@ if {{{ CONDITION }}} {
 if {{{ CONDITION }}} {
 
 `,
+    IF_CONDITION_WITH_BLOCK: `
+if {{{ CONDITION }}} {
+    {{{ BLOCKSTATEMENTS }}}
+`,
     ELSE_IF_CONDITION: `
 } else if {{{ CONDITION }}} {
 
 `,
+    ELSE_IF_CONDITION_WITH_BLOCK: `
+} else if {{{ CONDITION }}} {
+    {{{ BLOCKSTATEMENTS }}}
+`,
     ELSE_STATEMENT: `
 } else {
 
+}`,
+    ELSE_STATEMENT_WITH_BLOCK: `
+} else {
+    {{{ BLOCKSTATEMENTS }}}
 }`,
     IMPORT: 'import {{{ TYPE }}};',
     LOG_STATEMENT: 'log:print{{{ TYPE }}}({{{ LOG_EXPR }}});',
@@ -45,6 +61,10 @@ resource function {{{ METHOD }}} {{{ PATH }}} ({{{ QUERY_PARAM }}}{{{PAYLOAD}}}{
     WHILE_STATEMENT: `
 while ({{{ CONDITION }}}) {
 
+}`,
+    WHILE_STATEMENT_WITH_BLOCK: `
+while ({{{ CONDITION }}}) {
+    {{{ BLOCKSTATEMENTS }}}
 }`,
     WHILE_NEXT_STATEMENT: `
 record {|record {} value;|}|error? {{{ VARIABLE }}} = {{{ RETURN_TYPE }}}.next();
