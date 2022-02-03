@@ -6,6 +6,7 @@ FROM linuxserver/code-server:version-v3.12.0
 # ARG CHOREO_SESSION_COOKIE
 ARG mainHtml=/usr/local/share/.config/yarn/global/node_modules/code-server/src/browser/pages/vscode.html
 ARG webViewMain=/usr/local/share/.config/yarn/global/node_modules/code-server/vendor/modules/code-oss-dev/out/vs/workbench/contrib/webview/browser/pre/main.js
+ARG webViewAPI=/usr/local/share/.config/yarn/global/node_modules/code-server/vendor/modules/code-oss-dev/out/vs/workbench/workbench.web.api.js
 
 ENV LOW_CODE_MODE true
 ENV CODE_SERVER_ENV true
@@ -31,7 +32,7 @@ RUN sudo apt-get update && \
     sed -i '/<\/body>/i <!-- Loader html -->\n<div class="loading"><div class='loader'><div></div></div></div>\n' $mainHtml && \
     sed -i 's/delete window.parent;//g' $webViewMain && \
     sed -i 's/delete window.top;//g' $webViewMain && \
-    sed -i 's/delete window.frameElement;//g' $webViewMain
-
+    sed -i 's/delete window.frameElement;//g' $webViewMain && \
+    sed -i '/<\/head>/i <!-- Hotjar Tracking Code for Choreo-prod -->\n<script>\n(function(h,o,t,j,a,r){h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};h._hjSettings={hjid:2626534,hjsv:6};a=o.getElementsByTagName(\"head\")[0];r=o.createElement(\"script\");r.async=1;r.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;a.appendChild(r);})(window,document,\"https://static.hotjar.com/c/hotjar-\",\".js?sv=\");\n</script>' $mainHtml
 
 RUN echo "{\n\"workbench.startupEditor\": \"none\",\n\"window.dialogStyle\": \"custom\"}" > /config/data/User/settings.json
