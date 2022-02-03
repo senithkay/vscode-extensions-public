@@ -64,7 +64,9 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
 
         workspace.onDidChangeTextDocument(async (activatedTextEditor) => {
             if (activatedTextEditor && activatedTextEditor.document.languageId === LANGUAGE.BALLERINA) {
-                sendTelemetryEvent(this.extension, TM_EVENT_EDIT_SOURCE, CMP_EDITOR_SUPPORT);
+                if (!this.extension.getDocumentContext().isActiveDiagram()) {
+                    sendTelemetryEvent(this.extension, TM_EVENT_EDIT_SOURCE, CMP_EDITOR_SUPPORT);
+                }
 
                 if (this.extension.getWebviewContext().isOpen &&
                     this.extension.getWebviewContext().type === WEBVIEW_TYPE.PERFORMANCE_FORECAST) {

@@ -224,7 +224,7 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number): s
                     const options = {
                         target: document.getElementById("diagram"),
                         editorProps: {
-                            langClient: getLangClient(),
+                            langClientPromise: Promise.resolve(getLangClient()),
                             filePath,
                             startLine,
                             startColumn,
