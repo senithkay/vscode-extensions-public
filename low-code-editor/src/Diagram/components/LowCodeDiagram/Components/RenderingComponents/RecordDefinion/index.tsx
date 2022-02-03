@@ -36,12 +36,10 @@ export interface RecordDefComponentProps {
 export function RecordDefinitionComponent(props: RecordDefComponentProps) {
     const { model } = props;
 
-    const {
-        props: { isReadOnly },
-        api: {
-            edit: { deleteComponent, renderEditForm }
-        },
-    } = useContext(Context);
+    const diagramContext = useContext(Context);
+    const { isReadOnly } = diagramContext.props;
+    const deleteComponent = diagramContext?.api?.edit?.deleteComponent;
+    const renderEditForm = diagramContext?.api?.edit?.renderEditForm;
 
     const [isExpanded, setIsExpanded] = useState(false);
 
