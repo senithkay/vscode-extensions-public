@@ -6,7 +6,6 @@ FROM linuxserver/code-server:version-v3.12.0
 # ARG CHOREO_SESSION_COOKIE
 ARG mainHtml=/usr/local/share/.config/yarn/global/node_modules/code-server/src/browser/pages/vscode.html
 ARG webViewMain=/usr/local/share/.config/yarn/global/node_modules/code-server/vendor/modules/code-oss-dev/out/vs/workbench/contrib/webview/browser/pre/main.js
-ARG webViewAPI=/usr/local/share/.config/yarn/global/node_modules/code-server/vendor/modules/code-oss-dev/out/vs/workbench/workbench.web.api.js
 
 ENV LOW_CODE_MODE true
 ENV CODE_SERVER_ENV true
