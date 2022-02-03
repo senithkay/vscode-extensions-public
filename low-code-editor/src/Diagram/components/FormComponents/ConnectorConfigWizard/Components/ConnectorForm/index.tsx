@@ -34,11 +34,11 @@ import {
     LocalVarDecl,
     NodePosition,
     STKindChecker,
+    STNode,
 } from "@wso2-enterprise/syntax-tree";
 
 import { DocIcon } from "../../../../../../assets";
 import { Context, useDiagramContext } from "../../../../../../Contexts/Diagram";
-import { useFunctionContext } from "../../../../../../Contexts/Function";
 import { TextPreloaderVertical } from "../../../../../../PreLoader/TextPreloaderVertical";
 import { getAllVariables } from "../../../../../utils/mixins";
 import {
@@ -94,6 +94,7 @@ export interface ConnectorConfigWizardProps {
     selectedConnector: LocalVarDecl;
     isAction?: boolean;
     expressionInjectables?: ExpressionInjectablesProps;
+    functionNode?: STNode;
 }
 
 export function ConnectorForm(props: FormGeneratorProps) {
@@ -107,7 +108,6 @@ export function ConnectorForm(props: FormGeneratorProps) {
         },
         props: { stSymbolInfo, isMutationProgress },
     } = useContext(Context);
-    const { functionNode } = useFunctionContext();
 
     const {
         targetPosition,
@@ -118,7 +118,9 @@ export function ConnectorForm(props: FormGeneratorProps) {
         isAction,
         expressionInjectables,
         connectorInfo,
+        functionNode
     } = props.configOverlayFormStatus.formArgs as ConnectorConfigWizardProps;
+
     const {
         props: { syntaxTree },
     } = useDiagramContext();

@@ -17,12 +17,12 @@ import { BallerinaConnectorInfo } from "@wso2-enterprise/ballerina-low-code-edti
 import { LocalVarDecl, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import cn from "classnames";
 
-import { useFunctionContext } from "../../../../../../../Contexts/Function";
 import { getDiagnosticInfo } from "../../../../../../utils";
 import { getRandomInt } from "../../../../../../utils/diagram-util";
 import { getMatchingConnector, getStatementTypesFromST } from "../../../../../../utils/st-util";
 import { DefaultConfig } from "../../../../../../visitors/default";
 import { Context } from "../../../../Context/diagram";
+import { useFunctionContext } from "../../../../Context/Function";
 import { BlockViewState, StatementViewState } from "../../../../ViewState";
 import { DraftStatementViewState } from "../../../../ViewState/draft";
 import { DeleteBtn } from "../../../DiagramActions/DeleteBtn";
@@ -56,8 +56,6 @@ export function ActionProcessor(props: ProcessorProps) {
         props: {
             syntaxTree,
             stSymbolInfo,
-            isMutationProgress,
-            isWaitingOnWorkspace,
             isReadOnly,
         }
     } = useContext(Context);
@@ -78,7 +76,6 @@ export function ActionProcessor(props: ProcessorProps) {
     let statmentTypeText = "";
 
     let isIntializedVariable = false;
-    const isLogStmt = false;
 
     let isReferencedVariable = false;
 
@@ -126,7 +123,7 @@ export function ActionProcessor(props: ProcessorProps) {
             blockViewState.draft = undefined;
             diagramCleanDraw(syntaxTree);
         }
-        // setIsConnectorEdit(false);
+        setConfigWizardOpen(false);
     };
 
     const onActionFormClose = () => {
@@ -134,23 +131,13 @@ export function ActionProcessor(props: ProcessorProps) {
             blockViewState.draft = undefined;
             diagramCleanDraw(syntaxTree);
         }
-        // setIsConnectorEdit(false);
-        // setConnector(undefined);
+        setConfigWizardOpen(false);
     };
 
     React.useEffect(() => {
-        // if (model === null && blockViewState) {
-        //     const draftVS = blockViewState.draft[1];
-        //     // dispatchCloseConfigOverlayForm();
-        //     const overlayFormConfig = getOverlayFormConfig(draftVS.subType, draftVS.targetPosition, WizardType.NEW,
-        //         blockViewState, undefined, stSymbolInfo);
-        //     updateConfigOverlayFormState(overlayFormConfig);
-        //     // openNewProcessorConfig(draftVS.subType, draftVS.targetPosition,
-        //     //     WizardType.NEW, blockViewState, undefined, stSymbolInfo);
-        // }
-
         if (!isReadOnly && !model && !draftViewState?.connector && blockViewState) {
             const draftVS = blockViewState.draft[1];
+            setConfigWizardOpen(true);
             renderAddForm(draftVS.targetPosition, {
                 formType: "EndpointList",
                 formArgs: {
@@ -168,7 +155,6 @@ export function ActionProcessor(props: ProcessorProps) {
         if (blockViewState) {
             blockViewState.draft = undefined;
             diagramCleanDraw(syntaxTree);
-            // dispatchCloseConfigOverlayForm();
         }
     };
 
@@ -184,7 +170,7 @@ export function ActionProcessor(props: ProcessorProps) {
         const connectorInit: LocalVarDecl = model as LocalVarDecl;
         const matchedConnector = getMatchingConnector(connectorInit, stSymbolInfo);
         if (matchedConnector) {
-            // setConnector(matchedConnector);
+            setConfigWizardOpen(true);
             renderConnectorWizard({
                 connectorInfo: matchedConnector,
                 position: {
@@ -197,10 +183,10 @@ export function ActionProcessor(props: ProcessorProps) {
                 onClose: onActionFormClose,
                 onSave: onWizardClose,
                 isAction: true,
-                isEdit: true
+                isEdit: true,
+                functionNode
             });
         }
-        // setIsConnectorEdit(!isEditConnector);
     };
 
     const onClickOpenInCodeView = () => {
@@ -213,8 +199,7 @@ export function ActionProcessor(props: ProcessorProps) {
     const onEndpointSelect = (actionInvo: STNode) => {
         const matchedConnector = getMatchingConnector(actionInvo, stSymbolInfo);
         if (matchedConnector) {
-            // setSelectedEndpoint(actionInvo);
-            // setConnector(matchedConnector);
+            setConfigWizardOpen(true);
             renderConnectorWizard({
                 connectorInfo: matchedConnector,
                 position: {
@@ -227,7 +212,8 @@ export function ActionProcessor(props: ProcessorProps) {
                 onClose: onActionFormClose,
                 onSave: onWizardClose,
                 isAction: true,
-                isEdit: false
+                isEdit: false,
+                functionNode
             });
         }
     }
@@ -237,21 +223,6 @@ export function ActionProcessor(props: ProcessorProps) {
         code: sourceSnippet,
         severity: diagnosticMsgs?.severity
     }
-
-    // const endpointList = (
-    //     <FormGenerator
-    //         onCancel={onWizardClose}
-    //         configOverlayFormStatus={{
-    //             formType: "EndpointList",
-    //             formArgs: {
-    //                 onSelect: onEndpointSelect,
-    //                 onCancel: onWizardClose,
-    //                 onAddConnector,
-    //             },
-    //             isLoading: true,
-    //         }}
-    //     />
-    // );
 
     const toolTip = isReferencedVariable ? "Variable is referred in the code below" : undefined;
     // If only processor is a initialized variable or log stmt or draft stmt Show the edit btn other.
@@ -315,13 +286,12 @@ export function ActionProcessor(props: ProcessorProps) {
                         position={model?.position}
                         openInCodeView={
                             !isReadOnly &&
-                            !isWaitingOnWorkspace &&
                             model &&
                             model.position &&
                             onClickOpenInCodeView
                         }
                     />
-                    {!isReadOnly && !isMutationProgress && !isWaitingOnWorkspace && (
+                    {!isReadOnly && (
                         <g
                             className="process-options-wrapper"
                             height={PROCESS_SVG_HEIGHT_WITH_SHADOW}
@@ -329,25 +299,6 @@ export function ActionProcessor(props: ProcessorProps) {
                             x={cx - PROCESS_SVG_SHADOW_OFFSET / 2}
                             y={cy - PROCESS_SVG_SHADOW_OFFSET / 2}
                         >
-                            <g>
-                                {/* {!model && !connector && endpointList} */}
-                                {/* {(model === null || isEditConnector) && connector && (
-                                    <ConnectorConfigWizard
-                                        connectorInfo={connector}
-                                        position={{
-                                            x: viewState.bBox.cx + 80,
-                                            y: viewState.bBox.cy,
-                                        }}
-                                        targetPosition={draftViewState.targetPosition}
-                                        selectedConnector={draftViewState.selectedConnector}
-                                        model={model || selectedEndpoint}
-                                        onClose={onActionFormClose}
-                                        onSave={onWizardClose}
-                                        isAction={true}
-                                        isEdit={isEditConnector}
-                                    />
-                                )} */}
-                            </g>
                             {!isConfigWizardOpen && (
                                 <>
                                     <rect

@@ -132,5 +132,6 @@ export interface ConnectorConfigWizardProps {
     selectedConnector?: LocalVarDecl;
     isAction?: boolean;
     isEdit?: boolean;
+    functionNode?: STNode;
 }
 

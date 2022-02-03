@@ -14,7 +14,7 @@
 import React, { useContext, useState } from "react";
 
 import { ConfigOverlayFormStatus, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { ActionStatement, NodePosition, ReturnStatement, STNode } from "@wso2-enterprise/syntax-tree";
+import { ActionStatement, NodePosition, ReturnStatement } from "@wso2-enterprise/syntax-tree";
 
 import { getDiagnosticInfo } from "../../../../../utils";
 import { getOverlayFormConfig, getRandomInt } from "../../../../../utils/diagram-util";
@@ -45,8 +45,6 @@ export function Return(props: ReturnProps) {
         props: {
             syntaxTree,
             stSymbolInfo,
-            isWaitingOnWorkspace,
-            isMutationProgress,
             isReadOnly,
         },
         api: {
@@ -116,7 +114,7 @@ export function Return(props: ReturnProps) {
                     text={(model as ReturnStatement).expression?.source}
                     codeSnippet={sourceSnippet}
                     diagnostics={errorSnippet}
-                    openInCodeView={!isWaitingOnWorkspace && model && model.position && onClickOpenInCodeView}
+                    openInCodeView={model && model.position && onClickOpenInCodeView}
                 />
             </g>
         )
@@ -171,7 +169,7 @@ export function Return(props: ReturnProps) {
             )}
             {component}
             <>
-                {(!isReadOnly && !isMutationProgress && !isWaitingOnWorkspace) && (
+                {!isReadOnly && (
                     <g
                         className="return-options-wrapper"
                         height={PROCESS_SVG_HEIGHT_WITH_SHADOW}

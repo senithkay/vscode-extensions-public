@@ -60,7 +60,7 @@ export function While(props: WhileProps) {
     const {
         state,
         actions: { diagramCleanDraw, diagramRedraw, insertComponentStart },
-        props: { isCodeEditorActive, syntaxTree,  stSymbolInfo, isReadOnly, isMutationProgress, isWaitingOnWorkspace },
+        props: { syntaxTree,  stSymbolInfo, isReadOnly },
         api: {
             edit: {
                 renderEditForm
@@ -218,7 +218,7 @@ export function While(props: WhileProps) {
                     codeSnippet={codeSnippet}
                     codeSnippetOnSvg={codeSnippetOnSvg}
                     diagnostics={errorSnippet}
-                    openInCodeView={!isCodeEditorActive && !isWaitingOnWorkspace && model && model?.position && onClickOpenInCodeView}
+                    openInCodeView={model && model?.position && onClickOpenInCodeView}
                 />
                 <ConditionAssignment
                     x={x - (CONDITION_ASSIGNMENT_NAME_WIDTH + DefaultConfig.textAlignmentOffset)}
@@ -233,7 +233,7 @@ export function While(props: WhileProps) {
                     }
                 </>
 
-                {(!isReadOnly && !isMutationProgress && !isWaitingOnWorkspace) && (<g
+                {!isReadOnly && (<g
                     className="while-options-wrapper"
                     height={WHILE_SVG_HEIGHT_WITH_SHADOW}
                     width={WHILE_SVG_HEIGHT_WITH_SHADOW}
@@ -280,7 +280,7 @@ export function While(props: WhileProps) {
                     codeSnippet={codeSnippet}
                     codeSnippetOnSvg={codeSnippetOnSvg}
                     diagnostics={errorSnippet}
-                    openInCodeView={!isCodeEditorActive && !isWaitingOnWorkspace && model && model?.position && onClickOpenInCodeView}
+                    openInCodeView={model && model?.position && onClickOpenInCodeView}
                 />
                 <ConditionAssignment
                     x={x - (CONDITION_ASSIGNMENT_NAME_WIDTH + DefaultConfig.textAlignmentOffset)}
@@ -289,7 +289,7 @@ export function While(props: WhileProps) {
                     className="condition-assignment"
                     key_id={getRandomInt(1000)}
                 />
-                {(!isReadOnly && !isMutationProgress && !isWaitingOnWorkspace) && (
+                {!isReadOnly && (
                     <g
                         className="while-options-wrapper"
                         height={WHILE_SVG_HEIGHT_WITH_SHADOW}

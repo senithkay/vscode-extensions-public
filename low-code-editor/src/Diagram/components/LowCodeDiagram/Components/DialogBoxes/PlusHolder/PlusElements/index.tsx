@@ -17,10 +17,10 @@ import CloseIcon from '@material-ui/icons/Close';
 import { BallerinaConnectorInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { LocalVarDecl } from "@wso2-enterprise/syntax-tree";
 
-import { useFunctionContext } from "../../../../../../../Contexts/Function";
 import { OverlayBackground } from "../../../../../OverlayBackground";
 import { DiagramOverlay, DiagramOverlayContainer, DiagramOverlayPosition } from '../../../../../Portals/Overlay';
 import { Context } from "../../../../Context/diagram";
+import { useFunctionContext } from "../../../../Context/Function";
 import { PlusViewState } from "../../../../ViewState/plus";
 import { StatementOptions } from "../PlusElementOptions/StatementOptions";
 import "../style.scss";
@@ -32,8 +32,6 @@ export interface PlusElementsProps {
     onClose?: () => void;
     onComponentClick?: (value: string) => void;
     initPlus: boolean,
-    // todo: handle the dispatch for the tour
-    // dispatchGoToNextTourStep: (nextStepId: string) => void
     viewState: PlusViewState;
     isResource?: boolean;
     isCallerAvailable?: boolean;
@@ -57,9 +55,6 @@ export const EXISTING_PLUS_HOLDER_API_HEIGHT_COLLAPSED = 660;
 
 export function PlusElements(props: PlusElementsProps) {
     const { position, onClose, onChange, initPlus, viewState, isResource, isCallerAvailable } = props;
-    const {
-        props: { isCodeEditorActive }
-    } = useContext(Context);
     const { overlayId, overlayNode } = useFunctionContext();
 
     const onStatementTypeSelect = (processType: string) => {
@@ -74,11 +69,6 @@ export function PlusElements(props: PlusElementsProps) {
                 onChange("STATEMENT", processType);
                 break;
         }
-
-        // if (processType === "DataMapper") {
-        //     // FIXME: Found this while enabling types for context. We are reusing help panel action in a wrong way
-        //     openConnectorHelp({moduleName: processType});
-        // }
     };
 
     const plusContainer = initPlus ? "initPlus-container" : "plus-container";
@@ -109,8 +99,8 @@ export function PlusElements(props: PlusElementsProps) {
                         className={plusContainer}
                         position={position}
                     >
-                        {isCodeEditorActive && !initPlus ? <div className="plus-overlay"><OverlayBackground /></div> : null}
-                        {initPlus && isCodeEditorActive ? null : <>{plusHolder}</>}
+                        {!initPlus ? <div className="plus-overlay"><OverlayBackground /></div> : null}
+                        {initPlus ? null : <>{plusHolder}</>}
                         {!initPlus && <OverlayBackground />}
                     </DiagramOverlay>
                 </DiagramOverlayContainer>

@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
-import React, { useContext, useState } from "react";
+import React, { useContext } from "react";
 
 import { ConfigOverlayFormStatus, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
@@ -40,11 +40,8 @@ export function End(props: EndProps) {
     const gotoSource = diagramContext?.api?.code?.gotoSource;
     const renderEditForm = diagramContext?.api?.edit?.renderEditForm;
     const {
-        isCodeEditorActive,
         syntaxTree,
         stSymbolInfo,
-        isMutationProgress,
-        isWaitingOnWorkspace,
         isReadOnly,
     } = diagramContext.props;
     const { diagramCleanDraw } = diagramContext.actions;
@@ -80,8 +77,10 @@ export function End(props: EndProps) {
     };
 
     const onReturnEditClick = () => {
-        const configOverrlayState = getConditionConfig('Return', model.position, WizardType.EXISTING, model.viewState, undefined, stSymbolInfo, model);
-        renderEditForm(model, model.position, configOverrlayState as ConfigOverlayFormStatus);
+        if (renderEditForm) {
+            const configOverrlayState = getConditionConfig('Return', model.position, WizardType.EXISTING, model.viewState, undefined, stSymbolInfo, model);
+            renderEditForm(model, model.position, configOverrlayState as ConfigOverlayFormStatus);
+        }
     }
 
     let codeSnippet = "No return statement"
@@ -91,7 +90,7 @@ export function End(props: EndProps) {
     }
 
     const onClickOpenInCodeView = () => {
-        if (model) {
+        if (model && gotoSource) {
             const position: NodePosition = model.position as NodePosition;
             gotoSource({ startLine: position.startLine, startColumn: position.startColumn });
         }
@@ -101,16 +100,16 @@ export function End(props: EndProps) {
         (
             <g className="end-wrapper" data-testid="end-block">
                 <StopSVG
-                    x={cx - ((STOP_SVG_WIDTH_WITH_SHADOW / 2) + (STOP_SVG_SHADOW_OFFSET  / 4))}
+                    x={cx - ((STOP_SVG_WIDTH_WITH_SHADOW / 2) + (STOP_SVG_SHADOW_OFFSET / 4))}
                     y={cy - DefaultConfig.shadow}
                     text={compType.toUpperCase()}
                     codeSnippet={codeSnippet}
-                    openInCodeView={!isCodeEditorActive && !isWaitingOnWorkspace && model && model?.position && onClickOpenInCodeView}
+                    openInCodeView={model && model?.position && onClickOpenInCodeView}
                 />
                 {blockViewState || model ?
                     (<>
                         {
-                            (!isExpressionFunction && !isReadOnly && !isMutationProgress && !isWaitingOnWorkspace) && (<g
+                            (!isExpressionFunction && !isReadOnly) && (<g
                                 className="end-options-wrapper"
                                 height={STOP_SVG_HEIGHT_WITH_SHADOW}
                                 width={STOP_SVG_HEIGHT_WITH_SHADOW}

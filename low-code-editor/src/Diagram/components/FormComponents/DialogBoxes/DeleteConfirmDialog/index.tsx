@@ -16,7 +16,7 @@ import { useIntl } from 'react-intl';
 
 import { Button, ClickAwayListener } from "@material-ui/core";
 
-import { useFunctionContext } from '../../../../../Contexts/Function';
+import { useFunctionContext } from '../../../LowCodeDiagram/Context/Function';
 import { DiagramOverlay, DiagramOverlayContainer, DiagramOverlayPosition } from '../../../Portals/Overlay/index';
 
 import "./style.scss";

@@ -78,12 +78,9 @@ export function IfElse(props: IfElseProps) {
             }
         },
         props: {
-            isCodeEditorActive,
-            isMutationProgress,
             syntaxTree,
             stSymbolInfo,
-            isReadOnly,
-            isWaitingOnWorkspace
+            isReadOnly
         }
     } = useContext(Context);
     const { model, blockViewState, name } = props;
@@ -190,7 +187,7 @@ export function IfElse(props: IfElseProps) {
                     codeSnippetOnSvg={codeSnippetOnSvg}
                     conditionType={conditionType}
                     diagnostics={errorSnippet}
-                    openInCodeView={!isCodeEditorActive && !isWaitingOnWorkspace && model && model?.position && onClickOpenInCodeView}
+                    openInCodeView={model && model?.position && onClickOpenInCodeView}
                 />
                 <ConditionAssignment
                     x={x - (CONDITION_ASSIGNMENT_NAME_WIDTH + DefaultConfig.textAlignmentOffset)}
@@ -201,7 +198,7 @@ export function IfElse(props: IfElseProps) {
                 />
                 <>
                     {
-                        (!isReadOnly && !isMutationProgress && !isWaitingOnWorkspace) && (
+                        !isReadOnly && (
                             <g
                                 className="condition-options-wrapper"
                                 height={IFELSE_SVG_HEIGHT_WITH_SHADOW}
@@ -375,7 +372,7 @@ export function IfElse(props: IfElseProps) {
                             diagnostics={errorSnippet}
                             codeSnippetOnSvg={codeSnippetOnSvg}
                             conditionType={conditionType}
-                            openInCodeView={!isCodeEditorActive && !isWaitingOnWorkspace && model && model?.position && onClickOpenInCodeView}
+                            openInCodeView={model && model?.position && onClickOpenInCodeView}
                         />
                         <ConditionAssignment
                             x={x - (CONDITION_ASSIGNMENT_NAME_WIDTH + DefaultConfig.textAlignmentOffset)}
@@ -386,7 +383,7 @@ export function IfElse(props: IfElseProps) {
                         />
                         <>
                             {
-                                (!isReadOnly && !isMutationProgress && !isWaitingOnWorkspace) && (<g
+                                !isReadOnly && (<g
                                     className="condition-options-wrapper"
                                     height={IFELSE_SVG_HEIGHT_WITH_SHADOW}
                                     width={IFELSE_SVG_HEIGHT_WITH_SHADOW}

@@ -43,8 +43,6 @@ export function Respond(props: RespondProps) {
         props: {
             syntaxTree,
             stSymbolInfo,
-            isWaitingOnWorkspace,
-            isMutationProgress,
             isReadOnly,
         },
         api: {
@@ -111,7 +109,7 @@ export function Respond(props: RespondProps) {
                     y={cy - DefaultConfig.shadow + DefaultConfig.dotGap / 2}
                     text={compType}
                     sourceSnippet={sourceSnippet}
-                    openInCodeView={!isWaitingOnWorkspace && model && model.position && onClickOpenInCodeView}
+                    openInCodeView={model && model.position && onClickOpenInCodeView}
                 />
             </g>
         )
@@ -156,7 +154,7 @@ export function Respond(props: RespondProps) {
         <g className="respond-contect-wrapper">
             {component}
             <>
-                {(!isReadOnly && !isMutationProgress && !isWaitingOnWorkspace) && (<g
+                {!isReadOnly && (<g
                     className="respond-options-wrapper"
                     height={PROCESS_SVG_HEIGHT_WITH_SHADOW}
                     width={PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW}
