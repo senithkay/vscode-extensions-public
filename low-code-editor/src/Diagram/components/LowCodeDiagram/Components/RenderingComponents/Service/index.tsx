@@ -34,21 +34,10 @@ export interface ServiceProps {
 
 export function Service(props: ServiceProps) {
     const { model } = props;
-    const {
-        api: {
-            webView: {
-                showSwaggerView
-            },
-            project: {
-                run
-            }
-        },
-        props: {
-            isReadOnly,
-            stSymbolInfo
-        }
-    } = useContext(Context);
-
+    const diagramContext = useContext(Context);
+    const { isReadOnly, stSymbolInfo } = diagramContext.props;
+    const showSwaggerView = diagramContext?.api?.webView?.showSwaggerView;
+    const run = diagramContext?.api?.project?.run;
     const [isExpanded, setIsExpanded] = useSelectedStatus(model);
     const onExpandClick = () => {
         setIsExpanded(!isExpanded);
