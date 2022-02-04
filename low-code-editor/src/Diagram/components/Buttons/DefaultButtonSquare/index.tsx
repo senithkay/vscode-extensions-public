@@ -22,7 +22,7 @@ const DefaultButtonSquare = withStyles((theme: Theme) => ({
     paddingTop: theme.spacing(0.5),
     fontSize: theme.spacing(1.2),
   },
-  label:{
+  label: {
     textTransform: 'initial'
   }
 }))(Button) as typeof Button;
