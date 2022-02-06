@@ -21,7 +21,7 @@ export function sizingAndPositioning(st: STNode): STNode {
     traversNode(st, initVisitor);
     traversNode(st, sizingVisitor);
     traversNode(st, positionVisitor);
-
+    positionVisitor.cleanMaps();
     if (STKindChecker.isFunctionDefinition(st) && st?.viewState?.onFail) {
         const viewState = st.viewState as FunctionViewState;
         traversNode(viewState.onFail, sizingVisitor);
@@ -34,6 +34,7 @@ export function sizingAndPositioning(st: STNode): STNode {
 export function recalculateSizingAndPositioning(st: STNode): STNode {
     traversNode(st, sizingVisitor);
     traversNode(st, positionVisitor);
+    positionVisitor.cleanMaps();
     if (STKindChecker.isFunctionDefinition(st) && st?.viewState?.onFail) {
         const viewState = st.viewState as FunctionViewState;
         traversNode(viewState.onFail, sizingVisitor);
@@ -166,7 +167,7 @@ export function getRandomInt(max: number) {
     return Math.floor(Math.random() * Math.floor(max));
 }
 
-export function isVarTypeDescriptor(model: STNode) : boolean {
+export function isVarTypeDescriptor(model: STNode): boolean {
     if (model && STKindChecker.isLocalVarDecl(model)) {
         return STKindChecker.isVarTypeDesc(model.typedBindingPattern?.typeDescriptor);
     } else {
