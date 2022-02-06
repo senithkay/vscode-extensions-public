@@ -8,6 +8,7 @@ import { BlockViewState, FunctionViewState } from "../components/LowCodeDiagram/
 import { visitor as initVisitor } from "../components/LowCodeDiagram/Visitors/init-visitor";
 import { visitor as positionVisitor } from "../components/LowCodeDiagram/Visitors/positioning-visitor";
 import { visitor as sizingVisitor } from "../components/LowCodeDiagram/Visitors/sizing-visitor";
+import { workerSyncVisitor } from "../components/LowCodeDiagram/Visitors/worker-sync-visitor";
 import { getVaribaleNamesFromVariableDefList } from "../components/Portals/utils";
 
 export function calculateSize(st: STNode): DiagramSize {
@@ -21,6 +22,7 @@ export function sizingAndPositioning(st: STNode): STNode {
     traversNode(st, initVisitor);
     traversNode(st, sizingVisitor);
     traversNode(st, positionVisitor);
+    traversNode(st, workerSyncVisitor);
     positionVisitor.cleanMaps();
     if (STKindChecker.isFunctionDefinition(st) && st?.viewState?.onFail) {
         const viewState = st.viewState as FunctionViewState;
@@ -34,6 +36,7 @@ export function sizingAndPositioning(st: STNode): STNode {
 export function recalculateSizingAndPositioning(st: STNode): STNode {
     traversNode(st, sizingVisitor);
     traversNode(st, positionVisitor);
+    traversNode(st, workerSyncVisitor);
     positionVisitor.cleanMaps();
     if (STKindChecker.isFunctionDefinition(st) && st?.viewState?.onFail) {
         const viewState = st.viewState as FunctionViewState;

@@ -953,7 +953,6 @@ class PositioningVisitor implements Visitor {
 
     }
 
-
     private syncSendReceiveNodes() {
         const workerSyncOffset: Map<string, number> = new Map();
         const matchedStatements: SendRecievePairInfo[] = [];
@@ -973,8 +972,6 @@ class PositioningVisitor implements Visitor {
             });
         });
 
-        console.log('>>> matched', matchedStatements);
-
         matchedStatements.forEach((senderRecieverPair, i) => {
             const sourceViewState: StatementViewState = senderRecieverPair.sourceNode.viewState;
             const targetViewState: StatementViewState = senderRecieverPair.targetNode.viewState;
@@ -989,13 +986,6 @@ class PositioningVisitor implements Visitor {
             if (workerSyncOffset.has(senderRecieverPair.targetName)) {
                 targetYPosition += workerSyncOffset.get(senderRecieverPair.targetName);
             }
-
-            console.log(">>>",
-                i,
-                workerSyncOffset,
-                { new: sourceYPosition, old: sourceViewState.bBox.cy },
-                { new: targetYPosition, old: targetViewState.bBox.cy }
-            );
 
             if (sourceYPosition >= targetYPosition) {
                 const heightDiff = sourceViewState.bBox.cy - targetViewState.bBox.cy;

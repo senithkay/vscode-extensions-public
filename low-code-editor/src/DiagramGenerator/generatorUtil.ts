@@ -8,6 +8,7 @@ import { initVisitor, positionVisitor, sizingVisitor, SymbolVisitor } from "../i
 import { SelectedPosition } from "../types";
 
 import { addExecutorPositions } from "./executor";
+import { workerSyncVisitor } from "../Diagram/components/LowCodeDiagram/Visitors/worker-sync-visitor";
 
 export async function getSyntaxTree(filePath: string, langClient: DiagramEditorLangClientInterface) {
     const resp = await langClient.getSyntaxTree({
@@ -71,6 +72,8 @@ export function sizingAndPositioningST(st: STNode): STNode {
     traversNode(st, initVisitor);
     traversNode(st, sizingVisitor);
     traversNode(st, positionVisitor);
+    traversNode(st, workerSyncVisitor);
+    positionVisitor.cleanMaps();
     const clone = { ...st };
     return clone;
 }
