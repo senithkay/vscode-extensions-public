@@ -9,7 +9,8 @@ export class OtherForm {
         ExpressionEditor
             .getForField("statement", this.selector)
             .type(value)
-            .waitForValidations();
+            .waitForValidations()
+            .clearSuggestions();
         return this;
     }
 
