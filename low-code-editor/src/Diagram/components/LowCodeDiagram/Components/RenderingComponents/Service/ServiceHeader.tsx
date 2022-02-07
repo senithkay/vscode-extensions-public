@@ -50,13 +50,9 @@ export interface ServiceHeaderProps {
 
 export function ServiceHeader(props: ServiceHeaderProps) {
     const { model, isExpanded, onExpandClick } = props;
-    const {
-        props: { stSymbolInfo },
-        api: {
-            edit: {deleteComponent}
-        },
-    } = useContext(DiagramContext);
-
+    const diagramContext = useContext(DiagramContext);
+    const { stSymbolInfo } = diagramContext.props;
+    const deleteComponent = diagramContext?.api?.edit?.deleteComponent;
     let servicePath = "";
 
     model.absoluteResourcePath.forEach((pathSegment) => {
