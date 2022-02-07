@@ -231,7 +231,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
             modifications.push(addImport);
             const addConnectorInit = createPropertyStatement(endpointStatement, targetPosition);
             modifications.push(addConnectorInit);
-            onConnectorAddEvent();
+            // onConnectorAddEvent();
             if (checkDBConnector(moduleName)) {
                 const closeStatement = `check ${config.name}.close();`;
                 const addCloseStatement = createPropertyStatement(closeStatement, targetPosition);
@@ -298,7 +298,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
         } else {
             const addActionInvocation = createPropertyStatement(actionStatement, targetPosition);
             modifications.push(addActionInvocation);
-            onActionAddEvent();
+            // onActionAddEvent();
         }
 
         if (isNewConnectorInitWizard && checkDBConnector(connectorModule)) {
@@ -349,11 +349,11 @@ export function ConnectorForm(props: FormGeneratorProps) {
     };
     const handleCreateConnectorSaveNext = () => {
         setFormState(FormStates.OperationForm);
-        const event: LowcodeEvent = {
-            type: SAVE_CONNECTOR_INVOKE,
-            name: connectorName,
-        };
-        onEvent(event);
+        // const event: LowcodeEvent = {
+        //     type: SAVE_CONNECTOR_INVOKE,
+        //     name: connectorName,
+        // };
+        // onEvent(event);
     };
 
     const openDocPanel = () => {

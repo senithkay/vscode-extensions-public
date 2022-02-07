@@ -86,11 +86,11 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
             }
             modifyDiagram(modifications);
             onSave();
-            const event: LowcodeEvent = {
-                type: ADD_CONFIGURABLE,
-                name: state.varName
-            };
-            onEvent(event);
+            // const event: LowcodeEvent = {
+            //     type: ADD_CONFIGURABLE,
+            //     name: state.varName
+            // };
+            // onEvent(event);
         }
     }
 

@@ -91,11 +91,11 @@ export function EndConfigForm(props: any) {
                 }
             } else {
                 if (endConfig.type === "Return") {
-                    const event: LowcodeEvent = {
-                        type: SAVE_STATEMENT,
-                        name: endConfig.type
-                    };
-                    onEvent(event);
+                    // const event: LowcodeEvent = {
+                    //     type: SAVE_STATEMENT,
+                    //     name: endConfig.type
+                    // };
+                    // onEvent(event);
                     const addReturnStatement: STModification = createReturnStatement(
                         endConfig.expression as string, formArgs?.targetPosition);
                     modifications.push(addReturnStatement);
@@ -136,11 +136,11 @@ export function EndConfigForm(props: any) {
                         modifications.push(addRespondWithCode);
 
                     } else {
-                        const event: LowcodeEvent = {
-                            type: SAVE_STATEMENT,
-                            name: endConfig.type
-                        };
-                        onEvent(event);
+                        // const event: LowcodeEvent = {
+                        //     type: SAVE_STATEMENT,
+                        //     name: endConfig.type
+                        // };
+                        // onEvent(event);
                         let respondExpression = "check $caller->respond($expression);";
                         respondExpression = respondExpression
                             .replace("$caller", respondConfig.caller)
