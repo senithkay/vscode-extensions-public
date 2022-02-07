@@ -46,6 +46,18 @@ export class FunctionDiagram {
         this.container.within(() => {
             cy.get(`.diagram-canvas .main-foreach-wrapper`).within(() => {
                 cy.get(`.main-plus-wrapper[data-plus-index="${index}"] svg.plus-holder #SmallPlus`)
+                    .click();
+
+            })
+        })
+        return this;
+    }
+
+
+    public clickWhileWorkerPlusBtn(index: number = 0) {
+        this.container.within(() => {
+            cy.get(`.diagram-canvas .while-wrapper`).within(() => {
+                cy.get(`.main-plus-wrapper[data-plus-index="${index}"] svg.plus-holder #SmallPlus`)
                     .not('.else-line')
                     .click();
 

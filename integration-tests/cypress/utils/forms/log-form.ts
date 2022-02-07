@@ -9,8 +9,8 @@ export class LogForm {
         ExpressionEditor
             .getForField("expression", this.selector)
             .type(expression)
-            .waitForValidations()
-            .clearSuggestions();
+            .clearSuggestions()
+            .waitForValidations();
         return this;
     }
 
