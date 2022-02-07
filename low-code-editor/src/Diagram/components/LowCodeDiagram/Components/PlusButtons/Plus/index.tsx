@@ -11,18 +11,17 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline object-literal-shorthand align
-import React, { useContext, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 
-import { ClickAwayListener } from "@material-ui/core";
 import { BallerinaConnectorInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { BlockStatement, FunctionBodyBlock, LocalVarDecl } from "@wso2-enterprise/syntax-tree";
 import cn from "classnames";
 
 import { DefaultConfig } from "../../../../../visitors/default";
 import { Context } from "../../../Context/diagram";
+import { useFunctionContext } from "../../../Context/Function";
 import { BlockViewState } from "../../../ViewState";
 import { PlusViewState } from "../../../ViewState/plus";
-import { PlusElements } from "../../DialogBoxes/PlusHolder";
 
 import { PlusCircleSVG, PLUSCIRCLE_SVG_HEIGHT_WITH_SHADOW, PLUSCIRCLE_SVG_WIDTH_WITH_SHADOW } from "./Circle";
 import { SmallPlusSVG, SMALLPLUS_SVG_HEIGHT_WITH_SHADOW, SMALLPLUS_SVG_WIDTH_WITH_SHADOW } from "./Default";
@@ -46,12 +45,18 @@ export const PlusButton = (props: PlusProps) => {
             syntaxTree,
             isReadOnly
         },
+        api: {
+            edit: {
+                renderPlusWidget
+            }
+        },
         actions: { diagramCleanDraw, diagramRedraw },
     } = useContext(Context);
 
+    const { overlayId, overlayNode } = useFunctionContext();
+
     const { viewState, model, initPlus } = props;
     const plusRef = useRef(null);
-    // const boundingClient = plusRef?.current?.getBoundingClientRect();
 
     const [states, setStates] = useState<PlusStates>({
         isCollapsePlusDuoShown: false,
@@ -59,6 +64,8 @@ export const PlusButton = (props: PlusProps) => {
         // check if the app is in initial state and has no statements, and has no drafted component in the diagram
         isPlusHolderShown: initPlus && !(model?.statements.length > 0) && !viewState.draftSubType,
     });
+
+    const [plusHolder, setPlusHolder] = useState(undefined);
 
     const classes = states.isSmallPlusShown ? cn("holder-show") : cn("holder-hide");
     const x = viewState.bBox.cx;
@@ -94,6 +101,16 @@ export const PlusButton = (props: PlusProps) => {
         viewState.collapsedClicked = false;
         viewState.collapsedPlusDuoExpanded = false;
         diagramRedraw(syntaxTree);
+        setPlusHolder(renderPlusWidget("PlusElements", {
+            position: { x: (x - (DefaultConfig.plusHolder.width / 2)), y: (y) },
+            onClose: handleOnClose,
+            onChange: handlePlusHolderItemClick,
+            initPlus: initPlus,
+            isCallerAvailable: (model.viewState as BlockViewState)?.isCallerAvailable,
+            isResource: (model.viewState as BlockViewState)?.isResource,
+            overlayId: overlayId,
+            overlayNode: overlayNode
+        }, viewState as PlusViewState));
     };
 
     // On click for the collapse button in plus collapse button.
@@ -133,7 +150,7 @@ export const PlusButton = (props: PlusProps) => {
     };
 
     const handleOnClose = () => {
-        if (!initPlus && states.isPlusHolderShown) {
+        if (!initPlus) {
             setStates({
                 ...states,
                 isPlusHolderShown: false
@@ -143,21 +160,9 @@ export const PlusButton = (props: PlusProps) => {
             viewState.collapsedClicked = false;
             viewState.collapsedPlusDuoExpanded = false;
             diagramCleanDraw(syntaxTree);
+            setPlusHolder(undefined);
         }
     }
-
-    const handlePlusHolderComponentClick = (type: string) => {
-        setStates({
-            isPlusHolderShown: true,
-            isSmallPlusShown: false,
-            isCollapsePlusDuoShown: false
-        });
-        viewState.selectedComponent = type;
-        viewState.expanded = true;
-        viewState.collapsedClicked = false;
-        viewState.collapsedPlusDuoExpanded = false;
-        diagramRedraw(syntaxTree);
-    };
 
     const handlePlusHolderItemClick = (type: string, subType: string,
         connectorType: BallerinaConnectorInfo = undefined, isExisting?: boolean, selectedConnector?: LocalVarDecl) => {
@@ -175,6 +180,7 @@ export const PlusButton = (props: PlusProps) => {
         viewState.draftConnector = connectorType;
         viewState.draftForExistingConnector = isExisting;
         diagramRedraw(syntaxTree);
+        setPlusHolder(undefined);
     };
 
     const plusCircle = !initPlus && !states.isPlusHolderShown && !states.isCollapsePlusDuoShown && viewState.visible ?
@@ -184,19 +190,6 @@ export const PlusButton = (props: PlusProps) => {
                 y={y - (PLUSCIRCLE_SVG_HEIGHT_WITH_SHADOW / 2)}
             />
         ) : null;
-    const plusHolder = states.isPlusHolderShown ?
-        <g>
-            <PlusElements
-                position={{ x: (x - (DefaultConfig.plusHolder.width / 2)), y: (y) }}
-                onComponentClick={handlePlusHolderComponentClick}
-                onClose={handleOnClose}
-                onChange={handlePlusHolderItemClick}
-                initPlus={initPlus}
-                viewState={viewState}
-                isCallerAvailable={(model.viewState as BlockViewState)?.isCallerAvailable}
-                isResource={(model.viewState as BlockViewState)?.isResource}
-            />
-        </g> : null;
     const smallPlus = !states.isPlusHolderShown && viewState.visible && !initPlus ?
         (
             <g
@@ -216,22 +209,40 @@ export const PlusButton = (props: PlusProps) => {
             </g>
         ) : null;
 
+    useEffect(() => {
+        if (initPlus && overlayNode) {
+            setStates({
+                isPlusHolderShown: true
+            });
+            setPlusHolder(renderPlusWidget("PlusElements", {
+                position: { x: (x - (DefaultConfig.plusHolder.width / 2)), y: (y) },
+                onClose: handleOnClose,
+                onChange: handlePlusHolderItemClick,
+                initPlus: initPlus,
+                isCallerAvailable: (model.viewState as BlockViewState)?.isCallerAvailable,
+                isResource: (model.viewState as BlockViewState)?.isResource,
+                overlayId: overlayId,
+                overlayNode: overlayNode
+            }, viewState as PlusViewState));
+        }
+    }, [initPlus, overlayNode]);
+
     return (
         <g ref={plusRef}>
             {
                 (!isReadOnly) && (<g className="main-plus-wrapper" data-plus-index={viewState.index}>
                     {plusCircle}
                     {plusHolder}
-                    <ClickAwayListener
+                    {/* <ClickAwayListener
                         mouseEvent="onMouseDown"
                         touchEvent="onTouchStart"
                         onClickAway={handleClickAway}
-                    >
-                        <g>
-                            {smallPlus}
-                        </g>
+                    > */}
+                    <g>
+                        {smallPlus}
+                    </g>
 
-                    </ClickAwayListener>
+                    {/* </ClickAwayListener> */}
                 </g>)
             }
         </g>

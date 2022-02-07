@@ -29,15 +29,15 @@ import {
     DataMapperIcon,
     ConnectorIcon,
     ActionIcon,
-} from "../../../../../../../../assets/icons";
+} from "../../../../../../../assets/icons";
 
-import { Context } from "../../../../../Context/diagram";
-import { PlusViewState } from "../../../../../ViewState";
-import { Tooltip } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { Context } from "../../../../../../../Contexts/Diagram";
+import { PlusViewState } from "../../../../../LowCodeDiagram/ViewState";
+import Tooltip from "../../../../../../../components/Tooltip";
 import "../../style.scss";
-import While from "../../../../../../../../assets/icons/While";
+import While from "../../../../../../../assets/icons/While";
 import { FormattedMessage, useIntl } from "react-intl";
-import { HttpLogo } from "../../../../RenderingComponents/Connector/Icon/HttpLogo";
+import { HttpLogo } from "../../../../../LowCodeDiagram/Components/RenderingComponents/Connector/Icon/HttpLogo";
 
 export const PROCESS_TYPES = [""];
 
@@ -60,7 +60,7 @@ export interface Statements {
 }
 
 export function StatementOptions(props: StatementOptionsProps) {
-    const { props: { syntaxTree }, api: { insights: { onEvent }} } = useContext(Context);
+    const { api: { insights: { onEvent }} } = useContext(Context);
     const intl = useIntl();
     const { onSelect, viewState, isCallerAvailable, isResource } = props;
 

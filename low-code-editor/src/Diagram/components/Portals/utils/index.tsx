@@ -46,9 +46,9 @@ import {
 import * as Forms from "../../FormComponents/ConfigForms";
 import { ConfigWizardState } from "../../FormComponents/ConnectorConfigWizard";
 import * as ConnectorExtension from "../../FormComponents/ConnectorExtensions";
+import * as OverlayElement from "../../FormComponents/DialogBoxes/PlusHolder";
 import * as Elements from "../../FormComponents/FormFieldComponents";
 import { getUnionFormFieldName } from "../../FormComponents/FormFieldComponents/Union";
-import * as OverlayElement from "../../LowCodeDiagram/Components/DialogBoxes";
 import { DefaultConnectorIcon } from "../../LowCodeDiagram/Components/RenderingComponents/Connector/Icon/DefaultConnectorIcon";
 import { StatementViewState } from "../../LowCodeDiagram/ViewState";
 

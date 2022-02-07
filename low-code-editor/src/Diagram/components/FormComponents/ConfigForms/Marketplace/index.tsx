@@ -31,8 +31,8 @@ import { LocalVarDecl } from "@wso2-enterprise/syntax-tree";
 import { FilterIcon } from "../../../../../assets/icons";
 import { Context } from "../../../../../Contexts/Diagram";
 import { UserState } from "../../../../../types";
-import { APIHeightStates } from "../../../LowCodeDiagram/Components/DialogBoxes/PlusHolder/PlusElements";
 import { PlusViewState } from "../../../LowCodeDiagram/ViewState/plus";
+import { APIHeightStates } from "../../DialogBoxes/PlusHolder/PlusElements";
 import { wizardStyles as useFormStyles } from "../style";
 
 import FilterByMenu from "./FilterByMenu";
