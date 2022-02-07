@@ -95,6 +95,7 @@ export class gitStatusBarItem {
 
             if (this.latestGitHash != value.latest.hash) {
                 this.latestGitHash = value.latest.hash;
+                //editor-workspace-git-commit
                 sendTelemetryEvent(this.extension, TM_EVENT_GIT_COMMIT, CMP_GIT_STATUS);
             }
         });

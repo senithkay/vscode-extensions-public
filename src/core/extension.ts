@@ -97,6 +97,7 @@ interface CodeServerContext {
         messageFirstEdit: boolean;
         sourceControlMessage: boolean;
     };
+    telemetryTracker?: TelemetryTracker;
 }
 
 interface PerformanceForecastContext {
@@ -165,6 +166,7 @@ export class BallerinaExtension {
         };
         if (this.getCodeServerContext().codeServerEnv) {
             commands.executeCommand('workbench.action.closeAllEditors');
+            this.getCodeServerContext().telemetryTracker = new TelemetryTracker();
         }
         this.webviewContext = { isOpen: false };
         this.perfForecastContext = {
@@ -670,6 +672,41 @@ class DocumentContext {
 
     public setActiveDiagram(isActiveDiagram: boolean) {
         this.activeDiagram = isActiveDiagram;
+    }
+}
+
+/**
+ * Telemetry tracker keeps track of the events, and
+ * it is used to send telemetry events in batches.
+ */
+export class TelemetryTracker {
+    private textEditCount: number;
+    private diagramEditCount: number;
+
+    constructor() {
+        this.diagramEditCount = 0;
+        this.textEditCount = 0;
+    }
+
+    public reset() {
+        this.textEditCount = 0;
+        this.diagramEditCount = 0;
+    }
+
+    public hasTextEdits(): boolean {
+        return this.textEditCount > 0;
+    }
+
+    public hasDiagramEdits(): boolean {
+        return this.diagramEditCount > 0;
+    }
+
+    public incrementTextEditCount() {
+        this.textEditCount++;
+    }
+
+    public incrementDiagramEditCount() {
+        this.diagramEditCount++;
     }
 }
 
