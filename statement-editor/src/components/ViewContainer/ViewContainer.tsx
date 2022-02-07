@@ -26,6 +26,7 @@ import {
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
+import { APPEND_EXPR_LIST_CONSTRUCTOR, INIT_EXPR_LIST_CONSTRUCTOR, OTHER_STATEMENT } from "../../constants";
 import { VariableUserInputs } from '../../models/definitions';
 import { StatementEditorContextProvider } from "../../store/statement-editor-context";
 import { getCurrentModel, getModifications } from "../../utils";
@@ -94,15 +95,13 @@ export function ViewContainer(props: ViewProps) {
     }
 
     useEffect(() => {
-        (async () => {
-            let partialST: STNode = await getPartialSTForStatement(
-                { codeSnippet: initialSource.trim() }, getLangClient);
-            if (STKindChecker.isLocalVarDecl(partialST) && !partialST.equalsToken) {
-                partialST = await getPartialSTForStatement(
-                    { codeSnippet: initialSource.trim() + " = EXPRESSION" }, getLangClient);
-            }
-            setModel(partialST);
-        })();
+        if (!(config.type === "Custom") || initialSource) {
+            (async () => {
+                const partialST = await getPartialSTForStatement(
+                    { codeSnippet: initialSource.trim() }, getLangClient);
+                setModel(partialST);
+            })();
+        }
     }, []);
 
     useEffect(() => {
@@ -113,21 +112,45 @@ export function ViewContainer(props: ViewProps) {
     }, [model]);
 
     const updateModel = async (codeSnippet: string, position: NodePosition) => {
-        const stModification = {
-            startLine: position.startLine,
-            startColumn: position.startColumn,
-            endLine: position.endLine,
-            endColumn: position.endColumn,
-            newCodeSnippet: codeSnippet
+        let partialST: STNode;
+        if (model) {
+            const stModification = {
+                startLine: position.startLine,
+                startColumn: position.startColumn,
+                endLine: position.endLine,
+                endColumn: position.endColumn,
+                newCodeSnippet: codeSnippet
+            }
+            partialST = await getPartialSTForStatement(
+                { codeSnippet: model.source , stModification }, getLangClient);
+        } else {
+            partialST = await getPartialSTForStatement(
+                { codeSnippet }, getLangClient);
         }
-        const partialST: STNode = await getPartialSTForStatement(
-            { codeSnippet: model.source, stModification }, getLangClient);
         setModel(partialST);
 
-        const newCurrentModel = getCurrentModel({
-            ...position,
-            endColumn: position.startColumn + codeSnippet.length
-        }, partialST);
+        // Since in list constructor we add expression with comma and close-bracket,
+        // we need to reduce that length from the code snippet to get the correct current model
+        let currentModelPosition: NodePosition;
+        if (STKindChecker.isListConstructor(currentModel.model) && codeSnippet === INIT_EXPR_LIST_CONSTRUCTOR) {
+            currentModelPosition = {
+                ...position,
+                endColumn: position.startColumn + codeSnippet.length - 1
+            };
+        } else if (codeSnippet === APPEND_EXPR_LIST_CONSTRUCTOR){
+            currentModelPosition = {
+                ...position,
+                startColumn: position.startColumn + 2,
+                endColumn: position.startColumn + codeSnippet.length - 1
+            }
+        } else {
+            currentModelPosition = {
+                ...position,
+                endColumn: position.startColumn + codeSnippet.length
+            };
+        }
+
+        const newCurrentModel = getCurrentModel(currentModelPosition, partialST);
         setCurrentModel({model: newCurrentModel});
     }
 
@@ -169,7 +192,7 @@ export function ViewContainer(props: ViewProps) {
     }
 
     return (
-        model && (
+        (
             <div className={overlayClasses.mainStatementWrapper}>
                 <div className={overlayClasses.statementExpressionWrapper}>
                     <StatementEditorContextProvider

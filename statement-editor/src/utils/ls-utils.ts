@@ -129,6 +129,11 @@ export async function addStatementToTargetLine(
     if (position?.startColumn && position?.endColumn && position?.endLine) {
         return getModifiedStatement(currentFileContent, currentStatement, position, getLangClient);
     } else {
+        // TODO: Change the backend to accomodate STModifications without endline and endcolumn values and then remove the following logic
+        // Issue: https://github.com/wso2-enterprise/choreo/issues/11069
+        if (!!position?.startColumn) {
+            currentStatement = " ".repeat(position.startColumn) + currentStatement;
+        }
         modelContent.splice(position?.startLine, 0, currentStatement);
         return modelContent.join('\n');
     }

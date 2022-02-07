@@ -19,7 +19,7 @@ import './style.scss';
 
 export interface EditorState {
     filePath: string;
-    langClient: DiagramEditorLangClientInterface;
+    langClientPromise: Promise<DiagramEditorLangClientInterface>;
     startColumn: number;
     startLine: number;
     lastUpdatedAt: string;

@@ -219,7 +219,7 @@ export const PlusButton = (props: PlusProps) => {
     return (
         <g ref={plusRef}>
             {
-                (!isReadOnly) && (<g className="main-plus-wrapper">
+                (!isReadOnly) && (<g className="main-plus-wrapper" data-plus-index={viewState.index}>
                     {plusCircle}
                     {plusHolder}
                     <ClickAwayListener

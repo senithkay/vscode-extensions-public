@@ -45,6 +45,8 @@ import {
     EDITOR_MAXIMUM_CHARACTERS,
     EXPAND_EDITOR_MAXIMUM_CHARACTERS,
     EXPAND_WIDGET_ID,
+    EXPR_SCHEME,
+    FILE_SCHEME,
     TRIGGER_CHARACTERS,
 } from "./constants";
 import "./style.scss";
@@ -446,7 +448,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                                 context: { triggerKind: 1 },
                                 position: {
                                     character: targetPosition.startColumn + monacoRef.current.editor.getPosition().column - 1 + (snippetTargetPosition - 1),
-                                    line: targetPosition.startLine,
+                                    line: targetPosition.startLine + (expressionInjectables?.list?.length || 0),
                                 },
                             };
 
@@ -581,7 +583,8 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
 
         expressionEditorState.name = model.name;
         expressionEditorState.content = initContent;
-        expressionEditorState.uri = `expr://${currentFile.path}`;
+        expressionEditorState.uri = monaco.Uri.file(currentFile.path).toString().replace(FILE_SCHEME, EXPR_SCHEME);
+
         const langClient: ExpressionEditorLangClientInterface = await getExpressionEditorLangClient();
         langClient.didChange({
             contentChanges: [
@@ -632,7 +635,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
 
         expressionEditorState.name = model.name;
         expressionEditorState.content = initContent;
-        expressionEditorState.uri = `expr://${currentFile.path}`;
+        expressionEditorState.uri = monaco.Uri.file(currentFile.path).toString().replace(FILE_SCHEME, EXPR_SCHEME);
 
         const langClient: ExpressionEditorLangClientInterface = await getExpressionEditorLangClient();
         langClient.didOpen({
@@ -870,6 +873,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         });
     };
     const expEditorStyle = monacoRef?.current?.editor?.hasTextFocus() ? "exp-editor-active" : "exp-editor";
+    const fieldName = model.label || model.displayName || model.name;
 
     setDefaultTooltips();
 
@@ -879,6 +883,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             <div
                 className={classNames("exp-container", { "hide-suggestion": hideSuggestions })}
                 style={{ height: expand ? (superExpand ? "200px" : "100px") : "34px" }}
+                field-name={fieldName}
             >
                 <div className="exp-absolute-wrapper">
                     <div

@@ -147,11 +147,11 @@ export function StatementOptions(props: StatementOptionsProps) {
     }
 
     const onSelectStatement = (type: string) => {
-        const event: LowcodeEvent = {
-            type: ADD_STATEMENT,
-            name: type
-        };
-        onEvent(event);
+        // const event: LowcodeEvent = {
+        //     type: ADD_STATEMENT,
+        //     name: type
+        // };
+        // onEvent(event);
         onSelect(type);
     }
 

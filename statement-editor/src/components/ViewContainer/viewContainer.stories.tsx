@@ -28,7 +28,7 @@ import whileStmtModel from "../StatementRenderer/data/while-st-model.json";
 import { ViewContainer, ViewProps } from "./ViewContainer";
 
 export default {
-    title: 'Low Code Editor/StatementEditor/ViewContainer',
+    title: 'Low Code Editor/Testing/StatementEditor/ViewContainer',
     component: ViewContainer,
 };
 

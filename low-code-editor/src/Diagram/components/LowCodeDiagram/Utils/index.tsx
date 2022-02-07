@@ -187,3 +187,8 @@ export function getNodeSignature(node: STNode): string {
 
     return '';
 }
+
+export function getTargetPositionString(pos: NodePosition) {
+    const { startLine, startColumn, endLine, endColumn } = pos;
+    return `${startLine}.${startColumn}.${endLine}.${endColumn}`
+}

@@ -17,6 +17,7 @@ import { ForeachStatementC } from "./ForeachStatement";
 import { IfStatementC } from "./IfStatement";
 import { LocalVarDeclC } from './LocalVarDecl';
 import { OtherStatementTypes } from "./OtherStatement";
+import { RespondStatementC } from "./RespondStatement";
 import { ReturnStatementC } from "./ReturnStatement";
 import { WhileStatementC } from "./WhileStatement";
 
@@ -30,3 +31,4 @@ export { OtherStatementTypes as OtherStatement };
 export { ReturnStatementC as ReturnStatement };
 export { CallStatementC as CallStatement };
 export { AssignmentStatementComponent as AssignmentStatement };
+export { RespondStatementC as ActionStatement };

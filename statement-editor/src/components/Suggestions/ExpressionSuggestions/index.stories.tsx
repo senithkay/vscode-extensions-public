@@ -21,7 +21,7 @@ import varDeclBinaryExprModel from "../../StatementRenderer/data/local-var-decl-
 import { ExpressionSuggestions, ExpressionSuggestionsProps } from "./index";
 
 export default {
-    title: 'Low Code Editor/StatementEditor/ExpressionSuggestions',
+    title: 'Low Code Editor/Testing/StatementEditor/ExpressionSuggestions',
     component: ExpressionSuggestions,
 };
 

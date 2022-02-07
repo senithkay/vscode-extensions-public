@@ -67,11 +67,11 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
 
     // Insight event to send when loading the component
     useEffect(() => {
-        const event: LowcodeEvent = {
-            type: ADD_OTHER_STATEMENT,
-            name: expression,
-        };
-        onEvent(event);
+        // const event: LowcodeEvent = {
+        //     type: ADD_OTHER_STATEMENT,
+        //     name: expression,
+        // };
+        // onEvent(event);
     }, []);
 
     let defaultExpression = "";
@@ -89,11 +89,11 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
     const onSaveBtnClick = () => {
         expressionFormConfig.expression = expression;
         onSave();
-        const event: LowcodeEvent = {
-            type: SAVE_OTHER_STATEMENT,
-            name: expression
-        };
-        onEvent(event);
+        // const event: LowcodeEvent = {
+        //     type: SAVE_OTHER_STATEMENT,
+        //     name: expression
+        // };
+        // onEvent(event);
     }
 
     const validateExpression = (_field: string, isInvalid: boolean) => {
@@ -128,7 +128,7 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
     const { handleStmtEditorToggle, stmtEditorComponent } = useStatementEditor(
         {
             label: intl.formatMessage({ id: "lowcode.develop.configForms.customStatement.statementEditor.label" }),
-            initialSource: formArgs?.model ? formArgs.model?.source : (expression ? expression : "EXPRESSION"),
+            initialSource: formArgs?.model ? formArgs.model?.source : (expression ? expression : null),
             formArgs: { formArgs },
             validForm: isFormValid,
             config,
