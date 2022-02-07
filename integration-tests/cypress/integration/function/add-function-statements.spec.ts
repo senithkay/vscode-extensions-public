@@ -4,12 +4,14 @@ import { SourceCode } from "../../utils/components/code-view";
 import { TopLevelPlusWidget } from "../../utils/components/top-level-plus-widget";
 import { getCurrentSpecFolder } from "../../utils/file-utils";
 import { AssignmentForm } from "../../utils/forms/assignment-form";
+import { ForEachForm } from "../../utils/forms/foreach-form";
 import { FunctionForm } from "../../utils/forms/function-form";
 import { IfForm } from "../../utils/forms/if-form";
 import { LogForm } from "../../utils/forms/log-form";
 import { OtherForm } from "../../utils/forms/other-form";
 import { ReturnForm } from "../../utils/forms/return-form";
 import { VariableFormBlockLevel } from "../../utils/forms/variable-form-block-level";
+import { WhileForm } from "../../utils/forms/while-form";
 import { getIntegrationTestStoryURL } from "../../utils/story-url-utils"
 
 const BAL_FILE_PATH = "function/add-function-to-empty-file.bal";
@@ -186,6 +188,152 @@ describe('Add function and statements via Low Code', () => {
     IfForm.shouldBeVisible()
       .typeCondition("(foo === 123)", 1)
       // .clickAddExpression() //ResizeObserver - loop limit exceeded error
+      .save();
+
+    Canvas.getFunction("myfunction")
+      .nameShouldBe("myfunction")
+      .shouldBeExpanded()
+      .getDiagram()
+      .shouldBeRenderedProperly()
+      .clickDefaultWorkerPlusBtn(2)
+      .getBlockLevelPlusWidget()
+      .clickOption("Return");
+
+    ReturnForm.shouldBeVisible()
+      .typeExpression("foo")
+      .save();
+
+  })
+
+
+  it("Add a function and foreach to empty file", () => {
+
+    Canvas
+      .welcomeMessageShouldBeVisible()
+      .clickTopLevelPlusButton();
+    TopLevelPlusWidget.clickOption("Function");
+
+    FunctionForm
+      .shouldBeVisible()
+      .typeFunctionName("myfunction")
+      .typeReturnType("json|error?")
+      .save();
+
+    Canvas.getFunction("myfunction")
+      .nameShouldBe("myfunction")
+      .shouldBeExpanded()
+      .getDiagram()
+      .shouldBeRenderedProperly()
+      .getBlockLevelPlusWidget()
+      .clickOption("Variable");
+
+    VariableFormBlockLevel.shouldBeVisible()
+      .typeVariableType("int[]")
+      .typeVariableName("foos")
+      .typeVariableValue("[1,2,3,4,5,6]")
+      .save();
+
+    Canvas.getFunction("myfunction")
+      .nameShouldBe("myfunction")
+      .shouldBeExpanded()
+      .getDiagram()
+      .shouldBeRenderedProperly()
+      .clickDefaultWorkerPlusBtn(1)
+      .getBlockLevelPlusWidget()
+      .clickOption("ForEach");
+
+    ForEachForm.shouldBeVisible()
+      .typeArrayType("int")
+      .haveDefaultValueName()
+      .typeCurrentValue("foo")
+      .typeIterableExpression("foos")
+      .save();
+
+    Canvas.getFunction("myfunction")
+      .nameShouldBe("myfunction")
+      .shouldBeExpanded()
+      .getDiagram()
+      .shouldBeRenderedProperly()
+      .clickForEachWorkerPlusBtn(0)
+      .getBlockLevelPlusWidget()
+      .clickOption("Log");
+
+    LogForm
+      .shouldBeVisible()
+      .selectType("Debug")
+      .typeExpression("foo")
+      .diagnosticsShouldBeVisible()
+      .clickDiagnosticsSupportButton()
+      .save();
+
+    Canvas.getFunction("myfunction")
+      .nameShouldBe("myfunction")
+      .shouldBeExpanded()
+      .getDiagram()
+      .shouldBeRenderedProperly()
+      .clickDefaultWorkerPlusBtn(2)
+      .getBlockLevelPlusWidget()
+      .clickOption("Return");
+
+    ReturnForm.shouldBeVisible()
+      .typeExpression("foos")
+      .save();
+
+  })
+
+  it("Add a function and while to empty file", () => {
+
+    Canvas
+      .welcomeMessageShouldBeVisible()
+      .clickTopLevelPlusButton();
+    TopLevelPlusWidget.clickOption("Function");
+
+    FunctionForm
+      .shouldBeVisible()
+      .typeFunctionName("myfunction")
+      .typeReturnType("json|error?")
+      .save();
+
+    Canvas.getFunction("myfunction")
+      .nameShouldBe("myfunction")
+      .shouldBeExpanded()
+      .getDiagram()
+      .shouldBeRenderedProperly()
+      .getBlockLevelPlusWidget()
+      .clickOption("Variable");
+
+    VariableFormBlockLevel.shouldBeVisible()
+      .typeVariableType("int")
+      .typeVariableName("foo")
+      .typeVariableValue(123)
+      .save();
+
+    Canvas.getFunction("myfunction")
+      .nameShouldBe("myfunction")
+      .shouldBeExpanded()
+      .getDiagram()
+      .shouldBeRenderedProperly()
+      .clickDefaultWorkerPlusBtn(1)
+      .getBlockLevelPlusWidget()
+      .clickOption("While");
+
+    WhileForm.shouldBeVisible()
+      .typeCondition("foo == 123")
+      .save();
+
+    Canvas.getFunction("myfunction")
+      .nameShouldBe("myfunction")
+      .shouldBeExpanded()
+      .getDiagram()
+      .shouldBeRenderedProperly()
+      .clickWhileWorkerPlusBtn(0)
+      .getBlockLevelPlusWidget()
+      .clickOption("Log");
+
+    LogForm
+      .shouldBeVisible()
+      .selectType("Debug")
+      .typeExpression(`"This is a debug message."`)
       .save();
 
     Canvas.getFunction("myfunction")
