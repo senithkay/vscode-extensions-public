@@ -1,6 +1,6 @@
 {
   "name": "@wso2-enterprise/ballerina-languageclient",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Ballerina Language Server Client",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -51,6 +51,10 @@
   "license": "UNLICENSED",
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wso2-enterprise/ballerina-low-code-editor.git"
   },
   "engines": {
     "node": ">=0.10.3 <15"

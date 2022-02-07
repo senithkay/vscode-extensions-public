@@ -112,11 +112,11 @@ export function Marketplace(props: MarketplaceProps) {
     let localModuleComponents: ReactNode[] = [];
 
     const onSelectModule = (balModule: BallerinaConstruct) => {
-        const event: LowcodeEvent = {
-            type: ADD_CONNECTOR,
-            name: balModule.displayName || balModule.package.name,
-        };
-        onEvent(event);
+        // const event: LowcodeEvent = {
+        //     type: ADD_CONNECTOR,
+        //     name: balModule.displayName || balModule.package.name,
+        // };
+        // onEvent(event);
         onSelect(balModule, undefined);
         openConnectorHelp(balModule);
     };
@@ -187,11 +187,11 @@ export function Marketplace(props: MarketplaceProps) {
     const onSearchButtonClick = (query: string) => {
         setSearchQuery(query);
         if (query && query.length >= 3) {
-            const event: LowcodeEvent = {
-                type: SEARCH_CONNECTOR,
-                name: query,
-            };
-            onEvent(event);
+            // const event: LowcodeEvent = {
+            //     type: SEARCH_CONNECTOR,
+            //     name: query,
+            // };
+            // onEvent(event);
         }
     };
 
