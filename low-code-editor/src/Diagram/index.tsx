@@ -14,16 +14,17 @@
 import React, { useContext, useState } from "react";
 
 import Container from "@material-ui/core/Container";
-import { ConfigOverlayFormStatus, ConnectorConfigWizardProps, LowcodeEvent, OPEN_LOW_CODE, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
+import { BallerinaConnectorInfo, ConfigOverlayFormStatus, ConnectorConfigWizardProps, DiagramOverlayPosition, LowcodeEvent, OPEN_LOW_CODE, PlusWidgetProps, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { LocalVarDecl, NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { Context as DiagramContext } from "../Contexts/Diagram";
 import { TextPreLoader } from "../PreLoader/TextPreLoader";
 
 import { ConnectorConfigWizard } from "./components/FormComponents/ConnectorConfigWizard";
+import * as DialogBoxes from "./components/FormComponents/DialogBoxes";
 import { FormGenerator, FormGeneratorProps } from "./components/FormComponents/FormGenerator";
 import LowCodeDiagram from "./components/LowCodeDiagram";
-import { ViewState } from "./components/LowCodeDiagram/ViewState";
+import { PlusViewState, ViewState } from "./components/LowCodeDiagram/ViewState";
 import "./style.scss";
 import { useStyles } from "./styles";
 import { removeStatement } from "./utils/modification-util";
@@ -75,6 +76,10 @@ export function Diagram() {
     const [formConfig, setFormConfig] = useState<FormGeneratorProps>(undefined);
     const [isConnectorConfigWizardOpen, setIsConnectorConfigWizardOpen] = useState(false);
     const [connectorConfigWizardProps, setConnectorConfigWizardProps] = useState<ConnectorConfigWizardProps>(undefined);
+    const [isDialogActive, setIsDialogActive] = useState(false);
+    const [activeDialog, setActiveDialog] = useState(undefined);
+    const [activePlusWidget, setActivePlusWidget] = useState(undefined);
+    const [isPlusWidgetActive, setIsPlusWidgetActive] = useState(false);
 
     // React.useEffect(() => {
     //     setIsErrorStateDialogOpen(diagramErrors);
@@ -195,10 +200,38 @@ export function Diagram() {
     const handleCloseAllOpenedForms = (callBack: () => void) => {
         setIsConnectorConfigWizardOpen(false);
         setIsFormOpen(false);
+        setIsDialogActive(false);
         if (callBack) {
             callBack();
         }
     }
+
+    const handleRenderDialogBox = (type: string, onConfirm: () => void, onCancel: () => void, position?: DiagramOverlayPosition, message?: string, removeText?: string, isFunctionMember?: boolean) => {
+        const ChildComp = (DialogBoxes as any)[type];
+        if (!ChildComp) {
+            return;
+        }
+        const handleOnConfirm = () => {
+            onConfirm();
+            setIsDialogActive(false);
+        };
+
+        const handleOnCancel = () => {
+            onCancel();
+            setIsDialogActive(false);
+        };
+
+        setActiveDialog(<ChildComp onConfirm={handleOnConfirm} onCancel={handleOnCancel} position={position} message={message} removeText={removeText} isFunctionMember={isFunctionMember} />);
+        setIsDialogActive(true);
+    };
+
+    const handleRenderPlusWidget = (dialogType: string, plusWidgetProps: PlusWidgetProps, plusViewState?: PlusViewState): any => {
+        const ChildComp = (DialogBoxes as any)[dialogType];
+        if (!ChildComp) {
+            return;
+        }
+        return (<ChildComp {...plusWidgetProps} viewState={plusViewState} />);
+    };
 
     const textLoader = (
         <div className={classes.progressContainer}>
@@ -264,7 +297,9 @@ export function Diagram() {
                             renderAddForm: handleDiagramAdd,
                             renderEditForm: handleDiagramEdit,
                             renderConnectorWizard: handleConnectorConfigWizard,
-                            closeAllOpenedForms: handleCloseAllOpenedForms
+                            renderDialogBox: handleRenderDialogBox,
+                            closeAllOpenedForms: handleCloseAllOpenedForms,
+                            renderPlusWidget: handleRenderPlusWidget
                         },
                         code: {
                             gotoSource,
@@ -288,6 +323,7 @@ export function Diagram() {
                 {!isFormOpen && isConnectorConfigWizardOpen && (
                     <ConnectorConfigWizard {...connectorConfigWizardProps} />
                 )}
+                {isDialogActive && activeDialog}
             </Container>
         </div>
     );

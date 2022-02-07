@@ -14,7 +14,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
 
-import { Button } from "@material-ui/core";
+// import { Button } from "@material-ui/core";
 import classNames from "classnames";
 
 import Tooltip from "../../../../components/Tooltip";
@@ -136,7 +136,7 @@ export default function PanAndZoom(props: PanAndZoomProps) {
             </TransformWrapper>
 
             <div className={classes.zoomControls}>
-                <Button variant="contained" className={classes.panelBtn} onClick={onClickZoomIn}>
+                <button className={classes.panelBtn} onClick={onClickZoomIn}>
                     <Tooltip
                         title="Zoom In"
                         placement="left-start"
@@ -146,8 +146,8 @@ export default function PanAndZoom(props: PanAndZoomProps) {
                             <ZoomInSVG/>
                         </div>
                     </Tooltip>
-                </Button>
-                <Button variant="contained" className={classes.panelBtn} onClick={onClickZoomOut}>
+                </button>
+                <button className={classes.panelBtn} onClick={onClickZoomOut}>
                     <Tooltip
                         title="Zoom Out"
                         placement="left-start"
@@ -157,8 +157,8 @@ export default function PanAndZoom(props: PanAndZoomProps) {
                             <ZoomOutSVG/>
                         </div>
                     </Tooltip>
-                </Button>
-                <Button variant="contained" className={classes.panelBtn} onClick={onClickFitToScreen}>
+                </button>
+                <button className={classes.panelBtn} onClick={onClickFitToScreen}>
                     <Tooltip
                         title="Fit to screen"
                         placement="left-start"
@@ -168,7 +168,7 @@ export default function PanAndZoom(props: PanAndZoomProps) {
                             <FitToScreenSVG/>
                         </div>
                     </Tooltip>
-                </Button>
+                </button>
             </div>
         </div>
     );

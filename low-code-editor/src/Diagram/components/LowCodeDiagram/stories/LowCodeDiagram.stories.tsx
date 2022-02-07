@@ -2,12 +2,13 @@ import React, { useEffect, useState } from 'react';
 
 // tslint:disable-next-line:no-submodule-imports
 import { Story } from '@storybook/react/types-6-0';
-import LowCodeDiagram from '..';
 import { ModulePart } from '@wso2-enterprise/syntax-tree';
-import { LowCodeDiagramProps } from '../Context/types';
+
+import LowCodeDiagram from '..';
 import { getFileContent, getProjectRoot, langClientPromise } from '../../../../stories/story-utils';
-import { sizingAndPositioning } from '../Utils';
 import { Provider } from '../Context/diagram';
+import { LowCodeDiagramProps } from '../Context/types';
+import { sizingAndPositioning } from '../Utils';
 
 export default {
     title: 'Diagram',
