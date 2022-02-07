@@ -25,7 +25,8 @@ export class VariableFormBlockLevel {
         ExpressionEditor
             .getForField("Value Expression", this.selector)
             .type(value)
-            .waitForValidations();
+            .waitForValidations()
+            .clearSuggestions();
         return this;
     }
 

@@ -9,7 +9,8 @@ export class LogForm {
         ExpressionEditor
             .getForField("expression", this.selector)
             .type(expression)
-            .waitForValidations();
+            .waitForValidations()
+            .clearSuggestions();
         return this;
     }
 
@@ -20,6 +21,19 @@ export class LogForm {
         return this;
     }
 
+    static diagnosticsShouldBeVisible() {
+        this.getForm().get('[data-testid="expr-diagnostics"]').should("be.visible");
+        return this;
+    }
+
+    static clickDiagnosticsSupportButton() {
+        this.getForm().get('a').contains("Click here").click().wait(1000);
+        ExpressionEditor
+            .getForField("expression", this.selector)
+            .waitForValidations();
+        return this;
+    }
+
     static shouldBeVisible() {
         this.getForm().should("be.visible");
         return this;
@@ -27,7 +41,7 @@ export class LogForm {
     }
 
     private static getForm() {
-        return cy 
+        return cy
             .get(this.selector);
 
     }

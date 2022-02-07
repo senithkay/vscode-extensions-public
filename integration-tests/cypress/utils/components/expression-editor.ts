@@ -33,6 +33,11 @@ export class ExpressionEditor {
         return this;
     }
 
+    public clearSuggestions() {
+        this.getEditor().type("{esc}");
+        return this;
+    }
+
     public waitForValidations() {
         cy.get(`${this.parentSelector} .exp-container[field-name="${this.fieldName}"] [data-testid="expr-validating-loader"]`)
             .should("not.exist");
