@@ -26,12 +26,17 @@ interface LibraryProps {
 
 export function Library(props: LibraryProps) {
     const stmtCtx = useContext(StatementEditorContext);
+    const {
+        library: {
+            getLibraryData
+        }
+    } = stmtCtx;
     const statementEditorClasses = useStatementEditorStyles();
     const { libraryInfo, key, libraryBrowsingHandler } = props;
     const { id, orgName, version } = libraryInfo;
 
     const onClickOnLibrary = async () => {
-        const response = await stmtCtx.getLibraryData(orgName, id, version);
+        const response = await getLibraryData(orgName, id, version);
 
         if (response) {
             libraryBrowsingHandler(response);
