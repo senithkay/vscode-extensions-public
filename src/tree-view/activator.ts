@@ -148,6 +148,12 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
     });
 
     commands.registerCommand(CONFIG_EDITOR_EXECUTE_COMMAND, async (filePath: string) => {
+        if (!ballerinaExtInstance.isConfigurableEditorEnabled() &&
+            !ballerinaExtInstance.getDocumentContext().isActiveDiagram()) {
+            commands.executeCommand(PALETTE_COMMANDS.RUN);
+            return;
+        }
+
         if (!ballerinaExtInstance.langClient) {
             return;
         }
