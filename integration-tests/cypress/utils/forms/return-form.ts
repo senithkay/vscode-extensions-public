@@ -9,7 +9,8 @@ export class ReturnForm {
         ExpressionEditor
             .getForField("return expression", this.selector)
             .type(value)
-            .waitForValidations();
+            .waitForValidations()
+            .clearSuggestions();
         return this;
     }
 

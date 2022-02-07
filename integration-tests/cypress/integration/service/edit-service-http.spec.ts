@@ -10,48 +10,48 @@ import { VariableFormBlockLevel } from "../../utils/forms/variable-form-block-le
 import { getIntegrationTestStoryURL } from "../../utils/story-url-utils"
 
 describe('edit a http service', () => {
-    beforeEach(() => {
-      cy.visit(getIntegrationTestStoryURL("service/edit-existing-service-file.bal"))
-    })
-  
-    it('Edit service and add statements', () => {
-      Canvas.getService("/hello")
-        .getResourceFunction("POST", "/")
-        .expand()
-        .getDiagram()
-        .shouldBeRenderedProperly()
-        .getBlockLevelPlusWidget()
-        .clickOption("Variable");
+  beforeEach(() => {
+    cy.visit(getIntegrationTestStoryURL("service/edit-existing-service-file.bal"))
+  })
 
-        VariableFormBlockLevel.shouldBeVisible()
-        .typeVariableType("int")
-        .typeVariableName("foo")
-        .isInitializeVariable()
-        .toggleInitializeVariable()
-        .valueExpressionShouldBeHidden()
-        .toggleInitializeVariable()
-        .typeVariableValue(123)
-        .save();
+  it('Edit service and add statements', () => {
+    Canvas.getService("/hello")
+      .getResourceFunction("POST", "/")
+      .expand()
+      .getDiagram()
+      .shouldBeRenderedProperly()
+      .getBlockLevelPlusWidget()
+      .clickOption("Variable");
 
-        Canvas.getService("/hello")
-        .getResourceFunction("POST", "/")
-        .getDiagram()
-        .shouldBeRenderedProperly()
-        .clickDefaultWorkerPlusBtn(1)
-        .getBlockLevelPlusWidget()
-        .clickOption("Variable");
+    VariableFormBlockLevel.shouldBeVisible()
+      .typeVariableType("int")
+      .typeVariableName("foo")
+      .isInitializeVariable()
+      .toggleInitializeVariable()
+      .valueExpressionShouldBeHidden()
+      .toggleInitializeVariable()
+      .typeVariableValue(123)
+      .save();
 
-        VariableFormBlockLevel.shouldBeVisible()
-        .typeVariableType("string")
-        .typeVariableName("foo_string")
-        .isInitializeVariable()
-        .toggleInitializeVariable()
-        .valueExpressionShouldBeHidden()
-        .save();
+    Canvas.getService("/hello")
+      .getResourceFunction("POST", "/")
+      .getDiagram()
+      .shouldBeRenderedProperly()
+      .clickDefaultWorkerPlusBtn(1)
+      .getBlockLevelPlusWidget()
+      .clickOption("Variable");
 
+    VariableFormBlockLevel.shouldBeVisible()
+      .typeVariableType("string")
+      .typeVariableName("foo_string")
+      .isInitializeVariable()
+      .toggleInitializeVariable()
+      .valueExpressionShouldBeHidden()
+      .save();
 
-       
-    })
+    SourceCode.shouldBeEqualTo(
+      getCurrentSpecFolder() + "edit-service-http.expected.bal");
 
   })
-  
+
+})

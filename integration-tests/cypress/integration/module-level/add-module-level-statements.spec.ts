@@ -81,7 +81,7 @@ describe('Add module-level statements via Low Code', () => {
       .haveRecordName("Foo")
       .makePublicRecord()
       .toggleClosedRecord()
-      .addNewField("int", "hello", 123)
+      .addNewField("int", "hello", 123) //Have an issue here
       .clickWhiteSpace()
       .addNewField("int", "world", 321)
       .save()

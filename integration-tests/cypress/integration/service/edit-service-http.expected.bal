@@ -1,12 +1,15 @@
 import ballerina/http;
-import ballerina/log;
 
 service /hello on new http:Listener(9090) {
-    resource function get world() returns error? {
-        log:printDebug("This is a debug message.");
+    resource function get .() returns error? {
     }
+    resource function post .() returns error? {
+        int foo = 123;
+        string foo_string;
+    }
+}
 
-    resource function post world() returns error? {
-        log:printDebug("This is a debug message.");
+service /boom on new http:Listener(9090) {
+    resource function get .() returns error? {
     }
 }
