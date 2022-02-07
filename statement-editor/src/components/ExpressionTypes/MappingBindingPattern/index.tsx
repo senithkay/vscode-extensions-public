@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, {useContext} from "react";
 
-import { CaptureBindingPattern } from "@wso2-enterprise/syntax-tree";
+import { MappingBindingPattern } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
 import { VariableUserInputs } from "../../../models/definitions";
@@ -23,19 +23,19 @@ import { isPositionsEquals } from "../../../utils";
 import { InputEditor } from "../../InputEditor";
 import { useStatementEditorStyles } from "../../styles";
 
-interface CaptureBindingPatternProps {
-    model: CaptureBindingPattern
+interface MappingBindingPatternProps {
+    model: MappingBindingPattern
     userInputs: VariableUserInputs
     diagnosticHandler: (diagnostics: string) => void
 }
 
-export function CaptureBindingPatternComponent(props: CaptureBindingPatternProps) {
+export function MappingBindingPatternComponent(props: MappingBindingPatternProps) {
     const { model, userInputs, diagnosticHandler } = props;
     const stmtCtx = useContext(StatementEditorContext);
     const { modelCtx } = stmtCtx;
     const { currentModel } = modelCtx;
-    const hasVarNameSelected = currentModel.model &&
-        isPositionsEquals(currentModel.model.position, model.variableName.position);
+    const hasBindingPatternSelected = currentModel.model &&
+        isPositionsEquals(currentModel.model.position, model.position);
 
     const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
@@ -49,9 +49,9 @@ export function CaptureBindingPatternComponent(props: CaptureBindingPatternProps
         isTypeDescriptor: false
     };
 
-    const onClickOnVarName = (event: any) => {
+    const onClickOnBindingPattern = (event: any) => {
         event.stopPropagation()
-        expressionHandler(model.variableName, false, false,
+        expressionHandler(model, false, false,
             { expressionSuggestions: [], typeSuggestions: [], variableSuggestions: [] })
     };
 
@@ -59,8 +59,8 @@ export function CaptureBindingPatternComponent(props: CaptureBindingPatternProps
         <button
             className={classNames(
                 statementEditorClasses.expressionElement,
-                hasVarNameSelected && statementEditorClasses.expressionElementSelected)}
-            onClick={onClickOnVarName}
+                hasBindingPatternSelected && statementEditorClasses.expressionElementSelected)}
+            onClick={onClickOnBindingPattern}
         >
             <InputEditor {...inputEditorProps} />
         </button>
