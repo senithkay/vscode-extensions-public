@@ -55,40 +55,33 @@ export class RecordForm {
                 .type(type).wait(1000);
             if (value) {
                 cy.get('[placeholder="Field name"]')
-                    .type(name).wait(1000);
+                    .type(name);
                 cy.get('[placeholder="Value(Optional)"]')
-                    .type(value + "{enter}")
+                    .type(value + "{enter}");
             } else {
                 cy.get('[placeholder="Field name"]')
                     .type(name + "{enter}");
+                cy.get('[data-testid="delete-"] button').click();
             }
         });
         return this;
     }
 
-
-
-
-
-
+    static deleteFirstField(name: string) {
+        this.getForm().within(() => {
+            cy.get(`[data-testid="delete-${name}"] button`).click({ force: true });
+        });
+        return this;
+    }
 
     static shouldBeVisible() {
         this.getForm().should("be.visible");
-        return this;
-
-    }
-
-
-
-    static clickAddExpression() {
-        this.getForm().get('[data-testid="plus-button"]').first().click();
         return this;
     }
 
     private static getForm() {
         return cy
             .get(this.selector);
-
     }
 
     static save() {

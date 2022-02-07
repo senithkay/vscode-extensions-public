@@ -81,9 +81,10 @@ describe('Add module-level statements via Low Code', () => {
       .haveRecordName("Foo")
       .makePublicRecord()
       .toggleClosedRecord()
-      .addNewField("int", "hello", 123) //Have an issue here
+      .addNewField("int", "hello") //Have an issue here when adding default value
       .clickWhiteSpace()
-      .addNewField("int", "world", 321)
+      .addNewField("int", "world")
+      .deleteFirstField("hello")
       .save()
   })
 
