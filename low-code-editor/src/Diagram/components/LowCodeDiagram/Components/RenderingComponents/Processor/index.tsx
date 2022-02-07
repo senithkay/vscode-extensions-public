@@ -55,11 +55,8 @@ export function DataProcessor(props: ProcessorProps) {
     const renderAddForm = diagramContext?.api?.edit?.renderAddForm;
     const renderEditForm = diagramContext?.api?.edit?.renderEditForm;
     const {
-        isCodeEditorActive,
         syntaxTree,
         stSymbolInfo,
-        isMutationProgress,
-        isWaitingOnWorkspace,
         isReadOnly,
     } = diagramContext.props;
     const { diagramCleanDraw } = diagramContext.actions;
@@ -275,7 +272,7 @@ export function DataProcessor(props: ProcessorProps) {
                             sourceSnippet={sourceSnippet}
                             position={model?.position}
                             diagnostics={errorSnippet}
-                            openInCodeView={!isReadOnly && !isCodeEditorActive && !isWaitingOnWorkspace && model && model.position && onClickOpenInCodeView}
+                            openInCodeView={!isReadOnly && model && model.position && onClickOpenInCodeView}
                         />
                         <Assignment
                             x={cx + PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW / 2 + (DefaultConfig.dotGap * 3)}
@@ -291,7 +288,7 @@ export function DataProcessor(props: ProcessorProps) {
                             key_id={getRandomInt(1000)}
                         />
 
-                        {!isReadOnly && !isMutationProgress && !isWaitingOnWorkspace &&
+                        {!isReadOnly &&
                             <g
                                 className="process-options-wrapper"
                                 height={PROCESS_SVG_HEIGHT_WITH_SHADOW}

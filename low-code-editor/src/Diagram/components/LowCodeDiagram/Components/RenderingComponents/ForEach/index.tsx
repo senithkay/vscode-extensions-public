@@ -73,10 +73,7 @@ export function ForEach(props: ForeachProps) {
         props: {
             syntaxTree,
             isReadOnly,
-            isMutationProgress,
             stSymbolInfo,
-            isWaitingOnWorkspace,
-            isCodeEditorActive
         }
     } = useContext(Context); // TODO: Get diagramCleanDraw, diagramRedraw from state
 
@@ -248,7 +245,7 @@ export function ForEach(props: ForeachProps) {
                     text="FOR EACH"
                     codeSnippet={codeSnippet}
                     diagnostics={errorSnippet}
-                    openInCodeView={!isCodeEditorActive && !isWaitingOnWorkspace && model && model?.position && onClickOpenInCodeView}
+                    openInCodeView={model && model?.position && onClickOpenInCodeView}
 
                 />
 
@@ -265,7 +262,7 @@ export function ForEach(props: ForeachProps) {
                     }
                 </>
                 <>
-                    {(!isReadOnly && !isMutationProgress && !isWaitingOnWorkspace) && (<g
+                    {!isReadOnly && (<g
                         className="foreach-options-wrapper"
                         height={FOREACH_SVG_HEIGHT_WITH_SHADOW}
                         width={FOREACH_SVG_HEIGHT_WITH_SHADOW}
@@ -324,7 +321,7 @@ export function ForEach(props: ForeachProps) {
                     key_id={getRandomInt(1000)}
                 />                <>
                     {
-                        (!isReadOnly && !isMutationProgress && !isWaitingOnWorkspace) && (<g
+                        !isReadOnly && (<g
                             className="foreach-options-wrapper"
                             height={FOREACH_SVG_HEIGHT_WITH_SHADOW}
                             width={FOREACH_SVG_HEIGHT_WITH_SHADOW}

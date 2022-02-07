@@ -18,7 +18,6 @@ import { STNode } from "@wso2-enterprise/syntax-tree";
 
 import { DefaultConfig } from "../../../../../visitors/default";
 import { Context } from "../../../Context/diagram";
-import { DeleteConfirmDialog } from "../../DialogBoxes";
 
 import { DeleteSVG } from "./DeleteSVG";
 import "./style.scss";
@@ -35,15 +34,10 @@ export interface DeleteBtnProps {
 }
 
 export function DeleteBtn(props: DeleteBtnProps) {
-    const {
-        props: { isReadOnly },
-
-        api: {
-            edit: {
-                deleteComponent
-            }
-        }
-    } = useContext(Context);
+    const diagramContext = useContext(Context);
+    const { isReadOnly } = diagramContext.props;
+    const deleteComponent = diagramContext?.api?.edit?.deleteComponent;
+    const renderDialogBox = diagramContext?.api?.edit?.renderDialogBox;
 
     const { cx, cy, model, onDraftDelete, toolTipTitle, isButtonDisabled, isReferencedInCode, showOnRight } = props;
 
@@ -62,7 +56,11 @@ export function DeleteBtn(props: DeleteBtnProps) {
 
     const onBtnClick = () => {
         if (!isButtonDisabled) {
-            if (isReferencedInCode) {
+            if (isReferencedInCode && renderDialogBox) {
+                renderDialogBox("Delete", onDeleteConfirm, closeConfirmDialog, {
+                    x: cx + (showOnRight ? (-(DefaultConfig.deleteConfirmOffset.x)) / 2 : DefaultConfig.deleteConfirmOffset.x),
+                    y: cy + (showOnRight ? 0 : DefaultConfig.deleteConfirmOffset.y),
+                });
                 setConfirmDialogActive(true);
             } else {
                 onDeleteConfirm();
@@ -77,7 +75,7 @@ export function DeleteBtn(props: DeleteBtnProps) {
 
     const onDeleteConfirm = () => {
         // delete logic
-        if (model) {
+        if (model && deleteComponent) {
             deleteComponent(model, closeConfirmDialog)
         } else if (onDraftDelete) {
             onDraftDelete();
@@ -97,19 +95,6 @@ export function DeleteBtn(props: DeleteBtnProps) {
                     >
                         <DeleteSVG x={cx} y={cy} toolTipTitle={toolTipTitle} />
                     </g>
-
-                    {isConfirmDialogActive &&
-                        <g>
-                            <DeleteConfirmDialog
-                                position={{
-                                    x: cx + (showOnRight ? (-(DefaultConfig.deleteConfirmOffset.x)) / 2 : DefaultConfig.deleteConfirmOffset.x),
-                                    y: cy + (showOnRight ? 0 : DefaultConfig.deleteConfirmOffset.y),
-                                }}
-                                onConfirm={onDeleteConfirm}
-                                onCancel={closeConfirmDialog}
-                            />
-                        </g>
-                    }
                 </g>
             }
         </g>

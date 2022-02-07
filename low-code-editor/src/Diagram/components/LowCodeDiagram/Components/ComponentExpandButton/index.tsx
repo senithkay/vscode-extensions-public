@@ -29,11 +29,8 @@ export function ComponentExpandButton(props: ComponentExpandButtonProps) {
     const { onClick, isExpanded } = props;
 
     return (
-        <div className={'component-expand-icon-container'} >
-            <IconButton onClick={onClick}  >
-                {isExpanded ? <ComponentExpandIcon /> : <ComponentCollapseIcon />}
-            </IconButton>
+        <div className={'component-expand-icon-container'} onClick={onClick} >
+            {isExpanded ? <ComponentExpandIcon /> : <ComponentCollapseIcon />}
         </div>
-    )
-
+    );
 }

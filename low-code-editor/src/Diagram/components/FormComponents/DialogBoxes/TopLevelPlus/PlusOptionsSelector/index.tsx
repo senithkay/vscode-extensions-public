@@ -13,10 +13,10 @@
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline object-literal-shorthand align
 import React, { useContext, useState } from "react";
 
+import { Margin } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
-import { Context } from "../../../../Context/diagram";
-import { Margin } from "../index";
+import { FormGenerator } from "../../../FormGenerator";
 import { PlusOptionRenderer } from "../PlusOptionRenderer";
 
 export interface PlusOptionsProps {
@@ -70,13 +70,6 @@ export const triggerEntries: PlusMenuEntry[] = [
 export const PlusOptionsSelector = (props: PlusOptionsProps) => {
     const { onClose, targetPosition, kind, isTriggerType, isLastMember, showCategorized } = props;
     const [selectedOption, setSelectedOption] = useState<PlusMenuEntry>(undefined);
-    const {
-        api: {
-            edit: {
-                renderAddForm
-            }
-        }
-    } = useContext(Context);
 
     let menuEntries: PlusMenuEntry[] = [];
 
@@ -90,7 +83,6 @@ export const PlusOptionsSelector = (props: PlusOptionsProps) => {
     }
 
     const onOptionSelect = (option: PlusMenuEntry) => {
-        renderAddForm(targetPosition, { formType: option.type, formName: option.name, isLoading: false, isLastMember }, handleOnClose, handleOnSave);
         setSelectedOption(option);
     }
 
@@ -117,6 +109,14 @@ export const PlusOptionsSelector = (props: PlusOptionsProps) => {
                     />
                 )
             }
+            {selectedOption && (
+                <FormGenerator
+                    targetPosition={targetPosition}
+                    configOverlayFormStatus={{ formType: selectedOption.type, isLoading: false }}
+                    onCancel={handleOnClose}
+                    onSave={handleOnSave}
+                />
+            )}
         </>
     );
 };

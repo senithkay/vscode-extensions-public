@@ -85,7 +85,8 @@ export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
         selectedConnector,
         isAction,
         isEdit,
-        specialConnectorName
+        specialConnectorName,
+        functionNode
     } = props;
 
     const initWizardState: ConfigWizardState = {
@@ -179,6 +180,7 @@ export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
                             configWizardArgs: wizardState,
                             connectorInfo,
                             isAction,
+                            functionNode,
                             onClose: handleClose,
                             onSave: handleSave,
                         },

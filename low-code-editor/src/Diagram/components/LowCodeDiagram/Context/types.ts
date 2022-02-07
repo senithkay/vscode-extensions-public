@@ -1,5 +1,7 @@
-import { ConfigOverlayFormStatus, ConnectorConfigWizardProps, LowcodeEvent, PerformanceData, STModification, STSymbolInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { BallerinaConnectorInfo, ConfigOverlayFormStatus, ConnectorConfigWizardProps, DiagramOverlayPosition, LowcodeEvent, PerformanceData, PlusWidgetProps, STModification, STSymbolInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
+
+import { PlusViewState } from "../ViewState";
 
 export interface LowCodeDiagramProps extends LowCodeDiagramProperties {
     api?: LowCodeDiagramAPI;
@@ -18,18 +20,13 @@ export interface LowCodeDiagramProperties {
     error?: Error;
     selectedPosition?: SelectedPosition;
     stSymbolInfo?: STSymbolInfo;
-    isCodeEditorActive?: boolean;
-    isWaitingOnWorkspace?: boolean;
-    isMutationProgress?: boolean;
     performanceData?: Map<string, PerformanceData>;
-    // isDiagramLoading?: boolean;
 }
 
 export interface LowCodeDiagramState {
     triggerUpdated: boolean; // FIXME Moving existing prop manipulated in memory into state
     isDataMapperShown: boolean;
     isConfigOverlayFormOpen: boolean;
-    // dataMapperConfig: DataMapperConfig;
     targetPosition: NodePosition; // FIXME check and remove usage of update position if not used anymore
 }
 
@@ -39,10 +36,6 @@ export interface LowCodeDiagramActions {
     diagramRedraw: (payload: STNode) => void;
     insertComponentStart: (payload: NodePosition) => void;
     editorComponentStart: (payload: STNode) => void;
-    // dataMapperStart: (dataMapperConfig: DataMapperConfig) => void;
-    // toggleDiagramOverlay: () => void;
-    // updateDataMapperConfig: (dataMapperConfig: DataMapperConfig) => void;
-    // setTriggerUpdated: (isUpdated: boolean) => void;
 }
 
 export interface LowCodeDiagramAPI {
@@ -51,6 +44,8 @@ export interface LowCodeDiagramAPI {
         renderEditForm?: (model: STNode, targetPosition: NodePosition, configOverlayFormStatus: ConfigOverlayFormStatus, onClose?: () => void, onSave?: () => void) => void;
         renderAddForm?: (targetPosition: NodePosition, configOverlayFormStatus: ConfigOverlayFormStatus, onClose?: () => void, onSave?: () => void) => void;
         renderConnectorWizard?: (connectorConfigWizardProps: ConnectorConfigWizardProps) => void;
+        renderDialogBox?: (type: string, onConfirm: () => void, onCancel: () => void, position?: DiagramOverlayPosition, message?: string, removeText?: string, isFunctionMember?: boolean) => void;
+        renderPlusWidget?: (type: string, plusWidgetProps: PlusWidgetProps, viewState?: PlusViewState) => any;
         closeAllOpenedForms?: (callBack?: () => void) => void;
     };
 
@@ -65,9 +60,6 @@ export interface LowCodeDiagramAPI {
     };
 
     configPanel?: {
-        // dispactchConfigOverlayForm: (type: string, targetPosition: NodePosition,
-        //                              wizardType: WizardType, blockViewState?: BlockViewState, config?: ConditionConfig,
-        //                              symbolInfo?: STSymbolInfo, model?: STNode) => void;
         closeConfigOverlayForm: () => void;
         configOverlayFormPrepareStart: () => void;
         closeConfigPanel: () => void;

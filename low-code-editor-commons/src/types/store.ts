@@ -132,5 +132,30 @@ export interface ConnectorConfigWizardProps {
     selectedConnector?: LocalVarDecl;
     isAction?: boolean;
     isEdit?: boolean;
+    functionNode?: STNode;
 }
 
+export interface Margin {
+    top?: number;
+    bottom?: number;
+    left?: number;
+    right?: number;
+}
+
+export interface PlusWidgetProps {
+    position?: DiagramOverlayPosition;
+    isPlusActive?: boolean;
+    onChange?: (type: string, subType: string, connector?: BallerinaConnectorInfo, isExisting?: boolean, selectedConnector?: LocalVarDecl) => void;
+    onClose?: () => void;
+    initPlus?: boolean;
+    isResource?: boolean;
+    isCallerAvailable?: boolean;
+    kind?: string;
+    targetPosition?: NodePosition;
+    isTriggerType?: boolean;
+    isLastMember?: boolean;
+    showCategorized?: boolean;
+    overlayId?: string;
+    overlayNode? : HTMLDivElement;
+    offset?: any;
+}

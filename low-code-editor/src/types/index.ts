@@ -44,6 +44,7 @@ export interface LowCodeEditorState {
     isConfigOverlayFormOpen: boolean;
     dataMapperConfig: DataMapperConfig;
     targetPosition: NodePosition; // FIXME check and remove usage of update position if not used anymore
+    currentFunctionNode?: STNode;
 }
 
 export interface LowCodeEditorActions {
