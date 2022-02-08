@@ -1,4 +1,5 @@
 import { Function } from "./function";
+import { Listener } from "./listener";
 import { Service } from "./service";
 
 export class Canvas {
@@ -21,6 +22,10 @@ export class Canvas {
         return cy
             .get(`#canvas .member-container[data-start-position="${startLine}:${startColumn}"] ${elementSelector}`)
             .should('exist');
+    }
+
+    private static getListenerComponentELement(listenerName: string) {
+        return cy.get(`#canvas .member-container .listener-comp[data-listener-name="${listenerName}"]`)
     }
 
     private static getFnMemberContainer(fnName: string) {
@@ -52,6 +57,11 @@ export class Canvas {
     static getService(fnName: string) {
         const element = this.getSvMemberContainer(fnName);
         return new Service(element);
+    }
+
+    static getListener(listenerName: string) {
+        const element = this.getListenerComponentELement(listenerName);
+        return new Listener(element);
     }
 
 }
