@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: no-empty jsx-no-multiline-js
-import React from 'react';
+import React, { useState } from 'react';
 
 import { LibraryKind, STModification } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
@@ -42,6 +42,10 @@ export const StatementEditorContext = React.createContext({
         content: "",
         path: "",
         size: 0
+    },
+    modules: {
+        modulesToBeImported: new Set(),
+        updateModuleList: (module: string) => {}
     }
 });
 
@@ -70,6 +74,14 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
         ...restProps
     } = props;
 
+    const [moduleList, setModuleList] = useState(new Set<string>());
+
+    const moduleHandler = (module: string) => {
+        setModuleList((prevModuleList: Set<string>) => {
+            return new Set(prevModuleList.add(module));
+        });
+    };
+
     return (
         <StatementEditorContext.Provider
             value={{
@@ -88,6 +100,10 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
                 getLibrariesList,
                 getLibrariesData,
                 getLibraryData,
+                modules: {
+                    modulesToBeImported: moduleList,
+                    updateModuleList: moduleHandler
+                },
                 ...restProps
             }}
         >

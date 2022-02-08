@@ -18,11 +18,8 @@ import {
     LibraryFunction,
     ModuleProperty
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import * as monaco from "monaco-editor";
 
 import { StatementEditorContext } from "../../../store/statement-editor-context";
-import { addStatementToTargetLine, sendDidChange } from "../../../utils/ls-utils";
-import { EXPR_SCHEME, FILE_SCHEME } from "../../InputEditor/constants";
 import { useStatementEditorStyles } from "../../styles";
 
 interface ModuleElementProps {
@@ -39,15 +36,13 @@ export function ModuleElement(props: ModuleElementProps) {
     const {
         modelCtx: {
             currentModel,
-            updateModel,
-            addModuleImport
+            updateModel
         },
-        currentFile,
-        getLangClient,
-        getLibraryData
+        getLibraryData,
+        modules: {
+            updateModuleList
+        }
     } = useContext(StatementEditorContext);
-
-    const fileURI = monaco.Uri.file(currentFile.path).toString().replace(FILE_SCHEME, EXPR_SCHEME);
 
     const onClickOnModuleElement = async () => {
         const response: LibraryDataResponse = await getLibraryData(moduleOrgName, moduleId, moduleVersion);
@@ -76,18 +71,7 @@ export function ModuleElement(props: ModuleElementProps) {
             }
         }
 
-        const updatedContent: string = await addStatementToTargetLine(
-            currentFile.content, {startLine: 0, startColumn: 0, endLine: 0, endColumn: 0}, `import ${moduleOrgName}/${moduleId};`, getLangClient);
-        const langClient = await getLangClient();
-        langClient.didOpen({
-            textDocument: {
-                uri: fileURI,
-                languageId: "ballerina",
-                text: currentFile.content,
-                version: 1
-            }
-        });
-        sendDidChange(fileURI, updatedContent, getLangClient).then();
+        updateModuleList(`import ${moduleOrgName}/${moduleId};`);
         updateModel(content, currentModel.model.position);
 
         // addModuleImport(moduleOrgName, moduleId);
