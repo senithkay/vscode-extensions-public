@@ -66,6 +66,7 @@ import { DraftStatementViewState } from "../ViewState/draft";
 import { ModuleMemberViewState } from "../ViewState/module-member";
 import { ServiceViewState } from "../ViewState/service";
 import { WhileViewState } from "../ViewState/while";
+import { WorkerDeclarationViewState } from "../ViewState/worker-declaration";
 
 let allEndpoints: Map<string, Endpoint> = new Map<string, Endpoint>();
 
@@ -720,6 +721,36 @@ class SizingVisitor implements Visitor {
 
     public endVisitNamedWorkerDeclaration(node: NamedWorkerDeclaration) {
         this.endSizingBlock(node.workerBody);
+        const viewState: WorkerDeclarationViewState = node.viewState as WorkerDeclarationViewState;
+        const body: BlockStatement = node.workerBody as BlockStatement;
+        const bodyViewState: BlockViewState = body.viewState;
+        const lifeLine = viewState.workerLine;
+        const trigger = viewState.trigger;
+        const end = viewState.end;
+
+        trigger.h = START_SVG_HEIGHT;
+        trigger.w = START_SVG_WIDTH;
+
+        end.bBox.w = STOP_SVG_WIDTH;
+        end.bBox.h = STOP_SVG_HEIGHT;
+
+        lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h;
+
+        if (STKindChecker.isExpressionFunctionBody(body) || body.statements.length > 0) {
+            lifeLine.h += end.bBox.offsetFromTop;
+        }
+
+        viewState.bBox.h = lifeLine.h + trigger.h + end.bBox.h + DefaultConfig.serviceVerticalPadding * 2 + DefaultConfig.functionHeaderHeight;
+        viewState.bBox.w = (trigger.w > bodyViewState.bBox.w ? trigger.w : bodyViewState.bBox.w)
+            + DefaultConfig.serviceFrontPadding + DefaultConfig.serviceRearPadding + allEndpoints.size * 150 * 2;
+
+        if (viewState.initPlus && viewState.initPlus.selectedComponent === "PROCESS") {
+            viewState.bBox.h += PLUS_HOLDER_STATEMENT_HEIGHT;
+            if (viewState.bBox.w < PLUS_HOLDER_WIDTH) {
+                viewState.bBox.w = PLUS_HOLDER_WIDTH;
+            }
+        }
+
     }
 
     private sizeStatement(node: STNode) {

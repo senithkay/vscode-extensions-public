@@ -16,6 +16,7 @@ import {
     ModulePart,
     ModuleVarDecl,
     NamedWorkerDeclaration,
+    NamedWorkerDeclarator,
     ObjectMethodDefinition,
     OnFailClause,
     RemoteMethodCallAction,
@@ -54,6 +55,7 @@ import {
     WhileViewState
 } from "../ViewState";
 import { DraftStatementViewState } from "../ViewState/draft";
+import { WorkerDeclarationViewState } from "../ViewState/worker-declaration";
 
 let allEndpoints: Map<string, Endpoint> = new Map<string, Endpoint>();
 let currentFnBody: FunctionBodyBlock | ExpressionFunctionBody;
@@ -183,7 +185,7 @@ class InitVisitor implements Visitor {
             node.viewState = new StatementViewState();
         }
     }
-
+    
     public endVisitForeachStatement(node: ForeachStatement) {
         node.viewState = new ForEachViewState();
     }
@@ -368,7 +370,7 @@ class InitVisitor implements Visitor {
 
     public beginVisitNamedWorkerDeclaration(node: NamedWorkerDeclaration) {
         if (!node.viewState) {
-            node.viewState = new BlockViewState();
+            node.viewState = new WorkerDeclarationViewState();
         }
         this.visitBlock(node.workerBody, node);
     }

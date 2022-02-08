@@ -61,6 +61,7 @@ import {
     StatementViewState,
     WhileViewState
 } from "../ViewState";
+import { WorkerDeclarationViewState } from "../ViewState/worker-declaration";
 
 let allEndpoints: Map<string, Endpoint> = new Map<string, Endpoint>();
 let epCount: number = 0;
@@ -106,76 +107,7 @@ class PositioningVisitor implements Visitor {
             plusBtnViewState.bBox.cy = viewState.trigger.cy;
             plusBtnViewState.expanded = false;
             viewState.initPlus = plusBtnViewState; // todo: make it an appropriate value
-        } else {
-            // let height = GAP_BETWEEN_MEMBERS; // adding initial plus height
-            // let prevMemberViewState: ViewState = null;
-            // // Clean rendered labels
-            // node.members.forEach((member: STNode, i: number) => {
-            //     const memberVS = member.viewState;
-
-            //     if (memberVS) {
-            //         memberVS.bBox.x = viewState.bBox.x + DefaultConfig.horizontalGapBetweenComponents;
-            //         memberVS.bBox.y = viewState.bBox.y + height;
-            //         // adding the height of the sub component
-            //         height += memberVS.bBox.h;
-            //     }
-
-            //     if (i !== node.members.length - 1) {
-            //         height += GAP_BETWEEN_MEMBERS;
-            //     }
-
-            //     // calculating plus button positions
-            //     const plusViewState: PlusViewState = getPlusViewState(i, viewState.plusButtons);
-            //     if (plusViewState) {
-            //         plusViewState.bBox.cx = memberVS.bBox.x;
-            //         if (i === 0) {
-            //             plusViewState.bBox.cy = viewState.bBox.y + (GAP_BETWEEN_MEMBERS / 2);
-            //         } else {
-            //             const prevComponentEndY = prevMemberViewState.bBox.y + prevMemberViewState.bBox.h;
-            //             plusViewState.bBox.cy = prevComponentEndY + (GAP_BETWEEN_MEMBERS / 2);
-            //         }
-            //         prevMemberViewState = memberVS;
-            //     }
-            // });
-
-            // const lastPlusViewState: PlusViewState = getPlusViewState(node.members.length, viewState.plusButtons);
-            // if (node.members.length > 0) {
-            //     const prevComponentEndY = prevMemberViewState.bBox.y + prevMemberViewState.bBox.h;
-            //     lastPlusViewState.bBox.cx = prevMemberViewState.bBox.x;
-            //     lastPlusViewState.bBox.cy = prevComponentEndY + (GAP_BETWEEN_MEMBERS / 2);
-            // } else {
-            //     // initial plus position
-            //     lastPlusViewState.bBox.cx = viewState.bBox.x + DefaultConfig.horizontalGapBetweenParentComponents;
-            //     lastPlusViewState.bBox.cy = viewState.bBox.y + height + (GAP_BETWEEN_MEMBERS / 2);
-            // }
         }
-    }
-
-    private beginFunctionTypeNode(node: ResourceAccessorDefinition | FunctionDefinition) {
-        if (!node.functionBody) {
-            return;
-        }
-        const viewState: FunctionViewState = node.viewState;
-        const bodyViewState: BlockViewState = node.functionBody.viewState;
-
-        viewState.wrapper.cx = viewState.bBox.x;
-        viewState.wrapper.cy = viewState.bBox.y;
-
-        const topOffSet = viewState.bBox.offsetFromTop * 7;
-        viewState.bBox.cx = viewState.bBox.x + (viewState.bBox.w / 2);
-        viewState.bBox.cy = viewState.bBox.y + topOffSet;
-
-        viewState.trigger.cx = viewState.bBox.cx;
-        viewState.trigger.cy = viewState.bBox.cy;
-
-        viewState.workerLine.x = viewState.trigger.cx;
-        viewState.workerLine.y = viewState.trigger.cy + (viewState.trigger.h / 2);
-
-        bodyViewState.bBox.cx = viewState.workerLine.x;
-        bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
-
-        viewState.end.bBox.cx = viewState.bBox.cx;
-        viewState.end.bBox.cy = DefaultConfig.startingY + viewState.workerLine.h + DefaultConfig.canvas.childPaddingY;
     }
 
     public beginVisitFunctionDefinition(node: FunctionDefinition) {
@@ -202,45 +134,28 @@ class PositioningVisitor implements Visitor {
         viewState.end.bBox.cy = DefaultConfig.startingY + viewState.workerLine.h + DefaultConfig.canvas.childPaddingY;
 
         this.currentWorker.push('function');
-        // this.beginFunctionTypeNode(node);
-    }
-
-    public beginVisitServiceDeclaration(node: ServiceDeclaration, parent?: STNode) {
-        // const serviceVS: ServiceViewState = node.viewState;
-
-        // let height = DefaultConfig.serviceMemberSpacing + SERVICE_HEADER_HEIGHT;
-        // serviceVS.bBox.cx = serviceVS.bBox.x;
-        // serviceVS.bBox.cy = serviceVS.bBox.y;
-        // // let prevMemberViewState: ViewState = null;
-
-        // node.members.forEach((member: STNode, i: number) => {
-        //     const memberVS = member.viewState;
-
-        //     const plusViewState: PlusViewState = getPlusViewState(i, serviceVS.plusButtons);
-
-        //     if (plusViewState) {
-        //         plusViewState.bBox.cx = serviceVS.bBox.x + DefaultConfig.serviceFrontPadding;
-        //         plusViewState.bBox.cy = serviceVS.bBox.y + height;
-        //         height += DefaultConfig.serviceMemberSpacing;
-        //     }
-
-        //     if (memberVS) {
-        //         memberVS.bBox.x = serviceVS.bBox.x + DefaultConfig.serviceFrontPadding;
-        //         memberVS.bBox.y = serviceVS.bBox.y + height;
-        //         height += memberVS.bBox.h + DefaultConfig.serviceMemberSpacing;
-        //     }
-        // });
-
-        // const lastPlusViewState: PlusViewState = getPlusViewState(node.members.length, serviceVS.plusButtons);
-
-        // if (lastPlusViewState) {
-        //     lastPlusViewState.bBox.cx = serviceVS.bBox.x + DefaultConfig.serviceFrontPadding;
-        //     lastPlusViewState.bBox.cy = serviceVS.bBox.y + height;
-        // }
-
     }
 
     public beginVisitNamedWorkerDeclaration(node: NamedWorkerDeclaration) {
+        const viewState: WorkerDeclarationViewState = node.viewState as WorkerDeclarationViewState;
+        const bodyViewState: BlockViewState = node.workerBody.viewState as BlockViewState;
+
+        viewState.bBox.cx = viewState.bBox.x;
+        viewState.bBox.cy = viewState.bBox.y;
+
+        viewState.trigger.cx = viewState.bBox.cx + viewState.bBox.w / 2;
+        viewState.trigger.cy = viewState.bBox.cy + DefaultConfig.serviceVerticalPadding + viewState.trigger.h / 2
+            + DefaultConfig.functionHeaderHeight;
+
+        viewState.workerLine.x = viewState.trigger.cx;
+        viewState.workerLine.y = viewState.trigger.cy + (viewState.trigger.h / 2);
+
+        bodyViewState.bBox.cx = viewState.workerLine.x;
+        bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
+
+        viewState.end.bBox.cx = viewState.bBox.cx + viewState.bBox.w / 2;
+        viewState.end.bBox.cy = DefaultConfig.startingY + viewState.bBox.cy + viewState.workerLine.h;
+
         this.currentWorker.push(node.workerName.value);
     }
 
@@ -447,19 +362,21 @@ class PositioningVisitor implements Visitor {
 
 
             index++;
-            height += PROCESS_SVG_HEIGHT + PLUS_SVG_HEIGHT;
+            height += PLUS_SVG_HEIGHT + START_SVG_HEIGHT;
 
             (node as FunctionBodyBlock).namedWorkerDeclarator.namedWorkerDeclarations.forEach((workerDecl, i) => {
-                const workerDeclViewState = workerDecl.viewState as FunctionViewState;
+                const workerDeclViewState = workerDecl.viewState as WorkerDeclarationViewState;
                 const workerBodyViewState = workerDecl.workerBody.viewState as BlockViewState;
-                const startHeight = height + PLUS_SVG_HEIGHT + PROCESS_SVG_HEIGHT;
-                workerDeclViewState.bBox.cy = startHeight;
-                workerBodyViewState.bBox.cy = startHeight + START_SVG_HEIGHT / 2 + PLUS_SVG_HEIGHT;
-                workerBodyViewState.bBox.cx = workerDeclViewState.bBox.cx = i === 0 ?
+                // const startHeight = DefaultConfig.startingY + height;
+                // workerDeclViewState.trigger.cy = startHeight;
+                // workerBodyViewState.bBox.cy = startHeight;
+                // workerBodyViewState.bBox.cx = workerDeclViewState.bBox.cx = blockViewState.bBox.cx;
+                workerDeclViewState.bBox.x = i === 0 ?
                     blockViewState.bBox.cx + blockViewState.bBox.w / 2 + workerBodyViewState.bBox.w / 2
                     : blockViewState.bBox.cx
                     + (node as FunctionBodyBlock).namedWorkerDeclarator.namedWorkerDeclarations[i - 1].viewState.bBox.cx
                     + workerBodyViewState.bBox.w / 2;
+                workerDeclViewState.bBox.y = height;
             });
         }
 
@@ -521,6 +438,7 @@ class PositioningVisitor implements Visitor {
             plusViewState.bBox.cy = blockViewState.bBox.cy + blockViewState.bBox.h;
             plusViewState.bBox.cx = blockViewState.bBox.cx;
         }
+        blockViewState.bBox.h = height;
     }
 
     private calculateStatementPosition(statements: STNode[], blockViewState: BlockViewState, height: number, index: number, epGap: number) {
@@ -976,8 +894,8 @@ class PositioningVisitor implements Visitor {
             const sourceViewState: StatementViewState = senderRecieverPair.sourceNode.viewState;
             const targetViewState: StatementViewState = senderRecieverPair.targetNode.viewState;
 
-            let sourceYPosition = Number(sourceViewState.bBox.cy);
-            let targetYPosition = Number(targetViewState.bBox.cy);
+            let sourceYPosition: number = Number(sourceViewState.bBox.cy);
+            let targetYPosition: number = Number(targetViewState.bBox.cy);
 
             if (workerSyncOffset.has(senderRecieverPair.sourceName)) {
                 sourceYPosition += workerSyncOffset.get(senderRecieverPair.sourceName);
@@ -988,7 +906,7 @@ class PositioningVisitor implements Visitor {
             }
 
             if (sourceYPosition >= targetYPosition) {
-                const heightDiff = sourceViewState.bBox.cy - targetViewState.bBox.cy;
+                const heightDiff = sourceYPosition - targetYPosition;
                 targetViewState.bBox.cy = sourceYPosition;
                 sourceViewState.bBox.cy = sourceYPosition;
 
@@ -999,7 +917,7 @@ class PositioningVisitor implements Visitor {
                     workerSyncOffset.set(senderRecieverPair.targetName, heightDiff);
                 }
             } else {
-                const heightDiff = targetViewState.bBox.cy - sourceViewState.bBox.cy;
+                const heightDiff = targetYPosition - sourceYPosition;
                 sourceViewState.bBox.cy = targetYPosition;
                 targetViewState.bBox.cy = targetYPosition;
 

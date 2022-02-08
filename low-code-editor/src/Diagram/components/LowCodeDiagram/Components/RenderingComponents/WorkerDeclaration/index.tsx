@@ -17,6 +17,8 @@ import { NamedWorkerDeclaration } from '@wso2-enterprise/syntax-tree';
 import { getSTComponents } from '../../../../../utils';
 
 import { WorkerHead } from './WorkerHead';
+import { WorkerLine } from '../WorkerLine';
+import { End } from '../End';
 
 interface WorkerProps {
     model: NamedWorkerDeclaration;
@@ -29,7 +31,13 @@ export function Worker(props: WorkerProps) {
 
     return (
         <>
+            <WorkerLine viewState={model.viewState} />
             <WorkerHead model={model} />
+            <End
+                // model={model.workerBody}
+                viewState={model.viewState.end}
+                isExpressionFunction={true}
+            />
             {children}
         </>
     )

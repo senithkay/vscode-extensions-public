@@ -72,8 +72,7 @@ export function sizingAndPositioningST(st: STNode): STNode {
     traversNode(st, initVisitor);
     traversNode(st, sizingVisitor);
     traversNode(st, positionVisitor);
-    traversNode(st, workerSyncVisitor);
-    positionVisitor.cleanMaps();
+    // traversNode(st, workerSyncVisitor);
     const clone = { ...st };
     return clone;
 }
