@@ -69,11 +69,7 @@ export function AddIfForm(props: IfProps) {
         api: {
             ls: { getExpressionEditorLangClient },
             code: { modifyDiagram },
-            library: {
-                getLibrariesList,
-                getLibrariesData,
-                getLibraryData
-            }
+            library
         },
     } = useContext(Context);
     const { condition, formArgs, onCancel, onSave, onWizardClose } = props;
@@ -249,9 +245,7 @@ export function AddIfForm(props: IfProps) {
             currentFile,
             getLangClient: getExpressionEditorLangClient,
             applyModifications: modifyDiagram,
-            getLibrariesList,
-            getLibrariesData,
-            getLibraryData
+            library
         }
     );
 

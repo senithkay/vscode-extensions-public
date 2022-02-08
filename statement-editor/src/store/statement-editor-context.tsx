@@ -35,9 +35,11 @@ export const StatementEditorContext = React.createContext({
     },
     getLangClient: () => (Promise.resolve({} as any)),
     applyModifications: (modifications: STModification[]) => (undefined),
-    getLibrariesList: (kind: LibraryKind) => (Promise.resolve({} as any)),
-    getLibrariesData: () => (Promise.resolve({} as any)),
-    getLibraryData: (orgName: string, moduleName: string, version: string) => (Promise.resolve({} as any)),
+    library: {
+        getLibrariesList: (kind: LibraryKind) => (Promise.resolve({} as any)),
+        getLibrariesData: () => (Promise.resolve({} as any)),
+        getLibraryData: (orgName: string, moduleName: string, version: string) => (Promise.resolve({} as any))
+    },
     currentFile: {
         content: "",
         path: "",
@@ -68,9 +70,7 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
         addModuleImport,
         formArgs,
         validateStatement,
-        getLibrariesList,
-        getLibrariesData,
-        getLibraryData,
+        library,
         ...restProps
     } = props;
 
@@ -97,9 +97,7 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
                 statementCtx: {
                     validateStatement
                 },
-                getLibrariesList,
-                getLibrariesData,
-                getLibraryData,
+                library,
                 modules: {
                     modulesToBeImported: moduleList,
                     updateModuleList: moduleHandler

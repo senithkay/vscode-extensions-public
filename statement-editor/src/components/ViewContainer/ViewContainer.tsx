@@ -36,15 +36,17 @@ import { LeftPane } from '../LeftPane';
 import { useStatementEditorStyles } from "../styles";
 
 export interface LowCodeEditorProps {
-    getLangClient: () => Promise<ExpressionEditorLangClientInterface>,
-    applyModifications: (modifications: STModification[]) => void,
-    getLibrariesList: (kind: LibraryKind) => Promise<LibraryDocResponse | undefined>,
-    getLibrariesData: () => Promise<LibrarySearchResponse | undefined>,
-    getLibraryData: (orgName: string, moduleName: string, version: string) => Promise<LibraryDataResponse | undefined>,
+    getLangClient: () => Promise<ExpressionEditorLangClientInterface>;
+    applyModifications: (modifications: STModification[]) => void;
     currentFile: {
         content: string,
         path: string,
         size: number
+    };
+    library: {
+        getLibrariesList: (kind: string) => Promise<LibraryDocResponse>;
+        getLibrariesData: () => Promise<LibrarySearchResponse>;
+        getLibraryData: (orgName: string, moduleName: string, version: string) => Promise<LibraryDataResponse>;
     };
 }
 export interface ViewProps extends LowCodeEditorProps {
@@ -55,13 +57,13 @@ export interface ViewProps extends LowCodeEditorProps {
     config: {
         type: string;
         model?: STNode;
-    }
+    };
     validForm?: boolean;
     onWizardClose: () => void;
     onCancel: () => void;
     handleNameOnChange?: (name: string) => void;
     handleTypeChange?: (name: string) => void;
-    handleStatementEditorChange?: (partialModel: STNode) => void,
+    handleStatementEditorChange?: (partialModel: STNode) => void;
 }
 
 export function ViewContainer(props: ViewProps) {
@@ -78,9 +80,7 @@ export function ViewContainer(props: ViewProps) {
         handleStatementEditorChange,
         getLangClient,
         applyModifications,
-        getLibrariesList,
-        getLibrariesData,
-        getLibraryData,
+        library,
         currentFile
     } = props;
     const intl = useIntl();
@@ -209,9 +209,7 @@ export function ViewContainer(props: ViewProps) {
                         formArgs={formArgs}
                         validateStatement={validateStatement}
                         applyModifications={applyModifications}
-                        getLibrariesList={getLibrariesList}
-                        getLibrariesData={getLibrariesData}
-                        getLibraryData={getLibraryData}
+                        library={library}
                         currentFile={currentFile}
                         getLangClient={getLangClient}
                     >

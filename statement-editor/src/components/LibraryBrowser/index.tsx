@@ -37,6 +37,12 @@ const DEFAULT_SEARCH_SCOPE = "distribution";
 export function LibraryBrowser() {
     const statementEditorClasses = useStatementEditorStyles();
     const stmtCtx = useContext(StatementEditorContext);
+    const {
+        library: {
+            getLibrariesList,
+            getLibrariesData
+        }
+    } = stmtCtx;
 
     const [libraryBrowserMode, setLibraryBrowserMode] = useState(LibraryBrowserMode.LIB_LIST);
     const [keyword, setKeyword] = useState('');
@@ -48,7 +54,7 @@ export function LibraryBrowser() {
 
     useEffect(() => {
         (async () => {
-            const response = await stmtCtx.getLibrariesData();
+            const response = await getLibrariesData();
             if (response) {
                 setLibrariesSearchData(response);
             }
@@ -73,7 +79,7 @@ export function LibraryBrowser() {
     };
 
     const onLangLibSelection = async () => {
-        const response = await stmtCtx.getLibrariesList(LibraryKind.langLib);
+        const response = await getLibrariesList(LibraryKind.langLib);
 
         if (response) {
             setLibraries(response.librariesList);
@@ -85,7 +91,7 @@ export function LibraryBrowser() {
     };
 
     const onStdLibSelection = async () => {
-        const response = await stmtCtx.getLibrariesList(LibraryKind.stdLib);
+        const response = await getLibrariesList(LibraryKind.stdLib);
 
         if (response) {
             setLibraries(response.librariesList);
@@ -107,7 +113,6 @@ export function LibraryBrowser() {
             </div>
             <input
                 className={statementEditorClasses.librarySearchBox}
-                key="random1"
                 value={keyword}
                 placeholder={`search in ${searchScope}`}
                 onChange={(e) => setKeyword(e.target.value)}

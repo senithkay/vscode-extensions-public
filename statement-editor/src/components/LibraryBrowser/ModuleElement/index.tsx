@@ -29,6 +29,12 @@ interface ModuleElementProps {
 }
 
 export function ModuleElement(props: ModuleElementProps) {
+    const stmtCtx = useContext(StatementEditorContext);
+    const {
+        library: {
+            getLibraryData
+        }
+    } = stmtCtx;
     const statementEditorClasses = useStatementEditorStyles();
     const { moduleProperty, key, isFunction } = props;
     const { id, moduleId, moduleOrgName, moduleVersion } = moduleProperty;
@@ -38,7 +44,9 @@ export function ModuleElement(props: ModuleElementProps) {
             currentModel,
             updateModel
         },
-        getLibraryData,
+        library: {
+            getLibraryData
+        },
         modules: {
             updateModuleList
         }
