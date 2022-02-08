@@ -53,7 +53,7 @@ describe('Listener', () => {
             getCurrentSpecFolder() + "add-listener.expected.bal");
     });
 
-    it('Open and Close Form', () => {
+    it('Open and Cancel Form', () => {
         Canvas
             .welcomeMessageShouldBeVisible()
             .clickTopLevelPlusButton();
@@ -63,5 +63,17 @@ describe('Listener', () => {
         ListenerForm
             .shouldBeVisible()
             .cancel();
+    });
+
+    it('Open and Close Form', () => {
+        Canvas
+            .welcomeMessageShouldBeVisible()
+            .clickTopLevelPlusButton();
+
+        TopLevelPlusWidget.clickOption('Listener');
+
+        ListenerForm
+            .shouldBeVisible()
+            .close();
     });
 });
