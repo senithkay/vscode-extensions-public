@@ -139,7 +139,7 @@ export function InputEditor(props: InputEditorProps) {
     const placeHolders: string[] = ['EXPRESSION', 'TYPE_DESCRIPTOR', 'PARAM', 'OPTIONAL_PARAM'];
 
     useEffect(() => {
-        handleOnFocus(currentContent, "").then(() => {
+        handleOnFocus(currentContent).then(() => {
             handleOnOutFocus().then();
         })
         getContextBasedCompletions(placeHolders.indexOf(userInput) > -1 ? "" : userInput);

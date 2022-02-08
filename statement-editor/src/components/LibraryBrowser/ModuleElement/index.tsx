@@ -30,11 +30,6 @@ interface ModuleElementProps {
 
 export function ModuleElement(props: ModuleElementProps) {
     const stmtCtx = useContext(StatementEditorContext);
-    const {
-        library: {
-            getLibraryData
-        }
-    } = stmtCtx;
     const statementEditorClasses = useStatementEditorStyles();
     const { moduleProperty, key, isFunction } = props;
     const { id, moduleId, moduleOrgName, moduleVersion } = moduleProperty;
@@ -50,7 +45,7 @@ export function ModuleElement(props: ModuleElementProps) {
         modules: {
             updateModuleList
         }
-    } = useContext(StatementEditorContext);
+    } = stmtCtx;
 
     const onClickOnModuleElement = async () => {
         const response: LibraryDataResponse = await getLibraryData(moduleOrgName, moduleId, moduleVersion);
