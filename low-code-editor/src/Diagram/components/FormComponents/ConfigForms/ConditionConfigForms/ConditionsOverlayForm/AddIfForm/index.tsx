@@ -247,6 +247,7 @@ export function AddIfForm(props: IfProps) {
                                 color="primary"
                                 onClick={handleMinusButton(order)}
                                 className={classes.button}
+                                data-testid="minus-button"
                             >
                                 <RemoveCircleOutlineRounded />
                             </IconButton>
@@ -304,6 +305,7 @@ export function AddIfForm(props: IfProps) {
                                     color="primary"
                                     onClick={handlePlusButton(-1)}
                                     className={classes.button}
+                                    data-testid="plus-button"
                                 >
                                     <ControlPoint />
                                 </IconButton>

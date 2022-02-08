@@ -8,12 +8,12 @@ import { ResourceForm } from "../../utils/forms/resource-form"
 import { ServiceForm } from "../../utils/forms/service-form"
 import { getIntegrationTestStoryURL } from "../../utils/story-url-utils"
 
-describe('add a http service to an empty file', () => {
+describe('delete resource after adding it', () => {
   beforeEach(() => {
     cy.visit(getIntegrationTestStoryURL("service/add-service-to-empty-file.bal"))
   })
 
-  it('Add new service and resource', () => {
+  it('Delete after adding service', () => {
     Canvas
       .welcomeMessageShouldBeVisible()
       .clickTopLevelPlusButton();
@@ -68,8 +68,15 @@ describe('add a http service to an empty file', () => {
       .typeExpression(`"This is a debug message."`)
       .save();
 
+    Canvas.getService("/hello")
+      .getResourceFunction("GET", "world")
+      .deleteResource();
+
+    Canvas.getService("/hello")
+      .shouldHaveResources(1)
+
     SourceCode.shouldBeEqualTo(
-      getCurrentSpecFolder() + "add-service.expected.bal");
+      getCurrentSpecFolder() + "delete-service-resource.expected.bal");
   })
 
 })

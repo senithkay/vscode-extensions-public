@@ -5,6 +5,7 @@ import { TopLevelPlusWidget } from "../../utils/components/top-level-plus-widget
 import { getCurrentSpecFolder } from "../../utils/file-utils";
 import { FunctionForm } from "../../utils/forms/function-form";
 import { LogForm } from "../../utils/forms/log-form";
+import { ReturnForm } from "../../utils/forms/return-form";
 import { getIntegrationTestStoryURL } from "../../utils/story-url-utils"
 
 const BAL_FILE_PATH = "function/add-function-to-empty-file.bal";
@@ -19,7 +20,7 @@ describe('Add functions via Low Code', () => {
       .welcomeMessageShouldBeVisible()
       .clickTopLevelPlusButton();
     TopLevelPlusWidget.clickOption("Function");
-    
+
     FunctionForm
       .shouldBeVisible()
       .typeFunctionName("myfunction")
@@ -47,7 +48,7 @@ describe('Add functions via Low Code', () => {
       .typeFunctionName("getGreeting")
       .typeReturnType("string")
       .save();
-    
+
     Canvas.getFunction("getGreeting")
       .nameShouldBe("getGreeting")
       .expand()
@@ -68,15 +69,25 @@ describe('Add functions via Low Code', () => {
       .clickDefaultWorkerPlusBtn(1)
       .getBlockLevelPlusWidget()
       .clickOption("Log");
-    
+
     LogForm
       .shouldBeVisible()
       .selectType("Warn")
       .typeExpression(`"This is a warning message."`)
       .save();
 
+    Canvas.getFunction("getGreeting")
+      .getDiagram()
+      .clickDefaultWorkerPlusBtn(1)
+      .getBlockLevelPlusWidget()
+      .clickOption("Return");
+
+    ReturnForm
+      .shouldBeVisible()
+      .typeExpression('"Hello"')
+      .save();
 
     SourceCode.shouldBeEqualTo(
-        getCurrentSpecFolder() + "add-function.expected.bal");
+      getCurrentSpecFolder() + "add-function.expected.bal");
   })
 })
