@@ -15,6 +15,42 @@ describe('Add functions via Low Code', () => {
     cy.visit(getIntegrationTestStoryURL(BAL_FILE_PATH))
   })
 
+  it('Add a main function to empty file', () => {
+    Canvas
+      .welcomeMessageShouldBeVisible()
+      .clickTopLevelPlusButton();
+    TopLevelPlusWidget.clickOption("Main");
+
+    FunctionForm
+      .shouldBeVisible()
+      .typeReturnType("string|error?")
+      .save();
+
+    Canvas.getFunction("main")
+      .nameShouldBe("main")
+      .shouldBeExpanded()
+      .getDiagram()
+      .shouldBeRenderedProperly()
+      .getBlockLevelPlusWidget()
+      .clickOption("Log");
+
+    LogForm
+      .shouldBeVisible()
+      .selectType("Debug")
+      .typeExpression(`"This is a debug message."`)
+      .save();
+    Canvas.getFunction("main")
+      .getDiagram()
+      .clickDefaultWorkerPlusBtn(1)
+      .getBlockLevelPlusWidget()
+      .clickOption("Return");
+
+    ReturnForm
+      .shouldBeVisible()
+      .typeExpression('"Hello"')
+      .save();
+  })
+
   it('Add a function to empty file', () => {
     Canvas
       .welcomeMessageShouldBeVisible()
