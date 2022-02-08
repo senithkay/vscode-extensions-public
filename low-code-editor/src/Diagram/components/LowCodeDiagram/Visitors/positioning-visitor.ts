@@ -262,11 +262,11 @@ class PositioningVisitor implements Visitor {
         // viewState.bBox.w = viewState.bBox.w + getMaXWidthOfConnectors(allEndpoints) + widthOfOnFailClause;
 
         // Update First Control Flow line
-        this.updateFunctionEdgeControlFlow(viewState, body);
-        this.currentWorker.pop();
-        this.senderMap = this.senderMap.reverse();
-        this.receiverMap = this.receiverMap.reverse();
-        this.syncSendReceiveNodes();
+        // this.updateFunctionEdgeControlFlow(viewState, body);
+        // this.currentWorker.pop();
+        // this.senderMap = this.senderMap.reverse();
+        // this.receiverMap = this.receiverMap.reverse();
+        // this.syncSendReceiveNodes();
     }
 
     public endVisitResourceAccessorDefinition(node: ResourceAccessorDefinition) {
