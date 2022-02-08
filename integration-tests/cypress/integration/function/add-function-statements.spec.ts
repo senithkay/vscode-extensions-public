@@ -116,9 +116,7 @@ describe('Add function and statements via Low Code', () => {
 
 
     AssignmentForm.shouldBeVisible()
-      .typeVariableName("foo")
-      .suggestWidgetShouldBeVisible()
-      .clickFirstNameSuggest()
+      .selectVariableSuggestion("foo")
       .typeVariableValue(999)
       .save();
   })
