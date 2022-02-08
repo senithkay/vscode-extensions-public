@@ -142,7 +142,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         connectorConfig.connectorInit = configForm;
         openConnectorHelp(connector);
         onSave();
-        sendAppInsight();
+        // sendAppInsight();
     };
 
     const createEndpointNameLabel = intl.formatMessage({
@@ -180,7 +180,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         connectorConfig.connectorInit = configForm;
         openConnectorHelp(connector);
         onSaveNext();
-        sendAppInsight();
+        // sendAppInsight();
     };
 
     const isEnabled = isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName;

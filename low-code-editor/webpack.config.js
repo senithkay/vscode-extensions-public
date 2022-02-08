@@ -33,9 +33,10 @@ module.exports = (env, argv) => ({
             },
             {
                 test: /\.ts(x?)$/,
-                use: {
-                    loader: 'ts-loader'
-                },
+                use: [
+                    // "@jsdevtools/coverage-istanbul-loader", TODO: Enable this only when we are using final build for cypress
+                    'ts-loader'
+                ],
                 exclude: '/node_modules/'
             },
             {

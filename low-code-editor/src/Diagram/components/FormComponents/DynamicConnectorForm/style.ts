@@ -626,7 +626,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             letterSpacing: 0,
             cursor: "pointer",
             background: "#fff",
-            padding: "4px 8px 4px 0",
+            padding: "4px 8px 4px 8px",
             borderRadius: 8,
             display: "flex",
             alignItems: "center",

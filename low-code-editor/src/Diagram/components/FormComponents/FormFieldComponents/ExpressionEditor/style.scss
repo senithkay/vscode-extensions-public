@@ -106,41 +106,29 @@ div[class^="exp-wrapper"] {
         }
     }
 }
-
-.expand-icon {
-    height: 18px;
-    width: 18px;
-    position: absolute !important;
-    right: 3px;
-    left: unset !important;
-    bottom: unset !important;
-    top: 0;
-    opacity: 100;
-    margin-top: 3px;
-}
-
-.collapse-icon {
-    height: 18px;
-    width: 18px;
-    position: absolute !important;
-    right: 3px;
-    left: unset !important;
-    bottom: 0;
-    top: unset !important;
-    opacity: 100;
+.expand-icon,.collapse-icon ,.configurable-icon {
+    height: 24px;
+    width: 24px;
+    position: absolute !important; 
+    opacity:1;
     visibility: inherit !important;
-}
+    top:2px !important;
+    right: 3px; 
+    left: unset !important; 
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 50%;
+    transition: all 0.3s;
+    &:hover{
+        background-color: #a1a1a133;
+      
+    }
 
+} 
 .configurable-icon {
-    height: 14px;
-    width: 18px;
-    position: absolute !important;
-    right: 24px;
-    left: unset !important;
-    bottom: 7px;
-    top: unset !important;
-    opacity: 100;
-    visibility: inherit !important;
+    height: 22px;
+    width: 22px;
+    right: 30px;   
 }
 
 .exp-linear-loader {

@@ -106,11 +106,11 @@ export function ConditionConfigForm(props: ConditionConfigFormProps) {
                 const ifConfig: ElseIfConfig = conditionConfig.conditionExpression as ElseIfConfig;
                 const compList = ifConfig?.values;
                 if (!formArgs?.config) {
-                    const event: LowcodeEvent = {
-                        type: SAVE_STATEMENT,
-                        name: formType
-                    };
-                    onEvent(event);
+                    // const event: LowcodeEvent = {
+                    //     type: SAVE_STATEMENT,
+                    //     name: formType
+                    // };
+                    // onEvent(event);
                     modifications.push(createIfStatement(compList[0]?.expression, formArgs?.targetPosition));
                     if (compList.length > 1){
                         ifConfig?.values.slice(1).forEach((value) => {
@@ -127,11 +127,11 @@ export function ConditionConfigForm(props: ConditionConfigFormProps) {
                 const conditionExpression: ForeachConfig = conditionConfig.conditionExpression as
                     ForeachConfig;
                 if (!formArgs?.config) {
-                    const event: LowcodeEvent = {
-                        type: SAVE_STATEMENT,
-                        name: formType
-                    };
-                    onEvent(event);
+                    // const event: LowcodeEvent = {
+                    //     type: SAVE_STATEMENT,
+                    //     name: formType
+                    // };
+                    // onEvent(event);
                     modifications.push(createForeachStatement(conditionExpression.collection, conditionExpression.variable,
                         conditionExpression.type, formArgs?.targetPosition));
                 } else {
@@ -143,11 +143,11 @@ export function ConditionConfigForm(props: ConditionConfigFormProps) {
                 const whileConfig: ConditionConfig = conditionConfig as ConditionConfig;
                 const conditionExpression: string = whileConfig.conditionExpression as string;
                 if (!formArgs?.config) {
-                    const event: LowcodeEvent = {
-                        type: SAVE_STATEMENT,
-                        name: formType
-                    };
-                    onEvent(event);
+                    // const event: LowcodeEvent = {
+                    //     type: SAVE_STATEMENT,
+                    //     name: formType
+                    // };
+                    // onEvent(event);
                     modifications.push(createWhileStatement(conditionExpression, formArgs?.targetPosition));
                 } else {
                     modifications.push(updateWhileStatementCondition(conditionExpression, formArgs?.config.conditionPosition));

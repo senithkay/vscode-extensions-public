@@ -31,7 +31,7 @@ import {
     ParenthesizedArgList,
     PositionalArg, RemoteMethodCallAction, RequiredParam, SimpleNameReference, SpecificField,
     STKindChecker,
-    STNode, StringLiteral, TypeCastExpression
+    STNode, StringLiteral, TypeCastExpression, WildcardBindingPattern
 } from "@wso2-enterprise/syntax-tree";
 import { DocumentSymbol, SymbolInformation } from "vscode-languageserver-protocol";
 
@@ -84,7 +84,7 @@ export function getFormElement(elementProps: FormElementProps, type: string) {
     }
 
     const FormElement = (Elements as any)[type];
-    if (FormElement){
+    if (FormElement) {
         return <FormElement {...elementProps} />;
     }
 
@@ -95,7 +95,7 @@ export function getForm(type: string, args: any) {
     const Form = (Forms as any)[type];
     return Form ? (
         <Form {...args} />
-    ) : <Forms.Custom {...args}/>;
+    ) : <Forms.Custom {...args} />;
 }
 
 export function getConnectorComponent(type: string, args: any) {
@@ -114,7 +114,11 @@ const isAllFieldsEmpty = (recordFields: FormField[]): boolean => recordFields?.e
 export function getParams(formFields: FormField[], depth = 1): string[] {
     const paramStrings: string[] = [];
     formFields.forEach(formField => {
-        const skipDefaultValue = (!formField.value && formField.typeName !== "record" && formField.defaultable) ||
+        const skipDefaultValue =
+            (!formField.value &&
+                formField.typeName !== "record" &&
+                formField.typeName !== "inclusion" &&
+                formField.defaultable) ||
             (formField.value && formField.defaultValue && formField.defaultValue === formField.value);
         let paramString: string = "";
         if (!skipDefaultValue) {
@@ -137,7 +141,7 @@ export function getParams(formFields: FormField[], depth = 1): string[] {
                 paramString += formField.value || formField.defaultValue;
             } else if ((formField.typeName === "enum") && (formField.value || formField.defaultValue)) {
                 paramString += `"${formField.value || formField.defaultValue}"`;
-            } else if (formField.typeName === "record" && formField.fields  && formField.fields.length > 0 && !formField.isReference) {
+            } else if (formField.typeName === "record" && formField.fields && formField.fields.length > 0 && !formField.isReference) {
                 let recordFieldsString: string = "";
                 let firstRecordField = false;
 
@@ -235,7 +239,7 @@ export function getParams(formFields: FormField[], depth = 1): string[] {
                 });
                 if (recordFieldsString !== "" && recordFieldsString !== "{}" && recordFieldsString !== undefined) {
                     paramString += "{" + recordFieldsString + "}";
-                }else if (recordFieldsString === "" && !formField.optional && depth === 1){
+                } else if (recordFieldsString === "" && !formField.optional && depth === 1) {
                     paramString += "{}";
                 }
                 // HACK: OAuth2RefreshTokenGrantConfig record contains *oauth2:RefreshTokenGrantConfig
@@ -255,6 +259,9 @@ export function getParams(formFields: FormField[], depth = 1): string[] {
                 } else {
                     paramString += formField.value;
                 }
+            } else if (formField.typeName === "inclusion" && formField.inclusionType) {
+                const params = getParams([formField.inclusionType], depth + 1);
+                paramString += params;
             } else if (formField.typeName === "handle" && formField.value) {
                 paramString += formField.value;
             }
@@ -326,7 +333,7 @@ export function matchEndpointToFormField(endPoint: LocalVarDecl, formFields: For
         }
 
         const positionalArg: PositionalArg = arg as PositionalArg;
-        let formField = formFields[ nextValueIndex ];
+        let formField = formFields[nextValueIndex];
         if (STKindChecker.isNamedArg(positionalArg)) {
             const argName = positionalArg.argumentName.name.value;
             const matchedField = formFields.find(field => field.name === argName);
@@ -355,6 +362,12 @@ export function matchEndpointToFormField(endPoint: LocalVarDecl, formFields: For
                 const mappingConstructor: MappingConstructor = positionalArg.expression as MappingConstructor;
                 if (mappingConstructor) {
                     mapRecordLiteralToRecordTypeFormField(mappingConstructor.fields as SpecificField[], formField.fields);
+                    nextValueIndex++;
+                }
+            } else if (formField.typeName === "inclusion" && formField.inclusionType && formField.inclusionType.fields) {
+                const mappingConstructor: MappingConstructor = positionalArg.expression as MappingConstructor;
+                if (mappingConstructor) {
+                    mapRecordLiteralToRecordTypeFormField(mappingConstructor.fields as SpecificField[], formField.inclusionType?.fields);
                     nextValueIndex++;
                 }
             } else if (formField.typeName === "union") {
@@ -390,7 +403,7 @@ export function mapRecordLiteralToRecordTypeFormField(specificFields: SpecificFi
                                         // find selected data type using non optional field's value
                                         let allFieldsFilled = true;
                                         subFields.forEach(field => {
-                                            if (field.optional === false && !field.value){
+                                            if (field.optional === false && !field.value) {
                                                 allFieldsFilled = false;
                                             }
                                         });
@@ -517,12 +530,12 @@ export function getModuleIcon(module: BallerinaConstruct, scale: number = 1): Re
             />
         );
     }
-    return <DefaultConnectorIcon scale={scale}/>;
+    return <DefaultConnectorIcon scale={scale} />;
 }
 
 export function getConstructIcon(iconId: string) {
     const Icon = (ConstructIcons as any)[iconId];
-    return <Icon/>
+    return <Icon />
 }
 
 export function genVariableName(defaultName: string, variables: string[]): string {
@@ -719,9 +732,15 @@ export async function fetchConnectorInfo(
                         default:
                             remoteCall = (variable.initializer as CheckAction).expression;
                     }
-                    const bindingPattern: CaptureBindingPattern = variable.typedBindingPattern
-                        .bindingPattern as CaptureBindingPattern;
-                    returnVarName = bindingPattern.variableName.value;
+                    if (variable?.typedBindingPattern?.bindingPattern) {
+                        if (STKindChecker.isCaptureBindingPattern(variable.typedBindingPattern.bindingPattern)) {
+                            const bindingPattern: CaptureBindingPattern = variable.typedBindingPattern
+                                .bindingPattern;
+                            returnVarName = bindingPattern.variableName.value;
+                        } else if (STKindChecker.isWildcardBindingPattern(variable.typedBindingPattern.bindingPattern)) {
+                            returnVarName = "_";
+                        }
+                    }
                     break;
 
                 case "ActionStatement":
@@ -741,6 +760,7 @@ export async function fetchConnectorInfo(
                     const action: ActionConfig = new ActionConfig();
                     action.name = actionName.name.value;
                     action.returnVariableName = returnVarName;
+                    action.isReturnValueIgnored = returnVarName === "_";
                     connectorConfig.action = action;
                     connectorConfig.name = configName.name.value;
                     connectorConfig.action.fields = functionDefInfo.get(connectorConfig.action.name).parameters;
@@ -797,7 +817,7 @@ function getFormFieldReturnType(formField: FormField, depth = 1): FormFieldRetur
         returnType: "var",
         importTypeInfo: []
     };
-    const primitives = [ "string", "int", "float", "decimal", "boolean", "json", "xml", "handle", "byte", "object", "handle", "anydata" ];
+    const primitives = ["string", "int", "float", "decimal", "boolean", "json", "xml", "handle", "byte", "object", "handle", "anydata"];
     const returnTypes: string[] = [];
 
     if (formField) {
@@ -823,7 +843,7 @@ function getFormFieldReturnType(formField: FormField, depth = 1): FormFieldRetur
                             return `${fullType}${subType !== '?' ? '|' : ''}${subType}`;
                         });
                     } else {
-                        response.returnType = returnTypes[ 0 ];
+                        response.returnType = returnTypes[0];
                         if (response.returnType === '?') {
                             response.hasReturn = false;
                         }
@@ -885,7 +905,7 @@ function getFormFieldReturnType(formField: FormField, depth = 1): FormFieldRetur
                 });
 
                 if (returnTypes.length > 0) {
-                    response.returnType = returnTypes.length > 1 ? `[${returnTypes.join(',')}]` : returnTypes[ 0 ];
+                    response.returnType = returnTypes.length > 1 ? `[${returnTypes.join(',')}]` : returnTypes[0];
                 }
                 break;
 

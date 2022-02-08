@@ -95,7 +95,7 @@ export function FieldItem(props: FieldItemProps) {
                         <div className={recordClasses.actionBtnWrapper}>
                             <EditButton onClick={handleEdit}/>
                         </div>
-                        <div className={recordClasses.actionBtnWrapper}>
+                        <div data-testid={`delete-${field.name}`} className={recordClasses.actionBtnWrapper}>
                             <DeleteButton onClick={handleDelete}/>
                         </div>
                     </div>

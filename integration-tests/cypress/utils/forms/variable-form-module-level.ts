@@ -1,0 +1,80 @@
+import { ExpressionEditor } from "../components/expression-editor"
+import { SelectDropDown } from "../components/select-drop-down";
+
+export class VariableFormModuleLevel {
+
+    private static selector = '[data-testid="module-variable-config-form"]';
+
+
+    static togglePublickAccessModifier() {
+        this.getForm().get('[name="public"]').parent()
+            .click()
+        return this;
+    }
+
+    static toggleFinalkAccessModifier() {
+        this.getForm().get('[name="final"]').parent()
+            .click()
+        return this;
+    }
+
+    static isAccessModifierChecked(value: "public" | "final" | "public,final" | "final,public") {
+        this.getForm().get('[name="public"]')
+            .should("have.value", value)
+        return this;
+    }
+
+    static typeVariableType(type: string) {
+        ExpressionEditor
+            .getForField("Select type", this.selector)
+            .clear()
+            .type(type)
+            .waitForValidations();
+        return this;
+    }
+
+    static typeLabalShouldBeVisible(type: string) {
+        this.getForm().get('[data-lang="ballerina"]').should("contain", type);
+        return this;
+    }
+
+    static typeVariableName(name: string) {
+        ExpressionEditor
+            .getForField("Variable Name", this.selector)
+            .type(name)
+            .waitForValidations();
+        return this;
+    }
+
+    static typeVariableValue(value: any) {
+        ExpressionEditor
+            .getForField("Value Expression", this.selector)
+            .type(value)
+            .waitForValidations()
+            .clearSuggestions();
+        return this;
+    }
+
+    static shouldBeVisible() {
+        this.getForm().should("be.visible");
+        return this;
+
+    }
+
+    private static getForm() {
+        return cy
+            .get(this.selector);
+
+    }
+
+    static save() {
+        this.getForm()
+            .get('button')
+            .contains("Save")
+            .click();
+        return this;
+
+    }
+
+
+}

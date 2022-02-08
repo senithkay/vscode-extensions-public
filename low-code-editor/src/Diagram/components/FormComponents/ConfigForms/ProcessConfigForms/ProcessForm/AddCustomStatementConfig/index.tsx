@@ -58,11 +58,11 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
 
     // Insight event to send when loading the component
     useEffect(() => {
-        const event: LowcodeEvent = {
-            type: ADD_OTHER_STATEMENT,
-            name: expression,
-        };
-        onEvent(event);
+        // const event: LowcodeEvent = {
+        //     type: ADD_OTHER_STATEMENT,
+        //     name: expression,
+        // };
+        // onEvent(event);
     }, []);
 
     let defaultExpression = "";
@@ -80,11 +80,11 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
     const onSaveBtnClick = () => {
         expressionFormConfig.expression = expression;
         onSave();
-        const event: LowcodeEvent = {
-            type: SAVE_OTHER_STATEMENT,
-            name: expression
-        };
-        onEvent(event);
+        // const event: LowcodeEvent = {
+        //     type: SAVE_OTHER_STATEMENT,
+        //     name: expression
+        // };
+        // onEvent(event);
     }
 
     const validateExpression = (_field: string, isInvalid: boolean) => {

@@ -1,21 +1,26 @@
 {
   "name": "ballerina-low-code-editor-packages",
   "workspaces": [
-    "lang-service",
     "syntax-tree",
+    "ballerina-languageclient",
+    "lang-service",
     "low-code-editor-commons",
     "statement-editor",
     "configurable-editor",
-    "low-code-editor"
+    "low-code-editor",
+    "integration-tests"
   ],
   "scripts": {
       "prebuild": "npm i --legacy-peer-deps",
       "build:st": "npm run build --workspace=syntax-tree",
+      "build:blc": "npm run build --workspace=ballerina-languageclient",
       "build:ls": "npm run build --workspace=lang-service",
       "build:se": "npm run build --workspace=statement-editor",
       "build:ce": "npm run build --workspace=configurable-editor",
       "build:lce": "npm run build --workspace=low-code-editor",
       "build:lcec": "npm run build --workspace=low-code-editor-commons",
-      "build": "npm run build --workspaces"
+      "build": "npm run build --workspaces",
+      "storybook": "npm run storybook --workspace=low-code-editor",
+      "test:integration": "npm run cypress --workspace=integration-tests"
   }
 }        

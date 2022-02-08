@@ -25,7 +25,7 @@ import { Field, RecordModel, SimpleField } from "../types";
 export async function convertToRecord(json: string, name: string, isClosed: boolean,
                                       lsUrl: string, ls?: any): Promise<string> {
     const langClient: DiagramEditorLangClientInterface = await ls.getDiagramEditorLangClient(lsUrl);
-    const resp: JsonToRecordResponse = await langClient.convert(
+    const resp: JsonToRecordResponse = await langClient.convertJsonToRecord(
         {
             jsonString: json,
             recordName: name,

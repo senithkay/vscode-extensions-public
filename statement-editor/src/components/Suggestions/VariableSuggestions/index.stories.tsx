@@ -21,7 +21,7 @@ import varDeclBinaryExprModel from "../../StatementRenderer/data/local-var-decl-
 import { VariableSuggestions, VariableSuggestionsProps } from "./index";
 
 export default {
-    title: 'Low Code Editor/StatementEditor/VariableSuggestions',
+    title: 'Low Code Editor/Testing/StatementEditor/VariableSuggestions',
     component: VariableSuggestions,
 };
 

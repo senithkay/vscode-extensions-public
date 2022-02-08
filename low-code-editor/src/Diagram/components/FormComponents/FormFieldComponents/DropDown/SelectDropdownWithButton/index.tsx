@@ -42,7 +42,7 @@ export function SelectDropdownWithButton(props: FormElementProps<SelectDropdownP
     const formClasses = useFormStyles();
     const dropDownClasses = useTextInputStyles();
     const textFieldClasses = useTextInputStyles();
-    const { onChange, onClick, defaultValue, label, placeholder, customProps = {}, disabled } = props;
+    const { onChange, onClick, defaultValue, label, hideLabel, placeholder, customProps = {}, disabled } = props;
     const { values, disableCreateNew, optional, className,
             clearSelection, onOpenSelect, onCloseSelect } = customProps;
 
@@ -75,8 +75,8 @@ export function SelectDropdownWithButton(props: FormElementProps<SelectDropdownP
     const EmptyChevronIcon = () => <span/>;
 
     return (
-        <>
-            {label ?
+        <div data-testid="select-drop-down" data-field-name={label}>
+            {label && !hideLabel ?
                 (customProps && optional ?
                     (
                         <div className={textFieldClasses.selectOperationTextWrapper}>
@@ -166,6 +166,6 @@ export function SelectDropdownWithButton(props: FormElementProps<SelectDropdownP
                     )
                 }
             </Select>
-        </>
+        </div>
     );
 }
