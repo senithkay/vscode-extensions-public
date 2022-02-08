@@ -21,8 +21,9 @@ import { delimiter, join, sep } from 'path';
 import { debug } from '../utils/logger';
 import { ServerOptions, ExecutableOptions } from 'vscode-languageclient/node';
 import { isWindows } from '../utils';
+import { BallerinaExtension } from '../core';
 
-export function getServerOptions(ballerinaCmd: string): ServerOptions {
+export function getServerOptions(ballerinaCmd: string, extension?: BallerinaExtension): ServerOptions {
     debug(`Using Ballerina CLI command '${ballerinaCmd}' for Language server.`);
     let cmd = isWindows() ? getConvertedPath(ballerinaCmd) : ballerinaCmd;
     let args = ["start-language-server"];
@@ -36,7 +37,7 @@ export function getServerOptions(ballerinaCmd: string): ServerOptions {
             opt.env.BALLERINA_CLASSPATH_EXT = process.env.LS_EXTENSIONS_PATH;
         }
     }
-    if (process.env.LSDEBUG === "true") {
+    if (process.env.LSDEBUG === "true" || extension?.enableLSDebug()) {
         debug('Language Server is starting in debug mode.');
         let debugPort = 5005;
         opt.env.BAL_JAVA_DEBUG = debugPort;

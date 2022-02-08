@@ -17,7 +17,7 @@
  *
  */
 
-import { ballerinaExtInstance } from "../../core";
+import { ballerinaExtInstance, LANGUAGE } from "../../core";
 import { commands, window } from "vscode";
 import { outputChannel } from "../../utils";
 import {
@@ -25,7 +25,7 @@ import {
     sendTelemetryException
 } from "../../telemetry";
 import { getCurrentBallerinaProject } from "../../utils/project-utils";
-import { PALETTE_COMMANDS, PROJECT_TYPE } from "./cmd-runner";
+import { MESSAGES, PALETTE_COMMANDS, PROJECT_TYPE } from "./cmd-runner";
 import * as fs from 'fs';
 import { sep } from 'path';
 
@@ -37,15 +37,24 @@ export function activateCloudCommand() {
         try {
             sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_PROJECT_CLOUD, CMP_PROJECT_CLOUD);
 
-            const currentProject = await getCurrentBallerinaProject();
+            if (window.activeTextEditor && window.activeTextEditor.document.languageId != LANGUAGE.BALLERINA) {
+                window.showErrorMessage(MESSAGES.NOT_IN_PROJECT);
+                return;
+            }
+
+            const isDiagram: boolean = ballerinaExtInstance.getDocumentContext().isActiveDiagram();
+            const currentProject = isDiagram ? await
+                getCurrentBallerinaProject(ballerinaExtInstance.getDocumentContext().getLatestDocument()?.toString())
+                : await getCurrentBallerinaProject();
 
             if (currentProject.kind !== PROJECT_TYPE.SINGLE_FILE) {
                 if (currentProject.path) {
                     let cloudTomlPath = currentProject.path + CLOUD_CONFIG_FILE_NAME;
                     if (!fs.existsSync(cloudTomlPath)) {
-                        const commandArgs =  {
-                            key : "uri",
-                            value : window.activeTextEditor!.document.uri.toString()
+                        const commandArgs = {
+                            key: "uri",
+                            value: isDiagram ? ballerinaExtInstance.getDocumentContext().getLatestDocument()?.toString()
+                                : window.activeTextEditor!.document.uri.toString()
                         };
                         commands.executeCommand('ballerina.create.cloud.exec', commandArgs);
                         outputChannel.appendLine(`Cloud.toml created in ${currentProject.path}`);

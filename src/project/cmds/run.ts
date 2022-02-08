@@ -17,12 +17,12 @@
  *
  */
 
-import { ballerinaExtInstance } from "../../core";
+import { ballerinaExtInstance, LANGUAGE } from "../../core";
 import { commands, window } from "vscode";
 import {
     TM_EVENT_PROJECT_RUN, CMP_PROJECT_RUN, sendTelemetryEvent, sendTelemetryException
 } from "../../telemetry";
-import { runCommand, BALLERINA_COMMANDS, PROJECT_TYPE, PALETTE_COMMANDS, runCommandWithConf } from "./cmd-runner";
+import { runCommand, BALLERINA_COMMANDS, PROJECT_TYPE, PALETTE_COMMANDS, runCommandWithConf, MESSAGES } from "./cmd-runner";
 import { getCurrentBallerinaProject, getCurrentBallerinaFile, getCurrenDirectoryPath } from "../../utils/project-utils";
 
 function activateRunCommand() {
@@ -40,6 +40,10 @@ function activateRunCommand() {
 
             let currentProject;
             if (window.activeTextEditor) {
+                if (window.activeTextEditor.document.languageId != LANGUAGE.BALLERINA) {
+                    window.showErrorMessage(MESSAGES.NOT_IN_PROJECT);
+                    return;
+                }
                 currentProject = await getCurrentBallerinaProject();
             } else {
                 const document = ballerinaExtInstance.getDocumentContext().getLatestDocument();

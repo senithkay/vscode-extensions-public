@@ -31,11 +31,11 @@ import { exec, spawnSync } from 'child_process';
 import { LanguageClientOptions, State as LS_STATE, RevealOutputChannelOn, ServerOptions } from "vscode-languageclient/node";
 import { getServerOptions } from '../server/server';
 import { ExtendedLangClient } from './extended-language-client';
-import { debug, log, getOutputChannel, outputChannel, isWindows } from '../utils';
+import { debug, log, getOutputChannel, outputChannel, isWindows, isSupportedVersion, VERSION } from '../utils';
 import { AssertionError } from "assert";
 import {
-    BALLERINA_HOME, ENABLE_ALL_CODELENS, ENABLE_EXECUTOR_CODELENS, ENABLE_TELEMETRY,
-    ENABLE_SEMANTIC_HIGHLIGHTING, OVERRIDE_BALLERINA_HOME, BALLERINA_LOW_CODE_MODE, ENABLE_PERFORMANCE_FORECAST
+    BALLERINA_HOME, ENABLE_ALL_CODELENS, ENABLE_TELEMETRY, ENABLE_SEMANTIC_HIGHLIGHTING, OVERRIDE_BALLERINA_HOME,
+    BALLERINA_LOW_CODE_MODE, ENABLE_PERFORMANCE_FORECAST, ENABLE_DEBUG_LOG, ENABLE_BALLERINA_LS_DEBUG
 }
     from "./preferences";
 import TelemetryReporter from "vscode-extension-telemetry";
@@ -86,6 +86,7 @@ export interface ChoreoSession {
     choreoCookie?: string;
     choreoRefreshToken?: string;
     choreoLoginTime?: Date;
+    tokenExpirationTime?: number;
 }
 
 interface CodeServerContext {
@@ -210,26 +211,23 @@ export class BallerinaExtension {
             const pluginVersion = this.extension.packageJSON.version.split('-')[0];
             return this.getBallerinaVersion(this.ballerinaHome, this.overrideBallerinaHome()).then(runtimeVersion => {
                 this.ballerinaVersion = runtimeVersion.split('-')[0];
-                if (!this.overrideBallerinaHome()) {
-                    const { home } = this.autoDetectBallerinaHome();
-                    this.ballerinaHome = home;
-                }
+                const { home } = this.autoDetectBallerinaHome();
+                this.ballerinaHome = home;
                 log(`Plugin version: ${pluginVersion}\nBallerina version: ${this.ballerinaVersion}`);
                 this.sdkVersion.text = `Ballerina SDK: ${this.ballerinaVersion}`;
 
-                if (!this.ballerinaVersion.match(SWAN_LAKE_REGEX)) {
+                if (!this.ballerinaVersion.match(SWAN_LAKE_REGEX) || (this.ballerinaVersion.match(SWAN_LAKE_REGEX) &&
+                    !isSupportedVersion(ballerinaExtInstance, VERSION.BETA, 3))) {
                     this.showMessageOldBallerina();
                     const message = `Ballerina version ${this.ballerinaVersion} is not supported. 
-                        The extension supports Ballerina Swan Lake version.`;
+                        The extension supports Ballerina Swan Lake Beta 3+ versions.`;
                     sendTelemetryEvent(this, TM_EVENT_ERROR_OLD_BAL_HOME_DETECTED, CMP_EXTENSION_CORE, message);
-                    throw new AssertionError({
-                        message: message
-                    });
+                    return;
                 }
 
                 // if Home is found load Language Server.
                 let serverOptions: ServerOptions;
-                serverOptions = getServerOptions(this.ballerinaCmd);
+                serverOptions = getServerOptions(this.ballerinaCmd, this);
                 this.langClient = new ExtendedLangClient('ballerina-vscode', 'Ballerina LS Client', serverOptions,
                     this.clientOptions, this, false);
 
@@ -297,8 +295,8 @@ export class BallerinaExtension {
         workspace.onDidChangeConfiguration((params: ConfigurationChangeEvent) => {
             if (params.affectsConfiguration(BALLERINA_HOME) || params.affectsConfiguration(OVERRIDE_BALLERINA_HOME)
                 || params.affectsConfiguration(ENABLE_ALL_CODELENS) ||
-                params.affectsConfiguration(ENABLE_EXECUTOR_CODELENS) ||
-                params.affectsConfiguration(BALLERINA_LOW_CODE_MODE)) {
+                params.affectsConfiguration(BALLERINA_LOW_CODE_MODE) || params.affectsConfiguration(ENABLE_DEBUG_LOG)
+                || params.affectsConfiguration(ENABLE_BALLERINA_LS_DEBUG)) {
                 this.showMsgAndRestart(CONFIG_CHANGED);
             }
         });
@@ -551,13 +549,13 @@ export class BallerinaExtension {
         return <boolean>workspace.getConfiguration().get(ENABLE_ALL_CODELENS);
     }
 
-    public isExecutorCodeLensEnabled(): boolean {
-        return <boolean>workspace.getConfiguration().get(ENABLE_EXECUTOR_CODELENS);
-    }
-
     public isBallerinaLowCodeMode(): boolean {
         return <boolean>workspace.getConfiguration().get(BALLERINA_LOW_CODE_MODE) ||
             process.env.LOW_CODE_MODE === 'true';
+    }
+
+    public enableLSDebug(): boolean {
+        return this.overrideBallerinaHome() && <boolean>workspace.getConfiguration().get(ENABLE_BALLERINA_LS_DEBUG);
     }
 
     public enabledPerformanceForecasting(): boolean {
@@ -574,6 +572,7 @@ export class BallerinaExtension {
 
     public setDiagramActiveContext(value: boolean) {
         commands.executeCommand('setContext', 'isBallerinaDiagram', value);
+        this.documentContext.setActiveDiagram(value);
     }
 
     public setChoreoAuthEnabled(value: boolean) {
@@ -585,9 +584,10 @@ export class BallerinaExtension {
     }
 
     public getChoreoSession(): ChoreoSession {
-        if (this.choreoSession.loginStatus && this.choreoSession.choreoLoginTime) {
-            let tokenDuration = new Date().getTime() - new Date(this.choreoSession.choreoLoginTime).getTime();
-            if (tokenDuration > 3000000) {
+        if (this.choreoSession.loginStatus && this.choreoSession.choreoLoginTime
+            && this.choreoSession.tokenExpirationTime) {
+            let tokenDuration = (new Date().getTime() - new Date(this.choreoSession.choreoLoginTime).getTime()) / 1000;
+            if (tokenDuration > this.choreoSession.tokenExpirationTime) {
                 debug(`Exchanging refresh token. ${new Date()}`);
                 new OAuthTokenHandler(this).exchangeRefreshToken(this.choreoSession.choreoRefreshToken!);
             }
@@ -631,6 +631,7 @@ class DocumentContext {
     private diagramTreeElementClickedCallbacks: Array<(construct: ConstructIdentifier) => void> = [];
     private editorChangesCallbacks: Array<(change: Change) => void> = [];
     private latestDocument: Uri | undefined;
+    private activeDiagram: boolean = false;
 
     public diagramTreeElementClicked(construct: ConstructIdentifier): void {
         this.diagramTreeElementClickedCallbacks.forEach((callback) => {
@@ -661,6 +662,14 @@ class DocumentContext {
 
     public getLatestDocument(): Uri | undefined {
         return this.latestDocument;
+    }
+
+    public isActiveDiagram(): boolean {
+        return this.activeDiagram;
+    }
+
+    public setActiveDiagram(isActiveDiagram: boolean) {
+        this.activeDiagram = isActiveDiagram;
     }
 }
 

@@ -28,7 +28,6 @@ import {
     CMP_EXECUTOR_CODELENS, sendTelemetryEvent, TM_EVENT_SOURCE_DEBUG_CODELENS, TM_EVENT_TEST_DEBUG_CODELENS
 } from '../telemetry';
 import { DEBUG_CONFIG, DEBUG_REQUEST } from '../debugger';
-import { TryOutCodeLensProvider } from '../swagger/codelens-provider';
 
 export enum EXEC_POSITION_TYPE {
     SOURCE = 'source',
@@ -54,7 +53,6 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
     public readonly onDidChangeCodeLenses: Event<void> = this._onDidChangeCodeLenses.event;
 
     private ballerinaExtension: BallerinaExtension;
-    private tryOutCodeLensProvider = new TryOutCodeLensProvider();
 
     constructor(extensionInstance: BallerinaExtension) {
         this.ballerinaExtension = extensionInstance;
@@ -113,14 +111,22 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
                 response.executorPositions.forEach(position => {
                     codeLenses.push(this.createCodeLens(position, EXEC_TYPE.RUN));
                     codeLenses.push(this.createCodeLens(position, EXEC_TYPE.DEBUG));
+                    
+                    if (position.kind == 'source' && position.name != 'main') {
+                        const codeLens = new CodeLens(new Range(position.range.startLine.line, 0, position.range.endLine.line, 0));
+                        codeLens.command = {
+                            title: "Try it",
+                            tooltip: "Try running this service on swagger view",
+                            command: PALETTE_COMMANDS.SWAGGER_VIEW,
+                            arguments: [position.name]
+                        };
+                        codeLenses.push(codeLens);
+                    }
                 });
             }
         }, _error => {
             return codeLenses;
         });
-
-        const tryItCodelenses = await this.tryOutCodeLensProvider.getCodeLensList(langClient);
-        codeLenses.push(...tryItCodelenses);
 
         return codeLenses;
     }

@@ -17,12 +17,12 @@
  *
  */
 
-import { ballerinaExtInstance } from "../../core";
+import { ballerinaExtInstance, LANGUAGE } from "../../core";
 import { commands, window } from "vscode";
 import {
     TM_EVENT_PROJECT_BUILD, CMP_PROJECT_BUILD, sendTelemetryEvent, sendTelemetryException
 } from "../../telemetry";
-import { runCommand, BALLERINA_COMMANDS, PROJECT_TYPE, PALETTE_COMMANDS }
+import { runCommand, BALLERINA_COMMANDS, PROJECT_TYPE, PALETTE_COMMANDS, MESSAGES }
     from "./cmd-runner";
 import { getCurrentBallerinaProject, getCurrenDirectoryPath, getCurrentBallerinaFile }
     from "../../utils/project-utils";
@@ -33,7 +33,14 @@ export function activateBuildCommand() {
         try {
             sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_PROJECT_BUILD, CMP_PROJECT_BUILD);
 
-            const currentProject = await getCurrentBallerinaProject();
+            if (window.activeTextEditor && window.activeTextEditor.document.languageId != LANGUAGE.BALLERINA) {
+                window.showErrorMessage(MESSAGES.NOT_IN_PROJECT);
+                return;
+            }
+
+            const currentProject = ballerinaExtInstance.getDocumentContext().isActiveDiagram() ? await
+                getCurrentBallerinaProject(ballerinaExtInstance.getDocumentContext().getLatestDocument()?.toString())
+                : await getCurrentBallerinaProject();
             if (currentProject.kind !== PROJECT_TYPE.SINGLE_FILE) {
                 runCommand(currentProject, ballerinaExtInstance.getBallerinaCmd(), BALLERINA_COMMANDS.BUILD,
                     currentProject.path!);

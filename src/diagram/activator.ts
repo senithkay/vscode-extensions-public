@@ -99,6 +99,9 @@ export async function showDiagramEditor(startLine: number, startColumn: number, 
 	});
 
 	// Update test view
+	if (filePath === '' && ballerinaExtInstance.getDocumentContext().isActiveDiagram()) {
+		filePath = ballerinaExtInstance.getDocumentContext().getLatestDocument()!.fsPath;
+	}
 	createTests(Uri.file(filePath));
 }
 
