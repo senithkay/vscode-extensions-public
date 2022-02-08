@@ -874,6 +874,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         });
     };
     const expEditorStyle = monacoRef?.current?.editor?.hasTextFocus() ? "exp-editor-active" : "exp-editor";
+    const fieldName = model.label || model.displayName || model.name;
 
     setDefaultTooltips();
 
@@ -883,6 +884,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             <div
                 className={classNames("exp-container", { "hide-suggestion": hideSuggestions })}
                 style={{ height: expand ? (superExpand ? "200px" : "100px") : "34px" }}
+                field-name={fieldName}
             >
                 <div className="exp-absolute-wrapper">
                     <div

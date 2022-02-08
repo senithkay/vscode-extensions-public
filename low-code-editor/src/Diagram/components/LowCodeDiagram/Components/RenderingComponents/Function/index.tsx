@@ -169,6 +169,7 @@ export function Function(props: FunctionProps) {
                     ? model.functionName.value
                     : ""
             )}
+            data-function-name={model?.functionName?.value}
         >
             {STKindChecker.isResourceAccessorDefinition(model) ? (
                 <ResourceHeader

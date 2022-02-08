@@ -12,14 +12,14 @@ import LowCodeEditor, { BlockViewState, getSymbolInfo, InsertorDelete } from "..
 import "../assets/fonts/Glimer/glimer.css";
 import { ConditionConfig } from "../Diagram/components/FormComponents/Types";
 import { UndoRedoManager } from "../Diagram/components/FormComponents/UndoRedoManager";
-import { LowcodeEvent } from "../Diagram/models";
+import { DIAGRAM_MODIFIED, LowcodeEvent } from "../Diagram/models";
 import messages from '../lang/en.json';
 import { CirclePreloader } from "../PreLoader/CirclePreloader";
 import { MESSAGE_TYPE } from "../types";
 
 import { DiagramGenErrorBoundary } from "./ErrorBoundrary";
 import {
-    getDefaultSelectedPosition, getLowcodeST, getModifyPosition, getSyntaxTree, isDeleteModificationAvailable,
+    getDefaultSelectedPosition, getLowcodeST, getSyntaxTree, isDeleteModificationAvailable,
     isUnresolvedModulesAvailable
 } from "./generatorUtil";
 import { addPerformanceData } from "./performanceUtil";
@@ -40,7 +40,7 @@ const debounceTime: number = 5000;
 let lastPerfUpdate = 0;
 
 export function DiagramGenerator(props: DiagramGeneratorProps) {
-    const { langClient, filePath, startLine, startColumn, lastUpdatedAt, scale, panX, panY, resolveMissingDependency } = props;
+    const { langClientPromise, filePath, startLine, startColumn, lastUpdatedAt, scale, panX, panY, resolveMissingDependency } = props;
     const classes = useGeneratorStyles();
     const defaultScale = scale ? Number(scale) : 1;
     const defaultPanX = panX ? Number(panX) : 0;
@@ -65,6 +65,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     React.useEffect(() => {
         (async () => {
             try {
+                const langClient = await langClientPromise;
                 const genSyntaxTree: ModulePart = await getSyntaxTree(filePath, langClient);
                 const content = await props.getFileContent(filePath);
                 // if (genSyntaxTree?.typeData?.diagnostics && genSyntaxTree?.typeData?.diagnostics?.length > 0) {
@@ -137,6 +138,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
         const path = undoRedo.getFilePath();
         const uri = monaco.Uri.file(path).toString();
         const lastsource = undoRedo.undo();
+        const langClient = await langClientPromise;
         if (lastsource) {
             langClient.didChange({
                 contentChanges: [
@@ -165,6 +167,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
         const path = undoRedo.getFilePath();
         const uri = monaco.Uri.file(path).toString();
         const lastUndoSource = undoRedo.redo();
+        const langClient = await langClientPromise;
         if (lastUndoSource) {
             langClient.didChange({
                 contentChanges: [
@@ -239,10 +242,10 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                 },
                                 ls: {
                                     getDiagramEditorLangClient: () => {
-                                        return Promise.resolve(langClient);
+                                        return langClientPromise;
                                     },
                                     getExpressionEditorLangClient: () => {
-                                        return Promise.resolve(langClient);
+                                        return langClientPromise;
                                     }
                                 },
                                 insights: {
@@ -252,6 +255,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                 },
                                 code: {
                                     modifyDiagram: async (mutations: STModification[], options?: any) => {
+                                        const langClient = await langClientPromise;
                                         setMutationInProgress(true);
                                         setLoaderText('Updating...');
                                         const { parseSuccess, source, syntaxTree: newST } = await langClient.stModify({
@@ -284,7 +288,13 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                             // TODO show error
                                         }
                                         setMutationInProgress(false);
-
+                                        if (mutations.length > 0) {
+                                            const event: LowcodeEvent = {
+                                                type: DIAGRAM_MODIFIED,
+                                                name: `${mutations[0].type}`
+                                            };
+                                            props.sendTelemetryEvent(event);
+                                        }
                                         await addPerfData(vistedSyntaxTree);
                                     },
                                     onMutate: (type: string, options: any) => undefined,
@@ -328,9 +338,12 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
 
     async function addPerfData(vistedSyntaxTree: STNode) {
         const currentTime: number = Date.now();
-
+        const langClient = await langClientPromise;
         if (currentTime - lastPerfUpdate > debounceTime) {
             const pfSession = await props.getPFSession();
+            if (!pfSession) {
+                return;
+            }
             const perfData = await addPerformanceData(vistedSyntaxTree, filePath, langClient, pfSession, props.showPerformanceGraph, props.getPerfDataFromChoreo);
             setPerformanceData(perfData);
             lastPerfUpdate = currentTime;

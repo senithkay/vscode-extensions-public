@@ -19,7 +19,7 @@ import recordDef from "./data/record-def-raw.json"
 import { RecordDefComponentProps, RecordDefinitionComponent } from "./index";
 
 export default {
-    title: 'Low Code Editor/Diagram/TypeDefinion',
+    title: 'Low Code Editor/Testing/Diagram/TypeDefinion',
     component: RecordDefinitionComponent,
 };
 
