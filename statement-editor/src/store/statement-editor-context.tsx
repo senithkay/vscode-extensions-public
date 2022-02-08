@@ -16,7 +16,7 @@ import React, { useState } from 'react';
 import { LibraryKind, STModification } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
-import { LowCodeEditorProps } from '../components/ViewContainer/ViewContainer';
+import { LowCodeEditorProps } from '../components/StatementEditor';
 
 import { InputEditorContextProvider } from "./input-editor-context";
 
@@ -24,8 +24,7 @@ export const StatementEditorContext = React.createContext({
     modelCtx: {
         statementModel: null,
         currentModel: null,
-        updateModel: (codeSnippet: string, position: NodePosition) => {},
-        addModuleImport: (org: string, module: string) => {}
+        updateModel: (codeSnippet: string, position: NodePosition) => {}
     },
     formCtx: {
         formModelPosition: null
@@ -56,7 +55,6 @@ interface CtxProviderProps extends LowCodeEditorProps {
     model: STNode,
     currentModel: { model: STNode },
     updateModel?: (codeSnippet: string, position: NodePosition) => void,
-    addModuleImport?: (org: string, module: string) => void,
     formArgs?: any,
     validateStatement: (isValid: boolean) => void
 }
@@ -67,7 +65,6 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
         model,
         currentModel,
         updateModel,
-        addModuleImport,
         formArgs,
         validateStatement,
         library,
@@ -88,8 +85,7 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
                 modelCtx: {
                     statementModel: model,
                     currentModel,
-                    updateModel,
-                    addModuleImport
+                    updateModel
                 },
                 formCtx: {
                     formModelPosition: formArgs.formArgs.targetPosition

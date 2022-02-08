@@ -42,6 +42,7 @@ export function getModifications(
         formArgs: any,
         modulesToBeImported?: string[]): STModification[] {
     const modifications: STModification[] = [];
+    const importStatementRegex = /ballerinax?\/[^;]+/g;
 
     if (STKindChecker.isLocalVarDecl(model) ||
             STKindChecker.isCallStatement(model) ||
@@ -67,7 +68,7 @@ export function getModifications(
 
     if (modulesToBeImported) {
         modulesToBeImported.map((moduleNameStr: string) => (
-            modifications.push(createImportStatement(moduleNameStr))
+            modifications.push(createImportStatement(importStatementRegex.exec(moduleNameStr).pop()))
         ));
     }
 

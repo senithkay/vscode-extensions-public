@@ -15,9 +15,9 @@ import React, { useState } from "react";
 import { FormControl } from "@material-ui/core";
 import { FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
-import { ViewContainer, ViewProps } from "../components/ViewContainer/ViewContainer";
+import { StatementEditor, StatementEditorProps } from "../components/StatementEditor";
 
-export const useStatementEditor = (props: ViewProps) => {
+export const useStatementEditor = (props: StatementEditorProps) => {
     const {
         onCancel,
         ...restProps
@@ -40,7 +40,7 @@ export const useStatementEditor = (props: ViewProps) => {
                     handleStmtEditorToggle={handleStmtEditorToggle}
                     toggleChecked={true}
                 />
-                <ViewContainer
+                <StatementEditor
                     onCancel={onCancel}
                     {...restProps}
                 />
