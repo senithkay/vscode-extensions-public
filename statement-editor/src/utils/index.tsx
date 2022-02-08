@@ -25,7 +25,7 @@ import * as c from "../constants";
 import { SuggestionItem, VariableUserInputs } from '../models/definitions';
 import { visitor as ModelFindingVisitor } from "../visitors/model-finding-visitor";
 
-import { createStatement, updateStatement } from "./statement-modifications";
+import { createImportStatement, createStatement, updateStatement } from "./statement-modifications";
 import {
     DataTypeByExpressionKind,
     ExpressionKindByOperator,
@@ -39,7 +39,8 @@ export function getModifications(
             type: string;
             model?: STNode;
         },
-        formArgs: any): STModification[] {
+        formArgs: any,
+        modulesToBeImported?: string[]): STModification[] {
     const modifications: STModification[] = [];
 
     if (STKindChecker.isLocalVarDecl(model) ||
@@ -62,6 +63,12 @@ export function getModifications(
         } else {
             modifications.push(updateStatement(model.source, config.model.position));
         }
+    }
+
+    if (modulesToBeImported) {
+        modulesToBeImported.map((moduleNameStr: string) => (
+            modifications.push(createImportStatement(moduleNameStr))
+        ));
     }
 
     return modifications;

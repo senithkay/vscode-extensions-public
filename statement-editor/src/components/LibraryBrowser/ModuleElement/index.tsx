@@ -20,6 +20,7 @@ import {
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { StatementEditorContext } from "../../../store/statement-editor-context";
+import { getFQModuleName } from "../../../utils/statement-modifications";
 import { useStatementEditorStyles } from "../../styles";
 
 interface ModuleElementProps {
@@ -74,7 +75,7 @@ export function ModuleElement(props: ModuleElementProps) {
             }
         }
 
-        updateModuleList(`import ${moduleOrgName}/${moduleId};`);
+        updateModuleList(`import ${getFQModuleName(moduleOrgName, moduleId)};`);
         updateModel(content, currentModel.model.position);
 
         // addModuleImport(moduleOrgName, moduleId);

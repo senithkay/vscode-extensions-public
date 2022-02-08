@@ -63,16 +63,7 @@ export function updateStatement(property: string, targetPosition: NodePosition):
     return modification;
 }
 
-export function createImportStatement(org: string, module: string): STModification {
-    const moduleName = module;
-    const formattedName = getFormattedModuleName(module);
-    let moduleNameStr = org + "/" + module;
-
-    if (moduleName.includes('.') && moduleName.split('.').pop() !== formattedName) {
-        // add alias if module name is different with formatted name
-        moduleNameStr = org + "/" + module + " as " + formattedName
-    }
-
+export function createImportStatement(moduleNameStr: string): STModification {
     const importStatement: STModification = {
         startLine: 0,
         startColumn: 0,
@@ -87,10 +78,14 @@ export function createImportStatement(org: string, module: string): STModificati
     return importStatement;
 }
 
-function getFormattedModuleName(moduleName: string): string {
-    let formattedModuleName = moduleName.includes('.') ? moduleName.split('.').pop() : moduleName;
-    if (keywords.includes(formattedModuleName)) {
-        formattedModuleName = `${formattedModuleName}0`;
+export function getFQModuleName(org: string, module: string): string {
+    let moduleNameStr = org + "/" + module;
+    const moduleName = module.includes('.') ? module.split('.').pop() : module;
+
+    if (keywords.includes(moduleName)) {
+        // add alias if module name is different with formatted name
+        moduleNameStr = org + "/" + module + " as " +  `${module}0`
     }
-    return formattedModuleName;
+
+    return moduleNameStr;
 }

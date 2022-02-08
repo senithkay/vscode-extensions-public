@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useIntl } from "react-intl";
 
 import {
@@ -28,10 +28,9 @@ import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tre
 
 import { APPEND_EXPR_LIST_CONSTRUCTOR, INIT_EXPR_LIST_CONSTRUCTOR, OTHER_STATEMENT } from "../../constants";
 import { VariableUserInputs } from '../../models/definitions';
-import { StatementEditorContextProvider } from "../../store/statement-editor-context";
+import { StatementEditorContext, StatementEditorContextProvider } from "../../store/statement-editor-context";
 import { getCurrentModel, getModifications } from "../../utils";
 import { getPartialSTForStatement, sendDidChange } from "../../utils/ls-utils";
-import { createImportStatement } from "../../utils/statement-modifications";
 import { LeftPane } from '../LeftPane';
 import { useStatementEditorStyles } from "../styles";
 
@@ -85,6 +84,12 @@ export function ViewContainer(props: ViewProps) {
     } = props;
     const intl = useIntl();
     const overlayClasses = useStatementEditorStyles();
+    const stmtCtx = useContext(StatementEditorContext);
+    const {
+        modules: {
+            modulesToBeImported
+        }
+    } = stmtCtx;
 
     const [model, setModel] = useState<STNode>(null);
     const [isStatementValid, setIsStatementValid] = useState(false);
@@ -156,8 +161,8 @@ export function ViewContainer(props: ViewProps) {
     }
 
     const addModuleImport = (org: string, module: string) => {
-        const addImportStatement: STModification = createImportStatement(org, module);
-        applyModifications([addImportStatement]);
+        // const addImportStatement: STModification = createImportStatement(org, module);
+        // applyModifications([addImportStatement]);
     };
 
     const currentModelHandler = (cModel: STNode) => {
@@ -187,7 +192,7 @@ export function ViewContainer(props: ViewProps) {
     });
 
     const onSaveClick = () => {
-        const modifications = getModifications(model, config, formArgs);
+        const modifications = getModifications(model, config, formArgs, Array.from(modulesToBeImported) as string[]);
         applyModifications(modifications);
         onWizardClose();
     };
