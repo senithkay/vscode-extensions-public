@@ -27,6 +27,35 @@ export class ExpressionEditor {
         return this;
     }
 
+    public suggestWidgetShouldBeVisible() {
+        this.getEditorConditions()
+            .get('.monaco-list-rows').children().should('have.length.at.least', 1);
+        return this;
+
+    }
+
+    public clickFirstSuggestion() {
+        this.suggestWidgetShouldBeVisible();
+        this.getEditorConditions().get('.monaco-list-rows').children().first().click();
+        return this;
+    }
+
+    public triggerSuggestions(force: boolean = false) {
+        if (force) {
+            cy.get(`${this.parentSelector} .exp-container[field-name="${this.fieldName}"] .view-lines`).type("{end}{ctrl} ");
+        } else {
+            cy.get(`${this.parentSelector} .exp-container[field-name="${this.fieldName}"] .view-lines`).click();
+        }
+        this.suggestWidgetShouldBeVisible();
+        return this;
+    }
+
+    public pickSuggetionWithText(text: string, force: boolean = false) {
+        this.triggerSuggestions(force).suggestWidgetShouldBeVisible();
+        this.getEditorConditions().get('.monaco-list-rows').children().contains(text).click();
+        return this;
+    }
+
     public clear() {
         const clearKeyStroke = Cypress.platform == "darwin" ? "{selectall}{del}{esc}" : "{ctrl}a{del}{esc}";
         this.getEditor().type(clearKeyStroke);

@@ -13,24 +13,20 @@ export class AssignmentForm {
         return this;
     }
 
+    static selectVariableSuggestion(name: string) {
+        ExpressionEditor
+            .getForField("Variable Name", this.selector)
+            .pickSuggetionWithText(name)
+            .waitForValidations();
+        return this;
+    }
+
     static typeVariableValue(value: any) {
         ExpressionEditor
             .getForField("Value Expression", this.selector)
             .type(value)
             .waitForValidations();
         return this;
-    }
-
-    static suggestWidgetShouldBeVisible() {
-        this.getForm().get('.monaco-list-rows').children().should('have.length.at.least', 1);
-        return this;
-
-    }
-
-    static clickFirstNameSuggest() {
-        this.getForm().get('.monaco-list-rows').children().first().click();
-        return this;
-
     }
 
     static shouldBeVisible() {
