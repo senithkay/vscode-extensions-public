@@ -71,11 +71,4 @@ export class ListenerForm {
             .click();
         return this;
     }
-
-
-    static close() {
-        this.getForm()
-           .get('.close-btn-wrap button')
-           .click();
-    }
 }

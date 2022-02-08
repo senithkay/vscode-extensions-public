@@ -63,5 +63,4 @@ export class Canvas {
         const element = this.getListenerComponentELement(listenerName);
         return new Listener(element);
     }
-
 }

@@ -63,8 +63,5 @@ describe('Listener', () => {
         ListenerForm
             .shouldBeVisible()
             .cancel();
-
-        setTimeout(() => { }, 500)
-        TopLevelPlusWidget.clickOption('Listener');
-    })
+    });
 });
