@@ -128,7 +128,7 @@ export function InputEditor(props: InputEditorProps) {
     const isCustomTemplate = false;
     let currentContent = stmtCtx.modelCtx.statementModel ? stmtCtx.modelCtx.statementModel.source : "";
 
-    const placeHolders: string[] = ['EXPRESSION', 'TYPE_DESCRIPTOR'];
+    const placeHolders: string[] = ['EXPRESSION', 'TYPE_DESCRIPTOR', 'PARAM', 'OPTIONAL_PARAM'];
 
     useEffect(() => {
         handleOnFocus(currentContent, "").then(() => {

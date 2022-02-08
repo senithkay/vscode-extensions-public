@@ -16,6 +16,10 @@ import { useIntl } from "react-intl";
 
 import {
     ExpressionEditorLangClientInterface,
+    LibraryDataResponse,
+    LibraryDocResponse,
+    LibraryKind,
+    LibrarySearchResponse,
     PrimaryButton,
     SecondaryButton,
     STModification
@@ -31,12 +35,17 @@ import { LeftPane } from '../LeftPane';
 import { useStatementEditorStyles } from "../styles";
 
 export interface LowCodeEditorProps {
-    getLangClient: () => Promise<ExpressionEditorLangClientInterface>,
-    applyModifications: (modifications: STModification[]) => void,
+    getLangClient: () => Promise<ExpressionEditorLangClientInterface>;
+    applyModifications: (modifications: STModification[]) => void;
     currentFile: {
         content: string,
         path: string,
         size: number
+    };
+    library: {
+        getLibrariesList: (kind: string) => Promise<LibraryDocResponse>;
+        getLibrariesData: () => Promise<LibrarySearchResponse>;
+        getLibraryData: (orgName: string, moduleName: string, version: string) => Promise<LibraryDataResponse>;
     };
 }
 export interface ViewProps extends LowCodeEditorProps {
@@ -47,13 +56,13 @@ export interface ViewProps extends LowCodeEditorProps {
     config: {
         type: string;
         model?: STNode;
-    }
+    };
     validForm?: boolean;
     onWizardClose: () => void;
     onCancel: () => void;
     handleNameOnChange?: (name: string) => void;
     handleTypeChange?: (name: string) => void;
-    handleStatementEditorChange?: (partialModel: STNode) => void,
+    handleStatementEditorChange?: (partialModel: STNode) => void;
 }
 
 export function ViewContainer(props: ViewProps) {
@@ -70,6 +79,7 @@ export function ViewContainer(props: ViewProps) {
         handleStatementEditorChange,
         getLangClient,
         applyModifications,
+        library,
         currentFile
     } = props;
     const intl = useIntl();
@@ -192,6 +202,7 @@ export function ViewContainer(props: ViewProps) {
                         formArgs={formArgs}
                         validateStatement={validateStatement}
                         applyModifications={applyModifications}
+                        library={library}
                         currentFile={currentFile}
                         getLangClient={getLangClient}
                     >
