@@ -7,7 +7,7 @@ export class HttpForm {
     private static selector = '[data-testid="connector-form"]';
 
     static typeConnectionName(name: string) {
-        const clearKeyStroke = Cypress.platform == "darwin" ? "{selectall}{del}{esc}" : "{ctrl}a{del}{esc}";
+        const clearKeyStroke = "{selectall}{del}";
         this.getForm().get('[placeholder="Enter connection name"]')
             .type(clearKeyStroke)
             .type(name);
