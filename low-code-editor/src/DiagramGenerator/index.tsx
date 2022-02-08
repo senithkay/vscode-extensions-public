@@ -41,6 +41,7 @@ import { DIAGRAM_MODIFIED, LowcodeEvent } from "../Diagram/models";
 import messages from '../lang/en.json';
 import { CirclePreloader } from "../PreLoader/CirclePreloader";
 import { MESSAGE_TYPE } from "../types";
+import { init } from "../utils/sentry";
 
 import { DiagramGenErrorBoundary } from "./ErrorBoundrary";
 import {
@@ -244,6 +245,14 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     const selectedPosition = startColumn === 0 && startLine === 0 ? // TODO: change to use undefined for unselection
         getDefaultSelectedPosition(syntaxTree)
         : { startLine, startColumn }
+
+    let sentryConfig;
+    (async () => {
+        sentryConfig = await props.getSentryConfig();
+    })
+    if (sentryConfig) {
+        init(sentryConfig);
+    }
 
     return (
         <MuiThemeProvider theme={theme}>

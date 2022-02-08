@@ -5,6 +5,7 @@ const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 
 const APP_DIR = path.resolve(__dirname, './src');
 const MONACO_DIR = path.resolve(__dirname, '../node_modules/monaco-editor');
+const SentryWebpackPlugin = require("@sentry/webpack-plugin");
 
 module.exports = (env, argv) => ({
     mode: 'none',
@@ -12,7 +13,7 @@ module.exports = (env, argv) => ({
         BLCEditor: path.join(__dirname, 'src', 'index.tsx')
     },
     target: 'web',
-    devtool: argv.mode === "production" ? undefined : "source-map",
+    devtool: "source-map",
     resolve: {
         extensions: [".ts", ".tsx", ".js", ".mjs"],
         alias: {
@@ -105,7 +106,15 @@ module.exports = (env, argv) => ({
         }),
         new webpack.DefinePlugin({
             'process.env.NODE_ENV': JSON.stringify(argv.mode)
-        })
+        }),
+        new SentryWebpackPlugin({
+            authToken: "32ef5b12974348a2999acb2b62b4ce6232c87e15ded940078b18c735a33fd72d",
+            org: "testorg-uv",
+            project: "low-code",
+            release: "rel-1",
+            include: ".",
+            ignore: ["node_modules", "webpack.config.js"],
+        }),
     ]
 });
 
