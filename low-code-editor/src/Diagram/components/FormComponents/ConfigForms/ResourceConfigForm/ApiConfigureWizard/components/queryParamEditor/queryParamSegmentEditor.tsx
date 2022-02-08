@@ -149,7 +149,7 @@ export function QueryParamSegmentEditor(props: QueryParamSegmentEditorProps) {
                                 onClick={onCancel}
                             />
                             <PrimaryButton
-                                dataTestId={"custom-expression-save-btn"}
+                                dataTestId={"query-param-add-btn"}
                                 text={onUpdate ? "Update" : " Add"}
                                 disabled={!segmentState.name || !segmentState.type || segmentState?.name === "" || segmentState?.type === "" || pramError !== "" || !validSelectedType}
                                 fullWidth={false}
