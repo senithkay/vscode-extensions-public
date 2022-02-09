@@ -37,7 +37,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             formContentWrapper: {
                 width: '100%',
                 flexDirection: "row",
-                padding: theme.spacing(1.875, 2.5),
+                padding: '15px 20px',
             },
             formDeclarationWrapper: {
                 display: 'flex',
@@ -52,7 +52,7 @@ export const useStyles = makeStyles((theme: Theme) =>
                 width: '100%',
                 marginRight: theme.spacing(0.625),
                 position: 'relative',
-                marginTop: theme.spacing(1.5),
+                marginTop: theme.spacing(0),
                 '&:last-child': {
                     marginRight: 0
                 }
@@ -208,7 +208,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             starLabelForRequired: {
                 padding: 0,
                 color: '#DC143C',
-                fontSize: '13px',
+                fontSize: "13px",
                 textTransform: 'capitalize',
                 display: 'inline-block'
             },
@@ -228,7 +228,7 @@ export const useStyles = makeStyles((theme: Theme) =>
                 height: "auto",
                 width: "100%",
                 border: "1px solid #DEE0E7",
-                borderRadius: '6px',
+                borderRadius: "6px",
                 backgroundColor: "#FFF",
                 padding: "0.5rem 1rem 1rem",
                 "& .MuiInputBase-root": {
@@ -243,7 +243,7 @@ export const useStyles = makeStyles((theme: Theme) =>
                 height: "auto",
                 width: "100%",
                 border: "1px solid #DEE0E7",
-                borderRadius: '6px',
+                borderRadius: "6px",
                 backgroundColor: "#FFF",
                 padding: "0.5rem 1rem 1rem",
                 marginTop: "0.5rem !important",
@@ -413,10 +413,10 @@ export const useStyles = makeStyles((theme: Theme) =>
                 fontSize: 12,
             },
             emailFormTo: {
-                marginTop: '0px'
+                marginTop: "0px"
             },
             emailFormSubject: {
-                marginTop: '24px'
+                marginTop: "24px"
             },
             unionDropdown: {
                 marginTop: '0 !important',
@@ -586,8 +586,8 @@ export const useStyles = makeStyles((theme: Theme) =>
             suggestionsTextCodeSnippet: {
                 backgroundColor: "#eff1f5",
                 color: "#526acf",
-                fontSize: '12px',
-                padding: '5px'
+                fontSize: "12px",
+                padding: "5px"
             },
             pre: {
                 margin: 0,
@@ -626,7 +626,7 @@ export const useStyles = makeStyles((theme: Theme) =>
                 letterSpacing: 0,
                 cursor: "pointer",
                 background: "#fff",
-                padding: "4px 8px 4px 0",
+                padding: "4px 8px 4px 8px",
                 borderRadius: 8,
                 display: "flex",
                 alignItems: "center",
@@ -634,6 +634,11 @@ export const useStyles = makeStyles((theme: Theme) =>
                     height: '18px !important',
                 },
                 marginTop: 6,
+            },
+            addParameterBtn: {
+                paddingLeft: 0,
+                marginTop: 6,
+                textTransform: 'initial'
             },
             sectionSeperatorHR: {
                 margin: "1.5rem 0"

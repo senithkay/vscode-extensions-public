@@ -307,7 +307,7 @@ export function AddForeachForm(props: ForeachProps) {
                                     onChange={onVariableNameChange}
                                     defaultValue={conditionExpression.variable}
                                     label="Current Value"
-                                    placeholder={""}
+                                    placeholder="Current Value"
                                     errorMessage={invalidConnectionErrorMessage}
                                 />
                             </div>
