@@ -376,7 +376,7 @@ export function RecordField(props: CodePanelProps) {
                     onEditRecord={handleRecordEdit}
                 />
                 {isRecordExpanded && (
-                    <div className={recordModel?.isActive ? recordClasses.activeRecordSubFieldWrapper : recordClasses.recordSubFieldWrapper}>
+                    <div data-testid={`fieldItems-${recordModel.name}`}className={recordModel?.isActive ? recordClasses.activeRecordSubFieldWrapper : recordClasses.recordSubFieldWrapper}>
                         {fieldItems}
                         {!state.isEditorInvalid && !isDraftRecordAdded && (
                             <>

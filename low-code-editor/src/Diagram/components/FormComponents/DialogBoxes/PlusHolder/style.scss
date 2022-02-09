@@ -252,8 +252,8 @@
             }
 
             .sub-option {
-                width: 163px;
-                padding: 4px;
+                width: 170px;
+                padding: 3px;
                 display: flex;
                 flex-direction: row;
                 align-items: center;
@@ -270,12 +270,17 @@
                 }
 
                 .icon-wrapper {
-                    width: 30px;
-                    height: 30px;
+                    width: 26px;
+                    height: 26px;
                     margin: 5px;
                     display: flex;
                     align-items: center;
                     transform: scale(1.25);
+                    &.icon-wrapper-http{
+                        transform: scale(0.9);
+                        margin-left: 2px;
+                        margin-right: 8px;
+                    }
                 }
 
                 .text-label {
@@ -284,6 +289,9 @@
                     font-size: 13px;
                 }
             }
+        }
+        .options-divider{
+                background-color: #eeeeee;
         }
     }
 
