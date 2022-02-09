@@ -360,21 +360,16 @@ class PositioningVisitor implements Visitor {
                 (node as FunctionBodyBlock).namedWorkerDeclarator.workerInitStatements,
                 blockViewState, height, index, epGap));
 
-
             index++;
             height += PLUS_SVG_HEIGHT + START_SVG_HEIGHT;
 
             (node as FunctionBodyBlock).namedWorkerDeclarator.namedWorkerDeclarations.forEach((workerDecl, i) => {
                 const workerDeclViewState = workerDecl.viewState as WorkerDeclarationViewState;
                 const workerBodyViewState = workerDecl.workerBody.viewState as BlockViewState;
-                // const startHeight = DefaultConfig.startingY + height;
-                // workerDeclViewState.trigger.cy = startHeight;
-                // workerBodyViewState.bBox.cy = startHeight;
-                // workerBodyViewState.bBox.cx = workerDeclViewState.bBox.cx = blockViewState.bBox.cx;
                 workerDeclViewState.bBox.x = i === 0 ?
-                    blockViewState.bBox.cx + blockViewState.bBox.w / 2 + workerBodyViewState.bBox.w / 2
-                    : blockViewState.bBox.cx
-                    + (node as FunctionBodyBlock).namedWorkerDeclarator.namedWorkerDeclarations[i - 1].viewState.bBox.cx
+                    blockViewState.bBox.x + blockViewState.bBox.w / 2 + workerBodyViewState.bBox.w / 2
+                    :
+                    (node as FunctionBodyBlock).namedWorkerDeclarator.namedWorkerDeclarations[i - 1].viewState.bBox.x
                     + workerBodyViewState.bBox.w / 2;
                 workerDeclViewState.bBox.y = height;
             });
