@@ -131,7 +131,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     }
 
     async function run(args: any[]) {
-        runCommand(PALETTE_COMMANDS.RUN_WITH_CONFIGS, args);
+        runCommand(PALETTE_COMMANDS.RUN, args);
     }
 
     const undo = async () => {
