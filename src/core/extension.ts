@@ -564,10 +564,8 @@ export class BallerinaExtension {
     }
 
     public isConfigurableEditorEnabled(): boolean {
-        if (process.env.CODE_SERVER_ENV === 'true') {
-            return true;
-        }
-        return <boolean>workspace.getConfiguration().get(ENABLE_CONFIGURABLE_EDITOR);
+        return process.env.CODE_SERVER_ENV === 'true' ||
+            <boolean>workspace.getConfiguration().get(ENABLE_CONFIGURABLE_EDITOR);
     }
 
     public async updatePerformanceForecastSetting(status: boolean) {
