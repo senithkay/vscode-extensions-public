@@ -104,7 +104,7 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
         });
     };
 
-    if (!currentModel.model) {
+    if (!currentModel.model && model.initializer) {
         addStatementToTargetLine(currentFile.content, targetPosition,
             stmtCtx.modelCtx.statementModel.source, getLangClient).then((content: string) => {
                 getContextBasedCompletions(fileURI, content, targetPosition, model.initializer.position, false,

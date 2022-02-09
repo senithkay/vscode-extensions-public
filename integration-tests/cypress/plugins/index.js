@@ -18,8 +18,12 @@ const webpackPreprocessor = require('@cypress/webpack-batteries-included-preproc
  * @type {Cypress.PluginConfig}
  * 
  */
-module.exports = (on) => {
+module.exports = (on, config) => {
   on('file:preprocessor', webpackPreprocessor({
     typescript: require.resolve('typescript')
   }))
+
+  require('@cypress/code-coverage/task')(on, config)
+
+  return config
 }
