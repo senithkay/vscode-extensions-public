@@ -33,10 +33,43 @@ export class TriggerForm {
         return this;
     }
 
+    static searchTrigger(type: string) {
+        this.getTriggerMarketplace()
+            .get('[data-testid="search-input"]')
+            .should("be.visible")
+            .click()
+            .type(type);
+        return this;
+    }
+
+    static addChannel(type: string) {
+        this.getTriggerForm()
+            .get('[data-testid="add-channel"]')
+            .should("be.visible")
+            .click()
+            .get(`[id="combo-box-demo"]`)
+            .should("be.visible")
+            .click()
+            .type(type)
+            .get('li')
+            .contains(type, { matchCase: false })
+            .click();
+        return this;
+    }
+
+    static deleteChannel(type: string) {
+        this.getTriggerForm()
+            .get(`[data-testid="delete-${type}"]`)
+            .click()
+            .get('div')
+            .contains(type, { matchCase: false })
+            .should("not.exist");
+        return this;
+    }
+
     static shouldBeVisible() {
         this.getTriggerMarketplace().should("be.visible");
         return this;
-
     }
 
     private static getTriggerMarketplace() {
@@ -62,6 +95,14 @@ export class TriggerForm {
         this.getTriggerForm()
             .get('button')
             .contains("Create")
+            .click();
+        return this;
+    }
+
+    static cancel() {
+        this.getTriggerForm()
+            .get('button')
+            .contains("Cancel")
             .click();
         return this;
     }
