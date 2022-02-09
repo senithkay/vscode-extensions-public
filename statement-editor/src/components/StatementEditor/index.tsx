@@ -42,7 +42,7 @@ export interface LowCodeEditorProps {
         getLibrariesData: () => Promise<LibrarySearchResponse>;
         getLibraryData: (orgName: string, moduleName: string, version: string) => Promise<LibraryDataResponse>;
     };
-    syntaxTree?: STNode;
+    importStatements: string[];
 }
 export interface StatementEditorProps extends LowCodeEditorProps {
     label: string;
@@ -77,7 +77,7 @@ export function StatementEditor(props: StatementEditorProps) {
         applyModifications,
         library,
         currentFile,
-        syntaxTree
+        importStatements
     } = props;
 
     const [model, setModel] = useState<STNode>(null);
@@ -170,6 +170,7 @@ export function StatementEditor(props: StatementEditorProps) {
                 <StatementEditorContextProvider
                     model={model}
                     currentModel={currentModel}
+                    importStatements={importStatements}
                     updateModel={updateModel}
                     formArgs={formArgs}
                     validateStatement={validateStatement}

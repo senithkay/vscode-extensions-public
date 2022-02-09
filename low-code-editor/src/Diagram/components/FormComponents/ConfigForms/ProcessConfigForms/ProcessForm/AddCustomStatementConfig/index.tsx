@@ -51,7 +51,10 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
         },
         api: {
             ls: { getExpressionEditorLangClient },
-            code: { modifyDiagram },
+            code: {
+                modifyDiagram,
+                importStatements
+            },
             insights: { onEvent },
             library
         }
@@ -134,7 +137,8 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
             currentFile,
             getLangClient: getExpressionEditorLangClient,
             applyModifications: modifyDiagram,
-            library
+            library,
+            importStatements
         }
     );
 

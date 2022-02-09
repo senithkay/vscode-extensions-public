@@ -64,6 +64,7 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
         children,
         model,
         currentModel,
+        importStatements,
         updateModel,
         formArgs,
         validateStatement,
@@ -74,9 +75,11 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
     const [moduleList, setModuleList] = useState(new Set<string>());
 
     const moduleHandler = (module: string) => {
-        setModuleList((prevModuleList: Set<string>) => {
-            return new Set(prevModuleList.add(module));
-        });
+        if (!importStatements.includes(module)) {
+            setModuleList((prevModuleList: Set<string>) => {
+                return new Set(prevModuleList.add(module));
+            });
+        }
     };
 
     return (

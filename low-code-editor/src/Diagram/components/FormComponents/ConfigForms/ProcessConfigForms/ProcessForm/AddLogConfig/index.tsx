@@ -53,7 +53,10 @@ export function AddLogConfig(props: LogConfigProps) {
         },
         api: {
             ls: { getExpressionEditorLangClient },
-            code: { modifyDiagram },
+            code: {
+                modifyDiagram,
+                importStatements
+            },
             library
         }
     } = useContext(Context);
@@ -145,7 +148,8 @@ export function AddLogConfig(props: LogConfigProps) {
             currentFile,
             getLangClient: getExpressionEditorLangClient,
             applyModifications: modifyDiagram,
-            library
+            library,
+            importStatements
         }
     );
 

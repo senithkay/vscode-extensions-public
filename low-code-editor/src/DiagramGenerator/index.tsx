@@ -19,6 +19,7 @@ import {
     Connector,
     DiagramDiagnostic,
     DiagramEditorLangClientInterface,
+    getImportStatements,
     InsertorDelete,
     LibraryDataResponse,
     LibraryDocResponse,
@@ -331,7 +332,8 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                     },
                                     isMutationInProgress,
                                     isModulePullInProgress,
-                                    loaderText
+                                    loaderText,
+                                    importStatements: getImportStatements(syntaxTree)
                                 },
                                 // FIXME Doesn't make sense to take these methods below from outside
                                 // Move these inside and get an external API for pref persistance

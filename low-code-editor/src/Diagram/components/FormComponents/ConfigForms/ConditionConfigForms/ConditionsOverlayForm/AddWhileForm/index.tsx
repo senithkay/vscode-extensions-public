@@ -49,7 +49,10 @@ export function AddWhileForm(props: WhileProps) {
         },
         api: {
             ls: { getExpressionEditorLangClient },
-            code: { modifyDiagram },
+            code: {
+                modifyDiagram,
+                importStatements
+            },
             library
         }
     } = useContext(Context);
@@ -156,7 +159,8 @@ export function AddWhileForm(props: WhileProps) {
             currentFile,
             getLangClient: getExpressionEditorLangClient,
             applyModifications: modifyDiagram,
-            library
+            library,
+            importStatements
         }
     );
 
