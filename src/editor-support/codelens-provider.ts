@@ -141,7 +141,7 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
             title: execType.toString(),
             tooltip: `${execType.toString()} ${execPosition.name}`,
             command: execPosition.kind === EXEC_POSITION_TYPE.SOURCE ? (execType === EXEC_TYPE.RUN ?
-                PALETTE_COMMANDS.RUN : SOURCE_DEBUG_COMMAND) : (execType === EXEC_TYPE.RUN ? PALETTE_COMMANDS.TEST :
+                PALETTE_COMMANDS.RUN_CMD : SOURCE_DEBUG_COMMAND) : (execType === EXEC_TYPE.RUN ? PALETTE_COMMANDS.TEST :
                     TEST_DEBUG_COMMAND),
             arguments: execPosition.kind === EXEC_POSITION_TYPE.SOURCE ? [] : (execType === EXEC_TYPE.RUN ?
                 [EXEC_ARG.TESTS, execPosition.name] : [execPosition.name])

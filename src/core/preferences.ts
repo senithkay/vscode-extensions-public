@@ -26,3 +26,4 @@ export const ENABLE_SEMANTIC_HIGHLIGHTING = "ballerina.enableSemanticHighlightin
 export const ENABLE_PERFORMANCE_FORECAST = "ballerina.enablePerformanceForecast";
 export const ENABLE_DEBUG_LOG = "ballerina.debugLog";
 export const ENABLE_BALLERINA_LS_DEBUG = "ballerina.enableLanguageServerDebug";
+export const ENABLE_CONFIGURABLE_EDITOR = "ballerina.enableConfigurableEditor";
