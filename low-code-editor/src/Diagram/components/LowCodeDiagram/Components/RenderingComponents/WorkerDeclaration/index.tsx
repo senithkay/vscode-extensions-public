@@ -20,6 +20,7 @@ import { WorkerHead } from './WorkerHead';
 import { WorkerLine } from '../WorkerLine';
 import { End } from '../End';
 import { PlusButton } from '../../PlusButtons/Plus';
+import { WorkerBody } from '../WorkerBody';
 
 interface WorkerProps {
     model: NamedWorkerDeclaration;
@@ -28,24 +29,19 @@ interface WorkerProps {
 export function Worker(props: WorkerProps) {
     const { model } = props;
     const workerBodyVS = model.workerBody.viewState;
-    const children = getSTComponents(model.workerBody.statements);
-    const pluses: React.ReactNode[] = [];
+    // const children = getSTComponents(model.workerBody.statements);
+    // const pluses: React.ReactNode[] = [];
 
-    for (const plusView of workerBodyVS.plusButtons) {
-        pluses.push(<PlusButton viewState={plusView} model={model.workerBody} initPlus={false} />)
-    }
+    // for (const plusView of workerBodyVS.plusButtons) {
+    //     pluses.push(<PlusButton viewState={plusView} model={model.workerBody} initPlus={false} />)
+    // }
 
     return (
         <>
             <WorkerLine viewState={model.viewState} />
             <WorkerHead model={model} />
-            <End
-                // model={model.workerBody}
-                viewState={model.viewState.end}
-                isExpressionFunction={true}
-            />
-            {children}
-            {pluses}
+            <WorkerBody model={model.workerBody} viewState={workerBodyVS} />
+            <End viewState={model.viewState.end} />
         </>
     )
 }

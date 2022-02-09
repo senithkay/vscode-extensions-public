@@ -40,6 +40,7 @@ import { EXISTING_PLUS_HOLDER_API_HEIGHT, EXISTING_PLUS_HOLDER_API_HEIGHT_COLLAP
 import { BIGPLUS_SVG_WIDTH } from "../Components/PlusButtons/Plus/Initial";
 import { PLUS_SVG_HEIGHT } from "../Components/PlusButtons/Plus/PlusAndCollapse/PlusSVG";
 import { EXECUTION_TIME_DEFAULT_X_OFFSET, EXECUTION_TIME_IF_X_OFFSET } from "../Components/RenderingComponents/ControlFlowExecutionTime";
+import { STOP_SVG_HEIGHT } from "../Components/RenderingComponents/End/StopSVG";
 import { BOTTOM_CURVE_SVG_WIDTH } from "../Components/RenderingComponents/IfElse/Else/BottomCurve";
 import { TOP_CURVE_SVG_HEIGHT } from "../Components/RenderingComponents/IfElse/Else/TopCurve";
 import { PROCESS_SVG_HEIGHT } from "../Components/RenderingComponents/Processor/ProcessSVG";
@@ -154,7 +155,8 @@ class PositioningVisitor implements Visitor {
         bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
 
         viewState.end.bBox.cx = viewState.bBox.cx + viewState.bBox.w / 2;
-        viewState.end.bBox.cy = DefaultConfig.startingY + viewState.bBox.cy + viewState.workerLine.h;
+        viewState.end.bBox.cy = DefaultConfig.startingY + viewState.bBox.cy
+            + viewState.workerLine.h + viewState.end.bBox.offsetFromTop * 2 + DefaultConfig.canvas.childPaddingY;
 
         this.currentWorker.push(node.workerName.value);
     }
@@ -367,9 +369,9 @@ class PositioningVisitor implements Visitor {
                 const workerDeclViewState = workerDecl.viewState as WorkerDeclarationViewState;
                 const workerBodyViewState = workerDecl.workerBody.viewState as BlockViewState;
                 workerDeclViewState.bBox.x = i === 0 ?
-                    blockViewState.bBox.x + blockViewState.bBox.w / 2 + workerBodyViewState.bBox.w / 2
-                    :
-                    (node as FunctionBodyBlock).namedWorkerDeclarator.namedWorkerDeclarations[i - 1].viewState.bBox.x
+                    blockViewState.bBox.w / 2 + workerBodyViewState.bBox.w / 2
+                    : (node as FunctionBodyBlock).namedWorkerDeclarator.namedWorkerDeclarations[i - 1].viewState.bBox.x
+                    + (node as FunctionBodyBlock).namedWorkerDeclarator.namedWorkerDeclarations[i - 1].viewState.bBox.w / 2
                     + workerBodyViewState.bBox.w / 2;
                 workerDeclViewState.bBox.y = height;
             });

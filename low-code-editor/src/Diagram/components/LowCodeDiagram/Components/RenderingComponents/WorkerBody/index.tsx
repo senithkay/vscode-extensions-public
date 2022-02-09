@@ -12,7 +12,7 @@
  */
 import React, { useContext } from "react";
 
-import { FunctionBodyBlock } from "@wso2-enterprise/syntax-tree";
+import { BlockStatement, FunctionBodyBlock, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { getDraftComponent, getSTComponents } from "../../../../../utils";
 import { Context } from "../../../Context/diagram";
@@ -22,7 +22,7 @@ import { Collapse } from "../Collapse";
 import ControlFlowExecutionTime from "../ControlFlowExecutionTime";
 import { ControlFlowLine } from "../ControlFlowLine";
 export interface DiagramProps {
-    model: FunctionBodyBlock,
+    model: FunctionBodyBlock | BlockStatement,
     viewState: BlockViewState
 }
 
@@ -36,7 +36,7 @@ export function WorkerBody(props: DiagramProps) {
     const controlFlowLines: React.ReactNode[] = [];
     const controlFlowExecutionTime: React.ReactNode[] = [];
 
-    if (viewState.hasWorkerDecl) {
+    if (STKindChecker.isFunctionBodyBlock(model) && viewState.hasWorkerDecl) {
         children = children.concat(getSTComponents(model.namedWorkerDeclarator.workerInitStatements));
         children = children.concat(getSTComponents(model.namedWorkerDeclarator.namedWorkerDeclarations))
     }
