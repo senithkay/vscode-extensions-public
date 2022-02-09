@@ -3,7 +3,7 @@ import { IntlProvider } from "react-intl";
 import { monaco } from "react-monaco-editor";
 
 import { MuiThemeProvider } from "@material-ui/core/styles";
-import { Connector, DiagramDiagnostic, LowcodeEvent, STModification, STSymbolInfo, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { Connector, DiagramDiagnostic, DIAGRAM_MODIFIED, LowcodeEvent, STModification, STSymbolInfo, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FunctionDefinition, ModulePart, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import cloneDeep from "lodash.clonedeep";
 import Mousetrap from 'mousetrap';
@@ -287,7 +287,13 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                             // TODO show error
                                         }
                                         setMutationInProgress(false);
-
+                                        if (mutations.length > 0) {
+                                            const event: LowcodeEvent = {
+                                                type: DIAGRAM_MODIFIED,
+                                                name: `${mutations[0].type}`
+                                            };
+                                            props.sendTelemetryEvent(event);
+                                        }
                                         await addPerfData(vistedSyntaxTree);
                                     },
                                     onMutate: (type: string, options: any) => undefined,

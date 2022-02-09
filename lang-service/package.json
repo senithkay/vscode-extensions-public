@@ -1,6 +1,6 @@
 {
   "name": "@wso2-enterprise/lang-service",
-  "version": "1.1.5",
+  "version": "1.1.6",
   "description": "lang-service",
   "files": [
     "lib"
@@ -44,12 +44,12 @@
     "node": ">=6.0.0"
   },
   "repository": {
-      "type": "git",
-      "url": "git+https://github.com/wso2-enterprise/ballerina-low-code-editor.git"
+    "type": "git",
+    "url": "git+https://github.com/wso2-enterprise/ballerina-low-code-editor.git"
   },
   "author": "wso2",
   "license": "UNLICENSED",
   "publishConfig": {
-      "registry": "https://npm.pkg.github.com/"
+    "registry": "https://npm.pkg.github.com/"
   }
 }
