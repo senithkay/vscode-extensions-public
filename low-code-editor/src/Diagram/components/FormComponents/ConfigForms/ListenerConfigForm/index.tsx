@@ -159,7 +159,7 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
     }
 
     return (
-        <FormControl data-testid="log-form" className={formClasses.wizardFormControl}>
+        <FormControl data-testid="listener-form" className={formClasses.wizardFormControl}>
             <FormHeaderSection
                 onCancel={onCancel}
                 formTitle={"lowcode.develop.connectorForms.HTTP.title"}

@@ -503,6 +503,11 @@ export const wizardStyles = makeStyles((theme: Theme) =>
             flexDirection: "row",
             padding: '15px 20px',
         },
+        formWrapperEnum: {
+            width: '100%',
+            flexDirection: "row",
+            padding: '20px 0px 15px 2px',
+        },
         oauthWrapper: {
             paddingTop: "5rem"
         },

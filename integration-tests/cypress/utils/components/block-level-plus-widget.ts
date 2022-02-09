@@ -1,9 +1,11 @@
+import { optionNames } from "../type-utils";
+
 export class BlockLevelPlusWidget {
 
     public constructor(private container: Cypress.Chainable<JQuery<HTMLElement>>) {
     }
 
-    public clickOption(optionName: string) {
+    public clickOption(optionName: optionNames) {
         this.container.within(() => {
             cy.get(".element-options .options-wrapper .sub-option.enabled .text-label")
             .contains(optionName)

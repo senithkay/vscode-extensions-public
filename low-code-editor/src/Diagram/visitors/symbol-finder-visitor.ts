@@ -50,11 +50,13 @@ const moduleVariables: Map<string, STNode> = new Map();
 class SymbolFindingVisitor implements Visitor {
     public beginVisitLocalVarDecl(node: LocalVarDecl) {
         const stmtViewState: StatementViewState = node.viewState as StatementViewState;
-        if (stmtViewState && stmtViewState.isEndpoint) {
+        if (stmtViewState && stmtViewState.isEndpoint && node?.typedBindingPattern?.bindingPattern
+            && STKindChecker.isCaptureBindingPattern(node.typedBindingPattern.bindingPattern)) {
             const captureBindingPattern: CaptureBindingPattern =
                 node.typedBindingPattern.bindingPattern as CaptureBindingPattern;
             localEndpoints.set(captureBindingPattern.variableName.value, node);
-        } else if (stmtViewState && stmtViewState.isAction) {
+        } else if (stmtViewState && stmtViewState.isAction && node?.typedBindingPattern?.bindingPattern
+            && STKindChecker.isCaptureBindingPattern(node.typedBindingPattern.bindingPattern)) {
             const captureBindingPattern: CaptureBindingPattern =
                 node.typedBindingPattern.bindingPattern as CaptureBindingPattern;
             actions.set(captureBindingPattern.variableName.value, node);

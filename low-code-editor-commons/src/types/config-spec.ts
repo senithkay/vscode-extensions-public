@@ -124,6 +124,7 @@ export class ActionConfig {
     public returnVariableName?: string = "";
     public returnType?: string = "";
     public fields: FormField[] = [];
+    public isReturnValueIgnored?: boolean;
 }
 
 // tslint:disable-next-line: max-classes-per-file
