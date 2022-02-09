@@ -49,6 +49,7 @@ import { BALLERINA_COMMANDS, runCommand } from "../project";
 import { SessionDataProvider } from "../tree-view/session-tree-data-provider";
 import { gitStatusBarItem } from "../editor-support/git-status";
 import { OAuthTokenHandler } from "../choreo-auth/inbuilt-impl";
+import { ENABLE_EXPERIMENTAL_FEATURES } from ".";
 
 const SWAN_LAKE_REGEX = /(s|S)wan( |-)(l|L)ake/g;
 
@@ -568,6 +569,10 @@ export class BallerinaExtension {
     public isConfigurableEditorEnabled(): boolean {
         return process.env.CODE_SERVER_ENV === 'true' ||
             <boolean>workspace.getConfiguration().get(ENABLE_CONFIGURABLE_EDITOR);
+    }
+
+    public enabledExperimentalFeatures(): boolean {
+        return <boolean>workspace.getConfiguration().get(ENABLE_EXPERIMENTAL_FEATURES);
     }
 
     public async updatePerformanceForecastSetting(status: boolean) {

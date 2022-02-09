@@ -122,6 +122,11 @@
                     "type": "boolean",
                     "default": false,
                     "description": "Enable the configurable editor in code view."
+                },
+                "ballerina.experimental": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Enable experimental features."
                 }
             }
         },
