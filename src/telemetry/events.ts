@@ -19,6 +19,7 @@
 
 // feature usage events
 export const TM_EVENT_EXTENSION_INIT = "ballerina.extension.init";
+export const TM_EVENT_EXTENSION_ACTIVATE = "editor-extension-activate";
 
 // events for opening custom views
 export const TM_EVENT_OPEN_EXAMPLES = "open.examples";
