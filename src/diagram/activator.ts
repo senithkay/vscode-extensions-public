@@ -27,7 +27,7 @@ import { CONNECTOR_LIST_CACHE, DocumentIdentifier, ExtendedLangClient, HTTP_CONN
 import { BallerinaExtension, ballerinaExtInstance, Change } from '../core';
 import { getCommonWebViewOptions, WebViewMethod, WebViewRPCHandler } from '../utils';
 import { join } from "path";
-import { TM_EVENT_ERROR_EXECUTE_DIAGRAM_OPEN, CMP_DIAGRAM_VIEW, sendTelemetryEvent, sendTelemetryException, TM_EVENT_OPEN_CODE_EDITOR, TM_EVENT_OPEN_LOW_CODE, TM_EVENT_LOW_CODE_RUN } from '../telemetry';
+import { TM_EVENT_ERROR_EXECUTE_DIAGRAM_OPEN, CMP_DIAGRAM_VIEW, sendTelemetryEvent, sendTelemetryException, TM_EVENT_OPEN_CODE_EDITOR, TM_EVENT_OPEN_LOW_CODE, TM_EVENT_LOW_CODE_RUN, TM_EVENT_EDIT_DIAGRAM } from '../telemetry';
 import { CHOREO_API_PF, getDataFromChoreo, openPerformanceDiagram, PFSession } from '../forecaster';
 import { showMessage } from '../utils/showMessage';
 import { Module } from '../tree-view';
@@ -403,7 +403,11 @@ class DiagramPanel {
 						name: any;
 						property?: any;
 					} = args[0];
-					sendTelemetryEvent(ballerinaExtension, event.type, event.name, event.property);
+					if (event.type === TM_EVENT_EDIT_DIAGRAM) {
+						ballerinaExtInstance.getCodeServerContext().telemetryTracker?.incrementDiagramEditCount();
+					} else {
+						sendTelemetryEvent(ballerinaExtension, event.type, event.name, event.property);
+					}
 					return Promise.resolve(true);
 				}
 			},

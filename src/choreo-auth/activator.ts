@@ -46,6 +46,7 @@ async function activate(extension: BallerinaExtension) {
     choreoAuthConfig = new ChoreoAuthConfig();
     commands.registerCommand(PALETTE_COMMANDS.CHOREO_SIGNIN, async () => {
         try {
+            choreoAuthConfig.setFidp(ChoreoFidp.Google);
             await initiateInbuiltAuth(extension);
         } catch (error) {
             if (error instanceof Error) {

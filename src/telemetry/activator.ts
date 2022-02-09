@@ -17,10 +17,13 @@
  *
  */
 
-import { BallerinaExtension, ExtendedLangClient } from "../core";
+import { BallerinaExtension, ExtendedLangClient, TelemetryTracker } from "../core";
 import { debug } from "../utils";
 import { window } from "vscode";
-import { getTelemetryProperties, sendTelemetryEvent, TM_ERROR_LANG_SERVER, TM_EVENT_KILL_TERMINAL, TM_FEATURE_USAGE_LANG_SERVER } from ".";
+import {
+    CMP_EDITOR_SUPPORT, getTelemetryProperties, sendTelemetryEvent, TM_ERROR_LANG_SERVER,
+    TM_EVENT_EDIT_DIAGRAM, TM_EVENT_EDIT_SOURCE, TM_EVENT_KILL_TERMINAL, TM_FEATURE_USAGE_LANG_SERVER
+} from ".";
 
 const schedule = require('node-schedule');
 
@@ -69,6 +72,16 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
         schedule.scheduleJob('* * * * *', function () {
             debug(`Publish LS client telemetry at ${new Date()}`);
             langClient.pushLSClientTelemetries();
+            const telemetryTracker: TelemetryTracker = ballerinaExtInstance.getCodeServerContext().telemetryTracker!;
+            if (telemetryTracker.hasTextEdits()) {
+                //editor-workspace-edit-source
+                sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_EDIT_SOURCE, CMP_EDITOR_SUPPORT);
+            }
+            if (telemetryTracker.hasDiagramEdits()) {
+                //editor-workspace-edit-diagram
+                sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_EDIT_DIAGRAM, CMP_EDITOR_SUPPORT);
+            }
+            telemetryTracker.reset();
         });
     }
 

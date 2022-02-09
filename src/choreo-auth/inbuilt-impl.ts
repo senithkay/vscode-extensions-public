@@ -24,7 +24,10 @@ import jwt_decode from "jwt-decode";
 import { choreoAuthConfig } from "./activator";
 import { ChoreoFidp } from "./config";
 
+const pkceChallenge = require('pkce-challenge');
 const url = require('url');
+
+const challenge = pkceChallenge();
 
 const AUTH_FAIL = "Choreo Login: ";
 const AuthCodeError = "Error while retreiving the authentication code details!";
@@ -63,8 +66,7 @@ export class OAuthTokenHandler {
                 code: authCode,
                 grant_type: 'authorization_code',
                 redirect_uri: choreoAuthConfig.getRedirectUri(),
-                // TODO: Use a PKCE generator here for the code_verifier.
-                code_verifier: '9H9Pfgaz4fVujpJqTRk4zPc-Hw4T9aWJKteIHdlXZj0'
+                code_verifier: challenge.code_verifier
             });
 
             await axios.post(
@@ -274,9 +276,8 @@ export class OAuthTokenHandler {
 }
 
 function getAuthURL(): string {
-    // TODO: Use a PKCE generator here for the code_challenge.
     return `${choreoAuthConfig.getLoginUrl()}?response_mode=query&prompt=login&response_type=code`
-        + `&code_challenge_method=S256&code_challenge=73a9Bme8uDFD1aJ1uJSpQ4i-srQvjGyLsZn5g5EKrgI`
+        + `&code_challenge_method=S256&code_challenge=${challenge.code_challenge}`
         + `&fidp=${choreoAuthConfig.getFidp()}&redirect_uri=${choreoAuthConfig.getRedirectUri()}&`
         + `client_id=${choreoAuthConfig.getClientId()}&scope=${choreoAuthConfig.getScope()}`;
 }

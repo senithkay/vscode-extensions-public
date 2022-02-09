@@ -28,7 +28,6 @@ import path from 'path';
 import { ANALYZETYPE } from './model';
 import { SHOW_GRAPH_COMMAND } from './activator';
 import { DefaultWebviewPanel } from './performanceGraphPanel';
-import { CMP_EDITOR_SUPPORT, sendTelemetryEvent, TM_EVENT_EDIT_SOURCE } from '../telemetry';
 
 export enum CODELENSE_TYPE {
     REALTIME,
@@ -63,22 +62,24 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
         });
 
         workspace.onDidChangeTextDocument(async (activatedTextEditor) => {
-            if (activatedTextEditor && activatedTextEditor.document.languageId === LANGUAGE.BALLERINA) {
-                if (!this.extension.getDocumentContext().isActiveDiagram()) {
-                    sendTelemetryEvent(this.extension, TM_EVENT_EDIT_SOURCE, CMP_EDITOR_SUPPORT);
-                }
+            if (!activatedTextEditor || activatedTextEditor.document.languageId !== LANGUAGE.BALLERINA) {
+                return;
+            }
 
-                if (this.extension.getWebviewContext().isOpen &&
-                    this.extension.getWebviewContext().type === WEBVIEW_TYPE.PERFORMANCE_FORECAST) {
-                    // Close graph while editing.
-                    DefaultWebviewPanel.currentPanel?.dispose();
-                }
+            if (this.extension.getCodeServerContext().codeServerEnv && !this.extension.getDocumentContext().isActiveDiagram()) {
+                this.extension.getCodeServerContext().telemetryTracker?.incrementTextEditCount();
+            }
 
-                const currentTime: number = Date.now();
-                if (currentTime - lastRefresh > debounceTime) {
-                    await ExecutorCodeLensProvider.addCodeLenses(activatedTextEditor.document.uri);
-                    lastRefresh = currentTime;
-                }
+            if (this.extension.getWebviewContext().isOpen &&
+                this.extension.getWebviewContext().type === WEBVIEW_TYPE.PERFORMANCE_FORECAST) {
+                // Close graph while editing.
+                DefaultWebviewPanel.currentPanel?.dispose();
+            }
+
+            const currentTime: number = Date.now();
+            if (currentTime - lastRefresh > debounceTime) {
+                await ExecutorCodeLensProvider.addCodeLenses(activatedTextEditor.document.uri);
+                lastRefresh = currentTime;
             }
         });
 
