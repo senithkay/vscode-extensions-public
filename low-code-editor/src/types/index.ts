@@ -144,6 +144,7 @@ export interface LowCodeEditorProperties {
     zoomStatus: ZoomStatus;
     selectedPosition?: SelectedPosition;
     performanceData?: Map<string, PerformanceData>;
+    experimentalEnabled?: boolean;
 }
 
 export interface FunctionProperties {

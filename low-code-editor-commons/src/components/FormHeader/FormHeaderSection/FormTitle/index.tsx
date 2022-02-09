@@ -24,10 +24,12 @@ interface FormTitleProps {
     toggleChecked?: boolean;
     formTitle: string;
     defaultMessage: string;
+    experimentalEnabled?: boolean;
 }
 
 export function FormTitle(props: FormTitleProps) {
-    const { formTitle, defaultMessage, statementEditor, handleStmtEditorToggle, toggleChecked } = props;
+    const { formTitle, defaultMessage, statementEditor,
+            handleStmtEditorToggle, toggleChecked, experimentalEnabled } = props;
     const formClasses = useStyles();
     const intl = useIntl();
 
@@ -41,7 +43,7 @@ export function FormTitle(props: FormTitleProps) {
                 </Typography>
             </div>
             {/* TODO: Uncomment the below line to display the statement editor toggle (Disabled for Dec 15th release)*/}
-            {/*{statementEditor && <StatementEditorButton handleChange={handleStmtEditorToggle} checked={toggleChecked} />}*/}
+            {experimentalEnabled && statementEditor && <StatementEditorButton handleChange={handleStmtEditorToggle} checked={toggleChecked} />}
         </div>
     );
 }
