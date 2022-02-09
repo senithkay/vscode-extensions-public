@@ -35,7 +35,7 @@ export function showConfigEditor(ballerinaExtInstance: BallerinaExtension,
     }
 
     if (Object.keys(configSchema.properties).length === 0) {
-        commands.executeCommand(PALETTE_COMMANDS.RUN);
+        commands.executeCommand(PALETTE_COMMANDS.RUN_CMD);
         return;
     }
 
@@ -72,7 +72,7 @@ export function showConfigEditor(ballerinaExtInstance: BallerinaExtension,
             methodName: "onClickPrimaryButton",
             handler: (args: any[]) => {
                 handleConfigInputs(args[0]);
-                commands.executeCommand(PALETTE_COMMANDS.RUN);
+                commands.executeCommand(PALETTE_COMMANDS.RUN_CMD);
                 configEditorPanel?.dispose();
             }
         }

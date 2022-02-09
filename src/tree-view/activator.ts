@@ -23,7 +23,7 @@ import { commands, Uri, window, workspace } from 'vscode';
 import {
     TREE_ELEMENT_EXECUTE_COMMAND, EXPLORER_TREE_REFRESH_COMMAND, EXPLORER_TREE_NEW_FILE_COMMAND,
     EXPLORER_TREE_NEW_FOLDER_COMMAND, ExplorerTreeItem, EXPLORER_TREE_NEW_MODULE_COMMAND,
-    EXPLRER_TREE_DELETE_FILE_COMMAND, CONFIG_EDITOR_EXECUTE_COMMAND, EXPLORER_ITEM_KIND, DOCUMENTATION_VIEW
+    EXPLRER_TREE_DELETE_FILE_COMMAND, EXPLORER_ITEM_KIND, DOCUMENTATION_VIEW
 } from "./model";
 import { SessionDataProvider } from "./session-tree-data-provider";
 import { ExplorerDataProvider } from "./explorer-tree-data-provider";
@@ -147,10 +147,10 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
         });
     });
 
-    commands.registerCommand(CONFIG_EDITOR_EXECUTE_COMMAND, async (filePath: string) => {
+    commands.registerCommand(PALETTE_COMMANDS.RUN, async (filePath: string) => {
         if (!ballerinaExtInstance.isConfigurableEditorEnabled() &&
             !ballerinaExtInstance.getDocumentContext().isActiveDiagram()) {
-            commands.executeCommand(PALETTE_COMMANDS.RUN);
+            commands.executeCommand(PALETTE_COMMANDS.RUN_CMD);
             return;
         }
 

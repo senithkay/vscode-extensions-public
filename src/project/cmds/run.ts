@@ -27,7 +27,7 @@ import { getCurrentBallerinaProject, getCurrentBallerinaFile, getCurrenDirectory
 
 function activateRunCommand() {
     // register ballerina run handler
-    commands.registerCommand(PALETTE_COMMANDS.RUN, async (...args: any[]) => {
+    commands.registerCommand(PALETTE_COMMANDS.RUN_CMD, async (...args: any[]) => {
         await run(args);
     });
 

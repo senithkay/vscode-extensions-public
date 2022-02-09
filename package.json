@@ -318,7 +318,7 @@
                 "category": "Ballerina"
             },
             {
-                "command": "ballerina.executeConfigEditor",
+                "command": "ballerina.project.run",
                 "title": "Run",
                 "icon": {
                     "dark": "./resources/images/icons/start-inverse.svg",
@@ -433,7 +433,7 @@
             ],
             "editor/title/run": [
                 {
-                    "command": "ballerina.executeConfigEditor",
+                    "command": "ballerina.project.run",
                     "group": "navigation@1",
                     "title": "Run project in terminal",
                     "when": "resourceLangId == ballerina || isBallerinaDiagram"
@@ -447,7 +447,7 @@
             ],
             "explorer/context": [
                 {
-                    "command": "ballerina.executeConfigEditor",
+                    "command": "ballerina.project.run",
                     "group": "Ballerina",
                     "when": "resourceLangId == ballerina"
                 }
