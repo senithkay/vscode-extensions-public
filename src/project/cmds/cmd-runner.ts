@@ -62,6 +62,7 @@ export enum MESSAGES {
     INVALID_JSON = "Invalid JSON String"
 }
 
+export const CONFIG_FILE = 'Config.toml';
 export const BAL_TOML = "Ballerina.toml";
 const TERMINAL_NAME = 'Terminal';
 const BAL_CONFIG_FILES = 'BAL_CONFIG_FILES';

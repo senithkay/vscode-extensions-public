@@ -20,16 +20,65 @@
 import { ViewColumn, window, WebviewPanel, Uri, commands } from "vscode";
 import { getCommonWebViewOptions, WebViewMethod, WebViewRPCHandler } from '../utils';
 import { render } from './renderer';
-import { readFileSync, writeFile } from "fs";
-import { PALETTE_COMMANDS } from "../project";
-import { BallerinaExtension, ExtendedLangClient } from "../core";
+import { existsSync, mkdirSync, openSync, readFileSync, writeFile } from "fs";
+import { BAL_TOML, CONFIG_FILE, PALETTE_COMMANDS } from "../project";
+import { BallerinaExtension, BallerinaProject, ExtendedLangClient } from "../core";
 import { generateExistingValues, parseConfigToToml, parseTomlToConfig } from "./utils";
+import { getCurrentBallerinaProject } from "../utils/project-utils";
+import path from "path";
+import os from "os";
 
 let configEditorPanel: WebviewPanel | undefined;
 let langClient: ExtendedLangClient;
 
-export function showConfigEditor(ballerinaExtInstance: BallerinaExtension,
-                                 configSchema: any, currentFileUri: Uri): void {
+export async function openConfigEditor(ballerinaExtInstance: BallerinaExtension, filePath: string): Promise<void> {
+    let configFile: string = filePath;
+
+    if (!filePath || !filePath.toString().endsWith(CONFIG_FILE)) {
+        let currentProject: BallerinaProject = {};
+        if (window.activeTextEditor) {
+            currentProject = await getCurrentBallerinaProject();
+
+        } else {
+            const document = ballerinaExtInstance.getDocumentContext().getLatestDocument();
+            if (document) {
+                currentProject = await getCurrentBallerinaProject(document.toString());
+            }
+        }
+
+        if (!currentProject || currentProject === {}) {
+            return;
+        }
+
+        filePath = `${currentProject.path}/${BAL_TOML}`;
+
+        const directory = path.join(os.tmpdir(), "ballerina-project", currentProject.packageName!);
+        if (!existsSync(directory)) {
+            mkdirSync(directory, { recursive: true });
+        }
+        console.debug("Project temp directory: " + directory);
+
+        configFile = `${directory}/${CONFIG_FILE}`;
+        if (!existsSync(configFile)) {
+            openSync(configFile, 'w');
+        }
+    }
+
+    await ballerinaExtInstance.langClient?.getBallerinaProjectConfigSchema({
+        documentIdentifier: {
+            uri: Uri.file(filePath).toString()
+        }
+    }).then(data => {
+        if (data.configSchema == null) {
+            window.showErrorMessage('Unable to render the configurable editor: Error while '
+                + 'retrieving the configurable schema.');
+            return Promise.reject();
+        }
+        showConfigEditor(ballerinaExtInstance, data.configSchema, Uri.parse(configFile));
+    });
+}
+
+async function showConfigEditor(ballerinaExtInstance: BallerinaExtension, configSchema: any, currentFileUri: Uri) {
     if (configEditorPanel) {
         configEditorPanel.dispose();
     }

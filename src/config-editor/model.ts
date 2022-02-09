@@ -17,6 +17,8 @@
  *
  */
 
+export const EXECUTE_RUN_WITH_CONFIGS: string = 'ballerina.executeRunWithConfigs';
+
 export interface ConfigProperty {
     headerNames: string[];
     configs: ConfigValue[];
