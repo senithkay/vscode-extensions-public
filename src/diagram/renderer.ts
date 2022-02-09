@@ -20,11 +20,11 @@
 import { Uri } from 'vscode';
 import { getLibraryWebViewContent, WebViewOptions, getComposerWebViewOptions } from '../utils';
 
-export function render(filePath: Uri, startLine: number, startColumn: number): string {
-    return renderDiagram(filePath, startLine, startColumn);
+export function render(filePath: Uri, startLine: number, startColumn: number, experimental: boolean): string {
+    return renderDiagram(filePath, startLine, startColumn, experimental);
 }
 
-function renderDiagram(filePath: Uri, startLine: number, startColumn: number): string {
+function renderDiagram(filePath: Uri, startLine: number, startColumn: number, experimental: boolean): string {
 
     const body = `
         <div class="ballerina-editor design-view-container" id="diagram"><div class="loader" /></div>
@@ -218,7 +218,8 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number): s
                 filePath,
                 startLine,
                 startColumn,
-                lastUpdatedAt
+                lastUpdatedAt,
+                experimentalEnabled
             }) {
                 try {
                     const options = {
@@ -239,7 +240,8 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number): s
                             resolveMissingDependency,
                             resolveMissingDependencyByCodeAction,
                             runCommand,
-                            sendTelemetryEvent
+                            sendTelemetryEvent,
+                            experimentalEnabled
                         }
                     };
                     BLCEditor.renderDiagramEditor(options);
@@ -269,7 +271,8 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number): s
                     filePath: args[0].filePath,
                     startLine: args[0].startLine,
                     startColumn: args[0].startColumn,
-                    lastUpdatedAt: (new Date()).toISOString()
+                    lastUpdatedAt: (new Date()).toISOString(),
+                    experimentalEnabled: ${experimental}
                 });
                 return Promise.resolve({});
             });
@@ -281,7 +284,8 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number): s
                 filePath: ${JSON.stringify(ballerinaFilePath)},
                 startLine: ${startLine},
                 startColumn: ${startColumn},
-                lastUpdatedAt: (new Date()).toISOString()
+                lastUpdatedAt: (new Date()).toISOString(),
+                experimentalEnabled: ${experimental}
             });
 
             window.addEventListener('focus', event => {

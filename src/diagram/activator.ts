@@ -47,6 +47,7 @@ let diagramElement: DiagramOptions | undefined = undefined;
 let ballerinaExtension: BallerinaExtension;
 let webviewRPCHandler: WebViewRPCHandler;
 let currentDocumentURI: Uri;
+let experimentalEnabled: boolean;
 
 export async function showDiagramEditor(startLine: number, startColumn: number, filePath: string,
 	isCommand: boolean = false): Promise<void> {
@@ -138,6 +139,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 	});
 	const context = <ExtensionContext>ballerinaExtInstance.context;
 	context.subscriptions.push(diagramRenderDisposable);
+	experimentalEnabled = ballerinaExtension.enabledExperimentalFeatures();
 }
 
 function resolveMissingDependencyByCodeAction(filePath: string, fileContent: string, diagnostic: Diagnostic, langClient: ExtendedLangClient) {
@@ -432,7 +434,7 @@ class DiagramPanel {
 			if (!DiagramPanel.currentPanel) {
 				performDidOpen();
 				this.webviewPanel.webview.html = render(diagramElement!.fileUri!, diagramElement!.startLine!,
-					diagramElement!.startColumn!);
+					diagramElement!.startColumn!, experimentalEnabled);
 			} else {
 				callUpdateDiagramMethod();
 			}

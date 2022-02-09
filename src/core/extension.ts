@@ -36,7 +36,7 @@ import { AssertionError } from "assert";
 import {
     BALLERINA_HOME, ENABLE_ALL_CODELENS, ENABLE_TELEMETRY, ENABLE_SEMANTIC_HIGHLIGHTING, OVERRIDE_BALLERINA_HOME,
     BALLERINA_LOW_CODE_MODE, ENABLE_PERFORMANCE_FORECAST, ENABLE_DEBUG_LOG, ENABLE_BALLERINA_LS_DEBUG,
-    ENABLE_CONFIGURABLE_EDITOR
+    ENABLE_CONFIGURABLE_EDITOR, ENABLE_EXPERIMENTAL_FEATURES
 }
     from "./preferences";
 import TelemetryReporter from "vscode-extension-telemetry";
@@ -568,6 +568,10 @@ export class BallerinaExtension {
     public isConfigurableEditorEnabled(): boolean {
         return process.env.CODE_SERVER_ENV === 'true' ||
             <boolean>workspace.getConfiguration().get(ENABLE_CONFIGURABLE_EDITOR);
+    }
+
+    public enabledExperimentalFeatures(): boolean {
+        return <boolean>workspace.getConfiguration().get(ENABLE_EXPERIMENTAL_FEATURES);
     }
 
     public async updatePerformanceForecastSetting(status: boolean) {
