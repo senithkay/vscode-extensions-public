@@ -39,7 +39,11 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
     const { config, formArgs, onCancel, onSave, onWizardClose } = props;
 
     const {
-        props: { isMutationProgress: isMutationInProgress, currentFile },
+        props: {
+            isMutationProgress: isMutationInProgress,
+            currentFile,
+            experimentalEnabled
+        },
         api: {
             ls: { getExpressionEditorLangClient },
             code: { modifyDiagram }
@@ -178,7 +182,8 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
             handleStatementEditorChange,
             currentFile,
             getLangClient: getExpressionEditorLangClient,
-            applyModifications: modifyDiagram
+            applyModifications: modifyDiagram,
+            experimentalEnabled
         }
     );
 
@@ -192,6 +197,7 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
                     defaultMessage={"Assignment"}
                     handleStmtEditorToggle={handleStmtEditorToggle}
                     toggleChecked={false}
+                    experimentalEnabled={experimentalEnabled}
                 />
                 <div className={classes.formContentWrapper}>
                     <div className={classes.formNameWrapper}>

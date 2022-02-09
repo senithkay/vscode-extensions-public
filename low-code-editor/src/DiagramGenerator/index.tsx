@@ -40,7 +40,7 @@ const debounceTime: number = 5000;
 let lastPerfUpdate = 0;
 
 export function DiagramGenerator(props: DiagramGeneratorProps) {
-    const { langClientPromise, filePath, startLine, startColumn, lastUpdatedAt, scale, panX, panY, resolveMissingDependency } = props;
+    const { langClientPromise, filePath, startLine, startColumn, lastUpdatedAt, scale, panX, panY, resolveMissingDependency, experimentalEnabled } = props;
     const classes = useGeneratorStyles();
     const defaultScale = scale ? Number(scale) : 1;
     const defaultPanX = panX ? Number(panX) : 0;
@@ -231,6 +231,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                 type: "File"
                             }}
                             performanceData={performanceData}
+                            experimentalEnabled={experimentalEnabled}
                             // tslint:disable-next-line: jsx-no-multiline-js
                             api={{
                                 helpPanel: {
