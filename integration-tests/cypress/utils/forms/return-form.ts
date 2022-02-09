@@ -14,6 +14,13 @@ export class ReturnForm {
         return this;
     }
 
+    static clearExpression() {
+        ExpressionEditor
+            .getForField("return expression", this.selector)
+            .clear();
+        return this;
+    }
+
     static shouldBeVisible() {
         this.getForm().should("be.visible");
         return this;
@@ -31,6 +38,23 @@ export class ReturnForm {
             .get('button')
             .contains("Save")
             .click();
+        return this;
+
+    }
+
+    static cancel() {
+        this.getForm()
+            .get('button')
+            .contains("Cancel")
+            .click();
+        return this;
+
+    }
+
+    static saveDisabled() {
+        this.getForm()
+            .get('button')
+            .contains("Save").should("be.disabled")
         return this;
 
     }
