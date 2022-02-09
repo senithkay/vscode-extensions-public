@@ -720,7 +720,6 @@ class SizingVisitor implements Visitor {
     }
 
     public endVisitNamedWorkerDeclaration(node: NamedWorkerDeclaration) {
-        this.endSizingBlock(node.workerBody);
         const viewState: WorkerDeclarationViewState = node.viewState as WorkerDeclarationViewState;
         const body: BlockStatement = node.workerBody as BlockStatement;
         const bodyViewState: BlockViewState = body.viewState;
