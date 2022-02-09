@@ -49,10 +49,14 @@ export function getModifications(
             STKindChecker.isReturnStatement(model) ||
             STKindChecker.isAssignmentStatement(model) ||
             (config && config.type === 'Custom')) {
+        let source = model.source;
+        if (STKindChecker.isCallStatement(model) && model.source.slice(-1) !== ';') {
+            source += ';';
+        }
         if (config.model) {
-            modifications.push(updateStatement(model.source, formArgs.formArgs?.model.position));
+            modifications.push(updateStatement(source, formArgs.formArgs?.model.position));
         } else {
-            modifications.push(createStatement(model.source, formArgs.formArgs?.targetPosition));
+            modifications.push(createStatement(source, formArgs.formArgs?.targetPosition));
         }
     }
 

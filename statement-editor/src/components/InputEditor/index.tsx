@@ -174,7 +174,7 @@ export function InputEditor(props: InputEditorProps) {
         inputEditorState.content = initContent;
         inputEditorState.uri = fileURI;
         sendDidOpen(inputEditorState.uri, currentFile.content, getLangClient).then();
-        sendDidChange(inputEditorState.uri, inputEditorState.content, getLangClient).then();
+        // sendDidChange(inputEditorState.uri, inputEditorState.content, getLangClient).then();
         const diagResp = await getDiagnostics(inputEditorState.uri, getLangClient);
         setInputEditorState((prevState) => {
             return {
@@ -197,6 +197,9 @@ export function InputEditor(props: InputEditorProps) {
     }
 
     const handleContentChange = async (currentStatement: string, currentCodeSnippet?: string) => {
+        if (currentStatement.slice(-1) !== ';') {
+            currentStatement += ';';
+        }
         let initContent: string = await addStatementToTargetLine(
             currentFile.content, targetPosition, currentStatement, getLangClient);
 
