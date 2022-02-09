@@ -88,7 +88,12 @@ export function ListenerC(props: ListenerProps) {
 
     return (
         <>
-            <div className="listener-comp" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} >
+            <div
+                className="listener-comp"
+                data-listener-name={listenerName}
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
+            >
                 <div className="listener-header">
                     <div className="listener-content">
                         <div className="listener-icon">

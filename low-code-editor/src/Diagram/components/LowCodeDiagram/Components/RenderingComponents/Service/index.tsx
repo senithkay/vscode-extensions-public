@@ -87,10 +87,10 @@ export function Service(props: ServiceProps) {
     }
 
     function renderButtons() {
-        const tryItBtn = <DefaultButtonSquare  onClick={onClickTryIt}>Try it</DefaultButtonSquare>
+        const tryItBtn = <DefaultButtonSquare  onClick={onClickTryIt} variant="outlined">Try it</DefaultButtonSquare>
 
         if (model.isRunnable) {
-            const runBtn = <DefaultButtonSquare  onClick={onClickRun}>Run</DefaultButtonSquare>
+            const runBtn = <DefaultButtonSquare  onClick={onClickRun} variant="outlined">Run</DefaultButtonSquare>
             if (!isTriggerType) {
                 return [runBtn, tryItBtn];
             }
