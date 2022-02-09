@@ -36,7 +36,7 @@ import { AssertionError } from "assert";
 import {
     BALLERINA_HOME, ENABLE_ALL_CODELENS, ENABLE_TELEMETRY, ENABLE_SEMANTIC_HIGHLIGHTING, OVERRIDE_BALLERINA_HOME,
     BALLERINA_LOW_CODE_MODE, ENABLE_PERFORMANCE_FORECAST, ENABLE_DEBUG_LOG, ENABLE_BALLERINA_LS_DEBUG,
-    ENABLE_CONFIGURABLE_EDITOR
+    ENABLE_CONFIGURABLE_EDITOR, ENABLE_EXPERIMENTAL_FEATURES
 }
     from "./preferences";
 import TelemetryReporter from "vscode-extension-telemetry";
@@ -49,7 +49,6 @@ import { BALLERINA_COMMANDS, runCommand } from "../project";
 import { SessionDataProvider } from "../tree-view/session-tree-data-provider";
 import { gitStatusBarItem } from "../editor-support/git-status";
 import { OAuthTokenHandler } from "../choreo-auth/inbuilt-impl";
-import { ENABLE_EXPERIMENTAL_FEATURES } from ".";
 
 const SWAN_LAKE_REGEX = /(s|S)wan( |-)(l|L)ake/g;
 
