@@ -155,13 +155,23 @@ class PositioningVisitor implements Visitor {
         bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
 
         viewState.end.bBox.cx = viewState.bBox.cx + viewState.bBox.w / 2;
-        viewState.end.bBox.cy = DefaultConfig.startingY + viewState.bBox.cy
-            + viewState.workerLine.h + viewState.end.bBox.offsetFromTop * 2 + DefaultConfig.canvas.childPaddingY;
+        viewState.end.bBox.cy =  viewState.workerLine.y + viewState.workerLine.h + DefaultConfig.canvas.childPaddingY;
 
         this.currentWorker.push(node.workerName.value);
     }
 
     public endVisitNamedWorkerDeclaration(node: NamedWorkerDeclaration) {
+        const viewState: WorkerDeclarationViewState = node.viewState as WorkerDeclarationViewState;
+        const bodyViewState: BlockViewState = node.workerBody.viewState as BlockViewState;
+
+        if (!bodyViewState.isEndComponentAvailable && node.workerBody.statements.length <= 0) {
+            const plusBtnViewState: PlusViewState = viewState.initPlus;
+            if (bodyViewState.draft === undefined && plusBtnViewState) {
+                plusBtnViewState.bBox.cx = viewState.trigger.cx - (BIGPLUS_SVG_WIDTH / 2);
+                plusBtnViewState.bBox.cy = viewState.trigger.cy + (viewState.trigger.h / 2) + viewState.trigger.offsetFromBottom + (START_SVG_SHADOW_OFFSET / 4);
+            }
+        }
+
         this.currentWorker.pop();
     }
 
@@ -187,7 +197,6 @@ class PositioningVisitor implements Visitor {
 
         viewState.end.bBox.cx = viewState.bBox.cx + + viewState.bBox.w / 2;
         viewState.end.bBox.cy = DefaultConfig.startingY + viewState.workerLine.h + DefaultConfig.canvas.childPaddingY;
-        // this.beginFunctionTypeNode(node);
     }
 
     public beginVisitObjectMethodDefinition(node: ObjectMethodDefinition) {
@@ -368,6 +377,7 @@ class PositioningVisitor implements Visitor {
             (node as FunctionBodyBlock).namedWorkerDeclarator.namedWorkerDeclarations.forEach((workerDecl, i) => {
                 const workerDeclViewState = workerDecl.viewState as WorkerDeclarationViewState;
                 const workerBodyViewState = workerDecl.workerBody.viewState as BlockViewState;
+
                 workerDeclViewState.bBox.x = i === 0 ?
                     blockViewState.bBox.w / 2 + workerBodyViewState.bBox.w / 2
                     : (node as FunctionBodyBlock).namedWorkerDeclarator.namedWorkerDeclarations[i - 1].viewState.bBox.x
@@ -380,8 +390,8 @@ class PositioningVisitor implements Visitor {
         ({ height, index } = this.calculateStatementPosition(node.statements, blockViewState, height, index, epGap));
 
         if (!blockViewState.isEndComponentAvailable
-            && node.statements.length > 0 && node.statements[lastStatementIndex]?.controlFlow?.isReached) {
-            const lastStatement = node.statements[lastStatementIndex];
+            && node.statements.length > 0 && node.statements[node.statements.length - 1]?.controlFlow?.isReached) {
+            const lastStatement = node.statements[node.statements.length - 1];
             if (!(node.viewState as BlockViewState).isElseBlock) {
                 //  Adding last control flow line after last statement for any block
                 let lastLineY;

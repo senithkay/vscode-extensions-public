@@ -21,6 +21,8 @@ import { WorkerLine } from '../WorkerLine';
 import { End } from '../End';
 import { PlusButton } from '../../PlusButtons/Plus';
 import { WorkerBody } from '../WorkerBody';
+import { WorkerDeclarationViewState } from '../../../ViewState/worker-declaration';
+import { BlockViewState } from '../../../ViewState';
 
 interface WorkerProps {
     model: NamedWorkerDeclaration;
@@ -28,7 +30,8 @@ interface WorkerProps {
 
 export function Worker(props: WorkerProps) {
     const { model } = props;
-    const workerBodyVS = model.workerBody.viewState;
+    const viewState: WorkerDeclarationViewState = model.viewState as WorkerDeclarationViewState;
+    const workerBodyVS: BlockViewState = model.workerBody.viewState as BlockViewState;
     // const children = getSTComponents(model.workerBody.statements);
     // const pluses: React.ReactNode[] = [];
 
@@ -41,7 +44,7 @@ export function Worker(props: WorkerProps) {
             <WorkerLine viewState={model.viewState} />
             <WorkerHead model={model} />
             <WorkerBody model={model.workerBody} viewState={workerBodyVS} />
-            <End viewState={model.viewState.end} />
+            {!workerBodyVS.isEndComponentAvailable && <End viewState={model.viewState.end} />}
         </>
     )
 }
