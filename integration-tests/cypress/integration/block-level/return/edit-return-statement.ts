@@ -4,7 +4,7 @@ import { ReturnForm } from "../../../utils/forms/return-form";
 import { SourceCode } from "../../../utils/components/code-view";
 import { getCurrentSpecFolder } from "../../../utils/file-utils";
 
-const BAL_FILE_PATH = "return/existing-return-statement.bal";
+const BAL_FILE_PATH = "block-level/return/existing-return-statement.bal";
 
 describe('Edit return statement', () => {
     beforeEach(() => {

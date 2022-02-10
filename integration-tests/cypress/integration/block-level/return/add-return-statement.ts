@@ -6,7 +6,7 @@ import { ReturnForm } from "../../../utils/forms/return-form";
 import { SourceCode } from "../../../utils/components/code-view";
 import { getCurrentSpecFolder } from "../../../utils/file-utils";
 
-const BAL_FILE_PATH = "default/empty-file.bal";
+const BAL_FILE_PATH = "block-level/return/add-return-statement-empty-file.bal";
 
 describe('Add return statement', () => {
     beforeEach(() => {

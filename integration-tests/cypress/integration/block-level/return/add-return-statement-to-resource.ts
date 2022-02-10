@@ -4,7 +4,7 @@ import { ReturnForm } from "../../../utils/forms/return-form";
 import { SourceCode } from "../../../utils/components/code-view";
 import { getCurrentSpecFolder } from "../../../utils/file-utils";
 
-const BAL_FILE_PATH = "return/add-return-to-service-resource.bal";
+const BAL_FILE_PATH = "block-level/return/add-return-to-service-resource.bal";
 
 describe('Add return statement to resource function', () => {
     beforeEach(() => {
