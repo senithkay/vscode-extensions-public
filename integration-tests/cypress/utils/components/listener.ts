@@ -10,22 +10,14 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 
-export const useStyles = makeStyles((theme: Theme) =>
-    createStyles({
-        buttonWrapper: {
-            height: 'auto',
-            display: 'flex',
-            justifyContent: 'flex-end',
-            width: '100%',
-            paddingRight: theme.spacing(2.5),
-        },
-        spaceBetween: {
-            padding: `${theme.spacing(1)}px ${theme.spacing(0.1)}px`,
-            '&:last-child': {
-                paddingRight: 0
-            }
-        }
-    })
-);
+export class Listener {
+    public constructor(private container: Cypress.Chainable<JQuery<HTMLElement>>) {
+    }
+
+    public clickEdit() {
+        this.container.trigger('mouseover').within(() => {
+            cy.get('.listener-amendment-options .edit-btn-wrapper button').click();
+        })
+    }
+}

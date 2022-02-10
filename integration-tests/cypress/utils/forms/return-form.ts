@@ -8,6 +8,7 @@ export class ReturnForm {
     static typeExpression(value: any) {
         ExpressionEditor
             .getForField("return expression", this.selector)
+            .clear()
             .type(value)
             .waitForValidations()
             .clearSuggestions();

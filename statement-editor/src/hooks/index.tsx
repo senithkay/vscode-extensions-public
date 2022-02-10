@@ -20,6 +20,7 @@ import { ViewContainer, ViewProps } from "../components/ViewContainer/ViewContai
 export const useStatementEditor = (props: ViewProps) => {
     const {
         onCancel,
+        experimentalEnabled,
         ...restProps
     } = props;
 
@@ -43,6 +44,7 @@ export const useStatementEditor = (props: ViewProps) => {
                     statementEditor={true}
                     handleStmtEditorToggle={handleStmtEditorToggle}
                     toggleChecked={true}
+                    experimentalEnabled={experimentalEnabled}
                 />
                 <ViewContainer
                     onCancel={handleStmtEditorCancel}

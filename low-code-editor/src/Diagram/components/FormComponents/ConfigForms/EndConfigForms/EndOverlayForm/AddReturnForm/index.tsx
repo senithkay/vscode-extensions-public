@@ -40,7 +40,8 @@ export function AddReturnForm(props: ReturnFormProps) {
         props: {
             isMutationProgress: isMutationInProgress,
             currentFile,
-            syntaxTree
+            syntaxTree,
+            experimentalEnabled
         },
         api: {
             ls: { getExpressionEditorLangClient },
@@ -127,7 +128,8 @@ export function AddReturnForm(props: ReturnFormProps) {
             onCancel,
             currentFile,
             getLangClient: getExpressionEditorLangClient,
-            applyModifications: modifyDiagram
+            applyModifications: modifyDiagram,
+            experimentalEnabled
         }
     );
 
@@ -141,6 +143,7 @@ export function AddReturnForm(props: ReturnFormProps) {
                     defaultMessage={"Return"}
                     handleStmtEditorToggle={handleStmtEditorToggle}
                     toggleChecked={false}
+                    experimentalEnabled={experimentalEnabled}
                 />
                 <div className={classes.formContentWrapper}>
                     <div className={classes.formNameWrapper}>
