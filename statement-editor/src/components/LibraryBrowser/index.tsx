@@ -102,12 +102,33 @@ export function LibraryBrowser() {
         setKeyword('');
     };
 
+    const onAllLibSelection = async () => {
+        const response = await getAllLibrariesList();
+
+        if (response) {
+            setLibraries(response);
+        }
+
+        setLibraryBrowserMode(LibraryBrowserMode.LIB_LIST);
+        setSearchScope(DEFAULT_SEARCH_SCOPE);
+        setKeyword('');
+    };
+
+    const getAllLibrariesList = async () => {
+        const langLibs = await getLibrariesList(LibraryKind.langLib);
+        const stdLibs = await getLibrariesList(LibraryKind.stdLib);
+        if (langLibs && stdLibs) {
+            return [...langLibs.librariesList, ...stdLibs.librariesList];
+        }
+        return [];
+    }
+
     return (
         <div className={statementEditorClasses.LibraryBrowser}>
             <div className={statementEditorClasses.LibraryDropdown}>
                 <span className={statementEditorClasses.subHeader}>Libraries</span>
                 {/*TODO: Replace below buttons with a dropdown menu*/}
-                <button onClick={onLangLibSelection}>All</button>
+                <button onClick={onAllLibSelection}>All</button>
                 <button onClick={onLangLibSelection}>Language</button>
                 <button onClick={onStdLibSelection}>Standard</button>
             </div>
