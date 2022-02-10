@@ -13,19 +13,15 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useState } from "react"
 
+import { ConstantIcon, DeleteButton, EditButton } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { ConstDeclaration, STNode } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
-import ConstantIcon from "../../../../../../assets/icons/ConstantIcon";
-import DeleteButton from "../../../../../../assets/icons/DeleteButton";
-import EditButton from "../../../../../../assets/icons/EditButton";
-import Tooltip from "../../../../../../components/Tooltip";
-import { useDiagramContext } from "../../../../../../Contexts/Diagram";
-import { removeStatement } from "../../../../../utils/modification-util";
-import { UnsupportedConfirmButtons } from "../../../../FormComponents/DialogBoxes/UnsupportedConfirmButtons";
-import { FormGenerator } from "../../../../FormComponents/FormGenerator";
+import { Context } from "../../../Context/diagram";
 
 import "./style.scss";
+
+// import Tooltip from "../../../../../../components/Tooltip";
 
 export const MODULE_VAR_MARGIN_LEFT: number = 24.5;
 export const MODULE_VAR_PLUS_OFFSET: number = 7.5;
@@ -38,12 +34,9 @@ export interface ConstantProps {
 
 export function Constant(props: ConstantProps) {
     const { model } = props;
-    const diagramContext = useDiagramContext();
-    const modifyDiagram = diagramContext?.api?.code?.modifyDiagram;
-    const gotoSource = diagramContext?.api?.code?.gotoSource;
-
-    const [deleteBtnEnabled, setDeleteBtnEnabled] = useState(false);
-    const [editBtnEnabled, setEditBtnEnabled] = useState(false);
+    const diagramContext = useContext(Context);
+    const deleteComponent = diagramContext?.api?.edit?.deleteComponent;
+    const renderEditForm = diagramContext?.api?.edit?.renderEditForm;
 
     const constModel: ConstDeclaration = model as ConstDeclaration;
     const varType = "const";
@@ -54,23 +47,18 @@ export function Constant(props: ConstantProps) {
     const nameMaxWidth = varName.length >= 20;
 
     const handleDeleteBtnClick = () => {
-        modifyDiagram([
-            removeStatement(model.position)
-        ]);
+        if (deleteComponent) {
+            deleteComponent(model.position);
+        }
     }
 
     const handleEditBtnClick = () => {
-        setEditBtnEnabled(true);
-    }
-
-    const handleEditBtnCancel = () => {
-        setEditBtnEnabled(false);
-    }
-
-    const handleEditBtnConfirm = () => {
-        const targetposition = model.position;
-        setDeleteBtnEnabled(false);
-        gotoSource({ startLine: targetposition.startLine, startColumn: targetposition.startColumn });
+        if (renderEditForm) {
+            renderEditForm(model, model.position, {
+                formType: model.kind,
+                isLoading: false
+            });
+        }
     }
 
     return (
@@ -84,15 +72,15 @@ export function Constant(props: ConstantProps) {
                         <ConstantIcon />
                     </div>
                     <div className={"const-type-text"}>
-                        <Tooltip
+                        {/* <Tooltip
                             arrow={true}
                             placement="top-start"
                             title={model.source.slice(1, -1)}
                             inverted={false}
                             interactive={true}
-                        >
+                        > */}
                             <tspan x="0" y="0">{typeMaxWidth ? varType.slice(0, 10) + "..." : varType}</tspan>
-                        </Tooltip>
+                        {/* </Tooltip> */}
                     </div>
                     <div className={"const-name-text"}>
                         <tspan x="0" y="0">{nameMaxWidth ? varName.slice(0, 20) + "..." : varName}</tspan>
@@ -107,21 +95,6 @@ export function Constant(props: ConstantProps) {
                     </div>
                 </div>
             </div>
-            {
-                deleteBtnEnabled && (
-                    <UnsupportedConfirmButtons onConfirm={handleEditBtnConfirm} onCancel={handleEditBtnCancel} />
-                )
-            }
-            {
-                editBtnEnabled && (
-                    <FormGenerator
-                        model={model}
-                        configOverlayFormStatus={{ formType: model.kind, isLoading: false }}
-                        onCancel={handleEditBtnCancel}
-                        onSave={handleEditBtnCancel}
-                    />
-                )
-            }
         </div>
     );
 }

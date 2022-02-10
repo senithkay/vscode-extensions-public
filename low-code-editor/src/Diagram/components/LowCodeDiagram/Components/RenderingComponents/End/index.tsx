@@ -16,14 +16,14 @@ import React, { useContext } from "react";
 import { ConfigOverlayFormStatus, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
-import { getConditionConfig } from "../../../../../utils/diagram-util";
-import { DefaultConfig } from "../../../../../visitors/default";
 import { DeleteBtn } from "../../../Components/DiagramActions/DeleteBtn";
 import { DELETE_SVG_OFFSET, DELETE_SVG_WIDTH_WITH_SHADOW } from "../../../Components/DiagramActions/DeleteBtn/DeleteSVG";
 import { EditBtn } from "../../../Components/DiagramActions/EditBtn";
 import { EDIT_SVG_WIDTH_WITH_SHADOW } from "../../../Components/DiagramActions/EditBtn/EditSVG";
 import { Context } from "../../../Context/diagram";
+import { getConditionConfig } from "../../../Utils";
 import { BlockViewState, EndViewState } from "../../../ViewState";
+import { DefaultConfig } from "../../../Visitors/default";
 
 import { StopSVG, STOP_SVG_HEIGHT, STOP_SVG_HEIGHT_WITH_SHADOW, STOP_SVG_SHADOW_OFFSET, STOP_SVG_WIDTH_WITH_SHADOW } from "./StopSVG";
 import "./style.scss";

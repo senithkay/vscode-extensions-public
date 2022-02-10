@@ -17,10 +17,10 @@ import { DiagramDiagnostic } from "@wso2-enterprise/ballerina-low-code-edtior-co
 import { BlockStatement, STNode } from "@wso2-enterprise/syntax-tree";
 import cn from "classnames";
 
-import { getDiagnosticInfo, getDraftComponent, getSTComponents } from "../../../../../../utils";
-import { DefaultConfig } from "../../../../../../visitors/default";
 import { Context } from "../../../../Context/diagram";
+import { getDiagnosticInfo, getDraftComponent, getSTComponents } from "../../../../Utils";
 import { ControlFlowLineState, ElseViewState } from "../../../../ViewState";
+import { DefaultConfig } from "../../../../Visitors/default";
 import { PlusButton } from "../../../PlusButtons/Plus";
 import { Collapse } from "../../Collapse";
 import { ControlFlowLine } from "../../ControlFlowLine";

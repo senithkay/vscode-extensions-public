@@ -15,8 +15,8 @@ import * as React from "react";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 import cn from "classnames";
 
-import { DefaultConfig } from "../../../../../visitors/default";
 import { EndpointViewState, StatementViewState } from "../../../ViewState";
+import { DefaultConfig } from "../../../Visitors/default";
 import { ActionInvoLine } from "../ActionInvocation/ActionInvoLine";
 import ControlFlowArrow from "../ControlFlowArrow";
 

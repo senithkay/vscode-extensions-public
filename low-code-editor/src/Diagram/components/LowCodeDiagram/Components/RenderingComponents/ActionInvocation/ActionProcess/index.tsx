@@ -17,14 +17,12 @@ import { BallerinaConnectorInfo } from "@wso2-enterprise/ballerina-low-code-edti
 import { LocalVarDecl, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import cn from "classnames";
 
-import { getDiagnosticInfo } from "../../../../../../utils";
-import { getRandomInt } from "../../../../../../utils/diagram-util";
-import { getMatchingConnector, getStatementTypesFromST } from "../../../../../../utils/st-util";
-import { DefaultConfig } from "../../../../../../visitors/default";
 import { Context } from "../../../../Context/diagram";
 import { useFunctionContext } from "../../../../Context/Function";
+import { getDiagnosticInfo, getMatchingConnector, getRandomInt, getStatementTypesFromST } from "../../../../Utils";
 import { BlockViewState, StatementViewState } from "../../../../ViewState";
 import { DraftStatementViewState } from "../../../../ViewState/draft";
+import { DefaultConfig } from "../../../../Visitors/default";
 import { DeleteBtn } from "../../../DiagramActions/DeleteBtn";
 import { DELETE_SVG_HEIGHT_WITH_SHADOW, DELETE_SVG_WIDTH_WITH_SHADOW } from "../../../DiagramActions/DeleteBtn/DeleteSVG";
 import { EditBtn } from "../../../DiagramActions/EditBtn";
@@ -34,7 +32,6 @@ import { VariableName, VARIABLE_NAME_WIDTH } from "../../VariableName";
 
 import { ProcessSVG, PROCESS_SVG_HEIGHT, PROCESS_SVG_HEIGHT_WITH_SHADOW, PROCESS_SVG_SHADOW_OFFSET, PROCESS_SVG_WIDTH, PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW } from "./ProcessSVG";
 import "./style.scss";
-
 export interface ProcessorProps {
     model: STNode;
     blockViewState?: BlockViewState;

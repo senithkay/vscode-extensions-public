@@ -1,6 +1,7 @@
 import React from "react";
 
-import { IsolatedKeyword, NodePosition, PublicKeyword, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
+import { BallerinaConnectorInfo, ConditionConfig, ConfigOverlayFormStatus, ConfigPanelStatus, DiagnosticMsgSeverity, DiagramDiagnostic, STSymbolInfo, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ActionStatement, CallStatement, CaptureBindingPattern, CheckAction, ElseBlock, IfElseStatement, IsolatedKeyword, LocalVarDecl, NodePosition, PublicKeyword, QualifiedNameReference, RemoteMethodCallAction, STKindChecker, STNode, traversNode, TypeCastExpression } from "@wso2-enterprise/syntax-tree";
 
 import * as stComponents from '../Components/RenderingComponents';
 import { ActionProcessor } from "../Components/RenderingComponents/ActionInvocation/ActionProcess";
@@ -9,11 +10,12 @@ import { IfElse } from "../Components/RenderingComponents/IfElse";
 import { DataProcessor } from "../Components/RenderingComponents/Processor";
 import { Respond } from "../Components/RenderingComponents/Respond";
 import { Statement } from "../Components/RenderingComponents/Statement";
-import { BlockViewState, FunctionViewState } from "../ViewState";
+import { BlockViewState, FunctionViewState, StatementViewState } from "../ViewState";
 import { DraftStatementViewState } from "../ViewState/draft";
 import { visitor as initVisitor } from "../Visitors/init-visitor";
 import { visitor as positionVisitor } from "../Visitors/positioning-visitor";
 import { visitor as sizingVisitor } from "../Visitors/sizing-visitor";
+import { isSTActionInvocation } from "../Visitors/util";
 
 export function sizingAndPositioning(st: STNode): STNode {
     traversNode(st, initVisitor);
@@ -191,4 +193,268 @@ export function getNodeSignature(node: STNode): string {
 export function getTargetPositionString(pos: NodePosition) {
     const { startLine, startColumn, endLine, endColumn } = pos;
     return `${startLine}.${startColumn}.${endLine}.${endColumn}`
+}
+
+export function isVarTypeDescriptor(model: STNode) : boolean {
+    if (model && STKindChecker.isLocalVarDecl(model)) {
+        return STKindChecker.isVarTypeDesc(model.typedBindingPattern?.typeDescriptor);
+    } else {
+        return false;
+    }
+}
+
+export function getMatchingConnector(actionInvo: STNode, stSymbolInfo: STSymbolInfo): BallerinaConnectorInfo {
+    const viewState = actionInvo.viewState as StatementViewState;
+    let actionVariable: RemoteMethodCallAction;
+    let remoteMethodCallAction: RemoteMethodCallAction;
+    let connector: BallerinaConnectorInfo;
+
+    if (viewState.isAction) {
+        switch (actionInvo.kind) {
+            case "LocalVarDecl":
+                const variable = actionInvo as LocalVarDecl;
+                switch (variable.initializer.kind) {
+                    case 'TypeCastExpression':
+                        const initializer: TypeCastExpression = variable.initializer as TypeCastExpression;
+                        actionVariable = (initializer.expression as CheckAction).expression as RemoteMethodCallAction;
+                        break;
+                    case 'RemoteMethodCallAction':
+                        actionVariable = variable.initializer as RemoteMethodCallAction;
+                        break;
+                    default:
+                        actionVariable = (variable.initializer as CheckAction).expression;
+                }
+                break;
+
+            case "ActionStatement":
+                const statement = actionInvo as ActionStatement;
+                actionVariable = (statement.expression as CheckAction).expression;
+                break;
+
+            default:
+                // TODO: need to handle this flow
+                return undefined;
+        }
+
+        remoteMethodCallAction = isSTActionInvocation(actionVariable);
+
+        if (remoteMethodCallAction?.expression?.typeData?.typeSymbol) {
+            const typeSymbol = remoteMethodCallAction.expression.typeData.typeSymbol;
+            const module = typeSymbol?.moduleID;
+            if (typeSymbol && module) {
+                connector = {
+                    name: typeSymbol.name,
+                    moduleName: module.moduleName,
+                    package: {
+                        organization: module.orgName,
+                        name: module.moduleName,
+                        version: module.version
+                    },
+                    functions: []
+                };
+            }
+        }
+    } else if (viewState.isEndpoint && STKindChecker.isLocalVarDecl(actionInvo)) {
+        const variable = actionInvo as LocalVarDecl;
+        if (STKindChecker.isCaptureBindingPattern(variable.typedBindingPattern.bindingPattern)) {
+            const nameReference = variable.typedBindingPattern.typeDescriptor as QualifiedNameReference;
+            const typeSymbol = nameReference.typeData?.typeSymbol;
+            const module = typeSymbol?.moduleID;
+            if (typeSymbol && module) {
+                connector = {
+                    name: typeSymbol.name,
+                    moduleName: module.moduleName,
+                    package: {
+                        organization: module.orgName,
+                        name: module.moduleName,
+                        version: module.version
+                    },
+                    functions: []
+                };
+            }
+        }
+    }
+
+    return connector;
+}
+
+export function getStatementTypesFromST(model: LocalVarDecl): string {
+    return model.typedBindingPattern.typeDescriptor.source.trim();
+}
+
+export function getRandomInt(max: number) {
+    return Math.floor(Math.random() * Math.floor(max));
+}
+
+export function getDiagnosticInfo(diagnostics: DiagramDiagnostic[]): DiagnosticMsgSeverity{
+    /* tslint:disable prefer-for-of */
+    const diagnosticMsgsArray: string[] = [];
+    if (diagnostics?.length === 0 || diagnostics === undefined){
+        return undefined;
+    }
+    else{
+        if (diagnostics[0]?.diagnosticInfo?.severity === "WARNING"){
+            for (let i = 0; i < diagnostics?.length; i++){
+                diagnosticMsgsArray.push(diagnostics[i]?.message)
+            }
+            return{
+                message: diagnosticMsgsArray?.join(',\n'),
+                severity: "WARNING"
+            }
+        }
+        else{
+            for (let i = 0; i < diagnostics?.length; i++){
+                diagnosticMsgsArray.push(diagnostics[i]?.message)
+            }
+            return{
+                message: diagnosticMsgsArray?.join(',\n'),
+                severity: "ERROR"
+            }
+        }
+    }
+}
+
+export function getVaribaleNamesFromVariableDefList(asts: STNode[]) {
+    if (asts === undefined) {
+        return [];
+    }
+    return (asts as LocalVarDecl[]).map((item) => (item?.typedBindingPattern?.bindingPattern as CaptureBindingPattern)?.variableName?.value);
+}
+
+export function getConditionConfig(
+    type: string,
+    targetPosition: NodePosition,
+    wizardType: WizardType,
+    blockViewState?: BlockViewState,
+    config?: ConditionConfig,
+    symbolInfo?: STSymbolInfo,
+    model?: STNode
+): Partial<ConfigOverlayFormStatus> {
+    let scopeSymbols: string[] = [];
+
+    if (symbolInfo) {
+        if (type === "If") {
+            scopeSymbols = [...getVaribaleNamesFromVariableDefList(symbolInfo.variables.get("boolean"))];
+        } else if (type === "ForEach") {
+            scopeSymbols = [...getVaribaleNamesFromVariableDefList(symbolInfo.variables.get("map")),
+            ...getVaribaleNamesFromVariableDefList(symbolInfo.variables.get("array"))];
+        } else if (type === "Log" || type === "Return") {
+            scopeSymbols = [...getVaribaleNamesFromVariableDefList(symbolInfo.variables.get("map")),
+            ...getVaribaleNamesFromVariableDefList(symbolInfo.variables.get("array")),
+            ...getVaribaleNamesFromVariableDefList(symbolInfo.variables.get("boolean")),
+            ...getVaribaleNamesFromVariableDefList(symbolInfo.variables.get("int")),
+            ...getVaribaleNamesFromVariableDefList(symbolInfo.variables.get("float")),
+            ...getVaribaleNamesFromVariableDefList(symbolInfo.variables.get("var")),
+            ...getVaribaleNamesFromVariableDefList(symbolInfo.variables.get("string"))
+            ];
+        } else if (type === "Respond") {
+            scopeSymbols = [...getVaribaleNamesFromVariableDefList(symbolInfo.variables.get("string")),
+            ...getVaribaleNamesFromVariableDefList(symbolInfo.variables.get("http:Response")),
+            ...getVaribaleNamesFromVariableDefList(symbolInfo.variables.get("var"))
+            ];
+        } else if (type === "While") {
+            scopeSymbols = [...getVaribaleNamesFromVariableDefList(symbolInfo.variables.get("boolean"))];
+        }
+        if (config && scopeSymbols) {
+            config.scopeSymbols = scopeSymbols
+        }
+    }
+
+    const configPanelStatus: Partial<ConfigPanelStatus> = {
+        formType: type,
+        formArgs: {
+            type,
+            targetPosition,
+            wizardType,
+            config,
+            scopeSymbols
+        },
+        blockViewState,
+    };
+
+    if (wizardType === WizardType.EXISTING) {
+        return {
+            ...configPanelStatus,
+            formArgs: {
+                ...configPanelStatus.formArgs,
+                model
+            }
+        }
+    }
+
+    return configPanelStatus;
+}
+
+export function getOverlayFormConfig(
+    type: string,
+    targetPosition: NodePosition,
+    wizardType: WizardType,
+    blockViewState?: BlockViewState,
+    config?: ConditionConfig,
+    symbolInfo?: STSymbolInfo,
+    model?: STNode
+): Partial<ConfigOverlayFormStatus> {
+    let scopeSymbols: string[] = []
+
+    if (symbolInfo) {
+        if (type === "If") {
+            scopeSymbols = [...getVaribaleNamesFromVariableDefList(symbolInfo.variables.get("boolean"))];
+        } else if (type === "ForEach") {
+            scopeSymbols = [...getVaribaleNamesFromVariableDefList(symbolInfo.variables.get("map")),
+            ...getVaribaleNamesFromVariableDefList(symbolInfo.variables.get("array"))];
+        } else if (type === "Log" || type === "Return") {
+            scopeSymbols = [...getVaribaleNamesFromVariableDefList(symbolInfo.variables.get("map")),
+            ...getVaribaleNamesFromVariableDefList(symbolInfo.variables.get("array")),
+            ...getVaribaleNamesFromVariableDefList(symbolInfo.variables.get("boolean")),
+            ...getVaribaleNamesFromVariableDefList(symbolInfo.variables.get("int")),
+            ...getVaribaleNamesFromVariableDefList(symbolInfo.variables.get("float")),
+            ...getVaribaleNamesFromVariableDefList(symbolInfo.variables.get("var")),
+            ...getVaribaleNamesFromVariableDefList(symbolInfo.variables.get("string"))
+            ];
+        } else if (type === "Respond") {
+            scopeSymbols = [...getVaribaleNamesFromVariableDefList(symbolInfo.variables.get("string")),
+            ...getVaribaleNamesFromVariableDefList(symbolInfo.variables.get("http:Response")),
+            ...getVaribaleNamesFromVariableDefList(symbolInfo.variables.get("var"))
+            ];
+        }
+        if (config && scopeSymbols) {
+            config.scopeSymbols = scopeSymbols
+        }
+    }
+
+    const configOverlayFormStatus: Partial<ConfigOverlayFormStatus> = {
+        formType: type,
+        formArgs: {
+            type,
+            targetPosition,
+            wizardType,
+            config,
+            scopeSymbols
+        },
+        blockViewState,
+    };
+    if (wizardType === WizardType.EXISTING) {
+        configOverlayFormStatus.formArgs = { ...configOverlayFormStatus.formArgs, model }
+    }
+
+    return configOverlayFormStatus;
+}
+
+export function getMethodCallFunctionName(model: CallStatement): string {
+    if (STKindChecker.isFunctionCall(model.expression)) {
+        return model.expression.functionName.source.trim();
+    }
+}
+
+export function findActualEndPositionOfIfElseStatement(ifNode: IfElseStatement): any {
+    let position: any;
+    if (ifNode.elseBody) {
+        const elseStmt: ElseBlock = ifNode.elseBody;
+        if (STKindChecker.isIfElseStatement(elseStmt?.elseBody)) {
+            position = findActualEndPositionOfIfElseStatement(elseStmt.elseBody as IfElseStatement);
+        } else if (STKindChecker.isBlockStatement(elseStmt?.elseBody)) {
+            position = elseStmt.elseBody.position;
+        }
+    }
+    return position;
 }

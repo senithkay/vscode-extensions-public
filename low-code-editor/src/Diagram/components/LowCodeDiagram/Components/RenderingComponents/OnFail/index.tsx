@@ -16,9 +16,9 @@ import React, { useContext } from "react";
 import { OnFailClause as BallerinaOnFailClause } from "@wso2-enterprise/syntax-tree";
 
 import { getDraftComponent, getSTComponents } from "../../../../../utils";
-import { DefaultConfig } from "../../../../../visitors/default";
 import { Context as DiagramContext } from "../../../Context/diagram";
 import { BlockViewState, DoViewState, OnErrorViewState } from "../../../ViewState";
+import { DefaultConfig } from "../../../Visitors/default";
 import { PlusButton } from "../../PlusButtons/Plus";
 
 import "./style.scss";

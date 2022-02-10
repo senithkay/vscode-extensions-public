@@ -11,7 +11,14 @@
  * associated services.
  */
 
-import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
+
+import { TypeInfo } from "./lang-client-extended";
+
+export enum GenerationType {
+    ASSIGNMENT,
+    NEW
+}
 
 export enum PrimitiveBalType {
     String = "string",
@@ -122,6 +129,7 @@ export class ActionConfig {
     public returnVariableName?: string = "";
     public returnType?: string = "";
     public fields: FormField[] = [];
+    public isReturnValueIgnored?: boolean;
 }
 
 // tslint:disable-next-line: max-classes-per-file
@@ -208,4 +216,95 @@ export interface DiagramDiagnostic {
         severity: string
     },
     range: NodePosition
+}
+
+export interface DiagnosticMsgSeverity {
+    message: string,
+    severity: string
+}
+
+export interface ConditionConfig {
+    type: string;
+    conditionExpression?: string | ForeachConfig | ElseIfConfig;
+    scopeSymbols?: string[];
+    conditionPosition?: NodePosition;
+    model?: STNode
+}
+
+export interface ForeachConfig {
+    variable: string;
+    collection: string;
+    type: string;
+    model?: STNode
+}
+
+export interface ElseIfConfig {
+    values: {id: number, expression: string, position: NodePosition}[]
+}
+
+export interface ProcessConfig {
+    type: string;
+    config?: string | LogConfig | RespondConfig | DataMapperConfig | CustomExpressionConfig;
+    scopeSymbols?: string[];
+    model?: STNode;
+    wizardType?: WizardType;
+    targetPosition?: NodePosition;
+}
+
+export interface LogConfig {
+    type: string;
+    expression: string;
+}
+
+export interface CustomExpressionConfig {
+    expression: string;
+}
+
+export interface RespondConfig {
+    genType: string;
+    caller: string;
+    respondExpression: string;
+    variable: string;
+    responseCode?: string;
+}
+
+export interface DataMapperInputTypeInfo {
+    type: string;
+    name: string;
+    node?: STNode;
+}
+
+export interface DataMapperOutputTypeInfo {
+    variableName?: string;
+    type: string;
+    node?: STNode;
+    generationType?: GenerationType;
+    typeInfo?: TypeInfo;
+    startLine?: number;
+    fields?: DataMapperOutputField[];
+    sampleStructure?: string;
+    fieldsGenerated?: boolean;
+    saved?: boolean
+    typeDefInSameModule?: boolean;
+}
+
+export interface DataMapperConfig {
+    inputTypes: DataMapperInputTypeInfo[]; // todo ::: finalize the interface
+    outputType: DataMapperOutputTypeInfo;
+}
+
+export interface DataMapperOutputField {
+    name: string;
+    type: string;
+    fields?: DataMapperOutputField[];
+    value?: string;
+    isChanged: boolean;
+}
+
+export interface EndConfig {
+    type: string;
+    expression?: string | RespondConfig;
+    scopeSymbols?: string[];
+    wizardType?: WizardType;
+    model?: STNode;
 }

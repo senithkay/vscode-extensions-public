@@ -13,14 +13,12 @@
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline object-literal-shorthand align
 import React, { useContext, useRef, useState } from "react";
 
-import { Margin } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { Margin, TopLevelPlusIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
-import TopLevelPlusIcon from "../../../../../../assets/icons/TopLevelPlusIcon";
-import Tooltip from "../../../../../../components/TooltipV2";
+// import TopLevelPlusIcon from "../../../../../../assets/icons/TopLevelPlusIcon";
+// import Tooltip from "../../../../../../components/TooltipV2";
 // import { classMemberEntries, moduleLevelEntries, PlusMenuCategories, PlusOptionsSelector, triggerEntries } from "../../../../FormComponents/DialogBoxes/TopLevelPlus/PlusOptionsSelector";
-import { OverlayBackground } from "../../../../OverlayBackground";
-import { DiagramOverlay, DiagramOverlayContainer } from "../../../../Portals/Overlay";
 import { Context } from "../../../Context/diagram";
 
 import { InitialPlusTooltipBubble } from "./InitialPlusTooltipBubble";
@@ -82,11 +80,11 @@ export const TopLevelPlus = (props: PlusProps) => {
             <div className={'plus-btn-wrapper'} onClick={handlePlusClick}>
                 {
                     !isDocumentEmpty ?
-                        <Tooltip type={"heading-content"} placement="right" arrow={true} text={{ content: 'Add Construct' }}>
+                        // <Tooltip type={"heading-content"} placement="right" arrow={true} text={{ content: 'Add Construct' }}>
                             <div>
                                 <TopLevelPlusIcon />
                             </div>
-                        </Tooltip>
+                        // </Tooltip>
                         : <TopLevelPlusIcon />
                 }
             </div>

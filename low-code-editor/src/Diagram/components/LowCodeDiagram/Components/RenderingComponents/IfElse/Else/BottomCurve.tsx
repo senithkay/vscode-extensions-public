@@ -12,7 +12,7 @@
  */
 import React from "react";
 
-import { DiagnosticMsgSeverity } from "../../../../../../../DiagramGenerator/generatorUtil";
+import { DiagnosticMsgSeverity } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import "./style.scss";
 

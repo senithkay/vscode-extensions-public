@@ -11,22 +11,19 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js align  jsx-wrap-multiline
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 
 import { BallerinaConnectorInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { CaptureBindingPattern, LocalVarDecl, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import cn from "classnames";
 
-import { Context } from "../../../../../../../Contexts/Diagram";
-import { getDiagnosticInfo } from "../../../../../../utils";
-import { getMatchingConnector } from "../../../../../../utils/st-util";
-import { ConnectorConfigWizard } from "../../../../../FormComponents/ConnectorConfigWizard";
-import { FormGenerator } from "../../../../../FormComponents/FormGenerator";
-import { defaultOrgs } from "../../../../../Portals/utils/constants";
 import { DeleteBtn } from "../../../../Components/DiagramActions/DeleteBtn";
 import { DELETE_SVG_HEIGHT_WITH_SHADOW, DELETE_SVG_WIDTH_WITH_SHADOW } from "../../../../Components/DiagramActions/DeleteBtn/DeleteSVG";
 import { EditBtn } from "../../../../Components/DiagramActions/EditBtn";
 import { EDIT_SVG_OFFSET, EDIT_SVG_WIDTH_WITH_SHADOW } from "../../../../Components/DiagramActions/EditBtn/EditSVG";
+import { Context } from "../../../../Context/diagram";
+import { defaultOrgs } from "../../../../Types/constants";
+import { getDiagnosticInfo, getMatchingConnector } from "../../../../Utils";
 import { BlockViewState, StatementViewState, ViewState } from "../../../../ViewState";
 import { DraftStatementViewState } from "../../../../ViewState/draft";
 
@@ -41,30 +38,22 @@ export interface ConnectorProcessProps {
 }
 
 export function ConnectorProcess(props: ConnectorProcessProps) {
-    const {
-        actions: { diagramCleanDraw },
-        api: {
-            code: {
-                gotoSource
-            }
-        },
-        props: {
-            syntaxTree,
-            stSymbolInfo,
-            isMutationProgress,
-            isWaitingOnWorkspace,
-            isReadOnly,
-        },
-    } = useContext(Context);
+    const diagramContext = useContext(Context);
+    const diagramCleanDraw = diagramContext?.actions?.diagramCleanDraw;
+    const gotoSource = diagramContext?.api?.code?.gotoSource;
+    const renderConnectorWizard = diagramContext?.api?.edit?.renderConnectorWizard;
+    const renderAddForm = diagramContext?.api?.edit?.renderAddForm;
+
+    const { syntaxTree, stSymbolInfo, isReadOnly } = diagramContext.props;
 
     const { model, blockViewState, specialConnectorName } = props;
 
     const viewState: ViewState =
         model === null
-            ? blockViewState.draft[ 1 ]
+            ? blockViewState.draft[1]
             : (model.viewState as StatementViewState);
 
-    const sourceSnippet : string = model?.source;
+    const sourceSnippet: string = model?.source;
 
     const diagnostics = model?.typeData?.diagnostics;
 
@@ -79,12 +68,12 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
     const x = viewState.bBox.cx - CONNECTOR_PROCESS_SVG_WIDTH / 2;
     const y = viewState.bBox.cy;
 
-    const draftVS: any = viewState as DraftStatementViewState;
+    const draftVS: DraftStatementViewState = viewState as DraftStatementViewState;
 
-    const [ isEditConnector, setIsConnectorEdit ] = useState<boolean>(false);
+    const [isEditConnector, setIsConnectorEdit] = useState<boolean>(false);
     // const [isClosed, setIsClosed] = useState<boolean>(false);
 
-    const [ connector, setConnector ] = useState<BallerinaConnectorInfo>(
+    const [connector, setConnector] = useState<BallerinaConnectorInfo>(
         specialConnectorName ? null : draftVS.connector
     );
 
@@ -96,8 +85,8 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
         viewState instanceof DraftStatementViewState;
 
     const connectorWrapper = isDraftStatement
-    ? cn("main-connector-process-wrapper active-connector-processor")
-    : cn("main-connector-process-wrapper connector-processor");
+        ? cn("main-connector-process-wrapper active-connector-processor")
+        : cn("main-connector-process-wrapper connector-processor");
 
     // const connectorDefDeleteMutation = (delModel: STNode): STModification[] => {
     const connectorDefDeleteMutation = (): any => {
@@ -157,20 +146,51 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
     const isSingleFormConnector = connector && connector.package.organization === defaultOrgs.WSO2;
     const toolTip = isReferencedVariable ? "API is referred in the code below" : undefined;
 
-    const connectorList = (
-        <FormGenerator
-            onCancel={onWizardClose}
-            // onSave={onSave}
-            configOverlayFormStatus={ {
-                formType: "ConnectorList",
-                formArgs: {
-                    onSelect: onConnectorSelect,
-                    onCancel: onWizardClose,
-                },
-                isLoading: true,
-            } }
-        />
-    );
+    useEffect(() => {
+        if (draftVS && renderAddForm && renderConnectorWizard) {
+            if (!model && !connector && !specialConnectorName) {
+                renderAddForm(draftVS.targetPosition, {
+                    formType: "ConnectorList",
+                    formArgs: {
+                        onSelect: onConnectorSelect,
+                        onCancel: onWizardClose,
+                    },
+                    isLoading: true,
+                }, onWizardClose);
+            } else if (connector || specialConnectorName) {
+                renderConnectorWizard({
+                    connectorInfo: connector,
+                    position: {
+                        x: viewState.bBox.cx + 80,
+                        y: viewState.bBox.cy,
+                    },
+                    targetPosition: draftVS.targetPosition,
+                    selectedConnector: draftVS.selectedConnector,
+                    specialConnectorName,
+                    model,
+                    onClose: onConnectorFormClose,
+                    onSave: onWizardClose,
+                    isAction: false,
+                    isEdit: isEditConnector
+                });
+            }
+        }
+    }, [model, connector, specialConnectorName]);
+
+    // const connectorList = (
+    //     <FormGenerator
+    //         onCancel={onWizardClose}
+    //         // onSave={onSave}
+    //         configOverlayFormStatus={ {
+    //             formType: "ConnectorList",
+    //             formArgs: {
+    //                 onSelect: onConnectorSelect,
+    //                 onCancel: onWizardClose,
+    //             },
+    //             isLoading: true,
+    //         } }
+    //     />
+    // );
 
     const onClickOpenInCodeView = () => {
         if (model) {
@@ -179,23 +199,23 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
         }
     }
 
-    const connectorWizard = (
-        <ConnectorConfigWizard
-            connectorInfo={connector}
-            position={ {
-                x: viewState.bBox.cx + 80,
-                y: viewState.bBox.cy,
-            } }
-            targetPosition={draftVS.targetPosition}
-            selectedConnector={draftVS.selectedConnector}
-            specialConnectorName={specialConnectorName}
-            model={model}
-            onClose={onConnectorFormClose}
-            onSave={onWizardClose}
-            isAction={false}
-            isEdit={isEditConnector}
-        />
-    );
+    // const connectorWizard = (
+    //     <ConnectorConfigWizard
+    //         connectorInfo={connector}
+    //         position={{
+    //             x: viewState.bBox.cx + 80,
+    //             y: viewState.bBox.cy,
+    //         }}
+    //         targetPosition={draftVS.targetPosition}
+    //         selectedConnector={draftVS.selectedConnector}
+    //         specialConnectorName={specialConnectorName}
+    //         model={model}
+    //         onClose={onConnectorFormClose}
+    //         onSave={onWizardClose}
+    //         isAction={false}
+    //         isEdit={isEditConnector}
+    //     />
+    // );
 
     return (
         <>
@@ -208,9 +228,9 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
                     openInCodeView={onClickOpenInCodeView}
 
                 />
-                {!model && !connector && !specialConnectorName && connectorList}
-                {(connector || specialConnectorName) && connectorWizard}
-                { model && !isReadOnly && !isMutationProgress && !isWaitingOnWorkspace && (
+                {/* {!model && !connector && !specialConnectorName && connectorList} */}
+                {/* {(connector || specialConnectorName) && connectorWizard} */}
+                {model && !isReadOnly && (
                     <g
                         className="connector-process-options-wrapper"
                         height={CONNECTOR_PROCESS_SVG_HEIGHT_WITH_SHADOW}
@@ -265,7 +285,7 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
                             />
                         </g>
                     </g>
-                ) }
+                )}
             </g>
         </>
     );

@@ -15,7 +15,7 @@ import React, { ReactElement, useEffect, useState } from "react";
 
 import classNames from "classnames";
 
-import Tooltip from '../../../../../../components/Tooltip';
+// import Tooltip from '../../../../../../components/Tooltip';
 
 import "./style.scss";
 
@@ -43,13 +43,12 @@ export function Assignment(props: { x: number, y: number, assignment: string, cl
 
     return (
         <svg {...xyProps} className="assignment-expression">
-            {assignmentMaxWidth ?
+            {/* {assignmentMaxWidth ?
                 <Tooltip arrow={true} placement="top-start" title={assignment} inverted={false} interactive={true}>
                     {assignmentComponent}
                 </Tooltip>
-                :
-                assignmentComponent
-            }
+                : */}
+            {assignmentComponent}
         </svg>
     );
 }

@@ -13,15 +13,14 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext } from "react";
 
+import { ErrorIcon, WarningIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, ResourceAccessorDefinition } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
-import { ErrorIcon, WarningIcon } from "../../../../../../assets/icons";
-import Tooltip from "../../../../../../components/TooltipV2";
-import { getDiagnosticInfo } from "../../../../../utils";
 import { Context } from "../../../Context/diagram";
 import { HeaderActions } from "../../../HeaderActions";
 import { HeaderWrapper } from "../../../HeaderWrapper";
+import { getDiagnosticInfo } from "../../../Utils";
 
 import { ResourceOtherParams } from "./ResourceOtherParams";
 import { ResourceQueryParams } from "./ResourceQueryParams";
@@ -84,17 +83,17 @@ export function ResourceHeader(props: ResourceHeaderProps) {
             {diagnosticMsgs ?
                 (
                     <div>
-                        <Tooltip
+                        {/* <Tooltip
                             type="diagram-diagnostic"
                             diagnostic={errorSnippet}
                             placement="left"
                             onClick={openInCodeView}
                             arrow={true}
-                        >
+                        > */}
                             <div className="error-icon-wrapper">
                                 {errorIcon}
                             </div>
-                        </Tooltip>
+                        {/* </Tooltip> */}
                     </div>
 
                 )

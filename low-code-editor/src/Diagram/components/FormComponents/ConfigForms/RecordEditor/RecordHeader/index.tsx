@@ -159,7 +159,7 @@ export function RecordHeader(props: RecordHeaderProps) {
     const typeDefName = `${recordModel.isTypeDefinition ? `${recordModel.name ? recordModel.name : ""}` : ""}`;
 
     return (
-        <div>
+        <div data-testid={recordModel.name}>
             <div
                 className={recordModel.isActive ? recordClasses.activeRecordEditorWrapper :
                     recordClasses.recordEditorWrapper}

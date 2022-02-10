@@ -8,6 +8,7 @@
         "cypress": "cypress open"
     },
     "devDependencies": {
+        "@cypress/code-coverage": "^3.9.12",
         "@cypress/webpack-batteries-included-preprocessor": "^2.2.3",
         "@cypress/webpack-preprocessor": "^5.11.0",
         "@testing-library/cypress": "^8.0.2",

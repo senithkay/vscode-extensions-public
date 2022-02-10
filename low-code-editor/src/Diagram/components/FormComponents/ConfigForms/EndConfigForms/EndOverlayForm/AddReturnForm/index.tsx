@@ -15,7 +15,7 @@ import React, { useContext, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import { Box, FormControl, Typography } from "@material-ui/core";
-import { FormActionButtons, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { EndConfig, FormActionButtons, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
 import { FunctionDefinition, ModulePart, ReturnStatement, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
@@ -24,8 +24,6 @@ import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/con
 import { createReturnStatement, getInitialSource } from "../../../../../../utils/modification-util";
 import { useStyles } from "../../../../DynamicConnectorForm/style";
 import ExpressionEditor from "../../../../FormFieldComponents/ExpressionEditor";
-import { EndConfig } from "../../../../Types";
-
 
 interface ReturnFormProps {
     config: EndConfig;

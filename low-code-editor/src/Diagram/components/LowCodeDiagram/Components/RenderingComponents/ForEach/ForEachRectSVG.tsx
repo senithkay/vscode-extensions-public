@@ -12,8 +12,9 @@
  */
 import React from "react";
 
-import Tooltip from "../../../../../../components/TooltipV2";
-import { ErrorSnippet } from "../../../../../../DiagramGenerator/generatorUtil";
+import { ErrorSnippet } from "../../../Types/type";
+// import Tooltip from "../../../../../../components/TooltipV2";
+// import { ErrorSnippet } from "../../../../../../DiagramGenerator/generatorUtil";
 
 interface ForEachRectSVGProps {
     type?: string,
@@ -28,7 +29,7 @@ export function ForEachRectSVG(props: ForEachRectSVGProps) {
     const diagnosticStyles = diagnostic?.severity === "ERROR" ? "foreach-block-error" : "foreach-block-warning";
     const forEachRectStyles = diagnostic ? diagnosticStyles : "foreach-block"
     return (
-        <Tooltip type={type} onClick={onClick} text={text} diagnostic={diagnostic} placement="right" arrow={true}>
+        // <Tooltip type={type} onClick={onClick} text={text} diagnostic={diagnostic} placement="right" arrow={true}>
             <g id="Foreach" className={forEachRectStyles} transform="translate(7 6)">
                 <g transform="matrix(1, 0, 0, 1, -7, -6)" >
                     <g id="ForeachPolygon" className="foreach-polygon" transform="translate(33.5, 3) rotate(45)">
@@ -41,6 +42,6 @@ export function ForEachRectSVG(props: ForEachRectSVGProps) {
                     <path className="for-each-rect-icon-shape-2"id="Combined_Shape-2" d="M6.29,14.71a1,1,0,0,1-.083-1.32l.083-.094L7.585,12H6A6,6,0,0,1,5.775,0L6,0a1,1,0,0,1,.116,1.993L6,2a4,4,0,0,0-.2,8L6,10H7.586L6.29,8.7a1,1,0,0,1-.083-1.32l.083-.094a1,1,0,0,1,1.32-.084l.095.084,3,3,.009.009.7.7-.692.693-.03.03L7.7,14.71a1,1,0,0,1-1.415,0Z" transform="translate(19.914 16.002) rotate(-180)"/>
                 </g>
             </g>
-        </Tooltip>
+        // </Tooltip>
     )
 }

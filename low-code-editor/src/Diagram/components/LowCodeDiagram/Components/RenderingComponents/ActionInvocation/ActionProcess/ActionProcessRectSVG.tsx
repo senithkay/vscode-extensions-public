@@ -14,8 +14,10 @@
 
 import React, { ReactNode } from "react";
 
-import Tooltip from "../../../../../../../components/TooltipV2";
-import { ErrorSnippet } from "../../../../../../../DiagramGenerator/generatorUtil";
+import { ErrorSnippet } from "../../../../Types/type";
+
+// import Tooltip from "../../../../../../../components/TooltipV2";
+// import { ErrorSnippet } from "../../../../../../../DiagramGenerator/generatorUtil";
 
 interface DiagnosticTooltipProps {
     type?: string,
@@ -31,7 +33,7 @@ export function ActionProcessRectSVG(props: DiagnosticTooltipProps) {
     const diagnosticStyles = diagnostic?.severity === "ERROR" ? "action-processor-error" : "action-processor-warning";
     const actionRectStyles = diagnostic ? diagnosticStyles : "action-processor"
     return (
-        <Tooltip type={type} onClick={onClick} text={text} diagnostic={diagnostic} placement="right" arrow={true}>
+        // <Tooltip type={type} onClick={onClick} text={text} diagnostic={diagnostic} placement="right" arrow={true}>
             <g id="Process" className={actionRectStyles} transform="translate(-221.5 -506)">
                 <g transform="matrix(1, 0, 0, 1, 222, 509)">
                     <g id="ProcessRect-2" className="connector-process" transform="translate(5.5 4)">
@@ -50,6 +52,6 @@ export function ActionProcessRectSVG(props: DiagnosticTooltipProps) {
                     )
                 }
             </g>
-        </Tooltip>
+        // </Tooltip>
     )
 }

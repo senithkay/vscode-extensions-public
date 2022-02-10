@@ -13,8 +13,9 @@
 
 import React, { ReactNode } from "react";
 
-import Tooltip from "../../../../../../../components/TooltipV2";
-import { ErrorSnippet } from "../../../../../../../DiagramGenerator/generatorUtil";
+import { ErrorSnippet } from "../../../../Types/type";
+// import Tooltip from "../../../../../../../components/TooltipV2";
+// import { ErrorSnippet } from "../../../../../../../DiagramGenerator/generatorUtil";
 
 
 interface ConnectorRectSVGProps {
@@ -31,7 +32,7 @@ export function ConnectorRectSVG(props: ConnectorRectSVGProps) {
     const diagnosticStyles = diagnostic?.severity === "ERROR" ? "connector-process-error " : "connector-process-warning";
     const connectorRectStyles = diagnostic ? diagnosticStyles : "connector-process-default"
     return (
-        <Tooltip type={type} onClick={onClick} text={text} diagnostic={diagnostic} placement="right" arrow={true}>
+        // <Tooltip type={type} onClick={onClick} text={text} diagnostic={diagnostic} placement="right" arrow={true}>
             <g id="Group_2_Copy_2" className={connectorRectStyles} transform="translate(5 1)" >
                 <g transform="matrix(1, 0, 0, 1, -3, -5.5)">
                     <g id="Rectangle_Copy_17-2" transform="translate(1 5.5)" className="connector-process">
@@ -39,10 +40,10 @@ export function ConnectorRectSVG(props: ConnectorRectSVGProps) {
                         <rect x="-0.5" y="-0.5" width="49" height="49" rx="4.5"/>
                     </g>
                 </g>
-                <text id="new" transform="translate(12 27.5)" className="connector-text">
+                <text id="new" transform="translate(10.25 27.5)" className="connector-text">
                     <tspan x="0" y="0">new</tspan>
                 </text>
             </g>
-        </Tooltip>
+        // </Tooltip>
     )
 }

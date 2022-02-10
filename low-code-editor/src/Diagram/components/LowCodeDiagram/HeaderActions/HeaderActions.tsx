@@ -14,12 +14,11 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useRef, useState } from "react";
 
+import { DeleteButton, EditButton } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
-import DeleteButton from "../../../../assets/icons/DeleteButton";
-import EditButton from "../../../../assets/icons/EditButton";
-import { UnsupportedConfirmButtons } from "../../FormComponents/DialogBoxes/UnsupportedConfirmButtons";
+// import { UnsupportedConfirmButtons } from "../../FormComponents/DialogBoxes/UnsupportedConfirmButtons";
 import { ComponentExpandButton } from "../Components/ComponentExpandButton";
 import { Context } from "../Context/diagram";
 
@@ -54,6 +53,7 @@ export function HeaderActions(props: HeaderActionsProps) {
     const { isReadOnly } = diagramContext.props;
     const gotoSource = diagramContext?.api?.code?.gotoSource;
     const renderEditForm = diagramContext?.api?.edit?.renderEditForm;
+    const renderDialogBox = diagramContext?.api?.edit?.renderDialogBox;
 
     const deleteBtnRef = useRef(null);
     const [isDeleteViewVisible, setIsDeleteViewVisible] = useState(false);
@@ -64,7 +64,9 @@ export function HeaderActions(props: HeaderActionsProps) {
     const [isUnSupported, setIsUnSupported] = useState(false);
     const handleEditBtnClick = () => {
         if (unsupportedType) {
-            setIsUnSupported(true);
+            if (renderDialogBox) {
+                renderDialogBox("Unsupported", unsupportedEditConfirm, unSupportedEditCancel);
+            }
         } else {
             if (renderEditForm) {
                 renderEditForm(model, model?.position, { formType: (formType ? formType : model.kind), isLoading: false }, handleEditBtnCancel, handleEditBtnCancel);
@@ -137,7 +139,7 @@ export function HeaderActions(props: HeaderActionsProps) {
                     onSave={handleEditBtnCancel}
                 />
             )}*/}
-            {isUnSupported && <UnsupportedConfirmButtons onConfirm={unsupportedEditConfirm} onCancel={unSupportedEditCancel} />}
+            {/* {isUnSupported && <UnsupportedConfirmButtons onConfirm={unsupportedEditConfirm} onCancel={unSupportedEditCancel} />} */}
         </div>
     );
 }

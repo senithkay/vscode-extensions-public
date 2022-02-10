@@ -19,7 +19,7 @@ import classnames from "classnames";
 import { Box, FormControl, IconButton, Typography } from "@material-ui/core";
 import { ControlPoint, RemoveCircleOutlineRounded } from "@material-ui/icons";
 
-import { FormActionButtons, FormField, FormHeaderSection, DiagramDiagnostic } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FormActionButtons, FormField, FormHeaderSection, DiagramDiagnostic, ConditionConfig, ElseIfConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
 import {
@@ -31,7 +31,7 @@ import {
 import { useStyles } from "../../../../DynamicConnectorForm/style";
 import ExpressionEditor, { ExpressionEditorProps } from "../../../../FormFieldComponents/ExpressionEditor";
 import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
-import { ConditionConfig, ElseIfConfig, FormElementProps } from "../../../../Types";
+import { FormElementProps } from "../../../../Types";
 import Tooltip from '../../../../../../../components/TooltipV2'
 
 interface IfProps {
@@ -247,6 +247,7 @@ export function AddIfForm(props: IfProps) {
                                 color="primary"
                                 onClick={handleMinusButton(order)}
                                 className={classes.button}
+                                data-testid="minus-button"
                             >
                                 <RemoveCircleOutlineRounded />
                             </IconButton>
@@ -304,6 +305,7 @@ export function AddIfForm(props: IfProps) {
                                     color="primary"
                                     onClick={handlePlusButton(-1)}
                                     className={classes.button}
+                                    data-testid="plus-button"
                                 >
                                     <ControlPoint />
                                 </IconButton>

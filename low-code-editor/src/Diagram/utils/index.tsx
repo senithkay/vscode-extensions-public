@@ -1,9 +1,8 @@
 import React from "react";
 
-import { DiagramDiagnostic } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { DiagnosticMsgSeverity, DiagramDiagnostic } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
-import { DiagnosticMsgSeverity } from "../../DiagramGenerator/generatorUtil";
 import * as stComponents from '../components/LowCodeDiagram/Components/RenderingComponents';
 import { ActionProcessor } from "../components/LowCodeDiagram/Components/RenderingComponents/ActionInvocation/ActionProcess";
 import { ConnectorProcess } from "../components/LowCodeDiagram/Components/RenderingComponents/Connector/ConnectorProcess";
@@ -104,32 +103,4 @@ export function getDraftComponent(viewState: BlockViewState, state: any, insertC
     }
 
     return draftComponents;
-}
-
-export function getDiagnosticInfo(diagnostics: DiagramDiagnostic[]): DiagnosticMsgSeverity{
-    /* tslint:disable prefer-for-of */
-    const diagnosticMsgsArray: string[] = [];
-    if (diagnostics?.length === 0 || diagnostics === undefined){
-        return undefined;
-    }
-    else{
-        if (diagnostics[0]?.diagnosticInfo?.severity === "WARNING"){
-            for (let i = 0; i < diagnostics?.length; i++){
-                diagnosticMsgsArray.push(diagnostics[i]?.message)
-            }
-            return{
-                message: diagnosticMsgsArray?.join(',\n'),
-                severity: "WARNING"
-            }
-        }
-        else{
-            for (let i = 0; i < diagnostics?.length; i++){
-                diagnosticMsgsArray.push(diagnostics[i]?.message)
-            }
-            return{
-                message: diagnosticMsgsArray?.join(',\n'),
-                severity: "ERROR"
-            }
-        }
-    }
 }

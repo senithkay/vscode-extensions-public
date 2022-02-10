@@ -35,11 +35,6 @@ import {
     Visitor, WhileStatement
 } from "@wso2-enterprise/syntax-tree";
 
-import { isVarTypeDescriptor } from "../../../utils/diagram-util";
-import expandTracker from "../../../utils/expand-tracker";
-import { Endpoint, getDraftComponentSizes, getPlusViewState, haveBlockStatement, isSTActionInvocation } from "../../../utils/st-util";
-import { DefaultConfig } from "../../../visitors/default";
-import { EXISTING_PLUS_HOLDER_API_HEIGHT, EXISTING_PLUS_HOLDER_API_HEIGHT_COLLAPSED, PLUS_HOLDER_API_HEIGHT, PLUS_HOLDER_API_HEIGHT_COLLAPSED, PLUS_HOLDER_STATEMENT_HEIGHT, PLUS_HOLDER_WIDTH } from "../../FormComponents/DialogBoxes/PlusHolder/PlusElements";
 import { PLUS_SVG_HEIGHT, PLUS_SVG_WIDTH } from "../Components/PlusButtons/Plus/PlusAndCollapse/PlusSVG";
 import { TRIGGER_RECT_SVG_HEIGHT, TRIGGER_RECT_SVG_WIDTH } from "../Components/RenderingComponents/ActionInvocation/TriggerSVG";
 import { ASSIGNMENT_NAME_WIDTH } from "../Components/RenderingComponents/Assignment";
@@ -59,12 +54,17 @@ import { SERVICE_HEADER_HEIGHT } from "../Components/RenderingComponents/Service
 import { START_SVG_HEIGHT, START_SVG_WIDTH } from "../Components/RenderingComponents/Start/StartSVG";
 import { VARIABLE_NAME_WIDTH } from "../Components/RenderingComponents/VariableName";
 import { WHILE_SVG_HEIGHT, WHILE_SVG_WIDTH } from "../Components/RenderingComponents/While/WhileSVG";
-import { getNodeSignature } from "../Utils";
+import { Endpoint } from "../Types/type";
+import { getNodeSignature, isVarTypeDescriptor } from "../Utils";
+import expandTracker from "../Utils/expand-tracker";
 import { BlockViewState, CollapseViewState, CompilationUnitViewState, DoViewState, ElseViewState, ForEachViewState, FunctionViewState, IfViewState, OnErrorViewState, PlusViewState, StatementViewState } from "../ViewState";
 import { DraftStatementViewState } from "../ViewState/draft";
 import { ModuleMemberViewState } from "../ViewState/module-member";
 import { ServiceViewState } from "../ViewState/service";
 import { WhileViewState } from "../ViewState/while";
+
+import { DefaultConfig } from "./default";
+import { getDraftComponentSizes, getPlusViewState, haveBlockStatement, isSTActionInvocation } from "./util";
 
 let allEndpoints: Map<string, Endpoint> = new Map<string, Endpoint>();
 
@@ -308,9 +308,9 @@ class SizingVisitor implements Visitor {
         viewState.bBox.w = (trigger.w > bodyViewState.bBox.w ? trigger.w : bodyViewState.bBox.w) + DefaultConfig.serviceFrontPadding + DefaultConfig.serviceRearPadding + allEndpoints.size * 150 * 2;
 
         if (viewState.initPlus && viewState.initPlus.selectedComponent === "PROCESS") {
-            viewState.bBox.h += PLUS_HOLDER_STATEMENT_HEIGHT;
-            if (viewState.bBox.w < PLUS_HOLDER_WIDTH) {
-                viewState.bBox.w = PLUS_HOLDER_WIDTH;
+            viewState.bBox.h += DefaultConfig.PLUS_HOLDER_STATEMENT_HEIGHT;
+            if (viewState.bBox.w < DefaultConfig.PLUS_HOLDER_WIDTH) {
+                viewState.bBox.w = DefaultConfig.PLUS_HOLDER_WIDTH;
             }
         }
     }
@@ -375,9 +375,9 @@ class SizingVisitor implements Visitor {
         viewState.wrapper.h = viewState.bBox.h;
 
         if (viewState.initPlus && viewState.initPlus.selectedComponent === "PROCESS") {
-            viewState.bBox.h += PLUS_HOLDER_STATEMENT_HEIGHT;
-            if (viewState.bBox.w < PLUS_HOLDER_WIDTH) {
-                viewState.bBox.w = PLUS_HOLDER_WIDTH;
+            viewState.bBox.h += DefaultConfig.PLUS_HOLDER_STATEMENT_HEIGHT;
+            if (viewState.bBox.w < DefaultConfig.PLUS_HOLDER_WIDTH) {
+                viewState.bBox.w = DefaultConfig.PLUS_HOLDER_WIDTH;
             }
         }
     }
@@ -408,9 +408,9 @@ class SizingVisitor implements Visitor {
             + DefaultConfig.serviceFrontPadding + DefaultConfig.serviceRearPadding + allEndpoints.size * 150 * 2;
 
         if (viewState.initPlus && viewState.initPlus.selectedComponent === "PROCESS") {
-            viewState.bBox.h += PLUS_HOLDER_STATEMENT_HEIGHT;
-            if (viewState.bBox.w < PLUS_HOLDER_WIDTH) {
-                viewState.bBox.w = PLUS_HOLDER_WIDTH;
+            viewState.bBox.h += DefaultConfig.PLUS_HOLDER_STATEMENT_HEIGHT;
+            if (viewState.bBox.w < DefaultConfig.PLUS_HOLDER_WIDTH) {
+                viewState.bBox.w = DefaultConfig.PLUS_HOLDER_WIDTH;
             }
         }
     }
@@ -440,9 +440,9 @@ class SizingVisitor implements Visitor {
             + DefaultConfig.serviceFrontPadding + DefaultConfig.serviceRearPadding + allEndpoints.size * 150 * 2;
 
         if (viewState.initPlus && viewState.initPlus.selectedComponent === "PROCESS") {
-            viewState.bBox.h += PLUS_HOLDER_STATEMENT_HEIGHT;
-            if (viewState.bBox.w < PLUS_HOLDER_WIDTH) {
-                viewState.bBox.w = PLUS_HOLDER_WIDTH;
+            viewState.bBox.h += DefaultConfig.PLUS_HOLDER_STATEMENT_HEIGHT;
+            if (viewState.bBox.w < DefaultConfig.PLUS_HOLDER_WIDTH) {
+                viewState.bBox.w = DefaultConfig.PLUS_HOLDER_WIDTH;
             }
         }
     }
@@ -906,20 +906,20 @@ class SizingVisitor implements Visitor {
             plusViewState.draftAdded = undefined;
         } else if (plusViewState && plusViewState.expanded) {
             if (plusViewState.selectedComponent === "STATEMENT") {
-                height += PLUS_HOLDER_STATEMENT_HEIGHT;
+                height += DefaultConfig.PLUS_HOLDER_STATEMENT_HEIGHT;
             } else if (plusViewState.selectedComponent === "APIS" && !plusViewState?.isAPICallsExisting) {
-                height += PLUS_HOLDER_API_HEIGHT;
+                height += DefaultConfig.PLUS_HOLDER_API_HEIGHT;
             } else if (plusViewState.selectedComponent === "APIS" && plusViewState.isAPICallsExisting) {
                 if (plusViewState.isAPICallsExistingCollapsed) {
-                    height += EXISTING_PLUS_HOLDER_API_HEIGHT_COLLAPSED;
+                    height += DefaultConfig.EXISTING_PLUS_HOLDER_API_HEIGHT_COLLAPSED;
                 } else if (plusViewState.isAPICallsExistingCreateCollapsed) {
-                    height += PLUS_HOLDER_API_HEIGHT_COLLAPSED;
+                    height += DefaultConfig.PLUS_HOLDER_API_HEIGHT_COLLAPSED;
                 } else {
-                    height += EXISTING_PLUS_HOLDER_API_HEIGHT;
+                    height += DefaultConfig.EXISTING_PLUS_HOLDER_API_HEIGHT;
                 }
             }
-            if (width < PLUS_HOLDER_WIDTH) {
-                width = PLUS_HOLDER_WIDTH;
+            if (width < DefaultConfig.PLUS_HOLDER_WIDTH) {
+                width = DefaultConfig.PLUS_HOLDER_WIDTH;
             }
         } else if (plusViewState?.collapsedClicked) {
             plusViewState.index = node.statements.length;
@@ -989,20 +989,20 @@ class SizingVisitor implements Visitor {
                                 }
                             } else if (plusForIndex?.expanded) {
                                 if (plusForIndex.selectedComponent === "STATEMENT") {
-                                    height += PLUS_HOLDER_STATEMENT_HEIGHT;
+                                    height += DefaultConfig.PLUS_HOLDER_STATEMENT_HEIGHT;
                                 } else if (plusForIndex.selectedComponent === "APIS" && !plusForIndex?.isAPICallsExisting) {
-                                    height += PLUS_HOLDER_API_HEIGHT;
+                                    height += DefaultConfig.PLUS_HOLDER_API_HEIGHT;
                                 } else if (plusForIndex.selectedComponent === "APIS" && plusForIndex.isAPICallsExisting) {
                                     if (plusForIndex.isAPICallsExistingCollapsed) {
-                                        height += EXISTING_PLUS_HOLDER_API_HEIGHT_COLLAPSED;
+                                        height += DefaultConfig.EXISTING_PLUS_HOLDER_API_HEIGHT_COLLAPSED;
                                     } else if (plusForIndex.isAPICallsExistingCreateCollapsed) {
-                                        height += PLUS_HOLDER_API_HEIGHT_COLLAPSED;
+                                        height += DefaultConfig.PLUS_HOLDER_API_HEIGHT_COLLAPSED;
                                     } else {
-                                        height += EXISTING_PLUS_HOLDER_API_HEIGHT;
+                                        height += DefaultConfig.EXISTING_PLUS_HOLDER_API_HEIGHT;
                                     }
                                 }
-                                if (width < PLUS_HOLDER_WIDTH) {
-                                    width = PLUS_HOLDER_WIDTH;
+                                if (width < DefaultConfig.PLUS_HOLDER_WIDTH) {
+                                    width = DefaultConfig.PLUS_HOLDER_WIDTH;
                                 }
                             }
                         }
@@ -1019,20 +1019,20 @@ class SizingVisitor implements Visitor {
                             }
                         } else if (plusForIndex?.expanded) {
                             if (plusForIndex.selectedComponent === "STATEMENT") {
-                                height += PLUS_HOLDER_STATEMENT_HEIGHT;
+                                height += DefaultConfig.PLUS_HOLDER_STATEMENT_HEIGHT;
                             } else if (plusForIndex.selectedComponent === "APIS" && !plusForIndex?.isAPICallsExisting) {
-                                height += PLUS_HOLDER_API_HEIGHT;
+                                height += DefaultConfig.PLUS_HOLDER_API_HEIGHT;
                             } else if (plusForIndex.selectedComponent === "APIS" && plusForIndex.isAPICallsExisting) {
                                 if (plusForIndex.isAPICallsExistingCollapsed) {
-                                    height += EXISTING_PLUS_HOLDER_API_HEIGHT_COLLAPSED;
+                                    height += DefaultConfig.EXISTING_PLUS_HOLDER_API_HEIGHT_COLLAPSED;
                                 } else if (plusForIndex.isAPICallsExistingCreateCollapsed) {
-                                    height += PLUS_HOLDER_API_HEIGHT_COLLAPSED;
+                                    height += DefaultConfig.PLUS_HOLDER_API_HEIGHT_COLLAPSED;
                                 } else {
-                                    height += EXISTING_PLUS_HOLDER_API_HEIGHT;
+                                    height += DefaultConfig.EXISTING_PLUS_HOLDER_API_HEIGHT;
                                 }
                             }
-                            if (width < PLUS_HOLDER_WIDTH) {
-                                width = PLUS_HOLDER_WIDTH;
+                            if (width < DefaultConfig.PLUS_HOLDER_WIDTH) {
+                                width = DefaultConfig.PLUS_HOLDER_WIDTH;
                             }
                         }
                     }
@@ -1052,20 +1052,20 @@ class SizingVisitor implements Visitor {
                         plusForIndex.draftAdded = undefined;
                     } else if (plusForIndex && plusForIndex.expanded) {
                         if (plusForIndex.selectedComponent === "STATEMENT") {
-                            height += PLUS_HOLDER_STATEMENT_HEIGHT;
+                            height += DefaultConfig.PLUS_HOLDER_STATEMENT_HEIGHT;
                         } else if (plusForIndex.selectedComponent === "APIS" && plusForIndex.isAPICallsExisting) {
                             if (plusForIndex.isAPICallsExistingCollapsed) {
-                                height += EXISTING_PLUS_HOLDER_API_HEIGHT_COLLAPSED;
+                                height += DefaultConfig.EXISTING_PLUS_HOLDER_API_HEIGHT_COLLAPSED;
                             } else if (plusForIndex.isAPICallsExistingCreateCollapsed) {
-                                height += PLUS_HOLDER_API_HEIGHT_COLLAPSED;
+                                height += DefaultConfig.PLUS_HOLDER_API_HEIGHT_COLLAPSED;
                             } else {
-                                height += EXISTING_PLUS_HOLDER_API_HEIGHT;
+                                height += DefaultConfig.EXISTING_PLUS_HOLDER_API_HEIGHT;
                             }
                         } else if (plusForIndex.selectedComponent === "APIS" && !plusForIndex?.isAPICallsExisting) {
-                            height += PLUS_HOLDER_API_HEIGHT;
+                            height += DefaultConfig.PLUS_HOLDER_API_HEIGHT;
                         }
-                        if (width < PLUS_HOLDER_WIDTH) {
-                            width = PLUS_HOLDER_WIDTH;
+                        if (width < DefaultConfig.PLUS_HOLDER_WIDTH) {
+                            width = DefaultConfig.PLUS_HOLDER_WIDTH;
                         }
                     } else if (plusForIndex && plusForIndex.collapsedPlusDuoExpanded) {
                         height += PLUS_SVG_HEIGHT;

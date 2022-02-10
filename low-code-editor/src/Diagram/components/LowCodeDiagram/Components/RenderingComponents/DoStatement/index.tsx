@@ -14,10 +14,10 @@ import React, { useContext } from 'react';
 
 import { DoStatement as BallerinaDoStatement } from "@wso2-enterprise/syntax-tree";
 
-import { getDraftComponent, getSTComponents } from '../../../../../utils';
-import { DefaultConfig } from '../../../../../visitors/default';
 import { Context } from "../../../Context/diagram";
+import { getDraftComponent, getSTComponents } from '../../../Utils';
 import { DoViewState } from '../../../ViewState';
+import { DefaultConfig } from '../../../Visitors/default';
 import { PlusButton } from '../../PlusButtons/Plus';
 import { OnFailClause } from '../OnFail';
 

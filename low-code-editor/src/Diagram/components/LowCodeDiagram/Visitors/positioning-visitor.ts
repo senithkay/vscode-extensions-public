@@ -31,16 +31,14 @@ import {
     WhileStatement
 } from "@wso2-enterprise/syntax-tree";
 
-import { isVarTypeDescriptor } from "../../../utils/diagram-util";
-import { Endpoint, getPlusViewState, updateConnectorCX } from "../../../utils/st-util";
-import { DefaultConfig } from "../../../visitors/default";
-import { EXISTING_PLUS_HOLDER_API_HEIGHT, EXISTING_PLUS_HOLDER_API_HEIGHT_COLLAPSED, PLUS_HOLDER_API_HEIGHT, PLUS_HOLDER_API_HEIGHT_COLLAPSED, PLUS_HOLDER_STATEMENT_HEIGHT } from "../../FormComponents/DialogBoxes/PlusHolder/PlusElements";
 import { BIGPLUS_SVG_WIDTH } from "../Components/PlusButtons/Plus/Initial";
 import { PLUS_SVG_HEIGHT } from "../Components/PlusButtons/Plus/PlusAndCollapse/PlusSVG";
 import { EXECUTION_TIME_DEFAULT_X_OFFSET, EXECUTION_TIME_IF_X_OFFSET } from "../Components/RenderingComponents/ControlFlowExecutionTime";
 import { BOTTOM_CURVE_SVG_WIDTH } from "../Components/RenderingComponents/IfElse/Else/BottomCurve";
 import { TOP_CURVE_SVG_HEIGHT } from "../Components/RenderingComponents/IfElse/Else/TopCurve";
 import { START_SVG_SHADOW_OFFSET } from "../Components/RenderingComponents/Start/StartSVG";
+import { Endpoint } from "../Types/type";
+import { isVarTypeDescriptor } from "../Utils";
 import {
     BlockViewState,
     CompilationUnitViewState,
@@ -58,6 +56,9 @@ import {
     StatementViewState,
     WhileViewState
 } from "../ViewState";
+
+import { DefaultConfig } from "./default";
+import { getPlusViewState, updateConnectorCX } from "./util";
 
 let allEndpoints: Map<string, Endpoint> = new Map<string, Endpoint>();
 let epCount: number = 0;
@@ -466,17 +467,17 @@ class PositioningVisitor implements Visitor {
                 } else if (plusForIndex?.expanded && !plusForIndex.collapsedClicked) {
                     // blockViewState.collapseView.bBox.cy += PLUS_HOLDER_DEFAULT_HEIGHT;
                     if (plusForIndex.selectedComponent === "STATEMENT") {
-                        statementViewState.bBox.cy += PLUS_HOLDER_STATEMENT_HEIGHT;
+                        statementViewState.bBox.cy += DefaultConfig.PLUS_HOLDER_STATEMENT_HEIGHT;
                     } else if (plusForIndex.selectedComponent === "APIS" && !plusForIndex?.isAPICallsExisting) {
-                        statementViewState.bBox.cy += PLUS_HOLDER_API_HEIGHT;
+                        statementViewState.bBox.cy += DefaultConfig.PLUS_HOLDER_API_HEIGHT;
                     } else if (plusForIndex?.selectedComponent === "APIS" && plusForIndex.isAPICallsExisting) {
-                        statementViewState.bBox.cy += EXISTING_PLUS_HOLDER_API_HEIGHT;
+                        statementViewState.bBox.cy += DefaultConfig.EXISTING_PLUS_HOLDER_API_HEIGHT;
                         if (plusForIndex.isAPICallsExistingCollapsed) {
-                            statementViewState.bBox.cy += EXISTING_PLUS_HOLDER_API_HEIGHT_COLLAPSED;
+                            statementViewState.bBox.cy += DefaultConfig.EXISTING_PLUS_HOLDER_API_HEIGHT_COLLAPSED;
                         } else if (plusForIndex.isAPICallsExistingCreateCollapsed) {
-                            statementViewState.bBox.cy += PLUS_HOLDER_API_HEIGHT_COLLAPSED;
+                            statementViewState.bBox.cy += DefaultConfig.PLUS_HOLDER_API_HEIGHT_COLLAPSED;
                         } else {
-                            statementViewState.bBox.cy += EXISTING_PLUS_HOLDER_API_HEIGHT;
+                            statementViewState.bBox.cy += DefaultConfig.EXISTING_PLUS_HOLDER_API_HEIGHT;
                         }
                     }
                     if (statementViewState.collapsed) {
@@ -492,23 +493,23 @@ class PositioningVisitor implements Visitor {
                     plusForIndex.bBox.cx = blockViewState.bBox.cx;
                     // statementViewState.bBox.cy += PLUS_HOLDER_DEFAULT_HEIGHT;
                     if (plusForIndex.selectedComponent === "STATEMENT") {
-                        statementViewState.bBox.cy += PLUS_HOLDER_STATEMENT_HEIGHT;
-                        height += PLUS_HOLDER_STATEMENT_HEIGHT;
+                        statementViewState.bBox.cy += DefaultConfig.PLUS_HOLDER_STATEMENT_HEIGHT;
+                        height += DefaultConfig.PLUS_HOLDER_STATEMENT_HEIGHT;
                     } else if (plusForIndex.selectedComponent === "APIS" && !plusForIndex?.isAPICallsExisting) {
-                        statementViewState.bBox.cy += PLUS_HOLDER_API_HEIGHT;
-                        height += PLUS_HOLDER_API_HEIGHT;
+                        statementViewState.bBox.cy += DefaultConfig.PLUS_HOLDER_API_HEIGHT;
+                        height += DefaultConfig.PLUS_HOLDER_API_HEIGHT;
                     } else if (plusForIndex?.selectedComponent === "APIS" && plusForIndex.isAPICallsExisting) {
                         // statementViewState.bBox.cy += EXISTING_PLUS_HOLDER_API_HEIGHT;
                         // height += EXISTING_PLUS_HOLDER_API_HEIGHT;
                         if (plusForIndex.isAPICallsExistingCollapsed) {
-                            statementViewState.bBox.cy += EXISTING_PLUS_HOLDER_API_HEIGHT_COLLAPSED;
-                            height += EXISTING_PLUS_HOLDER_API_HEIGHT_COLLAPSED;
+                            statementViewState.bBox.cy += DefaultConfig.EXISTING_PLUS_HOLDER_API_HEIGHT_COLLAPSED;
+                            height += DefaultConfig.EXISTING_PLUS_HOLDER_API_HEIGHT_COLLAPSED;
                         } else if (plusForIndex.isAPICallsExistingCreateCollapsed) {
-                            statementViewState.bBox.cy += PLUS_HOLDER_API_HEIGHT_COLLAPSED;
-                            height += PLUS_HOLDER_API_HEIGHT_COLLAPSED;
+                            statementViewState.bBox.cy += DefaultConfig.PLUS_HOLDER_API_HEIGHT_COLLAPSED;
+                            height += DefaultConfig.PLUS_HOLDER_API_HEIGHT_COLLAPSED;
                         } else {
-                            statementViewState.bBox.cy += EXISTING_PLUS_HOLDER_API_HEIGHT;
-                            height += EXISTING_PLUS_HOLDER_API_HEIGHT;
+                            statementViewState.bBox.cy += DefaultConfig.EXISTING_PLUS_HOLDER_API_HEIGHT;
+                            height += DefaultConfig.EXISTING_PLUS_HOLDER_API_HEIGHT;
                         }
                     }
 

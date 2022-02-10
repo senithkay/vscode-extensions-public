@@ -13,4 +13,5 @@
 export * from "./lib";
 export * from "./types";
 export * from "./components";
-export * from "./themes"
+export * from "./themes";
+export * from "./assets";

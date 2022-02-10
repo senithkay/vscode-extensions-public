@@ -13,8 +13,9 @@
 
 import React  from "react";
 
-import Tooltip from "../../../../../../components/TooltipV2";
-import { ErrorSnippet } from "../../../../../../DiagramGenerator/generatorUtil";
+// import Tooltip from "../../../../../../components/TooltipV2";
+import { ErrorSnippet } from "../../../Types/type";
+// import { ErrorSnippet } from "../../../../../../DiagramGenerator/generatorUtil";
 
 import "./style.scss"
 
@@ -33,7 +34,7 @@ const diagnosticStyles = diagnostic?.severity === "ERROR" ? "data-processor-erro
 const processRectStyles = diagnostic ? diagnosticStyles : "data-processor process-active"
 
 return (
-        <Tooltip type={type} onClick={onClick} text={text} diagnostic={diagnostic} placement="right" arrow={true}>
+        // <Tooltip type={type} onClick={onClick} text={text} diagnostic={diagnostic} placement="right" arrow={true}>
             <g id="Process" className={processRectStyles} transform="translate(-221.5 -506)">
                 <g transform="matrix(1, 0, 0, 1, 222, 509)">
                     <g id="ProcessRect-2" transform="translate(5.5 4)">
@@ -43,6 +44,6 @@ return (
                 </g>
                 {processTypeIndicator}
             </g>
-        </Tooltip>
+        // </Tooltip>
     )
 }
