@@ -250,7 +250,7 @@ export function AddIfForm(props: IfProps) {
             getLangClient: getExpressionEditorLangClient,
             applyModifications: modifyDiagram,
             library,
-            importStatements
+            importStatements,
             experimentalEnabled
         }
     );
