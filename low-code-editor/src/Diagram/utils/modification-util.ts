@@ -102,7 +102,7 @@ export function createElseStatementWithBlock(statements: string[], targetPositio
         startColumn: 0,
         endLine: targetPosition ? targetPosition.startLine : 0,
         endColumn: 0,
-        type: "ELSE_STATEMENT",
+        type: "ELSE_STATEMENT_WITH_BLOCK",
         config: {
             "BLOCKSTATEMENTS": statements
         }

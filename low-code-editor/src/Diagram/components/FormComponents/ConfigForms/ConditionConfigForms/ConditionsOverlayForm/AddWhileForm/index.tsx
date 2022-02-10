@@ -58,10 +58,10 @@ export function AddWhileForm(props: WhileProps) {
     const intl = useIntl();
 
     const [isInvalid, setIsInvalid] = useState(true);
-    const [conditionState] = useState(condition);
+    const [conditionExpression, setConditionExpression] = useState(condition.conditionExpression);
 
     const handleExpEditorChange = (value: string) => {
-        conditionState.conditionExpression = value;
+        setConditionExpression(value);
     }
 
     const validateField = (fieldName: string, isInvalidFromField: boolean) => {
@@ -69,7 +69,7 @@ export function AddWhileForm(props: WhileProps) {
     }
 
     const handleStatementEditorChange = (partialModel: WhileStatement) => {
-        conditionState.conditionExpression = partialModel.condition.expression.source.trim();
+        setConditionExpression(partialModel.condition.expression.source.trim());
     }
 
 
@@ -77,7 +77,7 @@ export function AddWhileForm(props: WhileProps) {
         name: "condition",
         displayName: "Condition",
         typeName: "boolean",
-        value: conditionState.conditionExpression,
+        value: conditionExpression,
     }
 
     const whileStatementTooltipMessages = {
@@ -124,7 +124,7 @@ export function AddWhileForm(props: WhileProps) {
     };
 
     const handleOnSaveClick = () => {
-        condition.conditionExpression = conditionState.conditionExpression;
+        condition.conditionExpression = conditionExpression;
         onSave();
     }
 
@@ -139,12 +139,12 @@ export function AddWhileForm(props: WhileProps) {
     });
 
     const initialSource = formArgs.model ? getInitialSource(createWhileStatementWithBlock(
-                                conditionState.conditionExpression ? conditionState.conditionExpression as string : 'EXPRESSION',
+                                conditionExpression ? conditionExpression as string : 'EXPRESSION',
                                 (formArgs.model as WhileStatement).whileBody.statements.map(statement => {
                                     return statement.source
                                 })
                             )) : getInitialSource(createWhileStatement(
-                                conditionState.conditionExpression ? conditionState.conditionExpression as string : 'EXPRESSION'
+                                conditionExpression ? conditionExpression as string : 'EXPRESSION'
                             ));
 
     const { handleStmtEditorToggle, stmtEditorComponent } = useStatementEditor(
@@ -198,7 +198,7 @@ export function AddWhileForm(props: WhileProps) {
                     cancelBtnText={cancelWhileButtonLabel}
                     saveBtnText={saveWhileButtonLabel}
                     isMutationInProgress={isMutationInProgress}
-                    validForm={!isInvalid && (conditionState?.conditionExpression as string)?.length > 0}
+                    validForm={!isInvalid && (conditionExpression as string)?.length > 0}
                     onSave={handleOnSaveClick}
                     onCancel={onCancel}
                 />
