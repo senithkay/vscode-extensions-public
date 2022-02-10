@@ -735,11 +735,13 @@ class SizingVisitor implements Visitor {
 
         lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h;
 
-        if (STKindChecker.isExpressionFunctionBody(body) || body.statements.length > 0) {
+        if (!bodyViewState.isEndComponentAvailable
+            && (STKindChecker.isExpressionFunctionBody(body) || body.statements.length > 0)) {
             lifeLine.h += end.bBox.offsetFromTop;
         }
 
-        viewState.bBox.h = lifeLine.h + trigger.h + end.bBox.h + DefaultConfig.serviceVerticalPadding * 2 + DefaultConfig.functionHeaderHeight;
+        viewState.bBox.h = lifeLine.h + trigger.h + end.bBox.h + DefaultConfig.serviceVerticalPadding * 2
+            + DefaultConfig.functionHeaderHeight;
         viewState.bBox.w = (trigger.w > bodyViewState.bBox.w ? trigger.w : bodyViewState.bBox.w)
             + DefaultConfig.serviceFrontPadding + DefaultConfig.serviceRearPadding + allEndpoints.size * 150 * 2;
 

@@ -44,6 +44,7 @@ import { VariableName, VARIABLE_NAME_WIDTH } from "../VariableName";
 
 import { ProcessSVG, PROCESS_SVG_HEIGHT, PROCESS_SVG_HEIGHT_WITH_SHADOW, PROCESS_SVG_SHADOW_OFFSET, PROCESS_SVG_WIDTH, PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW } from "./ProcessSVG";
 import "./style.scss";
+import { red } from "@material-ui/core/colors";
 
 export interface ProcessorProps {
     model: STNode;
@@ -123,6 +124,9 @@ export function DataProcessor(props: ProcessorProps) {
             if (STKindChecker.isSimpleNameReference(model?.varRef)) {
                 processName = model?.varRef?.name?.value
             }
+        } else if (STKindChecker.isActionStatement(model) && model.expression.kind === 'AsyncSendAction') {
+            processType = "AsyncSend";
+            processName = "Send"
         } else {
             processType = "Custom";
             processName = "Custom";
@@ -301,7 +305,8 @@ export function DataProcessor(props: ProcessorProps) {
                             methodCall={methodCallText}
                             key_id={getRandomInt(1000)}
                         />
-
+                        <line style={{ stroke: 'red', strokeWidth: 3 }} markerEnd="url(#arrowhead)" x1={viewState.sendLine.x} y1={viewState.sendLine.y} x2={viewState.sendLine.x + viewState.sendLine.w} y2={viewState.sendLine.y} />
+                        <circle style={{ stroke: 'black' }} cx={viewState.sendLine.x} cy={viewState.sendLine.y} r="5" />
                         {!isReadOnly && !isMutationProgress && !isWaitingOnWorkspace &&
                             <g
                                 className="process-options-wrapper"

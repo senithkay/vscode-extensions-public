@@ -32,6 +32,8 @@ import {
     WhileStatement
 } from "@wso2-enterprise/syntax-tree";
 import { string } from "joi";
+import { property } from "lodash";
+import { debug } from "webpack";
 
 import { isVarTypeDescriptor } from "../../../utils/diagram-util";
 import { Endpoint, getPlusViewState, updateConnectorCX } from "../../../utils/st-util";
@@ -73,6 +75,18 @@ interface WorkerMessagingInfo {
     node: STNode;
 }
 
+interface AsyncSendInfo {
+    to: string,
+    node: STNode,
+    paired: boolean
+}
+
+interface AsyncReceiveInfo {
+    from: string,
+    node: STNode,
+    paired: boolean
+}
+
 interface SendRecievePairInfo {
     sourceName: string;
     targetName: string;
@@ -85,16 +99,18 @@ class PositioningVisitor implements Visitor {
     private senderMap: WorkerMessagingInfo[];
     private currentWorker: string[];
 
+    private senderReceiverInfo: Map<string, { sends: AsyncSendInfo[], receives: AsyncReceiveInfo[] }>;
+
     constructor() {
         this.receiverMap = [];
         this.senderMap = [];
         this.currentWorker = [];
+        this.senderReceiverInfo = new Map();
     }
 
     public cleanMaps() {
-        this.receiverMap = [];
-        this.senderMap = [];
         this.currentWorker = [];
+        this.senderReceiverInfo.clear();
     }
 
     public beginVisitModulePart(node: ModulePart) {
@@ -155,7 +171,7 @@ class PositioningVisitor implements Visitor {
         bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
 
         viewState.end.bBox.cx = viewState.bBox.cx + viewState.bBox.w / 2;
-        viewState.end.bBox.cy =  viewState.workerLine.y + viewState.workerLine.h + DefaultConfig.canvas.childPaddingY;
+        viewState.end.bBox.cy = viewState.workerLine.y + viewState.workerLine.h + DefaultConfig.canvas.childPaddingY;
 
         this.currentWorker.push(node.workerName.value);
     }
@@ -274,10 +290,10 @@ class PositioningVisitor implements Visitor {
 
         // Update First Control Flow line
         // this.updateFunctionEdgeControlFlow(viewState, body);
-        // this.currentWorker.pop();
+        this.currentWorker.pop();
         // this.senderMap = this.senderMap.reverse();
         // this.receiverMap = this.receiverMap.reverse();
-        // this.syncSendReceiveNodes();
+        this.syncSendReceiveNodes();
     }
 
     public endVisitResourceAccessorDefinition(node: ResourceAccessorDefinition) {
@@ -448,6 +464,18 @@ class PositioningVisitor implements Visitor {
         blockViewState.bBox.h = height;
     }
 
+    private addToSendReceiveMap(type: 'Send' | 'Receive', entry: AsyncReceiveInfo | AsyncSendInfo) {
+        if (!this.senderReceiverInfo.has(this.currentWorker[this.currentWorker.length - 1])) {
+            this.senderReceiverInfo.set(this.currentWorker[this.currentWorker.length - 1], { sends: [], receives: [] })
+        }
+
+        if (type === 'Send' && 'to' in entry) {
+            this.senderReceiverInfo.get(this.currentWorker[this.currentWorker.length - 1]).sends.push(entry);
+        } else if ('from' in entry) {
+            this.senderReceiverInfo.get(this.currentWorker[this.currentWorker.length - 1]).receives.push(entry);
+        }
+    }
+
     private calculateStatementPosition(statements: STNode[], blockViewState: BlockViewState, height: number, index: number, epGap: number) {
         statements.forEach((statement) => {
             const statementViewState: StatementViewState = statement.viewState;
@@ -469,21 +497,11 @@ class PositioningVisitor implements Visitor {
             if (STKindChecker.isActionStatement(statement) && statement.expression.kind === 'AsyncSendAction') {
                 const sendExpression: any = statement.expression;
                 const targetName: string = sendExpression.peerWorker?.name?.value as string;
-
-                this.senderMap.push({
-                    from: this.currentWorker[this.currentWorker.length - 1],
-                    to: targetName,
-                    node: statement
-                });
+                this.addToSendReceiveMap('Send', { to: targetName, node: statement, paired: false });
             } else if (STKindChecker.isLocalVarDecl(statement) && statement.initializer?.kind === 'ReceiveAction') {
                 const receiverExpression: any = statement.initializer;
                 const senderName: string = receiverExpression.receiveWorkers?.name?.value;
-
-                this.receiverMap.push({
-                    from: senderName,
-                    to: this.currentWorker[this.currentWorker.length - 1],
-                    node: statement
-                });
+                this.addToSendReceiveMap('Receive', { from: senderName, node: statement, paired: false });
             }
 
             // Control flow execution time
@@ -882,20 +900,89 @@ class PositioningVisitor implements Visitor {
         const workerSyncOffset: Map<string, number> = new Map();
         const matchedStatements: SendRecievePairInfo[] = [];
 
-        this.senderMap.forEach(senderInfo => {
-            this.receiverMap.forEach((receiverInfo, index) => {
-                if (senderInfo.from === receiverInfo.from && senderInfo.to === receiverInfo.to) {
-                    matchedStatements.push({
-                        sourceName: senderInfo.from,
-                        targetName: receiverInfo.to,
-                        sourceNode: senderInfo.node,
-                        targetNode: receiverInfo.node
-                    });
+        const keyArray = Array.from(this.senderReceiverInfo.keys());
 
-                    this.receiverMap.slice(index, 1);
+        keyArray.forEach(key => {
+            const workerEntry = this.senderReceiverInfo.get(key);
+            const tempMatchedStmt: SendRecievePairInfo[] = [];
+
+            workerEntry.sends.forEach(sendInfo => {
+                if (sendInfo.paired) {
+                    return;
                 }
+
+                const matchedReceive = this.senderReceiverInfo.get(sendInfo.to).receives
+                    .find(receiveInfo => receiveInfo.from === key && !receiveInfo.paired)
+
+                matchedReceive.paired = true;
+                sendInfo.paired = true;
+
+                matchedStatements.push({
+                    sourceName: key,
+                    targetName: sendInfo.to,
+                    sourceNode: sendInfo.node,
+                    targetNode: matchedReceive.node
+                });
+            });
+
+            workerEntry.receives.forEach(receiveInfo => {
+                if (receiveInfo.paired) {
+                    return;
+                }
+
+                const matchedSend = this.senderReceiverInfo.get(receiveInfo.from).sends
+                    .find(senderInfo => senderInfo.to === key && !receiveInfo.paired)
+
+                matchedSend.paired = true;
+                receiveInfo.paired = true;
+
+                matchedStatements.push({
+                    sourceName: receiveInfo.from,
+                    targetName: key,
+                    sourceNode: matchedSend.node,
+                    targetNode: receiveInfo.node
+                });
             });
         });
+
+        matchedStatements.sort((p1, p2) => {
+            if (p1.targetName === p2.targetName) {
+                // If two pairs has the same receiver (send.workerName is the receiver name) one with
+                // higher lower receiver index (one defined heigher up in the receiver) should be rendered
+                // higher in the list of pairs. Same logic is used for all the cases following.
+                return p1.targetNode.position.startLine - p2.targetNode.position.startLine;
+            }
+            if (p1.targetName === p2.sourceName) {
+                return p1.targetNode.position.startLine - p2.sourceNode.position.startLine;
+            }
+            if (p1.sourceName === p2.targetName) {
+                return p1.sourceNode.position.startLine - p2.targetNode.position.startLine
+            }
+            if (p1.sourceName === p2.sourceName) {
+                return p1.sourceNode.position.startLine - p2.sourceNode.position.startLine;
+            }
+            return 0;
+        });
+
+        debugger;
+
+
+        // this.senderReceiverInfo.entries
+
+        // this.senderMap.forEach(senderInfo => {
+        //     this.receiverMap.forEach((receiverInfo, index) => {
+        //         if (senderInfo.from === receiverInfo.from && senderInfo.to === receiverInfo.to) {
+        //             matchedStatements.push({
+        //                 sourceName: senderInfo.from,
+        //                 targetName: receiverInfo.to,
+        //                 sourceNode: senderInfo.node,
+        //                 targetNode: receiverInfo.node
+        //             });
+
+        //             this.receiverMap.slice(index, 1);
+        //         }
+        //     });
+        // });
 
         matchedStatements.forEach((senderRecieverPair, i) => {
             const sourceViewState: StatementViewState = senderRecieverPair.sourceNode.viewState;
@@ -935,6 +1022,10 @@ class PositioningVisitor implements Visitor {
                     workerSyncOffset.set(senderRecieverPair.sourceName, heightDiff);
                 }
             }
+
+            sourceViewState.sendLine.x = sourceViewState.bBox.cx + (targetViewState.bBox.cx > sourceViewState.bBox.cx ? 49/2 : -49/2);
+            sourceViewState.sendLine.y = sourceViewState.bBox.cy
+            sourceViewState.sendLine.w = targetViewState.bBox.cx - sourceViewState.bBox.cx + (targetViewState.bBox.cx > sourceViewState.bBox.cx ? -73.5 : 73.5)
 
         });
 
