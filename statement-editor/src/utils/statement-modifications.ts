@@ -84,7 +84,7 @@ export function getFQModuleName(org: string, module: string): string {
 
     if (keywords.includes(moduleName)) {
         // add alias if module name is different with formatted name
-        moduleNameStr = org + "/" + module + " as " +  `${module}0`
+        moduleNameStr = `${org}/${module.split('.')[0]}.'${moduleName} as ${moduleName}0`
     }
 
     return moduleNameStr;

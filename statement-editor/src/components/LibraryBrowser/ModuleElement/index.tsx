@@ -51,7 +51,7 @@ export function ModuleElement(props: ModuleElementProps) {
     const onClickOnModuleElement = async () => {
         const response: LibraryDataResponse = await getLibraryData(moduleOrgName, moduleId, moduleVersion);
 
-        let content = moduleId.startsWith('lang.') ? `${moduleId.split('.')[1]}:${id}` : `${moduleId}:${id}`;
+        let content = moduleId.includes('.') ? `${moduleId.split('.').pop()}0:${id}` : `${moduleId}:${id}`;
 
         if (isFunction) {
             let functionProperties: LibraryFunction = null;
