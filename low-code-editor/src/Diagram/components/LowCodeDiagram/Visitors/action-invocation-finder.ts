@@ -10,22 +10,19 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+import { RemoteMethodCallAction, STNode, Visitor } from "@wso2-enterprise/syntax-tree";
 
-import { ConnectionViewState } from "./connection-viewstate";
-import { DataMapperViewState } from "./data-mapper-viewstate";
-
-export class SourcePointViewState extends DataMapperViewState {
-    public text: string;
-    public connections: ConnectionViewState[] = [];
-    public isJsonField: boolean;
-    public isOptionalType: boolean;
-    public type: string;
-    public unionType: string;
-
+export class ActionInvocationFinder implements Visitor {
+    public action: RemoteMethodCallAction = undefined;
     constructor() {
-        super();
-        this.text = '';
-        this.isJsonField = false;
-        this.isOptionalType = false;
+        this.action = undefined;
+    }
+
+    public beginVisitRemoteMethodCallAction(node: RemoteMethodCallAction) {
+        this.action = node;
+    }
+
+    public getIsAction(): RemoteMethodCallAction {
+        return this.action;
     }
 }

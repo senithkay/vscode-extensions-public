@@ -12,8 +12,9 @@
  */
 import React, { ReactNode } from "react";
 
-import Tooltip from "../../../../../../components/TooltipV2";
-import { ErrorSnippet } from "../../../../../../DiagramGenerator/generatorUtil";
+import { ErrorSnippet } from "../../../Types/type";
+// import Tooltip from "../../../../../../components/TooltipV2";
+// import { ErrorSnippet } from "../../../../../../DiagramGenerator/generatorUtil";
 
 interface ReturnRectSVGProps {
     type?: string,
@@ -30,7 +31,7 @@ export function ReturnRectSVG(props: ReturnRectSVGProps) {
     const diagnosticStyles = diagnostic?.severity === "ERROR" ? "return-comp-error" : "return-comp-warning";
     const returnRectStyles = diagnostic ? diagnosticStyles : "return-comp"
     return (
-        <Tooltip type={type} onClick={onClick} text={text} diagnostic={diagnostic} placement="right" arrow={true}>
+        // <Tooltip type={type} onClick={onClick} text={text} diagnostic={diagnostic} placement="right" arrow={true}>
                 <g className={returnRectStyles} transform="translate(7 6)">
                     <g transform="matrix(1, 0, 0, 1, -14, -9)">
                         <g id="Rectangle-2" transform="translate(7 6)">
@@ -48,6 +49,6 @@ export function ReturnRectSVG(props: ReturnRectSVGProps) {
                         </g>
                     </g>
                 </g>
-        </Tooltip>
+        // </Tooltip>
     )
 }

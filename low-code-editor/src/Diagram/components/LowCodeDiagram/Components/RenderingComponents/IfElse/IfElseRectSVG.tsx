@@ -13,8 +13,9 @@
 
 import React, { ReactNode }  from "react";
 
-import Tooltip from "../../../../../../components/TooltipV2";
-import { ErrorSnippet } from "../../../../../../DiagramGenerator/generatorUtil";
+import { ErrorSnippet } from "../../../Types/type";
+// import Tooltip from "../../../../../../components/TooltipV2";
+// import { ErrorSnippet } from "../../../../../../DiagramGenerator/generatorUtil";
 
 interface IfElseRectSVGProps {
     type?: string,
@@ -28,7 +29,7 @@ interface IfElseRectSVGProps {
 export function IfElseRectSVG(props: IfElseRectSVGProps) {
 const {type, onClick, diagnostic, icon, text, className} = props;
 return (
-        <Tooltip type={type} onClick={onClick} text={text} diagnostic={diagnostic} placement="right" arrow={true}>
+        // <Tooltip type={type} onClick={onClick} text={text} diagnostic={diagnostic} placement="right" arrow={true}>
         <g id="IfElse" className={className} transform="translate(7 6)">
                     <g transform="matrix(1, 0, 0, 1, -7, -6)" >
                         <g id="IfElsePolygon" transform="translate(33.5, 3) rotate(45)">
@@ -38,6 +39,6 @@ return (
                     </g>
                     {icon}
                 </g>
-            </Tooltip>
+            // </Tooltip>
     )
 }

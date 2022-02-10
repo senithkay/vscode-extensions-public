@@ -16,15 +16,15 @@ import React, { useContext, useState } from "react";
 import { ConfigOverlayFormStatus, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { ActionStatement, NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
-import { getOverlayFormConfig } from "../../../../../utils/diagram-util";
-import { DefaultConfig } from "../../../../../visitors/default";
 import { DeleteBtn } from "../../../Components/DiagramActions/DeleteBtn";
 import { DELETE_SVG_WIDTH_WITH_SHADOW } from "../../../Components/DiagramActions/DeleteBtn/DeleteSVG";
 import { EditBtn } from "../../../Components/DiagramActions/EditBtn";
 import { EDIT_SVG_WIDTH_WITH_SHADOW } from "../../../Components/DiagramActions/EditBtn/EditSVG";
 import { Context } from "../../../Context/diagram";
+import { getOverlayFormConfig } from "../../../Utils";
 import { BlockViewState } from "../../../ViewState";
 import { DraftStatementViewState } from "../../../ViewState/draft";
+import { DefaultConfig } from "../../../Visitors/default";
 import { PROCESS_SVG_HEIGHT, PROCESS_SVG_HEIGHT_WITH_SHADOW, PROCESS_SVG_SHADOW_OFFSET, PROCESS_SVG_WIDTH, PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW } from "../Processor/ProcessSVG";
 
 import { RespondSVG, RESPOND_SVG_HEIGHT, RESPOND_SVG_WIDTH_WITH_SHADOW } from "./RespondSVG";

@@ -15,7 +15,7 @@ import React, { useContext, useEffect, useRef, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import { FormControl, Typography } from "@material-ui/core";
-import { ADD_VARIABLE, FormActionButtons, FormHeaderSection, LowcodeEvent, SAVE_VARIABLE } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ADD_VARIABLE, FormActionButtons, FormHeaderSection, LowcodeEvent, ProcessConfig, SAVE_VARIABLE } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
 import { LocalVarDecl, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
@@ -26,7 +26,7 @@ import { getVariableNameFromST } from "../../../../../../utils/st-util";
 import { useStyles } from "../../../../DynamicConnectorForm/style";
 import ExpressionEditor, { ExpressionEditorProps } from "../../../../FormFieldComponents/ExpressionEditor";
 import { SwitchToggle } from "../../../../FormFieldComponents/SwitchToggle";
-import { FormElementProps, ProcessConfig } from "../../../../Types";
+import { FormElementProps } from "../../../../Types";
 import { VariableNameInput, VariableNameInputProps } from "../../../Components/VariableNameInput";
 import {
     VariableTypeInput,

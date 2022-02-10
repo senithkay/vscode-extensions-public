@@ -15,8 +15,8 @@ import React from "react";
 
 import {FunctionDefinition, RequiredParam, RestParam, STKindChecker, STNode} from "@wso2-enterprise/syntax-tree";
 
-import {DefaultConfig} from "../../../../../visitors/default";
 import {BlockViewState} from "../../../ViewState";
+import {DefaultConfig} from "../../../Visitors/default";
 import {START_SVG_HEIGHT_WITH_SHADOW} from "../Start/StartSVG";
 
 import "./style.scss";

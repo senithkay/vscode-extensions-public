@@ -14,12 +14,10 @@
 // tslint:disable: jsx-wrap-multiline
 import React, { useContext, useState } from "react"
 
+import { DeleteButton, EditButton, RecordEditor as RecordIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { RecordFieldWithDefaultValue, RecordTypeDesc, STKindChecker, TypeDefinition } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
-import DeleteButton from "../../../../../../assets/icons/DeleteButton";
-import EditButton from "../../../../../../assets/icons/EditButton";
-import RecordIcon from "../../../../../../assets/icons/RecordIcon";
 import { Context } from "../../../Context/diagram";
 import { HeaderActions } from "../../../HeaderActions";
 

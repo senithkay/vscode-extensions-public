@@ -17,8 +17,8 @@ import { TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
 // import { Button } from "@material-ui/core";
 import classNames from "classnames";
 
-import Tooltip from "../../../../components/Tooltip";
-import { Context as DiagramContext } from "../../../../Contexts/Diagram";
+// import Tooltip from "../../../../components/Tooltip";
+import { Context as DiagramContext } from "../Context/diagram";
 
 import FitToScreenSVG from "./images/fit-to-screen";
 import ZoomInSVG from "./images/zoom-in";
@@ -137,37 +137,37 @@ export default function PanAndZoom(props: PanAndZoomProps) {
 
             <div className={classes.zoomControls}>
                 <button className={classes.panelBtn} onClick={onClickZoomIn}>
-                    <Tooltip
+                    {/* <Tooltip */}
                         title="Zoom In"
                         placement="left-start"
                         arrow={true}
-                    >
+                    {/* > */}
                         <div data-testid={"zoom-in-btn"} className={classes.zoomControlWrapper}>
                             <ZoomInSVG/>
                         </div>
-                    </Tooltip>
+                    {/* </Tooltip> */}
                 </button>
                 <button className={classes.panelBtn} onClick={onClickZoomOut}>
-                    <Tooltip
+                    {/* <Tooltip */}
                         title="Zoom Out"
                         placement="left-start"
                         arrow={true}
-                    >
+                    {/* > */}
                         <div data-testid={"zoom-out-btn"} className={classes.zoomControlWrapper}>
                             <ZoomOutSVG/>
                         </div>
-                    </Tooltip>
+                    {/* </Tooltip> */}
                 </button>
                 <button className={classes.panelBtn} onClick={onClickFitToScreen}>
-                    <Tooltip
+                    {/* <Tooltip */}
                         title="Fit to screen"
                         placement="left-start"
                         arrow={true}
-                    >
+                    {/* > */}
                         <div data-testid={"fit-to-screen-btn"} className={classes.zoomControlWrapper} >
                             <FitToScreenSVG/>
                         </div>
-                    </Tooltip>
+                    {/* </Tooltip> */}
                 </button>
             </div>
         </div>

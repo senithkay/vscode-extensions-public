@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js  jsx-wrap-multiline
 import React, { useContext, useState } from "react";
 
-import { ConfigOverlayFormStatus, DiagramDiagnostic, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ConfigOverlayFormStatus, DiagramDiagnostic, ElseIfConfig, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     BlockStatement,
     IfElseStatement, NodePosition,
@@ -21,11 +21,6 @@ import {
     STNode
 } from "@wso2-enterprise/syntax-tree";
 
-import { getDiagnosticInfo, getDraftComponent, getSTComponents } from "../../../../../utils";
-import { getConditionConfig, getRandomInt } from "../../../../../utils/diagram-util";
-import { findActualEndPositionOfIfElseStatement } from "../../../../../utils/st-util";
-import { DefaultConfig } from "../../../../../visitors/default";
-import { ElseIfConfig } from "../../../../FormComponents/Types";
 import { DeleteBtn } from "../../../Components/DiagramActions/DeleteBtn";
 import {
     DELETE_SVG_HEIGHT_WITH_SHADOW,
@@ -38,8 +33,10 @@ import {
     EDIT_SVG_WIDTH_WITH_SHADOW
 } from "../../../Components/DiagramActions/EditBtn/EditSVG";
 import { Context } from "../../../Context/diagram";
+import { findActualEndPositionOfIfElseStatement, getConditionConfig, getDiagnosticInfo, getDraftComponent, getRandomInt, getSTComponents } from "../../../Utils";
 import { BlockViewState, ControlFlowLineState, ElseViewState, IfViewState } from "../../../ViewState";
 import { DraftStatementViewState } from "../../../ViewState/draft";
+import { DefaultConfig } from "../../../Visitors/default";
 import { PlusButton } from "../../PlusButtons/Plus";
 import { Collapse } from "../Collapse";
 import { ConditionAssignment, CONDITION_ASSIGNMENT_NAME_WIDTH } from "../ConditionAssignment";

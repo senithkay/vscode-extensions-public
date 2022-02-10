@@ -17,14 +17,14 @@ import { FormattedMessage, useIntl } from "react-intl";
 import { WhileStatement } from "@wso2-enterprise/syntax-tree";
 import { FormControl, Typography } from "@material-ui/core";
 
-import { FormField, FormActionButtons, FormHeaderSection, } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FormField, FormActionButtons, FormHeaderSection, ConditionConfig, } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { createWhileStatement, getInitialSource } from "../../../../../../utils/modification-util";
 import ExpressionEditor, { ExpressionEditorProps } from "../../../../FormFieldComponents/ExpressionEditor";
 import { useStyles } from "../../../../DynamicConnectorForm/style";
 import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
-import { ConditionConfig, FormElementProps } from "../../../../Types";
+import { FormElementProps } from "../../../../Types";
 import Tooltip from '../../../../../../../components/TooltipV2'
 
 export interface WhileProps {

@@ -40,6 +40,18 @@ export class DiagramConfig {
 
     public textAlignmentOffset: number = 40; // This id 5 doted gaps
 
+    public EXISTING_PLUS_HOLDER_API_HEIGHT: number = 612;
+
+    public EXISTING_PLUS_HOLDER_API_HEIGHT_COLLAPSED: number = 660;
+
+    public PLUS_HOLDER_API_HEIGHT : number = 625;
+
+    public PLUS_HOLDER_API_HEIGHT_COLLAPSED: number = 321;
+
+    public PLUS_HOLDER_STATEMENT_HEIGHT: number = 420;
+
+    public PLUS_HOLDER_WIDTH: number = 376;
+
     public overlayBackground = {
         height: '1000vh',
         width: '1000vw'
@@ -180,7 +192,7 @@ export class DiagramConfig {
     public onErrorHeader = {
         h: 100,
         w: 200,
-    }
+    };
 
     // service wrapper related stuff
     serviceVerticalPadding = 20; // top/bottom gap between service members

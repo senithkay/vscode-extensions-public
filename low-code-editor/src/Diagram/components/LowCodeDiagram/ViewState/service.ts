@@ -10,9 +10,9 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { DefaultConfig } from "../../../visitors/default";
 import { STOP_SVG_HEIGHT } from "../Components/RenderingComponents/End/StopSVG";
 import { START_SVG_HEIGHT } from "../Components/RenderingComponents/Start/StartSVG";
+import { DefaultConfig } from "../Visitors/default";
 
 import { BlockViewState } from "./block";
 import { PlusViewState } from "./plus";

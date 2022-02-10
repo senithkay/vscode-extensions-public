@@ -13,7 +13,8 @@
 // tslint:disable: jsx-no-multiline-js
 import * as React from "react";
 
-import { ErrorSnippet } from "../../../../../../DiagramGenerator/generatorUtil";
+import { ErrorSnippet } from "../../../Types/type";
+// import { ErrorSnippet } from "../../../../../../DiagramGenerator/generatorUtil";
 
 import { ForEachRectSVG } from "./ForEachRectSVG";
 

@@ -15,8 +15,9 @@ import * as React from "react";
 
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
-import Tooltip from "../../../../../../../components/TooltipV2";
-import { ErrorSnippet } from "../../../../../../../DiagramGenerator/generatorUtil";
+import { ErrorSnippet } from "../../../../Types/type";
+// import Tooltip from "../../../../../../../components/TooltipV2";
+// import { ErrorSnippet } from "../../../../../../../DiagramGenerator/generatorUtil";
 
 import { ActionProcessRectSVG } from "./ActionProcessRectSVG";
 import "./style.scss";

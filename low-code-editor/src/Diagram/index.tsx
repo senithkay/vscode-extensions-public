@@ -25,10 +25,10 @@ import * as DialogBoxes from "./components/FormComponents/DialogBoxes";
 import { FormGenerator, FormGeneratorProps } from "./components/FormComponents/FormGenerator";
 import LowCodeDiagram from "./components/LowCodeDiagram";
 import { PlusViewState, ViewState } from "./components/LowCodeDiagram/ViewState";
+import { DefaultConfig } from "./components/LowCodeDiagram/Visitors/default";
 import "./style.scss";
 import { useStyles } from "./styles";
 import { removeStatement } from "./utils/modification-util";
-import { DefaultConfig } from "./visitors/default";
 
 export function Diagram() {
     const {
@@ -60,7 +60,8 @@ export function Diagram() {
             stSymbolInfo,
             error,
             performanceData,
-            selectedPosition
+            selectedPosition,
+            zoomStatus
         },
     } = useContext(DiagramContext);
 
@@ -206,7 +207,7 @@ export function Diagram() {
         }
     }
 
-    const handleRenderDialogBox = (type: string, onConfirm: () => void, onCancel: () => void, position?: DiagramOverlayPosition, message?: string, removeText?: string, isFunctionMember?: boolean) => {
+    const handleRenderDialogBox = (type: string, onConfirm: () => void, onCancel?: () => void, position?: DiagramOverlayPosition, message?: string, removeText?: string, isFunctionMember?: boolean) => {
         const ChildComp = (DialogBoxes as any)[type];
         if (!ChildComp) {
             return;
@@ -217,7 +218,9 @@ export function Diagram() {
         };
 
         const handleOnCancel = () => {
-            onCancel();
+            if (onCancel) {
+                onCancel();
+            }
             setIsDialogActive(false);
         };
 
@@ -291,6 +294,7 @@ export function Diagram() {
                     isReadOnly={isReadOnly}
                     performanceData={performanceData}
                     selectedPosition={selectedPosition}
+                    zoomStatus={zoomStatus}
                     api={{
                         edit: {
                             deleteComponent: handleDeleteComponent,
