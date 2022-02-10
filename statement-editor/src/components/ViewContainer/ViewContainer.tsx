@@ -47,6 +47,7 @@ export interface LowCodeEditorProps {
         getLibrariesData: () => Promise<LibrarySearchResponse>;
         getLibraryData: (orgName: string, moduleName: string, version: string) => Promise<LibraryDataResponse>;
     };
+    experimentalEnabled?: boolean;
 }
 export interface ViewProps extends LowCodeEditorProps {
     label: string;

@@ -67,6 +67,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
             currentFile,
             isMutationProgress: isMutationInProgress,
             stSymbolInfo,
+            experimentalEnabled
         },
         api: {
             ls: { getExpressionEditorLangClient },
@@ -302,7 +303,8 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
             currentFile,
             getLangClient: getExpressionEditorLangClient,
             applyModifications: modifyDiagram,
-            library
+            library,
+            experimentalEnabled
         }
     );
 
@@ -353,6 +355,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                     defaultMessage={"Variable"}
                     handleStmtEditorToggle={handleStmtEditorToggle}
                     toggleChecked={false}
+                    experimentalEnabled={experimentalEnabled}
                 />
                 <div className={classes.formContentWrapper}>
                     <div className={classes.formDeclarationWrapper}>
