@@ -55,7 +55,11 @@ interface ExpressionsArray {
 
 export function AddIfForm(props: IfProps) {
     const {
-        props: { isMutationProgress: isMutationInProgress, currentFile },
+        props: {
+            isMutationProgress: isMutationInProgress,
+            currentFile,
+            experimentalEnabled
+        },
         api: {
             ls: { getExpressionEditorLangClient },
             code: { modifyDiagram },
@@ -232,7 +236,8 @@ export function AddIfForm(props: IfProps) {
             handleStatementEditorChange,
             currentFile,
             getLangClient: getExpressionEditorLangClient,
-            applyModifications: modifyDiagram
+            applyModifications: modifyDiagram,
+            experimentalEnabled
         }
     );
 
@@ -278,6 +283,7 @@ export function AddIfForm(props: IfProps) {
                     defaultMessage={"If"}
                     handleStmtEditorToggle={handleStmtEditorToggle}
                     toggleChecked={false}
+                    experimentalEnabled={experimentalEnabled}
                 />
                 <div className={classes.formContentWrapper}>
                     <div className={classes.formCodeBlockWrapper}>
