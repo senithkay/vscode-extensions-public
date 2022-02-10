@@ -49,7 +49,8 @@ export function AddLogConfig(props: LogConfigProps) {
     const {
         props: {
             isMutationProgress: isMutationInProgress,
-            currentFile
+            currentFile,
+            experimentalEnabled
         },
         api: {
             ls: { getExpressionEditorLangClient },
@@ -145,7 +146,8 @@ export function AddLogConfig(props: LogConfigProps) {
             currentFile,
             getLangClient: getExpressionEditorLangClient,
             applyModifications: modifyDiagram,
-            library
+            library,
+            experimentalEnabled
         }
     );
 
@@ -159,6 +161,7 @@ export function AddLogConfig(props: LogConfigProps) {
                     defaultMessage={"Log"}
                     handleStmtEditorToggle={handleStmtEditorToggle}
                     toggleChecked={false}
+                    experimentalEnabled={experimentalEnabled}
                 />
                 <div className={formClasses.formContentWrapper}>
                     <div className={formClasses.formNameWrapper}>

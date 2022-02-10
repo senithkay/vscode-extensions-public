@@ -45,7 +45,8 @@ export function AddWhileForm(props: WhileProps) {
     const {
         props: {
             isMutationProgress: isMutationInProgress,
-            currentFile
+            currentFile,
+            experimentalEnabled
         },
         api: {
             ls: { getExpressionEditorLangClient },
@@ -156,7 +157,8 @@ export function AddWhileForm(props: WhileProps) {
             currentFile,
             getLangClient: getExpressionEditorLangClient,
             applyModifications: modifyDiagram,
-            library
+            library,
+            experimentalEnabled
         }
     );
 
@@ -170,6 +172,7 @@ export function AddWhileForm(props: WhileProps) {
                     defaultMessage={"While"}
                     handleStmtEditorToggle={handleStmtEditorToggle}
                     toggleChecked={false}
+                    experimentalEnabled={experimentalEnabled}
                 />
                 <div className={classes.formContentWrapper}>
                     <div className={classes.formCodeBlockWrapper}>

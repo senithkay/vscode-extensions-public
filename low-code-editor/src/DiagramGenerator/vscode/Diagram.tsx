@@ -23,6 +23,7 @@ export interface EditorState {
     startColumn: number;
     startLine: number;
     lastUpdatedAt: string;
+    experimentalEnabled?: boolean;
 }
 
 export interface PFSession {
@@ -50,7 +51,6 @@ export interface EditorAPI {
 
 export enum PALETTE_COMMANDS {
     RUN = 'ballerina.project.run',
-    RUN_WITH_CONFIGS = 'ballerina.executeConfigEditor',
     SWAGGER_VIEW = 'ballerina.swaggerView.open',
     DOCUMENTATION_VIEW = 'ballerina.documentationView.open'
 }
@@ -60,7 +60,8 @@ export type EditorProps = EditorState & EditorAPI;
 export const Diagram: React.FC<EditorProps> = (props: EditorProps) => {
 
     const { getFileContent, updateFileContent, gotoSource, getPFSession, showPerformanceGraph, getPerfDataFromChoreo,
-            sendTelemetryEvent, showMessage, resolveMissingDependency, resolveMissingDependencyByCodeAction,
+            sendTelemetryEvent,
+            showMessage, resolveMissingDependency, resolveMissingDependencyByCodeAction,
             runCommand, getLibrariesList, getLibrariesData, getLibraryData, ...restProps } = props;
     const [state, setState] = React.useState<EditorState>(restProps);
 
