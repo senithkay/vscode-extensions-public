@@ -32,8 +32,10 @@ interface MappingBindingPatternProps {
 export function MappingBindingPatternComponent(props: MappingBindingPatternProps) {
     const { model, userInputs, diagnosticHandler } = props;
     const stmtCtx = useContext(StatementEditorContext);
-    const { modelCtx } = stmtCtx;
-    const { currentModel } = modelCtx;
+    const { modelCtx: {
+                        currentModel
+                    }
+                } = stmtCtx;
     const hasBindingPatternSelected = currentModel.model &&
         isPositionsEquals(currentModel.model.position, model.position);
 
