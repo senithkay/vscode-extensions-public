@@ -142,7 +142,7 @@ const ConfigElement = (configElement: ConfigElementProps): ReactElement => {
         let configValue: ConfigValue = {
             key,
             value:
-                configElement.type === "integer" ? parseInt(value, 10) : value,
+                configElement.type === "integer" ? Number(value) : value,
         };
         if (configElement.isArray) {
             let convertedValue: any;

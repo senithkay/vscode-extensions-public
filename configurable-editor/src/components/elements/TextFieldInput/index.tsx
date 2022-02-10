@@ -50,8 +50,10 @@ export function TextFieldInput(props: TextFieldInputProps) {
     };
 
     let fieldType: string = type;
+    let inputProps: object = {};
     if (type === "integer") {
-        fieldType = "number";
+        fieldType = "text";
+        inputProps = { inputMode: "numeric", pattern: "[\-\+]?[0-9]*(\.[0-9]+)?" };
     }
 
     return (
@@ -67,6 +69,7 @@ export function TextFieldInput(props: TextFieldInputProps) {
             size="small"
             classes={{ root: classes.textInputRoot }}
             InputLabelProps={{ shrink: false }}
+            inputProps={inputProps}
         />
     );
 }
