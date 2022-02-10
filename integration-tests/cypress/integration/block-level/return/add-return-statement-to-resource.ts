@@ -4,27 +4,26 @@ import { ReturnForm } from "../../../utils/forms/return-form";
 import { SourceCode } from "../../../utils/components/code-view";
 import { getCurrentSpecFolder } from "../../../utils/file-utils";
 
-const BAL_FILE_PATH = "return/existing-return-statement.bal";
+const BAL_FILE_PATH = "return/add-return-to-service-resource.bal";
 
-describe('Edit return statement', () => {
+describe('Add return statement to resource function', () => {
     beforeEach(() => {
         cy.visit(getIntegrationTestStoryURL(BAL_FILE_PATH))
     })
 
-    it('Edit return statement', () => {
-        Canvas.getFunction("getGreetings")
-            .shouldBeExpanded()
+    it('Add empty return statement to resource function', () => {
+        Canvas.getService("/hello")
+            .getResourceFunction("POST", "/")
             .getDiagram()
             .shouldBeRenderedProperly()
-            .clickExistingReturnStatement()
+            .getBlockLevelPlusWidget()
+            .clickOption("Return");
 
         ReturnForm
             .shouldBeVisible()
-            .clearExpression()
-            .typeExpression('"Updated Hello World!!!"')
             .save()
 
         SourceCode.shouldBeEqualTo(
-            getCurrentSpecFolder() + "edit-return-statement.expected.bal");
+            getCurrentSpecFolder() + "add-return-statement-to-resource.expected.bal");
     })
 })

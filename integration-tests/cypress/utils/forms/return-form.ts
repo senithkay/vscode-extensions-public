@@ -21,6 +21,13 @@ export class ReturnForm {
         return this;
     }
 
+    static checkForDiagnostics() {
+        this.getForm()
+            .get('[data-testid="expr-diagnostics"]')
+            .should("be.visible")
+        return this;
+    }
+
     static shouldBeVisible() {
         this.getForm().should("be.visible");
         return this;
@@ -50,14 +57,4 @@ export class ReturnForm {
         return this;
 
     }
-
-    static saveDisabled() {
-        this.getForm()
-            .get('button')
-            .contains("Save").should("be.disabled")
-        return this;
-
-    }
-
-
 }

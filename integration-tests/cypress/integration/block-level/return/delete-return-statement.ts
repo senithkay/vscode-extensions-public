@@ -1,8 +1,5 @@
 import { getIntegrationTestStoryURL } from "../../../utils/story-url-utils";
 import { Canvas } from "../../../utils/components/canvas";
-import { TopLevelPlusWidget } from "../../../utils/components/top-level-plus-widget";
-import { FunctionForm } from "../../../utils/forms/function-form";
-import { ReturnForm } from "../../../utils/forms/return-form";
 import { SourceCode } from "../../../utils/components/code-view";
 import { getCurrentSpecFolder } from "../../../utils/file-utils";
 
@@ -20,9 +17,7 @@ describe('Delete return statement', () => {
             .shouldBeRenderedProperly()
             .deleteExistingReturnStatement()
 
-
-
-        // SourceCode.shouldBeEqualTo(
-        //     getCurrentSpecFolder() + "add-return-statement-expected.bal");
+        SourceCode.shouldBeEqualTo(
+            getCurrentSpecFolder() + "delete-return-statement.expected.bal");
     })
 })

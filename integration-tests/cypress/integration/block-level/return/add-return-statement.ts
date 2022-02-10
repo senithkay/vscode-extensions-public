@@ -37,9 +37,8 @@ describe('Add return statement', () => {
             .typeExpression('"Hello World!!!"')
             .save()
 
-
         SourceCode.shouldBeEqualTo(
-            getCurrentSpecFolder() + "add-return-statement-expected.bal");
+            getCurrentSpecFolder() + "add-return-statement.expected.bal");
     })
 
     it('Type a return statement and Cancel', () => {
@@ -66,12 +65,11 @@ describe('Add return statement', () => {
             .typeExpression('"Hello World!!!"')
             .cancel()
 
-
         SourceCode.shouldBeEqualTo(
-            getCurrentSpecFolder() + "delete-return-statement-expected.bal");
+            getCurrentSpecFolder() + "delete-return-statement.expected.bal");
     })
 
-    it('Type invalid return statement and check for validation', () => {
+    it('Type invalid return statement and check for diagnostics', () => {
         Canvas
             .welcomeMessageShouldBeVisible()
             .clickTopLevelPlusButton();
@@ -92,12 +90,13 @@ describe('Add return statement', () => {
 
         ReturnForm
             .shouldBeVisible()
-            .typeExpression('"boolean"')
-            .cancel()
-        // TODO check for diagnostics
-
+            .typeExpression('true')
+            .checkForDiagnostics()
+            .clearExpression()
+            .typeExpression('"Hello World!!!"')
+            .save()
 
         SourceCode.shouldBeEqualTo(
-            getCurrentSpecFolder() + "delete-return-statement-expected.bal");
+            getCurrentSpecFolder() + "add-return-statement.expected.bal");
     })
 })
