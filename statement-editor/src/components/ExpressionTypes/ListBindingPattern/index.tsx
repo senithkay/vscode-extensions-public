@@ -32,10 +32,11 @@ interface ListBindingPatternProps {
 export function ListBindingPatternComponent(props: ListBindingPatternProps) {
     const { model, userInputs, diagnosticHandler } = props;
     const stmtCtx = useContext(StatementEditorContext);
-    const { modelCtx: {
-                        currentModel
-                    }
-                } = stmtCtx;
+    const {
+        modelCtx: {
+            currentModel
+        }
+    } = stmtCtx;
 
     const hasBindingPatternSelected = currentModel.model &&
         isPositionsEquals(currentModel.model.position, model.position);

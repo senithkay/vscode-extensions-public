@@ -32,10 +32,12 @@ interface CaptureBindingPatternProps {
 export function CaptureBindingPatternComponent(props: CaptureBindingPatternProps) {
     const { model, userInputs, diagnosticHandler } = props;
     const stmtCtx = useContext(StatementEditorContext);
-    const { modelCtx: {
-                        currentModel
-                    }
-                } = stmtCtx;
+    const {
+        modelCtx: {
+            currentModel
+        }
+    } = stmtCtx;
+
     const hasVarNameSelected = currentModel.model &&
         isPositionsEquals(currentModel.model.position, model.variableName.position);
 
