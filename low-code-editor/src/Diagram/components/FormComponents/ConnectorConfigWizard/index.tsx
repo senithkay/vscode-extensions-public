@@ -26,8 +26,7 @@ import {
 import { STNode } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../Contexts/Diagram";
-import { CONNECTOR_CLOSED, LowcodeEvent } from "../../../models";
-import { DefaultConfig } from "../../../visitors/default";
+import { DefaultConfig } from "../../LowCodeDiagram/Visitors/default";
 import { fetchConnectorInfo } from "../../Portals/utils";
 import { fetchConnectorsList } from "../ConfigForms/ConnectorList";
 import { SearchQueryParams } from "../ConfigForms/Marketplace";

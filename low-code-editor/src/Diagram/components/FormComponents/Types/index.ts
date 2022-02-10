@@ -11,107 +11,16 @@
  * associated services.
  */
 import { ExpressionEditorState, FormField, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import { Diagnostic } from "vscode-languageserver-protocol";
 
-import { GenerationType } from "../ConfigForms/ProcessConfigForms/ProcessForm/AddDataMappingConfig/OutputTypeSelector";
+export enum GenerationType {
+    ASSIGNMENT,
+    NEW
+}
 
 export interface FormFieldChecks {
     name: string;
     isValid: boolean;
     isEmpty?: boolean;
     canIgnore?: boolean; // Ff field is optional or defaultable
-}
-
-export interface ConditionConfig {
-    type: string;
-    conditionExpression?: string | ForeachConfig | ElseIfConfig;
-    scopeSymbols?: string[];
-    conditionPosition?: NodePosition;
-    model?: STNode
-}
-
-export interface ForeachConfig {
-    variable: string;
-    collection: string;
-    type: string;
-    model?: STNode
-}
-
-export interface ElseIfConfig {
-    values: {id: number, expression: string, position: NodePosition}[]
-}
-
-export interface ProcessConfig {
-    type: string;
-    config?: string | LogConfig | RespondConfig | DataMapperConfig | CustomExpressionConfig;
-    scopeSymbols?: string[];
-    model?: STNode;
-    wizardType?: WizardType;
-    targetPosition?: NodePosition;
-}
-
-export interface LogConfig {
-    type: string;
-    expression: string;
-}
-
-export interface CustomExpressionConfig {
-    expression: string;
-}
-
-export interface RespondConfig {
-    genType: string;
-    caller: string;
-    respondExpression: string;
-    variable: string;
-    responseCode?: string;
-}
-
-export interface TypeInfo {
-    name: string;
-    orgName: string;
-    moduleName: string;
-    version: string;
-}
-
-export interface DataMapperInputTypeInfo {
-    type: string;
-    name: string;
-    node?: STNode;
-}
-
-export interface DataMapperOutputTypeInfo {
-    variableName?: string;
-    type: string;
-    node?: STNode;
-    generationType?: GenerationType;
-    typeInfo?: TypeInfo;
-    startLine?: number;
-    fields?: DataMapperOutputField[];
-    sampleStructure?: string;
-    fieldsGenerated?: boolean;
-    saved?: boolean
-    typeDefInSameModule?: boolean;
-}
-
-export interface DataMapperConfig {
-    inputTypes: DataMapperInputTypeInfo[]; // todo ::: finalize the interface
-    outputType: DataMapperOutputTypeInfo;
-}
-
-export interface DataMapperOutputField {
-    name: string;
-    type: string;
-    fields?: DataMapperOutputField[];
-    value?: string;
-    isChanged: boolean;
-}
-
-export interface EndConfig {
-    type: string;
-    expression?: string | RespondConfig;
-    scopeSymbols?: string[];
-    wizardType?: WizardType;
-    model?: STNode;
 }

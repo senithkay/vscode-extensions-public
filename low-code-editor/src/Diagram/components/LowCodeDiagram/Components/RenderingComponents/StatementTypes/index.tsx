@@ -12,7 +12,7 @@
  */
 import React, { ReactElement, useEffect, useState } from "react";
 
-import { DefaultConfig } from "../../../../../visitors/default";
+import { DefaultConfig } from "../../../Visitors/default";
 
 import "./style.scss";
 

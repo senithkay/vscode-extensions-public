@@ -511,13 +511,6 @@ export function matchActionToFormField(remoteCall: RemoteMethodCallAction, formF
     }
 }
 
-export function getVaribaleNamesFromVariableDefList(asts: STNode[]) {
-    if (asts === undefined) {
-        return [];
-    }
-    return (asts as LocalVarDecl[]).map((item) => (item?.typedBindingPattern?.bindingPattern as CaptureBindingPattern)?.variableName?.value);
-}
-
 export function getModuleIcon(module: BallerinaConstruct, scale: number = 1): React.ReactNode {
     const width = 56 * scale;
     if (module?.icon || module?.package?.icon) {

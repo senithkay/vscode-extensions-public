@@ -12,17 +12,12 @@
  */
 // tslint:disable: jsx-no-multiline-js
 // tslint:disable: jsx-wrap-multiline
-import React, { ReactElement, useContext, useState } from "react"
+import React, { useContext, useState } from "react"
 
-import { Tooltip } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { DeleteButton, EditButton, TypeDefinitionIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { MethodDeclaration, ObjectField, ObjectTypeDesc, STKindChecker, TypeDefinition } from "@wso2-enterprise/syntax-tree";
 
-import DeleteButton from "../../../../../../assets/icons/DeleteButton";
-import EditButton from "../../../../../../assets/icons/EditButton";
-import RecordIcon from "../../../../../../assets/icons/RecordIcon";
-import Tooltip from "../../../../../../components/Tooltip";
-import { removeStatement } from "../../../../../utils/modification-util";
-import { UnsupportedConfirmButtons } from "../../../../FormComponents/DialogBoxes/UnsupportedConfirmButtons";
+// import Tooltip from "../../../../../../components/Tooltip";
 import { Context } from "../../../Context/diagram";
 import { ComponentExpandButton } from "../../ComponentExpandButton";
 import { RecordDefinitionComponent } from "../RecordDefinion";
@@ -38,11 +33,11 @@ export function TypeDefinitionComponent(props: TypeDefComponentProps) {
     const diagramContext = useContext(Context);
     const { isReadOnly } = diagramContext.props;
     const gotoSource = diagramContext?.api?.code?.gotoSource;
-    const modifyDiagram = diagramContext?.api?.code?.modifyDiagram;
+    const deleteComponent = diagramContext?.api?.edit?.deleteComponent;
+    const renderDialogBox = diagramContext?.api?.edit?.renderDialogBox;
 
     const [isEditable, setIsEditable] = useState(false);
     const [isExpanded, setIsExpanded] = useState(false);
-    const [editingEnabled, setEditingEnabled] = useState(false);
 
     const handleMouseEnter = () => {
         setIsEditable(true);
@@ -55,22 +50,19 @@ export function TypeDefinitionComponent(props: TypeDefComponentProps) {
     };
 
     const handleDeleteBtnClick = () => {
-        modifyDiagram([
-            removeStatement(model.position)
-        ]);
+        if (deleteComponent) {
+            deleteComponent(model);
+        }
     }
 
     const handleEditBtnClick = () => {
-        setEditingEnabled(true);
-    }
-
-    const handleEditBtnCancel = () => {
-        setEditingEnabled(false);
+        if (renderDialogBox) {
+            renderDialogBox("Unsupported", handleEditBtnConfirm, undefined);
+        }
     }
 
     const handleEditBtnConfirm = () => {
         const targetposition = model.position;
-        setEditingEnabled(false);
         gotoSource({ startLine: targetposition.startLine, startColumn: targetposition.startColumn });
     }
 
@@ -110,18 +102,18 @@ export function TypeDefinitionComponent(props: TypeDefComponentProps) {
                     <div className="type-header" >
                         <div className="type-content">
                             <div className="type-icon">
-                                <RecordIcon />
+                                <TypeDefinitionIcon />
                             </div>
                             <div className="type-type">
-                                <Tooltip
+                                {/* <Tooltip
                                     arrow={true}
                                     placement="top-start"
                                     title={model.source.slice(1, -1)}
                                     inverted={false}
                                     interactive={true}
-                                >
-                                    <tspan x="0" y="0">{typeMaxWidth ? type.slice(0, 10) + "..." : type}</tspan>
-                                </Tooltip>
+                                > */}
+                                <tspan x="0" y="0">{typeMaxWidth ? type.slice(0, 10) + "..." : type}</tspan>
+                                {/* </Tooltip> */}
                             </div>
                             <div className="type-name">
                                 <tspan x="0" y="0">{nameMaxWidth ? varName.slice(0, 20) + "..." : varName}</tspan>
@@ -161,7 +153,7 @@ export function TypeDefinitionComponent(props: TypeDefComponentProps) {
                         </>
                     )}
                 </div>
-                {editingEnabled && <UnsupportedConfirmButtons onConfirm={handleEditBtnConfirm} onCancel={handleEditBtnCancel} />}
+                {/* {editingEnabled && <UnsupportedConfirmButtons onConfirm={handleEditBtnConfirm} onCancel={handleEditBtnCancel} />} */}
             </div>
         )
     }

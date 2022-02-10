@@ -12,7 +12,7 @@
  */
 import React from "react";
 
-import { DiagnosticMsgSeverity } from "../../../../../../../DiagramGenerator/generatorUtil";
+import { DiagnosticMsgSeverity } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 export const TOP_CURVE_SVG_WIDTH = 6.5;
 export const TOP_CURVE_SVG_HEIGHT = 6.5;

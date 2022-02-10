@@ -15,12 +15,7 @@ import React, { ReactNode, useContext, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import { FormControl } from "@material-ui/core";
-import {
-    FormActionButtons,
-    FormHeaderSection,
-    httpResponse,
-    PrimitiveBalType
-} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { EndConfig, FormActionButtons, FormHeaderSection, httpResponse, PrimitiveBalType, RespondConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
 import { ActionStatement, RemoteMethodCallAction } from "@wso2-enterprise/syntax-tree";
 import cn from "classnames";

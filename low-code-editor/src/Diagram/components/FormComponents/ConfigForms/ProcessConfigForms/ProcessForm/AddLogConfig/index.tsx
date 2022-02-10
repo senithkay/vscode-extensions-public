@@ -23,13 +23,9 @@ import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/con
 import { useStyles as useFormStyles } from "../../../../DynamicConnectorForm/style";
 import { SelectDropdownWithButton } from "../../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
 import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
-import { LogConfig, ProcessConfig } from "../../../../Types";
 import { createLogStatement, getInitialSource } from "../../../../../../utils/modification-util";
-import {
-    FormActionButtons,
-    FormHeaderSection
-} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { LowCodeExpressionEditor } from "../../../../FormFieldComponents/LowCodeExpressionEditor";
+import { FormActionButtons, FormHeaderSection, LogConfig, ProcessConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 interface LogConfigProps {
     config: ProcessConfig;

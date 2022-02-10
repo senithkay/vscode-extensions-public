@@ -15,8 +15,8 @@ import React from "react";
 import { LocalVarDecl, STNode } from "@wso2-enterprise/syntax-tree";
 import cn from "classnames";
 
-import { DefaultConfig } from "../../../../../visitors/default";
 import { SimpleBBox, StatementViewState } from "../../../ViewState";
+import { DefaultConfig } from "../../../Visitors/default";
 import { CONNECTOR_PROCESS_SVG_WIDTH_WITH_SHADOW } from "../Connector/ConnectorProcess/ConnectorProcessSVG";
 import ControlFlowArrow from "../ControlFlowArrow";
 import { Metrics } from "../Metrics";

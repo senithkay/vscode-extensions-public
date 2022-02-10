@@ -13,9 +13,8 @@
 // tslint:disable: jsx-no-multiline-js align  jsx-wrap-multiline
 import React, { ReactElement, useEffect, useState } from "react";
 
-import { Tooltip } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
-
-import { DefaultConfig } from "../../../../../visitors/default";
+// import Tooltip from '../../../../../../components/Tooltip';
+import { DefaultConfig } from "../../../Visitors/default";
 
 import "./style.scss";
 
@@ -49,15 +48,16 @@ export function VariableName(props: { x: number, y: number, variableName: string
         </text>
     );
 
+    // variableMaxWidth ?
+    //             <Tooltip arrow={true} placement="top-start" title={variableName} inverted={false} interactive={true}>
+    //                 {variableTextComp}
+    //             </Tooltip>
+    //             :
+    //             variableTextComp
+
     return (
         <svg {...xyProps} width="150" height="24" className="variable-wrapper">
-            {variableMaxWidth ?
-                <Tooltip arrow={true} placement="top-start" title={variableName} inverted={false} interactive={true}>
-                    {variableTextComp}
-                </Tooltip>
-                :
-                variableTextComp
-            }
+            {variableTextComp}
         </svg >
     );
 }

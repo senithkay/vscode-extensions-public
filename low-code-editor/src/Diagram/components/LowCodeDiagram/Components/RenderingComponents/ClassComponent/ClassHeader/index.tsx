@@ -10,15 +10,12 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 
+import { ClassIcon, DeleteButton, EditButton } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { ClassDefinition } from '@wso2-enterprise/syntax-tree';
 import classNames from 'classnames';
 
-import ClassIcon from '../../../../../../../assets/icons/ClassIcon';
-import DeleteButton from '../../../../../../../assets/icons/DeleteButton';
-import EditButton from '../../../../../../../assets/icons/EditButton';
-import { UnsupportedConfirmButtons } from '../../../../../FormComponents/DialogBoxes/UnsupportedConfirmButtons';
 import { Context } from '../../../../Context/diagram';
 import { HeaderWrapper } from '../../../../HeaderWrapper';
 
@@ -34,23 +31,18 @@ export function ClassHeader(props: ClassHeaderProps) {
     const { isReadOnly } = diagramContext.props;
     const deleteComponent = diagramContext?.api?.edit?.deleteComponent;
     const gotoSource = diagramContext?.api?.code?.gotoSource;
-    const [editingEnabled, setEditingEnabled] = useState(false);
+    const renderDialogBox = diagramContext?.api?.edit?.renderDialogBox;
 
     const handleDeleteBtnClick = () => {
         deleteComponent(model);
     }
 
     const handleEditBtnClick = () => {
-        setEditingEnabled(true);
-    }
-
-    const handleEditBtnCancel = () => {
-        setEditingEnabled(false);
+        renderDialogBox("Unsupported", handleEditBtnConfirm);
     }
 
     const handleEditBtnConfirm = () => {
         const targetposition = model.position;
-        setEditingEnabled(false);
         gotoSource({ startLine: targetposition.startLine, startColumn: targetposition.startColumn });
     }
 
@@ -78,7 +70,6 @@ export function ClassHeader(props: ClassHeaderProps) {
                 <div className={"header-segment-path"}>{model.className.value}</div>
             </div>
             {!isReadOnly && editButtons}
-            {editingEnabled && <UnsupportedConfirmButtons onConfirm={handleEditBtnConfirm} onCancel={handleEditBtnCancel} />}
         </HeaderWrapper>
     );
 }

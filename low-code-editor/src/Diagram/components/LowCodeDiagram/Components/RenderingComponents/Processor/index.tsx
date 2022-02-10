@@ -25,18 +25,16 @@ import {
     STNode
 } from "@wso2-enterprise/syntax-tree";
 
-import { getDiagnosticInfo } from "../../../../../utils";
-import { getOverlayFormConfig, getRandomInt } from "../../../../../utils/diagram-util";
-import { getMethodCallFunctionName, getStatementTypesFromST } from "../../../../../utils/st-util";
-import { DefaultConfig } from "../../../../../visitors/default";
 import { MethodCall } from "../../../../MethodCall";
 import { DeleteBtn } from "../../../Components/DiagramActions/DeleteBtn";
 import { DELETE_SVG_HEIGHT_WITH_SHADOW, DELETE_SVG_WIDTH_WITH_SHADOW } from "../../../Components/DiagramActions/DeleteBtn/DeleteSVG";
 import { EditBtn } from "../../../Components/DiagramActions/EditBtn";
 import { EDIT_SVG_OFFSET, EDIT_SVG_WIDTH_WITH_SHADOW } from "../../../Components/DiagramActions/EditBtn/EditSVG";
 import { Context } from "../../../Context/diagram";
+import { getDiagnosticInfo, getMethodCallFunctionName, getOverlayFormConfig, getRandomInt, getStatementTypesFromST } from "../../../Utils";
 import { BlockViewState, StatementViewState } from "../../../ViewState";
 import { DraftStatementViewState } from "../../../ViewState/draft";
+import { DefaultConfig } from "../../../Visitors/default";
 import { Assignment } from "../Assignment";
 import { StatementTypes } from "../StatementTypes";
 import { VariableName, VARIABLE_NAME_WIDTH } from "../VariableName";

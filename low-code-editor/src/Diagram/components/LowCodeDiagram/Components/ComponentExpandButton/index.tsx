@@ -13,10 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React from 'react';
 
-import { IconButton } from '@material-ui/core';
-
-import ComponentCollapseIcon from '../../../../../assets/icons/ComponentCollapseIcon';
-import ComponentExpandIcon from '../../../../../assets/icons/ComponentExpandIcon';
+import { ComponentCollapseIcon, ComponentExpandIcon } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 
 import './style.scss';
 

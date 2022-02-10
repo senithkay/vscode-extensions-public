@@ -13,8 +13,8 @@
 
 import React, { ReactNode } from "react";
 
-import Tooltip from "../../../../../../components/TooltipV2";
-import { ErrorSnippet } from "../../../../../../DiagramGenerator/generatorUtil";
+import { ErrorSnippet } from "../../../Types/type";
+// import Tooltip from "../../../../../../components/TooltipV2";
 
 interface WhileRectSVGProps {
     type?: string,
@@ -30,7 +30,7 @@ export function WhileRectSVG(props: WhileRectSVGProps) {
     const diagnosticStyles = diagnostic?.severity === "ERROR" ? "while-block-error" : "while-block-warning";
     const whileRectStyles = diagnostic ? diagnosticStyles : "while-block"
     return (
-        <Tooltip type={type} onClick={onClick} text={text} diagnostic={diagnostic} placement="right" arrow={true}>
+        // <Tooltip type={type} onClick={onClick} text={text} diagnostic={diagnostic} placement="right" arrow={true}>
             <g id="While" className={whileRectStyles} transform="translate(7 6)">
                 <g transform="matrix(1, 0, 0, 1, -7, -6)">
                     <g className="while-polygon"id="WhilePolygon" transform="translate(33.5, 3) rotate(45)">
@@ -51,6 +51,6 @@ export function WhileRectSVG(props: WhileRectSVGProps) {
                     />
                 </g>
             </g>
-        </Tooltip>
+        // </Tooltip>
     )
 }

@@ -13,8 +13,10 @@
 // tslint:disable: jsx-no-multiline-js align  jsx-wrap-multiline
 import React, { ReactElement, useEffect, useState } from "react";
 
-import { Tooltip } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+// import { Tooltip } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import classNames from "classnames";
+
+// import Tooltip from '../../../../../../components/Tooltip';
 
 import "./style.scss";
 
@@ -42,13 +44,12 @@ export function Assignment(props: { x: number, y: number, assignment: string, cl
 
     return (
         <svg {...xyProps} className="assignment-expression">
-            {assignmentMaxWidth ?
+            {/* {assignmentMaxWidth ?
                 <Tooltip arrow={true} placement="top-start" title={assignment} inverted={false} interactive={true}>
                     {assignmentComponent}
                 </Tooltip>
-                :
-                assignmentComponent
-            }
+                : */}
+            {assignmentComponent}
         </svg>
     );
 }

@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import * as React from "react";
 
-import { Tooltip } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+// import Tooltip from "../../../../../../components/Tooltip";
 
 export const DELETE_SVG_WIDTH_WITH_SHADOW = 34;
 export const DELETE_SVG_HEIGHT_WITH_SHADOW = 34;
@@ -72,9 +72,9 @@ export function DeleteSVG(props: { x: number, y: number, toolTipTitle?: string, 
                 </filter>
             </defs>
             {props.toolTipTitle ? (
-                <Tooltip title={toolTipTitle} placement={"left"} arrow={true}>
+                // <Tooltip title={toolTipTitle} placement={"left"} arrow={true}>
                     {deleteSVGIcon}
-                </Tooltip>
+                // </Tooltip>
             ) : (
                 <g>
                     {deleteSVGIcon}

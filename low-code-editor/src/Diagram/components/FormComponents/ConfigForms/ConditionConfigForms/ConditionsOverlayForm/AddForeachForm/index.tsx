@@ -19,12 +19,7 @@ import { BinaryExpression, ForeachStatement } from "@wso2-enterprise/syntax-tree
 import classnames from "classnames";
 import { FormControl, Typography } from "@material-ui/core";
 
-import {
-    FormField,
-    FormActionButtons,
-    FormElementProps,
-    FormHeaderSection
-} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FormField, FormActionButtons, FormHeaderSection, ConditionConfig, ForeachConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
 import { getAllVariables } from "../../../../../../utils/mixins";
@@ -35,7 +30,7 @@ import { SelectDropdownWithButton } from "../../../../FormFieldComponents/DropDo
 import { ExpressionEditorProps } from "@wso2-enterprise/ballerina-expression-editor";
 import { FormTextInput } from "../../../../FormFieldComponents/TextField/FormTextInput";
 import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
-import { ConditionConfig, ForeachConfig } from "../../../../Types";
+import { FormElementProps } from "../../../../Types";
 import { wizardStyles } from "../../../style";
 import { VariableTypeInput, VariableTypeInputProps } from "../../../Components/VariableTypeInput";
 import Tooltip from '../../../../../../../components/TooltipV2'
