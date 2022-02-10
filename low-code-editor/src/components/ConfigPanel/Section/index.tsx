@@ -32,7 +32,6 @@ export default function ConfigPanelSection(props: any) {
     return (
         <div className={classes.sectionWrapper}>
             <Grid container={true} spacing={1}>
-                <Grid container={true} item={true} spacing={2}>
                     <Grid item={true} xs={12}>
                         {!!tooltipWithListView ? (
                             <TooltipIcon
@@ -80,7 +79,6 @@ export default function ConfigPanelSection(props: any) {
                         )
                         }
                     </Grid>
-                </Grid>
             </Grid>
             {children}
         </div>
