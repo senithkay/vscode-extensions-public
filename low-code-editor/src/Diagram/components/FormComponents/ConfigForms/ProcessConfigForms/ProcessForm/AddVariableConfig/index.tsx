@@ -27,7 +27,11 @@ import { LocalVarDecl, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
 import { ADD_VARIABLE, LowcodeEvent, SAVE_VARIABLE } from "../../../../../../models";
-import { createModuleVarDecl, getInitialSource } from "../../../../../../utils/modification-util";
+import {
+    createModuleVarDecl,
+    createModuleVarDeclWithoutInitialization,
+    getInitialSource
+} from "../../../../../../utils/modification-util";
 import { getVariableNameFromST } from "../../../../../../utils/st-util";
 import { useStyles } from "../../../../DynamicConnectorForm/style";
 import { SelectDropdownWithButton } from "../../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
@@ -67,7 +71,8 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         api: {
             ls: { getExpressionEditorLangClient },
             code: { modifyDiagram },
-            insights: { onEvent }
+            insights: { onEvent },
+            library
         }
     } = useContext(Context);
 
@@ -190,7 +195,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
 
 
     const validForm: boolean = initialized
-        ? varName.length > 0 && variableExpression.length > 0 && selectedType.length > 0
+        ? varName.length > 0 && variableExpression?.length > 0 && selectedType.length > 0
         : varName.length > 0 && selectedType.length > 0;
 
     const userInputs = {
@@ -255,19 +260,32 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         defaultValue: variableExpression,
     };
 
-    const initialSource = getInitialSource(createModuleVarDecl(
-        {
-            varName: varName ? varName : "default",
-            varOptions: [],
-            varType: selectedType ? selectedType : "var",
-            varValue: variableExpression ? variableExpression : "EXPRESSION"
-        }
-    ));
+    const initialSource = formArgs.model ? formArgs.model.source : (initialized ? (
+                getInitialSource(createModuleVarDecl(
+                    {
+                        varName: varName ? varName : "default",
+                        varOptions: [],
+                        varType: selectedType ? selectedType : "var",
+                        varValue: variableExpression ? variableExpression : "EXPRESSION"
+                    }
+                ))
+            ) :
+            (
+                getInitialSource(createModuleVarDeclWithoutInitialization(
+                    {
+                        varName: varName ? varName : "default",
+                        varOptions: [],
+                        varType: selectedType ? selectedType : "var",
+                        varValue: null
+                    }
+                ))
+            )
+    );
 
     const handleStatementEditorChange = (partialModel: LocalVarDecl) => {
         setSelectedType(partialModel.typedBindingPattern.typeDescriptor.source.trim())
         setVarName(partialModel.typedBindingPattern.bindingPattern.source.trim())
-        setVariableExpression(partialModel.initializer.source.trim())
+        setVariableExpression(partialModel.initializer?.source.trim())
     }
 
     const { handleStmtEditorToggle, stmtEditorComponent } = useStatementEditor(
@@ -283,7 +301,8 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
             onCancel,
             currentFile,
             getLangClient: getExpressionEditorLangClient,
-            applyModifications: modifyDiagram
+            applyModifications: modifyDiagram,
+            library
         }
     );
 
@@ -329,7 +348,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
             <FormControl data-testid="property-form" className={classes.wizardFormControlExtended}>
                 <FormHeaderSection
                     onCancel={onCancel}
-                    statementEditor={initialized}
+                    statementEditor={true}
                     formTitle={"lowcode.develop.configForms.variable.title"}
                     defaultMessage={"Variable"}
                     handleStmtEditorToggle={handleStmtEditorToggle}

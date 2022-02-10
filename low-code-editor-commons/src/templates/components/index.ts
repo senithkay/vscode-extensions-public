@@ -107,6 +107,8 @@ service {{{ BASE_PATH }}} on new http:Listener({{{ PORT }}})`,
 service {{{ BASE_PATH }}} on {{{ LISTENER_NAME }}}`,
     MODULE_VAR_DECL_WITH_INIT: `
 {{{ACCESS_MODIFIER}}} {{{VAR_QUALIFIER}}} {{{VAR_TYPE}}} {{{VAR_NAME}}} = {{{VAR_VALUE}}};`,
+    MODULE_VAR_DECL_WITHOUT_INIT: `
+{{{ACCESS_MODIFIER}}} {{{VAR_QUALIFIER}}} {{{VAR_TYPE}}} {{{VAR_NAME}}};`,
     CONSTANT_DECLARATION: `
 {{{ACCESS_MODIFIER}}} const {{{CONST_TYPE}}} {{{CONST_NAME}}} = {{{CONST_VALUE}}};`,
     MODULE_VAR_DECL_WITH_INIT_WITH_DISPLAY: `@display {

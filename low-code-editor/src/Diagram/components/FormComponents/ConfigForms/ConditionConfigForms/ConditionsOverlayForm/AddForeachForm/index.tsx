@@ -66,7 +66,8 @@ export function AddForeachForm(props: ForeachProps) {
         },
         api: {
             ls: { getExpressionEditorLangClient },
-            code: { modifyDiagram }
+            code: { modifyDiagram },
+            library
         }
     } = useContext(Context);
 
@@ -260,7 +261,8 @@ export function AddForeachForm(props: ForeachProps) {
             onCancel,
             currentFile,
             getLangClient: getExpressionEditorLangClient,
-            applyModifications: modifyDiagram
+            applyModifications: modifyDiagram,
+            library
         }
     );
 
@@ -312,7 +314,7 @@ export function AddForeachForm(props: ForeachProps) {
                                     onChange={onVariableNameChange}
                                     defaultValue={conditionExpression.variable}
                                     label="Current Value"
-                                    placeholder={""}
+                                    placeholder="Current Value"
                                     errorMessage={invalidConnectionErrorMessage}
                                 />
                             </div>

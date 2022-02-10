@@ -34,6 +34,9 @@ export function VariableSuggestions(props: VariableSuggestionsProps) {
     const {
         modelCtx: {
             updateModel,
+        },
+        formCtx: {
+            formModelPosition
         }
     } = useContext(StatementEditorContext);
     const resourceAccessRegex = /.+\./gm;
@@ -43,7 +46,7 @@ export function VariableSuggestions(props: VariableSuggestionsProps) {
         if (inputEditorCtx.userInput.includes('.')) {
             variable = resourceAccessRegex.exec(inputEditorCtx.userInput) + suggestion.value;
         }
-        updateModel(variable, model.position);
+        updateModel(variable, model ? model.position : formModelPosition);
         inputEditorCtx.onInputChange('');
         suggestionHandler();
     }
