@@ -1,4 +1,3 @@
-import { BlockLevelPlusWidget } from "../../utils/components/block-level-plus-widget";
 import { Canvas } from "../../utils/components/canvas";
 import { SourceCode } from "../../utils/components/code-view";
 import { TopLevelPlusWidget } from "../../utils/components/top-level-plus-widget";
@@ -125,5 +124,59 @@ describe('Add functions via Low Code', () => {
 
     SourceCode.shouldBeEqualTo(
       getCurrentSpecFolder() + "add-function.expected.bal");
+  })
+
+  it('Add functions via Low Code with parameters', () => {
+    Canvas
+      .welcomeMessageShouldBeVisible()
+      .clickTopLevelPlusButton();
+    TopLevelPlusWidget.clickOption("Function");
+
+    FunctionForm
+      .shouldBeVisible()
+      .typeFunctionName("myfunction")
+      .addParameter("string", "name")
+      .save();
+
+    Canvas.getFunction("myfunction")
+      .nameShouldBe("myfunction")
+      .shouldBeExpanded()
+      .getDiagram()
+      .shouldBeRenderedProperly()
+      .getBlockLevelPlusWidget()
+      .clickOption("Log");
+
+    LogForm
+      .shouldBeVisible()
+      .selectType("Debug")
+      .typeExpression(`name`)
+      .save();
+
+    Canvas.clickTopLevelPlusButton(4);
+    TopLevelPlusWidget.clickOption("Function");
+    FunctionForm
+      .shouldBeVisible()
+      .typeFunctionName("getGreeting")
+      .addParameter("string", "name")
+      .addParameter("int", "quantity")
+      .typeReturnType("string")
+      .save();
+
+    // Add return
+    Canvas.getFunction("getGreeting")
+      .nameShouldBe("getGreeting")
+      .expand()
+      .getDiagram()
+      .shouldBeRenderedProperly()
+      .getBlockLevelPlusWidget()
+      .clickOption("Return");
+
+    ReturnForm
+      .shouldBeVisible()
+      .typeExpression('name + quantity.toString()')
+      .save();
+
+    SourceCode.shouldBeEqualTo(
+      getCurrentSpecFolder() + "add-function-with-parameters.expected.bal");
   })
 })
