@@ -21,8 +21,8 @@ import React from "react";
 
 import { TextField } from "@material-ui/core";
 
-import { useStyles } from "../../style";
 import { ConfigType } from "../../model";
+import { useStyles } from "../../style";
 
 export interface TextFieldInputProps {
     id: string;
