@@ -62,7 +62,8 @@ export function AddForeachForm(props: ForeachProps) {
         props: {
             isMutationProgress: isMutationInProgress,
             stSymbolInfo,
-            currentFile
+            currentFile,
+            experimentalEnabled
         },
         api: {
             ls: { getExpressionEditorLangClient },
@@ -259,7 +260,8 @@ export function AddForeachForm(props: ForeachProps) {
             getLangClient: getExpressionEditorLangClient,
             applyModifications: modifyDiagram,
             library,
-            importStatements
+            importStatements,
+            experimentalEnabled
         }
     );
 
@@ -295,6 +297,7 @@ export function AddForeachForm(props: ForeachProps) {
                     defaultMessage={"Foreach"}
                     handleStmtEditorToggle={handleStmtEditorToggle}
                     toggleChecked={false}
+                    experimentalEnabled={experimentalEnabled}
                 />
                 <div className={classes.formContentWrapper}>
                     <div className={classes.formCodeBlockWrapper}>

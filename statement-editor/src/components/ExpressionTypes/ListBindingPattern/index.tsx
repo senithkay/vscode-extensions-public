@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 Inc. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, {useContext} from "react";
 
-import { CaptureBindingPattern } from "@wso2-enterprise/syntax-tree";
+import { ListBindingPattern } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
 import { VariableUserInputs } from "../../../models/definitions";
@@ -23,13 +23,13 @@ import { isPositionsEquals } from "../../../utils";
 import { InputEditor } from "../../InputEditor";
 import { useStatementEditorStyles } from "../../styles";
 
-interface CaptureBindingPatternProps {
-    model: CaptureBindingPattern
+interface ListBindingPatternProps {
+    model: ListBindingPattern
     userInputs: VariableUserInputs
     diagnosticHandler: (diagnostics: string) => void
 }
 
-export function CaptureBindingPatternComponent(props: CaptureBindingPatternProps) {
+export function ListBindingPatternComponent(props: ListBindingPatternProps) {
     const { model, userInputs, diagnosticHandler } = props;
     const stmtCtx = useContext(StatementEditorContext);
     const {
@@ -38,8 +38,8 @@ export function CaptureBindingPatternComponent(props: CaptureBindingPatternProps
         }
     } = stmtCtx;
 
-    const hasVarNameSelected = currentModel.model &&
-        isPositionsEquals(currentModel.model.position, model.variableName.position);
+    const hasBindingPatternSelected = currentModel.model &&
+        isPositionsEquals(currentModel.model.position, model.position);
 
     const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
@@ -53,9 +53,9 @@ export function CaptureBindingPatternComponent(props: CaptureBindingPatternProps
         isTypeDescriptor: false
     };
 
-    const onClickOnVarName = (event: any) => {
+    const onClickOnBindingPattern = (event: any) => {
         event.stopPropagation()
-        expressionHandler(model.variableName, false, false,
+        expressionHandler(model, false, false,
             { expressionSuggestions: [], typeSuggestions: [], variableSuggestions: [] })
     };
 
@@ -63,8 +63,8 @@ export function CaptureBindingPatternComponent(props: CaptureBindingPatternProps
         <button
             className={classNames(
                 statementEditorClasses.expressionElement,
-                hasVarNameSelected && statementEditorClasses.expressionElementSelected)}
-            onClick={onClickOnVarName}
+                hasBindingPatternSelected && statementEditorClasses.expressionElementSelected)}
+            onClick={onClickOnBindingPattern}
         >
             <InputEditor {...inputEditorProps} />
         </button>

@@ -20,6 +20,7 @@ import { StatementEditor, StatementEditorProps } from "../components/StatementEd
 export const useStatementEditor = (props: StatementEditorProps) => {
     const {
         onCancel,
+        experimentalEnabled,
         ...restProps
     } = props;
 
@@ -39,6 +40,7 @@ export const useStatementEditor = (props: StatementEditorProps) => {
                     statementEditor={true}
                     handleStmtEditorToggle={handleStmtEditorToggle}
                     toggleChecked={true}
+                    experimentalEnabled={experimentalEnabled}
                 />
                 <StatementEditor
                     onCancel={onCancel}

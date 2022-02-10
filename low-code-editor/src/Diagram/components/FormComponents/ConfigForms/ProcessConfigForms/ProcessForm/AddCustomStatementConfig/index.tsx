@@ -47,7 +47,8 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
     const {
         props: {
             isMutationProgress: isMutationInProgress,
-            currentFile
+            currentFile,
+            experimentalEnabled
         },
         api: {
             ls: { getExpressionEditorLangClient },
@@ -138,7 +139,8 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
             getLangClient: getExpressionEditorLangClient,
             applyModifications: modifyDiagram,
             library,
-            importStatements
+            importStatements,
+            experimentalEnabled
         }
     );
 
@@ -152,6 +154,7 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
                     defaultMessage={"Other"}
                     handleStmtEditorToggle={handleStmtEditorToggle}
                     toggleChecked={false}
+                    experimentalEnabled={experimentalEnabled}
                 />
                 <div className={formClasses.formContentWrapper}>
                     <div className={formClasses.formNameWrapper}>

@@ -48,7 +48,8 @@ export function AddRespondForm(props: RespondFormProps) {
     const {
         props: {
             isMutationProgress: isMutationInProgress,
-            currentFile
+            currentFile,
+            experimentalEnabled
         },
         api: {
             ls: { getExpressionEditorLangClient },
@@ -185,7 +186,8 @@ export function AddRespondForm(props: RespondFormProps) {
             getLangClient: getExpressionEditorLangClient,
             applyModifications: modifyDiagram,
             library,
-            importStatements
+            importStatements,
+            experimentalEnabled
         }
     );
     const fieilTypes = [
@@ -210,6 +212,7 @@ export function AddRespondForm(props: RespondFormProps) {
                     defaultMessage={"Respond"}
                     handleStmtEditorToggle={handleStmtEditorToggle}
                     toggleChecked={false}
+                    experimentalEnabled={experimentalEnabled}
                 />
                 <div className={formClasses.formContentWrapper}>
                     <div className={formClasses.formNameWrapper}>

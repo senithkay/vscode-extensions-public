@@ -64,7 +64,8 @@ export function AddIfForm(props: IfProps) {
     const {
         props: {
             isMutationProgress: isMutationInProgress,
-            currentFile
+            currentFile,
+            experimentalEnabled
         },
         api: {
             ls: { getExpressionEditorLangClient },
@@ -250,6 +251,7 @@ export function AddIfForm(props: IfProps) {
             applyModifications: modifyDiagram,
             library,
             importStatements
+            experimentalEnabled
         }
     );
 
@@ -295,6 +297,7 @@ export function AddIfForm(props: IfProps) {
                     defaultMessage={"If"}
                     handleStmtEditorToggle={handleStmtEditorToggle}
                     toggleChecked={false}
+                    experimentalEnabled={experimentalEnabled}
                 />
                 <div className={classes.formContentWrapper}>
                     <div className={classes.formCodeBlockWrapper}>

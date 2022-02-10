@@ -43,6 +43,7 @@ export interface LowCodeEditorProps {
         getLibraryData: (orgName: string, moduleName: string, version: string) => Promise<LibraryDataResponse>;
     };
     importStatements: string[];
+    experimentalEnabled?: boolean;
 }
 export interface StatementEditorProps extends LowCodeEditorProps {
     label: string;

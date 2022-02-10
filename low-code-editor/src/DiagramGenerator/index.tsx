@@ -65,7 +65,7 @@ const debounceTime: number = 5000;
 let lastPerfUpdate = 0;
 
 export function DiagramGenerator(props: DiagramGeneratorProps) {
-    const { langClientPromise, filePath, startLine, startColumn, lastUpdatedAt, scale, panX, panY, resolveMissingDependency } = props;
+    const { langClientPromise, filePath, startLine, startColumn, lastUpdatedAt, scale, panX, panY, resolveMissingDependency, experimentalEnabled } = props;
     const classes = useGeneratorStyles();
     const defaultScale = scale ? Number(scale) : 1;
     const defaultPanX = panX ? Number(panX) : 0;
@@ -159,7 +159,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     }
 
     async function run(args: any[]) {
-        runCommand(PALETTE_COMMANDS.RUN_WITH_CONFIGS, args);
+        runCommand(PALETTE_COMMANDS.RUN, args);
     }
 
     const undo = async () => {
@@ -259,6 +259,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                 type: "File"
                             }}
                             performanceData={performanceData}
+                            experimentalEnabled={experimentalEnabled}
                             // tslint:disable-next-line: jsx-no-multiline-js
                             api={{
                                 helpPanel: {
