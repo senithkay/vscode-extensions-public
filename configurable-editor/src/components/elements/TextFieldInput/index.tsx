@@ -22,6 +22,7 @@ import React from "react";
 import { TextField } from "@material-ui/core";
 
 import { useStyles } from "../../style";
+import { ConfigType } from "../../model";
 
 export interface TextFieldInputProps {
     id: string;
@@ -51,7 +52,9 @@ export function TextFieldInput(props: TextFieldInputProps) {
 
     let fieldType: string = type;
     let inputProps: object = {};
-    if (type === "integer") {
+    if (type === ConfigType.INTEGER) {
+        fieldType = "number";
+    } else if (type === ConfigType.NUMBER) {
         fieldType = "text";
         inputProps = { inputMode: "numeric", pattern: "[\-\+]?[0-9]*(\.[0-9]+)?" };
     }
