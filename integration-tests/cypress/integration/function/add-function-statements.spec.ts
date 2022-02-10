@@ -1,8 +1,5 @@
-import { BlockLevelPlusWidget } from "../../utils/components/block-level-plus-widget";
 import { Canvas } from "../../utils/components/canvas";
-import { SourceCode } from "../../utils/components/code-view";
 import { TopLevelPlusWidget } from "../../utils/components/top-level-plus-widget";
-import { getCurrentSpecFolder } from "../../utils/file-utils";
 import { AssignmentForm } from "../../utils/forms/assignment-form";
 import { ForEachForm } from "../../utils/forms/foreach-form";
 import { FunctionForm } from "../../utils/forms/function-form";
