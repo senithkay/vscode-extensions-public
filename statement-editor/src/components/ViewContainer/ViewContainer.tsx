@@ -37,6 +37,7 @@ export interface LowCodeEditorProps {
         path: string,
         size: number
     };
+    experimentalEnabled?: boolean;
 }
 export interface ViewProps extends LowCodeEditorProps {
     label: string;
