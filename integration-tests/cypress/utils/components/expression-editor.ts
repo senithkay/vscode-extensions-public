@@ -18,9 +18,9 @@ export class ExpressionEditor {
         return cy.get(`${this.parentSelector}`);
     }
 
-    public type(text: string) {
+    public type(text: string, clearSuggestions: boolean = true) {
         if (this.position == 0) {
-            this.getEditor().type("{esc}" + text); // Adding escpate first to close suggetions if any
+            clearSuggestions ? this.getEditor().type("{esc}" + text) : this.getEditor().type(text); // Adding escpate first to close suggetions if any
         } else {
             this.getEditorConditions().children().get('.view-lines').eq(this.position - 1).type("{esc}" + text);
         }
@@ -62,8 +62,8 @@ export class ExpressionEditor {
         return this;
     }
 
-    public clearSuggestions() {
-        this.getEditor().type("{esc}");
+    public clearSuggestions(clearSuggestions: boolean = true) {
+        clearSuggestions ? this.getEditor().type("{esc}") : null;
         return this;
     }
 
