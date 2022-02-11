@@ -241,6 +241,9 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ex
                             resolveMissingDependencyByCodeAction,
                             runCommand,
                             sendTelemetryEvent,
+                            getLibrariesList,
+                            getLibrariesData,
+                            getLibraryData,                           
                             experimentalEnabled
                         }
                     };
@@ -265,6 +268,39 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ex
                 document.getElementById("diagram").innerHTML = \`
                 <div class="loader"></div>
                 \`;
+            }
+            function getLibrariesList(kind) {
+                return new Promise((resolve, _reject) => {
+                    webViewRPCHandler.invokeRemoteMethod(
+                        'getLibrariesList',
+                        [kind],
+                        (resp) => {
+                            resolve(resp);
+                        }
+                    );
+                })
+            }
+            function getLibrariesData() {
+                return new Promise((resolve, _reject) => {
+                    webViewRPCHandler.invokeRemoteMethod(
+                        'getLibrariesData',
+                        [],
+                        (resp) => {
+                            resolve(resp);
+                        }
+                    );
+                })
+            }
+            function getLibraryData(orgName, moduleName, version) {
+                return new Promise((resolve, _reject) => {
+                    webViewRPCHandler.invokeRemoteMethod(
+                        'getLibraryData',
+                        [orgName, moduleName, version],
+                        (resp) => {
+                            resolve(resp);
+                        }
+                    );
+                })
             }
             webViewRPCHandler.addMethod("updateDiagram", (args) => {
                 drawDiagram({

@@ -21,9 +21,15 @@ import {
 	commands, window, Uri, ViewColumn, WebviewPanel, Disposable, workspace, WorkspaceEdit, Range, Position,
 	TextDocumentShowOptions, ProgressLocation, ExtensionContext
 } from 'vscode';
-import * as _ from 'lodash';
 import { render } from './renderer';
-import { CONNECTOR_LIST_CACHE, DocumentIdentifier, ExtendedLangClient, HTTP_CONNECTOR_LIST_CACHE, PerformanceAnalyzerGraphResponse, PerformanceAnalyzerRealtimeResponse } from '../core/extended-language-client';
+import {
+	CONNECTOR_LIST_CACHE,
+	DocumentIdentifier,
+	ExtendedLangClient,
+	HTTP_CONNECTOR_LIST_CACHE,
+	PerformanceAnalyzerGraphResponse,
+	PerformanceAnalyzerRealtimeResponse
+} from '../core/extended-language-client';
 import { BallerinaExtension, ballerinaExtInstance, Change } from '../core';
 import { getCommonWebViewOptions, WebViewMethod, WebViewRPCHandler } from '../utils';
 import { join } from "path";
@@ -37,6 +43,22 @@ import { existsSync, readFileSync, writeFileSync } from 'fs';
 import { runCommand } from '../utils/runCommand';
 import { Diagnostic } from '.';
 import { createTests } from '../testing/activator';
+import {
+	cachedLibrariesList,
+	cachedSearchList,
+	getAllResources,
+	getLibrariesList,
+	getLibraryData,
+	LANG_LIB_LIST_CACHE,
+	LIBRARY_SEARCH_CACHE,
+	STD_LIB_LIST_CACHE
+} from "../library-browser";
+import {
+	LibrariesListResponse,
+	LibraryDataResponse,
+	LibraryKind,
+	LibrarySearchResponse
+} from "../library-browser/model";
 
 export let hasDiagram: boolean = false;
 
@@ -96,6 +118,27 @@ export async function showDiagramEditor(startLine: number, startColumn: number, 
 	langClient.getConnectors({ query: "http", limit: 18 }, true).then((connectorList) => {
 		if (connectorList && connectorList.central?.length > 0) {
 			ballerinaExtInstance.context?.globalState.update(HTTP_CONNECTOR_LIST_CACHE, connectorList);
+		}
+	});
+
+	// Cache the lang lib list
+	getLibrariesList(LibraryKind.langLib).then((libs) => {
+		if (libs && libs.librariesList.length > 0) {
+			cachedLibrariesList.set(LANG_LIB_LIST_CACHE, libs);
+		}
+	});
+
+	// Cache the std lib list
+	getLibrariesList(LibraryKind.stdLib).then((libs) => {
+		if (libs && libs.librariesList.length > 0) {
+			cachedLibrariesList.set(STD_LIB_LIST_CACHE, libs);
+		}
+	});
+
+	// Cache the library search data
+	getAllResources().then((data) => {
+		if (data && data.modules.length > 0) {
+			cachedSearchList.set(LIBRARY_SEARCH_CACHE, data);
 		}
 	});
 
@@ -413,6 +456,24 @@ class DiagramPanel {
 					return Promise.resolve(true);
 				}
 			},
+			{
+				methodName: "getLibrariesList",
+				handler: async (args: any[]): Promise<LibrariesListResponse | undefined> => {
+					return await getLibrariesList(args[0]);
+				}
+			},
+			{
+				methodName: "getLibrariesData",
+				handler: async (): Promise<LibrarySearchResponse | undefined> => {
+					return await getAllResources();
+				}
+			},
+			{
+				methodName: "getLibraryData",
+				handler: async (args: any[]): Promise<LibraryDataResponse | undefined> => {
+					return await getLibraryData(args[0], args[1], args[2]);
+				}
+			}
 		];
 
 		webviewRPCHandler = WebViewRPCHandler.create(panel, langClient, remoteMethods);

@@ -389,7 +389,7 @@ function getLangClient() {
                     }
                 );
             })
-        },        
+        },
     }
 }
 
