@@ -19,14 +19,17 @@ import { Box, FormControl, Typography } from "@material-ui/core";
 
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
-import ExpressionEditor from "../../../../FormFieldComponents/ExpressionEditor";
 import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
 import { useStyles as useFormStyles } from "../../../../DynamicConnectorForm/style";
 import { CustomExpressionConfig, ProcessConfig } from "../../../../Types";
 import { wizardStyles } from "../../../style";
 import { STNode } from "@wso2-enterprise/syntax-tree";
-import { FormActionButtons, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import {
+    FormActionButtons,
+    FormHeaderSection
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { ADD_OTHER_STATEMENT, LowcodeEvent, SAVE_OTHER_STATEMENT } from "../../../../../../models";
+import { LowCodeExpressionEditor } from "../../../../FormFieldComponents/LowCodeExpressionEditor";
 
 interface LogConfigProps {
     config: ProcessConfig;
@@ -50,9 +53,11 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
         api: {
             ls: { getExpressionEditorLangClient },
             code: { modifyDiagram },
-            insights: { onEvent }
+            insights: { onEvent },
+            library
         }
     } = useContext(Context);
+
     const { config, formArgs, onCancel, onSave, onWizardClose } = props;
 
     const expressionFormConfig: CustomExpressionConfig = config.config as CustomExpressionConfig;
@@ -120,7 +125,7 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
     const { handleStmtEditorToggle, stmtEditorComponent } = useStatementEditor(
         {
             label: intl.formatMessage({ id: "lowcode.develop.configForms.customStatement.statementEditor.label" }),
-            initialSource: formArgs?.model ? formArgs.model?.source : (expression ? expression : "EXPRESSION"),
+            initialSource: formArgs?.model ? formArgs.model?.source : (expression ? expression : null),
             formArgs: { formArgs },
             validForm: isFormValid,
             config,
@@ -130,6 +135,7 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
             currentFile,
             getLangClient: getExpressionEditorLangClient,
             applyModifications: modifyDiagram,
+            library,
             experimentalEnabled
         }
     );
@@ -148,7 +154,7 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
                 />
                 <div className={formClasses.formContentWrapper}>
                     <div className={formClasses.formNameWrapper}>
-                        <ExpressionEditor
+                        <LowCodeExpressionEditor
                             model={{ name: "statement", value: expression }}
                             customProps={{
                                 validate: validateExpression,

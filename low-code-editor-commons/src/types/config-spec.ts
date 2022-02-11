@@ -13,6 +13,8 @@
 
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
+import { STModification } from "./lang-client-extended";
+
 export enum PrimitiveBalType {
     String = "string",
     Record = "record",
@@ -209,4 +211,16 @@ export interface DiagramDiagnostic {
         severity: string
     },
     range: NodePosition
+}
+
+export interface InjectableItem {
+    id: string;
+    modification: STModification;
+    name?: string;
+    value?: string;
+}
+
+export interface ExpressionInjectablesProps {
+    list: InjectableItem[];
+    setInjectables: (InjectableItem: InjectableItem[]) => void;
 }

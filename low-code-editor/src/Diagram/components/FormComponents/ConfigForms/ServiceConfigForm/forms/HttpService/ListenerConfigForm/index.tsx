@@ -15,12 +15,12 @@ import React from "react";
 import { FormattedMessage } from "react-intl";
 
 import { FormHelperText } from "@material-ui/core";
+import { FormElementProps } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 import CheckBoxGroup from "../../../../../FormFieldComponents/CheckBox";
 import { SelectDropdownWithButton } from "../../../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
-import ExpressionEditor from "../../../../../FormFieldComponents/ExpressionEditor";
-import { FormElementProps } from "../../../../../Types";
+import { LowCodeExpressionEditor } from "../../../../../FormFieldComponents/LowCodeExpressionEditor";
 import { VariableNameInput } from "../../../../Components/VariableNameInput";
 import { wizardStyles as useFormStyles } from "../../../../style";
 import { ListenerConfigFormState, ServiceConfigActions, ServiceConfigActionTypes } from "../util/reducer";
@@ -119,11 +119,11 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
             }
         },
         onChange: onListenerPortChange,
-        defaultValue: state.listenerPort,
+        defaultValue: state.listenerPort
     };
 
     const listenerPortInputComponent = (
-        <ExpressionEditor
+        <LowCodeExpressionEditor
             {...portNumberExpressionEditorProps}
         />
     )

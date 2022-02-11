@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import * as React from "react";
 
-import Tooltip from "../../../../../../components/Tooltip";
+import { Tooltip } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 export const DELETE_SVG_WIDTH_WITH_SHADOW = 34;
 export const DELETE_SVG_HEIGHT_WITH_SHADOW = 34;

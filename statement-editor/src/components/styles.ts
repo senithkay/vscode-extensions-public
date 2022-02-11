@@ -29,6 +29,7 @@ export const useStatementEditorStyles = makeStyles(() =>
             display: 'flex',
             borderBottom: '1px solid #e6e7ec',
             minHeight: '50vh',
+            height: '60vh'
         },
         sugessionsMainWrapper: {
             backgroundColor: '#f9fafc',
@@ -43,7 +44,7 @@ export const useStatementEditorStyles = makeStyles(() =>
             padding: theme.spacing(1.5),
             borderRight: '1px solid #e6e7ec'
         },
-        projectSugessionsWrapper: {
+        LibraryBrowsingWrapper: {
             width: '50%',
         },
         statementExpressionTitle: {
@@ -111,11 +112,14 @@ export const useStatementEditorStyles = makeStyles(() =>
             top: '2%',
             bottom: '10%'
         },
-        rightPane: {
+        LibraryBrowser: {
             display: 'flex',
             flexDirection: 'column',
             width: 'auto%',
-            height: '100%'
+            height: '100%',
+            position: 'relative',
+            top: '10px',
+            marginLeft: '5%'
         },
         leftPane: {
             display: 'flex',
@@ -143,7 +147,7 @@ export const useStatementEditorStyles = makeStyles(() =>
             display: 'flex',
             position: 'relative',
             // left: '5%',
-            height: '50%',
+            height: '30%',
             width: '100%'
         },
         templateEditor: {
@@ -270,29 +274,21 @@ export const useStatementEditorStyles = makeStyles(() =>
             margin: '4px 2px',
             borderRadius: '50%'
         },
-        rhsShortcutPanel: {
+        LibraryDropdown: {
             display: 'flex',
-            flexDirection: 'row',
+            flexDirection: 'row'
+        },
+        rhsComponent: {
+            position: 'relative',
+            top: '10px',
             width: '90%',
             marginLeft: '5%'
         },
-        shortcutTab: {
-            boxSizing: 'border-box',
-            height: '100%',
-            width: '30%',
-            color: '#8D91A3',
-            fontSize: '13px',
-            letterSpacing: 0,
-            lineHeight: '14px',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            borderBottom: '1px solid #DCDEE4'
-        },
-        shortcutsDivider: {
+        propertyDivider: {
             height: '1px',
-            marginLeft: '5%',
-            width: '90%',
+            marginLeft: '2%',
+            marginTop: '2%',
+            width: '94%',
             opacity: 0.52,
             backgroundColor: '#DCDEE4'
         },
@@ -326,6 +322,80 @@ export const useStatementEditorStyles = makeStyles(() =>
         expressionComponent: {
             display: 'flex',
             flexDirection: 'row'
+        },
+        libraryBlock: {
+            position: 'relative',
+            top: '5%',
+            height: '75%',
+            overflowY: 'scroll',
+            overflowX: 'hidden'
+        },
+        librarySearchBox: {
+            position: 'relative',
+            top: '5%',
+            height: '32px',
+            width: '304px',
+            border: '1px #E0E3E9',
+            borderRadius: '5px',
+            backgroundColor: '#FFFFFF',
+            boxShadow: 'inset 0 0 0 1px #DEE0E7, inset 0 2px 1px 0 rgba(0,0,0,0.07), 0 0 0 0 rgba(50,50,77,0.07)',
+            color: '#CBCEDB',
+            textIndent: '5px'
+        },
+        libraryResourceButton: {
+            boxSizing: 'border-box',
+            border: '1px solid #CBCEDB',
+            borderRadius: '4px',
+            fontFamily: 'inherit',
+            backgroundColor: 'rgba(255,255,255,0.5)',
+            marginLeft: '2%',
+            marginTop: '3%',
+            color: '#40404B',
+            fontSize: 11,
+            padding: '5px 10px',
+            letterSpacing: 0,
+            '&:hover': {
+                backgroundColor: '#8e9bdc',
+                color: 'white'
+            },
+            '&:disabled': {
+                backgroundColor: 'rgba(0,0,0,0.1)',
+                color: '#404040',
+            }
+        },
+        librarySearchSubHeader: {
+            height: '12px',
+            color: '#1D2028',
+            fontFamily: 'Gilmer,sans-serif',
+            fontSize: '11px',
+            letterSpacing: 0,
+            lineHeight: '12px',
+            paddingTop: '10px',
+            paddingBottom: '10px'
+        },
+        libraryElementBlock: {
+            position: 'relative',
+            top: '5%',
+            maxHeight: '20vh',
+            display: 'flex',
+            flexDirection: 'column',
+        },
+        libraryElementBlockLabel: {
+            height: '10%',
+        },
+        libraryElementBlockContent: {
+            top: '10%',
+            height: '80%',
+            overflowY: 'scroll',
+            overflowX: 'hidden'
+        },
+        libraryListButton: {
+            border: 'none',
+            backgroundColor: '#FFF',
+            color: '#5567D5',
+            '&:hover': {
+                color: '#3a479c'
+            },
         }
     }),
 );
