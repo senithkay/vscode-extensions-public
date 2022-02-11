@@ -14,8 +14,7 @@
 import React from "react";
 
 import { Grid, Typography } from "@material-ui/core";
-
-import { TooltipIcon } from "../../Tooltip";
+import { TooltipIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { useStyles } from "./styles";
 

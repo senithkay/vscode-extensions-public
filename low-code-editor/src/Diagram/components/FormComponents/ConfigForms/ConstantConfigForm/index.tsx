@@ -14,7 +14,15 @@ import React, { useReducer } from "react"
 import { FormattedMessage } from "react-intl";
 
 import { Box, FormControl, FormHelperText, Typography } from "@material-ui/core";
-import { FormActionButtons, FormHeaderSection, PrimaryButton, SecondaryButton, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ExpressionEditorProps } from "@wso2-enterprise/ballerina-expression-editor";
+import {
+    FormActionButtons,
+    FormElementProps,
+    FormHeaderSection,
+    PrimaryButton,
+    SecondaryButton,
+    STModification
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { ConstDeclaration, NodePosition } from "@wso2-enterprise/syntax-tree"
 import { v4 as uuid } from 'uuid';
 
@@ -23,9 +31,8 @@ import { createConstDeclaration, updateConstDeclaration } from "../../../../util
 import { useStyles as useFormStyles } from "../../DynamicConnectorForm/style";
 import CheckBoxGroup from "../../FormFieldComponents/CheckBox";
 import { SelectDropdownWithButton } from "../../FormFieldComponents/DropDown/SelectDropdownWithButton";
-import ExpressionEditor, { ExpressionEditorProps } from "../../FormFieldComponents/ExpressionEditor";
+import { LowCodeExpressionEditor } from "../../FormFieldComponents/LowCodeExpressionEditor";
 import { TextLabel } from "../../FormFieldComponents/TextField/TextLabel";
-import { FormElementProps } from "../../Types";
 import { VariableNameInput } from "../Components/VariableNameInput";
 
 import { ConstantVarNameRegex, generateConfigFromModel, isFormConfigValid } from "./util";
@@ -106,7 +113,7 @@ export function ConstantConfigForm(props: ConstantConfigFormProps) {
             initialDiagnostics: model?.initializer?.typeData?.diagnostics,
         },
         onChange: handleValueChange,
-        defaultValue: config.constantValue,
+        defaultValue: config.constantValue
     };
 
     const typeSelectorCustomProps = {
@@ -181,7 +188,7 @@ export function ConstantConfigForm(props: ConstantConfigFormProps) {
                         onChange={handleTypeEnableToggle}
                     />
                     {config.isTypeDefined && typeSelector}
-                    <ExpressionEditor
+                    <LowCodeExpressionEditor
                         {...expressionEditorConfig}
                     />
                 </div>

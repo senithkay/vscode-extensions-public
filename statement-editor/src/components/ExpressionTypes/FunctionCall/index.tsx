@@ -11,50 +11,67 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, {ReactNode, useContext} from "react";
+import React, { ReactNode, useContext } from "react";
 
 import { FunctionCall, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
-import { VariableUserInputs } from "../../../models/definitions";
+import { DEFAULT_EXPRESSIONS } from "../../../constants";
+import { SuggestionItem, VariableUserInputs } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { SuggestionsContext } from "../../../store/suggestions-context";
-import { isPositionsEquals } from "../../../utils";
+import { getSuggestionsBasedOnExpressionKind, isPositionsEquals } from "../../../utils";
+import { addStatementToTargetLine, getContextBasedCompletions } from "../../../utils/ls-utils";
 import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
 
 interface FunctionCallProps {
-    model: FunctionCall
-    userInputs: VariableUserInputs
-    diagnosticHandler: (diagnostics: string) => void
+    model: FunctionCall;
+    userInputs: VariableUserInputs;
+    isElseIfMember: boolean;
+    diagnosticHandler: (diagnostics: string) => void;
 }
 
 export function FunctionCallComponent(props: FunctionCallProps) {
-    const { model, userInputs, diagnosticHandler } = props;
+    const { model, userInputs, isElseIfMember, diagnosticHandler } = props;
     const stmtCtx = useContext(StatementEditorContext);
     const { modelCtx } = stmtCtx;
     const { currentModel } = modelCtx;
-    const hasFunctionNameSelected = currentModel.model &&
-        isPositionsEquals(currentModel.model.position, model.functionName.position);
+    const hasFunctionCallExprSelected = currentModel.model &&
+        isPositionsEquals(currentModel.model.position, model.position);
 
     const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
-
-    const onClickOnFunctionName = (event: any) => {
-        event.stopPropagation();
-        expressionHandler(model.functionName, false, false,
-            { expressionSuggestions: [], typeSuggestions: [], variableSuggestions: [] })
-    };
+    const { currentFile, getLangClient } = stmtCtx;
+    const targetPosition = stmtCtx.formCtx.formModelPosition;
+    const fileURI = `expr://${currentFile.path}`;
 
     const functionName: ReactNode = (
         <ExpressionComponent
             model={model.functionName}
-            isRoot={false}
             userInputs={userInputs}
+            isElseIfMember={isElseIfMember}
             diagnosticHandler={diagnosticHandler}
             isTypeDescriptor={false}
         />
     );
+
+    const onClickOnFunctionCallExpr = async (event: any) => {
+        event.stopPropagation();
+
+        const content: string = await addStatementToTargetLine(
+            currentFile.content, targetPosition, stmtCtx.modelCtx.statementModel.source, getLangClient);
+
+        const completions: SuggestionItem[] = await getContextBasedCompletions(
+            fileURI, content, targetPosition, model.position,
+            false, isElseIfMember, model.source, getLangClient);
+
+        expressionHandler(model, false, false, {
+            expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
+            typeSuggestions: [],
+            variableSuggestions: completions
+        });
+    }
 
     const expressionComponent = (
         <span>
@@ -73,8 +90,8 @@ export function FunctionCallComponent(props: FunctionCallProps) {
                     ) : (
                         <ExpressionComponent
                             model={expression}
-                            isRoot={false}
                             userInputs={userInputs}
+                            isElseIfMember={isElseIfMember}
                             diagnosticHandler={diagnosticHandler}
                             isTypeDescriptor={false}
                         />
@@ -89,28 +106,29 @@ export function FunctionCallComponent(props: FunctionCallProps) {
             <button
                 className={classNames(
                     statementEditorClasses.expressionElement,
-                    hasFunctionNameSelected && statementEditorClasses.expressionElementSelected)}
-                onClick={onClickOnFunctionName}
+                    hasFunctionCallExprSelected && statementEditorClasses.expressionElementSelected
+                )}
+                onClick={onClickOnFunctionCallExpr}
             >
                 {functionName}
+                <span
+                    className={classNames(
+                        statementEditorClasses.expressionBlock,
+                        statementEditorClasses.expressionBlockDisabled
+                    )}
+                >
+                    {model.openParenToken.value}
+                </span>
+                {expressionComponent}
+                <span
+                    className={classNames(
+                        statementEditorClasses.expressionBlock,
+                        statementEditorClasses.expressionBlockDisabled
+                    )}
+                >
+                    {model.closeParenToken.value}
+                </span>
             </button>
-            <span
-                className={classNames(
-                    statementEditorClasses.expressionBlock,
-                    statementEditorClasses.expressionBlockDisabled
-                )}
-            >
-                {model.openParenToken.value}
-            </span>
-            {expressionComponent}
-            <span
-                className={classNames(
-                    statementEditorClasses.expressionBlock,
-                    statementEditorClasses.expressionBlockDisabled
-                )}
-            >
-                {model.closeParenToken.value}
-            </span>
         </span>
     );
 }

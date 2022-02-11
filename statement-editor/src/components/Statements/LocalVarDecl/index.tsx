@@ -17,47 +17,66 @@ import { LocalVarDecl } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
 import { DEFAULT_EXPRESSIONS } from "../../../constants";
-import { VariableUserInputs } from "../../../models/definitions";
+import { SuggestionItem, VariableUserInputs } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { SuggestionsContext } from "../../../store/suggestions-context";
 import { getSuggestionsBasedOnExpressionKind, isPositionsEquals } from "../../../utils";
+import { addStatementToTargetLine, getContextBasedCompletions } from "../../../utils/ls-utils";
 import { ExpressionComponent } from "../../Expression";
+import { InputEditor } from "../../InputEditor";
 import { useStatementEditorStyles } from "../../styles";
 
 interface LocalVarDeclProps {
-    model: LocalVarDecl
-    userInputs: VariableUserInputs
-    diagnosticHandler: (diagnostics: string) => void
+    model: LocalVarDecl;
+    userInputs: VariableUserInputs;
+    isElseIfMember: boolean;
+    diagnosticHandler: (diagnostics: string) => void;
 }
 
 export function LocalVarDeclC(props: LocalVarDeclProps) {
-    const { model, userInputs, diagnosticHandler } = props;
+    const { model, userInputs, isElseIfMember, diagnosticHandler } = props;
     const stmtCtx = useContext(StatementEditorContext);
     const { modelCtx } = stmtCtx;
     const { currentModel } = modelCtx;
     const hasTypedBindingPatternSelected = currentModel.model &&
         isPositionsEquals(currentModel.model.position, model.typedBindingPattern.position);
     const hasInitializerSelected = currentModel.model &&
-        isPositionsEquals(currentModel.model.position, model.initializer.position);
+        isPositionsEquals(currentModel.model.position, model.initializer ? model.initializer.position : null);
 
     const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
+    const { currentFile, getLangClient } = stmtCtx;
+    const targetPosition = stmtCtx.formCtx.formModelPosition;
+    const fileURI = `expr://${currentFile.path}`;
 
-    const typedBindingComponent: ReactNode = (
-        <ExpressionComponent
-            model={model.typedBindingPattern}
-            isRoot={false}
-            userInputs={userInputs}
-            diagnosticHandler={diagnosticHandler}
-            isTypeDescriptor={false}
-        />
-    );
+    let typedBindingComponent: ReactNode;
+    if (model.typedBindingPattern.bindingPattern.source) {
+        typedBindingComponent = (
+            <ExpressionComponent
+                model={model.typedBindingPattern}
+                userInputs={userInputs}
+                isElseIfMember={isElseIfMember}
+                diagnosticHandler={diagnosticHandler}
+                isTypeDescriptor={false}
+            />
+        )
+    } else {
+        const inputEditorProps = {
+            statementType: model?.kind,
+            model,
+            userInputs,
+            diagnosticHandler,
+            isTypeDescriptor: false
+        };
+
+        typedBindingComponent = <InputEditor {...inputEditorProps} />
+    }
 
     const expressionComponent: ReactNode = (
         <ExpressionComponent
             model={model.initializer}
-            isRoot={false}
             userInputs={userInputs}
+            isElseIfMember={isElseIfMember}
             diagnosticHandler={diagnosticHandler}
             isTypeDescriptor={false}
         />
@@ -69,15 +88,34 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
             {expressionSuggestions: [], typeSuggestions: [], variableSuggestions: []});
     };
 
-    const onClickOnInitializer = (event: any) => {
+    const onClickOnInitializer = async (event: any) => {
         event.stopPropagation();
-        expressionHandler(model.initializer, false, false,
-            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) });
+
+        const content: string = await addStatementToTargetLine(
+            currentFile.content, targetPosition, stmtCtx.modelCtx.statementModel.source, getLangClient);
+
+        const completions: SuggestionItem[] = await getContextBasedCompletions(fileURI, content, targetPosition,
+            model.initializer.position, false, isElseIfMember, model.initializer.source, getLangClient);
+
+        expressionHandler(model.initializer, false, false, {
+            expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
+            typeSuggestions: [],
+            variableSuggestions: completions
+        });
     };
 
-    if (!currentModel.model) {
-        expressionHandler(model.initializer, false, false,
-            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) });
+    if (!currentModel.model && model.initializer) {
+        addStatementToTargetLine(currentFile.content, targetPosition,
+            stmtCtx.modelCtx.statementModel.source, getLangClient).then((content: string) => {
+                getContextBasedCompletions(fileURI, content, targetPosition, model.initializer.position, false,
+                    isElseIfMember, model.initializer.source, getLangClient).then((completions) => {
+                        expressionHandler(model.initializer, false, false, {
+                            expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
+                            typeSuggestions: [],
+                            variableSuggestions: completions
+                        });
+                    });
+            });
     }
 
     return (
@@ -91,19 +129,36 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
             >
                 {typedBindingComponent}
             </button>
-            <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>
-                &nbsp;{model.equalsToken.value}
-            </span>
-            <button
+            {
+                model.equalsToken && (
+                    <>
+                        <span
+                            className={classNames(
+                                statementEditorClasses.expressionBlock,
+                                statementEditorClasses.expressionBlockDisabled
+                            )}
+                        >
+                            &nbsp;{model.equalsToken.value}
+                        </span>
+                        <button
+                            className={classNames(
+                                statementEditorClasses.expressionElement,
+                                hasInitializerSelected && statementEditorClasses.expressionElementSelected
+                            )}
+                            onClick={onClickOnInitializer}
+                        >
+                            {expressionComponent}
+                        </button>
+                    </>
+                )
+            }
+
+            <span
                 className={classNames(
-                    statementEditorClasses.expressionElement,
-                    hasInitializerSelected && statementEditorClasses.expressionElementSelected
+                    statementEditorClasses.expressionBlock,
+                    statementEditorClasses.expressionBlockDisabled
                 )}
-                onClick={onClickOnInitializer}
             >
-                {expressionComponent}
-            </button>
-            <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>
             {/* TODO: use model.semicolonToken.isMissing when the ST interface is supporting */}
                 {model.semicolonToken.position.startColumn !== model.semicolonToken.position.endColumn &&
                     model.semicolonToken.value}

@@ -16,6 +16,7 @@ import React, { useContext } from "react";
 import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { SuggestionItem } from "../../../models/definitions";
+import { InputEditorContext } from "../../../store/input-editor-context";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { generateExpressionTemplate } from "../../../utils/utils";
 import { useStatementEditorStyles } from "../../styles";
@@ -30,6 +31,7 @@ export interface ExpressionSuggestionsProps {
 export function ExpressionSuggestions(props: ExpressionSuggestionsProps) {
     const statementEditorClasses = useStatementEditorStyles();
     const { model, suggestions, suggestionHandler, operator } = props;
+    const inputEditorCtx = useContext(InputEditorContext);
 
     const {
         modelCtx: {
@@ -39,6 +41,7 @@ export function ExpressionSuggestions(props: ExpressionSuggestionsProps) {
 
     const onClickExpressionSuggestion = (kind: string) => {
         updateModel(generateExpressionTemplate(kind), model.position);
+        inputEditorCtx.onInputChange('');
         suggestionHandler();
     }
 
