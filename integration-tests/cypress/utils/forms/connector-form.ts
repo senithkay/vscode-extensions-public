@@ -41,6 +41,12 @@ export class ConnectorForm {
         return this;
     }
 
+    static close() {
+        this.getConnectorMarketplace()
+        .get('.close-btn-wrap button')
+        .click();
+    }
+
     private static getConnectorMarketplace() {
         return cy
             .get(this.marketplaceSelector);

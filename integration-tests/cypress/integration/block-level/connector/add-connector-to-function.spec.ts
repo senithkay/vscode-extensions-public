@@ -1,13 +1,8 @@
 import { Canvas } from "../../../utils/components/canvas";
 import { SourceCode } from "../../../utils/components/code-view";
-import { TopLevelPlusWidget } from "../../../utils/components/top-level-plus-widget";
 import { getCurrentSpecFolder } from "../../../utils/file-utils";
 import { ConnectorForm } from "../../../utils/forms/connector-form";
-import { FunctionForm } from "../../../utils/forms/function-form";
-import { LogForm } from "../../../utils/forms/log-form";
-import { ReturnForm } from "../../../utils/forms/return-form";
-import { TriggerForm } from "../../../utils/forms/trigger-form";
-import { VariableFormBlockLevel } from "../../../utils/forms/variable-form-block-level";
+import { GoogleSheetForm } from "../../../utils/forms/connectors/google-sheet-form";
 import { getIntegrationTestStoryURL } from "../../../utils/story-url-utils";
 
 const BAL_FILE_PATH = "block-level/connector/add-connector-to-function.bal";
@@ -17,7 +12,7 @@ describe('Add connector to function via Low Code', () => {
     cy.visit(getIntegrationTestStoryURL(BAL_FILE_PATH))
   })
 
-  it.only('Add a connector to function', () => {
+  it('Add a google-sheet connector and save', () => {
     Canvas.getFunction("myfunction")
       .nameShouldBe("myfunction")
       .shouldBeExpanded()
@@ -26,30 +21,53 @@ describe('Add connector to function via Low Code', () => {
       .getBlockLevelPlusWidget()
       .clickOption("Connector");
 
-      ConnectorForm
+    ConnectorForm
       .shouldBeVisible()
       .waitForConnectorsLoading()
       .searchConnector("Sheet")
       .waitForConnectorsLoading()
       .selectConnector("google sheets")
-    // SourceCode.shouldBeEqualTo(
-    //   getCurrentSpecFolder() + "add-variable-to-function.expected.bal");
+
+    GoogleSheetForm
+      .shouldBeVisible()
+      .waitForConnectorLoad()
+      .haveDefaultName()
+      .typeConnectionName("gsheet")
+      .typeToken('"hello-world"')
+      .saveConnection();
   })
 
-  it('Open and Cancel Form', () => {
+
+  it('Add a google-sheet connector and invoke', () => {
     Canvas.getFunction("myfunction")
       .nameShouldBe("myfunction")
       .shouldBeExpanded()
       .getDiagram()
       .shouldBeRenderedProperly()
       .getBlockLevelPlusWidget()
-      .clickOption("Variable");
+      .clickOption("Connector");
 
-    VariableFormBlockLevel
+    ConnectorForm
       .shouldBeVisible()
-      .cancel();
+      .waitForConnectorsLoading()
+      .searchConnector("Sheet")
+      .waitForConnectorsLoading()
+      .selectConnector("google sheets")
 
-  });
+    GoogleSheetForm
+      .shouldBeVisible()
+      .waitForConnectorLoad()
+      .haveDefaultName()
+      .typeConnectionName("gsheet")
+      .typeToken('"hello-world"')
+      .continueToInvoke()
+      .selectOperation("addSheet")
+      .addSheetFill("id123", "sheet1")
+      .save();
+
+    SourceCode.shouldBeEqualTo(
+      getCurrentSpecFolder() + "google-sheet.expected.bal");
+  })
 
   it('Open and Close Form', () => {
     Canvas.getFunction("myfunction")
@@ -58,12 +76,12 @@ describe('Add connector to function via Low Code', () => {
       .getDiagram()
       .shouldBeRenderedProperly()
       .getBlockLevelPlusWidget()
-      .clickOption("Variable");
+      .clickOption("Connector");
 
-    VariableFormBlockLevel
+    ConnectorForm
       .shouldBeVisible()
       .close();
-    
+
   });
 
 })
