@@ -1,0 +1,26 @@
+# Daily build against the daily built Ballerina distribution
+
+name: Publish CDN
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+      - uses: azure/CLI@v1
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+
+      - name: Make Cdn dir
+        run: mkdir cdn && cd cdn
+      
+      - name: Npm install
+        run: npm init -y && npm i code-server@3.12.0
+
+      - name: Upload to azure storage
+        run: az storage blob upload-batch --connection-string "${{ secrets.AZURE_CDN_CREDENTIALS }}" --source node_modules/code-server --destination codeserver/node_modules/code-server
