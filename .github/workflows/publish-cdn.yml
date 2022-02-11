@@ -24,4 +24,4 @@ jobs:
         with:
           azcliversion: 2.30.0
           inlineScript: |
-            az storage blob upload-batch --connection-string "${{ secrets.AZURE_CDN_CREDENTIALS }}" --source node_modules/code-server --destination codeserver/node_modules/code-server
+            az storage blob upload-batch --connection-string "${{ secrets.AZURE_CDN_CREDENTIALS }}" --source node_modules/code-server --destination codeserver/node_modules/code-server@3.12.0
