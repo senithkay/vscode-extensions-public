@@ -65,9 +65,9 @@ export function ModuleElement(props: ModuleElementProps) {
                 const parameters: string[] = [];
                 functionProperties.parameters.map((param: FunctionParams) => {
                     if (param.defaultValue === '') {
-                        parameters.push('PARAM');
+                        parameters.push(param.name);
                     } else {
-                        parameters.push('OPTIONAL_PARAM');
+                        parameters.push(`${param.name}_optional`);
                     }
                 });
 
