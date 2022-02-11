@@ -11,7 +11,6 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
-      - uses: azure/CLI@v1
       - uses: actions/setup-node@v2
         with:
           node-version: '14'
@@ -23,4 +22,8 @@ jobs:
         run: npm init -y && npm i code-server@3.12.0
 
       - name: Upload to azure storage
-        run: az storage blob upload-batch --connection-string "${{ secrets.AZURE_CDN_CREDENTIALS }}" --source node_modules/code-server --destination codeserver/node_modules/code-server
+        uses: azure/CLI@v1
+        with:
+          azcliversion: 2.30.0
+          inlineScript: |
+            az storage blob upload-batch --connection-string "${{ secrets.AZURE_CDN_CREDENTIALS }}" --source node_modules/code-server --destination codeserver/node_modules/code-server
