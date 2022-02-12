@@ -15,9 +15,9 @@ import React, { useContext, useEffect, useState } from "react";
 import { TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
 
 import { Button } from "@material-ui/core";
+import { Tooltip } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import classNames from "classnames";
 
-import Tooltip from "../../../../components/Tooltip";
 import { Context as DiagramContext } from "../../../../Contexts/Diagram";
 
 import FitToScreenSVG from "./images/fit-to-screen";

@@ -11,32 +11,43 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useIntl } from "react-intl";
 
 import {
     ExpressionEditorLangClientInterface,
+    LibraryDataResponse,
+    LibraryDocResponse,
+    LibraryKind,
+    LibrarySearchResponse,
     PrimaryButton,
     SecondaryButton,
     STModification
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
+import { APPEND_EXPR_LIST_CONSTRUCTOR, INIT_EXPR_LIST_CONSTRUCTOR, OTHER_STATEMENT } from "../../constants";
 import { VariableUserInputs } from '../../models/definitions';
 import { StatementEditorContextProvider } from "../../store/statement-editor-context";
-import { getCurrentModel, getModifications, getPartialSTForStatement } from "../../utils";
+import { getCurrentModel, getModifications } from "../../utils";
+import { getPartialSTForStatement, sendDidChange } from "../../utils/ls-utils";
 import { LeftPane } from '../LeftPane';
-import { RightPane } from '../RightPane';
 import { useStatementEditorStyles } from "../styles";
 
 export interface LowCodeEditorProps {
-    getLangClient: () => Promise<ExpressionEditorLangClientInterface>,
-    applyModifications: (modifications: STModification[]) => void,
+    getLangClient: () => Promise<ExpressionEditorLangClientInterface>;
+    applyModifications: (modifications: STModification[]) => void;
     currentFile: {
         content: string,
         path: string,
         size: number
     };
+    library: {
+        getLibrariesList: (kind: string) => Promise<LibraryDocResponse>;
+        getLibrariesData: () => Promise<LibrarySearchResponse>;
+        getLibraryData: (orgName: string, moduleName: string, version: string) => Promise<LibraryDataResponse>;
+    };
+    experimentalEnabled?: boolean;
 }
 export interface ViewProps extends LowCodeEditorProps {
     label: string;
@@ -46,13 +57,13 @@ export interface ViewProps extends LowCodeEditorProps {
     config: {
         type: string;
         model?: STNode;
-    }
+    };
     validForm?: boolean;
     onWizardClose: () => void;
-    onCancel?: () => void;
+    onCancel: () => void;
     handleNameOnChange?: (name: string) => void;
     handleTypeChange?: (name: string) => void;
-    handleStatementEditorChange?: (partialModel: STNode) => void,
+    handleStatementEditorChange?: (partialModel: STNode) => void;
 }
 
 export function ViewContainer(props: ViewProps) {
@@ -69,6 +80,7 @@ export function ViewContainer(props: ViewProps) {
         handleStatementEditorChange,
         getLangClient,
         applyModifications,
+        library,
         currentFile
     } = props;
     const intl = useIntl();
@@ -77,18 +89,20 @@ export function ViewContainer(props: ViewProps) {
     const [model, setModel] = useState<STNode>(null);
     const [isStatementValid, setIsStatementValid] = useState(false);
     const [currentModel, setCurrentModel] = useState({ model });
-    const [onCancelClicked, setOnCancel] = useState(false);
+    const fileURI = `expr://${currentFile.path}`;
 
     if (!userInputs?.varName && !!handleNameOnChange) {
         handleNameOnChange("default")
     }
 
     useEffect(() => {
-        (async () => {
-            const partialST: STNode = await getPartialSTForStatement(
-                { codeSnippet: initialSource.trim() }, getLangClient);
-            setModel(partialST);
-        })();
+        if (!(config.type === "Custom") || initialSource) {
+            (async () => {
+                const partialST = await getPartialSTForStatement(
+                    { codeSnippet: initialSource.trim() }, getLangClient);
+                setModel(partialST);
+            })();
+        }
     }, []);
 
     useEffect(() => {
@@ -99,21 +113,45 @@ export function ViewContainer(props: ViewProps) {
     }, [model]);
 
     const updateModel = async (codeSnippet: string, position: NodePosition) => {
-        const stModification = {
-            startLine: position.startLine,
-            startColumn: position.startColumn,
-            endLine: position.endLine,
-            endColumn: position.endColumn,
-            newCodeSnippet: codeSnippet
+        let partialST: STNode;
+        if (model) {
+            const stModification = {
+                startLine: position.startLine,
+                startColumn: position.startColumn,
+                endLine: position.endLine,
+                endColumn: position.endColumn,
+                newCodeSnippet: codeSnippet
+            }
+            partialST = await getPartialSTForStatement(
+                { codeSnippet: model.source , stModification }, getLangClient);
+        } else {
+            partialST = await getPartialSTForStatement(
+                { codeSnippet }, getLangClient);
         }
-        const partialST: STNode = await getPartialSTForStatement(
-            { codeSnippet: model.source, stModification }, getLangClient);
         setModel(partialST);
 
-        const newCurrentModel = getCurrentModel({
-            ...position,
-            endColumn: position.startColumn + codeSnippet.length
-        }, partialST);
+        // Since in list constructor we add expression with comma and close-bracket,
+        // we need to reduce that length from the code snippet to get the correct current model
+        let currentModelPosition: NodePosition;
+        if (currentModel.model && STKindChecker.isListConstructor(currentModel.model) && codeSnippet === INIT_EXPR_LIST_CONSTRUCTOR) {
+            currentModelPosition = {
+                ...position,
+                endColumn: position.startColumn + codeSnippet.length - 1
+            };
+        } else if (currentModel.model && codeSnippet === APPEND_EXPR_LIST_CONSTRUCTOR){
+            currentModelPosition = {
+                ...position,
+                startColumn: position.startColumn + 2,
+                endColumn: position.startColumn + codeSnippet.length - 1
+            }
+        } else {
+            currentModelPosition = {
+                ...position,
+                endColumn: position.startColumn + codeSnippet.length
+            };
+        }
+
+        const newCurrentModel = getCurrentModel(currentModelPosition, partialST);
         setCurrentModel({model: newCurrentModel});
     }
 
@@ -129,19 +167,9 @@ export function ViewContainer(props: ViewProps) {
         }
     }, [model])
 
-    const onCancelHandler = () => {
-        setOnCancel(true);
-    }
-
     const validateStatement = (isValid: boolean) => {
         setIsStatementValid(isValid);
     };
-
-    useEffect(() => {
-        return () => {
-            onCancel();
-        }
-    }, [onCancelClicked])
 
     const saveVariableButtonText = intl.formatMessage({
         id: "lowcode.develop.configForms.variable.saveButton.text",
@@ -159,18 +187,23 @@ export function ViewContainer(props: ViewProps) {
         onWizardClose();
     };
 
+    const onCancelClick = async () => {
+        await sendDidChange(fileURI, currentFile.content, getLangClient);
+        onCancel();
+    }
+
     return (
-        model && (
+        (
             <div className={overlayClasses.mainStatementWrapper}>
                 <div className={overlayClasses.statementExpressionWrapper}>
                     <StatementEditorContextProvider
                         model={model}
                         currentModel={currentModel}
-                        onCancelClicked={onCancelClicked}
                         updateModel={updateModel}
                         formArgs={formArgs}
                         validateStatement={validateStatement}
                         applyModifications={applyModifications}
+                        library={library}
                         currentFile={currentFile}
                         getLangClient={getLangClient}
                     >
@@ -188,7 +221,7 @@ export function ViewContainer(props: ViewProps) {
                             <SecondaryButton
                                 text={cancelVariableButtonText}
                                 fullWidth={false}
-                                onClick={onCancelHandler}
+                                onClick={onCancelClick}
                             />
                             <PrimaryButton
                                 dataTestId="save-btn"

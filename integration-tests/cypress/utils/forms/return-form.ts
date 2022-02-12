@@ -8,9 +8,24 @@ export class ReturnForm {
     static typeExpression(value: any) {
         ExpressionEditor
             .getForField("return expression", this.selector)
+            .clear()
             .type(value)
             .waitForValidations()
             .clearSuggestions();
+        return this;
+    }
+
+    static clearExpression() {
+        ExpressionEditor
+            .getForField("return expression", this.selector)
+            .clear();
+        return this;
+    }
+
+    static checkForDiagnostics() {
+        this.getForm()
+            .get('[data-testid="expr-diagnostics"]')
+            .should("be.visible")
         return this;
     }
 
@@ -35,5 +50,12 @@ export class ReturnForm {
 
     }
 
+    static cancel() {
+        this.getForm()
+            .get('button')
+            .contains("Cancel")
+            .click();
+        return this;
 
+    }
 }

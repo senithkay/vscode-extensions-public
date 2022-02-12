@@ -21,6 +21,20 @@ export class FunctionDiagram {
         return this;
     }
 
+    public clickExistingReturnStatement() {
+        this.container.within(() => {
+            cy.get(`.diagram-canvas .return-contect-wrapper [data-testid="editBtn"]`).click({ force: true });
+        })
+        return this;
+    }
+
+    public deleteExistingReturnStatement() {
+        this.container.within(() => {
+            cy.get(`.diagram-canvas .return-contect-wrapper [data-testid="deleteBtn"]`).click({ force: true });
+        })
+        return this;
+    }
+
     //This is not working
     public clickIfConditionWorkerPlusBtn(index: number = 0) {
         this.container.within(() => {

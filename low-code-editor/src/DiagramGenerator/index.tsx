@@ -1,14 +1,38 @@
+/*
+ * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 Inc. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein is strictly forbidden, unless permitted by WSO2 in accordance with
+ * the WSO2 Commercial License available at http://wso2.com/licenses.
+ * For specific language governing the permissions and limitations under
+ * this license, please see the license as well as any agreement you’ve
+ * entered into with WSO2 governing the purchase of this software and any
+ * associated services.
+ */
 import * as React from "react";
 import { IntlProvider } from "react-intl";
 import { monaco } from "react-monaco-editor";
 
 import { MuiThemeProvider } from "@material-ui/core/styles";
-import { Connector, DiagramDiagnostic, DiagramEditorLangClientInterface, STModification, STSymbolInfo, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import {
+    Connector,
+    DiagramDiagnostic,
+    DiagramEditorLangClientInterface,
+    InsertorDelete,
+    LibraryDataResponse,
+    LibraryDocResponse,
+    LibraryKind,
+    LibrarySearchResponse,
+    STModification,
+    STSymbolInfo,
+    WizardType
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FunctionDefinition, ModulePart, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import cloneDeep from "lodash.clonedeep";
 import Mousetrap from 'mousetrap';
 
-import LowCodeEditor, { BlockViewState, getSymbolInfo, InsertorDelete } from "..";
+import LowCodeEditor, { BlockViewState, getSymbolInfo } from "..";
 import "../assets/fonts/Glimer/glimer.css";
 import { ConditionConfig } from "../Diagram/components/FormComponents/Types";
 import { UndoRedoManager } from "../Diagram/components/FormComponents/UndoRedoManager";
@@ -40,13 +64,16 @@ const debounceTime: number = 5000;
 let lastPerfUpdate = 0;
 
 export function DiagramGenerator(props: DiagramGeneratorProps) {
-    const { langClientPromise, filePath, startLine, startColumn, lastUpdatedAt, scale, panX, panY, resolveMissingDependency } = props;
+    const { langClientPromise, filePath, startLine, startColumn, lastUpdatedAt, scale, panX, panY, resolveMissingDependency, experimentalEnabled } = props;
     const classes = useGeneratorStyles();
     const defaultScale = scale ? Number(scale) : 1;
     const defaultPanX = panX ? Number(panX) : 0;
     const defaultPanY = panY ? Number(panY) : 0;
     const runCommand: (command: PALETTE_COMMANDS, args: any[]) => Promise<boolean> = props.runCommand;
     const showMessage: (message: string, type: MESSAGE_TYPE, isIgnorable: boolean) => Promise<boolean> = props.showMessage;
+    const getLibrariesList: (kind: LibraryKind) => Promise<LibraryDocResponse | undefined> = props.getLibrariesList;
+    const getLibrariesData: () => Promise<LibrarySearchResponse | undefined> = props.getLibrariesData;
+    const getLibraryData: (orgName: string, moduleName: string, version: string) => Promise<LibraryDataResponse | undefined> = props.getLibraryData;
 
     const defaultZoomStatus = {
         scale: defaultScale,
@@ -131,7 +158,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     }
 
     async function run(args: any[]) {
-        runCommand(PALETTE_COMMANDS.RUN_WITH_CONFIGS, args);
+        runCommand(PALETTE_COMMANDS.RUN, args);
     }
 
     const undo = async () => {
@@ -231,6 +258,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                 type: "File"
                             }}
                             performanceData={performanceData}
+                            experimentalEnabled={experimentalEnabled}
                             // tslint:disable-next-line: jsx-no-multiline-js
                             api={{
                                 helpPanel: {
@@ -327,6 +355,11 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                 },
                                 project: {
                                     run
+                                },
+                                library: {
+                                    getLibrariesList,
+                                    getLibrariesData,
+                                    getLibraryData
                                 }
                             }}
                         />
