@@ -1,5 +1,7 @@
 import { Canvas } from "../../utils/components/canvas";
+import { SourceCode } from "../../utils/components/code-view";
 import { TopLevelPlusWidget } from "../../utils/components/top-level-plus-widget";
+import { getCurrentSpecFolder } from "../../utils/file-utils";
 import { AssignmentForm } from "../../utils/forms/assignment-form";
 import { ForEachForm } from "../../utils/forms/foreach-form";
 import { FunctionForm } from "../../utils/forms/function-form";
@@ -44,8 +46,8 @@ describe('Add function and statements via Low Code', () => {
       .typeExpression(`"This is an info message."`)
       .save();
 
-    // SourceCode.shouldBeEqualTo(
-    //     getCurrentSpecFolder() + "add-function-statements.expected.bal");
+    SourceCode.shouldBeEqualTo(
+        getCurrentSpecFolder() + "add-info-log-expected.bal");
   })
 
   it("Add a function and variable to empty file", () => {
@@ -373,6 +375,35 @@ describe('Add function and statements via Low Code', () => {
 
     SourceCode.shouldBeEqualTo(
         getCurrentSpecFolder() + "add-error-log.expected.bal");
+  })
+
+  it('Add a log and close the panel without saving', () => {
+    Canvas
+      .welcomeMessageShouldBeVisible()
+      .clickTopLevelPlusButton();
+    TopLevelPlusWidget.clickOption("Function");
+
+    FunctionForm
+      .shouldBeVisible()
+      .typeFunctionName("myfunction")
+      .typeReturnType("json|error?")
+      .save();
+
+    Canvas.getFunction("myfunction")
+      .nameShouldBe("myfunction")
+      .shouldBeExpanded()
+      .getDiagram()
+      .shouldBeRenderedProperly()
+      .getBlockLevelPlusWidget()
+      .clickOption("Log");
+
+    LogForm
+      .shouldBeVisible()
+      .selectType("Info")
+      .close()
+
+    SourceCode.shouldBeEqualTo(
+        getCurrentSpecFolder() + "close-log-form.expected.bal");
   })
 
 })

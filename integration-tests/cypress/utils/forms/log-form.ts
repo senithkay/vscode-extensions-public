@@ -55,5 +55,11 @@ export class LogForm {
 
     }
 
+    static close() {
+        this.getForm()
+            .get('.panel-close-button')
+            .click();
+        return this;
 
+    }
 }
