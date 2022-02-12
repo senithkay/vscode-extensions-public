@@ -43,8 +43,8 @@ describe('Add function and statements via Low Code', () => {
 
     LogForm
       .shouldBeVisible()
-      .selectType("Debug")
-      .typeExpression(`"This is a debug message."`)
+      .selectType("Info")
+      .typeExpression(`"This is an info message."`)
       .save();
 
     // SourceCode.shouldBeEqualTo(
@@ -330,8 +330,8 @@ describe('Add function and statements via Low Code', () => {
 
     LogForm
       .shouldBeVisible()
-      .selectType("Debug")
-      .typeExpression(`"This is a debug message."`)
+      .selectType("Warn")
+      .typeExpression(`"This is a warning message."`)
       .save();
 
     Canvas.getFunction("myfunction")
@@ -348,4 +348,34 @@ describe('Add function and statements via Low Code', () => {
       .save();
 
   })
+  it('Add a function and error log statement to empty file', () => {
+    Canvas
+      .welcomeMessageShouldBeVisible()
+      .clickTopLevelPlusButton();
+    TopLevelPlusWidget.clickOption("Function");
+
+    FunctionForm
+      .shouldBeVisible()
+      .typeFunctionName("myfunction")
+      .typeReturnType("json|error?")
+      .save();
+
+    Canvas.getFunction("myfunction")
+      .nameShouldBe("myfunction")
+      .shouldBeExpanded()
+      .getDiagram()
+      .shouldBeRenderedProperly()
+      .getBlockLevelPlusWidget()
+      .clickOption("Log");
+
+    LogForm
+      .shouldBeVisible()
+      .selectType("Error")
+      .typeExpression(`"This is an error message."`)
+      .save();
+
+    SourceCode.shouldBeEqualTo(
+        getCurrentSpecFolder() + "add-error-log.expected.bal");
+  })
+
 })
