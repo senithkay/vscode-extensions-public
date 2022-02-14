@@ -34,6 +34,12 @@ export class Canvas {
             .should('exist');
     }
 
+    private static waitForDiagramUpdate() {
+        cy.get(`[id="canvas-overlay"]`)
+            .children().should("have.length",0)
+        return this;
+    }
+
     private static getSvMemberContainer(svPath: string) {
         return cy
         .get(`#canvas .member-container .service .header-segment-path`)
@@ -50,11 +56,14 @@ export class Canvas {
     }
 
     static getFunction(fnName: string) {
-        const element = this.getFnMemberContainer(fnName);
+        this.waitForDiagramUpdate()
+        const element = this.getFnMemberContainer(fnName)
+        ;
         return new Function(element);
     }
 
     static getService(fnName: string) {
+        this.waitForDiagramUpdate()
         const element = this.getSvMemberContainer(fnName);
         return new Service(element);
     }

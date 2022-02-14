@@ -62,4 +62,11 @@ export class LogForm {
         return this;
 
     }
+
+    static clearExpression() {
+        ExpressionEditor
+            .getForField("expression", this.selector)
+            .clear();
+        return this;
+    }
 }
