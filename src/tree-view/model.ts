@@ -43,7 +43,6 @@ export const EXPLORER_TREE_NEW_FILE_COMMAND: string = 'ballerina.newFileExplorer
 export const EXPLORER_TREE_NEW_FOLDER_COMMAND: string = 'ballerina.newFolderExplorerTree';
 export const EXPLRER_TREE_DELETE_FILE_COMMAND: string = 'ballerina.deleteFileExplorerTree';
 export const EXPLORER_TREE_NEW_MODULE_COMMAND: string = 'ballerina.new.module';
-export const CONFIG_EDITOR_EXECUTE_COMMAND: string = 'ballerina.executeConfigEditor';
 export const DOCUMENTATION_VIEW = 'ballerina.documentationView.open';
 
 export class ExplorerTreeItem extends TreeItem {
