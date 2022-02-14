@@ -27,7 +27,7 @@ export function getSentryConfig(): Promise<SentryConfig | undefined> {
     return new Promise((resolve, reject) => {
         if (process.env.LOW_CODE_MODE === 'true') {
             return resolve({dsn : process.env.SENTRY_DSN || "https://92fac883fadc46a49fccc9fe0047e27e@o350818.ingest.sentry.io/6192405", 
-                environment: process.env.CODE_SERVER_SENTRY_ENV || "dev",
+                environment: process.env.VSCODE_CHOREO_SENTRY_ENV || "dev",
                 release: "release-1",
                 correlationID: process.env.VSCODE_CHOREO_CORRELATION_ID || ""
             });
