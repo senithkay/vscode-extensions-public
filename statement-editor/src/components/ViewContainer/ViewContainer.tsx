@@ -16,6 +16,10 @@ import { useIntl } from "react-intl";
 
 import {
     ExpressionEditorLangClientInterface,
+    LibraryDataResponse,
+    LibraryDocResponse,
+    LibraryKind,
+    LibrarySearchResponse,
     PrimaryButton,
     SecondaryButton,
     STModification
@@ -31,13 +35,19 @@ import { LeftPane } from '../LeftPane';
 import { useStatementEditorStyles } from "../styles";
 
 export interface LowCodeEditorProps {
-    getLangClient: () => Promise<ExpressionEditorLangClientInterface>,
-    applyModifications: (modifications: STModification[]) => void,
+    getLangClient: () => Promise<ExpressionEditorLangClientInterface>;
+    applyModifications: (modifications: STModification[]) => void;
     currentFile: {
         content: string,
         path: string,
         size: number
     };
+    library: {
+        getLibrariesList: (kind: string) => Promise<LibraryDocResponse>;
+        getLibrariesData: () => Promise<LibrarySearchResponse>;
+        getLibraryData: (orgName: string, moduleName: string, version: string) => Promise<LibraryDataResponse>;
+    };
+    experimentalEnabled?: boolean;
 }
 export interface ViewProps extends LowCodeEditorProps {
     label: string;
@@ -47,13 +57,13 @@ export interface ViewProps extends LowCodeEditorProps {
     config: {
         type: string;
         model?: STNode;
-    }
+    };
     validForm?: boolean;
     onWizardClose: () => void;
     onCancel: () => void;
     handleNameOnChange?: (name: string) => void;
     handleTypeChange?: (name: string) => void;
-    handleStatementEditorChange?: (partialModel: STNode) => void,
+    handleStatementEditorChange?: (partialModel: STNode) => void;
 }
 
 export function ViewContainer(props: ViewProps) {
@@ -70,6 +80,7 @@ export function ViewContainer(props: ViewProps) {
         handleStatementEditorChange,
         getLangClient,
         applyModifications,
+        library,
         currentFile
     } = props;
     const intl = useIntl();
@@ -122,12 +133,12 @@ export function ViewContainer(props: ViewProps) {
         // Since in list constructor we add expression with comma and close-bracket,
         // we need to reduce that length from the code snippet to get the correct current model
         let currentModelPosition: NodePosition;
-        if (STKindChecker.isListConstructor(currentModel.model) && codeSnippet === INIT_EXPR_LIST_CONSTRUCTOR) {
+        if (currentModel.model && STKindChecker.isListConstructor(currentModel.model) && codeSnippet === INIT_EXPR_LIST_CONSTRUCTOR) {
             currentModelPosition = {
                 ...position,
                 endColumn: position.startColumn + codeSnippet.length - 1
             };
-        } else if (codeSnippet === APPEND_EXPR_LIST_CONSTRUCTOR){
+        } else if (currentModel.model && codeSnippet === APPEND_EXPR_LIST_CONSTRUCTOR){
             currentModelPosition = {
                 ...position,
                 startColumn: position.startColumn + 2,
@@ -192,6 +203,7 @@ export function ViewContainer(props: ViewProps) {
                         formArgs={formArgs}
                         validateStatement={validateStatement}
                         applyModifications={applyModifications}
+                        library={library}
                         currentFile={currentFile}
                         getLangClient={getLangClient}
                     >

@@ -56,7 +56,7 @@ export const SEARCH_CONNECTOR = "editor-workspace-search-connector";
 export const SAVE_CONNECTOR_INIT = "editor-workspace-save-connector-init";
 export const SAVE_CONNECTOR_INVOKE = "editor-workspace-save-connector-invoke";
 export const CONNECTOR_CLOSED = "editor-workspace-connector-form-closed";
-export const DIAGRAM_MODIFIED = "editor-workspace-diagram-modified";
+export const DIAGRAM_MODIFIED = "editor-workspace-edit-diagram";
 
 export const ADD_CONFIGURABLE = "editor-workspace-add-configurable";
 

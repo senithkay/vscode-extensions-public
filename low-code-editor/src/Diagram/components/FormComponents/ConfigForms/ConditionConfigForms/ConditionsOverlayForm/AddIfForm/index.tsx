@@ -64,11 +64,13 @@ export function AddIfForm(props: IfProps) {
     const {
         props: {
             isMutationProgress: isMutationInProgress,
-            currentFile
+            currentFile,
+            experimentalEnabled
         },
         api: {
             ls: { getExpressionEditorLangClient },
             code: { modifyDiagram },
+            library
         },
     } = useContext(Context);
     const { condition, formArgs, onCancel, onSave, onWizardClose } = props;
@@ -243,7 +245,9 @@ export function AddIfForm(props: IfProps) {
             onCancel,
             currentFile,
             getLangClient: getExpressionEditorLangClient,
-            applyModifications: modifyDiagram
+            applyModifications: modifyDiagram,
+            library,
+            experimentalEnabled
         }
     );
 
@@ -258,6 +262,7 @@ export function AddIfForm(props: IfProps) {
                                 color="primary"
                                 onClick={handleMinusButton(order)}
                                 className={classes.button}
+                                data-testid="minus-button"
                             >
                                 <RemoveCircleOutlineRounded />
                             </IconButton>
@@ -288,6 +293,7 @@ export function AddIfForm(props: IfProps) {
                     defaultMessage={"If"}
                     handleStmtEditorToggle={handleStmtEditorToggle}
                     toggleChecked={false}
+                    experimentalEnabled={experimentalEnabled}
                 />
                 <div className={classes.formContentWrapper}>
                     <div className={classes.formCodeBlockWrapper}>
@@ -315,6 +321,7 @@ export function AddIfForm(props: IfProps) {
                                     color="primary"
                                     onClick={handlePlusButton(-1)}
                                     className={classes.button}
+                                    data-testid="plus-button"
                                 >
                                     <ControlPoint />
                                 </IconButton>

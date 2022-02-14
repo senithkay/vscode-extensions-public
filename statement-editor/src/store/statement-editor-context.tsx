@@ -13,7 +13,7 @@
 // tslint:disable: no-empty jsx-no-multiline-js
 import React from 'react';
 
-import { STModification } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { LibraryKind, STModification } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { LowCodeEditorProps } from '../components/ViewContainer/ViewContainer';
@@ -34,6 +34,11 @@ export const StatementEditorContext = React.createContext({
     },
     getLangClient: () => (Promise.resolve({} as any)),
     applyModifications: (modifications: STModification[]) => (undefined),
+    library: {
+        getLibrariesList: (kind: LibraryKind) => (Promise.resolve({} as any)),
+        getLibrariesData: () => (Promise.resolve({} as any)),
+        getLibraryData: (orgName: string, moduleName: string, version: string) => (Promise.resolve({} as any))
+    },
     currentFile: {
         content: "",
         path: "",
@@ -58,6 +63,7 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
         updateModel,
         formArgs,
         validateStatement,
+        library,
         ...restProps
     } = props;
 
@@ -75,6 +81,7 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
                 statementCtx: {
                     validateStatement
                 },
+                library,
                 ...restProps
             }}
         >

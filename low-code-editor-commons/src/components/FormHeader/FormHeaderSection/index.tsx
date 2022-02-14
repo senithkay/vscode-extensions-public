@@ -27,10 +27,12 @@ interface FormHeaderSectionProps {
     formType?: string;
     handleStmtEditorToggle?: () => void;
     toggleChecked?: boolean;
+    experimentalEnabled?: boolean;
 }
 
 export function FormHeaderSection(props: FormHeaderSectionProps) {
-    const { onCancel, statementEditor, formTitle, defaultMessage, formType, handleStmtEditorToggle, toggleChecked } = props;
+    const { onCancel, statementEditor, formTitle, defaultMessage, formType,
+            handleStmtEditorToggle, toggleChecked, experimentalEnabled } = props;
     const formClasses = useStyles();
     // TODO need to move the assests folder to commens module
     const icon = (formType && formType.length > 0) ? getConstructIcon(formType) : null;
@@ -44,6 +46,7 @@ export function FormHeaderSection(props: FormHeaderSectionProps) {
                 defaultMessage={defaultMessage}
                 handleStmtEditorToggle={handleStmtEditorToggle}
                 toggleChecked={toggleChecked}
+                experimentalEnabled={experimentalEnabled}
             />
             {onCancel && <CloseButton onCancel={onCancel} />}
         </div>

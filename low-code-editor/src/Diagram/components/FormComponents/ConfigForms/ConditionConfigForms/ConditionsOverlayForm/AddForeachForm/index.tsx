@@ -62,11 +62,13 @@ export function AddForeachForm(props: ForeachProps) {
         props: {
             isMutationProgress: isMutationInProgress,
             stSymbolInfo,
-            currentFile
+            currentFile,
+            experimentalEnabled
         },
         api: {
             ls: { getExpressionEditorLangClient },
-            code: { modifyDiagram }
+            code: { modifyDiagram },
+            library
         }
     } = useContext(Context);
 
@@ -253,7 +255,9 @@ export function AddForeachForm(props: ForeachProps) {
             onCancel,
             currentFile,
             getLangClient: getExpressionEditorLangClient,
-            applyModifications: modifyDiagram
+            applyModifications: modifyDiagram,
+            library,
+            experimentalEnabled
         }
     );
 
@@ -289,6 +293,7 @@ export function AddForeachForm(props: ForeachProps) {
                     defaultMessage={"Foreach"}
                     handleStmtEditorToggle={handleStmtEditorToggle}
                     toggleChecked={false}
+                    experimentalEnabled={experimentalEnabled}
                 />
                 <div className={classes.formContentWrapper}>
                     <div className={classes.formCodeBlockWrapper}>
@@ -305,7 +310,7 @@ export function AddForeachForm(props: ForeachProps) {
                                     onChange={onVariableNameChange}
                                     defaultValue={conditionExpression.variable}
                                     label="Current Value"
-                                    placeholder={""}
+                                    placeholder="Current Value"
                                     errorMessage={invalidConnectionErrorMessage}
                                 />
                             </div>

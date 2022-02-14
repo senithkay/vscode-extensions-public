@@ -20,6 +20,7 @@ import { VariableUserInputs } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { SuggestionsContext } from "../../../store/suggestions-context";
 import { isPositionsEquals } from "../../../utils";
+import { InputEditor } from "../../InputEditor";
 import { useStatementEditorStyles } from "../../styles";
 
 interface CaptureBindingPatternProps {
@@ -29,15 +30,28 @@ interface CaptureBindingPatternProps {
 }
 
 export function CaptureBindingPatternComponent(props: CaptureBindingPatternProps) {
-    const { model } = props;
+    const { model, userInputs, diagnosticHandler } = props;
     const stmtCtx = useContext(StatementEditorContext);
-    const { modelCtx } = stmtCtx;
-    const { currentModel } = modelCtx;
+    const {
+        modelCtx: {
+            currentModel
+        }
+    } = stmtCtx;
+
     const hasVarNameSelected = currentModel.model &&
         isPositionsEquals(currentModel.model.position, model.variableName.position);
 
     const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
+
+    const inputEditorProps = {
+        statementType: model.kind,
+        model,
+        expressionHandler,
+        userInputs,
+        diagnosticHandler,
+        isTypeDescriptor: false
+    };
 
     const onClickOnVarName = (event: any) => {
         event.stopPropagation()
@@ -52,7 +66,7 @@ export function CaptureBindingPatternComponent(props: CaptureBindingPatternProps
                 hasVarNameSelected && statementEditorClasses.expressionElementSelected)}
             onClick={onClickOnVarName}
         >
-            {model.variableName.value}
+            <InputEditor {...inputEditorProps} />
         </button>
     );
 }

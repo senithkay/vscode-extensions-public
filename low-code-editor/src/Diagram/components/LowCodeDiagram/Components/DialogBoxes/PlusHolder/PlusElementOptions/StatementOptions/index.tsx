@@ -350,7 +350,7 @@ export function StatementOptions(props: StatementOptionsProps) {
                     data-testid="addHttp"
                     onClick={onSelectStatement.bind(undefined, "HTTP")}
                 >
-                    <div className="icon-wrapper">
+                    <div className="icon-wrapper icon-wrapper-http">
                         <HttpLogo />
                     </div>
                     <div className="text-label"><FormattedMessage id="lowcode.develop.plusHolder.plusElements.statements.httpConnectorStatement.title" defaultMessage="HTTP" /></div>
@@ -509,11 +509,11 @@ export function StatementOptions(props: StatementOptionsProps) {
             <div className="element-option-holder" >
                 <div className="options-wrapper">
                     {connectorComp}
-                    {(processComp.length > 0 ? <Divider /> : null)}
+                    {(processComp.length > 0 ? <Divider className="options-divider" /> : null)}
                     {processComp}
-                    {(conditionComp.length > 0 ? <Divider /> : null)}
+                    {(conditionComp.length > 0 ? <Divider className="options-divider" /> : null)}
                     {conditionComp}
-                    {(stopComp.length > 0 ? <Divider /> : null)}
+                    {(stopComp.length > 0 ? <Divider className="options-divider" /> : null)}
                     {stopComp}
                 </div>
             </div>

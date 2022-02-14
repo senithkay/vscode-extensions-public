@@ -34,6 +34,9 @@ export function VariableSuggestions(props: VariableSuggestionsProps) {
     const {
         modelCtx: {
             updateModel,
+        },
+        formCtx: {
+            formModelPosition
         }
     } = useContext(StatementEditorContext);
     const resourceAccessRegex = /.+\./gm;
@@ -51,7 +54,7 @@ export function VariableSuggestions(props: VariableSuggestionsProps) {
             }
             variable = variable.split('(')[0] + "(" + paramArray.toString() + ")";
         }
-        updateModel(variable, model.position);
+        updateModel(variable, model ? model.position : formModelPosition);
         inputEditorCtx.onInputChange('');
         suggestionHandler();
     }

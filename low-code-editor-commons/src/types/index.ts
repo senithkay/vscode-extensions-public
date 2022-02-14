@@ -7,3 +7,4 @@ export * from "./base-lang-client-interface";
 export * from "./config-spec";
 export * from "./form-element-interface";
 export * from "./expression-configurable-interface";
+export * from "./library";

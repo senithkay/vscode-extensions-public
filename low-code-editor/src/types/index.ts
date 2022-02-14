@@ -16,8 +16,8 @@
 
 import {
     BallerinaConnectorInfo, ConfigOverlayFormStatus, ConfigPanelStatus, Connector,
-    DiagramEditorLangClientInterface, ExpressionEditorLangClientInterface, STModification,
-    STSymbolInfo, WizardType
+    DiagramEditorLangClientInterface, ExpressionEditorLangClientInterface, LibraryDataResponse, LibraryDocResponse,
+    LibrarySearchResponse, STModification, STSymbolInfo, WizardType
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { ModulePart, NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import { Diagnostic } from "vscode-languageserver-protocol";
@@ -111,6 +111,11 @@ export interface LowCodeEditorAPI {
     project: {
         run: (args: any[]) => void;
     }
+    library?: {
+        getLibrariesList: (kind: string) => Promise<LibraryDocResponse>;
+        getLibrariesData: () => Promise<LibrarySearchResponse>;
+        getLibraryData: (orgName: string, moduleName: string, version: string) => Promise<LibraryDataResponse>;
+    }
 }
 
 // FIXME Some of these props should be moved to low code state
@@ -144,6 +149,7 @@ export interface LowCodeEditorProperties {
     zoomStatus: ZoomStatus;
     selectedPosition?: SelectedPosition;
     performanceData?: Map<string, PerformanceData>;
+    experimentalEnabled?: boolean;
 }
 
 export interface FunctionProperties {

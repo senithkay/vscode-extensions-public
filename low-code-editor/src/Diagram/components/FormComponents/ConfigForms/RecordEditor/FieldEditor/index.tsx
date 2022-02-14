@@ -273,7 +273,7 @@ export function FieldEditor(props: FieldEditorProps) {
                     >
                         ;
                     </Typography>
-                    <div className={recordClasses.editFieldDelBtn}>
+                    <div data-testid={`delete-${field.name}`} className={recordClasses.editFieldDelBtn}>
                         <DeleteButton onClick={handleDelete}/>
                     </div>
                 </div>

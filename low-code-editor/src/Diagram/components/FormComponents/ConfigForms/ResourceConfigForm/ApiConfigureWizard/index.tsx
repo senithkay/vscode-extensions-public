@@ -706,6 +706,8 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                                 defaultValue={resource.method.toUpperCase()}
                                 customProps={{ values: SERVICE_METHODS, disableCreateNew: true }}
                                 onChange={handleOnSelect}
+                                label="HTTP Method"
+                                hideLabel={true}
                             />
                         </div>
                         <div className={formClasses.resourcePathWrapper}>
