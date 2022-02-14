@@ -38,7 +38,9 @@ export function ModuleElement(props: ModuleElementProps) {
     const {
         modelCtx: {
             currentModel,
-            updateModel
+            updateModel        },
+        formCtx: {
+            formModelPosition
         },
         library: {
             getLibraryData
@@ -76,9 +78,7 @@ export function ModuleElement(props: ModuleElementProps) {
         }
 
         updateModuleList(`import ${getFQModuleName(moduleOrgName, moduleId)};`);
-        updateModel(content, currentModel.model.position);
-
-        // addModuleImport(moduleOrgName, moduleId);
+        updateModel(content, currentModel.model ? currentModel.model.position : formModelPosition);
     }
 
     return (
