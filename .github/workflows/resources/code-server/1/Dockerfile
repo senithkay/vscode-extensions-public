@@ -34,6 +34,6 @@ RUN sudo apt-get update && \
     sed -i 's/delete window.top;//g' $webViewMain && \
     sed -i 's/delete window.frameElement;//g' $webViewMain && \
     sed -i '/<\/head>/i <!-- Hotjar Tracking Code for Choreo-prod -->\n<script>\n(function(h,o,t,j,a,r){h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};h._hjSettings={hjid:2626534,hjsv:6};a=o.getElementsByTagName(\"head\")[0];r=o.createElement(\"script\");r.async=1;r.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;a.appendChild(r);})(window,document,\"https://static.hotjar.com/c/hotjar-\",\".js?sv=\");\n</script>' $mainHtml  && \
-    sed -i -e 's/{{CS_STATIC_BASE}}/https:\/\/choreo-dev-codeserver-cdne.azureedge.net\/codeserver\/node_modules\/code-server@'$CODE_SERVER_VERSION'/g' $mainHtml
+    sed -i -e 's/{{CS_STATIC_BASE}}/https:\/\/choreo-shared-codeserver-cdne.azureedge.net\/code-server@'$CODE_SERVER_VERSION'/g' $mainHtml
 
 RUN echo "{\n\"workbench.startupEditor\": \"none\",\n\"window.dialogStyle\": \"custom\"}" > /config/data/User/settings.json
