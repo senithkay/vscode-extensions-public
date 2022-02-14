@@ -243,7 +243,8 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ex
                             sendTelemetryEvent,
                             getLibrariesList,
                             getLibrariesData,
-                            getLibraryData,                           
+                            getLibraryData,
+                            getSentryConfig,                           
                             experimentalEnabled
                         }
                     };
@@ -284,6 +285,17 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ex
                 return new Promise((resolve, _reject) => {
                     webViewRPCHandler.invokeRemoteMethod(
                         'getLibrariesData',
+                        [],
+                        (resp) => {
+                            resolve(resp);
+                        }
+                    );
+                })
+            }
+            function getSentryConfig() {
+                return new Promise((resolve, _reject) => {
+                    webViewRPCHandler.invokeRemoteMethod(
+                        'getSentryConfig',
                         [],
                         (resp) => {
                             resolve(resp);
