@@ -85,6 +85,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     };
 
     const [syntaxTree, setSyntaxTree] = React.useState(undefined);
+    const [correlationID, setCorrelationID] = React.useState(undefined);
     const [zoomStatus, setZoomStatus] = React.useState(defaultZoomStatus);
     const [fileContent, setFileContent] = React.useState("");
     const [isMutationInProgress, setMutationInProgress] = React.useState<boolean>(false);
@@ -128,9 +129,13 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
             return false;
         });
         (async () => {
-            const c: SentryConfig = await getSentryConfig();
+            const sentryConfig: SentryConfig = await getSentryConfig();
             // tslint:disable-next-line: no-console
-            console.log(c);
+            console.log(sentryConfig);
+            if (sentryConfig) {
+                init(sentryConfig);
+                setCorrelationID(sentryConfig.correlationID)
+            }
         })();
     }, []);
 
@@ -246,19 +251,11 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
         getDefaultSelectedPosition(syntaxTree)
         : { startLine, startColumn }
 
-    let sentryConfig;
-    (async () => {
-        sentryConfig = await props.getSentryConfig();
-    })
-    if (sentryConfig) {
-        init(sentryConfig);
-    }
-
     return (
         <MuiThemeProvider theme={theme}>
             <div className={classes.lowCodeContainer}>
                 <IntlProvider locale='en' defaultLocale='en' messages={messages}>
-                    <DiagramGenErrorBoundary lastUpdatedAt={lastUpdatedAt}>
+                    <DiagramGenErrorBoundary lastUpdatedAt={lastUpdatedAt} >
                         <LowCodeEditor
                             {...missingProps}
                             selectedPosition={selectedPosition}

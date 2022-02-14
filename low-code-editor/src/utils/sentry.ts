@@ -1,28 +1,25 @@
 import * as Sentry from "@sentry/browser";
 import { BrowserTracing } from "@sentry/tracing";
-import { SentryConfig } from "../DiagramGenerator/vscode/Diagram";
-
-
-// https://docs.sentry.io/platforms/javascript/guides/react/components/errorboundary/
+import { SentryConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 export const init = (config: SentryConfig) => {
-    /* eslint no-underscore-dangle: 0 */
-    const dsn = "https://ce32ebb21fbb4a5ca243cd7859887a6a@o1137178.ingest.sentry.io/6189513";
-    const sentryEnv = "production";
+    // /* eslint no-underscore-dangle: 0 */
     const sampleRate = 1;
-    if (!dsn) return;
+    if (!config.dsn) return;
     try {
         Sentry.init({
-            dsn,
-            release: "rel-2",
-            environment: sentryEnv || 'unknown',
+            dsn: config.dsn,
+            release: config.release,
+            environment: config.environment,
             ignoreErrors: [],
             sampleRate,
             integrations: [new BrowserTracing()],
             tracesSampleRate: 1.0,
         });
+        Sentry.setContext("Correlation ID", { id : config.correlationID });
     } catch (e) {
-        // console.log(e);
+        // tslint:disable: no-console
+        console.error(e);
     }
 };
 
