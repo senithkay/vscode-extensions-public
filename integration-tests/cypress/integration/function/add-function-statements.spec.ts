@@ -47,7 +47,7 @@ describe('Add function and statements via Low Code', () => {
       .save();
 
     SourceCode.shouldBeEqualTo(
-        getCurrentSpecFolder() + "add-info-log-expected.bal");
+        getCurrentSpecFolder() + "add-info-log.expected.bal");
   })
 
   it("Add a function and variable to empty file", () => {
@@ -403,7 +403,7 @@ describe('Add function and statements via Low Code', () => {
       .close()
 
     SourceCode.shouldBeEqualTo(
-        getCurrentSpecFolder() + "close-log-form.expected.bal");
+        getCurrentSpecFolder() + "add-empty-function.expected.bal");
   })
 
 })
