@@ -21,6 +21,7 @@ import { getFileContent, getProjectRoot, langClientPromise } from '../../../../.
 import { sizingAndPositioning } from '../../../../../../utils/diagram-util';
 import { Provider } from '../../../../Context/diagram';
 import { LowCodeDiagramProps } from '../../../../Context/types';
+import { Function } from '../../Function';
 
 export default {
     title: 'Diagram/Component/While',
@@ -92,16 +93,13 @@ const Template: Story<{ f1: string }> = (args: {f1: string }) => {
     }
 
     const functionST: FunctionDefinition = st && STKindChecker.isFunctionDefinition(st.members[0]) && st.members[0];
-    const whileST = functionST && STKindChecker.isFunctionBodyBlock(functionST.functionBody)
-                         && STKindChecker.isWhileStatement(functionST.functionBody.statements[0])
-                         && functionST.functionBody.statements[0];
-    const visitedST: IfElseStatement = (whileST && sizingAndPositioning(whileST)) as IfElseStatement;
+    const visitedST: FunctionDefinition = (functionST && sizingAndPositioning(functionST)) as FunctionDefinition;
 
     return st &&
     // tslint:disable-next-line: jsx-wrap-multiline
     <>
         <Provider {...providerProps}>
-            <While model={visitedST} />
+            <Function model={visitedST} />
         </Provider>
     </>;
 }

@@ -14,12 +14,13 @@ import React, { useEffect, useState } from 'react';
 
 // tslint:disable-next-line:no-submodule-imports
 import { Story } from '@storybook/react/types-6-0';
-import { ForeachStatement, FunctionBodyBlock, FunctionDefinition,  ModulePart, STKindChecker } from '@wso2-enterprise/syntax-tree';
+import { FunctionDefinition,  ModulePart, STKindChecker } from '@wso2-enterprise/syntax-tree';
 
 import { getFileContent, getProjectRoot, langClientPromise } from '../../../../../../../stories/story-utils';
 import { sizingAndPositioning } from '../../../../../../utils/diagram-util';
 import { Provider } from '../../../../Context/diagram';
 import { LowCodeDiagramProps } from '../../../../Context/types';
+import { Function } from '../../Function';
 
 import { ForEach } from "./../";
 
@@ -93,16 +94,13 @@ const Template: Story<{ f1: string }> = (args: {f1: string }) => {
     }
 
     const functionST: FunctionDefinition = st && STKindChecker.isFunctionDefinition(st.members[0]) && st.members[0];
-    const forEachST = functionST && STKindChecker.isFunctionBodyBlock(functionST.functionBody)
-                         && STKindChecker.isForeachStatement(functionST.functionBody.statements[0])
-                         && functionST.functionBody.statements[0];
-    const visitedST: ForeachStatement = (forEachST && sizingAndPositioning(forEachST)) as ForeachStatement;
+    const visitedST: FunctionDefinition = (functionST && sizingAndPositioning(functionST)) as FunctionDefinition;
 
     return st &&
     // tslint:disable-next-line: jsx-wrap-multiline
     <>
         <Provider {...providerProps}>
-            <ForEach model={visitedST} />
+            <Function model={visitedST} />
         </Provider>
     </>;
 }
