@@ -285,6 +285,11 @@
     }
 }
 
+.design-container-outer{
+    display:flex;
+    flex-direction: row;
+}
+
 .design-container {
     min-width: 100vw;
     scrollbar-width: none;
