@@ -17,7 +17,6 @@ import { BallerinaConnectorInfo } from "@wso2-enterprise/ballerina-low-code-edti
 import { CaptureBindingPattern, LocalVarDecl, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import cn from "classnames";
 
-import { Context } from "../../../../../../../Contexts/Diagram";
 import { getDiagnosticInfo } from "../../../../../../utils";
 import { getMatchingConnector } from "../../../../../../utils/st-util";
 import { ConnectorConfigWizard } from "../../../../../FormComponents/ConnectorConfigWizard";
@@ -27,6 +26,7 @@ import { DeleteBtn } from "../../../../Components/DiagramActions/DeleteBtn";
 import { DELETE_SVG_HEIGHT_WITH_SHADOW, DELETE_SVG_WIDTH_WITH_SHADOW } from "../../../../Components/DiagramActions/DeleteBtn/DeleteSVG";
 import { EditBtn } from "../../../../Components/DiagramActions/EditBtn";
 import { EDIT_SVG_OFFSET, EDIT_SVG_WIDTH_WITH_SHADOW } from "../../../../Components/DiagramActions/EditBtn/EditSVG";
+import { Context } from "../../../../Context/diagram";
 import { BlockViewState, StatementViewState, ViewState } from "../../../../ViewState";
 import { DraftStatementViewState } from "../../../../ViewState/draft";
 
@@ -41,21 +41,10 @@ export interface ConnectorProcessProps {
 }
 
 export function ConnectorProcess(props: ConnectorProcessProps) {
-    const {
-        actions: { diagramCleanDraw },
-        api: {
-            code: {
-                gotoSource
-            }
-        },
-        props: {
-            syntaxTree,
-            stSymbolInfo,
-            isMutationProgress,
-            isWaitingOnWorkspace,
-            isReadOnly,
-        },
-    } = useContext(Context);
+    const diagramContext = useContext(Context);
+    const { isReadOnly, syntaxTree, stSymbolInfo } = diagramContext.props;
+    const gotoSource = diagramContext?.api?.code?.gotoSource;
+    const diagramCleanDraw = diagramContext?.actions?.diagramCleanDraw;
 
     const { model, blockViewState, specialConnectorName } = props;
 
@@ -210,7 +199,7 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
                 />
                 {!model && !connector && !specialConnectorName && connectorList}
                 {(connector || specialConnectorName) && connectorWizard}
-                { model && !isReadOnly && !isMutationProgress && !isWaitingOnWorkspace && (
+                { model && !isReadOnly && (
                     <g
                         className="connector-process-options-wrapper"
                         height={CONNECTOR_PROCESS_SVG_HEIGHT_WITH_SHADOW}
