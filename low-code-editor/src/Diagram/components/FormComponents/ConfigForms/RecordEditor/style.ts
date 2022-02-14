@@ -67,14 +67,14 @@ export const recordStyles = makeStyles((theme: Theme) =>
             marginTop: 15.5
         },
         itemContentWrapper: {
-            margin: 5,
+            margin: "5px 5px 5px 20px",
             flexDirection: 'row',
             display: 'flex',
             width: '100%',
         },
         editItemContentWrapper: {
-            padding: 5,
-            margin: 5,
+            padding: "5px 10px 5px 0px",
+            margin: "5px 5px 5px 22px",
             flexDirection: 'row',
             display: 'flex',
             width: '100%',
@@ -100,13 +100,17 @@ export const recordStyles = makeStyles((theme: Theme) =>
                 },
                 cursor: "pointer",
                 "& $btnWrapper": {
-                    display: "flex"
+                    display: "flex",
+                    flex: "0 0 12%",
+                    maxWidth: "12%",
+                    marginTop: -6
                 }
             }
         },
         itemLabelWrapper: {
             width: "100%",
-            display: 'flex'
+            display: 'flex',
+            paddingLeft: 5
         },
         editTypeWrapper: {
             width: 130,
@@ -127,7 +131,7 @@ export const recordStyles = makeStyles((theme: Theme) =>
             marginLeft: 3
         },
         editFieldDelBtn: {
-            marginTop: 7,
+            marginTop: -2,
             width: 16
         },
         typeWrapper: {
@@ -231,24 +235,11 @@ export const recordStyles = makeStyles((theme: Theme) =>
         },
         recordHeader: {
             display: `flex`,
-            flexDirection: `row`,
-            "&:hover": {
-                "& $recordHeaderBtnWrapper": {
-                    display: "flex",
-                    flexDirection: "row",
-                    width: "25%",
-                    marginTop: 8,
-                    alignItems: "center"
-                },
-                "& $recordExpandBtnWrapper": {
-                    marginTop: 13,
-                    marginLeft: 0
-                }
-            }
+            flexDirection: `row`
         },
         recordHeading: {
             display: "flex",
-            width: "80%"
+            flexGrow: 1
         },
         typeNVisibilityWrapper: {
             marginTop: "3px !important",
@@ -347,22 +338,23 @@ export const recordStyles = makeStyles((theme: Theme) =>
         recordHeaderBtnWrapper: {
             display: "flex",
             flexDirection: "row",
-            width: "25%",
-            marginTop: 8,
+            flex: "0 0 30%",
+            maxWidth: "30%",
+            marginTop: -2,
             alignItems: "center",
             cursor: "pointer"
         },
         recordExpandBtnWrapper: {
-            width: 20,
-            marginTop: 13
+            flex: "0 0 36px",
+            maxWidth: "36px"
         },
         typeDefEditBtnWrapper: {
             cursor: "pointer",
             display: "flex",
             flexDirection: "row",
             width: "15%",
-            marginTop: 8,
-            justifyContent: "flex-end"
+            justifyContent: "flex-end",
+            alignItems: "center"
         },
         buttonWrapper: {
             height: 'auto',

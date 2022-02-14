@@ -169,11 +169,11 @@ export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
         onClose();
         dispatchOverlayClose();
         toggleDiagramOverlay();
-        const event: LowcodeEvent = {
-            type: CONNECTOR_CLOSED,
-            name: connectorInfo?.displayName
-        };
-        onEvent(event);
+        // const event: LowcodeEvent = {
+        //     type: CONNECTOR_CLOSED,
+        //     name: connectorInfo?.displayName
+        // };
+        // onEvent(event);
     };
 
     const handleSave = () => {

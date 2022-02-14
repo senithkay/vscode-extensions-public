@@ -15,13 +15,12 @@ import React, { useEffect, useState } from "react";
 import { FormattedMessage } from "react-intl";
 
 import { FormHelperText } from "@material-ui/core";
-import { FormField } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FormElementProps, FormField} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 import { Form } from "../../DynamicConnectorForm";
 import { useStyles } from "../../DynamicConnectorForm/style";
 import { ExpressionInjectablesProps } from "../../FormGenerator";
-import { FormElementProps } from "../../Types";
 import { SelectDropdownWithButton } from "../DropDown/SelectDropdownWithButton";
 
 interface UnionProps {

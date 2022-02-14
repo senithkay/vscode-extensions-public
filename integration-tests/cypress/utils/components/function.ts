@@ -27,6 +27,21 @@ export class Function {
         return this;
     }
 
+    public edit() {
+        this.container.within(() => {
+            cy.get('#edit-button')
+            .click({ force: true });
+        })
+        return this;
+    }
+
+    public delete() {
+        this.container.within(() => {
+            cy.get('#delete-button')
+            .click({ force: true });
+        })
+        return this;
+    }
 
     public getDiagram(): FunctionDiagram {
        return new FunctionDiagram(this.container);

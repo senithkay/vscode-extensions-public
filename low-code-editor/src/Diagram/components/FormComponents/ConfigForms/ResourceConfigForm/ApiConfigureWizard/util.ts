@@ -1,7 +1,6 @@
+import { ExpressionEditorCustomTemplate } from "@wso2-enterprise/ballerina-expression-editor";
 import { DiagramDiagnostic } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FunctionSignature, NodePosition, ReturnTypeDescriptor, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
-
-import { ExpressionEditorCustomTemplate } from "../../../FormFieldComponents/ExpressionEditor";
 
 import {
     Path,

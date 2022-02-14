@@ -1,9 +1,11 @@
+import { topLevelOptions } from "../type-utils";
+
 export class TopLevelPlusWidget {
 
-    static clickOption(optionName: string) {
+    static clickOption(optionName: topLevelOptions) {
         return cy.get(".options-wrapper")
-        .contains(optionName)
-        .click();
+            .contains(optionName)
+            .click();
     }
 
 }

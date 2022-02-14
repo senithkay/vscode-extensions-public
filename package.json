@@ -5,6 +5,7 @@
     "ballerina-languageclient",
     "lang-service",
     "low-code-editor-commons",
+    "expression-editor",
     "statement-editor",
     "configurable-editor",
     "low-code-editor",
@@ -19,8 +20,9 @@
       "build:ce": "npm run build --workspace=configurable-editor",
       "build:lce": "npm run build --workspace=low-code-editor",
       "build:lcec": "npm run build --workspace=low-code-editor-commons",
+      "build:ee": "npm run build --workspace=expression-editor",
       "build": "npm run build --workspaces",
       "storybook": "npm run storybook --workspace=low-code-editor",
       "test:integration": "npm run cypress --workspace=integration-tests"
   }
-}        
+}

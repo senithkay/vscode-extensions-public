@@ -66,6 +66,7 @@ function SearchBar(props: SearchBarProps) {
                     onChange={onQueryChanged}
                     onKeyDown={onKeyDown}
                     aria-label="search-for-connectors"
+                    data-testid="search-input"
                 />
             </Grid>
             <Grid item={true} container={true} xs={2} justifyContent="flex-end" data-testid="search-button">
