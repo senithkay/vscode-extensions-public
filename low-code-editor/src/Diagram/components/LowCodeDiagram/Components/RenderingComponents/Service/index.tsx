@@ -48,8 +48,9 @@ export function Service(props: ServiceProps) {
     const children: JSX.Element[] = []
 
     model.members.forEach(member => {
+        const startPosition = member.position?.startLine + ":" + member.position?.startColumn;
         children.push(
-            <div className={'service-member'}>
+            <div className={'service-member'}  data-start-position={startPosition} >
                 <TopLevelPlus
                     kind={model.kind}
                     targetPosition={member.position}
@@ -86,10 +87,10 @@ export function Service(props: ServiceProps) {
     }
 
     function renderButtons() {
-        const tryItBtn = <DefaultButtonSquare  onClick={onClickTryIt}>Try it</DefaultButtonSquare>
+        const tryItBtn = <DefaultButtonSquare  onClick={onClickTryIt} variant="outlined">Try it</DefaultButtonSquare>
 
         if (model.isRunnable) {
-            const runBtn = <DefaultButtonSquare  onClick={onClickRun}>Run</DefaultButtonSquare>
+            const runBtn = <DefaultButtonSquare  onClick={onClickRun} variant="outlined">Run</DefaultButtonSquare>
             if (!isTriggerType) {
                 return [runBtn, tryItBtn];
             }

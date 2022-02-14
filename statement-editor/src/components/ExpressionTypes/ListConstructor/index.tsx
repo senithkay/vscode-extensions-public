@@ -16,33 +16,54 @@ import React, { useContext } from "react";
 import { ListConstructor, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
-import { DEFAULT_EXPRESSIONS } from "../../../constants";
-import { VariableUserInputs } from "../../../models/definitions";
+import { APPEND_EXPR_LIST_CONSTRUCTOR, DEFAULT_EXPRESSIONS, INIT_EXPR_LIST_CONSTRUCTOR } from "../../../constants";
+import { SuggestionItem, VariableUserInputs } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { SuggestionsContext } from "../../../store/suggestions-context";
 import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
+import { addStatementToTargetLine, getContextBasedCompletions } from "../../../utils/ls-utils";
 import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
 
 interface ListConstructorProps {
-    model: ListConstructor
-    userInputs: VariableUserInputs
-    diagnosticHandler: (diagnostics: string) => void
+    model: ListConstructor;
+    userInputs: VariableUserInputs;
+    isElseIfMember: boolean;
+    diagnosticHandler: (diagnostics: string) => void;
 }
 
 export function ListConstructorComponent(props: ListConstructorProps) {
-    const { model, userInputs, diagnosticHandler } = props;
-    const stmtCtx = useContext(StatementEditorContext);
-    const { modelCtx } = stmtCtx;
-    const { currentModel } = modelCtx;
+    const { model, userInputs, isElseIfMember, diagnosticHandler } = props;
+    const {
+        modelCtx: {
+            statementModel,
+            currentModel,
+            updateModel,
+        },
+        currentFile,
+        formCtx: {
+            formModelPosition
+        },
+        getLangClient
+    } = useContext(StatementEditorContext);
+    const fileURI = `expr://${currentFile.path}`;
 
     const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
 
-    const onClickOnExpression = (clickedExpression: STNode, event: any) => {
+    const onClickOnExpression = async (clickedExpression: STNode, event: any) => {
         event.stopPropagation();
-        expressionHandler(clickedExpression, false, false,
-            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) })
+        const content: string = await addStatementToTargetLine(
+            currentFile.content, formModelPosition, statementModel.source, getLangClient);
+
+        const completions: SuggestionItem[] = await getContextBasedCompletions(
+            fileURI, content, formModelPosition, clickedExpression.position,
+            false, isElseIfMember, clickedExpression.source, getLangClient);
+        expressionHandler(clickedExpression, false, false, {
+            expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
+            typeSuggestions: [],
+            variableSuggestions: completions
+        });
     };
 
     const expressionComponent = (
@@ -71,8 +92,8 @@ export function ListConstructorComponent(props: ListConstructorProps) {
                         >
                             <ExpressionComponent
                                 model={expression}
-                                isRoot={false}
                                 userInputs={userInputs}
+                                isElseIfMember={isElseIfMember}
                                 diagnosticHandler={diagnosticHandler}
                                 isTypeDescriptor={false}
                             />
@@ -83,6 +104,12 @@ export function ListConstructorComponent(props: ListConstructorProps) {
         </span>
     );
 
+    const onClickOnPlusIcon = (event: any) => {
+        event.stopPropagation();
+        const newExpression = model.expressions.length !== 0 ? APPEND_EXPR_LIST_CONSTRUCTOR : INIT_EXPR_LIST_CONSTRUCTOR;
+        updateModel(newExpression, model.closeBracket.position);
+    };
+
     return (
         <span>
             <span
@@ -91,9 +118,15 @@ export function ListConstructorComponent(props: ListConstructorProps) {
                     statementEditorClasses.expressionBlockDisabled
                 )}
             >
-                &nbsp;{model.openBracket.value}
+                {model.openBracket.value}
             </span>
             {expressionComponent}
+            <button
+                className={statementEditorClasses.plusIconBorder}
+                onClick={onClickOnPlusIcon}
+            >
+                +
+            </button>
             <span
                 className={classNames(
                     statementEditorClasses.expressionBlock,

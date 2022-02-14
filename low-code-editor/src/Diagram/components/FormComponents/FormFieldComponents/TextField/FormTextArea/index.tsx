@@ -15,9 +15,9 @@ import React, { useState } from "react";
 
 import { TextareaAutosize } from "@material-ui/core";
 import Typography from '@material-ui/core/Typography';
+import { FormElementProps } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import cn from "classnames";
 
-import { FormElementProps } from "../../../Types";
 import { useStyles } from "../style";
 
 import "./style.scss";

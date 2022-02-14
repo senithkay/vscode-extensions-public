@@ -137,11 +137,11 @@ export function HTTPWizard(props: WizardProps) {
 
     const handleCreateConnectorOnSaveNext = () => {
         setState(InitFormState.SelectInputOutput);
-        const event: LowcodeEvent = {
-            type: SAVE_CONNECTOR_INVOKE,
-            name: connector.displayName
-        };
-        onEvent(event);
+        // const event: LowcodeEvent = {
+        //     type: SAVE_CONNECTOR_INVOKE,
+        //     name: connector.displayName
+        // };
+        // onEvent(event);
     };
 
     const handleConnectionChange = () => {
@@ -149,11 +149,11 @@ export function HTTPWizard(props: WizardProps) {
     };
 
     const handleFormClose = () => {
-        const event: LowcodeEvent = {
-            type: CONNECTOR_CLOSED,
-            name: connector.displayName
-        };
-        onEvent(event);
+        // const event: LowcodeEvent = {
+        //     type: CONNECTOR_CLOSED,
+        //     name: connector.displayName
+        // };
+        // onEvent(event);
         onClose();
     };
 
@@ -184,11 +184,11 @@ export function HTTPWizard(props: WizardProps) {
     };
 
     const handleCreateConnectorOnSave = () => {
-        const event: LowcodeEvent = {
-            type: SAVE_CONNECTOR_INIT,
-            name: connector.displayName
-        };
-        onEvent(event);
+        // const event: LowcodeEvent = {
+        //     type: SAVE_CONNECTOR_INIT,
+        //     name: connector.displayName
+        // };
+        // onEvent(event);
         const modifications: STModification[] = [];
         const functionSignature = updateFunctionSignatureWithError();
         if (functionSignature) {
@@ -251,7 +251,7 @@ export function HTTPWizard(props: WizardProps) {
         } else {
             const addActionInvocation = createPropertyStatement(actionStatement, targetPosition);
             modifications.push(addActionInvocation);
-            onActionAddEvent();
+            // onActionAddEvent();
         }
 
         onSave(modifications);

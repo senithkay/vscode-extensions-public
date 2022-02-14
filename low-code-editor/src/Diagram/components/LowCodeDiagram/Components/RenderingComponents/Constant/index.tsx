@@ -13,13 +13,13 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useState } from "react"
 
+import { Tooltip } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { ConstDeclaration, STNode } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
 import ConstantIcon from "../../../../../../assets/icons/ConstantIcon";
 import DeleteButton from "../../../../../../assets/icons/DeleteButton";
 import EditButton from "../../../../../../assets/icons/EditButton";
-import Tooltip from "../../../../../../components/Tooltip";
 import { useDiagramContext } from "../../../../../../Contexts/Diagram";
 import { removeStatement } from "../../../../../utils/modification-util";
 import { UnsupportedConfirmButtons } from "../../../../FormComponents/DialogBoxes/UnsupportedConfirmButtons";

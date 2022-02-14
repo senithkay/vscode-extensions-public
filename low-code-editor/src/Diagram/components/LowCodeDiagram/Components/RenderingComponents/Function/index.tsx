@@ -148,7 +148,7 @@ export function Function(props: FunctionProps) {
         if (model.isRunnable) {
             return (
                     <div className={"action-container"}>
-                        <DefaultButtonSquare onClick={onClickRun} variant="outlined" size="small" >Run</DefaultButtonSquare>
+                        <DefaultButtonSquare onClick={onClickRun} variant="outlined" size="small">Run</DefaultButtonSquare>
                    </div>
              )
         }
@@ -169,6 +169,7 @@ export function Function(props: FunctionProps) {
                     ? model.functionName.value
                     : ""
             )}
+            data-function-name={model?.functionName?.value}
         >
             {STKindChecker.isResourceAccessorDefinition(model) ? (
                 <ResourceHeader

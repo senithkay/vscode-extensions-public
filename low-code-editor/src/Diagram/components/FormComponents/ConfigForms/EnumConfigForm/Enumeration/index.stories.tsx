@@ -23,7 +23,7 @@ import { mockedEditorProps } from "../../ConditionConfigForms/ConditionsOverlayF
 import { Enumeration } from "./index";
 
 export default {
-    title: 'Low Code Editor/Form/Enumeration Editor/Enumeration',
+    title: 'Low Code Editor/Testing/Form/Enumeration Editor/Enumeration',
     component: Enumeration,
 };
 

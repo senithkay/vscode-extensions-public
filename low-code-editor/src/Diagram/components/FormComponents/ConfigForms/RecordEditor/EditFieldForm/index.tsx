@@ -15,13 +15,17 @@ import React, { useEffect, useState } from 'react';
 import { useIntl } from "react-intl";
 
 import { Box, FormControl, Typography } from "@material-ui/core";
-import { FormField, FormHeaderSection, PrimaryButton } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import {
+    FormElementProps,
+    FormField,
+    FormHeaderSection,
+    PrimaryButton
+} from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 
 import { useRecordEditorContext } from '../../../../../../Contexts/RecordEditor';
 import { keywords } from "../../../../Portals/utils/constants";
 import CheckBoxGroup from '../../../FormFieldComponents/CheckBox';
-import ExpressionEditor from '../../../FormFieldComponents/ExpressionEditor';
-import { FormElementProps } from "../../../Types";
+import { LowCodeExpressionEditor } from "../../../FormFieldComponents/LowCodeExpressionEditor";
 import { wizardStyles as useStyles } from "../../style";
 import { recordStyles } from "../style";
 import { genRecordName, getFieldNames } from "../utils";
@@ -108,6 +112,7 @@ export function EditFieldForm() {
             callBacks.onUpdateCurrentField(state.currentField);
         }
     };
+
     const defaultValueProps: FormElementProps = {
         model: formField,
         customProps: {
@@ -147,7 +152,7 @@ export function EditFieldForm() {
                 {!state.currentField?.isFieldOptional && (state.currentField?.type !== "record") && (
                     <div>
                         <div className={classes.sectionSeparator} />
-                        <ExpressionEditor {...defaultValueProps} />
+                        <LowCodeExpressionEditor {...defaultValueProps} />
                     </div>
                 )}
 

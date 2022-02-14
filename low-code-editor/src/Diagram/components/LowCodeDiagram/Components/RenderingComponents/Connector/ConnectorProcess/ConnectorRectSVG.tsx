@@ -39,7 +39,7 @@ export function ConnectorRectSVG(props: ConnectorRectSVGProps) {
                         <rect x="-0.5" y="-0.5" width="49" height="49" rx="4.5"/>
                     </g>
                 </g>
-                <text id="new" transform="translate(12 27.5)" className="connector-text">
+                <text id="new" transform="translate(10.25 27.5)" className="connector-text">
                     <tspan x="0" y="0">new</tspan>
                 </text>
             </g>

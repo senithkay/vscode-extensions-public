@@ -13,26 +13,28 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { ReactNode, useContext } from "react";
 
-import { ElseBlock, IfElseStatement, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree"
+import { IfElseStatement } from "@wso2-enterprise/syntax-tree"
 import classNames from "classnames";
 
 import { DEFAULT_EXPRESSIONS } from "../../../constants";
-import { VariableUserInputs } from "../../../models/definitions";
+import { SuggestionItem, VariableUserInputs } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { SuggestionsContext } from "../../../store/suggestions-context";
 import { getSuggestionsBasedOnExpressionKind, isPositionsEquals } from "../../../utils";
+import { addStatementToTargetLine, getContextBasedCompletions } from "../../../utils/ls-utils";
 import { ExpressionComponent } from "../../Expression";
+import { StatementRenderer } from "../../StatementRenderer";
 import { useStatementEditorStyles } from "../../styles";
-import { ElseIfStatementC } from "../ElseIfStatement";
 
 interface IfStatementProps {
     model: IfElseStatement
     userInputs: VariableUserInputs
+    isElseIfMember: boolean
     diagnosticHandler: (diagnostics: string) => void
 }
 
 export function IfStatementC(props: IfStatementProps) {
-    const { model, userInputs, diagnosticHandler } = props;
+    const { model, userInputs, isElseIfMember, diagnosticHandler } = props;
     const stmtCtx = useContext(StatementEditorContext);
     const { modelCtx } = stmtCtx;
     const { currentModel } = modelCtx;
@@ -41,46 +43,67 @@ export function IfStatementC(props: IfStatementProps) {
 
     const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
+    const { currentFile, getLangClient } = stmtCtx;
+    const targetPosition = stmtCtx.formCtx.formModelPosition;
+    const fileURI = `expr://${currentFile.path}`;
 
     const conditionComponent: ReactNode = (
         <ExpressionComponent
             model={model.condition}
-            isRoot={false}
             userInputs={userInputs}
+            isElseIfMember={isElseIfMember}
             diagnosticHandler={diagnosticHandler}
             isTypeDescriptor={false}
         />
     );
 
-    const elseIfComponentArray: (IfElseStatement)[] = [];
+    const elseBlockComponent: ReactNode = (
+        <StatementRenderer
+            model={model.elseBody}
+            userInputs={userInputs}
+            isElseIfMember={true}
+            diagnosticHandler={diagnosticHandler}
+        />
+    );
 
-    // Since the current syntax-tree-interfaces doesnt support ElseIfStatements,
-    // we will be iterating through the else-body to capture the data related to elseIf statement
-    const captureElseIfStmtModel = (elseIfModel: ElseBlock) => {
-        if (STKindChecker.isIfElseStatement(elseIfModel.elseBody)) {
-            elseIfComponentArray.push(elseIfModel.elseBody);
-            captureElseIfStmtModel(elseIfModel.elseBody.elseBody);
-        }
+    const onClickOnConditionExpression = async (event: any) => {
+        event.stopPropagation();
+
+        const content: string = await addStatementToTargetLine(
+            currentFile.content, targetPosition, stmtCtx.modelCtx.statementModel.source, getLangClient);
+
+        const completions: SuggestionItem[] = await getContextBasedCompletions(fileURI, content, targetPosition,
+            model.condition.position, false, isElseIfMember, model.condition.source, getLangClient);
+
+        expressionHandler(model.condition, false, false, {
+            expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
+            typeSuggestions: [],
+            variableSuggestions: completions
+        });
+    };
+
+    if (!currentModel.model && !isElseIfMember) {
+        addStatementToTargetLine(currentFile.content, targetPosition,
+            stmtCtx.modelCtx.statementModel.source, getLangClient).then((content: string) => {
+            getContextBasedCompletions(fileURI, content, targetPosition, model.condition.position, false,
+                isElseIfMember, model.condition.source, getLangClient).then((completions) => {
+                expressionHandler(model.condition, false, false, {
+                    expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
+                    typeSuggestions: [],
+                    variableSuggestions: completions
+                });
+            });
+        });
     }
-
-    captureElseIfStmtModel(model.elseBody);
-
-    const onClickOnConditionExpression = (event: any) => {
-        event.stopPropagation()
-        expressionHandler(model.condition, false, false,
-            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) })
-    };
-
-    const elseIfStatementProps = {
-        elseIfComponentArray,
-        userInputs,
-        diagnosticHandler
-    };
-
 
     return (
         <span>
-            <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>
+            <span
+                className={classNames(
+                    statementEditorClasses.expressionBlock,
+                    statementEditorClasses.expressionBlockDisabled
+                )}
+            >
                 {model.ifKeyword.value}
             </span>
             <button
@@ -92,23 +115,19 @@ export function IfStatementC(props: IfStatementProps) {
             >
                 {conditionComponent}
             </button>
-            <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>
+            <span
+                className={classNames(
+                    statementEditorClasses.expressionBlock,
+                    statementEditorClasses.expressionBlockDisabled
+                )}
+            >
                 &nbsp;{model.ifBody.openBraceToken.value}
                 <br/>
                 &nbsp;&nbsp;&nbsp;{"..."}
                 <br/>
-                &nbsp;{model.ifBody.closeBraceToken.value}
+                {model.ifBody.closeBraceToken.value}
             </span>
-            <ElseIfStatementC {...elseIfStatementProps}/>
-            <button className={statementEditorClasses.addNewExpressionButton}> + </button>
-            <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>
-                &nbsp;{model.elseBody.elseKeyword.value}
-                &nbsp;{model.ifBody.openBraceToken.value}
-                <br/>
-                &nbsp;&nbsp;&nbsp;{"..."}
-                <br/>
-                &nbsp;{model.ifBody.closeBraceToken.value}
-            </span>
+            {!!model.elseBody && elseBlockComponent}
         </span>
     );
 }

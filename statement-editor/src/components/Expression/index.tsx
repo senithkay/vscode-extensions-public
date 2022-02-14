@@ -18,17 +18,17 @@ import { VariableUserInputs } from "../../models/definitions";
 import { getExpressionTypeComponent } from "../../utils";
 
 export interface ExpressionComponentProps {
-    model: STNode
-    isRoot: boolean,
-    userInputs?: VariableUserInputs
-    diagnosticHandler: (diagnostics: string) => void
-    isTypeDescriptor: boolean
+    model: STNode;
+    userInputs?: VariableUserInputs;
+    isElseIfMember: boolean;
+    diagnosticHandler: (diagnostics: string) => void;
+    isTypeDescriptor: boolean;
 }
 
 export function ExpressionComponent(props: ExpressionComponentProps) {
-    const { model, isRoot, userInputs, diagnosticHandler, isTypeDescriptor } = props;
+    const { model, userInputs, isElseIfMember, diagnosticHandler, isTypeDescriptor } = props;
 
-    const component = getExpressionTypeComponent(model, userInputs, diagnosticHandler, isTypeDescriptor);
+    const component = getExpressionTypeComponent(model, userInputs, isElseIfMember, diagnosticHandler, isTypeDescriptor);
 
     return (
         <span>{component}</span>
