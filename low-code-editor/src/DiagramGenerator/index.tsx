@@ -85,7 +85,6 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     };
 
     const [syntaxTree, setSyntaxTree] = React.useState(undefined);
-    const [correlationID, setCorrelationID] = React.useState(undefined);
     const [zoomStatus, setZoomStatus] = React.useState(defaultZoomStatus);
     const [fileContent, setFileContent] = React.useState("");
     const [isMutationInProgress, setMutationInProgress] = React.useState<boolean>(false);
@@ -130,11 +129,8 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
         });
         (async () => {
             const sentryConfig: SentryConfig = await getSentryConfig();
-            // tslint:disable-next-line: no-console
-            console.log(sentryConfig);
             if (sentryConfig) {
                 init(sentryConfig);
-                setCorrelationID(sentryConfig.correlationID)
             }
         })();
     }, []);
