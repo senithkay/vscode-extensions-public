@@ -1,5 +1,7 @@
+import { RecordForm } from "../forms/record-form";
 import { Function } from "./function";
 import { Listener } from "./listener";
+import { Record } from "./record";
 import { Service } from "./service";
 
 export class Canvas {
@@ -26,6 +28,10 @@ export class Canvas {
 
     private static getListenerComponentELement(listenerName: string) {
         return cy.get(`#canvas .member-container .listener-comp[data-listener-name="${listenerName}"]`)
+    }
+
+    private static getRecordComponentELement(recordName: string) {
+        return cy.get(`#canvas .member-container .record-comp[data-record-name="${recordName}"]`)
     }
 
     private static getFnMemberContainer(fnName: string) {
@@ -71,5 +77,10 @@ export class Canvas {
     static getListener(listenerName: string) {
         const element = this.getListenerComponentELement(listenerName);
         return new Listener(element);
+    }
+
+    static getRecord(recordName: string) {
+        const element = this.getRecordComponentELement(recordName);
+        return new Record(element);
     }
 }
