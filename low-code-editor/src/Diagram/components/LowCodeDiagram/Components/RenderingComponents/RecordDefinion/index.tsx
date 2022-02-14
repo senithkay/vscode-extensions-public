@@ -83,7 +83,7 @@ export function RecordDefinitionComponent(props: RecordDefComponentProps) {
         }
 
         component.push(
-            <div className="record-comp">
+            <div className="record-comp" data-record-name={varName}>
                 <div className="record-header" >
                     <div className="record-content">
                         <div className="record-icon">

@@ -202,7 +202,7 @@ export function FieldEditor(props: FieldEditorProps) {
     };
 
     return (
-        <div className={recordClasses.itemWrapper}>
+        <div data-field-name={field.name} className={recordClasses.itemWrapper}>
             <div className={recordClasses.editItemContentWrapper}>
                 <div className={recordClasses.itemLabelWrapper}>
                     <div className={recordClasses.editTypeWrapper}>

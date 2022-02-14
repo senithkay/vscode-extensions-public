@@ -67,6 +67,75 @@ export class RecordForm {
         return this;
     }
 
+    static importFromJson(body: string) {
+        this.getForm().within(() => {
+            cy.contains("Import JSON").parent()
+                .click();
+        }).wait(2000);
+
+        const inputContainer = cy.get('#json-input-container');
+
+        inputContainer
+            .get('.textarea-wrapper textarea')
+            .first()
+            .type(body);
+        inputContainer.get('[data-testid="save-btn"]')
+            .last()
+            .click()
+
+        return this;
+    }
+
+    static editField(name: string, newName?: string, newType?: string, optionalValue?: string) {
+        this.getForm().within(() => {
+            cy.get(`[data-field-name="${name}"]`)
+                .click();
+
+            if (newType) {
+                cy.get('[placeholder="Type"]')
+                    .clear()
+                    .type(newType).wait(1000);
+
+                if (!optionalValue && !newName) {
+                    cy.get('[placeholder="Type"]')
+                        .type('{enter}');
+                }
+            }
+
+            if (newName) {
+                cy.get('[placeholder="Field name"]')
+                    .clear()
+                    .type(newName)
+                    .wait(1000);
+
+                if (!optionalValue) {
+                    cy.get('[placeholder="Field name"]').type('{enter}')
+                }
+            }
+
+            if (optionalValue) {
+                cy.get('[placeholder="Value(Optional)"]')
+                    .clear()
+                    .type(optionalValue + "{enter}");
+            }
+        });
+        return this;
+    }
+
+    static deleteField(name: string) {
+        this.getForm().within(() => {
+            cy.get(`[data-field-name="${name}"]`)
+                .click();
+
+            cy.get(`[data-field-name="${name}"]`).within(() => {
+                cy.get('[data-testid="delete-button"]')
+                    .click()
+                    .wait(1000);
+            });
+        });
+        return this;
+    }
+
     static deleteFirstField(name: string) {
         this.getForm().within(() => {
             cy.get(`[data-testid="delete-${name}"] button`).click({ force: true });
