@@ -12,7 +12,9 @@
  */
 
 import { Canvas } from "../../utils/components/canvas";
+import { SourceCode } from "../../utils/components/code-view";
 import { TopLevelPlusWidget } from "../../utils/components/top-level-plus-widget";
+import { getCurrentSpecFolder } from "../../utils/file-utils";
 import { RecordForm } from "../../utils/forms/record-form";
 import { getIntegrationTestStoryURL } from "../../utils/story-url-utils";
 
@@ -65,11 +67,14 @@ describe('Record', () => {
             .getRecord('Person')
             .clickEdit();
 
-        // toggle public
+        // toggle closed
         RecordForm
             .shouldBeVisible()
             .toggleClosedRecord()
             .save();
+
+        SourceCode.shouldBeEqualTo(
+            getCurrentSpecFolder() + "record-form.expected.bal");
     });
 
     it('Add and Delete Record', () => {
@@ -91,6 +96,8 @@ describe('Record', () => {
             .getRecord('Person')
             .clickDelete();
 
+        SourceCode.shouldBeEqualTo(
+            getCurrentSpecFolder() + "delete-record.expected.bal");
     });
 
     it('Open and Cancel Form', () => {
@@ -100,7 +107,7 @@ describe('Record', () => {
 
         TopLevelPlusWidget.clickOption('Record');
 
-        RecordForm 
+        RecordForm
             .shouldBeVisible()
             .cancel();
     });
@@ -112,7 +119,7 @@ describe('Record', () => {
 
         TopLevelPlusWidget.clickOption('Record');
 
-        RecordForm 
+        RecordForm
             .shouldBeVisible()
             .close();
     });
