@@ -24,6 +24,7 @@ import {
     LibraryDocResponse,
     LibraryKind,
     LibrarySearchResponse,
+    SentryConfig,
     STModification,
     STSymbolInfo,
     WizardType
@@ -74,6 +75,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     const getLibrariesList: (kind: LibraryKind) => Promise<LibraryDocResponse | undefined> = props.getLibrariesList;
     const getLibrariesData: () => Promise<LibrarySearchResponse | undefined> = props.getLibrariesData;
     const getLibraryData: (orgName: string, moduleName: string, version: string) => Promise<LibraryDataResponse | undefined> = props.getLibraryData;
+    const getSentryConfig: () => Promise<SentryConfig | undefined> = props.getSentryConfig;
 
     const defaultZoomStatus = {
         scale: defaultScale,
@@ -124,6 +126,11 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
             redo();
             return false;
         });
+        (async () => {
+            const c: SentryConfig = await getSentryConfig();
+            // tslint:disable-next-line: no-console
+            console.log(c);
+        })();
     }, []);
 
     function zoomIn() {
