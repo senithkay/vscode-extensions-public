@@ -3,14 +3,13 @@ import { IntlProvider } from "react-intl";
 import { monaco } from "react-monaco-editor";
 
 import { MuiThemeProvider } from "@material-ui/core/styles";
-import { Connector, DiagramDiagnostic, DIAGRAM_MODIFIED, LowcodeEvent, STModification, STSymbolInfo, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ConditionConfig, Connector, DiagramDiagnostic, DIAGRAM_MODIFIED, LowcodeEvent, STModification, STSymbolInfo, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FunctionDefinition, ModulePart, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import cloneDeep from "lodash.clonedeep";
 import Mousetrap from 'mousetrap';
 
 import LowCodeEditor, { BlockViewState, getSymbolInfo, InsertorDelete } from "..";
 import "../assets/fonts/Glimer/glimer.css";
-import { ConditionConfig } from "../Diagram/components/FormComponents/Types";
 import { UndoRedoManager } from "../Diagram/components/FormComponents/UndoRedoManager";
 import messages from '../lang/en.json';
 import { CirclePreloader } from "../PreLoader/CirclePreloader";
@@ -39,7 +38,7 @@ const debounceTime: number = 5000;
 let lastPerfUpdate = 0;
 
 export function DiagramGenerator(props: DiagramGeneratorProps) {
-    const { langClientPromise, filePath, startLine, startColumn, lastUpdatedAt, scale, panX, panY, resolveMissingDependency } = props;
+    const { langClientPromise, filePath, startLine, startColumn, lastUpdatedAt, scale, panX, panY, resolveMissingDependency, experimentalEnabled } = props;
     const classes = useGeneratorStyles();
     const defaultScale = scale ? Number(scale) : 1;
     const defaultPanX = panX ? Number(panX) : 0;
@@ -130,7 +129,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     }
 
     async function run(args: any[]) {
-        runCommand(PALETTE_COMMANDS.RUN_WITH_CONFIGS, args);
+        runCommand(PALETTE_COMMANDS.RUN, args);
     }
 
     const undo = async () => {
@@ -230,6 +229,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                 type: "File"
                             }}
                             performanceData={performanceData}
+                            experimentalEnabled={experimentalEnabled}
                             // tslint:disable-next-line: jsx-no-multiline-js
                             api={{
                                 helpPanel: {

@@ -12,7 +12,7 @@
  */
 import * as React from "react";
 
-import { DefaultConfig } from "../../visitors/default";
+import { DefaultConfig } from "../LowCodeDiagram/Visitors/default";
 
 import { useStyles } from "./style";
 

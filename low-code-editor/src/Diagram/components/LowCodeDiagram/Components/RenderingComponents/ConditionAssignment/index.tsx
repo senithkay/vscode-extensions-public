@@ -11,12 +11,12 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js align  jsx-wrap-multiline
-import React, { ReactElement, ReactNode, useEffect, useState } from "react";
+import React, { ReactElement, useEffect, useState } from "react";
 
 import classNames from "classnames";
 
-import Tooltip from '../../../../../../components/Tooltip';
-import { DefaultConfig } from "../../../../../visitors/default";
+// import Tooltip from '../../../../../../components/Tooltip';
+import { DefaultConfig } from "../../../Visitors/default";
 
 import "./style.scss"
 
@@ -47,13 +47,12 @@ export function ConditionAssignment(props: { x: number, y: number, assignment: s
 
     return (
         <svg {...xyProps}>
-            {assignmentMaxWidth ?
+            {/* {assignmentMaxWidth ?
                 <Tooltip arrow={true} placement="top-start" title={assignment} inverted={false} interactive={true}>
                     {assignemtComponant}
                 </Tooltip>
-                :
-                assignemtComponant
-            }
+                : */}
+            {assignemtComponant}
         </svg >
     );
 }

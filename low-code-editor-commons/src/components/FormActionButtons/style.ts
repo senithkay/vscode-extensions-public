@@ -22,7 +22,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             paddingRight: theme.spacing(2.5),
         },
         spaceBetween: {
-            padding: theme.spacing(1),
+            padding: `${theme.spacing(1)}px ${theme.spacing(0.1)}px`,
             '&:last-child': {
                 paddingRight: 0
             }

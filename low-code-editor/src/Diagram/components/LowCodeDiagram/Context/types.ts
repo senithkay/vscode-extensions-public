@@ -7,6 +7,12 @@ export interface LowCodeDiagramProps extends LowCodeDiagramProperties {
     api?: LowCodeDiagramAPI;
 }
 
+export interface ZoomStatus {
+    scale: number,
+    panX: number,
+    panY: number,
+}
+
 export interface LowCodeDiagramContext {
     state: LowCodeDiagramState;
     actions: LowCodeDiagramActions;
@@ -21,6 +27,7 @@ export interface LowCodeDiagramProperties {
     selectedPosition?: SelectedPosition;
     stSymbolInfo?: STSymbolInfo;
     performanceData?: Map<string, PerformanceData>;
+    zoomStatus?: ZoomStatus;
 }
 
 export interface LowCodeDiagramState {
@@ -44,7 +51,7 @@ export interface LowCodeDiagramAPI {
         renderEditForm?: (model: STNode, targetPosition: NodePosition, configOverlayFormStatus: ConfigOverlayFormStatus, onClose?: () => void, onSave?: () => void) => void;
         renderAddForm?: (targetPosition: NodePosition, configOverlayFormStatus: ConfigOverlayFormStatus, onClose?: () => void, onSave?: () => void) => void;
         renderConnectorWizard?: (connectorConfigWizardProps: ConnectorConfigWizardProps) => void;
-        renderDialogBox?: (type: string, onConfirm: () => void, onCancel: () => void, position?: DiagramOverlayPosition, message?: string, removeText?: string, isFunctionMember?: boolean) => void;
+        renderDialogBox?: (type: string, onConfirm: () => void, onCancel?: () => void, position?: DiagramOverlayPosition, message?: string, removeText?: string, isFunctionMember?: boolean) => void;
         renderPlusWidget?: (type: string, plusWidgetProps: PlusWidgetProps, viewState?: PlusViewState) => any;
         closeAllOpenedForms?: (callBack?: () => void) => void;
     };

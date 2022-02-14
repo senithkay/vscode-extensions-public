@@ -31,8 +31,7 @@ import {
 } from "@wso2-enterprise/syntax-tree";
 import { Diagnostic } from "vscode-languageserver-protocol";
 
-import { Endpoint, isSTActionInvocation } from "../../../utils/st-util";
-import { DefaultConfig } from "../../../visitors/default";
+import { Endpoint } from "../Types/type";
 import {
     BlockViewState,
     CollapseViewState,
@@ -53,6 +52,9 @@ import {
     WhileViewState
 } from "../ViewState";
 import { DraftStatementViewState } from "../ViewState/draft";
+
+import { DefaultConfig } from "./default";
+import { isSTActionInvocation } from "./util";
 
 let allEndpoints: Map<string, Endpoint> = new Map<string, Endpoint>();
 let currentFnBody: FunctionBodyBlock | ExpressionFunctionBody;

@@ -17,11 +17,11 @@ import { BallerinaConnectorInfo } from "@wso2-enterprise/ballerina-low-code-edti
 import { BlockStatement, FunctionBodyBlock, LocalVarDecl } from "@wso2-enterprise/syntax-tree";
 import cn from "classnames";
 
-import { DefaultConfig } from "../../../../../visitors/default";
 import { Context } from "../../../Context/diagram";
 import { useFunctionContext } from "../../../Context/Function";
 import { BlockViewState } from "../../../ViewState";
 import { PlusViewState } from "../../../ViewState/plus";
+import { DefaultConfig } from "../../../Visitors/default";
 
 import { PlusCircleSVG, PLUSCIRCLE_SVG_HEIGHT_WITH_SHADOW, PLUSCIRCLE_SVG_WIDTH_WITH_SHADOW } from "./Circle";
 import { SmallPlusSVG, SMALLPLUS_SVG_HEIGHT_WITH_SHADOW, SMALLPLUS_SVG_WIDTH_WITH_SHADOW } from "./Default";

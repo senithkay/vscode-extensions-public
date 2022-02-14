@@ -15,7 +15,8 @@ import React, { ReactElement } from "react";
 
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
-import { ErrorSnippet } from "../../../../../../DiagramGenerator/generatorUtil";
+import { ErrorSnippet } from "../../../Types/type";
+// import { ErrorSnippet } from "../../../../../../DiagramGenerator/generatorUtil";
 
 import { ProcessRectSVG } from "./ProcessRectSVG";
 import "./style.scss";

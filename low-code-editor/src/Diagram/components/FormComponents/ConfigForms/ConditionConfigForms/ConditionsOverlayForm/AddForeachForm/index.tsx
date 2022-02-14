@@ -19,7 +19,7 @@ import { BinaryExpression, ForeachStatement } from "@wso2-enterprise/syntax-tree
 import classnames from "classnames";
 import { FormControl, Typography } from "@material-ui/core";
 
-import { FormField, FormActionButtons, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FormField, FormActionButtons, FormHeaderSection, ConditionConfig, ForeachConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
 import { getAllVariables } from "../../../../../../utils/mixins";
@@ -30,7 +30,7 @@ import { SelectDropdownWithButton } from "../../../../FormFieldComponents/DropDo
 import ExpressionEditor, { ExpressionEditorProps } from "../../../../FormFieldComponents/ExpressionEditor";
 import { FormTextInput } from "../../../../FormFieldComponents/TextField/FormTextInput";
 import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
-import { ConditionConfig, ForeachConfig, FormElementProps } from "../../../../Types";
+import { FormElementProps } from "../../../../Types";
 import { wizardStyles } from "../../../style";
 import { VariableTypeInput, VariableTypeInputProps } from "../../../Components/VariableTypeInput";
 import Tooltip from '../../../../../../../components/TooltipV2'
@@ -57,7 +57,8 @@ export function AddForeachForm(props: ForeachProps) {
             isCodeEditorActive,
             isMutationProgress: isMutationInProgress,
             stSymbolInfo,
-            currentFile
+            currentFile,
+            experimentalEnabled
         },
         api: {
             ls: { getExpressionEditorLangClient },
@@ -247,7 +248,8 @@ export function AddForeachForm(props: ForeachProps) {
             onCancel,
             currentFile,
             getLangClient: getExpressionEditorLangClient,
-            applyModifications: modifyDiagram
+            applyModifications: modifyDiagram,
+            experimentalEnabled
         }
     );
 
@@ -283,6 +285,7 @@ export function AddForeachForm(props: ForeachProps) {
                     defaultMessage={"Foreach"}
                     handleStmtEditorToggle={handleStmtEditorToggle}
                     toggleChecked={false}
+                    experimentalEnabled={experimentalEnabled}
                 />
                 <div className={classes.formContentWrapper}>
                     <div className={classes.formCodeBlockWrapper}>
@@ -299,7 +302,7 @@ export function AddForeachForm(props: ForeachProps) {
                                     onChange={onVariableNameChange}
                                     defaultValue={conditionExpression.variable}
                                     label="Current Value"
-                                    placeholder={""}
+                                    placeholder="Current Value"
                                     errorMessage={invalidConnectionErrorMessage}
                                 />
                             </div>

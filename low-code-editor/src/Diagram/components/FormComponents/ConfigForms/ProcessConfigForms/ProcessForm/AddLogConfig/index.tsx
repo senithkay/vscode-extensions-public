@@ -24,9 +24,8 @@ import { useStyles as useFormStyles } from "../../../../DynamicConnectorForm/sty
 import { SelectDropdownWithButton } from "../../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
 import ExpressionEditor from "../../../../FormFieldComponents/ExpressionEditor";
 import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
-import { LogConfig, ProcessConfig } from "../../../../Types";
 import { createLogStatement, getInitialSource } from "../../../../../../utils/modification-util";
-import { FormActionButtons, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FormActionButtons, FormHeaderSection, LogConfig, ProcessConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 interface LogConfigProps {
     config: ProcessConfig;
@@ -46,7 +45,8 @@ export function AddLogConfig(props: LogConfigProps) {
     const {
         props: {
             isMutationProgress: isMutationInProgress,
-            currentFile
+            currentFile,
+            experimentalEnabled
         },
         api: {
             ls: { getExpressionEditorLangClient },
@@ -139,7 +139,8 @@ export function AddLogConfig(props: LogConfigProps) {
             onCancel,
             currentFile,
             getLangClient: getExpressionEditorLangClient,
-            applyModifications: modifyDiagram
+            applyModifications: modifyDiagram,
+            experimentalEnabled
         }
     );
 
@@ -153,6 +154,7 @@ export function AddLogConfig(props: LogConfigProps) {
                     defaultMessage={"Log"}
                     handleStmtEditorToggle={handleStmtEditorToggle}
                     toggleChecked={false}
+                    experimentalEnabled={experimentalEnabled}
                 />
                 <div className={formClasses.formContentWrapper}>
                     <div className={formClasses.formNameWrapper}>

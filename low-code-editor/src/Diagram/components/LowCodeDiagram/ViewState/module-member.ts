@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { DefaultConfig } from "../../../visitors/default";
+import { DefaultConfig } from "../Visitors/default";
 
 import { StatementViewState } from "./statement";
 

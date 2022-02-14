@@ -17,14 +17,14 @@ import { FormattedMessage, useIntl } from "react-intl";
 import { WhileStatement } from "@wso2-enterprise/syntax-tree";
 import { FormControl, Typography } from "@material-ui/core";
 
-import { FormField, FormActionButtons, FormHeaderSection, } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FormField, FormActionButtons, FormHeaderSection, ConditionConfig, } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { createWhileStatement, getInitialSource } from "../../../../../../utils/modification-util";
 import ExpressionEditor, { ExpressionEditorProps } from "../../../../FormFieldComponents/ExpressionEditor";
 import { useStyles } from "../../../../DynamicConnectorForm/style";
 import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
-import { ConditionConfig, FormElementProps } from "../../../../Types";
+import { FormElementProps } from "../../../../Types";
 import Tooltip from '../../../../../../../components/TooltipV2'
 
 export interface WhileProps {
@@ -37,7 +37,11 @@ export interface WhileProps {
 
 export function AddWhileForm(props: WhileProps) {
     const {
-        props: { isMutationProgress: isMutationInProgress, currentFile },
+        props: {
+            isMutationProgress: isMutationInProgress,
+            currentFile,
+            experimentalEnabled
+        },
         api: {
             ls: { getExpressionEditorLangClient },
             code: { modifyDiagram }
@@ -144,7 +148,8 @@ export function AddWhileForm(props: WhileProps) {
             onCancel,
             currentFile,
             getLangClient: getExpressionEditorLangClient,
-            applyModifications: modifyDiagram
+            applyModifications: modifyDiagram,
+            experimentalEnabled
         }
     );
 
@@ -158,6 +163,7 @@ export function AddWhileForm(props: WhileProps) {
                     defaultMessage={"While"}
                     handleStmtEditorToggle={handleStmtEditorToggle}
                     toggleChecked={false}
+                    experimentalEnabled={experimentalEnabled}
                 />
                 <div className={classes.formContentWrapper}>
                     <div className={classes.formCodeBlockWrapper}>

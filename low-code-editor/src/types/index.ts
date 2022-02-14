@@ -15,7 +15,8 @@
 // Should move these to ../Definitions/*
 
 import {
-    BallerinaConnectorInfo, ConfigOverlayFormStatus, ConfigPanelStatus, Connector,
+    BallerinaConnectorInfo, ConditionConfig, ConfigOverlayFormStatus, ConfigPanelStatus, Connector,
+    DataMapperConfig,
     DiagramEditorLangClientInterface, ExpressionEditorLangClientInterface, PerformanceData, STModification,
     STSymbolInfo, WizardType
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
@@ -23,7 +24,6 @@ import { ModulePart, NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import { Diagnostic } from "vscode-languageserver-protocol";
 
 import { BlockViewState } from "..";
-import { ConditionConfig, DataMapperConfig } from "../Diagram/components/FormComponents/Types";
 import { Warning } from "../Diagram/utils/st-util";
 
 export interface ZoomStatus {
@@ -141,6 +141,7 @@ export interface LowCodeEditorProperties {
     zoomStatus: ZoomStatus;
     selectedPosition?: SelectedPosition;
     performanceData?: Map<string, PerformanceData>;
+    experimentalEnabled?: boolean;
 }
 
 export interface SelectedPosition {

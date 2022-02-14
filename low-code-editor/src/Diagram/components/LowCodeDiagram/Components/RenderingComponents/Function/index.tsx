@@ -22,7 +22,6 @@ import classNames from "classnames";
 import { v4 as uuid } from "uuid";
 
 import { useStyles } from "../../../../../styles";
-import DefaultButtonSquare from "../../../../Buttons/DefaultButtonSquare";
 import { Canvas } from "../../../Canvas";
 import { Context } from "../../../Context/diagram";
 import { Provider as FunctionProvider } from "../../../Context/Function";
@@ -137,9 +136,9 @@ export function Function(props: FunctionProps) {
         if (model.isRunnable) {
             return (
                 <div className={"action-container"}>
-                    <DefaultButtonSquare onClick={onClickRun} variant="outlined" size="small" >Run</DefaultButtonSquare>
+                    <button onClick={onClickRun}>Run</button>
                 </div>
-            )
+            );
         }
     }
 

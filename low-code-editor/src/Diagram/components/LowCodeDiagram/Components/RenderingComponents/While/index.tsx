@@ -22,9 +22,6 @@ import {
     WhileStatement
 } from "@wso2-enterprise/syntax-tree";
 
-import { getDiagnosticInfo, getDraftComponent, getSTComponents } from "../../../../../utils";
-import { getConditionConfig, getRandomInt } from "../../../../../utils/diagram-util";
-import { DefaultConfig } from "../../../../../visitors/default";
 import { DeleteBtn } from "../../../Components/DiagramActions/DeleteBtn";
 import {
     DELETE_SVG_HEIGHT_WITH_SHADOW,
@@ -37,8 +34,10 @@ import {
     EDIT_SVG_WIDTH_WITH_SHADOW
 } from "../../../Components/DiagramActions/EditBtn/EditSVG";
 import { Context } from "../../../Context/diagram";
+import { getConditionConfig, getDiagnosticInfo, getDraftComponent, getRandomInt, getSTComponents } from "../../../Utils";
 import { BlockViewState } from "../../../ViewState";
 import { WhileViewState } from "../../../ViewState/while";
+import { DefaultConfig } from "../../../Visitors/default";
 import { PlusButton } from "../../PlusButtons/Plus";
 import { Collapse } from "../Collapse";
 import { ConditionAssignment, CONDITION_ASSIGNMENT_NAME_WIDTH } from "../ConditionAssignment";

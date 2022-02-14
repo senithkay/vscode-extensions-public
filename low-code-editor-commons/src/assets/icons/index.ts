@@ -10,14 +10,6 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-export { default as AddIcon } from "@material-ui/icons/Add";
-export { default as CloseIcon } from "@material-ui/icons/Close";
-export { default as CloseRounded } from "@material-ui/icons/CloseRounded";
-export { default as EditIcon } from "@material-ui/icons/Edit";
-export { default as LayersOutlined } from '@material-ui/icons/LayersOutlined';
-export { default as CodeIcon } from '@material-ui/icons/Code';
-export { default as FunctionsIcon } from '@material-ui/icons/Functions';
-
 export { default as ApiIcon } from "./Api";
 export { default as CalendarIcon } from "./Calendar";
 export { default as CustomIcon } from "./Custom";
@@ -66,3 +58,9 @@ export { default as ResourceAccessorDefinition } from './ResourceIcon';
 export { default as Custom } from "./Custom";
 export { default as ErrorIcon } from "./Error";
 export { default as TriggerList } from "./ListenerIcon";
+export { default as ComponentCollapseIcon } from "./ComponentCollapseIcon";
+export { default as ComponentExpandIcon } from "./ComponentExpandIcon";
+export { default as DeleteButton } from "./DeleteButton";
+export { default as EditButton } from "./EditButton";
+export { default as TopLevelPlusIcon} from "./TopLevelPlusIcon";
+export { default as WarningIcon} from "./Warning";

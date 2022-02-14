@@ -3,9 +3,9 @@ import React, { useCallback, useContext, useState } from "react";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 
 import { SelectedPosition } from "../../../../types";
-import expandTracker from "../../../utils/expand-tracker";
 import { Context } from "../Context/diagram";
 import { getNodeSignature } from "../Utils";
+import expandTracker from "../Utils/expand-tracker";
 
 /**
  * A custom hook for diagram components which returns a boolean indicating if a given

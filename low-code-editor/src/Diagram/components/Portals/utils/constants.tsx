@@ -94,12 +94,6 @@ export const connectorCategories = {
     CHOREO_CONNECTORS: "choreo-connectors"
 }
 
-export const defaultOrgs = {
-    WSO2: "wso2",
-    BALLERINA:  "ballerina",
-    BALLERINAX:  "ballerinax"
-}
-
 export const QUERY = 'query';
 export const CATEGORY = 'category';
 export const PAGE_OFFSET = 'pageOffset';

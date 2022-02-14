@@ -16,8 +16,8 @@ import React, { useContext, useState } from "react";
 import { STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 
-import { DefaultConfig } from "../../../../../visitors/default";
 import { Context } from "../../../Context/diagram";
+import { DefaultConfig } from "../../../Visitors/default";
 
 import { DeleteSVG } from "./DeleteSVG";
 import "./style.scss";

@@ -16,7 +16,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { useIntl } from "react-intl";
 
 import { FormControl } from "@material-ui/core";
-import { FormActionButtons, FormHeaderSection, ADD_OTHER_STATEMENT, LowcodeEvent, SAVE_OTHER_STATEMENT } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FormActionButtons, FormHeaderSection, ADD_OTHER_STATEMENT, LowcodeEvent, SAVE_OTHER_STATEMENT, ProcessConfig, CustomExpressionConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 
@@ -24,7 +24,6 @@ import { Context } from "../../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
 import ExpressionEditor from "../../../../FormFieldComponents/ExpressionEditor";
 import { useStyles as useFormStyles } from "../../../../DynamicConnectorForm/style";
-import { CustomExpressionConfig, ProcessConfig } from "../../../../Types";
 import { wizardStyles } from "../../../style";
 
 interface LogConfigProps {
@@ -43,7 +42,8 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
     const {
         props: {
             isMutationProgress: isMutationInProgress,
-            currentFile
+            currentFile,
+            experimentalEnabled
         },
         api: {
             ls: { getExpressionEditorLangClient },
@@ -127,7 +127,8 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
             onCancel,
             currentFile,
             getLangClient: getExpressionEditorLangClient,
-            applyModifications: modifyDiagram
+            applyModifications: modifyDiagram,
+            experimentalEnabled
         }
     );
 
@@ -141,6 +142,7 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
                     defaultMessage={"Other"}
                     handleStmtEditorToggle={handleStmtEditorToggle}
                     toggleChecked={false}
+                    experimentalEnabled={experimentalEnabled}
                 />
                 <div className={formClasses.formContentWrapper}>
                     <div className={formClasses.formNameWrapper}>
