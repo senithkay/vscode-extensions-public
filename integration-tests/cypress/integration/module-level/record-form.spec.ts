@@ -93,6 +93,30 @@ describe('Record', () => {
 
     });
 
+    it('Open and Cancel Form', () => {
+        Canvas
+            .welcomeMessageShouldBeVisible()
+            .clickTopLevelPlusButton();
+
+        TopLevelPlusWidget.clickOption('Record');
+
+        RecordForm 
+            .shouldBeVisible()
+            .cancel();
+    });
+
+    it('Open and Close Form', () => {
+        Canvas
+            .welcomeMessageShouldBeVisible()
+            .clickTopLevelPlusButton();
+
+        TopLevelPlusWidget.clickOption('Record');
+
+        RecordForm 
+            .shouldBeVisible()
+            .close();
+    });
+
 
     // Todo: Fix once the import from JSON is fixed
     // it('Add from Json', () => {
