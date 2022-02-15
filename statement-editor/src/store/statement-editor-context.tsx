@@ -13,7 +13,7 @@
 // tslint:disable: no-empty jsx-no-multiline-js
 import React from 'react';
 
-import { STModification } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { LibraryKind, STModification } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { LowCodeEditorProps } from '../components/ViewContainer/ViewContainer';
@@ -27,7 +27,6 @@ export const StatementEditorContext = React.createContext({
         updateModel: (codeSnippet: string, position: NodePosition) => {}
     },
     formCtx: {
-        onCancel: false,
         formModelPosition: null
     },
     statementCtx: {
@@ -35,6 +34,11 @@ export const StatementEditorContext = React.createContext({
     },
     getLangClient: () => (Promise.resolve({} as any)),
     applyModifications: (modifications: STModification[]) => (undefined),
+    library: {
+        getLibrariesList: (kind: LibraryKind) => (Promise.resolve({} as any)),
+        getLibrariesData: () => (Promise.resolve({} as any)),
+        getLibraryData: (orgName: string, moduleName: string, version: string) => (Promise.resolve({} as any))
+    },
     currentFile: {
         content: "",
         path: "",
@@ -46,7 +50,6 @@ interface CtxProviderProps extends LowCodeEditorProps {
     children?: React.ReactNode,
     model: STNode,
     currentModel: { model: STNode },
-    onCancelClicked: boolean,
     updateModel?: (codeSnippet: string, position: NodePosition) => void,
     formArgs?: any,
     validateStatement: (isValid: boolean) => void
@@ -57,10 +60,10 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
         children,
         model,
         currentModel,
-        onCancelClicked,
         updateModel,
         formArgs,
         validateStatement,
+        library,
         ...restProps
     } = props;
 
@@ -73,12 +76,12 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
                     updateModel
                 },
                 formCtx: {
-                    onCancel: onCancelClicked,
                     formModelPosition: formArgs.formArgs.targetPosition
                 },
                 statementCtx: {
                     validateStatement
                 },
+                library,
                 ...restProps
             }}
         >

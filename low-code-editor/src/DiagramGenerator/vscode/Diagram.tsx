@@ -1,6 +1,14 @@
 import * as React from "react";
 
-import { DiagramEditorLangClientInterface, PerformanceAnalyzerGraphResponse, PerformanceAnalyzerRealtimeResponse } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import {
+    DiagramEditorLangClientInterface,
+    LibraryDataResponse,
+    LibraryDocResponse,
+    LibraryKind,
+    LibrarySearchResponse,
+    PerformanceAnalyzerGraphResponse,
+    PerformanceAnalyzerRealtimeResponse
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { DiagramGenerator } from "..";
 import { LowcodeEvent } from "../../Diagram/models";
@@ -15,6 +23,7 @@ export interface EditorState {
     startColumn: number;
     startLine: number;
     lastUpdatedAt: string;
+    experimentalEnabled?: boolean;
 }
 
 export interface PFSession {
@@ -35,11 +44,13 @@ export interface EditorAPI {
     resolveMissingDependencyByCodeAction: (filePath: string, fileContent: string, diagnostic: any) => Promise<boolean>;
     runCommand: (command: PALETTE_COMMANDS, args: any[]) => Promise<boolean>;
     sendTelemetryEvent: (event: LowcodeEvent) => Promise<void>;
+    getLibrariesList: (kind: LibraryKind) => Promise<LibraryDocResponse | undefined>;
+    getLibrariesData: () => Promise<LibrarySearchResponse | undefined>;
+    getLibraryData: (orgName: string, moduleName: string, version: string) => Promise<LibraryDataResponse | undefined>;
 }
 
 export enum PALETTE_COMMANDS {
     RUN = 'ballerina.project.run',
-    RUN_WITH_CONFIGS = 'ballerina.executeConfigEditor',
     SWAGGER_VIEW = 'ballerina.swaggerView.open',
     DOCUMENTATION_VIEW = 'ballerina.documentationView.open'
 }
@@ -48,8 +59,10 @@ export type EditorProps = EditorState & EditorAPI;
 
 export const Diagram: React.FC<EditorProps> = (props: EditorProps) => {
 
-    const { getFileContent, updateFileContent, gotoSource, getPFSession,
-            showPerformanceGraph, getPerfDataFromChoreo, sendTelemetryEvent, showMessage, resolveMissingDependency, resolveMissingDependencyByCodeAction, runCommand, ...restProps } = props;
+    const { getFileContent, updateFileContent, gotoSource, getPFSession, showPerformanceGraph, getPerfDataFromChoreo,
+            sendTelemetryEvent,
+            showMessage, resolveMissingDependency, resolveMissingDependencyByCodeAction,
+            runCommand, getLibrariesList, getLibrariesData, getLibraryData, ...restProps } = props;
     const [state, setState] = React.useState<EditorState>(restProps);
 
     React.useEffect(() => {
@@ -72,6 +85,9 @@ export const Diagram: React.FC<EditorProps> = (props: EditorProps) => {
                     resolveMissingDependencyByCodeAction={resolveMissingDependencyByCodeAction}
                     runCommand={runCommand}
                     sendTelemetryEvent={sendTelemetryEvent}
+                    getLibrariesList={getLibrariesList}
+                    getLibrariesData={getLibrariesData}
+                    getLibraryData={getLibraryData}
                     panX="-30"
                     panY="0"
                     scale="0.9"

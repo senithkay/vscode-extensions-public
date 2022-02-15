@@ -14,7 +14,13 @@ import React, { useEffect, useReducer } from 'react';
 import { FormattedMessage } from 'react-intl';
 
 import { Box, FormControl, FormHelperText, Typography } from '@material-ui/core';
-import { FormActionButtons, FormHeaderSection, STModification } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { ExpressionEditorProps } from '@wso2-enterprise/ballerina-expression-editor';
+import {
+    FormActionButtons,
+    FormElementProps,
+    FormHeaderSection,
+    STModification
+} from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { ModuleVarDecl, NodePosition } from '@wso2-enterprise/syntax-tree';
 
 import { VariableIcon } from '../../../../../assets/icons';
@@ -25,9 +31,8 @@ import { getVariableNameFromST } from '../../../../utils/st-util';
 import { useStyles as useFormStyles } from "../../DynamicConnectorForm/style";
 import CheckBoxGroup from '../../FormFieldComponents/CheckBox';
 import { SelectDropdownWithButton } from '../../FormFieldComponents/DropDown/SelectDropdownWithButton';
-import ExpressionEditor, { ExpressionEditorProps } from '../../FormFieldComponents/ExpressionEditor';
+import { LowCodeExpressionEditor } from "../../FormFieldComponents/LowCodeExpressionEditor";
 import { TextLabel } from '../../FormFieldComponents/TextField/TextLabel';
-import { FormElementProps } from '../../Types';
 import { VariableNameInput } from '../Components/VariableNameInput';
 import { VariableTypeInput, VariableTypeInputProps } from '../Components/VariableTypeInput';
 
@@ -131,7 +136,7 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
             initialDiagnostics: model?.initializer?.typeData?.diagnostics,
         },
         onChange: onValueChange,
-        defaultValue: state.varValue,
+        defaultValue: state.varValue
     };
 
     const enableSaveBtn: boolean = isFormConfigValid(state);
@@ -216,7 +221,7 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
                         isEdit={!!model}
                         initialDiagnostics={model?.typedBindingPattern?.typeData?.diagnostics}
                     />
-                    <ExpressionEditor
+                    <LowCodeExpressionEditor
                         {...expressionEditorConfig}
                     />
                 </div>

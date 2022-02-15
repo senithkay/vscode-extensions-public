@@ -15,26 +15,98 @@ import { Canvas } from "../../utils/components/canvas"
 import { SourceCode } from "../../utils/components/code-view"
 import { TopLevelPlusWidget } from "../../utils/components/top-level-plus-widget"
 import { getCurrentSpecFolder } from "../../utils/file-utils"
-import { TriggerForm } from "../../utils/forms/trigger-form "
+import { TriggerForm } from "../../utils/forms/trigger-form"
 import { getIntegrationTestStoryURL } from "../../utils/story-url-utils"
 
 describe('add a Github Trigger to an empty file', () => {
-    beforeEach(() => {
-      cy.visit(getIntegrationTestStoryURL("trigger/add-trigger-to-empty-file.bal"))
-    })
-  
-    it('Displays add construct message', () => {
-        Canvas
-          .welcomeMessageShouldBeVisible()
-          .clickTopLevelPlusButton();
-        TopLevelPlusWidget.clickOption("Trigger");
-        TriggerForm
-          .selectTriggerType("Github")
-          .createBtnShouldNotBeClickable()
-          .selectServiceType("IssuesService")
-          .create();
-        SourceCode.shouldBeEqualTo(
-          getCurrentSpecFolder() + "add-trigger.expected.bal");
-    })
+  beforeEach(() => {
+    cy.visit(getIntegrationTestStoryURL("trigger/add-trigger-to-empty-file.bal"))
+  });
 
-  })
+  it('Displays add construct message', () => {
+    Canvas
+      .welcomeMessageShouldBeVisible()
+      .clickTopLevelPlusButton();
+    TopLevelPlusWidget.clickOption("Trigger");
+    TriggerForm
+      .selectTriggerType("Github")
+      .createBtnShouldNotBeClickable()
+      .selectServiceType("IssuesService")
+      .create();
+    SourceCode.shouldBeEqualTo(
+      getCurrentSpecFolder() + "add-trigger.expected.bal");
+  });
+
+  it('Search and Add a trigger', () => {
+    Canvas
+      .welcomeMessageShouldBeVisible()
+      .clickTopLevelPlusButton();
+
+    TopLevelPlusWidget.clickOption("Trigger");
+    TriggerForm
+      .searchTrigger("slack")
+      .selectTriggerType("Slack")
+      .createBtnShouldNotBeClickable()
+      .selectServiceType("SlackEventsAppService")
+      .create();
+    SourceCode.shouldBeEqualTo(
+      getCurrentSpecFolder() + "add-trigger-slack.expected.bal");
+  });
+
+  it('Add two channels in trigger form', () => {
+    Canvas
+      .welcomeMessageShouldBeVisible()
+      .clickTopLevelPlusButton();
+
+    TopLevelPlusWidget.clickOption("Trigger");
+
+    TriggerForm
+      .searchTrigger("slack")
+      .selectTriggerType("Slack")
+      .createBtnShouldNotBeClickable()
+      .selectServiceType("SlackEventsAppService")
+      .addChannel("SlackEventsDndService")
+      .create();
+    SourceCode.shouldBeEqualTo(
+      getCurrentSpecFolder() + "add-multiple-channel.expected.bal");
+  });
+
+  it('Add and delete channel in trigger form', () => {
+    Canvas
+      .welcomeMessageShouldBeVisible()
+      .clickTopLevelPlusButton();
+    TopLevelPlusWidget.clickOption("Trigger");
+
+    TriggerForm
+      .selectTriggerType("Slack")
+      .createBtnShouldNotBeClickable()
+      .selectServiceType("SlackEventsAppService")
+      .addChannel("SlackEventsDndService")
+      .deleteChannel("SlackEventsDndService")
+      .create();
+
+    SourceCode.shouldBeEqualTo(
+      getCurrentSpecFolder() + "add-trigger-slack.expected.bal");
+  });
+
+  it('Add and cancel and select another trigger', () => {
+    Canvas
+      .welcomeMessageShouldBeVisible()
+      .clickTopLevelPlusButton();
+
+    TopLevelPlusWidget.clickOption("Trigger");
+
+    TriggerForm
+      .selectTriggerType("Slack")
+      .createBtnShouldNotBeClickable()
+      .selectServiceType("SlackEventsAppService")
+      .cancel()
+      .selectTriggerType("Github")
+      .createBtnShouldNotBeClickable()
+      .selectServiceType("IssuesService")
+      .create();
+
+    SourceCode.shouldBeEqualTo(
+      getCurrentSpecFolder() + "add-trigger.expected.bal");
+  });
+});

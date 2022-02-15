@@ -15,6 +15,8 @@ import * as React from "react";
 
 import { FormControlLabel, FormGroup, Switch } from "@material-ui/core";
 
+import PrimarySwitchToggle from "../../PrimarySwitchToggle";
+
 import { useStyles } from "./style";
 
 export interface StatementEditorButtonProps {
@@ -29,7 +31,7 @@ export function StatementEditorButton(props: StatementEditorButtonProps) {
 
     return (
         <FormGroup >
-            <FormControlLabel className={classes.expressionTitle} control={<Switch onChange={handleChange} checked={checked} onClick={onClick}/>} label="Statement Editor" />
+            <FormControlLabel className={classes.expressionTitle} control={<PrimarySwitchToggle onChange={handleChange} checked={checked} onClick={onClick}/>} label="Statement Editor" />
         </FormGroup>
     );
 }

@@ -17,21 +17,23 @@ import { IndexedExpression, STNode } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
 import { DEFAULT_EXPRESSIONS } from "../../../constants";
-import { VariableUserInputs } from "../../../models/definitions";
+import { SuggestionItem, VariableUserInputs } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { SuggestionsContext } from "../../../store/suggestions-context";
 import { getSuggestionsBasedOnExpressionKind, isPositionsEquals } from "../../../utils";
+import { addStatementToTargetLine, getContextBasedCompletions } from "../../../utils/ls-utils";
 import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
 
 interface IndexedExpressionProps {
-    model: IndexedExpression
-    userInputs: VariableUserInputs
-    diagnosticHandler: (diagnostics: string) => void
+    model: IndexedExpression;
+    userInputs: VariableUserInputs;
+    isElseIfMember: boolean;
+    diagnosticHandler: (diagnostics: string) => void;
 }
 
 export function IndexedExpressionComponent(props: IndexedExpressionProps) {
-    const { model, userInputs, diagnosticHandler } = props;
+    const { model, userInputs, isElseIfMember, diagnosticHandler } = props;
     const stmtCtx = useContext(StatementEditorContext);
     const { modelCtx } = stmtCtx;
     const { currentModel } = modelCtx;
@@ -40,12 +42,15 @@ export function IndexedExpressionComponent(props: IndexedExpressionProps) {
 
     const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
+    const { currentFile, getLangClient } = stmtCtx;
+    const targetPosition = stmtCtx.formCtx.formModelPosition;
+    const fileURI = `expr://${currentFile.path}`;
 
     const containerExpr: ReactNode = (
         <ExpressionComponent
             model={model.containerExpression}
-            isRoot={false}
             userInputs={userInputs}
+            isElseIfMember={isElseIfMember}
             diagnosticHandler={diagnosticHandler}
             isTypeDescriptor={false}
         />
@@ -66,8 +71,8 @@ export function IndexedExpressionComponent(props: IndexedExpressionProps) {
                     >
                         <ExpressionComponent
                             model={expression}
-                            isRoot={false}
                             userInputs={userInputs}
+                            isElseIfMember={isElseIfMember}
                             diagnosticHandler={diagnosticHandler}
                             isTypeDescriptor={false}
                         />
@@ -79,14 +84,28 @@ export function IndexedExpressionComponent(props: IndexedExpressionProps) {
 
     const onClickOnContainerExpr = (event: any) => {
         event.stopPropagation()
-        expressionHandler(model.containerExpression, false, false,
-            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) })
+        expressionHandler(model.containerExpression, false, false, {
+            expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
+            typeSuggestions: [],
+            variableSuggestions: []
+        });
     };
 
-    const onClickOnKeyExpr = (clickedExpression: STNode, event: any) => {
-        event.stopPropagation()
-        expressionHandler(clickedExpression, false, false,
-            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) })
+    const onClickOnKeyExpr = async (clickedExpression: STNode, event: any) => {
+        event.stopPropagation();
+
+        const content: string = await addStatementToTargetLine(
+            currentFile.content, targetPosition, stmtCtx.modelCtx.statementModel.source, getLangClient);
+
+        const completions: SuggestionItem[] = await getContextBasedCompletions(
+            fileURI, content, targetPosition, clickedExpression.position,
+            false, isElseIfMember, clickedExpression.source, getLangClient);
+
+        expressionHandler(clickedExpression, false, false, {
+            expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
+            typeSuggestions: [],
+            variableSuggestions: completions
+        });
     };
 
     return (

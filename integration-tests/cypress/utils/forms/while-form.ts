@@ -33,5 +33,20 @@ export class WhileForm {
 
     }
 
+    static cancel() {
+        this.getForm()
+            .get('button')
+            .contains("Cancel")
+            .click();
+        return this;
+    }
+
+    static close() {
+        this.getForm()
+        .get('.close-btn-wrap button')
+        .click();
+    }
+
+
 
 }

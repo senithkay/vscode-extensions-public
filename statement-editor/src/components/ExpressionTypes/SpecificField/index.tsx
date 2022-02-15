@@ -16,31 +16,39 @@ import React, { ReactNode, useContext } from "react";
 import { SpecificField, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
-import { VariableUserInputs } from "../../../models/definitions";
+import { DEFAULT_EXPRESSIONS } from "../../../constants";
+import { SuggestionItem, VariableUserInputs } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { SuggestionsContext } from "../../../store/suggestions-context";
-import { isPositionsEquals } from "../../../utils";
+import { getSuggestionsBasedOnExpressionKind, isPositionsEquals } from "../../../utils";
+import { addStatementToTargetLine, getContextBasedCompletions } from "../../../utils/ls-utils";
 import { ExpressionComponent } from "../../Expression";
 import { InputEditor } from "../../InputEditor";
 import { useStatementEditorStyles } from "../../styles";
 
 interface SpecificFieldProps {
-    model: SpecificField
-    userInputs: VariableUserInputs
-    diagnosticHandler: (diagnostics: string) => void
-    isTypeDescriptor: boolean
+    model: SpecificField;
+    userInputs: VariableUserInputs;
+    isElseIfMember: boolean;
+    diagnosticHandler: (diagnostics: string) => void;
+    isTypeDescriptor: boolean;
 }
 
 export function SpecificFieldComponent(props: SpecificFieldProps) {
-    const { model, userInputs, diagnosticHandler, isTypeDescriptor } = props;
+    const { model, userInputs, isElseIfMember, diagnosticHandler, isTypeDescriptor } = props;
     const stmtCtx = useContext(StatementEditorContext);
     const { modelCtx } = stmtCtx;
     const { currentModel } = modelCtx;
     const hasFieldNameSelected = currentModel.model &&
         isPositionsEquals(currentModel.model.position, model.fieldName.position);
+    const hasValueExprSelected = currentModel.model &&
+        isPositionsEquals(currentModel.model.position, model.valueExpr.position);
 
     const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
+    const { currentFile, getLangClient } = stmtCtx;
+    const targetPosition = stmtCtx.formCtx.formModelPosition;
+    const fileURI = `expr://${currentFile.path}`;
     let fieldName: ReactNode;
 
     if (STKindChecker.isIdentifierToken(model.fieldName)) {
@@ -58,8 +66,8 @@ export function SpecificFieldComponent(props: SpecificFieldProps) {
         fieldName = (
             <ExpressionComponent
                 model={model.fieldName}
-                isRoot={false}
                 userInputs={userInputs}
+                isElseIfMember={isElseIfMember}
                 diagnosticHandler={diagnosticHandler}
                 isTypeDescriptor={false}
             />
@@ -69,8 +77,8 @@ export function SpecificFieldComponent(props: SpecificFieldProps) {
     const valueExpression: ReactNode = (
         <ExpressionComponent
             model={model.valueExpr}
-            isRoot={false}
             userInputs={userInputs}
+            isElseIfMember={isElseIfMember}
             diagnosticHandler={diagnosticHandler}
             isTypeDescriptor={false}
         />
@@ -80,6 +88,23 @@ export function SpecificFieldComponent(props: SpecificFieldProps) {
         event.stopPropagation()
         expressionHandler(model.fieldName, false, false,
             { expressionSuggestions: [], typeSuggestions: [], variableSuggestions: [] })
+    };
+
+    const onClickOnValueExpr = async (event: any) => {
+        event.stopPropagation();
+
+        const content: string = await addStatementToTargetLine(
+            currentFile.content, targetPosition, stmtCtx.modelCtx.statementModel.source, getLangClient);
+
+        const completions: SuggestionItem[] = await getContextBasedCompletions(
+            fileURI, content, targetPosition, model.valueExpr.position,
+            false, isElseIfMember, model.valueExpr.source, getLangClient);
+
+        expressionHandler(model.valueExpr, false, false, {
+            expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
+            typeSuggestions: [],
+            variableSuggestions: completions
+        });
     };
 
     return (
@@ -101,7 +126,15 @@ export function SpecificFieldComponent(props: SpecificFieldProps) {
             >
                 {model.colon.value}
             </span>
-            {valueExpression}
+            <button
+                className={classNames(
+                    statementEditorClasses.expressionElement,
+                    hasValueExprSelected && statementEditorClasses.expressionElementSelected
+                )}
+                onClick={onClickOnValueExpr}
+            >
+                {valueExpression}
+            </button>
         </span>
     );
 }

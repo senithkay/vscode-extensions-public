@@ -209,7 +209,7 @@ export class BalleriaLanguageClient implements IBallerinaLangClient {
         return this._clientConnection.sendRequest(EXTENDED_APIS.DOCUMENT_EXECUTOR_POSITIONS, params);
     }
 
-    public convertJsonToRecord(params: JsonToRecordRequest): Thenable<JsonToRecordResponse> {
+    public convert(params: JsonToRecordRequest): Thenable<JsonToRecordResponse> {
         return this._clientConnection.sendRequest(EXTENDED_APIS.JSON_TO_RECORD_CONVERT, params);
     }
 

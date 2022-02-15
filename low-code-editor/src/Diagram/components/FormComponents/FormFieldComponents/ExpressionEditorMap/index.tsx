@@ -14,13 +14,19 @@
 import React, { useState } from "react";
 
 import { AddRounded } from "@material-ui/icons";
-import { IconBtnWithText } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import {
+    ExpressionEditorLabel,
+    ExpressionEditorProps,
+    getInitialValue,
+    transformFormFieldTypeToString
+} from "@wso2-enterprise/ballerina-expression-editor";
+import {
+    FormElementProps,
+    IconBtnWithText
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { useStyles } from "../../DynamicConnectorForm/style"
-import { FormElementProps } from "../../Types";
-import ExpressionEditor, { ExpressionEditorProps } from "../ExpressionEditor";
-import { getInitialValue, transformFormFieldTypeToString } from "../ExpressionEditor/utils";
-import { ExpressionEditorLabel } from "../ExpressionEditorLabel";
+import { LowCodeExpressionEditor } from "../LowCodeExpressionEditor";
 
 import "./style.scss";
 import { appendToMap } from "./utils";
@@ -128,8 +134,8 @@ export function ExpressionEditorMap(props: FormElementProps<ExpressionEditorProp
         <>
             <ExpressionEditorLabel {...props} model={{...model, label: model.name}} />
             <div className={classes.groupedForm}>
-                <ExpressionEditor {...elementPropsKeyEditor} />
-                <ExpressionEditor {...elementPropsValueEditor} />
+                <LowCodeExpressionEditor {...elementPropsKeyEditor} />
+                <LowCodeExpressionEditor {...elementPropsValueEditor} />
                 <div className="add-element-button">
                     <IconBtnWithText
                         disabled={keyEditorValid || valueEditorValid}
@@ -138,7 +144,7 @@ export function ExpressionEditorMap(props: FormElementProps<ExpressionEditorProp
                         icon={<AddRounded fontSize="small" className={classes.iconButton} />}
                     />
                 </div>
-                <ExpressionEditor
+                <LowCodeExpressionEditor
                     model={model}
                     customProps={{
                         ...customProps,

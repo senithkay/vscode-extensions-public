@@ -15,7 +15,12 @@ import React, { ReactNode, useContext, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import { FormControl } from "@material-ui/core";
-import { FormActionButtons, FormHeaderSection, httpResponse, PrimitiveBalType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import {
+    FormActionButtons,
+    FormHeaderSection,
+    httpResponse,
+    PrimitiveBalType
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
 import { ActionStatement, RemoteMethodCallAction } from "@wso2-enterprise/syntax-tree";
 import cn from "classnames";
@@ -24,7 +29,7 @@ import { Context } from "../../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
 import { createRespond, getInitialSource } from "../../../../../../utils/modification-util";
 import { useStyles as useFormStyles } from "../../../../DynamicConnectorForm/style";
-import ExpressionEditor from "../../../../FormFieldComponents/ExpressionEditor";
+import { LowCodeExpressionEditor } from "../../../../FormFieldComponents/LowCodeExpressionEditor";
 import { EndConfig, RespondConfig } from "../../../../Types";
 
 interface RespondFormProps {
@@ -42,15 +47,17 @@ export function AddRespondForm(props: RespondFormProps) {
     const formClasses = useFormStyles();
     const {
         props: {
-            isCodeEditorActive,
             isMutationProgress: isMutationInProgress,
-            currentFile
+            currentFile,
+            experimentalEnabled
         },
         api: {
             ls: { getExpressionEditorLangClient },
-            code: { modifyDiagram }
+            code: { modifyDiagram },
+            library
         }
     } = useContext(Context);
+
     const { config, formArgs, onCancel, onSave, onWizardClose } = props;
 
     const respondFormConfig: RespondConfig = config.expression as RespondConfig;
@@ -132,7 +139,7 @@ export function AddRespondForm(props: RespondFormProps) {
 
     const statusCodeComp: ReactNode = (
         <div>
-            <ExpressionEditor
+            <LowCodeExpressionEditor
                 model={{
                     optional: true,
                     name: "Status Code",
@@ -159,7 +166,7 @@ export function AddRespondForm(props: RespondFormProps) {
         respondFormConfig.genType,
         respondFormConfig.variable,
         respondFormConfig.caller,
-        resExp
+        resExp ? resExp : "EXPRESSION"
     ));
 
     const { handleStmtEditorToggle, stmtEditorComponent } = useStatementEditor(
@@ -174,7 +181,9 @@ export function AddRespondForm(props: RespondFormProps) {
             onCancel,
             currentFile,
             getLangClient: getExpressionEditorLangClient,
-            applyModifications: modifyDiagram
+            applyModifications: modifyDiagram,
+            library,
+            experimentalEnabled
         }
     );
     const fieilTypes = [
@@ -199,10 +208,11 @@ export function AddRespondForm(props: RespondFormProps) {
                     defaultMessage={"Respond"}
                     handleStmtEditorToggle={handleStmtEditorToggle}
                     toggleChecked={false}
+                    experimentalEnabled={experimentalEnabled}
                 />
                 <div className={formClasses.formContentWrapper}>
                     <div className={formClasses.formNameWrapper}>
-                        <ExpressionEditor
+                        <LowCodeExpressionEditor
                             model={{
                                 name: "respond expression",
                                 value: respondFormConfig.respondExpression,
