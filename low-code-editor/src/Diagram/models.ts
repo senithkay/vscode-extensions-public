@@ -76,7 +76,12 @@ export type EVENT_NAME = typeof ADD_STATEMENT |
     typeof OPEN_LOW_CODE | typeof DIAGRAM_MODIFIED;
 
 export interface LowcodeEvent {
+    /** Name of the app insights event */
     type: EVENT_NAME;
-    name?: any;
-    property?: any;
+    /** scope property within custom dimensions */
+    name?: string;
+    /** Custom dimensions sent to app insights */
+	property?: { [key: string]: string };
+    /** Custom measurements sent to app insights */
+	measurements?: { [key: string]: number; };
 }
