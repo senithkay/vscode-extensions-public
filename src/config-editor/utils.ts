@@ -74,6 +74,7 @@ function getConfigProperty(object: any, configProperty: ConfigProperty) {
                 return getLeafConfig(entry, newProperty);
             }
         });
+        configProperty.headerNames.pop();
     } else {
         return getLeafConfig(object, configProperty);
     }
@@ -114,12 +115,19 @@ function configToTomlString(configs: ConfigProperty[]): string {
             let header: string = "";
             header = entry.headerNames.join(".");
             configToml = configToml.concat(`\n[${header}]\n`);
-        }
-        if (entry.configs) {
-            entry.configs.forEach((element: ConfigValue) => {
-                const configVal: any = element.configValue;
-                configToml = configToml.concat(`${element.configName} = ${JSON.stringify(configVal)}\n`);
-            });
+            if (entry.configs) {
+                entry.configs.forEach((element: ConfigValue) => {
+                    const configVal: any = element.configValue;
+                    configToml = configToml.concat(`${element.configName} = ${JSON.stringify(configVal)}\n`);
+                });
+            }
+        } else {
+            if (entry.configs) {
+                entry.configs.forEach((element: ConfigValue) => {
+                    const configVal: any = element.configValue;
+                    configToml = (`${element.configName} = ${JSON.stringify(configVal)}\n`).concat(configToml);
+                });
+            }
         }
     });
     return configToml;
