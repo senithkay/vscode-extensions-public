@@ -17,6 +17,7 @@
  *
  */
 
+import { TextDecoder, TextEncoder } from 'util';
 import { CancellationToken, NotebookCellData, NotebookCellExecutionSummary, NotebookCellKind, 
     NotebookCellOutput, NotebookCellOutputItem, NotebookData, NotebookSerializer } from 'vscode';
 
@@ -32,14 +33,6 @@ interface RawNotebookCell {
 interface RawCellOutput {
     mime: string,
     value: any
-}
-
-declare class TextDecoder {
-    decode(data: Uint8Array): string
-}
- 
-declare class TextEncoder {
-    encode(data: string): Uint8Array
 }
 
 export class notebookSerializer implements NotebookSerializer {

@@ -17,4 +17,5 @@
  *
  */
 
- export { activate } from './activator';
+export { activate } from './activator';
+export * from './constants';

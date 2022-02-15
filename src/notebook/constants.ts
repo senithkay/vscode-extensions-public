@@ -17,18 +17,5 @@
  *
  */
 
-import { workspace, ExtensionContext } from 'vscode';
-import { BallerinaExtension } from '../core';
-import { notebookSerializer } from "./notebookSerializer";
-import { notebookController } from "./notebookController";
-import { registerLanguageProviders } from './languageProvider';
-
-export function activate(ballerinaExtInstance: BallerinaExtension) {
-  const context = <ExtensionContext>ballerinaExtInstance.context;
-
-  context.subscriptions.push(
-    workspace.registerNotebookSerializer('ballerina-notebook', new notebookSerializer())
-	);
-	context.subscriptions.push(new notebookController());
-	context.subscriptions.push(registerLanguageProviders(ballerinaExtInstance));
-}
+export const BAL_NOTEBOOK = ".balnotebook";
+export const NOTEBOOK_SCHEME = "vscode-notebook-cell";

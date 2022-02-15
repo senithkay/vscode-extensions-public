@@ -17,18 +17,18 @@
  *
  */
 
-import { workspace, ExtensionContext } from 'vscode';
-import { BallerinaExtension } from '../core';
-import { notebookSerializer } from "./notebookSerializer";
-import { notebookController } from "./notebookController";
-import { registerLanguageProviders } from './languageProvider';
+import * as fs from "fs";
+import { TextEncoder } from "util";
+import { Uri, workspace } from "vscode";
 
-export function activate(ballerinaExtInstance: BallerinaExtension) {
-  const context = <ExtensionContext>ballerinaExtInstance.context;
+export async function createFile(uri: Uri, content: string){
+    await workspace.fs.writeFile(uri, new TextEncoder().encode(content));
+    return;
+}
 
-  context.subscriptions.push(
-    workspace.registerNotebookSerializer('ballerina-notebook', new notebookSerializer())
-	);
-	context.subscriptions.push(new notebookController());
-	context.subscriptions.push(registerLanguageProviders(ballerinaExtInstance));
+export async function deleteFile(uri: Uri){
+    if (fs.existsSync(uri.fsPath)) {
+        await workspace.fs.delete(uri);
+    }
+    return;
 }
