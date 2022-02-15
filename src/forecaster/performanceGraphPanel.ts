@@ -80,7 +80,7 @@ export class DefaultWebviewPanel {
                     case 'updateCodeLenses':
                         for (let editor of window.visibleTextEditors) {
                             if (editor.document.uri.path === currentFileUri.path) {
-                                updateCodeLenses(message.text);
+                                updateCodeLenses(message.text, editor.viewColumn);
                                 break;
                             }
                         }

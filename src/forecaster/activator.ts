@@ -152,7 +152,7 @@ async function addPerfData(uri: string, pos: Range, type: ANALYZETYPE, name: Str
         }
 
         DefaultWebviewPanel.create(langClient, uiData, currentFile.uri, `Performance Forecast of ${uiData.name}`,
-            ViewColumn.Two, extension, WEBVIEW_TYPE.PERFORMANCE_FORECAST);
+            ViewColumn.Three, extension, WEBVIEW_TYPE.PERFORMANCE_FORECAST);
 
     }
 }
@@ -272,7 +272,7 @@ function addEndpointPerformanceLabels(data: PerformanceAnalyzerRealtimeResponse 
 
 }
 
-export function updateCodeLenses(concurrency: number) {
+export function updateCodeLenses(concurrency: number, column: ViewColumn | undefined) {
     ExecutorCodeLensProvider.dataLabels = [];
     addPerformanceLabels(concurrency);
     ExecutorCodeLensProvider.onDidChangeCodeLenses.fire();
@@ -280,12 +280,12 @@ export function updateCodeLenses(concurrency: number) {
     if (!currentFile) {
         return;
     }
-    window.showTextDocument(currentFile, ViewColumn.One);
+    window.showTextDocument(currentFile, column);
 }
 
 export function openPerformanceDiagram(request: PerformanceGraphRequest) {
     DefaultWebviewPanel.create(langClient, request.data, Uri.parse(request.file),
-        `Performance Forecast of ${request.data.name}`, ViewColumn.Beside, extension,
+        `Performance Forecast of ${request.data.name}`, ViewColumn.Three, extension,
         WEBVIEW_TYPE.PERFORMANCE_FORECAST);
     return true;
 }
