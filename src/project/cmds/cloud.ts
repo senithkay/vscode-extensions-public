@@ -22,7 +22,8 @@ import { commands, window } from "vscode";
 import { outputChannel } from "../../utils";
 import {
     TM_EVENT_PROJECT_CLOUD, TM_EVENT_ERROR_EXECUTE_PROJECT_CLOUD, CMP_PROJECT_CLOUD, sendTelemetryEvent,
-    sendTelemetryException
+    sendTelemetryException,
+    getMessageObject
 } from "../../telemetry";
 import { getCurrentBallerinaProject } from "../../utils/project-utils";
 import { MESSAGES, PALETTE_COMMANDS, PROJECT_TYPE } from "./cmd-runner";
@@ -61,14 +62,14 @@ export function activateCloudCommand() {
                     } else {
                         const message = `Cloud.toml already exists in the project.`;
                         sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_ERROR_EXECUTE_PROJECT_CLOUD,
-                            CMP_PROJECT_CLOUD, message);
+                            CMP_PROJECT_CLOUD, getMessageObject(message));
                         window.showErrorMessage(message);
                     }
                 }
             } else {
                 const message = `Cloud.toml is not supported for single file projects.`;
                 sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_ERROR_EXECUTE_PROJECT_CLOUD, CMP_PROJECT_CLOUD,
-                    message);
+                    getMessageObject(message));
                 window.showErrorMessage(message);
             }
         } catch (error) {
