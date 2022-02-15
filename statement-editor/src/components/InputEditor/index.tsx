@@ -42,6 +42,7 @@ import {
     addStatementToTargetLine,
     getDiagnostics,
     sendDidChange,
+    sendDidClose,
     sendDidOpen
 } from "../../utils/ls-utils";
 import { useStatementEditorStyles } from "../styles";
@@ -232,12 +233,7 @@ export function InputEditor(props: InputEditorProps) {
         inputEditorState.content = currentFile.content;
         inputEditorState.uri = fileURI;
 
-        const langClient = await getLangClient();
-        langClient.didClose({
-            textDocument: {
-                uri: inputEditorState.uri
-            }
-        });
+        sendDidClose(inputEditorState.uri, getLangClient).then();
     }
 
     // TODO: To be removed with expression editor integration

@@ -60,6 +60,7 @@ export interface StatementEditorProps extends LowCodeEditorProps {
     handleNameOnChange?: (name: string) => void;
     handleTypeChange?: (name: string) => void;
     handleStatementEditorChange?: (partialModel: STNode) => void;
+    onStmtEditorModelChange?: (partialModel: STNode) => void;
 }
 
 export function StatementEditor(props: StatementEditorProps) {
@@ -73,7 +74,7 @@ export function StatementEditor(props: StatementEditorProps) {
         onWizardClose,
         handleNameOnChange,
         handleTypeChange,
-        handleStatementEditorChange,
+        onStmtEditorModelChange,
         getLangClient,
         applyModifications,
         library,
@@ -84,10 +85,6 @@ export function StatementEditor(props: StatementEditorProps) {
     const [model, setModel] = useState<STNode>(null);
     const [isStatementValid, setIsStatementValid] = useState(false);
     const [currentModel, setCurrentModel] = useState({ model });
-
-    if (!userInputs?.varName && !!handleNameOnChange) {
-        handleNameOnChange("default")
-    }
 
     useEffect(() => {
         if (!(config.type === "Custom") || initialSource) {
@@ -157,12 +154,12 @@ export function StatementEditor(props: StatementEditorProps) {
 
     useEffect(() => {
         if (!!model) {
-            handleStatementEditorChange(model);
+            onStmtEditorModelChange(model);
         }
     }, [model])
 
     const validateStatement = (isValid: boolean) => {
-        setIsStatementValid(isValid);
+        // setIsStatementValid(isValid);
     };
 
     return (
