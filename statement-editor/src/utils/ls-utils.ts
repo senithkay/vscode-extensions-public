@@ -89,8 +89,6 @@ export async function getContextBasedCompletions (
         suggestions.push({ value: completion.label, kind: completion.detail });
     });
 
-    await sendDidClose(docUri, getLangClient);
-
     return suggestions;
 }
 

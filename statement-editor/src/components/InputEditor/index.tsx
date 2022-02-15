@@ -140,11 +140,10 @@ export function InputEditor(props: InputEditorProps) {
     const placeHolders: string[] = ['EXPRESSION', 'TYPE_DESCRIPTOR'];
 
     useEffect(() => {
-        handleOnFocus(currentContent).then(() => {
-            handleOnOutFocus().then();
-        })
-        getContextBasedCompletions(placeHolders.indexOf(userInput) > -1 ? "" : userInput);
-    }, [statementType]);
+        if (isEditing) {
+            handleOnFocus(currentContent, "").then();
+        }
+    }, [isEditing]);
 
     useEffect(() => {
         handleDiagnostic();
@@ -152,8 +151,8 @@ export function InputEditor(props: InputEditorProps) {
 
     useEffect(() => {
         setUserInput(value);
-        handleContentChange(currentContent).then(() => {
-            handleOnOutFocus().then();
+        handleOnFocus(currentContent, "").then(() => {
+            handleContentChange(currentContent).then();
         });
     }, [value]);
 
@@ -161,7 +160,7 @@ export function InputEditor(props: InputEditorProps) {
         if (userInput === '') {
             setIsEditing(true);
         }
-    }, [isEditing, userInput]);
+    }, [userInput]);
 
     const handleOnFocus = async (currentStatement: string) => {
         let initContent: string = await addStatementToTargetLine(
@@ -175,15 +174,7 @@ export function InputEditor(props: InputEditorProps) {
         inputEditorState.content = initContent;
         inputEditorState.uri = fileURI;
         sendDidOpen(inputEditorState.uri, currentFile.content, getLangClient).then();
-        // sendDidChange(inputEditorState.uri, inputEditorState.content, getLangClient).then();
-        const diagResp = await getDiagnostics(inputEditorState.uri, getLangClient);
-        setInputEditorState((prevState) => {
-            return {
-                ...prevState,
-                diagnostic: diagResp[0]?.diagnostics ?
-                    getFilteredDiagnostics(diagResp[0]?.diagnostics, isCustomTemplate) : []
-            };
-        });
+        sendDidChange(inputEditorState.uri, inputEditorState.content, getLangClient).then();
     }
 
     const handleDiagnostic = () => {
