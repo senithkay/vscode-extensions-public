@@ -81,7 +81,7 @@ export interface LowcodeEvent {
     /** scope property within custom dimensions */
     name?: string;
     /** Custom dimensions sent to app insights */
-	property?: { [key: string]: string };
+    property?: { [key: string]: string };
     /** Custom measurements sent to app insights */
-	measurements?: { [key: string]: number; };
+    measurements?: { [key: string]: number; };
 }
