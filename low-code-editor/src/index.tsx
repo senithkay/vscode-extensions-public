@@ -95,7 +95,7 @@ const LowCodeEditor: React.FC<Props> = (props: Props) => {
 
     return (
             <DiagramProvider {...newProps} >
-                <div>
+                <div className="diagram-container">
                     <DiagramContainer />
                 </div>
             </DiagramProvider>
