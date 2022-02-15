@@ -50,7 +50,7 @@ export function VariableSuggestions(props: VariableSuggestionsProps) {
         if (regExp.exec(variable)) {
             const paramArray = regExp.exec(variable)[1].split(',')
             for (let i = 0; i < paramArray.length; i++) {
-                paramArray[i] = "EXPRESSION"
+                paramArray[i] = paramArray[i].split(' ').pop()
             }
             variable = variable.split('(')[0] + "(" + paramArray.toString() + ")";
         }
