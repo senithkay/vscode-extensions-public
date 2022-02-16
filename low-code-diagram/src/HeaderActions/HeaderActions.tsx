@@ -75,10 +75,6 @@ export function HeaderActions(props: HeaderActionsProps) {
     }
 
     const handleEditBtnCancel = () => setIsEditViewVisible(false);
-    const handleEditBtnClick = () => {
-        renderEditForm(model, model?.position, { formType: (formType ? formType : model.kind), isLoading: false }, handleEditBtnCancel, handleEditBtnCancel);
-        // setIsEditViewVisible(true);
-    }
     const handleEnumEditBtnConfirm = () => {
         // setIsEditViewVisible(false);
         // onConfirmEdit();

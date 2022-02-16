@@ -19,7 +19,7 @@ import classnames from "classnames";
 import { Box, FormControl, IconButton, Typography } from "@material-ui/core";
 import { ControlPoint, RemoveCircleOutlineRounded } from "@material-ui/icons";
 
-import { FormActionButtons, FormElementProps, FormField, FormHeaderSection, DiagramDiagnostic, ConditionConfig, ElseIfConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FormActionButtons, FormField, FormHeaderSection, DiagramDiagnostic, ConditionConfig, ElseIfConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
 import {

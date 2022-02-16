@@ -24,7 +24,7 @@ import { createWhileStatement, getInitialSource } from "../../../../../../utils/
 import { ExpressionEditorProps } from "@wso2-enterprise/ballerina-expression-editor";
 import { useStyles } from "../../../../DynamicConnectorForm/style";
 import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
-import { ConditionConfig } from "../../../../Types";
+import { FormElementProps } from "../../../../Types";
 import Tooltip from '../../../../../../../components/TooltipV2';
 import { LowCodeExpressionEditor } from "../../../../FormFieldComponents/LowCodeExpressionEditor";
 

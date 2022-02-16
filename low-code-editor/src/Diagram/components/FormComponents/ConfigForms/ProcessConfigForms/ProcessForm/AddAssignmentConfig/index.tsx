@@ -15,7 +15,6 @@ import React, { useContext, useState } from "react";
 import { useIntl } from "react-intl";
 
 import { FormControl, Typography } from "@material-ui/core";
-import { ExpressionEditorProps } from "@wso2-enterprise/ballerina-expression-editor";
 import { FormActionButtons, FormHeaderSection, ProcessConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
 import { AssignmentStatement, STKindChecker } from "@wso2-enterprise/syntax-tree";

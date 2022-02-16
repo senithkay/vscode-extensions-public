@@ -25,7 +25,6 @@ import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/con
 import { createRespond, getInitialSource } from "../../../../../../utils/modification-util";
 import { useStyles as useFormStyles } from "../../../../DynamicConnectorForm/style";
 import { LowCodeExpressionEditor } from "../../../../FormFieldComponents/LowCodeExpressionEditor";
-import { EndConfig, RespondConfig } from "../../../../Types";
 
 interface RespondFormProps {
     config: EndConfig;

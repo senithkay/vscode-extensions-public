@@ -17,6 +17,7 @@ import { Box, CircularProgress, FormControl, Grid, Typography } from "@material-
 import { CloseRounded } from "@material-ui/icons";
 import { PlusViewState } from "@wso2-enterprise/ballerina-low-code-diagram";
 import {
+    ADD_CONNECTOR,
     BallerinaConstruct,
     ADD_CONNECTOR,
     BallerinaModuleResponse,

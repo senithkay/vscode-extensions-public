@@ -21,7 +21,9 @@ import {
   Connector,
   ConnectorConfig,
   ConnectorConfigWizardProps,
+  CONNECTOR_CLOSED,
   FunctionDefinitionInfo,
+  LowcodeEvent,
   WizardType
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { STNode } from "@wso2-enterprise/syntax-tree";
