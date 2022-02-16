@@ -1,11 +1,7 @@
 
-import { ConditionConfig, ConfigOverlayFormStatus, DiagramSize, STSymbolInfo, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
-
-import { BlockViewState, FunctionViewState } from "../components/LowCodeDiagram/ViewState";
-import { visitor as initVisitor } from "../components/LowCodeDiagram/Visitors/init-visitor";
-import { visitor as positionVisitor } from "../components/LowCodeDiagram/Visitors/positioning-visitor";
-import { visitor as sizingVisitor } from "../components/LowCodeDiagram/Visitors/sizing-visitor";
+import { FunctionViewState, initVisitor, positionVisitor, sizingVisitor } from "@wso2-enterprise/ballerina-low-code-diagram";
+import { DiagramSize } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 
 export function calculateSize(st: STNode): DiagramSize {
     return {

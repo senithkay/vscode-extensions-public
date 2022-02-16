@@ -14,10 +14,10 @@
 import React, { ReactNode, useContext } from "react";
 
 import CloseIcon from '@material-ui/icons/Close';
+import { PlusViewState } from "@wso2-enterprise/ballerina-low-code-diagram";
 import { BallerinaConnectorInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { LocalVarDecl } from "@wso2-enterprise/syntax-tree";
 
-import { PlusViewState } from "../../../../LowCodeDiagram/ViewState/plus";
 import { OverlayBackground } from "../../../../OverlayBackground";
 import { DiagramOverlay, DiagramOverlayContainer, DiagramOverlayPosition } from '../../../../Portals/Overlay';
 import { StatementOptions } from "../PlusElementOptions/StatementOptions";

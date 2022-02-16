@@ -14,6 +14,7 @@
 import React, { useContext, useState } from "react";
 import { useIntl } from "react-intl";
 
+import { DefaultConfig } from "@wso2-enterprise/ballerina-low-code-diagram";
 import {
   BallerinaConnectorInfo,
   BallerinaConstruct,
@@ -26,7 +27,6 @@ import {
 import { STNode } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../Contexts/Diagram";
-import { DefaultConfig } from "../../LowCodeDiagram/Visitors/default";
 import { fetchConnectorInfo } from "../../Portals/utils";
 import { fetchConnectorsList } from "../ConfigForms/ConnectorList";
 import { SearchQueryParams } from "../ConfigForms/Marketplace";

@@ -14,6 +14,7 @@
 // TODO Refactor this file.
 // Should move these to ../Definitions/*
 
+import { BlockViewState } from "@wso2-enterprise/ballerina-low-code-diagram";
 import {
     BallerinaConnectorInfo, ConditionConfig, ConfigOverlayFormStatus, ConfigPanelStatus, Connector,
     DataMapperConfig,
@@ -23,7 +24,6 @@ import {
 import { ModulePart, NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import { Diagnostic } from "vscode-languageserver-protocol";
 
-import { BlockViewState } from "..";
 import { Warning } from "../Diagram/utils/st-util";
 
 export interface ZoomStatus {

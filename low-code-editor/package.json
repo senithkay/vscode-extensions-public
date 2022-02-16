@@ -35,6 +35,7 @@
     "@material-ui/lab": "^4.0.0-alpha.52",
     "@material-ui/pickers": "^3.2.10",
     "@wso2-enterprise/ballerina-languageclient": "^1.0.0",
+    "@wso2-enterprise/ballerina-low-code-diagram": "^1.0.0",
     "@wso2-enterprise/ballerina-low-code-edtior-commons": "^1.0.0",
     "@wso2-enterprise/ballerina-statement-editor": "^1.0.0",
     "@wso2-enterprise/lang-service": "^1.0.0",

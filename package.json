@@ -6,6 +6,7 @@
     "lang-service",
     "low-code-editor-commons",
     "expression-editor",
+    "low-code-diagram",
     "statement-editor",
     "configurable-editor",
     "low-code-editor",
@@ -21,6 +22,7 @@
       "build:lce": "npm run build --workspace=low-code-editor",
       "build:lcec": "npm run build --workspace=low-code-editor-commons",
       "build:ee": "npm run build --workspace=expression-editor",
+      "build:lcd": "npm run build --workspace=low-code-diagram",
       "build": "npm run build --workspaces",
       "storybook": "npm run storybook --workspace=low-code-editor",
       "test:integration": "npm run cypress --workspace=integration-tests"
