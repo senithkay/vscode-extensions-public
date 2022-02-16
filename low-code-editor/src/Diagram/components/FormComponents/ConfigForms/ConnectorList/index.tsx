@@ -13,11 +13,11 @@
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
 
+import { PlusViewState } from "@wso2-enterprise/ballerina-low-code-diagram";
 import { BallerinaConnectorInfo, BallerinaConnectorsRequest, BallerinaModuleResponse, DiagramEditorLangClientInterface } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { LocalVarDecl } from "@wso2-enterprise/syntax-tree";
 
 import { UserState } from "../../../../../types";
-import { PlusViewState } from "../../../LowCodeDiagram/ViewState";
 import { APIHeightStates } from "../../DialogBoxes/PlusHolder";
 import { FormGeneratorProps } from "../../FormGenerator";
 import { BallerinaModuleType, Marketplace, SearchQueryParams } from "../Marketplace";

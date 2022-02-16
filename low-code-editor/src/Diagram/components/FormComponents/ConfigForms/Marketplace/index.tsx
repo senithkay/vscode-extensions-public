@@ -15,6 +15,7 @@ import React, { ReactNode, SyntheticEvent, useContext, useRef, useState } from "
 
 import { Box, CircularProgress, FormControl, Grid, Typography } from "@material-ui/core";
 import { CloseRounded } from "@material-ui/icons";
+import { PlusViewState } from "@wso2-enterprise/ballerina-low-code-diagram";
 import {
     ADD_CONNECTOR,
     BallerinaConstruct,
@@ -31,7 +32,6 @@ import { LocalVarDecl } from "@wso2-enterprise/syntax-tree";
 import { FilterIcon } from "../../../../../assets/icons";
 import { Context } from "../../../../../Contexts/Diagram";
 import { UserState } from "../../../../../types";
-import { PlusViewState } from "../../../LowCodeDiagram/ViewState/plus";
 import { APIHeightStates } from "../../DialogBoxes/PlusHolder/PlusElements";
 import { wizardStyles as useFormStyles } from "../style";
 

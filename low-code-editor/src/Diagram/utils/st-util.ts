@@ -10,26 +10,20 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { BallerinaConnectorInfo, BallerinaRecord, Connector, FunctionDefinitionInfo, STSymbolInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ActionInvocationFinder, FunctionViewState, initVisitor, positionVisitor, sizingVisitor } from "@wso2-enterprise/ballerina-low-code-diagram";
+import { BallerinaConnectorInfo, BallerinaRecord, Connector, FunctionDefinitionInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
-    ActionStatement, CallStatement, CaptureBindingPattern, CheckAction, ElseBlock, FunctionDefinition, IdentifierToken, IfElseStatement, LocalVarDecl,
-    ModulePart, ModuleVarDecl, QualifiedNameReference, RemoteMethodCallAction, ResourceKeyword, ServiceDeclaration,
+    CallStatement, CaptureBindingPattern, ElseBlock, FunctionDefinition, IdentifierToken, IfElseStatement, LocalVarDecl,
+    ModulePart, ModuleVarDecl, RemoteMethodCallAction, ResourceKeyword, ServiceDeclaration,
     STKindChecker,
-    STNode, traversNode, TypeCastExpression, VisibleEndpoint
+    STNode, traversNode
 } from '@wso2-enterprise/syntax-tree';
 import { subMinutes } from "date-fns";
 import { Diagnostic } from 'vscode-languageserver-protocol';
 
-import { AnalyzePayloadVisitor, initVisitor, positionVisitor, sizingVisitor } from '../..';
-import { CLIENT_SVG_HEIGHT, CLIENT_SVG_WIDTH } from "../../Diagram/components/LowCodeDiagram/Components/RenderingComponents/Connector/ConnectorHeader/ConnectorClientSVG";
-import { IFELSE_SVG_HEIGHT, IFELSE_SVG_WIDTH } from "../components/LowCodeDiagram/Components/RenderingComponents/IfElse/IfElseSVG";
-import { PROCESS_SVG_HEIGHT, PROCESS_SVG_WIDTH } from "../components/LowCodeDiagram/Components/RenderingComponents/Processor/ProcessSVG";
-import { RESPOND_SVG_HEIGHT, RESPOND_SVG_WIDTH } from "../components/LowCodeDiagram/Components/RenderingComponents/Respond/RespondSVG";
-import { EndpointViewState, FunctionViewState, PlusViewState, StatementViewState } from "../components/LowCodeDiagram/ViewState";
-import { ActionInvocationFinder } from '../components/LowCodeDiagram/Visitors/action-invocation-finder';
-import { DefaultConfig } from "../components/LowCodeDiagram/Visitors/default";
-// import { BlockStatementFinder } from '../components/LowCodeDiagram/Visitors/block-statement-finder';
+import { AnalyzePayloadVisitor } from '../..';
 import { clearAllDiagnostics, getAllDiagnostics, visitor as DiagnosticVisitor } from '../visitors/diagnostics-collector';
+// import { BlockStatementFinder } from '../components/LowCodeDiagram/Visitors/block-statement-finder';
 
 export const MAIN_FUNCTION = "main";
 

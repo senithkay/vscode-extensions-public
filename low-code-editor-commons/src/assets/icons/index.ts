@@ -64,3 +64,8 @@ export { default as DeleteButton } from "./DeleteButton";
 export { default as EditButton } from "./EditButton";
 export { default as TopLevelPlusIcon} from "./TopLevelPlusIcon";
 export { default as WarningIcon} from "./Warning";
+export { ServiceIconLight } from "./ServiceIcon";
+export { default as ModuleVariableIcon } from './ModuleVariableIcon';
+export { default as EnumIcon } from './EnumIcon';
+export { default as ErrorCopyIcon } from './ErrorCopyIcon';
+export { default as DefaultConnectorIcon } from './DefaultConnectorIcon';

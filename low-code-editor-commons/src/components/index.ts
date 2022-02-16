@@ -12,5 +12,6 @@
  */
 export * from "./buttons";
 export * from "./FormHeader";
-export * from "./FormActionButtons"
+export * from "./FormActionButtons";
 export * from "./utils";
+export * from "./ComponentExpandButton";

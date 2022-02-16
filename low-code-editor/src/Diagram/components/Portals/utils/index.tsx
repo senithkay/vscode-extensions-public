@@ -12,6 +12,7 @@
  */
 import React, { ReactNode } from "react";
 
+import { StatementViewState } from "@wso2-enterprise/ballerina-low-code-diagram";
 import {
     ActionConfig,
     BallerinaConnectorInfo,
@@ -19,6 +20,7 @@ import {
     BallerinaConstruct,
     Connector,
     ConnectorConfig,
+    DefaultConnectorIcon,
     DiagramEditorLangClientInterface,
     FormField, FormFieldReturnType,
     FunctionDefinitionInfo, PrimitiveBalType, STSymbolInfo
@@ -50,8 +52,6 @@ import * as Elements from "../../FormComponents/FormFieldComponents";
 import ExpressionEditor from "../../FormComponents/FormFieldComponents/ExpressionEditor";
 import { getUnionFormFieldName } from "../../FormComponents/FormFieldComponents/Union";
 import { FormElementProps } from "../../FormComponents/Types";
-import { DefaultConnectorIcon } from "../../LowCodeDiagram/Components/RenderingComponents/Connector/Icon/DefaultConnectorIcon";
-import { StatementViewState } from "../../LowCodeDiagram/ViewState";
 
 import { keywords, symbolKind } from "./constants";
 
