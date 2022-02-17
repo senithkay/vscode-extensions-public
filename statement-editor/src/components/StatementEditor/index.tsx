@@ -22,7 +22,7 @@ import {
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
-import { APPEND_EXPR_LIST_CONSTRUCTOR, INIT_EXPR_LIST_CONSTRUCTOR } from "../../constants";
+import { APPEND_EXPR_LIST_CONSTRUCTOR, CUSTOM_CONFIG_TYPE, INIT_EXPR_LIST_CONSTRUCTOR } from "../../constants";
 import { VariableUserInputs } from '../../models/definitions';
 import { StatementEditorContextProvider } from "../../store/statement-editor-context";
 import { getCurrentModel } from "../../utils";
@@ -90,11 +90,14 @@ export function StatementEditor(props: StatementEditorProps) {
     }
 
     useEffect(() => {
-        if (!(config.type === "Custom") || initialSource) {
+        if (!(config.type === CUSTOM_CONFIG_TYPE) || initialSource) {
             (async () => {
                 const partialST = await getPartialSTForStatement(
                     { codeSnippet: initialSource.trim() }, getLangClient);
-                setModel(partialST);
+
+                if (partialST.syntaxDiagnostics.length === 0) {
+                    setModel(partialST);
+                }
             })();
         }
     }, []);
@@ -123,7 +126,7 @@ export function StatementEditor(props: StatementEditorProps) {
                 { codeSnippet }, getLangClient);
         }
 
-        if (partialST.syntaxDiagnostics.length === 0) {
+        if (partialST.syntaxDiagnostics.length === 0 || config.type === CUSTOM_CONFIG_TYPE) {
             setModel(partialST);
         }
 
@@ -182,6 +185,7 @@ export function StatementEditor(props: StatementEditorProps) {
                     library={library}
                     currentFile={currentFile}
                     getLangClient={getLangClient}
+                    initialSource={initialSource}
                 >
                     <ViewContainer
                         label={label}

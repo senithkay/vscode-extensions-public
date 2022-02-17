@@ -118,7 +118,8 @@ const statementEditorContextProps = {
         path: "",
         size: 0
     },
-    importStatements: ['']
+    importStatements: [''],
+    initialSource: ''
 }
 
 const Template: Story<StatementRendererProps> = (args: StatementRendererProps) => (

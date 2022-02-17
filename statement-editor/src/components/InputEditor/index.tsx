@@ -75,6 +75,9 @@ export function InputEditor(props: InputEditorProps) {
     const inputEditorCtx = useContext(InputEditorContext);
     const { expressionHandler } = useContext(SuggestionsContext);
     const {
+        modelCtx: {
+            initialSource
+        },
         currentFile,
         getLangClient,
         modules: {
@@ -90,7 +93,7 @@ export function InputEditor(props: InputEditorProps) {
     let kind: any;
 
     if (!model) {
-        value = "";
+        value = initialSource ? initialSource : '';
     } else if (STKindChecker.isStringLiteral(model)) {
         literalModel = model as StringLiteral;
         kind = c.STRING_LITERAL;
