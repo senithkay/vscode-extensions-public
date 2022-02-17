@@ -159,7 +159,7 @@ export function StatementEditor(props: StatementEditorProps) {
     }, [model])
 
     const validateStatement = (isValid: boolean) => {
-        // setIsStatementValid(isValid);
+        setIsStatementValid(isValid);
     };
 
     return (

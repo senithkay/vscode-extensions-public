@@ -70,7 +70,7 @@ export function InputEditor(props: InputEditorProps) {
         diagnostic: [],
     });
 
-    const { model, statementType, diagnosticHandler, userInputs, isTypeDescriptor, isToken } = props;
+    const { model, diagnosticHandler, userInputs, isTypeDescriptor, isToken } = props;
 
     const stmtCtx = useContext(StatementEditorContext);
     const inputEditorCtx = useContext(InputEditorContext);
@@ -141,7 +141,7 @@ export function InputEditor(props: InputEditorProps) {
 
     useEffect(() => {
         if (isEditing) {
-            handleOnFocus(currentContent, "").then();
+            handleOnFocus(currentContent).then();
         }
     }, [isEditing]);
 
@@ -151,7 +151,7 @@ export function InputEditor(props: InputEditorProps) {
 
     useEffect(() => {
         setUserInput(value);
-        handleOnFocus(currentContent, "").then(() => {
+        handleOnFocus(currentContent).then(() => {
             handleContentChange(currentContent).then();
         });
     }, [value]);
