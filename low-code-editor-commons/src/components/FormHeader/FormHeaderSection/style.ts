@@ -26,6 +26,7 @@ export const useStyles = makeStyles((theme: Theme) =>
         titleIcon: {
             display: 'flex',
             padding: theme.spacing(1),
+            paddingLeft: theme.spacing(0),
         },
         formTitleWrapper: {
             width: "100%",

@@ -14,7 +14,12 @@ import React, { useState } from "react";
 import { FormattedMessage } from "react-intl";
 
 import { Box, FormControl, FormHelperText, Typography } from "@material-ui/core";
-import { FormActionButtons, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ExpressionEditorProps } from "@wso2-enterprise/ballerina-expression-editor";
+import {
+    FormActionButtons,
+    FormElementProps,
+    FormHeaderSection
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { ListenerDeclaration, NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { ListenerFormIcon } from "../../../../../assets/icons";
@@ -23,9 +28,8 @@ import { useDiagramContext } from "../../../../../Contexts/Diagram";
 import { createImportStatement, createListenerDeclartion } from "../../../../utils/modification-util";
 import { useStyles as useFormStyles } from "../../DynamicConnectorForm/style";
 import { SelectDropdownWithButton } from "../../FormFieldComponents/DropDown/SelectDropdownWithButton";
-import ExpressionEditor, { ExpressionEditorProps } from "../../FormFieldComponents/ExpressionEditor";
+import { LowCodeExpressionEditor } from "../../FormFieldComponents/LowCodeExpressionEditor";
 import { TextLabel } from "../../FormFieldComponents/TextField/TextLabel";
-import { FormElementProps } from "../../Types";
 import { VariableNameInput } from "../Components/VariableNameInput";
 
 import { isListenerConfigValid } from "./util";
@@ -136,11 +140,11 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
             initialDiagnostics: model?.initializer?.typeData?.diagnostics
         },
         onChange: onListenerPortChange,
-        defaultValue: config.listenerPort,
+        defaultValue: config.listenerPort
     };
 
     const listenerPortInputComponent = (
-        <ExpressionEditor
+        <LowCodeExpressionEditor
             {...portNumberExpressionEditorProps}
         />
     )
@@ -155,7 +159,7 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
     }
 
     return (
-        <FormControl data-testid="log-form" className={formClasses.wizardFormControl}>
+        <FormControl data-testid="listener-form" className={formClasses.wizardFormControl}>
             <FormHeaderSection
                 onCancel={onCancel}
                 formTitle={"lowcode.develop.connectorForms.HTTP.title"}

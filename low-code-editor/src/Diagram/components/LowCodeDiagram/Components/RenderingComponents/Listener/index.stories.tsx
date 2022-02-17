@@ -19,7 +19,7 @@ import listenerDecl from "./data/listener-decl-raw.json"
 import { Listener, ListenerProps } from "./index";
 
 export default {
-    title: 'Low Code Editor/Diagram/Listener',
+    title: 'Low Code Editor/Testing/Diagram/Listener',
     component: Listener,
 };
 

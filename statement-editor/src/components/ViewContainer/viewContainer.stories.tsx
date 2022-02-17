@@ -28,7 +28,7 @@ import whileStmtModel from "../StatementRenderer/data/while-st-model.json";
 import { ViewContainer, ViewProps } from "./ViewContainer";
 
 export default {
-    title: 'Low Code Editor/StatementEditor/ViewContainer',
+    title: 'Low Code Editor/Testing/StatementEditor/ViewContainer',
     component: ViewContainer,
 };
 
@@ -47,6 +47,11 @@ const statementEditorContextProps = {
     validateStatement: dummyFunction,
     getLangClient: () => (Promise.resolve({} as any)),
     applyModifications: () => (Promise.resolve({} as any)),
+    library: {
+        getLibrariesList: () => (Promise.resolve({} as any)),
+        getLibrariesData: () => (Promise.resolve({} as any)),
+        getLibraryData: () => (Promise.resolve({} as any))
+    },
     currentFile: {
         content: "",
         path: "",

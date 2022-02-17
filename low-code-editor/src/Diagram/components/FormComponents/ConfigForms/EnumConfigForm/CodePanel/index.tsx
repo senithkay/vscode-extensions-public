@@ -77,7 +77,7 @@ export function CodePanel() {
                 formTitle={"lowcode.develop.configForms.enumConfigForm.codePanel.title"}
                 defaultMessage={"Enumeration"}
             />
-            <div className={overlayClasses.formWrapper}>
+            <div className={overlayClasses.formWrapperEnum}>
                 <div className={enumClasses.enumFieldWrapper}>
                     <EnumField enumModel={state.enumModel} />
                 </div>

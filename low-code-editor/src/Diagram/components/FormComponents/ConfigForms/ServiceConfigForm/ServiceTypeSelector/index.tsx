@@ -53,7 +53,7 @@ export function ServiceTypeSelector(props: ServiceTypeSelectorProps) {
             <Typography >
                 Select Service Type
             </Typography>
-            <List >
+            <List data-testid="service-types-list">
                 {types}
             </List>
         </div>

@@ -10,65 +10,122 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-wrap-multiline
+// tslint:disable: jsx-no-multiline-js
 import React, { ReactNode, useContext } from "react";
 
 import { TypeTestExpression } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
-import { TYPE_DESCRIPTOR } from "../../../constants";
-import { VariableUserInputs } from "../../../models/definitions";
+import { DEFAULT_EXPRESSIONS } from "../../../constants";
+import { SuggestionItem, VariableUserInputs } from "../../../models/definitions";
+import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { SuggestionsContext } from "../../../store/suggestions-context";
-import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
+import { getSuggestionsBasedOnExpressionKind, isPositionsEquals } from "../../../utils";
+import { addStatementToTargetLine, getContextBasedCompletions } from "../../../utils/ls-utils";
 import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
 
 interface TypeTestExpressionProps {
-    model: TypeTestExpression
-    userInputs: VariableUserInputs
-    diagnosticHandler: (diagnostics: string) => void
+    model: TypeTestExpression;
+    userInputs: VariableUserInputs;
+    isElseIfMember: boolean;
+    diagnosticHandler: (diagnostics: string) => void;
 }
 
 export function TypeTestExpressionComponent(props: TypeTestExpressionProps) {
-    const { model, userInputs, diagnosticHandler } = props;
+    const { model, userInputs, isElseIfMember, diagnosticHandler } = props;
 
+    const stmtCtx = useContext(StatementEditorContext);
     const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
+    const { currentFile, getLangClient } = stmtCtx;
+    const { modelCtx } = stmtCtx;
+    const { currentModel } = modelCtx;
+    const targetPosition = stmtCtx.formCtx.formModelPosition;
+    const fileURI = `expr://${currentFile.path}`;
+    const hasExpressionSelected = currentModel.model &&
+        isPositionsEquals(currentModel.model.position, model.expression.position);
+    const hasTypeDescSelected = currentModel.model &&
+        isPositionsEquals(currentModel.model.position, model.typeDescriptor.position);
 
-    const expr: ReactNode = <ExpressionComponent
-        model={model.expression}
-        isRoot={false}
-        userInputs={userInputs}
-        diagnosticHandler={diagnosticHandler}
-        isTypeDescriptor={false}
-    />;
+    const expr: ReactNode = (
+        <ExpressionComponent
+            model={model.expression}
+            userInputs={userInputs}
+            isElseIfMember={isElseIfMember}
+            diagnosticHandler={diagnosticHandler}
+            isTypeDescriptor={false}
+        />
+    );
 
-    const typeDescriptor: ReactNode = <ExpressionComponent
-        model={model.typeDescriptor}
-        isRoot={false}
-        userInputs={userInputs}
-        diagnosticHandler={diagnosticHandler}
-        isTypeDescriptor={true}
-    />;
+    const typeDescriptor: ReactNode = (
+        <ExpressionComponent
+            model={model.typeDescriptor}
+            userInputs={userInputs}
+            isElseIfMember={isElseIfMember}
+            diagnosticHandler={diagnosticHandler}
+            isTypeDescriptor={true}
+        />
+    );
 
-    const onClickOnTypeDescriptor = (event: any) => {
-        event.stopPropagation()
-        expressionHandler(model.typeDescriptor, false, true,
-            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(TYPE_DESCRIPTOR) })
+    const onClickOnExpression = async (event: any) => {
+        event.stopPropagation();
+
+        const content: string = await addStatementToTargetLine(
+            currentFile.content, targetPosition, stmtCtx.modelCtx.statementModel.source, getLangClient);
+
+        const completions: SuggestionItem[] = await getContextBasedCompletions(
+            fileURI, content, targetPosition, model.expression.position,
+            false, isElseIfMember, model.expression.source, getLangClient);
+
+        expressionHandler(model.expression, false, false, {
+            expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
+            typeSuggestions: [],
+            variableSuggestions: completions
+        });
+    };
+
+    const onClickOnTypeDescriptor = async (event: any) => {
+        event.stopPropagation();
+
+        const content: string = await addStatementToTargetLine(
+            currentFile.content, targetPosition, stmtCtx.modelCtx.statementModel.source, getLangClient);
+
+        const completions: SuggestionItem[] = await getContextBasedCompletions(
+            fileURI, content, targetPosition, model.typeDescriptor.position,
+            true, isElseIfMember, model.typeDescriptor.source, getLangClient);
+
+        expressionHandler(model.typeDescriptor, false, true, {
+            expressionSuggestions: [],
+            typeSuggestions: completions,
+            variableSuggestions: []
+        });
     };
 
     return (
         <span>
             <button
-                className={statementEditorClasses.expressionElement}
+                className={classNames(
+                    statementEditorClasses.expressionElement,
+                    hasExpressionSelected && statementEditorClasses.expressionElementSelected
+                )}
+                onClick={onClickOnExpression}
             >
                 {expr}
             </button>
-            <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>
+            <span
+                className={classNames(
+                    statementEditorClasses.expressionBlock,
+                    statementEditorClasses.expressionBlockDisabled
+                )}
+            >
                  &nbsp;{model.isKeyword.value}
             </span>
             <button
-                className={statementEditorClasses.expressionElement}
+                className={classNames(
+                    statementEditorClasses.expressionElement,
+                    hasTypeDescSelected && statementEditorClasses.expressionElementSelected
+                )}
                 onClick={onClickOnTypeDescriptor}
             >
                 {typeDescriptor}

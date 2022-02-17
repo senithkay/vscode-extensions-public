@@ -19,18 +19,19 @@ import { VariableUserInputs } from "../../../models/definitions";
 import { ExpressionComponent } from "../../Expression";
 
 interface BracedExprProps {
-    model: BracedExpression
-    userInputs: VariableUserInputs
-    diagnosticHandler: (diagnostics: string) => void
+    model: BracedExpression;
+    userInputs: VariableUserInputs;
+    isElseIfMember: boolean;
+    diagnosticHandler: (diagnostics: string) => void;
 }
 
 export function BracedExpressionComponent(props: BracedExprProps) {
-    const { model, userInputs, diagnosticHandler } = props;
+    const { model, userInputs, isElseIfMember, diagnosticHandler } = props;
 
     const expressionComponent: ReactNode = <ExpressionComponent
         model={model.expression}
-        isRoot={false}
         userInputs={userInputs}
+        isElseIfMember={isElseIfMember}
         diagnosticHandler={diagnosticHandler}
         isTypeDescriptor={false}
     />;

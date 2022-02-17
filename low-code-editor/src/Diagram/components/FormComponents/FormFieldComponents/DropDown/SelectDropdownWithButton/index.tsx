@@ -16,12 +16,11 @@ import { FormattedMessage } from "react-intl";
 
 import { FormHelperText, MenuItem, Select } from "@material-ui/core";
 import AddRounded from "@material-ui/icons/AddRounded";
+import { FormElementProps, TooltipIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import classNames from "classnames";
 
 import { AddIcon } from "../../../../../../assets/icons";
-import { TooltipIcon } from "../../../../../../components/Tooltip";
 import { useStyles as useFormStyles } from "../../../DynamicConnectorForm/style";
-import { FormElementProps } from "../../../Types";
 import { useStyles as useTextInputStyles } from "../style";
 
 export interface SelectDropdownProps {
@@ -42,7 +41,7 @@ export function SelectDropdownWithButton(props: FormElementProps<SelectDropdownP
     const formClasses = useFormStyles();
     const dropDownClasses = useTextInputStyles();
     const textFieldClasses = useTextInputStyles();
-    const { onChange, onClick, defaultValue, label, placeholder, customProps = {}, disabled } = props;
+    const { onChange, onClick, defaultValue, label, hideLabel, placeholder, customProps = {}, disabled } = props;
     const { values, disableCreateNew, optional, className,
             clearSelection, onOpenSelect, onCloseSelect } = customProps;
 
@@ -75,8 +74,8 @@ export function SelectDropdownWithButton(props: FormElementProps<SelectDropdownP
     const EmptyChevronIcon = () => <span/>;
 
     return (
-        <>
-            {label ?
+        <div data-testid="select-drop-down" data-field-name={label}>
+            {label && !hideLabel ?
                 (customProps && optional ?
                     (
                         <div className={textFieldClasses.selectOperationTextWrapper}>
@@ -166,6 +165,6 @@ export function SelectDropdownWithButton(props: FormElementProps<SelectDropdownP
                     )
                 }
             </Select>
-        </>
+        </div>
     );
 }

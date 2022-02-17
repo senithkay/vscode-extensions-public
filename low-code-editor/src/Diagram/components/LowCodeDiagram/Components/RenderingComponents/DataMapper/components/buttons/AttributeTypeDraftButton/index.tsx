@@ -12,7 +12,8 @@
  */
 import React from 'react';
 
-import Tooltip from '../../../../../../../../../components/Tooltip';
+import { Tooltip } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+
 import { JsonFieldTypes } from '../../forms/DraftFieldForm';
 
 interface AttributeTypeDraftButtonProps {

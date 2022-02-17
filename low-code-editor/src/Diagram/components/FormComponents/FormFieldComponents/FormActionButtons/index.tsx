@@ -37,7 +37,7 @@ export function FormActionButtons(props: FormActionButtonsProps) {
                 </div>
                 <div className={classes.spaceBetween}>
                     <PrimaryButtonSquare
-                        data-testid="save-btn"
+                        testId="save-btn"
                         text={saveBtnText}
                         disabled={isMutationInProgress || !validForm}
                         fullWidth={false}

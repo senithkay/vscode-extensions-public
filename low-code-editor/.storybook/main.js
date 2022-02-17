@@ -1,4 +1,5 @@
 const path = require('path');
+const webpack = require('webpack');
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 
 module.exports = {
@@ -26,26 +27,33 @@ module.exports = {
   webpackFinal: async (config, { configType }) => {
     config.module.rules.push({
       test: /\.scss$/,
-      use: ['style-loader', 'css-loader', 'sass-loader'],
-      include: path.resolve(__dirname, '../'),
+      use: ['style-loader', 'css-loader', 'sass-loader']
     });
     config.plugins = [
       ...config.plugins,
       new MonacoWebpackPlugin({
         languages: ['ballerina', 'yaml', 'json']
-      })
+      }),
+      new webpack.ProvidePlugin({
+        Buffer: ['buffer', 'Buffer'],
+      }),
     ];
     config.resolve = {
       ...config.resolve,
       modules: [path.resolve(__dirname, '../src'), 'node_modules'],
       alias: {
         handlebars: 'handlebars/dist/handlebars.min.js',
-        "vscode": require.resolve('monaco-languageclient/lib/vscode-compatibility'),
+        vscode: require.resolve('monaco-languageclient/lib/vscode-compatibility'),
         "crypto": false,
         "net": false,
         "os": false,
-        "path": false
-      }
+        "path": false,
+        "fs": false,
+        "child_process": false,
+      },
+      fallback: {
+        buffer: require.resolve('buffer/'),
+      },
     }
     return config;
   }

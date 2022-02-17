@@ -17,10 +17,10 @@
 // tslint:disable: no-console
 import React, { useContext, useEffect, useRef, useState } from 'react';
 
+import { Tooltip } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { LocalVarDecl, MappingConstructor, RecordTypeDesc, STKindChecker, STNode } from '@wso2-enterprise/syntax-tree';
 import classNames from 'classnames';
 
-import Tooltip from '../../../../../../../../../components/Tooltip';
 import { Context as DiagramContext } from '../../../../../../../../../Contexts/Diagram';
 import { DefaultConfig } from '../../../../../../../../../Diagram/visitors/default';
 import { DeleteSVG } from '../../../../../../Components/DiagramActions/DeleteBtn/DeleteSVG';

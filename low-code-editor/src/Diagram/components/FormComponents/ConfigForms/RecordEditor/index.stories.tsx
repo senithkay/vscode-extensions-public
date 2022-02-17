@@ -23,7 +23,7 @@ import { RecordEditor, RecordEditorProps } from "./index";
 import recordModel from "./story-data/record-decl-raw.json";
 
 export default {
-    title: 'Low Code Editor/Form/Record Editor/Record Editor',
+    title: 'Low Code Editor/Testing/Form/Record Editor/Record Editor',
     component: RecordEditor,
 };
 

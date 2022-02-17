@@ -21,7 +21,7 @@ import {AddWhileForm, WhileProps } from "./index";
 
 
 export default {
-    title: 'Low Code Editor/Diagram/Statements/While',
+    title: 'Low Code Editor/Testing/Diagram/Statements/While',
     component: AddWhileForm,
 };
 

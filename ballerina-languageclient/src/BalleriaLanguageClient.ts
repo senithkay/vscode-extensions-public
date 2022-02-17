@@ -3,16 +3,16 @@ import {
     InitializeParams, InitializeRequest, InitializeResult, ProtocolConnection,
     Trace, DidOpenTextDocumentNotification,
     DidOpenTextDocumentParams, TextDocumentItem, InitializedNotification, ShutdownRequest, ExitNotification, PublishDiagnosticsNotification, PublishDiagnosticsParams,
-    TextDocumentPositionParams, Location
+    TextDocumentPositionParams, Location, DocumentSymbol, DocumentSymbolParams, SymbolInformation, DidCloseTextDocumentParams, DidChangeTextDocumentParams, DidChangeTextDocumentNotification, DidCloseTextDocumentNotification
 } from 'vscode-languageserver-protocol';
 import { BLCTracer } from "./BLCTracer";
 import { BLCLogger } from "./BLCLogger";
 import { initializeRequest, didOpenTextDocumentParams } from "./messages"
 import {
     ASTDidChangeParams, ASTDidChangeResponse, BallerinaConnectorRequest, BallerinaConnectorResponse, BallerinaConnectorsRequest, BallerinaConnectorsResponse, BallerinaExampleListParams,
-    BallerinaExampleListResponse, BallerinaProject, BallerinaRecordRequest, BallerinaRecordResponse, DidOpenParams, GetASTParams, GetASTResponse,
+    BallerinaExampleListResponse, BallerinaProject, BallerinaProjectParams, BallerinaRecordRequest, BallerinaRecordResponse, BallerinaSTModifyRequest, BallerinaSTModifyResponse, BallerinaTriggerRequest, BallerinaTriggerResponse, BallerinaTriggersRequest, BallerinaTriggersResponse, CompletionParams, CompletionResponse, ExecutorPositionsResponse, ExpressionTypeRequest, ExpressionTypeResponse, EXTENDED_APIS, GetASTParams, GetASTResponse,
     GetBallerinaProjectParams, GetProjectASTParams, GetProjectASTResponse, GetSyntaxTreeParams,
-    GetSyntaxTreeResponse, GoToSourceParams, IBallerinaLangClient, RevealRangeParams
+    GetSyntaxTreeResponse, GoToSourceParams, IBallerinaLangClient, JsonToRecordRequest, JsonToRecordResponse, PartialSTRequest, PartialSTResponse, PerformanceAnalyzerEndpointsRequest, RevealRangeParams, TriggerModifyRequest
 } from './IBallerinaLanguageClient'
 import { BallerinaASTNode, BallerinaEndpoint, BallerinaSourceFragment } from "./ast-models";
 import { LSConnection } from "./LSConnection";
@@ -32,7 +32,7 @@ export class BalleriaLanguageClient implements IBallerinaLangClient {
     private _diagnosticsReady: any = null;
     private _diagnosticsError: any = null;
 
-    // constructor 
+    // constructor
     public constructor(connection: LSConnection) {
         this._lsConnection = connection;
         this._id = 1;
@@ -73,16 +73,28 @@ export class BalleriaLanguageClient implements IBallerinaLangClient {
         return this._lsConnection.stop();
     }
 
-    public didOpen(path: string) {
-        this._clientConnection.sendNotification(DidOpenTextDocumentNotification.type, didOpenTextDocumentParams(path));
+    public didOpen(params: DidOpenTextDocumentParams) {
+        this._clientConnection.sendNotification(DidOpenTextDocumentNotification.type, params);
+    }
+
+    public doOpen(filePath: string) {
+        this._clientConnection.sendNotification(DidOpenTextDocumentNotification.type, didOpenTextDocumentParams(filePath));
+    }
+
+    public didClose(params: DidCloseTextDocumentParams) {
+        this._clientConnection.sendNotification(DidCloseTextDocumentNotification.type, params);
+    }
+
+    public didChange(params: DidChangeTextDocumentParams) {
+        this._clientConnection.sendNotification(DidChangeTextDocumentNotification.type, params);
     }
 
     private handleDiagnostics(diagnostics: PublishDiagnosticsParams) {
         this._diagnostics = diagnostics
     }
 
-    public getDiagnostics(): PublishDiagnosticsParams {
-        return this._diagnostics!;
+    public getDiagnostics(params: BallerinaProjectParams): Promise<PublishDiagnosticsParams[]> {
+        return this._clientConnection.sendRequest<PublishDiagnosticsParams[]>(EXTENDED_APIS.DOCUMENT_DIAGNOSTICS, params);
     }
 
     public getSyntaxTree(params: GetSyntaxTreeParams): Thenable<GetSyntaxTreeResponse> {
@@ -137,10 +149,68 @@ export class BalleriaLanguageClient implements IBallerinaLangClient {
 
 
     public getConnectors(params: BallerinaConnectorsRequest): Thenable<BallerinaConnectorsResponse> {
-        return this._clientConnection.sendRequest<BallerinaConnectorsResponse>("ballerinaConnector/connectors");
+        return this._clientConnection.sendRequest<BallerinaConnectorsResponse>("ballerinaConnector/connectors", params);
     }
 
     public getConnector(params: BallerinaConnectorRequest): Thenable<BallerinaConnectorResponse> {
         return this._clientConnection.sendRequest<BallerinaConnectorResponse>("ballerinaConnector/connector", params);
     }
+
+    public getCompletion(params: CompletionParams): Thenable<CompletionResponse[]> {
+        return this._clientConnection.sendRequest<CompletionResponse[]>("textDocument/completion", params);
+    }
+
+    public getType(params: ExpressionTypeRequest): Thenable<ExpressionTypeResponse> {
+        return this._clientConnection.sendRequest(EXTENDED_APIS.SYMBOL_TYPE, params);
+    }
+
+    public getSTForSingleStatement(params: PartialSTRequest): Thenable<PartialSTResponse> {
+        return this._clientConnection.sendRequest(EXTENDED_APIS.PARTIAL_PARSE_SINGLE_STATEMENT, params);
+    }
+
+    public getSTForExpression(params: PartialSTRequest): Thenable<PartialSTResponse> {
+        return this._clientConnection.sendRequest(EXTENDED_APIS.PARTIAL_PARSE_EXPRESSION, params);
+    }
+
+    public getSTForModuleMembers(params: PartialSTRequest): Thenable<PartialSTResponse> {
+        return this._clientConnection.sendRequest(EXTENDED_APIS.PARTIAL_PARSE_EXPRESSION, params);
+    }
+
+    public getTriggers(params: BallerinaTriggersRequest): Thenable<BallerinaTriggersResponse> {
+        return this._clientConnection.sendRequest<BallerinaTriggersResponse>(EXTENDED_APIS.TRIGGER_TRIGGERS, params);
+    }
+
+    public getTrigger(params: BallerinaTriggerRequest): Thenable<BallerinaTriggerResponse> {
+        return this._clientConnection.sendRequest<BallerinaTriggerResponse>(EXTENDED_APIS.TRIGGER_TRIGGER, params);
+    }
+
+    public stModify(params: BallerinaSTModifyRequest): Thenable<BallerinaSTModifyResponse> {
+        return this._clientConnection.sendRequest<BallerinaSTModifyResponse>(EXTENDED_APIS.DOCUMENT_ST_MODIFY, params);
+    }
+
+    public triggerModify(params: TriggerModifyRequest): Thenable<BallerinaSTModifyResponse> {
+        return this._clientConnection.sendRequest<BallerinaSTModifyResponse>(EXTENDED_APIS.DOCUMENT_TRIGGER_MODIFY, params);
+    }
+
+    public getDocumentSymbol(params: DocumentSymbolParams): Thenable<DocumentSymbol[] | SymbolInformation[]> {
+        return this._clientConnection.sendRequest("textDocument/documentSymbol", params);
+    }
+
+    public getPerfEndpoints(params: PerformanceAnalyzerEndpointsRequest): Thenable<any> {
+        // not supported yet
+        return Promise.reject("Not implmented");
+    }
+
+    public resolveMissingDependencies(params: GetSyntaxTreeParams): Thenable<GetSyntaxTreeResponse> {
+        return this._clientConnection.sendRequest(EXTENDED_APIS.RESOLVE_MISSING_DEPENDENCIES, params);
+    }
+
+    public getExecutorPositions(params: GetBallerinaProjectParams): Thenable<ExecutorPositionsResponse> {
+        return this._clientConnection.sendRequest(EXTENDED_APIS.DOCUMENT_EXECUTOR_POSITIONS, params);
+    }
+
+    public convert(params: JsonToRecordRequest): Thenable<JsonToRecordResponse> {
+        return this._clientConnection.sendRequest(EXTENDED_APIS.JSON_TO_RECORD_CONVERT, params);
+    }
+
 }
