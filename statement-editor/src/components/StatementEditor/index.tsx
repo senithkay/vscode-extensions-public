@@ -122,7 +122,10 @@ export function StatementEditor(props: StatementEditorProps) {
             partialST = await getPartialSTForStatement(
                 { codeSnippet }, getLangClient);
         }
-        setModel(partialST);
+
+        if (partialST.syntaxDiagnostics.length === 0) {
+            setModel(partialST);
+        }
 
         // Since in list constructor we add expression with comma and close-bracket,
         // we need to reduce that length from the code snippet to get the correct current model
