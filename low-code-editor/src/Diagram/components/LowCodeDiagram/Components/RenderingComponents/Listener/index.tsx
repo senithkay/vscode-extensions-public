@@ -13,12 +13,12 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useState } from 'react'
 
+import { Tooltip } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { ListenerDeclaration, STNode } from "@wso2-enterprise/syntax-tree";
 
 import DeleteButton from "../../../../../../assets/icons/DeleteButton";
 import EditButton from "../../../../../../assets/icons/EditButton";
 import ListenerIcon from "../../../../../../assets/icons/ListenerIcon";
-import Tooltip from '../../../../../../components/Tooltip';
 import { Context } from '../../../../../../Contexts/Diagram';
 import { removeStatement } from '../../../../../utils/modification-util';
 import { FormGenerator } from '../../../../FormComponents/FormGenerator';
@@ -88,7 +88,12 @@ export function ListenerC(props: ListenerProps) {
 
     return (
         <>
-            <div className="listener-comp" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} >
+            <div
+                className="listener-comp"
+                data-listener-name={listenerName}
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
+            >
                 <div className="listener-header">
                     <div className="listener-content">
                         <div className="listener-icon">

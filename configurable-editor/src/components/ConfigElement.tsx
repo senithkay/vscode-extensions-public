@@ -125,6 +125,9 @@ const ConfigElement = (configElement: ConfigElementProps): ReactElement => {
                 case ConfigType.INTEGER:
                     setValues(configElement.value as number[]);
                     break;
+                case ConfigType.NUMBER:
+                    setValues(configElement.value as number[]);
+                    break;
                 default:
                     break;
             }
@@ -142,7 +145,8 @@ const ConfigElement = (configElement: ConfigElementProps): ReactElement => {
         let configValue: ConfigValue = {
             key,
             value:
-                configElement.type === "integer" ? parseInt(value, 10) : value,
+                (configElement.type === ConfigType.INTEGER || configElement.type === ConfigType.NUMBER) ?
+                    Number(value) : value,
         };
         if (configElement.isArray) {
             let convertedValue: any;
@@ -155,6 +159,9 @@ const ConfigElement = (configElement: ConfigElementProps): ReactElement => {
                     break;
                 case ConfigType.INTEGER:
                     convertedValue = parseInt(value, 10);
+                    break;
+                case ConfigType.NUMBER:
+                    convertedValue = Number(value);
                     break;
                 default:
                     convertedValue = value;
@@ -233,6 +240,7 @@ const getInnerElement = (
                 );
             case ConfigType.STRING:
             case ConfigType.INTEGER:
+            case ConfigType.NUMBER:
                 return (
                     <div key={configElementProps.id + "-" + id + "-FIELD"}>
                         <TextFieldInput

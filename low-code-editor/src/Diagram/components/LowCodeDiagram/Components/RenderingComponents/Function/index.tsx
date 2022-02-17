@@ -26,6 +26,7 @@ import { Provider as FunctionProvider } from "../../../../../../Contexts/Functio
 import { useOverlayRef, useSelectedStatus } from "../../../../../hooks";
 import { useStyles } from "../../../../../styles";
 import expandTracker from "../../../../../utils/expand-tracker";
+import DefaultButtonSquare from "../../../../Buttons/DefaultButtonSquare";
 import { Canvas } from "../../../Canvas";
 import { getNodeSignature } from "../../../Utils";
 import { BlockViewState, FunctionViewState } from "../../../ViewState";
@@ -145,7 +146,11 @@ export function Function(props: FunctionProps) {
 
     function renderButtons() {
         if (model.isRunnable) {
-            return <div className={"action-container"}><p className={"action-text"} onClick={onClickRun}>Run</p></div>
+            return (
+                    <div className={"action-container"}>
+                        <DefaultButtonSquare onClick={onClickRun} variant="outlined" size="small">Run</DefaultButtonSquare>
+                   </div>
+             )
         }
     }
 
@@ -164,6 +169,7 @@ export function Function(props: FunctionProps) {
                     ? model.functionName.value
                     : ""
             )}
+            data-function-name={model?.functionName?.value}
         >
             {STKindChecker.isResourceAccessorDefinition(model) ? (
                 <ResourceHeader

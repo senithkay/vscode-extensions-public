@@ -13,11 +13,11 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useRef } from 'react';
 
+import { truncateText } from '@wso2-enterprise/ballerina-expression-editor';
 import { FunctionDefinition, IdentifierToken, ObjectMethodDefinition, RequiredParam, ResourceAccessorDefinition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import classNames from 'classnames';
 
 import FunctionIcon from '../../../../../../../assets/icons/FunctionIcon';
-import { truncateText } from '../../../../../FormComponents/FormFieldComponents/ExpressionEditorHint/utils';
 import { FunctionViewState } from '../../../../ViewState';
 import { ComponentExpandButton } from '../../../ComponentExpandButton';
 import '../style.scss';

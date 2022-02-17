@@ -38,9 +38,10 @@ export function ModulePartComponent(props: ModulePartProps) {
     const moduleMembers: JSX.Element[] = [];
 
     model.members.forEach((member: STNode) => {
+        const startPosition = member.position?.startLine + ":" + member.position?.startColumn;
         moduleMembers.push(
             <>
-                <div className={'member-container'} >
+                <div className={'member-container'} data-start-position={startPosition} >
                     <TopLevelPlus kind={model.kind} targetPosition={member.position} showCategorized={true} />
                     {getSTComponent(member)}
                 </div>

@@ -34,7 +34,8 @@ export enum SchemaConstants {
 export enum ConfigType {
     ARRAY = "array",
     BOOLEAN = "boolean",
-    INTEGER = "integer", // Represent both number and integer.
+    INTEGER = "integer",
+    NUMBER = "number",
     OBJECT = "object",
     STRING = "string",
     UNSUPPORTED = "unsupported", // Types other than the above ones.

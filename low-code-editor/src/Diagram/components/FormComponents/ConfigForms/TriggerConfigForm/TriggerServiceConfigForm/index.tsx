@@ -136,7 +136,7 @@ export function TriggerForm(props: FormGeneratorProps) {
                 <div className={formClasses.headerLabel}>
                     {channelName}
                 </div>
-                <div>
+                <div data-testid={`delete-${channelName}`}>
                     <DeleteButton
                         onClick={onDeleteChannel.bind(this, channelName)}
                     />
@@ -171,7 +171,7 @@ export function TriggerForm(props: FormGeneratorProps) {
     }
 
     const addNewChannelButton = (
-        <span onClick={addnewChannelView} className={formClasses.addPropertyBtn}    >
+        <span onClick={addnewChannelView} className={formClasses.addPropertyBtn} data-testid={"add-channel"}>
             <AddIcon />
             <p><FormattedMessage id="lowcode.develop.triggerConfigForm.trigger.addChannel.title" defaultMessage="Add Channel" /></p>
         </span>

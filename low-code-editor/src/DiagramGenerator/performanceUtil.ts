@@ -19,16 +19,14 @@
 
 import {
     DiagramEditorLangClientInterface, GraphData, GraphPoint, PerformanceAnalyzerGraphResponse,
-    PerformanceAnalyzerRealtimeResponse, SequenceGraphPoint, SequenceGraphPointValue
+    PerformanceAnalyzerRealtimeResponse, PerformanceAnalyzerResponse, SequenceGraphPoint, SequenceGraphPointValue
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
-import { Range } from "monaco-editor";
 
 import { mergeAnalysisDetails } from "./mergePerformanceData";
 import { PFSession } from "./vscode/Diagram";
 
 const SUCCESS = "Success";
-const IGNORE = "IGNORE";
 let syntaxTree: any;
 let langClient: DiagramEditorLangClientInterface;
 let filePath: string;
@@ -39,6 +37,7 @@ let diagramRedraw: any;
 let currentResourcePos: NodePosition;
 let showPerformanceGraph: (request: PerformanceGraphRequest) => Promise<boolean>;
 let getDataFromChoreo: (data: any, analyzeType: ANALYZE_TYPE) => Promise<PerformanceAnalyzerRealtimeResponse | PerformanceAnalyzerGraphResponse | undefined>;
+const endpoints = new Map<string, PerformanceAnalyzerResponse>();
 
 export interface PerformanceGraphRequest {
     file: string;
@@ -79,74 +78,33 @@ export async function addPerformanceData(st: any, file: string, lc: DiagramEdito
     showPerformanceGraph = showPerf;
     getDataFromChoreo = getPerfDataFromChoreo;
 
-    const members: any[] = syntaxTree.members;
     const performanceBarData = new Map<string, PerformanceData>();
-    for (const member of members) {
-        if (member.kind === 'ServiceDeclaration') {
-            const serviceMembers: any[] = member.members;
-            for (let currentResource = 0; currentResource < member.members.length; currentResource++) {
-                const serviceMember: any = serviceMembers[currentResource];
-                if (serviceMember.kind === 'ResourceAccessorDefinition') {
-                    const pos = serviceMember.position;
 
-                    const range: Range = new Range(pos.startLine, pos.startColumn,
-                        pos.endLine, pos.endColumn);
+    await langClient.getPerfEndpoints({
+        documentIdentifier: {
+            uri: filePath
+        }
+    }).then(async (response) => {
+        if (!response) {
+            return;
+        }
 
-                    if (!serviceMember.functionName || !serviceMember.relativeResourcePath) {
-                        continue;
-                    }
+        for (const resource of response) {
+            if (resource.type === SUCCESS) {
 
-                    const realtimeData = await getRealtimeData(range);
-
-                    if (realtimeData) {
-                        const position = `${pos.startLine},${pos.startColumn},${pos.endLine},${pos.endColumn}`;
-                        performanceBarData.set(position, { data: realtimeData, type: ANALYZE_TYPE.REALTIME });
-                    }
+                const realtimeData = await getDataFromChoreo(resource, ANALYZE_TYPE.REALTIME) as PerformanceAnalyzerRealtimeResponse;
+                if (!realtimeData) {
+                    return;
                 }
+                const pos = resource.resourcePos;
+                const position = `${pos.start.line},${pos.start.character},${pos.end.line},${pos.end.character}`;
+                performanceBarData.set(position, { data: realtimeData, type: ANALYZE_TYPE.REALTIME });
+                endpoints.set(position, resource);
             }
         }
-    }
-    return performanceBarData;
-}
 
-async function getRealtimeData(range: Range): Promise<PerformanceAnalyzerRealtimeResponse | undefined> {
-    if (!filePath || !langClient || !pfSession || !pfSession.choreoToken) {
-        return;
-    }
-
-    return new Promise<PerformanceAnalyzerRealtimeResponse>(async (resolve, reject) => {
-        await langClient.getPerfEndpoints({
-            documentIdentifier: {
-                uri: filePath
-            },
-            range: {
-                start: {
-                    line: range.startLineNumber,
-                    character: range.startColumn,
-                },
-                end: {
-                    line: range.endLineNumber,
-                    character: range.endColumn
-                }
-            }
-        }).then(async (response) => {
-            if (!response) {
-                return resolve(null);
-            }
-
-            if (response.type && response.type !== SUCCESS) {
-                return resolve(null);
-            }
-
-            const data = await getDataFromChoreo(response, ANALYZE_TYPE.REALTIME);
-
-            if (!data) {
-                return resolve(null);
-            }
-
-            return resolve(data as PerformanceAnalyzerRealtimeResponse);
-        });
     });
+    return performanceBarData;
 }
 
 export async function addAdvancedLabels(name: string, range: NodePosition, diagramRedrawFunc: any) {
@@ -156,38 +114,20 @@ export async function addAdvancedLabels(name: string, range: NodePosition, diagr
     currentResourcePos = range;
 
     diagramRedraw = diagramRedrawFunc;
-    await langClient.getPerfEndpoints({
-        documentIdentifier: {
-            uri: filePath
-        },
-        range: {
-            start: {
-                line: range.startLine,
-                character: range.startColumn,
-            },
-            end: {
-                line: range.endLine,
-                character: range.endColumn
-            }
-        }
-    }).then(async (response: PerformanceAnalyzerGraphResponse) => {
 
-        if (response.type && response.type !== SUCCESS) {
-            return;
-        }
+    const position = `${range.startLine},${range.startColumn},${range.endLine},${range.endColumn}`;
 
-        let data = await getDataFromChoreo(response, ANALYZE_TYPE.ADVANCED);
+    let data = await getDataFromChoreo(endpoints.get(position), ANALYZE_TYPE.ADVANCED);
 
-        if (!data) {
-            return;
-        }
-        data = data as PerformanceAnalyzerGraphResponse;
+    if (!data) {
+        return;
+    }
+    data = data as PerformanceAnalyzerGraphResponse;
 
-        sequenceDiagramData = data.sequenceDiagramData;
-        graphData = data.graphData;
-        updateAdvancedLabels(0);
-        showPerformanceChart({ name, graphData })
-    });
+    sequenceDiagramData = data.sequenceDiagramData;
+    graphData = data.graphData;
+    updateAdvancedLabels(0);
+    showPerformanceChart({ name, graphData })
 }
 
 function updateAdvancedLabels(concurrency: number) {

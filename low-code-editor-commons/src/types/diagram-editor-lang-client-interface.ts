@@ -77,6 +77,25 @@ export interface LineRange {
     endLine: LinePosition;
 }
 
+interface Range {
+    start: Position;
+    end: Position;
+}
+
+interface Position {
+    line: number;
+    character: number;
+}
+
+export interface PerformanceAnalyzerResponse {
+    resourcePos: Range;
+    endpoints: any;
+    actionInvocations: any;
+    type: string;
+    message: string;
+    name: string;
+}
+
 export interface DiagramEditorLangClientInterface extends BaseLangClientInterface {
     getConnectors: (
         params: BallerinaConnectorsRequest
@@ -105,19 +124,16 @@ export interface DiagramEditorLangClientInterface extends BaseLangClientInterfac
     getDocumentSymbol: (
         params: DocumentSymbolParams
     ) => Thenable<DocumentSymbol[] | SymbolInformation[] | null>;
-    diagnostics: (
-        params: BallerinaProjectParams
-    ) => Thenable<PublishDiagnosticsParams[]>;
-    convert: (
-        params: JsonToRecordRequest
-    ) => Thenable<JsonToRecordResponse>;
     getPerfEndpoints: (
         params: PerformanceAnalyzerEndpointsRequest
-    ) => Thenable<any>;
+    ) => Thenable<PerformanceAnalyzerResponse[]>;
     resolveMissingDependencies: (
         params: GetSyntaxTreeParams
     ) => Thenable<GetSyntaxTreeResponse>;
     getExecutorPositions: (
         params: GetBallerinaProjectParams
-    ) => Thenable<ExecutorPositionsResponse>
+    ) => Thenable<ExecutorPositionsResponse>;
+    convert: (
+        params: JsonToRecordRequest
+    ) => Thenable<JsonToRecordResponse>
 }

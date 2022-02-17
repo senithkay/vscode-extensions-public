@@ -14,7 +14,7 @@
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 
 import { formCreateSvg } from "../../../../assets";
-
+// Copy of styles is maintained in expression-editor module
 export const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         wizardFormControl: {
@@ -52,7 +52,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             width: '100%',
             marginRight: theme.spacing(0.625),
             position: 'relative',
-            marginTop: theme.spacing(1.5),
+            marginTop: theme.spacing(0),
             '&:last-child': {
                 marginRight: 0
             }
@@ -626,7 +626,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             letterSpacing: 0,
             cursor: "pointer",
             background: "#fff",
-            padding: "4px 8px 4px 0",
+            padding: "4px 8px 4px 8px",
             borderRadius: 8,
             display: "flex",
             alignItems: "center",
@@ -634,6 +634,11 @@ export const useStyles = makeStyles((theme: Theme) =>
                 height: '18px !important',
             },
             marginTop: 6,
+        },
+        addParameterBtn: {
+            paddingLeft: 0,
+            marginTop: 6,
+            textTransform: 'initial'
         },
         sectionSeperatorHR: {
             margin: "1.5rem 0"

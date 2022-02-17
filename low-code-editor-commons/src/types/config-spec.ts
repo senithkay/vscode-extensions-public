@@ -13,6 +13,8 @@
 
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
+import { STModification } from "./lang-client-extended";
+
 export enum PrimitiveBalType {
     String = "string",
     Record = "record",
@@ -68,6 +70,7 @@ export interface FormField {
     name?: string;
     displayName?: string;
     memberType?: FormField;
+    inclusionType?: FormField;
     selectedDataType?: string;
     description?: string;
     defaultValue?: any;
@@ -121,6 +124,7 @@ export class ActionConfig {
     public returnVariableName?: string = "";
     public returnType?: string = "";
     public fields: FormField[] = [];
+    public isReturnValueIgnored?: boolean;
 }
 
 // tslint:disable-next-line: max-classes-per-file
@@ -207,4 +211,16 @@ export interface DiagramDiagnostic {
         severity: string
     },
     range: NodePosition
+}
+
+export interface InjectableItem {
+    id: string;
+    modification: STModification;
+    name?: string;
+    value?: string;
+}
+
+export interface ExpressionInjectablesProps {
+    list: InjectableItem[];
+    setInjectables: (InjectableItem: InjectableItem[]) => void;
 }

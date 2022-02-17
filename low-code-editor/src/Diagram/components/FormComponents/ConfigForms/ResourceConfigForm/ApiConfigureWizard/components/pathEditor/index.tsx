@@ -114,6 +114,7 @@ export function PathEditor(props: PathEditorProps) {
                         onUpdate={onUpdateSegment}
                     />
                 );
+
             }
         }
     });
@@ -134,13 +135,13 @@ export function PathEditor(props: PathEditorProps) {
     );
 
     const addPathBtnUI = (
-        <div id="">
+        <div>
             <button
                 onClick={addPathBtn}
                 className={classes.addPathBtn}
             >
                 <div className={classes.addPathBtnWrap}>
-                    <AddIcon />
+                    <AddIcon data-testid="add-path-param-button"/>
                     <p><FormattedMessage id="lowcode.develop.apiConfigWizard.addPathSegment.title" defaultMessage="Add Path Segment" /></p>
                 </div>
             </button>
