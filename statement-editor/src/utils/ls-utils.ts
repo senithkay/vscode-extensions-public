@@ -89,6 +89,21 @@ export async function getContextBasedCompletions (
     return suggestions;
 }
 
+export async function sendDidOpen(
+    uri: string,
+    text: string,
+    getLangClient: () => Promise<ExpressionEditorLangClientInterface>) {
+    const langClient = await getLangClient();
+    langClient.didOpen({
+        textDocument: {
+            uri,
+            languageId: "ballerina",
+            text,
+            version: 1
+        }
+    });
+}
+
 export async function sendDidChange(
             docUri: string,
             content: string,
@@ -137,6 +152,15 @@ export async function addStatementToTargetLine(
         modelContent.splice(position?.startLine, 0, currentStatement);
         return modelContent.join('\n');
     }
+}
+
+export async function addImportStatements(
+            currentFileContent: string,
+            modulesToBeImported: string[]): Promise<string> {
+    const modelContent: string[] = currentFileContent.split(/\n/g) || [];
+    modulesToBeImported.join('');
+    modelContent.splice(0, 0, modulesToBeImported.join(''));
+    return modelContent.join('\n');
 }
 
 async function getModifiedStatement(

@@ -38,9 +38,11 @@ import { InputEditorContext } from "../../store/input-editor-context";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { SuggestionsContext } from "../../store/suggestions-context";
 import {
+    addImportStatements,
     addStatementToTargetLine,
     getDiagnostics,
-    sendDidChange
+    sendDidChange,
+    sendDidOpen
 } from "../../utils/ls-utils";
 import { useStatementEditorStyles } from "../styles";
 
@@ -72,7 +74,13 @@ export function InputEditor(props: InputEditorProps) {
     const stmtCtx = useContext(StatementEditorContext);
     const inputEditorCtx = useContext(InputEditorContext);
     const { expressionHandler } = useContext(SuggestionsContext);
-    const { currentFile, getLangClient } = stmtCtx;
+    const {
+        currentFile,
+        getLangClient,
+        modules: {
+            modulesToBeImported
+        }
+    } = stmtCtx;
     const fileURI = monaco.Uri.file(currentFile.path).toString().replace(FILE_SCHEME, EXPR_SCHEME);
 
     const statementEditorClasses = useStatementEditorStyles();
@@ -128,10 +136,10 @@ export function InputEditor(props: InputEditorProps) {
     const isCustomTemplate = false;
     let currentContent = stmtCtx.modelCtx.statementModel ? stmtCtx.modelCtx.statementModel.source : "";
 
-    const placeHolders: string[] = ['EXPRESSION', 'TYPE_DESCRIPTOR', 'PARAM', 'OPTIONAL_PARAM'];
+    const placeHolders: string[] = ['EXPRESSION', 'TYPE_DESCRIPTOR'];
 
     useEffect(() => {
-        handleOnFocus(currentContent, "").then(() => {
+        handleOnFocus(currentContent).then(() => {
             handleOnOutFocus().then();
         })
         getContextBasedCompletions(placeHolders.indexOf(userInput) > -1 ? "" : userInput);
@@ -154,28 +162,27 @@ export function InputEditor(props: InputEditorProps) {
         }
     }, [isEditing, userInput]);
 
-    const handleOnFocus = async (currentStatement: string, EOL: string) => {
-        const initContent: string = await addStatementToTargetLine(
+    const handleOnFocus = async (currentStatement: string) => {
+        let initContent: string = await addStatementToTargetLine(
             currentFile.content, targetPosition, currentStatement, getLangClient);
+
+        if (modulesToBeImported.size > 0) {
+            initContent = await addImportStatements(initContent, Array.from(modulesToBeImported) as string[]);
+        }
 
         inputEditorState.name = userInputs && userInputs.formField ? userInputs.formField : "modelName";
         inputEditorState.content = initContent;
         inputEditorState.uri = fileURI;
-        const langClient = await getLangClient();
-        langClient.didOpen({
-            textDocument: {
-                uri: inputEditorState.uri,
-                languageId: "ballerina",
-                text: currentFile.content,
-                version: 1
-            }
-        });
-        sendDidChange(inputEditorState.uri, inputEditorState.content, getLangClient).then();
+        sendDidOpen(inputEditorState.uri, currentFile.content, getLangClient).then();
+        // sendDidChange(inputEditorState.uri, inputEditorState.content, getLangClient).then();
         const diagResp = await getDiagnostics(inputEditorState.uri, getLangClient);
-        setInputEditorState({
-            ...inputEditorState,
-            diagnostic: diagResp[0]?.diagnostics ? getFilteredDiagnostics(diagResp[0]?.diagnostics, isCustomTemplate) : []
-        })
+        setInputEditorState((prevState) => {
+            return {
+                ...prevState,
+                diagnostic: diagResp[0]?.diagnostics ?
+                    getFilteredDiagnostics(diagResp[0]?.diagnostics, isCustomTemplate) : []
+            };
+        });
     }
 
     const handleDiagnostic = () => {
@@ -190,22 +197,33 @@ export function InputEditor(props: InputEditorProps) {
     }
 
     const handleContentChange = async (currentStatement: string, currentCodeSnippet?: string) => {
-        const initContent: string = await addStatementToTargetLine(
+        if (currentStatement.slice(-1) !== ';') {
+            currentStatement += ';';
+        }
+        let initContent: string = await addStatementToTargetLine(
             currentFile.content, targetPosition, currentStatement, getLangClient);
+
+        if (modulesToBeImported.size > 0) {
+            initContent = await addImportStatements(initContent, Array.from(modulesToBeImported) as string[]);
+        }
 
         inputEditorState.name = userInputs && userInputs.formField ? userInputs.formField : "modelName";
         inputEditorState.content = initContent;
         inputEditorState.uri = fileURI;
         sendDidChange(inputEditorState.uri, inputEditorState.content, getLangClient).then();
         const diagResp = await getDiagnostics(inputEditorState.uri, getLangClient);
-        setInputEditorState({
-            ...inputEditorState,
-            diagnostic: diagResp[0]?.diagnostics ? getFilteredDiagnostics(diagResp[0]?.diagnostics, isCustomTemplate) : []
-        })
+        setInputEditorState((prevState) => {
+            return {
+                ...prevState,
+                diagnostic: diagResp[0]?.diagnostics ?
+                    getFilteredDiagnostics(diagResp[0]?.diagnostics, isCustomTemplate) :
+                    []
+            };
+        });
         currentContent = currentStatement;
 
         if (isEditing) {
-            getContextBasedCompletions(currentCodeSnippet != null ? currentCodeSnippet : userInput);
+            await getContextBasedCompletions(currentCodeSnippet != null ? currentCodeSnippet : userInput);
         }
     }
 

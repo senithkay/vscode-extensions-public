@@ -53,7 +53,10 @@ export function AddRespondForm(props: RespondFormProps) {
         },
         api: {
             ls: { getExpressionEditorLangClient },
-            code: { modifyDiagram },
+            code: {
+                modifyDiagram,
+                importStatements
+            },
             library
         }
     } = useContext(Context);
@@ -183,6 +186,7 @@ export function AddRespondForm(props: RespondFormProps) {
             getLangClient: getExpressionEditorLangClient,
             applyModifications: modifyDiagram,
             library,
+            importStatements,
             experimentalEnabled
         }
     );
