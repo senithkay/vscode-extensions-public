@@ -5,12 +5,19 @@ export class OtherForm {
     private static selector = '[data-testid="custom-expression-form"]';
 
 
-    static typeStatement(value: any) {
+    static typeStatement(value: any, clearSuggestions: boolean = true) {
         ExpressionEditor
             .getForField("statement", this.selector)
-            .type(value)
+            .type(value, false)
             .waitForValidations()
-            .clearSuggestions();
+            .clearSuggestions(clearSuggestions);
+        return this;
+    }
+
+    static clearStatement() {
+        ExpressionEditor
+            .getForField("statement", this.selector)
+            .clear();
         return this;
     }
 
