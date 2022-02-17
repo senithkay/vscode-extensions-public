@@ -15,7 +15,6 @@ import { BrowserTracing } from "@sentry/tracing";
 import { SentryConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 export const init = (config: SentryConfig) => {
-    // /* eslint no-underscore-dangle: 0 */
     const sampleRate = 1;
     if (!config.dsn) return;
     try {

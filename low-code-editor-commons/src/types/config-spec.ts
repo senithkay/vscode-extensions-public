@@ -224,10 +224,3 @@ export interface ExpressionInjectablesProps {
     list: InjectableItem[];
     setInjectables: (InjectableItem: InjectableItem[]) => void;
 }
-
-export interface SentryConfig {
-    environment: string;
-    dsn: string;
-    release: string;
-    correlationID: string;
-}

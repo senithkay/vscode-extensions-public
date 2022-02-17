@@ -93,8 +93,6 @@ export function AddLogConfig(props: LogConfigProps) {
     const onSaveBtnClick = () => {
         logFormConfig.expression = expression;
         logFormConfig.type = logType;
-        // tslint:disable-next-line: no-console
-        console.log("Value >>>" + process.env.DEMO);
         onSave();
     };
 
