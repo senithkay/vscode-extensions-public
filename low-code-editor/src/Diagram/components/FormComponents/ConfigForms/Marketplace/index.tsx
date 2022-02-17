@@ -19,7 +19,6 @@ import { PlusViewState } from "@wso2-enterprise/ballerina-low-code-diagram";
 import {
     ADD_CONNECTOR,
     BallerinaConstruct,
-    ADD_CONNECTOR,
     BallerinaModuleResponse,
     ButtonWithIcon,
     DiagramEditorLangClientInterface,

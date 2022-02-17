@@ -15,7 +15,7 @@ import React, { ReactNode, useContext, useState } from "react";
 
 import { Divider } from "@material-ui/core";
 import cn from "classnames";
-import { LowcodeEvent, ADD_STATEMENT } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { Tooltip } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import {
     LogIcon,
@@ -32,7 +32,6 @@ import {
 } from "../../../../../../../assets/icons";
 
 import { Context } from "../../../../../../../Contexts/Diagram";
-import Tooltip from "../../../../../../../components/Tooltip";
 import "../../style.scss";
 import While from "../../../../../../../assets/icons/While";
 import { FormattedMessage, useIntl } from "react-intl";

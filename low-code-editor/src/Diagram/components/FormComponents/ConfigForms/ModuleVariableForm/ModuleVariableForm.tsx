@@ -13,7 +13,8 @@
 import React, { useEffect, useReducer } from 'react';
 
 import { FormControl } from '@material-ui/core';
-import { ADD_VARIABLE, FormActionButtons, FormHeaderSection, LowcodeEvent, SAVE_VARIABLE, STModification } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { ExpressionEditorProps } from '@wso2-enterprise/ballerina-expression-editor';
+import { ADD_VARIABLE, FormActionButtons, FormElementProps, FormHeaderSection, LowcodeEvent, SAVE_VARIABLE, STModification } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { ModuleVarDecl, NodePosition } from '@wso2-enterprise/syntax-tree';
 
 import { useDiagramContext } from '../../../../../Contexts/Diagram';

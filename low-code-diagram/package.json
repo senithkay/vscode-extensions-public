@@ -16,7 +16,9 @@
         "clean": "rimraf build/ && rimraf lib/",
         "clean:nm": "rimraf node_modules",
         "lint": "tslint --project .",
-        "lint:fix": "tslint --fix --project ."
+        "lint:fix": "tslint --fix --project .",
+        "storybook": "npm run storybook:setup",
+        "storybook:setup": "node tools/setup-storybook.js"
     },
     "dependencies": {
         "@wso2-enterprise/ballerina-languageclient": "^1.0.0",

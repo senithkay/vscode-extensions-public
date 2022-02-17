@@ -13,14 +13,12 @@
 
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
-import { TypeInfo } from "./lang-client-extended";
+import { STModification, TypeInfo } from "./lang-client-extended";
 
 export enum GenerationType {
     ASSIGNMENT,
     NEW
 }
-
-import { STModification } from "./lang-client-extended";
 
 export enum PrimitiveBalType {
     String = "string",

@@ -22,6 +22,7 @@ import { DefaultConfig } from "../../../Visitors/default";
 
 import { DeleteSVG } from "./DeleteSVG";
 import "./style.scss";
+
 export interface DeleteBtnProps {
     cx: number;
     cy: number;

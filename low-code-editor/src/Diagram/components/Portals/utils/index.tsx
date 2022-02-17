@@ -12,6 +12,7 @@
  */
 import React, { ReactNode } from "react";
 
+import { ExpressionEditor } from "@wso2-enterprise/ballerina-expression-editor";
 import { StatementViewState } from "@wso2-enterprise/ballerina-low-code-diagram";
 import {
     ActionConfig,
@@ -21,8 +22,7 @@ import {
     Connector,
     ConnectorConfig,
     DefaultConnectorIcon,
-    DiagramEditorLangClientInterface,
-    FormElementProps, FormField, FormFieldReturnType,
+    DiagramEditorLangClientInterface, FormField, FormFieldReturnType,
     FunctionDefinitionInfo, PrimitiveBalType, STSymbolInfo
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {

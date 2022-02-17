@@ -19,7 +19,7 @@ import { ModulePart, ServiceDeclaration, STKindChecker } from '@wso2-enterprise/
 import { Service } from '..';
 import { Provider } from '../../../../Context/diagram';
 import { LowCodeDiagramProps } from '../../../../Context/types';
-import { getFileContent, getProjectRoot, langClientPromise } from '../../../../stories/story-utils';
+import { getComponentDataPath, getFileContent, langClientPromise } from '../../../../stories/story-utils';
 import { sizingAndPositioning } from '../../../../Utils';
 
 export default {
@@ -28,7 +28,8 @@ export default {
 };
 
 
-const sampleRelPath = "low-code-editor/src/Diagram/components/LowCodeDiagram/Components/RenderingComponents/Service/stories/data/sample1.bal";
+const componentName = "Service";
+const samplefile1 = "sample1.bal";
 
 const Template: Story<{ f1: string }> = (args: {f1: string }) => {
 
@@ -50,7 +51,7 @@ const Template: Story<{ f1: string }> = (args: {f1: string }) => {
 
     useEffect(() => {
 
-        const filePath = `${getProjectRoot()}/${sampleRelPath}`;
+        const filePath = `${getComponentDataPath(componentName, samplefile1)}`;
 
         const uri = `file://${filePath}`;
 

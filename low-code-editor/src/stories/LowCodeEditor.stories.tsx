@@ -1,14 +1,14 @@
 import React from 'react';
 
 import { ComponentStory } from '@storybook/react';
-import { Connector, LowcodeEvent, STModification, STSymbolInfo, WizardType } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { BlockViewState } from '@wso2-enterprise/ballerina-low-code-diagram';
+import { ConditionConfig, Connector, LowcodeEvent, STModification, STSymbolInfo, WizardType } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { ModulePart, NodePosition, STNode } from '@wso2-enterprise/syntax-tree';
 
-import { ConditionConfig } from '../Diagram/components/FormComponents/Types';
 import { TriggerType } from '../Diagram/models';
 import { sizingAndPositioningST } from '../DiagramGenerator/generatorUtil';
 
-import LowCodeEditor, { BlockViewState, LowCodeEditorProps } from './../index';
+import LowCodeEditor, { LowCodeEditorProps } from './../index';
 import syntaxTree from "./data/st-raw.json"
 
 export default {
