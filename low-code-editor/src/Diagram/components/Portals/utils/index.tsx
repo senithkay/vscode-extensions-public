@@ -876,11 +876,11 @@ function getFormFieldReturnType(formField: FormField, depth = 1): FormFieldRetur
                     returnTypeResponseRight = getFormFieldReturnType(formField.rightTypeParam, depth + 1);
                     response.importTypeInfo = [...response.importTypeInfo, ...returnTypeResponseRight.importTypeInfo];
                 }
-                if (returnTypeResponseLeft.returnType && (returnTypeResponseRight.returnType || returnTypeResponseRight.hasError)) {
+                if (returnTypeResponseLeft.returnType && returnTypeResponseRight && (returnTypeResponseRight.returnType || returnTypeResponseRight.hasError)) {
                     const rightType = returnTypeResponseRight.hasError ? "error?" : returnTypeResponseRight.returnType;
                     response.returnType = `stream<${returnTypeResponseLeft.returnType},${rightType}>`
                 }
-                if (returnTypeResponseLeft.returnType && !returnTypeResponseRight.returnType) {
+                if (returnTypeResponseLeft.returnType && !returnTypeResponseRight?.returnType) {
                     response.returnType = `stream<${returnTypeResponseLeft.returnType}>`
                 }
                 if (response.returnType) {
