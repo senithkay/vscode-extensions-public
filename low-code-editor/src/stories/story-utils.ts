@@ -10,21 +10,21 @@ export const langClientPromise = WSConnection.initialize(LANG_SERVER_URL).then((
 });
 
 export async function getFileContent(filePath: string): Promise<string> {
-    return fetch(MOCK_SERVER_URL + "/file/" + encodeURIComponent(filePath))
-      .then(response => {
-        return response.text()
-      })
+  return fetch(MOCK_SERVER_URL + "/file/" + encodeURIComponent(filePath))
+    .then(response => {
+      return response.text()
+    })
 }
 
 export async function updateFileContent(filePath: string, text: string): Promise<boolean> {
   return fetch(MOCK_SERVER_URL + "/file/" + encodeURIComponent(filePath),
     {
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        },
-        method: "POST",
-        body: JSON.stringify({ text })
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      method: "POST",
+      body: JSON.stringify({ text })
     })
     .then(response => {
       return response.json()
@@ -34,4 +34,35 @@ export async function updateFileContent(filePath: string, text: string): Promise
 
 export function getProjectRoot() {
   return balDist.projectRoot;
+}
+
+export async function getST(filePath: string) {
+  const text = await getFileContent(filePath);
+  const langClient = await langClientPromise;
+  const uri = `file://${filePath}`;
+
+  await langClient.didOpen({
+    textDocument: {
+      languageId: "ballerina",
+      text,
+      uri,
+      version: 1
+    }
+  });
+
+  const syntaxTreeResponse = await langClient.getSyntaxTree({
+    documentIdentifier: {
+      uri
+    }
+  });
+
+  const syntaxTree = syntaxTreeResponse.syntaxTree;
+
+  langClient.didClose({
+    textDocument: {
+      uri,
+    }
+  });
+
+  return syntaxTree;
 }
