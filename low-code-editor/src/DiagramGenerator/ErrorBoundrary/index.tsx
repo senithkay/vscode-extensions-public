@@ -1,5 +1,7 @@
 import * as React from "react";
 
+import { reportErrorWithScope } from "../../utils/sentry";
+
 import ErrorScreen from "./Error";
 
 export interface DiagramGenErrorBoundaryProps {
@@ -30,6 +32,7 @@ export class DiagramGenErrorBoundaryC extends React.Component<DiagramGenErrorBou
     componentDidCatch(error: any, errorInfo: any) {
       // tslint:disable: no-console
       console.error(error, errorInfo);
+      reportErrorWithScope(error, { errorInfo });
     }
 
     render() {

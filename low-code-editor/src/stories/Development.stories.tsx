@@ -44,6 +44,7 @@ function getDiagramGeneratorProps(filePath: string): DiagramGeneratorProps {
     updateFileContent,
     getLibrariesList: () => Promise.resolve(undefined),
     getLibrariesData: () => Promise.resolve(undefined),
-    getLibraryData: () => Promise.resolve(undefined)
+    getLibraryData: () => Promise.resolve(undefined),
+    getSentryConfig: () => Promise.resolve(undefined)
   }
 }
