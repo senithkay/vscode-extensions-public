@@ -59,7 +59,7 @@ import {
 	LibraryKind,
 	LibrarySearchResponse
 } from "../library-browser/model";
-import { getSentryConfig, SentryConfig } from '../sentry/index';
+import { getSentryConfig, SentryConfig } from './sentry';
 
 export let hasDiagram: boolean = false;
 
@@ -478,7 +478,7 @@ class DiagramPanel {
 			{
 				methodName: "getSentryConfig",
 				handler: async (): Promise<SentryConfig | undefined> => {
-					return await getSentryConfig();
+					return ballerinaExtension.getCodeServerContext().codeServerEnv ? await getSentryConfig() : undefined;
 				}
 			},
 		];
