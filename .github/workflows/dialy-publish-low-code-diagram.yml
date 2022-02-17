@@ -24,8 +24,8 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
       - name: Get current timestamp
-          id: timestamp
-          run: echo "::set-output name=timestamp::$(date +'%Y%m%d-%H%M')"
+        id: timestamp
+        run: echo "::set-output name=timestamp::$(date +'%Y%m%d-%H%M')"
       - run: npm version prepatch --preid=${{ steps.timestamp.outputs.timestamp }} --workspaces
       - name: Create tag
         uses: actions/github-script@v5
