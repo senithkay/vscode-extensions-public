@@ -82,7 +82,8 @@ export function ExpressionEditorMap(props: FormElementProps<ExpressionEditorProp
             value: keyEditorContent,
             tooltip: "Key of the Key-Value pair",
             optional: true,
-            customAutoComplete: model?.customAutoComplete
+            //ToDo: Commented out this as it seems to be not used inside Expression editor
+            //customAutoComplete: model?.customAutoComplete
         },
         customProps: {
             validate: handleKeyEditorValidation,
@@ -97,7 +98,8 @@ export function ExpressionEditorMap(props: FormElementProps<ExpressionEditorProp
     // States and functions for value-exp-editor
     const [valueEditorValid, setValueEditorValid] = useState(false);
     const [valueEditorContent, setValueEditorContent] = useState("");
-    const valueEditorType: string = transformFormFieldTypeToString(model.fields[0]);
+    // const valueEditorType: string = transformFormFieldTypeToString(model.fields[0]);
+    const valueEditorType: string = model?.paramType?.typeName;
 
     const handleValueEditorValidation = (_field: string, isInvalid: boolean) => {
         if (valueEditorContent === "") {
@@ -119,7 +121,8 @@ export function ExpressionEditorMap(props: FormElementProps<ExpressionEditorProp
             value: valueEditorContent,
             tooltip: "Value of the Key-Value pair",
             optional: true,
-            customAutoComplete: model?.fields[0]?.customAutoComplete
+            //ToDo: Commented out this as it seems to be not used inside Expression editor
+            // customAutoComplete: model?.fields[0]?.customAutoComplete
         },
         customProps: {
             validate: handleValueEditorValidation,
