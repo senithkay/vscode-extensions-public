@@ -97,4 +97,9 @@ export class FunctionDiagram {
         return this;
     }
 
+    public clickExistingRespondStatement() {
+        cy.get(`.diagram-canvas .respond-contect-wrapper [data-testid="editBtn"]`)
+        .click({ force: true });
+    return this;
+}
 }
