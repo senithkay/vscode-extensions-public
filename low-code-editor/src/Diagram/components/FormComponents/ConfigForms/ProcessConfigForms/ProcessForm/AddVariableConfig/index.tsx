@@ -27,12 +27,14 @@ import { LocalVarDecl, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
 import { ADD_VARIABLE, LowcodeEvent, SAVE_VARIABLE } from "../../../../../../models";
+import { getAllVariables } from "../../../../../../utils/mixins";
 import {
     createModuleVarDecl,
     createModuleVarDeclWithoutInitialization,
     getInitialSource
 } from "../../../../../../utils/modification-util";
 import { getVariableNameFromST } from "../../../../../../utils/st-util";
+import { genVariableName } from "../../../../../Portals/utils";
 import { useStyles } from "../../../../DynamicConnectorForm/style";
 import { SelectDropdownWithButton } from "../../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
 import { LowCodeExpressionEditor } from "../../../../FormFieldComponents/LowCodeExpressionEditor";
@@ -71,7 +73,10 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         },
         api: {
             ls: { getExpressionEditorLangClient },
-            code: { modifyDiagram },
+            code: {
+                modifyDiagram,
+                importStatements
+            },
             insights: { onEvent },
             library
         }
@@ -264,7 +269,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
     const initialSource = formArgs.model ? formArgs.model.source : (initialized ? (
                 getInitialSource(createModuleVarDecl(
                     {
-                        varName: varName ? varName : "default",
+                        varName: varName ? varName : genVariableName("variable", getAllVariables(stSymbolInfo)),
                         varOptions: [],
                         varType: selectedType ? selectedType : "var",
                         varValue: variableExpression ? variableExpression : "EXPRESSION"
@@ -274,7 +279,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
             (
                 getInitialSource(createModuleVarDeclWithoutInitialization(
                     {
-                        varName: varName ? varName : "default",
+                        varName: varName ? varName : genVariableName("variable", getAllVariables(stSymbolInfo)),
                         varOptions: [],
                         varType: selectedType ? selectedType : "var",
                         varValue: null
@@ -304,6 +309,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
             getLangClient: getExpressionEditorLangClient,
             applyModifications: modifyDiagram,
             library,
+            importStatements,
             experimentalEnabled
         }
     );

@@ -69,7 +69,10 @@ export function AddIfForm(props: IfProps) {
         },
         api: {
             ls: { getExpressionEditorLangClient },
-            code: { modifyDiagram },
+            code: {
+                modifyDiagram,
+                importStatements
+            },
             library
         },
     } = useContext(Context);
@@ -247,6 +250,7 @@ export function AddIfForm(props: IfProps) {
             getLangClient: getExpressionEditorLangClient,
             applyModifications: modifyDiagram,
             library,
+            importStatements,
             experimentalEnabled
         }
     );
