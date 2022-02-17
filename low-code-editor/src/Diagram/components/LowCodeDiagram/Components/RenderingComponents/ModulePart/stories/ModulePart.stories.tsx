@@ -17,7 +17,7 @@ import { Story } from '@storybook/react/types-6-0';
 import { ModulePart, STKindChecker } from '@wso2-enterprise/syntax-tree';
 
 import { ModulePartComponent } from '..';
-import { getFileContent, getProjectRoot, langClientPromise } from '../../../../../../../stories/story-utils';
+import { getFileContent, getProjectRoot, getST, langClientPromise } from '../../../../../../../stories/story-utils';
 import { sizingAndPositioning } from '../../../../../../utils/diagram-util';
 import { Provider } from '../../../../Context/diagram';
 import { LowCodeDiagramProps } from '../../../../Context/types';
@@ -52,39 +52,11 @@ const Template: Story<{ f1: string }> = (args: {f1: string }) => {
 
         const filePath = `${getProjectRoot()}/${sampleRelPath}`;
 
-        const uri = `file://${filePath}`;
-
-        async function openFileInLS() {
-            const text = await getFileContent(filePath);
-            const langClient = await langClientPromise;
-            await langClient.didOpen({
-                textDocument: {
-                  languageId: "ballerina",
-                  text,
-                  uri,
-                  version: 1
-                }
-            });
-            const syntaxTreeResponse = await langClient.getSyntaxTree({
-                documentIdentifier: {
-                    uri
-                }
-            });
-            setSt(syntaxTreeResponse.syntaxTree);
+        async function setSyntaxTree() {
+            const syntaxTree = getST(filePath);
+            setSt(await syntaxTree);
         }
-
-        async function closeFileInLS() {
-            const langClient = await langClientPromise;
-            langClient.didClose({
-                textDocument: {
-                  uri,
-                }
-            });
-        }
-        openFileInLS();
-        return () => {
-            closeFileInLS();
-        }
+        setSyntaxTree();
     }, []);
 
     if (!st) {
