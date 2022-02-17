@@ -81,7 +81,7 @@ export function getLibraryWebViewContent(options: WebViewOptions) {
     const fontDirWithSeparatorReplaced = fontDir.split(sep).join("/");
 
     const isCodeServer = ballerinaExtInstance.getCodeServerContext().codeServerEnv;
-    const whatFixUrl = process.env.BALLERINA_DEV_CENTRAL ?
+    const whatFixUrl = process.env.BALLERINA_DEV_CENTRAL || process.env.BALLERINA_STAGE_CENTRAL ?
         'https://whatfix.com/c9fb1d90-71f0-11ec-a69b-2a8342861064/embed/embed.nocache.js' :
         'https://cdn.whatfix.com/prod/c9fb1d90-71f0-11ec-a69b-2a8342861064/embed/embed.nocache.js';
     const whatFix = isCodeServer ?
