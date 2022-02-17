@@ -68,8 +68,7 @@ export function ProcessForm(props: ProcessFormProps) {
         config.config = {
             expression: ""
         };
-    }
-    else {
+    }else {
         formType = "Custom";
         config.config = {
             expression: ""

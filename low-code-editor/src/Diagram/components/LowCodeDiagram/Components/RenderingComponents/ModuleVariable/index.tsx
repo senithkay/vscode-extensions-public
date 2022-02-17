@@ -150,7 +150,7 @@ export function ModuleVariable(props: ModuleVariableProps) {
                     <FormGenerator
                         model={model}
                         configOverlayFormStatus={{
-                            formType: model.kind, isLoading: false,
+                            isLoading: false,
                             formArgs: {
                                 model
                             }
