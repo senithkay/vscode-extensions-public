@@ -22,11 +22,14 @@ import { Context } from "../../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
 import { useStyles as useFormStyles } from "../../../../DynamicConnectorForm/style";
 import { SelectDropdownWithButton } from "../../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
-import ExpressionEditor from "../../../../FormFieldComponents/ExpressionEditor";
 import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
 import { LogConfig, ProcessConfig } from "../../../../Types";
 import { createLogStatement, getInitialSource } from "../../../../../../utils/modification-util";
-import { FormActionButtons, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import {
+    FormActionButtons,
+    FormHeaderSection
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { LowCodeExpressionEditor } from "../../../../FormFieldComponents/LowCodeExpressionEditor";
 
 interface LogConfigProps {
     config: ProcessConfig;
@@ -46,13 +49,19 @@ export function AddLogConfig(props: LogConfigProps) {
     const {
         props: {
             isMutationProgress: isMutationInProgress,
-            currentFile
+            currentFile,
+            experimentalEnabled
         },
         api: {
             ls: { getExpressionEditorLangClient },
-            code: { modifyDiagram }
+            code: {
+                modifyDiagram,
+                importStatements
+            },
+            library
         }
     } = useContext(Context);
+
     const { config, formArgs, onCancel, onSave, onWizardClose } = props;
     const logTypeFunctionNameMap: Map<string, string> = new Map([
         ['printInfo', 'Info'],
@@ -139,7 +148,10 @@ export function AddLogConfig(props: LogConfigProps) {
             onCancel,
             currentFile,
             getLangClient: getExpressionEditorLangClient,
-            applyModifications: modifyDiagram
+            applyModifications: modifyDiagram,
+            library,
+            importStatements,
+            experimentalEnabled
         }
     );
 
@@ -153,6 +165,7 @@ export function AddLogConfig(props: LogConfigProps) {
                     defaultMessage={"Log"}
                     handleStmtEditorToggle={handleStmtEditorToggle}
                     toggleChecked={false}
+                    experimentalEnabled={experimentalEnabled}
                 />
                 <div className={formClasses.formContentWrapper}>
                     <div className={formClasses.formNameWrapper}>
@@ -168,7 +181,7 @@ export function AddLogConfig(props: LogConfigProps) {
                         />
                     </div>
                     <div className={formClasses.formEqualWrapper}>
-                        <ExpressionEditor
+                        <LowCodeExpressionEditor
                             model={{ name: "expression", value: expression, typeName: 'string' }}
                             customProps={{
                                 validate: validateExpression,

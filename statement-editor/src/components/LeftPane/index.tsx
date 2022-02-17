@@ -21,7 +21,7 @@ import { StatementEditorContext } from "../../store/statement-editor-context";
 import { SuggestionsContext } from "../../store/suggestions-context";
 import { getSuggestionsBasedOnExpressionKind } from "../../utils";
 import { Diagnostics } from "../Diagnostics";
-import { RightPane } from "../RightPane";
+import { LibraryBrowser } from "../LibraryBrowser";
 import { StatementRenderer } from "../StatementRenderer";
 import { useStatementEditorStyles } from "../styles";
 import { ExpressionSuggestions } from "../Suggestions/ExpressionSuggestions";
@@ -41,7 +41,8 @@ export function LeftPane(props: ModelProps) {
 
     const { modelCtx } = useContext(StatementEditorContext);
 
-    const [suggestionList, setSuggestionsList] = useState(getSuggestionsBasedOnExpressionKind(c.DEFAULT_EXPRESSIONS));
+    const [suggestionList, setSuggestionsList] = useState(modelCtx.statementModel ?
+        getSuggestionsBasedOnExpressionKind(c.DEFAULT_EXPRESSIONS) : []);
     const [diagnosticList, setDiagnostic] = useState("");
     const [, setIsSuggestionClicked] = useState(false);
     const [isOperator, setIsOperator] = useState(false);
@@ -146,8 +147,8 @@ export function LeftPane(props: ModelProps) {
                         </div>
                     </div>
                 </div>
-                <div className={statementEditorClasses.projectSugessionsWrapper}>
-                    <RightPane />
+                <div className={statementEditorClasses.LibraryBrowsingWrapper}>
+                    <LibraryBrowser />
                 </div>
             </div>
         </div>

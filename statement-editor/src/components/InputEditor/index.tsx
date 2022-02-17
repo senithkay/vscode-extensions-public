@@ -38,9 +38,11 @@ import { InputEditorContext } from "../../store/input-editor-context";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { SuggestionsContext } from "../../store/suggestions-context";
 import {
+    addImportStatements,
     addStatementToTargetLine,
     getDiagnostics,
-    sendDidChange
+    sendDidChange,
+    sendDidOpen
 } from "../../utils/ls-utils";
 import { useStatementEditorStyles } from "../styles";
 
@@ -49,7 +51,7 @@ import {
 } from "./constants";
 
 export interface InputEditorProps {
-    model: STNode;
+    model?: STNode;
     statementType: any;
     diagnosticHandler: (diagnostics: string) => void;
     userInputs: VariableUserInputs;
@@ -72,7 +74,13 @@ export function InputEditor(props: InputEditorProps) {
     const stmtCtx = useContext(StatementEditorContext);
     const inputEditorCtx = useContext(InputEditorContext);
     const { expressionHandler } = useContext(SuggestionsContext);
-    const { currentFile, getLangClient } = stmtCtx;
+    const {
+        currentFile,
+        getLangClient,
+        modules: {
+            modulesToBeImported
+        }
+    } = stmtCtx;
     const fileURI = monaco.Uri.file(currentFile.path).toString().replace(FILE_SCHEME, EXPR_SCHEME);
 
     const statementEditorClasses = useStatementEditorStyles();
@@ -81,7 +89,9 @@ export function InputEditor(props: InputEditorProps) {
     let value: any;
     let kind: any;
 
-    if (STKindChecker.isStringLiteral(model)) {
+    if (!model) {
+        value = "";
+    } else if (STKindChecker.isStringLiteral(model)) {
         literalModel = model as StringLiteral;
         kind = c.STRING_LITERAL;
         value = literalModel.literalToken.value;
@@ -124,12 +134,12 @@ export function InputEditor(props: InputEditorProps) {
     const varName = userInputs && userInputs.varName ? userInputs.varName : "temp_" + (textLabel).replace(/[^A-Z0-9]+/ig, "");
     const varType = userInputs ? userInputs.selectedType : 'string';
     const isCustomTemplate = false;
-    let currentContent = stmtCtx.modelCtx.statementModel.source;
+    let currentContent = stmtCtx.modelCtx.statementModel ? stmtCtx.modelCtx.statementModel.source : "";
 
     const placeHolders: string[] = ['EXPRESSION', 'TYPE_DESCRIPTOR'];
 
     useEffect(() => {
-        handleOnFocus(currentContent, "").then(() => {
+        handleOnFocus(currentContent).then(() => {
             handleOnOutFocus().then();
         })
         getContextBasedCompletions(placeHolders.indexOf(userInput) > -1 ? "" : userInput);
@@ -152,28 +162,27 @@ export function InputEditor(props: InputEditorProps) {
         }
     }, [isEditing, userInput]);
 
-    const handleOnFocus = async (currentStatement: string, EOL: string) => {
-        const initContent: string = await addStatementToTargetLine(
+    const handleOnFocus = async (currentStatement: string) => {
+        let initContent: string = await addStatementToTargetLine(
             currentFile.content, targetPosition, currentStatement, getLangClient);
+
+        if (modulesToBeImported.size > 0) {
+            initContent = await addImportStatements(initContent, Array.from(modulesToBeImported) as string[]);
+        }
 
         inputEditorState.name = userInputs && userInputs.formField ? userInputs.formField : "modelName";
         inputEditorState.content = initContent;
         inputEditorState.uri = fileURI;
-        const langClient = await getLangClient();
-        langClient.didOpen({
-            textDocument: {
-                uri: inputEditorState.uri,
-                languageId: "ballerina",
-                text: currentFile.content,
-                version: 1
-            }
-        });
-        sendDidChange(inputEditorState.uri, inputEditorState.content, getLangClient).then();
+        sendDidOpen(inputEditorState.uri, currentFile.content, getLangClient).then();
+        // sendDidChange(inputEditorState.uri, inputEditorState.content, getLangClient).then();
         const diagResp = await getDiagnostics(inputEditorState.uri, getLangClient);
-        setInputEditorState({
-            ...inputEditorState,
-            diagnostic: diagResp[0]?.diagnostics ? getFilteredDiagnostics(diagResp[0]?.diagnostics, isCustomTemplate) : []
-        })
+        setInputEditorState((prevState) => {
+            return {
+                ...prevState,
+                diagnostic: diagResp[0]?.diagnostics ?
+                    getFilteredDiagnostics(diagResp[0]?.diagnostics, isCustomTemplate) : []
+            };
+        });
     }
 
     const handleDiagnostic = () => {
@@ -188,22 +197,33 @@ export function InputEditor(props: InputEditorProps) {
     }
 
     const handleContentChange = async (currentStatement: string, currentCodeSnippet?: string) => {
-        const initContent: string = await addStatementToTargetLine(
+        if (currentStatement.slice(-1) !== ';') {
+            currentStatement += ';';
+        }
+        let initContent: string = await addStatementToTargetLine(
             currentFile.content, targetPosition, currentStatement, getLangClient);
+
+        if (modulesToBeImported.size > 0) {
+            initContent = await addImportStatements(initContent, Array.from(modulesToBeImported) as string[]);
+        }
 
         inputEditorState.name = userInputs && userInputs.formField ? userInputs.formField : "modelName";
         inputEditorState.content = initContent;
         inputEditorState.uri = fileURI;
         sendDidChange(inputEditorState.uri, inputEditorState.content, getLangClient).then();
         const diagResp = await getDiagnostics(inputEditorState.uri, getLangClient);
-        setInputEditorState({
-            ...inputEditorState,
-            diagnostic: diagResp[0]?.diagnostics ? getFilteredDiagnostics(diagResp[0]?.diagnostics, isCustomTemplate) : []
-        })
+        setInputEditorState((prevState) => {
+            return {
+                ...prevState,
+                diagnostic: diagResp[0]?.diagnostics ?
+                    getFilteredDiagnostics(diagResp[0]?.diagnostics, isCustomTemplate) :
+                    []
+            };
+        });
         currentContent = currentStatement;
 
         if (isEditing) {
-            getContextBasedCompletions(currentCodeSnippet != null ? currentCodeSnippet : userInput);
+            await getContextBasedCompletions(currentCodeSnippet != null ? currentCodeSnippet : userInput);
         }
     }
 
@@ -230,7 +250,8 @@ export function InputEditor(props: InputEditorProps) {
                 triggerKind: 1
             },
             position: {
-                character: (targetPosition.startColumn + (model.position.startColumn) + codeSnippet.length),
+                character: model ? (targetPosition.startColumn + (model.position.startColumn) + codeSnippet.length) :
+                    (targetPosition.startColumn + codeSnippet.length),
                 line: targetPosition.startLine
             }
         }
@@ -272,7 +293,7 @@ export function InputEditor(props: InputEditorProps) {
         if (event.key === "Enter" || event.key === "Tab" || event.key === "Escape") {
             setIsEditing(false);
             if (userInput !== "") {
-                stmtCtx.modelCtx.updateModel(userInput, model.position);
+                stmtCtx.modelCtx.updateModel(userInput, model ? model.position : targetPosition);
                 expressionHandler(model, false, false, { expressionSuggestions: [] });
 
                 const ignore = handleOnOutFocus();
@@ -282,7 +303,7 @@ export function InputEditor(props: InputEditorProps) {
     };
 
     function addExpressionToTargetPosition(currentStmt: string, targetLine: number, targetColumn: number, codeSnippet: string, endColumn?: number): string {
-        if (STKindChecker.isIfElseStatement(stmtCtx.modelCtx.statementModel)) {
+        if (model && STKindChecker.isIfElseStatement(stmtCtx.modelCtx.statementModel)) {
             const splitStatement: string[] = currentStmt.split(/\n/g) || [];
             splitStatement.splice(targetLine, 1,
                 splitStatement[targetLine].slice(0, targetColumn) + codeSnippet + splitStatement[targetLine].slice(endColumn || targetColumn));
@@ -292,15 +313,15 @@ export function InputEditor(props: InputEditorProps) {
     }
 
     const inputChangeHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const currentStatement = stmtCtx.modelCtx.statementModel.source;
+        const currentStatement = stmtCtx.modelCtx.statementModel ? stmtCtx.modelCtx.statementModel.source : "";
         setUserInput(event.target.value);
         inputEditorCtx.onInputChange(event.target.value);
         const updatedStatement = addExpressionToTargetPosition(
             currentStatement,
-            model.position.startLine,
-            model.position.startColumn,
+            model ? model.position.startLine : 0,
+            model ? model.position.startColumn : 0,
             event.target.value ? event.target.value : "",
-            model.position.endColumn
+            model ? model.position.endColumn : 0
         );
         debouncedContentChange(updatedStatement, event.target.value);
     };

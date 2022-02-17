@@ -14,13 +14,18 @@
 import React, { useState } from "react";
 
 import { AddRounded } from "@material-ui/icons";
-import { IconBtnWithText } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import {
+    ExpressionEditorLabel,
+    ExpressionEditorProps,
+    getInitialValue
+} from "@wso2-enterprise/ballerina-expression-editor";
+import {
+    FormElementProps,
+    IconBtnWithText
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { useStyles } from "../../DynamicConnectorForm/style"
-import { FormElementProps } from "../../Types";
-import ExpressionEditor, { ExpressionEditorProps } from "../ExpressionEditor";
-import { getInitialValue, transformFormFieldTypeToString } from "../ExpressionEditor/utils";
-import { ExpressionEditorLabel } from "../ExpressionEditorLabel";
+import { LowCodeExpressionEditor } from "../LowCodeExpressionEditor";
 
 import "./style.scss";
 import { appendToArray } from "./utils";
@@ -87,7 +92,7 @@ export function ExpressionEditorArray(props: FormElementProps<ExpressionEditorPr
         <>
             <ExpressionEditorLabel {...props} model={{...model, displayName: model.name || model.displayName}} />
             <div className={classes.groupedForm}>
-                <ExpressionEditor {...elementPropsSubEditor} />
+                <LowCodeExpressionEditor {...elementPropsSubEditor} />
                 <div className="add-element-button">
                     <IconBtnWithText
                         disabled={addButtonDisabled}
@@ -96,7 +101,7 @@ export function ExpressionEditorArray(props: FormElementProps<ExpressionEditorPr
                         icon={<AddRounded fontSize="small" className={classes.iconButton} />}
                     />
                 </div>
-                <ExpressionEditor
+                <LowCodeExpressionEditor
                     model={{
                         ...model,
                         typeInfo: model?.memberType?.typeInfo

@@ -89,6 +89,21 @@ export async function getContextBasedCompletions (
     return suggestions;
 }
 
+export async function sendDidOpen(
+    uri: string,
+    text: string,
+    getLangClient: () => Promise<ExpressionEditorLangClientInterface>) {
+    const langClient = await getLangClient();
+    langClient.didOpen({
+        textDocument: {
+            uri,
+            languageId: "ballerina",
+            text,
+            version: 1
+        }
+    });
+}
+
 export async function sendDidChange(
             docUri: string,
             content: string,
@@ -129,9 +144,23 @@ export async function addStatementToTargetLine(
     if (position?.startColumn && position?.endColumn && position?.endLine) {
         return getModifiedStatement(currentFileContent, currentStatement, position, getLangClient);
     } else {
+        // TODO: Change the backend to accomodate STModifications without endline and endcolumn values and then remove the following logic
+        // Issue: https://github.com/wso2-enterprise/choreo/issues/11069
+        if (!!position?.startColumn) {
+            currentStatement = " ".repeat(position.startColumn) + currentStatement;
+        }
         modelContent.splice(position?.startLine, 0, currentStatement);
         return modelContent.join('\n');
     }
+}
+
+export async function addImportStatements(
+            currentFileContent: string,
+            modulesToBeImported: string[]): Promise<string> {
+    const modelContent: string[] = currentFileContent.split(/\n/g) || [];
+    modulesToBeImported.join('');
+    modelContent.splice(0, 0, modulesToBeImported.join(''));
+    return modelContent.join('\n');
 }
 
 async function getModifiedStatement(

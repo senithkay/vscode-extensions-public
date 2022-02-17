@@ -121,7 +121,7 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
                 formType={""}
                 defaultMessage=""
             />
-            <div className={classes.formWrapper}>
+            <div id="json-input-container" test-id="json-input-container" className={classes.formWrapper}>
                 <div className={classes.inputWrapper}>
                     <div className={classes.labelWrapper}>
                         <FormHelperText className={classes.inputLabelForRequired}>Sample JSON</FormHelperText>

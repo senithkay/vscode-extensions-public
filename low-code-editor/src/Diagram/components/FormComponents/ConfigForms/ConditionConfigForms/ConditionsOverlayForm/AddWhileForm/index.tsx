@@ -17,15 +17,21 @@ import { FormattedMessage, useIntl } from "react-intl";
 import { WhileStatement } from "@wso2-enterprise/syntax-tree";
 import { FormControl, Typography } from "@material-ui/core";
 
-import { FormField, FormActionButtons, FormHeaderSection, } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import {
+    FormField,
+    FormActionButtons,
+    FormElementProps,
+    FormHeaderSection
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { createWhileStatement, getInitialSource } from "../../../../../../utils/modification-util";
-import ExpressionEditor, { ExpressionEditorProps } from "../../../../FormFieldComponents/ExpressionEditor";
+import { ExpressionEditorProps } from "@wso2-enterprise/ballerina-expression-editor";
 import { useStyles } from "../../../../DynamicConnectorForm/style";
 import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
-import { ConditionConfig, FormElementProps } from "../../../../Types";
-import Tooltip from '../../../../../../../components/TooltipV2'
+import { ConditionConfig } from "../../../../Types";
+import Tooltip from '../../../../../../../components/TooltipV2';
+import { LowCodeExpressionEditor } from "../../../../FormFieldComponents/LowCodeExpressionEditor";
 
 export interface WhileProps {
     condition: ConditionConfig;
@@ -37,12 +43,21 @@ export interface WhileProps {
 
 export function AddWhileForm(props: WhileProps) {
     const {
-        props: { isMutationProgress: isMutationInProgress, currentFile },
+        props: {
+            isMutationProgress: isMutationInProgress,
+            currentFile,
+            experimentalEnabled
+        },
         api: {
             ls: { getExpressionEditorLangClient },
-            code: { modifyDiagram }
+            code: {
+                modifyDiagram,
+                importStatements
+            },
+            library
         }
     } = useContext(Context);
+
     const { condition, formArgs, onCancel, onSave, onWizardClose } = props;
     const classes = useStyles();
     const intl = useIntl();
@@ -144,7 +159,10 @@ export function AddWhileForm(props: WhileProps) {
             onCancel,
             currentFile,
             getLangClient: getExpressionEditorLangClient,
-            applyModifications: modifyDiagram
+            applyModifications: modifyDiagram,
+            library,
+            importStatements,
+            experimentalEnabled
         }
     );
 
@@ -158,13 +176,14 @@ export function AddWhileForm(props: WhileProps) {
                     defaultMessage={"While"}
                     handleStmtEditorToggle={handleStmtEditorToggle}
                     toggleChecked={false}
+                    experimentalEnabled={experimentalEnabled}
                 />
                 <div className={classes.formContentWrapper}>
                     <div className={classes.formCodeBlockWrapper}>
                         <div className={classes.formCodeExpressionEndWrapper}>
                             <Typography variant='body2' className={classes.startCode}>while</Typography>
                             <div className={classes.formCodeExpressionField}>
-                                <ExpressionEditor {...expElementProps} hideLabelTooltips={true} />
+                                <LowCodeExpressionEditor {...expElementProps} hideLabelTooltips={true} />
                             </div>
                             <Typography variant='body2' className={classes.endCode}>{`{`}</Typography>
                         </div>

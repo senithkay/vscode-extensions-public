@@ -55,5 +55,18 @@ export class LogForm {
 
     }
 
+    static close() {
+        this.getForm()
+            .get('.panel-close-button')
+            .click();
+        return this;
 
+    }
+
+    static clearExpression() {
+        ExpressionEditor
+            .getForField("expression", this.selector)
+            .clear();
+        return this;
+    }
 }

@@ -25,7 +25,7 @@ import * as c from "../constants";
 import { SuggestionItem, VariableUserInputs } from '../models/definitions';
 import { visitor as ModelFindingVisitor } from "../visitors/model-finding-visitor";
 
-import { createStatement, updateStatement } from "./statement-modifications";
+import { createImportStatement, createStatement, updateStatement } from "./statement-modifications";
 import {
     DataTypeByExpressionKind,
     ExpressionKindByOperator,
@@ -39,18 +39,24 @@ export function getModifications(
             type: string;
             model?: STNode;
         },
-        formArgs: any): STModification[] {
+        formArgs: any,
+        modulesToBeImported?: string[]): STModification[] {
     const modifications: STModification[] = [];
+    const importStatementRegex = /ballerinax?\/[^;]+/g;
 
     if (STKindChecker.isLocalVarDecl(model) ||
             STKindChecker.isCallStatement(model) ||
             STKindChecker.isReturnStatement(model) ||
             STKindChecker.isAssignmentStatement(model) ||
             (config && config.type === 'Custom')) {
+        let source = model.source;
+        if (STKindChecker.isCallStatement(model) && model.source.slice(-1) !== ';') {
+            source += ';';
+        }
         if (config.model) {
-            modifications.push(updateStatement(model.source, formArgs.formArgs?.model.position));
+            modifications.push(updateStatement(source, formArgs.formArgs?.model.position));
         } else {
-            modifications.push(createStatement(model.source, formArgs.formArgs?.targetPosition));
+            modifications.push(createStatement(source, formArgs.formArgs?.targetPosition));
         }
     }
 
@@ -62,6 +68,12 @@ export function getModifications(
         } else {
             modifications.push(updateStatement(model.source, config.model.position));
         }
+    }
+
+    if (modulesToBeImported) {
+        modulesToBeImported.map((moduleNameStr: string) => (
+            modifications.push(createImportStatement(importStatementRegex.exec(moduleNameStr).pop()))
+        ));
     }
 
     return modifications;
@@ -116,7 +128,7 @@ export function getStatementTypeComponent(
     isElseIfMember: boolean,
     diagnosticHandler: (diagnostics: string) => void
 ): ReactNode {
-    let StatementTypeComponent = (statementTypeComponents as any)[model.kind];
+    let StatementTypeComponent = (statementTypeComponents as any)[model?.kind];
 
     if (!StatementTypeComponent) {
         StatementTypeComponent = (statementTypeComponents as any)[c.OTHER_STATEMENT];

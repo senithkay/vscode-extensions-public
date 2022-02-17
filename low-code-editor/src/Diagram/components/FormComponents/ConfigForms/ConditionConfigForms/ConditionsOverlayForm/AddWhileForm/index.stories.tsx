@@ -44,7 +44,8 @@ const api = {
         gotoSource: dummyFunction,
         isMutationInProgress: false,
         isModulePullInProgress: false,
-        loaderText: ''
+        loaderText: '',
+        importStatements: ['']
     },
     splitPanel: {
         maximize: dummyFunction,

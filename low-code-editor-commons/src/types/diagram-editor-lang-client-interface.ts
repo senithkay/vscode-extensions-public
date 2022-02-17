@@ -133,7 +133,7 @@ export interface DiagramEditorLangClientInterface extends BaseLangClientInterfac
     getExecutorPositions: (
         params: GetBallerinaProjectParams
     ) => Thenable<ExecutorPositionsResponse>;
-    convertJsonToRecord: (
+    convert: (
         params: JsonToRecordRequest
     ) => Thenable<JsonToRecordResponse>
 }
