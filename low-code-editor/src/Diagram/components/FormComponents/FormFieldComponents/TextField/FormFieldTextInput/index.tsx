@@ -15,10 +15,10 @@ import React, { useState } from "react";
 import { FormattedMessage } from "react-intl";
 
 import { FormHelperText, TextField as MuiTextField } from "@material-ui/core";
+import { FormElementProps } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { isValidTextInput, validateEmail } from "../../../../Portals/utils";
 import { useStyles as useFormStyles } from "../../../DynamicConnectorForm/style";
-import { FormElementProps } from "../../../Types";
 import { useStyles as useTextInputStyles } from "../style";
 
 export interface FormFieldTextInputProps {

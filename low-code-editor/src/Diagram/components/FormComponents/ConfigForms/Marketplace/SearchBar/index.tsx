@@ -14,7 +14,7 @@
 import React, { useEffect, useState } from "react";
 
 import { Box, Grid, InputBase } from "@material-ui/core";
-import { IconBtnWithText } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import debounce from "lodash.debounce";
 
 import SearchIcon from "../../../../../../assets/icons/SearchIcon";
 
@@ -26,21 +26,20 @@ export interface SearchBarProps {
     type: string;
 }
 
+const DEBOUNCE_DELAY = 1000;
+
 function SearchBar(props: SearchBarProps) {
     const classes = useStyles();
     const { onSearch, searchQuery } = props;
 
-    const [query, setQuery] = useState("");
-    const [searchString, setSearchString] = useState(searchQuery);
+    const [query, setQuery] = useState(searchQuery);
+
+    const debouncedQueryChanged = debounce(onSearch, DEBOUNCE_DELAY);
 
     useEffect(() => {
-        const timeOutId = setTimeout(() => setSearchString(query), 500);
-        return () => clearTimeout(timeOutId);
+        debouncedQueryChanged(query);
+        return () => debouncedQueryChanged.cancel();
     }, [query]);
-
-    useEffect(() => {
-        onSearch(searchString);
-    }, [searchString]);
 
     const onQueryChanged = (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
         setQuery(event.target.value);
@@ -48,14 +47,13 @@ function SearchBar(props: SearchBarProps) {
 
     const onKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement | HTMLInputElement>) => {
         if (event.key === "Enter") {
-            clearTimeout(this.timer);
-            this.triggerChange();
+            onSearchPress();
         }
     };
 
     const onSearchPress = () => {
-        clearTimeout(this.timer);
-        setSearchString(query);
+        debouncedQueryChanged.cancel();
+        onSearch(query);
     };
 
     return (
@@ -68,6 +66,7 @@ function SearchBar(props: SearchBarProps) {
                     onChange={onQueryChanged}
                     onKeyDown={onKeyDown}
                     aria-label="search-for-connectors"
+                    data-testid="search-input"
                 />
             </Grid>
             <Grid item={true} container={true} xs={2} justifyContent="flex-end" data-testid="search-button">

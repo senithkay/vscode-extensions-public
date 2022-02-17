@@ -66,7 +66,7 @@ export function ServiceHeader(props: ServiceHeaderProps) {
 
     let serviceType = "";
     let listeningOnText = "";
-    let unsupportedType;
+    let isUnsupportedType;
 
     if (STKindChecker.isExplicitNewExpression(model.expressions[0])) {
         if (
@@ -87,7 +87,8 @@ export function ServiceHeader(props: ServiceHeaderProps) {
         }
     }
 
-    (serviceType === "GRAPHQL" || serviceType === "GRPC") ? unsupportedType = true : unsupportedType = false;
+    const unSupportedTypes = ["GRAPHQL", "GRPC", "NATS", "WEBSOCKET", "WEBSUB"];
+    (unSupportedTypes.includes(serviceType)) ? isUnsupportedType = true : isUnsupportedType = false;
 
     const handleDeleteConfirm = () => {
         modifyDiagram([removeStatement(model.position)]);
@@ -114,7 +115,7 @@ export function ServiceHeader(props: ServiceHeaderProps) {
                 isExpanded={isExpanded}
                 onExpandClick={onExpandClick}
                 onConfirmDelete={handleDeleteConfirm}
-                unsupportedType={unsupportedType}
+                unsupportedType={isUnsupportedType}
             />
         </HeaderWrapper >
     );

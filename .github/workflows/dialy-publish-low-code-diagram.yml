@@ -18,10 +18,22 @@ jobs:
           always-auth: true
           node-version: '16.x'
           registry-url: 'https://npm.pkg.github.com'
+      - name: Install NPM v8.5.0
+        run: npm install -g npm@8.5.0
       - name: Get current timestamp
         id: timestamp
         run: echo "::set-output name=timestamp::$(date +'%Y%m%d-%H%M')"
       - run: npm version prepatch --preid=${{ steps.timestamp.outputs.timestamp }} --workspaces
+      - name: Create tag
+        uses: actions/github-script@v5
+        with:
+          script: |
+            github.rest.git.createRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: 'refs/tags/${{ steps.timestamp.outputs.timestamp }}',
+              sha: context.sha
+            })
       - run: npm run build
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}

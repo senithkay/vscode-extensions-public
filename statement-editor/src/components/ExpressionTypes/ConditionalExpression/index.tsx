@@ -17,21 +17,23 @@ import { ConditionalExpression } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
 import { DEFAULT_EXPRESSIONS } from "../../../constants";
-import { VariableUserInputs } from "../../../models/definitions";
+import { SuggestionItem, VariableUserInputs } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { SuggestionsContext } from "../../../store/suggestions-context";
 import { getSuggestionsBasedOnExpressionKind, isPositionsEquals } from "../../../utils";
+import { addStatementToTargetLine, getContextBasedCompletions } from "../../../utils/ls-utils";
 import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
 
 interface ConditionalExpressionProps {
-    model: ConditionalExpression
-    userInputs: VariableUserInputs
-    diagnosticHandler: (diagnostics: string) => void
+    model: ConditionalExpression;
+    userInputs: VariableUserInputs;
+    isElseIfMember: boolean;
+    diagnosticHandler: (diagnostics: string) => void;
 }
 
 export function ConditionalExpressionComponent(props: ConditionalExpressionProps) {
-    const { model, userInputs, diagnosticHandler } = props;
+    const { model, userInputs, isElseIfMember, diagnosticHandler } = props;
     const stmtCtx = useContext(StatementEditorContext);
     const { modelCtx } = stmtCtx;
     const { currentModel } = modelCtx;
@@ -44,12 +46,15 @@ export function ConditionalExpressionComponent(props: ConditionalExpressionProps
 
     const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
+    const { currentFile, getLangClient } = stmtCtx;
+    const targetPosition = stmtCtx.formCtx.formModelPosition;
+    const fileURI = `expr://${currentFile.path}`;
 
     const lhsExpression: ReactNode = (
         <ExpressionComponent
             model={model.lhsExpression}
-            isRoot={false}
             userInputs={userInputs}
+            isElseIfMember={isElseIfMember}
             diagnosticHandler={diagnosticHandler}
             isTypeDescriptor={false}
         />
@@ -58,8 +63,8 @@ export function ConditionalExpressionComponent(props: ConditionalExpressionProps
     const middleExpression: ReactNode = (
         <ExpressionComponent
             model={model.middleExpression}
-            isRoot={false}
             userInputs={userInputs}
+            isElseIfMember={isElseIfMember}
             diagnosticHandler={diagnosticHandler}
             isTypeDescriptor={false}
         />
@@ -68,29 +73,62 @@ export function ConditionalExpressionComponent(props: ConditionalExpressionProps
     const endExpression: ReactNode = (
         <ExpressionComponent
             model={model.endExpression}
-            isRoot={false}
             userInputs={userInputs}
+            isElseIfMember={isElseIfMember}
             diagnosticHandler={diagnosticHandler}
             isTypeDescriptor={false}
         />
     );
 
-    const onClickOnLhsExpression = (event: any) => {
-        event.stopPropagation()
-        expressionHandler(model.lhsExpression, true, false,
-            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) })
+    const onClickOnLhsExpression = async (event: any) => {
+        event.stopPropagation();
+
+        const content: string = await addStatementToTargetLine(
+            currentFile.content, targetPosition, stmtCtx.modelCtx.statementModel.source, getLangClient);
+
+        const completions: SuggestionItem[] = await getContextBasedCompletions(
+            fileURI, content, targetPosition, model.lhsExpression.position,
+            false, isElseIfMember, model.lhsExpression.source, getLangClient);
+
+        expressionHandler(model.lhsExpression, false, false, {
+            expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
+            typeSuggestions: [],
+            variableSuggestions: completions
+        });
     }
 
-    const onClickOnMiddleExpression = (event: any) => {
-        event.stopPropagation()
-        expressionHandler(model.middleExpression, false, false,
-            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) })
+    const onClickOnMiddleExpression = async (event: any) => {
+        event.stopPropagation();
+
+        const content: string = await addStatementToTargetLine(
+            currentFile.content, targetPosition, stmtCtx.modelCtx.statementModel.source, getLangClient);
+
+        const completions: SuggestionItem[] = await getContextBasedCompletions(
+            fileURI, content, targetPosition, model.middleExpression.position,
+            false, isElseIfMember, model.middleExpression.source, getLangClient);
+
+        expressionHandler(model.middleExpression, false, false, {
+            expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
+            typeSuggestions: [],
+            variableSuggestions: completions
+        });
     };
 
-    const onClickOnEndExpression = (event: any) => {
-        event.stopPropagation()
-        expressionHandler(model.endExpression, false, false,
-            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) })
+    const onClickOnEndExpression = async (event: any) => {
+        event.stopPropagation();
+
+        const content: string = await addStatementToTargetLine(
+            currentFile.content, targetPosition, stmtCtx.modelCtx.statementModel.source, getLangClient);
+
+        const completions: SuggestionItem[] = await getContextBasedCompletions(
+            fileURI, content, targetPosition, model.endExpression.position,
+            false, isElseIfMember, model.endExpression.source, getLangClient);
+
+        expressionHandler(model.endExpression, false, false, {
+            expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
+            typeSuggestions: [],
+            variableSuggestions: completions
+        });
     };
 
     return (

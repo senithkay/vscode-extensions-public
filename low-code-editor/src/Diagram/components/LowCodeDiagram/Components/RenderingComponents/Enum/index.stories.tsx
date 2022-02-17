@@ -20,7 +20,7 @@ import enumConstantDef from "./story-data/enum-constant.json"
 import enumBaseDef from "./story-data/enum-raw.json"
 
 export default {
-    title: 'Low Code Editor/Diagram/Enum Declaration',
+    title: 'Low Code Editor/Testing/Diagram/Enum Declaration',
     component: EnumDeclarationComponent,
 };
 

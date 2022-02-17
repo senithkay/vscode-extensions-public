@@ -19,7 +19,7 @@ import { Story } from '@storybook/react/types-6-0';
 import { FieldEditor, FieldEditorProps } from "./index";
 
 export default {
-    title: 'Low Code Editor/Form/Record Editor/Field',
+    title: 'Low Code Editor/Testing/Form/Record Editor/Field',
     component: FieldEditor,
 };
 

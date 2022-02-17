@@ -13,7 +13,8 @@
 // tslint:disable: jsx-no-multiline-js
 import React from 'react';
 
-import Tooltip from '../../../../../../../../../components/Tooltip';
+import { Tooltip } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+
 import { FieldViewState } from '../../../viewstate';
 import { DataPoint } from '../../DataPoint';
 

@@ -30,7 +30,7 @@ export default function PanAndZoom(props: any) {
         >
             {({ zoomIn, zoomOut, resetTransform }: any) => (
                 <React.Fragment>
-                    <div style={{ display: 'flex', flexDirection: 'row' }}>
+                    <div className={'design-container-outer'}>
                         <TransformComponent>
                             <div className={'design-container'}>
                                 {props.children}

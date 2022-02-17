@@ -1,0 +1,31 @@
+name: "Publish Low Code Editor from a created tag"
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  publish-package:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Setup NodeJS
+        uses: actions/setup-node@v2
+        with:
+          always-auth: true
+          node-version: '16.x'
+          registry-url: 'https://npm.pkg.github.com'
+      - name: Install NPM v8.5.0
+        run: npm install -g npm@8.5.0
+      - name: Get current timestamp
+        id: timestamp
+        run: echo "::set-output name=timestamp::$(date +'%Y%m%d-%H%M')"
+      - run: npm version prepatch --preid=${{ steps.timestamp.outputs.timestamp }} --workspaces
+      - run: npm run build
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
+      - run: npm publish --tag next --workspaces
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
