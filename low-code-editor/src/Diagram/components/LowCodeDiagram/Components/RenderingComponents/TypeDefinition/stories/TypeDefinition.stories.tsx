@@ -53,8 +53,8 @@ const Template: Story<{ f1: string }> = (args: {f1: string }) => {
         const filePath = `${getProjectRoot()}/${sampleRelPath}`;
 
         async function setSyntaxTree() {
-            const thisST = getST(filePath);
-            setSt(await thisST);
+            const syntaxTree = getST(filePath);
+            setSt(await syntaxTree);
         }
         setSyntaxTree();
     }, []);
