@@ -66,8 +66,22 @@ describe('add a http service to an empty file', () => {
             .typeStatusCode(400)
             .save()
 
+        Canvas.getService("/getData")
+            .getResourceFunction("GET","path1")
+            .shouldBeExpanded()
+            .getDiagram()
+            .shouldBeRenderedProperly()
+            .clickExistingRespondStatement()
+
+        ResponseForm
+            .shouldBeVisible()
+            .clearExpression()
+            .typeExpression('"Updated success"')
+            .save()
+        
+        
         SourceCode.shouldBeEqualTo(
-            getCurrentSpecFolder() + "add-respond.expected.bal");
+            getCurrentSpecFolder() + "edit-respond.expected.bal");
     })
 
 })
