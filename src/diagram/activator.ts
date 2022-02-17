@@ -59,6 +59,7 @@ import {
 	LibraryKind,
 	LibrarySearchResponse
 } from "../library-browser/model";
+import { getSentryConfig, SentryConfig } from './sentry';
 
 export let hasDiagram: boolean = false;
 
@@ -473,7 +474,13 @@ class DiagramPanel {
 				handler: async (args: any[]): Promise<LibraryDataResponse | undefined> => {
 					return await getLibraryData(args[0], args[1], args[2]);
 				}
-			}
+			},
+			{
+				methodName: "getSentryConfig",
+				handler: async (): Promise<SentryConfig | undefined> => {
+					return ballerinaExtension.getCodeServerContext().codeServerEnv ? await getSentryConfig() : undefined;
+				}
+			},
 		];
 
 		webviewRPCHandler = WebViewRPCHandler.create(panel, langClient, remoteMethods);
