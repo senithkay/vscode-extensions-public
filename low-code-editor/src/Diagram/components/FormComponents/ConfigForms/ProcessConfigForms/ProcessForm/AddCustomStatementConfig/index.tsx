@@ -48,13 +48,13 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
         props: {
             isMutationProgress: isMutationInProgress,
             currentFile,
+            importStatements,
             experimentalEnabled
         },
         api: {
             ls: { getExpressionEditorLangClient },
             code: {
-                modifyDiagram,
-                importStatements
+                modifyDiagram
             },
             insights: { onEvent },
             library

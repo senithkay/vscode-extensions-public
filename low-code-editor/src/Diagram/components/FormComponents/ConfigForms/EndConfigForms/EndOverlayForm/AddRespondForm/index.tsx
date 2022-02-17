@@ -49,13 +49,13 @@ export function AddRespondForm(props: RespondFormProps) {
         props: {
             isMutationProgress: isMutationInProgress,
             currentFile,
+            importStatements,
             experimentalEnabled
         },
         api: {
             ls: { getExpressionEditorLangClient },
             code: {
-                modifyDiagram,
-                importStatements
+                modifyDiagram
             },
             library
         }

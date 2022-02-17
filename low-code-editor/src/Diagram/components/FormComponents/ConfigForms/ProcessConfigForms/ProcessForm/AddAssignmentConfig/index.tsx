@@ -47,13 +47,13 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
         props: {
             isMutationProgress: isMutationInProgress,
             currentFile,
+            importStatements,
             experimentalEnabled
         },
         api: {
             ls: { getExpressionEditorLangClient },
             code: {
-                modifyDiagram,
-                importStatements
+                modifyDiagram
             },
             library
         }

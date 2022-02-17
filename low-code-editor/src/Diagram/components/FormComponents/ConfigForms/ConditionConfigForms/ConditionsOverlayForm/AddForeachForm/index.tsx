@@ -63,13 +63,13 @@ export function AddForeachForm(props: ForeachProps) {
             isMutationProgress: isMutationInProgress,
             stSymbolInfo,
             currentFile,
+            importStatements,
             experimentalEnabled
         },
         api: {
             ls: { getExpressionEditorLangClient },
             code: {
-                modifyDiagram,
-                importStatements
+                modifyDiagram
             },
             library
         }
