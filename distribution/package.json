@@ -17,6 +17,7 @@
     "@wso2-enterprise/ballerina-low-code-editor": "^1.0.0"
   },
   "devDependencies": {
+    "buffer": "^6.0.3",
     "html-webpack-plugin": "^5.5.0",
     "webpack": "^5.50.0",
     "webpack-cli": "^4.8.0",

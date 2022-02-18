@@ -9,7 +9,7 @@ const LOW_CODE_DIR = path.resolve(__dirname, '../low-code-editor');
 const MONACO_DIR = path.resolve(__dirname, '../node_modules/monaco-editor');
 
 
-function getConfig(env, argv, entrypointName, entrypointPath, outputPath, disableChunks = false, genHTML = false) {
+function getConfig(mode, entrypointName, entrypointPath, outputPath, disableChunks = false, genHTML = false) {
     const optionalPlugins = [];
     if (disableChunks) {
         optionalPlugins.push(
@@ -32,7 +32,7 @@ function getConfig(env, argv, entrypointName, entrypointPath, outputPath, disabl
             [entrypointName]: entrypointPath,
         },
         target: 'web',
-        devtool: argv.mode === "production" ? undefined : "source-map",
+        devtool: mode === "production" ? undefined : "source-map",
         resolve: {
             extensions: [".ts", ".tsx", ".js", ".mjs"],
             alias: {
@@ -41,8 +41,13 @@ function getConfig(env, argv, entrypointName, entrypointPath, outputPath, disabl
                 "crypto": false,
                 "net": false,
                 "os": false,
-                "path": false
-            }
+                "path": false,
+                "fs": false,
+                "child_process": false
+            },
+            fallback: {
+                buffer: require.resolve('buffer/'),
+            },
         },
         module: {
             rules: [
@@ -116,15 +121,16 @@ function getConfig(env, argv, entrypointName, entrypointPath, outputPath, disabl
             },
         },
         plugins: [
-            
+            new webpack.ProvidePlugin({
+                Buffer: ['buffer', 'Buffer'],
+            }),
             new ForkTsCheckerWebpackPlugin(), // run TSC on a separate thread,
             new MonacoWebpackPlugin({
                 languages: ['ballerina', 'yaml', 'json']
             }),
             new webpack.DefinePlugin({
-                'process.env.NODE_ENV': JSON.stringify(argv.mode)
+                'process.env.NODE_ENV': JSON.stringify(mode)
             }),
-            
             ...optionalPlugins
         ]
     };
@@ -132,8 +138,7 @@ function getConfig(env, argv, entrypointName, entrypointPath, outputPath, disabl
 
 module.exports = [
     (env, argv) => (getConfig(
-        env,
-        argv,
+        argv.mode,
         "BLCEditor",
         path.join(__dirname, 'src', 'index.tsx'),
         path.resolve(__dirname, 'build'),
@@ -141,8 +146,7 @@ module.exports = [
         false
     )),
     (env, argv) => (getConfig(
-        env,
-        argv,
+        "development",
         "BLCEditor",
         path.join(__dirname, 'src', 'app', 'index.tsx'),
         path.resolve(__dirname, 'build-app'),

@@ -1,8 +1,5 @@
-import { renderDiagramEditor } from "@wso2-enterprise/ballerina-low-code-editor";
+import { renderStandaloneMockedEditor } from "@wso2-enterprise/ballerina-low-code-editor";
 
-const props: any = {};
+(window as any).setImmediate = window.setTimeout;
 
-renderDiagramEditor({
-    target: document.getElementById("low-code-container"),
-    editorProps: props
-})
+renderStandaloneMockedEditor("/home/kavithlokuhewage/git/ballerina-low-code-editor/low-code-editor/src/stories/data/project/main.bal", "low-code-container");
