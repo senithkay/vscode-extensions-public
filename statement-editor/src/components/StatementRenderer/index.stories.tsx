@@ -108,6 +108,11 @@ const statementEditorContextProps = {
     validateStatement: dummyFunction,
     getLangClient: () => (Promise.resolve({} as any)),
     applyModifications: () => (Promise.resolve({} as any)),
+    library: {
+        getLibrariesList: () => (Promise.resolve({} as any)),
+        getLibrariesData: () => (Promise.resolve({} as any)),
+        getLibraryData: () => (Promise.resolve({} as any))
+    },
     currentFile: {
         content: "",
         path: "",

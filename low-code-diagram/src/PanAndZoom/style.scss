@@ -1,0 +1,83 @@
+.pan-zoom-root {
+    & .react-transform-component {
+        // fix for https://github.com/wso2-enterprise/choreo/issues/2224
+        user-select: 'auto';
+    }
+}
+
+.zoomControls {
+    display: "flex";
+    flex-direction: "column";
+    position: "absolute";
+    top: "40vh";
+    right: 15;
+    z-index: 400;
+}
+
+.panelBtn {
+    z-index: 100;
+    padding: 0;
+    min-width: 0;
+    box-shadow: "0 1px 1px 0 #CBCFDA";
+    background: "transparent";
+    display: "contents";
+}
+
+.zoomIn {
+    height: 32;
+    width: 32;
+    border-radius: 20;
+    box-shadow: '0 1px 1px 0 #CBCFDA';
+    background-color: '#FFF';
+    background: url("${zoomInSvg}") no-repeat center, #FFF;
+    margin-top: theme.spacing(0.5);
+    &:hover, &:focus {
+        box-shadow: "0 1px 2px 0 #CBCFDA";
+        background: url("${zoomInHoverSvg}") no-repeat center, linear-gradient(180deg, #F7F8FB 0%, #FFFFFF 100%);
+    }
+}
+
+.zoomOut {
+    height: 32;
+    width: 32;
+    border-radius: 20;
+    box-shadow: '0 1px 1px 0 #CBCFDA';
+    background-color: '#FFF';
+    background: url("${zoomOutSvg}") no-repeat center, #FFF;
+    margin-top: theme.spacing(0.5);
+    &:hover, &:focus {
+        box-shadow: "0 1px 2px 0 #CBCFDA";
+        background: url("${zoomOutHoverSvg}") no-repeat center, linear-gradient(180deg, #F7F8FB 0%, #FFFFFF 100%);
+    }
+}
+
+.fitToScreen {
+    height: 32;
+    width: 32;
+    border-radius: 20;
+    background-color: '#FFF';
+    box-shadow: '0 1px 1px 0 #CBCFDA';
+    background: url("${fitToScreenSvg}") no-repeat center, #FFF;
+    margin-top: theme.spacing(0.5);
+    &:hover, &:focus {
+        box-shadow: "0 1px 2px 0 #CBCFDA";
+        background: url("${fitToScreenHoverSvg}") no-repeat center, linear-gradient(180deg, #F7F8FB 0%, #FFFFFF 100%);
+    }
+}
+
+zoomControlWrapper {
+    height: 32;
+    width: 32;
+    border-radius: 20;
+    box-shadow: '0 1px 1px 0 #CBCFDA';
+    background:  "#fff";
+    margin-top: theme.spacing(0.5);
+    display: "flex";
+    justify-content: "center";
+    align-items: "center";
+    &:hover, &:focus {
+        box-shadow: "0 1px 2px 0 #CBCFDA";
+        background: "#f1f1f1";
+    }
+}
+

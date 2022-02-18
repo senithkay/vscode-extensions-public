@@ -16,21 +16,26 @@ import React, { ReactNode, useContext } from "react";
 import { TypedBindingPattern } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
-import { VariableUserInputs } from "../../../models/definitions";
+import { SuggestionItem, VariableUserInputs } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { SuggestionsContext } from "../../../store/suggestions-context";
-import { getTypeDescriptors, isPositionsEquals } from "../../../utils";
+import { isPositionsEquals } from "../../../utils";
+import {
+    addStatementToTargetLine,
+    getContextBasedCompletions
+} from "../../../utils/ls-utils";
 import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
 
 interface TypedBindingPatternProps {
-    model: TypedBindingPattern
-    userInputs: VariableUserInputs
-    diagnosticHandler: (diagnostics: string) => void
+    model: TypedBindingPattern;
+    userInputs: VariableUserInputs;
+    isElseIfMember: boolean;
+    diagnosticHandler: (diagnostics: string) => void;
 }
 
 export function TypedBindingPatternComponent(props: TypedBindingPatternProps) {
-    const { model, userInputs, diagnosticHandler } = props;
+    const { model, userInputs, isElseIfMember, diagnosticHandler } = props;
     const stmtCtx = useContext(StatementEditorContext);
     const { modelCtx } = stmtCtx;
     const { currentModel } = modelCtx;
@@ -39,12 +44,15 @@ export function TypedBindingPatternComponent(props: TypedBindingPatternProps) {
 
     const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
+    const { currentFile, getLangClient } = stmtCtx;
+    const targetPosition = stmtCtx.formCtx.formModelPosition;
+    const fileURI = `expr://${currentFile.path}`;
 
     const typeDescriptorComponent: ReactNode = (
         <ExpressionComponent
             model={model.typeDescriptor}
-            isRoot={false}
             userInputs={userInputs}
+            isElseIfMember={isElseIfMember}
             diagnosticHandler={diagnosticHandler}
             isTypeDescriptor={true}
         />
@@ -52,16 +60,28 @@ export function TypedBindingPatternComponent(props: TypedBindingPatternProps) {
     const bindingPatternComponent: ReactNode = (
         <ExpressionComponent
             model={model.bindingPattern}
-            isRoot={false}
             userInputs={userInputs}
+            isElseIfMember={isElseIfMember}
             diagnosticHandler={diagnosticHandler}
             isTypeDescriptor={false}
         />
     );
 
-    const onClickOnType = (event: any) => {
-        event.stopPropagation()
-        expressionHandler(model.typeDescriptor, false, true, { typeSuggestions: getTypeDescriptors() })
+    const onClickOnType = async (event: any) => {
+        event.stopPropagation();
+
+        const content: string = await addStatementToTargetLine(
+            currentFile.content, targetPosition, stmtCtx.modelCtx.statementModel.source, getLangClient);
+
+        const completions: SuggestionItem[] = await getContextBasedCompletions(
+            fileURI, content, targetPosition, model.typeDescriptor.position,
+            true, isElseIfMember, model.typeDescriptor.source, getLangClient);
+
+        expressionHandler(model.typeDescriptor, false, true, {
+            expressionSuggestions: [],
+            typeSuggestions: completions,
+            variableSuggestions: []
+        });
     };
 
     return (

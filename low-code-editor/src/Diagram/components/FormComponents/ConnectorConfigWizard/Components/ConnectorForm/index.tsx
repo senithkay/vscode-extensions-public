@@ -15,6 +15,7 @@
 import React, { ReactNode, useContext, useEffect, useState } from "react";
 
 import { Divider, FormControl, IconButton, Typography } from "@material-ui/core";
+import { ModuleIcon } from "@wso2-enterprise/ballerina-low-code-diagram";
 import {
     ActionConfig,
     BallerinaConnectorInfo,
@@ -46,7 +47,6 @@ import {
     createPropertyStatement,
     updatePropertyStatement,
 } from "../../../../../utils/modification-util";
-import { ModuleIcon } from "../../../../LowCodeDiagram/Components/RenderingComponents/Connector/ConnectorHeader/ModuleIcon";
 import {
     genVariableName,
     getActionReturnType,

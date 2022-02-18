@@ -622,7 +622,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                 <Section
                     title={extractPayloadTitle}
                     tooltipWithExample={{ title: payloadContenttitle, content: payloadExample }}
-                    button={<SwitchToggle initSwitch={togglePayload} onChange={onPayloadToggleSelect} />}
+                    button={<SwitchToggle dataTestId={"payload-switch-toggle"} initSwitch={togglePayload} onChange={onPayloadToggleSelect} />}
                 >
                     <PayloadEditor
                         model={model}

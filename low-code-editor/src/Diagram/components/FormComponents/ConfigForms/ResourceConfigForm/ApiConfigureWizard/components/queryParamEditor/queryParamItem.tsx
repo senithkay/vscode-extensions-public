@@ -44,7 +44,7 @@ export function QueryParamItem(props: QueryParamItemProps) {
                 {segmentLabel}
                 <ButtonWithIcon
                     onClick={handleDelete}
-                    icon={<CloseRounded fontSize="small" />}
+                    icon={<CloseRounded data-testid={`${segmentLabel}-close-btn`} fontSize="small" />}
                     className={classes.iconBtn}
                 />
             </div>

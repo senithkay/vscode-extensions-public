@@ -14,6 +14,7 @@
 import React, { useContext, useState } from "react";
 
 import { Typography } from "@material-ui/core";
+import { ComponentExpandButton } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import ActiveArray from "../../../../../../assets/icons/ActiveArray";
 import ActiveClosed from "../../../../../../assets/icons/ActiveClosed";
@@ -26,7 +27,6 @@ import InactiveClosed from "../../../../../../assets/icons/InactiveClosed";
 import InactiveOptional from "../../../../../../assets/icons/InactiveOptional";
 import InactivePublic from "../../../../../../assets/icons/InactivePublic";
 import { Context, FormState } from "../../../../../../Contexts/RecordEditor";
-import { ComponentExpandButton } from "../../../../LowCodeDiagram/Components/ComponentExpandButton";
 import { FormTextInput } from "../../../FormFieldComponents/TextField/FormTextInput";
 import { recordStyles } from "../style";
 import { RecordModel, SimpleField } from "../types";

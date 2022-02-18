@@ -17,21 +17,23 @@ import { WhileStatement } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
 import { DEFAULT_EXPRESSIONS } from "../../../constants";
-import { VariableUserInputs } from "../../../models/definitions";
+import { SuggestionItem, VariableUserInputs } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { SuggestionsContext } from "../../../store/suggestions-context";
 import { getSuggestionsBasedOnExpressionKind, isPositionsEquals } from "../../../utils";
+import { addStatementToTargetLine, getContextBasedCompletions } from "../../../utils/ls-utils";
 import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
 
 interface WhileStatementProps {
-    model: WhileStatement
-    userInputs: VariableUserInputs
-    diagnosticHandler: (diagnostics: string) => void
+    model: WhileStatement;
+    userInputs: VariableUserInputs;
+    isElseIfMember: boolean;
+    diagnosticHandler: (diagnostics: string) => void;
 }
 
 export function WhileStatementC(props: WhileStatementProps) {
-    const { model, userInputs, diagnosticHandler } = props;
+    const { model, userInputs, isElseIfMember, diagnosticHandler } = props;
     const stmtCtx = useContext(StatementEditorContext);
     const { modelCtx } = stmtCtx;
     const { currentModel } = modelCtx;
@@ -40,31 +42,58 @@ export function WhileStatementC(props: WhileStatementProps) {
 
     const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
+    const { currentFile, getLangClient } = stmtCtx;
+    const targetPosition = stmtCtx.formCtx.formModelPosition;
+    const fileURI = `expr://${currentFile.path}`;
 
     const conditionComponent: ReactNode = (
         <ExpressionComponent
             model={model.condition}
-            isRoot={false}
             userInputs={userInputs}
+            isElseIfMember={isElseIfMember}
             diagnosticHandler={diagnosticHandler}
             isTypeDescriptor={false}
         />
     );
 
-    const onClickOnConditionExpression = (event: any) => {
-        event.stopPropagation()
-        expressionHandler(model.condition, false, false,
-            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) });
+    const onClickOnConditionExpression = async (event: any) => {
+        event.stopPropagation();
+
+        const content: string = await addStatementToTargetLine(
+            currentFile.content, targetPosition, stmtCtx.modelCtx.statementModel.source, getLangClient);
+
+        const completions: SuggestionItem[] = await getContextBasedCompletions(fileURI, content, targetPosition,
+            model.condition.position, false, isElseIfMember, model.condition.source, getLangClient);
+
+        expressionHandler(model.condition, false, false, {
+            expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
+            typeSuggestions: [],
+            variableSuggestions: completions
+        });
     };
 
     if (!currentModel.model) {
-        expressionHandler(model.condition, false, false,
-            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) });
+        addStatementToTargetLine(currentFile.content, targetPosition,
+            stmtCtx.modelCtx.statementModel.source, getLangClient).then((content: string) => {
+            getContextBasedCompletions(fileURI, content, targetPosition, model.condition.position, false,
+                isElseIfMember, model.condition.source, getLangClient).then((completions) => {
+                expressionHandler(model.condition, false, false, {
+                    expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
+                    typeSuggestions: [],
+                    variableSuggestions: completions
+                });
+            });
+        });
     }
 
     return (
         <span>
-            <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>
+            <span
+                className={classNames(
+                    statementEditorClasses.expressionBlock,
+                    statementEditorClasses.expressionBlockDisabled
+                )}
+            >
                 {model.whileKeyword.value}
             </span>
             <button
@@ -76,7 +105,12 @@ export function WhileStatementC(props: WhileStatementProps) {
             >
                 {conditionComponent}
             </button>
-            <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>
+            <span
+                className={classNames(
+                    statementEditorClasses.expressionBlock,
+                    statementEditorClasses.expressionBlockDisabled
+                )}
+            >
                 &nbsp;{model.whileBody.openBraceToken.value}
                 <br/>
                 &nbsp;&nbsp;&nbsp;{"..."}

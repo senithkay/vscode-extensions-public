@@ -84,4 +84,17 @@ export class FunctionDiagram {
         return new BlockLevelPlusWidget(this.container);
     }
 
+    public clickExistingLogStatement() {
+            cy.get(`.diagram-canvas .main-process-wrapper .process-options-wrapper [data-testid="editBtn"]`)
+            .click({ force: true });
+        return this;
+    }
+
+    public deleteExistingLogStatement() {
+        this.container.within(() => {
+            cy.get(`.diagram-canvas .main-process-wrapper .process-options-wrapper [data-testid="deleteBtn"]`).click({ force: true });
+        })
+        return this;
+    }
+
 }

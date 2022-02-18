@@ -22,9 +22,9 @@ import { STNode } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
-import ExpressionEditor from "../../../../FormFieldComponents/ExpressionEditor";
 import { useStyles as useFormStyles } from "../../../../DynamicConnectorForm/style";
 import { wizardStyles } from "../../../style";
+import { LowCodeExpressionEditor } from "../../../../FormFieldComponents/LowCodeExpressionEditor";
 
 interface LogConfigProps {
     config: ProcessConfig;
@@ -48,9 +48,11 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
         api: {
             ls: { getExpressionEditorLangClient },
             code: { modifyDiagram },
-            insights: { onEvent }
+            insights: { onEvent },
+            library
         }
     } = useContext(Context);
+
     const { config, formArgs, onCancel, onSave, onWizardClose } = props;
 
     const expressionFormConfig: CustomExpressionConfig = config.config as CustomExpressionConfig;
@@ -118,7 +120,7 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
     const { handleStmtEditorToggle, stmtEditorComponent } = useStatementEditor(
         {
             label: intl.formatMessage({ id: "lowcode.develop.configForms.customStatement.statementEditor.label" }),
-            initialSource: formArgs?.model ? formArgs.model?.source : (expression ? expression : "EXPRESSION"),
+            initialSource: formArgs?.model ? formArgs.model?.source : (expression ? expression : null),
             formArgs: { formArgs },
             validForm: isFormValid,
             config,
@@ -128,6 +130,7 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
             currentFile,
             getLangClient: getExpressionEditorLangClient,
             applyModifications: modifyDiagram,
+            library,
             experimentalEnabled
         }
     );
@@ -146,7 +149,7 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
                 />
                 <div className={formClasses.formContentWrapper}>
                     <div className={formClasses.formNameWrapper}>
-                        <ExpressionEditor
+                        <LowCodeExpressionEditor
                             model={{ name: "statement", value: expression }}
                             customProps={{
                                 validate: validateExpression,

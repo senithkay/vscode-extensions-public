@@ -23,7 +23,7 @@ import { Context } from "../../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
 import { createReturnStatement, getInitialSource } from "../../../../../../utils/modification-util";
 import { useStyles } from "../../../../DynamicConnectorForm/style";
-import ExpressionEditor from "../../../../FormFieldComponents/ExpressionEditor";
+import { LowCodeExpressionEditor } from "../../../../FormFieldComponents/LowCodeExpressionEditor";
 
 interface ReturnFormProps {
     config: EndConfig;
@@ -43,9 +43,11 @@ export function AddReturnForm(props: ReturnFormProps) {
         },
         api: {
             ls: { getExpressionEditorLangClient },
-            code: { modifyDiagram }
+            code: { modifyDiagram },
+            library
         }
     } = useContext(Context);
+
     const { config, formArgs, onCancel, onSave, onWizardClose } = props;
     const classes = useStyles();
     const intl = useIntl();
@@ -127,6 +129,7 @@ export function AddReturnForm(props: ReturnFormProps) {
             currentFile,
             getLangClient: getExpressionEditorLangClient,
             applyModifications: modifyDiagram,
+            library,
             experimentalEnabled
         }
     );
@@ -145,7 +148,7 @@ export function AddReturnForm(props: ReturnFormProps) {
                 />
                 <div className={classes.formContentWrapper}>
                     <div className={classes.formNameWrapper}>
-                        <ExpressionEditor
+                        <LowCodeExpressionEditor
                             model={{ name: "return expression", value: config.expression, optional: isOptional }}
                             customProps={{
                                 validate: validateExpression,
