@@ -24,6 +24,6 @@
       "build:ee": "npm run build --workspace=expression-editor",
       "build": "npm run build --workspaces",
       "storybook": "npm run storybook --workspace=low-code-editor",
-      "test:integration": "npm run cypress --workspace=integration-tests"
+      "test": "npm run test --workspace=integration-tests"
   }
 }
