@@ -10,10 +10,10 @@
   "typings": "build/index",
   "scripts": {
     "prebuild": "npm run lint",
-    "build": "npm run build:webpack",
+    "build": "npm run build:tsc",
     "build:tsc": "tsc --pretty && npm run copy:assets",
     "build:webpack": "webpack --config webpack.config.js --mode=production",
-    "copy:assets": "copyfiles -u 1 src/**/*.scss src/**/*.svg src/**/*.css src/**/*.png src/**/*.txt src/**/*.json build/",
+    "copy:assets": "copyfiles -u 1 \"src/**/*.scss\" \"src/**/*.svg\"  \"src/**/*.css\" \"src/**/*.png\" \"src/**/*.txt\" \"src/**/*.json\" \"src/assets/fonts/Glimer/*.*\" build/",
     "clean": "rimraf build/",
     "clean:nm": "rimraf node_modules",
     "lint": "tslint --project .",
@@ -139,9 +139,6 @@
     "puppeteer": "^1.19.0",
     "react": "^17.0.1",
     "react-dom": "^17.0.1"
-  },
-  "exports": {
-    "./DiagramGenerator": "./src/DiagramGenerator/"
   },
   "repository": {
     "type": "git",

@@ -9,6 +9,7 @@
     "statement-editor",
     "configurable-editor",
     "low-code-editor",
+    "distribution",
     "integration-tests"
   ],
   "scripts": {
