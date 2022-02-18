@@ -140,7 +140,7 @@ export function getLibraryWebViewContent(options: WebViewOptions) {
                         a.appendChild(r);
                     })(window,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');
                 </script>
-                ${whatFix}'
+                ${whatFix}
             </head>
             
             <body class="${bodyCss}">
