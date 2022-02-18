@@ -82,8 +82,7 @@ export function ExpressionEditorMap(props: FormElementProps<ExpressionEditorProp
             value: keyEditorContent,
             tooltip: "Key of the Key-Value pair",
             optional: true,
-             // TODO : commenting the customAutoComplete as the new model doesn't contain a customAutoComplete field
-            // customAutoComplete: model?.fields[0]?.customAutoComplete
+            customAutoComplete: model?.customAutoComplete
         },
         customProps: {
             validate: handleKeyEditorValidation,
@@ -120,8 +119,7 @@ export function ExpressionEditorMap(props: FormElementProps<ExpressionEditorProp
             value: valueEditorContent,
             tooltip: "Value of the Key-Value pair",
             optional: true,
-             // TODO : commenting the customAutoComplete as the new model doesn't contain a customAutoComplete field
-            // customAutoComplete: model?.fields[0]?.customAutoComplete
+            customAutoComplete: model?.customAutoComplete
         },
         customProps: {
             validate: handleValueEditorValidation,
