@@ -86,6 +86,9 @@ export function QueryParamEditor(props: QueryParamEditorProps) {
         }
         setAddingQueryParam(false);
         setEditingSegmentId(-1);
+        if (onChange) {
+            onChange(generateQueryParamFromQueryCollection(queryParamCollectionState));
+        }
     };
 
     const onCancel = () => {
