@@ -37,6 +37,7 @@ import "../../style.scss";
 import While from "../../../../../../../../assets/icons/While";
 import { FormattedMessage, useIntl } from "react-intl";
 import {
+    ADD_CONNECTOR,
     ADD_STATEMENT,
     LowcodeEvent
 } from "../../../../../../../models";
@@ -147,12 +148,16 @@ export function StatementOptions(props: StatementOptionsProps) {
     }
 
     const onSelectStatement = (type: string) => {
-        // const event: LowcodeEvent = {
-        //     type: ADD_STATEMENT,
-        //     name: type
-        // };
-        // onEvent(event);
         onSelect(type);
+    }
+    
+
+    const onConnectorClick = (type: string) => {
+        const event: LowcodeEvent = {
+            type: ADD_CONNECTOR,
+        };
+        onEvent(event);
+        onSelectStatement(type)
     }
 
     const logStm: StatementComponent = {
@@ -292,7 +297,7 @@ export function StatementOptions(props: StatementOptionsProps) {
                 <div
                     className="sub-option enabled"
                     data-testid="addConnector"
-                    onClick={onSelectStatement.bind(undefined, "Connector")}
+                    onClick={onConnectorClick.bind(undefined, "Connector")}
                 >
                     <div className="icon-wrapper">
                         <ConnectorIcon />

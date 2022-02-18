@@ -28,7 +28,7 @@ import { LocalVarDecl } from "@wso2-enterprise/syntax-tree";
 import { FilterIcon } from "../../../../../assets/icons";
 import { Context } from "../../../../../Contexts/Diagram";
 import { UserState } from "../../../../../types";
-import { ADD_CONNECTOR, LowcodeEvent, SEARCH_CONNECTOR } from "../../../../models";
+import { SELECT_CONNECTOR, LowcodeEvent, LOAD_CONNECTOR_LIST } from "../../../../models";
 import { APIHeightStates } from "../../../LowCodeDiagram/Components/DialogBoxes/PlusHolder/PlusElements";
 import { PlusViewState } from "../../../LowCodeDiagram/ViewState/plus";
 import { wizardStyles as useFormStyles } from "../style";
@@ -104,17 +104,14 @@ export function Marketplace(props: MarketplaceProps) {
 
     React.useEffect(() => {
         fetchModulesList();
+        trackFilterChange();
     }, [searchQuery, selectedCategory]);
 
     let centralModuleComponents: ReactNode[] = [];
     let localModuleComponents: ReactNode[] = [];
 
     const onSelectModule = (balModule: BallerinaConstruct) => {
-        // const event: LowcodeEvent = {
-        //     type: ADD_CONNECTOR,
-        //     name: balModule.displayName || balModule.package.name,
-        // };
-        // onEvent(event);
+        trackItemSelect(balModule);
         onSelect(balModule, undefined);
         openConnectorHelp(balModule);
     };
@@ -212,6 +209,53 @@ export function Marketplace(props: MarketplaceProps) {
             fetchModulesList(currentPage.current);
         }
     };
+
+    const trackItemSelect = (balModule: BallerinaConstruct) => {
+        const customDimensions: any = {
+            organization: balModule?.package?.organization,
+            name: balModule?.package?.name,
+            version: balModule?.package?.version,
+            // queryFilterBy needs to added once properly implemented
+        }
+        if(selectedCategory){
+            customDimensions.queryCategory = selectedCategory;
+            const [mainCategory, subCategory] = selectedCategory.split('/');
+            customDimensions.mainCategory = mainCategory;
+            if (subCategory) {
+                customDimensions.subCategory = subCategory;
+            }
+        }
+        if(searchQuery){
+            customDimensions.querySearch = searchQuery;
+        }
+        const event: LowcodeEvent = {
+            type: SELECT_CONNECTOR,
+            property: customDimensions
+        };
+        onEvent(event);
+    }
+
+    const trackFilterChange = () => {
+        if(selectedCategory || searchQuery){
+            const customDimensions: any = {}
+            if(selectedCategory){
+                customDimensions.queryCategory = selectedCategory;
+                const [mainCategory, subCategory] = selectedCategory.split('/');
+                customDimensions.mainCategory = mainCategory;
+                if (subCategory) {
+                    customDimensions.subCategory = subCategory;
+                }
+            }
+            if(searchQuery){
+                customDimensions.querySearch = searchQuery;
+            }
+            const event: LowcodeEvent = {
+                type: LOAD_CONNECTOR_LIST,
+                property: customDimensions
+            };
+            onEvent(event);
+        }
+    }
 
     if (!isSearchResultsFetching) {
         centralModuleComponents = getModuleComponents(centralModules.current);
