@@ -14,16 +14,16 @@
 // TODO Refactor this file.
 // Should move these to ../Definitions/*
 
+import { BlockViewState } from "@wso2-enterprise/ballerina-low-code-diagram";
 import {
     BallerinaConnectorInfo, ConditionConfig, ConfigOverlayFormStatus, ConfigPanelStatus, Connector,
     DataMapperConfig,
-    DiagramEditorLangClientInterface, ExpressionEditorLangClientInterface, PerformanceData, STModification,
+    DiagramEditorLangClientInterface, ExpressionEditorLangClientInterface, LibraryDataResponse, LibraryDocResponse, LibrarySearchResponse, PerformanceData, STModification,
     STSymbolInfo, WizardType
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { ModulePart, NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import { Diagnostic } from "vscode-languageserver-protocol";
 
-import { BlockViewState } from "..";
 import { Warning } from "../Diagram/utils/st-util";
 
 export interface ZoomStatus {
@@ -107,6 +107,11 @@ export interface LowCodeEditorAPI {
     }
     project: {
         run: (args: any[]) => void;
+    }
+    library?: {
+        getLibrariesList: (kind: string) => Promise<LibraryDocResponse>;
+        getLibrariesData: () => Promise<LibrarySearchResponse>;
+        getLibraryData: (orgName: string, moduleName: string, version: string) => Promise<LibraryDataResponse>;
     }
 }
 

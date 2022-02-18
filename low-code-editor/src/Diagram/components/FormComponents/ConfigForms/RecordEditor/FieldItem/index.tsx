@@ -44,7 +44,7 @@ export function FieldItem(props: FieldItemProps) {
     };
 
     return (
-        <div className={recordClasses.itemWrapper} onClick={handleEdit}>
+        <div data-field-name={field.name} className={recordClasses.itemWrapper} onClick={handleEdit}>
             <div className={recordClasses.itemContentWrapper}>
                 <div className={recordClasses.itemLabelWrapper}>
                     <Typography

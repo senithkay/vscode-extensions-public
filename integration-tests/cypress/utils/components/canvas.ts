@@ -1,5 +1,7 @@
+import { RecordForm } from "../forms/record-form";
 import { Function } from "./function";
 import { Listener } from "./listener";
+import { Record } from "./record";
 import { Service } from "./service";
 
 export class Canvas {
@@ -28,10 +30,20 @@ export class Canvas {
         return cy.get(`#canvas .member-container .listener-comp[data-listener-name="${listenerName}"]`)
     }
 
+    private static getRecordComponentELement(recordName: string) {
+        return cy.get(`#canvas .member-container .record-comp[data-record-name="${recordName}"]`)
+    }
+
     private static getFnMemberContainer(fnName: string) {
         return cy
             .get(`#canvas .member-container .module-level-function[data-function-name="${fnName}"]`)
             .should('exist');
+    }
+
+    private static waitForDiagramUpdate() {
+        cy.get(`[id="canvas-overlay"]`)
+            .children().should("have.length",0)
+        return this;
     }
 
     private static getSvMemberContainer(svPath: string) {
@@ -50,11 +62,14 @@ export class Canvas {
     }
 
     static getFunction(fnName: string) {
-        const element = this.getFnMemberContainer(fnName);
+        this.waitForDiagramUpdate()
+        const element = this.getFnMemberContainer(fnName)
+        ;
         return new Function(element);
     }
 
     static getService(fnName: string) {
+        this.waitForDiagramUpdate()
         const element = this.getSvMemberContainer(fnName);
         return new Service(element);
     }
@@ -62,5 +77,10 @@ export class Canvas {
     static getListener(listenerName: string) {
         const element = this.getListenerComponentELement(listenerName);
         return new Listener(element);
+    }
+
+    static getRecord(recordName: string) {
+        const element = this.getRecordComponentELement(recordName);
+        return new Record(element);
     }
 }

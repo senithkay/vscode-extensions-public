@@ -27,13 +27,14 @@ import { createForeachStatement, getInitialSource } from "../../../../../../util
 import { genVariableName } from "../../../../../Portals/utils";
 import { useStyles } from "../../../../DynamicConnectorForm/style";
 import { SelectDropdownWithButton } from "../../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
-import ExpressionEditor, { ExpressionEditorProps } from "../../../../FormFieldComponents/ExpressionEditor";
+import { ExpressionEditorProps } from "@wso2-enterprise/ballerina-expression-editor";
 import { FormTextInput } from "../../../../FormFieldComponents/TextField/FormTextInput";
 import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
 import { FormElementProps } from "../../../../Types";
 import { wizardStyles } from "../../../style";
 import { VariableTypeInput, VariableTypeInputProps } from "../../../Components/VariableTypeInput";
 import Tooltip from '../../../../../../../components/TooltipV2'
+import { LowCodeExpressionEditor } from "../../../../FormFieldComponents/LowCodeExpressionEditor";
 
 interface Iterations {
     start?: string;
@@ -54,7 +55,6 @@ export const EXISTING_PROPERTY: string = "Select Existing Property";
 export function AddForeachForm(props: ForeachProps) {
     const {
         props: {
-            isCodeEditorActive,
             isMutationProgress: isMutationInProgress,
             stSymbolInfo,
             currentFile,
@@ -62,9 +62,11 @@ export function AddForeachForm(props: ForeachProps) {
         },
         api: {
             ls: { getExpressionEditorLangClient },
-            code: { modifyDiagram }
+            code: { modifyDiagram },
+            library
         }
     } = useContext(Context);
+
     const { condition, formArgs, onCancel, onSave, onWizardClose } = props;
 
     const [conditionExpression] = useState(condition.conditionExpression);
@@ -220,7 +222,7 @@ export function AddForeachForm(props: ForeachProps) {
             }
         },
         onChange: handleExpEditorChange,
-        defaultValue: conditionExpression.collection,
+        defaultValue: conditionExpression.collection
     };
 
     const initialSource = formArgs.model ? formArgs.model.source : getInitialSource(createForeachStatement(
@@ -249,6 +251,7 @@ export function AddForeachForm(props: ForeachProps) {
             currentFile,
             getLangClient: getExpressionEditorLangClient,
             applyModifications: modifyDiagram,
+            library,
             experimentalEnabled
         }
     );
@@ -311,7 +314,7 @@ export function AddForeachForm(props: ForeachProps) {
                             <Typography variant='body2' className={classnames(classes.endCode)}>in</Typography>
                             <div className={classes.formCodeExpressionLargeField}>
                                 <div className={classes.stmtEditorWrapper}>
-                                    <ExpressionEditor {...expElementProps} hideLabelTooltips={true} />
+                                    <LowCodeExpressionEditor {...expElementProps} hideLabelTooltips={true} />
                                 </div>
                             </div>
                             <Typography variant='body2' className={classes.endCode}>{`{`}</Typography>

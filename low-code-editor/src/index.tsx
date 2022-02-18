@@ -48,7 +48,8 @@ export {
     DiagramState,
     ConfigPanelStatus,
     STSymbolInfo,
-    ConfigOverlayFormStatus as ConfigOverlayFormStatusDef
+    ConfigOverlayFormStatus as ConfigOverlayFormStatusDef,
+    InsertorDelete
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 export { AnalyzerRequestPayload } from "./Diagram/visitors/AnalyzerPayload";
 export { Diagram } from "./Diagram";
@@ -61,14 +62,10 @@ export {
     recalculateSizingAndPositioningST,
     getAnalyzerRequestPayload
 } from './Diagram/utils/st-util';
-export { visitor as initVisitor } from "./Diagram/components/LowCodeDiagram/Visitors/init-visitor";
-export { visitor as positionVisitor } from "./Diagram/components/LowCodeDiagram/Visitors/positioning-visitor";
-export { visitor as sizingVisitor } from "./Diagram/components/LowCodeDiagram/Visitors/sizing-visitor";
 export { AnalyzePayloadVisitor } from "./Diagram/visitors/analyze-payload-visitor";
 export { cleanLocalSymbols, cleanModuleLevelSymbols, getSymbolInfo, visitor as SymbolVisitor } from "./Diagram/visitors/symbol-finder-visitor";
-export { BlockViewState } from './Diagram/components/LowCodeDiagram/ViewState';
 export { getTriggerSource, getSampleSource } from "./Diagram/utils/template-utils";
-export { InsertorDelete, createPropertyStatement } from "./Diagram/utils/modification-util";
+export { createPropertyStatement } from "./Diagram/utils/modification-util";
 export { renderDiagramEditor } from "./DiagramGenerator/vscode";
 export { updatePerformanceLabels } from "./DiagramGenerator/performanceUtil";
 
@@ -96,7 +93,7 @@ const LowCodeEditor: React.FC<Props> = (props: Props) => {
 
     return (
             <DiagramProvider {...newProps} >
-                <div>
+                <div className="diagram-container">
                     <DiagramContainer />
                 </div>
             </DiagramProvider>

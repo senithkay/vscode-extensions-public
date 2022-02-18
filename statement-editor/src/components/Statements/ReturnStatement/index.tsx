@@ -17,22 +17,24 @@ import { ReturnStatement } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
 import { DEFAULT_EXPRESSIONS } from "../../../constants";
-import { VariableUserInputs } from "../../../models/definitions";
+import { SuggestionItem, VariableUserInputs } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { SuggestionsContext } from "../../../store/suggestions-context";
 import { getSuggestionsBasedOnExpressionKind, isPositionsEquals } from "../../../utils";
+import { addStatementToTargetLine, getContextBasedCompletions } from "../../../utils/ls-utils";
 import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
 
 
 interface ReturnStatementProps {
-    model: ReturnStatement
-    userInputs: VariableUserInputs
-    diagnosticHandler: (diagnostics: string) => void
+    model: ReturnStatement;
+    userInputs: VariableUserInputs;
+    isElseIfMember: boolean;
+    diagnosticHandler: (diagnostics: string) => void;
 }
 
 export function ReturnStatementC(props: ReturnStatementProps) {
-    const { model, userInputs, diagnosticHandler } = props;
+    const { model, userInputs, isElseIfMember, diagnosticHandler } = props;
     const stmtCtx = useContext(StatementEditorContext);
     const { modelCtx } = stmtCtx;
     const { currentModel } = modelCtx;
@@ -41,31 +43,58 @@ export function ReturnStatementC(props: ReturnStatementProps) {
 
     const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
+    const { currentFile, getLangClient } = stmtCtx;
+    const targetPosition = stmtCtx.formCtx.formModelPosition;
+    const fileURI = `expr://${currentFile.path}`;
 
     const expressionComponent: ReactNode = (
         <ExpressionComponent
             model={model.expression}
-            isRoot={false}
             userInputs={userInputs}
+            isElseIfMember={isElseIfMember}
             diagnosticHandler={diagnosticHandler}
             isTypeDescriptor={false}
         />
     );
 
-    const onClickOnExpression = (event: any) => {
-        event.stopPropagation()
-        expressionHandler(model.expression, false, false,
-            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) });
+    const onClickOnExpression = async (event: any) => {
+        event.stopPropagation();
+
+        const content: string = await addStatementToTargetLine(
+            currentFile.content, targetPosition, stmtCtx.modelCtx.statementModel.source, getLangClient);
+
+        const completions: SuggestionItem[] = await getContextBasedCompletions(fileURI, content, targetPosition,
+            model.expression.position, false, isElseIfMember, model.expression.source, getLangClient);
+
+        expressionHandler(model.expression, false, false, {
+            expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
+            typeSuggestions: [],
+            variableSuggestions: completions
+        });
     };
 
     if (!currentModel.model) {
-        expressionHandler(model.expression, false, false,
-            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) });
+        addStatementToTargetLine(currentFile.content, targetPosition,
+            stmtCtx.modelCtx.statementModel.source, getLangClient).then((content: string) => {
+            getContextBasedCompletions(fileURI, content, targetPosition, model.expression.position, false,
+                isElseIfMember, model.expression.source, getLangClient).then((completions) => {
+                expressionHandler(model.expression, false, false, {
+                    expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
+                    typeSuggestions: [],
+                    variableSuggestions: completions
+                });
+            });
+        });
     }
 
     return (
         <span>
-            <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>
+            <span
+                className={classNames(
+                    statementEditorClasses.expressionBlock,
+                    statementEditorClasses.expressionBlockDisabled
+                )}
+            >
                 {model.returnKeyword.value}
             </span>
                 <button
@@ -77,7 +106,12 @@ export function ReturnStatementC(props: ReturnStatementProps) {
                 >
                     {expressionComponent}
                 </button>
-            <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>
+            <span
+                className={classNames(
+                    statementEditorClasses.expressionBlock,
+                    statementEditorClasses.expressionBlockDisabled
+                )}
+            >
                 {model.semicolonToken.value}
             </span>
 

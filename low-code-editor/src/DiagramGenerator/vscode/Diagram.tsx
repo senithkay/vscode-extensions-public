@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { ANALYZE_TYPE, DiagramEditorLangClientInterface, LowcodeEvent, PerformanceAnalyzerGraphResponse, PerformanceAnalyzerRealtimeResponse } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ANALYZE_TYPE, DiagramEditorLangClientInterface, LibraryDataResponse, LibraryDocResponse, LibraryKind, LibrarySearchResponse, LowcodeEvent, PerformanceAnalyzerGraphResponse, PerformanceAnalyzerRealtimeResponse } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { DiagramGenerator } from "..";
 import { DiagramGenErrorBoundary } from "../ErrorBoundrary";
@@ -34,6 +34,9 @@ export interface EditorAPI {
     resolveMissingDependencyByCodeAction: (filePath: string, fileContent: string, diagnostic: any) => Promise<boolean>;
     runCommand: (command: PALETTE_COMMANDS, args: any[]) => Promise<boolean>;
     sendTelemetryEvent: (event: LowcodeEvent) => Promise<void>;
+    getLibrariesList: (kind: LibraryKind) => Promise<LibraryDocResponse | undefined>;
+    getLibrariesData: () => Promise<LibrarySearchResponse | undefined>;
+    getLibraryData: (orgName: string, moduleName: string, version: string) => Promise<LibraryDataResponse | undefined>;
 }
 
 export enum PALETTE_COMMANDS {
@@ -46,10 +49,10 @@ export type EditorProps = EditorState & EditorAPI;
 
 export const Diagram: React.FC<EditorProps> = (props: EditorProps) => {
 
-    const { getFileContent, updateFileContent, gotoSource, getPFSession,
-            showPerformanceGraph, getPerfDataFromChoreo, sendTelemetryEvent,
+    const { getFileContent, updateFileContent, gotoSource, getPFSession, showPerformanceGraph, getPerfDataFromChoreo,
+            sendTelemetryEvent,
             showMessage, resolveMissingDependency, resolveMissingDependencyByCodeAction,
-            runCommand, ...restProps } = props;
+            runCommand, getLibrariesList, getLibrariesData, getLibraryData, ...restProps } = props;
     const [state, setState] = React.useState<EditorState>(restProps);
 
     React.useEffect(() => {
@@ -72,6 +75,9 @@ export const Diagram: React.FC<EditorProps> = (props: EditorProps) => {
                     resolveMissingDependencyByCodeAction={resolveMissingDependencyByCodeAction}
                     runCommand={runCommand}
                     sendTelemetryEvent={sendTelemetryEvent}
+                    getLibrariesList={getLibrariesList}
+                    getLibrariesData={getLibrariesData}
+                    getLibraryData={getLibraryData}
                     panX="-30"
                     panY="0"
                     scale="0.9"

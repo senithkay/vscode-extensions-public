@@ -12,12 +12,13 @@
  */
 import React from "react";
 
+import { FormElementProps } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 import { getFormElement } from "../../../Portals/utils";
 import { useStyles } from "../../DynamicConnectorForm/style";
 import { ExpressionInjectablesProps } from "../../FormGenerator";
-import { FormElementProps, FormFieldChecks } from "../../Types";
+import { FormFieldChecks } from "../../Types";
 import { isAllEmpty, isAllFieldsValid } from "../../Utils";
 
 interface InclusionProps {

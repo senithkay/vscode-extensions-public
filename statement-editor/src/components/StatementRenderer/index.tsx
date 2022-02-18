@@ -15,18 +15,18 @@ import React from "react";
 import { StatementNodes } from "../../constants";
 import { VariableUserInputs } from "../../models/definitions";
 import { getStatementTypeComponent } from "../../utils";
-import { useStatementEditorStyles } from "../styles";
 
 export interface StatementRendererProps {
-    model: StatementNodes
-    userInputs?: VariableUserInputs
-    diagnosticHandler: (diagnostics: string) => void
+    model: StatementNodes;
+    userInputs?: VariableUserInputs;
+    isElseIfMember: boolean;
+    diagnosticHandler: (diagnostics: string) => void;
 }
 
 export function StatementRenderer(props: StatementRendererProps) {
-    const { model, userInputs, diagnosticHandler } = props;
+    const { model, userInputs, isElseIfMember, diagnosticHandler } = props;
 
-    const component = getStatementTypeComponent(model, userInputs, diagnosticHandler);
+    const component = getStatementTypeComponent(model, userInputs, isElseIfMember, diagnosticHandler);
 
     return (
        <span>

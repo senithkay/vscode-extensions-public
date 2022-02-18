@@ -14,18 +14,17 @@
 import React, { useContext, useState } from "react";
 
 import Container from "@material-ui/core/Container";
-import { BallerinaConnectorInfo, ConfigOverlayFormStatus, ConnectorConfigWizardProps, DiagramOverlayPosition, LowcodeEvent, OPEN_LOW_CODE, PlusWidgetProps, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { LocalVarDecl, NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
+import { DefaultConfig, LowCodeDiagram, PlusViewState, ViewState } from "@wso2-enterprise/ballerina-low-code-diagram";
+import { ConfigOverlayFormStatus, ConnectorConfigWizardProps, DiagramOverlayPosition, LowcodeEvent, OPEN_LOW_CODE, PlusWidgetProps, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { Context as DiagramContext } from "../Contexts/Diagram";
+import { addAdvancedLabels } from "../DiagramGenerator/performanceUtil";
 import { TextPreLoader } from "../PreLoader/TextPreLoader";
 
 import { ConnectorConfigWizard } from "./components/FormComponents/ConnectorConfigWizard";
 import * as DialogBoxes from "./components/FormComponents/DialogBoxes";
 import { FormGenerator, FormGeneratorProps } from "./components/FormComponents/FormGenerator";
-import LowCodeDiagram from "./components/LowCodeDiagram";
-import { PlusViewState, ViewState } from "./components/LowCodeDiagram/ViewState";
-import { DefaultConfig } from "./components/LowCodeDiagram/Visitors/default";
 import "./style.scss";
 import { useStyles } from "./styles";
 import { removeStatement } from "./utils/modification-util";
@@ -207,7 +206,7 @@ export function Diagram() {
         }
     }
 
-    const handleRenderDialogBox = (type: string, onConfirm: () => void, onCancel?: () => void, position?: DiagramOverlayPosition, message?: string, removeText?: string, isFunctionMember?: boolean) => {
+    const handleRenderDialogBox = (type: string, onConfirm: () => void, onCancel?: () => void, position?: DiagramOverlayPosition, overlayId?: string, message?: string, removeText?: string, isFunctionMember?: boolean) => {
         const ChildComp = (DialogBoxes as any)[type];
         if (!ChildComp) {
             return;
@@ -224,7 +223,7 @@ export function Diagram() {
             setIsDialogActive(false);
         };
 
-        setActiveDialog(<ChildComp onConfirm={handleOnConfirm} onCancel={handleOnCancel} position={position} message={message} removeText={removeText} isFunctionMember={isFunctionMember} />);
+        setActiveDialog(<ChildComp onConfirm={handleOnConfirm} onCancel={handleOnCancel} position={position} overlayId={overlayId} message={message} removeText={removeText} isFunctionMember={isFunctionMember} />);
         setIsDialogActive(true);
     };
 
@@ -234,6 +233,10 @@ export function Diagram() {
             return;
         }
         return (<ChildComp {...plusWidgetProps} viewState={plusViewState} />);
+    };
+
+    const handleOpenPerformanceChart = async (name: string, range: NodePosition, diagramRedrawFunc: any) => {
+        await addAdvancedLabels(name, range, diagramRedrawFunc);
     };
 
     const textLoader = (
@@ -303,7 +306,8 @@ export function Diagram() {
                             renderConnectorWizard: handleConnectorConfigWizard,
                             renderDialogBox: handleRenderDialogBox,
                             closeAllOpenedForms: handleCloseAllOpenedForms,
-                            renderPlusWidget: handleRenderPlusWidget
+                            renderPlusWidget: handleRenderPlusWidget,
+                            openPerformanceChart: handleOpenPerformanceChart,
                         },
                         code: {
                             gotoSource,

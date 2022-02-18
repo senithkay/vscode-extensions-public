@@ -13,9 +13,10 @@
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
 
+import { FormElementProps } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+
 import { useStyles } from "../../DynamicConnectorForm/style";
-import { FormElementProps } from "../../Types";
-import ExpressionEditor from "../ExpressionEditor";
+import { LowCodeExpressionEditor } from "../LowCodeExpressionEditor";
 
 interface XMLProps {
     validate?: (field: string, isInvalid: boolean) => void;
@@ -41,7 +42,7 @@ export function XML(props: FormElementProps<XMLProps>) {
 
     return (
         <div className={classes.arraySubWrapper}>
-            <ExpressionEditor
+            <LowCodeExpressionEditor
                 model={model}
                 customProps={{
                     validate: validateExpression,

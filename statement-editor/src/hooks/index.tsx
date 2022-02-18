@@ -30,10 +30,6 @@ export const useStatementEditor = (props: ViewProps) => {
         setIsStmtEditor(!isStmtEditor);
     };
 
-    const handleStmtEditorCancel = () => {
-        setIsStmtEditor(false);
-    };
-
     const stmtEditorComponent =
         isStmtEditor && (
             <FormControl data-testid="property-form">
@@ -47,7 +43,7 @@ export const useStatementEditor = (props: ViewProps) => {
                     experimentalEnabled={experimentalEnabled}
                 />
                 <ViewContainer
-                    onCancel={handleStmtEditorCancel}
+                    onCancel={onCancel}
                     {...restProps}
                 />
             </FormControl>

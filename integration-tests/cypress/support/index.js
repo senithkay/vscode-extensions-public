@@ -16,6 +16,9 @@
 // Import commands.js using ES2015 syntax:
 import './commands'
 
+// Support native html events
+import "cypress-real-events/support";
+
 // Alternatively you can use CommonJS syntax:
 // require('./commands')
 

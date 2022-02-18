@@ -1,14 +1,27 @@
+/*
+ * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 Inc. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein is strictly forbidden, unless permitted by WSO2 in accordance with
+ * the WSO2 Commercial License available at http://wso2.com/licenses.
+ * For specific language governing the permissions and limitations under
+ * this license, please see the license as well as any agreement you’ve
+ * entered into with WSO2 governing the purchase of this software and any
+ * associated services.
+ */
 import * as React from "react";
 import { IntlProvider } from "react-intl";
 import { monaco } from "react-monaco-editor";
 
 import { MuiThemeProvider } from "@material-ui/core/styles";
-import { ConditionConfig, Connector, DiagramDiagnostic, DIAGRAM_MODIFIED, LowcodeEvent, STModification, STSymbolInfo, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { BlockViewState } from "@wso2-enterprise/ballerina-low-code-diagram";
+import { ConditionConfig, Connector, DiagramDiagnostic, DIAGRAM_MODIFIED, LibraryDataResponse, LibraryDocResponse, LibraryKind, LibrarySearchResponse, LowcodeEvent, STModification, STSymbolInfo, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FunctionDefinition, ModulePart, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import cloneDeep from "lodash.clonedeep";
 import Mousetrap from 'mousetrap';
 
-import LowCodeEditor, { BlockViewState, getSymbolInfo, InsertorDelete } from "..";
+import LowCodeEditor, { getSymbolInfo, InsertorDelete } from "..";
 import "../assets/fonts/Glimer/glimer.css";
 import { UndoRedoManager } from "../Diagram/components/FormComponents/UndoRedoManager";
 import messages from '../lang/en.json';
@@ -45,6 +58,9 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     const defaultPanY = panY ? Number(panY) : 0;
     const runCommand: (command: PALETTE_COMMANDS, args: any[]) => Promise<boolean> = props.runCommand;
     const showMessage: (message: string, type: MESSAGE_TYPE, isIgnorable: boolean) => Promise<boolean> = props.showMessage;
+    const getLibrariesList: (kind: LibraryKind) => Promise<LibraryDocResponse | undefined> = props.getLibrariesList;
+    const getLibrariesData: () => Promise<LibrarySearchResponse | undefined> = props.getLibrariesData;
+    const getLibraryData: (orgName: string, moduleName: string, version: string) => Promise<LibraryDataResponse | undefined> = props.getLibraryData;
 
     const defaultZoomStatus = {
         scale: defaultScale,
@@ -326,6 +342,11 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                 },
                                 project: {
                                     run
+                                },
+                                library: {
+                                    getLibrariesList,
+                                    getLibrariesData,
+                                    getLibraryData
                                 }
                             }}
                         />

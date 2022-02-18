@@ -22,9 +22,9 @@ import { Context } from "../../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
 import { useStyles as useFormStyles } from "../../../../DynamicConnectorForm/style";
 import { SelectDropdownWithButton } from "../../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
-import ExpressionEditor from "../../../../FormFieldComponents/ExpressionEditor";
 import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
 import { createLogStatement, getInitialSource } from "../../../../../../utils/modification-util";
+import { LowCodeExpressionEditor } from "../../../../FormFieldComponents/LowCodeExpressionEditor";
 import { FormActionButtons, FormHeaderSection, LogConfig, ProcessConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 interface LogConfigProps {
@@ -50,9 +50,11 @@ export function AddLogConfig(props: LogConfigProps) {
         },
         api: {
             ls: { getExpressionEditorLangClient },
-            code: { modifyDiagram }
+            code: { modifyDiagram },
+            library
         }
     } = useContext(Context);
+
     const { config, formArgs, onCancel, onSave, onWizardClose } = props;
     const logTypeFunctionNameMap: Map<string, string> = new Map([
         ['printInfo', 'Info'],
@@ -140,6 +142,7 @@ export function AddLogConfig(props: LogConfigProps) {
             currentFile,
             getLangClient: getExpressionEditorLangClient,
             applyModifications: modifyDiagram,
+            library,
             experimentalEnabled
         }
     );
@@ -170,7 +173,7 @@ export function AddLogConfig(props: LogConfigProps) {
                         />
                     </div>
                     <div className={formClasses.formEqualWrapper}>
-                        <ExpressionEditor
+                        <LowCodeExpressionEditor
                             model={{ name: "expression", value: expression, typeName: 'string' }}
                             customProps={{
                                 validate: validateExpression,

@@ -29,10 +29,11 @@ import {
     getInitialSource
 } from "../../../../../../utils/modification-util";
 import { useStyles } from "../../../../DynamicConnectorForm/style";
-import ExpressionEditor, { ExpressionEditorProps } from "../../../../FormFieldComponents/ExpressionEditor";
+import { ExpressionEditorProps } from "@wso2-enterprise/ballerina-expression-editor";
 import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
 import { FormElementProps } from "../../../../Types";
 import Tooltip from '../../../../../../../components/TooltipV2'
+import { LowCodeExpressionEditor } from "../../../../FormFieldComponents/LowCodeExpressionEditor";
 
 interface IfProps {
     condition: ConditionConfig;
@@ -63,6 +64,7 @@ export function AddIfForm(props: IfProps) {
         api: {
             ls: { getExpressionEditorLangClient },
             code: { modifyDiagram },
+            library
         },
     } = useContext(Context);
     const { condition, formArgs, onCancel, onSave, onWizardClose } = props;
@@ -187,7 +189,7 @@ export function AddIfForm(props: IfProps) {
 
             },
             onChange: handleExpEditorChange(order),
-            defaultValue: compList[order]?.expression,
+            defaultValue: compList[order]?.expression
         };
     };
 
@@ -234,9 +236,11 @@ export function AddIfForm(props: IfProps) {
             config: condition,
             onWizardClose,
             handleStatementEditorChange,
+            onCancel,
             currentFile,
             getLangClient: getExpressionEditorLangClient,
             applyModifications: modifyDiagram,
+            library,
             experimentalEnabled
         }
     );
@@ -260,7 +264,7 @@ export function AddIfForm(props: IfProps) {
                     )}
                     <Typography variant='body2' className={classes.startCode}>else if</Typography>
                     <div className={classes.formCodeExpressionSmallField}>
-                        <ExpressionEditor {...setElementProps(order)} hideLabelTooltips={true} />
+                        <LowCodeExpressionEditor {...setElementProps(order)} hideLabelTooltips={true} />
                     </div>
                     <Typography variant='body2' className={classes.endCode}>{`{`}</Typography>
                 </div>
@@ -290,7 +294,7 @@ export function AddIfForm(props: IfProps) {
                         <div className={classes.formCodeExpressionEndWrapper}>
                             <Typography variant='body2' className={classes.startCode}>if</Typography>
                             <div className={classes.formCodeExpressionField}>
-                                <ExpressionEditor {...setElementProps(0)} hideLabelTooltips={true} />
+                                <LowCodeExpressionEditor {...setElementProps(0)} hideLabelTooltips={true} />
                             </div>
                             <Typography variant='body2' className={classes.endCode}>{`{`}</Typography>
                         </div>

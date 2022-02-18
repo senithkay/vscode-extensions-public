@@ -13,7 +13,7 @@
 
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
-import { TypeInfo } from "./lang-client-extended";
+import { STModification, TypeInfo } from "./lang-client-extended";
 
 export enum GenerationType {
     ASSIGNMENT,
@@ -216,6 +216,18 @@ export interface DiagramDiagnostic {
         severity: string
     },
     range: NodePosition
+}
+
+export interface InjectableItem {
+    id: string;
+    modification: STModification;
+    name?: string;
+    value?: string;
+}
+
+export interface ExpressionInjectablesProps {
+    list: InjectableItem[];
+    setInjectables: (InjectableItem: InjectableItem[]) => void;
 }
 
 export interface DiagnosticMsgSeverity {

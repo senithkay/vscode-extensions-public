@@ -5,5 +5,8 @@ export * from "./expression-editor-lang-client-interface";
 export * from "./diagram-editor-lang-client-interface";
 export * from "./base-lang-client-interface";
 export * from "./config-spec";
+export * from "./form-element-interface";
+export * from "./expression-configurable-interface";
+export * from "./library";
 export * from "./event";
 export * from "./performance"
