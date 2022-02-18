@@ -148,7 +148,6 @@ export function ModuleVariable(props: ModuleVariableProps) {
             {
                 editFormVisible && (
                     <FormGenerator
-                        model={model}
                         configOverlayFormStatus={{
                             isLoading: false,
                             formArgs: {
