@@ -3,7 +3,7 @@ import { SourceCode } from "../../utils/components/code-view";
 import { ConfirmWindow } from "../../utils/components/confirm-window";
 import { getCurrentSpecFolder } from "../../utils/file-utils";
 
-import { getIntegrationTestStoryURL } from "../../utils/story-url-utils"
+import { getIntegrationTestPageURL } from "../../utils/story-url-utils"
 
 const CLASS_BAL_FILE_PATH = "class/edit-existing-class-file.bal";
 
@@ -11,7 +11,7 @@ const CLASS_NAME = 'Person';
 
 describe('Test editing and deleting a class component', () => {
     beforeEach(() => {
-        cy.visit(getIntegrationTestStoryURL(CLASS_BAL_FILE_PATH));
+        cy.visit(getIntegrationTestPageURL(CLASS_BAL_FILE_PATH));
     });
 
     it('Edit a class component', () => {

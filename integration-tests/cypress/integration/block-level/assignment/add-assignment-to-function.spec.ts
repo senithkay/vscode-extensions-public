@@ -1,14 +1,14 @@
 import { Canvas } from "../../../utils/components/canvas";
 import { SourceCode } from "../../../utils/components/code-view";
 import { getCurrentSpecFolder } from "../../../utils/file-utils";
-import { getIntegrationTestStoryURL } from "../../../utils/story-url-utils";
+import { getIntegrationTestPageURL } from "../../../utils/story-url-utils";
 import { AssignmentForm } from "../../../utils/forms/assignment-form";
 
 const BAL_FILE_PATH = "block-level/assignment/add-assignment-to-function.bal";
 
 describe('Add assignment to function via Low Code', () => {
   beforeEach(() => {
-    cy.visit(getIntegrationTestStoryURL(BAL_FILE_PATH))
+    cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH))
   })
 
   it('Add an assignment to function', () => {

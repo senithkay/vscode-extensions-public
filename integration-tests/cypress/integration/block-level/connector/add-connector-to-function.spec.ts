@@ -3,13 +3,13 @@ import { SourceCode } from "../../../utils/components/code-view";
 import { getCurrentSpecFolder } from "../../../utils/file-utils";
 import { ConnectorForm } from "../../../utils/forms/connector-form";
 import { GoogleSheetForm } from "../../../utils/forms/connectors/google-sheet-form";
-import { getIntegrationTestStoryURL } from "../../../utils/story-url-utils";
+import { getIntegrationTestPageURL } from "../../../utils/story-url-utils";
 
 const BAL_FILE_PATH = "block-level/connector/add-connector-to-function.bal";
 
 describe('Add connector to function via Low Code', () => {
   beforeEach(() => {
-    cy.visit(getIntegrationTestStoryURL(BAL_FILE_PATH))
+    cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH))
   })
 
   it('Add a google-sheet connector and save', () => {
