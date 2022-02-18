@@ -280,7 +280,7 @@ export function updateCodeLenses(concurrency: number, column: ViewColumn | undef
     if (!currentFile) {
         return;
     }
-    window.showTextDocument(currentFile, column);
+    window.showTextDocument(currentFile, column ?? ViewColumn.Beside);
 }
 
 export function openPerformanceDiagram(request: PerformanceGraphRequest) {
