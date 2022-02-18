@@ -6,6 +6,7 @@ import { BalleriaLanguageClient, WSConnection } from "@wso2-enterprise/ballerina
 import { DiagramGeneratorProps } from "../DiagramGenerator";
 
 import { DiagramGeneratorWrapper } from "./DiagramGeneratorWrapper";
+import { StandaloneDiagramApp } from "./StandaloneDiagramApp";
 
 export const MOCK_SERVER_URL = "http://localhost:3000"
 export const LANG_SERVER_URL = "ws://localhost:9095"
@@ -36,7 +37,7 @@ export async function updateFileContent(filePath: string, text: string): Promise
     }).then(result => result.success);
 }
 
-export function getDiagramGeneratorProps(filePath: string): DiagramGeneratorProps {
+export function getDiagramGeneratorProps(filePath: string, enableSave: boolean = false): DiagramGeneratorProps {
   return {
     langClientPromise,
     scale: "1",
@@ -56,7 +57,7 @@ export function getDiagramGeneratorProps(filePath: string): DiagramGeneratorProp
     sendTelemetryEvent: () => Promise.resolve(undefined),
     showMessage: () => Promise.resolve(false),
     showPerformanceGraph: () => Promise.resolve(false),
-    updateFileContent,
+    updateFileContent: enableSave ? updateFileContent : () => Promise.resolve(undefined),
     getLibrariesList: () => Promise.resolve(undefined),
     getLibrariesData: () => Promise.resolve(undefined),
     getLibraryData: () => Promise.resolve(undefined),
@@ -65,8 +66,7 @@ export function getDiagramGeneratorProps(filePath: string): DiagramGeneratorProp
 }
 
 
-export function renderStandaloneMockedEditor(filePath: string, container: string) {
-    const props = getDiagramGeneratorProps(filePath);
-    const element = createElement(DiagramGeneratorWrapper, props);
+export function renderStandaloneMockedEditor(container: string) {
+    const element = createElement(StandaloneDiagramApp);
     render(element, document.getElementById(container));
 }

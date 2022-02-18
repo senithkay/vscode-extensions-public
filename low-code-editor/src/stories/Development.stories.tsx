@@ -13,7 +13,7 @@ devProject.balFiles.forEach((balFile: string) => {
   stories.add(
     relativePath,
     () => {
-      const diagramProps = getDiagramGeneratorProps(balFile);
+      const diagramProps = getDiagramGeneratorProps(balFile, true);
       return <DiagramGeneratorWrapper {...diagramProps} />
     }
   )
