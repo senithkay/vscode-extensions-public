@@ -69,13 +69,13 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
             currentFile,
             isMutationProgress: isMutationInProgress,
             stSymbolInfo,
+            importStatements,
             experimentalEnabled
         },
         api: {
             ls: { getExpressionEditorLangClient },
             code: {
-                modifyDiagram,
-                importStatements
+                modifyDiagram
             },
             insights: { onEvent },
             library

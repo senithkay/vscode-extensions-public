@@ -44,13 +44,13 @@ export function AddReturnForm(props: ReturnFormProps) {
             isMutationProgress: isMutationInProgress,
             currentFile,
             syntaxTree,
+            importStatements,
             experimentalEnabled
         },
         api: {
             ls: { getExpressionEditorLangClient },
             code: {
-                modifyDiagram,
-                importStatements
+                modifyDiagram
             },
             library
         }
