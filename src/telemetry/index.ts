@@ -36,35 +36,26 @@ export function createTelemetryReporter(ext: BallerinaExtension): TelemetryRepor
 }
 
 export function sendTelemetryEvent(extension: BallerinaExtension, eventName: string, componentName: string,
-    message: string = '', measurements?: any) {
+    customDimensions: { [key: string]: string; } = {}, measurements: { [key: string]: number; } = {}) {
     if (extension.isTelemetryEnabled()) {
-        if (measurements) {
-            let properties = {};
-            Object.keys(measurements).forEach(key => {
-                properties[key] = measurements[key];
-            });
-            extension.telemetryReporter.sendTelemetryEvent(eventName, getTelemetryProperties(extension, componentName,
-                message), properties);
-        } else {
-            extension.telemetryReporter.sendTelemetryEvent(eventName, getTelemetryProperties(extension, componentName,
-                message));
-        }
+        extension.telemetryReporter.sendTelemetryEvent(eventName, getTelemetryProperties(extension, componentName,
+            customDimensions), measurements);
     }
 }
 
 export function sendTelemetryException(extension: BallerinaExtension, error: Error, componentName: string,
-    message: string = '') {
+    params: { [key: string]: string } = {}) {
     if (extension.isTelemetryEnabled()) {
         extension.telemetryReporter.sendTelemetryException(error, getTelemetryProperties(extension, componentName,
-            message));
+            params));
     }
 }
 
-export function getTelemetryProperties(extension: BallerinaExtension, component: string, message: string)
+export function getTelemetryProperties(extension: BallerinaExtension, component: string, params: { [key: string]: string; } = {})
     : { [key: string]: string; } {
     return {
+        ...params,
         'ballerina.version': extension ? extension.ballerinaVersion : '',
-        'ballerina.message': message,
         'scope': component,
         'idpId': process.env.VSCODE_CHOREO_USER_IDP_ID ? process.env.VSCODE_CHOREO_USER_IDP_ID : '',
         'isWSO2User': isWSO2User ? 'true' : 'false',
@@ -72,6 +63,13 @@ export function getTelemetryProperties(extension: BallerinaExtension, component:
         'AnonymousUser': isAnonymous ? 'true' : 'false',
         'correlationId': CORRELATION_ID,
     };
+}
+
+export function getMessageObject(message?: string): { [key: string]: string; } {
+    if (message) {
+        return { 'ballerina.message': message };
+    }
+    return {};
 }
 
 export * from "./events";
