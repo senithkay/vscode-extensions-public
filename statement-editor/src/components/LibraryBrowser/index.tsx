@@ -112,14 +112,18 @@ export function LibraryBrowser() {
     }
 
     return (
-        <div className={statementEditorClasses.LibraryBrowser}>
-            <div className={statementEditorClasses.LibraryDropdown}>
-                <span className={statementEditorClasses.subHeader}>Libraries</span>
-                <SelectDropdown
-                    values={[ALL_LIBS, LANGUAGE_LIBS, STANDARD_LIBS]}
-                    defaultValue={ALL_LIBS}
-                    onSelection={onLibSelection}
-                />
+        <div className={statementEditorClasses.libraryBrowser}>
+            <div className={statementEditorClasses.libraryBrowserHeader}>
+                <div className={statementEditorClasses.libraryTitle}>
+                    <span className={statementEditorClasses.subHeader}>Libraries</span>
+                </div>
+                <div className={statementEditorClasses.libraryDropdown}>
+                    <SelectDropdown
+                        values={[ALL_LIBS, LANGUAGE_LIBS, STANDARD_LIBS]}
+                        defaultValue={ALL_LIBS}
+                        onSelection={onLibSelection}
+                    />
+                </div>
             </div>
             <input
                 className={statementEditorClasses.librarySearchBox}

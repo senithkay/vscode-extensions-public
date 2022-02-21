@@ -112,7 +112,7 @@ export const useStatementEditorStyles = makeStyles(() =>
             top: '2%',
             bottom: '10%'
         },
-        LibraryBrowser: {
+        libraryBrowser: {
             display: 'flex',
             flexDirection: 'column',
             width: 'auto%',
@@ -279,9 +279,20 @@ export const useStatementEditorStyles = makeStyles(() =>
             margin: '4px 2px',
             borderRadius: '50%'
         },
-        LibraryDropdown: {
+        libraryBrowserHeader: {
             display: 'flex',
-            flexDirection: 'row'
+            flexDirection: 'row',
+            width: '96%'
+        },
+        libraryTitle: {
+            flex: '0 0 50%',
+            display: 'flex',
+            justifyContent: 'flex-start'
+        },
+        libraryDropdown: {
+            flex: '0 0 50%',
+            display: 'flex',
+            justifyContent: 'flex-end'
         },
         rhsComponent: {
             position: 'relative',
