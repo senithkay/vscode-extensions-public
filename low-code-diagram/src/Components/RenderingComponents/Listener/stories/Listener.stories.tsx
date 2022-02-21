@@ -22,9 +22,6 @@ import { LowCodeDiagramProps } from '../../../../Context/types';
 import { fetchSyntaxTree, getComponentDataPath, getFileContent, getProjectRoot, langClientPromise } from '../../../../stories/story-utils';
 import { sizingAndPositioning } from '../../../../Utils';
 
-// tslint:disable-next-line:no-submodule-imports
-
-
 export default {
     title: 'Diagram/Component/Listener',
     component: Listener,
@@ -43,11 +40,6 @@ const Template: Story<{ f1: string }> = (args: {f1: string }) => {
         selectedPosition: {
             startColumn: 0,
             startLine: 0
-        },
-        api: {
-            project: {
-                run: () => undefined
-            }
         }
     };
 

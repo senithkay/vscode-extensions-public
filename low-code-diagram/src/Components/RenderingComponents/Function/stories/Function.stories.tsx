@@ -41,11 +41,6 @@ const Template: Story<{ f1: string }> = (args: { f1: string }) => {
         selectedPosition: {
             startColumn: 0,
             startLine: 0
-        },
-        api: {
-            project: {
-                run: () => undefined
-            }
         }
     };
 
