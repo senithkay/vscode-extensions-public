@@ -244,9 +244,14 @@ export const useStatementEditorStyles = makeStyles(() =>
             position: 'relative',
             marginLeft: '2px',
             marginTop: '1px',
+            borderRadius: '5px',
+            border: '1px',
             '&:hover': {
                 backgroundColor: '#d7dcfc',
                 color: '#fff'
+            },
+            '&:focus': {
+                outline: 'none'
             }
         },
         dataTypeTemplate: {
