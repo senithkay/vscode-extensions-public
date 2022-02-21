@@ -28,7 +28,7 @@ import {
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
 import { getAllVariables } from "../../../../../../utils/mixins";
-import { createForeachStatement, getInitialSource } from "../../../../../../utils/modification-util";
+import { createForeachStatement, createForeachStatementWithBlock, getInitialSource } from "../../../../../../utils/modification-util";
 import { genVariableName } from "../../../../../Portals/utils";
 import { useStyles } from "../../../../DynamicConnectorForm/style";
 import { SelectDropdownWithButton } from "../../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
@@ -233,11 +233,18 @@ export function AddForeachForm(props: ForeachProps) {
         defaultValue: conditionExpression.collection
     };
 
-    const initialSource = formArgs.model ? formArgs.model.source : getInitialSource(createForeachStatement(
-        conditionExpression.collection ? conditionExpression.collection : 'EXPRESSION',
-        conditionExpression.variable,
-        selectedType
-    ));
+    const initialSource = formArgs.model ? getInitialSource(createForeachStatementWithBlock(
+                                conditionExpression.collection ? conditionExpression.collection : 'EXPRESSION',
+                                conditionExpression.variable,
+                                selectedType,
+                                (formArgs.model as ForeachStatement).blockStatement.statements.map(statement => {
+                                    return statement.source
+                                })
+                            )) : getInitialSource(createForeachStatement(
+                                conditionExpression.collection ? conditionExpression.collection : 'EXPRESSION',
+                                conditionExpression.variable,
+                                selectedType
+                            ));
 
     const handleStatementEditorChange = (partialModel: ForeachStatement) => {
         conditionExpression.type = partialModel.typedBindingPattern.typeDescriptor.source.trim();

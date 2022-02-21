@@ -14,7 +14,7 @@
 import React, { useContext, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
-import { ElseBlock, IfElseStatement, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { BlockStatement, ElseBlock, IfElseStatement, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import classnames from "classnames";
 import { Box, FormControl, IconButton, Typography } from "@material-ui/core";
 import { ControlPoint, RemoveCircleOutlineRounded } from "@material-ui/icons";
@@ -30,8 +30,11 @@ import { Context } from "../../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
 import {
     createElseIfStatement,
+    createElseIfStatementWithBlock,
     createElseStatement,
+    createElseStatementWithBlock,
     createIfStatement,
+    createIfStatementWithBlock,
     getInitialSource
 } from "../../../../../../utils/modification-util";
 import { useStyles } from "../../../../DynamicConnectorForm/style";
@@ -220,21 +223,51 @@ export function AddIfForm(props: IfProps) {
     const validForm = compList.every((item) => item.isValid);
 
     const getCompleteSource = () => {
-        let source = getInitialSource(createIfStatement(
-            compList[0].expression ? compList[0].expression : 'EXPRESSION'
-        ));
-        if (compList.length > 1) {
-            compList.map((element, index) => {
-                if (index !== 0){
-                    source = source + getInitialSource(createElseIfStatement(element.expression ? element.expression : 'EXPRESSION'))
-                }
-            })
+        let source = "";
+        if (formArgs.model){
+            let currentModel = formArgs.model as IfElseStatement;
+            source = source + getInitialSource(createIfStatementWithBlock(
+                compList[0].expression ? compList[0].expression : 'EXPRESSION',
+                currentModel.ifBody.statements.map(statement => {
+                    return statement.source
+                })
+            ));
+            if (compList.length > 1) {
+                compList.map((element, index) => {
+                    if (index !== 0){
+                        currentModel = currentModel.elseBody.elseBody as IfElseStatement
+                        source = source + getInitialSource(createElseIfStatementWithBlock(
+                            element.expression ? element.expression : 'EXPRESSION',
+                            currentModel.ifBody.statements.map(statement => {
+                                return statement.source
+                            })
+                        ));
+                    }
+                })
+            }
+            source = source + getInitialSource(createElseStatementWithBlock(
+                (currentModel.elseBody.elseBody as BlockStatement).statements.map(statement => {
+                    return statement.source
+                })
+            ));
         }
-        source = source + getInitialSource(createElseStatement());
+        else {
+            source = getInitialSource(createIfStatement(
+                compList[0].expression ? compList[0].expression : 'EXPRESSION'
+            ));
+            if (compList.length > 1) {
+                compList.map((element, index) => {
+                    if (index !== 0){
+                        source = source + getInitialSource(createElseIfStatement(element.expression ? element.expression : 'EXPRESSION'))
+                    }
+                })
+            }
+            source = source + getInitialSource(createElseStatement());
+        }
         return source;
     }
 
-    const initialSource = formArgs.model ? formArgs.model.source : getCompleteSource();
+    const initialSource = getCompleteSource();
 
     const { handleStmtEditorToggle, stmtEditorComponent } = useStatementEditor(
         {

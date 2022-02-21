@@ -155,7 +155,7 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
         defaultValue: variableExpression
     };
 
-    const initialSource = formArgs.model ? formArgs.model.source : getInitialSource(createPropertyStatement(
+    const initialSource = getInitialSource(createPropertyStatement(
             `${varName ? varName : "default"} = ${variableExpression ? variableExpression : "EXPRESSION"} ;`
     ));
 
