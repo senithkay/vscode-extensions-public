@@ -53,7 +53,7 @@ describe('Update log statement type', () => {
             .shouldBeVisible()
             .selectType("Error")
             .clearExpression()
-            .typeExpression('"Updated this is an error log"')
+            .typeExpression('"This is an error message."')
             .save()
 
         SourceCode.shouldBeEqualTo(
