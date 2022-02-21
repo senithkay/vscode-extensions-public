@@ -42,6 +42,7 @@ import {
     addStatementToTargetLine,
     getDiagnostics,
     sendDidChange,
+    sendDidClose,
     sendDidOpen
 } from "../../utils/ls-utils";
 import { useStatementEditorStyles } from "../styles";
@@ -69,7 +70,7 @@ export function InputEditor(props: InputEditorProps) {
         diagnostic: [],
     });
 
-    const { model, statementType, diagnosticHandler, userInputs, isTypeDescriptor, isToken } = props;
+    const { model, diagnosticHandler, userInputs, isTypeDescriptor, isToken } = props;
 
     const stmtCtx = useContext(StatementEditorContext);
     const inputEditorCtx = useContext(InputEditorContext);
@@ -142,11 +143,10 @@ export function InputEditor(props: InputEditorProps) {
     const placeHolders: string[] = ['EXPRESSION', 'TYPE_DESCRIPTOR'];
 
     useEffect(() => {
-        handleOnFocus(currentContent).then(() => {
-            handleOnOutFocus().then();
-        })
-        getContextBasedCompletions(placeHolders.indexOf(userInput) > -1 ? "" : userInput);
-    }, [statementType]);
+        if (isEditing) {
+            handleOnFocus(currentContent).then();
+        }
+    }, [isEditing]);
 
     useEffect(() => {
         handleDiagnostic();
@@ -154,8 +154,8 @@ export function InputEditor(props: InputEditorProps) {
 
     useEffect(() => {
         setUserInput(value);
-        handleContentChange(currentContent).then(() => {
-            handleOnOutFocus().then();
+        handleOnFocus(currentContent).then(() => {
+            handleContentChange(currentContent).then();
         });
     }, [value]);
 
@@ -163,7 +163,7 @@ export function InputEditor(props: InputEditorProps) {
         if (userInput === '') {
             setIsEditing(true);
         }
-    }, [isEditing, userInput]);
+    }, [userInput]);
 
     const handleOnFocus = async (currentStatement: string) => {
         let initContent: string = await addStatementToTargetLine(
@@ -177,15 +177,7 @@ export function InputEditor(props: InputEditorProps) {
         inputEditorState.content = initContent;
         inputEditorState.uri = fileURI;
         sendDidOpen(inputEditorState.uri, currentFile.content, getLangClient).then();
-        // sendDidChange(inputEditorState.uri, inputEditorState.content, getLangClient).then();
-        const diagResp = await getDiagnostics(inputEditorState.uri, getLangClient);
-        setInputEditorState((prevState) => {
-            return {
-                ...prevState,
-                diagnostic: diagResp[0]?.diagnostics ?
-                    getFilteredDiagnostics(diagResp[0]?.diagnostics, isCustomTemplate) : []
-            };
-        });
+        sendDidChange(inputEditorState.uri, inputEditorState.content, getLangClient).then();
     }
 
     const handleDiagnostic = () => {
@@ -235,12 +227,7 @@ export function InputEditor(props: InputEditorProps) {
         inputEditorState.content = currentFile.content;
         inputEditorState.uri = fileURI;
 
-        const langClient = await getLangClient();
-        langClient.didClose({
-            textDocument: {
-                uri: inputEditorState.uri
-            }
-        });
+        sendDidClose(inputEditorState.uri, getLangClient).then();
     }
 
     // TODO: To be removed with expression editor integration
