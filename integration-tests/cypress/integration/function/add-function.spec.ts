@@ -113,7 +113,7 @@ describe('Add functions via Low Code', () => {
 
     Canvas.getFunction("getGreeting")
       .getDiagram()
-      .clickDefaultWorkerPlusBtn(1)
+      .clickDefaultWorkerPlusBtn(2)
       .getBlockLevelPlusWidget()
       .clickOption("Return");
 
