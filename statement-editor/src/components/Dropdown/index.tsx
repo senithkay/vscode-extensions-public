@@ -17,13 +17,31 @@ import { MenuItem, Select } from "@material-ui/core";
 
 import { useStatementEditorStyles } from "../styles";
 
-export default function SelectDropdown() {
+interface SelectDropdownProps {
+    values: string[]
+    defaultValue: string
+    onSelection?: (value: string) => void
+}
+
+export default function SelectDropdown(props: SelectDropdownProps) {
+    const { values, defaultValue } = props;
     const statementEditorClasses = useStatementEditorStyles();
-    const [state, setState] = React.useState('All');
+    const [state, setState] = React.useState(defaultValue);
 
     const handleChange = (event: React.ChangeEvent<{ value: string }>) => {
         setState(event.target.value);
     };
+
+    const menuItems: React.ReactNode[] = [];
+    if (values) {
+        values.forEach((value) => {
+            menuItems.push(
+                <MenuItem key={value} value={value}>
+                    <span className="TextSpan">{value}</span>
+                </MenuItem>
+            );
+        });
+    }
 
     return (
         <div>
@@ -41,9 +59,7 @@ export default function SelectDropdown() {
                     }
                 }}
             >
-                <MenuItem value="All"> <span className="TextSpan">All</span> </MenuItem>
-                <MenuItem value="Language"> <span className="TextSpan">Language</span> </MenuItem>
-                <MenuItem value="Standard"> <span className="TextSpan">Standard</span> </MenuItem>
+                {menuItems}
             </Select>
         </div>
     );

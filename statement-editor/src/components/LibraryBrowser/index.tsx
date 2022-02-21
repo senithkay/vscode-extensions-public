@@ -129,7 +129,10 @@ export function LibraryBrowser() {
             <div className={statementEditorClasses.LibraryDropdown}>
                 <span className={statementEditorClasses.subHeader}>Libraries</span>
                 {/*TODO: Replace below buttons with a dropdown menu*/}
-                <SelectDropdown />
+                <SelectDropdown
+                    values={['All', 'Language', 'Standard']}
+                    defaultValue={'All'}
+                />
                 {/*<button onClick={onAllLibSelection}>All</button>*/}
                 {/*<button onClick={onLangLibSelection}>Language</button>*/}
                 {/*<button onClick={onStdLibSelection}>Standard</button>*/}
