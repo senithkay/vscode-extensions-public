@@ -20,6 +20,7 @@ import {
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { StatementEditorContext } from "../../store/statement-editor-context";
+import SelectDropdown from "../Dropdown";
 import { useStatementEditorStyles } from "../styles";
 
 import { LibrariesList } from "./LibrariesList";
@@ -128,9 +129,10 @@ export function LibraryBrowser() {
             <div className={statementEditorClasses.LibraryDropdown}>
                 <span className={statementEditorClasses.subHeader}>Libraries</span>
                 {/*TODO: Replace below buttons with a dropdown menu*/}
-                <button onClick={onAllLibSelection}>All</button>
-                <button onClick={onLangLibSelection}>Language</button>
-                <button onClick={onStdLibSelection}>Standard</button>
+                <SelectDropdown />
+                {/*<button onClick={onAllLibSelection}>All</button>*/}
+                {/*<button onClick={onLangLibSelection}>Language</button>*/}
+                {/*<button onClick={onStdLibSelection}>Standard</button>*/}
             </div>
             <input
                 className={statementEditorClasses.librarySearchBox}

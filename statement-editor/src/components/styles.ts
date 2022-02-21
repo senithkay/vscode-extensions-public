@@ -401,6 +401,59 @@ export const useStatementEditorStyles = makeStyles(() =>
             '&:hover': {
                 color: '#3a479c'
             },
-        }
+        },
+        selectDropDownSe: {
+            height: 35,
+            width: "100%",
+            borderRadius: 5,
+            background: "linear-gradient(180deg, #ffffff 0%, #f7f7f9 100%)",
+            boxShadow: "inset 0 0 0 1px #dee0e7, 0 1px 1px 0 rgba(0, 0, 0, 0.06)",
+            cursor: "pointer",
+            marginBottom: theme.spacing(2.5),
+            border: 1,
+            "&:active": {
+                background: "linear-gradient(180deg, #ffffff 0%, #f7f7f9 100%)",
+                boxShadow: "inset 0 0 0 1px #a6b3ff, 0 1px 1px 0 rgba(0, 0, 0, 0.06)",
+                border: "1px solid #5567d5",
+            },
+            "&:focused": {
+                background: "linear-gradient(180deg, #ffffff 0%, #f7f7f9 100%)",
+                boxShadow: "inset 0 0 0 1px #a6b3ff, 0 1px 1px 0 rgba(0, 0, 0, 0.06)",
+                border: "1px solid #5567d5 !important",
+                backgroundColor: "none"
+            },
+            '& .MuiSelect-icon': {
+                marginRight: 20,
+            },
+            "& .MuiSelect-selectMenu": {
+                height: "inherit !important",
+                paddingLeft: 10,
+                "& .TextSpan": {
+                    top: "calc(50% - 8px)",
+                    position: "absolute",
+                    maxWidth: "156px",
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                }
+            },
+            "& .MuiSelect-select.MuiSelect-select": {
+                padding: "0 15px",
+                minWidth: "100px"
+            },
+            "& .MuiSelect-select.MuiSelect-select:focus": {
+                backgroundColor: "none"
+            }
+        },
+        dropdownStyle: {
+            backgroundColor: "#fff",
+            boxSizing: "border-box",
+            width: "auto",
+            border: "1px solid #DEE0E7",
+            borderRadius: "5px",
+            boxShadow: "0 5px 10px -3px rgba(50,50,77,0.1)",
+            color: "#222228",
+            marginTop: '0.25rem',
+        },
     }),
 );
