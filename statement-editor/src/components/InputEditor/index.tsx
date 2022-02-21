@@ -258,6 +258,8 @@ export function InputEditor(props: InputEditorProps) {
                     ))
                 ));
 
+                filteredCompletionItem.sort(sortSuggestions)
+
                 const variableSuggestions: SuggestionItem[] = filteredCompletionItem.map((obj) => {
                     return { value: obj.label, kind: obj.detail }
                 });
@@ -283,6 +285,10 @@ export function InputEditor(props: InputEditorProps) {
             getContextBasedCompletions(userInput);
         }
     };
+
+    function sortSuggestions(x: CompletionResponse, y: CompletionResponse) {
+        return x.sortText.localeCompare(y.sortText);
+    }
 
     function addExpressionToTargetPosition(currentStmt: string, targetLine: number, targetColumn: number, codeSnippet: string, endColumn?: number): string {
         if (model && STKindChecker.isIfElseStatement(stmtCtx.modelCtx.statementModel)) {
