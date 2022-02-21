@@ -33,6 +33,16 @@ export function genInterfacesFileCode(modelInfo: any) {
             executionTime?: number;
         }
 
+        export interface SyntaxDiagnostics {
+            diagnosticInfo: DiagnosticInfo;
+            message: string;
+        }
+
+        export interface DiagnosticInfo {
+            code: string;
+            severity: string;
+        }
+
         export interface STNode {
             kind: string;
             value?: any;
@@ -46,6 +56,7 @@ export function genInterfacesFileCode(modelInfo: any) {
             source: string;
             configurablePosition?: NodePosition;
             controlFlow?: ControlFlow;
+            syntaxDiagnostics: SyntaxDiagnostics[];
         }
 
         ${interfaces.join("\n")}

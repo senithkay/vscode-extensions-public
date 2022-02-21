@@ -22,6 +22,7 @@ import { InputEditorContextProvider } from "./input-editor-context";
 
 export const StatementEditorContext = React.createContext({
     modelCtx: {
+        initialSource: '',
         statementModel: null,
         currentModel: null,
         updateModel: (codeSnippet: string, position: NodePosition) => {}
@@ -56,7 +57,8 @@ interface CtxProviderProps extends LowCodeEditorProps {
     currentModel: { model: STNode },
     updateModel?: (codeSnippet: string, position: NodePosition) => void,
     formArgs?: any,
-    validateStatement: (isValid: boolean) => void
+    validateStatement: (isValid: boolean) => void,
+    initialSource: string
 }
 
 export const StatementEditorContextProvider = (props: CtxProviderProps) => {
@@ -69,6 +71,7 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
         formArgs,
         validateStatement,
         library,
+        initialSource,
         ...restProps
     } = props;
 
@@ -86,6 +89,7 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
         <StatementEditorContext.Provider
             value={{
                 modelCtx: {
+                    initialSource,
                     statementModel: model,
                     currentModel,
                     updateModel
