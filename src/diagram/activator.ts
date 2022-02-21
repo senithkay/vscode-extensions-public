@@ -21,9 +21,15 @@ import {
 	commands, window, Uri, ViewColumn, WebviewPanel, Disposable, workspace, WorkspaceEdit, Range, Position,
 	TextDocumentShowOptions, ProgressLocation, ExtensionContext
 } from 'vscode';
-import * as _ from 'lodash';
 import { render } from './renderer';
-import { CONNECTOR_LIST_CACHE, DocumentIdentifier, ExtendedLangClient, HTTP_CONNECTOR_LIST_CACHE, PerformanceAnalyzerGraphResponse, PerformanceAnalyzerRealtimeResponse } from '../core/extended-language-client';
+import {
+	CONNECTOR_LIST_CACHE,
+	DocumentIdentifier,
+	ExtendedLangClient,
+	HTTP_CONNECTOR_LIST_CACHE,
+	PerformanceAnalyzerGraphResponse,
+	PerformanceAnalyzerRealtimeResponse
+} from '../core/extended-language-client';
 import { BallerinaExtension, ballerinaExtInstance, Change } from '../core';
 import { getCommonWebViewOptions, WebViewMethod, WebViewRPCHandler } from '../utils';
 import { join } from "path";
@@ -37,6 +43,23 @@ import { existsSync, readFileSync, writeFileSync } from 'fs';
 import { runCommand } from '../utils/runCommand';
 import { Diagnostic } from '.';
 import { createTests } from '../testing/activator';
+import {
+	cachedLibrariesList,
+	cachedSearchList,
+	getAllResources,
+	getLibrariesList,
+	getLibraryData,
+	LANG_LIB_LIST_CACHE,
+	LIBRARY_SEARCH_CACHE,
+	STD_LIB_LIST_CACHE
+} from "../library-browser";
+import {
+	LibrariesListResponse,
+	LibraryDataResponse,
+	LibraryKind,
+	LibrarySearchResponse
+} from "../library-browser/model";
+import { getSentryConfig, SentryConfig } from './sentry';
 
 export let hasDiagram: boolean = false;
 
@@ -47,6 +70,7 @@ let diagramElement: DiagramOptions | undefined = undefined;
 let ballerinaExtension: BallerinaExtension;
 let webviewRPCHandler: WebViewRPCHandler;
 let currentDocumentURI: Uri;
+let experimentalEnabled: boolean;
 
 export async function showDiagramEditor(startLine: number, startColumn: number, filePath: string,
 	isCommand: boolean = false): Promise<void> {
@@ -98,6 +122,27 @@ export async function showDiagramEditor(startLine: number, startColumn: number, 
 		}
 	});
 
+	// Cache the lang lib list
+	getLibrariesList(LibraryKind.langLib).then((libs) => {
+		if (libs && libs.librariesList.length > 0) {
+			cachedLibrariesList.set(LANG_LIB_LIST_CACHE, libs);
+		}
+	});
+
+	// Cache the std lib list
+	getLibrariesList(LibraryKind.stdLib).then((libs) => {
+		if (libs && libs.librariesList.length > 0) {
+			cachedLibrariesList.set(STD_LIB_LIST_CACHE, libs);
+		}
+	});
+
+	// Cache the library search data
+	getAllResources().then((data) => {
+		if (data && data.modules.length > 0) {
+			cachedSearchList.set(LIBRARY_SEARCH_CACHE, data);
+		}
+	});
+
 	// Update test view
 	if (filePath === '' && ballerinaExtInstance.getDocumentContext().isActiveDiagram()) {
 		filePath = ballerinaExtInstance.getDocumentContext().getLatestDocument()!.fsPath;
@@ -138,6 +183,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 	});
 	const context = <ExtensionContext>ballerinaExtInstance.context;
 	context.subscriptions.push(diagramRenderDisposable);
+	experimentalEnabled = ballerinaExtension.enabledExperimentalFeatures();
 }
 
 function resolveMissingDependencyByCodeAction(filePath: string, fileContent: string, diagnostic: Diagnostic, langClient: ExtendedLangClient) {
@@ -411,6 +457,30 @@ class DiagramPanel {
 					return Promise.resolve(true);
 				}
 			},
+			{
+				methodName: "getLibrariesList",
+				handler: async (args: any[]): Promise<LibrariesListResponse | undefined> => {
+					return await getLibrariesList(args[0]);
+				}
+			},
+			{
+				methodName: "getLibrariesData",
+				handler: async (): Promise<LibrarySearchResponse | undefined> => {
+					return await getAllResources();
+				}
+			},
+			{
+				methodName: "getLibraryData",
+				handler: async (args: any[]): Promise<LibraryDataResponse | undefined> => {
+					return await getLibraryData(args[0], args[1], args[2]);
+				}
+			},
+			{
+				methodName: "getSentryConfig",
+				handler: async (): Promise<SentryConfig | undefined> => {
+					return ballerinaExtension.getCodeServerContext().codeServerEnv ? await getSentryConfig() : undefined;
+				}
+			},
 		];
 
 		webviewRPCHandler = WebViewRPCHandler.create(panel, langClient, remoteMethods);
@@ -432,7 +502,7 @@ class DiagramPanel {
 			if (!DiagramPanel.currentPanel) {
 				performDidOpen();
 				this.webviewPanel.webview.html = render(diagramElement!.fileUri!, diagramElement!.startLine!,
-					diagramElement!.startColumn!);
+					diagramElement!.startColumn!, experimentalEnabled);
 			} else {
 				callUpdateDiagramMethod();
 			}

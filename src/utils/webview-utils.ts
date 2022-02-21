@@ -80,6 +80,13 @@ export function getLibraryWebViewContent(options: WebViewOptions) {
     // in windows fontdir path contains \ as separator. css does not like this.
     const fontDirWithSeparatorReplaced = fontDir.split(sep).join("/");
 
+    const isCodeServer = ballerinaExtInstance.getCodeServerContext().codeServerEnv;
+    const whatFixUrl = process.env.BALLERINA_DEV_CENTRAL || process.env.BALLERINA_STAGE_CENTRAL ?
+        'https://whatfix.com/c9fb1d90-71f0-11ec-a69b-2a8342861064/embed/embed.nocache.js' :
+        'https://cdn.whatfix.com/prod/c9fb1d90-71f0-11ec-a69b-2a8342861064/embed/embed.nocache.js';
+    const whatFix = isCodeServer ?
+        `<script language='javascript' async='true' type='text/javascript' src='${whatFixUrl}'></script>` : '';
+
     return `
             <!DOCTYPE html>
             <html>
@@ -133,6 +140,7 @@ export function getLibraryWebViewContent(options: WebViewOptions) {
                         a.appendChild(r);
                     })(window,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');
                 </script>
+                ${whatFix}
             </head>
             
             <body class="${bodyCss}">
