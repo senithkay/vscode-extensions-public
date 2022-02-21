@@ -46,6 +46,14 @@ export function VariableSuggestions(props: VariableSuggestionsProps) {
         if (inputEditorCtx.userInput.includes('.')) {
             variable = resourceAccessRegex.exec(inputEditorCtx.userInput) + suggestion.value;
         }
+        const regExp = /\(([^)]+)\)/;
+        if (regExp.exec(variable)) {
+            const paramArray = regExp.exec(variable)[1].split(',')
+            for (let i = 0; i < paramArray.length; i++) {
+                paramArray[i] = paramArray[i].split(' ').pop()
+            }
+            variable = variable.split('(')[0] + "(" + paramArray.toString() + ")";
+        }
         updateModel(variable, model ? model.position : formModelPosition);
         inputEditorCtx.onInputChange('');
         suggestionHandler();

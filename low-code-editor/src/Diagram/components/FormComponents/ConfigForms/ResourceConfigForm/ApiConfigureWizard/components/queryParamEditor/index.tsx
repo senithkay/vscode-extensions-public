@@ -86,6 +86,9 @@ export function QueryParamEditor(props: QueryParamEditorProps) {
         }
         setAddingQueryParam(false);
         setEditingSegmentId(-1);
+        if (onChange) {
+            onChange(generateQueryParamFromQueryCollection(queryParamCollectionState));
+        }
     };
 
     const onCancel = () => {
@@ -132,13 +135,13 @@ export function QueryParamEditor(props: QueryParamEditorProps) {
     );
 
     const addQueryParamBtnUI = (
-        <div id="">
+        <div>
             <button
                 onClick={addQueryParam}
                 className={classes.addQueryParamBtn}
             >
                 <div className={classes.addQueryParamBtnWrap}>
-                    <AddIcon />
+                    <AddIcon data-testid="add-query-param-button" />
                     <p><FormattedMessage id="lowcode.develop.apiConfigWizard.addQueryParam.title" defaultMessage="Add Query Param" /></p>
                 </div>
             </button>

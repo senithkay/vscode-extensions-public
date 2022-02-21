@@ -19,11 +19,13 @@ import {
     Connector,
     DiagramDiagnostic,
     DiagramEditorLangClientInterface,
+    getImportStatements,
     InsertorDelete,
     LibraryDataResponse,
     LibraryDocResponse,
     LibraryKind,
     LibrarySearchResponse,
+    SentryConfig,
     STModification,
     STSymbolInfo,
     WizardType
@@ -40,6 +42,7 @@ import { DIAGRAM_MODIFIED, LowcodeEvent } from "../Diagram/models";
 import messages from '../lang/en.json';
 import { CirclePreloader } from "../PreLoader/CirclePreloader";
 import { MESSAGE_TYPE } from "../types";
+import { init } from "../utils/sentry";
 
 import { DiagramGenErrorBoundary } from "./ErrorBoundrary";
 import {
@@ -74,6 +77,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     const getLibrariesList: (kind: LibraryKind) => Promise<LibraryDocResponse | undefined> = props.getLibrariesList;
     const getLibrariesData: () => Promise<LibrarySearchResponse | undefined> = props.getLibrariesData;
     const getLibraryData: (orgName: string, moduleName: string, version: string) => Promise<LibraryDataResponse | undefined> = props.getLibraryData;
+    const getSentryConfig: () => Promise<SentryConfig | undefined> = props.getSentryConfig;
 
     const defaultZoomStatus = {
         scale: defaultScale,
@@ -124,6 +128,12 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
             redo();
             return false;
         });
+        (async () => {
+            const sentryConfig: SentryConfig = await getSentryConfig();
+            if (sentryConfig) {
+                init(sentryConfig);
+            }
+        })();
     }, []);
 
     function zoomIn() {
@@ -242,7 +252,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
         <MuiThemeProvider theme={theme}>
             <div className={classes.lowCodeContainer}>
                 <IntlProvider locale='en' defaultLocale='en' messages={messages}>
-                    <DiagramGenErrorBoundary lastUpdatedAt={lastUpdatedAt}>
+                    <DiagramGenErrorBoundary lastUpdatedAt={lastUpdatedAt} >
                         <LowCodeEditor
                             {...missingProps}
                             selectedPosition={selectedPosition}
@@ -258,6 +268,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                 type: "File"
                             }}
                             performanceData={performanceData}
+                            importStatements={getImportStatements(syntaxTree)}
                             experimentalEnabled={experimentalEnabled}
                             // tslint:disable-next-line: jsx-no-multiline-js
                             api={{

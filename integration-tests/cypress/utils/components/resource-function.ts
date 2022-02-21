@@ -40,6 +40,14 @@ export class ResourceFunction {
         })
         return this;
     }
+    
+    public editDiagram() {
+        this.container.within(() => {
+            cy.get('#edit-button')
+                .click();
+        })
+        return this;
+    }
 
 
     public getDiagram(): FunctionDiagram {

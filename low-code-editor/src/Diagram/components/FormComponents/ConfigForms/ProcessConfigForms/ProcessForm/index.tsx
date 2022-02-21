@@ -22,7 +22,6 @@ import { ProcessConfig } from "../../../Types";
 
 import { AddAssignmentConfig } from "./AddAssignmentConfig";
 import { AddCustomStatementConfig } from "./AddCustomStatementConfig";
-import { AddDataMappingConfig } from "./AddDataMappingConfig";
 import { AddLogConfig } from "./AddLogConfig";
 import { AddVariableConfig } from "./AddVariableConfig";
 

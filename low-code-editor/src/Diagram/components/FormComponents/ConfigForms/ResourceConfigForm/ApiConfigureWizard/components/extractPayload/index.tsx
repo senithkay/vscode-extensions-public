@@ -166,7 +166,7 @@ export function PayloadEditor(props: PayloadEditorProps) {
     //     }
     // }
     const variableTypeConfig: VariableTypeInputProps = {
-        displayName: '',
+        displayName: 'Payload type',
         value: segmentState?.type,
         onValueChange: onChangeSegmentType,
         validateExpression,
