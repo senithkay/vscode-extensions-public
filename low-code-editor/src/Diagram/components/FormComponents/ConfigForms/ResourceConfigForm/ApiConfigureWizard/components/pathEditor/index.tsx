@@ -86,6 +86,9 @@ export function PathEditor(props: PathEditorProps) {
         }
         setAddingSegment(false);
         setEditingSegmentId(-1);
+        if (onChange) {
+            onChange(genrateBallerinaResourcePath(pathState));
+        }
     };
 
     const onCancel = () => {
