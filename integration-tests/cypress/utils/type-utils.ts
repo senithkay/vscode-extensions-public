@@ -27,4 +27,4 @@ export type optionNames =
     | "ForEach"
     | "While"
     | "Return"
-    | "Response"
+    | "Respond"

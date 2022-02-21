@@ -25,7 +25,6 @@ import {
     ReturnIcon,
     RespondIcon,
     CustomStatementIcon,
-    DataMapperIcon,
     ConnectorIcon,
     ActionIcon,
 } from "../../../../../../../../assets/icons";
@@ -412,27 +411,7 @@ export function StatementOptions(props: StatementOptionsProps) {
             </Tooltip>
         )
     }
-    // const datamappingStatement: StatementComponent = {
-    //     name: "datamapper",
-    //     category: 'process',
-    //     component: (
-    //         <Tooltip
-    //             title={plusHolderStatementTooltipMessages.dataMapperStatement.title}
-    //             placement="right"
-    //             arrow={true}
-    //             // example={false}
-    //             // codeSnippet={true}
-    //             interactive={true}
-    //         >
-    //             <div className="sub-option enabled" data-testid="addDataMapping" onClick={onSelect.bind(undefined, "DataMapper")}>
-    //                 <div className="icon-wrapper">
-    //                     <DataMapperIcon />
-    //                 </div>
-    //                 <div className="text-label">Data Mapping</div>
-    //             </div>
-    //         </Tooltip>
-    //     )
-    // }
+
     const customStatement: StatementComponent = {
         name: "customStatement",
         category: 'process',

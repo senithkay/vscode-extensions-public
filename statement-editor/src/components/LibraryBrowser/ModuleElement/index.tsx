@@ -20,6 +20,7 @@ import {
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { StatementEditorContext } from "../../../store/statement-editor-context";
+import { getFQModuleName } from "../../../utils/statement-modifications";
 import { useStatementEditorStyles } from "../../styles";
 
 interface ModuleElementProps {
@@ -30,11 +31,6 @@ interface ModuleElementProps {
 
 export function ModuleElement(props: ModuleElementProps) {
     const stmtCtx = useContext(StatementEditorContext);
-    const {
-        library: {
-            getLibraryData
-        }
-    } = stmtCtx;
     const statementEditorClasses = useStatementEditorStyles();
     const { moduleProperty, key, isFunction } = props;
     const { id, moduleId, moduleOrgName, moduleVersion } = moduleProperty;
@@ -42,14 +38,22 @@ export function ModuleElement(props: ModuleElementProps) {
     const {
         modelCtx: {
             currentModel,
-            updateModel
+            updateModel        },
+        formCtx: {
+            formModelPosition
+        },
+        library: {
+            getLibraryData
+        },
+        modules: {
+            updateModuleList
         }
-    } = useContext(StatementEditorContext);
+    } = stmtCtx;
 
     const onClickOnModuleElement = async () => {
         const response: LibraryDataResponse = await getLibraryData(moduleOrgName, moduleId, moduleVersion);
 
-        let content = moduleId.startsWith('lang.') ? `${moduleId.split('.')[1]}:${id}` : `${moduleId}:${id}`;
+        let content = moduleId.includes('.') ? `${moduleId.split('.').pop()}0:${id}` : `${moduleId}:${id}`;
 
         if (isFunction) {
             let functionProperties: LibraryFunction = null;
@@ -63,16 +67,18 @@ export function ModuleElement(props: ModuleElementProps) {
                 const parameters: string[] = [];
                 functionProperties.parameters.map((param: FunctionParams) => {
                     if (param.defaultValue === '') {
-                        parameters.push('PARAM');
+                        parameters.push(param.name);
                     } else {
-                        parameters.push('OPTIONAL_PARAM');
+                        parameters.push(`${param.name}_optional`);
                     }
                 });
 
                 content += `(${parameters.join(',')})`;
             }
         }
-        updateModel(content, currentModel.model.position);
+
+        updateModuleList(`import ${getFQModuleName(moduleOrgName, moduleId)};`);
+        updateModel(content, currentModel.model ? currentModel.model.position : formModelPosition);
     }
 
     return (

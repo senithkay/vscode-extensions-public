@@ -328,10 +328,6 @@ export function getDraftComponentSizes(type: string, subType: string): { h: numb
                     h = PROCESS_SVG_HEIGHT;
                     w = PROCESS_SVG_WIDTH;
                     break;
-                case "DataMapper":
-                    h = PROCESS_SVG_HEIGHT;
-                    w = PROCESS_SVG_WIDTH;
-                    break;
                 case "Variable":
                     h = PROCESS_SVG_HEIGHT;
                     w = PROCESS_SVG_WIDTH;

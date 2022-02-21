@@ -11,17 +11,18 @@
  * associated services.
  */
 // tslint:disable: no-empty jsx-no-multiline-js
-import React from 'react';
+import React, { useState } from 'react';
 
 import { LibraryKind, STModification } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
-import { LowCodeEditorProps } from '../components/ViewContainer/ViewContainer';
+import { LowCodeEditorProps } from '../components/StatementEditor';
 
 import { InputEditorContextProvider } from "./input-editor-context";
 
 export const StatementEditorContext = React.createContext({
     modelCtx: {
+        initialSource: '',
         statementModel: null,
         currentModel: null,
         updateModel: (codeSnippet: string, position: NodePosition) => {}
@@ -43,6 +44,10 @@ export const StatementEditorContext = React.createContext({
         content: "",
         path: "",
         size: 0
+    },
+    modules: {
+        modulesToBeImported: new Set(),
+        updateModuleList: (module: string) => {}
     }
 });
 
@@ -52,7 +57,8 @@ interface CtxProviderProps extends LowCodeEditorProps {
     currentModel: { model: STNode },
     updateModel?: (codeSnippet: string, position: NodePosition) => void,
     formArgs?: any,
-    validateStatement: (isValid: boolean) => void
+    validateStatement: (isValid: boolean) => void,
+    initialSource: string
 }
 
 export const StatementEditorContextProvider = (props: CtxProviderProps) => {
@@ -60,17 +66,30 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
         children,
         model,
         currentModel,
+        importStatements,
         updateModel,
         formArgs,
         validateStatement,
         library,
+        initialSource,
         ...restProps
     } = props;
+
+    const [moduleList, setModuleList] = useState(new Set<string>());
+
+    const moduleHandler = (module: string) => {
+        if (!importStatements.includes(module)) {
+            setModuleList((prevModuleList: Set<string>) => {
+                return new Set(prevModuleList.add(module));
+            });
+        }
+    };
 
     return (
         <StatementEditorContext.Provider
             value={{
                 modelCtx: {
+                    initialSource,
                     statementModel: model,
                     currentModel,
                     updateModel
@@ -82,6 +101,10 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
                     validateStatement
                 },
                 library,
+                modules: {
+                    modulesToBeImported: moduleList,
+                    updateModuleList: moduleHandler
+                },
                 ...restProps
             }}
         >
