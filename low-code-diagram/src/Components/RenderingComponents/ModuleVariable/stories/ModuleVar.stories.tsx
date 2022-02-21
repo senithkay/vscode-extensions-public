@@ -19,7 +19,7 @@ import { ModulePart, ModuleVarDecl, STKindChecker } from '@wso2-enterprise/synta
 import { ModuleVariable } from '..';
 import { Provider } from '../../../../Context/diagram';
 import { LowCodeDiagramProps } from '../../../../Context/types';
-import { getComponentDataPath, getFileContent, getProjectRoot, getST, langClientPromise } from '../../../../stories/story-utils';
+import { fetchSyntaxTree, getComponentDataPath, getFileContent, getProjectRoot, langClientPromise } from '../../../../stories/story-utils';
 import { sizingAndPositioning } from '../../../../Utils';
 
 export default {
@@ -53,8 +53,8 @@ const Template: Story<{ f1: string }> = (args: {f1: string }) => {
         const filePath = `${getComponentDataPath(componentName, samplefile1)}`;
 
         async function setSyntaxTree() {
-            const syntaxTree = getST(filePath);
-            setSt(await syntaxTree);
+            const syntaxTree = await fetchSyntaxTree(filePath);
+            setSt(syntaxTree);
         }
         setSyntaxTree();
     }, []);

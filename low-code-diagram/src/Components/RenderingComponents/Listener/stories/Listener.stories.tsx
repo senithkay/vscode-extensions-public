@@ -19,7 +19,7 @@ import { ListenerDeclaration, ModulePart, STKindChecker } from '@wso2-enterprise
 import { Listener } from '..';
 import { Provider } from '../../../../Context/diagram';
 import { LowCodeDiagramProps } from '../../../../Context/types';
-import { getComponentDataPath, getFileContent, getProjectRoot, getST, langClientPromise } from '../../../../stories/story-utils';
+import { fetchSyntaxTree, getComponentDataPath, getFileContent, getProjectRoot, langClientPromise } from '../../../../stories/story-utils';
 import { sizingAndPositioning } from '../../../../Utils';
 
 // tslint:disable-next-line:no-submodule-imports
@@ -56,8 +56,8 @@ const Template: Story<{ f1: string }> = (args: {f1: string }) => {
         const filePath = `${getComponentDataPath(componentName, samplefile1)}`;
 
         async function setSyntaxTree() {
-            const syntaxTree = getST(filePath);
-            setSt(await syntaxTree);
+            const syntaxTree = await fetchSyntaxTree(filePath);
+            setSt(syntaxTree);
         }
         setSyntaxTree();
     }, []);

@@ -44,7 +44,7 @@ export function getComponentDataPath(componentName: string, fileName: string) {
   return devproject.sourceRoot + "Components/RenderingComponents/" + componentName + "/stories/data/" + fileName;
 }
 
-export async function getST(filePath: string) {
+export async function fetchSyntaxTree(filePath: string) {
   const text = await getFileContent(filePath);
   const langClient = await langClientPromise;
   const uri = `file://${filePath}`;
