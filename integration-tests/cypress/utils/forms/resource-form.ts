@@ -40,7 +40,7 @@ export class ResourceForm {
         return this;
     }
 
-    static clickPathSegments() {
+    static clickAddPathSegments() {
         this.getForm()
             .get('[data-testid="add-path-param-button"]')
             .click();
@@ -79,10 +79,80 @@ export class ResourceForm {
         return this;
     }
     
-    static clickQueryParams() {
+    static clickAddQueryParam() {
         this.getForm()
             .get('[data-testid="add-query-param-button"]')
             .click();
+        return this;
+    }
+
+    static clickQueryParam(param: string) {
+        return this.clickParam(param);
+    }
+
+    static clickPathParam(param: string) {
+        return this.clickParam(param);
+    }
+
+    static clickParam(param: string) {
+        this.getForm()
+            .get(`[data-testid=${param}-item]`)
+            .click();
+        return this;
+    }
+
+    static clickIsParam() {
+        this.getForm()
+            .get(`[data-testid="is-param-btn"`)
+            .click();
+        return this;
+    }
+
+    static typeQueryParamType(type: string) {
+        ExpressionEditor
+            .getForField("Type", this.selector)
+            .clear()
+            .type(type)
+            .suggestWidgetShouldBeVisible()
+            .waitForValidations()
+            .clickFirstSuggestion()
+            .waitForValidations()
+        ;
+        return this;
+    }
+
+    static typePathParamType(type: string) {
+        ExpressionEditor
+            .getForField("Select type", this.selector)
+            .clear()
+            .type(type)
+            .suggestWidgetShouldBeVisible()
+            .waitForValidations()
+            .clickFirstSuggestion()
+            .waitForValidations()
+        ;
+        return this;
+    }
+
+    static edit(param: string) {
+        const clearKeyStroke = "{selectall}{del}";
+        this.getForm()
+            .get('[data-testid="api-path-segment"]')
+            .click()
+            .type(clearKeyStroke)
+            .type(param)
+            .get('[data-testid="path-segment-add-btn"]')
+            .click();
+        return this;
+    }
+
+    static typePathParam(param: string) {
+        const clearKeyStroke = "{selectall}{del}";
+        this.getForm()
+            .get('[data-testid="api-path-segment"]')
+            .click()
+            .type(clearKeyStroke)
+            .type(param)
         return this;
     }
 
@@ -93,6 +163,13 @@ export class ResourceForm {
             .click()
             .type(clearKeyStroke)
             .type(param)
+            .get('[data-testid="path-segment-add-btn"]')
+            .click();
+        return this;
+    }
+
+    static savePathParamBtn() {
+        this.getForm()
             .get('[data-testid="path-segment-add-btn"]')
             .click();
         return this;
