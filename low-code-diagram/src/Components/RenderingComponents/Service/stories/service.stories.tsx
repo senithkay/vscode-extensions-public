@@ -19,7 +19,7 @@ import { ModulePart, ServiceDeclaration, STKindChecker } from '@wso2-enterprise/
 import { Service } from '..';
 import { Provider } from '../../../../Context/diagram';
 import { LowCodeDiagramProps } from '../../../../Context/types';
-import { getComponentDataPath, getFileContent, langClientPromise } from '../../../../stories/story-utils';
+import { fetchSyntaxTree, getComponentDataPath, getFileContent, langClientPromise } from '../../../../stories/story-utils';
 import { sizingAndPositioning } from '../../../../Utils';
 
 export default {
@@ -41,11 +41,6 @@ const Template: Story<{ f1: string }> = (args: {f1: string }) => {
         selectedPosition: {
             startColumn: 0,
             startLine: 0
-        },
-        api: {
-            project: {
-                run: () => undefined
-            }
         }
     };
 
@@ -53,39 +48,11 @@ const Template: Story<{ f1: string }> = (args: {f1: string }) => {
 
         const filePath = `${getComponentDataPath(componentName, samplefile1)}`;
 
-        const uri = `file://${filePath}`;
-
-        async function openFileInLS() {
-            const text = await getFileContent(filePath);
-            const langClient = await langClientPromise;
-            await langClient.didOpen({
-                textDocument: {
-                  languageId: "ballerina",
-                  text,
-                  uri,
-                  version: 1
-                }
-            });
-            const syntaxTreeResponse = await langClient.getSyntaxTree({
-                documentIdentifier: {
-                    uri
-                }
-            });
-            setSt(syntaxTreeResponse.syntaxTree);
+        async function setSyntaxTree() {
+            const syntaxTree = await fetchSyntaxTree(filePath);
+            setSt(syntaxTree);
         }
-
-        async function closeFileInLS() {
-            const langClient = await langClientPromise;
-            langClient.didClose({
-                textDocument: {
-                  uri,
-                }
-            });
-        }
-        openFileInLS();
-        return () => {
-            closeFileInLS();
-        }
+        setSyntaxTree();
     }, []);
 
     if (!st) {

@@ -55,26 +55,12 @@ export interface ForeachProps {
 }
 
 export function ForEach(props: ForeachProps) {
-    const {
-        state,
-        actions: {
-            diagramCleanDraw, diagramRedraw, insertComponentStart
-        },
-        api: {
-            code: {
-                gotoSource
-            },
-            edit: {
-                renderEditForm
-            }
-        },
-        props: {
-            syntaxTree,
-            isReadOnly,
-            stSymbolInfo,
-        }
-    } = useContext(Context); // TODO: Get diagramCleanDraw, diagramRedraw from state
-
+    const diagramContext = useContext(Context);
+    const { syntaxTree, isReadOnly, stSymbolInfo } = diagramContext.props;
+    const renderEditForm = diagramContext?.api?.edit?.renderEditForm;
+    const gotoSource = diagramContext?.api?.code?.gotoSource;
+    const state = diagramContext?.state;
+    const { diagramCleanDraw, diagramRedraw, insertComponentStart } = diagramContext.actions;
     const { model } = props;
 
     const [isConfigWizardOpen, setConfigWizardOpen] = useState(false);

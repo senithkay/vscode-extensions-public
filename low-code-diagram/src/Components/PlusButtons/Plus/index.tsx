@@ -40,18 +40,10 @@ export interface PlusStates {
 }
 
 export const PlusButton = (props: PlusProps) => {
-    const {
-        props: {
-            syntaxTree,
-            isReadOnly
-        },
-        api: {
-            edit: {
-                renderPlusWidget
-            }
-        },
-        actions: { diagramCleanDraw, diagramRedraw },
-    } = useContext(Context);
+    const diagramContext = useContext(Context);
+    const { syntaxTree, isReadOnly } = diagramContext.props;
+    const renderPlusWidget = diagramContext?.api?.edit?.renderPlusWidget;
+    const { diagramCleanDraw, diagramRedraw } = diagramContext.actions;
 
     const { overlayId, overlayNode } = useFunctionContext();
 

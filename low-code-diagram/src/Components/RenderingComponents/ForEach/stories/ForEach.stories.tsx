@@ -14,24 +14,25 @@ import React, { useEffect, useState } from 'react';
 
 // tslint:disable-next-line:no-submodule-imports
 import { Story } from '@storybook/react/types-6-0';
-import { ForeachStatement, FunctionDefinition, ModulePart, STKindChecker } from '@wso2-enterprise/syntax-tree';
+import { ForeachStatement, FunctionDefinition,  ModulePart, STKindChecker } from '@wso2-enterprise/syntax-tree';
 
 import { Provider } from '../../../../Context/diagram';
 import { LowCodeDiagramProps } from '../../../../Context/types';
-import { fetchSyntaxTree, getComponentDataPath, getFileContent, getProjectRoot, langClientPromise } from '../../../../stories/story-utils';
+import { fetchSyntaxTree, getComponentDataPath, getFileContent, langClientPromise } from '../../../../stories/story-utils';
 import { sizingAndPositioning } from '../../../../Utils';
+import { Function } from '../../Function';
 
-import { Function, FunctionProps  } from "./../";
+import { ForEach } from "./../";
 
 export default {
-    title: 'Diagram/Component/Function',
-    component: Function,
+    title: 'Diagram/Component/ForEach',
+    component: ForEach,
 };
 
-const componentName = "Function";
+const componentName = "ForEach";
 const samplefile1 = "sample1.bal";
 
-const Template: Story<{ f1: string }> = (args: { f1: string }) => {
+const Template: Story<{ f1: string }> = (args: {f1: string }) => {
 
     const [st, setSt] = useState<ModulePart>(undefined);
 
@@ -45,7 +46,9 @@ const Template: Story<{ f1: string }> = (args: { f1: string }) => {
     };
 
     useEffect(() => {
+
         const filePath = `${getComponentDataPath(componentName, samplefile1)}`;
+
         async function setSyntaxTree() {
             const syntaxTree = await fetchSyntaxTree(filePath);
             setSt(syntaxTree);
@@ -58,18 +61,23 @@ const Template: Story<{ f1: string }> = (args: { f1: string }) => {
     }
 
     const functionST: FunctionDefinition = st && STKindChecker.isFunctionDefinition(st.members[0]) && st.members[0];
-    const visitedST: FunctionDefinition = (functionST && sizingAndPositioning(functionST)) as FunctionDefinition;
+    const foreschST = functionST && STKindChecker.isFunctionBodyBlock(functionST.functionBody)
+                         && STKindChecker.isForeachStatement(functionST.functionBody.statements[0])
+                         && functionST.functionBody.statements[0];
+    const visitedForeachST: ForeachStatement = (foreschST && sizingAndPositioning(foreschST)) as ForeachStatement;
 
+    const visitedST: FunctionDefinition = (functionST && sizingAndPositioning(functionST)) as FunctionDefinition;
     return st &&
     // tslint:disable-next-line: jsx-wrap-multiline
     <>
         <Provider {...providerProps}>
+            <ForEach model={visitedForeachST} />
             <Function model={visitedST} />
         </Provider>
     </>;
 }
 
-export const FunctionComponent = Template.bind({});
-FunctionComponent.args = {
+export const ForEachComponent = Template.bind({});
+ForEachComponent.args = {
     f1: ""
 };

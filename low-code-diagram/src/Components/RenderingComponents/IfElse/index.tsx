@@ -60,26 +60,13 @@ export interface IfElseProps {
 }
 
 export function IfElse(props: IfElseProps) {
-    const {
-        state,
-        actions: {
-            diagramCleanDraw, insertComponentStart
-        },
-        api: {
-            edit: {
-                renderAddForm,
-                renderEditForm
-            },
-            code: {
-                gotoSource
-            }
-        },
-        props: {
-            syntaxTree,
-            stSymbolInfo,
-            isReadOnly
-        }
-    } = useContext(Context);
+    const diagramContext = useContext(Context);
+    const { syntaxTree, isReadOnly, stSymbolInfo } = diagramContext.props;
+    const renderEditForm = diagramContext?.api?.edit?.renderEditForm;
+    const renderAddForm = diagramContext?.api?.edit?.renderAddForm;
+    const gotoSource = diagramContext?.api?.code?.gotoSource;
+    const state = diagramContext?.state;
+    const { diagramCleanDraw, insertComponentStart } = diagramContext.actions;
     const { model, blockViewState, name } = props;
 
     const [isConfigWizardOpen, setConfigWizardOpen] = useState(false);

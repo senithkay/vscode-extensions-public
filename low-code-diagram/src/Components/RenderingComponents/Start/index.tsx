@@ -37,11 +37,8 @@ export interface StartButtonProps {
 }
 
 export function StartButton(props: StartButtonProps) {
-    const {
-        props: {
-            isReadOnly,
-        }
-    } = useContext(Context);
+    const diagramContext = useContext(Context);
+    const { isReadOnly } = diagramContext.props;
 
     const { model } = props;
 

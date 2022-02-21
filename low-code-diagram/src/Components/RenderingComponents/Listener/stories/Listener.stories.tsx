@@ -19,19 +19,16 @@ import { ListenerDeclaration, ModulePart, STKindChecker } from '@wso2-enterprise
 import { Listener } from '..';
 import { Provider } from '../../../../Context/diagram';
 import { LowCodeDiagramProps } from '../../../../Context/types';
-import { getFileContent, getProjectRoot, langClientPromise } from '../../../../stories/story-utils';
+import { fetchSyntaxTree, getComponentDataPath, getFileContent, getProjectRoot, langClientPromise } from '../../../../stories/story-utils';
 import { sizingAndPositioning } from '../../../../Utils';
-
-// tslint:disable-next-line:no-submodule-imports
-
 
 export default {
     title: 'Diagram/Component/Listener',
     component: Listener,
 };
 
-
-const sampleRelPath = "low-code-editor/src/Diagram/components/LowCodeDiagram/Components/RenderingComponents/Listener/stories/data/sample1.bal";
+const componentName = "Listener";
+const samplefile1 = "sample1.bal";
 
 const Template: Story<{ f1: string }> = (args: {f1: string }) => {
 
@@ -43,51 +40,18 @@ const Template: Story<{ f1: string }> = (args: {f1: string }) => {
         selectedPosition: {
             startColumn: 0,
             startLine: 0
-        },
-        api: {
-            project: {
-                run: () => undefined
-            }
         }
     };
 
     useEffect(() => {
 
-        const filePath = `${getProjectRoot()}/${sampleRelPath}`;
+        const filePath = `${getComponentDataPath(componentName, samplefile1)}`;
 
-        const uri = `file://${filePath}`;
-
-        async function openFileInLS() {
-            const text = await getFileContent(filePath);
-            const langClient = await langClientPromise;
-            await langClient.didOpen({
-                textDocument: {
-                  languageId: "ballerina",
-                  text,
-                  uri,
-                  version: 1
-                }
-            });
-            const syntaxTreeResponse = await langClient.getSyntaxTree({
-                documentIdentifier: {
-                    uri
-                }
-            });
-            setSt(syntaxTreeResponse.syntaxTree);
+        async function setSyntaxTree() {
+            const syntaxTree = await fetchSyntaxTree(filePath);
+            setSt(syntaxTree);
         }
-
-        async function closeFileInLS() {
-            const langClient = await langClientPromise;
-            langClient.didClose({
-                textDocument: {
-                  uri,
-                }
-            });
-        }
-        openFileInLS();
-        return () => {
-            closeFileInLS();
-        }
+        setSyntaxTree();
     }, []);
 
     if (!st) {

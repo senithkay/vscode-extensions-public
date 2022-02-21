@@ -56,19 +56,12 @@ export interface WhileProps {
 }
 
 export function While(props: WhileProps) {
-    const {
-        state,
-        actions: { diagramCleanDraw, diagramRedraw, insertComponentStart },
-        props: { syntaxTree,  stSymbolInfo, isReadOnly },
-        api: {
-            edit: {
-                renderEditForm
-            },
-            code: {
-                gotoSource
-            }
-        }
-    } = useContext(Context);
+    const diagramContext = useContext(Context);
+    const { syntaxTree, isReadOnly, stSymbolInfo } = diagramContext.props;
+    const renderEditForm = diagramContext?.api?.edit?.renderEditForm;
+    const gotoSource = diagramContext?.api?.code?.gotoSource;
+    const state = diagramContext?.state;
+    const { diagramCleanDraw, diagramRedraw, insertComponentStart } = diagramContext.actions;
 
     const { model } = props;
 

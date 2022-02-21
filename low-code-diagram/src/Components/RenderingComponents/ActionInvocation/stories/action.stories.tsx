@@ -12,26 +12,27 @@
  */
 import React, { useEffect, useState } from 'react';
 
-// tslint:disable-next-line:no-submodule-imports
+// tslint:disable-next-line: no-submodule-imports
 import { Story } from '@storybook/react/types-6-0';
-import { ForeachStatement, FunctionDefinition, ModulePart, STKindChecker } from '@wso2-enterprise/syntax-tree';
+import { ActionStatement, FunctionDefinition, LocalVarDecl, ModulePart, STKindChecker } from '@wso2-enterprise/syntax-tree';
 
+import { ActionInvocation } from "..";
 import { Provider } from '../../../../Context/diagram';
 import { LowCodeDiagramProps } from '../../../../Context/types';
-import { fetchSyntaxTree, getComponentDataPath, getFileContent, getProjectRoot, langClientPromise } from '../../../../stories/story-utils';
+import { fetchSyntaxTree, getComponentDataPath, getFileContent, langClientPromise } from '../../../../stories/story-utils';
 import { sizingAndPositioning } from '../../../../Utils';
+import { Function } from '../../Function';
 
-import { Function, FunctionProps  } from "./../";
 
 export default {
-    title: 'Diagram/Component/Function',
+    title: 'Diagram/Component/ActionInvocation',
     component: Function,
 };
 
-const componentName = "Function";
+const componentName = "ActionInvocation";
 const samplefile1 = "sample1.bal";
 
-const Template: Story<{ f1: string }> = (args: { f1: string }) => {
+const Template: Story<{ f1: string }> = (args: {f1: string }) => {
 
     const [st, setSt] = useState<ModulePart>(undefined);
 
@@ -45,7 +46,9 @@ const Template: Story<{ f1: string }> = (args: { f1: string }) => {
     };
 
     useEffect(() => {
+
         const filePath = `${getComponentDataPath(componentName, samplefile1)}`;
+
         async function setSyntaxTree() {
             const syntaxTree = await fetchSyntaxTree(filePath);
             setSt(syntaxTree);
@@ -58,18 +61,30 @@ const Template: Story<{ f1: string }> = (args: { f1: string }) => {
     }
 
     const functionST: FunctionDefinition = st && STKindChecker.isFunctionDefinition(st.members[0]) && st.members[0];
+    const connectorST = functionST && STKindChecker.isFunctionBodyBlock(functionST.functionBody)
+                         && STKindChecker.isLocalVarDecl(functionST.functionBody.statements[0])
+                         && functionST.functionBody.statements[0];
+    const visitedConnectorST: LocalVarDecl = (connectorST && sizingAndPositioning(connectorST)) as LocalVarDecl;
+
+    const actionST = functionST && STKindChecker.isFunctionBodyBlock(functionST.functionBody)
+                         && STKindChecker.isLocalVarDecl(functionST.functionBody.statements[1])
+                         && functionST.functionBody.statements[1];
+    const visitedActionST: LocalVarDecl = (actionST && sizingAndPositioning(actionST)) as LocalVarDecl;
+
     const visitedST: FunctionDefinition = (functionST && sizingAndPositioning(functionST)) as FunctionDefinition;
 
     return st &&
     // tslint:disable-next-line: jsx-wrap-multiline
     <>
         <Provider {...providerProps}>
+            <ActionInvocation model={visitedConnectorST} />
+            <ActionInvocation model={visitedActionST} />
             <Function model={visitedST} />
         </Provider>
     </>;
 }
 
-export const FunctionComponent = Template.bind({});
-FunctionComponent.args = {
+export const ActionInvocationComponent = Template.bind({});
+ActionInvocationComponent.args = {
     f1: ""
 };

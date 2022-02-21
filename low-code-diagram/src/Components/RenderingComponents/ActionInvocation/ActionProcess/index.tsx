@@ -38,24 +38,14 @@ export interface ProcessorProps {
 }
 
 export function ActionProcessor(props: ProcessorProps) {
-    const {
-        actions: { diagramCleanDraw, diagramRedraw },
-        api: {
-            code: {
-                gotoSource
-            },
-            edit: {
-                renderAddForm,
-                renderConnectorWizard,
-                closeAllOpenedForms
-            }
-        },
-        props: {
-            syntaxTree,
-            stSymbolInfo,
-            isReadOnly,
-        }
-    } = useContext(Context);
+    const diagramContext = useContext(Context);
+    const { isReadOnly, syntaxTree, stSymbolInfo } = diagramContext.props;
+    const renderAddForm = diagramContext?.api?.edit?.renderAddForm;
+    const renderConnectorWizard = diagramContext?.api?.edit?.renderConnectorWizard;
+    const closeAllOpenedForms = diagramContext?.api?.edit?.closeAllOpenedForms;
+    const gotoSource = diagramContext?.api?.code?.gotoSource;
+    const diagramCleanDraw = diagramContext?.actions?.diagramCleanDraw;
+    const diagramRedraw = diagramContext?.actions?.diagramRedraw;
 
     const { functionNode } = useFunctionContext();
     // const { id: appId } = currentApp || {};

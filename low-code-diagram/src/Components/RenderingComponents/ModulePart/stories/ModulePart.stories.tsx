@@ -14,21 +14,20 @@ import React, { useEffect, useState } from 'react';
 
 // tslint:disable-next-line:no-submodule-imports
 import { Story } from '@storybook/react/types-6-0';
-import { ForeachStatement, FunctionDefinition, ModulePart, STKindChecker } from '@wso2-enterprise/syntax-tree';
+import { FunctionDefinition, ModulePart, STKindChecker } from '@wso2-enterprise/syntax-tree';
 
+import { ModulePartComponent } from "..";
 import { Provider } from '../../../../Context/diagram';
 import { LowCodeDiagramProps } from '../../../../Context/types';
 import { fetchSyntaxTree, getComponentDataPath, getFileContent, getProjectRoot, langClientPromise } from '../../../../stories/story-utils';
 import { sizingAndPositioning } from '../../../../Utils';
 
-import { Function, FunctionProps  } from "./../";
-
 export default {
-    title: 'Diagram/Component/Function',
-    component: Function,
+    title: 'Diagram/Component/ModulePart',
+    component: ModulePartComponent,
 };
 
-const componentName = "Function";
+const componentName = "ModulePart";
 const samplefile1 = "sample1.bal";
 
 const Template: Story<{ f1: string }> = (args: { f1: string }) => {
@@ -57,19 +56,19 @@ const Template: Story<{ f1: string }> = (args: { f1: string }) => {
         return <></>;
     }
 
-    const functionST: FunctionDefinition = st && STKindChecker.isFunctionDefinition(st.members[0]) && st.members[0];
-    const visitedST: FunctionDefinition = (functionST && sizingAndPositioning(functionST)) as FunctionDefinition;
+    const ModuleVarST: ModulePart = st && STKindChecker.isModulePart(st) && st;
+    const visitedST: ModulePart = (ModuleVarST && sizingAndPositioning(ModuleVarST)) as ModulePart;
 
     return st &&
     // tslint:disable-next-line: jsx-wrap-multiline
     <>
         <Provider {...providerProps}>
-            <Function model={visitedST} />
+            <ModulePartComponent model={visitedST} />
         </Provider>
     </>;
 }
 
-export const FunctionComponent = Template.bind({});
-FunctionComponent.args = {
+export const ModulePartComp = Template.bind({});
+ModulePartComp.args = {
     f1: ""
 };

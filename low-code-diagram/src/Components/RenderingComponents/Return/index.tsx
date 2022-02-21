@@ -37,26 +37,12 @@ export interface ReturnProps {
 }
 
 export function Return(props: ReturnProps) {
-    const {
-        actions: {
-            diagramCleanDraw
-        },
-        props: {
-            syntaxTree,
-            stSymbolInfo,
-            isReadOnly,
-        },
-        api: {
-            edit: {
-                renderAddForm,
-                renderEditForm
-            },
-            code: {
-                gotoSource
-            }
-
-        }
-    } = useContext(Context);
+    const diagramContext = useContext(Context);
+    const { isReadOnly, syntaxTree, stSymbolInfo } = diagramContext.props;
+    const diagramCleanDraw = diagramContext?.actions.diagramCleanDraw;
+    const renderEditForm = diagramContext?.api?.edit?.renderEditForm;
+    const renderAddForm = diagramContext?.api?.edit?.renderAddForm;
+    const gotoSource = diagramContext?.api?.code?.gotoSource;
 
     const { model, blockViewState } = props;
 

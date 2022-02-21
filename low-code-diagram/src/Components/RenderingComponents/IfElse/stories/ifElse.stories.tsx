@@ -14,24 +14,24 @@ import React, { useEffect, useState } from 'react';
 
 // tslint:disable-next-line:no-submodule-imports
 import { Story } from '@storybook/react/types-6-0';
-import { ForeachStatement, FunctionDefinition, ModulePart, STKindChecker } from '@wso2-enterprise/syntax-tree';
+import { FunctionDefinition,  IfElseStatement,  ModulePart, STKindChecker } from '@wso2-enterprise/syntax-tree';
 
+import { IfElse } from "..";
 import { Provider } from '../../../../Context/diagram';
 import { LowCodeDiagramProps } from '../../../../Context/types';
-import { fetchSyntaxTree, getComponentDataPath, getFileContent, getProjectRoot, langClientPromise } from '../../../../stories/story-utils';
+import { fetchSyntaxTree, getComponentDataPath, getFileContent, langClientPromise } from '../../../../stories/story-utils';
 import { sizingAndPositioning } from '../../../../Utils';
-
-import { Function, FunctionProps  } from "./../";
+import { Function } from '../../Function';
 
 export default {
-    title: 'Diagram/Component/Function',
-    component: Function,
+    title: 'Diagram/Component/IfElse',
+    component: IfElse,
 };
 
-const componentName = "Function";
+const componentName = "IfElse";
 const samplefile1 = "sample1.bal";
 
-const Template: Story<{ f1: string }> = (args: { f1: string }) => {
+const Template: Story<{ f1: string }> = (args: {f1: string }) => {
 
     const [st, setSt] = useState<ModulePart>(undefined);
 
@@ -45,7 +45,9 @@ const Template: Story<{ f1: string }> = (args: { f1: string }) => {
     };
 
     useEffect(() => {
+
         const filePath = `${getComponentDataPath(componentName, samplefile1)}`;
+
         async function setSyntaxTree() {
             const syntaxTree = await fetchSyntaxTree(filePath);
             setSt(syntaxTree);
@@ -58,18 +60,24 @@ const Template: Story<{ f1: string }> = (args: { f1: string }) => {
     }
 
     const functionST: FunctionDefinition = st && STKindChecker.isFunctionDefinition(st.members[0]) && st.members[0];
+    const ifelseST = functionST && STKindChecker.isFunctionBodyBlock(functionST.functionBody)
+                         && STKindChecker.isIfElseStatement(functionST.functionBody.statements[0])
+                         && functionST.functionBody.statements[0];
+    const visitedIfST: IfElseStatement = (ifelseST && sizingAndPositioning(ifelseST)) as IfElseStatement;
+
     const visitedST: FunctionDefinition = (functionST && sizingAndPositioning(functionST)) as FunctionDefinition;
 
     return st &&
     // tslint:disable-next-line: jsx-wrap-multiline
     <>
         <Provider {...providerProps}>
+            <IfElse model={visitedIfST} />
             <Function model={visitedST} />
         </Provider>
     </>;
 }
 
-export const FunctionComponent = Template.bind({});
-FunctionComponent.args = {
+export const IfElseComponent = Template.bind({});
+IfElseComponent.args = {
     f1: ""
 };
