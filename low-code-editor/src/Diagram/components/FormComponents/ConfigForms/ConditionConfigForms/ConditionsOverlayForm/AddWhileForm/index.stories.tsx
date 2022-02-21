@@ -44,8 +44,7 @@ const api = {
         gotoSource: dummyFunction,
         isMutationInProgress: false,
         isModulePullInProgress: false,
-        loaderText: '',
-        importStatements: ['']
+        loaderText: ''
     },
     splitPanel: {
         maximize: dummyFunction,
@@ -103,7 +102,8 @@ export const mockedEditorProps = {
     isCodeChangeInProgress: false,
     isReadOnly: false,
     // @ts-ignore
-    zoomStatus: undefined
+    zoomStatus: undefined,
+    importStatements: ['']
 }
 
 const Template: Story<WhileProps> = (args: WhileProps) => {
