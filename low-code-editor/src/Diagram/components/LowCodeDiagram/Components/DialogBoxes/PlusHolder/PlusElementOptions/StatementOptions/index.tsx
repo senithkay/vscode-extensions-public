@@ -149,7 +149,7 @@ export function StatementOptions(props: StatementOptionsProps) {
     const onSelectStatement = (type: string) => {
         onSelect(type);
     }
-    
+
 
     const onConnectorClick = (type: string) => {
         const event: LowcodeEvent = {

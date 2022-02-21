@@ -28,7 +28,7 @@ import { LocalVarDecl } from "@wso2-enterprise/syntax-tree";
 import { FilterIcon } from "../../../../../assets/icons";
 import { Context } from "../../../../../Contexts/Diagram";
 import { UserState } from "../../../../../types";
-import { SELECT_CONNECTOR, LowcodeEvent, LOAD_CONNECTOR_LIST } from "../../../../models";
+import { LOAD_CONNECTOR_LIST, LowcodeEvent, SELECT_CONNECTOR } from "../../../../models";
 import { APIHeightStates } from "../../../LowCodeDiagram/Components/DialogBoxes/PlusHolder/PlusElements";
 import { PlusViewState } from "../../../LowCodeDiagram/ViewState/plus";
 import { wizardStyles as useFormStyles } from "../style";
@@ -217,7 +217,7 @@ export function Marketplace(props: MarketplaceProps) {
             version: balModule?.package?.version,
             // queryFilterBy needs to added once properly implemented
         }
-        if(selectedCategory){
+        if (selectedCategory){
             customDimensions.queryCategory = selectedCategory;
             const [mainCategory, subCategory] = selectedCategory.split('/');
             customDimensions.mainCategory = mainCategory;
@@ -225,7 +225,7 @@ export function Marketplace(props: MarketplaceProps) {
                 customDimensions.subCategory = subCategory;
             }
         }
-        if(searchQuery){
+        if (searchQuery){
             customDimensions.querySearch = searchQuery;
         }
         const event: LowcodeEvent = {
@@ -236,9 +236,9 @@ export function Marketplace(props: MarketplaceProps) {
     }
 
     const trackFilterChange = () => {
-        if(selectedCategory || searchQuery){
+        if (selectedCategory || searchQuery){
             const customDimensions: any = {}
-            if(selectedCategory){
+            if (selectedCategory){
                 customDimensions.queryCategory = selectedCategory;
                 const [mainCategory, subCategory] = selectedCategory.split('/');
                 customDimensions.mainCategory = mainCategory;
@@ -246,7 +246,7 @@ export function Marketplace(props: MarketplaceProps) {
                     customDimensions.subCategory = subCategory;
                 }
             }
-            if(searchQuery){
+            if (searchQuery){
                 customDimensions.querySearch = searchQuery;
             }
             const event: LowcodeEvent = {
