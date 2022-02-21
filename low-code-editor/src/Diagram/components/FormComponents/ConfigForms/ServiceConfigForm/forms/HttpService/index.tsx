@@ -11,9 +11,13 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, {useReducer, useState} from "react";
+import React, { useReducer, useState } from "react";
 
-import { FormActionButtons } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ExpressionEditorProps} from "@wso2-enterprise/ballerina-expression-editor";
+import {
+    FormActionButtons,
+    FormElementProps
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { ListenerDeclaration, NodePosition, ServiceDeclaration, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
@@ -21,9 +25,8 @@ import { useDiagramContext } from "../../../../../../../Contexts/Diagram";
 import { isServicePathValid } from "../../../../../../../utils/validator";
 import { createImportStatement, createServiceDeclartion, updateServiceDeclartion } from "../../../../../../utils/modification-util";
 import { useStyles as useFormStyles } from "../../../../DynamicConnectorForm/style";
-import ExpressionEditor, {ExpressionEditorProps} from "../../../../FormFieldComponents/ExpressionEditor";
+import { LowCodeExpressionEditor } from "../../../../FormFieldComponents/LowCodeExpressionEditor";
 import { TextLabel } from "../../../../FormFieldComponents/TextField/TextLabel";
-import {FormElementProps} from "../../../../Types";
 
 import { ListenerConfigForm } from "./ListenerConfigForm";
 import { getFormStateFromST, isServiceConfigValid } from "./util";
@@ -162,7 +165,7 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
         <>
             <div className={formClasses.formContentWrapper}>
                 <div className={formClasses.formNameWrapper}>
-                    <ExpressionEditor {...servicePathConfig} />
+                    <LowCodeExpressionEditor {...servicePathConfig} />
                     <TextLabel
                         required={true}
                         textLabelId="lowcode.develop.connectorForms.HTTP.configureNewListener"

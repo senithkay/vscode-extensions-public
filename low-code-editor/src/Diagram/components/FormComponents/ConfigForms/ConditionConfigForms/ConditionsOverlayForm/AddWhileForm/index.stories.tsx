@@ -21,7 +21,7 @@ import {AddWhileForm, WhileProps } from "./index";
 
 
 export default {
-    title: 'Low Code Editor/Diagram/Statements/While',
+    title: 'Low Code Editor/Testing/Diagram/Statements/While',
     component: AddWhileForm,
 };
 
@@ -102,7 +102,8 @@ export const mockedEditorProps = {
     isCodeChangeInProgress: false,
     isReadOnly: false,
     // @ts-ignore
-    zoomStatus: undefined
+    zoomStatus: undefined,
+    importStatements: ['']
 }
 
 const Template: Story<WhileProps> = (args: WhileProps) => {

@@ -23,7 +23,6 @@ import { TextPreLoader } from "../PreLoader/TextPreLoader";
 
 import { FormGenerator, FormGeneratorProps } from "./components/FormComponents/FormGenerator";
 import LowCodeDiagram from "./components/LowCodeDiagram";
-import { DataMapper } from './components/LowCodeDiagram/Components/RenderingComponents/DataMapper';
 import { DiagramDisableState } from "./components/LowCodeDiagram/DiagramState/DiagramDisableState";
 import { DiagramErrorState } from "./components/LowCodeDiagram/DiagramState/DiagramErrorState";
 import { ErrorList } from "./components/LowCodeDiagram/DiagramState/ErrorList";

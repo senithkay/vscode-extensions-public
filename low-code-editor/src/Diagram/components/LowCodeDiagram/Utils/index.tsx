@@ -105,9 +105,6 @@ export function getDraftComponent(viewState: BlockViewState, state: any, insertC
                 case "Variable":
                     draftComponents.push(<DataProcessor model={null} blockViewState={viewState} />);
                     break;
-                case "DataMapper":
-                    draftComponents.push(<DataProcessor model={null} blockViewState={viewState} />);
-                    break;
                 case "Custom":
                     draftComponents.push(<DataProcessor model={null} blockViewState={viewState} />);
                     break;
@@ -186,4 +183,9 @@ export function getNodeSignature(node: STNode): string {
     }
 
     return '';
+}
+
+export function getTargetPositionString(pos: NodePosition) {
+    const { startLine, startColumn, endLine, endColumn } = pos;
+    return `${startLine}.${startColumn}.${endLine}.${endColumn}`
 }

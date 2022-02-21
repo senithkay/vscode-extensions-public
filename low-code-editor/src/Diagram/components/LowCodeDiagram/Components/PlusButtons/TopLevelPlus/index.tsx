@@ -13,8 +13,8 @@
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline object-literal-shorthand align
 import React, { useEffect, useRef, useState } from "react";
 
+import { IconButton } from "@material-ui/core";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
-import classNames from "classnames";
 
 import TopLevelPlusIcon from "../../../../../../assets/icons/TopLevelPlusIcon";
 import Tooltip from "../../../../../../components/TooltipV2";
@@ -103,16 +103,18 @@ export const TopLevelPlus = (props: PlusProps) => {
     }
 
     return (
-        <div className="plus-container" ref={containerElement}>
+        <div className="plus-container" ref={containerElement} target-line={targetPosition.startLine}>
             <div className={'plus-btn-wrapper'} onClick={handlePlusClick}>
                 {
                     !isDocumentEmpty ?
                         <Tooltip type={"heading-content"} placement="right" arrow={true} text={{ content: 'Add Construct' }}>
-                            <div>
+                            <IconButton>
                                 <TopLevelPlusIcon />
-                            </div>
+                            </IconButton>
                         </Tooltip>
-                        : <TopLevelPlusIcon />
+                        :  <IconButton>
+                                <TopLevelPlusIcon />
+                            </IconButton>
                 }
             </div>
             {

@@ -13,12 +13,18 @@
 
 import React, { useState } from "react";
 
-import { DiagramDiagnostic } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import {
+    ExpressionEditorCustomTemplate,
+    ExpressionEditorProps
+} from "@wso2-enterprise/ballerina-expression-editor";
+import {
+    DiagramDiagnostic,
+    FormElementProps
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import {v4 as uuid} from 'uuid';
 
-import ExpressionEditor, { ExpressionEditorCustomTemplate, ExpressionEditorProps } from "../../../FormFieldComponents/ExpressionEditor";
-import { FormElementProps } from "../../../Types";
+import { LowCodeExpressionEditor } from "../../../FormFieldComponents/LowCodeExpressionEditor";
 
 import { getVarTypeCompletions } from './utils';
 
@@ -54,6 +60,7 @@ export function VariableTypeInput(props: VariableTypeInputProps) {
     const revertFocus = () => {
         setEditorFocus(false);
     };
+
     const expressionEditorNameConfig: FormElementProps<ExpressionEditorProps> = {
         model: {
             name: "variableType",
@@ -66,7 +73,7 @@ export function VariableTypeInput(props: VariableTypeInputProps) {
             interactive: true,
             editPosition: position,
             customTemplate: overrideTemplate ? overrideTemplate : {
-                defaultCodeSnippet: ` |()  tempVar_${uuid().replaceAll('-', '_')} = ();`,
+                defaultCodeSnippet: `${value === 'var' ? '' : '|()'}  tempVar_${uuid().replaceAll('-', '_')} = ();`,
                 targetColumn: 1
             },
             hideExpand: true,
@@ -87,6 +94,6 @@ export function VariableTypeInput(props: VariableTypeInputProps) {
     };
 
     return (
-        <ExpressionEditor {...expressionEditorNameConfig} />
+        <LowCodeExpressionEditor {...expressionEditorNameConfig} />
     )
 }

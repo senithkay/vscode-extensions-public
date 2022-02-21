@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useEffect, useRef, useState } from "react";
 
-import { Divider, FormControl } from "@material-ui/core";
+import { Box, Button, Divider, FormControl } from "@material-ui/core";
 import { ConfigOverlayFormStatus, FormActionButtons, FormHeaderSection, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FunctionDefinition, NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
@@ -39,14 +39,13 @@ interface FunctionConfigFormProps {
     targetPosition?: NodePosition;
     onCancel: () => void;
     onSave: () => void;
-    formType: string;
     isLastMember?: boolean;
 }
 
 export function FunctionConfigForm(props: FunctionConfigFormProps) {
     const MAIN_TEXT: string = "Main";
     const formClasses = useFormStyles();
-    const { targetPosition, model, onSave, onCancel, formType, configOverlayFormStatus, isLastMember } = props;
+    const { targetPosition, model, onSave, onCancel,   configOverlayFormStatus, isLastMember } = props;
     const isMainFunction: boolean = (configOverlayFormStatus.formName && configOverlayFormStatus.formName === MAIN_TEXT) || (model && model.functionName.value === MAIN_TEXT.toLowerCase());
     const [functionName, setFunctionName] = useState(isMainFunction ? MAIN_TEXT.toLowerCase() : "");
     const [parameters, setParameters] = useState<FunctionParam[]>([]);
@@ -284,7 +283,6 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
                 onCancel={onCancel}
                 formTitle={"lowcode.develop.configForms.functionForms.title"}
                 defaultMessage={"Function"}
-                formType={formType}
             />
             <div className={formClasses.formContentWrapper}>
                 <div className={formClasses.formNameWrapper}>
@@ -303,13 +301,14 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
                                 paramCount={parameters.length}
                             />
                         ) : (
-                            <span
-                                onClick={openNewParamView}
-                                className={formClasses.addPropertyBtn}
-                            >
-                                <AddIcon />
-                                <p>Add parameter</p>
-                            </span>
+                                <Button
+                                    onClick={openNewParamView}
+                                    className={formClasses.addParameterBtn}
+                                    startIcon={<AddIcon />}
+                                    color="primary"
+                                >
+                                    Add parameter
+                                </Button>
                         )}
                     </Section>
                     <Divider className={formClasses.sectionSeperatorHR} />

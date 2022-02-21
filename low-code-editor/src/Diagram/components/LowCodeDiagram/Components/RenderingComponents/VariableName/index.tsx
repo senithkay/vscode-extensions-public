@@ -13,7 +13,8 @@
 // tslint:disable: jsx-no-multiline-js align  jsx-wrap-multiline
 import React, { ReactElement, useEffect, useState } from "react";
 
-import Tooltip from '../../../../../../components/Tooltip';
+import { Tooltip } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+
 import { DefaultConfig } from "../../../../../visitors/default";
 
 import "./style.scss";

@@ -17,7 +17,7 @@ import { BinaryExpression } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
 import { DEFAULT_EXPRESSIONS } from "../../../constants";
-import { VariableUserInputs } from "../../../models/definitions";
+import { SuggestionItem, VariableUserInputs } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { SuggestionsContext } from "../../../store/suggestions-context";
 import {
@@ -26,17 +26,22 @@ import {
     getSuggestionsBasedOnExpressionKind,
     isPositionsEquals
 } from "../../../utils";
+import {
+    addStatementToTargetLine,
+    getContextBasedCompletions
+} from "../../../utils/ls-utils";
 import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
 
 interface BinaryProps {
-    model: BinaryExpression
-    userInputs: VariableUserInputs
-    diagnosticHandler: (diagnostics: string) => void
+    model: BinaryExpression;
+    userInputs: VariableUserInputs;
+    isElseIfMember: boolean;
+    diagnosticHandler: (diagnostics: string) => void;
 }
 
 export function BinaryExpressionComponent(props: BinaryProps) {
-    const { model, userInputs, diagnosticHandler } = props;
+    const { model, userInputs, isElseIfMember, diagnosticHandler } = props;
     const stmtCtx = useContext(StatementEditorContext);
     const { modelCtx } = stmtCtx;
     const { currentModel } = modelCtx;
@@ -49,12 +54,15 @@ export function BinaryExpressionComponent(props: BinaryProps) {
 
     const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
+    const { currentFile, getLangClient } = stmtCtx;
+    const targetPosition = stmtCtx.formCtx.formModelPosition;
+    const fileURI = `expr://${currentFile.path}`;
 
     const lhs: ReactNode = (
         <ExpressionComponent
             model={model.lhsExpr}
-            isRoot={false}
             userInputs={userInputs}
+            isElseIfMember={isElseIfMember}
             diagnosticHandler={diagnosticHandler}
             isTypeDescriptor={false}
         />
@@ -62,8 +70,18 @@ export function BinaryExpressionComponent(props: BinaryProps) {
     const rhs: ReactNode = (
         <ExpressionComponent
             model={model.rhsExpr}
-            isRoot={false}
             userInputs={userInputs}
+            isElseIfMember={isElseIfMember}
+            diagnosticHandler={diagnosticHandler}
+            isTypeDescriptor={false}
+        />
+    );
+
+    const operator: ReactNode = (
+        <ExpressionComponent
+            model={model.operator}
+            userInputs={userInputs}
+            isElseIfMember={isElseIfMember}
             diagnosticHandler={diagnosticHandler}
             isTypeDescriptor={false}
         />
@@ -73,20 +91,45 @@ export function BinaryExpressionComponent(props: BinaryProps) {
 
     const onClickOperator = (event: any) => {
         event.stopPropagation()
-        expressionHandler(model.operator, true, false,
-            { expressionSuggestions: getOperatorSuggestions(kind) })
+        expressionHandler(model.operator, true, false, {
+            expressionSuggestions: getOperatorSuggestions(kind),
+            typeSuggestions: [],
+            variableSuggestions: []
+        });
     }
 
-    const onClickOnLhsExpression = (event: any) => {
-        event.stopPropagation()
-        expressionHandler(model.lhsExpr, false, false,
-            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) })
+    const onClickOnLhsExpression = async (event: any) => {
+        event.stopPropagation();
+
+        const content: string = await addStatementToTargetLine(
+            currentFile.content, targetPosition, stmtCtx.modelCtx.statementModel.source, getLangClient);
+
+        const completions: SuggestionItem[] = await getContextBasedCompletions(
+            fileURI, content, targetPosition, model.lhsExpr.position,
+            false, isElseIfMember, model.lhsExpr.source, getLangClient);
+
+        expressionHandler(model.lhsExpr, false, false, {
+            expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
+            typeSuggestions: [],
+            variableSuggestions: completions
+        });
     };
 
-    const onClickOnRhsExpression = (event: any) => {
-        event.stopPropagation()
-        expressionHandler(model.rhsExpr, false, false,
-            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) })
+    const onClickOnRhsExpression = async (event: any) => {
+        event.stopPropagation();
+
+        const content: string = await addStatementToTargetLine(
+            currentFile.content, targetPosition, stmtCtx.modelCtx.statementModel.source, getLangClient);
+
+        const completions: SuggestionItem[] = await getContextBasedCompletions(
+            fileURI, content, targetPosition, model.rhsExpr.position,
+            false, isElseIfMember, model.rhsExpr.source, getLangClient);
+
+        expressionHandler(model.rhsExpr, false, false, {
+            expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
+            typeSuggestions: [],
+            variableSuggestions: completions
+        });
     };
 
     return (
@@ -107,7 +150,7 @@ export function BinaryExpressionComponent(props: BinaryProps) {
                 )}
                 onClick={onClickOperator}
             >
-                {model.operator.value ? model.operator.value : "operator"}
+                {operator}
             </button>
             <button
                 className={classNames(

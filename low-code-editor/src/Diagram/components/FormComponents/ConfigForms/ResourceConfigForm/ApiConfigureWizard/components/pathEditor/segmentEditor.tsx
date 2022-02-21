@@ -138,7 +138,7 @@ export function PathSegmentEditor(props: PathSegmentEditorProps) {
                     </div>
                     <Grid container={true} item={true} spacing={2}>
                         <Grid item={true} xs={7}>
-                            <CheckBoxGroup values={["Is Parameter"]} defaultValues={[segmentState.isParam ? "Is Parameter" : ""]} onChange={onParamCheckChange} />
+                            <CheckBoxGroup testId={"is-param-btn"} values={["Is Parameter"]} defaultValues={[segmentState.isParam ? "Is Parameter" : ""]} onChange={onParamCheckChange} />
                         </Grid>
                         <Grid item={true} xs={5}>
                             <div className={classes.segmentTypeEditor}>
@@ -156,7 +156,7 @@ export function PathSegmentEditor(props: PathSegmentEditorProps) {
                                     className={classes.actionBtn}
                                 />
                                 <PrimaryButton
-                                    dataTestId={"custom-expression-save-btn"}
+                                    dataTestId={"path-segment-add-btn"}
                                     text={onUpdate ? "Update" : " Add"}
                                     disabled={!segmentState.name || segmentState.name === "" || (segmentState.isParam && (!segmentState.type || segmentState.type === "" || !validSelectedType)) || pathError !== ""}
                                     fullWidth={false}

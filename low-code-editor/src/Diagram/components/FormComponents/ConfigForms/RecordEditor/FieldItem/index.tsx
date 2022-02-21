@@ -44,7 +44,7 @@ export function FieldItem(props: FieldItemProps) {
     };
 
     return (
-        <div className={recordClasses.itemWrapper} onClick={handleEdit}>
+        <div data-field-name={field.name} className={recordClasses.itemWrapper} onClick={handleEdit}>
             <div className={recordClasses.itemContentWrapper}>
                 <div className={recordClasses.itemLabelWrapper}>
                     <Typography
@@ -95,7 +95,7 @@ export function FieldItem(props: FieldItemProps) {
                         <div className={recordClasses.actionBtnWrapper}>
                             <EditButton onClick={handleEdit}/>
                         </div>
-                        <div className={recordClasses.actionBtnWrapper}>
+                        <div data-testid={`delete-${field.name}`} className={recordClasses.actionBtnWrapper}>
                             <DeleteButton onClick={handleDelete}/>
                         </div>
                     </div>

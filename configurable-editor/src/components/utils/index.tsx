@@ -36,11 +36,6 @@ export function instanceOfConfigElement(data: any): boolean {
  * @returns    The corresponding `ConfigType` enum.
  */
 export function getType(type: string): ConfigType {
-    // Handle a possible inconsistency in the language feature.
-    if (type === "number") {
-        type = "integer";
-    }
-
     const keys = Object.keys(ConfigType).filter((x) => ConfigType[x] === type);
     return keys.length > 0 ? ConfigType[keys[0]] : ConfigType.UNSUPPORTED;
 }

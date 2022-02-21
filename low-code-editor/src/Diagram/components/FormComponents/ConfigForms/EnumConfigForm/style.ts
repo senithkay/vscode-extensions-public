@@ -73,7 +73,7 @@ export const enumStyles = makeStyles((theme: Theme) =>
             width: '100%',
         },
         editItemContentWrapper: {
-            padding: 5,
+            padding: "5px 20px 5px 0px",
             margin: 5,
             flexDirection: 'row',
             display: 'flex',
@@ -100,7 +100,10 @@ export const enumStyles = makeStyles((theme: Theme) =>
                 },
                 cursor: "pointer",
                 "& $btnWrapper": {
-                    display: "flex"
+                    display: "flex",
+                    flex: "0 0 12%",
+                    maxWidth: "12%",
+                    marginTop: -6
                 }
             }
         },
@@ -132,7 +135,7 @@ export const enumStyles = makeStyles((theme: Theme) =>
             marginLeft: 3
         },
         editFieldDelBtn: {
-            marginTop: 7,
+            marginTop: -2,
             width: 16
         },
         typeWrapper: {
@@ -226,7 +229,6 @@ export const enumStyles = makeStyles((theme: Theme) =>
                     display: "flex",
                     flexDirection: "row",
                     width: "25%",
-                    marginTop: 8,
                     alignItems: "center"
                 },
                 "& $enumExpandBtnWrapper": {
@@ -235,9 +237,9 @@ export const enumStyles = makeStyles((theme: Theme) =>
                 },
                 "& $typeDefEditBtnWrapper": {
                     display: "flex",
+                    marginTop: -2,
                     flexDirection: "row",
                     width: "10%",
-                    marginTop: 8,
                     justifyContent: "flex-end"
                 }
             }
