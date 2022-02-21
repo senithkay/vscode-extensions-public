@@ -20,16 +20,17 @@ import { useStatementEditorStyles } from "../styles";
 interface SelectDropdownProps {
     values: string[]
     defaultValue: string
-    onSelection?: (value: string) => void
+    onSelection: (value: string) => void
 }
 
 export default function SelectDropdown(props: SelectDropdownProps) {
-    const { values, defaultValue } = props;
+    const { values, defaultValue, onSelection } = props;
     const statementEditorClasses = useStatementEditorStyles();
     const [state, setState] = React.useState(defaultValue);
 
     const handleChange = (event: React.ChangeEvent<{ value: string }>) => {
         setState(event.target.value);
+        onSelection(event.target.value);
     };
 
     const menuItems: React.ReactNode[] = [];

@@ -34,6 +34,9 @@ enum LibraryBrowserMode {
 }
 
 const DEFAULT_SEARCH_SCOPE = "distribution";
+const ALL_LIBS = "All"
+const LANGUAGE_LIBS = "Language"
+const STANDARD_LIBS = "Standard"
 
 export function LibraryBrowser() {
     const statementEditorClasses = useStatementEditorStyles();
@@ -79,35 +82,17 @@ export function LibraryBrowser() {
         setSearchScope(data.searchData.modules[0].id);
     };
 
-    const onLangLibSelection = async () => {
-        const response = await getLibrariesList(LibraryKind.langLib);
+    const onLibSelection = async (value: string) => {
+        let response = await getAllLibrariesList();
+
+        if (value === LANGUAGE_LIBS) {
+            response = await getLibrariesList(LibraryKind.langLib);
+        } else if (value === STANDARD_LIBS) {
+            response = await getLibrariesList(LibraryKind.stdLib);
+        }
 
         if (response) {
             setLibraries(response.librariesList);
-        }
-
-        setLibraryBrowserMode(LibraryBrowserMode.LIB_LIST);
-        setSearchScope(DEFAULT_SEARCH_SCOPE);
-        setKeyword('');
-    };
-
-    const onStdLibSelection = async () => {
-        const response = await getLibrariesList(LibraryKind.stdLib);
-
-        if (response) {
-            setLibraries(response.librariesList);
-        }
-
-        setLibraryBrowserMode(LibraryBrowserMode.LIB_LIST);
-        setSearchScope(DEFAULT_SEARCH_SCOPE);
-        setKeyword('');
-    };
-
-    const onAllLibSelection = async () => {
-        const response = await getAllLibrariesList();
-
-        if (response) {
-            setLibraries(response);
         }
 
         setLibraryBrowserMode(LibraryBrowserMode.LIB_LIST);
@@ -119,23 +104,22 @@ export function LibraryBrowser() {
         const langLibs = await getLibrariesList(LibraryKind.langLib);
         const stdLibs = await getLibrariesList(LibraryKind.stdLib);
         if (langLibs && stdLibs) {
-            return [...langLibs.librariesList, ...stdLibs.librariesList];
+            return {
+                librariesList: [...langLibs.librariesList, ...stdLibs.librariesList]
+            };
         }
-        return [];
+        return {};
     }
 
     return (
         <div className={statementEditorClasses.LibraryBrowser}>
             <div className={statementEditorClasses.LibraryDropdown}>
                 <span className={statementEditorClasses.subHeader}>Libraries</span>
-                {/*TODO: Replace below buttons with a dropdown menu*/}
                 <SelectDropdown
-                    values={['All', 'Language', 'Standard']}
-                    defaultValue={'All'}
+                    values={[ALL_LIBS, LANGUAGE_LIBS, STANDARD_LIBS]}
+                    defaultValue={ALL_LIBS}
+                    onSelection={onLibSelection}
                 />
-                {/*<button onClick={onAllLibSelection}>All</button>*/}
-                {/*<button onClick={onLangLibSelection}>Language</button>*/}
-                {/*<button onClick={onStdLibSelection}>Standard</button>*/}
             </div>
             <input
                 className={statementEditorClasses.librarySearchBox}
