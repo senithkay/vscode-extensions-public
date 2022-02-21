@@ -14,13 +14,13 @@ import React, { useEffect, useState } from 'react';
 
 // tslint:disable-next-line: no-submodule-imports
 import { Story } from '@storybook/react/types-6-0';
-import { FunctionDefinition, ModulePart, STKindChecker } from '@wso2-enterprise/syntax-tree';
+import { ActionStatement, FunctionDefinition, LocalVarDecl, ModulePart, STKindChecker } from '@wso2-enterprise/syntax-tree';
 
 import { ActionInvocation } from "..";
-import { getFileContent, getProjectRoot, getST, langClientPromise } from '../../../../../../../stories/story-utils';
-import { sizingAndPositioning } from '../../../../../../utils/diagram-util';
 import { Provider } from '../../../../Context/diagram';
 import { LowCodeDiagramProps } from '../../../../Context/types';
+import { getComponentDataPath, getFileContent, getST, langClientPromise } from '../../../../stories/story-utils';
+import { sizingAndPositioning } from '../../../../Utils';
 import { Function } from '../../Function';
 
 
@@ -29,8 +29,8 @@ export default {
     component: Function,
 };
 
-
-const sampleRelPath = "low-code-editor/src/Diagram/components/LowCodeDiagram/Components/RenderingComponents/ActionInvocation/stories/data/sample1.bal";
+const componentName = "ActionInvocation";
+const samplefile1 = "sample1.bal";
 
 const Template: Story<{ f1: string }> = (args: {f1: string }) => {
 
@@ -52,7 +52,7 @@ const Template: Story<{ f1: string }> = (args: {f1: string }) => {
 
     useEffect(() => {
 
-        const filePath = `${getProjectRoot()}/${sampleRelPath}`;
+        const filePath = `${getComponentDataPath(componentName, samplefile1)}`;
 
         async function setSyntaxTree() {
             const syntaxTree = getST(filePath);
@@ -66,12 +66,24 @@ const Template: Story<{ f1: string }> = (args: {f1: string }) => {
     }
 
     const functionST: FunctionDefinition = st && STKindChecker.isFunctionDefinition(st.members[0]) && st.members[0];
+    const connectorST = functionST && STKindChecker.isFunctionBodyBlock(functionST.functionBody)
+                         && STKindChecker.isLocalVarDecl(functionST.functionBody.statements[0])
+                         && functionST.functionBody.statements[0];
+    const visitedConnectorST: LocalVarDecl = (connectorST && sizingAndPositioning(connectorST)) as LocalVarDecl;
+
+    const actionST = functionST && STKindChecker.isFunctionBodyBlock(functionST.functionBody)
+                         && STKindChecker.isLocalVarDecl(functionST.functionBody.statements[1])
+                         && functionST.functionBody.statements[1];
+    const visitedActionST: LocalVarDecl = (actionST && sizingAndPositioning(actionST)) as LocalVarDecl;
+
     const visitedST: FunctionDefinition = (functionST && sizingAndPositioning(functionST)) as FunctionDefinition;
 
     return st &&
     // tslint:disable-next-line: jsx-wrap-multiline
     <>
         <Provider {...providerProps}>
+            <ActionInvocation model={visitedConnectorST} />
+            <ActionInvocation model={visitedActionST} />
             <Function model={visitedST} />
         </Provider>
     </>;

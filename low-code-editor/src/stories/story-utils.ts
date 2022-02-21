@@ -35,34 +35,3 @@ export async function updateFileContent(filePath: string, text: string): Promise
 export function getProjectRoot() {
   return balDist.projectRoot;
 }
-
-export async function getST(filePath: string) {
-  const text = await getFileContent(filePath);
-  const langClient = await langClientPromise;
-  const uri = `file://${filePath}`;
-
-  await langClient.didOpen({
-    textDocument: {
-      languageId: "ballerina",
-      text,
-      uri,
-      version: 1
-    }
-  });
-
-  const syntaxTreeResponse = await langClient.getSyntaxTree({
-    documentIdentifier: {
-      uri
-    }
-  });
-
-  const syntaxTree = syntaxTreeResponse.syntaxTree;
-
-  langClient.didClose({
-    textDocument: {
-      uri,
-    }
-  });
-
-  return syntaxTree;
-}

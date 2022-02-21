@@ -1,7 +1,2 @@
-public function ifElseTest() {
-    if true {
-
-    } else {
-
-    }
+public function endTest() {
 }

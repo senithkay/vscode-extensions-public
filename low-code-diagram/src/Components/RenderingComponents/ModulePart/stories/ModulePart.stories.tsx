@@ -12,25 +12,25 @@
  */
 import React, { useEffect, useState } from 'react';
 
-// tslint:disable-next-line: no-submodule-imports
+// tslint:disable-next-line:no-submodule-imports
 import { Story } from '@storybook/react/types-6-0';
-import { ModulePart, STKindChecker } from '@wso2-enterprise/syntax-tree';
+import { FunctionDefinition, ModulePart, STKindChecker } from '@wso2-enterprise/syntax-tree';
 
-import { ModulePartComponent } from '..';
-import { getFileContent, getProjectRoot, getST, langClientPromise } from '../../../../../../../stories/story-utils';
-import { sizingAndPositioning } from '../../../../../../utils/diagram-util';
+import { ModulePartComponent } from "..";
 import { Provider } from '../../../../Context/diagram';
 import { LowCodeDiagramProps } from '../../../../Context/types';
+import { getComponentDataPath, getFileContent, getProjectRoot, getST, langClientPromise } from '../../../../stories/story-utils';
+import { sizingAndPositioning } from '../../../../Utils';
 
 export default {
     title: 'Diagram/Component/ModulePart',
     component: ModulePartComponent,
 };
 
+const componentName = "ModulePart";
+const samplefile1 = "sample1.bal";
 
-const sampleRelPath = "low-code-editor/src/Diagram/components/LowCodeDiagram/Components/RenderingComponents/ModulePart/stories/data/sample1.bal";
-
-const Template: Story<{ f1: string }> = (args: {f1: string }) => {
+const Template: Story<{ f1: string }> = (args: { f1: string }) => {
 
     const [st, setSt] = useState<ModulePart>(undefined);
 
@@ -49,9 +49,7 @@ const Template: Story<{ f1: string }> = (args: {f1: string }) => {
     };
 
     useEffect(() => {
-
-        const filePath = `${getProjectRoot()}/${sampleRelPath}`;
-
+        const filePath = `${getComponentDataPath(componentName, samplefile1)}`;
         async function setSyntaxTree() {
             const syntaxTree = getST(filePath);
             setSt(await syntaxTree);

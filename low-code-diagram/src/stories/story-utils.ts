@@ -43,3 +43,34 @@ export function getSourceRoot() {
 export function getComponentDataPath(componentName: string, fileName: string) {
   return devproject.sourceRoot + "Components/RenderingComponents/" + componentName + "/stories/data/" + fileName;
 }
+
+export async function getST(filePath: string) {
+  const text = await getFileContent(filePath);
+  const langClient = await langClientPromise;
+  const uri = `file://${filePath}`;
+
+  await langClient.didOpen({
+    textDocument: {
+      languageId: "ballerina",
+      text,
+      uri,
+      version: 1
+    }
+  });
+
+  const syntaxTreeResponse = await langClient.getSyntaxTree({
+    documentIdentifier: {
+      uri
+    }
+  });
+
+  const syntaxTree = syntaxTreeResponse.syntaxTree;
+
+  langClient.didClose({
+    textDocument: {
+      uri,
+    }
+  });
+
+  return syntaxTree;
+}

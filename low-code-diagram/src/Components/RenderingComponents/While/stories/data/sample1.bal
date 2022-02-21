@@ -1,5 +1,5 @@
 public function whileTest() {
-    while (true) {
+    while ((10 > 2) && (5 > 1)) {
 
     }
 }

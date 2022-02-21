@@ -17,18 +17,19 @@ import { Story } from '@storybook/react/types-6-0';
 import { FunctionDefinition, ModulePart, ReturnStatement, STKindChecker } from '@wso2-enterprise/syntax-tree';
 
 import { Return } from "..";
-import { getFileContent, getProjectRoot, getST, langClientPromise } from '../../../../../../../stories/story-utils';
-import { sizingAndPositioning } from '../../../../../../utils/diagram-util';
 import { Provider } from '../../../../Context/diagram';
 import { LowCodeDiagramProps } from '../../../../Context/types';
+import { getComponentDataPath, getFileContent, getST, langClientPromise } from '../../../../stories/story-utils';
+import { sizingAndPositioning } from '../../../../Utils';
+import { Function } from '../../Function';
 
 export default {
     title: 'Diagram/Component/Return',
     component: Return,
 };
 
-
-const sampleRelPath = "low-code-editor/src/Diagram/components/LowCodeDiagram/Components/RenderingComponents/Return/stories/data/sample1.bal";
+const componentName = "Return";
+const samplefile1 = "sample1.bal";
 
 const Template: Story<{ f1: string }> = (args: {f1: string }) => {
 
@@ -50,7 +51,7 @@ const Template: Story<{ f1: string }> = (args: {f1: string }) => {
 
     useEffect(() => {
 
-        const filePath = `${getProjectRoot()}/${sampleRelPath}`;
+        const filePath = `${getComponentDataPath(componentName, samplefile1)}`;
 
         async function setSyntaxTree() {
             const syntaxTree = getST(filePath);
@@ -64,6 +65,8 @@ const Template: Story<{ f1: string }> = (args: {f1: string }) => {
     }
 
     const functionST: FunctionDefinition = st && STKindChecker.isFunctionDefinition(st.members[0]) && st.members[0];
+    const visitedFunctionST: FunctionDefinition = (functionST && sizingAndPositioning(functionST)) as FunctionDefinition;
+
     const returnST = functionST && STKindChecker.isFunctionBodyBlock(functionST.functionBody)
                          && STKindChecker.isReturnStatement(functionST.functionBody.statements[0])
                          && functionST.functionBody.statements[0];
@@ -74,6 +77,7 @@ const Template: Story<{ f1: string }> = (args: {f1: string }) => {
     <>
         <Provider {...providerProps}>
             <Return model={visitedST} />
+            <Function model={visitedFunctionST} />
         </Provider>
     </>;
 }

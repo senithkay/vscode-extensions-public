@@ -19,7 +19,7 @@ import { ModulePart, ServiceDeclaration, STKindChecker } from '@wso2-enterprise/
 import { Service } from '..';
 import { Provider } from '../../../../Context/diagram';
 import { LowCodeDiagramProps } from '../../../../Context/types';
-import { getComponentDataPath, getFileContent, langClientPromise } from '../../../../stories/story-utils';
+import { getComponentDataPath, getFileContent, getST, langClientPromise } from '../../../../stories/story-utils';
 import { sizingAndPositioning } from '../../../../Utils';
 
 export default {

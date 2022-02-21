@@ -17,10 +17,10 @@ import { Story } from '@storybook/react/types-6-0';
 import { EofToken, ModulePart, STKindChecker } from '@wso2-enterprise/syntax-tree';
 
 import { End } from "..";
-import { getFileContent, getProjectRoot, getST, langClientPromise } from '../../../../../../../stories/story-utils';
-import { sizingAndPositioning } from '../../../../../../utils/diagram-util';
 import { Provider } from '../../../../Context/diagram';
 import { LowCodeDiagramProps } from '../../../../Context/types';
+import { getComponentDataPath, getFileContent, getST, langClientPromise } from '../../../../stories/story-utils';
+import { sizingAndPositioning } from '../../../../Utils';
 
 export default {
     title: 'Diagram/Component/End',
@@ -28,7 +28,8 @@ export default {
 };
 
 
-const sampleRelPath = "low-code-editor/src/Diagram/components/LowCodeDiagram/Components/RenderingComponents/End/stories/data/sample1.bal";
+const componentName = "End";
+const samplefile1 = "sample1.bal";
 
 const Template: Story<{ f1: string }> = (args: {f1: string }) => {
 
@@ -50,7 +51,7 @@ const Template: Story<{ f1: string }> = (args: {f1: string }) => {
 
     useEffect(() => {
 
-        const filePath = `${getProjectRoot()}/${sampleRelPath}`;
+        const filePath = `${getComponentDataPath(componentName, samplefile1)}`;
 
         async function setSyntaxTree() {
             const syntaxTree = getST(filePath);

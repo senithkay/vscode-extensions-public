@@ -19,14 +19,13 @@ import { ClassDefinition, ModulePart, STKindChecker } from '@wso2-enterprise/syn
 import { ClassComponent } from '..';
 import { Provider } from '../../../../Context/diagram';
 import { LowCodeDiagramProps } from '../../../../Context/types';
-import { getComponentDataPath, getFileContent, langClientPromise } from '../../../../stories/story-utils';
+import { getComponentDataPath, getFileContent, getST, langClientPromise } from '../../../../stories/story-utils';
 import { sizingAndPositioning } from '../../../../Utils';
 
 export default {
     title: 'Diagram/Component/ClassComponent',
     component: ClassComponent,
 };
-
 
 const componentName = "ClassComponent";
 const samplefile1 = "sample1.bal";

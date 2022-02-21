@@ -14,12 +14,12 @@ import React, { useEffect, useState } from 'react';
 
 // tslint:disable-next-line:no-submodule-imports
 import { Story } from '@storybook/react/types-6-0';
-import { FunctionDefinition,  ModulePart, STKindChecker } from '@wso2-enterprise/syntax-tree';
+import { ForeachStatement, FunctionDefinition,  ModulePart, STKindChecker } from '@wso2-enterprise/syntax-tree';
 
-import { getFileContent, getProjectRoot, getST, langClientPromise } from '../../../../../../../stories/story-utils';
-import { sizingAndPositioning } from '../../../../../../utils/diagram-util';
 import { Provider } from '../../../../Context/diagram';
 import { LowCodeDiagramProps } from '../../../../Context/types';
+import { getComponentDataPath, getFileContent, getST, langClientPromise } from '../../../../stories/story-utils';
+import { sizingAndPositioning } from '../../../../Utils';
 import { Function } from '../../Function';
 
 import { ForEach } from "./../";
@@ -29,8 +29,8 @@ export default {
     component: ForEach,
 };
 
-
-const sampleRelPath = "low-code-editor/src/Diagram/components/LowCodeDiagram/Components/RenderingComponents/ForEach/stories/data/sample1.bal";
+const componentName = "ForEach";
+const samplefile1 = "sample1.bal";
 
 const Template: Story<{ f1: string }> = (args: {f1: string }) => {
 
@@ -52,7 +52,7 @@ const Template: Story<{ f1: string }> = (args: {f1: string }) => {
 
     useEffect(() => {
 
-        const filePath = `${getProjectRoot()}/${sampleRelPath}`;
+        const filePath = `${getComponentDataPath(componentName, samplefile1)}`;
 
         async function setSyntaxTree() {
             const syntaxTree = getST(filePath);
@@ -66,12 +66,17 @@ const Template: Story<{ f1: string }> = (args: {f1: string }) => {
     }
 
     const functionST: FunctionDefinition = st && STKindChecker.isFunctionDefinition(st.members[0]) && st.members[0];
-    const visitedST: FunctionDefinition = (functionST && sizingAndPositioning(functionST)) as FunctionDefinition;
+    const foreschST = functionST && STKindChecker.isFunctionBodyBlock(functionST.functionBody)
+                         && STKindChecker.isForeachStatement(functionST.functionBody.statements[0])
+                         && functionST.functionBody.statements[0];
+    const visitedForeachST: ForeachStatement = (foreschST && sizingAndPositioning(foreschST)) as ForeachStatement;
 
+    const visitedST: FunctionDefinition = (functionST && sizingAndPositioning(functionST)) as FunctionDefinition;
     return st &&
     // tslint:disable-next-line: jsx-wrap-multiline
     <>
         <Provider {...providerProps}>
+            <ForEach model={visitedForeachST} />
             <Function model={visitedST} />
         </Provider>
     </>;
