@@ -44,7 +44,6 @@ export { ConnectorList as ConnectorList };
 export { ConnectorForm as Connector };
 export { EndpointList as EndpointList };
 export { ProcessConfigForm as Custom };
-export { ProcessConfigForm as DataMapper };
 export { EndConfigForm as Return };
 export { EndConfigForm as Respond };
 export { ServiceConfigForm as ServiceDeclaration };
