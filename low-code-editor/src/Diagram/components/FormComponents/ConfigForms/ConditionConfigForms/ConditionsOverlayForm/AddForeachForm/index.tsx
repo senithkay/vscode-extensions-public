@@ -26,9 +26,8 @@ import {
     FormHeaderSection
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { Context } from "../../../../../../../Contexts/Diagram";
-import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
 import { getAllVariables } from "../../../../../../utils/mixins";
-import { createForeachStatement, getInitialSource } from "../../../../../../utils/modification-util";
+import { createForeachStatement, createForeachStatementWithBlock, getInitialSource } from "../../../../../../utils/modification-util";
 import { genVariableName } from "../../../../../Portals/utils";
 import { useStyles } from "../../../../DynamicConnectorForm/style";
 import { SelectDropdownWithButton } from "../../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
@@ -63,13 +62,13 @@ export function AddForeachForm(props: ForeachProps) {
             isMutationProgress: isMutationInProgress,
             stSymbolInfo,
             currentFile,
+            importStatements,
             experimentalEnabled
         },
         api: {
             ls: { getExpressionEditorLangClient },
             code: {
-                modifyDiagram,
-                importStatements
+                modifyDiagram
             },
             library
         }
@@ -165,16 +164,16 @@ export function AddForeachForm(props: ForeachProps) {
         expressionEditor: {
             title: intl.formatMessage({
                 id: "lowcode.develop.configForms.forEach.expressionEditor.tooltip.title",
-                defaultMessage: "Enter a Ballerina expression."
+                defaultMessage: "Press CTRL+Spacebar for suggestions."
             }),
             actionText: intl.formatMessage({
                 id: "lowcode.develop.configForms.forEach.expressionEditor.tooltip.actionText",
-                defaultMessage: "Learn Ballerina expressions"
+                defaultMessage: "Learn about Ballerina expressions here"
             }),
             actionLink: intl.formatMessage({
                 id: "lowcode.develop.configForms.forEach.expressionEditor.tooltip.actionTitle",
                 defaultMessage: "{learnBallerina}"
-            }, { learnBallerina: BALLERINA_EXPRESSION_SYNTAX_PATH })
+            }, { learnBallerina: "https://ballerina.io/learn/by-example/foreach-statement.html?is_ref_by_example=true" })
         },
         currentValueVariable: {
             title: intl.formatMessage({
@@ -233,11 +232,18 @@ export function AddForeachForm(props: ForeachProps) {
         defaultValue: conditionExpression.collection
     };
 
-    const initialSource = formArgs.model ? formArgs.model.source : getInitialSource(createForeachStatement(
-        conditionExpression.collection ? conditionExpression.collection : 'EXPRESSION',
-        conditionExpression.variable,
-        selectedType
-    ));
+    const initialSource = formArgs.model ? getInitialSource(createForeachStatementWithBlock(
+                                conditionExpression.collection ? conditionExpression.collection : 'EXPRESSION',
+                                conditionExpression.variable,
+                                selectedType,
+                                (formArgs.model as ForeachStatement).blockStatement.statements.map(statement => {
+                                    return statement.source
+                                })
+                            )) : getInitialSource(createForeachStatement(
+                                conditionExpression.collection ? conditionExpression.collection : 'EXPRESSION',
+                                conditionExpression.variable,
+                                selectedType
+                            ));
 
     const handleStatementEditorChange = (partialModel: ForeachStatement) => {
         conditionExpression.type = partialModel.typedBindingPattern.typeDescriptor.source.trim();
@@ -323,7 +329,7 @@ export function AddForeachForm(props: ForeachProps) {
                             <Typography variant='body2' className={classnames(classes.endCode)}>in</Typography>
                             <div className={classes.formCodeExpressionLargeField}>
                                 <div className={classes.stmtEditorWrapper}>
-                                    <LowCodeExpressionEditor {...expElementProps} hideLabelTooltips={true} />
+                                    <LowCodeExpressionEditor {...expElementProps} />
                                 </div>
                             </div>
                             <Typography variant='body2' className={classes.endCode}>{`{`}</Typography>

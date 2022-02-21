@@ -44,13 +44,13 @@ export function AddReturnForm(props: ReturnFormProps) {
             isMutationProgress: isMutationInProgress,
             currentFile,
             syntaxTree,
+            importStatements,
             experimentalEnabled
         },
         api: {
             ls: { getExpressionEditorLangClient },
             code: {
-                modifyDiagram,
-                importStatements
+                modifyDiagram
             },
             library
         }
@@ -104,19 +104,20 @@ export function AddReturnForm(props: ReturnFormProps) {
     const returnStatementTooltipMessages = {
         title: intl.formatMessage({
             id: "lowcode.develop.configForms.returnStatementTooltipMessages.expressionEditor.tooltip.title",
-            defaultMessage: "Enter a Ballerina expression."
+            defaultMessage: "Press CTRL+Spacebar for suggestions."
         }),
-        actionText: intl.formatMessage({
-            id: "lowcode.develop.configForms.returnStatementTooltipMessages.expressionEditor.tooltip.actionText",
-            defaultMessage: "Learn Ballerina expressions"
-        }),
-        actionLink: intl.formatMessage({
-            id: "lowcode.develop.configForms.returnStatementTooltipMessages.expressionEditor.tooltip.actionTitle",
-            defaultMessage: "{learnBallerina}"
-        }, { learnBallerina: BALLERINA_EXPRESSION_SYNTAX_PATH })
+        // TODO:Uncomment when Ballerina docs are available for Return
+        // actionText: intl.formatMessage({
+        //     id: "lowcode.develop.configForms.returnStatementTooltipMessages.expressionEditor.tooltip.actionText",
+        //     defaultMessage: "Learn about Ballerina expressions here"
+        // }),
+        // actionLink: intl.formatMessage({
+        //     id: "lowcode.develop.configForms.returnStatementTooltipMessages.expressionEditor.tooltip.actionTitle",
+        //     defaultMessage: "{learnBallerina}"
+        // }, { learnBallerina: "https://ballerina.io/learn/by-example/" })
     };
 
-    const initialSource = formArgs.model ? formArgs.model.source : getInitialSource(createReturnStatement(
+    const initialSource = getInitialSource(createReturnStatement(
         returnExpression ? returnExpression as string : 'EXPRESSION'
     ));
 
@@ -162,8 +163,9 @@ export function AddReturnForm(props: ReturnFormProps) {
                             customProps={{
                                 validate: validateExpression,
                                 tooltipTitle: returnStatementTooltipMessages.title,
-                                tooltipActionText: returnStatementTooltipMessages.actionText,
-                                tooltipActionLink: returnStatementTooltipMessages.actionLink,
+                                // TODO:Uncomment when Ballerina docs are available for Return
+                                // tooltipActionText: returnStatementTooltipMessages.actionText,
+                                // tooltipActionLink: returnStatementTooltipMessages.actionLink,
                                 interactive: true,
                                 customTemplate: {
                                     defaultCodeSnippet: 'return ;',

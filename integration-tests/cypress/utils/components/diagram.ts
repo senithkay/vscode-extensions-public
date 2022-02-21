@@ -85,7 +85,7 @@ export class FunctionDiagram {
     }
 
     public clickExistingLogStatement() {
-            cy.get(`.diagram-canvas .main-process-wrapper .process-options-wrapper [data-testid="editBtn"]`)
+        cy.get(`.diagram-canvas .main-process-wrapper .process-options-wrapper [data-testid="editBtn"]`)
             .click({ force: true });
         return this;
     }
@@ -99,7 +99,15 @@ export class FunctionDiagram {
 
     public clickExistingRespondStatement() {
         cy.get(`.diagram-canvas .respond-contect-wrapper [data-testid="editBtn"]`)
-        .click({ force: true });
-    return this;
-}
+            .click({ force: true });
+        return this;
+    }
+
+    public clickDeleteExistingBlockStatement(targetLine: number) {
+        this.container.within(() => {
+            cy.get(`.diagram-canvas .main-process-wrapper[target-line="${targetLine}"] .process-options-wrapper [data-testid="deleteBtn"]`)
+                .click({ force: true });
+        })
+        return this;
+    }
 }
