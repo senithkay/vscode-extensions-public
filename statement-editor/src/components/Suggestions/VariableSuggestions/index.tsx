@@ -52,20 +52,24 @@ export function VariableSuggestions(props: VariableSuggestionsProps) {
     }
 
     return (
-        <div>
-            <div className={statementEditorClasses.subHeader}>Variables</div>
-            {
-                variableSuggestions.map((suggestion: SuggestionItem, index: number) => (
-                    <button
-                        className={statementEditorClasses.suggestionButton}
-                        key={index}
-                        onClick={() => onClickVariableSuggestion(suggestion)}
-                    >
-                        {suggestion.value}
-                        <span className={statementEditorClasses.dataTypeTemplate}>{suggestion.kind}</span>
-                    </button>
-                ))
-            }
-        </div>
+        <>
+            <div className={statementEditorClasses.subHeader}>Suggestions</div>
+            <div className={statementEditorClasses.lsSuggestionList}>
+                {
+                    variableSuggestions.map((suggestion: SuggestionItem, index: number) => (
+                        <button
+                            className={statementEditorClasses.lsSuggestionButton}
+                            key={index}
+                            onClick={() => onClickVariableSuggestion(suggestion)}
+                        >
+                            <ul className={statementEditorClasses.suggestionsContent}>
+                                <li className={statementEditorClasses.suggestionsLabel}>{suggestion.value}</li>
+                                <li className={statementEditorClasses.dataTypeTemplate}>{suggestion.kind}</li>
+                            </ul>
+                        </button>
+                    ))
+                }
+            </div>
+        </>
     );
 }

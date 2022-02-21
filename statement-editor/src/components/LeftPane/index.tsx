@@ -112,17 +112,14 @@ export function LeftPane(props: ModelProps) {
             </div>
             <div className={statementEditorClasses.sugessionsSection}>
                 <div className={statementEditorClasses.sugessionsWrapper}>
-                    <div className={statementEditorClasses.variableSugession}>
                         <div className={statementEditorClasses.contextSensitivePane}>
                             {
                                 (!isTypeDescSuggestion && variableList.length > 0) && (
-                                    <div className={statementEditorClasses.variableSuggestionsInner}>
                                         <VariableSuggestions
                                             model={currentModel.model}
                                             variableSuggestions={variableList}
                                             suggestionHandler={suggestionHandler}
                                         />
-                                    </div>
                                 )
                             }
                             {
@@ -145,7 +142,6 @@ export function LeftPane(props: ModelProps) {
                                 )
                             }
                         </div>
-                    </div>
                 </div>
                 <div className={statementEditorClasses.LibraryBrowsingWrapper}>
                     <LibraryBrowser />

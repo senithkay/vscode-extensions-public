@@ -40,7 +40,6 @@ export const useStatementEditorStyles = makeStyles(() =>
         },
         sugessionsWrapper: {
             width: '50%',
-            height: 'auto',
             padding: theme.spacing(1.5),
             borderRight: '1px solid #e6e7ec'
         },
@@ -54,9 +53,6 @@ export const useStatementEditorStyles = makeStyles(() =>
         statementExpressionContent: {
             paddingTop: theme.spacing(1.5),
             paddingBottom: theme.spacing(1),
-        },
-        variableSugession: {
-            padding: theme.spacing(1.5),
         },
         expressionSugession: {
             padding: theme.spacing(1.5),
@@ -164,13 +160,14 @@ export const useStatementEditorStyles = makeStyles(() =>
             overflowY: 'scroll'
         },
         contextSensitivePane: {
+            display: 'flex',
+            flexDirection: 'column',
+            width: '100%',
+            height: '100%',
             position: 'relative',
-            height: '95%',
-            width: '90%',
-            top: '5%'
-        },
-        variableSuggestionsInner: {
-            overflowY: 'scroll'
+            marginLeft: '5%',
+            marginRight: '5%',
+            paddingRight: '12px'
         },
         diagnosticsPane: {
             color: '#ea4c4d',
@@ -250,19 +247,22 @@ export const useStatementEditorStyles = makeStyles(() =>
             }
         },
         dataTypeTemplate: {
-            // color: '#05A26B',
             color: '#05A26B',
             fontSize: '10px',
             letterSpacing: '-0.2px',
-            lineHeight: '24px',
-            position: 'relative',
             marginLeft: '2px',
             marginTop: '1px',
             boxSizing: 'border-box',
             border: ' 1px #36B475',
             borderStyle: 'solid',
             borderRadius: '3px',
-            padding: '3%'
+            paddingLeft: '2px',
+            paddingRight: '2px',
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            maxWidth: '100%',
+            textOverflow: 'ellipsis',
+            float: 'left'
         },
         addNewExpressionButton: {
             backgroundColor: '#f7f8fb',
@@ -396,6 +396,62 @@ export const useStatementEditorStyles = makeStyles(() =>
             '&:hover': {
                 color: '#3a479c'
             },
+        },
+        lsSuggestionList: {
+            top: '5%',
+            height: '70%',
+            overflowY: 'scroll',
+            overflowX: 'hidden',
+        },
+        lsSuggestionButton: {
+            boxSizing: 'border-box',
+            border: '1px solid #CBCEDB',
+            borderRadius: '4px',
+            whiteSpace: 'nowrap',
+            backgroundColor: 'rgba(255,255,255,0.5)',
+            marginLeft: '2%',
+            marginTop: '3%',
+            color: '#40404B',
+            fontSize: 12,
+            textAlign: 'left',
+            textOverflow: 'ellipsis',
+            padding: '5px 10px',
+            display: 'list-item',
+            listStyleType: 'none',
+            maxWidth: '90%',
+            '&:hover': {
+                backgroundColor: '#8e9bdc',
+                color: 'white'
+            },
+            '&:disabled': {
+                backgroundColor: 'rgba(0,0,0,0.1)',
+                color: '#404040',
+            }
+        },
+        suggestionsLabel: {
+            letterSpacing: 0,
+            textAlign: 'left',
+            whiteSpace: 'nowrap',
+            fontFamily: 'inherit',
+            fontSize: 12,
+            overflow: 'hidden',
+            maxWidth: '100%',
+            textOverflow: 'ellipsis',
+            float: 'left'
+        },
+        expressionSuggestionList: {
+            top: '5%',
+            height: '20%',
+            maxHeight: '100%',
+            overflowY: 'scroll',
+            overflowX: 'hidden',
+        },
+        suggestionsContent: {
+            listStyleType: 'none',
+            margin: '0px',
+            padding: '0px',
+            display: 'flex',
+            flexDirection: 'row'
         }
     }),
 );
