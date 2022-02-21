@@ -23,7 +23,6 @@ import {
     FormElementProps,
     FormHeaderSection
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { createWhileStatement, createWhileStatementWithBlock, getInitialSource } from "../../../../../../utils/modification-util";
 import { ExpressionEditorProps } from "@wso2-enterprise/ballerina-expression-editor";
@@ -88,16 +87,16 @@ export function AddWhileForm(props: WhileProps) {
     const whileStatementTooltipMessages = {
         title: intl.formatMessage({
             id: "lowcode.develop.configForms.whileStatementTooltipMessages.expressionEditor.tooltip.title",
-            defaultMessage: "Enter a Ballerina expression."
+            defaultMessage: "Press CTRL+Spacebar for suggestions."
         }),
         actionText: intl.formatMessage({
             id: "lowcode.develop.configForms.whileStatementTooltipMessages.expressionEditor.tooltip.actionText",
-            defaultMessage: "Learn Ballerina expressions"
+            defaultMessage: "Learn about Ballerina expressions here"
         }),
         actionLink: intl.formatMessage({
             id: "lowcode.develop.configForms.whileStatementTooltipMessages.expressionEditor.tooltip.actionTitle",
             defaultMessage: "{learnBallerina}"
-        }, { learnBallerina: BALLERINA_EXPRESSION_SYNTAX_PATH }),
+        }, { learnBallerina: "https://ballerina.io/learn/by-example/while-statement.html?is_ref_by_example=true" }),
         codeBlockTooltip: intl.formatMessage({
             id: "lowcode.develop.configForms.IFStatementTooltipMessages.expressionEditor.tooltip.codeBlock",
             defaultMessage: "To add code inside the while block, save while statement form and use the diagram add buttons",
@@ -188,7 +187,7 @@ export function AddWhileForm(props: WhileProps) {
                         <div className={classes.formCodeExpressionEndWrapper}>
                             <Typography variant='body2' className={classes.startCode}>while</Typography>
                             <div className={classes.formCodeExpressionField}>
-                                <LowCodeExpressionEditor {...expElementProps} hideLabelTooltips={true} />
+                                <LowCodeExpressionEditor {...expElementProps} />
                             </div>
                             <Typography variant='body2' className={classes.endCode}>{`{`}</Typography>
                         </div>

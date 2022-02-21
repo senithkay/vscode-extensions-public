@@ -25,7 +25,6 @@ import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor"
 import { LocalVarDecl, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../../../Contexts/Diagram";
-import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
 import { ADD_VARIABLE, LowcodeEvent, SAVE_VARIABLE } from "../../../../../../models";
 import { getAllVariables } from "../../../../../../utils/mixins";
 import {
@@ -186,16 +185,16 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         expressionEditor: {
             title: intl.formatMessage({
                 id: "lowcode.develop.configForms.variable.expressionEditor.tooltip.title",
-                defaultMessage: "Enter a Ballerina expression."
+                defaultMessage: "Press CTRL+Spacebar for suggestions."
             }),
             actionText: intl.formatMessage({
                 id: "lowcode.develop.configForms.variable.expressionEditor.tooltip.actionText",
-                defaultMessage: "Learn Ballerina expressions"
+                defaultMessage: "Learn about Ballerina expressions here"
             }),
             actionLink: intl.formatMessage({
                 id: "lowcode.develop.configForms.variable.expressionEditor.tooltip.actionTitle",
                 defaultMessage: "{learnBallerina}"
-            }, { learnBallerina: BALLERINA_EXPRESSION_SYNTAX_PATH })
+            }, { learnBallerina: "https://ballerina.io/1.2/learn/by-example/variables.html?is_ref_by_example=true" })
         }
     };
 
@@ -329,7 +328,6 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
     const expressionEditor = (
         <div className="exp-wrapper">
             <LowCodeExpressionEditor
-                hideLabelTooltips={true}
                 {...expressionEditorConfig}
             />
         </div>
