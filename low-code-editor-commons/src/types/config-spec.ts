@@ -141,6 +141,7 @@ export class ConnectorConfig {
     public initPosition?: NodePosition;
     public isReturnError?: boolean;
     public isConnectionNameUpdated?: boolean;
+    public qualifiers?: string[];
 }
 
 export interface ConfigurationSpec {
