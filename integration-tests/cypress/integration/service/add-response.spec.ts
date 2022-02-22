@@ -40,7 +40,7 @@ describe('add a http service to an empty file', () => {
         ResourceForm
             .selectMethod("GET")
             .selectAdvancedConfig()
-            .clickPathSegments()
+            .clickAddPathSegments()
             .addPathParam("path1")
             .togglePayload()
             .typePayloadType("string")
