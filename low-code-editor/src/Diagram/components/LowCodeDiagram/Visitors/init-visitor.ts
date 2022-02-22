@@ -96,10 +96,8 @@ class InitVisitor implements Visitor {
             const viewState = new ModuleMemberViewState();
             node.viewState = viewState;
         }
-    }
 
-    public endVisitModuleVarDecl(node: ModuleVarDecl) {
-        if (node.viewState && node.typeData && node.typeData.isEndpoint) {
+        if (node.typeData && node.typeData.isEndpoint) {
             const bindingPattern = node.typedBindingPattern.bindingPattern as CaptureBindingPattern;
             if (allEndpoints.get(bindingPattern.variableName.value)) {
                 node.viewState.endpoint.epName = bindingPattern.variableName.value;

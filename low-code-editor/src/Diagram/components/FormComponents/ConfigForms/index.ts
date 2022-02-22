@@ -13,6 +13,7 @@
 
 import { ConnectorForm } from "../ConnectorConfigWizard/Components/ConnectorForm";
 
+import { AddModuleFrom } from "./AddModuleFrom";
 import { APIConfigForm } from "./APIConfigForm";
 import { ConditionConfigForm } from "./ConditionConfigForms";
 import { ConfigurableForm } from "./ConfigurableForm";
@@ -23,7 +24,6 @@ import { EndpointList } from "./EndpointList";
 import { EnumConfigForm } from "./EnumConfigForm";
 import { FunctionConfigForm } from './FunctionConfigForm';
 import { ListenerConfigForm } from "./ListenerConfigForm";
-import { ModuleConnectorForm } from "./ModuleConnectorForm";
 import { ModuleDeclForm } from './ModuleVariableForm';
 import { ProcessConfigForm } from "./ProcessConfigForms";
 import { RecordEditor } from "./RecordEditor";
@@ -56,7 +56,7 @@ export { ConfigurableForm as Configurable };
 export { RecordFromJson as RecordJson };
 export { ListenerConfigForm as ListenerDeclaration };
 export { ConstantConfigForm as ConstDeclaration }
-export { ModuleConnectorForm as ModuleConnectorDecl }
+export { AddModuleFrom as ModuleConnectorDecl }
 export { TypeDefinitionConfigForm as TypeDefinition };
 export { TriggerList as TriggerList };
 export { TriggerForm as TriggerForm };

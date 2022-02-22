@@ -23,7 +23,7 @@ import { ConnectorConfigWizard } from "../../ConnectorConfigWizard";
 import { useStyles as useFormStyles } from "../../DynamicConnectorForm/style";
 import { FormGenerator } from "../../FormGenerator";
 
-interface ModuleConnectorFormProps {
+interface AddModuleFromProps {
     model?: STNode;
     targetPosition?: NodePosition;
     onCancel: () => void;
@@ -31,7 +31,7 @@ interface ModuleConnectorFormProps {
     formType: string;
 }
 
-export function ModuleConnectorForm(props: ModuleConnectorFormProps) {
+export function AddModuleFrom(props: AddModuleFromProps) {
     const formClasses = useFormStyles();
     const {
         api: {
