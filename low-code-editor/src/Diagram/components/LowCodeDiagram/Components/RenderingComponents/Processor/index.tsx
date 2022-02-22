@@ -308,18 +308,12 @@ export function DataProcessor(props: ProcessorProps) {
                         {
                             processType === 'AsyncSend' && <>
                                 <line
-                                    style={{ stroke: 'red', strokeWidth: 3 }}
+                                    style={{ stroke: '#5567D5', strokeWidth: 1 }}
                                     markerEnd="url(#arrowhead)"
                                     x1={viewState.sendLine.x}
                                     y1={viewState.sendLine.y}
                                     x2={viewState.sendLine.x + viewState.sendLine.w}
                                     y2={viewState.sendLine.y}
-                                />
-                                <circle
-                                    style={{ stroke: 'black' }}
-                                    cx={viewState.sendLine.x}
-                                    cy={viewState.sendLine.y}
-                                    r="5"
                                 />
                             </>
                         }

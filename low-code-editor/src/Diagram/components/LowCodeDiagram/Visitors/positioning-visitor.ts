@@ -325,7 +325,7 @@ class PositioningVisitor implements Visitor {
             const sourceViewState = matchedPair.sourceNode.viewState as StatementViewState;
             const targetViewState = matchedPair.targetNode.viewState as StatementViewState;
             sourceViewState.sendLine.x = sourceViewState.bBox.cx + (targetViewState.bBox.cx > sourceViewState.bBox.cx ? 49 / 2 : -49 / 2);
-            sourceViewState.sendLine.y = sourceViewState.bBox.cy + PROCESS_SVG_HEIGHT / 2;
+            sourceViewState.sendLine.y = sourceViewState.bBox.cy + PROCESS_SVG_HEIGHT / 6;
             sourceViewState.sendLine.w = targetViewState.bBox.cx - sourceViewState.bBox.cx + (targetViewState.bBox.cx > sourceViewState.bBox.cx ? -73.5 : 73.5);
         });
 
