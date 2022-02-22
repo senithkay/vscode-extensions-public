@@ -11,6 +11,5 @@
     "chromeWebSecurity": false,
     "video":true,
     "videosFolder": "./cypress/videos",
-    "videoCompression":32,
-    "numTestsKeptInMemory":0
+    "videoCompression":32
 }
