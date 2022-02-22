@@ -49,13 +49,13 @@ export function AddRespondForm(props: RespondFormProps) {
         props: {
             isMutationProgress: isMutationInProgress,
             currentFile,
+            importStatements,
             experimentalEnabled
         },
         api: {
             ls: { getExpressionEditorLangClient },
             code: {
-                modifyDiagram,
-                importStatements
+                modifyDiagram
             },
             library
         }
@@ -128,16 +128,17 @@ export function AddRespondForm(props: RespondFormProps) {
     const respondStatementTooltipMessages = {
         title: intl.formatMessage({
             id: "lowcode.develop.configForms.respondStatementTooltipMessages.expressionEditor.tooltip.title",
-            defaultMessage: "Enter a Ballerina expression."
+            defaultMessage: "Press CTRL+Spacebar for suggestions."
         }),
-        actionText: intl.formatMessage({
-            id: "lowcode.develop.configForms.respondStatementTooltipMessages.expressionEditor.tooltip.actionText",
-            defaultMessage: "Learn Ballerina expressions"
-        }),
-        actionLink: intl.formatMessage({
-            id: "lowcode.develop.configForms.respondStatementTooltipMessages.expressionEditor.tooltip.actionTitle",
-            defaultMessage: "{learnBallerina}"
-        }, { learnBallerina: BALLERINA_EXPRESSION_SYNTAX_PATH })
+        // TODO:Uncomment when Ballerina docs are available for Respond
+        // actionText: intl.formatMessage({
+        //     id: "lowcode.develop.configForms.respondStatementTooltipMessages.expressionEditor.tooltip.actionText",
+        //     defaultMessage: "Learn about Ballerina expressions here"
+        // }),
+        // actionLink: intl.formatMessage({
+        //     id: "lowcode.develop.configForms.respondStatementTooltipMessages.expressionEditor.tooltip.actionTitle",
+        //     defaultMessage: "{learnBallerina}"
+        // }, { learnBallerina: "https://lib.ballerina.io/ballerina/http/1.1.0-beta.1/clients/Caller#respond" })
     };
 
     const statusCodeComp: ReactNode = (
@@ -226,8 +227,9 @@ export function AddRespondForm(props: RespondFormProps) {
                             customProps={{
                                 validate: validateExpression,
                                 tooltipTitle: respondStatementTooltipMessages.title,
-                                tooltipActionText: respondStatementTooltipMessages.actionText,
-                                tooltipActionLink: respondStatementTooltipMessages.actionLink,
+                                // TODO:Uncomment when Ballerina docs are available for Respond
+                                // tooltipActionText: respondStatementTooltipMessages.actionText,
+                                // tooltipActionLink: respondStatementTooltipMessages.actionLink,
                                 interactive: true,
                                 statementType,
                                 customTemplate: {

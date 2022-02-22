@@ -38,7 +38,6 @@ export { default as ScheduleIcon } from "./Schedule";
 export { default as SalesforceIcon } from "./Salesforce";
 export { default as WebhookIcon } from "./Webhook";
 export { default as CustomStatementIcon } from "./CustomStatement";
-export { default as DataMapperIcon } from "./DataMapper";
 // Module level icons
 export { default as ServiceIcon } from './ServiceIcon';
 export { default as Configurable } from './Configurable';
@@ -46,6 +45,7 @@ export { default as ConfigurableIcon } from './Configurable';
 export { default as ServiceDeclaration } from './ServiceIcon';
 export { default as ConstantIcon } from './ConstantIcon';
 export { default as ConstDeclaration } from './ConstantIcon';
+export { default as ModuleConnectorDecl } from './ModuleConnectorIcon';
 export { default as TypeDefinitionIcon } from './RecordIcon';
 export { default as TypeDefinition } from './RecordIcon';
 export { default as RecordEditor } from './RecordIcon';

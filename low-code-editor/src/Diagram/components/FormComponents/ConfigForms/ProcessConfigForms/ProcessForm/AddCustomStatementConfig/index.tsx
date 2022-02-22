@@ -48,13 +48,13 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
         props: {
             isMutationProgress: isMutationInProgress,
             currentFile,
+            importStatements,
             experimentalEnabled
         },
         api: {
             ls: { getExpressionEditorLangClient },
             code: {
-                modifyDiagram,
-                importStatements
+                modifyDiagram
             },
             insights: { onEvent },
             library
@@ -109,16 +109,16 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
     const customStatementTooltipMessages = {
         title: intl.formatMessage({
             id: "lowcode.develop.configForms.customStatement.expressionEditor.tooltip.title",
-            defaultMessage: "Enter a Ballerina expression."
+            defaultMessage: "Press CTRL+Spacebar for suggestions."
         }),
         actionText: intl.formatMessage({
             id: "lowcode.develop.configForms.customStatement.expressionEditor.tooltip.actionText",
-            defaultMessage: "Learn Ballerina expressions"
+            defaultMessage: "Learn about Ballerina expressions here"
         }),
         actionLink: intl.formatMessage({
             id: "lowcode.develop.configForms.customStatement.expressionEditor.tooltip.actionTitle",
             defaultMessage: "{learnBallerina}"
-        }, { learnBallerina: BALLERINA_EXPRESSION_SYNTAX_PATH })
+        }, { learnBallerina: "https://ballerina.io/learn/by-example/" })
     }
 
     const handleStatementEditorChange = (partialModel: STNode) => {
@@ -128,7 +128,7 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
     const { handleStmtEditorToggle, stmtEditorComponent } = useStatementEditor(
         {
             label: intl.formatMessage({ id: "lowcode.develop.configForms.customStatement.statementEditor.label" }),
-            initialSource: formArgs?.model ? formArgs.model?.source : (expression ? expression : null),
+            initialSource: expression ? expression : "EXPRESSION",
             formArgs: { formArgs },
             validForm: isFormValid,
             config,

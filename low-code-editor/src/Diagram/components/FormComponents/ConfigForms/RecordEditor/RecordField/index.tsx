@@ -116,8 +116,10 @@ export function RecordField(props: CodePanelProps) {
             state.currentRecord.isActive = false;
             recordModel.isActive = true;
 
+            if (field.isEditInProgress) {
+                callBacks.onUpdateCurrentField(undefined);
+            }
             callBacks.onUpdateModel(state.recordModel);
-            callBacks.onUpdateCurrentField(undefined);
             callBacks.onChangeFormState(FormState.EDIT_RECORD_FORM);
             callBacks.updateEditorValidity(false);
         }
@@ -237,12 +239,21 @@ export function RecordField(props: CodePanelProps) {
         if (event.key === 'Enter') {
             if (!event.target.value) {
                 state.currentField.name = genRecordName("fieldName", getFieldNames(state.currentRecord.fields));
+                state.currentField.isNameInvalid = false;
             }
-            if (!state.currentField.isNameInvalid) {
+            if (state.currentField.isNameInvalid || !state.currentField.type ||
+                state.currentField.isTypeInvalid) {
+                return;
+            } else {
                 state.currentField.isEditInProgress = false;
                 state.currentField.isActive = true;
                 state.currentField = getNewField();
             }
+        } else if (!(((event.keyCode >= 65) && (event.keyCode <= 90)) || ((event.keyCode >= 97) &&
+            (event.keyCode <= 122)) || ((event.keyCode >= 48) && (event.keyCode <= 57)) || (event.key === "Backspace")
+            || (event.key === "Delete"))) {
+            // Escaping special keys
+            return;
         } else {
             state.currentField.name = event.target.value;
         }
@@ -328,7 +339,7 @@ export function RecordField(props: CodePanelProps) {
         } else if ((field.type !== "record") && (field as SimpleField).isEditInProgress) {
             fieldItems.push(
                 <FieldEditor
-                    field={state.currentField}
+                    field={field as SimpleField}
                     nameError={fieldNameError}
                     onChange={handleFieldEditorChange}
                     onDeleteClick={handleFieldDelete}

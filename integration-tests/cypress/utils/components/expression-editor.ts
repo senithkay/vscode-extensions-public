@@ -10,6 +10,12 @@ export class ExpressionEditor {
         return cy.get(`${this.parentSelector} .exp-container[field-name="${this.fieldName}"] .view-lines`);
     }
 
+    public clickEditor() {
+        cy.get(`${this.parentSelector} .exp-container[field-name="${this.fieldName}"] .view-lines`)
+            .click()
+        return this;
+    }
+
     private getEditorConditions() {
         return cy.get(`${this.parentSelector} .exp-container[field-name="${this.fieldName}"]`);
     }
