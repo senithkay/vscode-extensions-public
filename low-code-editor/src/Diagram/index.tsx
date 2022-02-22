@@ -12,7 +12,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useState } from "react";
- 
+
 import { DefaultConfig, LowCodeDiagram, PlusViewState, ViewState } from "@wso2-enterprise/ballerina-low-code-diagram";
 import { ConfigOverlayFormStatus, ConnectorConfigWizardProps, DiagramOverlayPosition, LowcodeEvent, OPEN_LOW_CODE, PlusWidgetProps, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
