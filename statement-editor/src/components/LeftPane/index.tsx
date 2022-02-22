@@ -56,7 +56,7 @@ export function LeftPane(props: ModelProps) {
     const [variableList, setVariableList] = useState([]);
     const [typeDescriptorList, setTypeDescriptorList] = useState([]);
     const [isTypeDescSuggestion, setIsTypeDescSuggestion] = useState(false);
-    const [selectedTab, setSelectedTab] = useState(TabElements.libraries);
+    const [selectedTab, setSelectedTab] = useState(TabElements.suggestions);
 
     const expressionHandler = (
             cModel: STNode,
@@ -99,7 +99,7 @@ export function LeftPane(props: ModelProps) {
 
     return (
         <div>
-            <div className={statementEditorClasses.sugessionsMainWrapper}>
+            <div className={statementEditorClasses.stmtEditorContentWrapper}>
                 <SuggestionsContext.Provider
                     value={{
                         expressionHandler
@@ -126,53 +126,43 @@ export function LeftPane(props: ModelProps) {
                 <div className={statementEditorClasses.tabPanelWrapper}>
                     <TabPanel
                         values={[TabElements.suggestions, TabElements.expressions, TabElements.libraries]}
-                        defaultValue={TabElements.libraries}
+                        defaultValue={TabElements.suggestions}
                         onSelection={onTabElementSelection}
                     />
                 </div>
-                {/*<div className={statementEditorClasses.sugessionsWrapper}>*/}
-                {/*    <div className={statementEditorClasses.variableSugession}>*/}
-                {/*        <div className={statementEditorClasses.contextSensitivePane}>*/}
-                {/*            {*/}
-                {/*                (!isTypeDescSuggestion && variableList.length > 0) && (*/}
-                {/*                    <div className={statementEditorClasses.variableSuggestionsInner}>*/}
-                {/*                        <VariableSuggestions*/}
-                {/*                            model={currentModel.model}*/}
-                {/*                            variableSuggestions={variableList}*/}
-                {/*                            suggestionHandler={suggestionHandler}*/}
-                {/*                        />*/}
-                {/*                    </div>*/}
-                {/*                )*/}
-                {/*            }*/}
-                {/*            {*/}
-                {/*                (!isTypeDescSuggestion && suggestionList.length > 0) && (*/}
-                {/*                    <ExpressionSuggestions*/}
-                {/*                        model={currentModel.model}*/}
-                {/*                        suggestions={suggestionList}*/}
-                {/*                        operator={isOperator}*/}
-                {/*                        suggestionHandler={suggestionHandler}*/}
-                {/*                    />*/}
-                {/*                )*/}
-                {/*            }*/}
-                {/*            {*/}
-                {/*                isTypeDescSuggestion && (*/}
-                {/*                    <TypeSuggestions*/}
-                {/*                        model={currentModel.model}*/}
-                {/*                        typeSuggestions={typeDescriptorList}*/}
-                {/*                        suggestionHandler={suggestionHandler}*/}
-                {/*                    />*/}
-                {/*                )*/}
-                {/*            }*/}
-                {/*        </div>*/}
-                {/*    </div>*/}
-                {/*</div>*/}
-                {/*<div className={statementEditorClasses.LibraryBrowsingWrapper}>*/}
+                { selectedTab === TabElements.suggestions && (!isTypeDescSuggestion && variableList.length > 0) && (
+                    <div className={statementEditorClasses.suggestionsInner}>
+                        <VariableSuggestions
+                            model={currentModel.model}
+                            variableSuggestions={variableList}
+                            suggestionHandler={suggestionHandler}
+                        />
+                    </div>
+                )}
+                { selectedTab === TabElements.expressions && (!isTypeDescSuggestion && suggestionList.length > 0) && (
+                    <div className={statementEditorClasses.suggestionsInner}>
+                        <ExpressionSuggestions
+                            model={currentModel.model}
+                            suggestions={suggestionList}
+                            operator={isOperator}
+                            suggestionHandler={suggestionHandler}
+                        />
+                    </div>
+                )}
+                { selectedTab === TabElements.suggestions && isTypeDescSuggestion && (
+                    <div className={statementEditorClasses.suggestionsInner}>
+                        <TypeSuggestions
+                            model={currentModel.model}
+                            typeSuggestions={typeDescriptorList}
+                            suggestionHandler={suggestionHandler}
+                        />
+                    </div>
+                )}
                 { selectedTab === TabElements.libraries && (
-                    <div className={statementEditorClasses.constructsWrapper}>
+                    <div className={statementEditorClasses.suggestionsInner}>
                         <LibraryBrowser />
                     </div>
                 )}
-                {/*</div>*/}
             </div>
         </div>
     );

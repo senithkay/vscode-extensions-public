@@ -35,22 +35,12 @@ export const useStatementEditorStyles = makeStyles(() =>
         tabPanelWrapper: {
             width: 'auto'
         },
-        constructsWrapper: {
-            width: 'auto',
-            height: 'auto'
-        },
-        sugessionsMainWrapper: {
+        stmtEditorContentWrapper: {
             backgroundColor: '#f9fafc',
             display: 'flex',
             flexDirection: 'column',
             padding: theme.spacing(1.5),
             borderBottom: '1px solid #e6e7ec'
-        },
-        sugessionsWrapper: {
-            width: '50%',
-            height: 'auto',
-            padding: theme.spacing(1.5),
-            borderRight: '1px solid #e6e7ec'
         },
         LibraryBrowsingWrapper: {
             width: '50%',
@@ -62,9 +52,6 @@ export const useStatementEditorStyles = makeStyles(() =>
         statementExpressionContent: {
             paddingTop: theme.spacing(1.5),
             paddingBottom: theme.spacing(1),
-        },
-        variableSugession: {
-            padding: theme.spacing(1.5),
         },
         expressionSugession: {
             padding: theme.spacing(1.5),
@@ -171,14 +158,9 @@ export const useStatementEditorStyles = makeStyles(() =>
             width: '100%',
             overflowY: 'scroll'
         },
-        contextSensitivePane: {
-            position: 'relative',
-            height: '95%',
-            width: '90%',
-            top: '5%'
-        },
-        variableSuggestionsInner: {
-            overflowY: 'scroll'
+        suggestionsInner: {
+            overflowY: 'scroll',
+            padding: theme.spacing(1.5)
         },
         diagnosticsPane: {
             color: '#ea4c4d',
@@ -344,7 +326,6 @@ export const useStatementEditorStyles = makeStyles(() =>
         },
         libraryBlock: {
             position: 'relative',
-            top: '3%',
             height: '40vh',
             overflowY: 'scroll',
             overflowX: 'hidden'
