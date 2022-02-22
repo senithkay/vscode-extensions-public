@@ -35,8 +35,6 @@ export function sizingAndPositioning(st: STNode): STNode {
 export function recalculateSizingAndPositioning(st: STNode): STNode {
     traversNode(st, sizingVisitor);
     traversNode(st, positionVisitor);
-    // traversNode(st, workerSyncVisitor);
-    positionVisitor.cleanMaps();
     if (STKindChecker.isFunctionDefinition(st) && st?.viewState?.onFail) {
         const viewState = st.viewState as FunctionViewState;
         traversNode(viewState.onFail, sizingVisitor);

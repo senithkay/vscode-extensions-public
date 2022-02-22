@@ -33,4 +33,5 @@ export class StatementViewState extends ViewState {
         this.isAction = false;
         this.isEndpoint = false;
     }
+
 }

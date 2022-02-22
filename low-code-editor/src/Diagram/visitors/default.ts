@@ -190,6 +190,9 @@ export class DiagramConfig {
 
     // function header area height
     functionHeaderHeight = 50;
+
+    // default body width
+    defaultBodyWidth = 150;
 }
 
 export const DefaultConfig = new DiagramConfig();

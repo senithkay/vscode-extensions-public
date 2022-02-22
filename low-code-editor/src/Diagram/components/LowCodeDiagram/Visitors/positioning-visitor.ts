@@ -65,52 +65,34 @@ import {
     WhileViewState
 } from "../ViewState";
 import { WorkerDeclarationViewState } from "../ViewState/worker-declaration";
+import { AsyncReceiveInfo, AsyncSendInfo, SendRecievePairInfo } from "./sizing-visitor";
 
 let allEndpoints: Map<string, Endpoint> = new Map<string, Endpoint>();
 let epCount: number = 0;
 
-interface WorkerMessagingInfo {
-    from: string;
-    to: string;
-    node: STNode;
-}
-
-interface AsyncSendInfo {
-    to: string,
-    node: STNode,
-    paired: boolean
-}
-
-interface AsyncReceiveInfo {
-    from: string,
-    node: STNode,
-    paired: boolean
-}
-
-interface SendRecievePairInfo {
-    sourceName: string;
-    targetName: string;
-    sourceNode: STNode;
-    targetNode: STNode;
-}
-
 class PositioningVisitor implements Visitor {
-    private receiverMap: WorkerMessagingInfo[];
-    private senderMap: WorkerMessagingInfo[];
-    private currentWorker: string[];
-
     private senderReceiverInfo: Map<string, { sends: AsyncSendInfo[], receives: AsyncReceiveInfo[] }>;
+    private currentWorker: string[] = []
 
     constructor() {
-        this.receiverMap = [];
-        this.senderMap = [];
-        this.currentWorker = [];
         this.senderReceiverInfo = new Map();
     }
 
-    public cleanMaps() {
+    private cleanMaps() {
+        this.senderReceiverInfo = new Map();
         this.currentWorker = [];
-        this.senderReceiverInfo.clear();
+    }
+
+    private addToSendReceiveMap(type: 'Send' | 'Receive', entry: AsyncReceiveInfo | AsyncSendInfo) {
+        if (!this.senderReceiverInfo.has(this.currentWorker[this.currentWorker.length - 1])) {
+            this.senderReceiverInfo.set(this.currentWorker[this.currentWorker.length - 1], { sends: [], receives: [] })
+        }
+
+        if (type === 'Send' && 'to' in entry) {
+            this.senderReceiverInfo.get(this.currentWorker[this.currentWorker.length - 1]).sends.push(entry);
+        } else if ('from' in entry) {
+            this.senderReceiverInfo.get(this.currentWorker[this.currentWorker.length - 1]).receives.push(entry);
+        }
     }
 
     public beginVisitModulePart(node: ModulePart) {
@@ -149,7 +131,6 @@ class PositioningVisitor implements Visitor {
 
         viewState.end.bBox.cx = viewState.bBox.cx + viewState.bBox.w / 2;
         viewState.end.bBox.cy = DefaultConfig.startingY + viewState.workerLine.h + DefaultConfig.canvas.childPaddingY;
-
         this.currentWorker.push('function');
     }
 
@@ -172,7 +153,6 @@ class PositioningVisitor implements Visitor {
 
         viewState.end.bBox.cx = viewState.bBox.cx + viewState.bBox.w / 2;
         viewState.end.bBox.cy = viewState.workerLine.y + viewState.workerLine.h + DefaultConfig.canvas.childPaddingY;
-
         this.currentWorker.push(node.workerName.value);
     }
 
@@ -285,15 +265,74 @@ class PositioningVisitor implements Visitor {
             }
         }
         updateConnectorCX(bodyViewState.bBox.w / 2 + widthOfOnFailClause, bodyViewState.bBox.cx, allEndpoints);
+        // this.updateSendArrowPositions();
         // Add the connector max width to the diagram width.
         // viewState.bBox.w = viewState.bBox.w + getMaXWidthOfConnectors(allEndpoints) + widthOfOnFailClause;
-
-        // Update First Control Flow line
-        // this.updateFunctionEdgeControlFlow(viewState, body);
         this.currentWorker.pop();
-        // this.senderMap = this.senderMap.reverse();
-        // this.receiverMap = this.receiverMap.reverse();
-        this.syncSendReceiveNodes();
+        this.updateSendArrowPositions();
+        this.cleanMaps();
+
+    }
+
+    private updateSendArrowPositions() {
+        const matchedStatements: SendRecievePairInfo[] = [];
+
+        // pair up sends with corresponding receives
+        Array.from(this.senderReceiverInfo.keys()).forEach(key => {
+            const workerEntry = this.senderReceiverInfo.get(key);
+
+            workerEntry.sends.forEach(sendInfo => {
+                console.log('>>> send info', sendInfo);
+                if (!sendInfo.paired) {
+                    const matchedReceive = this.senderReceiverInfo.get(sendInfo.to).receives
+                        .find(receiveInfo => receiveInfo.from === key && !receiveInfo.paired)
+
+                    matchedReceive.paired = true;
+                    sendInfo.paired = true;
+
+                    matchedStatements.push({
+                        sourceName: key,
+                        sourceIndex: sendInfo.index,
+                        targetName: sendInfo.to,
+                        sourceNode: sendInfo.node,
+                        targetNode: matchedReceive.node,
+                        targetIndex: matchedReceive.index
+                    });
+                }
+            });
+
+            workerEntry.receives.forEach(receiveInfo => {
+                console.log('>>> recieve info', receiveInfo);
+                if (!receiveInfo.paired) {
+                    const matchedSend = this.senderReceiverInfo.get(receiveInfo.from).sends
+                        .find(senderInfo => senderInfo.to === key && !senderInfo.paired)
+
+                    matchedSend.paired = true;
+                    receiveInfo.paired = true;
+
+                    matchedStatements.push({
+                        sourceName: receiveInfo.from,
+                        sourceIndex: matchedSend.index,
+                        sourceNode: matchedSend.node,
+                        targetName: matchedSend.to,
+                        targetIndex: receiveInfo.index,
+                        targetNode: receiveInfo.node
+                    });
+                }
+            });
+
+            console.log('>>> ============================');
+        });
+
+        matchedStatements.forEach(matchedPair => {
+            const sourceViewState = matchedPair.sourceNode.viewState as StatementViewState;
+            const targetViewState = matchedPair.targetNode.viewState as StatementViewState;
+            sourceViewState.sendLine.x = sourceViewState.bBox.cx + (targetViewState.bBox.cx > sourceViewState.bBox.cx ? 49 / 2 : -49 / 2);
+            sourceViewState.sendLine.y = sourceViewState.bBox.cy
+            sourceViewState.sendLine.w = targetViewState.bBox.cx - sourceViewState.bBox.cx + (targetViewState.bBox.cx > sourceViewState.bBox.cx ? -73.5 : 73.5);
+        });
+
+        debugger;
     }
 
     public endVisitResourceAccessorDefinition(node: ResourceAccessorDefinition) {
@@ -387,9 +426,6 @@ class PositioningVisitor implements Visitor {
                 (node as FunctionBodyBlock).namedWorkerDeclarator.workerInitStatements,
                 blockViewState, height, index, epGap));
 
-            index++;
-            height += PLUS_SVG_HEIGHT + START_SVG_HEIGHT;
-
             (node as FunctionBodyBlock).namedWorkerDeclarator.namedWorkerDeclarations.forEach((workerDecl, i) => {
                 const workerDeclViewState = workerDecl.viewState as WorkerDeclarationViewState;
                 const workerBodyViewState = workerDecl.workerBody.viewState as BlockViewState;
@@ -464,18 +500,6 @@ class PositioningVisitor implements Visitor {
         blockViewState.bBox.h = height;
     }
 
-    private addToSendReceiveMap(type: 'Send' | 'Receive', entry: AsyncReceiveInfo | AsyncSendInfo) {
-        if (!this.senderReceiverInfo.has(this.currentWorker[this.currentWorker.length - 1])) {
-            this.senderReceiverInfo.set(this.currentWorker[this.currentWorker.length - 1], { sends: [], receives: [] })
-        }
-
-        if (type === 'Send' && 'to' in entry) {
-            this.senderReceiverInfo.get(this.currentWorker[this.currentWorker.length - 1]).sends.push(entry);
-        } else if ('from' in entry) {
-            this.senderReceiverInfo.get(this.currentWorker[this.currentWorker.length - 1]).receives.push(entry);
-        }
-    }
-
     private calculateStatementPosition(statements: STNode[], blockViewState: BlockViewState, height: number, index: number, epGap: number) {
         statements.forEach((statement) => {
             const statementViewState: StatementViewState = statement.viewState;
@@ -497,11 +521,11 @@ class PositioningVisitor implements Visitor {
             if (STKindChecker.isActionStatement(statement) && statement.expression.kind === 'AsyncSendAction') {
                 const sendExpression: any = statement.expression;
                 const targetName: string = sendExpression.peerWorker?.name?.value as string;
-                this.addToSendReceiveMap('Send', { to: targetName, node: statement, paired: false });
+                this.addToSendReceiveMap('Send', { to: targetName, node: statement, paired: false, index: index });
             } else if (STKindChecker.isLocalVarDecl(statement) && statement.initializer?.kind === 'ReceiveAction') {
                 const receiverExpression: any = statement.initializer;
                 const senderName: string = receiverExpression.receiveWorkers?.name?.value;
-                this.addToSendReceiveMap('Receive', { from: senderName, node: statement, paired: false });
+                this.addToSendReceiveMap('Receive', { from: senderName, node: statement, paired: false, index: index });
             }
 
             // Control flow execution time
@@ -683,7 +707,7 @@ class PositioningVisitor implements Visitor {
 
                 if ((statementViewState.isEndpoint && statementViewState.isAction && !statementViewState.hidden)
                     || (!statementViewState.collapsed)) {
-                    height += statementViewState.bBox.h;
+                    height += statementViewState.bBox.h + statementViewState.bBox.offsetFromTop + statementViewState.bBox.offsetFromBottom;
                 }
             }
             ++index;
@@ -893,141 +917,6 @@ class PositioningVisitor implements Visitor {
             viewState.lifeLine.y = viewState.bBox.cy - (onFailBlockViewState.bBox.offsetFromBottom);
             viewState.lifeLine.h = viewState.lifeLine.h + onFailBlockViewState.bBox.offsetFromBottom;
         }
-
-    }
-
-    private syncSendReceiveNodes() {
-        const workerSyncOffset: Map<string, number> = new Map();
-        const matchedStatements: SendRecievePairInfo[] = [];
-
-        const keyArray = Array.from(this.senderReceiverInfo.keys());
-
-        keyArray.forEach(key => {
-            const workerEntry = this.senderReceiverInfo.get(key);
-            const tempMatchedStmt: SendRecievePairInfo[] = [];
-
-            workerEntry.sends.forEach(sendInfo => {
-                if (sendInfo.paired) {
-                    return;
-                }
-
-                const matchedReceive = this.senderReceiverInfo.get(sendInfo.to).receives
-                    .find(receiveInfo => receiveInfo.from === key && !receiveInfo.paired)
-
-                matchedReceive.paired = true;
-                sendInfo.paired = true;
-
-                matchedStatements.push({
-                    sourceName: key,
-                    targetName: sendInfo.to,
-                    sourceNode: sendInfo.node,
-                    targetNode: matchedReceive.node
-                });
-            });
-
-            workerEntry.receives.forEach(receiveInfo => {
-                if (receiveInfo.paired) {
-                    return;
-                }
-
-                const matchedSend = this.senderReceiverInfo.get(receiveInfo.from).sends
-                    .find(senderInfo => senderInfo.to === key && !receiveInfo.paired)
-
-                matchedSend.paired = true;
-                receiveInfo.paired = true;
-
-                matchedStatements.push({
-                    sourceName: receiveInfo.from,
-                    targetName: key,
-                    sourceNode: matchedSend.node,
-                    targetNode: receiveInfo.node
-                });
-            });
-        });
-
-        matchedStatements.sort((p1, p2) => {
-            if (p1.targetName === p2.targetName) {
-                // If two pairs has the same receiver (send.workerName is the receiver name) one with
-                // higher lower receiver index (one defined heigher up in the receiver) should be rendered
-                // higher in the list of pairs. Same logic is used for all the cases following.
-                return p1.targetNode.position.startLine - p2.targetNode.position.startLine;
-            }
-            if (p1.targetName === p2.sourceName) {
-                return p1.targetNode.position.startLine - p2.sourceNode.position.startLine;
-            }
-            if (p1.sourceName === p2.targetName) {
-                return p1.sourceNode.position.startLine - p2.targetNode.position.startLine
-            }
-            if (p1.sourceName === p2.sourceName) {
-                return p1.sourceNode.position.startLine - p2.sourceNode.position.startLine;
-            }
-            return 0;
-        });
-
-        debugger;
-
-
-        // this.senderReceiverInfo.entries
-
-        // this.senderMap.forEach(senderInfo => {
-        //     this.receiverMap.forEach((receiverInfo, index) => {
-        //         if (senderInfo.from === receiverInfo.from && senderInfo.to === receiverInfo.to) {
-        //             matchedStatements.push({
-        //                 sourceName: senderInfo.from,
-        //                 targetName: receiverInfo.to,
-        //                 sourceNode: senderInfo.node,
-        //                 targetNode: receiverInfo.node
-        //             });
-
-        //             this.receiverMap.slice(index, 1);
-        //         }
-        //     });
-        // });
-
-        matchedStatements.forEach((senderRecieverPair, i) => {
-            const sourceViewState: StatementViewState = senderRecieverPair.sourceNode.viewState;
-            const targetViewState: StatementViewState = senderRecieverPair.targetNode.viewState;
-
-            let sourceYPosition: number = Number(sourceViewState.bBox.cy);
-            let targetYPosition: number = Number(targetViewState.bBox.cy);
-
-            if (workerSyncOffset.has(senderRecieverPair.sourceName)) {
-                sourceYPosition += workerSyncOffset.get(senderRecieverPair.sourceName);
-            }
-
-            if (workerSyncOffset.has(senderRecieverPair.targetName)) {
-                targetYPosition += workerSyncOffset.get(senderRecieverPair.targetName);
-            }
-
-            if (sourceYPosition >= targetYPosition) {
-                const heightDiff = sourceYPosition - targetYPosition;
-                targetViewState.bBox.cy = sourceYPosition;
-                sourceViewState.bBox.cy = sourceYPosition;
-
-                if (workerSyncOffset.has(senderRecieverPair.targetName)) {
-                    workerSyncOffset.set(senderRecieverPair.targetName,
-                        workerSyncOffset.get(senderRecieverPair.targetName) + heightDiff);
-                } else {
-                    workerSyncOffset.set(senderRecieverPair.targetName, heightDiff);
-                }
-            } else {
-                const heightDiff = targetYPosition - sourceYPosition;
-                sourceViewState.bBox.cy = targetYPosition;
-                targetViewState.bBox.cy = targetYPosition;
-
-                if (workerSyncOffset.has(senderRecieverPair.sourceName)) {
-                    workerSyncOffset.set(senderRecieverPair.sourceName,
-                        workerSyncOffset.get(senderRecieverPair.sourceName) + heightDiff);
-                } else {
-                    workerSyncOffset.set(senderRecieverPair.sourceName, heightDiff);
-                }
-            }
-
-            sourceViewState.sendLine.x = sourceViewState.bBox.cx + (targetViewState.bBox.cx > sourceViewState.bBox.cx ? 49/2 : -49/2);
-            sourceViewState.sendLine.y = sourceViewState.bBox.cy
-            sourceViewState.sendLine.w = targetViewState.bBox.cx - sourceViewState.bBox.cx + (targetViewState.bBox.cx > sourceViewState.bBox.cx ? -73.5 : 73.5)
-
-        });
 
     }
 

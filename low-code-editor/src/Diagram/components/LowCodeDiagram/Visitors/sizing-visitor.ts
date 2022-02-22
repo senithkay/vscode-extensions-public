@@ -35,6 +35,7 @@ import {
     TypeDefinition,
     Visitor, WhileStatement
 } from "@wso2-enterprise/syntax-tree";
+import { debug } from "webpack";
 
 import { isVarTypeDescriptor } from "../../../utils/diagram-util";
 import expandTracker from "../../../utils/expand-tracker";
@@ -61,22 +62,63 @@ import { START_SVG_HEIGHT, START_SVG_WIDTH } from "../Components/RenderingCompon
 import { VARIABLE_NAME_WIDTH } from "../Components/RenderingComponents/VariableName";
 import { WHILE_SVG_HEIGHT, WHILE_SVG_WIDTH } from "../Components/RenderingComponents/While/WhileSVG";
 import { getNodeSignature } from "../Utils";
-import { BlockViewState, CollapseViewState, CompilationUnitViewState, DoViewState, ElseViewState, ForEachViewState, FunctionViewState, IfViewState, OnErrorViewState, PlusViewState, StatementViewState } from "../ViewState";
+import { BlockViewState, CollapseViewState, CompilationUnitViewState, DoViewState, ElseViewState, ForEachViewState, FunctionViewState, IfViewState, OnErrorViewState, PlusViewState, StatementViewState, ViewState } from "../ViewState";
 import { DraftStatementViewState } from "../ViewState/draft";
 import { ModuleMemberViewState } from "../ViewState/module-member";
 import { ServiceViewState } from "../ViewState/service";
 import { WhileViewState } from "../ViewState/while";
 import { WorkerDeclarationViewState } from "../ViewState/worker-declaration";
+import { workerSyncVisitor } from "./worker-sync-visitor";
 
 let allEndpoints: Map<string, Endpoint> = new Map<string, Endpoint>();
 
+export interface AsyncSendInfo {
+    to: string;
+    node: STNode;
+    paired: boolean;
+    index: number;
+}
+
+export interface AsyncReceiveInfo {
+    from: string;
+    node: STNode;
+    paired: boolean;
+    index: number;
+}
+
+export interface SendRecievePairInfo {
+    sourceName: string;
+    sourceNode: STNode;
+    sourceIndex: number;
+    targetName: string;
+    targetNode: STNode;
+    targetIndex: number;
+}
+
+export const DEFAULT_WORKER_NAME = 'function'; // todo: move to appropriate place.
+
 class SizingVisitor implements Visitor {
+    private currentWorker: string[];
+    private senderReceiverInfo: Map<string, { sends: AsyncSendInfo[], receives: AsyncReceiveInfo[] }>;
+    private workerMap: Map<string, NamedWorkerDeclaration>;
+
+    constructor() {
+        this.currentWorker = [];
+        this.senderReceiverInfo = new Map();
+        this.workerMap = new Map();
+    }
 
     public endVisitSTNode(node: STNode, parent?: STNode) {
         if (!node.viewState) {
             return;
         }
         this.sizeStatement(node);
+    }
+
+    public cleanMaps(){
+        this.currentWorker = [];
+        this.senderReceiverInfo = new Map();
+        this.workerMap = new Map();
     }
 
     public beginVisitModulePart(node: ModulePart, parent?: STNode) {
@@ -176,6 +218,8 @@ class SizingVisitor implements Visitor {
                 viewState.initPlus = undefined;
             }
         }
+
+        this.currentWorker.push(DEFAULT_WORKER_NAME);
     }
 
     public beginVisitServiceDeclaration(node: ServiceDeclaration, parent?: STNode) {
@@ -345,6 +389,181 @@ class SizingVisitor implements Visitor {
                 viewState.bBox.w = PLUS_HOLDER_WIDTH;
             }
         }
+
+        this.syncAsyncStatements(node);
+
+        if (bodyViewState.hasWorkerDecl) {
+            Array.from(this.workerMap.keys()).forEach(key => {
+                const workerST = this.workerMap.get(key);
+                const workerVS = workerST.viewState as WorkerDeclarationViewState;
+                const workerBodyVS = workerST.workerBody.viewState as BlockViewState;
+                const workerLifeLine = workerVS.workerLine;
+                const workerTrigger = workerVS.trigger;
+                this.endVisitBlockStatement(workerST.workerBody, workerST);
+
+                workerLifeLine.h = workerTrigger.offsetFromBottom + workerBodyVS.bBox.h;
+
+                if (!workerBodyVS.isEndComponentAvailable
+                    && (STKindChecker.isExpressionFunctionBody(body) || body.statements.length > 0)) {
+                    workerLifeLine.h += end.bBox.offsetFromTop;
+                }
+
+                workerVS.bBox.h = workerLifeLine.h + workerTrigger.h + end.bBox.h + DefaultConfig.serviceVerticalPadding * 2
+                    + DefaultConfig.functionHeaderHeight;
+                workerVS.bBox.w = (workerTrigger.w > workerBodyVS.bBox.w ? workerTrigger.w : workerBodyVS.bBox.w)
+                    + DefaultConfig.serviceFrontPadding + DefaultConfig.serviceRearPadding + allEndpoints.size * 150 * 2;
+
+                if (workerVS.initPlus && workerVS.initPlus.selectedComponent === "PROCESS") {
+                    workerVS.bBox.h += PLUS_HOLDER_STATEMENT_HEIGHT;
+                    if (workerVS.bBox.w < PLUS_HOLDER_WIDTH) {
+                        workerVS.bBox.w = PLUS_HOLDER_WIDTH;
+                    }
+                }
+            })
+            this.endVisitFunctionBodyBlock(body);
+
+            lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h;
+
+            if (STKindChecker.isExpressionFunctionBody(body) || body.statements.length > 0) {
+                lifeLine.h += end.bBox.offsetFromTop;
+            }
+
+            viewState.bBox.h = lifeLine.h + trigger.h + end.bBox.h + DefaultConfig.serviceVerticalPadding * 2 + DefaultConfig.functionHeaderHeight;
+            viewState.bBox.w = (trigger.w > bodyViewState.bBox.w ? trigger.w : bodyViewState.bBox.w)
+                + DefaultConfig.serviceFrontPadding + DefaultConfig.serviceRearPadding + allEndpoints.size * 150 * 2;
+
+            if (viewState.initPlus && viewState.initPlus.selectedComponent === "PROCESS") {
+                viewState.bBox.h += PLUS_HOLDER_STATEMENT_HEIGHT;
+                if (viewState.bBox.w < PLUS_HOLDER_WIDTH) {
+                    viewState.bBox.w = PLUS_HOLDER_WIDTH;
+                }
+            }
+        }
+
+        this.currentWorker.pop();
+        this.cleanMaps();
+    }
+
+    private syncAsyncStatements(funcitonDef: FunctionDefinition) {
+        const matchedStatements: SendRecievePairInfo[] = [];
+        const mainWorkerBody: FunctionBodyBlock = funcitonDef.functionBody as FunctionBodyBlock;
+
+        // pair up sends with corresponding receives
+        Array.from(this.senderReceiverInfo.keys()).forEach(key => {
+            const workerEntry = this.senderReceiverInfo.get(key);
+
+            workerEntry.sends.forEach(sendInfo => {
+                if (sendInfo.paired) {
+                    return;
+                }
+
+                const matchedReceive = this.senderReceiverInfo.get(sendInfo.to).receives
+                    .find(receiveInfo => receiveInfo.from === key && !receiveInfo.paired)
+
+                matchedReceive.paired = true;
+                sendInfo.paired = true;
+
+                matchedStatements.push({
+                    sourceName: key,
+                    sourceIndex: sendInfo.index,
+                    targetName: sendInfo.to,
+                    sourceNode: sendInfo.node,
+                    targetNode: matchedReceive.node,
+                    targetIndex: matchedReceive.index
+                });
+            });
+
+            workerEntry.receives.forEach(receiveInfo => {
+                if (receiveInfo.paired) {
+                    return;
+                }
+
+                const matchedSend = this.senderReceiverInfo.get(receiveInfo.from).sends
+                    .find(senderInfo => senderInfo.to === key && !senderInfo.paired)
+
+                matchedSend.paired = true;
+                receiveInfo.paired = true;
+
+                matchedStatements.push({
+                    sourceName: receiveInfo.from,
+                    sourceIndex: matchedSend.index,
+                    sourceNode: matchedSend.node,
+                    targetName: matchedSend.to,
+                    targetIndex: receiveInfo.index,
+                    targetNode: receiveInfo.node
+                });
+            });
+        });
+
+        // 2. Sort the pairs in the order they should appear top to bottom
+        matchedStatements.sort((p1, p2) => {
+            if (p1.targetName === p2.targetName) {
+                // If two pairs has the same receiver (send.workerName is the receiver name) one with
+                // higher lower receiver index (one defined heigher up in the receiver) should be rendered
+                // higher in the list of pairs. Same logic is used for all the cases following.
+                return 0;
+            }
+            if (p1.targetName === p2.sourceName) {
+                return p1.targetIndex - p2.sourceIndex;
+            }
+            if (p1.sourceName === p2.targetName) {
+                return p1.sourceIndex - p2.targetIndex;
+            }
+            if (p1.sourceName === p2.sourceName) {
+                return p1.sourceIndex - p2.sourceIndex;
+            }
+            return 0;
+        });
+
+
+        matchedStatements.forEach(matchedPair => {
+            let sendHeight = 0;
+            let receiveHeight = 0;
+
+            if (matchedPair.sourceName === DEFAULT_WORKER_NAME) {
+                let index = 0;
+                while (matchedPair.sourceIndex !== index) {
+                    const viewState: ViewState = mainWorkerBody.statements[index].viewState as ViewState;
+                    sendHeight += viewState.getHeight();
+                    index++;
+                }
+            } else {
+                const workerDecl = this.workerMap.get(matchedPair.sourceName) as NamedWorkerDeclaration;
+                let index = 0;
+                while (matchedPair.sourceIndex !== index) {
+                    const viewState: ViewState = workerDecl.workerBody.statements[index].viewState as ViewState;
+                    sendHeight += viewState.getHeight();
+                    index++;
+                }
+
+            }
+
+            if (matchedPair.targetName === DEFAULT_WORKER_NAME) {
+                let index = 0;
+                while (matchedPair.targetIndex !== index) {
+                    const viewState: ViewState = mainWorkerBody.statements[index].viewState as ViewState;
+                    receiveHeight += viewState.getHeight();
+                    index++;
+                }
+            } else {
+                const workerDecl = this.workerMap.get(matchedPair.targetName) as NamedWorkerDeclaration;
+                let index = 0;
+                while (matchedPair.targetIndex !== index) {
+                    const viewState: ViewState = workerDecl.workerBody.statements[index].viewState as ViewState;
+                    receiveHeight += viewState.getHeight();
+                    index++;
+                }
+            }
+
+            if (sendHeight > receiveHeight) {
+                const targetVS = matchedPair.targetNode.viewState as StatementViewState;
+                targetVS.bBox.offsetFromTop = (sendHeight - receiveHeight);
+            } else {
+                const sourceVS = matchedPair.sourceNode.viewState as StatementViewState;
+                sourceVS.sendLine.w = 
+                sourceVS.bBox.offsetFromTop = (receiveHeight - sendHeight);
+            }
+        });
     }
 
     public endVisitObjectMethodDefinition(node: ObjectMethodDefinition) {
@@ -385,7 +604,14 @@ class SizingVisitor implements Visitor {
         if (node.statements.length > 0 && STKindChecker.isReturnStatement(node.statements[node.statements.length - 1])) {
             viewState.isEndComponentInMain = true;
         }
-        this.beginSizingBlock(node);
+
+        let index = 0;
+
+        if (viewState.hasWorkerDecl) {
+            index = this.initiateStatementSizing(node.namedWorkerDeclarator.workerInitStatements, index, viewState);
+        }
+
+        this.beginSizingBlock(node, index);
     }
 
     public beginVisitExpressionFunctionBody(node: ExpressionFunctionBody) {
@@ -399,7 +625,18 @@ class SizingVisitor implements Visitor {
     }
 
     public endVisitFunctionBodyBlock(node: FunctionBodyBlock) {
-        this.endSizingBlock(node);
+        const viewState = node.viewState as BlockViewState;
+        let index = 0;
+        let height = 0;
+        let width = 0;
+
+
+
+        if (viewState.hasWorkerDecl) {
+            ({ index, height, width } = this.calculateStatementSizing((node as FunctionBodyBlock).namedWorkerDeclarator.workerInitStatements, index, viewState, height, width, node.statements.length));
+        }
+
+        this.endSizingBlock(node, index + node.statements.length, width, height, index);
     }
 
     public beginVisitBlockStatement(node: BlockStatement, parent?: STNode) {
@@ -414,7 +651,7 @@ class SizingVisitor implements Visitor {
         if (STKindChecker.isFunctionBodyBlock(parent) || STKindChecker.isBlockStatement(parent)) {
             this.sizeStatement(node);
         } else {
-            this.endSizingBlock(node);
+            this.endSizingBlock(node, node.statements.length);
         }
     }
 
@@ -716,7 +953,9 @@ class SizingVisitor implements Visitor {
     }
 
     public beginVisitNamedWorkerDeclaration(node: NamedWorkerDeclaration) {
-        this.beginSizingBlock(node.workerBody);
+        // this.beginSizingBlock(node.workerBody);
+        this.workerMap.set(node.workerName.value, node);
+        this.currentWorker.push(node.workerName.value);
     }
 
     public endVisitNamedWorkerDeclaration(node: NamedWorkerDeclaration) {
@@ -752,6 +991,7 @@ class SizingVisitor implements Visitor {
             }
         }
 
+        this.currentWorker.pop();
     }
 
     private sizeStatement(node: STNode) {
@@ -809,15 +1049,11 @@ class SizingVisitor implements Visitor {
         }
     }
 
-    private beginSizingBlock(node: BlockStatement) {
+    private beginSizingBlock(node: BlockStatement, index: number = 0) {
         if (!node.viewState) {
             return;
         }
         const blockViewState: BlockViewState = node.viewState;
-        let index: number = 0;
-        if (blockViewState.hasWorkerDecl) {
-            index = this.initiateStatementSizing((node as FunctionBodyBlock).namedWorkerDeclarator.workerInitStatements, index, blockViewState);
-        }
         index = this.initiateStatementSizing(node.statements, index, blockViewState);
 
         // add END component dimensions for return statement
@@ -858,18 +1094,11 @@ class SizingVisitor implements Visitor {
         return index;
     }
 
-    private endSizingBlock(node: BlockStatement) {
+    private endSizingBlock(node: BlockStatement, lastStatementIndex: number, width: number = 0, height: number = 0, index: number = 0) {
         if (!node.viewState) {
             return;
         }
         const blockViewState: BlockViewState = node.viewState;
-        let height = 0;
-        let width = 0;
-        let index = 0;
-        const lastStatementIndex = blockViewState.hasWorkerDecl ? // node.statements.length;
-            (node as FunctionBodyBlock).namedWorkerDeclarator.workerInitStatements.length + node.statements.length + 1
-            : node.statements.length;
-
 
         // Add last plus button.
         const plusViewState: PlusViewState = getPlusViewState(lastStatementIndex, blockViewState.plusButtons);
@@ -916,12 +1145,6 @@ class SizingVisitor implements Visitor {
             blockViewState.plusButtons.push(plusBtnViewBox);
         }
 
-        if (blockViewState.hasWorkerDecl) {
-            ({ index, height, width } = this.calculateStatementSizing((node as FunctionBodyBlock).namedWorkerDeclarator.workerInitStatements, index, blockViewState, height, width, lastStatementIndex));
-            index++;
-            height += PROCESS_SVG_HEIGHT + PLUS_SVG_HEIGHT;
-        }
-
         ({ index, height, width } = this.calculateStatementSizing(node.statements, index, blockViewState, height, width, lastStatementIndex));
 
         if (blockViewState.draft && blockViewState.draft[0] === lastStatementIndex) {
@@ -952,13 +1175,39 @@ class SizingVisitor implements Visitor {
 
         if (width > 0) {
             blockViewState.bBox.w = width;
+        } else {
+            blockViewState.bBox.w = DefaultConfig.defaultBodyWidth;
+        }
+    }
+
+    private addToSendReceiveMap(type: 'Send' | 'Receive', entry: AsyncReceiveInfo | AsyncSendInfo) {
+        if (!this.senderReceiverInfo.has(this.currentWorker[this.currentWorker.length - 1])) {
+            this.senderReceiverInfo.set(this.currentWorker[this.currentWorker.length - 1], { sends: [], receives: [] })
+        }
+
+        if (type === 'Send' && 'to' in entry) {
+            this.senderReceiverInfo.get(this.currentWorker[this.currentWorker.length - 1]).sends.push(entry);
+        } else if ('from' in entry) {
+            this.senderReceiverInfo.get(this.currentWorker[this.currentWorker.length - 1]).receives.push(entry);
         }
     }
 
     private calculateStatementSizing(statements: STNode[], index: number, blockViewState: BlockViewState, height: number, width: number, lastStatementIndex: any) {
-        statements.forEach((element) => {
-            const stmtViewState: StatementViewState = element.viewState;
+        const startIndex = index;
+        statements.forEach((statement) => {
+            const stmtViewState: StatementViewState = statement.viewState;
             const plusForIndex: PlusViewState = getPlusViewState(index, blockViewState.plusButtons);
+
+            if (STKindChecker.isActionStatement(statement) && statement.expression.kind === 'AsyncSendAction') {
+                const sendExpression: any = statement.expression;
+                const targetName: string = sendExpression.peerWorker?.name?.value as string;
+                this.addToSendReceiveMap('Send', { to: targetName, node: statement, paired: false, index: (index - startIndex) });
+            } else if (STKindChecker.isLocalVarDecl(statement) && statement.initializer?.kind === 'ReceiveAction') {
+                const receiverExpression: any = statement.initializer;
+                const senderName: string = receiverExpression.receiveWorkers?.name?.value;
+                this.addToSendReceiveMap('Receive', { from: senderName, node: statement, paired: false, index: (index - startIndex) });
+            }
+
             if (!blockViewState.collapsed) {
                 // This captures the collapsed statement
                 if (blockViewState.collapsedFrom === index && blockViewState.collapseView) {
@@ -998,8 +1247,8 @@ class SizingVisitor implements Visitor {
                                 draft.selectedConnector = plusForIndex.draftSelectedConnector;
 
                                 draft.targetPosition = {
-                                    startLine: element.position.startLine,
-                                    startColumn: element.position.startColumn
+                                    startLine: statement.position.startLine,
+                                    startColumn: statement.position.startColumn
                                 };
                                 blockViewState.draft = [index, draft];
                                 plusForIndex.draftAdded = undefined;
@@ -1066,8 +1315,8 @@ class SizingVisitor implements Visitor {
                         draft.selectedConnector = plusForIndex.draftSelectedConnector;
 
                         draft.targetPosition = {
-                            startLine: element.position.startLine,
-                            startColumn: element.position.startColumn
+                            startLine: statement.position.startLine,
+                            startColumn: statement.position.startColumn
                         };
                         blockViewState.draft = [index, draft];
                         plusForIndex.draftAdded = undefined;
@@ -1104,9 +1353,8 @@ class SizingVisitor implements Visitor {
                         (!stmtViewState.collapsed)) {
                         // Excluding return statement heights which is in the main function block
                         if (!(blockViewState.isEndComponentInMain && (index === lastStatementIndex - 1))) {
-                            stmtViewState.bBox.h = stmtViewState.bBox.offsetFromTop + stmtViewState.bBox.h +
-                                stmtViewState.bBox.offsetFromBottom;
-                            height += stmtViewState.bBox.h;
+                            height += stmtViewState.bBox.offsetFromTop + stmtViewState.bBox.h
+                                + stmtViewState.bBox.offsetFromBottom;
                         }
                     }
 
