@@ -14,12 +14,10 @@
 // TODO Refactor this file.
 // Should move these to ../Definitions/*
 
-import {
-    BallerinaConnectorInfo, ConfigOverlayFormStatus, ConfigPanelStatus, Connector,
-    DiagramEditorLangClientInterface, ExpressionEditorLangClientInterface, LibraryDataResponse, LibraryDocResponse,
-    LibrarySearchResponse, STModification, STSymbolInfo, WizardType
-} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { ModulePart, NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
+import { BallerinaConnectorInfo, ConfigOverlayFormStatus, ConfigPanelStatus, Connector,
+    DiagramEditorLangClientInterface, ExpressionEditorLangClientInterface, STModification,
+    STSymbolInfo, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FunctionDefinition, ModulePart, NodePosition, SimpleNameReference, STNode } from "@wso2-enterprise/syntax-tree";
 import { Diagnostic } from "vscode-languageserver-protocol";
 
 import { BlockViewState } from "..";
@@ -79,9 +77,7 @@ export interface LowCodeEditorAPI {
         // Reuse go-to-def from LangServer?
         setCodeLocationToHighlight: (position: NodePosition) => void;
         gotoSource: (position: { startLine: number, startColumn: number }) => void;
-        isMutationInProgress: boolean;
-        isModulePullInProgress: boolean;
-        loaderText: string;
+        getFunctionDef: (token: SimpleNameReference) => FunctionDefinition
     }
     // FIXME Doesn't make sense to take these methods below from outside
     // Move these inside and get an external API for pref persistance

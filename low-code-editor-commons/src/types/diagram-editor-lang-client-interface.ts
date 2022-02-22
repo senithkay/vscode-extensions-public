@@ -30,6 +30,7 @@ import {
     BallerinaRecordResponse,
     BallerinaSTModifyRequest,
     BallerinaSTModifyResponse,
+    BallerinaSyntaxTreeByRangeRequest,
     DocumentIdentifier,
     JsonToRecordRequest,
     JsonToRecordResponse,
@@ -129,6 +130,9 @@ export interface DiagramEditorLangClientInterface extends BaseLangClientInterfac
     ) => Thenable<PerformanceAnalyzerResponse[]>;
     resolveMissingDependencies: (
         params: GetSyntaxTreeParams
+    ) => Thenable<GetSyntaxTreeResponse>;
+    getFunctionSyntaxTreeNode: (
+        params: BallerinaSyntaxTreeByRangeRequest
     ) => Thenable<GetSyntaxTreeResponse>;
     getExecutorPositions: (
         params: GetBallerinaProjectParams

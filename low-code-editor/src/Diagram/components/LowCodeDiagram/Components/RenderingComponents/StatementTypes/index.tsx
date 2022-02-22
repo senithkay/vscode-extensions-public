@@ -38,7 +38,7 @@ export function StatementTypes(props: { x: number, y: number, key_id: number, st
 
     const maxStatementRectX = statementRectwidth + statementTextPadding;
 
-    const statmentTypeMaxWidth = statementType && statementType.length >= 12;
+    const statmentTypeMaxWidth = statementType?.length >= 12;
     const statementReactX = statmentTypeMaxWidth ?
         (statementRectX - statementTextPadding) : (statementRectX - statementTextPadding / 2);
 

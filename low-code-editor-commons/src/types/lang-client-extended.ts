@@ -12,9 +12,9 @@
  */
 
 // tslint:disable: no-empty-interface
-
 import { STNode } from "@wso2-enterprise/syntax-tree";
 
+import { LineRange } from ".";
 import { FunctionDefinitionInfo } from "./config-spec";
 
 export type STModificationConfig = {};
@@ -342,4 +342,12 @@ export interface GraphData {
 export interface PerformanceGraphRequest {
     file: string;
     data: GraphData;
+}
+
+export interface BallerinaSyntaxTreeByRangeRequest {
+    documentIdentifier: TextDocumentIdentifier;
+    lineRange: Range
+}
+export interface TextDocumentIdentifier {
+    uri: string;
 }

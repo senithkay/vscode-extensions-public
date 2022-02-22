@@ -15,22 +15,8 @@ import { IntlProvider } from "react-intl";
 import { monaco } from "react-monaco-editor";
 
 import { MuiThemeProvider } from "@material-ui/core/styles";
-import {
-    Connector,
-    DiagramDiagnostic,
-    DiagramEditorLangClientInterface,
-    getImportStatements,
-    InsertorDelete,
-    LibraryDataResponse,
-    LibraryDocResponse,
-    LibraryKind,
-    LibrarySearchResponse,
-    SentryConfig,
-    STModification,
-    STSymbolInfo,
-    WizardType
-} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { FunctionDefinition, ModulePart, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { Connector, STModification, STSymbolInfo, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FunctionDefinition, ModulePart, NodePosition, SimpleNameReference, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import cloneDeep from "lodash.clonedeep";
 import Mousetrap from 'mousetrap';
 
@@ -45,11 +31,7 @@ import { MESSAGE_TYPE } from "../types";
 import { init } from "../utils/sentry";
 
 import { DiagramGenErrorBoundary } from "./ErrorBoundrary";
-import {
-    getDefaultSelectedPosition, getLowcodeST, getSyntaxTree, isDeleteModificationAvailable,
-    isUnresolvedModulesAvailable
-} from "./generatorUtil";
-import { addPerformanceData } from "./performanceUtil";
+import { Diagnostic, getDefaultSelectedPosition, getFunctionSyntaxTreeNode, getLowcodeST, getSyntaxTree, isUnresolvedModulesAvailable, resolveMissingDependencies } from "./generatorUtil";
 import { useGeneratorStyles } from "./styles";
 import { theme } from "./theme";
 import { EditorProps, PALETTE_COMMANDS } from "./vscode/Diagram";
@@ -118,6 +100,12 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
             }
         })();
     }, [lastUpdatedAt]);
+
+    async function getFunctionDef(token: SimpleNameReference)
+    {
+        const genSyntaxTree: FunctionDefinition = await getFunctionSyntaxTreeNode(token, filePath, langClient);
+        return genSyntaxTree;
+    }
 
     React.useEffect(() => {
         Mousetrap.bind(['command+z', 'ctrl+z'], () => {
@@ -341,9 +329,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                     gotoSource: (position: { startLine: number, startColumn: number }) => {
                                         props.gotoSource(filePath, position);
                                     },
-                                    isMutationInProgress,
-                                    isModulePullInProgress,
-                                    loaderText
+                                    getFunctionDef
                                 },
                                 // FIXME Doesn't make sense to take these methods below from outside
                                 // Move these inside and get an external API for pref persistance
