@@ -16,6 +16,7 @@ export class Canvas {
     }
 
     static clickTopLevelPlusButton(targetLine: number = 0) {
+        this.waitForDiagramUpdate();
         cy.get(`.plus-container[target-line="${targetLine}"] #Top_plus`)
             .click();
         return this;
@@ -44,6 +45,8 @@ export class Canvas {
     private static waitForDiagramUpdate() {
         cy.get(`[id="canvas-overlay"]`)
             .children().should("have.length", 0)
+        cy.get(`[data-testid="diagram-loader"]`)
+            .should("not.exist")
         return this;
     }
 
@@ -84,8 +87,7 @@ export class Canvas {
 
     static getFunction(fnName: string) {
         this.waitForDiagramUpdate()
-        const element = this.getFnMemberContainer(fnName)
-            ;
+        const element = this.getFnMemberContainer(fnName);
         return new Function(element);
     }
 

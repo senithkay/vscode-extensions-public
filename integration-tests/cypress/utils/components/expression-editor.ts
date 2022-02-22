@@ -63,12 +63,15 @@ export class ExpressionEditor {
     }
 
     public clear() {
-        const clearKeyStroke = Cypress.platform == "darwin" ? "{selectall}{del}{esc}" : "{ctrl}a{del}{esc}";
+        const clearKeyStroke = Cypress.platform == "darwin" ? "{selectall}{del}" : "{ctrl}a{del}";
         this.getEditor().type(clearKeyStroke);
         return this;
     }
 
     public clearSuggestions(clearSuggestions: boolean = true) {
+        this.getEditor().parent().parent().parent().within(() => {
+            cy.get('textarea').click();
+        })
         clearSuggestions ? this.getEditor().type("{esc}") : null;
         return this;
     }

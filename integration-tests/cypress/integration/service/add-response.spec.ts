@@ -19,9 +19,11 @@ import { ResponseForm } from "../../utils/forms/response-form"
 import { ServiceForm } from "../../utils/forms/service-form"
 import { getIntegrationTestPageURL } from "../../utils/story-url-utils"
 
+const BAL_FILE_PATH = "service/add-service-to-empty-file.bal";
+
 describe('add a http service to an empty file', () => {
     beforeEach(() => {
-        cy.visit(getIntegrationTestPageURL("service/add-service-to-empty-file.bal"))
+        cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH))
     })
 
     it('Add a resource with advanced config', () => {
@@ -50,16 +52,16 @@ describe('add a http service to an empty file', () => {
 
         Canvas.getService("/getData")
             .shouldHaveResources(2)
-      
+
         Canvas.getService("/getData")
-            .getResourceFunction("GET","path1")
+            .getResourceFunction("GET", "path1")
             .expand()
             .shouldBeExpanded()
             .getDiagram()
             .shouldBeRenderedProperly()
             .getBlockLevelPlusWidget()
             .clickOption("Respond")
-      
+
         ResponseForm
             .shouldBeVisible()
             .typeExpression('"Success"')

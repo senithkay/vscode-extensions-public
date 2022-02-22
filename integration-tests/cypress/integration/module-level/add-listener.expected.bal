@@ -1,4 +1,4 @@
 import ballerina/http;
 
-listener http:Listener testListener1 = new (8082);
+listener http:Listener testListener = new (8082);
 

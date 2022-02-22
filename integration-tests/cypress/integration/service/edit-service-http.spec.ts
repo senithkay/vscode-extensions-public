@@ -9,9 +9,11 @@ import { ServiceForm } from "../../utils/forms/service-form"
 import { VariableFormBlockLevel } from "../../utils/forms/variable-form-block-level"
 import { getIntegrationTestPageURL } from "../../utils/story-url-utils"
 
+const BAL_FILE_PATH = "service/edit-existing-service-file.bal";
+
 describe('edit a http service', () => {
   beforeEach(() => {
-    cy.visit(getIntegrationTestPageURL("service/edit-existing-service-file.bal"))
+    cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH))
   })
 
   it('Edit service and add statements', () => {

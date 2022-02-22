@@ -21,41 +21,43 @@ import { ServiceForm } from "../../utils/forms/service-form"
 import { VariableFormBlockLevel } from "../../utils/forms/variable-form-block-level"
 import { getIntegrationTestPageURL } from "../../utils/story-url-utils"
 
+const BAL_FILE_PATH = "service/edit-existing-resource-file.bal";
+
 describe('edit a http advanced resource', () => {
   beforeEach(() => {
-    cy.visit(getIntegrationTestPageURL("service/edit-existing-resource-file.bal"))
+    cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH))
   })
 
   it('Edit service and add statements', () => {
     Canvas.getService("/wso2")
-        .getResourceFunction("GET", "path1/path2")
-        .editDiagram();
+      .getResourceFunction("GET", "path1/path2")
+      .editDiagram();
 
     ResourceForm
-        .shouldBeVisible()
-        .selectAdvancedConfig()
-        .removePathParam("path1")
-        .removePathParam("path2")
-        .clickAddPathSegments()
-        .addPathParam("path3")
-        .clickPathParam("path3")
-        .typePathParam("p3")
-        .clickIsParam()
-        .typePathParamType("int")
-        .savePathParamBtn()
-        .removeQueryParam("query")
-        .clickAddQueryParam()
-        .addQueryParam("query2")
-        .clickQueryParam("query2")
-        .typeQueryParamType("int")
-        .addQueryParam("q3")
-        .togglePayload()
-        .clickCallerCheckBox()
-        .clickRequestCheckBox()
-        .save()
+      .shouldBeVisible()
+      .selectAdvancedConfig()
+      .removePathParam("path1")
+      .removePathParam("path2")
+      .clickAddPathSegments()
+      .addPathParam("path3")
+      .clickPathParam("path3")
+      .typePathParam("p3")
+      .clickIsParam()
+      .typePathParamType("int")
+      .savePathParamBtn()
+      .removeQueryParam("query")
+      .clickAddQueryParam()
+      .addQueryParam("query2")
+      .clickQueryParam("query2")
+      .typeQueryParamType("int")
+      .addQueryParam("q3")
+      .togglePayload()
+      .clickCallerCheckBox()
+      .clickRequestCheckBox()
+      .save()
 
     SourceCode.shouldBeEqualTo(
-        getCurrentSpecFolder() + "edit-http-service-resource.expected.bal");
+      getCurrentSpecFolder() + "edit-http-service-resource.expected.bal");
   })
 
 })

@@ -38,7 +38,7 @@ describe('Record', () => {
             .typeRecordName('Person')
             .addNewField('string', 'firstName')
             .addNewField('string', 'lastName')
-            .addNewField('string', 'address', 'n/a')
+            .addNewField('string', 'address', '"none"')
             .addNewField('int', 'test')
             .save();
 
@@ -89,7 +89,7 @@ describe('Record', () => {
             .typeRecordName('Person')
             .addNewField('string', 'firstName')
             .addNewField('string', 'lastName')
-            .addNewField('string', 'address', 'n/a')
+            .addNewField('string', 'address', '"none"')
             .save();
 
         Canvas

@@ -55,7 +55,7 @@ export class RecordForm {
                 .type(type).wait(1000);
             if (value) {
                 cy.get('[placeholder="Field name"]')
-                    .type(name);
+                    .type(name).wait(1000);
                 cy.get('[placeholder="Value(Optional)"]')
                     .type(value + "{enter}");
             } else {
