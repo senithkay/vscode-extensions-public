@@ -282,7 +282,6 @@ class PositioningVisitor implements Visitor {
             const workerEntry = this.senderReceiverInfo.get(key);
 
             workerEntry.sends.forEach(sendInfo => {
-                console.log('>>> send info', sendInfo);
                 if (!sendInfo.paired) {
                     const matchedReceive = this.senderReceiverInfo.get(sendInfo.to).receives
                         .find(receiveInfo => receiveInfo.from === key && !receiveInfo.paired)
@@ -302,7 +301,6 @@ class PositioningVisitor implements Visitor {
             });
 
             workerEntry.receives.forEach(receiveInfo => {
-                console.log('>>> recieve info', receiveInfo);
                 if (!receiveInfo.paired) {
                     const matchedSend = this.senderReceiverInfo.get(receiveInfo.from).sends
                         .find(senderInfo => senderInfo.to === key && !senderInfo.paired)
@@ -321,14 +319,13 @@ class PositioningVisitor implements Visitor {
                 }
             });
 
-            console.log('>>> ============================');
         });
 
         matchedStatements.forEach(matchedPair => {
             const sourceViewState = matchedPair.sourceNode.viewState as StatementViewState;
             const targetViewState = matchedPair.targetNode.viewState as StatementViewState;
             sourceViewState.sendLine.x = sourceViewState.bBox.cx + (targetViewState.bBox.cx > sourceViewState.bBox.cx ? 49 / 2 : -49 / 2);
-            sourceViewState.sendLine.y = sourceViewState.bBox.cy
+            sourceViewState.sendLine.y = sourceViewState.bBox.cy + PROCESS_SVG_HEIGHT / 2;
             sourceViewState.sendLine.w = targetViewState.bBox.cx - sourceViewState.bBox.cx + (targetViewState.bBox.cx > sourceViewState.bBox.cx ? -73.5 : 73.5);
         });
 
@@ -707,7 +704,7 @@ class PositioningVisitor implements Visitor {
 
                 if ((statementViewState.isEndpoint && statementViewState.isAction && !statementViewState.hidden)
                     || (!statementViewState.collapsed)) {
-                    height += statementViewState.bBox.h + statementViewState.bBox.offsetFromTop + statementViewState.bBox.offsetFromBottom;
+                    height += statementViewState.getHeight();
                 }
             }
             ++index;

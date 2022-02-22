@@ -557,11 +557,11 @@ class SizingVisitor implements Visitor {
 
             if (sendHeight > receiveHeight) {
                 const targetVS = matchedPair.targetNode.viewState as StatementViewState;
-                targetVS.bBox.offsetFromTop = (sendHeight - receiveHeight);
+                targetVS.bBox.offsetFromTop += (sendHeight - receiveHeight);
             } else {
                 const sourceVS = matchedPair.sourceNode.viewState as StatementViewState;
                 sourceVS.sendLine.w = 
-                sourceVS.bBox.offsetFromTop = (receiveHeight - sendHeight);
+                sourceVS.bBox.offsetFromTop += (receiveHeight - sendHeight);
             }
         });
     }
@@ -1353,8 +1353,7 @@ class SizingVisitor implements Visitor {
                         (!stmtViewState.collapsed)) {
                         // Excluding return statement heights which is in the main function block
                         if (!(blockViewState.isEndComponentInMain && (index === lastStatementIndex - 1))) {
-                            height += stmtViewState.bBox.offsetFromTop + stmtViewState.bBox.h
-                                + stmtViewState.bBox.offsetFromBottom;
+                            height += stmtViewState.getHeight();
                         }
                     }
 
