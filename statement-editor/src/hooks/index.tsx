@@ -14,6 +14,7 @@ import React, { useState } from "react";
 
 import { FormControl } from "@material-ui/core";
 import { FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { STNode } from "@wso2-enterprise/syntax-tree";
 
 import { StatementEditor, StatementEditorProps } from "../components/StatementEditor";
 
@@ -21,13 +22,20 @@ export const useStatementEditor = (props: StatementEditorProps) => {
     const {
         onCancel,
         experimentalEnabled,
+        handleStatementEditorChange,
         ...restProps
     } = props;
 
     const [isStmtEditor, setIsStmtEditor] = useState(false);
+    let stmtEditorModel: STNode;
 
     const handleStmtEditorToggle = () => {
         setIsStmtEditor(!isStmtEditor);
+        handleStatementEditorChange(stmtEditorModel);
+    };
+
+    const onStmtEditorModelChange = (model: STNode) => {
+        stmtEditorModel = model;
     };
 
     const stmtEditorComponent =
@@ -44,6 +52,7 @@ export const useStatementEditor = (props: StatementEditorProps) => {
                 />
                 <StatementEditor
                     onCancel={onCancel}
+                    onStmtEditorModelChange={onStmtEditorModelChange}
                     {...restProps}
                 />
             </FormControl>

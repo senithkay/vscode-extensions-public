@@ -80,11 +80,6 @@ export function PlusElements(props: PlusElementsProps) {
                 onChange("STATEMENT", processType);
                 break;
         }
-
-        // if (processType === "DataMapper") {
-        //     // FIXME: Found this while enabling types for context. We are reusing help panel action in a wrong way
-        //     openConnectorHelp({moduleName: processType});
-        // }
     };
 
     const plusContainer = initPlus ? "initPlus-container" : "plus-container";

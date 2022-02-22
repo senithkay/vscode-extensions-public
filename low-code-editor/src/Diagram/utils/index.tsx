@@ -81,9 +81,6 @@ export function getDraftComponent(viewState: BlockViewState, state: any, insertC
                 case "AssignmentStatement":
                     draftComponents.push(<DataProcessor model={null} blockViewState={viewState} />);
                     break;
-                case "DataMapper":
-                    draftComponents.push(<DataProcessor model={null} blockViewState={viewState} />);
-                    break;
                 case "Custom":
                     draftComponents.push(<DataProcessor model={null} blockViewState={viewState} />);
                     break;

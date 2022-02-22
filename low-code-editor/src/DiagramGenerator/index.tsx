@@ -268,6 +268,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                 type: "File"
                             }}
                             performanceData={performanceData}
+                            importStatements={getImportStatements(syntaxTree)}
                             experimentalEnabled={experimentalEnabled}
                             // tslint:disable-next-line: jsx-no-multiline-js
                             api={{
@@ -342,8 +343,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                     },
                                     isMutationInProgress,
                                     isModulePullInProgress,
-                                    loaderText,
-                                    importStatements: getImportStatements(syntaxTree)
+                                    loaderText
                                 },
                                 // FIXME Doesn't make sense to take these methods below from outside
                                 // Move these inside and get an external API for pref persistance

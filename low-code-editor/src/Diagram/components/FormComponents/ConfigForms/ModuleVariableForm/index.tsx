@@ -13,8 +13,10 @@
  */
 import React from 'react';
 
+import { BallerinaConnectorInfo } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { ModuleVarDecl, NodePosition, STKindChecker } from '@wso2-enterprise/syntax-tree';
 
+import { ConnectorConfigWizard } from '../../ConnectorConfigWizard';
 import { ConfigurableForm } from '../ConfigurableForm';
 
 import { ModuleVariableForm } from './ModuleVariableForm';
@@ -28,15 +30,47 @@ interface ModuleDeclFormProps {
 }
 
 export function ModuleDeclForm(props: ModuleDeclFormProps) {
-    const { model } = props;
+    const { model, targetPosition, onCancel, onSave } = props;
 
     const isConfigurable = model && model.qualifiers.length > 0
         && model.qualifiers.filter(qualifier => STKindChecker.isConfigurableKeyword(qualifier)).length > 0;
 
+    let isModuleConnector = false;
+    let connector: BallerinaConnectorInfo;
+
+    if (model && STKindChecker.isModuleVarDecl(model) && model.typeData.isEndpoint) {
+        isModuleConnector = true;
+        if (STKindChecker.isQualifiedNameReference(model.typedBindingPattern.typeDescriptor)){
+            const typeSymbol = model.typedBindingPattern.typeDescriptor?.typeData.typeSymbol;
+            connector = {
+                name: typeSymbol.name,
+                moduleName: typeSymbol.moduleID.moduleName,
+                functions: [],
+                package: {
+                    name: typeSymbol.moduleID.moduleName,
+                    organization: typeSymbol.moduleID.orgName,
+                    version: typeSymbol.moduleID.version,
+                }
+            }
+        }
+    }
+
     return (
         <>
-            {!isConfigurable && <ModuleVariableForm {...props} />}
-            {isConfigurable && <ConfigurableForm {...props} />}
+            {isConfigurable && !isModuleConnector && <ConfigurableForm {...props} />}
+            {!isConfigurable && !isModuleConnector && <ModuleVariableForm {...props} />}
+            {!isConfigurable && isModuleConnector && (
+                <ConnectorConfigWizard
+                    connectorInfo={connector}
+                    position={{ x: 0, y: 0 }}
+                    targetPosition={targetPosition || model?.position}
+                    model={model}
+                    onClose={onCancel}
+                    onSave={onSave}
+                    isModuleEndpoint={true}
+                    isEdit={true}
+                />
+            )}
         </>
     );
 }

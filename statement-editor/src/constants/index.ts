@@ -51,6 +51,7 @@ export const DEFAULT_EXPRESSIONS = "DefaultExpressions"
 export const BOOLEAN_TYPE_DESC = "BooleanTypeDesc"
 export const OTHER_EXPRESSION = "OtherExpression"
 export const MAPPING_CONSTRUCTOR = "MappingConstructor"
+export const CUSTOM_CONFIG_TYPE = "Custom"
 
 export const INIT_EXPR_LIST_CONSTRUCTOR = "EXPRESSION]"
 export const APPEND_EXPR_LIST_CONSTRUCTOR = ", EXPRESSION]"

@@ -97,7 +97,7 @@ export function ForeachStatementC(props: ForeachStatementProps) {
             stmtCtx.modelCtx.statementModel.source, getLangClient).then((content: string) => {
             getContextBasedCompletions(fileURI, content, targetPosition, model.actionOrExpressionNode.position,
                 false, isElseIfMember, model.actionOrExpressionNode.source,
-                getLangClient).then((completions) => {
+                getLangClient, currentFile.content).then((completions) => {
                 expressionHandler(model.actionOrExpressionNode, false, false, {
                     expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
                     typeSuggestions: [],
