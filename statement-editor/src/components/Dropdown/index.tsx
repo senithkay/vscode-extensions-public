@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React from 'react';
+import React, { useEffect } from 'react';
 
 import { MenuItem, Select } from "@material-ui/core";
 
@@ -27,6 +27,10 @@ export default function SelectDropdown(props: SelectDropdownProps) {
     const { values, defaultValue, onSelection } = props;
     const statementEditorClasses = useStatementEditorStyles();
     const [state, setState] = React.useState(defaultValue);
+
+    useEffect(() => {
+        onSelection(defaultValue);
+    }, []);
 
     const handleChange = (event: React.ChangeEvent<{ value: string }>) => {
         setState(event.target.value);
