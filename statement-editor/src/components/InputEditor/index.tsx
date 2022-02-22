@@ -37,6 +37,7 @@ import { SuggestionItem, VariableUserInputs } from "../../models/definitions";
 import { InputEditorContext } from "../../store/input-editor-context";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { SuggestionsContext } from "../../store/suggestions-context";
+import { sortSuggestions } from "../../utils";
 import {
     addImportStatements,
     addStatementToTargetLine,
@@ -269,7 +270,7 @@ export function InputEditor(props: InputEditorProps) {
                 filteredCompletionItem.sort(sortSuggestions)
 
                 const variableSuggestions: SuggestionItem[] = filteredCompletionItem.map((obj) => {
-                    return { value: obj.label, kind: obj.detail }
+                    return { value: obj.label, kind: obj.detail, suggestionType: obj.kind }
                 });
 
                 if (isTypeDescriptor) {
@@ -293,10 +294,6 @@ export function InputEditor(props: InputEditorProps) {
             getContextBasedCompletions(userInput);
         }
     };
-
-    function sortSuggestions(x: CompletionResponse, y: CompletionResponse) {
-        return x.sortText.localeCompare(y.sortText);
-    }
 
     function addExpressionToTargetPosition(currentStmt: string, targetLine: number, targetColumn: number, codeSnippet: string, endColumn?: number): string {
         if (model && STKindChecker.isIfElseStatement(stmtCtx.modelCtx.statementModel)) {

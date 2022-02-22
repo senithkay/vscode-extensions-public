@@ -18,6 +18,7 @@ import { STNode } from "@wso2-enterprise/syntax-tree";
 import { SuggestionItem } from "../../../models/definitions";
 import { InputEditorContext } from "../../../store/input-editor-context";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
+import { getSuggestionIconStyle } from "../../../utils";
 import { useStatementEditorStyles } from "../../styles";
 
 export interface VariableSuggestionsProps {
@@ -71,6 +72,7 @@ export function VariableSuggestions(props: VariableSuggestionsProps) {
                             onClick={() => onClickVariableSuggestion(suggestion)}
                         >
                             <ul className={statementEditorClasses.suggestionsContent}>
+                                <li className={getSuggestionIconStyle(suggestion.suggestionType)} style={{lineHeight: '24px', marginTop: '2px'}}/>
                                 <li className={statementEditorClasses.suggestionsLabel}>{suggestion.value}</li>
                                 <li className={statementEditorClasses.dataTypeTemplate}>{suggestion.kind}</li>
                             </ul>

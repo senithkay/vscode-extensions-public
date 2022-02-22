@@ -18,7 +18,11 @@ export const acceptedCompletionKindForExpressions : number[] = [
     // Method
     2 ,
     // Function
-    3];
+    3,
+    20,
+    22,
+    25,
+    14];
 
 export const FILE_SCHEME = "file://";
 export const EXPR_SCHEME = "expr://";

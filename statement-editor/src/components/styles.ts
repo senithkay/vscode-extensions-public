@@ -262,7 +262,9 @@ export const useStatementEditorStyles = makeStyles(() =>
             overflow: 'hidden',
             maxWidth: '100%',
             textOverflow: 'ellipsis',
-            float: 'left'
+            float: 'left',
+            fontFamily: 'inherit',
+            lineHeight: '24px'
         },
         addNewExpressionButton: {
             backgroundColor: '#f7f8fb',
@@ -437,7 +439,10 @@ export const useStatementEditorStyles = makeStyles(() =>
             overflow: 'hidden',
             maxWidth: '100%',
             textOverflow: 'ellipsis',
-            float: 'left'
+            float: 'left',
+            marginLeft: '2px',
+            marginTop: '2px',
+            lineHeight: '24px'
         },
         expressionSuggestionList: {
             top: '5%',
