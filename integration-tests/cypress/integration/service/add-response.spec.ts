@@ -17,11 +17,11 @@ import { getCurrentSpecFolder } from "../../utils/file-utils"
 import { ResourceForm } from "../../utils/forms/resource-form"
 import { ResponseForm } from "../../utils/forms/response-form"
 import { ServiceForm } from "../../utils/forms/service-form"
-import { getIntegrationTestStoryURL } from "../../utils/story-url-utils"
+import { getIntegrationTestPageURL } from "../../utils/story-url-utils"
 
 describe('add a http service to an empty file', () => {
     beforeEach(() => {
-        cy.visit(getIntegrationTestStoryURL("service/add-service-to-empty-file.bal"))
+        cy.visit(getIntegrationTestPageURL("service/add-service-to-empty-file.bal"))
     })
 
     it('Add a resource with advanced config', () => {
@@ -40,7 +40,7 @@ describe('add a http service to an empty file', () => {
         ResourceForm
             .selectMethod("GET")
             .selectAdvancedConfig()
-            .clickPathSegments()
+            .clickAddPathSegments()
             .addPathParam("path1")
             .togglePayload()
             .typePayloadType("string")

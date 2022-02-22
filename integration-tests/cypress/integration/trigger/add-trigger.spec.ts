@@ -16,11 +16,11 @@ import { SourceCode } from "../../utils/components/code-view"
 import { TopLevelPlusWidget } from "../../utils/components/top-level-plus-widget"
 import { getCurrentSpecFolder } from "../../utils/file-utils"
 import { TriggerForm } from "../../utils/forms/trigger-form"
-import { getIntegrationTestStoryURL } from "../../utils/story-url-utils"
+import { getIntegrationTestPageURL } from "../../utils/story-url-utils"
 
 describe('add a Github Trigger to an empty file', () => {
   beforeEach(() => {
-    cy.visit(getIntegrationTestStoryURL("trigger/add-trigger-to-empty-file.bal"))
+    cy.visit(getIntegrationTestPageURL("trigger/add-trigger-to-empty-file.bal"))
   });
 
   it('Displays add construct message', () => {

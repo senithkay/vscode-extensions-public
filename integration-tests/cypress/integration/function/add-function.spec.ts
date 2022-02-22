@@ -5,13 +5,13 @@ import { getCurrentSpecFolder } from "../../utils/file-utils";
 import { FunctionForm } from "../../utils/forms/function-form";
 import { LogForm } from "../../utils/forms/log-form";
 import { ReturnForm } from "../../utils/forms/return-form";
-import { getIntegrationTestStoryURL } from "../../utils/story-url-utils"
+import { getIntegrationTestPageURL } from "../../utils/story-url-utils"
 
 const BAL_FILE_PATH = "function/add-function-to-empty-file.bal";
 
 describe('Add functions via Low Code', () => {
   beforeEach(() => {
-    cy.visit(getIntegrationTestStoryURL(BAL_FILE_PATH))
+    cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH))
   })
 
   it('Add a main function to empty file', () => {
@@ -113,7 +113,7 @@ describe('Add functions via Low Code', () => {
 
     Canvas.getFunction("getGreeting")
       .getDiagram()
-      .clickDefaultWorkerPlusBtn(1)
+      .clickDefaultWorkerPlusBtn(2)
       .getBlockLevelPlusWidget()
       .clickOption("Return");
 

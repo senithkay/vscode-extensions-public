@@ -16,13 +16,13 @@ import { SourceCode } from "../../utils/components/code-view";
 import { TopLevelPlusWidget } from "../../utils/components/top-level-plus-widget";
 import { getCurrentSpecFolder } from "../../utils/file-utils";
 import { RecordForm } from "../../utils/forms/record-form";
-import { getIntegrationTestStoryURL } from "../../utils/story-url-utils";
+import { getIntegrationTestPageURL } from "../../utils/story-url-utils";
 
 const BAL_FILE_PATH = "default/empty-file.bal";
 
 describe('Record', () => {
     beforeEach(() => {
-        cy.visit(getIntegrationTestStoryURL(BAL_FILE_PATH));
+        cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH));
     })
 
 

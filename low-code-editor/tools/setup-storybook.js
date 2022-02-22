@@ -110,7 +110,7 @@ function startLS() {
 }
 
 function startVSCodeMockServer() {
-    const vs = spawn('node', ['../ballerina-languageclient/tools/vscode-mock-server.js']);
+    const vs = spawn('node', ['../integration-tests/tools/vscode-mock-server.js']);
 
     vs.stdout.on('data', (data) => {
         console.log(`vs-mock-server:stdout: ${data}`);

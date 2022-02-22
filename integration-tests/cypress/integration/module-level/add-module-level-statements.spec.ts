@@ -12,13 +12,13 @@ import { LogForm } from "../../utils/forms/log-form";
 import { OtherForm } from "../../utils/forms/other-form";
 import { RecordForm } from "../../utils/forms/record-form";
 import { VariableFormModuleLevel } from "../../utils/forms/variable-form-module-level";
-import { getIntegrationTestStoryURL } from "../../utils/story-url-utils"
+import { getIntegrationTestPageURL } from "../../utils/story-url-utils"
 
 const BAL_FILE_PATH = "default/empty-file.bal";
 
 describe('Add module-level statements via Low Code', () => {
   beforeEach(() => {
-    cy.visit(getIntegrationTestStoryURL(BAL_FILE_PATH))
+    cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH))
   })
 
   it('Add a variable to empty file', () => {

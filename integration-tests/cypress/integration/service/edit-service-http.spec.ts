@@ -7,11 +7,11 @@ import { LogForm } from "../../utils/forms/log-form"
 import { ResourceForm } from "../../utils/forms/resource-form"
 import { ServiceForm } from "../../utils/forms/service-form"
 import { VariableFormBlockLevel } from "../../utils/forms/variable-form-block-level"
-import { getIntegrationTestStoryURL } from "../../utils/story-url-utils"
+import { getIntegrationTestPageURL } from "../../utils/story-url-utils"
 
 describe('edit a http service', () => {
   beforeEach(() => {
-    cy.visit(getIntegrationTestStoryURL("service/edit-existing-service-file.bal"))
+    cy.visit(getIntegrationTestPageURL("service/edit-existing-service-file.bal"))
   })
 
   it('Edit service and add statements', () => {
