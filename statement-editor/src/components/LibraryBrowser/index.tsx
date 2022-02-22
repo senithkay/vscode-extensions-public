@@ -83,12 +83,13 @@ export function LibraryBrowser() {
     };
 
     const onLibSelection = async (value: string) => {
-        let response = await getAllLibrariesList();
-
+        let response;
         if (value === LANGUAGE_LIBS) {
             response = await getLibrariesList(LibraryKind.langLib);
         } else if (value === STANDARD_LIBS) {
             response = await getLibrariesList(LibraryKind.stdLib);
+        } else {
+            response = await getLibrariesList();
         }
 
         if (response) {
@@ -99,17 +100,6 @@ export function LibraryBrowser() {
         setSearchScope(DEFAULT_SEARCH_SCOPE);
         setKeyword('');
     };
-
-    const getAllLibrariesList = async () => {
-        const langLibs = await getLibrariesList(LibraryKind.langLib);
-        const stdLibs = await getLibrariesList(LibraryKind.stdLib);
-        if (langLibs && stdLibs) {
-            return {
-                librariesList: [...langLibs.librariesList, ...stdLibs.librariesList]
-            };
-        }
-        return {};
-    }
 
     return (
         <div className={statementEditorClasses.libraryBrowser}>
