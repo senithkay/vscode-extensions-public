@@ -29,7 +29,11 @@ export const useStatementEditorStyles = makeStyles(() =>
             display: 'flex',
             borderBottom: '1px solid #e6e7ec',
             minHeight: '50vh',
-            height: '60vh'
+            height: '60vh',
+            backgroundColor: '#00ff00'
+        },
+        tabPanelWrapper: {
+            width: 'auto'
         },
         sugessionsMainWrapper: {
             backgroundColor: '#f9fafc',
