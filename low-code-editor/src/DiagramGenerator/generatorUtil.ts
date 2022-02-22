@@ -1,5 +1,7 @@
-import { BallerinaSyntaxTreeByRangeRequest, DiagramEditorLangClientInterface } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { FunctionDefinition, IdentifierToken, ModulePart, ResourceAccessorDefinition, ServiceDeclaration, SimpleNameReference, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
+import { monaco } from "react-monaco-editor";
+
+import { DiagramDiagnostic, DiagramEditorLangClientInterface, PerformanceAnalyzerGraphResponse, PerformanceAnalyzerRealtimeResponse, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FunctionDefinition, ModulePart, ResourceAccessorDefinition, ServiceDeclaration, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 
 import { cleanLocalSymbols, cleanModuleLevelSymbols } from "../Diagram/visitors/symbol-finder-visitor";
 import { initVisitor, positionVisitor, sizingVisitor, SymbolVisitor } from "../index";
@@ -11,26 +13,6 @@ export async function getSyntaxTree(filePath: string, langClient: DiagramEditorL
     const resp = await langClient.getSyntaxTree({
         documentIdentifier: {
             uri: monaco.Uri.file(filePath).toString()
-        }
-    });
-    return resp.syntaxTree;
-}
-
-export async function getFunctionSyntaxTreeNode(token: SimpleNameReference, filePath: string, langClient: DiagramEditorLangClientInterface) {
-    // console.log(token);
-    const resp = await langClient.getFunctionSyntaxTreeNode({
-        documentIdentifier: {
-            uri: `file://${filePath}`
-        },
-        lineRange: {
-            start: {
-                line: token.position.startLine,
-                character: token.position.startColumn,
-            },
-            end: {
-                line: token.position.endLine,
-                character: token.position.endColumn
-            }
         }
     });
     return resp.syntaxTree;

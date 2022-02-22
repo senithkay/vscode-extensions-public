@@ -9,7 +9,7 @@
  * this license, please see the license as well as any agreement you’ve
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
-*/
+ */
 // tslint:disable: jsx-no-multiline-js align  jsx-wrap-multiline
 import React, { useContext, useState } from "react";
 
@@ -17,11 +17,10 @@ import { WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     AssignmentStatement,
     CallStatement,
-    FunctionCall, IdentifierToken,
+    FunctionCall,
     LocalVarDecl,
     NodePosition,
     QualifiedNameReference,
-    SimpleNameReference,
     STKindChecker,
     STNode
 } from "@wso2-enterprise/syntax-tree";
@@ -39,19 +38,12 @@ import { EditBtn } from "../../../Components/DiagramActions/EditBtn";
 import { EDIT_SVG_OFFSET, EDIT_SVG_WIDTH_WITH_SHADOW } from "../../../Components/DiagramActions/EditBtn/EditSVG";
 import { BlockViewState, StatementViewState } from "../../../ViewState";
 import { DraftStatementViewState } from "../../../ViewState/draft";
-import { ShowFuntionBtn } from "../../DiagramActions/ShowFunctionBtn";
 import { Assignment } from "../Assignment";
 import { StatementTypes } from "../StatementTypes";
 import { VariableName, VARIABLE_NAME_WIDTH } from "../VariableName";
 
 import { ProcessSVG, PROCESS_SVG_HEIGHT, PROCESS_SVG_HEIGHT_WITH_SHADOW, PROCESS_SVG_SHADOW_OFFSET, PROCESS_SVG_WIDTH, PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW } from "./ProcessSVG";
 import "./style.scss";
-
-
-
-
-
-
 
 export interface ProcessorProps {
     model: STNode;
@@ -86,8 +78,6 @@ export function DataProcessor(props: ProcessorProps) {
     let processType = "STATEMENT";
     let processName = "Variable";
     let sourceSnippet = "Source";
-    let haveFunction = false;
-    let functionName: SimpleNameReference = null;
     const diagnostics = model?.typeData?.diagnostics;
 
     let isIntializedVariable = false;
@@ -110,9 +100,6 @@ export function DataProcessor(props: ProcessorProps) {
             } else {
                 processType = "Call";
                 processName = processType;
-                haveFunction = true;
-                const simpleName: SimpleNameReference = stmtFunctionCall.functionName as SimpleNameReference;
-                functionName = simpleName;
             }
         } else if (STKindChecker.isLocalVarDecl(model)) {
 
@@ -129,12 +116,6 @@ export function DataProcessor(props: ProcessorProps) {
 
             if (model?.initializer && !STKindChecker.isImplicitNewExpression(model?.initializer)) {
                 isIntializedVariable = true;
-            }
-            if (model?.initializer && STKindChecker.isFunctionCall(model?.initializer)) {
-                const callStatement: FunctionCall = model?.initializer as FunctionCall;
-                const nameRef: SimpleNameReference = callStatement.functionName as SimpleNameReference;
-                haveFunction = true;
-                functionName = nameRef;
             }
         } else if (STKindChecker.isAssignmentStatement(model)) {
             processType = "AssignmentStatement";
@@ -266,12 +247,6 @@ export function DataProcessor(props: ProcessorProps) {
         statmentTypeText = getStatementTypesFromST(localModel);
     }
 
-
-
-    const assignmentTextcx = cx + PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW / 2 + (DefaultConfig.dotGap * 3);
-    const assignmentTextcy = methodCallText ? cy + PROCESS_SVG_HEIGHT / 3 : cy + PROCESS_SVG_HEIGHT / 3 + 2;
-    const textWidth = assignmentText ? assignmentText.length : (methodCallText ? methodCallText.length : 0);
-    const textWidthFixed = textWidth >= 15 ? assignmentText?.slice(0, 16).length * 9 : textWidth * 9;
     const processWrapper = isDraftStatement ? "main-process-wrapper active-data-processor" : "main-process-wrapper data-processor";
     const assignmentTextStyles = diagnosticMsgs?.severity === "ERROR" ? "assignment-text-error" : "assignment-text-default";
 
@@ -326,18 +301,6 @@ export function DataProcessor(props: ProcessorProps) {
                             methodCall={methodCallText}
                             key_id={getRandomInt(1000)}
                         />
-                        {haveFunction ?
-                            <g>
-                                <ShowFuntionBtn
-                                    model={model}
-                                    functionName={functionName}
-                                    x={assignmentTextcx + textWidthFixed}
-                                    y={assignmentTextcy}
-                                    onDraftDelete={onDraftDelete}
-                                />
-                            </g>
-                            : ''
-                        }
 
                         {!isReadOnly && !isMutationProgress && !isWaitingOnWorkspace &&
                             <g
