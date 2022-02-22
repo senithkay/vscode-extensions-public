@@ -25,15 +25,19 @@ export const useStatementEditorStyles = makeStyles(() =>
         statementExpressionWrapper: {
             height: 'auto',
         },
-        sugessionsSection: {
+        suggestionsSection: {
             display: 'flex',
+            flexDirection: 'column',
             borderBottom: '1px solid #e6e7ec',
             minHeight: '50vh',
-            height: '60vh',
-            backgroundColor: '#00ff00'
+            height: '60vh'
         },
         tabPanelWrapper: {
             width: 'auto'
+        },
+        constructsWrapper: {
+            width: 'auto',
+            height: 'auto'
         },
         sugessionsMainWrapper: {
             backgroundColor: '#f9fafc',
@@ -288,11 +292,6 @@ export const useStatementEditorStyles = makeStyles(() =>
             flexDirection: 'row',
             width: '96%'
         },
-        libraryTitle: {
-            flex: '0 0 50%',
-            display: 'flex',
-            justifyContent: 'flex-start'
-        },
         libraryDropdown: {
             flex: '0 0 50%',
             display: 'flex',
@@ -345,14 +344,13 @@ export const useStatementEditorStyles = makeStyles(() =>
         },
         libraryBlock: {
             position: 'relative',
-            top: '5%',
-            height: '75%',
+            top: '3%',
+            height: '40vh',
             overflowY: 'scroll',
             overflowX: 'hidden'
         },
         librarySearchBox: {
             position: 'relative',
-            top: '5%',
             height: '32px',
             width: '304px',
             border: '1px #E0E3E9',

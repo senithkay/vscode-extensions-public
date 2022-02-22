@@ -104,9 +104,12 @@ export function LibraryBrowser() {
     return (
         <div className={statementEditorClasses.libraryBrowser}>
             <div className={statementEditorClasses.libraryBrowserHeader}>
-                <div className={statementEditorClasses.libraryTitle}>
-                    <span className={statementEditorClasses.subHeader}>Libraries</span>
-                </div>
+                <input
+                    className={statementEditorClasses.librarySearchBox}
+                    value={keyword}
+                    placeholder={`search in ${searchScope}`}
+                    onChange={(e) => setKeyword(e.target.value)}
+                />
                 <div className={statementEditorClasses.libraryDropdown}>
                     <SelectDropdown
                         values={[ALL_LIBS, LANGUAGE_LIBS, STANDARD_LIBS]}
@@ -115,12 +118,12 @@ export function LibraryBrowser() {
                     />
                 </div>
             </div>
-            <input
-                className={statementEditorClasses.librarySearchBox}
-                value={keyword}
-                placeholder={`search in ${searchScope}`}
-                onChange={(e) => setKeyword(e.target.value)}
-            />
+            {/*<input*/}
+            {/*    className={statementEditorClasses.librarySearchBox}*/}
+            {/*    value={keyword}*/}
+            {/*    placeholder={`search in ${searchScope}`}*/}
+            {/*    onChange={(e) => setKeyword(e.target.value)}*/}
+            {/*/>*/}
             {libraryBrowserMode === LibraryBrowserMode.LIB_LIST && (
                 <LibrariesList
                     libraries={libraries}

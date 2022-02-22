@@ -26,7 +26,7 @@ interface StyledTabProps {
 interface TabPanelProps {
     values: string[]
     defaultValue: string
-    onSelection?: (value: string) => void
+    onSelection: (value: string) => void
 }
 
 const StyledTab = withStyles((theme: Theme) =>
@@ -45,12 +45,13 @@ const useStyles = makeStyles({
 });
 
 export default function TabPanel(props: TabPanelProps) {
-    const { values, defaultValue } = props;
+    const { values, defaultValue, onSelection } = props;
     const classes = useStyles();
     const [value, setValue] = React.useState(defaultValue);
 
     const handleChange = (event: React.ChangeEvent<{}>, newValue: string) => {
         setValue(newValue);
+        onSelection(newValue);
     };
 
     const tabs: React.ReactNode[] = [];

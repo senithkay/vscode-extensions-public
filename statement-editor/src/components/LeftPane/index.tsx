@@ -36,6 +36,12 @@ interface ModelProps {
     currentModelHandler: (model: STNode) => void
 }
 
+enum TabElements {
+    suggestions = 'Suggestions',
+    expressions = 'Expressions',
+    libraries = 'Libraries',
+}
+
 export function LeftPane(props: ModelProps) {
     const statementEditorClasses = useStatementEditorStyles();
     const { label, currentModel, userInputs, currentModelHandler } = props;
@@ -50,6 +56,7 @@ export function LeftPane(props: ModelProps) {
     const [variableList, setVariableList] = useState([]);
     const [typeDescriptorList, setTypeDescriptorList] = useState([]);
     const [isTypeDescSuggestion, setIsTypeDescSuggestion] = useState(false);
+    const [selectedTab, setSelectedTab] = useState(TabElements.libraries);
 
     const expressionHandler = (
             cModel: STNode,
@@ -86,6 +93,10 @@ export function LeftPane(props: ModelProps) {
         setDiagnostic(diagnostics)
     }
 
+    const onTabElementSelection = async (value: TabElements) => {
+        setSelectedTab(value);
+    };
+
     return (
         <div>
             <div className={statementEditorClasses.sugessionsMainWrapper}>
@@ -111,11 +122,12 @@ export function LeftPane(props: ModelProps) {
                     />
                 </div>
             </div>
-            <div className={statementEditorClasses.sugessionsSection}>
+            <div className={statementEditorClasses.suggestionsSection}>
                 <div className={statementEditorClasses.tabPanelWrapper}>
                     <TabPanel
-                        values={['Suggestions', 'Expressions', 'Libraries']}
-                        defaultValue={'Suggestions'}
+                        values={[TabElements.suggestions, TabElements.expressions, TabElements.libraries]}
+                        defaultValue={TabElements.libraries}
+                        onSelection={onTabElementSelection}
                     />
                 </div>
                 {/*<div className={statementEditorClasses.sugessionsWrapper}>*/}
@@ -155,7 +167,11 @@ export function LeftPane(props: ModelProps) {
                 {/*    </div>*/}
                 {/*</div>*/}
                 {/*<div className={statementEditorClasses.LibraryBrowsingWrapper}>*/}
-                {/*    <LibraryBrowser />*/}
+                { selectedTab === TabElements.libraries && (
+                    <div className={statementEditorClasses.constructsWrapper}>
+                        <LibraryBrowser />
+                    </div>
+                )}
                 {/*</div>*/}
             </div>
         </div>
