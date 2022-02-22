@@ -1,25 +1,52 @@
+/*
+ * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 Inc. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein is strictly forbidden, unless permitted by WSO2 in accordance with
+ * the WSO2 Commercial License available at http://wso2.com/licenses.
+ * For specific language governing the permissions and limitations under
+ * this license, please see the license as well as any agreement you’ve
+ * entered into with WSO2 governing the purchase of this software and any
+ * associated services.
+ */
 import * as React from "react";
 import { IntlProvider } from "react-intl";
 import { monaco } from "react-monaco-editor";
 
 import { MuiThemeProvider } from "@material-ui/core/styles";
-import { Connector, DiagramDiagnostic, DiagramEditorLangClientInterface, STModification, STSymbolInfo, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import {
+    Connector,
+    DiagramDiagnostic,
+    DiagramEditorLangClientInterface,
+    getImportStatements,
+    InsertorDelete,
+    LibraryDataResponse,
+    LibraryDocResponse,
+    LibraryKind,
+    LibrarySearchResponse,
+    SentryConfig,
+    STModification,
+    STSymbolInfo,
+    WizardType
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FunctionDefinition, ModulePart, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import cloneDeep from "lodash.clonedeep";
 import Mousetrap from 'mousetrap';
 
-import LowCodeEditor, { BlockViewState, getSymbolInfo, InsertorDelete } from "..";
+import LowCodeEditor, { BlockViewState, getSymbolInfo } from "..";
 import "../assets/fonts/Glimer/glimer.css";
 import { ConditionConfig } from "../Diagram/components/FormComponents/Types";
 import { UndoRedoManager } from "../Diagram/components/FormComponents/UndoRedoManager";
-import { LowcodeEvent } from "../Diagram/models";
+import { DIAGRAM_MODIFIED, LowcodeEvent } from "../Diagram/models";
 import messages from '../lang/en.json';
 import { CirclePreloader } from "../PreLoader/CirclePreloader";
 import { MESSAGE_TYPE } from "../types";
+import { init } from "../utils/sentry";
 
 import { DiagramGenErrorBoundary } from "./ErrorBoundrary";
 import {
-    getDefaultSelectedPosition, getLowcodeST, getModifyPosition, getSyntaxTree, isDeleteModificationAvailable,
+    getDefaultSelectedPosition, getLowcodeST, getSyntaxTree, isDeleteModificationAvailable,
     isUnresolvedModulesAvailable
 } from "./generatorUtil";
 import { addPerformanceData } from "./performanceUtil";
@@ -40,13 +67,17 @@ const debounceTime: number = 5000;
 let lastPerfUpdate = 0;
 
 export function DiagramGenerator(props: DiagramGeneratorProps) {
-    const { langClient, filePath, startLine, startColumn, lastUpdatedAt, scale, panX, panY, resolveMissingDependency } = props;
+    const { langClientPromise, filePath, startLine, startColumn, lastUpdatedAt, scale, panX, panY, resolveMissingDependency, experimentalEnabled } = props;
     const classes = useGeneratorStyles();
     const defaultScale = scale ? Number(scale) : 1;
     const defaultPanX = panX ? Number(panX) : 0;
     const defaultPanY = panY ? Number(panY) : 0;
     const runCommand: (command: PALETTE_COMMANDS, args: any[]) => Promise<boolean> = props.runCommand;
     const showMessage: (message: string, type: MESSAGE_TYPE, isIgnorable: boolean) => Promise<boolean> = props.showMessage;
+    const getLibrariesList: (kind: LibraryKind) => Promise<LibraryDocResponse | undefined> = props.getLibrariesList;
+    const getLibrariesData: () => Promise<LibrarySearchResponse | undefined> = props.getLibrariesData;
+    const getLibraryData: (orgName: string, moduleName: string, version: string) => Promise<LibraryDataResponse | undefined> = props.getLibraryData;
+    const getSentryConfig: () => Promise<SentryConfig | undefined> = props.getSentryConfig;
 
     const defaultZoomStatus = {
         scale: defaultScale,
@@ -65,6 +96,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     React.useEffect(() => {
         (async () => {
             try {
+                const langClient = await langClientPromise;
                 const genSyntaxTree: ModulePart = await getSyntaxTree(filePath, langClient);
                 const content = await props.getFileContent(filePath);
                 // if (genSyntaxTree?.typeData?.diagnostics && genSyntaxTree?.typeData?.diagnostics?.length > 0) {
@@ -96,6 +128,12 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
             redo();
             return false;
         });
+        (async () => {
+            const sentryConfig: SentryConfig = await getSentryConfig();
+            if (sentryConfig) {
+                init(sentryConfig);
+            }
+        })();
     }, []);
 
     function zoomIn() {
@@ -130,13 +168,14 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     }
 
     async function run(args: any[]) {
-        runCommand(PALETTE_COMMANDS.RUN_WITH_CONFIGS, args);
+        runCommand(PALETTE_COMMANDS.RUN, args);
     }
 
     const undo = async () => {
         const path = undoRedo.getFilePath();
         const uri = monaco.Uri.file(path).toString();
         const lastsource = undoRedo.undo();
+        const langClient = await langClientPromise;
         if (lastsource) {
             langClient.didChange({
                 contentChanges: [
@@ -165,6 +204,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
         const path = undoRedo.getFilePath();
         const uri = monaco.Uri.file(path).toString();
         const lastUndoSource = undoRedo.redo();
+        const langClient = await langClientPromise;
         if (lastUndoSource) {
             langClient.didChange({
                 contentChanges: [
@@ -212,7 +252,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
         <MuiThemeProvider theme={theme}>
             <div className={classes.lowCodeContainer}>
                 <IntlProvider locale='en' defaultLocale='en' messages={messages}>
-                    <DiagramGenErrorBoundary lastUpdatedAt={lastUpdatedAt}>
+                    <DiagramGenErrorBoundary lastUpdatedAt={lastUpdatedAt} >
                         <LowCodeEditor
                             {...missingProps}
                             selectedPosition={selectedPosition}
@@ -228,6 +268,8 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                 type: "File"
                             }}
                             performanceData={performanceData}
+                            importStatements={getImportStatements(syntaxTree)}
+                            experimentalEnabled={experimentalEnabled}
                             // tslint:disable-next-line: jsx-no-multiline-js
                             api={{
                                 helpPanel: {
@@ -239,10 +281,10 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                 },
                                 ls: {
                                     getDiagramEditorLangClient: () => {
-                                        return Promise.resolve(langClient);
+                                        return langClientPromise;
                                     },
                                     getExpressionEditorLangClient: () => {
-                                        return Promise.resolve(langClient);
+                                        return langClientPromise;
                                     }
                                 },
                                 insights: {
@@ -252,6 +294,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                 },
                                 code: {
                                     modifyDiagram: async (mutations: STModification[], options?: any) => {
+                                        const langClient = await langClientPromise;
                                         setMutationInProgress(true);
                                         setLoaderText('Updating...');
                                         const { parseSuccess, source, syntaxTree: newST } = await langClient.stModify({
@@ -284,7 +327,13 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                             // TODO show error
                                         }
                                         setMutationInProgress(false);
-
+                                        if (mutations.length > 0) {
+                                            const event: LowcodeEvent = {
+                                                type: DIAGRAM_MODIFIED,
+                                                name: `${mutations[0].type}`
+                                            };
+                                            props.sendTelemetryEvent(event);
+                                        }
                                         await addPerfData(vistedSyntaxTree);
                                     },
                                     onMutate: (type: string, options: any) => undefined,
@@ -317,6 +366,11 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                 },
                                 project: {
                                     run
+                                },
+                                library: {
+                                    getLibrariesList,
+                                    getLibrariesData,
+                                    getLibraryData
                                 }
                             }}
                         />
@@ -328,9 +382,12 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
 
     async function addPerfData(vistedSyntaxTree: STNode) {
         const currentTime: number = Date.now();
-
+        const langClient = await langClientPromise;
         if (currentTime - lastPerfUpdate > debounceTime) {
             const pfSession = await props.getPFSession();
+            if (!pfSession) {
+                return;
+            }
             const perfData = await addPerformanceData(vistedSyntaxTree, filePath, langClient, pfSession, props.showPerformanceGraph, props.getPerfDataFromChoreo);
             setPerformanceData(perfData);
             lastPerfUpdate = currentTime;

@@ -16,6 +16,7 @@ import { FormattedMessage, useIntl } from "react-intl";
 
 import { Box, FormControl, FormHelperText, IconButton, Typography } from "@material-ui/core";
 import EditIcon from "@material-ui/icons/Edit";
+import { withQuotes } from "@wso2-enterprise/ballerina-expression-editor";
 import {
     ActionConfig,
     ConnectorConfig,
@@ -32,7 +33,6 @@ import { wizardStyles } from "../../../ConnectorConfigWizard/style";
 import { Form } from "../../../DynamicConnectorForm";
 import { useStyles } from "../../../DynamicConnectorForm/style";
 import { SelectDropdownWithButton } from "../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
-import { withQuotes } from "../../../FormFieldComponents/ExpressionEditor/utils";
 import { FormTextInput } from "../../../FormFieldComponents/TextField/FormTextInput";
 import { httpHeaderKeys, httpHeaderValues } from "../HTTPHeaders";
 import { OperationDropdown } from "../OperationDropdown";

@@ -22,7 +22,7 @@ export function Canvas(props: CanvasProps) {
     const { children, w, h } = props;
 
     return (
-        <div>
+        <div className="diagram-canvas-wrap">
             <svg
                 data-testid="diagram-canvas"
                 className="diagram-canvas"

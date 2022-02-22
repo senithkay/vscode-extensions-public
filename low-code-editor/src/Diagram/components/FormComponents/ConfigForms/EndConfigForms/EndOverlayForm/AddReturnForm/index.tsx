@@ -15,7 +15,10 @@ import React, { useContext, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import { Box, FormControl, Typography } from "@material-ui/core";
-import { FormActionButtons, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import {
+    FormActionButtons,
+    FormHeaderSection
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
 import { FunctionDefinition, ModulePart, ReturnStatement, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
@@ -23,7 +26,7 @@ import { Context } from "../../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
 import { createReturnStatement, getInitialSource } from "../../../../../../utils/modification-util";
 import { useStyles } from "../../../../DynamicConnectorForm/style";
-import ExpressionEditor from "../../../../FormFieldComponents/ExpressionEditor";
+import { LowCodeExpressionEditor } from "../../../../FormFieldComponents/LowCodeExpressionEditor";
 import { EndConfig } from "../../../../Types";
 
 
@@ -40,13 +43,19 @@ export function AddReturnForm(props: ReturnFormProps) {
         props: {
             isMutationProgress: isMutationInProgress,
             currentFile,
-            syntaxTree
+            syntaxTree,
+            importStatements,
+            experimentalEnabled
         },
         api: {
             ls: { getExpressionEditorLangClient },
-            code: { modifyDiagram }
+            code: {
+                modifyDiagram
+            },
+            library
         }
     } = useContext(Context);
+
     const { config, formArgs, onCancel, onSave, onWizardClose } = props;
     const classes = useStyles();
     const intl = useIntl();
@@ -95,19 +104,20 @@ export function AddReturnForm(props: ReturnFormProps) {
     const returnStatementTooltipMessages = {
         title: intl.formatMessage({
             id: "lowcode.develop.configForms.returnStatementTooltipMessages.expressionEditor.tooltip.title",
-            defaultMessage: "Enter a Ballerina expression."
+            defaultMessage: "Press CTRL+Spacebar for suggestions."
         }),
-        actionText: intl.formatMessage({
-            id: "lowcode.develop.configForms.returnStatementTooltipMessages.expressionEditor.tooltip.actionText",
-            defaultMessage: "Learn Ballerina expressions"
-        }),
-        actionLink: intl.formatMessage({
-            id: "lowcode.develop.configForms.returnStatementTooltipMessages.expressionEditor.tooltip.actionTitle",
-            defaultMessage: "{learnBallerina}"
-        }, { learnBallerina: BALLERINA_EXPRESSION_SYNTAX_PATH })
+        // TODO:Uncomment when Ballerina docs are available for Return
+        // actionText: intl.formatMessage({
+        //     id: "lowcode.develop.configForms.returnStatementTooltipMessages.expressionEditor.tooltip.actionText",
+        //     defaultMessage: "Learn about Ballerina expressions here"
+        // }),
+        // actionLink: intl.formatMessage({
+        //     id: "lowcode.develop.configForms.returnStatementTooltipMessages.expressionEditor.tooltip.actionTitle",
+        //     defaultMessage: "{learnBallerina}"
+        // }, { learnBallerina: "https://ballerina.io/learn/by-example/" })
     };
 
-    const initialSource = formArgs.model ? formArgs.model.source : getInitialSource(createReturnStatement(
+    const initialSource = getInitialSource(createReturnStatement(
         returnExpression ? returnExpression as string : 'EXPRESSION'
     ));
 
@@ -127,7 +137,10 @@ export function AddReturnForm(props: ReturnFormProps) {
             onCancel,
             currentFile,
             getLangClient: getExpressionEditorLangClient,
-            applyModifications: modifyDiagram
+            applyModifications: modifyDiagram,
+            library,
+            importStatements,
+            experimentalEnabled
         }
     );
 
@@ -141,16 +154,18 @@ export function AddReturnForm(props: ReturnFormProps) {
                     defaultMessage={"Return"}
                     handleStmtEditorToggle={handleStmtEditorToggle}
                     toggleChecked={false}
+                    experimentalEnabled={experimentalEnabled}
                 />
                 <div className={classes.formContentWrapper}>
                     <div className={classes.formNameWrapper}>
-                        <ExpressionEditor
+                        <LowCodeExpressionEditor
                             model={{ name: "return expression", value: config.expression, optional: isOptional }}
                             customProps={{
                                 validate: validateExpression,
                                 tooltipTitle: returnStatementTooltipMessages.title,
-                                tooltipActionText: returnStatementTooltipMessages.actionText,
-                                tooltipActionLink: returnStatementTooltipMessages.actionLink,
+                                // TODO:Uncomment when Ballerina docs are available for Return
+                                // tooltipActionText: returnStatementTooltipMessages.actionText,
+                                // tooltipActionLink: returnStatementTooltipMessages.actionLink,
                                 interactive: true,
                                 customTemplate: {
                                     defaultCodeSnippet: 'return ;',

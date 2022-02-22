@@ -15,7 +15,12 @@ import React, { ReactNode, useContext, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import { FormControl } from "@material-ui/core";
-import { FormActionButtons, FormHeaderSection, httpResponse, PrimitiveBalType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import {
+    FormActionButtons,
+    FormHeaderSection,
+    httpResponse,
+    PrimitiveBalType
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
 import { ActionStatement, RemoteMethodCallAction } from "@wso2-enterprise/syntax-tree";
 import cn from "classnames";
@@ -24,7 +29,7 @@ import { Context } from "../../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
 import { createRespond, getInitialSource } from "../../../../../../utils/modification-util";
 import { useStyles as useFormStyles } from "../../../../DynamicConnectorForm/style";
-import ExpressionEditor from "../../../../FormFieldComponents/ExpressionEditor";
+import { LowCodeExpressionEditor } from "../../../../FormFieldComponents/LowCodeExpressionEditor";
 import { EndConfig, RespondConfig } from "../../../../Types";
 
 interface RespondFormProps {
@@ -42,15 +47,20 @@ export function AddRespondForm(props: RespondFormProps) {
     const formClasses = useFormStyles();
     const {
         props: {
-            isCodeEditorActive,
             isMutationProgress: isMutationInProgress,
-            currentFile
+            currentFile,
+            importStatements,
+            experimentalEnabled
         },
         api: {
             ls: { getExpressionEditorLangClient },
-            code: { modifyDiagram }
+            code: {
+                modifyDiagram
+            },
+            library
         }
     } = useContext(Context);
+
     const { config, formArgs, onCancel, onSave, onWizardClose } = props;
 
     const respondFormConfig: RespondConfig = config.expression as RespondConfig;
@@ -118,21 +128,22 @@ export function AddRespondForm(props: RespondFormProps) {
     const respondStatementTooltipMessages = {
         title: intl.formatMessage({
             id: "lowcode.develop.configForms.respondStatementTooltipMessages.expressionEditor.tooltip.title",
-            defaultMessage: "Enter a Ballerina expression."
+            defaultMessage: "Press CTRL+Spacebar for suggestions."
         }),
-        actionText: intl.formatMessage({
-            id: "lowcode.develop.configForms.respondStatementTooltipMessages.expressionEditor.tooltip.actionText",
-            defaultMessage: "Learn Ballerina expressions"
-        }),
-        actionLink: intl.formatMessage({
-            id: "lowcode.develop.configForms.respondStatementTooltipMessages.expressionEditor.tooltip.actionTitle",
-            defaultMessage: "{learnBallerina}"
-        }, { learnBallerina: BALLERINA_EXPRESSION_SYNTAX_PATH })
+        // TODO:Uncomment when Ballerina docs are available for Respond
+        // actionText: intl.formatMessage({
+        //     id: "lowcode.develop.configForms.respondStatementTooltipMessages.expressionEditor.tooltip.actionText",
+        //     defaultMessage: "Learn about Ballerina expressions here"
+        // }),
+        // actionLink: intl.formatMessage({
+        //     id: "lowcode.develop.configForms.respondStatementTooltipMessages.expressionEditor.tooltip.actionTitle",
+        //     defaultMessage: "{learnBallerina}"
+        // }, { learnBallerina: "https://lib.ballerina.io/ballerina/http/1.1.0-beta.1/clients/Caller#respond" })
     };
 
     const statusCodeComp: ReactNode = (
         <div>
-            <ExpressionEditor
+            <LowCodeExpressionEditor
                 model={{
                     optional: true,
                     name: "Status Code",
@@ -159,7 +170,7 @@ export function AddRespondForm(props: RespondFormProps) {
         respondFormConfig.genType,
         respondFormConfig.variable,
         respondFormConfig.caller,
-        resExp
+        resExp ? resExp : "EXPRESSION"
     ));
 
     const { handleStmtEditorToggle, stmtEditorComponent } = useStatementEditor(
@@ -174,7 +185,10 @@ export function AddRespondForm(props: RespondFormProps) {
             onCancel,
             currentFile,
             getLangClient: getExpressionEditorLangClient,
-            applyModifications: modifyDiagram
+            applyModifications: modifyDiagram,
+            library,
+            importStatements,
+            experimentalEnabled
         }
     );
     const fieilTypes = [
@@ -199,10 +213,11 @@ export function AddRespondForm(props: RespondFormProps) {
                     defaultMessage={"Respond"}
                     handleStmtEditorToggle={handleStmtEditorToggle}
                     toggleChecked={false}
+                    experimentalEnabled={experimentalEnabled}
                 />
                 <div className={formClasses.formContentWrapper}>
                     <div className={formClasses.formNameWrapper}>
-                        <ExpressionEditor
+                        <LowCodeExpressionEditor
                             model={{
                                 name: "respond expression",
                                 value: respondFormConfig.respondExpression,
@@ -212,8 +227,9 @@ export function AddRespondForm(props: RespondFormProps) {
                             customProps={{
                                 validate: validateExpression,
                                 tooltipTitle: respondStatementTooltipMessages.title,
-                                tooltipActionText: respondStatementTooltipMessages.actionText,
-                                tooltipActionLink: respondStatementTooltipMessages.actionLink,
+                                // TODO:Uncomment when Ballerina docs are available for Respond
+                                // tooltipActionText: respondStatementTooltipMessages.actionText,
+                                // tooltipActionLink: respondStatementTooltipMessages.actionLink,
                                 interactive: true,
                                 statementType,
                                 customTemplate: {

@@ -17,12 +17,15 @@ import { FormattedMessage, useIntl } from "react-intl";
 import { FormHelperText } from "@material-ui/core";
 import { AddRounded } from "@material-ui/icons";
 import CloseRounded from "@material-ui/icons/CloseRounded";
-import { ButtonWithIcon, IconBtnWithText } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ExpressionEditorLabel, ExpressionEditorProps } from "@wso2-enterprise/ballerina-expression-editor";
+import {
+    ButtonWithIcon,
+    FormElementProps,
+    IconBtnWithText
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { useStyles } from "../../DynamicConnectorForm/style"
-import { FormElementProps } from "../../Types";
-import ExpressionEditor, { ExpressionEditorProps } from "../ExpressionEditor";
-import { ExpressionEditorLabel } from "../ExpressionEditorLabel";
+import { LowCodeExpressionEditor } from "../LowCodeExpressionEditor";
 
 export function RestParam(props: FormElementProps<ExpressionEditorProps>) {
     const { model } = props;
@@ -122,7 +125,7 @@ export function RestParam(props: FormElementProps<ExpressionEditorProps>) {
         <div>
             <ExpressionEditorLabel {...props} model={{...model}} />
             <div className={classes.groupedForm}>
-                <ExpressionEditor {...elementPropsSubEditor} />
+                <LowCodeExpressionEditor {...elementPropsSubEditor} />
                 <div className={classes.addElementButton}>
                     <IconBtnWithText
                         disabled={addButtonDisabled}

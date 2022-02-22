@@ -77,29 +77,8 @@
         min-height: 48px;
         display: flex;
         flex-direction: row;
-        border-bottom: 1px #c1e4fc solid;
+        border-bottom: none;
         cursor: pointer;
-
-        &.get {
-            border-bottom: 1px solid #c1e4fc;
-        }
-
-        &.post {
-            border-bottom: 1px solid #cdf1df;
-        }
-
-        &.put {
-            border-bottom: 1px solid #fee6c8;
-        }
-
-        &.delete {
-            border-bottom: 1px solid #f8c2c2;
-        }
-
-        &.patch {
-            border-bottom: 1px solid #c1e4fc;
-        }
-
         .code {
             font-size: 10px;
             border: 1px solid #36B475;
@@ -283,6 +262,11 @@
             display: block;
         }
     }
+}
+
+.design-container-outer{
+    display:flex;
+    flex-direction: row;
 }
 
 .design-container {

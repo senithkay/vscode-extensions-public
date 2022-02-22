@@ -11,23 +11,23 @@
  * associated services.
  */
 // tslint:disable: no-empty jsx-no-multiline-js
-import React from 'react';
+import React, { useState } from 'react';
 
-import { STModification } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { LibraryKind, STModification } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
-import { LowCodeEditorProps } from '../components/ViewContainer/ViewContainer';
+import { LowCodeEditorProps } from '../components/StatementEditor';
 
 import { InputEditorContextProvider } from "./input-editor-context";
 
 export const StatementEditorContext = React.createContext({
     modelCtx: {
+        initialSource: '',
         statementModel: null,
         currentModel: null,
         updateModel: (codeSnippet: string, position: NodePosition) => {}
     },
     formCtx: {
-        onCancel: false,
         formModelPosition: null
     },
     statementCtx: {
@@ -35,10 +35,19 @@ export const StatementEditorContext = React.createContext({
     },
     getLangClient: () => (Promise.resolve({} as any)),
     applyModifications: (modifications: STModification[]) => (undefined),
+    library: {
+        getLibrariesList: (kind: LibraryKind) => (Promise.resolve({} as any)),
+        getLibrariesData: () => (Promise.resolve({} as any)),
+        getLibraryData: (orgName: string, moduleName: string, version: string) => (Promise.resolve({} as any))
+    },
     currentFile: {
         content: "",
         path: "",
         size: 0
+    },
+    modules: {
+        modulesToBeImported: new Set(),
+        updateModuleList: (module: string) => {}
     }
 });
 
@@ -46,10 +55,10 @@ interface CtxProviderProps extends LowCodeEditorProps {
     children?: React.ReactNode,
     model: STNode,
     currentModel: { model: STNode },
-    onCancelClicked: boolean,
     updateModel?: (codeSnippet: string, position: NodePosition) => void,
     formArgs?: any,
-    validateStatement: (isValid: boolean) => void
+    validateStatement: (isValid: boolean) => void,
+    initialSource: string
 }
 
 export const StatementEditorContextProvider = (props: CtxProviderProps) => {
@@ -57,27 +66,44 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
         children,
         model,
         currentModel,
-        onCancelClicked,
+        importStatements,
         updateModel,
         formArgs,
         validateStatement,
+        library,
+        initialSource,
         ...restProps
     } = props;
+
+    const [moduleList, setModuleList] = useState(new Set<string>());
+
+    const moduleHandler = (module: string) => {
+        if (!importStatements.includes(module)) {
+            setModuleList((prevModuleList: Set<string>) => {
+                return new Set(prevModuleList.add(module));
+            });
+        }
+    };
 
     return (
         <StatementEditorContext.Provider
             value={{
                 modelCtx: {
+                    initialSource,
                     statementModel: model,
                     currentModel,
                     updateModel
                 },
                 formCtx: {
-                    onCancel: onCancelClicked,
                     formModelPosition: formArgs.formArgs.targetPosition
                 },
                 statementCtx: {
                     validateStatement
+                },
+                library,
+                modules: {
+                    modulesToBeImported: moduleList,
+                    updateModuleList: moduleHandler
                 },
                 ...restProps
             }}

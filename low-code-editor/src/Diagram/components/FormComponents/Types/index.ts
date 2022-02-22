@@ -13,46 +13,6 @@
 import { ExpressionEditorState, FormField, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import { Diagnostic } from "vscode-languageserver-protocol";
-
-import { GenerationType } from "../ConfigForms/ProcessConfigForms/ProcessForm/AddDataMappingConfig/OutputTypeSelector";
-
-export interface FormElementProps<T = {}> extends FormElementEvents {
-    model?: FormField | any;
-    index?: number;
-    customProps?: T;
-    defaultValue?: any;
-    placeholder?: string;
-    label?: string;
-    rowsMax?: number;
-    errorMessage?: string;
-    validateEmptyField?: (field: string, isEmpty: boolean) => void;
-    onFieldValueChange?: (isRequiredFieldsFilled: boolean) => void;
-    size?: "small" | "medium";
-    type?: "string" | "number" | "array" | "record" | "|" | "varref" | "int" | "float" | "boolean" | "json" | "var";
-    editorDiagnostics?: Diagnostic[];
-    mainDiagnostics?: Diagnostic[];
-    targetPositionDraft?: any;
-    disabled?: boolean;
-    dataTestId?: string;
-    currentValue?: string;
-    tooltip?: string;
-    hideLabelTooltips?: boolean;
-}
-
-export interface FormElementEvents {
-    // Should use either KeyUp or OnChange callBack
-    onChange?: (event: any) => void;
-    // This callback is to detect KeyUp event
-    onKeyUp?: (event: any) => void;
-    // This callback is to detect focus out
-    onBlur?: (event: any) => void;
-    onClick?: () => void;
-    onFocus?: (event: any) => void;
-    dispatchExprEditorStart?: (editor: ExpressionEditorState) => void;
-    dispatchExprEditorContentChange?: (editor: ExpressionEditorState) => void;
-    dispatchExprEditorClose?: (editor: ExpressionEditorState) => void;
-}
-
 export interface FormFieldChecks {
     name: string;
     isValid: boolean;
@@ -81,7 +41,7 @@ export interface ElseIfConfig {
 
 export interface ProcessConfig {
     type: string;
-    config?: string | LogConfig | RespondConfig | DataMapperConfig | CustomExpressionConfig;
+    config?: string | LogConfig | RespondConfig | CustomExpressionConfig;
     scopeSymbols?: string[];
     model?: STNode;
     wizardType?: WizardType;
@@ -117,34 +77,6 @@ export interface DataMapperInputTypeInfo {
     name: string;
     node?: STNode;
 }
-
-export interface DataMapperOutputTypeInfo {
-    variableName?: string;
-    type: string;
-    node?: STNode;
-    generationType?: GenerationType;
-    typeInfo?: TypeInfo;
-    startLine?: number;
-    fields?: DataMapperOutputField[];
-    sampleStructure?: string;
-    fieldsGenerated?: boolean;
-    saved?: boolean
-    typeDefInSameModule?: boolean;
-}
-
-export interface DataMapperConfig {
-    inputTypes: DataMapperInputTypeInfo[]; // todo ::: finalize the interface
-    outputType: DataMapperOutputTypeInfo;
-}
-
-export interface DataMapperOutputField {
-    name: string;
-    type: string;
-    fields?: DataMapperOutputField[];
-    value?: string;
-    isChanged: boolean;
-}
-
 export interface EndConfig {
     type: string;
     expression?: string | RespondConfig;

@@ -19,21 +19,26 @@ import { BinaryExpression, ForeachStatement } from "@wso2-enterprise/syntax-tree
 import classnames from "classnames";
 import { FormControl, Typography } from "@material-ui/core";
 
-import { FormField, FormActionButtons, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import {
+    FormField,
+    FormActionButtons,
+    FormElementProps,
+    FormHeaderSection
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { Context } from "../../../../../../../Contexts/Diagram";
-import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
 import { getAllVariables } from "../../../../../../utils/mixins";
-import { createForeachStatement, getInitialSource } from "../../../../../../utils/modification-util";
+import { createForeachStatement, createForeachStatementWithBlock, getInitialSource } from "../../../../../../utils/modification-util";
 import { genVariableName } from "../../../../../Portals/utils";
 import { useStyles } from "../../../../DynamicConnectorForm/style";
 import { SelectDropdownWithButton } from "../../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
-import ExpressionEditor, { ExpressionEditorProps } from "../../../../FormFieldComponents/ExpressionEditor";
+import { ExpressionEditorProps } from "@wso2-enterprise/ballerina-expression-editor";
 import { FormTextInput } from "../../../../FormFieldComponents/TextField/FormTextInput";
 import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
-import { ConditionConfig, ForeachConfig, FormElementProps } from "../../../../Types";
+import { ConditionConfig, ForeachConfig } from "../../../../Types";
 import { wizardStyles } from "../../../style";
 import { VariableTypeInput, VariableTypeInputProps } from "../../../Components/VariableTypeInput";
 import Tooltip from '../../../../../../../components/TooltipV2'
+import { LowCodeExpressionEditor } from "../../../../FormFieldComponents/LowCodeExpressionEditor";
 
 interface Iterations {
     start?: string;
@@ -54,16 +59,21 @@ export const EXISTING_PROPERTY: string = "Select Existing Property";
 export function AddForeachForm(props: ForeachProps) {
     const {
         props: {
-            isCodeEditorActive,
             isMutationProgress: isMutationInProgress,
             stSymbolInfo,
-            currentFile
+            currentFile,
+            importStatements,
+            experimentalEnabled
         },
         api: {
             ls: { getExpressionEditorLangClient },
-            code: { modifyDiagram }
+            code: {
+                modifyDiagram
+            },
+            library
         }
     } = useContext(Context);
+
     const { condition, formArgs, onCancel, onSave, onWizardClose } = props;
 
     const [conditionExpression] = useState(condition.conditionExpression);
@@ -154,16 +164,16 @@ export function AddForeachForm(props: ForeachProps) {
         expressionEditor: {
             title: intl.formatMessage({
                 id: "lowcode.develop.configForms.forEach.expressionEditor.tooltip.title",
-                defaultMessage: "Enter a Ballerina expression."
+                defaultMessage: "Press CTRL+Spacebar for suggestions."
             }),
             actionText: intl.formatMessage({
                 id: "lowcode.develop.configForms.forEach.expressionEditor.tooltip.actionText",
-                defaultMessage: "Learn Ballerina expressions"
+                defaultMessage: "Learn about Ballerina expressions here"
             }),
             actionLink: intl.formatMessage({
                 id: "lowcode.develop.configForms.forEach.expressionEditor.tooltip.actionTitle",
                 defaultMessage: "{learnBallerina}"
-            }, { learnBallerina: BALLERINA_EXPRESSION_SYNTAX_PATH })
+            }, { learnBallerina: "https://ballerina.io/learn/by-example/foreach-statement.html?is_ref_by_example=true" })
         },
         currentValueVariable: {
             title: intl.formatMessage({
@@ -219,14 +229,21 @@ export function AddForeachForm(props: ForeachProps) {
             }
         },
         onChange: handleExpEditorChange,
-        defaultValue: conditionExpression.collection,
+        defaultValue: conditionExpression.collection
     };
 
-    const initialSource = formArgs.model ? formArgs.model.source : getInitialSource(createForeachStatement(
-        conditionExpression.collection ? conditionExpression.collection : 'EXPRESSION',
-        conditionExpression.variable,
-        selectedType
-    ));
+    const initialSource = formArgs.model ? getInitialSource(createForeachStatementWithBlock(
+                                conditionExpression.collection ? conditionExpression.collection : 'EXPRESSION',
+                                conditionExpression.variable,
+                                selectedType,
+                                (formArgs.model as ForeachStatement).blockStatement.statements.map(statement => {
+                                    return statement.source
+                                })
+                            )) : getInitialSource(createForeachStatement(
+                                conditionExpression.collection ? conditionExpression.collection : 'EXPRESSION',
+                                conditionExpression.variable,
+                                selectedType
+                            ));
 
     const handleStatementEditorChange = (partialModel: ForeachStatement) => {
         conditionExpression.type = partialModel.typedBindingPattern.typeDescriptor.source.trim();
@@ -247,7 +264,10 @@ export function AddForeachForm(props: ForeachProps) {
             onCancel,
             currentFile,
             getLangClient: getExpressionEditorLangClient,
-            applyModifications: modifyDiagram
+            applyModifications: modifyDiagram,
+            library,
+            importStatements,
+            experimentalEnabled
         }
     );
 
@@ -283,6 +303,7 @@ export function AddForeachForm(props: ForeachProps) {
                     defaultMessage={"Foreach"}
                     handleStmtEditorToggle={handleStmtEditorToggle}
                     toggleChecked={false}
+                    experimentalEnabled={experimentalEnabled}
                 />
                 <div className={classes.formContentWrapper}>
                     <div className={classes.formCodeBlockWrapper}>
@@ -299,7 +320,7 @@ export function AddForeachForm(props: ForeachProps) {
                                     onChange={onVariableNameChange}
                                     defaultValue={conditionExpression.variable}
                                     label="Current Value"
-                                    placeholder={""}
+                                    placeholder="Current Value"
                                     errorMessage={invalidConnectionErrorMessage}
                                 />
                             </div>
@@ -308,7 +329,7 @@ export function AddForeachForm(props: ForeachProps) {
                             <Typography variant='body2' className={classnames(classes.endCode)}>in</Typography>
                             <div className={classes.formCodeExpressionLargeField}>
                                 <div className={classes.stmtEditorWrapper}>
-                                    <ExpressionEditor {...expElementProps} hideLabelTooltips={true} />
+                                    <LowCodeExpressionEditor {...expElementProps} />
                                 </div>
                             </div>
                             <Typography variant='body2' className={classes.endCode}>{`{`}</Typography>

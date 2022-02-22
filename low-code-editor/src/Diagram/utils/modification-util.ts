@@ -21,7 +21,7 @@ import { HTTPServiceConfigState } from "../components/FormComponents/ConfigForms
 import { HeaderObjectConfig } from "../components/FormComponents/ConnectorExtensions/HTTPWizard/HTTPHeaders";
 import { getFormattedModuleName, getParams } from "../components/Portals/utils";
 
-import { getComponentSource, getInsertComponentSource } from "./template-utils";
+import { getComponentSource } from "./template-utils";
 
 /* tslint:disable ordered-imports */
 
@@ -34,6 +34,22 @@ export function createIfStatement(condition: string, targetPosition?: NodePositi
         type: "IF_CONDITION",
         config: {
             "CONDITION": condition,
+        }
+    };
+
+    return ifStatement;
+}
+
+export function createIfStatementWithBlock(condition: string, statements: string[], targetPosition?: NodePosition): STModification {
+    const ifStatement: STModification = {
+        startLine: targetPosition ? targetPosition.startLine : 0,
+        startColumn: 0,
+        endLine: targetPosition ? targetPosition.startLine : 0,
+        endColumn: 0,
+        type: "IF_CONDITION_WITH_BLOCK",
+        config: {
+            "CONDITION": condition,
+            "BLOCKSTATEMENTS": statements
         }
     };
 
@@ -54,6 +70,21 @@ export function createElseIfStatement(condition: string, targetPosition?: NodePo
     return elseIfStatement;
 }
 
+export function createElseIfStatementWithBlock(condition: string, statements: string[], targetPosition?: NodePosition): STModification {
+    const elseIfStatement: STModification = {
+        startLine: targetPosition ? targetPosition.startLine : 0,
+        startColumn: 0,
+        endLine: targetPosition ? targetPosition.startLine : 0,
+        endColumn: 0,
+        type: "ELSE_IF_CONDITION_WITH_BLOCK",
+        config: {
+            "CONDITION": condition,
+            "BLOCKSTATEMENTS": statements
+        }
+    };
+    return elseIfStatement;
+}
+
 export function createElseStatement(targetPosition?: NodePosition): STModification {
     const elseStatement: STModification = {
         startLine: targetPosition ? targetPosition.startLine : 0,
@@ -61,6 +92,20 @@ export function createElseStatement(targetPosition?: NodePosition): STModificati
         endLine: targetPosition ? targetPosition.startLine : 0,
         endColumn: 0,
         type: "ELSE_STATEMENT"
+    };
+    return elseStatement;
+}
+
+export function createElseStatementWithBlock(statements: string[], targetPosition?: NodePosition): STModification {
+    const elseStatement: STModification = {
+        startLine: targetPosition ? targetPosition.startLine : 0,
+        startColumn: 0,
+        endLine: targetPosition ? targetPosition.startLine : 0,
+        endColumn: 0,
+        type: "ELSE_STATEMENT_WITH_BLOCK",
+        config: {
+            "BLOCKSTATEMENTS": statements
+        }
     };
     return elseStatement;
 }
@@ -91,6 +136,24 @@ export function createForeachStatement(collection: string, variableName: string,
             "COLLECTION": collection,
             "TYPE": type,
             "VARIABLE": variableName
+        }
+    };
+
+    return foreachStatement;
+}
+
+export function createForeachStatementWithBlock(collection: string, variableName: string, type: string, statements: string[], targetPosition?: NodePosition): STModification {
+    const foreachStatement: STModification = {
+        startLine: targetPosition ? targetPosition.startLine : 0,
+        startColumn: 0,
+        endLine: targetPosition ? targetPosition.startLine : 0,
+        endColumn: 0,
+        type: "FOREACH_STATEMENT_WITH_BLOCK",
+        config: {
+            "COLLECTION": collection,
+            "TYPE": type,
+            "VARIABLE": variableName,
+            "BLOCKSTATEMENTS": statements
         }
     };
 
@@ -143,6 +206,22 @@ export function createWhileStatement(conditionExpression: string, targetPosition
     };
 
     return ifStatement;
+}
+
+export function createWhileStatementWithBlock(conditionExpression: string, statements: string[], targetPosition?: NodePosition): STModification {
+    const whileStatement: STModification = {
+        startLine: targetPosition ? targetPosition.startLine : 0,
+        startColumn: 0,
+        endLine: targetPosition ? targetPosition.startLine : 0,
+        endColumn: 0,
+        type: "WHILE_STATEMENT_WITH_BLOCK",
+        config: {
+            "CONDITION": conditionExpression,
+            "BLOCKSTATEMENTS": statements
+        }
+    };
+
+    return whileStatement;
 }
 
 export function updateWhileStatementCondition(conditionExpression: string, targetPosition: NodePosition): STModification {
@@ -571,6 +650,25 @@ export function createModuleVarDecl(config: ModuleVariableFormState, targetPosit
     }
 }
 
+export function createModuleVarDeclWithoutInitialization(config: ModuleVariableFormState, targetPosition?: NodePosition,
+                                                         isLastMember?: boolean): STModification {
+    const { varName, varOptions, varType } = config;
+
+    return {
+        startLine: targetPosition ? targetPosition.startLine : 0,
+        endLine: targetPosition ? targetPosition.startLine : 0,
+        startColumn: isLastMember ? targetPosition.endColumn : 0,
+        endColumn: isLastMember ? targetPosition.endColumn : 0,
+        type: 'MODULE_VAR_DECL_WITHOUT_INIT',
+        config: {
+            'ACCESS_MODIFIER': varOptions.indexOf('public') > -1 ? 'public' : '',
+            'VAR_QUALIFIER': varOptions.indexOf('final') > -1 ? 'final' : '',
+            'VAR_TYPE': varType,
+            'VAR_NAME': varName
+        }
+    }
+}
+
 export function updateModuleVarDecl(config: ModuleVariableFormState, targetPosition: NodePosition): STModification {
     const { varName, varOptions, varType, varValue } = config;
 
@@ -912,47 +1010,6 @@ export function updateHeaderObjectDeclaration(headerObject: HeaderObjectConfig[]
     return requestGeneration;
 }
 
-export async function InsertorDelete(modifications: STModification[]): Promise<STModification[]> {
-    const stModifications: STModification[] = [];
-    /* tslint:disable prefer-for-of */
-    for (let i = 0; i < modifications.length; i++) {
-        const value: STModification = modifications[i];
-        let stModification: STModification;
-        if (value.type && value.type.toLowerCase() === "delete") {
-            stModification = value;
-        } else if (value.type && value.type.toLowerCase() === "import") {
-            const source = await getInsertComponentSource(value.type, value.config);
-            stModification = {
-                startLine: value.startLine,
-                startColumn: value.startColumn,
-                endLine: value.endLine,
-                endColumn: value.endColumn,
-                type: "INSERT",
-                isImport: true,
-                config: {
-                    "TYPE": value?.config?.TYPE,
-                    "STATEMENT": source,
-                }
-            }
-        } else if (value.type && value.type.toLowerCase() === 'insert') {
-            stModification = value;
-        } else {
-            const source = await getInsertComponentSource(value.type, value.config);
-            stModification = {
-                startLine: value.startLine,
-                startColumn: value.startColumn,
-                endLine: value.endLine,
-                endColumn: value.endColumn,
-                type: "INSERT",
-                config: {
-                    "STATEMENT": source,
-                }
-            };
-        }
-        stModifications.push(stModification);
-    }
-    return stModifications;
-}
 
 export function createFunctionSignature(accessModifier: string, name: string, parameters: string, returnTypes: string,
                                         targetPosition: NodePosition, isLastMember?: boolean): STModification {

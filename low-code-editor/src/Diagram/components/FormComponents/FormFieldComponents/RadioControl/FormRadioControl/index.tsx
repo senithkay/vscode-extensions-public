@@ -15,9 +15,9 @@ import React, { useState } from "react";
 import { FormattedMessage } from "react-intl";
 
 import { FormControlLabel, FormHelperText, Radio, RadioGroup } from "@material-ui/core";
+import { FormElementProps } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { useStyles as useFormStyles } from "../../../DynamicConnectorForm/style";
-import { FormElementProps } from "../../../Types";
 import { useStyles as useRadioControlStyles } from "../style";
 import '../style.scss'
 

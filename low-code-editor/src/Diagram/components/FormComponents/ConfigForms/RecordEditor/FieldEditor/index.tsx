@@ -15,14 +15,13 @@ import React, { useState } from "react";
 import { useIntl } from "react-intl";
 
 import { Typography } from "@material-ui/core";
-import { FormField } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { FormElementProps, FormField } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import classnames from "classnames";
 
 import DeleteButton from "../../../../../../assets/icons/DeleteButton";
 import { FormState, useRecordEditorContext } from "../../../../../../Contexts/RecordEditor";
-import ExpressionEditor from "../../../FormFieldComponents/ExpressionEditor";
+import { LowCodeExpressionEditor } from "../../../FormFieldComponents/LowCodeExpressionEditor";
 import { FormTextInput } from "../../../FormFieldComponents/TextField/FormTextInput";
-import { FormElementProps } from "../../../Types";
 import { VariableTypeInput, VariableTypeInputProps } from "../../Components/VariableTypeInput";
 import { recordStyles } from "../style";
 import { RecordModel, SimpleField } from "../types";
@@ -53,7 +52,7 @@ export function FieldEditor(props: FieldEditorProps) {
     const [typeEditorVisible, setTypeEditorVisible] = useState<boolean>(false);
     const [valueEditorVisible, setValueEditorVisible] = useState<boolean>(false);
 
-    const typeProperty = `${field.isArray ? "[]" : ""}${field.isFieldTypeOptional ? "?" : ""}`;
+    const typeProperty = `${field?.isArray ? "[]" : ""}${field?.isFieldTypeOptional ? "?" : ""}`;
 
     const formField: FormField = {
         name: "defaultValue",
@@ -87,6 +86,7 @@ export function FieldEditor(props: FieldEditorProps) {
             callBacks.onUpdateCurrentField(field);
         }
     };
+
     const defaultValueProps: FormElementProps = {
         model: formField,
         customProps: {
@@ -202,7 +202,7 @@ export function FieldEditor(props: FieldEditorProps) {
     };
 
     return (
-        <div className={recordClasses.itemWrapper}>
+        <div data-field-name={field.name} className={recordClasses.itemWrapper}>
             <div className={recordClasses.editItemContentWrapper}>
                 <div className={recordClasses.itemLabelWrapper}>
                     <div className={recordClasses.editTypeWrapper}>
@@ -249,7 +249,7 @@ export function FieldEditor(props: FieldEditorProps) {
                                 </Typography>
                                 {valueEditorVisible ? (
                                     <div className={recordClasses.editTypeWrapper}>
-                                        <ExpressionEditor {...defaultValueProps} />
+                                        <LowCodeExpressionEditor {...defaultValueProps} />
                                     </div>
                                 ) : (
                                     <FormTextInput
@@ -273,7 +273,7 @@ export function FieldEditor(props: FieldEditorProps) {
                     >
                         ;
                     </Typography>
-                    <div className={recordClasses.editFieldDelBtn}>
+                    <div data-testid={`delete-${field.name}`} className={recordClasses.editFieldDelBtn}>
                         <DeleteButton onClick={handleDelete}/>
                     </div>
                 </div>

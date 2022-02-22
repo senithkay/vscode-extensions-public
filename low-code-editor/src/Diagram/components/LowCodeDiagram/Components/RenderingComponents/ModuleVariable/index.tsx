@@ -13,6 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useRef, useState } from "react"
 
+import { Tooltip } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { CaptureBindingPattern, ModuleVarDecl, QualifiedNameReference, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
@@ -20,7 +21,6 @@ import ConfigurableIcon from "../../../../../../assets/icons/Configurable";
 import DeleteButton from "../../../../../../assets/icons/DeleteButton";
 import EditButton from "../../../../../../assets/icons/EditButton";
 import ModuleVariableIcon from "../../../../../../assets/icons/ModuleVariableIcon";
-import Tooltip from "../../../../../../components/Tooltip";
 import { useDiagramContext } from "../../../../../../Contexts/Diagram";
 import { removeStatement } from "../../../../../utils/modification-util";
 import { FormGenerator } from "../../../../FormComponents/FormGenerator";

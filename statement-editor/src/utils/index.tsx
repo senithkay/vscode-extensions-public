@@ -12,11 +12,7 @@
  */
 import React, { ReactNode } from 'react';
 
-import {
-    ExpressionEditorLangClientInterface,
-    PartialSTRequest,
-    STModification
-} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     NodePosition,
     STKindChecker,
@@ -29,33 +25,13 @@ import * as c from "../constants";
 import { SuggestionItem, VariableUserInputs } from '../models/definitions';
 import { visitor as ModelFindingVisitor } from "../visitors/model-finding-visitor";
 
-import { createStatement, updateStatement } from "./statement-modifications";
+import { createImportStatement, createStatement, updateStatement } from "./statement-modifications";
 import {
     DataTypeByExpressionKind,
     ExpressionKindByOperator,
     ExpressionSuggestionsByKind,
-    OperatorsForExpressionKind,
-    TypeDescriptors
+    OperatorsForExpressionKind
 } from "./utils";
-
-export async function getPartialSTForStatement(
-            partialSTRequest: PartialSTRequest,
-            getLangClient: () => Promise<ExpressionEditorLangClientInterface>
-        ): Promise<STNode> {
-    const langClient: ExpressionEditorLangClientInterface = await getLangClient();
-    const resp = await langClient.getSTForSingleStatement(partialSTRequest);
-    return resp.syntaxTree;
-}
-
-export async function getPartialSTForExpression(
-            partialSTRequest: PartialSTRequest,
-            lsUrl: string,
-            ls?: any
-        ): Promise<STNode> {
-    const langClient: ExpressionEditorLangClientInterface = await ls.getExpressionEditorLangClient(lsUrl);
-    const resp = await langClient.getSTForExpression(partialSTRequest);
-    return resp.syntaxTree;
-}
 
 export function getModifications(
         model: STNode,
@@ -63,18 +39,24 @@ export function getModifications(
             type: string;
             model?: STNode;
         },
-        formArgs: any): STModification[] {
+        formArgs: any,
+        modulesToBeImported?: string[]): STModification[] {
     const modifications: STModification[] = [];
+    const importStatementRegex = /ballerinax?\/[^;]+/g;
 
     if (STKindChecker.isLocalVarDecl(model) ||
             STKindChecker.isCallStatement(model) ||
             STKindChecker.isReturnStatement(model) ||
             STKindChecker.isAssignmentStatement(model) ||
             (config && config.type === 'Custom')) {
+        let source = model.source;
+        if (STKindChecker.isCallStatement(model) && model.source.slice(-1) !== ';') {
+            source += ';';
+        }
         if (config.model) {
-            modifications.push(updateStatement(model.source, formArgs.formArgs?.model.position));
+            modifications.push(updateStatement(source, formArgs.formArgs?.model.position));
         } else {
-            modifications.push(createStatement(model.source, formArgs.formArgs?.targetPosition));
+            modifications.push(createStatement(source, formArgs.formArgs?.targetPosition));
         }
     }
 
@@ -88,15 +70,17 @@ export function getModifications(
         }
     }
 
+    if (modulesToBeImported) {
+        modulesToBeImported.map((moduleNameStr: string) => (
+            modifications.push(createImportStatement(importStatementRegex.exec(moduleNameStr).pop()))
+        ));
+    }
+
     return modifications;
 }
 
 export function getSuggestionsBasedOnExpressionKind(kind: string): SuggestionItem[] {
     return ExpressionSuggestionsByKind[kind];
-}
-
-export function getTypeDescriptors(): SuggestionItem[] {
-    return TypeDescriptors;
 }
 
 export function getKindBasedOnOperator(operator: string): string {
@@ -117,6 +101,7 @@ export function getDataTypeOnExpressionKind(kind: string): string[] {
 export function getExpressionTypeComponent(
     expression: STNode,
     userInputs: VariableUserInputs,
+    isElseIfMember: boolean,
     diagnosticHandler: (diagnostics: string) => void,
     isTypeDescriptor: boolean
 ): ReactNode {
@@ -130,6 +115,7 @@ export function getExpressionTypeComponent(
         <ExprTypeComponent
             model={expression}
             userInputs={userInputs}
+            isElseIfMember={isElseIfMember}
             diagnosticHandler={diagnosticHandler}
             isTypeDescriptor={isTypeDescriptor}
         />
@@ -139,9 +125,10 @@ export function getExpressionTypeComponent(
 export function getStatementTypeComponent(
     model: c.StatementNodes,
     userInputs: VariableUserInputs,
+    isElseIfMember: boolean,
     diagnosticHandler: (diagnostics: string) => void
 ): ReactNode {
-    let StatementTypeComponent = (statementTypeComponents as any)[model.kind];
+    let StatementTypeComponent = (statementTypeComponents as any)[model?.kind];
 
     if (!StatementTypeComponent) {
         StatementTypeComponent = (statementTypeComponents as any)[c.OTHER_STATEMENT];
@@ -151,6 +138,7 @@ export function getStatementTypeComponent(
         <StatementTypeComponent
             model={model}
             userInputs={userInputs}
+            isElseIfMember={isElseIfMember}
             diagnosticHandler={diagnosticHandler}
         />
     );

@@ -12,8 +12,6 @@ import { ASTDidChangeParams, ASTDidChangeResponse, BallerinaConnectorRequest, Ba
 
 export class BallerinaLangClient implements IBallerinaLangClient {
 
-    public isInitialized: boolean = false;
-
     constructor(
         public lsConnection: IConnection) {
     }
@@ -22,7 +20,6 @@ export class BallerinaLangClient implements IBallerinaLangClient {
         this.lsConnection.listen();
         return this.lsConnection.initialize(params)
                 .then((resp) => {
-                    this.isInitialized = true;
                     return resp;
                 });
     }

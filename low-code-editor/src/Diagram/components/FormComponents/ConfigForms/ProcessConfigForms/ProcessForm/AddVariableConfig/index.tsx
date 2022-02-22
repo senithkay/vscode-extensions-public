@@ -15,21 +15,31 @@ import React, { useContext, useEffect, useRef, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import { Box, FormControl, Typography } from "@material-ui/core";
-import { FormActionButtons, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ExpressionEditorProps } from "@wso2-enterprise/ballerina-expression-editor";
+import {
+    FormActionButtons,
+    FormElementProps,
+    FormHeaderSection
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
 import { LocalVarDecl, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../../../Contexts/Diagram";
-import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
 import { ADD_VARIABLE, LowcodeEvent, SAVE_VARIABLE } from "../../../../../../models";
-import { createModuleVarDecl, getInitialSource } from "../../../../../../utils/modification-util";
+import { getAllVariables } from "../../../../../../utils/mixins";
+import {
+    createModuleVarDecl,
+    createModuleVarDeclWithoutInitialization,
+    getInitialSource
+} from "../../../../../../utils/modification-util";
 import { getVariableNameFromST } from "../../../../../../utils/st-util";
+import { genVariableName } from "../../../../../Portals/utils";
 import { useStyles } from "../../../../DynamicConnectorForm/style";
 import { SelectDropdownWithButton } from "../../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
-import ExpressionEditor, { ExpressionEditorProps } from "../../../../FormFieldComponents/ExpressionEditor";
+import { LowCodeExpressionEditor } from "../../../../FormFieldComponents/LowCodeExpressionEditor";
 import { SwitchToggle } from "../../../../FormFieldComponents/SwitchToggle";
 import { FormTextInput } from "../../../../FormFieldComponents/TextField/FormTextInput";
-import { FormElementProps, ProcessConfig } from "../../../../Types";
+import { ProcessConfig } from "../../../../Types";
 import { VariableNameInput, VariableNameInputProps } from "../../../Components/VariableNameInput";
 import {
     VariableTypeInput,
@@ -57,12 +67,17 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         props: {
             currentFile,
             isMutationProgress: isMutationInProgress,
-            stSymbolInfo
+            stSymbolInfo,
+            importStatements,
+            experimentalEnabled
         },
         api: {
             ls: { getExpressionEditorLangClient },
-            code: { modifyDiagram },
-            insights: { onEvent }
+            code: {
+                modifyDiagram
+            },
+            insights: { onEvent },
+            library
         }
     } = useContext(Context);
 
@@ -126,11 +141,11 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
 
     // Insight event to send when loading the component
     useEffect(() => {
-        const event: LowcodeEvent = {
-            type: ADD_VARIABLE,
-            name: config.config
-        };
-        onEvent(event);
+        // const event: LowcodeEvent = {
+        //     type: ADD_VARIABLE,
+        //     name: config.config
+        // };
+        // onEvent(event);
     }, []);
 
     const handleSave = () => {
@@ -143,11 +158,11 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
             config.config = selectedType + " " + varName + ";";
             onSave();
         }
-        const event: LowcodeEvent = {
-            type: SAVE_VARIABLE,
-            name: config.config
-        };
-        onEvent(event);
+        // const event: LowcodeEvent = {
+        //     type: SAVE_VARIABLE,
+        //     name: config.config
+        // };
+        // onEvent(event);
     };
 
     const saveVariableButtonText = intl.formatMessage({
@@ -170,22 +185,22 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         expressionEditor: {
             title: intl.formatMessage({
                 id: "lowcode.develop.configForms.variable.expressionEditor.tooltip.title",
-                defaultMessage: "Enter a Ballerina expression."
+                defaultMessage: "Press CTRL+Spacebar for suggestions."
             }),
             actionText: intl.formatMessage({
                 id: "lowcode.develop.configForms.variable.expressionEditor.tooltip.actionText",
-                defaultMessage: "Learn Ballerina expressions"
+                defaultMessage: "Learn about Ballerina expressions here"
             }),
             actionLink: intl.formatMessage({
                 id: "lowcode.develop.configForms.variable.expressionEditor.tooltip.actionTitle",
                 defaultMessage: "{learnBallerina}"
-            }, { learnBallerina: BALLERINA_EXPRESSION_SYNTAX_PATH })
+            }, { learnBallerina: "https://ballerina.io/1.2/learn/by-example/variables.html?is_ref_by_example=true" })
         }
     };
 
 
     const validForm: boolean = initialized
-        ? varName.length > 0 && variableExpression.length > 0 && selectedType.length > 0
+        ? varName.length > 0 && variableExpression?.length > 0 && selectedType.length > 0
         : varName.length > 0 && selectedType.length > 0;
 
     const userInputs = {
@@ -250,19 +265,32 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         defaultValue: variableExpression,
     };
 
-    const initialSource = formArgs.model ? formArgs.model.source : getInitialSource(createModuleVarDecl(
-        {
-            varName: varName ? varName : "default",
-            varOptions: [],
-            varType: selectedType ? selectedType : "var",
-            varValue: variableExpression ? variableExpression : "EXPRESSION"
-        }
-    ));
+    const initialSource = formArgs.model ? formArgs.model.source : (initialized ? (
+                getInitialSource(createModuleVarDecl(
+                    {
+                        varName: varName ? varName : genVariableName("variable", getAllVariables(stSymbolInfo)),
+                        varOptions: [],
+                        varType: selectedType ? selectedType : "var",
+                        varValue: variableExpression ? variableExpression : "EXPRESSION"
+                    }
+                ))
+            ) :
+            (
+                getInitialSource(createModuleVarDeclWithoutInitialization(
+                    {
+                        varName: varName ? varName : genVariableName("variable", getAllVariables(stSymbolInfo)),
+                        varOptions: [],
+                        varType: selectedType ? selectedType : "var",
+                        varValue: null
+                    }
+                ))
+            )
+    );
 
     const handleStatementEditorChange = (partialModel: LocalVarDecl) => {
         setSelectedType(partialModel.typedBindingPattern.typeDescriptor.source.trim())
         setVarName(partialModel.typedBindingPattern.bindingPattern.source.trim())
-        setVariableExpression(partialModel.initializer.source.trim())
+        setVariableExpression(partialModel.initializer?.source.trim())
     }
 
     const { handleStmtEditorToggle, stmtEditorComponent } = useStatementEditor(
@@ -278,7 +306,10 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
             onCancel,
             currentFile,
             getLangClient: getExpressionEditorLangClient,
-            applyModifications: modifyDiagram
+            applyModifications: modifyDiagram,
+            library,
+            importStatements,
+            experimentalEnabled
         }
     );
 
@@ -296,8 +327,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
 
     const expressionEditor = (
         <div className="exp-wrapper">
-            <ExpressionEditor
-                hideLabelTooltips={true}
+            <LowCodeExpressionEditor
                 {...expressionEditorConfig}
             />
         </div>
@@ -329,6 +359,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                     defaultMessage={"Variable"}
                     handleStmtEditorToggle={handleStmtEditorToggle}
                     toggleChecked={false}
+                    experimentalEnabled={experimentalEnabled}
                 />
                 <div className={classes.formContentWrapper}>
                     <div className={classes.formDeclarationWrapper}>
