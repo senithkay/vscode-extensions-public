@@ -53,34 +53,36 @@ export function ExpressionSuggestions(props: ExpressionSuggestionsProps) {
     const label = operator ? "Operators" : "Expressions";
 
     return (
-        <div>
+        <>
             <div className={statementEditorClasses.subHeader}>{label}</div>
-            {
-                suggestions.map((suggestion: SuggestionItem, index: number) => (
-                    (suggestion.kind) ?
-                        (
-                            <button
-                                className={statementEditorClasses.suggestionButton}
-                                key={index}
-                                onClick={() => onClickOperatorSuggestion(suggestion)}
-                            >
-                                {suggestion.value}
-                            </button>
+            <div className={statementEditorClasses.expressionSuggestionList}>
+                {
+                    suggestions.map((suggestion: SuggestionItem, index: number) => (
+                        (suggestion.kind) ?
+                            (
+                                <button
+                                    className={statementEditorClasses.suggestionButton}
+                                    key={index}
+                                    onClick={() => onClickOperatorSuggestion(suggestion)}
+                                >
+                                    {suggestion.value}
+                                </button>
 
-                        )
-                        :
-                        (
-                            <button
-                                className={statementEditorClasses.suggestionButton}
-                                key={index}
-                                onClick={() => onClickExpressionSuggestion(suggestion.value)}
-                            >
-                                {suggestion.value}
-                            </button>
-                        )
+                            )
+                            :
+                            (
+                                <button
+                                    className={statementEditorClasses.suggestionButton}
+                                    key={index}
+                                    onClick={() => onClickExpressionSuggestion(suggestion.value)}
+                                >
+                                    {suggestion.value}
+                                </button>
+                            )
 
-                ))
-            }
-        </div>
+                    ))
+                }
+            </div>
+        </>
     );
 }
