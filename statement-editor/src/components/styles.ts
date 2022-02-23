@@ -33,7 +33,17 @@ export const useStatementEditorStyles = makeStyles(() =>
             height: '60vh'
         },
         tabPanelWrapper: {
-            width: 'auto'
+            width: 'auto',
+            boxShadow: '0px 1px 1px -1px rgb(0 0 0 / 20%), 0px 1px 1px 0px rgb(0 0 0 / 14%), 0px 1px 3px 0px rgb(0 0 0 / 12%)',
+            display: 'flex',
+            flexDirection: 'row'
+        },
+        tabPanel: {
+            width: '70%'
+        },
+        libraryTypeSelector: {
+            width: '30%',
+            backgroundColor: '#00ff00',
         },
         stmtEditorContentWrapper: {
             backgroundColor: '#f9fafc',
@@ -451,7 +461,7 @@ export const useStatementEditorStyles = makeStyles(() =>
         },
         tabsPanelPaperSe: {
             flexGrow: 1,
-            width: "70%"
+            boxShadow: 'none'
         },
         tabsPanelSe: {
             "& .MuiTab-wrapper": {

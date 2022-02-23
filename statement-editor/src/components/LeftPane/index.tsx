@@ -124,11 +124,16 @@ export function LeftPane(props: ModelProps) {
             </div>
             <div className={statementEditorClasses.suggestionsSection}>
                 <div className={statementEditorClasses.tabPanelWrapper}>
-                    <TabPanel
-                        values={[TabElements.suggestions, TabElements.expressions, TabElements.libraries]}
-                        defaultValue={TabElements.suggestions}
-                        onSelection={onTabElementSelection}
-                    />
+                    <div className={statementEditorClasses.tabPanel}>
+                        <TabPanel
+                            values={[TabElements.suggestions, TabElements.expressions, TabElements.libraries]}
+                            defaultValue={TabElements.suggestions}
+                            onSelection={onTabElementSelection}
+                        />
+                    </div>
+                    <div className={statementEditorClasses.libraryTypeSelector}>
+                        <></>
+                    </div>
                 </div>
                 { selectedTab === TabElements.suggestions && (!isTypeDescSuggestion && variableList.length > 0) && (
                     <div className={statementEditorClasses.suggestionsInner}>
