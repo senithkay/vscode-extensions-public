@@ -33,6 +33,11 @@ export class ExpressionEditor {
         return this;
     }
 
+    public includeText(text: string) {
+        this.getEditorConditions().children().get('.view-lines').should('include.text', text);
+        return this;
+    }
+
     public suggestWidgetShouldBeVisible() {
         this.getEditorConditions()
             .get('.monaco-list-rows').children().should('have.length.at.least', 1);
