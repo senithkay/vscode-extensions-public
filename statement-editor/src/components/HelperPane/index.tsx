@@ -13,6 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useState } from "react";
 
+import { ALL_LIBS_IDENTIFIER, LANG_LIBS_IDENTIFIER, STD_LIBS_IDENTIFIER } from "../../constants";
 import { SuggestionItem } from "../../models/definitions";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import SelectDropdown from "../Dropdown";
@@ -36,10 +37,6 @@ enum TabElements {
     expressions = 'Expressions',
     libraries = 'Libraries',
 }
-
-const ALL_LIBS = "All"
-const LANGUAGE_LIBS = "Language"
-const STANDARD_LIBS = "Standard"
 
 export function HelperPane(props: HelperPaneProps) {
     const statementEditorClasses = useStatementEditorStyles();
@@ -82,8 +79,8 @@ export function HelperPane(props: HelperPaneProps) {
                 <div className={statementEditorClasses.libraryTypeSelector}>
                     { selectedTab === TabElements.libraries && (
                         <SelectDropdown
-                            values={[ALL_LIBS, LANGUAGE_LIBS, STANDARD_LIBS]}
-                            defaultValue={ALL_LIBS}
+                            values={[ALL_LIBS_IDENTIFIER, LANG_LIBS_IDENTIFIER, STD_LIBS_IDENTIFIER]}
+                            defaultValue={ALL_LIBS_IDENTIFIER}
                             onSelection={onLibTypeSelection}
                         />
                     )}

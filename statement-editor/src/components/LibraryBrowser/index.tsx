@@ -19,6 +19,7 @@ import {
     LibrarySearchResponse
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
+import { LANG_LIBS_IDENTIFIER, STD_LIBS_IDENTIFIER } from "../../constants";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { useStatementEditorStyles } from "../styles";
 
@@ -37,8 +38,6 @@ enum LibraryBrowserMode {
 }
 
 const DEFAULT_SEARCH_SCOPE = "distribution";
-const LANGUAGE_LIBS = "Language"
-const STANDARD_LIBS = "Standard"
 
 export function LibraryBrowser(props: LibraryBrowserProps) {
     const { libraryType } = props;
@@ -71,9 +70,9 @@ export function LibraryBrowser(props: LibraryBrowserProps) {
     useEffect(() => {
         (async () => {
             let response;
-            if (libraryType === LANGUAGE_LIBS) {
+            if (libraryType === LANG_LIBS_IDENTIFIER) {
                 response = await getLibrariesList(LibraryKind.langLib);
-            } else if (libraryType === STANDARD_LIBS) {
+            } else if (libraryType === STD_LIBS_IDENTIFIER) {
                 response = await getLibrariesList(LibraryKind.stdLib);
             } else {
                 response = await getLibrariesList();
