@@ -15,14 +15,14 @@ import React from 'react';
 import { NamedWorkerDeclaration } from '@wso2-enterprise/syntax-tree';
 
 import { getSTComponents } from '../../../../../utils';
+import { BlockViewState } from '../../../ViewState';
+import { WorkerDeclarationViewState } from '../../../ViewState/worker-declaration';
+import { PlusButton } from '../../PlusButtons/Plus';
+import { End } from '../End';
+import { WorkerBody } from '../WorkerBody';
+import { WorkerLine } from '../WorkerLine';
 
 import { WorkerHead } from './WorkerHead';
-import { WorkerLine } from '../WorkerLine';
-import { End } from '../End';
-import { PlusButton } from '../../PlusButtons/Plus';
-import { WorkerBody } from '../WorkerBody';
-import { WorkerDeclarationViewState } from '../../../ViewState/worker-declaration';
-import { BlockViewState } from '../../../ViewState';
 
 interface WorkerProps {
     model: NamedWorkerDeclaration;

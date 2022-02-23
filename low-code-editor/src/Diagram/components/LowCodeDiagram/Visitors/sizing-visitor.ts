@@ -68,6 +68,7 @@ import { ModuleMemberViewState } from "../ViewState/module-member";
 import { ServiceViewState } from "../ViewState/service";
 import { WhileViewState } from "../ViewState/while";
 import { WorkerDeclarationViewState } from "../ViewState/worker-declaration";
+
 import { workerSyncVisitor } from "./worker-sync-visitor";
 
 let allEndpoints: Map<string, Endpoint> = new Map<string, Endpoint>();
@@ -115,7 +116,7 @@ class SizingVisitor implements Visitor {
         this.sizeStatement(node);
     }
 
-    public cleanMaps(){
+    public cleanMaps() {
         this.currentWorker = [];
         this.senderReceiverInfo = new Map();
         this.workerMap = new Map();
@@ -560,8 +561,8 @@ class SizingVisitor implements Visitor {
                 targetVS.bBox.offsetFromTop += (sendHeight - receiveHeight);
             } else {
                 const sourceVS = matchedPair.sourceNode.viewState as StatementViewState;
-                sourceVS.sendLine.w = 
-                sourceVS.bBox.offsetFromTop += (receiveHeight - sendHeight);
+                sourceVS.sendLine.w =
+                    sourceVS.bBox.offsetFromTop += (receiveHeight - sendHeight);
             }
         });
     }
@@ -1174,11 +1175,7 @@ class SizingVisitor implements Visitor {
             blockViewState.bBox.h = height;
         }
 
-        if (width > 0) {
-            blockViewState.bBox.w = width;
-        } else {
-            blockViewState.bBox.w = DefaultConfig.defaultBodyWidth;
-        }
+        blockViewState.bBox.w = width > 0 ? width : DefaultConfig.defaultBodyWidth;
     }
 
     private addToSendReceiveMap(type: 'Send' | 'Receive', entry: AsyncReceiveInfo | AsyncSendInfo) {

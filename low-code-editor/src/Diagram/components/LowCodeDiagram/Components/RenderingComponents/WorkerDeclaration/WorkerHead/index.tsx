@@ -15,8 +15,8 @@ import React from "react";
 
 import { NamedWorkerDeclaration } from "@wso2-enterprise/syntax-tree";
 
-import { StartSVG, START_SVG_HEIGHT, START_SVG_WIDTH } from "../../Start/StartSVG";
 import { WorkerDeclarationViewState } from "../../../../ViewState/worker-declaration";
+import { StartSVG, START_SVG_HEIGHT, START_SVG_WIDTH } from "../../Start/StartSVG";
 
 interface WorkerHeadProps {
     model: NamedWorkerDeclaration

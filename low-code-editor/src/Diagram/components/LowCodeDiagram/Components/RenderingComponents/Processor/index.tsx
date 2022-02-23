@@ -13,6 +13,7 @@
 // tslint:disable: jsx-no-multiline-js align  jsx-wrap-multiline
 import React, { useContext, useState } from "react";
 
+import { red } from "@material-ui/core/colors";
 import { WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     AssignmentStatement,
@@ -44,7 +45,6 @@ import { VariableName, VARIABLE_NAME_WIDTH } from "../VariableName";
 
 import { ProcessSVG, PROCESS_SVG_HEIGHT, PROCESS_SVG_HEIGHT_WITH_SHADOW, PROCESS_SVG_SHADOW_OFFSET, PROCESS_SVG_WIDTH, PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW } from "./ProcessSVG";
 import "./style.scss";
-import { red } from "@material-ui/core/colors";
 
 export interface ProcessorProps {
     model: STNode;

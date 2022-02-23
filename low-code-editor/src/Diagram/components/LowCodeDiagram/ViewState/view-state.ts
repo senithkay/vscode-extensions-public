@@ -20,7 +20,7 @@ export class ViewState {
     public collapsed: boolean = false;
     public folded: boolean = false;
 
-    
+
     public getHeight(): number {
         return (this.bBox.h + this.bBox.offsetFromBottom + this.bBox.offsetFromTop);
     }

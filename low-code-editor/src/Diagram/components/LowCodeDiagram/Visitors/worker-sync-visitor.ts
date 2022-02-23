@@ -11,6 +11,7 @@
  * associated services.
  */
 import { BlockStatement, FunctionBodyBlock, FunctionDefinition, NamedWorkerDeclarator, STKindChecker, STNode, Visitor } from '@wso2-enterprise/syntax-tree';
+
 import { STOP_SVG_HEIGHT } from '../Components/RenderingComponents/End/StopSVG';
 import { BlockViewState, FunctionViewState, StatementViewState } from '../ViewState';
 
@@ -24,10 +25,8 @@ class WorkerSyncVisitor implements Visitor {
         const viewState: BlockViewState = node.viewState as BlockViewState;
         let height = viewState.bBox.cy;
 
-        console.log('>>> block info', viewState.bBox.cy, node);
         node.statements.forEach(statement => {
             const statementVS: StatementViewState = statement.viewState as StatementViewState;
-            console.log('>>> statement info', statementVS);
 
             if ((STKindChecker.isActionStatement(statement) && statement.expression.kind === 'AsyncSendAction')
                 && (STKindChecker.isLocalVarDecl(statement) && statement.initializer?.kind === 'ReceiveAction')) {
@@ -43,7 +42,7 @@ class WorkerSyncVisitor implements Visitor {
         });
 
         viewState.bBox.h = height;
-        
+
     }
 
     public endVisitFunctionDefinition(node: FunctionDefinition, parent?: STNode): void {

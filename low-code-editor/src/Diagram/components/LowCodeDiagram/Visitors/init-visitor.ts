@@ -193,7 +193,7 @@ class InitVisitor implements Visitor {
             node.viewState = new StatementViewState();
         }
     }
-    
+
     public endVisitForeachStatement(node: ForeachStatement) {
         node.viewState = new ForEachViewState();
     }

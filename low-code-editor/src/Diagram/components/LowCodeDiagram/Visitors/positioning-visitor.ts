@@ -24,16 +24,12 @@ import {
     OnFailClause,
     QualifiedNameReference,
     ResourceAccessorDefinition,
-    ServiceDeclaration,
     STKindChecker,
     STNode,
     VisibleEndpoint,
     Visitor,
     WhileStatement
 } from "@wso2-enterprise/syntax-tree";
-import { string } from "joi";
-import { property } from "lodash";
-import { debug } from "webpack";
 
 import { isVarTypeDescriptor } from "../../../utils/diagram-util";
 import { Endpoint, getPlusViewState, updateConnectorCX } from "../../../utils/st-util";
@@ -42,11 +38,10 @@ import { EXISTING_PLUS_HOLDER_API_HEIGHT, EXISTING_PLUS_HOLDER_API_HEIGHT_COLLAP
 import { BIGPLUS_SVG_WIDTH } from "../Components/PlusButtons/Plus/Initial";
 import { PLUS_SVG_HEIGHT } from "../Components/PlusButtons/Plus/PlusAndCollapse/PlusSVG";
 import { EXECUTION_TIME_DEFAULT_X_OFFSET, EXECUTION_TIME_IF_X_OFFSET } from "../Components/RenderingComponents/ControlFlowExecutionTime";
-import { STOP_SVG_HEIGHT } from "../Components/RenderingComponents/End/StopSVG";
 import { BOTTOM_CURVE_SVG_WIDTH } from "../Components/RenderingComponents/IfElse/Else/BottomCurve";
 import { TOP_CURVE_SVG_HEIGHT } from "../Components/RenderingComponents/IfElse/Else/TopCurve";
 import { PROCESS_SVG_HEIGHT } from "../Components/RenderingComponents/Processor/ProcessSVG";
-import { START_SVG_HEIGHT, START_SVG_SHADOW_OFFSET } from "../Components/RenderingComponents/Start/StartSVG";
+import { START_SVG_SHADOW_OFFSET } from "../Components/RenderingComponents/Start/StartSVG";
 import {
     BlockViewState,
     CompilationUnitViewState,
@@ -65,6 +60,7 @@ import {
     WhileViewState
 } from "../ViewState";
 import { WorkerDeclarationViewState } from "../ViewState/worker-declaration";
+
 import { AsyncReceiveInfo, AsyncSendInfo, SendRecievePairInfo } from "./sizing-visitor";
 
 let allEndpoints: Map<string, Endpoint> = new Map<string, Endpoint>();
@@ -516,11 +512,11 @@ class PositioningVisitor implements Visitor {
             if (STKindChecker.isActionStatement(statement) && statement.expression.kind === 'AsyncSendAction') {
                 const sendExpression: any = statement.expression;
                 const targetName: string = sendExpression.peerWorker?.name?.value as string;
-                this.addToSendReceiveMap('Send', { to: targetName, node: statement, paired: false, index: index });
+                this.addToSendReceiveMap('Send', { to: targetName, node: statement, paired: false, index });
             } else if (STKindChecker.isLocalVarDecl(statement) && statement.initializer?.kind === 'ReceiveAction') {
                 const receiverExpression: any = statement.initializer;
                 const senderName: string = receiverExpression.receiveWorkers?.name?.value;
-                this.addToSendReceiveMap('Receive', { from: senderName, node: statement, paired: false, index: index });
+                this.addToSendReceiveMap('Receive', { from: senderName, node: statement, paired: false, index });
             }
 
             // Control flow execution time
@@ -914,7 +910,6 @@ class PositioningVisitor implements Visitor {
         }
 
     }
-
 }
 
 export const visitor = new PositioningVisitor();
