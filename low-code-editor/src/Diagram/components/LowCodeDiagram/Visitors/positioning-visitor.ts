@@ -135,7 +135,7 @@ class PositioningVisitor implements Visitor {
         const bodyViewState: BlockViewState = node.workerBody.viewState as BlockViewState;
 
         viewState.bBox.cx = viewState.bBox.x;
-        viewState.bBox.cy = viewState.bBox.y;
+        viewState.bBox.cy = viewState.bBox.y + PLUS_SVG_HEIGHT + PROCESS_SVG_HEIGHT;
 
         viewState.trigger.cx = viewState.bBox.cx + viewState.bBox.w / 2;
         viewState.trigger.cy = viewState.bBox.cy + DefaultConfig.serviceVerticalPadding + viewState.trigger.h / 2
@@ -428,6 +428,8 @@ class PositioningVisitor implements Visitor {
                     + workerBodyViewState.bBox.w / 2;
                 workerDeclViewState.bBox.y = height;
             });
+
+            height += PROCESS_SVG_HEIGHT + PLUS_SVG_HEIGHT;
         }
 
         ({ height, index } = this.calculateStatementPosition(node.statements, blockViewState, height, index, epGap));

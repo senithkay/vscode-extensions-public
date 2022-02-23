@@ -32,12 +32,6 @@ export function Worker(props: WorkerProps) {
     const { model } = props;
     const viewState: WorkerDeclarationViewState = model.viewState as WorkerDeclarationViewState;
     const workerBodyVS: BlockViewState = model.workerBody.viewState as BlockViewState;
-    // const children = getSTComponents(model.workerBody.statements);
-    // const pluses: React.ReactNode[] = [];
-
-    // for (const plusView of workerBodyVS.plusButtons) {
-    //     pluses.push(<PlusButton viewState={plusView} model={model.workerBody} initPlus={false} />)
-    // }
 
     return (
         <>
