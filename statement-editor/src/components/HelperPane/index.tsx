@@ -86,41 +86,37 @@ export function HelperPane(props: HelperPaneProps) {
                     )}
                 </div>
             </div>
-            { selectedTab === TabElements.suggestions && (!isTypeDescSuggestion && variableList.length > 0) && (
-                <div className={statementEditorClasses.suggestionsInner}>
+            <div className={statementEditorClasses.suggestionsInner}>
+                { (!isTypeDescSuggestion && variableList.length > 0) && (
                     <VariableSuggestions
                         model={currentModel.model}
                         variableSuggestions={variableList}
                         suggestionHandler={suggestionHandler}
+                        isSuggestion={selectedTab === TabElements.suggestions}
                     />
-                </div>
-            )}
-            { selectedTab === TabElements.expressions && (!isTypeDescSuggestion && suggestionList.length > 0) && (
-                <div className={statementEditorClasses.suggestionsInner}>
+                )}
+                { (!isTypeDescSuggestion && suggestionList.length > 0) && (
                     <ExpressionSuggestions
                         model={currentModel.model}
                         suggestions={suggestionList}
                         operator={isOperator}
                         suggestionHandler={suggestionHandler}
+                        isExpression={selectedTab === TabElements.expressions}
                     />
-                </div>
-            )}
-            { selectedTab === TabElements.suggestions && isTypeDescSuggestion && (
-                <div className={statementEditorClasses.suggestionsInner}>
+                )}
+                { isTypeDescSuggestion && (
                     <TypeSuggestions
                         model={currentModel.model}
                         typeSuggestions={typeDescriptorList}
                         suggestionHandler={suggestionHandler}
+                        isSuggestion={selectedTab === TabElements.suggestions}
                     />
-                </div>
-            )}
-            { selectedTab === TabElements.libraries && (
-                <div className={statementEditorClasses.suggestionsInner}>
-                    <LibraryBrowser
-                        libraryType={libraryType}
-                    />
-                </div>
-            )}
+                )}
+                <LibraryBrowser
+                    libraryType={libraryType}
+                    isLibrary={selectedTab === TabElements.libraries}
+                />
+            </div>
         </>
     );
 }

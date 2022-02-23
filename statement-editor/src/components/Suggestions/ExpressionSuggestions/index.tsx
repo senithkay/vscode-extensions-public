@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import React, { useContext } from "react";
 
-import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { STNode } from "@wso2-enterprise/syntax-tree";
 
 import { SuggestionItem } from "../../../models/definitions";
 import { InputEditorContext } from "../../../store/input-editor-context";
@@ -22,15 +22,16 @@ import { generateExpressionTemplate } from "../../../utils/utils";
 import { useStatementEditorStyles } from "../../styles";
 
 export interface ExpressionSuggestionsProps {
-    model: STNode
-    suggestions?: SuggestionItem[],
-    operator: boolean,
-    suggestionHandler: () => void
+    model: STNode;
+    suggestions?: SuggestionItem[];
+    operator: boolean;
+    suggestionHandler: () => void;
+    isExpression: boolean;
 }
 
 export function ExpressionSuggestions(props: ExpressionSuggestionsProps) {
     const statementEditorClasses = useStatementEditorStyles();
-    const { model, suggestions, suggestionHandler, operator } = props;
+    const { model, suggestions, suggestionHandler, operator, isExpression } = props;
     const inputEditorCtx = useContext(InputEditorContext);
 
     const {
@@ -53,34 +54,38 @@ export function ExpressionSuggestions(props: ExpressionSuggestionsProps) {
     const label = operator ? "Operators" : "Expressions";
 
     return (
-        <div>
-            <div className={statementEditorClasses.subHeader}>{label}</div>
-            {
-                suggestions.map((suggestion: SuggestionItem, index: number) => (
-                    (suggestion.kind) ?
-                        (
-                            <button
-                                className={statementEditorClasses.suggestionButton}
-                                key={index}
-                                onClick={() => onClickOperatorSuggestion(suggestion)}
-                            >
-                                {suggestion.value}
-                            </button>
+        <>
+            { isExpression && (
+                <>
+                    <div className={statementEditorClasses.subHeader}>{label}</div>
+                    {
+                        suggestions.map((suggestion: SuggestionItem, index: number) => (
+                            (suggestion.kind) ?
+                                (
+                                    <button
+                                        className={statementEditorClasses.suggestionButton}
+                                        key={index}
+                                        onClick={() => onClickOperatorSuggestion(suggestion)}
+                                    >
+                                        {suggestion.value}
+                                    </button>
 
-                        )
-                        :
-                        (
-                            <button
-                                className={statementEditorClasses.suggestionButton}
-                                key={index}
-                                onClick={() => onClickExpressionSuggestion(suggestion.value)}
-                            >
-                                {suggestion.value}
-                            </button>
-                        )
+                                )
+                                :
+                                (
+                                    <button
+                                        className={statementEditorClasses.suggestionButton}
+                                        key={index}
+                                        onClick={() => onClickExpressionSuggestion(suggestion.value)}
+                                    >
+                                        {suggestion.value}
+                                    </button>
+                                )
 
-                ))
-            }
-        </div>
+                        ))
+                    }
+                </>
+            )}
+        </>
     );
 }

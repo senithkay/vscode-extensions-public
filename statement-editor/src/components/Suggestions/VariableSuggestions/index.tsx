@@ -21,14 +21,15 @@ import { StatementEditorContext } from "../../../store/statement-editor-context"
 import { useStatementEditorStyles } from "../../styles";
 
 export interface VariableSuggestionsProps {
-    model: STNode
-    variableSuggestions?: SuggestionItem[],
-    suggestionHandler: () => void
+    model: STNode;
+    variableSuggestions?: SuggestionItem[];
+    suggestionHandler: () => void;
+    isSuggestion: boolean;
 }
 
 export function VariableSuggestions(props: VariableSuggestionsProps) {
     const statementEditorClasses = useStatementEditorStyles();
-    const { model, variableSuggestions, suggestionHandler } = props;
+    const { model, variableSuggestions, suggestionHandler, isSuggestion } = props;
     const inputEditorCtx = useContext(InputEditorContext);
 
     const {
@@ -60,20 +61,24 @@ export function VariableSuggestions(props: VariableSuggestionsProps) {
     }
 
     return (
-        <div>
-            <div className={statementEditorClasses.subHeader}>Variables</div>
-            {
-                variableSuggestions.map((suggestion: SuggestionItem, index: number) => (
-                    <button
-                        className={statementEditorClasses.suggestionButton}
-                        key={index}
-                        onClick={() => onClickVariableSuggestion(suggestion)}
-                    >
-                        {suggestion.value}
-                        <span className={statementEditorClasses.dataTypeTemplate}>{suggestion.kind}</span>
-                    </button>
-                ))
-            }
-        </div>
+        <>
+            { isSuggestion && (
+                <>
+                    <div className={statementEditorClasses.subHeader}>Variables</div>
+                    {
+                        variableSuggestions.map((suggestion: SuggestionItem, index: number) => (
+                            <button
+                                className={statementEditorClasses.suggestionButton}
+                                key={index}
+                                onClick={() => onClickVariableSuggestion(suggestion)}
+                            >
+                                {suggestion.value}
+                                <span className={statementEditorClasses.dataTypeTemplate}>{suggestion.kind}</span>
+                            </button>
+                        ))
+                    }
+                </>
+            )}
+        </>
     );
 }

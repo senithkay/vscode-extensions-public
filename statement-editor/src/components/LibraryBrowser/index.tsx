@@ -28,7 +28,8 @@ import { SearchResult } from "./SearchResult";
 import { filterByKeyword } from "./utils";
 
 interface LibraryBrowserProps {
-    libraryType: string
+    libraryType: string;
+    isLibrary: boolean;
 }
 
 enum LibraryBrowserMode {
@@ -40,7 +41,7 @@ enum LibraryBrowserMode {
 const DEFAULT_SEARCH_SCOPE = "distribution";
 
 export function LibraryBrowser(props: LibraryBrowserProps) {
-    const { libraryType } = props;
+    const { libraryType, isLibrary } = props;
     const statementEditorClasses = useStatementEditorStyles();
     const stmtCtx = useContext(StatementEditorContext);
     const {
@@ -106,32 +107,36 @@ export function LibraryBrowser(props: LibraryBrowserProps) {
     };
 
     return (
-        <div className={statementEditorClasses.libraryBrowser}>
-            <div className={statementEditorClasses.libraryBrowserHeader}>
-                <input
-                    className={statementEditorClasses.librarySearchBox}
-                    value={keyword}
-                    placeholder={`search in ${searchScope}`}
-                    onChange={(e) => setKeyword(e.target.value)}
-                />
+        <>
+        { isLibrary && (
+            <div className={statementEditorClasses.libraryBrowser}>
+                <div className={statementEditorClasses.libraryBrowserHeader}>
+                    <input
+                        className={statementEditorClasses.librarySearchBox}
+                        value={keyword}
+                        placeholder={`search in ${searchScope}`}
+                        onChange={(e) => setKeyword(e.target.value)}
+                    />
+                </div>
+                {libraryBrowserMode === LibraryBrowserMode.LIB_LIST && (
+                    <LibrariesList
+                        libraries={libraries}
+                        libraryBrowsingHandler={libraryBrowsingHandler}
+                    />
+                )}
+                {libraryBrowserMode === LibraryBrowserMode.LIB_SEARCH && filteredSearchData && (
+                    <SearchResult
+                        librarySearchResponse={filteredSearchData}
+                        libraryBrowsingHandler={libraryBrowsingHandler}
+                    />
+                )}
+                {libraryBrowserMode === LibraryBrowserMode.LIB_BROWSE && (
+                    <SearchResult
+                        librarySearchResponse={libraryData.searchData}
+                    />
+                )}
             </div>
-            {libraryBrowserMode === LibraryBrowserMode.LIB_LIST && (
-                <LibrariesList
-                    libraries={libraries}
-                    libraryBrowsingHandler={libraryBrowsingHandler}
-                />
-            )}
-            {libraryBrowserMode === LibraryBrowserMode.LIB_SEARCH  && filteredSearchData && (
-                <SearchResult
-                    librarySearchResponse={filteredSearchData}
-                    libraryBrowsingHandler={libraryBrowsingHandler}
-                />
-            )}
-            {libraryBrowserMode === LibraryBrowserMode.LIB_BROWSE  && (
-                <SearchResult
-                    librarySearchResponse={libraryData.searchData}
-                />
-            )}
-        </div>
+        )}
+        </>
     );
 }
