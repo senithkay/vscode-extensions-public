@@ -39,6 +39,7 @@ export const useStatementEditorStyles = makeStyles(() =>
             borderBottom: '1px solid #e6e7ec'
         },
         sugessionsWrapper: {
+            // TODO: when tab view is merged, make width 100% and remove padding and borderRight styles
             width: '50%',
             padding: theme.spacing(1.5),
             borderRight: '1px solid #e6e7ec'
@@ -160,6 +161,7 @@ export const useStatementEditorStyles = makeStyles(() =>
             overflowY: 'scroll'
         },
         contextSensitivePane: {
+            // TODO: when tab view is merged, remove width, marginRight and paddingRight
             display: 'flex',
             flexDirection: 'column',
             width: '100%',
@@ -245,26 +247,6 @@ export const useStatementEditorStyles = makeStyles(() =>
                 backgroundColor: '#d7dcfc',
                 color: '#fff'
             }
-        },
-        dataTypeTemplate: {
-            color: '#05A26B',
-            fontSize: '10px',
-            letterSpacing: '-0.2px',
-            marginLeft: '2px',
-            marginTop: '1px',
-            boxSizing: 'border-box',
-            border: ' 1px #36B475',
-            borderStyle: 'solid',
-            borderRadius: '3px',
-            paddingLeft: '2px',
-            paddingRight: '2px',
-            whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            maxWidth: '100%',
-            textOverflow: 'ellipsis',
-            float: 'left',
-            fontFamily: 'inherit',
-            lineHeight: '24px'
         },
         addNewExpressionButton: {
             backgroundColor: '#f7f8fb',
@@ -405,45 +387,6 @@ export const useStatementEditorStyles = makeStyles(() =>
             overflowY: 'scroll',
             overflowX: 'hidden',
         },
-        lsSuggestionButton: {
-            boxSizing: 'border-box',
-            border: '1px solid #CBCEDB',
-            borderRadius: '4px',
-            whiteSpace: 'nowrap',
-            backgroundColor: 'rgba(255,255,255,0.5)',
-            marginLeft: '2%',
-            marginTop: '3%',
-            color: '#40404B',
-            fontSize: 12,
-            textAlign: 'left',
-            textOverflow: 'ellipsis',
-            padding: '5px 10px',
-            display: 'list-item',
-            listStyleType: 'none',
-            maxWidth: '90%',
-            '&:hover': {
-                backgroundColor: '#8e9bdc',
-                color: 'white'
-            },
-            '&:disabled': {
-                backgroundColor: 'rgba(0,0,0,0.1)',
-                color: '#404040',
-            }
-        },
-        suggestionsLabel: {
-            letterSpacing: 0,
-            textAlign: 'left',
-            whiteSpace: 'nowrap',
-            fontFamily: 'inherit',
-            fontSize: 12,
-            overflow: 'hidden',
-            maxWidth: '100%',
-            textOverflow: 'ellipsis',
-            float: 'left',
-            marginLeft: '2px',
-            marginTop: '2px',
-            lineHeight: '24px'
-        },
         expressionSuggestionList: {
             top: '5%',
             height: '20%',
@@ -451,12 +394,29 @@ export const useStatementEditorStyles = makeStyles(() =>
             overflowY: 'scroll',
             overflowX: 'hidden',
         },
-        suggestionsContent: {
-            listStyleType: 'none',
-            margin: '0px',
+        suggestionListItem: {
             padding: '0px',
-            display: 'flex',
-            flexDirection: 'row'
+            '&:hover': {
+                backgroundColor: '#8e9bdc',
+                color: 'white'
+            }
+        },
+        suggestionDataType: {
+            color: '#05A26B',
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis'
+        },
+        suggestionValue: {
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis'
+        },
+        suggestionList: {
+            // TODO: when the tab view is merged uncomment these styles
+            // columnGap: '6%',
+            // display: 'grid',
+            // gridTemplateColumns: '47% 47%'
         }
     }),
 );

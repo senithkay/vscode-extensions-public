@@ -13,6 +13,7 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import React, { useContext } from "react";
 
+import { List, ListItem, ListItemIcon, ListItemText, Typography } from "@material-ui/core";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 
 import { SuggestionItem } from "../../../models/definitions";
@@ -64,21 +65,39 @@ export function VariableSuggestions(props: VariableSuggestionsProps) {
         <>
             <div className={statementEditorClasses.subHeader}>Suggestions</div>
             <div className={statementEditorClasses.lsSuggestionList}>
-                {
-                    variableSuggestions.map((suggestion: SuggestionItem, index: number) => (
-                        <button
-                            className={statementEditorClasses.lsSuggestionButton}
-                            key={index}
-                            onClick={() => onClickVariableSuggestion(suggestion)}
-                        >
-                            <ul className={statementEditorClasses.suggestionsContent}>
-                                <li className={getSuggestionIconStyle(suggestion.suggestionType)} style={{lineHeight: '24px', marginTop: '2px'}}/>
-                                <li className={statementEditorClasses.suggestionsLabel}>{suggestion.value}</li>
-                                <li className={statementEditorClasses.dataTypeTemplate}>{suggestion.kind}</li>
-                            </ul>
-                        </button>
-                    ))
-                }
+                <List className={statementEditorClasses.suggestionList}>
+                    {
+                        variableSuggestions.map((suggestion: SuggestionItem, index: number) => (
+                            <ListItem
+                                button={true}
+                                key={index}
+                                onClick={() => onClickVariableSuggestion(suggestion)}
+                                className={statementEditorClasses.suggestionListItem}
+                            >
+                                <ListItemIcon
+                                    className={getSuggestionIconStyle(suggestion.suggestionType)}
+                                    style={{ minWidth: '8%', textAlign: 'left' }}
+                                />
+                                <ListItemText
+                                    style={{ width: '70%' }}
+                                    primary={(
+                                        <Typography className={statementEditorClasses.suggestionValue}>
+                                            {suggestion.value}
+                                        </Typography>
+                                    )}
+                                />
+                                <ListItemText
+                                    style={{ width: '30%', marginLeft: '8px' }}
+                                    primary={(
+                                        <Typography className={statementEditorClasses.suggestionDataType}>{
+                                            suggestion.kind}
+                                        </Typography>
+                                    )}
+                                />
+                            </ListItem>
+                        ))
+                    }
+                </List>
             </div>
         </>
     );

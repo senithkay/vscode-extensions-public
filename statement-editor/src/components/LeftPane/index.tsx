@@ -113,7 +113,8 @@ export function LeftPane(props: ModelProps) {
             <div className={statementEditorClasses.sugessionsSection}>
                 <div className={statementEditorClasses.sugessionsWrapper}>
                         <div className={statementEditorClasses.contextSensitivePane}>
-                            {
+                            {(!(variableList.length || suggestionList.length || typeDescriptorList.length)) && "Suggestions not available"}
+                                {
                                 (!isTypeDescSuggestion && variableList.length > 0) && (
                                         <VariableSuggestions
                                             model={currentModel.model}
