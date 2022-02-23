@@ -13,7 +13,6 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useState } from "react";
 
-import Container from "@material-ui/core/Container";
 import { DefaultConfig, LowCodeDiagram, PlusViewState, ViewState } from "@wso2-enterprise/ballerina-low-code-diagram";
 import { ConfigOverlayFormStatus, ConnectorConfigWizardProps, DiagramOverlayPosition, LowcodeEvent, OPEN_LOW_CODE, PlusWidgetProps, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
@@ -291,48 +290,50 @@ export function Diagram() {
     return (
         <div id="canvas">
             {(codeTriggerredUpdateInProgress || isMutationInProgress || isModulePullInProgress) && textLoader}
-            <Container className={classes.DesignContainer}>
-                <LowCodeDiagram
-                    syntaxTree={syntaxTree}
-                    isReadOnly={isReadOnly}
-                    performanceData={performanceData}
-                    selectedPosition={selectedPosition}
-                    zoomStatus={zoomStatus}
-                    api={{
-                        edit: {
-                            deleteComponent: handleDeleteComponent,
-                            renderAddForm: handleDiagramAdd,
-                            renderEditForm: handleDiagramEdit,
-                            renderConnectorWizard: handleConnectorConfigWizard,
-                            renderDialogBox: handleRenderDialogBox,
-                            closeAllOpenedForms: handleCloseAllOpenedForms,
-                            renderPlusWidget: handleRenderPlusWidget,
-                            openPerformanceChart: handleOpenPerformanceChart,
-                        },
-                        code: {
-                            gotoSource,
-                            modifyDiagram
-                        },
-                        webView: {
-                            showDocumentationView,
-                            showSwaggerView
-                        },
-                        project: {
-                            run
-                        },
-                        insights: {
-                            onEvent
-                        }
-                    }}
-                />
-                {isFormOpen && !isConnectorConfigWizardOpen && (
-                    <FormGenerator {...formConfig} />
-                )}
-                {!isFormOpen && isConnectorConfigWizardOpen && (
-                    <ConnectorConfigWizard {...connectorConfigWizardProps} />
-                )}
-                {isDialogActive && activeDialog}
-            </Container>
+            <div className='container'>
+                <div className={classes.DesignContainer}>
+                    <LowCodeDiagram
+                        syntaxTree={syntaxTree}
+                        isReadOnly={isReadOnly}
+                        performanceData={performanceData}
+                        selectedPosition={selectedPosition}
+                        zoomStatus={zoomStatus}
+                        api={{
+                            edit: {
+                                deleteComponent: handleDeleteComponent,
+                                renderAddForm: handleDiagramAdd,
+                                renderEditForm: handleDiagramEdit,
+                                renderConnectorWizard: handleConnectorConfigWizard,
+                                renderDialogBox: handleRenderDialogBox,
+                                closeAllOpenedForms: handleCloseAllOpenedForms,
+                                renderPlusWidget: handleRenderPlusWidget,
+                                openPerformanceChart: handleOpenPerformanceChart,
+                            },
+                            code: {
+                                gotoSource,
+                                modifyDiagram
+                            },
+                            webView: {
+                                showDocumentationView,
+                                showSwaggerView
+                            },
+                            project: {
+                                run
+                            },
+                            insights: {
+                                onEvent
+                            }
+                        }}
+                    />
+                    {isFormOpen && !isConnectorConfigWizardOpen && (
+                        <FormGenerator {...formConfig} />
+                    )}
+                    {!isFormOpen && isConnectorConfigWizardOpen && (
+                        <ConnectorConfigWizard {...connectorConfigWizardProps} />
+                    )}
+                    {isDialogActive && activeDialog}
+                </div>
+            </div>
         </div>
     );
 }
