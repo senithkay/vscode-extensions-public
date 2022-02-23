@@ -449,5 +449,26 @@ export const useStatementEditorStyles = makeStyles(() =>
             color: "#222228",
             marginTop: '0.25rem',
         },
+        tabsPanelPaperSe: {
+            flexGrow: 1,
+            width: "70%"
+        },
+        tabsPanelSe: {
+            "& .MuiTab-wrapper": {
+                textTransform: 'none',
+                fontSize: '13px',
+                fontWeight: 'normal'
+            },
+            "& .MuiTab-textColorPrimary.Mui-selected": {
+                color: '#1D2028'
+            },
+            "& .MuiTab-textColorPrimary": {
+                color: '#8D91A3'
+            },
+            "& .MuiTabs-indicator": {
+                backgroundColor: '#40404B',
+                height: '1px'
+            }
+        }
     }),
 );

@@ -13,15 +13,11 @@
 // tslint:disable: jsx-no-multiline-js
 import React from 'react';
 
-import { createStyles, makeStyles, Theme, withStyles } from "@material-ui/core";
 import Paper from '@material-ui/core/Paper';
 import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
 
-interface StyledTabProps {
-    label: string;
-    value: string;
-}
+import { useStatementEditorStyles } from "../styles";
 
 interface TabPanelProps {
     values: string[]
@@ -29,24 +25,9 @@ interface TabPanelProps {
     onSelection: (value: string) => void
 }
 
-const StyledTab = withStyles((theme: Theme) =>
-    createStyles({
-        root: {
-            textTransform: 'none'
-        },
-    }),
-)((props: StyledTabProps) => <Tab {...props} />);
-
-const useStyles = makeStyles({
-    root: {
-        flexGrow: 1,
-        autoCapitalization: false
-    },
-});
-
 export default function TabPanel(props: TabPanelProps) {
+    const statementEditorClasses = useStatementEditorStyles();
     const { values, defaultValue, onSelection } = props;
-    const classes = useStyles();
     const [value, setValue] = React.useState(defaultValue);
 
     const handleChange = (event: React.ChangeEvent<{}>, newValue: string) => {
@@ -58,18 +39,17 @@ export default function TabPanel(props: TabPanelProps) {
     if (values) {
         values.forEach((tabValue) => {
             tabs.push(
-                <StyledTab value={tabValue} label={tabValue} />
+                <Tab value={tabValue} label={tabValue} />
             );
         });
     }
 
     return (
-        <Paper className={classes.root}>
+        <Paper className={statementEditorClasses.tabsPanelPaperSe}>
             <Tabs
                 value={value}
                 onChange={handleChange}
-                indicatorColor="primary"
-                textColor="primary"
+                className={statementEditorClasses.tabsPanelSe}
             >
                 {tabs}
             </Tabs>
