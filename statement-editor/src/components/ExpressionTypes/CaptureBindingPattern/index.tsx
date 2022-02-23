@@ -44,6 +44,21 @@ export function CaptureBindingPatternComponent(props: CaptureBindingPatternProps
     const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
 
+    const [isHovered, setHovered] = React.useState(false);
+
+    const onMouseOver = (e: React.MouseEvent) => {
+        setHovered(true);
+        e.stopPropagation();
+        e.preventDefault();
+    }
+
+    const onMouseOut = (e: React.MouseEvent) => {
+        setHovered(false);
+        e.stopPropagation();
+        e.preventDefault();
+    }
+
+
     const inputEditorProps = {
         statementType: model.kind,
         model,
@@ -66,7 +81,9 @@ export function CaptureBindingPatternComponent(props: CaptureBindingPatternProps
                 hasVarNameSelected && statementEditorClasses.expressionElementSelected)}
             onClick={onClickOnVarName}
         >
-            <InputEditor {...inputEditorProps} />
+            <span onMouseOver={onMouseOver} onMouseOut={onMouseOut} className={classNames({ "hovered": isHovered })}>
+                <InputEditor {...inputEditorProps} />
+            </span>
         </span>
     );
 }
