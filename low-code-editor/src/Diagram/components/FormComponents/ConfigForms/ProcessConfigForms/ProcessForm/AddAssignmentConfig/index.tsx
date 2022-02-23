@@ -47,13 +47,13 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
         props: {
             isMutationProgress: isMutationInProgress,
             currentFile,
+            importStatements,
             experimentalEnabled
         },
         api: {
             ls: { getExpressionEditorLangClient },
             code: {
-                modifyDiagram,
-                importStatements
+                modifyDiagram
             },
             library
         }
@@ -155,7 +155,7 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
         defaultValue: variableExpression
     };
 
-    const initialSource = formArgs.model ? formArgs.model.source : getInitialSource(createPropertyStatement(
+    const initialSource = getInitialSource(createPropertyStatement(
             `${varName ? varName : "default"} = ${variableExpression ? variableExpression : "EXPRESSION"} ;`
     ));
 

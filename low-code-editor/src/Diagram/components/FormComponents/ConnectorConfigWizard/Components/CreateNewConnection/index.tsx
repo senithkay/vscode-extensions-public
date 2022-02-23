@@ -23,9 +23,12 @@ import { Section } from "../../../../../../components/ConfigPanel";
 import { Context } from "../../../../../../Contexts/Diagram";
 import { LowcodeEvent, SAVE_CONNECTOR } from "../../../../../models";
 import { checkVariableName, getManualConnectionDetailsFromFormFields } from "../../../../Portals/utils";
+import { VariableNameInput } from "../../../ConfigForms/Components/VariableNameInput";
 import { Form } from "../../../DynamicConnectorForm";
 import { useStyles } from "../../../DynamicConnectorForm/style";
+import CheckBoxGroup from "../../../FormFieldComponents/CheckBox";
 import { FormTextInput } from "../../../FormFieldComponents/TextField/FormTextInput";
+import { TextLabel } from "../../../FormFieldComponents/TextField/TextLabel";
 import { ExpressionInjectablesProps } from "../../../FormGenerator";
 import { checkDBConnector } from "../../../Utils";
 import { wizardStyles } from "../../style";
@@ -43,6 +46,7 @@ interface CreateConnectorFormProps {
     responseStatus: number;
     expressionInjectables?: ExpressionInjectablesProps;
     targetPosition?: NodePosition;
+    isModuleEndpoint?: boolean;
 }
 
 interface NameState {
@@ -61,7 +65,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
     } = useContext(Context);
 
     const { onSave, onSaveNext, initFields, connectorConfig, onConfigNameChange, isNewConnectorInitWizard,
-            connector, expressionInjectables, targetPosition } = props;
+            connector, expressionInjectables, targetPosition, isModuleEndpoint } = props;
     const classes = useStyles();
     const wizardClasses = wizardStyles();
     const intl = useIntl();
@@ -73,13 +77,11 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
     };
 
     const [nameState, setNameState] = useState<NameState>(initialNameState);
+    const [isValidName, setIsValidName] = useState<boolean>(false);
+    const [accessModifier, setAccessModifier] = useState<string[]>(connectorConfig.qualifiers || []);
     const [isGenFieldsFilled, setIsGenFieldsFilled] = useState(false);
-    const [defaultConnectorName] = useState<string>(connectorConfig.name);
-    const [connectorNameError, setConnectorNameError] = useState('');
     const [configForm, setConfigForm] = useState(initFields);
     const [hasReference, setHasReference] = useState<boolean>(undefined);
-    const [isEndpointNameUpdated, setIsEndpointNameUpdated] = useState(false);
-    const [isTokenFieldsUpdated, setIsTokenFieldsUpdated] = useState(false)
 
     const onValidate = (isRequiredFieldsFilled: boolean) => {
         const manualConnectionFormFields = getManualConnectionDetailsFromFormFields(connectorConfig.connectorInit);
@@ -92,7 +94,6 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                 });
             }
         });
-        formattedFields.length > 0 ? setIsTokenFieldsUpdated(true) : setIsTokenFieldsUpdated(false);
         setIsGenFieldsFilled(isRequiredFieldsFilled);
     };
 
@@ -107,13 +108,9 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         }
     }
 
-    const validateNameValue = (value: string) => {
-        if (value) {
-            const varValidationResponse = checkVariableName("connector name", value, defaultConnectorName, stSymbolInfo);
-            if (varValidationResponse?.error) {
-                setConnectorNameError(varValidationResponse.message);
-                return false;
-            }
+    const validateNameValue = (fieldName: string, isInValid: boolean) => {
+        if (fieldName) {
+            setIsValidName(!isInValid);
         }
         return true;
     };
@@ -122,11 +119,15 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         setNameState({
             value: text,
             isNameProvided: text !== '',
-            isValidName: validateNameValue(text)
+            isValidName
         });
         onConfigNameChange(text);
-        connectorConfig.name !== text ? setIsEndpointNameUpdated(true) : setIsEndpointNameUpdated(false);
     };
+
+    const onAccessModifierChange = (modifierList: string[]) => {
+        connectorConfig.qualifiers = modifierList;
+        setAccessModifier(modifierList);
+    }
 
     const sendAppInsight = () => {
         const event: LowcodeEvent = {
@@ -145,14 +146,9 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         // sendAppInsight();
     };
 
-    const createEndpointNameLabel = intl.formatMessage({
+    const endpointNameLabel = intl.formatMessage({
         id: "lowcode.develop.connectorForms.createEndpoint.name.label",
         defaultMessage: "Endpoint Name"
-    });
-
-    const createEndpointPlaceholder = intl.formatMessage({
-        id: "lowcode.develop.connectorForms.createEndpoint.placeholder",
-        defaultMessage: "Enter endpoint name"
     });
 
     const title = (
@@ -183,7 +179,11 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         // sendAppInsight();
     };
 
-    const isEnabled = isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName;
+    const isEnabled = isGenFieldsFilled && nameState.isNameProvided && isValidName;
+
+    if (isModuleEndpoint && targetPosition){
+        targetPosition.endLine = targetPosition.startLine;
+    }
 
     return (
         <div>
@@ -191,21 +191,28 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                 <div className={classNames(wizardClasses.configWizardAPIContainer, wizardClasses.bottomRadius)}>
                     <div className={classes.fullWidth}>
                         <div className={wizardClasses.section}>
-                            <Section
-                                title={createEndpointNameLabel}
-                                tooltipWithListView={{title}}
-                            >
-                                <FormTextInput
-                                    customProps={{
-                                        validate: validateNameValue,
-                                        disabled: hasReference
-                                    }}
-                                    defaultValue={nameState.value}
-                                    onChange={onNameChange}
-                                    errorMessage={connectorNameError}
-                                    placeholder={createEndpointPlaceholder}
-                                />
-                            </Section>
+                            {isModuleEndpoint && (
+                                <>
+                                    <TextLabel
+                                        textLabelId="lowcode.develop.connectorForms.createEndpoint.accessModifier.label"
+                                        defaultMessage="Access Modifier"
+                                        required={true}
+                                    />
+                                    <CheckBoxGroup
+                                        values={["public", "final"]}
+                                        defaultValues={accessModifier}
+                                        onChange={onAccessModifierChange}
+                                    />
+                                </>
+                            )}
+                            <VariableNameInput
+                                displayName={endpointNameLabel}
+                                value={nameState.value}
+                                onValueChange={onNameChange}
+                                validateExpression={validateNameValue}
+                                position={targetPosition}
+                                isEdit={!isNewConnectorInitWizard}
+                            />
                         </div>
                         <div className={wizardClasses.formWrapper}>
                             <Form
@@ -224,7 +231,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                         <SecondaryButton text={backButtonLabel} fullWidth={false} onClick={onBackClick}/>
                     )} */}
                     <div className={classes.saveConnectorBtnHolder}>
-                        {!isNewConnectorInitWizard && (
+                        {(!isNewConnectorInitWizard || isModuleEndpoint) && (
                             <PrimaryButton
                                 text={intl.formatMessage({
                                     id: "lowcode.develop.connectorForms.saveAllConnectionBtn.text",
@@ -235,7 +242,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                                 onClick={handleOnSave}
                             />
                         )}
-                        {isNewConnectorInitWizard && (
+                        {isNewConnectorInitWizard && !isModuleEndpoint && (
                             <>
                                 <LinePrimaryButton
                                     text={intl.formatMessage({

@@ -52,7 +52,10 @@ export async function getContextBasedCompletions (
             isTypeDescriptor: boolean,
             isElseIfMember: boolean,
             selection: string,
-            getLangClient: () => Promise<ExpressionEditorLangClientInterface>): Promise<SuggestionItem[]> {
+            getLangClient: () => Promise<ExpressionEditorLangClientInterface>,
+            currentFileContent?: string): Promise<SuggestionItem[]> {
+    const suggestions: SuggestionItem[] = [];
+    await sendDidOpen(docUri, currentFileContent, getLangClient);
     await sendDidChange(docUri, content, getLangClient);
     const completionParams: CompletionParams = {
         textDocument: {
@@ -82,24 +85,35 @@ export async function getContextBasedCompletions (
         ) && completionResponse.label !== selection.trim() && !(completionResponse.label.includes("main"))
     ));
 
-    const suggestions: SuggestionItem[] = filteredCompletionItems.map((completion) => {
-        return { value: completion.label, kind: completion.detail }
+    filteredCompletionItems.map((completion) => {
+        suggestions.push({ value: completion.label, kind: completion.detail });
     });
 
     return suggestions;
 }
 
 export async function sendDidOpen(
-    uri: string,
-    text: string,
+    docUri: string,
+    content: string,
     getLangClient: () => Promise<ExpressionEditorLangClientInterface>) {
     const langClient = await getLangClient();
     langClient.didOpen({
         textDocument: {
-            uri,
+            uri: docUri,
             languageId: "ballerina",
-            text,
+            text: content,
             version: 1
+        }
+    });
+}
+
+export async function sendDidClose(
+    docUri: string,
+    getLangClient: () => Promise<ExpressionEditorLangClientInterface>) {
+    const langClient = await getLangClient();
+    langClient.didClose({
+        textDocument: {
+            uri: docUri
         }
     });
 }

@@ -22,7 +22,7 @@ import {
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
-import { APPEND_EXPR_LIST_CONSTRUCTOR, INIT_EXPR_LIST_CONSTRUCTOR } from "../../constants";
+import { APPEND_EXPR_LIST_CONSTRUCTOR, CUSTOM_CONFIG_TYPE, INIT_EXPR_LIST_CONSTRUCTOR } from "../../constants";
 import { VariableUserInputs } from '../../models/definitions';
 import { StatementEditorContextProvider } from "../../store/statement-editor-context";
 import { getCurrentModel } from "../../utils";
@@ -60,6 +60,7 @@ export interface StatementEditorProps extends LowCodeEditorProps {
     handleNameOnChange?: (name: string) => void;
     handleTypeChange?: (name: string) => void;
     handleStatementEditorChange?: (partialModel: STNode) => void;
+    onStmtEditorModelChange?: (partialModel: STNode) => void;
 }
 
 export function StatementEditor(props: StatementEditorProps) {
@@ -73,7 +74,7 @@ export function StatementEditor(props: StatementEditorProps) {
         onWizardClose,
         handleNameOnChange,
         handleTypeChange,
-        handleStatementEditorChange,
+        onStmtEditorModelChange,
         getLangClient,
         applyModifications,
         library,
@@ -85,16 +86,15 @@ export function StatementEditor(props: StatementEditorProps) {
     const [isStatementValid, setIsStatementValid] = useState(false);
     const [currentModel, setCurrentModel] = useState({ model });
 
-    if (!userInputs?.varName && !!handleNameOnChange) {
-        handleNameOnChange("default")
-    }
-
     useEffect(() => {
-        if (!(config.type === "Custom") || initialSource) {
+        if (!(config.type === CUSTOM_CONFIG_TYPE) || initialSource) {
             (async () => {
                 const partialST = await getPartialSTForStatement(
                     { codeSnippet: initialSource.trim() }, getLangClient);
-                setModel(partialST);
+
+                if (partialST.syntaxDiagnostics.length === 0) {
+                    setModel(partialST);
+                }
             })();
         }
     }, []);
@@ -122,7 +122,10 @@ export function StatementEditor(props: StatementEditorProps) {
             partialST = await getPartialSTForStatement(
                 { codeSnippet }, getLangClient);
         }
-        setModel(partialST);
+
+        if (partialST.syntaxDiagnostics.length === 0 || config.type === CUSTOM_CONFIG_TYPE) {
+            setModel(partialST);
+        }
 
         // Since in list constructor we add expression with comma and close-bracket,
         // we need to reduce that length from the code snippet to get the correct current model
@@ -157,7 +160,7 @@ export function StatementEditor(props: StatementEditorProps) {
 
     useEffect(() => {
         if (!!model) {
-            handleStatementEditorChange(model);
+            onStmtEditorModelChange(model);
         }
     }, [model])
 
@@ -179,6 +182,7 @@ export function StatementEditor(props: StatementEditorProps) {
                     library={library}
                     currentFile={currentFile}
                     getLangClient={getLangClient}
+                    initialSource={initialSource}
                 >
                     <ViewContainer
                         label={label}

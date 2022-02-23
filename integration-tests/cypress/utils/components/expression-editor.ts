@@ -10,6 +10,12 @@ export class ExpressionEditor {
         return cy.get(`${this.parentSelector} .exp-container[field-name="${this.fieldName}"] .view-lines`);
     }
 
+    public clickEditor() {
+        cy.get(`${this.parentSelector} .exp-container[field-name="${this.fieldName}"] .view-lines`)
+            .click()
+        return this;
+    }
+
     private getEditorConditions() {
         return cy.get(`${this.parentSelector} .exp-container[field-name="${this.fieldName}"]`);
     }
@@ -24,6 +30,11 @@ export class ExpressionEditor {
         } else {
             this.getEditorConditions().children().get('.view-lines').eq(this.position - 1).type("{esc}" + text);
         }
+        return this;
+    }
+
+    public includeText(text: string) {
+        this.getEditorConditions().children().get('.view-lines').should('include.text', text);
         return this;
     }
 
