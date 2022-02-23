@@ -33,7 +33,7 @@ import {
     STKindChecker,
     STNode,
     TypeDefinition,
-    Visitor, WhileStatement
+    Visitor, WaitAction, WhileStatement
 } from "@wso2-enterprise/syntax-tree";
 import { debug } from "webpack";
 
@@ -87,6 +87,11 @@ export interface AsyncReceiveInfo {
     index: number;
 }
 
+export interface WaitInfo {
+    for: string;
+    node: STNode;
+}
+
 export interface SendRecievePairInfo {
     sourceName: string;
     sourceNode: STNode;
@@ -100,7 +105,7 @@ export const DEFAULT_WORKER_NAME = 'function'; // todo: move to appropriate plac
 
 class SizingVisitor implements Visitor {
     private currentWorker: string[];
-    private senderReceiverInfo: Map<string, { sends: AsyncSendInfo[], receives: AsyncReceiveInfo[] }>;
+    private senderReceiverInfo: Map<string, { sends: AsyncSendInfo[], receives: AsyncReceiveInfo[], waits: WaitInfo[] }>;
     private workerMap: Map<string, NamedWorkerDeclaration>;
 
     constructor() {
@@ -1178,15 +1183,21 @@ class SizingVisitor implements Visitor {
         blockViewState.bBox.w = width > 0 ? width : DefaultConfig.defaultBodyWidth;
     }
 
-    private addToSendReceiveMap(type: 'Send' | 'Receive', entry: AsyncReceiveInfo | AsyncSendInfo) {
+    private addToSendReceiveMap(type: 'Send' | 'Receive' | 'Wait', entry: AsyncReceiveInfo | AsyncSendInfo | WaitInfo) {
         if (!this.senderReceiverInfo.has(this.currentWorker[this.currentWorker.length - 1])) {
-            this.senderReceiverInfo.set(this.currentWorker[this.currentWorker.length - 1], { sends: [], receives: [] })
+            this.senderReceiverInfo.set(this.currentWorker[this.currentWorker.length - 1], { sends: [], receives: [], waits: [] })
         }
 
-        if (type === 'Send' && 'to' in entry) {
-            this.senderReceiverInfo.get(this.currentWorker[this.currentWorker.length - 1]).sends.push(entry);
-        } else if ('from' in entry) {
-            this.senderReceiverInfo.get(this.currentWorker[this.currentWorker.length - 1]).receives.push(entry);
+        switch (type) {
+            case 'Send':
+                this.senderReceiverInfo.get(this.currentWorker[this.currentWorker.length - 1]).sends.push(entry as AsyncSendInfo);
+                break;
+            case 'Receive':
+                this.senderReceiverInfo.get(this.currentWorker[this.currentWorker.length - 1]).receives.push(entry as AsyncReceiveInfo);
+                break;
+            case 'Wait':
+                this.senderReceiverInfo.get(this.currentWorker[this.currentWorker.length - 1]).waits.push(entry as WaitInfo);
+                break;
         }
     }
 
@@ -1204,7 +1215,10 @@ class SizingVisitor implements Visitor {
                 const receiverExpression: any = statement.initializer;
                 const senderName: string = receiverExpression.receiveWorkers?.name?.value;
                 this.addToSendReceiveMap('Receive', { from: senderName, node: statement, paired: false, index: (index - startIndex) });
+            } else if (STKindChecker.isActionStatement(statement)) {
+
             }
+
 
             if (!blockViewState.collapsed) {
                 // This captures the collapsed statement
