@@ -21,5 +21,6 @@ export interface VariableUserInputs {
 
 export interface SuggestionItem {
     value: string,
-    kind?: string
+    kind?: string,
+    suggestionType?: number
 }

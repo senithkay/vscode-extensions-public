@@ -55,6 +55,12 @@ export const useStatementEditorStyles = makeStyles(() =>
             padding: theme.spacing(1.5),
             borderBottom: '1px solid #e6e7ec'
         },
+        sugessionsWrapper: {
+            // TODO: when tab view is merged, make width 100% and remove padding and borderRight styles
+            width: '50%',
+            padding: theme.spacing(1.5),
+            borderRight: '1px solid #e6e7ec'
+        },
         LibraryBrowsingWrapper: {
             width: '50%',
         },
@@ -175,6 +181,17 @@ export const useStatementEditorStyles = makeStyles(() =>
             overflowY: 'scroll',
             padding: theme.spacing(1.5)
         },
+        contextSensitivePane: {
+            // TODO: when tab view is merged, remove width, marginRight and paddingRight
+            display: 'flex',
+            flexDirection: 'column',
+            width: '100%',
+            height: '100%',
+            position: 'relative',
+            marginLeft: '5%',
+            marginRight: '5%',
+            paddingRight: '12px'
+        },
         diagnosticsPane: {
             color: '#ea4c4d',
             display: 'flex',
@@ -256,21 +273,6 @@ export const useStatementEditorStyles = makeStyles(() =>
             '&:focus': {
                 outline: 'none'
             }
-        },
-        dataTypeTemplate: {
-            // color: '#05A26B',
-            color: '#05A26B',
-            fontSize: '10px',
-            letterSpacing: '-0.2px',
-            lineHeight: '24px',
-            position: 'relative',
-            marginLeft: '2px',
-            marginTop: '1px',
-            boxSizing: 'border-box',
-            border: ' 1px #36B475',
-            borderStyle: 'solid',
-            borderRadius: '3px',
-            padding: '3%'
         },
         addNewExpressionButton: {
             backgroundColor: '#f7f8fb',
@@ -408,6 +410,43 @@ export const useStatementEditorStyles = makeStyles(() =>
             '&:hover': {
                 color: '#3a479c'
             },
+        },
+        lsSuggestionList: {
+            top: '5%',
+            height: '70%',
+            overflowY: 'scroll',
+            overflowX: 'hidden',
+        },
+        expressionSuggestionList: {
+            top: '5%',
+            height: '20%',
+            maxHeight: '100%',
+            overflowY: 'scroll',
+            overflowX: 'hidden',
+        },
+        suggestionListItem: {
+            padding: '0px',
+            '&:hover': {
+                backgroundColor: '#8e9bdc',
+                color: 'white'
+            }
+        },
+        suggestionDataType: {
+            color: '#05A26B',
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis'
+        },
+        suggestionValue: {
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis'
+        },
+        suggestionList: {
+            // TODO: when the tab view is merged uncomment these styles
+            // columnGap: '6%',
+            // display: 'grid',
+            // gridTemplateColumns: '47% 47%'
         },
         selectDropDownSe: {
             height: '30px',

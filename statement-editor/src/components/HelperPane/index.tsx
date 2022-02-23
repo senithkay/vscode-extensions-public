@@ -87,6 +87,8 @@ export function HelperPane(props: HelperPaneProps) {
                 </div>
             </div>
             <div className={statementEditorClasses.suggestionsInner}>
+                {(!(variableList.length || suggestionList.length || typeDescriptorList.length)) &&
+                    "Suggestions not available"}
                 { (!isTypeDescSuggestion && variableList.length > 0) && (
                     <VariableSuggestions
                         model={currentModel.model}
