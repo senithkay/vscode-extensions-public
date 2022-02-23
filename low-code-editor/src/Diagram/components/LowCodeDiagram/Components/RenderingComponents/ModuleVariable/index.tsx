@@ -161,6 +161,7 @@ export function ModuleVariable(props: ModuleVariableProps) {
                     <FormGenerator
                         configOverlayFormStatus={{
                             isLoading: false,
+                            formType: model.kind,
                             formArgs: {
                                 model
                             }
