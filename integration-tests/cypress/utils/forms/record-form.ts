@@ -52,15 +52,15 @@ export class RecordForm {
             cy.contains("Add Field").parent()
                 .click();
             cy.get('[placeholder="Type"]')
-                .type(type).wait(1000);
+                .type(type, { delay: 100 }).wait(1000);
             if (value) {
                 cy.get('[placeholder="Field name"]')
-                    .type(name).wait(1000);
+                    .type(name, { delay: 100 }).wait(1000);
                 cy.get('[placeholder="Value(Optional)"]')
-                    .type(value + "{enter}");
+                    .type(value + "{enter}", { delay: 100 });
             } else {
                 cy.get('[placeholder="Field name"]')
-                    .type(name + "{enter}");
+                    .type(name + "{enter}", { delay: 100 });
                 cy.get('[data-testid="delete-"] button').click();
             }
         });
@@ -161,7 +161,7 @@ export class RecordForm {
         return this;
 
     }
-    
+
     static cancel() {
         this.getForm()
             .get('button')

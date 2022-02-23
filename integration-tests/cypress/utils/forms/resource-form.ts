@@ -74,7 +74,7 @@ export class ResourceForm {
             .type(payloadType)
             .suggestWidgetShouldBeVisible()
             .waitForValidations()
-            .clickFirstSuggestion()
+            .clickFirstSuggestion() 
         ;
         return this;
     }
