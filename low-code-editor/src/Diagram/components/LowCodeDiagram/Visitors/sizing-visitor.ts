@@ -991,6 +991,7 @@ class SizingVisitor implements Visitor {
             }
         }
 
+
         this.currentWorker.pop();
     }
 

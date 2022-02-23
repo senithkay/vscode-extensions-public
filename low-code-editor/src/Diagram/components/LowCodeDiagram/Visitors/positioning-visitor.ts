@@ -329,7 +329,6 @@ class PositioningVisitor implements Visitor {
             sourceViewState.sendLine.w = targetViewState.bBox.cx - sourceViewState.bBox.cx + (targetViewState.bBox.cx > sourceViewState.bBox.cx ? -73.5 : 73.5);
         });
 
-        debugger;
     }
 
     public endVisitResourceAccessorDefinition(node: ResourceAccessorDefinition) {
