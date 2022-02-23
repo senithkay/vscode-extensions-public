@@ -15,6 +15,7 @@ import React, { useContext, useState } from "react";
 
 import { SuggestionItem } from "../../models/definitions";
 import { StatementEditorContext } from "../../store/statement-editor-context";
+import SelectDropdown from "../Dropdown";
 import { LibraryBrowser } from "../LibraryBrowser";
 import { useStatementEditorStyles } from "../styles";
 import { ExpressionSuggestions } from "../Suggestions/ExpressionSuggestions";
@@ -36,6 +37,10 @@ enum TabElements {
     libraries = 'Libraries',
 }
 
+const ALL_LIBS = "All"
+const LANGUAGE_LIBS = "Language"
+const STANDARD_LIBS = "Standard"
+
 export function HelperPane(props: HelperPaneProps) {
     const statementEditorClasses = useStatementEditorStyles();
     const { variableList, typeDescriptorList, suggestionList, isOperator, isTypeDescSuggestion } = props;
@@ -48,6 +53,7 @@ export function HelperPane(props: HelperPaneProps) {
 
     const [selectedTab, setSelectedTab] = useState(TabElements.suggestions);
     const [, setIsSuggestionClicked] = useState(false);
+    const [libraryType, setLibraryType] = useState('');
 
     const suggestionHandler = () => {
         setIsSuggestionClicked(prevState => {
@@ -57,6 +63,10 @@ export function HelperPane(props: HelperPaneProps) {
 
     const onTabElementSelection = async (value: TabElements) => {
         setSelectedTab(value);
+    };
+
+    const onLibTypeSelection = (value: string) => {
+        setLibraryType(value);
     };
 
     return (
@@ -70,7 +80,13 @@ export function HelperPane(props: HelperPaneProps) {
                     />
                 </div>
                 <div className={statementEditorClasses.libraryTypeSelector}>
-                    <></>
+                    { selectedTab === TabElements.libraries && (
+                        <SelectDropdown
+                            values={[ALL_LIBS, LANGUAGE_LIBS, STANDARD_LIBS]}
+                            defaultValue={ALL_LIBS}
+                            onSelection={onLibTypeSelection}
+                        />
+                    )}
                 </div>
             </div>
             { selectedTab === TabElements.suggestions && (!isTypeDescSuggestion && variableList.length > 0) && (
@@ -103,7 +119,9 @@ export function HelperPane(props: HelperPaneProps) {
             )}
             { selectedTab === TabElements.libraries && (
                 <div className={statementEditorClasses.suggestionsInner}>
-                    <LibraryBrowser />
+                    <LibraryBrowser
+                        libraryType={libraryType}
+                    />
                 </div>
             )}
         </>

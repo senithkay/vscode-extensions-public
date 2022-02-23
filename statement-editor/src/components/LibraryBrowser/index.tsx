@@ -20,12 +20,15 @@ import {
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { StatementEditorContext } from "../../store/statement-editor-context";
-import SelectDropdown from "../Dropdown";
 import { useStatementEditorStyles } from "../styles";
 
 import { LibrariesList } from "./LibrariesList";
 import { SearchResult } from "./SearchResult";
 import { filterByKeyword } from "./utils";
+
+interface LibraryBrowserProps {
+    libraryType: string
+}
 
 enum LibraryBrowserMode {
     LIB_LIST = 'libraries_list',
@@ -34,11 +37,11 @@ enum LibraryBrowserMode {
 }
 
 const DEFAULT_SEARCH_SCOPE = "distribution";
-const ALL_LIBS = "All"
 const LANGUAGE_LIBS = "Language"
 const STANDARD_LIBS = "Standard"
 
-export function LibraryBrowser() {
+export function LibraryBrowser(props: LibraryBrowserProps) {
+    const { libraryType } = props;
     const statementEditorClasses = useStatementEditorStyles();
     const stmtCtx = useContext(StatementEditorContext);
     const {
@@ -66,6 +69,27 @@ export function LibraryBrowser() {
     }, []);
 
     useEffect(() => {
+        (async () => {
+            let response;
+            if (libraryType === LANGUAGE_LIBS) {
+                response = await getLibrariesList(LibraryKind.langLib);
+            } else if (libraryType === STANDARD_LIBS) {
+                response = await getLibrariesList(LibraryKind.stdLib);
+            } else {
+                response = await getLibrariesList();
+            }
+
+            if (response) {
+                setLibraries(response.librariesList);
+            }
+
+            setLibraryBrowserMode(LibraryBrowserMode.LIB_LIST);
+            setSearchScope(DEFAULT_SEARCH_SCOPE);
+            setKeyword('');
+        })();
+    }, [libraryType]);
+
+    useEffect(() => {
         let filteredData;
         if (librariesSearchData && searchScope === DEFAULT_SEARCH_SCOPE) {
             filteredData = filterByKeyword(librariesSearchData, keyword);
@@ -82,25 +106,6 @@ export function LibraryBrowser() {
         setSearchScope(data.searchData.modules[0].id);
     };
 
-    const onLibSelection = async (value: string) => {
-        let response;
-        if (value === LANGUAGE_LIBS) {
-            response = await getLibrariesList(LibraryKind.langLib);
-        } else if (value === STANDARD_LIBS) {
-            response = await getLibrariesList(LibraryKind.stdLib);
-        } else {
-            response = await getLibrariesList();
-        }
-
-        if (response) {
-            setLibraries(response.librariesList);
-        }
-
-        setLibraryBrowserMode(LibraryBrowserMode.LIB_LIST);
-        setSearchScope(DEFAULT_SEARCH_SCOPE);
-        setKeyword('');
-    };
-
     return (
         <div className={statementEditorClasses.libraryBrowser}>
             <div className={statementEditorClasses.libraryBrowserHeader}>
@@ -110,20 +115,7 @@ export function LibraryBrowser() {
                     placeholder={`search in ${searchScope}`}
                     onChange={(e) => setKeyword(e.target.value)}
                 />
-                <div className={statementEditorClasses.libraryDropdown}>
-                    <SelectDropdown
-                        values={[ALL_LIBS, LANGUAGE_LIBS, STANDARD_LIBS]}
-                        defaultValue={ALL_LIBS}
-                        onSelection={onLibSelection}
-                    />
-                </div>
             </div>
-            {/*<input*/}
-            {/*    className={statementEditorClasses.librarySearchBox}*/}
-            {/*    value={keyword}*/}
-            {/*    placeholder={`search in ${searchScope}`}*/}
-            {/*    onChange={(e) => setKeyword(e.target.value)}*/}
-            {/*/>*/}
             {libraryBrowserMode === LibraryBrowserMode.LIB_LIST && (
                 <LibrariesList
                     libraries={libraries}

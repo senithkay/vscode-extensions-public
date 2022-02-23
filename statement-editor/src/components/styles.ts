@@ -34,6 +34,7 @@ export const useStatementEditorStyles = makeStyles(() =>
         },
         tabPanelWrapper: {
             width: 'auto',
+            height: '48px',
             boxShadow: '0px 1px 1px -1px rgb(0 0 0 / 20%), 0px 1px 1px 0px rgb(0 0 0 / 14%), 0px 1px 3px 0px rgb(0 0 0 / 12%)',
             display: 'flex',
             flexDirection: 'row'
@@ -43,7 +44,9 @@ export const useStatementEditorStyles = makeStyles(() =>
         },
         libraryTypeSelector: {
             width: '30%',
-            backgroundColor: '#00ff00',
+            height: '48px',
+            padding: '9px',
+            textAlignLast: 'center'
         },
         stmtEditorContentWrapper: {
             backgroundColor: '#f9fafc',
@@ -407,8 +410,8 @@ export const useStatementEditorStyles = makeStyles(() =>
             },
         },
         selectDropDownSe: {
-            height: 35,
-            width: "100%",
+            height: '30px',
+            width: "auto",
             borderRadius: 5,
             background: "linear-gradient(180deg, #ffffff 0%, #f7f7f9 100%)",
             boxShadow: "inset 0 0 0 1px #dee0e7, 0 1px 1px 0 rgba(0, 0, 0, 0.06)",
@@ -478,6 +481,9 @@ export const useStatementEditorStyles = makeStyles(() =>
             "& .MuiTabs-indicator": {
                 backgroundColor: '#40404B',
                 height: '1px'
+            },
+            "& .MuiTabs-scroller": {
+                height: '48px'
             }
         }
     }),
