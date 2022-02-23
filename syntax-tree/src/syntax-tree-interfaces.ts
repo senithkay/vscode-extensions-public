@@ -28,6 +28,16 @@ export interface ControlFlow {
   executionTime?: number;
 }
 
+export interface SyntaxDiagnostics {
+  diagnosticInfo: DiagnosticInfo;
+  message: string;
+}
+
+export interface DiagnosticInfo {
+  code: string;
+  severity: string;
+}
+
 export interface STNode {
   kind: string;
   value?: any;
@@ -41,6 +51,7 @@ export interface STNode {
   source: string;
   configurablePosition?: NodePosition;
   controlFlow?: ControlFlow;
+  syntaxDiagnostics: SyntaxDiagnostics[];
 }
 
 export interface ActionStatement extends STNode {

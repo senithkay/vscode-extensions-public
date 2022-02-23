@@ -33,6 +33,174 @@ export class ResourceForm {
 
     }
 
+    static selectAdvancedConfig() {
+        this.getForm()
+            .get('[data-testid="advanced-path-config"]')
+            .click();
+        return this;
+    }
+
+    static clickAddPathSegments() {
+        this.getForm()
+            .get('[data-testid="add-path-param-button"]')
+            .click();
+        return this;
+    }
+
+    static togglePayload() {
+        this.getForm()
+            .get('[data-testid="payload-switch-toggle"]')
+            .click();
+        return this;
+    }
+
+    static clickRequestCheckBox() {
+        this.getForm()
+            .get('[data-testid="select-request-btn"]')
+            .click();
+        return this;
+    }
+
+    static clickCallerCheckBox() {
+        this.getForm()
+            .get('[data-testid="select-caller-btn"]')
+            .click();
+        return this;
+    }
+
+    static typePayloadType(payloadType: string) {
+        ExpressionEditor
+            .getForField("Payload type", this.selector)
+            .type(payloadType)
+            .suggestWidgetShouldBeVisible()
+            .waitForValidations()
+            .clickFirstSuggestion()
+        ;
+        return this;
+    }
+    
+    static clickAddQueryParam() {
+        this.getForm()
+            .get('[data-testid="add-query-param-button"]')
+            .click();
+        return this;
+    }
+
+    static clickQueryParam(param: string) {
+        return this.clickParam(param);
+    }
+
+    static clickPathParam(param: string) {
+        return this.clickParam(param);
+    }
+
+    static clickParam(param: string) {
+        this.getForm()
+            .get(`[data-testid=${param}-item]`)
+            .click();
+        return this;
+    }
+
+    static clickIsParam() {
+        this.getForm()
+            .get(`[data-testid="is-param-btn"`)
+            .click();
+        return this;
+    }
+
+    static typeQueryParamType(type: string) {
+        ExpressionEditor
+            .getForField("Type", this.selector)
+            .clear()
+            .type(type)
+            .suggestWidgetShouldBeVisible()
+            .waitForValidations()
+            .clickFirstSuggestion()
+            .waitForValidations()
+        ;
+        return this;
+    }
+
+    static typePathParamType(type: string) {
+        ExpressionEditor
+            .getForField("Select type", this.selector)
+            .clear()
+            .type(type)
+            .suggestWidgetShouldBeVisible()
+            .waitForValidations()
+            .clickFirstSuggestion()
+            .waitForValidations()
+        ;
+        return this;
+    }
+
+    static edit(param: string) {
+        const clearKeyStroke = "{selectall}{del}";
+        this.getForm()
+            .get('[data-testid="api-path-segment"]')
+            .click()
+            .type(clearKeyStroke)
+            .type(param)
+            .get('[data-testid="path-segment-add-btn"]')
+            .click();
+        return this;
+    }
+
+    static typePathParam(param: string) {
+        const clearKeyStroke = "{selectall}{del}";
+        this.getForm()
+            .get('[data-testid="api-path-segment"]')
+            .click()
+            .type(clearKeyStroke)
+            .type(param)
+        return this;
+    }
+
+    static addPathParam(param: string) {
+        const clearKeyStroke = "{selectall}{del}";
+        this.getForm()
+            .get('[data-testid="api-path-segment"]')
+            .click()
+            .type(clearKeyStroke)
+            .type(param)
+            .get('[data-testid="path-segment-add-btn"]')
+            .click();
+        return this;
+    }
+
+    static savePathParamBtn() {
+        this.getForm()
+            .get('[data-testid="path-segment-add-btn"]')
+            .click();
+        return this;
+    }
+
+    static addQueryParam(param: string) {
+        const clearKeyStroke = "{selectall}{del}";
+        this.getForm()
+            .get('[data-testid="api-query-param-name"]')
+            .click()
+            .type(clearKeyStroke)
+            .type(param)
+            .get('[data-testid="query-param-add-btn"]')
+            .click();
+        return this;
+    }
+
+    static removePathParam(param: string) {
+        this.getForm()
+            .get(`[data-testid=${param}-close-btn]`)
+            .click();
+        return this;
+    }
+
+    static removeQueryParam(param: string) {
+        this.getForm()
+            .get(`[data-testid=${param}-close-btn]`)
+            .click();
+        return this;
+    }
+
     static save() {
         this.getForm()
             .get('button')

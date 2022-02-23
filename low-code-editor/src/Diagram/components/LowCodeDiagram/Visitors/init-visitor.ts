@@ -99,6 +99,14 @@ class InitVisitor implements Visitor {
             const viewState = new ModuleMemberViewState();
             node.viewState = viewState;
         }
+
+        if (node.typeData && node.typeData.isEndpoint) {
+            const bindingPattern = node.typedBindingPattern.bindingPattern as CaptureBindingPattern;
+            if (allEndpoints.get(bindingPattern.variableName.value)) {
+                node.viewState.endpoint.epName = bindingPattern.variableName.value;
+                node.viewState.isEndpoint = true;
+            }
+        }
     }
 
     public beginVisitTypeDefinition(node: TypeDefinition) {

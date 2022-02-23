@@ -19,7 +19,6 @@ import { CallStatement, FunctionCall, QualifiedNameReference } from "@wso2-enter
 import { Box, FormControl, Typography } from "@material-ui/core";
 
 import { Context } from "../../../../../../../Contexts/Diagram";
-import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
 import { useStyles as useFormStyles } from "../../../../DynamicConnectorForm/style";
 import { SelectDropdownWithButton } from "../../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
 import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
@@ -50,11 +49,14 @@ export function AddLogConfig(props: LogConfigProps) {
         props: {
             isMutationProgress: isMutationInProgress,
             currentFile,
+            importStatements,
             experimentalEnabled
         },
         api: {
             ls: { getExpressionEditorLangClient },
-            code: { modifyDiagram },
+            code: {
+                modifyDiagram
+            },
             library
         }
     } = useContext(Context);
@@ -108,19 +110,19 @@ export function AddLogConfig(props: LogConfigProps) {
     const logTooltipMessages = {
         title: intl.formatMessage({
             id: "lowcode.develop.configForms.logTooltipMessages.expressionEditor.tooltip.title",
-            defaultMessage: "Enter a Ballerina expression."
+            defaultMessage: "Press CTRL+Spacebar for suggestions."
         }),
         actionText: intl.formatMessage({
             id: "lowcode.develop.configForms.logTooltipMessages.expressionEditor.tooltip.actionText",
-            defaultMessage: "Learn Ballerina expressions"
+            defaultMessage: "Learn about Ballerina expressions here"
         }),
         actionLink: intl.formatMessage({
             id: "lowcode.develop.configForms.logTooltipMessages.expressionEditor.tooltip.actionTitle",
             defaultMessage: "{learnBallerina}"
-        }, { learnBallerina: BALLERINA_EXPRESSION_SYNTAX_PATH })
+        }, { learnBallerina: "https://ballerina.io/1.2/learn/by-example/log-api" })
     }
 
-    const initialSource = formArgs.model ? formArgs.model.source : getInitialSource(createLogStatement(
+    const initialSource = getInitialSource(createLogStatement(
         logType,
         expression ? expression : 'EXPRESSION'
     ));
@@ -147,6 +149,7 @@ export function AddLogConfig(props: LogConfigProps) {
             getLangClient: getExpressionEditorLangClient,
             applyModifications: modifyDiagram,
             library,
+            importStatements,
             experimentalEnabled
         }
     );

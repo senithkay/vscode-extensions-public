@@ -106,7 +106,7 @@ export function AssignmentStatementComponent(props: AssignmentStatementProps) {
         addStatementToTargetLine(currentFile.content, targetPosition,
             stmtCtx.modelCtx.statementModel.source, getLangClient).then((content: string) => {
             getContextBasedCompletions(fileURI, content, targetPosition, model.expression.position, false,
-                isElseIfMember, model.expression.source, getLangClient).then((completions) => {
+                isElseIfMember, model.expression.source, getLangClient,  currentFile.content).then((completions) => {
                 expressionHandler(model.expression, false, false, {
                     expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
                     typeSuggestions: [],

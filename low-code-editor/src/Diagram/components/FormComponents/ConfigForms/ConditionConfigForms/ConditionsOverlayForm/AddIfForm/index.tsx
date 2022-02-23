@@ -14,7 +14,7 @@
 import React, { useContext, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
-import { ElseBlock, IfElseStatement, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { BlockStatement, ElseBlock, IfElseStatement, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import classnames from "classnames";
 import { Box, FormControl, IconButton, Typography } from "@material-ui/core";
 import { ControlPoint, RemoveCircleOutlineRounded } from "@material-ui/icons";
@@ -27,11 +27,13 @@ import {
     DiagramDiagnostic
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { Context } from "../../../../../../../Contexts/Diagram";
-import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
 import {
     createElseIfStatement,
+    createElseIfStatementWithBlock,
     createElseStatement,
+    createElseStatementWithBlock,
     createIfStatement,
+    createIfStatementWithBlock,
     getInitialSource
 } from "../../../../../../utils/modification-util";
 import { useStyles } from "../../../../DynamicConnectorForm/style";
@@ -65,11 +67,14 @@ export function AddIfForm(props: IfProps) {
         props: {
             isMutationProgress: isMutationInProgress,
             currentFile,
+            importStatements,
             experimentalEnabled
         },
         api: {
             ls: { getExpressionEditorLangClient },
-            code: { modifyDiagram },
+            code: {
+                modifyDiagram
+            },
             library
         },
     } = useContext(Context);
@@ -152,18 +157,18 @@ export function AddIfForm(props: IfProps) {
     const IFStatementTooltipMessages = {
         title: intl.formatMessage({
             id: "lowcode.develop.configForms.IFStatementTooltipMessages.expressionEditor.tooltip.title",
-            defaultMessage: "Enter a Ballerina expression.",
+            defaultMessage: "Press CTRL+Spacebar for suggestions.",
         }),
         actionText: intl.formatMessage({
             id: "lowcode.develop.configForms.IFStatementTooltipMessages.expressionEditor.tooltip.actionText",
-            defaultMessage: "Learn Ballerina expressions",
+            defaultMessage: "Learn about Ballerina expressions here",
         }),
         actionLink: intl.formatMessage(
             {
                 id: "lowcode.develop.configForms.IFStatementTooltipMessages.expressionEditor.tooltip.actionTitle",
                 defaultMessage: "{learnBallerina}",
             },
-            { learnBallerina: BALLERINA_EXPRESSION_SYNTAX_PATH }
+            { learnBallerina: "https://ballerina.io/1.2/learn/by-example/if-else.html?is_ref_by_example=true#iMainNavigation" }
         ),
         codeBlockTooltip: intl.formatMessage({
             id: "lowcode.develop.configForms.IFStatementTooltipMessages.expressionEditor.tooltip.codeBlock",
@@ -217,21 +222,51 @@ export function AddIfForm(props: IfProps) {
     const validForm = compList.every((item) => item.isValid);
 
     const getCompleteSource = () => {
-        let source = getInitialSource(createIfStatement(
-            compList[0].expression ? compList[0].expression : 'EXPRESSION'
-        ));
-        if (compList.length > 1) {
-            compList.map((element, index) => {
-                if (index !== 0){
-                    source = source + getInitialSource(createElseIfStatement(element.expression ? element.expression : 'EXPRESSION'))
-                }
-            })
+        let source = "";
+        if (formArgs.model){
+            let currentModel = formArgs.model as IfElseStatement;
+            source = source + getInitialSource(createIfStatementWithBlock(
+                compList[0].expression ? compList[0].expression : 'EXPRESSION',
+                currentModel.ifBody.statements.map(statement => {
+                    return statement.source
+                })
+            ));
+            if (compList.length > 1) {
+                compList.map((element, index) => {
+                    if (index !== 0){
+                        currentModel = currentModel.elseBody.elseBody as IfElseStatement
+                        source = source + getInitialSource(createElseIfStatementWithBlock(
+                            element.expression ? element.expression : 'EXPRESSION',
+                            currentModel.ifBody.statements.map(statement => {
+                                return statement.source
+                            })
+                        ));
+                    }
+                })
+            }
+            source = source + getInitialSource(createElseStatementWithBlock(
+                (currentModel.elseBody.elseBody as BlockStatement).statements.map(statement => {
+                    return statement.source
+                })
+            ));
         }
-        source = source + getInitialSource(createElseStatement());
+        else {
+            source = getInitialSource(createIfStatement(
+                compList[0].expression ? compList[0].expression : 'EXPRESSION'
+            ));
+            if (compList.length > 1) {
+                compList.map((element, index) => {
+                    if (index !== 0){
+                        source = source + getInitialSource(createElseIfStatement(element.expression ? element.expression : 'EXPRESSION'))
+                    }
+                })
+            }
+            source = source + getInitialSource(createElseStatement());
+        }
         return source;
     }
 
-    const initialSource = formArgs.model ? formArgs.model.source : getCompleteSource();
+    const initialSource = getCompleteSource();
 
     const { handleStmtEditorToggle, stmtEditorComponent } = useStatementEditor(
         {
@@ -247,6 +282,7 @@ export function AddIfForm(props: IfProps) {
             getLangClient: getExpressionEditorLangClient,
             applyModifications: modifyDiagram,
             library,
+            importStatements,
             experimentalEnabled
         }
     );
@@ -300,7 +336,7 @@ export function AddIfForm(props: IfProps) {
                         <div className={classes.formCodeExpressionEndWrapper}>
                             <Typography variant='body2' className={classes.startCode}>if</Typography>
                             <div className={classes.formCodeExpressionField}>
-                                <LowCodeExpressionEditor {...setElementProps(0)} hideLabelTooltips={true} />
+                                <LowCodeExpressionEditor {...setElementProps(0)} />
                             </div>
                             <Typography variant='body2' className={classes.endCode}>{`{`}</Typography>
                         </div>

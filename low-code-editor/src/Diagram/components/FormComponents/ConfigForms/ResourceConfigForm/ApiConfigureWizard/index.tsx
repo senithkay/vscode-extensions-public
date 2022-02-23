@@ -13,11 +13,10 @@
 import React, { useContext, useEffect, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
-import { Box, FormControl, Grid, Link, Typography } from "@material-ui/core";
-import { ConfigOverlayFormStatus, FormActionButtons, FormHeaderSection, PrimaryButton, SecondaryButton, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { FunctionDefinition, NodePosition, ObjectMethodDefinition, RequiredParam, ResourceAccessorDefinition } from "@wso2-enterprise/syntax-tree";
+import { FormControl, Link } from "@material-ui/core";
+import { ConfigOverlayFormStatus, FormHeaderSection, PrimaryButton, SecondaryButton, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FunctionDefinition, NodePosition, ObjectMethodDefinition, ResourceAccessorDefinition } from "@wso2-enterprise/syntax-tree";
 
-import { ResourceIcon } from "../../../../../../assets/icons";
 import { Section } from "../../../../../../components/ConfigPanel";
 import { Context } from "../../../../../../Contexts/Diagram";
 import { ServiceMethodType, SERVICE_METHODS, TriggerType } from "../../../../../models";
@@ -26,7 +25,6 @@ import { DiagramOverlayPosition } from "../../../../Portals/Overlay";
 import { useStyles as useFormStyles } from "../../../DynamicConnectorForm/style";
 import { SelectDropdownWithButton } from "../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
 import { SwitchToggle } from "../../../FormFieldComponents/SwitchToggle";
-import { FormTextInput } from "../../../FormFieldComponents/TextField/FormTextInput";
 import { VariableNameInput, VariableNameInputProps } from "../../Components/VariableNameInput";
 import { VariableTypeInput } from "../../Components/VariableTypeInput";
 import { useStyles } from "../styles";
@@ -35,7 +33,6 @@ import { AdvancedEditor } from "./components/advanced";
 import { PayloadEditor } from "./components/extractPayload";
 import { PathEditor } from "./components/pathEditor";
 import { QueryParamEditor } from "./components/queryParamEditor";
-import { ReturnTypeEditor } from "./components/ReturnTypeEditor";
 import {
     Advanced,
     Payload,
@@ -45,7 +42,6 @@ import {
 import {
     convertPayloadStringToPayload,
     convertQueryParamStringToSegments,
-    extractPathData,
     extractPayloadFromST,
     generateQueryParamFromQueryCollection,
     generateQueryParamFromST,
@@ -204,20 +200,6 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
         });
     }
 
-    function handleOnChangePath(text: string) {
-        setValidateToggle(!validateToggle);
-        if (text === 'hello') {
-            // todo: handle dispatch
-            // dispatchGoToNextTourStep("CONFIG_HTTP_PATH");
-        }
-
-        const formattedPath: Resource = extractPathData(text);
-        // Update path
-        const updatedResource = { ...resource };
-        updatedResource.path = formattedPath.path;
-        setResource(updatedResource);
-    }
-
     function handleOnChangeReturnType(text: string) {
         setResource(oldResource => ({
             ...oldResource,
@@ -239,12 +221,6 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
         // Update path
         const updatedResource = { ...resource };
         updatedResource.path = text;
-        setResource(updatedResource);
-    }
-
-    function handleOnChangeReturnTypeFormUI(text: string) {
-        const updatedResource = { ...resource };
-        updatedResource.returnType = text;
         setResource(updatedResource);
     }
 
@@ -284,37 +260,6 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
             isRequest: advanced.isRequest
         });
     }
-
-    const validateResources = () => {
-        if (!resource) return false;
-
-        let isValidated = true;
-        const resourceSignatures: string[] = [];
-
-        // Validate method signature
-        const signature: string = `${resource.method.toLowerCase()}_${resource.path}`;
-        if (resourceSignatures.includes(signature)) {
-            isValidated = false;
-            return;
-        } else {
-            resourceSignatures.push(signature);
-        }
-
-        // Validate paths
-        if (!isValidPath) {
-            return;
-        }
-
-        // validate payload name
-        if (resource.payloadError) {
-            isValidated = false;
-            return;
-        }
-
-        return isValidated;
-    }
-
-
 
     const handleUserConfirm = () => {
         handleUpdateResources();
@@ -451,11 +396,6 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     const advancedExample = intl.formatMessage({
         id: "lowcode.develop.apiConfigWizard.advanced.tooltip.example",
         defaultMessage: "http:Request request \nhttp:Caller caller"
-    });
-
-    const deleteResourceTitle = intl.formatMessage({
-        id: "lowcode.develop.apiConfigWizard.delete.resource.title",
-        defaultMessage: "Delete Resource"
     });
 
     const showLessText = intl.formatMessage({
@@ -622,7 +562,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                 <Section
                     title={extractPayloadTitle}
                     tooltipWithExample={{ title: payloadContenttitle, content: payloadExample }}
-                    button={<SwitchToggle initSwitch={togglePayload} onChange={onPayloadToggleSelect} />}
+                    button={<SwitchToggle dataTestId={"payload-switch-toggle"} initSwitch={togglePayload} onChange={onPayloadToggleSelect} />}
                 >
                     <PayloadEditor
                         model={model}

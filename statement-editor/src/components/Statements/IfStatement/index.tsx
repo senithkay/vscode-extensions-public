@@ -86,7 +86,7 @@ export function IfStatementC(props: IfStatementProps) {
         addStatementToTargetLine(currentFile.content, targetPosition,
             stmtCtx.modelCtx.statementModel.source, getLangClient).then((content: string) => {
             getContextBasedCompletions(fileURI, content, targetPosition, model.condition.position, false,
-                isElseIfMember, model.condition.source, getLangClient).then((completions) => {
+                isElseIfMember, model.condition.source, getLangClient, currentFile.content).then((completions) => {
                 expressionHandler(model.condition, false, false, {
                     expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
                     typeSuggestions: [],

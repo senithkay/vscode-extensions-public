@@ -108,7 +108,7 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
         addStatementToTargetLine(currentFile.content, targetPosition,
             stmtCtx.modelCtx.statementModel.source, getLangClient).then((content: string) => {
                 getContextBasedCompletions(fileURI, content, targetPosition, model.initializer.position, false,
-                    isElseIfMember, model.initializer.source, getLangClient).then((completions) => {
+                    isElseIfMember, model.initializer.source, getLangClient, currentFile.content).then((completions) => {
                         expressionHandler(model.initializer, false, false, {
                             expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
                             typeSuggestions: [],

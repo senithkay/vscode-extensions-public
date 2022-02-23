@@ -39,12 +39,12 @@ export function PathSegmentItem(props: PathSegmentProps) {
     };
 
     return (
-        <div className={classes.headerWrapper}>
+        <div className={classes.headerWrapper} data-testid={`${segmentLabel}-item`}>
             <div className={addInProgress ? classes.headerLabel : classes.headerLabelWithCursor} onClick={handleEdit}>
                 {segmentLabel}
                 <ButtonWithIcon
                     onClick={handleDelete}
-                    icon={<CloseRounded fontSize="small" />}
+                    icon={<CloseRounded data-testid={`${segmentLabel}-close-btn`} fontSize="small" />}
                     className={classes.iconBtn}
                 />
             </div>
