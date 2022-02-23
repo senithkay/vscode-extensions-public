@@ -391,31 +391,14 @@ class PositioningVisitor implements Visitor {
         const blockViewState: BlockViewState = node.viewState;
         allEndpoints = blockViewState.connectors;
         epCount = 0;
-        this.beginVisitBlockStatement(node);
-    }
-
-    public beginVisitExpressionFunctionBody(node: ExpressionFunctionBody) {
-        const blockViewState: BlockViewState = node.viewState;
-        allEndpoints = blockViewState.connectors;
-        epCount = 0;
-    }
-
-    public beginVisitBlockStatement(node: BlockStatement) {
-        const blockViewState: BlockViewState = node.viewState;
         let height = 0;
         let index = 0;
-        const epGap = DefaultConfig.epGap;
-        // Clean rendered labels
-        blockViewState.controlFlow.executionTimeStates = [];
-        blockViewState.controlFlow.lineStates = [];
-        const lastStatementIndex = blockViewState.hasWorkerDecl ? // node.statements.length;
-            (node as FunctionBodyBlock).namedWorkerDeclarator.workerInitStatements.length + node.statements.length + 1
-            : node.statements.length;
 
         if (blockViewState.hasWorkerDecl) {
+            const workerInitStatements = (node as FunctionBodyBlock).namedWorkerDeclarator.workerInitStatements;
             ({ height, index } = this.calculateStatementPosition(
-                (node as FunctionBodyBlock).namedWorkerDeclarator.workerInitStatements,
-                blockViewState, height, index, epGap));
+                workerInitStatements,
+                blockViewState, height, index, DefaultConfig.epGap));
 
             (node as FunctionBodyBlock).namedWorkerDeclarator.namedWorkerDeclarations.forEach((workerDecl, i) => {
                 const workerDeclViewState = workerDecl.viewState as WorkerDeclarationViewState;
@@ -431,6 +414,22 @@ class PositioningVisitor implements Visitor {
 
             height += PROCESS_SVG_HEIGHT + PLUS_SVG_HEIGHT;
         }
+
+        this.beginBlockPosition(node, index + node.statements.length, height, index);
+    }
+
+    public beginVisitExpressionFunctionBody(node: ExpressionFunctionBody) {
+        const blockViewState: BlockViewState = node.viewState;
+        allEndpoints = blockViewState.connectors;
+        epCount = 0;
+    }
+
+    public beginBlockPosition(node: BlockStatement, lastStatementIndex: number, height: number = 0, index: number = 0) {
+        const blockViewState: BlockViewState = node.viewState;
+        const epGap = DefaultConfig.epGap;
+        // Clean rendered labels
+        blockViewState.controlFlow.executionTimeStates = [];
+        blockViewState.controlFlow.lineStates = [];
 
         ({ height, index } = this.calculateStatementPosition(node.statements, blockViewState, height, index, epGap));
 
@@ -491,6 +490,10 @@ class PositioningVisitor implements Visitor {
             plusViewState.bBox.cx = blockViewState.bBox.cx;
         }
         blockViewState.bBox.h = height;
+    }
+
+    public beginVisitBlockStatement(node: BlockStatement) {
+        this.beginBlockPosition(node, node.statements.length);
     }
 
     private calculateStatementPosition(statements: STNode[], blockViewState: BlockViewState, height: number, index: number, epGap: number) {

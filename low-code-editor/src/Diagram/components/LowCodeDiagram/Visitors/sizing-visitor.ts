@@ -400,6 +400,8 @@ class SizingVisitor implements Visitor {
         this.syncAsyncStatements(node);
 
         if (bodyViewState.hasWorkerDecl) {
+
+            let maxWorkerHeight = 0;
             Array.from(this.workerMap.keys()).forEach(key => {
                 const workerST = this.workerMap.get(key);
                 const workerVS = workerST.viewState as WorkerDeclarationViewState;
@@ -428,8 +430,16 @@ class SizingVisitor implements Visitor {
                         workerVS.bBox.w = PLUS_HOLDER_WIDTH;
                     }
                 }
+
+                if (maxWorkerHeight < workerVS.bBox.h) {
+                    maxWorkerHeight = workerVS.bBox.h;
+                }
             })
             this.endVisitFunctionBodyBlock(body);
+
+            if (bodyViewState.bBox.h < maxWorkerHeight) {
+                bodyViewState.bBox.h += maxWorkerHeight - bodyViewState.bBox.h;
+            }
 
             lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h;
 
@@ -440,6 +450,7 @@ class SizingVisitor implements Visitor {
             viewState.bBox.h = lifeLine.h + trigger.h + end.bBox.h + DefaultConfig.serviceVerticalPadding * 2 + DefaultConfig.functionHeaderHeight;
             viewState.bBox.w = (trigger.w > bodyViewState.bBox.w ? trigger.w : bodyViewState.bBox.w)
                 + DefaultConfig.serviceFrontPadding + DefaultConfig.serviceRearPadding + allEndpoints.size * 150 * 2;
+
 
             if (viewState.initPlus && viewState.initPlus.selectedComponent === "PROCESS") {
                 viewState.bBox.h += PLUS_HOLDER_STATEMENT_HEIGHT;
@@ -642,7 +653,8 @@ class SizingVisitor implements Visitor {
         let width = 0;
 
         if (viewState.hasWorkerDecl) {
-            ({ index, height, width } = this.calculateStatementSizing((node as FunctionBodyBlock).namedWorkerDeclarator.workerInitStatements, index, viewState, height, width, node.statements.length));
+            const workerInitStatements = (node as FunctionBodyBlock).namedWorkerDeclarator.workerInitStatements;
+            ({ index, height, width } = this.calculateStatementSizing(workerInitStatements, index, viewState, height, width, workerInitStatements.length + node.statements.length));
 
             height += PLUS_SVG_HEIGHT + PROCESS_SVG_HEIGHT;
         }
