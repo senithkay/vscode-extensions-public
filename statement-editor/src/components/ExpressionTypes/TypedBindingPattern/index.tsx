@@ -86,7 +86,7 @@ export function TypedBindingPatternComponent(props: TypedBindingPatternProps) {
 
     return (
         <span>
-            <button
+            <span
                 className={classNames(
                     statementEditorClasses.expressionElement,
                     hasTypeDescSelected && statementEditorClasses.expressionElementSelected
@@ -94,7 +94,7 @@ export function TypedBindingPatternComponent(props: TypedBindingPatternProps) {
                 onClick={onClickOnType}
             >
                 {typeDescriptorComponent}
-            </button>
+            </span>
             {bindingPatternComponent}
         </span>
     );

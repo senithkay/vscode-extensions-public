@@ -60,13 +60,13 @@ export function CaptureBindingPatternComponent(props: CaptureBindingPatternProps
     };
 
     return (
-        <button
+        <span
             className={classNames(
                 statementEditorClasses.expressionElement,
                 hasVarNameSelected && statementEditorClasses.expressionElementSelected)}
             onClick={onClickOnVarName}
         >
             <InputEditor {...inputEditorProps} />
-        </button>
+        </span>
     );
 }

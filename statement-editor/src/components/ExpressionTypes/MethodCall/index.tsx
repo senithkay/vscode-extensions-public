@@ -132,14 +132,14 @@ export function MethodCallComponent(props: MethodCallProps) {
 
     return (
         <span>
-            <button
+            <span
                 className={classNames(
                     statementEditorClasses.expressionElement,
                     hasExpressionSelected && statementEditorClasses.expressionElementSelected)}
                 onClick={onClickOnExpression}
             >
                 {expression}
-            </button>
+            </span>
             <span
                 className={classNames(
                     statementEditorClasses.expressionBlock,
@@ -148,7 +148,7 @@ export function MethodCallComponent(props: MethodCallProps) {
             >
                 {model.dotToken.value}
             </span>
-            <button
+            <span
                 className={classNames(
                     statementEditorClasses.expressionElement,
                     hasMethodNameSelected && statementEditorClasses.expressionElementSelected)}
@@ -172,7 +172,7 @@ export function MethodCallComponent(props: MethodCallProps) {
                 >
                     {model.closeParenToken.value}
                 </span>
-            </button>
+            </span>
         </span>
     );
 }

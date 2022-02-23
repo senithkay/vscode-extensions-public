@@ -104,7 +104,7 @@ export function TypeTestExpressionComponent(props: TypeTestExpressionProps) {
 
     return (
         <span>
-            <button
+            <span
                 className={classNames(
                     statementEditorClasses.expressionElement,
                     hasExpressionSelected && statementEditorClasses.expressionElementSelected
@@ -112,7 +112,7 @@ export function TypeTestExpressionComponent(props: TypeTestExpressionProps) {
                 onClick={onClickOnExpression}
             >
                 {expr}
-            </button>
+            </span>
             <span
                 className={classNames(
                     statementEditorClasses.expressionBlock,
@@ -121,7 +121,7 @@ export function TypeTestExpressionComponent(props: TypeTestExpressionProps) {
             >
                  &nbsp;{model.isKeyword.value}
             </span>
-            <button
+            <span
                 className={classNames(
                     statementEditorClasses.expressionElement,
                     hasTypeDescSelected && statementEditorClasses.expressionElementSelected
@@ -129,7 +129,7 @@ export function TypeTestExpressionComponent(props: TypeTestExpressionProps) {
                 onClick={onClickOnTypeDescriptor}
             >
                 {typeDescriptor}
-            </button>
+            </span>
         </span>
     );
 }

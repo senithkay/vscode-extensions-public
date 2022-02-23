@@ -32,7 +32,7 @@ export const useStatementEditorStyles = makeStyles(() =>
             height: '60vh'
         },
         sugessionsMainWrapper: {
-            backgroundColor: '#f9fafc',
+            backgroundColor: '#f0f0f0',
             display: 'flex',
             flexDirection: 'column',
             padding: theme.spacing(1.5),
@@ -54,6 +54,8 @@ export const useStatementEditorStyles = makeStyles(() =>
         statementExpressionContent: {
             paddingTop: theme.spacing(1.5),
             paddingBottom: theme.spacing(1),
+            fontFamily: "Droid Sans Mono",
+            fontSize: "18px"
         },
         variableSugession: {
             padding: theme.spacing(1.5),
@@ -206,48 +208,48 @@ export const useStatementEditorStyles = makeStyles(() =>
         expressionBlockDisabled: {
             height: '24px',
             width: '15px',
-            fontFamily: "Droid Sans Mono",
-            fontSize: '12px',
             letterSpacing: 0,
-            lineHeight: '24px',
         },
         expressionElement: {
-            boxSizing: 'border-box',
-            border: '1px solid #A6B3FF',
-            borderRadius: '8px',
             position: 'relative',
             width: 'fit-content',
-            backgroundColor: '#ffffff',
-            marginLeft: '2px',
-            marginTop: '1px',
-            fontFamily: "Droid Sans Mono",
-            color: '#0095FF',
-            fontSize: '12px',
-            letterSpacing: 0,
-            lineHeight: '24px',
-            '&:hover': {
-                backgroundColor: '#d7dcfc',
-                color: '#fff'
-            }
+            margin: '0 2px 0 2px',
+            '& > span': {
+                width: 'fit-content',
+                padding: '4px',
+                color: '#000000',
+                borderRadius: '4px',
+            },
+            '& > span.hovered': {
+                backgroundColor: '#A4AEEB',
+            },
+            cursor: "pointer"
         },
         expressionElementSelected: {
-            backgroundColor: '#5567D5',
-            color: '#fff',
-            border: '1px solid #5567D5',
+            '& > span': {
+                backgroundColor: '#5567D5',
+                color: '#fff',
+            },
+            '& span': {
+                color: '#fff',
+            },
+            '& > span.hovered': {
+                backgroundColor: '#7482DE',
+            },
         },
         inputEditorTemplate: {
             minWidth: '20px',
-            fontSize: '13px',
             letterSpacing: 0,
-            display: 'inline-block',
-            lineHeight: '24px',
             position: 'relative',
             marginLeft: '2px',
             marginTop: '1px',
-            '&:hover': {
-                backgroundColor: '#d7dcfc',
-                color: '#fff'
-            }
+            // '&:hover': {
+            //     backgroundColor: '#d7dcfc',
+            //     color: '#fff'
+            // },
+            // 'expressionElementSelected &:hover': {
+            //     background: "none"
+            // }
         },
         dataTypeTemplate: {
             // color: '#05A26B',
@@ -306,7 +308,7 @@ export const useStatementEditorStyles = makeStyles(() =>
             position: 'relative',
             width: 'fit-content',
             backgroundColor: '#F0F1FB',
-            fontFamily: "Droid Sans Mono",
+            fontFamily: "monospace",
             color: '#0095FF',
             marginLeft: '2px',
             fontSize: '12px',

@@ -103,7 +103,7 @@ export function FunctionCallComponent(props: FunctionCallProps) {
 
     return (
         <span>
-            <button
+            <span
                 className={classNames(
                     statementEditorClasses.expressionElement,
                     hasFunctionCallExprSelected && statementEditorClasses.expressionElementSelected
@@ -128,7 +128,7 @@ export function FunctionCallComponent(props: FunctionCallProps) {
                 >
                     {model.closeParenToken.value}
                 </span>
-            </button>
+            </span>
         </span>
     );
 }

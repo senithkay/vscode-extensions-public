@@ -13,6 +13,7 @@
 import React from "react";
 
 import { STNode } from "@wso2-enterprise/syntax-tree";
+import cn from "classnames";
 
 import { VariableUserInputs } from "../../models/definitions";
 import { getExpressionTypeComponent } from "../../utils";
@@ -30,7 +31,21 @@ export function ExpressionComponent(props: ExpressionComponentProps) {
 
     const component = getExpressionTypeComponent(model, userInputs, isElseIfMember, diagnosticHandler, isTypeDescriptor);
 
+    const [isHovered, setHovered] = React.useState(false);
+
+    const onMouseOver = (e: React.MouseEvent) => {
+        setHovered(true);
+        e.stopPropagation();
+        e.preventDefault();
+    }
+
+    const onMouseOut = (e: React.MouseEvent) => {
+        setHovered(false);
+        e.stopPropagation();
+        e.preventDefault();
+    }
+
     return (
-        <span>{component}</span>
+        <span onMouseOver={onMouseOver} onMouseOut={onMouseOut} className={cn({ "hovered": isHovered })}>{component}</span>
     );
 }

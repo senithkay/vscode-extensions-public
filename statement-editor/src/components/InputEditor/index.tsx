@@ -339,12 +339,12 @@ export function InputEditor(props: InputEditorProps) {
                 style={{ maxWidth: userInput === '' ? '10px' : 'fit-content' }}
             />
         ) : (
-            <div
+            <span
                 className={statementEditorClasses.inputEditorTemplate}
                 onDoubleClick={handleDoubleClick}
                 onBlur={handleEditEnd}
             >
                 {userInput}
-            </div>
+            </span>
         );
 }

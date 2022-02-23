@@ -81,7 +81,7 @@ export function ListConstructorComponent(props: ListConstructorProps) {
                             {expression.value}
                         </span>
                     ) : (
-                        <button
+                        <span
                             key={index}
                             className={classNames(
                                 statementEditorClasses.expressionElement,
@@ -97,7 +97,7 @@ export function ListConstructorComponent(props: ListConstructorProps) {
                                 diagnosticHandler={diagnosticHandler}
                                 isTypeDescriptor={false}
                             />
-                        </button>
+                        </span>
                     )
                 ))
             }
@@ -121,12 +121,12 @@ export function ListConstructorComponent(props: ListConstructorProps) {
                 {model.openBracket.value}
             </span>
             {expressionComponent}
-            <button
+            <span
                 className={statementEditorClasses.plusIconBorder}
                 onClick={onClickOnPlusIcon}
             >
                 +
-            </button>
+            </span>
             <span
                 className={classNames(
                     statementEditorClasses.expressionBlock,

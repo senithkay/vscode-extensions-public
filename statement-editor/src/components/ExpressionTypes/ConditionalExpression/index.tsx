@@ -133,7 +133,7 @@ export function ConditionalExpressionComponent(props: ConditionalExpressionProps
 
     return (
         <span>
-            <button
+            <span
                 className={classNames(
                     statementEditorClasses.expressionElement,
                     hasLHSSelected && statementEditorClasses.expressionElementSelected
@@ -141,7 +141,7 @@ export function ConditionalExpressionComponent(props: ConditionalExpressionProps
                 onClick={onClickOnLhsExpression}
             >
                 {lhsExpression}
-            </button>
+            </span>
             <span
                 className={classNames(
                     statementEditorClasses.expressionBlock,
@@ -150,7 +150,7 @@ export function ConditionalExpressionComponent(props: ConditionalExpressionProps
             >
                 &nbsp;{model.questionMarkToken.value}
             </span>
-            <button
+            <span
                 className={classNames(
                     statementEditorClasses.expressionElement,
                     hasMiddleExprSelected && statementEditorClasses.expressionElementSelected
@@ -158,7 +158,7 @@ export function ConditionalExpressionComponent(props: ConditionalExpressionProps
                 onClick={onClickOnMiddleExpression}
             >
                 {middleExpression}
-            </button>
+            </span>
             <span
                 className={classNames(
                     statementEditorClasses.expressionBlock,
@@ -167,7 +167,7 @@ export function ConditionalExpressionComponent(props: ConditionalExpressionProps
             >
                 &nbsp;{model.colonToken.value}
             </span>
-            <button
+            <span
                 className={classNames(
                     statementEditorClasses.expressionElement,
                     hasEndExprSelected && statementEditorClasses.expressionElementSelected
@@ -175,7 +175,7 @@ export function ConditionalExpressionComponent(props: ConditionalExpressionProps
                 onClick={onClickOnEndExpression}
             >
                 {endExpression}
-            </button>
+            </span>
 
         </span>
     );

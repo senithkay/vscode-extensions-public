@@ -60,7 +60,7 @@ export function IndexedExpressionComponent(props: IndexedExpressionProps) {
         <span>
             {
                 model.keyExpression.map((expression: STNode, index: number) => (
-                    <button
+                    <span
                         key={index}
                         className={classNames(
                             statementEditorClasses.expressionElement,
@@ -76,7 +76,7 @@ export function IndexedExpressionComponent(props: IndexedExpressionProps) {
                             diagnosticHandler={diagnosticHandler}
                             isTypeDescriptor={false}
                         />
-                    </button>
+                    </span>
                 ))
             }
         </span>
@@ -110,7 +110,7 @@ export function IndexedExpressionComponent(props: IndexedExpressionProps) {
 
     return (
         <span>
-            <button
+            <span
                 className={classNames(
                     statementEditorClasses.expressionElement,
                     hasContainerExprSelected && statementEditorClasses.expressionElementSelected
@@ -118,7 +118,7 @@ export function IndexedExpressionComponent(props: IndexedExpressionProps) {
                 onClick={onClickOnContainerExpr}
             >
                 {containerExpr}
-            </button>
+            </span>
             <span
                 className={classNames(
                     statementEditorClasses.expressionBlock,

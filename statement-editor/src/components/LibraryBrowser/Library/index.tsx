@@ -45,13 +45,13 @@ export function Library(props: LibraryProps) {
 
     return (
         <div>
-            <button
+            <span
                 className={statementEditorClasses.libraryListButton}
                 key={key}
                 onClick={onClickOnLibrary}
             >
                 {id}
-            </button>
+            </span>
         </div>
     );
 }

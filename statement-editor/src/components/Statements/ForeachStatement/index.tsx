@@ -117,7 +117,7 @@ export function ForeachStatementC(props: ForeachStatementProps) {
             >
                 {model.forEachKeyword.value}
             </span>
-            <button
+            <span
                 className={classNames(
                     statementEditorClasses.expressionElement,
                     hasTypedBindingPatternSelected && statementEditorClasses.expressionElementSelected
@@ -125,7 +125,7 @@ export function ForeachStatementC(props: ForeachStatementProps) {
                 onClick={onClickOnBindingPattern}
             >
                 {typedBindingComponent}
-            </button>
+            </span>
             <span
                 className={classNames(
                     statementEditorClasses.expressionBlock,
@@ -134,7 +134,7 @@ export function ForeachStatementC(props: ForeachStatementProps) {
             >
                 &nbsp;{model.inKeyword.value}
             </span>
-            <button
+            <span
                 className={classNames(
                     statementEditorClasses.expressionElement,
                     hasExprComponentSelected && statementEditorClasses.expressionElementSelected
@@ -142,7 +142,7 @@ export function ForeachStatementC(props: ForeachStatementProps) {
                 onClick={onClickOnActionOrExpr}
             >
                 {actionOrExprComponent}
-            </button>
+            </span>
             <span
                 className={classNames(
                     statementEditorClasses.expressionBlock,

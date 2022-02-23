@@ -76,12 +76,12 @@ export function CheckActionComponent(props: CheckActionProps) {
             <span className={spanClassName}>
                 {model.checkKeyword.value}
             </span>
-            <button
+            <span
                 className={buttonClassName}
                 onClick={onClickOnExpression}
             >
                 {expressionComponent}
-            </button>
+            </span>
         </span>
     );
 }

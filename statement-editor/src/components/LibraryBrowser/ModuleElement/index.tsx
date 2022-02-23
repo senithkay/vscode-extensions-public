@@ -82,12 +82,12 @@ export function ModuleElement(props: ModuleElementProps) {
     }
 
     return (
-        <button
+        <span
             className={statementEditorClasses.libraryResourceButton}
             key={key}
             onClick={onClickOnModuleElement}
         >
             {`${moduleId}:${id}`}
-        </button>
+        </span>
     );
 }

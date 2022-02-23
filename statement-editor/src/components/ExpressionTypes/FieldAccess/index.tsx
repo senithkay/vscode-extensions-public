@@ -101,21 +101,21 @@ export function FieldAccessComponent(props: FieldAccessProps) {
 
     return (
         <span>
-            <button
+            <span
                 className={classNames(
                     statementEditorClasses.expressionElement,
                     hasFieldAccessExprSelected && statementEditorClasses.expressionElementSelected
                 )}
                 onClick={onClickOnFieldAccessExpr}
             >
-                <button
+                <span
                     className={classNames(statementEditorClasses.expressionElement,
                         hasExprSelected && statementEditorClasses.expressionElementSelected
                     )}
                     onClick={onClickOnExpr}
                 >
                     {expression}
-                </button>
+                </span>
                 <span
                     className={classNames(
                         statementEditorClasses.expressionBlock,
@@ -124,7 +124,7 @@ export function FieldAccessComponent(props: FieldAccessProps) {
                 >
                     {model.dotToken.value}
                 </span>
-                <button
+                <span
                     className={classNames(
                         statementEditorClasses.expressionElement,
                         hasFieldNameSelected && statementEditorClasses.expressionElementSelected
@@ -132,8 +132,8 @@ export function FieldAccessComponent(props: FieldAccessProps) {
                     onClick={onClickOnFieldName}
                 >
                     {fieldName}
-                </button>
-            </button>
+                </span>
+            </span>
         </span>
     );
 }

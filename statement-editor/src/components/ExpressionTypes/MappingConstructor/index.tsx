@@ -74,7 +74,7 @@ export function MappingConstructorComponent(props: MappingConstructorProps) {
                             {expression.value}
                         </span>
                     ) : (
-                        <button
+                        <span
                             key={index}
                             className={classNames(
                                 statementEditorClasses.expressionElement,
@@ -90,7 +90,7 @@ export function MappingConstructorComponent(props: MappingConstructorProps) {
                                 diagnosticHandler={diagnosticHandler}
                                 isTypeDescriptor={false}
                             />
-                        </button>
+                        </span>
                     )
                 ))
             }
@@ -108,12 +108,12 @@ export function MappingConstructorComponent(props: MappingConstructorProps) {
                 {model.openBrace.value}
             </span>
             {fieldsComponent}
-            <button
+            <span
                 className={statementEditorClasses.plusIconBorder}
                 onClick={onClickOnPlusIcon}
             >
                 +
-            </button>
+            </span>
             <span
                 className={classNames(
                     statementEditorClasses.expressionBlock,

@@ -106,7 +106,7 @@ export function IfStatementC(props: IfStatementProps) {
             >
                 {model.ifKeyword.value}
             </span>
-            <button
+            <span
                 className={classNames(
                     statementEditorClasses.expressionElement,
                     hasConditionSelected && statementEditorClasses.expressionElementSelected
@@ -114,7 +114,7 @@ export function IfStatementC(props: IfStatementProps) {
                 onClick={onClickOnConditionExpression}
             >
                 {conditionComponent}
-            </button>
+            </span>
             <span
                 className={classNames(
                     statementEditorClasses.expressionBlock,

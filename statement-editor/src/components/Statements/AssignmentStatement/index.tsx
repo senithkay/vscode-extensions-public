@@ -118,7 +118,7 @@ export function AssignmentStatementComponent(props: AssignmentStatementProps) {
 
     return (
         <span>
-            <button
+            <span
                 className={classNames(
                     statementEditorClasses.expressionElement,
                     hasVarRefSelected && statementEditorClasses.expressionElementSelected
@@ -126,7 +126,7 @@ export function AssignmentStatementComponent(props: AssignmentStatementProps) {
                 onClick={onClickOnVarRef}
             >
                 {varRef}
-            </button>
+            </span>
             <span
                 className={classNames(
                     statementEditorClasses.expressionBlock,
@@ -135,7 +135,7 @@ export function AssignmentStatementComponent(props: AssignmentStatementProps) {
             >
                 {model.equalsToken.value}
             </span>
-            <button
+            <span
                 className={classNames(
                     statementEditorClasses.expressionElement,
                     hasExpressionSelected && statementEditorClasses.expressionElementSelected
@@ -143,7 +143,7 @@ export function AssignmentStatementComponent(props: AssignmentStatementProps) {
                 onClick={onClickOnExpression}
             >
                 {expression}
-            </button>
+            </span>
             <span
                 className={classNames(
                     statementEditorClasses.expressionBlock,

@@ -109,7 +109,7 @@ export function SpecificFieldComponent(props: SpecificFieldProps) {
 
     return (
         <span>
-            <button
+            <span
                 className={classNames(
                     statementEditorClasses.expressionElement,
                     hasFieldNameSelected && statementEditorClasses.expressionElementSelected
@@ -117,7 +117,7 @@ export function SpecificFieldComponent(props: SpecificFieldProps) {
                 onClick={onClickOnFieldName}
             >
                 {fieldName}
-            </button>
+            </span>
             <span
                 className={classNames(
                     statementEditorClasses.expressionBlock,
@@ -126,7 +126,7 @@ export function SpecificFieldComponent(props: SpecificFieldProps) {
             >
                 {model.colon.value}
             </span>
-            <button
+            <span
                 className={classNames(
                     statementEditorClasses.expressionElement,
                     hasValueExprSelected && statementEditorClasses.expressionElementSelected
@@ -134,7 +134,7 @@ export function SpecificFieldComponent(props: SpecificFieldProps) {
                 onClick={onClickOnValueExpr}
             >
                 {valueExpression}
-            </button>
+            </span>
         </span>
     );
 }

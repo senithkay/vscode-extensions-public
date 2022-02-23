@@ -134,7 +134,7 @@ export function BinaryExpressionComponent(props: BinaryProps) {
 
     return (
         <span>
-            <button
+            <span
                 className={classNames(
                     statementEditorClasses.expressionElement,
                     hasLHSSelected && statementEditorClasses.expressionElementSelected
@@ -142,8 +142,8 @@ export function BinaryExpressionComponent(props: BinaryProps) {
                 onClick={onClickOnLhsExpression}
             >
                 {lhs}
-            </button>
-            <button
+            </span>
+            <span
                 className={classNames(
                     statementEditorClasses.expressionElement,
                     hasOperatorSelected && statementEditorClasses.expressionElementSelected
@@ -151,8 +151,8 @@ export function BinaryExpressionComponent(props: BinaryProps) {
                 onClick={onClickOperator}
             >
                 {operator}
-            </button>
-            <button
+            </span>
+            <span
                 className={classNames(
                     statementEditorClasses.expressionElement,
                     hasRHSSelected && statementEditorClasses.expressionElementSelected
@@ -160,7 +160,7 @@ export function BinaryExpressionComponent(props: BinaryProps) {
                 onClick={onClickOnRhsExpression}
             >
                 {rhs}
-            </button>
+            </span>
         </span>
     );
 }

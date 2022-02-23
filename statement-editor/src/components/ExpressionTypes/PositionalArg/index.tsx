@@ -74,7 +74,7 @@ export function PositionalArgComponent(props: PositionalArgProps) {
     };
 
     return (
-        <button
+        <span
             className={classNames(
                 statementEditorClasses.expressionElement,
                 hasExprSelected && statementEditorClasses.expressionElementSelected
@@ -82,6 +82,6 @@ export function PositionalArgComponent(props: PositionalArgProps) {
             onClick={onClickOnExpression}
         >
             {expression}
-        </button>
+        </span>
     );
 }

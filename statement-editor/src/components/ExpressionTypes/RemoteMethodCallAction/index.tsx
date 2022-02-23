@@ -133,14 +133,14 @@ export function RemoteMethodCallActionComponent(props: RemoteMethodCallActionPro
 
     return (
         <span>
-            <button
+            <span
                 className={classNames(
                     statementEditorClasses.expressionElement,
                     hasExpressionSelected && statementEditorClasses.expressionElementSelected)}
                 onClick={onClickOnExpression}
             >
                 {expression}
-            </button>
+            </span>
             <span
                 className={classNames(
                     statementEditorClasses.expressionBlock,
@@ -149,7 +149,7 @@ export function RemoteMethodCallActionComponent(props: RemoteMethodCallActionPro
             >
                 {model.rightArrowToken.value}
             </span>
-            <button
+            <span
                 className={classNames(
                     statementEditorClasses.expressionElement,
                     hasMethodNameSelected && statementEditorClasses.expressionElementSelected)}
@@ -173,7 +173,7 @@ export function RemoteMethodCallActionComponent(props: RemoteMethodCallActionPro
                 >
                     {model.closeParenToken.value}
                 </span>
-            </button>
+            </span>
         </span>
     );
 }

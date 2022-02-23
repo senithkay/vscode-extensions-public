@@ -96,7 +96,7 @@ export function WhileStatementC(props: WhileStatementProps) {
             >
                 {model.whileKeyword.value}
             </span>
-            <button
+            <span
                 className={classNames(
                     statementEditorClasses.expressionElement,
                     hasConditionSelected && statementEditorClasses.expressionElementSelected
@@ -104,7 +104,7 @@ export function WhileStatementC(props: WhileStatementProps) {
                 onClick={onClickOnConditionExpression}
             >
                 {conditionComponent}
-            </button>
+            </span>
             <span
                 className={classNames(
                     statementEditorClasses.expressionBlock,

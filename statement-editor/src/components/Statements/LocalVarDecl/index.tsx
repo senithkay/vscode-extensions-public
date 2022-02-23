@@ -120,7 +120,7 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
 
     return (
         <span>
-            <button
+            <span
                 className={classNames(
                     statementEditorClasses.expressionElement,
                     hasTypedBindingPatternSelected && statementEditorClasses.expressionElementSelected
@@ -128,7 +128,7 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
                 onClick={onClickOnBindingPattern}
             >
                 {typedBindingComponent}
-            </button>
+            </span>
             {
                 model.equalsToken && (
                     <>
@@ -140,7 +140,7 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
                         >
                             &nbsp;{model.equalsToken.value}
                         </span>
-                        <button
+                        <span
                             className={classNames(
                                 statementEditorClasses.expressionElement,
                                 hasInitializerSelected && statementEditorClasses.expressionElementSelected
@@ -148,7 +148,7 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
                             onClick={onClickOnInitializer}
                         >
                             {expressionComponent}
-                        </button>
+                        </span>
                     </>
                 )
             }

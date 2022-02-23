@@ -97,7 +97,7 @@ export function ReturnStatementC(props: ReturnStatementProps) {
             >
                 {model.returnKeyword.value}
             </span>
-                <button
+                <span
                     className={classNames(
                         statementEditorClasses.expressionElement,
                         hasExpressionSelected && statementEditorClasses.expressionElementSelected
@@ -105,7 +105,7 @@ export function ReturnStatementC(props: ReturnStatementProps) {
                     onClick={onClickOnExpression}
                 >
                     {expressionComponent}
-                </button>
+                </span>
             <span
                 className={classNames(
                     statementEditorClasses.expressionBlock,
