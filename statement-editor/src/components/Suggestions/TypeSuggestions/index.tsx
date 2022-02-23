@@ -46,9 +46,8 @@ export function TypeSuggestions(props: TypeSuggestionsProps) {
 
     return (
         <>
-            { isSuggestion && (
+            { isSuggestion && !!typeSuggestions.length && (
                 <>
-                    <div className={statementEditorClasses.subHeader}>Types</div>
                     {
                         typeSuggestions.map((suggestion: SuggestionItem, index: number) => (
                             <button
@@ -61,6 +60,9 @@ export function TypeSuggestions(props: TypeSuggestionsProps) {
                         ))
                     }
                 </>
+            )}
+            { isSuggestion && !typeSuggestions.length && (
+                <p className={statementEditorClasses.noSuggestionText}>Suggestions not available</p>
             )}
         </>
     );

@@ -87,9 +87,7 @@ export function HelperPane(props: HelperPaneProps) {
                 </div>
             </div>
             <div className={statementEditorClasses.suggestionsInner}>
-                {(!(variableList.length || suggestionList.length || typeDescriptorList.length)) &&
-                    "Suggestions not available"}
-                { (!isTypeDescSuggestion && variableList.length > 0) && (
+                { (!isTypeDescSuggestion) && (
                     <VariableSuggestions
                         model={currentModel.model}
                         variableSuggestions={variableList}
@@ -97,7 +95,7 @@ export function HelperPane(props: HelperPaneProps) {
                         isSuggestion={selectedTab === TabElements.suggestions}
                     />
                 )}
-                { (!isTypeDescSuggestion && suggestionList.length > 0) && (
+                { (!isTypeDescSuggestion) && (
                     <ExpressionSuggestions
                         model={currentModel.model}
                         suggestions={suggestionList}

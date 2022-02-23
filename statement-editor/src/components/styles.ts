@@ -56,10 +56,7 @@ export const useStatementEditorStyles = makeStyles(() =>
             borderBottom: '1px solid #e6e7ec'
         },
         sugessionsWrapper: {
-            // TODO: when tab view is merged, make width 100% and remove padding and borderRight styles
-            width: '50%',
-            padding: theme.spacing(1.5),
-            borderRight: '1px solid #e6e7ec'
+            width: '100%',
         },
         LibraryBrowsingWrapper: {
             width: '50%',
@@ -182,15 +179,11 @@ export const useStatementEditorStyles = makeStyles(() =>
             padding: theme.spacing(1.5)
         },
         contextSensitivePane: {
-            // TODO: when tab view is merged, remove width, marginRight and paddingRight
             display: 'flex',
             flexDirection: 'column',
-            width: '100%',
             height: '100%',
             position: 'relative',
-            marginLeft: '5%',
-            marginRight: '5%',
-            paddingRight: '12px'
+            marginLeft: '5%'
         },
         diagnosticsPane: {
             color: '#ea4c4d',
@@ -418,8 +411,6 @@ export const useStatementEditorStyles = makeStyles(() =>
             overflowX: 'hidden',
         },
         expressionSuggestionList: {
-            top: '5%',
-            height: '20%',
             maxHeight: '100%',
             overflowY: 'scroll',
             overflowX: 'hidden',
@@ -443,10 +434,9 @@ export const useStatementEditorStyles = makeStyles(() =>
             textOverflow: 'ellipsis'
         },
         suggestionList: {
-            // TODO: when the tab view is merged uncomment these styles
-            // columnGap: '6%',
-            // display: 'grid',
-            // gridTemplateColumns: '47% 47%'
+            columnGap: '6%',
+            display: 'grid',
+            gridTemplateColumns: '47% 47%'
         },
         selectDropDownSe: {
             height: '30px',
@@ -524,6 +514,11 @@ export const useStatementEditorStyles = makeStyles(() =>
             "& .MuiTabs-scroller": {
                 height: '48px'
             }
-        }
+        },
+        noSuggestionText: {
+            fontSize: '12px',
+            fontWeight: 'normal',
+            padding: theme.spacing(1.5)
+        },
     }),
 );

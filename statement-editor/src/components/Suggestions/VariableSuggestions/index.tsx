@@ -64,9 +64,8 @@ export function VariableSuggestions(props: VariableSuggestionsProps) {
 
     return (
         <>
-            { isSuggestion && (
+            { isSuggestion && !!variableSuggestions.length && (
                 <>
-                    <div className={statementEditorClasses.subHeader}>Suggestions</div>
                     <div className={statementEditorClasses.lsSuggestionList}>
                         <List className={statementEditorClasses.suggestionList}>
                             {
@@ -103,6 +102,9 @@ export function VariableSuggestions(props: VariableSuggestionsProps) {
                         </List>
                     </div>
                 </>
+            )}
+            { isSuggestion && !variableSuggestions.length && (
+                <p className={statementEditorClasses.noSuggestionText}>Suggestions not available</p>
             )}
         </>
     );

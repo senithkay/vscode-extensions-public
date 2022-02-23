@@ -51,13 +51,10 @@ export function ExpressionSuggestions(props: ExpressionSuggestionsProps) {
         suggestionHandler();
     }
 
-    const label = operator ? "Operators" : "Expressions";
-
     return (
         <>
-            { isExpression && (
+            { isExpression && !!suggestions.length && (
                 <>
-                    <div className={statementEditorClasses.subHeader}>{label}</div>
                     <div className={statementEditorClasses.expressionSuggestionList}>
                         {
                             suggestions.map((suggestion: SuggestionItem, index: number) => (
@@ -87,6 +84,9 @@ export function ExpressionSuggestions(props: ExpressionSuggestionsProps) {
                         }
                     </div>
                 </>
+            )}
+            { isExpression && !suggestions.length && (
+                <p className={statementEditorClasses.noSuggestionText}>Expressions not available</p>
             )}
         </>
     );
