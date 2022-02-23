@@ -54,7 +54,8 @@ export const useStatementEditorStyles = makeStyles(() =>
         statementExpressionContent: {
             paddingTop: theme.spacing(1.5),
             paddingBottom: theme.spacing(1),
-            fontSize: "18px"
+            fontSize: "18px",
+            'user-select': 'none'
         },
         variableSugession: {
             padding: theme.spacing(1.5),
