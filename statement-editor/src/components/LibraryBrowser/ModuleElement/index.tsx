@@ -66,10 +66,10 @@ export function ModuleElement(props: ModuleElementProps) {
             if (functionProperties) {
                 const parameters: string[] = [];
                 functionProperties.parameters.map((param: FunctionParams) => {
-                    if (param.defaultValue === '') {
-                        parameters.push(param.name);
-                    } else {
-                        parameters.push(`${param.name}_optional`);
+                    if (param.type.isNullable) {
+                        parameters.push(`${param.name}=${param.defaultValue}`);
+                    } else if (!param.type.isInclusion) {
+                        parameters.push(`${param.name}`);
                     }
                 });
 
