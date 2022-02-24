@@ -219,7 +219,7 @@ export function AddIfForm(props: IfProps) {
         defaultMessage: "Cancel",
     });
 
-    const validForm = compList.every((item) => item.isValid);
+    const validForm = compList.every((item) => item.isValid) && compList[0]?.expression !== "";
 
     const getCompleteSource = () => {
         let source = "";
