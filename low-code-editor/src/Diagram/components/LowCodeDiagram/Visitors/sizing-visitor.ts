@@ -468,8 +468,6 @@ class SizingVisitor implements Visitor {
         const matchedStatements: SendRecievePairInfo[] = [];
         const mainWorkerBody: FunctionBodyBlock = funcitonDef.functionBody as FunctionBodyBlock;
 
-        debugger;
-
         // pair up sends with corresponding receives
         Array.from(this.senderReceiverInfo.keys()).forEach(key => {
             const workerEntry = this.senderReceiverInfo.get(key);
