@@ -21,14 +21,15 @@ import { StatementEditorContext } from "../../../store/statement-editor-context"
 import { useStatementEditorStyles } from "../../styles";
 
 export interface TypeSuggestionsProps {
-    model: STNode
-    typeSuggestions?: SuggestionItem[],
-    suggestionHandler: () => void
+    model: STNode;
+    typeSuggestions?: SuggestionItem[];
+    suggestionHandler: () => void;
+    isSuggestion: boolean;
 }
 
 export function TypeSuggestions(props: TypeSuggestionsProps) {
     const statementEditorClasses = useStatementEditorStyles();
-    const { model, typeSuggestions, suggestionHandler } = props;
+    const { model, typeSuggestions, suggestionHandler, isSuggestion } = props;
     const inputEditorCtx = useContext(InputEditorContext);
 
     const {
@@ -44,19 +45,25 @@ export function TypeSuggestions(props: TypeSuggestionsProps) {
     }
 
     return (
-        <div>
-            <div className={statementEditorClasses.subHeader}>Types</div>
-            {
-                typeSuggestions.map((suggestion: SuggestionItem, index: number) => (
-                    <button
-                        className={statementEditorClasses.suggestionButton}
-                        key={index}
-                        onClick={() => onClickTypeSuggestion(suggestion)}
-                    >
-                        {suggestion.value}
-                    </button>
-                ))
-            }
-        </div>
+        <>
+            { isSuggestion && !!typeSuggestions.length && (
+                <>
+                    {
+                        typeSuggestions.map((suggestion: SuggestionItem, index: number) => (
+                            <button
+                                className={statementEditorClasses.suggestionButton}
+                                key={index}
+                                onClick={() => onClickTypeSuggestion(suggestion)}
+                            >
+                                {suggestion.value}
+                            </button>
+                        ))
+                    }
+                </>
+            )}
+            { isSuggestion && !typeSuggestions.length && (
+                <p className={statementEditorClasses.noSuggestionText}>Suggestions not available</p>
+            )}
+        </>
     );
 }

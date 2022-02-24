@@ -10,6 +10,11 @@ export class ExpressionEditor {
         return cy.get(`${this.parentSelector} .exp-container[field-name="${this.fieldName}"] .view-lines`);
     }
 
+    public clickEditor() {
+        this.getEditor().click()
+        return this;
+    }
+
     private getEditorConditions() {
         return cy.get(`${this.parentSelector} .exp-container[field-name="${this.fieldName}"]`);
     }
@@ -20,10 +25,15 @@ export class ExpressionEditor {
 
     public type(text: string, clearSuggestions: boolean = true) {
         if (this.position == 0) {
-            clearSuggestions ? this.getEditor().type("{esc}" + text) : this.getEditor().type(text); // Adding escpate first to close suggetions if any
+            clearSuggestions ? this.getEditor().type("{esc}" + text, { delay: 100 }) : this.getEditor().type(text, { delay: 100 }); // Adding escpate first to close suggetions if any
         } else {
-            this.getEditorConditions().children().get('.view-lines').eq(this.position - 1).type("{esc}" + text);
+            this.getEditorConditions().children().get('.view-lines').eq(this.position - 1).type("{esc}" + text, { delay: 100 });
         }
+        return this;
+    }
+
+    public includeText(text: string) {
+        this.getEditorConditions().children().get('.view-lines').should('include.text', text);
         return this;
     }
 
@@ -57,12 +67,15 @@ export class ExpressionEditor {
     }
 
     public clear() {
-        const clearKeyStroke = Cypress.platform == "darwin" ? "{selectall}{del}{esc}" : "{ctrl}a{del}{esc}";
-        this.getEditor().type(clearKeyStroke);
+        const clearKeyStroke = Cypress.platform == "darwin" ? "{home}{selectAll}{del}" : "{ctrl}a{del}";
+        this.getEditor().type(clearKeyStroke, { delay: 100 });
         return this;
     }
 
     public clearSuggestions(clearSuggestions: boolean = true) {
+        this.getEditor().parent().parent().parent().within(() => {
+            cy.get('textarea').click();
+        })
         clearSuggestions ? this.getEditor().type("{esc}") : null;
         return this;
     }

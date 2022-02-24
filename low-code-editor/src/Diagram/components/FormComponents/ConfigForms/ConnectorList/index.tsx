@@ -18,14 +18,12 @@ import { LocalVarDecl } from "@wso2-enterprise/syntax-tree";
 
 import { UserState } from "../../../../../types";
 import { APIHeightStates } from "../../../LowCodeDiagram/Components/DialogBoxes/PlusHolder";
-import { PlusViewState } from "../../../LowCodeDiagram/ViewState";
 import { FormGeneratorProps } from "../../FormGenerator";
 import { BallerinaModuleType, Marketplace, SearchQueryParams } from "../Marketplace";
 
 export interface ConnectorListProps {
     onSelect: (connector: BallerinaConnectorInfo, selectedConnector: LocalVarDecl) => void;
     onChange?: (type: string, subType: string, connector?: BallerinaConnectorInfo) => void;
-    viewState?: PlusViewState;
     collapsed?: (value: APIHeightStates) => void;
     onCancel?: () => void;
 }

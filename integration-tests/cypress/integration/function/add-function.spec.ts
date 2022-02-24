@@ -76,7 +76,7 @@ describe('Add functions via Low Code', () => {
       .typeExpression(`"This is a debug message."`)
       .save();
 
-    Canvas.clickTopLevelPlusButton(4);
+    Canvas.clickTopLevelPlusButton(6);
     TopLevelPlusWidget.clickOption("Function");
     FunctionForm
       .shouldBeVisible()
@@ -152,7 +152,7 @@ describe('Add functions via Low Code', () => {
       .typeExpression(`name`)
       .save();
 
-    Canvas.clickTopLevelPlusButton(4);
+    Canvas.clickTopLevelPlusButton(6);
     TopLevelPlusWidget.clickOption("Function");
     FunctionForm
       .shouldBeVisible()

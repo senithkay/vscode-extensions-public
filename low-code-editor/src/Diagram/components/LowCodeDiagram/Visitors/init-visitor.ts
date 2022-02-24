@@ -63,7 +63,7 @@ class InitVisitor implements Visitor {
         if (!node.viewState) {
             node.viewState = new ViewState();
         }
-        this.initStatement(node, parent);
+        this.initStatement(node, this.removeXMLNameSpaces(parent));
     }
 
     public beginVisitModulePart(node: ModulePart, parent?: STNode) {
@@ -95,6 +95,14 @@ class InitVisitor implements Visitor {
         if (!node.viewState) {
             const viewState = new ModuleMemberViewState();
             node.viewState = viewState;
+        }
+
+        if (node.typeData && node.typeData.isEndpoint) {
+            const bindingPattern = node.typedBindingPattern.bindingPattern as CaptureBindingPattern;
+            if (allEndpoints.get(bindingPattern.variableName.value)) {
+                node.viewState.endpoint.epName = bindingPattern.variableName.value;
+                node.viewState.isEndpoint = true;
+            }
         }
     }
 
@@ -523,6 +531,42 @@ class InitVisitor implements Visitor {
                 }
             };
         }
+    }
+
+    private removeXMLNameSpaces(parent?: STNode) {
+        if (STKindChecker.isModulePart(parent)) {
+            const modulePart = parent as ModulePart;
+            const members = modulePart.members.filter(member => {
+                if (member.kind !== "ModuleXmlNamespaceDeclaration") {
+                    return member;
+                }
+            })
+            modulePart.members = members;
+            parent = modulePart;
+        } else if (STKindChecker.isServiceDeclaration(parent)) {
+            const service = parent as ServiceDeclaration;
+            service.members.forEach(member => {
+                const body = member.functionBody as FunctionBodyBlock;
+                const filteredStatements = body.statements.filter(statement => {
+                    if (statement.kind !== "XmlNamespaceDeclaration") {
+                        return statement;
+                    }
+                })
+                body.statements = filteredStatements;
+                member.functionBody = body;
+            })
+            parent = service;
+        } else if (STKindChecker.isFunctionDefinition(parent)) {
+            const body = parent.functionBody as FunctionBodyBlock;
+            const filteredStatements = body.statements.filter(statement => {
+                if (statement.kind !== "XmlNamespaceDeclaration") {
+                    return statement;
+                }
+            })
+            body.statements = filteredStatements;
+            parent.functionBody = body;
+        }
+        return parent;
     }
 
     private setActionInvocationInfo(node: ActionStatement, remoteCall: RemoteMethodCallAction) {

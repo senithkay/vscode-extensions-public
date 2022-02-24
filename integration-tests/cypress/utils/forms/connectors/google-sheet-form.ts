@@ -7,10 +7,11 @@ export class GoogleSheetForm {
     private static selector = '[data-testid="connector-form"]';
 
     static typeConnectionName(name: string) {
-        const clearKeyStroke = "{selectall}{del}";
-        this.getForm().get('[placeholder="Enter endpoint name"]')
-            .type(clearKeyStroke)
-            .type(name);
+        ExpressionEditor
+            .getForField("Endpoint Name", this.selector)
+            .clear()
+            .type(name)
+            .waitForValidations();
         return this;
     }
 
@@ -32,8 +33,10 @@ export class GoogleSheetForm {
     }
 
     static haveDefaultName() {
-        this.getForm().get('[placeholder="Enter endpoint name"]')
-            .should("have.value", "sheetsEndpoint")
+        ExpressionEditor
+            .getForField("Endpoint Name", this.selector)
+            .includeText("sheetsEndpoint")
+            .waitForValidations();
         return this;
     }
 
@@ -89,13 +92,13 @@ export class GoogleSheetForm {
         ExpressionEditor
             .getForField("spreadsheetId", this.selector)
             .type(`"${id}"`)
-            .clearSuggestions()
-            .waitForValidations();
+            .waitForValidations()
+            .clearSuggestions();
         ExpressionEditor
             .getForField("sheetName", this.selector)
             .type(`"${sheetName}"`)
-            .clearSuggestions()
-            .waitForValidations();
+            .waitForValidations()
+            .clearSuggestions();
         return this;
     }
 

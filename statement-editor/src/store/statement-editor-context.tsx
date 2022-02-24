@@ -36,7 +36,7 @@ export const StatementEditorContext = React.createContext({
     getLangClient: () => (Promise.resolve({} as any)),
     applyModifications: (modifications: STModification[]) => (undefined),
     library: {
-        getLibrariesList: (kind: LibraryKind) => (Promise.resolve({} as any)),
+        getLibrariesList: (kind?: LibraryKind) => (Promise.resolve({} as any)),
         getLibrariesData: () => (Promise.resolve({} as any)),
         getLibraryData: (orgName: string, moduleName: string, version: string) => (Promise.resolve({} as any))
     },

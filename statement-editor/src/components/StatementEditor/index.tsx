@@ -38,7 +38,7 @@ export interface LowCodeEditorProps {
         size: number
     };
     library: {
-        getLibrariesList: (kind: string) => Promise<LibraryDocResponse>;
+        getLibrariesList: (kind?: string) => Promise<LibraryDocResponse>;
         getLibrariesData: () => Promise<LibrarySearchResponse>;
         getLibraryData: (orgName: string, moduleName: string, version: string) => Promise<LibraryDataResponse>;
     };

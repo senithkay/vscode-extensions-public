@@ -13,6 +13,7 @@
 
 import { ConnectorForm } from "../ConnectorConfigWizard/Components/ConnectorForm";
 
+import { AddModuleFrom } from "./AddModuleFrom";
 import { APIConfigForm } from "./APIConfigForm";
 import { ConditionConfigForm } from "./ConditionConfigForms";
 import { ConfigurableForm } from "./ConfigurableForm";
@@ -55,6 +56,7 @@ export { ConfigurableForm as Configurable };
 export { RecordFromJson as RecordJson };
 export { ListenerConfigForm as ListenerDeclaration };
 export { ConstantConfigForm as ConstDeclaration }
+export { AddModuleFrom as ModuleConnectorDecl }
 export { TypeDefinitionConfigForm as TypeDefinition };
 export { TriggerList as TriggerList };
 export { TriggerForm as TriggerForm };

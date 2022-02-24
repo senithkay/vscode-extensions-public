@@ -18,9 +18,11 @@ import { getCurrentSpecFolder } from "../../utils/file-utils"
 import { TriggerForm } from "../../utils/forms/trigger-form"
 import { getIntegrationTestPageURL } from "../../utils/story-url-utils"
 
+const BAL_FILE_PATH = "trigger/add-trigger-to-empty-file.bal";
+
 describe('add a Github Trigger to an empty file', () => {
   beforeEach(() => {
-    cy.visit(getIntegrationTestPageURL("trigger/add-trigger-to-empty-file.bal"))
+    cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH))
   });
 
   it('Displays add construct message', () => {
