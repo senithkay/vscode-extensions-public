@@ -20,7 +20,7 @@ import classnames from "classnames";
 
 import DeleteButton from "../../../../../../assets/icons/DeleteButton";
 import { FormState, useRecordEditorContext } from "../../../../../../Contexts/RecordEditor";
-import {keywords} from "../../../../Portals/utils/constants";
+import { keywords } from "../../../../Portals/utils/constants";
 import { LowCodeExpressionEditor } from "../../../FormFieldComponents/LowCodeExpressionEditor";
 import { FormTextInput } from "../../../FormFieldComponents/TextField/FormTextInput";
 import { VariableTypeInput, VariableTypeInputProps } from "../../Components/VariableTypeInput";

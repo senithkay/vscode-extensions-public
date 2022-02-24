@@ -272,7 +272,8 @@ export function RecordField(props: CodePanelProps) {
             state.currentField.isNameInvalid = true;
             callBacks.updateEditorValidity(state.currentField.isNameInvalid ||
                 state.currentField.isValueInvalid);
-        } else if ((event.target.value !== "") && !nameRegex.test(event.target.value)) {
+        } else if ((event.target.value !== "") && !nameRegex.test(event.target.value)
+            && !keywords.includes(event.target.value.replace("'", ""))) {
             setFieldNameError("Invalid name");
             state.currentField.isNameInvalid = true;
             callBacks.updateEditorValidity(state.currentField.isNameInvalid ||
