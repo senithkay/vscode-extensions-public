@@ -57,7 +57,7 @@ describe('Update log statement type', () => {
             .save()
 
         SourceCode.shouldBeEqualTo(
-            getCurrentSpecFolder() + "update-error-log.expected.bal");
+            getCurrentSpecFolder() + "add-error-log.expected.bal");
 
 })
 })
