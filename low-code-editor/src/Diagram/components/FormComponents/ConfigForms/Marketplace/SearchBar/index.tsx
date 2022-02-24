@@ -69,11 +69,6 @@ function SearchBar(props: SearchBarProps) {
                     data-testid="search-input"
                 />
             </Grid>
-            <Grid item={true} container={true} xs={2} justifyContent="flex-end" data-testid="search-button">
-                <Box className={classes.searchBtn} onClick={onSearchPress}>
-                    <SearchIcon />
-                </Box>
-            </Grid>
         </Grid>
     );
 }
