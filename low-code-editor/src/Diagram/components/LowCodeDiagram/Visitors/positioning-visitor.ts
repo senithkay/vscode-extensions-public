@@ -288,8 +288,8 @@ class PositioningVisitor implements Visitor {
                         sourceName: key,
                         sourceIndex: sendInfo.index,
                         targetName: sendInfo.to,
-                        sourceNode: sendInfo.node,
-                        targetNode: matchedReceive.node,
+                        sourceViewState: sendInfo.node.viewState,
+                        targetViewState: matchedReceive.node.viewState,
                         targetIndex: matchedReceive.index
                     });
                 }
@@ -306,19 +306,20 @@ class PositioningVisitor implements Visitor {
                     matchedStatements.push({
                         sourceName: receiveInfo.from,
                         sourceIndex: matchedSend.index,
-                        sourceNode: matchedSend.node,
+                        sourceViewState: matchedSend.node.viewState,
                         targetName: matchedSend.to,
                         targetIndex: receiveInfo.index,
-                        targetNode: receiveInfo.node
+                        targetViewState: receiveInfo.node.viewState
                     });
                 }
             });
 
         });
 
+        // assign position values to send lines
         matchedStatements.forEach(matchedPair => {
-            const sourceViewState = matchedPair.sourceNode.viewState as StatementViewState;
-            const targetViewState = matchedPair.targetNode.viewState as StatementViewState;
+            const sourceViewState = matchedPair.sourceViewState as StatementViewState;
+            const targetViewState = matchedPair.targetViewState as StatementViewState;
             sourceViewState.sendLine.x = sourceViewState.bBox.cx + (targetViewState.bBox.cx > sourceViewState.bBox.cx ? 49 / 2 : -49 / 2);
             sourceViewState.sendLine.y = sourceViewState.bBox.cy + PROCESS_SVG_HEIGHT / 6;
             sourceViewState.sendLine.w = targetViewState.bBox.cx - sourceViewState.bBox.cx + (targetViewState.bBox.cx > sourceViewState.bBox.cx ? -73.5 : 73.5);

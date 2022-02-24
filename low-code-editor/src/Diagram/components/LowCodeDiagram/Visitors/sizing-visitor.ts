@@ -95,10 +95,10 @@ export interface WaitInfo {
 
 export interface SendRecievePairInfo {
     sourceName: string;
-    sourceNode: STNode;
+    sourceViewState: ViewState;
     sourceIndex: number;
     targetName: string;
-    targetNode: STNode;
+    targetViewState: ViewState;
     targetIndex: number;
 }
 
@@ -472,6 +472,12 @@ class SizingVisitor implements Visitor {
         Array.from(this.senderReceiverInfo.keys()).forEach(key => {
             const workerEntry = this.senderReceiverInfo.get(key);
 
+            // workerEntry.waits.forEach((waitInfo) => {
+            //     matchedStatements.push({
+
+            //     });
+            // });
+
             workerEntry.sends.forEach(sendInfo => {
                 if (sendInfo.paired) {
                     return;
@@ -487,8 +493,8 @@ class SizingVisitor implements Visitor {
                     sourceName: key,
                     sourceIndex: sendInfo.index,
                     targetName: sendInfo.to,
-                    sourceNode: sendInfo.node,
-                    targetNode: matchedReceive.node,
+                    sourceViewState: sendInfo.node.viewState,
+                    targetViewState: matchedReceive.node.viewState,
                     targetIndex: matchedReceive.index
                 });
             });
@@ -507,10 +513,10 @@ class SizingVisitor implements Visitor {
                 matchedStatements.push({
                     sourceName: receiveInfo.from,
                     sourceIndex: matchedSend.index,
-                    sourceNode: matchedSend.node,
+                    sourceViewState: matchedSend.node.viewState,
                     targetName: matchedSend.to,
                     targetIndex: receiveInfo.index,
-                    targetNode: receiveInfo.node
+                    targetViewState: receiveInfo.node.viewState
                 });
             });
         });
@@ -536,6 +542,7 @@ class SizingVisitor implements Visitor {
         });
 
 
+        // for each pair calculate the heights until the send or receive statement and add the diff to the shorter one
         matchedStatements.forEach(matchedPair => {
             let sendHeight = 0;
             let receiveHeight = 0;
@@ -576,10 +583,10 @@ class SizingVisitor implements Visitor {
             }
 
             if (sendHeight > receiveHeight) {
-                const targetVS = matchedPair.targetNode.viewState as StatementViewState;
+                const targetVS = matchedPair.targetViewState as StatementViewState;
                 targetVS.bBox.offsetFromTop += (sendHeight - receiveHeight);
             } else {
-                const sourceVS = matchedPair.sourceNode.viewState as StatementViewState;
+                const sourceVS = matchedPair.sourceViewState as StatementViewState;
                 sourceVS.sendLine.w =
                     sourceVS.bBox.offsetFromTop += (receiveHeight - sendHeight);
             }
