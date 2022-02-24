@@ -24,7 +24,7 @@ import { VariableUserInputs } from '../../models/definitions';
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { getModifications } from "../../utils";
 import { sendDidChange } from "../../utils/ls-utils";
-import { LeftPane } from '../LeftPane';
+import { EditorPane } from '../EditorPane';
 import { useStatementEditorStyles } from "../styles";
 
 export interface ViewContainerProps {
@@ -95,7 +95,7 @@ export function ViewContainer(props: ViewContainerProps) {
         (
             <div className={overlayClasses.mainStatementWrapper}>
                 <div className={overlayClasses.statementExpressionWrapper}>
-                    <LeftPane
+                    <EditorPane
                         currentModel={currentModel}
                         label={label}
                         userInputs={userInputs}

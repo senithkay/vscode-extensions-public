@@ -21,12 +21,9 @@ import { StatementEditorContext } from "../../store/statement-editor-context";
 import { SuggestionsContext } from "../../store/suggestions-context";
 import { getSuggestionsBasedOnExpressionKind } from "../../utils";
 import { Diagnostics } from "../Diagnostics";
-import { LibraryBrowser } from "../LibraryBrowser";
+import { HelperPane } from "../HelperPane";
 import { StatementRenderer } from "../StatementRenderer";
 import { useStatementEditorStyles } from "../styles";
-import { ExpressionSuggestions } from "../Suggestions/ExpressionSuggestions";
-import { TypeSuggestions } from "../Suggestions/TypeSuggestions";
-import { VariableSuggestions } from "../Suggestions/VariableSuggestions";
 
 interface ModelProps {
     label: string,
@@ -35,9 +32,9 @@ interface ModelProps {
     currentModelHandler: (model: STNode) => void
 }
 
-export function LeftPane(props: ModelProps) {
+export function EditorPane(props: ModelProps) {
     const statementEditorClasses = useStatementEditorStyles();
-    const { label, currentModel, userInputs, currentModelHandler } = props;
+    const { label, userInputs, currentModelHandler } = props;
 
     const { modelCtx } = useContext(StatementEditorContext);
 
@@ -75,19 +72,13 @@ export function LeftPane(props: ModelProps) {
         setIsOperator(operator);
     }
 
-    const suggestionHandler = () => {
-        setIsSuggestionClicked(prevState => {
-            return !prevState;
-        });
-    }
-
     const diagnosticHandler = (diagnostics: string) => {
         setDiagnostic(diagnostics)
     }
 
     return (
         <div>
-            <div className={statementEditorClasses.sugessionsMainWrapper}>
+            <div className={statementEditorClasses.stmtEditorContentWrapper}>
                 <SuggestionsContext.Provider
                     value={{
                         expressionHandler
@@ -110,43 +101,14 @@ export function LeftPane(props: ModelProps) {
                     />
                 </div>
             </div>
-            <div className={statementEditorClasses.sugessionsSection}>
-                <div className={statementEditorClasses.sugessionsWrapper}>
-                        <div className={statementEditorClasses.contextSensitivePane}>
-                            {(!(variableList.length || suggestionList.length || typeDescriptorList.length)) && "Suggestions not available"}
-                                {
-                                (!isTypeDescSuggestion && variableList.length > 0) && (
-                                        <VariableSuggestions
-                                            model={currentModel.model}
-                                            variableSuggestions={variableList}
-                                            suggestionHandler={suggestionHandler}
-                                        />
-                                )
-                            }
-                            {
-                                (!isTypeDescSuggestion && suggestionList.length > 0) && (
-                                    <ExpressionSuggestions
-                                        model={currentModel.model}
-                                        suggestions={suggestionList}
-                                        operator={isOperator}
-                                        suggestionHandler={suggestionHandler}
-                                    />
-                                )
-                            }
-                            {
-                                isTypeDescSuggestion && (
-                                    <TypeSuggestions
-                                        model={currentModel.model}
-                                        typeSuggestions={typeDescriptorList}
-                                        suggestionHandler={suggestionHandler}
-                                    />
-                                )
-                            }
-                        </div>
-                </div>
-                <div className={statementEditorClasses.LibraryBrowsingWrapper}>
-                    <LibraryBrowser />
-                </div>
+            <div className={statementEditorClasses.suggestionsSection}>
+                <HelperPane
+                    variableList={variableList}
+                    typeDescriptorList={typeDescriptorList}
+                    suggestionList={suggestionList}
+                    isOperator={isOperator}
+                    isTypeDescSuggestion={isTypeDescSuggestion}
+                />
             </div>
         </div>
     );
