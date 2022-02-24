@@ -49,6 +49,7 @@ import {
 	getAllResources,
 	getLibrariesList,
 	getLibraryData,
+	DIST_LIB_LIST_CACHE,
 	LANG_LIB_LIST_CACHE,
 	LIBRARY_SEARCH_CACHE,
 	STD_LIB_LIST_CACHE
@@ -133,6 +134,13 @@ export async function showDiagramEditor(startLine: number, startColumn: number, 
 	getLibrariesList(LibraryKind.stdLib).then((libs) => {
 		if (libs && libs.librariesList.length > 0) {
 			cachedLibrariesList.set(STD_LIB_LIST_CACHE, libs);
+		}
+	});
+
+	// Cache the distribution lib list (lang libs + std libs)
+	getLibrariesList().then((libs) => {
+		if (libs && libs.librariesList.length > 0) {
+			cachedLibrariesList.set(DIST_LIB_LIST_CACHE, libs);
 		}
 	});
 

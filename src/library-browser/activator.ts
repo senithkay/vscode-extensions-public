@@ -25,6 +25,7 @@ import { LibrariesListResponse, LibraryDataResponse, LibraryKind, LibrarySearchR
 export const cachedLibrariesList = new Map<string, LibrariesListResponse>();
 export const cachedSearchList = new Map<string, LibrarySearchResponse>();
 export const cachedLibraryData = new Map<string, LibraryDataResponse>();
+export const DIST_LIB_LIST_CACHE = "DISTRIBUTION_LIB_LIST_CACHE";
 export const LANG_LIB_LIST_CACHE = "LANG_LIB_LIST_CACHE";
 export const STD_LIB_LIST_CACHE = "STD_LIB_LIST_CACHE";
 export const LIBRARY_SEARCH_CACHE = "LIBRARY_SEARCH_CACHE";
@@ -50,7 +51,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
     }
 }
 
-export function getLibrariesList(kind: LibraryKind): Promise<LibrariesListResponse | undefined> {
+export function getLibrariesList(kind?: LibraryKind): Promise<LibrariesListResponse | undefined> {
 
     return new Promise((resolve, reject) => {
 
@@ -58,6 +59,8 @@ export function getLibrariesList(kind: LibraryKind): Promise<LibrariesListRespon
             return resolve(cachedLibrariesList.get(LANG_LIB_LIST_CACHE));
         } else if (kind === LibraryKind.stdLib && cachedLibrariesList.has(STD_LIB_LIST_CACHE)) {
             return resolve(cachedLibrariesList.get(STD_LIB_LIST_CACHE));
+        } else if (cachedLibrariesList.has(DIST_LIB_LIST_CACHE)) {
+            return resolve(cachedLibrariesList.get(DIST_LIB_LIST_CACHE));
         }
 
         let body = '';
@@ -71,9 +74,18 @@ export function getLibrariesList(kind: LibraryKind): Promise<LibrariesListRespon
                     debug('Failed to fetch the libraries list');
                     return null;
                 } else {
-                    const responseJson = {
-                        'librariesList': JSON.parse(body)[kind]
-                    };
+                    let responseJson;
+                    const payload = JSON.parse(body);
+                    if (kind) {
+                        responseJson = {
+                            'librariesList': payload[kind]
+                        };
+                    } else {
+                        responseJson = {
+                            'librariesList': [...payload[LibraryKind.langLib], ...payload[LibraryKind.stdLib]]
+                        };
+                    }
+
                     return resolve(responseJson);
                 }
             });
