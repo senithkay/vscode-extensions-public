@@ -334,7 +334,7 @@ export function AddIfForm(props: IfProps) {
                 <div className={classes.formContentWrapper}>
                     <div className={classes.formCodeBlockWrapper}>
                         <div className={classes.formCodeExpressionEndWrapper}>
-                            <Typography variant='body2' className={classes.startCode}>if</Typography>
+                            <Typography variant='body2' className={classes.ifStartCode}>if</Typography>
                             <div className={classes.formCodeExpressionField}>
                                 <LowCodeExpressionEditor {...setElementProps(0)} />
                             </div>

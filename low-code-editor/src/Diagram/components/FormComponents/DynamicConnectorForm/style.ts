@@ -681,6 +681,15 @@ export const useStyles = makeStyles((theme: Theme) =>
             paddingLeft: theme.spacing(1),
             paddingRight: theme.spacing(1),
         },
+        ifStartCode: {
+            alignSelf: 'start',
+            color: '#0095FF',
+            width: 'max-content',
+            paddingBottom: theme.spacing(0.5),
+            paddingLeft: theme.spacing(1),
+            paddingRight: theme.spacing(1),
+            paddingTop: '62px'
+        },
         middleDottedwrapper: {
             display: 'flex',
             paddingBottom: theme.spacing(1.25)
