@@ -30,7 +30,6 @@ const SUCCESS = "Success";
 let syntaxTree: any;
 let langClient: DiagramEditorLangClientInterface;
 let filePath: string;
-let pfSession: PFSession;
 let graphData: GraphPoint[];
 let sequenceDiagramData: SequenceGraphPoint[];
 let diagramRedraw: any;
@@ -59,22 +58,20 @@ export enum ANALYZE_TYPE {
  * @param st syntax tree
  * @param file file name
  * @param lc language client
- * @param session choreo session
  * @param showPerf Show performance graph function
  * @param getPerfDataFromChoreo Show performance graph errors
  * @param showMsg Show alerts in vscode side
  */
 export async function addPerformanceData(st: any, file: string, lc: DiagramEditorLangClientInterface,
-                                         session: PFSession, showPerf: (request: PerformanceGraphRequest) => Promise<boolean>,
+                                         showPerf: (request: PerformanceGraphRequest) => Promise<boolean>,
                                          getPerfDataFromChoreo: (data: any, analyzeType: ANALYZE_TYPE) => Promise<PerformanceAnalyzerRealtimeResponse | PerformanceAnalyzerGraphResponse | undefined>): Promise<Map<string, PerformanceData>> {
-    if (!st || !file || !lc || !session) {
+    if (!st || !file || !lc) {
         return;
     }
 
     syntaxTree = st;
     langClient = lc;
     filePath = file;
-    pfSession = session;
     showPerformanceGraph = showPerf;
     getDataFromChoreo = getPerfDataFromChoreo;
 
@@ -108,7 +105,7 @@ export async function addPerformanceData(st: any, file: string, lc: DiagramEdito
 }
 
 export async function addAdvancedLabels(name: string, range: NodePosition, diagramRedrawFunc: any) {
-    if (!filePath || !langClient || !pfSession || !diagramRedrawFunc) {
+    if (!filePath || !langClient || !diagramRedrawFunc) {
         return;
     }
     currentResourcePos = range;
@@ -170,7 +167,7 @@ export async function updatePerformanceLabels(concurrency: number) {
     switch (concurrency) {
         case -1: {
             mergeAnalysisDetails(syntaxTree, null, null, null, null, true);
-            await addPerformanceData(syntaxTree, filePath, langClient, pfSession, showPerformanceGraph, getDataFromChoreo);
+            await addPerformanceData(syntaxTree, filePath, langClient, showPerformanceGraph, getDataFromChoreo);
             diagramRedraw(syntaxTree);
             return true;
         }

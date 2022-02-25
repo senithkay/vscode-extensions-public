@@ -384,11 +384,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
         const currentTime: number = Date.now();
         const langClient = await langClientPromise;
         if (currentTime - lastPerfUpdate > debounceTime) {
-            const pfSession = await props.getPFSession();
-            if (!pfSession) {
-                return;
-            }
-            const perfData = await addPerformanceData(vistedSyntaxTree, filePath, langClient, pfSession, props.showPerformanceGraph, props.getPerfDataFromChoreo);
+            const perfData = await addPerformanceData(vistedSyntaxTree, filePath, langClient, props.showPerformanceGraph, props.getPerfDataFromChoreo);
             setPerformanceData(perfData);
             lastPerfUpdate = currentTime;
         }
