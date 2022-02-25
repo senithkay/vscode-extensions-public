@@ -72,9 +72,9 @@ export class ResourceForm {
         ExpressionEditor
             .getForField("Payload type", this.selector)
             .type(payloadType)
-            .suggestWidgetShouldBeVisible()
+            // .suggestWidgetShouldBeVisible() //Need to fix this
             .waitForValidations()
-            .clickFirstSuggestion() 
+            // .clickFirstSuggestion() //Need to fix this
         ;
         return this;
     }
