@@ -20,7 +20,7 @@ export const init = (config: SentryConfig) => {
     try {
         Sentry.init({
             dsn: config.dsn,
-            release: config.release,
+            release: process.env.APP_VERSION,
             environment: config.environment,
             ignoreErrors: [],
             sampleRate,

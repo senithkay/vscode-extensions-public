@@ -1,0 +1,49 @@
+name: "Release Low Code Editor"
+
+on:
+  workflow_dispatch:
+    inputs:
+      vs_code_path:
+        description: VS Code path
+        required: true
+        default: ~/config/extensions/wso2.ballerina-3.0.1-preview/resources/jslibs
+    branches: [ main ]
+
+jobs:
+  publish-package:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get current timestamp
+        id: timestamp
+        run: echo "::set-output name=timestamp::$(date +'%Y%m%d-%H%M')"
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Setup NodeJS
+        uses: actions/setup-node@v2
+        with:
+          always-auth: true
+          node-version: '16.x'
+          registry-url: 'https://npm.pkg.github.com'
+      - name: Install NPM v8.5.0
+        run: npm install -g npm@8.5.0
+      - run: npm run build
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
+          APP_VERSION: ${{ steps.timestamp.outputs.timestamp }}
+          BALLERINA_VS_CODE_PATH: ${{ github.event.inputs.vs_code_path }}
+          IS_RELEASE: ${{ true }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+      - run: npm version prepatch --preid=${{ steps.timestamp.outputs.timestamp }} --workspaces
+      - name: Create tag
+        uses: actions/github-script@v5
+        with:
+          script: |
+            github.rest.git.createRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: 'refs/tags/${{ steps.timestamp.outputs.timestamp }}',
+              sha: context.sha
+            })
+      - run: npm publish --tag next --workspaces
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
