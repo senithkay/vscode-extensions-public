@@ -66,7 +66,7 @@ export function ProcessConfigForm(props: any) {
 
     const onSaveClick = () => {
         const modifications: STModification[] = [];
-        if (formArgs?.expressionInjectables?.list){
+        if (formArgs?.expressionInjectables?.list) {
             formArgs.expressionInjectables.list.forEach((item: InjectableItem) => {
                 modifications.push(item.modification)
             })
@@ -96,6 +96,7 @@ export function ProcessConfigForm(props: any) {
                     break;
                 case 'Call':
                 case 'Custom':
+                default:
                     const customConfig: CustomExpressionConfig = processConfig.config as CustomExpressionConfig;
                     const editCustomStatement: STModification = updatePropertyStatement(customConfig.expression, formArgs?.model.position);
                     modifications.push(editCustomStatement);
