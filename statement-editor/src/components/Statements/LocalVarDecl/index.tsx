@@ -135,7 +135,8 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
                         <span
                             className={classNames(
                                 statementEditorClasses.expressionBlock,
-                                statementEditorClasses.expressionBlockDisabled
+                                statementEditorClasses.expressionBlockDisabled,
+                                "operator"
                             )}
                         >
                             &nbsp;{model.equalsToken.value}

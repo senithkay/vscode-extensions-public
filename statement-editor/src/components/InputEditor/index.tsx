@@ -58,6 +58,7 @@ export interface InputEditorProps {
     userInputs: VariableUserInputs;
     isTypeDescriptor: boolean;
     isToken?: boolean;
+    classNames?: string;
 }
 
 export function InputEditor(props: InputEditorProps) {
@@ -70,7 +71,7 @@ export function InputEditor(props: InputEditorProps) {
         diagnostic: [],
     });
 
-    const { model, diagnosticHandler, userInputs, isTypeDescriptor, isToken } = props;
+    const { model, diagnosticHandler, userInputs, isTypeDescriptor, isToken, classNames } = props;
 
     const stmtCtx = useContext(StatementEditorContext);
     const inputEditorCtx = useContext(InputEditorContext);
@@ -332,15 +333,16 @@ export function InputEditor(props: InputEditorProps) {
         (
             <input
                 value={placeHolders.indexOf(userInput) > -1 ? "" : userInput}
-                className={statementEditorClasses.inputEditorTemplate}
+                className={statementEditorClasses.inputEditorTemplate + ' ' + classNames}
                 onKeyDown={inputEnterHandler}
                 onInput={inputChangeHandler}
+                size={userInput.length}
                 autoFocus={true}
                 style={{ maxWidth: userInput === '' ? '10px' : 'fit-content' }}
             />
         ) : (
             <span
-                className={statementEditorClasses.inputEditorTemplate}
+                className={statementEditorClasses.inputEditorTemplate + ' ' + classNames}
                 onDoubleClick={handleDoubleClick}
                 onBlur={handleEditEnd}
             >

@@ -31,7 +31,7 @@ export function StringTypeDescC(props: StringTypeDescProps) {
 
     return (
         <span
-            className={statementEditorClasses.expressionElement}
+            className={statementEditorClasses.expressionElement + " type-descriptor string"}
         >
             {model.name.value}
         </span>

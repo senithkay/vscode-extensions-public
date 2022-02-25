@@ -55,7 +55,19 @@ export const useStatementEditorStyles = makeStyles(() =>
             paddingTop: theme.spacing(1.5),
             paddingBottom: theme.spacing(1),
             fontSize: "18px",
-            'user-select': 'none'
+            'user-select': 'none',
+            '& .type-descriptor': {
+                color: '#008080 !important'
+            },
+            '& .numeric-literal': {
+                color: '#114D77 !important'
+            },
+            '& .operator': {
+                color: '#008080 !important'
+            },
+            '& .keyword': {
+                color: '#0000ff !important'
+            }
         },
         variableSugession: {
             padding: theme.spacing(1.5),

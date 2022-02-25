@@ -130,7 +130,8 @@ export function AssignmentStatementComponent(props: AssignmentStatementProps) {
             <span
                 className={classNames(
                     statementEditorClasses.expressionBlock,
-                    statementEditorClasses.expressionBlockDisabled
+                    statementEditorClasses.expressionBlockDisabled,
+                    "operator"
                 )}
             >
                 {model.equalsToken.value}

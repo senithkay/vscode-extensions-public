@@ -101,7 +101,8 @@ export function IfStatementC(props: IfStatementProps) {
             <span
                 className={classNames(
                     statementEditorClasses.expressionBlock,
-                    statementEditorClasses.expressionBlockDisabled
+                    statementEditorClasses.expressionBlockDisabled,
+                    "keyword"
                 )}
             >
                 {model.ifKeyword.value}
