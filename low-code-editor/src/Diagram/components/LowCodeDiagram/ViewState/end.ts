@@ -10,10 +10,13 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { ViewState } from ".";
+import { SimpleBBox, ViewState } from ".";
 
 export class EndViewState extends ViewState {
+    sendLine: SimpleBBox;
+    hasSendLine: boolean;
     constructor() {
         super();
+        this.sendLine = new SimpleBBox();
     }
 }

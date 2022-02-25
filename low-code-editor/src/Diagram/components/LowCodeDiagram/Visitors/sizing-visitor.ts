@@ -62,7 +62,7 @@ import { START_SVG_HEIGHT, START_SVG_WIDTH } from "../Components/RenderingCompon
 import { VARIABLE_NAME_WIDTH } from "../Components/RenderingComponents/VariableName";
 import { WHILE_SVG_HEIGHT, WHILE_SVG_WIDTH } from "../Components/RenderingComponents/While/WhileSVG";
 import { getNodeSignature } from "../Utils";
-import { BlockViewState, CollapseViewState, CompilationUnitViewState, DoViewState, ElseViewState, ForEachViewState, FunctionViewState, IfViewState, OnErrorViewState, PlusViewState, StatementViewState, ViewState } from "../ViewState";
+import { BlockViewState, CollapseViewState, CompilationUnitViewState, DoViewState, ElseViewState, EndViewState, ForEachViewState, FunctionViewState, IfViewState, OnErrorViewState, PlusViewState, StatementViewState, ViewState } from "../ViewState";
 import { DraftStatementViewState } from "../ViewState/draft";
 import { ModuleMemberViewState } from "../ViewState/module-member";
 import { ServiceViewState } from "../ViewState/service";
@@ -410,7 +410,8 @@ class SizingVisitor implements Visitor {
                 const workerTrigger = workerVS.trigger;
                 this.endVisitBlockStatement(workerST.workerBody, workerST);
 
-                workerLifeLine.h = workerTrigger.offsetFromBottom + workerBodyVS.bBox.h;
+                workerLifeLine.h = workerTrigger.offsetFromBottom + workerBodyVS.bBox.h
+                    + (workerBodyVS.isEndComponentAvailable ? 0 : workerVS.end.bBox.offsetFromTop);
 
                 if (!workerBodyVS.isEndComponentAvailable
                     && (STKindChecker.isExpressionFunctionBody(body) || body.statements.length > 0)) {
@@ -472,11 +473,33 @@ class SizingVisitor implements Visitor {
         Array.from(this.senderReceiverInfo.keys()).forEach(key => {
             const workerEntry = this.senderReceiverInfo.get(key);
 
-            // workerEntry.waits.forEach((waitInfo) => {
-            //     matchedStatements.push({
+            // treat waits as receives
+            workerEntry.waits.forEach((waitInfo) => {
+                const sourceWorker = this.workerMap.get(waitInfo.for) as NamedWorkerDeclaration;
+                const sourceWorkerBody = sourceWorker.workerBody as BlockStatement;
 
-            //     });
-            // });
+                let endViewState
+                if ((sourceWorkerBody.viewState as BlockViewState).isEndComponentAvailable) {
+                    endViewState = sourceWorkerBody.statements[sourceWorkerBody.statements.length - 1].viewState
+                    endViewState.hasSendLine = true;
+                } else {
+                    endViewState = (sourceWorker.viewState as WorkerDeclarationViewState).end as EndViewState
+                    endViewState.hasSendLine = true;
+                }
+
+                const sourceIndex = (sourceWorkerBody.viewState as BlockViewState).isEndComponentAvailable ?
+                    sourceWorkerBody.statements.length - 1
+                    : sourceWorkerBody.statements.length;
+
+                matchedStatements.push({
+                    sourceName: waitInfo.for,
+                    sourceIndex: sourceIndex < 0 ? 0 : sourceIndex,
+                    targetName: key,
+                    sourceViewState: endViewState,
+                    targetViewState: waitInfo.node.viewState,
+                    targetIndex: waitInfo.index,
+                });
+            });
 
             workerEntry.sends.forEach(sendInfo => {
                 if (sendInfo.paired) {
@@ -587,8 +610,7 @@ class SizingVisitor implements Visitor {
                 targetVS.bBox.offsetFromTop += (sendHeight - receiveHeight);
             } else {
                 const sourceVS = matchedPair.sourceViewState as StatementViewState;
-                sourceVS.sendLine.w =
-                    sourceVS.bBox.offsetFromTop += (receiveHeight - sendHeight);
+                sourceVS.bBox.offsetFromTop += (receiveHeight - sendHeight);
             }
         });
     }
@@ -1018,7 +1040,6 @@ class SizingVisitor implements Visitor {
                 viewState.bBox.w = PLUS_HOLDER_WIDTH;
             }
         }
-
 
         this.currentWorker.pop();
     }

@@ -131,7 +131,7 @@ export function End(props: EndProps) {
         (
             <g className="end-wrapper" data-testid="end-block">
                 <StopSVG
-                    x={cx - ((STOP_SVG_WIDTH_WITH_SHADOW / 2) + (STOP_SVG_SHADOW_OFFSET  / 4))}
+                    x={cx - ((STOP_SVG_WIDTH_WITH_SHADOW / 2) + (STOP_SVG_SHADOW_OFFSET / 4))}
                     y={cy - DefaultConfig.shadow}
                     text={compType.toUpperCase()}
                     codeSnippet={codeSnippet}
@@ -170,6 +170,18 @@ export function End(props: EndProps) {
                         }
                     </>
                     ) : null
+                }
+                {
+                    viewState.hasSendLine && (
+                        <line
+                            style={{ stroke: '#5567D5', strokeWidth: 1 }}
+                            markerEnd="url(#arrowhead)"
+                            x1={viewState.sendLine.x}
+                            y1={viewState.sendLine.y}
+                            x2={viewState.sendLine.x + viewState.sendLine.w}
+                            y2={viewState.sendLine.y}
+                        />
+                    )
                 }
             </g >
         )

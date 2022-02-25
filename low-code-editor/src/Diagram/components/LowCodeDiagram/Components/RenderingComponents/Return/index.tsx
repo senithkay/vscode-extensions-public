@@ -24,7 +24,7 @@ import { DELETE_SVG_WIDTH_WITH_SHADOW } from "../../../Components/DiagramActions
 import { EditBtn } from "../../../Components/DiagramActions/EditBtn";
 import { EDIT_SVG_WIDTH_WITH_SHADOW } from "../../../Components/DiagramActions/EditBtn/EditSVG";
 import { Context } from "../../../Context/diagram";
-import { BlockViewState } from "../../../ViewState";
+import { BlockViewState, StatementViewState } from "../../../ViewState";
 import { DraftStatementViewState } from "../../../ViewState/draft";
 import { PROCESS_SVG_HEIGHT, PROCESS_SVG_HEIGHT_WITH_SHADOW, PROCESS_SVG_SHADOW_OFFSET, PROCESS_SVG_WIDTH, PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW } from "../Processor/ProcessSVG";
 import { VariableName, VARIABLE_NAME_WIDTH } from "../VariableName";
@@ -201,6 +201,16 @@ export function Return(props: ReturnProps) {
                     </g>
                 )}
             </>
+            {(model.viewState as StatementViewState).hasSendLine && (
+                <line
+                    style={{ stroke: '#5567D5', strokeWidth: 1 }}
+                    markerEnd="url(#arrowhead)"
+                    x1={model.viewState.sendLine.x - 20}
+                    y1={model.viewState.sendLine.y}
+                    x2={model.viewState.sendLine.x + model.viewState.sendLine.w}
+                    y2={model.viewState.sendLine.y}
+                />
+            )}
         </g>
     );
 }
