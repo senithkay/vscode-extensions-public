@@ -29,6 +29,6 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
   context.subscriptions.push(
     workspace.registerNotebookSerializer('ballerina-notebook', new notebookSerializer())
 	);
-	context.subscriptions.push(new notebookController());
+	context.subscriptions.push(new notebookController(ballerinaExtInstance));
 	context.subscriptions.push(registerLanguageProviders(ballerinaExtInstance));
 }

@@ -19,6 +19,7 @@
 
 import { NotebookCell, NotebookCellOutput, NotebookCellOutputItem, NotebookController, 
     NotebookDocument, notebooks } from 'vscode';
+import { BallerinaExtension, ExtendedLangClient, ShellOutput } from '../core';
 
 export class notebookController {
     readonly controllerId = 'ballerina-notebook-controller-id';
@@ -26,10 +27,12 @@ export class notebookController {
     readonly label = 'Ballerina Notebook';
     readonly supportedLanguages = ['ballerina'];
 
+    private ballerinaExtension: BallerinaExtension;
     private readonly _controller: NotebookController;
     private _executionOrder = 0;
 
-    constructor() {
+    constructor(extensionInstance: BallerinaExtension) {
+        this.ballerinaExtension = extensionInstance;
         this._controller = notebooks.createNotebookController(
             this.controllerId,
             this.notebookType,
@@ -52,18 +55,27 @@ export class notebookController {
         if (cell && cell.document && !cell.document.getText().trim()) {
             return;
         }
+        let langClient: ExtendedLangClient = <ExtendedLangClient>this.ballerinaExtension.langClient;
+
+        if (!langClient) {
+            return;
+        }
         
         const execution = this._controller.createNotebookCellExecution(cell);
         execution.executionOrder = ++this._executionOrder;
         execution.start(Date.now());
-
-        /* TODO: implement execution and replace output*/
-
-        execution.replaceOutput([
-            new NotebookCellOutput([
-                NotebookCellOutputItem.text('Dummy output text!')
-            ])
-        ]);
+        
+        let output: ShellOutput = await langClient.getBalShellResult({
+            source: cell.document.getText().trim()
+        });
+        if (output.shellValue?.value) {
+            execution.replaceOutput([
+                new NotebookCellOutput([
+                    NotebookCellOutputItem.text(output.shellValue.value)
+                ])
+            ]);
+        }
+        
         execution.end(true, Date.now());
     }
 

@@ -66,7 +66,8 @@ enum EXTENDED_APIS {
     EXAMPLE_LIST = 'ballerinaExample/list',
     PERF_ANALYZER_RESOURCES_ENDPOINTS = 'performanceAnalyzer/getResourcesWithEndpoints',
     RESOLVE_MISSING_DEPENDENCIES = 'ballerinaDocument/resolveMissingDependencies',
-    BALLERINA_TO_OPENAPI = 'openAPILSExtension/generateOpenAPI'
+    BALLERINA_TO_OPENAPI = 'openAPILSExtension/generateOpenAPI',
+    GET_BAL_SHELL_RESULT = "balShell/getResult"
 }
 
 enum EXTENDED_APIS_ORG {
@@ -79,7 +80,8 @@ enum EXTENDED_APIS_ORG {
     TRIGGER = 'ballerinaTrigger',
     PERF_ANALYZER = 'performanceAnalyzer',
     PARTIAL_PARSER = 'partialParser',
-    BALLERINA_TO_OPENAPI = 'openAPILSExtension'
+    BALLERINA_TO_OPENAPI = 'openAPILSExtension',
+    BAL_SHELL = "balShell"
 }
 
 export interface ExtendedClientCapabilities extends ClientCapabilities {
@@ -144,6 +146,22 @@ export interface JsonToRecordRequest {
 
 export interface JsonToRecordResponse {
     codeBlock: string;
+}
+
+export interface BalShellRequest {
+    source: string
+}
+
+export interface ShellValue {
+    value: string,
+    mimeType: string,
+    type: number
+}
+
+export interface ShellOutput {
+    shellValue?: ShellValue,
+    errors: string[],
+    diagnostics: string[]
 }
 
 interface BallerinaInitializeParams {
@@ -534,6 +552,13 @@ export class ExtendedLangClient extends LanguageClient {
         return this.sendRequest(EXTENDED_APIS.JSON_TO_RECORD_CONVERT, params);
     }
 
+    getBalShellResult(params: BalShellRequest): Thenable<ShellOutput> {
+        if (!this.isExtendedServiceSupported(EXTENDED_APIS.JSON_TO_RECORD_CONVERT)) {
+            Promise.resolve(NOT_SUPPORTED);
+        }
+        return this.sendRequest(EXTENDED_APIS.GET_BAL_SHELL_RESULT, params);
+    }
+
     getSTForSingleStatement(params: PartialSTRequestParams): Thenable<PartialSTResponse> {
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.PARTIAL_PARSE_SINGLE_STATEMENT)) {
             Promise.resolve(NOT_SUPPORTED);
@@ -605,7 +630,8 @@ export class ExtendedLangClient extends LanguageClient {
                 { name: EXTENDED_APIS_ORG.JSON_TO_RECORD, convert: true },
                 { name: EXTENDED_APIS_ORG.PERF_ANALYZER, getResourcesWithEndpoints: true },
                 { name: EXTENDED_APIS_ORG.PARTIAL_PARSER, getSTForSingleStatement: true, getSTForExpression: true },
-                { name: EXTENDED_APIS_ORG.BALLERINA_TO_OPENAPI, generateOpenAPI: true }
+                { name: EXTENDED_APIS_ORG.BALLERINA_TO_OPENAPI, generateOpenAPI: true },
+                { name: EXTENDED_APIS_ORG.BAL_SHELL, getResult: true }
             ]
         }).then(response => {
             this.ballerinaExtendedServices = new Set();
