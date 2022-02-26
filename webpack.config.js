@@ -43,4 +43,32 @@ const config = {
   },
   stats: 'normal'
 };
-module.exports = config;
+const rendererConfig = {
+	entry: './src/notebook/renderer/index.tsx',
+	output: {
+		path: path.resolve(__dirname, 'dist'),
+		filename: 'renderer.js',
+		libraryTarget: 'module',
+	},
+	resolve: {
+		extensions: ['.ts', '.tsx', '.css']
+	},
+	experiments: {
+		outputModule: true,
+	},
+  module: {
+    rules: [
+      {
+        test: /\.tsx$/,
+        exclude: /node_modules/,
+        use: [
+          {
+            loader: 'ts-loader'
+          }
+        ]
+      }
+    ]
+  },
+};
+
+module.exports = [config, rendererConfig];
