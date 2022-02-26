@@ -38,36 +38,12 @@ export function ForeachStatementC(props: ForeachStatementProps) {
     const stmtCtx = useContext(StatementEditorContext);
     const { modelCtx } = stmtCtx;
     const { currentModel } = modelCtx;
-    const hasTypedBindingPatternSelected = currentModel.model &&
-        isPositionsEquals(currentModel.model.position, model.typedBindingPattern.position);
-    const hasExprComponentSelected = currentModel.model &&
-        isPositionsEquals(currentModel.model.position, model.actionOrExpressionNode.position);
 
     const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
     const { currentFile, getLangClient } = stmtCtx;
     const targetPosition = stmtCtx.formCtx.formModelPosition;
     const fileURI = `expr://${currentFile.path}`;
-
-    const typedBindingComponent: ReactNode = (
-        <ExpressionComponent
-            model={model.typedBindingPattern}
-            userInputs={userInputs}
-            isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
-            isTypeDescriptor={false}
-        />
-    );
-
-    const actionOrExprComponent: ReactNode = (
-        <ExpressionComponent
-            model={model.actionOrExpressionNode}
-            userInputs={userInputs}
-            isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
-            isTypeDescriptor={false}
-        />
-    );
 
     const onClickOnBindingPattern = (event: any) => {
         event.stopPropagation();
@@ -107,6 +83,28 @@ export function ForeachStatementC(props: ForeachStatementProps) {
         });
     }
 
+    const typedBindingComponent: ReactNode = (
+        <ExpressionComponent
+            model={model.typedBindingPattern}
+            userInputs={userInputs}
+            isElseIfMember={isElseIfMember}
+            diagnosticHandler={diagnosticHandler}
+            isTypeDescriptor={false}
+            onSelect={onClickOnBindingPattern}
+        />
+    );
+
+    const actionOrExprComponent: ReactNode = (
+        <ExpressionComponent
+            model={model.actionOrExpressionNode}
+            userInputs={userInputs}
+            isElseIfMember={isElseIfMember}
+            diagnosticHandler={diagnosticHandler}
+            isTypeDescriptor={false}
+            onSelect={onClickOnActionOrExpr}
+        />
+    );
+
     return (
         <span>
             <span
@@ -117,15 +115,7 @@ export function ForeachStatementC(props: ForeachStatementProps) {
             >
                 {model.forEachKeyword.value}
             </span>
-            <span
-                className={classNames(
-                    statementEditorClasses.expressionElement,
-                    hasTypedBindingPatternSelected && statementEditorClasses.expressionElementSelected
-                )}
-                onClick={onClickOnBindingPattern}
-            >
-                {typedBindingComponent}
-            </span>
+            {typedBindingComponent}
             <span
                 className={classNames(
                     statementEditorClasses.expressionBlock,
@@ -134,15 +124,7 @@ export function ForeachStatementC(props: ForeachStatementProps) {
             >
                 &nbsp;{model.inKeyword.value}
             </span>
-            <span
-                className={classNames(
-                    statementEditorClasses.expressionElement,
-                    hasExprComponentSelected && statementEditorClasses.expressionElementSelected
-                )}
-                onClick={onClickOnActionOrExpr}
-            >
-                {actionOrExprComponent}
-            </span>
+            {actionOrExprComponent}
             <span
                 className={classNames(
                     statementEditorClasses.expressionBlock,

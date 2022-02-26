@@ -48,26 +48,6 @@ export function AssignmentStatementComponent(props: AssignmentStatementProps) {
     const targetPosition = stmtCtx.formCtx.formModelPosition;
     const fileURI = `expr://${currentFile.path}`;
 
-    const expression: ReactNode = (
-        <ExpressionComponent
-            model={model.expression}
-            userInputs={userInputs}
-            isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
-            isTypeDescriptor={false}
-        />
-    );
-
-    const varRef: ReactNode = (
-        <ExpressionComponent
-            model={model.varRef}
-            userInputs={userInputs}
-            isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
-            isTypeDescriptor={false}
-        />
-    );
-
     const onClickOnVarRef = async (event: any) => {
         event.stopPropagation();
 
@@ -116,17 +96,31 @@ export function AssignmentStatementComponent(props: AssignmentStatementProps) {
         });
     }
 
+    const expression: ReactNode = (
+        <ExpressionComponent
+            model={model.expression}
+            userInputs={userInputs}
+            isElseIfMember={isElseIfMember}
+            diagnosticHandler={diagnosticHandler}
+            isTypeDescriptor={false}
+            onSelect={onClickOnExpression}
+        />
+    );
+
+    const varRef: ReactNode = (
+        <ExpressionComponent
+            model={model.varRef}
+            userInputs={userInputs}
+            isElseIfMember={isElseIfMember}
+            diagnosticHandler={diagnosticHandler}
+            isTypeDescriptor={false}
+            onSelect={onClickOnVarRef}
+        />
+    );
+
     return (
         <span>
-            <span
-                className={classNames(
-                    statementEditorClasses.expressionElement,
-                    hasVarRefSelected && statementEditorClasses.expressionElementSelected
-                )}
-                onClick={onClickOnVarRef}
-            >
-                {varRef}
-            </span>
+            {varRef}
             <span
                 className={classNames(
                     statementEditorClasses.expressionBlock,
@@ -136,15 +130,7 @@ export function AssignmentStatementComponent(props: AssignmentStatementProps) {
             >
                 {model.equalsToken.value}
             </span>
-            <span
-                className={classNames(
-                    statementEditorClasses.expressionElement,
-                    hasExpressionSelected && statementEditorClasses.expressionElementSelected
-                )}
-                onClick={onClickOnExpression}
-            >
-                {expression}
-            </span>
+            {expression}
             <span
                 className={classNames(
                     statementEditorClasses.expressionBlock,

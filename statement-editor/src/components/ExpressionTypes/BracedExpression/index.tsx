@@ -35,7 +35,6 @@ export function BracedExpressionComponent(props: BracedExprProps) {
         diagnosticHandler={diagnosticHandler}
         isTypeDescriptor={false}
     />;
-
     return (
         <span>
             {expressionComponent}

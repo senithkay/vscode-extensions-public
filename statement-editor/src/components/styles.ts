@@ -32,7 +32,7 @@ export const useStatementEditorStyles = makeStyles(() =>
             height: '60vh'
         },
         sugessionsMainWrapper: {
-            backgroundColor: '#f0f0f0',
+            backgroundColor: '#f7f7f7',
             display: 'flex',
             flexDirection: 'column',
             padding: theme.spacing(1.5),
@@ -226,27 +226,23 @@ export const useStatementEditorStyles = makeStyles(() =>
             position: 'relative',
             width: 'fit-content',
             margin: '0 2px 0 2px',
-            '& > span': {
+            '&': {
                 width: 'fit-content',
                 padding: '4px',
                 color: '#000000',
                 borderRadius: '4px',
             },
-            '& > span.hovered': {
-                backgroundColor: '#A4AEEB',
+            '&.hovered': {
+                backgroundColor: '#e5ebf1',
             },
             cursor: "pointer"
         },
         expressionElementSelected: {
-            '& > span': {
-                backgroundColor: '#5567D5',
-                color: '#fff',
+            '&': {
+                backgroundColor: '#ADD6FF80',
             },
-            '& span': {
-                color: '#fff',
-            },
-            '& > span.hovered': {
-                backgroundColor: '#7482DE',
+            '&.hovered': {
+                backgroundColor: '#e5ebf1',
             },
         },
         inputEditorTemplate: {

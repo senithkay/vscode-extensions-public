@@ -47,16 +47,6 @@ export function IfStatementC(props: IfStatementProps) {
     const targetPosition = stmtCtx.formCtx.formModelPosition;
     const fileURI = `expr://${currentFile.path}`;
 
-    const conditionComponent: ReactNode = (
-        <ExpressionComponent
-            model={model.condition}
-            userInputs={userInputs}
-            isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
-            isTypeDescriptor={false}
-        />
-    );
-
     const elseBlockComponent: ReactNode = (
         <StatementRenderer
             model={model.elseBody}
@@ -96,6 +86,17 @@ export function IfStatementC(props: IfStatementProps) {
         });
     }
 
+    const conditionComponent: ReactNode = (
+        <ExpressionComponent
+            model={model.condition}
+            userInputs={userInputs}
+            isElseIfMember={isElseIfMember}
+            diagnosticHandler={diagnosticHandler}
+            isTypeDescriptor={false}
+            onSelect={onClickOnConditionExpression}
+        />
+    );
+
     return (
         <span>
             <span
@@ -107,15 +108,7 @@ export function IfStatementC(props: IfStatementProps) {
             >
                 {model.ifKeyword.value}
             </span>
-            <span
-                className={classNames(
-                    statementEditorClasses.expressionElement,
-                    hasConditionSelected && statementEditorClasses.expressionElementSelected
-                )}
-                onClick={onClickOnConditionExpression}
-            >
-                {conditionComponent}
-            </span>
+            {conditionComponent}
             <span
                 className={classNames(
                     statementEditorClasses.expressionBlock,

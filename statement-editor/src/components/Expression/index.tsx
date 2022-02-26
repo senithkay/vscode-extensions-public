@@ -10,13 +10,15 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React from "react";
+import React, { useContext } from "react";
 
 import { STNode } from "@wso2-enterprise/syntax-tree";
 import cn from "classnames";
 
 import { VariableUserInputs } from "../../models/definitions";
-import { getExpressionTypeComponent } from "../../utils";
+import { StatementEditorContext } from "../../store/statement-editor-context";
+import { getExpressionTypeComponent, isPositionsEquals } from "../../utils";
+import { useStatementEditorStyles } from "../styles";
 
 export interface ExpressionComponentProps {
     model: STNode;
@@ -24,14 +26,23 @@ export interface ExpressionComponentProps {
     isElseIfMember: boolean;
     diagnosticHandler: (diagnostics: string) => void;
     isTypeDescriptor: boolean;
+    onSelect?: (event: React.MouseEvent) => void;
+    children?: React.ReactElement[]
 }
 
 export function ExpressionComponent(props: ExpressionComponentProps) {
-    const { model, userInputs, isElseIfMember, diagnosticHandler, isTypeDescriptor } = props;
+    const { model, userInputs, isElseIfMember, diagnosticHandler, isTypeDescriptor, onSelect, children } = props;
 
     const component = getExpressionTypeComponent(model, userInputs, isElseIfMember, diagnosticHandler, isTypeDescriptor);
 
     const [isHovered, setHovered] = React.useState(false);
+
+    const { modelCtx } = useContext(StatementEditorContext);
+    const { currentModel: selectedModel } = modelCtx;
+
+    const statementEditorClasses = useStatementEditorStyles();
+
+    const isSelected = selectedModel.model && model && isPositionsEquals(selectedModel.model.position, model.position);
 
     const onMouseOver = (e: React.MouseEvent) => {
         setHovered(true);
@@ -45,7 +56,28 @@ export function ExpressionComponent(props: ExpressionComponentProps) {
         e.preventDefault();
     }
 
+    const onMouseClick = (e: React.MouseEvent) {
+        e.stopPropagation();
+        e.preventDefault();
+        if (onSelect) {
+            onSelect(e);
+        }
+    }
+
     return (
-        <span onMouseOver={onMouseOver} onMouseOut={onMouseOut} className={cn({ "hovered": isHovered })}>{component}</span>
+        <span
+            onMouseOver={onMouseOver}
+            onMouseOut={onMouseOut}
+            // tslint:disable-next-line: jsx-no-multiline-js
+            className={cn(statementEditorClasses.expressionElement,
+                isSelected && statementEditorClasses.expressionElementSelected,
+                {
+                "hovered": !isSelected && isHovered,
+            })}
+            onClick={onMouseClick}
+        >
+            {component}
+            {children}
+        </span>
     );
 }

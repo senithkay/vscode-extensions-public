@@ -37,26 +37,11 @@ interface TypedBindingPatternProps {
 export function TypedBindingPatternComponent(props: TypedBindingPatternProps) {
     const { model, userInputs, isElseIfMember, diagnosticHandler } = props;
     const stmtCtx = useContext(StatementEditorContext);
-    const { modelCtx } = stmtCtx;
-    const { currentModel } = modelCtx;
-    const hasTypeDescSelected = currentModel.model &&
-        isPositionsEquals(currentModel.model.position, model.typeDescriptor.position);
-
-    const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
     const { currentFile, getLangClient } = stmtCtx;
     const targetPosition = stmtCtx.formCtx.formModelPosition;
     const fileURI = `expr://${currentFile.path}`;
 
-    const typeDescriptorComponent: ReactNode = (
-        <ExpressionComponent
-            model={model.typeDescriptor}
-            userInputs={userInputs}
-            isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
-            isTypeDescriptor={true}
-        />
-    );
     const bindingPatternComponent: ReactNode = (
         <ExpressionComponent
             model={model.bindingPattern}
@@ -84,17 +69,20 @@ export function TypedBindingPatternComponent(props: TypedBindingPatternProps) {
         });
     };
 
+    const typeDescriptorComponent: ReactNode = (
+        <ExpressionComponent
+            model={model.typeDescriptor}
+            userInputs={userInputs}
+            isElseIfMember={isElseIfMember}
+            diagnosticHandler={diagnosticHandler}
+            isTypeDescriptor={true}
+            onSelect={onClickOnType}
+        />
+    );
+
     return (
         <span>
-            <span
-                className={classNames(
-                    statementEditorClasses.expressionElement,
-                    hasTypeDescSelected && statementEditorClasses.expressionElementSelected
-                )}
-                onClick={onClickOnType}
-            >
-                {typeDescriptorComponent}
-            </span>
+            {typeDescriptorComponent}
             {bindingPatternComponent}
         </span>
     );

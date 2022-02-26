@@ -46,16 +46,6 @@ export function WhileStatementC(props: WhileStatementProps) {
     const targetPosition = stmtCtx.formCtx.formModelPosition;
     const fileURI = `expr://${currentFile.path}`;
 
-    const conditionComponent: ReactNode = (
-        <ExpressionComponent
-            model={model.condition}
-            userInputs={userInputs}
-            isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
-            isTypeDescriptor={false}
-        />
-    );
-
     const onClickOnConditionExpression = async (event: any) => {
         event.stopPropagation();
 
@@ -86,6 +76,18 @@ export function WhileStatementC(props: WhileStatementProps) {
         });
     }
 
+
+    const conditionComponent: ReactNode = (
+        <ExpressionComponent
+            model={model.condition}
+            userInputs={userInputs}
+            isElseIfMember={isElseIfMember}
+            diagnosticHandler={diagnosticHandler}
+            isTypeDescriptor={false}
+            onSelect={onClickOnConditionExpression}
+        />
+    );
+
     return (
         <span>
             <span
@@ -96,15 +98,7 @@ export function WhileStatementC(props: WhileStatementProps) {
             >
                 {model.whileKeyword.value}
             </span>
-            <span
-                className={classNames(
-                    statementEditorClasses.expressionElement,
-                    hasConditionSelected && statementEditorClasses.expressionElementSelected
-                )}
-                onClick={onClickOnConditionExpression}
-            >
-                {conditionComponent}
-            </span>
+            {conditionComponent}
             <span
                 className={classNames(
                     statementEditorClasses.expressionBlock,
