@@ -56,7 +56,7 @@ export function ExpressionComponent(props: ExpressionComponentProps) {
         e.preventDefault();
     }
 
-    const onMouseClick = (e: React.MouseEvent) {
+    const onMouseClick = (e: React.MouseEvent) => {
         e.stopPropagation();
         e.preventDefault();
         if (onSelect) {

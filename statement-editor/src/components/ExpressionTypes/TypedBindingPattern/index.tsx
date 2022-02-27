@@ -42,6 +42,15 @@ export function TypedBindingPatternComponent(props: TypedBindingPatternProps) {
     const targetPosition = stmtCtx.formCtx.formModelPosition;
     const fileURI = `expr://${currentFile.path}`;
 
+    const onClickOnTypeBindingPatter = async (event: any) => {
+        event.stopPropagation();
+        expressionHandler(model.bindingPattern, false, false, {
+            expressionSuggestions: [],
+            typeSuggestions: [],
+            variableSuggestions: []
+        });
+    };
+
     const bindingPatternComponent: ReactNode = (
         <ExpressionComponent
             model={model.bindingPattern}
@@ -49,6 +58,7 @@ export function TypedBindingPatternComponent(props: TypedBindingPatternProps) {
             isElseIfMember={isElseIfMember}
             diagnosticHandler={diagnosticHandler}
             isTypeDescriptor={false}
+            onSelect={onClickOnTypeBindingPatter}
         />
     );
 
