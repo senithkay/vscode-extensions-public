@@ -35,7 +35,7 @@ interface ProcessFormProps {
 
 export function ProcessForm(props: ProcessFormProps) {
     const { config, onCancel, onSave, onWizardClose, configOverlayFormStatus } = props;
-    const { isLoading, error, formType, formArgs } = configOverlayFormStatus;
+    const { isLoading, error, formType: type, formArgs } = configOverlayFormStatus;
     const {
         api: {
             panNZoom: {
@@ -44,6 +44,8 @@ export function ProcessForm(props: ProcessFormProps) {
             }
         }
     } = useContext(Context);
+
+    let formType: string = type;
 
     if (formType === "Variable") {
         if (config.wizardType === WizardType.EXISTING) {
@@ -62,6 +64,11 @@ export function ProcessForm(props: ProcessFormProps) {
             expression: ""
         };
     } else if (formType === "Call" || formType === "Custom") {
+        config.config = {
+            expression: ""
+        };
+    } else {
+        formType = "Custom";
         config.config = {
             expression: ""
         };

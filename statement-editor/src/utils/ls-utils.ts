@@ -28,6 +28,8 @@ import {
 } from "../components/InputEditor/constants";
 import { SuggestionItem } from '../models/definitions';
 
+import { sortSuggestions } from "./index";
+
 export async function getPartialSTForStatement(
             partialSTRequest: PartialSTRequest,
             getLangClient: () => Promise<ExpressionEditorLangClientInterface>): Promise<STNode> {
@@ -85,8 +87,10 @@ export async function getContextBasedCompletions (
         ) && completionResponse.label !== selection.trim() && !(completionResponse.label.includes("main"))
     ));
 
+    filteredCompletionItems.sort(sortSuggestions)
+
     filteredCompletionItems.map((completion) => {
-        suggestions.push({ value: completion.label, kind: completion.detail });
+        suggestions.push({ value: completion.label, kind: completion.detail, suggestionType: completion.kind  });
     });
 
     return suggestions;
