@@ -132,7 +132,8 @@ export function ConditionalExpressionComponent(props: ConditionalExpressionProps
             <span
                 className={classNames(
                     statementEditorClasses.expressionBlock,
-                    statementEditorClasses.expressionBlockDisabled
+                    statementEditorClasses.expressionBlockDisabled,
+                    "operator"
                 )}
             >
                 &nbsp;{model.questionMarkToken.value}
@@ -141,7 +142,8 @@ export function ConditionalExpressionComponent(props: ConditionalExpressionProps
             <span
                 className={classNames(
                     statementEditorClasses.expressionBlock,
-                    statementEditorClasses.expressionBlockDisabled
+                    statementEditorClasses.expressionBlockDisabled,
+                    "operator"
                 )}
             >
                 &nbsp;{model.colonToken.value}

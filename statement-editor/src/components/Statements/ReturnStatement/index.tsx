@@ -94,7 +94,8 @@ export function ReturnStatementC(props: ReturnStatementProps) {
             <span
                 className={classNames(
                     statementEditorClasses.expressionBlock,
-                    statementEditorClasses.expressionBlockDisabled
+                    statementEditorClasses.expressionBlockDisabled,
+                    "keyword"
                 )}
             >
                 {model.returnKeyword.value}

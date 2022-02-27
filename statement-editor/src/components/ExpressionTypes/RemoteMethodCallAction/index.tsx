@@ -151,7 +151,8 @@ export function RemoteMethodCallActionComponent(props: RemoteMethodCallActionPro
             <span
                 className={classNames(
                     statementEditorClasses.expressionBlock,
-                    statementEditorClasses.expressionBlockDisabled
+                    statementEditorClasses.expressionBlockDisabled,
+                    "operator"
                 )}
             >
                 {model.rightArrowToken.value}

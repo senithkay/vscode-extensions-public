@@ -121,6 +121,7 @@ export function BinaryExpressionComponent(props: BinaryProps) {
             diagnosticHandler={diagnosticHandler}
             isTypeDescriptor={false}
             onSelect={onClickOperator}
+            classNames="operator"
         />
     );
 

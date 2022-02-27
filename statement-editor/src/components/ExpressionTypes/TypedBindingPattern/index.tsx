@@ -87,6 +87,7 @@ export function TypedBindingPatternComponent(props: TypedBindingPatternProps) {
             diagnosticHandler={diagnosticHandler}
             isTypeDescriptor={true}
             onSelect={onClickOnType}
+            classNames="type-descriptor"
         />
     );
 

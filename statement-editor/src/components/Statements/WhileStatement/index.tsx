@@ -93,7 +93,8 @@ export function WhileStatementC(props: WhileStatementProps) {
             <span
                 className={classNames(
                     statementEditorClasses.expressionBlock,
-                    statementEditorClasses.expressionBlockDisabled
+                    statementEditorClasses.expressionBlockDisabled,
+                    "keyword"
                 )}
             >
                 {model.whileKeyword.value}

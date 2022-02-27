@@ -14,6 +14,24 @@
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 import { theme } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 
+const syntaxHighlightingRules = {
+    '& .type-descriptor, &.type-descriptor': {
+        color: '#008080'
+    },
+    '& .numeric-literal, &.numeric-literal': {
+        color: '#128bdf'
+    },
+    '& .string-literal, &.string-literal': {
+        color: '#a31515'
+    },
+    '& .operator, &.operator': {
+        color: '#0000ff'
+    },
+    '& .keyword, &.keyword': {
+        color: '#0000ff'
+    }
+}
+
 export const useStatementEditorStyles = makeStyles(() =>
     createStyles({
         mainStatementWrapper: {
@@ -55,19 +73,7 @@ export const useStatementEditorStyles = makeStyles(() =>
             paddingTop: theme.spacing(1.5),
             paddingBottom: theme.spacing(1),
             fontSize: "18px",
-            'user-select': 'none',
-            '& .type-descriptor': {
-                color: '#008080 !important'
-            },
-            '& .numeric-literal': {
-                color: '#114D77 !important'
-            },
-            '& .operator': {
-                color: '#008080 !important'
-            },
-            '& .keyword': {
-                color: '#0000ff !important'
-            }
+            'user-select': 'none'
         },
         variableSugession: {
             padding: theme.spacing(1.5),
@@ -215,7 +221,8 @@ export const useStatementEditorStyles = makeStyles(() =>
         },
         expressionBlock: {
             position: 'relative',
-            paddingRight: '10px'
+            paddingRight: '10px',
+            ...syntaxHighlightingRules
         },
         expressionBlockDisabled: {
             height: '24px',
@@ -229,13 +236,13 @@ export const useStatementEditorStyles = makeStyles(() =>
             '&': {
                 width: 'fit-content',
                 padding: '4px',
-                color: '#000000',
                 borderRadius: '4px',
             },
             '&.hovered': {
                 backgroundColor: '#e5ebf1',
             },
-            cursor: "pointer"
+            cursor: "pointer",
+            ...syntaxHighlightingRules
         },
         expressionElementSelected: {
             '&': {
@@ -251,13 +258,6 @@ export const useStatementEditorStyles = makeStyles(() =>
             position: 'relative',
             marginLeft: '2px',
             marginTop: '1px',
-            // '&:hover': {
-            //     backgroundColor: '#d7dcfc',
-            //     color: '#fff'
-            // },
-            // 'expressionElementSelected &:hover': {
-            //     background: "none"
-            // }
         },
         dataTypeTemplate: {
             // color: '#05A26B',

@@ -45,7 +45,8 @@ export function CheckActionComponent(props: CheckActionProps) {
     };
     const spanClassName =  classNames(
                                 statementEditorClasses.expressionBlock,
-                                statementEditorClasses.expressionBlockDisabled
+                                statementEditorClasses.expressionBlockDisabled,
+                                "keyword"
                             );
     const expressionComponent: ReactNode = (
         <ExpressionComponent

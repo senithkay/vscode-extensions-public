@@ -110,7 +110,8 @@ export function ForeachStatementC(props: ForeachStatementProps) {
             <span
                 className={classNames(
                     statementEditorClasses.expressionBlock,
-                    statementEditorClasses.expressionBlockDisabled
+                    statementEditorClasses.expressionBlockDisabled,
+                    "keyword"
                 )}
             >
                 {model.forEachKeyword.value}
@@ -119,7 +120,8 @@ export function ForeachStatementC(props: ForeachStatementProps) {
             <span
                 className={classNames(
                     statementEditorClasses.expressionBlock,
-                    statementEditorClasses.expressionBlockDisabled
+                    statementEditorClasses.expressionBlockDisabled,
+                    "keyword"
                 )}
             >
                 &nbsp;{model.inKeyword.value}

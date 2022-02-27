@@ -27,11 +27,12 @@ export interface ExpressionComponentProps {
     diagnosticHandler: (diagnostics: string) => void;
     isTypeDescriptor: boolean;
     onSelect?: (event: React.MouseEvent) => void;
-    children?: React.ReactElement[]
+    children?: React.ReactElement[];
+    classNames?: string;
 }
 
 export function ExpressionComponent(props: ExpressionComponentProps) {
-    const { model, userInputs, isElseIfMember, diagnosticHandler, isTypeDescriptor, onSelect, children } = props;
+    const { model, userInputs, isElseIfMember, diagnosticHandler, isTypeDescriptor, onSelect, children, classNames } = props;
 
     const component = getExpressionTypeComponent(model, userInputs, isElseIfMember, diagnosticHandler, isTypeDescriptor);
 
@@ -72,8 +73,10 @@ export function ExpressionComponent(props: ExpressionComponentProps) {
             className={cn(statementEditorClasses.expressionElement,
                 isSelected && statementEditorClasses.expressionElementSelected,
                 {
-                "hovered": !isSelected && isHovered,
-            })}
+                    "hovered": !isSelected && isHovered,
+                },
+                classNames
+            )}
             onClick={onMouseClick}
         >
             {component}
