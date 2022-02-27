@@ -349,7 +349,7 @@ export function InputEditor(props: InputEditorProps) {
                 onDoubleClick={handleDoubleClick}
                 onBlur={handleEditEnd}
             >
-                {userInput}
+                {placeHolders.indexOf(userInput) > -1 ? "<add-expression>" : userInput}
             </span>
         );
 }
