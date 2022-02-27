@@ -22,7 +22,7 @@ const syntaxHighlightingRules = {
         color: '#128bdf'
     },
     '& .string-literal, &.string-literal': {
-        color: '#a31515'
+        color: '#FF9D52'
     },
     '& .operator, &.operator': {
         color: '#0000ff'
