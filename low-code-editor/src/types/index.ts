@@ -40,9 +40,8 @@ export interface UserState {
 }
 
 export interface LowCodeEditorState {
-    isDataMapperShown: boolean;
+    triggerUpdated: boolean; // FIXME Moving existing prop manipulated in memory into state
     isConfigOverlayFormOpen: boolean;
-    dataMapperConfig: DataMapperConfig;
     targetPosition: NodePosition; // FIXME check and remove usage of update position if not used anymore
     currentFunctionNode?: STNode;
 }
@@ -53,9 +52,8 @@ export interface LowCodeEditorActions {
     diagramRedraw: (payload: STNode) => void;
     insertComponentStart: (payload: NodePosition) => void;
     editorComponentStart: (payload: NodePosition) => void;
-    dataMapperStart: (dataMapperConfig: DataMapperConfig) => void;
     toggleDiagramOverlay: () => void;
-    updateDataMapperConfig: (dataMapperConfig: DataMapperConfig) => void;
+    setTriggerUpdated: (isUpdated: boolean) => void;
 }
 
 export interface LowCodeEditorAPI {
@@ -109,7 +107,7 @@ export interface LowCodeEditorAPI {
         run: (args: any[]) => void;
     }
     library?: {
-        getLibrariesList: (kind: string) => Promise<LibraryDocResponse>;
+        getLibrariesList: (kind?: string) => Promise<LibraryDocResponse>;
         getLibrariesData: () => Promise<LibrarySearchResponse>;
         getLibraryData: (orgName: string, moduleName: string, version: string) => Promise<LibraryDataResponse>;
     }
@@ -146,6 +144,7 @@ export interface LowCodeEditorProperties {
     zoomStatus: ZoomStatus;
     selectedPosition?: SelectedPosition;
     performanceData?: Map<string, PerformanceData>;
+    importStatements: string[];
     experimentalEnabled?: boolean;
 }
 

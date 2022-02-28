@@ -239,7 +239,7 @@ export function DataProcessor(props: ProcessorProps) {
     const component: React.ReactNode = (!viewState.collapsed &&
         (
             <g>
-                <g className={processWrapper} data-testid="data-processor-block" z-index="1000" >
+                <g className={processWrapper} data-testid="data-processor-block" z-index="1000" target-line={model?.position.startLine}>
                     <React.Fragment>
                         {(processType !== "Log" && processType !== "Call") && !isDraftStatement &&
                             <>

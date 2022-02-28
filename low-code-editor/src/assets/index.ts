@@ -12,7 +12,6 @@ export { default as formCreateSvg } from "./images/form-create.svg";
 export { default as emailSvg } from "./images/email.svg";
 export { default as webhookSvg } from "./images/webhook.svg";
 export { default as customSvg } from "./images/custom.svg";
-export { default as DataMapper } from "./images/dataMapper.svg";
 export { default as ErrorSvg } from "./images/error.svg";
 export { default as ExpEditorCollapseSvg } from "./images/exp-editor-collapse.svg";
 export { default as ExpEditorExpandSvg } from "./images/exp-editor-expand.svg";

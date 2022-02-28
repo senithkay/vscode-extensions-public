@@ -46,6 +46,7 @@ interface WizardProps {
     targetPosition: NodePosition;
     model?: STNode,
     selectedConnector?: LocalVarDecl;
+    isModuleEndpoint?: boolean;
     isAction?: boolean;
     functionNode?: STNode;
 }
@@ -61,7 +62,7 @@ export function HTTPWizard(props: WizardProps) {
     const classes = useStyles();
     const wizardClasses = wizardStyles();
     const { functionDefinitions, connectorConfig, connector, onSave, onClose, isNewConnectorInitWizard, targetPosition,
-            model, selectedConnector, isAction, functionNode } = props;
+            model, selectedConnector, isModuleEndpoint, isAction, functionNode } = props;
     const {
         api: {
             insights: {
@@ -299,6 +300,7 @@ export function HTTPWizard(props: WizardProps) {
                         connector={connector}
                         isNewConnectorInitWizard={isNewConnectorInitWizard}
                         targetPosition={targetPosition}
+                        isModuleEndpoint={isModuleEndpoint}
                     />
                 )}
                 {state === InitFormState.SelectInputOutput && (

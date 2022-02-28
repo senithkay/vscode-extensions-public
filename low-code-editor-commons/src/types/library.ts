@@ -104,3 +104,23 @@ export interface FunctionParams {
     isDeprecated: boolean;
     isReadOnly: boolean;
 }
+
+export interface FunctionParamType {
+    name: string;
+    category: string;
+    isAnonymousUnionType: boolean;
+    isInclusion: boolean;
+    isArrayType: boolean;
+    isNullable: boolean;
+    isTuple: boolean;
+    isIntersectionType: boolean;
+    isParenthesisedType: boolean;
+    isTypeDesc: boolean;
+    isRestParam: boolean;
+    isDeprecated: boolean;
+    isPublic: boolean;
+    generateUserDefinedTypeLink: boolean;
+    memberTypes: any;
+    arrayDimensions: number;
+    elementType: any;
+}

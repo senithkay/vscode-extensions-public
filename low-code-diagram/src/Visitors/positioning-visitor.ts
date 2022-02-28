@@ -302,7 +302,7 @@ class PositioningVisitor implements Visitor {
                 }
             }
         }
-        updateConnectorCX(bodyViewState.bBox.w / 2 + widthOfOnFailClause, bodyViewState.bBox.cx, allEndpoints);
+        updateConnectorCX(bodyViewState.bBox.w / 2 + widthOfOnFailClause, bodyViewState.bBox.cx, allEndpoints, viewState.trigger.cy);
         // Add the connector max width to the diagram width.
         // viewState.bBox.w = viewState.bBox.w + getMaXWidthOfConnectors(allEndpoints) + widthOfOnFailClause;
 

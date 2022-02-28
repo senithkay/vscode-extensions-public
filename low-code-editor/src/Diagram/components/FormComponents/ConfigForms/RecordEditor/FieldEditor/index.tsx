@@ -52,7 +52,7 @@ export function FieldEditor(props: FieldEditorProps) {
     const [typeEditorVisible, setTypeEditorVisible] = useState<boolean>(false);
     const [valueEditorVisible, setValueEditorVisible] = useState<boolean>(false);
 
-    const typeProperty = `${field.isArray ? "[]" : ""}${field.isFieldTypeOptional ? "?" : ""}`;
+    const typeProperty = `${field?.isArray ? "[]" : ""}${field?.isFieldTypeOptional ? "?" : ""}`;
 
     const formField: FormField = {
         name: "defaultValue",

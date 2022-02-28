@@ -12,27 +12,22 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { useEffect, useState } from 'react';
-import { useIntl } from "react-intl";
 
 import {
     ExpressionEditorLangClientInterface,
     LibraryDataResponse,
     LibraryDocResponse,
-    LibraryKind,
     LibrarySearchResponse,
-    PrimaryButton,
-    SecondaryButton,
     STModification
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
-import { APPEND_EXPR_LIST_CONSTRUCTOR, INIT_EXPR_LIST_CONSTRUCTOR, OTHER_STATEMENT } from "../../constants";
+import { APPEND_EXPR_LIST_CONSTRUCTOR, CUSTOM_CONFIG_TYPE, INIT_EXPR_LIST_CONSTRUCTOR } from "../../constants";
 import { VariableUserInputs } from '../../models/definitions';
 import { StatementEditorContextProvider } from "../../store/statement-editor-context";
-import { getCurrentModel, getModifications } from "../../utils";
-import { getPartialSTForStatement, sendDidChange } from "../../utils/ls-utils";
-import { LeftPane } from '../LeftPane';
-import { useStatementEditorStyles } from "../styles";
+import { getCurrentModel } from "../../utils";
+import { getPartialSTForStatement } from "../../utils/ls-utils";
+import { ViewContainer } from "../ViewContainer";
 
 export interface LowCodeEditorProps {
     getLangClient: () => Promise<ExpressionEditorLangClientInterface>;
@@ -43,13 +38,14 @@ export interface LowCodeEditorProps {
         size: number
     };
     library: {
-        getLibrariesList: (kind: string) => Promise<LibraryDocResponse>;
+        getLibrariesList: (kind?: string) => Promise<LibraryDocResponse>;
         getLibrariesData: () => Promise<LibrarySearchResponse>;
         getLibraryData: (orgName: string, moduleName: string, version: string) => Promise<LibraryDataResponse>;
     };
+    importStatements: string[];
     experimentalEnabled?: boolean;
 }
-export interface ViewProps extends LowCodeEditorProps {
+export interface StatementEditorProps extends LowCodeEditorProps {
     label: string;
     initialSource: string;
     formArgs: any;
@@ -64,9 +60,10 @@ export interface ViewProps extends LowCodeEditorProps {
     handleNameOnChange?: (name: string) => void;
     handleTypeChange?: (name: string) => void;
     handleStatementEditorChange?: (partialModel: STNode) => void;
+    onStmtEditorModelChange?: (partialModel: STNode) => void;
 }
 
-export function ViewContainer(props: ViewProps) {
+export function StatementEditor(props: StatementEditorProps) {
     const {
         label,
         initialSource,
@@ -77,30 +74,27 @@ export function ViewContainer(props: ViewProps) {
         onWizardClose,
         handleNameOnChange,
         handleTypeChange,
-        handleStatementEditorChange,
+        onStmtEditorModelChange,
         getLangClient,
         applyModifications,
         library,
-        currentFile
+        currentFile,
+        importStatements
     } = props;
-    const intl = useIntl();
-    const overlayClasses = useStatementEditorStyles();
 
     const [model, setModel] = useState<STNode>(null);
     const [isStatementValid, setIsStatementValid] = useState(false);
     const [currentModel, setCurrentModel] = useState({ model });
-    const fileURI = `expr://${currentFile.path}`;
-
-    if (!userInputs?.varName && !!handleNameOnChange) {
-        handleNameOnChange("default")
-    }
 
     useEffect(() => {
-        if (!(config.type === "Custom") || initialSource) {
+        if (!(config.type === CUSTOM_CONFIG_TYPE) || initialSource) {
             (async () => {
                 const partialST = await getPartialSTForStatement(
                     { codeSnippet: initialSource.trim() }, getLangClient);
-                setModel(partialST);
+
+                if (partialST.syntaxDiagnostics.length === 0) {
+                    setModel(partialST);
+                }
             })();
         }
     }, []);
@@ -128,7 +122,10 @@ export function ViewContainer(props: ViewProps) {
             partialST = await getPartialSTForStatement(
                 { codeSnippet }, getLangClient);
         }
-        setModel(partialST);
+
+        if (partialST.syntaxDiagnostics.length === 0 || config.type === CUSTOM_CONFIG_TYPE) {
+            setModel(partialST);
+        }
 
         // Since in list constructor we add expression with comma and close-bracket,
         // we need to reduce that length from the code snippet to get the correct current model
@@ -163,7 +160,7 @@ export function ViewContainer(props: ViewProps) {
 
     useEffect(() => {
         if (!!model) {
-            handleStatementEditorChange(model);
+            onStmtEditorModelChange(model);
         }
     }, [model])
 
@@ -171,69 +168,34 @@ export function ViewContainer(props: ViewProps) {
         setIsStatementValid(isValid);
     };
 
-    const saveVariableButtonText = intl.formatMessage({
-        id: "lowcode.develop.configForms.variable.saveButton.text",
-        defaultMessage: "Save"
-    });
-
-    const cancelVariableButtonText = intl.formatMessage({
-        id: "lowcode.develop.configForms.variable.cancelButton.text",
-        defaultMessage: "Cancel"
-    });
-
-    const onSaveClick = () => {
-        const modifications = getModifications(model, config, formArgs);
-        applyModifications(modifications);
-        onWizardClose();
-    };
-
-    const onCancelClick = async () => {
-        await sendDidChange(fileURI, currentFile.content, getLangClient);
-        onCancel();
-    }
-
     return (
         (
-            <div className={overlayClasses.mainStatementWrapper}>
-                <div className={overlayClasses.statementExpressionWrapper}>
-                    <StatementEditorContextProvider
-                        model={model}
-                        currentModel={currentModel}
-                        updateModel={updateModel}
+            <>
+                <StatementEditorContextProvider
+                    model={model}
+                    currentModel={currentModel}
+                    importStatements={importStatements}
+                    updateModel={updateModel}
+                    formArgs={formArgs}
+                    validateStatement={validateStatement}
+                    applyModifications={applyModifications}
+                    library={library}
+                    currentFile={currentFile}
+                    getLangClient={getLangClient}
+                    initialSource={initialSource}
+                >
+                    <ViewContainer
+                        label={label}
                         formArgs={formArgs}
-                        validateStatement={validateStatement}
-                        applyModifications={applyModifications}
-                        library={library}
-                        currentFile={currentFile}
-                        getLangClient={getLangClient}
-                    >
-                        <LeftPane
-                            currentModel={currentModel}
-                            label={label}
-                            userInputs={userInputs}
-                            currentModelHandler={currentModelHandler}
-                        />
-                    </StatementEditorContextProvider>
-                </div>
-                <div className={overlayClasses.statementBtnWrapper}>
-                    <div className={overlayClasses.bottomPane}>
-                        <div className={overlayClasses.buttonWrapper}>
-                            <SecondaryButton
-                                text={cancelVariableButtonText}
-                                fullWidth={false}
-                                onClick={onCancelClick}
-                            />
-                            <PrimaryButton
-                                dataTestId="save-btn"
-                                text={saveVariableButtonText}
-                                disabled={!isStatementValid}
-                                fullWidth={false}
-                                onClick={onSaveClick}
-                            />
-                        </div>
-                    </div>
-                </div>
-            </div>
+                        userInputs={userInputs}
+                        config={config}
+                        isStatementValid={isStatementValid}
+                        currentModelHandler={currentModelHandler}
+                        onWizardClose={onWizardClose}
+                        onCancel={onCancel}
+                    />
+                </StatementEditorContextProvider>
+            </>
         )
     )
 }

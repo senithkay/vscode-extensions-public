@@ -25,11 +25,11 @@ import returnModel from "../StatementRenderer/data/return-st-model.json";
 import stringModel from "../StatementRenderer/data/varDecl-stringLiteral-model.json";
 import whileStmtModel from "../StatementRenderer/data/while-st-model.json";
 
-import { ViewContainer, ViewProps } from "./ViewContainer";
+import { StatementEditor, StatementEditorProps } from "./index";
 
 export default {
-    title: 'Low Code Editor/Testing/StatementEditor/ViewContainer',
-    component: ViewContainer,
+    title: 'Low Code Editor/Testing/StatementEditor',
+    component: StatementEditor,
 };
 
 const dummyFunction = (arg: any) => {
@@ -56,12 +56,14 @@ const statementEditorContextProps = {
         content: "",
         path: "",
         size: 0
-    }
+    },
+    importStatements: [''],
+    initialSource: ''
 }
 
-const Template: Story<ViewProps> = (args: ViewProps) => (
+const Template: Story<StatementEditorProps> = (args: StatementEditorProps) => (
         <StatementEditorContextProvider {...statementEditorContextProps}>
-            <ViewContainer {...args} />;
+            <StatementEditor {...args} />;
         </StatementEditorContextProvider>
 );
 

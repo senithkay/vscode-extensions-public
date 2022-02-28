@@ -20,8 +20,8 @@ import {
 } from '@wso2-enterprise/syntax-tree';
 import { subMinutes } from "date-fns";
 import { Diagnostic } from 'vscode-languageserver-protocol';
+import { AnalyzePayloadVisitor } from "../visitors/analyze-payload-visitor";
 
-import { AnalyzePayloadVisitor } from '../..';
 import { clearAllDiagnostics, getAllDiagnostics, visitor as DiagnosticVisitor } from '../visitors/diagnostics-collector';
 // import { BlockStatementFinder } from '../components/LowCodeDiagram/Visitors/block-statement-finder';
 

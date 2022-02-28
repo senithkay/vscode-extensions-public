@@ -13,7 +13,6 @@
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
 
-import { PlusViewState } from "@wso2-enterprise/ballerina-low-code-diagram";
 import { BallerinaConnectorInfo, BallerinaConnectorsRequest, BallerinaModuleResponse, DiagramEditorLangClientInterface } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { LocalVarDecl } from "@wso2-enterprise/syntax-tree";
 
@@ -25,7 +24,6 @@ import { BallerinaModuleType, Marketplace, SearchQueryParams } from "../Marketpl
 export interface ConnectorListProps {
     onSelect: (connector: BallerinaConnectorInfo, selectedConnector: LocalVarDecl) => void;
     onChange?: (type: string, subType: string, connector?: BallerinaConnectorInfo) => void;
-    viewState?: PlusViewState;
     collapsed?: (value: APIHeightStates) => void;
     onCancel?: () => void;
 }

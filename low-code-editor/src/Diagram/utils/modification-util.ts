@@ -40,6 +40,22 @@ export function createIfStatement(condition: string, targetPosition?: NodePositi
     return ifStatement;
 }
 
+export function createIfStatementWithBlock(condition: string, statements: string[], targetPosition?: NodePosition): STModification {
+    const ifStatement: STModification = {
+        startLine: targetPosition ? targetPosition.startLine : 0,
+        startColumn: 0,
+        endLine: targetPosition ? targetPosition.startLine : 0,
+        endColumn: 0,
+        type: "IF_CONDITION_WITH_BLOCK",
+        config: {
+            "CONDITION": condition,
+            "BLOCKSTATEMENTS": statements
+        }
+    };
+
+    return ifStatement;
+}
+
 export function createElseIfStatement(condition: string, targetPosition?: NodePosition): STModification {
     const elseIfStatement: STModification = {
         startLine: targetPosition ? targetPosition.startLine : 0,
@@ -54,6 +70,21 @@ export function createElseIfStatement(condition: string, targetPosition?: NodePo
     return elseIfStatement;
 }
 
+export function createElseIfStatementWithBlock(condition: string, statements: string[], targetPosition?: NodePosition): STModification {
+    const elseIfStatement: STModification = {
+        startLine: targetPosition ? targetPosition.startLine : 0,
+        startColumn: 0,
+        endLine: targetPosition ? targetPosition.startLine : 0,
+        endColumn: 0,
+        type: "ELSE_IF_CONDITION_WITH_BLOCK",
+        config: {
+            "CONDITION": condition,
+            "BLOCKSTATEMENTS": statements
+        }
+    };
+    return elseIfStatement;
+}
+
 export function createElseStatement(targetPosition?: NodePosition): STModification {
     const elseStatement: STModification = {
         startLine: targetPosition ? targetPosition.startLine : 0,
@@ -61,6 +92,20 @@ export function createElseStatement(targetPosition?: NodePosition): STModificati
         endLine: targetPosition ? targetPosition.startLine : 0,
         endColumn: 0,
         type: "ELSE_STATEMENT"
+    };
+    return elseStatement;
+}
+
+export function createElseStatementWithBlock(statements: string[], targetPosition?: NodePosition): STModification {
+    const elseStatement: STModification = {
+        startLine: targetPosition ? targetPosition.startLine : 0,
+        startColumn: 0,
+        endLine: targetPosition ? targetPosition.startLine : 0,
+        endColumn: 0,
+        type: "ELSE_STATEMENT_WITH_BLOCK",
+        config: {
+            "BLOCKSTATEMENTS": statements
+        }
     };
     return elseStatement;
 }
@@ -91,6 +136,24 @@ export function createForeachStatement(collection: string, variableName: string,
             "COLLECTION": collection,
             "TYPE": type,
             "VARIABLE": variableName
+        }
+    };
+
+    return foreachStatement;
+}
+
+export function createForeachStatementWithBlock(collection: string, variableName: string, type: string, statements: string[], targetPosition?: NodePosition): STModification {
+    const foreachStatement: STModification = {
+        startLine: targetPosition ? targetPosition.startLine : 0,
+        startColumn: 0,
+        endLine: targetPosition ? targetPosition.startLine : 0,
+        endColumn: 0,
+        type: "FOREACH_STATEMENT_WITH_BLOCK",
+        config: {
+            "COLLECTION": collection,
+            "TYPE": type,
+            "VARIABLE": variableName,
+            "BLOCKSTATEMENTS": statements
         }
     };
 
@@ -143,6 +206,22 @@ export function createWhileStatement(conditionExpression: string, targetPosition
     };
 
     return ifStatement;
+}
+
+export function createWhileStatementWithBlock(conditionExpression: string, statements: string[], targetPosition?: NodePosition): STModification {
+    const whileStatement: STModification = {
+        startLine: targetPosition ? targetPosition.startLine : 0,
+        startColumn: 0,
+        endLine: targetPosition ? targetPosition.startLine : 0,
+        endColumn: 0,
+        type: "WHILE_STATEMENT_WITH_BLOCK",
+        config: {
+            "CONDITION": conditionExpression,
+            "BLOCKSTATEMENTS": statements
+        }
+    };
+
+    return whileStatement;
 }
 
 export function updateWhileStatementCondition(conditionExpression: string, targetPosition: NodePosition): STModification {
