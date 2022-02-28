@@ -13,6 +13,7 @@
 
 import React, { useContext } from 'react';
 
+import { ListItem, ListItemText } from "@material-ui/core";
 import { LibraryDataResponse, LibraryInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { StatementEditorContext } from "../../../store/statement-editor-context";
@@ -44,14 +45,16 @@ export function Library(props: LibraryProps) {
     }
 
     return (
-        <div>
-            <span
-                className={statementEditorClasses.libraryListButton}
-                key={key}
-                onClick={onClickOnLibrary}
-            >
-                {id}
-            </span>
-        </div>
+        <ListItem
+            button={true}
+            className={statementEditorClasses.suggestionListItem}
+            key={key}
+            onClick={onClickOnLibrary}
+            disableRipple={true}
+        >
+            <ListItemText
+                primary={id}
+            />
+        </ListItem>
     );
 }
