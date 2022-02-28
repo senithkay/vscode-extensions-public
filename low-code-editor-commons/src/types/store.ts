@@ -130,6 +130,7 @@ export interface ConnectorConfigWizardProps {
     onClose: () => void;
     onSave: () => void;
     selectedConnector?: LocalVarDecl;
+    isModuleEndpoint?: boolean;
     isAction?: boolean;
     isEdit?: boolean;
     functionNode?: STNode;

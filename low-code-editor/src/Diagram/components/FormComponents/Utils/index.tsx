@@ -88,15 +88,7 @@ export function generateDocUrl(org: string, module: string, method: string) {
 
 export function updateFunctionSignatureWithError(modifications: STModification[], activeFunction: FunctionDefinition) {
     const parametersStr = activeFunction.functionSignature.parameters.map((item) => item.source).join(",");
-    let returnTypeStr = activeFunction.functionSignature.returnTypeDesc?.source.trim();
-
-    if (returnTypeStr?.includes("?") || returnTypeStr?.includes("()")) {
-        returnTypeStr = returnTypeStr + "|error";
-    } else if (returnTypeStr) {
-        returnTypeStr = returnTypeStr + "|error?";
-    } else {
-        returnTypeStr = "returns error?";
-    }
+    const returnTypeStr = addErrorReturnType(activeFunction.functionSignature.returnTypeDesc?.source.trim());
 
     const functionSignature = updateFunctionSignature(activeFunction.functionName.value, parametersStr, returnTypeStr, {
         ...activeFunction.functionSignature.position,
@@ -105,6 +97,22 @@ export function updateFunctionSignatureWithError(modifications: STModification[]
     if (functionSignature) {
         modifications.push(functionSignature);
     }
+}
+
+function addErrorReturnType(returnTypeStr: string): string {
+    // The function signature already includes the error return type.
+    if (returnTypeStr.includes("error")) {
+        return returnTypeStr;
+    }
+    // Handles the scenarios where the error return type is not present.
+    if (returnTypeStr?.includes("?") || returnTypeStr?.includes("()")) {
+        returnTypeStr = returnTypeStr + "|error";
+    } else if (returnTypeStr) {
+        returnTypeStr = returnTypeStr + "|error?";
+    } else {
+        returnTypeStr = "returns error?";
+    }
+    return returnTypeStr;
 }
 
 export function addReturnTypeImports(modifications: STModification[], returnType: FormFieldReturnType) {

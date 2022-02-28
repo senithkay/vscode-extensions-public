@@ -20,7 +20,7 @@ import { FormControl, Typography } from "@material-ui/core";
 import { FormField, FormActionButtons, FormHeaderSection, ConditionConfig, } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
 import { Context } from "../../../../../../../Contexts/Diagram";
-import { createWhileStatement, getInitialSource } from "../../../../../../utils/modification-util";
+import { createWhileStatement, createWhileStatementWithBlock, getInitialSource } from "../../../../../../utils/modification-util";
 import { ExpressionEditorProps } from "@wso2-enterprise/ballerina-expression-editor";
 import { useStyles } from "../../../../DynamicConnectorForm/style";
 import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
@@ -41,11 +41,14 @@ export function AddWhileForm(props: WhileProps) {
         props: {
             isMutationProgress: isMutationInProgress,
             currentFile,
+            importStatements,
             experimentalEnabled
         },
         api: {
             ls: { getExpressionEditorLangClient },
-            code: { modifyDiagram },
+            code: {
+                modifyDiagram
+            },
             library
         }
     } = useContext(Context);
@@ -55,10 +58,10 @@ export function AddWhileForm(props: WhileProps) {
     const intl = useIntl();
 
     const [isInvalid, setIsInvalid] = useState(true);
-    const [conditionState, setConditionState] = useState(condition);
+    const [conditionExpression, setConditionExpression] = useState(condition.conditionExpression);
 
     const handleExpEditorChange = (value: string) => {
-        setConditionState({ ...conditionState, conditionExpression: value })
+        setConditionExpression(value);
     }
 
     const validateField = (fieldName: string, isInvalidFromField: boolean) => {
@@ -66,7 +69,7 @@ export function AddWhileForm(props: WhileProps) {
     }
 
     const handleStatementEditorChange = (partialModel: WhileStatement) => {
-        setConditionState({ ...conditionState, conditionExpression: partialModel.condition.source.trim() })
+        setConditionExpression(partialModel.condition.expression.source.trim());
     }
 
 
@@ -74,22 +77,22 @@ export function AddWhileForm(props: WhileProps) {
         name: "condition",
         displayName: "Condition",
         typeName: "boolean",
-        value: conditionState.conditionExpression,
+        value: conditionExpression,
     }
 
     const whileStatementTooltipMessages = {
         title: intl.formatMessage({
             id: "lowcode.develop.configForms.whileStatementTooltipMessages.expressionEditor.tooltip.title",
-            defaultMessage: "Enter a Ballerina expression."
+            defaultMessage: "Press CTRL+Spacebar for suggestions."
         }),
         actionText: intl.formatMessage({
             id: "lowcode.develop.configForms.whileStatementTooltipMessages.expressionEditor.tooltip.actionText",
-            defaultMessage: "Learn Ballerina expressions"
+            defaultMessage: "Learn about Ballerina expressions here"
         }),
         actionLink: intl.formatMessage({
             id: "lowcode.develop.configForms.whileStatementTooltipMessages.expressionEditor.tooltip.actionTitle",
             defaultMessage: "{learnBallerina}"
-        }, { learnBallerina: BALLERINA_EXPRESSION_SYNTAX_PATH }),
+        }, { learnBallerina: "https://ballerina.io/learn/by-example/while-statement.html?is_ref_by_example=true" }),
         codeBlockTooltip: intl.formatMessage({
             id: "lowcode.develop.configForms.IFStatementTooltipMessages.expressionEditor.tooltip.codeBlock",
             defaultMessage: "To add code inside the while block, save while statement form and use the diagram add buttons",
@@ -121,7 +124,7 @@ export function AddWhileForm(props: WhileProps) {
     };
 
     const handleOnSaveClick = () => {
-        condition.conditionExpression = conditionState.conditionExpression;
+        condition.conditionExpression = conditionExpression;
         onSave();
     }
 
@@ -135,9 +138,14 @@ export function AddWhileForm(props: WhileProps) {
         defaultMessage: "Cancel"
     });
 
-    const initialSource = formArgs.model ? formArgs.model.source : getInitialSource(createWhileStatement(
-        conditionState.conditionExpression ? conditionState.conditionExpression as string : 'EXPRESSION'
-    ));
+    const initialSource = formArgs.model ? getInitialSource(createWhileStatementWithBlock(
+                                conditionExpression ? conditionExpression as string : 'EXPRESSION',
+                                (formArgs.model as WhileStatement).whileBody.statements.map(statement => {
+                                    return statement.source
+                                })
+                            )) : getInitialSource(createWhileStatement(
+                                conditionExpression ? conditionExpression as string : 'EXPRESSION'
+                            ));
 
     const { handleStmtEditorToggle, stmtEditorComponent } = useStatementEditor(
         {
@@ -153,6 +161,7 @@ export function AddWhileForm(props: WhileProps) {
             getLangClient: getExpressionEditorLangClient,
             applyModifications: modifyDiagram,
             library,
+            importStatements,
             experimentalEnabled
         }
     );
@@ -174,7 +183,7 @@ export function AddWhileForm(props: WhileProps) {
                         <div className={classes.formCodeExpressionEndWrapper}>
                             <Typography variant='body2' className={classes.startCode}>while</Typography>
                             <div className={classes.formCodeExpressionField}>
-                                <LowCodeExpressionEditor {...expElementProps} hideLabelTooltips={true} />
+                                <LowCodeExpressionEditor {...expElementProps} />
                             </div>
                             <Typography variant='body2' className={classes.endCode}>{`{`}</Typography>
                         </div>
@@ -193,7 +202,7 @@ export function AddWhileForm(props: WhileProps) {
                     cancelBtnText={cancelWhileButtonLabel}
                     saveBtnText={saveWhileButtonLabel}
                     isMutationInProgress={isMutationInProgress}
-                    validForm={!isInvalid && (conditionState?.conditionExpression as string)?.length > 0}
+                    validForm={!isInvalid && (conditionExpression as string)?.length > 0}
                     onSave={handleOnSaveClick}
                     onCancel={onCancel}
                 />

@@ -21,7 +21,7 @@ import {
 import { subMinutes } from "date-fns";
 import { Diagnostic } from 'vscode-languageserver-protocol';
 
-import { AnalyzePayloadVisitor } from '../..';
+import { AnalyzePayloadVisitor } from "../visitors/analyze-payload-visitor";
 import { clearAllDiagnostics, getAllDiagnostics, visitor as DiagnosticVisitor } from '../visitors/diagnostics-collector';
 // import { BlockStatementFinder } from '../components/LowCodeDiagram/Visitors/block-statement-finder';
 
@@ -451,4 +451,8 @@ export function getMethodCallFunctionName(model: CallStatement): string {
     if (STKindChecker.isFunctionCall(model.expression)) {
         return model.expression.functionName.source.trim();
     }
+}
+
+export function isEndpointNode(node: STNode): boolean {
+    return node && (STKindChecker.isLocalVarDecl(node) || STKindChecker.isModuleVarDecl(node)) && node.typeData?.isEndpoint;
 }

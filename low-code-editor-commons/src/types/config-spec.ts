@@ -146,6 +146,7 @@ export class ConnectorConfig {
     public initPosition?: NodePosition;
     public isReturnError?: boolean;
     public isConnectionNameUpdated?: boolean;
+    public qualifiers?: string[];
 }
 
 export interface ConfigurationSpec {
@@ -256,7 +257,7 @@ export interface ElseIfConfig {
 
 export interface ProcessConfig {
     type: string;
-    config?: string | LogConfig | RespondConfig | DataMapperConfig | CustomExpressionConfig;
+    config?: string | LogConfig | RespondConfig | CustomExpressionConfig;
     scopeSymbols?: string[];
     model?: STNode;
     wizardType?: WizardType;

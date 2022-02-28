@@ -99,21 +99,15 @@ const editorComponentStart = (dispatch: any) => {
     }
 }
 
-const dataMapperStart = (dispatch: any) => {
-    return (dataMapperConfig: DataMapperConfig) => {
-        dispatch({ type: 'SWITCH_TO_DATAMAPPER', payload: dataMapperConfig })
-    }
-}
-
 const toggleDiagramOverlay = (dispatch: any) => {
     return () => {
         dispatch({ type: 'TOGGLE_DIAGRAM_OVERLAY' })
     }
 }
 
-const updateDataMapperConfig = (dispatch: any) => {
-    return (dataMapperConfig: DataMapperConfig) => {
-        dispatch({ type: 'UPDATE_DATAMAPPER_CONFIG', payload: dataMapperConfig })
+const setTriggerUpdated = (dispatch: any) => {
+    return (isUpdated: boolean) => {
+        dispatch({ type: 'SET_TRIGGER_UPDATED', payload: isUpdated })
     }
 }
 
@@ -131,10 +125,9 @@ export const Provider: React.FC<LowCodeEditorProps> = (props) => {
         diagramRedraw: diagramRedraw(dispatch),
         insertComponentStart: insertComponentStart(dispatch),
         editorComponentStart: editorComponentStart(dispatch),
-        dataMapperStart: dataMapperStart(dispatch),
         toggleDiagramOverlay: toggleDiagramOverlay(dispatch),
-        updateDataMapperConfig: updateDataMapperConfig(dispatch),
-        updateCurrentFunctionNode: updateCurrentFunctionNode(dispatch)
+        updateCurrentFunctionNode: updateCurrentFunctionNode(dispatch),
+        setTriggerUpdated: setTriggerUpdated(dispatch)
     };
 
     return (

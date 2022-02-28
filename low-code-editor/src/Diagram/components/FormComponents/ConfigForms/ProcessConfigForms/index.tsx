@@ -64,7 +64,7 @@ export function ProcessConfigForm(props: any) {
 
     const onSaveClick = () => {
         const modifications: STModification[] = [];
-        if (formArgs?.expressionInjectables?.list){
+        if (formArgs?.expressionInjectables?.list) {
             formArgs.expressionInjectables.list.forEach((item: InjectableItem) => {
                 modifications.push(item.modification)
             })
@@ -92,11 +92,9 @@ export function ProcessConfigForm(props: any) {
                     );
                     modifications.push(updateLogStmt);
                     break;
-                case 'DataMapper':
-                    // TODO: handle datamapper edit scenario
-                    break;
                 case 'Call':
                 case 'Custom':
+                default:
                     const customConfig: CustomExpressionConfig = processConfig.config as CustomExpressionConfig;
                     const editCustomStatement: STModification = updatePropertyStatement(customConfig.expression, formArgs?.model.position);
                     modifications.push(editCustomStatement);
@@ -125,45 +123,6 @@ export function ProcessConfigForm(props: any) {
                         "ballerina", "log", modificationPosition);
                     modifications.push(addImportStatement);
                     modifications.push(addLogStatement);
-                } else if (processConfig.type === 'DataMapper') {
-                    // const datamapperConfig: DataMapperConfig = processConfig.config as DataMapperConfig;
-                    // datamapperConfig.outputType.startLine = modificationPosition.line;
-                    // const defaultReturn = getDefaultValueForType(datamapperConfig.outputType, stSymbolInfo.recordTypeDescriptions, "");
-                    // let signatureString = '';
-
-                    // datamapperConfig.inputTypes.forEach((param, i) => {
-                    //     signatureString += `${param.type} ${param.name}`;
-                    //     if (i < datamapperConfig.inputTypes.length - 1) {
-                    //         signatureString += ',';
-                    //     }
-                    // })
-
-                    // let outputType = '';
-                    // let conversionStatement = '';
-
-                    // switch (datamapperConfig.outputType.type) {
-                    //     case 'json':
-                    //         // outputType = 'json';
-                    //         // datamapperConfig.outputType.type = 'record'; // todo: handle conversion to json
-                    //         outputType = `record {|${generateInlineRecordForJson(JSON.parse(datamapperConfig.outputType.sampleStructure))}|}`;
-                    //         conversionStatement = `json ${datamapperConfig.outputType.variableName}Json = ${datamapperConfig.outputType.variableName}.toJson();`
-                    //         break;
-                    //     case 'record':
-                    //         const outputTypeInfo = datamapperConfig.outputType?.typeInfo;
-                    //         outputType = `${outputTypeInfo.moduleName}:${outputTypeInfo.name}`
-                    //         break;
-                    //     default:
-                    //         outputType = datamapperConfig.outputType.type;
-                    // }
-
-
-                    // const functionString = `${datamapperConfig.outputType.generationType === GenerationType.NEW ? outputType : ''} ${datamapperConfig.outputType.variableName} = ${defaultReturn};`
-
-                    // const dataMapperFunction: STModification = createPropertyStatement(functionString, modificationPosition);
-                    // modifications.push(dataMapperFunction);
-                    // if (conversionStatement.length > 0) {
-                    //     modifications.push(createPropertyStatement(conversionStatement, modificationPosition));
-                    // }
                 } else if (processConfig.type === "Call" || processConfig.type === "Custom") {
                     const customConfig: CustomExpressionConfig = processConfig.config as CustomExpressionConfig;
                     const addCustomStatement: STModification = createPropertyStatement(customConfig.expression, modificationPosition, isLastMember);

@@ -22,11 +22,12 @@ import {
   ConnectorConfig,
   ConnectorConfigWizardProps,
   CONNECTOR_CLOSED,
+  DiagramOverlayPosition,
   FunctionDefinitionInfo,
   LowcodeEvent,
   WizardType
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { STNode } from "@wso2-enterprise/syntax-tree";
+import { LocalVarDecl, NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../Contexts/Diagram";
 import { fetchConnectorInfo } from "../../Portals/utils";
@@ -83,6 +84,7 @@ export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
         onClose,
         onSave,
         selectedConnector,
+        isModuleEndpoint,
         isAction,
         isEdit,
         specialConnectorName,
@@ -179,6 +181,7 @@ export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
                             targetPosition,
                             configWizardArgs: wizardState,
                             connectorInfo,
+                            isModuleEndpoint,
                             isAction,
                             functionNode,
                             onClose: handleClose,

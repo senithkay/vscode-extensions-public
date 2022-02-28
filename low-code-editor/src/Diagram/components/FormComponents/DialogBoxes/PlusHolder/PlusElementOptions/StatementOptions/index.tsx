@@ -15,7 +15,7 @@ import React, { ReactNode, useContext, useState } from "react";
 
 import { Divider } from "@material-ui/core";
 import cn from "classnames";
-import { Tooltip } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ADD_CONNECTOR, ADD_STATEMENT, LowcodeEvent, Tooltip } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import {
     LogIcon,
@@ -26,7 +26,6 @@ import {
     ReturnIcon,
     RespondIcon,
     CustomStatementIcon,
-    DataMapperIcon,
     ConnectorIcon,
     ActionIcon,
 } from "../../../../../../../assets/icons";
@@ -142,12 +141,16 @@ export function StatementOptions(props: StatementOptionsProps) {
     }
 
     const onSelectStatement = (type: string) => {
-        // const event: LowcodeEvent = {
-        //     type: ADD_STATEMENT,
-        //     name: type
-        // };
-        // onEvent(event);
         onSelect(type);
+    }
+
+
+    const onConnectorClick = (type: string) => {
+        const event: LowcodeEvent = {
+            type: ADD_CONNECTOR,
+        };
+        onEvent(event);
+        onSelectStatement(type)
     }
 
     const logStm: StatementComponent = {
@@ -287,7 +290,7 @@ export function StatementOptions(props: StatementOptionsProps) {
                 <div
                     className="sub-option enabled"
                     data-testid="addConnector"
-                    onClick={onSelectStatement.bind(undefined, "Connector")}
+                    onClick={onConnectorClick.bind(undefined, "Connector")}
                 >
                     <div className="icon-wrapper">
                         <ConnectorIcon />
@@ -402,27 +405,7 @@ export function StatementOptions(props: StatementOptionsProps) {
             </Tooltip>
         )
     }
-    // const datamappingStatement: StatementComponent = {
-    //     name: "datamapper",
-    //     category: 'process',
-    //     component: (
-    //         <Tooltip
-    //             title={plusHolderStatementTooltipMessages.dataMapperStatement.title}
-    //             placement="right"
-    //             arrow={true}
-    //             // example={false}
-    //             // codeSnippet={true}
-    //             interactive={true}
-    //         >
-    //             <div className="sub-option enabled" data-testid="addDataMapping" onClick={onSelect.bind(undefined, "DataMapper")}>
-    //                 <div className="icon-wrapper">
-    //                     <DataMapperIcon />
-    //                 </div>
-    //                 <div className="text-label">Data Mapping</div>
-    //             </div>
-    //         </Tooltip>
-    //     )
-    // }
+
     const customStatement: StatementComponent = {
         name: "customStatement",
         category: 'process',

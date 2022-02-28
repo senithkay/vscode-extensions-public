@@ -126,6 +126,7 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
     };
 
     let isReferencedVariable = false;
+    let targetPosition: NodePosition;
     const isLocalVariableDecl = model && STKindChecker.isLocalVarDecl(model);
     if (isLocalVariableDecl && STKindChecker.isCaptureBindingPattern(model.typedBindingPattern.bindingPattern)) {
         const captureBingingPattern = (model as LocalVarDecl).typedBindingPattern.bindingPattern as CaptureBindingPattern;
@@ -133,6 +134,7 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
             stSymbolInfo.variableNameReferences.get(captureBingingPattern.variableName.value)?.length > 0) {
             isReferencedVariable = true;
         }
+        targetPosition = captureBingingPattern.position;
     }
 
     if (isEditConnector && !connector) {
@@ -202,11 +204,11 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
     // const connectorWizard = (
     //     <ConnectorConfigWizard
     //         connectorInfo={connector}
-    //         position={{
+    //         position={ {
     //             x: viewState.bBox.cx + 80,
     //             y: viewState.bBox.cy,
-    //         }}
-    //         targetPosition={draftVS.targetPosition}
+    //         } }
+    //         targetPosition={draftVS.targetPosition || targetPosition}
     //         selectedConnector={draftVS.selectedConnector}
     //         specialConnectorName={specialConnectorName}
     //         model={model}

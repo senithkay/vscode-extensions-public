@@ -14,13 +14,16 @@
 import React, { useContext, useRef, useState } from "react"
 
 import { ConfigurableIcon, DeleteButton, EditButton, ModuleVariableIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { CaptureBindingPattern, ModuleVarDecl, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { CaptureBindingPattern, ModuleVarDecl, QualifiedNameReference, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
 import { Context } from "../../../Context/diagram";
-// import Tooltip from "../../../../../../components/Tooltip";
+import { ModuleIcon } from "../Connector/ConnectorHeader/ModuleIcon";
 
 import "./style.scss";
+// import Tooltip from "../../../../../../components/Tooltip";
+// import { Tooltip } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+
 
 export const MODULE_VAR_MARGIN_LEFT: number = 24.5;
 export const MODULE_VAR_PLUS_OFFSET: number = 7.5;
@@ -48,9 +51,18 @@ export function ModuleVariable(props: ModuleVariableProps) {
     let varName = '';
     let varValue = '';
     let isConfigurable = false;
+    let isModuleConnector = false;
 
-    if (STKindChecker.isModuleVarDecl(model)) {
-        const moduleMemberModel: ModuleVarDecl = model as ModuleVarDecl;
+    if (model && STKindChecker.isModuleVarDecl(model) && model.typeData.isEndpoint) {
+        isModuleConnector = true;
+        if (STKindChecker.isQualifiedNameReference(model.typedBindingPattern.typeDescriptor)){
+            varType = (model.typedBindingPattern.typeDescriptor as QualifiedNameReference).source.trim();
+        }
+        if (STKindChecker.isCaptureBindingPattern(model.typedBindingPattern.bindingPattern)){
+            varName = (model.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName?.value;
+        }
+    } else if (STKindChecker.isModuleVarDecl(model)) {
+        const moduleMemberModel = model as ModuleVarDecl;
         varType = (moduleMemberModel.typedBindingPattern.bindingPattern as CaptureBindingPattern)?.typeData?.
             typeSymbol?.typeKind;
         varName = (moduleMemberModel.typedBindingPattern.bindingPattern as CaptureBindingPattern)?.variableName?.value;
@@ -92,7 +104,9 @@ export function ModuleVariable(props: ModuleVariableProps) {
                 <div className="module-variable-header" >
                     <div className={"module-variable-wrapper"}>
                         <div className={"module-variable-icon"}>
-                            {(isConfigurable) ? <ConfigurableIcon /> : <ModuleVariableIcon />}
+                            {isModuleConnector && <ModuleIcon node={model} width={16} scale={0.35}/>}
+                            {!isModuleConnector && isConfigurable && <ConfigurableIcon />}
+                            {!isModuleConnector && !isConfigurable && <ModuleVariableIcon />}
                         </div>
                         <div className={"module-variable-type-text"}>
                             {/* <Tooltip
@@ -145,8 +159,13 @@ export function ModuleVariable(props: ModuleVariableProps) {
             {/* {
                 editFormVisible && (
                     <FormGenerator
-                        model={model}
-                        configOverlayFormStatus={{ formType: model.kind, isLoading: false }}
+                        configOverlayFormStatus={{
+                            isLoading: false,
+                            formType: model.kind,
+                            formArgs: {
+                                model
+                            }
+                        }}
                         onCancel={handleEditBtnCancel}
                         onSave={handleEditBtnCancel}
                     />

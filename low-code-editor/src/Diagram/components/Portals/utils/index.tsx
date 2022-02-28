@@ -29,7 +29,7 @@ import {
     ActionStatement,
     CaptureBindingPattern, CheckAction,
     CheckExpression,
-    ImplicitNewExpression, ListConstructor, LocalVarDecl, MappingConstructor, NamedArg, NodePosition, NumericLiteral,
+    ImplicitNewExpression, ListConstructor, LocalVarDecl, MappingConstructor, ModuleVarDecl, NamedArg, NodePosition, NumericLiteral,
     ParenthesizedArgList,
     PositionalArg, RemoteMethodCallAction, RequiredParam, SimpleNameReference, SpecificField,
     STKindChecker,
@@ -42,9 +42,11 @@ import { getAllVariables as retrieveVariables } from "../../../utils/mixins";
 import {
     addConnectorToCache,
     getConnectorFromCache,
+    isEndpointNode,
     isSTActionInvocation
 } from "../../../utils/st-util";
 import * as Forms from "../../FormComponents/ConfigForms";
+import { VariableOptions } from "../../FormComponents/ConfigForms/ModuleVariableForm/util";
 import { ConfigWizardState } from "../../FormComponents/ConnectorConfigWizard";
 import * as ConnectorExtension from "../../FormComponents/ConnectorExtensions";
 import * as OverlayElement from "../../FormComponents/DialogBoxes/PlusHolder";
@@ -315,7 +317,7 @@ export function getCollectionForRadio(model: FormField): string[] {
     return collection;
 }
 
-export function matchEndpointToFormField(endPoint: LocalVarDecl, formFields: FormField[]) {
+export function matchEndpointToFormField(endPoint: LocalVarDecl | ModuleVarDecl, formFields: FormField[]) {
     let implicitExpr: ImplicitNewExpression;
     switch (endPoint.initializer.kind) {
         case "CheckExpression":
@@ -589,6 +591,15 @@ export function getAllVariablesForAi(symbolInfo: STSymbolInfo): { [key: string]:
             }
         });
     });
+    symbolInfo.moduleVariables.forEach((variableNode: STNode, type: string) => {
+        if (STKindChecker.isModuleVarDecl(variableNode) && !variableCollection[type]){
+            variableCollection[type] = {
+                "type": type,
+                "position": 0,
+                "isUsed": 0
+            }
+        }
+    });
     symbolInfo.localEndpoints.forEach((variableNodes: STNode, type: string) => {
         const variableDef: LocalVarDecl = variableNodes as LocalVarDecl;
         const variable: CaptureBindingPattern = variableDef.typedBindingPattern.bindingPattern as
@@ -759,16 +770,23 @@ export async function fetchConnectorInfo(
                     matchActionToFormField(remoteCall, connectorConfig.action.fields);
                 }
             }
-        } else if (viewState.isEndpoint) {
-            const bindingPattern: CaptureBindingPattern = variable.typedBindingPattern
-                .bindingPattern as CaptureBindingPattern;
-            const endpointVarName: string = bindingPattern.variableName.value;
+        } else if (
+            (viewState.isEndpoint || isEndpointNode(model)) &&
+            STKindChecker.isCaptureBindingPattern(variable.typedBindingPattern.bindingPattern)
+        ) {
+            const endpointVarName = (variable.typedBindingPattern.bindingPattern as CaptureBindingPattern)
+                .variableName.value;
             if (endpointVarName) {
                 connectorConfig.name = endpointVarName;
             }
         }
         connectorConfig.connectorInit = functionDefInfo.get("init") ? functionDefInfo.get("init").parameters : [];
-        const matchingEndPoint: LocalVarDecl = symbolInfo.localEndpoints.get(connectorConfig.name) as LocalVarDecl;
+        let matchingEndPoint;
+        if (STKindChecker.isLocalVarDecl(model)){
+            matchingEndPoint = symbolInfo.localEndpoints.get(connectorConfig.name) as LocalVarDecl;
+        }else if (STKindChecker.isModuleVarDecl(model)){
+            matchingEndPoint = symbolInfo.moduleEndpoints.get(connectorConfig.name) as ModuleVarDecl;
+        }
         if (matchingEndPoint) {
             connectorConfig.initPosition = matchingEndPoint.position;
             matchEndpointToFormField(matchingEndPoint, connectorConfig.connectorInit);
@@ -869,11 +887,11 @@ function getFormFieldReturnType(formField: FormField, depth = 1): FormFieldRetur
                     returnTypeResponseRight = getFormFieldReturnType(formField.rightTypeParam, depth + 1);
                     response.importTypeInfo = [...response.importTypeInfo, ...returnTypeResponseRight.importTypeInfo];
                 }
-                if (returnTypeResponseLeft.returnType && (returnTypeResponseRight.returnType || returnTypeResponseRight.hasError)) {
+                if (returnTypeResponseLeft.returnType && returnTypeResponseRight && (returnTypeResponseRight.returnType || returnTypeResponseRight.hasError)) {
                     const rightType = returnTypeResponseRight.hasError ? "error?" : returnTypeResponseRight.returnType;
                     response.returnType = `stream<${returnTypeResponseLeft.returnType},${rightType}>`
                 }
-                if (returnTypeResponseLeft.returnType && !returnTypeResponseRight.returnType) {
+                if (returnTypeResponseLeft.returnType && !returnTypeResponseRight?.returnType) {
                     response.returnType = `stream<${returnTypeResponseLeft.returnType}>`
                 }
                 if (response.returnType) {
@@ -1044,6 +1062,31 @@ export function getFormattedModuleName(moduleName: string): string {
         formattedModuleName = `${formattedModuleName}0`;
     }
     return formattedModuleName;
+}
+
+export function addAccessModifiers(modifiers: string[], statement: string): string {
+    let initStatement = "";
+    if (modifiers && modifiers.includes(VariableOptions.PUBLIC)){
+        initStatement += `${VariableOptions.PUBLIC} `;
+    }
+    if (modifiers && modifiers.includes(VariableOptions.FINAL)){
+        initStatement += `${VariableOptions.FINAL} `;
+    }
+    return initStatement + statement;
+}
+
+export function getAccessModifiers(model: STNode): string[] {
+    const modifiers: string[] = [];
+    if (STKindChecker.isModuleVarDecl(model)){
+        model.qualifiers.forEach(qualifier => {
+            modifiers.push(qualifier.value);
+        });
+        // HACK: ModuleVarDecl interface doesn't support visibilityQualifier
+        if ((model as any).visibilityQualifier && STKindChecker.isPublicKeyword((model as any).visibilityQualifier)){
+            modifiers.push(VariableOptions.PUBLIC)
+        }
+    }
+    return modifiers;
 }
 
 export interface VariableNameValidationResponse {

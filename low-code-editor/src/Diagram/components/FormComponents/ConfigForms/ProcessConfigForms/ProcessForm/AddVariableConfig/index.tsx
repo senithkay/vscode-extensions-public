@@ -22,8 +22,10 @@ import { LocalVarDecl, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
+import { getAllVariables } from "../../../../../../utils/mixins";
 import { createModuleVarDecl, createModuleVarDeclWithoutInitialization, getInitialSource } from "../../../../../../utils/modification-util";
 import { getVariableNameFromST } from "../../../../../../utils/st-util";
+import { genVariableName } from "../../../../../Portals/utils";
 import { useStyles } from "../../../../DynamicConnectorForm/style";
 import { SelectDropdownWithButton } from "../../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
 import { LowCodeExpressionEditor } from "../../../../FormFieldComponents/LowCodeExpressionEditor";
@@ -57,11 +59,14 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
             currentFile,
             isMutationProgress: isMutationInProgress,
             stSymbolInfo,
+            importStatements,
             experimentalEnabled
         },
         api: {
             ls: { getExpressionEditorLangClient },
-            code: { modifyDiagram },
+            code: {
+                modifyDiagram
+            },
             insights: { onEvent },
             library
         }
@@ -171,16 +176,16 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         expressionEditor: {
             title: intl.formatMessage({
                 id: "lowcode.develop.configForms.variable.expressionEditor.tooltip.title",
-                defaultMessage: "Enter a Ballerina expression."
+                defaultMessage: "Press CTRL+Spacebar for suggestions."
             }),
             actionText: intl.formatMessage({
                 id: "lowcode.develop.configForms.variable.expressionEditor.tooltip.actionText",
-                defaultMessage: "Learn Ballerina expressions"
+                defaultMessage: "Learn about Ballerina expressions here"
             }),
             actionLink: intl.formatMessage({
                 id: "lowcode.develop.configForms.variable.expressionEditor.tooltip.actionTitle",
                 defaultMessage: "{learnBallerina}"
-            }, { learnBallerina: BALLERINA_EXPRESSION_SYNTAX_PATH })
+            }, { learnBallerina: "https://ballerina.io/1.2/learn/by-example/variables.html?is_ref_by_example=true" })
         }
     };
 
@@ -254,7 +259,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
     const initialSource = formArgs.model ? formArgs.model.source : (initialized ? (
                 getInitialSource(createModuleVarDecl(
                     {
-                        varName: varName ? varName : "default",
+                        varName: varName ? varName : genVariableName("variable", getAllVariables(stSymbolInfo)),
                         varOptions: [],
                         varType: selectedType ? selectedType : "var",
                         varValue: variableExpression ? variableExpression : "EXPRESSION"
@@ -264,7 +269,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
             (
                 getInitialSource(createModuleVarDeclWithoutInitialization(
                     {
-                        varName: varName ? varName : "default",
+                        varName: varName ? varName : genVariableName("variable", getAllVariables(stSymbolInfo)),
                         varOptions: [],
                         varType: selectedType ? selectedType : "var",
                         varValue: null
@@ -294,6 +299,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
             getLangClient: getExpressionEditorLangClient,
             applyModifications: modifyDiagram,
             library,
+            importStatements,
             experimentalEnabled
         }
     );
@@ -313,7 +319,6 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
     const expressionEditor = (
         <div className="exp-wrapper">
             <LowCodeExpressionEditor
-                hideLabelTooltips={true}
                 {...expressionEditorConfig}
             />
         </div>

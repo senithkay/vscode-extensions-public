@@ -65,7 +65,7 @@ export function ActionProcessor(props: ProcessorProps) {
     let isIntializedVariable = false;
 
     let isReferencedVariable = false;
-
+    let targetPosition: NodePosition;
     const diagnostics = model?.typeData?.diagnostics;
     const diagnosticMsgs = getDiagnosticInfo(diagnostics);
 
@@ -78,6 +78,7 @@ export function ActionProcessor(props: ProcessorProps) {
             if (STKindChecker.isCaptureBindingPattern(bindingPattern)) {
                 processName = bindingPattern?.variableName?.value;
                 isReferencedVariable = stSymbolInfo?.variableNameReferences?.size && stSymbolInfo.variableNameReferences.get(processName)?.length > 0;
+                targetPosition = bindingPattern.position;
             } else if (STKindChecker.isListBindingPattern(bindingPattern)) {
                 // TODO: handle this type binding pattern.
             } else if (STKindChecker.isMappingBindingPattern(bindingPattern)) {
@@ -286,6 +287,25 @@ export function ActionProcessor(props: ProcessorProps) {
                             x={cx - PROCESS_SVG_SHADOW_OFFSET / 2}
                             y={cy - PROCESS_SVG_SHADOW_OFFSET / 2}
                         >
+                            {/* <g>
+                                {!model && !connector && endpointList}
+                                {(model === null || isEditConnector) && connector && (
+                                    <ConnectorConfigWizard
+                                        connectorInfo={connector}
+                                        position={{
+                                            x: viewState.bBox.cx + 80,
+                                            y: viewState.bBox.cy,
+                                        }}
+                                        targetPosition={draftViewState.targetPosition || targetPosition}
+                                        selectedConnector={draftViewState.selectedConnector}
+                                        model={model || selectedEndpoint}
+                                        onClose={onActionFormClose}
+                                        onSave={onWizardClose}
+                                        isAction={true}
+                                        isEdit={isEditConnector}
+                                    />
+                                )}
+                            </g> */}
                             {!isConfigWizardOpen && (
                                 <>
                                     <rect

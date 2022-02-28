@@ -104,6 +104,7 @@ export function getDraftComponent(viewState: BlockViewState, state: any, insertC
                 case "Log":
                     draftComponents.push(<DataProcessor model={null} blockViewState={viewState} />);
                     break;
+                case "AssignmentStatement":
                 case "Variable":
                     draftComponents.push(<DataProcessor model={null} blockViewState={viewState} />);
                     break;
@@ -254,28 +255,31 @@ export function getMatchingConnector(actionInvo: STNode, stSymbolInfo: STSymbolI
                 };
             }
         }
-    } else if (viewState.isEndpoint && STKindChecker.isLocalVarDecl(actionInvo)) {
-        const variable = actionInvo as LocalVarDecl;
-        if (STKindChecker.isCaptureBindingPattern(variable.typedBindingPattern.bindingPattern)) {
-            const nameReference = variable.typedBindingPattern.typeDescriptor as QualifiedNameReference;
-            const typeSymbol = nameReference.typeData?.typeSymbol;
-            const module = typeSymbol?.moduleID;
-            if (typeSymbol && module) {
-                connector = {
-                    name: typeSymbol.name,
-                    moduleName: module.moduleName,
-                    package: {
-                        organization: module.orgName,
-                        name: module.moduleName,
-                        version: module.version
-                    },
-                    functions: []
-                };
-            }
+    } else if ((viewState.isEndpoint || isEndpointNode(actionInvo))
+        && (STKindChecker.isLocalVarDecl(actionInvo) || STKindChecker.isModuleVarDecl(actionInvo))
+        && (STKindChecker.isQualifiedNameReference(actionInvo.typedBindingPattern.typeDescriptor))) {
+        const nameReference = actionInvo.typedBindingPattern.typeDescriptor as QualifiedNameReference;
+        const typeSymbol = nameReference.typeData?.typeSymbol;
+        const module = typeSymbol?.moduleID;
+        if (typeSymbol && module) {
+            connector = {
+                name: typeSymbol.name,
+                moduleName: module.moduleName,
+                package: {
+                    organization: module.orgName,
+                    name: module.moduleName,
+                    version: module.version
+                },
+                functions: []
+            };
         }
     }
 
     return connector;
+}
+
+export function isEndpointNode(node: STNode): boolean {
+    return node && (STKindChecker.isLocalVarDecl(node) || STKindChecker.isModuleVarDecl(node)) && node.typeData?.isEndpoint;
 }
 
 export function getStatementTypesFromST(model: LocalVarDecl): string {

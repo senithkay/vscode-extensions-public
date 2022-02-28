@@ -298,6 +298,7 @@ export function Diagram() {
                         performanceData={performanceData}
                         selectedPosition={selectedPosition}
                         zoomStatus={zoomStatus}
+                        stSymbolInfo={stSymbolInfo}
                         api={{
                             edit: {
                                 deleteComponent: handleDeleteComponent,

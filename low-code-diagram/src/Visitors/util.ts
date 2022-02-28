@@ -1,6 +1,7 @@
 import { RemoteMethodCallAction, STNode, traversNode, VisibleEndpoint } from "@wso2-enterprise/syntax-tree";
 
 import { CLIENT_SVG_HEIGHT, CLIENT_SVG_WIDTH } from "../Components/RenderingComponents/Connector/ConnectorHeader/ConnectorClientSVG";
+import { CONNECTOR_PROCESS_SVG_HEIGHT } from "../Components/RenderingComponents/Connector/ConnectorProcess/ConnectorProcessSVG";
 import { IFELSE_SVG_HEIGHT, IFELSE_SVG_WIDTH } from "../Components/RenderingComponents/IfElse/IfElseSVG";
 import { PROCESS_SVG_HEIGHT, PROCESS_SVG_WIDTH } from "../Components/RenderingComponents/Processor/ProcessSVG";
 import { RESPOND_SVG_HEIGHT, RESPOND_SVG_WIDTH } from "../Components/RenderingComponents/Respond/RespondSVG";
@@ -48,7 +49,7 @@ export function getPlusViewState(index: number, viewStates: PlusViewState[]): Pl
     return matchingPlusViewState;
 }
 
-export function updateConnectorCX(maxContainerRightWidth: number, containerCX: number, allEndpoints: Map<string, Endpoint>) {
+export function updateConnectorCX(maxContainerRightWidth: number, containerCX: number, allEndpoints: Map<string, Endpoint>, startCY?: number) {
     const containerRightMostConerCX = maxContainerRightWidth + containerCX;
     let prevX = 0;
     let index: number = 0;
@@ -71,6 +72,11 @@ export function updateConnectorCX(maxContainerRightWidth: number, containerCX: n
         } else {
             mainEp.lifeLine.cx = prevX + (mainEp.bBox.w / 2) + DefaultConfig.epGap;
             prevX = mainEp.lifeLine.cx;
+        }
+
+        if (mainEp.isExternal) { // Render external endpoints align with the start element
+            mainEp.lifeLine.h += mainEp.lifeLine.cy - (startCY + (CONNECTOR_PROCESS_SVG_HEIGHT / 2));
+            mainEp.lifeLine.cy = startCY + (CONNECTOR_PROCESS_SVG_HEIGHT / 2);
         }
 
         updateActionTriggerCx(mainEp.lifeLine.cx, value.actions);
@@ -102,10 +108,6 @@ export function getDraftComponentSizes(type: string, subType: string): { h: numb
                     w = IFELSE_SVG_WIDTH;
                     break;
                 case "Log":
-                    h = PROCESS_SVG_HEIGHT;
-                    w = PROCESS_SVG_WIDTH;
-                    break;
-                case "DataMapper":
                     h = PROCESS_SVG_HEIGHT;
                     w = PROCESS_SVG_WIDTH;
                     break;

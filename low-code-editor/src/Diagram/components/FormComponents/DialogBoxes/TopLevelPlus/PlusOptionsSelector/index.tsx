@@ -50,6 +50,7 @@ export const moduleLevelEntries: PlusMenuEntry[] = [
     { name: 'Function', type: 'FunctionDefinition', category: PlusMenuCategories.CONSTRUCT },
     { name: 'Configurable', type: 'Configurable', category: PlusMenuCategories.CONSTRUCT },
     { name: 'Constant', type: 'ConstDeclaration', category: PlusMenuCategories.CONSTRUCT },
+    { name: 'Connector', type: 'ModuleConnectorDecl', category: PlusMenuCategories.CONSTRUCT },
     { name: 'Listener', type: 'ListenerDeclaration', category: PlusMenuCategories.CONSTRUCT },
     { name: 'Enum', type: 'EnumDeclaration', category: PlusMenuCategories.CONSTRUCT },
     { name: 'Class', type: 'ClassDefinition', category: PlusMenuCategories.CONSTRUCT },

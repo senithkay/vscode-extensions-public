@@ -28,6 +28,8 @@ import {
 } from "../components/InputEditor/constants";
 import { SuggestionItem } from '../models/definitions';
 
+import { sortSuggestions } from "./index";
+
 export async function getPartialSTForStatement(
             partialSTRequest: PartialSTRequest,
             getLangClient: () => Promise<ExpressionEditorLangClientInterface>): Promise<STNode> {
@@ -52,7 +54,10 @@ export async function getContextBasedCompletions (
             isTypeDescriptor: boolean,
             isElseIfMember: boolean,
             selection: string,
-            getLangClient: () => Promise<ExpressionEditorLangClientInterface>): Promise<SuggestionItem[]> {
+            getLangClient: () => Promise<ExpressionEditorLangClientInterface>,
+            currentFileContent?: string): Promise<SuggestionItem[]> {
+    const suggestions: SuggestionItem[] = [];
+    await sendDidOpen(docUri, currentFileContent, getLangClient);
     await sendDidChange(docUri, content, getLangClient);
     const completionParams: CompletionParams = {
         textDocument: {
@@ -82,11 +87,39 @@ export async function getContextBasedCompletions (
         ) && completionResponse.label !== selection.trim() && !(completionResponse.label.includes("main"))
     ));
 
-    const suggestions: SuggestionItem[] = filteredCompletionItems.map((completion) => {
-        return { value: completion.label, kind: completion.detail }
+    filteredCompletionItems.sort(sortSuggestions)
+
+    filteredCompletionItems.map((completion) => {
+        suggestions.push({ value: completion.label, kind: completion.detail, suggestionType: completion.kind  });
     });
 
     return suggestions;
+}
+
+export async function sendDidOpen(
+    docUri: string,
+    content: string,
+    getLangClient: () => Promise<ExpressionEditorLangClientInterface>) {
+    const langClient = await getLangClient();
+    langClient.didOpen({
+        textDocument: {
+            uri: docUri,
+            languageId: "ballerina",
+            text: content,
+            version: 1
+        }
+    });
+}
+
+export async function sendDidClose(
+    docUri: string,
+    getLangClient: () => Promise<ExpressionEditorLangClientInterface>) {
+    const langClient = await getLangClient();
+    langClient.didClose({
+        textDocument: {
+            uri: docUri
+        }
+    });
 }
 
 export async function sendDidChange(
@@ -137,6 +170,15 @@ export async function addStatementToTargetLine(
         modelContent.splice(position?.startLine, 0, currentStatement);
         return modelContent.join('\n');
     }
+}
+
+export async function addImportStatements(
+            currentFileContent: string,
+            modulesToBeImported: string[]): Promise<string> {
+    const modelContent: string[] = currentFileContent.split(/\n/g) || [];
+    modulesToBeImported.join('');
+    modelContent.splice(0, 0, modulesToBeImported.join(''));
+    return modelContent.join('\n');
 }
 
 async function getModifiedStatement(
