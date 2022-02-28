@@ -73,7 +73,7 @@ export function DeleteSVG(props: { x: number, y: number, toolTipTitle?: string, 
             </defs>
             {props.toolTipTitle ? (
                 // <Tooltip title={toolTipTitle} placement={"left"} arrow={true}>
-                    {deleteSVGIcon}
+                    deleteSVGIcon
                 // </Tooltip>
             ) : (
                 <g>
