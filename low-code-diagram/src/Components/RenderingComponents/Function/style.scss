@@ -186,6 +186,7 @@
         background-image: url('./assets/PatternBg.svg');
         background-repeat: repeat;
         overflow: hidden;
+        height: 100%;
     }
 }
 
@@ -196,6 +197,7 @@
     border: 1px solid #e6e7ec;
     border-radius: 6px;
     background-color: #fff;
+    height: 100%;
 
     .function-signature {
         display: flex;
@@ -251,6 +253,7 @@
         background-image: url('./assets/PatternBg.svg');
         background-repeat: repeat;
         overflow: hidden;
+        height: 100%;
     }
 
     .show-on-hover {
