@@ -17,7 +17,7 @@
  *
  */
 
-import { NotebookCell, NotebookCellExecution, NotebookCellOutput, NotebookCellOutputItem, NotebookController, 
+import { NotebookCell, NotebookCellOutput, NotebookCellOutputItem, NotebookController, 
     NotebookDocument, notebooks } from 'vscode';
 import { BallerinaExtension, BalShellResponse, ExtendedLangClient } from '../core';
 import { MIME_TYPE_TABLE } from './renderer/constants';
@@ -65,15 +65,22 @@ export class BallerinaNotebookController {
         const execution = this.controller.createNotebookCellExecution(cell);
         execution.executionOrder = ++this.executionOrder;
         execution.start(Date.now());
+        execution.clearOutput();
+        execution.token.onCancellationRequested(()=> {
+            execution.appendOutput(new NotebookCellOutput([
+                NotebookCellOutputItem.text('Execution Interrupted')
+            ]))
+            execution.end(false, Date.now());
+        });
         try {
             let output: BalShellResponse = await langClient.getBalShellResult({
                 source: cell.document.getText().trim()
             });
-            execution.clearOutput();
             if (output.diagnostics.length) {
+                output.diagnostics.length > 1 ? output.diagnostics.pop() : null;
                 output.diagnostics.forEach(diagnostic => 
                         execution.appendOutput(new NotebookCellOutput([
-                            NotebookCellOutputItem.error(new Error(diagnostic))
+                            NotebookCellOutputItem.text(diagnostic)
                         ]))
                 );
                 execution.end(false, Date.now());
