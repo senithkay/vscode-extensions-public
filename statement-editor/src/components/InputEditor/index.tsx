@@ -93,33 +93,33 @@ export function InputEditor(props: InputEditorProps) {
     const statementEditorClasses = useStatementEditorStyles();
 
     let literalModel: StringLiteral | NumericLiteral | SimpleNameReference | QualifiedNameReference;
-    let value: any;
+    let originalValue: any;
     let kind: any;
 
     if (!model) {
-        value = initialSource ? initialSource : '';
+        originalValue = initialSource ? initialSource : '';
     } else if (STKindChecker.isStringLiteral(model)) {
         literalModel = model as StringLiteral;
         kind = c.STRING_LITERAL;
-        value = literalModel.literalToken.value;
+        originalValue = literalModel.literalToken.value;
     } else if (STKindChecker.isNumericLiteral(model)) {
         literalModel = model as NumericLiteral;
         kind = c.NUMERIC_LITERAL;
-        value = literalModel.literalToken.value;
+        originalValue = literalModel.literalToken.value;
     } else if (STKindChecker.isIdentifierToken(model)) {
-        value = model.value;
+        originalValue = model.value;
     } else if (STKindChecker.isSimpleNameReference(model)) {
         literalModel = model as SimpleNameReference;
         kind = c.SIMPLE_NAME_REFERENCE;
-        value = literalModel.name.value;
+        originalValue = literalModel.name.value;
     } else if (STKindChecker.isQualifiedNameReference(model)) {
         literalModel = model as QualifiedNameReference;
         kind = c.QUALIFIED_NAME_REFERENCE;
-        value = `${literalModel.modulePrefix.value}${literalModel.colon.value}${literalModel.identifier.value}`;
+        originalValue = `${literalModel.modulePrefix.value}${literalModel.colon.value}${literalModel.identifier.value}`;
     } else if (STKindChecker.isBooleanLiteral(model)) {
         literalModel = model as BooleanLiteral;
         kind = c.BOOLEAN_LITERAL;
-        value = literalModel.literalToken.value;
+        originalValue = literalModel.literalToken.value;
     } else if ((STKindChecker.isStringTypeDesc(model)
         || STKindChecker.isBooleanTypeDesc(model)
         || STKindChecker.isDecimalTypeDesc(model)
@@ -127,14 +127,16 @@ export function InputEditor(props: InputEditorProps) {
         || STKindChecker.isIntTypeDesc(model)
         || STKindChecker.isJsonTypeDesc(model)
         || STKindChecker.isVarTypeDesc(model))) {
-        value = model.name.value;
+        originalValue = model.name.value;
     } else if (isToken) {
-        value = model.value;
+        originalValue = model.value;
     } else {
-        value = model.source;
+        originalValue = model.source;
     }
 
-    const [userInput, setUserInput] = useState<string>(value);
+    const [userInput, setUserInput] = useState<string>(originalValue);
+    const [prevUserInput, setPrevUserInput] = useState<string>(userInput);
+
 
     const targetPosition = stmtCtx.formCtx.formModelPosition;
     const textLabel = userInputs && userInputs.formField ? userInputs.formField : "modelName"
@@ -156,11 +158,11 @@ export function InputEditor(props: InputEditorProps) {
     }, [inputEditorState.diagnostic]);
 
     useEffect(() => {
-        setUserInput(value);
+        setUserInput(originalValue);
         handleOnFocus(currentContent).then(() => {
             handleContentChange(currentContent).then();
         });
-    }, [value]);
+    }, [originalValue]);
 
     useEffect(() => {
         if (userInput === '') {
@@ -285,8 +287,12 @@ export function InputEditor(props: InputEditorProps) {
     }
 
     const inputEnterHandler = (event: React.KeyboardEvent<HTMLInputElement>) => {
-        if (event.key === "Enter" || event.key === "Tab" || event.key === "Escape") {
+        if (event.key === "Enter" || event.key === "Tab") {
             handleEditEnd();
+        } else if (event.key === "Escape") {
+            setIsEditing(false);
+            // reset input editor value to original value
+            changeInput(prevUserInput);
         }
     };
 
@@ -301,18 +307,22 @@ export function InputEditor(props: InputEditorProps) {
     }
 
     const inputChangeHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
+        changeInput(event.target.value);
+    };
+
+    const changeInput = (newValue: string) => {
         const currentStatement = stmtCtx.modelCtx.statementModel ? stmtCtx.modelCtx.statementModel.source : "";
-        setUserInput(event.target.value);
-        inputEditorCtx.onInputChange(event.target.value);
+        setUserInput(newValue);
+        inputEditorCtx.onInputChange(newValue);
         const updatedStatement = addExpressionToTargetPosition(
             currentStatement,
             model ? model.position.startLine : 0,
             model ? model.position.startColumn : 0,
-            event.target.value ? event.target.value : "",
+            newValue ? newValue : "",
             model ? model.position.endColumn : 0
         );
-        debouncedContentChange(updatedStatement, event.target.value);
-    };
+        debouncedContentChange(updatedStatement, newValue);
+    }
 
     const debouncedContentChange = debounce(handleContentChange, 500);
 
@@ -324,6 +334,7 @@ export function InputEditor(props: InputEditorProps) {
 
     const handleEditEnd = () => {
         setIsEditing(false);
+        setPrevUserInput(userInput);
         if (userInput !== "") {
             stmtCtx.modelCtx.updateModel(userInput, model ? model.position : targetPosition);
             expressionHandler(model, false, false, { expressionSuggestions: [] });
