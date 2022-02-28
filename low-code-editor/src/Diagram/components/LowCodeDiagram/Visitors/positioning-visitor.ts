@@ -291,46 +291,50 @@ class PositioningVisitor implements Visitor {
 
             workerEntry.waits.forEach((waitInfo) => {
                 const sourceWorker = this.workerMap.get(waitInfo.for) as NamedWorkerDeclaration;
-                const sourceWorkerBody = sourceWorker.workerBody as BlockStatement;
+                if (sourceWorker) {
+                    const sourceWorkerBody = sourceWorker.workerBody as BlockStatement;
 
-                let endViewState
-                if ((sourceWorkerBody.viewState as BlockViewState).isEndComponentAvailable) {
-                    endViewState = sourceWorkerBody.statements[sourceWorkerBody.statements.length - 1].viewState
-                    endViewState.hasSendLine = true;
-                } else {
-                    endViewState = (sourceWorker.viewState as WorkerDeclarationViewState).end as EndViewState
-                    endViewState.hasSendLine = true;
+                    let endViewState
+                    if ((sourceWorkerBody.viewState as BlockViewState).isEndComponentAvailable) {
+                        endViewState = sourceWorkerBody.statements[sourceWorkerBody.statements.length - 1].viewState
+                        endViewState.hasSendLine = true;
+                    } else {
+                        endViewState = (sourceWorker.viewState as WorkerDeclarationViewState).end as EndViewState
+                        endViewState.hasSendLine = true;
+                    }
+
+                    const sourceIndex = (sourceWorkerBody.viewState as BlockViewState).isEndComponentAvailable ?
+                        sourceWorkerBody.statements.length - 1
+                        : sourceWorkerBody.statements.length;
+
+                    matchedStatements.push({
+                        sourceName: waitInfo.for,
+                        sourceIndex: sourceIndex < 0 ? 0 : sourceIndex,
+                        targetName: key,
+                        sourceViewState: endViewState,
+                        targetViewState: waitInfo.node.viewState,
+                        targetIndex: waitInfo.index,
+                    });
                 }
-
-                const sourceIndex = (sourceWorkerBody.viewState as BlockViewState).isEndComponentAvailable ?
-                    sourceWorkerBody.statements.length - 1
-                    : sourceWorkerBody.statements.length;
-
-                matchedStatements.push({
-                    sourceName: waitInfo.for,
-                    sourceIndex: sourceIndex < 0 ? 0 : sourceIndex,
-                    targetName: key,
-                    sourceViewState: endViewState,
-                    targetViewState: waitInfo.node.viewState,
-                    targetIndex: waitInfo.index,
-                });
             });
             workerEntry.sends.forEach(sendInfo => {
                 if (!sendInfo.paired) {
                     const matchedReceive = this.senderReceiverInfo.get(sendInfo.to).receives
                         .find(receiveInfo => receiveInfo.from === key && !receiveInfo.paired)
 
-                    matchedReceive.paired = true;
-                    sendInfo.paired = true;
+                    if (matchedReceive) {
+                        matchedReceive.paired = true;
+                        sendInfo.paired = true;
 
-                    matchedStatements.push({
-                        sourceName: key,
-                        sourceIndex: sendInfo.index,
-                        targetName: sendInfo.to,
-                        sourceViewState: sendInfo.node.viewState,
-                        targetViewState: matchedReceive.node.viewState,
-                        targetIndex: matchedReceive.index
-                    });
+                        matchedStatements.push({
+                            sourceName: key,
+                            sourceIndex: sendInfo.index,
+                            targetName: sendInfo.to,
+                            sourceViewState: sendInfo.node.viewState,
+                            targetViewState: matchedReceive.node.viewState,
+                            targetIndex: matchedReceive.index
+                        });
+                    }
                 }
             });
 
@@ -339,17 +343,19 @@ class PositioningVisitor implements Visitor {
                     const matchedSend = this.senderReceiverInfo.get(receiveInfo.from).sends
                         .find(senderInfo => senderInfo.to === key && !senderInfo.paired)
 
-                    matchedSend.paired = true;
-                    receiveInfo.paired = true;
+                    if (matchedSend) {
+                        matchedSend.paired = true;
+                        receiveInfo.paired = true;
 
-                    matchedStatements.push({
-                        sourceName: receiveInfo.from,
-                        sourceIndex: matchedSend.index,
-                        sourceViewState: matchedSend.node.viewState,
-                        targetName: matchedSend.to,
-                        targetIndex: receiveInfo.index,
-                        targetViewState: receiveInfo.node.viewState
-                    });
+                        matchedStatements.push({
+                            sourceName: receiveInfo.from,
+                            sourceIndex: matchedSend.index,
+                            sourceViewState: matchedSend.node.viewState,
+                            targetName: matchedSend.to,
+                            targetIndex: receiveInfo.index,
+                            targetViewState: receiveInfo.node.viewState
+                        });
+                    }
                 }
             });
 
@@ -596,6 +602,13 @@ class PositioningVisitor implements Visitor {
                     const senderName: string = receiverExpression.receiveWorkers?.name?.value;
                     this.addToSendReceiveMap('Receive',
                         { from: senderName, node: statement, paired: false, index: (index) });
+                } else if (STKindChecker.isCheckAction(statement.initializer)
+                    && (statement.initializer.expression.kind === 'ReceiveAction')) {
+                    const receiverExpression: any = statement.initializer.expression;
+                    const senderName: string = receiverExpression.receiveWorkers?.name?.value;
+
+                    this.addToSendReceiveMap('Receive',
+                        { from: senderName, node: statement, paired: false, index: (index) });
                 } else if (STKindChecker.isWaitAction(statement.initializer)
                     && STKindChecker.isSimpleNameReference(statement.initializer.waitFutureExpr)) {
                     this.addToSendReceiveMap('Wait', {
@@ -616,6 +629,13 @@ class PositioningVisitor implements Visitor {
                 if (statement.expression?.kind === 'ReceiveAction') {
                     const receiverExpression: any = statement.expression;
                     const senderName: string = receiverExpression.receiveWorkers?.name?.value;
+                    this.addToSendReceiveMap('Receive',
+                        { from: senderName, node: statement, paired: false, index: (index) });
+                } else if (STKindChecker.isCheckAction(statement.expression)
+                    && (statement.expression.expression.kind === 'ReceiveAction')) {
+                    const receiverExpression: any = statement.expression.expression;
+                    const senderName: string = receiverExpression.receiveWorkers?.name?.value;
+
                     this.addToSendReceiveMap('Receive',
                         { from: senderName, node: statement, paired: false, index: (index) });
                 } else if (STKindChecker.isWaitAction(statement.expression)
