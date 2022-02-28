@@ -17,7 +17,7 @@
  *
  */
 
-import { NotebookCell, NotebookCellOutput, NotebookCellOutputItem, NotebookController, 
+import { NotebookCell, NotebookCellExecution, NotebookCellOutput, NotebookCellOutputItem, NotebookController, 
     NotebookDocument, notebooks } from 'vscode';
 import { BallerinaExtension, BalShellResponse, ExtendedLangClient } from '../core';
 import { MIME_TYPE_TABLE } from './renderer/constants';
@@ -80,9 +80,17 @@ export class BallerinaNotebookController {
             }
             else if (output.shellValue?.value) {
                 if (output.shellValue.mimeType == MIME_TYPE_TABLE) {
-                    execution.appendOutput([ new NotebookCellOutput([NotebookCellOutputItem.json(output, MIME_TYPE_TABLE)])]);
+                    execution.replaceOutput([ new NotebookCellOutput([
+                            NotebookCellOutputItem.json(output, MIME_TYPE_TABLE),
+                            NotebookCellOutputItem.text(output.shellValue.value)
+                        ])
+                    ]);
                 }
-                execution.appendOutput([ new NotebookCellOutput([NotebookCellOutputItem.text(output.shellValue.value)])]);
+                else {
+                    execution.replaceOutput([ new NotebookCellOutput([
+                        NotebookCellOutputItem.text(output.shellValue.value)])
+                    ]);
+                }
                 execution.end(true, Date.now());
             } 
             else {
@@ -90,11 +98,8 @@ export class BallerinaNotebookController {
             }
         } catch (error) {
             
-        } finally {
         }
-        
     }
-
 
     dispose(): void {
         throw new Error('Method not implemented.');
