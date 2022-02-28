@@ -19,16 +19,16 @@
 
 import { workspace, ExtensionContext } from 'vscode';
 import { BallerinaExtension } from '../core';
-import { notebookSerializer } from "./notebookSerializer";
-import { notebookController } from "./notebookController";
+import { BallerinaNotebookSerializer } from "./notebookSerializer";
+import { BallerinaNotebookController } from "./notebookController";
 import { registerLanguageProviders } from './languageProvider';
 
 export function activate(ballerinaExtInstance: BallerinaExtension) {
   const context = <ExtensionContext>ballerinaExtInstance.context;
 
   context.subscriptions.push(
-    workspace.registerNotebookSerializer('ballerina-notebook', new notebookSerializer())
+    workspace.registerNotebookSerializer('ballerina-notebook', new BallerinaNotebookSerializer())
 	);
-	context.subscriptions.push(new notebookController(ballerinaExtInstance));
+	context.subscriptions.push(new BallerinaNotebookController(ballerinaExtInstance));
 	context.subscriptions.push(registerLanguageProviders(ballerinaExtInstance));
 }

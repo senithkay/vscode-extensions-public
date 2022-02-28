@@ -19,39 +19,40 @@
 
 import { NotebookCell, NotebookCellOutput, NotebookCellOutputItem, NotebookController, 
     NotebookDocument, notebooks } from 'vscode';
-import { BallerinaExtension, ExtendedLangClient, ShellOutput } from '../core';
+import { BallerinaExtension, BalShellResponse, ExtendedLangClient } from '../core';
+import { MIME_TYPE_TABLE } from './renderer/constants';
 
-export class notebookController {
+export class BallerinaNotebookController {
     readonly controllerId = 'ballerina-notebook-controller-id';
     readonly notebookType = 'ballerina-notebook';
     readonly label = 'Ballerina Notebook';
     readonly supportedLanguages = ['ballerina'];
 
     private ballerinaExtension: BallerinaExtension;
-    private readonly _controller: NotebookController;
-    private _executionOrder = 0;
+    private readonly controller: NotebookController;
+    private executionOrder = 0;
 
     constructor(extensionInstance: BallerinaExtension) {
         this.ballerinaExtension = extensionInstance;
-        this._controller = notebooks.createNotebookController(
+        this.controller = notebooks.createNotebookController(
             this.controllerId,
             this.notebookType,
             this.label
         );
 
-        this._controller.supportedLanguages = this.supportedLanguages;
-        this._controller.supportsExecutionOrder = true;
-        this._controller.executeHandler = this._execute.bind(this);
+        this.controller.supportedLanguages = this.supportedLanguages;
+        this.controller.supportsExecutionOrder = true;
+        this.controller.executeHandler = this.execute.bind(this);
     }
 
-    private _execute(cells: NotebookCell[], _notebook: NotebookDocument, 
-        _controller: NotebookController): void {
+    private execute(cells: NotebookCell[], _notebook: NotebookDocument, 
+        controller: NotebookController): void {
         for (let cell of cells) {
-            this._doExecution(cell);
+            this.doExecution(cell);
         }
     }
 
-    private async _doExecution(cell: NotebookCell): Promise<void> {
+    private async doExecution(cell: NotebookCell): Promise<void> {
         if (cell && cell.document && !cell.document.getText().trim()) {
             return;
         }
@@ -61,22 +62,37 @@ export class notebookController {
             return;
         }
         
-        const execution = this._controller.createNotebookCellExecution(cell);
-        execution.executionOrder = ++this._executionOrder;
+        const execution = this.controller.createNotebookCellExecution(cell);
+        execution.executionOrder = ++this.executionOrder;
         execution.start(Date.now());
-        
-        let output: ShellOutput = await langClient.getBalShellResult({
-            source: cell.document.getText().trim()
-        });
-        if (output.shellValue?.value) {
-            execution.replaceOutput([
-                new NotebookCellOutput([
-                    NotebookCellOutputItem.text(output.shellValue.value)
-                ])
-            ]);
+        try {
+            let output: BalShellResponse = await langClient.getBalShellResult({
+                source: cell.document.getText().trim()
+            });
+            execution.clearOutput();
+            if (output.diagnostics.length) {
+                output.diagnostics.forEach(diagnostic => 
+                        execution.appendOutput(new NotebookCellOutput([
+                            NotebookCellOutputItem.error(new Error(diagnostic))
+                        ]))
+                );
+                execution.end(false, Date.now());
+            }
+            else if (output.shellValue?.value) {
+                if (output.shellValue.mimeType == MIME_TYPE_TABLE) {
+                    execution.appendOutput([ new NotebookCellOutput([NotebookCellOutputItem.json(output, MIME_TYPE_TABLE)])]);
+                }
+                execution.appendOutput([ new NotebookCellOutput([NotebookCellOutputItem.text(output.shellValue.value)])]);
+                execution.end(true, Date.now());
+            } 
+            else {
+                execution.end(true, Date.now());
+            }
+        } catch (error) {
+            
+        } finally {
         }
         
-        execution.end(true, Date.now());
     }
 
 

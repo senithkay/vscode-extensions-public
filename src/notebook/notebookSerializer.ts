@@ -35,7 +35,7 @@ interface RawCellOutput {
     value: any
 }
 
-export class notebookSerializer implements NotebookSerializer {
+export class BallerinaNotebookSerializer implements NotebookSerializer {
     async deserializeNotebook(content: Uint8Array, _token: CancellationToken): Promise<NotebookData> {
         var contents = new TextDecoder().decode(content);
 
