@@ -158,7 +158,7 @@ export interface ShellValue {
     type: number
 }
 
-export interface ShellOutput {
+export interface BalShellResponse {
     shellValue?: ShellValue,
     errors: string[],
     diagnostics: string[]
@@ -552,7 +552,7 @@ export class ExtendedLangClient extends LanguageClient {
         return this.sendRequest(EXTENDED_APIS.JSON_TO_RECORD_CONVERT, params);
     }
 
-    getBalShellResult(params: BalShellRequest): Thenable<ShellOutput> {
+    getBalShellResult(params: BalShellRequest): Thenable<BalShellResponse> {
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.JSON_TO_RECORD_CONVERT)) {
             Promise.resolve(NOT_SUPPORTED);
         }
