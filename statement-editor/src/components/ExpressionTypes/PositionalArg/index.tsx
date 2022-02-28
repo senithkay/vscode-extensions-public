@@ -14,16 +14,14 @@
 import React, { ReactNode, useContext } from "react";
 
 import { PositionalArg } from "@wso2-enterprise/syntax-tree";
-import classNames from "classnames";
 
 import { DEFAULT_EXPRESSIONS } from "../../../constants";
 import { SuggestionItem, VariableUserInputs } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { SuggestionsContext } from "../../../store/suggestions-context";
-import { getSuggestionsBasedOnExpressionKind, isPositionsEquals } from "../../../utils";
+import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
 import { addStatementToTargetLine, getContextBasedCompletions } from "../../../utils/ls-utils";
 import { ExpressionComponent } from "../../Expression";
-import { useStatementEditorStyles } from "../../styles";
 
 interface PositionalArgProps {
     model: PositionalArg;
@@ -35,26 +33,11 @@ interface PositionalArgProps {
 export function PositionalArgComponent(props: PositionalArgProps) {
     const { model, userInputs, isElseIfMember, diagnosticHandler } = props;
     const stmtCtx = useContext(StatementEditorContext);
-    const { modelCtx } = stmtCtx;
-    const { currentModel } = modelCtx;
-    const hasExprSelected = currentModel.model &&
-        isPositionsEquals(currentModel.model.position, model.expression.position);
 
-    const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
     const { currentFile, getLangClient } = stmtCtx;
     const targetPosition = stmtCtx.formCtx.formModelPosition;
     const fileURI = `expr://${currentFile.path}`;
-
-    const expression: ReactNode = (
-        <ExpressionComponent
-            model={model.expression}
-            userInputs={userInputs}
-            isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
-            isTypeDescriptor={false}
-        />
-    );
 
     const onClickOnExpression = async (event: any) => {
         event.stopPropagation();
@@ -73,15 +56,16 @@ export function PositionalArgComponent(props: PositionalArgProps) {
         });
     };
 
-    return (
-        <button
-            className={classNames(
-                statementEditorClasses.expressionElement,
-                hasExprSelected && statementEditorClasses.expressionElementSelected
-            )}
-            onClick={onClickOnExpression}
-        >
-            {expression}
-        </button>
+    const expression: ReactNode = (
+        <ExpressionComponent
+            model={model.expression}
+            userInputs={userInputs}
+            isElseIfMember={isElseIfMember}
+            diagnosticHandler={diagnosticHandler}
+            isTypeDescriptor={false}
+            onSelect={onClickOnExpression}
+        />
     );
+
+    return expression;
 }

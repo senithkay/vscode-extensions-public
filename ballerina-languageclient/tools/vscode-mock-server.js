@@ -2,6 +2,7 @@ const express = require('express')
 const cors = require('cors')
 const bodyParser = require("body-parser")
 const { writeFileSync } = require("fs")
+const { getAllResources, getLibrariesList, getLibraryData } = require('../lib/library-browser/client');
 
 const app = express()
 const port = 3000
@@ -16,7 +17,7 @@ app.get('/file/*', (req, res) => {
   const filePathEncoded = req.params[0];
   const filePath = decodeURIComponent(filePathEncoded);
   res.sendFile(filePath);
-})
+});
 
 app.post('/file/*', (request,response) => {
   const body = request.body;
@@ -34,6 +35,31 @@ app.post('/file/*', (request,response) => {
   })
 });
 
+
+app.get('/libs/data', (req, res) => {
+  getAllResources().then((resp) => res.send(resp))
+    .catch((e) => { res.status(500).send({
+        message: e.message
+    })});
+});
+
+
+app.get('/libs/list', (req, res) => {
+  getLibrariesList(req.params[0]).then((resp) => res.send(resp))
+      .catch((e) => { res.status(500).send({
+        message: e.message
+      })});
+});
+
+app.post('/lib/data', (req, res) => {
+  const {orgName, moduleName, version } = req.body;
+  getLibraryData(orgName, moduleName, version).then((resp) => res.send(resp))
+      .catch((e) => { res.status(500).send({
+        message: e.message
+      })});
+});
+
+
 app.listen(port, () => {
   console.log(`VSCode mocker server listening at http://localhost:${port}`)
-})
+});

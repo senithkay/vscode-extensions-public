@@ -26,6 +26,11 @@ module.exports = {
   },
   webpackFinal: async (config, { configType }) => {
     config.module.rules.push({
+        test: /\.(js|mjs|jsx|ts|tsx)$/,
+        enforce: "pre",
+        use: ["source-map-loader"],
+    });
+    config.module.rules.push({
       test: /\.scss$/,
       use: ['style-loader', 'css-loader', 'sass-loader']
     });

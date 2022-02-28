@@ -33,15 +33,8 @@ export function CaptureBindingPatternComponent(props: CaptureBindingPatternProps
     const { model, userInputs, diagnosticHandler } = props;
     const stmtCtx = useContext(StatementEditorContext);
     const {
-        modelCtx: {
-            currentModel
-        }
     } = stmtCtx;
 
-    const hasVarNameSelected = currentModel.model &&
-        isPositionsEquals(currentModel.model.position, model.variableName.position);
-
-    const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
 
     const inputEditorProps = {
@@ -52,21 +45,7 @@ export function CaptureBindingPatternComponent(props: CaptureBindingPatternProps
         diagnosticHandler,
         isTypeDescriptor: false
     };
-
-    const onClickOnVarName = (event: any) => {
-        event.stopPropagation()
-        expressionHandler(model.variableName, false, false,
-            { expressionSuggestions: [], typeSuggestions: [], variableSuggestions: [] })
-    };
-
     return (
-        <button
-            className={classNames(
-                statementEditorClasses.expressionElement,
-                hasVarNameSelected && statementEditorClasses.expressionElementSelected)}
-            onClick={onClickOnVarName}
-        >
-            <InputEditor {...inputEditorProps} />
-        </button>
+        <InputEditor {...inputEditorProps} />
     );
 }
