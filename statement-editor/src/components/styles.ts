@@ -24,6 +24,9 @@ const syntaxHighlightingRules = {
     '& .string-literal, &.string-literal': {
         color: '#a31515'
     },
+    '& .boolean-literal, &.boolean-literal': {
+        color: '#dd0000'
+    },
     '& .operator, &.operator': {
         color: '#0000ff'
     },
