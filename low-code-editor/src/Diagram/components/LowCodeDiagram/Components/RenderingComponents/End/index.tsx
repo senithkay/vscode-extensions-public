@@ -171,18 +171,6 @@ export function End(props: EndProps) {
                     </>
                     ) : null
                 }
-                {
-                    viewState.hasSendLine && (
-                        <line
-                            style={{ stroke: '#5567D5', strokeWidth: 1 }}
-                            markerEnd="url(#arrowhead)"
-                            x1={viewState.sendLine.x}
-                            y1={viewState.sendLine.y}
-                            x2={viewState.sendLine.x + viewState.sendLine.w}
-                            y2={viewState.sendLine.y}
-                        />
-                    )
-                }
             </g >
         )
     );

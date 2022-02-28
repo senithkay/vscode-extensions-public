@@ -400,7 +400,6 @@ class SizingVisitor implements Visitor {
         this.syncAsyncStatements(node);
 
         if (bodyViewState.hasWorkerDecl) {
-
             let maxWorkerHeight = 0;
             Array.from(this.workerMap.keys()).forEach(key => {
                 const workerST = this.workerMap.get(key);
@@ -438,11 +437,17 @@ class SizingVisitor implements Visitor {
             })
             this.endVisitFunctionBodyBlock(body);
 
-            if (bodyViewState.bBox.h < maxWorkerHeight) {
-                bodyViewState.bBox.h += maxWorkerHeight - bodyViewState.bBox.h;
+            if (!bodyViewState.isEndComponentAvailable) {
+                if (bodyViewState.bBox.h < maxWorkerHeight) {
+                    bodyViewState.bBox.h += maxWorkerHeight - bodyViewState.bBox.h;
+                }
             }
 
             lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h;
+
+            if (bodyViewState.isEndComponentAvailable) {
+                lifeLine.h += (body.statements[body.statements.length - 1].viewState as ViewState).bBox.offsetFromTop;
+            }
 
             if (STKindChecker.isExpressionFunctionBody(body) || body.statements.length > 0) {
                 lifeLine.h += end.bBox.offsetFromTop;
@@ -658,6 +663,14 @@ class SizingVisitor implements Visitor {
 
         if (viewState.hasWorkerDecl) {
             index = this.initiateStatementSizing(node.namedWorkerDeclarator.workerInitStatements, index, viewState);
+            const plusBtnViewState = new PlusViewState();
+            plusBtnViewState.index = index + node.statements.length + 1;
+            plusBtnViewState.expanded = true;
+            plusBtnViewState.selectedComponent = "PROCESS";
+            plusBtnViewState.collapsedClicked = false;
+            plusBtnViewState.collapsedPlusDuoExpanded = false;
+            plusBtnViewState.isLast = true;
+            viewState.plusButtons.push(new PlusViewState())
         }
 
         this.beginSizingBlock(node, index);
@@ -1317,6 +1330,13 @@ class SizingVisitor implements Visitor {
                         index: (index - startIndex)
                     });
                 }
+            } else if (STKindChecker.isReturnStatement(statement) && STKindChecker.isWaitAction(statement.expression) &&
+                STKindChecker.isSimpleNameReference(statement.expression.waitFutureExpr)) {
+                this.addToSendReceiveMap('Wait', {
+                    for: statement.expression.waitFutureExpr.name.value,
+                    node: statement,
+                    index: (index - startIndex)
+                });
             }
 
 

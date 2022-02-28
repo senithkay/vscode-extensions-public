@@ -26,8 +26,6 @@ export class StatementViewState extends ViewState {
     public conditionAssignment: SimpleBBox = new SimpleBBox();
     public action: ActionViewState = new ActionViewState();
     public isReached: boolean;
-    public sendLine: SimpleBBox = new SimpleBBox();
-    hasSendLine: boolean;
 
     constructor() {
         super();

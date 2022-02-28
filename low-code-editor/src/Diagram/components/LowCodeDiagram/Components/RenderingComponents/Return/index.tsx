@@ -201,16 +201,6 @@ export function Return(props: ReturnProps) {
                     </g>
                 )}
             </>
-            {(model.viewState as StatementViewState).hasSendLine && (
-                <line
-                    style={{ stroke: '#5567D5', strokeWidth: 1 }}
-                    markerEnd="url(#arrowhead)"
-                    x1={model.viewState.sendLine.x - 20}
-                    y1={model.viewState.sendLine.y}
-                    x2={model.viewState.sendLine.x + model.viewState.sendLine.w}
-                    y2={model.viewState.sendLine.y}
-                />
-            )}
         </g>
     );
 }

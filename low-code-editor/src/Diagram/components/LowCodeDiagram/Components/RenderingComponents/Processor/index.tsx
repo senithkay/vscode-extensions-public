@@ -305,18 +305,6 @@ export function DataProcessor(props: ProcessorProps) {
                             methodCall={methodCallText}
                             key_id={getRandomInt(1000)}
                         />
-                        {
-                            processType === 'AsyncSend' && <>
-                                <line
-                                    style={{ stroke: '#5567D5', strokeWidth: 1 }}
-                                    markerEnd="url(#arrowhead)"
-                                    x1={viewState.sendLine.x}
-                                    y1={viewState.sendLine.y}
-                                    x2={viewState.sendLine.x + viewState.sendLine.w}
-                                    y2={viewState.sendLine.y}
-                                />
-                            </>
-                        }
                         {!isReadOnly && !isMutationProgress && !isWaitingOnWorkspace &&
                             <g
                                 className="process-options-wrapper"

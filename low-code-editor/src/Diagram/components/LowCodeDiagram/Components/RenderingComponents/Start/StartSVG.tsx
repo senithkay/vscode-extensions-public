@@ -50,7 +50,7 @@ export function StartSVG(props: { x: number, y: number, text: string }) {
                         <rect x="0.5" y="0.5" width="81" height="39" rx="19.5" fill="none" />
                     </g>
                 </g>
-                <text id="StartText" x="44" y="24" >
+                <text id="StartText" x="44" y="24" textAnchor="center">
                     <tspan className="start-text"> {text}  </tspan>
                 </text>
             </g>

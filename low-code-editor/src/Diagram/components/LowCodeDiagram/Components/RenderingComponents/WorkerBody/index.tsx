@@ -31,6 +31,7 @@ export function WorkerBody(props: DiagramProps) {
 
     const { model, viewState } = props;
     const pluses: React.ReactNode[] = [];
+    const workerArrows: React.ReactNode[] = [];
     let children: React.ReactNode[] = [];
     let drafts: React.ReactNode[] = [];
     const controlFlowLines: React.ReactNode[] = [];
@@ -50,6 +51,19 @@ export function WorkerBody(props: DiagramProps) {
         pluses.push(<PlusButton viewState={plusView} model={model} initPlus={false} />)
     }
 
+    for (const workerArrow of viewState.workerArrows) {
+        workerArrows.push(
+            <line
+                style={{ stroke: '#5567D5', strokeWidth: 1 }}
+                markerEnd="url(#arrowhead)"
+                x1={workerArrow.x}
+                y1={workerArrow.y}
+                x2={workerArrow.x + workerArrow.w}
+                y2={workerArrow.y}
+            />
+        )
+    }
+
     for (const executionTime of viewState?.controlFlow.executionTimeStates) {
         if (executionTime.value) {
             controlFlowExecutionTime.push(<ControlFlowExecutionTime x={executionTime.x} y={executionTime.y} value={executionTime.value} h={executionTime.h} />);
@@ -67,6 +81,7 @@ export function WorkerBody(props: DiagramProps) {
         <g>
             {controlFlowLines}
             {pluses}
+            {workerArrows}
             {children}
             {drafts}
             {controlFlowExecutionTime}

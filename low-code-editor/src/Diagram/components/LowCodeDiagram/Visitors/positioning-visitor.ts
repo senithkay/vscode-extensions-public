@@ -277,12 +277,12 @@ class PositioningVisitor implements Visitor {
         // Add the connector max width to the diagram width.
         // viewState.bBox.w = viewState.bBox.w + getMaXWidthOfConnectors(allEndpoints) + widthOfOnFailClause;
         this.currentWorker.pop();
-        this.updateSendArrowPositions();
+        this.updateSendArrowPositions(node);
         this.cleanMaps();
 
     }
 
-    private updateSendArrowPositions() {
+    private updateSendArrowPositions(node: FunctionDefinition) {
         const matchedStatements: SendRecievePairInfo[] = [];
 
         // pair up sends with corresponding receives
@@ -359,9 +359,13 @@ class PositioningVisitor implements Visitor {
         matchedStatements.forEach(matchedPair => {
             const sourceViewState = matchedPair.sourceViewState as StatementViewState;
             const targetViewState = matchedPair.targetViewState as StatementViewState;
-            sourceViewState.sendLine.x = sourceViewState.bBox.cx + (targetViewState.bBox.cx > sourceViewState.bBox.cx ? 49 / 2 : -49 / 2);
-            sourceViewState.sendLine.y = sourceViewState.bBox.cy + PROCESS_SVG_HEIGHT / 6;
-            sourceViewState.sendLine.w = targetViewState.bBox.cx - sourceViewState.bBox.cx + (targetViewState.bBox.cx > sourceViewState.bBox.cx ? -73.5 : 73.5);
+
+            const line = new SimpleBBox();
+            line.x = sourceViewState.bBox.cx + (targetViewState.bBox.cx > sourceViewState.bBox.cx ? 49 / 2 : -49 / 2);
+            line.y = sourceViewState.bBox.cy + PROCESS_SVG_HEIGHT / 6;
+            line.w = targetViewState.bBox.cx - sourceViewState.bBox.cx + (targetViewState.bBox.cx > sourceViewState.bBox.cx ? -73.5 : 73.5);
+
+            (node.functionBody.viewState as BlockViewState).workerArrows.push(line);
         });
 
     }
@@ -451,6 +455,15 @@ class PositioningVisitor implements Visitor {
                     + workerBodyViewState.bBox.w / 2;
                 workerDeclViewState.bBox.y = height;
             });
+
+            const plusForIndex = getPlusViewState(index + node.statements.length + 1, blockViewState.plusButtons)
+
+            if (plusForIndex) {
+                plusForIndex.bBox.cy = height === 0 ? PLUS_SVG_HEIGHT : height - DefaultConfig.offSet;
+                plusForIndex.bBox.cx = blockViewState.bBox.cx;
+
+
+            }
 
             height += PROCESS_SVG_HEIGHT + PLUS_SVG_HEIGHT;
         }
@@ -621,6 +634,13 @@ class PositioningVisitor implements Visitor {
                         index: (index)
                     });
                 }
+            } else if (STKindChecker.isReturnStatement(statement) && STKindChecker.isWaitAction(statement.expression) &&
+                STKindChecker.isSimpleNameReference(statement.expression.waitFutureExpr)) {
+                this.addToSendReceiveMap('Wait', {
+                    for: statement.expression.waitFutureExpr.name.value,
+                    node: statement,
+                    index: (index)
+                });
             }
 
             // Control flow execution time
