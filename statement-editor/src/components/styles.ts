@@ -22,7 +22,7 @@ const syntaxHighlightingRules = {
         color: '#128bdf'
     },
     '& .string-literal, &.string-literal': {
-        color: '#FF9D52'
+        color: '#a31515'
     },
     '& .operator, &.operator': {
         color: '#0000ff'
@@ -259,7 +259,7 @@ export const useStatementEditorStyles = makeStyles(() =>
         },
         expressionElementSelected: {
             '&': {
-                backgroundColor: '#ADD6FF80',
+                backgroundColor: '#b3d9ff',
             },
             '&.hovered': {
                 backgroundColor: '#e5ebf1',
