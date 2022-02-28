@@ -13,6 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useState } from "react";
 
+import { ClickAwayListener } from "@material-ui/core";
 import {
     CompletionParams,
     CompletionResponse,
@@ -285,14 +286,7 @@ export function InputEditor(props: InputEditorProps) {
 
     const inputEnterHandler = (event: React.KeyboardEvent<HTMLInputElement>) => {
         if (event.key === "Enter" || event.key === "Tab" || event.key === "Escape") {
-            setIsEditing(false);
-            if (userInput !== "") {
-                stmtCtx.modelCtx.updateModel(userInput, model ? model.position : targetPosition);
-                expressionHandler(model, false, false, { expressionSuggestions: [] });
-
-                const ignore = handleOnOutFocus();
-            }
-            getContextBasedCompletions(userInput);
+            handleEditEnd();
         }
     };
 
@@ -330,24 +324,37 @@ export function InputEditor(props: InputEditorProps) {
 
     const handleEditEnd = () => {
         setIsEditing(false);
+        if (userInput !== "") {
+            stmtCtx.modelCtx.updateModel(userInput, model ? model.position : targetPosition);
+            expressionHandler(model, false, false, { expressionSuggestions: [] });
+
+            const ignore = handleOnOutFocus();
+        }
+        getContextBasedCompletions(userInput);
     }
 
     return isEditing ?
         (
-            <input
-                value={placeHolders.indexOf(userInput) > -1 ? "" : userInput}
-                className={statementEditorClasses.inputEditorTemplate + ' ' + classNames}
-                onKeyDown={inputEnterHandler}
-                onInput={inputChangeHandler}
-                size={userInput.length}
-                autoFocus={true}
-                style={{ maxWidth: userInput === '' ? '10px' : 'fit-content' }}
-            />
+            <ClickAwayListener
+                mouseEvent="onMouseDown"
+                touchEvent="onTouchStart"
+                onClickAway={handleEditEnd}
+            >
+                <input
+                    value={placeHolders.indexOf(userInput) > -1 ? "" : userInput}
+                    className={statementEditorClasses.inputEditorTemplate + ' ' + classNames}
+                    onKeyDown={inputEnterHandler}
+                    onInput={inputChangeHandler}
+                    size={userInput.length}
+                    autoFocus={true}
+                    style={{ maxWidth: userInput === '' ? '10px' : 'fit-content' }}
+                    spellCheck="false"
+                />
+            </ClickAwayListener>
         ) : (
             <span
                 className={statementEditorClasses.inputEditorTemplate + ' ' + classNames}
                 onDoubleClick={handleDoubleClick}
-                onBlur={handleEditEnd}
             >
                 {placeHolders.indexOf(userInput) > -1 ? "<add-expression>" : userInput}
             </span>
