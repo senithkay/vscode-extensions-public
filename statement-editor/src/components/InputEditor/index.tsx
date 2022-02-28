@@ -92,47 +92,50 @@ export function InputEditor(props: InputEditorProps) {
 
     const statementEditorClasses = useStatementEditorStyles();
 
-    let literalModel: StringLiteral | NumericLiteral | SimpleNameReference | QualifiedNameReference;
-    let originalValue: any;
-    let kind: any;
+    const [originalValue, kind] = React.useMemo(() => {
+        let literalModel: StringLiteral | NumericLiteral | SimpleNameReference | QualifiedNameReference;
+        let source: string;
+        let nodeKind: string;
 
-    if (!model) {
-        originalValue = initialSource ? initialSource : '';
-    } else if (STKindChecker.isStringLiteral(model)) {
-        literalModel = model as StringLiteral;
-        kind = c.STRING_LITERAL;
-        originalValue = literalModel.literalToken.value;
-    } else if (STKindChecker.isNumericLiteral(model)) {
-        literalModel = model as NumericLiteral;
-        kind = c.NUMERIC_LITERAL;
-        originalValue = literalModel.literalToken.value;
-    } else if (STKindChecker.isIdentifierToken(model)) {
-        originalValue = model.value;
-    } else if (STKindChecker.isSimpleNameReference(model)) {
-        literalModel = model as SimpleNameReference;
-        kind = c.SIMPLE_NAME_REFERENCE;
-        originalValue = literalModel.name.value;
-    } else if (STKindChecker.isQualifiedNameReference(model)) {
-        literalModel = model as QualifiedNameReference;
-        kind = c.QUALIFIED_NAME_REFERENCE;
-        originalValue = `${literalModel.modulePrefix.value}${literalModel.colon.value}${literalModel.identifier.value}`;
-    } else if (STKindChecker.isBooleanLiteral(model)) {
-        literalModel = model as BooleanLiteral;
-        kind = c.BOOLEAN_LITERAL;
-        originalValue = literalModel.literalToken.value;
-    } else if ((STKindChecker.isStringTypeDesc(model)
-        || STKindChecker.isBooleanTypeDesc(model)
-        || STKindChecker.isDecimalTypeDesc(model)
-        || STKindChecker.isFloatTypeDesc(model)
-        || STKindChecker.isIntTypeDesc(model)
-        || STKindChecker.isJsonTypeDesc(model)
-        || STKindChecker.isVarTypeDesc(model))) {
-        originalValue = model.name.value;
-    } else if (isToken) {
-        originalValue = model.value;
-    } else {
-        originalValue = model.source;
-    }
+        if (!model) {
+            source = initialSource ? initialSource : '';
+        } else if (STKindChecker.isStringLiteral(model)) {
+            literalModel = model as StringLiteral;
+            nodeKind = c.STRING_LITERAL;
+            source = literalModel.literalToken.value;
+        } else if (STKindChecker.isNumericLiteral(model)) {
+            literalModel = model as NumericLiteral;
+            nodeKind = c.NUMERIC_LITERAL;
+            source = literalModel.literalToken.value;
+        } else if (STKindChecker.isIdentifierToken(model)) {
+            source = model.value;
+        } else if (STKindChecker.isSimpleNameReference(model)) {
+            literalModel = model as SimpleNameReference;
+            nodeKind = c.SIMPLE_NAME_REFERENCE;
+            source = literalModel.name.value;
+        } else if (STKindChecker.isQualifiedNameReference(model)) {
+            literalModel = model as QualifiedNameReference;
+            nodeKind = c.QUALIFIED_NAME_REFERENCE;
+            source = `${literalModel.modulePrefix.value}${literalModel.colon.value}${literalModel.identifier.value}`;
+        } else if (STKindChecker.isBooleanLiteral(model)) {
+            literalModel = model as BooleanLiteral;
+            nodeKind = c.BOOLEAN_LITERAL;
+            source = literalModel.literalToken.value;
+        } else if ((STKindChecker.isStringTypeDesc(model)
+            || STKindChecker.isBooleanTypeDesc(model)
+            || STKindChecker.isDecimalTypeDesc(model)
+            || STKindChecker.isFloatTypeDesc(model)
+            || STKindChecker.isIntTypeDesc(model)
+            || STKindChecker.isJsonTypeDesc(model)
+            || STKindChecker.isVarTypeDesc(model))) {
+            source = model.name.value;
+        } else if (isToken) {
+            source = model.value;
+        } else {
+            source = model.source;
+        }
+        return [source, nodeKind];
+    }, [model])
 
     const [userInput, setUserInput] = useState<string>(originalValue);
     const [prevUserInput, setPrevUserInput] = useState<string>(userInput);
