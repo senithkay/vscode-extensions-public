@@ -176,7 +176,8 @@ export const useStatementEditorStyles = makeStyles(() =>
         },
         suggestionsInner: {
             overflowY: 'scroll',
-            padding: theme.spacing(1.5)
+            padding: theme.spacing(1.5),
+            height: '100%'
         },
         contextSensitivePane: {
             display: 'flex',
@@ -239,14 +240,12 @@ export const useStatementEditorStyles = makeStyles(() =>
             letterSpacing: 0,
             lineHeight: '24px',
             '&:hover': {
-                backgroundColor: '#d7dcfc',
-                color: '#fff'
+                backgroundColor: 'rgba(173, 214, 255, 0.3)',
             }
         },
         expressionElementSelected: {
-            backgroundColor: '#5567D5',
-            color: '#fff',
-            border: '1px solid #5567D5',
+            backgroundColor: '#add6ff',
+            border: '1px solid #add6ff',
         },
         inputEditorTemplate: {
             minWidth: '20px',
@@ -259,10 +258,6 @@ export const useStatementEditorStyles = makeStyles(() =>
             marginTop: '1px',
             borderRadius: '5px',
             border: '1px',
-            '&:hover': {
-                backgroundColor: '#d7dcfc',
-                color: '#fff'
-            },
             '&:focus': {
                 outline: 'none'
             }
@@ -320,8 +315,7 @@ export const useStatementEditorStyles = makeStyles(() =>
             marginLeft: '2px',
             fontSize: '12px',
             '&:hover': {
-                backgroundColor: '#5567D5',
-                color: '#fff'
+                backgroundColor: 'rgba(173, 214, 255, 0.3)'
             }
         },
         mainExpStatementWrapper: {
@@ -334,9 +328,20 @@ export const useStatementEditorStyles = makeStyles(() =>
         },
         libraryBlock: {
             position: 'relative',
-            height: '40vh',
+            height: '100%',
             overflowY: 'scroll',
-            overflowX: 'hidden'
+            overflowX: 'hidden',
+            paddingRight: '5px',
+        },
+        libraryListBlock: {
+            position: 'relative',
+            height: '100%',
+            overflowY: 'scroll',
+            overflowX: 'hidden',
+            paddingRight: '5px',
+            columnGap: '6%',
+            display: 'grid',
+            gridTemplateColumns: '47% 47%'
         },
         librarySearchBox: {
             position: 'relative',
@@ -378,7 +383,8 @@ export const useStatementEditorStyles = makeStyles(() =>
             letterSpacing: 0,
             lineHeight: '12px',
             paddingTop: '10px',
-            paddingBottom: '10px'
+            paddingBottom: '10px',
+            marginBottom: '5px'
         },
         libraryElementBlock: {
             position: 'relative',
@@ -394,7 +400,10 @@ export const useStatementEditorStyles = makeStyles(() =>
             top: '10%',
             height: '80%',
             overflowY: 'scroll',
-            overflowX: 'hidden'
+            overflowX: 'hidden',
+            columnGap: '6%',
+            display: 'grid',
+            gridTemplateColumns: '29% 29% 29%'
         },
         libraryListButton: {
             border: 'none',
@@ -406,7 +415,7 @@ export const useStatementEditorStyles = makeStyles(() =>
         },
         lsSuggestionList: {
             top: '5%',
-            height: '70%',
+            height: '95%',
             overflowY: 'scroll',
             overflowX: 'hidden',
         },
@@ -416,10 +425,12 @@ export const useStatementEditorStyles = makeStyles(() =>
             overflowX: 'hidden',
         },
         suggestionListItem: {
-            padding: '0px',
+            padding: '0 0 0 2%',
             '&:hover': {
-                backgroundColor: '#8e9bdc',
-                color: 'white'
+                backgroundColor: 'rgba(173, 214, 255, 0.3)',
+            },
+            '&:focus': {
+                backgroundColor: '#add6ff'
             }
         },
         suggestionDataType: {
@@ -519,6 +530,11 @@ export const useStatementEditorStyles = makeStyles(() =>
             fontSize: '12px',
             fontWeight: 'normal',
             padding: theme.spacing(1.5)
+        },
+        expressionList: {
+            columnGap: '6%',
+            display: 'grid',
+            gridTemplateColumns: '47% 47%'
         },
     }),
 );
