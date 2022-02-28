@@ -12,17 +12,18 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useRef, useState } from "react"
-import classNames from "classnames";
 
 import { ConfigurableIcon, DeleteButton, EditButton, ModuleVariableIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { CaptureBindingPattern, ModuleVarDecl, QualifiedNameReference, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import classNames from "classnames";
 
 import { Context } from "../../../Context/diagram";
 import { ModuleIcon } from "../Connector/ConnectorHeader/ModuleIcon";
+
+import "./style.scss";
 // import Tooltip from "../../../../../../components/Tooltip";
 // import { Tooltip } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
-import "./style.scss";
 
 export const MODULE_VAR_MARGIN_LEFT: number = 24.5;
 export const MODULE_VAR_PLUS_OFFSET: number = 7.5;
