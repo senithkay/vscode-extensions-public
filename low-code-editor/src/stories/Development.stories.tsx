@@ -2,10 +2,11 @@ import React from 'react';
 
 import { storiesOf } from '@storybook/react';
 
+import { DiagramGeneratorProps } from '../DiagramGenerator';
+
 import devProject from "./data/devproject.json";
 import { DiagramGeneratorWrapper } from './DiagramGeneratorWrapper';
 import { getFileContent, getLibrariesData, getLibrariesList, getLibraryData, langClientPromise, updateFileContent } from './story-utils';
-import { DiagramGeneratorProps } from '../DiagramGenerator';
 
 const stories = storiesOf('Low Code Editor/Development/project', module);
 
