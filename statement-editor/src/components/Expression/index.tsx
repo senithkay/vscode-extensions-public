@@ -17,7 +17,7 @@ import cn from "classnames";
 
 import { VariableUserInputs } from "../../models/definitions";
 import { StatementEditorContext } from "../../store/statement-editor-context";
-import { getExpressionTypeComponent, isPositionsEquals } from "../../utils";
+import {getExpressionTypeComponent, getRemainingContent, isPositionsEquals} from "../../utils";
 import { useStatementEditorStyles } from "../styles";
 
 export interface ExpressionComponentProps {
@@ -40,6 +40,7 @@ export function ExpressionComponent(props: ExpressionComponentProps) {
 
     const { modelCtx } = useContext(StatementEditorContext);
     const {
+        statementModel: completeModel,
         currentModel: selectedModel,
         updateModel
     } = modelCtx;
@@ -70,7 +71,11 @@ export function ExpressionComponent(props: ExpressionComponentProps) {
 
     const onClickOnClose = (event: any) => {
         event.stopPropagation();
-        updateModel('', model.position);
+        const {
+            code: newCode,
+            position: newPosition
+        } = getRemainingContent(model.position, completeModel);
+        updateModel(newCode, newPosition);
     }
 
     return (

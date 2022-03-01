@@ -22,7 +22,8 @@ import {
 import * as expressionTypeComponents from '../components/ExpressionTypes';
 import * as statementTypeComponents from '../components/Statements';
 import * as c from "../constants";
-import { SuggestionItem, VariableUserInputs } from '../models/definitions';
+import { RemainingContent, SuggestionItem, VariableUserInputs } from '../models/definitions';
+import { visitor as ExpressionDeletingVisitor } from "../visitors/expression-deleting-visitor";
 import { visitor as ModelFindingVisitor } from "../visitors/model-finding-visitor";
 
 import { createImportStatement, createStatement, updateStatement } from "./statement-modifications";
@@ -149,6 +150,13 @@ export function getCurrentModel(position: NodePosition, model: STNode): STNode {
     traversNode(model, ModelFindingVisitor);
 
     return ModelFindingVisitor.getModel();
+}
+
+export function getRemainingContent(position: NodePosition, model: STNode): RemainingContent {
+    ExpressionDeletingVisitor.setPosition(position);
+    traversNode(model, ExpressionDeletingVisitor);
+
+    return ExpressionDeletingVisitor.getContent();
 }
 
 export function isPositionsEquals(position1: NodePosition, position2: NodePosition): boolean {

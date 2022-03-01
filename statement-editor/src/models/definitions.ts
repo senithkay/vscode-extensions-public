@@ -11,6 +11,8 @@
  * associated services.
  */
 
+import {NodePosition} from "@wso2-enterprise/syntax-tree";
+
 export interface VariableUserInputs {
     selectedType: string
     otherType?: string
@@ -23,4 +25,9 @@ export interface SuggestionItem {
     value: string,
     kind?: string,
     suggestionType?: number
+}
+
+export interface RemainingContent {
+    code: string,
+    position: NodePosition
 }
