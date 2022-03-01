@@ -10,6 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+// tslint:disable: jsx-no-multiline-js
 import React, { useContext } from "react";
 
 import { STNode } from "@wso2-enterprise/syntax-tree";
@@ -17,7 +18,8 @@ import cn from "classnames";
 
 import { VariableUserInputs } from "../../models/definitions";
 import { StatementEditorContext } from "../../store/statement-editor-context";
-import {getExpressionTypeComponent, getRemainingContent, isPositionsEquals} from "../../utils";
+import { getExpressionTypeComponent, getRemainingContent, isPositionsEquals } from "../../utils";
+import DeleteButton from "../Button/DeleteButton";
 import { useStatementEditorStyles } from "../styles";
 
 export interface ExpressionComponentProps {
@@ -69,8 +71,7 @@ export function ExpressionComponent(props: ExpressionComponentProps) {
         }
     }
 
-    const onClickOnClose = (event: any) => {
-        event.stopPropagation();
+    const onClickOnClose = () => {
         const {
             code: newCode,
             position: newPosition
@@ -93,12 +94,11 @@ export function ExpressionComponent(props: ExpressionComponentProps) {
             onClick={onMouseClick}
         >
             {component}
-            <button
-                className="expressionElementCloseButton"
-                onClick={onClickOnClose}
-            >
-                x
-            </button>
+            {isSelected && (
+                <div className={statementEditorClasses.expressionDeleteButton}>
+                    <DeleteButton onClick={onClickOnClose} />
+                </div>
+            )}
             {children}
         </span>
     );

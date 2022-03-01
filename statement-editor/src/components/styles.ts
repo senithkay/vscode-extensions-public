@@ -250,34 +250,40 @@ export const useStatementEditorStyles = makeStyles(() =>
             position: 'relative',
             width: 'fit-content',
             margin: '0 2px 0 2px',
-            '& .expressionElementCloseButton': {
-                display: 'none',
-                boxSizing: 'border-box',
-                border: '1px solid #A6B3FF',
-                borderRadius: '2px',
-                position: 'relative',
-                width: '10px',
-                backgroundColor: '#000000',
-                color: '#ffffff',
-                fontSize: '7px',
-                '&:hover': {
-                    backgroundColor: '#00ff00',
-                    color: '#fff'
-                }
-            },
             '&': {
                 width: 'fit-content',
                 padding: '4px',
                 borderRadius: '4px',
             },
             '&.hovered': {
-                backgroundColor: '#e5ebf1',
-                "& .expressionElementCloseButton": {
-                    display: 'inline',
-                }
+                backgroundColor: '#e5ebf1'
             },
             cursor: "pointer",
             ...syntaxHighlightingRules
+        },
+        expressionElementCloseButton: {
+            display: 'inline',
+            boxSizing: 'border-box',
+            border: '1px solid #A6B3FF',
+            borderRadius: '2px',
+            position: 'relative',
+            width: '10px',
+            backgroundColor: '#000000',
+            color: '#ffffff',
+            fontSize: '7px',
+            '&:hover': {
+                backgroundColor: '#00ff00',
+                color: '#fff'
+            }
+        },
+        expressionDeleteButton: {
+            display: 'inline',
+            position: 'absolute',
+            marginLeft: '-12px',
+            marginTop: '-20px',
+            "& .MuiIconButton-root": {
+                padding: theme.spacing(0.25),
+            }
         },
         expressionElementSelected: {
             '&': {
