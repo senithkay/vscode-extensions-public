@@ -39,7 +39,10 @@ export function ExpressionComponent(props: ExpressionComponentProps) {
     const [isHovered, setHovered] = React.useState(false);
 
     const { modelCtx } = useContext(StatementEditorContext);
-    const { currentModel: selectedModel } = modelCtx;
+    const {
+        currentModel: selectedModel,
+        updateModel
+    } = modelCtx;
 
     const statementEditorClasses = useStatementEditorStyles();
 
