@@ -3,7 +3,7 @@ const cors = require('cors')
 const bodyParser = require("body-parser")
 const { writeFileSync } = require("fs")
 const path = require('path');
-const { getAllResources, getLibrariesList, getLibraryData } = require('../lib/library-browser/client');
+const { getAllResources, getLibrariesList, getLibraryData } = require('../../ballerina-languageclient/lib/library-browser/client');
 
 const app = express()
 const port = 3000
