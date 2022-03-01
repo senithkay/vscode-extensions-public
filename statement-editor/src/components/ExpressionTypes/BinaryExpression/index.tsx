@@ -58,35 +58,6 @@ export function BinaryExpressionComponent(props: BinaryProps) {
     const targetPosition = stmtCtx.formCtx.formModelPosition;
     const fileURI = `expr://${currentFile.path}`;
 
-    const lhs: ReactNode = (
-        <ExpressionComponent
-            model={model.lhsExpr}
-            userInputs={userInputs}
-            isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
-            isTypeDescriptor={false}
-        />
-    );
-    const rhs: ReactNode = (
-        <ExpressionComponent
-            model={model.rhsExpr}
-            userInputs={userInputs}
-            isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
-            isTypeDescriptor={false}
-        />
-    );
-
-    const operator: ReactNode = (
-        <ExpressionComponent
-            model={model.operator}
-            userInputs={userInputs}
-            isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
-            isTypeDescriptor={false}
-        />
-    );
-
     const kind = getKindBasedOnOperator(model.operator.kind);
 
     const onClickOperator = (event: any) => {
@@ -132,35 +103,43 @@ export function BinaryExpressionComponent(props: BinaryProps) {
         });
     };
 
+    const lhs: ReactNode = (
+        <ExpressionComponent
+            model={model.lhsExpr}
+            userInputs={userInputs}
+            isElseIfMember={isElseIfMember}
+            diagnosticHandler={diagnosticHandler}
+            isTypeDescriptor={false}
+            onClickOnExpr={onClickOnLhsExpression}
+        />
+    );
+    const rhs: ReactNode = (
+        <ExpressionComponent
+            model={model.rhsExpr}
+            userInputs={userInputs}
+            isElseIfMember={isElseIfMember}
+            diagnosticHandler={diagnosticHandler}
+            isTypeDescriptor={false}
+            onClickOnExpr={onClickOnRhsExpression}
+        />
+    );
+
+    const operator: ReactNode = (
+        <ExpressionComponent
+            model={model.operator}
+            userInputs={userInputs}
+            isElseIfMember={isElseIfMember}
+            diagnosticHandler={diagnosticHandler}
+            isTypeDescriptor={false}
+            onClickOnExpr={onClickOperator}
+        />
+    );
+
     return (
         <span>
-            <button
-                className={classNames(
-                    statementEditorClasses.expressionElement,
-                    hasLHSSelected && statementEditorClasses.expressionElementSelected
-                )}
-                onClick={onClickOnLhsExpression}
-            >
-                {lhs}
-            </button>
-            <button
-                className={classNames(
-                    statementEditorClasses.expressionElement,
-                    hasOperatorSelected && statementEditorClasses.expressionElementSelected
-                )}
-                onClick={onClickOperator}
-            >
-                {operator}
-            </button>
-            <button
-                className={classNames(
-                    statementEditorClasses.expressionElement,
-                    hasRHSSelected && statementEditorClasses.expressionElementSelected
-                )}
-                onClick={onClickOnRhsExpression}
-            >
-                {rhs}
-            </button>
+            {lhs}
+            {operator}
+            {rhs}
         </span>
     );
 }

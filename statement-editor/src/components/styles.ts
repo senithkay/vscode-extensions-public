@@ -238,9 +238,27 @@ export const useStatementEditorStyles = makeStyles(() =>
             fontSize: '12px',
             letterSpacing: 0,
             lineHeight: '24px',
+            '& .expressionElementCloseButton': {
+                display: 'none',
+                boxSizing: 'border-box',
+                border: '1px solid #A6B3FF',
+                borderRadius: '2px',
+                position: 'relative',
+                width: '10px',
+                backgroundColor: '#000000',
+                color: '#ffffff',
+                fontSize: '7px',
+                '&:hover': {
+                    backgroundColor: '#00ff00',
+                    color: '#fff'
+                }
+            },
             '&:hover': {
                 backgroundColor: '#d7dcfc',
-                color: '#fff'
+                color: '#fff',
+                "& .expressionElementCloseButton": {
+                    display: 'inline',
+                }
             }
         },
         expressionElementSelected: {
