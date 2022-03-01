@@ -210,7 +210,7 @@ class SizingVisitor implements Visitor {
 
         // If body has no statements and doesn't have a end component
         // Add the plus button to show up on the start end
-        if (!bodyViewState.isEndComponentAvailable && body.statements.length <= 0) {
+        if (!bodyViewState.isEndComponentAvailable && body.statements.length <= 0 && !body.namedWorkerDeclarator) {
             const plusBtnViewState: PlusViewState = new PlusViewState();
             if (!bodyViewState.draft && !viewState.initPlus) {
                 plusBtnViewState.index = body.statements.length;
@@ -292,7 +292,7 @@ class SizingVisitor implements Visitor {
 
         // If body has no statements and doesn't have a end component
         // Add the plus button to show up on the start end
-        if (!bodyViewState.isEndComponentAvailable && body.statements.length <= 0) {
+        if (!bodyViewState.isEndComponentAvailable && body.statements.length <= 0 && !body.namedWorkerDeclarator) {
             const plusBtnViewState: PlusViewState = new PlusViewState();
             if (!bodyViewState.draft && !viewState.initPlus) {
                 plusBtnViewState.index = body.statements.length;
@@ -348,7 +348,7 @@ class SizingVisitor implements Visitor {
 
         // If body has no statements and doesn't have a end component
         // Add the plus button to show up on the start end
-        if (!bodyViewState.isEndComponentAvailable && body.statements.length <= 0) {
+        if (!bodyViewState.isEndComponentAvailable && body.statements.length <= 0 && !body.namedWorkerDeclarator) {
             const plusBtnViewState: PlusViewState = new PlusViewState();
             if (!bodyViewState.draft && !viewState.initPlus) {
                 plusBtnViewState.index = body.statements.length;
@@ -383,7 +383,7 @@ class SizingVisitor implements Visitor {
 
         lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h;
 
-        if (STKindChecker.isExpressionFunctionBody(body) || body.statements.length > 0) {
+        if (STKindChecker.isExpressionFunctionBody(body) || body.statements.length > 0 || body.namedWorkerDeclarator) {
             lifeLine.h += end.bBox.offsetFromTop;
         }
 
@@ -410,14 +410,12 @@ class SizingVisitor implements Visitor {
                 const workerTrigger = workerVS.trigger;
                 this.endVisitBlockStatement(workerST.workerBody, workerST);
 
-                workerLifeLine.h = workerTrigger.offsetFromBottom + workerBodyVS.bBox.h
-                    + (workerBodyVS.isEndComponentAvailable ? 0 : workerVS.end.bBox.offsetFromTop);
+                workerLifeLine.h = workerTrigger.offsetFromBottom + workerBodyVS.bBox.h;
 
-                if (!workerBodyVS.isEndComponentAvailable
-                    && (STKindChecker.isExpressionFunctionBody(body) || body.statements.length > 0)) {
+                if (!workerBodyVS.isEndComponentAvailable) {
                     workerLifeLine.h += end.bBox.offsetFromTop;
                 } else {
-                    workerLifeLine.h -= end.bBox.offsetFromBottom * 2;
+                    workerLifeLine.h -= DefaultConfig.offSet * 2; // ToDo: Figure out where this went wrong
                 }
 
                 workerVS.bBox.h = workerLifeLine.h + workerTrigger.h + end.bBox.h + DefaultConfig.serviceVerticalPadding * 2
@@ -450,7 +448,7 @@ class SizingVisitor implements Visitor {
                 lifeLine.h += (body.statements[body.statements.length - 1].viewState as ViewState).bBox.offsetFromTop;
             }
 
-            if (STKindChecker.isExpressionFunctionBody(body) || body.statements.length > 0) {
+            if (STKindChecker.isExpressionFunctionBody(body) || body.statements.length > 0 || body.namedWorkerDeclarator) {
                 lifeLine.h += end.bBox.offsetFromTop;
             }
 
@@ -1042,7 +1040,7 @@ class SizingVisitor implements Visitor {
         end.bBox.w = STOP_SVG_WIDTH;
         end.bBox.h = STOP_SVG_HEIGHT;
 
-        lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h;
+        lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h + end.bBox.offsetFromTop;
 
         if (!bodyViewState.isEndComponentAvailable
             && (STKindChecker.isExpressionFunctionBody(body) || body.statements.length > 0)) {
@@ -1229,14 +1227,6 @@ class SizingVisitor implements Visitor {
                     width = draft.bBox.w;
                 }
             }
-        }
-
-        if (blockViewState.hasWorkerDecl) {
-            let maxWorkerHeight = 0;
-            (node as FunctionBodyBlock).namedWorkerDeclarator.namedWorkerDeclarations.forEach(workerDecl => {
-                maxWorkerHeight = maxWorkerHeight < workerDecl.viewState.bBox.h && workerDecl.viewState.bBox.h
-            })
-
         }
 
         if (height > 0) {

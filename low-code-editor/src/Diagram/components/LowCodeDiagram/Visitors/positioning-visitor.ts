@@ -250,7 +250,7 @@ class PositioningVisitor implements Visitor {
 
         // If body has no statements and doesn't have a end component
         // Add the plus button to show up on the start end
-        if (!bodyViewState.isEndComponentAvailable && body.statements.length <= 0) {
+        if (!bodyViewState.isEndComponentAvailable && body.statements.length <= 0 && !body.namedWorkerDeclarator) {
             const plusBtnViewState: PlusViewState = viewState.initPlus;
             if (bodyViewState.draft === undefined && plusBtnViewState) {
                 plusBtnViewState.bBox.cx = viewState.trigger.cx - (BIGPLUS_SVG_WIDTH / 2);
@@ -393,7 +393,7 @@ class PositioningVisitor implements Visitor {
 
         // If body has no statements and doesn't have a end component
         // Add the plus button to show up on the start end
-        if (!bodyViewState.isEndComponentAvailable && body.statements.length <= 0) {
+        if (!bodyViewState.isEndComponentAvailable && body.statements.length <= 0 && !body.namedWorkerDeclarator) {
             const plusBtnViewState: PlusViewState = viewState.initPlus;
             if (bodyViewState.draft === undefined && plusBtnViewState) {
                 plusBtnViewState.bBox.cx = viewState.trigger.cx - (BIGPLUS_SVG_WIDTH / 2);
@@ -421,7 +421,7 @@ class PositioningVisitor implements Visitor {
 
         // If body has no statements and doesn't have a end component
         // Add the plus button to show up on the start end
-        if (!bodyViewState.isEndComponentAvailable && body.statements.length <= 0) {
+        if (!bodyViewState.isEndComponentAvailable && body.statements.length <= 0 && !body.namedWorkerDeclarator) {
             const plusBtnViewState: PlusViewState = viewState.initPlus;
             if (bodyViewState.draft === undefined && plusBtnViewState) {
                 plusBtnViewState.bBox.cx = viewState.trigger.cx - (BIGPLUS_SVG_WIDTH / 2);
@@ -467,8 +467,6 @@ class PositioningVisitor implements Visitor {
             if (plusForIndex) {
                 plusForIndex.bBox.cy = height === 0 ? PLUS_SVG_HEIGHT : height - DefaultConfig.offSet;
                 plusForIndex.bBox.cx = blockViewState.bBox.cx;
-
-
             }
 
             height += PROCESS_SVG_HEIGHT + PLUS_SVG_HEIGHT;
