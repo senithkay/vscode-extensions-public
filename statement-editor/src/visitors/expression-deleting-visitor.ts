@@ -33,10 +33,10 @@ class ExpressionDeletingVisitor implements Visitor {
         const lhsPosition = node.lhsExpr.position;
         const operatorPosition = node.operator.position;
         const rhsPosition = node.rhsExpr.position;
-        this.newDeletePosition = node.position;
 
         if (isPositionsEquals(this.deletePosition, lhsPosition)) {
             this.codeAfterDeletion = node.rhsExpr.source;
+            this.newDeletePosition = node.position;
         } else if (isPositionsEquals(this.deletePosition, operatorPosition) ||
                     isPositionsEquals(this.deletePosition, rhsPosition)) {
             this.codeAfterDeletion = node.lhsExpr.source;
@@ -44,12 +44,16 @@ class ExpressionDeletingVisitor implements Visitor {
     }
 
     public beginVisitFieldAccess(node: FieldAccess) {
+        const exprPosition = node.expression.position;
         const dotTokenPosition = node.dotToken.position;
         const fieldNamePosition = node.fieldName.position;
-        this.newDeletePosition = node.position;
 
-        if (isPositionsEquals(this.deletePosition, dotTokenPosition)) {
+        if (isPositionsEquals(this.deletePosition, exprPosition)) {
+            this.codeAfterDeletion = `${DEFAULT_EXPR}`;
+            this.newDeletePosition = node.position;
+        } else if (isPositionsEquals(this.deletePosition, dotTokenPosition)) {
             this.codeAfterDeletion = node.expression.source;
+            this.newDeletePosition = node.position;
         } else if (isPositionsEquals(this.deletePosition, fieldNamePosition)) {
             this.codeAfterDeletion = `${DEFAULT_EXPR}`;
             this.newDeletePosition = node.fieldName.position;
@@ -57,12 +61,16 @@ class ExpressionDeletingVisitor implements Visitor {
     }
 
     public beginVisitOptionalFieldAccess(node: OptionalFieldAccess) {
+        const exprPosition = node.expression.position;
         const optionalChainingTokenPosition = node.optionalChainingToken.position;
         const fieldNamePosition = node.fieldName.position;
-        this.newDeletePosition = node.position;
 
-        if (isPositionsEquals(this.deletePosition, optionalChainingTokenPosition)) {
+        if (isPositionsEquals(this.deletePosition, exprPosition)) {
+            this.codeAfterDeletion = `${DEFAULT_EXPR}`;
+            this.newDeletePosition = node.position;
+        } else if (isPositionsEquals(this.deletePosition, optionalChainingTokenPosition)) {
             this.codeAfterDeletion = node.expression.source;
+            this.newDeletePosition = node.position;
         } else if (isPositionsEquals(this.deletePosition, fieldNamePosition)) {
             this.codeAfterDeletion = `${DEFAULT_EXPR}`;
             this.newDeletePosition = node.fieldName.position;
