@@ -27,7 +27,9 @@ export const StatementEditorContext = React.createContext({
         currentModel: null,
         updateModel: (codeSnippet: string, position: NodePosition) => {},
         undo: () => undefined,
-        redo: () => undefined
+        redo: () => undefined,
+        hasUndo: false,
+        hasRedo: false
     },
     formCtx: {
         formModelPosition: null
@@ -62,7 +64,9 @@ interface CtxProviderProps extends LowCodeEditorProps {
     validateStatement: (isValid: boolean) => void,
     initialSource: string,
     undo?: () => void,
-    redo?: () => void
+    redo?: () => void,
+    hasUndo?: boolean,
+    hasRedo?: boolean
 }
 
 export const StatementEditorContextProvider = (props: CtxProviderProps) => {
@@ -74,6 +78,8 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
         updateModel,
         undo,
         redo,
+        hasRedo,
+        hasUndo,
         formArgs,
         validateStatement,
         library,
@@ -100,7 +106,9 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
                     currentModel,
                     updateModel,
                     undo,
-                    redo
+                    redo,
+                    hasRedo,
+                    hasUndo,
                 },
                 formCtx: {
                     formModelPosition: formArgs.formArgs.targetPosition

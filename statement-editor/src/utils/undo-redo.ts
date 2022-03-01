@@ -81,6 +81,14 @@ export class StmtEditorUndoRedoManager {
         }
     }
 
+    public hasUndo() {
+        return !this.undoStack.isEmpty();
+    }
+
+    public hasRedo() {
+        return !this.redoStack.isEmpty();
+    }
+
     public getRedoModel() {
         if (!this.redoStack.isEmpty()) {
             const element = this.redoStack.remove();

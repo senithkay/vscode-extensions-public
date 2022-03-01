@@ -204,6 +204,8 @@ export function StatementEditor(props: StatementEditorProps) {
                     initialSource={initialSource}
                     undo={undo}
                     redo={redo}
+                    hasRedo={undoRedoManager.hasRedo()}
+                    hasUndo={undoRedoManager.hasUndo()}
                 >
                     <ViewContainer
                         label={label}
