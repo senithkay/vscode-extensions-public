@@ -261,7 +261,7 @@ export function DataProcessor(props: ProcessorProps) {
             <g>
                 <g className={processWrapper} data-testid="data-processor-block" z-index="1000" target-line={model?.position.startLine}>
                     <React.Fragment>
-                        {(processType !== "Log" && processType !== "Call") && !isDraftStatement &&
+                        {(processType !== "Log" && processType !== "Call" && processType !== "AsyncSend") && !isDraftStatement &&
                             <>
                                 {statmentTypeText &&
                                     <>
