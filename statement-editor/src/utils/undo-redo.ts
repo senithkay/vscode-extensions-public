@@ -18,7 +18,7 @@ interface StmtActionStackItem {
     newModel: STNode;
 }
 
-class StatementSTStack {
+class StmtActionStack {
 
     private items : StmtActionStackItem[];
 
@@ -56,16 +56,21 @@ class StatementSTStack {
 // tslint:disable-next-line: max-classes-per-file
 export class StmtEditorUndoRedoManager {
 
-    private undoStack: StatementSTStack;
-    private redoStack: StatementSTStack;
+    private undoStack: StmtActionStack;
+    private redoStack: StmtActionStack;
 
     constructor() {
-        this.undoStack = new StatementSTStack();
-        this.redoStack = new StatementSTStack();
+        this.undoStack = new StmtActionStack();
+        this.redoStack = new StmtActionStack();
     }
 
     public add(oldModel: STNode, newModel: STNode) {
         this.undoStack.add({ oldModel, newModel});
+        // Reset redo stack when new actions are performed.
+        // Otherwise history will be confusing for the user.
+        // We need to fork history from this point to handle it if needed.
+        // But it goes beyond the requirement here.
+        this.redoStack.clear();
     }
 
     public getUndoModel() {
