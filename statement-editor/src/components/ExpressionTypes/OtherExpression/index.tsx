@@ -39,8 +39,8 @@ export function OtherExpressionComponent(props: OtherExpressionProps) {
     };
 
     return (
-        <button className={statementEditorClasses.expressionElement}>
+        <span className={statementEditorClasses.expressionElement}>
             <InputEditor {...inputEditorProps} />
-        </button>
+        </span>
     );
 }

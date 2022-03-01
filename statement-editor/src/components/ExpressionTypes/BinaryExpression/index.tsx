@@ -14,7 +14,6 @@
 import React, { ReactNode, useContext } from "react";
 
 import { BinaryExpression } from "@wso2-enterprise/syntax-tree";
-import classNames from "classnames";
 
 import { DEFAULT_EXPRESSIONS } from "../../../constants";
 import { SuggestionItem, VariableUserInputs } from "../../../models/definitions";
@@ -24,14 +23,12 @@ import {
     getKindBasedOnOperator,
     getOperatorSuggestions,
     getSuggestionsBasedOnExpressionKind,
-    isPositionsEquals
 } from "../../../utils";
 import {
     addStatementToTargetLine,
     getContextBasedCompletions
 } from "../../../utils/ls-utils";
 import { ExpressionComponent } from "../../Expression";
-import { useStatementEditorStyles } from "../../styles";
 
 interface BinaryProps {
     model: BinaryExpression;
@@ -44,15 +41,7 @@ export function BinaryExpressionComponent(props: BinaryProps) {
     const { model, userInputs, isElseIfMember, diagnosticHandler } = props;
     const stmtCtx = useContext(StatementEditorContext);
     const { modelCtx } = stmtCtx;
-    const { currentModel } = modelCtx;
-    const hasLHSSelected = currentModel.model &&
-        isPositionsEquals(currentModel.model.position, model.lhsExpr.position);
-    const hasOperatorSelected = currentModel.model &&
-        isPositionsEquals(currentModel.model.position, model.operator.position);
-    const hasRHSSelected = currentModel.model &&
-        isPositionsEquals(currentModel.model.position, model.rhsExpr.position);
 
-    const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
     const { currentFile, getLangClient } = stmtCtx;
     const targetPosition = stmtCtx.formCtx.formModelPosition;
@@ -110,7 +99,7 @@ export function BinaryExpressionComponent(props: BinaryProps) {
             isElseIfMember={isElseIfMember}
             diagnosticHandler={diagnosticHandler}
             isTypeDescriptor={false}
-            onClickOnExpr={onClickOnLhsExpression}
+            onSelect={onClickOnLhsExpression}
         />
     );
     const rhs: ReactNode = (
@@ -120,7 +109,7 @@ export function BinaryExpressionComponent(props: BinaryProps) {
             isElseIfMember={isElseIfMember}
             diagnosticHandler={diagnosticHandler}
             isTypeDescriptor={false}
-            onClickOnExpr={onClickOnRhsExpression}
+            onSelect={onClickOnRhsExpression}
         />
     );
 
@@ -131,7 +120,8 @@ export function BinaryExpressionComponent(props: BinaryProps) {
             isElseIfMember={isElseIfMember}
             diagnosticHandler={diagnosticHandler}
             isTypeDescriptor={false}
-            onClickOnExpr={onClickOperator}
+            onSelect={onClickOperator}
+            classNames="operator"
         />
     );
 

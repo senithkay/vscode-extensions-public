@@ -10,11 +10,10 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js
-import React, {useContext} from "react";
+import React, { useContext } from "react";
 
 import { STNode } from "@wso2-enterprise/syntax-tree";
-import classNames from "classnames";
+import cn from "classnames";
 
 import { VariableUserInputs } from "../../models/definitions";
 import { StatementEditorContext } from "../../store/statement-editor-context";
@@ -27,23 +26,44 @@ export interface ExpressionComponentProps {
     isElseIfMember: boolean;
     diagnosticHandler: (diagnostics: string) => void;
     isTypeDescriptor: boolean;
-    onClickOnExpr?: (event: any) => void;
+    onSelect?: (event: React.MouseEvent) => void;
+    children?: React.ReactElement[];
+    classNames?: string;
 }
 
 export function ExpressionComponent(props: ExpressionComponentProps) {
-    const { model, userInputs, isElseIfMember, diagnosticHandler, isTypeDescriptor, onClickOnExpr } = props;
-
-    const statementEditorClasses = useStatementEditorStyles();
-    const stmtCtx = useContext(StatementEditorContext);
-    const { modelCtx: {
-        currentModel,
-        updateModel
-    } } = stmtCtx;
-
-    const hasExpressionSelected = currentModel.model &&
-        isPositionsEquals(currentModel.model.position, model.position);
+    const { model, userInputs, isElseIfMember, diagnosticHandler, isTypeDescriptor, onSelect, children, classNames } = props;
 
     const component = getExpressionTypeComponent(model, userInputs, isElseIfMember, diagnosticHandler, isTypeDescriptor);
+
+    const [isHovered, setHovered] = React.useState(false);
+
+    const { modelCtx } = useContext(StatementEditorContext);
+    const { currentModel: selectedModel } = modelCtx;
+
+    const statementEditorClasses = useStatementEditorStyles();
+
+    const isSelected = selectedModel.model && model && isPositionsEquals(selectedModel.model.position, model.position);
+
+    const onMouseOver = (e: React.MouseEvent) => {
+        setHovered(true);
+        e.stopPropagation();
+        e.preventDefault();
+    }
+
+    const onMouseOut = (e: React.MouseEvent) => {
+        setHovered(false);
+        e.stopPropagation();
+        e.preventDefault();
+    }
+
+    const onMouseClick = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        e.preventDefault();
+        if (onSelect) {
+            onSelect(e);
+        }
+    }
 
     const onClickOnClose = (event: any) => {
         event.stopPropagation();
@@ -51,22 +71,27 @@ export function ExpressionComponent(props: ExpressionComponentProps) {
     }
 
     return (
-        <span>
+        <span
+            onMouseOver={onMouseOver}
+            onMouseOut={onMouseOut}
+            // tslint:disable-next-line: jsx-no-multiline-js
+            className={cn(statementEditorClasses.expressionElement,
+                isSelected && statementEditorClasses.expressionElementSelected,
+                {
+                    "hovered": !isSelected && isHovered,
+                },
+                classNames
+            )}
+            onClick={onMouseClick}
+        >
+            {component}
             <button
-                className={classNames(
-                    statementEditorClasses.expressionElement,
-                    hasExpressionSelected && statementEditorClasses.expressionElementSelected
-                )}
-                onClick={onClickOnExpr}
+                className="expressionElementCloseButton"
+                onClick={onClickOnClose}
             >
-                {component}
-                <button
-                    className="expressionElementCloseButton"
-                    onClick={onClickOnClose}
-                >
-                    x
-                </button>
+                x
             </button>
+            {children}
         </span>
     );
 }
