@@ -36,6 +36,8 @@ export function NumericLiteralComponent(props: NumericLiteralProps) {
     };
 
     return (
-        <InputEditor {...inputEditorProps} />
+        <span className="numeric-literal">
+            <InputEditor {...inputEditorProps} />
+        </span>
     );
 }

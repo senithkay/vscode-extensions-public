@@ -14,6 +14,27 @@
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 import { theme } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 
+const syntaxHighlightingRules = {
+    '& .type-descriptor, &.type-descriptor': {
+        color: '#008080'
+    },
+    '& .numeric-literal, &.numeric-literal': {
+        color: '#128bdf'
+    },
+    '& .string-literal, &.string-literal': {
+        color: '#a31515'
+    },
+    '& .boolean-literal, &.boolean-literal': {
+        color: '#dd0000'
+    },
+    '& .operator, &.operator': {
+        color: '#0000ff'
+    },
+    '& .keyword, &.keyword': {
+        color: '#0000ff'
+    }
+}
+
 export const useStatementEditorStyles = makeStyles(() =>
     createStyles({
         mainStatementWrapper: {
@@ -68,6 +89,8 @@ export const useStatementEditorStyles = makeStyles(() =>
         statementExpressionContent: {
             paddingTop: theme.spacing(1.5),
             paddingBottom: theme.spacing(1),
+            fontSize: "18px",
+            'user-select': 'none'
         },
         expressionSugession: {
             padding: theme.spacing(1.5),
@@ -176,7 +199,8 @@ export const useStatementEditorStyles = makeStyles(() =>
         },
         suggestionsInner: {
             overflowY: 'scroll',
-            padding: theme.spacing(1.5)
+            padding: theme.spacing(1.5),
+            height: '100%'
         },
         contextSensitivePane: {
             display: 'flex',
@@ -214,55 +238,42 @@ export const useStatementEditorStyles = makeStyles(() =>
         },
         expressionBlock: {
             position: 'relative',
-            paddingRight: '10px'
+            paddingRight: '10px',
+            ...syntaxHighlightingRules
         },
         expressionBlockDisabled: {
             height: '24px',
             width: '15px',
-            fontFamily: "Droid Sans Mono",
-            fontSize: '12px',
             letterSpacing: 0,
-            lineHeight: '24px',
         },
         expressionElement: {
-            boxSizing: 'border-box',
-            border: '1px solid #A6B3FF',
-            borderRadius: '8px',
             position: 'relative',
             width: 'fit-content',
-            backgroundColor: '#ffffff',
-            marginLeft: '2px',
-            marginTop: '1px',
-            fontFamily: "Droid Sans Mono",
-            color: '#0095FF',
-            fontSize: '12px',
-            letterSpacing: 0,
-            lineHeight: '24px',
-            '&:hover': {
-                backgroundColor: '#d7dcfc',
-                color: '#fff'
-            }
+            margin: '0 2px 0 2px',
+            '&': {
+                width: 'fit-content',
+                padding: '4px',
+                borderRadius: '4px',
+            },
+            '&.hovered': {
+                backgroundColor: '#e5ebf1',
+            },
+            cursor: "pointer",
+            ...syntaxHighlightingRules
         },
         expressionElementSelected: {
-            backgroundColor: '#5567D5',
-            color: '#fff',
-            border: '1px solid #5567D5',
+            '&': {
+                backgroundColor: '#b3d9ff',
+            },
+            '&.hovered': {
+                backgroundColor: '#e5ebf1',
+            },
         },
         inputEditorTemplate: {
             minWidth: '20px',
-            fontSize: '13px',
             letterSpacing: 0,
-            display: 'inline-block',
-            lineHeight: '24px',
             position: 'relative',
-            marginLeft: '2px',
-            marginTop: '1px',
-            borderRadius: '5px',
-            border: '1px',
-            '&:hover': {
-                backgroundColor: '#d7dcfc',
-                color: '#fff'
-            },
+            border: 'none',
             '&:focus': {
                 outline: 'none'
             }
@@ -315,13 +326,12 @@ export const useStatementEditorStyles = makeStyles(() =>
             position: 'relative',
             width: 'fit-content',
             backgroundColor: '#F0F1FB',
-            fontFamily: "Droid Sans Mono",
+            fontFamily: "monospace",
             color: '#0095FF',
             marginLeft: '2px',
             fontSize: '12px',
             '&:hover': {
-                backgroundColor: '#5567D5',
-                color: '#fff'
+                backgroundColor: 'rgba(173, 214, 255, 0.3)'
             }
         },
         mainExpStatementWrapper: {
@@ -334,9 +344,20 @@ export const useStatementEditorStyles = makeStyles(() =>
         },
         libraryBlock: {
             position: 'relative',
-            height: '40vh',
+            height: '100%',
             overflowY: 'scroll',
-            overflowX: 'hidden'
+            overflowX: 'hidden',
+            paddingRight: '5px',
+        },
+        libraryListBlock: {
+            position: 'relative',
+            height: '100%',
+            overflowY: 'scroll',
+            overflowX: 'hidden',
+            paddingRight: '5px',
+            columnGap: '6%',
+            display: 'grid',
+            gridTemplateColumns: '47% 47%'
         },
         librarySearchBox: {
             position: 'relative',
@@ -378,7 +399,8 @@ export const useStatementEditorStyles = makeStyles(() =>
             letterSpacing: 0,
             lineHeight: '12px',
             paddingTop: '10px',
-            paddingBottom: '10px'
+            paddingBottom: '10px',
+            marginBottom: '5px'
         },
         libraryElementBlock: {
             position: 'relative',
@@ -394,7 +416,10 @@ export const useStatementEditorStyles = makeStyles(() =>
             top: '10%',
             height: '80%',
             overflowY: 'scroll',
-            overflowX: 'hidden'
+            overflowX: 'hidden',
+            columnGap: '6%',
+            display: 'grid',
+            gridTemplateColumns: '29% 29% 29%'
         },
         libraryListButton: {
             border: 'none',
@@ -406,7 +431,7 @@ export const useStatementEditorStyles = makeStyles(() =>
         },
         lsSuggestionList: {
             top: '5%',
-            height: '70%',
+            height: '95%',
             overflowY: 'scroll',
             overflowX: 'hidden',
         },
@@ -416,10 +441,12 @@ export const useStatementEditorStyles = makeStyles(() =>
             overflowX: 'hidden',
         },
         suggestionListItem: {
-            padding: '0px',
+            padding: '0 0 0 2%',
             '&:hover': {
-                backgroundColor: '#8e9bdc',
-                color: 'white'
+                backgroundColor: 'rgba(173, 214, 255, 0.3)',
+            },
+            '&:focus': {
+                backgroundColor: '#add6ff'
             }
         },
         suggestionDataType: {
@@ -519,6 +546,11 @@ export const useStatementEditorStyles = makeStyles(() =>
             fontSize: '12px',
             fontWeight: 'normal',
             padding: theme.spacing(1.5)
+        },
+        expressionList: {
+            columnGap: '6%',
+            display: 'grid',
+            gridTemplateColumns: '47% 47%'
         },
     }),
 );

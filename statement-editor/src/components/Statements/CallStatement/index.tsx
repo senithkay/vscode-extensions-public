@@ -15,10 +15,7 @@ import React, { ReactNode, useContext } from "react";
 import { CallStatement } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
-import { DEFAULT_EXPRESSIONS } from "../../../constants";
 import { VariableUserInputs } from "../../../models/definitions";
-import { SuggestionsContext } from "../../../store/suggestions-context";
-import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
 import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
 
@@ -33,7 +30,6 @@ export function CallStatementC(props: CallStatementProps) {
     const { model, userInputs, isElseIfMember, diagnosticHandler } = props;
 
     const statementEditorClasses = useStatementEditorStyles();
-    const { expressionHandler } = useContext(SuggestionsContext);
 
     const expressionComponent: ReactNode = (
         <ExpressionComponent
@@ -44,12 +40,6 @@ export function CallStatementC(props: CallStatementProps) {
             isTypeDescriptor={false}
         />
     );
-
-    const onClickOnExpression = (event: any) => {
-        event.stopPropagation()
-        expressionHandler(model.expression, false, false,
-            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) })
-    };
 
     return (
         <span>

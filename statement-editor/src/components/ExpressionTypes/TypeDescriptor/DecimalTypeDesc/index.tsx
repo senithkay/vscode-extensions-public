@@ -36,7 +36,8 @@ export function DecimalTypeDescComponent(props: DecimalTypeDescProps) {
         expressionHandler,
         userInputs,
         diagnosticHandler,
-        isTypeDescriptor
+        isTypeDescriptor,
+        classNames: "type-descriptor decimal"
     };
 
     return (

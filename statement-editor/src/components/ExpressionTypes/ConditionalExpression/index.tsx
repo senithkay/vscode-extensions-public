@@ -35,50 +35,12 @@ interface ConditionalExpressionProps {
 export function ConditionalExpressionComponent(props: ConditionalExpressionProps) {
     const { model, userInputs, isElseIfMember, diagnosticHandler } = props;
     const stmtCtx = useContext(StatementEditorContext);
-    const { modelCtx } = stmtCtx;
-    const { currentModel } = modelCtx;
-    const hasLHSSelected = currentModel.model &&
-        isPositionsEquals(currentModel.model.position, model.lhsExpression.position);
-    const hasMiddleExprSelected = currentModel.model &&
-        isPositionsEquals(currentModel.model.position, model.middleExpression.position);
-    const hasEndExprSelected = currentModel.model &&
-        isPositionsEquals(currentModel.model.position, model.endExpression.position);
 
     const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
     const { currentFile, getLangClient } = stmtCtx;
     const targetPosition = stmtCtx.formCtx.formModelPosition;
     const fileURI = `expr://${currentFile.path}`;
-
-    const lhsExpression: ReactNode = (
-        <ExpressionComponent
-            model={model.lhsExpression}
-            userInputs={userInputs}
-            isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
-            isTypeDescriptor={false}
-        />
-    );
-
-    const middleExpression: ReactNode = (
-        <ExpressionComponent
-            model={model.middleExpression}
-            userInputs={userInputs}
-            isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
-            isTypeDescriptor={false}
-        />
-    );
-
-    const endExpression: ReactNode = (
-        <ExpressionComponent
-            model={model.endExpression}
-            userInputs={userInputs}
-            isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
-            isTypeDescriptor={false}
-        />
-    );
 
     const onClickOnLhsExpression = async (event: any) => {
         event.stopPropagation();
@@ -131,52 +93,62 @@ export function ConditionalExpressionComponent(props: ConditionalExpressionProps
         });
     };
 
+    const lhsExpression: ReactNode = (
+        <ExpressionComponent
+            model={model.lhsExpression}
+            userInputs={userInputs}
+            isElseIfMember={isElseIfMember}
+            diagnosticHandler={diagnosticHandler}
+            isTypeDescriptor={false}
+            onSelect={onClickOnLhsExpression}
+        />
+    );
+
+    const middleExpression: ReactNode = (
+        <ExpressionComponent
+            model={model.middleExpression}
+            userInputs={userInputs}
+            isElseIfMember={isElseIfMember}
+            diagnosticHandler={diagnosticHandler}
+            isTypeDescriptor={false}
+            onSelect={onClickOnMiddleExpression}
+        />
+    );
+
+    const endExpression: ReactNode = (
+        <ExpressionComponent
+            model={model.endExpression}
+            userInputs={userInputs}
+            isElseIfMember={isElseIfMember}
+            diagnosticHandler={diagnosticHandler}
+            isTypeDescriptor={false}
+            onSelect={onClickOnEndExpression}
+        />
+    );
+
     return (
         <span>
-            <button
-                className={classNames(
-                    statementEditorClasses.expressionElement,
-                    hasLHSSelected && statementEditorClasses.expressionElementSelected
-                )}
-                onClick={onClickOnLhsExpression}
-            >
-                {lhsExpression}
-            </button>
+            {lhsExpression}
             <span
                 className={classNames(
                     statementEditorClasses.expressionBlock,
-                    statementEditorClasses.expressionBlockDisabled
+                    statementEditorClasses.expressionBlockDisabled,
+                    "operator"
                 )}
             >
                 &nbsp;{model.questionMarkToken.value}
             </span>
-            <button
-                className={classNames(
-                    statementEditorClasses.expressionElement,
-                    hasMiddleExprSelected && statementEditorClasses.expressionElementSelected
-                )}
-                onClick={onClickOnMiddleExpression}
-            >
-                {middleExpression}
-            </button>
+            {middleExpression}
             <span
                 className={classNames(
                     statementEditorClasses.expressionBlock,
-                    statementEditorClasses.expressionBlockDisabled
+                    statementEditorClasses.expressionBlockDisabled,
+                    "operator"
                 )}
             >
                 &nbsp;{model.colonToken.value}
             </span>
-            <button
-                className={classNames(
-                    statementEditorClasses.expressionElement,
-                    hasEndExprSelected && statementEditorClasses.expressionElementSelected
-                )}
-                onClick={onClickOnEndExpression}
-            >
-                {endExpression}
-            </button>
-
+            {endExpression}
         </span>
     );
 }

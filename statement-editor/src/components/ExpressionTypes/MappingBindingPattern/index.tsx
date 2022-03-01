@@ -60,13 +60,13 @@ export function MappingBindingPatternComponent(props: MappingBindingPatternProps
     };
 
     return (
-        <button
+        <span
             className={classNames(
                 statementEditorClasses.expressionElement,
                 hasBindingPatternSelected && statementEditorClasses.expressionElementSelected)}
             onClick={onClickOnBindingPattern}
         >
             <InputEditor {...inputEditorProps} />
-        </button>
+        </span>
     );
 }

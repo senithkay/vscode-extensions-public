@@ -36,7 +36,8 @@ export function BooleanTypeDescComponent(props: BooleanTypeDescProps) {
         expressionHandler,
         userInputs,
         diagnosticHandler,
-        isTypeDescriptor
+        isTypeDescriptor,
+        classNames: "type-descriptor boolean"
     };
 
     return (
