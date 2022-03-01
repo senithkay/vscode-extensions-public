@@ -12,7 +12,9 @@
  */
 import {
     BinaryExpression,
+    FieldAccess,
     NodePosition,
+    OptionalFieldAccess,
     STNode,
     Visitor
 } from "@wso2-enterprise/syntax-tree";
@@ -20,31 +22,64 @@ import {
 import { RemainingContent } from "../models/definitions";
 import { isPositionsEquals } from "../utils";
 
+const DEFAULT_EXPR = "EXPRESSION";
+
 class ExpressionDeletingVisitor implements Visitor {
     private deletePosition: NodePosition;
     private newDeletePosition: NodePosition;
-    private codeAfterDeletion: string;
+    private codeAfterDeletion: string = DEFAULT_EXPR;
 
     public beginVisitBinaryExpression(node: BinaryExpression) {
         const lhsPosition = node.lhsExpr.position;
         const operatorPosition = node.operator.position;
         const rhsPosition = node.rhsExpr.position;
+        this.newDeletePosition = node.position;
 
-        if (isPositionsEquals(lhsPosition, this.deletePosition)) {
-            this.codeAfterDeletion = `${node.operator.value}${node.rhsExpr.source}`;
-            this.newDeletePosition = node.position;
-        }
-
-        if (isPositionsEquals(operatorPosition, this.deletePosition)) {
+        if (isPositionsEquals(this.deletePosition, lhsPosition)) {
+            this.codeAfterDeletion = node.rhsExpr.source;
+        } else if (isPositionsEquals(this.deletePosition, operatorPosition) ||
+                    isPositionsEquals(this.deletePosition, rhsPosition)) {
             this.codeAfterDeletion = node.lhsExpr.source;
-            this.newDeletePosition = node.position;
-        }
-
-        if (isPositionsEquals(rhsPosition, this.deletePosition)) {
-            this.codeAfterDeletion = node.lhsExpr.source;
-            this.newDeletePosition = node.position;
         }
     }
+
+    public beginVisitFieldAccess(node: FieldAccess) {
+        const dotTokenPosition = node.dotToken.position;
+        const fieldNamePosition = node.fieldName.position;
+        this.newDeletePosition = node.position;
+
+        if (isPositionsEquals(this.deletePosition, dotTokenPosition)) {
+            this.codeAfterDeletion = node.expression.source;
+        } else if (isPositionsEquals(this.deletePosition, fieldNamePosition)) {
+            this.codeAfterDeletion = `${DEFAULT_EXPR}`;
+            this.newDeletePosition = node.fieldName.position;
+        }
+    }
+
+    public beginVisitOptionalFieldAccess(node: OptionalFieldAccess) {
+        const optionalChainingTokenPosition = node.optionalChainingToken.position;
+        const fieldNamePosition = node.fieldName.position;
+        this.newDeletePosition = node.position;
+
+        if (isPositionsEquals(this.deletePosition, optionalChainingTokenPosition)) {
+            this.codeAfterDeletion = node.expression.source;
+        } else if (isPositionsEquals(this.deletePosition, fieldNamePosition)) {
+            this.codeAfterDeletion = `${DEFAULT_EXPR}`;
+            this.newDeletePosition = node.fieldName.position;
+        }
+    }
+
+    // public beginVisitMethodCallExpression(node: MethodCall) {
+    //     const dotTokenPosition = node.dotToken.position;
+    //     const fieldNamePosition = node.fieldName.position;
+    //     this.newDeletePosition = node.position;
+    //
+    //     if (isPositionsEquals(this.deletePosition, dotTokenPosition)) {
+    //         this.codeAfterDeletion = node.expression.source;
+    //     } else if (isPositionsEquals(this.deletePosition, fieldNamePosition)) {
+    //         this.codeAfterDeletion = `${node.expression.source}${node.dotToken.value}`;
+    //     }
+    // }
 
     public beginVisitSTNode(node: STNode, parent?: STNode) {
         // To be implemented
