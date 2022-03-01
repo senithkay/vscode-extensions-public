@@ -1,4 +1,4 @@
-FROM linuxserver/code-server:version-v3.12.0
+FROM linuxserver/code-server:version-v4.0.2
 
 ARG GIT_PAT
 
@@ -8,7 +8,7 @@ ARG GIT_PAT
 # ARG CHOREO_SESSION_COOKIE
 ARG mainHtml=/usr/local/share/.config/yarn/global/node_modules/code-server/src/browser/pages/vscode.html
 ARG webViewMain=/usr/local/share/.config/yarn/global/node_modules/code-server/vendor/modules/code-oss-dev/out/vs/workbench/contrib/webview/browser/pre/main.js
-ARG CODE_SERVER_VERSION=3.12.0
+ARG CODE_SERVER_VERSION=4.0.2
 
 ENV LOW_CODE_MODE true
 ENV CODE_SERVER_ENV true
