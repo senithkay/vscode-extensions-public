@@ -40,7 +40,7 @@ export class RecordForm {
     }
 
     static typeRecordName(name: string) {
-        const clearKeyStroke = Cypress.platform == "darwin" ? "{selectall}{del}{esc}" : "{ctrl}a{del}{esc}";
+        const clearKeyStroke = "{selectall}{del}{esc}";
         this.getForm().get('[placeholder="Record name"]')
             .type(clearKeyStroke)
             .type(name);
