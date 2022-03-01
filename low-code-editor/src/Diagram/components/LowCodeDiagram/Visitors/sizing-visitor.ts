@@ -30,13 +30,11 @@ import {
     OnFailClause,
     ResourceAccessorDefinition,
     ServiceDeclaration,
-    SimpleNameReference,
     STKindChecker,
     STNode,
     TypeDefinition,
-    Visitor, WaitAction, WhileStatement
+    Visitor, WhileStatement
 } from "@wso2-enterprise/syntax-tree";
-import { debug } from "webpack";
 
 import { isVarTypeDescriptor } from "../../../utils/diagram-util";
 import expandTracker from "../../../utils/expand-tracker";
@@ -70,7 +68,6 @@ import { ServiceViewState } from "../ViewState/service";
 import { WhileViewState } from "../ViewState/while";
 import { WorkerDeclarationViewState } from "../ViewState/worker-declaration";
 
-import { workerSyncVisitor } from "./worker-sync-visitor";
 
 let allEndpoints: Map<string, Endpoint> = new Map<string, Endpoint>();
 
