@@ -63,7 +63,7 @@ export function ProcessForm(props: ProcessFormProps) {
             type: "",
             expression: ""
         };
-    } else if (formType === "Call" || formType === "Custom") {
+    } else if (formType === "Call" || formType === "Custom" || formType === "AssignmentStatement") {
         config.config = {
             expression: ""
         };

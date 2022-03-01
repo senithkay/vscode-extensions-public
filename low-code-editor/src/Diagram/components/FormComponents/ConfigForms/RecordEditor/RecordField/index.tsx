@@ -234,12 +234,22 @@ export function RecordField(props: CodePanelProps) {
     };
 
     const handleFieldEditorChange = (event: any) => {
-        const isNameAlreadyExists = state.currentRecord.fields.find(field => (field.name === event.target.value)) &&
-            !(state.currentField?.name === event.target.value);
+        let isNameAlreadyExists;
+        if (keywords.includes(event.target.value)) {
+            // Add ' character when we have a keyword to check whether it is existing
+            isNameAlreadyExists = state.currentRecord.fields.find(field => (field.name === `'${event.target.value}`)) &&
+                !(state.currentField?.name === `'${event.target.value}`);
+        } else {
+            isNameAlreadyExists = state.currentRecord.fields.find(field => (field.name === event.target.value)) &&
+                !(state.currentField?.name === event.target.value);
+        }
         if (event.key === 'Enter') {
             if (!event.target.value) {
                 state.currentField.name = genRecordName("fieldName", getFieldNames(state.currentRecord.fields));
                 state.currentField.isNameInvalid = false;
+            }
+            if (keywords.includes(event.target.value)) {
+                state.currentField.name = `'${event.target.value}`;
             }
             if (state.currentField.isNameInvalid || !state.currentField.type ||
                 state.currentField.isTypeInvalid) {
@@ -262,12 +272,8 @@ export function RecordField(props: CodePanelProps) {
             state.currentField.isNameInvalid = true;
             callBacks.updateEditorValidity(state.currentField.isNameInvalid ||
                 state.currentField.isValueInvalid);
-        } else if (keywords.includes(event.target.value)) {
-            setFieldNameError("Keyword are not allowed");
-            state.currentField.isNameInvalid = true;
-            callBacks.updateEditorValidity(state.currentField.isNameInvalid ||
-                state.currentField.isValueInvalid);
-        } else if ((event.target.value !== "") && !nameRegex.test(event.target.value)) {
+        } else if ((event.target.value !== "") && !nameRegex.test(event.target.value)
+            && !keywords.includes(event.target.value.replace("'", ""))) {
             setFieldNameError("Invalid name");
             state.currentField.isNameInvalid = true;
             callBacks.updateEditorValidity(state.currentField.isNameInvalid ||

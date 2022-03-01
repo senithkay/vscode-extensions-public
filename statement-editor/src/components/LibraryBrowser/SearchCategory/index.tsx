@@ -13,6 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React from 'react';
 
+import { List } from "@material-ui/core";
 import { ModuleProperty } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import classNames from "classnames";
 
@@ -38,15 +39,16 @@ export function SearchCategory(props: SearchCategoryProps) {
             >
                 {label}
             </div>
-            <div className={statementEditorClasses.libraryElementBlockContent}>
+            <List className={statementEditorClasses.libraryElementBlockContent}>
                 {searchResult.map((property: ModuleProperty, index: number) => (
                     <ModuleElement
                         moduleProperty={property}
                         key={index}
                         isFunction={label === 'Functions'}
+                        label={label}
                     />
                 ))}
-            </div>
+            </List>
             <div className={statementEditorClasses.propertyDivider} />
         </div>
     );

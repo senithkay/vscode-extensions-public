@@ -75,13 +75,14 @@ export function VariableSuggestions(props: VariableSuggestionsProps) {
                                         key={index}
                                         onClick={() => onClickVariableSuggestion(suggestion)}
                                         className={statementEditorClasses.suggestionListItem}
+                                        disableRipple={true}
                                     >
                                         <ListItemIcon
                                             className={getSuggestionIconStyle(suggestion.suggestionType)}
                                             style={{ minWidth: '8%', textAlign: 'left' }}
                                         />
                                         <ListItemText
-                                            style={{ width: '70%' }}
+                                            style={{ flex: 'none', maxWidth: '80%' }}
                                             primary={(
                                                 <Typography className={statementEditorClasses.suggestionValue}>
                                                     {suggestion.value}
@@ -89,7 +90,7 @@ export function VariableSuggestions(props: VariableSuggestionsProps) {
                                             )}
                                         />
                                         <ListItemText
-                                            style={{ width: '30%', marginLeft: '8px' }}
+                                            style={{ minWidth: '10%', marginLeft: '8px' }}
                                             primary={(
                                                 <Typography className={statementEditorClasses.suggestionDataType}>{
                                                     suggestion.kind}

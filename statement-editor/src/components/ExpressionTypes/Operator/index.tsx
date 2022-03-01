@@ -71,7 +71,8 @@ export function OperatorComponent(props: OperatorProps) {
         userInputs,
         diagnosticHandler,
         isTypeDescriptor,
-        isToken: true
+        isToken: true,
+        classNames: "operator"
     };
 
     return (

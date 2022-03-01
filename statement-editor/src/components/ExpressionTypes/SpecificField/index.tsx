@@ -41,48 +41,12 @@ export function SpecificFieldComponent(props: SpecificFieldProps) {
     const { currentModel } = modelCtx;
     const hasFieldNameSelected = currentModel.model &&
         isPositionsEquals(currentModel.model.position, model.fieldName.position);
-    const hasValueExprSelected = currentModel.model &&
-        isPositionsEquals(currentModel.model.position, model.valueExpr.position);
 
     const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
     const { currentFile, getLangClient } = stmtCtx;
     const targetPosition = stmtCtx.formCtx.formModelPosition;
     const fileURI = `expr://${currentFile.path}`;
-    let fieldName: ReactNode;
-
-    if (STKindChecker.isIdentifierToken(model.fieldName)) {
-        const inputEditorProps = {
-            statementType: model.kind,
-            model: model.fieldName,
-            expressionHandler,
-            userInputs,
-            diagnosticHandler,
-            isTypeDescriptor
-        };
-
-        fieldName =  <InputEditor {...inputEditorProps} />
-    } else {
-        fieldName = (
-            <ExpressionComponent
-                model={model.fieldName}
-                userInputs={userInputs}
-                isElseIfMember={isElseIfMember}
-                diagnosticHandler={diagnosticHandler}
-                isTypeDescriptor={false}
-            />
-        );
-    }
-
-    const valueExpression: ReactNode = (
-        <ExpressionComponent
-            model={model.valueExpr}
-            userInputs={userInputs}
-            isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
-            isTypeDescriptor={false}
-        />
-    );
 
     const onClickOnFieldName = (event: any) => {
         event.stopPropagation()
@@ -107,17 +71,56 @@ export function SpecificFieldComponent(props: SpecificFieldProps) {
         });
     };
 
-    return (
-        <span>
-            <button
+    let fieldName: ReactNode;
+
+    const valueExpression: ReactNode = (
+        <ExpressionComponent
+            model={model.valueExpr}
+            userInputs={userInputs}
+            isElseIfMember={isElseIfMember}
+            diagnosticHandler={diagnosticHandler}
+            isTypeDescriptor={false}
+            onSelect={onClickOnValueExpr}
+        />
+    );
+
+    if (STKindChecker.isIdentifierToken(model.fieldName)) {
+        const inputEditorProps = {
+            statementType: model.kind,
+            model: model.fieldName,
+            expressionHandler,
+            userInputs,
+            diagnosticHandler,
+            isTypeDescriptor
+        };
+
+        fieldName =  (
+            <span
                 className={classNames(
                     statementEditorClasses.expressionElement,
                     hasFieldNameSelected && statementEditorClasses.expressionElementSelected
                 )}
                 onClick={onClickOnFieldName}
             >
-                {fieldName}
-            </button>
+                <InputEditor {...inputEditorProps} />
+            </span>
+        );
+    } else {
+        fieldName = (
+            <ExpressionComponent
+                model={model.fieldName}
+                userInputs={userInputs}
+                isElseIfMember={isElseIfMember}
+                diagnosticHandler={diagnosticHandler}
+                isTypeDescriptor={false}
+                onSelect={onClickOnFieldName}
+            />
+        );
+    }
+
+    return (
+        <span>
+            {fieldName}
             <span
                 className={classNames(
                     statementEditorClasses.expressionBlock,
@@ -126,15 +129,7 @@ export function SpecificFieldComponent(props: SpecificFieldProps) {
             >
                 {model.colon.value}
             </span>
-            <button
-                className={classNames(
-                    statementEditorClasses.expressionElement,
-                    hasValueExprSelected && statementEditorClasses.expressionElementSelected
-                )}
-                onClick={onClickOnValueExpr}
-            >
-                {valueExpression}
-            </button>
+            {valueExpression}
         </span>
     );
 }

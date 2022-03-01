@@ -2,6 +2,7 @@ import { createElement } from "react";
 import { render } from "react-dom";
 
 import { BalleriaLanguageClient, WSConnection } from "@wso2-enterprise/ballerina-languageclient";
+import { LibraryDataResponse, LibraryDocResponse, LibraryKind, LibrarySearchResponse } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { DiagramGeneratorProps } from "../DiagramGenerator";
 
@@ -69,4 +70,33 @@ export function getDiagramGeneratorProps(filePath: string, enableSave: boolean =
 export function renderStandaloneMockedEditor(container: string) {
     const element = createElement(StandaloneDiagramApp);
     render(element, document.getElementById(container));
+}
+
+export async function getLibrariesList(kind?: LibraryKind): Promise<LibraryDocResponse> {
+  return fetch(MOCK_SERVER_URL + "/libs/list" + (kind ? "?kind=" + kind : ""))
+    .then(response => {
+      return response.json()
+    });
+}
+
+export async function getLibrariesData(): Promise<LibrarySearchResponse> {
+  return fetch(MOCK_SERVER_URL + "/libs/data")
+    .then(response => {
+      return response.json()
+    });
+}
+
+export async function getLibraryData(orgName: string, moduleName: string, version: string): Promise<LibraryDataResponse> {
+  return fetch(MOCK_SERVER_URL + `/lib/data`,
+      {
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        method: "POST",
+        body: JSON.stringify({ orgName, moduleName, version })
+    })
+    .then(response => {
+      return response.json()
+    });
 }

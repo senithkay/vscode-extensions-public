@@ -36,7 +36,8 @@ export function JsonTypeDescComponent(props: JsonTypeDescProps) {
         expressionHandler,
         userInputs,
         diagnosticHandler,
-        isTypeDescriptor
+        isTypeDescriptor,
+        classNames: "type-descriptor json"
     };
 
     return (
