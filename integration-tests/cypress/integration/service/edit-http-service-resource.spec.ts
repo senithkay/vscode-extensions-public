@@ -28,39 +28,39 @@ describe('edit a http advanced resource', () => {
     cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH))
   })
 
-  it.skip('Edit service and add statements', () => {
+  // it.skip('Edit service and add statements', () => {
 
-    cy.on('uncaught:exception', () => false); //Need to fix this
+  //   cy.on('uncaught:exception', () => false); //Need to fix this
 
-    Canvas.getService("/wso2")
-      .getResourceFunction("GET", "path1/path2")
-      .editDiagram();
+  //   Canvas.getService("/wso2")
+  //     .getResourceFunction("GET", "path1/path2")
+  //     .editDiagram();
 
-    ResourceForm
-      .shouldBeVisible()
-      .selectAdvancedConfig()
-      .removePathParam("path1")
-      .removePathParam("path2")
-      .clickAddPathSegments()
-      .addPathParam("path3")
-      .clickPathParam("path3")
-      .typePathParam("p3")
-      .clickIsParam()
-      .typePathParamType("int")
-      .savePathParamBtn()
-      .removeQueryParam("query")
-      .clickAddQueryParam()
-      .addQueryParam("query2")
-      .clickQueryParam("query2")
-      .typeQueryParamType("int")
-      .addQueryParam("q3")
-      .togglePayload()
-      .clickCallerCheckBox()
-      .clickRequestCheckBox()
-      .save()
+  //   ResourceForm
+  //     .shouldBeVisible()
+  //     .selectAdvancedConfig()
+  //     .removePathParam("path1")
+  //     .removePathParam("path2")
+  //     .clickAddPathSegments()
+  //     .addPathParam("path3")
+  //     .clickPathParam("path3")
+  //     .typePathParam("p3")
+  //     .clickIsParam()
+  //     .typePathParamType("int")
+  //     .savePathParamBtn()
+  //     .removeQueryParam("query")
+  //     .clickAddQueryParam()
+  //     .addQueryParam("query2")
+  //     .clickQueryParam("query2")
+  //     .typeQueryParamType("int")
+  //     .addQueryParam("q3")
+  //     .togglePayload()
+  //     .clickCallerCheckBox()
+  //     .clickRequestCheckBox()
+  //     .save()
 
-    SourceCode.shouldBeEqualTo(
-      getCurrentSpecFolder() + "edit-http-service-resource.expected.bal");
-  })
+  //   SourceCode.shouldBeEqualTo(
+  //     getCurrentSpecFolder() + "edit-http-service-resource.expected.bal");
+  // })
 
 })
