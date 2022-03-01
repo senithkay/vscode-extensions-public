@@ -12,6 +12,7 @@
  */
 import React, { useContext } from 'react';
 
+import { ListItem, ListItemIcon, ListItemText, Typography } from "@material-ui/core";
 import {
     FunctionParams,
     LibraryDataResponse,
@@ -20,6 +21,7 @@ import {
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { StatementEditorContext } from "../../../store/statement-editor-context";
+import { getModuleIconStyle } from "../../../utils";
 import { getFQModuleName } from "../../../utils/statement-modifications";
 import { useStatementEditorStyles } from "../../styles";
 
@@ -27,12 +29,13 @@ interface ModuleElementProps {
     moduleProperty: ModuleProperty,
     key: number,
     isFunction: boolean
+    label: string
 }
 
 export function ModuleElement(props: ModuleElementProps) {
     const stmtCtx = useContext(StatementEditorContext);
     const statementEditorClasses = useStatementEditorStyles();
-    const { moduleProperty, key, isFunction } = props;
+    const { moduleProperty, key, isFunction, label } = props;
     const { id, moduleId, moduleOrgName, moduleVersion } = moduleProperty;
 
     const {
@@ -82,12 +85,20 @@ export function ModuleElement(props: ModuleElementProps) {
     }
 
     return (
-        <button
-            className={statementEditorClasses.libraryResourceButton}
+        <ListItem
+            button={true}
             key={key}
             onClick={onClickOnModuleElement}
+            className={statementEditorClasses.suggestionListItem}
+            disableRipple={true}
         >
-            {`${moduleId}:${id}`}
-        </button>
+            <ListItemIcon
+                className={getModuleIconStyle(label)}
+                style={{ minWidth: '12%', textAlign: 'left' }}
+            />
+            <ListItemText
+                primary={<Typography className={statementEditorClasses.suggestionValue}>{`${moduleId}:${id}`}</Typography>}
+            />
+        </ListItem>
     );
 }

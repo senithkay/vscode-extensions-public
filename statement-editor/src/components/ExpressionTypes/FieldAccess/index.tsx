@@ -39,36 +39,12 @@ export function FieldAccessComponent(props: FieldAccessProps) {
     const { currentModel } = modelCtx;
     const hasFieldAccessExprSelected = currentModel.model &&
         isPositionsEquals(currentModel.model.position, model.position);
-    const hasExprSelected =  currentModel.model &&
-        isPositionsEquals(currentModel.model.position, model.expression.position);
-    const hasFieldNameSelected =  currentModel.model &&
-        isPositionsEquals(currentModel.model.position, model.fieldName.position);
 
     const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
     const { currentFile, getLangClient } = stmtCtx;
     const targetPosition = stmtCtx.formCtx.formModelPosition;
     const fileURI = `expr://${currentFile.path}`;
-
-    const expression: ReactNode = (
-        <ExpressionComponent
-            model={model.expression}
-            userInputs={userInputs}
-            isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
-            isTypeDescriptor={false}
-        />
-    );
-
-    const fieldName: ReactNode = (
-        <ExpressionComponent
-            model={model.fieldName}
-            userInputs={userInputs}
-            isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
-            isTypeDescriptor={false}
-        />
-    );
 
     const onClickOnFieldAccessExpr = async (event: any) => {
         event.stopPropagation();
@@ -99,41 +75,37 @@ export function FieldAccessComponent(props: FieldAccessProps) {
             { expressionSuggestions: [], typeSuggestions: [], variableSuggestions: [] })
     }
 
+    const expression: ReactNode = (
+        <ExpressionComponent
+            model={model.expression}
+            userInputs={userInputs}
+            isElseIfMember={isElseIfMember}
+            diagnosticHandler={diagnosticHandler}
+            isTypeDescriptor={false}
+            onSelect={onClickOnExpr}
+        >
+            <span
+                className={classNames(
+                    statementEditorClasses.expressionBlock,
+                    statementEditorClasses.expressionBlockDisabled
+                )}
+            >
+                {model.dotToken.value}
+            </span>
+            <ExpressionComponent
+                model={model.fieldName}
+                userInputs={userInputs}
+                isElseIfMember={isElseIfMember}
+                diagnosticHandler={diagnosticHandler}
+                isTypeDescriptor={false}
+                onSelect={onClickOnFieldName}
+            />
+        </ExpressionComponent>
+    );
+
     return (
         <span>
-            <button
-                className={classNames(
-                    statementEditorClasses.expressionElement,
-                    hasFieldAccessExprSelected && statementEditorClasses.expressionElementSelected
-                )}
-                onClick={onClickOnFieldAccessExpr}
-            >
-                <button
-                    className={classNames(statementEditorClasses.expressionElement,
-                        hasExprSelected && statementEditorClasses.expressionElementSelected
-                    )}
-                    onClick={onClickOnExpr}
-                >
-                    {expression}
-                </button>
-                <span
-                    className={classNames(
-                        statementEditorClasses.expressionBlock,
-                        statementEditorClasses.expressionBlockDisabled
-                    )}
-                >
-                    {model.dotToken.value}
-                </span>
-                <button
-                    className={classNames(
-                        statementEditorClasses.expressionElement,
-                        hasFieldNameSelected && statementEditorClasses.expressionElementSelected
-                    )}
-                    onClick={onClickOnFieldName}
-                >
-                    {fieldName}
-                </button>
-            </button>
+            {expression}
         </span>
     );
 }

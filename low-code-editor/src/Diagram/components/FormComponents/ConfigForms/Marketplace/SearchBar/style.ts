@@ -41,17 +41,6 @@ const useStyles = makeStyles((theme: Theme) =>
             marginLeft: theme.spacing(2),
             ...theme.typography.subtitle2,
         },
-        searchBtn: {
-            backgroundColor: theme.palette.primary.main,
-            borderRadius: '100%',
-            height: '30px',
-            width: '30px',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            paddingBottom: '3px',
-            cursor: 'pointer',
-        },
     })
 );
 

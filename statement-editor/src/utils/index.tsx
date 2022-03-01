@@ -192,3 +192,37 @@ export function getSuggestionIconStyle(suggestionType: number): string {
 export function sortSuggestions(x: CompletionResponse, y: CompletionResponse) {
     return x.sortText.localeCompare(y.sortText);
 }
+
+export function getModuleIconStyle(label: string): string {
+    let suggestionIconStyle: string;
+    switch (label) {
+        case "Functions":
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-function"
+            break;
+        case "Classes":
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-interface"
+            break;
+        case "Constants":
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-variable"
+            break;
+        case "Errors":
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-event"
+            break;
+        case "Enums":
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-enum"
+            break;
+        case "Records":
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-struct"
+            break;
+        case "Types":
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-ruler"
+            break;
+        case "Listeners":
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-variable"
+            break;
+        default:
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-interface"
+            break;
+    }
+    return suggestionIconStyle;
+}
