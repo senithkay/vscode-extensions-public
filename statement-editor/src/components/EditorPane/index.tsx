@@ -38,6 +38,8 @@ export function EditorPane(props: ModelProps) {
 
     const { modelCtx } = useContext(StatementEditorContext);
 
+    const { undo, redo } = modelCtx;
+
     const [suggestionList, setSuggestionsList] = useState(modelCtx.statementModel ?
         getSuggestionsBasedOnExpressionKind(c.DEFAULT_EXPRESSIONS) : []);
     const [diagnosticList, setDiagnostic] = useState("");
@@ -84,7 +86,7 @@ export function EditorPane(props: ModelProps) {
                         expressionHandler
                     }}
                 >
-                    <div className={statementEditorClasses.statementExpressionTitle}>{label}</div>
+                    <div className={statementEditorClasses.statementExpressionTitle}>{label} <span onClick={() => undo()}>Undo </span> <span onClick={() => redo()}>Redo </span></div>
                     <div className={statementEditorClasses.statementExpressionContent}>
                         <StatementRenderer
                             model={modelCtx.statementModel}

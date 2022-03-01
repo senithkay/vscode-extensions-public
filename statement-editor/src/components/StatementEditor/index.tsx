@@ -27,6 +27,7 @@ import { VariableUserInputs } from '../../models/definitions';
 import { StatementEditorContextProvider } from "../../store/statement-editor-context";
 import { getCurrentModel } from "../../utils";
 import { getPartialSTForStatement } from "../../utils/ls-utils";
+import { StmtEditorUndoRedoManager } from '../../utils/undo-redo';
 import { ViewContainer } from "../ViewContainer";
 
 export interface LowCodeEditorProps {
@@ -86,6 +87,22 @@ export function StatementEditor(props: StatementEditorProps) {
     const [isStatementValid, setIsStatementValid] = useState(false);
     const [currentModel, setCurrentModel] = useState({ model });
 
+    const undoRedoManager = React.useMemo(() => new StmtEditorUndoRedoManager(), []);
+
+    const undo = React.useCallback(() => {
+        const undoItem = undoRedoManager.getUndoModel();
+        if (undoItem) {
+            setModel(undoItem.oldModel);
+        }
+    }, []);
+
+    const redo = React.useCallback(() => {
+        const redoItem = undoRedoManager.getRedoModel();
+        if (redoItem) {
+            setModel(redoItem.newModel);
+        }
+    }, []);
+
     useEffect(() => {
         if (!(config.type === CUSTOM_CONFIG_TYPE) || initialSource) {
             (async () => {
@@ -122,6 +139,8 @@ export function StatementEditor(props: StatementEditorProps) {
             partialST = await getPartialSTForStatement(
                 { codeSnippet }, getLangClient);
         }
+
+        undoRedoManager.add(model, partialST);
 
         if (partialST.syntaxDiagnostics.length === 0 || config.type === CUSTOM_CONFIG_TYPE) {
             setModel(partialST);
@@ -183,6 +202,8 @@ export function StatementEditor(props: StatementEditorProps) {
                     currentFile={currentFile}
                     getLangClient={getLangClient}
                     initialSource={initialSource}
+                    undo={undo}
+                    redo={redo}
                 >
                     <ViewContainer
                         label={label}
