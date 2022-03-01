@@ -105,15 +105,17 @@ export interface SendRecievePairInfo {
 
 export const DEFAULT_WORKER_NAME = 'function'; // todo: move to appropriate place.
 
-class SizingVisitor implements Visitor {
+export class SizingVisitor implements Visitor {
     private currentWorker: string[];
     private senderReceiverInfo: Map<string, { sends: AsyncSendInfo[], receives: AsyncReceiveInfo[], waits: WaitInfo[] }>;
     private workerMap: Map<string, NamedWorkerDeclaration>;
+    private experimentalEnabled: boolean;
 
-    constructor() {
+    constructor(experimentalEnabled?: boolean) {
         this.currentWorker = [];
         this.senderReceiverInfo = new Map();
         this.workerMap = new Map();
+        this.experimentalEnabled = experimentalEnabled;
     }
 
     public endVisitSTNode(node: STNode, parent?: STNode) {
@@ -210,7 +212,8 @@ class SizingVisitor implements Visitor {
 
         // If body has no statements and doesn't have a end component
         // Add the plus button to show up on the start end
-        if (!bodyViewState.isEndComponentAvailable && body.statements.length <= 0 && !body.namedWorkerDeclarator) {
+        if (!bodyViewState.isEndComponentAvailable && body.statements.length <= 0
+            && (!body.namedWorkerDeclarator && this.experimentalEnabled)) {
             const plusBtnViewState: PlusViewState = new PlusViewState();
             if (!bodyViewState.draft && !viewState.initPlus) {
                 plusBtnViewState.index = body.statements.length;
@@ -227,7 +230,9 @@ class SizingVisitor implements Visitor {
             }
         }
 
-        this.currentWorker.push(DEFAULT_WORKER_NAME);
+        if (this.experimentalEnabled) {
+            this.currentWorker.push(DEFAULT_WORKER_NAME);
+        }
     }
 
     public beginVisitServiceDeclaration(node: ServiceDeclaration, parent?: STNode) {
@@ -383,7 +388,7 @@ class SizingVisitor implements Visitor {
 
         lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h;
 
-        if (STKindChecker.isExpressionFunctionBody(body) || body.statements.length > 0 || body.namedWorkerDeclarator) {
+        if (STKindChecker.isExpressionFunctionBody(body) || body.statements.length > 0 || (body.namedWorkerDeclarator && this.experimentalEnabled)) {
             lifeLine.h += end.bBox.offsetFromTop;
         }
 
@@ -398,75 +403,77 @@ class SizingVisitor implements Visitor {
             }
         }
 
-        this.syncAsyncStatements(node);
+        if (this.experimentalEnabled) {
+            this.syncAsyncStatements(node);
 
-        if (bodyViewState.hasWorkerDecl) {
-            let maxWorkerHeight = 0;
-            Array.from(this.workerMap.keys()).forEach(key => {
-                const workerST = this.workerMap.get(key);
-                const workerVS = workerST.viewState as WorkerDeclarationViewState;
-                const workerBodyVS = workerST.workerBody.viewState as BlockViewState;
-                const workerLifeLine = workerVS.workerLine;
-                const workerTrigger = workerVS.trigger;
-                this.endVisitBlockStatement(workerST.workerBody, workerST);
+            if (bodyViewState.hasWorkerDecl) {
+                let maxWorkerHeight = 0;
+                Array.from(this.workerMap.keys()).forEach(key => {
+                    const workerST = this.workerMap.get(key);
+                    const workerVS = workerST.viewState as WorkerDeclarationViewState;
+                    const workerBodyVS = workerST.workerBody.viewState as BlockViewState;
+                    const workerLifeLine = workerVS.workerLine;
+                    const workerTrigger = workerVS.trigger;
+                    this.endVisitBlockStatement(workerST.workerBody, workerST);
 
-                workerLifeLine.h = workerTrigger.offsetFromBottom + workerBodyVS.bBox.h;
+                    workerLifeLine.h = workerTrigger.offsetFromBottom + workerBodyVS.bBox.h;
 
-                if (!workerBodyVS.isEndComponentAvailable) {
-                    workerLifeLine.h += end.bBox.offsetFromTop;
-                } else {
-                    workerLifeLine.h -= DefaultConfig.offSet * 2; // ToDo: Figure out where this went wrong
-                }
+                    if (!workerBodyVS.isEndComponentAvailable) {
+                        workerLifeLine.h += end.bBox.offsetFromTop;
+                    } else {
+                        workerLifeLine.h -= DefaultConfig.offSet * 2; // ToDo: Figure out where this went wrong
+                    }
 
-                workerVS.bBox.h = workerLifeLine.h + workerTrigger.h + end.bBox.h + DefaultConfig.serviceVerticalPadding * 2
-                    + DefaultConfig.functionHeaderHeight;
-                workerVS.bBox.w = (workerTrigger.w > workerBodyVS.bBox.w ? workerTrigger.w : workerBodyVS.bBox.w)
-                    + DefaultConfig.serviceFrontPadding + DefaultConfig.serviceRearPadding + allEndpoints.size * 150 * 2;
+                    workerVS.bBox.h = workerLifeLine.h + workerTrigger.h + end.bBox.h + DefaultConfig.serviceVerticalPadding * 2
+                        + DefaultConfig.functionHeaderHeight;
+                    workerVS.bBox.w = (workerTrigger.w > workerBodyVS.bBox.w ? workerTrigger.w : workerBodyVS.bBox.w)
+                        + DefaultConfig.serviceFrontPadding + DefaultConfig.serviceRearPadding + allEndpoints.size * 150 * 2;
 
-                if (workerVS.initPlus && workerVS.initPlus.selectedComponent === "PROCESS") {
-                    workerVS.bBox.h += PLUS_HOLDER_STATEMENT_HEIGHT;
-                    if (workerVS.bBox.w < PLUS_HOLDER_WIDTH) {
-                        workerVS.bBox.w = PLUS_HOLDER_WIDTH;
+                    if (workerVS.initPlus && workerVS.initPlus.selectedComponent === "PROCESS") {
+                        workerVS.bBox.h += PLUS_HOLDER_STATEMENT_HEIGHT;
+                        if (workerVS.bBox.w < PLUS_HOLDER_WIDTH) {
+                            workerVS.bBox.w = PLUS_HOLDER_WIDTH;
+                        }
+                    }
+
+                    if (maxWorkerHeight < workerVS.bBox.h) {
+                        maxWorkerHeight = workerVS.bBox.h;
+                    }
+                })
+                this.endVisitFunctionBodyBlock(body);
+
+                if (!bodyViewState.isEndComponentAvailable) {
+                    if (bodyViewState.bBox.h < maxWorkerHeight) {
+                        bodyViewState.bBox.h += maxWorkerHeight - bodyViewState.bBox.h;
                     }
                 }
 
-                if (maxWorkerHeight < workerVS.bBox.h) {
-                    maxWorkerHeight = workerVS.bBox.h;
+                lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h;
+
+                if (bodyViewState.isEndComponentAvailable) {
+                    lifeLine.h += (body.statements[body.statements.length - 1].viewState as ViewState).bBox.offsetFromTop;
                 }
-            })
-            this.endVisitFunctionBodyBlock(body);
 
-            if (!bodyViewState.isEndComponentAvailable) {
-                if (bodyViewState.bBox.h < maxWorkerHeight) {
-                    bodyViewState.bBox.h += maxWorkerHeight - bodyViewState.bBox.h;
+                if (STKindChecker.isExpressionFunctionBody(body) || body.statements.length > 0 || body.namedWorkerDeclarator) {
+                    lifeLine.h += end.bBox.offsetFromTop;
                 }
-            }
 
-            lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h;
-
-            if (bodyViewState.isEndComponentAvailable) {
-                lifeLine.h += (body.statements[body.statements.length - 1].viewState as ViewState).bBox.offsetFromTop;
-            }
-
-            if (STKindChecker.isExpressionFunctionBody(body) || body.statements.length > 0 || body.namedWorkerDeclarator) {
-                lifeLine.h += end.bBox.offsetFromTop;
-            }
-
-            viewState.bBox.h = lifeLine.h + trigger.h + end.bBox.h + DefaultConfig.serviceVerticalPadding * 2 + DefaultConfig.functionHeaderHeight;
-            viewState.bBox.w = (trigger.w > bodyViewState.bBox.w ? trigger.w : bodyViewState.bBox.w)
-                + DefaultConfig.serviceFrontPadding + DefaultConfig.serviceRearPadding + allEndpoints.size * 150 * 2;
+                viewState.bBox.h = lifeLine.h + trigger.h + end.bBox.h + DefaultConfig.serviceVerticalPadding * 2 + DefaultConfig.functionHeaderHeight;
+                viewState.bBox.w = (trigger.w > bodyViewState.bBox.w ? trigger.w : bodyViewState.bBox.w)
+                    + DefaultConfig.serviceFrontPadding + DefaultConfig.serviceRearPadding + allEndpoints.size * 150 * 2;
 
 
-            if (viewState.initPlus && viewState.initPlus.selectedComponent === "PROCESS") {
-                viewState.bBox.h += PLUS_HOLDER_STATEMENT_HEIGHT;
-                if (viewState.bBox.w < PLUS_HOLDER_WIDTH) {
-                    viewState.bBox.w = PLUS_HOLDER_WIDTH;
+                if (viewState.initPlus && viewState.initPlus.selectedComponent === "PROCESS") {
+                    viewState.bBox.h += PLUS_HOLDER_STATEMENT_HEIGHT;
+                    if (viewState.bBox.w < PLUS_HOLDER_WIDTH) {
+                        viewState.bBox.w = PLUS_HOLDER_WIDTH;
+                    }
                 }
             }
+
+            this.currentWorker.pop();
+            this.cleanMaps();
         }
-
-        this.currentWorker.pop();
-        this.cleanMaps();
     }
 
     private syncAsyncStatements(funcitonDef: FunctionDefinition) {
@@ -666,7 +673,7 @@ class SizingVisitor implements Visitor {
 
         let index = 0;
 
-        if (viewState.hasWorkerDecl) {
+        if (viewState.hasWorkerDecl && this.experimentalEnabled) {
             index = this.initiateStatementSizing(node.namedWorkerDeclarator.workerInitStatements, index, viewState);
             const plusBtnViewState = new PlusViewState();
             plusBtnViewState.index = index + node.statements.length + 1;
@@ -697,7 +704,7 @@ class SizingVisitor implements Visitor {
         let height = 0;
         let width = 0;
 
-        if (viewState.hasWorkerDecl) {
+        if (viewState.hasWorkerDecl && this.experimentalEnabled) {
             const workerInitStatements = (node as FunctionBodyBlock).namedWorkerDeclarator.workerInitStatements;
             ({ index, height, width } = this.calculateStatementSizing(workerInitStatements, index, viewState, height, width, workerInitStatements.length + node.statements.length));
 
@@ -1022,44 +1029,48 @@ class SizingVisitor implements Visitor {
 
     public beginVisitNamedWorkerDeclaration(node: NamedWorkerDeclaration) {
         // this.beginSizingBlock(node.workerBody);
-        this.workerMap.set(node.workerName.value, node);
-        this.currentWorker.push(node.workerName.value);
+        if (this.experimentalEnabled) {
+            this.workerMap.set(node.workerName.value, node);
+            this.currentWorker.push(node.workerName.value);
+        }
     }
 
     public endVisitNamedWorkerDeclaration(node: NamedWorkerDeclaration) {
-        const viewState: WorkerDeclarationViewState = node.viewState as WorkerDeclarationViewState;
-        const body: BlockStatement = node.workerBody as BlockStatement;
-        const bodyViewState: BlockViewState = body.viewState;
-        const lifeLine = viewState.workerLine;
-        const trigger = viewState.trigger;
-        const end = viewState.end;
+        if (this.experimentalEnabled) {
+            const viewState: WorkerDeclarationViewState = node.viewState as WorkerDeclarationViewState;
+            const body: BlockStatement = node.workerBody as BlockStatement;
+            const bodyViewState: BlockViewState = body.viewState;
+            const lifeLine = viewState.workerLine;
+            const trigger = viewState.trigger;
+            const end = viewState.end;
 
-        trigger.h = START_SVG_HEIGHT;
-        trigger.w = START_SVG_WIDTH;
+            trigger.h = START_SVG_HEIGHT;
+            trigger.w = START_SVG_WIDTH;
 
-        end.bBox.w = STOP_SVG_WIDTH;
-        end.bBox.h = STOP_SVG_HEIGHT;
+            end.bBox.w = STOP_SVG_WIDTH;
+            end.bBox.h = STOP_SVG_HEIGHT;
 
-        lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h + end.bBox.offsetFromTop;
+            lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h + end.bBox.offsetFromTop;
 
-        if (!bodyViewState.isEndComponentAvailable
-            && (STKindChecker.isExpressionFunctionBody(body) || body.statements.length > 0)) {
-            lifeLine.h += end.bBox.offsetFromTop;
-        }
-
-        viewState.bBox.h = lifeLine.h + trigger.h + end.bBox.h + DefaultConfig.serviceVerticalPadding * 2
-            + DefaultConfig.functionHeaderHeight;
-        viewState.bBox.w = (trigger.w > bodyViewState.bBox.w ? trigger.w : bodyViewState.bBox.w)
-            + DefaultConfig.serviceFrontPadding + DefaultConfig.serviceRearPadding + allEndpoints.size * 150 * 2;
-
-        if (viewState.initPlus && viewState.initPlus.selectedComponent === "PROCESS") {
-            viewState.bBox.h += PLUS_HOLDER_STATEMENT_HEIGHT;
-            if (viewState.bBox.w < PLUS_HOLDER_WIDTH) {
-                viewState.bBox.w = PLUS_HOLDER_WIDTH;
+            if (!bodyViewState.isEndComponentAvailable
+                && (STKindChecker.isExpressionFunctionBody(body) || body.statements.length > 0)) {
+                lifeLine.h += end.bBox.offsetFromTop;
             }
-        }
 
-        this.currentWorker.pop();
+            viewState.bBox.h = lifeLine.h + trigger.h + end.bBox.h + DefaultConfig.serviceVerticalPadding * 2
+                + DefaultConfig.functionHeaderHeight;
+            viewState.bBox.w = (trigger.w > bodyViewState.bBox.w ? trigger.w : bodyViewState.bBox.w)
+                + DefaultConfig.serviceFrontPadding + DefaultConfig.serviceRearPadding + allEndpoints.size * 150 * 2;
+
+            if (viewState.initPlus && viewState.initPlus.selectedComponent === "PROCESS") {
+                viewState.bBox.h += PLUS_HOLDER_STATEMENT_HEIGHT;
+                if (viewState.bBox.w < PLUS_HOLDER_WIDTH) {
+                    viewState.bBox.w = PLUS_HOLDER_WIDTH;
+                }
+            }
+
+            this.currentWorker.pop();
+        }
     }
 
     private sizeStatement(node: STNode) {
@@ -1122,7 +1133,9 @@ class SizingVisitor implements Visitor {
             return;
         }
         const blockViewState: BlockViewState = node.viewState;
-        index = this.initiateStatementSizing(node.statements, index, blockViewState);
+        if (this.experimentalEnabled) {
+            index = this.initiateStatementSizing(node.statements, index, blockViewState);
+        }
 
         // add END component dimensions for return statement
         if (blockViewState.isEndComponentAvailable && !blockViewState.collapseView &&
@@ -1260,97 +1273,98 @@ class SizingVisitor implements Visitor {
             const stmtViewState: StatementViewState = statement.viewState;
             const plusForIndex: PlusViewState = getPlusViewState(index, blockViewState.plusButtons);
 
-            // identify sends, recieves, and waits and put them into a map
-            if (STKindChecker.isActionStatement(statement)) {
-                if (statement.expression.kind === 'AsyncSendAction') {
-                    const sendExpression: any = statement.expression;
-                    const targetName: string = sendExpression.peerWorker?.name?.value as string;
-                    this.addToSendReceiveMap('Send', {
-                        to: targetName, node: statement, paired: false, index: (index - startIndex)
-                    });
-                } else if (STKindChecker.isWaitAction(statement.expression)
-                    && STKindChecker.isSimpleNameReference(statement.expression.waitFutureExpr)) {
+            if (this.experimentalEnabled) {
+                // identify sends, recieves, and waits and put them into a map
+                if (STKindChecker.isActionStatement(statement)) {
+                    if (statement.expression.kind === 'AsyncSendAction') {
+                        const sendExpression: any = statement.expression;
+                        const targetName: string = sendExpression.peerWorker?.name?.value as string;
+                        this.addToSendReceiveMap('Send', {
+                            to: targetName, node: statement, paired: false, index: (index - startIndex)
+                        });
+                    } else if (STKindChecker.isWaitAction(statement.expression)
+                        && STKindChecker.isSimpleNameReference(statement.expression.waitFutureExpr)) {
+                        this.addToSendReceiveMap('Wait', {
+                            for: statement.expression.waitFutureExpr.name.value,
+                            node: statement,
+                            index: (index - startIndex)
+                        });
+                    } else if (STKindChecker.isCheckAction(statement.expression)
+                        && STKindChecker.isWaitAction(statement.expression.expression)
+                        && STKindChecker.isSimpleNameReference(statement.expression.expression.waitFutureExpr)) {
+                        this.addToSendReceiveMap('Wait', {
+                            for: statement.expression.expression.waitFutureExpr.name.value,
+                            node: statement,
+                            index: (index - startIndex)
+                        });
+                    }
+                } else if (STKindChecker.isLocalVarDecl(statement)) {
+                    if (statement.initializer?.kind === 'ReceiveAction') {
+                        const receiverExpression: any = statement.initializer;
+                        const senderName: string = receiverExpression.receiveWorkers?.name?.value;
+                        this.addToSendReceiveMap('Receive',
+                            { from: senderName, node: statement, paired: false, index: (index - startIndex) });
+                    } else if (STKindChecker.isCheckAction(statement.initializer)
+                        && (statement.initializer.expression.kind === 'ReceiveAction')) {
+                        const receiverExpression: any = statement.initializer.expression;
+                        const senderName: string = receiverExpression.receiveWorkers?.name?.value;
+
+                        this.addToSendReceiveMap('Receive',
+                            { from: senderName, node: statement, paired: false, index: (index - startIndex) });
+                    } else if (STKindChecker.isWaitAction(statement.initializer)
+                        && STKindChecker.isSimpleNameReference(statement.initializer.waitFutureExpr)) {
+                        this.addToSendReceiveMap('Wait', {
+                            for: statement.initializer.waitFutureExpr.name.value,
+                            node: statement,
+                            index: (index - startIndex)
+                        });
+                    } else if (STKindChecker.isCheckAction(statement.initializer)
+                        && STKindChecker.isWaitAction(statement.initializer.expression)
+                        && STKindChecker.isSimpleNameReference(statement.initializer.expression.waitFutureExpr)) {
+                        this.addToSendReceiveMap('Wait', {
+                            for: statement.initializer.expression.waitFutureExpr.name.value,
+                            node: statement,
+                            index: (index - startIndex)
+                        });
+                    }
+                } else if (STKindChecker.isAssignmentStatement(statement)) {
+                    if (statement.expression?.kind === 'ReceiveAction') {
+                        const receiverExpression: any = statement.expression;
+                        const senderName: string = receiverExpression.receiveWorkers?.name?.value;
+                        this.addToSendReceiveMap('Receive',
+                            { from: senderName, node: statement, paired: false, index: (index - startIndex) });
+                    } else if (STKindChecker.isCheckAction(statement.expression)
+                        && (statement.expression.expression.kind === 'ReceiveAction')) {
+                        const receiverExpression: any = statement.expression.expression;
+                        const senderName: string = receiverExpression.receiveWorkers?.name?.value;
+
+                        this.addToSendReceiveMap('Receive',
+                            { from: senderName, node: statement, paired: false, index: (index) });
+                    } else if (STKindChecker.isWaitAction(statement.expression)
+                        && STKindChecker.isSimpleNameReference(statement.expression.waitFutureExpr)) {
+                        this.addToSendReceiveMap('Wait', {
+                            for: statement.expression.waitFutureExpr.name.value,
+                            node: statement,
+                            index: (index - startIndex)
+                        });
+                    } else if (STKindChecker.isCheckAction(statement.expression)
+                        && STKindChecker.isWaitAction(statement.expression.expression)
+                        && STKindChecker.isSimpleNameReference(statement.expression.expression.waitFutureExpr)) {
+                        this.addToSendReceiveMap('Wait', {
+                            for: statement.expression.expression.waitFutureExpr.name.value,
+                            node: statement,
+                            index: (index - startIndex)
+                        });
+                    }
+                } else if (STKindChecker.isReturnStatement(statement) && STKindChecker.isWaitAction(statement.expression) &&
+                    STKindChecker.isSimpleNameReference(statement.expression.waitFutureExpr)) {
                     this.addToSendReceiveMap('Wait', {
                         for: statement.expression.waitFutureExpr.name.value,
                         node: statement,
                         index: (index - startIndex)
                     });
-                } else if (STKindChecker.isCheckAction(statement.expression)
-                    && STKindChecker.isWaitAction(statement.expression.expression)
-                    && STKindChecker.isSimpleNameReference(statement.expression.expression.waitFutureExpr)) {
-                    this.addToSendReceiveMap('Wait', {
-                        for: statement.expression.expression.waitFutureExpr.name.value,
-                        node: statement,
-                        index: (index - startIndex)
-                    });
                 }
-            } else if (STKindChecker.isLocalVarDecl(statement)) {
-                if (statement.initializer?.kind === 'ReceiveAction') {
-                    const receiverExpression: any = statement.initializer;
-                    const senderName: string = receiverExpression.receiveWorkers?.name?.value;
-                    this.addToSendReceiveMap('Receive',
-                        { from: senderName, node: statement, paired: false, index: (index - startIndex) });
-                } else if (STKindChecker.isCheckAction(statement.initializer)
-                    && (statement.initializer.expression.kind === 'ReceiveAction')) {
-                    const receiverExpression: any = statement.initializer.expression;
-                    const senderName: string = receiverExpression.receiveWorkers?.name?.value;
-
-                    this.addToSendReceiveMap('Receive',
-                        { from: senderName, node: statement, paired: false, index: (index - startIndex) });
-                } else if (STKindChecker.isWaitAction(statement.initializer)
-                    && STKindChecker.isSimpleNameReference(statement.initializer.waitFutureExpr)) {
-                    this.addToSendReceiveMap('Wait', {
-                        for: statement.initializer.waitFutureExpr.name.value,
-                        node: statement,
-                        index: (index - startIndex)
-                    });
-                } else if (STKindChecker.isCheckAction(statement.initializer)
-                    && STKindChecker.isWaitAction(statement.initializer.expression)
-                    && STKindChecker.isSimpleNameReference(statement.initializer.expression.waitFutureExpr)) {
-                    this.addToSendReceiveMap('Wait', {
-                        for: statement.initializer.expression.waitFutureExpr.name.value,
-                        node: statement,
-                        index: (index - startIndex)
-                    });
-                }
-            } else if (STKindChecker.isAssignmentStatement(statement)) {
-                if (statement.expression?.kind === 'ReceiveAction') {
-                    const receiverExpression: any = statement.expression;
-                    const senderName: string = receiverExpression.receiveWorkers?.name?.value;
-                    this.addToSendReceiveMap('Receive',
-                        { from: senderName, node: statement, paired: false, index: (index - startIndex) });
-                } else if (STKindChecker.isCheckAction(statement.expression)
-                    && (statement.expression.expression.kind === 'ReceiveAction')) {
-                    const receiverExpression: any = statement.expression.expression;
-                    const senderName: string = receiverExpression.receiveWorkers?.name?.value;
-
-                    this.addToSendReceiveMap('Receive',
-                        { from: senderName, node: statement, paired: false, index: (index) });
-                } else if (STKindChecker.isWaitAction(statement.expression)
-                    && STKindChecker.isSimpleNameReference(statement.expression.waitFutureExpr)) {
-                    this.addToSendReceiveMap('Wait', {
-                        for: statement.expression.waitFutureExpr.name.value,
-                        node: statement,
-                        index: (index - startIndex)
-                    });
-                } else if (STKindChecker.isCheckAction(statement.expression)
-                    && STKindChecker.isWaitAction(statement.expression.expression)
-                    && STKindChecker.isSimpleNameReference(statement.expression.expression.waitFutureExpr)) {
-                    this.addToSendReceiveMap('Wait', {
-                        for: statement.expression.expression.waitFutureExpr.name.value,
-                        node: statement,
-                        index: (index - startIndex)
-                    });
-                }
-            } else if (STKindChecker.isReturnStatement(statement) && STKindChecker.isWaitAction(statement.expression) &&
-                STKindChecker.isSimpleNameReference(statement.expression.waitFutureExpr)) {
-                this.addToSendReceiveMap('Wait', {
-                    for: statement.expression.waitFutureExpr.name.value,
-                    node: statement,
-                    index: (index - startIndex)
-                });
             }
-
 
             if (!blockViewState.collapsed) {
                 // This captures the collapsed statement
@@ -1358,7 +1372,8 @@ class SizingVisitor implements Visitor {
                     // This captures the collapse button click
                     if (plusForIndex && plusForIndex.collapsedClicked) {
                         const collapsedView = blockViewState.collapseView;
-                        collapsedView.bBox.h = collapsedView.bBox.offsetFromTop + COLLAPSE_SVG_HEIGHT_WITH_SHADOW + collapsedView.bBox.offsetFromBottom;
+                        collapsedView.bBox.h = collapsedView.bBox.offsetFromTop + COLLAPSE_SVG_HEIGHT_WITH_SHADOW
+                            + collapsedView.bBox.offsetFromBottom;
                         collapsedView.bBox.w = COLLAPSE_SVG_WIDTH_WITH_SHADOW;
                         height += collapsedView.bBox.h;
                         if (width < collapsedView.bBox.w) {

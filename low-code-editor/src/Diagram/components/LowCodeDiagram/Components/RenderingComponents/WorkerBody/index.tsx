@@ -14,6 +14,7 @@ import React, { useContext } from "react";
 
 import { BlockStatement, FunctionBodyBlock, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
+import { useDiagramContext } from "../../../../../../Contexts/Diagram";
 import { getDraftComponent, getSTComponents } from "../../../../../utils";
 import { Context } from "../../../Context/diagram";
 import { BlockViewState } from "../../../ViewState";
@@ -27,7 +28,7 @@ export interface DiagramProps {
 }
 
 export function WorkerBody(props: DiagramProps) {
-    const { state, actions: { insertComponentStart } } = useContext(Context);
+    const { state, actions: { insertComponentStart }, props: { experimentalEnabled } } = useDiagramContext();
 
     const { model, viewState } = props;
     const pluses: React.ReactNode[] = [];
@@ -37,7 +38,7 @@ export function WorkerBody(props: DiagramProps) {
     const controlFlowLines: React.ReactNode[] = [];
     const controlFlowExecutionTime: React.ReactNode[] = [];
 
-    if (STKindChecker.isFunctionBodyBlock(model) && viewState.hasWorkerDecl) {
+    if (STKindChecker.isFunctionBodyBlock(model) && viewState.hasWorkerDecl && experimentalEnabled) {
         children = children.concat(getSTComponents(model.namedWorkerDeclarator.workerInitStatements));
         children = children.concat(getSTComponents(model.namedWorkerDeclarator.namedWorkerDeclarations))
     }
@@ -51,17 +52,19 @@ export function WorkerBody(props: DiagramProps) {
         pluses.push(<PlusButton viewState={plusView} model={model} initPlus={false} />)
     }
 
-    for (const workerArrow of viewState.workerArrows) {
-        workerArrows.push(
-            <line
-                style={{ stroke: '#5567D5', strokeWidth: 1 }}
-                markerEnd="url(#arrowhead)"
-                x1={workerArrow.x}
-                y1={workerArrow.y}
-                x2={workerArrow.x + workerArrow.w}
-                y2={workerArrow.y}
-            />
-        )
+    if (experimentalEnabled) {
+        for (const workerArrow of viewState.workerArrows) {
+            workerArrows.push(
+                <line
+                    style={{ stroke: '#5567D5', strokeWidth: 1 }}
+                    markerEnd="url(#arrowhead)"
+                    x1={workerArrow.x}
+                    y1={workerArrow.y}
+                    x2={workerArrow.x + workerArrow.w}
+                    y2={workerArrow.y}
+                />
+            )
+        }
     }
 
     for (const executionTime of viewState?.controlFlow.executionTimeStates) {

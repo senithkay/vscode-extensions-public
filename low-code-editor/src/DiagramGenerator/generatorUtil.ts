@@ -5,7 +5,7 @@ import { FunctionDefinition, ModulePart, ResourceAccessorDefinition, ServiceDecl
 
 import { workerSyncVisitor } from "../Diagram/components/LowCodeDiagram/Visitors/worker-sync-visitor";
 import { cleanLocalSymbols, cleanModuleLevelSymbols } from "../Diagram/visitors/symbol-finder-visitor";
-import { initVisitor, positionVisitor, sizingVisitor, SymbolVisitor } from "../index";
+import { initVisitor, PositioningVisitor, SizingVisitor, SymbolVisitor } from "../index";
 import { SelectedPosition } from "../types";
 
 import { addExecutorPositions } from "./executor";
@@ -28,10 +28,10 @@ export async function resolveMissingDependencies(filePath: string, langClient: D
     return resp;
 }
 
-export async function getLowcodeST(payload: any, filePath: string, langClient: DiagramEditorLangClientInterface) {
+export async function getLowcodeST(payload: any, filePath: string, langClient: DiagramEditorLangClientInterface, experimentalEnabled?: boolean) {
     const modulePart: ModulePart = payload;
     const members: STNode[] = modulePart?.members || [];
-    const st = sizingAndPositioningST(payload);
+    const st = sizingAndPositioningST(payload, experimentalEnabled);
     cleanLocalSymbols();
     cleanModuleLevelSymbols();
     traversNode(st, SymbolVisitor);
@@ -68,10 +68,10 @@ export function getDefaultSelectedPosition(modulePart: ModulePart): SelectedPosi
     }
 }
 
-export function sizingAndPositioningST(st: STNode): STNode {
+export function sizingAndPositioningST(st: STNode, experimentalEnabled?: boolean): STNode {
     traversNode(st, initVisitor);
-    traversNode(st, sizingVisitor);
-    traversNode(st, positionVisitor);
+    traversNode(st, new SizingVisitor(experimentalEnabled));
+    traversNode(st, new PositioningVisitor(experimentalEnabled));
     const clone = { ...st };
     return clone;
 }

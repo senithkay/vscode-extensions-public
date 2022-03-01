@@ -68,14 +68,16 @@ import { AsyncReceiveInfo, AsyncSendInfo, SendRecievePairInfo, WaitInfo } from "
 let allEndpoints: Map<string, Endpoint> = new Map<string, Endpoint>();
 let epCount: number = 0;
 
-class PositioningVisitor implements Visitor {
+export class PositioningVisitor implements Visitor {
     private senderReceiverInfo: Map<string, { sends: AsyncSendInfo[], receives: AsyncReceiveInfo[], waits: WaitInfo[] }>;
     private workerMap: Map<string, NamedWorkerDeclaration>;
     private currentWorker: string[] = []
+    private experimentalEnabled: boolean;
 
-    constructor() {
+    constructor(experimentalEnabled?: boolean) {
         this.senderReceiverInfo = new Map();
         this.workerMap = new Map();
+        this.experimentalEnabled = experimentalEnabled;
     }
 
     private cleanMaps() {
@@ -138,31 +140,36 @@ class PositioningVisitor implements Visitor {
 
         viewState.end.bBox.cx = viewState.bBox.cx + viewState.bBox.w / 2;
         viewState.end.bBox.cy = DefaultConfig.startingY + viewState.workerLine.h + DefaultConfig.canvas.childPaddingY;
-        this.currentWorker.push('function');
+
+        if (this.experimentalEnabled) {
+            this.currentWorker.push('function');
+        }
     }
 
     public beginVisitNamedWorkerDeclaration(node: NamedWorkerDeclaration) {
-        const viewState: WorkerDeclarationViewState = node.viewState as WorkerDeclarationViewState;
-        const bodyViewState: BlockViewState = node.workerBody.viewState as BlockViewState;
+        if (this.experimentalEnabled) {
+            const viewState: WorkerDeclarationViewState = node.viewState as WorkerDeclarationViewState;
+            const bodyViewState: BlockViewState = node.workerBody.viewState as BlockViewState;
 
-        this.workerMap.set(node.workerName.value, node);
+            this.workerMap.set(node.workerName.value, node);
 
-        viewState.bBox.cx = viewState.bBox.x;
-        viewState.bBox.cy = viewState.bBox.y + PLUS_SVG_HEIGHT + PROCESS_SVG_HEIGHT;
+            viewState.bBox.cx = viewState.bBox.x;
+            viewState.bBox.cy = viewState.bBox.y + PLUS_SVG_HEIGHT + PROCESS_SVG_HEIGHT;
 
-        viewState.trigger.cx = viewState.bBox.cx + viewState.bBox.w / 2;
-        viewState.trigger.cy = viewState.bBox.cy + DefaultConfig.serviceVerticalPadding + viewState.trigger.h / 2
-            + DefaultConfig.functionHeaderHeight;
+            viewState.trigger.cx = viewState.bBox.cx + viewState.bBox.w / 2;
+            viewState.trigger.cy = viewState.bBox.cy + DefaultConfig.serviceVerticalPadding + viewState.trigger.h / 2
+                + DefaultConfig.functionHeaderHeight;
 
-        viewState.workerLine.x = viewState.trigger.cx;
-        viewState.workerLine.y = viewState.trigger.cy + (viewState.trigger.h / 2);
+            viewState.workerLine.x = viewState.trigger.cx;
+            viewState.workerLine.y = viewState.trigger.cy + (viewState.trigger.h / 2);
 
-        bodyViewState.bBox.cx = viewState.workerLine.x;
-        bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
+            bodyViewState.bBox.cx = viewState.workerLine.x;
+            bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
 
-        viewState.end.bBox.cx = viewState.bBox.cx + viewState.bBox.w / 2;
-        viewState.end.bBox.cy = viewState.workerLine.y + viewState.workerLine.h + DefaultConfig.canvas.childPaddingY;
-        this.currentWorker.push(node.workerName.value);
+            viewState.end.bBox.cx = viewState.bBox.cx + viewState.bBox.w / 2;
+            viewState.end.bBox.cy = viewState.workerLine.y + viewState.workerLine.h + DefaultConfig.canvas.childPaddingY;
+            this.currentWorker.push(node.workerName.value);
+        }
     }
 
     public endVisitNamedWorkerDeclaration(node: NamedWorkerDeclaration) {
@@ -177,7 +184,9 @@ class PositioningVisitor implements Visitor {
             }
         }
 
-        this.currentWorker.pop();
+        if (this.experimentalEnabled) {
+            this.currentWorker.pop();
+        }
     }
 
     public beginVisitResourceAccessorDefinition(node: ResourceAccessorDefinition) {
@@ -250,7 +259,8 @@ class PositioningVisitor implements Visitor {
 
         // If body has no statements and doesn't have a end component
         // Add the plus button to show up on the start end
-        if (!bodyViewState.isEndComponentAvailable && body.statements.length <= 0 && !body.namedWorkerDeclarator) {
+        if (!bodyViewState.isEndComponentAvailable && body.statements.length <= 0
+            && (!body.namedWorkerDeclarator && this.experimentalEnabled)) {
             const plusBtnViewState: PlusViewState = viewState.initPlus;
             if (bodyViewState.draft === undefined && plusBtnViewState) {
                 plusBtnViewState.bBox.cx = viewState.trigger.cx - (BIGPLUS_SVG_WIDTH / 2);
@@ -276,10 +286,11 @@ class PositioningVisitor implements Visitor {
         updateConnectorCX(bodyViewState.bBox.w / 2 + widthOfOnFailClause, bodyViewState.bBox.cx, allEndpoints, viewState.trigger.cy);
         // Add the connector max width to the diagram width.
         // viewState.bBox.w = viewState.bBox.w + getMaXWidthOfConnectors(allEndpoints) + widthOfOnFailClause;
-        this.currentWorker.pop();
-        this.updateSendArrowPositions(node);
-        this.cleanMaps();
-
+        if (this.experimentalEnabled) {
+            this.currentWorker.pop();
+            this.updateSendArrowPositions(node);
+            this.cleanMaps();
+        }
     }
 
     private updateSendArrowPositions(node: FunctionDefinition) {
@@ -393,7 +404,8 @@ class PositioningVisitor implements Visitor {
 
         // If body has no statements and doesn't have a end component
         // Add the plus button to show up on the start end
-        if (!bodyViewState.isEndComponentAvailable && body.statements.length <= 0 && !body.namedWorkerDeclarator) {
+        if (!bodyViewState.isEndComponentAvailable && body.statements.length <= 0
+            && (!body.namedWorkerDeclarator && this.experimentalEnabled)) {
             const plusBtnViewState: PlusViewState = viewState.initPlus;
             if (bodyViewState.draft === undefined && plusBtnViewState) {
                 plusBtnViewState.bBox.cx = viewState.trigger.cx - (BIGPLUS_SVG_WIDTH / 2);
@@ -421,7 +433,8 @@ class PositioningVisitor implements Visitor {
 
         // If body has no statements and doesn't have a end component
         // Add the plus button to show up on the start end
-        if (!bodyViewState.isEndComponentAvailable && body.statements.length <= 0 && !body.namedWorkerDeclarator) {
+        if (!bodyViewState.isEndComponentAvailable && body.statements.length <= 0
+            && (!body.namedWorkerDeclarator && this.experimentalEnabled)) {
             const plusBtnViewState: PlusViewState = viewState.initPlus;
             if (bodyViewState.draft === undefined && plusBtnViewState) {
                 plusBtnViewState.bBox.cx = viewState.trigger.cx - (BIGPLUS_SVG_WIDTH / 2);
@@ -444,7 +457,7 @@ class PositioningVisitor implements Visitor {
         let height = 0;
         let index = 0;
 
-        if (blockViewState.hasWorkerDecl) {
+        if (blockViewState.hasWorkerDecl && this.experimentalEnabled) {
             const workerInitStatements = (node as FunctionBodyBlock).namedWorkerDeclarator.workerInitStatements;
             ({ height, index } = this.calculateStatementPosition(
                 workerInitStatements,
@@ -571,94 +584,96 @@ class PositioningVisitor implements Visitor {
                 }
             }
 
-            if (STKindChecker.isActionStatement(statement)) {
-                if (statement.expression.kind === 'AsyncSendAction') {
-                    const sendExpression: any = statement.expression;
-                    const targetName: string = sendExpression.peerWorker?.name?.value as string;
-                    this.addToSendReceiveMap('Send', {
-                        to: targetName, node: statement, paired: false, index: (index)
-                    });
-                } else if (STKindChecker.isWaitAction(statement.expression)
-                    && STKindChecker.isSimpleNameReference(statement.expression.waitFutureExpr)) {
+            if (this.experimentalEnabled) {
+                if (STKindChecker.isActionStatement(statement)) {
+                    if (statement.expression.kind === 'AsyncSendAction') {
+                        const sendExpression: any = statement.expression;
+                        const targetName: string = sendExpression.peerWorker?.name?.value as string;
+                        this.addToSendReceiveMap('Send', {
+                            to: targetName, node: statement, paired: false, index: (index)
+                        });
+                    } else if (STKindChecker.isWaitAction(statement.expression)
+                        && STKindChecker.isSimpleNameReference(statement.expression.waitFutureExpr)) {
+                        this.addToSendReceiveMap('Wait', {
+                            for: statement.expression.waitFutureExpr.name.value,
+                            node: statement,
+                            index: (index)
+                        });
+                    } else if (STKindChecker.isCheckAction(statement.expression)
+                        && STKindChecker.isWaitAction(statement.expression.expression)
+                        && STKindChecker.isSimpleNameReference(statement.expression.expression.waitFutureExpr)) {
+                        this.addToSendReceiveMap('Wait', {
+                            for: statement.expression.expression.waitFutureExpr.name.value,
+                            node: statement,
+                            index: (index)
+                        });
+                    }
+                } else if (STKindChecker.isLocalVarDecl(statement)) {
+                    if (statement.initializer?.kind === 'ReceiveAction') {
+                        const receiverExpression: any = statement.initializer;
+                        const senderName: string = receiverExpression.receiveWorkers?.name?.value;
+                        this.addToSendReceiveMap('Receive',
+                            { from: senderName, node: statement, paired: false, index: (index) });
+                    } else if (STKindChecker.isCheckAction(statement.initializer)
+                        && (statement.initializer.expression.kind === 'ReceiveAction')) {
+                        const receiverExpression: any = statement.initializer.expression;
+                        const senderName: string = receiverExpression.receiveWorkers?.name?.value;
+
+                        this.addToSendReceiveMap('Receive',
+                            { from: senderName, node: statement, paired: false, index: (index) });
+                    } else if (STKindChecker.isWaitAction(statement.initializer)
+                        && STKindChecker.isSimpleNameReference(statement.initializer.waitFutureExpr)) {
+                        this.addToSendReceiveMap('Wait', {
+                            for: statement.initializer.waitFutureExpr.name.value,
+                            node: statement,
+                            index: (index)
+                        });
+                    } else if (STKindChecker.isCheckAction(statement.initializer)
+                        && STKindChecker.isWaitAction(statement.initializer.expression)
+                        && STKindChecker.isSimpleNameReference(statement.initializer.expression.waitFutureExpr)) {
+                        this.addToSendReceiveMap('Wait', {
+                            for: statement.initializer.expression.waitFutureExpr.name.value,
+                            node: statement,
+                            index: (index)
+                        });
+                    }
+                } else if (STKindChecker.isAssignmentStatement(statement)) {
+                    if (statement.expression?.kind === 'ReceiveAction') {
+                        const receiverExpression: any = statement.expression;
+                        const senderName: string = receiverExpression.receiveWorkers?.name?.value;
+                        this.addToSendReceiveMap('Receive',
+                            { from: senderName, node: statement, paired: false, index: (index) });
+                    } else if (STKindChecker.isCheckAction(statement.expression)
+                        && (statement.expression.expression.kind === 'ReceiveAction')) {
+                        const receiverExpression: any = statement.expression.expression;
+                        const senderName: string = receiverExpression.receiveWorkers?.name?.value;
+
+                        this.addToSendReceiveMap('Receive',
+                            { from: senderName, node: statement, paired: false, index: (index) });
+                    } else if (STKindChecker.isWaitAction(statement.expression)
+                        && STKindChecker.isSimpleNameReference(statement.expression.waitFutureExpr)) {
+                        this.addToSendReceiveMap('Wait', {
+                            for: statement.expression.waitFutureExpr.name.value,
+                            node: statement,
+                            index: (index)
+                        });
+                    } else if (STKindChecker.isCheckAction(statement.expression)
+                        && STKindChecker.isWaitAction(statement.expression.expression)
+                        && STKindChecker.isSimpleNameReference(statement.expression.expression.waitFutureExpr)) {
+                        this.addToSendReceiveMap('Wait', {
+                            for: statement.expression.expression.waitFutureExpr.name.value,
+                            node: statement,
+                            index: (index)
+                        });
+                    }
+                } else if (STKindChecker.isReturnStatement(statement) && STKindChecker.isWaitAction(statement.expression) &&
+                    STKindChecker.isSimpleNameReference(statement.expression.waitFutureExpr)) {
                     this.addToSendReceiveMap('Wait', {
                         for: statement.expression.waitFutureExpr.name.value,
                         node: statement,
                         index: (index)
                     });
-                } else if (STKindChecker.isCheckAction(statement.expression)
-                    && STKindChecker.isWaitAction(statement.expression.expression)
-                    && STKindChecker.isSimpleNameReference(statement.expression.expression.waitFutureExpr)) {
-                    this.addToSendReceiveMap('Wait', {
-                        for: statement.expression.expression.waitFutureExpr.name.value,
-                        node: statement,
-                        index: (index)
-                    });
                 }
-            } else if (STKindChecker.isLocalVarDecl(statement)) {
-                if (statement.initializer?.kind === 'ReceiveAction') {
-                    const receiverExpression: any = statement.initializer;
-                    const senderName: string = receiverExpression.receiveWorkers?.name?.value;
-                    this.addToSendReceiveMap('Receive',
-                        { from: senderName, node: statement, paired: false, index: (index) });
-                } else if (STKindChecker.isCheckAction(statement.initializer)
-                    && (statement.initializer.expression.kind === 'ReceiveAction')) {
-                    const receiverExpression: any = statement.initializer.expression;
-                    const senderName: string = receiverExpression.receiveWorkers?.name?.value;
-
-                    this.addToSendReceiveMap('Receive',
-                        { from: senderName, node: statement, paired: false, index: (index) });
-                } else if (STKindChecker.isWaitAction(statement.initializer)
-                    && STKindChecker.isSimpleNameReference(statement.initializer.waitFutureExpr)) {
-                    this.addToSendReceiveMap('Wait', {
-                        for: statement.initializer.waitFutureExpr.name.value,
-                        node: statement,
-                        index: (index)
-                    });
-                } else if (STKindChecker.isCheckAction(statement.initializer)
-                    && STKindChecker.isWaitAction(statement.initializer.expression)
-                    && STKindChecker.isSimpleNameReference(statement.initializer.expression.waitFutureExpr)) {
-                    this.addToSendReceiveMap('Wait', {
-                        for: statement.initializer.expression.waitFutureExpr.name.value,
-                        node: statement,
-                        index: (index)
-                    });
-                }
-            } else if (STKindChecker.isAssignmentStatement(statement)) {
-                if (statement.expression?.kind === 'ReceiveAction') {
-                    const receiverExpression: any = statement.expression;
-                    const senderName: string = receiverExpression.receiveWorkers?.name?.value;
-                    this.addToSendReceiveMap('Receive',
-                        { from: senderName, node: statement, paired: false, index: (index) });
-                } else if (STKindChecker.isCheckAction(statement.expression)
-                    && (statement.expression.expression.kind === 'ReceiveAction')) {
-                    const receiverExpression: any = statement.expression.expression;
-                    const senderName: string = receiverExpression.receiveWorkers?.name?.value;
-
-                    this.addToSendReceiveMap('Receive',
-                        { from: senderName, node: statement, paired: false, index: (index) });
-                } else if (STKindChecker.isWaitAction(statement.expression)
-                    && STKindChecker.isSimpleNameReference(statement.expression.waitFutureExpr)) {
-                    this.addToSendReceiveMap('Wait', {
-                        for: statement.expression.waitFutureExpr.name.value,
-                        node: statement,
-                        index: (index)
-                    });
-                } else if (STKindChecker.isCheckAction(statement.expression)
-                    && STKindChecker.isWaitAction(statement.expression.expression)
-                    && STKindChecker.isSimpleNameReference(statement.expression.expression.waitFutureExpr)) {
-                    this.addToSendReceiveMap('Wait', {
-                        for: statement.expression.expression.waitFutureExpr.name.value,
-                        node: statement,
-                        index: (index)
-                    });
-                }
-            } else if (STKindChecker.isReturnStatement(statement) && STKindChecker.isWaitAction(statement.expression) &&
-                STKindChecker.isSimpleNameReference(statement.expression.waitFutureExpr)) {
-                this.addToSendReceiveMap('Wait', {
-                    for: statement.expression.waitFutureExpr.name.value,
-                    node: statement,
-                    index: (index)
-                });
             }
 
             // Control flow execution time
