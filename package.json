@@ -501,7 +501,6 @@
         "monaco-languageclient": "^0.13.0",
         "node-schedule": "^2.0.0",
         "portfinder": "^1.0.28",
-        "simple-git": "^2.47.0",
         "toml": "^3.0.0",
         "vscode-debugprotocol": "^1.44.0",
         "vscode-extension-telemetry": "^0.1.7",
@@ -542,5 +541,8 @@
     },
     "extensionPack": [
         "be5invis.toml"
+    ],
+    "extensionDependencies": [
+        "vscode.git"
     ]
 }
