@@ -218,8 +218,8 @@ export function InputEditor(props: InputEditorProps) {
         sendDidChange(inputEditorState.uri, inputEditorState.content, getLangClient).then();
         const diagResp = await getDiagnostics(inputEditorState.uri, getLangClient);
         const diag = diagResp[0]?.diagnostics ?
-        getFilteredDiagnostics(diagResp[0]?.diagnostics, isCustomTemplate) :
-        [];
+            getFilteredDiagnostics(diagResp[0]?.diagnostics, isCustomTemplate) :
+            [];
         setInputEditorState((prevState) => {
             return {
                 ...prevState,
