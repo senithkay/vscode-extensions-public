@@ -20,6 +20,7 @@ import classnames from "classnames";
 
 import DeleteButton from "../../../../../../assets/icons/DeleteButton";
 import { FormState, useRecordEditorContext } from "../../../../../../Contexts/RecordEditor";
+import { keywords } from "../../../../Portals/utils/constants";
 import { LowCodeExpressionEditor } from "../../../FormFieldComponents/LowCodeExpressionEditor";
 import { FormTextInput } from "../../../FormFieldComponents/TextField/FormTextInput";
 import { VariableTypeInput, VariableTypeInputProps } from "../../Components/VariableTypeInput";
@@ -81,6 +82,9 @@ export function FieldEditor(props: FieldEditorProps) {
     const handleEnterPressed = () => {
         if (!state.currentField.isNameInvalid && !state.currentField.isTypeInvalid &&
             !state.currentField.isValueInvalid && state.currentField.type && state.currentField.name) {
+            if (keywords.includes(state.currentField.name)) {
+                state.currentField.name = `'${state.currentField.name}`;
+            }
             state.currentField.isEditInProgress = false;
             state.currentField.isActive = true;
             callBacks.onUpdateCurrentField(field);

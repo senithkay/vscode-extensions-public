@@ -14,8 +14,34 @@
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 import { theme } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 
+const syntaxHighlightingRules = {
+    '& .type-descriptor, &.type-descriptor': {
+        color: '#008080'
+    },
+    '& .numeric-literal, &.numeric-literal': {
+        color: '#128bdf'
+    },
+    '& .string-literal, &.string-literal': {
+        color: '#a31515'
+    },
+    '& .boolean-literal, &.boolean-literal': {
+        color: '#dd0000'
+    },
+    '& .operator, &.operator': {
+        color: '#0000ff'
+    },
+    '& .keyword, &.keyword': {
+        color: '#0000ff'
+    }
+}
+
 export const useStatementEditorStyles = makeStyles(() =>
     createStyles({
+        undoRedoButtons: {
+            position: 'absolute',
+            right: '0',
+            top: '48px'
+        },
         mainStatementWrapper: {
             display: 'flex',
             height: 'auto',
@@ -68,6 +94,8 @@ export const useStatementEditorStyles = makeStyles(() =>
         statementExpressionContent: {
             paddingTop: theme.spacing(1.5),
             paddingBottom: theme.spacing(1),
+            fontSize: "18px",
+            'user-select': 'none'
         },
         expressionSugession: {
             padding: theme.spacing(1.5),
@@ -211,49 +239,42 @@ export const useStatementEditorStyles = makeStyles(() =>
         },
         expressionBlock: {
             position: 'relative',
-            paddingRight: '10px'
+            paddingRight: '10px',
+            ...syntaxHighlightingRules
         },
         expressionBlockDisabled: {
             height: '24px',
             width: '15px',
-            fontFamily: "Droid Sans Mono",
-            fontSize: '12px',
             letterSpacing: 0,
-            lineHeight: '24px',
         },
         expressionElement: {
-            boxSizing: 'border-box',
-            border: '1px solid #A6B3FF',
-            borderRadius: '8px',
             position: 'relative',
             width: 'fit-content',
-            backgroundColor: '#ffffff',
-            marginLeft: '2px',
-            marginTop: '1px',
-            fontFamily: "Droid Sans Mono",
-            color: '#0095FF',
-            fontSize: '12px',
-            letterSpacing: 0,
-            lineHeight: '24px',
-            '&:hover': {
-                backgroundColor: 'rgba(173, 214, 255, 0.3)',
-            }
+            margin: '0 2px 0 2px',
+            '&': {
+                width: 'fit-content',
+                padding: '4px',
+                borderRadius: '4px',
+            },
+            '&.hovered': {
+                backgroundColor: '#e5ebf1',
+            },
+            cursor: "pointer",
+            ...syntaxHighlightingRules
         },
         expressionElementSelected: {
-            backgroundColor: '#add6ff',
-            border: '1px solid #add6ff',
+            '&': {
+                backgroundColor: '#b3d9ff',
+            },
+            '&.hovered': {
+                backgroundColor: '#e5ebf1',
+            },
         },
         inputEditorTemplate: {
             minWidth: '20px',
-            fontSize: '13px',
             letterSpacing: 0,
-            display: 'inline-block',
-            lineHeight: '24px',
             position: 'relative',
-            marginLeft: '2px',
-            marginTop: '1px',
-            borderRadius: '5px',
-            border: '1px',
+            border: 'none',
             '&:focus': {
                 outline: 'none'
             }
@@ -313,7 +334,7 @@ export const useStatementEditorStyles = makeStyles(() =>
             position: 'relative',
             width: 'fit-content',
             backgroundColor: '#F0F1FB',
-            fontFamily: "Droid Sans Mono",
+            fontFamily: "monospace",
             color: '#0095FF',
             marginLeft: '2px',
             fontSize: '12px',
