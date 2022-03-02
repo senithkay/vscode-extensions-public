@@ -94,12 +94,12 @@ export function ExpressionComponent(props: ExpressionComponentProps) {
             onClick={onMouseClick}
         >
             {component}
+            {children}
             {isSelected && (
                 <div className={statementEditorClasses.expressionDeleteButton}>
                     <DeleteButton onClick={onClickOnClose} />
                 </div>
             )}
-            {children}
         </span>
     );
 }
