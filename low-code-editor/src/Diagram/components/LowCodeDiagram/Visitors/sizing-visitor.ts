@@ -286,61 +286,11 @@ export class SizingVisitor implements Visitor {
     }
 
     public beginVisitResourceAccessorDefinition(node: ResourceAccessorDefinition) {
-        // this.beginFunctionTypeNode(node);
-        const viewState: FunctionViewState = node.viewState as FunctionViewState;
-        const body: FunctionBodyBlock = node.functionBody as FunctionBodyBlock;
-        const bodyViewState: BlockViewState = body.viewState;
-        viewState.collapsed = !expandTracker.isExpanded(getNodeSignature(node));
-
-        // If body has no statements and doesn't have a end component
-        // Add the plus button to show up on the start end
-        if (!bodyViewState.isEndComponentAvailable && body.statements.length <= 0 && !body.namedWorkerDeclarator) {
-            const plusBtnViewState: PlusViewState = new PlusViewState();
-            if (!bodyViewState.draft && !viewState.initPlus) {
-                plusBtnViewState.index = body.statements.length;
-                plusBtnViewState.expanded = true;
-                plusBtnViewState.selectedComponent = "PROCESS";
-                plusBtnViewState.collapsedClicked = false;
-                plusBtnViewState.collapsedPlusDuoExpanded = false;
-                plusBtnViewState.isLast = true;
-                bodyViewState.plusButtons = [];
-                bodyViewState.plusButtons.push(plusBtnViewState);
-                viewState.initPlus = plusBtnViewState;
-            } else if (viewState.initPlus && viewState.initPlus.draftAdded) {
-                viewState.initPlus = undefined;
-            }
-        }
+        this.beginVisitFunctionDefinition(node);
     }
 
     public endVisitResourceAccessorDefinition(node: ResourceAccessorDefinition) {
-        const viewState: FunctionViewState = node.viewState as FunctionViewState;
-        const body: FunctionBodyBlock = node.functionBody as FunctionBodyBlock;
-        const bodyViewState: BlockViewState = body.viewState;
-        const lifeLine = viewState.workerLine;
-        const trigger = viewState.trigger;
-        const end = viewState.end;
-
-        trigger.h = START_SVG_HEIGHT;
-        trigger.w = START_SVG_WIDTH;
-
-        end.bBox.w = STOP_SVG_WIDTH;
-        end.bBox.h = STOP_SVG_HEIGHT;
-
-        lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h;
-
-        if (STKindChecker.isExpressionFunctionBody(body) || body.statements.length > 0) {
-            lifeLine.h += end.bBox.offsetFromTop;
-        }
-
-        viewState.bBox.h = lifeLine.h + trigger.h + end.bBox.h + DefaultConfig.serviceVerticalPadding * 2 + DefaultConfig.functionHeaderHeight;
-        viewState.bBox.w = (trigger.w > bodyViewState.bBox.w ? trigger.w : bodyViewState.bBox.w) + DefaultConfig.serviceFrontPadding + DefaultConfig.serviceRearPadding + allEndpoints.size * 150 * 2;
-
-        if (viewState.initPlus && viewState.initPlus.selectedComponent === "PROCESS") {
-            viewState.bBox.h += PLUS_HOLDER_STATEMENT_HEIGHT;
-            if (viewState.bBox.w < PLUS_HOLDER_WIDTH) {
-                viewState.bBox.w = PLUS_HOLDER_WIDTH;
-            }
-        }
+        this.endVisitFunctionDefinition(node);
     }
 
     public beginVisitObjectMethodDefinition(node: ObjectMethodDefinition) {
