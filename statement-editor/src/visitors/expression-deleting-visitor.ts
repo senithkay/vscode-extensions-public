@@ -12,15 +12,12 @@
  */
 import {
     BinaryExpression,
-    CommaToken,
     FieldAccess,
     ListConstructor,
+    MappingConstructor,
     MethodCall,
-    NamedArg,
     NodePosition,
     OptionalFieldAccess,
-    PositionalArg,
-    RestArg,
     STKindChecker,
     STNode,
     Visitor
@@ -99,8 +96,8 @@ class ExpressionDeletingVisitor implements Visitor {
     }
 
     public beginVisitListConstructor(node: ListConstructor) {
-        const hasItemsToBeDeleted = !!node.expressions.filter((arg) => {
-            return this.deletePosition === arg.position;
+        const hasItemsToBeDeleted = !!node.expressions.filter((item) => {
+            return this.deletePosition === item.position;
         }).length;
 
         if (hasItemsToBeDeleted) {
@@ -116,6 +113,29 @@ class ExpressionDeletingVisitor implements Visitor {
                 ...node.position,
                 startColumn: node.openBracket.position.endColumn,
                 endColumn: node.closeBracket.position.startColumn
+            }
+        }
+    }
+
+    public beginVisitMappingConstructor(node: MappingConstructor) {
+        const hasItemsToBeDeleted = !!node.fields.filter((field) => {
+            return this.deletePosition === field.position;
+        }).length;
+
+        if (hasItemsToBeDeleted) {
+            const expressions : string[] = [];
+            node.fields.map((field) => {
+                if (this.deletePosition !== field.position && !STKindChecker.isCommaToken(field)) {
+                    expressions.push(field.source);
+                }
+            });
+
+            this.codeAfterDeletion = expressions.join(',');
+            this.newDeletePosition = {
+                startLine: node.openBrace.position.startLine,
+                startColumn: node.openBrace.position.endColumn,
+                endLine:  node.closeBrace.position.endLine,
+                endColumn: node.closeBrace.position.startColumn
             }
         }
     }
