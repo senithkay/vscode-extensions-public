@@ -36,7 +36,8 @@ export function FloatTypeDescComponent(props: FloatTypeDescProps) {
         expressionHandler,
         userInputs,
         diagnosticHandler,
-        isTypeDescriptor
+        isTypeDescriptor,
+        classNames: "type-descriptor float"
     };
 
     return (

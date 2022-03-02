@@ -13,7 +13,8 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import React, { useContext } from "react";
 
-import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { List, ListItem, ListItemText, Typography } from "@material-ui/core";
+import { STNode } from "@wso2-enterprise/syntax-tree";
 
 import { SuggestionItem } from "../../../models/definitions";
 import { InputEditorContext } from "../../../store/input-editor-context";
@@ -22,15 +23,16 @@ import { generateExpressionTemplate } from "../../../utils/utils";
 import { useStatementEditorStyles } from "../../styles";
 
 export interface ExpressionSuggestionsProps {
-    model: STNode
-    suggestions?: SuggestionItem[],
-    operator: boolean,
-    suggestionHandler: () => void
+    model: STNode;
+    suggestions?: SuggestionItem[];
+    operator: boolean;
+    suggestionHandler: () => void;
+    isExpression: boolean;
 }
 
 export function ExpressionSuggestions(props: ExpressionSuggestionsProps) {
     const statementEditorClasses = useStatementEditorStyles();
-    const { model, suggestions, suggestionHandler, operator } = props;
+    const { model, suggestions, suggestionHandler, operator, isExpression } = props;
     const inputEditorCtx = useContext(InputEditorContext);
 
     const {
@@ -50,37 +52,55 @@ export function ExpressionSuggestions(props: ExpressionSuggestionsProps) {
         suggestionHandler();
     }
 
-    const label = operator ? "Operators" : "Expressions";
-
     return (
-        <div>
-            <div className={statementEditorClasses.subHeader}>{label}</div>
-            {
-                suggestions.map((suggestion: SuggestionItem, index: number) => (
-                    (suggestion.kind) ?
-                        (
-                            <button
-                                className={statementEditorClasses.suggestionButton}
-                                key={index}
-                                onClick={() => onClickOperatorSuggestion(suggestion)}
-                            >
-                                {suggestion.value}
-                            </button>
-
-                        )
-                        :
-                        (
-                            <button
-                                className={statementEditorClasses.suggestionButton}
-                                key={index}
-                                onClick={() => onClickExpressionSuggestion(suggestion.value)}
-                            >
-                                {suggestion.value}
-                            </button>
-                        )
-
-                ))
-            }
-        </div>
+        <>
+            {isExpression && !!suggestions.length && (
+                <>
+                    <div className={statementEditorClasses.expressionSuggestionList}>
+                        <List className={statementEditorClasses.expressionList}>
+                            {
+                                suggestions.map((suggestion: SuggestionItem, index: number) => (
+                                    (suggestion.kind) ?
+                                        (
+                                            <ListItem
+                                                button={true}
+                                                className={statementEditorClasses.suggestionListItem}
+                                                key={index}
+                                                onClick={() => onClickOperatorSuggestion(suggestion)}
+                                                disableRipple={true}
+                                            >
+                                                <ListItemText
+                                                    primary={(
+                                                        <Typography>{suggestion.value}</Typography>
+                                                    )}
+                                                />
+                                            </ListItem>
+                                        )
+                                        :
+                                        (
+                                            <ListItem
+                                                button={true}
+                                                className={statementEditorClasses.suggestionListItem}
+                                                key={index}
+                                                onClick={() => onClickExpressionSuggestion(suggestion.value)}
+                                                disableRipple={true}
+                                            >
+                                                <ListItemText
+                                                    primary={(
+                                                        <Typography>{suggestion.value}</Typography>
+                                                    )}
+                                                />
+                                            </ListItem>
+                                        )
+                                ))
+                            }
+                        </List>
+                    </div>
+                </>
+            )}
+            {isExpression && !suggestions.length && (
+                <p className={statementEditorClasses.noSuggestionText}>Expressions not available</p>
+            )}
+        </>
     );
 }

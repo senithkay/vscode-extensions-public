@@ -13,6 +13,9 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useState } from "react";
 
+import IconButton from "@material-ui/core/IconButton";
+import RedoIcon from "@material-ui/icons/Redo";
+import UndoIcon from "@material-ui/icons/Undo";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 
 import * as c from "../../constants";
@@ -21,12 +24,9 @@ import { StatementEditorContext } from "../../store/statement-editor-context";
 import { SuggestionsContext } from "../../store/suggestions-context";
 import { getSuggestionsBasedOnExpressionKind } from "../../utils";
 import { Diagnostics } from "../Diagnostics";
-import { LibraryBrowser } from "../LibraryBrowser";
+import { HelperPane } from "../HelperPane";
 import { StatementRenderer } from "../StatementRenderer";
 import { useStatementEditorStyles } from "../styles";
-import { ExpressionSuggestions } from "../Suggestions/ExpressionSuggestions";
-import { TypeSuggestions } from "../Suggestions/TypeSuggestions";
-import { VariableSuggestions } from "../Suggestions/VariableSuggestions";
 
 interface ModelProps {
     label: string,
@@ -35,11 +35,13 @@ interface ModelProps {
     currentModelHandler: (model: STNode) => void
 }
 
-export function LeftPane(props: ModelProps) {
+export function EditorPane(props: ModelProps) {
     const statementEditorClasses = useStatementEditorStyles();
-    const { label, currentModel, userInputs, currentModelHandler } = props;
+    const { label, userInputs, currentModelHandler } = props;
 
     const { modelCtx } = useContext(StatementEditorContext);
+
+    const { undo, redo, hasRedo, hasUndo } = modelCtx;
 
     const [suggestionList, setSuggestionsList] = useState(modelCtx.statementModel ?
         getSuggestionsBasedOnExpressionKind(c.DEFAULT_EXPRESSIONS) : []);
@@ -51,14 +53,14 @@ export function LeftPane(props: ModelProps) {
     const [isTypeDescSuggestion, setIsTypeDescSuggestion] = useState(false);
 
     const expressionHandler = (
-            cModel: STNode,
-            operator: boolean,
-            isTypeDesc: boolean,
-            suggestionsList: {
-                variableSuggestions?: SuggestionItem[],
-                expressionSuggestions?: SuggestionItem[],
-                typeSuggestions?: SuggestionItem[]
-            }) => {
+        cModel: STNode,
+        operator: boolean,
+        isTypeDesc: boolean,
+        suggestionsList: {
+            variableSuggestions?: SuggestionItem[],
+            expressionSuggestions?: SuggestionItem[],
+            typeSuggestions?: SuggestionItem[]
+        }) => {
         currentModelHandler(cModel);
         if (suggestionsList.expressionSuggestions) {
             setSuggestionsList(suggestionsList.expressionSuggestions);
@@ -75,25 +77,31 @@ export function LeftPane(props: ModelProps) {
         setIsOperator(operator);
     }
 
-    const suggestionHandler = () => {
-        setIsSuggestionClicked(prevState => {
-            return !prevState;
-        });
-    }
-
     const diagnosticHandler = (diagnostics: string) => {
         setDiagnostic(diagnostics)
     }
 
+    const undoRedoButtons = (
+        <span className={statementEditorClasses.undoRedoButtons}>
+            <IconButton onClick={undo} disabled={!hasUndo}>
+                <UndoIcon />
+            </IconButton>
+            <IconButton onClick={redo} disabled={!hasRedo}>
+                <RedoIcon />
+            </IconButton>
+        </span>
+    );
+
+
     return (
         <div>
-            <div className={statementEditorClasses.sugessionsMainWrapper}>
+            <div className={statementEditorClasses.stmtEditorContentWrapper}>
                 <SuggestionsContext.Provider
                     value={{
                         expressionHandler
                     }}
                 >
-                    <div className={statementEditorClasses.statementExpressionTitle}>{label}</div>
+                    <div className={statementEditorClasses.statementExpressionTitle}>{label}{undoRedoButtons}</div>
                     <div className={statementEditorClasses.statementExpressionContent}>
                         <StatementRenderer
                             model={modelCtx.statementModel}
@@ -110,46 +118,14 @@ export function LeftPane(props: ModelProps) {
                     />
                 </div>
             </div>
-            <div className={statementEditorClasses.sugessionsSection}>
-                <div className={statementEditorClasses.sugessionsWrapper}>
-                    <div className={statementEditorClasses.variableSugession}>
-                        <div className={statementEditorClasses.contextSensitivePane}>
-                            {
-                                (!isTypeDescSuggestion && variableList.length > 0) && (
-                                    <div className={statementEditorClasses.variableSuggestionsInner}>
-                                        <VariableSuggestions
-                                            model={currentModel.model}
-                                            variableSuggestions={variableList}
-                                            suggestionHandler={suggestionHandler}
-                                        />
-                                    </div>
-                                )
-                            }
-                            {
-                                (!isTypeDescSuggestion && suggestionList.length > 0) && (
-                                    <ExpressionSuggestions
-                                        model={currentModel.model}
-                                        suggestions={suggestionList}
-                                        operator={isOperator}
-                                        suggestionHandler={suggestionHandler}
-                                    />
-                                )
-                            }
-                            {
-                                isTypeDescSuggestion && (
-                                    <TypeSuggestions
-                                        model={currentModel.model}
-                                        typeSuggestions={typeDescriptorList}
-                                        suggestionHandler={suggestionHandler}
-                                    />
-                                )
-                            }
-                        </div>
-                    </div>
-                </div>
-                <div className={statementEditorClasses.LibraryBrowsingWrapper}>
-                    <LibraryBrowser />
-                </div>
+            <div className={statementEditorClasses.suggestionsSection}>
+                <HelperPane
+                    variableList={variableList}
+                    typeDescriptorList={typeDescriptorList}
+                    suggestionList={suggestionList}
+                    isOperator={isOperator}
+                    isTypeDescSuggestion={isTypeDescSuggestion}
+                />
             </div>
         </div>
     );

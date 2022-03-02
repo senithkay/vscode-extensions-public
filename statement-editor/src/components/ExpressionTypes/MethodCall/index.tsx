@@ -35,38 +35,12 @@ interface MethodCallProps {
 export function MethodCallComponent(props: MethodCallProps) {
     const { model, userInputs, isElseIfMember, diagnosticHandler } = props;
     const stmtCtx = useContext(StatementEditorContext);
-    const { modelCtx } = stmtCtx;
-    const { currentModel } = modelCtx;
-    const hasExpressionSelected = currentModel.model &&
-        isPositionsEquals(currentModel.model.position, model.expression.position);
-    const hasMethodNameSelected = currentModel.model &&
-        isPositionsEquals(currentModel.model.position, model.methodName.position);
 
     const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
     const { currentFile, getLangClient } = stmtCtx;
     const targetPosition = stmtCtx.formCtx.formModelPosition;
     const fileURI = `expr://${currentFile.path}`;
-
-    const expression: ReactNode = (
-        <ExpressionComponent
-            model={model.expression}
-            userInputs={userInputs}
-            isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
-            isTypeDescriptor={false}
-        />
-    );
-
-    const methodName: ReactNode = (
-        <ExpressionComponent
-            model={model.methodName}
-            userInputs={userInputs}
-            isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
-            isTypeDescriptor={false}
-        />
-    );
 
     const expressionArgComponent = (
         <span>
@@ -130,16 +104,49 @@ export function MethodCallComponent(props: MethodCallProps) {
         });
     };
 
+    const expression: ReactNode = (
+        <ExpressionComponent
+            model={model.expression}
+            userInputs={userInputs}
+            isElseIfMember={isElseIfMember}
+            diagnosticHandler={diagnosticHandler}
+            isTypeDescriptor={false}
+            onSelect={onClickOnExpression}
+        />
+    );
+
+    const methodName: ReactNode = (
+        <ExpressionComponent
+            model={model.methodName}
+            userInputs={userInputs}
+            isElseIfMember={isElseIfMember}
+            diagnosticHandler={diagnosticHandler}
+            isTypeDescriptor={false}
+            onSelect={onClickOnMethodName}
+        >
+            <span
+                className={classNames(
+                    statementEditorClasses.expressionBlock,
+                    statementEditorClasses.expressionBlockDisabled
+                )}
+            >
+                {model.openParenToken.value}
+            </span>
+            {expressionArgComponent}
+            <span
+                className={classNames(
+                    statementEditorClasses.expressionBlock,
+                    statementEditorClasses.expressionBlockDisabled
+                )}
+            >
+                {model.closeParenToken.value}
+            </span>
+        </ExpressionComponent>
+    );
+
     return (
         <span>
-            <button
-                className={classNames(
-                    statementEditorClasses.expressionElement,
-                    hasExpressionSelected && statementEditorClasses.expressionElementSelected)}
-                onClick={onClickOnExpression}
-            >
-                {expression}
-            </button>
+            {expression}
             <span
                 className={classNames(
                     statementEditorClasses.expressionBlock,
@@ -148,31 +155,7 @@ export function MethodCallComponent(props: MethodCallProps) {
             >
                 {model.dotToken.value}
             </span>
-            <button
-                className={classNames(
-                    statementEditorClasses.expressionElement,
-                    hasMethodNameSelected && statementEditorClasses.expressionElementSelected)}
-                onClick={onClickOnMethodName}
-            >
-                {methodName}
-                <span
-                    className={classNames(
-                        statementEditorClasses.expressionBlock,
-                        statementEditorClasses.expressionBlockDisabled
-                    )}
-                >
-                    {model.openParenToken.value}
-                </span>
-                {expressionArgComponent}
-                <span
-                    className={classNames(
-                        statementEditorClasses.expressionBlock,
-                        statementEditorClasses.expressionBlockDisabled
-                    )}
-                >
-                    {model.closeParenToken.value}
-                </span>
-            </button>
+            {methodName}
         </span>
     );
 }

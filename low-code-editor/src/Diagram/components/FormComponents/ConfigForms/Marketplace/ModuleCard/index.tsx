@@ -3,6 +3,7 @@ import React from "react";
 import { Grid } from "@material-ui/core";
 import { BallerinaConstruct } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
+import Tooltip from "../../../../../../components/TooltipV2";
 import { ModuleIcon } from "../../../../LowCodeDiagram/Components/RenderingComponents/Connector/ConnectorHeader/ModuleIcon";
 
 import useStyles from "./style";
@@ -25,7 +26,9 @@ function ModuleCard(props: ModuleCardProps) {
                     <div>
                         <ModuleIcon module={module} />
                     </div>
-                    <div className={classes.balModuleName}>{moduleName}</div>
+                    <Tooltip type={"heading-content"} text={{ content: moduleName }}>
+                        <div className={classes.balModuleName}>{moduleName}</div>
+                    </Tooltip>
                     <div className={classes.orgName}>by {module.package.organization}</div>
                 </div>
             </div>

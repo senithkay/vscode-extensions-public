@@ -39,7 +39,7 @@ export function ElseBlockC(props: ElseBlockProps) {
                     statementEditorClasses.expressionBlockDisabled
                 )}
             >
-                {model.elseKeyword.value}
+                <span className="keyword">{model.elseKeyword.value}</span>
                 &nbsp;{model.elseBody.openBraceToken.value}
                 <br/>
                 &nbsp;&nbsp;&nbsp;{"..."}
@@ -51,7 +51,8 @@ export function ElseBlockC(props: ElseBlockProps) {
                 <span
                     className={classNames(
                         statementEditorClasses.expressionBlock,
-                        statementEditorClasses.expressionBlockDisabled
+                        statementEditorClasses.expressionBlockDisabled,
+                        "keyword"
                     )}
                 >
                     {"else"}

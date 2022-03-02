@@ -25,7 +25,11 @@ export const StatementEditorContext = React.createContext({
         initialSource: '',
         statementModel: null,
         currentModel: null,
-        updateModel: (codeSnippet: string, position: NodePosition) => {}
+        updateModel: (codeSnippet: string, position: NodePosition) => {},
+        undo: () => undefined,
+        redo: () => undefined,
+        hasUndo: false,
+        hasRedo: false
     },
     formCtx: {
         formModelPosition: null
@@ -36,7 +40,7 @@ export const StatementEditorContext = React.createContext({
     getLangClient: () => (Promise.resolve({} as any)),
     applyModifications: (modifications: STModification[]) => (undefined),
     library: {
-        getLibrariesList: (kind: LibraryKind) => (Promise.resolve({} as any)),
+        getLibrariesList: (kind?: LibraryKind) => (Promise.resolve({} as any)),
         getLibrariesData: () => (Promise.resolve({} as any)),
         getLibraryData: (orgName: string, moduleName: string, version: string) => (Promise.resolve({} as any))
     },
@@ -58,7 +62,11 @@ interface CtxProviderProps extends LowCodeEditorProps {
     updateModel?: (codeSnippet: string, position: NodePosition) => void,
     formArgs?: any,
     validateStatement: (isValid: boolean) => void,
-    initialSource: string
+    initialSource: string,
+    undo?: () => void,
+    redo?: () => void,
+    hasUndo?: boolean,
+    hasRedo?: boolean
 }
 
 export const StatementEditorContextProvider = (props: CtxProviderProps) => {
@@ -68,6 +76,10 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
         currentModel,
         importStatements,
         updateModel,
+        undo,
+        redo,
+        hasRedo,
+        hasUndo,
         formArgs,
         validateStatement,
         library,
@@ -92,7 +104,11 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
                     initialSource,
                     statementModel: model,
                     currentModel,
-                    updateModel
+                    updateModel,
+                    undo,
+                    redo,
+                    hasRedo,
+                    hasUndo,
                 },
                 formCtx: {
                     formModelPosition: formArgs.formArgs.targetPosition

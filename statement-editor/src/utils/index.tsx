@@ -12,7 +12,7 @@
  */
 import React, { ReactNode } from 'react';
 
-import { STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { CompletionResponse, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     NodePosition,
     STKindChecker,
@@ -156,4 +156,73 @@ export function isPositionsEquals(position1: NodePosition, position2: NodePositi
         position1?.startColumn === position2?.startColumn &&
         position1?.endLine === position2?.endLine &&
         position1?.endColumn === position2?.endColumn;
+}
+
+export function getSuggestionIconStyle(suggestionType: number): string {
+    let suggestionIconStyle: string;
+    switch (suggestionType) {
+        case 3:
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-function"
+            break;
+        case 5:
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-field"
+            break;
+        case 6:
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-variable"
+            break;
+        case 14:
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-keyword"
+            break;
+        case 20:
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-enum-member"
+            break;
+        case 22:
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-struct"
+            break;
+        case 25:
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-type-parameter"
+            break;
+        default:
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-variable"
+            break;
+    }
+    return suggestionIconStyle;
+}
+
+export function sortSuggestions(x: CompletionResponse, y: CompletionResponse) {
+    return x.sortText.localeCompare(y.sortText);
+}
+
+export function getModuleIconStyle(label: string): string {
+    let suggestionIconStyle: string;
+    switch (label) {
+        case "Functions":
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-function"
+            break;
+        case "Classes":
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-interface"
+            break;
+        case "Constants":
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-variable"
+            break;
+        case "Errors":
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-event"
+            break;
+        case "Enums":
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-enum"
+            break;
+        case "Records":
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-struct"
+            break;
+        case "Types":
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-ruler"
+            break;
+        case "Listeners":
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-variable"
+            break;
+        default:
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-interface"
+            break;
+    }
+    return suggestionIconStyle;
 }

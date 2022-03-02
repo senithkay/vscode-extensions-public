@@ -32,7 +32,8 @@ export function BooleanLiteralComponent(props: BooleanLiteralProps) {
         model,
         userInputs,
         diagnosticHandler,
-        isTypeDescriptor
+        isTypeDescriptor,
+        classNames: "boolean-literal"
     };
 
     return (
