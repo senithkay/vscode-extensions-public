@@ -65,7 +65,7 @@ export function getFormConfigFromModel(model: any, stSymbolInfo: STSymbolInfo): 
         defaultFormState.varValue = model.initializer.source === "?" ? "" : model.initializer.source;
         const configurableNameValue = ((model.typedBindingPattern as TypedBindingPattern)
             .bindingPattern as CaptureBindingPattern).variableName.value;
-        defaultFormState.varName  = genVariableName(configurableNameValue, getAllModuleVariables(stSymbolInfo));
+        defaultFormState.varName  = configurableNameValue;
 
         const displayAnnotation = (model as ModuleVarDecl)
             .metadata?.annotations?.filter(annotation =>

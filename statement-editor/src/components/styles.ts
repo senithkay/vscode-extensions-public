@@ -14,6 +14,27 @@
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 import { theme } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 
+const syntaxHighlightingRules = {
+    '& .type-descriptor, &.type-descriptor': {
+        color: '#008080'
+    },
+    '& .numeric-literal, &.numeric-literal': {
+        color: '#128bdf'
+    },
+    '& .string-literal, &.string-literal': {
+        color: '#a31515'
+    },
+    '& .boolean-literal, &.boolean-literal': {
+        color: '#dd0000'
+    },
+    '& .operator, &.operator': {
+        color: '#0000ff'
+    },
+    '& .keyword, &.keyword': {
+        color: '#0000ff'
+    }
+}
+
 export const useStatementEditorStyles = makeStyles(() =>
     createStyles({
         mainStatementWrapper: {
@@ -25,13 +46,30 @@ export const useStatementEditorStyles = makeStyles(() =>
         statementExpressionWrapper: {
             height: 'auto',
         },
-        sugessionsSection: {
+        suggestionsSection: {
             display: 'flex',
+            flexDirection: 'column',
             borderBottom: '1px solid #e6e7ec',
             minHeight: '50vh',
             height: '60vh'
         },
-        sugessionsMainWrapper: {
+        tabPanelWrapper: {
+            width: 'auto',
+            height: '48px',
+            boxShadow: '0px 1px 1px -1px rgb(0 0 0 / 20%), 0px 1px 1px 0px rgb(0 0 0 / 14%), 0px 1px 3px 0px rgb(0 0 0 / 12%)',
+            display: 'flex',
+            flexDirection: 'row'
+        },
+        tabPanel: {
+            width: '70%'
+        },
+        libraryTypeSelector: {
+            width: '30%',
+            height: '48px',
+            padding: '9px',
+            textAlignLast: 'center'
+        },
+        stmtEditorContentWrapper: {
             backgroundColor: '#f9fafc',
             display: 'flex',
             flexDirection: 'column',
@@ -39,10 +77,7 @@ export const useStatementEditorStyles = makeStyles(() =>
             borderBottom: '1px solid #e6e7ec'
         },
         sugessionsWrapper: {
-            width: '50%',
-            height: 'auto',
-            padding: theme.spacing(1.5),
-            borderRight: '1px solid #e6e7ec'
+            width: '100%',
         },
         LibraryBrowsingWrapper: {
             width: '50%',
@@ -54,9 +89,8 @@ export const useStatementEditorStyles = makeStyles(() =>
         statementExpressionContent: {
             paddingTop: theme.spacing(1.5),
             paddingBottom: theme.spacing(1),
-        },
-        variableSugession: {
-            padding: theme.spacing(1.5),
+            fontSize: "18px",
+            'user-select': 'none'
         },
         expressionSugession: {
             padding: theme.spacing(1.5),
@@ -112,7 +146,7 @@ export const useStatementEditorStyles = makeStyles(() =>
             top: '2%',
             bottom: '10%'
         },
-        LibraryBrowser: {
+        libraryBrowser: {
             display: 'flex',
             flexDirection: 'column',
             width: 'auto%',
@@ -163,14 +197,17 @@ export const useStatementEditorStyles = makeStyles(() =>
             width: '100%',
             overflowY: 'scroll'
         },
-        contextSensitivePane: {
-            position: 'relative',
-            height: '95%',
-            width: '90%',
-            top: '5%'
+        suggestionsInner: {
+            overflowY: 'scroll',
+            padding: theme.spacing(1.5),
+            height: '100%'
         },
-        variableSuggestionsInner: {
-            overflowY: 'scroll'
+        contextSensitivePane: {
+            display: 'flex',
+            flexDirection: 'column',
+            height: '100%',
+            position: 'relative',
+            marginLeft: '5%'
         },
         diagnosticsPane: {
             color: '#ea4c4d',
@@ -201,68 +238,45 @@ export const useStatementEditorStyles = makeStyles(() =>
         },
         expressionBlock: {
             position: 'relative',
-            paddingRight: '10px'
+            paddingRight: '10px',
+            ...syntaxHighlightingRules
         },
         expressionBlockDisabled: {
             height: '24px',
             width: '15px',
-            fontFamily: "Droid Sans Mono",
-            fontSize: '12px',
             letterSpacing: 0,
-            lineHeight: '24px',
         },
         expressionElement: {
-            boxSizing: 'border-box',
-            border: '1px solid #A6B3FF',
-            borderRadius: '8px',
             position: 'relative',
             width: 'fit-content',
-            backgroundColor: '#ffffff',
-            marginLeft: '2px',
-            marginTop: '1px',
-            fontFamily: "Droid Sans Mono",
-            color: '#0095FF',
-            fontSize: '12px',
-            letterSpacing: 0,
-            lineHeight: '24px',
-            '&:hover': {
-                backgroundColor: '#d7dcfc',
-                color: '#fff'
-            }
+            margin: '0 2px 0 2px',
+            '&': {
+                width: 'fit-content',
+                padding: '4px',
+                borderRadius: '4px',
+            },
+            '&.hovered': {
+                backgroundColor: '#e5ebf1',
+            },
+            cursor: "pointer",
+            ...syntaxHighlightingRules
         },
         expressionElementSelected: {
-            backgroundColor: '#5567D5',
-            color: '#fff',
-            border: '1px solid #5567D5',
+            '&': {
+                backgroundColor: '#b3d9ff',
+            },
+            '&.hovered': {
+                backgroundColor: '#e5ebf1',
+            },
         },
         inputEditorTemplate: {
             minWidth: '20px',
-            fontSize: '13px',
             letterSpacing: 0,
-            display: 'inline-block',
-            lineHeight: '24px',
             position: 'relative',
-            marginLeft: '2px',
-            marginTop: '1px',
-            '&:hover': {
-                backgroundColor: '#d7dcfc',
-                color: '#fff'
+            border: 'none',
+            '&:focus': {
+                outline: 'none'
             }
-        },
-        dataTypeTemplate: {
-            // color: '#05A26B',
-            color: '#05A26B',
-            fontSize: '10px',
-            letterSpacing: '-0.2px',
-            lineHeight: '24px',
-            position: 'relative',
-            marginLeft: '2px',
-            marginTop: '1px',
-            boxSizing: 'border-box',
-            border: ' 1px #36B475',
-            borderStyle: 'solid',
-            borderRadius: '3px',
-            padding: '3%'
         },
         addNewExpressionButton: {
             backgroundColor: '#f7f8fb',
@@ -274,9 +288,15 @@ export const useStatementEditorStyles = makeStyles(() =>
             margin: '4px 2px',
             borderRadius: '50%'
         },
-        LibraryDropdown: {
+        libraryBrowserHeader: {
             display: 'flex',
-            flexDirection: 'row'
+            flexDirection: 'row',
+            width: '96%'
+        },
+        libraryDropdown: {
+            flex: '0 0 50%',
+            display: 'flex',
+            justifyContent: 'flex-end'
         },
         rhsComponent: {
             position: 'relative',
@@ -306,13 +326,12 @@ export const useStatementEditorStyles = makeStyles(() =>
             position: 'relative',
             width: 'fit-content',
             backgroundColor: '#F0F1FB',
-            fontFamily: "Droid Sans Mono",
+            fontFamily: "monospace",
             color: '#0095FF',
             marginLeft: '2px',
             fontSize: '12px',
             '&:hover': {
-                backgroundColor: '#5567D5',
-                color: '#fff'
+                backgroundColor: 'rgba(173, 214, 255, 0.3)'
             }
         },
         mainExpStatementWrapper: {
@@ -325,14 +344,23 @@ export const useStatementEditorStyles = makeStyles(() =>
         },
         libraryBlock: {
             position: 'relative',
-            top: '5%',
-            height: '75%',
+            height: '100%',
             overflowY: 'scroll',
-            overflowX: 'hidden'
+            overflowX: 'hidden',
+            paddingRight: '5px',
+        },
+        libraryListBlock: {
+            position: 'relative',
+            height: '100%',
+            overflowY: 'scroll',
+            overflowX: 'hidden',
+            paddingRight: '5px',
+            columnGap: '6%',
+            display: 'grid',
+            gridTemplateColumns: '47% 47%'
         },
         librarySearchBox: {
             position: 'relative',
-            top: '5%',
             height: '32px',
             width: '304px',
             border: '1px #E0E3E9',
@@ -371,7 +399,8 @@ export const useStatementEditorStyles = makeStyles(() =>
             letterSpacing: 0,
             lineHeight: '12px',
             paddingTop: '10px',
-            paddingBottom: '10px'
+            paddingBottom: '10px',
+            marginBottom: '5px'
         },
         libraryElementBlock: {
             position: 'relative',
@@ -387,7 +416,10 @@ export const useStatementEditorStyles = makeStyles(() =>
             top: '10%',
             height: '80%',
             overflowY: 'scroll',
-            overflowX: 'hidden'
+            overflowX: 'hidden',
+            columnGap: '6%',
+            display: 'grid',
+            gridTemplateColumns: '29% 29% 29%'
         },
         libraryListButton: {
             border: 'none',
@@ -396,6 +428,129 @@ export const useStatementEditorStyles = makeStyles(() =>
             '&:hover': {
                 color: '#3a479c'
             },
-        }
+        },
+        lsSuggestionList: {
+            top: '5%',
+            height: '95%',
+            overflowY: 'scroll',
+            overflowX: 'hidden',
+        },
+        expressionSuggestionList: {
+            maxHeight: '100%',
+            overflowY: 'scroll',
+            overflowX: 'hidden',
+        },
+        suggestionListItem: {
+            padding: '0 0 0 2%',
+            '&:hover': {
+                backgroundColor: 'rgba(173, 214, 255, 0.3)',
+            },
+            '&:focus': {
+                backgroundColor: '#add6ff'
+            }
+        },
+        suggestionDataType: {
+            color: '#05A26B',
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis'
+        },
+        suggestionValue: {
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis'
+        },
+        suggestionList: {
+            columnGap: '6%',
+            display: 'grid',
+            gridTemplateColumns: '47% 47%'
+        },
+        selectDropDownSe: {
+            height: '30px',
+            width: "auto",
+            borderRadius: 5,
+            background: "linear-gradient(180deg, #ffffff 0%, #f7f7f9 100%)",
+            boxShadow: "inset 0 0 0 1px #dee0e7, 0 1px 1px 0 rgba(0, 0, 0, 0.06)",
+            cursor: "pointer",
+            marginBottom: theme.spacing(2.5),
+            border: 1,
+            "&:active": {
+                background: "linear-gradient(180deg, #ffffff 0%, #f7f7f9 100%)",
+                boxShadow: "inset 0 0 0 1px #a6b3ff, 0 1px 1px 0 rgba(0, 0, 0, 0.06)",
+                border: "1px solid #5567d5",
+            },
+            "&:focused": {
+                background: "linear-gradient(180deg, #ffffff 0%, #f7f7f9 100%)",
+                boxShadow: "inset 0 0 0 1px #a6b3ff, 0 1px 1px 0 rgba(0, 0, 0, 0.06)",
+                border: "1px solid #5567d5 !important",
+                backgroundColor: "none"
+            },
+            '& .MuiSelect-icon': {
+                marginRight: 20,
+            },
+            "& .MuiSelect-selectMenu": {
+                height: "inherit !important",
+                paddingLeft: 10,
+                "& .TextSpan": {
+                    top: "calc(50% - 8px)",
+                    position: "absolute",
+                    maxWidth: "156px",
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                }
+            },
+            "& .MuiSelect-select.MuiSelect-select": {
+                padding: "0 15px",
+                minWidth: "100px"
+            },
+            "& .MuiSelect-select.MuiSelect-select:focus": {
+                backgroundColor: "none"
+            }
+        },
+        dropdownStyle: {
+            backgroundColor: "#fff",
+            boxSizing: "border-box",
+            width: "auto",
+            border: "1px solid #DEE0E7",
+            borderRadius: "5px",
+            boxShadow: "0 5px 10px -3px rgba(50,50,77,0.1)",
+            color: "#222228",
+            marginTop: '0.25rem',
+        },
+        tabsPanelPaperSe: {
+            flexGrow: 1,
+            boxShadow: 'none'
+        },
+        tabsPanelSe: {
+            "& .MuiTab-wrapper": {
+                textTransform: 'none',
+                fontSize: '13px',
+                fontWeight: 'normal'
+            },
+            "& .MuiTab-textColorPrimary.Mui-selected": {
+                color: '#1D2028'
+            },
+            "& .MuiTab-textColorPrimary": {
+                color: '#8D91A3'
+            },
+            "& .MuiTabs-indicator": {
+                backgroundColor: '#40404B',
+                height: '1px'
+            },
+            "& .MuiTabs-scroller": {
+                height: '48px'
+            }
+        },
+        noSuggestionText: {
+            fontSize: '12px',
+            fontWeight: 'normal',
+            padding: theme.spacing(1.5)
+        },
+        expressionList: {
+            columnGap: '6%',
+            display: 'grid',
+            gridTemplateColumns: '47% 47%'
+        },
     }),
 );

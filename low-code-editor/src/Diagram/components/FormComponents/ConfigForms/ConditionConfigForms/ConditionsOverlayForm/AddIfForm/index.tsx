@@ -219,7 +219,7 @@ export function AddIfForm(props: IfProps) {
         defaultMessage: "Cancel",
     });
 
-    const validForm = compList.every((item) => item.isValid);
+    const validForm = compList.every((item) => item.isValid) && compList[0]?.expression !== "";
 
     const getCompleteSource = () => {
         let source = "";
@@ -244,11 +244,14 @@ export function AddIfForm(props: IfProps) {
                     }
                 })
             }
-            source = source + getInitialSource(createElseStatementWithBlock(
-                (currentModel.elseBody.elseBody as BlockStatement).statements.map(statement => {
-                    return statement.source
-                })
-            ));
+            if (currentModel.elseBody) {
+                source = source + getInitialSource(createElseStatementWithBlock(
+                    (currentModel.elseBody.elseBody as BlockStatement).statements.map(statement => {
+                        return statement.source
+                    })
+                ));
+            }
+
         }
         else {
             source = getInitialSource(createIfStatement(

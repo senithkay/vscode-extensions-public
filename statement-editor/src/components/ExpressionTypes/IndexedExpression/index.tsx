@@ -35,10 +35,6 @@ interface IndexedExpressionProps {
 export function IndexedExpressionComponent(props: IndexedExpressionProps) {
     const { model, userInputs, isElseIfMember, diagnosticHandler } = props;
     const stmtCtx = useContext(StatementEditorContext);
-    const { modelCtx } = stmtCtx;
-    const { currentModel } = modelCtx;
-    const hasContainerExprSelected = currentModel.model &&
-        isPositionsEquals(currentModel.model.position, model.containerExpression.position);
 
     const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
@@ -46,37 +42,19 @@ export function IndexedExpressionComponent(props: IndexedExpressionProps) {
     const targetPosition = stmtCtx.formCtx.formModelPosition;
     const fileURI = `expr://${currentFile.path}`;
 
-    const containerExpr: ReactNode = (
-        <ExpressionComponent
-            model={model.containerExpression}
-            userInputs={userInputs}
-            isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
-            isTypeDescriptor={false}
-        />
-    );
-
     const keyExprComponent = (
         <span>
             {
                 model.keyExpression.map((expression: STNode, index: number) => (
-                    <button
-                        key={index}
-                        className={classNames(
-                            statementEditorClasses.expressionElement,
-                            (currentModel.model && currentModel.model.position === expression.position) &&
-                            statementEditorClasses.expressionElementSelected
-                        )}
-                        onClick={(event) => onClickOnKeyExpr(expression, event)}
-                    >
-                        <ExpressionComponent
+                    <ExpressionComponent
+                            key={index}
                             model={expression}
                             userInputs={userInputs}
                             isElseIfMember={isElseIfMember}
                             diagnosticHandler={diagnosticHandler}
                             isTypeDescriptor={false}
-                        />
-                    </button>
+                            onSelect={(event) => onClickOnKeyExpr(expression, event)}
+                    />
                 ))
             }
         </span>
@@ -108,17 +86,20 @@ export function IndexedExpressionComponent(props: IndexedExpressionProps) {
         });
     };
 
+    const containerExpr: ReactNode = (
+        <ExpressionComponent
+            model={model.containerExpression}
+            userInputs={userInputs}
+            isElseIfMember={isElseIfMember}
+            diagnosticHandler={diagnosticHandler}
+            isTypeDescriptor={false}
+            onSelect={onClickOnContainerExpr}
+        />
+    );
+
     return (
         <span>
-            <button
-                className={classNames(
-                    statementEditorClasses.expressionElement,
-                    hasContainerExprSelected && statementEditorClasses.expressionElementSelected
-                )}
-                onClick={onClickOnContainerExpr}
-            >
-                {containerExpr}
-            </button>
+            {containerExpr}
             <span
                 className={classNames(
                     statementEditorClasses.expressionBlock,

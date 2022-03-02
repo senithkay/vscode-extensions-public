@@ -30,10 +30,10 @@ export function StringTypeDescC(props: StringTypeDescProps) {
     const statementEditorClasses = useStatementEditorStyles();
 
     return (
-        <button
-            className={statementEditorClasses.expressionElement}
+        <span
+            className={statementEditorClasses.expressionElement + " type-descriptor string"}
         >
             {model.name.value}
-        </button>
+        </span>
     );
 }
