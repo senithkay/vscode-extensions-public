@@ -12,9 +12,15 @@
  */
 import {
     BinaryExpression,
+    CommaToken,
     FieldAccess,
+    MethodCall,
+    NamedArg,
     NodePosition,
     OptionalFieldAccess,
+    PositionalArg,
+    RestArg,
+    STKindChecker,
     STNode,
     Visitor
 } from "@wso2-enterprise/syntax-tree";
@@ -45,14 +51,10 @@ class ExpressionDeletingVisitor implements Visitor {
 
     public beginVisitFieldAccess(node: FieldAccess) {
         const exprPosition = node.expression.position;
-        const dotTokenPosition = node.dotToken.position;
         const fieldNamePosition = node.fieldName.position;
 
         if (isPositionsEquals(this.deletePosition, exprPosition)) {
             this.codeAfterDeletion = `${DEFAULT_EXPR}`;
-            this.newDeletePosition = node.position;
-        } else if (isPositionsEquals(this.deletePosition, dotTokenPosition)) {
-            this.codeAfterDeletion = node.expression.source;
             this.newDeletePosition = node.position;
         } else if (isPositionsEquals(this.deletePosition, fieldNamePosition)) {
             this.codeAfterDeletion = `${DEFAULT_EXPR}`;
@@ -62,14 +64,10 @@ class ExpressionDeletingVisitor implements Visitor {
 
     public beginVisitOptionalFieldAccess(node: OptionalFieldAccess) {
         const exprPosition = node.expression.position;
-        const optionalChainingTokenPosition = node.optionalChainingToken.position;
         const fieldNamePosition = node.fieldName.position;
 
         if (isPositionsEquals(this.deletePosition, exprPosition)) {
             this.codeAfterDeletion = `${DEFAULT_EXPR}`;
-            this.newDeletePosition = node.position;
-        } else if (isPositionsEquals(this.deletePosition, optionalChainingTokenPosition)) {
-            this.codeAfterDeletion = node.expression.source;
             this.newDeletePosition = node.position;
         } else if (isPositionsEquals(this.deletePosition, fieldNamePosition)) {
             this.codeAfterDeletion = `${DEFAULT_EXPR}`;
@@ -77,17 +75,31 @@ class ExpressionDeletingVisitor implements Visitor {
         }
     }
 
-    // public beginVisitMethodCallExpression(node: MethodCall) {
-    //     const dotTokenPosition = node.dotToken.position;
-    //     const fieldNamePosition = node.fieldName.position;
-    //     this.newDeletePosition = node.position;
-    //
-    //     if (isPositionsEquals(this.deletePosition, dotTokenPosition)) {
-    //         this.codeAfterDeletion = node.expression.source;
-    //     } else if (isPositionsEquals(this.deletePosition, fieldNamePosition)) {
-    //         this.codeAfterDeletion = `${node.expression.source}${node.dotToken.value}`;
-    //     }
-    // }
+    public beginVisitMethodCall(node: MethodCall) {
+        const exprPosition = node.expression.position;
+        const methodNamePosition = node.methodName.position;
+        const argumentPositions = node.arguments.map((arg: CommaToken | NamedArg | PositionalArg | RestArg) => {
+            if (!STKindChecker.isCommaToken(arg)) {
+                return arg.position;
+            }
+        });
+
+        if (isPositionsEquals(this.deletePosition, exprPosition)) {
+            this.codeAfterDeletion = `${DEFAULT_EXPR}`;
+            this.newDeletePosition = node.position;
+        } else if (isPositionsEquals(this.deletePosition, methodNamePosition)) {
+            this.codeAfterDeletion = `${DEFAULT_EXPR}`;
+            this.newDeletePosition = {
+                ...node.methodName.position,
+                endColumn: node.closeParenToken.position.endColumn
+            };
+        } else if (argumentPositions.includes(this.deletePosition)) {
+            this.codeAfterDeletion = `${DEFAULT_EXPR}`;
+            this.newDeletePosition = argumentPositions.filter((position: NodePosition) => {
+                return this.deletePosition === position;
+            }).pop();
+        }
+    }
 
     public beginVisitSTNode(node: STNode, parent?: STNode) {
         // To be implemented
