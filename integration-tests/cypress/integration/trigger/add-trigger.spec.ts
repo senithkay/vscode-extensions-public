@@ -39,21 +39,21 @@ describe('add a Github Trigger to an empty file', () => {
       getCurrentSpecFolder() + "add-trigger.expected.bal");
   });
 
-  it('Search and Add a trigger', () => {
-    Canvas
-      .welcomeMessageShouldBeVisible()
-      .clickTopLevelPlusButton();
+  // it('Search and Add a trigger', () => {
+  //   Canvas
+  //     .welcomeMessageShouldBeVisible()
+  //     .clickTopLevelPlusButton();
 
-    TopLevelPlusWidget.clickOption("Trigger");
-    TriggerForm
-      .searchTrigger("slack")
-      .selectTriggerType("Slack")
-      .createBtnShouldNotBeClickable()
-      .selectServiceType("SlackEventsAppService")
-      .create();
-    SourceCode.shouldBeEqualTo(
-      getCurrentSpecFolder() + "add-trigger-slack.expected.bal");
-  });
+  //   TopLevelPlusWidget.clickOption("Trigger");
+  //   TriggerForm
+  //     .searchTrigger("slack")
+  //     .selectTriggerType("Slack")
+  //     .createBtnShouldNotBeClickable()
+  //     .selectServiceType("SlackEventsAppService")
+  //     .create();
+  //   SourceCode.shouldBeEqualTo(
+  //     getCurrentSpecFolder() + "add-trigger-slack.expected.bal");
+  // });
 
   // it.skip('Add two channels in trigger form', () => {
   //   Canvas
