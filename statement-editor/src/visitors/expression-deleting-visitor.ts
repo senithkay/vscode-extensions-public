@@ -14,6 +14,7 @@ import {
     BinaryExpression,
     CommaToken,
     FieldAccess,
+    ListConstructor,
     MethodCall,
     NamedArg,
     NodePosition,
@@ -98,6 +99,29 @@ class ExpressionDeletingVisitor implements Visitor {
             this.newDeletePosition = argumentPositions.filter((position: NodePosition) => {
                 return this.deletePosition === position;
             }).pop();
+        }
+    }
+
+    public beginVisitListConstructor(node: ListConstructor) {
+        const exprPositions = node.expressions.map((arg) => {
+            if (!STKindChecker.isCommaToken(arg)) {
+                return arg.position;
+            }
+        });
+        if (exprPositions.includes(this.deletePosition)) {
+            const expressions : string[] = [];
+            node.expressions.map((expr) => {
+                if (this.deletePosition !== expr.position && !STKindChecker.isCommaToken(expr)) {
+                    expressions.push(expr.source);
+                }
+            });
+
+            this.codeAfterDeletion = expressions.join(',');
+            this.newDeletePosition = {
+                ...node.position,
+                startColumn: node.openBracket.position.endColumn,
+                endColumn: node.closeBracket.position.startColumn
+            }
         }
     }
 
