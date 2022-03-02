@@ -12,7 +12,6 @@
  */
 import React, { ReactNode } from "react";
 
-import { ExpressionEditor } from "@wso2-enterprise/ballerina-expression-editor";
 import {
     ActionConfig,
     BallerinaConnectorInfo,
@@ -49,6 +48,7 @@ import { VariableOptions } from "../../FormComponents/ConfigForms/ModuleVariable
 import { ConfigWizardState } from "../../FormComponents/ConnectorConfigWizard";
 import * as ConnectorExtension from "../../FormComponents/ConnectorExtensions";
 import * as Elements from "../../FormComponents/FormFieldComponents";
+import { LowCodeExpressionEditor } from "../../FormComponents/FormFieldComponents/LowCodeExpressionEditor";
 import { getUnionFormFieldName } from "../../FormComponents/FormFieldComponents/Union";
 import * as OverlayElement from "../../LowCodeDiagram/Components/DialogBoxes";
 import { DefaultConnectorIcon } from "../../LowCodeDiagram/Components/RenderingComponents/Connector/Icon/DefaultConnectorIcon";
@@ -89,7 +89,7 @@ export function getFormElement(elementProps: FormElementProps, type: string) {
         return <FormElement {...elementProps} />;
     }
 
-    return <ExpressionEditor {...elementProps} />;
+    return <LowCodeExpressionEditor {...elementProps} />;
 }
 
 export function getForm(type: string, args: any) {
@@ -265,6 +265,8 @@ export function getParams(formFields: FormField[], depth = 1): string[] {
                 paramString += params;
             } else if (formField.typeName === "handle" && formField.value) {
                 paramString += formField.value;
+            } else if (paramString === "" && formField.typeName !== "" && formField.value) {
+                paramString += formField.value; // Default case
             }
 
             if (paramString !== "") {
