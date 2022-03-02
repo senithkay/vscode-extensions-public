@@ -79,11 +79,9 @@ class ExpressionDeletingVisitor implements Visitor {
     public beginVisitMethodCall(node: MethodCall) {
         const exprPosition = node.expression.position;
         const methodNamePosition = node.methodName.position;
-        const argumentPositions = node.arguments.map((arg: CommaToken | NamedArg | PositionalArg | RestArg) => {
-            if (!STKindChecker.isCommaToken(arg)) {
-                return arg.position;
-            }
-        });
+        const hasArgToBeDeleted = !!node.arguments.filter((arg) => {
+            return this.deletePosition === arg.position;
+        }).length;
 
         if (isPositionsEquals(this.deletePosition, exprPosition)) {
             this.codeAfterDeletion = `${DEFAULT_EXPR}`;
@@ -94,21 +92,18 @@ class ExpressionDeletingVisitor implements Visitor {
                 ...node.methodName.position,
                 endColumn: node.closeParenToken.position.endColumn
             };
-        } else if (argumentPositions.includes(this.deletePosition)) {
+        } else if (hasArgToBeDeleted) {
             this.codeAfterDeletion = `${DEFAULT_EXPR}`;
-            this.newDeletePosition = argumentPositions.filter((position: NodePosition) => {
-                return this.deletePosition === position;
-            }).pop();
+            this.newDeletePosition = this.deletePosition;
         }
     }
 
     public beginVisitListConstructor(node: ListConstructor) {
-        const exprPositions = node.expressions.map((arg) => {
-            if (!STKindChecker.isCommaToken(arg)) {
-                return arg.position;
-            }
-        });
-        if (exprPositions.includes(this.deletePosition)) {
+        const hasItemsToBeDeleted = !!node.expressions.filter((arg) => {
+            return this.deletePosition === arg.position;
+        }).length;
+
+        if (hasItemsToBeDeleted) {
             const expressions : string[] = [];
             node.expressions.map((expr) => {
                 if (this.deletePosition !== expr.position && !STKindChecker.isCommaToken(expr)) {
