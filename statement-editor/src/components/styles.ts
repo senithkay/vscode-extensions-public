@@ -30,7 +30,7 @@ export const useStatementEditorStyles = makeStyles(() =>
             flexDirection: 'column',
             borderBottom: '1px solid #e6e7ec',
             minHeight: '50vh',
-            height: '60vh'
+            height: '75vh'
         },
         tabPanelWrapper: {
             width: 'auto',
@@ -124,13 +124,9 @@ export const useStatementEditorStyles = makeStyles(() =>
             bottom: '10%'
         },
         libraryBrowser: {
-            display: 'flex',
-            flexDirection: 'column',
-            width: 'auto%',
             height: '100%',
-            position: 'relative',
-            top: '10px',
-            marginLeft: '5%'
+            overflowY: 'scroll',
+            overflowX: 'hidden',
         },
         leftPane: {
             display: 'flex',
@@ -275,7 +271,14 @@ export const useStatementEditorStyles = makeStyles(() =>
         libraryBrowserHeader: {
             display: 'flex',
             flexDirection: 'row',
-            width: '96%'
+            width: '96%',
+            alignItems: 'center',
+            position: 'sticky',
+            top: '0px',
+            zIndex: 1,
+            backgroundColor: '#FFFFFF',
+            paddingTop: '11px',
+            paddingBottom: '16px'
         },
         libraryDropdown: {
             flex: '0 0 50%',
@@ -290,8 +293,8 @@ export const useStatementEditorStyles = makeStyles(() =>
         },
         propertyDivider: {
             height: '1px',
-            marginLeft: '2%',
             marginTop: '2%',
+            marginBottom: '10px',
             width: '94%',
             opacity: 0.52,
             backgroundColor: '#DCDEE4'
@@ -327,21 +330,18 @@ export const useStatementEditorStyles = makeStyles(() =>
             flexDirection: 'row'
         },
         libraryBlock: {
-            position: 'relative',
-            height: '100%',
-            overflowY: 'scroll',
-            overflowX: 'hidden',
-            paddingRight: '5px',
+            // position: 'relative',
+            // height: '100%',
+            // overflowY: 'scroll',
+            // overflowX: 'hidden',
+            // paddingRight: '5px',
         },
         libraryListBlock: {
-            position: 'relative',
-            height: '100%',
-            overflowY: 'scroll',
-            overflowX: 'hidden',
             paddingRight: '5px',
             columnGap: '6%',
             display: 'grid',
-            gridTemplateColumns: '47% 47%'
+            gridTemplateColumns: '47% 47%',
+            padding: '0px'
         },
         librarySearchBox: {
             position: 'relative',
@@ -382,14 +382,11 @@ export const useStatementEditorStyles = makeStyles(() =>
             fontSize: '11px',
             letterSpacing: 0,
             lineHeight: '12px',
-            paddingTop: '10px',
             paddingBottom: '10px',
             marginBottom: '5px'
         },
         libraryElementBlock: {
-            position: 'relative',
             top: '5%',
-            maxHeight: '20vh',
             display: 'flex',
             flexDirection: 'column',
         },
@@ -425,7 +422,7 @@ export const useStatementEditorStyles = makeStyles(() =>
             overflowX: 'hidden',
         },
         suggestionListItem: {
-            padding: '0 0 0 2%',
+            padding: '0 0 0 2px',
             '&:hover': {
                 backgroundColor: 'rgba(173, 214, 255, 0.3)',
             },
@@ -536,5 +533,18 @@ export const useStatementEditorStyles = makeStyles(() =>
             display: 'grid',
             gridTemplateColumns: '47% 47%'
         },
+        moduleTitle: {
+            marginLeft: '2%',
+            marginRight: '2%'
+        },
+        libraryReturnIcon: {
+            padding: '0px',
+            '&:hover': {
+                backgroundColor: 'rgba(173, 214, 255, 0.3)',
+            },
+            '&:focus': {
+                backgroundColor: '#add6ff'
+            }
+        }
     }),
 );
