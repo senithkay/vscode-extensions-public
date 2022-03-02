@@ -18,6 +18,7 @@ import {
     MethodCall,
     NodePosition,
     OptionalFieldAccess,
+    SpecificField,
     STKindChecker,
     STNode,
     Visitor
@@ -137,6 +138,15 @@ class ExpressionDeletingVisitor implements Visitor {
                 endLine:  node.closeBrace.position.endLine,
                 endColumn: node.closeBrace.position.startColumn
             }
+        }
+    }
+
+    public beginVisitSpecificField(node: SpecificField) {
+        const valueExprPosition = node.valueExpr.position;
+
+        if (isPositionsEquals(this.deletePosition, valueExprPosition)) {
+            this.codeAfterDeletion = `${DEFAULT_EXPR}`;
+            this.newDeletePosition = node.valueExpr.position;
         }
     }
 
