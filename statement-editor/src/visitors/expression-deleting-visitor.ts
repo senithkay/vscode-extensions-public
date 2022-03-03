@@ -41,19 +41,29 @@ class ExpressionDeletingVisitor implements Visitor {
     public beginVisitBinaryExpression(node: BinaryExpression) {
         if (!this.isNodeFound) {
             if (isPositionsEquals(this.deletePosition, node.lhsExpr.position)) {
-                this.codeAfterDeletion = `${DEFAULT_EXPR}`;
-                this.newDeletePosition = node.lhsExpr.position;
+                if (node.lhsExpr.source.trim() === 'EXPRESSION') {
+                    this.codeAfterDeletion = node.rhsExpr.source;
+                    this.newDeletePosition = node.position;
+                } else {
+                    this.codeAfterDeletion = `${DEFAULT_EXPR}`;
+                    this.newDeletePosition = node.lhsExpr.position;
+                    this.defaultDeletable = true;
+                }
                 this.isNodeFound = true;
-                this.defaultDeletable = true;
             } else if (isPositionsEquals(this.deletePosition, node.operator.position)) {
                 this.codeAfterDeletion = node.lhsExpr.source;
                 this.newDeletePosition = node.position;
                 this.isNodeFound = true;
             } else if (isPositionsEquals(this.deletePosition, node.rhsExpr.position)) {
-                this.codeAfterDeletion = `${DEFAULT_EXPR}`;
-                this.newDeletePosition = node.rhsExpr.position;
+                if (node.rhsExpr.source.trim() === 'EXPRESSION') {
+                    this.codeAfterDeletion = node.lhsExpr.source;
+                    this.newDeletePosition = node.position;
+                } else {
+                    this.codeAfterDeletion = `${DEFAULT_EXPR}`;
+                    this.newDeletePosition = node.rhsExpr.position;
+                    this.defaultDeletable = true;
+                }
                 this.isNodeFound = true;
-                this.defaultDeletable = true;
             }
         }
     }
