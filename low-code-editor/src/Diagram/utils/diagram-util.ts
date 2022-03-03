@@ -5,8 +5,8 @@ import { NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterpri
 import { ConditionConfig } from "../components/FormComponents/Types";
 import { BlockViewState, FunctionViewState } from "../components/LowCodeDiagram/ViewState";
 import { visitor as initVisitor } from "../components/LowCodeDiagram/Visitors/init-visitor";
-import { visitor as positionVisitor } from "../components/LowCodeDiagram/Visitors/positioning-visitor";
-import { visitor as sizingVisitor } from "../components/LowCodeDiagram/Visitors/sizing-visitor";
+import { PositioningVisitor } from "../components/LowCodeDiagram/Visitors/positioning-visitor";
+import { SizingVisitor } from "../components/LowCodeDiagram/Visitors/sizing-visitor";
 import { getVaribaleNamesFromVariableDefList } from "../components/Portals/utils";
 
 export function calculateSize(st: STNode): DiagramSize {
@@ -16,27 +16,27 @@ export function calculateSize(st: STNode): DiagramSize {
     }
 }
 
-export function sizingAndPositioning(st: STNode): STNode {
+export function sizingAndPositioning(st: STNode, experimentalEnabled?: boolean): STNode {
     traversNode(st, initVisitor);
-    traversNode(st, sizingVisitor);
-    traversNode(st, positionVisitor);
+    traversNode(st, new SizingVisitor(experimentalEnabled));
+    traversNode(st, new PositioningVisitor(experimentalEnabled));
     // traversNode(st, workerSyncVisitor);
     if (STKindChecker.isFunctionDefinition(st) && st?.viewState?.onFail) {
         const viewState = st.viewState as FunctionViewState;
-        traversNode(viewState.onFail, sizingVisitor);
-        traversNode(viewState.onFail, positionVisitor);
+        traversNode(viewState.onFail, new SizingVisitor(experimentalEnabled));
+        traversNode(viewState.onFail, new PositioningVisitor(experimentalEnabled));
     }
     const clone = { ...st };
     return clone;
 }
 
-export function recalculateSizingAndPositioning(st: STNode): STNode {
-    traversNode(st, sizingVisitor);
-    traversNode(st, positionVisitor);
+export function recalculateSizingAndPositioning(st: STNode, experimentalEnabled?: boolean): STNode {
+    traversNode(st, new SizingVisitor(experimentalEnabled));
+    traversNode(st, new PositioningVisitor(experimentalEnabled));
     if (STKindChecker.isFunctionDefinition(st) && st?.viewState?.onFail) {
         const viewState = st.viewState as FunctionViewState;
-        traversNode(viewState.onFail, sizingVisitor);
-        traversNode(viewState.onFail, positionVisitor);
+        traversNode(viewState.onFail, new SizingVisitor(experimentalEnabled));
+        traversNode(viewState.onFail, new PositioningVisitor(experimentalEnabled));
     }
     const clone = { ...st };
     return clone;

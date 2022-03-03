@@ -12,30 +12,31 @@ import { Statement } from "../Components/RenderingComponents/Statement";
 import { BlockViewState, FunctionViewState } from "../ViewState";
 import { DraftStatementViewState } from "../ViewState/draft";
 import { visitor as initVisitor } from "../Visitors/init-visitor";
-import { visitor as positionVisitor } from "../Visitors/positioning-visitor";
-import { visitor as sizingVisitor } from "../Visitors/sizing-visitor";
+import { PositioningVisitor, visitor as positionVisitor } from "../Visitors/positioning-visitor";
+import { SizingVisitor, visitor as sizingVisitor } from "../Visitors/sizing-visitor";
 
-export function sizingAndPositioning(st: STNode): STNode {
+export function sizingAndPositioning(st: STNode, experimentalEnabled?: boolean): STNode {
     traversNode(st, initVisitor);
-    traversNode(st, sizingVisitor);
-    traversNode(st, positionVisitor);
+    traversNode(st, new SizingVisitor(experimentalEnabled));
+    traversNode(st, new PositioningVisitor(experimentalEnabled));
+
 
     if (STKindChecker.isFunctionDefinition(st) && st?.viewState?.onFail) {
         const viewState = st.viewState as FunctionViewState;
-        traversNode(viewState.onFail, sizingVisitor);
-        traversNode(viewState.onFail, positionVisitor);
+        traversNode(viewState.onFail, new SizingVisitor(experimentalEnabled));
+        traversNode(viewState.onFail, new PositioningVisitor(experimentalEnabled));
     }
     const clone = { ...st };
     return clone;
 }
 
-export function recalculateSizingAndPositioning(st: STNode): STNode {
-    traversNode(st, sizingVisitor);
-    traversNode(st, positionVisitor);
+export function recalculateSizingAndPositioning(st: STNode, experimentalEnabled?: boolean): STNode {
+    traversNode(st, new SizingVisitor(experimentalEnabled));
+    traversNode(st, new PositioningVisitor(experimentalEnabled));
     if (STKindChecker.isFunctionDefinition(st) && st?.viewState?.onFail) {
         const viewState = st.viewState as FunctionViewState;
-        traversNode(viewState.onFail, sizingVisitor);
-        traversNode(viewState.onFail, positionVisitor);
+        traversNode(viewState.onFail, new SizingVisitor(experimentalEnabled));
+        traversNode(viewState.onFail, new PositioningVisitor(experimentalEnabled));
     }
     const clone = { ...st };
     return clone;

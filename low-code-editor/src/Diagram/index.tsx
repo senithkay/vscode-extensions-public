@@ -53,6 +53,7 @@ export function Diagram() {
             isLoadingAST,
             isReadOnly,
             error,
+            experimentalEnabled
         },
     } = useContext(DiagramContext);
 
@@ -187,6 +188,7 @@ export function Diagram() {
                 <LowCodeDiagram
                     syntaxTree={syntaxTree}
                     isReadOnly={isReadOnly}
+                    experimentalEnabled={experimentalEnabled}
                     api={{
                         edit: {
                             renderAddForm: handleDiagramAdd,
