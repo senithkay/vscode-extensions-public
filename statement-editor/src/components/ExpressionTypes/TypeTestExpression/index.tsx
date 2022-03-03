@@ -48,26 +48,6 @@ export function TypeTestExpressionComponent(props: TypeTestExpressionProps) {
     const hasTypeDescSelected = currentModel.model &&
         isPositionsEquals(currentModel.model.position, model.typeDescriptor.position);
 
-    const expr: ReactNode = (
-        <ExpressionComponent
-            model={model.expression}
-            userInputs={userInputs}
-            isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
-            isTypeDescriptor={false}
-        />
-    );
-
-    const typeDescriptor: ReactNode = (
-        <ExpressionComponent
-            model={model.typeDescriptor}
-            userInputs={userInputs}
-            isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
-            isTypeDescriptor={true}
-        />
-    );
-
     const onClickOnExpression = async (event: any) => {
         event.stopPropagation();
 
@@ -102,17 +82,32 @@ export function TypeTestExpressionComponent(props: TypeTestExpressionProps) {
         });
     };
 
+
+    const expr: ReactNode = (
+        <ExpressionComponent
+            model={model.expression}
+            userInputs={userInputs}
+            isElseIfMember={isElseIfMember}
+            diagnosticHandler={diagnosticHandler}
+            isTypeDescriptor={false}
+            onSelect={onClickOnExpression}
+        />
+    );
+
+    const typeDescriptor: ReactNode = (
+        <ExpressionComponent
+            model={model.typeDescriptor}
+            userInputs={userInputs}
+            isElseIfMember={isElseIfMember}
+            diagnosticHandler={diagnosticHandler}
+            isTypeDescriptor={true}
+            onSelect={onClickOnTypeDescriptor}
+        />
+    );
+
     return (
         <span>
-            <button
-                className={classNames(
-                    statementEditorClasses.expressionElement,
-                    hasExpressionSelected && statementEditorClasses.expressionElementSelected
-                )}
-                onClick={onClickOnExpression}
-            >
-                {expr}
-            </button>
+            {expr}
             <span
                 className={classNames(
                     statementEditorClasses.expressionBlock,
@@ -121,15 +116,7 @@ export function TypeTestExpressionComponent(props: TypeTestExpressionProps) {
             >
                  &nbsp;{model.isKeyword.value}
             </span>
-            <button
-                className={classNames(
-                    statementEditorClasses.expressionElement,
-                    hasTypeDescSelected && statementEditorClasses.expressionElementSelected
-                )}
-                onClick={onClickOnTypeDescriptor}
-            >
-                {typeDescriptor}
-            </button>
+            {typeDescriptor}
         </span>
     );
 }

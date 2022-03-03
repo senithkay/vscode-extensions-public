@@ -239,11 +239,14 @@ export function AddIfForm(props: IfProps) {
                     }
                 })
             }
-            source = source + getInitialSource(createElseStatementWithBlock(
-                (currentModel.elseBody.elseBody as BlockStatement).statements.map(statement => {
-                    return statement.source
-                })
-            ));
+            if (currentModel.elseBody) {
+                source = source + getInitialSource(createElseStatementWithBlock(
+                    (currentModel.elseBody.elseBody as BlockStatement).statements.map(statement => {
+                        return statement.source
+                    })
+                ));
+            }
+
         }
         else {
             source = getInitialSource(createIfStatement(
