@@ -13,6 +13,9 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useState } from "react";
 
+import IconButton from "@material-ui/core/IconButton";
+import RedoIcon from "@material-ui/icons/Redo";
+import UndoIcon from "@material-ui/icons/Undo";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 
 import * as c from "../../constants";
@@ -38,6 +41,8 @@ export function EditorPane(props: ModelProps) {
 
     const { modelCtx } = useContext(StatementEditorContext);
 
+    const { undo, redo, hasRedo, hasUndo } = modelCtx;
+
     const [suggestionList, setSuggestionsList] = useState(modelCtx.statementModel ?
         getSuggestionsBasedOnExpressionKind(c.DEFAULT_EXPRESSIONS) : []);
     const [diagnosticList, setDiagnostic] = useState("");
@@ -48,14 +53,14 @@ export function EditorPane(props: ModelProps) {
     const [isTypeDescSuggestion, setIsTypeDescSuggestion] = useState(false);
 
     const expressionHandler = (
-            cModel: STNode,
-            operator: boolean,
-            isTypeDesc: boolean,
-            suggestionsList: {
-                variableSuggestions?: SuggestionItem[],
-                expressionSuggestions?: SuggestionItem[],
-                typeSuggestions?: SuggestionItem[]
-            }) => {
+        cModel: STNode,
+        operator: boolean,
+        isTypeDesc: boolean,
+        suggestionsList: {
+            variableSuggestions?: SuggestionItem[],
+            expressionSuggestions?: SuggestionItem[],
+            typeSuggestions?: SuggestionItem[]
+        }) => {
         currentModelHandler(cModel);
         if (suggestionsList.expressionSuggestions) {
             setSuggestionsList(suggestionsList.expressionSuggestions);
@@ -76,6 +81,18 @@ export function EditorPane(props: ModelProps) {
         setDiagnostic(diagnostics)
     }
 
+    const undoRedoButtons = (
+        <span className={statementEditorClasses.undoRedoButtons}>
+            <IconButton onClick={undo} disabled={!hasUndo}>
+                <UndoIcon />
+            </IconButton>
+            <IconButton onClick={redo} disabled={!hasRedo}>
+                <RedoIcon />
+            </IconButton>
+        </span>
+    );
+
+
     return (
         <div>
             <div className={statementEditorClasses.stmtEditorContentWrapper}>
@@ -84,7 +101,7 @@ export function EditorPane(props: ModelProps) {
                         expressionHandler
                     }}
                 >
-                    <div className={statementEditorClasses.statementExpressionTitle}>{label}</div>
+                    <div className={statementEditorClasses.statementExpressionTitle}>{label}{undoRedoButtons}</div>
                     <div className={statementEditorClasses.statementExpressionContent}>
                         <StatementRenderer
                             model={modelCtx.statementModel}

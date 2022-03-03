@@ -549,13 +549,16 @@ class InitVisitor implements Visitor {
             const service = parent as ServiceDeclaration;
             service.members.forEach(member => {
                 const body = member.functionBody as FunctionBodyBlock;
-                const filteredStatements = body.statements.filter(statement => {
-                    if (statement.kind !== "XmlNamespaceDeclaration") {
-                        return statement;
-                    }
-                })
-                body.statements = filteredStatements;
-                member.functionBody = body;
+
+                if (body) {
+                    const filteredStatements = body.statements.filter(statement => {
+                        if (statement.kind !== "XmlNamespaceDeclaration") {
+                            return statement;
+                        }
+                    })
+                    body.statements = filteredStatements;
+                    member.functionBody = body;
+                }
             })
             parent = service;
         } else if (STKindChecker.isFunctionDefinition(parent)) {

@@ -33,28 +33,9 @@ interface CheckActionProps {
 export function CheckActionComponent(props: CheckActionProps) {
     const { model, userInputs, diagnosticHandler, isElseIfMember } = props;
     const stmtCtx = useContext(StatementEditorContext);
-    const { modelCtx } = stmtCtx;
-    const { currentModel } = modelCtx;
 
     const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
-    const { currentFile, getLangClient } = stmtCtx;
-    const targetPosition = stmtCtx.formCtx.formModelPosition;
-    const fileURI = `expr://${currentFile.path}`;
-
-    const hasExpressionSelected = currentModel.model &&
-        isPositionsEquals(currentModel.model.position, model.expression.position);
-
-
-    const expressionComponent: ReactNode = (
-        <ExpressionComponent
-            model={model.expression}
-            userInputs={userInputs}
-            isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
-            isTypeDescriptor={false}
-        />
-    );
 
     const onClickOnExpression = async (event: any) => {
         event.stopPropagation();
@@ -62,26 +43,27 @@ export function CheckActionComponent(props: CheckActionProps) {
         expressionHandler(model.expression, false, false,
             { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS), typeSuggestions: [], variableSuggestions: [] });
     };
-
-    const buttonClassName = classNames(
-                                statementEditorClasses.expressionElement,
-                                hasExpressionSelected && statementEditorClasses.expressionElementSelected
-                            );
     const spanClassName =  classNames(
                                 statementEditorClasses.expressionBlock,
-                                statementEditorClasses.expressionBlockDisabled
+                                statementEditorClasses.expressionBlockDisabled,
+                                "keyword"
                             );
+    const expressionComponent: ReactNode = (
+        <ExpressionComponent
+            model={model.expression}
+            userInputs={userInputs}
+            isElseIfMember={isElseIfMember}
+            diagnosticHandler={diagnosticHandler}
+            isTypeDescriptor={false}
+            onSelect={onClickOnExpression}
+        />
+    );
     return (
         <span>
             <span className={spanClassName}>
                 {model.checkKeyword.value}
             </span>
-            <button
-                className={buttonClassName}
-                onClick={onClickOnExpression}
-            >
-                {expressionComponent}
-            </button>
+            {expressionComponent}
         </span>
     );
 }

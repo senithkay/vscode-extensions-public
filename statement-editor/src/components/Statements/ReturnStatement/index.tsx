@@ -47,15 +47,6 @@ export function ReturnStatementC(props: ReturnStatementProps) {
     const targetPosition = stmtCtx.formCtx.formModelPosition;
     const fileURI = `expr://${currentFile.path}`;
 
-    const expressionComponent: ReactNode = (
-        <ExpressionComponent
-            model={model.expression}
-            userInputs={userInputs}
-            isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
-            isTypeDescriptor={false}
-        />
-    );
 
     const onClickOnExpression = async (event: any) => {
         event.stopPropagation();
@@ -87,25 +78,29 @@ export function ReturnStatementC(props: ReturnStatementProps) {
         });
     }
 
+    const expressionComponent: ReactNode = (
+        <ExpressionComponent
+            model={model.expression}
+            userInputs={userInputs}
+            isElseIfMember={isElseIfMember}
+            diagnosticHandler={diagnosticHandler}
+            isTypeDescriptor={false}
+            onSelect={onClickOnExpression}
+        />
+    );
+
     return (
         <span>
             <span
                 className={classNames(
                     statementEditorClasses.expressionBlock,
-                    statementEditorClasses.expressionBlockDisabled
+                    statementEditorClasses.expressionBlockDisabled,
+                    "keyword"
                 )}
             >
                 {model.returnKeyword.value}
             </span>
-                <button
-                    className={classNames(
-                        statementEditorClasses.expressionElement,
-                        hasExpressionSelected && statementEditorClasses.expressionElementSelected
-                    )}
-                    onClick={onClickOnExpression}
-                >
-                    {expressionComponent}
-                </button>
+            {expressionComponent}
             <span
                 className={classNames(
                     statementEditorClasses.expressionBlock,

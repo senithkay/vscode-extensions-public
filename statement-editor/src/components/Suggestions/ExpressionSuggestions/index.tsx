@@ -13,6 +13,7 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import React, { useContext } from "react";
 
+import { List, ListItem, ListItemText, Typography } from "@material-ui/core";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 
 import { SuggestionItem } from "../../../models/definitions";
@@ -53,39 +54,51 @@ export function ExpressionSuggestions(props: ExpressionSuggestionsProps) {
 
     return (
         <>
-            { isExpression && !!suggestions.length && (
+            {isExpression && !!suggestions.length && (
                 <>
                     <div className={statementEditorClasses.expressionSuggestionList}>
-                        {
-                            suggestions.map((suggestion: SuggestionItem, index: number) => (
-                                (suggestion.kind) ?
-                                    (
-                                        <button
-                                            className={statementEditorClasses.suggestionButton}
-                                            key={index}
-                                            onClick={() => onClickOperatorSuggestion(suggestion)}
-                                        >
-                                            {suggestion.value}
-                                        </button>
-
-                                    )
-                                    :
-                                    (
-                                        <button
-                                            className={statementEditorClasses.suggestionButton}
-                                            key={index}
-                                            onClick={() => onClickExpressionSuggestion(suggestion.value)}
-                                        >
-                                            {suggestion.value}
-                                        </button>
-                                    )
-
-                            ))
-                        }
+                        <List className={statementEditorClasses.expressionList}>
+                            {
+                                suggestions.map((suggestion: SuggestionItem, index: number) => (
+                                    (suggestion.kind) ?
+                                        (
+                                            <ListItem
+                                                button={true}
+                                                className={statementEditorClasses.suggestionListItem}
+                                                key={index}
+                                                onClick={() => onClickOperatorSuggestion(suggestion)}
+                                                disableRipple={true}
+                                            >
+                                                <ListItemText
+                                                    primary={(
+                                                        <Typography>{suggestion.value}</Typography>
+                                                    )}
+                                                />
+                                            </ListItem>
+                                        )
+                                        :
+                                        (
+                                            <ListItem
+                                                button={true}
+                                                className={statementEditorClasses.suggestionListItem}
+                                                key={index}
+                                                onClick={() => onClickExpressionSuggestion(suggestion.value)}
+                                                disableRipple={true}
+                                            >
+                                                <ListItemText
+                                                    primary={(
+                                                        <Typography>{suggestion.value}</Typography>
+                                                    )}
+                                                />
+                                            </ListItem>
+                                        )
+                                ))
+                            }
+                        </List>
                     </div>
                 </>
             )}
-            { isExpression && !suggestions.length && (
+            {isExpression && !suggestions.length && (
                 <p className={statementEditorClasses.noSuggestionText}>Expressions not available</p>
             )}
         </>
