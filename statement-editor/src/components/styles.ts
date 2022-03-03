@@ -37,6 +37,11 @@ const syntaxHighlightingRules = {
 
 export const useStatementEditorStyles = makeStyles(() =>
     createStyles({
+        undoRedoButtons: {
+            position: 'absolute',
+            right: '0',
+            top: '48px'
+        },
         mainStatementWrapper: {
             display: 'flex',
             height: 'auto',
