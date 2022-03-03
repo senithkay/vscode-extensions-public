@@ -29,5 +29,6 @@ export interface SuggestionItem {
 
 export interface RemainingContent {
     code: string,
-    position: NodePosition
+    position: NodePosition,
+    defaultDeletable: boolean
 }

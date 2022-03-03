@@ -36,6 +36,7 @@ class ExpressionDeletingVisitor implements Visitor {
     private newDeletePosition: NodePosition;
     private codeAfterDeletion: string;
     private isNodeFound: boolean;
+    private defaultDeletable: boolean;
 
     public beginVisitBinaryExpression(node: BinaryExpression) {
         if (!this.isNodeFound) {
@@ -43,6 +44,7 @@ class ExpressionDeletingVisitor implements Visitor {
                 this.codeAfterDeletion = `${DEFAULT_EXPR}`;
                 this.newDeletePosition = node.lhsExpr.position;
                 this.isNodeFound = true;
+                this.defaultDeletable = true;
             } else if (isPositionsEquals(this.deletePosition, node.operator.position)) {
                 this.codeAfterDeletion = node.lhsExpr.source;
                 this.newDeletePosition = node.position;
@@ -51,6 +53,7 @@ class ExpressionDeletingVisitor implements Visitor {
                 this.codeAfterDeletion = `${DEFAULT_EXPR}`;
                 this.newDeletePosition = node.rhsExpr.position;
                 this.isNodeFound = true;
+                this.defaultDeletable = true;
             }
         }
     }
@@ -210,7 +213,8 @@ class ExpressionDeletingVisitor implements Visitor {
     getContent(): RemainingContent {
         return {
             code: this.isNodeFound ? this.codeAfterDeletion : DEFAULT_EXPR,
-            position: this.isNodeFound ? this.newDeletePosition : this.deletePosition
+            position: this.isNodeFound ? this.newDeletePosition : this.deletePosition,
+            defaultDeletable: this.defaultDeletable
         };
     }
 
@@ -223,6 +227,7 @@ class ExpressionDeletingVisitor implements Visitor {
         this.isNodeFound = false;
         this.newDeletePosition = null;
         this.codeAfterDeletion = '';
+        this.defaultDeletable = false;
     }
 }
 

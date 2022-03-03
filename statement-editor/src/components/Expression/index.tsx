@@ -42,6 +42,7 @@ export function ExpressionComponent(props: ExpressionComponentProps) {
 
     const [isHovered, setHovered] = React.useState(false);
     const [deletable, setDeletable] = React.useState(false);
+    const [defaultDeletable, setDefaultDeletable] = React.useState(false);
 
     const { modelCtx } = useContext(StatementEditorContext);
     const {
@@ -55,7 +56,11 @@ export function ExpressionComponent(props: ExpressionComponentProps) {
     const isSelected = selectedModel.model && model && isPositionsEquals(selectedModel.model.position, model.position);
 
     useEffect(() => {
-        setDeletable(!isNotDeletable && !model.source.startsWith('EXPRESSION'));
+        let exprDeletable = !isNotDeletable;
+        if (model.source && model.source.trim() === 'EXPRESSION') {
+            exprDeletable = defaultDeletable;
+        }
+        setDeletable(exprDeletable);
     }, [model.source]);
 
     const onMouseOver = (e: React.MouseEvent) => {
@@ -81,8 +86,10 @@ export function ExpressionComponent(props: ExpressionComponentProps) {
     const onClickOnClose = () => {
         const {
             code: newCode,
-            position: newPosition
+            position: newPosition,
+            defaultDeletable: defaultExprDeletable
         } = getRemainingContent(model.position, completeModel);
+        setDefaultDeletable(defaultExprDeletable);
         updateModel(newCode, newPosition);
     }
 
