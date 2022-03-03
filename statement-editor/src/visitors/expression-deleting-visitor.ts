@@ -23,6 +23,7 @@ import {
     SpecificField,
     STKindChecker,
     STNode,
+    TypedBindingPattern,
     Visitor
 } from "@wso2-enterprise/syntax-tree";
 
@@ -213,6 +214,20 @@ class ExpressionDeletingVisitor implements Visitor {
                 this.newDeletePosition = this.deletePosition;
                 this.isNodeFound = true;
             }
+        }
+    }
+
+    public beginVisitTypedBindingPattern(node: TypedBindingPattern) {
+        if (!this.isNodeFound && isPositionsEquals(this.deletePosition, node.typeDescriptor.position)) {
+            if (node.typeDescriptor.source.trim() === 'EXPRESSION') {
+                this.codeAfterDeletion = node.bindingPattern.source;
+                this.newDeletePosition = node.position;
+            } else {
+                this.codeAfterDeletion = `${DEFAULT_EXPR}`;
+                this.newDeletePosition = node.typeDescriptor.position;
+                this.defaultDeletable = true;
+            }
+            this.isNodeFound = true;
         }
     }
 
