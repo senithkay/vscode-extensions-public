@@ -13,6 +13,7 @@
 import {
     BinaryExpression,
     FieldAccess,
+    FunctionCall,
     IndexedExpression,
     ListConstructor,
     MappingConstructor,
@@ -161,6 +162,21 @@ class ExpressionDeletingVisitor implements Visitor {
             this.codeAfterDeletion = `${DEFAULT_EXPR}`;
             this.newDeletePosition = node.position;
         } else if (hasKeyExprToBeDeleted) {
+            this.codeAfterDeletion = `${DEFAULT_EXPR}`;
+            this.newDeletePosition = this.deletePosition;
+        }
+    }
+
+    public beginVisitFunctionCall(node: FunctionCall) {
+        const nodePosition = node.position;
+        const hasArgToBeDeleted = !!node.arguments.filter((arg) => {
+            return this.deletePosition === arg.position;
+        }).length;
+
+        if (isPositionsEquals(this.deletePosition, nodePosition)) {
+            this.codeAfterDeletion = `${DEFAULT_EXPR}`;
+            this.newDeletePosition = nodePosition;
+        } else if (hasArgToBeDeleted) {
             this.codeAfterDeletion = `${DEFAULT_EXPR}`;
             this.newDeletePosition = this.deletePosition;
         }
