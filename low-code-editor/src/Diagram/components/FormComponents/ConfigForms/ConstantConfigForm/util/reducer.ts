@@ -40,7 +40,7 @@ export function constantConfigFormReducer(state: ConstantConfigFormState, action
         case ConstantConfigFormActionTypes.SET_CONSTANT_TYPE:
             return { ...state, constantType: action.payload }
         case ConstantConfigFormActionTypes.TOGGLE_INCLUDE_TYPE:
-            return { ...state, constantType: '', isTypeDefined: !state.isTypeDefined, constantValue: '' }
+            return { ...state, constantType: '', isTypeDefined: !state.isTypeDefined}
         case ConstantConfigFormActionTypes.UPDATE_EXPRESSION_VALIDITY:
             return { ...state, isExpressionValid: action.paylaod }
         case ConstantConfigFormActionTypes.TOGGLE_ACCESS_MODIFIER:
