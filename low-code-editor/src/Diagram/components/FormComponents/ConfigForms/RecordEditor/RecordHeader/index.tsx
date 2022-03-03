@@ -14,7 +14,7 @@
 import React, { useContext, useState } from "react";
 
 import { Typography } from "@material-ui/core";
-import { ComponentExpandButton } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ComponentExpandButton } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 
 import ActiveArray from "../../../../../../assets/icons/ActiveArray";
 import ActiveClosed from "../../../../../../assets/icons/ActiveClosed";

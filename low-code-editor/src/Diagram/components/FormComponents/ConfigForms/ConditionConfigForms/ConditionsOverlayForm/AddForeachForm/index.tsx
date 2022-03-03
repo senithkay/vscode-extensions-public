@@ -19,7 +19,8 @@ import { BinaryExpression, ForeachStatement } from "@wso2-enterprise/syntax-tree
 import classnames from "classnames";
 import { FormControl, Typography } from "@material-ui/core";
 
-import { FormField, FormActionButtons, FormHeaderSection, ConditionConfig, ForeachConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FormField, ConditionConfig, ForeachConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FormActionButtons, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { getAllVariables } from "../../../../../../utils/mixins";
 import { createForeachStatement, createForeachStatementWithBlock, getInitialSource } from "../../../../../../utils/modification-util";

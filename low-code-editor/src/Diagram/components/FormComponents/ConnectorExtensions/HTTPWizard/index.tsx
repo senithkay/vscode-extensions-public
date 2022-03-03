@@ -17,7 +17,8 @@ import { FormattedMessage } from "react-intl";
 import { IconButton } from "@material-ui/core";
 import Typography from "@material-ui/core/Typography";
 import { CloseRounded } from "@material-ui/icons";
-import { ActionConfig, ButtonWithIcon, Connector, ConnectorConfig, CONNECTOR_CLOSED, FormField, FunctionDefinitionInfo, LowcodeEvent, ResponsePayloadMap, SAVE_CONNECTOR, SAVE_CONNECTOR_INIT, SAVE_CONNECTOR_INVOKE, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ActionConfig, Connector, ConnectorConfig, CONNECTOR_CLOSED, FormField, FunctionDefinitionInfo, LowcodeEvent, ResponsePayloadMap, SAVE_CONNECTOR, SAVE_CONNECTOR_INIT, SAVE_CONNECTOR_INVOKE, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ButtonWithIcon } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { CaptureBindingPattern, FunctionDefinition, LocalVarDecl, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { DocIcon } from "../../../../../assets";

@@ -15,7 +15,7 @@ import React, { useContext } from 'react';
 import { useIntl } from "react-intl";
 
 import { Box, FormControl, Typography } from "@material-ui/core";
-import { FormHeaderSection, PrimaryButton } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { FormHeaderSection, PrimaryButton } from '@wso2-enterprise/ballerina-low-code-edtior-ui-components';
 
 import { Context } from "../../../../../../Contexts/RecordEditor";
 import CheckBoxGroup from '../../../FormFieldComponents/CheckBox';

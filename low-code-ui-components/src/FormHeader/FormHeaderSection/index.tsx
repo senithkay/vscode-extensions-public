@@ -13,7 +13,7 @@
 // tslint:disable:jsx-no-multiline-js
 import React from "react";
 
-import { getConstructIcon } from "../../utils";
+import { getConstructIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { CloseButton } from "./CloseButton";
 import { FormTitle } from "./FormTitle";

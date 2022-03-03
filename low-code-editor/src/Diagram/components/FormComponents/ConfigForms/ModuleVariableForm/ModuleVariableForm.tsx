@@ -14,7 +14,8 @@ import React, { useEffect, useReducer } from 'react';
 
 import { FormControl } from '@material-ui/core';
 import { ExpressionEditorProps } from '@wso2-enterprise/ballerina-expression-editor';
-import { ADD_VARIABLE, FormActionButtons, FormElementProps, FormHeaderSection, LowcodeEvent, SAVE_VARIABLE, STModification } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { ADD_VARIABLE, FormElementProps, LowcodeEvent, SAVE_VARIABLE, STModification } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { FormActionButtons, FormHeaderSection } from '@wso2-enterprise/ballerina-low-code-edtior-ui-components';
 import { ModuleVarDecl, NodePosition } from '@wso2-enterprise/syntax-tree';
 
 import { useDiagramContext } from '../../../../../Contexts/Diagram';

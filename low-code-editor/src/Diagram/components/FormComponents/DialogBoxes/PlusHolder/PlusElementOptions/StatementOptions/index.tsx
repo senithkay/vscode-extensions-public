@@ -15,7 +15,8 @@ import React, { ReactNode, useContext, useState } from "react";
 
 import { Divider } from "@material-ui/core";
 import cn from "classnames";
-import { ADD_CONNECTOR, ADD_STATEMENT, LowcodeEvent, Tooltip } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ADD_CONNECTOR, ADD_STATEMENT, LowcodeEvent } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { Tooltip } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 
 import {
     LogIcon,

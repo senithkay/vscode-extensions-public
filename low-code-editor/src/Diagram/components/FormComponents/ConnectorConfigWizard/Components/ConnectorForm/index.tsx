@@ -21,7 +21,6 @@ import {
     BallerinaConnectorInfo,
     ConnectorConfig,
     FormField,
-    FormHeaderSection,
     LowcodeEvent,
     SAVE_CONNECTOR,
     SAVE_CONNECTOR_INIT,
@@ -29,6 +28,9 @@ import {
     STModification,
     WizardType,
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import {
+    FormHeaderSection
+} from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import {
     CaptureBindingPattern,
     FunctionDefinition,

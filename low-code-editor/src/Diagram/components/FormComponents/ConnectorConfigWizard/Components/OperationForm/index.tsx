@@ -21,11 +21,13 @@ import {
     ConnectorConfig,
     FormField,
     FunctionDefinitionInfo,
-    PrimaryButton,
     STModification,
-    STSymbolInfo,
-    TooltipIcon
+    STSymbolInfo
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import {
+    PrimaryButton,
+    TooltipIcon
+} from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { NodePosition } from '@wso2-enterprise/syntax-tree';
 import classNames from 'classnames';
 

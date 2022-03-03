@@ -24,7 +24,8 @@ import { SelectDropdownWithButton } from "../../../../FormFieldComponents/DropDo
 import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
 import { createLogStatement, getInitialSource } from "../../../../../../utils/modification-util";
 import { LowCodeExpressionEditor } from "../../../../FormFieldComponents/LowCodeExpressionEditor";
-import { FormActionButtons, FormHeaderSection, LogConfig, ProcessConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { LogConfig, ProcessConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FormActionButtons, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 
 interface LogConfigProps {
     config: ProcessConfig;

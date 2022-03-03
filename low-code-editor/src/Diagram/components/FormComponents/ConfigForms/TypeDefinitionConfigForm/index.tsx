@@ -14,7 +14,7 @@
 import React, { useState } from "react";
 
 import { Box, FormControl, Typography } from "@material-ui/core";
-import { FormHeaderSection, SecondaryButton } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FormHeaderSection, SecondaryButton } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { NodePosition, RecordTypeDesc, STKindChecker, TypeDefinition } from "@wso2-enterprise/syntax-tree";
 
 import EditButton from "../../../../../assets/icons/EditButton";

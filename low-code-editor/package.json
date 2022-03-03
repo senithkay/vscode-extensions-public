@@ -41,6 +41,7 @@
     "@wso2-enterprise/ballerina-languageclient": "^1.0.0",
     "@wso2-enterprise/ballerina-low-code-diagram": "^1.0.0",
     "@wso2-enterprise/ballerina-low-code-edtior-commons": "^1.0.0",
+    "@wso2-enterprise/ballerina-low-code-edtior-ui-components": "^1.0.0",
     "@wso2-enterprise/ballerina-statement-editor": "^1.0.0",
     "@wso2-enterprise/lang-service": "^1.0.0",
     "@wso2-enterprise/syntax-tree": "^1.0.0",
