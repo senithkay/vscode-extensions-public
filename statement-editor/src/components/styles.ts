@@ -72,7 +72,7 @@ export const useStatementEditorStyles = makeStyles(() =>
             width: '30%',
             height: '48px',
             padding: '9px',
-            textAlignLast: 'center'
+            textAlignLast: 'right'
         },
         stmtEditorContentWrapper: {
             backgroundColor: '#f9fafc',
@@ -468,11 +468,13 @@ export const useStatementEditorStyles = makeStyles(() =>
             gridTemplateColumns: '47% 47%'
         },
         selectDropDownSe: {
-            height: '30px',
+            height: '32px',
             width: "auto",
-            borderRadius: 5,
-            background: "linear-gradient(180deg, #ffffff 0%, #f7f7f9 100%)",
-            boxShadow: "inset 0 0 0 1px #dee0e7, 0 1px 1px 0 rgba(0, 0, 0, 0.06)",
+            borderRadius: 4,
+            fontSize: "12px",
+            color: '#222228',
+            background: "linear-gradient(180deg, #FFFFFF 0%, #F7F7F9 100%)",
+            boxShadow: "inset 0 0 0 1px #DEE0E7, 0 1px 2px -1px rgba(0,0,0,0.08)",
             cursor: "pointer",
             marginBottom: theme.spacing(2.5),
             border: 1,
@@ -488,7 +490,7 @@ export const useStatementEditorStyles = makeStyles(() =>
                 backgroundColor: "none"
             },
             '& .MuiSelect-icon': {
-                marginRight: 20,
+                marginRight: 11,
             },
             "& .MuiSelect-selectMenu": {
                 height: "inherit !important",
@@ -503,11 +505,11 @@ export const useStatementEditorStyles = makeStyles(() =>
                 }
             },
             "& .MuiSelect-select.MuiSelect-select": {
-                padding: "0 15px",
+                padding: "0 0 0 10px",
                 minWidth: "100px"
             },
             "& .MuiSelect-select.MuiSelect-select:focus": {
-                backgroundColor: "none"
+                backgroundColor: "transparent"
             }
         },
         dropdownStyle: {
@@ -519,6 +521,7 @@ export const useStatementEditorStyles = makeStyles(() =>
             boxShadow: "0 5px 10px -3px rgba(50,50,77,0.1)",
             color: "#222228",
             marginTop: '0.25rem',
+            marginLeft: '4px'
         },
         tabsPanelPaperSe: {
             flexGrow: 1,
@@ -530,11 +533,19 @@ export const useStatementEditorStyles = makeStyles(() =>
                 fontSize: '13px',
                 fontWeight: 'normal'
             },
-            "& .MuiTab-textColorPrimary.Mui-selected": {
-                color: '#1D2028'
+            "& .MuiTab-root": {
+                marginLeft: '24px',
+                paddingRight: '0px',
+                paddingLeft: '0px',
+                fontSize: '13px',
+                minWidth: 'fit-content'
             },
-            "& .MuiTab-textColorPrimary": {
+            "& .MuiTab-textColorInherit": {
                 color: '#8D91A3'
+            },
+            "& .MuiTab-textColorInherit.Mui-selected": {
+                opacity: 1,
+                color: '#40404B'
             },
             "& .MuiTabs-indicator": {
                 backgroundColor: '#40404B',
