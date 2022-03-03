@@ -14,7 +14,6 @@
 import React, { ReactNode } from "react";
 
 import { ErrorSnippet } from "../../../Types/type";
-// import { ErrorSnippet } from "../../../../../../DiagramGenerator/generatorUtil";
 
 import { IfElseRectSVG } from "./IfElseRectSVG";
 

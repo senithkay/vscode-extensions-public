@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React from 'react';
 
-import { ComponentCollapseIcon, ComponentExpandIcon } from '../../assets';
+import { ComponentCollapseIcon, ComponentExpandIcon } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 
 import './style.scss';
 

@@ -12,7 +12,7 @@
  */
 import React from 'react'
 
-import * as ConstructIcons from "../../../assets/icons"
+import * as ConstructIcons from "../../assets/icons"
 
 export function getConstructIcon(iconId: string) {
     const Icon = (ConstructIcons as any)[iconId];

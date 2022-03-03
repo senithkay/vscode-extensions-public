@@ -11,14 +11,11 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline object-literal-shorthand align
-import React, { useContext, useRef, useState } from "react";
+import React, { ReactElement, useContext, useEffect, useRef, useState } from "react";
 
 import { Margin, TopLevelPlusIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
-// import TopLevelPlusIcon from "../../../../../../assets/icons/TopLevelPlusIcon";
-// import Tooltip from "../../../../../../components/TooltipV2";
-// import { classMemberEntries, moduleLevelEntries, PlusMenuCategories, PlusOptionsSelector, triggerEntries } from "../../../../FormComponents/DialogBoxes/TopLevelPlus/PlusOptionsSelector";
 import { Context } from "../../../Context/diagram";
 
 import { InitialPlusTooltipBubble } from "./InitialPlusTooltipBubble";
@@ -44,6 +41,8 @@ export const TopLevelPlus = (props: PlusProps) => {
     const containerElement = useRef(null);
     const diagramContext = useContext(Context);
     const renderPlusWidget = diagramContext?.api?.edit?.renderPlusWidget;
+    const showTooltip = diagramContext?.api?.edit?.showTooltip;
+    const [tooltip, setTooltip] = useState(undefined);
 
     const [plusOptions, setPlusOptions] = useState(undefined);
     const [isPlusClicked, setPlusClicked] = useState(false);
@@ -75,16 +74,18 @@ export const TopLevelPlus = (props: PlusProps) => {
         setPlusOptions(undefined);
     };
 
+    useEffect(() => {
+        if (!isDocumentEmpty && showTooltip) {
+            setTooltip(showTooltip(<TopLevelPlusIcon />, "heading-content", { content: 'Add Construct' }, "right", true));
+        }
+    }, [isDocumentEmpty])
+
     return (
         <div className="plus-container" ref={containerElement} target-line={targetPosition.startLine}>
             <div className={'plus-btn-wrapper'} onClick={handlePlusClick}>
                 {
-                    !isDocumentEmpty ?
-                        // <Tooltip type={"heading-content"} placement="right" arrow={true} text={{ content: 'Add Construct' }}>
-                            <div>
-                                <TopLevelPlusIcon />
-                            </div>
-                        // </Tooltip>
+                    !isDocumentEmpty && tooltip ?
+                        tooltip
                         : <TopLevelPlusIcon />
                 }
             </div>

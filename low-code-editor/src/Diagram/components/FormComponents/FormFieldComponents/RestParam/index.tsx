@@ -19,10 +19,12 @@ import { AddRounded } from "@material-ui/icons";
 import CloseRounded from "@material-ui/icons/CloseRounded";
 import { ExpressionEditorLabel, ExpressionEditorProps } from "@wso2-enterprise/ballerina-expression-editor";
 import {
-    ButtonWithIcon,
-    FormElementProps,
-    IconBtnWithText
+    FormElementProps
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import {
+    ButtonWithIcon,
+    IconBtnWithText
+} from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 
 import { useStyles } from "../../DynamicConnectorForm/style"
 import { LowCodeExpressionEditor } from "../LowCodeExpressionEditor";

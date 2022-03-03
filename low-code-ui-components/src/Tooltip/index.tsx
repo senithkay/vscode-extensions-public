@@ -16,9 +16,8 @@ import { useIntl } from 'react-intl';
 import Divider from '@material-ui/core/Divider';
 import { withStyles } from '@material-ui/core/styles';
 import TooltipBase, { TooltipProps } from '@material-ui/core/Tooltip';
+import { InfoIcon } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import * as MonacoEditor from 'monaco-editor';
-
-import { InfoIcon } from '../../assets/icons';
 
 import useStyles, { tooltipInvertedStyles, tooltipStyles } from "./style";
 

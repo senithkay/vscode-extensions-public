@@ -24,9 +24,11 @@ import {
     ExpressionEditorState,
     ExpressionInjectablesProps,
     FormElementProps,
-    PrimitiveBalType,
-    TooltipCodeSnippet
+    PrimitiveBalType
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import {
+    TooltipCodeSnippet
+} from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 import debounce from "lodash.debounce";

@@ -14,10 +14,8 @@
 import React, { useContext } from "react";
 import { TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
 
-// import { Button } from "@material-ui/core";
 import classNames from "classnames";
 
-// import Tooltip from "../../../../components/Tooltip";
 import { Context as DiagramContext } from "../Context/diagram";
 
 import FitToScreenSVG from "./images/fit-to-screen";
@@ -35,19 +33,15 @@ interface PanningEvent {
 }
 
 export default function PanAndZoom(props: PanAndZoomProps) {
-    const {
-        props: { zoomStatus },
-        api: {
-            panNZoom: {
-                zoomOut,
-                zoomIn,
-                fitToScreen,
-                pan
-            }
-        }
-    } = useContext(DiagramContext);
+    const diagramContext = useContext(DiagramContext);
+    const { zoomStatus } = diagramContext.props;
+    const zoomOut = diagramContext?.api?.panNZoom?.zoomOut;
+    const zoomIn = diagramContext?.api?.panNZoom?.zoomIn;
+    const fitToScreen = diagramContext?.api?.panNZoom?.fitToScreen;
+    const pan = diagramContext?.api?.panNZoom?.pan;
+    const showTooltip = diagramContext?.api?.edit?.showTooltip;
 
-    const { scale, panX, panY }  = zoomStatus || { scale: 1, panX: 34, panY: 23 }; // Find a better way to set zoomStatus
+    const { scale, panX, panY } = zoomStatus || { scale: 1, panX: 34, panY: 23 }; // Find a better way to set zoomStatus
 
     const { children } = props;
 
@@ -116,6 +110,37 @@ export default function PanAndZoom(props: PanAndZoomProps) {
         }
     }
 
+    const zoomInButton = (
+        <div data-testid={"zoom-in-btn"} className={"zoomControlWrapper"}>
+            <ZoomInSVG />
+        </div>
+    );
+    const zoomOutButton = (
+        <div data-testid={"zoom-out-btn"} className={"zoomControlWrapper"}>
+            <ZoomOutSVG />
+        </div>
+    );
+    const fitToScreenButton = (
+        <div data-testid={"fit-to-screen-btn"} className={"zoomControlWrapper"} >
+            <FitToScreenSVG />
+        </div>
+    );
+
+    const zoomInTooltip = showTooltip ? showTooltip(zoomInButton, "heading-content", {
+        content: "Zoom In",
+        heading: ""
+    }, "left-start", true) : zoomInButton;
+
+    const zoomOutTooltip = showTooltip ? showTooltip(zoomOutButton, "heading-content", {
+        content: "Zoom Out",
+        heading: ""
+    }, "left-start", true) : zoomOutButton;
+
+    const fitToScreenTooltip = showTooltip ? showTooltip(fitToScreenButton, "heading-content", {
+        content: "Fit to screen",
+        heading: ""
+    }, "left-start", true) : fitToScreenButton;
+
     return (
         <div className={classNames("pan-zoom-wrapper", "pan-zoom-root")} onWheel={onWheel}>
             <TransformWrapper
@@ -136,37 +161,13 @@ export default function PanAndZoom(props: PanAndZoomProps) {
 
             <div className={"zoomControls"}>
                 <button className={"panelBtn"} onClick={onClickZoomIn}>
-                    {/* <Tooltip */}
-                        title="Zoom In"
-                        placement="left-start"
-                        arrow={true}
-                    {/* > */}
-                        <div data-testid={"zoom-in-btn"} className={"zoomControlWrapper"}>
-                            <ZoomInSVG/>
-                        </div>
-                    {/* </Tooltip> */}
+                    {zoomInTooltip}
                 </button>
                 <button className={"panelBtn"} onClick={onClickZoomOut}>
-                    {/* <Tooltip */}
-                        title="Zoom Out"
-                        placement="left-start"
-                        arrow={true}
-                    {/* > */}
-                        <div data-testid={"zoom-out-btn"} className={"zoomControlWrapper"}>
-                            <ZoomOutSVG/>
-                        </div>
-                    {/* </Tooltip> */}
+                    {zoomOutTooltip}
                 </button>
                 <button className={"panelBtn"} onClick={onClickFitToScreen}>
-                    {/* <Tooltip */}
-                        title="Fit to screen"
-                        placement="left-start"
-                        arrow={true}
-                    {/* > */}
-                        <div data-testid={"fit-to-screen-btn"} className={"zoomControlWrapper"} >
-                            <FitToScreenSVG/>
-                        </div>
-                    {/* </Tooltip> */}
+                    {fitToScreenTooltip}
                 </button>
             </div>
         </div>

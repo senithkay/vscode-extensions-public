@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext, useState } from "react"
+import React, { useContext, useEffect, useState } from "react"
 
 import { ConstantIcon, DeleteButton, EditButton } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { ConstDeclaration, STNode } from "@wso2-enterprise/syntax-tree";
@@ -20,8 +20,6 @@ import classNames from "classnames";
 import { Context } from "../../../Context/diagram";
 
 import "./style.scss";
-
-// import Tooltip from "../../../../../../components/Tooltip";
 
 export const MODULE_VAR_MARGIN_LEFT: number = 24.5;
 export const MODULE_VAR_PLUS_OFFSET: number = 7.5;
@@ -37,6 +35,8 @@ export function Constant(props: ConstantProps) {
     const diagramContext = useContext(Context);
     const deleteComponent = diagramContext?.api?.edit?.deleteComponent;
     const renderEditForm = diagramContext?.api?.edit?.renderEditForm;
+    const showTooltip = diagramContext?.api?.edit?.showTooltip;
+    const [tooltip, setTooltip] = useState(undefined);
 
     const constModel: ConstDeclaration = model as ConstDeclaration;
     const varType = "const";
@@ -61,6 +61,19 @@ export function Constant(props: ConstantProps) {
         }
     }
 
+    const typeText = (
+        <tspan x="0" y="0">{typeMaxWidth ? varType.slice(0, 10) + "..." : varType}</tspan>
+    );
+
+    useEffect(() => {
+        if (model && showTooltip) {
+            setTooltip(showTooltip(typeText, "heading", { heading: model.source.slice(1, -1) }, "top-start", true, undefined, undefined, false, undefined, {
+                inverted: false,
+                interactive: true
+            }));
+        }
+    }, [model]);
+
     return (
         <div>
             <div
@@ -72,15 +85,7 @@ export function Constant(props: ConstantProps) {
                         <ConstantIcon />
                     </div>
                     <div className={"const-type-text"}>
-                        {/* <Tooltip
-                            arrow={true}
-                            placement="top-start"
-                            title={model.source.slice(1, -1)}
-                            inverted={false}
-                            interactive={true}
-                        > */}
-                            <tspan x="0" y="0">{typeMaxWidth ? varType.slice(0, 10) + "..." : varType}</tspan>
-                        {/* </Tooltip> */}
+                        {tooltip ? tooltip : typeText}
                     </div>
                     <div className={"const-name-text"}>
                         <tspan x="0" y="0">{nameMaxWidth ? varName.slice(0, 20) + "..." : varName}</tspan>

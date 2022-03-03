@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 
 import { ErrorIcon, WarningIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, ResourceAccessorDefinition } from "@wso2-enterprise/syntax-tree";
@@ -41,6 +41,8 @@ export function ResourceHeader(props: ResourceHeaderProps) {
     const diagramContext = useContext(Context);
     const gotoSource = diagramContext?.api?.code?.gotoSource;
     const deleteComponent = diagramContext?.api?.edit?.deleteComponent;
+    const showTooltip = diagramContext?.api?.edit?.showTooltip;
+    const [tooltip, setTooltip] = useState(undefined);
     const { isReadOnly } = diagramContext.props;
 
     const onDeleteClick = () => {
@@ -64,6 +66,17 @@ export function ResourceHeader(props: ResourceHeaderProps) {
         code: sourceSnippet,
         severity: diagnosticMsgs?.severity
     }
+    const iconElement = (
+        <div className="error-icon-wrapper">
+            {errorIcon}
+        </div>
+    );
+
+    useEffect(() => {
+        if (diagnosticMsgs && showTooltip) {
+            setTooltip(showTooltip(iconElement, "diagram-diagnostic", undefined, "left", true, errorSnippet, undefined, false, openInCodeView));
+        }
+    }, [model]);
 
     return (
         <HeaderWrapper
@@ -83,19 +96,8 @@ export function ResourceHeader(props: ResourceHeaderProps) {
             {diagnosticMsgs ?
                 (
                     <div>
-                        {/* <Tooltip
-                            type="diagram-diagnostic"
-                            diagnostic={errorSnippet}
-                            placement="left"
-                            onClick={openInCodeView}
-                            arrow={true}
-                        > */}
-                            <div className="error-icon-wrapper">
-                                {errorIcon}
-                            </div>
-                        {/* </Tooltip> */}
+                        {tooltip ? tooltip : iconElement}
                     </div>
-
                 )
                 : null
             }

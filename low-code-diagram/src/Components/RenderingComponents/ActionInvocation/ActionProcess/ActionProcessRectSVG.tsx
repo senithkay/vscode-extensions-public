@@ -12,12 +12,10 @@
  */
 // tslint:disable: jsx-no-multiline-js
 
-import React, { ReactNode } from "react";
+import React, { ReactNode, useContext, useEffect, useState } from "react";
 
+import { Context } from "../../../../Context/diagram";
 import { ErrorSnippet } from "../../../../Types/type";
-
-// import Tooltip from "../../../../../../../components/TooltipV2";
-// import { ErrorSnippet } from "../../../../../../../DiagramGenerator/generatorUtil";
 
 interface DiagnosticTooltipProps {
     type?: string,
@@ -31,27 +29,38 @@ interface DiagnosticTooltipProps {
 export function ActionProcessRectSVG(props: DiagnosticTooltipProps) {
     const { type, onClick, diagnostic, text } = props;
     const diagnosticStyles = diagnostic?.severity === "ERROR" ? "action-processor-error" : "action-processor-warning";
-    const actionRectStyles = diagnostic ? diagnosticStyles : "action-processor"
-    return (
-        // <Tooltip type={type} onClick={onClick} text={text} diagnostic={diagnostic} placement="right" arrow={true}>
-            <g id="Process" className={actionRectStyles} transform="translate(-221.5 -506)">
-                <g transform="matrix(1, 0, 0, 1, 222, 509)">
-                    <g id="ProcessRect-2" className="connector-process" transform="translate(5.5 4)">
-                        <rect width="48" height="48" rx="4" />
-                        <rect x="-0.5" y="-0.5" width="49" height="49" rx="4.5" className="click-effect" />
-                    </g>
+    const actionRectStyles = diagnostic ? diagnosticStyles : "action-processor";
+    const diagramContext = useContext(Context);
+    const showTooltip = diagramContext?.api?.edit?.showTooltip;
+    const [tooltip, setTooltip] = useState(undefined);
+    const rectSVG = (
+        <g id="Process" className={actionRectStyles} transform="translate(-221.5 -506)">
+            <g transform="matrix(1, 0, 0, 1, 222, 509)">
+                <g id="ProcessRect-2" className="connector-process" transform="translate(5.5 4)">
+                    <rect width="48" height="48" rx="4" />
+                    <rect x="-0.5" y="-0.5" width="49" height="49" rx="4.5" className="click-effect" />
                 </g>
-                {
-                    (
-                        <path
-                            id="Icon"
-                            className="action-process-icon"
-                            d="M136.331,276.637h7.655v1.529h-7.655Zm.017,3.454H144v1.529h-7.655Z"
-                            transform="translate(112 258)"
-                        />
-                    )
-                }
             </g>
-        // </Tooltip>
-    )
+            {
+                (
+                    <path
+                        id="Icon"
+                        className="action-process-icon"
+                        d="M136.331,276.637h7.655v1.529h-7.655Zm.017,3.454H144v1.529h-7.655Z"
+                        transform="translate(112 258)"
+                    />
+                )
+            }
+        </g>
+    );
+    useEffect(() => {
+        if (showTooltip && text) {
+            setTooltip(showTooltip(rectSVG, type, text, "right", true));
+        }
+    }, [text]);
+    return (
+        <>
+            {tooltip ? tooltip : rectSVG}
+        </>
+    );
 }

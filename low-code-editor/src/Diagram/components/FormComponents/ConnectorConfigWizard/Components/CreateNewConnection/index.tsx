@@ -15,7 +15,8 @@ import React, {useContext, useEffect, useState} from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import { FormControl } from "@material-ui/core";
-import { Connector, ConnectorConfig, FormField, LinePrimaryButton, LowcodeEvent, PrimaryButton, SAVE_CONNECTOR } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { Connector, ConnectorConfig, FormField, LowcodeEvent, SAVE_CONNECTOR } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { LinePrimaryButton, PrimaryButton } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 

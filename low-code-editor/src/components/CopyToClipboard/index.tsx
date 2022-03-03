@@ -1,7 +1,7 @@
 import * as React from "react";
 
 import { createStyles, makeStyles, Theme } from "@material-ui/core";
-import { Tooltip, TooltipProps } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { Tooltip, TooltipProps } from '@wso2-enterprise/ballerina-low-code-edtior-ui-components';
 import classNames from "classnames";
 import copy from "clipboard-copy";
 

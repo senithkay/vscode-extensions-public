@@ -20,15 +20,17 @@ import {
     ADD_CONNECTOR,
     BallerinaConstruct,
     BallerinaModuleResponse,
-    ButtonWithIcon,
     DiagramEditorLangClientInterface,
-    FormHeaderSection,
-    IconBtnWithText,
     LOAD_CONNECTOR_LIST,
     LowcodeEvent,
     SEARCH_CONNECTOR,
     SELECT_CONNECTOR
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import {
+    ButtonWithIcon,
+    FormHeaderSection,
+    IconBtnWithText
+} from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { LocalVarDecl } from "@wso2-enterprise/syntax-tree";
 
 import { FilterIcon } from "../../../../../assets/icons";

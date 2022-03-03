@@ -12,7 +12,7 @@
  */
 import { compile } from "handlebars";
 
-import templates from "../../../templates/components";
+import templates from "../../templates/components";
 
 export async function getInsertTemplate(insertTempName: string) {
     return templates[insertTempName];

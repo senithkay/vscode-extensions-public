@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext, useRef, useState } from "react"
+import React, { useContext, useEffect, useRef, useState } from "react"
 
 import { ConfigurableIcon, DeleteButton, EditButton, ModuleVariableIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { CaptureBindingPattern, ModuleVarDecl, QualifiedNameReference, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
@@ -21,9 +21,6 @@ import { Context } from "../../../Context/diagram";
 import { ModuleIcon } from "../Connector/ConnectorHeader/ModuleIcon";
 
 import "./style.scss";
-// import Tooltip from "../../../../../../components/Tooltip";
-// import { Tooltip } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-
 
 export const MODULE_VAR_MARGIN_LEFT: number = 24.5;
 export const MODULE_VAR_PLUS_OFFSET: number = 7.5;
@@ -41,8 +38,9 @@ export function ModuleVariable(props: ModuleVariableProps) {
     const deleteComponent = diagramContext?.api?.edit?.deleteComponent;
     const renderEditForm = diagramContext?.api?.edit?.renderEditForm;
     const modifyDiagram = diagramContext?.api?.code?.modifyDiagram;
+    const showTooltip = diagramContext?.api?.edit?.showTooltip;
 
-    // const [editFormVisible, setEditFormVisible] = useState(false);
+    const [tooltip, setTooltip] = useState(undefined);
     // const [deleteFormVisible, setDeleteFormVisible] = useState(false);
 
     const deleteBtnRef = useRef(null);
@@ -55,10 +53,10 @@ export function ModuleVariable(props: ModuleVariableProps) {
 
     if (model && STKindChecker.isModuleVarDecl(model) && model.typeData.isEndpoint) {
         isModuleConnector = true;
-        if (STKindChecker.isQualifiedNameReference(model.typedBindingPattern.typeDescriptor)){
+        if (STKindChecker.isQualifiedNameReference(model.typedBindingPattern.typeDescriptor)) {
             varType = (model.typedBindingPattern.typeDescriptor as QualifiedNameReference).source.trim();
         }
-        if (STKindChecker.isCaptureBindingPattern(model.typedBindingPattern.bindingPattern)){
+        if (STKindChecker.isCaptureBindingPattern(model.typedBindingPattern.bindingPattern)) {
             varName = (model.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName?.value;
         }
     } else if (STKindChecker.isModuleVarDecl(model)) {
@@ -95,6 +93,22 @@ export function ModuleVariable(props: ModuleVariableProps) {
         renderEditForm(model, model.position, { formType: model.kind, isLoading: false });
     }
 
+    const moduleVariableTypeElement = (
+        <tspan x="0" y="0">{typeMaxWidth ? varType.slice(0, 10) + "..." : varType}</tspan>
+    );
+
+    useEffect(() => {
+        if (model && showTooltip) {
+            setTooltip(showTooltip(moduleVariableTypeElement, "heading-content", {
+                content: model.source.slice(1, -1),
+                heading: ""
+            }, "top-start", true, undefined, undefined, false, undefined, {
+                inverted: false,
+                interactive: true
+            }));
+        }
+    }, [model]);
+
     return (
         <div>
             <div
@@ -104,20 +118,12 @@ export function ModuleVariable(props: ModuleVariableProps) {
                 <div className="module-variable-header" >
                     <div className={"module-variable-wrapper"}>
                         <div className={"module-variable-icon"}>
-                            {isModuleConnector && <ModuleIcon node={model} width={16} scale={0.35}/>}
+                            {isModuleConnector && <ModuleIcon node={model} width={16} scale={0.35} />}
                             {!isModuleConnector && isConfigurable && <ConfigurableIcon />}
                             {!isModuleConnector && !isConfigurable && <ModuleVariableIcon />}
                         </div>
                         <div className={"module-variable-type-text"}>
-                            {/* <Tooltip
-                                arrow={true}
-                                placement="top-start"
-                                title={model.source.slice(1, -1)}
-                                inverted={false}
-                                interactive={true}
-                            > */}
-                                <tspan x="0" y="0">{typeMaxWidth ? varType.slice(0, 10) + "..." : varType}</tspan>
-                            {/* </Tooltip> */}
+                            {tooltip ? tooltip : moduleVariableTypeElement}
                         </div>
                         <div className={'module-variable-name-text'}>
                             <tspan x="0" y="0">{nameMaxWidth ? varName.slice(0, 20) + "..." : varName}</tspan>
