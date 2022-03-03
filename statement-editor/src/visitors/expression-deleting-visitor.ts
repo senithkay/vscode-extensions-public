@@ -37,16 +37,18 @@ class ExpressionDeletingVisitor implements Visitor {
     private codeAfterDeletion: string = DEFAULT_EXPR;
 
     public beginVisitBinaryExpression(node: BinaryExpression) {
-        const lhsPosition = node.lhsExpr.position;
-        const operatorPosition = node.operator.position;
-        const rhsPosition = node.rhsExpr.position;
-
-        if (isPositionsEquals(this.deletePosition, lhsPosition)) {
-            this.codeAfterDeletion = node.rhsExpr.source;
-            this.newDeletePosition = node.position;
-        } else if (isPositionsEquals(this.deletePosition, operatorPosition) ||
-                    isPositionsEquals(this.deletePosition, rhsPosition)) {
+        if (isPositionsEquals(this.deletePosition, node.lhsExpr.position)) {
+            this.codeAfterDeletion = `${DEFAULT_EXPR}`;
+            this.newDeletePosition = node.lhsExpr.position;
+        } else if (isPositionsEquals(this.deletePosition, node.operator.position)) {
             this.codeAfterDeletion = node.lhsExpr.source;
+            this.newDeletePosition = node.position;
+        } else if (isPositionsEquals(this.deletePosition, node.rhsExpr.position)) {
+            this.codeAfterDeletion = `${DEFAULT_EXPR}`;
+            this.newDeletePosition = node.rhsExpr.position;
+        } else if (isPositionsEquals(this.deletePosition, node.position)) {
+            this.codeAfterDeletion = `${DEFAULT_EXPR}`;
+            this.newDeletePosition = node.position;
         }
     }
 
