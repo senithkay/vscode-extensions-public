@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import React, { useContext, useEffect, useState } from "react";
 
-import { IconButton } from "@material-ui/core";
+import { IconButton, Input, InputAdornment } from "@material-ui/core";
 import { ArrowBack } from "@material-ui/icons";
 import {
     LibraryDataResponse,
@@ -21,6 +21,8 @@ import {
     LibrarySearchResponse
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
+import LibraryModuleIcon from "../../assets/icons/LibraryModuleIcon";
+import LibrarySearchIcon from "../../assets/icons/LibrarySearchIcon";
 import { LANG_LIBS_IDENTIFIER, STD_LIBS_IDENTIFIER } from "../../constants";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { useStatementEditorStyles } from "../styles";
@@ -130,17 +132,27 @@ export function LibraryBrowser(props: LibraryBrowserProps) {
                     {(libraryBrowserMode !== LibraryBrowserMode.LIB_LIST || searchScope !== DEFAULT_SEARCH_SCOPE) && (
                         <>
                             <IconButton onClick={onClickOnReturnIcon} className={statementEditorClasses.libraryReturnIcon}>
-                                <ArrowBack fontSize={"small"}/>
+                                <ArrowBack className={statementEditorClasses.arrowBack}/>
                             </IconButton>
+                            {moduleTitle && (
+                                <div className={statementEditorClasses.libraryModuleIcon}>
+                                    <LibraryModuleIcon/>
+                                </div>
+                            )}
                             <div className={statementEditorClasses.moduleTitle}>{moduleTitle}</div>
                         </>
                     )}
-                    <input
-                        className={statementEditorClasses.librarySearchBox}
-                        value={keyword}
-                        placeholder={`search in ${searchScope}`}
-                        onChange={(e) => setKeyword(e.target.value)}
-                    />
+                        <Input
+                            className={statementEditorClasses.librarySearchBox}
+                            value={keyword}
+                            placeholder={`search in ${searchScope}`}
+                            onChange={(e) => setKeyword(e.target.value)}
+                            endAdornment={(
+                                <InputAdornment position={"end"} style={{padding: '8.5px'}}>
+                                    <LibrarySearchIcon/>
+                                </InputAdornment>
+                            )}
+                        />
                 </div>
                 {libraryBrowserMode === LibraryBrowserMode.LIB_LIST && !moduleTitle && (
                     <LibrariesList
