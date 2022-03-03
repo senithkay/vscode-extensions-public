@@ -51,7 +51,6 @@ export interface FunctionProps {
 
 export function Function(props: FunctionProps) {
     const classes = useStyles();
-    const { state } = useContext(Context);
     const [overlayId] = useState(`function-overlay-${uuid()}`);
     const {
         props: { isWaitingOnWorkspace, isReadOnly, isCodeEditorActive },

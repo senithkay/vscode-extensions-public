@@ -425,10 +425,11 @@ export class PositioningVisitor implements Visitor {
                 workerDeclViewState.bBox.y = height;
             });
 
+            // positioning for plus button before worker block
             const plusForIndex = getPlusViewState(index + node.statements.length + 1, blockViewState.plusButtons)
 
             if (plusForIndex) {
-                plusForIndex.bBox.cy = height === 0 ? PLUS_SVG_HEIGHT : height - DefaultConfig.offSet;
+                plusForIndex.bBox.cy = blockViewState.bBox.cy + height;
                 plusForIndex.bBox.cx = blockViewState.bBox.cx;
             }
 

@@ -622,14 +622,41 @@ export class SizingVisitor implements Visitor {
 
         if (viewState.hasWorkerDecl && this.experimentalEnabled) {
             index = this.initiateStatementSizing(node.namedWorkerDeclarator.workerInitStatements, index, viewState);
-            const plusBtnViewState = new PlusViewState();
-            plusBtnViewState.index = index + node.statements.length + 1;
-            plusBtnViewState.expanded = true;
-            plusBtnViewState.selectedComponent = "PROCESS";
-            plusBtnViewState.collapsedClicked = false;
-            plusBtnViewState.collapsedPlusDuoExpanded = false;
-            plusBtnViewState.isLast = true;
-            viewState.plusButtons.push(new PlusViewState())
+
+            const workerPlusVS = getPlusViewState(index + node.statements.length + 1, viewState.plusButtons);
+            if (workerPlusVS && workerPlusVS.draftAdded) {
+                const draft: DraftStatementViewState = new DraftStatementViewState();
+                draft.type = workerPlusVS.draftAdded;
+                draft.subType = workerPlusVS.draftSubType;
+                draft.connector = workerPlusVS.draftConnector;
+                draft.selectedConnector = workerPlusVS.draftSelectedConnector;
+
+                let prevStatement: STNode;
+
+                if (node.namedWorkerDeclarator.workerInitStatements.length > 0) {
+                    prevStatement = node.namedWorkerDeclarator
+                        .workerInitStatements[node.namedWorkerDeclarator.workerInitStatements.length - 1];
+                }
+
+                draft.targetPosition = {
+                    startLine: prevStatement ? prevStatement.position.startLine + 1
+                        : node.namedWorkerDeclarator.position.startLine,
+                    startColumn: 0
+                };
+                viewState.draft = [index, draft];
+                workerPlusVS.draftAdded = undefined;
+            } else {
+                const plusBtnViewState = new PlusViewState();
+                plusBtnViewState.index = index + node.statements.length + 1;
+                plusBtnViewState.expanded = true;
+                plusBtnViewState.selectedComponent = "PROCESS";
+                plusBtnViewState.collapsedClicked = false;
+                plusBtnViewState.collapsedPlusDuoExpanded = false;
+                plusBtnViewState.isPlusBeforeWorkerBlock = true;
+                viewState.plusButtons.push(plusBtnViewState)
+            }
+
+
         }
 
         this.beginSizingBlock(node, index);

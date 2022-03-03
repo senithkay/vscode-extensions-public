@@ -455,7 +455,7 @@
     "lowcode.develop.plusHolder.plusElements.statements.if.title": "If",
     "lowcode.develop.plusHolder.plusElements.statements.if.tooltip.title": "An if statement allows you to specifiy two blocks of logical components so that the system can decide which block to execute based on whether the provided condition is true or false.",
     "lowcode.develop.plusHolder.plusElements.statements.log.title": "Log",
-    "lowcode.develop.plusHolder.plusElements.statements.worker.title": "Log",
+    "lowcode.develop.plusHolder.plusElements.statements.worker.title": "Worker",
     "lowcode.develop.plusHolder.plusElements.statements.log.tooltip.title": "A log statement logs an event with an information statement or an error that occurs in a service or an integration. If the event has not yet occured, you can view the logs from the 'Run & Test' console . If the event has occured, you can view the logs from the Observability page.",
     "lowcode.develop.plusHolder.plusElements.statements.respond.title": "Respond",
     "lowcode.develop.plusHolder.plusElements.statements.http.tooltip.title": "An HTTP connector can be used to integrate with external applications",
