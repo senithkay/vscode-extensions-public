@@ -11,9 +11,9 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import * as React from "react";
+import React, {useContext, useEffect, useState} from "react";
 
-// import Tooltip from "../../../../../../components/Tooltip";
+import { Context } from "../../../Context/diagram";
 
 export const DELETE_SVG_WIDTH_WITH_SHADOW = 34;
 export const DELETE_SVG_HEIGHT_WITH_SHADOW = 34;
@@ -24,6 +24,10 @@ export const DELETE_SHADOW_OFFSET = DELETE_SVG_HEIGHT_WITH_SHADOW - DELETE_SVG_H
 
 export function DeleteSVG(props: { x: number, y: number, toolTipTitle?: string, ref?: any }) {
     const { toolTipTitle, ...xyProps } = props;
+    const diagramContext = useContext(Context);
+    const showTooltip = diagramContext?.api?.edit?.showTooltip;
+    const [tooltipComp, setTooltipComp] = useState(undefined);
+
     const deleteSVGIcon = (
         <g id="DeleteGroup" className="delete-circle" transform="translate(3.5 3.5)">
             <g transform="matrix(1, 0, 0, 1, -7.5, -6.5)">
@@ -42,6 +46,13 @@ export function DeleteSVG(props: { x: number, y: number, toolTipTitle?: string, 
                 />
         </g>
     );
+
+    useEffect(() => {
+        if (props.toolTipTitle && showTooltip) {
+            setTooltipComp(showTooltip(deleteSVGIcon, "heading", {heading: toolTipTitle}, "left", true));
+        }
+    }, [toolTipTitle]);
+
     return (
         <svg  {...xyProps} width={DELETE_SVG_WIDTH_WITH_SHADOW} height={DELETE_SVG_HEIGHT_WITH_SHADOW}>
             <defs>
@@ -71,10 +82,8 @@ export function DeleteSVG(props: { x: number, y: number, toolTipTitle?: string, 
                     <feComposite in="SourceGraphic" />
                 </filter>
             </defs>
-            {props.toolTipTitle ? (
-                // <Tooltip title={toolTipTitle} placement={"left"} arrow={true}>
-                    deleteSVGIcon
-                // </Tooltip>
+            {props.toolTipTitle && tooltipComp ? (
+                tooltipComp
             ) : (
                 <g>
                     {deleteSVGIcon}

@@ -11,9 +11,9 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import * as React from "react";
+import React, { useContext, useEffect, useState } from "react";
 
-// import { TooltipCodeSnippet } from "../../../../../../components/Tooltip";
+import { Context } from "../../../Context/diagram";
 
 export const RESPOND_SVG_HEIGHT_WITH_SHADOW = 46;
 export const RESPOND_SVG_WIDTH_WITH_SHADOW = 96;
@@ -24,6 +24,31 @@ export const RESPOND_SVG_SHADOW_OFFSET = RESPOND_SVG_HEIGHT_WITH_SHADOW - RESPON
 
 export function RespondSVG(props: { x: number, y: number, text: string, sourceSnippet?: string, openInCodeView?: () => void }) {
     const { text, sourceSnippet, openInCodeView, ...xyProps } = props;
+    const diagramContext = useContext(Context);
+    const showTooltip = diagramContext?.api?.edit?.showTooltip;
+    const [tooltip, setTooltip] = useState(undefined);
+    const responseRect = (
+        <g id="Respond" className="respond-comp respond-active" transform="translate(7 6)">
+            <g transform="matrix(1, 0, 0, 1, -7, -6)">
+                <g id="Rectangle-2" transform="translate(7 6)">
+                    <rect width="82" height="32" rx="16" stroke="none" />
+                    <rect x="-0.5" y="-0.5" width="83" height="33" rx="16.5" fill="none" className="click-effect" />
+                </g>
+            </g>
+            <text id="RespondText" transform="translate(41 19.5)" className="respond-text" >
+                <tspan x="0" y="0" textAnchor="middle" >
+                    {text}
+                </tspan>
+            </text>
+        </g>
+    );
+
+    useEffect(() => {
+        if (sourceSnippet && showTooltip) {
+            setTooltip(showTooltip(responseRect, "diagram-code", { code: sourceSnippet }, "right", true, undefined, undefined, false, openInCodeView));
+        }
+    }, [sourceSnippet]);
+
     return (
         <svg {...xyProps} height={RESPOND_SVG_HEIGHT_WITH_SHADOW} width={RESPOND_SVG_WIDTH_WITH_SHADOW} className="respond">
             <defs>
@@ -46,21 +71,7 @@ export function RespondSVG(props: { x: number, y: number, text: string, sourceSn
                     <feComposite in="SourceGraphic" />
                 </filter>
             </defs>
-            {/* <TooltipCodeSnippet openInCodeView={openInCodeView} content={sourceSnippet} placement="right" arrow={true}> */}
-                <g id="Respond" className="respond-comp respond-active" transform="translate(7 6)">
-                    <g transform="matrix(1, 0, 0, 1, -7, -6)">
-                        <g id="Rectangle-2" transform="translate(7 6)">
-                            <rect width="82" height="32" rx="16" stroke="none" />
-                            <rect x="-0.5" y="-0.5" width="83" height="33" rx="16.5" fill="none" className="click-effect" />
-                        </g>
-                    </g>
-                    <text id="RespondText" transform="translate(41 19.5)" className="respond-text" >
-                        <tspan x="0" y="0" textAnchor="middle" >
-                            {text}
-                        </tspan>
-                    </text>
-                </g>
-            {/* </TooltipCodeSnippet > */}
+            {tooltip ? tooltip : responseRect}
         </svg >
     )
 }

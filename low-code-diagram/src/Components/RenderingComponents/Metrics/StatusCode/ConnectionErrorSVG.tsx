@@ -13,9 +13,6 @@
 // tslint:disable: jsx-no-multiline-js
 import * as React from "react";
 
-// import { Grid, IconButton,  withStyles } from "@material-ui/core";
-// import TooltipBase from '@material-ui/core/Tooltip';
-
 import { ErrorCopyIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { CopyToClipboard } from './CopyToClipboard';
@@ -41,7 +38,6 @@ export const tooltipStyles = {
         color: "#ffffff"
     }
 };
-// const TooltipComponent = withStyles(tooltipStyles)(TooltipBase);
 
 export function ConnectionErrorSVG(props: { x: number, y: number, text: string, errorMsg: string }) {
     const { text, errorMsg, ...xyProps } = props;

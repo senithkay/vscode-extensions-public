@@ -11,11 +11,10 @@
  * associated services.
  */
 
-import React, { ReactNode }  from "react";
+import React, { ReactElement, ReactNode, useContext, useEffect, useState } from "react";
 
+import { Context } from "../../../Context/diagram";
 import { ErrorSnippet } from "../../../Types/type";
-// import Tooltip from "../../../../../../components/TooltipV2";
-// import { ErrorSnippet } from "../../../../../../DiagramGenerator/generatorUtil";
 
 interface IfElseRectSVGProps {
     type?: string,
@@ -27,18 +26,32 @@ interface IfElseRectSVGProps {
 }
 
 export function IfElseRectSVG(props: IfElseRectSVGProps) {
-const {type, onClick, diagnostic, icon, text, className} = props;
-return (
-        // <Tooltip type={type} onClick={onClick} text={text} diagnostic={diagnostic} placement="right" arrow={true}>
+    const { type, onClick, diagnostic, icon, text, className } = props;
+    const diagramContext = useContext(Context);
+    const showTooltip = diagramContext?.api?.edit?.showTooltip;
+    const [tooltip, setTooltip] = useState(undefined);
+
+    const component = (
         <g id="IfElse" className={className} transform="translate(7 6)">
-                    <g transform="matrix(1, 0, 0, 1, -7, -6)" >
-                        <g id="IfElsePolygon" transform="translate(33.5, 3) rotate(45)">
-                            <rect width="40.903" height="40.903" className="if-else-rect" rx="6" stroke="none" />
-                            <rect x="0.5" y="0.5" width="39.903" className="if-else-rect click-effect" height="39.903" rx="5.5" fill="none" />
-                        </g>
-                    </g>
-                    {icon}
+            <g transform="matrix(1, 0, 0, 1, -7, -6)" >
+                <g id="IfElsePolygon" transform="translate(33.5, 3) rotate(45)">
+                    <rect width="40.903" height="40.903" className="if-else-rect" rx="6" stroke="none" />
+                    <rect x="0.5" y="0.5" width="39.903" className="if-else-rect click-effect" height="39.903" rx="5.5" fill="none" />
                 </g>
-            // </Tooltip>
-    )
+            </g>
+            {icon}
+        </g>
+    );
+
+    useEffect(() => {
+        if (text && showTooltip) {
+            setTooltip(showTooltip(component, type, text, "right", true, diagnostic, undefined, false, onClick));
+        }
+    }, [text]);
+
+    return (
+        <>
+            {tooltip ? tooltip : component}
+        </>
+    );
 }

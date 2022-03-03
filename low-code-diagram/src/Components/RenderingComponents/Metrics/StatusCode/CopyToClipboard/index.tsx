@@ -1,18 +1,7 @@
 import * as React from "react";
 
-// import { createStyles, makeStyles, Theme } from "@material-ui/core";
-// import classNames from "classnames";
 import copy from "clipboard-copy";
 
-// import Tooltip, { TooltipProps } from '../../../../../../../low-code-editor/src/components/Tooltip';
-
-// export const useStyles = makeStyles((theme: Theme) =>
-//     createStyles({
-//         tooltip: {
-//             zIndex: 10001
-//         }
-//     })
-// )
 interface ChildProps {
     copy: (content: any) => void;
 }

@@ -1,6 +1,5 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 
-// import Tooltip from "@material-ui/core/Tooltip";
 import { FunctionDefinition } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../Context/diagram";
@@ -17,7 +16,9 @@ export function PerformanceBar(props: PerformanceProps) {
     const diagramContext = useContext(Context);
     const openPerformanceChart = diagramContext?.api?.edit?.openPerformanceChart;
     const { diagramCleanDraw } = diagramContext?.actions;
+    const showTooltip = diagramContext?.api?.edit?.showTooltip;
     const { performanceData } = diagramContext?.props;
+    const [tooltip, setTooltip] = useState(undefined);
 
     const { concurrency, latency, tps, isPerfDataAvailable, isAdvancedPerfDataAvailable } = generatePerfData(model, performanceData);
 
@@ -36,6 +37,22 @@ export function PerformanceBar(props: PerformanceProps) {
                 model.position, diagramCleanDraw);
         }
     };
+    const element = (
+        <p className={"more"} onClick={onClickPerformance}>{"Show More →"}</p>
+    );
+
+    useEffect(() => {
+        if (showTooltip) {
+            setTooltip(showTooltip(element, "heading-content", {
+                heading: "Performance graph",
+                content: (
+                    isAdvancedPerfDataAvailable
+                        ? "Click here to open the performance graph"
+                        : "Insufficient data to provide detailed estimations"
+                )
+            }));
+        }
+    }, [model]);
 
     const perBar = (
         <div className={"performance-bar"}>
@@ -43,9 +60,7 @@ export function PerformanceBar(props: PerformanceProps) {
             <p>
                 {isAdvancedPerfDataAvailable ? `Forecasted performance for concurrency ${concurrency} | Latency: ${latency} | Tps: ${tps}` : `Forecasted performance for a single user: Latency: ${latency} | Tps: ${tps}`}
             </p>
-            {/* <Tooltip title={isAdvancedPerfDataAvailable ? "Click here to open the performance graph" : "Insufficient data to provide detailed estimations"}> */}
-            <p className={"more"} onClick={onClickPerformance}>{"Show More →"}</p>
-            {/* </Tooltip> */}
+            {tooltip ? tooltip : element}
         </div>
     );
 

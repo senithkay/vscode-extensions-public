@@ -14,8 +14,6 @@
 import * as React from "react";
 
 import { ErrorSnippet } from "../../../../Types/type";
-// import Tooltip from "../../../../../../../components/TooltipV2";
-// import { ErrorSnippet } from "../../../../../../../DiagramGenerator/generatorUtil";
 
 import { ConnectorRectSVG } from "./ConnectorRectSVG";
 

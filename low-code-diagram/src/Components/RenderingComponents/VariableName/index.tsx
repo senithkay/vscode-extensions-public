@@ -11,9 +11,9 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js align  jsx-wrap-multiline
-import React, { ReactElement, useEffect, useState } from "react";
+import React, { ReactElement, useContext, useEffect, useState } from "react";
 
-// import Tooltip from '../../../../../../components/Tooltip';
+import { Context } from "../../../Context/diagram";
 import { DefaultConfig } from "../../../Visitors/default";
 
 import "./style.scss";
@@ -24,6 +24,9 @@ export const ICON_SVG_WRAPPER_WIDTH = 25;
 export function VariableName(props: { x: number, y: number, variableName: string, processType?: string, key_id: number }) {
     const { processType, variableName, key_id, ...xyProps } = props;
     const [textWidth, setTextWidth] = useState(VARIABLE_NAME_WIDTH);
+    const diagramContext = useContext(Context);
+    const showTooltip = diagramContext?.api?.edit?.showTooltip;
+    const [tooltip, setTooltip] = useState(undefined);
 
     useEffect(() => {
         setTextWidth(document.getElementById("variableLegnth_" + key_id).getBoundingClientRect().width);
@@ -48,16 +51,18 @@ export function VariableName(props: { x: number, y: number, variableName: string
         </text>
     );
 
-    // variableMaxWidth ?
-    //             <Tooltip arrow={true} placement="top-start" title={variableName} inverted={false} interactive={true}>
-    //                 {variableTextComp}
-    //             </Tooltip>
-    //             :
-    //             variableTextComp
+    useEffect(() => {
+        if (variableName && showTooltip) {
+            setTooltip(showTooltip(variableTextComp, "heading-content", { heading: variableName }, "top-start", true, undefined, undefined, false, undefined, {
+                inverted: false,
+                interactive: true
+            }));
+        }
+    }, [variableName]);
 
     return (
         <svg {...xyProps} width="150" height="24" className="variable-wrapper">
-            {variableTextComp}
+            {tooltip ? tooltip : variableTextComp}
         </svg >
     );
 }

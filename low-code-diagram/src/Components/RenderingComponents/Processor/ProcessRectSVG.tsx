@@ -11,11 +11,10 @@
  * associated services.
  */
 
-import React  from "react";
+import React, { useContext, useEffect, useState } from "react";
 
-// import Tooltip from "../../../../../../components/TooltipV2";
+import { Context } from "../../../Context/diagram";
 import { ErrorSnippet } from "../../../Types/type";
-// import { ErrorSnippet } from "../../../../../../DiagramGenerator/generatorUtil";
 
 import "./style.scss"
 
@@ -29,21 +28,32 @@ interface ProcessRectSVGProps {
 }
 
 export function ProcessRectSVG(props: ProcessRectSVGProps) {
-const {type, onClick, diagnostic, processTypeIndicator, text, className} = props;
-const diagnosticStyles = diagnostic?.severity === "ERROR" ? "data-processor-error" : "data-processor-warning";
-const processRectStyles = diagnostic ? diagnosticStyles : "data-processor process-active"
+    const { type, onClick, diagnostic, processTypeIndicator, text, className } = props;
+    const diagramContext = useContext(Context);
+    const showTooltip = diagramContext?.api?.edit?.showTooltip;
+    const diagnosticStyles = diagnostic?.severity === "ERROR" ? "data-processor-error" : "data-processor-warning";
+    const processRectStyles = diagnostic ? diagnosticStyles : "data-processor process-active"
+    const [tooltip, setTooltip] = useState(undefined);
 
-return (
-        // <Tooltip type={type} onClick={onClick} text={text} diagnostic={diagnostic} placement="right" arrow={true}>
-            <g id="Process" className={processRectStyles} transform="translate(-221.5 -506)">
-                <g transform="matrix(1, 0, 0, 1, 222, 509)">
-                    <g id="ProcessRect-2" transform="translate(5.5 4)">
-                        <rect width="48" height="48" rx="4" />
-                        <rect x="-0.5" y="-0.5" width="49" height="49" rx="4.5" className="click-effect" />
-                    </g>
+    const rectSVG = (
+        <g id="Process" className={processRectStyles} transform="translate(-221.5 -506)">
+            <g transform="matrix(1, 0, 0, 1, 222, 509)">
+                <g id="ProcessRect-2" transform="translate(5.5 4)">
+                    <rect width="48" height="48" rx="4" />
+                    <rect x="-0.5" y="-0.5" width="49" height="49" rx="4.5" className="click-effect" />
                 </g>
-                {processTypeIndicator}
             </g>
-        // </Tooltip>
+            {processTypeIndicator}
+        </g>
+    );
+
+    useEffect(() => {
+        if (text && showTooltip) {
+            setTooltip(showTooltip(rectSVG, type, text, "right", true, diagnostic, undefined, false, onClick));
+        }
+    }, [text]);
+
+    return (
+        <>{tooltip ? tooltip : rectSVG}</>
     )
 }

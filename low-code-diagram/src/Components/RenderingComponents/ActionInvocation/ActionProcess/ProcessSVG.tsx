@@ -16,8 +16,6 @@ import * as React from "react";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 import { ErrorSnippet } from "../../../../Types/type";
-// import Tooltip from "../../../../../../../components/TooltipV2";
-// import { ErrorSnippet } from "../../../../../../../DiagramGenerator/generatorUtil";
 
 import { ActionProcessRectSVG } from "./ActionProcessRectSVG";
 import "./style.scss";
@@ -31,18 +29,19 @@ export const PROCESS_STROKE_HEIGHT = 1;
 export const PROCESS_SVG_HEIGHT = 48 + PROCESS_STROKE_HEIGHT;
 export const PROCESS_SVG_SHADOW_OFFSET = PROCESS_SVG_HEIGHT_WITH_SHADOW - PROCESS_SVG_HEIGHT;
 
-
-export function ProcessSVG(props: {
+interface ProcessSVGProps {
     x: number, y: number, varName: any,
     sourceSnippet: string, position: NodePosition,
     openInCodeView?: () => void,
     processType: string,
     diagnostics?: ErrorSnippet
-}) {
+}
+
+export function ProcessSVG(props: ProcessSVGProps) {
     const { varName, sourceSnippet, processType, openInCodeView, diagnostics, ...xyProps } = props;
     const tooltipText = {
         code: sourceSnippet
-    }
+    };
     return (
         <svg {...xyProps} width={PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW} height={PROCESS_SVG_HEIGHT_WITH_HOVER_SHADOW} className="process" >
             <defs>

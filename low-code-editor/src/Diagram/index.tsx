@@ -17,6 +17,7 @@ import { DefaultConfig, LowCodeDiagram, PlusViewState, ViewState } from "@wso2-e
 import { ConfigOverlayFormStatus, ConnectorConfigWizardProps, DiagramOverlayPosition, LowcodeEvent, OPEN_LOW_CODE, PlusWidgetProps, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
+import Tooltip from "../components/TooltipV2";
 import { Context as DiagramContext } from "../Contexts/Diagram";
 import { addAdvancedLabels } from "../DiagramGenerator/performanceUtil";
 import { TextPreLoader } from "../PreLoader/TextPreLoader";
@@ -234,6 +235,28 @@ export function Diagram() {
         return (<ChildComp {...plusWidgetProps} viewState={plusViewState} />);
     };
 
+    const handleShowTooltip = (component: any, type: string,
+                               text?: { heading?: string, content?: string, example?: string, code?: string },
+                               placement?: | 'bottom-end' | 'bottom-start' | 'bottom' | 'left-end' | 'left-start' | 'left' | 'right-end' | 'right-start' | 'right' | 'top-end' | 'top-start' | 'top',
+                               arrow?: boolean,
+                               diagnostic?: { diagnosticMsgs?: string, code?: string, severity?: string },
+                               action?: { link: string, text: string },
+                               disabled?: boolean,
+                               onClick?: () => void,
+                               additionalParams?: any): any => {
+        return (
+            additionalParams ? (
+                <Tooltip type={type} text={text} diagnostic={diagnostic} placement={placement} arrow={arrow} action={action} onClick={onClick} disabled={disabled} {...additionalParams} >
+                    {component}
+                </Tooltip>
+            ) : (
+                <Tooltip type={type} text={text} diagnostic={diagnostic} placement={placement} arrow={arrow} action={action} onClick={onClick} disabled={disabled} >
+                    {component}
+                </Tooltip>
+            )
+        );
+    };
+
     const handleOpenPerformanceChart = async (name: string, range: NodePosition, diagramRedrawFunc: any) => {
         await addAdvancedLabels(name, range, diagramRedrawFunc);
     };
@@ -309,6 +332,7 @@ export function Diagram() {
                                 closeAllOpenedForms: handleCloseAllOpenedForms,
                                 renderPlusWidget: handleRenderPlusWidget,
                                 openPerformanceChart: handleOpenPerformanceChart,
+                                showTooltip: handleShowTooltip
                             },
                             code: {
                                 gotoSource,

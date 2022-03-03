@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 
 import { DeleteButton, EditButton, ListenerIcon } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { ListenerDeclaration, STNode } from "@wso2-enterprise/syntax-tree";
@@ -19,8 +19,6 @@ import { ListenerDeclaration, STNode } from "@wso2-enterprise/syntax-tree";
 import { Context } from '../../../Context/diagram';
 
 import "./style.scss";
-
-// import Tooltip from '../../../../../../components/Tooltip';
 
 export const LISTENER_MARGIN_LEFT: number = 24.5;
 export const LISTENER_PLUS_OFFSET: number = 7.5;
@@ -36,7 +34,10 @@ export function ListenerC(props: ListenerProps) {
     const deleteComponent = diagramContext?.api?.edit?.deleteComponent;
     const renderEditForm = diagramContext?.api?.edit?.renderEditForm;
     const gotoSource = diagramContext?.api?.code?.gotoSource;
+    const showTooltip = diagramContext?.api?.edit?.showTooltip;
+
     const [isEditable, setIsEditable] = useState(false);
+    const [tooltip, setTooltip] = useState(undefined);
     // const [editingEnabled, setEditingEnabled] = useState(false);
 
     const listenerModel: ListenerDeclaration = model as ListenerDeclaration;
@@ -70,6 +71,22 @@ export function ListenerC(props: ListenerProps) {
         }
     }
 
+    const listenerTypeComponent = (
+        <tspan x="0" y="0">{typeMaxWidth ? listenerType.slice(0, 10).toUpperCase() + "..." : listenerType.toUpperCase()}</tspan>
+    );
+
+    useEffect(() => {
+        if (model && showTooltip) {
+            setTooltip(showTooltip(listenerTypeComponent, "heading-content", {
+                content: model.source.slice(1, -1),
+                heading: ""
+            }, "top-start", true, undefined, undefined, false, undefined, {
+                inverted: false,
+                interactive: true
+            }));
+        }
+    }, [model]);
+
     return (
         <>
             <div
@@ -84,15 +101,7 @@ export function ListenerC(props: ListenerProps) {
                             <ListenerIcon />
                         </div>
                         <div className="listener-type">
-                            {/* <Tooltip
-                                arrow={true}
-                                placement="top-start"
-                                title={model.source.slice(1, -1)}
-                                inverted={false}
-                                interactive={true}
-                            > */}
-                                <tspan x="0" y="0">{typeMaxWidth ? listenerType.slice(0, 10).toUpperCase() + "..." : listenerType.toUpperCase()}</tspan>
-                            {/* </Tooltip> */}
+                            {tooltip ? tooltip : listenerTypeComponent}
                         </div>
                         <div className="listener-name">
                             <tspan x="0" y="0">{nameMaxWidth ? listenerName.slice(0, 20) + "..." : listenerName}</tspan>

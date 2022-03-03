@@ -10,11 +10,10 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, { ReactNode } from "react";
+import React, { ReactNode, useContext, useEffect, useState } from "react";
 
+import { Context } from "../../../Context/diagram";
 import { ErrorSnippet } from "../../../Types/type";
-// import Tooltip from "../../../../../../components/TooltipV2";
-// import { ErrorSnippet } from "../../../../../../DiagramGenerator/generatorUtil";
 
 interface ReturnRectSVGProps {
     type?: string,
@@ -29,26 +28,36 @@ interface ReturnRectSVGProps {
 export function ReturnRectSVG(props: ReturnRectSVGProps) {
     const { type, onClick, diagnostic, text } = props;
     const diagnosticStyles = diagnostic?.severity === "ERROR" ? "return-comp-error" : "return-comp-warning";
-    const returnRectStyles = diagnostic ? diagnosticStyles : "return-comp"
-    return (
-        // <Tooltip type={type} onClick={onClick} text={text} diagnostic={diagnostic} placement="right" arrow={true}>
-                <g className={returnRectStyles} transform="translate(7 6)">
-                    <g transform="matrix(1, 0, 0, 1, -14, -9)">
-                        <g id="Rectangle-2" transform="translate(7 6)">
-                            <rect width="82" height="32" rx="16" stroke="none" />
-                            <rect x="-0.5" y="-0.5" width="83" height="33" rx="16.5" fill="none" className="click-effect" />
-                        </g>
-                    </g>
-                    <g>
-                        <text transform="translate(26 17)" >
-                            <tspan x="0" y="0">return</tspan>
-                        </text>
-                        <g id="returnIcon" transform="translate(17 10)" className="return-icon">
-                            <path d="M-3.5,0-7,4H0Z" transform="translate(-11 -0.5) rotate(-90)" />
-                            <path d="M-7,.5H0" transform="translate(0 3)" />
-                        </g>
-                    </g>
+    const returnRectStyles = diagnostic ? diagnosticStyles : "return-comp";
+    const diagramContext = useContext(Context);
+    const showTooltip = diagramContext?.api?.edit?.showTooltip;
+    const [tooltip, setTooltip] = useState(undefined);
+    const rectSVG = (
+        <g className={returnRectStyles} transform="translate(7 6)">
+            <g transform="matrix(1, 0, 0, 1, -14, -9)">
+                <g id="Rectangle-2" transform="translate(7 6)">
+                    <rect width="82" height="32" rx="16" stroke="none" />
+                    <rect x="-0.5" y="-0.5" width="83" height="33" rx="16.5" fill="none" className="click-effect" />
                 </g>
-        // </Tooltip>
-    )
+            </g>
+            <g>
+                <text transform="translate(26 17)" >
+                    <tspan x="0" y="0">return</tspan>
+                </text>
+                <g id="returnIcon" transform="translate(17 10)" className="return-icon">
+                    <path d="M-3.5,0-7,4H0Z" transform="translate(-11 -0.5) rotate(-90)" />
+                    <path d="M-7,.5H0" transform="translate(0 3)" />
+                </g>
+            </g>
+        </g>
+    );
+    useEffect(() => {
+        if (text && showTooltip) {
+            setTooltip(showTooltip(rectSVG, type, text, "right", true, diagnostic, undefined, false, onClick));
+        }
+    }, [text]);
+
+    return (
+        <>{tooltip ? tooltip : rectSVG}</>
+    );
 }

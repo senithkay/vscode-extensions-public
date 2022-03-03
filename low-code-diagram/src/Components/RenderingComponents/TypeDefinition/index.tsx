@@ -12,12 +12,11 @@
  */
 // tslint:disable: jsx-no-multiline-js
 // tslint:disable: jsx-wrap-multiline
-import React, { useContext, useState } from "react"
+import React, { ReactElement, useContext, useEffect, useState } from "react"
 
 import { DeleteButton, EditButton, TypeDefinitionIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { MethodDeclaration, ObjectField, ObjectTypeDesc, STKindChecker, TypeDefinition } from "@wso2-enterprise/syntax-tree";
 
-// import Tooltip from "../../../../../../components/Tooltip";
 import { Context } from "../../../Context/diagram";
 import { ComponentExpandButton } from "../../ComponentExpandButton";
 import { RecordDefinitionComponent } from "../RecordDefinion";
@@ -35,6 +34,7 @@ export function TypeDefinitionComponent(props: TypeDefComponentProps) {
     const gotoSource = diagramContext?.api?.code?.gotoSource;
     const deleteComponent = diagramContext?.api?.edit?.deleteComponent;
     const renderDialogBox = diagramContext?.api?.edit?.renderDialogBox;
+    const showTooltip = diagramContext?.api?.edit?.showTooltip;
 
     const [isEditable, setIsEditable] = useState(false);
     const [isExpanded, setIsExpanded] = useState(false);
@@ -96,6 +96,16 @@ export function TypeDefinitionComponent(props: TypeDefComponentProps) {
                 }
             }
         }
+        const typeText = (
+            <tspan x="0" y="0">{typeMaxWidth ? type.slice(0, 10) + "..." : type}</tspan>
+        );
+        let tooltip: ReactElement;
+        if (showTooltip) {
+            tooltip = showTooltip(typeText, "heading-content", {
+                content: model.source.slice(1, -1),
+                heading: ""
+            }, "top-start", true);
+        }
         component.push(
             <div>
                 <div className="type-comp" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
@@ -105,15 +115,7 @@ export function TypeDefinitionComponent(props: TypeDefComponentProps) {
                                 <TypeDefinitionIcon />
                             </div>
                             <div className="type-type">
-                                {/* <Tooltip
-                                    arrow={true}
-                                    placement="top-start"
-                                    title={model.source.slice(1, -1)}
-                                    inverted={false}
-                                    interactive={true}
-                                > */}
-                                <tspan x="0" y="0">{typeMaxWidth ? type.slice(0, 10) + "..." : type}</tspan>
-                                {/* </Tooltip> */}
+                                {tooltip ? tooltip : typeText}
                             </div>
                             <div className="type-name">
                                 <tspan x="0" y="0">{nameMaxWidth ? varName.slice(0, 20) + "..." : varName}</tspan>
