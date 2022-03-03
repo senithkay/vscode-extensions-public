@@ -61,12 +61,12 @@ export function setConfigElementProps(
     description: string,
 ): ConfigElementProps {
     return {
+        description,
         id,
         isArray,
         isRequired,
         name,
         type: getType(type),
-        description,
     };
 }
 

@@ -57,7 +57,7 @@ export function getConfigProperties(configObj: object, id: string = "1", name: s
         let isArrayProperty: boolean = false;
         const configPropertyValues = propertiesObj[key];
         let configPropertyType: string = configPropertyValues[SchemaConstants.TYPE];
-        let configPropertyDesc: string = configPropertyValues[SchemaConstants.DESCRIPTION];
+        const configPropertyDesc: string = configPropertyValues[SchemaConstants.DESCRIPTION];
 
         if (configPropertyType === ConfigType.OBJECT) {
             // Iterate through nested objects.
