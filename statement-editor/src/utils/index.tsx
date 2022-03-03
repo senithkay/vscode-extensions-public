@@ -198,7 +198,10 @@ export function getSuggestionIconStyle(suggestionType: number): string {
 }
 
 export function sortSuggestions(x: CompletionResponse, y: CompletionResponse) {
-    return x.sortText.localeCompare(y.sortText);
+    if (!!x.sortText && !!y.sortText) {
+        return x.sortText.localeCompare(y.sortText);
+    }
+    return 0;
 }
 
 export function getModuleIconStyle(label: string): string {
