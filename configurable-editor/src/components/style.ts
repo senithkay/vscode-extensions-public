@@ -50,6 +50,15 @@ export const useStyles = makeStyles((theme: Theme) =>
             color: "#1D2028",
             fontSize: theme.spacing(1.6),
         },
+        descriptionLabel: {
+            display: "flex",
+            marginBottom: theme.spacing(0.5),
+            marginTop: theme.spacing(0.5),
+        },
+        descriptionLabelText: {
+            color: "#1D2028",
+            fontSize: theme.spacing(1.4),
+        },
         textInputRoot: {
             "& .MuiInputBase-root": {
                 backgroundColor: "#ffffff",

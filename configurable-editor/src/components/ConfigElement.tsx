@@ -38,6 +38,7 @@ export interface ConfigElementProps {
     isRequired: boolean;
     name: string;
     type: ConfigType;
+    description?: string;
     value?: number | string | boolean | number[] | string[] | boolean[];
     setConfigElement?: (configValue: ConfigValue) => void;
 }
@@ -57,6 +58,7 @@ export function setConfigElementProps(
     type: string,
     name: string,
     isRequired: boolean,
+    description: string,
 ): ConfigElementProps {
     return {
         id,
@@ -64,6 +66,7 @@ export function setConfigElementProps(
         isRequired,
         name,
         type: getType(type),
+        description,
     };
 }
 
@@ -96,6 +99,7 @@ export const getConfigElement = (configElementProps: ConfigElementProps, classes
                         shape="square"
                     />
                 </Box>
+                {getDescription(configElementProps.description, classes)}
             </Box>
 
             <Box className={classes.formInputBox}>
@@ -211,6 +215,21 @@ const ConfigElement = (configElement: ConfigElementProps): ReactElement => {
         );
     }
     return <>{returnElement}</>;
+};
+
+const getDescription = (description: string, classes: ReturnType<typeof useStyles>) => {
+    if (description) {
+        return (
+            <Box className={classes.descriptionLabel}>
+                <Typography
+                    component="div"
+                    className={classes.descriptionLabelText}
+                >
+                    {description}
+                </Typography>
+            </Box>
+        );
+    }
 };
 
 const getInnerElement = (
