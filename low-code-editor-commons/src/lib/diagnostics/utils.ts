@@ -10,28 +10,57 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import {  Diagnostic } from "vscode-languageserver-protocol";
 
-import { DOUBLE_QUOTE_ERR_CODE, IGNORED_DIAGNOSTIC_MESSAGES, UNDEFINED_SYMBOL_ERR_CODE } from "./constants";
+import { IGNORED_DIAGNOSTIC_MESSAGES } from "./constants";
 
+export function getSelectedDiagnostics(
+    diagnostics: Diagnostic[],
+    targetPosition: NodePosition,
+    snippetColumn: number,
+    inputLength: number,
+    startExtraColumns: number = 0,
+    endExtraColumns: number = 0
+): Diagnostic[] {
+    const { startLine, endLine, startColumn } = targetPosition || {};
+    const inputStartCol = startColumn + snippetColumn - startExtraColumns;
+    const inputEndCol = startColumn + snippetColumn + inputLength + endExtraColumns - 1;
 
-export function getSelectedDiagnostics(diagnostics: Diagnostic[], varType: string): Diagnostic {
-    if (varType === 'string') {
-        const quotesError = diagnostics.find((diagnostic) => diagnostic.code === DOUBLE_QUOTE_ERR_CODE);
-        const undefSymbolError = diagnostics.find((diagnostic) => diagnostic.code === UNDEFINED_SYMBOL_ERR_CODE);
-        return quotesError ? quotesError : undefSymbolError ? undefSymbolError : diagnostics[0];
-    } else {
-        return diagnostics[0];
-    }
+    const filteredDiagnostics = diagnostics.filter((diagnostic) => {
+        const isError = diagnostic.severity === 1;
+        const { start, end } = diagnostic.range || {};
+        const diagnosticStartCol = start?.character;
+        const diagnosticEndCol = end?.character;
+        return isError && startLine <= start.line && endLine >= end.line && diagnosticEndCol >= inputStartCol && diagnosticStartCol <= inputEndCol;
+    });
+
+    return filteredDiagnostics;
 }
 
-
-export function getDiagnosticMessage(diagnostics: Diagnostic[], varType: string): string {
-    return getSelectedDiagnostics(diagnostics, varType)?.message;
+export function getDiagnosticMessage(
+    diagnostics: Diagnostic[],
+    targetPosition: NodePosition,
+    snippetColumn: number,
+    inputLength: number,
+    startExtraColumns: number = 0,
+    endExtraColumns: number = 0
+): string {
+    return getSelectedDiagnostics(diagnostics, targetPosition, snippetColumn, inputLength, startExtraColumns, endExtraColumns)
+        .reduce((errArr: string[], diagnostic) => (!errArr.includes(diagnostic.message) ? [...errArr, diagnostic.message] : errArr), [])
+        .join(". ");
 }
 
-export function getFilteredDiagnostics(diagnostics: Diagnostic[], isCustomStatement: boolean) {
-    return diagnostics
+export function getFilteredDiagnostics(diagnostics: Diagnostic[], isCustomStatement: boolean, isStartWithSlash?: boolean) {
+    const selectedDiagnostics =  diagnostics
         .filter(diagnostic =>
             !IGNORED_DIAGNOSTIC_MESSAGES.includes(diagnostic.message.toString()) && diagnostic.severity === 1);
+
+    if (selectedDiagnostics.length && isStartWithSlash) {
+        if (selectedDiagnostics[0]?.code === "BCE0400") {
+            selectedDiagnostics[0].message = "resource path cannot begin with a slash"
+        }
+    }
+    return selectedDiagnostics;
 }
+
