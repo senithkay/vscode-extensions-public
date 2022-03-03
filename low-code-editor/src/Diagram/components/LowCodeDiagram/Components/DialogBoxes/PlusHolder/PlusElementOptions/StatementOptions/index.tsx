@@ -63,7 +63,7 @@ export interface Statements {
 }
 
 export function StatementOptions(props: StatementOptionsProps) {
-    const { props: { syntaxTree }, api: { insights: { onEvent }} } = useContext(Context);
+    const { props: { syntaxTree }, api: { insights: { onEvent } } } = useContext(Context);
     const intl = useIntl();
     const { onSelect, viewState, isCallerAvailable, isResource } = props;
 
@@ -72,7 +72,8 @@ export function StatementOptions(props: StatementOptionsProps) {
             title: intl.formatMessage({
                 id: "lowcode.develop.plusHolder.plusElements.statements.log.tooltip.title",
                 defaultMessage: "A log statement logs an event with an information statement, an error that occurs in a service, or an integration. If the event has not yet occurred, you can view the logs from the 'Run & Test' console . If the event has occurred, you can view the logs from the Observability page."
-            })},
+            })
+        },
         variableStatement: {
             title: intl.formatMessage({
                 id: "lowcode.develop.plusHolder.plusElements.statements.variable.tooltip.title",
@@ -89,7 +90,8 @@ export function StatementOptions(props: StatementOptionsProps) {
             title: intl.formatMessage({
                 id: "lowcode.develop.plusHolder.plusElements.statements.if.tooltip.title",
                 defaultMessage: "An if statement lets you specify two blocks of logical components so that the system can decide which block to execute based on whether the provided condition is true or false."
-        })},
+            })
+        },
         foreachStatement: {
             title: intl.formatMessage({
                 id: "lowcode.develop.plusHolder.plusElements.statements.foreach.tooltip.title",
@@ -175,6 +177,26 @@ export function StatementOptions(props: StatementOptionsProps) {
                             <LogIcon />
                         </div>
                         <div className="text-label"><FormattedMessage id="lowcode.develop.plusHolder.plusElements.statements.log.title" defaultMessage="Log" /></div>
+                    </div>
+                </Tooltip>
+            )
+    }
+    const workerBlock: StatementComponent = {
+        name: "worker",
+        category: 'process',
+        component:
+            (
+                <Tooltip
+                    title={plusHolderStatementTooltipMessages.logStatement.title}
+                    placement="left"
+                    arrow={true}
+                    interactive={true}
+                >
+                    <div className="sub-option enabled" data-testid="addLog" onClick={onSelectStatement.bind(undefined, "Log")}>
+                        <div className="icon-wrapper">
+                            <LogIcon />
+                        </div>
+                        <div className="text-label"><FormattedMessage id="lowcode.develop.plusHolder.plusElements.statements.worker.title" defaultMessage="Worker" /></div>
                     </div>
                 </Tooltip>
             )
@@ -447,6 +469,7 @@ export function StatementOptions(props: StatementOptionsProps) {
     statements.push(whileStmt);
     statements.push(returnStm);
     statements.push(respondStm);
+    statements.push(workerBlock);
     // statements.push(datamappingStatement);
     statements.push(customStatement);
     statements.push(httpConnector);
