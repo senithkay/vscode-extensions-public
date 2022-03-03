@@ -34,169 +34,195 @@ const DEFAULT_EXPR = "EXPRESSION";
 class ExpressionDeletingVisitor implements Visitor {
     private deletePosition: NodePosition;
     private newDeletePosition: NodePosition;
-    private codeAfterDeletion: string = DEFAULT_EXPR;
+    private codeAfterDeletion: string;
+    private isNodeFound: boolean;
 
     public beginVisitBinaryExpression(node: BinaryExpression) {
-        if (isPositionsEquals(this.deletePosition, node.lhsExpr.position)) {
-            this.codeAfterDeletion = `${DEFAULT_EXPR}`;
-            this.newDeletePosition = node.lhsExpr.position;
-        } else if (isPositionsEquals(this.deletePosition, node.operator.position)) {
-            this.codeAfterDeletion = node.lhsExpr.source;
-            this.newDeletePosition = node.position;
-        } else if (isPositionsEquals(this.deletePosition, node.rhsExpr.position)) {
-            this.codeAfterDeletion = `${DEFAULT_EXPR}`;
-            this.newDeletePosition = node.rhsExpr.position;
-        } else if (isPositionsEquals(this.deletePosition, node.position)) {
-            this.codeAfterDeletion = `${DEFAULT_EXPR}`;
-            this.newDeletePosition = node.position;
+        if (!this.isNodeFound) {
+            if (isPositionsEquals(this.deletePosition, node.lhsExpr.position)) {
+                this.codeAfterDeletion = `${DEFAULT_EXPR}`;
+                this.newDeletePosition = node.lhsExpr.position;
+                this.isNodeFound = true;
+            } else if (isPositionsEquals(this.deletePosition, node.operator.position)) {
+                this.codeAfterDeletion = node.lhsExpr.source;
+                this.newDeletePosition = node.position;
+                this.isNodeFound = true;
+            } else if (isPositionsEquals(this.deletePosition, node.rhsExpr.position)) {
+                this.codeAfterDeletion = `${DEFAULT_EXPR}`;
+                this.newDeletePosition = node.rhsExpr.position;
+                this.isNodeFound = true;
+            }
         }
     }
 
     public beginVisitFieldAccess(node: FieldAccess) {
-        const exprPosition = node.expression.position;
-        const fieldNamePosition = node.fieldName.position;
-
-        if (isPositionsEquals(this.deletePosition, exprPosition)) {
-            this.codeAfterDeletion = `${DEFAULT_EXPR}`;
-            this.newDeletePosition = node.position;
-        } else if (isPositionsEquals(this.deletePosition, fieldNamePosition)) {
-            this.codeAfterDeletion = `${DEFAULT_EXPR}`;
-            this.newDeletePosition = node.fieldName.position;
+        if (!this.isNodeFound) {
+            if (isPositionsEquals(this.deletePosition, node.expression.position)) {
+                this.codeAfterDeletion = `${DEFAULT_EXPR}`;
+                this.newDeletePosition = node.position;
+                this.isNodeFound = true;
+            } else if (isPositionsEquals(this.deletePosition, node.fieldName.position)) {
+                this.codeAfterDeletion = `${DEFAULT_EXPR}`;
+                this.newDeletePosition = node.fieldName.position;
+                this.isNodeFound = true;
+            }
         }
     }
 
     public beginVisitOptionalFieldAccess(node: OptionalFieldAccess) {
-        const exprPosition = node.expression.position;
-        const fieldNamePosition = node.fieldName.position;
-
-        if (isPositionsEquals(this.deletePosition, exprPosition)) {
-            this.codeAfterDeletion = `${DEFAULT_EXPR}`;
-            this.newDeletePosition = node.position;
-        } else if (isPositionsEquals(this.deletePosition, fieldNamePosition)) {
-            this.codeAfterDeletion = `${DEFAULT_EXPR}`;
-            this.newDeletePosition = node.fieldName.position;
+        if (!this.isNodeFound) {
+            if (isPositionsEquals(this.deletePosition, node.expression.position)) {
+                this.codeAfterDeletion = `${DEFAULT_EXPR}`;
+                this.newDeletePosition = node.position;
+                this.isNodeFound = true;
+            } else if (isPositionsEquals(this.deletePosition, node.fieldName.position)) {
+                this.codeAfterDeletion = `${DEFAULT_EXPR}`;
+                this.newDeletePosition = node.fieldName.position;
+                this.isNodeFound = true;
+            }
         }
     }
 
     public beginVisitMethodCall(node: MethodCall) {
-        const exprPosition = node.expression.position;
-        const methodNamePosition = node.methodName.position;
-        const hasArgToBeDeleted = !!node.arguments.filter((arg) => {
-            return this.deletePosition === arg.position;
-        }).length;
+        if (!this.isNodeFound) {
+            if (isPositionsEquals(this.deletePosition, node.expression.position)) {
+                this.codeAfterDeletion = `${DEFAULT_EXPR}`;
+                this.newDeletePosition = node.position;
+                this.isNodeFound = true;
+            } else if (isPositionsEquals(this.deletePosition, node.methodName.position)) {
+                this.codeAfterDeletion = `${DEFAULT_EXPR}`;
+                this.newDeletePosition = {
+                    ...node.methodName.position,
+                    endColumn: node.closeParenToken.position.endColumn
+                };
+                this.isNodeFound = true;
+            } else {
+                const hasArgToBeDeleted = !!node.arguments.filter((arg) => {
+                    return this.deletePosition === arg.position;
+                }).length;
 
-        if (isPositionsEquals(this.deletePosition, exprPosition)) {
-            this.codeAfterDeletion = `${DEFAULT_EXPR}`;
-            this.newDeletePosition = node.position;
-        } else if (isPositionsEquals(this.deletePosition, methodNamePosition)) {
-            this.codeAfterDeletion = `${DEFAULT_EXPR}`;
-            this.newDeletePosition = {
-                ...node.methodName.position,
-                endColumn: node.closeParenToken.position.endColumn
-            };
-        } else if (hasArgToBeDeleted) {
-            this.codeAfterDeletion = `${DEFAULT_EXPR}`;
-            this.newDeletePosition = this.deletePosition;
+                if (hasArgToBeDeleted) {
+                    this.codeAfterDeletion = `${DEFAULT_EXPR}`;
+                    this.newDeletePosition = this.deletePosition;
+                    this.isNodeFound = true;
+                }
+            }
         }
     }
 
     public beginVisitListConstructor(node: ListConstructor) {
-        const hasItemsToBeDeleted = !!node.expressions.filter((item) => {
-            return this.deletePosition === item.position;
-        }).length;
+        if (!this.isNodeFound) {
+            const hasItemsToBeDeleted = !!node.expressions.filter((item) => {
+                return this.deletePosition === item.position;
+            }).length;
 
-        if (hasItemsToBeDeleted) {
-            const expressions : string[] = [];
-            node.expressions.map((expr) => {
-                if (this.deletePosition !== expr.position && !STKindChecker.isCommaToken(expr)) {
-                    expressions.push(expr.source);
-                }
-            });
+            if (hasItemsToBeDeleted) {
+                const expressions: string[] = [];
+                node.expressions.map((expr) => {
+                    if (this.deletePosition !== expr.position && !STKindChecker.isCommaToken(expr)) {
+                        expressions.push(expr.source);
+                    }
+                });
 
-            this.codeAfterDeletion = expressions.join(',');
-            this.newDeletePosition = {
-                ...node.position,
-                startColumn: node.openBracket.position.endColumn,
-                endColumn: node.closeBracket.position.startColumn
+                this.codeAfterDeletion = expressions.join(',');
+                this.newDeletePosition = {
+                    ...node.position,
+                    startColumn: node.openBracket.position.endColumn,
+                    endColumn: node.closeBracket.position.startColumn
+                };
+                this.isNodeFound = true;
             }
         }
     }
 
     public beginVisitMappingConstructor(node: MappingConstructor) {
-        const hasItemsToBeDeleted = !!node.fields.filter((field) => {
-            return this.deletePosition === field.position;
-        }).length;
+        if (!this.isNodeFound) {
+            const hasItemsToBeDeleted = !!node.fields.filter((field) => {
+                return this.deletePosition === field.position;
+            }).length;
 
-        if (hasItemsToBeDeleted) {
-            const expressions : string[] = [];
-            node.fields.map((field) => {
-                if (this.deletePosition !== field.position && !STKindChecker.isCommaToken(field)) {
-                    expressions.push(field.source);
-                }
-            });
+            if (hasItemsToBeDeleted) {
+                const expressions: string[] = [];
+                node.fields.map((field) => {
+                    if (this.deletePosition !== field.position && !STKindChecker.isCommaToken(field)) {
+                        expressions.push(field.source);
+                    }
+                });
 
-            this.codeAfterDeletion = expressions.join(',');
-            this.newDeletePosition = {
-                startLine: node.openBrace.position.startLine,
-                startColumn: node.openBrace.position.endColumn,
-                endLine:  node.closeBrace.position.endLine,
-                endColumn: node.closeBrace.position.startColumn
+                this.codeAfterDeletion = expressions.join(',');
+                this.newDeletePosition = {
+                    startLine: node.openBrace.position.startLine,
+                    startColumn: node.openBrace.position.endColumn,
+                    endLine: node.closeBrace.position.endLine,
+                    endColumn: node.closeBrace.position.startColumn
+                };
+                this.isNodeFound = true;
             }
         }
     }
 
     public beginVisitSpecificField(node: SpecificField) {
-        const valueExprPosition = node.valueExpr.position;
-
-        if (isPositionsEquals(this.deletePosition, valueExprPosition)) {
+        if (!this.isNodeFound && isPositionsEquals(this.deletePosition, node.valueExpr.position)) {
             this.codeAfterDeletion = `${DEFAULT_EXPR}`;
             this.newDeletePosition = node.valueExpr.position;
+            this.isNodeFound = true;
         }
     }
 
     public beginVisitIndexedExpression(node: IndexedExpression) {
-        const containerExprPosition = node.containerExpression.position;
-        const hasKeyExprToBeDeleted = !!node.keyExpression.filter((expr) => {
-            return this.deletePosition === expr.position;
-        }).length;
+        if (!this.isNodeFound) {
+            if (isPositionsEquals(this.deletePosition, node.containerExpression.position)) {
+                this.codeAfterDeletion = `${DEFAULT_EXPR}`;
+                this.newDeletePosition = node.position;
+                this.isNodeFound = true;
+            } else {
+                const hasKeyExprToBeDeleted = !!node.keyExpression.filter((expr) => {
+                    return this.deletePosition === expr.position;
+                }).length;
 
-        if (isPositionsEquals(this.deletePosition, containerExprPosition)) {
-            this.codeAfterDeletion = `${DEFAULT_EXPR}`;
-            this.newDeletePosition = node.position;
-        } else if (hasKeyExprToBeDeleted) {
-            this.codeAfterDeletion = `${DEFAULT_EXPR}`;
-            this.newDeletePosition = this.deletePosition;
+                if (hasKeyExprToBeDeleted) {
+                    this.codeAfterDeletion = `${DEFAULT_EXPR}`;
+                    this.newDeletePosition = this.deletePosition;
+                    this.isNodeFound = true;
+                }
+            }
         }
     }
 
     public beginVisitFunctionCall(node: FunctionCall) {
-        const nodePosition = node.position;
-        const hasArgToBeDeleted = !!node.arguments.filter((arg) => {
-            return this.deletePosition === arg.position;
-        }).length;
+        if (!this.isNodeFound) {
+            const hasArgToBeDeleted = !!node.arguments.filter((arg) => {
+                return this.deletePosition === arg.position;
+            }).length;
 
-        if (isPositionsEquals(this.deletePosition, nodePosition)) {
-            this.codeAfterDeletion = `${DEFAULT_EXPR}`;
-            this.newDeletePosition = nodePosition;
-        } else if (hasArgToBeDeleted) {
-            this.codeAfterDeletion = `${DEFAULT_EXPR}`;
-            this.newDeletePosition = this.deletePosition;
+            if (hasArgToBeDeleted) {
+                this.codeAfterDeletion = `${DEFAULT_EXPR}`;
+                this.newDeletePosition = this.deletePosition;
+                this.isNodeFound = true;
+            }
         }
     }
 
     public beginVisitSTNode(node: STNode, parent?: STNode) {
-        // To be implemented
+        // NoOp
     }
 
     getContent(): RemainingContent {
         return {
-            code: this.codeAfterDeletion,
-            position: this.newDeletePosition
+            code: this.isNodeFound ? this.codeAfterDeletion : DEFAULT_EXPR,
+            position: this.isNodeFound ? this.newDeletePosition : this.deletePosition
         };
     }
 
     setPosition(position: NodePosition) {
+        this.cleanDeletingInfo();
         this.deletePosition = position;
+    }
+
+    cleanDeletingInfo() {
+        this.isNodeFound = false;
+        this.newDeletePosition = null;
+        this.codeAfterDeletion = '';
     }
 }
 
