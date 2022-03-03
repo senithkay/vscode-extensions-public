@@ -115,6 +115,7 @@ export function AssignmentStatementComponent(props: AssignmentStatementProps) {
             diagnosticHandler={diagnosticHandler}
             isTypeDescriptor={false}
             onSelect={onClickOnVarRef}
+            isNotDeletable={true}
         />
     );
 

@@ -59,6 +59,7 @@ export function TypedBindingPatternComponent(props: TypedBindingPatternProps) {
             diagnosticHandler={diagnosticHandler}
             isTypeDescriptor={false}
             onSelect={onClickOnTypeBindingPatter}
+            isNotDeletable={true}
         />
     );
 

@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 
 import { STNode } from "@wso2-enterprise/syntax-tree";
 import cn from "classnames";
@@ -31,14 +31,17 @@ export interface ExpressionComponentProps {
     onSelect?: (event: React.MouseEvent) => void;
     children?: React.ReactElement[];
     classNames?: string;
+    isNotDeletable?: boolean;
 }
 
 export function ExpressionComponent(props: ExpressionComponentProps) {
-    const { model, userInputs, isElseIfMember, diagnosticHandler, isTypeDescriptor, onSelect, children, classNames } = props;
+    const { model, userInputs, isElseIfMember, diagnosticHandler,
+            isTypeDescriptor, onSelect, children, classNames, isNotDeletable } = props;
 
     const component = getExpressionTypeComponent(model, userInputs, isElseIfMember, diagnosticHandler, isTypeDescriptor);
 
     const [isHovered, setHovered] = React.useState(false);
+    const [deletable, setDeletable] = React.useState(false);
 
     const { modelCtx } = useContext(StatementEditorContext);
     const {
@@ -50,6 +53,10 @@ export function ExpressionComponent(props: ExpressionComponentProps) {
     const statementEditorClasses = useStatementEditorStyles();
 
     const isSelected = selectedModel.model && model && isPositionsEquals(selectedModel.model.position, model.position);
+
+    useEffect(() => {
+        setDeletable(!isNotDeletable && !model.source.startsWith('EXPRESSION'));
+    }, [model.source]);
 
     const onMouseOver = (e: React.MouseEvent) => {
         setHovered(true);
@@ -95,7 +102,7 @@ export function ExpressionComponent(props: ExpressionComponentProps) {
         >
             {component}
             {children}
-            {isSelected && (
+            {isSelected && deletable && (
                 <div className={statementEditorClasses.expressionDeleteButton}>
                     <DeleteButton onClick={onClickOnClose} />
                 </div>
