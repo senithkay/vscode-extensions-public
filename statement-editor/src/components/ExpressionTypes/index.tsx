@@ -78,6 +78,7 @@ export { OperatorComponent as BitwiseXorToken };
 export { OperatorComponent as DoubleDotLtToken };
 export { OperatorComponent as DoubleEqualToken };
 export { OperatorComponent as EllipsisToken };
+export { OperatorComponent as ElvisToken };
 export { OperatorComponent as GtEqualToken };
 export { OperatorComponent as GtToken };
 export { OperatorComponent as LogicalAndToken };
