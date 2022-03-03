@@ -26,8 +26,10 @@ import { ModuleVarDecl, NodePosition } from '@wso2-enterprise/syntax-tree';
 import { VariableIcon } from '../../../../../assets/icons';
 import { useDiagramContext } from '../../../../../Contexts/Diagram';
 import { ADD_VARIABLE, LowcodeEvent, SAVE_VARIABLE } from '../../../../models';
+import { getAllModuleVariables } from '../../../../utils/mixins';
 import { createModuleVarDecl, updateModuleVarDecl } from '../../../../utils/modification-util';
 import { getVariableNameFromST } from '../../../../utils/st-util';
+import { genVariableName } from '../../../Portals/utils';
 import { useStyles as useFormStyles } from "../../DynamicConnectorForm/style";
 import CheckBoxGroup from '../../FormFieldComponents/CheckBox';
 import { SelectDropdownWithButton } from '../../FormFieldComponents/DropDown/SelectDropdownWithButton';
@@ -51,7 +53,7 @@ interface ModuleVariableFormProps {
 
 export function ModuleVariableForm(props: ModuleVariableFormProps) {
     const formClasses = useFormStyles();
-    const { api: { code: { modifyDiagram }, insights: { onEvent } } } = useDiagramContext();
+    const { api: { code: { modifyDiagram }, insights: { onEvent } }, props: { stSymbolInfo } } = useDiagramContext();
     const { onSave, onCancel, targetPosition, model, formType, isLastMember } = props;
     const [state, dispatch] = useReducer(moduleVarFormReducer, getFormConfigFromModel(model));
     const variableTypes: string[] = ["int", "float", "boolean", "string", "json", "xml"];
@@ -71,6 +73,7 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
 
     const handleOnSave = () => {
         const modifications: STModification[] = []
+        state.varName  = genVariableName(state.varName, getAllModuleVariables(stSymbolInfo));
         if (model) {
             modifications.push(updateModuleVarDecl(state, model.position));
         } else {

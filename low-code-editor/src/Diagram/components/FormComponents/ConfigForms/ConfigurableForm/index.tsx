@@ -28,7 +28,9 @@ import { v4 as uuid } from "uuid";
 
 import { Context, useDiagramContext } from '../../../../../Contexts/Diagram';
 import { ADD_CONFIGURABLE, LowcodeEvent } from '../../../../models';
+import { getAllModuleVariables } from '../../../../utils/mixins';
 import { createConfigurableDecl, updateConfigurableVarDecl } from '../../../../utils/modification-util';
+import { genVariableName } from '../../../Portals/utils';
 import { useStyles as useFormStyles } from "../../DynamicConnectorForm/style";
 import CheckBoxGroup from '../../FormFieldComponents/CheckBox';
 import { SelectDropdownWithButton } from '../../FormFieldComponents/DropDown/SelectDropdownWithButton';
@@ -62,6 +64,7 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
     const isFromExpressionEditor = !!updateInjectables;
 
     const handleOnSave = () => {
+        state.varName  = genVariableName(state.varName, getAllModuleVariables(stSymbolInfo));
         const modifyState: ConfigurableFormState = {
             ...state,
             varValue: state.hasDefaultValue ? state.varValue : '?',
