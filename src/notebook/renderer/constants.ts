@@ -17,5 +17,8 @@
  *
  */
 
-export const MIME_TYPE_TABLE = 'ballerina-notebook/table-view';
+export const MIME_TYPE_PLAIN_TEXT = "plain/text";
+export const MIME_TYPE_TABLE = "ballerina-notebook/table-view";
+export const MIME_TYPE_JSON = "application/json";
+export const MIME_TYPE_XML = "application/xml";
  

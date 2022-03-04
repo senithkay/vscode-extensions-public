@@ -19,27 +19,14 @@
 
 import { BallerinaExtension, ExtendedLangClient, LANGUAGE } from "../core";
 import { CancellationToken, CompletionContext, CompletionItem, CompletionItemProvider, 
-    CompletionList, Disposable, DocumentSelector, DocumentSemanticTokensProvider, Event,
-    languages, Position, ProviderResult, SemanticTokens, SemanticTokensLegend, TextDocument, Uri, 
-    } from "vscode";
+    CompletionList, Disposable, DocumentSelector, languages, Position, ProviderResult, 
+    TextDocument, Uri, } from "vscode";
 import { BAL_NOTEBOOK, NOTEBOOK_SCHEME } from "./constants";
 import { createFile, deleteFile } from "./utils";
 
 const selector: DocumentSelector = {
     scheme: NOTEBOOK_SCHEME,
     language: LANGUAGE.BALLERINA
-}
-
-const legend: SemanticTokensLegend = {
-    tokenTypes: [],
-    tokenModifiers: []
-}
-export class SemanticTokensProvider implements DocumentSemanticTokensProvider{
-    onDidChangeSemanticTokens?: Event<void> | undefined;
-    provideDocumentSemanticTokens(document: TextDocument, token: CancellationToken): 
-    ProviderResult<SemanticTokens> {
-        throw new Error("Method not implemented.");
-    }
 }
 
 export class NotebookCompletionItemProvider implements CompletionItemProvider{
@@ -59,7 +46,7 @@ export class NotebookCompletionItemProvider implements CompletionItemProvider{
 
     private async getCodeCompletionList(document: TextDocument, position: Position, context: CompletionContext): 
         Promise<any> {
-        let langClient: ExtendedLangClient | undefined = this.ballerinaExtension.langClient;
+        let langClient: ExtendedLangClient = <ExtendedLangClient>this.ballerinaExtension.langClient;
 
         if (!langClient) {
             return [];
@@ -94,8 +81,6 @@ export class NotebookCompletionItemProvider implements CompletionItemProvider{
 
 export function registerLanguageProviders(ballerinaExtInstance: BallerinaExtension): Disposable{
     const disposables: Disposable[] = [];
-    disposables.push(
-        languages.registerDocumentSemanticTokensProvider(selector, new SemanticTokensProvider(), legend));
     disposables.push(
         languages.registerCompletionItemProvider(selector, new NotebookCompletionItemProvider(ballerinaExtInstance)));
     return Disposable.from(...disposables);
