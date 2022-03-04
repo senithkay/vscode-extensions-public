@@ -90,9 +90,9 @@ class ExpressionDeletingVisitor implements Visitor {
                     endColumn: node.closeParenToken.position.endColumn
                 });
             } else {
-                const hasArgToBeDeleted = !!node.arguments.filter((arg: STNode) => {
+                const hasArgToBeDeleted = node.arguments.some((arg: STNode) => {
                     return this.deletePosition === arg.position;
-                }).length;
+                });
 
                 if (hasArgToBeDeleted) {
                     this.setProperties(DEFAULT_EXPR, this.deletePosition);
@@ -103,9 +103,9 @@ class ExpressionDeletingVisitor implements Visitor {
 
     public beginVisitListConstructor(node: ListConstructor) {
         if (!this.isNodeFound) {
-            const hasItemsToBeDeleted = !!node.expressions.filter((item: STNode) => {
+            const hasItemsToBeDeleted = node.expressions.some((item: STNode) => {
                 return this.deletePosition === item.position;
-            }).length;
+            });
 
             if (hasItemsToBeDeleted) {
                 const expressions: string[] = [];
@@ -126,9 +126,9 @@ class ExpressionDeletingVisitor implements Visitor {
 
     public beginVisitMappingConstructor(node: MappingConstructor) {
         if (!this.isNodeFound) {
-            const hasItemsToBeDeleted = !!node.fields.filter((field: STNode) => {
+            const hasItemsToBeDeleted = node.fields.some((field: STNode) => {
                 return this.deletePosition === field.position;
-            }).length;
+            });
 
             if (hasItemsToBeDeleted) {
                 const expressions: string[] = [];
@@ -159,9 +159,9 @@ class ExpressionDeletingVisitor implements Visitor {
             if (isPositionsEquals(this.deletePosition, node.containerExpression.position)) {
                 this.setProperties(DEFAULT_EXPR, node.position);
             } else {
-                const hasKeyExprToBeDeleted = !!node.keyExpression.filter((expr: STNode) => {
+                const hasKeyExprToBeDeleted = node.keyExpression.some((expr: STNode) => {
                     return this.deletePosition === expr.position;
-                }).length;
+                });
 
                 if (hasKeyExprToBeDeleted) {
                     this.setProperties(DEFAULT_EXPR, this.deletePosition);
@@ -172,9 +172,9 @@ class ExpressionDeletingVisitor implements Visitor {
 
     public beginVisitFunctionCall(node: FunctionCall) {
         if (!this.isNodeFound) {
-            const hasArgToBeDeleted = !!node.arguments.filter((arg: STNode) => {
+            const hasArgToBeDeleted = node.arguments.some((arg: STNode) => {
                 return this.deletePosition === arg.position;
-            }).length;
+            });
 
             if (hasArgToBeDeleted) {
                 this.setProperties(DEFAULT_EXPR, this.deletePosition);
