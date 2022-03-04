@@ -379,6 +379,9 @@ export function createImportStatement(org: string, module: string, targetPositio
     let moduleNameStr = org + "/" + module;
 
     if (moduleName.includes('.') && moduleName.split('.').pop() !== formattedName) {
+        if (moduleName.includes('.public')){
+            module = module.replace("public", "'public");
+        }
         // add alias if module name is different with formatted name
         moduleNameStr = org + "/" + module + " as " + formattedName
     }
