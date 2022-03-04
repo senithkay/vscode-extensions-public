@@ -34,7 +34,7 @@ const DEFAULT_EXPR = "EXPRESSION";
 
 class ExpressionDeletingVisitor implements Visitor {
     private deletePosition: NodePosition;
-    private newDeletePosition: NodePosition;
+    private newPosition: NodePosition;
     private codeAfterDeletion: string;
     private isNodeFound: boolean;
     private defaultDeletable: boolean;
@@ -42,29 +42,19 @@ class ExpressionDeletingVisitor implements Visitor {
     public beginVisitBinaryExpression(node: BinaryExpression) {
         if (!this.isNodeFound) {
             if (isPositionsEquals(this.deletePosition, node.lhsExpr.position)) {
-                if (node.lhsExpr.source.trim() === 'EXPRESSION') {
-                    this.codeAfterDeletion = node.rhsExpr.source;
-                    this.newDeletePosition = node.position;
+                if (node.lhsExpr.source.trim() === DEFAULT_EXPR) {
+                    this.setProperties(node.rhsExpr.source, node.position);
                 } else {
-                    this.codeAfterDeletion = `${DEFAULT_EXPR}`;
-                    this.newDeletePosition = node.lhsExpr.position;
-                    this.defaultDeletable = true;
+                    this.setProperties(DEFAULT_EXPR, node.lhsExpr.position, true);
                 }
-                this.isNodeFound = true;
             } else if (isPositionsEquals(this.deletePosition, node.operator.position)) {
-                this.codeAfterDeletion = node.lhsExpr.source;
-                this.newDeletePosition = node.position;
-                this.isNodeFound = true;
+                this.setProperties(node.lhsExpr.source, node.position);
             } else if (isPositionsEquals(this.deletePosition, node.rhsExpr.position)) {
-                if (node.rhsExpr.source.trim() === 'EXPRESSION') {
-                    this.codeAfterDeletion = node.lhsExpr.source;
-                    this.newDeletePosition = node.position;
+                if (node.rhsExpr.source.trim() === DEFAULT_EXPR) {
+                    this.setProperties(node.lhsExpr.source, node.position);
                 } else {
-                    this.codeAfterDeletion = `${DEFAULT_EXPR}`;
-                    this.newDeletePosition = node.rhsExpr.position;
-                    this.defaultDeletable = true;
+                    this.setProperties(DEFAULT_EXPR, node.rhsExpr.position, true);
                 }
-                this.isNodeFound = true;
             }
         }
     }
@@ -72,13 +62,9 @@ class ExpressionDeletingVisitor implements Visitor {
     public beginVisitFieldAccess(node: FieldAccess) {
         if (!this.isNodeFound) {
             if (isPositionsEquals(this.deletePosition, node.expression.position)) {
-                this.codeAfterDeletion = `${DEFAULT_EXPR}`;
-                this.newDeletePosition = node.position;
-                this.isNodeFound = true;
+                this.setProperties(DEFAULT_EXPR, node.position);
             } else if (isPositionsEquals(this.deletePosition, node.fieldName.position)) {
-                this.codeAfterDeletion = `${DEFAULT_EXPR}`;
-                this.newDeletePosition = node.fieldName.position;
-                this.isNodeFound = true;
+                this.setProperties(DEFAULT_EXPR, node.fieldName.position);
             }
         }
     }
@@ -86,13 +72,9 @@ class ExpressionDeletingVisitor implements Visitor {
     public beginVisitOptionalFieldAccess(node: OptionalFieldAccess) {
         if (!this.isNodeFound) {
             if (isPositionsEquals(this.deletePosition, node.expression.position)) {
-                this.codeAfterDeletion = `${DEFAULT_EXPR}`;
-                this.newDeletePosition = node.position;
-                this.isNodeFound = true;
+                this.setProperties(DEFAULT_EXPR, node.position);
             } else if (isPositionsEquals(this.deletePosition, node.fieldName.position)) {
-                this.codeAfterDeletion = `${DEFAULT_EXPR}`;
-                this.newDeletePosition = node.fieldName.position;
-                this.isNodeFound = true;
+                this.setProperties(DEFAULT_EXPR, node.fieldName.position);
             }
         }
     }
@@ -100,25 +82,19 @@ class ExpressionDeletingVisitor implements Visitor {
     public beginVisitMethodCall(node: MethodCall) {
         if (!this.isNodeFound) {
             if (isPositionsEquals(this.deletePosition, node.expression.position)) {
-                this.codeAfterDeletion = `${DEFAULT_EXPR}`;
-                this.newDeletePosition = node.position;
-                this.isNodeFound = true;
+                this.setProperties(DEFAULT_EXPR, node.position);
             } else if (isPositionsEquals(this.deletePosition, node.methodName.position)) {
-                this.codeAfterDeletion = `${DEFAULT_EXPR}`;
-                this.newDeletePosition = {
+                this.setProperties(DEFAULT_EXPR, {
                     ...node.methodName.position,
                     endColumn: node.closeParenToken.position.endColumn
-                };
-                this.isNodeFound = true;
+                });
             } else {
-                const hasArgToBeDeleted = !!node.arguments.filter((arg) => {
+                const hasArgToBeDeleted = !!node.arguments.filter((arg: STNode) => {
                     return this.deletePosition === arg.position;
                 }).length;
 
                 if (hasArgToBeDeleted) {
-                    this.codeAfterDeletion = `${DEFAULT_EXPR}`;
-                    this.newDeletePosition = this.deletePosition;
-                    this.isNodeFound = true;
+                    this.setProperties(DEFAULT_EXPR, this.deletePosition);
                 }
             }
         }
@@ -126,78 +102,68 @@ class ExpressionDeletingVisitor implements Visitor {
 
     public beginVisitListConstructor(node: ListConstructor) {
         if (!this.isNodeFound) {
-            const hasItemsToBeDeleted = !!node.expressions.filter((item) => {
+            const hasItemsToBeDeleted = !!node.expressions.filter((item: STNode) => {
                 return this.deletePosition === item.position;
             }).length;
 
             if (hasItemsToBeDeleted) {
                 const expressions: string[] = [];
-                node.expressions.map((expr) => {
+                node.expressions.map((expr: STNode) => {
                     if (this.deletePosition !== expr.position && !STKindChecker.isCommaToken(expr)) {
                         expressions.push(expr.source);
                     }
                 });
 
-                this.codeAfterDeletion = expressions.join(',');
-                this.newDeletePosition = {
+                this.setProperties(expressions.join(','), {
                     ...node.position,
                     startColumn: node.openBracket.position.endColumn,
                     endColumn: node.closeBracket.position.startColumn
-                };
-                this.isNodeFound = true;
+                });
             }
         }
     }
 
     public beginVisitMappingConstructor(node: MappingConstructor) {
         if (!this.isNodeFound) {
-            const hasItemsToBeDeleted = !!node.fields.filter((field) => {
+            const hasItemsToBeDeleted = !!node.fields.filter((field: STNode) => {
                 return this.deletePosition === field.position;
             }).length;
 
             if (hasItemsToBeDeleted) {
                 const expressions: string[] = [];
-                node.fields.map((field) => {
+                node.fields.map((field: STNode) => {
                     if (this.deletePosition !== field.position && !STKindChecker.isCommaToken(field)) {
                         expressions.push(field.source);
                     }
                 });
 
-                this.codeAfterDeletion = expressions.join(',');
-                this.newDeletePosition = {
+                this.setProperties(expressions.join(','), {
                     startLine: node.openBrace.position.startLine,
                     startColumn: node.openBrace.position.endColumn,
                     endLine: node.closeBrace.position.endLine,
                     endColumn: node.closeBrace.position.startColumn
-                };
-                this.isNodeFound = true;
+                });
             }
         }
     }
 
     public beginVisitSpecificField(node: SpecificField) {
         if (!this.isNodeFound && isPositionsEquals(this.deletePosition, node.valueExpr.position)) {
-            this.codeAfterDeletion = `${DEFAULT_EXPR}`;
-            this.newDeletePosition = node.valueExpr.position;
-            this.isNodeFound = true;
+            this.setProperties(DEFAULT_EXPR, node.valueExpr.position);
         }
     }
 
     public beginVisitIndexedExpression(node: IndexedExpression) {
         if (!this.isNodeFound) {
             if (isPositionsEquals(this.deletePosition, node.containerExpression.position)) {
-                this.codeAfterDeletion = `${DEFAULT_EXPR}`;
-                this.newDeletePosition = node.position;
-                this.isNodeFound = true;
+                this.setProperties(DEFAULT_EXPR, node.position);
             } else {
-                const hasKeyExprToBeDeleted = !!node.keyExpression.filter((expr) => {
+                const hasKeyExprToBeDeleted = !!node.keyExpression.filter((expr: STNode) => {
                     return this.deletePosition === expr.position;
                 }).length;
 
                 if (hasKeyExprToBeDeleted) {
-                    this.codeAfterDeletion = `${DEFAULT_EXPR}`;
-                    this.newDeletePosition = this.deletePosition;
-                    this.isNodeFound = true;
+                    this.setProperties(DEFAULT_EXPR, this.deletePosition);
                 }
             }
         }
@@ -205,29 +171,23 @@ class ExpressionDeletingVisitor implements Visitor {
 
     public beginVisitFunctionCall(node: FunctionCall) {
         if (!this.isNodeFound) {
-            const hasArgToBeDeleted = !!node.arguments.filter((arg) => {
+            const hasArgToBeDeleted = !!node.arguments.filter((arg: STNode) => {
                 return this.deletePosition === arg.position;
             }).length;
 
             if (hasArgToBeDeleted) {
-                this.codeAfterDeletion = `${DEFAULT_EXPR}`;
-                this.newDeletePosition = this.deletePosition;
-                this.isNodeFound = true;
+                this.setProperties(DEFAULT_EXPR, this.deletePosition);
             }
         }
     }
 
     public beginVisitTypedBindingPattern(node: TypedBindingPattern) {
         if (!this.isNodeFound && isPositionsEquals(this.deletePosition, node.typeDescriptor.position)) {
-            if (node.typeDescriptor.source.trim() === 'EXPRESSION') {
-                this.codeAfterDeletion = node.bindingPattern.source;
-                this.newDeletePosition = node.position;
+            if (node.typeDescriptor.source.trim() === DEFAULT_EXPR) {
+                this.setProperties(node.bindingPattern.source, node.position);
             } else {
-                this.codeAfterDeletion = `${DEFAULT_EXPR}`;
-                this.newDeletePosition = node.typeDescriptor.position;
-                this.defaultDeletable = true;
+                this.setProperties(DEFAULT_EXPR, node.typeDescriptor.position, true);
             }
-            this.isNodeFound = true;
         }
     }
 
@@ -235,10 +195,17 @@ class ExpressionDeletingVisitor implements Visitor {
         // NoOp
     }
 
+    setProperties(codeAfterDeletion: string, newPosition: NodePosition, defaultDeletable?: boolean) {
+        this.codeAfterDeletion = codeAfterDeletion;
+        this.newPosition = newPosition;
+        this.defaultDeletable = defaultDeletable;
+        this.isNodeFound = true;
+    }
+
     getContent(): RemainingContent {
         return {
             code: this.isNodeFound ? this.codeAfterDeletion : DEFAULT_EXPR,
-            position: this.isNodeFound ? this.newDeletePosition : this.deletePosition,
+            position: this.isNodeFound ? this.newPosition : this.deletePosition,
             defaultDeletable: this.defaultDeletable
         };
     }
@@ -250,7 +217,7 @@ class ExpressionDeletingVisitor implements Visitor {
 
     cleanDeletingInfo() {
         this.isNodeFound = false;
-        this.newDeletePosition = null;
+        this.newPosition = null;
         this.codeAfterDeletion = '';
         this.defaultDeletable = false;
     }
