@@ -88,6 +88,7 @@ export function ListConstructorComponent(props: ListConstructorProps) {
                             diagnosticHandler={diagnosticHandler}
                             isTypeDescriptor={false}
                             onSelect={(event) => onClickOnExpression(expression, event)}
+                            deleteConfig={{defaultExprDeletable: true}}
                         />
                     )
                 ))

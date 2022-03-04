@@ -79,6 +79,7 @@ export function MappingConstructorComponent(props: MappingConstructorProps) {
                             diagnosticHandler={diagnosticHandler}
                             isTypeDescriptor={false}
                             onSelect={(event) => onClickOnExpression(expression, event)}
+                            deleteConfig={{defaultExprDeletable: true}}
                         />
                     )
                 ))

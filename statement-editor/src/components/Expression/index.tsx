@@ -16,10 +16,11 @@ import React, { useContext, useEffect } from "react";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 import cn from "classnames";
 
-import { VariableUserInputs } from "../../models/definitions";
+import { ExprDeleteConfig, VariableUserInputs } from "../../models/definitions";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { getExpressionTypeComponent, getRemainingContent, isPositionsEquals } from "../../utils";
 import DeleteButton from "../Button/DeleteButton";
+import { INPUT_EDITOR_PLACE_HOLDERS } from "../InputEditor/constants";
 import { useStatementEditorStyles } from "../styles";
 
 export interface ExpressionComponentProps {
@@ -31,18 +32,17 @@ export interface ExpressionComponentProps {
     onSelect?: (event: React.MouseEvent) => void;
     children?: React.ReactElement[];
     classNames?: string;
-    isNotDeletable?: boolean;
+    deleteConfig?: ExprDeleteConfig
 }
 
 export function ExpressionComponent(props: ExpressionComponentProps) {
     const { model, userInputs, isElseIfMember, diagnosticHandler,
-            isTypeDescriptor, onSelect, children, classNames, isNotDeletable } = props;
+            isTypeDescriptor, onSelect, children, classNames, deleteConfig } = props;
 
     const component = getExpressionTypeComponent(model, userInputs, isElseIfMember, diagnosticHandler, isTypeDescriptor);
 
     const [isHovered, setHovered] = React.useState(false);
     const [deletable, setDeletable] = React.useState(false);
-    const [defaultDeletable, setDefaultDeletable] = React.useState(false);
 
     const { modelCtx } = useContext(StatementEditorContext);
     const {
@@ -56,9 +56,9 @@ export function ExpressionComponent(props: ExpressionComponentProps) {
     const isSelected = selectedModel.model && model && isPositionsEquals(selectedModel.model.position, model.position);
 
     useEffect(() => {
-        let exprDeletable = !isNotDeletable;
-        if (model.source && model.source.trim() === 'EXPRESSION') {
-            exprDeletable = defaultDeletable;
+        let exprDeletable = !deleteConfig?.exprNotDeletable;
+        if (model.source && INPUT_EDITOR_PLACE_HOLDERS.has(model.source.trim())) {
+            exprDeletable = deleteConfig?.defaultExprDeletable;
         }
         setDeletable(exprDeletable);
     }, [model.source]);
@@ -86,10 +86,8 @@ export function ExpressionComponent(props: ExpressionComponentProps) {
     const onClickOnClose = () => {
         const {
             code: newCode,
-            position: newPosition,
-            defaultDeletable: defaultExprDeletable
+            position: newPosition
         } = getRemainingContent(model.position, completeModel);
-        setDefaultDeletable(defaultExprDeletable);
         updateModel(newCode, newPosition);
     }
 

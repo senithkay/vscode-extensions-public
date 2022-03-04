@@ -24,6 +24,7 @@ import {
     STKindChecker,
     STNode,
     TypedBindingPattern,
+    TypeTestExpression,
     Visitor
 } from "@wso2-enterprise/syntax-tree";
 
@@ -38,7 +39,6 @@ class ExpressionDeletingVisitor implements Visitor {
     private newPosition: NodePosition;
     private codeAfterDeletion: string;
     private isNodeFound: boolean;
-    private defaultDeletable: boolean;
 
     public beginVisitBinaryExpression(node: BinaryExpression) {
         if (!this.isNodeFound) {
@@ -46,7 +46,7 @@ class ExpressionDeletingVisitor implements Visitor {
                 if (node.lhsExpr.source.trim() === DEFAULT_EXPR) {
                     this.setProperties(node.rhsExpr.source, node.position);
                 } else {
-                    this.setProperties(DEFAULT_EXPR, node.lhsExpr.position, true);
+                    this.setProperties(DEFAULT_EXPR, node.lhsExpr.position);
                 }
             } else if (isPositionsEquals(this.deletePosition, node.operator.position)) {
                 this.setProperties(node.lhsExpr.source, node.position);
@@ -54,7 +54,7 @@ class ExpressionDeletingVisitor implements Visitor {
                 if (node.rhsExpr.source.trim() === DEFAULT_EXPR) {
                     this.setProperties(node.lhsExpr.source, node.position);
                 } else {
-                    this.setProperties(DEFAULT_EXPR, node.rhsExpr.position, true);
+                    this.setProperties(DEFAULT_EXPR, node.rhsExpr.position);
                 }
             }
         }
@@ -182,12 +182,20 @@ class ExpressionDeletingVisitor implements Visitor {
         }
     }
 
+    public beginVisitTypeTestExpression(node: TypeTestExpression) {
+        if (!this.isNodeFound && isPositionsEquals(this.deletePosition, node.expression.position)) {
+            this.setProperties(DEFAULT_EXPR, node.expression.position);
+        } else if (!this.isNodeFound && isPositionsEquals(this.deletePosition, node.typeDescriptor.position)) {
+            this.setProperties(DEFAULT_TYPE_DESC, node.typeDescriptor.position);
+        }
+    }
+
     public beginVisitTypedBindingPattern(node: TypedBindingPattern) {
         if (!this.isNodeFound && isPositionsEquals(this.deletePosition, node.typeDescriptor.position)) {
             if (node.typeDescriptor.source.trim() === DEFAULT_TYPE_DESC) {
                 this.setProperties(node.bindingPattern.source, node.position);
             } else {
-                this.setProperties(DEFAULT_TYPE_DESC, node.typeDescriptor.position, true);
+                this.setProperties(DEFAULT_TYPE_DESC, node.typeDescriptor.position);
             }
         }
     }
@@ -196,18 +204,16 @@ class ExpressionDeletingVisitor implements Visitor {
         // NoOp
     }
 
-    setProperties(codeAfterDeletion: string, newPosition: NodePosition, defaultDeletable?: boolean) {
+    setProperties(codeAfterDeletion: string, newPosition: NodePosition) {
         this.codeAfterDeletion = codeAfterDeletion;
         this.newPosition = newPosition;
-        this.defaultDeletable = defaultDeletable;
         this.isNodeFound = true;
     }
 
     getContent(): RemainingContent {
         return {
             code: this.isNodeFound ? this.codeAfterDeletion : DEFAULT_EXPR,
-            position: this.isNodeFound ? this.newPosition : this.deletePosition,
-            defaultDeletable: this.defaultDeletable
+            position: this.isNodeFound ? this.newPosition : this.deletePosition
         };
     }
 
@@ -220,7 +226,6 @@ class ExpressionDeletingVisitor implements Visitor {
         this.isNodeFound = false;
         this.newPosition = null;
         this.codeAfterDeletion = '';
-        this.defaultDeletable = false;
     }
 }
 
