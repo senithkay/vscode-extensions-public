@@ -7,7 +7,8 @@ import {
     LibraryKind,
     LibrarySearchResponse,
     PerformanceAnalyzerGraphResponse,
-    PerformanceAnalyzerRealtimeResponse
+    PerformanceAnalyzerRealtimeResponse,
+    SentryConfig
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { DiagramGenerator } from "..";
@@ -44,9 +45,10 @@ export interface EditorAPI {
     resolveMissingDependencyByCodeAction: (filePath: string, fileContent: string, diagnostic: any) => Promise<boolean>;
     runCommand: (command: PALETTE_COMMANDS, args: any[]) => Promise<boolean>;
     sendTelemetryEvent: (event: LowcodeEvent) => Promise<void>;
-    getLibrariesList: (kind: LibraryKind) => Promise<LibraryDocResponse | undefined>;
+    getLibrariesList: (kind?: LibraryKind) => Promise<LibraryDocResponse | undefined>;
     getLibrariesData: () => Promise<LibrarySearchResponse | undefined>;
     getLibraryData: (orgName: string, moduleName: string, version: string) => Promise<LibraryDataResponse | undefined>;
+    getSentryConfig: () => Promise<SentryConfig | undefined>;
 }
 
 export enum PALETTE_COMMANDS {
@@ -60,7 +62,7 @@ export type EditorProps = EditorState & EditorAPI;
 export const Diagram: React.FC<EditorProps> = (props: EditorProps) => {
 
     const { getFileContent, updateFileContent, gotoSource, getPFSession, showPerformanceGraph, getPerfDataFromChoreo,
-            sendTelemetryEvent,
+            sendTelemetryEvent, getSentryConfig,
             showMessage, resolveMissingDependency, resolveMissingDependencyByCodeAction,
             runCommand, getLibrariesList, getLibrariesData, getLibraryData, ...restProps } = props;
     const [state, setState] = React.useState<EditorState>(restProps);
@@ -88,6 +90,7 @@ export const Diagram: React.FC<EditorProps> = (props: EditorProps) => {
                     getLibrariesList={getLibrariesList}
                     getLibrariesData={getLibrariesData}
                     getLibraryData={getLibraryData}
+                    getSentryConfig={getSentryConfig}
                     panX="-30"
                     panY="0"
                     scale="0.9"

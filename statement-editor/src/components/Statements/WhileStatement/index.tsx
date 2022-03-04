@@ -46,16 +46,6 @@ export function WhileStatementC(props: WhileStatementProps) {
     const targetPosition = stmtCtx.formCtx.formModelPosition;
     const fileURI = `expr://${currentFile.path}`;
 
-    const conditionComponent: ReactNode = (
-        <ExpressionComponent
-            model={model.condition}
-            userInputs={userInputs}
-            isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
-            isTypeDescriptor={false}
-        />
-    );
-
     const onClickOnConditionExpression = async (event: any) => {
         event.stopPropagation();
 
@@ -76,7 +66,7 @@ export function WhileStatementC(props: WhileStatementProps) {
         addStatementToTargetLine(currentFile.content, targetPosition,
             stmtCtx.modelCtx.statementModel.source, getLangClient).then((content: string) => {
             getContextBasedCompletions(fileURI, content, targetPosition, model.condition.position, false,
-                isElseIfMember, model.condition.source, getLangClient).then((completions) => {
+                isElseIfMember, model.condition.source, getLangClient, currentFile.content).then((completions) => {
                 expressionHandler(model.condition, false, false, {
                     expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
                     typeSuggestions: [],
@@ -86,25 +76,30 @@ export function WhileStatementC(props: WhileStatementProps) {
         });
     }
 
+
+    const conditionComponent: ReactNode = (
+        <ExpressionComponent
+            model={model.condition}
+            userInputs={userInputs}
+            isElseIfMember={isElseIfMember}
+            diagnosticHandler={diagnosticHandler}
+            isTypeDescriptor={false}
+            onSelect={onClickOnConditionExpression}
+        />
+    );
+
     return (
         <span>
             <span
                 className={classNames(
                     statementEditorClasses.expressionBlock,
-                    statementEditorClasses.expressionBlockDisabled
+                    statementEditorClasses.expressionBlockDisabled,
+                    "keyword"
                 )}
             >
                 {model.whileKeyword.value}
             </span>
-            <button
-                className={classNames(
-                    statementEditorClasses.expressionElement,
-                    hasConditionSelected && statementEditorClasses.expressionElementSelected
-                )}
-                onClick={onClickOnConditionExpression}
-            >
-                {conditionComponent}
-            </button>
+            {conditionComponent}
             <span
                 className={classNames(
                     statementEditorClasses.expressionBlock,

@@ -36,7 +36,8 @@ export function VarTypeDescComponent(props: VarTypeDescProps) {
         expressionHandler,
         userInputs,
         diagnosticHandler,
-        isTypeDescriptor
+        isTypeDescriptor,
+        classNames: "type-descriptor var"
     };
 
     return (

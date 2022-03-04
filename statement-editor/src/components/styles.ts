@@ -14,8 +14,34 @@
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 import { theme } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 
+const syntaxHighlightingRules = {
+    '& .type-descriptor, &.type-descriptor': {
+        color: '#008080'
+    },
+    '& .numeric-literal, &.numeric-literal': {
+        color: '#128bdf'
+    },
+    '& .string-literal, &.string-literal': {
+        color: '#a31515'
+    },
+    '& .boolean-literal, &.boolean-literal': {
+        color: '#dd0000'
+    },
+    '& .operator, &.operator': {
+        color: '#0000ff'
+    },
+    '& .keyword, &.keyword': {
+        color: '#0000ff'
+    }
+}
+
 export const useStatementEditorStyles = makeStyles(() =>
     createStyles({
+        undoRedoButtons: {
+            position: 'absolute',
+            right: '0',
+            top: '48px'
+        },
         mainStatementWrapper: {
             display: 'flex',
             height: 'auto',
@@ -25,13 +51,30 @@ export const useStatementEditorStyles = makeStyles(() =>
         statementExpressionWrapper: {
             height: 'auto',
         },
-        sugessionsSection: {
+        suggestionsSection: {
             display: 'flex',
+            flexDirection: 'column',
             borderBottom: '1px solid #e6e7ec',
             minHeight: '50vh',
-            height: '60vh'
+            height: '75vh'
         },
-        sugessionsMainWrapper: {
+        tabPanelWrapper: {
+            width: 'auto',
+            height: '48px',
+            boxShadow: '0px 1px 1px -1px rgb(0 0 0 / 20%), 0px 1px 1px 0px rgb(0 0 0 / 14%), 0px 1px 3px 0px rgb(0 0 0 / 12%)',
+            display: 'flex',
+            flexDirection: 'row'
+        },
+        tabPanel: {
+            width: '70%'
+        },
+        libraryTypeSelector: {
+            width: '30%',
+            height: '48px',
+            padding: '9px',
+            textAlignLast: 'right'
+        },
+        stmtEditorContentWrapper: {
             backgroundColor: '#f9fafc',
             display: 'flex',
             flexDirection: 'column',
@@ -39,10 +82,7 @@ export const useStatementEditorStyles = makeStyles(() =>
             borderBottom: '1px solid #e6e7ec'
         },
         sugessionsWrapper: {
-            width: '50%',
-            height: 'auto',
-            padding: theme.spacing(1.5),
-            borderRight: '1px solid #e6e7ec'
+            width: '100%',
         },
         LibraryBrowsingWrapper: {
             width: '50%',
@@ -54,9 +94,8 @@ export const useStatementEditorStyles = makeStyles(() =>
         statementExpressionContent: {
             paddingTop: theme.spacing(1.5),
             paddingBottom: theme.spacing(1),
-        },
-        variableSugession: {
-            padding: theme.spacing(1.5),
+            fontSize: "18px",
+            'user-select': 'none'
         },
         expressionSugession: {
             padding: theme.spacing(1.5),
@@ -112,14 +151,10 @@ export const useStatementEditorStyles = makeStyles(() =>
             top: '2%',
             bottom: '10%'
         },
-        LibraryBrowser: {
-            display: 'flex',
-            flexDirection: 'column',
-            width: 'auto%',
+        libraryBrowser: {
             height: '100%',
-            position: 'relative',
-            top: '10px',
-            marginLeft: '5%'
+            overflowY: 'scroll',
+            overflowX: 'hidden',
         },
         leftPane: {
             display: 'flex',
@@ -163,14 +198,18 @@ export const useStatementEditorStyles = makeStyles(() =>
             width: '100%',
             overflowY: 'scroll'
         },
-        contextSensitivePane: {
-            position: 'relative',
-            height: '95%',
-            width: '90%',
-            top: '5%'
+        suggestionsInner: {
+            overflowY: 'scroll',
+            height: '100%',
+            paddingLeft: '25px',
+            paddingTop: '11px',
         },
-        variableSuggestionsInner: {
-            overflowY: 'scroll'
+        contextSensitivePane: {
+            display: 'flex',
+            flexDirection: 'column',
+            height: '100%',
+            position: 'relative',
+            marginLeft: '5%'
         },
         diagnosticsPane: {
             color: '#ea4c4d',
@@ -201,68 +240,45 @@ export const useStatementEditorStyles = makeStyles(() =>
         },
         expressionBlock: {
             position: 'relative',
-            paddingRight: '10px'
+            paddingRight: '10px',
+            ...syntaxHighlightingRules
         },
         expressionBlockDisabled: {
             height: '24px',
             width: '15px',
-            fontFamily: "Droid Sans Mono",
-            fontSize: '12px',
             letterSpacing: 0,
-            lineHeight: '24px',
         },
         expressionElement: {
-            boxSizing: 'border-box',
-            border: '1px solid #A6B3FF',
-            borderRadius: '8px',
             position: 'relative',
             width: 'fit-content',
-            backgroundColor: '#ffffff',
-            marginLeft: '2px',
-            marginTop: '1px',
-            fontFamily: "Droid Sans Mono",
-            color: '#0095FF',
-            fontSize: '12px',
-            letterSpacing: 0,
-            lineHeight: '24px',
-            '&:hover': {
-                backgroundColor: '#d7dcfc',
-                color: '#fff'
-            }
+            margin: '0 2px 0 2px',
+            '&': {
+                width: 'fit-content',
+                padding: '4px',
+                borderRadius: '4px',
+            },
+            '&.hovered': {
+                backgroundColor: '#e5ebf1',
+            },
+            cursor: "pointer",
+            ...syntaxHighlightingRules
         },
         expressionElementSelected: {
-            backgroundColor: '#5567D5',
-            color: '#fff',
-            border: '1px solid #5567D5',
+            '&': {
+                backgroundColor: '#b3d9ff',
+            },
+            '&.hovered': {
+                backgroundColor: '#e5ebf1',
+            },
         },
         inputEditorTemplate: {
             minWidth: '20px',
-            fontSize: '13px',
             letterSpacing: 0,
-            display: 'inline-block',
-            lineHeight: '24px',
             position: 'relative',
-            marginLeft: '2px',
-            marginTop: '1px',
-            '&:hover': {
-                backgroundColor: '#d7dcfc',
-                color: '#fff'
+            border: 'none',
+            '&:focus': {
+                outline: 'none'
             }
-        },
-        dataTypeTemplate: {
-            // color: '#05A26B',
-            color: '#05A26B',
-            fontSize: '10px',
-            letterSpacing: '-0.2px',
-            lineHeight: '24px',
-            position: 'relative',
-            marginLeft: '2px',
-            marginTop: '1px',
-            boxSizing: 'border-box',
-            border: ' 1px #36B475',
-            borderStyle: 'solid',
-            borderRadius: '3px',
-            padding: '3%'
         },
         addNewExpressionButton: {
             backgroundColor: '#f7f8fb',
@@ -274,9 +290,21 @@ export const useStatementEditorStyles = makeStyles(() =>
             margin: '4px 2px',
             borderRadius: '50%'
         },
-        LibraryDropdown: {
+        libraryBrowserHeader: {
             display: 'flex',
-            flexDirection: 'row'
+            flexDirection: 'row',
+            width: '100%',
+            alignItems: 'center',
+            position: 'sticky',
+            top: '0px',
+            zIndex: 1,
+            backgroundColor: '#FFFFFF',
+            paddingBottom: '16px'
+        },
+        libraryDropdown: {
+            flex: '0 0 50%',
+            display: 'flex',
+            justifyContent: 'flex-end'
         },
         rhsComponent: {
             position: 'relative',
@@ -286,8 +314,8 @@ export const useStatementEditorStyles = makeStyles(() =>
         },
         propertyDivider: {
             height: '1px',
-            marginLeft: '2%',
             marginTop: '2%',
+            marginBottom: '10px',
             width: '94%',
             opacity: 0.52,
             backgroundColor: '#DCDEE4'
@@ -306,13 +334,12 @@ export const useStatementEditorStyles = makeStyles(() =>
             position: 'relative',
             width: 'fit-content',
             backgroundColor: '#F0F1FB',
-            fontFamily: "Droid Sans Mono",
+            fontFamily: "monospace",
             color: '#0095FF',
             marginLeft: '2px',
             fontSize: '12px',
             '&:hover': {
-                backgroundColor: '#5567D5',
-                color: '#fff'
+                backgroundColor: 'rgba(173, 214, 255, 0.3)'
             }
         },
         mainExpStatementWrapper: {
@@ -323,24 +350,28 @@ export const useStatementEditorStyles = makeStyles(() =>
             display: 'flex',
             flexDirection: 'row'
         },
-        libraryBlock: {
-            position: 'relative',
-            top: '5%',
-            height: '75%',
-            overflowY: 'scroll',
-            overflowX: 'hidden'
+        libraryListBlock: {
+            paddingRight: '5px',
+            paddingBottom: '8px',
+            columnGap: '6%',
+            display: 'grid',
+            gridTemplateColumns: '47% 47%',
+            padding: '0px'
         },
         librarySearchBox: {
             position: 'relative',
-            top: '5%',
             height: '32px',
-            width: '304px',
+            width: 'inherit',
             border: '1px #E0E3E9',
             borderRadius: '5px',
             backgroundColor: '#FFFFFF',
             boxShadow: 'inset 0 0 0 1px #DEE0E7, inset 0 2px 1px 0 rgba(0,0,0,0.07), 0 0 0 0 rgba(50,50,77,0.07)',
             color: '#CBCEDB',
-            textIndent: '5px'
+            textIndent: '12px',
+            fontSize: '12px',
+            textAlign: 'left',
+            paddingLeft: '12px',
+            marginRight: '10px'
         },
         libraryResourceButton: {
             boxSizing: 'border-box',
@@ -367,27 +398,30 @@ export const useStatementEditorStyles = makeStyles(() =>
             height: '12px',
             color: '#1D2028',
             fontFamily: 'Gilmer,sans-serif',
-            fontSize: '11px',
+            fontSize: '13px',
             letterSpacing: 0,
-            lineHeight: '12px',
-            paddingTop: '10px',
-            paddingBottom: '10px'
+            lineHeight: '14px',
+            marginBottom: '7px'
         },
         libraryElementBlock: {
-            position: 'relative',
             top: '5%',
-            maxHeight: '20vh',
             display: 'flex',
             flexDirection: 'column',
+            paddingBottom: '25px'
         },
         libraryElementBlockLabel: {
             height: '10%',
         },
         libraryElementBlockContent: {
+            padding: '0px',
             top: '10%',
             height: '80%',
             overflowY: 'scroll',
-            overflowX: 'hidden'
+            overflowX: 'hidden',
+            columnGap: '6%',
+            display: 'grid',
+            gridTemplateColumns: '29% 29% 29%',
+            paddingBottom: '8px'
         },
         libraryListButton: {
             border: 'none',
@@ -396,6 +430,163 @@ export const useStatementEditorStyles = makeStyles(() =>
             '&:hover': {
                 color: '#3a479c'
             },
+        },
+        lsSuggestionList: {
+            top: '5%',
+            height: '95%',
+            overflowY: 'scroll',
+            overflowX: 'hidden',
+        },
+        expressionSuggestionList: {
+            maxHeight: '100%',
+            overflowY: 'scroll',
+            overflowX: 'hidden',
+        },
+        suggestionListItem: {
+            padding: '0 0 0 8px',
+            '&:hover': {
+                backgroundColor: '#F0F1FB',
+            },
+            '&:focus': {
+                backgroundColor: 'rgba(204,209,242,0.61)'
+            }
+        },
+        suggestionDataType: {
+            color: '#05A26B',
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis'
+        },
+        suggestionValue: {
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis'
+        },
+        suggestionList: {
+            columnGap: '6%',
+            display: 'grid',
+            gridTemplateColumns: '47% 47%'
+        },
+        selectDropDownSe: {
+            height: '32px',
+            width: "auto",
+            borderRadius: 4,
+            fontSize: "12px",
+            color: '#222228',
+            background: "linear-gradient(180deg, #FFFFFF 0%, #F7F7F9 100%)",
+            boxShadow: "inset 0 0 0 1px #DEE0E7, 0 1px 2px -1px rgba(0,0,0,0.08)",
+            cursor: "pointer",
+            marginBottom: theme.spacing(2.5),
+            border: 1,
+            "&:active": {
+                background: "linear-gradient(180deg, #ffffff 0%, #f7f7f9 100%)",
+                boxShadow: "inset 0 0 0 1px #a6b3ff, 0 1px 1px 0 rgba(0, 0, 0, 0.06)",
+                border: "1px solid #5567d5",
+            },
+            "&:focused": {
+                background: "linear-gradient(180deg, #ffffff 0%, #f7f7f9 100%)",
+                boxShadow: "inset 0 0 0 1px #a6b3ff, 0 1px 1px 0 rgba(0, 0, 0, 0.06)",
+                border: "1px solid #5567d5 !important",
+                backgroundColor: "none"
+            },
+            '& .MuiSelect-icon': {
+                marginRight: 11,
+            },
+            "& .MuiSelect-selectMenu": {
+                height: "inherit !important",
+                paddingLeft: 10,
+                "& .TextSpan": {
+                    top: "calc(50% - 8px)",
+                    position: "absolute",
+                    maxWidth: "156px",
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                }
+            },
+            "& .MuiSelect-select.MuiSelect-select": {
+                padding: "0 0 0 10px",
+                minWidth: "100px"
+            },
+            "& .MuiSelect-select.MuiSelect-select:focus": {
+                backgroundColor: "transparent"
+            }
+        },
+        dropdownStyle: {
+            backgroundColor: "#fff",
+            boxSizing: "border-box",
+            width: "auto",
+            border: "1px solid #DEE0E7",
+            borderRadius: "5px",
+            boxShadow: "0 5px 10px -3px rgba(50,50,77,0.1)",
+            color: "#222228",
+            marginTop: '0.25rem',
+            marginLeft: '4px'
+        },
+        tabsPanelPaperSe: {
+            flexGrow: 1,
+            boxShadow: 'none'
+        },
+        tabsPanelSe: {
+            "& .MuiTab-wrapper": {
+                textTransform: 'none',
+                fontSize: '13px',
+                fontWeight: 'normal'
+            },
+            "& .MuiTab-root": {
+                marginLeft: '24px',
+                paddingRight: '0px',
+                paddingLeft: '0px',
+                fontSize: '13px',
+                minWidth: 'fit-content'
+            },
+            "& .MuiTab-textColorInherit": {
+                color: '#8D91A3'
+            },
+            "& .MuiTab-textColorInherit.Mui-selected": {
+                opacity: 1,
+                color: '#40404B'
+            },
+            "& .MuiTabs-indicator": {
+                backgroundColor: '#40404B',
+                height: '1px'
+            },
+            "& .MuiTabs-scroller": {
+                height: '48px'
+            }
+        },
+        noSuggestionText: {
+            fontSize: '12px',
+            fontWeight: 'normal',
+            padding: theme.spacing(1.5)
+        },
+        expressionList: {
+            columnGap: '6%',
+            display: 'grid',
+            gridTemplateColumns: '47% 47%'
+        },
+        moduleTitle: {
+            marginRight: '43px',
+            marginLeft: '4.25px',
+            marginBottom: '2px',
+            fontSize: '13px'
+        },
+        libraryReturnIcon: {
+            padding: '0px',
+            '&:hover': {
+                backgroundColor: '#F0F1FB',
+            },
+            '&:focus': {
+                backgroundColor: 'rgba(204,209,242,0.61)'
+            }
+        },
+        arrowBack: {
+            fontSize: '13px',
+            lineHeight: '24px',
+            color: '#5567D5'
+        },
+        libraryModuleIcon: {
+            marginLeft: '8.25px'
         }
     }),
 );

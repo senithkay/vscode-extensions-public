@@ -39,7 +39,7 @@ export function PathSegmentItem(props: PathSegmentProps) {
     };
 
     return (
-        <div className={classes.headerWrapper}>
+        <div className={classes.headerWrapper} data-testid={`${segmentLabel}-item`}>
             <div className={addInProgress ? classes.headerLabel : classes.headerLabelWithCursor} onClick={handleEdit}>
                 {segmentLabel}
                 <ButtonWithIcon

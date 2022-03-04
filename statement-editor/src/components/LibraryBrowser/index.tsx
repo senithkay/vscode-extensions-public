@@ -13,18 +13,28 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import React, { useContext, useEffect, useState } from "react";
 
+import { IconButton, Input, InputAdornment } from "@material-ui/core";
+import { ArrowBack } from "@material-ui/icons";
 import {
     LibraryDataResponse,
     LibraryKind,
     LibrarySearchResponse
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
+import LibraryModuleIcon from "../../assets/icons/LibraryModuleIcon";
+import LibrarySearchIcon from "../../assets/icons/LibrarySearchIcon";
+import { LANG_LIBS_IDENTIFIER, STD_LIBS_IDENTIFIER } from "../../constants";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { useStatementEditorStyles } from "../styles";
 
 import { LibrariesList } from "./LibrariesList";
 import { SearchResult } from "./SearchResult";
 import { filterByKeyword } from "./utils";
+
+interface LibraryBrowserProps {
+    libraryType: string;
+    isLibrary: boolean;
+}
 
 enum LibraryBrowserMode {
     LIB_LIST = 'libraries_list',
@@ -34,7 +44,8 @@ enum LibraryBrowserMode {
 
 const DEFAULT_SEARCH_SCOPE = "distribution";
 
-export function LibraryBrowser() {
+export function LibraryBrowser(props: LibraryBrowserProps) {
+    const { libraryType, isLibrary } = props;
     const statementEditorClasses = useStatementEditorStyles();
     const stmtCtx = useContext(StatementEditorContext);
     const {
@@ -51,6 +62,8 @@ export function LibraryBrowser() {
     const [libraries, setLibraries] = useState([]);
     const [filteredSearchData, setFilteredSearchData] = useState<LibrarySearchResponse>();
     const [libraryData, setLibraryData] = useState<LibraryDataResponse>();
+    const [moduleTitle, setModuleTitle] = useState('');
+    const [moduleSelected, setModuleSelected] = useState(false);
 
     useEffect(() => {
         (async () => {
@@ -60,6 +73,29 @@ export function LibraryBrowser() {
             }
         })();
     }, []);
+
+    useEffect(() => {
+        (async () => {
+            let response;
+            if (libraryType === LANG_LIBS_IDENTIFIER) {
+                response = await getLibrariesList(LibraryKind.langLib);
+            } else if (libraryType === STD_LIBS_IDENTIFIER) {
+                response = await getLibrariesList(LibraryKind.stdLib);
+            } else {
+                response = await getLibrariesList();
+            }
+
+            if (response) {
+                setLibraries(response.librariesList);
+            }
+
+            setLibraryBrowserMode(LibraryBrowserMode.LIB_LIST);
+            setSearchScope(DEFAULT_SEARCH_SCOPE);
+            setModuleTitle('');
+            setModuleSelected(false);
+            setKeyword('');
+        })();
+    }, [libraryType]);
 
     useEffect(() => {
         let filteredData;
@@ -76,64 +112,69 @@ export function LibraryBrowser() {
         setLibraryData(data);
         setLibraryBrowserMode(LibraryBrowserMode.LIB_BROWSE);
         setSearchScope(data.searchData.modules[0].id);
+        setModuleTitle(data.searchData.modules[0].id);
+        setModuleSelected(true);
     };
 
-    const onLangLibSelection = async () => {
-        const response = await getLibrariesList(LibraryKind.langLib);
-
-        if (response) {
-            setLibraries(response.librariesList);
-        }
-
+    const onClickOnReturnIcon = async () => {
         setLibraryBrowserMode(LibraryBrowserMode.LIB_LIST);
         setSearchScope(DEFAULT_SEARCH_SCOPE);
+        setModuleTitle('');
+        setModuleSelected(false);
         setKeyword('');
-    };
-
-    const onStdLibSelection = async () => {
-        const response = await getLibrariesList(LibraryKind.stdLib);
-
-        if (response) {
-            setLibraries(response.librariesList);
-        }
-
-        setLibraryBrowserMode(LibraryBrowserMode.LIB_LIST);
-        setSearchScope(DEFAULT_SEARCH_SCOPE);
-        setKeyword('');
-    };
+    }
 
     return (
-        <div className={statementEditorClasses.LibraryBrowser}>
-            <div className={statementEditorClasses.LibraryDropdown}>
-                <span className={statementEditorClasses.subHeader}>Libraries</span>
-                {/*TODO: Replace below buttons with a dropdown menu*/}
-                <button onClick={onLangLibSelection}>All</button>
-                <button onClick={onLangLibSelection}>Language</button>
-                <button onClick={onStdLibSelection}>Standard</button>
+        <>
+        { isLibrary && (
+            <div className={statementEditorClasses.libraryBrowser}>
+                <div className={statementEditorClasses.libraryBrowserHeader}>
+                    {(libraryBrowserMode !== LibraryBrowserMode.LIB_LIST || searchScope !== DEFAULT_SEARCH_SCOPE) && (
+                        <>
+                            <IconButton onClick={onClickOnReturnIcon} className={statementEditorClasses.libraryReturnIcon}>
+                                <ArrowBack className={statementEditorClasses.arrowBack}/>
+                            </IconButton>
+                            {moduleTitle && (
+                                <div className={statementEditorClasses.libraryModuleIcon}>
+                                    <LibraryModuleIcon/>
+                                </div>
+                            )}
+                            <div className={statementEditorClasses.moduleTitle}>{moduleTitle}</div>
+                        </>
+                    )}
+                        <Input
+                            className={statementEditorClasses.librarySearchBox}
+                            value={keyword}
+                            placeholder={`search in ${searchScope}`}
+                            onChange={(e) => setKeyword(e.target.value)}
+                            endAdornment={(
+                                <InputAdornment position={"end"} style={{padding: '8.5px'}}>
+                                    <LibrarySearchIcon/>
+                                </InputAdornment>
+                            )}
+                        />
+                </div>
+                {libraryBrowserMode === LibraryBrowserMode.LIB_LIST && !moduleTitle && (
+                    <LibrariesList
+                        libraries={libraries}
+                        libraryBrowsingHandler={libraryBrowsingHandler}
+                    />
+                )}
+                {libraryBrowserMode === LibraryBrowserMode.LIB_SEARCH && filteredSearchData && (
+                    <SearchResult
+                        librarySearchResponse={filteredSearchData}
+                        libraryBrowsingHandler={libraryBrowsingHandler}
+                        moduleSelected={moduleSelected}
+                    />
+                )}
+                {libraryBrowserMode === LibraryBrowserMode.LIB_BROWSE && (
+                    <SearchResult
+                        librarySearchResponse={libraryData.searchData}
+                        moduleSelected={moduleSelected}
+                    />
+                )}
             </div>
-            <input
-                className={statementEditorClasses.librarySearchBox}
-                value={keyword}
-                placeholder={`search in ${searchScope}`}
-                onChange={(e) => setKeyword(e.target.value)}
-            />
-            {libraryBrowserMode === LibraryBrowserMode.LIB_LIST && (
-                <LibrariesList
-                    libraries={libraries}
-                    libraryBrowsingHandler={libraryBrowsingHandler}
-                />
-            )}
-            {libraryBrowserMode === LibraryBrowserMode.LIB_SEARCH  && filteredSearchData && (
-                <SearchResult
-                    librarySearchResponse={filteredSearchData}
-                    libraryBrowsingHandler={libraryBrowsingHandler}
-                />
-            )}
-            {libraryBrowserMode === LibraryBrowserMode.LIB_BROWSE  && (
-                <SearchResult
-                    librarySearchResponse={libraryData.searchData}
-                />
-            )}
-        </div>
+        )}
+        </>
     );
 }

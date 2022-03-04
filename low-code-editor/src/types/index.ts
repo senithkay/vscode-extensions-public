@@ -23,7 +23,7 @@ import { ModulePart, NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import { Diagnostic } from "vscode-languageserver-protocol";
 
 import { BlockViewState } from "..";
-import { ConditionConfig, DataMapperConfig } from "../Diagram/components/FormComponents/Types";
+import { ConditionConfig } from "../Diagram/components/FormComponents/Types";
 import { LowcodeEvent } from "../Diagram/models";
 import { Warning } from "../Diagram/utils/st-util";
 import { PerformanceData } from "../DiagramGenerator/performanceUtil";
@@ -43,9 +43,7 @@ export interface UserState {
 
 export interface LowCodeEditorState {
     triggerUpdated: boolean; // FIXME Moving existing prop manipulated in memory into state
-    isDataMapperShown: boolean;
     isConfigOverlayFormOpen: boolean;
-    dataMapperConfig: DataMapperConfig;
     targetPosition: NodePosition; // FIXME check and remove usage of update position if not used anymore
 }
 
@@ -55,9 +53,7 @@ export interface LowCodeEditorActions {
     diagramRedraw: (payload: STNode) => void;
     insertComponentStart: (payload: NodePosition) => void;
     editorComponentStart: (payload: NodePosition) => void;
-    dataMapperStart: (dataMapperConfig: DataMapperConfig) => void;
     toggleDiagramOverlay: () => void;
-    updateDataMapperConfig: (dataMapperConfig: DataMapperConfig) => void;
     setTriggerUpdated: (isUpdated: boolean) => void;
 }
 
@@ -112,7 +108,7 @@ export interface LowCodeEditorAPI {
         run: (args: any[]) => void;
     }
     library?: {
-        getLibrariesList: (kind: string) => Promise<LibraryDocResponse>;
+        getLibrariesList: (kind?: string) => Promise<LibraryDocResponse>;
         getLibrariesData: () => Promise<LibrarySearchResponse>;
         getLibraryData: (orgName: string, moduleName: string, version: string) => Promise<LibraryDataResponse>;
     }
@@ -149,6 +145,7 @@ export interface LowCodeEditorProperties {
     zoomStatus: ZoomStatus;
     selectedPosition?: SelectedPosition;
     performanceData?: Map<string, PerformanceData>;
+    importStatements: string[];
     experimentalEnabled?: boolean;
 }
 

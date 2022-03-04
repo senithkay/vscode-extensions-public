@@ -79,7 +79,7 @@ export function ActionProcessor(props: ProcessorProps) {
     const isLogStmt = false;
 
     let isReferencedVariable = false;
-
+    let targetPosition: NodePosition;
     const diagnostics = model?.typeData?.diagnostics;
     const diagnosticMsgs = getDiagnosticInfo(diagnostics);
 
@@ -92,6 +92,7 @@ export function ActionProcessor(props: ProcessorProps) {
             if (STKindChecker.isCaptureBindingPattern(bindingPattern)) {
                 processName = bindingPattern?.variableName?.value;
                 isReferencedVariable = stSymbolInfo?.variableNameReferences?.size && stSymbolInfo.variableNameReferences.get(processName)?.length > 0;
+                targetPosition = bindingPattern.position;
             } else if (STKindChecker.isListBindingPattern(bindingPattern)) {
                 // TODO: handle this type binding pattern.
             } else if (STKindChecker.isMappingBindingPattern(bindingPattern)) {
@@ -300,7 +301,7 @@ export function ActionProcessor(props: ProcessorProps) {
                                             x: viewState.bBox.cx + 80,
                                             y: viewState.bBox.cy,
                                         }}
-                                        targetPosition={draftViewState.targetPosition}
+                                        targetPosition={draftViewState.targetPosition || targetPosition}
                                         selectedConnector={draftViewState.selectedConnector}
                                         model={model || selectedEndpoint}
                                         onClose={onActionFormClose}

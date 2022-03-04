@@ -6,7 +6,7 @@ import { DiagramGeneratorProps } from '../DiagramGenerator';
 
 import devProject from "./data/devproject.json";
 import { DiagramGeneratorWrapper } from './DiagramGeneratorWrapper';
-import { getFileContent, langClientPromise, updateFileContent } from './story-utils';
+import { getFileContent, getLibrariesData, getLibrariesList, getLibraryData, langClientPromise, updateFileContent } from './story-utils';
 
 const stories = storiesOf('Low Code Editor/Development/project', module);
 
@@ -42,8 +42,10 @@ function getDiagramGeneratorProps(filePath: string): DiagramGeneratorProps {
     showMessage: () => Promise.resolve(false),
     showPerformanceGraph: () => Promise.resolve(false),
     updateFileContent,
-    getLibrariesList: () => Promise.resolve(undefined),
-    getLibrariesData: () => Promise.resolve(undefined),
-    getLibraryData: () => Promise.resolve(undefined)
+    getLibrariesList,
+    getLibrariesData,
+    getLibraryData,
+    getSentryConfig: () => Promise.resolve(undefined),
+    experimentalEnabled: true
   }
 }

@@ -45,13 +45,16 @@ import {
 } from "../../../../../utils/modification-util";
 import { ModuleIcon } from "../../../../LowCodeDiagram/Components/RenderingComponents/Connector/ConnectorHeader/ModuleIcon";
 import {
+    addAccessModifiers,
     genVariableName,
+    getAccessModifiers,
     getActionReturnType,
     getConnectorComponent,
     getFormattedModuleName,
     getInitReturnType,
     getParams,
 } from "../../../../Portals/utils";
+import { VariableOptions } from "../../../ConfigForms/ModuleVariableForm/util";
 import { wizardStyles as useFormStyles } from "../../../ConfigForms/style";
 import { ExpressionInjectablesProps, FormGeneratorProps, InjectableItem } from "../../../FormGenerator";
 import {
@@ -89,6 +92,7 @@ export interface ConnectorConfigWizardProps {
     onClose: () => void;
     onSave: () => void;
     selectedConnector: LocalVarDecl;
+    isModuleEndpoint?: boolean;
     isAction?: boolean;
     expressionInjectables?: ExpressionInjectablesProps;
 }
@@ -112,6 +116,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
         onClose,
         onSave,
         selectedConnector,
+        isModuleEndpoint,
         isAction,
         expressionInjectables,
         connectorInfo,
@@ -164,6 +169,10 @@ export function ConnectorForm(props: FormGeneratorProps) {
         config.action = new ActionConfig();
     }
 
+    if (isModuleEndpoint && model){
+        config.qualifiers = getAccessModifiers(model);
+    }
+
     const actionReturnType = getActionReturnType(selectedOperation, functionDefInfo);
     if (
         !isNewConnectorInitWizard &&
@@ -207,14 +216,16 @@ export function ConnectorForm(props: FormGeneratorProps) {
             modifications.push(item.modification);
         });
         const isInitReturnError = getInitReturnType(functionDefInfo);
-        if (isInitReturnError && functionNode && STKindChecker.isFunctionDefinition(functionNode)) {
+        if (!isModuleEndpoint && isInitReturnError && functionNode && STKindChecker.isFunctionDefinition(functionNode)) {
             updateFunctionSignatureWithError(modifications, functionNode as FunctionDefinition);
         }
 
         const moduleName = getFormattedModuleName(connectorModule);
-        const endpointStatement = `${moduleName}:${connector.name} ${config.name} = ${
+        let endpointStatement = `${moduleName}:${connector.name} ${config.name} = ${
             isInitReturnError ? "check" : ""
         } new (${getParams(config.connectorInit).join()});`;
+
+        endpointStatement = addAccessModifiers(config.qualifiers, endpointStatement);
 
         if (isNewConnectorInitWizard && targetPosition) {
             const addImport: STModification = createImportStatement(
@@ -227,7 +238,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
             const addConnectorInit = createPropertyStatement(endpointStatement, targetPosition);
             modifications.push(addConnectorInit);
             // onConnectorAddEvent();
-            if (checkDBConnector(moduleName)) {
+            if (checkDBConnector(moduleName) && !isModuleEndpoint) {
                 const closeStatement = `check ${config.name}.close();`;
                 const addCloseStatement = createPropertyStatement(closeStatement, targetPosition);
                 modifications.push(addCloseStatement);
@@ -438,6 +449,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
                     responseStatus={responseStatus}
                     expressionInjectables={expressionInjectables}
                     targetPosition={targetPosition}
+                    isModuleEndpoint={isModuleEndpoint}
                 />
             )}
             {formState === FormStates.ExistingConnection && !isNewConnectorInitWizard && (
@@ -453,6 +465,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
                     responseStatus={responseStatus}
                     expressionInjectables={expressionInjectables}
                     targetPosition={targetPosition}
+                    isModuleEndpoint={isModuleEndpoint}
                 />
             )}
         </div>
@@ -469,6 +482,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
             targetPosition,
             model,
             selectedConnector,
+            isModuleEndpoint,
             isAction,
         });
     }

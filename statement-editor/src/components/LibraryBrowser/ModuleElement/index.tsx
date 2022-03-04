@@ -12,6 +12,7 @@
  */
 import React, { useContext } from 'react';
 
+import { ListItem, ListItemIcon, ListItemText, Typography } from "@material-ui/core";
 import {
     FunctionParams,
     LibraryDataResponse,
@@ -20,36 +21,42 @@ import {
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { StatementEditorContext } from "../../../store/statement-editor-context";
+import { getModuleIconStyle } from "../../../utils";
+import { getFQModuleName } from "../../../utils/statement-modifications";
 import { useStatementEditorStyles } from "../../styles";
 
 interface ModuleElementProps {
     moduleProperty: ModuleProperty,
     key: number,
     isFunction: boolean
+    label: string
 }
 
 export function ModuleElement(props: ModuleElementProps) {
     const stmtCtx = useContext(StatementEditorContext);
-    const {
-        library: {
-            getLibraryData
-        }
-    } = stmtCtx;
     const statementEditorClasses = useStatementEditorStyles();
-    const { moduleProperty, key, isFunction } = props;
+    const { moduleProperty, key, isFunction, label } = props;
     const { id, moduleId, moduleOrgName, moduleVersion } = moduleProperty;
 
     const {
         modelCtx: {
             currentModel,
-            updateModel
+            updateModel        },
+        formCtx: {
+            formModelPosition
+        },
+        library: {
+            getLibraryData
+        },
+        modules: {
+            updateModuleList
         }
-    } = useContext(StatementEditorContext);
+    } = stmtCtx;
 
     const onClickOnModuleElement = async () => {
         const response: LibraryDataResponse = await getLibraryData(moduleOrgName, moduleId, moduleVersion);
 
-        let content = moduleId.startsWith('lang.') ? `${moduleId.split('.')[1]}:${id}` : `${moduleId}:${id}`;
+        let content = moduleId.includes('.') ? `${moduleId.split('.').pop()}0:${id}` : `${moduleId}:${id}`;
 
         if (isFunction) {
             let functionProperties: LibraryFunction = null;
@@ -62,26 +69,36 @@ export function ModuleElement(props: ModuleElementProps) {
             if (functionProperties) {
                 const parameters: string[] = [];
                 functionProperties.parameters.map((param: FunctionParams) => {
-                    if (param.defaultValue === '') {
-                        parameters.push('PARAM');
-                    } else {
-                        parameters.push('OPTIONAL_PARAM');
+                    if (param.type.isNullable) {
+                        parameters.push(`${param.name}=${param.defaultValue}`);
+                    } else if (!param.type.isInclusion) {
+                        parameters.push(`${param.name}`);
                     }
                 });
 
                 content += `(${parameters.join(',')})`;
             }
         }
-        updateModel(content, currentModel.model.position);
+
+        updateModuleList(`import ${getFQModuleName(moduleOrgName, moduleId)};`);
+        updateModel(content, currentModel.model ? currentModel.model.position : formModelPosition);
     }
 
     return (
-        <button
-            className={statementEditorClasses.libraryResourceButton}
+        <ListItem
+            button={true}
             key={key}
             onClick={onClickOnModuleElement}
+            className={statementEditorClasses.suggestionListItem}
+            disableRipple={true}
         >
-            {`${moduleId}:${id}`}
-        </button>
+            <ListItemIcon
+                className={getModuleIconStyle(label)}
+                style={{ minWidth: '12%', textAlign: 'left' }}
+            />
+            <ListItemText
+                primary={<Typography className={statementEditorClasses.suggestionValue}>{`${moduleId}:${id}`}</Typography>}
+            />
+        </ListItem>
     );
 }

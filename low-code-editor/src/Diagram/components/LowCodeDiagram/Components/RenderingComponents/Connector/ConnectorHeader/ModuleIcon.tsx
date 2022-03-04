@@ -14,7 +14,7 @@
 import React, { useState } from "react";
 
 import { BallerinaConstruct } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { STNode } from "@wso2-enterprise/syntax-tree";
+import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { DefaultConnectorIcon, DefaultIconProps } from "../Icon/DefaultConnectorIcon";
 
@@ -37,8 +37,11 @@ export function ModuleIcon(props: ModuleIconProps) {
 
     const [showDefaultIcon, setShowDefaultIcon] = useState(false);
 
-    if (node) {
-        const moduleInfo = node.typeData?.typeSymbol?.moduleID;
+    if (node && (STKindChecker.isLocalVarDecl(node) || STKindChecker.isModuleVarDecl(node))) {
+        let moduleInfo = node.typedBindingPattern.typeDescriptor?.typeData.typeSymbol?.moduleID;
+        if (STKindChecker.isArrayTypeDesc(node.typedBindingPattern.typeDescriptor)) {
+            moduleInfo = node.typedBindingPattern.typeDescriptor?.typeData.typeSymbol?.memberTypeDescriptor.moduleID;
+        }
         iconUrl = `${balCentralCdn}/${moduleInfo?.orgName}_${moduleInfo?.moduleName}_${moduleInfo?.version}.png`;
         defaultProps = {
             cx: cx - marginError,

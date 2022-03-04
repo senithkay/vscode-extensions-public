@@ -14,7 +14,6 @@ import React, { useContext, useReducer } from "react";
 
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
-import { DataMapperConfig } from "../Diagram/components/FormComponents/Types";
 import { recalculateSizingAndPositioning, sizingAndPositioning } from "../Diagram/utils/diagram-util";
 import { LowCodeEditorContext, LowCodeEditorProps, LowCodeEditorState } from "../types";
 
@@ -93,12 +92,6 @@ const editorComponentStart = (dispatch: any) => {
     }
 }
 
-const dataMapperStart = (dispatch: any) => {
-    return (dataMapperConfig: DataMapperConfig) => {
-        dispatch({ type: 'SWITCH_TO_DATAMAPPER', payload: dataMapperConfig })
-    }
-}
-
 const toggleDiagramOverlay = (dispatch: any) => {
     return () => {
         dispatch({ type: 'TOGGLE_DIAGRAM_OVERLAY' })
@@ -111,11 +104,6 @@ const setTriggerUpdated = (dispatch: any) => {
     }
 }
 
-const updateDataMapperConfig = (dispatch: any) => {
-    return (dataMapperConfig: DataMapperConfig) => {
-        dispatch({ type: 'UPDATE_DATAMAPPER_CONFIG', payload: dataMapperConfig })
-    }
-}
 const defaultState: any = {};
 
 export const Context = React.createContext<LowCodeEditorContext>(defaultState); // FIXME: Add proper deafault state
@@ -130,9 +118,7 @@ export const Provider: React.FC<LowCodeEditorProps> = (props) => {
         diagramRedraw: diagramRedraw(dispatch),
         insertComponentStart: insertComponentStart(dispatch),
         editorComponentStart: editorComponentStart(dispatch),
-        dataMapperStart: dataMapperStart(dispatch),
         toggleDiagramOverlay: toggleDiagramOverlay(dispatch),
-        updateDataMapperConfig: updateDataMapperConfig(dispatch),
         setTriggerUpdated: setTriggerUpdated(dispatch)
     };
 

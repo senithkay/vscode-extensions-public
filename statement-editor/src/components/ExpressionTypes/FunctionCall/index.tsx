@@ -35,26 +35,11 @@ interface FunctionCallProps {
 export function FunctionCallComponent(props: FunctionCallProps) {
     const { model, userInputs, isElseIfMember, diagnosticHandler } = props;
     const stmtCtx = useContext(StatementEditorContext);
-    const { modelCtx } = stmtCtx;
-    const { currentModel } = modelCtx;
-    const hasFunctionCallExprSelected = currentModel.model &&
-        isPositionsEquals(currentModel.model.position, model.position);
-
     const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
     const { currentFile, getLangClient } = stmtCtx;
     const targetPosition = stmtCtx.formCtx.formModelPosition;
     const fileURI = `expr://${currentFile.path}`;
-
-    const functionName: ReactNode = (
-        <ExpressionComponent
-            model={model.functionName}
-            userInputs={userInputs}
-            isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
-            isTypeDescriptor={false}
-        />
-    );
 
     const onClickOnFunctionCallExpr = async (event: any) => {
         event.stopPropagation();
@@ -101,34 +86,38 @@ export function FunctionCallComponent(props: FunctionCallProps) {
         </span>
     );
 
+    const functionName: ReactNode = (
+        <ExpressionComponent
+            model={model.functionName}
+            userInputs={userInputs}
+            isElseIfMember={isElseIfMember}
+            diagnosticHandler={diagnosticHandler}
+            isTypeDescriptor={false}
+            onSelect={onClickOnFunctionCallExpr}
+        >
+            <span
+                className={classNames(
+                    statementEditorClasses.expressionBlock,
+                    statementEditorClasses.expressionBlockDisabled
+                )}
+            >
+                {model.openParenToken.value}
+            </span>
+            {expressionComponent}
+            <span
+                className={classNames(
+                    statementEditorClasses.expressionBlock,
+                    statementEditorClasses.expressionBlockDisabled
+                )}
+            >
+                {model.closeParenToken.value}
+            </span>
+        </ExpressionComponent>
+    );
+
     return (
         <span>
-            <button
-                className={classNames(
-                    statementEditorClasses.expressionElement,
-                    hasFunctionCallExprSelected && statementEditorClasses.expressionElementSelected
-                )}
-                onClick={onClickOnFunctionCallExpr}
-            >
-                {functionName}
-                <span
-                    className={classNames(
-                        statementEditorClasses.expressionBlock,
-                        statementEditorClasses.expressionBlockDisabled
-                    )}
-                >
-                    {model.openParenToken.value}
-                </span>
-                {expressionComponent}
-                <span
-                    className={classNames(
-                        statementEditorClasses.expressionBlock,
-                        statementEditorClasses.expressionBlockDisabled
-                    )}
-                >
-                    {model.closeParenToken.value}
-                </span>
-            </button>
+            {functionName}
         </span>
     );
 }

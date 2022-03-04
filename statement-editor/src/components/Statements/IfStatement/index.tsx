@@ -47,16 +47,6 @@ export function IfStatementC(props: IfStatementProps) {
     const targetPosition = stmtCtx.formCtx.formModelPosition;
     const fileURI = `expr://${currentFile.path}`;
 
-    const conditionComponent: ReactNode = (
-        <ExpressionComponent
-            model={model.condition}
-            userInputs={userInputs}
-            isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
-            isTypeDescriptor={false}
-        />
-    );
-
     const elseBlockComponent: ReactNode = (
         <StatementRenderer
             model={model.elseBody}
@@ -86,7 +76,7 @@ export function IfStatementC(props: IfStatementProps) {
         addStatementToTargetLine(currentFile.content, targetPosition,
             stmtCtx.modelCtx.statementModel.source, getLangClient).then((content: string) => {
             getContextBasedCompletions(fileURI, content, targetPosition, model.condition.position, false,
-                isElseIfMember, model.condition.source, getLangClient).then((completions) => {
+                isElseIfMember, model.condition.source, getLangClient, currentFile.content).then((completions) => {
                 expressionHandler(model.condition, false, false, {
                     expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
                     typeSuggestions: [],
@@ -96,25 +86,29 @@ export function IfStatementC(props: IfStatementProps) {
         });
     }
 
+    const conditionComponent: ReactNode = (
+        <ExpressionComponent
+            model={model.condition}
+            userInputs={userInputs}
+            isElseIfMember={isElseIfMember}
+            diagnosticHandler={diagnosticHandler}
+            isTypeDescriptor={false}
+            onSelect={onClickOnConditionExpression}
+        />
+    );
+
     return (
         <span>
             <span
                 className={classNames(
                     statementEditorClasses.expressionBlock,
-                    statementEditorClasses.expressionBlockDisabled
+                    statementEditorClasses.expressionBlockDisabled,
+                    "keyword"
                 )}
             >
                 {model.ifKeyword.value}
             </span>
-            <button
-                className={classNames(
-                    statementEditorClasses.expressionElement,
-                    hasConditionSelected && statementEditorClasses.expressionElementSelected
-                )}
-                onClick={onClickOnConditionExpression}
-            >
-                {conditionComponent}
-            </button>
+            {conditionComponent}
             <span
                 className={classNames(
                     statementEditorClasses.expressionBlock,
