@@ -581,7 +581,7 @@ export const useStatementEditorStyles = makeStyles(() =>
             }
         },
         arrowBack: {
-            fontSize: '13px',
+            fontSize: '17px',
             lineHeight: '24px',
             color: '#5567D5'
         },
