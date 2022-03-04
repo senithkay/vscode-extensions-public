@@ -170,6 +170,9 @@ export function getSuggestionIconStyle(suggestionType: number): string {
         case 6:
             suggestionIconStyle = "suggest-icon codicon codicon-symbol-variable"
             break;
+        case 11:
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-ruler"
+            break;
         case 14:
             suggestionIconStyle = "suggest-icon codicon codicon-symbol-keyword"
             break;
