@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import React, { useContext } from "react";
 
-import { List, ListItem, ListItemIcon, ListItemText, Typography } from "@material-ui/core";
+import { Avatar, List, ListItem, ListItemIcon, ListItemText, Typography } from "@material-ui/core";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 
 import ExpressionSuggestionIcon from "../../../assets/icons/ExpressionSuggestionIcon";
@@ -86,9 +86,13 @@ export function ExpressionSuggestions(props: ExpressionSuggestionsProps) {
                                                 onClick={() => onClickExpressionSuggestion(suggestion.value)}
                                                 disableRipple={true}
                                             >
-                                                <ListItemIcon style={{ minWidth: '8%', textAlign: 'left' }}>
-                                                    <ExpressionSuggestionIcon/>
-                                                </ListItemIcon>
+                                                <Avatar
+                                                    style={{backgroundColor: '#F0F1FB', height: '32px', width: '32px', margin: '8px 8px 8px 0'}}
+                                                >
+                                                    <ListItemIcon style={{ minWidth: '8%', textAlign: 'left' }}>
+                                                        <ExpressionSuggestionIcon/>
+                                                    </ListItemIcon>
+                                                </Avatar>
                                                 <ListItemText
                                                     primary={(
                                                         <Typography>{suggestion.value}</Typography>
