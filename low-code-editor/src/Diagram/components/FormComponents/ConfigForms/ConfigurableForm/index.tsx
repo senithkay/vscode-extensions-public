@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, { useContext, useReducer } from 'react';
+import React, { useContext, useReducer, useState } from 'react';
 
 import { FormControl } from '@material-ui/core';
 import { ExpressionEditorProps } from '@wso2-enterprise/ballerina-expression-editor';
@@ -60,7 +60,7 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
 
     const { updateInjectables, updateParentConfigurable, configurableId } = configOverlayFormStatus?.formArgs || {};
     const isFromExpressionEditor = !!updateInjectables;
-
+    const [uniqueId] = useState(uuid());
     const handleOnSave = () => {
         const modifyState: ConfigurableFormState = {
             ...state,
@@ -150,7 +150,7 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
                 endColumn: 0
             },
             customTemplate: {
-                defaultCodeSnippet: `configurable ${state.varType} temp_var_${uuid().replaceAll('-', '_')} = ;`,
+                defaultCodeSnippet: `configurable ${state.varType} temp_var_${uniqueId.replaceAll('-', '_')} = ;`,
                 targetColumn: 62 + state.varType.length,
             },
             hideTextLabel: true,
