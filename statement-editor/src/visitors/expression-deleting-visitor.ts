@@ -200,10 +200,6 @@ class ExpressionDeletingVisitor implements Visitor {
         }
     }
 
-    public beginVisitSTNode(node: STNode, parent?: STNode) {
-        // NoOp
-    }
-
     setProperties(codeAfterDeletion: string, newPosition: NodePosition) {
         this.codeAfterDeletion = codeAfterDeletion;
         this.newPosition = newPosition;

@@ -83,7 +83,7 @@ export function ExpressionComponent(props: ExpressionComponentProps) {
         }
     }
 
-    const onClickOnClose = () => {
+    const onClickOnDelete = () => {
         const {
             code: newCode,
             position: newPosition
@@ -109,7 +109,7 @@ export function ExpressionComponent(props: ExpressionComponentProps) {
             {children}
             {isSelected && deletable && (
                 <div className={statementEditorClasses.expressionDeleteButton}>
-                    <DeleteButton onClick={onClickOnClose} />
+                    <DeleteButton onClick={onClickOnDelete} />
                 </div>
             )}
         </span>

@@ -238,7 +238,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
             const addConnectorInit = createPropertyStatement(endpointStatement, targetPosition);
             modifications.push(addConnectorInit);
             // onConnectorAddEvent();
-            if (checkDBConnector(moduleName)) {
+            if (checkDBConnector(moduleName) && !isModuleEndpoint) {
                 const closeStatement = `check ${config.name}.close();`;
                 const addCloseStatement = createPropertyStatement(closeStatement, targetPosition);
                 modifications.push(addCloseStatement);

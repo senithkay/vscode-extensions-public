@@ -23,6 +23,7 @@ import {
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     BooleanLiteral,
+    NodePosition,
     NumericLiteral,
     QualifiedNameReference,
     SimpleNameReference,
@@ -197,7 +198,11 @@ export function InputEditor(props: InputEditorProps) {
 
         // TODO: Need to obtain the default value as a prop
         if (!Array.from(INPUT_EDITOR_PLACE_HOLDERS.keys()).some(word => currentContent.includes(word))) {
-            diagnosticHandler(getDiagnosticMessage(inputEditorState.diagnostic, varType))
+            const diagnosticTargetPosition: NodePosition = {
+                ...targetPosition,
+                startColumn: 0,
+            };
+            diagnosticHandler(getDiagnosticMessage(inputEditorState.diagnostic, diagnosticTargetPosition, 0, stmtCtx.modelCtx.statementModel?.source.length, 0, 0));
         }
     }
 
@@ -217,6 +222,9 @@ export function InputEditor(props: InputEditorProps) {
         inputEditorState.uri = fileURI;
         sendDidChange(inputEditorState.uri, inputEditorState.content, getLangClient).then();
         const diagResp = await getDiagnostics(inputEditorState.uri, getLangClient);
+        const diag = diagResp[0]?.diagnostics ?
+            getFilteredDiagnostics(diagResp[0]?.diagnostics, isCustomTemplate) :
+            [];
         setInputEditorState((prevState) => {
             return {
                 ...prevState,
