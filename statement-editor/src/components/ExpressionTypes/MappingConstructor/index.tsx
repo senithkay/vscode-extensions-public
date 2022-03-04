@@ -98,7 +98,7 @@ export function MappingConstructorComponent(props: MappingConstructorProps) {
             </span>
             {fieldsComponent}
             <span
-                className={statementEditorClasses.plusIconBorder}
+                className={statementEditorClasses.plusIcon}
                 onClick={onClickOnPlusIcon}
             >
                 +

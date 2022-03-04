@@ -113,7 +113,7 @@ export function ListConstructorComponent(props: ListConstructorProps) {
             </span>
             {expressionComponent}
             <span
-                className={statementEditorClasses.plusIconBorder}
+                className={statementEditorClasses.plusIcon}
                 onClick={onClickOnPlusIcon}
             >
                 +

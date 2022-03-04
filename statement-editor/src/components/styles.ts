@@ -343,7 +343,7 @@ export const useStatementEditorStyles = makeStyles(() =>
             width: '100%',
             zIndex: 100,
         },
-        plusIconBorder: {
+        plusIcon: {
             boxSizing: 'border-box',
             border: '1px dashed #A6B3FF',
             borderRadius: '4px',
@@ -352,8 +352,10 @@ export const useStatementEditorStyles = makeStyles(() =>
             backgroundColor: '#F0F1FB',
             fontFamily: "monospace",
             color: '#0095FF',
-            marginLeft: '2px',
+            margin: '0px 2px',
             fontSize: '12px',
+            padding: '0px 4px',
+            bottom: '1px',
             '&:hover': {
                 backgroundColor: 'rgba(173, 214, 255, 0.3)'
             }
