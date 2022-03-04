@@ -19,7 +19,7 @@ import { FormattedMessage, useIntl } from "react-intl";
 import { FormHelperText, TextField } from "@material-ui/core";
 import { AddRounded, CloseRounded } from "@material-ui/icons";
 import Autocomplete from "@material-ui/lab/Autocomplete";
-import { ButtonWithIcon, IconBtnWithText } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ButtonWithIcon, IconBtnWithText } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import classNames from "classnames";
 
 import { useStyles } from "../../../DynamicConnectorForm/style";

@@ -17,7 +17,7 @@ import { BallerinaConnectorInfo, BallerinaConnectorsRequest, BallerinaModuleResp
 import { LocalVarDecl } from "@wso2-enterprise/syntax-tree";
 
 import { UserState } from "../../../../../types";
-import { APIHeightStates } from "../../../LowCodeDiagram/Components/DialogBoxes/PlusHolder";
+import { APIHeightStates } from "../../DialogBoxes/PlusHolder";
 import { FormGeneratorProps } from "../../FormGenerator";
 import { BallerinaModuleType, Marketplace, SearchQueryParams } from "../Marketplace";
 
