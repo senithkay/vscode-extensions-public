@@ -13,12 +13,16 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import React, { useContext, useEffect, useState } from "react";
 
+import { IconButton, Input, InputAdornment } from "@material-ui/core";
+import { ArrowBack } from "@material-ui/icons";
 import {
     LibraryDataResponse,
     LibraryKind,
     LibrarySearchResponse
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
+import LibraryModuleIcon from "../../assets/icons/LibraryModuleIcon";
+import LibrarySearchIcon from "../../assets/icons/LibrarySearchIcon";
 import { LANG_LIBS_IDENTIFIER, STD_LIBS_IDENTIFIER } from "../../constants";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { useStatementEditorStyles } from "../styles";
@@ -58,6 +62,8 @@ export function LibraryBrowser(props: LibraryBrowserProps) {
     const [libraries, setLibraries] = useState([]);
     const [filteredSearchData, setFilteredSearchData] = useState<LibrarySearchResponse>();
     const [libraryData, setLibraryData] = useState<LibraryDataResponse>();
+    const [moduleTitle, setModuleTitle] = useState('');
+    const [moduleSelected, setModuleSelected] = useState(false);
 
     useEffect(() => {
         (async () => {
@@ -85,6 +91,8 @@ export function LibraryBrowser(props: LibraryBrowserProps) {
 
             setLibraryBrowserMode(LibraryBrowserMode.LIB_LIST);
             setSearchScope(DEFAULT_SEARCH_SCOPE);
+            setModuleTitle('');
+            setModuleSelected(false);
             setKeyword('');
         })();
     }, [libraryType]);
@@ -104,21 +112,49 @@ export function LibraryBrowser(props: LibraryBrowserProps) {
         setLibraryData(data);
         setLibraryBrowserMode(LibraryBrowserMode.LIB_BROWSE);
         setSearchScope(data.searchData.modules[0].id);
+        setModuleTitle(data.searchData.modules[0].id);
+        setModuleSelected(true);
     };
+
+    const onClickOnReturnIcon = async () => {
+        setLibraryBrowserMode(LibraryBrowserMode.LIB_LIST);
+        setSearchScope(DEFAULT_SEARCH_SCOPE);
+        setModuleTitle('');
+        setModuleSelected(false);
+        setKeyword('');
+    }
 
     return (
         <>
         { isLibrary && (
             <div className={statementEditorClasses.libraryBrowser}>
                 <div className={statementEditorClasses.libraryBrowserHeader}>
-                    <input
-                        className={statementEditorClasses.librarySearchBox}
-                        value={keyword}
-                        placeholder={`search in ${searchScope}`}
-                        onChange={(e) => setKeyword(e.target.value)}
-                    />
+                    {(libraryBrowserMode !== LibraryBrowserMode.LIB_LIST || searchScope !== DEFAULT_SEARCH_SCOPE) && (
+                        <>
+                            <IconButton onClick={onClickOnReturnIcon} className={statementEditorClasses.libraryReturnIcon}>
+                                <ArrowBack className={statementEditorClasses.arrowBack}/>
+                            </IconButton>
+                            {moduleTitle && (
+                                <div className={statementEditorClasses.libraryModuleIcon}>
+                                    <LibraryModuleIcon/>
+                                </div>
+                            )}
+                            <div className={statementEditorClasses.moduleTitle}>{moduleTitle}</div>
+                        </>
+                    )}
+                        <Input
+                            className={statementEditorClasses.librarySearchBox}
+                            value={keyword}
+                            placeholder={`search in ${searchScope}`}
+                            onChange={(e) => setKeyword(e.target.value)}
+                            endAdornment={(
+                                <InputAdornment position={"end"} style={{padding: '8.5px'}}>
+                                    <LibrarySearchIcon/>
+                                </InputAdornment>
+                            )}
+                        />
                 </div>
-                {libraryBrowserMode === LibraryBrowserMode.LIB_LIST && (
+                {libraryBrowserMode === LibraryBrowserMode.LIB_LIST && !moduleTitle && (
                     <LibrariesList
                         libraries={libraries}
                         libraryBrowsingHandler={libraryBrowsingHandler}
@@ -128,11 +164,13 @@ export function LibraryBrowser(props: LibraryBrowserProps) {
                     <SearchResult
                         librarySearchResponse={filteredSearchData}
                         libraryBrowsingHandler={libraryBrowsingHandler}
+                        moduleSelected={moduleSelected}
                     />
                 )}
                 {libraryBrowserMode === LibraryBrowserMode.LIB_BROWSE && (
                     <SearchResult
                         librarySearchResponse={libraryData.searchData}
+                        moduleSelected={moduleSelected}
                     />
                 )}
             </div>
