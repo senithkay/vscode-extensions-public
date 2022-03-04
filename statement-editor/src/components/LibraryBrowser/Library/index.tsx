@@ -23,6 +23,7 @@ interface LibraryProps {
     libraryInfo: LibraryInfo,
     key: number,
     libraryBrowsingHandler: (libraryData: LibraryDataResponse) => void
+    libraryDataFetchingHandler: (isFetching: boolean, moduleElement?: string) => void
 }
 
 export function Library(props: LibraryProps) {
@@ -33,14 +34,16 @@ export function Library(props: LibraryProps) {
         }
     } = stmtCtx;
     const statementEditorClasses = useStatementEditorStyles();
-    const { libraryInfo, key, libraryBrowsingHandler } = props;
+    const { libraryInfo, key, libraryBrowsingHandler, libraryDataFetchingHandler } = props;
     const { id, orgName, version } = libraryInfo;
 
     const onClickOnLibrary = async () => {
+        libraryDataFetchingHandler(true)
         const response = await getLibraryData(orgName, id, version);
 
         if (response) {
             libraryBrowsingHandler(response);
+            libraryDataFetchingHandler(false)
         }
     }
 

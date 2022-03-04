@@ -28,11 +28,13 @@ interface SearchResultProps {
     librarySearchResponse: LibrarySearchResponse,
     libraryBrowsingHandler?: (libraryData: LibraryDataResponse) => void
     moduleSelected: boolean
+    libraryDataFetchingHandler: (isFetching: boolean, moduleElement?: string) => void
+    clickedModuleElement?: string
 }
 
 export function SearchResult(props: SearchResultProps) {
     const statementEditorClasses = useStatementEditorStyles();
-    const { librarySearchResponse, libraryBrowsingHandler, moduleSelected } = props;
+    const { librarySearchResponse, libraryBrowsingHandler, moduleSelected, libraryDataFetchingHandler, clickedModuleElement } = props;
     const { modules, classes, functions, records, constants, errors, types, clients, listeners, annotations,
             objectTypes, enums } = librarySearchResponse;
 
@@ -43,24 +45,28 @@ export function SearchResult(props: SearchResultProps) {
                         <div className={statementEditorClasses.librarySearchSubHeader}>Modules</div>
                         <List className={statementEditorClasses.libraryListBlock} style={{paddingBottom: '25px'}}>
                             {modules.map((library: LibraryInfo, index: number) => (
-                                <Library libraryInfo={library} key={index} libraryBrowsingHandler={libraryBrowsingHandler}/>
+                                <Library
+                                    libraryInfo={library}
+                                    key={index}
+                                    libraryBrowsingHandler={libraryBrowsingHandler}
+                                    libraryDataFetchingHandler={libraryDataFetchingHandler}
+                                />
                             ))}
                         </List>
                     </div>
                 )
             }
-
-            {classes.length > 0 && <SearchCategory label='Classes' searchResult={classes} />}
-            {functions.length > 0 && <SearchCategory label='Functions' searchResult={functions}/>}
-            {records.length > 0 && <SearchCategory label='Records' searchResult={records} />}
-            {constants.length > 0 && <SearchCategory label='Constants' searchResult={constants} />}
-            {errors.length > 0 && <SearchCategory label='Errors' searchResult={errors} />}
-            {types.length > 0 && <SearchCategory label='Types' searchResult={types} />}
-            {clients.length > 0 && <SearchCategory label='Clients' searchResult={clients} />}
-            {listeners.length > 0 && <SearchCategory label='Listeners' searchResult={listeners} />}
-            {annotations.length > 0 && <SearchCategory label='Annotations' searchResult={annotations} />}
-            {objectTypes.length > 0 && <SearchCategory label='Object Types' searchResult={objectTypes} />}
-            {enums.length > 0 && <SearchCategory label='Enums' searchResult={enums} />}
+            {classes.length > 0 && <SearchCategory label='Classes' searchResult={classes} libraryDataFetchingHandler={libraryDataFetchingHandler}/>}
+            {functions.length > 0 && <SearchCategory label='Functions' searchResult={functions} libraryDataFetchingHandler={libraryDataFetchingHandler} clickedModuleElement={clickedModuleElement}/>}
+            {records.length > 0 && <SearchCategory label='Records' searchResult={records} libraryDataFetchingHandler={libraryDataFetchingHandler}/>}
+            {constants.length > 0 && <SearchCategory label='Constants' searchResult={constants} libraryDataFetchingHandler={libraryDataFetchingHandler}/>}
+            {errors.length > 0 && <SearchCategory label='Errors' searchResult={errors} libraryDataFetchingHandler={libraryDataFetchingHandler}/>}
+            {types.length > 0 && <SearchCategory label='Types' searchResult={types} libraryDataFetchingHandler={libraryDataFetchingHandler}/>}
+            {clients.length > 0 && <SearchCategory label='Clients' searchResult={clients} libraryDataFetchingHandler={libraryDataFetchingHandler}/>}
+            {listeners.length > 0 && <SearchCategory label='Listeners' searchResult={listeners} libraryDataFetchingHandler={libraryDataFetchingHandler}/>}
+            {annotations.length > 0 && <SearchCategory label='Annotations' searchResult={annotations} libraryDataFetchingHandler={libraryDataFetchingHandler}/>}
+            {objectTypes.length > 0 && <SearchCategory label='Object Types' searchResult={objectTypes} libraryDataFetchingHandler={libraryDataFetchingHandler}/>}
+            {enums.length > 0 && <SearchCategory label='Enums' searchResult={enums} libraryDataFetchingHandler={libraryDataFetchingHandler}/>}
         </>
     );
 }

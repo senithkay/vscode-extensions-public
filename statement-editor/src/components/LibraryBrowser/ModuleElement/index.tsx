@@ -12,7 +12,7 @@
  */
 import React, { useContext } from 'react';
 
-import { ListItem, ListItemIcon, ListItemText, Typography } from "@material-ui/core";
+import { Box, CircularProgress, ListItem, ListItemIcon, ListItemText, Typography } from "@material-ui/core";
 import {
     FunctionParams,
     LibraryDataResponse,
@@ -30,12 +30,14 @@ interface ModuleElementProps {
     key: number,
     isFunction: boolean
     label: string
+    libraryDataFetchingHandler: (isFetching: boolean, moduleElement?: string) => void
+    clickedModuleElement?: string
 }
 
 export function ModuleElement(props: ModuleElementProps) {
     const stmtCtx = useContext(StatementEditorContext);
     const statementEditorClasses = useStatementEditorStyles();
-    const { moduleProperty, key, isFunction, label } = props;
+    const { moduleProperty, key, isFunction, label, libraryDataFetchingHandler, clickedModuleElement } = props;
     const { id, moduleId, moduleOrgName, moduleVersion } = moduleProperty;
 
     const {
@@ -54,11 +56,12 @@ export function ModuleElement(props: ModuleElementProps) {
     } = stmtCtx;
 
     const onClickOnModuleElement = async () => {
-        const response: LibraryDataResponse = await getLibraryData(moduleOrgName, moduleId, moduleVersion);
-
         let content = moduleId.includes('.') ? `${moduleId.split('.').pop()}0:${id}` : `${moduleId}:${id}`;
 
         if (isFunction) {
+            libraryDataFetchingHandler(true, content);
+            const response: LibraryDataResponse = await getLibraryData(moduleOrgName, moduleId, moduleVersion);
+
             let functionProperties: LibraryFunction = null;
             response.docsData.modules[0].functions.map((libFunction: LibraryFunction) => {
                 if (libFunction.name === id) {
@@ -78,11 +81,18 @@ export function ModuleElement(props: ModuleElementProps) {
 
                 content += `(${parameters.join(',')})`;
             }
+            libraryDataFetchingHandler(false);
         }
 
         updateModuleList(`import ${getFQModuleName(moduleOrgName, moduleId)};`);
         updateModel(content, currentModel.model ? currentModel.model.position : formModelPosition);
     }
+
+    const circularProgress = (
+        <Box display="flex" justifyContent="center">
+            <CircularProgress size={15} style={{marginRight: '5px'}}/>
+        </Box>
+    );
 
     return (
         <ListItem
@@ -99,6 +109,7 @@ export function ModuleElement(props: ModuleElementProps) {
             <ListItemText
                 primary={<Typography className={statementEditorClasses.suggestionValue}>{`${moduleId}:${id}`}</Typography>}
             />
+            {`${moduleId}:${id}` === clickedModuleElement && (circularProgress)}
         </ListItem>
     );
 }

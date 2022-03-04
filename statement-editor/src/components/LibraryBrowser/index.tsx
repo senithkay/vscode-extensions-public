@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import React, { useContext, useEffect, useState } from "react";
 
-import { IconButton, Input, InputAdornment } from "@material-ui/core";
+import { Box, CircularProgress, Grid, IconButton, Input, InputAdornment, Typography } from "@material-ui/core";
 import { ArrowBack } from "@material-ui/icons";
 import {
     LibraryDataResponse,
@@ -64,6 +64,8 @@ export function LibraryBrowser(props: LibraryBrowserProps) {
     const [libraryData, setLibraryData] = useState<LibraryDataResponse>();
     const [moduleTitle, setModuleTitle] = useState('');
     const [moduleSelected, setModuleSelected] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [clickedModuleElement, setClickedModuleElement] = useState('');
 
     useEffect(() => {
         (async () => {
@@ -124,6 +126,24 @@ export function LibraryBrowser(props: LibraryBrowserProps) {
         setKeyword('');
     }
 
+    const libraryDataFetchingHandler = (isFetching: boolean, moduleElement?: string) => {
+        setIsLoading(isFetching);
+        setClickedModuleElement(moduleElement);
+    }
+
+    const loadingScreen = (
+        <Grid sm={12} item={true} container={true} className={statementEditorClasses.loadingContainer}>
+            <Grid item={true} sm={12}>
+                <Box display="flex" justifyContent="center">
+                    <CircularProgress/>
+                </Box>
+                <Box display="flex" justifyContent="center" mt={2}>
+                    <Typography variant="body1">Loading...</Typography>
+                </Box>
+            </Grid>
+        </Grid>
+    );
+
     return (
         <>
         { isLibrary && (
@@ -154,24 +174,33 @@ export function LibraryBrowser(props: LibraryBrowserProps) {
                             )}
                         />
                 </div>
-                {libraryBrowserMode === LibraryBrowserMode.LIB_LIST && !moduleTitle && (
-                    <LibrariesList
-                        libraries={libraries}
-                        libraryBrowsingHandler={libraryBrowsingHandler}
-                    />
-                )}
-                {libraryBrowserMode === LibraryBrowserMode.LIB_SEARCH && filteredSearchData && (
-                    <SearchResult
-                        librarySearchResponse={filteredSearchData}
-                        libraryBrowsingHandler={libraryBrowsingHandler}
-                        moduleSelected={moduleSelected}
-                    />
-                )}
-                {libraryBrowserMode === LibraryBrowserMode.LIB_BROWSE && (
-                    <SearchResult
-                        librarySearchResponse={libraryData.searchData}
-                        moduleSelected={moduleSelected}
-                    />
+                {(isLoading && clickedModuleElement === undefined) ? loadingScreen : (
+                    <>
+                        {libraryBrowserMode === LibraryBrowserMode.LIB_LIST && !moduleTitle && (
+                            <LibrariesList
+                                libraries={libraries}
+                                libraryBrowsingHandler={libraryBrowsingHandler}
+                                libraryDataFetchingHandler={libraryDataFetchingHandler}
+                            />
+                        )}
+                        {libraryBrowserMode === LibraryBrowserMode.LIB_BROWSE && (
+                            <SearchResult
+                                librarySearchResponse={libraryData.searchData}
+                                moduleSelected={moduleSelected}
+                                libraryDataFetchingHandler={libraryDataFetchingHandler}
+                                clickedModuleElement={clickedModuleElement}
+                            />
+                        )}
+                        {libraryBrowserMode === LibraryBrowserMode.LIB_SEARCH && filteredSearchData && (
+                            <SearchResult
+                                librarySearchResponse={filteredSearchData}
+                                libraryBrowsingHandler={libraryBrowsingHandler}
+                                moduleSelected={moduleSelected}
+                                libraryDataFetchingHandler={libraryDataFetchingHandler}
+                                clickedModuleElement={clickedModuleElement}
+                            />
+                        )}
+                    </>
                 )}
             </div>
         )}

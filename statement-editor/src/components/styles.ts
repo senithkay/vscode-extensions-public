@@ -587,6 +587,11 @@ export const useStatementEditorStyles = makeStyles(() =>
         },
         libraryModuleIcon: {
             marginLeft: '8.25px'
+        },
+        loadingContainer: {
+            height: '60vh',
+            alignContent: 'center',
+            alignItems: 'center',
         }
     }),
 );
