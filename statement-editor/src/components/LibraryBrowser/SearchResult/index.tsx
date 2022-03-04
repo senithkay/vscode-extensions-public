@@ -56,17 +56,84 @@ export function SearchResult(props: SearchResultProps) {
                     </div>
                 )
             }
-            {classes.length > 0 && <SearchCategory label='Classes' searchResult={classes} libraryDataFetchingHandler={libraryDataFetchingHandler}/>}
-            {functions.length > 0 && <SearchCategory label='Functions' searchResult={functions} libraryDataFetchingHandler={libraryDataFetchingHandler} clickedModuleElement={clickedModuleElement}/>}
-            {records.length > 0 && <SearchCategory label='Records' searchResult={records} libraryDataFetchingHandler={libraryDataFetchingHandler}/>}
-            {constants.length > 0 && <SearchCategory label='Constants' searchResult={constants} libraryDataFetchingHandler={libraryDataFetchingHandler}/>}
-            {errors.length > 0 && <SearchCategory label='Errors' searchResult={errors} libraryDataFetchingHandler={libraryDataFetchingHandler}/>}
-            {types.length > 0 && <SearchCategory label='Types' searchResult={types} libraryDataFetchingHandler={libraryDataFetchingHandler}/>}
-            {clients.length > 0 && <SearchCategory label='Clients' searchResult={clients} libraryDataFetchingHandler={libraryDataFetchingHandler}/>}
-            {listeners.length > 0 && <SearchCategory label='Listeners' searchResult={listeners} libraryDataFetchingHandler={libraryDataFetchingHandler}/>}
-            {annotations.length > 0 && <SearchCategory label='Annotations' searchResult={annotations} libraryDataFetchingHandler={libraryDataFetchingHandler}/>}
-            {objectTypes.length > 0 && <SearchCategory label='Object Types' searchResult={objectTypes} libraryDataFetchingHandler={libraryDataFetchingHandler}/>}
-            {enums.length > 0 && <SearchCategory label='Enums' searchResult={enums} libraryDataFetchingHandler={libraryDataFetchingHandler}/>}
+            {classes.length > 0 && (
+                <SearchCategory
+                    label='Classes'
+                    searchResult={classes}
+                    libraryDataFetchingHandler={libraryDataFetchingHandler}
+                />
+            )}
+            {functions.length > 0 && (
+                <SearchCategory
+                    label='Functions'
+                    searchResult={functions}
+                    libraryDataFetchingHandler={libraryDataFetchingHandler}
+                    clickedModuleElement={clickedModuleElement}
+                />
+            )}
+            {records.length > 0 && (
+                <SearchCategory
+                    label='Records'
+                    searchResult={records}
+                    libraryDataFetchingHandler={libraryDataFetchingHandler}
+                />
+            )}
+            {constants.length > 0 && (
+                <SearchCategory
+                    label='Constants'
+                    searchResult={constants}
+                    libraryDataFetchingHandler={libraryDataFetchingHandler}
+                />
+            )}
+            {errors.length > 0 && (
+                <SearchCategory
+                    label='Errors'
+                    searchResult={errors}
+                    libraryDataFetchingHandler={libraryDataFetchingHandler}
+                />
+            )}
+            {types.length > 0 && (
+                <SearchCategory
+                    label='Types'
+                    searchResult={types}
+                    libraryDataFetchingHandler={libraryDataFetchingHandler}
+                />
+            )}
+            {clients.length > 0 && (
+                <SearchCategory
+                    label='Clients'
+                    searchResult={clients}
+                    libraryDataFetchingHandler={libraryDataFetchingHandler}
+                />
+            )}
+            {listeners.length > 0 && (
+                <SearchCategory
+                    label='Listeners'
+                    searchResult={listeners}
+                    libraryDataFetchingHandler={libraryDataFetchingHandler}
+                />
+            )}
+            {annotations.length > 0 && (
+                <SearchCategory
+                    label='Annotations'
+                    searchResult={annotations}
+                    libraryDataFetchingHandler={libraryDataFetchingHandler}
+                />
+            )}
+            {objectTypes.length > 0 && (
+                <SearchCategory
+                    label='Object Types'
+                    searchResult={objectTypes}
+                    libraryDataFetchingHandler={libraryDataFetchingHandler}
+                />
+            )}
+            {enums.length > 0 && (
+                <SearchCategory
+                    label='Enums'
+                    searchResult={enums}
+                    libraryDataFetchingHandler={libraryDataFetchingHandler}
+                />
+            )}
         </>
     );
 }
