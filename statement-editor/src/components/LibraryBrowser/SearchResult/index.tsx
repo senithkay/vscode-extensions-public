@@ -43,7 +43,7 @@ export function SearchResult(props: SearchResultProps) {
             {modules.length > 0 && !moduleSelected && (
                     <div>
                         <div className={statementEditorClasses.librarySearchSubHeader}>Modules</div>
-                        <List className={statementEditorClasses.libraryListBlock} style={{paddingBottom: '25px'}}>
+                        <List className={statementEditorClasses.libraryElementBlockContent} style={{paddingBottom: '25px'}}>
                             {modules.map((library: LibraryInfo, index: number) => (
                                 <Library
                                     libraryInfo={library}

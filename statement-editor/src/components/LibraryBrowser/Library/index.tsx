@@ -13,9 +13,10 @@
 
 import React, { useContext } from 'react';
 
-import { ListItem, ListItemText } from "@material-ui/core";
+import { ListItem, ListItemIcon, ListItemText, Typography } from "@material-ui/core";
 import { LibraryDataResponse, LibraryInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
+import LibraryModuleIcon from "../../../assets/icons/LibraryModuleIcon";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { useStatementEditorStyles } from "../../styles";
 
@@ -55,8 +56,11 @@ export function Library(props: LibraryProps) {
             onClick={onClickOnLibrary}
             disableRipple={true}
         >
+            <ListItemIcon style={{ minWidth: '12%', textAlign: 'left' }}>
+                <LibraryModuleIcon/>
+            </ListItemIcon>
             <ListItemText
-                primary={id}
+                primary={<Typography className={statementEditorClasses.suggestionValue}>{id}</Typography>}
             />
         </ListItem>
     );
