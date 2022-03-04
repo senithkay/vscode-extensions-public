@@ -31,6 +31,7 @@ import { RemainingContent } from "../models/definitions";
 import { isPositionsEquals } from "../utils";
 
 const DEFAULT_EXPR = "EXPRESSION";
+const DEFAULT_TYPE_DESC = "TYPE_DESCRIPTOR";
 
 class ExpressionDeletingVisitor implements Visitor {
     private deletePosition: NodePosition;
@@ -183,10 +184,10 @@ class ExpressionDeletingVisitor implements Visitor {
 
     public beginVisitTypedBindingPattern(node: TypedBindingPattern) {
         if (!this.isNodeFound && isPositionsEquals(this.deletePosition, node.typeDescriptor.position)) {
-            if (node.typeDescriptor.source.trim() === DEFAULT_EXPR) {
+            if (node.typeDescriptor.source.trim() === DEFAULT_TYPE_DESC) {
                 this.setProperties(node.bindingPattern.source, node.position);
             } else {
-                this.setProperties(DEFAULT_EXPR, node.typeDescriptor.position, true);
+                this.setProperties(DEFAULT_TYPE_DESC, node.typeDescriptor.position, true);
             }
         }
     }

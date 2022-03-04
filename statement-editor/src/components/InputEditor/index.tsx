@@ -148,7 +148,10 @@ export function InputEditor(props: InputEditorProps) {
     const isCustomTemplate = false;
     let currentContent = stmtCtx.modelCtx.statementModel ? stmtCtx.modelCtx.statementModel.source : "";
 
-    const placeHolders: string[] = ['EXPRESSION', 'TYPE_DESCRIPTOR'];
+    const placeHolders = new Map<string, string>([
+        ['EXPRESSION', '<add-expression>'],
+        ['TYPE_DESCRIPTOR', '<add-type>']
+    ]);
 
     useEffect(() => {
         if (isEditing) {
@@ -194,7 +197,7 @@ export function InputEditor(props: InputEditorProps) {
         stmtCtx.statementCtx.validateStatement(!hasDiagnostic);
 
         // TODO: Need to obtain the default value as a prop
-        if (!placeHolders.some(word => currentContent.includes(word))) {
+        if (!Array.from(placeHolders.keys()).some(word => currentContent.includes(word))) {
             diagnosticHandler(getDiagnosticMessage(inputEditorState.diagnostic, varType))
         }
     }
@@ -355,7 +358,7 @@ export function InputEditor(props: InputEditorProps) {
                 onClickAway={handleEditEnd}
             >
                 <input
-                    value={placeHolders.indexOf(userInput) > -1 ? "" : userInput}
+                    value={placeHolders.has(userInput) ? "" : userInput}
                     className={statementEditorClasses.inputEditorTemplate + ' ' + classNames}
                     onKeyDown={inputEnterHandler}
                     onInput={inputChangeHandler}
@@ -370,7 +373,7 @@ export function InputEditor(props: InputEditorProps) {
                 className={statementEditorClasses.inputEditorTemplate + ' ' + classNames}
                 onDoubleClick={handleDoubleClick}
             >
-                {placeHolders.indexOf(userInput) > -1 ? "<add-expression>" : userInput}
+                {placeHolders.has(userInput) ? placeHolders.get(userInput) : userInput}
             </span>
         );
 }
