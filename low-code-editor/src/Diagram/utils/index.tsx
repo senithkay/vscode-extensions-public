@@ -75,6 +75,9 @@ export function getDraftComponent(viewState: BlockViewState, state: any, insertC
                 case "Log":
                     draftComponents.push(<DataProcessor model={null} blockViewState={viewState} />);
                     break;
+                case "Worker":
+                    draftComponents.push(<DataProcessor model={null} blockViewState={viewState} />);
+                    break;
                 case "Variable":
                     draftComponents.push(<DataProcessor model={null} blockViewState={viewState} />);
                     break;
@@ -103,27 +106,27 @@ export function getDraftComponent(viewState: BlockViewState, state: any, insertC
     return draftComponents;
 }
 
-export function getDiagnosticInfo(diagnostics: DiagramDiagnostic[]): DiagnosticMsgSeverity{
+export function getDiagnosticInfo(diagnostics: DiagramDiagnostic[]): DiagnosticMsgSeverity {
     /* tslint:disable prefer-for-of */
     const diagnosticMsgsArray: string[] = [];
-    if (diagnostics?.length === 0 || diagnostics === undefined){
+    if (diagnostics?.length === 0 || diagnostics === undefined) {
         return undefined;
     }
-    else{
-        if (diagnostics[0]?.diagnosticInfo?.severity === "WARNING"){
-            for (let i = 0; i < diagnostics?.length; i++){
+    else {
+        if (diagnostics[0]?.diagnosticInfo?.severity === "WARNING") {
+            for (let i = 0; i < diagnostics?.length; i++) {
                 diagnosticMsgsArray.push(diagnostics[i]?.message)
             }
-            return{
+            return {
                 message: diagnosticMsgsArray?.join(',\n'),
                 severity: "WARNING"
             }
         }
-        else{
-            for (let i = 0; i < diagnostics?.length; i++){
+        else {
+            for (let i = 0; i < diagnostics?.length; i++) {
                 diagnosticMsgsArray.push(diagnostics[i]?.message)
             }
-            return{
+            return {
                 message: diagnosticMsgsArray?.join(',\n'),
                 severity: "ERROR"
             }

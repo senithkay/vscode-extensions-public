@@ -41,11 +41,16 @@ export interface ElseIfConfig {
 
 export interface ProcessConfig {
     type: string;
-    config?: string | LogConfig | RespondConfig | CustomExpressionConfig;
+    config?: string | LogConfig | RespondConfig | CustomExpressionConfig | WorkerConfig;
     scopeSymbols?: string[];
     model?: STNode;
     wizardType?: WizardType;
     targetPosition?: NodePosition;
+}
+
+export interface WorkerConfig {
+    name: string;
+    returnType: string;
 }
 
 export interface LogConfig {

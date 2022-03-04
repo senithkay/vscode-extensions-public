@@ -14,16 +14,17 @@
 import React, { useContext } from "react";
 
 import { ConfigOverlayFormStatus, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { LocalVarDecl } from "@wso2-enterprise/syntax-tree";
+import { LocalVarDecl, NamedWorkerDeclaration } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../../Contexts/Diagram";
 import { TextPreloaderVertical } from "../../../../../../PreLoader/TextPreloaderVertical";
-import { ProcessConfig } from "../../../Types";
+import { ProcessConfig, WorkerConfig } from "../../../Types";
 
 import { AddAssignmentConfig } from "./AddAssignmentConfig";
 import { AddCustomStatementConfig } from "./AddCustomStatementConfig";
 import { AddLogConfig } from "./AddLogConfig";
 import { AddVariableConfig } from "./AddVariableConfig";
+import { AddWorkerConfigForm } from "./AddWorkerConfig";
 
 interface ProcessFormProps {
     config: ProcessConfig;
@@ -67,6 +68,13 @@ export function ProcessForm(props: ProcessFormProps) {
         config.config = {
             expression: ""
         };
+    } else if (formType === "Worker") {
+        const workerConfig: WorkerConfig = {
+            name: config.model ? (config.model as NamedWorkerDeclaration).workerName.value : '',
+            returnType: ''
+        }
+
+        config.config = workerConfig;
     } else {
         formType = "Custom";
         config.config = {
@@ -113,6 +121,17 @@ export function ProcessForm(props: ProcessFormProps) {
                 {
                     formType === "Log" && (
                         <AddLogConfig
+                            config={config}
+                            formArgs={formArgs}
+                            onSave={onSave}
+                            onWizardClose={onWizardClose}
+                            onCancel={onCancel}
+                        />
+                    )
+                }
+                {
+                    formType === "Worker" && (
+                        <AddWorkerConfigForm
                             config={config}
                             formArgs={formArgs}
                             onSave={onSave}
