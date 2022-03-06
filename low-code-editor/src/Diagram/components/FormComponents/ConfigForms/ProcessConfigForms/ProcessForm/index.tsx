@@ -71,7 +71,8 @@ export function ProcessForm(props: ProcessFormProps) {
     } else if (formType === "Worker") {
         const workerConfig: WorkerConfig = {
             name: config.model ? (config.model as NamedWorkerDeclaration).workerName.value : '',
-            returnType: ''
+            returnType: config.model && (config.model as NamedWorkerDeclaration).returnTypeDesc ?
+                (config.model as NamedWorkerDeclaration).returnTypeDesc.type.source : ''
         }
 
         config.config = workerConfig;

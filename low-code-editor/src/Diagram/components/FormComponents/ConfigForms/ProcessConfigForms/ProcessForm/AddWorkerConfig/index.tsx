@@ -17,9 +17,11 @@ import { useIntl } from "react-intl";
 import { FormControl } from "@material-ui/core";
 import { FormActionButtons, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NamedWorkerDeclaration, NodePosition } from "@wso2-enterprise/syntax-tree";
+import { v4 as uuid } from 'uuid';
 
 import { useDiagramContext } from "../../../../../../../Contexts/Diagram";
 import { useStyles as useFormStyles } from "../../../../DynamicConnectorForm/style";
+import { SwitchToggle } from "../../../../FormFieldComponents/SwitchToggle";
 import { ProcessConfig, WorkerConfig } from "../../../../Types";
 import { VariableNameInput } from "../../../Components/VariableNameInput";
 
@@ -45,13 +47,24 @@ export function AddWorkerConfigForm(props: WorkerConfigFormProps) {
         id: "lowcode.develop.configForms.log.saveButton.label",
         defaultMessage: "Save"
     });
-    const [isExpressionsValid, setExpressionValidity] = useState(false);
-
     const workerConfig = config.config as WorkerConfig;
+    const [isExpressionsValid, setExpressionValidity] = useState(false);
+    const [uniqueId] = useState(uuid());
+    const [allowReturnType, setAllowReturnType] = useState<boolean>(workerConfig.returnType.trim().length > 0);
+
     const model = config.model as NamedWorkerDeclaration;
 
     const onWorkerNameChange = (name: string) => {
         workerConfig.name = name;
+    }
+
+    const onReturnTypeChange = (type: string) => {
+        workerConfig.returnType = type;
+    }
+
+    const handleSwitchToggleChange = (checked: boolean) => {
+        workerConfig.returnType = '';
+        setAllowReturnType(!allowReturnType);
     }
 
     let namePosition: NodePosition = {
@@ -61,21 +74,59 @@ export function AddWorkerConfigForm(props: WorkerConfigFormProps) {
         endColumn: 0
     };
 
+    let returnPosition: NodePosition = {
+        startLine: 0,
+        startColumn: 0,
+        endLine: 0,
+        endColumn: 0
+    };
+    let returnTypeTemplate;
+
     if (model) {
         namePosition = model.workerName.position;
+        returnPosition = model.returnTypeDesc ? model.returnTypeDesc.type.position : {
+            ...model.workerName.position,
+            startColumn: model.workerName.position.endColumn,
+            endColumn: model.workerName.position.endColumn,
+        };
+
+        returnTypeTemplate = model.returnTypeDesc ? {
+            defaultCodeSnippet: '',
+            targetColumn: 0
+        } : {
+            defaultCodeSnippet: ' returns ',
+            targetColumn: 9
+        }
     } else {
-        namePosition.startLine = formArgs.targetPosition.startLine;
-        namePosition.endLine = formArgs.targetPosition.startLine;
+        returnPosition.startLine = namePosition.startLine = formArgs.targetPosition.startLine;
+        returnPosition.endLine = namePosition.endLine = formArgs.targetPosition.startLine;
+        returnTypeTemplate = {
+            defaultCodeSnippet: `worker workerName${uniqueId.replaceAll('-', '_')} returns  {}`,
+            targetColumn: 63
+        }
     }
 
     const updateExpressionValidity = (fieldName: string, isInValid: boolean) => {
         setExpressionValidity(!isInValid);
     }
 
-    const codeTemplate = {
+    const nameTemplate = {
         defaultCodeSnippet: 'worker {}',
         targetColumn: 8
     };
+
+    const returnTypeInput = (
+        <VariableNameInput
+            displayName="Return type"
+            value={workerConfig.returnType}
+            onValueChange={onReturnTypeChange}
+            validateExpression={updateExpressionValidity}
+            position={returnPosition}
+            isEdit={!!model}
+            initialDiagnostics={model?.returnTypeDesc?.type.typeData?.diagnostics}
+            overrideTemplate={returnTypeTemplate}
+        />
+    )
 
     return (
         <FormControl data-testid="log-form" className={formClasses.wizardFormControl}>
@@ -96,8 +147,14 @@ export function AddWorkerConfigForm(props: WorkerConfigFormProps) {
                     position={namePosition}
                     isEdit={!!model}
                     initialDiagnostics={model?.workerName?.typeData?.diagnostics}
-                    overrideTemplate={model ? undefined : codeTemplate}
+                    overrideTemplate={model ? undefined : nameTemplate}
                 />
+                <SwitchToggle
+                    text="Add return type"
+                    onChange={handleSwitchToggleChange}
+                    initSwitch={workerConfig.returnType.trim().length > 0}
+                />
+                {allowReturnType && returnTypeInput}
             </div>
             <FormActionButtons
                 cancelBtnText="Cancel"
@@ -105,7 +162,7 @@ export function AddWorkerConfigForm(props: WorkerConfigFormProps) {
                 saveBtnText={saveLogButtonLabel}
                 isMutationInProgress={isMutationProgress}
                 validForm={isExpressionsValid}
-                onSave={() => { }}
+                onSave={onSave}
                 onCancel={onCancel}
             />
         </FormControl>

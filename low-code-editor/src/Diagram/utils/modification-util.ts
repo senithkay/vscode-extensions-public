@@ -11,7 +11,7 @@
  * associated services.
  */
 import { FormField, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, StringTemplateExpression } from "@wso2-enterprise/syntax-tree";
 
 import { ConfigurableFormState } from "../components/FormComponents/ConfigForms/ConfigurableForm/util";
 import { ConstantConfigFormState } from "../components/FormComponents/ConfigForms/ConstantConfigForm/util";
@@ -341,6 +341,20 @@ export function updateLogStatement(type: string, logExpr: string, targetPosition
     };
 
     return propertyStatement;
+}
+
+export function createWorker(name: string, returnType: string, targetPosition: NodePosition): STModification {
+    return {
+        startLine: targetPosition.startLine,
+        startColumn: 0,
+        endLine: targetPosition.startLine,
+        endColumn: 0,
+        type: returnType.trim().length > 0 ? 'WORKER_DEFINITION_WITH_RETURN' : 'WORKER_DEFINITION',
+        config: {
+            "NAME": name,
+            "RETURN_TYPE": returnType
+        }
+    }
 }
 
 export function createReturnStatement(returnExpr: string, targetPosition?: NodePosition): STModification {
@@ -749,7 +763,7 @@ export function createConstDeclaration(config: ConstantConfigFormState, targetPo
         startLine: targetPosition.startLine,
         endLine: targetPosition.startLine,
         startColumn: isLastMember ? targetPosition.endColumn : 0,
-        endColumn: isLastMember ? targetPosition.endColumn :  0,
+        endColumn: isLastMember ? targetPosition.endColumn : 0,
         type: 'CONSTANT_DECLARATION',
         config: {
             'ACCESS_MODIFIER': isPublic ? 'public' : '',

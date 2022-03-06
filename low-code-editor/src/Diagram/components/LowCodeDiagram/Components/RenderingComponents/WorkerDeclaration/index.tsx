@@ -20,6 +20,7 @@ import { End } from '../End';
 import { WorkerBody } from '../WorkerBody';
 import { WorkerLine } from '../WorkerLine';
 
+import './style.scss';
 import { WorkerHead } from './WorkerHead';
 
 interface WorkerProps {

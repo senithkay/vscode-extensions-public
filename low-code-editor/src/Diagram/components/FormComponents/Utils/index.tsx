@@ -25,7 +25,7 @@ export function getForm(type: string, args: any) {
     const Form = (Forms as any)[type];
     return Form ? (
         <Form {...args} />
-    ) : <Forms.Custom {...args}/>;
+    ) : <Forms.Custom {...args} />;
 }
 
 export function isAllEmpty(allFieldChecks: Map<string, FormFieldChecks>): boolean {
@@ -61,7 +61,7 @@ export function isAllFieldsValid(allFieldChecks: Map<string, FormFieldChecks>, m
         const formField = model as FormField;
         canModelIgnore = formField.optional || formField.defaultable;
         allFieldsIgnorable = isAllIgnorable(formField.fields);
-    }else{
+    } else {
         const formFields = model as FormField[];
         allFieldsIgnorable = isAllIgnorable(formFields);
     }
@@ -101,7 +101,7 @@ export function updateFunctionSignatureWithError(modifications: STModification[]
 
 function addErrorReturnType(returnTypeStr: string): string {
     // The function signature already includes the error return type.
-    if (returnTypeStr.includes("error")) {
+    if (returnTypeStr?.includes("error")) {
         return returnTypeStr;
     }
     // Handles the scenarios where the error return type is not present.
