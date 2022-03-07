@@ -6,9 +6,9 @@ import { LibraryDataResponse, LibraryDocResponse, LibraryKind, LibrarySearchResp
 
 import { DiagramGeneratorProps } from "../DiagramGenerator";
 
+import balDist from "./data/baldist.json";
 import { DiagramGeneratorWrapper } from "./DiagramGeneratorWrapper";
 import { StandaloneDiagramApp } from "./StandaloneDiagramApp";
-import balDist from "./data/baldist.json";
 
 export const MOCK_SERVER_URL = "http://localhost:3000"
 export const LANG_SERVER_URL = "ws://localhost:9095"
