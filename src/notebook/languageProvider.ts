@@ -23,6 +23,7 @@ import { CancellationToken, CompletionContext, CompletionItem, CompletionItemPro
     TextDocument, Uri, } from "vscode";
 import { NOTEBOOK_SCHEME } from "./constants";
 import { addText } from "./utils";
+import { CompletionResponse } from "@wso2-enterprise/ballerina-low-code-editor";
 
 const selector: DocumentSelector = {
     scheme: NOTEBOOK_SCHEME,
@@ -54,10 +55,7 @@ export class NotebookCompletionItemProvider implements CompletionItemProvider{
         let { content, filePath } = await langClient.getShellBufferFilePath();
         performDidOpen(langClient, filePath, content);
         let endPositionOfMain = await this.getEndPositionOfMain(langClient, filePath);
-        if (!endPositionOfMain) {
-            return [];
-        }
-        let textToWrite = content.substring(0, content.length - 1) + document.getText() + '\n}';
+        let textToWrite = content ? `${content.substring(0, content.length - 1)}${document.getText()}\n}` : document.getText();
         await addText(textToWrite, Uri.parse(filePath));
         performDidOpen(langClient, filePath, textToWrite);
         let completions = await langClient.getCompletion({
@@ -72,7 +70,7 @@ export class NotebookCompletionItemProvider implements CompletionItemProvider{
                 triggerKind: context.triggerKind
             }
         });
-        return completions;
+        return filterCompletions(completions);
     }
 
     private async getEndPositionOfMain(langClient: ExtendedLangClient, filePath: string) {
@@ -92,6 +90,10 @@ export class NotebookCompletionItemProvider implements CompletionItemProvider{
                 };
             }
         }
+        return {
+            line: 0,
+            character: 0
+        };
     }
 }
 
@@ -112,3 +114,7 @@ function performDidOpen(langClient: ExtendedLangClient, filePath: string, conten
         }
     });
 }
+function filterCompletions(completions: CompletionResponse[]): CompletionResponse[] {
+    return completions;
+}
+
