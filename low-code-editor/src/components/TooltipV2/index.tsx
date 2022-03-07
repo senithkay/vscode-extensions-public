@@ -55,7 +55,7 @@ export default function Tooltip(props: Partial<TooltipPropsExtended>) {
             )
             : (
                 <div>
-                    <h4 className={classes.heading}></h4>
+                    <h4 className={classes.heading} />
                 </div>
             );
 
