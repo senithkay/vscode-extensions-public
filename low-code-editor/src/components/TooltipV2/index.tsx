@@ -130,7 +130,7 @@ function DiagramCodeTooltip(props: Partial<TooltipPropsExtended>) {
             data-lang="ballerina"
             className={classes.code}
         >
-            {text.code.trim()}
+            {text?.code.trim()}
         </code>
     );
     const OpenInCodeLink = () => (
@@ -141,7 +141,7 @@ function DiagramCodeTooltip(props: Partial<TooltipPropsExtended>) {
     )
     return (
         <pre className={classes.pre}>
-            {text.code && <Code />}
+            {text?.code && <Code />}
             {onClick && <OpenInCodeLink />}
         </pre>
     );

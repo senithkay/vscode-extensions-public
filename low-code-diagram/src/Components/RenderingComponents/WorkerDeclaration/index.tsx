@@ -29,7 +29,6 @@ interface WorkerProps {
 
 export function Worker(props: WorkerProps) {
     const { model } = props;
-    const viewState: WorkerDeclarationViewState = model.viewState as WorkerDeclarationViewState;
     const workerBodyVS: BlockViewState = model.workerBody.viewState as BlockViewState;
 
     return (

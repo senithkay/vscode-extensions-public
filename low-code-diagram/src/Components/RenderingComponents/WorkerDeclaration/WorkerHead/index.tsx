@@ -28,9 +28,6 @@ interface WorkerHeadProps {
 export function WorkerHead(props: WorkerHeadProps) {
     const {
         api: {
-            code: {
-                modifyDiagram
-            },
             edit: {
                 renderEditForm,
                 deleteComponent
