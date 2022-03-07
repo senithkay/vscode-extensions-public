@@ -115,6 +115,11 @@ function performDidOpen(langClient: ExtendedLangClient, filePath: string, conten
     });
 }
 function filterCompletions(completions: CompletionResponse[]): CompletionResponse[] {
-    return completions;
+    const labelsUsedInShell = [
+        "__last__", "__java_recall(handle context_id, handle name)", "__memorize(string name, any|error value)",
+        "main()", "init()", "__run()", "__recall_any_error(string name)", "__recall_any(string name)", 
+        "__java_memorize(handle context_id, handle name, any|error value)", "__stmts()", 
+    ]
+    return completions.filter(item => !labelsUsedInShell.includes(item.label));
 }
 
