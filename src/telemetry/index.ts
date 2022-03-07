@@ -24,7 +24,7 @@ import { BallerinaExtension } from "../core";
 const DEFAULT_KEY = "3a82b093-5b7b-440c-9aa2-3b8e8e5704e7";
 const INSTRUMENTATION_KEY = process.env.CODE_SERVER_ENV && process.env.VSCODE_CHOREO_INSTRUMENTATION_KEY ? process.env.VSCODE_CHOREO_INSTRUMENTATION_KEY : DEFAULT_KEY;
 const isWSO2User = process.env.VSCODE_CHOREO_USER_EMAIL ? process.env.VSCODE_CHOREO_USER_EMAIL.endsWith('@wso2.com') : false;
-const isAnonymous = process.env.VSCODE_CHOREO_USER_EMAIL ? 'false' : 'true';
+const isAnonymous = process.env.VSCODE_CHOREO_USER_EMAIL ? process.env.VSCODE_CHOREO_USER_EMAIL.endsWith('@choreo.dev') : false;
 const CORRELATION_ID = process.env.VSCODE_CHOREO_CORRELATION_ID ? process.env.VSCODE_CHOREO_CORRELATION_ID : '';
 
 export function createTelemetryReporter(ext: BallerinaExtension): TelemetryReporter {
@@ -36,42 +36,40 @@ export function createTelemetryReporter(ext: BallerinaExtension): TelemetryRepor
 }
 
 export function sendTelemetryEvent(extension: BallerinaExtension, eventName: string, componentName: string,
-    message: string = '', measurements?: any) {
+    customDimensions: { [key: string]: string; } = {}, measurements: { [key: string]: number; } = {}) {
     if (extension.isTelemetryEnabled()) {
-        if (measurements) {
-            let properties = {};
-            Object.keys(measurements).forEach(key => {
-                properties[key] = measurements[key];
-            });
-            extension.telemetryReporter.sendTelemetryEvent(eventName, getTelemetryProperties(extension, componentName,
-                message), properties);
-        } else {
-            extension.telemetryReporter.sendTelemetryEvent(eventName, getTelemetryProperties(extension, componentName,
-                message));
-        }
+        extension.telemetryReporter.sendTelemetryEvent(eventName, getTelemetryProperties(extension, componentName,
+            customDimensions), measurements);
     }
 }
 
 export function sendTelemetryException(extension: BallerinaExtension, error: Error, componentName: string,
-    message: string = '') {
+    params: { [key: string]: string } = {}) {
     if (extension.isTelemetryEnabled()) {
         extension.telemetryReporter.sendTelemetryException(error, getTelemetryProperties(extension, componentName,
-            message));
+            params));
     }
 }
 
-export function getTelemetryProperties(extension: BallerinaExtension, component: string, message: string)
+export function getTelemetryProperties(extension: BallerinaExtension, component: string, params: { [key: string]: string; } = {})
     : { [key: string]: string; } {
     return {
+        ...params,
         'ballerina.version': extension ? extension.ballerinaVersion : '',
-        'ballerina.message': message,
         'scope': component,
         'idpId': process.env.VSCODE_CHOREO_USER_IDP_ID ? process.env.VSCODE_CHOREO_USER_IDP_ID : '',
         'isWSO2User': isWSO2User ? 'true' : 'false',
         'timeZone': Intl.DateTimeFormat().resolvedOptions().timeZone,
-        'AnonymousUser': isAnonymous,
+        'AnonymousUser': isAnonymous ? 'true' : 'false',
         'correlationId': CORRELATION_ID,
     };
+}
+
+export function getMessageObject(message?: string): { [key: string]: string; } {
+    if (message) {
+        return { 'ballerina.message': message };
+    }
+    return {};
 }
 
 export * from "./events";

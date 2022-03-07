@@ -21,7 +21,7 @@ import { BallerinaExtension, ExtendedLangClient, TelemetryTracker } from "../cor
 import { debug } from "../utils";
 import { window } from "vscode";
 import {
-    CMP_EDITOR_SUPPORT, getTelemetryProperties, sendTelemetryEvent, TM_ERROR_LANG_SERVER,
+    CMP_EDITOR_SUPPORT, getMessageObject, getTelemetryProperties, sendTelemetryEvent, TM_ERROR_LANG_SERVER,
     TM_EVENT_EDIT_DIAGRAM, TM_EVENT_EDIT_SOURCE, TM_EVENT_KILL_TERMINAL, TM_FEATURE_USAGE_LANG_SERVER
 } from ".";
 
@@ -43,7 +43,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
                 switch (event.type) {
                     case TM_EVENT_TYPE_ERROR:
                         const errorEvent: LSErrorTelemetryEvent = <LSErrorTelemetryEvent>event;
-                        props = getTelemetryProperties(ballerinaExtInstance, event.component, TM_EVENT_TYPE_ERROR);
+                        props = getTelemetryProperties(ballerinaExtInstance, event.component, getMessageObject(TM_EVENT_TYPE_ERROR));
                         props["ballerina.langserver.error.description"] = errorEvent.message;
                         props["ballerina.langserver.error.stacktrace"] = errorEvent.errorStackTrace;
                         props["ballerina.langserver.error.message"] = errorEvent.errorMessage;
@@ -52,7 +52,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
                     case TM_EVENT_TYPE_FEATURE_USAGE:
                         const usageEvent: LSFeatureUsageTelemetryEvent = <LSFeatureUsageTelemetryEvent>event;
                         props = getTelemetryProperties(ballerinaExtInstance, event.component,
-                            TM_EVENT_TYPE_FEATURE_USAGE);
+                            getMessageObject(TM_EVENT_TYPE_FEATURE_USAGE));
                         props["ballerina.langserver.feature.name"] = usageEvent.featureName;
                         props["ballerina.langserver.feature.class"] = usageEvent.featureClass;
                         props["ballerina.langserver.feature.message"] = usageEvent.featureMessage;

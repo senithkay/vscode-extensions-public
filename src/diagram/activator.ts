@@ -21,13 +21,19 @@ import {
 	commands, window, Uri, ViewColumn, WebviewPanel, Disposable, workspace, WorkspaceEdit, Range, Position,
 	TextDocumentShowOptions, ProgressLocation, ExtensionContext
 } from 'vscode';
-import * as _ from 'lodash';
 import { render } from './renderer';
-import { CONNECTOR_LIST_CACHE, DocumentIdentifier, ExtendedLangClient, HTTP_CONNECTOR_LIST_CACHE, PerformanceAnalyzerGraphResponse, PerformanceAnalyzerRealtimeResponse } from '../core/extended-language-client';
+import {
+	CONNECTOR_LIST_CACHE,
+	DocumentIdentifier,
+	ExtendedLangClient,
+	HTTP_CONNECTOR_LIST_CACHE,
+	PerformanceAnalyzerGraphResponse,
+	PerformanceAnalyzerRealtimeResponse
+} from '../core/extended-language-client';
 import { BallerinaExtension, ballerinaExtInstance, Change } from '../core';
 import { getCommonWebViewOptions, WebViewMethod, WebViewRPCHandler } from '../utils';
 import { join } from "path";
-import { TM_EVENT_ERROR_EXECUTE_DIAGRAM_OPEN, CMP_DIAGRAM_VIEW, sendTelemetryEvent, sendTelemetryException, TM_EVENT_OPEN_CODE_EDITOR, TM_EVENT_OPEN_LOW_CODE, TM_EVENT_LOW_CODE_RUN, TM_EVENT_EDIT_DIAGRAM } from '../telemetry';
+import { TM_EVENT_ERROR_EXECUTE_DIAGRAM_OPEN, CMP_DIAGRAM_VIEW, sendTelemetryEvent, sendTelemetryException, TM_EVENT_OPEN_CODE_EDITOR, TM_EVENT_OPEN_LOW_CODE, TM_EVENT_LOW_CODE_RUN, TM_EVENT_EDIT_DIAGRAM, getMessageObject } from '../telemetry';
 import { CHOREO_API_PF, getDataFromChoreo, openPerformanceDiagram, PFSession } from '../forecaster';
 import { showMessage } from '../utils/showMessage';
 import { Module } from '../tree-view';
@@ -37,6 +43,24 @@ import { existsSync, readFileSync, writeFileSync } from 'fs';
 import { runCommand } from '../utils/runCommand';
 import { Diagnostic } from '.';
 import { createTests } from '../testing/activator';
+import {
+	cachedLibrariesList,
+	cachedSearchList,
+	getAllResources,
+	getLibrariesList,
+	getLibraryData,
+	DIST_LIB_LIST_CACHE,
+	LANG_LIB_LIST_CACHE,
+	LIBRARY_SEARCH_CACHE,
+	STD_LIB_LIST_CACHE
+} from "../library-browser";
+import {
+	LibrariesListResponse,
+	LibraryDataResponse,
+	LibraryKind,
+	LibrarySearchResponse
+} from "../library-browser/model";
+import { getSentryConfig, SentryConfig } from './sentry';
 
 export let hasDiagram: boolean = false;
 
@@ -47,6 +71,7 @@ let diagramElement: DiagramOptions | undefined = undefined;
 let ballerinaExtension: BallerinaExtension;
 let webviewRPCHandler: WebViewRPCHandler;
 let currentDocumentURI: Uri;
+let experimentalEnabled: boolean;
 
 export async function showDiagramEditor(startLine: number, startColumn: number, filePath: string,
 	isCommand: boolean = false): Promise<void> {
@@ -55,7 +80,7 @@ export async function showDiagramEditor(startLine: number, startColumn: number, 
 	if (isCommand) {
 		if (!editor || !editor.document.fileName.endsWith('.bal')) {
 			const message = 'Current file is not a ballerina file.';
-			sendTelemetryEvent(ballerinaExtension, TM_EVENT_ERROR_EXECUTE_DIAGRAM_OPEN, CMP_DIAGRAM_VIEW, message);
+			sendTelemetryEvent(ballerinaExtension, TM_EVENT_ERROR_EXECUTE_DIAGRAM_OPEN, CMP_DIAGRAM_VIEW, getMessageObject(message));
 			window.showErrorMessage(message);
 			return;
 		}
@@ -95,6 +120,34 @@ export async function showDiagramEditor(startLine: number, startColumn: number, 
 	langClient.getConnectors({ query: "http", limit: 18 }, true).then((connectorList) => {
 		if (connectorList && connectorList.central?.length > 0) {
 			ballerinaExtInstance.context?.globalState.update(HTTP_CONNECTOR_LIST_CACHE, connectorList);
+		}
+	});
+
+	// Cache the lang lib list
+	getLibrariesList(LibraryKind.langLib).then((libs) => {
+		if (libs && libs.librariesList.length > 0) {
+			cachedLibrariesList.set(LANG_LIB_LIST_CACHE, libs);
+		}
+	});
+
+	// Cache the std lib list
+	getLibrariesList(LibraryKind.stdLib).then((libs) => {
+		if (libs && libs.librariesList.length > 0) {
+			cachedLibrariesList.set(STD_LIB_LIST_CACHE, libs);
+		}
+	});
+
+	// Cache the distribution lib list (lang libs + std libs)
+	getLibrariesList().then((libs) => {
+		if (libs && libs.librariesList.length > 0) {
+			cachedLibrariesList.set(DIST_LIB_LIST_CACHE, libs);
+		}
+	});
+
+	// Cache the library search data
+	getAllResources().then((data) => {
+		if (data && data.modules.length > 0) {
+			cachedSearchList.set(LIBRARY_SEARCH_CACHE, data);
 		}
 	});
 
@@ -138,6 +191,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 	});
 	const context = <ExtensionContext>ballerinaExtInstance.context;
 	context.subscriptions.push(diagramRenderDisposable);
+	experimentalEnabled = ballerinaExtension.enabledExperimentalFeatures();
 }
 
 function resolveMissingDependencyByCodeAction(filePath: string, fileContent: string, diagnostic: Diagnostic, langClient: ExtendedLangClient) {
@@ -399,16 +453,41 @@ class DiagramPanel {
 				methodName: "sendTelemetryEvent",
 				handler: async (args: any[]): Promise<boolean> => {
 					const event: {
-						type: any;
-						name: any;
-						property?: any;
+						type: string;
+						name: string;
+						property?: { [key: string]: string };
+						measurements?: { [key: string]: number; };
 					} = args[0];
 					if (event.type === TM_EVENT_EDIT_DIAGRAM) {
 						ballerinaExtInstance.getCodeServerContext().telemetryTracker?.incrementDiagramEditCount();
 					} else {
-						sendTelemetryEvent(ballerinaExtension, event.type, event.name, event.property);
+						sendTelemetryEvent(ballerinaExtension, event.type, event.name, event.property, event.measurements);
 					}
 					return Promise.resolve(true);
+				}
+			},
+			{
+				methodName: "getLibrariesList",
+				handler: async (args: any[]): Promise<LibrariesListResponse | undefined> => {
+					return await getLibrariesList(args[0]);
+				}
+			},
+			{
+				methodName: "getLibrariesData",
+				handler: async (): Promise<LibrarySearchResponse | undefined> => {
+					return await getAllResources();
+				}
+			},
+			{
+				methodName: "getLibraryData",
+				handler: async (args: any[]): Promise<LibraryDataResponse | undefined> => {
+					return await getLibraryData(args[0], args[1], args[2]);
+				}
+			},
+			{
+				methodName: "getSentryConfig",
+				handler: async (): Promise<SentryConfig | undefined> => {
+					return ballerinaExtension.getCodeServerContext().codeServerEnv ? await getSentryConfig() : undefined;
 				}
 			},
 		];
@@ -432,7 +511,7 @@ class DiagramPanel {
 			if (!DiagramPanel.currentPanel) {
 				performDidOpen();
 				this.webviewPanel.webview.html = render(diagramElement!.fileUri!, diagramElement!.startLine!,
-					diagramElement!.startColumn!);
+					diagramElement!.startColumn!, experimentalEnabled);
 			} else {
 				callUpdateDiagramMethod();
 			}

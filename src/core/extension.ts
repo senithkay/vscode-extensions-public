@@ -36,14 +36,15 @@ import { AssertionError } from "assert";
 import {
     BALLERINA_HOME, ENABLE_ALL_CODELENS, ENABLE_TELEMETRY, ENABLE_SEMANTIC_HIGHLIGHTING, OVERRIDE_BALLERINA_HOME,
     BALLERINA_LOW_CODE_MODE, ENABLE_PERFORMANCE_FORECAST, ENABLE_DEBUG_LOG, ENABLE_BALLERINA_LS_DEBUG,
-    ENABLE_CONFIGURABLE_EDITOR
+    ENABLE_CONFIGURABLE_EDITOR, ENABLE_EXPERIMENTAL_FEATURES
 }
     from "./preferences";
 import TelemetryReporter from "vscode-extension-telemetry";
 import {
     createTelemetryReporter, CMP_EXTENSION_CORE, sendTelemetryEvent, sendTelemetryException,
     TM_EVENT_ERROR_INVALID_BAL_HOME_CONFIGURED, TM_EVENT_EXTENSION_INIT, TM_EVENT_EXTENSION_INI_FAILED,
-    TM_EVENT_ERROR_OLD_BAL_HOME_DETECTED
+    TM_EVENT_ERROR_OLD_BAL_HOME_DETECTED,
+    getMessageObject
 } from "../telemetry";
 import { BALLERINA_COMMANDS, runCommand } from "../project";
 import { SessionDataProvider } from "../tree-view/session-tree-data-provider";
@@ -200,7 +201,7 @@ export class BallerinaExtension {
             if (this.overrideBallerinaHome()) {
                 if (!this.getConfiguredBallerinaHome()) {
                     const message = "Trying to get ballerina version without setting ballerina home.";
-                    sendTelemetryEvent(this, TM_EVENT_ERROR_INVALID_BAL_HOME_CONFIGURED, CMP_EXTENSION_CORE, message);
+                    sendTelemetryEvent(this, TM_EVENT_ERROR_INVALID_BAL_HOME_CONFIGURED, CMP_EXTENSION_CORE, getMessageObject(message));
                     throw new AssertionError({
                         message: message
                     });
@@ -224,7 +225,7 @@ export class BallerinaExtension {
                     this.showMessageOldBallerina();
                     const message = `Ballerina version ${this.ballerinaVersion} is not supported. 
                         The extension supports Ballerina Swan Lake Beta 3+ versions.`;
-                    sendTelemetryEvent(this, TM_EVENT_ERROR_OLD_BAL_HOME_DETECTED, CMP_EXTENSION_CORE, message);
+                    sendTelemetryEvent(this, TM_EVENT_ERROR_OLD_BAL_HOME_DETECTED, CMP_EXTENSION_CORE, getMessageObject(message));
                     return;
                 }
 
@@ -238,7 +239,7 @@ export class BallerinaExtension {
                 const disposeDidChange = this.langClient.onDidChangeState(stateChangeEvent => {
                     if (stateChangeEvent.newState === LS_STATE.Stopped) {
                         const message = "Couldn't establish language server connection.";
-                        sendTelemetryEvent(this, TM_EVENT_EXTENSION_INI_FAILED, CMP_EXTENSION_CORE, message);
+                        sendTelemetryEvent(this, TM_EVENT_EXTENSION_INI_FAILED, CMP_EXTENSION_CORE, getMessageObject(message));
                         log(message);
                         this.showPluginActivationError();
                     } else if (stateChangeEvent.newState === LS_STATE.Running) {
@@ -257,7 +258,7 @@ export class BallerinaExtension {
                 throw new Error(reason);
             }).catch(e => {
                 const msg = `Error when checking ballerina version. ${e.message}`;
-                sendTelemetryException(this, e, CMP_EXTENSION_CORE, msg);
+                sendTelemetryException(this, e, CMP_EXTENSION_CORE, getMessageObject(msg));
                 this.telemetryReporter.dispose();
                 throw new Error(msg);
             });
@@ -267,7 +268,7 @@ export class BallerinaExtension {
                 msg = "Error while activating plugin. " + (ex.message ? ex.message : ex);
                 // If any failure occurs while initializing show an error message
                 this.showPluginActivationError();
-                sendTelemetryException(this, ex, CMP_EXTENSION_CORE, msg);
+                sendTelemetryException(this, ex, CMP_EXTENSION_CORE, getMessageObject(msg));
                 this.telemetryReporter.dispose();
             }
             return Promise.reject(msg);
@@ -278,7 +279,7 @@ export class BallerinaExtension {
         if (!this.langClient) {
             const message = `Ballerina SDK: Error`;
             this.sdkVersion.text = message;
-            sendTelemetryEvent(this, TM_EVENT_EXTENSION_INI_FAILED, CMP_EXTENSION_CORE, message);
+            sendTelemetryEvent(this, TM_EVENT_EXTENSION_INI_FAILED, CMP_EXTENSION_CORE, getMessageObject(message));
             this.telemetryReporter.dispose();
             return Promise.reject('BallerinaExtension is not initialized');
         }
@@ -299,7 +300,8 @@ export class BallerinaExtension {
             if (params.affectsConfiguration(BALLERINA_HOME) || params.affectsConfiguration(OVERRIDE_BALLERINA_HOME)
                 || params.affectsConfiguration(ENABLE_ALL_CODELENS) ||
                 params.affectsConfiguration(BALLERINA_LOW_CODE_MODE) || params.affectsConfiguration(ENABLE_DEBUG_LOG)
-                || params.affectsConfiguration(ENABLE_BALLERINA_LS_DEBUG)) {
+                || params.affectsConfiguration(ENABLE_BALLERINA_LS_DEBUG || 
+                    params.affectsConfiguration(ENABLE_EXPERIMENTAL_FEATURES))) {
                 this.showMsgAndRestart(CONFIG_CHANGED);
             }
         });
@@ -568,6 +570,10 @@ export class BallerinaExtension {
     public isConfigurableEditorEnabled(): boolean {
         return process.env.CODE_SERVER_ENV === 'true' ||
             <boolean>workspace.getConfiguration().get(ENABLE_CONFIGURABLE_EDITOR);
+    }
+
+    public enabledExperimentalFeatures(): boolean {
+        return <boolean>workspace.getConfiguration().get(ENABLE_EXPERIMENTAL_FEATURES);
     }
 
     public async updatePerformanceForecastSetting(status: boolean) {
