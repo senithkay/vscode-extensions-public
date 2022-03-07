@@ -56,9 +56,8 @@ export function ModuleElement(props: ModuleElementProps) {
 
     const onClickOnModuleElement = async () => {
         let content = moduleId.includes('.') ? `${moduleId.split('.').pop()}0:${id}` : `${moduleId}:${id}`;
-
+        setClickedModuleElement(content);
         if (isFunction) {
-            setClickedModuleElement(content);
             const response: LibraryDataResponse = await getLibraryData(moduleOrgName, moduleId, moduleVersion);
 
             let functionProperties: LibraryFunction = null;
@@ -80,9 +79,8 @@ export function ModuleElement(props: ModuleElementProps) {
 
                 content += `(${parameters.join(',')})`;
             }
-            setClickedModuleElement('');
         }
-
+        setClickedModuleElement('');
         updateModuleList(`import ${getFQModuleName(moduleOrgName, moduleId)};`);
         updateModel(content, currentModel.model ? currentModel.model.position : formModelPosition);
     }
