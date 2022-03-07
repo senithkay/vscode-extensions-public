@@ -14,11 +14,10 @@
 // tslint:disable: jsx-wrap-multiline
 import React, { useContext } from "react";
 
-import { ConfigOverlayFormStatus, STModification, WizardType  } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ConditionConfig, ConfigOverlayFormStatus, ElseIfConfig, ForeachConfig, LowcodeEvent, SAVE_STATEMENT, STModification, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../Contexts/Diagram";
-import { LowcodeEvent, SAVE_STATEMENT } from "../../../../models";
 import {
     createElseIfStatement, createElseStatement,
     createForeachStatement, createIfStatement, createWhileStatement, updateForEachCondition,
@@ -26,7 +25,6 @@ import {
 } from "../../../../utils/modification-util";
 import { DiagramOverlayPosition } from "../../../Portals/Overlay";
 import { InjectableItem } from "../../FormGenerator";
-import { ConditionConfig, ElseIfConfig, ForeachConfig } from "../../Types";
 
 import { ConditionsOverlayForm } from "./ConditionsOverlayForm";
 

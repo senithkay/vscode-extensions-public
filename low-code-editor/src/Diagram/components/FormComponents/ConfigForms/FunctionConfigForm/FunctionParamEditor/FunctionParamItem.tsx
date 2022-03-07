@@ -13,7 +13,7 @@
 import React from "react";
 
 import { CloseRounded } from "@material-ui/icons";
-import { ButtonWithIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ButtonWithIcon } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 
 import { FunctionParam } from "../types";
 

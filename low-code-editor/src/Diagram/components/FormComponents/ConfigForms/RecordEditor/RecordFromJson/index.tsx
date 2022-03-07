@@ -14,7 +14,7 @@
 import React, { useContext, useEffect, useReducer } from 'react';
 
 import { FormControl, FormHelperText } from "@material-ui/core";
-import { FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { RecordTypeDesc, STKindChecker, STNode, TypeDefinition } from '@wso2-enterprise/syntax-tree';
 
 import { Context } from "../../../../../../Contexts/Diagram";

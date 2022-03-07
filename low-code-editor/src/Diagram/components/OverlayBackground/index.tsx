@@ -12,7 +12,7 @@
  */
 import * as React from "react";
 
-import { DefaultConfig } from "../../visitors/default";
+import { DefaultConfig } from "@wso2-enterprise/ballerina-low-code-diagram";
 
 import { useStyles } from "./style";
 

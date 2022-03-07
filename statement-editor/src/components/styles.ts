@@ -56,7 +56,7 @@ export const useStatementEditorStyles = makeStyles(() =>
             flexDirection: 'column',
             borderBottom: '1px solid #e6e7ec',
             minHeight: '50vh',
-            height: '60vh'
+            height: '75vh'
         },
         tabPanelWrapper: {
             width: 'auto',
@@ -72,7 +72,7 @@ export const useStatementEditorStyles = makeStyles(() =>
             width: '30%',
             height: '48px',
             padding: '9px',
-            textAlignLast: 'center'
+            textAlignLast: 'right'
         },
         stmtEditorContentWrapper: {
             backgroundColor: '#f9fafc',
@@ -152,13 +152,9 @@ export const useStatementEditorStyles = makeStyles(() =>
             bottom: '10%'
         },
         libraryBrowser: {
-            display: 'flex',
-            flexDirection: 'column',
-            width: 'auto%',
             height: '100%',
-            position: 'relative',
-            top: '10px',
-            marginLeft: '5%'
+            overflowY: 'scroll',
+            overflowX: 'hidden',
         },
         leftPane: {
             display: 'flex',
@@ -204,8 +200,9 @@ export const useStatementEditorStyles = makeStyles(() =>
         },
         suggestionsInner: {
             overflowY: 'scroll',
-            padding: theme.spacing(1.5),
-            height: '100%'
+            height: '100%',
+            paddingLeft: '25px',
+            paddingTop: '11px',
         },
         contextSensitivePane: {
             display: 'flex',
@@ -296,7 +293,13 @@ export const useStatementEditorStyles = makeStyles(() =>
         libraryBrowserHeader: {
             display: 'flex',
             flexDirection: 'row',
-            width: '96%'
+            width: '100%',
+            alignItems: 'center',
+            position: 'sticky',
+            top: '0px',
+            zIndex: 1,
+            backgroundColor: '#FFFFFF',
+            paddingBottom: '16px'
         },
         libraryDropdown: {
             flex: '0 0 50%',
@@ -311,8 +314,8 @@ export const useStatementEditorStyles = makeStyles(() =>
         },
         propertyDivider: {
             height: '1px',
-            marginLeft: '2%',
             marginTop: '2%',
+            marginBottom: '10px',
             width: '94%',
             opacity: 0.52,
             backgroundColor: '#DCDEE4'
@@ -347,33 +350,28 @@ export const useStatementEditorStyles = makeStyles(() =>
             display: 'flex',
             flexDirection: 'row'
         },
-        libraryBlock: {
-            position: 'relative',
-            height: '100%',
-            overflowY: 'scroll',
-            overflowX: 'hidden',
-            paddingRight: '5px',
-        },
         libraryListBlock: {
-            position: 'relative',
-            height: '100%',
-            overflowY: 'scroll',
-            overflowX: 'hidden',
             paddingRight: '5px',
+            paddingBottom: '8px',
             columnGap: '6%',
             display: 'grid',
-            gridTemplateColumns: '47% 47%'
+            gridTemplateColumns: '47% 47%',
+            padding: '0px'
         },
         librarySearchBox: {
             position: 'relative',
             height: '32px',
-            width: '304px',
+            width: 'inherit',
             border: '1px #E0E3E9',
             borderRadius: '5px',
             backgroundColor: '#FFFFFF',
             boxShadow: 'inset 0 0 0 1px #DEE0E7, inset 0 2px 1px 0 rgba(0,0,0,0.07), 0 0 0 0 rgba(50,50,77,0.07)',
             color: '#CBCEDB',
-            textIndent: '5px'
+            textIndent: '12px',
+            fontSize: '12px',
+            textAlign: 'left',
+            paddingLeft: '12px',
+            marginRight: '10px'
         },
         libraryResourceButton: {
             boxSizing: 'border-box',
@@ -400,31 +398,30 @@ export const useStatementEditorStyles = makeStyles(() =>
             height: '12px',
             color: '#1D2028',
             fontFamily: 'Gilmer,sans-serif',
-            fontSize: '11px',
+            fontSize: '13px',
             letterSpacing: 0,
-            lineHeight: '12px',
-            paddingTop: '10px',
-            paddingBottom: '10px',
-            marginBottom: '5px'
+            lineHeight: '14px',
+            marginBottom: '7px'
         },
         libraryElementBlock: {
-            position: 'relative',
             top: '5%',
-            maxHeight: '20vh',
             display: 'flex',
             flexDirection: 'column',
+            paddingBottom: '25px'
         },
         libraryElementBlockLabel: {
             height: '10%',
         },
         libraryElementBlockContent: {
+            padding: '0px',
             top: '10%',
             height: '80%',
             overflowY: 'scroll',
             overflowX: 'hidden',
             columnGap: '6%',
             display: 'grid',
-            gridTemplateColumns: '29% 29% 29%'
+            gridTemplateColumns: '29% 29% 29%',
+            paddingBottom: '8px'
         },
         libraryListButton: {
             border: 'none',
@@ -446,12 +443,12 @@ export const useStatementEditorStyles = makeStyles(() =>
             overflowX: 'hidden',
         },
         suggestionListItem: {
-            padding: '0 0 0 2%',
+            padding: '0 0 0 8px',
             '&:hover': {
-                backgroundColor: 'rgba(173, 214, 255, 0.3)',
+                backgroundColor: '#F0F1FB',
             },
             '&:focus': {
-                backgroundColor: '#add6ff'
+                backgroundColor: 'rgba(204,209,242,0.61)'
             }
         },
         suggestionDataType: {
@@ -471,11 +468,13 @@ export const useStatementEditorStyles = makeStyles(() =>
             gridTemplateColumns: '47% 47%'
         },
         selectDropDownSe: {
-            height: '30px',
+            height: '32px',
             width: "auto",
-            borderRadius: 5,
-            background: "linear-gradient(180deg, #ffffff 0%, #f7f7f9 100%)",
-            boxShadow: "inset 0 0 0 1px #dee0e7, 0 1px 1px 0 rgba(0, 0, 0, 0.06)",
+            borderRadius: 4,
+            fontSize: "12px",
+            color: '#222228',
+            background: "linear-gradient(180deg, #FFFFFF 0%, #F7F7F9 100%)",
+            boxShadow: "inset 0 0 0 1px #DEE0E7, 0 1px 2px -1px rgba(0,0,0,0.08)",
             cursor: "pointer",
             marginBottom: theme.spacing(2.5),
             border: 1,
@@ -491,7 +490,7 @@ export const useStatementEditorStyles = makeStyles(() =>
                 backgroundColor: "none"
             },
             '& .MuiSelect-icon': {
-                marginRight: 20,
+                marginRight: 11,
             },
             "& .MuiSelect-selectMenu": {
                 height: "inherit !important",
@@ -506,11 +505,11 @@ export const useStatementEditorStyles = makeStyles(() =>
                 }
             },
             "& .MuiSelect-select.MuiSelect-select": {
-                padding: "0 15px",
+                padding: "0 0 0 10px",
                 minWidth: "100px"
             },
             "& .MuiSelect-select.MuiSelect-select:focus": {
-                backgroundColor: "none"
+                backgroundColor: "transparent"
             }
         },
         dropdownStyle: {
@@ -522,6 +521,7 @@ export const useStatementEditorStyles = makeStyles(() =>
             boxShadow: "0 5px 10px -3px rgba(50,50,77,0.1)",
             color: "#222228",
             marginTop: '0.25rem',
+            marginLeft: '4px'
         },
         tabsPanelPaperSe: {
             flexGrow: 1,
@@ -533,11 +533,19 @@ export const useStatementEditorStyles = makeStyles(() =>
                 fontSize: '13px',
                 fontWeight: 'normal'
             },
-            "& .MuiTab-textColorPrimary.Mui-selected": {
-                color: '#1D2028'
+            "& .MuiTab-root": {
+                marginLeft: '24px',
+                paddingRight: '0px',
+                paddingLeft: '0px',
+                fontSize: '13px',
+                minWidth: 'fit-content'
             },
-            "& .MuiTab-textColorPrimary": {
+            "& .MuiTab-textColorInherit": {
                 color: '#8D91A3'
+            },
+            "& .MuiTab-textColorInherit.Mui-selected": {
+                opacity: 1,
+                color: '#40404B'
             },
             "& .MuiTabs-indicator": {
                 backgroundColor: '#40404B',
@@ -557,5 +565,28 @@ export const useStatementEditorStyles = makeStyles(() =>
             display: 'grid',
             gridTemplateColumns: '47% 47%'
         },
+        moduleTitle: {
+            marginRight: '43px',
+            marginLeft: '4.25px',
+            marginBottom: '2px',
+            fontSize: '13px'
+        },
+        libraryReturnIcon: {
+            padding: '0px',
+            '&:hover': {
+                backgroundColor: '#F0F1FB',
+            },
+            '&:focus': {
+                backgroundColor: 'rgba(204,209,242,0.61)'
+            }
+        },
+        arrowBack: {
+            fontSize: '13px',
+            lineHeight: '24px',
+            color: '#5567D5'
+        },
+        libraryModuleIcon: {
+            marginLeft: '8.25px'
+        }
     }),
 );

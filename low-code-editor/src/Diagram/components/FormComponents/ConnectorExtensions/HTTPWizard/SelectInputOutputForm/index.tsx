@@ -21,7 +21,10 @@ import {
     ActionConfig,
     ConnectorConfig,
     FormField,
-    FunctionDefinitionInfo, PrimaryButton, STSymbolInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+    FunctionDefinitionInfo,
+    STSymbolInfo
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { PrimaryButton } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { LocalVarDecl, NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
@@ -231,7 +234,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
     }
 
     const selectedOperationParams = state && isFieldsAvailable && action.name && (
-        <Form fields={formFields} onValidate={onValidate} editPosition={targetPosition}/>
+        <Form fields={formFields} onValidate={onValidate} editPosition={targetPosition} />
     );
 
     const payloadTypePlaceholder = intl.formatMessage({
@@ -254,7 +257,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
         payloadComponent = payloadState.isPayloadSelected && (
             <>
                 <div className={classes.labelWrapper}>
-                    <FormHelperText className={classes.inputLabelForRequired}><FormattedMessage id="lowcode.develop.connectorForms.HTTP.seletPayloadType" defaultMessage="Select payload type :"/></FormHelperText>
+                    <FormHelperText className={classes.inputLabelForRequired}><FormattedMessage id="lowcode.develop.connectorForms.HTTP.seletPayloadType" defaultMessage="Select payload type :" /></FormHelperText>
                     <FormHelperText className={classes.starLabelForRequired}>*</FormHelperText>
                 </div>
                 <div className="product-tour-payload-click">
@@ -301,11 +304,11 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
     const handleOnOperationSelect = (operation: string) => {
         connectorConfig.action.name = operation;
         setSelectedOperation(operation);
-        if (symbolInfo.localEndpoints.get(connectorConfig.name)){
+        if (symbolInfo.localEndpoints.get(connectorConfig.name)) {
             const typeSymbol = symbolInfo.localEndpoints.get(connectorConfig.name)?.typeData?.typeSymbol;
-            const {moduleName, orgName: organization, version} = typeSymbol?.moduleID;
+            const { moduleName, orgName: organization, version } = typeSymbol?.moduleID;
             const name = typeSymbol?.name;
-            openConnectorHelp({moduleName, package: {name, version, organization}, name}, operation);
+            openConnectorHelp({ moduleName, package: { name, version, organization }, name }, operation);
         }
         if (isNewConnectorInitWizard) {
             setReturnNameState({

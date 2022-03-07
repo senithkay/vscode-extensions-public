@@ -16,7 +16,8 @@ import { FormattedMessage } from 'react-intl';
 
 import {FormHelperText} from "@material-ui/core";
 import TextField from '@material-ui/core/TextField';
-import { FormElementProps, TooltipIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FormElementProps } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { TooltipIcon } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { format, parse } from 'date-fns';
 
 import {useStyles as useFormStyles} from "../../DynamicConnectorForm/style";

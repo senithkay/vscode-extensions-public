@@ -14,22 +14,22 @@
 import React, { useContext, useState } from "react";
 import { useIntl } from "react-intl";
 
+import { DefaultConfig } from "@wso2-enterprise/ballerina-low-code-diagram";
 import {
   BallerinaConnectorInfo,
   BallerinaConstruct,
   Connector,
   ConnectorConfig,
+  ConnectorConfigWizardProps,
+  CONNECTOR_CLOSED,
+  DiagramOverlayPosition,
   FunctionDefinitionInfo,
+  LowcodeEvent,
   WizardType
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { LocalVarDecl, NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../Contexts/Diagram";
-import { CONNECTOR_CLOSED, LowcodeEvent } from "../../../models";
-import { DefaultConfig } from "../../../visitors/default";
-import {
-  DiagramOverlayPosition,
-} from "../../Portals/Overlay";
 import { fetchConnectorInfo } from "../../Portals/utils";
 import { fetchConnectorsList } from "../ConfigForms/ConnectorList";
 import { SearchQueryParams } from "../ConfigForms/Marketplace";
@@ -42,20 +42,6 @@ export interface ConfigWizardState {
     connectorConfig: ConnectorConfig;
     model?: STNode;
     wizardType?: WizardType;
-}
-export interface ConnectorConfigWizardProps {
-    position: DiagramOverlayPosition;
-    connectorInfo: BallerinaConnectorInfo;
-    targetPosition: NodePosition;
-    // This prop is used to load connectors from statement menu
-    specialConnectorName?: string;
-    model?: STNode;
-    onClose: () => void;
-    onSave: () => void;
-    selectedConnector?: LocalVarDecl;
-    isModuleEndpoint?: boolean;
-    isAction?: boolean;
-    isEdit?: boolean;
 }
 
 export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
@@ -101,7 +87,8 @@ export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
         isModuleEndpoint,
         isAction,
         isEdit,
-        specialConnectorName
+        specialConnectorName,
+        functionNode
     } = props;
 
     const initWizardState: ConfigWizardState = {
@@ -196,6 +183,7 @@ export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
                             connectorInfo,
                             isModuleEndpoint,
                             isAction,
+                            functionNode,
                             onClose: handleClose,
                             onSave: handleSave,
                         },

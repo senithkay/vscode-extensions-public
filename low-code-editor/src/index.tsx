@@ -62,12 +62,8 @@ export {
     recalculateSizingAndPositioningST,
     getAnalyzerRequestPayload
 } from './Diagram/utils/st-util';
-export { visitor as initVisitor } from "./Diagram/components/LowCodeDiagram/Visitors/init-visitor";
-export { visitor as positionVisitor } from "./Diagram/components/LowCodeDiagram/Visitors/positioning-visitor";
-export { visitor as sizingVisitor } from "./Diagram/components/LowCodeDiagram/Visitors/sizing-visitor";
 export { AnalyzePayloadVisitor } from "./Diagram/visitors/analyze-payload-visitor";
 export { cleanLocalSymbols, cleanModuleLevelSymbols, getSymbolInfo, visitor as SymbolVisitor } from "./Diagram/visitors/symbol-finder-visitor";
-export { BlockViewState } from './Diagram/components/LowCodeDiagram/ViewState';
 export { getTriggerSource, getSampleSource } from "./Diagram/utils/template-utils";
 export { createPropertyStatement } from "./Diagram/utils/modification-util";
 export { renderDiagramEditor } from "./DiagramGenerator/vscode";
@@ -75,6 +71,7 @@ export { updatePerformanceLabels } from "./DiagramGenerator/performanceUtil";
 
 const LowCodeEditor: React.FC<Props> = (props: Props) => {
 
+    // TODO: Remove these as these are no longer in use
     const modifyTrigger = (
         triggerType: TriggerType,
         model?: any,
@@ -83,6 +80,7 @@ const LowCodeEditor: React.FC<Props> = (props: Props) => {
         props.api.code.onMutate("TRIGGER", { triggerType, model, configObject });
     };
 
+    // TODO: Remove these as these are no longer in use
     const modifyDiagram = (mutations: STModification[], options: any = {}) => {
         props.api.code.onMutate("DIAGRAM", { mutations, ...options });
     };

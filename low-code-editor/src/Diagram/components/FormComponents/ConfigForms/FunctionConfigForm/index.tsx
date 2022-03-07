@@ -14,7 +14,8 @@
 import React, { useEffect, useRef, useState } from "react";
 
 import { Box, Button, Divider, FormControl } from "@material-ui/core";
-import { ConfigOverlayFormStatus, FormActionButtons, FormHeaderSection, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ConfigOverlayFormStatus, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FormActionButtons, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { FunctionDefinition, NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { AddIcon } from "../../../../../assets/icons";

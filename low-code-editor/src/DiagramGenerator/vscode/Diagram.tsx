@@ -1,20 +1,9 @@
 import * as React from "react";
 
-import {
-    DiagramEditorLangClientInterface,
-    LibraryDataResponse,
-    LibraryDocResponse,
-    LibraryKind,
-    LibrarySearchResponse,
-    PerformanceAnalyzerGraphResponse,
-    PerformanceAnalyzerRealtimeResponse,
-    SentryConfig
-} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ANALYZE_TYPE, DiagramEditorLangClientInterface, LibraryDataResponse, LibraryDocResponse, LibraryKind, LibrarySearchResponse, LowcodeEvent, PerformanceAnalyzerGraphResponse, PerformanceAnalyzerRealtimeResponse, SentryConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { DiagramGenerator } from "..";
-import { LowcodeEvent } from "../../Diagram/models";
 import { DiagramGenErrorBoundary } from "../ErrorBoundrary";
-import { ANALYZE_TYPE } from "../performanceUtil";
 
 import './style.scss';
 
