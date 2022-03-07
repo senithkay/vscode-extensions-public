@@ -39,12 +39,12 @@ export function Library(props: LibraryProps) {
     const { id, orgName, version } = libraryInfo;
 
     const onClickOnLibrary = async () => {
-        libraryDataFetchingHandler(true)
+        libraryDataFetchingHandler(true);
         const response = await getLibraryData(orgName, id, version);
 
         if (response) {
             libraryBrowsingHandler(response);
-            libraryDataFetchingHandler(false)
+            libraryDataFetchingHandler(false);
         }
     }
 
