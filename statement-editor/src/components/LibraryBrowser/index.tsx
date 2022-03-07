@@ -13,7 +13,15 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import React, { useContext, useEffect, useState } from "react";
 
-import { Box, CircularProgress, Grid, IconButton, Input, InputAdornment, Typography } from "@material-ui/core";
+import {
+    Box,
+    CircularProgress, FormControl,
+    Grid,
+    IconButton,
+    Input,
+    InputAdornment,
+    Typography
+} from "@material-ui/core";
 import { ArrowBack } from "@material-ui/icons";
 import {
     LibraryDataResponse,
@@ -162,6 +170,7 @@ export function LibraryBrowser(props: LibraryBrowserProps) {
                             <div className={statementEditorClasses.moduleTitle}>{moduleTitle}</div>
                         </>
                     )}
+                    <FormControl style={{width: 'inherit', marginRight: '10px'}}>
                         <Input
                             className={statementEditorClasses.librarySearchBox}
                             value={keyword}
@@ -173,6 +182,7 @@ export function LibraryBrowser(props: LibraryBrowserProps) {
                                 </InputAdornment>
                             )}
                         />
+                    </FormControl>
                 </div>
                 {(isLoading && clickedModuleElement === undefined) ? loadingScreen : (
                     <>
