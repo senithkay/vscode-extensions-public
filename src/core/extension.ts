@@ -167,7 +167,6 @@ export class BallerinaExtension {
             }
         };
         if (this.getCodeServerContext().codeServerEnv) {
-            commands.executeCommand('workbench.action.closeAllEditors');
             this.getCodeServerContext().telemetryTracker = new TelemetryTracker();
         }
         this.webviewContext = { isOpen: false };
