@@ -17,7 +17,7 @@ import { withStyles } from "@material-ui/core/styles";
 import TooltipBase, { TooltipProps } from '@material-ui/core/Tooltip';
 import * as MonacoEditor from 'monaco-editor';
 
-import { ErrorIcon , InfoIcon , WarningIcon } from '../../assets/icons';
+import { ErrorIcon, InfoIcon, WarningIcon } from '../../assets/icons';
 
 import useStyles, { tooltipBaseStyles } from "./style";
 
@@ -40,18 +40,24 @@ const codeRef = (ref: HTMLPreElement) => {
 export default function Tooltip(props: Partial<TooltipPropsExtended>) {
     const { children, title, text, action, disabled, onClick, type, diagnostic, ...restProps } = props;
     const classes = useStyles();
-    let tooltipComp = diagnostic ?
+
+    let tooltipComp = diagnostic && diagnostic.diagnosticMsgs ?
         (
             <div>
                 <h4 className={classes.heading}>{diagnostic.diagnosticMsgs}</h4>
-
             </div>
         )
-        : (
-            <div>
-                <h4 className={classes.heading}>{text.heading}</h4>
-            </div>
-        )
+        : (text && text.heading) ?
+            (
+                <div>
+                    <h4 className={classes.heading}>{text.heading}</h4>
+                </div>
+            )
+            : (
+                <div>
+                    <h4 className={classes.heading} />
+                </div>
+            );
 
     switch (type) {
         // this type is used for tooltips which have code snippet and open with code view link

@@ -20,6 +20,7 @@ import { ModuleVariableFormState } from "../components/FormComponents/ConfigForm
 import { HTTPServiceConfigState } from "../components/FormComponents/ConfigForms/ServiceConfigForm/forms/HttpService/util/reducer";
 import { HeaderObjectConfig } from "../components/FormComponents/ConnectorExtensions/HTTPWizard/HTTPHeaders";
 import { getFormattedModuleName, getParams } from "../components/Portals/utils";
+import { keywords } from "../components/Portals/utils/constants";
 
 import { getComponentSource } from "./template-utils";
 
@@ -378,7 +379,11 @@ export function createImportStatement(org: string, module: string, targetPositio
     const formattedName = getFormattedModuleName(module);
     let moduleNameStr = org + "/" + module;
 
-    if (moduleName.includes('.') && moduleName.split('.').pop() !== formattedName) {
+    const subModuleName = moduleName.split('.').pop();
+    if (moduleName.includes('.') && subModuleName !== formattedName) {
+        if (keywords.includes(subModuleName)){
+            module = module.replace(subModuleName, "'" + subModuleName);
+        }
         // add alias if module name is different with formatted name
         moduleNameStr = org + "/" + module + " as " + formattedName
     }
