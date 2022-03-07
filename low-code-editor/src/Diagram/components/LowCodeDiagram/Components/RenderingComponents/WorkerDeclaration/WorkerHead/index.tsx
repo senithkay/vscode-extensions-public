@@ -15,13 +15,13 @@ import React, { useState } from "react";
 
 import { NamedWorkerDeclaration } from "@wso2-enterprise/syntax-tree";
 
+import { useDiagramContext } from "../../../../../../../Contexts/Diagram";
+import { removeStatement } from "../../../../../../utils/modification-util";
+import { FormGenerator } from "../../../../../FormComponents/FormGenerator";
 import { WorkerDeclarationViewState } from "../../../../ViewState/worker-declaration";
 import { DeleteBtn } from "../../../DiagramActions/DeleteBtn";
 import { EditBtn } from "../../../DiagramActions/EditBtn";
 import { StartSVG, START_SVG_HEIGHT, START_SVG_WIDTH } from "../../Start/StartSVG";
-import { useDiagramContext } from "../../../../../../../Contexts/Diagram";
-import { removeStatement } from "../../../../../../utils/modification-util";
-import { FormGenerator } from "../../../../../FormComponents/FormGenerator";
 
 interface WorkerHeadProps {
     model: NamedWorkerDeclaration
