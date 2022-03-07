@@ -22,7 +22,7 @@ import { CancellationToken, CompletionContext, CompletionItem, CompletionItemPro
     CompletionList, Disposable, DocumentSelector, languages, Position, ProviderResult, 
     TextDocument, Uri, } from "vscode";
 import { NOTEBOOK_SCHEME } from "./constants";
-import { addText, deleteFile } from "./utils";
+import { addText } from "./utils";
 
 const selector: DocumentSelector = {
     scheme: NOTEBOOK_SCHEME,
@@ -51,11 +51,10 @@ export class NotebookCompletionItemProvider implements CompletionItemProvider{
         if (!langClient) {
             return [];
         }
-        let {content, filePath} = await langClient.getShellBufferFilePath();
+        let { content, filePath } = await langClient.getShellBufferFilePath();
         performDidOpen(langClient, filePath, content);
         let endPositionOfMain = await this.getEndPositionOfMain(langClient, filePath);
         if (!endPositionOfMain) {
-            deleteFile(Uri.parse(filePath));
             return [];
         }
         let textToWrite = content.substring(0, content.length - 1) + document.getText() + '\n}';
@@ -77,23 +76,22 @@ export class NotebookCompletionItemProvider implements CompletionItemProvider{
     }
 
     private async getEndPositionOfMain(langClient: ExtendedLangClient, filePath: string) {
-        let endPositionOfMain;
         let syntaxTree = await langClient.getSyntaxTree({
             documentIdentifier: {
                 uri: filePath
             }
         });
         if (syntaxTree && syntaxTree.syntaxTree && syntaxTree.syntaxTree.members) {
-            syntaxTree.syntaxTree.members.forEach(member => {
-                if (member.kind == 'FunctionDefinition' && member.functionName.value == 'main') {
-                    endPositionOfMain = {
-                        line: member.position.endLine,
-                        character: member.position.endColumn - 1
-                    };
-                }
-            });
+            var main = syntaxTree.syntaxTree.members.find((member: { kind: string; functionName: { value: string; }; }) => 
+                member.kind === 'FunctionDefinition' && member.functionName.value === 'main'
+            );
+            if (main) {
+                return {
+                    line: main.position.endLine,
+                    character: main.position.endColumn - 1
+                };
+            }
         }
-        return endPositionOfMain;
     }
 }
 
