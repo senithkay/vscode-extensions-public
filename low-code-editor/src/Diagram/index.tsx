@@ -13,34 +13,38 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useState } from "react";
 
-import Container from "@material-ui/core/Container";
-import { ConfigOverlayFormStatus } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { ModulePart, NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
-import classnames from 'classnames';
+import { DefaultConfig, LowCodeDiagram, PlusViewState, ViewState } from "@wso2-enterprise/ballerina-low-code-diagram";
+import { ConfigOverlayFormStatus, ConnectorConfigWizardProps, DiagramOverlayPosition, LowcodeEvent, OPEN_LOW_CODE, PlusWidgetProps, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
+import Tooltip from "../components/TooltipV2";
 import { Context as DiagramContext } from "../Contexts/Diagram";
+import { addAdvancedLabels } from "../DiagramGenerator/performanceUtil";
 import { TextPreLoader } from "../PreLoader/TextPreLoader";
 
+import { ConnectorConfigWizard } from "./components/FormComponents/ConnectorConfigWizard";
+import * as DialogBoxes from "./components/FormComponents/DialogBoxes";
 import { FormGenerator, FormGeneratorProps } from "./components/FormComponents/FormGenerator";
-import LowCodeDiagram from "./components/LowCodeDiagram";
-import { DiagramDisableState } from "./components/LowCodeDiagram/DiagramState/DiagramDisableState";
-import { DiagramErrorState } from "./components/LowCodeDiagram/DiagramState/DiagramErrorState";
-import { ErrorList } from "./components/LowCodeDiagram/DiagramState/ErrorList";
-import { ViewState } from "./components/LowCodeDiagram/ViewState";
-import { OverlayBackground } from "./components/OverlayBackground";
-import { LowcodeEvent, OPEN_LOW_CODE } from "./models";
 import "./style.scss";
 import { useStyles } from "./styles";
-import { DefaultConfig } from "./visitors/default";
+import { removeStatement } from "./utils/modification-util";
 
 export function Diagram() {
     const {
         api: {
             code: {
+                modifyDiagram,
                 gotoSource,
                 isMutationInProgress,
                 isModulePullInProgress,
                 loaderText
+            },
+            webView: {
+                showSwaggerView,
+                showDocumentationView
+            },
+            project: {
+                run
             },
             insights: {
                 onEvent
@@ -52,8 +56,11 @@ export function Diagram() {
             syntaxTree,
             isLoadingAST,
             isReadOnly,
+            stSymbolInfo,
             error,
-            experimentalEnabled
+            performanceData,
+            selectedPosition,
+            zoomStatus
         },
     } = useContext(DiagramContext);
 
@@ -61,18 +68,23 @@ export function Diagram() {
     const diagnosticInDiagram = diagnostics && diagnostics.length > 0;
     const numberOfErrors = diagnostics && diagnostics.length;
     const numberOfWarnings = (warnings && warnings.length);
-    const diagramErrors = diagnostics && diagnostics.length > 0;
-    const diagramWarnings = warnings && warnings.length > 0;
+    // const diagramErrors = diagnostics && diagnostics.length > 0;
+    // const diagramWarnings = warnings && warnings.length > 0;
     const warningsInDiagram = warnings && warnings.length > 0;
-    const [isErrorStateDialogOpen, setIsErrorStateDialogOpen] = useState(diagramErrors);
-    const [isErrorDetailsOpen, setIsErrorDetailsOpen] = useState(false);
+    // const [isErrorStateDialogOpen, setIsErrorStateDialogOpen] = useState(diagramErrors);
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [formConfig, setFormConfig] = useState<FormGeneratorProps>(undefined);
+    const [isConnectorConfigWizardOpen, setIsConnectorConfigWizardOpen] = useState(false);
+    const [connectorConfigWizardProps, setConnectorConfigWizardProps] = useState<ConnectorConfigWizardProps>(undefined);
+    const [isDialogActive, setIsDialogActive] = useState(false);
+    const [activeDialog, setActiveDialog] = useState(undefined);
+    const [activePlusWidget, setActivePlusWidget] = useState(undefined);
+    const [isPlusWidgetActive, setIsPlusWidgetActive] = useState(false);
 
-    React.useEffect(() => {
-        setIsErrorStateDialogOpen(diagramErrors);
-        setIsErrorDetailsOpen(diagramErrors);
-    }, [diagramErrors, diagramWarnings])
+    // React.useEffect(() => {
+    //     setIsErrorStateDialogOpen(diagramErrors);
+    //     setIsErrorDetailsOpen(diagramErrors);
+    // }, [diagramErrors, diagramWarnings])
 
     React.useEffect(() => {
         // Identify low-code open event
@@ -83,46 +95,170 @@ export function Diagram() {
     }, []);
 
     const openErrorDialog = () => {
-        setIsErrorStateDialogOpen(true);
-        setIsErrorDetailsOpen(true);
+        // setIsErrorStateDialogOpen(true);
     }
 
     const closeErrorDialog = () => {
-        setIsErrorStateDialogOpen(false);
-        setIsErrorDetailsOpen(false);
+        // setIsErrorStateDialogOpen(false);
     }
 
-    const handleDiagramAdd = (targetPosition: NodePosition, configOverlayFormStatus: ConfigOverlayFormStatus, onClose: () => void, onSave: () => void) => {
+    const handleDiagramAdd = (targetPosition: NodePosition, configOverlayFormStatus: ConfigOverlayFormStatus, onClose?: () => void, onSave?: () => void) => {
         setFormConfig({
             configOverlayFormStatus,
             onCancel: () => {
                 setIsFormOpen(false);
-                onClose();
+                if (onClose) {
+                    onClose();
+                }
             },
             onSave: () => {
                 setIsFormOpen(false);
-                onSave();
+                if (onSave) {
+                    onSave();
+                }
             },
             targetPosition
         });
         setIsFormOpen(true);
+        setIsConnectorConfigWizardOpen(false);
     };
 
-    const handleDiagramEdit = (model: STNode, targetPosition: NodePosition, configOverlayFormStatus: ConfigOverlayFormStatus, onClose: () => void, onSave: () => void) => {
+    const handleDiagramEdit = (model: STNode, targetPosition: NodePosition, configOverlayFormStatus: ConfigOverlayFormStatus, onClose?: () => void, onSave?: () => void) => {
         setFormConfig({
             model,
             configOverlayFormStatus,
             onCancel: () => {
                 setIsFormOpen(false);
-                onClose();
+                if (onClose) {
+                    onClose();
+                }
             },
             onSave: () => {
                 setIsFormOpen(false);
-                onSave();
+                if (onSave) {
+                    onSave();
+                }
             },
             targetPosition
         });
         setIsFormOpen(true);
+        setIsConnectorConfigWizardOpen(false);
+    };
+
+    const handleConnectorConfigWizard = (connectorConfig: ConnectorConfigWizardProps) => {
+        setConnectorConfigWizardProps({
+            ...connectorConfig,
+            onSave: () => {
+                setIsConnectorConfigWizardOpen(false);
+                if (connectorConfig.onSave) {
+                    connectorConfig.onSave();
+                }
+            },
+            onClose: () => {
+                setIsConnectorConfigWizardOpen(false);
+                if (connectorConfig.onClose) {
+                    connectorConfig.onClose();
+                }
+            }
+        });
+        setIsFormOpen(false);
+        setIsConnectorConfigWizardOpen(true);
+    };
+
+    const handleDeleteComponent = (model: STNode, onDelete?: () => void) => {
+        const modifications: STModification[] = [];
+        // used configurable
+        const configurables: Map<string, STNode> = stSymbolInfo.configurables;
+        const usedConfigurables = Array.from(configurables.keys()).filter(config => model.source.includes(`${config}`));
+        const variableReferences: Map<string, STNode[]> = stSymbolInfo.variableNameReferences;
+
+        // delete unused configurables
+        usedConfigurables.forEach(configurable => {
+            // check used configurables usages
+            if (variableReferences.has(configurable) && variableReferences.get(configurable).length === 1) {
+                const deleteConfig: STModification = removeStatement(
+                    configurables.get(configurable).position
+                );
+                modifications.push(deleteConfig);
+            }
+        });
+
+        // delete action
+        const deleteAction: STModification = removeStatement(
+            model.position
+        );
+        modifications.push(deleteAction);
+
+        modifyDiagram(modifications);
+
+        // If onDelete callback is available invoke it.
+        if (onDelete) {
+            onDelete();
+        }
+    };
+
+    const handleCloseAllOpenedForms = (callBack: () => void) => {
+        setIsConnectorConfigWizardOpen(false);
+        setIsFormOpen(false);
+        setIsDialogActive(false);
+        if (callBack) {
+            callBack();
+        }
+    }
+
+    const handleRenderDialogBox = (type: string, onConfirm: () => void, onCancel?: () => void, position?: DiagramOverlayPosition, overlayId?: string, message?: string, removeText?: string, isFunctionMember?: boolean) => {
+        const ChildComp = (DialogBoxes as any)[type];
+        if (!ChildComp) {
+            return;
+        }
+        const handleOnConfirm = () => {
+            onConfirm();
+            setIsDialogActive(false);
+        };
+
+        const handleOnCancel = () => {
+            if (onCancel) {
+                onCancel();
+            }
+            setIsDialogActive(false);
+        };
+
+        setActiveDialog(<ChildComp onConfirm={handleOnConfirm} onCancel={handleOnCancel} position={position} overlayId={overlayId} message={message} removeText={removeText} isFunctionMember={isFunctionMember} />);
+        setIsDialogActive(true);
+    };
+
+    const handleRenderPlusWidget = (dialogType: string, plusWidgetProps: PlusWidgetProps, plusViewState?: PlusViewState): any => {
+        const ChildComp = (DialogBoxes as any)[dialogType];
+        if (!ChildComp) {
+            return;
+        }
+        return (<ChildComp {...plusWidgetProps} viewState={plusViewState} />);
+    };
+
+    const handleShowTooltip = (component: any, type: string,
+                               text?: { heading?: string, content?: string, example?: string, code?: string },
+                               placement?: | 'bottom-end' | 'bottom-start' | 'bottom' | 'left-end' | 'left-start' | 'left' | 'right-end' | 'right-start' | 'right' | 'top-end' | 'top-start' | 'top',
+                               arrow?: boolean,
+                               diagnostic?: { diagnosticMsgs?: string, code?: string, severity?: string },
+                               action?: { link: string, text: string },
+                               disabled?: boolean,
+                               onClick?: () => void,
+                               additionalParams?: any): any => {
+        return (
+            additionalParams ? (
+                <Tooltip type={type} text={text} diagnostic={diagnostic} placement={placement} arrow={arrow} action={action} onClick={onClick} disabled={disabled} {...additionalParams} >
+                    {component}
+                </Tooltip>
+            ) : (
+                <Tooltip type={type} text={text} diagnostic={diagnostic} placement={placement} arrow={arrow} action={action} onClick={onClick} disabled={disabled} >
+                    {component}
+                </Tooltip>
+            )
+        );
+    };
+
+    const handleOpenPerformanceChart = async (name: string, range: NodePosition, diagramRedrawFunc: any) => {
+        await addAdvancedLabels(name, range, diagramRedrawFunc);
     };
 
     const textLoader = (
@@ -131,21 +267,21 @@ export function Diagram() {
         </div>
     );
 
-    const diagramErrorMessage = (
-        <div className={classes.diagramErrorStateWrapper}>
-            <DiagramErrorState
-                x={5}
-                y={-100}
-                errorCount={numberOfErrors}
-                warningCount={numberOfWarnings}
-                onClose={closeErrorDialog}
-                onOpen={openErrorDialog}
-                isErrorMsgVisible={isErrorStateDialogOpen}
-            />
-        </div>
-    );
+    // const diagramErrorMessage = (
+    //     <div className={classes.diagramErrorStateWrapper}>
+    //         <DiagramErrorState
+    //             x={5}
+    //             y={-100}
+    //             errorCount={numberOfErrors}
+    //             warningCount={numberOfWarnings}
+    //             onClose={closeErrorDialog}
+    //             onOpen={openErrorDialog}
+    //             isErrorMsgVisible={isErrorStateDialogOpen}
+    //         />
+    //     </div>
+    // );
 
-    const diagramStatus = (diagnosticInDiagram || warningsInDiagram) ? diagramErrorMessage : null;
+    // const diagramStatus = (diagnosticInDiagram || warningsInDiagram) ? diagramErrorMessage : null;
 
     if (!syntaxTree) {
         if (isLoadingAST) {
@@ -177,32 +313,52 @@ export function Diagram() {
     return (
         <div id="canvas">
             {(codeTriggerredUpdateInProgress || isMutationInProgress || isModulePullInProgress) && textLoader}
-            {(diagnosticInDiagram || warningsInDiagram) && (
-                <div className={classnames(classes.diagramErrorStateWrapper)}>
-                    {diagnosticInDiagram && <OverlayBackground />}
-                    {diagramStatus}
+            <div className='container'>
+                <div className={classes.DesignContainer}>
+                    <LowCodeDiagram
+                        syntaxTree={syntaxTree}
+                        isReadOnly={isReadOnly}
+                        performanceData={performanceData}
+                        selectedPosition={selectedPosition}
+                        zoomStatus={zoomStatus}
+                        stSymbolInfo={stSymbolInfo}
+                        api={{
+                            edit: {
+                                deleteComponent: handleDeleteComponent,
+                                renderAddForm: handleDiagramAdd,
+                                renderEditForm: handleDiagramEdit,
+                                renderConnectorWizard: handleConnectorConfigWizard,
+                                renderDialogBox: handleRenderDialogBox,
+                                closeAllOpenedForms: handleCloseAllOpenedForms,
+                                renderPlusWidget: handleRenderPlusWidget,
+                                openPerformanceChart: handleOpenPerformanceChart,
+                                showTooltip: handleShowTooltip
+                            },
+                            code: {
+                                gotoSource,
+                                modifyDiagram
+                            },
+                            webView: {
+                                showDocumentationView,
+                                showSwaggerView
+                            },
+                            project: {
+                                run
+                            },
+                            insights: {
+                                onEvent
+                            }
+                        }}
+                    />
+                    {isFormOpen && !isConnectorConfigWizardOpen && (
+                        <FormGenerator {...formConfig} />
+                    )}
+                    {!isFormOpen && isConnectorConfigWizardOpen && (
+                        <ConnectorConfigWizard {...connectorConfigWizardProps} />
+                    )}
+                    {isDialogActive && activeDialog}
                 </div>
-            )}
-            {isErrorDetailsOpen && <ErrorList />}
-            <Container className={classes.DesignContainer}>
-                <LowCodeDiagram
-                    syntaxTree={syntaxTree}
-                    isReadOnly={isReadOnly}
-                    experimentalEnabled={experimentalEnabled}
-                    api={{
-                        edit: {
-                            renderAddForm: handleDiagramAdd,
-                            renderEditForm: handleDiagramEdit
-                        },
-                        code: {
-                            gotoSource
-                        }
-                    }}
-                />
-                {isFormOpen && (
-                    <FormGenerator {...formConfig} />
-                )}
-            </Container>
+            </div>
         </div>
     );
 }

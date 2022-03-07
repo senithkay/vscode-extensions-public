@@ -11,7 +11,7 @@
     "scripts": {
         "prebuild": "npm run lint",
         "build": "tsc --pretty && npm run copy:assets",
-        "copy:assets": "copyfiles -u 1 src/**/*.scss src/**/*.svg src/**/*.css src/**/*.png src/**/*.txt src/**/*.json build/",
+        "copy:assets": "copyfiles -u 1 src/**/*.scss src/**/*.svg src/**/*.css src/**/*.png src/**/*.txt src/**/*.json lib/",
         "clean": "rimraf build/",
         "clean:nm": "rimraf node_modules",
         "watch": "tsc --pretty --watch",

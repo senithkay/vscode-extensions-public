@@ -13,7 +13,7 @@
 import React, { useState } from "react";
 
 import { FormControl } from "@material-ui/core";
-import { FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 
 import { StatementEditor, StatementEditorProps } from "../components/StatementEditor";

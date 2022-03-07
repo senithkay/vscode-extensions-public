@@ -20,7 +20,6 @@ import { AddIcon } from "../../../../../../assets/icons";
 import DeleteButton from "../../../../../../assets/icons/DeleteButton";
 import EditButton from "../../../../../../assets/icons/EditButton";
 import { Context, FormState } from "../../../../../../Contexts/EnumEditor";
-import { ComponentExpandButton } from "../../../../LowCodeDiagram/Components/ComponentExpandButton";
 import { keywords } from "../../../../Portals/utils/constants";
 import { FormTextInput } from "../../../FormFieldComponents/TextField/FormTextInput";
 import { FieldEditor } from "../FieldEditor";

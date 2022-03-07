@@ -19,13 +19,8 @@ import classnames from "classnames";
 import { Box, FormControl, IconButton, Typography } from "@material-ui/core";
 import { ControlPoint, RemoveCircleOutlineRounded } from "@material-ui/icons";
 
-import {
-    FormActionButtons,
-    FormElementProps,
-    FormField,
-    FormHeaderSection,
-    DiagramDiagnostic
-} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FormField, DiagramDiagnostic, ConditionConfig, ElseIfConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FormActionButtons, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { Context } from "../../../../../../../Contexts/Diagram";
 import {
     createElseIfStatement,
@@ -39,7 +34,7 @@ import {
 import { useStyles } from "../../../../DynamicConnectorForm/style";
 import { ExpressionEditorProps } from "@wso2-enterprise/ballerina-expression-editor";
 import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
-import { ConditionConfig, ElseIfConfig } from "../../../../Types";
+import { FormElementProps } from "../../../../Types";
 import Tooltip from '../../../../../../../components/TooltipV2'
 import { LowCodeExpressionEditor } from "../../../../FormFieldComponents/LowCodeExpressionEditor";
 

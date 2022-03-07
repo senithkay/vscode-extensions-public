@@ -11,81 +11,54 @@
  * associated services.
  */
 import { ExpressionEditorState, FormField, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import { Diagnostic } from "vscode-languageserver-protocol";
+
+export enum GenerationType {
+    ASSIGNMENT,
+    NEW
+}
+
+export interface FormElementProps<T = {}> extends FormElementEvents {
+    model?: FormField | any;
+    index?: number;
+    customProps?: T;
+    defaultValue?: any;
+    placeholder?: string;
+    label?: string;
+    rowsMax?: number;
+    errorMessage?: string;
+    validateEmptyField?: (field: string, isEmpty: boolean) => void;
+    onFieldValueChange?: (isRequiredFieldsFilled: boolean) => void;
+    size?: "small" | "medium";
+    type?: "string" | "number" | "array" | "record" | "|" | "varref" | "int" | "float" | "boolean" | "json" | "var";
+    editorDiagnostics?: Diagnostic[];
+    mainDiagnostics?: Diagnostic[];
+    targetPositionDraft?: any;
+    disabled?: boolean;
+    dataTestId?: string;
+    currentValue?: string;
+    tooltip?: string;
+    hideLabelTooltips?: boolean;
+    hideLabel?: boolean;
+}
+
+export interface FormElementEvents {
+    // Should use either KeyUp or OnChange callBack
+    onChange?: (event: any) => void;
+    // This callback is to detect KeyUp event
+    onKeyUp?: (event: any) => void;
+    // This callback is to detect focus out
+    onBlur?: (event: any) => void;
+    onClick?: () => void;
+    onFocus?: (event: any) => void;
+    dispatchExprEditorStart?: (editor: ExpressionEditorState) => void;
+    dispatchExprEditorContentChange?: (editor: ExpressionEditorState) => void;
+    dispatchExprEditorClose?: (editor: ExpressionEditorState) => void;
+}
+
 export interface FormFieldChecks {
     name: string;
     isValid: boolean;
     isEmpty?: boolean;
     canIgnore?: boolean; // Ff field is optional or defaultable
-}
-
-export interface ConditionConfig {
-    type: string;
-    conditionExpression?: string | ForeachConfig | ElseIfConfig;
-    scopeSymbols?: string[];
-    conditionPosition?: NodePosition;
-    model?: STNode
-}
-
-export interface ForeachConfig {
-    variable: string;
-    collection: string;
-    type: string;
-    model?: STNode
-}
-
-export interface ElseIfConfig {
-    values: {id: number, expression: string, position: NodePosition}[]
-}
-
-export interface ProcessConfig {
-    type: string;
-    config?: string | LogConfig | RespondConfig | CustomExpressionConfig | WorkerConfig;
-    scopeSymbols?: string[];
-    model?: STNode;
-    wizardType?: WizardType;
-    targetPosition?: NodePosition;
-}
-
-export interface WorkerConfig {
-    name: string;
-    returnType: string;
-}
-
-export interface LogConfig {
-    type: string;
-    expression: string;
-}
-
-export interface CustomExpressionConfig {
-    expression: string;
-}
-
-export interface RespondConfig {
-    genType: string;
-    caller: string;
-    respondExpression: string;
-    variable: string;
-    responseCode?: string;
-}
-
-export interface TypeInfo {
-    name: string;
-    orgName: string;
-    moduleName: string;
-    version: string;
-}
-
-export interface DataMapperInputTypeInfo {
-    type: string;
-    name: string;
-    node?: STNode;
-}
-export interface EndConfig {
-    type: string;
-    expression?: string | RespondConfig;
-    scopeSymbols?: string[];
-    wizardType?: WizardType;
-    model?: STNode;
 }

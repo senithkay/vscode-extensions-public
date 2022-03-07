@@ -12,6 +12,7 @@
  */
 import React, { useContext, useReducer } from "react";
 
+import { DataMapperConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { recalculateSizingAndPositioning, sizingAndPositioning } from "../Diagram/utils/diagram-util";
@@ -25,11 +26,6 @@ const reducer = (state: LowCodeEditorState, action: any) => {
             return {
                 ...state,
                 syntaxTree: sizingAndPositioning(action.payload, state.experimentalEnabled),
-            }
-        case 'SET_TRIGGER_UPDATED':
-            return {
-                ...state,
-                triggerUpdated: action.payload,
             }
         case 'DIAGRAM_REDRAW':
             return {
@@ -57,10 +53,21 @@ const reducer = (state: LowCodeEditorState, action: any) => {
                 ...state,
                 dataMapperConfig: action.payload
             }
+        case 'UPDATE_CURRENT_FUNCTION_NODE':
+            return {
+                ...state,
+                currentFunctionNode: action.payload
+            }
         default:
             return state;
     }
 };
+
+const updateCurrentFunctionNode = (dispatch: any) => {
+    return (payload: any) => {
+        dispatch({ type: 'UPDATE_CURRENT_FUNCTION_NODE', payload });
+    };
+}
 
 const updateState = (dispatch: any) => {
     return (payload: any) => {
@@ -119,6 +126,7 @@ export const Provider: React.FC<LowCodeEditorProps> = (props) => {
         insertComponentStart: insertComponentStart(dispatch),
         editorComponentStart: editorComponentStart(dispatch),
         toggleDiagramOverlay: toggleDiagramOverlay(dispatch),
+        updateCurrentFunctionNode: updateCurrentFunctionNode(dispatch),
         setTriggerUpdated: setTriggerUpdated(dispatch)
     };
 

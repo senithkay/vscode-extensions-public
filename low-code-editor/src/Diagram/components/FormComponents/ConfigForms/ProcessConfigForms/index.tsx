@@ -14,11 +14,10 @@
 // tslint:disable: jsx-wrap-multiline
 import React, { useContext } from "react";
 
-import { ConfigOverlayFormStatus, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ConfigOverlayFormStatus, CustomExpressionConfig, LogConfig, WorkerConfig, LowcodeEvent, ProcessConfig, SAVE_STATEMENT, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NamedWorkerDeclaration, NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../Contexts/Diagram";
-import { LowcodeEvent, SAVE_STATEMENT } from "../../../../models";
 import {
     createImportStatement,
     createLogStatement,
@@ -29,7 +28,6 @@ import {
 } from "../../../../utils/modification-util";
 import { DiagramOverlayPosition } from "../../../Portals/Overlay";
 import { InjectableItem } from "../../FormGenerator";
-import { CustomExpressionConfig, LogConfig, ProcessConfig, WorkerConfig } from "../../Types";
 
 import { ProcessForm } from "./ProcessForm";
 

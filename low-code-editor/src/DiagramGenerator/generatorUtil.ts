@@ -1,10 +1,11 @@
 import { monaco } from "react-monaco-editor";
 
-import { DiagramDiagnostic, DiagramEditorLangClientInterface, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { initVisitor, PositioningVisitor, SizingVisitor } from "@wso2-enterprise/ballerina-low-code-diagram";
+import { DiagramDiagnostic, DiagramEditorLangClientInterface, PerformanceAnalyzerGraphResponse, PerformanceAnalyzerRealtimeResponse, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FunctionDefinition, ModulePart, ResourceAccessorDefinition, ServiceDeclaration, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 
 import { cleanLocalSymbols, cleanModuleLevelSymbols } from "../Diagram/visitors/symbol-finder-visitor";
-import { initVisitor, PositioningVisitor, SizingVisitor, SymbolVisitor } from "../index";
+import { SymbolVisitor } from "../index";
 import { SelectedPosition } from "../types";
 
 import { addExecutorPositions } from "./executor";
@@ -98,17 +99,6 @@ export function isDeleteModificationAvailable(modifications: STModification[]): 
         }
     }
     return isAvailable;
-}
-
-export interface ErrorSnippet {
-    diagnosticMsgs?: string,
-    code?: string,
-    severity?: string
-}
-
-export interface DiagnosticMsgSeverity {
-    message: string,
-    severity: string
 }
 
 export function getModifyPosition(modificationList: STModification[]): SelectedPosition {

@@ -13,11 +13,10 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext } from "react";
 
-import { ConfigOverlayFormStatus } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ConditionConfig, ConfigOverlayFormStatus, ElseIfConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { Context } from "../../../../../../Contexts/Diagram";
 import { TextPreloaderVertical } from "../../../../../../PreLoader/TextPreloaderVertical";
-import { ConditionConfig, ElseIfConfig } from "../../../Types";
 
 import { AddForeachForm } from "./AddForeachForm";
 import { AddIfForm } from "./AddIfForm/index";

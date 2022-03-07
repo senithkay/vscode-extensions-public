@@ -17,7 +17,8 @@ import { FormattedMessage, useIntl } from "react-intl";
 import { FormHelperText } from "@material-ui/core";
 import AddRounded from "@material-ui/icons/AddRounded";
 import CloseRounded from "@material-ui/icons/CloseRounded";
-import { ButtonWithIcon, FormElementProps, FormField, getType, IconBtnWithText } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FormElementProps, FormField, getType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ButtonWithIcon, IconBtnWithText } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import classNames from "classnames";
 
 import { getFormElement, getParams } from "../../../Portals/utils";

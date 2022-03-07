@@ -13,12 +13,11 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext } from "react";
 
-import { ConfigOverlayFormStatus, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ConfigOverlayFormStatus, ProcessConfig, WorkerConfig, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { LocalVarDecl, NamedWorkerDeclaration } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../../Contexts/Diagram";
 import { TextPreloaderVertical } from "../../../../../../PreLoader/TextPreloaderVertical";
-import { ProcessConfig, WorkerConfig } from "../../../Types";
 
 import { AddAssignmentConfig } from "./AddAssignmentConfig";
 import { AddCustomStatementConfig } from "./AddCustomStatementConfig";

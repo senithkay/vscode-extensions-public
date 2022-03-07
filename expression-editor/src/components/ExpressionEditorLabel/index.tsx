@@ -14,7 +14,8 @@
 import React from "react";
 
 import { FormHelperText } from "@material-ui/core";
-import { FormElementProps, TooltipCodeSnippet, TooltipIcon, useStyles as useTextInputStyles } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FormElementProps, useStyles as useTextInputStyles } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { TooltipCodeSnippet, TooltipIcon } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import * as MonacoEditor from 'monaco-editor';
 
 import { useStyles as useFormStyles } from "../../themes";
