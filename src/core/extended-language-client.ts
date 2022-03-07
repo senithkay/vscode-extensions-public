@@ -67,7 +67,8 @@ enum EXTENDED_APIS {
     PERF_ANALYZER_RESOURCES_ENDPOINTS = 'performanceAnalyzer/getResourcesWithEndpoints',
     RESOLVE_MISSING_DEPENDENCIES = 'ballerinaDocument/resolveMissingDependencies',
     BALLERINA_TO_OPENAPI = 'openAPILSExtension/generateOpenAPI',
-    GET_BAL_SHELL_RESULT = "balShell/getResult"
+    GET_BAL_SHELL_RESULT = "balShell/getResult",
+    GET_BAL_SHELL_FILE_SOURCE = "balShell/getShellFileSource"
 }
 
 enum EXTENDED_APIS_ORG {
@@ -162,6 +163,11 @@ export interface BalShellResponse {
     shellValue?: ShellValue,
     errors: string[],
     diagnostics: string[]
+}
+
+export interface ShellFileSourceResponse{
+    content: string,
+    filePath: string
 }
 
 interface BallerinaInitializeParams {
@@ -553,10 +559,17 @@ export class ExtendedLangClient extends LanguageClient {
     }
 
     getBalShellResult(params: BalShellRequest): Thenable<BalShellResponse> {
-        if (!this.isExtendedServiceSupported(EXTENDED_APIS.JSON_TO_RECORD_CONVERT)) {
+        if (!this.isExtendedServiceSupported(EXTENDED_APIS.GET_BAL_SHELL_RESULT)) {
             Promise.resolve(NOT_SUPPORTED);
         }
         return this.sendRequest(EXTENDED_APIS.GET_BAL_SHELL_RESULT, params);
+    }
+
+    getShellBufferFilePath(): Thenable<ShellFileSourceResponse> {
+        if (!this.isExtendedServiceSupported(EXTENDED_APIS.GET_BAL_SHELL_FILE_SOURCE)) {
+            Promise.resolve(NOT_SUPPORTED);
+        }
+        return this.sendRequest(EXTENDED_APIS.GET_BAL_SHELL_FILE_SOURCE);
     }
 
     getSTForSingleStatement(params: PartialSTRequestParams): Thenable<PartialSTResponse> {
@@ -631,7 +644,7 @@ export class ExtendedLangClient extends LanguageClient {
                 { name: EXTENDED_APIS_ORG.PERF_ANALYZER, getResourcesWithEndpoints: true },
                 { name: EXTENDED_APIS_ORG.PARTIAL_PARSER, getSTForSingleStatement: true, getSTForExpression: true },
                 { name: EXTENDED_APIS_ORG.BALLERINA_TO_OPENAPI, generateOpenAPI: true },
-                { name: EXTENDED_APIS_ORG.BAL_SHELL, getResult: true }
+                { name: EXTENDED_APIS_ORG.BAL_SHELL, getResult: true, getShellFileSource: true }
             ]
         }).then(response => {
             this.ballerinaExtendedServices = new Set();

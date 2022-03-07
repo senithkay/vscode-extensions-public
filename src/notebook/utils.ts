@@ -17,7 +17,7 @@
  *
  */
 
-import * as fs from "fs";
+import { existsSync, writeFileSync } from "fs";
 import { TextEncoder } from "util";
 import { Uri, workspace } from "vscode";
 
@@ -27,8 +27,19 @@ export async function createFile(uri: Uri, content: string){
 }
 
 export async function deleteFile(uri: Uri){
-    if (fs.existsSync(uri.fsPath)) {
+    if (existsSync(uri.fsPath)) {
         await workspace.fs.delete(uri);
     }
     return;
+}
+
+export async function addText(text: string,uri: Uri){
+    await writeFileSync(uri.fsPath, text);
+    return;
+}
+
+export function getPlainTextSnippet(snippet: string) {
+    return snippet
+            .replaceAll("\\$\\{\\d+:([^\\{^\\}]*)\\}", "$1")
+            .replaceAll("(\\$\\{\\d+\\})", "");
 }

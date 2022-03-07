@@ -21,8 +21,8 @@ import { BallerinaExtension, ExtendedLangClient, LANGUAGE } from "../core";
 import { CancellationToken, CompletionContext, CompletionItem, CompletionItemProvider, 
     CompletionList, Disposable, DocumentSelector, languages, Position, ProviderResult, 
     TextDocument, Uri, } from "vscode";
-import { BAL_NOTEBOOK, NOTEBOOK_SCHEME } from "./constants";
-import { createFile, deleteFile } from "./utils";
+import { NOTEBOOK_SCHEME } from "./constants";
+import { addText, deleteFile } from "./utils";
 
 const selector: DocumentSelector = {
     scheme: NOTEBOOK_SCHEME,
@@ -51,31 +51,49 @@ export class NotebookCompletionItemProvider implements CompletionItemProvider{
         if (!langClient) {
             return [];
         }
-        let path: string = document.uri.path;
-        let uri: Uri = Uri.parse(`file:${path.substring(0, path.length - BAL_NOTEBOOK.length)}_temp.bal`);
-        await createFile(uri, document.getText());
-        langClient.didOpen({
-            textDocument: {
-                uri: uri.toString(),
-				languageId: LANGUAGE.BALLERINA,
-				version: 1,
-				text: document.getText()
-			}
-		});
+        let {content, filePath} = await langClient.getShellBufferFilePath();
+        performDidOpen(langClient, filePath, content);
+        let endPositionOfMain = await this.getEndPositionOfMain(langClient, filePath);
+        if (!endPositionOfMain) {
+            deleteFile(Uri.parse(filePath));
+            return [];
+        }
+        let textToWrite = content.substring(0, content.length - 1) + document.getText() + '\n}';
+        await addText(textToWrite, Uri.parse(filePath));
+        performDidOpen(langClient, filePath, textToWrite);
         let completions = await langClient.getCompletion({
             textDocument: {
-                uri: uri.toString()
+                uri: filePath
             },
             position: {
-                character: position.character,
-                line: position.line
+                character: endPositionOfMain.character + position.character,
+                line: endPositionOfMain.line + position.line
             },
             context: {
                 triggerKind: context.triggerKind
             }
         });
-        deleteFile(uri);
         return completions;
+    }
+
+    private async getEndPositionOfMain(langClient: ExtendedLangClient, filePath: string) {
+        let endPositionOfMain;
+        let syntaxTree = await langClient.getSyntaxTree({
+            documentIdentifier: {
+                uri: filePath
+            }
+        });
+        if (syntaxTree && syntaxTree.syntaxTree && syntaxTree.syntaxTree.members) {
+            syntaxTree.syntaxTree.members.forEach(member => {
+                if (member.kind == 'FunctionDefinition' && member.functionName.value == 'main') {
+                    endPositionOfMain = {
+                        line: member.position.endLine,
+                        character: member.position.endColumn - 1
+                    };
+                }
+            });
+        }
+        return endPositionOfMain;
     }
 }
 
@@ -84,4 +102,15 @@ export function registerLanguageProviders(ballerinaExtInstance: BallerinaExtensi
     disposables.push(
         languages.registerCompletionItemProvider(selector, new NotebookCompletionItemProvider(ballerinaExtInstance)));
     return Disposable.from(...disposables);
+}
+
+function performDidOpen(langClient: ExtendedLangClient, filePath: string, content: string) {
+    langClient.didOpen({
+        textDocument: {
+            uri: filePath,
+            languageId: LANGUAGE.BALLERINA,
+            version: 1,
+            text: content
+        }
+    });
 }
