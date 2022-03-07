@@ -6,7 +6,7 @@ const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 const APP_DIR = path.resolve(__dirname, './src');
 const MONACO_DIR = path.resolve(__dirname, '../node_modules/monaco-editor');
 const SentryPlugin = require("@sentry/webpack-plugin");
-const APP_VERSION = process.env.APP_VERSION || "Test";
+const APP_VERSION = process.env.APP_VERSION || "Low-code-default";
 
 module.exports = (env, argv) => ({
     mode: 'none',

@@ -20,7 +20,7 @@ export const init = (config: SentryConfig) => {
     try {
         Sentry.init({
             dsn: config.dsn,
-            release: process.env.APP_VERSION,
+            release: process.env.APP_VERSION || "Low-code-default",
             environment: config.environment,
             ignoreErrors: [],
             sampleRate,
@@ -32,12 +32,6 @@ export const init = (config: SentryConfig) => {
         // tslint:disable: no-console
         console.error(e);
     }
-};
-
-export const setSentryUser = (user: Pick<Sentry.User, 'id'> | null) => {
-    Sentry.configureScope((scope) => {
-        scope.setUser(user);
-    });
 };
 
 export const reportErrorWithScope = (error: any, extraInfo?: any) => {
