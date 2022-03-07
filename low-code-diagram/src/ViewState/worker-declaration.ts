@@ -12,9 +12,9 @@
  */
 import { OnFailClause } from "@wso2-enterprise/syntax-tree";
 
-import { DefaultConfig } from "../../../visitors/default";
 import { STOP_SVG_HEIGHT } from "../Components/RenderingComponents/End/StopSVG";
 import { START_SVG_HEIGHT } from "../Components/RenderingComponents/Start/StartSVG";
+import { DefaultConfig } from "../Visitors/default";
 
 import { BlockViewState } from "./block";
 import { EndViewState } from "./end";

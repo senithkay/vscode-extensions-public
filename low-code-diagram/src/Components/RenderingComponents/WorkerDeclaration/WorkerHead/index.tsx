@@ -19,7 +19,7 @@ import { Context } from "../../../../Context/diagram";
 import { WorkerDeclarationViewState } from "../../../../ViewState/worker-declaration";
 import { DeleteBtn } from "../../../DiagramActions/DeleteBtn";
 import { EditBtn } from "../../../DiagramActions/EditBtn";
-import { START_SVG_WIDTH, START_SVG_HEIGHT, StartSVG } from "../../Start/StartSVG";
+import { StartSVG, START_SVG_HEIGHT, START_SVG_WIDTH } from "../../Start/StartSVG";
 
 interface WorkerHeadProps {
     model: NamedWorkerDeclaration

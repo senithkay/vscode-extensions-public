@@ -12,7 +12,6 @@
  */
 import React, { useContext, useReducer } from "react";
 
-import { DataMapperConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { recalculateSizingAndPositioning, sizingAndPositioning } from "../Diagram/utils/diagram-util";
@@ -25,12 +24,12 @@ const reducer = (state: LowCodeEditorState, action: any) => {
         case 'DIAGRAM_CLEAN_DRAW':
             return {
                 ...state,
-                syntaxTree: sizingAndPositioning(action.payload, state.experimentalEnabled),
+                syntaxTree: sizingAndPositioning(action.payload),
             }
         case 'DIAGRAM_REDRAW':
             return {
                 ...state,
-                syntaxTree: recalculateSizingAndPositioning(action.payload, state.experimentalEnabled)
+                syntaxTree: recalculateSizingAndPositioning(action.payload)
             }
         case 'INSERT_COMPONENT_START':
             return {
@@ -117,7 +116,7 @@ export const Context = React.createContext<LowCodeEditorContext>(defaultState); 
 
 export const Provider: React.FC<LowCodeEditorProps> = (props) => {
     const { children, api, ...restProps } = props;
-    const [state, dispatch] = useReducer(reducer, { experimentalEnabled: restProps.experimentalEnabled });
+    const [state, dispatch] = useReducer(reducer, {});
 
     const actions = {
         updateState: updateState(dispatch),

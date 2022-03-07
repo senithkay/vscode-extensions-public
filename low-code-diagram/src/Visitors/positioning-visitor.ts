@@ -60,9 +60,8 @@ import {
 } from "../ViewState";
 import { WorkerDeclarationViewState } from "../ViewState/worker-declaration";
 
-import { AsyncReceiveInfo, AsyncSendInfo, SendRecievePairInfo, WaitInfo } from "./sizing-visitor";
-
 import { DefaultConfig } from "./default";
+import { AsyncReceiveInfo, AsyncSendInfo, SendRecievePairInfo, WaitInfo } from "./sizing-visitor";
 import { getPlusViewState, updateConnectorCX } from "./util";
 
 let allEndpoints: Map<string, Endpoint> = new Map<string, Endpoint>();

@@ -14,14 +14,14 @@ import React from 'react';
 
 import { NamedWorkerDeclaration } from '@wso2-enterprise/syntax-tree';
 
-
-import './style.scss';
-import { WorkerHead } from './WorkerHead';
 import { BlockViewState } from '../../../ViewState';
 import { WorkerDeclarationViewState } from '../../../ViewState/worker-declaration';
 import { End } from '../End';
 import { WorkerBody } from '../WorkerBody';
 import { WorkerLine } from '../WorkerLine';
+
+import './style.scss';
+import { WorkerHead } from './WorkerHead';
 
 interface WorkerProps {
     model: NamedWorkerDeclaration;

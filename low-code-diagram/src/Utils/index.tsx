@@ -13,31 +13,31 @@ import { Statement } from "../Components/RenderingComponents/Statement";
 import { BlockViewState, FunctionViewState, StatementViewState } from "../ViewState";
 import { DraftStatementViewState } from "../ViewState/draft";
 import { initVisitor } from "../Visitors/init-visitor";
-import { positionVisitor } from "../Visitors/positioning-visitor";
-import { sizingVisitor } from "../Visitors/sizing-visitor";
+import { PositioningVisitor, positionVisitor } from "../Visitors/positioning-visitor";
+import { SizingVisitor, sizingVisitor } from "../Visitors/sizing-visitor";
 import { isSTActionInvocation } from "../Visitors/util";
 
 export function sizingAndPositioning(st: STNode): STNode {
     traversNode(st, initVisitor);
-    traversNode(st, sizingVisitor);
-    traversNode(st, positionVisitor);
+    traversNode(st, new SizingVisitor());
+    traversNode(st, new PositioningVisitor());
 
     if (STKindChecker.isFunctionDefinition(st) && st?.viewState?.onFail) {
         const viewState = st.viewState as FunctionViewState;
-        traversNode(viewState.onFail, sizingVisitor);
-        traversNode(viewState.onFail, positionVisitor);
+        traversNode(viewState.onFail, new SizingVisitor());
+        traversNode(viewState.onFail, new PositioningVisitor());
     }
     const clone = { ...st };
     return clone;
 }
 
 export function recalculateSizingAndPositioning(st: STNode): STNode {
-    traversNode(st, sizingVisitor);
-    traversNode(st, positionVisitor);
+    traversNode(st, new SizingVisitor());
+    traversNode(st, new PositioningVisitor());
     if (STKindChecker.isFunctionDefinition(st) && st?.viewState?.onFail) {
         const viewState = st.viewState as FunctionViewState;
-        traversNode(viewState.onFail, sizingVisitor);
-        traversNode(viewState.onFail, positionVisitor);
+        traversNode(viewState.onFail, new SizingVisitor());
+        traversNode(viewState.onFail, new PositioningVisitor());
     }
     const clone = { ...st };
     return clone;

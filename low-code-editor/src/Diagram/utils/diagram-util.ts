@@ -1,5 +1,5 @@
 
-import { FunctionViewState, initVisitor, positionVisitor, sizingVisitor } from "@wso2-enterprise/ballerina-low-code-diagram";
+import { FunctionViewState, initVisitor, PositioningVisitor, SizingVisitor } from "@wso2-enterprise/ballerina-low-code-diagram";
 import { DiagramSize } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 

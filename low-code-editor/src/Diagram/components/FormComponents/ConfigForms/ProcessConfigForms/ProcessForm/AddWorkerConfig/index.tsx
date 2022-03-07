@@ -15,14 +15,14 @@ import React, { useState } from "react";
 import { useIntl } from "react-intl";
 
 import { FormControl } from "@material-ui/core";
-import { FormActionButtons, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ProcessConfig, WorkerConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FormActionButtons, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { NamedWorkerDeclaration, NodePosition } from "@wso2-enterprise/syntax-tree";
 import { v4 as uuid } from 'uuid';
 
 import { useDiagramContext } from "../../../../../../../Contexts/Diagram";
 import { useStyles as useFormStyles } from "../../../../DynamicConnectorForm/style";
 import { SwitchToggle } from "../../../../FormFieldComponents/SwitchToggle";
-import { ProcessConfig, WorkerConfig } from "../../../../Types";
 import { VariableNameInput } from "../../../Components/VariableNameInput";
 
 interface WorkerConfigFormProps {
