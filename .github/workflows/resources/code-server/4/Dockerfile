@@ -1,6 +1,6 @@
 FROM choreoanonymouspullable.azurecr.io/choreoipaas/choreo-ballerina:2201.0.1 as choreo-ballerina
 
-FROM linuxserver/code-server:version-v3.12.0
+FROM linuxserver/code-server:version-v4.0.1
 
 WORKDIR /root/
 
@@ -16,9 +16,9 @@ ENV JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
 
 ARG BALLERINA_VSIX_URI
 ARG BALLERINA_VSIX_NAME
-ARG mainHtml=/usr/local/share/.config/yarn/global/node_modules/code-server/src/browser/pages/vscode.html
+ARG mainHtml=/usr/local/share/.config/yarn/global/node_modules/code-server/vendor/modules/code-oss-dev/out/vs/code/browser/workbench/workbench.html
 ARG webViewMain=/usr/local/share/.config/yarn/global/node_modules/code-server/vendor/modules/code-oss-dev/out/vs/workbench/contrib/webview/browser/pre/main.js
-ARG CODE_SERVER_VERSION=3.12.0
+ARG CODE_SERVER_VERSION=4.0.1
 
 ENV LOW_CODE_MODE true
 ENV CODE_SERVER_ENV true
@@ -41,4 +41,5 @@ RUN sudo apt-get update && \
     sed -i '/<\/head>/i <!-- Hotjar Tracking Code for Choreo-prod -->\n<script>\n(function(h,o,t,j,a,r){h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};h._hjSettings={hjid:2626534,hjsv:6};a=o.getElementsByTagName(\"head\")[0];r=o.createElement(\"script\");r.async=1;r.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;a.appendChild(r);})(window,document,\"https://static.hotjar.com/c/hotjar-\",\".js?sv=\");\n</script>' $mainHtml  && \
     sed -i -e 's/{{CS_STATIC_BASE}}/https:\/\/choreo-shared-codeserver-cdne.azureedge.net\/code-server@'$CODE_SERVER_VERSION'/g' $mainHtml
 
-RUN echo "{\n\"workbench.startupEditor\": \"none\",\n\"window.dialogStyle\": \"custom\"}" > /config/data/User/settings.json
+RUN mkdir /config/data/User && \
+    echo "{\"workbench.startupEditor\": \"none\",\"window.dialogStyle\": \"custom\"}" > /config/data/User/settings.json
