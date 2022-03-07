@@ -29,9 +29,9 @@ export function ConnectorProcessSVG(props: {
     openInCodeView?: () => void
 }) {
     const { sourceSnippet, diagnostics, openInCodeView, ...xyProps } = props;
-    const tooltipText = {
+    const tooltipText = sourceSnippet ? {
         code: sourceSnippet
-    }
+    } : undefined;
     return (
         <svg {...xyProps} width={CONNECTOR_PROCESS_SVG_WIDTH} height={CONNECTOR_PROCESS_SVG_HEIGHT}>
             <defs>
