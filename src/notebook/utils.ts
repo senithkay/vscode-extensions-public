@@ -39,7 +39,5 @@ export async function addText(text: string,uri: Uri){
 }
 
 export function getPlainTextSnippet(snippet: string) {
-    return snippet
-            .replaceAll("\\$\\{\\d+:([^\\{^\\}]*)\\}", "$1")
-            .replaceAll("(\\$\\{\\d+\\})", "");
+    return snippet.replace(/\${\d+(:\S+)*}/g, "");
 }

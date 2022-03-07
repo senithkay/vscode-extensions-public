@@ -22,7 +22,7 @@ import { CancellationToken, CompletionContext, CompletionItem, CompletionItemPro
     CompletionList, Disposable, DocumentSelector, languages, Position, ProviderResult, 
     TextDocument, Uri, } from "vscode";
 import { NOTEBOOK_SCHEME } from "./constants";
-import { addText } from "./utils";
+import { addText, getPlainTextSnippet } from "./utils";
 import { CompletionResponse } from "@wso2-enterprise/ballerina-low-code-editor";
 
 const selector: DocumentSelector = {
@@ -70,7 +70,10 @@ export class NotebookCompletionItemProvider implements CompletionItemProvider{
                 triggerKind: context.triggerKind
             }
         });
-        return filterCompletions(completions);
+        return filterCompletions(completions).map(item => {
+            let value =  {...item, insertText: getPlainTextSnippet(item.insertText)};
+            return value;
+        });
     }
 
     private async getEndPositionOfMain(langClient: ExtendedLangClient, filePath: string) {
