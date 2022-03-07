@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 
 import { Box, CircularProgress, ListItem, ListItemIcon, ListItemText, Typography } from "@material-ui/core";
 import {
@@ -30,15 +30,14 @@ interface ModuleElementProps {
     key: number,
     isFunction: boolean
     label: string
-    libraryDataFetchingHandler: (isFetching: boolean, moduleElement?: string) => void
-    clickedModuleElement?: string
 }
 
 export function ModuleElement(props: ModuleElementProps) {
     const stmtCtx = useContext(StatementEditorContext);
     const statementEditorClasses = useStatementEditorStyles();
-    const { moduleProperty, key, isFunction, label, libraryDataFetchingHandler, clickedModuleElement } = props;
+    const { moduleProperty, key, isFunction, label } = props;
     const { id, moduleId, moduleOrgName, moduleVersion } = moduleProperty;
+    const [clickedModuleElement, setClickedModuleElement] = useState('');
 
     const {
         modelCtx: {
@@ -59,7 +58,7 @@ export function ModuleElement(props: ModuleElementProps) {
         let content = moduleId.includes('.') ? `${moduleId.split('.').pop()}0:${id}` : `${moduleId}:${id}`;
 
         if (isFunction) {
-            libraryDataFetchingHandler(true, content);
+            setClickedModuleElement(content);
             const response: LibraryDataResponse = await getLibraryData(moduleOrgName, moduleId, moduleVersion);
 
             let functionProperties: LibraryFunction = null;
@@ -81,7 +80,7 @@ export function ModuleElement(props: ModuleElementProps) {
 
                 content += `(${parameters.join(',')})`;
             }
-            libraryDataFetchingHandler(false);
+            setClickedModuleElement('');
         }
 
         updateModuleList(`import ${getFQModuleName(moduleOrgName, moduleId)};`);

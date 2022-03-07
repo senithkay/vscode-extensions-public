@@ -73,7 +73,6 @@ export function LibraryBrowser(props: LibraryBrowserProps) {
     const [moduleTitle, setModuleTitle] = useState('');
     const [moduleSelected, setModuleSelected] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-    const [clickedModuleElement, setClickedModuleElement] = useState('');
 
     useEffect(() => {
         (async () => {
@@ -136,7 +135,6 @@ export function LibraryBrowser(props: LibraryBrowserProps) {
 
     const libraryDataFetchingHandler = (isFetching: boolean, moduleElement?: string) => {
         setIsLoading(isFetching);
-        setClickedModuleElement(moduleElement);
     }
 
     const loadingScreen = (
@@ -184,7 +182,7 @@ export function LibraryBrowser(props: LibraryBrowserProps) {
                         />
                     </FormControl>
                 </div>
-                {(isLoading && clickedModuleElement === undefined) ? loadingScreen : (
+                {isLoading ? loadingScreen : (
                     <>
                         {libraryBrowserMode === LibraryBrowserMode.LIB_LIST && !moduleTitle && (
                             <LibrariesList
@@ -198,7 +196,6 @@ export function LibraryBrowser(props: LibraryBrowserProps) {
                                 librarySearchResponse={libraryData.searchData}
                                 moduleSelected={moduleSelected}
                                 libraryDataFetchingHandler={libraryDataFetchingHandler}
-                                clickedModuleElement={clickedModuleElement}
                             />
                         )}
                         {libraryBrowserMode === LibraryBrowserMode.LIB_SEARCH && filteredSearchData && (
@@ -207,7 +204,6 @@ export function LibraryBrowser(props: LibraryBrowserProps) {
                                 libraryBrowsingHandler={libraryBrowsingHandler}
                                 moduleSelected={moduleSelected}
                                 libraryDataFetchingHandler={libraryDataFetchingHandler}
-                                clickedModuleElement={clickedModuleElement}
                             />
                         )}
                     </>

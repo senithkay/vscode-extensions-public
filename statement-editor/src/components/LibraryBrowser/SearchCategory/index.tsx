@@ -23,13 +23,11 @@ import { ModuleElement } from "../ModuleElement";
 interface SearchCategoryProps {
     label: string,
     searchResult: ModuleProperty[]
-    libraryDataFetchingHandler: (isFetching: boolean, moduleElement?: string) => void
-    clickedModuleElement?: string
 }
 
 export function SearchCategory(props: SearchCategoryProps) {
     const statementEditorClasses = useStatementEditorStyles();
-    const { label, searchResult, libraryDataFetchingHandler, clickedModuleElement } = props;
+    const { label, searchResult } = props;
 
     return (
         <div className={statementEditorClasses.libraryElementBlock}>
@@ -48,8 +46,6 @@ export function SearchCategory(props: SearchCategoryProps) {
                         key={index}
                         isFunction={label === 'Functions'}
                         label={label}
-                        libraryDataFetchingHandler={libraryDataFetchingHandler}
-                        clickedModuleElement={clickedModuleElement}
                     />
                 ))}
             </List>
