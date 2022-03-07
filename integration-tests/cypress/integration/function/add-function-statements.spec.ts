@@ -370,7 +370,7 @@ describe('Add function and statements via Low Code', () => {
     LogForm
       .shouldBeVisible()
       .selectType("Error")
-      .typeExpression(`"This is an error message."`)
+      .typeExpression(`"Updated this is an error log"`)
       .save();
 
     SourceCode.shouldBeEqualTo(

@@ -15,7 +15,7 @@ import React from "react";
 import { useIntl } from "react-intl";
 
 import { FormControl } from "@material-ui/core";
-import { FormHeaderSection } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { FormHeaderSection } from '@wso2-enterprise/ballerina-low-code-edtior-ui-components';
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 import { useDiagramContext } from "../../../../../../Contexts/Diagram";

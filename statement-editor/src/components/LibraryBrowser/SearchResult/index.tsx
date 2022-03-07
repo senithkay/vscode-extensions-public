@@ -13,6 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React from 'react';
 
+import { List } from "@material-ui/core";
 import {
     LibraryDataResponse,
     LibraryInfo,
@@ -26,23 +27,25 @@ import { SearchCategory } from "../SearchCategory";
 interface SearchResultProps {
     librarySearchResponse: LibrarySearchResponse,
     libraryBrowsingHandler?: (libraryData: LibraryDataResponse) => void
+    moduleSelected: boolean
 }
 
 export function SearchResult(props: SearchResultProps) {
     const statementEditorClasses = useStatementEditorStyles();
-    const { librarySearchResponse, libraryBrowsingHandler } = props;
+    const { librarySearchResponse, libraryBrowsingHandler, moduleSelected } = props;
     const { modules, classes, functions, records, constants, errors, types, clients, listeners, annotations,
             objectTypes, enums } = librarySearchResponse;
 
     return (
-        <div className={statementEditorClasses.libraryBlock}>
-            {modules.length > 0 && (
+        <>
+            {modules.length > 0 && !moduleSelected && (
                     <div>
                         <div className={statementEditorClasses.librarySearchSubHeader}>Modules</div>
-                        {modules.map((library: LibraryInfo, index: number) => (
-                            <Library libraryInfo={library} key={index} libraryBrowsingHandler={libraryBrowsingHandler}/>
-                        ))}
-                        <div className={statementEditorClasses.propertyDivider}/>
+                        <List className={statementEditorClasses.libraryListBlock} style={{paddingBottom: '25px'}}>
+                            {modules.map((library: LibraryInfo, index: number) => (
+                                <Library libraryInfo={library} key={index} libraryBrowsingHandler={libraryBrowsingHandler}/>
+                            ))}
+                        </List>
                     </div>
                 )
             }
@@ -58,6 +61,6 @@ export function SearchResult(props: SearchResultProps) {
             {annotations.length > 0 && <SearchCategory label='Annotations' searchResult={annotations} />}
             {objectTypes.length > 0 && <SearchCategory label='Object Types' searchResult={objectTypes} />}
             {enums.length > 0 && <SearchCategory label='Enums' searchResult={enums} />}
-        </div>
+        </>
     );
 }

@@ -10,6 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+import { StatementViewState } from "@wso2-enterprise/ballerina-low-code-diagram";
 import { STSymbolInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     ActionStatement,
@@ -32,7 +33,6 @@ import {
     Visitor
 } from "@wso2-enterprise/syntax-tree";
 
-import { StatementViewState } from "../components/LowCodeDiagram/ViewState";
 
 const moduleEndpoints: Map<string, STNode> = new Map();
 const localEndpoints: Map<string, STNode> = new Map();

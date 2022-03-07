@@ -17,7 +17,7 @@ import { useIntl } from "react-intl";
 import {
     PrimaryButton,
     SecondaryButton
-} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+} from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 
 import { VariableUserInputs } from '../../models/definitions';

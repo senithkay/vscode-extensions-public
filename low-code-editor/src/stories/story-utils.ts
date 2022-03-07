@@ -8,6 +8,7 @@ import { DiagramGeneratorProps } from "../DiagramGenerator";
 
 import { DiagramGeneratorWrapper } from "./DiagramGeneratorWrapper";
 import { StandaloneDiagramApp } from "./StandaloneDiagramApp";
+import balDist from "./data/baldist.json";
 
 export const MOCK_SERVER_URL = "http://localhost:3000"
 export const LANG_SERVER_URL = "ws://localhost:9095"
@@ -17,21 +18,21 @@ export const langClientPromise = WSConnection.initialize(LANG_SERVER_URL).then((
 });
 
 export async function getFileContent(filePath: string): Promise<string> {
-    return fetch(MOCK_SERVER_URL + "/file/" + encodeURIComponent(filePath))
-      .then(response => {
-        return response.text()
-      })
+  return fetch(MOCK_SERVER_URL + "/file/" + encodeURIComponent(filePath))
+    .then(response => {
+      return response.text()
+    })
 }
 
 export async function updateFileContent(filePath: string, text: string): Promise<boolean> {
   return fetch(MOCK_SERVER_URL + "/file/" + encodeURIComponent(filePath),
     {
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        },
-        method: "POST",
-        body: JSON.stringify({ text })
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      method: "POST",
+      body: JSON.stringify({ text })
     })
     .then(response => {
       return response.json()
@@ -70,6 +71,10 @@ export function getDiagramGeneratorProps(filePath: string, enableSave: boolean =
 export function renderStandaloneMockedEditor(container: string) {
     const element = createElement(StandaloneDiagramApp);
     render(element, document.getElementById(container));
+}
+
+export function getProjectRoot() {
+  return balDist.projectRoot;
 }
 
 export async function getLibrariesList(kind?: LibraryKind): Promise<LibraryDocResponse> {

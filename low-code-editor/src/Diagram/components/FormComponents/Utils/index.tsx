@@ -101,7 +101,7 @@ export function updateFunctionSignatureWithError(modifications: STModification[]
 
 function addErrorReturnType(returnTypeStr: string): string {
     // The function signature already includes the error return type.
-    if (returnTypeStr.includes("error")) {
+    if (returnTypeStr?.includes("error")) {
         return returnTypeStr;
     }
     // Handles the scenarios where the error return type is not present.

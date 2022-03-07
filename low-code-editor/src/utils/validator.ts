@@ -1,8 +1,8 @@
-import { Resource } from "../Diagram/components/LowCodeDiagram/Components/DialogBoxes/DropDown/ApiConfigureWizard/types";
+import { Resource } from "../Diagram/components/FormComponents/Utils/ApiConfigureWizard/types";
 import {
     convertReturnTypeStringToSegments,
     returnTypes
-} from "../Diagram/components/LowCodeDiagram/Components/DialogBoxes/DropDown/ApiConfigureWizard/util";
+} from "../Diagram/components/FormComponents/Utils/ApiConfigureWizard/util";
 import { keywords } from "../Diagram/components/Portals/utils/constants";
 
 

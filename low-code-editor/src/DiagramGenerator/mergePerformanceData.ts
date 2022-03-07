@@ -17,10 +17,8 @@
  *
  */
 
-import { GraphPoint, SequenceGraphPointValue } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ANALYZE_TYPE, GraphPoint, SequenceGraphPointValue } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, RemoteMethodCallAction, ResourceAccessorDefinition, STNode, traversNode, Visitor } from "@wso2-enterprise/syntax-tree";
-
-import { ANALYZE_TYPE } from "./performanceUtil";
 
 // TODO: find out what kind of invocations analyse here. is it only action invocations.
 export function mergeAnalysisDetails(

@@ -1,10 +1,10 @@
 import React from "react";
 
 import { Grid } from "@material-ui/core";
+import { ModuleIcon } from "@wso2-enterprise/ballerina-low-code-diagram";
 import { BallerinaConstruct } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import Tooltip from "../../../../../../components/TooltipV2";
-import { ModuleIcon } from "../../../../LowCodeDiagram/Components/RenderingComponents/Connector/ConnectorHeader/ModuleIcon";
 
 import useStyles from "./style";
 
