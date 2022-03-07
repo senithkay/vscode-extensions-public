@@ -17,24 +17,6 @@
  *
  */
 
-import { existsSync, writeFileSync } from "fs";
-import { TextEncoder } from "util";
-import { Uri, workspace } from "vscode";
-
-export async function createFile(uri: Uri, content: string){
-    return await workspace.fs.writeFile(uri, new TextEncoder().encode(content));
-}
-
-export async function deleteFile(uri: Uri){
-    if (existsSync(uri.fsPath)) {
-        return await workspace.fs.delete(uri);
-    }
-}
-
-export async function addText(text: string,uri: Uri){
-    return writeFileSync(uri.fsPath, text);
-}
-
 export function getPlainTextSnippet(snippet: string) {
     return snippet.replace(/\${\d+(:\S+)*}/g, "");
 }
