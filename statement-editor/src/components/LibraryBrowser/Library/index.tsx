@@ -56,7 +56,7 @@ export function Library(props: LibraryProps) {
             onClick={onClickOnLibrary}
             disableRipple={true}
         >
-            <ListItemIcon style={{ minWidth: '12%', textAlign: 'left' }}>
+            <ListItemIcon style={{ minWidth: 'fit-content', textAlign: 'left', marginRight: '6.25px'}}>
                 <LibraryModuleIcon/>
             </ListItemIcon>
             <ListItemText
