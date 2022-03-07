@@ -20,9 +20,9 @@
 import { BallerinaExtension, ExtendedLangClient, LANGUAGE } from "../core";
 import { CancellationToken, CompletionContext, CompletionItem, CompletionItemProvider, 
     CompletionList, Disposable, DocumentSelector, languages, Position, ProviderResult, 
-    TextDocument, Uri, } from "vscode";
+    TextDocument, } from "vscode";
 import { NOTEBOOK_SCHEME } from "./constants";
-import { addText, getPlainTextSnippet } from "./utils";
+import { getPlainTextSnippet, translateCompletionItemKind,  } from "./utils";
 import { CompletionResponse } from "@wso2-enterprise/ballerina-low-code-editor";
 
 const selector: DocumentSelector = {
@@ -56,8 +56,17 @@ export class NotebookCompletionItemProvider implements CompletionItemProvider{
         performDidOpen(langClient, filePath, content);
         let endPositionOfMain = await this.getEndPositionOfMain(langClient, filePath);
         let textToWrite = content ? `${content.substring(0, content.length - 1)}${document.getText()}\n}` : document.getText();
-        await addText(textToWrite, Uri.parse(filePath));
-        performDidOpen(langClient, filePath, textToWrite);
+        langClient.didChange({
+            textDocument: {
+                uri: filePath,
+                version: 2,
+            },
+            contentChanges: [
+                {
+                    text: textToWrite
+                }
+            ]
+        })
         let completions = await langClient.getCompletion({
             textDocument: {
                 uri: filePath
@@ -71,8 +80,11 @@ export class NotebookCompletionItemProvider implements CompletionItemProvider{
             }
         });
         return filterCompletions(completions).map(item => {
-            let value =  {...item, insertText: getPlainTextSnippet(item.insertText)};
-            return value;
+            return {
+                ...item, 
+                insertText: getPlainTextSnippet(item.insertText),
+                kind: translateCompletionItemKind(item.kind)
+            };
         });
     }
 
@@ -125,4 +137,3 @@ function filterCompletions(completions: CompletionResponse[]): CompletionRespons
     ]
     return completions.filter(item => !labelsUsedInShell.includes(item.label));
 }
-

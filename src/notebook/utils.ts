@@ -22,22 +22,23 @@ import { TextEncoder } from "util";
 import { Uri, workspace } from "vscode";
 
 export async function createFile(uri: Uri, content: string){
-    await workspace.fs.writeFile(uri, new TextEncoder().encode(content));
-    return;
+    return await workspace.fs.writeFile(uri, new TextEncoder().encode(content));
 }
 
 export async function deleteFile(uri: Uri){
     if (existsSync(uri.fsPath)) {
-        await workspace.fs.delete(uri);
+        return await workspace.fs.delete(uri);
     }
-    return;
 }
 
 export async function addText(text: string,uri: Uri){
-    await writeFileSync(uri.fsPath, text);
-    return;
+    return writeFileSync(uri.fsPath, text);
 }
 
 export function getPlainTextSnippet(snippet: string) {
     return snippet.replace(/\${\d+(:\S+)*}/g, "");
+}
+
+export function translateCompletionItemKind(kind: number) {
+    return kind - 1;
 }
