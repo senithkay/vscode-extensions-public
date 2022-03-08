@@ -357,6 +357,16 @@ export function InputEditor(props: InputEditorProps) {
         getContextBasedCompletions(userInput);
     }
 
+    const inputData = (inputText: string): string => {
+        if (INPUT_EDITOR_PLACE_HOLDERS.has(inputText)) {
+            return INPUT_EDITOR_PLACE_HOLDERS.get(inputText);
+        } else if (inputText === "") {
+            isTypeDescriptor ? (inputText = 'TYPE_DESCRIPTOR') : (inputText = 'EXPRESSION');
+            return INPUT_EDITOR_PLACE_HOLDERS.get(inputText);
+        }
+        return inputText;
+    }
+
     return isEditing ?
         (
             <ClickAwayListener
@@ -380,7 +390,7 @@ export function InputEditor(props: InputEditorProps) {
                 className={statementEditorClasses.inputEditorTemplate + ' ' + classNames}
                 onDoubleClick={handleDoubleClick}
             >
-                {INPUT_EDITOR_PLACE_HOLDERS.has(userInput) ? INPUT_EDITOR_PLACE_HOLDERS.get(userInput) : userInput}
+                {inputData(userInput)}
             </span>
         );
 }
