@@ -355,7 +355,7 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ex
 
     const isCodeServer = ballerinaExtInstance.getCodeServerContext().codeServerEnv;
     const diagramScripts: string[] =
-        isCodeServer ? [(`${BLCEDITOR_CDN}/build/BLCEditor.js`)] : getComposerWebViewOptions("BLCEditor").jsFiles!;
+        isCodeServer ? [(`${BLCEDITOR_CDN}/BLCEditor.js`)] : getComposerWebViewOptions("BLCEditor").jsFiles!;
 
     const webViewOptions: WebViewOptions = {
         jsFiles: diagramScripts,
