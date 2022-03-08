@@ -63,11 +63,9 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
         varExpression = config.model.expression?.source;
         if (STKindChecker.isSimpleNameReference(config.model?.varRef)) {
             variableName = config.model?.varRef?.name.value;
-        } else if (STKindChecker.isFieldAccess(config.model?.varRef)) {
+        } else if ((STKindChecker.isFieldAccess(config.model?.varRef))
+            || (STKindChecker.isListBindingPattern(config.model?.varRef))) {
             variableName = config.model?.varRef?.source?.trim();
-        }
-        else if (STKindChecker.isListBindingPattern(config.model?.varRef)) {
-            variableName = config.model.varRef?.source?.trim();
         }
     }
 
@@ -155,7 +153,7 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
     };
 
     const initialSource = getInitialSource(createPropertyStatement(
-            `${varName ? varName : "default"} = ${variableExpression ? variableExpression : "EXPRESSION"} ;`
+        `${varName ? varName : "default"} = ${variableExpression ? variableExpression : "EXPRESSION"} ;`
     ));
 
     const nameExpressionEditor = (
