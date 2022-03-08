@@ -14,7 +14,7 @@ describe('Add functions via Low Code', () => {
     cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH))
   })
 
-  it('Add a main function to empty file', () => {
+  it.skip('Add a main function to empty file', () => {
     Canvas
       .welcomeMessageShouldBeVisible()
       .clickTopLevelPlusButton();

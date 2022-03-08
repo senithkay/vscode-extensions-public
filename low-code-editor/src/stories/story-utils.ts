@@ -74,7 +74,8 @@ export function renderStandaloneMockedEditor(container: string) {
 }
 
 export function getProjectRoot() {
-  return balDist.projectRoot;
+  const balDistObj = balDist as any;
+  return balDistObj.projectRoot;
 }
 
 export async function getLibrariesList(kind?: LibraryKind): Promise<LibraryDocResponse> {

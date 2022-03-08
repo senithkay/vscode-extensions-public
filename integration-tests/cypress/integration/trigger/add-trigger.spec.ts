@@ -39,39 +39,39 @@ describe('add a Github Trigger to an empty file', () => {
       getCurrentSpecFolder() + "add-trigger.expected.bal");
   });
 
-  // it('Search and Add a trigger', () => {
-  //   Canvas
-  //     .welcomeMessageShouldBeVisible()
-  //     .clickTopLevelPlusButton();
+  it('Search and Add a trigger', () => {
+    Canvas
+      .welcomeMessageShouldBeVisible()
+      .clickTopLevelPlusButton();
 
-  //   TopLevelPlusWidget.clickOption("Trigger");
-  //   TriggerForm
-  //     .searchTrigger("slack")
-  //     .selectTriggerType("Slack")
-  //     .createBtnShouldNotBeClickable()
-  //     .selectServiceType("SlackEventsAppService")
-  //     .create();
-  //   SourceCode.shouldBeEqualTo(
-  //     getCurrentSpecFolder() + "add-trigger-slack.expected.bal");
-  // });
+    TopLevelPlusWidget.clickOption("Trigger");
+    TriggerForm
+      .searchTrigger("slack")
+      .selectTriggerType("Slack")
+      .createBtnShouldNotBeClickable()
+      .selectServiceType("SlackEventsAppService")
+      .create();
+    SourceCode.shouldBeEqualTo(
+      getCurrentSpecFolder() + "add-trigger-slack.expected.bal");
+  });
 
-  // it.skip('Add two channels in trigger form', () => {
-  //   Canvas
-  //     .welcomeMessageShouldBeVisible()
-  //     .clickTopLevelPlusButton();
+  it('Add two channels in trigger form', () => {
+    Canvas
+      .welcomeMessageShouldBeVisible()
+      .clickTopLevelPlusButton();
 
-  //   TopLevelPlusWidget.clickOption("Trigger");
+    TopLevelPlusWidget.clickOption("Trigger");
 
-  //   TriggerForm
-  //     .searchTrigger("slack")
-  //     .selectTriggerType("Slack") //Need to fix this
-  //     .createBtnShouldNotBeClickable()
-  //     .selectServiceType("SlackEventsAppService")
-  //     .addChannel("SlackEventsDndService")
-  //     .create();
-  //   SourceCode.shouldBeEqualTo(
-  //     getCurrentSpecFolder() + "add-multiple-channel.expected.bal");
-  // });
+    TriggerForm
+      .searchTrigger("slack")
+      .selectTriggerType("Slack") //Need to fix this
+      .createBtnShouldNotBeClickable()
+      .selectServiceType("SlackEventsAppService")
+      .addChannel("SlackEventsDndService")
+      .create();
+    SourceCode.shouldBeEqualTo(
+      getCurrentSpecFolder() + "add-multiple-channel.expected.bal");
+  });
 
   it('Add and delete channel in trigger form', () => {
     Canvas

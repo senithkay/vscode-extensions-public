@@ -26,7 +26,7 @@ describe('Record', () => {
     })
 
 
-    it('Add and Edit Record', () => {
+    it.skip('Add and Edit Record', () => {
         Canvas
             .welcomeMessageShouldBeVisible()
             .clickTopLevelPlusButton();
@@ -77,7 +77,7 @@ describe('Record', () => {
             getCurrentSpecFolder() + "record-form.expected.bal");
     });
 
-    it('Add and Delete Record', () => {
+    it.skip('Add and Delete Record', () => {
         Canvas
             .welcomeMessageShouldBeVisible()
             .clickTopLevelPlusButton();

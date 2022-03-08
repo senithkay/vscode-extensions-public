@@ -12,7 +12,7 @@ describe('Add connector to function via Low Code', () => {
     cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH))
   })
 
-  it('Add a google-sheet connector and save', () => {
+  it.skip('Add a google-sheet connector and save', () => {
     Canvas.getFunction("myfunction")
       .nameShouldBe("myfunction")
       .shouldBeExpanded()

@@ -15,7 +15,7 @@ describe('delete resource after adding it', () => {
     cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH))
   })
 
-  it('Delete after adding service', () => {
+  it.skip('Delete after adding service', () => {
     Canvas
       .welcomeMessageShouldBeVisible()
       .clickTopLevelPlusButton();

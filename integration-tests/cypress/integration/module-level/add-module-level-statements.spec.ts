@@ -88,26 +88,26 @@ describe('Add module-level statements via Low Code', () => {
       .save()
   })
 
-  // it('Add a configurable to empty file', () => {
+  it('Add a configurable to empty file', () => {
 
-  //   cy.on('uncaught:exception', () => false); //Need to fix this
+    // cy.on('uncaught:exception', () => false); //Need to fix this
 
-  //   Canvas
-  //     .welcomeMessageShouldBeVisible()
-  //     .clickTopLevelPlusButton();
-  //   TopLevelPlusWidget.clickOption("Configurable");
+    Canvas
+      .welcomeMessageShouldBeVisible()
+      .clickTopLevelPlusButton();
+    TopLevelPlusWidget.clickOption("Configurable");
 
-  //   ConfigurableForm.shouldBeVisible()
-  //     .togglePublickAccessModifier()
-  //     .isAccessModifierChecked("public")
-  //     .typeConfigurableType("string")
-  //     .typeConfigurableName("foo")
-  //     .toggleDefaultValue()
-  //     .typeVariableValueShouldBeVisible()
-  //     .typeLabalShouldBeVisible("string")
-  //     .typeVariableValue('"Hello World"')
-  //     .save();
-  // })
+    ConfigurableForm.shouldBeVisible()
+      .togglePublickAccessModifier()
+      .isAccessModifierChecked("public")
+      .typeConfigurableType("string")
+      .typeConfigurableName("foo")
+      .toggleDefaultValue()
+      .typeVariableValueShouldBeVisible()
+      .typeLabalShouldBeVisible("string")
+      .typeVariableValue('"Hello World"')
+      .save();
+  })
 
   it('Add a constant to empty file', () => {
     Canvas
