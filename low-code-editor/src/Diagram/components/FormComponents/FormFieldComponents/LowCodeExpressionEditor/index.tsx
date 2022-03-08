@@ -60,6 +60,10 @@ export interface LowCodeExpressionEditorProps {
         start?: number;
         end?: number;
     };
+    diagnosticsFilterExtraRows?: {
+        start?: number;
+        end?: number;
+    };
     disableFiltering?: boolean;
 }
 

@@ -196,6 +196,10 @@ export interface ExpressionEditorProps {
         start?: number;
         end?: number;
     };
+    diagnosticsFilterExtraRows?: {
+        start?: number;
+        end?: number;
+    };
     disableFiltering?: boolean;
 }
 
@@ -240,6 +244,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         onFocus,
         initialDiagnostics = [],
         diagnosticsFilterExtraColumns,
+        diagnosticsFilterExtraRows,
         disableFiltering
     } = customProps;
     const targetPosition = getTargetPosition(editPosition || targetPositionDraft, syntaxTree);
@@ -296,7 +301,9 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                     targetPosition,
                     snippetTargetPosition,
                     diagnosticsFilterExtraColumns?.start,
-                    diagnosticsFilterExtraColumns?.end
+                    diagnosticsFilterExtraColumns?.end,
+                    diagnosticsFilterExtraRows?.start,
+                    diagnosticsFilterExtraRows?.end,
                 )
             );
             if (monacoRef.current) {
@@ -376,7 +383,9 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                     snippetTargetPosition,
                     inputLength,
                     diagnosticsFilterExtraColumns?.start,
-                    diagnosticsFilterExtraColumns?.end
+                    diagnosticsFilterExtraColumns?.end,
+                    diagnosticsFilterExtraRows?.start,
+                    diagnosticsFilterExtraRows?.end,
                 );
                 if (diagnosticMsg) {
                     notValidExpEditor(diagnosticMsg, false);
