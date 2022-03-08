@@ -17,19 +17,12 @@ import { FormattedMessage } from "react-intl";
 import { IconButton } from "@material-ui/core";
 import Typography from "@material-ui/core/Typography";
 import { CloseRounded } from "@material-ui/icons";
-import { ActionConfig, ButtonWithIcon, Connector, ConnectorConfig, FormField, FunctionDefinitionInfo, ResponsePayloadMap, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ActionConfig, Connector, ConnectorConfig, CONNECTOR_CLOSED, FormField, FunctionDefinitionInfo, LowcodeEvent, ResponsePayloadMap, SAVE_CONNECTOR, SAVE_CONNECTOR_INIT, SAVE_CONNECTOR_INVOKE, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ButtonWithIcon } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { CaptureBindingPattern, FunctionDefinition, LocalVarDecl, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { DocIcon } from "../../../../../assets";
 import { Context } from "../../../../../Contexts/Diagram";
-import { useFunctionContext } from "../../../../../Contexts/Function";
-import {
-    CONNECTOR_CLOSED,
-    LowcodeEvent,
-    SAVE_CONNECTOR,
-    SAVE_CONNECTOR_INIT,
-    SAVE_CONNECTOR_INVOKE
-} from "../../../../models";
 import {
     createImportStatement,
     createPropertyStatement,
@@ -56,6 +49,7 @@ interface WizardProps {
     selectedConnector?: LocalVarDecl;
     isModuleEndpoint?: boolean;
     isAction?: boolean;
+    functionNode?: STNode;
 }
 
 enum InitFormState {
@@ -69,7 +63,7 @@ export function HTTPWizard(props: WizardProps) {
     const classes = useStyles();
     const wizardClasses = wizardStyles();
     const { functionDefinitions, connectorConfig, connector, onSave, onClose, isNewConnectorInitWizard, targetPosition,
-            model, selectedConnector, isModuleEndpoint, isAction } = props;
+            model, selectedConnector, isModuleEndpoint, isAction, functionNode } = props;
     const {
         api: {
             insights: {
@@ -83,7 +77,6 @@ export function HTTPWizard(props: WizardProps) {
             stSymbolInfo
         }
     } = useContext(Context);
-    const { functionNode } = useFunctionContext();
 
     const connectorInitFormFields: FormField[] = functionDefinitions.get("init")?.parameters;
     const enableConnectorInitalizePage = !isAction;

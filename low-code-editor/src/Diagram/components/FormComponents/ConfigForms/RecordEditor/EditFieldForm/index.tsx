@@ -17,10 +17,12 @@ import { useIntl } from "react-intl";
 import { Box, FormControl, Typography } from "@material-ui/core";
 import {
     FormElementProps,
-    FormField,
+    FormField
+} from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import {
     FormHeaderSection,
     PrimaryButton
-} from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+} from '@wso2-enterprise/ballerina-low-code-edtior-ui-components';
 
 import { useRecordEditorContext } from '../../../../../../Contexts/RecordEditor';
 import { keywords } from "../../../../Portals/utils/constants";

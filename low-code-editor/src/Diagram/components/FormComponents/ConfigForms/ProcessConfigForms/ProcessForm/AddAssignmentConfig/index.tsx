@@ -16,11 +16,8 @@ import { useIntl } from "react-intl";
 
 import { FormControl, Typography } from "@material-ui/core";
 import { ExpressionEditorProps } from "@wso2-enterprise/ballerina-expression-editor";
-import {
-    FormActionButtons,
-    FormElementProps,
-    FormHeaderSection
-} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FormElementProps, ProcessConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FormActionButtons, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
 import { AssignmentStatement, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
@@ -28,7 +25,6 @@ import { Context } from "../../../../../../../Contexts/Diagram";
 import { createPropertyStatement, getInitialSource } from "../../../../../../utils/modification-util";
 import { useStyles } from "../../../../DynamicConnectorForm/style";
 import { LowCodeExpressionEditor } from "../../../../FormFieldComponents/LowCodeExpressionEditor";
-import { ProcessConfig } from "../../../../Types";
 
 interface AddAssignmentConfigProps {
     config: ProcessConfig;

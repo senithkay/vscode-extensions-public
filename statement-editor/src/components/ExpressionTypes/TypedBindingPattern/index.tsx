@@ -59,6 +59,7 @@ export function TypedBindingPatternComponent(props: TypedBindingPatternProps) {
             diagnosticHandler={diagnosticHandler}
             isTypeDescriptor={false}
             onSelect={onClickOnTypeBindingPatter}
+            deleteConfig={{exprNotDeletable: true}}
         />
     );
 
@@ -88,6 +89,7 @@ export function TypedBindingPatternComponent(props: TypedBindingPatternProps) {
             isTypeDescriptor={true}
             onSelect={onClickOnType}
             classNames="type-descriptor"
+            deleteConfig={{defaultExprDeletable: true}}
         />
     );
 

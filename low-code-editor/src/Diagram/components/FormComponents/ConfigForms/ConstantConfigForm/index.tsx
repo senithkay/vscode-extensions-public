@@ -16,13 +16,15 @@ import { FormattedMessage } from "react-intl";
 import { Box, FormControl, FormHelperText, Typography } from "@material-ui/core";
 import { ExpressionEditorProps } from "@wso2-enterprise/ballerina-expression-editor";
 import {
-    FormActionButtons,
     FormElementProps,
-    FormHeaderSection,
-    PrimaryButton,
-    SecondaryButton,
     STModification
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import {
+    FormActionButtons,
+    FormHeaderSection,
+    PrimaryButton,
+    SecondaryButton
+} from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { ConstDeclaration, NodePosition } from "@wso2-enterprise/syntax-tree"
 import { v4 as uuid } from 'uuid';
 

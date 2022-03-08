@@ -22,7 +22,8 @@ import {
 import * as expressionTypeComponents from '../components/ExpressionTypes';
 import * as statementTypeComponents from '../components/Statements';
 import * as c from "../constants";
-import { SuggestionItem, VariableUserInputs } from '../models/definitions';
+import { RemainingContent, SuggestionItem, VariableUserInputs } from '../models/definitions';
+import { visitor as ExpressionDeletingVisitor } from "../visitors/expression-deleting-visitor";
 import { visitor as ModelFindingVisitor } from "../visitors/model-finding-visitor";
 
 import { createImportStatement, createStatement, updateStatement } from "./statement-modifications";
@@ -151,6 +152,13 @@ export function getCurrentModel(position: NodePosition, model: STNode): STNode {
     return ModelFindingVisitor.getModel();
 }
 
+export function getRemainingContent(position: NodePosition, model: STNode): RemainingContent {
+    ExpressionDeletingVisitor.setPosition(position);
+    traversNode(model, ExpressionDeletingVisitor);
+
+    return ExpressionDeletingVisitor.getContent();
+}
+
 export function isPositionsEquals(position1: NodePosition, position2: NodePosition): boolean {
     return position1?.startLine === position2?.startLine &&
         position1?.startColumn === position2?.startColumn &&
@@ -190,7 +198,10 @@ export function getSuggestionIconStyle(suggestionType: number): string {
 }
 
 export function sortSuggestions(x: CompletionResponse, y: CompletionResponse) {
-    return x.sortText.localeCompare(y.sortText);
+    if (!!x.sortText && !!y.sortText) {
+        return x.sortText.localeCompare(y.sortText);
+    }
+    return 0;
 }
 
 export function getModuleIconStyle(label: string): string {
