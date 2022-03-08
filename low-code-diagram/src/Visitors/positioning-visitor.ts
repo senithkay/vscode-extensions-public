@@ -348,7 +348,7 @@ export class PositioningVisitor implements Visitor {
 
             const line = new SimpleBBox();
             line.x = sourceViewState.bBox.cx + (targetViewState.bBox.cx > sourceViewState.bBox.cx ? 49 / 2 : -49 / 2);
-            line.y = sourceViewState.bBox.cy + PROCESS_SVG_HEIGHT / 6;
+            line.y = sourceViewState.bBox.cy + PROCESS_SVG_HEIGHT / 2;
             line.w = targetViewState.bBox.cx - sourceViewState.bBox.cx + (targetViewState.bBox.cx > sourceViewState.bBox.cx ? -73.5 : 73.5);
 
             (node.functionBody.viewState as BlockViewState).workerArrows.push(line);

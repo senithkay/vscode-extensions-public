@@ -356,12 +356,12 @@ export class SizingVisitor implements Visitor {
                 const workerBodyVS = workerST.workerBody.viewState as BlockViewState;
                 const workerLifeLine = workerVS.workerLine;
                 const workerTrigger = workerVS.trigger;
-                this.endVisitBlockStatement(workerST.workerBody, workerST);
+                this.endSizingBlock(workerST.workerBody, workerST.workerBody.statements.length);
 
                 workerLifeLine.h = workerTrigger.offsetFromBottom + workerBodyVS.bBox.h;
 
                 if (!workerBodyVS.isEndComponentAvailable) {
-                    workerLifeLine.h += end.bBox.offsetFromTop;
+                    workerLifeLine.h += workerVS.end.bBox.offsetFromTop;
                 } else {
                     workerLifeLine.h -= DefaultConfig.offSet * 2; // ToDo: Figure out where this went wrong
                 }
@@ -467,12 +467,20 @@ export class SizingVisitor implements Visitor {
                     matchedReceive.paired = true;
                     sendInfo.paired = true;
 
+                    const sourceViewState: StatementViewState = sendInfo.node.viewState as StatementViewState;
+                    const targetViewState: StatementViewState = matchedReceive.node.viewState as StatementViewState;
+
+                    sourceViewState.arrowFrom = 'Right';
+                    sourceViewState.isSend = true;
+                    targetViewState.arrowFrom = 'Left';
+                    targetViewState.isReceive = true;
+
                     matchedStatements.push({
                         sourceName: key,
                         sourceIndex: sendInfo.index,
                         targetName: sendInfo.to,
-                        sourceViewState: sendInfo.node.viewState,
-                        targetViewState: matchedReceive.node.viewState,
+                        sourceViewState,
+                        targetViewState,
                         targetIndex: matchedReceive.index
                     });
                 }
@@ -489,6 +497,14 @@ export class SizingVisitor implements Visitor {
                 if (matchedSend) {
                     matchedSend.paired = true;
                     receiveInfo.paired = true;
+
+                    const sourceViewState = matchedSend.node.viewState as StatementViewState;
+                    const targetViewState = receiveInfo.node.viewState as StatementViewState;
+
+                    sourceViewState.arrowFrom = 'Left';
+                    targetViewState.arrowFrom = 'Right'
+                    sourceViewState.isSend = true;
+                    targetViewState.isReceive = true;
 
                     matchedStatements.push({
                         sourceName: receiveInfo.from,

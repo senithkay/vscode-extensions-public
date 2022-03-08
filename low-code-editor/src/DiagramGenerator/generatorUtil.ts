@@ -28,10 +28,10 @@ export async function resolveMissingDependencies(filePath: string, langClient: D
     return resp;
 }
 
-export async function getLowcodeST(payload: any, filePath: string, langClient: DiagramEditorLangClientInterface, experimentalEnabled?: boolean) {
+export async function getLowcodeST(payload: any, filePath: string, langClient: DiagramEditorLangClientInterface) {
     const modulePart: ModulePart = payload;
     const members: STNode[] = modulePart?.members || [];
-    const st = sizingAndPositioningST(payload, experimentalEnabled);
+    const st = sizingAndPositioningST(payload);
     cleanLocalSymbols();
     cleanModuleLevelSymbols();
     traversNode(st, SymbolVisitor);
@@ -68,10 +68,10 @@ export function getDefaultSelectedPosition(modulePart: ModulePart): SelectedPosi
     }
 }
 
-export function sizingAndPositioningST(st: STNode, experimentalEnabled?: boolean): STNode {
+export function sizingAndPositioningST(st: STNode): STNode {
     traversNode(st, initVisitor);
-    traversNode(st, new SizingVisitor(experimentalEnabled));
-    traversNode(st, new PositioningVisitor(experimentalEnabled));
+    traversNode(st, new SizingVisitor());
+    traversNode(st, new PositioningVisitor());
     const clone = { ...st };
     return clone;
 }

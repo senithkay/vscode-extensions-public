@@ -12,25 +12,25 @@ export function calculateSize(st: STNode): DiagramSize {
 
 export function sizingAndPositioning(st: STNode, experimentalEnabled?: boolean): STNode {
     traversNode(st, initVisitor);
-    traversNode(st, new SizingVisitor(experimentalEnabled));
-    traversNode(st, new PositioningVisitor(experimentalEnabled));
+    traversNode(st, new SizingVisitor());
+    traversNode(st, new PositioningVisitor());
     // traversNode(st, workerSyncVisitor);
     if (STKindChecker.isFunctionDefinition(st) && st?.viewState?.onFail) {
         const viewState = st.viewState as FunctionViewState;
-        traversNode(viewState.onFail, new SizingVisitor(experimentalEnabled));
-        traversNode(viewState.onFail, new PositioningVisitor(experimentalEnabled));
+        traversNode(viewState.onFail, new SizingVisitor());
+        traversNode(viewState.onFail, new PositioningVisitor());
     }
     const clone = { ...st };
     return clone;
 }
 
 export function recalculateSizingAndPositioning(st: STNode, experimentalEnabled?: boolean): STNode {
-    traversNode(st, new SizingVisitor(experimentalEnabled));
-    traversNode(st, new PositioningVisitor(experimentalEnabled));
+    traversNode(st, new SizingVisitor());
+    traversNode(st, new PositioningVisitor());
     if (STKindChecker.isFunctionDefinition(st) && st?.viewState?.onFail) {
         const viewState = st.viewState as FunctionViewState;
-        traversNode(viewState.onFail, new SizingVisitor(experimentalEnabled));
-        traversNode(viewState.onFail, new PositioningVisitor(experimentalEnabled));
+        traversNode(viewState.onFail, new SizingVisitor());
+        traversNode(viewState.onFail, new PositioningVisitor());
     }
     const clone = { ...st };
     return clone;
