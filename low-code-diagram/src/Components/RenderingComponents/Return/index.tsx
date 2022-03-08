@@ -22,7 +22,7 @@ import { EditBtn } from "../../../Components/DiagramActions/EditBtn";
 import { EDIT_SVG_WIDTH_WITH_SHADOW } from "../../../Components/DiagramActions/EditBtn/EditSVG";
 import { Context } from "../../../Context/diagram";
 import { getDiagnosticInfo, getOverlayFormConfig, getRandomInt } from "../../../Utils";
-import { BlockViewState } from "../../../ViewState";
+import { BlockViewState, StatementViewState } from "../../../ViewState";
 import { DraftStatementViewState } from "../../../ViewState/draft";
 import { DefaultConfig } from "../../../Visitors/default";
 import { PROCESS_SVG_HEIGHT, PROCESS_SVG_HEIGHT_WITH_SHADOW, PROCESS_SVG_SHADOW_OFFSET, PROCESS_SVG_WIDTH, PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW } from "../Processor/ProcessSVG";
@@ -148,7 +148,7 @@ export function Return(props: ReturnProps) {
                 <VariableName
                     variableName={expressionSource}
                     x={cx - (RETURN_SVG_WIDTH * 2 + DefaultConfig.textAlignmentOffset + DefaultConfig.textAlignmentOffset / 4)}
-                    y={cy}
+                    y={cy - ((model.viewState as StatementViewState).isSend ? RETURN_SVG_HEIGHT / 2 : 0)}
                     key_id={getRandomInt(1000)}
                 />
             )}
