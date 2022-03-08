@@ -288,7 +288,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
                 targetPosition
             );
             modifications.push(addImport);
-            addDbExtraImport(modifications, syntaxTree, connector.package.organization, moduleName);
+            addDbExtraImport(modifications, syntaxTree, connector.package.organization, connectorModule);
             const endpointStatement = `${moduleName}:${connector.name} ${config.name} = ${
                 isInitReturnError ? "check" : ""
             } new (${getParams(config.connectorInit).join()});`;

@@ -152,14 +152,12 @@ export function addDbExtraImport(modifications: STModification[], syntaxTree: ST
                 importCounts = importCounts + 1;
             }
         });
-        if (importCounts === 0) {
-            if (checkDBConnector(moduleName)) {
-                const addDriverImport: STModification = createImportStatement(orgName, `${moduleName}.driver as _`, {
-                    startColumn: 0,
-                    startLine: 0,
-                });
-                modifications.push(addDriverImport);
-            }
+        if (importCounts === 0 && checkDBConnector(moduleName)) {
+            const addDriverImport: STModification = createImportStatement(orgName, `${moduleName}.driver as _`, {
+                startColumn: 0,
+                startLine: 0,
+            });
+            modifications.push(addDriverImport);
         }
     }
 }
