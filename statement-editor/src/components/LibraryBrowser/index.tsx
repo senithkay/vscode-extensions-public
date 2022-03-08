@@ -98,14 +98,19 @@ export function LibraryBrowser(props: LibraryBrowserProps) {
     }, [libraryType]);
 
     useEffect(() => {
-        let filteredData;
-        if (librariesSearchData && searchScope === DEFAULT_SEARCH_SCOPE) {
-            filteredData = filterByKeyword(librariesSearchData, keyword);
-        } else if (libraryData && searchScope !== DEFAULT_SEARCH_SCOPE) {
-            filteredData = filterByKeyword(libraryData.searchData, keyword);
+        if (keyword === '') {
+            setLibraryBrowserMode(LibraryBrowserMode.LIB_LIST);
+            setSearchScope(DEFAULT_SEARCH_SCOPE);
+        } else {
+            let filteredData;
+            if (librariesSearchData && searchScope === DEFAULT_SEARCH_SCOPE) {
+                filteredData = filterByKeyword(librariesSearchData, keyword);
+            } else if (libraryData && searchScope !== DEFAULT_SEARCH_SCOPE) {
+                filteredData = filterByKeyword(libraryData.searchData, keyword);
+            }
+            setFilteredSearchData(filteredData);
+            setLibraryBrowserMode(LibraryBrowserMode.LIB_SEARCH);
         }
-        setFilteredSearchData(filteredData);
-        setLibraryBrowserMode(LibraryBrowserMode.LIB_SEARCH);
     }, [keyword]);
 
     const libraryBrowsingHandler = (data: LibraryDataResponse) => {
