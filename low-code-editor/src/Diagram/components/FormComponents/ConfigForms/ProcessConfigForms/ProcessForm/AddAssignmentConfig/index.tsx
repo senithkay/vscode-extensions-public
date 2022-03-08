@@ -70,6 +70,9 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
         } else if (STKindChecker.isFieldAccess(config.model?.varRef)) {
             variableName = config.model?.varRef?.source?.trim();
         }
+        else if (STKindChecker.isListBindingPattern(config.model?.varRef)) {
+            variableName = config.model.varRef?.source?.trim();
+        }
     }
 
     const [varName, setVarName] = useState(variableName);
