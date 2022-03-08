@@ -162,7 +162,7 @@ function getComposerURI(): string {
         'jslibs'));
 }
 
-function getComposerPath(): string {
+export function getComposerPath(): string {
     return process.env.COMPOSER_DEBUG === "true"
         ? process.env.COMPOSER_DEV_HOST as string
         : getComposerURI();
@@ -175,15 +175,8 @@ function getComposerJSFiles(componentName: string): string[] {
     ];
 }
 
-function getComposerCSSFiles(componentName: string): string[] {
-    return [
-        join(getComposerPath(), 'themes', 'ballerina-default.min.css')
-    ];
-}
-
 export function getComposerWebViewOptions(componentName: string): Partial<WebViewOptions> {
     return {
-        jsFiles: getComposerJSFiles(componentName),
-        cssFiles: getComposerCSSFiles(componentName)
+        jsFiles: getComposerJSFiles(componentName)
     };
 }
