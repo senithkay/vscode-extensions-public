@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 Inc. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { ReactNode, useContext } from "react";
 
-import { FieldAccess } from "@wso2-enterprise/syntax-tree";
+import { OptionalFieldAccess } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
 import { DEFAULT_EXPRESSIONS } from "../../../constants";
@@ -25,14 +25,14 @@ import { addStatementToTargetLine, getContextBasedCompletions } from "../../../u
 import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
 
-interface FieldAccessProps {
-    model: FieldAccess;
+interface OptionalFieldAccessProps {
+    model: OptionalFieldAccess;
     userInputs: VariableUserInputs;
     isElseIfMember: boolean;
     diagnosticHandler: (diagnostics: string) => void;
 }
 
-export function FieldAccessComponent(props: FieldAccessProps) {
+export function OptionalFieldAccessComponent(props: OptionalFieldAccessProps) {
     const { model, userInputs, isElseIfMember, diagnosticHandler } = props;
     const stmtCtx = useContext(StatementEditorContext);
 
@@ -80,7 +80,7 @@ export function FieldAccessComponent(props: FieldAccessProps) {
                     statementEditorClasses.expressionBlockDisabled
                 )}
             >
-                {model.dotToken.value}
+                {model.optionalChainingToken.value}
             </span>
             <ExpressionComponent
                 model={model.fieldName}
