@@ -676,3 +676,25 @@ export function getMethodCallFunctionName(model: CallStatement): string {
         return model.expression.functionName.source.trim();
     }
 }
+
+export function isListBindingPattern(node: LocalVarDecl | ModuleVarDecl): boolean {
+    return node?.typedBindingPattern?.bindingPattern?.kind === "ListBindingPattern" ? true : false;
+}
+
+export function getVariableName(node: LocalVarDecl | ModuleVarDecl): string {
+    if (isListBindingPattern(node) === true) {
+        return node?.typedBindingPattern?.bindingPattern?.source.trim();
+    }
+    else {
+        return getVariableNameFromST(node).value;
+    }
+}
+
+export function getVarNamePositionFromST(node: LocalVarDecl | ModuleVarDecl): string {
+    if (isListBindingPattern(node) === true) {
+        return node?.typedBindingPattern?.bindingPattern?.position;
+    }
+    else {
+        return getVariableNameFromST(node).position;
+    }
+}
