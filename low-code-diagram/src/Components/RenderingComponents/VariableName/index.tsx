@@ -41,6 +41,7 @@ export function VariableName(props: { x: number, y: number, variableName: string
 
     const variableTextComp: ReactElement = (
         <text id="getResponse" transform="translate(36 1)" className="variable-name">
+            <title>{variableName}</title>
             <tspan
                 id={"variableLegnth_" + key_id}
                 x={variableX}
@@ -58,11 +59,13 @@ export function VariableName(props: { x: number, y: number, variableName: string
                 interactive: true
             }));
         }
+        setTextWidth(document.getElementById("variableLegnth_" + key_id).getBoundingClientRect().width);
     }, [variableName]);
 
     return (
         <svg {...xyProps} width="150" height="24" className="variable-wrapper">
-            {tooltip ? tooltip : variableTextComp}
+            {/* {tooltip ? tooltip : variableTextComp} */}
+            {variableTextComp}
         </svg >
     );
 }
