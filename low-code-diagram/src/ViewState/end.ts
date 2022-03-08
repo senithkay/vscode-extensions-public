@@ -13,10 +13,10 @@
 import { SimpleBBox, ViewState } from ".";
 
 export class EndViewState extends ViewState {
-    sendLine: SimpleBBox;
-    hasSendLine: boolean;
+    public arrowFrom: 'Left' | 'Right';
+    public isSend: boolean;
+
     constructor() {
         super();
-        this.sendLine = new SimpleBBox();
     }
 }

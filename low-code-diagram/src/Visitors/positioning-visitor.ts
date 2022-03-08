@@ -280,7 +280,6 @@ export class PositioningVisitor implements Visitor {
                         endViewState.hasSendLine = true;
                     } else {
                         endViewState = (sourceWorker.viewState as WorkerDeclarationViewState).end as EndViewState
-                        endViewState.hasSendLine = true;
                     }
 
                     const sourceIndex = (sourceWorkerBody.viewState as BlockViewState).isEndComponentAvailable ?

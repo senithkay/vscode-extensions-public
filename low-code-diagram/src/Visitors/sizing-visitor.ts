@@ -427,17 +427,33 @@ export class SizingVisitor implements Visitor {
 
             // treat waits as receives
             workerEntry.waits.forEach((waitInfo) => {
+                const targetViewState = waitInfo.node.viewState as StatementViewState;
                 const sourceWorker = this.workerMap.get(waitInfo.for) as NamedWorkerDeclaration;
+                const workerNames = Array.from(this.workerMap.keys());
+                const sourceWorkerIndex = workerNames.indexOf(waitInfo.for);
+                const targetWorkerIndex = workerNames.indexOf(key);
                 if (sourceWorker) {
                     const sourceWorkerBody = sourceWorker.workerBody as BlockStatement;
 
-                    let endViewState;
+                    let sourceViewstate: EndViewState | StatementViewState;
                     if ((sourceWorkerBody.viewState as BlockViewState).isEndComponentAvailable) {
-                        endViewState = sourceWorkerBody.statements[sourceWorkerBody.statements.length - 1].viewState
-                        endViewState.hasSendLine = true;
+                        sourceViewstate = sourceWorkerBody.statements[sourceWorkerBody.statements.length - 1].viewState;
                     } else {
-                        endViewState = (sourceWorker.viewState as WorkerDeclarationViewState).end as EndViewState
-                        endViewState.hasSendLine = true;
+                        sourceViewstate = (sourceWorker.viewState as WorkerDeclarationViewState).end as EndViewState;
+                    }
+
+                    targetViewState.isReceive = true;
+                    sourceViewstate.isSend = true;
+
+                    if (key === DEFAULT_WORKER_NAME) {
+                        targetViewState.arrowFrom = 'Right';
+                        sourceViewstate.arrowFrom = 'Left';
+                    } else if (sourceWorkerIndex > targetWorkerIndex) {
+                        targetViewState.arrowFrom = 'Right'
+                        sourceViewstate.arrowFrom = 'Left';
+                    } else {
+                        targetViewState.arrowFrom = 'Left'
+                        sourceViewstate.arrowFrom = 'Right';
                     }
 
                     const sourceIndex = (sourceWorkerBody.viewState as BlockViewState).isEndComponentAvailable ?
@@ -448,7 +464,7 @@ export class SizingVisitor implements Visitor {
                         sourceName: waitInfo.for,
                         sourceIndex: sourceIndex < 0 ? 0 : sourceIndex,
                         targetName: key,
-                        sourceViewState: endViewState,
+                        sourceViewState: sourceViewstate,
                         targetViewState: waitInfo.node.viewState,
                         targetIndex: waitInfo.index,
                     });
@@ -470,10 +486,16 @@ export class SizingVisitor implements Visitor {
                     const sourceViewState: StatementViewState = sendInfo.node.viewState as StatementViewState;
                     const targetViewState: StatementViewState = matchedReceive.node.viewState as StatementViewState;
 
-                    sourceViewState.arrowFrom = 'Right';
                     sourceViewState.isSend = true;
-                    targetViewState.arrowFrom = 'Left';
                     targetViewState.isReceive = true;
+                    // to figure out from which direction the arrow is approaching/starting to displace the text
+                    if (sendInfo.to === DEFAULT_WORKER_NAME) {
+                        sourceViewState.arrowFrom = 'Left';
+                        targetViewState.arrowFrom = 'Right';
+                    } else {
+                        sourceViewState.arrowFrom = 'Right';
+                        targetViewState.arrowFrom = 'Left';
+                    }
 
                     matchedStatements.push({
                         sourceName: key,
@@ -501,10 +523,16 @@ export class SizingVisitor implements Visitor {
                     const sourceViewState = matchedSend.node.viewState as StatementViewState;
                     const targetViewState = receiveInfo.node.viewState as StatementViewState;
 
-                    sourceViewState.arrowFrom = 'Left';
-                    targetViewState.arrowFrom = 'Right'
                     sourceViewState.isSend = true;
                     targetViewState.isReceive = true;
+                    // to figure out from which direction the arrow is approaching/starting to displace the text
+                    if (receiveInfo.from === DEFAULT_WORKER_NAME) {
+                        sourceViewState.arrowFrom = 'Right';
+                        targetViewState.arrowFrom = 'Left';
+                    } else {
+                        sourceViewState.arrowFrom = 'Left';
+                        targetViewState.arrowFrom = 'Right';
+                    }
 
                     matchedStatements.push({
                         sourceName: receiveInfo.from,
