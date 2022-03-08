@@ -15,7 +15,7 @@ describe('add a http service to an empty file', () => {
     cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH))
   })
 
-  it('Add new service and resource', () => {
+  it.skip('Add new service and resource', () => {
     Canvas
       .welcomeMessageShouldBeVisible()
       .clickTopLevelPlusButton();

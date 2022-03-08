@@ -12,7 +12,7 @@ describe('Add if to function via Low Code', () => {
     cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH))
   })
 
-  it('Add a if to function', () => {
+  it.skip('Add a if to function', () => {
     Canvas.getFunction("sampleFunction")
       .nameShouldBe("sampleFunction")
       .shouldBeExpanded()
