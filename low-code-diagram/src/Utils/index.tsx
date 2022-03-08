@@ -104,6 +104,8 @@ export function getDraftComponent(viewState: BlockViewState, state: any, insertC
                 case "Log":
                     draftComponents.push(<DataProcessor model={null} blockViewState={viewState} />);
                     break;
+                case "Worker":
+                    draftComponents.push(<DataProcessor model={null} blockViewState={viewState} />);
                 case "AssignmentStatement":
                 case "Variable":
                     draftComponents.push(<DataProcessor model={null} blockViewState={viewState} />);

@@ -117,6 +117,14 @@ export function DataProcessor(props: ProcessorProps) {
         } else if (STKindChecker.isActionStatement(model) && model.expression.kind === 'AsyncSendAction') {
             processType = "AsyncSend";
             processName = "Send"
+        } else if (STKindChecker.isActionStatement(model) && STKindChecker.isWaitAction(model.expression)
+            || (STKindChecker.isCheckAction((model as ActionStatement).expression)
+                && STKindChecker.isWaitAction((model as ActionStatement).expression.expression))) {
+            processType = "Wait";
+            processName = "Wait"
+        } else if (STKindChecker.isCheckAction(model) && STKindChecker.isWaitAction(model.expression)) {
+            processType = "Wait";
+            processName = "Wait"
         } else {
             processType = "Custom";
             processName = "Custom";

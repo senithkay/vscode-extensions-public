@@ -254,7 +254,16 @@ export class PositioningVisitor implements Visitor {
                 }
             }
         }
-        updateConnectorCX(bodyViewState.bBox.w / 2 + widthOfOnFailClause, bodyViewState.bBox.cx, allEndpoints, viewState.trigger.cy);
+
+        let widthOfWorkers = 0;
+
+        if (bodyViewState.hasWorkerDecl) {
+            body.namedWorkerDeclarator.namedWorkerDeclarations.forEach(workerDecl => {
+                widthOfWorkers += (workerDecl.viewState as WorkerDeclarationViewState).bBox.w / 2;
+            })
+        }
+
+        updateConnectorCX(bodyViewState.bBox.w / 2 + widthOfOnFailClause + widthOfWorkers, bodyViewState.bBox.cx, allEndpoints, viewState.trigger.cy);
         // Add the connector max width to the diagram width.
         // viewState.bBox.w = viewState.bBox.w + getMaXWidthOfConnectors(allEndpoints) + widthOfOnFailClause;
         this.currentWorker.pop();
