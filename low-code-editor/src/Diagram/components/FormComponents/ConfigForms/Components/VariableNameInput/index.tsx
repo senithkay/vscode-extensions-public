@@ -75,10 +75,10 @@ export function VariableNameInput(props: VariableNameInputProps) {
             validate: validateExpression,
             interactive: true,
             editPosition: {
-                startLine: position.startLine,
-                endLine: position.endLine,
-                startColumn: position.startColumn,
-                endColumn: position.endColumn
+                startLine: position?.startLine || 0,
+                endLine: position?.endLine || 0,
+                startColumn: position?.startColumn || 0,
+                endColumn: position?.endColumn || 0
             },
             customTemplate,
             hideSuggestions: true,

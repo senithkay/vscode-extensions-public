@@ -526,7 +526,7 @@ class PositioningVisitor implements Visitor {
                 // ignore if it is collapsed
                 if (statementViewState.isAction && statementViewState.action.endpointName
                     && !statementViewState.isCallerAction && !statementViewState.collapsed &&
-                    !statementViewState.hidden) {
+                    !statementViewState.hidden && allEndpoints.get(statementViewState.action.endpointName)) {
                     // action invocation for a connector ( var result1 = ep1->get("/context") )
                     const endpoint: Endpoint = allEndpoints.get(statementViewState.action.endpointName);
                     const visibleEndpoint: VisibleEndpoint = endpoint.visibleEndpoint as VisibleEndpoint;

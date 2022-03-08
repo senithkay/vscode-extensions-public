@@ -133,7 +133,7 @@ export function addReturnTypeImports(modifications: STModification[], returnType
 }
 
 export function checkDBConnector(connectorModule: string): boolean {
-    const dbConnectors = ["mysql", "mssql", "postgresql", "oracledb"]
+    const dbConnectors = ["mysql", "mssql", "postgresql", "oracledb", "cdata.connect"]
     if (dbConnectors.includes(connectorModule)) {
         return true;
     }
@@ -145,8 +145,9 @@ export function addDbExtraImport(modifications: STModification[], syntaxTree: ST
     if (STKindChecker.isModulePart(syntaxTree)) {
         (syntaxTree as ModulePart).imports?.forEach((imp) => {
             if (
-                imp.typeData?.symbol.id.orgName === orgName &&
-                imp.typeData?.symbol.id.moduleName === `${moduleName}.driver`
+                imp.typeData?.symbol?.moduleID &&
+                imp.typeData.symbol.moduleID.orgName === orgName &&
+                imp.typeData.symbol.moduleID.moduleName === `${moduleName}.driver`
             ) {
                 importCounts = importCounts + 1;
             }
