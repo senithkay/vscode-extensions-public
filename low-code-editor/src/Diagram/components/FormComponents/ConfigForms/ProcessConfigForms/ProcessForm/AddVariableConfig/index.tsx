@@ -25,7 +25,7 @@ import { Context } from "../../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
 import { getAllVariables } from "../../../../../../utils/mixins";
 import { createModuleVarDecl, createModuleVarDeclWithoutInitialization, getInitialSource } from "../../../../../../utils/modification-util";
-import { getVariableName, getVariableNameFromST, getVarNamePositionFromST } from "../../../../../../utils/st-util";
+import { getVariableNameFromST, getVarNamePositionFromST } from "../../../../../../utils/st-util";
 import { genVariableName } from "../../../../../Portals/utils";
 import { useStyles } from "../../../../DynamicConnectorForm/style";
 import { SelectDropdownWithButton } from "../../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
@@ -93,7 +93,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         } else {
             initialModelType = typeDescriptor.source.trim();
         }
-        variableName = getVariableName(config?.model);
+        variableName = getVariableNameFromST(config?.model);
         varExpression = localVarDec?.initializer?.source || '';
         initializedState = localVarDec?.initializer ? true : false;
     } else {
