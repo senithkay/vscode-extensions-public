@@ -24,6 +24,7 @@ import { CancellationToken, CompletionContext, CompletionItem, CompletionItemPro
 import { NOTEBOOK_SCHEME } from "./constants";
 import { getPlainTextSnippet, translateCompletionItemKind,  } from "./utils";
 import { CompletionResponse } from "@wso2-enterprise/ballerina-low-code-editor";
+import { CompletionItemKind as MonacoCompletionItemKind } from "monaco-languageclient";
 
 const selector: DocumentSelector = {
     scheme: NOTEBOOK_SCHEME,
@@ -83,7 +84,7 @@ export class NotebookCompletionItemProvider implements CompletionItemProvider{
             return {
                 ...item, 
                 insertText: getPlainTextSnippet(item.insertText),
-                kind: translateCompletionItemKind(item.kind)
+                kind: translateCompletionItemKind(item.kind as MonacoCompletionItemKind)
             };
         });
     }

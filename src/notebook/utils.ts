@@ -17,10 +17,13 @@
  *
  */
 
+import { CompletionItemKind as MonacoCompletionItemKind } from "monaco-languageclient";
+import { CompletionItemKind as VSCodeCompletionItemKind } from "vscode";
+
 export function getPlainTextSnippet(snippet: string) {
     return snippet.replace(/\${\d+(:\S+)*}/g, "");
 }
 
-export function translateCompletionItemKind(kind: number) {
-    return kind - 1;
+export function translateCompletionItemKind(kind: MonacoCompletionItemKind) {
+    return (kind - 1) as VSCodeCompletionItemKind;
 }
