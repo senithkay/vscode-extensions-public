@@ -22,7 +22,7 @@ import { STNode } from "@wso2-enterprise/syntax-tree";
 
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { getModifications } from "../../utils";
-import { sendDidChange, sendDidClose } from "../../utils/ls-utils";
+import { sendDidChange, sendDidClose, sendDidOpen } from "../../utils/ls-utils";
 import { EditorPane } from '../EditorPane';
 import { useStatementEditorStyles } from "../styles";
 
@@ -64,7 +64,8 @@ export function ViewContainer(props: ViewContainerProps) {
             modulesToBeImported
         }
     } = stmtCtx;
-    const fileURI = `expr://${currentFile.path}`;
+    const exprSchemeURI = `expr://${currentFile.path}`;
+    const fileSchemeURI = `file://${currentFile.path}`;
 
 
     const saveVariableButtonText = intl.formatMessage({
@@ -78,15 +79,17 @@ export function ViewContainer(props: ViewContainerProps) {
     });
 
     const onSaveClick = () => {
+        sendDidClose(exprSchemeURI, getLangClient).then();
+        sendDidOpen(fileSchemeURI, currentFile.content, getLangClient).then();
         const modifications = getModifications(statementModel, config, formArgs, Array.from(modulesToBeImported) as string[]);
         applyModifications(modifications);
         onWizardClose();
-        sendDidClose(fileURI, getLangClient).then();
+        sendDidClose(fileSchemeURI, getLangClient).then();
     };
 
     const onCancelClick = async () => {
-        await sendDidChange(fileURI, currentFile.content, getLangClient);
-        sendDidClose(fileURI, getLangClient).then();
+        await sendDidChange(exprSchemeURI, currentFile.content, getLangClient);
+        sendDidClose(exprSchemeURI, getLangClient).then();
         onCancel();
     }
 

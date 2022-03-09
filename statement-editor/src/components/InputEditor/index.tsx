@@ -120,8 +120,16 @@ export function InputEditor(props: InputEditorProps) {
         }
     }, [userInput]);
 
-    const handleContentChange = async (currentStatement: string) => {
-        handleChange(currentStatement);
+    const handleContentChange = async (newValue: string) => {
+        const currentStatement = stmtCtx.modelCtx.statementModel ? stmtCtx.modelCtx.statementModel.source : "";
+        const updatedStatement = addExpressionToTargetPosition(
+            currentStatement,
+            model ? model.position.startLine : 0,
+            model ? model.position.startColumn : 0,
+            newValue ? newValue : "",
+            model ? model.position.endColumn : 0
+        );
+        handleChange(updatedStatement);
     }
 
     const inputEnterHandler = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -149,17 +157,9 @@ export function InputEditor(props: InputEditorProps) {
     };
 
     const changeInput = (newValue: string) => {
-        const currentStatement = stmtCtx.modelCtx.statementModel ? stmtCtx.modelCtx.statementModel.source : "";
         setUserInput(newValue);
         inputEditorCtx.onInputChange(newValue);
-        const updatedStatement = addExpressionToTargetPosition(
-            currentStatement,
-            model ? model.position.startLine : 0,
-            model ? model.position.startColumn : 0,
-            newValue ? newValue : "",
-            model ? model.position.endColumn : 0
-        );
-        debouncedContentChange(updatedStatement);
+        debouncedContentChange(newValue);
     }
 
     const debouncedContentChange = debounce(handleContentChange, 500);
