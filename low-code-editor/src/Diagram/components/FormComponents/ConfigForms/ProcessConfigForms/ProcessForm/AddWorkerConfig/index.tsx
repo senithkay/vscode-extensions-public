@@ -129,7 +129,7 @@ export function AddWorkerConfigForm(props: WorkerConfigFormProps) {
     )
 
     return (
-        <FormControl data-testid="log-form" className={formClasses.wizardFormControl}>
+        <FormControl data-testid="worker-form" className={formClasses.wizardFormControl}>
             <FormHeaderSection
                 onCancel={onCancel}
                 statementEditor={false}

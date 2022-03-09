@@ -82,7 +82,7 @@ export function WorkerHead(props: WorkerHeadProps) {
     );
 
     return (
-        <g className="start-container">
+        <g className="worker-start-container">
             <StartSVG
                 x={viewState.trigger.cx - (START_SVG_WIDTH / 2)}
                 y={viewState.trigger.cy - (START_SVG_HEIGHT / 2)}
