@@ -74,7 +74,6 @@ export function FunctionCallComponent(props: FunctionCallProps) {
                         <ExpressionComponent
                             model={expression}
                             isElseIfMember={isElseIfMember}
-                            isTypeDescriptor={false}
                         />
                     )
                 ))
@@ -86,7 +85,6 @@ export function FunctionCallComponent(props: FunctionCallProps) {
         <ExpressionComponent
             model={model.functionName}
             isElseIfMember={isElseIfMember}
-            isTypeDescriptor={false}
             onSelect={onClickOnFunctionCallExpr}
         >
             <span

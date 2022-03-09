@@ -34,8 +34,7 @@ export function CaptureBindingPatternComponent(props: CaptureBindingPatternProps
     const inputEditorProps = {
         statementType: model.kind,
         model,
-        expressionHandler,
-        isTypeDescriptor: false
+        expressionHandler
     };
     return (
         <InputEditor {...inputEditorProps} />

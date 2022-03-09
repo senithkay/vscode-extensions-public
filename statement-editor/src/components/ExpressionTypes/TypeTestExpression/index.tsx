@@ -79,7 +79,6 @@ export function TypeTestExpressionComponent(props: TypeTestExpressionProps) {
         <ExpressionComponent
             model={model.expression}
             isElseIfMember={isElseIfMember}
-            isTypeDescriptor={false}
             onSelect={onClickOnExpression}
         />
     );
@@ -88,7 +87,6 @@ export function TypeTestExpressionComponent(props: TypeTestExpressionProps) {
         <ExpressionComponent
             model={model.typeDescriptor}
             isElseIfMember={isElseIfMember}
-            isTypeDescriptor={true}
             onSelect={onClickOnTypeDescriptor}
         />
     );

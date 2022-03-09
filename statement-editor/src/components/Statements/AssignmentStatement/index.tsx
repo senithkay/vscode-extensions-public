@@ -94,7 +94,6 @@ export function AssignmentStatementComponent(props: AssignmentStatementProps) {
         <ExpressionComponent
             model={model.expression}
             isElseIfMember={isElseIfMember}
-            isTypeDescriptor={false}
             onSelect={onClickOnExpression}
         />
     );
@@ -103,7 +102,6 @@ export function AssignmentStatementComponent(props: AssignmentStatementProps) {
         <ExpressionComponent
             model={model.varRef}
             isElseIfMember={isElseIfMember}
-            isTypeDescriptor={false}
             onSelect={onClickOnVarRef}
             deleteConfig={{exprNotDeletable: true}}
         />

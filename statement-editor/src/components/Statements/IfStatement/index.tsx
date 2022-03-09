@@ -84,7 +84,6 @@ export function IfStatementC(props: IfStatementProps) {
         <ExpressionComponent
             model={model.condition}
             isElseIfMember={isElseIfMember}
-            isTypeDescriptor={false}
             onSelect={onClickOnConditionExpression}
         />
     );

@@ -58,7 +58,6 @@ export function MethodCallComponent(props: MethodCallProps) {
                         <ExpressionComponent
                             model={argument}
                             isElseIfMember={isElseIfMember}
-                            isTypeDescriptor={false}
                         />
                     )
                 ))
@@ -104,7 +103,6 @@ export function MethodCallComponent(props: MethodCallProps) {
         <ExpressionComponent
             model={model.expression}
             isElseIfMember={isElseIfMember}
-            isTypeDescriptor={false}
             onSelect={onClickOnExpression}
         />
     );
@@ -113,7 +111,6 @@ export function MethodCallComponent(props: MethodCallProps) {
         <ExpressionComponent
             model={model.methodName}
             isElseIfMember={isElseIfMember}
-            isTypeDescriptor={false}
             onSelect={onClickOnMethodName}
         >
             <span

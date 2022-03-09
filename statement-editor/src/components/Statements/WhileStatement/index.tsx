@@ -77,7 +77,6 @@ export function WhileStatementC(props: WhileStatementProps) {
         <ExpressionComponent
             model={model.condition}
             isElseIfMember={isElseIfMember}
-            isTypeDescriptor={false}
             onSelect={onClickOnConditionExpression}
         />
     );

@@ -47,7 +47,6 @@ export function CheckActionComponent(props: CheckActionProps) {
         <ExpressionComponent
             model={model.expression}
             isElseIfMember={isElseIfMember}
-            isTypeDescriptor={false}
             onSelect={onClickOnExpression}
         />
     );

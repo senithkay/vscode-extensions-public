@@ -20,19 +20,17 @@ import { InputEditor } from "../../InputEditor";
 
 interface NameRefProps {
     model: SimpleNameReference;
-    isTypeDescriptor: boolean;
 }
 
 export function SimpleNameReferenceComponent(props: NameRefProps) {
-    const { model, isTypeDescriptor} = props;
+    const { model } = props;
 
     const { expressionHandler } = useContext(SuggestionsContext);
 
     const inputEditorProps = {
         statementType: model.kind,
         model,
-        expressionHandler,
-        isTypeDescriptor
+        expressionHandler
     };
 
     return (

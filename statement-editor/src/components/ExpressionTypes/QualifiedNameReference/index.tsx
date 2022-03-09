@@ -19,19 +19,17 @@ import { InputEditor } from "../../InputEditor";
 
 interface QualifiedNameReferenceProps {
     model: QualifiedNameReference;
-    isTypeDescriptor: boolean;
 }
 
 export function QualifiedNameReferenceComponent(props: QualifiedNameReferenceProps) {
-    const { model, isTypeDescriptor } = props;
+    const { model } = props;
 
     const { expressionHandler } = useContext(SuggestionsContext);
 
     const inputEditorProps = {
         statementType: model.kind,
         model,
-        expressionHandler,
-        isTypeDescriptor
+        expressionHandler
     };
 
     return (

@@ -29,11 +29,10 @@ import { useStatementEditorStyles } from "../../styles";
 interface SpecificFieldProps {
     model: SpecificField;
     isElseIfMember: boolean;
-    isTypeDescriptor: boolean;
 }
 
 export function SpecificFieldComponent(props: SpecificFieldProps) {
-    const { model, isElseIfMember, isTypeDescriptor } = props;
+    const { model, isElseIfMember } = props;
     const stmtCtx = useContext(StatementEditorContext);
     const { modelCtx } = stmtCtx;
     const { currentModel } = modelCtx;
@@ -75,7 +74,6 @@ export function SpecificFieldComponent(props: SpecificFieldProps) {
         <ExpressionComponent
             model={model.valueExpr}
             isElseIfMember={isElseIfMember}
-            isTypeDescriptor={false}
             onSelect={onClickOnValueExpr}
         />
     );
@@ -84,8 +82,7 @@ export function SpecificFieldComponent(props: SpecificFieldProps) {
         const inputEditorProps = {
             statementType: model.kind,
             model: model.fieldName,
-            expressionHandler,
-            isTypeDescriptor
+            expressionHandler
         };
 
         fieldName =  (
@@ -104,7 +101,6 @@ export function SpecificFieldComponent(props: SpecificFieldProps) {
             <ExpressionComponent
                 model={model.fieldName}
                 isElseIfMember={isElseIfMember}
-                isTypeDescriptor={false}
                 onSelect={onClickOnFieldName}
             />
         );

@@ -67,7 +67,6 @@ export function FieldAccessComponent(props: FieldAccessProps) {
         <ExpressionComponent
             model={model.expression}
             isElseIfMember={isElseIfMember}
-            isTypeDescriptor={false}
             onSelect={onClickOnExpr}
         >
             <span
@@ -81,7 +80,6 @@ export function FieldAccessComponent(props: FieldAccessProps) {
             <ExpressionComponent
                 model={model.fieldName}
                 isElseIfMember={isElseIfMember}
-                isTypeDescriptor={false}
                 onSelect={onClickOnFieldAccessExpr}
             />
         </ExpressionComponent>

@@ -58,7 +58,6 @@ export function PositionalArgComponent(props: PositionalArgProps) {
         <ExpressionComponent
             model={model.expression}
             isElseIfMember={isElseIfMember}
-            isTypeDescriptor={false}
             onSelect={onClickOnExpression}
         />
     );

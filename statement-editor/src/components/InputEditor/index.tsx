@@ -15,15 +15,7 @@ import React, { useContext, useEffect, useState } from "react";
 
 import { ClickAwayListener } from "@material-ui/core";
 import {
-    CompletionParams,
-    CompletionResponse,
-    ExpressionEditorLangClientInterface,
-    getDiagnosticMessage,
-    getFilteredDiagnostics
-} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import {
     BooleanLiteral,
-    NodePosition,
     NumericLiteral,
     QualifiedNameReference,
     SimpleNameReference,
@@ -32,36 +24,20 @@ import {
     StringLiteral
 } from "@wso2-enterprise/syntax-tree";
 import debounce from "lodash.debounce";
-import * as monaco from "monaco-editor";
 
 import * as c from "../../constants";
-import { SuggestionItem } from "../../models/definitions";
 import { InputEditorContext } from "../../store/input-editor-context";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { SuggestionsContext } from "../../store/suggestions-context";
-import { sortSuggestions } from "../../utils";
-import {
-    addImportStatements,
-    addStatementToTargetLine,
-    getDiagnostics,
-    sendDidChange,
-    sendDidClose,
-    sendDidOpen
-} from "../../utils/ls-utils";
 import { useStatementEditorStyles } from "../styles";
 
 import {
-    acceptedCompletionKindForExpressions,
-    acceptedCompletionKindForTypes,
-    EXPR_SCHEME,
-    FILE_SCHEME,
     INPUT_EDITOR_PLACE_HOLDERS
 } from "./constants";
 
 export interface InputEditorProps {
     model?: STNode;
     statementType: any;
-    isTypeDescriptor: boolean;
     isToken?: boolean;
     classNames?: string;
 }
@@ -69,14 +45,7 @@ export interface InputEditorProps {
 export function InputEditor(props: InputEditorProps) {
 
     const [isEditing, setIsEditing] = useState(false);
-    const [inputEditorState, setInputEditorState] = useState({
-        name: undefined,
-        content: undefined,
-        uri: undefined,
-        diagnostic: [],
-    });
-
-    const { model, isTypeDescriptor, isToken, classNames } = props;
+    const { model, isToken, classNames } = props;
 
     const stmtCtx = useContext(StatementEditorContext);
     const inputEditorCtx = useContext(InputEditorContext);
@@ -87,13 +56,8 @@ export function InputEditor(props: InputEditorProps) {
             updateModel,
             handleChange
         },
-        currentFile,
-        getLangClient,
-        modules: {
-            modulesToBeImported
-        }
+        getLangClient
     } = stmtCtx;
-    // const fileURI = monaco.Uri.file(currentFile.path).toString().replace(FILE_SCHEME, EXPR_SCHEME);
 
     const statementEditorClasses = useStatementEditorStyles();
 
@@ -239,9 +203,6 @@ export function InputEditor(props: InputEditorProps) {
 
     const handleContentChange = async (currentStatement: string, currentCodeSnippet?: string) => {
         handleChange(currentStatement);
-        if (isEditing) {
-            await getContextBasedCompletions(currentCodeSnippet != null ? currentCodeSnippet : userInput);
-        }
     }
 
     // const handleOnOutFocus = async () => {
@@ -251,56 +212,56 @@ export function InputEditor(props: InputEditorProps) {
     //     sendDidClose(inputEditorState.uri, getLangClient).then();
     // }
 
-    // TODO: To be removed with expression editor integration
-    const getContextBasedCompletions = async (codeSnippet: string) => {
-        const completionParams: CompletionParams = {
-            textDocument: {
-                uri: inputEditorState?.uri
-            },
-            context: {
-                triggerKind: 1
-            },
-            position: {
-                character: model ? (targetPosition.startColumn + (model.position.startColumn) + codeSnippet.length) :
-                    (targetPosition.startColumn + codeSnippet.length),
-                line: targetPosition.startLine
-            }
-        }
-
-        // CodeSnippet is split to get the suggestions for field-access-expr (expression.field-name)
-        const splitCodeSnippet = codeSnippet.split('.');
-
-        getLangClient().then((langClient: ExpressionEditorLangClientInterface) => {
-            langClient.getCompletion(completionParams).then((values: CompletionResponse[]) => {
-                const filteredCompletionItem: CompletionResponse[] = values.filter((completionResponse: CompletionResponse) => (
-                    (!completionResponse.kind ||
-                        (isTypeDescriptor ?
-                            acceptedCompletionKindForTypes.includes(completionResponse.kind) :
-                            acceptedCompletionKindForExpressions.includes(completionResponse.kind)
-                        )
-                    ) &&
-                    // completionResponse.label !== varName.trim() &&
-                    !(completionResponse.label.includes("main")) &&
-                    (splitCodeSnippet.some((element) => (
-                        ((completionResponse.label.toLowerCase()).includes(element.toLowerCase()))
-                    )
-                    ))
-                ));
-
-                filteredCompletionItem.sort(sortSuggestions)
-
-                const variableSuggestions: SuggestionItem[] = filteredCompletionItem.map((obj) => {
-                    return { value: obj.label, kind: obj.detail, suggestionType: obj.kind }
-                });
-
-                if (isTypeDescriptor) {
-                    expressionHandler(model, false, true, { typeSuggestions: variableSuggestions });
-                } else {
-                    expressionHandler(model, false, false, { variableSuggestions });
-                }
-            });
-        });
-    }
+    // // TODO: To be removed with expression editor integration
+    // const getContextBasedCompletions = async (codeSnippet: string) => {
+    //     const completionParams: CompletionParams = {
+    //         textDocument: {
+    //             uri: inputEditorState?.uri
+    //         },
+    //         context: {
+    //             triggerKind: 1
+    //         },
+    //         position: {
+    //             character: model ? (targetPosition.startColumn + (model.position.startColumn) + codeSnippet.length) :
+    //                 (targetPosition.startColumn + codeSnippet.length),
+    //             line: targetPosition.startLine
+    //         }
+    //     }
+    //
+    //     // CodeSnippet is split to get the suggestions for field-access-expr (expression.field-name)
+    //     const splitCodeSnippet = codeSnippet.split('.');
+    //
+    //     getLangClient().then((langClient: ExpressionEditorLangClientInterface) => {
+    //         langClient.getCompletion(completionParams).then((values: CompletionResponse[]) => {
+    //             const filteredCompletionItem: CompletionResponse[] = values.filter((completionResponse: CompletionResponse) => (
+    //                 (!completionResponse.kind ||
+    //                     (isTypeDescriptor ?
+    //                         acceptedCompletionKindForTypes.includes(completionResponse.kind) :
+    //                         acceptedCompletionKindForExpressions.includes(completionResponse.kind)
+    //                     )
+    //                 ) &&
+    //                 // completionResponse.label !== varName.trim() &&
+    //                 !(completionResponse.label.includes("main")) &&
+    //                 (splitCodeSnippet.some((element) => (
+    //                     ((completionResponse.label.toLowerCase()).includes(element.toLowerCase()))
+    //                 )
+    //                 ))
+    //             ));
+    //
+    //             filteredCompletionItem.sort(sortSuggestions)
+    //
+    //             const variableSuggestions: SuggestionItem[] = filteredCompletionItem.map((obj) => {
+    //                 return { value: obj.label, kind: obj.detail, suggestionType: obj.kind }
+    //             });
+    //
+    //             if (isTypeDescriptor) {
+    //                 expressionHandler(model, false, true, { typeSuggestions: variableSuggestions });
+    //             } else {
+    //                 expressionHandler(model, false, false, { variableSuggestions });
+    //             }
+    //         });
+    //     });
+    // }
 
     const inputEnterHandler = (event: React.KeyboardEvent<HTMLInputElement>) => {
         if (event.key === "Enter" || event.key === "Tab") {

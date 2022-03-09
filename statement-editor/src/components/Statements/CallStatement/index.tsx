@@ -32,7 +32,6 @@ export function CallStatementC(props: CallStatementProps) {
         <ExpressionComponent
             model={model.expression}
             isElseIfMember={isElseIfMember}
-            isTypeDescriptor={false}
         />
     );
 

@@ -19,11 +19,10 @@ import { InputEditor } from "../../../InputEditor";
 
 interface FloatTypeDescProps {
     model: FloatTypeDesc;
-    isTypeDescriptor: boolean;
 }
 
 export function FloatTypeDescComponent(props: FloatTypeDescProps) {
-    const { model, isTypeDescriptor } = props;
+    const { model } = props;
 
     const { expressionHandler } = useContext(SuggestionsContext);
 
@@ -31,7 +30,6 @@ export function FloatTypeDescComponent(props: FloatTypeDescProps) {
         statementType: model.kind,
         model,
         expressionHandler,
-        isTypeDescriptor,
         classNames: "type-descriptor float"
     };
 

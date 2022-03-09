@@ -19,11 +19,10 @@ import { InputEditor } from "../../../InputEditor";
 
 interface DecimalTypeDescProps {
     model: DecimalTypeDesc;
-    isTypeDescriptor: boolean;
 }
 
 export function DecimalTypeDescComponent(props: DecimalTypeDescProps) {
-    const { model, isTypeDescriptor} = props;
+    const { model } = props;
 
     const { expressionHandler } = useContext(SuggestionsContext);
 
@@ -31,7 +30,6 @@ export function DecimalTypeDescComponent(props: DecimalTypeDescProps) {
         statementType: model.kind,
         model,
         expressionHandler,
-        isTypeDescriptor,
         classNames: "type-descriptor decimal"
     };
 

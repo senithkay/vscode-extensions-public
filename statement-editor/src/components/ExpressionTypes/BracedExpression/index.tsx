@@ -58,7 +58,6 @@ export function BracedExpressionComponent(props: BracedExprProps) {
     const expressionComponent: ReactNode = <ExpressionComponent
         model={model.expression}
         isElseIfMember={isElseIfMember}
-        isTypeDescriptor={false}
         onSelect={onClickExpression}
     />;
     return (

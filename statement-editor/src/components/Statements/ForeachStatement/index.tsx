@@ -85,7 +85,6 @@ export function ForeachStatementC(props: ForeachStatementProps) {
         <ExpressionComponent
             model={model.typedBindingPattern}
             isElseIfMember={isElseIfMember}
-            isTypeDescriptor={false}
             onSelect={onClickOnBindingPattern}
         />
     );
@@ -94,7 +93,6 @@ export function ForeachStatementC(props: ForeachStatementProps) {
         <ExpressionComponent
             model={model.actionOrExpressionNode}
             isElseIfMember={isElseIfMember}
-            isTypeDescriptor={false}
             onSelect={onClickOnActionOrExpr}
         />
     );

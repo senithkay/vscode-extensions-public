@@ -78,7 +78,6 @@ export function ReturnStatementC(props: ReturnStatementProps) {
         <ExpressionComponent
             model={model.expression}
             isElseIfMember={isElseIfMember}
-            isTypeDescriptor={false}
             onSelect={onClickOnExpression}
         />
     );

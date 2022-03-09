@@ -58,7 +58,6 @@ export function RemoteMethodCallActionComponent(props: RemoteMethodCallActionPro
                         <ExpressionComponent
                             model={argument}
                             isElseIfMember={isElseIfMember}
-                            isTypeDescriptor={false}
                         />
                     )
                 ))
@@ -105,7 +104,6 @@ export function RemoteMethodCallActionComponent(props: RemoteMethodCallActionPro
         <ExpressionComponent
             model={model.methodName}
             isElseIfMember={isElseIfMember}
-            isTypeDescriptor={false}
             onSelect={onClickOnMethodName}
         >
             <span
@@ -132,7 +130,6 @@ export function RemoteMethodCallActionComponent(props: RemoteMethodCallActionPro
         <ExpressionComponent
             model={model.expression}
             isElseIfMember={isElseIfMember}
-            isTypeDescriptor={false}
             onSelect={onClickOnExpression}
         />
     );

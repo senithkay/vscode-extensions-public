@@ -18,16 +18,14 @@ import { InputEditor } from "../../../InputEditor";
 
 interface BooleanLiteralProps {
     model: BooleanLiteral;
-    isTypeDescriptor: boolean;
 }
 
 export function BooleanLiteralComponent(props: BooleanLiteralProps) {
-    const { model, isTypeDescriptor } = props;
+    const { model } = props;
 
     const inputEditorProps = {
         statementType: model.kind,
         model,
-        isTypeDescriptor,
         classNames: "boolean-literal"
     };
 

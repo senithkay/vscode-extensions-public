@@ -44,8 +44,7 @@ export function MappingBindingPatternComponent(props: MappingBindingPatternProps
     const inputEditorProps = {
         statementType: model.kind,
         model,
-        expressionHandler,
-        isTypeDescriptor: false
+        expressionHandler
     };
 
     const onClickOnBindingPattern = (event: any) => {

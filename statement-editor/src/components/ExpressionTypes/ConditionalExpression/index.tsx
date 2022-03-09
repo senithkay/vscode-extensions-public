@@ -95,7 +95,6 @@ export function ConditionalExpressionComponent(props: ConditionalExpressionProps
         <ExpressionComponent
             model={model.lhsExpression}
             isElseIfMember={isElseIfMember}
-            isTypeDescriptor={false}
             onSelect={onClickOnLhsExpression}
         />
     );
@@ -104,7 +103,6 @@ export function ConditionalExpressionComponent(props: ConditionalExpressionProps
         <ExpressionComponent
             model={model.middleExpression}
             isElseIfMember={isElseIfMember}
-            isTypeDescriptor={false}
             onSelect={onClickOnMiddleExpression}
         />
     );
@@ -113,7 +111,6 @@ export function ConditionalExpressionComponent(props: ConditionalExpressionProps
         <ExpressionComponent
             model={model.endExpression}
             isElseIfMember={isElseIfMember}
-            isTypeDescriptor={false}
             onSelect={onClickOnEndExpression}
         />
     );

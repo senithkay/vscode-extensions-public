@@ -27,8 +27,7 @@ export function OtherStatementTypes(props: OtherStatementProps) {
 
     const inputEditorProps = {
         statementType: model?.kind,
-        model,
-        isTypeDescriptor: false
+        model
     };
 
     return (

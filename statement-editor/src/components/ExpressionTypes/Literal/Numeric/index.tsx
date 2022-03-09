@@ -19,15 +19,13 @@ import { InputEditor } from "../../../InputEditor";
 
 interface NumericLiteralProps {
     model: NumericLiteral;
-    isTypeDescriptor: boolean;
 }
 
 export function NumericLiteralComponent(props: NumericLiteralProps) {
-    const { model, isTypeDescriptor } = props;
+    const { model } = props;
     const inputEditorProps = {
         statementType: model.kind,
-        model,
-        isTypeDescriptor
+        model
     };
 
     return (

@@ -48,7 +48,6 @@ export function IndexedExpressionComponent(props: IndexedExpressionProps) {
                             key={index}
                             model={expression}
                             isElseIfMember={isElseIfMember}
-                            isTypeDescriptor={false}
                             onSelect={(event) => onClickOnKeyExpr(expression, event)}
                     />
                 ))
@@ -86,7 +85,6 @@ export function IndexedExpressionComponent(props: IndexedExpressionProps) {
         <ExpressionComponent
             model={model.containerExpression}
             isElseIfMember={isElseIfMember}
-            isTypeDescriptor={false}
             onSelect={onClickOnContainerExpr}
         />
     );

@@ -82,7 +82,6 @@ export function ListConstructorComponent(props: ListConstructorProps) {
                             key={index}
                             model={expression}
                             isElseIfMember={isElseIfMember}
-                            isTypeDescriptor={false}
                             onSelect={(event) => onClickOnExpression(expression, event)}
                             deleteConfig={{defaultExprDeletable: true}}
                         />

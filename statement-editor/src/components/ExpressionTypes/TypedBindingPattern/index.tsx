@@ -50,7 +50,6 @@ export function TypedBindingPatternComponent(props: TypedBindingPatternProps) {
         <ExpressionComponent
             model={model.bindingPattern}
             isElseIfMember={isElseIfMember}
-            isTypeDescriptor={false}
             onSelect={onClickOnTypeBindingPatter}
             deleteConfig={{exprNotDeletable: true}}
         />
@@ -77,7 +76,6 @@ export function TypedBindingPatternComponent(props: TypedBindingPatternProps) {
         <ExpressionComponent
             model={model.typeDescriptor}
             isElseIfMember={isElseIfMember}
-            isTypeDescriptor={true}
             onSelect={onClickOnType}
             classNames="type-descriptor"
             deleteConfig={{defaultExprDeletable: true}}

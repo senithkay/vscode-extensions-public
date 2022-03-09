@@ -87,15 +87,13 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
             <ExpressionComponent
                 model={model.typedBindingPattern}
                 isElseIfMember={isElseIfMember}
-                isTypeDescriptor={false}
                 onSelect={onClickOnBindingPattern}
             />
         )
     } else {
         const inputEditorProps = {
             statementType: model?.kind,
-            model,
-            isTypeDescriptor: false
+            model
         };
 
         typedBindingComponent = (
@@ -115,7 +113,6 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
         <ExpressionComponent
             model={model.initializer}
             isElseIfMember={isElseIfMember}
-            isTypeDescriptor={false}
             onSelect={onClickOnInitializer}
         />
     );

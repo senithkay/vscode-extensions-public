@@ -18,16 +18,14 @@ import { InputEditor } from "../../../InputEditor";
 
 interface StringLiteralProps {
     model: StringLiteral;
-    isTypeDescriptor: boolean;
 }
 
 export function StringLiteralComponent(props: StringLiteralProps) {
-    const { model, isTypeDescriptor } = props;
+    const { model } = props;
 
     const inputEditorProps = {
         statementType: model.kind,
         model,
-        isTypeDescriptor,
         classNames: "string-literal"
     };
 

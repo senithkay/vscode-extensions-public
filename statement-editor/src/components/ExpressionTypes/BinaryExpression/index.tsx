@@ -98,7 +98,6 @@ export function BinaryExpressionComponent(props: BinaryProps) {
         <ExpressionComponent
             model={model.lhsExpr}
             isElseIfMember={isElseIfMember}
-            isTypeDescriptor={false}
             onSelect={onClickOnLhsExpression}
             deleteConfig={{defaultExprDeletable: true}}
         />
@@ -107,7 +106,6 @@ export function BinaryExpressionComponent(props: BinaryProps) {
         <ExpressionComponent
             model={model.rhsExpr}
             isElseIfMember={isElseIfMember}
-            isTypeDescriptor={false}
             onSelect={onClickOnRhsExpression}
             deleteConfig={{defaultExprDeletable: true}}
         />
@@ -117,7 +115,6 @@ export function BinaryExpressionComponent(props: BinaryProps) {
         <ExpressionComponent
             model={model.operator}
             isElseIfMember={isElseIfMember}
-            isTypeDescriptor={false}
             onSelect={onClickOperator}
             classNames="operator"
         />

@@ -19,11 +19,10 @@ import { InputEditor } from "../../../InputEditor";
 
 interface VarTypeDescProps {
     model: VarTypeDesc;
-    isTypeDescriptor: boolean;
 }
 
 export function VarTypeDescComponent(props: VarTypeDescProps) {
-    const { model, isTypeDescriptor } = props;
+    const { model } = props;
 
     const { expressionHandler } = useContext(SuggestionsContext);
 
@@ -31,7 +30,6 @@ export function VarTypeDescComponent(props: VarTypeDescProps) {
         statementType: model.kind,
         model,
         expressionHandler,
-        isTypeDescriptor,
         classNames: "type-descriptor var"
     };
 

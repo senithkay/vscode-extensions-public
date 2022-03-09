@@ -72,7 +72,6 @@ export function MappingConstructorComponent(props: MappingConstructorProps) {
                             key={index}
                             model={expression}
                             isElseIfMember={isElseIfMember}
-                            isTypeDescriptor={false}
                             onSelect={(event) => onClickOnExpression(expression, event)}
                             deleteConfig={{defaultExprDeletable: true}}
                         />
