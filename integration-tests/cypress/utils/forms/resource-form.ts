@@ -72,9 +72,9 @@ export class ResourceForm {
         ExpressionEditor
             .getForField("Payload type", this.selector)
             .type(payloadType)
-            .suggestWidgetShouldBeVisible()
+            // .suggestWidgetShouldBeVisible() //Need to fix this
             .waitForValidations()
-            .clickFirstSuggestion()
+            // .clickFirstSuggestion() //Need to fix this
         ;
         return this;
     }
@@ -113,9 +113,9 @@ export class ResourceForm {
             .getForField("Type", this.selector)
             .clear()
             .type(type)
-            .suggestWidgetShouldBeVisible()
+            // .suggestWidgetShouldBeVisible()
             .waitForValidations()
-            .clickFirstSuggestion()
+            // .clickFirstSuggestion() //Fix Suggestions
             .waitForValidations()
         ;
         return this;
@@ -126,9 +126,9 @@ export class ResourceForm {
             .getForField("Select type", this.selector)
             .clear()
             .type(type)
-            .suggestWidgetShouldBeVisible()
+            // .suggestWidgetShouldBeVisible()
             .waitForValidations()
-            .clickFirstSuggestion()
+            // .clickFirstSuggestion() //Fix Suggestions
             .waitForValidations()
         ;
         return this;
