@@ -21,7 +21,7 @@ import { ballerinaExtInstance } from '../core/extension';
 import { Uri } from 'vscode';
 import { getLibraryWebViewContent, WebViewOptions, getComposerWebViewOptions } from '../utils';
 
-const BLCEDITOR_CDN = `https://choreo-shared-codeserver-cdne.azureedge.net/ballerina-low-code-editor@${process.env.BALLERINA_LOW_CODE_EDITOR_VERSION}`;
+const BLCEDITOR_CDN = `https://choreo-shared-codeserver-cdne.azureedge.net/ballerina-low-code-editor-distribution@${process.env.BALLERINA_LOW_CODE_EDITOR_VERSION}`;
 
 export function render(filePath: Uri, startLine: number, startColumn: number, experimental: boolean): string {
     return renderDiagram(filePath, startLine, startColumn, experimental);
