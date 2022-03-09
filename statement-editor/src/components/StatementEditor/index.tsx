@@ -15,19 +15,28 @@ import React, { useEffect, useState } from 'react';
 
 import {
     ExpressionEditorLangClientInterface,
+    getFilteredDiagnostics,
     LibraryDataResponse,
     LibraryDocResponse,
     LibrarySearchResponse,
     STModification
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import * as monaco from "monaco-editor";
 
 import { APPEND_EXPR_LIST_CONSTRUCTOR, CUSTOM_CONFIG_TYPE, INIT_EXPR_LIST_CONSTRUCTOR } from "../../constants";
 import { VariableUserInputs } from '../../models/definitions';
 import { StatementEditorContextProvider } from "../../store/statement-editor-context";
 import { getCurrentModel } from "../../utils";
-import { getPartialSTForStatement } from "../../utils/ls-utils";
+import {
+    addStatementToTargetLine,
+    getDiagnostics,
+    getPartialSTForStatement,
+    sendDidChange,
+    sendDidOpen
+} from "../../utils/ls-utils";
 import { StmtEditorUndoRedoManager } from '../../utils/undo-redo';
+import { EXPR_SCHEME, FILE_SCHEME } from "../InputEditor/constants";
 import { ViewContainer } from "../ViewContainer";
 
 export interface LowCodeEditorProps {
@@ -84,8 +93,10 @@ export function StatementEditor(props: StatementEditorProps) {
     } = props;
 
     const [model, setModel] = useState<STNode>(null);
-    const [isStatementValid, setIsStatementValid] = useState(false);
     const [currentModel, setCurrentModel] = useState({ model });
+    const [diagnostics, setDiagnostics] = useState([]);
+
+    const fileURI = monaco.Uri.file(currentFile.path).toString().replace(FILE_SCHEME, EXPR_SCHEME);
 
     const undoRedoManager = React.useMemo(() => new StmtEditorUndoRedoManager(), []);
 
@@ -104,16 +115,17 @@ export function StatementEditor(props: StatementEditorProps) {
     }, []);
 
     useEffect(() => {
-        if (!(config.type === CUSTOM_CONFIG_TYPE) || initialSource) {
+        if (config.type !== CUSTOM_CONFIG_TYPE || initialSource) {
             (async () => {
                 const partialST = await getPartialSTForStatement(
                     { codeSnippet: initialSource.trim() }, getLangClient);
 
-                if (partialST.syntaxDiagnostics.length === 0) {
+                if (!partialST.syntaxDiagnostics.length) {
                     setModel(partialST);
                 }
             })();
         }
+        sendDidOpen(fileURI, currentFile.content, getLangClient).then();
     }, []);
 
     useEffect(() => {
@@ -124,6 +136,23 @@ export function StatementEditor(props: StatementEditorProps) {
     }, [model]);
 
     const updateModel = async (codeSnippet: string, position: NodePosition) => {
+        // ##############################################
+        let currentStatement = model.source;
+        if (currentStatement.slice(-1) !== ';') {
+            currentStatement += ';';
+        }
+        const initContent: string = await addStatementToTargetLine(
+            currentFile.content, formArgs.formArgs.targetPosition, currentStatement, getLangClient);
+
+        sendDidChange(fileURI, initContent, getLangClient).then();
+        const diagResp = await getDiagnostics(fileURI, getLangClient);
+        const diag = diagResp[0]?.diagnostics ?
+            getFilteredDiagnostics(diagResp[0]?.diagnostics, false) :
+            [];
+        setDiagnostics(diag);
+
+
+        // ##############################################
         let partialST: STNode;
         if (model) {
             const stModification = {
@@ -183,10 +212,6 @@ export function StatementEditor(props: StatementEditorProps) {
         }
     }, [model])
 
-    const validateStatement = (isValid: boolean) => {
-        setIsStatementValid(isValid);
-    };
-
     return (
         (
             <>
@@ -196,7 +221,6 @@ export function StatementEditor(props: StatementEditorProps) {
                     importStatements={importStatements}
                     updateModel={updateModel}
                     formArgs={formArgs}
-                    validateStatement={validateStatement}
                     applyModifications={applyModifications}
                     library={library}
                     currentFile={currentFile}
@@ -206,13 +230,14 @@ export function StatementEditor(props: StatementEditorProps) {
                     redo={redo}
                     hasRedo={undoRedoManager.hasRedo()}
                     hasUndo={undoRedoManager.hasUndo()}
+                    diagnostics={diagnostics}
                 >
                     <ViewContainer
                         label={label}
                         formArgs={formArgs}
                         userInputs={userInputs}
                         config={config}
-                        isStatementValid={isStatementValid}
+                        isStatementValid={!diagnostics.length}
                         currentModelHandler={currentModelHandler}
                         onWizardClose={onWizardClose}
                         onCancel={onCancel}
