@@ -435,12 +435,10 @@ export class SizingVisitor implements Visitor {
                 if (sourceWorker) {
                     const sourceWorkerBody = sourceWorker.workerBody as BlockStatement;
 
-                    let sourceViewstate: EndViewState | StatementViewState;
-                    if ((sourceWorkerBody.viewState as BlockViewState).isEndComponentAvailable) {
-                        sourceViewstate = sourceWorkerBody.statements[sourceWorkerBody.statements.length - 1].viewState;
-                    } else {
-                        sourceViewstate = (sourceWorker.viewState as WorkerDeclarationViewState).end as EndViewState;
-                    }
+                    const sourceViewstate: EndViewState | StatementViewState =
+                        (sourceWorkerBody.viewState as BlockViewState).isEndComponentAvailable ?
+                            sourceWorkerBody.statements[sourceWorkerBody.statements.length - 1].viewState
+                            : (sourceWorker.viewState as WorkerDeclarationViewState).end as EndViewState;
 
                     targetViewState.isReceive = true;
                     sourceViewstate.isSend = true;
