@@ -258,10 +258,34 @@ export const useStatementEditorStyles = makeStyles(() =>
                 borderRadius: '4px',
             },
             '&.hovered': {
-                backgroundColor: '#e5ebf1',
+                backgroundColor: '#e5ebf1'
             },
             cursor: "pointer",
             ...syntaxHighlightingRules
+        },
+        expressionElementCloseButton: {
+            display: 'inline',
+            boxSizing: 'border-box',
+            border: '1px solid #A6B3FF',
+            borderRadius: '2px',
+            position: 'relative',
+            width: '10px',
+            backgroundColor: '#000000',
+            color: '#ffffff',
+            fontSize: '7px',
+            '&:hover': {
+                backgroundColor: '#00ff00',
+                color: '#fff'
+            }
+        },
+        expressionDeleteButton: {
+            display: 'inline',
+            position: 'absolute',
+            marginLeft: '-12px',
+            marginTop: '-20px',
+            "& .MuiIconButton-root": {
+                padding: theme.spacing(0.25),
+            }
         },
         expressionElementSelected: {
             '&': {
@@ -327,7 +351,7 @@ export const useStatementEditorStyles = makeStyles(() =>
             width: '100%',
             zIndex: 100,
         },
-        plusIconBorder: {
+        plusIcon: {
             boxSizing: 'border-box',
             border: '1px dashed #A6B3FF',
             borderRadius: '4px',
@@ -336,8 +360,10 @@ export const useStatementEditorStyles = makeStyles(() =>
             backgroundColor: '#F0F1FB',
             fontFamily: "monospace",
             color: '#0095FF',
-            marginLeft: '2px',
+            margin: '0px 2px',
             fontSize: '12px',
+            padding: '0px 4px',
+            bottom: '1px',
             '&:hover': {
                 backgroundColor: 'rgba(173, 214, 255, 0.3)'
             }

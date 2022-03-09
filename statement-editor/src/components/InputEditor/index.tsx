@@ -51,7 +51,11 @@ import {
 import { useStatementEditorStyles } from "../styles";
 
 import {
-    acceptedCompletionKindForExpressions, acceptedCompletionKindForTypes, EXPR_SCHEME, FILE_SCHEME
+    acceptedCompletionKindForExpressions,
+    acceptedCompletionKindForTypes,
+    EXPR_SCHEME,
+    FILE_SCHEME,
+    INPUT_EDITOR_PLACE_HOLDERS
 } from "./constants";
 
 export interface InputEditorProps {
@@ -149,8 +153,6 @@ export function InputEditor(props: InputEditorProps) {
     const isCustomTemplate = false;
     let currentContent = stmtCtx.modelCtx.statementModel ? stmtCtx.modelCtx.statementModel.source : "";
 
-    const placeHolders: string[] = ['EXPRESSION', 'TYPE_DESCRIPTOR'];
-
     useEffect(() => {
         if (isEditing) {
             handleOnFocus(currentContent).then();
@@ -195,12 +197,12 @@ export function InputEditor(props: InputEditorProps) {
         stmtCtx.statementCtx.validateStatement(!hasDiagnostic);
 
         // TODO: Need to obtain the default value as a prop
-        if (!placeHolders.some(word => currentContent.includes(word))) {
+        if (!Array.from(INPUT_EDITOR_PLACE_HOLDERS.keys()).some(word => currentContent.includes(word))) {
             const diagnosticTargetPosition: NodePosition = {
                 ...targetPosition,
                 startColumn: 0,
             };
-            diagnosticHandler(getDiagnosticMessage(inputEditorState.diagnostic, diagnosticTargetPosition, 0, stmtCtx.modelCtx.statementModel?.source.length, 0, 0))
+            diagnosticHandler(getDiagnosticMessage(inputEditorState.diagnostic, diagnosticTargetPosition, 0, stmtCtx.modelCtx.statementModel?.source.length, 0, 0));
         }
     }
 
@@ -363,7 +365,7 @@ export function InputEditor(props: InputEditorProps) {
                 onClickAway={handleEditEnd}
             >
                 <input
-                    value={placeHolders.indexOf(userInput) > -1 ? "" : userInput}
+                    value={INPUT_EDITOR_PLACE_HOLDERS.has(userInput) ? "" : userInput}
                     className={statementEditorClasses.inputEditorTemplate + ' ' + classNames}
                     onKeyDown={inputEnterHandler}
                     onInput={inputChangeHandler}
@@ -378,7 +380,7 @@ export function InputEditor(props: InputEditorProps) {
                 className={statementEditorClasses.inputEditorTemplate + ' ' + classNames}
                 onDoubleClick={handleDoubleClick}
             >
-                {placeHolders.indexOf(userInput) > -1 ? "<add-expression>" : userInput}
+                {INPUT_EDITOR_PLACE_HOLDERS.has(userInput) ? INPUT_EDITOR_PLACE_HOLDERS.get(userInput) : userInput}
             </span>
         );
 }
