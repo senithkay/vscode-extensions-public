@@ -257,7 +257,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         defaultValue: variableExpression,
     };
 
-    const initialSource = formArgs.model ? formArgs.model.source : (initialized ? (
+    const initialSource = initialized ? (
                 getInitialSource(createModuleVarDecl(
                     {
                         varName: varName ? varName : genVariableName("variable", getAllVariables(stSymbolInfo)),
@@ -276,8 +276,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                         varValue: null
                     }
                 ))
-            )
-    );
+            );
 
     const handleStatementEditorChange = (partialModel: LocalVarDecl) => {
         setSelectedType(partialModel.typedBindingPattern.typeDescriptor.source.trim())

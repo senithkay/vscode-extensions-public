@@ -399,27 +399,6 @@ export const useStatementEditorStyles = makeStyles(() =>
             paddingLeft: '12px',
             marginRight: '10px'
         },
-        libraryResourceButton: {
-            boxSizing: 'border-box',
-            border: '1px solid #CBCEDB',
-            borderRadius: '4px',
-            fontFamily: 'inherit',
-            backgroundColor: 'rgba(255,255,255,0.5)',
-            marginLeft: '2%',
-            marginTop: '3%',
-            color: '#40404B',
-            fontSize: 11,
-            padding: '5px 10px',
-            letterSpacing: 0,
-            '&:hover': {
-                backgroundColor: '#8e9bdc',
-                color: 'white'
-            },
-            '&:disabled': {
-                backgroundColor: 'rgba(0,0,0,0.1)',
-                color: '#404040',
-            }
-        },
         librarySearchSubHeader: {
             height: '12px',
             color: '#1D2028',
@@ -448,14 +427,6 @@ export const useStatementEditorStyles = makeStyles(() =>
             display: 'grid',
             gridTemplateColumns: '29% 29% 29%',
             paddingBottom: '8px'
-        },
-        libraryListButton: {
-            border: 'none',
-            backgroundColor: '#FFF',
-            color: '#5567D5',
-            '&:hover': {
-                color: '#3a479c'
-            },
         },
         lsSuggestionList: {
             top: '5%',
@@ -549,10 +520,6 @@ export const useStatementEditorStyles = makeStyles(() =>
             marginTop: '0.25rem',
             marginLeft: '4px'
         },
-        tabsPanelPaperSe: {
-            flexGrow: 1,
-            boxShadow: 'none'
-        },
         tabsPanelSe: {
             "& .MuiTab-wrapper": {
                 textTransform: 'none',
@@ -607,12 +574,17 @@ export const useStatementEditorStyles = makeStyles(() =>
             }
         },
         arrowBack: {
-            fontSize: '13px',
+            fontSize: '17px',
             lineHeight: '24px',
             color: '#5567D5'
         },
         libraryModuleIcon: {
             marginLeft: '8.25px'
+        },
+        loadingContainer: {
+            height: '60vh',
+            alignContent: 'center',
+            alignItems: 'center',
         }
     }),
 );

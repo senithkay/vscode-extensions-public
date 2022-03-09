@@ -10,9 +10,9 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 
-import { ListItem, ListItemIcon, ListItemText, Typography } from "@material-ui/core";
+import { Box, CircularProgress, ListItem, ListItemIcon, ListItemText, Typography } from "@material-ui/core";
 import {
     FunctionParams,
     LibraryDataResponse,
@@ -37,6 +37,7 @@ export function ModuleElement(props: ModuleElementProps) {
     const statementEditorClasses = useStatementEditorStyles();
     const { moduleProperty, key, isFunction, label } = props;
     const { id, moduleId, moduleOrgName, moduleVersion } = moduleProperty;
+    const [clickedModuleElement, setClickedModuleElement] = useState('');
 
     const {
         modelCtx: {
@@ -54,11 +55,11 @@ export function ModuleElement(props: ModuleElementProps) {
     } = stmtCtx;
 
     const onClickOnModuleElement = async () => {
-        const response: LibraryDataResponse = await getLibraryData(moduleOrgName, moduleId, moduleVersion);
-
         let content = moduleId.includes('.') ? `${moduleId.split('.').pop()}0:${id}` : `${moduleId}:${id}`;
-
+        setClickedModuleElement(content);
         if (isFunction) {
+            const response: LibraryDataResponse = await getLibraryData(moduleOrgName, moduleId, moduleVersion);
+
             let functionProperties: LibraryFunction = null;
             response.docsData.modules[0].functions.map((libFunction: LibraryFunction) => {
                 if (libFunction.name === id) {
@@ -79,10 +80,16 @@ export function ModuleElement(props: ModuleElementProps) {
                 content += `(${parameters.join(',')})`;
             }
         }
-
+        setClickedModuleElement('');
         updateModuleList(`import ${getFQModuleName(moduleOrgName, moduleId)};`);
         updateModel(content, currentModel.model ? currentModel.model.position : formModelPosition);
     }
+
+    const circularProgress = (
+        <Box display="flex" justifyContent="center">
+            <CircularProgress size={15} style={{marginRight: '5px'}}/>
+        </Box>
+    );
 
     return (
         <ListItem
@@ -99,6 +106,7 @@ export function ModuleElement(props: ModuleElementProps) {
             <ListItemText
                 primary={<Typography className={statementEditorClasses.suggestionValue}>{`${moduleId}:${id}`}</Typography>}
             />
+            {`${moduleId}:${id}` === clickedModuleElement && (circularProgress)}
         </ListItem>
     );
 }

@@ -13,7 +13,15 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import React, { useContext, useEffect, useState } from "react";
 
-import { IconButton, Input, InputAdornment } from "@material-ui/core";
+import {
+    Box,
+    CircularProgress, FormControl,
+    Grid,
+    IconButton,
+    Input,
+    InputAdornment,
+    Typography
+} from "@material-ui/core";
 import { ArrowBack } from "@material-ui/icons";
 import {
     LibraryDataResponse,
@@ -64,6 +72,7 @@ export function LibraryBrowser(props: LibraryBrowserProps) {
     const [libraryData, setLibraryData] = useState<LibraryDataResponse>();
     const [moduleTitle, setModuleTitle] = useState('');
     const [moduleSelected, setModuleSelected] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
         (async () => {
@@ -129,6 +138,23 @@ export function LibraryBrowser(props: LibraryBrowserProps) {
         setKeyword('');
     }
 
+    const libraryDataFetchingHandler = (isFetching: boolean, moduleElement?: string) => {
+        setIsLoading(isFetching);
+    }
+
+    const loadingScreen = (
+        <Grid sm={12} item={true} container={true} className={statementEditorClasses.loadingContainer}>
+            <Grid item={true} sm={12}>
+                <Box display="flex" justifyContent="center">
+                    <CircularProgress/>
+                </Box>
+                <Box display="flex" justifyContent="center" mt={2}>
+                    <Typography variant="body1">Loading...</Typography>
+                </Box>
+            </Grid>
+        </Grid>
+    );
+
     return (
         <>
         { isLibrary && (
@@ -147,6 +173,7 @@ export function LibraryBrowser(props: LibraryBrowserProps) {
                             <div className={statementEditorClasses.moduleTitle}>{moduleTitle}</div>
                         </>
                     )}
+                    <FormControl style={{width: 'inherit', marginRight: '10px'}}>
                         <Input
                             className={statementEditorClasses.librarySearchBox}
                             value={keyword}
@@ -158,25 +185,33 @@ export function LibraryBrowser(props: LibraryBrowserProps) {
                                 </InputAdornment>
                             )}
                         />
+                    </FormControl>
                 </div>
-                {libraryBrowserMode === LibraryBrowserMode.LIB_LIST && !moduleTitle && (
-                    <LibrariesList
-                        libraries={libraries}
-                        libraryBrowsingHandler={libraryBrowsingHandler}
-                    />
-                )}
-                {libraryBrowserMode === LibraryBrowserMode.LIB_SEARCH && filteredSearchData && (
-                    <SearchResult
-                        librarySearchResponse={filteredSearchData}
-                        libraryBrowsingHandler={libraryBrowsingHandler}
-                        moduleSelected={moduleSelected}
-                    />
-                )}
-                {libraryBrowserMode === LibraryBrowserMode.LIB_BROWSE && (
-                    <SearchResult
-                        librarySearchResponse={libraryData.searchData}
-                        moduleSelected={moduleSelected}
-                    />
+                {isLoading ? loadingScreen : (
+                    <>
+                        {libraryBrowserMode === LibraryBrowserMode.LIB_LIST && !moduleTitle && (
+                            <LibrariesList
+                                libraries={libraries}
+                                libraryBrowsingHandler={libraryBrowsingHandler}
+                                libraryDataFetchingHandler={libraryDataFetchingHandler}
+                            />
+                        )}
+                        {libraryBrowserMode === LibraryBrowserMode.LIB_BROWSE && (
+                            <SearchResult
+                                librarySearchResponse={libraryData.searchData}
+                                moduleSelected={moduleSelected}
+                                libraryDataFetchingHandler={libraryDataFetchingHandler}
+                            />
+                        )}
+                        {libraryBrowserMode === LibraryBrowserMode.LIB_SEARCH && filteredSearchData && (
+                            <SearchResult
+                                librarySearchResponse={filteredSearchData}
+                                libraryBrowsingHandler={libraryBrowsingHandler}
+                                moduleSelected={moduleSelected}
+                                libraryDataFetchingHandler={libraryDataFetchingHandler}
+                            />
+                        )}
+                    </>
                 )}
             </div>
         )}
