@@ -22,7 +22,7 @@ import { STNode } from "@wso2-enterprise/syntax-tree";
 
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { getModifications } from "../../utils";
-import { sendDidChange } from "../../utils/ls-utils";
+import { sendDidChange, sendDidClose } from "../../utils/ls-utils";
 import { EditorPane } from '../EditorPane';
 import { useStatementEditorStyles } from "../styles";
 
@@ -81,10 +81,12 @@ export function ViewContainer(props: ViewContainerProps) {
         const modifications = getModifications(statementModel, config, formArgs, Array.from(modulesToBeImported) as string[]);
         applyModifications(modifications);
         onWizardClose();
+        sendDidClose(fileURI, getLangClient).then();
     };
 
     const onCancelClick = async () => {
         await sendDidChange(fileURI, currentFile.content, getLangClient);
+        sendDidClose(fileURI, getLangClient).then();
         onCancel();
     }
 

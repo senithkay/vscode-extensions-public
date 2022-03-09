@@ -43,20 +43,23 @@ export interface InputEditorProps {
 
 export function InputEditor(props: InputEditorProps) {
 
-    const [isEditing, setIsEditing] = useState(false);
     const { model, isToken, classNames } = props;
 
     const stmtCtx = useContext(StatementEditorContext);
-    const inputEditorCtx = useContext(InputEditorContext);
-    const { expressionHandler } = useContext(SuggestionsContext);
     const {
         modelCtx: {
             initialSource,
             updateModel,
             handleChange
         },
-        getLangClient
+        formCtx: {
+            formModelPosition: targetPosition
+        }
     } = stmtCtx;
+
+    const inputEditorCtx = useContext(InputEditorContext);
+
+    const { expressionHandler } = useContext(SuggestionsContext);
 
     const statementEditorClasses = useStatementEditorStyles();
 
@@ -103,32 +106,11 @@ export function InputEditor(props: InputEditorProps) {
             source = model.source;
         }
         return [source, nodeKind];
-    }, [model])
+    }, [model]);
 
+    const [isEditing, setIsEditing] = useState(false);
     const [userInput, setUserInput] = useState<string>(originalValue);
     const [prevUserInput, setPrevUserInput] = useState<string>(userInput);
-
-
-    const targetPosition = stmtCtx.formCtx.formModelPosition;
-    // const isCustomTemplate = false;
-    // let currentContent = stmtCtx.modelCtx.statementModel ? stmtCtx.modelCtx.statementModel.source : "";
-
-    // useEffect(() => {
-    //     if (isEditing) {
-    //         handleOnFocus(currentContent).then();
-    //     }
-    // }, [isEditing]);
-
-    // useEffect(() => {
-    //     handleDiagnostic();
-    // }, [inputEditorState.diagnostic]);
-
-    // useEffect(() => {
-    //     setUserInput(originalValue);
-    //     handleOnFocus(currentContent).then(() => {
-    //         handleContentChange(currentContent).then();
-    //     });
-    // }, [originalValue]);
 
     useEffect(() => {
         if (userInput === '') {
@@ -136,131 +118,9 @@ export function InputEditor(props: InputEditorProps) {
         }
     }, [userInput]);
 
-    // const handleOnFocus = async (currentStatement: string) => {
-    //     let initContent: string = await addStatementToTargetLine(
-    //         currentFile.content, targetPosition, currentStatement, getLangClient);
-    //
-    //     if (modulesToBeImported.size > 0) {
-    //         initContent = await addImportStatements(initContent, Array.from(modulesToBeImported) as string[]);
-    //     }
-    //
-    //     inputEditorState.name = userInputs && userInputs.formField ? userInputs.formField : "modelName";
-    //     inputEditorState.content = initContent;
-    //     inputEditorState.uri = fileURI;
-    //     sendDidOpen(inputEditorState.uri, currentFile.content, getLangClient).then();
-    //     sendDidChange(inputEditorState.uri, inputEditorState.content, getLangClient).then();
-    // }
-
-    // const handleDiagnostic = () => {
-    //     const hasDiagnostic = !!inputEditorState.diagnostic.length;
-    //
-    //     stmtCtx.statementCtx.validateStatement(!hasDiagnostic);
-    //
-    //     // TODO: Need to obtain the default value as a prop
-    //     if (!Array.from(INPUT_EDITOR_PLACE_HOLDERS.keys()).some(word => currentContent.includes(word))) {
-    //         const diagnosticTargetPosition: NodePosition = {
-    //             ...targetPosition,
-    //             startColumn: 0,
-    //         };
-    //         diagnosticHandler(getDiagnosticMessage(inputEditorState.diagnostic, diagnosticTargetPosition, 0, stmtCtx.modelCtx.statementModel?.source.length, 0, 0));
-    //     }
-    // }
-
-    // const handleContentChange = async (currentStatement: string, currentCodeSnippet?: string) => {
-    //     if (currentStatement.slice(-1) !== ';') {
-    //         currentStatement += ';';
-    //     }
-    //     let initContent: string = await addStatementToTargetLine(
-    //         currentFile.content, targetPosition, currentStatement, getLangClient);
-    //
-    //     if (modulesToBeImported.size > 0) {
-    //         initContent = await addImportStatements(initContent, Array.from(modulesToBeImported) as string[]);
-    //     }
-    //
-    //     inputEditorState.name = userInputs && userInputs.formField ? userInputs.formField : "modelName";
-    //     inputEditorState.content = initContent;
-    //     inputEditorState.uri = fileURI;
-    //     sendDidChange(inputEditorState.uri, inputEditorState.content, getLangClient).then();
-    //     const diagResp = await getDiagnostics(inputEditorState.uri, getLangClient);
-    //     const diag = diagResp[0]?.diagnostics ?
-    //         getFilteredDiagnostics(diagResp[0]?.diagnostics, isCustomTemplate) :
-    //         [];
-    //     setInputEditorState((prevState) => {
-    //         return {
-    //             ...prevState,
-    //             diagnostic: diagResp[0]?.diagnostics ?
-    //                 getFilteredDiagnostics(diagResp[0]?.diagnostics, isCustomTemplate) :
-    //                 []
-    //         };
-    //     });
-    //     currentContent = currentStatement;
-    //
-    //     if (isEditing) {
-    //         await getContextBasedCompletions(currentCodeSnippet != null ? currentCodeSnippet : userInput);
-    //     }
-    // }
-
-    const handleContentChange = async (currentStatement: string, currentCodeSnippet?: string) => {
+    const handleContentChange = async (currentStatement: string) => {
         handleChange(currentStatement);
     }
-
-    // const handleOnOutFocus = async () => {
-    //     inputEditorState.content = currentFile.content;
-    //     inputEditorState.uri = fileURI;
-    //
-    //     sendDidClose(inputEditorState.uri, getLangClient).then();
-    // }
-
-    // // TODO: To be removed with expression editor integration
-    // const getContextBasedCompletions = async (codeSnippet: string) => {
-    //     const completionParams: CompletionParams = {
-    //         textDocument: {
-    //             uri: inputEditorState?.uri
-    //         },
-    //         context: {
-    //             triggerKind: 1
-    //         },
-    //         position: {
-    //             character: model ? (targetPosition.startColumn + (model.position.startColumn) + codeSnippet.length) :
-    //                 (targetPosition.startColumn + codeSnippet.length),
-    //             line: targetPosition.startLine
-    //         }
-    //     }
-    //
-    //     // CodeSnippet is split to get the suggestions for field-access-expr (expression.field-name)
-    //     const splitCodeSnippet = codeSnippet.split('.');
-    //
-    //     getLangClient().then((langClient: ExpressionEditorLangClientInterface) => {
-    //         langClient.getCompletion(completionParams).then((values: CompletionResponse[]) => {
-    //             const filteredCompletionItem: CompletionResponse[] = values.filter((completionResponse: CompletionResponse) => (
-    //                 (!completionResponse.kind ||
-    //                     (isTypeDescriptor ?
-    //                         acceptedCompletionKindForTypes.includes(completionResponse.kind) :
-    //                         acceptedCompletionKindForExpressions.includes(completionResponse.kind)
-    //                     )
-    //                 ) &&
-    //                 // completionResponse.label !== varName.trim() &&
-    //                 !(completionResponse.label.includes("main")) &&
-    //                 (splitCodeSnippet.some((element) => (
-    //                     ((completionResponse.label.toLowerCase()).includes(element.toLowerCase()))
-    //                 )
-    //                 ))
-    //             ));
-    //
-    //             filteredCompletionItem.sort(sortSuggestions)
-    //
-    //             const variableSuggestions: SuggestionItem[] = filteredCompletionItem.map((obj) => {
-    //                 return { value: obj.label, kind: obj.detail, suggestionType: obj.kind }
-    //             });
-    //
-    //             if (isTypeDescriptor) {
-    //                 expressionHandler(model, false, true, { typeSuggestions: variableSuggestions });
-    //             } else {
-    //                 expressionHandler(model, false, false, { variableSuggestions });
-    //             }
-    //         });
-    //     });
-    // }
 
     const inputEnterHandler = (event: React.KeyboardEvent<HTMLInputElement>) => {
         if (event.key === "Enter" || event.key === "Tab") {
@@ -297,7 +157,7 @@ export function InputEditor(props: InputEditorProps) {
             newValue ? newValue : "",
             model ? model.position.endColumn : 0
         );
-        debouncedContentChange(updatedStatement, newValue);
+        debouncedContentChange(updatedStatement);
     }
 
     const debouncedContentChange = debounce(handleContentChange, 500);
@@ -313,11 +173,8 @@ export function InputEditor(props: InputEditorProps) {
         setPrevUserInput(userInput);
         if (userInput !== "") {
             updateModel(userInput, model ? model.position : targetPosition, true);
-            expressionHandler(model, false, false, { expressionSuggestions: [] });
-
-            // const ignore = handleOnOutFocus();
+            // expressionHandler(model, false, false, { expressionSuggestions: [] });
         }
-        // getContextBasedCompletions(userInput);
     }
 
     return isEditing ?
