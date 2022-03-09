@@ -19,7 +19,7 @@
 
 import { NotebookCell, NotebookCellOutput, NotebookCellOutputItem, NotebookController, 
     NotebookDocument, notebooks } from 'vscode';
-import { BallerinaExtension, BalShellResponse, ExtendedLangClient } from '../core';
+import { BallerinaExtension, ExtendedLangClient, NoteBookCellOutputResponse } from '../core';
 import { MIME_TYPE_TABLE } from './renderer/constants';
 
 export class BallerinaNotebookController {
@@ -73,7 +73,7 @@ export class BallerinaNotebookController {
             execution.end(false, Date.now());
         });
         try {
-            let output: BalShellResponse = await langClient.getBalShellResult({
+            let output: NoteBookCellOutputResponse = await langClient.getBalShellResult({
                 source: cell.document.getText().trim()
             });
             if (output.diagnostics.length) {

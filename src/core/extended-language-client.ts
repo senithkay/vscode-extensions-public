@@ -67,8 +67,8 @@ enum EXTENDED_APIS {
     PERF_ANALYZER_RESOURCES_ENDPOINTS = 'performanceAnalyzer/getResourcesWithEndpoints',
     RESOLVE_MISSING_DEPENDENCIES = 'ballerinaDocument/resolveMissingDependencies',
     BALLERINA_TO_OPENAPI = 'openAPILSExtension/generateOpenAPI',
-    GET_BAL_SHELL_RESULT = "balShell/getResult",
-    GET_BAL_SHELL_FILE_SOURCE = "balShell/getShellFileSource"
+    NOTEBOOK_RESULT = "balShell/getResult",
+    NOTEBOOK_FILE_SOURCE = "balShell/getShellFileSource"
 }
 
 enum EXTENDED_APIS_ORG {
@@ -82,7 +82,7 @@ enum EXTENDED_APIS_ORG {
     PERF_ANALYZER = 'performanceAnalyzer',
     PARTIAL_PARSER = 'partialParser',
     BALLERINA_TO_OPENAPI = 'openAPILSExtension',
-    BAL_SHELL = "balShell"
+    NOTEBOOK_SUPPORT = "balShell"
 }
 
 export interface ExtendedClientCapabilities extends ClientCapabilities {
@@ -149,23 +149,23 @@ export interface JsonToRecordResponse {
     codeBlock: string;
 }
 
-export interface BalShellRequest {
+export interface NoteBookCellOutputRequest {
     source: string
 }
 
-export interface ShellValue {
+export interface NoteBookCellOutputValue {
     value: string,
     mimeType: string,
     type: number
 }
 
-export interface BalShellResponse {
-    shellValue?: ShellValue,
+export interface NoteBookCellOutputResponse {
+    shellValue?: NoteBookCellOutputValue,
     errors: string[],
     diagnostics: string[]
 }
 
-export interface ShellFileSourceResponse{
+export interface NotebookFileSourceResponse{
     content: string,
     filePath: string
 }
@@ -558,18 +558,18 @@ export class ExtendedLangClient extends LanguageClient {
         return this.sendRequest(EXTENDED_APIS.JSON_TO_RECORD_CONVERT, params);
     }
 
-    getBalShellResult(params: BalShellRequest): Thenable<BalShellResponse> {
-        if (!this.isExtendedServiceSupported(EXTENDED_APIS.GET_BAL_SHELL_RESULT)) {
+    getBalShellResult(params: NoteBookCellOutputRequest): Thenable<NoteBookCellOutputResponse> {
+        if (!this.isExtendedServiceSupported(EXTENDED_APIS.NOTEBOOK_RESULT)) {
             Promise.resolve(NOT_SUPPORTED);
         }
-        return this.sendRequest(EXTENDED_APIS.GET_BAL_SHELL_RESULT, params);
+        return this.sendRequest(EXTENDED_APIS.NOTEBOOK_RESULT, params);
     }
 
-    getShellBufferFilePath(): Thenable<ShellFileSourceResponse> {
-        if (!this.isExtendedServiceSupported(EXTENDED_APIS.GET_BAL_SHELL_FILE_SOURCE)) {
+    getShellBufferFilePath(): Thenable<NotebookFileSourceResponse> {
+        if (!this.isExtendedServiceSupported(EXTENDED_APIS.NOTEBOOK_FILE_SOURCE)) {
             Promise.resolve(NOT_SUPPORTED);
         }
-        return this.sendRequest(EXTENDED_APIS.GET_BAL_SHELL_FILE_SOURCE);
+        return this.sendRequest(EXTENDED_APIS.NOTEBOOK_FILE_SOURCE);
     }
 
     getSTForSingleStatement(params: PartialSTRequestParams): Thenable<PartialSTResponse> {
@@ -644,7 +644,7 @@ export class ExtendedLangClient extends LanguageClient {
                 { name: EXTENDED_APIS_ORG.PERF_ANALYZER, getResourcesWithEndpoints: true },
                 { name: EXTENDED_APIS_ORG.PARTIAL_PARSER, getSTForSingleStatement: true, getSTForExpression: true },
                 { name: EXTENDED_APIS_ORG.BALLERINA_TO_OPENAPI, generateOpenAPI: true },
-                { name: EXTENDED_APIS_ORG.BAL_SHELL, getResult: true, getShellFileSource: true }
+                { name: EXTENDED_APIS_ORG.NOTEBOOK_SUPPORT, getResult: true, getShellFileSource: true }
             ]
         }).then(response => {
             this.ballerinaExtendedServices = new Set();
