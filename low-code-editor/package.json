@@ -10,10 +10,10 @@
   "typings": "build/index",
   "scripts": {
     "prebuild": "npm run lint",
-    "build": "npm run build:webpack",
+    "build": "npm run storybook:setup && npm run build:tsc",
     "build:tsc": "tsc --pretty && npm run copy:assets",
     "build:webpack": "webpack --config webpack.config.js --mode=production",
-    "copy:assets": "copyfiles -u 1 src/**/*.scss src/**/*.svg src/**/*.css src/**/*.png src/**/*.txt src/**/*.json build/",
+    "copy:assets": "copyfiles -u 1 \"src/**/*.scss\" \"src/**/*.svg\"  \"src/**/*.css\" \"src/**/*.png\" \"src/**/*.txt\" \"src/**/*.json\" \"src/assets/fonts/Glimer/*.*\" build/",
     "clean": "rimraf build/",
     "clean:nm": "rimraf node_modules",
     "lint": "tslint --project .",
@@ -23,7 +23,7 @@
     "watch:tsc": "tsc --pretty --watch",
     "watch:webpack": "webpack-dev-server --mode=development --progress",
     "deploy": "npm publish",
-    "storybook": "npm run storybook:setup",
+    "storybook": "npm run storybook:setup && node tools/start-storybook.js",
     "storybook:setup": "node tools/setup-storybook.js",
     "cypress": "cypress open",
     "build-storybook": "build-storybook"
@@ -142,9 +142,6 @@
     "puppeteer": "^1.19.0",
     "react": "^17.0.1",
     "react-dom": "^17.0.1"
-  },
-  "exports": {
-    "./DiagramGenerator": "./src/DiagramGenerator/"
   },
   "repository": {
     "type": "git",

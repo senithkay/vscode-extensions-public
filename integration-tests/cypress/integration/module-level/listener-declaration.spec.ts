@@ -16,16 +16,16 @@ import { SourceCode } from "../../utils/components/code-view";
 import { TopLevelPlusWidget } from "../../utils/components/top-level-plus-widget";
 import { getCurrentSpecFolder } from "../../utils/file-utils";
 import { ListenerForm } from "../../utils/forms/listener-form";
-import { getIntegrationTestStoryURL } from "../../utils/story-url-utils";
+import { getIntegrationTestPageURL } from "../../utils/story-url-utils";
 
 const BAL_FILE_PATH = "default/empty-file.bal";
 
 describe('Listener', () => {
     beforeEach(() => {
-        cy.visit(getIntegrationTestStoryURL(BAL_FILE_PATH))
+        cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH))
     });
 
-    it('Add and Edit Listener', () => {
+    it.skip('Add and Edit Listener', () => {
         Canvas
             .welcomeMessageShouldBeVisible()
             .clickTopLevelPlusButton();
