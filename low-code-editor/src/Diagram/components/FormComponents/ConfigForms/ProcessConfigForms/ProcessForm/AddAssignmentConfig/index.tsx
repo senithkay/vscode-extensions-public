@@ -61,12 +61,7 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
     const existingProperty = config && config.model;
     if (existingProperty && STKindChecker.isAssignmentStatement(config.model)) {
         varExpression = config.model.expression?.source;
-        if (STKindChecker.isSimpleNameReference(config.model?.varRef)) {
-            variableName = config.model?.varRef?.name.value;
-        } else if ((STKindChecker.isFieldAccess(config.model?.varRef))
-            || (STKindChecker.isListBindingPattern(config.model?.varRef))) {
-            variableName = config.model?.varRef?.source?.trim();
-        }
+        variableName = config.model?.varRef?.source?.trim();
     }
 
     const [varName, setVarName] = useState(variableName);
