@@ -357,7 +357,7 @@ export function InputEditor(props: InputEditorProps) {
         getContextBasedCompletions(userInput);
     }
 
-    const inputData = (inputText: string): string => {
+    const getInputDisplayValue = (inputText: string): string => {
         if (INPUT_EDITOR_PLACE_HOLDERS.has(inputText)) {
             return INPUT_EDITOR_PLACE_HOLDERS.get(inputText);
         } else if (inputText === "") {
@@ -390,7 +390,7 @@ export function InputEditor(props: InputEditorProps) {
                 className={statementEditorClasses.inputEditorTemplate + ' ' + classNames}
                 onDoubleClick={handleDoubleClick}
             >
-                {inputData(userInput)}
+                {getInputDisplayValue(userInput)}
             </span>
         );
 }
