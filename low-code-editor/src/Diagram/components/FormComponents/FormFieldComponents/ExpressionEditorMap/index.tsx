@@ -21,9 +21,11 @@ import {
     transformFormFieldTypeToString
 } from "@wso2-enterprise/ballerina-expression-editor";
 import {
-    FormElementProps,
-    IconBtnWithText
+    FormElementProps
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import {
+    IconBtnWithText
+} from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 
 import { useStyles } from "../../DynamicConnectorForm/style"
 import { LowCodeExpressionEditor } from "../LowCodeExpressionEditor";

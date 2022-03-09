@@ -15,7 +15,7 @@ import React, { useReducer, useState } from "react";
 import { FormattedMessage } from "react-intl";
 
 import { FormHelperText } from "@material-ui/core";
-import { SecondaryButton } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { SecondaryButton } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { ListenerDeclaration, NodePosition, ServiceDeclaration, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 

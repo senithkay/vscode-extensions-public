@@ -39,8 +39,8 @@ export class ListenerForm {
         ExpressionEditor
             .getForField("Listener Port", this.selector)
             .type(value.toString())
-            .clearSuggestions()
-            .waitForValidations();
+            .waitForValidations()
+            .clearSuggestions();
         return this;
     }
 

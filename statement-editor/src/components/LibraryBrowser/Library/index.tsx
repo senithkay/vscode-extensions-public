@@ -13,9 +13,10 @@
 
 import React, { useContext } from 'react';
 
-import { ListItem, ListItemText } from "@material-ui/core";
+import { ListItem, ListItemIcon, ListItemText, Typography } from "@material-ui/core";
 import { LibraryDataResponse, LibraryInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
+import LibraryModuleIcon from "../../../assets/icons/LibraryModuleIcon";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { useStatementEditorStyles } from "../../styles";
 
@@ -23,6 +24,7 @@ interface LibraryProps {
     libraryInfo: LibraryInfo,
     key: number,
     libraryBrowsingHandler: (libraryData: LibraryDataResponse) => void
+    libraryDataFetchingHandler: (isFetching: boolean, moduleElement?: string) => void
 }
 
 export function Library(props: LibraryProps) {
@@ -33,14 +35,16 @@ export function Library(props: LibraryProps) {
         }
     } = stmtCtx;
     const statementEditorClasses = useStatementEditorStyles();
-    const { libraryInfo, key, libraryBrowsingHandler } = props;
+    const { libraryInfo, key, libraryBrowsingHandler, libraryDataFetchingHandler } = props;
     const { id, orgName, version } = libraryInfo;
 
     const onClickOnLibrary = async () => {
+        libraryDataFetchingHandler(true);
         const response = await getLibraryData(orgName, id, version);
 
         if (response) {
             libraryBrowsingHandler(response);
+            libraryDataFetchingHandler(false);
         }
     }
 
@@ -52,8 +56,11 @@ export function Library(props: LibraryProps) {
             onClick={onClickOnLibrary}
             disableRipple={true}
         >
+            <ListItemIcon style={{ minWidth: 'fit-content', textAlign: 'left', marginRight: '6.25px'}}>
+                <LibraryModuleIcon/>
+            </ListItemIcon>
             <ListItemText
-                primary={id}
+                primary={<Typography className={statementEditorClasses.suggestionValue}>{id}</Typography>}
             />
         </ListItem>
     );

@@ -10,19 +10,21 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, { useReducer } from "react"
+import React, { useReducer, useState } from "react"
 import { FormattedMessage } from "react-intl";
 
 import { Box, FormControl, FormHelperText, Typography } from "@material-ui/core";
 import { ExpressionEditorProps } from "@wso2-enterprise/ballerina-expression-editor";
 import {
-    FormActionButtons,
     FormElementProps,
-    FormHeaderSection,
-    PrimaryButton,
-    SecondaryButton,
     STModification
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import {
+    FormActionButtons,
+    FormHeaderSection,
+    PrimaryButton,
+    SecondaryButton
+} from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { ConstDeclaration, NodePosition } from "@wso2-enterprise/syntax-tree"
 import { v4 as uuid } from 'uuid';
 
@@ -51,9 +53,9 @@ export function ConstantConfigForm(props: ConstantConfigFormProps) {
     const { api: { code: { modifyDiagram } } } = useDiagramContext();
     const { model, targetPosition, onCancel, onSave, formType } = props;
     const [config, dispatch] = useReducer(constantConfigFormReducer, generateConfigFromModel(model));
-
     const variableTypes: string[] = ["int", "float", "byte", "boolean", "string"];
-
+    const [focus, setFocus] = useState(false)
+    const [uniqueId] = useState(uuid());
     const validateNameValue = (value: string) => {
         if (value && value !== '') {
             return ConstantVarNameRegex.test(value);
@@ -78,7 +80,8 @@ export function ConstantConfigForm(props: ConstantConfigFormProps) {
     }
 
     const handleTypeChange = (type: string) => {
-        dispatch({ type: ConstantConfigFormActionTypes.SET_CONSTANT_TYPE, payload: type })
+        dispatch({ type: ConstantConfigFormActionTypes.SET_CONSTANT_TYPE, payload: type });
+        setFocus(true);
     }
 
     const handleNameChange = (name: string) => {
@@ -87,6 +90,9 @@ export function ConstantConfigForm(props: ConstantConfigFormProps) {
 
     const handleValueChange = (value: string) => {
         dispatch({ type: ConstantConfigFormActionTypes.SET_CONSTANT_VALUE, payload: value })
+    }
+    const revertFocus = () => {
+        setFocus(false)
     }
 
     const expressionEditorConfig: FormElementProps<ExpressionEditorProps> = {
@@ -107,10 +113,12 @@ export function ConstantConfigForm(props: ConstantConfigFormProps) {
                 endColumn: 0
             },
             customTemplate: config.isTypeDefined ? undefined : {
-                defaultCodeSnippet: `const temp_var_${uuid().replaceAll('-', '_')} = ;`,
+                defaultCodeSnippet: `const temp_var_${uniqueId.replaceAll('-', '_')} = ;`,
                 targetColumn: 54,
             },
             initialDiagnostics: model?.initializer?.typeData?.diagnostics,
+            focus,
+            revertFocus
         },
         onChange: handleValueChange,
         defaultValue: config.constantValue

@@ -11,13 +11,13 @@ import { OtherForm } from "../../utils/forms/other-form";
 import { ReturnForm } from "../../utils/forms/return-form";
 import { VariableFormBlockLevel } from "../../utils/forms/variable-form-block-level";
 import { WhileForm } from "../../utils/forms/while-form";
-import { getIntegrationTestStoryURL } from "../../utils/story-url-utils"
+import { getIntegrationTestPageURL } from "../../utils/story-url-utils"
 
 const BAL_FILE_PATH = "function/add-function-to-empty-file.bal";
 
 describe('Add function and statements via Low Code', () => {
   beforeEach(() => {
-    cy.visit(getIntegrationTestStoryURL(BAL_FILE_PATH))
+    cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH))
   })
 
   it('Add a function and log statemnt to empty file', () => {
