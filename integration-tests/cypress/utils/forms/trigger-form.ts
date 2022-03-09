@@ -84,6 +84,12 @@ export class TriggerForm {
 
     }
 
+    static waitForConnectorsLoading() {
+        this.getTriggerMarketplace().get(`[data-testid="marketplace-search-loader"]`)
+            .should("not.exist");
+        return this;
+    }
+
     static createBtnShouldNotBeClickable() {
         this.getTriggerForm()
             .get('[data-testid="save-btn"]')
