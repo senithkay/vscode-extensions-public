@@ -13,11 +13,13 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import React, { useContext } from "react";
 
+import { List, ListItem, ListItemIcon, ListItemText, Typography } from "@material-ui/core";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 
 import { SuggestionItem } from "../../../models/definitions";
 import { InputEditorContext } from "../../../store/input-editor-context";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
+import { getSuggestionIconStyle } from "../../../utils";
 import { useStatementEditorStyles } from "../../styles";
 
 export interface TypeSuggestionsProps {
@@ -48,17 +50,31 @@ export function TypeSuggestions(props: TypeSuggestionsProps) {
         <>
             { isSuggestion && !!typeSuggestions.length && (
                 <>
-                    {
-                        typeSuggestions.map((suggestion: SuggestionItem, index: number) => (
-                            <button
-                                className={statementEditorClasses.suggestionButton}
-                                key={index}
-                                onClick={() => onClickTypeSuggestion(suggestion)}
-                            >
-                                {suggestion.value}
-                            </button>
-                        ))
-                    }
+                    <div className={statementEditorClasses.lsSuggestionList}>
+                        <List className={statementEditorClasses.suggestionList}>
+                            {
+                                typeSuggestions.map((suggestion: SuggestionItem, index: number) => (
+                                    <ListItem
+                                        button={true}
+                                        className={statementEditorClasses.suggestionListItem}
+                                        key={index}
+                                        onClick={() => onClickTypeSuggestion(suggestion)}
+                                        disableRipple={true}
+                                    >
+                                        <ListItemIcon
+                                            className={getSuggestionIconStyle(suggestion.suggestionType)}
+                                            style={{ minWidth: '8%', textAlign: 'left' }}
+                                        />
+                                        <ListItemText
+                                            primary={(
+                                                <Typography>{suggestion.value}</Typography>
+                                            )}
+                                        />
+                                    </ListItem>
+                                ))
+                            }
+                        </List>
+                    </div>
                 </>
             )}
             { isSuggestion && !typeSuggestions.length && (
