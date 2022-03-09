@@ -14,7 +14,7 @@ import { ActionInvocationFinder, FunctionViewState, initVisitor, positionVisitor
 import { BallerinaConnectorInfo, BallerinaRecord, Connector, FunctionDefinitionInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     CallStatement, CaptureBindingPattern, ElseBlock, FunctionDefinition, IdentifierToken, IfElseStatement, LocalVarDecl,
-    ModulePart, ModuleVarDecl, RemoteMethodCallAction, ResourceKeyword, ServiceDeclaration,
+    ModulePart, ModuleVarDecl, NodePosition, RemoteMethodCallAction, ResourceKeyword, ServiceDeclaration,
     STKindChecker,
     STNode, traversNode
 } from '@wso2-enterprise/syntax-tree';
@@ -443,8 +443,8 @@ export function recalculateSizingAndPositioningST(st: STNode): STNode {
     return clone;
 }
 
-export function getVariableNameFromST(node: LocalVarDecl | ModuleVarDecl): IdentifierToken {
-    return (node.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName;
+export function getVariableNameFromST(node: LocalVarDecl | ModuleVarDecl): string {
+    return node?.typedBindingPattern?.bindingPattern?.source.trim();
 }
 
 export function getMethodCallFunctionName(model: CallStatement): string {
@@ -457,24 +457,6 @@ export function isEndpointNode(node: STNode): boolean {
     return node && (STKindChecker.isLocalVarDecl(node) || STKindChecker.isModuleVarDecl(node)) && node.typeData?.isEndpoint;
 }
 
-export function isListBindingPattern(node: LocalVarDecl | ModuleVarDecl): boolean {
-    return node?.typedBindingPattern?.bindingPattern?.kind === "ListBindingPattern" ? true : false;
-}
-
-export function getVariableName(node: LocalVarDecl | ModuleVarDecl): string {
-    if (isListBindingPattern(node) === true) {
-        return node?.typedBindingPattern?.bindingPattern?.source.trim();
-    }
-    else {
-        return getVariableNameFromST(node).value;
-    }
-}
-
-export function getVarNamePositionFromST(node: LocalVarDecl | ModuleVarDecl): string {
-    if (isListBindingPattern(node) === true) {
-        return node?.typedBindingPattern?.bindingPattern?.position;
-    }
-    else {
-        return getVariableNameFromST(node).position;
-    }
+export function getVarNamePositionFromST(node: LocalVarDecl | ModuleVarDecl):NodePosition{
+    return node?.typedBindingPattern?.bindingPattern?.position;
 }
