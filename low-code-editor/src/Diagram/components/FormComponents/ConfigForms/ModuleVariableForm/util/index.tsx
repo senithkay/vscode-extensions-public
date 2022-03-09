@@ -65,7 +65,7 @@ export function getFormConfigFromModel(model: any): ModuleVariableFormStateWithV
         }
 
         defaultFormState.varValue = model.initializer.source;
-        defaultFormState.varName = getVariableNameFromST(model).value;
+        defaultFormState.varName = getVariableNameFromST(model);
 
         return defaultFormState;
     }
