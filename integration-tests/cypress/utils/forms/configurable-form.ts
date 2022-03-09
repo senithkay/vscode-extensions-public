@@ -79,7 +79,6 @@ export class ConfigurableForm {
             .contains("Save")
             .click();
         return this;
-
     }
 
 

@@ -1,4 +1,4 @@
-import { getIntegrationTestStoryURL } from "../../../utils/story-url-utils";
+import { getIntegrationTestPageURL } from "../../../utils/story-url-utils";
 import { Canvas } from "../../../utils/components/canvas";
 import { TopLevelPlusWidget } from "../../../utils/components/top-level-plus-widget";
 import { FunctionForm } from "../../../utils/forms/function-form";
@@ -10,7 +10,7 @@ const BAL_FILE_PATH = "block-level/return/add-return-statement-empty-file.bal";
 
 describe('Add return statement', () => {
     beforeEach(() => {
-        cy.visit(getIntegrationTestStoryURL(BAL_FILE_PATH))
+        cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH))
     })
 
     it('Add return statement of type string', () => {
@@ -41,7 +41,7 @@ describe('Add return statement', () => {
             getCurrentSpecFolder() + "add-return-statement.expected.bal");
     })
 
-    it('Type a return statement and Cancel', () => {
+    it.skip('Type a return statement and Cancel', () => {
         Canvas
             .welcomeMessageShouldBeVisible()
             .clickTopLevelPlusButton();
