@@ -59,8 +59,6 @@ export function InputEditor(props: InputEditorProps) {
 
     const inputEditorCtx = useContext(InputEditorContext);
 
-    const { expressionHandler } = useContext(SuggestionsContext);
-
     const statementEditorClasses = useStatementEditorStyles();
 
     const [originalValue, kind] = React.useMemo(() => {
@@ -111,6 +109,10 @@ export function InputEditor(props: InputEditorProps) {
     const [isEditing, setIsEditing] = useState(false);
     const [userInput, setUserInput] = useState<string>(originalValue);
     const [prevUserInput, setPrevUserInput] = useState<string>(userInput);
+
+    useEffect(() => {
+        setUserInput(originalValue);
+    }, [originalValue]);
 
     useEffect(() => {
         if (userInput === '') {
@@ -173,7 +175,6 @@ export function InputEditor(props: InputEditorProps) {
         setPrevUserInput(userInput);
         if (userInput !== "") {
             updateModel(userInput, model ? model.position : targetPosition, true);
-            // expressionHandler(model, false, false, { expressionSuggestions: [] });
         }
     }
 
