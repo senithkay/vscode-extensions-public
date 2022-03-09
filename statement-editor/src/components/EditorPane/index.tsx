@@ -77,10 +77,6 @@ export function EditorPane(props: ModelProps) {
         setIsOperator(operator);
     }
 
-    const diagnosticHandler = (diagnostics: string) => {
-        setDiagnostic(diagnostics)
-    }
-
     const undoRedoButtons = (
         <span className={statementEditorClasses.undoRedoButtons}>
             <IconButton onClick={undo} disabled={!hasUndo}>
@@ -107,7 +103,6 @@ export function EditorPane(props: ModelProps) {
                             model={modelCtx.statementModel}
                             userInputs={userInputs}
                             isElseIfMember={false}
-                            diagnosticHandler={diagnosticHandler}
                         />
                     </div>
 

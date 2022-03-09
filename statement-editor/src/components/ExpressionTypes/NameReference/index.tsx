@@ -20,14 +20,13 @@ import { SuggestionsContext } from "../../../store/suggestions-context";
 import { InputEditor } from "../../InputEditor";
 
 interface NameRefProps {
-    model: SimpleNameReference
-    userInputs: VariableUserInputs
-    diagnosticHandler: (diagnostics: string) => void
-    isTypeDescriptor: boolean
+    model: SimpleNameReference;
+    userInputs: VariableUserInputs;
+    isTypeDescriptor: boolean;
 }
 
 export function SimpleNameReferenceComponent(props: NameRefProps) {
-    const { model, userInputs, diagnosticHandler, isTypeDescriptor} = props;
+    const { model, userInputs, isTypeDescriptor} = props;
 
     const { expressionHandler } = useContext(SuggestionsContext);
 
@@ -36,7 +35,6 @@ export function SimpleNameReferenceComponent(props: NameRefProps) {
         model,
         expressionHandler,
         userInputs,
-        diagnosticHandler,
         isTypeDescriptor
     };
 

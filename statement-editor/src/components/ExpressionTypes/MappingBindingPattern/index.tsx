@@ -24,13 +24,12 @@ import { InputEditor } from "../../InputEditor";
 import { useStatementEditorStyles } from "../../styles";
 
 interface MappingBindingPatternProps {
-    model: MappingBindingPattern
-    userInputs: VariableUserInputs
-    diagnosticHandler: (diagnostics: string) => void
+    model: MappingBindingPattern;
+    userInputs: VariableUserInputs;
 }
 
 export function MappingBindingPatternComponent(props: MappingBindingPatternProps) {
-    const { model, userInputs, diagnosticHandler } = props;
+    const { model, userInputs } = props;
     const stmtCtx = useContext(StatementEditorContext);
     const {
         modelCtx: {
@@ -49,7 +48,6 @@ export function MappingBindingPatternComponent(props: MappingBindingPatternProps
         model,
         expressionHandler,
         userInputs,
-        diagnosticHandler,
         isTypeDescriptor: false
     };
 

@@ -20,7 +20,7 @@ import { DEFAULT_EXPRESSIONS } from "../../../constants";
 import { SuggestionItem, VariableUserInputs } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { SuggestionsContext } from "../../../store/suggestions-context";
-import { getSuggestionsBasedOnExpressionKind, isPositionsEquals } from "../../../utils";
+import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
 import { addStatementToTargetLine, getContextBasedCompletions } from "../../../utils/ls-utils";
 import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
@@ -29,11 +29,10 @@ interface IndexedExpressionProps {
     model: IndexedExpression;
     userInputs: VariableUserInputs;
     isElseIfMember: boolean;
-    diagnosticHandler: (diagnostics: string) => void;
 }
 
 export function IndexedExpressionComponent(props: IndexedExpressionProps) {
-    const { model, userInputs, isElseIfMember, diagnosticHandler } = props;
+    const { model, userInputs, isElseIfMember } = props;
     const stmtCtx = useContext(StatementEditorContext);
 
     const statementEditorClasses = useStatementEditorStyles();
@@ -51,7 +50,6 @@ export function IndexedExpressionComponent(props: IndexedExpressionProps) {
                             model={expression}
                             userInputs={userInputs}
                             isElseIfMember={isElseIfMember}
-                            diagnosticHandler={diagnosticHandler}
                             isTypeDescriptor={false}
                             onSelect={(event) => onClickOnKeyExpr(expression, event)}
                     />
@@ -91,7 +89,6 @@ export function IndexedExpressionComponent(props: IndexedExpressionProps) {
             model={model.containerExpression}
             userInputs={userInputs}
             isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
             isTypeDescriptor={false}
             onSelect={onClickOnContainerExpr}
         />

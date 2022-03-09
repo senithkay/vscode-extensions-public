@@ -27,7 +27,6 @@ export interface ExpressionComponentProps {
     model: STNode;
     userInputs?: VariableUserInputs;
     isElseIfMember: boolean;
-    diagnosticHandler: (diagnostics: string) => void;
     isTypeDescriptor: boolean;
     onSelect?: (event: React.MouseEvent) => void;
     children?: React.ReactElement[];
@@ -36,10 +35,9 @@ export interface ExpressionComponentProps {
 }
 
 export function ExpressionComponent(props: ExpressionComponentProps) {
-    const { model, userInputs, isElseIfMember, diagnosticHandler,
-            isTypeDescriptor, onSelect, children, classNames, deleteConfig } = props;
+    const { model, userInputs, isElseIfMember, isTypeDescriptor, onSelect, children, classNames, deleteConfig } = props;
 
-    const component = getExpressionTypeComponent(model, userInputs, isElseIfMember, diagnosticHandler, isTypeDescriptor);
+    const component = getExpressionTypeComponent(model, userInputs, isElseIfMember, isTypeDescriptor);
 
     const [isHovered, setHovered] = React.useState(false);
     const [deletable, setDeletable] = React.useState(false);

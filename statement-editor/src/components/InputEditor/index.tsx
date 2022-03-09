@@ -61,7 +61,6 @@ import {
 export interface InputEditorProps {
     model?: STNode;
     statementType: any;
-    diagnosticHandler: (diagnostics: string) => void;
     userInputs: VariableUserInputs;
     isTypeDescriptor: boolean;
     isToken?: boolean;
@@ -78,7 +77,7 @@ export function InputEditor(props: InputEditorProps) {
         diagnostic: [],
     });
 
-    const { model, diagnosticHandler, userInputs, isTypeDescriptor, isToken, classNames } = props;
+    const { model, userInputs, isTypeDescriptor, isToken, classNames } = props;
 
     const stmtCtx = useContext(StatementEditorContext);
     const inputEditorCtx = useContext(InputEditorContext);
@@ -149,26 +148,25 @@ export function InputEditor(props: InputEditorProps) {
     const targetPosition = stmtCtx.formCtx.formModelPosition;
     const textLabel = userInputs && userInputs.formField ? userInputs.formField : "modelName"
     const varName = userInputs && userInputs.varName ? userInputs.varName : "temp_" + (textLabel).replace(/[^A-Z0-9]+/ig, "");
-    const varType = userInputs ? userInputs.selectedType : 'string';
     const isCustomTemplate = false;
     let currentContent = stmtCtx.modelCtx.statementModel ? stmtCtx.modelCtx.statementModel.source : "";
 
-    useEffect(() => {
-        if (isEditing) {
-            handleOnFocus(currentContent).then();
-        }
-    }, [isEditing]);
+    // useEffect(() => {
+    //     if (isEditing) {
+    //         handleOnFocus(currentContent).then();
+    //     }
+    // }, [isEditing]);
 
-    useEffect(() => {
-        handleDiagnostic();
-    }, [inputEditorState.diagnostic]);
+    // useEffect(() => {
+    //     handleDiagnostic();
+    // }, [inputEditorState.diagnostic]);
 
-    useEffect(() => {
-        setUserInput(originalValue);
-        handleOnFocus(currentContent).then(() => {
-            handleContentChange(currentContent).then();
-        });
-    }, [originalValue]);
+    // useEffect(() => {
+    //     setUserInput(originalValue);
+    //     handleOnFocus(currentContent).then(() => {
+    //         handleContentChange(currentContent).then();
+    //     });
+    // }, [originalValue]);
 
     useEffect(() => {
         if (userInput === '') {
@@ -176,35 +174,35 @@ export function InputEditor(props: InputEditorProps) {
         }
     }, [userInput]);
 
-    const handleOnFocus = async (currentStatement: string) => {
-        let initContent: string = await addStatementToTargetLine(
-            currentFile.content, targetPosition, currentStatement, getLangClient);
+    // const handleOnFocus = async (currentStatement: string) => {
+    //     let initContent: string = await addStatementToTargetLine(
+    //         currentFile.content, targetPosition, currentStatement, getLangClient);
+    //
+    //     if (modulesToBeImported.size > 0) {
+    //         initContent = await addImportStatements(initContent, Array.from(modulesToBeImported) as string[]);
+    //     }
+    //
+    //     inputEditorState.name = userInputs && userInputs.formField ? userInputs.formField : "modelName";
+    //     inputEditorState.content = initContent;
+    //     inputEditorState.uri = fileURI;
+    //     sendDidOpen(inputEditorState.uri, currentFile.content, getLangClient).then();
+    //     sendDidChange(inputEditorState.uri, inputEditorState.content, getLangClient).then();
+    // }
 
-        if (modulesToBeImported.size > 0) {
-            initContent = await addImportStatements(initContent, Array.from(modulesToBeImported) as string[]);
-        }
-
-        inputEditorState.name = userInputs && userInputs.formField ? userInputs.formField : "modelName";
-        inputEditorState.content = initContent;
-        inputEditorState.uri = fileURI;
-        sendDidOpen(inputEditorState.uri, currentFile.content, getLangClient).then();
-        sendDidChange(inputEditorState.uri, inputEditorState.content, getLangClient).then();
-    }
-
-    const handleDiagnostic = () => {
-        const hasDiagnostic = !!inputEditorState.diagnostic.length;
-
-        stmtCtx.statementCtx.validateStatement(!hasDiagnostic);
-
-        // TODO: Need to obtain the default value as a prop
-        if (!Array.from(INPUT_EDITOR_PLACE_HOLDERS.keys()).some(word => currentContent.includes(word))) {
-            const diagnosticTargetPosition: NodePosition = {
-                ...targetPosition,
-                startColumn: 0,
-            };
-            diagnosticHandler(getDiagnosticMessage(inputEditorState.diagnostic, diagnosticTargetPosition, 0, stmtCtx.modelCtx.statementModel?.source.length, 0, 0));
-        }
-    }
+    // const handleDiagnostic = () => {
+    //     const hasDiagnostic = !!inputEditorState.diagnostic.length;
+    //
+    //     stmtCtx.statementCtx.validateStatement(!hasDiagnostic);
+    //
+    //     // TODO: Need to obtain the default value as a prop
+    //     if (!Array.from(INPUT_EDITOR_PLACE_HOLDERS.keys()).some(word => currentContent.includes(word))) {
+    //         const diagnosticTargetPosition: NodePosition = {
+    //             ...targetPosition,
+    //             startColumn: 0,
+    //         };
+    //         diagnosticHandler(getDiagnosticMessage(inputEditorState.diagnostic, diagnosticTargetPosition, 0, stmtCtx.modelCtx.statementModel?.source.length, 0, 0));
+    //     }
+    // }
 
     const handleContentChange = async (currentStatement: string, currentCodeSnippet?: string) => {
         if (currentStatement.slice(-1) !== ';') {

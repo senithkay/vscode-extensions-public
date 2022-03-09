@@ -20,7 +20,7 @@ import { DEFAULT_EXPRESSIONS } from "../../../constants";
 import { SuggestionItem, VariableUserInputs } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { SuggestionsContext } from "../../../store/suggestions-context";
-import { getSuggestionsBasedOnExpressionKind, isPositionsEquals } from "../../../utils";
+import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
 import { addStatementToTargetLine, getContextBasedCompletions } from "../../../utils/ls-utils";
 import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
@@ -29,18 +29,13 @@ interface AssignmentStatementProps {
     model: AssignmentStatement;
     userInputs: VariableUserInputs;
     isElseIfMember: boolean;
-    diagnosticHandler: (diagnostics: string) => void;
 }
 
 export function AssignmentStatementComponent(props: AssignmentStatementProps) {
-    const { model, userInputs, isElseIfMember, diagnosticHandler } = props;
+    const { model, userInputs, isElseIfMember } = props;
     const stmtCtx = useContext(StatementEditorContext);
     const { modelCtx } = stmtCtx;
     const { currentModel } = modelCtx;
-    const hasVarRefSelected = currentModel.model &&
-        isPositionsEquals(currentModel.model.position, model.varRef.position);
-    const hasExpressionSelected = currentModel.model &&
-        isPositionsEquals(currentModel.model.position, model.expression.position);
 
     const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
@@ -101,7 +96,6 @@ export function AssignmentStatementComponent(props: AssignmentStatementProps) {
             model={model.expression}
             userInputs={userInputs}
             isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
             isTypeDescriptor={false}
             onSelect={onClickOnExpression}
         />
@@ -112,7 +106,6 @@ export function AssignmentStatementComponent(props: AssignmentStatementProps) {
             model={model.varRef}
             userInputs={userInputs}
             isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
             isTypeDescriptor={false}
             onSelect={onClickOnVarRef}
             deleteConfig={{exprNotDeletable: true}}

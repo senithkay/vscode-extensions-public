@@ -105,7 +105,6 @@ const statementEditorContextProps = {
     onCancelClicked: false,
     onSave: dummyFunctionWithoutArgs,
     onChange: dummyFunction,
-    validateStatement: dummyFunction,
     getLangClient: () => (Promise.resolve({} as any)),
     applyModifications: () => (Promise.resolve({} as any)),
     library: {
@@ -127,9 +126,6 @@ const Template: Story<StatementRendererProps> = (args: StatementRendererProps) =
             <StatementRenderer {...args} />
         </StatementEditorContextProvider>
 );
-
-const dummyDiagnosticHandler = () => {
-};
 
 export const VarDeclBinaryExprStmt = Template.bind({});
 
@@ -154,8 +150,7 @@ VarDeclBinaryExprStmt.args = {
         "varName": "name",
         "variableExpression": "(expression+expression)",
         "formField": "Expression"
-    },
-    diagnosticHandler: dummyDiagnosticHandler
+    }
 };
 
 VarDeclStringLiteral.args = {
@@ -165,8 +160,7 @@ VarDeclStringLiteral.args = {
         "varName": "name",
         "variableExpression": "expression",
         "formField": "Expression"
-    },
-    diagnosticHandler: dummyDiagnosticHandler
+    }
 };
 
 WhileStmt.args = {
@@ -176,8 +170,7 @@ WhileStmt.args = {
         "varName": "name",
         "variableExpression": "expression",
         "formField": "Expression"
-    },
-    diagnosticHandler: dummyDiagnosticHandler
+    }
 }
 
 
@@ -188,8 +181,7 @@ ForeachStmt.args = {
         "varName": "name",
         "variableExpression": "expression",
         "formField": "Expression"
-    },
-    diagnosticHandler: dummyDiagnosticHandler
+    }
 }
 
 IfElseStmt.args = {
@@ -199,8 +191,7 @@ IfElseStmt.args = {
         "varName": "name",
         "variableExpression": "expression",
         "formField": "Expression"
-    },
-    diagnosticHandler: dummyDiagnosticHandler
+    }
 }
 
 IfElseBooleanLiteralStmt.args = {
@@ -210,8 +201,7 @@ IfElseBooleanLiteralStmt.args = {
         "varName": "name",
         "variableExpression": "expression",
         "formField": "Expression"
-    },
-    diagnosticHandler: dummyDiagnosticHandler
+    }
 }
 
 OtherStmt.args = {
@@ -221,8 +211,7 @@ OtherStmt.args = {
         "varName": "",
         "variableExpression": "",
         "formField": "Expression"
-    },
-    diagnosticHandler: dummyDiagnosticHandler
+    }
 }
 
 ReturnStmt.args = {
@@ -232,6 +221,5 @@ ReturnStmt.args = {
         "varName": "",
         "variableExpression": "",
         "formField": "Expression"
-    },
-    diagnosticHandler: dummyDiagnosticHandler
+    }
 }

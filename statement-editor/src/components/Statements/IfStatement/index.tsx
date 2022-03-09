@@ -20,26 +20,23 @@ import { DEFAULT_EXPRESSIONS } from "../../../constants";
 import { SuggestionItem, VariableUserInputs } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { SuggestionsContext } from "../../../store/suggestions-context";
-import { getSuggestionsBasedOnExpressionKind, isPositionsEquals } from "../../../utils";
+import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
 import { addStatementToTargetLine, getContextBasedCompletions } from "../../../utils/ls-utils";
 import { ExpressionComponent } from "../../Expression";
 import { StatementRenderer } from "../../StatementRenderer";
 import { useStatementEditorStyles } from "../../styles";
 
 interface IfStatementProps {
-    model: IfElseStatement
-    userInputs: VariableUserInputs
-    isElseIfMember: boolean
-    diagnosticHandler: (diagnostics: string) => void
+    model: IfElseStatement;
+    userInputs: VariableUserInputs;
+    isElseIfMember: boolean;
 }
 
 export function IfStatementC(props: IfStatementProps) {
-    const { model, userInputs, isElseIfMember, diagnosticHandler } = props;
+    const { model, userInputs, isElseIfMember } = props;
     const stmtCtx = useContext(StatementEditorContext);
     const { modelCtx } = stmtCtx;
     const { currentModel } = modelCtx;
-    const hasConditionSelected = currentModel.model &&
-        isPositionsEquals(currentModel.model.position, model.condition.position);
 
     const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
@@ -52,7 +49,6 @@ export function IfStatementC(props: IfStatementProps) {
             model={model.elseBody}
             userInputs={userInputs}
             isElseIfMember={true}
-            diagnosticHandler={diagnosticHandler}
         />
     );
 
@@ -91,7 +87,6 @@ export function IfStatementC(props: IfStatementProps) {
             model={model.condition}
             userInputs={userInputs}
             isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
             isTypeDescriptor={false}
             onSelect={onClickOnConditionExpression}
         />

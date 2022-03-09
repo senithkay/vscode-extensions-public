@@ -19,14 +19,13 @@ import { SuggestionsContext } from "../../../../store/suggestions-context";
 import { InputEditor } from "../../../InputEditor";
 
 interface JsonTypeDescProps {
-    model: JsonTypeDesc
-    userInputs: VariableUserInputs
-    diagnosticHandler: (diagnostics: string) => void
-    isTypeDescriptor: boolean
+    model: JsonTypeDesc;
+    userInputs: VariableUserInputs;
+    isTypeDescriptor: boolean;
 }
 
 export function JsonTypeDescComponent(props: JsonTypeDescProps) {
-    const { model, userInputs, diagnosticHandler, isTypeDescriptor } = props;
+    const { model, userInputs, isTypeDescriptor } = props;
 
     const { expressionHandler } = useContext(SuggestionsContext);
 
@@ -35,7 +34,6 @@ export function JsonTypeDescComponent(props: JsonTypeDescProps) {
         model,
         expressionHandler,
         userInputs,
-        diagnosticHandler,
         isTypeDescriptor,
         classNames: "type-descriptor json"
     };

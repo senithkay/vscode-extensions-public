@@ -27,11 +27,10 @@ interface BracedExprProps {
     model: BracedExpression;
     userInputs: VariableUserInputs;
     isElseIfMember: boolean;
-    diagnosticHandler: (diagnostics: string) => void;
 }
 
 export function BracedExpressionComponent(props: BracedExprProps) {
-    const { model, userInputs, isElseIfMember, diagnosticHandler } = props;
+    const { model, userInputs, isElseIfMember } = props;
 
     const stmtCtx = useContext(StatementEditorContext);
 
@@ -61,7 +60,6 @@ export function BracedExpressionComponent(props: BracedExprProps) {
         model={model.expression}
         userInputs={userInputs}
         isElseIfMember={isElseIfMember}
-        diagnosticHandler={diagnosticHandler}
         isTypeDescriptor={false}
         onSelect={onClickExpression}
     />;

@@ -19,14 +19,13 @@ import { SuggestionsContext } from "../../../../store/suggestions-context";
 import { InputEditor } from "../../../InputEditor";
 
 interface VarTypeDescProps {
-    model: VarTypeDesc
-    userInputs: VariableUserInputs
-    diagnosticHandler: (diagnostics: string) => void
-    isTypeDescriptor: boolean
+    model: VarTypeDesc;
+    userInputs: VariableUserInputs;
+    isTypeDescriptor: boolean;
 }
 
 export function VarTypeDescComponent(props: VarTypeDescProps) {
-    const { model, userInputs, diagnosticHandler, isTypeDescriptor } = props;
+    const { model, userInputs, isTypeDescriptor } = props;
 
     const { expressionHandler } = useContext(SuggestionsContext);
 
@@ -35,7 +34,6 @@ export function VarTypeDescComponent(props: VarTypeDescProps) {
         model,
         expressionHandler,
         userInputs,
-        diagnosticHandler,
         isTypeDescriptor,
         classNames: "type-descriptor var"
     };

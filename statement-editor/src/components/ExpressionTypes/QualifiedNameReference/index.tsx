@@ -19,14 +19,13 @@ import { SuggestionsContext } from "../../../store/suggestions-context";
 import { InputEditor } from "../../InputEditor";
 
 interface QualifiedNameReferenceProps {
-    model: QualifiedNameReference
-    userInputs: VariableUserInputs
-    diagnosticHandler: (diagnostics: string) => void
-    isTypeDescriptor: boolean
+    model: QualifiedNameReference;
+    userInputs: VariableUserInputs;
+    isTypeDescriptor: boolean;
 }
 
 export function QualifiedNameReferenceComponent(props: QualifiedNameReferenceProps) {
-    const { model, userInputs, diagnosticHandler, isTypeDescriptor } = props;
+    const { model, userInputs, isTypeDescriptor } = props;
 
     const { expressionHandler } = useContext(SuggestionsContext);
 
@@ -35,7 +34,6 @@ export function QualifiedNameReferenceComponent(props: QualifiedNameReferencePro
         model,
         expressionHandler,
         userInputs,
-        diagnosticHandler,
         isTypeDescriptor
     };
 

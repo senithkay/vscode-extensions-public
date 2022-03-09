@@ -21,13 +21,12 @@ import { StatementRenderer } from "../../StatementRenderer";
 import { useStatementEditorStyles } from "../../styles";
 
 interface ElseBlockProps {
-    model: ElseBlock
-    userInputs: VariableUserInputs
-    diagnosticHandler: (diagnostics: string) => void
+    model: ElseBlock;
+    userInputs: VariableUserInputs;
 }
 
 export function ElseBlockC(props: ElseBlockProps) {
-    const { model, userInputs, diagnosticHandler } = props;
+    const { model, userInputs } = props;
 
     const statementEditorClasses = useStatementEditorStyles();
 
@@ -61,7 +60,6 @@ export function ElseBlockC(props: ElseBlockProps) {
                     model={model?.elseBody}
                     userInputs={userInputs}
                     isElseIfMember={true}
-                    diagnosticHandler={diagnosticHandler}
                 />
             </span>
         );

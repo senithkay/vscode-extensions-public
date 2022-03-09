@@ -34,17 +34,20 @@ interface BinaryProps {
     model: BinaryExpression;
     userInputs: VariableUserInputs;
     isElseIfMember: boolean;
-    diagnosticHandler: (diagnostics: string) => void;
 }
 
 export function BinaryExpressionComponent(props: BinaryProps) {
-    const { model, userInputs, isElseIfMember, diagnosticHandler } = props;
+    const { model, userInputs, isElseIfMember } = props;
     const stmtCtx = useContext(StatementEditorContext);
-    const { modelCtx } = stmtCtx;
 
     const { expressionHandler } = useContext(SuggestionsContext);
-    const { currentFile, getLangClient } = stmtCtx;
-    const targetPosition = stmtCtx.formCtx.formModelPosition;
+    const {
+        currentFile,
+        getLangClient,
+        formCtx: {
+            formModelPosition : targetPosition
+        }
+    } = stmtCtx;
     const fileURI = `expr://${currentFile.path}`;
 
     const kind = getKindBasedOnOperator(model.operator.kind);
@@ -97,7 +100,6 @@ export function BinaryExpressionComponent(props: BinaryProps) {
             model={model.lhsExpr}
             userInputs={userInputs}
             isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
             isTypeDescriptor={false}
             onSelect={onClickOnLhsExpression}
             deleteConfig={{defaultExprDeletable: true}}
@@ -108,7 +110,6 @@ export function BinaryExpressionComponent(props: BinaryProps) {
             model={model.rhsExpr}
             userInputs={userInputs}
             isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
             isTypeDescriptor={false}
             onSelect={onClickOnRhsExpression}
             deleteConfig={{defaultExprDeletable: true}}
@@ -120,7 +121,6 @@ export function BinaryExpressionComponent(props: BinaryProps) {
             model={model.operator}
             userInputs={userInputs}
             isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
             isTypeDescriptor={false}
             onSelect={onClickOperator}
             classNames="operator"

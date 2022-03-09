@@ -20,7 +20,7 @@ import { DEFAULT_EXPRESSIONS } from "../../../constants";
 import { SuggestionItem, VariableUserInputs } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { SuggestionsContext } from "../../../store/suggestions-context";
-import { getSuggestionsBasedOnExpressionKind, isPositionsEquals } from "../../../utils";
+import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
 import { addStatementToTargetLine, getContextBasedCompletions } from "../../../utils/ls-utils";
 import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
@@ -29,11 +29,10 @@ interface ConditionalExpressionProps {
     model: ConditionalExpression;
     userInputs: VariableUserInputs;
     isElseIfMember: boolean;
-    diagnosticHandler: (diagnostics: string) => void;
 }
 
 export function ConditionalExpressionComponent(props: ConditionalExpressionProps) {
-    const { model, userInputs, isElseIfMember, diagnosticHandler } = props;
+    const { model, userInputs, isElseIfMember } = props;
     const stmtCtx = useContext(StatementEditorContext);
 
     const statementEditorClasses = useStatementEditorStyles();
@@ -98,7 +97,6 @@ export function ConditionalExpressionComponent(props: ConditionalExpressionProps
             model={model.lhsExpression}
             userInputs={userInputs}
             isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
             isTypeDescriptor={false}
             onSelect={onClickOnLhsExpression}
         />
@@ -109,7 +107,6 @@ export function ConditionalExpressionComponent(props: ConditionalExpressionProps
             model={model.middleExpression}
             userInputs={userInputs}
             isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
             isTypeDescriptor={false}
             onSelect={onClickOnMiddleExpression}
         />
@@ -120,7 +117,6 @@ export function ConditionalExpressionComponent(props: ConditionalExpressionProps
             model={model.endExpression}
             userInputs={userInputs}
             isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
             isTypeDescriptor={false}
             onSelect={onClickOnEndExpression}
         />

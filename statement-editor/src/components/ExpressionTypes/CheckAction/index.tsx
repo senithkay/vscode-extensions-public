@@ -17,22 +17,19 @@ import classNames from "classnames";
 
 import { DEFAULT_EXPRESSIONS } from "../../../constants";
 import { VariableUserInputs } from "../../../models/definitions";
-import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { SuggestionsContext } from "../../../store/suggestions-context";
-import { getSuggestionsBasedOnExpressionKind, isPositionsEquals } from "../../../utils";
+import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
 import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
 
 interface CheckActionProps {
-    model: CheckAction
-    userInputs: VariableUserInputs
-    diagnosticHandler: (diagnostics: string) => void
-    isElseIfMember: boolean
+    model: CheckAction;
+    userInputs: VariableUserInputs;
+    isElseIfMember: boolean;
 }
 
 export function CheckActionComponent(props: CheckActionProps) {
-    const { model, userInputs, diagnosticHandler, isElseIfMember } = props;
-    const stmtCtx = useContext(StatementEditorContext);
+    const { model, userInputs, isElseIfMember } = props;
 
     const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
@@ -53,7 +50,6 @@ export function CheckActionComponent(props: CheckActionProps) {
             model={model.expression}
             userInputs={userInputs}
             isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
             isTypeDescriptor={false}
             onSelect={onClickOnExpression}
         />

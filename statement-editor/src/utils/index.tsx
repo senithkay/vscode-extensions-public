@@ -103,7 +103,6 @@ export function getExpressionTypeComponent(
     expression: STNode,
     userInputs: VariableUserInputs,
     isElseIfMember: boolean,
-    diagnosticHandler: (diagnostics: string) => void,
     isTypeDescriptor: boolean
 ): ReactNode {
     let ExprTypeComponent = (expressionTypeComponents as any)[expression.kind];
@@ -117,7 +116,6 @@ export function getExpressionTypeComponent(
             model={expression}
             userInputs={userInputs}
             isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
             isTypeDescriptor={isTypeDescriptor}
         />
     );
@@ -126,8 +124,7 @@ export function getExpressionTypeComponent(
 export function getStatementTypeComponent(
     model: c.StatementNodes,
     userInputs: VariableUserInputs,
-    isElseIfMember: boolean,
-    diagnosticHandler: (diagnostics: string) => void
+    isElseIfMember: boolean
 ): ReactNode {
     let StatementTypeComponent = (statementTypeComponents as any)[model?.kind];
 
@@ -140,7 +137,6 @@ export function getStatementTypeComponent(
             model={model}
             userInputs={userInputs}
             isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
         />
     );
 }

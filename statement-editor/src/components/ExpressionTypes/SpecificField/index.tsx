@@ -30,12 +30,11 @@ interface SpecificFieldProps {
     model: SpecificField;
     userInputs: VariableUserInputs;
     isElseIfMember: boolean;
-    diagnosticHandler: (diagnostics: string) => void;
     isTypeDescriptor: boolean;
 }
 
 export function SpecificFieldComponent(props: SpecificFieldProps) {
-    const { model, userInputs, isElseIfMember, diagnosticHandler, isTypeDescriptor } = props;
+    const { model, userInputs, isElseIfMember, isTypeDescriptor } = props;
     const stmtCtx = useContext(StatementEditorContext);
     const { modelCtx } = stmtCtx;
     const { currentModel } = modelCtx;
@@ -78,7 +77,6 @@ export function SpecificFieldComponent(props: SpecificFieldProps) {
             model={model.valueExpr}
             userInputs={userInputs}
             isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
             isTypeDescriptor={false}
             onSelect={onClickOnValueExpr}
         />
@@ -90,7 +88,6 @@ export function SpecificFieldComponent(props: SpecificFieldProps) {
             model: model.fieldName,
             expressionHandler,
             userInputs,
-            diagnosticHandler,
             isTypeDescriptor
         };
 
@@ -111,7 +108,6 @@ export function SpecificFieldComponent(props: SpecificFieldProps) {
                 model={model.fieldName}
                 userInputs={userInputs}
                 isElseIfMember={isElseIfMember}
-                diagnosticHandler={diagnosticHandler}
                 isTypeDescriptor={false}
                 onSelect={onClickOnFieldName}
             />

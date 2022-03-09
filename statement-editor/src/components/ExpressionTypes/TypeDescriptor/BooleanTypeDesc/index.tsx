@@ -19,14 +19,13 @@ import { SuggestionsContext } from "../../../../store/suggestions-context";
 import { InputEditor } from "../../../InputEditor";
 
 interface BooleanTypeDescProps {
-    model: BooleanTypeDesc
-    userInputs: VariableUserInputs
-    diagnosticHandler: (diagnostics: string) => void
-    isTypeDescriptor: boolean
+    model: BooleanTypeDesc;
+    userInputs: VariableUserInputs;
+    isTypeDescriptor: boolean;
 }
 
 export function BooleanTypeDescComponent(props: BooleanTypeDescProps) {
-    const { model, userInputs, diagnosticHandler, isTypeDescriptor } = props;
+    const { model, userInputs, isTypeDescriptor } = props;
 
     const { expressionHandler } = useContext(SuggestionsContext);
 
@@ -35,7 +34,6 @@ export function BooleanTypeDescComponent(props: BooleanTypeDescProps) {
         model,
         expressionHandler,
         userInputs,
-        diagnosticHandler,
         isTypeDescriptor,
         classNames: "type-descriptor boolean"
     };

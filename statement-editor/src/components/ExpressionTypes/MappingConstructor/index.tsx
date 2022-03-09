@@ -29,11 +29,10 @@ interface MappingConstructorProps {
     model: MappingConstructor;
     userInputs: VariableUserInputs;
     isElseIfMember: boolean;
-    diagnosticHandler: (diagnostics: string) => void;
 }
 
 export function MappingConstructorComponent(props: MappingConstructorProps) {
-    const { model, userInputs, isElseIfMember, diagnosticHandler } = props;
+    const { model, userInputs, isElseIfMember } = props;
 
     const statementEditorClasses = useStatementEditorStyles();
 
@@ -76,7 +75,6 @@ export function MappingConstructorComponent(props: MappingConstructorProps) {
                             model={expression}
                             userInputs={userInputs}
                             isElseIfMember={isElseIfMember}
-                            diagnosticHandler={diagnosticHandler}
                             isTypeDescriptor={false}
                             onSelect={(event) => onClickOnExpression(expression, event)}
                             deleteConfig={{defaultExprDeletable: true}}

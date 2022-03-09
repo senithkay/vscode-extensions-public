@@ -15,10 +15,12 @@ import React, { useState } from 'react';
 
 import { LibraryKind, STModification } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
+import { languages } from "monaco-editor";
 
 import { LowCodeEditorProps } from '../components/StatementEditor';
 
 import { InputEditorContextProvider } from "./input-editor-context";
+import Diagnostic = languages.typescript.Diagnostic;
 
 export const StatementEditorContext = React.createContext({
     modelCtx: {
@@ -29,13 +31,13 @@ export const StatementEditorContext = React.createContext({
         undo: () => undefined,
         redo: () => undefined,
         hasUndo: false,
-        hasRedo: false
+        hasRedo: false,
     },
     formCtx: {
         formModelPosition: null
     },
     statementCtx: {
-        validateStatement: (isValid: boolean) => {}
+        diagnostics: null
     },
     getLangClient: () => (Promise.resolve({} as any)),
     applyModifications: (modifications: STModification[]) => (undefined),
@@ -61,12 +63,12 @@ interface CtxProviderProps extends LowCodeEditorProps {
     currentModel: { model: STNode },
     updateModel?: (codeSnippet: string, position: NodePosition) => void,
     formArgs?: any,
-    validateStatement: (isValid: boolean) => void,
     initialSource: string,
     undo?: () => void,
     redo?: () => void,
     hasUndo?: boolean,
-    hasRedo?: boolean
+    hasRedo?: boolean,
+    diagnostics?: Diagnostic[]
 }
 
 export const StatementEditorContextProvider = (props: CtxProviderProps) => {
@@ -81,9 +83,9 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
         hasRedo,
         hasUndo,
         formArgs,
-        validateStatement,
         library,
         initialSource,
+        diagnostics,
         ...restProps
     } = props;
 
@@ -114,7 +116,7 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
                     formModelPosition: formArgs.formArgs.targetPosition
                 },
                 statementCtx: {
-                    validateStatement
+                    diagnostics
                 },
                 library,
                 modules: {

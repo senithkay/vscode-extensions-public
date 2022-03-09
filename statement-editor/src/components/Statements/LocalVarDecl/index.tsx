@@ -30,11 +30,10 @@ interface LocalVarDeclProps {
     model: LocalVarDecl;
     userInputs: VariableUserInputs;
     isElseIfMember: boolean;
-    diagnosticHandler: (diagnostics: string) => void;
 }
 
 export function LocalVarDeclC(props: LocalVarDeclProps) {
-    const { model, userInputs, isElseIfMember, diagnosticHandler } = props;
+    const { model, userInputs, isElseIfMember } = props;
     const stmtCtx = useContext(StatementEditorContext);
     const { modelCtx } = stmtCtx;
     const { currentModel } = modelCtx;
@@ -90,7 +89,6 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
                 model={model.typedBindingPattern}
                 userInputs={userInputs}
                 isElseIfMember={isElseIfMember}
-                diagnosticHandler={diagnosticHandler}
                 isTypeDescriptor={false}
                 onSelect={onClickOnBindingPattern}
             />
@@ -100,7 +98,6 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
             statementType: model?.kind,
             model,
             userInputs,
-            diagnosticHandler,
             isTypeDescriptor: false
         };
 
@@ -122,7 +119,6 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
             model={model.initializer}
             userInputs={userInputs}
             isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
             isTypeDescriptor={false}
             onSelect={onClickOnInitializer}
         />

@@ -29,11 +29,10 @@ interface ListConstructorProps {
     model: ListConstructor;
     userInputs: VariableUserInputs;
     isElseIfMember: boolean;
-    diagnosticHandler: (diagnostics: string) => void;
 }
 
 export function ListConstructorComponent(props: ListConstructorProps) {
-    const { model, userInputs, isElseIfMember, diagnosticHandler } = props;
+    const { model, userInputs, isElseIfMember } = props;
     const {
         modelCtx: {
             statementModel,
@@ -85,7 +84,6 @@ export function ListConstructorComponent(props: ListConstructorProps) {
                             model={expression}
                             userInputs={userInputs}
                             isElseIfMember={isElseIfMember}
-                            diagnosticHandler={diagnosticHandler}
                             isTypeDescriptor={false}
                             onSelect={(event) => onClickOnExpression(expression, event)}
                             deleteConfig={{defaultExprDeletable: true}}

@@ -27,11 +27,10 @@ interface PositionalArgProps {
     model: PositionalArg;
     userInputs: VariableUserInputs;
     isElseIfMember: boolean;
-    diagnosticHandler: (diagnostics: string) => void;
 }
 
 export function PositionalArgComponent(props: PositionalArgProps) {
-    const { model, userInputs, isElseIfMember, diagnosticHandler } = props;
+    const { model, userInputs, isElseIfMember } = props;
     const stmtCtx = useContext(StatementEditorContext);
 
     const { expressionHandler } = useContext(SuggestionsContext);
@@ -61,7 +60,6 @@ export function PositionalArgComponent(props: PositionalArgProps) {
             model={model.expression}
             userInputs={userInputs}
             isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
             isTypeDescriptor={false}
             onSelect={onClickOnExpression}
         />

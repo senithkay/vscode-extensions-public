@@ -29,11 +29,10 @@ interface FieldAccessProps {
     model: FieldAccess;
     userInputs: VariableUserInputs;
     isElseIfMember: boolean;
-    diagnosticHandler: (diagnostics: string) => void;
 }
 
 export function FieldAccessComponent(props: FieldAccessProps) {
-    const { model, userInputs, isElseIfMember, diagnosticHandler } = props;
+    const { model, userInputs, isElseIfMember } = props;
     const stmtCtx = useContext(StatementEditorContext);
 
     const statementEditorClasses = useStatementEditorStyles();
@@ -70,7 +69,6 @@ export function FieldAccessComponent(props: FieldAccessProps) {
             model={model.expression}
             userInputs={userInputs}
             isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
             isTypeDescriptor={false}
             onSelect={onClickOnExpr}
         >
@@ -86,7 +84,6 @@ export function FieldAccessComponent(props: FieldAccessProps) {
                 model={model.fieldName}
                 userInputs={userInputs}
                 isElseIfMember={isElseIfMember}
-                diagnosticHandler={diagnosticHandler}
                 isTypeDescriptor={false}
                 onSelect={onClickOnFieldAccessExpr}
             />

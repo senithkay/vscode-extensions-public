@@ -18,20 +18,18 @@ import { VariableUserInputs } from "../../../../models/definitions";
 import { InputEditor } from "../../../InputEditor";
 
 interface StringLiteralProps {
-    model: StringLiteral
-    userInputs: VariableUserInputs
-    diagnosticHandler: (diagnostics: string) => void
-    isTypeDescriptor: boolean
+    model: StringLiteral;
+    userInputs: VariableUserInputs;
+    isTypeDescriptor: boolean;
 }
 
 export function StringLiteralComponent(props: StringLiteralProps) {
-    const { model, userInputs, diagnosticHandler, isTypeDescriptor } = props;
+    const { model, userInputs, isTypeDescriptor } = props;
 
     const inputEditorProps = {
         statementType: model.kind,
         model,
         userInputs,
-        diagnosticHandler,
         isTypeDescriptor,
         classNames: "string-literal"
     };

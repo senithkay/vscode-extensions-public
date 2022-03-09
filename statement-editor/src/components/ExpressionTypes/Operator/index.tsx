@@ -56,20 +56,18 @@ export interface OperatorProps {
             PipeToken |
             PlusToken |
             SlashToken |
-            TrippleEqualToken,
-    userInputs: VariableUserInputs,
-    diagnosticHandler: (diagnostics: string) => void,
-    isTypeDescriptor: boolean,
+            TrippleEqualToken;
+    userInputs: VariableUserInputs;
+    isTypeDescriptor: boolean;
 }
 
 export function OperatorComponent(props: OperatorProps) {
-    const { model, userInputs, diagnosticHandler, isTypeDescriptor } = props;
+    const { model, userInputs, isTypeDescriptor } = props;
 
     const inputEditorProps = {
         statementType: model.kind,
         model,
         userInputs,
-        diagnosticHandler,
         isTypeDescriptor,
         isToken: true,
         classNames: "operator"

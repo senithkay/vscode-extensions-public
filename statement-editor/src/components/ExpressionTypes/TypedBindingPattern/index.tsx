@@ -14,28 +14,24 @@
 import React, { ReactNode, useContext } from "react";
 
 import { TypedBindingPattern } from "@wso2-enterprise/syntax-tree";
-import classNames from "classnames";
 
 import { SuggestionItem, VariableUserInputs } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { SuggestionsContext } from "../../../store/suggestions-context";
-import { isPositionsEquals } from "../../../utils";
 import {
     addStatementToTargetLine,
     getContextBasedCompletions
 } from "../../../utils/ls-utils";
 import { ExpressionComponent } from "../../Expression";
-import { useStatementEditorStyles } from "../../styles";
 
 interface TypedBindingPatternProps {
     model: TypedBindingPattern;
     userInputs: VariableUserInputs;
     isElseIfMember: boolean;
-    diagnosticHandler: (diagnostics: string) => void;
 }
 
 export function TypedBindingPatternComponent(props: TypedBindingPatternProps) {
-    const { model, userInputs, isElseIfMember, diagnosticHandler } = props;
+    const { model, userInputs, isElseIfMember } = props;
     const stmtCtx = useContext(StatementEditorContext);
     const { expressionHandler } = useContext(SuggestionsContext);
     const { currentFile, getLangClient } = stmtCtx;
@@ -56,7 +52,6 @@ export function TypedBindingPatternComponent(props: TypedBindingPatternProps) {
             model={model.bindingPattern}
             userInputs={userInputs}
             isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
             isTypeDescriptor={false}
             onSelect={onClickOnTypeBindingPatter}
             deleteConfig={{exprNotDeletable: true}}
@@ -85,7 +80,6 @@ export function TypedBindingPatternComponent(props: TypedBindingPatternProps) {
             model={model.typeDescriptor}
             userInputs={userInputs}
             isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
             isTypeDescriptor={true}
             onSelect={onClickOnType}
             classNames="type-descriptor"

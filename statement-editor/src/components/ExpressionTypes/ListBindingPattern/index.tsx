@@ -24,13 +24,12 @@ import { InputEditor } from "../../InputEditor";
 import { useStatementEditorStyles } from "../../styles";
 
 interface ListBindingPatternProps {
-    model: ListBindingPattern
-    userInputs: VariableUserInputs
-    diagnosticHandler: (diagnostics: string) => void
+    model: ListBindingPattern;
+    userInputs: VariableUserInputs;
 }
 
 export function ListBindingPatternComponent(props: ListBindingPatternProps) {
-    const { model, userInputs, diagnosticHandler } = props;
+    const { model, userInputs } = props;
     const stmtCtx = useContext(StatementEditorContext);
     const {
         modelCtx: {
@@ -49,7 +48,6 @@ export function ListBindingPatternComponent(props: ListBindingPatternProps) {
         model,
         expressionHandler,
         userInputs,
-        diagnosticHandler,
         isTypeDescriptor: false
     };
 

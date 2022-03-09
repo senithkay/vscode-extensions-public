@@ -29,11 +29,10 @@ interface RemoteMethodCallActionProps {
     model: RemoteMethodCallAction;
     userInputs: VariableUserInputs;
     isElseIfMember: boolean;
-    diagnosticHandler: (diagnostics: string) => void;
 }
 
 export function RemoteMethodCallActionComponent(props: RemoteMethodCallActionProps) {
-    const { model, userInputs, isElseIfMember, diagnosticHandler } = props;
+    const { model, userInputs, isElseIfMember } = props;
     const stmtCtx = useContext(StatementEditorContext);
 
     const statementEditorClasses = useStatementEditorStyles();
@@ -61,7 +60,6 @@ export function RemoteMethodCallActionComponent(props: RemoteMethodCallActionPro
                             model={argument}
                             userInputs={userInputs}
                             isElseIfMember={isElseIfMember}
-                            diagnosticHandler={diagnosticHandler}
                             isTypeDescriptor={false}
                         />
                     )
@@ -110,7 +108,6 @@ export function RemoteMethodCallActionComponent(props: RemoteMethodCallActionPro
             model={model.methodName}
             userInputs={userInputs}
             isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
             isTypeDescriptor={false}
             onSelect={onClickOnMethodName}
         >
@@ -139,7 +136,6 @@ export function RemoteMethodCallActionComponent(props: RemoteMethodCallActionPro
             model={model.expression}
             userInputs={userInputs}
             isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
             isTypeDescriptor={false}
             onSelect={onClickOnExpression}
         />

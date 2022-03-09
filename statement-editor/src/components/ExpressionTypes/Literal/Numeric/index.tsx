@@ -19,19 +19,17 @@ import { VariableUserInputs } from "../../../../models/definitions";
 import { InputEditor } from "../../../InputEditor";
 
 interface NumericLiteralProps {
-    model: NumericLiteral
-    userInputs: VariableUserInputs
-    diagnosticHandler: (diagnostics: string) => void
-    isTypeDescriptor: boolean
+    model: NumericLiteral;
+    userInputs: VariableUserInputs;
+    isTypeDescriptor: boolean;
 }
 
 export function NumericLiteralComponent(props: NumericLiteralProps) {
-    const { model, userInputs, diagnosticHandler, isTypeDescriptor } = props;
+    const { model, userInputs, isTypeDescriptor } = props;
     const inputEditorProps = {
         statementType: model.kind,
         model,
         userInputs,
-        diagnosticHandler,
         isTypeDescriptor
     };
 

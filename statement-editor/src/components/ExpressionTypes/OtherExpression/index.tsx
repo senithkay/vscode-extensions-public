@@ -19,14 +19,13 @@ import { InputEditor } from "../../InputEditor";
 import { useStatementEditorStyles } from "../../styles";
 
 interface OtherExpressionProps {
-    model: STNode
-    userInputs: VariableUserInputs
-    diagnosticHandler: (diagnostics: string) => void
-    isTypeDescriptor: boolean
+    model: STNode;
+    userInputs: VariableUserInputs;
+    isTypeDescriptor: boolean;
 }
 
 export function OtherExpressionComponent(props: OtherExpressionProps) {
-    const { model, userInputs, diagnosticHandler, isTypeDescriptor } = props;
+    const { model, userInputs, isTypeDescriptor } = props;
 
     const statementEditorClasses = useStatementEditorStyles();
 
@@ -34,7 +33,6 @@ export function OtherExpressionComponent(props: OtherExpressionProps) {
         statementType: model.kind,
         model,
         userInputs,
-        diagnosticHandler,
         isTypeDescriptor
     };
 
