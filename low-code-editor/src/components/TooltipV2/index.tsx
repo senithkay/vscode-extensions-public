@@ -59,7 +59,7 @@ export default function Tooltip(props: Partial<TooltipPropsExtended>) {
                 </div>
             );
 
-    if(text) {
+    if (text) {
         switch (type) {
             // this type is used for tooltips which have code snippet and open with code view link
             case "diagram-code":
