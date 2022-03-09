@@ -259,7 +259,7 @@ export class PositioningVisitor implements Visitor {
 
         if (bodyViewState.hasWorkerDecl) {
             body.namedWorkerDeclarator.namedWorkerDeclarations.forEach(workerDecl => {
-                widthOfWorkers += (workerDecl.viewState as WorkerDeclarationViewState).bBox.w / 2;
+                widthOfWorkers += (workerDecl.viewState as WorkerDeclarationViewState).bBox.w;
             })
         }
 
