@@ -138,9 +138,8 @@ export function StatementEditor(props: StatementEditorProps) {
         }
     }, [model]);
 
-    const updateModel = async (codeSnippet: string, position: NodePosition) => {
-        // ##############################################
-        let currentStatement = model.source;
+    const handleChange = async (newStatement: string) => {
+        let currentStatement = newStatement;
         if (currentStatement.slice(-1) !== ';') {
             currentStatement += ';';
         }
@@ -153,9 +152,36 @@ export function StatementEditor(props: StatementEditorProps) {
             getFilteredDiagnostics(diagResp[0]?.diagnostics, false) :
             [];
         setDiagnostics(diag);
+    }
 
+    const updateModel = async (codeSnippet: string, position: NodePosition, isEdited?: boolean) => {
 
-        // ##############################################
+        // ################
+        if (!isEdited) {
+            const updatedStatement = addExpressionToTargetPosition(
+                model.source,
+                currentModel ? currentModel.model.position.startLine : 0,
+                currentModel ? currentModel.model.position.startColumn : 0,
+                codeSnippet,
+                currentModel ? currentModel.model.position.endColumn : 0
+            );
+
+            let currentStatement = updatedStatement;
+            if (currentStatement.slice(-1) !== ';') {
+                currentStatement += ';';
+            }
+            const updatedContent: string = await addStatementToTargetLine(
+                currentFile.content, formArgs.formArgs.targetPosition, currentStatement, getLangClient);
+
+            sendDidChange(fileURI, updatedContent, getLangClient).then();
+            const diagResp = await getDiagnostics(fileURI, getLangClient);
+            const diag = diagResp[0]?.diagnostics ?
+                getFilteredDiagnostics(diagResp[0]?.diagnostics, false) :
+                [];
+            setDiagnostics(diag);
+        }
+        // ################
+
         let partialST: STNode;
         if (model) {
             const stModification = {
@@ -174,7 +200,7 @@ export function StatementEditor(props: StatementEditorProps) {
 
         undoRedoManager.add(model, partialST);
 
-        if (partialST.syntaxDiagnostics.length === 0 || config.type === CUSTOM_CONFIG_TYPE) {
+        if (!partialST.syntaxDiagnostics.length || config.type === CUSTOM_CONFIG_TYPE) {
             setModel(partialST);
         }
 
@@ -203,6 +229,16 @@ export function StatementEditor(props: StatementEditorProps) {
         setCurrentModel({model: newCurrentModel});
     }
 
+    function addExpressionToTargetPosition(currentStmt: string, targetLine: number, targetColumn: number, codeSnippet: string, endColumn?: number): string {
+        if (model && STKindChecker.isIfElseStatement(model)) {
+            const splitStatement: string[] = currentStmt.split(/\n/g) || [];
+            splitStatement.splice(targetLine, 1,
+                splitStatement[targetLine].slice(0, targetColumn) + codeSnippet + splitStatement[targetLine].slice(endColumn || targetColumn));
+            return splitStatement.join('\n');
+        }
+        return currentStmt.slice(0, targetColumn) + codeSnippet + currentStmt.slice(endColumn || targetColumn);
+    }
+
     const currentModelHandler = (cModel: STNode) => {
         setCurrentModel({
             model: cModel
@@ -222,6 +258,7 @@ export function StatementEditor(props: StatementEditorProps) {
                     model={model}
                     currentModel={currentModel}
                     importStatements={importStatements}
+                    handleChange={handleChange}
                     updateModel={updateModel}
                     formArgs={formArgs}
                     applyModifications={applyModifications}

@@ -83,7 +83,9 @@ export function InputEditor(props: InputEditorProps) {
     const { expressionHandler } = useContext(SuggestionsContext);
     const {
         modelCtx: {
-            initialSource
+            initialSource,
+            updateModel,
+            handleChange
         },
         currentFile,
         getLangClient,
@@ -91,7 +93,7 @@ export function InputEditor(props: InputEditorProps) {
             modulesToBeImported
         }
     } = stmtCtx;
-    const fileURI = monaco.Uri.file(currentFile.path).toString().replace(FILE_SCHEME, EXPR_SCHEME);
+    // const fileURI = monaco.Uri.file(currentFile.path).toString().replace(FILE_SCHEME, EXPR_SCHEME);
 
     const statementEditorClasses = useStatementEditorStyles();
 
@@ -236,18 +238,18 @@ export function InputEditor(props: InputEditorProps) {
     // }
 
     const handleContentChange = async (currentStatement: string, currentCodeSnippet?: string) => {
-        stmtCtx.modelCtx.updateModel(userInput, model ? model.position : targetPosition);
+        handleChange(currentStatement);
         if (isEditing) {
             await getContextBasedCompletions(currentCodeSnippet != null ? currentCodeSnippet : userInput);
         }
     }
 
-    const handleOnOutFocus = async () => {
-        inputEditorState.content = currentFile.content;
-        inputEditorState.uri = fileURI;
-
-        sendDidClose(inputEditorState.uri, getLangClient).then();
-    }
+    // const handleOnOutFocus = async () => {
+    //     inputEditorState.content = currentFile.content;
+    //     inputEditorState.uri = fileURI;
+    //
+    //     sendDidClose(inputEditorState.uri, getLangClient).then();
+    // }
 
     // TODO: To be removed with expression editor integration
     const getContextBasedCompletions = async (codeSnippet: string) => {
@@ -350,12 +352,12 @@ export function InputEditor(props: InputEditorProps) {
         setIsEditing(false);
         setPrevUserInput(userInput);
         if (userInput !== "") {
-            stmtCtx.modelCtx.updateModel(userInput, model ? model.position : targetPosition);
+            updateModel(userInput, model ? model.position : targetPosition, true);
             expressionHandler(model, false, false, { expressionSuggestions: [] });
 
-            const ignore = handleOnOutFocus();
+            // const ignore = handleOnOutFocus();
         }
-        getContextBasedCompletions(userInput);
+        // getContextBasedCompletions(userInput);
     }
 
     return isEditing ?
