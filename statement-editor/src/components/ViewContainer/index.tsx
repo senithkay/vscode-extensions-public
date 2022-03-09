@@ -20,7 +20,6 @@ import {
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 
-import { VariableUserInputs } from '../../models/definitions';
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { getModifications } from "../../utils";
 import { sendDidChange } from "../../utils/ls-utils";
@@ -30,7 +29,6 @@ import { useStatementEditorStyles } from "../styles";
 export interface ViewContainerProps {
     label: string;
     formArgs: any;
-    userInputs?: VariableUserInputs;
     config: {
         type: string;
         model?: STNode;
@@ -45,7 +43,6 @@ export function ViewContainer(props: ViewContainerProps) {
     const {
         label,
         formArgs,
-        userInputs,
         config,
         isStatementValid,
         currentModelHandler,
@@ -98,7 +95,6 @@ export function ViewContainer(props: ViewContainerProps) {
                     <EditorPane
                         currentModel={currentModel}
                         label={label}
-                        userInputs={userInputs}
                         currentModelHandler={currentModelHandler}
                     />
                 </div>

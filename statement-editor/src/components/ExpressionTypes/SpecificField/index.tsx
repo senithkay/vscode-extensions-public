@@ -17,7 +17,7 @@ import { SpecificField, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
 import { DEFAULT_EXPRESSIONS } from "../../../constants";
-import { SuggestionItem, VariableUserInputs } from "../../../models/definitions";
+import { SuggestionItem } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { SuggestionsContext } from "../../../store/suggestions-context";
 import { getSuggestionsBasedOnExpressionKind, isPositionsEquals } from "../../../utils";
@@ -28,13 +28,12 @@ import { useStatementEditorStyles } from "../../styles";
 
 interface SpecificFieldProps {
     model: SpecificField;
-    userInputs: VariableUserInputs;
     isElseIfMember: boolean;
     isTypeDescriptor: boolean;
 }
 
 export function SpecificFieldComponent(props: SpecificFieldProps) {
-    const { model, userInputs, isElseIfMember, isTypeDescriptor } = props;
+    const { model, isElseIfMember, isTypeDescriptor } = props;
     const stmtCtx = useContext(StatementEditorContext);
     const { modelCtx } = stmtCtx;
     const { currentModel } = modelCtx;
@@ -75,7 +74,6 @@ export function SpecificFieldComponent(props: SpecificFieldProps) {
     const valueExpression: ReactNode = (
         <ExpressionComponent
             model={model.valueExpr}
-            userInputs={userInputs}
             isElseIfMember={isElseIfMember}
             isTypeDescriptor={false}
             onSelect={onClickOnValueExpr}
@@ -87,7 +85,6 @@ export function SpecificFieldComponent(props: SpecificFieldProps) {
             statementType: model.kind,
             model: model.fieldName,
             expressionHandler,
-            userInputs,
             isTypeDescriptor
         };
 
@@ -106,7 +103,6 @@ export function SpecificFieldComponent(props: SpecificFieldProps) {
         fieldName = (
             <ExpressionComponent
                 model={model.fieldName}
-                userInputs={userInputs}
                 isElseIfMember={isElseIfMember}
                 isTypeDescriptor={false}
                 onSelect={onClickOnFieldName}

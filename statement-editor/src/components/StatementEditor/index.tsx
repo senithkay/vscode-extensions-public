@@ -25,7 +25,6 @@ import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tre
 import * as monaco from "monaco-editor";
 
 import { APPEND_EXPR_LIST_CONSTRUCTOR, CUSTOM_CONFIG_TYPE, INIT_EXPR_LIST_CONSTRUCTOR } from "../../constants";
-import { VariableUserInputs } from '../../models/definitions';
 import { StatementEditorContextProvider } from "../../store/statement-editor-context";
 import { getCurrentModel } from "../../utils";
 import {
@@ -59,7 +58,6 @@ export interface StatementEditorProps extends LowCodeEditorProps {
     label: string;
     initialSource: string;
     formArgs: any;
-    userInputs?: VariableUserInputs;
     config: {
         type: string;
         model?: STNode;
@@ -78,7 +76,6 @@ export function StatementEditor(props: StatementEditorProps) {
         label,
         initialSource,
         formArgs,
-        userInputs,
         config,
         onCancel,
         onWizardClose,
@@ -123,9 +120,15 @@ export function StatementEditor(props: StatementEditorProps) {
                 if (!partialST.syntaxDiagnostics.length) {
                     setModel(partialST);
                 }
+
+                sendDidOpen(fileURI, currentFile.content, getLangClient).then();
+                const diagResp = await getDiagnostics(fileURI, getLangClient);
+                const diag = diagResp[0]?.diagnostics ?
+                    getFilteredDiagnostics(diagResp[0]?.diagnostics, false) :
+                    [];
+                setDiagnostics(diag);
             })();
         }
-        sendDidOpen(fileURI, currentFile.content, getLangClient).then();
     }, []);
 
     useEffect(() => {
@@ -235,7 +238,6 @@ export function StatementEditor(props: StatementEditorProps) {
                     <ViewContainer
                         label={label}
                         formArgs={formArgs}
-                        userInputs={userInputs}
                         config={config}
                         isStatementValid={!diagnostics.length}
                         currentModelHandler={currentModelHandler}

@@ -16,10 +16,11 @@ import React, { useContext, useState } from "react";
 import IconButton from "@material-ui/core/IconButton";
 import RedoIcon from "@material-ui/icons/Redo";
 import UndoIcon from "@material-ui/icons/Undo";
+import { getDiagnosticMessage } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 
 import * as c from "../../constants";
-import { SuggestionItem, VariableUserInputs } from "../../models/definitions";
+import { SuggestionItem } from "../../models/definitions";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { SuggestionsContext } from "../../store/suggestions-context";
 import { getSuggestionsBasedOnExpressionKind } from "../../utils";
@@ -31,21 +32,33 @@ import { useStatementEditorStyles } from "../styles";
 interface ModelProps {
     label: string,
     currentModel: { model: STNode },
-    userInputs?: VariableUserInputs
     currentModelHandler: (model: STNode) => void
 }
 
 export function EditorPane(props: ModelProps) {
     const statementEditorClasses = useStatementEditorStyles();
-    const { label, userInputs, currentModelHandler } = props;
+    const { label, currentModelHandler } = props;
 
-    const { modelCtx } = useContext(StatementEditorContext);
+    const stmtCtx = useContext(StatementEditorContext);
 
-    const { undo, redo, hasRedo, hasUndo } = modelCtx;
+    const {
+        modelCtx: {
+            undo,
+            redo,
+            hasRedo,
+            hasUndo,
+            statementModel
+        },
+        statementCtx: {
+            diagnostics
+        },
+        formCtx: {
+            formModelPosition: targetPosition
+        }
+    } = stmtCtx;
 
-    const [suggestionList, setSuggestionsList] = useState(modelCtx.statementModel ?
+    const [suggestionList, setSuggestionsList] = useState(statementModel ?
         getSuggestionsBasedOnExpressionKind(c.DEFAULT_EXPRESSIONS) : []);
-    const [diagnosticList, setDiagnostic] = useState("");
     const [, setIsSuggestionClicked] = useState(false);
     const [isOperator, setIsOperator] = useState(false);
     const [variableList, setVariableList] = useState([]);
@@ -100,8 +113,7 @@ export function EditorPane(props: ModelProps) {
                     <div className={statementEditorClasses.statementExpressionTitle}>{label}{undoRedoButtons}</div>
                     <div className={statementEditorClasses.statementExpressionContent}>
                         <StatementRenderer
-                            model={modelCtx.statementModel}
-                            userInputs={userInputs}
+                            model={statementModel}
                             isElseIfMember={false}
                         />
                     </div>
@@ -109,7 +121,16 @@ export function EditorPane(props: ModelProps) {
                 </SuggestionsContext.Provider>
                 <div className={statementEditorClasses.diagnosticsPane}>
                     <Diagnostics
-                        message={diagnosticList}
+                        message={
+                            getDiagnosticMessage(
+                                diagnostics,
+                                { ...targetPosition, startColumn: 0 },
+                                0,
+                                statementModel?.source.length,
+                                0,
+                                0
+                            )
+                        }
                     />
                 </div>
             </div>

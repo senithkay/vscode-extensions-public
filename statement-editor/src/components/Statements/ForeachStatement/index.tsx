@@ -17,7 +17,7 @@ import { ForeachStatement } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
 import { DEFAULT_EXPRESSIONS } from "../../../constants";
-import { SuggestionItem, VariableUserInputs } from "../../../models/definitions";
+import { SuggestionItem } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { SuggestionsContext } from "../../../store/suggestions-context";
 import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
@@ -27,12 +27,11 @@ import { useStatementEditorStyles } from "../../styles";
 
 interface ForeachStatementProps {
     model: ForeachStatement;
-    userInputs: VariableUserInputs;
     isElseIfMember: boolean;
 }
 
 export function ForeachStatementC(props: ForeachStatementProps) {
-    const { model, userInputs, isElseIfMember } = props;
+    const { model, isElseIfMember } = props;
 
     const stmtCtx = useContext(StatementEditorContext);
     const { modelCtx } = stmtCtx;
@@ -85,7 +84,6 @@ export function ForeachStatementC(props: ForeachStatementProps) {
     const typedBindingComponent: ReactNode = (
         <ExpressionComponent
             model={model.typedBindingPattern}
-            userInputs={userInputs}
             isElseIfMember={isElseIfMember}
             isTypeDescriptor={false}
             onSelect={onClickOnBindingPattern}
@@ -95,7 +93,6 @@ export function ForeachStatementC(props: ForeachStatementProps) {
     const actionOrExprComponent: ReactNode = (
         <ExpressionComponent
             model={model.actionOrExpressionNode}
-            userInputs={userInputs}
             isElseIfMember={isElseIfMember}
             isTypeDescriptor={false}
             onSelect={onClickOnActionOrExpr}

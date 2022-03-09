@@ -14,18 +14,16 @@ import React, { useContext } from "react";
 
 import { FloatTypeDesc } from "@wso2-enterprise/syntax-tree";
 
-import { VariableUserInputs } from "../../../../models/definitions";
 import { SuggestionsContext } from "../../../../store/suggestions-context";
 import { InputEditor } from "../../../InputEditor";
 
 interface FloatTypeDescProps {
     model: FloatTypeDesc;
-    userInputs: VariableUserInputs;
     isTypeDescriptor: boolean;
 }
 
 export function FloatTypeDescComponent(props: FloatTypeDescProps) {
-    const { model, userInputs, isTypeDescriptor } = props;
+    const { model, isTypeDescriptor } = props;
 
     const { expressionHandler } = useContext(SuggestionsContext);
 
@@ -33,7 +31,6 @@ export function FloatTypeDescComponent(props: FloatTypeDescProps) {
         statementType: model.kind,
         model,
         expressionHandler,
-        userInputs,
         isTypeDescriptor,
         classNames: "type-descriptor float"
     };

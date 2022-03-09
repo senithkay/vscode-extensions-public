@@ -35,7 +35,7 @@ import debounce from "lodash.debounce";
 import * as monaco from "monaco-editor";
 
 import * as c from "../../constants";
-import { SuggestionItem, VariableUserInputs } from "../../models/definitions";
+import { SuggestionItem } from "../../models/definitions";
 import { InputEditorContext } from "../../store/input-editor-context";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { SuggestionsContext } from "../../store/suggestions-context";
@@ -61,7 +61,6 @@ import {
 export interface InputEditorProps {
     model?: STNode;
     statementType: any;
-    userInputs: VariableUserInputs;
     isTypeDescriptor: boolean;
     isToken?: boolean;
     classNames?: string;
@@ -77,7 +76,7 @@ export function InputEditor(props: InputEditorProps) {
         diagnostic: [],
     });
 
-    const { model, userInputs, isTypeDescriptor, isToken, classNames } = props;
+    const { model, isTypeDescriptor, isToken, classNames } = props;
 
     const stmtCtx = useContext(StatementEditorContext);
     const inputEditorCtx = useContext(InputEditorContext);
@@ -146,10 +145,8 @@ export function InputEditor(props: InputEditorProps) {
 
 
     const targetPosition = stmtCtx.formCtx.formModelPosition;
-    const textLabel = userInputs && userInputs.formField ? userInputs.formField : "modelName"
-    const varName = userInputs && userInputs.varName ? userInputs.varName : "temp_" + (textLabel).replace(/[^A-Z0-9]+/ig, "");
-    const isCustomTemplate = false;
-    let currentContent = stmtCtx.modelCtx.statementModel ? stmtCtx.modelCtx.statementModel.source : "";
+    // const isCustomTemplate = false;
+    // let currentContent = stmtCtx.modelCtx.statementModel ? stmtCtx.modelCtx.statementModel.source : "";
 
     // useEffect(() => {
     //     if (isEditing) {
@@ -204,42 +201,48 @@ export function InputEditor(props: InputEditorProps) {
     //     }
     // }
 
+    // const handleContentChange = async (currentStatement: string, currentCodeSnippet?: string) => {
+    //     if (currentStatement.slice(-1) !== ';') {
+    //         currentStatement += ';';
+    //     }
+    //     let initContent: string = await addStatementToTargetLine(
+    //         currentFile.content, targetPosition, currentStatement, getLangClient);
+    //
+    //     if (modulesToBeImported.size > 0) {
+    //         initContent = await addImportStatements(initContent, Array.from(modulesToBeImported) as string[]);
+    //     }
+    //
+    //     inputEditorState.name = userInputs && userInputs.formField ? userInputs.formField : "modelName";
+    //     inputEditorState.content = initContent;
+    //     inputEditorState.uri = fileURI;
+    //     sendDidChange(inputEditorState.uri, inputEditorState.content, getLangClient).then();
+    //     const diagResp = await getDiagnostics(inputEditorState.uri, getLangClient);
+    //     const diag = diagResp[0]?.diagnostics ?
+    //         getFilteredDiagnostics(diagResp[0]?.diagnostics, isCustomTemplate) :
+    //         [];
+    //     setInputEditorState((prevState) => {
+    //         return {
+    //             ...prevState,
+    //             diagnostic: diagResp[0]?.diagnostics ?
+    //                 getFilteredDiagnostics(diagResp[0]?.diagnostics, isCustomTemplate) :
+    //                 []
+    //         };
+    //     });
+    //     currentContent = currentStatement;
+    //
+    //     if (isEditing) {
+    //         await getContextBasedCompletions(currentCodeSnippet != null ? currentCodeSnippet : userInput);
+    //     }
+    // }
+
     const handleContentChange = async (currentStatement: string, currentCodeSnippet?: string) => {
-        if (currentStatement.slice(-1) !== ';') {
-            currentStatement += ';';
-        }
-        let initContent: string = await addStatementToTargetLine(
-            currentFile.content, targetPosition, currentStatement, getLangClient);
-
-        if (modulesToBeImported.size > 0) {
-            initContent = await addImportStatements(initContent, Array.from(modulesToBeImported) as string[]);
-        }
-
-        inputEditorState.name = userInputs && userInputs.formField ? userInputs.formField : "modelName";
-        inputEditorState.content = initContent;
-        inputEditorState.uri = fileURI;
-        sendDidChange(inputEditorState.uri, inputEditorState.content, getLangClient).then();
-        const diagResp = await getDiagnostics(inputEditorState.uri, getLangClient);
-        const diag = diagResp[0]?.diagnostics ?
-            getFilteredDiagnostics(diagResp[0]?.diagnostics, isCustomTemplate) :
-            [];
-        setInputEditorState((prevState) => {
-            return {
-                ...prevState,
-                diagnostic: diagResp[0]?.diagnostics ?
-                    getFilteredDiagnostics(diagResp[0]?.diagnostics, isCustomTemplate) :
-                    []
-            };
-        });
-        currentContent = currentStatement;
-
+        stmtCtx.modelCtx.updateModel(userInput, model ? model.position : targetPosition);
         if (isEditing) {
             await getContextBasedCompletions(currentCodeSnippet != null ? currentCodeSnippet : userInput);
         }
     }
 
     const handleOnOutFocus = async () => {
-        inputEditorState.name = userInputs && userInputs.formField ? userInputs.formField : "modelName";
         inputEditorState.content = currentFile.content;
         inputEditorState.uri = fileURI;
 
@@ -274,7 +277,7 @@ export function InputEditor(props: InputEditorProps) {
                             acceptedCompletionKindForExpressions.includes(completionResponse.kind)
                         )
                     ) &&
-                    completionResponse.label !== varName.trim() &&
+                    // completionResponse.label !== varName.trim() &&
                     !(completionResponse.label.includes("main")) &&
                     (splitCodeSnippet.some((element) => (
                         ((completionResponse.label.toLowerCase()).includes(element.toLowerCase()))

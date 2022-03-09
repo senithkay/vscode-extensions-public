@@ -17,7 +17,7 @@ import { LocalVarDecl } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
 import { DEFAULT_EXPRESSIONS } from "../../../constants";
-import { SuggestionItem, VariableUserInputs } from "../../../models/definitions";
+import { SuggestionItem } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { SuggestionsContext } from "../../../store/suggestions-context";
 import { getSuggestionsBasedOnExpressionKind, isPositionsEquals } from "../../../utils";
@@ -28,12 +28,11 @@ import { useStatementEditorStyles } from "../../styles";
 
 interface LocalVarDeclProps {
     model: LocalVarDecl;
-    userInputs: VariableUserInputs;
     isElseIfMember: boolean;
 }
 
 export function LocalVarDeclC(props: LocalVarDeclProps) {
-    const { model, userInputs, isElseIfMember } = props;
+    const { model, isElseIfMember } = props;
     const stmtCtx = useContext(StatementEditorContext);
     const { modelCtx } = stmtCtx;
     const { currentModel } = modelCtx;
@@ -87,7 +86,6 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
         typedBindingComponent = (
             <ExpressionComponent
                 model={model.typedBindingPattern}
-                userInputs={userInputs}
                 isElseIfMember={isElseIfMember}
                 isTypeDescriptor={false}
                 onSelect={onClickOnBindingPattern}
@@ -97,7 +95,6 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
         const inputEditorProps = {
             statementType: model?.kind,
             model,
-            userInputs,
             isTypeDescriptor: false
         };
 
@@ -117,7 +114,6 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
     const expressionComponent: ReactNode = (
         <ExpressionComponent
             model={model.initializer}
-            userInputs={userInputs}
             isElseIfMember={isElseIfMember}
             isTypeDescriptor={false}
             onSelect={onClickOnInitializer}

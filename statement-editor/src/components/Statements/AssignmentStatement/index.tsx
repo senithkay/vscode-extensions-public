@@ -17,7 +17,7 @@ import { AssignmentStatement } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
 import { DEFAULT_EXPRESSIONS } from "../../../constants";
-import { SuggestionItem, VariableUserInputs } from "../../../models/definitions";
+import { SuggestionItem } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { SuggestionsContext } from "../../../store/suggestions-context";
 import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
@@ -27,12 +27,11 @@ import { useStatementEditorStyles } from "../../styles";
 
 interface AssignmentStatementProps {
     model: AssignmentStatement;
-    userInputs: VariableUserInputs;
     isElseIfMember: boolean;
 }
 
 export function AssignmentStatementComponent(props: AssignmentStatementProps) {
-    const { model, userInputs, isElseIfMember } = props;
+    const { model, isElseIfMember } = props;
     const stmtCtx = useContext(StatementEditorContext);
     const { modelCtx } = stmtCtx;
     const { currentModel } = modelCtx;
@@ -94,7 +93,6 @@ export function AssignmentStatementComponent(props: AssignmentStatementProps) {
     const expression: ReactNode = (
         <ExpressionComponent
             model={model.expression}
-            userInputs={userInputs}
             isElseIfMember={isElseIfMember}
             isTypeDescriptor={false}
             onSelect={onClickOnExpression}
@@ -104,7 +102,6 @@ export function AssignmentStatementComponent(props: AssignmentStatementProps) {
     const varRef: ReactNode = (
         <ExpressionComponent
             model={model.varRef}
-            userInputs={userInputs}
             isElseIfMember={isElseIfMember}
             isTypeDescriptor={false}
             onSelect={onClickOnVarRef}

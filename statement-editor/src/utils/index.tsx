@@ -22,7 +22,7 @@ import {
 import * as expressionTypeComponents from '../components/ExpressionTypes';
 import * as statementTypeComponents from '../components/Statements';
 import * as c from "../constants";
-import { RemainingContent, SuggestionItem, VariableUserInputs } from '../models/definitions';
+import { RemainingContent, SuggestionItem } from '../models/definitions';
 import { visitor as ExpressionDeletingVisitor } from "../visitors/expression-deleting-visitor";
 import { visitor as ModelFindingVisitor } from "../visitors/model-finding-visitor";
 
@@ -101,7 +101,6 @@ export function getDataTypeOnExpressionKind(kind: string): string[] {
 
 export function getExpressionTypeComponent(
     expression: STNode,
-    userInputs: VariableUserInputs,
     isElseIfMember: boolean,
     isTypeDescriptor: boolean
 ): ReactNode {
@@ -114,7 +113,6 @@ export function getExpressionTypeComponent(
     return (
         <ExprTypeComponent
             model={expression}
-            userInputs={userInputs}
             isElseIfMember={isElseIfMember}
             isTypeDescriptor={isTypeDescriptor}
         />
@@ -123,7 +121,6 @@ export function getExpressionTypeComponent(
 
 export function getStatementTypeComponent(
     model: c.StatementNodes,
-    userInputs: VariableUserInputs,
     isElseIfMember: boolean
 ): ReactNode {
     let StatementTypeComponent = (statementTypeComponents as any)[model?.kind];
@@ -135,7 +132,6 @@ export function getStatementTypeComponent(
     return (
         <StatementTypeComponent
             model={model}
-            userInputs={userInputs}
             isElseIfMember={isElseIfMember}
         />
     );

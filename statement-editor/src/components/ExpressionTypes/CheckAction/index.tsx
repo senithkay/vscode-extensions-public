@@ -16,7 +16,6 @@ import { CheckAction } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
 import { DEFAULT_EXPRESSIONS } from "../../../constants";
-import { VariableUserInputs } from "../../../models/definitions";
 import { SuggestionsContext } from "../../../store/suggestions-context";
 import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
 import { ExpressionComponent } from "../../Expression";
@@ -24,12 +23,11 @@ import { useStatementEditorStyles } from "../../styles";
 
 interface CheckActionProps {
     model: CheckAction;
-    userInputs: VariableUserInputs;
     isElseIfMember: boolean;
 }
 
 export function CheckActionComponent(props: CheckActionProps) {
-    const { model, userInputs, isElseIfMember } = props;
+    const { model, isElseIfMember } = props;
 
     const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
@@ -48,7 +46,6 @@ export function CheckActionComponent(props: CheckActionProps) {
     const expressionComponent: ReactNode = (
         <ExpressionComponent
             model={model.expression}
-            userInputs={userInputs}
             isElseIfMember={isElseIfMember}
             isTypeDescriptor={false}
             onSelect={onClickOnExpression}

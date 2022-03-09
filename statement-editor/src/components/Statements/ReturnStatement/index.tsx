@@ -17,7 +17,7 @@ import { ReturnStatement } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
 import { DEFAULT_EXPRESSIONS } from "../../../constants";
-import { SuggestionItem, VariableUserInputs } from "../../../models/definitions";
+import { SuggestionItem } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { SuggestionsContext } from "../../../store/suggestions-context";
 import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
@@ -28,12 +28,11 @@ import { useStatementEditorStyles } from "../../styles";
 
 interface ReturnStatementProps {
     model: ReturnStatement;
-    userInputs: VariableUserInputs;
     isElseIfMember: boolean;
 }
 
 export function ReturnStatementC(props: ReturnStatementProps) {
-    const { model, userInputs, isElseIfMember } = props;
+    const { model, isElseIfMember } = props;
     const stmtCtx = useContext(StatementEditorContext);
     const { modelCtx } = stmtCtx;
     const { currentModel } = modelCtx;
@@ -78,7 +77,6 @@ export function ReturnStatementC(props: ReturnStatementProps) {
     const expressionComponent: ReactNode = (
         <ExpressionComponent
             model={model.expression}
-            userInputs={userInputs}
             isElseIfMember={isElseIfMember}
             isTypeDescriptor={false}
             onSelect={onClickOnExpression}

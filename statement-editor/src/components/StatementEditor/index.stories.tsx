@@ -86,12 +86,6 @@ VarDeclBinaryExprStmt.args = {
     kind: "DefaultString",
     label: "Variable Statement",
     formArgs: { model: varDeclBinaryExprModel },
-    userInputs: {
-        "selectedType": "string",
-        "varName": "ga",
-        "variableExpression": "(expression+expression)",
-        "formField": "Expression"
-    },
     validate: dummyFunction,
     isMutationInProgress: false,
     validForm: true,
@@ -104,12 +98,6 @@ WhileStmt.args = {
     kind: "DefaultBoolean",
     label: "While Statement",
     formArgs: { model: whileStmtModel },
-    userInputs: {
-        "selectedType": "boolean",
-        "varName": "ga",
-        "variableExpression": "(expression)",
-        "formField": "Expression"
-    },
     validate: dummyFunction,
     isMutationInProgress: false,
     validForm: true,
@@ -122,12 +110,6 @@ ForeachStmt.args = {
     kind: "DefaultString",
     label: "Foreach Statement",
     formArgs: { model: foreachModel },
-    userInputs: {
-        "selectedType": "var",
-        "varName": "item",
-        "variableExpression": "expression",
-        "formField": "Expression"
-    },
     validate: dummyFunction,
     isMutationInProgress: false,
     validForm: true,
@@ -140,12 +122,6 @@ VarDeclStringLiteralStmt.args = {
     kind: "DefaultString",
     label: "Variable Statement",
     formArgs: { model: stringModel },
-    userInputs: {
-        "selectedType": "string",
-        "varName": "ga",
-        "variableExpression": "(expression+expression)",
-        "formField": "Expression"
-    },
     validate: dummyFunction,
     isMutationInProgress: false,
     validForm: true,
@@ -158,12 +134,6 @@ IfElseStmt.args = {
     kind: "DefaultBoolean",
     label: "If-Else Statement",
     formArgs: { model: ifElseModel },
-    userInputs: {
-        "selectedType": "boolean",
-        "varName": "ga",
-        "variableExpression": "(expression+expression)",
-        "formField": "Expression"
-    },
     validate: dummyFunction,
     isMutationInProgress: false,
     validForm: true,
@@ -176,12 +146,6 @@ OtherStmt.args = {
     kind: "NumericLiteral",
     label: "Other Statement",
     formArgs: { model: panicModel},
-    userInputs: {
-        "selectedType": "",
-        "varName": "",
-        "variableExpression": "",
-        "formField": "Expression"
-    },
     validate: dummyFunction,
     isMutationInProgress: false,
     validForm: true,
@@ -194,12 +158,6 @@ IfElseBooleanLiteralStmt.args = {
     kind: "DefaultBoolean",
     label: "If-Else Statement",
     formArgs: { model: ifElseBooleanModel},
-    userInputs: {
-        "selectedType": "",
-        "varName": "",
-        "variableExpression": "",
-        "formField": "Expression"
-    },
     validate: dummyFunction,
     isMutationInProgress: false,
     validForm: true,
@@ -212,12 +170,6 @@ ReturnStmt.args = {
     kind: "DefaultReturn",
     label: "Return Statement",
     formArgs: { model: returnModel },
-    userInputs: {
-        "selectedType": "string",
-        "varName": "",
-        "variableExpression": "",
-        "formField": "Expression"
-    },
     validate: dummyFunction,
     isMutationInProgress: false,
     validForm: true,

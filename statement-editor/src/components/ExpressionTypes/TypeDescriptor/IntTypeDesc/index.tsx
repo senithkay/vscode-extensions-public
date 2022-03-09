@@ -14,18 +14,16 @@ import React, { useContext } from "react";
 
 import { IntTypeDesc } from "@wso2-enterprise/syntax-tree";
 
-import { VariableUserInputs } from "../../../../models/definitions";
 import { SuggestionsContext } from "../../../../store/suggestions-context";
 import { InputEditor } from "../../../InputEditor";
 
 interface IntTypeDescProps {
     model: IntTypeDesc;
-    userInputs: VariableUserInputs;
     isTypeDescriptor: boolean;
 }
 
 export function IntTypeDescComponent(props: IntTypeDescProps) {
-    const { model, userInputs, isTypeDescriptor } = props;
+    const { model, isTypeDescriptor } = props;
 
     const { expressionHandler } = useContext(SuggestionsContext);
 
@@ -33,7 +31,6 @@ export function IntTypeDescComponent(props: IntTypeDescProps) {
         statementType: model.kind,
         model,
         expressionHandler,
-        userInputs,
         isTypeDescriptor,
         classNames: "type-descriptor int"
     };

@@ -15,7 +15,7 @@ import React, { ReactNode, useContext } from "react";
 
 import { TypedBindingPattern } from "@wso2-enterprise/syntax-tree";
 
-import { SuggestionItem, VariableUserInputs } from "../../../models/definitions";
+import { SuggestionItem } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { SuggestionsContext } from "../../../store/suggestions-context";
 import {
@@ -26,12 +26,11 @@ import { ExpressionComponent } from "../../Expression";
 
 interface TypedBindingPatternProps {
     model: TypedBindingPattern;
-    userInputs: VariableUserInputs;
     isElseIfMember: boolean;
 }
 
 export function TypedBindingPatternComponent(props: TypedBindingPatternProps) {
-    const { model, userInputs, isElseIfMember } = props;
+    const { model, isElseIfMember } = props;
     const stmtCtx = useContext(StatementEditorContext);
     const { expressionHandler } = useContext(SuggestionsContext);
     const { currentFile, getLangClient } = stmtCtx;
@@ -50,7 +49,6 @@ export function TypedBindingPatternComponent(props: TypedBindingPatternProps) {
     const bindingPatternComponent: ReactNode = (
         <ExpressionComponent
             model={model.bindingPattern}
-            userInputs={userInputs}
             isElseIfMember={isElseIfMember}
             isTypeDescriptor={false}
             onSelect={onClickOnTypeBindingPatter}
@@ -78,7 +76,6 @@ export function TypedBindingPatternComponent(props: TypedBindingPatternProps) {
     const typeDescriptorComponent: ReactNode = (
         <ExpressionComponent
             model={model.typeDescriptor}
-            userInputs={userInputs}
             isElseIfMember={isElseIfMember}
             isTypeDescriptor={true}
             onSelect={onClickOnType}

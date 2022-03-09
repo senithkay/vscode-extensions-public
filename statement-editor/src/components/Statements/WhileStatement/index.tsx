@@ -17,7 +17,7 @@ import { WhileStatement } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
 import { DEFAULT_EXPRESSIONS } from "../../../constants";
-import { SuggestionItem, VariableUserInputs } from "../../../models/definitions";
+import { SuggestionItem } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { SuggestionsContext } from "../../../store/suggestions-context";
 import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
@@ -27,12 +27,11 @@ import { useStatementEditorStyles } from "../../styles";
 
 interface WhileStatementProps {
     model: WhileStatement;
-    userInputs: VariableUserInputs;
     isElseIfMember: boolean;
 }
 
 export function WhileStatementC(props: WhileStatementProps) {
-    const { model, userInputs, isElseIfMember } = props;
+    const { model, isElseIfMember } = props;
     const stmtCtx = useContext(StatementEditorContext);
     const { modelCtx } = stmtCtx;
     const { currentModel } = modelCtx;
@@ -77,7 +76,6 @@ export function WhileStatementC(props: WhileStatementProps) {
     const conditionComponent: ReactNode = (
         <ExpressionComponent
             model={model.condition}
-            userInputs={userInputs}
             isElseIfMember={isElseIfMember}
             isTypeDescriptor={false}
             onSelect={onClickOnConditionExpression}

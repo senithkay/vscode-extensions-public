@@ -17,7 +17,7 @@ import { IfElseStatement } from "@wso2-enterprise/syntax-tree"
 import classNames from "classnames";
 
 import { DEFAULT_EXPRESSIONS } from "../../../constants";
-import { SuggestionItem, VariableUserInputs } from "../../../models/definitions";
+import { SuggestionItem } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { SuggestionsContext } from "../../../store/suggestions-context";
 import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
@@ -28,12 +28,11 @@ import { useStatementEditorStyles } from "../../styles";
 
 interface IfStatementProps {
     model: IfElseStatement;
-    userInputs: VariableUserInputs;
     isElseIfMember: boolean;
 }
 
 export function IfStatementC(props: IfStatementProps) {
-    const { model, userInputs, isElseIfMember } = props;
+    const { model, isElseIfMember } = props;
     const stmtCtx = useContext(StatementEditorContext);
     const { modelCtx } = stmtCtx;
     const { currentModel } = modelCtx;
@@ -47,7 +46,6 @@ export function IfStatementC(props: IfStatementProps) {
     const elseBlockComponent: ReactNode = (
         <StatementRenderer
             model={model.elseBody}
-            userInputs={userInputs}
             isElseIfMember={true}
         />
     );
@@ -85,7 +83,6 @@ export function IfStatementC(props: IfStatementProps) {
     const conditionComponent: ReactNode = (
         <ExpressionComponent
             model={model.condition}
-            userInputs={userInputs}
             isElseIfMember={isElseIfMember}
             isTypeDescriptor={false}
             onSelect={onClickOnConditionExpression}

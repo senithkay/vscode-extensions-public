@@ -17,7 +17,7 @@ import { MethodCall, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree"
 import classNames from "classnames";
 
 import { DEFAULT_EXPRESSIONS } from "../../../constants";
-import { SuggestionItem, VariableUserInputs } from "../../../models/definitions";
+import { SuggestionItem } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { SuggestionsContext } from "../../../store/suggestions-context";
 import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
@@ -27,12 +27,11 @@ import { useStatementEditorStyles } from "../../styles";
 
 interface MethodCallProps {
     model: MethodCall;
-    userInputs: VariableUserInputs;
     isElseIfMember: boolean;
 }
 
 export function MethodCallComponent(props: MethodCallProps) {
-    const { model, userInputs, isElseIfMember } = props;
+    const { model, isElseIfMember } = props;
     const stmtCtx = useContext(StatementEditorContext);
 
     const statementEditorClasses = useStatementEditorStyles();
@@ -58,7 +57,6 @@ export function MethodCallComponent(props: MethodCallProps) {
                     ) : (
                         <ExpressionComponent
                             model={argument}
-                            userInputs={userInputs}
                             isElseIfMember={isElseIfMember}
                             isTypeDescriptor={false}
                         />
@@ -105,7 +103,6 @@ export function MethodCallComponent(props: MethodCallProps) {
     const expression: ReactNode = (
         <ExpressionComponent
             model={model.expression}
-            userInputs={userInputs}
             isElseIfMember={isElseIfMember}
             isTypeDescriptor={false}
             onSelect={onClickOnExpression}
@@ -115,7 +112,6 @@ export function MethodCallComponent(props: MethodCallProps) {
     const methodName: ReactNode = (
         <ExpressionComponent
             model={model.methodName}
-            userInputs={userInputs}
             isElseIfMember={isElseIfMember}
             isTypeDescriptor={false}
             onSelect={onClickOnMethodName}

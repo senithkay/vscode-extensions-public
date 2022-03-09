@@ -290,7 +290,6 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
             label: intl.formatMessage({ id: "lowcode.develop.configForms.variable.statementEditor.label" }),
             initialSource,
             formArgs: { formArgs },
-            userInputs,
             validForm,
             config,
             onWizardClose,

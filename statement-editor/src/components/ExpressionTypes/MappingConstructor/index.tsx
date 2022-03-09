@@ -17,7 +17,6 @@ import { MappingConstructor, STKindChecker, STNode } from "@wso2-enterprise/synt
 import classNames from "classnames";
 
 import { DEFAULT_EXPRESSIONS, MAPPING_CONSTRUCTOR } from "../../../constants";
-import { VariableUserInputs } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { SuggestionsContext } from "../../../store/suggestions-context";
 import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
@@ -27,12 +26,11 @@ import { useStatementEditorStyles } from "../../styles";
 
 interface MappingConstructorProps {
     model: MappingConstructor;
-    userInputs: VariableUserInputs;
     isElseIfMember: boolean;
 }
 
 export function MappingConstructorComponent(props: MappingConstructorProps) {
-    const { model, userInputs, isElseIfMember } = props;
+    const { model, isElseIfMember } = props;
 
     const statementEditorClasses = useStatementEditorStyles();
 
@@ -73,7 +71,6 @@ export function MappingConstructorComponent(props: MappingConstructorProps) {
                         <ExpressionComponent
                             key={index}
                             model={expression}
-                            userInputs={userInputs}
                             isElseIfMember={isElseIfMember}
                             isTypeDescriptor={false}
                             onSelect={(event) => onClickOnExpression(expression, event)}

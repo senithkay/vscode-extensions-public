@@ -13,24 +13,21 @@
 import React from "react";
 
 import { OtherStatementNodeTypes } from "../../../constants";
-import { VariableUserInputs } from "../../../models/definitions";
 import { InputEditor } from "../../InputEditor";
 import { useStatementEditorStyles } from "../../styles";
 
 interface OtherStatementProps {
     model: OtherStatementNodeTypes;
-    userInputs: VariableUserInputs;
 }
 
 export function OtherStatementTypes(props: OtherStatementProps) {
-    const { model, userInputs } = props;
+    const { model } = props;
 
     const statementEditorClasses = useStatementEditorStyles();
 
     const inputEditorProps = {
         statementType: model?.kind,
         model,
-        userInputs,
         isTypeDescriptor: false
     };
 

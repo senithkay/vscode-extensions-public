@@ -15,18 +15,16 @@ import React, { useContext } from "react";
 
 import { SimpleNameReference } from "@wso2-enterprise/syntax-tree";
 
-import { VariableUserInputs } from "../../../models/definitions";
 import { SuggestionsContext } from "../../../store/suggestions-context";
 import { InputEditor } from "../../InputEditor";
 
 interface NameRefProps {
     model: SimpleNameReference;
-    userInputs: VariableUserInputs;
     isTypeDescriptor: boolean;
 }
 
 export function SimpleNameReferenceComponent(props: NameRefProps) {
-    const { model, userInputs, isTypeDescriptor} = props;
+    const { model, isTypeDescriptor} = props;
 
     const { expressionHandler } = useContext(SuggestionsContext);
 
@@ -34,7 +32,6 @@ export function SimpleNameReferenceComponent(props: NameRefProps) {
         statementType: model.kind,
         model,
         expressionHandler,
-        userInputs,
         isTypeDescriptor
     };
 

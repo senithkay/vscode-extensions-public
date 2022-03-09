@@ -16,7 +16,6 @@ import React, {useContext} from "react";
 import { MappingBindingPattern } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
-import { VariableUserInputs } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { SuggestionsContext } from "../../../store/suggestions-context";
 import { isPositionsEquals } from "../../../utils";
@@ -25,11 +24,10 @@ import { useStatementEditorStyles } from "../../styles";
 
 interface MappingBindingPatternProps {
     model: MappingBindingPattern;
-    userInputs: VariableUserInputs;
 }
 
 export function MappingBindingPatternComponent(props: MappingBindingPatternProps) {
-    const { model, userInputs } = props;
+    const { model } = props;
     const stmtCtx = useContext(StatementEditorContext);
     const {
         modelCtx: {
@@ -47,7 +45,6 @@ export function MappingBindingPatternComponent(props: MappingBindingPatternProps
         statementType: model.kind,
         model,
         expressionHandler,
-        userInputs,
         isTypeDescriptor: false
     };
 

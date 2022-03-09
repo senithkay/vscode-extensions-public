@@ -14,18 +14,16 @@ import React, { useContext } from "react";
 
 import { BooleanTypeDesc } from "@wso2-enterprise/syntax-tree";
 
-import { VariableUserInputs } from "../../../../models/definitions";
 import { SuggestionsContext } from "../../../../store/suggestions-context";
 import { InputEditor } from "../../../InputEditor";
 
 interface BooleanTypeDescProps {
     model: BooleanTypeDesc;
-    userInputs: VariableUserInputs;
     isTypeDescriptor: boolean;
 }
 
 export function BooleanTypeDescComponent(props: BooleanTypeDescProps) {
-    const { model, userInputs, isTypeDescriptor } = props;
+    const { model, isTypeDescriptor } = props;
 
     const { expressionHandler } = useContext(SuggestionsContext);
 
@@ -33,7 +31,6 @@ export function BooleanTypeDescComponent(props: BooleanTypeDescProps) {
         statementType: model.kind,
         model,
         expressionHandler,
-        userInputs,
         isTypeDescriptor,
         classNames: "type-descriptor boolean"
     };

@@ -16,7 +16,7 @@ import React, { ReactNode, useContext } from "react";
 import { BinaryExpression } from "@wso2-enterprise/syntax-tree";
 
 import { DEFAULT_EXPRESSIONS } from "../../../constants";
-import { SuggestionItem, VariableUserInputs } from "../../../models/definitions";
+import { SuggestionItem } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { SuggestionsContext } from "../../../store/suggestions-context";
 import {
@@ -32,12 +32,11 @@ import { ExpressionComponent } from "../../Expression";
 
 interface BinaryProps {
     model: BinaryExpression;
-    userInputs: VariableUserInputs;
     isElseIfMember: boolean;
 }
 
 export function BinaryExpressionComponent(props: BinaryProps) {
-    const { model, userInputs, isElseIfMember } = props;
+    const { model, isElseIfMember } = props;
     const stmtCtx = useContext(StatementEditorContext);
 
     const { expressionHandler } = useContext(SuggestionsContext);
@@ -98,7 +97,6 @@ export function BinaryExpressionComponent(props: BinaryProps) {
     const lhs: ReactNode = (
         <ExpressionComponent
             model={model.lhsExpr}
-            userInputs={userInputs}
             isElseIfMember={isElseIfMember}
             isTypeDescriptor={false}
             onSelect={onClickOnLhsExpression}
@@ -108,7 +106,6 @@ export function BinaryExpressionComponent(props: BinaryProps) {
     const rhs: ReactNode = (
         <ExpressionComponent
             model={model.rhsExpr}
-            userInputs={userInputs}
             isElseIfMember={isElseIfMember}
             isTypeDescriptor={false}
             onSelect={onClickOnRhsExpression}
@@ -119,7 +116,6 @@ export function BinaryExpressionComponent(props: BinaryProps) {
     const operator: ReactNode = (
         <ExpressionComponent
             model={model.operator}
-            userInputs={userInputs}
             isElseIfMember={isElseIfMember}
             isTypeDescriptor={false}
             onSelect={onClickOperator}

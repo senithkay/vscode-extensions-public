@@ -17,7 +17,7 @@ import { FunctionCall, STKindChecker, STNode } from "@wso2-enterprise/syntax-tre
 import classNames from "classnames";
 
 import { DEFAULT_EXPRESSIONS } from "../../../constants";
-import { SuggestionItem, VariableUserInputs } from "../../../models/definitions";
+import { SuggestionItem } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { SuggestionsContext } from "../../../store/suggestions-context";
 import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
@@ -27,12 +27,11 @@ import { useStatementEditorStyles } from "../../styles";
 
 interface FunctionCallProps {
     model: FunctionCall;
-    userInputs: VariableUserInputs;
     isElseIfMember: boolean;
 }
 
 export function FunctionCallComponent(props: FunctionCallProps) {
-    const { model, userInputs, isElseIfMember } = props;
+    const { model, isElseIfMember } = props;
     const stmtCtx = useContext(StatementEditorContext);
     const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
@@ -74,7 +73,6 @@ export function FunctionCallComponent(props: FunctionCallProps) {
                     ) : (
                         <ExpressionComponent
                             model={expression}
-                            userInputs={userInputs}
                             isElseIfMember={isElseIfMember}
                             isTypeDescriptor={false}
                         />
@@ -87,7 +85,6 @@ export function FunctionCallComponent(props: FunctionCallProps) {
     const functionName: ReactNode = (
         <ExpressionComponent
             model={model.functionName}
-            userInputs={userInputs}
             isElseIfMember={isElseIfMember}
             isTypeDescriptor={false}
             onSelect={onClickOnFunctionCallExpr}

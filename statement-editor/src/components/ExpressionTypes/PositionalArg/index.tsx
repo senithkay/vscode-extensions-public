@@ -16,7 +16,7 @@ import React, { ReactNode, useContext } from "react";
 import { PositionalArg } from "@wso2-enterprise/syntax-tree";
 
 import { DEFAULT_EXPRESSIONS } from "../../../constants";
-import { SuggestionItem, VariableUserInputs } from "../../../models/definitions";
+import { SuggestionItem } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { SuggestionsContext } from "../../../store/suggestions-context";
 import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
@@ -25,12 +25,11 @@ import { ExpressionComponent } from "../../Expression";
 
 interface PositionalArgProps {
     model: PositionalArg;
-    userInputs: VariableUserInputs;
     isElseIfMember: boolean;
 }
 
 export function PositionalArgComponent(props: PositionalArgProps) {
-    const { model, userInputs, isElseIfMember } = props;
+    const { model, isElseIfMember } = props;
     const stmtCtx = useContext(StatementEditorContext);
 
     const { expressionHandler } = useContext(SuggestionsContext);
@@ -58,7 +57,6 @@ export function PositionalArgComponent(props: PositionalArgProps) {
     const expression: ReactNode = (
         <ExpressionComponent
             model={model.expression}
-            userInputs={userInputs}
             isElseIfMember={isElseIfMember}
             isTypeDescriptor={false}
             onSelect={onClickOnExpression}

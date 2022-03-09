@@ -15,18 +15,16 @@ import React, {useContext} from "react";
 
 import { CaptureBindingPattern } from "@wso2-enterprise/syntax-tree";
 
-import { VariableUserInputs } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { SuggestionsContext } from "../../../store/suggestions-context";
 import { InputEditor } from "../../InputEditor";
 
 interface CaptureBindingPatternProps {
     model: CaptureBindingPattern;
-    userInputs: VariableUserInputs;
 }
 
 export function CaptureBindingPatternComponent(props: CaptureBindingPatternProps) {
-    const { model, userInputs } = props;
+    const { model } = props;
     const stmtCtx = useContext(StatementEditorContext);
     const {
     } = stmtCtx;
@@ -37,7 +35,6 @@ export function CaptureBindingPatternComponent(props: CaptureBindingPatternProps
         statementType: model.kind,
         model,
         expressionHandler,
-        userInputs,
         isTypeDescriptor: false
     };
     return (

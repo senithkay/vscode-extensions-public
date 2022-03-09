@@ -16,7 +16,6 @@ import React, {useContext} from "react";
 import { ListBindingPattern } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
-import { VariableUserInputs } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { SuggestionsContext } from "../../../store/suggestions-context";
 import { isPositionsEquals } from "../../../utils";
@@ -25,11 +24,10 @@ import { useStatementEditorStyles } from "../../styles";
 
 interface ListBindingPatternProps {
     model: ListBindingPattern;
-    userInputs: VariableUserInputs;
 }
 
 export function ListBindingPatternComponent(props: ListBindingPatternProps) {
-    const { model, userInputs } = props;
+    const { model } = props;
     const stmtCtx = useContext(StatementEditorContext);
     const {
         modelCtx: {
@@ -47,7 +45,6 @@ export function ListBindingPatternComponent(props: ListBindingPatternProps) {
         statementType: model.kind,
         model,
         expressionHandler,
-        userInputs,
         isTypeDescriptor: false
     };
 

@@ -14,18 +14,16 @@ import React, { useContext } from "react";
 
 import { QualifiedNameReference } from "@wso2-enterprise/syntax-tree";
 
-import { VariableUserInputs } from "../../../models/definitions";
 import { SuggestionsContext } from "../../../store/suggestions-context";
 import { InputEditor } from "../../InputEditor";
 
 interface QualifiedNameReferenceProps {
     model: QualifiedNameReference;
-    userInputs: VariableUserInputs;
     isTypeDescriptor: boolean;
 }
 
 export function QualifiedNameReferenceComponent(props: QualifiedNameReferenceProps) {
-    const { model, userInputs, isTypeDescriptor } = props;
+    const { model, isTypeDescriptor } = props;
 
     const { expressionHandler } = useContext(SuggestionsContext);
 
@@ -33,7 +31,6 @@ export function QualifiedNameReferenceComponent(props: QualifiedNameReferencePro
         statementType: model.kind,
         model,
         expressionHandler,
-        userInputs,
         isTypeDescriptor
     };
 

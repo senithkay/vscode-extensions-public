@@ -15,21 +15,18 @@ import React from "react";
 
 import { NumericLiteral } from "@wso2-enterprise/syntax-tree";
 
-import { VariableUserInputs } from "../../../../models/definitions";
 import { InputEditor } from "../../../InputEditor";
 
 interface NumericLiteralProps {
     model: NumericLiteral;
-    userInputs: VariableUserInputs;
     isTypeDescriptor: boolean;
 }
 
 export function NumericLiteralComponent(props: NumericLiteralProps) {
-    const { model, userInputs, isTypeDescriptor } = props;
+    const { model, isTypeDescriptor } = props;
     const inputEditorProps = {
         statementType: model.kind,
         model,
-        userInputs,
         isTypeDescriptor
     };
 

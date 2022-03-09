@@ -17,7 +17,7 @@ import { ListConstructor, STKindChecker, STNode } from "@wso2-enterprise/syntax-
 import classNames from "classnames";
 
 import { APPEND_EXPR_LIST_CONSTRUCTOR, DEFAULT_EXPRESSIONS, INIT_EXPR_LIST_CONSTRUCTOR } from "../../../constants";
-import { SuggestionItem, VariableUserInputs } from "../../../models/definitions";
+import { SuggestionItem } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { SuggestionsContext } from "../../../store/suggestions-context";
 import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
@@ -27,12 +27,11 @@ import { useStatementEditorStyles } from "../../styles";
 
 interface ListConstructorProps {
     model: ListConstructor;
-    userInputs: VariableUserInputs;
     isElseIfMember: boolean;
 }
 
 export function ListConstructorComponent(props: ListConstructorProps) {
-    const { model, userInputs, isElseIfMember } = props;
+    const { model, isElseIfMember } = props;
     const {
         modelCtx: {
             statementModel,
@@ -82,7 +81,6 @@ export function ListConstructorComponent(props: ListConstructorProps) {
                         <ExpressionComponent
                             key={index}
                             model={expression}
-                            userInputs={userInputs}
                             isElseIfMember={isElseIfMember}
                             isTypeDescriptor={false}
                             onSelect={(event) => onClickOnExpression(expression, event)}

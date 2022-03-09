@@ -16,7 +16,7 @@ import React, { useContext, useEffect } from "react";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 import cn from "classnames";
 
-import { ExprDeleteConfig, VariableUserInputs } from "../../models/definitions";
+import { ExprDeleteConfig } from "../../models/definitions";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { getExpressionTypeComponent, getRemainingContent, isPositionsEquals } from "../../utils";
 import DeleteButton from "../Button/DeleteButton";
@@ -25,7 +25,6 @@ import { useStatementEditorStyles } from "../styles";
 
 export interface ExpressionComponentProps {
     model: STNode;
-    userInputs?: VariableUserInputs;
     isElseIfMember: boolean;
     isTypeDescriptor: boolean;
     onSelect?: (event: React.MouseEvent) => void;
@@ -35,9 +34,9 @@ export interface ExpressionComponentProps {
 }
 
 export function ExpressionComponent(props: ExpressionComponentProps) {
-    const { model, userInputs, isElseIfMember, isTypeDescriptor, onSelect, children, classNames, deleteConfig } = props;
+    const { model, isElseIfMember, isTypeDescriptor, onSelect, children, classNames, deleteConfig } = props;
 
-    const component = getExpressionTypeComponent(model, userInputs, isElseIfMember, isTypeDescriptor);
+    const component = getExpressionTypeComponent(model, isElseIfMember, isTypeDescriptor);
 
     const [isHovered, setHovered] = React.useState(false);
     const [deletable, setDeletable] = React.useState(false);

@@ -14,18 +14,16 @@ import React, { useContext } from "react";
 
 import { DecimalTypeDesc } from "@wso2-enterprise/syntax-tree";
 
-import { VariableUserInputs } from "../../../../models/definitions";
 import { SuggestionsContext } from "../../../../store/suggestions-context";
 import { InputEditor } from "../../../InputEditor";
 
 interface DecimalTypeDescProps {
-    model: DecimalTypeDesc
-    userInputs: VariableUserInputs
-    isTypeDescriptor: boolean
+    model: DecimalTypeDesc;
+    isTypeDescriptor: boolean;
 }
 
 export function DecimalTypeDescComponent(props: DecimalTypeDescProps) {
-    const { model, userInputs, isTypeDescriptor} = props;
+    const { model, isTypeDescriptor} = props;
 
     const { expressionHandler } = useContext(SuggestionsContext);
 
@@ -33,7 +31,6 @@ export function DecimalTypeDescComponent(props: DecimalTypeDescProps) {
         statementType: model.kind,
         model,
         expressionHandler,
-        userInputs,
         isTypeDescriptor,
         classNames: "type-descriptor decimal"
     };

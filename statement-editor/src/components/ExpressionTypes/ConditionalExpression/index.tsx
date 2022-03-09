@@ -17,7 +17,7 @@ import { ConditionalExpression } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
 import { DEFAULT_EXPRESSIONS } from "../../../constants";
-import { SuggestionItem, VariableUserInputs } from "../../../models/definitions";
+import { SuggestionItem } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { SuggestionsContext } from "../../../store/suggestions-context";
 import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
@@ -27,12 +27,11 @@ import { useStatementEditorStyles } from "../../styles";
 
 interface ConditionalExpressionProps {
     model: ConditionalExpression;
-    userInputs: VariableUserInputs;
     isElseIfMember: boolean;
 }
 
 export function ConditionalExpressionComponent(props: ConditionalExpressionProps) {
-    const { model, userInputs, isElseIfMember } = props;
+    const { model, isElseIfMember } = props;
     const stmtCtx = useContext(StatementEditorContext);
 
     const statementEditorClasses = useStatementEditorStyles();
@@ -95,7 +94,6 @@ export function ConditionalExpressionComponent(props: ConditionalExpressionProps
     const lhsExpression: ReactNode = (
         <ExpressionComponent
             model={model.lhsExpression}
-            userInputs={userInputs}
             isElseIfMember={isElseIfMember}
             isTypeDescriptor={false}
             onSelect={onClickOnLhsExpression}
@@ -105,7 +103,6 @@ export function ConditionalExpressionComponent(props: ConditionalExpressionProps
     const middleExpression: ReactNode = (
         <ExpressionComponent
             model={model.middleExpression}
-            userInputs={userInputs}
             isElseIfMember={isElseIfMember}
             isTypeDescriptor={false}
             onSelect={onClickOnMiddleExpression}
@@ -115,7 +112,6 @@ export function ConditionalExpressionComponent(props: ConditionalExpressionProps
     const endExpression: ReactNode = (
         <ExpressionComponent
             model={model.endExpression}
-            userInputs={userInputs}
             isElseIfMember={isElseIfMember}
             isTypeDescriptor={false}
             onSelect={onClickOnEndExpression}

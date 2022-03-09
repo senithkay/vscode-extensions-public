@@ -15,25 +15,22 @@ import React, { ReactNode } from "react";
 import { CallStatement } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
-import { VariableUserInputs } from "../../../models/definitions";
 import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
 
 interface CallStatementProps {
     model: CallStatement;
-    userInputs: VariableUserInputs;
     isElseIfMember: boolean;
 }
 
 export function CallStatementC(props: CallStatementProps) {
-    const { model, userInputs, isElseIfMember } = props;
+    const { model, isElseIfMember } = props;
 
     const statementEditorClasses = useStatementEditorStyles();
 
     const expressionComponent: ReactNode = (
         <ExpressionComponent
             model={model.expression}
-            userInputs={userInputs}
             isElseIfMember={isElseIfMember}
             isTypeDescriptor={false}
         />

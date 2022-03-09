@@ -144,82 +144,34 @@ export const OtherStmt = Template.bind({});
 export const ReturnStmt = Template.bind({});
 
 VarDeclBinaryExprStmt.args = {
-    model: varDeclBinaryExpr,
-    userInputs: {
-        "selectedType": "string",
-        "varName": "name",
-        "variableExpression": "(expression+expression)",
-        "formField": "Expression"
-    }
+    model: varDeclBinaryExpr
 };
 
 VarDeclStringLiteral.args = {
-    model: varDeclStringLiteral,
-    userInputs: {
-        "selectedType": "string",
-        "varName": "name",
-        "variableExpression": "expression",
-        "formField": "Expression"
-    }
+    model: varDeclStringLiteral
 };
 
 WhileStmt.args = {
-    model: whileModel,
-    userInputs: {
-        "selectedType": "string",
-        "varName": "name",
-        "variableExpression": "expression",
-        "formField": "Expression"
-    }
+    model: whileModel
 }
 
 
 ForeachStmt.args = {
-    model: foreachModel,
-    userInputs: {
-        "selectedType": "string",
-        "varName": "name",
-        "variableExpression": "expression",
-        "formField": "Expression"
-    }
+    model: foreachModel
 }
 
 IfElseStmt.args = {
-    model: ifElseModel,
-    userInputs: {
-        "selectedType": "boolean",
-        "varName": "name",
-        "variableExpression": "expression",
-        "formField": "Expression"
-    }
+    model: ifElseModel
 }
 
 IfElseBooleanLiteralStmt.args = {
-    model: ifElseBooleanLiteralModel,
-    userInputs: {
-        "selectedType": "boolean",
-        "varName": "name",
-        "variableExpression": "expression",
-        "formField": "Expression"
-    }
+    model: ifElseBooleanLiteralModel
 }
 
 OtherStmt.args = {
-    model: panicModel,
-    userInputs: {
-        "selectedType": "",
-        "varName": "",
-        "variableExpression": "",
-        "formField": "Expression"
-    }
+    model: panicModel
 }
 
 ReturnStmt.args = {
-    model: returnModel,
-    userInputs: {
-        "selectedType": "",
-        "varName": "",
-        "variableExpression": "",
-        "formField": "Expression"
-    }
+    model: returnModel
 }

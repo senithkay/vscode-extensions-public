@@ -17,7 +17,7 @@ import { TypeTestExpression } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
 import { DEFAULT_EXPRESSIONS } from "../../../constants";
-import { SuggestionItem, VariableUserInputs } from "../../../models/definitions";
+import { SuggestionItem } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { SuggestionsContext } from "../../../store/suggestions-context";
 import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
@@ -27,12 +27,11 @@ import { useStatementEditorStyles } from "../../styles";
 
 interface TypeTestExpressionProps {
     model: TypeTestExpression;
-    userInputs: VariableUserInputs;
     isElseIfMember: boolean;
 }
 
 export function TypeTestExpressionComponent(props: TypeTestExpressionProps) {
-    const { model, userInputs, isElseIfMember } = props;
+    const { model, isElseIfMember } = props;
 
     const stmtCtx = useContext(StatementEditorContext);
     const statementEditorClasses = useStatementEditorStyles();
@@ -79,7 +78,6 @@ export function TypeTestExpressionComponent(props: TypeTestExpressionProps) {
     const expr: ReactNode = (
         <ExpressionComponent
             model={model.expression}
-            userInputs={userInputs}
             isElseIfMember={isElseIfMember}
             isTypeDescriptor={false}
             onSelect={onClickOnExpression}
@@ -89,7 +87,6 @@ export function TypeTestExpressionComponent(props: TypeTestExpressionProps) {
     const typeDescriptor: ReactNode = (
         <ExpressionComponent
             model={model.typeDescriptor}
-            userInputs={userInputs}
             isElseIfMember={isElseIfMember}
             isTypeDescriptor={true}
             onSelect={onClickOnTypeDescriptor}

@@ -14,22 +14,19 @@ import React from "react";
 
 import { BooleanLiteral } from "@wso2-enterprise/syntax-tree";
 
-import { VariableUserInputs } from "../../../../models/definitions";
 import { InputEditor } from "../../../InputEditor";
 
 interface BooleanLiteralProps {
     model: BooleanLiteral;
-    userInputs: VariableUserInputs;
     isTypeDescriptor: boolean;
 }
 
 export function BooleanLiteralComponent(props: BooleanLiteralProps) {
-    const { model, userInputs, isTypeDescriptor } = props;
+    const { model, isTypeDescriptor } = props;
 
     const inputEditorProps = {
         statementType: model.kind,
         model,
-        userInputs,
         isTypeDescriptor,
         classNames: "boolean-literal"
     };
