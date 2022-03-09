@@ -28,7 +28,6 @@ import debounce from "lodash.debounce";
 import * as c from "../../constants";
 import { InputEditorContext } from "../../store/input-editor-context";
 import { StatementEditorContext } from "../../store/statement-editor-context";
-import { SuggestionsContext } from "../../store/suggestions-context";
 import { useStatementEditorStyles } from "../styles";
 
 import {
@@ -120,18 +119,6 @@ export function InputEditor(props: InputEditorProps) {
         }
     }, [userInput]);
 
-    const handleContentChange = async (newValue: string) => {
-        const currentStatement = stmtCtx.modelCtx.statementModel ? stmtCtx.modelCtx.statementModel.source : "";
-        const updatedStatement = addExpressionToTargetPosition(
-            currentStatement,
-            model ? model.position.startLine : 0,
-            model ? model.position.startColumn : 0,
-            newValue ? newValue : "",
-            model ? model.position.endColumn : 0
-        );
-        handleChange(updatedStatement);
-    }
-
     const inputEnterHandler = (event: React.KeyboardEvent<HTMLInputElement>) => {
         if (event.key === "Enter" || event.key === "Tab") {
             handleEditEnd();
@@ -141,16 +128,6 @@ export function InputEditor(props: InputEditorProps) {
             changeInput(prevUserInput);
         }
     };
-
-    function addExpressionToTargetPosition(currentStmt: string, targetLine: number, targetColumn: number, codeSnippet: string, endColumn?: number): string {
-        if (model && STKindChecker.isIfElseStatement(stmtCtx.modelCtx.statementModel)) {
-            const splitStatement: string[] = currentStmt.split(/\n/g) || [];
-            splitStatement.splice(targetLine, 1,
-                splitStatement[targetLine].slice(0, targetColumn) + codeSnippet + splitStatement[targetLine].slice(endColumn || targetColumn));
-            return splitStatement.join('\n');
-        }
-        return currentStmt.slice(0, targetColumn) + codeSnippet + currentStmt.slice(endColumn || targetColumn);
-    }
 
     const inputChangeHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
         changeInput(event.target.value);
@@ -162,7 +139,7 @@ export function InputEditor(props: InputEditorProps) {
         debouncedContentChange(newValue);
     }
 
-    const debouncedContentChange = debounce(handleContentChange, 500);
+    const debouncedContentChange = debounce(handleChange, 500);
 
     const handleDoubleClick = () => {
         if (!isToken){
