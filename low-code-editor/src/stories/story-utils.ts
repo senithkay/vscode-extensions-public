@@ -1,7 +1,14 @@
+import { createElement } from "react";
+import { render } from "react-dom";
+
 import { BalleriaLanguageClient, WSConnection } from "@wso2-enterprise/ballerina-languageclient";
 import { LibraryDataResponse, LibraryDocResponse, LibraryKind, LibrarySearchResponse } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
+import { DiagramGeneratorProps } from "../DiagramGenerator";
+
 import balDist from "./data/baldist.json";
+import { DiagramGeneratorWrapper } from "./DiagramGeneratorWrapper";
+import { StandaloneDiagramApp } from "./StandaloneDiagramApp";
 
 export const MOCK_SERVER_URL = "http://localhost:3000"
 export const LANG_SERVER_URL = "ws://localhost:9095"
@@ -32,9 +39,43 @@ export async function updateFileContent(filePath: string, text: string): Promise
     }).then(result => result.success);
 }
 
+export function getDiagramGeneratorProps(filePath: string, enableSave: boolean = false): DiagramGeneratorProps {
+  return {
+    langClientPromise,
+    scale: "1",
+    panX: "0",
+    panY: "0",
+    filePath,
+    startColumn: 0,
+    startLine: 0,
+    getFileContent,
+    getPFSession: () => Promise.resolve(undefined),
+    getPerfDataFromChoreo: () =>  Promise.resolve(undefined),
+    gotoSource: () => Promise.resolve(false),
+    lastUpdatedAt: (new Date()).toISOString(),
+    resolveMissingDependency: () => Promise.resolve(false),
+    resolveMissingDependencyByCodeAction: () => Promise.resolve(false),
+    runCommand: () => Promise.resolve(false),
+    sendTelemetryEvent: () => Promise.resolve(undefined),
+    showMessage: () => Promise.resolve(false),
+    showPerformanceGraph: () => Promise.resolve(false),
+    updateFileContent: enableSave ? updateFileContent : () => Promise.resolve(undefined),
+    getLibrariesList: () => Promise.resolve(undefined),
+    getLibrariesData: () => Promise.resolve(undefined),
+    getLibraryData: () => Promise.resolve(undefined),
+    getSentryConfig: () => Promise.resolve(undefined)
+  }
+}
+
+
+export function renderStandaloneMockedEditor(container: string) {
+    const element = createElement(StandaloneDiagramApp);
+    render(element, document.getElementById(container));
+}
 
 export function getProjectRoot() {
-  return balDist.projectRoot;
+  const balDistObj = balDist as any;
+  return balDistObj.projectRoot;
 }
 
 export async function getLibrariesList(kind?: LibraryKind): Promise<LibraryDocResponse> {

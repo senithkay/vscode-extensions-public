@@ -21,6 +21,15 @@ import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 
 export const useStyles = makeStyles((theme: Theme) =>
     createStyles({
+        descriptionLabel: {
+            display: "flex",
+            marginBottom: theme.spacing(0.5),
+            marginTop: theme.spacing(0.5),
+        },
+        descriptionLabelText: {
+            color: "#1D2028",
+            fontSize: theme.spacing(1.4),
+        },
         formGroup: {
             marginBottom: theme.spacing(2),
         },

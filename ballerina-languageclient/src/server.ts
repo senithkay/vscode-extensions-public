@@ -26,12 +26,10 @@ export function startBallerinaLS() {
         })
 
         socket.onclose = () => {
-            // stdioConnection.getChildProcess().kill('SIGINT');
-            // process.exit(0);
+            stdioConnection.stop();
         };
         socket.onerror = () => {
-            // stdioConnection.getChildProcess().kill('SIGINT');
-            // process.exit(1)
+            stdioConnection.stop();
         };
     });
     return wsServer;

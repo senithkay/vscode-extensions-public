@@ -258,10 +258,34 @@ export const useStatementEditorStyles = makeStyles(() =>
                 borderRadius: '4px',
             },
             '&.hovered': {
-                backgroundColor: '#e5ebf1',
+                backgroundColor: '#e5ebf1'
             },
             cursor: "pointer",
             ...syntaxHighlightingRules
+        },
+        expressionElementCloseButton: {
+            display: 'inline',
+            boxSizing: 'border-box',
+            border: '1px solid #A6B3FF',
+            borderRadius: '2px',
+            position: 'relative',
+            width: '10px',
+            backgroundColor: '#000000',
+            color: '#ffffff',
+            fontSize: '7px',
+            '&:hover': {
+                backgroundColor: '#00ff00',
+                color: '#fff'
+            }
+        },
+        expressionDeleteButton: {
+            display: 'inline',
+            position: 'absolute',
+            marginLeft: '-12px',
+            marginTop: '-20px',
+            "& .MuiIconButton-root": {
+                padding: theme.spacing(0.25),
+            }
         },
         expressionElementSelected: {
             '&': {
@@ -327,7 +351,7 @@ export const useStatementEditorStyles = makeStyles(() =>
             width: '100%',
             zIndex: 100,
         },
-        plusIconBorder: {
+        plusIcon: {
             boxSizing: 'border-box',
             border: '1px dashed #A6B3FF',
             borderRadius: '4px',
@@ -336,8 +360,10 @@ export const useStatementEditorStyles = makeStyles(() =>
             backgroundColor: '#F0F1FB',
             fontFamily: "monospace",
             color: '#0095FF',
-            marginLeft: '2px',
+            margin: '0px 2px',
             fontSize: '12px',
+            padding: '0px 4px',
+            bottom: '1px',
             '&:hover': {
                 backgroundColor: 'rgba(173, 214, 255, 0.3)'
             }
@@ -373,27 +399,6 @@ export const useStatementEditorStyles = makeStyles(() =>
             paddingLeft: '12px',
             marginRight: '10px'
         },
-        libraryResourceButton: {
-            boxSizing: 'border-box',
-            border: '1px solid #CBCEDB',
-            borderRadius: '4px',
-            fontFamily: 'inherit',
-            backgroundColor: 'rgba(255,255,255,0.5)',
-            marginLeft: '2%',
-            marginTop: '3%',
-            color: '#40404B',
-            fontSize: 11,
-            padding: '5px 10px',
-            letterSpacing: 0,
-            '&:hover': {
-                backgroundColor: '#8e9bdc',
-                color: 'white'
-            },
-            '&:disabled': {
-                backgroundColor: 'rgba(0,0,0,0.1)',
-                color: '#404040',
-            }
-        },
         librarySearchSubHeader: {
             height: '12px',
             color: '#1D2028',
@@ -422,14 +427,6 @@ export const useStatementEditorStyles = makeStyles(() =>
             display: 'grid',
             gridTemplateColumns: '29% 29% 29%',
             paddingBottom: '8px'
-        },
-        libraryListButton: {
-            border: 'none',
-            backgroundColor: '#FFF',
-            color: '#5567D5',
-            '&:hover': {
-                color: '#3a479c'
-            },
         },
         lsSuggestionList: {
             top: '5%',
@@ -523,10 +520,6 @@ export const useStatementEditorStyles = makeStyles(() =>
             marginTop: '0.25rem',
             marginLeft: '4px'
         },
-        tabsPanelPaperSe: {
-            flexGrow: 1,
-            boxShadow: 'none'
-        },
         tabsPanelSe: {
             "& .MuiTab-wrapper": {
                 textTransform: 'none',
@@ -581,12 +574,17 @@ export const useStatementEditorStyles = makeStyles(() =>
             }
         },
         arrowBack: {
-            fontSize: '13px',
+            fontSize: '17px',
             lineHeight: '24px',
             color: '#5567D5'
         },
         libraryModuleIcon: {
             marginLeft: '8.25px'
+        },
+        loadingContainer: {
+            height: '60vh',
+            alignContent: 'center',
+            alignItems: 'center',
         }
     }),
 );

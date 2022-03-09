@@ -6,6 +6,7 @@ import { StreamMessageReader, StreamMessageWriter } from 'vscode-jsonrpc/node'
 import { BLCLogger } from "./BLCLogger";
 import { LSConnection } from "./LSConnection";
 import { ChildProcess, spawn } from "child_process";
+import * as kill from "tree-kill";
 
 
 export class StdioConnection implements LSConnection {
@@ -23,10 +24,12 @@ export class StdioConnection implements LSConnection {
 
     stop(): Promise<void> {
         return new Promise<void>((resolve, reject) => {
-            this._lsProcess.kill('SIGINT');
             this._lsProcess.on("exit", () => {
+                 // tslint:disable-next-line: no-console
+                console.log("LS process killed");
                 resolve();
-            })
+            });
+            kill(this._lsProcess.pid);
         });
     }
 
