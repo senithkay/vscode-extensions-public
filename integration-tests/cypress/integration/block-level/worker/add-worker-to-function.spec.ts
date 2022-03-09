@@ -41,7 +41,7 @@ describe('Add while to function via Low Code', () => {
         WorkerForm
             .shouldBeVisible()
             .close();
-    })
+    });
 
     it('Open and Cancel Form', () => {
         Canvas.getFunction("sampleFunction")
@@ -55,5 +55,5 @@ describe('Add while to function via Low Code', () => {
         WorkerForm
             .shouldBeVisible()
             .cancel();
-    })
+    });
 });

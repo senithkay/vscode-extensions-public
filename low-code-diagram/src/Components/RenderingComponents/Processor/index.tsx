@@ -118,8 +118,9 @@ export function DataProcessor(props: ProcessorProps) {
             processType = "AsyncSend";
             processName = "Send"
         } else if (STKindChecker.isActionStatement(model) && STKindChecker.isWaitAction(model.expression)
-            || (STKindChecker.isCheckAction((model as ActionStatement).expression)
-                && STKindChecker.isWaitAction((model as ActionStatement).expression.expression))) {
+            || (STKindChecker.isActionStatement(model)
+                && STKindChecker.isCheckAction(model.expression)
+                && STKindChecker.isWaitAction(model.expression.expression))) {
             processType = "Wait";
             processName = "Wait"
         } else if (STKindChecker.isCheckAction(model) && STKindChecker.isWaitAction(model.expression)) {

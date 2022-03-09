@@ -1301,7 +1301,7 @@ export class SizingVisitor implements Visitor {
                         index: (index - startIndex)
                     });
                 }
-            } else if (STKindChecker.isLocalVarDecl(statement)) {
+            } else if (STKindChecker.isLocalVarDecl(statement) && statement.initializer) {
                 if (statement.initializer?.kind === 'ReceiveAction') {
                     const receiverExpression: any = statement.initializer;
                     const senderName: string = receiverExpression.receiveWorkers?.name?.value;
@@ -1359,8 +1359,9 @@ export class SizingVisitor implements Visitor {
                         index: (index - startIndex)
                     });
                 }
-            } else if (STKindChecker.isReturnStatement(statement) && STKindChecker.isWaitAction(statement.expression) &&
-                STKindChecker.isSimpleNameReference(statement.expression.waitFutureExpr)) {
+            } else if (STKindChecker.isReturnStatement(statement) && statement.expression
+                && STKindChecker.isWaitAction(statement.expression) && statement.expression.waitFutureExpr
+                && STKindChecker.isSimpleNameReference(statement.expression.waitFutureExpr)) {
                 this.addToSendReceiveMap('Wait', {
                     for: statement.expression.waitFutureExpr.name.value,
                     node: statement,
