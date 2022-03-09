@@ -457,6 +457,6 @@ export function isEndpointNode(node: STNode): boolean {
     return node && (STKindChecker.isLocalVarDecl(node) || STKindChecker.isModuleVarDecl(node)) && node.typeData?.isEndpoint;
 }
 
-export function getVarNamePositionFromST(node: LocalVarDecl | ModuleVarDecl):NodePosition{
+export function getVarNamePositionFromST(node: LocalVarDecl | ModuleVarDecl): NodePosition {
     return node?.typedBindingPattern?.bindingPattern?.position;
 }
