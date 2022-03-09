@@ -8,6 +8,9 @@ const { argv } = require('process');
 const LOW_CODE_DIR = path.resolve(__dirname, '../low-code-editor');
 const MONACO_DIR = path.resolve(__dirname, '../node_modules/monaco-editor');
 
+const SentryPlugin = require("@sentry/webpack-plugin");
+const APP_VERSION = process.env.APP_VERSION || "Low-code-default";
+
 
 function getConfig(mode, entrypointName, entrypointPath, outputPath, disableChunks = false, genHTML = false) {
     const optionalPlugins = [];
@@ -26,13 +29,26 @@ function getConfig(mode, entrypointName, entrypointPath, outputPath, disableChun
             })
         );
     }
+    if (process.env.IS_RELEASE) {
+        optionalPlugins.push(
+            new SentryPlugin({
+                release: APP_VERSION,
+                include: ["./build/"],
+                urlPrefix: process.env.BALLERINA_VS_CODE_PATH,
+                authToken: process.env.SENTRY_AUTH_TOKEN,
+                org: "platformer-cloud-rm",
+                project: "choreo-low-code",
+                ignore: ["node_modules", "webpack.config.js"],
+            })
+        )
+    }
     return {
         mode: 'none',
         entry: {
             [entrypointName]: entrypointPath,
         },
         target: 'web',
-        devtool: mode === "production" ? undefined : "source-map",
+        devtool: "source-map",
         resolve: {
             extensions: [".ts", ".tsx", ".js", ".mjs"],
             alias: {
@@ -129,7 +145,8 @@ function getConfig(mode, entrypointName, entrypointPath, outputPath, disableChun
                 languages: ['ballerina', 'yaml', 'json']
             }),
             new webpack.DefinePlugin({
-                'process.env.NODE_ENV': JSON.stringify(mode)
+                'process.env.NODE_ENV': JSON.stringify(mode),
+                'process.env.APP_VERSION': JSON.stringify(APP_VERSION)
             }),
             ...optionalPlugins
         ]

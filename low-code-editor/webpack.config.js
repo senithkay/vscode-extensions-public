@@ -5,8 +5,6 @@ const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 
 const APP_DIR = path.resolve(__dirname, './src');
 const MONACO_DIR = path.resolve(__dirname, '../node_modules/monaco-editor');
-const SentryPlugin = require("@sentry/webpack-plugin");
-const APP_VERSION = process.env.APP_VERSION || "Low-code-default";
 
 module.exports = (env, argv) => ({
     mode: 'none',
@@ -14,7 +12,7 @@ module.exports = (env, argv) => ({
         BLCEditor: path.join(__dirname, 'src', 'index.tsx')
     },
     target: 'web',
-    devtool: "source-map",
+    devtool: argv.mode === "production" ? undefined : "source-map",
     resolve: {
         extensions: [".ts", ".tsx", ".js", ".mjs"],
         alias: {
@@ -106,21 +104,8 @@ module.exports = (env, argv) => ({
             languages: ['ballerina', 'yaml', 'json']
         }),
         new webpack.DefinePlugin({
-            'process.env.NODE_ENV': JSON.stringify(argv.mode),
-            'process.env.APP_VERSION': JSON.stringify(APP_VERSION)
-        }),
-        ...(process.env.IS_RELEASE ? [
-            new SentryPlugin({
-                release: APP_VERSION,
-                include: ["./build/"],
-                urlPrefix: process.env.BALLERINA_VS_CODE_PATH,
-                authToken: process.env.SENTRY_AUTH_TOKEN,
-                org: "platformer-cloud-rm",
-                project: "choreo-low-code",
-                ignore: ["node_modules", "webpack.config.js"],
-            })
-        ] : [
-        ])
+            'process.env.NODE_ENV': JSON.stringify(argv.mode)
+        })
     ]
 });
 
