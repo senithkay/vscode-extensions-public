@@ -27,7 +27,6 @@ export function OtherExpressionComponent(props: OtherExpressionProps) {
     const statementEditorClasses = useStatementEditorStyles();
 
     const inputEditorProps = {
-        statementType: model.kind,
         model
     };
 

@@ -42,7 +42,6 @@ export function MappingBindingPatternComponent(props: MappingBindingPatternProps
     const { expressionHandler } = useContext(SuggestionsContext);
 
     const inputEditorProps = {
-        statementType: model.kind,
         model,
         expressionHandler
     };

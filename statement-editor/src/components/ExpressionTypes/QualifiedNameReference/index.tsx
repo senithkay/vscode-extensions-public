@@ -27,7 +27,6 @@ export function QualifiedNameReferenceComponent(props: QualifiedNameReferencePro
     const { expressionHandler } = useContext(SuggestionsContext);
 
     const inputEditorProps = {
-        statementType: model.kind,
         model,
         expressionHandler
     };

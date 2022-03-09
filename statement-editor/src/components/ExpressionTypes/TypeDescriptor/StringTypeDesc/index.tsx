@@ -27,7 +27,6 @@ export function StringTypeDescComponent(props: StringTypeDescProps) {
     const { expressionHandler } = useContext(SuggestionsContext);
 
     const inputEditorProps = {
-        statementType: model.kind,
         model,
         expressionHandler,
         classNames: "type-descriptor string"

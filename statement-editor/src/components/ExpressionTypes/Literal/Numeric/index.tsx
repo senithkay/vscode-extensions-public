@@ -24,7 +24,6 @@ interface NumericLiteralProps {
 export function NumericLiteralComponent(props: NumericLiteralProps) {
     const { model } = props;
     const inputEditorProps = {
-        statementType: model.kind,
         model
     };
 

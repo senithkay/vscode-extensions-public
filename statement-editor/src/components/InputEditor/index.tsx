@@ -37,7 +37,6 @@ import {
 
 export interface InputEditorProps {
     model?: STNode;
-    statementType: any;
     isToken?: boolean;
     classNames?: string;
 }

@@ -24,7 +24,6 @@ export function BooleanLiteralComponent(props: BooleanLiteralProps) {
     const { model } = props;
 
     const inputEditorProps = {
-        statementType: model.kind,
         model,
         classNames: "boolean-literal"
     };

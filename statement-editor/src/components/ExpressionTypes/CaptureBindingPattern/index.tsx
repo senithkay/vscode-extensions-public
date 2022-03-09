@@ -32,7 +32,6 @@ export function CaptureBindingPatternComponent(props: CaptureBindingPatternProps
     const { expressionHandler } = useContext(SuggestionsContext);
 
     const inputEditorProps = {
-        statementType: model.kind,
         model,
         expressionHandler
     };

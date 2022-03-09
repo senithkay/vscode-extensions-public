@@ -92,7 +92,6 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
         )
     } else {
         const inputEditorProps = {
-            statementType: model?.kind,
             model
         };
 

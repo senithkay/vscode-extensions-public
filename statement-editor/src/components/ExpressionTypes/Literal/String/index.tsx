@@ -24,7 +24,6 @@ export function StringLiteralComponent(props: StringLiteralProps) {
     const { model } = props;
 
     const inputEditorProps = {
-        statementType: model.kind,
         model,
         classNames: "string-literal"
     };

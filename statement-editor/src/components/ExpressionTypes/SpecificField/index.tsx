@@ -80,7 +80,6 @@ export function SpecificFieldComponent(props: SpecificFieldProps) {
 
     if (STKindChecker.isIdentifierToken(model.fieldName)) {
         const inputEditorProps = {
-            statementType: model.kind,
             model: model.fieldName,
             expressionHandler
         };

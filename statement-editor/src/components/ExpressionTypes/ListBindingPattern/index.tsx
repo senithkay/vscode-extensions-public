@@ -42,7 +42,6 @@ export function ListBindingPatternComponent(props: ListBindingPatternProps) {
     const { expressionHandler } = useContext(SuggestionsContext);
 
     const inputEditorProps = {
-        statementType: model.kind,
         model,
         expressionHandler
     };

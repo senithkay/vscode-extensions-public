@@ -28,7 +28,6 @@ export function SimpleNameReferenceComponent(props: NameRefProps) {
     const { expressionHandler } = useContext(SuggestionsContext);
 
     const inputEditorProps = {
-        statementType: model.kind,
         model,
         expressionHandler
     };

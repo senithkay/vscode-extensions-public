@@ -27,7 +27,6 @@ export function VarTypeDescComponent(props: VarTypeDescProps) {
     const { expressionHandler } = useContext(SuggestionsContext);
 
     const inputEditorProps = {
-        statementType: model.kind,
         model,
         expressionHandler,
         classNames: "type-descriptor var"

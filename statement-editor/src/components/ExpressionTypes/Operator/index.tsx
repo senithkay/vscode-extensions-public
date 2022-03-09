@@ -62,7 +62,6 @@ export function OperatorComponent(props: OperatorProps) {
     const { model } = props;
 
     const inputEditorProps = {
-        statementType: model.kind,
         model,
         isToken: true,
         classNames: "operator"
