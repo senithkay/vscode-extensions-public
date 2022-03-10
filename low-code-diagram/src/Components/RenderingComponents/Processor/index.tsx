@@ -256,7 +256,7 @@ export function DataProcessor(props: ProcessorProps) {
         if (viewState.arrowFrom === 'Left') {
             leftTextOffset = -(PROCESS_SVG_HEIGHT / 2);
         } else {
-            rightTextOffset = -(PROCESS_SVG_HEIGHT / 2);
+            rightTextOffset = -(PROCESS_SVG_HEIGHT / 3);
         }
     }
 
