@@ -28,7 +28,7 @@ describe('edit a http advanced resource', () => {
     cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH))
   })
 
-  it('Edit service and add statements', () => {
+  it.skip('Edit service and add statements', () => {
 
     // cy.on('uncaught:exception', () => false); //Need to fix this
 
