@@ -715,7 +715,7 @@ export const getStandardExpCompletions = async ({
 
     const filteredCompletionItem: CompletionResponse[] = disableFiltering ? values : values.filter((completionResponse: CompletionResponse) => (
         !(completionResponse.kind && rejectedKinds.includes(completionResponse.kind as VSCodeCompletionItemKind)) &&
-        completionResponse.label !== varName
+        completionResponse.label !== varName && !completionResponse.label.includes("temp_var")
     ));
 
     const sortText: string[] = [];
