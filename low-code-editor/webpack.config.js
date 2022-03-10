@@ -24,6 +24,9 @@ module.exports = (env, argv) => ({
             "path": false,
             "fs": false,
             "child_process": false,
+        },
+        fallback: {
+            buffer: require.resolve('buffer/'),
         }
     },
     module: {
@@ -98,6 +101,9 @@ module.exports = (env, argv) => ({
         },
     },
     plugins: [
+        new webpack.ProvidePlugin({
+            Buffer: ['buffer', 'Buffer'],
+        }),
         new webpack.optimize.LimitChunkCountPlugin({
             maxChunks: 1
         }),
