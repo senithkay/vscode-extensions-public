@@ -21,7 +21,9 @@ module.exports = (env, argv) => ({
             "crypto": false,
             "net": false,
             "os": false,
-            "path": false
+            "path": false,
+            "fs": false,
+            "child_process": false,
         }
     },
     module: {
