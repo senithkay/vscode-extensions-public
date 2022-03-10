@@ -34,9 +34,6 @@ interface MappingConstructorProps {
 
 export function MappingConstructorComponent(props: MappingConstructorProps) {
     const { model, userInputs, isElseIfMember, diagnosticHandler } = props;
-    const stmtCtx = useContext(StatementEditorContext);
-    const { modelCtx } = stmtCtx;
-    const { currentModel } = modelCtx;
 
     const statementEditorClasses = useStatementEditorStyles();
 
@@ -74,23 +71,16 @@ export function MappingConstructorComponent(props: MappingConstructorProps) {
                             {expression.value}
                         </span>
                     ) : (
-                        <button
+                        <ExpressionComponent
                             key={index}
-                            className={classNames(
-                                statementEditorClasses.expressionElement,
-                                (currentModel.model && currentModel.model.position === expression.position) &&
-                                statementEditorClasses.expressionElementSelected
-                            )}
-                            onClick={(event) => onClickOnExpression(expression, event)}
-                        >
-                            <ExpressionComponent
-                                model={expression}
-                                userInputs={userInputs}
-                                isElseIfMember={isElseIfMember}
-                                diagnosticHandler={diagnosticHandler}
-                                isTypeDescriptor={false}
-                            />
-                        </button>
+                            model={expression}
+                            userInputs={userInputs}
+                            isElseIfMember={isElseIfMember}
+                            diagnosticHandler={diagnosticHandler}
+                            isTypeDescriptor={false}
+                            onSelect={(event) => onClickOnExpression(expression, event)}
+                            deleteConfig={{defaultExprDeletable: true}}
+                        />
                     )
                 ))
             }
@@ -108,12 +98,12 @@ export function MappingConstructorComponent(props: MappingConstructorProps) {
                 {model.openBrace.value}
             </span>
             {fieldsComponent}
-            <button
-                className={statementEditorClasses.plusIconBorder}
+            <span
+                className={statementEditorClasses.plusIcon}
                 onClick={onClickOnPlusIcon}
             >
                 +
-            </button>
+            </span>
             <span
                 className={classNames(
                     statementEditorClasses.expressionBlock,

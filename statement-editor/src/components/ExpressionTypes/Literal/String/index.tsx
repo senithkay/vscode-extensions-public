@@ -32,7 +32,8 @@ export function StringLiteralComponent(props: StringLiteralProps) {
         model,
         userInputs,
         diagnosticHandler,
-        isTypeDescriptor
+        isTypeDescriptor,
+        classNames: "string-literal"
     };
 
     return (

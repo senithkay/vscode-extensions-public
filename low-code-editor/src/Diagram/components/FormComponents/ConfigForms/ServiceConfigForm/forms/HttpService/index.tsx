@@ -15,9 +15,11 @@ import React, { useReducer, useState } from "react";
 
 import { ExpressionEditorProps} from "@wso2-enterprise/ballerina-expression-editor";
 import {
-    FormActionButtons,
     FormElementProps
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import {
+    FormActionButtons
+} from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { ListenerDeclaration, NodePosition, ServiceDeclaration, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 

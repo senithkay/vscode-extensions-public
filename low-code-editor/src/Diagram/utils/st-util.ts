@@ -10,44 +10,20 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { BallerinaConnectorInfo, BallerinaRecord, Connector, FunctionDefinitionInfo, STSymbolInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ActionInvocationFinder, FunctionViewState, initVisitor, positionVisitor, sizingVisitor } from "@wso2-enterprise/ballerina-low-code-diagram";
+import { BallerinaConnectorInfo, BallerinaRecord, Connector, FunctionDefinitionInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
-    ActionStatement, CallStatement, CaptureBindingPattern, CheckAction, ElseBlock, FunctionDefinition, IdentifierToken, IfElseStatement, LocalVarDecl,
-    ModulePart, ModuleVarDecl, QualifiedNameReference, RemoteMethodCallAction, ResourceKeyword, ServiceDeclaration,
+    CallStatement, CaptureBindingPattern, ElseBlock, FunctionDefinition, IdentifierToken, IfElseStatement, LocalVarDecl,
+    ModulePart, ModuleVarDecl, NodePosition, RemoteMethodCallAction, ResourceKeyword, ServiceDeclaration,
     STKindChecker,
-    STNode, traversNode, TypeCastExpression, VisibleEndpoint
+    STNode, traversNode
 } from '@wso2-enterprise/syntax-tree';
 import { subMinutes } from "date-fns";
 import { Diagnostic } from 'vscode-languageserver-protocol';
 
-import { AnalyzePayloadVisitor, initVisitor, positionVisitor, sizingVisitor } from '../..';
-import { CLIENT_SVG_HEIGHT, CLIENT_SVG_WIDTH } from "../../Diagram/components/LowCodeDiagram/Components/RenderingComponents/Connector/ConnectorHeader/ConnectorClientSVG";
-import { CONNECTOR_PROCESS_SVG_HEIGHT } from "../components/LowCodeDiagram/Components/RenderingComponents/Connector/ConnectorProcess/ConnectorProcessSVG";
-import { IFELSE_SVG_HEIGHT, IFELSE_SVG_WIDTH } from "../components/LowCodeDiagram/Components/RenderingComponents/IfElse/IfElseSVG";
-import { PROCESS_SVG_HEIGHT, PROCESS_SVG_WIDTH } from "../components/LowCodeDiagram/Components/RenderingComponents/Processor/ProcessSVG";
-import { RESPOND_SVG_HEIGHT, RESPOND_SVG_WIDTH } from "../components/LowCodeDiagram/Components/RenderingComponents/Respond/RespondSVG";
-import { EndpointViewState, FunctionViewState, PlusViewState, SimpleBBox, StatementViewState } from "../components/LowCodeDiagram/ViewState";
-import { ActionInvocationFinder } from '../visitors/action-invocation-finder';
-import { BlockStatementFinder } from '../visitors/block-statement-finder';
-import { DefaultConfig } from "../visitors/default";
+import { AnalyzePayloadVisitor } from "../visitors/analyze-payload-visitor";
 import { clearAllDiagnostics, getAllDiagnostics, visitor as DiagnosticVisitor } from '../visitors/diagnostics-collector';
-
-export interface Endpoint {
-    visibleEndpoint: VisibleEndpoint;
-    actions?: StatementViewState[];
-    firstAction?: StatementViewState;
-}
-
-export function getPlusViewState(index: number, viewStates: PlusViewState[]): PlusViewState {
-    let matchingPlusViewState: PlusViewState;
-    for (const plusViewState of viewStates) {
-        if (plusViewState.index === index) {
-            matchingPlusViewState = plusViewState
-            break;
-        }
-    }
-    return matchingPlusViewState;
-}
+// import { BlockStatementFinder } from '../components/LowCodeDiagram/Visitors/block-statement-finder';
 
 export const MAIN_FUNCTION = "main";
 
@@ -258,118 +234,6 @@ export function getWarningsFromST(modulePart: ModulePart): Warning[] {
     return servicesWithEmptyBasePaths;
 }
 
-export function updateConnectorCX(maxContainerRightWidth: number, containerCX: number, allEndpoints: Map<string, Endpoint>, startCY?: number) {
-    const containerRightMostConerCX = maxContainerRightWidth + containerCX;
-    let prevX = 0;
-    let index: number = 0;
-
-    allEndpoints.forEach((value: Endpoint, key: string) => {
-        const visibleEndpoint: VisibleEndpoint = value.visibleEndpoint;
-        const mainEp: EndpointViewState = visibleEndpoint.viewState;
-        mainEp.collapsed = value.firstAction?.collapsed;
-
-        if (index === 0) {
-            if (mainEp.lifeLine.cx <= containerRightMostConerCX) {
-                mainEp.lifeLine.cx = containerRightMostConerCX + (mainEp.bBox.w / 2) + DefaultConfig.epGap;
-            } else if (mainEp.lifeLine.cx > containerRightMostConerCX) {
-                const diff = mainEp.lifeLine.cx - containerRightMostConerCX;
-                if (diff < DefaultConfig.epGap) {
-                    mainEp.lifeLine.cx = mainEp.lifeLine.cx + (mainEp.bBox.w / 2) + (DefaultConfig.epGap - diff);
-                }
-            }
-            prevX = mainEp.lifeLine.cx;
-        } else {
-            mainEp.lifeLine.cx = prevX + (mainEp.bBox.w / 2) + DefaultConfig.epGap;
-            prevX = mainEp.lifeLine.cx;
-        }
-
-        if (mainEp.isExternal) { // Render external endpoints align with the start element
-            mainEp.lifeLine.h += mainEp.lifeLine.cy - (startCY + (CONNECTOR_PROCESS_SVG_HEIGHT / 2));
-            mainEp.lifeLine.cy = startCY + (CONNECTOR_PROCESS_SVG_HEIGHT / 2);
-        }
-
-        updateActionTriggerCx(mainEp.lifeLine.cx, value.actions);
-        ++index;
-    });
-}
-
-export function updateActionTriggerCx(connectorCX: number, actions: StatementViewState[]) {
-    actions.forEach((action) => {
-        action.action.trigger.cx = connectorCX;
-    });
-}
-
-export function getMaXWidthOfConnectors(allEndpoints: Map<string, Endpoint>): number {
-    let prevCX: number = 0;
-    allEndpoints.forEach((value: Endpoint, key: string) => {
-        const visibleEndpoint: VisibleEndpoint = value.visibleEndpoint;
-        const mainEp: EndpointViewState = visibleEndpoint.viewState;
-        mainEp.collapsed = value.firstAction?.collapsed;
-        if ((prevCX < (mainEp.lifeLine.cx + (mainEp.bBox.w / 2)))) {
-            prevCX = mainEp.lifeLine.cx + (mainEp.bBox.w / 2);
-        }
-    });
-
-    return prevCX;
-}
-
-export function getDraftComponentSizes(type: string, subType: string): { h: number, w: number } {
-    let h: number = 0;
-    let w: number = 0;
-
-    switch (type) {
-        case "APIS":
-            h = CLIENT_SVG_HEIGHT;
-            w = CLIENT_SVG_WIDTH;
-            break;
-        case "STATEMENT":
-            switch (subType) {
-                case "If":
-                case "ForEach":
-                case "While":
-                    h = IFELSE_SVG_HEIGHT;
-                    w = IFELSE_SVG_WIDTH;
-                    break;
-                case "Log":
-                    h = PROCESS_SVG_HEIGHT;
-                    w = PROCESS_SVG_WIDTH;
-                    break;
-                case "Variable":
-                    h = PROCESS_SVG_HEIGHT;
-                    w = PROCESS_SVG_WIDTH;
-                    break;
-                case "AssignmentStatement":
-                    h = PROCESS_SVG_HEIGHT;
-                    w = PROCESS_SVG_WIDTH;
-                    break;
-                case "Custom":
-                    h = PROCESS_SVG_HEIGHT;
-                    w = PROCESS_SVG_WIDTH;
-                    break;
-                case "HTTP":
-                    h = PROCESS_SVG_HEIGHT;
-                    w = PROCESS_SVG_WIDTH;
-                    break;
-                case "Respond":
-                    h = RESPOND_SVG_HEIGHT;
-                    w = RESPOND_SVG_WIDTH;
-                    break;
-                case "Return":
-                    h = RESPOND_SVG_HEIGHT;
-                    w = RESPOND_SVG_WIDTH;
-                    break;
-            }
-            break;
-        default:
-            break;
-    }
-
-    return {
-        h,
-        w
-    }
-}
-
 export async function getConnectorDefFromCache(connector: Connector) {
     // TODO: fix with connector api
     // const { org, module: mod, version, name } = connector;
@@ -494,94 +358,10 @@ export function findActualEndPositionOfIfElseStatement(ifNode: IfElseStatement):
     return position;
 }
 
-export function getMatchingConnector(actionInvo: STNode, stSymbolInfo: STSymbolInfo): BallerinaConnectorInfo {
-    const viewState = actionInvo.viewState as StatementViewState;
-    let actionVariable: RemoteMethodCallAction;
-    let remoteMethodCallAction: RemoteMethodCallAction;
-    let connector: BallerinaConnectorInfo;
-
-    if (viewState.isAction) {
-        switch (actionInvo.kind) {
-            case "LocalVarDecl":
-                const variable = actionInvo as LocalVarDecl;
-                switch (variable.initializer.kind) {
-                    case 'TypeCastExpression':
-                        const initializer: TypeCastExpression = variable.initializer as TypeCastExpression;
-                        actionVariable = (initializer.expression as CheckAction).expression as RemoteMethodCallAction;
-                        break;
-                    case 'RemoteMethodCallAction':
-                        actionVariable = variable.initializer as RemoteMethodCallAction;
-                        break;
-                    default:
-                        actionVariable = (variable.initializer as CheckAction).expression;
-                }
-                break;
-
-            case "ActionStatement":
-                const statement = actionInvo as ActionStatement;
-                actionVariable = (statement.expression as CheckAction).expression;
-                break;
-
-            default:
-                // TODO: need to handle this flow
-                return undefined;
-        }
-
-        remoteMethodCallAction = isSTActionInvocation(actionVariable);
-
-        if (remoteMethodCallAction?.expression?.typeData?.typeSymbol) {
-            const typeSymbol = remoteMethodCallAction.expression.typeData.typeSymbol;
-            const module = typeSymbol?.moduleID;
-            if (typeSymbol && module) {
-                connector = {
-                    name: typeSymbol.name,
-                    moduleName: module.moduleName,
-                    package: {
-                        organization: module.orgName,
-                        name: module.moduleName,
-                        version: module.version
-                    },
-                    functions: []
-                };
-            }
-        }
-    } else if ((viewState.isEndpoint || isEndpointNode(actionInvo))
-        && (STKindChecker.isLocalVarDecl(actionInvo) || STKindChecker.isModuleVarDecl(actionInvo))
-        && (STKindChecker.isQualifiedNameReference(actionInvo.typedBindingPattern.typeDescriptor))) {
-        const nameReference = actionInvo.typedBindingPattern.typeDescriptor as QualifiedNameReference;
-        const typeSymbol = nameReference.typeData?.typeSymbol;
-        const module = typeSymbol?.moduleID;
-        if (typeSymbol && module) {
-            connector = {
-                name: typeSymbol.name,
-                moduleName: module.moduleName,
-                package: {
-                    organization: module.orgName,
-                    name: module.moduleName,
-                    version: module.version
-                },
-                functions: []
-            };
-        }
-    }
-
-    return connector;
-}
-
 export function isSTActionInvocation(node: STNode): RemoteMethodCallAction {
     const actionFinder: ActionInvocationFinder = new ActionInvocationFinder();
     traversNode(node, actionFinder);
     return actionFinder.getIsAction();
-}
-
-export function isEndpointNode(node: STNode): boolean {
-    return node && (STKindChecker.isLocalVarDecl(node) || STKindChecker.isModuleVarDecl(node)) && node.typeData?.isEndpoint;
-}
-
-export function haveBlockStatement(node: STNode): boolean {
-    const blockStatementFinder: BlockStatementFinder = new BlockStatementFinder();
-    traversNode(node, blockStatementFinder);
-    return blockStatementFinder.getHaveBlockStatement();
 }
 
 export function isSTResourceFunction(node: FunctionDefinition): boolean {
@@ -663,16 +443,20 @@ export function recalculateSizingAndPositioningST(st: STNode): STNode {
     return clone;
 }
 
-export function getVariableNameFromST(node: LocalVarDecl | ModuleVarDecl): IdentifierToken {
-    return (node.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName;
-}
-
-export function getStatementTypesFromST(model: LocalVarDecl): string {
-    return model.typedBindingPattern.typeDescriptor.source.trim();
+export function getVariableNameFromST(node: LocalVarDecl | ModuleVarDecl): string {
+    return node?.typedBindingPattern?.bindingPattern?.source.trim();
 }
 
 export function getMethodCallFunctionName(model: CallStatement): string {
     if (STKindChecker.isFunctionCall(model.expression)) {
         return model.expression.functionName.source.trim();
     }
+}
+
+export function isEndpointNode(node: STNode): boolean {
+    return node && (STKindChecker.isLocalVarDecl(node) || STKindChecker.isModuleVarDecl(node)) && node.typeData?.isEndpoint;
+}
+
+export function getVarNamePositionFromST(node: LocalVarDecl | ModuleVarDecl): NodePosition {
+    return node?.typedBindingPattern?.bindingPattern?.position;
 }

@@ -37,7 +37,6 @@ export function ListConstructorComponent(props: ListConstructorProps) {
     const {
         modelCtx: {
             statementModel,
-            currentModel,
             updateModel,
         },
         currentFile,
@@ -81,23 +80,16 @@ export function ListConstructorComponent(props: ListConstructorProps) {
                             {expression.value}
                         </span>
                     ) : (
-                        <button
+                        <ExpressionComponent
                             key={index}
-                            className={classNames(
-                                statementEditorClasses.expressionElement,
-                                (currentModel.model && currentModel.model.position === expression.position) &&
-                                    statementEditorClasses.expressionElementSelected
-                            )}
-                            onClick={(event) => onClickOnExpression(expression, event)}
-                        >
-                            <ExpressionComponent
-                                model={expression}
-                                userInputs={userInputs}
-                                isElseIfMember={isElseIfMember}
-                                diagnosticHandler={diagnosticHandler}
-                                isTypeDescriptor={false}
-                            />
-                        </button>
+                            model={expression}
+                            userInputs={userInputs}
+                            isElseIfMember={isElseIfMember}
+                            diagnosticHandler={diagnosticHandler}
+                            isTypeDescriptor={false}
+                            onSelect={(event) => onClickOnExpression(expression, event)}
+                            deleteConfig={{defaultExprDeletable: true}}
+                        />
                     )
                 ))
             }
@@ -121,12 +113,12 @@ export function ListConstructorComponent(props: ListConstructorProps) {
                 {model.openBracket.value}
             </span>
             {expressionComponent}
-            <button
-                className={statementEditorClasses.plusIconBorder}
+            <span
+                className={statementEditorClasses.plusIcon}
                 onClick={onClickOnPlusIcon}
             >
                 +
-            </button>
+            </span>
             <span
                 className={classNames(
                     statementEditorClasses.expressionBlock,

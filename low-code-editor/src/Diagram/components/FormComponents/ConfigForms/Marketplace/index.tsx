@@ -15,22 +15,28 @@ import React, { ReactNode, SyntheticEvent, useContext, useRef, useState } from "
 
 import { Box, CircularProgress, FormControl, Grid, Typography } from "@material-ui/core";
 import { CloseRounded } from "@material-ui/icons";
+import { PlusViewState } from "@wso2-enterprise/ballerina-low-code-diagram";
 import {
+    ADD_CONNECTOR,
     BallerinaConstruct,
     BallerinaModuleResponse,
-    ButtonWithIcon,
     DiagramEditorLangClientInterface,
-    FormHeaderSection,
-    IconBtnWithText,
+    LOAD_CONNECTOR_LIST,
+    LowcodeEvent,
+    SEARCH_CONNECTOR,
+    SELECT_CONNECTOR
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import {
+    ButtonWithIcon,
+    FormHeaderSection,
+    IconBtnWithText
+} from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { LocalVarDecl } from "@wso2-enterprise/syntax-tree";
 
 import { FilterIcon } from "../../../../../assets/icons";
 import { Context } from "../../../../../Contexts/Diagram";
 import { UserState } from "../../../../../types";
-import { LOAD_CONNECTOR_LIST, LowcodeEvent, SELECT_CONNECTOR } from "../../../../models";
-import { APIHeightStates } from "../../../LowCodeDiagram/Components/DialogBoxes/PlusHolder/PlusElements";
-import { PlusViewState } from "../../../LowCodeDiagram/ViewState/plus";
+import { APIHeightStates } from "../../DialogBoxes/PlusHolder/PlusElements";
 import { wizardStyles as useFormStyles } from "../style";
 
 import FilterByMenu from "./FilterByMenu";

@@ -73,13 +73,22 @@ export class TriggerForm {
     }
 
     private static getTriggerMarketplace() {
-        return cy 
+        return cy
             .get(this.marketplaceSelector);
 
     }
 
+    static waitForConnectorsLoading() {
+        cy.wait(3000);
+        this.getTriggerMarketplace().get(`[data-testid="marketplace-search-loader"]`).should(($div) => {
+            const element = $div;
+            expect(element).to.be.not.exist;
+        })
+        return this;
+    }
+
     private static getTriggerForm() {
-        return cy 
+        return cy
             .get(this.triggerFormSelector);
 
     }

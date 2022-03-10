@@ -13,8 +13,10 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import React, { useContext } from "react";
 
+import { Avatar, List, ListItem, ListItemIcon, ListItemText, Typography } from "@material-ui/core";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 
+import ExpressionSuggestionIcon from "../../../assets/icons/ExpressionSuggestionIcon";
 import { SuggestionItem } from "../../../models/definitions";
 import { InputEditorContext } from "../../../store/input-editor-context";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
@@ -53,39 +55,58 @@ export function ExpressionSuggestions(props: ExpressionSuggestionsProps) {
 
     return (
         <>
-            { isExpression && !!suggestions.length && (
+            {isExpression && !!suggestions.length && (
                 <>
                     <div className={statementEditorClasses.expressionSuggestionList}>
-                        {
-                            suggestions.map((suggestion: SuggestionItem, index: number) => (
-                                (suggestion.kind) ?
-                                    (
-                                        <button
-                                            className={statementEditorClasses.suggestionButton}
-                                            key={index}
-                                            onClick={() => onClickOperatorSuggestion(suggestion)}
-                                        >
-                                            {suggestion.value}
-                                        </button>
-
-                                    )
-                                    :
-                                    (
-                                        <button
-                                            className={statementEditorClasses.suggestionButton}
-                                            key={index}
-                                            onClick={() => onClickExpressionSuggestion(suggestion.value)}
-                                        >
-                                            {suggestion.value}
-                                        </button>
-                                    )
-
-                            ))
-                        }
+                        <List className={statementEditorClasses.expressionList}>
+                            {
+                                suggestions.map((suggestion: SuggestionItem, index: number) => (
+                                    (suggestion.kind) ?
+                                        (
+                                            <ListItem
+                                                button={true}
+                                                className={statementEditorClasses.suggestionListItem}
+                                                key={index}
+                                                onClick={() => onClickOperatorSuggestion(suggestion)}
+                                                disableRipple={true}
+                                            >
+                                                <ListItemText
+                                                    primary={(
+                                                        <Typography>{suggestion.value}</Typography>
+                                                    )}
+                                                />
+                                            </ListItem>
+                                        )
+                                        :
+                                        (
+                                            <ListItem
+                                                button={true}
+                                                className={statementEditorClasses.suggestionListItem}
+                                                key={index}
+                                                onClick={() => onClickExpressionSuggestion(suggestion.value)}
+                                                disableRipple={true}
+                                            >
+                                                <Avatar
+                                                    style={{backgroundColor: '#F0F1FB', height: '32px', width: '32px', margin: '8px 8px 8px 0'}}
+                                                >
+                                                    <ListItemIcon style={{ minWidth: '8%', textAlign: 'left' }}>
+                                                        <ExpressionSuggestionIcon/>
+                                                    </ListItemIcon>
+                                                </Avatar>
+                                                <ListItemText
+                                                    primary={(
+                                                        <Typography>{suggestion.value}</Typography>
+                                                    )}
+                                                />
+                                            </ListItem>
+                                        )
+                                ))
+                            }
+                        </List>
                     </div>
                 </>
             )}
-            { isExpression && !suggestions.length && (
+            {isExpression && !suggestions.length && (
                 <p className={statementEditorClasses.noSuggestionText}>Expressions not available</p>
             )}
         </>

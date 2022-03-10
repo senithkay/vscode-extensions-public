@@ -11,11 +11,10 @@
  * associated services.
  */
 // tslint:disable-next-line: no-submodule-imports
+import { BlockViewState } from "@wso2-enterprise/ballerina-low-code-diagram";
 import { BallerinaConnectorInfo, STSymbolInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { ModulePart, STNode } from "@wso2-enterprise/syntax-tree";
 import { Diagnostic } from "vscode-languageserver-protocol";
-
-import { BlockViewState } from "../../components/LowCodeDiagram/ViewState";
 
 export interface DiagramCoordinates {
     start: RectCoordinates;

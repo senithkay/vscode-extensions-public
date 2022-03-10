@@ -14,7 +14,7 @@
 import React from "react";
 
 import { Typography } from "@material-ui/core";
-import { PrimaryButton } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { PrimaryButton } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 
 import { useStyles } from "./style";
 

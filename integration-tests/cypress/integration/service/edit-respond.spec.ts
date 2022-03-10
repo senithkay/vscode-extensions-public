@@ -17,14 +17,16 @@ import { getCurrentSpecFolder } from "../../utils/file-utils"
 import { ResourceForm } from "../../utils/forms/resource-form"
 import { ResponseForm } from "../../utils/forms/response-form"
 import { ServiceForm } from "../../utils/forms/service-form"
-import { getIntegrationTestStoryURL } from "../../utils/story-url-utils"
+import { getIntegrationTestPageURL } from "../../utils/story-url-utils"
+
+const BAL_FILE_PATH = "service/add-service-to-empty-file.bal";
 
 describe('add a http service to an empty file', () => {
     beforeEach(() => {
-        cy.visit(getIntegrationTestStoryURL("service/add-service-to-empty-file.bal"))
+        cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH))
     })
 
-    it('Add a resource with advanced config', () => {
+    it.skip('Add a resource with advanced config', () => {
         Canvas
             .welcomeMessageShouldBeVisible()
             .clickTopLevelPlusButton();
@@ -40,7 +42,7 @@ describe('add a http service to an empty file', () => {
         ResourceForm
             .selectMethod("GET")
             .selectAdvancedConfig()
-            .clickPathSegments()
+            .clickAddPathSegments()
             .addPathParam("path1")
             .togglePayload()
             .typePayloadType("string")
@@ -50,16 +52,16 @@ describe('add a http service to an empty file', () => {
 
         Canvas.getService("/getData")
             .shouldHaveResources(2)
-      
+
         Canvas.getService("/getData")
-            .getResourceFunction("GET","path1")
+            .getResourceFunction("GET", "path1")
             .expand()
             .shouldBeExpanded()
             .getDiagram()
             .shouldBeRenderedProperly()
             .getBlockLevelPlusWidget()
             .clickOption("Respond")
-      
+
         ResponseForm
             .shouldBeVisible()
             .typeExpression('"Success"')
@@ -67,7 +69,7 @@ describe('add a http service to an empty file', () => {
             .save()
 
         Canvas.getService("/getData")
-            .getResourceFunction("GET","path1")
+            .getResourceFunction("GET", "path1")
             .shouldBeExpanded()
             .getDiagram()
             .shouldBeRenderedProperly()
@@ -78,8 +80,8 @@ describe('add a http service to an empty file', () => {
             .clearExpression()
             .typeExpression('"Updated success"')
             .save()
-        
-        
+
+
         SourceCode.shouldBeEqualTo(
             getCurrentSpecFolder() + "edit-respond.expected.bal");
     })

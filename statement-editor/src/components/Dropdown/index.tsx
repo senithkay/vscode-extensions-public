@@ -49,23 +49,21 @@ export default function SelectDropdown(props: SelectDropdownProps) {
     }
 
     return (
-        <div>
-            <Select
-                value={state}
-                onChange={handleChange}
-                className={statementEditorClasses.selectDropDownSe}
-                inputProps={{ 'aria-label': 'Without label' }}
-                MenuProps={{
-                    getContentAnchorEl: null,
-                    classes: { paper: statementEditorClasses.dropdownStyle },
-                    anchorOrigin: {
-                        vertical: "bottom",
-                        horizontal: "left",
-                    }
-                }}
-            >
-                {menuItems}
-            </Select>
-        </div>
+        <Select
+            value={state}
+            onChange={handleChange}
+            className={statementEditorClasses.selectDropDownSe}
+            inputProps={{ 'aria-label': 'Without label' }}
+            MenuProps={{
+                getContentAnchorEl: null,
+                classes: { paper: statementEditorClasses.dropdownStyle },
+                anchorOrigin: {
+                    vertical: "bottom",
+                    horizontal: "left",
+                }
+            }}
+        >
+            {menuItems}
+        </Select>
     );
 }

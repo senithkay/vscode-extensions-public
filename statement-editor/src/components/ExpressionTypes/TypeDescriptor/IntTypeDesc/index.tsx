@@ -36,7 +36,8 @@ export function IntTypeDescComponent(props: IntTypeDescProps) {
         expressionHandler,
         userInputs,
         diagnosticHandler,
-        isTypeDescriptor
+        isTypeDescriptor,
+        classNames: "type-descriptor int"
     };
 
     return (

@@ -19,10 +19,12 @@ export const acceptedCompletionKindForExpressions : number[] = [
     2 ,
     // Function
     3,
-    20,
-    22,
-    25,
-    14];
+    20];
 
 export const FILE_SCHEME = "file://";
 export const EXPR_SCHEME = "expr://";
+
+export const INPUT_EDITOR_PLACE_HOLDERS = new Map<string, string>([
+    ['EXPRESSION', '<add-expression>'],
+    ['TYPE_DESCRIPTOR', '<add-type>']
+]);

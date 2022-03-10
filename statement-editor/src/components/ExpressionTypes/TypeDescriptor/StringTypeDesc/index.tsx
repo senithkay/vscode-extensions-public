@@ -36,7 +36,8 @@ export function StringTypeDescComponent(props: StringTypeDescProps) {
         expressionHandler,
         userInputs,
         diagnosticHandler,
-        isTypeDescriptor
+        isTypeDescriptor,
+        classNames: "type-descriptor string"
     };
 
     return (

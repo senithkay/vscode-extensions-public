@@ -13,10 +13,10 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useState } from "react";
 
-import { ButtonWithIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+// import { ButtonWithIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import classnames from 'classnames';
 
-import { CloseRounded } from "../../../assets/icons";
+// import { CloseRounded } from "../../../assets/icons";
 import { OverlayBackground } from "../OverlayBackground";
 import { DiagramOverlayContainer } from "../Portals/Overlay";
 

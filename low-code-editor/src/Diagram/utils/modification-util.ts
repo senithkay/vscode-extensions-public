@@ -11,7 +11,7 @@
  * associated services.
  */
 import { FormField, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, StringTemplateExpression } from "@wso2-enterprise/syntax-tree";
 
 import { ConfigurableFormState } from "../components/FormComponents/ConfigForms/ConfigurableForm/util";
 import { ConstantConfigFormState } from "../components/FormComponents/ConfigForms/ConstantConfigForm/util";
@@ -20,6 +20,7 @@ import { ModuleVariableFormState } from "../components/FormComponents/ConfigForm
 import { HTTPServiceConfigState } from "../components/FormComponents/ConfigForms/ServiceConfigForm/forms/HttpService/util/reducer";
 import { HeaderObjectConfig } from "../components/FormComponents/ConnectorExtensions/HTTPWizard/HTTPHeaders";
 import { getFormattedModuleName, getParams } from "../components/Portals/utils";
+import { keywords } from "../components/Portals/utils/constants";
 
 import { getComponentSource } from "./template-utils";
 
@@ -343,6 +344,20 @@ export function updateLogStatement(type: string, logExpr: string, targetPosition
     return propertyStatement;
 }
 
+export function createWorker(name: string, returnType: string, targetPosition: NodePosition): STModification {
+    return {
+        startLine: targetPosition.startLine,
+        startColumn: 0,
+        endLine: targetPosition.startLine,
+        endColumn: 0,
+        type: returnType.trim().length > 0 ? 'WORKER_DEFINITION_WITH_RETURN' : 'WORKER_DEFINITION',
+        config: {
+            "NAME": name,
+            "RETURN_TYPE": returnType
+        }
+    }
+}
+
 export function createReturnStatement(returnExpr: string, targetPosition?: NodePosition): STModification {
     const returnStatement: STModification = {
         startLine: targetPosition ? targetPosition.startLine : 0,
@@ -378,7 +393,11 @@ export function createImportStatement(org: string, module: string, targetPositio
     const formattedName = getFormattedModuleName(module);
     let moduleNameStr = org + "/" + module;
 
-    if (moduleName.includes('.') && moduleName.split('.').pop() !== formattedName) {
+    const subModuleName = moduleName.split('.').pop();
+    if (moduleName.includes('.') && subModuleName !== formattedName) {
+        if (keywords.includes(subModuleName)){
+            module = module.replace(subModuleName, "'" + subModuleName);
+        }
         // add alias if module name is different with formatted name
         moduleNameStr = org + "/" + module + " as " + formattedName
     }
@@ -749,7 +768,7 @@ export function createConstDeclaration(config: ConstantConfigFormState, targetPo
         startLine: targetPosition.startLine,
         endLine: targetPosition.startLine,
         startColumn: isLastMember ? targetPosition.endColumn : 0,
-        endColumn: isLastMember ? targetPosition.endColumn :  0,
+        endColumn: isLastMember ? targetPosition.endColumn : 0,
         type: 'CONSTANT_DECLARATION',
         config: {
             'ACCESS_MODIFIER': isPublic ? 'public' : '',

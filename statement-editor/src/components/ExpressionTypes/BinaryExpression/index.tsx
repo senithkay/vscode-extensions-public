@@ -14,7 +14,6 @@
 import React, { ReactNode, useContext } from "react";
 
 import { BinaryExpression } from "@wso2-enterprise/syntax-tree";
-import classNames from "classnames";
 
 import { DEFAULT_EXPRESSIONS } from "../../../constants";
 import { SuggestionItem, VariableUserInputs } from "../../../models/definitions";
@@ -24,14 +23,12 @@ import {
     getKindBasedOnOperator,
     getOperatorSuggestions,
     getSuggestionsBasedOnExpressionKind,
-    isPositionsEquals
 } from "../../../utils";
 import {
     addStatementToTargetLine,
     getContextBasedCompletions
 } from "../../../utils/ls-utils";
 import { ExpressionComponent } from "../../Expression";
-import { useStatementEditorStyles } from "../../styles";
 
 interface BinaryProps {
     model: BinaryExpression;
@@ -44,48 +41,11 @@ export function BinaryExpressionComponent(props: BinaryProps) {
     const { model, userInputs, isElseIfMember, diagnosticHandler } = props;
     const stmtCtx = useContext(StatementEditorContext);
     const { modelCtx } = stmtCtx;
-    const { currentModel } = modelCtx;
-    const hasLHSSelected = currentModel.model &&
-        isPositionsEquals(currentModel.model.position, model.lhsExpr.position);
-    const hasOperatorSelected = currentModel.model &&
-        isPositionsEquals(currentModel.model.position, model.operator.position);
-    const hasRHSSelected = currentModel.model &&
-        isPositionsEquals(currentModel.model.position, model.rhsExpr.position);
 
-    const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
     const { currentFile, getLangClient } = stmtCtx;
     const targetPosition = stmtCtx.formCtx.formModelPosition;
     const fileURI = `expr://${currentFile.path}`;
-
-    const lhs: ReactNode = (
-        <ExpressionComponent
-            model={model.lhsExpr}
-            userInputs={userInputs}
-            isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
-            isTypeDescriptor={false}
-        />
-    );
-    const rhs: ReactNode = (
-        <ExpressionComponent
-            model={model.rhsExpr}
-            userInputs={userInputs}
-            isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
-            isTypeDescriptor={false}
-        />
-    );
-
-    const operator: ReactNode = (
-        <ExpressionComponent
-            model={model.operator}
-            userInputs={userInputs}
-            isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
-            isTypeDescriptor={false}
-        />
-    );
 
     const kind = getKindBasedOnOperator(model.operator.kind);
 
@@ -132,35 +92,46 @@ export function BinaryExpressionComponent(props: BinaryProps) {
         });
     };
 
+    const lhs: ReactNode = (
+        <ExpressionComponent
+            model={model.lhsExpr}
+            userInputs={userInputs}
+            isElseIfMember={isElseIfMember}
+            diagnosticHandler={diagnosticHandler}
+            isTypeDescriptor={false}
+            onSelect={onClickOnLhsExpression}
+            deleteConfig={{defaultExprDeletable: true}}
+        />
+    );
+    const rhs: ReactNode = (
+        <ExpressionComponent
+            model={model.rhsExpr}
+            userInputs={userInputs}
+            isElseIfMember={isElseIfMember}
+            diagnosticHandler={diagnosticHandler}
+            isTypeDescriptor={false}
+            onSelect={onClickOnRhsExpression}
+            deleteConfig={{defaultExprDeletable: true}}
+        />
+    );
+
+    const operator: ReactNode = (
+        <ExpressionComponent
+            model={model.operator}
+            userInputs={userInputs}
+            isElseIfMember={isElseIfMember}
+            diagnosticHandler={diagnosticHandler}
+            isTypeDescriptor={false}
+            onSelect={onClickOperator}
+            classNames="operator"
+        />
+    );
+
     return (
         <span>
-            <button
-                className={classNames(
-                    statementEditorClasses.expressionElement,
-                    hasLHSSelected && statementEditorClasses.expressionElementSelected
-                )}
-                onClick={onClickOnLhsExpression}
-            >
-                {lhs}
-            </button>
-            <button
-                className={classNames(
-                    statementEditorClasses.expressionElement,
-                    hasOperatorSelected && statementEditorClasses.expressionElementSelected
-                )}
-                onClick={onClickOperator}
-            >
-                {operator}
-            </button>
-            <button
-                className={classNames(
-                    statementEditorClasses.expressionElement,
-                    hasRHSSelected && statementEditorClasses.expressionElementSelected
-                )}
-                onClick={onClickOnRhsExpression}
-            >
-                {rhs}
-            </button>
+            {lhs}
+            {operator}
+            {rhs}
         </span>
     );
 }

@@ -37,26 +37,20 @@ interface TypedBindingPatternProps {
 export function TypedBindingPatternComponent(props: TypedBindingPatternProps) {
     const { model, userInputs, isElseIfMember, diagnosticHandler } = props;
     const stmtCtx = useContext(StatementEditorContext);
-    const { modelCtx } = stmtCtx;
-    const { currentModel } = modelCtx;
-    const hasTypeDescSelected = currentModel.model &&
-        isPositionsEquals(currentModel.model.position, model.typeDescriptor.position);
-
-    const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
     const { currentFile, getLangClient } = stmtCtx;
     const targetPosition = stmtCtx.formCtx.formModelPosition;
     const fileURI = `expr://${currentFile.path}`;
 
-    const typeDescriptorComponent: ReactNode = (
-        <ExpressionComponent
-            model={model.typeDescriptor}
-            userInputs={userInputs}
-            isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
-            isTypeDescriptor={true}
-        />
-    );
+    const onClickOnTypeBindingPatter = async (event: any) => {
+        event.stopPropagation();
+        expressionHandler(model.bindingPattern, false, false, {
+            expressionSuggestions: [],
+            typeSuggestions: [],
+            variableSuggestions: []
+        });
+    };
+
     const bindingPatternComponent: ReactNode = (
         <ExpressionComponent
             model={model.bindingPattern}
@@ -64,6 +58,8 @@ export function TypedBindingPatternComponent(props: TypedBindingPatternProps) {
             isElseIfMember={isElseIfMember}
             diagnosticHandler={diagnosticHandler}
             isTypeDescriptor={false}
+            onSelect={onClickOnTypeBindingPatter}
+            deleteConfig={{exprNotDeletable: true}}
         />
     );
 
@@ -84,17 +80,22 @@ export function TypedBindingPatternComponent(props: TypedBindingPatternProps) {
         });
     };
 
+    const typeDescriptorComponent: ReactNode = (
+        <ExpressionComponent
+            model={model.typeDescriptor}
+            userInputs={userInputs}
+            isElseIfMember={isElseIfMember}
+            diagnosticHandler={diagnosticHandler}
+            isTypeDescriptor={true}
+            onSelect={onClickOnType}
+            classNames="type-descriptor"
+            deleteConfig={{defaultExprDeletable: true}}
+        />
+    );
+
     return (
         <span>
-            <button
-                className={classNames(
-                    statementEditorClasses.expressionElement,
-                    hasTypeDescSelected && statementEditorClasses.expressionElementSelected
-                )}
-                onClick={onClickOnType}
-            >
-                {typeDescriptorComponent}
-            </button>
+            {typeDescriptorComponent}
             {bindingPatternComponent}
         </span>
     );

@@ -13,6 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useState } from "react";
 
+import { ClickAwayListener } from "@material-ui/core";
 import {
     CompletionParams,
     CompletionResponse,
@@ -22,6 +23,7 @@ import {
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     BooleanLiteral,
+    NodePosition,
     NumericLiteral,
     QualifiedNameReference,
     SimpleNameReference,
@@ -49,7 +51,11 @@ import {
 import { useStatementEditorStyles } from "../styles";
 
 import {
-    acceptedCompletionKindForExpressions, acceptedCompletionKindForTypes, EXPR_SCHEME, FILE_SCHEME
+    acceptedCompletionKindForExpressions,
+    acceptedCompletionKindForTypes,
+    EXPR_SCHEME,
+    FILE_SCHEME,
+    INPUT_EDITOR_PLACE_HOLDERS
 } from "./constants";
 
 export interface InputEditorProps {
@@ -59,6 +65,7 @@ export interface InputEditorProps {
     userInputs: VariableUserInputs;
     isTypeDescriptor: boolean;
     isToken?: boolean;
+    classNames?: string;
 }
 
 export function InputEditor(props: InputEditorProps) {
@@ -71,7 +78,7 @@ export function InputEditor(props: InputEditorProps) {
         diagnostic: [],
     });
 
-    const { model, diagnosticHandler, userInputs, isTypeDescriptor, isToken } = props;
+    const { model, diagnosticHandler, userInputs, isTypeDescriptor, isToken, classNames } = props;
 
     const stmtCtx = useContext(StatementEditorContext);
     const inputEditorCtx = useContext(InputEditorContext);
@@ -90,49 +97,54 @@ export function InputEditor(props: InputEditorProps) {
 
     const statementEditorClasses = useStatementEditorStyles();
 
-    let literalModel: StringLiteral | NumericLiteral | SimpleNameReference | QualifiedNameReference;
-    let value: any;
-    let kind: any;
+    const [originalValue, kind] = React.useMemo(() => {
+        let literalModel: StringLiteral | NumericLiteral | SimpleNameReference | QualifiedNameReference;
+        let source: string;
+        let nodeKind: string;
 
-    if (!model) {
-        value = initialSource ? initialSource : '';
-    } else if (STKindChecker.isStringLiteral(model)) {
-        literalModel = model as StringLiteral;
-        kind = c.STRING_LITERAL;
-        value = literalModel.literalToken.value;
-    } else if (STKindChecker.isNumericLiteral(model)) {
-        literalModel = model as NumericLiteral;
-        kind = c.NUMERIC_LITERAL;
-        value = literalModel.literalToken.value;
-    } else if (STKindChecker.isIdentifierToken(model)) {
-        value = model.value;
-    } else if (STKindChecker.isSimpleNameReference(model)) {
-        literalModel = model as SimpleNameReference;
-        kind = c.SIMPLE_NAME_REFERENCE;
-        value = literalModel.name.value;
-    } else if (STKindChecker.isQualifiedNameReference(model)) {
-        literalModel = model as QualifiedNameReference;
-        kind = c.QUALIFIED_NAME_REFERENCE;
-        value = `${literalModel.modulePrefix.value}${literalModel.colon.value}${literalModel.identifier.value}`;
-    } else if (STKindChecker.isBooleanLiteral(model)) {
-        literalModel = model as BooleanLiteral;
-        kind = c.BOOLEAN_LITERAL;
-        value = literalModel.literalToken.value;
-    } else if ((STKindChecker.isStringTypeDesc(model)
-        || STKindChecker.isBooleanTypeDesc(model)
-        || STKindChecker.isDecimalTypeDesc(model)
-        || STKindChecker.isFloatTypeDesc(model)
-        || STKindChecker.isIntTypeDesc(model)
-        || STKindChecker.isJsonTypeDesc(model)
-        || STKindChecker.isVarTypeDesc(model))) {
-        value = model.name.value;
-    } else if (isToken) {
-        value = model.value;
-    } else {
-        value = model.source;
-    }
+        if (!model) {
+            source = initialSource ? initialSource : '';
+        } else if (STKindChecker.isStringLiteral(model)) {
+            literalModel = model as StringLiteral;
+            nodeKind = c.STRING_LITERAL;
+            source = literalModel.literalToken.value;
+        } else if (STKindChecker.isNumericLiteral(model)) {
+            literalModel = model as NumericLiteral;
+            nodeKind = c.NUMERIC_LITERAL;
+            source = literalModel.literalToken.value;
+        } else if (STKindChecker.isIdentifierToken(model)) {
+            source = model.value;
+        } else if (STKindChecker.isSimpleNameReference(model)) {
+            literalModel = model as SimpleNameReference;
+            nodeKind = c.SIMPLE_NAME_REFERENCE;
+            source = literalModel.name.value;
+        } else if (STKindChecker.isQualifiedNameReference(model)) {
+            literalModel = model as QualifiedNameReference;
+            nodeKind = c.QUALIFIED_NAME_REFERENCE;
+            source = `${literalModel.modulePrefix.value}${literalModel.colon.value}${literalModel.identifier.value}`;
+        } else if (STKindChecker.isBooleanLiteral(model)) {
+            literalModel = model as BooleanLiteral;
+            nodeKind = c.BOOLEAN_LITERAL;
+            source = literalModel.literalToken.value;
+        } else if ((STKindChecker.isStringTypeDesc(model)
+            || STKindChecker.isBooleanTypeDesc(model)
+            || STKindChecker.isDecimalTypeDesc(model)
+            || STKindChecker.isFloatTypeDesc(model)
+            || STKindChecker.isIntTypeDesc(model)
+            || STKindChecker.isJsonTypeDesc(model)
+            || STKindChecker.isVarTypeDesc(model))) {
+            source = model.name.value;
+        } else if (isToken) {
+            source = model.value;
+        } else {
+            source = model.source;
+        }
+        return [source, nodeKind];
+    }, [model])
 
-    const [userInput, setUserInput] = useState<string>(value);
+    const [userInput, setUserInput] = useState<string>(originalValue);
+    const [prevUserInput, setPrevUserInput] = useState<string>(userInput);
+
 
     const targetPosition = stmtCtx.formCtx.formModelPosition;
     const textLabel = userInputs && userInputs.formField ? userInputs.formField : "modelName"
@@ -140,8 +152,6 @@ export function InputEditor(props: InputEditorProps) {
     const varType = userInputs ? userInputs.selectedType : 'string';
     const isCustomTemplate = false;
     let currentContent = stmtCtx.modelCtx.statementModel ? stmtCtx.modelCtx.statementModel.source : "";
-
-    const placeHolders: string[] = ['EXPRESSION', 'TYPE_DESCRIPTOR'];
 
     useEffect(() => {
         if (isEditing) {
@@ -154,11 +164,11 @@ export function InputEditor(props: InputEditorProps) {
     }, [inputEditorState.diagnostic]);
 
     useEffect(() => {
-        setUserInput(value);
+        setUserInput(originalValue);
         handleOnFocus(currentContent).then(() => {
             handleContentChange(currentContent).then();
         });
-    }, [value]);
+    }, [originalValue]);
 
     useEffect(() => {
         if (userInput === '') {
@@ -187,8 +197,12 @@ export function InputEditor(props: InputEditorProps) {
         stmtCtx.statementCtx.validateStatement(!hasDiagnostic);
 
         // TODO: Need to obtain the default value as a prop
-        if (!placeHolders.some(word => currentContent.includes(word))) {
-            diagnosticHandler(getDiagnosticMessage(inputEditorState.diagnostic, varType))
+        if (!Array.from(INPUT_EDITOR_PLACE_HOLDERS.keys()).some(word => currentContent.includes(word))) {
+            const diagnosticTargetPosition: NodePosition = {
+                ...targetPosition,
+                startColumn: 0,
+            };
+            diagnosticHandler(getDiagnosticMessage(inputEditorState.diagnostic, diagnosticTargetPosition, 0, stmtCtx.modelCtx.statementModel?.source.length, 0, 0));
         }
     }
 
@@ -208,6 +222,9 @@ export function InputEditor(props: InputEditorProps) {
         inputEditorState.uri = fileURI;
         sendDidChange(inputEditorState.uri, inputEditorState.content, getLangClient).then();
         const diagResp = await getDiagnostics(inputEditorState.uri, getLangClient);
+        const diag = diagResp[0]?.diagnostics ?
+            getFilteredDiagnostics(diagResp[0]?.diagnostics, isCustomTemplate) :
+            [];
         setInputEditorState((prevState) => {
             return {
                 ...prevState,
@@ -283,15 +300,12 @@ export function InputEditor(props: InputEditorProps) {
     }
 
     const inputEnterHandler = (event: React.KeyboardEvent<HTMLInputElement>) => {
-        if (event.key === "Enter" || event.key === "Tab" || event.key === "Escape") {
+        if (event.key === "Enter" || event.key === "Tab") {
+            handleEditEnd();
+        } else if (event.key === "Escape") {
             setIsEditing(false);
-            if (userInput !== "") {
-                stmtCtx.modelCtx.updateModel(userInput, model ? model.position : targetPosition);
-                expressionHandler(model, false, false, { expressionSuggestions: [] });
-
-                const ignore = handleOnOutFocus();
-            }
-            getContextBasedCompletions(userInput);
+            // reset input editor value to original value
+            changeInput(prevUserInput);
         }
     };
 
@@ -306,18 +320,22 @@ export function InputEditor(props: InputEditorProps) {
     }
 
     const inputChangeHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
+        changeInput(event.target.value);
+    };
+
+    const changeInput = (newValue: string) => {
         const currentStatement = stmtCtx.modelCtx.statementModel ? stmtCtx.modelCtx.statementModel.source : "";
-        setUserInput(event.target.value);
-        inputEditorCtx.onInputChange(event.target.value);
+        setUserInput(newValue);
+        inputEditorCtx.onInputChange(newValue);
         const updatedStatement = addExpressionToTargetPosition(
             currentStatement,
             model ? model.position.startLine : 0,
             model ? model.position.startColumn : 0,
-            event.target.value ? event.target.value : "",
+            newValue ? newValue : "",
             model ? model.position.endColumn : 0
         );
-        debouncedContentChange(updatedStatement, event.target.value);
-    };
+        debouncedContentChange(updatedStatement, newValue);
+    }
 
     const debouncedContentChange = debounce(handleContentChange, 500);
 
@@ -329,25 +347,50 @@ export function InputEditor(props: InputEditorProps) {
 
     const handleEditEnd = () => {
         setIsEditing(false);
+        setPrevUserInput(userInput);
+        if (userInput !== "") {
+            stmtCtx.modelCtx.updateModel(userInput, model ? model.position : targetPosition);
+            expressionHandler(model, false, false, { expressionSuggestions: [] });
+
+            const ignore = handleOnOutFocus();
+        }
+        getContextBasedCompletions(userInput);
+    }
+
+    const getInputDisplayValue = (inputText: string): string => {
+        if (INPUT_EDITOR_PLACE_HOLDERS.has(inputText)) {
+            return INPUT_EDITOR_PLACE_HOLDERS.get(inputText);
+        } else if (inputText === "") {
+            isTypeDescriptor ? (inputText = 'TYPE_DESCRIPTOR') : (inputText = 'EXPRESSION');
+            return INPUT_EDITOR_PLACE_HOLDERS.get(inputText);
+        }
+        return inputText;
     }
 
     return isEditing ?
         (
-            <input
-                value={placeHolders.indexOf(userInput) > -1 ? "" : userInput}
-                className={statementEditorClasses.inputEditorTemplate}
-                onKeyDown={inputEnterHandler}
-                onInput={inputChangeHandler}
-                autoFocus={true}
-                style={{ maxWidth: userInput === '' ? '10px' : 'fit-content' }}
-            />
-        ) : (
-            <div
-                className={statementEditorClasses.inputEditorTemplate}
-                onDoubleClick={handleDoubleClick}
-                onBlur={handleEditEnd}
+            <ClickAwayListener
+                mouseEvent="onMouseDown"
+                touchEvent="onTouchStart"
+                onClickAway={handleEditEnd}
             >
-                {userInput}
-            </div>
+                <input
+                    value={INPUT_EDITOR_PLACE_HOLDERS.has(userInput) ? "" : userInput}
+                    className={statementEditorClasses.inputEditorTemplate + ' ' + classNames}
+                    onKeyDown={inputEnterHandler}
+                    onInput={inputChangeHandler}
+                    size={userInput.length}
+                    autoFocus={true}
+                    style={{ maxWidth: userInput === '' ? '10px' : 'fit-content' }}
+                    spellCheck="false"
+                />
+            </ClickAwayListener>
+        ) : (
+            <span
+                className={statementEditorClasses.inputEditorTemplate + ' ' + classNames}
+                onDoubleClick={handleDoubleClick}
+            >
+                {getInputDisplayValue(userInput)}
+            </span>
         );
 }
