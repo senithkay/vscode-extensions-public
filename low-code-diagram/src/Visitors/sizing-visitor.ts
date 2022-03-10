@@ -71,7 +71,6 @@ import { DefaultConfig } from "./default";
 import { getDraftComponentSizes, getPlusViewState, haveBlockStatement, isSTActionInvocation } from "./util";
 
 let allEndpoints: Map<string, Endpoint> = new Map<string, Endpoint>();
-// let plusHolderHeight: number = 0;
 
 export interface AsyncSendInfo {
     to: string;
