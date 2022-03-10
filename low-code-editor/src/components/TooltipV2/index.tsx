@@ -143,7 +143,7 @@ function DiagramCodeTooltip(props: Partial<TooltipPropsExtended>) {
     )
     return (
         <pre className={classes.pre}>
-            {text.code && <Code />}
+            {text && text?.code && <Code />}
             {onClick && <OpenInCodeLink />}
         </pre>
     );
