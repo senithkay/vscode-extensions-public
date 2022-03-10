@@ -23,7 +23,6 @@ import { createModuleVarDecl, updateModuleVarDecl } from '../../../../utils/modi
 import { getVarNamePositionFromST } from '../../../../utils/st-util';
 import { useStyles as useFormStyles } from "../../DynamicConnectorForm/style";
 import CheckBoxGroup from '../../FormFieldComponents/CheckBox';
-import { SelectDropdownWithButton } from '../../FormFieldComponents/DropDown/SelectDropdownWithButton';
 import { LowCodeExpressionEditor } from "../../FormFieldComponents/LowCodeExpressionEditor";
 import { TextLabel } from '../../FormFieldComponents/TextField/TextLabel';
 import { VariableNameInput } from '../Components/VariableNameInput';

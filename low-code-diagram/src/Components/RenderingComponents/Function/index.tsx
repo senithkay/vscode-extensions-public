@@ -83,7 +83,7 @@ export function Function(props: FunctionProps) {
         );
     } else {
         const block: FunctionBodyBlock = model.functionBody as FunctionBodyBlock;
-        const isStatementsAvailable: boolean = block.statements.length > 0;
+        const isStatementsAvailable: boolean = block.statements.length > 0 || !!block.namedWorkerDeclarator;
         const bodyViewState: BlockViewState = block.viewState;
 
         component = (
