@@ -26,16 +26,11 @@ interface WorkerHeadProps {
 }
 
 export function WorkerHead(props: WorkerHeadProps) {
-    const {
-        api: {
-            edit: {
-                renderEditForm,
-                deleteComponent
-            }
-        }
-    } = useContext(Context);
+    const diagramContext = useContext(Context);
     const { model } = props;
     const viewState: WorkerDeclarationViewState = model.viewState;
+    const renderEditForm = diagramContext.api?.edit?.renderEditForm;
+    const deleteComponent = diagramContext.api?.edit?.deleteComponent;
 
     const handleEditClick = () => {
         const workerConfig = {
@@ -46,11 +41,15 @@ export function WorkerHead(props: WorkerHeadProps) {
             },
         };
 
-        renderEditForm(model, model.position, workerConfig);
+        if (renderEditForm) {
+            renderEditForm(model, model.position, workerConfig);
+        }
     }
 
     const onDeleteClick = () => {
-        deleteComponent(model);
+        if (deleteComponent) {
+            deleteComponent(model);
+        }
     }
 
     const editButtons = (

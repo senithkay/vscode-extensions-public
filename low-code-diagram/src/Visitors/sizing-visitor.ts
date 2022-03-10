@@ -1402,10 +1402,10 @@ export class SizingVisitor implements Visitor {
             blockViewState.bBox.h = height;
         }
 
-        blockViewState.bBox.w = width > 0 ? width : DefaultConfig.defaultBodyWidth
+        blockViewState.bBox.w = width > 0 ? width : DefaultConfig.defaultBlockWidth
 
-        blockViewState.bBox.lw = leftWidth > 0 ? leftWidth : DefaultConfig.defaultBodyWidth / 2;
-        blockViewState.bBox.rw = rightWidth > 0 ? rightWidth : DefaultConfig.defaultBodyWidth / 2;
+        blockViewState.bBox.lw = leftWidth > 0 ? leftWidth : DefaultConfig.defaultBlockWidth / 2;
+        blockViewState.bBox.rw = rightWidth > 0 ? rightWidth : DefaultConfig.defaultBlockWidth / 2;
     }
 
     private addToSendReceiveMap(type: 'Send' | 'Receive' | 'Wait', entry: AsyncReceiveInfo | AsyncSendInfo | WaitInfo) {

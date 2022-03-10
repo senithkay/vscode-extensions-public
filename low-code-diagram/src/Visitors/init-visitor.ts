@@ -343,7 +343,6 @@ class InitVisitor implements Visitor {
         if (!node.viewState) {
             node.viewState = new WorkerDeclarationViewState();
         }
-        this.visitBlock(node.workerBody, node);
     }
 
     private initStatement(node: STNode, parent?: STNode) {
