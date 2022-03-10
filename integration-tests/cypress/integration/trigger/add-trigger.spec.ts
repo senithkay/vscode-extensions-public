@@ -16,11 +16,13 @@ import { SourceCode } from "../../utils/components/code-view"
 import { TopLevelPlusWidget } from "../../utils/components/top-level-plus-widget"
 import { getCurrentSpecFolder } from "../../utils/file-utils"
 import { TriggerForm } from "../../utils/forms/trigger-form"
-import { getIntegrationTestStoryURL } from "../../utils/story-url-utils"
+import { getIntegrationTestPageURL } from "../../utils/story-url-utils"
+
+const BAL_FILE_PATH = "trigger/add-trigger-to-empty-file.bal";
 
 describe('add a Github Trigger to an empty file', () => {
   beforeEach(() => {
-    cy.visit(getIntegrationTestStoryURL("trigger/add-trigger-to-empty-file.bal"))
+    cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH))
   });
 
   it('Displays add construct message', () => {
@@ -45,6 +47,7 @@ describe('add a Github Trigger to an empty file', () => {
     TopLevelPlusWidget.clickOption("Trigger");
     TriggerForm
       .searchTrigger("slack")
+      .waitForConnectorsLoading()
       .selectTriggerType("Slack")
       .createBtnShouldNotBeClickable()
       .selectServiceType("SlackEventsAppService")
@@ -62,7 +65,7 @@ describe('add a Github Trigger to an empty file', () => {
 
     TriggerForm
       .searchTrigger("slack")
-      .selectTriggerType("Slack")
+      .selectTriggerType("Slack") //Need to fix this
       .createBtnShouldNotBeClickable()
       .selectServiceType("SlackEventsAppService")
       .addChannel("SlackEventsDndService")

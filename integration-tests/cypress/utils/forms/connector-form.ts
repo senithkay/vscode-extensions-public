@@ -31,8 +31,10 @@ export class ConnectorForm {
     }
 
     static waitForConnectorsLoading() {
-        this.getConnectorMarketplace().get(`[data-testid="marketplace-search-loader"]`)
-            .should("not.exist");
+        this.getConnectorMarketplace().get(`[data-testid="marketplace-search-loader"]`).should(($div) => {
+            const element = $div;
+            expect(element).to.be.not.exist;
+        })
         return this;
     }
 
@@ -43,8 +45,8 @@ export class ConnectorForm {
 
     static close() {
         this.getConnectorMarketplace()
-        .get('.close-btn-wrap button')
-        .click();
+            .get('.close-btn-wrap button')
+            .click();
     }
 
     private static getConnectorMarketplace() {
