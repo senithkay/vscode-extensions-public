@@ -37,7 +37,7 @@ export function ConditionAssignment(props: { x: number, y: number, assignment: s
     const assignmentWidth = textWidth
     let assignmentX = 0;
 
-    assignmentX = (assignmentWidth > 125) ? CONDITION_ASSIGNMENT_NAME_WIDTH - DefaultConfig.dotGap : assignmentX = (CONDITION_ASSIGNMENT_NAME_WIDTH - assignmentWidth - (DefaultConfig.dotGap * 2));
+    assignmentX = (assignmentWidth > CONDITION_ASSIGNMENT_NAME_WIDTH) ? CONDITION_ASSIGNMENT_NAME_WIDTH - DefaultConfig.dotGap : assignmentX = (CONDITION_ASSIGNMENT_NAME_WIDTH - assignmentWidth - (DefaultConfig.dotGap * 2));
     const assignemtComponant: ReactElement = (
         <text
             className={classNames("assignment-text", className)}
