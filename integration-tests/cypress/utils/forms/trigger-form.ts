@@ -79,6 +79,7 @@ export class TriggerForm {
     }
 
     static waitForConnectorsLoading() {
+        cy.wait(3000);
         this.getTriggerMarketplace().get(`[data-testid="marketplace-search-loader"]`).should(($div) => {
             const element = $div;
             expect(element).to.be.not.exist;
@@ -90,12 +91,6 @@ export class TriggerForm {
         return cy
             .get(this.triggerFormSelector);
 
-    }
-
-    static waitForConnectorsLoading() {
-        this.getTriggerMarketplace().get(`[data-testid="marketplace-search-loader"]`)
-            .should("not.exist");
-        return this;
     }
 
     static createBtnShouldNotBeClickable() {
