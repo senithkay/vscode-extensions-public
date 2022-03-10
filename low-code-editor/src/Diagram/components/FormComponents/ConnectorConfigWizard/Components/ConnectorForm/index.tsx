@@ -24,7 +24,6 @@ import {
     LowcodeEvent,
     SAVE_CONNECTOR,
     SAVE_CONNECTOR_INIT,
-    SAVE_CONNECTOR_INVOKE,
     STModification,
     WizardType,
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
@@ -269,7 +268,6 @@ export function ConnectorForm(props: FormGeneratorProps) {
             currentActionReturnType.returnType = config.action.returnType;
         }
         const moduleName = getFormattedModuleName(connectorModule);
-        addDbExtraImport(modifications, syntaxTree, connector.package.organization, moduleName);
 
         expressionInjectables?.list?.forEach((item: InjectableItem) => {
             modifications.push(item.modification);
@@ -290,6 +288,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
                 targetPosition
             );
             modifications.push(addImport);
+            addDbExtraImport(modifications, syntaxTree, connector.package.organization, connectorModule);
             const endpointStatement = `${moduleName}:${connector.name} ${config.name} = ${
                 isInitReturnError ? "check" : ""
             } new (${getParams(config.connectorInit).join()});`;

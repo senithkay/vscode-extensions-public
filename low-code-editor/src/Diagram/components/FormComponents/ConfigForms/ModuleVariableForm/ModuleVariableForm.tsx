@@ -23,6 +23,7 @@ import { getAllModuleVariables } from '../../../../utils/mixins';
 import { createModuleVarDecl, updateModuleVarDecl } from '../../../../utils/modification-util';
 import { getVariableNameFromST } from '../../../../utils/st-util';
 import { genVariableName } from '../../../Portals/utils';
+import { getVarNamePositionFromST } from '../../../../utils/st-util';
 import { useStyles as useFormStyles } from "../../DynamicConnectorForm/style";
 import CheckBoxGroup from '../../FormFieldComponents/CheckBox';
 import { SelectDropdownWithButton } from '../../FormFieldComponents/DropDown/SelectDropdownWithButton';
@@ -154,7 +155,7 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
     let namePosition: NodePosition = { startLine: 0, startColumn: 0, endLine: 0, endColumn: 0 }
 
     if (model) {
-        namePosition = getVariableNameFromST(model).position;
+        namePosition = getVarNamePositionFromST(model);
     } else {
         namePosition.startLine = targetPosition.startLine;
         namePosition.endLine = targetPosition.startLine;

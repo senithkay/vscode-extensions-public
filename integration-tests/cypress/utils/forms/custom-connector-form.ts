@@ -28,8 +28,10 @@ export class CustomConnectorForm {
     }
 
     static waitForConnectorLoad() {
-        this.getConnectorForm().get('.TextVerticalPreloader-wrapper-relative')
-            .should("not.exist");
+        this.getConnectorForm().get('.TextVerticalPreloader-wrapper-relative').should(($div) => {
+            const element = $div;
+            expect(element).to.be.not.exist;
+        })
         return this;
     }
 

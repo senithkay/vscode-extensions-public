@@ -39,7 +39,8 @@ export function EndpointList(props: FormGeneratorProps) {
             stSymbolInfo: { moduleEndpoints, localEndpoints },
         },
     } = useContext(Context);
-    const { functionNode, onSelect, onCancel, onAddConnector } = props.configOverlayFormStatus.formArgs as EndpointListProps;
+    const { onCancel } = props;
+    const { functionNode, onSelect, onAddConnector } = props.configOverlayFormStatus.formArgs as EndpointListProps;
     let isEndpointExists = false;
     const endpointList: ReactNode[] = [];
 
