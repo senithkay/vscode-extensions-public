@@ -92,13 +92,13 @@ export class GoogleSheetForm {
         ExpressionEditor
             .getForField("spreadsheetId", this.selector)
             .type(`"${id}"`)
-            .clearSuggestions()
-            .waitForValidations();
+            .waitForValidations()
+            .clearSuggestions();
         ExpressionEditor
             .getForField("sheetName", this.selector)
             .type(`"${sheetName}"`)
-            .clearSuggestions()
-            .waitForValidations();
+            .waitForValidations()
+            .clearSuggestions();
         return this;
     }
 

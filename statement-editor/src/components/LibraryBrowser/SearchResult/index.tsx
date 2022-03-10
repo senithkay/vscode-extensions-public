@@ -28,11 +28,12 @@ interface SearchResultProps {
     librarySearchResponse: LibrarySearchResponse,
     libraryBrowsingHandler?: (libraryData: LibraryDataResponse) => void
     moduleSelected: boolean
+    libraryDataFetchingHandler: (isFetching: boolean, moduleElement?: string) => void
 }
 
 export function SearchResult(props: SearchResultProps) {
     const statementEditorClasses = useStatementEditorStyles();
-    const { librarySearchResponse, libraryBrowsingHandler, moduleSelected } = props;
+    const { librarySearchResponse, libraryBrowsingHandler, moduleSelected, libraryDataFetchingHandler } = props;
     const { modules, classes, functions, records, constants, errors, types, clients, listeners, annotations,
             objectTypes, enums } = librarySearchResponse;
 
@@ -41,15 +42,19 @@ export function SearchResult(props: SearchResultProps) {
             {modules.length > 0 && !moduleSelected && (
                     <div>
                         <div className={statementEditorClasses.librarySearchSubHeader}>Modules</div>
-                        <List className={statementEditorClasses.libraryListBlock} style={{paddingBottom: '25px'}}>
+                        <List className={statementEditorClasses.libraryElementBlockContent} style={{paddingBottom: '25px'}}>
                             {modules.map((library: LibraryInfo, index: number) => (
-                                <Library libraryInfo={library} key={index} libraryBrowsingHandler={libraryBrowsingHandler}/>
+                                <Library
+                                    libraryInfo={library}
+                                    key={index}
+                                    libraryBrowsingHandler={libraryBrowsingHandler}
+                                    libraryDataFetchingHandler={libraryDataFetchingHandler}
+                                />
                             ))}
                         </List>
                     </div>
                 )
             }
-
             {classes.length > 0 && <SearchCategory label='Classes' searchResult={classes} />}
             {functions.length > 0 && <SearchCategory label='Functions' searchResult={functions}/>}
             {records.length > 0 && <SearchCategory label='Records' searchResult={records} />}

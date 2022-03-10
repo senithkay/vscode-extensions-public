@@ -20,7 +20,7 @@ import { DEFAULT_EXPRESSIONS } from "../../../constants";
 import { SuggestionItem, VariableUserInputs } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { SuggestionsContext } from "../../../store/suggestions-context";
-import { getSuggestionsBasedOnExpressionKind, isPositionsEquals } from "../../../utils";
+import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
 import { addStatementToTargetLine, getContextBasedCompletions } from "../../../utils/ls-utils";
 import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
@@ -35,10 +35,6 @@ interface FieldAccessProps {
 export function FieldAccessComponent(props: FieldAccessProps) {
     const { model, userInputs, isElseIfMember, diagnosticHandler } = props;
     const stmtCtx = useContext(StatementEditorContext);
-    const { modelCtx } = stmtCtx;
-    const { currentModel } = modelCtx;
-    const hasFieldAccessExprSelected = currentModel.model &&
-        isPositionsEquals(currentModel.model.position, model.position);
 
     const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
@@ -53,10 +49,10 @@ export function FieldAccessComponent(props: FieldAccessProps) {
             currentFile.content, targetPosition, stmtCtx.modelCtx.statementModel.source, getLangClient);
 
         const completions: SuggestionItem[] = await getContextBasedCompletions(
-            fileURI, content, targetPosition, model.position,
+            fileURI, content, targetPosition, model.fieldName.position,
             false, isElseIfMember, model.source, getLangClient);
 
-        expressionHandler(model, false, false, {
+        expressionHandler(model.fieldName, false, false, {
             expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
             typeSuggestions: [],
             variableSuggestions: completions
@@ -66,12 +62,6 @@ export function FieldAccessComponent(props: FieldAccessProps) {
     const onClickOnExpr = (event: any) => {
         event.stopPropagation()
         expressionHandler(model.expression, true, false,
-            { expressionSuggestions: [], typeSuggestions: [], variableSuggestions: [] })
-    }
-
-    const onClickOnFieldName = (event: any) => {
-        event.stopPropagation()
-        expressionHandler(model.fieldName, true, false,
             { expressionSuggestions: [], typeSuggestions: [], variableSuggestions: [] })
     }
 
@@ -98,7 +88,7 @@ export function FieldAccessComponent(props: FieldAccessProps) {
                 isElseIfMember={isElseIfMember}
                 diagnosticHandler={diagnosticHandler}
                 isTypeDescriptor={false}
-                onSelect={onClickOnFieldName}
+                onSelect={onClickOnFieldAccessExpr}
             />
         </ExpressionComponent>
     );

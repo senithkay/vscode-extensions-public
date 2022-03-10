@@ -5,3 +5,8 @@ export function getCurrentSpecFolder() {
     const fileName = specFileNameSegments.at(specFileNameSegments.length - 1);
     return Cypress.spec.relative.replace(fileName, '');
 }
+
+export function getCurrentProjectFolder() {
+    return Cypress.spec.absolute.replace(Cypress.spec.relative, '');
+}
+

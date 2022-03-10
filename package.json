@@ -11,6 +11,7 @@
     "statement-editor",
     "configurable-editor",
     "low-code-editor",
+    "distribution",
     "integration-tests"
   ],
   "scripts": {
@@ -27,6 +28,6 @@
       "build:lcuc": "npm run build --workspace=low-code-ui-components",
       "build": "npm run build --workspaces",
       "storybook": "npm run storybook --workspace=low-code-editor",
-      "test:integration": "npm run cypress --workspace=integration-tests"
+      "test": "npm run test --workspace integration-tests"
   }
 }

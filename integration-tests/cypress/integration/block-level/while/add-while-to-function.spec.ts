@@ -3,13 +3,13 @@ import { SourceCode } from "../../../utils/components/code-view";
 import { TopLevelPlusWidget } from "../../../utils/components/top-level-plus-widget";
 import { getCurrentSpecFolder } from "../../../utils/file-utils";
 import { WhileForm } from "../../../utils/forms/while-form";
-import { getIntegrationTestStoryURL } from "../../../utils/story-url-utils";
+import { getIntegrationTestPageURL } from "../../../utils/story-url-utils";
 
 const BAL_FILE_PATH = "block-level/while/add-while-to-function.bal";
 
 describe('Add while to function via Low Code', () => {
   beforeEach(() => {
-    cy.visit(getIntegrationTestStoryURL(BAL_FILE_PATH))
+    cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH))
   })
 
   it('Add a while to function', () => {
