@@ -775,43 +775,6 @@ class PositioningVisitor implements Visitor {
             defaultElseVS?.controlFlow.lineStates.push(defaultBodyControlFlowLine);
         }
     }
-
-    public beginVisitDoStatement(node: DoStatement) {
-        const viewState = node.viewState as DoViewState;
-        if (viewState.isFirstInFunctionBody) {
-            const blockViewState = node.blockStatement.viewState as BlockViewState;
-            blockViewState.bBox.cx = viewState.bBox.cx;
-            blockViewState.bBox.cy = blockViewState.bBox.offsetFromTop + viewState.bBox.cy;
-
-            viewState.container.x = blockViewState.bBox.cx - (viewState.container.w / 2);
-            viewState.container.y = blockViewState.bBox.cy - DefaultConfig.plus.radius;
-        }
-    }
-
-    public beginVisitOnFailClause(node: OnFailClause) {
-        const viewState = node.viewState as OnErrorViewState;
-        if (viewState.isFirstInFunctionBody) {
-            const onFailViewState = node.viewState as OnErrorViewState;
-            const blockViewState = node.blockStatement.viewState as BlockViewState;
-            blockViewState.bBox.cx = onFailViewState.bBox.cx;
-            blockViewState.bBox.cy = onFailViewState.bBox.cy;
-            // blockViewState.bBox.cy = (blockViewState.bBox.offsetFromBottom * 2) + (DefaultConfig.startingOnErrorY * 2);
-        }
-    }
-
-    public endVisitOnFailClause(node: OnFailClause) {
-        const viewState = node.viewState as OnErrorViewState;
-        if (viewState.isFirstInFunctionBody) {
-            const onFailBlockViewState = node.blockStatement.viewState as BlockViewState;
-            viewState.header.cx = viewState.bBox.cx;
-            viewState.header.cy = viewState.bBox.cy - (onFailBlockViewState.bBox.offsetFromBottom);
-            viewState.lifeLine.x = viewState.bBox.cx;
-            viewState.lifeLine.y = viewState.bBox.cy - (onFailBlockViewState.bBox.offsetFromBottom);
-            viewState.lifeLine.h = viewState.lifeLine.h + onFailBlockViewState.bBox.offsetFromBottom;
-        }
-
-    }
-
 }
 
 export const positionVisitor = new PositioningVisitor();
