@@ -17,8 +17,11 @@
  *
  */
 
+import { ballerinaExtInstance } from '../core/extension';
 import { Uri } from 'vscode';
 import { getLibraryWebViewContent, WebViewOptions, getComposerWebViewOptions } from '../utils';
+
+const BLCEDITOR_CDN = `https://choreo-shared-codeserver-cdne.azureedge.net/ballerina-low-code-editor@${process.env.BALLERINA_LOW_CODE_EDITOR_VERSION}`;
 
 export function render(filePath: Uri, startLine: number, startColumn: number, experimental: boolean): string {
     return renderDiagram(filePath, startLine, startColumn, experimental);
@@ -350,8 +353,12 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ex
         }
     `;
 
+    const isCodeServer = ballerinaExtInstance.getCodeServerContext().codeServerEnv;
+    const diagramScripts: string[] =
+        isCodeServer ? [(`${BLCEDITOR_CDN}/BLCEditor.js`)] : getComposerWebViewOptions("BLCEditor").jsFiles!;
+
     const webViewOptions: WebViewOptions = {
-        ...getComposerWebViewOptions("BLCEditor"),
+        jsFiles: diagramScripts,
         body, scripts, styles, bodyCss
     };
 
