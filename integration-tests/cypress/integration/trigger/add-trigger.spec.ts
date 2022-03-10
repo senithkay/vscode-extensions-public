@@ -47,6 +47,7 @@ describe('add a Github Trigger to an empty file', () => {
     TopLevelPlusWidget.clickOption("Trigger");
     TriggerForm
       .searchTrigger("slack")
+      .waitForConnectorsLoading()
       .selectTriggerType("Slack")
       .createBtnShouldNotBeClickable()
       .selectServiceType("SlackEventsAppService")
