@@ -233,7 +233,7 @@ export function EnumField(props: CodePanelProps) {
     };
 
     const handleEnumClick = () => {
-        if (!(state.isEditorInvalid || state.currentField?.name === "" || state.currentField?.type === "")) {
+        if (!(state.isEditorInvalid || state.currentEnum?.name === "" || state.currentEnum?.type === "")) {
             state.currentEnum.isActive = false;
             enumModel.isActive = true;
             setIsEnumEditInProgress(true);
