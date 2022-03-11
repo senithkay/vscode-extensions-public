@@ -26,14 +26,13 @@ import { useStatementEditorStyles } from "../../styles";
 export interface ExpressionSuggestionsProps {
     model: STNode;
     suggestions?: SuggestionItem[];
-    operator: boolean;
     suggestionHandler: () => void;
     isExpression: boolean;
 }
 
 export function ExpressionSuggestions(props: ExpressionSuggestionsProps) {
     const statementEditorClasses = useStatementEditorStyles();
-    const { model, suggestions, suggestionHandler, operator, isExpression } = props;
+    const { model, suggestions, suggestionHandler, isExpression } = props;
     const inputEditorCtx = useContext(InputEditorContext);
 
     const {

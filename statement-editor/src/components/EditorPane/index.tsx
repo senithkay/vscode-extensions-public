@@ -20,7 +20,7 @@ import { getDiagnosticMessage } from "@wso2-enterprise/ballerina-low-code-edtior
 import { STNode } from "@wso2-enterprise/syntax-tree";
 
 import * as c from "../../constants";
-import { SuggestionItem } from "../../models/definitions";
+import { SuggestionsList } from "../../models/definitions";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { SuggestionsContext } from "../../store/suggestions-context";
 import { getSuggestionsBasedOnExpressionKind } from "../../utils";
@@ -60,28 +60,18 @@ export function EditorPane(props: ModelProps) {
     const [suggestionList, setSuggestionsList] = useState(statementModel ?
         getSuggestionsBasedOnExpressionKind(c.DEFAULT_EXPRESSIONS) : []);
     const [, setIsSuggestionClicked] = useState(false);
-    const [isOperator, setIsOperator] = useState(false);
     const [variableList, setVariableList] = useState([]);
-    const [typeDescriptorList, setTypeDescriptorList] = useState([]);
 
-    const expressionHandler = (cModel: STNode, operator: boolean, suggestionsList: {
-                                                                        variableSuggestions?: SuggestionItem[],
-                                                                        expressionSuggestions?: SuggestionItem[],
-                                                                        typeSuggestions?: SuggestionItem[]
-                                                                    }) => {
+    const expressionHandler = (cModel: STNode, operator: boolean, suggestions: SuggestionsList) => {
         currentModelHandler(cModel);
-        if (suggestionsList.expressionSuggestions) {
-            setSuggestionsList(suggestionsList.expressionSuggestions);
+        if (suggestions.expressionSuggestions) {
+            setSuggestionsList(suggestions.expressionSuggestions);
         }
-        if (suggestionsList.variableSuggestions) {
-            setVariableList(suggestionsList.variableSuggestions);
-        }
-        if (suggestionsList.typeSuggestions) {
-            setTypeDescriptorList(suggestionsList.typeSuggestions);
+        if (suggestions.lsSuggestions) {
+            setVariableList(suggestions.lsSuggestions);
         }
 
         setIsSuggestionClicked(false);
-        setIsOperator(operator);
     }
 
     const undoRedoButtons = (
@@ -131,9 +121,7 @@ export function EditorPane(props: ModelProps) {
             <div className={statementEditorClasses.suggestionsSection}>
                 <HelperPane
                     variableList={variableList}
-                    typeDescriptorList={typeDescriptorList}
                     suggestionList={suggestionList}
-                    isOperator={isOperator}
                 />
             </div>
         </div>
