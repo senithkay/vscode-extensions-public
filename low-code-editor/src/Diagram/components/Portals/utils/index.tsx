@@ -265,6 +265,8 @@ export function getParams(formFields: FormField[], depth = 1): string[] {
                 paramString += params;
             } else if (formField.typeName === "handle" && formField.value) {
                 paramString += formField.value;
+            } else if (paramString === "" && formField.typeName !== "" && formField.value) {
+                paramString += formField.value; // Default case
             }
 
             if (paramString !== "") {
