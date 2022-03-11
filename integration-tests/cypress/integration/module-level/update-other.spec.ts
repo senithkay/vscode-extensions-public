@@ -22,7 +22,7 @@ describe('Test editing and deleting a module level other component', () => {
 
         OtherForm
             .shouldBeVisible()
-            .typeStatement(`const annotation AnnotationData MyAnnot on function;`)
+            .typeStatement(`const annotation AnnotationData MyAnnot2 on function;`)
             .save();
 
         SourceCode.shouldBeEqualTo(getCurrentSpecFolder() + "edit-other.expected.bal");

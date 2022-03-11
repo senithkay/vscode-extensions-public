@@ -79,7 +79,7 @@ export class TriggerForm {
     }
 
     static waitForConnectorsLoading() {
-        cy.wait(3000);
+        cy.wait(5000);
         this.getTriggerMarketplace().get(`[data-testid="marketplace-search-loader"]`).should(($div) => {
             const element = $div;
             expect(element).to.be.not.exist;
