@@ -58,7 +58,7 @@ export interface Statements {
 }
 
 export function StatementOptions(props: StatementOptionsProps) {
-    const { api: { insights: { onEvent }} } = useContext(Context);
+    const { api: { insights: { onEvent } } } = useContext(Context);
     const intl = useIntl();
     const { onSelect, viewState, isCallerAvailable, isResource } = props;
 
@@ -470,10 +470,13 @@ export function StatementOptions(props: StatementOptionsProps) {
     statements.push(whileStmt);
     statements.push(returnStm);
     statements.push(respondStm);
-    statements.push(workerBlock);
     // statements.push(datamappingStatement);
     statements.push(customStatement);
     statements.push(httpConnector);
+
+    if (viewState.allowWorker) {
+        statements.push(workerBlock);
+    }
 
     const initStatements: Statements = {
         statement: statements,
