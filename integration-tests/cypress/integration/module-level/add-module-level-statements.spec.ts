@@ -127,7 +127,7 @@ describe("Add module-level statements via Low Code", () => {
       .save();
   });
 
-  it.only("Add a enum to empty file", () => {
+  it("Add a enum to empty file", () => {
     Canvas.welcomeMessageShouldBeVisible().clickTopLevelPlusButton();
     TopLevelPlusWidget.clickOption("Enum");
 
