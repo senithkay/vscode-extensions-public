@@ -20,7 +20,9 @@ import { CaptureBindingPattern, ModuleVarDecl, NodePosition } from '@wso2-enterp
 import { v4 as uuid } from "uuid";
 
 import { useDiagramContext } from '../../../../../Contexts/Diagram';
+import { getAllModuleVariables } from '../../../../utils/mixins';
 import { createConfigurableDecl, updateConfigurableVarDecl } from '../../../../utils/modification-util';
+import { genVariableName } from '../../../Portals/utils';
 import { useStyles as useFormStyles } from "../../DynamicConnectorForm/style";
 import CheckBoxGroup from '../../FormFieldComponents/CheckBox';
 import { LowCodeExpressionEditor } from "../../FormFieldComponents/LowCodeExpressionEditor";
@@ -53,6 +55,7 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
     const isFromExpressionEditor = !!updateInjectables;
     const [uniqueId] = useState(uuid());
     const handleOnSave = () => {
+        state.varName  = genVariableName(state.varName, getAllModuleVariables(stSymbolInfo));
         const modifyState: ConfigurableFormState = {
             ...state,
             varValue: state.hasDefaultValue ? state.varValue : '?',

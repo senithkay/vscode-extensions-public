@@ -26,6 +26,7 @@ import { Service } from "./Service";
 import { Statement } from "./Statement";
 import { TypeDefinitionComponent } from './TypeDefinition';
 import { While } from './While';
+import { Worker } from './WorkerDeclaration';
 
 export { IfElse as IfElseStatement };
 export { ForEach as ForeachStatement };
@@ -47,3 +48,4 @@ export { ModulePartComponent as ModulePart };
 export { While as WhileStatement };
 export { ClassComponent as ClassDefinition }
 export { EnumDeclarationComponent as EnumDeclaration }
+export { Worker as NamedWorkerDeclaration }

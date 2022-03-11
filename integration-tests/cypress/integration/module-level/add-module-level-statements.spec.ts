@@ -88,7 +88,7 @@ describe('Add module-level statements via Low Code', () => {
       .save()
   })
 
-  it('Add a configurable to empty file', () => {
+  it.skip('Add a configurable to empty file', () => {
 
     // cy.on('uncaught:exception', () => false); //Need to fix this
 

@@ -14,14 +14,15 @@
 // tslint:disable: jsx-wrap-multiline
 import React, { useContext } from "react";
 
-import { ConfigOverlayFormStatus, CustomExpressionConfig, LogConfig, LowcodeEvent, ProcessConfig, SAVE_STATEMENT, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
+import { ConfigOverlayFormStatus, CustomExpressionConfig, LogConfig, LowcodeEvent, ProcessConfig, SAVE_STATEMENT, STModification, WorkerConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { NamedWorkerDeclaration, NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../Contexts/Diagram";
 import {
     createImportStatement,
     createLogStatement,
     createPropertyStatement,
+    createWorker,
     updateLogStatement,
     updatePropertyStatement
 } from "../../../../utils/modification-util";
@@ -92,6 +93,23 @@ export function ProcessConfigForm(props: any) {
                     );
                     modifications.push(updateLogStmt);
                     break;
+                case 'Worker':
+                    const workerConfig: WorkerConfig = processConfig.config as WorkerConfig;
+                    const model: NamedWorkerDeclaration = processConfig.model as NamedWorkerDeclaration;
+
+                    const updateWorkerSignature: STModification = updatePropertyStatement(
+                        `worker ${workerConfig.name} ${workerConfig.returnType.trim().length > 0 ? `returns ${workerConfig.returnType}` : ''}`,
+                        {
+                            startLine: model.position.startLine,
+                            endLine: model.returnTypeDesc ?
+                                model.returnTypeDesc.position.endLine : model.workerName.position.endLine,
+                            startColumn: model.position.startColumn,
+                            endColumn: model.returnTypeDesc ?
+                                model.returnTypeDesc.position.endColumn : model.workerName.position.endColumn
+                        }
+                    );
+                    modifications.push(updateWorkerSignature);
+                    break;
                 case 'Call':
                 case 'Custom':
                 default:
@@ -123,6 +141,10 @@ export function ProcessConfigForm(props: any) {
                         "ballerina", "log", modificationPosition);
                     modifications.push(addImportStatement);
                     modifications.push(addLogStatement);
+                } else if (processConfig.type === 'Worker') {
+                    const workerConfig = processConfig.config as WorkerConfig;
+                    const addWorkerDeclaration = createWorker(workerConfig.name, workerConfig.returnType, modificationPosition);
+                    modifications.push(addWorkerDeclaration)
                 } else if (processConfig.type === "Call" || processConfig.type === "Custom") {
                     const customConfig: CustomExpressionConfig = processConfig.config as CustomExpressionConfig;
                     const addCustomStatement: STModification = createPropertyStatement(customConfig.expression, modificationPosition, isLastMember);

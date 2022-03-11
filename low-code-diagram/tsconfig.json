@@ -32,7 +32,7 @@
     "include": [
         "src",
         "src/custom.d.ts"
-    ],
+, "../low-code-editor/src/Diagram/components/FormComponents/RenderingComponents/WorkerDeclaration"    ],
     "exclude": [
         "node_modules",
         "lib"
