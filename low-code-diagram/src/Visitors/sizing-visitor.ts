@@ -784,7 +784,7 @@ export class SizingVisitor implements Visitor {
             ({ index, height, width, leftWidth, rightWidth } = this.calculateStatementSizing(workerInitStatements, index, viewState, height, width, workerInitStatements.length + node.statements.length, leftWidth, rightWidth));
 
             const plusAfterWorker = getPlusViewState(index, viewState.plusButtons);
-            
+
             if (plusAfterWorker) {
                 plusAfterWorker.allowWorker = true;
             }
