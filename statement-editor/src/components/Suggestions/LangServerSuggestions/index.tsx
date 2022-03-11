@@ -26,13 +26,12 @@ import { useStatementEditorStyles } from "../../styles";
 export interface LSSuggestionsProps {
     model: STNode;
     lsSuggestions?: SuggestionItem[];
-    suggestionHandler: () => void;
     isSuggestion: boolean;
 }
 
 export function LSSuggestions(props: LSSuggestionsProps) {
     const statementEditorClasses = useStatementEditorStyles();
-    const { model, lsSuggestions, suggestionHandler, isSuggestion } = props;
+    const { model, lsSuggestions, isSuggestion } = props;
     const inputEditorCtx = useContext(InputEditorContext);
 
     const {
@@ -60,7 +59,6 @@ export function LSSuggestions(props: LSSuggestionsProps) {
         }
         updateModel(variable, model ? model.position : formModelPosition);
         inputEditorCtx.onInputChange('');
-        suggestionHandler();
     }
 
     return (

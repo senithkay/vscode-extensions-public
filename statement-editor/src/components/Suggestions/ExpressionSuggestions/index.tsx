@@ -26,13 +26,12 @@ import { useStatementEditorStyles } from "../../styles";
 export interface ExpressionSuggestionsProps {
     model: STNode;
     suggestions?: SuggestionItem[];
-    suggestionHandler: () => void;
     isExpression: boolean;
 }
 
 export function ExpressionSuggestions(props: ExpressionSuggestionsProps) {
     const statementEditorClasses = useStatementEditorStyles();
-    const { model, suggestions, suggestionHandler, isExpression } = props;
+    const { model, suggestions, isExpression } = props;
     const inputEditorCtx = useContext(InputEditorContext);
 
     const {
@@ -44,12 +43,10 @@ export function ExpressionSuggestions(props: ExpressionSuggestionsProps) {
     const onClickExpressionSuggestion = (kind: string) => {
         updateModel(generateExpressionTemplate(kind), model.position);
         inputEditorCtx.onInputChange('');
-        suggestionHandler();
     }
 
     const onClickOperatorSuggestion = (operatorSuggestion: SuggestionItem) => {
         updateModel(operatorSuggestion.value, model.position);
-        suggestionHandler();
     }
 
     return (

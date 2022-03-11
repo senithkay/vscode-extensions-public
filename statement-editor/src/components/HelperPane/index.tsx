@@ -40,14 +40,7 @@ export function HelperPane(props: SuggestionsList) {
     } = stmtCtx;
 
     const [selectedTab, setSelectedTab] = useState(TabElements.suggestions);
-    const [, setIsSuggestionClicked] = useState(false);
     const [libraryType, setLibraryType] = useState('');
-
-    const suggestionHandler = () => {
-        setIsSuggestionClicked(prevState => {
-            return !prevState;
-        });
-    }
 
     const onTabElementSelection = async (value: TabElements) => {
         setSelectedTab(value);
@@ -81,13 +74,11 @@ export function HelperPane(props: SuggestionsList) {
                 <LSSuggestions
                     model={currentModel.model}
                     lsSuggestions={lsSuggestions}
-                    suggestionHandler={suggestionHandler}
                     isSuggestion={selectedTab === TabElements.suggestions}
                 />
                 <ExpressionSuggestions
                     model={currentModel.model}
                     suggestions={expressionSuggestions}
-                    suggestionHandler={suggestionHandler}
                     isExpression={selectedTab === TabElements.expressions}
                 />
                 <LibraryBrowser
