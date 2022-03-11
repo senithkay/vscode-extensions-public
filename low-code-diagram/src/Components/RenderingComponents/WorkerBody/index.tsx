@@ -12,7 +12,7 @@
  */
 import React, { useContext } from "react";
 
-import { FunctionBodyBlock } from "@wso2-enterprise/syntax-tree";
+import { BlockStatement, FunctionBodyBlock, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../Context/diagram";
 import { getDraftComponent, getSTComponents } from "../../../Utils";
@@ -23,7 +23,7 @@ import ControlFlowExecutionTime from "../ControlFlowExecutionTime";
 import { ControlFlowLine } from "../ControlFlowLine";
 
 export interface DiagramProps {
-    model: FunctionBodyBlock,
+    model: FunctionBodyBlock | BlockStatement,
     viewState: BlockViewState
 }
 
@@ -32,10 +32,17 @@ export function WorkerBody(props: DiagramProps) {
 
     const { model, viewState } = props;
     const pluses: React.ReactNode[] = [];
-    const children = getSTComponents(model.statements);
+    const workerArrows: React.ReactNode[] = [];
+    let children: React.ReactNode[] = [];
     let drafts: React.ReactNode[] = [];
     const controlFlowLines: React.ReactNode[] = [];
     const controlFlowExecutionTime: React.ReactNode[] = [];
+
+    if (STKindChecker.isFunctionBodyBlock(model) && viewState.hasWorkerDecl) {
+        children = children.concat(getSTComponents(model.namedWorkerDeclarator.workerInitStatements));
+        children = children.concat(getSTComponents(model.namedWorkerDeclarator.namedWorkerDeclarations))
+    }
+    children = children.concat(getSTComponents(model.statements))
 
     for (const controlFlowLine of viewState.controlFlow.lineStates) {
         controlFlowLines.push(<ControlFlowLine controlFlowViewState={controlFlowLine} />);
@@ -43,6 +50,19 @@ export function WorkerBody(props: DiagramProps) {
 
     for (const plusView of viewState.plusButtons) {
         pluses.push(<PlusButton viewState={plusView} model={model} initPlus={false} />)
+    }
+
+    for (const workerArrow of viewState.workerArrows) {
+        workerArrows.push(
+            <line
+                style={{ stroke: '#5567D5', strokeWidth: 1 }}
+                markerEnd="url(#arrowhead)"
+                x1={workerArrow.x}
+                y1={workerArrow.y}
+                x2={workerArrow.x + workerArrow.w}
+                y2={workerArrow.y}
+            />
+        )
     }
 
     for (const executionTime of viewState?.controlFlow.executionTimeStates) {
@@ -62,6 +82,7 @@ export function WorkerBody(props: DiagramProps) {
         <g>
             {controlFlowLines}
             {pluses}
+            {workerArrows}
             {children}
             {drafts}
             {controlFlowExecutionTime}

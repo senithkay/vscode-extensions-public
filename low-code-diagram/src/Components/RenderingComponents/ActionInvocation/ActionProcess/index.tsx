@@ -114,14 +114,6 @@ export function ActionProcessor(props: ProcessorProps) {
         setConfigWizardOpen(false);
     };
 
-    const onActionFormClose = () => {
-        if (blockViewState) {
-            blockViewState.draft = undefined;
-            diagramCleanDraw(syntaxTree);
-        }
-        setConfigWizardOpen(false);
-    };
-
     React.useEffect(() => {
         if (!isReadOnly && !model && !draftViewState?.connector && blockViewState) {
             const draftVS = blockViewState.draft[1];
@@ -135,7 +127,7 @@ export function ActionProcessor(props: ProcessorProps) {
                     onAddConnector,
                 },
                 isLoading: true,
-            }, onActionFormClose);
+            }, onWizardClose);
         }
     }, []);
 
@@ -168,7 +160,7 @@ export function ActionProcessor(props: ProcessorProps) {
                 targetPosition: draftViewState.targetPosition,
                 selectedConnector: draftViewState.selectedConnector,
                 model,
-                onClose: onActionFormClose,
+                onClose: onWizardClose,
                 onSave: onWizardClose,
                 isAction: true,
                 isEdit: true,
@@ -197,7 +189,7 @@ export function ActionProcessor(props: ProcessorProps) {
                 targetPosition: draftViewState.targetPosition,
                 selectedConnector: actionInvo as LocalVarDecl,
                 model: actionInvo,
-                onClose: onActionFormClose,
+                onClose: onWizardClose,
                 onSave: onWizardClose,
                 isAction: true,
                 isEdit: false,

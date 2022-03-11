@@ -174,8 +174,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                 }
             });
             const genSyntaxTree = await getSyntaxTree(path, langClient);
-            const vistedSyntaxTree: STNode = await getLowcodeST(genSyntaxTree, path,
-                langClient);
+            const vistedSyntaxTree: STNode = await getLowcodeST(genSyntaxTree, path, langClient);
             setSyntaxTree(vistedSyntaxTree);
             setFileContent(lastsource);
             props.updateFileContent(path, lastsource);
@@ -203,8 +202,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                 }
             });
             const genSyntaxTree = await getSyntaxTree(path, langClient);
-            const vistedSyntaxTree: STNode = await getLowcodeST(genSyntaxTree, path,
-                langClient);
+            const vistedSyntaxTree: STNode = await getLowcodeST(genSyntaxTree, path, langClient);
             setSyntaxTree(vistedSyntaxTree);
             setFileContent(lastUndoSource);
             props.updateFileContent(path, lastUndoSource);
@@ -293,8 +291,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                             undoRedo.addModification(source);
                                             setFileContent(source);
                                             props.updateFileContent(filePath, source);
-                                            vistedSyntaxTree = await getLowcodeST(newST, filePath,
-                                                langClient);
+                                            vistedSyntaxTree = await getLowcodeST(newST, filePath, langClient);
                                             setSyntaxTree(vistedSyntaxTree);
                                             if (isDeleteModificationAvailable(mutations)) {
                                                 showMessage("Undo your changes by using Ctrl + Z or Cmd + Z", MESSAGE_TYPE.INFO, true);

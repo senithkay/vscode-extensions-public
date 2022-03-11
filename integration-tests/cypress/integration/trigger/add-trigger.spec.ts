@@ -65,6 +65,7 @@ describe('add a Github Trigger to an empty file', () => {
 
     TriggerForm
       .searchTrigger("slack")
+      .waitForConnectorsLoading()
       .selectTriggerType("Slack") //Need to fix this
       .createBtnShouldNotBeClickable()
       .selectServiceType("SlackEventsAppService")

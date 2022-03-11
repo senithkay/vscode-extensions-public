@@ -79,8 +79,10 @@ describe("Add module-level statements via Low Code", () => {
       .clickWhiteSpace()
       .addNewField("int", "world")
       .deleteFirstField("hello")
-      .save();
-  });
+      .save()
+  })
+
+  it.skip('Add a configurable to empty file', () => {
 
   it("Add a configurable to empty file", () => {
     // cy.on('uncaught:exception', () => false); //Need to fix this
