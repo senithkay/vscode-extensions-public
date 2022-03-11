@@ -16,6 +16,7 @@ import React, { useContext } from "react";
 import { List, ListItem, ListItemIcon, ListItemText, Typography } from "@material-ui/core";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 
+import { TYPE_DESC_KINDS } from "../../../constants";
 import { SuggestionItem } from "../../../models/definitions";
 import { InputEditorContext } from "../../../store/input-editor-context";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
@@ -89,14 +90,16 @@ export function VariableSuggestions(props: VariableSuggestionsProps) {
                                                 </Typography>
                                             )}
                                         />
-                                        <ListItemText
-                                            style={{ minWidth: '10%', marginLeft: '8px' }}
-                                            primary={(
-                                                <Typography className={statementEditorClasses.suggestionDataType}>{
-                                                    suggestion.kind}
-                                                </Typography>
-                                            )}
-                                        />
+                                        { !TYPE_DESC_KINDS.includes(suggestion.kind) && (
+                                            <ListItemText
+                                                style={{ minWidth: '10%', marginLeft: '8px' }}
+                                                primary={(
+                                                    <Typography className={statementEditorClasses.suggestionDataType}>
+                                                        {suggestion.kind}
+                                                    </Typography>
+                                                )}
+                                            />
+                                        )}
                                     </ListItem>
                                 ))
                             }

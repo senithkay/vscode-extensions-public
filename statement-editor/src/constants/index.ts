@@ -56,6 +56,8 @@ export const ALL_LIBS_IDENTIFIER = "All"
 export const LANG_LIBS_IDENTIFIER = "Language"
 export const STD_LIBS_IDENTIFIER = "Standard"
 
+export const TYPE_DESC_KINDS = ["Record", "type"];
+
 export const INIT_EXPR_LIST_CONSTRUCTOR = "EXPRESSION]"
 export const APPEND_EXPR_LIST_CONSTRUCTOR = ", EXPRESSION]"
 

@@ -89,7 +89,7 @@ export function HelperPane(props: HelperPaneProps) {
                 {(
                     <VariableSuggestions
                         model={currentModel.model}
-                        variableSuggestions={variableList || typeDescriptorList}
+                        variableSuggestions={!!variableList.length ? variableList : typeDescriptorList}
                         suggestionHandler={suggestionHandler}
                         isSuggestion={selectedTab === TabElements.suggestions}
                     />
@@ -103,14 +103,14 @@ export function HelperPane(props: HelperPaneProps) {
                         isExpression={selectedTab === TabElements.expressions}
                     />
                 )}
-                {(
-                    <TypeSuggestions
-                        model={currentModel.model}
-                        typeSuggestions={typeDescriptorList}
-                        suggestionHandler={suggestionHandler}
-                        isSuggestion={selectedTab === TabElements.suggestions}
-                    />
-                )}
+                {/*{(*/}
+                {/*    <TypeSuggestions*/}
+                {/*        model={currentModel.model}*/}
+                {/*        typeSuggestions={typeDescriptorList}*/}
+                {/*        suggestionHandler={suggestionHandler}*/}
+                {/*        isSuggestion={selectedTab === TabElements.suggestions}*/}
+                {/*    />*/}
+                {/*)}*/}
                 <LibraryBrowser
                     libraryType={libraryType}
                     isLibrary={selectedTab === TabElements.libraries}
