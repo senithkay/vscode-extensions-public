@@ -237,6 +237,12 @@ export function getComposerPath(): string {
         : getComposerURI();
 }
 
+function getComposerCSSFiles(componentName: string): string[] {
+    return [
+        join(getComposerPath(), 'themes', 'ballerina-default.min.css')
+    ];
+}
+
 function getComposerJSFiles(componentName: string): string[] {
     return [
         join(getComposerPath(), componentName + '.js'),
@@ -246,6 +252,7 @@ function getComposerJSFiles(componentName: string): string[] {
 
 export function getComposerWebViewOptions(componentName: string): Partial<WebViewOptions> {
     return {
+        cssFiles: getComposerCSSFiles(componentName),
         jsFiles: getComposerJSFiles(componentName)
     };
 }
