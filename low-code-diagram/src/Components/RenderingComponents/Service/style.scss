@@ -98,4 +98,18 @@
     margin: 15px 15px 0;
     display: flex;
     gap: 5px; 
+
+    .action-button {
+        display: flex;
+        gap: 5px;
+        line-height: 1.4285em;
+        color: rgba(0,0,0,0.87);
+        padding: 2px 10px;
+        background: white;
+        width: fit-content;
+        font-size: 12px;
+        border-radius: 4px;
+        border: 1px solid #e6e7ec;
+        margin-bottom: 0;
+    }
 }
