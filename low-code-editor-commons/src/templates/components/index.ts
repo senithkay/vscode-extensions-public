@@ -144,5 +144,15 @@ service {{{ BASE_PATH }}} on {{{ LISTENER_NAME }}}`,
         {{#each MEMBERS}}
             {{{ this }}}
         {{/each}}
-    }`
+    }`,
+    WORKER_DEFINITION: `
+    worker {{{NAME}}} {
+
+    }
+    `,
+    WORKER_DEFINITION_WITH_RETURN: `
+    worker {{{NAME}}} returns {{{RETURN_TYPE}}} {
+
+    }
+    `
 }

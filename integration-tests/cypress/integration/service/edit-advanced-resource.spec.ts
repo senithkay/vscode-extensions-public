@@ -28,7 +28,7 @@ describe('edit a http advanced resource', () => {
         cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH))
     })
 
-    it('Edit service and add statements', () => {
+    it.skip('Edit service and add statements', () => {
         Canvas.getService("/wso2")
             .getResourceFunction("GET", "path1/path2")
             .editDiagram();

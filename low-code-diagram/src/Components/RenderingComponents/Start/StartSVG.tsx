@@ -23,7 +23,7 @@ export const START_SVG_HEIGHT = 40;
 export const START_SVG_SHADOW_OFFSET = START_SVG_HEIGHT_WITH_SHADOW - START_SVG_HEIGHT;
 
 export function StartSVG(props: { x: number, y: number, text: string }) {
-    const { text, ...xyProps } = props;
+    const { text: startText, ...xyProps } = props;
 
     return (
         <svg {...xyProps} width={START_HOVER_SVG_WIDTH_WITH_SHADOW} height={START_HOVER_SVG_HEIGHT_WITH_SHADOW}>
@@ -50,8 +50,10 @@ export function StartSVG(props: { x: number, y: number, text: string }) {
                         <rect x="0.5" y="0.5" width="81" height="39" rx="19.5" fill="none" />
                     </g>
                 </g>
-                <text id="StartText" x="44" y="24" >
-                    <tspan className="start-text"> {text}  </tspan>
+                <text id="StartText" x="42" y="24" textAnchor="middle" className="start-text">
+                    <tspan className="start-text">
+                        {startText.length > 9 ? `${startText.substring(0, 7)}...` : startText}
+                    </tspan>
                 </text>
             </g>
         </svg>

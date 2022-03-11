@@ -25,6 +25,7 @@ import {
     LocalVarDecl,
     ModulePart,
     ModuleVarDecl,
+    NamedWorkerDeclaration,
     ObjectMethodDefinition,
     OnFailClause,
     ResourceAccessorDefinition,
@@ -58,25 +59,72 @@ import { WHILE_SVG_HEIGHT, WHILE_SVG_WIDTH } from "../Components/RenderingCompon
 import { Endpoint } from "../Types/type";
 import { getNodeSignature, isVarTypeDescriptor } from "../Utils";
 import expandTracker from "../Utils/expand-tracker";
-import { BlockViewState, CollapseViewState, CompilationUnitViewState, DoViewState, ElseViewState, ForEachViewState, FunctionViewState, IfViewState, OnErrorViewState, PlusViewState, StatementViewState } from "../ViewState";
+import { BlockViewState, CollapseViewState, CompilationUnitViewState, DoViewState, ElseViewState, EndViewState, ForEachViewState, FunctionViewState, IfViewState, OnErrorViewState, PlusViewState, StatementViewState, ViewState } from "../ViewState";
 import { DraftStatementViewState } from "../ViewState/draft";
 import { ModuleMemberViewState } from "../ViewState/module-member";
 import { ServiceViewState } from "../ViewState/service";
 import { WhileViewState } from "../ViewState/while";
+import { WorkerDeclarationViewState } from "../ViewState/worker-declaration";
+
 
 import { DefaultConfig } from "./default";
 import { getDraftComponentSizes, getPlusViewState, haveBlockStatement, isSTActionInvocation } from "./util";
 
 let allEndpoints: Map<string, Endpoint> = new Map<string, Endpoint>();
-// let plusHolderHeight: number = 0;
 
-class SizingVisitor implements Visitor {
+export interface AsyncSendInfo {
+    to: string;
+    node: STNode;
+    paired: boolean;
+    index: number;
+}
+
+export interface AsyncReceiveInfo {
+    from: string;
+    node: STNode;
+    paired: boolean;
+    index: number;
+}
+
+export interface WaitInfo {
+    for: string;
+    node: STNode;
+    index: number;
+}
+
+export interface SendRecievePairInfo {
+    sourceName: string;
+    sourceViewState: ViewState;
+    sourceIndex: number;
+    targetName: string;
+    targetViewState: ViewState;
+    targetIndex: number;
+}
+
+export const DEFAULT_WORKER_NAME = 'function'; // todo: move to appropriate place.
+
+export class SizingVisitor implements Visitor {
+    private currentWorker: string[];
+    private senderReceiverInfo: Map<string, { sends: AsyncSendInfo[], receives: AsyncReceiveInfo[], waits: WaitInfo[] }>;
+    private workerMap: Map<string, NamedWorkerDeclaration>;
+
+    constructor() {
+        this.currentWorker = [];
+        this.senderReceiverInfo = new Map();
+        this.workerMap = new Map();
+    }
 
     public endVisitSTNode(node: STNode, parent?: STNode) {
         if (!node.viewState) {
             return;
         }
         this.sizeStatement(node);
+    }
+
+    public cleanMaps() {
+        this.currentWorker = [];
+        this.senderReceiverInfo = new Map();
+        this.workerMap = new Map();
     }
 
     public beginVisitModulePart(node: ModulePart, parent?: STNode) {
@@ -173,34 +221,6 @@ class SizingVisitor implements Visitor {
         const viewState = node.viewState as ModuleMemberViewState;
     }
 
-    private beginFunctionTypeNode(node: ResourceAccessorDefinition | FunctionDefinition) {
-        const viewState: FunctionViewState = node.viewState as FunctionViewState;
-        const body: FunctionBodyBlock = node.functionBody as FunctionBodyBlock;
-        const bodyViewState: BlockViewState = body.viewState;
-
-        viewState.wrapper.h = viewState.topOffset + viewState.wrapper.offsetFromTop;
-        viewState.bBox.h = viewState.topOffset + viewState.wrapper.offsetFromTop;
-
-        // If body has no statements and doesn't have a end component
-        // Add the plus button to show up on the start end
-        if (!bodyViewState.isEndComponentAvailable && body.statements.length <= 0) {
-            const plusBtnViewState: PlusViewState = new PlusViewState();
-            if (!bodyViewState.draft && !viewState.initPlus) {
-                plusBtnViewState.index = body.statements.length;
-                plusBtnViewState.expanded = true;
-                plusBtnViewState.selectedComponent = "PROCESS";
-                plusBtnViewState.collapsedClicked = false;
-                plusBtnViewState.collapsedPlusDuoExpanded = false;
-                plusBtnViewState.isLast = true;
-                bodyViewState.plusButtons = [];
-                bodyViewState.plusButtons.push(plusBtnViewState);
-                viewState.initPlus = plusBtnViewState;
-            } else if (viewState.initPlus && viewState.initPlus.draftAdded) {
-                viewState.initPlus = undefined;
-            }
-        }
-    }
-
     public beginVisitFunctionDefinition(node: FunctionDefinition) {
         const viewState: FunctionViewState = node.viewState as FunctionViewState;
         const body: FunctionBodyBlock = node.functionBody as FunctionBodyBlock;
@@ -209,7 +229,8 @@ class SizingVisitor implements Visitor {
 
         // If body has no statements and doesn't have a end component
         // Add the plus button to show up on the start end
-        if (!bodyViewState.isEndComponentAvailable && body.statements.length <= 0) {
+        if (!bodyViewState.isEndComponentAvailable && body.statements.length <= 0
+            && !body.namedWorkerDeclarator) {
             const plusBtnViewState: PlusViewState = new PlusViewState();
             if (!bodyViewState.draft && !viewState.initPlus) {
                 plusBtnViewState.index = body.statements.length;
@@ -225,6 +246,8 @@ class SizingVisitor implements Visitor {
                 viewState.initPlus = undefined;
             }
         }
+
+        this.currentWorker.push(DEFAULT_WORKER_NAME);
     }
 
     public beginVisitServiceDeclaration(node: ServiceDeclaration, parent?: STNode) {
@@ -293,72 +316,11 @@ class SizingVisitor implements Visitor {
     }
 
     public beginVisitResourceAccessorDefinition(node: ResourceAccessorDefinition) {
-        const viewState: FunctionViewState = node.viewState as FunctionViewState;
-        const body: FunctionBodyBlock = node.functionBody as FunctionBodyBlock;
-        const bodyViewState: BlockViewState = body.viewState;
-        viewState.collapsed = !expandTracker.isExpanded(getNodeSignature(node));
-
-        // If body has no statements and doesn't have a end component
-        // Add the plus button to show up on the start end
-        if (!bodyViewState.isEndComponentAvailable && body.statements.length <= 0) {
-            const plusBtnViewState: PlusViewState = new PlusViewState();
-            if (!bodyViewState.draft && !viewState.initPlus) {
-                plusBtnViewState.index = body.statements.length;
-                plusBtnViewState.expanded = true;
-                plusBtnViewState.selectedComponent = "PROCESS";
-                plusBtnViewState.collapsedClicked = false;
-                plusBtnViewState.collapsedPlusDuoExpanded = false;
-                plusBtnViewState.isLast = true;
-                bodyViewState.plusButtons = [];
-                bodyViewState.plusButtons.push(plusBtnViewState);
-                viewState.initPlus = plusBtnViewState;
-            } else if (viewState.initPlus && viewState.initPlus.draftAdded) {
-                viewState.initPlus = undefined;
-            }
-        }
+        this.beginVisitFunctionDefinition(node);
     }
 
     public endVisitResourceAccessorDefinition(node: ResourceAccessorDefinition) {
-        const viewState: FunctionViewState = node.viewState as FunctionViewState;
-        const body: FunctionBodyBlock = node.functionBody as FunctionBodyBlock;
-        const bodyViewState: BlockViewState = body.viewState;
-        const lifeLine = viewState.workerLine;
-        const trigger = viewState.trigger;
-        const end = viewState.end;
-
-        trigger.h = START_SVG_HEIGHT;
-        trigger.w = START_SVG_WIDTH;
-        trigger.lw = START_SVG_WIDTH / 2;
-        trigger.rw = START_SVG_WIDTH / 2;
-
-        end.bBox.w = STOP_SVG_WIDTH;
-        end.bBox.lw = STOP_SVG_WIDTH / 2;
-        end.bBox.rw = STOP_SVG_WIDTH / 2;
-        end.bBox.h = STOP_SVG_HEIGHT;
-
-        lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h;
-
-        if (STKindChecker.isExpressionFunctionBody(body) || body.statements.length > 0) {
-            lifeLine.h += end.bBox.offsetFromTop;
-        }
-
-        viewState.bBox.h = lifeLine.h + trigger.h + end.bBox.h + DefaultConfig.serviceVerticalPadding * 2 + DefaultConfig.functionHeaderHeight;
-        viewState.bBox.lw = (trigger.lw > bodyViewState.bBox.lw ? trigger.lw : bodyViewState.bBox.lw) + DefaultConfig.serviceFrontPadding;
-        viewState.bBox.rw = (trigger.rw > bodyViewState.bBox.rw ? trigger.rw : bodyViewState.bBox.rw) + DefaultConfig.serviceRearPadding + allEndpoints.size * 150 * 2;
-        viewState.bBox.w = (trigger.w > bodyViewState.bBox.w ? trigger.w : bodyViewState.bBox.w) + DefaultConfig.serviceFrontPadding + DefaultConfig.serviceRearPadding + allEndpoints.size * 150 * 2;
-
-        if (viewState.initPlus && viewState.initPlus.selectedComponent === "PROCESS") {
-            viewState.bBox.h += DefaultConfig.PLUS_HOLDER_STATEMENT_HEIGHT;
-            if (viewState.bBox.lw < (DefaultConfig.PLUS_HOLDER_WIDTH / 2)) {
-                viewState.bBox.lw = (DefaultConfig.PLUS_HOLDER_WIDTH / 2);
-            }
-            if (viewState.bBox.rw < (DefaultConfig.PLUS_HOLDER_WIDTH / 2)) {
-                viewState.bBox.rw = (DefaultConfig.PLUS_HOLDER_WIDTH / 2);
-            }
-            if (viewState.bBox.w < DefaultConfig.PLUS_HOLDER_WIDTH) {
-                viewState.bBox.w = DefaultConfig.PLUS_HOLDER_WIDTH;
-            }
-        }
+        this.endVisitFunctionDefinition(node);
     }
 
     public beginVisitObjectMethodDefinition(node: ObjectMethodDefinition) {
@@ -368,7 +330,7 @@ class SizingVisitor implements Visitor {
 
         // If body has no statements and doesn't have a end component
         // Add the plus button to show up on the start end
-        if (!bodyViewState.isEndComponentAvailable && body.statements.length <= 0) {
+        if (!bodyViewState.isEndComponentAvailable && body.statements.length <= 0 && !body.namedWorkerDeclarator) {
             const plusBtnViewState: PlusViewState = new PlusViewState();
             if (!bodyViewState.draft && !viewState.initPlus) {
                 plusBtnViewState.index = body.statements.length;
@@ -386,7 +348,8 @@ class SizingVisitor implements Visitor {
         }
     }
 
-    private endVisitFunctionTypeNode(node: FunctionDefinition) {
+    public endVisitFunctionDefinition(node: FunctionDefinition) {
+        // replaces endVisitFunction
         const viewState: FunctionViewState = node.viewState as FunctionViewState;
         const body: FunctionBodyBlock = node.functionBody as FunctionBodyBlock;
         const bodyViewState: BlockViewState = body.viewState;
@@ -406,36 +369,14 @@ class SizingVisitor implements Visitor {
 
         lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h;
 
-        if (STKindChecker.isExpressionFunctionBody(body) || body.statements.length > 0) {
+        if (STKindChecker.isExpressionFunctionBody(body) || body.statements.length > 0 || body.namedWorkerDeclarator) {
             lifeLine.h += end.bBox.offsetFromTop;
         }
 
-        // adding end component height and + (plus) height for a resource
-        viewState.bBox.h += (lifeLine.h + end.bBox.h + (DefaultConfig.dotGap * 3) +
-            viewState.bottomOffset + viewState.wrapper.offsetFromBottom);
-
-        // setting default width with there are no statements in the function
-        const leftDefaultWidth = (PROCESS_SVG_WIDTH / 2) + VARIABLE_NAME_WIDTH;
-        const rightDefaultWidth = (PROCESS_SVG_WIDTH / 2) + ASSIGNMENT_NAME_WIDTH;
-        const defaultWidth = leftDefaultWidth + rightDefaultWidth;
-
-        viewState.bBox.lw = (trigger.lw > bodyViewState.bBox.lw ? trigger.lw : bodyViewState.bBox.lw);
-        viewState.bBox.rw = (trigger.rw > bodyViewState.bBox.rw ? trigger.rw : bodyViewState.bBox.rw);
-        viewState.bBox.w = (viewState.bBox.lw + viewState.bBox.rw);
-
-        if (viewState.bBox.lw < leftDefaultWidth) {
-            viewState.bBox.lw = leftDefaultWidth;
-        }
-
-        if (viewState.bBox.rw < rightDefaultWidth) {
-            viewState.bBox.rw = rightDefaultWidth;
-        }
-
-        if (viewState.bBox.w < defaultWidth) {
-            viewState.bBox.w = defaultWidth;
-        }
-
-        viewState.wrapper.h = viewState.bBox.h;
+        viewState.bBox.h = lifeLine.h + trigger.h + end.bBox.h + (DefaultConfig.serviceVerticalPadding * 2) + DefaultConfig.functionHeaderHeight;
+        viewState.bBox.lw = (trigger.lw > bodyViewState.bBox.lw ? trigger.lw : bodyViewState.bBox.lw) + DefaultConfig.serviceFrontPadding;
+        viewState.bBox.rw = (trigger.rw > bodyViewState.bBox.rw ? trigger.rw : bodyViewState.bBox.rw) + DefaultConfig.serviceRearPadding + (allEndpoints.size * 150 * 2);
+        viewState.bBox.w = viewState.bBox.lw + viewState.bBox.rw;
 
         if (viewState.initPlus && viewState.initPlus.selectedComponent === "PROCESS") {
             viewState.bBox.h += DefaultConfig.PLUS_HOLDER_STATEMENT_HEIGHT;
@@ -449,53 +390,280 @@ class SizingVisitor implements Visitor {
                 viewState.bBox.w = DefaultConfig.PLUS_HOLDER_WIDTH;
             }
         }
+
+        this.syncAsyncStatements(node);
+
+        if (bodyViewState.hasWorkerDecl) {
+            let maxWorkerHeight = 0;
+            Array.from(this.workerMap.keys()).forEach(key => {
+                const workerST = this.workerMap.get(key);
+                const workerVS = workerST.viewState as WorkerDeclarationViewState;
+                const workerBodyVS = workerST.workerBody.viewState as BlockViewState;
+                const workerLifeLine = workerVS.workerLine;
+                const workerTrigger = workerVS.trigger;
+                this.endSizingBlock(workerST.workerBody, workerST.workerBody.statements.length);
+
+                workerLifeLine.h = workerTrigger.offsetFromBottom + workerBodyVS.bBox.h;
+
+                if (!workerBodyVS.isEndComponentAvailable) {
+                    workerLifeLine.h += workerVS.end.bBox.offsetFromTop;
+                } else {
+                    workerLifeLine.h -= DefaultConfig.offSet * 2; // ToDo: Figure out where this went wrong
+                }
+
+                workerVS.bBox.h = workerLifeLine.h + workerTrigger.h + end.bBox.h + DefaultConfig.serviceVerticalPadding * 2
+                    + DefaultConfig.functionHeaderHeight;
+                workerVS.bBox.lw = (workerTrigger.lw > workerBodyVS.bBox.lw ? workerTrigger.lw : workerBodyVS.bBox.lw) + DefaultConfig.serviceFrontPadding;
+                workerVS.bBox.rw = (workerTrigger.rw > workerBodyVS.bBox.rw ? workerTrigger.rw : workerBodyVS.bBox.rw) + DefaultConfig.serviceRearPadding + (allEndpoints.size * 150 * 2);
+                workerVS.bBox.w = workerVS.bBox.lw + workerVS.bBox.rw;
+
+                if (workerVS.initPlus && workerVS.initPlus.selectedComponent === "PROCESS") {
+                    workerVS.bBox.h += DefaultConfig.PLUS_HOLDER_STATEMENT_HEIGHT;
+                    if (workerVS.bBox.w < DefaultConfig.PLUS_HOLDER_WIDTH) {
+                        workerVS.bBox.w = DefaultConfig.PLUS_HOLDER_WIDTH;
+                    }
+                }
+
+                if (maxWorkerHeight < workerVS.bBox.h) {
+                    maxWorkerHeight = workerVS.bBox.h;
+                }
+            })
+            this.endVisitFunctionBodyBlock(body);
+
+            if (!bodyViewState.isEndComponentAvailable) {
+                if (bodyViewState.bBox.h < maxWorkerHeight) {
+                    bodyViewState.bBox.h += maxWorkerHeight - bodyViewState.bBox.h;
+                }
+            }
+
+            lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h;
+
+            if (bodyViewState.isEndComponentAvailable) {
+                lifeLine.h += (body.statements[body.statements.length - 1].viewState as ViewState).bBox.offsetFromTop;
+            }
+
+            if (STKindChecker.isExpressionFunctionBody(body) || body.statements.length > 0 || body.namedWorkerDeclarator) {
+                lifeLine.h += end.bBox.offsetFromTop;
+            }
+
+            viewState.bBox.h = lifeLine.h + trigger.h + end.bBox.h + DefaultConfig.serviceVerticalPadding * 2 + DefaultConfig.functionHeaderHeight;
+            viewState.bBox.w = (trigger.w > bodyViewState.bBox.w ? trigger.w : bodyViewState.bBox.w)
+                + DefaultConfig.serviceFrontPadding + DefaultConfig.serviceRearPadding + allEndpoints.size * 150 * 2;
+
+            if (viewState.initPlus && viewState.initPlus.selectedComponent === "PROCESS") {
+                viewState.bBox.h += DefaultConfig.PLUS_HOLDER_STATEMENT_HEIGHT;
+                if (viewState.bBox.lw < (DefaultConfig.PLUS_HOLDER_WIDTH / 2)) {
+                    viewState.bBox.lw = (DefaultConfig.PLUS_HOLDER_WIDTH / 2);
+                }
+                if (viewState.bBox.rw < (DefaultConfig.PLUS_HOLDER_WIDTH / 2)) {
+                    viewState.bBox.rw = (DefaultConfig.PLUS_HOLDER_WIDTH / 2);
+                }
+                if (viewState.bBox.w < DefaultConfig.PLUS_HOLDER_WIDTH) {
+                    viewState.bBox.w = DefaultConfig.PLUS_HOLDER_WIDTH;
+                }
+            }
+
+            this.currentWorker.pop();
+            this.cleanMaps();
+        }
     }
 
-    public endVisitFunctionDefinition(node: FunctionDefinition) {
-        const viewState: FunctionViewState = node.viewState as FunctionViewState;
-        const body: FunctionBodyBlock = node.functionBody as FunctionBodyBlock;
-        const bodyViewState: BlockViewState = body.viewState;
-        const lifeLine = viewState.workerLine;
-        const trigger = viewState.trigger;
-        const end = viewState.end;
+    private syncAsyncStatements(funcitonDef: FunctionDefinition) {
+        const matchedStatements: SendRecievePairInfo[] = [];
+        const mainWorkerBody: FunctionBodyBlock = funcitonDef.functionBody as FunctionBodyBlock;
 
-        trigger.h = START_SVG_HEIGHT;
-        trigger.w = START_SVG_WIDTH;
-        trigger.lw = START_SVG_WIDTH / 2;
-        trigger.rw = START_SVG_WIDTH / 2;
+        // pair up sends with corresponding receives
+        Array.from(this.senderReceiverInfo.keys()).forEach(key => {
+            const workerEntry = this.senderReceiverInfo.get(key);
 
-        end.bBox.w = STOP_SVG_WIDTH;
-        end.bBox.lw = STOP_SVG_WIDTH / 2;
-        end.bBox.rw = STOP_SVG_WIDTH / 2;
-        end.bBox.h = STOP_SVG_HEIGHT;
+            // treat waits as receives
+            workerEntry.waits.forEach((waitInfo) => {
+                const targetViewState = waitInfo.node.viewState as StatementViewState;
+                const sourceWorker = this.workerMap.get(waitInfo.for) as NamedWorkerDeclaration;
+                const workerNames = Array.from(this.workerMap.keys());
+                const sourceWorkerIndex = workerNames.indexOf(waitInfo.for);
+                const targetWorkerIndex = workerNames.indexOf(key);
+                if (sourceWorker) {
+                    const sourceWorkerBody = sourceWorker.workerBody as BlockStatement;
 
-        lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h;
+                    const sourceViewstate: EndViewState | StatementViewState =
+                        (sourceWorkerBody.viewState as BlockViewState).isEndComponentAvailable ?
+                            sourceWorkerBody.statements[sourceWorkerBody.statements.length - 1].viewState
+                            : (sourceWorker.viewState as WorkerDeclarationViewState).end as EndViewState;
 
-        if (STKindChecker.isExpressionFunctionBody(body) || body.statements.length > 0) {
-            lifeLine.h += end.bBox.offsetFromTop;
-        }
+                    targetViewState.isReceive = true;
+                    sourceViewstate.isSend = true;
 
-        viewState.bBox.h = lifeLine.h + trigger.h + end.bBox.h + DefaultConfig.serviceVerticalPadding * 2 + DefaultConfig.functionHeaderHeight;
+                    if (key === DEFAULT_WORKER_NAME) {
+                        targetViewState.arrowFrom = 'Right';
+                        sourceViewstate.arrowFrom = 'Left';
+                    } else if (sourceWorkerIndex > targetWorkerIndex) {
+                        targetViewState.arrowFrom = 'Right'
+                        sourceViewstate.arrowFrom = 'Left';
+                    } else {
+                        targetViewState.arrowFrom = 'Left'
+                        sourceViewstate.arrowFrom = 'Right';
+                    }
 
-        viewState.bBox.lw = (trigger.lw > bodyViewState.bBox.lw ? trigger.lw : bodyViewState.bBox.lw) + DefaultConfig.serviceFrontPadding;
-        viewState.bBox.rw = (trigger.rw > bodyViewState.bBox.rw ? trigger.rw : bodyViewState.bBox.rw) + DefaultConfig.serviceRearPadding + allEndpoints.size * 150 * 2;
+                    const sourceIndex = (sourceWorkerBody.viewState as BlockViewState).isEndComponentAvailable ?
+                        sourceWorkerBody.statements.length - 1
+                        : sourceWorkerBody.statements.length;
 
-        viewState.bBox.w = viewState.bBox.lw + viewState.bBox.rw;
+                    matchedStatements.push({
+                        sourceName: waitInfo.for,
+                        sourceIndex: sourceIndex < 0 ? 0 : sourceIndex,
+                        targetName: key,
+                        sourceViewState: sourceViewstate,
+                        targetViewState: waitInfo.node.viewState,
+                        targetIndex: waitInfo.index,
+                    });
+                }
+            });
 
-        if (viewState.initPlus && viewState.initPlus.selectedComponent === "PROCESS") {
-            viewState.bBox.h += DefaultConfig.PLUS_HOLDER_STATEMENT_HEIGHT;
-            if (viewState.bBox.w < DefaultConfig.PLUS_HOLDER_WIDTH) {
-                viewState.bBox.w = DefaultConfig.PLUS_HOLDER_WIDTH;
+            workerEntry.sends.forEach(sendInfo => {
+                if (sendInfo.paired) {
+                    return;
+                }
+
+                const matchedReceive = this.senderReceiverInfo.get(sendInfo.to).receives
+                    .find(receiveInfo => receiveInfo.from === key && !receiveInfo.paired)
+
+                if (matchedReceive) {
+                    matchedReceive.paired = true;
+                    sendInfo.paired = true;
+
+                    const sourceViewState: StatementViewState = sendInfo.node.viewState as StatementViewState;
+                    const targetViewState: StatementViewState = matchedReceive.node.viewState as StatementViewState;
+
+                    sourceViewState.isSend = true;
+                    targetViewState.isReceive = true;
+                    // to figure out from which direction the arrow is approaching/starting to displace the text
+                    if (sendInfo.to === DEFAULT_WORKER_NAME) {
+                        sourceViewState.arrowFrom = 'Left';
+                        targetViewState.arrowFrom = 'Right';
+                    } else {
+                        sourceViewState.arrowFrom = 'Right';
+                        targetViewState.arrowFrom = 'Left';
+                    }
+
+                    matchedStatements.push({
+                        sourceName: key,
+                        sourceIndex: sendInfo.index,
+                        targetName: sendInfo.to,
+                        sourceViewState,
+                        targetViewState,
+                        targetIndex: matchedReceive.index
+                    });
+                }
+            });
+
+            workerEntry.receives.forEach(receiveInfo => {
+                if (receiveInfo.paired) {
+                    return;
+                }
+
+                const matchedSend = this.senderReceiverInfo.get(receiveInfo.from).sends
+                    .find(senderInfo => senderInfo.to === key && !senderInfo.paired)
+
+                if (matchedSend) {
+                    matchedSend.paired = true;
+                    receiveInfo.paired = true;
+
+                    const sourceViewState = matchedSend.node.viewState as StatementViewState;
+                    const targetViewState = receiveInfo.node.viewState as StatementViewState;
+
+                    sourceViewState.isSend = true;
+                    targetViewState.isReceive = true;
+                    // to figure out from which direction the arrow is approaching/starting to displace the text
+                    if (receiveInfo.from === DEFAULT_WORKER_NAME) {
+                        sourceViewState.arrowFrom = 'Right';
+                        targetViewState.arrowFrom = 'Left';
+                    } else {
+                        sourceViewState.arrowFrom = 'Left';
+                        targetViewState.arrowFrom = 'Right';
+                    }
+
+                    matchedStatements.push({
+                        sourceName: receiveInfo.from,
+                        sourceIndex: matchedSend.index,
+                        sourceViewState: matchedSend.node.viewState,
+                        targetName: matchedSend.to,
+                        targetIndex: receiveInfo.index,
+                        targetViewState: receiveInfo.node.viewState
+                    });
+                }
+            });
+        });
+
+        // 2. Sort the pairs in the order they should appear top to bottom
+        matchedStatements.sort((p1, p2) => {
+            if (p1.targetName === p2.targetName) {
+                // If two pairs has the same receiver (send.workerName is the receiver name) one with
+                // higher lower receiver index (one defined heigher up in the receiver) should be rendered
+                // higher in the list of pairs. Same logic is used for all the cases following.
+                return 0;
+            }
+            if (p1.targetName === p2.sourceName) {
+                return p1.targetIndex - p2.sourceIndex;
+            }
+            if (p1.sourceName === p2.targetName) {
+                return p1.sourceIndex - p2.targetIndex;
+            }
+            if (p1.sourceName === p2.sourceName) {
+                return p1.sourceIndex - p2.sourceIndex;
+            }
+            return 0;
+        });
+
+
+        // for each pair calculate the heights until the send or receive statement and add the diff to the shorter one
+        matchedStatements.forEach(matchedPair => {
+            let sendHeight = 0;
+            let receiveHeight = 0;
+
+            if (matchedPair.sourceName === DEFAULT_WORKER_NAME) {
+                let index = 0;
+                while (matchedPair.sourceIndex !== index) {
+                    const viewState: ViewState = mainWorkerBody.statements[index].viewState as ViewState;
+                    sendHeight += viewState.getHeight();
+                    index++;
+                }
+            } else {
+                const workerDecl = this.workerMap.get(matchedPair.sourceName) as NamedWorkerDeclaration;
+                let index = 0;
+                while (matchedPair.sourceIndex !== index) {
+                    const viewState: ViewState = workerDecl.workerBody.statements[index].viewState as ViewState;
+                    sendHeight += viewState.getHeight();
+                    index++;
+                }
+
             }
 
-            if (viewState.bBox.lw < DefaultConfig.PLUS_HOLDER_WIDTH / 2) {
-                viewState.bBox.lw = DefaultConfig.PLUS_HOLDER_WIDTH / 2;
+            if (matchedPair.targetName === DEFAULT_WORKER_NAME) {
+                let index = 0;
+                while (matchedPair.targetIndex !== index) {
+                    const viewState: ViewState = mainWorkerBody.statements[index].viewState as ViewState;
+                    receiveHeight += viewState.getHeight();
+                    index++;
+                }
+            } else {
+                const workerDecl = this.workerMap.get(matchedPair.targetName) as NamedWorkerDeclaration;
+                let index = 0;
+                while (matchedPair.targetIndex !== index) {
+                    const viewState: ViewState = workerDecl.workerBody.statements[index].viewState as ViewState;
+                    receiveHeight += viewState.getHeight();
+                    index++;
+                }
             }
 
-            if (viewState.bBox.rw < DefaultConfig.PLUS_HOLDER_WIDTH / 2) {
-                viewState.bBox.rw = DefaultConfig.PLUS_HOLDER_WIDTH / 2;
+            if (sendHeight > receiveHeight) {
+                const targetVS = matchedPair.targetViewState as StatementViewState;
+                targetVS.bBox.offsetFromTop += (sendHeight - receiveHeight);
+            } else {
+                const sourceVS = matchedPair.sourceViewState as StatementViewState;
+                sourceVS.bBox.offsetFromTop += (receiveHeight - sendHeight);
             }
-        }
+        });
     }
 
     public endVisitObjectMethodDefinition(node: ObjectMethodDefinition) {
@@ -547,7 +715,49 @@ class SizingVisitor implements Visitor {
         if (node.statements.length > 0 && STKindChecker.isReturnStatement(node.statements[node.statements.length - 1])) {
             viewState.isEndComponentInMain = true;
         }
-        this.beginSizingBlock(node);
+
+        let index = 0;
+
+        if (viewState.hasWorkerDecl) {
+            index = this.initiateStatementSizing(node.namedWorkerDeclarator.workerInitStatements, index, viewState);
+
+            const workerPlusVS = getPlusViewState(index + node.statements.length + 1, viewState.plusButtons);
+            if (workerPlusVS && workerPlusVS.draftAdded) {
+                const draft: DraftStatementViewState = new DraftStatementViewState();
+                draft.type = workerPlusVS.draftAdded;
+                draft.subType = workerPlusVS.draftSubType;
+                draft.connector = workerPlusVS.draftConnector;
+                draft.selectedConnector = workerPlusVS.draftSelectedConnector;
+
+                let prevStatement: STNode;
+
+                if (node.namedWorkerDeclarator.workerInitStatements.length > 0) {
+                    prevStatement = node.namedWorkerDeclarator
+                        .workerInitStatements[node.namedWorkerDeclarator.workerInitStatements.length - 1];
+                }
+
+                draft.targetPosition = {
+                    startLine: prevStatement ? prevStatement.position.startLine + 1
+                        : node.namedWorkerDeclarator.position.startLine,
+                    startColumn: 0
+                };
+                viewState.draft = [index, draft];
+                workerPlusVS.draftAdded = undefined;
+            } else {
+                const plusBtnViewState = new PlusViewState();
+                plusBtnViewState.index = index + node.statements.length + 1;
+                plusBtnViewState.expanded = true;
+                plusBtnViewState.selectedComponent = "PROCESS";
+                plusBtnViewState.collapsedClicked = false;
+                plusBtnViewState.collapsedPlusDuoExpanded = false;
+                plusBtnViewState.isPlusBeforeWorkerBlock = true;
+                viewState.plusButtons.push(plusBtnViewState)
+            }
+
+
+        }
+
+        this.beginSizingBlock(node, index);
     }
 
     public beginVisitExpressionFunctionBody(node: ExpressionFunctionBody) {
@@ -561,7 +771,22 @@ class SizingVisitor implements Visitor {
     }
 
     public endVisitFunctionBodyBlock(node: FunctionBodyBlock) {
-        this.endSizingBlock(node);
+        const viewState = node.viewState as BlockViewState;
+        let index = 0;
+        let height = 0;
+        let width = 0;
+        let leftWidth = 0;
+        let rightWidth = 0;
+
+
+        if (viewState.hasWorkerDecl) {
+            const workerInitStatements = (node as FunctionBodyBlock).namedWorkerDeclarator.workerInitStatements;
+            ({ index, height, width, leftWidth, rightWidth } = this.calculateStatementSizing(workerInitStatements, index, viewState, height, width, workerInitStatements.length + node.statements.length, leftWidth, rightWidth));
+
+            height += PLUS_SVG_HEIGHT + PROCESS_SVG_HEIGHT;
+        }
+
+        this.endSizingBlock(node, index + node.statements.length, width, height, index, leftWidth, rightWidth);
     }
 
     public beginVisitBlockStatement(node: BlockStatement, parent?: STNode) {
@@ -576,7 +801,7 @@ class SizingVisitor implements Visitor {
         if (STKindChecker.isFunctionBodyBlock(parent) || STKindChecker.isBlockStatement(parent)) {
             this.sizeStatement(node);
         } else {
-            this.endSizingBlock(node);
+            this.endSizingBlock(node, node.statements.length);
         }
     }
 
@@ -942,6 +1167,48 @@ class SizingVisitor implements Visitor {
         }
     }
 
+    public beginVisitNamedWorkerDeclaration(node: NamedWorkerDeclaration) {
+        // this.beginSizingBlock(node.workerBody);
+        this.workerMap.set(node.workerName.value, node);
+        this.currentWorker.push(node.workerName.value);
+    }
+
+    public endVisitNamedWorkerDeclaration(node: NamedWorkerDeclaration) {
+        const viewState: WorkerDeclarationViewState = node.viewState as WorkerDeclarationViewState;
+        const body: BlockStatement = node.workerBody as BlockStatement;
+        const bodyViewState: BlockViewState = body.viewState;
+        const lifeLine = viewState.workerLine;
+        const trigger = viewState.trigger;
+        const end = viewState.end;
+
+        trigger.h = START_SVG_HEIGHT;
+        trigger.w = START_SVG_WIDTH;
+
+        end.bBox.w = STOP_SVG_WIDTH;
+        end.bBox.h = STOP_SVG_HEIGHT;
+
+        lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h + end.bBox.offsetFromTop;
+
+        if (!bodyViewState.isEndComponentAvailable
+            && (STKindChecker.isExpressionFunctionBody(body) || body.statements.length > 0)) {
+            lifeLine.h += end.bBox.offsetFromTop;
+        }
+
+        viewState.bBox.h = lifeLine.h + trigger.h + end.bBox.h + DefaultConfig.serviceVerticalPadding * 2
+            + DefaultConfig.functionHeaderHeight;
+        viewState.bBox.w = (trigger.w > bodyViewState.bBox.w ? trigger.w : bodyViewState.bBox.w)
+            + DefaultConfig.serviceFrontPadding + DefaultConfig.serviceRearPadding + allEndpoints.size * 150 * 2;
+
+        if (viewState.initPlus && viewState.initPlus.selectedComponent === "PROCESS") {
+            viewState.bBox.h += DefaultConfig.PLUS_HOLDER_STATEMENT_HEIGHT;
+            if (viewState.bBox.w < DefaultConfig.PLUS_HOLDER_WIDTH) {
+                viewState.bBox.w = DefaultConfig.PLUS_HOLDER_WIDTH;
+            }
+        }
+
+        this.currentWorker.pop();
+    }
+
     private sizeStatement(node: STNode) {
         if (!node.viewState) {
             return;
@@ -1024,13 +1291,26 @@ class SizingVisitor implements Visitor {
         }
     }
 
-    private beginSizingBlock(node: BlockStatement) {
+    private beginSizingBlock(node: BlockStatement, index: number = 0) {
         if (!node.viewState) {
             return;
         }
         const blockViewState: BlockViewState = node.viewState;
-        let index: number = 0;
-        node.statements.forEach((element) => {
+        index = this.initiateStatementSizing(node.statements, index, blockViewState);
+
+        // add END component dimensions for return statement
+        if (blockViewState.isEndComponentAvailable && !blockViewState.collapseView &&
+            !blockViewState.isEndComponentInMain) {
+            const returnViewState: StatementViewState = node.statements[node.statements.length - 1].viewState;
+            returnViewState.bBox.h = STOP_SVG_HEIGHT;
+            returnViewState.bBox.w = STOP_SVG_WIDTH;
+            returnViewState.bBox.lw = STOP_SVG_WIDTH / 2;
+            returnViewState.bBox.rw = STOP_SVG_WIDTH / 2;
+        }
+    }
+
+    private initiateStatementSizing(statements: STNode[], index: number, blockViewState: BlockViewState) {
+        statements.forEach((element) => {
             const stmtViewState: StatementViewState = element.viewState;
             const plusForIndex: PlusViewState = getPlusViewState(index, blockViewState.plusButtons);
 
@@ -1057,31 +1337,17 @@ class SizingVisitor implements Visitor {
             }
             ++index;
         });
-
-        // add END component dimensions for return statement
-        if (blockViewState.isEndComponentAvailable && !blockViewState.collapseView &&
-            !blockViewState.isEndComponentInMain) {
-            const returnViewState: StatementViewState = node.statements[node.statements.length - 1].viewState;
-            returnViewState.bBox.h = STOP_SVG_HEIGHT;
-            returnViewState.bBox.w = STOP_SVG_WIDTH;
-            returnViewState.bBox.lw = STOP_SVG_WIDTH / 2;
-            returnViewState.bBox.rw = STOP_SVG_WIDTH / 2;
-        }
+        return index;
     }
 
-    private endSizingBlock(node: BlockStatement) {
+    private endSizingBlock(node: BlockStatement, lastStatementIndex: number, width: number = 0, height: number = 0, index: number = 0, leftWidth: number = 0, rightWidth: number = 0) {
         if (!node.viewState) {
             return;
         }
         const blockViewState: BlockViewState = node.viewState;
-        let height = 0;
-        let width = 0;
-        let leftWidth = 0;
-        let rightWidth = 0;
-        let index = 0;
 
         // Add last plus button.
-        const plusViewState: PlusViewState = getPlusViewState(node.statements.length, blockViewState.plusButtons);
+        const plusViewState: PlusViewState = getPlusViewState(lastStatementIndex, blockViewState.plusButtons);
 
         if (plusViewState && plusViewState.draftAdded) {
             const draft: DraftStatementViewState = new DraftStatementViewState();
@@ -1093,31 +1359,179 @@ class SizingVisitor implements Visitor {
                 startLine: node.position.endLine, // todo: can't find the equivalent to position
                 startColumn: node.position.endColumn - 1
             };
-            blockViewState.draft = [node.statements.length, draft];
+            blockViewState.draft = [lastStatementIndex, draft];
             plusViewState.draftAdded = undefined;
         } else if (plusViewState?.collapsedClicked) {
-            plusViewState.index = node.statements.length;
+            plusViewState.index = lastStatementIndex;
             plusViewState.expanded = false;
         } else if (plusViewState && plusViewState.collapsedPlusDuoExpanded) {
             height += PLUS_SVG_HEIGHT;
         } else if (!plusViewState && !blockViewState.isEndComponentAvailable) {
             const plusBtnViewBox: PlusViewState = new PlusViewState();
-            plusBtnViewBox.index = node.statements.length;
+            plusBtnViewBox.index = lastStatementIndex;
             plusBtnViewBox.expanded = false;
             plusBtnViewBox.isLast = true;
             blockViewState.plusButtons.push(plusBtnViewBox);
         }
 
-        node.statements.forEach((element) => {
-            const stmtViewState: StatementViewState = element.viewState;
+        ({ index, height, width, leftWidth, rightWidth } = this.calculateStatementSizing(node.statements, index, blockViewState, height, width, lastStatementIndex, leftWidth, rightWidth));
+
+        if (blockViewState.draft && blockViewState.draft[0] === node.statements.length) {
+            // Get the draft.
+            const draft = blockViewState.draft[1];
+            if (draft) {
+                const { h, w } = getDraftComponentSizes(draft.type, draft.subType);
+                draft.bBox.h = draft.bBox.offsetFromTop + h + draft.bBox.offsetFromBottom
+                draft.bBox.w = w;
+                draft.bBox.lw = w / 2;
+                draft.bBox.rw = w / 2;
+                height += draft.bBox.h;
+                if (width < draft.bBox.w) {
+                    width = draft.bBox.w;
+                }
+                if (leftWidth < draft.bBox.lw) {
+                    leftWidth = draft.bBox.lw;
+                }
+                if (rightWidth < draft.bBox.rw) {
+                    rightWidth = draft.bBox.rw;
+                }
+            }
+        }
+
+        if (height > 0) {
+            blockViewState.bBox.h = height;
+        }
+
+        blockViewState.bBox.w = width > 0 ? width : DefaultConfig.defaultBlockWidth
+
+        blockViewState.bBox.lw = leftWidth > 0 ? leftWidth : DefaultConfig.defaultBlockWidth / 2;
+        blockViewState.bBox.rw = rightWidth > 0 ? rightWidth : DefaultConfig.defaultBlockWidth / 2;
+    }
+
+    private addToSendReceiveMap(type: 'Send' | 'Receive' | 'Wait', entry: AsyncReceiveInfo | AsyncSendInfo | WaitInfo) {
+        if (!this.senderReceiverInfo.has(this.currentWorker[this.currentWorker.length - 1])) {
+            this.senderReceiverInfo.set(this.currentWorker[this.currentWorker.length - 1], { sends: [], receives: [], waits: [] })
+        }
+
+        switch (type) {
+            case 'Send':
+                this.senderReceiverInfo.get(this.currentWorker[this.currentWorker.length - 1]).sends.push(entry as AsyncSendInfo);
+                break;
+            case 'Receive':
+                this.senderReceiverInfo.get(this.currentWorker[this.currentWorker.length - 1]).receives.push(entry as AsyncReceiveInfo);
+                break;
+            case 'Wait':
+                this.senderReceiverInfo.get(this.currentWorker[this.currentWorker.length - 1]).waits.push(entry as WaitInfo);
+                break;
+        }
+    }
+
+    private calculateStatementSizing(statements: STNode[], index: number, blockViewState: BlockViewState, height: number, width: number, lastStatementIndex: any, leftWidth: number, rightWidth: number) {
+        const startIndex = index;
+        statements.forEach((statement) => {
+            const stmtViewState: StatementViewState = statement.viewState;
             const plusForIndex: PlusViewState = getPlusViewState(index, blockViewState.plusButtons);
+
+            // identify sends, recieves, and waits and put them into a map
+            if (STKindChecker.isActionStatement(statement)) {
+                if (statement.expression.kind === 'AsyncSendAction') {
+                    const sendExpression: any = statement.expression;
+                    const targetName: string = sendExpression.peerWorker?.name?.value as string;
+                    this.addToSendReceiveMap('Send', {
+                        to: targetName, node: statement, paired: false, index: (index - startIndex)
+                    });
+                } else if (STKindChecker.isWaitAction(statement.expression)
+                    && STKindChecker.isSimpleNameReference(statement.expression.waitFutureExpr)) {
+                    this.addToSendReceiveMap('Wait', {
+                        for: statement.expression.waitFutureExpr.name.value,
+                        node: statement,
+                        index: (index - startIndex)
+                    });
+                } else if (STKindChecker.isCheckAction(statement.expression)
+                    && STKindChecker.isWaitAction(statement.expression.expression)
+                    && STKindChecker.isSimpleNameReference(statement.expression.expression.waitFutureExpr)) {
+                    this.addToSendReceiveMap('Wait', {
+                        for: statement.expression.expression.waitFutureExpr.name.value,
+                        node: statement,
+                        index: (index - startIndex)
+                    });
+                }
+            } else if (STKindChecker.isLocalVarDecl(statement) && statement.initializer) {
+                if (statement.initializer?.kind === 'ReceiveAction') {
+                    const receiverExpression: any = statement.initializer;
+                    const senderName: string = receiverExpression.receiveWorkers?.name?.value;
+                    this.addToSendReceiveMap('Receive',
+                        { from: senderName, node: statement, paired: false, index: (index - startIndex) });
+                } else if (STKindChecker.isCheckAction(statement.initializer)
+                    && (statement.initializer.expression.kind === 'ReceiveAction')) {
+                    const receiverExpression: any = statement.initializer.expression;
+                    const senderName: string = receiverExpression.receiveWorkers?.name?.value;
+
+                    this.addToSendReceiveMap('Receive',
+                        { from: senderName, node: statement, paired: false, index: (index - startIndex) });
+                } else if (STKindChecker.isWaitAction(statement.initializer)
+                    && STKindChecker.isSimpleNameReference(statement.initializer.waitFutureExpr)) {
+                    this.addToSendReceiveMap('Wait', {
+                        for: statement.initializer.waitFutureExpr.name.value,
+                        node: statement,
+                        index: (index - startIndex)
+                    });
+                } else if (STKindChecker.isCheckAction(statement.initializer)
+                    && STKindChecker.isWaitAction(statement.initializer.expression)
+                    && STKindChecker.isSimpleNameReference(statement.initializer.expression.waitFutureExpr)) {
+                    this.addToSendReceiveMap('Wait', {
+                        for: statement.initializer.expression.waitFutureExpr.name.value,
+                        node: statement,
+                        index: (index - startIndex)
+                    });
+                }
+            } else if (STKindChecker.isAssignmentStatement(statement)) {
+                if (statement.expression?.kind === 'ReceiveAction') {
+                    const receiverExpression: any = statement.expression;
+                    const senderName: string = receiverExpression.receiveWorkers?.name?.value;
+                    this.addToSendReceiveMap('Receive',
+                        { from: senderName, node: statement, paired: false, index: (index - startIndex) });
+                } else if (STKindChecker.isCheckAction(statement.expression)
+                    && (statement.expression.expression.kind === 'ReceiveAction')) {
+                    const receiverExpression: any = statement.expression.expression;
+                    const senderName: string = receiverExpression.receiveWorkers?.name?.value;
+
+                    this.addToSendReceiveMap('Receive',
+                        { from: senderName, node: statement, paired: false, index: (index) });
+                } else if (STKindChecker.isWaitAction(statement.expression)
+                    && STKindChecker.isSimpleNameReference(statement.expression.waitFutureExpr)) {
+                    this.addToSendReceiveMap('Wait', {
+                        for: statement.expression.waitFutureExpr.name.value,
+                        node: statement,
+                        index: (index - startIndex)
+                    });
+                } else if (STKindChecker.isCheckAction(statement.expression)
+                    && STKindChecker.isWaitAction(statement.expression.expression)
+                    && STKindChecker.isSimpleNameReference(statement.expression.expression.waitFutureExpr)) {
+                    this.addToSendReceiveMap('Wait', {
+                        for: statement.expression.expression.waitFutureExpr.name.value,
+                        node: statement,
+                        index: (index - startIndex)
+                    });
+                }
+            } else if (STKindChecker.isReturnStatement(statement) && statement.expression
+                && STKindChecker.isWaitAction(statement.expression) && statement.expression.waitFutureExpr
+                && STKindChecker.isSimpleNameReference(statement.expression.waitFutureExpr)) {
+                this.addToSendReceiveMap('Wait', {
+                    for: statement.expression.waitFutureExpr.name.value,
+                    node: statement,
+                    index: (index - startIndex)
+                });
+            }
+
             if (!blockViewState.collapsed) {
                 // This captures the collapsed statement
                 if (blockViewState.collapsedFrom === index && blockViewState.collapseView) {
                     // This captures the collapse button click
                     if (plusForIndex && plusForIndex.collapsedClicked) {
                         const collapsedView = blockViewState.collapseView;
-                        collapsedView.bBox.h = collapsedView.bBox.offsetFromTop + COLLAPSE_SVG_HEIGHT_WITH_SHADOW + collapsedView.bBox.offsetFromBottom;
+                        collapsedView.bBox.h = collapsedView.bBox.offsetFromTop + COLLAPSE_SVG_HEIGHT_WITH_SHADOW
+                            + collapsedView.bBox.offsetFromBottom;
                         collapsedView.bBox.w = COLLAPSE_SVG_WIDTH_WITH_SHADOW;
                         collapsedView.bBox.lw = COLLAPSE_SVG_WIDTH_WITH_SHADOW / 2;
                         collapsedView.bBox.rw = COLLAPSE_SVG_WIDTH_WITH_SHADOW / 2;
@@ -1137,11 +1551,10 @@ class SizingVisitor implements Visitor {
 
                         // to make the next plus invisible if the current statement is not the last statement
                         for (const invisiblePlusIndex of blockViewState.plusButtons) {
-                            if (invisiblePlusIndex.index > index && invisiblePlusIndex.index !== node.statements.length) {
+                            if (invisiblePlusIndex.index > index && invisiblePlusIndex.index !== lastStatementIndex) {
                                 invisiblePlusIndex.visible = false;
                             }
                         }
-
                         plusForIndex.collapsedClicked = false;
                     } else {
                         height += blockViewState.collapseView.bBox.h;
@@ -1165,8 +1578,8 @@ class SizingVisitor implements Visitor {
                                 draft.selectedConnector = plusForIndex.draftSelectedConnector;
 
                                 draft.targetPosition = {
-                                    startLine: element.position.startLine, // todo: position?
-                                    startColumn: element.position.startColumn
+                                    startLine: statement.position.startLine,
+                                    startColumn: statement.position.startColumn
                                 };
                                 blockViewState.draft = [index, draft];
                                 plusForIndex.draftAdded = undefined;
@@ -1209,8 +1622,8 @@ class SizingVisitor implements Visitor {
                         draft.selectedConnector = plusForIndex.draftSelectedConnector;
 
                         draft.targetPosition = {
-                            startLine: element.position.startLine, // todo:position?
-                            startColumn: element.position.startColumn
+                            startLine: statement.position.startLine,
+                            startColumn: statement.position.startColumn
                         };
                         blockViewState.draft = [index, draft];
                         plusForIndex.draftAdded = undefined;
@@ -1235,10 +1648,8 @@ class SizingVisitor implements Visitor {
                     if ((stmtViewState.isEndpoint && stmtViewState.isAction && !stmtViewState.hidden) ||
                         (!stmtViewState.collapsed)) {
                         // Excluding return statement heights which is in the main function block
-                        if (!(blockViewState.isEndComponentInMain && (index === node.statements.length - 1))) {
-                            stmtViewState.bBox.h = stmtViewState.bBox.offsetFromTop + stmtViewState.bBox.h +
-                                stmtViewState.bBox.offsetFromBottom;
-                            height += stmtViewState.bBox.h;
+                        if (!(blockViewState.isEndComponentInMain && (index === lastStatementIndex - 1))) {
+                            height += stmtViewState.getHeight();
                         }
                     }
 
@@ -1281,44 +1692,7 @@ class SizingVisitor implements Visitor {
 
             ++index;
         });
-
-        if (blockViewState.draft && blockViewState.draft[0] === node.statements.length) {
-            // Get the draft.
-            const draft = blockViewState.draft[1];
-            if (draft) {
-                const { h, w } = getDraftComponentSizes(draft.type, draft.subType);
-                draft.bBox.h = draft.bBox.offsetFromTop + h + draft.bBox.offsetFromBottom
-                draft.bBox.w = w;
-                draft.bBox.lw = w / 2;
-                draft.bBox.rw = w / 2;
-                height += draft.bBox.h;
-                if (width < draft.bBox.w) {
-                    width = draft.bBox.w;
-                }
-                if (leftWidth < draft.bBox.lw) {
-                    leftWidth = draft.bBox.lw;
-                }
-                if (rightWidth < draft.bBox.rw) {
-                    rightWidth = draft.bBox.rw;
-                }
-            }
-        }
-
-        if (height > 0) {
-            blockViewState.bBox.h = height;
-        }
-
-        if (width > 0) {
-            blockViewState.bBox.w = width;
-        }
-
-        if (leftWidth > 0) {
-            blockViewState.bBox.lw = leftWidth;
-        }
-
-        if (rightWidth > 0) {
-            blockViewState.bBox.rw = rightWidth;
-        }
+        return { index, height, width, leftWidth, rightWidth };
     }
 }
 

@@ -163,12 +163,14 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
                                 tooltipActionLink: customStatementTooltipMessages.actionLink,
                                 interactive: true,
                                 customTemplate: {
-                                    defaultCodeSnippet: '',
+                                    defaultCodeSnippet: ' ',
                                     targetColumn: 1,
                                 },
                                 editPosition: config?.model?.position || formArgs?.targetPosition,
                                 initialDiagnostics: config?.model?.typeData?.diagnostics,
-                                disableFiltering: true
+                                disableFiltering: true,
+                                diagnosticsFilterExtraColumns: { end: 1 },
+                                diagnosticsFilterExtraRows: { end: 1 }
                             }}
                             onChange={onExpressionChange}
                         />

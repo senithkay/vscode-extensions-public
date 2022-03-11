@@ -59,6 +59,7 @@ export function Record(props: FormElementProps<RecordProps>) {
             index,
             customProps: {
                 validate: validateField,
+                tooltipTitle: field?.documentation || field.tooltip,
                 expressionInjectables,
                 editPosition,
                 initialDiagnostics: field.initialDiagnostics,
