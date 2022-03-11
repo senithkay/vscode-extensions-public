@@ -182,9 +182,7 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
   }
 
   ballerinaExtInstance.context?.subscriptions.push(
-    workspace.onDidOpenTextDocument(updateNodeForDocument),
-    workspace.onDidChangeTextDocument(e => updateNodeForDocument(e.document)),
-    workspace.onDidSaveTextDocument(doc => updateNodeForDocument(doc)),
+    workspace.onDidChangeTextDocument(e => updateNodeForDocument(e.document))
   );
 
   if (!langClient) {
@@ -270,11 +268,13 @@ export async function createTests(uri: Uri) {
   }
 
   // create tests for current project
-  root = (await langClient.getBallerinaProject({
-    documentIdentifier: {
-      uri: uri.toString()
-    }
-  })).path;
+  langClient.onReady().then(async () => {
+    root = (await langClient!.getBallerinaProject({
+      documentIdentifier: {
+        uri: uri.toString()
+      }
+    })).path;
+  });
 
   if (!root) {
     return;
@@ -292,91 +292,93 @@ export async function createTests(uri: Uri) {
   currentProjectRoot = root;
 
   // Get tests from LS.
-  langClient.getExecutorPositions({
-    documentIdentifier: {
-      uri: uri.toString()
-    }
-  }).then(async response => {
-    if (!response.executorPositions) {
-      return;
-    }
-
-    let positions: ExecutorPosition[] = [];
-    response.executorPositions.forEach(position => {
-      if (position.kind === EXEC_POSITION_TYPE.TEST) {
-        positions.push(position);
+  langClient.onReady().then(() => {
+    langClient!.getExecutorPositions({
+      documentIdentifier: {
+        uri: uri.toString()
       }
-    });
-
-    if (positions.length === 0) {
-      return;
-    }
-
-    const ancestors: TestItem[] = [];
-
-    let relativePath = path.relative(root!, uri.fsPath).toString().split(path.sep);
-
-    let level = relativePath[0];
-    let fullPath = path.join(root!, level).toString();
-    let depth = 0;
-
-    // if already added to the test explorer.
-    let rootNode = ctrl.items.get(fullPath);
-    if (rootNode) {
-      let parentNode: TestItem = rootNode;
-      let pathToFind = uri.fsPath;
-      while (pathToFind != '') {
-        parentNode = getTestItemNode(rootNode, pathToFind);
-        if (parentNode.id == pathToFind) {
-          relativePath = path.relative(pathToFind, uri.fsPath).split(path.sep);
-          break;
-        }
-        const lastIndex = pathToFind.lastIndexOf(path.sep);
-        pathToFind = pathToFind.slice(0, lastIndex);
-      }
-
-      if (parentNode && parentNode.id === uri.fsPath) {
-        let testCaseItems: TestItem[] = [];
-
-        positions.forEach(position => {
-          const tcase = createTestCase(ctrl, fullPath, position);
-          testCaseItems.push(tcase);
-        });
-        parentNode.children.replace(testCaseItems);
-
+    }).then(async response => {
+      if (!response.executorPositions) {
         return;
-      } else {
-        rootNode = parentNode;
-        ancestors.push(rootNode);
-        depth = 0;
       }
-    } else {
-      rootNode = createTestItem(ctrl, fullPath, fullPath, level);
-      ctrl.items.add(rootNode);
-      ancestors.push(rootNode);
-      depth = 1;
-    }
 
-    for (depth; depth < relativePath.length; depth++) {
+      let positions: ExecutorPosition[] = [];
+      response.executorPositions.forEach(position => {
+        if (position.kind === EXEC_POSITION_TYPE.TEST) {
+          positions.push(position);
+        }
+      });
+
+      if (positions.length === 0) {
+        return;
+      }
+
+      const ancestors: TestItem[] = [];
+
+      let relativePath = path.relative(root!, uri.fsPath).toString().split(path.sep);
+
+      let level = relativePath[0];
+      let fullPath = path.join(root!, level).toString();
+      let depth = 0;
+
+      // if already added to the test explorer.
+      let rootNode = ctrl.items.get(fullPath);
+      if (rootNode) {
+        let parentNode: TestItem = rootNode;
+        let pathToFind = uri.fsPath;
+        while (pathToFind != '') {
+          parentNode = getTestItemNode(rootNode, pathToFind);
+          if (parentNode.id == pathToFind) {
+            relativePath = path.relative(pathToFind, uri.fsPath).split(path.sep);
+            break;
+          }
+          const lastIndex = pathToFind.lastIndexOf(path.sep);
+          pathToFind = pathToFind.slice(0, lastIndex);
+        }
+
+        if (parentNode && parentNode.id === uri.fsPath) {
+          let testCaseItems: TestItem[] = [];
+
+          positions.forEach(position => {
+            const tcase = createTestCase(ctrl, fullPath, position);
+            testCaseItems.push(tcase);
+          });
+          parentNode.children.replace(testCaseItems);
+
+          return;
+        } else {
+          rootNode = parentNode;
+          ancestors.push(rootNode);
+          depth = 0;
+        }
+      } else {
+        rootNode = createTestItem(ctrl, fullPath, fullPath, level);
+        ctrl.items.add(rootNode);
+        ancestors.push(rootNode);
+        depth = 1;
+      }
+
+      for (depth; depth < relativePath.length; depth++) {
+        const parent = ancestors.pop()!;
+        const level = relativePath[depth];
+        fullPath = path.join(fullPath, level).toString();
+        const middleNode = createTestItem(ctrl, fullPath, fullPath, level);
+        middleNode.canResolveChildren = true;
+        parent.children.add(middleNode);
+        ancestors.push(middleNode);
+      }
+
       const parent = ancestors.pop()!;
-      const level = relativePath[depth];
-      fullPath = path.join(fullPath, level).toString();
-      const middleNode = createTestItem(ctrl, fullPath, fullPath, level);
-      middleNode.canResolveChildren = true;
-      parent.children.add(middleNode);
-      ancestors.push(middleNode);
-    }
+      let testCaseItems: TestItem[] = [];
+      positions.forEach(position => {
+        const tcase = createTestCase(ctrl, fullPath, position);
+        testCaseItems.push(tcase);
+      });
+      parent.children.replace(testCaseItems);
 
-    const parent = ancestors.pop()!;
-    let testCaseItems: TestItem[] = [];
-    positions.forEach(position => {
-      const tcase = createTestCase(ctrl, fullPath, position);
-      testCaseItems.push(tcase);
+      rootNode.canResolveChildren = true;
+    }, _error => {
     });
-    parent.children.replace(testCaseItems);
-
-    rootNode.canResolveChildren = true;
-  }, _error => {
   });
 }
 
