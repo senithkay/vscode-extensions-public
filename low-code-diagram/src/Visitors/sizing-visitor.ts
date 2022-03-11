@@ -750,7 +750,7 @@ export class SizingVisitor implements Visitor {
                 plusBtnViewState.selectedComponent = "PROCESS";
                 plusBtnViewState.collapsedClicked = false;
                 plusBtnViewState.collapsedPlusDuoExpanded = false;
-                plusBtnViewState.isPlusBeforeWorkerBlock = true;
+                plusBtnViewState.allowWorker = true;
                 viewState.plusButtons.push(plusBtnViewState)
             }
 
@@ -783,10 +783,23 @@ export class SizingVisitor implements Visitor {
             const workerInitStatements = (node as FunctionBodyBlock).namedWorkerDeclarator.workerInitStatements;
             ({ index, height, width, leftWidth, rightWidth } = this.calculateStatementSizing(workerInitStatements, index, viewState, height, width, workerInitStatements.length + node.statements.length, leftWidth, rightWidth));
 
+            const plusAfterWorker = getPlusViewState(index, viewState.plusButtons);
+            
+            if (plusAfterWorker) {
+                plusAfterWorker.allowWorker = true;
+            }
+
             height += PLUS_SVG_HEIGHT + PROCESS_SVG_HEIGHT;
         }
 
         this.endSizingBlock(node, index + node.statements.length, width, height, index, leftWidth, rightWidth);
+
+        if (!viewState.hasWorkerDecl) {
+            viewState.plusButtons.forEach(plusVS => {
+                plusVS.allowWorker = true;
+            })
+        }
+
     }
 
     public beginVisitBlockStatement(node: BlockStatement, parent?: STNode) {
