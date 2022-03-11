@@ -14,12 +14,15 @@ import React, { useEffect, useReducer } from 'react';
 
 import { FormControl } from '@material-ui/core';
 import { ExpressionEditorProps } from '@wso2-enterprise/ballerina-expression-editor';
-import { ADD_VARIABLE, FormElementProps, LowcodeEvent, SAVE_VARIABLE, STModification } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { FormElementProps, STModification } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { FormActionButtons, FormHeaderSection } from '@wso2-enterprise/ballerina-low-code-edtior-ui-components';
 import { ModuleVarDecl, NodePosition } from '@wso2-enterprise/syntax-tree';
 
 import { useDiagramContext } from '../../../../../Contexts/Diagram';
+import { getAllModuleVariables } from '../../../../utils/mixins';
 import { createModuleVarDecl, updateModuleVarDecl } from '../../../../utils/modification-util';
+import { getVariableNameFromST } from '../../../../utils/st-util';
+import { genVariableName } from '../../../Portals/utils';
 import { getVarNamePositionFromST } from '../../../../utils/st-util';
 import { useStyles as useFormStyles } from "../../DynamicConnectorForm/style";
 import CheckBoxGroup from '../../FormFieldComponents/CheckBox';
@@ -43,7 +46,7 @@ interface ModuleVariableFormProps {
 
 export function ModuleVariableForm(props: ModuleVariableFormProps) {
     const formClasses = useFormStyles();
-    const { api: { code: { modifyDiagram }, insights: { onEvent } } } = useDiagramContext();
+    const { api: { code: { modifyDiagram }, insights: { onEvent } }, props: { stSymbolInfo } } = useDiagramContext();
     const { onSave, onCancel, targetPosition, model, formType, isLastMember } = props;
     const [state, dispatch] = useReducer(moduleVarFormReducer, getFormConfigFromModel(model));
     const variableTypes: string[] = ["int", "float", "boolean", "string", "json", "xml"];
@@ -63,6 +66,7 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
 
     const handleOnSave = () => {
         const modifications: STModification[] = []
+        state.varName  = genVariableName(state.varName, getAllModuleVariables(stSymbolInfo));
         if (model) {
             modifications.push(updateModuleVarDecl(state, model.position));
         } else {
