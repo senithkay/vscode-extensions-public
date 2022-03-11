@@ -254,7 +254,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     const [cursorOnEditor, setCursorOnEditor] = useState(false);
 
     const textLabel = model?.displayAnnotation?.label || model?.name || model.typeName;
-    const varName = "temp_" + textLabel.replace(/[^A-Z0-9]+/gi, "");
+    const varName = customTemplate ? customTemplate.defaultCodeSnippet.split(' ')[2] : "temp_" + textLabel.replace(/[^A-Z0-9]+/gi, "");
     const varType = transformFormFieldTypeToString(model);
     const initalValue = getInitialValue(defaultValue, model);
     const defaultCodeSnippet = customTemplate ? customTemplate.defaultCodeSnippet || "" : varType + " " + varName + " = ;";
