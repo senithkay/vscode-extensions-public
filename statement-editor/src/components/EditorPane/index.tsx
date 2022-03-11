@@ -57,7 +57,6 @@ export function EditorPane(props: ModelProps) {
         }
     } = stmtCtx;
 
-    const [, setIsSuggestionClicked] = useState(false);
     const [lsSuggestionsList, setLSSuggestionsList] = useState([]);
     const [exprSuggestionList, setExprSuggestionsList] = useState(statementModel ?
         getSuggestionsBasedOnExpressionKind(c.DEFAULT_EXPRESSIONS) : []);
@@ -70,8 +69,6 @@ export function EditorPane(props: ModelProps) {
         if (suggestions.lsSuggestions) {
             setLSSuggestionsList(suggestions.lsSuggestions);
         }
-
-        setIsSuggestionClicked(false);
     }
 
     const undoRedoButtons = (
