@@ -20,7 +20,6 @@ import SelectDropdown from "../Dropdown";
 import { LibraryBrowser } from "../LibraryBrowser";
 import { useStatementEditorStyles } from "../styles";
 import { ExpressionSuggestions } from "../Suggestions/ExpressionSuggestions";
-import { TypeSuggestions } from "../Suggestions/TypeSuggestions";
 import { VariableSuggestions } from "../Suggestions/VariableSuggestions";
 import TabPanel from "../Tab";
 
@@ -103,14 +102,6 @@ export function HelperPane(props: HelperPaneProps) {
                         isExpression={selectedTab === TabElements.expressions}
                     />
                 )}
-                {/*{(*/}
-                {/*    <TypeSuggestions*/}
-                {/*        model={currentModel.model}*/}
-                {/*        typeSuggestions={typeDescriptorList}*/}
-                {/*        suggestionHandler={suggestionHandler}*/}
-                {/*        isSuggestion={selectedTab === TabElements.suggestions}*/}
-                {/*    />*/}
-                {/*)}*/}
                 <LibraryBrowser
                     libraryType={libraryType}
                     isLibrary={selectedTab === TabElements.libraries}
