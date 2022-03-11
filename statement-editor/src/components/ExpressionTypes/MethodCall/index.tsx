@@ -75,7 +75,7 @@ export function MethodCallComponent(props: MethodCallProps) {
             fileURI, content, targetPosition, model.expression.position,
             false, isElseIfMember, model.expression.source, getLangClient);
 
-        expressionHandler(model.expression, false, false, {
+        expressionHandler(model.expression, false, {
             expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
             typeSuggestions: [],
             variableSuggestions: completions
@@ -92,7 +92,7 @@ export function MethodCallComponent(props: MethodCallProps) {
             fileURI, content, targetPosition, model.methodName.position,
             false, isElseIfMember, model.methodName.source, getLangClient);
 
-        expressionHandler(model.methodName, false, false, {
+        expressionHandler(model.methodName, false, {
             expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
             typeSuggestions: [],
             variableSuggestions: completions

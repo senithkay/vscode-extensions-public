@@ -49,7 +49,7 @@ export function MappingConstructorComponent(props: MappingConstructorProps) {
 
     const onClickOnExpression = (clickedExpression: STNode, event: any) => {
         event.stopPropagation();
-        expressionHandler(clickedExpression, false, false,
+        expressionHandler(clickedExpression, false,
             { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) })
     };
 

@@ -57,7 +57,7 @@ export function IndexedExpressionComponent(props: IndexedExpressionProps) {
 
     const onClickOnContainerExpr = (event: any) => {
         event.stopPropagation()
-        expressionHandler(model.containerExpression, false, false, {
+        expressionHandler(model.containerExpression, false, {
             expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
             typeSuggestions: [],
             variableSuggestions: []
@@ -74,7 +74,7 @@ export function IndexedExpressionComponent(props: IndexedExpressionProps) {
             fileURI, content, targetPosition, clickedExpression.position,
             false, isElseIfMember, clickedExpression.source, getLangClient);
 
-        expressionHandler(clickedExpression, false, false, {
+        expressionHandler(clickedExpression, false, {
             expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
             typeSuggestions: [],
             variableSuggestions: completions

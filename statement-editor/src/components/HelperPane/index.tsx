@@ -29,7 +29,6 @@ interface HelperPaneProps {
     typeDescriptorList: SuggestionItem[];
     suggestionList: SuggestionItem[];
     isOperator: boolean;
-    isTypeDescSuggestion: boolean;
 }
 
 enum TabElements {
@@ -40,7 +39,7 @@ enum TabElements {
 
 export function HelperPane(props: HelperPaneProps) {
     const statementEditorClasses = useStatementEditorStyles();
-    const { variableList, typeDescriptorList, suggestionList, isOperator, isTypeDescSuggestion } = props;
+    const { variableList, typeDescriptorList, suggestionList, isOperator } = props;
     const stmtCtx = useContext(StatementEditorContext);
     const {
         modelCtx: {
@@ -87,15 +86,15 @@ export function HelperPane(props: HelperPaneProps) {
                 </div>
             </div>
             <div className={statementEditorClasses.suggestionsInner}>
-                { (!isTypeDescSuggestion) && (
+                {(
                     <VariableSuggestions
                         model={currentModel.model}
-                        variableSuggestions={variableList}
+                        variableSuggestions={variableList || typeDescriptorList}
                         suggestionHandler={suggestionHandler}
                         isSuggestion={selectedTab === TabElements.suggestions}
                     />
                 )}
-                { (!isTypeDescSuggestion) && (
+                {(
                     <ExpressionSuggestions
                         model={currentModel.model}
                         suggestions={suggestionList}
@@ -104,7 +103,7 @@ export function HelperPane(props: HelperPaneProps) {
                         isExpression={selectedTab === TabElements.expressions}
                     />
                 )}
-                { isTypeDescSuggestion && (
+                {(
                     <TypeSuggestions
                         model={currentModel.model}
                         typeSuggestions={typeDescriptorList}

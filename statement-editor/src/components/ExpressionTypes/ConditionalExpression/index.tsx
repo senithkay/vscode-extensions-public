@@ -50,7 +50,7 @@ export function ConditionalExpressionComponent(props: ConditionalExpressionProps
             fileURI, content, targetPosition, model.lhsExpression.position,
             false, isElseIfMember, model.lhsExpression.source, getLangClient);
 
-        expressionHandler(model.lhsExpression, false, false, {
+        expressionHandler(model.lhsExpression, false, {
             expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
             typeSuggestions: [],
             variableSuggestions: completions
@@ -67,7 +67,7 @@ export function ConditionalExpressionComponent(props: ConditionalExpressionProps
             fileURI, content, targetPosition, model.middleExpression.position,
             false, isElseIfMember, model.middleExpression.source, getLangClient);
 
-        expressionHandler(model.middleExpression, false, false, {
+        expressionHandler(model.middleExpression, false, {
             expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
             typeSuggestions: [],
             variableSuggestions: completions
@@ -84,7 +84,7 @@ export function ConditionalExpressionComponent(props: ConditionalExpressionProps
             fileURI, content, targetPosition, model.endExpression.position,
             false, isElseIfMember, model.endExpression.source, getLangClient);
 
-        expressionHandler(model.endExpression, false, false, {
+        expressionHandler(model.endExpression, false, {
             expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
             typeSuggestions: [],
             variableSuggestions: completions

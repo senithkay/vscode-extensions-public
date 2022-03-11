@@ -54,10 +54,8 @@ export async function getContextBasedCompletions (
             isTypeDescriptor: boolean,
             isElseIfMember: boolean,
             selection: string,
-            getLangClient: () => Promise<ExpressionEditorLangClientInterface>,
-            currentFileContent?: string): Promise<SuggestionItem[]> {
+            getLangClient: () => Promise<ExpressionEditorLangClientInterface>) : Promise<SuggestionItem[]> {
     const suggestions: SuggestionItem[] = [];
-    await sendDidOpen(docUri, currentFileContent, getLangClient);
     await sendDidChange(docUri, content, getLangClient);
     const completionParams: CompletionParams = {
         textDocument: {

@@ -48,7 +48,7 @@ export function ListBindingPatternComponent(props: ListBindingPatternProps) {
 
     const onClickOnBindingPattern = (event: any) => {
         event.stopPropagation()
-        expressionHandler(model, false, false,
+        expressionHandler(model, false,
             { expressionSuggestions: [], typeSuggestions: [], variableSuggestions: [] })
     };
 

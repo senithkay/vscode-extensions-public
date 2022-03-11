@@ -20,7 +20,6 @@ import { SuggestionItem } from "../models/definitions";
 export const SuggestionsContext = React.createContext({
     expressionHandler: (model: STNode,
                         operator: boolean,
-                        isTypeDesc: boolean,
                         suggestionsList: {
                             expressionSuggestions?: SuggestionItem[],
                             variableSuggestions?: SuggestionItem[],

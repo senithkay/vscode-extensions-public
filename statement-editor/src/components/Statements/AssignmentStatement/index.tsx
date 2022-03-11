@@ -52,7 +52,7 @@ export function AssignmentStatementComponent(props: AssignmentStatementProps) {
             fileURI, content, targetPosition, model.varRef.position,
             false, isElseIfMember, model.varRef.source, getLangClient);
 
-        expressionHandler(model.varRef, false, false, {
+        expressionHandler(model.varRef, false, {
             expressionSuggestions: [],
             typeSuggestions: [],
             variableSuggestions: completions
@@ -69,7 +69,7 @@ export function AssignmentStatementComponent(props: AssignmentStatementProps) {
             fileURI, content, targetPosition, model.expression.position,
             false, isElseIfMember, model.expression.source, getLangClient);
 
-        expressionHandler(model.expression, false, false, {
+        expressionHandler(model.expression, false, {
             expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
             typeSuggestions: [],
             variableSuggestions: completions
@@ -80,8 +80,8 @@ export function AssignmentStatementComponent(props: AssignmentStatementProps) {
         addStatementToTargetLine(currentFile.content, targetPosition,
             stmtCtx.modelCtx.statementModel.source, getLangClient).then((content: string) => {
             getContextBasedCompletions(fileURI, content, targetPosition, model.expression.position, false,
-                isElseIfMember, model.expression.source, getLangClient,  currentFile.content).then((completions) => {
-                expressionHandler(model.expression, false, false, {
+                isElseIfMember, model.expression.source, getLangClient).then((completions) => {
+                expressionHandler(model.expression, false, {
                     expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
                     typeSuggestions: [],
                     variableSuggestions: completions

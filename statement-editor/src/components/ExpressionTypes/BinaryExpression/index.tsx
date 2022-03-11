@@ -53,7 +53,7 @@ export function BinaryExpressionComponent(props: BinaryProps) {
 
     const onClickOperator = (event: any) => {
         event.stopPropagation()
-        expressionHandler(model.operator, true, false, {
+        expressionHandler(model.operator, true, {
             expressionSuggestions: getOperatorSuggestions(kind),
             typeSuggestions: [],
             variableSuggestions: []
@@ -70,7 +70,7 @@ export function BinaryExpressionComponent(props: BinaryProps) {
             fileURI, content, targetPosition, model.lhsExpr.position,
             false, isElseIfMember, model.lhsExpr.source, getLangClient);
 
-        expressionHandler(model.lhsExpr, false, false, {
+        expressionHandler(model.lhsExpr, false, {
             expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
             typeSuggestions: [],
             variableSuggestions: completions
@@ -87,7 +87,7 @@ export function BinaryExpressionComponent(props: BinaryProps) {
             fileURI, content, targetPosition, model.rhsExpr.position,
             false, isElseIfMember, model.rhsExpr.source, getLangClient);
 
-        expressionHandler(model.rhsExpr, false, false, {
+        expressionHandler(model.rhsExpr, false, {
             expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
             typeSuggestions: [],
             variableSuggestions: completions

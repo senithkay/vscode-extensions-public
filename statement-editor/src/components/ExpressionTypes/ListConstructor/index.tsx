@@ -56,7 +56,7 @@ export function ListConstructorComponent(props: ListConstructorProps) {
         const completions: SuggestionItem[] = await getContextBasedCompletions(
             fileURI, content, formModelPosition, clickedExpression.position,
             false, isElseIfMember, clickedExpression.source, getLangClient);
-        expressionHandler(clickedExpression, false, false, {
+        expressionHandler(clickedExpression, false, {
             expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
             typeSuggestions: [],
             variableSuggestions: completions

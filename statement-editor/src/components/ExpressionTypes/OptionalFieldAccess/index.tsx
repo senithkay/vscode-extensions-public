@@ -50,7 +50,7 @@ export function OptionalFieldAccessComponent(props: OptionalFieldAccessProps) {
             fileURI, content, targetPosition, model.fieldName.position,
             false, isElseIfMember, model.source, getLangClient);
 
-        expressionHandler(model.fieldName, false, false, {
+        expressionHandler(model.fieldName, false, {
             expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
             typeSuggestions: [],
             variableSuggestions: completions
@@ -59,7 +59,7 @@ export function OptionalFieldAccessComponent(props: OptionalFieldAccessProps) {
 
     const onClickOnExpr = (event: any) => {
         event.stopPropagation()
-        expressionHandler(model.expression, true, false,
+        expressionHandler(model.expression, true,
             { expressionSuggestions: [], typeSuggestions: [], variableSuggestions: [] })
     }
 

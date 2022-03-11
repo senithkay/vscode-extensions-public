@@ -59,7 +59,7 @@ export function IfStatementC(props: IfStatementProps) {
         const completions: SuggestionItem[] = await getContextBasedCompletions(fileURI, content, targetPosition,
             model.condition.position, false, isElseIfMember, model.condition.source, getLangClient);
 
-        expressionHandler(model.condition, false, false, {
+        expressionHandler(model.condition, false, {
             expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
             typeSuggestions: [],
             variableSuggestions: completions
@@ -70,8 +70,8 @@ export function IfStatementC(props: IfStatementProps) {
         addStatementToTargetLine(currentFile.content, targetPosition,
             stmtCtx.modelCtx.statementModel.source, getLangClient).then((content: string) => {
             getContextBasedCompletions(fileURI, content, targetPosition, model.condition.position, false,
-                isElseIfMember, model.condition.source, getLangClient, currentFile.content).then((completions) => {
-                expressionHandler(model.condition, false, false, {
+                isElseIfMember, model.condition.source, getLangClient).then((completions) => {
+                expressionHandler(model.condition, false, {
                     expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
                     typeSuggestions: [],
                     variableSuggestions: completions

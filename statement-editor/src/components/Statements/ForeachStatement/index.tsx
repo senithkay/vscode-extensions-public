@@ -45,7 +45,7 @@ export function ForeachStatementC(props: ForeachStatementProps) {
 
     const onClickOnBindingPattern = (event: any) => {
         event.stopPropagation();
-        expressionHandler(model.typedBindingPattern, false, false,
+        expressionHandler(model.typedBindingPattern, false,
             {expressionSuggestions: [], typeSuggestions: [], variableSuggestions: []});
     };
 
@@ -59,7 +59,7 @@ export function ForeachStatementC(props: ForeachStatementProps) {
             model.actionOrExpressionNode.position, false, isElseIfMember,
             model.actionOrExpressionNode.source, getLangClient);
 
-        expressionHandler(model.actionOrExpressionNode, false, false, {
+        expressionHandler(model.actionOrExpressionNode, false, {
             expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
             typeSuggestions: [],
             variableSuggestions: completions
@@ -71,8 +71,8 @@ export function ForeachStatementC(props: ForeachStatementProps) {
             stmtCtx.modelCtx.statementModel.source, getLangClient).then((content: string) => {
             getContextBasedCompletions(fileURI, content, targetPosition, model.actionOrExpressionNode.position,
                 false, isElseIfMember, model.actionOrExpressionNode.source,
-                getLangClient, currentFile.content).then((completions) => {
-                expressionHandler(model.actionOrExpressionNode, false, false, {
+                getLangClient).then((completions) => {
+                expressionHandler(model.actionOrExpressionNode, false, {
                     expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
                     typeSuggestions: [],
                     variableSuggestions: completions

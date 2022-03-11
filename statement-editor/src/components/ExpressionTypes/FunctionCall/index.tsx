@@ -49,7 +49,7 @@ export function FunctionCallComponent(props: FunctionCallProps) {
             fileURI, content, targetPosition, model.position,
             false, isElseIfMember, model.source, getLangClient);
 
-        expressionHandler(model, false, false, {
+        expressionHandler(model, false, {
             expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
             typeSuggestions: [],
             variableSuggestions: completions

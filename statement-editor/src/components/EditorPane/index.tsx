@@ -63,17 +63,12 @@ export function EditorPane(props: ModelProps) {
     const [isOperator, setIsOperator] = useState(false);
     const [variableList, setVariableList] = useState([]);
     const [typeDescriptorList, setTypeDescriptorList] = useState([]);
-    const [isTypeDescSuggestion, setIsTypeDescSuggestion] = useState(false);
 
-    const expressionHandler = (
-        cModel: STNode,
-        operator: boolean,
-        isTypeDesc: boolean,
-        suggestionsList: {
-            variableSuggestions?: SuggestionItem[],
-            expressionSuggestions?: SuggestionItem[],
-            typeSuggestions?: SuggestionItem[]
-        }) => {
+    const expressionHandler = (cModel: STNode, operator: boolean, suggestionsList: {
+                                                                        variableSuggestions?: SuggestionItem[],
+                                                                        expressionSuggestions?: SuggestionItem[],
+                                                                        typeSuggestions?: SuggestionItem[]
+                                                                    }) => {
         currentModelHandler(cModel);
         if (suggestionsList.expressionSuggestions) {
             setSuggestionsList(suggestionsList.expressionSuggestions);
@@ -85,7 +80,6 @@ export function EditorPane(props: ModelProps) {
             setTypeDescriptorList(suggestionsList.typeSuggestions);
         }
 
-        setIsTypeDescSuggestion(isTypeDesc);
         setIsSuggestionClicked(false);
         setIsOperator(operator);
     }
@@ -140,7 +134,6 @@ export function EditorPane(props: ModelProps) {
                     typeDescriptorList={typeDescriptorList}
                     suggestionList={suggestionList}
                     isOperator={isOperator}
-                    isTypeDescSuggestion={isTypeDescSuggestion}
                 />
             </div>
         </div>

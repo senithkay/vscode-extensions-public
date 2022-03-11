@@ -50,7 +50,7 @@ export function TypeTestExpressionComponent(props: TypeTestExpressionProps) {
             fileURI, content, targetPosition, model.expression.position,
             false, isElseIfMember, model.expression.source, getLangClient);
 
-        expressionHandler(model.expression, false, false, {
+        expressionHandler(model.expression, false, {
             expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
             typeSuggestions: [],
             variableSuggestions: completions
@@ -67,7 +67,7 @@ export function TypeTestExpressionComponent(props: TypeTestExpressionProps) {
             fileURI, content, targetPosition, model.typeDescriptor.position,
             true, isElseIfMember, model.typeDescriptor.source, getLangClient);
 
-        expressionHandler(model.typeDescriptor, false, true, {
+        expressionHandler(model.typeDescriptor, false, {
             expressionSuggestions: [],
             typeSuggestions: completions,
             variableSuggestions: []

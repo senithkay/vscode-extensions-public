@@ -35,7 +35,7 @@ export function CheckActionComponent(props: CheckActionProps) {
     const onClickOnExpression = async (event: any) => {
         event.stopPropagation();
 
-        expressionHandler(model.expression, false, false,
+        expressionHandler(model.expression, false,
             { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS), typeSuggestions: [], variableSuggestions: [] });
     };
     const spanClassName =  classNames(
