@@ -1,0 +1,11 @@
+.worker-start-container {
+    .modification-buttons {
+        display: none;
+    }
+
+    &:hover {
+        .modification-buttons {
+            display: block;
+        }
+    }
+}

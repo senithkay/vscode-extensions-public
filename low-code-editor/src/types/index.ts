@@ -17,8 +17,7 @@
 import { BlockViewState } from "@wso2-enterprise/ballerina-low-code-diagram";
 import {
     BallerinaConnectorInfo, ConditionConfig, ConfigOverlayFormStatus, ConfigPanelStatus, Connector,
-    DataMapperConfig,
-    DiagramEditorLangClientInterface, ExpressionEditorLangClientInterface, LibraryDataResponse, LibraryDocResponse, LibrarySearchResponse, PerformanceData, STModification,
+    CurrentFile, DiagramEditorLangClientInterface, ExpressionEditorLangClientInterface, LibraryDataResponse, LibraryDocResponse, LibrarySearchResponse, PerformanceData, STModification,
     STSymbolInfo, WizardType
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { ModulePart, NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
@@ -117,11 +116,7 @@ export interface LowCodeEditorAPI {
 // and need to avoid getting from outside
 export interface LowCodeEditorProperties {
     userInfo?: UserState;
-    currentFile: {
-        content: string,
-        path: string,
-        size: number
-    };
+    currentFile: CurrentFile;
     syntaxTree: STNode;
     originalSyntaxTree: ModulePart;
     stSymbolInfo: STSymbolInfo;

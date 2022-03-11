@@ -25,7 +25,7 @@ import { Context } from "../../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
 import { getAllVariables } from "../../../../../../utils/mixins";
 import { createModuleVarDecl, createModuleVarDeclWithoutInitialization, getInitialSource } from "../../../../../../utils/modification-util";
-import { getVariableNameFromST } from "../../../../../../utils/st-util";
+import { getVariableNameFromST, getVarNamePositionFromST } from "../../../../../../utils/st-util";
 import { genVariableName } from "../../../../../Portals/utils";
 import { useStyles } from "../../../../DynamicConnectorForm/style";
 import { SelectDropdownWithButton } from "../../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
@@ -93,7 +93,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         } else {
             initialModelType = typeDescriptor.source.trim();
         }
-        variableName = getVariableNameFromST(config.model).value;
+        variableName = getVariableNameFromST(config?.model);
         varExpression = localVarDec?.initializer?.source || '';
         initializedState = localVarDec?.initializer ? true : false;
     } else {
@@ -221,7 +221,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         onValueChange: setVarName,
         validateExpression: validateVarName,
         position: config.model ?
-            getVariableNameFromST(config.model as LocalVarDecl).position
+        getVarNamePositionFromST(config?.model as LocalVarDecl)
             : formArgs.targetPosition,
         isEdit: !!config.model,
         initialDiagnostics: (config.model as LocalVarDecl)?.typedBindingPattern?.bindingPattern?.typeData?.diagnostics
@@ -257,7 +257,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         defaultValue: variableExpression,
     };
 
-    const initialSource = formArgs.model ? formArgs.model.source : (initialized ? (
+    const initialSource = initialized ? (
                 getInitialSource(createModuleVarDecl(
                     {
                         varName: varName ? varName : genVariableName("variable", getAllVariables(stSymbolInfo)),
@@ -276,8 +276,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                         varValue: null
                     }
                 ))
-            )
-    );
+            );
 
     const handleStatementEditorChange = (partialModel: LocalVarDecl) => {
         setSelectedType(partialModel.typedBindingPattern.typeDescriptor.source.trim())

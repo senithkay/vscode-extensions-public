@@ -6,13 +6,13 @@ import { FunctionForm } from "../../../utils/forms/function-form";
 import { LogForm } from "../../../utils/forms/log-form";
 import { ReturnForm } from "../../../utils/forms/return-form";
 import { VariableFormBlockLevel } from "../../../utils/forms/variable-form-block-level";
-import { getIntegrationTestStoryURL } from "../../../utils/story-url-utils";
+import { getIntegrationTestPageURL } from "../../../utils/story-url-utils";
 
 const BAL_FILE_PATH = "block-level/variable/add-variable-to-function.bal";
 
 describe('Add variable to function via Low Code', () => {
   beforeEach(() => {
-    cy.visit(getIntegrationTestStoryURL(BAL_FILE_PATH))
+    cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH))
   })
 
   it('Add a variable to function', () => {

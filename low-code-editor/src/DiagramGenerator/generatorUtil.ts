@@ -1,6 +1,6 @@
 import { monaco } from "react-monaco-editor";
 
-import { initVisitor, positionVisitor, sizingVisitor } from "@wso2-enterprise/ballerina-low-code-diagram";
+import { initVisitor, PositioningVisitor, SizingVisitor } from "@wso2-enterprise/ballerina-low-code-diagram";
 import { DiagramDiagnostic, DiagramEditorLangClientInterface, PerformanceAnalyzerGraphResponse, PerformanceAnalyzerRealtimeResponse, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FunctionDefinition, ModulePart, ResourceAccessorDefinition, ServiceDeclaration, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 
@@ -70,8 +70,8 @@ export function getDefaultSelectedPosition(modulePart: ModulePart): SelectedPosi
 
 export function sizingAndPositioningST(st: STNode): STNode {
     traversNode(st, initVisitor);
-    traversNode(st, sizingVisitor);
-    traversNode(st, positionVisitor);
+    traversNode(st, new SizingVisitor());
+    traversNode(st, new PositioningVisitor());
     const clone = { ...st };
     return clone;
 }
