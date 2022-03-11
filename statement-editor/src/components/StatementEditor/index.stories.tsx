@@ -56,7 +56,6 @@ const statementEditorContextProps = {
         path: "",
         size: 0
     },
-    importStatements: [''],
     initialSource: ''
 }
 

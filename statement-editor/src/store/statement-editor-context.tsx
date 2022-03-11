@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: no-empty jsx-no-multiline-js
-import React, { useState } from 'react';
+import React from 'react';
 
 import { LibraryKind, STModification } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
@@ -63,6 +63,8 @@ interface CtxProviderProps extends LowCodeEditorProps {
     model: STNode,
     currentModel: { model: STNode },
     handleChange?: (newStatement: string) => void,
+    handleModules?: (module: string) => void,
+    modulesToBeImported?: Set<string>,
     updateModel?: (codeSnippet: string, position: NodePosition, isEdited?: boolean) => void,
     formArgs?: any,
     initialSource: string,
@@ -78,9 +80,10 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
         children,
         model,
         currentModel,
-        importStatements,
         handleChange,
         updateModel,
+        handleModules,
+        modulesToBeImported,
         undo,
         redo,
         hasRedo,
@@ -91,16 +94,6 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
         diagnostics,
         ...restProps
     } = props;
-
-    const [moduleList, setModuleList] = useState(new Set<string>());
-
-    const moduleHandler = (module: string) => {
-        if (!importStatements.includes(module)) {
-            setModuleList((prevModuleList: Set<string>) => {
-                return new Set(prevModuleList.add(module));
-            });
-        }
-    };
 
     return (
         <StatementEditorContext.Provider
@@ -124,8 +117,8 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
                 },
                 library,
                 modules: {
-                    modulesToBeImported: moduleList,
-                    updateModuleList: moduleHandler
+                    modulesToBeImported,
+                    updateModuleList: handleModules
                 },
                 ...restProps
             }}

@@ -28,6 +28,7 @@ import { APPEND_EXPR_LIST_CONSTRUCTOR, CUSTOM_CONFIG_TYPE, INIT_EXPR_LIST_CONSTR
 import { StatementEditorContextProvider } from "../../store/statement-editor-context";
 import { getCurrentModel } from "../../utils";
 import {
+    addImportStatements,
     addStatementToTargetLine,
     getDiagnostics,
     getPartialSTForStatement,
@@ -51,7 +52,7 @@ export interface LowCodeEditorProps {
         getLibrariesData: () => Promise<LibrarySearchResponse>;
         getLibraryData: (orgName: string, moduleName: string, version: string) => Promise<LibraryDataResponse>;
     };
-    importStatements: string[];
+    importStatements?: string[];
     experimentalEnabled?: boolean;
 }
 export interface StatementEditorProps extends LowCodeEditorProps {
@@ -92,6 +93,7 @@ export function StatementEditor(props: StatementEditorProps) {
     const [model, setModel] = useState<STNode>(null);
     const [currentModel, setCurrentModel] = useState({ model });
     const [diagnostics, setDiagnostics] = useState([]);
+    const [moduleList, setModuleList] = useState(new Set<string>());
 
     const fileURI = monaco.Uri.file(currentFile.path).toString().replace(FILE_SCHEME, EXPR_SCHEME);
 
@@ -149,8 +151,11 @@ export function StatementEditor(props: StatementEditorProps) {
         if (updatedStatement.slice(-1) !== ';') {
             updatedStatement += ';';
         }
-        const updatedContent: string = await addStatementToTargetLine(
+        let updatedContent: string = await addStatementToTargetLine(
             currentFile.content, formArgs.formArgs.targetPosition, updatedStatement, getLangClient);
+        if (!!moduleList.size) {
+            updatedContent = await addImportStatements(updatedContent, Array.from(moduleList) as string[]);
+        }
 
         sendDidChange(fileURI, updatedContent, getLangClient).then();
         const diagResp = await getDiagnostics(fileURI, getLangClient);
@@ -211,6 +216,14 @@ export function StatementEditor(props: StatementEditorProps) {
         setCurrentModel({model: newCurrentModel});
     }
 
+    const handleModules = (module: string) => {
+        if (!importStatements.includes(module)) {
+            setModuleList((prevModuleList: Set<string>) => {
+                return new Set(prevModuleList.add(module));
+            });
+        }
+    };
+
     function addExpressionToTargetPosition(currentStmt: string,
                                            targetLine: number,
                                            targetColumn: number,
@@ -243,9 +256,10 @@ export function StatementEditor(props: StatementEditorProps) {
                 <StatementEditorContextProvider
                     model={model}
                     currentModel={currentModel}
-                    importStatements={importStatements}
                     handleChange={handleChange}
                     updateModel={updateModel}
+                    handleModules={handleModules}
+                    modulesToBeImported={moduleList}
                     formArgs={formArgs}
                     applyModifications={applyModifications}
                     library={library}
