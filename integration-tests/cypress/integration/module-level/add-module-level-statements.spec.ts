@@ -12,19 +12,17 @@ import { LogForm } from "../../utils/forms/log-form";
 import { OtherForm } from "../../utils/forms/other-form";
 import { RecordForm } from "../../utils/forms/record-form";
 import { VariableFormModuleLevel } from "../../utils/forms/variable-form-module-level";
-import { getIntegrationTestPageURL } from "../../utils/story-url-utils"
+import { getIntegrationTestPageURL } from "../../utils/story-url-utils";
 
 const BAL_FILE_PATH = "default/empty-file.bal";
 
-describe('Add module-level statements via Low Code', () => {
+describe("Add module-level statements via Low Code", () => {
   beforeEach(() => {
-    cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH))
-  })
+    cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH));
+  });
 
-  it('Add a variable to empty file', () => {
-    Canvas
-      .welcomeMessageShouldBeVisible()
-      .clickTopLevelPlusButton();
+  it("Add a variable to empty file", () => {
+    Canvas.welcomeMessageShouldBeVisible().clickTopLevelPlusButton();
     TopLevelPlusWidget.clickOption("Variable");
 
     VariableFormModuleLevel.shouldBeVisible()
@@ -38,8 +36,7 @@ describe('Add module-level statements via Low Code', () => {
       .typeVariableValue('"Hello World"')
       .save();
 
-    Canvas
-      .clickTopLevelPlusButton(2);
+    Canvas.clickTopLevelPlusButton(2);
     TopLevelPlusWidget.clickOption("Variable");
 
     VariableFormModuleLevel.shouldBeVisible()
@@ -51,8 +48,7 @@ describe('Add module-level statements via Low Code', () => {
       .typeVariableValue('"Hello"')
       .save();
 
-    Canvas
-      .clickTopLevelPlusButton(3);
+    Canvas.clickTopLevelPlusButton(3);
     TopLevelPlusWidget.clickOption("Variable");
 
     VariableFormModuleLevel.shouldBeVisible()
@@ -63,12 +59,10 @@ describe('Add module-level statements via Low Code', () => {
       .typeVariableName("foo_final")
       .typeVariableValue('"World"')
       .save();
-  })
+  });
 
-  it('Add a record to empty file', () => {
-    Canvas
-      .welcomeMessageShouldBeVisible()
-      .clickTopLevelPlusButton();
+  it("Add a record to empty file", () => {
+    Canvas.welcomeMessageShouldBeVisible().clickTopLevelPlusButton();
     TopLevelPlusWidget.clickOption("Record");
 
     RecordForm.shouldBeVisible()
@@ -90,11 +84,10 @@ describe('Add module-level statements via Low Code', () => {
 
   it.skip('Add a configurable to empty file', () => {
 
+  it("Add a configurable to empty file", () => {
     // cy.on('uncaught:exception', () => false); //Need to fix this
 
-    Canvas
-      .welcomeMessageShouldBeVisible()
-      .clickTopLevelPlusButton();
+    Canvas.welcomeMessageShouldBeVisible().clickTopLevelPlusButton();
     TopLevelPlusWidget.clickOption("Configurable");
 
     ConfigurableForm.shouldBeVisible()
@@ -107,12 +100,10 @@ describe('Add module-level statements via Low Code', () => {
       .typeLabalShouldBeVisible("string")
       .typeVariableValue('"Hello World"')
       .save();
-  })
+  });
 
-  it('Add a constant to empty file', () => {
-    Canvas
-      .welcomeMessageShouldBeVisible()
-      .clickTopLevelPlusButton();
+  it("Add a constant to empty file", () => {
+    Canvas.welcomeMessageShouldBeVisible().clickTopLevelPlusButton();
     TopLevelPlusWidget.clickOption("Constant");
 
     ConstantForm.shouldBeVisible()
@@ -123,25 +114,21 @@ describe('Add module-level statements via Low Code', () => {
       .selectType("string")
       .typeLabalShouldBeVisible("string")
       .typeVariableValue('"Hello World"')
-      .save()
-  })
+      .save();
+  });
 
-  it('Add a listener to empty file', () => {
-    Canvas
-      .welcomeMessageShouldBeVisible()
-      .clickTopLevelPlusButton();
+  it("Add a listener to empty file", () => {
+    Canvas.welcomeMessageShouldBeVisible().clickTopLevelPlusButton();
     TopLevelPlusWidget.clickOption("Listener");
 
     ListenerForm.shouldBeVisible()
       .typeListenerName("hello")
       .typeListenerPortValue(9090)
-      .save()
-  })
+      .save();
+  });
 
-  it('Add a enum to empty file', () => {
-    Canvas
-      .welcomeMessageShouldBeVisible()
-      .clickTopLevelPlusButton();
+  it("Add a enum to empty file", () => {
+    Canvas.welcomeMessageShouldBeVisible().clickTopLevelPlusButton();
     TopLevelPlusWidget.clickOption("Enum");
 
     EnumerationForm.shouldBeVisible()
@@ -152,16 +139,16 @@ describe('Add module-level statements via Low Code', () => {
       .addNewMember("GREEN")
       .addNewMember("BLUE")
       .save();
-  })
 
-  it('Add a other statement to empty file', () => {
-    Canvas
-      .welcomeMessageShouldBeVisible()
-      .clickTopLevelPlusButton();
+    SourceCode.shouldBeEqualTo(
+      getCurrentSpecFolder() + "add-enum.expected.bal"
+    );
+  });
+
+  it("Add a other statement to empty file", () => {
+    Canvas.welcomeMessageShouldBeVisible().clickTopLevelPlusButton();
     TopLevelPlusWidget.clickOption("Other");
 
-    OtherForm.shouldBeVisible()
-      .typeStatement("int x = 123;")
-      .save();
-  })
-})
+    OtherForm.shouldBeVisible().typeStatement("int x = 123;").save();
+  });
+});
