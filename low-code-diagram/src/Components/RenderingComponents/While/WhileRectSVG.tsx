@@ -33,6 +33,8 @@ export function WhileRectSVG(props: WhileRectSVGProps) {
     const diagramContext = useContext(Context);
     const showTooltip = diagramContext?.api?.edit?.showTooltip;
     const [tooltip, setTooltip] = useState(undefined);
+    const [diagTooltip, setDiagTooltip] = useState(undefined);
+
     const rectSVG = (
         <g id="While" className={whileRectStyles} transform="translate(7 6)">
             <g transform="matrix(1, 0, 0, 1, -7, -6)">
@@ -60,13 +62,32 @@ export function WhileRectSVG(props: WhileRectSVGProps) {
         <DefaultTooltip text={text} diagnostic={diagnostic}>{rectSVG}</DefaultTooltip>
     );
 
+    // TODO: Check how we can optimize this by rewriting the tooltip
+    // component.
     useEffect(() => {
         if (text && showTooltip) {
-            setTooltip(showTooltip(rectSVG, type, text, "right", true, diagnostic, undefined, false, onClick));
+            setTooltip(showTooltip(rectSVG, type, text, "right", true, undefined, undefined, false, onClick));
         }
+        return () => {
+            setTooltip(undefined);
+            setDiagTooltip(undefined);
+        };
     }, [text]);
 
+    useEffect(() => {
+        if (diagnostic && showTooltip) {
+            setDiagTooltip(showTooltip(rectSVG, type, undefined, "right", true, diagnostic, undefined, false, onClick));
+        }
+        return () => {
+            setTooltip(undefined);
+            setDiagTooltip(undefined);
+        };
+    }, [diagnostic]);
+
     return (
-        <>{tooltip ? tooltip : defaultTooltip}</>
+        <>
+            {tooltip ? tooltip : defaultTooltip}
+            {diagTooltip ? diagTooltip : defaultTooltip}
+        </>
     );
 }

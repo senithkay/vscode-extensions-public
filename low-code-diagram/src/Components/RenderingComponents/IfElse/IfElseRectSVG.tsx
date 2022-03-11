@@ -31,6 +31,7 @@ export function IfElseRectSVG(props: IfElseRectSVGProps) {
     const diagramContext = useContext(Context);
     const showTooltip = diagramContext?.api?.edit?.showTooltip;
     const [tooltip, setTooltip] = useState(undefined);
+    const [diagTooltip, setDiagTooltip] = useState(undefined);
 
     const component = (
         <g id="IfElse" className={className} transform="translate(7 6)">
@@ -48,15 +49,32 @@ export function IfElseRectSVG(props: IfElseRectSVGProps) {
         <DefaultTooltip text={text} diagnostic={diagnostic}>{component}</DefaultTooltip>
     );
 
+    // TODO: Check how we can optimize this by rewriting the tooltip
+    // component.
     useEffect(() => {
         if (text && showTooltip) {
-            setTooltip(showTooltip(component, type, text, "right", true, diagnostic, undefined, false, onClick));
+            setTooltip(showTooltip(component, type, text, "right", true, undefined, undefined, false, onClick));
         }
+        return () => {
+            setTooltip(undefined);
+            setDiagTooltip(undefined);
+        };
     }, [text]);
+
+    useEffect(() => {
+        if (diagnostic && showTooltip) {
+            setDiagTooltip(showTooltip(component, type, undefined, "right", true, diagnostic, undefined, false, onClick));
+        }
+        return () => {
+            setTooltip(undefined);
+            setDiagTooltip(undefined);
+        };
+    }, [diagnostic]);
 
     return (
         <>
             {tooltip ? tooltip : defaultTooltip}
+            {diagTooltip ? diagTooltip : defaultTooltip}
         </>
     );
 }

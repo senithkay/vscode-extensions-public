@@ -135,7 +135,7 @@ export function Function(props: FunctionProps) {
         if (model.isRunnable) {
             return (
                 <div className={"action-container"}>
-                    <button onClick={onClickRun}>Run</button>
+                    <button className={"action-button"} onClick={onClickRun}>Run</button>
                 </div>
             );
         }

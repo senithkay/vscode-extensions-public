@@ -34,6 +34,7 @@ export function ActionProcessRectSVG(props: DiagnosticTooltipProps) {
     const diagramContext = useContext(Context);
     const showTooltip = diagramContext?.api?.edit?.showTooltip;
     const [tooltip, setTooltip] = useState(undefined);
+    const [diagTooltip, setDiagTooltip] = useState(undefined);
     const rectSVG = (
         <g id="Process" className={actionRectStyles} transform="translate(-221.5 -506)">
             <g transform="matrix(1, 0, 0, 1, 222, 509)">
@@ -59,14 +60,32 @@ export function ActionProcessRectSVG(props: DiagnosticTooltipProps) {
         <DefaultTooltip text={text} diagnostic={diagnostic}>{rectSVG}</DefaultTooltip>
     );
 
+    // TODO: Check how we can optimize this by rewriting the tooltip
+    // component.
     useEffect(() => {
         if (showTooltip && text) {
             setTooltip(showTooltip(rectSVG, type, text, "right", true));
         }
+        return () => {
+            setTooltip(undefined);
+            setDiagTooltip(undefined);
+        };
     }, [text]);
+
+    useEffect(() => {
+        if (showTooltip && diagnostic) {
+            setDiagTooltip(showTooltip(rectSVG, type, undefined, "right", true, diagnostic));
+        }
+        return () => {
+            setTooltip(undefined);
+            setDiagTooltip(undefined);
+        };
+    }, [diagnostic]);
+
     return (
         <>
             {tooltip ? tooltip : defaultTooltip}
+            {diagTooltip ? diagTooltip : defaultTooltip}
         </>
     );
 }
