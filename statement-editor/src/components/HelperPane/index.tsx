@@ -78,22 +78,18 @@ export function HelperPane(props: SuggestionsList) {
                 </div>
             </div>
             <div className={statementEditorClasses.suggestionsInner}>
-                {(
-                    <LSSuggestions
-                        model={currentModel.model}
-                        lsSuggestions={lsSuggestions}
-                        suggestionHandler={suggestionHandler}
-                        isSuggestion={selectedTab === TabElements.suggestions}
-                    />
-                )}
-                {(
-                    <ExpressionSuggestions
-                        model={currentModel.model}
-                        suggestions={expressionSuggestions}
-                        suggestionHandler={suggestionHandler}
-                        isExpression={selectedTab === TabElements.expressions}
-                    />
-                )}
+                <LSSuggestions
+                    model={currentModel.model}
+                    lsSuggestions={lsSuggestions}
+                    suggestionHandler={suggestionHandler}
+                    isSuggestion={selectedTab === TabElements.suggestions}
+                />
+                <ExpressionSuggestions
+                    model={currentModel.model}
+                    suggestions={expressionSuggestions}
+                    suggestionHandler={suggestionHandler}
+                    isExpression={selectedTab === TabElements.expressions}
+                />
                 <LibraryBrowser
                     libraryType={libraryType}
                     isLibrary={selectedTab === TabElements.libraries}
