@@ -166,7 +166,7 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
                         x: viewState.bBox.cx + 80,
                         y: viewState.bBox.cy,
                     },
-                    targetPosition: draftVS.targetPosition,
+                    targetPosition: draftVS.targetPosition || model?.position,
                     selectedConnector: draftVS.selectedConnector,
                     specialConnectorName,
                     model,

@@ -157,7 +157,7 @@ export function ActionProcessor(props: ProcessorProps) {
                     x: viewState.bBox.cx + 80,
                     y: viewState.bBox.cy,
                 },
-                targetPosition: draftViewState.targetPosition,
+                targetPosition: draftViewState.targetPosition || model?.position,
                 selectedConnector: draftViewState.selectedConnector,
                 model,
                 onClose: onWizardClose,
