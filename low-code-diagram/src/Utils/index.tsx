@@ -21,12 +21,6 @@ export function sizingAndPositioning(st: STNode): STNode {
     traversNode(st, initVisitor);
     traversNode(st, sizingVisitor);
     traversNode(st, positionVisitor);
-
-    if (STKindChecker.isFunctionDefinition(st) && st?.viewState?.onFail) {
-        const viewState = st.viewState as FunctionViewState;
-        traversNode(viewState.onFail, sizingVisitor);
-        traversNode(viewState.onFail, positionVisitor);
-    }
     const clone = { ...st };
     return clone;
 }
@@ -473,10 +467,10 @@ export function getServiceTypeFromModel(model: ServiceDeclaration, symbolInfo: S
                 } else {
                     return undefined;
                 }
-            } else if (STKindChecker.isSimpleNameReference(listenerExpression)) {
+            } else if (STKindChecker.isSimpleNameReference(listenerExpression) && symbolInfo) {
                 const listenerNode: ListenerDeclaration
                     = symbolInfo.listeners.get(listenerExpression.name.value) as ListenerDeclaration;
-                if (STKindChecker.isQualifiedNameReference(listenerNode.typeDescriptor)) {
+                if (listenerNode && STKindChecker.isQualifiedNameReference(listenerNode.typeDescriptor)) {
                     return listenerNode.typeDescriptor.modulePrefix.value;
                 } else {
                     return undefined;

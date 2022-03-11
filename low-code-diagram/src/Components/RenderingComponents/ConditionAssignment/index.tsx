@@ -17,6 +17,7 @@ import classNames from "classnames";
 
 import { Context } from "../../../Context/diagram";
 import { DefaultConfig } from "../../../Visitors/default";
+import { DefaultTooltip } from "../DefaultTooltip";
 
 import "./style.scss"
 
@@ -48,6 +49,10 @@ export function ConditionAssignment(props: { x: number, y: number, assignment: s
         </text>
     );
 
+    const defaultTooltip = (
+        <DefaultTooltip text={{ heading: assignment }}>{assignemtComponant}</DefaultTooltip>
+    );
+
     useEffect(() => {
         if (assignmentMaxWidth && showTooltip) {
             setTooltip(showTooltip(assignemtComponant, "heading", { heading: assignment }, "top-start", true, undefined, undefined, false, undefined, {
@@ -59,7 +64,7 @@ export function ConditionAssignment(props: { x: number, y: number, assignment: s
 
     return (
         <svg {...xyProps}>
-            {assignmentMaxWidth ? tooltip : assignemtComponant}
+            {assignmentMaxWidth && tooltip ? tooltip : defaultTooltip}
         </svg >
     );
 }

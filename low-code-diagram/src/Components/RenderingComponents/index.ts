@@ -34,7 +34,6 @@ export { Statement as LocalVarDecl };
 export { Statement as CallStatement };
 export { Statement as ActionStatement };
 export { Statement as AssignmentStatement }
-export { Statement as DoStatement };
 export { Listener as ListenerDeclaration };
 export { Constant as ConstDeclaration };
 export { ModuleVariable as ModuleVarDecl };

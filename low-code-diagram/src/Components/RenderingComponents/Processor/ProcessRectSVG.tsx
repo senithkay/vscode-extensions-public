@@ -15,6 +15,7 @@ import React, { useContext, useEffect, useState } from "react";
 
 import { Context } from "../../../Context/diagram";
 import { ErrorSnippet } from "../../../Types/type";
+import { DefaultTooltip } from "../DefaultTooltip";
 
 import "./style.scss"
 
@@ -47,13 +48,17 @@ export function ProcessRectSVG(props: ProcessRectSVGProps) {
         </g>
     );
 
+    const defaultTooltip = (
+        <DefaultTooltip text={text} diagnostic={diagnostic}>{rectSVG}</DefaultTooltip>
+    );
+
     useEffect(() => {
-        if (text && showTooltip) {
+        if ((text || diagnostic) && showTooltip) {
             setTooltip(showTooltip(rectSVG, type, text, "right", true, diagnostic, undefined, false, onClick));
         }
-    }, [text]);
+    }, [text, diagnostic]);
 
     return (
-        <>{tooltip ? tooltip : rectSVG}</>
-    )
+        <>{tooltip ? tooltip : defaultTooltip}</>
+    );
 }

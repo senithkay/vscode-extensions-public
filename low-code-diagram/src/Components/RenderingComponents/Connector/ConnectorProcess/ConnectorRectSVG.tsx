@@ -15,6 +15,7 @@ import React, { ReactNode, useContext, useEffect, useState } from "react";
 
 import { Context } from "../../../../Context/diagram";
 import { ErrorSnippet } from "../../../../Types/type";
+import { DefaultTooltip } from "../../DefaultTooltip";
 
 
 interface ConnectorRectSVGProps {
@@ -48,6 +49,10 @@ export function ConnectorRectSVG(props: ConnectorRectSVGProps) {
         </g>
     );
 
+    const defaultTooltip = (
+        <DefaultTooltip text={text} diagnostic={diagnostic}>{rectSVG}</DefaultTooltip>
+    );
+
     useEffect(() => {
         if (showTooltip && text) {
             setTooltip(showTooltip(rectSVG, type, diagnostic, "right", true, diagnostic, undefined, false, onClick));
@@ -56,7 +61,7 @@ export function ConnectorRectSVG(props: ConnectorRectSVGProps) {
 
     return (
         <>
-            {tooltip ? tooltip : rectSVG}
+            {tooltip ? tooltip : defaultTooltip}
         </>
-    )
+    );
 }

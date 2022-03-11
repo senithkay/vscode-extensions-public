@@ -16,6 +16,7 @@ import React, { ReactNode, useContext, useEffect, useState } from "react";
 
 import { Context } from "../../../../Context/diagram";
 import { ErrorSnippet } from "../../../../Types/type";
+import { DefaultTooltip } from "../../DefaultTooltip";
 
 interface DiagnosticTooltipProps {
     type?: string,
@@ -53,6 +54,11 @@ export function ActionProcessRectSVG(props: DiagnosticTooltipProps) {
             }
         </g>
     );
+
+    const defaultTooltip = (
+        <DefaultTooltip text={text} diagnostic={diagnostic}>{rectSVG}</DefaultTooltip>
+    );
+
     useEffect(() => {
         if (showTooltip && text) {
             setTooltip(showTooltip(rectSVG, type, text, "right", true));
@@ -60,7 +66,7 @@ export function ActionProcessRectSVG(props: DiagnosticTooltipProps) {
     }, [text]);
     return (
         <>
-            {tooltip ? tooltip : rectSVG}
+            {tooltip ? tooltip : defaultTooltip}
         </>
     );
 }

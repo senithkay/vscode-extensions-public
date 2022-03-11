@@ -14,6 +14,7 @@ import React, { useContext, useEffect, useState } from "react";
 
 import { Context } from "../../../Context/diagram";
 import { ErrorSnippet } from "../../../Types/type";
+import { DefaultTooltip } from "../DefaultTooltip";
 
 interface ForEachRectSVGProps {
     type?: string,
@@ -46,6 +47,10 @@ export function ForEachRectSVG(props: ForEachRectSVGProps) {
         </g>
     );
 
+    const defaultTooltip = (
+        <DefaultTooltip text={text} diagnostic={diagnostic}>{svgElement}</DefaultTooltip>
+    );
+
     useEffect(() => {
         if (text && showTooltip) {
             setTooltip(showTooltip(svgElement, type, text, "right", true, diagnostic, undefined, false, onClick));
@@ -53,6 +58,6 @@ export function ForEachRectSVG(props: ForEachRectSVGProps) {
     }, [text]);
 
     return (
-        <>{tooltip ? tooltip : svgElement}</>
+        <>{tooltip ? tooltip : defaultTooltip}</>
     )
 }

@@ -14,6 +14,7 @@
 import React, { useContext, useEffect, useState } from "react";
 
 import { Context } from "../../../Context/diagram";
+import { DefaultTooltip } from "../DefaultTooltip";
 
 export const RESPOND_SVG_HEIGHT_WITH_SHADOW = 46;
 export const RESPOND_SVG_WIDTH_WITH_SHADOW = 96;
@@ -41,6 +42,10 @@ export function RespondSVG(props: { x: number, y: number, text: string, sourceSn
                 </tspan>
             </text>
         </g>
+    );
+
+    const defaultTooltip = (
+        <DefaultTooltip text={{ code: sourceSnippet }}>{responseRect}</DefaultTooltip>
     );
 
     useEffect(() => {
@@ -71,7 +76,7 @@ export function RespondSVG(props: { x: number, y: number, text: string, sourceSn
                     <feComposite in="SourceGraphic" />
                 </filter>
             </defs>
-            {tooltip ? tooltip : responseRect}
+            {tooltip ? tooltip : defaultTooltip}
         </svg >
     )
 }
