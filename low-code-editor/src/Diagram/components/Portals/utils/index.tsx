@@ -12,7 +12,7 @@
  */
 import React, { ReactNode } from "react";
 
-import { ExpressionEditor } from "@wso2-enterprise/ballerina-expression-editor";
+import { StatementViewState } from "@wso2-enterprise/ballerina-low-code-diagram";
 import {
     ActionConfig,
     BallerinaConnectorInfo,
@@ -20,8 +20,8 @@ import {
     BallerinaConstruct,
     Connector,
     ConnectorConfig,
-    DiagramEditorLangClientInterface,
-    FormElementProps, FormField, FormFieldReturnType,
+    DefaultConnectorIcon,
+    DiagramEditorLangClientInterface, FormField, FormFieldReturnType,
     FunctionDefinitionInfo, PrimitiveBalType, STSymbolInfo
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
@@ -48,11 +48,11 @@ import * as Forms from "../../FormComponents/ConfigForms";
 import { VariableOptions } from "../../FormComponents/ConfigForms/ModuleVariableForm/util";
 import { ConfigWizardState } from "../../FormComponents/ConnectorConfigWizard";
 import * as ConnectorExtension from "../../FormComponents/ConnectorExtensions";
+import * as OverlayElement from "../../FormComponents/DialogBoxes/PlusHolder";
 import * as Elements from "../../FormComponents/FormFieldComponents";
+import { LowCodeExpressionEditor } from "../../FormComponents/FormFieldComponents/LowCodeExpressionEditor";
 import { getUnionFormFieldName } from "../../FormComponents/FormFieldComponents/Union";
-import * as OverlayElement from "../../LowCodeDiagram/Components/DialogBoxes";
-import { DefaultConnectorIcon } from "../../LowCodeDiagram/Components/RenderingComponents/Connector/Icon/DefaultConnectorIcon";
-import { StatementViewState } from "../../LowCodeDiagram/ViewState";
+import { FormElementProps } from "../../FormComponents/Types";
 
 import { keywords, symbolKind } from "./constants";
 
@@ -89,7 +89,7 @@ export function getFormElement(elementProps: FormElementProps, type: string) {
         return <FormElement {...elementProps} />;
     }
 
-    return <ExpressionEditor {...elementProps} />;
+    return <LowCodeExpressionEditor {...elementProps} />;
 }
 
 export function getForm(type: string, args: any) {
@@ -265,6 +265,8 @@ export function getParams(formFields: FormField[], depth = 1): string[] {
                 paramString += params;
             } else if (formField.typeName === "handle" && formField.value) {
                 paramString += formField.value;
+            } else if (paramString === "" && formField.typeName !== "" && formField.value) {
+                paramString += formField.value; // Default case
             }
 
             if (paramString !== "") {
@@ -511,13 +513,6 @@ export function matchActionToFormField(remoteCall: RemoteMethodCallAction, formF
             }
         }
     }
-}
-
-export function getVaribaleNamesFromVariableDefList(asts: STNode[]) {
-    if (asts === undefined) {
-        return [];
-    }
-    return (asts as LocalVarDecl[]).map((item) => (item?.typedBindingPattern?.bindingPattern as CaptureBindingPattern)?.variableName?.value);
 }
 
 export function getModuleIcon(module: BallerinaConstruct, scale: number = 1): React.ReactNode {

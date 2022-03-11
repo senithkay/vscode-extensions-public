@@ -24,13 +24,19 @@ import {
     ExpressionEditorState,
     ExpressionInjectablesProps,
     FormElementProps,
-    PrimitiveBalType,
-    TooltipCodeSnippet
+    getDiagnosticMessage,
+    getFilteredDiagnostics,
+    getSelectedDiagnostics,
+    PrimitiveBalType
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import {
+    TooltipCodeSnippet
+} from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 import debounce from "lodash.debounce";
 import * as monaco from "monaco-editor";
+import { Diagnostic } from "vscode-languageserver-protocol";
 
 import grammar from "../../ballerina.monarch.json";
 import { useStyles as useFormStyles } from "../../themes";
@@ -60,13 +66,10 @@ import {
     customErrorMessage,
     diagnosticCheckerExp,
     diagnosticInRange,
-    getDiagnosticMessage,
-    getFilteredDiagnostics,
     getHints,
     getInitialDiagnosticMessage,
     getInitialValue,
     getRandomInt,
-    getSelectedDiagnostics,
     getStandardExpCompletions,
     getTargetPosition,
     getValueWithoutSemiColon,
@@ -193,6 +196,10 @@ export interface ExpressionEditorProps {
         start?: number;
         end?: number;
     };
+    diagnosticsFilterExtraRows?: {
+        start?: number;
+        end?: number;
+    };
     disableFiltering?: boolean;
 }
 
@@ -237,6 +244,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         onFocus,
         initialDiagnostics = [],
         diagnosticsFilterExtraColumns,
+        diagnosticsFilterExtraRows,
         disableFiltering
     } = customProps;
     const targetPosition = getTargetPosition(editPosition || targetPositionDraft, syntaxTree);
@@ -293,7 +301,9 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                     targetPosition,
                     snippetTargetPosition,
                     diagnosticsFilterExtraColumns?.start,
-                    diagnosticsFilterExtraColumns?.end
+                    diagnosticsFilterExtraColumns?.end,
+                    diagnosticsFilterExtraRows?.start,
+                    diagnosticsFilterExtraRows?.end,
                 )
             );
             if (monacoRef.current) {
@@ -335,7 +345,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                     monaco.editor.setModelMarkers(
                         monacoRef.current.editor.getModel(),
                         "expression editor",
-                        diagnostics.map((diagnostic) => ({
+                        diagnostics.map((diagnostic: Diagnostic) => ({
                             startLineNumber: 1,
                             startColumn: diagnostic.range.start.character - snippetTargetPosition + 2,
                             endLineNumber: 1,
@@ -373,7 +383,9 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                     snippetTargetPosition,
                     inputLength,
                     diagnosticsFilterExtraColumns?.start,
-                    diagnosticsFilterExtraColumns?.end
+                    diagnosticsFilterExtraColumns?.end,
+                    diagnosticsFilterExtraRows?.start,
+                    diagnosticsFilterExtraRows?.end,
                 );
                 if (diagnosticMsg) {
                     notValidExpEditor(diagnosticMsg, false);

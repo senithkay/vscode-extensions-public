@@ -21,11 +21,13 @@ import {
     ConnectorConfig,
     FormField,
     FunctionDefinitionInfo,
-    PrimaryButton,
     STModification,
-    STSymbolInfo,
-    TooltipIcon
+    STSymbolInfo
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import {
+    PrimaryButton,
+    TooltipIcon
+} from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { NodePosition } from '@wso2-enterprise/syntax-tree';
 import classNames from 'classnames';
 
@@ -190,7 +192,7 @@ export function OperationForm(props: OperationFormProps) {
 
     const outputTypeReplaceHint = intl.formatMessage({
         id: "lowcode.develop.configForms.outputTypeReplaceHint.text",
-        defaultMessage: "Replace the default record{} type with an already defined custom record type"
+        defaultMessage: "Replace the default record type with an already defined custom record type"
     });
 
     const connectorOperationsTooltipMessages = {

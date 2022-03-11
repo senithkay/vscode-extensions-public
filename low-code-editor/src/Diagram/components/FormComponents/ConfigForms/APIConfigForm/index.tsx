@@ -14,7 +14,7 @@
 import React, { useContext } from "react";
 
 import { Box, FormControl, FormHelperText, InputAdornment, TextField, Typography } from "@material-ui/core";
-import { FormHeaderSection, PrimaryButton, SecondaryButton } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FormHeaderSection, PrimaryButton, SecondaryButton } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 
 import { Context } from "../../../../../Contexts/Diagram";
 import { ServiceMethodType, SERVICE_METHODS } from "../../../../models";

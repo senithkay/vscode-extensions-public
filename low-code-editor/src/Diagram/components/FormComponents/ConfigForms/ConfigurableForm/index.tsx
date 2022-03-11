@@ -10,28 +10,21 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, { useContext, useReducer } from 'react';
+import React, { useContext, useReducer, useState } from 'react';
 
 import { FormControl } from '@material-ui/core';
 import { ExpressionEditorProps } from '@wso2-enterprise/ballerina-expression-editor';
-import {
-    ConfigOverlayFormStatus,
-    FormActionButtons,
-    FormElementProps,
-    FormHeaderSection,
-    PrimaryButton,
-    SecondaryButton,
-    STModification
-} from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { ADD_CONFIGURABLE, ConfigOverlayFormStatus, FormElementProps, LowcodeEvent, STModification } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { FormActionButtons, FormHeaderSection } from '@wso2-enterprise/ballerina-low-code-edtior-ui-components';
 import { CaptureBindingPattern, ModuleVarDecl, NodePosition } from '@wso2-enterprise/syntax-tree';
 import { v4 as uuid } from "uuid";
 
-import { Context, useDiagramContext } from '../../../../../Contexts/Diagram';
-import { ADD_CONFIGURABLE, LowcodeEvent } from '../../../../models';
+import { useDiagramContext } from '../../../../../Contexts/Diagram';
+import { getAllModuleVariables } from '../../../../utils/mixins';
 import { createConfigurableDecl, updateConfigurableVarDecl } from '../../../../utils/modification-util';
+import { genVariableName } from '../../../Portals/utils';
 import { useStyles as useFormStyles } from "../../DynamicConnectorForm/style";
 import CheckBoxGroup from '../../FormFieldComponents/CheckBox';
-import { SelectDropdownWithButton } from '../../FormFieldComponents/DropDown/SelectDropdownWithButton';
 import { LowCodeExpressionEditor } from "../../FormFieldComponents/LowCodeExpressionEditor";
 import { TextLabel } from '../../FormFieldComponents/TextField/TextLabel';
 import { InjectableItem } from '../../FormGenerator';
@@ -60,8 +53,9 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
 
     const { updateInjectables, updateParentConfigurable, configurableId } = configOverlayFormStatus?.formArgs || {};
     const isFromExpressionEditor = !!updateInjectables;
-
+    const [uniqueId] = useState(uuid());
     const handleOnSave = () => {
+        state.varName  = genVariableName(state.varName, getAllModuleVariables(stSymbolInfo));
         const modifyState: ConfigurableFormState = {
             ...state,
             varValue: state.hasDefaultValue ? state.varValue : '?',
@@ -150,7 +144,7 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
                 endColumn: 0
             },
             customTemplate: {
-                defaultCodeSnippet: `configurable ${state.varType} temp_var_${uuid().replaceAll('-', '_')} = ;`,
+                defaultCodeSnippet: `configurable ${state.varType} temp_var_${uniqueId.replaceAll('-', '_')} = ;`,
                 targetColumn: 62 + state.varType.length,
             },
             hideTextLabel: true,

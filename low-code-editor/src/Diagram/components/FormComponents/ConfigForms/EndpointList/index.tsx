@@ -15,17 +15,17 @@ import React, { ReactNode, useContext } from "react";
 import { FormattedMessage } from "react-intl";
 
 import { Box, FormControl, List, ListItem, Typography } from "@material-ui/core";
-import { FormHeaderSection, PrimaryButton } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FormHeaderSection, PrimaryButton } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../Contexts/Diagram";
-import { useFunctionContext } from "../../../../../Contexts/Function";
 import { FormGeneratorProps } from "../../FormGenerator";
 import { wizardStyles as useFormStyles } from "../style";
 
 import useStyles from "./style";
 
 export interface EndpointListProps {
+    functionNode: STNode,
     onSelect: (actionInvo: STNode) => void;
     onCancel: () => void;
     onAddConnector: () => void;
@@ -39,8 +39,8 @@ export function EndpointList(props: FormGeneratorProps) {
             stSymbolInfo: { moduleEndpoints, localEndpoints },
         },
     } = useContext(Context);
-    const { functionNode } = useFunctionContext();
-    const { onSelect, onCancel, onAddConnector } = props.configOverlayFormStatus.formArgs as EndpointListProps;
+    const { onCancel } = props;
+    const { functionNode, onSelect, onAddConnector } = props.configOverlayFormStatus.formArgs as EndpointListProps;
     let isEndpointExists = false;
     const endpointList: ReactNode[] = [];
 

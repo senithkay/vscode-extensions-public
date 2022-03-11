@@ -3,6 +3,7 @@ import { ModulePart, NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 export interface LowCodeDiagramProps extends LowCodeDiagramProperties {
     api?: LowCodeDiagramAPI;
+    experimentalEnabled?: boolean;
 }
 
 export interface LowCodeDiagramContext {
@@ -44,7 +45,8 @@ export interface LowCodeDiagramState {
     isDataMapperShown: boolean;
     isConfigOverlayFormOpen: boolean;
     // dataMapperConfig: DataMapperConfig;
-    targetPosition: NodePosition; // FIXME check and remove usage of update position if not used anymore
+    targetPosition: NodePosition;
+    experimentalEnabled?: boolean;
 }
 
 export interface LowCodeDiagramActions {

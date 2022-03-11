@@ -15,35 +15,39 @@
 import React, { ReactNode, useContext, useEffect, useState } from "react";
 
 import { Divider, FormControl, IconButton, Typography } from "@material-ui/core";
+import { ModuleIcon } from "@wso2-enterprise/ballerina-low-code-diagram";
 import {
     ActionConfig,
     BallerinaConnectorInfo,
     ConnectorConfig,
     FormField,
-    FormHeaderSection,
+    LowcodeEvent,
+    SAVE_CONNECTOR,
+    SAVE_CONNECTOR_INIT,
     STModification,
     WizardType,
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import {
+    FormHeaderSection
+} from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import {
     CaptureBindingPattern,
     FunctionDefinition,
     LocalVarDecl,
     NodePosition,
     STKindChecker,
+    STNode,
 } from "@wso2-enterprise/syntax-tree";
 
 import { DocIcon } from "../../../../../../assets";
 import { Context, useDiagramContext } from "../../../../../../Contexts/Diagram";
-import { useFunctionContext } from "../../../../../../Contexts/Function";
 import { TextPreloaderVertical } from "../../../../../../PreLoader/TextPreloaderVertical";
-import { LowcodeEvent, SAVE_CONNECTOR, SAVE_CONNECTOR_INIT, SAVE_CONNECTOR_INVOKE } from "../../../../../models";
 import { getAllVariables } from "../../../../../utils/mixins";
 import {
     createImportStatement,
     createPropertyStatement,
     updatePropertyStatement,
 } from "../../../../../utils/modification-util";
-import { ModuleIcon } from "../../../../LowCodeDiagram/Components/RenderingComponents/Connector/ConnectorHeader/ModuleIcon";
 import {
     addAccessModifiers,
     genVariableName,
@@ -95,6 +99,7 @@ export interface ConnectorConfigWizardProps {
     isModuleEndpoint?: boolean;
     isAction?: boolean;
     expressionInjectables?: ExpressionInjectablesProps;
+    functionNode?: STNode;
 }
 
 export function ConnectorForm(props: FormGeneratorProps) {
@@ -108,7 +113,6 @@ export function ConnectorForm(props: FormGeneratorProps) {
         },
         props: { stSymbolInfo, isMutationProgress },
     } = useContext(Context);
-    const { functionNode } = useFunctionContext();
 
     const {
         targetPosition,
@@ -120,7 +124,9 @@ export function ConnectorForm(props: FormGeneratorProps) {
         isAction,
         expressionInjectables,
         connectorInfo,
+        functionNode
     } = props.configOverlayFormStatus.formArgs as ConnectorConfigWizardProps;
+
     const {
         props: { syntaxTree },
     } = useDiagramContext();
@@ -238,7 +244,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
             const addConnectorInit = createPropertyStatement(endpointStatement, targetPosition);
             modifications.push(addConnectorInit);
             // onConnectorAddEvent();
-            if (checkDBConnector(moduleName)) {
+            if (checkDBConnector(moduleName) && !isModuleEndpoint) {
                 const closeStatement = `check ${config.name}.close();`;
                 const addCloseStatement = createPropertyStatement(closeStatement, targetPosition);
                 modifications.push(addCloseStatement);
@@ -262,7 +268,6 @@ export function ConnectorForm(props: FormGeneratorProps) {
             currentActionReturnType.returnType = config.action.returnType;
         }
         const moduleName = getFormattedModuleName(connectorModule);
-        addDbExtraImport(modifications, syntaxTree, connector.package.organization, moduleName);
 
         expressionInjectables?.list?.forEach((item: InjectableItem) => {
             modifications.push(item.modification);
@@ -283,6 +288,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
                 targetPosition
             );
             modifications.push(addImport);
+            addDbExtraImport(modifications, syntaxTree, connector.package.organization, connectorModule);
             const endpointStatement = `${moduleName}:${connector.name} ${config.name} = ${
                 isInitReturnError ? "check" : ""
             } new (${getParams(config.connectorInit).join()});`;

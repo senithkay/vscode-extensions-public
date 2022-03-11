@@ -49,7 +49,6 @@ export function SearchCategory(props: SearchCategoryProps) {
                     />
                 ))}
             </List>
-            <div className={statementEditorClasses.propertyDivider} />
         </div>
     );
 }

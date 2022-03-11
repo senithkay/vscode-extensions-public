@@ -14,19 +14,16 @@
 // TODO Refactor this file.
 // Should move these to ../Definitions/*
 
+import { BlockViewState } from "@wso2-enterprise/ballerina-low-code-diagram";
 import {
-    BallerinaConnectorInfo, ConfigOverlayFormStatus, ConfigPanelStatus, Connector,
-    DiagramEditorLangClientInterface, ExpressionEditorLangClientInterface, LibraryDataResponse, LibraryDocResponse,
-    LibrarySearchResponse, STModification, STSymbolInfo, WizardType
+    BallerinaConnectorInfo, ConditionConfig, ConfigOverlayFormStatus, ConfigPanelStatus, Connector,
+    CurrentFile, DiagramEditorLangClientInterface, ExpressionEditorLangClientInterface, LibraryDataResponse, LibraryDocResponse, LibrarySearchResponse, PerformanceData, STModification,
+    STSymbolInfo, WizardType
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { ModulePart, NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import { Diagnostic } from "vscode-languageserver-protocol";
 
-import { BlockViewState } from "..";
-import { ConditionConfig } from "../Diagram/components/FormComponents/Types";
-import { LowcodeEvent } from "../Diagram/models";
 import { Warning } from "../Diagram/utils/st-util";
-import { PerformanceData } from "../DiagramGenerator/performanceUtil";
 
 export interface ZoomStatus {
     scale: number,
@@ -45,6 +42,7 @@ export interface LowCodeEditorState {
     triggerUpdated: boolean; // FIXME Moving existing prop manipulated in memory into state
     isConfigOverlayFormOpen: boolean;
     targetPosition: NodePosition; // FIXME check and remove usage of update position if not used anymore
+    currentFunctionNode?: STNode;
 }
 
 export interface LowCodeEditorActions {
@@ -71,7 +69,7 @@ export interface LowCodeEditorAPI {
     }
     // This has to come from Lang-server
     insights: {
-        onEvent?: (event: LowcodeEvent) => void;
+        onEvent?: (event: any) => void;
     }
     code: {
         modifyDiagram: (mutations: STModification[], options?: any) => void;
@@ -118,11 +116,7 @@ export interface LowCodeEditorAPI {
 // and need to avoid getting from outside
 export interface LowCodeEditorProperties {
     userInfo?: UserState;
-    currentFile: {
-        content: string,
-        path: string,
-        size: number
-    };
+    currentFile: CurrentFile;
     syntaxTree: STNode;
     originalSyntaxTree: ModulePart;
     stSymbolInfo: STSymbolInfo;
@@ -147,12 +141,6 @@ export interface LowCodeEditorProperties {
     performanceData?: Map<string, PerformanceData>;
     importStatements: string[];
     experimentalEnabled?: boolean;
-}
-
-export interface FunctionProperties {
-    overlayId: string;
-    overlayNode: HTMLDivElement;
-    functionNode: STNode;
 }
 
 export interface SelectedPosition {

@@ -37,7 +37,7 @@ import "./style.scss";
 import { ExpressionEditorHintProps, HintType } from "../ExpressionEditorHint";
 import MonacoEditor from "react-monaco-editor";
 import { CompletionResponse, ExpressionEditorLangClientInterface, TextEdit,
-    FormField, NonPrimitiveBal, PrimitiveBalType, DiagramDiagnostic, InjectableItem, InsertorDelete } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+    FormField, NonPrimitiveBal, PrimitiveBalType, DiagramDiagnostic, InjectableItem, InsertorDelete, getSelectedDiagnostics } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { GetExpCompletionsParams } from "./index";
 
 
@@ -408,20 +408,6 @@ export function getRandomInt(max: number) {
     return Math.floor(Math.random() * Math.floor(max));
 }
 
-export function getFilteredDiagnostics(diagnostics: Diagnostic[], isCustomStatement: boolean, isStartWithSlash?: boolean) {
-    const selectedDiagnostics =  diagnostics
-        .filter(diagnostic =>
-            !IGNORED_DIAGNOSTIC_MESSAGES.includes(diagnostic.message.toString()) && diagnostic.severity === 1);
-
-    if (selectedDiagnostics.length && isStartWithSlash) {
-        if (selectedDiagnostics[0]?.code === "BCE0400") {
-            selectedDiagnostics[0].message = "resource path cannot begin with a slash"
-        }
-    }
-    return selectedDiagnostics;
-}
-
-
 export const truncateDiagnosticMsg = (diagnosticsMessage: string) => {
     if (diagnosticsMessage && diagnosticsMessage.length > DIAGNOSTIC_MAX_LENGTH)
         return diagnosticsMessage.slice(0, DIAGNOSTIC_MAX_LENGTH) + " ..."
@@ -445,42 +431,6 @@ export const getValueWithoutSemiColon = (currentContent: string) => {
         }
     }
     return currentContent;
-}
-
-export function getSelectedDiagnostics(
-    diagnostics: Diagnostic[],
-    targetPosition: NodePosition,
-    snippetColumn: number,
-    inputLength: number,
-    startExtraColumns: number = 0,
-    endExtraColumns: number = 0
-): Diagnostic[] {
-    const { startLine, endLine, startColumn } = targetPosition || {};
-    const inputStartCol = startColumn + snippetColumn - startExtraColumns;
-    const inputEndCol = startColumn + snippetColumn + inputLength + endExtraColumns - 1;
-
-    const filteredDiagnostics = diagnostics.filter((diagnostic) => {
-        const isError = diagnostic.severity === 1;
-        const { start, end } = diagnostic.range || {};
-        const diagnosticStartCol = start?.character;
-        const diagnosticEndCol = end?.character;
-        return isError && startLine === start.line && endLine === end.line && diagnosticEndCol >= inputStartCol && diagnosticStartCol <= inputEndCol;
-    });
-
-    return filteredDiagnostics;
-}
-
-export function getDiagnosticMessage(
-    diagnostics: Diagnostic[],
-    targetPosition: NodePosition,
-    snippetColumn: number,
-    inputLength: number,
-    startExtraColumns: number = 0,
-    endExtraColumns: number = 0
-): string {
-    return getSelectedDiagnostics(diagnostics, targetPosition, snippetColumn, inputLength, startExtraColumns, endExtraColumns)
-        .reduce((errArr: string[], diagnostic) => (!errArr.includes(diagnostic.message) ? [...errArr, diagnostic.message] : errArr), [])
-        .join(". ");
 }
 
 export function getInitialDiagnosticMessage(diagnostics: DiagramDiagnostic[] = []): string {
@@ -580,14 +530,16 @@ export const getHints = (
     targetPosition: NodePosition,
     snippetColumn: number,
     startExtraColumns: number = 0,
-    endExtraColumns: number = 0
+    endExtraColumns: number = 0,
+    startExtraRows: number = 0,
+    endExtraRows: number = 0
 ): ExpressionEditorHintProps[] => {
     if (monacoRef.current) {
         const inputLength = monacoRef.current.editor.getPosition().column - 1;
         const hints: ExpressionEditorHintProps[] = [];
         if (diagnostics && Array.isArray(diagnostics) && diagnostics.length > 0) {
             const [expectedType, foundType] = getTypesFromDiagnostics(
-                getSelectedDiagnostics(diagnostics, targetPosition, snippetColumn, inputLength, startExtraColumns, endExtraColumns)
+                getSelectedDiagnostics(diagnostics, targetPosition, snippetColumn, inputLength, startExtraColumns, endExtraColumns, startExtraRows, endExtraRows)
             );
 
             if (typeCheckerExp(diagnostics, varName, varType)) {
@@ -783,7 +735,7 @@ export const getStandardExpCompletions = async ({
                 sortText: completionResponse.sortText,
                 documentation: completionResponse.documentation,
                 command: {
-                    id: monacoRef.current.editor.addCommand(0, (_, args: TextEdit[]) => {
+                    id: monacoRef.current.editor.addCommand(0, (_: any, args: TextEdit[]) => {
                         if (args.length > 0) {
                             const startColumn = args[0].range.start.character - snippetTargetPosition -
                                 targetPosition.startColumn + 2;
