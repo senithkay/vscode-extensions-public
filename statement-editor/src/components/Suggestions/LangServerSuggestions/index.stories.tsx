@@ -18,25 +18,25 @@ import { Story } from '@storybook/react/types-6-0';
 import { SuggestionItem } from "../../../models/definitions";
 import varDeclBinaryExprModel from "../../StatementRenderer/data/local-var-decl-with-binary-expr-st-model.json";
 
-import { VariableSuggestions, VariableSuggestionsProps } from "./index";
+import { LSSuggestions, LSSuggestionsProps } from "./index";
 
 export default {
-    title: 'Low Code Editor/Testing/StatementEditor/VariableSuggestions',
-    component: VariableSuggestions,
+    title: 'Low Code Editor/Testing/StatementEditor/LSSuggestions',
+    component: LSSuggestions,
 };
 
-const Template: Story<VariableSuggestionsProps> = (args: VariableSuggestionsProps) =>
-    <VariableSuggestions {...args} />;
+const Template: Story<LSSuggestionsProps> = (args: LSSuggestionsProps) =>
+    <LSSuggestions {...args} />;
 
-export const VariableSuggestionDefault = Template.bind({});
+export const LSSuggestionDefault = Template.bind({});
 
-const variableSuggestions: SuggestionItem[] = [{ value: "var1", kind: "string" },
+const lsSuggestions: SuggestionItem[] = [{ value: "var1", kind: "string" },
     { value: "var2", kind: "string" },
     { value: "var3", kind: "int" },
     { value: "var4", kind: "int" }]
 
-VariableSuggestionDefault.args = {
+LSSuggestionDefault.args = {
     model: varDeclBinaryExprModel,
-    variableSuggestions,
+    lsSuggestions,
     suggestionHandler: ("")
 }

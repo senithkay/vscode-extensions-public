@@ -57,18 +57,18 @@ export function EditorPane(props: ModelProps) {
         }
     } = stmtCtx;
 
-    const [suggestionList, setSuggestionsList] = useState(statementModel ?
-        getSuggestionsBasedOnExpressionKind(c.DEFAULT_EXPRESSIONS) : []);
     const [, setIsSuggestionClicked] = useState(false);
-    const [variableList, setVariableList] = useState([]);
+    const [lsSuggestionsList, setLSSuggestionsList] = useState([]);
+    const [exprSuggestionList, setExprSuggestionsList] = useState(statementModel ?
+        getSuggestionsBasedOnExpressionKind(c.DEFAULT_EXPRESSIONS) : []);
 
     const expressionHandler = (cModel: STNode, suggestions: SuggestionsList) => {
         currentModelHandler(cModel);
         if (suggestions.expressionSuggestions) {
-            setSuggestionsList(suggestions.expressionSuggestions);
+            setExprSuggestionsList(suggestions.expressionSuggestions);
         }
         if (suggestions.lsSuggestions) {
-            setVariableList(suggestions.lsSuggestions);
+            setLSSuggestionsList(suggestions.lsSuggestions);
         }
 
         setIsSuggestionClicked(false);
@@ -120,8 +120,8 @@ export function EditorPane(props: ModelProps) {
             </div>
             <div className={statementEditorClasses.suggestionsSection}>
                 <HelperPane
-                    variableList={variableList}
-                    suggestionList={suggestionList}
+                    lsSuggestions={lsSuggestionsList}
+                    expressionSuggestions={exprSuggestionList}
                 />
             </div>
         </div>

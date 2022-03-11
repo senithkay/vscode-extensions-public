@@ -23,16 +23,16 @@ import { StatementEditorContext } from "../../../store/statement-editor-context"
 import { getSuggestionIconStyle } from "../../../utils";
 import { useStatementEditorStyles } from "../../styles";
 
-export interface VariableSuggestionsProps {
+export interface LSSuggestionsProps {
     model: STNode;
-    variableSuggestions?: SuggestionItem[];
+    lsSuggestions?: SuggestionItem[];
     suggestionHandler: () => void;
     isSuggestion: boolean;
 }
 
-export function VariableSuggestions(props: VariableSuggestionsProps) {
+export function LSSuggestions(props: LSSuggestionsProps) {
     const statementEditorClasses = useStatementEditorStyles();
-    const { model, variableSuggestions, suggestionHandler, isSuggestion } = props;
+    const { model, lsSuggestions, suggestionHandler, isSuggestion } = props;
     const inputEditorCtx = useContext(InputEditorContext);
 
     const {
@@ -45,7 +45,7 @@ export function VariableSuggestions(props: VariableSuggestionsProps) {
     } = useContext(StatementEditorContext);
     const resourceAccessRegex = /.+\./gm;
 
-    const onClickVariableSuggestion = (suggestion: SuggestionItem) => {
+    const onClickLSSuggestion = (suggestion: SuggestionItem) => {
         let variable = suggestion.value;
         if (inputEditorCtx.userInput.includes('.')) {
             variable = resourceAccessRegex.exec(inputEditorCtx.userInput) + suggestion.value;
@@ -65,16 +65,16 @@ export function VariableSuggestions(props: VariableSuggestionsProps) {
 
     return (
         <>
-            { isSuggestion && !!variableSuggestions.length && (
+            { isSuggestion && !!lsSuggestions.length && (
                 <>
                     <div className={statementEditorClasses.lsSuggestionList}>
                         <List className={statementEditorClasses.suggestionList}>
                             {
-                                variableSuggestions.map((suggestion: SuggestionItem, index: number) => (
+                                lsSuggestions.map((suggestion: SuggestionItem, index: number) => (
                                     <ListItem
                                         button={true}
                                         key={index}
-                                        onClick={() => onClickVariableSuggestion(suggestion)}
+                                        onClick={() => onClickLSSuggestion(suggestion)}
                                         className={statementEditorClasses.suggestionListItem}
                                         disableRipple={true}
                                     >
@@ -107,7 +107,7 @@ export function VariableSuggestions(props: VariableSuggestionsProps) {
                     </div>
                 </>
             )}
-            { isSuggestion && !variableSuggestions.length && (
+            { isSuggestion && !lsSuggestions.length && (
                 <p className={statementEditorClasses.noSuggestionText}>Suggestions not available</p>
             )}
         </>

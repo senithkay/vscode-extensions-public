@@ -14,19 +14,14 @@
 import React, { useContext, useState } from "react";
 
 import { ALL_LIBS_IDENTIFIER, LANG_LIBS_IDENTIFIER, STD_LIBS_IDENTIFIER } from "../../constants";
-import { SuggestionItem } from "../../models/definitions";
+import { SuggestionsList } from "../../models/definitions";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import SelectDropdown from "../Dropdown";
 import { LibraryBrowser } from "../LibraryBrowser";
 import { useStatementEditorStyles } from "../styles";
 import { ExpressionSuggestions } from "../Suggestions/ExpressionSuggestions";
-import { VariableSuggestions } from "../Suggestions/VariableSuggestions";
+import { LSSuggestions } from "../Suggestions/LangServerSuggestions";
 import TabPanel from "../Tab";
-
-interface HelperPaneProps {
-    variableList: SuggestionItem[];
-    suggestionList: SuggestionItem[];
-}
 
 enum TabElements {
     suggestions = 'Suggestions',
@@ -34,9 +29,9 @@ enum TabElements {
     libraries = 'Libraries',
 }
 
-export function HelperPane(props: HelperPaneProps) {
+export function HelperPane(props: SuggestionsList) {
     const statementEditorClasses = useStatementEditorStyles();
-    const { variableList, suggestionList } = props;
+    const { lsSuggestions, expressionSuggestions } = props;
     const stmtCtx = useContext(StatementEditorContext);
     const {
         modelCtx: {
@@ -84,9 +79,9 @@ export function HelperPane(props: HelperPaneProps) {
             </div>
             <div className={statementEditorClasses.suggestionsInner}>
                 {(
-                    <VariableSuggestions
+                    <LSSuggestions
                         model={currentModel.model}
-                        variableSuggestions={variableList}
+                        lsSuggestions={lsSuggestions}
                         suggestionHandler={suggestionHandler}
                         isSuggestion={selectedTab === TabElements.suggestions}
                     />
@@ -94,7 +89,7 @@ export function HelperPane(props: HelperPaneProps) {
                 {(
                     <ExpressionSuggestions
                         model={currentModel.model}
-                        suggestions={suggestionList}
+                        suggestions={expressionSuggestions}
                         suggestionHandler={suggestionHandler}
                         isExpression={selectedTab === TabElements.expressions}
                     />
