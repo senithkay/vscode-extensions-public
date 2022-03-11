@@ -322,13 +322,13 @@ export function AddForeachForm(props: ForeachProps) {
                             </div>
                         </div>
                         <div className={classes.formCodeExpressionEndWrapper}>
-                            <Typography variant='body2' className={classnames(classes.endCode)}>in</Typography>
+                            <Typography variant='body2' className={classnames(classes.forEachEndCode)}>in</Typography>
                             <div className={classes.formCodeExpressionLargeField}>
                                 <div className={classes.stmtEditorWrapper}>
                                     <LowCodeExpressionEditor {...expElementProps} />
                                 </div>
                             </div>
-                            <Typography variant='body2' className={classes.endCode}>{`{`}</Typography>
+                            <Typography variant='body2' className={classes.forEachEndCode}>{`{`}</Typography>
                         </div>
                     </div>
                     <div className={classes.formCodeBlockWrapper}>
