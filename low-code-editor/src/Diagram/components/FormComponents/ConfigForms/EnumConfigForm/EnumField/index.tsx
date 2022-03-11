@@ -112,7 +112,7 @@ export function EnumField(props: CodePanelProps) {
         const newField: SimpleField = {type: "", name: "", isFieldOptional: false, isActive: true,
                                        isNameInvalid: false, isEditInProgress: true};
         enumModel.fields.push(newField);
-        callBacks.updateEditorValidity(true);
+        callBacks.updateEditorValidity(false);
         return newField;
     };
 
