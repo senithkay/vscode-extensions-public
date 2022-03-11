@@ -88,6 +88,7 @@ export function TypeTestExpressionComponent(props: TypeTestExpressionProps) {
             model={model.typeDescriptor}
             isElseIfMember={isElseIfMember}
             onSelect={onClickOnTypeDescriptor}
+            isTypeDesc={true}
         />
     );
 

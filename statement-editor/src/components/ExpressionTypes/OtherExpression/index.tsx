@@ -19,15 +19,17 @@ import { useStatementEditorStyles } from "../../styles";
 
 interface OtherExpressionProps {
     model: STNode;
+    isTypeDesc?: boolean;
 }
 
 export function OtherExpressionComponent(props: OtherExpressionProps) {
-    const { model } = props;
+    const { model, isTypeDesc } = props;
 
     const statementEditorClasses = useStatementEditorStyles();
 
     const inputEditorProps = {
-        model
+        model,
+        isTypeDesc
     };
 
     return (

@@ -19,17 +19,19 @@ import { InputEditor } from "../../../InputEditor";
 
 interface StringTypeDescProps {
     model: StringTypeDesc;
+    isTypeDesc?: boolean;
 }
 
 export function StringTypeDescComponent(props: StringTypeDescProps) {
-    const { model } = props;
+    const { model, isTypeDesc } = props;
 
     const { expressionHandler } = useContext(SuggestionsContext);
 
     const inputEditorProps = {
         model,
         expressionHandler,
-        classNames: "type-descriptor string"
+        classNames: "type-descriptor string",
+        isTypeDesc
     };
 
     return (

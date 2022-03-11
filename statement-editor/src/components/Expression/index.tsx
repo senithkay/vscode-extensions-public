@@ -29,13 +29,14 @@ export interface ExpressionComponentProps {
     onSelect?: (event: React.MouseEvent) => void;
     children?: React.ReactElement[];
     classNames?: string;
-    deleteConfig?: ExprDeleteConfig
+    deleteConfig?: ExprDeleteConfig;
+    isTypeDesc?: boolean;
 }
 
 export function ExpressionComponent(props: ExpressionComponentProps) {
-    const { model, isElseIfMember, onSelect, children, classNames, deleteConfig } = props;
+    const { model, isElseIfMember, onSelect, children, classNames, deleteConfig, isTypeDesc } = props;
 
-    const component = getExpressionTypeComponent(model, isElseIfMember);
+    const component = getExpressionTypeComponent(model, isElseIfMember, isTypeDesc);
 
     const [isHovered, setHovered] = React.useState(false);
     const [deletable, setDeletable] = React.useState(false);

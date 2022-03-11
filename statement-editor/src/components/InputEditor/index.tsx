@@ -38,11 +38,12 @@ export interface InputEditorProps {
     model?: STNode;
     isToken?: boolean;
     classNames?: string;
+    isTypeDesc?: boolean;
 }
 
 export function InputEditor(props: InputEditorProps) {
 
-    const { model, isToken, classNames } = props;
+    const { model, isToken, classNames, isTypeDesc } = props;
 
     const stmtCtx = useContext(StatementEditorContext);
     const {
@@ -159,7 +160,7 @@ export function InputEditor(props: InputEditorProps) {
         if (INPUT_EDITOR_PLACE_HOLDERS.has(inputText)) {
             return INPUT_EDITOR_PLACE_HOLDERS.get(inputText);
         } else if (inputText === "") {
-            isTypeDescriptor ? (inputText = 'TYPE_DESCRIPTOR') : (inputText = 'EXPRESSION');
+            isTypeDesc ? (inputText = 'TYPE_DESCRIPTOR') : (inputText = 'EXPRESSION');
             return INPUT_EDITOR_PLACE_HOLDERS.get(inputText);
         }
         return inputText;

@@ -79,6 +79,7 @@ export function TypedBindingPatternComponent(props: TypedBindingPatternProps) {
             onSelect={onClickOnType}
             classNames="type-descriptor"
             deleteConfig={{defaultExprDeletable: true}}
+            isTypeDesc={true}
         />
     );
 

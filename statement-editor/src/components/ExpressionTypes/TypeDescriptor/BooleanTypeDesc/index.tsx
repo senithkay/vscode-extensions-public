@@ -19,17 +19,19 @@ import { InputEditor } from "../../../InputEditor";
 
 interface BooleanTypeDescProps {
     model: BooleanTypeDesc;
+    isTypeDesc?: boolean;
 }
 
 export function BooleanTypeDescComponent(props: BooleanTypeDescProps) {
-    const { model } = props;
+    const { model, isTypeDesc } = props;
 
     const { expressionHandler } = useContext(SuggestionsContext);
 
     const inputEditorProps = {
         model,
         expressionHandler,
-        classNames: "type-descriptor boolean"
+        classNames: "type-descriptor boolean",
+        isTypeDesc
     };
 
     return (

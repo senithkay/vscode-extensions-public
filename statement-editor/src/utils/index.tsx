@@ -99,7 +99,7 @@ export function getDataTypeOnExpressionKind(kind: string): string[] {
     return DataTypeByExpressionKind[kind];
 }
 
-export function getExpressionTypeComponent(expression: STNode, isElseIfMember: boolean): ReactNode {
+export function getExpressionTypeComponent(expression: STNode, isElseIfMember: boolean, isTypeDesc: boolean): ReactNode {
     let ExprTypeComponent = (expressionTypeComponents as any)[expression.kind];
 
     if (!ExprTypeComponent) {
@@ -110,6 +110,7 @@ export function getExpressionTypeComponent(expression: STNode, isElseIfMember: b
         <ExprTypeComponent
             model={expression}
             isElseIfMember={isElseIfMember}
+            isTypeDesc={isTypeDesc}
         />
     );
 }
