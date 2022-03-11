@@ -51,10 +51,9 @@ export function WhileStatementC(props: WhileStatementProps) {
         const completions: SuggestionItem[] = await getContextBasedCompletions(fileURI, content, targetPosition,
             model.condition.position, false, isElseIfMember, model.condition.source, getLangClient);
 
-        expressionHandler(model.condition, false, {
+        expressionHandler(model.condition, {
             expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
-            typeSuggestions: [],
-            variableSuggestions: completions
+            lsSuggestions: completions
         });
     };
 
@@ -63,10 +62,9 @@ export function WhileStatementC(props: WhileStatementProps) {
             stmtCtx.modelCtx.statementModel.source, getLangClient).then((content: string) => {
             getContextBasedCompletions(fileURI, content, targetPosition, model.condition.position, false,
                 isElseIfMember, model.condition.source, getLangClient).then((completions) => {
-                expressionHandler(model.condition, false, {
+                expressionHandler(model.condition, {
                     expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
-                    typeSuggestions: [],
-                    variableSuggestions: completions
+                    lsSuggestions: completions
                 });
             });
         });

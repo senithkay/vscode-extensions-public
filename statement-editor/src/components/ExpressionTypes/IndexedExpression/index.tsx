@@ -57,10 +57,9 @@ export function IndexedExpressionComponent(props: IndexedExpressionProps) {
 
     const onClickOnContainerExpr = (event: any) => {
         event.stopPropagation()
-        expressionHandler(model.containerExpression, false, {
+        expressionHandler(model.containerExpression, {
             expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
-            typeSuggestions: [],
-            variableSuggestions: []
+            lsSuggestions: []
         });
     };
 
@@ -74,10 +73,9 @@ export function IndexedExpressionComponent(props: IndexedExpressionProps) {
             fileURI, content, targetPosition, clickedExpression.position,
             false, isElseIfMember, clickedExpression.source, getLangClient);
 
-        expressionHandler(clickedExpression, false, {
+        expressionHandler(clickedExpression, {
             expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
-            typeSuggestions: [],
-            variableSuggestions: completions
+            lsSuggestions: completions
         });
     };
 

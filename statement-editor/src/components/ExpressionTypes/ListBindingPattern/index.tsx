@@ -48,8 +48,10 @@ export function ListBindingPatternComponent(props: ListBindingPatternProps) {
 
     const onClickOnBindingPattern = (event: any) => {
         event.stopPropagation()
-        expressionHandler(model, false,
-            { expressionSuggestions: [], typeSuggestions: [], variableSuggestions: [] })
+        expressionHandler(model, {
+            expressionSuggestions: [],
+            lsSuggestions: []
+        });
     };
 
     return (

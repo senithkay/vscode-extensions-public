@@ -15,15 +15,8 @@ import React from 'react';
 
 import { STNode } from "@wso2-enterprise/syntax-tree";
 
-import { SuggestionItem } from "../models/definitions";
+import { SuggestionsList } from "../models/definitions";
 
 export const SuggestionsContext = React.createContext({
-    expressionHandler: (model: STNode,
-                        operator: boolean,
-                        suggestionsList: {
-                            expressionSuggestions?: SuggestionItem[],
-                            variableSuggestions?: SuggestionItem[],
-                            typeSuggestions?: SuggestionItem[]
-                        }) => {}
-
+    expressionHandler: (model: STNode, suggestionsList: SuggestionsList) => {}
 });

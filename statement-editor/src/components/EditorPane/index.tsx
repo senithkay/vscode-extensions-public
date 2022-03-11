@@ -62,7 +62,7 @@ export function EditorPane(props: ModelProps) {
     const [, setIsSuggestionClicked] = useState(false);
     const [variableList, setVariableList] = useState([]);
 
-    const expressionHandler = (cModel: STNode, operator: boolean, suggestions: SuggestionsList) => {
+    const expressionHandler = (cModel: STNode, suggestions: SuggestionsList) => {
         currentModelHandler(cModel);
         if (suggestions.expressionSuggestions) {
             setSuggestionsList(suggestions.expressionSuggestions);

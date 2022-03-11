@@ -45,8 +45,10 @@ export function ForeachStatementC(props: ForeachStatementProps) {
 
     const onClickOnBindingPattern = (event: any) => {
         event.stopPropagation();
-        expressionHandler(model.typedBindingPattern, false,
-            {expressionSuggestions: [], typeSuggestions: [], variableSuggestions: []});
+        expressionHandler(model.typedBindingPattern, {
+            expressionSuggestions: [],
+            lsSuggestions: []
+        });
     };
 
     const onClickOnActionOrExpr = async (event: any) => {
@@ -59,10 +61,9 @@ export function ForeachStatementC(props: ForeachStatementProps) {
             model.actionOrExpressionNode.position, false, isElseIfMember,
             model.actionOrExpressionNode.source, getLangClient);
 
-        expressionHandler(model.actionOrExpressionNode, false, {
+        expressionHandler(model.actionOrExpressionNode, {
             expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
-            typeSuggestions: [],
-            variableSuggestions: completions
+            lsSuggestions: completions
         });
     };
 
@@ -72,10 +73,9 @@ export function ForeachStatementC(props: ForeachStatementProps) {
             getContextBasedCompletions(fileURI, content, targetPosition, model.actionOrExpressionNode.position,
                 false, isElseIfMember, model.actionOrExpressionNode.source,
                 getLangClient).then((completions) => {
-                expressionHandler(model.actionOrExpressionNode, false, {
+                expressionHandler(model.actionOrExpressionNode, {
                     expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
-                    typeSuggestions: [],
-                    variableSuggestions: completions
+                    lsSuggestions: completions
                 });
             });
         });

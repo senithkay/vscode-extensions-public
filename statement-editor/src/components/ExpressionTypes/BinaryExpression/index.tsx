@@ -53,10 +53,9 @@ export function BinaryExpressionComponent(props: BinaryProps) {
 
     const onClickOperator = (event: any) => {
         event.stopPropagation()
-        expressionHandler(model.operator, true, {
+        expressionHandler(model.operator, {
             expressionSuggestions: getOperatorSuggestions(kind),
-            typeSuggestions: [],
-            variableSuggestions: []
+            lsSuggestions: []
         });
     }
 
@@ -70,10 +69,9 @@ export function BinaryExpressionComponent(props: BinaryProps) {
             fileURI, content, targetPosition, model.lhsExpr.position,
             false, isElseIfMember, model.lhsExpr.source, getLangClient);
 
-        expressionHandler(model.lhsExpr, false, {
+        expressionHandler(model.lhsExpr, {
             expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
-            typeSuggestions: [],
-            variableSuggestions: completions
+            lsSuggestions: completions
         });
     };
 
@@ -87,10 +85,9 @@ export function BinaryExpressionComponent(props: BinaryProps) {
             fileURI, content, targetPosition, model.rhsExpr.position,
             false, isElseIfMember, model.rhsExpr.source, getLangClient);
 
-        expressionHandler(model.rhsExpr, false, {
+        expressionHandler(model.rhsExpr, {
             expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
-            typeSuggestions: [],
-            variableSuggestions: completions
+            lsSuggestions: completions
         });
     };
 

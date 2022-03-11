@@ -47,8 +47,10 @@ export function SpecificFieldComponent(props: SpecificFieldProps) {
 
     const onClickOnFieldName = (event: any) => {
         event.stopPropagation()
-        expressionHandler(model.fieldName, false,
-            { expressionSuggestions: [], typeSuggestions: [], variableSuggestions: [] })
+        expressionHandler(model.fieldName, {
+            expressionSuggestions: [],
+            lsSuggestions: []
+        });
     };
 
     const onClickOnValueExpr = async (event: any) => {
@@ -61,10 +63,9 @@ export function SpecificFieldComponent(props: SpecificFieldProps) {
             fileURI, content, targetPosition, model.valueExpr.position,
             false, isElseIfMember, model.valueExpr.source, getLangClient);
 
-        expressionHandler(model.valueExpr, false, {
+        expressionHandler(model.valueExpr, {
             expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
-            typeSuggestions: [],
-            variableSuggestions: completions
+            lsSuggestions: completions
         });
     };
 

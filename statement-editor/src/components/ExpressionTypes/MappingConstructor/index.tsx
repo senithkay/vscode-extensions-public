@@ -49,8 +49,10 @@ export function MappingConstructorComponent(props: MappingConstructorProps) {
 
     const onClickOnExpression = (clickedExpression: STNode, event: any) => {
         event.stopPropagation();
-        expressionHandler(clickedExpression, false,
-            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) })
+        expressionHandler(clickedExpression, {
+            expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
+            lsSuggestions: []
+        });
     };
 
     const fieldsComponent = (

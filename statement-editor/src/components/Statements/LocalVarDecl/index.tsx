@@ -47,8 +47,10 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
 
     const onClickOnBindingPattern = (event: any) => {
         event.stopPropagation();
-        expressionHandler(model.typedBindingPattern, false,
-            {expressionSuggestions: [], typeSuggestions: [], variableSuggestions: []});
+        expressionHandler(model.typedBindingPattern, {
+            expressionSuggestions: [],
+            lsSuggestions: []
+        });
     };
 
     const onClickOnInitializer = async (event: any) => {
@@ -60,10 +62,9 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
         const completions: SuggestionItem[] = await getContextBasedCompletions(fileURI, content, targetPosition,
             model.initializer.position, false, isElseIfMember, model.initializer.source, getLangClient);
 
-        expressionHandler(model.initializer, false, {
+        expressionHandler(model.initializer, {
             expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
-            typeSuggestions: [],
-            variableSuggestions: completions
+            lsSuggestions: completions
         });
     };
 
@@ -72,10 +73,9 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
             stmtCtx.modelCtx.statementModel.source, getLangClient).then((content: string) => {
                 getContextBasedCompletions(fileURI, content, targetPosition, model.initializer.position, false,
                     isElseIfMember, model.initializer.source, getLangClient).then((completions) => {
-                        expressionHandler(model.initializer, false, {
+                        expressionHandler(model.initializer, {
                             expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
-                            typeSuggestions: [],
-                            variableSuggestions: completions
+                            lsSuggestions: completions
                         });
                     });
             });

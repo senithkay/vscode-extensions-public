@@ -52,10 +52,9 @@ export function AssignmentStatementComponent(props: AssignmentStatementProps) {
             fileURI, content, targetPosition, model.varRef.position,
             false, isElseIfMember, model.varRef.source, getLangClient);
 
-        expressionHandler(model.varRef, false, {
+        expressionHandler(model.varRef, {
             expressionSuggestions: [],
-            typeSuggestions: [],
-            variableSuggestions: completions
+            lsSuggestions: completions
         });
     };
 
@@ -69,10 +68,9 @@ export function AssignmentStatementComponent(props: AssignmentStatementProps) {
             fileURI, content, targetPosition, model.expression.position,
             false, isElseIfMember, model.expression.source, getLangClient);
 
-        expressionHandler(model.expression, false, {
+        expressionHandler(model.expression, {
             expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
-            typeSuggestions: [],
-            variableSuggestions: completions
+            lsSuggestions: completions
         });
     };
 
@@ -81,10 +79,9 @@ export function AssignmentStatementComponent(props: AssignmentStatementProps) {
             stmtCtx.modelCtx.statementModel.source, getLangClient).then((content: string) => {
             getContextBasedCompletions(fileURI, content, targetPosition, model.expression.position, false,
                 isElseIfMember, model.expression.source, getLangClient).then((completions) => {
-                expressionHandler(model.expression, false, {
+                expressionHandler(model.expression, {
                     expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
-                    typeSuggestions: [],
-                    variableSuggestions: completions
+                    lsSuggestions: completions
                 });
             });
         });

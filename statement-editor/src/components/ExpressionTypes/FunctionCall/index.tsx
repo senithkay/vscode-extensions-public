@@ -49,10 +49,9 @@ export function FunctionCallComponent(props: FunctionCallProps) {
             fileURI, content, targetPosition, model.position,
             false, isElseIfMember, model.source, getLangClient);
 
-        expressionHandler(model, false, {
+        expressionHandler(model, {
             expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
-            typeSuggestions: [],
-            variableSuggestions: completions
+            lsSuggestions: completions
         });
     }
 

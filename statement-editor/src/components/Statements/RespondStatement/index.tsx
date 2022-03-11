@@ -52,10 +52,9 @@ export function RespondStatementC(props: ReturnStatementProps) {
         const completions: SuggestionItem[] = await getContextBasedCompletions(fileURI, content, targetPosition,
             model.expression.position, false, isElseIfMember, model.expression.source, getLangClient);
 
-        expressionHandler(model.expression, false, {
+        expressionHandler(model.expression, {
             expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
-            typeSuggestions: [],
-            variableSuggestions: completions
+            lsSuggestions: completions
         });
     };
 
@@ -64,10 +63,9 @@ export function RespondStatementC(props: ReturnStatementProps) {
             stmtCtx.modelCtx.statementModel.source, getLangClient).then((content: string) => {
             getContextBasedCompletions(fileURI, content, targetPosition, model.expression.position, false,
                 isElseIfMember, model.expression.source, getLangClient).then((completions) => {
-                expressionHandler(model.expression, false, {
+                expressionHandler(model.expression, {
                     expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
-                    typeSuggestions: [],
-                    variableSuggestions: completions
+                    lsSuggestions: completions
                 });
             });
         });

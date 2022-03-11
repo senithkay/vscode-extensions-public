@@ -39,10 +39,9 @@ export function TypedBindingPatternComponent(props: TypedBindingPatternProps) {
 
     const onClickOnTypeBindingPatter = async (event: any) => {
         event.stopPropagation();
-        expressionHandler(model.bindingPattern, false, {
+        expressionHandler(model.bindingPattern, {
             expressionSuggestions: [],
-            typeSuggestions: [],
-            variableSuggestions: []
+            lsSuggestions: []
         });
     };
 
@@ -65,10 +64,9 @@ export function TypedBindingPatternComponent(props: TypedBindingPatternProps) {
             fileURI, content, targetPosition, model.typeDescriptor.position,
             true, isElseIfMember, model.typeDescriptor.source, getLangClient);
 
-        expressionHandler(model.typeDescriptor, false, {
+        expressionHandler(model.typeDescriptor, {
             expressionSuggestions: [],
-            typeSuggestions: completions,
-            variableSuggestions: []
+            lsSuggestions: completions
         });
     };
 
