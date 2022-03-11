@@ -21,8 +21,8 @@ import "./style.scss";
 
 export let ASSIGNMENT_NAME_WIDTH = 125;
 
-export function Assignment(props: { x: number, y: number, assignment: string, className?: string, key_id: number }) {
-    const { assignment, className, key_id, ...xyProps } = props;
+export function Assignment(props: { x: number, y: number, assignment: string, className?: string, key_id: number, textAnchor?: string }) {
+    const { assignment, className, key_id, textAnchor, ...xyProps } = props;
     const [textWidth, setTextWidth] = useState(ASSIGNMENT_NAME_WIDTH);
     const diagramContext = useContext(Context);
     const showTooltip = diagramContext?.api?.edit?.showTooltip;
@@ -40,6 +40,7 @@ export function Assignment(props: { x: number, y: number, assignment: string, cl
             className={classNames("assignment-text", className)}
             id="Assignment_text"
             transform="translate(4 13.5)"
+            textAnchor={textAnchor}
         >
             <tspan x="0" y="0">{assignmentMaxWidth ? assignment.slice(0, 16) + "..." : assignment}</tspan>
         </text>

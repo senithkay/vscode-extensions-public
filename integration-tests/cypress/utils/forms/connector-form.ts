@@ -31,6 +31,7 @@ export class ConnectorForm {
     }
 
     static waitForConnectorsLoading() {
+        cy.wait(5000);
         this.getConnectorMarketplace().get(`[data-testid="marketplace-search-loader"]`).should(($div) => {
             const element = $div;
             expect(element).to.be.not.exist;

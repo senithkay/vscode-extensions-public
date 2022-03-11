@@ -530,14 +530,16 @@ export const getHints = (
     targetPosition: NodePosition,
     snippetColumn: number,
     startExtraColumns: number = 0,
-    endExtraColumns: number = 0
+    endExtraColumns: number = 0,
+    startExtraRows: number = 0,
+    endExtraRows: number = 0
 ): ExpressionEditorHintProps[] => {
     if (monacoRef.current) {
         const inputLength = monacoRef.current.editor.getPosition().column - 1;
         const hints: ExpressionEditorHintProps[] = [];
         if (diagnostics && Array.isArray(diagnostics) && diagnostics.length > 0) {
             const [expectedType, foundType] = getTypesFromDiagnostics(
-                getSelectedDiagnostics(diagnostics, targetPosition, snippetColumn, inputLength, startExtraColumns, endExtraColumns)
+                getSelectedDiagnostics(diagnostics, targetPosition, snippetColumn, inputLength, startExtraColumns, endExtraColumns, startExtraRows, endExtraRows)
             );
 
             if (typeCheckerExp(diagnostics, varName, varType)) {

@@ -53,7 +53,8 @@ export const fetchConnectorsList = async (
 };
 
 export function ConnectorList(props: FormGeneratorProps) {
-    const { onSelect, onCancel } = props.configOverlayFormStatus.formArgs as ConnectorListProps;
+    const { onCancel } = props;
+    const { onSelect } = props.configOverlayFormStatus.formArgs as ConnectorListProps;
 
     return (
         <Marketplace

@@ -1,5 +1,5 @@
 
-import { FunctionViewState, initVisitor, positionVisitor, sizingVisitor } from "@wso2-enterprise/ballerina-low-code-diagram";
+import { FunctionViewState, initVisitor, PositioningVisitor, SizingVisitor } from "@wso2-enterprise/ballerina-low-code-diagram";
 import { DiagramSize } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 
@@ -10,27 +10,27 @@ export function calculateSize(st: STNode): DiagramSize {
     }
 }
 
-export function sizingAndPositioning(st: STNode): STNode {
+export function sizingAndPositioning(st: STNode, experimentalEnabled?: boolean): STNode {
     traversNode(st, initVisitor);
-    traversNode(st, sizingVisitor);
-    traversNode(st, positionVisitor);
-
+    traversNode(st, new SizingVisitor());
+    traversNode(st, new PositioningVisitor());
+    // traversNode(st, workerSyncVisitor);
     if (STKindChecker.isFunctionDefinition(st) && st?.viewState?.onFail) {
         const viewState = st.viewState as FunctionViewState;
-        traversNode(viewState.onFail, sizingVisitor);
-        traversNode(viewState.onFail, positionVisitor);
+        traversNode(viewState.onFail, new SizingVisitor());
+        traversNode(viewState.onFail, new PositioningVisitor());
     }
     const clone = { ...st };
     return clone;
 }
 
-export function recalculateSizingAndPositioning(st: STNode): STNode {
-    traversNode(st, sizingVisitor);
-    traversNode(st, positionVisitor);
+export function recalculateSizingAndPositioning(st: STNode, experimentalEnabled?: boolean): STNode {
+    traversNode(st, new SizingVisitor());
+    traversNode(st, new PositioningVisitor());
     if (STKindChecker.isFunctionDefinition(st) && st?.viewState?.onFail) {
         const viewState = st.viewState as FunctionViewState;
-        traversNode(viewState.onFail, sizingVisitor);
-        traversNode(viewState.onFail, positionVisitor);
+        traversNode(viewState.onFail, new SizingVisitor());
+        traversNode(viewState.onFail, new PositioningVisitor());
     }
     const clone = { ...st };
     return clone;
