@@ -1,4 +1,3 @@
-import { BlockLevelPlusWidget } from "../../utils/components/block-level-plus-widget";
 import { Canvas } from "../../utils/components/canvas";
 import { SourceCode } from "../../utils/components/code-view";
 import { TopLevelPlusWidget } from "../../utils/components/top-level-plus-widget";
@@ -6,9 +5,7 @@ import { getCurrentSpecFolder } from "../../utils/file-utils";
 import { ConfigurableForm } from "../../utils/forms/configurable-form";
 import { ConstantForm } from "../../utils/forms/constant-form";
 import { EnumerationForm } from "../../utils/forms/enumeration-form";
-import { FunctionForm } from "../../utils/forms/function-form";
 import { ListenerForm } from "../../utils/forms/listener-form";
-import { LogForm } from "../../utils/forms/log-form";
 import { OtherForm } from "../../utils/forms/other-form";
 import { RecordForm } from "../../utils/forms/record-form";
 import { VariableFormModuleLevel } from "../../utils/forms/variable-form-module-level";
@@ -84,71 +81,72 @@ describe("Add module-level statements via Low Code", () => {
 
   it.skip('Add a configurable to empty file', () => {
 
-  it("Add a configurable to empty file", () => {
-    // cy.on('uncaught:exception', () => false); //Need to fix this
+    it("Add a configurable to empty file", () => {
+      // cy.on('uncaught:exception', () => false); //Need to fix this
 
-    Canvas.welcomeMessageShouldBeVisible().clickTopLevelPlusButton();
-    TopLevelPlusWidget.clickOption("Configurable");
+      Canvas.welcomeMessageShouldBeVisible().clickTopLevelPlusButton();
+      TopLevelPlusWidget.clickOption("Configurable");
 
-    ConfigurableForm.shouldBeVisible()
-      .togglePublickAccessModifier()
-      .isAccessModifierChecked("public")
-      .typeConfigurableType("string")
-      .typeConfigurableName("foo")
-      .toggleDefaultValue()
-      .typeVariableValueShouldBeVisible()
-      .typeLabalShouldBeVisible("string")
-      .typeVariableValue('"Hello World"')
-      .save();
-  });
+      ConfigurableForm.shouldBeVisible()
+        .togglePublickAccessModifier()
+        .isAccessModifierChecked("public")
+        .typeConfigurableType("string")
+        .typeConfigurableName("foo")
+        .toggleDefaultValue()
+        .typeVariableValueShouldBeVisible()
+        .typeLabalShouldBeVisible("string")
+        .typeVariableValue('"Hello World"')
+        .save();
+    });
 
-  it("Add a constant to empty file", () => {
-    Canvas.welcomeMessageShouldBeVisible().clickTopLevelPlusButton();
-    TopLevelPlusWidget.clickOption("Constant");
+    it("Add a constant to empty file", () => {
+      Canvas.welcomeMessageShouldBeVisible().clickTopLevelPlusButton();
+      TopLevelPlusWidget.clickOption("Constant");
 
-    ConstantForm.shouldBeVisible()
-      .togglePublickAccessModifier()
-      .isAccessModifierChecked("public")
-      .typeConstantName("foo")
-      .toggleTypeDeclaration()
-      .selectType("string")
-      .typeLabalShouldBeVisible("string")
-      .typeVariableValue('"Hello World"')
-      .save();
-  });
+      ConstantForm.shouldBeVisible()
+        .togglePublickAccessModifier()
+        .isAccessModifierChecked("public")
+        .typeConstantName("foo")
+        .toggleTypeDeclaration()
+        .selectType("string")
+        .typeLabalShouldBeVisible("string")
+        .typeVariableValue('"Hello World"')
+        .save();
+    });
 
-  it("Add a listener to empty file", () => {
-    Canvas.welcomeMessageShouldBeVisible().clickTopLevelPlusButton();
-    TopLevelPlusWidget.clickOption("Listener");
+    it("Add a listener to empty file", () => {
+      Canvas.welcomeMessageShouldBeVisible().clickTopLevelPlusButton();
+      TopLevelPlusWidget.clickOption("Listener");
 
-    ListenerForm.shouldBeVisible()
-      .typeListenerName("hello")
-      .typeListenerPortValue(9090)
-      .save();
-  });
+      ListenerForm.shouldBeVisible()
+        .typeListenerName("hello")
+        .typeListenerPortValue(9090)
+        .save();
+    });
 
-  it("Add a enum to empty file", () => {
-    Canvas.welcomeMessageShouldBeVisible().clickTopLevelPlusButton();
-    TopLevelPlusWidget.clickOption("Enum");
+    it("Add a enum to empty file", () => {
+      Canvas.welcomeMessageShouldBeVisible().clickTopLevelPlusButton();
+      TopLevelPlusWidget.clickOption("Enum");
 
-    EnumerationForm.shouldBeVisible()
-      .typeEnumName("Foo")
-      .clickWhiteSpace()
-      .haveEnumName("Foo")
-      .addNewMember("RED")
-      .addNewMember("GREEN")
-      .addNewMember("BLUE")
-      .save();
+      EnumerationForm.shouldBeVisible()
+        .typeEnumName("Foo")
+        .clickWhiteSpace()
+        .haveEnumName("Foo")
+        .addNewMember("RED")
+        .addNewMember("GREEN")
+        .addNewMember("BLUE")
+        .save();
 
-    SourceCode.shouldBeEqualTo(
-      getCurrentSpecFolder() + "add-enum.expected.bal"
-    );
-  });
+      SourceCode.shouldBeEqualTo(
+        getCurrentSpecFolder() + "add-enum.expected.bal"
+      );
+    });
 
-  it("Add a other statement to empty file", () => {
-    Canvas.welcomeMessageShouldBeVisible().clickTopLevelPlusButton();
-    TopLevelPlusWidget.clickOption("Other");
+    it("Add a other statement to empty file", () => {
+      Canvas.welcomeMessageShouldBeVisible().clickTopLevelPlusButton();
+      TopLevelPlusWidget.clickOption("Other");
 
-    OtherForm.shouldBeVisible().typeStatement("int x = 123;").save();
+      OtherForm.shouldBeVisible().typeStatement("int x = 123;").save();
+    });
   });
 });
