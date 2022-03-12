@@ -20,12 +20,8 @@
 import { h, FunctionComponent } from "preact";
 import { ShellOutput } from "./types";
 
-const tableContentRegex = /^table key\(([a-zA-Z0-9, ]+)\) (\[.+\])$/;
-
 export const Table: FunctionComponent<{ shellOutput: Readonly<ShellOutput> }> = ({ shellOutput }) => {
-    const match = shellOutput.shellValue.value.match(tableContentRegex)!;
-    // const tableKeys = match[1].split(',');
-    const tableContent = JSON.parse(match[2]);
+    const tableContent = JSON.parse(shellOutput.shellValue.value);
     const getKeys = () => Object.keys(tableContent[0]);
     const getValue = (element: { [x: string]: any; }, key: string | number) => element[key] ? JSON.stringify(element[key], undefined, 2) : '';
     const renderHeader = () => {
