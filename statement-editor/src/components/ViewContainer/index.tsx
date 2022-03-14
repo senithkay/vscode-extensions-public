@@ -64,7 +64,6 @@ export function ViewContainer(props: ViewContainerProps) {
     const exprSchemeURI = `expr://${currentFile.path}`;
     const fileSchemeURI = `file://${currentFile.path}`;
 
-
     const saveVariableButtonText = intl.formatMessage({
         id: "lowcode.develop.configForms.variable.saveButton.text",
         defaultMessage: "Save"

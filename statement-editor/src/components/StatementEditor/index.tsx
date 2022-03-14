@@ -85,8 +85,6 @@ export interface StatementEditorProps extends LowCodeEditorProps {
     validForm?: boolean;
     onWizardClose: () => void;
     onCancel: () => void;
-    handleNameOnChange?: (name: string) => void;
-    handleTypeChange?: (name: string) => void;
     handleStatementEditorChange?: (partialModel: STNode) => void;
     onStmtEditorModelChange?: (partialModel: STNode) => void;
 }
@@ -99,8 +97,6 @@ export function StatementEditor(props: StatementEditorProps) {
         config,
         onCancel,
         onWizardClose,
-        handleNameOnChange,
-        handleTypeChange,
         onStmtEditorModelChange,
         getLangClient,
         applyModifications,
@@ -114,8 +110,7 @@ export function StatementEditor(props: StatementEditorProps) {
     const [diagnostics, setDiagnostics] = useState([]);
     const [moduleList, setModuleList] = useState(new Set<string>());
     const [lsSuggestionsList, setLSSuggestionsList] = useState([]);
-    const [exprSuggestionList, setExprSuggestionsList] = useState(model ?
-        getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) : []);
+    const [exprSuggestionList, setExprSuggestionsList] = useState([]);
 
     const fileURI = monaco.Uri.file(currentFile.path).toString().replace(FILE_SCHEME, EXPR_SCHEME);
 
@@ -180,9 +175,8 @@ export function StatementEditor(props: StatementEditorProps) {
     }, [currentModel.model]);
 
     useEffect(() => {
-        if (!!model && STKindChecker.isLocalVarDecl(model) && handleNameOnChange && handleTypeChange) {
-            handleNameOnChange(model.typedBindingPattern.bindingPattern.source)
-            handleTypeChange(model.typedBindingPattern.typeDescriptor.source)
+        if (!!model) {
+            onStmtEditorModelChange(model);
         }
     }, [model]);
 
@@ -211,8 +205,8 @@ export function StatementEditor(props: StatementEditorProps) {
         setDiagnostics(diag);
     }
 
-    const updateModel = async (codeSnippet: string, position: NodePosition, isEdited?: boolean) => {
-        if (!isEdited) {
+    const updateModel = async (codeSnippet: string, position: NodePosition, isEditedViaInputEditor?: boolean) => {
+        if (!isEditedViaInputEditor) {
             handleChange(codeSnippet).then();
         }
         let partialST: STNode;
@@ -270,6 +264,13 @@ export function StatementEditor(props: StatementEditorProps) {
         }
     };
 
+    const currentModelHandler = (cModel: STNode, kind?: ModelKind) => {
+        setCurrentModel({
+            model: cModel,
+            kind
+        });
+    };
+
     function addExpressionToTargetPosition(currentStmt: string,
                                            targetLine: number,
                                            targetColumn: number,
@@ -283,19 +284,6 @@ export function StatementEditor(props: StatementEditorProps) {
         }
         return currentStmt.slice(0, targetColumn) + codeSnippet + currentStmt.slice(endColumn || targetColumn);
     }
-
-    const currentModelHandler = (cModel: STNode, kind?: ModelKind) => {
-        setCurrentModel({
-            model: cModel,
-            kind
-        });
-    };
-
-    useEffect(() => {
-        if (!!model) {
-            onStmtEditorModelChange(model);
-        }
-    }, [model])
 
     return (
         (
