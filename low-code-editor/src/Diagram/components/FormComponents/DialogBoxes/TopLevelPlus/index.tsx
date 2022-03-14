@@ -19,7 +19,6 @@ import { OverlayBackground } from "../../../OverlayBackground";
 import { DiagramOverlay, DiagramOverlayContainer } from "../../../Portals/Overlay";
 
 import { classMemberEntries, moduleLevelEntries, PlusMenuCategories, PlusOptionsSelector, triggerEntries } from "./PlusOptionsSelector";
-import "./style.scss";
 
 
 export function TopLevelOptionRenderer(props: PlusWidgetProps) {

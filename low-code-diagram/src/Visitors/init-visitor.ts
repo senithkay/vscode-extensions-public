@@ -63,7 +63,7 @@ let allEndpoints: Map<string, Endpoint> = new Map<string, Endpoint>();
 let currentFnBody: FunctionBodyBlock | ExpressionFunctionBody;
 const allDiagnostics: Diagnostic[] = [];
 
-class InitVisitor implements Visitor {
+export class InitVisitor implements Visitor {
     public beginVisitSTNode(node: STNode, parent?: STNode) {
         if (!node.viewState) {
             node.viewState = new ViewState();

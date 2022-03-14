@@ -74,10 +74,10 @@ export function Service(props: ServiceProps) {
     }
 
     function renderButtons() {
-        const tryItBtn = <button  onClick={onClickTryIt}>Try it</button>
+        const tryItBtn = <button className="action-button" onClick={onClickTryIt}>Try it</button>
 
         if (model.isRunnable) {
-            const runBtn = <button  onClick={onClickRun}>Run</button>
+            const runBtn = <button className="action-button" onClick={onClickRun}>Run</button>
             if (!isTriggerType) {
                 return [runBtn, tryItBtn];
             }
