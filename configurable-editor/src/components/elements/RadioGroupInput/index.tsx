@@ -67,9 +67,7 @@ export function RadioGroupInput(props: RadioGroupInputProps) {
     };
 
     let defaultValue = "true";
-    if (!isRequired) {
-        defaultValue = String(existingValue);
-    } else if (existingValue !== undefined) {
+    if (!isRequired || (isRequired && existingValue !== undefined)) {
         defaultValue = String(existingValue);
     }
 
