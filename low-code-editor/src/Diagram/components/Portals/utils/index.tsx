@@ -949,6 +949,12 @@ function getFormFieldReturnType(formField: FormField, depth = 1): FormFieldRetur
                     // remove error return
                     response.hasError = false;
                 }
+                if (type === "" && formField.typeName.includes("map<")) {
+                    // map type
+                    // INFO: Need to update map type metadata generation to extract inside type
+                    type = formField.typeName;
+                    response.hasReturn = true;
+                }
                 if (type === "" && !formField.isStream && formField.typeName && primitives.includes(formField.typeName)) {
                     // set primitive types
                     type = formField.typeName;
