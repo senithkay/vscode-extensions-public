@@ -182,11 +182,11 @@ export function AddWhileForm(props: WhileProps) {
                 <div className={classes.formContentWrapper}>
                     <div className={classes.formCodeBlockWrapper}>
                         <div className={classes.formCodeExpressionEndWrapper}>
-                            <Typography variant='body2' className={classes.startCode}>while</Typography>
+                            <Typography variant='body2' className={classes.ifStartCode}>while</Typography>
                             <div className={classes.formCodeExpressionField}>
                                 <LowCodeExpressionEditor {...expElementProps} />
                             </div>
-                            <Typography variant='body2' className={classes.endCode}>{`{`}</Typography>
+                            <Typography variant='body2' className={classes.ifStartCode}>{`{`}</Typography>
                         </div>
                     </div>
                     <div className={classes.formCodeExpressionValueRegularField}>

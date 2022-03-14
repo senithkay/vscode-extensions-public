@@ -125,6 +125,7 @@ export function AddWorkerConfigForm(props: WorkerConfigFormProps) {
             isEdit={!!model}
             initialDiagnostics={model?.returnTypeDesc?.type.typeData?.diagnostics}
             overrideTemplate={returnTypeTemplate}
+            hideSuggestions={false}
         />
     )
 
