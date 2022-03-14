@@ -184,7 +184,7 @@ export function ActionProcessor(props: ProcessorProps) {
         setConfigWizardOpen(true);
         renderConnectorWizard({
             connectorInfo: connector,
-            endpointName: endpointName,
+            endpointName,
             position: {
                 x: viewState.bBox.cx + 80,
                 y: viewState.bBox.cy,

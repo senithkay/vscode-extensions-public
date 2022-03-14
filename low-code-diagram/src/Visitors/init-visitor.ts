@@ -111,6 +111,21 @@ class InitVisitor implements Visitor {
         }
     }
 
+    public beginVisitRequiredParam(node: RequiredParam, parent?: STNode): void {
+        if (!node.viewState) {
+            const viewState = new ModuleMemberViewState();
+            node.viewState = viewState;
+        }
+
+        if (node.typeData && node.typeData.isEndpoint) {
+            const endpointName = node.paramName?.value;
+            if (endpointName) {
+                node.viewState.endpoint.epName = endpointName;
+                node.viewState.isEndpoint = true;
+            }
+        }
+    }
+
     public beginVisitTypeDefinition(node: TypeDefinition) {
         if (!node.viewState) {
             const viewState = new ModuleMemberViewState();
