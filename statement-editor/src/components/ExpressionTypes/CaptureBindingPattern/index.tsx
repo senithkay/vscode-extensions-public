@@ -11,12 +11,10 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, {useContext} from "react";
+import React from "react";
 
 import { CaptureBindingPattern } from "@wso2-enterprise/syntax-tree";
 
-import { StatementEditorContext } from "../../../store/statement-editor-context";
-import { SuggestionsContext } from "../../../store/suggestions-context";
 import { InputEditor } from "../../InputEditor";
 
 interface CaptureBindingPatternProps {
@@ -25,15 +23,9 @@ interface CaptureBindingPatternProps {
 
 export function CaptureBindingPatternComponent(props: CaptureBindingPatternProps) {
     const { model } = props;
-    const stmtCtx = useContext(StatementEditorContext);
-    const {
-    } = stmtCtx;
-
-    const { expressionHandler } = useContext(SuggestionsContext);
 
     const inputEditorProps = {
-        model,
-        expressionHandler
+        model
     };
     return (
         <InputEditor {...inputEditorProps} />

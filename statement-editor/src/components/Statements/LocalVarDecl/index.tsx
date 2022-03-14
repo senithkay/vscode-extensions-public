@@ -16,69 +16,42 @@ import React, { ReactNode, useContext } from "react";
 import { LocalVarDecl } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
-import { DEFAULT_EXPRESSIONS } from "../../../constants";
-import { SuggestionItem } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
-import { SuggestionsContext } from "../../../store/suggestions-context";
-import { getSuggestionsBasedOnExpressionKind, isPositionsEquals } from "../../../utils";
-import { addStatementToTargetLine, getContextBasedCompletions } from "../../../utils/ls-utils";
+import { isPositionsEquals } from "../../../utils";
 import { ExpressionComponent } from "../../Expression";
 import { InputEditor } from "../../InputEditor";
 import { useStatementEditorStyles } from "../../styles";
 
 interface LocalVarDeclProps {
     model: LocalVarDecl;
-    isElseIfMember: boolean;
 }
 
 export function LocalVarDeclC(props: LocalVarDeclProps) {
-    const { model, isElseIfMember } = props;
+    const { model } = props;
     const stmtCtx = useContext(StatementEditorContext);
-    const { modelCtx } = stmtCtx;
-    const { currentModel } = modelCtx;
+    const {
+        modelCtx: {
+            currentModel,
+            changeCurrentModel
+        }
+    } = stmtCtx;
     const hasTypedBindingPatternSelected = currentModel.model &&
         isPositionsEquals(currentModel.model.position, model.typedBindingPattern.position);
 
     const statementEditorClasses = useStatementEditorStyles();
-    const { expressionHandler } = useContext(SuggestionsContext);
-    const { currentFile, getLangClient } = stmtCtx;
-    const targetPosition = stmtCtx.formCtx.formModelPosition;
-    const fileURI = `expr://${currentFile.path}`;
 
     const onClickOnBindingPattern = (event: any) => {
         event.stopPropagation();
-        expressionHandler(model.typedBindingPattern, {
-            expressionSuggestions: [],
-            lsSuggestions: []
-        });
+        changeCurrentModel(model.typedBindingPattern);
     };
 
     const onClickOnInitializer = async (event: any) => {
         event.stopPropagation();
-
-        const content: string = await addStatementToTargetLine(
-            currentFile.content, targetPosition, stmtCtx.modelCtx.statementModel.source, getLangClient);
-
-        const completions: SuggestionItem[] = await getContextBasedCompletions(fileURI, content, targetPosition,
-            model.initializer.position, false, isElseIfMember, model.initializer.source, getLangClient);
-
-        expressionHandler(model.initializer, {
-            expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
-            lsSuggestions: completions
-        });
+        changeCurrentModel(model.initializer);
     };
 
     if (!currentModel.model && model.initializer) {
-        addStatementToTargetLine(currentFile.content, targetPosition,
-            stmtCtx.modelCtx.statementModel.source, getLangClient).then((content: string) => {
-                getContextBasedCompletions(fileURI, content, targetPosition, model.initializer.position, false,
-                    isElseIfMember, model.initializer.source, getLangClient).then((completions) => {
-                        expressionHandler(model.initializer, {
-                            expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
-                            lsSuggestions: completions
-                        });
-                    });
-            });
+        changeCurrentModel(model.initializer);
     }
 
     let typedBindingComponent: ReactNode;
@@ -86,7 +59,6 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
         typedBindingComponent = (
             <ExpressionComponent
                 model={model.typedBindingPattern}
-                isElseIfMember={isElseIfMember}
                 onSelect={onClickOnBindingPattern}
             />
         )
@@ -111,7 +83,6 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
     const expressionComponent: ReactNode = (
         <ExpressionComponent
             model={model.initializer}
-            isElseIfMember={isElseIfMember}
             onSelect={onClickOnInitializer}
         />
     );

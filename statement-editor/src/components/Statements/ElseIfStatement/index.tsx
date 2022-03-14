@@ -56,7 +56,6 @@ export function ElseBlockC(props: ElseBlockProps) {
                 </span>
                 <StatementRenderer
                     model={model?.elseBody}
-                    isElseIfMember={true}
                 />
             </span>
         );

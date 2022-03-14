@@ -10,11 +10,10 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, { useContext } from "react";
+import React from "react";
 
 import { QualifiedNameReference } from "@wso2-enterprise/syntax-tree";
 
-import { SuggestionsContext } from "../../../store/suggestions-context";
 import { InputEditor } from "../../InputEditor";
 
 interface QualifiedNameReferenceProps {
@@ -24,11 +23,8 @@ interface QualifiedNameReferenceProps {
 export function QualifiedNameReferenceComponent(props: QualifiedNameReferenceProps) {
     const { model } = props;
 
-    const { expressionHandler } = useContext(SuggestionsContext);
-
     const inputEditorProps = {
-        model,
-        expressionHandler
+        model
     };
 
     return (

@@ -13,75 +13,48 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { ReactNode, useContext } from "react";
 
-import { IfElseStatement } from "@wso2-enterprise/syntax-tree"
+import { IfElseStatement, STKindChecker } from "@wso2-enterprise/syntax-tree"
 import classNames from "classnames";
 
-import { DEFAULT_EXPRESSIONS } from "../../../constants";
-import { SuggestionItem } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
-import { SuggestionsContext } from "../../../store/suggestions-context";
-import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
-import { addStatementToTargetLine, getContextBasedCompletions } from "../../../utils/ls-utils";
 import { ExpressionComponent } from "../../Expression";
 import { StatementRenderer } from "../../StatementRenderer";
 import { useStatementEditorStyles } from "../../styles";
 
 interface IfStatementProps {
     model: IfElseStatement;
-    isElseIfMember: boolean;
 }
 
 export function IfStatementC(props: IfStatementProps) {
-    const { model, isElseIfMember } = props;
+    const { model } = props;
     const stmtCtx = useContext(StatementEditorContext);
-    const { modelCtx } = stmtCtx;
-    const { currentModel } = modelCtx;
+    const {
+        modelCtx: {
+            currentModel,
+            changeCurrentModel
+        }
+    } = stmtCtx;
 
     const statementEditorClasses = useStatementEditorStyles();
-    const { expressionHandler } = useContext(SuggestionsContext);
-    const { currentFile, getLangClient } = stmtCtx;
-    const targetPosition = stmtCtx.formCtx.formModelPosition;
-    const fileURI = `expr://${currentFile.path}`;
 
     const elseBlockComponent: ReactNode = (
         <StatementRenderer
             model={model.elseBody}
-            isElseIfMember={true}
         />
     );
 
     const onClickOnConditionExpression = async (event: any) => {
         event.stopPropagation();
-
-        const content: string = await addStatementToTargetLine(
-            currentFile.content, targetPosition, stmtCtx.modelCtx.statementModel.source, getLangClient);
-
-        const completions: SuggestionItem[] = await getContextBasedCompletions(fileURI, content, targetPosition,
-            model.condition.position, false, isElseIfMember, model.condition.source, getLangClient);
-
-        expressionHandler(model.condition, {
-            expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
-            lsSuggestions: completions
-        });
+        changeCurrentModel(model.condition);
     };
 
-    if (!currentModel.model && !isElseIfMember) {
-        addStatementToTargetLine(currentFile.content, targetPosition,
-            stmtCtx.modelCtx.statementModel.source, getLangClient).then((content: string) => {
-            getContextBasedCompletions(fileURI, content, targetPosition, model.condition.position, false,
-                isElseIfMember, model.condition.source, getLangClient).then((completions) => {
-                expressionHandler(model.condition, {
-                    expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
-                    lsSuggestions: completions
-                });
-            });
-        });
+    if (!currentModel.model && !STKindChecker.isElseBlock(model)) {
+        changeCurrentModel(model.condition);
     }
 
     const conditionComponent: ReactNode = (
         <ExpressionComponent
             model={model.condition}
-            isElseIfMember={isElseIfMember}
             onSelect={onClickOnConditionExpression}
         />
     );

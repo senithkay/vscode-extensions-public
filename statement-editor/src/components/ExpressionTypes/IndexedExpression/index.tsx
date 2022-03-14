@@ -16,29 +16,24 @@ import React, { ReactNode, useContext } from "react";
 import { IndexedExpression, STNode } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
-import { DEFAULT_EXPRESSIONS } from "../../../constants";
-import { SuggestionItem } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
-import { SuggestionsContext } from "../../../store/suggestions-context";
-import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
-import { addStatementToTargetLine, getContextBasedCompletions } from "../../../utils/ls-utils";
 import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
 
 interface IndexedExpressionProps {
     model: IndexedExpression;
-    isElseIfMember: boolean;
 }
 
 export function IndexedExpressionComponent(props: IndexedExpressionProps) {
-    const { model, isElseIfMember } = props;
+    const { model } = props;
     const stmtCtx = useContext(StatementEditorContext);
+    const {
+        modelCtx: {
+            changeCurrentModel
+        }
+    } = stmtCtx;
 
     const statementEditorClasses = useStatementEditorStyles();
-    const { expressionHandler } = useContext(SuggestionsContext);
-    const { currentFile, getLangClient } = stmtCtx;
-    const targetPosition = stmtCtx.formCtx.formModelPosition;
-    const fileURI = `expr://${currentFile.path}`;
 
     const keyExprComponent = (
         <span>
@@ -47,7 +42,6 @@ export function IndexedExpressionComponent(props: IndexedExpressionProps) {
                     <ExpressionComponent
                             key={index}
                             model={expression}
-                            isElseIfMember={isElseIfMember}
                             onSelect={(event) => onClickOnKeyExpr(expression, event)}
                     />
                 ))
@@ -56,33 +50,18 @@ export function IndexedExpressionComponent(props: IndexedExpressionProps) {
     );
 
     const onClickOnContainerExpr = (event: any) => {
-        event.stopPropagation()
-        expressionHandler(model.containerExpression, {
-            expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
-            lsSuggestions: []
-        });
+        event.stopPropagation();
+        changeCurrentModel(model.containerExpression);
     };
 
     const onClickOnKeyExpr = async (clickedExpression: STNode, event: any) => {
         event.stopPropagation();
-
-        const content: string = await addStatementToTargetLine(
-            currentFile.content, targetPosition, stmtCtx.modelCtx.statementModel.source, getLangClient);
-
-        const completions: SuggestionItem[] = await getContextBasedCompletions(
-            fileURI, content, targetPosition, clickedExpression.position,
-            false, isElseIfMember, clickedExpression.source, getLangClient);
-
-        expressionHandler(clickedExpression, {
-            expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
-            lsSuggestions: completions
-        });
+        changeCurrentModel(clickedExpression);
     };
 
     const containerExpr: ReactNode = (
         <ExpressionComponent
             model={model.containerExpression}
-            isElseIfMember={isElseIfMember}
             onSelect={onClickOnContainerExpr}
         />
     );

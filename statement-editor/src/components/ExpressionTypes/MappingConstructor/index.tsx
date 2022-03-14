@@ -16,30 +16,27 @@ import React, { useContext } from "react";
 import { MappingConstructor, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
-import { DEFAULT_EXPRESSIONS, MAPPING_CONSTRUCTOR } from "../../../constants";
+import { MAPPING_CONSTRUCTOR } from "../../../constants";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
-import { SuggestionsContext } from "../../../store/suggestions-context";
-import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
 import { generateExpressionTemplate } from "../../../utils/utils";
 import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
 
 interface MappingConstructorProps {
     model: MappingConstructor;
-    isElseIfMember: boolean;
 }
 
 export function MappingConstructorComponent(props: MappingConstructorProps) {
-    const { model, isElseIfMember } = props;
-
-    const statementEditorClasses = useStatementEditorStyles();
-
+    const { model } = props;
+    const stmtCtx = useContext(StatementEditorContext);
     const {
         modelCtx: {
             updateModel,
+            changeCurrentModel
         }
-    } = useContext(StatementEditorContext);
-    const { expressionHandler } = useContext(SuggestionsContext);
+    } = stmtCtx;
+
+    const statementEditorClasses = useStatementEditorStyles();
 
     const onClickOnPlusIcon = () => {
         const expressionTemplate = generateExpressionTemplate(MAPPING_CONSTRUCTOR);
@@ -49,10 +46,7 @@ export function MappingConstructorComponent(props: MappingConstructorProps) {
 
     const onClickOnExpression = (clickedExpression: STNode, event: any) => {
         event.stopPropagation();
-        expressionHandler(clickedExpression, {
-            expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
-            lsSuggestions: []
-        });
+        changeCurrentModel(clickedExpression);
     };
 
     const fieldsComponent = (
@@ -73,7 +67,6 @@ export function MappingConstructorComponent(props: MappingConstructorProps) {
                         <ExpressionComponent
                             key={index}
                             model={expression}
-                            isElseIfMember={isElseIfMember}
                             onSelect={(event) => onClickOnExpression(expression, event)}
                             deleteConfig={{defaultExprDeletable: true}}
                         />

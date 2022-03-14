@@ -25,7 +25,6 @@ import { useStatementEditorStyles } from "../styles";
 
 export interface ExpressionComponentProps {
     model: STNode;
-    isElseIfMember?: boolean;
     onSelect?: (event: React.MouseEvent) => void;
     children?: React.ReactElement[];
     classNames?: string;
@@ -34,9 +33,9 @@ export interface ExpressionComponentProps {
 }
 
 export function ExpressionComponent(props: ExpressionComponentProps) {
-    const { model, isElseIfMember, onSelect, children, classNames, deleteConfig, isTypeDesc } = props;
+    const { model, onSelect, children, classNames, deleteConfig, isTypeDesc } = props;
 
-    const component = getExpressionTypeComponent(model, isElseIfMember, isTypeDesc);
+    const component = getExpressionTypeComponent(model, isTypeDesc);
 
     const [isHovered, setHovered] = React.useState(false);
     const [deletable, setDeletable] = React.useState(false);

@@ -10,11 +10,10 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, { useContext } from "react";
+import React from "react";
 
 import { FloatTypeDesc } from "@wso2-enterprise/syntax-tree";
 
-import { SuggestionsContext } from "../../../../store/suggestions-context";
 import { InputEditor } from "../../../InputEditor";
 
 interface FloatTypeDescProps {
@@ -25,11 +24,8 @@ interface FloatTypeDescProps {
 export function FloatTypeDescComponent(props: FloatTypeDescProps) {
     const { model, isTypeDesc } = props;
 
-    const { expressionHandler } = useContext(SuggestionsContext);
-
     const inputEditorProps = {
         model,
-        expressionHandler,
         classNames: "type-descriptor float",
         isTypeDesc
     };

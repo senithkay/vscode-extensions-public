@@ -25,7 +25,6 @@ interface BinaryProps {
 export function BinaryExpressionComponent(props: BinaryProps) {
     const { model } = props;
     const stmtCtx = useContext(StatementEditorContext);
-
     const {
         modelCtx: {
             changeCurrentModel

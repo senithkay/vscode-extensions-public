@@ -17,11 +17,8 @@ import IconButton from "@material-ui/core/IconButton";
 import RedoIcon from "@material-ui/icons/Redo";
 import UndoIcon from "@material-ui/icons/Undo";
 import { getDiagnosticMessage } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { STNode } from "@wso2-enterprise/syntax-tree";
 
-import { SuggestionsList } from "../../models/definitions";
 import { StatementEditorContext } from "../../store/statement-editor-context";
-import { SuggestionsContext } from "../../store/suggestions-context";
 import { Diagnostics } from "../Diagnostics";
 import { HelperPane } from "../HelperPane";
 import { StatementRenderer } from "../StatementRenderer";
@@ -53,10 +50,6 @@ export function EditorPane(props: ModelProps) {
         }
     } = stmtCtx;
 
-    const expressionHandler = (cModel: STNode, suggestions: SuggestionsList) => {
-        // NoOp - To be removed
-    }
-
     const undoRedoButtons = (
         <span className={statementEditorClasses.undoRedoButtons}>
             <IconButton onClick={undo} disabled={!hasUndo}>
@@ -72,20 +65,12 @@ export function EditorPane(props: ModelProps) {
     return (
         <div>
             <div className={statementEditorClasses.stmtEditorContentWrapper}>
-                <SuggestionsContext.Provider
-                    value={{
-                        expressionHandler
-                    }}
-                >
-                    <div className={statementEditorClasses.statementExpressionTitle}>{label}{undoRedoButtons}</div>
-                    <div className={statementEditorClasses.statementExpressionContent}>
-                        <StatementRenderer
-                            model={statementModel}
-                            isElseIfMember={false}
-                        />
-                    </div>
-
-                </SuggestionsContext.Provider>
+                <div className={statementEditorClasses.statementExpressionTitle}>{label}{undoRedoButtons}</div>
+                <div className={statementEditorClasses.statementExpressionContent}>
+                    <StatementRenderer
+                        model={statementModel}
+                    />
+                </div>
                 <div className={statementEditorClasses.diagnosticsPane}>
                     <Diagnostics
                         message={

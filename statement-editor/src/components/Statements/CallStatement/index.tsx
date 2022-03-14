@@ -20,18 +20,16 @@ import { useStatementEditorStyles } from "../../styles";
 
 interface CallStatementProps {
     model: CallStatement;
-    isElseIfMember: boolean;
 }
 
 export function CallStatementC(props: CallStatementProps) {
-    const { model, isElseIfMember } = props;
+    const { model } = props;
 
     const statementEditorClasses = useStatementEditorStyles();
 
     const expressionComponent: ReactNode = (
         <ExpressionComponent
             model={model.expression}
-            isElseIfMember={isElseIfMember}
         />
     );
 

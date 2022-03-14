@@ -17,7 +17,6 @@ import { MappingBindingPattern } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
 import { StatementEditorContext } from "../../../store/statement-editor-context";
-import { SuggestionsContext } from "../../../store/suggestions-context";
 import { isPositionsEquals } from "../../../utils";
 import { InputEditor } from "../../InputEditor";
 import { useStatementEditorStyles } from "../../styles";
@@ -31,7 +30,8 @@ export function MappingBindingPatternComponent(props: MappingBindingPatternProps
     const stmtCtx = useContext(StatementEditorContext);
     const {
         modelCtx: {
-            currentModel
+            currentModel,
+            changeCurrentModel
         }
     } = stmtCtx;
 
@@ -39,19 +39,14 @@ export function MappingBindingPatternComponent(props: MappingBindingPatternProps
         isPositionsEquals(currentModel.model.position, model.position);
 
     const statementEditorClasses = useStatementEditorStyles();
-    const { expressionHandler } = useContext(SuggestionsContext);
 
     const inputEditorProps = {
-        model,
-        expressionHandler
+        model
     };
 
     const onClickOnBindingPattern = (event: any) => {
-        event.stopPropagation()
-        expressionHandler(model, {
-            expressionSuggestions: [],
-            lsSuggestions: []
-        });
+        event.stopPropagation();
+        changeCurrentModel(model);
     };
 
     return (

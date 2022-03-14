@@ -17,13 +17,12 @@ import { getStatementTypeComponent } from "../../utils";
 
 export interface StatementRendererProps {
     model: StatementNodes;
-    isElseIfMember: boolean;
 }
 
 export function StatementRenderer(props: StatementRendererProps) {
-    const { model, isElseIfMember } = props;
+    const { model } = props;
 
-    const component = getStatementTypeComponent(model, isElseIfMember);
+    const component = getStatementTypeComponent(model);
 
     return (
        <span>

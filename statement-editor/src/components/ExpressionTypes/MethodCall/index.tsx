@@ -16,29 +16,24 @@ import React, { ReactNode, useContext } from "react";
 import { MethodCall, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
-import { DEFAULT_EXPRESSIONS } from "../../../constants";
-import { SuggestionItem } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
-import { SuggestionsContext } from "../../../store/suggestions-context";
-import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
-import { addStatementToTargetLine, getContextBasedCompletions } from "../../../utils/ls-utils";
 import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
 
 interface MethodCallProps {
     model: MethodCall;
-    isElseIfMember: boolean;
 }
 
 export function MethodCallComponent(props: MethodCallProps) {
-    const { model, isElseIfMember } = props;
+    const { model } = props;
     const stmtCtx = useContext(StatementEditorContext);
+    const {
+        modelCtx: {
+            changeCurrentModel
+        }
+    } = stmtCtx;
 
     const statementEditorClasses = useStatementEditorStyles();
-    const { expressionHandler } = useContext(SuggestionsContext);
-    const { currentFile, getLangClient } = stmtCtx;
-    const targetPosition = stmtCtx.formCtx.formModelPosition;
-    const fileURI = `expr://${currentFile.path}`;
 
     const expressionArgComponent = (
         <span>
@@ -57,7 +52,6 @@ export function MethodCallComponent(props: MethodCallProps) {
                     ) : (
                         <ExpressionComponent
                             model={argument}
-                            isElseIfMember={isElseIfMember}
                         />
                     )
                 ))
@@ -67,40 +61,17 @@ export function MethodCallComponent(props: MethodCallProps) {
 
     const onClickOnExpression = async (event: any) => {
         event.stopPropagation();
-
-        const content: string = await addStatementToTargetLine(
-            currentFile.content, targetPosition, stmtCtx.modelCtx.statementModel.source, getLangClient);
-
-        const completions: SuggestionItem[] = await getContextBasedCompletions(
-            fileURI, content, targetPosition, model.expression.position,
-            false, isElseIfMember, model.expression.source, getLangClient);
-
-        expressionHandler(model.expression, {
-            expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
-            lsSuggestions: completions
-        });
+        changeCurrentModel(model.expression);
     };
 
     const onClickOnMethodName = async (event: any) => {
         event.stopPropagation();
-
-        const content: string = await addStatementToTargetLine(
-            currentFile.content, targetPosition, stmtCtx.modelCtx.statementModel.source, getLangClient);
-
-        const completions: SuggestionItem[] = await getContextBasedCompletions(
-            fileURI, content, targetPosition, model.methodName.position,
-            false, isElseIfMember, model.methodName.source, getLangClient);
-
-        expressionHandler(model.methodName, {
-            expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
-            lsSuggestions: completions
-        });
+        changeCurrentModel(model.methodName);
     };
 
     const expression: ReactNode = (
         <ExpressionComponent
             model={model.expression}
-            isElseIfMember={isElseIfMember}
             onSelect={onClickOnExpression}
         />
     );
@@ -108,7 +79,6 @@ export function MethodCallComponent(props: MethodCallProps) {
     const methodName: ReactNode = (
         <ExpressionComponent
             model={model.methodName}
-            isElseIfMember={isElseIfMember}
             onSelect={onClickOnMethodName}
         >
             <span

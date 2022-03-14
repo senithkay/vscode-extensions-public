@@ -16,43 +16,27 @@ import React, { ReactNode, useContext } from "react";
 import { FunctionCall, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
-import { DEFAULT_EXPRESSIONS } from "../../../constants";
-import { SuggestionItem } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
-import { SuggestionsContext } from "../../../store/suggestions-context";
-import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
-import { addStatementToTargetLine, getContextBasedCompletions } from "../../../utils/ls-utils";
 import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
 
 interface FunctionCallProps {
     model: FunctionCall;
-    isElseIfMember: boolean;
 }
 
 export function FunctionCallComponent(props: FunctionCallProps) {
-    const { model, isElseIfMember } = props;
+    const { model } = props;
     const stmtCtx = useContext(StatementEditorContext);
+    const {
+        modelCtx: {
+            changeCurrentModel
+        }
+    } = stmtCtx;
     const statementEditorClasses = useStatementEditorStyles();
-    const { expressionHandler } = useContext(SuggestionsContext);
-    const { currentFile, getLangClient } = stmtCtx;
-    const targetPosition = stmtCtx.formCtx.formModelPosition;
-    const fileURI = `expr://${currentFile.path}`;
 
     const onClickOnFunctionCallExpr = async (event: any) => {
         event.stopPropagation();
-
-        const content: string = await addStatementToTargetLine(
-            currentFile.content, targetPosition, stmtCtx.modelCtx.statementModel.source, getLangClient);
-
-        const completions: SuggestionItem[] = await getContextBasedCompletions(
-            fileURI, content, targetPosition, model.position,
-            false, isElseIfMember, model.source, getLangClient);
-
-        expressionHandler(model, {
-            expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
-            lsSuggestions: completions
-        });
+        changeCurrentModel(model);
     }
 
     const expressionComponent = (
@@ -72,7 +56,6 @@ export function FunctionCallComponent(props: FunctionCallProps) {
                     ) : (
                         <ExpressionComponent
                             model={expression}
-                            isElseIfMember={isElseIfMember}
                         />
                     )
                 ))
@@ -83,7 +66,6 @@ export function FunctionCallComponent(props: FunctionCallProps) {
     const functionName: ReactNode = (
         <ExpressionComponent
             model={model.functionName}
-            isElseIfMember={isElseIfMember}
             onSelect={onClickOnFunctionCallExpr}
         >
             <span

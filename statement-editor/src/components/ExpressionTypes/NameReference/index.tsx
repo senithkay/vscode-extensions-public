@@ -11,11 +11,10 @@
  * associated services.
  */
 // tslint:disable: jsx-wrap-multiline
-import React, { useContext } from "react";
+import React from "react";
 
 import { SimpleNameReference } from "@wso2-enterprise/syntax-tree";
 
-import { SuggestionsContext } from "../../../store/suggestions-context";
 import { InputEditor } from "../../InputEditor";
 
 interface NameRefProps {
@@ -26,11 +25,8 @@ interface NameRefProps {
 export function SimpleNameReferenceComponent(props: NameRefProps) {
     const { model, isTypeDesc } = props;
 
-    const { expressionHandler } = useContext(SuggestionsContext);
-
     const inputEditorProps = {
         model,
-        expressionHandler,
         isTypeDesc
     };
 

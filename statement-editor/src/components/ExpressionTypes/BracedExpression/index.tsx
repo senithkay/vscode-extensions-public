@@ -24,9 +24,7 @@ interface BracedExprProps {
 
 export function BracedExpressionComponent(props: BracedExprProps) {
     const { model } = props;
-
     const stmtCtx = useContext(StatementEditorContext);
-
     const {
         modelCtx: {
             changeCurrentModel
