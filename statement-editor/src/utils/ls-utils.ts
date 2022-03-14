@@ -19,6 +19,7 @@ import {
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     NodePosition,
+    STKindChecker,
     STNode
 } from "@wso2-enterprise/syntax-tree";
 
@@ -26,9 +27,9 @@ import {
     acceptedCompletionKindForExpressions,
     acceptedCompletionKindForTypes
 } from "../components/InputEditor/constants";
-import { SuggestionItem } from '../models/definitions';
+import { CurrentModel, SuggestionItem } from '../models/definitions';
 
-import { sortSuggestions } from "./index";
+import { isTypeDesc, sortSuggestions } from "./index";
 
 export async function getPartialSTForStatement(
             partialSTRequest: PartialSTRequest,
@@ -46,16 +47,19 @@ export async function getPartialSTForExpression(
     return resp.syntaxTree;
 }
 
-export async function getContextBasedCompletions (
-            docUri: string,
-            content: string,
-            targetPosition: NodePosition,
-            modelPosition: NodePosition,
-            isTypeDescriptor: boolean,
-            isElseIfMember: boolean,
-            selection: string,
-            getLangClient: () => Promise<ExpressionEditorLangClientInterface>) : Promise<SuggestionItem[]> {
+export async function getCompletions (docUri: string,
+                                      content: string,
+                                      targetPosition: NodePosition,
+                                      currentModel: CurrentModel,
+                                      getLangClient: () => Promise<ExpressionEditorLangClientInterface>
+                                    ) : Promise<SuggestionItem[]> {
+
+    const modelPosition: NodePosition = currentModel.model.position;
+    const isTypeDescriptor: boolean = isTypeDesc(currentModel?.kind);
+    const isElseIfMember: boolean = STKindChecker.isElseBlock(currentModel.model);
+    const selection: string = currentModel.model.source;
     const suggestions: SuggestionItem[] = [];
+
     await sendDidChange(docUri, content, getLangClient);
     const completionParams: CompletionParams = {
         textDocument: {

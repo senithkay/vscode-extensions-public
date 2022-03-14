@@ -16,13 +16,14 @@ import { CompletionResponse, STModification } from "@wso2-enterprise/ballerina-l
 import {
     NodePosition,
     STKindChecker,
-    STNode, traversNode
+    STNode,
+    traversNode
 } from "@wso2-enterprise/syntax-tree";
 
 import * as expressionTypeComponents from '../components/ExpressionTypes';
 import * as statementTypeComponents from '../components/Statements';
-import * as c from "../constants";
-import { RemainingContent, SuggestionItem } from '../models/definitions';
+import { OTHER_EXPRESSION, OTHER_STATEMENT, StatementNodes } from "../constants";
+import { ModelKind, RemainingContent, SuggestionItem } from '../models/definitions';
 import { visitor as ExpressionDeletingVisitor } from "../visitors/expression-deleting-visitor";
 import { visitor as ModelFindingVisitor } from "../visitors/model-finding-visitor";
 
@@ -99,28 +100,28 @@ export function getDataTypeOnExpressionKind(kind: string): string[] {
     return DataTypeByExpressionKind[kind];
 }
 
-export function getExpressionTypeComponent(expression: STNode, isTypeDesc: boolean): ReactNode {
+export function getExpressionTypeComponent(expression: STNode, isTypeDescriptor: boolean): ReactNode {
     let ExprTypeComponent = (expressionTypeComponents as any)[expression.kind];
 
     if (!ExprTypeComponent) {
-        ExprTypeComponent = (expressionTypeComponents as any)[c.OTHER_EXPRESSION];
+        ExprTypeComponent = (expressionTypeComponents as any)[OTHER_EXPRESSION];
     }
 
     return (
         <ExprTypeComponent
             model={expression}
-            isTypeDesc={isTypeDesc}
+            isTypeDesc={isTypeDescriptor}
         />
     );
 }
 
 export function getStatementTypeComponent(
-    model: c.StatementNodes
+    model: StatementNodes
 ): ReactNode {
     let StatementTypeComponent = (statementTypeComponents as any)[model?.kind];
 
     if (!StatementTypeComponent) {
-        StatementTypeComponent = (statementTypeComponents as any)[c.OTHER_STATEMENT];
+        StatementTypeComponent = (statementTypeComponents as any)[OTHER_STATEMENT];
     }
 
     return (
@@ -149,6 +150,22 @@ export function isPositionsEquals(position1: NodePosition, position2: NodePositi
         position1?.startColumn === position2?.startColumn &&
         position1?.endLine === position2?.endLine &&
         position1?.endColumn === position2?.endColumn;
+}
+
+export function isOperator(modelKind: ModelKind): boolean {
+    return modelKind === ModelKind.Operator;
+}
+
+export function isTypeDesc(modelKind: ModelKind): boolean {
+    return modelKind === ModelKind.TypeDesc;
+}
+
+export function isBindingPattern(modelKind: ModelKind): boolean {
+    return modelKind === ModelKind.BindingPattern;
+}
+
+export function isVarRef(modelKind: ModelKind): boolean {
+    return modelKind === ModelKind.VarRef;
 }
 
 export function getSuggestionIconStyle(suggestionType: number): string {

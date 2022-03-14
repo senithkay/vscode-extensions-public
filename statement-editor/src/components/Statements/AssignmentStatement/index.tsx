@@ -16,6 +16,7 @@ import React, { ReactNode, useContext } from "react";
 import { AssignmentStatement } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
+import { ModelKind } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
@@ -38,7 +39,7 @@ export function AssignmentStatementComponent(props: AssignmentStatementProps) {
 
     const onClickOnVarRef = async (event: any) => {
         event.stopPropagation();
-        changeCurrentModel(model.varRef);
+        changeCurrentModel(model.varRef, ModelKind.VarRef);
     };
 
     const onClickOnExpression = async (event: any) => {

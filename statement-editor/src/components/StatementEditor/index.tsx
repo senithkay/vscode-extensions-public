@@ -30,16 +30,25 @@ import {
     DEFAULT_EXPRESSIONS,
     INIT_EXPR_LIST_CONSTRUCTOR
 } from "../../constants";
-import { CurrentModel, SuggestionItem } from "../../models/definitions";
+import {
+    CurrentModel,
+    ModelKind,
+    SuggestionItem
+} from "../../models/definitions";
 import { StatementEditorContextProvider } from "../../store/statement-editor-context";
 import {
     getCurrentModel,
-    getSuggestionsBasedOnExpressionKind
+    getKindBasedOnOperator,
+    getOperatorSuggestions,
+    getSuggestionsBasedOnExpressionKind,
+    isBindingPattern,
+    isOperator,
+    isTypeDesc
 } from "../../utils";
 import {
     addImportStatements,
     addStatementToTargetLine,
-    getContextBasedCompletions,
+    getCompletions,
     getDiagnostics,
     getPartialSTForStatement,
     sendDidChange,
@@ -148,15 +157,25 @@ export function StatementEditor(props: StatementEditorProps) {
 
     useEffect(() => {
         (async () => {
-            const content: string = await addStatementToTargetLine(
-                currentFile.content, formArgs.formArgs.targetPosition, model.source, getLangClient);
+            const modelKind = currentModel?.kind;
+            let lsSuggestions : SuggestionItem[] = [];
+            let exprSuggestions : SuggestionItem[] = [];
 
-            const completions: SuggestionItem[] = await getContextBasedCompletions(
-                fileURI, content, formArgs.formArgs.targetPosition, currentModel.model.position,
-                currentModel?.isTypeDesc, STKindChecker.isElseBlock(currentModel.model), currentModel.model.source, getLangClient);
+            if (isOperator(modelKind)) {
+                const kind = getKindBasedOnOperator(currentModel.model.kind);
+                exprSuggestions = getOperatorSuggestions(kind);
+            } else if (isBindingPattern(modelKind)) {
+                // TODO: Add expr suggestions for binding patterns
+            } else {
+                const content: string = await addStatementToTargetLine(
+                    currentFile.content, formArgs.formArgs.targetPosition, model.source, getLangClient);
+                lsSuggestions = await getCompletions(fileURI, content, formArgs.formArgs.targetPosition,
+                    currentModel, getLangClient);
+                exprSuggestions = isTypeDesc(modelKind) ? [] : getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS);
+            }
 
-            setLSSuggestionsList(completions);
-            setExprSuggestionsList(getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS));
+            setLSSuggestionsList(lsSuggestions);
+            setExprSuggestionsList(exprSuggestions);
         })();
     }, [currentModel.model]);
 
@@ -265,10 +284,10 @@ export function StatementEditor(props: StatementEditorProps) {
         return currentStmt.slice(0, targetColumn) + codeSnippet + currentStmt.slice(endColumn || targetColumn);
     }
 
-    const currentModelHandler = (cModel: STNode, isTypeDesc?: boolean) => {
+    const currentModelHandler = (cModel: STNode, kind?: ModelKind) => {
         setCurrentModel({
             model: cModel,
-            isTypeDesc
+            kind
         });
     };
 

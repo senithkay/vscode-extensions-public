@@ -16,6 +16,7 @@ import React, { ReactNode, useContext } from "react";
 import { TypeTestExpression } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
+import { ModelKind } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
@@ -42,7 +43,7 @@ export function TypeTestExpressionComponent(props: TypeTestExpressionProps) {
 
     const onClickOnTypeDescriptor = async (event: any) => {
         event.stopPropagation();
-        changeCurrentModel(model.typeDescriptor);
+        changeCurrentModel(model.typeDescriptor, ModelKind.TypeDesc);
     };
 
 

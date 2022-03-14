@@ -18,7 +18,7 @@ import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import { languages } from "monaco-editor";
 
 import { LowCodeEditorProps } from '../components/StatementEditor';
-import { SuggestionsList } from "../models/definitions";
+import { ModelKind, SuggestionsList } from "../models/definitions";
 
 import { InputEditorContextProvider } from "./input-editor-context";
 
@@ -29,7 +29,7 @@ export const StatementEditorContext = React.createContext({
         initialSource: '',
         statementModel: null,
         currentModel: null,
-        changeCurrentModel: (model: STNode, isTypeDesc?: boolean) => {},
+        changeCurrentModel: (model: STNode, kind?: ModelKind) => {},
         handleChange: (newStatement: string) => {},
         updateModel: (codeSnippet: string, position: NodePosition, isEdited?: boolean) => {},
         undo: () => undefined,
@@ -69,7 +69,7 @@ interface CtxProviderProps extends LowCodeEditorProps {
     children?: React.ReactNode,
     model: STNode,
     currentModel: { model: STNode },
-    changeCurrentModel?: (model: STNode, isTypeDesc?: boolean) => void,
+    changeCurrentModel?: (model: STNode, kind?: ModelKind) => void,
     handleChange?: (newStatement: string) => void,
     handleModules?: (module: string) => void,
     modulesToBeImported?: Set<string>,

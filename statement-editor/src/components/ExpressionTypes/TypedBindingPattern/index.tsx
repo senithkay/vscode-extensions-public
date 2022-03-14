@@ -15,6 +15,7 @@ import React, { ReactNode, useContext } from "react";
 
 import { TypedBindingPattern } from "@wso2-enterprise/syntax-tree";
 
+import { ModelKind } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { ExpressionComponent } from "../../Expression";
 
@@ -31,22 +32,22 @@ export function TypedBindingPatternComponent(props: TypedBindingPatternProps) {
         }
     } = stmtCtx;
 
-    const onClickOnTypeBindingPatter = async (event: any) => {
+    const onClickOnTypeBindingPattern = async (event: any) => {
         event.stopPropagation();
-        changeCurrentModel(model.bindingPattern);
+        changeCurrentModel(model.bindingPattern, ModelKind.BindingPattern);
     };
 
     const bindingPatternComponent: ReactNode = (
         <ExpressionComponent
             model={model.bindingPattern}
-            onSelect={onClickOnTypeBindingPatter}
+            onSelect={onClickOnTypeBindingPattern}
             deleteConfig={{exprNotDeletable: true}}
         />
     );
 
     const onClickOnType = async (event: any) => {
         event.stopPropagation();
-        changeCurrentModel(model.typeDescriptor, true);
+        changeCurrentModel(model.typeDescriptor, ModelKind.TypeDesc);
     };
 
     const typeDescriptorComponent: ReactNode = (
