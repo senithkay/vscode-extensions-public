@@ -201,6 +201,7 @@ export interface ExpressionEditorProps {
         end?: number;
     };
     disableFiltering?: boolean;
+    customTemplateVarName?: string;
 }
 
 export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>) {
@@ -245,7 +246,8 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         initialDiagnostics = [],
         diagnosticsFilterExtraColumns,
         diagnosticsFilterExtraRows,
-        disableFiltering
+        disableFiltering,
+        customTemplateVarName
     } = customProps;
     const targetPosition = getTargetPosition(editPosition || targetPositionDraft, syntaxTree);
     const [invalidSourceCode, setInvalidSourceCode] = useState(false);
@@ -254,7 +256,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     const [cursorOnEditor, setCursorOnEditor] = useState(false);
 
     const textLabel = model?.displayAnnotation?.label || model?.name || model.typeName;
-    const varName = customTemplate ? customTemplate.defaultCodeSnippet.split(' ')[2] : "temp_" + textLabel.replace(/[^A-Z0-9]+/gi, "");
+    const varName = customTemplateVarName ? customTemplateVarName : "temp_" + textLabel.replace(/[^A-Z0-9]+/gi, "");
     const varType = transformFormFieldTypeToString(model);
     const initalValue = getInitialValue(defaultValue, model);
     const defaultCodeSnippet = customTemplate ? customTemplate.defaultCodeSnippet || "" : varType + " " + varName + " = ;";
