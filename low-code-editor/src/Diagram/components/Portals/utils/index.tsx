@@ -689,10 +689,6 @@ export async function fetchConnectorInfo(
         connectorRequest.packageName = connector.package.name;
         connectorRequest.version = connector.package.version;
         connectorRequest.targetFile = currentFilePath;
-        // HACK: Http endpoint STNode will get 2.0.1 version, but Ballerina Central have only 2.0.0 version.
-        if (connector.package.name === "http" && connector.package.version === "2.0.1") {
-            connectorRequest.version = "2.0.0";
-        }
     }
 
     if (!connectorInfo && connectorRequest) {

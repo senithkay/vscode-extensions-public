@@ -139,7 +139,7 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
 
     if (isEditConnector && !connector) {
         const connectorInit: LocalVarDecl = model as LocalVarDecl;
-        const matchedConnector = getMatchingConnector(connectorInit, stSymbolInfo);
+        const matchedConnector = getMatchingConnector(connectorInit);
         if (matchedConnector) {
             setConnector(matchedConnector);
         }

@@ -206,7 +206,7 @@ export function isVarTypeDescriptor(model: STNode): boolean {
     }
 }
 
-export function getMatchingConnector(actionInvo: STNode, stSymbolInfo: STSymbolInfo): BallerinaConnectorInfo {
+export function getMatchingConnector(actionInvo: STNode): BallerinaConnectorInfo {
     const viewState = actionInvo.viewState as StatementViewState;
     let actionVariable: RemoteMethodCallAction;
     let remoteMethodCallAction: RemoteMethodCallAction;
@@ -250,7 +250,7 @@ export function getMatchingConnector(actionInvo: STNode, stSymbolInfo: STSymbolI
                     moduleName: module.moduleName,
                     package: {
                         organization: module.orgName,
-                        name: module.moduleName,
+                        name: module.packageName || module.moduleName,
                         version: module.version
                     },
                     functions: []
@@ -269,7 +269,7 @@ export function getMatchingConnector(actionInvo: STNode, stSymbolInfo: STSymbolI
                 moduleName: module.moduleName,
                 package: {
                     organization: module.orgName,
-                    name: module.moduleName,
+                    name: module.packageName || module.moduleName,
                     version: module.version
                 },
                 functions: []

@@ -163,7 +163,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
 
     // managing name set by the non oauth connectors
     config.name =
-        connector && isNewConnectorInitWizard && !config.name
+        connector && isNewConnectorInitWizard && !isAction && !config.name
             ? genVariableName(getFormattedModuleName(connectorModule) + "Endpoint", getAllVariables(stSymbolInfo))
             : config.name;
     const [configName, setConfigName] = useState(config.name);
