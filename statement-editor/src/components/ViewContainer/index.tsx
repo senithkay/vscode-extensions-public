@@ -34,7 +34,6 @@ export interface ViewContainerProps {
         model?: STNode;
     };
     isStatementValid: boolean;
-    currentModelHandler: (model: STNode) => void;
     onWizardClose: () => void;
     onCancel: () => void;
 }
@@ -45,7 +44,6 @@ export function ViewContainer(props: ViewContainerProps) {
         formArgs,
         config,
         isStatementValid,
-        currentModelHandler,
         onWizardClose,
         onCancel
     } = props;
@@ -54,8 +52,7 @@ export function ViewContainer(props: ViewContainerProps) {
     const stmtCtx = useContext(StatementEditorContext);
     const {
         modelCtx: {
-            statementModel,
-            currentModel
+            statementModel
         },
         getLangClient,
         applyModifications,
@@ -98,9 +95,7 @@ export function ViewContainer(props: ViewContainerProps) {
             <div className={overlayClasses.mainStatementWrapper}>
                 <div className={overlayClasses.statementExpressionWrapper}>
                     <EditorPane
-                        currentModel={currentModel}
                         label={label}
-                        currentModelHandler={currentModelHandler}
                     />
                 </div>
                 <div className={overlayClasses.statementBtnWrapper}>

@@ -310,7 +310,6 @@ export function StatementEditor(props: StatementEditorProps) {
                         formArgs={formArgs}
                         config={config}
                         isStatementValid={!diagnostics.length}
-                        currentModelHandler={currentModelHandler}
                         onWizardClose={onWizardClose}
                         onCancel={onCancel}
                     />

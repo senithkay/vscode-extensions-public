@@ -28,9 +28,7 @@ import { StatementRenderer } from "../StatementRenderer";
 import { useStatementEditorStyles } from "../styles";
 
 interface ModelProps {
-    label: string,
-    currentModel: { model: STNode },
-    currentModelHandler: (model: STNode) => void
+    label: string
 }
 
 export function EditorPane(props: ModelProps) {
