@@ -15,13 +15,7 @@ import React, { ReactNode, useContext } from "react";
 
 import { TypedBindingPattern } from "@wso2-enterprise/syntax-tree";
 
-import { SuggestionItem } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
-import { SuggestionsContext } from "../../../store/suggestions-context";
-import {
-    addStatementToTargetLine,
-    getContextBasedCompletions
-} from "../../../utils/ls-utils";
 import { ExpressionComponent } from "../../Expression";
 
 interface TypedBindingPatternProps {
@@ -32,17 +26,15 @@ interface TypedBindingPatternProps {
 export function TypedBindingPatternComponent(props: TypedBindingPatternProps) {
     const { model, isElseIfMember } = props;
     const stmtCtx = useContext(StatementEditorContext);
-    const { expressionHandler } = useContext(SuggestionsContext);
-    const { currentFile, getLangClient } = stmtCtx;
-    const targetPosition = stmtCtx.formCtx.formModelPosition;
-    const fileURI = `expr://${currentFile.path}`;
+    const {
+        modelCtx: {
+            changeCurrentModel
+        }
+    } = stmtCtx;
 
     const onClickOnTypeBindingPatter = async (event: any) => {
         event.stopPropagation();
-        expressionHandler(model.bindingPattern, {
-            expressionSuggestions: [],
-            lsSuggestions: []
-        });
+        changeCurrentModel(model.bindingPattern);
     };
 
     const bindingPatternComponent: ReactNode = (
@@ -56,18 +48,7 @@ export function TypedBindingPatternComponent(props: TypedBindingPatternProps) {
 
     const onClickOnType = async (event: any) => {
         event.stopPropagation();
-
-        const content: string = await addStatementToTargetLine(
-            currentFile.content, targetPosition, stmtCtx.modelCtx.statementModel.source, getLangClient);
-
-        const completions: SuggestionItem[] = await getContextBasedCompletions(
-            fileURI, content, targetPosition, model.typeDescriptor.position,
-            true, isElseIfMember, model.typeDescriptor.source, getLangClient);
-
-        expressionHandler(model.typeDescriptor, {
-            expressionSuggestions: [],
-            lsSuggestions: completions
-        });
+        changeCurrentModel(model.typeDescriptor, true);
     };
 
     const typeDescriptorComponent: ReactNode = (

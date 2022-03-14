@@ -25,18 +25,20 @@ import { useStatementEditorStyles } from "../../styles";
 
 export interface LSSuggestionsProps {
     model: STNode;
-    lsSuggestions?: SuggestionItem[];
     isSuggestion: boolean;
 }
 
 export function LSSuggestions(props: LSSuggestionsProps) {
     const statementEditorClasses = useStatementEditorStyles();
-    const { model, lsSuggestions, isSuggestion } = props;
+    const { model, isSuggestion } = props;
     const inputEditorCtx = useContext(InputEditorContext);
 
     const {
         modelCtx: {
             updateModel,
+        },
+        suggestionsCtx: {
+            lsSuggestions
         },
         formCtx: {
             formModelPosition
@@ -63,7 +65,7 @@ export function LSSuggestions(props: LSSuggestionsProps) {
 
     return (
         <>
-            { isSuggestion && !!lsSuggestions.length && (
+            { isSuggestion && lsSuggestions && !!lsSuggestions.length && (
                 <>
                     <div className={statementEditorClasses.lsSuggestionList}>
                         <List className={statementEditorClasses.suggestionList}>
@@ -105,7 +107,7 @@ export function LSSuggestions(props: LSSuggestionsProps) {
                     </div>
                 </>
             )}
-            { isSuggestion && !lsSuggestions.length && (
+            { isSuggestion && lsSuggestions && !lsSuggestions.length && (
                 <p className={statementEditorClasses.noSuggestionText}>Suggestions not available</p>
             )}
         </>

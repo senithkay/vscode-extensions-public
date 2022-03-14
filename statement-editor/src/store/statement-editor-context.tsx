@@ -18,8 +18,10 @@ import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import { languages } from "monaco-editor";
 
 import { LowCodeEditorProps } from '../components/StatementEditor';
+import { SuggestionsList } from "../models/definitions";
 
 import { InputEditorContextProvider } from "./input-editor-context";
+
 import Diagnostic = languages.typescript.Diagnostic;
 
 export const StatementEditorContext = React.createContext({
@@ -27,6 +29,7 @@ export const StatementEditorContext = React.createContext({
         initialSource: '',
         statementModel: null,
         currentModel: null,
+        changeCurrentModel: (model: STNode, isTypeDesc?: boolean) => {},
         handleChange: (newStatement: string) => {},
         updateModel: (codeSnippet: string, position: NodePosition, isEdited?: boolean) => {},
         undo: () => undefined,
@@ -40,8 +43,12 @@ export const StatementEditorContext = React.createContext({
     statementCtx: {
         diagnostics: null
     },
+    suggestionsCtx: {
+        lsSuggestions: [],
+        exprSuggestions: []
+    },
     getLangClient: () => (Promise.resolve({} as any)),
-    applyModifications: (modifications: STModification[]) => (undefined),
+    applyModifications: (modifications: STModification[]) => undefined,
     library: {
         getLibrariesList: (kind?: LibraryKind) => (Promise.resolve({} as any)),
         getLibrariesData: () => (Promise.resolve({} as any)),
@@ -62,6 +69,7 @@ interface CtxProviderProps extends LowCodeEditorProps {
     children?: React.ReactNode,
     model: STNode,
     currentModel: { model: STNode },
+    changeCurrentModel?: (model: STNode, isTypeDesc?: boolean) => void,
     handleChange?: (newStatement: string) => void,
     handleModules?: (module: string) => void,
     modulesToBeImported?: Set<string>,
@@ -72,7 +80,8 @@ interface CtxProviderProps extends LowCodeEditorProps {
     redo?: () => void,
     hasUndo?: boolean,
     hasRedo?: boolean,
-    diagnostics?: Diagnostic[]
+    diagnostics?: Diagnostic[],
+    suggestions?: SuggestionsList
 }
 
 export const StatementEditorContextProvider = (props: CtxProviderProps) => {
@@ -80,6 +89,7 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
         children,
         model,
         currentModel,
+        changeCurrentModel,
         handleChange,
         updateModel,
         handleModules,
@@ -92,6 +102,7 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
         library,
         initialSource,
         diagnostics,
+        suggestions,
         ...restProps
     } = props;
 
@@ -102,6 +113,7 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
                     initialSource,
                     statementModel: model,
                     currentModel,
+                    changeCurrentModel,
                     handleChange,
                     updateModel,
                     undo,
@@ -114,6 +126,10 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
                 },
                 statementCtx: {
                     diagnostics
+                },
+                suggestionsCtx: {
+                    lsSuggestions: suggestions?.lsSuggestions,
+                    exprSuggestions: suggestions?.expressionSuggestions
                 },
                 library,
                 modules: {

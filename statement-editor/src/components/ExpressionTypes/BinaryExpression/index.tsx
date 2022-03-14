@@ -15,19 +15,7 @@ import React, { ReactNode, useContext } from "react";
 
 import { BinaryExpression } from "@wso2-enterprise/syntax-tree";
 
-import { DEFAULT_EXPRESSIONS } from "../../../constants";
-import { SuggestionItem } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
-import { SuggestionsContext } from "../../../store/suggestions-context";
-import {
-    getKindBasedOnOperator,
-    getOperatorSuggestions,
-    getSuggestionsBasedOnExpressionKind,
-} from "../../../utils";
-import {
-    addStatementToTargetLine,
-    getContextBasedCompletions
-} from "../../../utils/ls-utils";
 import { ExpressionComponent } from "../../Expression";
 
 interface BinaryProps {
@@ -39,56 +27,25 @@ export function BinaryExpressionComponent(props: BinaryProps) {
     const { model, isElseIfMember } = props;
     const stmtCtx = useContext(StatementEditorContext);
 
-    const { expressionHandler } = useContext(SuggestionsContext);
     const {
-        currentFile,
-        getLangClient,
-        formCtx: {
-            formModelPosition : targetPosition
+        modelCtx: {
+            changeCurrentModel
         }
     } = stmtCtx;
-    const fileURI = `expr://${currentFile.path}`;
-
-    const kind = getKindBasedOnOperator(model.operator.kind);
 
     const onClickOperator = (event: any) => {
-        event.stopPropagation()
-        expressionHandler(model.operator, {
-            expressionSuggestions: getOperatorSuggestions(kind),
-            lsSuggestions: []
-        });
+        event.stopPropagation();
+        changeCurrentModel(model.operator);
     }
 
     const onClickOnLhsExpression = async (event: any) => {
         event.stopPropagation();
-
-        const content: string = await addStatementToTargetLine(
-            currentFile.content, targetPosition, stmtCtx.modelCtx.statementModel.source, getLangClient);
-
-        const completions: SuggestionItem[] = await getContextBasedCompletions(
-            fileURI, content, targetPosition, model.lhsExpr.position,
-            false, isElseIfMember, model.lhsExpr.source, getLangClient);
-
-        expressionHandler(model.lhsExpr, {
-            expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
-            lsSuggestions: completions
-        });
+        changeCurrentModel(model.lhsExpr);
     };
 
     const onClickOnRhsExpression = async (event: any) => {
         event.stopPropagation();
-
-        const content: string = await addStatementToTargetLine(
-            currentFile.content, targetPosition, stmtCtx.modelCtx.statementModel.source, getLangClient);
-
-        const completions: SuggestionItem[] = await getContextBasedCompletions(
-            fileURI, content, targetPosition, model.rhsExpr.position,
-            false, isElseIfMember, model.rhsExpr.source, getLangClient);
-
-        expressionHandler(model.rhsExpr, {
-            expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
-            lsSuggestions: completions
-        });
+        changeCurrentModel(model.rhsExpr);
     };
 
     const lhs: ReactNode = (

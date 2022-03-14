@@ -14,7 +14,6 @@
 import React, { useContext, useState } from "react";
 
 import { ALL_LIBS_IDENTIFIER, LANG_LIBS_IDENTIFIER, STD_LIBS_IDENTIFIER } from "../../constants";
-import { SuggestionsList } from "../../models/definitions";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import SelectDropdown from "../Dropdown";
 import { LibraryBrowser } from "../LibraryBrowser";
@@ -29,9 +28,8 @@ enum TabElements {
     libraries = 'Libraries',
 }
 
-export function HelperPane(props: SuggestionsList) {
+export function HelperPane() {
     const statementEditorClasses = useStatementEditorStyles();
-    const { lsSuggestions, expressionSuggestions } = props;
     const stmtCtx = useContext(StatementEditorContext);
     const {
         modelCtx: {
@@ -73,12 +71,10 @@ export function HelperPane(props: SuggestionsList) {
             <div className={statementEditorClasses.suggestionsInner}>
                 <LSSuggestions
                     model={currentModel.model}
-                    lsSuggestions={lsSuggestions}
                     isSuggestion={selectedTab === TabElements.suggestions}
                 />
                 <ExpressionSuggestions
                     model={currentModel.model}
-                    suggestions={expressionSuggestions}
                     isExpression={selectedTab === TabElements.expressions}
                 />
                 <LibraryBrowser

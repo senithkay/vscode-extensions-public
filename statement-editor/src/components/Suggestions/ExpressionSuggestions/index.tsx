@@ -25,19 +25,21 @@ import { useStatementEditorStyles } from "../../styles";
 
 export interface ExpressionSuggestionsProps {
     model: STNode;
-    suggestions?: SuggestionItem[];
     isExpression: boolean;
 }
 
 export function ExpressionSuggestions(props: ExpressionSuggestionsProps) {
     const statementEditorClasses = useStatementEditorStyles();
-    const { model, suggestions, isExpression } = props;
+    const { model, isExpression } = props;
     const inputEditorCtx = useContext(InputEditorContext);
 
     const {
         modelCtx: {
             updateModel,
-        }
+        },
+        suggestionsCtx: {
+            exprSuggestions: suggestions
+        },
     } = useContext(StatementEditorContext);
 
     const onClickExpressionSuggestion = (kind: string) => {
@@ -51,7 +53,7 @@ export function ExpressionSuggestions(props: ExpressionSuggestionsProps) {
 
     return (
         <>
-            {isExpression && !!suggestions.length && (
+            {isExpression && suggestions && !!suggestions.length && (
                 <>
                     <div className={statementEditorClasses.expressionSuggestionList}>
                         <List className={statementEditorClasses.expressionList}>
@@ -102,7 +104,7 @@ export function ExpressionSuggestions(props: ExpressionSuggestionsProps) {
                     </div>
                 </>
             )}
-            {isExpression && !suggestions.length && (
+            {isExpression && suggestions && !suggestions.length && (
                 <p className={statementEditorClasses.noSuggestionText}>Expressions not available</p>
             )}
         </>

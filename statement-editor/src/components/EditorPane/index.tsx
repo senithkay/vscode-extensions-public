@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext, useState } from "react";
+import React, { useContext } from "react";
 
 import IconButton from "@material-ui/core/IconButton";
 import RedoIcon from "@material-ui/icons/Redo";
@@ -19,11 +19,9 @@ import UndoIcon from "@material-ui/icons/Undo";
 import { getDiagnosticMessage } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 
-import * as c from "../../constants";
 import { SuggestionsList } from "../../models/definitions";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { SuggestionsContext } from "../../store/suggestions-context";
-import { getSuggestionsBasedOnExpressionKind } from "../../utils";
 import { Diagnostics } from "../Diagnostics";
 import { HelperPane } from "../HelperPane";
 import { StatementRenderer } from "../StatementRenderer";
@@ -37,7 +35,7 @@ interface ModelProps {
 
 export function EditorPane(props: ModelProps) {
     const statementEditorClasses = useStatementEditorStyles();
-    const { label, currentModelHandler } = props;
+    const { label } = props;
 
     const stmtCtx = useContext(StatementEditorContext);
 
@@ -57,18 +55,8 @@ export function EditorPane(props: ModelProps) {
         }
     } = stmtCtx;
 
-    const [lsSuggestionsList, setLSSuggestionsList] = useState([]);
-    const [exprSuggestionList, setExprSuggestionsList] = useState(statementModel ?
-        getSuggestionsBasedOnExpressionKind(c.DEFAULT_EXPRESSIONS) : []);
-
     const expressionHandler = (cModel: STNode, suggestions: SuggestionsList) => {
-        currentModelHandler(cModel);
-        if (suggestions.expressionSuggestions) {
-            setExprSuggestionsList(suggestions.expressionSuggestions);
-        }
-        if (suggestions.lsSuggestions) {
-            setLSSuggestionsList(suggestions.lsSuggestions);
-        }
+        // NoOp - To be removed
     }
 
     const undoRedoButtons = (
@@ -116,10 +104,7 @@ export function EditorPane(props: ModelProps) {
                 </div>
             </div>
             <div className={statementEditorClasses.suggestionsSection}>
-                <HelperPane
-                    lsSuggestions={lsSuggestionsList}
-                    expressionSuggestions={exprSuggestionList}
-                />
+                <HelperPane/>
             </div>
         </div>
     );

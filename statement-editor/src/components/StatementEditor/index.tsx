@@ -24,12 +24,22 @@ import {
 import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import * as monaco from "monaco-editor";
 
-import { APPEND_EXPR_LIST_CONSTRUCTOR, CUSTOM_CONFIG_TYPE, INIT_EXPR_LIST_CONSTRUCTOR } from "../../constants";
+import {
+    APPEND_EXPR_LIST_CONSTRUCTOR,
+    CUSTOM_CONFIG_TYPE,
+    DEFAULT_EXPRESSIONS,
+    INIT_EXPR_LIST_CONSTRUCTOR
+} from "../../constants";
+import { CurrentModel, SuggestionItem } from "../../models/definitions";
 import { StatementEditorContextProvider } from "../../store/statement-editor-context";
-import { getCurrentModel } from "../../utils";
+import {
+    getCurrentModel,
+    getSuggestionsBasedOnExpressionKind
+} from "../../utils";
 import {
     addImportStatements,
     addStatementToTargetLine,
+    getContextBasedCompletions,
     getDiagnostics,
     getPartialSTForStatement,
     sendDidChange,
@@ -91,9 +101,12 @@ export function StatementEditor(props: StatementEditorProps) {
     } = props;
 
     const [model, setModel] = useState<STNode>(null);
-    const [currentModel, setCurrentModel] = useState({ model });
+    const [currentModel, setCurrentModel] = useState<CurrentModel>({ model });
     const [diagnostics, setDiagnostics] = useState([]);
     const [moduleList, setModuleList] = useState(new Set<string>());
+    const [lsSuggestionsList, setLSSuggestionsList] = useState([]);
+    const [exprSuggestionList, setExprSuggestionsList] = useState(model ?
+        getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) : []);
 
     const fileURI = monaco.Uri.file(currentFile.path).toString().replace(FILE_SCHEME, EXPR_SCHEME);
 
@@ -132,6 +145,20 @@ export function StatementEditor(props: StatementEditorProps) {
             })();
         }
     }, []);
+
+    useEffect(() => {
+        (async () => {
+            const content: string = await addStatementToTargetLine(
+                currentFile.content, formArgs.formArgs.targetPosition, model.source, getLangClient);
+
+            const completions: SuggestionItem[] = await getContextBasedCompletions(
+                fileURI, content, formArgs.formArgs.targetPosition, currentModel.model.position,
+                currentModel?.isTypeDesc, STKindChecker.isElseBlock(currentModel.model), currentModel.model.source, getLangClient);
+
+            setLSSuggestionsList(completions);
+            setExprSuggestionsList(getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS));
+        })();
+    }, [currentModel.model]);
 
     useEffect(() => {
         if (!!model && STKindChecker.isLocalVarDecl(model) && handleNameOnChange && handleTypeChange) {
@@ -238,9 +265,10 @@ export function StatementEditor(props: StatementEditorProps) {
         return currentStmt.slice(0, targetColumn) + codeSnippet + currentStmt.slice(endColumn || targetColumn);
     }
 
-    const currentModelHandler = (cModel: STNode) => {
+    const currentModelHandler = (cModel: STNode, isTypeDesc?: boolean) => {
         setCurrentModel({
-            model: cModel
+            model: cModel,
+            isTypeDesc
         });
     };
 
@@ -256,6 +284,7 @@ export function StatementEditor(props: StatementEditorProps) {
                 <StatementEditorContextProvider
                     model={model}
                     currentModel={currentModel}
+                    changeCurrentModel={currentModelHandler}
                     handleChange={handleChange}
                     updateModel={updateModel}
                     handleModules={handleModules}
@@ -271,6 +300,10 @@ export function StatementEditor(props: StatementEditorProps) {
                     hasRedo={undoRedoManager.hasRedo()}
                     hasUndo={undoRedoManager.hasUndo()}
                     diagnostics={diagnostics}
+                    suggestions={{
+                        lsSuggestions: lsSuggestionsList,
+                        expressionSuggestions: exprSuggestionList
+                    }}
                 >
                     <ViewContainer
                         label={label}
