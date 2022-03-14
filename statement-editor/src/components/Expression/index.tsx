@@ -25,7 +25,7 @@ import { useStatementEditorStyles } from "../styles";
 
 export interface ExpressionComponentProps {
     model: STNode;
-    isElseIfMember: boolean;
+    isElseIfMember?: boolean;
     onSelect?: (event: React.MouseEvent) => void;
     children?: React.ReactElement[];
     classNames?: string;

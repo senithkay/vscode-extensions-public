@@ -20,11 +20,10 @@ import { ExpressionComponent } from "../../Expression";
 
 interface BinaryProps {
     model: BinaryExpression;
-    isElseIfMember: boolean;
 }
 
 export function BinaryExpressionComponent(props: BinaryProps) {
-    const { model, isElseIfMember } = props;
+    const { model } = props;
     const stmtCtx = useContext(StatementEditorContext);
 
     const {
@@ -51,7 +50,6 @@ export function BinaryExpressionComponent(props: BinaryProps) {
     const lhs: ReactNode = (
         <ExpressionComponent
             model={model.lhsExpr}
-            isElseIfMember={isElseIfMember}
             onSelect={onClickOnLhsExpression}
             deleteConfig={{defaultExprDeletable: true}}
         />
@@ -59,7 +57,6 @@ export function BinaryExpressionComponent(props: BinaryProps) {
     const rhs: ReactNode = (
         <ExpressionComponent
             model={model.rhsExpr}
-            isElseIfMember={isElseIfMember}
             onSelect={onClickOnRhsExpression}
             deleteConfig={{defaultExprDeletable: true}}
         />
@@ -68,7 +65,6 @@ export function BinaryExpressionComponent(props: BinaryProps) {
     const operator: ReactNode = (
         <ExpressionComponent
             model={model.operator}
-            isElseIfMember={isElseIfMember}
             onSelect={onClickOperator}
             classNames="operator"
         />

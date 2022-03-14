@@ -15,48 +15,31 @@ import React, { ReactNode, useContext } from "react";
 
 import { BracedExpression} from "@wso2-enterprise/syntax-tree";
 
-import { DEFAULT_EXPRESSIONS } from "../../../constants";
-import { SuggestionItem } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
-import { SuggestionsContext } from "../../../store/suggestions-context";
-import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
-import { addStatementToTargetLine, getContextBasedCompletions } from "../../../utils/ls-utils";
 import { ExpressionComponent } from "../../Expression";
 
 interface BracedExprProps {
     model: BracedExpression;
-    isElseIfMember: boolean;
 }
 
 export function BracedExpressionComponent(props: BracedExprProps) {
-    const { model, isElseIfMember } = props;
+    const { model } = props;
 
     const stmtCtx = useContext(StatementEditorContext);
 
-    const { expressionHandler } = useContext(SuggestionsContext);
-    const { currentFile, getLangClient } = stmtCtx;
-    const targetPosition = stmtCtx.formCtx.formModelPosition;
-    const fileURI = `expr://${currentFile.path}`;
+    const {
+        modelCtx: {
+            changeCurrentModel
+        }
+    } = stmtCtx;
 
     const onClickExpression = async (event: any) => {
         event.stopPropagation();
-
-        const content: string = await addStatementToTargetLine(
-            currentFile.content, targetPosition, stmtCtx.modelCtx.statementModel.source, getLangClient);
-
-        const completions: SuggestionItem[] = await getContextBasedCompletions(
-            fileURI, content, targetPosition, model.expression.position,
-            false, isElseIfMember, model.expression.source, getLangClient);
-
-        expressionHandler(model.expression, {
-            expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
-            lsSuggestions: completions
-        });
+        changeCurrentModel(model.expression);
     };
 
     const expressionComponent: ReactNode = <ExpressionComponent
         model={model.expression}
-        isElseIfMember={isElseIfMember}
         onSelect={onClickExpression}
     />;
     return (

@@ -20,11 +20,10 @@ import { ExpressionComponent } from "../../Expression";
 
 interface TypedBindingPatternProps {
     model: TypedBindingPattern;
-    isElseIfMember: boolean;
 }
 
 export function TypedBindingPatternComponent(props: TypedBindingPatternProps) {
-    const { model, isElseIfMember } = props;
+    const { model } = props;
     const stmtCtx = useContext(StatementEditorContext);
     const {
         modelCtx: {
@@ -40,7 +39,6 @@ export function TypedBindingPatternComponent(props: TypedBindingPatternProps) {
     const bindingPatternComponent: ReactNode = (
         <ExpressionComponent
             model={model.bindingPattern}
-            isElseIfMember={isElseIfMember}
             onSelect={onClickOnTypeBindingPatter}
             deleteConfig={{exprNotDeletable: true}}
         />
@@ -54,7 +52,6 @@ export function TypedBindingPatternComponent(props: TypedBindingPatternProps) {
     const typeDescriptorComponent: ReactNode = (
         <ExpressionComponent
             model={model.typeDescriptor}
-            isElseIfMember={isElseIfMember}
             onSelect={onClickOnType}
             classNames="type-descriptor"
             deleteConfig={{defaultExprDeletable: true}}
