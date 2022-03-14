@@ -789,7 +789,7 @@ export class SizingVisitor implements Visitor {
                 plusAfterWorker.allowWorker = true;
             }
 
-            height += PLUS_SVG_HEIGHT + PROCESS_SVG_HEIGHT;
+            height += DefaultConfig.dotGap * 10;
         }
 
         this.endSizingBlock(node, index + node.statements.length, width, height, index, leftWidth, rightWidth);

@@ -155,11 +155,10 @@ export class PositioningVisitor implements Visitor {
         this.workerMap.set(node.workerName.value, node);
 
         viewState.bBox.cx = viewState.bBox.x;
-        viewState.bBox.cy = viewState.bBox.y + PLUS_SVG_HEIGHT + PROCESS_SVG_HEIGHT;
-
+        viewState.bBox.cy = viewState.bBox.y;
+        const topOffSet = viewState.bBox.offsetFromTop * 7;
         viewState.trigger.cx = viewState.bBox.cx + viewState.bBox.lw;
-        viewState.trigger.cy = viewState.bBox.cy + DefaultConfig.serviceVerticalPadding + viewState.trigger.h / 2
-            + DefaultConfig.functionHeaderHeight;
+        viewState.trigger.cy = viewState.bBox.cy + topOffSet;
 
         viewState.workerLine.x = viewState.trigger.cx;
         viewState.workerLine.y = viewState.trigger.cy + (viewState.trigger.h / 2);
@@ -444,7 +443,7 @@ export class PositioningVisitor implements Visitor {
                     : (node as FunctionBodyBlock).namedWorkerDeclarator.namedWorkerDeclarations[i - 1].viewState.bBox.x
                     + (node as FunctionBodyBlock).namedWorkerDeclarator.namedWorkerDeclarations[i - 1].viewState.bBox.w / 2
                     + workerBodyViewState.bBox.w / 2;
-                workerDeclViewState.bBox.y = height;
+                workerDeclViewState.bBox.y = height + DefaultConfig.dotGap * 10;
             });
 
             // positioning for plus button before worker block
@@ -455,7 +454,7 @@ export class PositioningVisitor implements Visitor {
                 plusForIndex.bBox.cx = blockViewState.bBox.cx;
             }
 
-            height += PROCESS_SVG_HEIGHT + PLUS_SVG_HEIGHT;
+            height += DefaultConfig.dotGap * 10;
         }
 
         this.beginBlockPosition(node, index + node.statements.length, height, index);
