@@ -80,10 +80,11 @@ export function isAllFieldsValid(allFieldChecks: Map<string, FormFieldChecks>, m
 
 const BALLERINA_CENTRAL_ROOT = 'https://lib.ballerina.io';
 
-export function generateDocUrl(org: string, module: string, method: string) {
-    return method
-        ? `${BALLERINA_CENTRAL_ROOT}/${org}/${module}/latest/clients/Client#${method}`
-        : `${BALLERINA_CENTRAL_ROOT}/${org}/${module}/latest/clients/Client`
+export function generateDocUrl(org: string, module: string, method: string, clientName: string) {
+    return method ? clientName ? `${BALLERINA_CENTRAL_ROOT}/${org}/${module}/latest/clients/${clientName}#${method}` :
+            `${BALLERINA_CENTRAL_ROOT}/${org}/${module}/latest/clients/Client#${method}` : clientName ? 
+            `${BALLERINA_CENTRAL_ROOT}/${org}/${module}/latest/clients/${clientName}` :
+            `${BALLERINA_CENTRAL_ROOT}/${org}/${module}/latest/clients/Client`;
 }
 
 export function updateFunctionSignatureWithError(modifications: STModification[], activeFunction: FunctionDefinition) {
