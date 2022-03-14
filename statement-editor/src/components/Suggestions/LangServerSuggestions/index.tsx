@@ -16,11 +16,11 @@ import React, { useContext } from "react";
 import { List, ListItem, ListItemIcon, ListItemText, Typography } from "@material-ui/core";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 
-import { TYPE_DESC_KINDS } from "../../../constants";
 import { SuggestionItem } from "../../../models/definitions";
 import { InputEditorContext } from "../../../store/input-editor-context";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { getSuggestionIconStyle } from "../../../utils";
+import { acceptedCompletionKindForTypes } from "../../InputEditor/constants";
 import { useStatementEditorStyles } from "../../styles";
 
 export interface LSSuggestionsProps {
@@ -90,7 +90,7 @@ export function LSSuggestions(props: LSSuggestionsProps) {
                                                 </Typography>
                                             )}
                                         />
-                                        { !TYPE_DESC_KINDS.includes(suggestion.kind) && (
+                                        { !acceptedCompletionKindForTypes.includes(suggestion.suggestionType) && (
                                             <ListItemText
                                                 style={{ minWidth: '10%', marginLeft: '8px' }}
                                                 primary={(
