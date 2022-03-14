@@ -55,9 +55,9 @@ export function WorkerHead(props: WorkerHeadProps) {
     const editButtons = (
         <g className="modification-buttons">
             <rect
-                x={viewState.trigger.cx - START_SVG_WIDTH / 2}
+                x={viewState.trigger.cx - START_SVG_WIDTH / 2 + 2}
                 y={viewState.trigger.cy - START_SVG_HEIGHT / 4}
-                width={START_SVG_WIDTH}
+                width={START_SVG_WIDTH - 4}
                 height={START_SVG_HEIGHT / 2}
                 rx={10}
                 fill={"#D3D8FF"}
