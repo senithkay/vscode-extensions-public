@@ -430,11 +430,12 @@ export class SizingVisitor implements Visitor {
             })
             this.endVisitFunctionBodyBlock(body);
 
-            if (!bodyViewState.isEndComponentAvailable) {
-                if (bodyViewState.bBox.h < maxWorkerHeight) {
-                    bodyViewState.bBox.h += maxWorkerHeight - bodyViewState.bBox.h;
-                }
-            }
+            // if (!bodyViewState.isEndComponentAvailable) {
+            //     const maxWorkerFullHeight = START_SVG_HEIGHT + maxWorkerHeight + DefaultConfig.offSet;
+            //     if (bodyViewState.bBox.h < maxWorkerFullHeight) {
+            //         bodyViewState.bBox.h += maxWorkerFullHeight - bodyViewState.bBox.h;
+            //     }
+            // }
 
             lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h;
 
@@ -446,7 +447,8 @@ export class SizingVisitor implements Visitor {
                 lifeLine.h += end.bBox.offsetFromTop;
             }
 
-            viewState.bBox.h = lifeLine.h + trigger.h + end.bBox.h + DefaultConfig.serviceVerticalPadding * 2 + DefaultConfig.functionHeaderHeight;
+            const maxWorkerFullHeight = START_SVG_HEIGHT + maxWorkerHeight + DefaultConfig.offSet;
+            viewState.bBox.h = (maxWorkerFullHeight > bodyViewState.bBox.h ? START_SVG_HEIGHT + maxWorkerHeight + DefaultConfig.offSet : lifeLine.h) + trigger.h + end.bBox.h + DefaultConfig.serviceVerticalPadding * 2 + DefaultConfig.functionHeaderHeight;
             viewState.bBox.w = (trigger.w > bodyViewState.bBox.w ? trigger.w : bodyViewState.bBox.w)
                 + DefaultConfig.serviceFrontPadding + DefaultConfig.serviceRearPadding + allEndpoints.size * 150 * 2;
 
