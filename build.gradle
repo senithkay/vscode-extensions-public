@@ -50,11 +50,11 @@ task copyConfigEditorDeps(type: Copy) {
     include "ConfigEditor.js"
 }
 
-task copyPakoDeps(type: Copy) {
-    dependsOn installDeps
-    from "$rootDir/node_modules/pako/dist"
+task copyWebViewCommonsDeps(type: Copy) {
+    dependsOn npmBuild
+    from "$rootDir/dist"
     into "$rootDir/resources/jslibs"
-    include "pako.min.js"
+    include "webviewCommons.js"
 }
 
 npmBuild() {
@@ -63,7 +63,6 @@ npmBuild() {
     dependsOn ':swagger-viewer:buildSwaggerViewer'
     dependsOn copyDeps
     dependsOn copyConfigEditorDeps
-    dependsOn copyPakoDeps
     PatternSet patternSet = new PatternSet();
     patternSet.exclude("**/node_modules/**");
     patternSet.exclude("**/dist/**");
@@ -94,6 +93,7 @@ npmBuild() {
 
 task assemble(overwrite: true) {
     dependsOn 'npmBuild'
+    dependsOn copyWebViewCommonsDeps
 }
 
 task test(type: Exec) {
