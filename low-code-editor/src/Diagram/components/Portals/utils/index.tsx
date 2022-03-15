@@ -963,7 +963,7 @@ function getFormFieldReturnType(formField: FormField, depth = 1): FormFieldRetur
                     // set array type
                     type = type.includes('|') ? `(${type})[]` : `${type}[]`;
                 }
-                if (type !== "" && formField?.optional) {
+                if ((type !== "" || formField.isErrorType) && formField?.optional) {
                     // set optional tag
                     type = type.includes('|') ? `(${type})?` : `${type}?`;
                 }
