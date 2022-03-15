@@ -434,17 +434,21 @@ export class PositioningVisitor implements Visitor {
                 workerInitStatements,
                 blockViewState, height, index, DefaultConfig.epGap));
 
+            blockViewState.workerIndicatorLine.y = blockViewState.bBox.cy + height + (DefaultConfig.dotGap * 6);
+            blockViewState.workerIndicatorLine.x = blockViewState.bBox.cx;
+
             (node as FunctionBodyBlock).namedWorkerDeclarator.namedWorkerDeclarations.forEach((workerDecl, i) => {
                 const workerDeclViewState = workerDecl.viewState as WorkerDeclarationViewState;
                 const workerBodyViewState = workerDecl.workerBody.viewState as BlockViewState;
 
                 workerDeclViewState.bBox.x = i === 0 ?
-                    blockViewState.bBox.w / 2 + workerBodyViewState.bBox.w / 2
+                    blockViewState.bBox.rw + workerBodyViewState.bBox.lw
                     : (node as FunctionBodyBlock).namedWorkerDeclarator.namedWorkerDeclarations[i - 1].viewState.bBox.x
-                    + (node as FunctionBodyBlock).namedWorkerDeclarator.namedWorkerDeclarations[i - 1].viewState.bBox.w / 2
-                    + workerBodyViewState.bBox.w / 2;
+                    + (node as FunctionBodyBlock).namedWorkerDeclarator.namedWorkerDeclarations[i - 1].viewState.bBox.rw
+                    + workerBodyViewState.bBox.lw;
                 workerDeclViewState.bBox.y = height + DefaultConfig.dotGap * 10;
             });
+
 
             // positioning for plus button before worker block
             const plusForIndex = getPlusViewState(index + node.statements.length + 1, blockViewState.plusButtons)
@@ -458,6 +462,17 @@ export class PositioningVisitor implements Visitor {
         }
 
         this.beginBlockPosition(node, index + node.statements.length, height, index);
+    }
+
+    public endVisitFunctionBodyBlock(node: FunctionBodyBlock, parent?: STNode): void {
+        const bodyViewState = node.viewState as BlockViewState;
+        // line width should be to the extent of last worker
+        if (bodyViewState.hasWorkerDecl) {
+            const workerDecl = node.namedWorkerDeclarator.namedWorkerDeclarations[node.namedWorkerDeclarator.namedWorkerDeclarations.length - 1];
+            const workerDeclVS = workerDecl.viewState as WorkerDeclarationViewState;
+
+            bodyViewState.workerIndicatorLine.w = workerDeclVS.trigger.cx - bodyViewState.workerIndicatorLine.x;
+        }
     }
 
     public beginVisitExpressionFunctionBody(node: ExpressionFunctionBody) {

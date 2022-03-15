@@ -445,8 +445,8 @@ export class SizingVisitor implements Visitor {
 
             viewState.bBox.h = lifeLine.h + trigger.h + end.bBox.h + DefaultConfig.serviceVerticalPadding * 2 + DefaultConfig.functionHeaderHeight;
             viewState.bBox.lw = (trigger.lw > bodyViewState.bBox.lw ? trigger.lw : bodyViewState.bBox.lw) + DefaultConfig.serviceFrontPadding;
-            viewState.bBox.rw = (trigger.rw > bodyViewState.bBox.rw ? trigger.rw : bodyViewState.bBox.rw) + DefaultConfig.serviceRearPadding + (allEndpoints.size * 150 * 2);
-            viewState.bBox.w = viewState.bBox.lw + viewState.bBox.rw + totalWorkerWidth;
+            viewState.bBox.rw = (trigger.rw > bodyViewState.bBox.rw ? trigger.rw : bodyViewState.bBox.rw) + DefaultConfig.serviceRearPadding + totalWorkerWidth + (allEndpoints.size * 150 * 2);
+            viewState.bBox.w = viewState.bBox.lw + viewState.bBox.rw;
 
             const maxWorkerFullHeight = body.namedWorkerDeclarator.workerInitStatements.length * 72 + maxWorkerHeight;
 

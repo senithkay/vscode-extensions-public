@@ -37,6 +37,7 @@ export function WorkerBody(props: DiagramProps) {
     let drafts: React.ReactNode[] = [];
     const controlFlowLines: React.ReactNode[] = [];
     const controlFlowExecutionTime: React.ReactNode[] = [];
+    const workerIndicatorLine: React.ReactNode[] = [];
 
     if (STKindChecker.isFunctionBodyBlock(model) && viewState.hasWorkerDecl) {
         children = children.concat(getSTComponents(model.namedWorkerDeclarator.workerInitStatements));
@@ -65,6 +66,23 @@ export function WorkerBody(props: DiagramProps) {
         )
     }
 
+    if (viewState.hasWorkerDecl) {
+        workerIndicatorLine.push((
+            <>
+                <circle cx={viewState.workerIndicatorLine.x} cy={viewState.workerIndicatorLine.y} r="6" style={{ stroke: '#5567D5', strokeWidth: 1, fill: '#fff' }} />
+                <circle cx={viewState.workerIndicatorLine.x} cy={viewState.workerIndicatorLine.y} r="4" style={{ stroke: '#5567D5', strokeWidth: 1, fill: '#5567D5' }} />
+                <line
+                    x1={viewState.workerIndicatorLine.x}
+                    y1={viewState.workerIndicatorLine.y}
+                    x2={viewState.workerIndicatorLine.x + viewState.workerIndicatorLine.w}
+                    y2={viewState.workerIndicatorLine.y}
+                    strokeDasharray={'5, 5'}
+                    style={{ stroke: '#5567D5', strokeWidth: 1 }}
+                />
+            </>
+        ))
+    }
+
     for (const executionTime of viewState?.controlFlow.executionTimeStates) {
         if (executionTime.value) {
             controlFlowExecutionTime.push(<ControlFlowExecutionTime x={executionTime.x} y={executionTime.y} value={executionTime.value} h={executionTime.h} />);
@@ -82,6 +100,7 @@ export function WorkerBody(props: DiagramProps) {
         <g>
             {controlFlowLines}
             {pluses}
+            {workerIndicatorLine}
             {workerArrows}
             {children}
             {drafts}
