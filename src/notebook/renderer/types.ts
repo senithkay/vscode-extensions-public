@@ -18,11 +18,11 @@
  */
 
 export interface ShellOutput {
-    shellValue: ShellValue
+    shellValue: ShellValue;
 }
 
 export interface ShellValue {
-    value: string,
-    mimeType: string,
-    type: string
+    value: string;
+    mimeType: string;
+    type: string;
 }

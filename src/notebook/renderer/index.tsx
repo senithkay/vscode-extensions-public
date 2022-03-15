@@ -19,7 +19,8 @@
 
 import { h, render } from 'preact';
 import { ActivationFunction, OutputItem, RendererContext } from 'vscode-notebook-renderer';
-import { MIME_TYPE_TABLE } from './constants';
+import { MIME_TYPE_JSON, MIME_TYPE_TABLE } from './constants';
+import { Json } from './json';
 import { Table } from './table';
 
 export const activate: ActivationFunction = (context: RendererContext<any>) => ({
@@ -28,6 +29,9 @@ export const activate: ActivationFunction = (context: RendererContext<any>) => (
 			switch (data.mime) {
 				case MIME_TYPE_TABLE:
 					render(<Table shellOutput={data.json()}/>, element);
+					break;
+				case MIME_TYPE_JSON:
+					render(<Json shellOutput={data.json()}/>, element);
 					break;
 				default:
 					break;

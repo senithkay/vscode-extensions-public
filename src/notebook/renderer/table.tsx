@@ -29,22 +29,22 @@ export const Table: FunctionComponent<{ shellOutput: Readonly<ShellOutput> }> = 
         return keys.map((key) => {
             return <th key={key}>{key.toUpperCase()}</th>;
         });
-    }
+    };
     const renderBody = () => {
         var keys = getKeys();
         let body: h.JSX.Element[] = [];
         for (let index = 0; index < tableContent.length; index++) {
             body.push(
-                <tr>{keys.map( key =>{return <td><pre>{getValue(tableContent[index], key)}</pre></td>})}</tr>
+                <tr>{ keys.map( key =>{ return <td><pre>{getValue(tableContent[index], key)}</pre></td>; }) }</tr>
             );
         }
         return body;
-    }
+    };
     const renderTable = () => {
         return <table>
-                <thead>{renderHeader()}</thead>
-                <tbody>{renderBody()}</tbody>
+                <thead>{ renderHeader() }</thead>
+                <tbody>{ renderBody() }</tbody>
             </table>;
     };
-    return <div>{renderTable()}</div>;
-}
+    return <div>{ renderTable() }</div>;
+};

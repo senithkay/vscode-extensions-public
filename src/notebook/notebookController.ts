@@ -20,7 +20,7 @@
 import { NotebookCell, NotebookCellOutput, NotebookCellOutputItem, NotebookController, 
     NotebookDocument, notebooks } from 'vscode';
 import { BallerinaExtension, ExtendedLangClient, NoteBookCellOutputResponse } from '../core';
-import { MIME_TYPE_TABLE } from './renderer/constants';
+import { MIME_TYPE_JSON, MIME_TYPE_TABLE } from './renderer/constants';
 
 export class BallerinaNotebookController {
     readonly controllerId = 'ballerina-notebook-controller-id';
@@ -69,7 +69,7 @@ export class BallerinaNotebookController {
         execution.token.onCancellationRequested(()=> {
             execution.appendOutput(new NotebookCellOutput([
                 NotebookCellOutputItem.text('Execution Interrupted')
-            ]))
+            ]));
             execution.end(false, Date.now());
         });
         try {
@@ -86,7 +86,7 @@ export class BallerinaNotebookController {
                 execution.end(false, Date.now());
             }
             else if (output.shellValue?.value) {
-                if (output.shellValue.mimeType == MIME_TYPE_TABLE) {
+                if (output.shellValue.mimeType === MIME_TYPE_TABLE) {
                     execution.replaceOutput([ new NotebookCellOutput([
                             NotebookCellOutputItem.json(output, MIME_TYPE_TABLE),
                             NotebookCellOutputItem.text(output.shellValue.value)
@@ -95,7 +95,9 @@ export class BallerinaNotebookController {
                 }
                 else {
                     execution.replaceOutput([ new NotebookCellOutput([
-                        NotebookCellOutputItem.text(output.shellValue.value)])
+                            NotebookCellOutputItem.json(output, MIME_TYPE_JSON),
+                            NotebookCellOutputItem.text(output.shellValue.value)
+                        ])
                     ]);
                 }
                 execution.end(true, Date.now());

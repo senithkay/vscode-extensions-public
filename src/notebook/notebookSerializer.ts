@@ -31,8 +31,8 @@ interface RawNotebookCell {
 }
 
 interface RawCellOutput {
-    mime: string,
-    value: any
+    mime: string;
+    value: any;
 }
 
 export class BallerinaNotebookSerializer implements NotebookSerializer {

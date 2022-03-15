@@ -29,7 +29,7 @@ import { CompletionItemKind as MonacoCompletionItemKind } from "monaco-languagec
 const selector: DocumentSelector = {
     scheme: NOTEBOOK_SCHEME,
     language: LANGUAGE.BALLERINA
-}
+};
 
 export class NotebookCompletionItemProvider implements CompletionItemProvider{
     private ballerinaExtension: BallerinaExtension;
@@ -67,7 +67,7 @@ export class NotebookCompletionItemProvider implements CompletionItemProvider{
                     text: textToWrite
                 }
             ]
-        })
+        });
         let completions = await langClient.getCompletion({
             textDocument: {
                 uri: filePath
@@ -135,6 +135,6 @@ function filterCompletions(completions: CompletionResponse[]): CompletionRespons
         "__last__", "__java_recall(handle context_id, handle name)", "__memorize(string name, any|error value)",
         "main()", "init()", "__run()", "__recall_any_error(string name)", "__recall_any(string name)", 
         "__java_memorize(handle context_id, handle name, any|error value)", "__stmts()", 
-    ]
+    ];
     return completions.filter(item => !labelsUsedInShell.includes(item.label));
 }
