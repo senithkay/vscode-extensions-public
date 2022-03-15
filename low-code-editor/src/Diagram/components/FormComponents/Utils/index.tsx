@@ -82,7 +82,7 @@ const BALLERINA_CENTRAL_ROOT = 'https://lib.ballerina.io';
 
 export function generateDocUrl(org: string, module: string, method: string, clientName: string) {
     return method ? clientName ? `${BALLERINA_CENTRAL_ROOT}/${org}/${module}/latest/clients/${clientName}#${method}` :
-            `${BALLERINA_CENTRAL_ROOT}/${org}/${module}/latest/clients/Client#${method}` : clientName ? 
+            `${BALLERINA_CENTRAL_ROOT}/${org}/${module}/latest/clients/Client#${method}` : clientName ?
             `${BALLERINA_CENTRAL_ROOT}/${org}/${module}/latest/clients/${clientName}` :
             `${BALLERINA_CENTRAL_ROOT}/${org}/${module}/latest/clients/Client`;
 }
