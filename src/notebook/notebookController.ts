@@ -20,7 +20,7 @@
 import { NotebookCell, NotebookCellOutput, NotebookCellOutputItem, NotebookController, 
     NotebookDocument, notebooks } from 'vscode';
 import { BallerinaExtension, ExtendedLangClient, NoteBookCellOutputResponse } from '../core';
-import { MIME_TYPE_JSON, MIME_TYPE_TABLE } from './renderer/constants';
+import { MIME_TYPE_JSON, MIME_TYPE_TABLE } from './constants';
 
 export class BallerinaNotebookController {
     readonly controllerId = 'ballerina-notebook-controller-id';
