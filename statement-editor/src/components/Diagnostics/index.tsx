@@ -13,8 +13,10 @@
 import React, { useContext } from "react";
 
 import { getDiagnosticMessage } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 import { StatementEditorContext } from "../../store/statement-editor-context";
+import { INPUT_EDITOR_PLACE_HOLDERS } from "../InputEditor/constants";
 
 export function Diagnostics() {
     const stmtCtx = useContext(StatementEditorContext);
@@ -30,19 +32,19 @@ export function Diagnostics() {
         }
     } = stmtCtx;
 
-    const message = getDiagnosticMessage(
-        diagnostics,
-        {
-            startLine: targetPosition.startLine || 0,
-            startColumn: targetPosition.startColumn || 0,
-            endLine: targetPosition?.endLine || targetPosition.startLine,
-            endColumn: targetPosition?.endColumn || 0
-        },
-        0,
-        statementModel?.source.length,
-        0,
-        0
+    const hasPlaceHolders = Array.from(INPUT_EDITOR_PLACE_HOLDERS.keys()).some(word =>
+        statementModel?.source.includes(word)
     );
+
+    const diagnosticTargetPosition: NodePosition = {
+        startLine: targetPosition.startLine || 0,
+        startColumn: targetPosition.startColumn || 0,
+        endLine: targetPosition?.endLine || targetPosition.startLine,
+        endColumn: targetPosition?.endColumn || 0
+    };
+
+    const message = !hasPlaceHolders &&
+        getDiagnosticMessage(diagnostics, diagnosticTargetPosition, 0, statementModel?.source.length, 0, 0);
 
     return (
         <span>{message}</span>
