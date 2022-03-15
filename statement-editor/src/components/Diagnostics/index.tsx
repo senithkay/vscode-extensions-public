@@ -10,14 +10,39 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React from "react";
+import React, { useContext } from "react";
 
-export interface DiagnosticsProps {
-    message?: string
-}
+import { getDiagnosticMessage } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
-export function Diagnostics(props: DiagnosticsProps) {
-    const { message } = props
+import { StatementEditorContext } from "../../store/statement-editor-context";
+
+export function Diagnostics() {
+    const stmtCtx = useContext(StatementEditorContext);
+    const {
+        modelCtx: {
+            statementModel
+        },
+        statementCtx: {
+            diagnostics
+        },
+        formCtx: {
+            formModelPosition: targetPosition
+        }
+    } = stmtCtx;
+
+    const message = getDiagnosticMessage(
+        diagnostics,
+        {
+            startLine: targetPosition.startLine || 0,
+            startColumn: targetPosition.startColumn || 0,
+            endLine: targetPosition?.endLine || targetPosition.startLine,
+            endColumn: targetPosition?.endColumn || 0
+        },
+        0,
+        statementModel?.source.length,
+        0,
+        0
+    );
 
     return (
         <span>{message}</span>

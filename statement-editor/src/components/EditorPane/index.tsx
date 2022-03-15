@@ -16,7 +16,6 @@ import React, { useContext } from "react";
 import IconButton from "@material-ui/core/IconButton";
 import RedoIcon from "@material-ui/icons/Redo";
 import UndoIcon from "@material-ui/icons/Undo";
-import { getDiagnosticMessage } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { Diagnostics } from "../Diagnostics";
@@ -41,12 +40,6 @@ export function EditorPane(props: ModelProps) {
             hasRedo,
             hasUndo,
             statementModel
-        },
-        statementCtx: {
-            diagnostics
-        },
-        formCtx: {
-            formModelPosition: targetPosition
         }
     } = stmtCtx;
 
@@ -72,18 +65,7 @@ export function EditorPane(props: ModelProps) {
                     />
                 </div>
                 <div className={statementEditorClasses.diagnosticsPane}>
-                    <Diagnostics
-                        message={
-                            getDiagnosticMessage(
-                                diagnostics,
-                                { ...targetPosition, startColumn: 0 },
-                                0,
-                                statementModel?.source.length,
-                                0,
-                                0
-                            )
-                        }
-                    />
+                    <Diagnostics/>
                 </div>
             </div>
             <div className={statementEditorClasses.suggestionsSection}>
