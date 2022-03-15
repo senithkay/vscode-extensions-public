@@ -13,13 +13,14 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { ReactElement } from "react";
 
-import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { ErrorSnippet } from "../../../Types/type";
 // import { ErrorSnippet } from "../../../../../../DiagramGenerator/generatorUtil";
 
 import { ProcessRectSVG } from "./ProcessRectSVG";
 import "./style.scss";
+import { DiagramTooltip } from "../../../../../low-code-ui-components/lib/Tooltip/diagramTooltip";
 
 export const PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW = 62;
 export const PROCESS_SVG_HEIGHT_WITH_HOVER_SHADOW = 62;
@@ -35,13 +36,17 @@ export function ProcessSVG(props: {
     x: number, y: number, varName: any,
     sourceSnippet: any, position: NodePosition,
     openInCodeView?: () => void,
-    processType: string, diagnostics?: ErrorSnippet
+    processType: string, diagnostics?: ErrorSnippet,
+    STNode: STNode
 }) {
-    const { varName, sourceSnippet, processType, openInCodeView, diagnostics, ...xyProps } = props;
+    const { varName, sourceSnippet, processType, openInCodeView, diagnostics, STNode, ...xyProps } = props;
     const processTypeIndicator: JSX.Element[] = [];
     const tooltipText = {
         code: sourceSnippet
     }
+
+    const diagnosticStyles = diagnostics?.severity === "ERROR" ? "data-processor-error" : "data-processor-warning";
+    const processRectStyles = diagnostics ? diagnosticStyles : "data-processor process-active"
     const logIcon: ReactElement = (
         <g className="log-icon" transform="translate(242 522)">
             <path className="log-icon-dark-path" id="Path_23" d="M7.2,0a.8.8,0,0,1,.093,1.595L7.2,1.6H.8A.8.8,0,0,1,.707.005L.8,0Z" transform="translate(8 11.2)" fill="#5567d5" />
@@ -118,24 +123,13 @@ export function ProcessSVG(props: {
                 </filter>
             </defs>
             <g>
-                {diagnostics?.diagnosticMsgs ?
-                    (
-                        <ProcessRectSVG
-                            type={"diagram-diagnostic"}
-                            onClick={openInCodeView}
-                            diagnostic={diagnostics}
-                            processTypeIndicator={processTypeIndicator}
-                        />
-                    )
-                    :
-                    (
-                        <ProcessRectSVG
-                            type={"diagram-code"}
-                            onClick={openInCodeView}
-                            text={tooltipText}
-                            processTypeIndicator={processTypeIndicator}
-                        />
-                    )}
+                (
+                <ProcessRectSVG
+                    onClick={openInCodeView}
+                    STNode={STNode}
+                    processTypeIndicator={processTypeIndicator}
+                />
+                )
             </g>
         </svg>
     )

@@ -16,8 +16,9 @@ import React, { useContext, useEffect, useState } from "react";
 import { Context } from "../../../Context/diagram";
 import { ErrorSnippet } from "../../../Types/type";
 import { DefaultTooltip } from "../DefaultTooltip";
-
+import { DiagramTooltip } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import "./style.scss"
+import { STNode } from "@wso2-enterprise/syntax-tree";
 
 interface ProcessRectSVGProps {
     type?: string,
@@ -26,10 +27,11 @@ interface ProcessRectSVGProps {
     text?: { heading?: string, content?: string, example?: string, code?: string },
     diagnostic?: ErrorSnippet,
     processTypeIndicator?: JSX.Element[];
+    STNode: STNode;
 }
 
 export function ProcessRectSVG(props: ProcessRectSVGProps) {
-    const { type, onClick, diagnostic, processTypeIndicator, text, className } = props;
+    const { type, onClick, diagnostic, processTypeIndicator, text, className, STNode } = props;
     const diagramContext = useContext(Context);
     const showTooltip = diagramContext?.api?.edit?.showTooltip;
     const diagnosticStyles = diagnostic?.severity === "ERROR" ? "data-processor-error" : "data-processor-warning";
@@ -50,35 +52,24 @@ export function ProcessRectSVG(props: ProcessRectSVGProps) {
     );
 
     const defaultTooltip = (
-        <DefaultTooltip text={text} diagnostic={diagnostic}>{rectSVG}</DefaultTooltip>
+        <DiagramTooltip STNode={STNode} onClick={onClick} >{rectSVG}</DiagramTooltip>
     );
-
-    // TODO: Check how we can optimize this by rewriting the tooltip
-    // component.
     useEffect(() => {
-        if ((text) && showTooltip) {
-            setTooltip(showTooltip(rectSVG, type, text, "right", true, undefined, undefined, false, onClick));
+        if (STNode && showTooltip) {
+            setDiagTooltip(showTooltip(rectSVG,onClick, STNode,));
         }
         return () => {
             setTooltip(undefined);
             setDiagTooltip(undefined);
         };
-    }, [text]);
-
-    useEffect(() => {
-        if (diagnostic && showTooltip) {
-            setDiagTooltip(showTooltip(rectSVG, type, undefined, "right", true, diagnostic, undefined, false, onClick));
-        }
-        return () => {
-            setTooltip(undefined);
-            setDiagTooltip(undefined);
-        };
-    }, [diagnostic]);
+    }, [STNode]);
 
     return (
         <>
-            {tooltip ? tooltip : defaultTooltip}
-            {diagTooltip ? diagTooltip : defaultTooltip}
+
+
+            {defaultTooltip}
+
         </>
     );
 }

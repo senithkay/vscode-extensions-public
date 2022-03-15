@@ -55,15 +55,17 @@ export interface LowCodeDiagramAPI {
         renderPlusWidget?: (type: string, plusWidgetProps: PlusWidgetProps, viewState?: PlusViewState) => any;
         closeAllOpenedForms?: (callBack?: () => void) => void;
         openPerformanceChart?: (name: string, range: NodePosition, diagramRedrawFunc: any) => void;
-        showTooltip?: (component: any, type: string,
-                       text?: { heading?: string, content?: string, example?: string, code?: string },
-                       placement?: | 'bottom-end' | 'bottom-start' | 'bottom' | 'left-end' | 'left-start' | 'left' | 'right-end' | 'right-start' | 'right' | 'top-end' | 'top-start' | 'top',
-                       arrow?: boolean,
-                       diagnostic?: { diagnosticMsgs?: string, code?: string, severity?: string },
-                       action?: { link: string, text: string },
-                       disabled?: boolean,
+        showTooltip?: (component: any, 
+                    //    type?: string,
+                    //    text?: { heading?: string, content?: string, example?: string, code?: string },
+                    //    placement?: | 'bottom-end' | 'bottom-start' | 'bottom' | 'left-end' | 'left-start' | 'left' | 'right-end' | 'right-start' | 'right' | 'top-end' | 'top-start' | 'top',
+                    //    arrow?: boolean,
+                    //    diagnostic?: { diagnosticMsgs?: string, code?: string, severity?: string },
+                    //    action?: { link: string, text: string },
+                    //    disabled?: boolean,
                        onClick?: () => void,
                        additionalParams?: any) => any;
+                       STNode?: STNode;
     };
 
     // FIXME Doesn't make sense to take these methods below from outside

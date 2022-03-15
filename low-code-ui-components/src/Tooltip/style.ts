@@ -111,7 +111,15 @@ const useStyles = makeStyles(() =>
         },
         tooltipHints: {
             padding: "0 15px",
+        },
+        diagnosticWrapper: {
+            width: '231px',
+            color: '#FE523C',
+            fontFamily: "Droid Sans Mono",
+            fontSize: '12px',
+            letterSpacing: '0',
         }
+
     }),
 );
 
