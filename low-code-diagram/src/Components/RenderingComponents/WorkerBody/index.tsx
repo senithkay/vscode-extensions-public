@@ -97,7 +97,7 @@ export function WorkerBody(props: DiagramProps) {
     }
 
     return (
-        <g>
+        <g id={viewState.hasWorkerDecl ? 'worker-body' : 'function-body'}>
             {controlFlowLines}
             {pluses}
             {workerIndicatorLine}
