@@ -29,7 +29,7 @@ import {
     CompletionResponse,
     ExpressionTypeRequest,
     ExpressionTypeResponse,
-} from "@wso2-enterprise/ballerina-low-code-editor";
+} from "@wso2-enterprise/ballerina-low-code-editor-distribution";
 import { BallerinaConnectorsRequest, BallerinaTriggerRequest, BallerinaTriggerResponse, BallerinaTriggersRequest, BallerinaTriggersResponse } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { BallerinaExtension } from "./index";
 import { showChoreoPushMessage } from "../editor-support/git-status";

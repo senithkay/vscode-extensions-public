@@ -300,8 +300,8 @@ export class BallerinaExtension {
             if (params.affectsConfiguration(BALLERINA_HOME) || params.affectsConfiguration(OVERRIDE_BALLERINA_HOME)
                 || params.affectsConfiguration(ENABLE_ALL_CODELENS) ||
                 params.affectsConfiguration(BALLERINA_LOW_CODE_MODE) || params.affectsConfiguration(ENABLE_DEBUG_LOG)
-                || params.affectsConfiguration(ENABLE_BALLERINA_LS_DEBUG || 
-                    params.affectsConfiguration(ENABLE_EXPERIMENTAL_FEATURES))) {
+                || params.affectsConfiguration(ENABLE_BALLERINA_LS_DEBUG) ||
+                params.affectsConfiguration(ENABLE_EXPERIMENTAL_FEATURES)) {
                 this.showMsgAndRestart(CONFIG_CHANGED);
             }
         });

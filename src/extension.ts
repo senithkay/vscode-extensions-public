@@ -141,5 +141,6 @@ export function deactivate(): Thenable<void> | undefined {
     if (!langClient) {
         return;
     }
+    ballerinaExtInstance.telemetryReporter.dispose();
     return langClient.stop();
 }

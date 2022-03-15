@@ -22,7 +22,7 @@ jobs:
         with:
           java-version: "11"
       - name: Update npm dependencies
-        run: npm update @wso2-enterprise/ballerina-low-code-editor @wso2-enterprise/ballerina-configurable-editor @wso2-enterprise/ballerina-low-code-edtior-commons
+        run: npm update @wso2-enterprise/ballerina-low-code-editor-distribution @wso2-enterprise/ballerina-configurable-editor @wso2-enterprise/ballerina-low-code-edtior-commons
         env:
           NPM_ACCESS_TOKEN: ${{ secrets.PUBLISH_PAT }}
       - name: Build repository without tests

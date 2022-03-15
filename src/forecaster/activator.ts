@@ -84,7 +84,7 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
     context.subscriptions.push(getEndpoints);
 
     if (ballerinaExtInstance.isAllCodeLensEnabled()) {
-        languages.registerCodeLensProvider([{ language: LANGUAGE.BALLERINA }],
+        languages.registerCodeLensProvider([{ language: LANGUAGE.BALLERINA, scheme: 'file' }],
             new ExecutorCodeLensProvider(ballerinaExtInstance));
     }
 
