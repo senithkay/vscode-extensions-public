@@ -195,13 +195,6 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         ? varName.length > 0 && variableExpression?.length > 0 && selectedType.length > 0
         : varName.length > 0 && selectedType.length > 0;
 
-    const userInputs = {
-        selectedType,
-        varName,
-        variableExpression,
-        formField
-    };
-
     const variableTypeConfig: VariableTypeInputProps = {
         displayName: 'Variable Type',
         value: selectedType,
