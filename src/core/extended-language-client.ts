@@ -150,24 +150,24 @@ export interface JsonToRecordResponse {
 }
 
 export interface NoteBookCellOutputRequest {
-    source: string
+    source: string;
 }
 
 export interface NoteBookCellOutputValue {
-    value: string,
-    mimeType: string,
-    type: number
+    value: string;
+    mimeType: string;
+    type: number;
 }
 
 export interface NoteBookCellOutputResponse {
-    shellValue?: NoteBookCellOutputValue,
-    errors: string[],
-    diagnostics: string[]
+    shellValue?: NoteBookCellOutputValue;
+    errors: string[];
+    diagnostics: string[];
 }
 
 export interface NotebookFileSourceResponse{
-    content: string,
-    filePath: string
+    content: string;
+    filePath: string;
 }
 
 interface BallerinaInitializeParams {
