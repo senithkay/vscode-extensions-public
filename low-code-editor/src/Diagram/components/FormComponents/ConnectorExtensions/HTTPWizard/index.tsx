@@ -263,7 +263,7 @@ export function HTTPWizard(props: WizardProps) {
         if (connector?.package) {
             const { organization, name } = connector?.package;
             if (organization && name) {
-                const docURL = generateDocUrl(organization, name, "");
+                const docURL = generateDocUrl(organization, name, "", connector?.name);
                 if (docURL) {
                     showDocumentationView(docURL);
                 }
