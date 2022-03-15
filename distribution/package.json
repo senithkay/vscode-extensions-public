@@ -1,6 +1,6 @@
 {
   "name": "@wso2-enterprise/ballerina-low-code-editor-distribution",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Ballerina Low Code Editor Distribution",
   "files": [
     "build"
