@@ -98,9 +98,9 @@ export function OperationForm(props: OperationFormProps) {
             setFormFields(derivedFormFields);
             if (functionDefInfo.get(operation)?.documentation) {
                 if (connectorInfo?.package) {
-                    const {organization, name} = connectorInfo?.package;
+                    const { organization, name } = connectorInfo?.package;
                     if (organization && name) {
-                        setDocUrl(generateDocUrl(organization, name, operation));
+                        setDocUrl(generateDocUrl(organization, name, operation, connectorInfo?.name));
                         setToolTipInfo(functionDefInfo.get(operation).documentation);
                     }
                 }
