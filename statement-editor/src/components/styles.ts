@@ -37,10 +37,17 @@ const syntaxHighlightingRules = {
 
 export const useStatementEditorStyles = makeStyles(() =>
     createStyles({
-        undoRedoButtons: {
+        toolbar: {
             position: 'absolute',
-            right: '0',
-            top: '48px'
+            right: '13px',
+            top: '60px',
+            border: '1px solid #e6e7ec',
+            borderRadius: '8px',
+            height: '32px',
+            backgroundColor: '#ffffff'
+        },
+        toolbarIcons: {
+            padding: '5px'
         },
         mainStatementWrapper: {
             display: 'flex',
@@ -88,7 +95,7 @@ export const useStatementEditorStyles = makeStyles(() =>
             width: '50%',
         },
         statementExpressionTitle: {
-            paddingTop: theme.spacing(1.5),
+            // paddingTop: theme.spacing(1.5),
             paddingBottom: theme.spacing(1),
         },
         statementExpressionContent: {

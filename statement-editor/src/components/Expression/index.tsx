@@ -32,36 +32,24 @@ export interface ExpressionComponentProps {
     onSelect?: (event: React.MouseEvent) => void;
     children?: React.ReactElement[];
     classNames?: string;
-    deleteConfig?: ExprDeleteConfig
 }
 
 export function ExpressionComponent(props: ExpressionComponentProps) {
     const { model, userInputs, isElseIfMember, diagnosticHandler,
-            isTypeDescriptor, onSelect, children, classNames, deleteConfig } = props;
+            isTypeDescriptor, onSelect, children, classNames } = props;
 
     const component = getExpressionTypeComponent(model, userInputs, isElseIfMember, diagnosticHandler, isTypeDescriptor);
 
     const [isHovered, setHovered] = React.useState(false);
-    const [deletable, setDeletable] = React.useState(false);
 
     const { modelCtx } = useContext(StatementEditorContext);
     const {
-        statementModel: completeModel,
         currentModel: selectedModel,
-        updateModel
     } = modelCtx;
 
     const statementEditorClasses = useStatementEditorStyles();
 
     const isSelected = selectedModel.model && model && isPositionsEquals(selectedModel.model.position, model.position);
-
-    useEffect(() => {
-        let exprDeletable = !deleteConfig?.exprNotDeletable;
-        if (model.source && INPUT_EDITOR_PLACE_HOLDERS.has(model.source.trim())) {
-            exprDeletable = deleteConfig?.defaultExprDeletable;
-        }
-        setDeletable(exprDeletable);
-    }, [model.source]);
 
     const onMouseOver = (e: React.MouseEvent) => {
         setHovered(true);
@@ -83,14 +71,6 @@ export function ExpressionComponent(props: ExpressionComponentProps) {
         }
     }
 
-    const onClickOnDelete = () => {
-        const {
-            code: newCode,
-            position: newPosition
-        } = getRemainingContent(model.position, completeModel);
-        updateModel(newCode, newPosition);
-    }
-
     return (
         <span
             onMouseOver={onMouseOver}
@@ -107,11 +87,6 @@ export function ExpressionComponent(props: ExpressionComponentProps) {
         >
             {component}
             {children}
-            {isSelected && deletable && (
-                <div className={statementEditorClasses.expressionDeleteButton}>
-                    <DeleteButton onClick={onClickOnDelete} />
-                </div>
-            )}
         </span>
     );
 }

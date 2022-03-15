@@ -25,9 +25,11 @@ import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tre
 import { APPEND_EXPR_LIST_CONSTRUCTOR, CUSTOM_CONFIG_TYPE, INIT_EXPR_LIST_CONSTRUCTOR } from "../../constants";
 import { VariableUserInputs } from '../../models/definitions';
 import { StatementEditorContextProvider } from "../../store/statement-editor-context";
-import { getCurrentModel } from "../../utils";
+import { getCurrentModel, getExprDeletableStateForModel } from "../../utils";
 import { getPartialSTForStatement } from "../../utils/ls-utils";
+import { StatementEditorViewState } from "../../utils/statement-editor-viewstate";
 import { StmtEditorUndoRedoManager } from '../../utils/undo-redo';
+import { INPUT_EDITOR_PLACE_HOLDERS } from "../InputEditor/constants";
 import { ViewContainer } from "../ViewContainer";
 
 export interface LowCodeEditorProps {
@@ -86,20 +88,21 @@ export function StatementEditor(props: StatementEditorProps) {
     const [model, setModel] = useState<STNode>(null);
     const [isStatementValid, setIsStatementValid] = useState(false);
     const [currentModel, setCurrentModel] = useState({ model });
+    const [deletable, setDeletable] = React.useState(false);
 
     const undoRedoManager = React.useMemo(() => new StmtEditorUndoRedoManager(), []);
 
     const undo = React.useCallback(() => {
         const undoItem = undoRedoManager.getUndoModel();
         if (undoItem) {
-            setModel(undoItem.oldModel);
+            setModel(getExprDeletableStateForModel(undoItem.oldModel));
         }
     }, []);
 
     const redo = React.useCallback(() => {
         const redoItem = undoRedoManager.getRedoModel();
         if (redoItem) {
-            setModel(redoItem.newModel);
+            setModel(getExprDeletableStateForModel(redoItem.newModel));
         }
     }, []);
 
@@ -110,7 +113,7 @@ export function StatementEditor(props: StatementEditorProps) {
                     { codeSnippet: initialSource.trim() }, getLangClient);
 
                 if (partialST.syntaxDiagnostics.length === 0) {
-                    setModel(partialST);
+                    setModel(getExprDeletableStateForModel(partialST));
                 }
             })();
         }
@@ -143,7 +146,7 @@ export function StatementEditor(props: StatementEditorProps) {
         undoRedoManager.add(model, partialST);
 
         if (partialST.syntaxDiagnostics.length === 0 || config.type === CUSTOM_CONFIG_TYPE) {
-            setModel(partialST);
+            setModel(getExprDeletableStateForModel(partialST));
         }
 
         // Since in list constructor we add expression with comma and close-bracket,
@@ -167,7 +170,7 @@ export function StatementEditor(props: StatementEditorProps) {
             };
         }
 
-        const newCurrentModel = getCurrentModel(currentModelPosition, partialST);
+        const newCurrentModel = getCurrentModel(currentModelPosition, getExprDeletableStateForModel(partialST));
         setCurrentModel({model: newCurrentModel});
     }
 
@@ -186,6 +189,17 @@ export function StatementEditor(props: StatementEditorProps) {
     const validateStatement = (isValid: boolean) => {
         setIsStatementValid(isValid);
     };
+
+    useEffect(() => {
+        if (currentModel.model){
+            const stmtViewState: StatementEditorViewState = currentModel.model.viewState as StatementEditorViewState;
+            let exprDeletable = !stmtViewState.exprNotDeletable;
+            if (currentModel.model.source && INPUT_EDITOR_PLACE_HOLDERS.has(currentModel.model.source.trim())) {
+                exprDeletable =  stmtViewState.templateExprDeletable;
+            }
+            setDeletable(exprDeletable);
+        }
+    }, [currentModel.model]);
 
     return (
         (
@@ -216,6 +230,7 @@ export function StatementEditor(props: StatementEditorProps) {
                         currentModelHandler={currentModelHandler}
                         onWizardClose={onWizardClose}
                         onCancel={onCancel}
+                        exprDeletable={deletable}
                     />
                 </StatementEditorContextProvider>
             </>

@@ -14,15 +14,16 @@
 import React, { useContext, useState } from "react";
 
 import IconButton from "@material-ui/core/IconButton";
-import RedoIcon from "@material-ui/icons/Redo";
-import UndoIcon from "@material-ui/icons/Undo";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 
+import ToolbarDeleteIcon from "../../assets/icons/ToolbarDeleteIcon";
+import ToolbarRedoIcon from "../../assets/icons/ToolbarRedoIcon";
+import ToolbarUndoIcon from "../../assets/icons/ToolbarUndoIcon";
 import * as c from "../../constants";
 import { SuggestionItem, VariableUserInputs } from "../../models/definitions";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { SuggestionsContext } from "../../store/suggestions-context";
-import { getSuggestionsBasedOnExpressionKind } from "../../utils";
+import { getRemainingContent, getSuggestionsBasedOnExpressionKind } from "../../utils";
 import { Diagnostics } from "../Diagnostics";
 import { HelperPane } from "../HelperPane";
 import { StatementRenderer } from "../StatementRenderer";
@@ -33,15 +34,16 @@ interface ModelProps {
     currentModel: { model: STNode },
     userInputs?: VariableUserInputs
     currentModelHandler: (model: STNode) => void
+    exprDeletable: boolean
 }
 
 export function EditorPane(props: ModelProps) {
     const statementEditorClasses = useStatementEditorStyles();
-    const { label, userInputs, currentModelHandler } = props;
+    const { label, userInputs, currentModelHandler, currentModel, exprDeletable } = props;
 
     const { modelCtx } = useContext(StatementEditorContext);
 
-    const { undo, redo, hasRedo, hasUndo } = modelCtx;
+    const { undo, redo, hasRedo, hasUndo, statementModel: completeModel, updateModel } = modelCtx;
 
     const [suggestionList, setSuggestionsList] = useState(modelCtx.statementModel ?
         getSuggestionsBasedOnExpressionKind(c.DEFAULT_EXPRESSIONS) : []);
@@ -81,14 +83,44 @@ export function EditorPane(props: ModelProps) {
         setDiagnostic(diagnostics)
     }
 
-    const undoRedoButtons = (
-        <span className={statementEditorClasses.undoRedoButtons}>
-            <IconButton onClick={undo} disabled={!hasUndo}>
-                <UndoIcon />
+    const onClickOnDelete = () => {
+        const {
+            code: newCode,
+            position: newPosition
+        } = getRemainingContent(currentModel.model.position, completeModel);
+        updateModel(newCode, newPosition);
+    }
+
+    const toolbar = (
+        <span className={statementEditorClasses.toolbar}>
+            <IconButton
+                onClick={undo}
+                disabled={!hasUndo}
+                className={statementEditorClasses.toolbarIcons}
+                style={{marginLeft: '14px'}}
+            >
+                 <ToolbarUndoIcon/>
             </IconButton>
-            <IconButton onClick={redo} disabled={!hasRedo}>
-                <RedoIcon />
+            <IconButton onClick={redo} disabled={!hasRedo} className={statementEditorClasses.toolbarIcons}>
+                <ToolbarRedoIcon />
             </IconButton>
+            {currentModel.model && exprDeletable ? (
+                <IconButton
+                    onClick={onClickOnDelete}
+                    style={{color: '#FE523C', marginRight: '14px'}}
+                    className={statementEditorClasses.toolbarIcons}
+                >
+                    <ToolbarDeleteIcon/>
+                </IconButton>
+            ) : (
+                <IconButton
+                    disabled={true}
+                    style={{color: '#8D91A3', marginRight: '14px'}}
+                    className={statementEditorClasses.toolbarIcons}
+                >
+                    <ToolbarDeleteIcon/>
+                </IconButton>
+            )}
         </span>
     );
 
@@ -101,7 +133,7 @@ export function EditorPane(props: ModelProps) {
                         expressionHandler
                     }}
                 >
-                    <div className={statementEditorClasses.statementExpressionTitle}>{label}{undoRedoButtons}</div>
+                    <div className={statementEditorClasses.statementExpressionTitle}>{label}{toolbar}</div>
                     <div className={statementEditorClasses.statementExpressionContent}>
                         <StatementRenderer
                             model={modelCtx.statementModel}

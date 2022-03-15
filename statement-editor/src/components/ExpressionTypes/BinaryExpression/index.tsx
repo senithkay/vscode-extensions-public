@@ -100,7 +100,6 @@ export function BinaryExpressionComponent(props: BinaryProps) {
             diagnosticHandler={diagnosticHandler}
             isTypeDescriptor={false}
             onSelect={onClickOnLhsExpression}
-            deleteConfig={{defaultExprDeletable: true}}
         />
     );
     const rhs: ReactNode = (
@@ -111,7 +110,6 @@ export function BinaryExpressionComponent(props: BinaryProps) {
             diagnosticHandler={diagnosticHandler}
             isTypeDescriptor={false}
             onSelect={onClickOnRhsExpression}
-            deleteConfig={{defaultExprDeletable: true}}
         />
     );
 
