@@ -181,7 +181,7 @@ export function StatementEditor(props: StatementEditorProps) {
         }
     }, [model]);
 
-    const handleChange = async (newValue: string) => {
+    const handleChange = async (newValue: string, isEditedViaInputEditor?: boolean) => {
         let updatedStatement = addExpressionToTargetPosition(
             model.source,
             currentModel ? currentModel.model.position.startLine : 0,
@@ -199,14 +199,18 @@ export function StatementEditor(props: StatementEditorProps) {
         }
 
         sendDidChange(fileURI, updatedContent, getLangClient).then();
-        const lsSuggestions = await getCompletions(fileURI, formArgs.formArgs.targetPosition, model,
-            currentModel, getLangClient, newValue);
-        setLSSuggestionsList(lsSuggestions);
+
         const diagResp = await getDiagnostics(fileURI, getLangClient);
         const diag = diagResp[0]?.diagnostics ?
             getFilteredDiagnostics(diagResp[0]?.diagnostics, false) :
             [];
         setDiagnostics(diag);
+
+        if (isEditedViaInputEditor) {
+            const lsSuggestions = await getCompletions(fileURI, formArgs.formArgs.targetPosition, model,
+                currentModel, getLangClient, newValue);
+            setLSSuggestionsList(lsSuggestions);
+        }
     }
 
     const updateModel = async (codeSnippet: string, position: NodePosition, isEditedViaInputEditor?: boolean) => {

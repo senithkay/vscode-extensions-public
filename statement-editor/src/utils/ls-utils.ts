@@ -55,10 +55,13 @@ export async function getCompletions (docUri: string,
                                       userInput: string = ''
                                     ) : Promise<SuggestionItem[]> {
 
-    const modelPosition: NodePosition = currentModel.model.position;
-    const isTypeDescriptor: boolean = isTypeDesc(currentModel?.kind);
-    const isElseIfMember: boolean = STKindChecker.isElseBlock(currentModel.model);
-    const varName = STKindChecker.isLocalVarDecl(completeModel) && completeModel.typedBindingPattern.bindingPattern.source.trim();
+    const isTypeDescriptor = isTypeDesc(currentModel?.kind);
+    const isElseIfMember = STKindChecker.isElseBlock(currentModel.model);
+    const varName = STKindChecker.isLocalVarDecl(completeModel)
+        && completeModel.typedBindingPattern.bindingPattern.source.trim();
+    const currentModelPosition = currentModel.model.position;
+    const currentModelSource = STKindChecker.isIdentifierToken(currentModel.model) ?
+        currentModel.model.value.trim() : currentModel.model.source.trim();
     const suggestions: SuggestionItem[] = [];
 
     const completionParams: CompletionParams = {
@@ -71,11 +74,11 @@ export async function getCompletions (docUri: string,
         position: {
             character: currentModel.model ?
                 (isElseIfMember ?
-                    modelPosition.startColumn :
-                    targetPosition.startColumn + modelPosition.startColumn + userInput.length
+                    currentModelPosition.startColumn :
+                    targetPosition.startColumn + currentModelPosition.startColumn + userInput.length
                 ) :
                 targetPosition.startColumn + userInput.length,
-            line: targetPosition.startLine + modelPosition.startLine
+            line: targetPosition.startLine + currentModelPosition.startLine
         }
     }
 
@@ -98,7 +101,7 @@ export async function getCompletions (docUri: string,
             inputElements.some(element => (
                 completionResponse.label.toLowerCase()).includes(element.toLowerCase())
             ) :
-            completionResponse.label !== currentModel.model.source.trim()
+            completionResponse.label !== currentModelSource
         )
     ));
 

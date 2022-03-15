@@ -137,7 +137,7 @@ export function InputEditor(props: InputEditorProps) {
     const changeInput = (newValue: string) => {
         setUserInput(newValue);
         inputEditorCtx.onInputChange(newValue);
-        debouncedContentChange(newValue);
+        debouncedContentChange(newValue, true);
     }
 
     const debouncedContentChange = debounce(handleChange, 500);
