@@ -152,26 +152,28 @@ export function StatementEditor(props: StatementEditorProps) {
 
     useEffect(() => {
         (async () => {
-            const modelKind = currentModel?.kind;
-            let lsSuggestions : SuggestionItem[] = [];
-            let exprSuggestions : SuggestionItem[] = [];
+            if (model) {
+                const modelKind = currentModel?.kind;
+                let lsSuggestions : SuggestionItem[] = [];
+                let exprSuggestions : SuggestionItem[] = [];
 
-            if (isOperator(modelKind)) {
-                const kind = getKindBasedOnOperator(currentModel.model.kind);
-                exprSuggestions = getOperatorSuggestions(kind);
-            } else if (isBindingPattern(modelKind)) {
-                // TODO: Add expr suggestions for binding patterns
-            } else {
-                const content: string = await addStatementToTargetLine(
-                    currentFile.content, formArgs.formArgs.targetPosition, model.source, getLangClient);
-                sendDidChange(fileURI, content, getLangClient).then();
-                lsSuggestions = await getCompletions(fileURI, formArgs.formArgs.targetPosition, model,
-                    currentModel, getLangClient);
-                exprSuggestions = isTypeDesc(modelKind) ? [] : getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS);
+                if (isOperator(modelKind)) {
+                    const kind = getKindBasedOnOperator(currentModel.model.kind);
+                    exprSuggestions = getOperatorSuggestions(kind);
+                } else if (isBindingPattern(modelKind)) {
+                    // TODO: Add expr suggestions for binding patterns
+                } else {
+                    const content: string = await addStatementToTargetLine(
+                        currentFile.content, formArgs.formArgs.targetPosition, model.source, getLangClient);
+                    sendDidChange(fileURI, content, getLangClient).then();
+                    lsSuggestions = await getCompletions(fileURI, formArgs.formArgs.targetPosition, model,
+                        currentModel, getLangClient);
+                    exprSuggestions = isTypeDesc(modelKind) ? [] : getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS);
+                }
+
+                setLSSuggestionsList(lsSuggestions);
+                setExprSuggestionsList(exprSuggestions);
             }
-
-            setLSSuggestionsList(lsSuggestions);
-            setExprSuggestionsList(exprSuggestions);
         })();
     }, [currentModel.model]);
 
