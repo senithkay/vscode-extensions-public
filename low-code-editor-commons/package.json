@@ -1,6 +1,6 @@
 {
     "name": "@wso2-enterprise/ballerina-low-code-edtior-commons",
-    "version": "1.1.6",
+    "version": "1.1.8",
     "description": "Ballerina Low Code Editor Commons",
     "files": [
         "lib"
@@ -12,7 +12,7 @@
         "prebuild": "npm run lint",
         "build": "tsc --pretty && npm run copy:assets",
         "copy:assets": "copyfiles -u 1 src/**/*.scss src/**/*.svg src/**/*.css src/**/*.png src/**/*.txt src/**/*.json lib/",
-        "clean": "rimraf build/",
+        "clean": "rimraf lib/",
         "clean:nm": "rimraf node_modules",
         "watch": "tsc --pretty --watch",
         "lint": "tslint --project .",
