@@ -164,7 +164,8 @@ export function StatementEditor(props: StatementEditorProps) {
             } else {
                 const content: string = await addStatementToTargetLine(
                     currentFile.content, formArgs.formArgs.targetPosition, model.source, getLangClient);
-                lsSuggestions = await getCompletions(fileURI, content, formArgs.formArgs.targetPosition,
+                sendDidChange(fileURI, content, getLangClient).then();
+                lsSuggestions = await getCompletions(fileURI, formArgs.formArgs.targetPosition, model,
                     currentModel, getLangClient);
                 exprSuggestions = isTypeDesc(modelKind) ? [] : getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS);
             }
@@ -198,6 +199,9 @@ export function StatementEditor(props: StatementEditorProps) {
         }
 
         sendDidChange(fileURI, updatedContent, getLangClient).then();
+        const lsSuggestions = await getCompletions(fileURI, formArgs.formArgs.targetPosition, model,
+            currentModel, getLangClient, newValue);
+        setLSSuggestionsList(lsSuggestions);
         const diagResp = await getDiagnostics(fileURI, getLangClient);
         const diag = diagResp[0]?.diagnostics ?
             getFilteredDiagnostics(diagResp[0]?.diagnostics, false) :

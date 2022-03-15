@@ -48,19 +48,19 @@ export async function getPartialSTForExpression(
 }
 
 export async function getCompletions (docUri: string,
-                                      content: string,
                                       targetPosition: NodePosition,
+                                      completeModel: STNode,
                                       currentModel: CurrentModel,
-                                      getLangClient: () => Promise<ExpressionEditorLangClientInterface>
+                                      getLangClient: () => Promise<ExpressionEditorLangClientInterface>,
+                                      userInput: string = ''
                                     ) : Promise<SuggestionItem[]> {
 
     const modelPosition: NodePosition = currentModel.model.position;
     const isTypeDescriptor: boolean = isTypeDesc(currentModel?.kind);
-    const isElseIfMember: boolean = STKindChecker.isElseBlock(currentModel.model);
-    const selection: string = currentModel.model.source;
+    // const isElseIfMember: boolean = STKindChecker.isElseBlock(currentModel.model);
+    const varName = STKindChecker.isLocalVarDecl(completeModel) && completeModel.typedBindingPattern.bindingPattern.source.trim();
     const suggestions: SuggestionItem[] = [];
 
-    await sendDidChange(docUri, content, getLangClient);
     const completionParams: CompletionParams = {
         textDocument: {
             uri: docUri
@@ -69,27 +69,43 @@ export async function getCompletions (docUri: string,
             triggerKind: 1
         },
         position: {
-            character: isElseIfMember ?
-                modelPosition.startColumn :
-                targetPosition.startColumn + modelPosition.startColumn,
-            line: targetPosition.startLine + modelPosition.startLine
+            character: currentModel.model ?
+                (targetPosition.startColumn + modelPosition.startColumn + userInput.length) :
+                (targetPosition.startColumn + userInput.length),
+            line: targetPosition.startLine
         }
+        // position: {
+        //     character: isElseIfMember ?
+        //         modelPosition.startColumn :
+        //         targetPosition.startColumn + modelPosition.startColumn,
+        //     line: targetPosition.startLine + modelPosition.startLine
+        // }
     }
+
+    // CodeSnippet is split to get the suggestions for field-access-expr (expression.field-name)
+    const inputElements = userInput.split('.');
 
     const langClient = await getLangClient();
     const completions: CompletionResponse[] = await langClient.getCompletion(completionParams);
 
     const filteredCompletionItems = completions.filter((completionResponse: CompletionResponse) => (
-        (
-            !completionResponse.kind || (
-                isTypeDescriptor ?
+        (!completionResponse.kind ||
+            (isTypeDescriptor ?
                     acceptedCompletionKindForTypes.includes(completionResponse.kind) :
                     acceptedCompletionKindForExpressions.includes(completionResponse.kind)
             )
-        ) && completionResponse.label !== selection.trim() && !(completionResponse.label.includes("main"))
+        ) &&
+        completionResponse.label !== varName &&
+        !(completionResponse.label.includes("main")) &&
+        (userInput ?
+            inputElements.some(element => (
+                completionResponse.label.toLowerCase()).includes(element.toLowerCase())
+            ) :
+            completionResponse.label !== currentModel.model.source.trim()
+        )
     ));
 
-    filteredCompletionItems.sort(sortSuggestions)
+    filteredCompletionItems.sort(sortSuggestions);
 
     filteredCompletionItems.map((completion) => {
         suggestions.push({ value: completion.label, kind: completion.detail, suggestionType: completion.kind  });
