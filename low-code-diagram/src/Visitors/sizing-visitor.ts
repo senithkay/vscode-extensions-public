@@ -395,6 +395,7 @@ export class SizingVisitor implements Visitor {
 
         if (bodyViewState.hasWorkerDecl) {
             let maxWorkerHeight = 0;
+            let totalWorkerWidth = 0;
             Array.from(this.workerMap.keys()).forEach(key => {
                 const workerST = this.workerMap.get(key);
                 const workerVS = workerST.viewState as WorkerDeclarationViewState;
@@ -427,15 +428,10 @@ export class SizingVisitor implements Visitor {
                 if (maxWorkerHeight < workerVS.bBox.h) {
                     maxWorkerHeight = workerVS.bBox.h;
                 }
-            })
-            this.endVisitFunctionBodyBlock(body);
 
-            // if (!bodyViewState.isEndComponentAvailable) {
-            //     const maxWorkerFullHeight = START_SVG_HEIGHT + maxWorkerHeight + DefaultConfig.offSet;
-            //     if (bodyViewState.bBox.h < maxWorkerFullHeight) {
-            //         bodyViewState.bBox.h += maxWorkerFullHeight - bodyViewState.bBox.h;
-            //     }
-            // }
+                totalWorkerWidth += workerVS.bBox.w;
+            });
+            this.endVisitFunctionBodyBlock(body);
 
             lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h;
 
@@ -447,10 +443,16 @@ export class SizingVisitor implements Visitor {
                 lifeLine.h += end.bBox.offsetFromTop;
             }
 
-            const maxWorkerFullHeight = START_SVG_HEIGHT + maxWorkerHeight + DefaultConfig.offSet;
-            viewState.bBox.h = (maxWorkerFullHeight > bodyViewState.bBox.h ? START_SVG_HEIGHT + maxWorkerHeight + DefaultConfig.offSet : lifeLine.h) + trigger.h + end.bBox.h + DefaultConfig.serviceVerticalPadding * 2 + DefaultConfig.functionHeaderHeight;
-            viewState.bBox.w = (trigger.w > bodyViewState.bBox.w ? trigger.w : bodyViewState.bBox.w)
-                + DefaultConfig.serviceFrontPadding + DefaultConfig.serviceRearPadding + allEndpoints.size * 150 * 2;
+            viewState.bBox.h = lifeLine.h + trigger.h + end.bBox.h + DefaultConfig.serviceVerticalPadding * 2 + DefaultConfig.functionHeaderHeight;
+            viewState.bBox.lw = (trigger.lw > bodyViewState.bBox.lw ? trigger.lw : bodyViewState.bBox.lw) + DefaultConfig.serviceFrontPadding;
+            viewState.bBox.rw = (trigger.rw > bodyViewState.bBox.rw ? trigger.rw : bodyViewState.bBox.rw) + DefaultConfig.serviceRearPadding + (allEndpoints.size * 150 * 2);
+            viewState.bBox.w = viewState.bBox.lw + viewState.bBox.rw + totalWorkerWidth;
+
+            const maxWorkerFullHeight = body.namedWorkerDeclarator.workerInitStatements.length * 72 + maxWorkerHeight;
+
+            if (bodyViewState.bBox.h < maxWorkerFullHeight) {
+                viewState.bBox.h += (maxWorkerFullHeight - bodyViewState.bBox.h);
+            }
 
             if (viewState.initPlus && viewState.initPlus.selectedComponent === "PROCESS") {
                 viewState.bBox.h += DefaultConfig.PLUS_HOLDER_STATEMENT_HEIGHT;
@@ -1197,8 +1199,12 @@ export class SizingVisitor implements Visitor {
         const end = viewState.end;
 
         trigger.h = START_SVG_HEIGHT;
-        trigger.w = START_SVG_WIDTH;
+        trigger.lw = START_SVG_WIDTH / 2;
+        trigger.rw = START_SVG_WIDTH / 2;
+        trigger.w = trigger.lw + trigger.rw;
 
+        end.bBox.rw = STOP_SVG_WIDTH / 2;
+        end.bBox.lw = STOP_SVG_WIDTH / 2;
         end.bBox.w = STOP_SVG_WIDTH;
         end.bBox.h = STOP_SVG_HEIGHT;
 
@@ -1211,8 +1217,9 @@ export class SizingVisitor implements Visitor {
 
         viewState.bBox.h = lifeLine.h + trigger.h + end.bBox.h + DefaultConfig.serviceVerticalPadding * 2
             + DefaultConfig.functionHeaderHeight;
-        viewState.bBox.w = (trigger.w > bodyViewState.bBox.w ? trigger.w : bodyViewState.bBox.w)
-            + DefaultConfig.serviceFrontPadding + DefaultConfig.serviceRearPadding + allEndpoints.size * 150 * 2;
+        viewState.bBox.lw = (trigger.lw > bodyViewState.bBox.lw ? trigger.lw : bodyViewState.bBox.lw) + DefaultConfig.serviceFrontPadding;
+        viewState.bBox.rw = (trigger.rw > bodyViewState.bBox.rw ? trigger.rw : bodyViewState.bBox.rw) + DefaultConfig.serviceRearPadding;
+        viewState.bBox.w = viewState.bBox.lw + viewState.bBox.rw;
 
         if (viewState.initPlus && viewState.initPlus.selectedComponent === "PROCESS") {
             viewState.bBox.h += DefaultConfig.PLUS_HOLDER_STATEMENT_HEIGHT;
