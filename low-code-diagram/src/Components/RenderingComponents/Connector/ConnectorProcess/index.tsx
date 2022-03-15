@@ -136,6 +136,7 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
         }
         targetPosition = captureBingingPattern.position;
     }
+    draftVS.targetPosition = draftVS.targetPosition ? draftVS.targetPosition : model?.position;
 
     if (isEditConnector && !connector) {
         const connectorInit: LocalVarDecl = model as LocalVarDecl;
