@@ -343,3 +343,9 @@ export interface PerformanceGraphRequest {
     file: string;
     data: GraphData;
 }
+
+export interface CurrentFile {
+    content: string;
+    path: string;
+    size: number;
+}

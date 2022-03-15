@@ -252,12 +252,12 @@ export interface ForeachConfig {
 }
 
 export interface ElseIfConfig {
-    values: {id: number, expression: string, position: NodePosition}[]
+    values: { id: number, expression: string, position: NodePosition }[]
 }
 
 export interface ProcessConfig {
     type: string;
-    config?: string | LogConfig | RespondConfig | CustomExpressionConfig;
+    config?: string | LogConfig | RespondConfig | CustomExpressionConfig | WorkerConfig;
     scopeSymbols?: string[];
     model?: STNode;
     wizardType?: WizardType;
@@ -267,6 +267,12 @@ export interface ProcessConfig {
 export interface LogConfig {
     type: string;
     expression: string;
+}
+
+
+export interface WorkerConfig {
+    name: string;
+    returnType: string;
 }
 
 export interface CustomExpressionConfig {

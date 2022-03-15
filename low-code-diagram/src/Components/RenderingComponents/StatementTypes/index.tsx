@@ -13,6 +13,7 @@
 import React, { ReactElement, useEffect, useState } from "react";
 
 import { DefaultConfig } from "../../../Visitors/default";
+import { DefaultTooltip } from "../DefaultTooltip";
 
 import "./style.scss";
 
@@ -71,20 +72,25 @@ export function StatementTypes(props: { x: number, y: number, key_id: number, st
         </>
     )
 
+    const statementTypeTextGroup: ReactElement = (
+        <g>
+            <text className="statement-name">
+
+                <tspan
+                    x={statmentTypeMaxWidth ? statmentTypeX - statementTextPadding : statmentTypeX}
+                    id={"statementLegnth_" + key_id}
+                    y="10"
+                >
+                    {statmentTypeMaxWidth ? statementTruncateText : statementType}
+                </tspan>
+            </text>
+            {statementType && statementType.length > 0 && statementRect}
+        </g>
+    );
+
     return (
         <svg {...xyProps} width="150" height="24" className="statement-wrapper">
-            <g>
-                <text className="statement-name">
-                    <tspan
-                        x={statmentTypeMaxWidth ? statmentTypeX - statementTextPadding : statmentTypeX}
-                        id={"statementLegnth_" + key_id}
-                        y="10"
-                    >
-                        {statmentTypeMaxWidth ? statementTruncateText : statementType}
-                    </tspan>
-                </text>
-                {statementType && statementType.length > 0 && statementRect}
-            </g>
+            <DefaultTooltip text={{ heading: statementType }}>{statementTypeTextGroup}</DefaultTooltip>
         </svg>
     );
 }

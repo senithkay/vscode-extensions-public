@@ -15,6 +15,7 @@ import React, { ReactElement, useContext, useEffect, useState } from "react";
 
 import { Context } from "../../../Context/diagram";
 import { DefaultConfig } from "../../../Visitors/default";
+import { DefaultTooltip } from "../DefaultTooltip";
 
 import "./style.scss";
 
@@ -41,7 +42,6 @@ export function VariableName(props: { x: number, y: number, variableName: string
 
     const variableTextComp: ReactElement = (
         <text id="getResponse" transform="translate(36 1)" className="variable-name">
-            <title>{variableName}</title>
             <tspan
                 id={"variableLegnth_" + key_id}
                 x={variableX}
@@ -50,6 +50,10 @@ export function VariableName(props: { x: number, y: number, variableName: string
                 {variableMaxWidth ? variableName.slice(0, 10) + "..." : variableName}
             </tspan>
         </text>
+    );
+
+    const defaultTooltip = (
+        <DefaultTooltip text={{ heading: variableName }}>{variableTextComp}</DefaultTooltip>
     );
 
     useEffect(() => {
@@ -63,9 +67,10 @@ export function VariableName(props: { x: number, y: number, variableName: string
     }, [variableName]);
 
     return (
-        <svg {...xyProps} width="150" height="24" className="variable-wrapper">
-            {/* {tooltip ? tooltip : variableTextComp} */}
-            {variableTextComp}
+        <svg {...xyProps} width="150" height="50" className="variable-wrapper">
+            {/* {tooltip ? tooltip : defaultTooltip} */}
+            {/* {variableTextComp} */}
+            {defaultTooltip}
         </svg >
     );
 }

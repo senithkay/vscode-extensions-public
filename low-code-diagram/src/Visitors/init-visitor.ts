@@ -15,6 +15,8 @@ import {
     LocalVarDecl,
     ModulePart,
     ModuleVarDecl,
+    NamedWorkerDeclaration,
+    NamedWorkerDeclarator,
     ObjectMethodDefinition,
     OnFailClause,
     RemoteMethodCallAction,
@@ -52,6 +54,7 @@ import {
     WhileViewState
 } from "../ViewState";
 import { DraftStatementViewState } from "../ViewState/draft";
+import { WorkerDeclarationViewState } from "../ViewState/worker-declaration";
 
 import { DefaultConfig } from "./default";
 import { isSTActionInvocation } from "./util";
@@ -60,7 +63,7 @@ let allEndpoints: Map<string, Endpoint> = new Map<string, Endpoint>();
 let currentFnBody: FunctionBodyBlock | ExpressionFunctionBody;
 const allDiagnostics: Diagnostic[] = [];
 
-class InitVisitor implements Visitor {
+export class InitVisitor implements Visitor {
     public beginVisitSTNode(node: STNode, parent?: STNode) {
         if (!node.viewState) {
             node.viewState = new ViewState();
@@ -247,6 +250,7 @@ class InitVisitor implements Visitor {
     public endVisitFunctionBodyBlock(node: FunctionBodyBlock, parent?: STNode) {
         const blockViewState: BlockViewState = node.viewState;
         blockViewState.connectors = allEndpoints;
+        blockViewState.hasWorkerDecl = !!node.namedWorkerDeclarator;
         currentFnBody = undefined;
     }
 
@@ -332,6 +336,12 @@ class InitVisitor implements Visitor {
             //     stmtViewState.action.actionName = expression.methodName.name.value;
             //     stmtViewState.action.endpointName = varRef.name.value;
             // }
+        }
+    }
+
+    public beginVisitNamedWorkerDeclaration(node: NamedWorkerDeclaration) {
+        if (!node.viewState) {
+            node.viewState = new WorkerDeclarationViewState();
         }
     }
 
