@@ -23,8 +23,10 @@ import * as expressionTypeComponents from '../components/ExpressionTypes';
 import * as statementTypeComponents from '../components/Statements';
 import * as c from "../constants";
 import { RemainingContent, SuggestionItem, VariableUserInputs } from '../models/definitions';
+import { visitor as DeleteConfigSetupVisitor } from "../visitors/delete-config-setup-visitor";
 import { visitor as ExpressionDeletingVisitor } from "../visitors/expression-deleting-visitor";
 import { visitor as ModelFindingVisitor } from "../visitors/model-finding-visitor";
+import { viewStateSetupVisitor as ViewStateSetupVisitor } from "../visitors/view-state-setup-visitor";
 
 import { createImportStatement, createStatement, updateStatement } from "./statement-modifications";
 import {
@@ -150,6 +152,13 @@ export function getCurrentModel(position: NodePosition, model: STNode): STNode {
     traversNode(model, ModelFindingVisitor);
 
     return ModelFindingVisitor.getModel();
+}
+
+export function getExprDeletableStateForModel(model: STNode): STNode  {
+    traversNode(model, ViewStateSetupVisitor);
+    traversNode(model, DeleteConfigSetupVisitor);
+
+    return model;
 }
 
 export function getRemainingContent(position: NodePosition, model: STNode): RemainingContent {
