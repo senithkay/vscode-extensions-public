@@ -57,7 +57,7 @@ export async function getCompletions (docUri: string,
 
     const modelPosition: NodePosition = currentModel.model.position;
     const isTypeDescriptor: boolean = isTypeDesc(currentModel?.kind);
-    // const isElseIfMember: boolean = STKindChecker.isElseBlock(currentModel.model);
+    const isElseIfMember: boolean = STKindChecker.isElseBlock(currentModel.model);
     const varName = STKindChecker.isLocalVarDecl(completeModel) && completeModel.typedBindingPattern.bindingPattern.source.trim();
     const suggestions: SuggestionItem[] = [];
 
@@ -70,16 +70,13 @@ export async function getCompletions (docUri: string,
         },
         position: {
             character: currentModel.model ?
-                (targetPosition.startColumn + modelPosition.startColumn + userInput.length) :
-                (targetPosition.startColumn + userInput.length),
-            line: targetPosition.startLine
+                (isElseIfMember ?
+                    modelPosition.startColumn :
+                    targetPosition.startColumn + modelPosition.startColumn + userInput.length
+                ) :
+                targetPosition.startColumn + userInput.length,
+            line: targetPosition.startLine + modelPosition.startLine
         }
-        // position: {
-        //     character: isElseIfMember ?
-        //         modelPosition.startColumn :
-        //         targetPosition.startColumn + modelPosition.startColumn,
-        //     line: targetPosition.startLine + modelPosition.startLine
-        // }
     }
 
     // CodeSnippet is split to get the suggestions for field-access-expr (expression.field-name)

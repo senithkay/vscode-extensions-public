@@ -39,7 +39,7 @@ export function AssignmentStatementComponent(props: AssignmentStatementProps) {
 
     const onClickOnVarRef = async (event: any) => {
         event.stopPropagation();
-        changeCurrentModel(model.varRef, ModelKind.VarRef);
+        changeCurrentModel(model.varRef);
     };
 
     const onClickOnExpression = async (event: any) => {

@@ -164,10 +164,6 @@ export function isBindingPattern(modelKind: ModelKind): boolean {
     return modelKind === ModelKind.BindingPattern;
 }
 
-export function isVarRef(modelKind: ModelKind): boolean {
-    return modelKind === ModelKind.VarRef;
-}
-
 export function getSuggestionIconStyle(suggestionType: number): string {
     let suggestionIconStyle: string;
     switch (suggestionType) {
