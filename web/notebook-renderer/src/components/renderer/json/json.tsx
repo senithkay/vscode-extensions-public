@@ -39,5 +39,5 @@ export const Json: FunctionComponent<{ notebookCellOutput: Readonly<NotebookCell
             }}
         />
     }
-    return <div>{renderJson(JSON.parse(JSON.stringify(notebookCellOutput.shellValue.value)))}</div>;
+    return <div>{renderJson(JSON.parse(notebookCellOutput.shellValue.value))}</div>;
 }
