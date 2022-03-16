@@ -92,14 +92,14 @@ export function StatementEditor(props: StatementEditorProps) {
     const undo = React.useCallback(() => {
         const undoItem = undoRedoManager.getUndoModel();
         if (undoItem) {
-            setModel(enrichModelWithDeletableState(undoItem.oldModel));
+            updateEditedModel(undoItem.oldModel);
         }
     }, []);
 
     const redo = React.useCallback(() => {
         const redoItem = undoRedoManager.getRedoModel();
         if (redoItem) {
-            setModel(enrichModelWithDeletableState(redoItem.newModel));
+            updateEditedModel(redoItem.newModel);
         }
     }, []);
 
@@ -110,7 +110,7 @@ export function StatementEditor(props: StatementEditorProps) {
                     { codeSnippet: initialSource.trim() }, getLangClient);
 
                 if (partialST.syntaxDiagnostics.length === 0) {
-                    setModel(enrichModelWithDeletableState(partialST));
+                    updateEditedModel(partialST);
                 }
             })();
         }
@@ -143,7 +143,7 @@ export function StatementEditor(props: StatementEditorProps) {
         undoRedoManager.add(model, partialST);
 
         if (partialST.syntaxDiagnostics.length === 0 || config.type === CUSTOM_CONFIG_TYPE) {
-            setModel(enrichModelWithDeletableState(partialST));
+            updateEditedModel(partialST);
         }
 
         // Since in list constructor we add expression with comma and close-bracket,
@@ -186,6 +186,10 @@ export function StatementEditor(props: StatementEditorProps) {
     const validateStatement = (isValid: boolean) => {
         setIsStatementValid(isValid);
     };
+
+    function updateEditedModel(editedModel: STNode) {
+        setModel(enrichModelWithDeletableState(editedModel));
+    }
 
     return (
         (
