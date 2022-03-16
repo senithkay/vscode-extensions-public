@@ -22,10 +22,10 @@ import React, { ReactElement, useEffect, useState } from "react";
 import { Box, Typography } from "@material-ui/core";
 
 import { AddInputButton } from "./elements/AddInputButton";
+import OutlinedLabel from "./elements/OutlinedLabel";
 import { RadioGroupInput } from "./elements/RadioGroupInput";
 import { TextFieldInput } from "./elements/TextFieldInput";
 import { ConfigType, ConfigValue } from "./model";
-import OutlinedLabel from "./OutlinedLabel";
 import { useStyles } from "./style";
 import { getType } from "./utils";
 
