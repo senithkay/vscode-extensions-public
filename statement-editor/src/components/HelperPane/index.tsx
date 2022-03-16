@@ -77,7 +77,7 @@ export function HelperPane(props: HelperPaneProps) {
                     />
                 </div>
                 <div className={statementEditorClasses.libraryTypeSelector}>
-                    { selectedTab === TabElements.libraries && (
+                    {selectedTab === TabElements.libraries && (
                         <SelectDropdown
                             values={[ALL_LIBS_IDENTIFIER, LANG_LIBS_IDENTIFIER, STD_LIBS_IDENTIFIER]}
                             defaultValue={ALL_LIBS_IDENTIFIER}
@@ -87,7 +87,7 @@ export function HelperPane(props: HelperPaneProps) {
                 </div>
             </div>
             <div className={statementEditorClasses.suggestionsInner}>
-                { (!isTypeDescSuggestion) && (
+                {(!isTypeDescSuggestion) && (
                     <VariableSuggestions
                         model={currentModel.model}
                         variableSuggestions={variableList}
@@ -95,21 +95,19 @@ export function HelperPane(props: HelperPaneProps) {
                         isSuggestion={selectedTab === TabElements.suggestions}
                     />
                 )}
-                { (!isTypeDescSuggestion) && (
-                    <ExpressionSuggestions
-                        model={currentModel.model}
-                        suggestions={suggestionList}
-                        operator={isOperator}
-                        suggestionHandler={suggestionHandler}
-                        isExpression={selectedTab === TabElements.expressions}
-                    />
-                )}
-                { isTypeDescSuggestion && (
+                {isTypeDescSuggestion && (
                     <TypeSuggestions
                         model={currentModel.model}
                         typeSuggestions={typeDescriptorList}
                         suggestionHandler={suggestionHandler}
                         isSuggestion={selectedTab === TabElements.suggestions}
+                    />
+                )}
+                {(selectedTab === TabElements.expressions) && (
+                    <ExpressionSuggestions
+                        model={currentModel.model}
+                        isOperator={isOperator}
+                        isType={isTypeDescSuggestion}
                     />
                 )}
                 <LibraryBrowser
