@@ -10,24 +10,23 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import * as React from "react";
+import React, { useContext, useState } from "react";
 
 import { STNode } from "@wso2-enterprise/syntax-tree";
 import cn from "classnames";
 
+import { Context } from "../../../Context/diagram";
 import { EndpointViewState, StatementViewState } from "../../../ViewState";
 import { DefaultConfig } from "../../../Visitors/default";
 import { ActionInvoLine } from "../ActionInvocation/ActionInvoLine";
 import ControlFlowArrow from "../ControlFlowArrow";
+import { DefaultTooltip } from "../DefaultTooltip";
 
 import { ConnectorHeader } from "./ConnectorHeader";
 import { CLIENT_RADIUS, CLIENT_SHADOW_OFFSET, CLIENT_SVG_HEIGHT, CLIENT_SVG_WIDTH_WITH_SHADOW } from "./ConnectorHeader/ConnectorClientSVG";
 import { ConnectorProcess } from "./ConnectorProcess";
 import { CONNECTOR_PROCESS_SVG_WIDTH } from "./ConnectorProcess/ConnectorProcessSVG";
 import "./style.scss";
-import { DefaultTooltip } from "../DefaultTooltip";
-import { useContext, useState } from "react";
-import { Context } from "../../../Context/diagram";
 
 export interface ConnectorProps {
     model: STNode,
