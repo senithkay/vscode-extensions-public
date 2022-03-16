@@ -1398,7 +1398,7 @@ export class SizingVisitor implements Visitor {
 
         ({ index, height, width, leftWidth, rightWidth } = this.calculateStatementSizing(node.statements, index, blockViewState, height, width, lastStatementIndex, leftWidth, rightWidth));
 
-        if (blockViewState.draft && blockViewState.draft[0] === node.statements.length) {
+        if (blockViewState.draft && blockViewState.draft[0] === lastStatementIndex) {
             // Get the draft.
             const draft = blockViewState.draft[1];
             if (draft) {
