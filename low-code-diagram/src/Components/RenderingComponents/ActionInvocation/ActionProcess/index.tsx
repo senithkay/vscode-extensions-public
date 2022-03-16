@@ -261,9 +261,9 @@ export function ActionProcessor(props: ProcessorProps) {
                         y={cy - PROCESS_SVG_SHADOW_OFFSET / 2}
                         varName={variableName}
                         processType={processType}
-                        sourceSnippet={sourceSnippet}
                         diagnostics={errorSnippet}
                         position={model?.position}
+                        STNode={model}
                         openInCodeView={
                             !isReadOnly &&
                             model &&

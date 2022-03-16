@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import * as React from "react";
 
-import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { ErrorSnippet } from "../../../../Types/type";
 
@@ -31,17 +31,15 @@ export const PROCESS_SVG_SHADOW_OFFSET = PROCESS_SVG_HEIGHT_WITH_SHADOW - PROCES
 
 interface ProcessSVGProps {
     x: number, y: number, varName: any,
-    sourceSnippet: string, position: NodePosition,
+    position: NodePosition,
     openInCodeView?: () => void,
     processType: string,
-    diagnostics?: ErrorSnippet
+    diagnostics?: ErrorSnippet,
+    STNode:STNode
 }
 
 export function ProcessSVG(props: ProcessSVGProps) {
-    const { varName, sourceSnippet, processType, openInCodeView, diagnostics, ...xyProps } = props;
-    const tooltipText = {
-        code: sourceSnippet
-    };
+    const { varName, processType, openInCodeView, diagnostics, STNode, ...xyProps } = props;
     return (
         <svg {...xyProps} width={PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW} height={PROCESS_SVG_HEIGHT_WITH_HOVER_SHADOW} className="process" >
             <defs>
@@ -65,23 +63,13 @@ export function ProcessSVG(props: ProcessSVGProps) {
                 </filter>
             </defs>
             <g>
-                {diagnostics?.diagnosticMsgs ?
-                    (
-                        <ActionProcessRectSVG
-                            type={"diagram-diagnostic"}
-                            onClick={openInCodeView}
-                            diagnostic={diagnostics}
-                        />
-                    )
-                    :
-                    (
-                        <ActionProcessRectSVG
-                            type={"diagram-code"}
-                            onClick={openInCodeView}
-                            text={tooltipText}
-                        />
-
-                    )}
+                (
+                <ActionProcessRectSVG
+                    onClick={openInCodeView}
+                    STNode={STNode}
+                    diagnostic={diagnostics}
+                />
+                )
             </g>
         </svg>
     )
