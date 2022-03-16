@@ -217,7 +217,7 @@ export const PlusButton = (props: PlusProps) => {
                 overlayNode: overlayNode
             }, viewState as PlusViewState));
         }
-    }, [initPlus, overlayNode]);
+    }, [initPlus, overlayNode, model]);
 
     return (
         <g ref={plusRef}>

@@ -54,7 +54,7 @@ export function StatementTypes(props: { x: number, y: number, key_id: number, st
                 stroke="none"
             />
             <rect
-                x={statementReactX}
+                x={statementReactX - 2}
                 y="0"
                 width={statmentTypeMaxWidth ? maxStatementRectX : statementRectwidth}
                 height="13.25"
@@ -77,7 +77,7 @@ export function StatementTypes(props: { x: number, y: number, key_id: number, st
             <text className="statement-name">
 
                 <tspan
-                    x={statmentTypeMaxWidth ? statmentTypeX - statementTextPadding : statmentTypeX}
+                    x={statmentTypeMaxWidth ? (statmentTypeX - statementTextPadding - 2) : statmentTypeX}
                     id={"statementLegnth_" + key_id}
                     y="10"
                 >
