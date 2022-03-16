@@ -48,7 +48,7 @@ export function Diagnostics() {
     };
 
     const messages = !hasPlaceHolders &&
-        getDiagnosticMessage(diagnostics, diagnosticTargetPosition, 0, statementModel?.source.length, 0, 0).split('.');
+        getDiagnosticMessage(diagnostics, diagnosticTargetPosition, 0, statementModel?.source.length, 0, 0).split('. ');
 
     return (
         <div className={statementEditorClasses.diagnosticsPane}>

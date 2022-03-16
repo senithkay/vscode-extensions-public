@@ -18,15 +18,14 @@ import { Story } from '@storybook/react/types-6-0';
 import { SuggestionItem } from "../../../models/definitions";
 import varDeclBinaryExprModel from "../../StatementRenderer/data/local-var-decl-with-binary-expr-st-model.json";
 
-import { LSSuggestions, LSSuggestionsProps } from "./index";
+import { LSSuggestions } from "./index";
 
 export default {
     title: 'Low Code Editor/Testing/StatementEditor/LSSuggestions',
     component: LSSuggestions,
 };
 
-const Template: Story<LSSuggestionsProps> = (args: LSSuggestionsProps) =>
-    <LSSuggestions {...args} />;
+const Template: Story = () => <LSSuggestions />;
 
 export const LSSuggestionDefault = Template.bind({});
 

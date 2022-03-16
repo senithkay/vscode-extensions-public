@@ -59,7 +59,7 @@ export function LSSuggestions() {
 
     return (
         <>
-            { lsSuggestions && !!lsSuggestions.length && (
+            { !!lsSuggestions?.length && (
                 <>
                     <div className={statementEditorClasses.lsSuggestionList}>
                         <List className={statementEditorClasses.suggestionList}>
@@ -101,7 +101,7 @@ export function LSSuggestions() {
                     </div>
                 </>
             )}
-            { lsSuggestions && !lsSuggestions.length && (
+            { !lsSuggestions?.length && (
                 <p className={statementEditorClasses.noSuggestionText}>Suggestions not available</p>
             )}
         </>
