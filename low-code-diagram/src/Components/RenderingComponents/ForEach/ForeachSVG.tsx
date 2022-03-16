@@ -11,10 +11,10 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
+import { STNode } from "@wso2-enterprise/syntax-tree";
 import * as React from "react";
 
 import { ErrorSnippet } from "../../../Types/type";
-// import { ErrorSnippet } from "../../../../../../DiagramGenerator/generatorUtil";
 
 import { ForEachRectSVG } from "./ForEachRectSVG";
 
@@ -24,11 +24,9 @@ export const FOREACH_SVG_WIDTH = 54.845;
 export const FOREACH_SVG_HEIGHT = 52.845;
 export const FOREACH_SHADOW_OFFSET = FOREACH_SVG_HEIGHT_WITH_SHADOW - FOREACH_SVG_HEIGHT;
 
-export function ForeachSVG(props: { x: number, y: number, text: string, openInCodeView?: () => void, codeSnippet?: string, diagnostics?: ErrorSnippet }) {
-    const { text, openInCodeView, codeSnippet, diagnostics, ...xyProps } = props;
-    const tooltipText = {
-        code: codeSnippet
-    }
+export function ForeachSVG(props: { x: number, y: number, text: string, openInCodeView?: () => void, codeSnippet?: string, diagnostics?: ErrorSnippet, STNode?: STNode }) {
+    const { text, openInCodeView, diagnostics, STNode, ...xyProps } = props;
+
     return (
         <svg {...xyProps} width={FOREACH_SVG_WIDTH_WITH_SHADOW} height={FOREACH_SVG_HEIGHT_WITH_SHADOW}>
             <defs>
@@ -51,24 +49,15 @@ export function ForeachSVG(props: { x: number, y: number, text: string, openInCo
                     <feComposite in="SourceGraphic" />
                 </filter>
             </defs>
-            {diagnostics?.diagnosticMsgs ?
+            <g>
                 (
-                    <ForEachRectSVG
-                        type={"diagram-diagnostic"}
-                        onClick={openInCodeView}
-                        diagnostic={diagnostics}
-                    />
-
+                <ForEachRectSVG
+                    onClick={openInCodeView}
+                    STNode={STNode}
+                    diagnostic={diagnostics}
+                />
                 )
-                :
-                (
-                    <ForEachRectSVG
-                        type={"diagram-code"}
-                        onClick={openInCodeView}
-                        text={tooltipText}
-                    />
-
-                )}
+            </g>
         </svg>
     )
 }

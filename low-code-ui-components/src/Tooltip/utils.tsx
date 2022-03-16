@@ -12,7 +12,7 @@
  */
 
 import { DiagnosticMsgSeverity, DiagramDiagnostic } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { STNode } from '@wso2-enterprise/syntax-tree';
+import { ForeachStatement, STNode } from '@wso2-enterprise/syntax-tree';
 
 export function getSourceFromST(STNode: STNode): string {
     if (STNode) {
@@ -21,8 +21,15 @@ export function getSourceFromST(STNode: STNode): string {
 }
 
 export function getDiagnosticsFromST(STNode: STNode): DiagnosticMsgSeverity {
+    let diagnostics;
     if (STNode) {
-        let diagnostics = STNode?.typeData?.diagnostics;
+        if(STNode.kind === "ForeachStatement" ){
+            const forEachModel = STNode as ForeachStatement
+            diagnostics = (forEachModel?.actionOrExpressionNode?.typeData.diagnostics).length !== 0 ? (forEachModel?.actionOrExpressionNode?.typeData?.diagnostics) : (forEachModel?.typedBindingPattern?.typeData?.diagnostics);
+        }
+        else{
+            diagnostics = STNode?.typeData?.diagnostics;
+        }
         return (getDiagnosticInfo(diagnostics));
     }
 }
