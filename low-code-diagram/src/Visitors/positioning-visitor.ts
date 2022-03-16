@@ -155,11 +155,10 @@ export class PositioningVisitor implements Visitor {
         this.workerMap.set(node.workerName.value, node);
 
         viewState.bBox.cx = viewState.bBox.x;
-        viewState.bBox.cy = viewState.bBox.y + PLUS_SVG_HEIGHT + PROCESS_SVG_HEIGHT;
-
+        viewState.bBox.cy = viewState.bBox.y;
+        const topOffSet = viewState.bBox.offsetFromTop * 7;
         viewState.trigger.cx = viewState.bBox.cx + viewState.bBox.lw;
-        viewState.trigger.cy = viewState.bBox.cy + DefaultConfig.serviceVerticalPadding + viewState.trigger.h / 2
-            + DefaultConfig.functionHeaderHeight;
+        viewState.trigger.cy = viewState.bBox.cy + topOffSet;
 
         viewState.workerLine.x = viewState.trigger.cx;
         viewState.workerLine.y = viewState.trigger.cy + (viewState.trigger.h / 2);
@@ -280,7 +279,7 @@ export class PositioningVisitor implements Visitor {
             plusHolderHeight = 0;
         }
 
-        updateConnectorCX(bodyViewState.bBox.rw + widthOfOnFailClause + widthOfWorkers, bodyViewState.bBox.cx, allEndpoints, viewState.trigger.cy);
+        updateConnectorCX(bodyViewState.bBox.rw + widthOfWorkers, bodyViewState.bBox.cx, allEndpoints, viewState.trigger.cy);
 
         // Update First Control Flow line
         this.updateFunctionEdgeControlFlow(viewState, body);
@@ -435,17 +434,21 @@ export class PositioningVisitor implements Visitor {
                 workerInitStatements,
                 blockViewState, height, index, DefaultConfig.epGap));
 
+            blockViewState.workerIndicatorLine.y = blockViewState.bBox.cy + height + (DefaultConfig.dotGap * 6);
+            blockViewState.workerIndicatorLine.x = blockViewState.bBox.cx;
+
             (node as FunctionBodyBlock).namedWorkerDeclarator.namedWorkerDeclarations.forEach((workerDecl, i) => {
                 const workerDeclViewState = workerDecl.viewState as WorkerDeclarationViewState;
                 const workerBodyViewState = workerDecl.workerBody.viewState as BlockViewState;
 
                 workerDeclViewState.bBox.x = i === 0 ?
-                    blockViewState.bBox.w / 2 + workerBodyViewState.bBox.w / 2
+                    blockViewState.bBox.rw + workerBodyViewState.bBox.lw
                     : (node as FunctionBodyBlock).namedWorkerDeclarator.namedWorkerDeclarations[i - 1].viewState.bBox.x
-                    + (node as FunctionBodyBlock).namedWorkerDeclarator.namedWorkerDeclarations[i - 1].viewState.bBox.w / 2
-                    + workerBodyViewState.bBox.w / 2;
-                workerDeclViewState.bBox.y = height;
+                    + (node as FunctionBodyBlock).namedWorkerDeclarator.namedWorkerDeclarations[i - 1].viewState.bBox.rw
+                    + workerBodyViewState.bBox.lw;
+                workerDeclViewState.bBox.y = height + DefaultConfig.dotGap * 10;
             });
+
 
             // positioning for plus button before worker block
             const plusForIndex = getPlusViewState(index + node.statements.length + 1, blockViewState.plusButtons)
@@ -455,10 +458,21 @@ export class PositioningVisitor implements Visitor {
                 plusForIndex.bBox.cx = blockViewState.bBox.cx;
             }
 
-            height += PROCESS_SVG_HEIGHT + PLUS_SVG_HEIGHT;
+            height += DefaultConfig.dotGap * 10;
         }
 
         this.beginBlockPosition(node, index + node.statements.length, height, index);
+    }
+
+    public endVisitFunctionBodyBlock(node: FunctionBodyBlock, parent?: STNode): void {
+        const bodyViewState = node.viewState as BlockViewState;
+        // line width should be to the extent of last worker
+        if (bodyViewState.hasWorkerDecl) {
+            const workerDecl = node.namedWorkerDeclarator.namedWorkerDeclarations[node.namedWorkerDeclarator.namedWorkerDeclarations.length - 1];
+            const workerDeclVS = workerDecl.viewState as WorkerDeclarationViewState;
+
+            bodyViewState.workerIndicatorLine.w = workerDeclVS.trigger.cx - bodyViewState.workerIndicatorLine.x;
+        }
     }
 
     public beginVisitExpressionFunctionBody(node: ExpressionFunctionBody) {
