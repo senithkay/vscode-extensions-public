@@ -93,9 +93,15 @@ export class BallerinaNotebookController {
                         ])
                     ]);
                 }
-                else {
+                else if (output.shellValue.mimeType === MIME_TYPE_JSON) {
                     execution.replaceOutput([ new NotebookCellOutput([
                             NotebookCellOutputItem.json(output, MIME_TYPE_JSON),
+                            NotebookCellOutputItem.text(output.shellValue.value)
+                        ])
+                    ]);
+                }
+                else {
+                    execution.replaceOutput([ new NotebookCellOutput([
                             NotebookCellOutputItem.text(output.shellValue.value)
                         ])
                     ]);
@@ -106,7 +112,7 @@ export class BallerinaNotebookController {
                 execution.end(true, Date.now());
             }
         } catch (error) {
-            
+            execution.end(false, Date.now());
         }
     }
 
