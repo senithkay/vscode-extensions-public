@@ -226,6 +226,9 @@ export class SizingVisitor implements Visitor {
         const body: FunctionBodyBlock = node.functionBody as FunctionBodyBlock;
         const bodyViewState: BlockViewState = body.viewState;
         viewState.collapsed = !expandTracker.isExpanded(getNodeSignature(node));
+        
+        // Set isCallerAvailable to false.
+        bodyViewState.isCallerAvailable = false;
 
         // If body has no statements and doesn't have a end component
         // Add the plus button to show up on the start end
