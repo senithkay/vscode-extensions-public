@@ -15,6 +15,7 @@ import React, { ReactNode, useContext, useEffect, useState } from "react";
 
 import { Context } from "../../../../Context/diagram";
 import { ErrorSnippet } from "../../../../Types/type";
+import { DefaultTooltip } from "../../DefaultTooltip";
 
 
 interface ConnectorRectSVGProps {
@@ -33,6 +34,7 @@ export function ConnectorRectSVG(props: ConnectorRectSVGProps) {
     const diagramContext = useContext(Context);
     const showTooltip = diagramContext?.api?.edit?.showTooltip;
     const [tooltip, setTooltip] = useState(undefined);
+    const [diagTooltip, setDiagTooltip] = useState(undefined);
 
     const rectSVG = (
         <g id="Group_2_Copy_2" className={connectorRectStyles} transform="translate(5 1)" >
@@ -48,15 +50,36 @@ export function ConnectorRectSVG(props: ConnectorRectSVGProps) {
         </g>
     );
 
+    const defaultTooltip = (
+        <DefaultTooltip text={text} diagnostic={diagnostic}>{rectSVG}</DefaultTooltip>
+    );
+
+    // TODO: Check how we can optimize this by rewriting the tooltip
+    // component.
     useEffect(() => {
         if (showTooltip && text) {
-            setTooltip(showTooltip(rectSVG, type, diagnostic, "right", true, diagnostic, undefined, false, onClick));
+            setTooltip(showTooltip(rectSVG, type, text, "right", true, undefined, undefined, false, onClick));
         }
+        return () => {
+            setTooltip(undefined);
+            setDiagTooltip(undefined);
+        };
     }, [text]);
+
+    useEffect(() => {
+        if (showTooltip && diagnostic) {
+            setDiagTooltip(showTooltip(rectSVG, type, undefined, "right", true, diagnostic, undefined, false, onClick));
+        }
+        return () => {
+            setTooltip(undefined);
+            setDiagTooltip(undefined);
+        };
+    }, [diagnostic]);
 
     return (
         <>
-            {tooltip ? tooltip : rectSVG}
+            {tooltip ? tooltip : defaultTooltip}
+            {diagTooltip ? diagTooltip : defaultTooltip}
         </>
-    )
+    );
 }

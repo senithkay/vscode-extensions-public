@@ -372,7 +372,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
         if (connectorInfo?.package) {
             const { organization, name } = connectorInfo?.package;
             if (organization && name) {
-                const docURL = generateDocUrl(organization, name, "");
+                const docURL = generateDocUrl(organization, name, "", connectorInfo?.name);
                 if (docURL) {
                     showDocumentationView(docURL);
                 }

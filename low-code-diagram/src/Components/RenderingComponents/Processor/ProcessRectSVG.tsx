@@ -15,6 +15,7 @@ import React, { useContext, useEffect, useState } from "react";
 
 import { Context } from "../../../Context/diagram";
 import { ErrorSnippet } from "../../../Types/type";
+import { DefaultTooltip } from "../DefaultTooltip";
 
 import "./style.scss"
 
@@ -34,6 +35,7 @@ export function ProcessRectSVG(props: ProcessRectSVGProps) {
     const diagnosticStyles = diagnostic?.severity === "ERROR" ? "data-processor-error" : "data-processor-warning";
     const processRectStyles = diagnostic ? diagnosticStyles : "data-processor process-active"
     const [tooltip, setTooltip] = useState(undefined);
+    const [diagTooltip, setDiagTooltip] = useState(undefined);
 
     const rectSVG = (
         <g id="Process" className={processRectStyles} transform="translate(-221.5 -506)">
@@ -47,13 +49,36 @@ export function ProcessRectSVG(props: ProcessRectSVGProps) {
         </g>
     );
 
+    const defaultTooltip = (
+        <DefaultTooltip text={text} diagnostic={diagnostic}>{rectSVG}</DefaultTooltip>
+    );
+
+    // TODO: Check how we can optimize this by rewriting the tooltip
+    // component.
     useEffect(() => {
-        if (text && showTooltip) {
-            setTooltip(showTooltip(rectSVG, type, text, "right", true, diagnostic, undefined, false, onClick));
+        if ((text) && showTooltip) {
+            setTooltip(showTooltip(rectSVG, type, text, "right", true, undefined, undefined, false, onClick));
         }
+        return () => {
+            setTooltip(undefined);
+            setDiagTooltip(undefined);
+        };
     }, [text]);
 
+    useEffect(() => {
+        if (diagnostic && showTooltip) {
+            setDiagTooltip(showTooltip(rectSVG, type, undefined, "right", true, diagnostic, undefined, false, onClick));
+        }
+        return () => {
+            setTooltip(undefined);
+            setDiagTooltip(undefined);
+        };
+    }, [diagnostic]);
+
     return (
-        <>{tooltip ? tooltip : rectSVG}</>
-    )
+        <>
+            {tooltip ? tooltip : defaultTooltip}
+            {diagTooltip ? diagTooltip : defaultTooltip}
+        </>
+    );
 }

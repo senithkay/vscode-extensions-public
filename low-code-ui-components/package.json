@@ -1,6 +1,6 @@
 {
     "name": "@wso2-enterprise/ballerina-low-code-edtior-ui-components",
-    "version": "1.0.0",
+    "version": "1.0.2",
     "description": "Ballerina Low Code Editor UI Components Module",
     "files": [
         "lib"

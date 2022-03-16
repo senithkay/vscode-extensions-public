@@ -588,6 +588,9 @@ export const useStatementEditorStyles = makeStyles(() =>
             height: '60vh',
             alignContent: 'center',
             alignItems: 'center',
+        },
+        helpText: {
+            fontStyle: "italic"
         }
     }),
 );

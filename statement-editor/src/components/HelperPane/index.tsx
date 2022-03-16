@@ -59,7 +59,7 @@ export function HelperPane() {
                     />
                 </div>
                 <div className={statementEditorClasses.libraryTypeSelector}>
-                    { selectedTab === TabElements.libraries && (
+                    {selectedTab === TabElements.libraries && (
                         <SelectDropdown
                             values={[ALL_LIBS_IDENTIFIER, LANG_LIBS_IDENTIFIER, STD_LIBS_IDENTIFIER]}
                             defaultValue={ALL_LIBS_IDENTIFIER}
@@ -73,10 +73,11 @@ export function HelperPane() {
                     model={currentModel.model}
                     isSuggestion={selectedTab === TabElements.suggestions}
                 />
-                <ExpressionSuggestions
-                    model={currentModel.model}
-                    isExpression={selectedTab === TabElements.expressions}
-                />
+                {(selectedTab === TabElements.expressions) && (
+                    <ExpressionSuggestions
+                        model={currentModel.model}
+                    />
+                )}
                 <LibraryBrowser
                     libraryType={libraryType}
                     isLibrary={selectedTab === TabElements.libraries}

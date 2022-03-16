@@ -54,6 +54,7 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
     const { updateInjectables, updateParentConfigurable, configurableId } = configOverlayFormStatus?.formArgs || {};
     const isFromExpressionEditor = !!updateInjectables;
     const [uniqueId] = useState(uuid());
+    const tempVarName: string = `temp_var_${uniqueId.replaceAll('-', '_')}`;
     const handleOnSave = () => {
         state.varName  = genVariableName(state.varName, getAllModuleVariables(stSymbolInfo));
         const modifyState: ConfigurableFormState = {
@@ -144,11 +145,12 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
                 endColumn: 0
             },
             customTemplate: {
-                defaultCodeSnippet: `configurable ${state.varType} temp_var_${uniqueId.replaceAll('-', '_')} = ;`,
+                defaultCodeSnippet: `configurable ${state.varType} ${tempVarName} = ;`,
                 targetColumn: 62 + state.varType.length,
             },
             hideTextLabel: true,
             initialDiagnostics: model?.initializer?.typeData?.diagnostics,
+            customTemplateVarName: tempVarName
         },
         onChange: onValueChange,
         defaultValue: state.varValue

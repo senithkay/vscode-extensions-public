@@ -227,6 +227,9 @@ export class SizingVisitor implements Visitor {
         const bodyViewState: BlockViewState = body.viewState;
         viewState.collapsed = !expandTracker.isExpanded(getNodeSignature(node));
 
+        // Set isCallerAvailable to false.
+        bodyViewState.isCallerAvailable = false;
+
         // If body has no statements and doesn't have a end component
         // Add the plus button to show up on the start end
         if (!bodyViewState.isEndComponentAvailable && body.statements.length <= 0
@@ -316,6 +319,11 @@ export class SizingVisitor implements Visitor {
     }
 
     public beginVisitResourceAccessorDefinition(node: ResourceAccessorDefinition) {
+        if (node.viewState) {
+            const viewState: FunctionViewState = node.viewState as FunctionViewState;
+            viewState.isResource = true;
+        }
+
         this.beginVisitFunctionDefinition(node);
     }
 
@@ -357,6 +365,9 @@ export class SizingVisitor implements Visitor {
         const trigger = viewState.trigger;
         const end = viewState.end;
 
+        // Mark the body as a resource if function we are in is a resource function.
+        bodyViewState.isResource = viewState.isResource;
+
         trigger.h = START_SVG_HEIGHT;
         trigger.w = START_SVG_WIDTH;
         trigger.lw = START_SVG_WIDTH / 2;
@@ -395,6 +406,7 @@ export class SizingVisitor implements Visitor {
 
         if (bodyViewState.hasWorkerDecl) {
             let maxWorkerHeight = 0;
+            let totalWorkerWidth = 0;
             Array.from(this.workerMap.keys()).forEach(key => {
                 const workerST = this.workerMap.get(key);
                 const workerVS = workerST.viewState as WorkerDeclarationViewState;
@@ -427,14 +439,10 @@ export class SizingVisitor implements Visitor {
                 if (maxWorkerHeight < workerVS.bBox.h) {
                     maxWorkerHeight = workerVS.bBox.h;
                 }
-            })
-            this.endVisitFunctionBodyBlock(body);
 
-            if (!bodyViewState.isEndComponentAvailable) {
-                if (bodyViewState.bBox.h < maxWorkerHeight) {
-                    bodyViewState.bBox.h += maxWorkerHeight - bodyViewState.bBox.h;
-                }
-            }
+                totalWorkerWidth += workerVS.bBox.w;
+            });
+            this.endVisitFunctionBodyBlock(body);
 
             lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h;
 
@@ -447,8 +455,15 @@ export class SizingVisitor implements Visitor {
             }
 
             viewState.bBox.h = lifeLine.h + trigger.h + end.bBox.h + DefaultConfig.serviceVerticalPadding * 2 + DefaultConfig.functionHeaderHeight;
-            viewState.bBox.w = (trigger.w > bodyViewState.bBox.w ? trigger.w : bodyViewState.bBox.w)
-                + DefaultConfig.serviceFrontPadding + DefaultConfig.serviceRearPadding + allEndpoints.size * 150 * 2;
+            viewState.bBox.lw = (trigger.lw > bodyViewState.bBox.lw ? trigger.lw : bodyViewState.bBox.lw) + DefaultConfig.serviceFrontPadding;
+            viewState.bBox.rw = (trigger.rw > bodyViewState.bBox.rw ? trigger.rw : bodyViewState.bBox.rw) + DefaultConfig.serviceRearPadding + (allEndpoints.size * 150 * 2);
+            viewState.bBox.w = viewState.bBox.lw + viewState.bBox.rw + totalWorkerWidth;
+
+            const maxWorkerFullHeight = body.namedWorkerDeclarator.workerInitStatements.length * 72 + maxWorkerHeight;
+
+            if (bodyViewState.bBox.h < maxWorkerFullHeight) {
+                viewState.bBox.h += (maxWorkerFullHeight - bodyViewState.bBox.h);
+            }
 
             if (viewState.initPlus && viewState.initPlus.selectedComponent === "PROCESS") {
                 viewState.bBox.h += DefaultConfig.PLUS_HOLDER_STATEMENT_HEIGHT;
@@ -465,6 +480,15 @@ export class SizingVisitor implements Visitor {
 
             this.currentWorker.pop();
             this.cleanMaps();
+        }
+
+        if (body.VisibleEndpoints && body.VisibleEndpoints.length > 0) {
+            for (const value of body.VisibleEndpoints) {
+                if (value.isCaller) {
+                    bodyViewState.isCallerAvailable = value.isCaller;
+                    break;
+                }
+            }
         }
     }
 
@@ -750,7 +774,7 @@ export class SizingVisitor implements Visitor {
                 plusBtnViewState.selectedComponent = "PROCESS";
                 plusBtnViewState.collapsedClicked = false;
                 plusBtnViewState.collapsedPlusDuoExpanded = false;
-                plusBtnViewState.isPlusBeforeWorkerBlock = true;
+                plusBtnViewState.allowWorker = true;
                 viewState.plusButtons.push(plusBtnViewState)
             }
 
@@ -783,10 +807,23 @@ export class SizingVisitor implements Visitor {
             const workerInitStatements = (node as FunctionBodyBlock).namedWorkerDeclarator.workerInitStatements;
             ({ index, height, width, leftWidth, rightWidth } = this.calculateStatementSizing(workerInitStatements, index, viewState, height, width, workerInitStatements.length + node.statements.length, leftWidth, rightWidth));
 
+            const plusAfterWorker = getPlusViewState(index, viewState.plusButtons);
+
+            if (plusAfterWorker) {
+                plusAfterWorker.allowWorker = true;
+            }
+
             height += PLUS_SVG_HEIGHT + PROCESS_SVG_HEIGHT;
         }
 
         this.endSizingBlock(node, index + node.statements.length, width, height, index, leftWidth, rightWidth);
+
+        if (!viewState.hasWorkerDecl) {
+            viewState.plusButtons.forEach(plusVS => {
+                plusVS.allowWorker = true;
+            })
+        }
+
     }
 
     public beginVisitBlockStatement(node: BlockStatement, parent?: STNode) {
@@ -1182,8 +1219,12 @@ export class SizingVisitor implements Visitor {
         const end = viewState.end;
 
         trigger.h = START_SVG_HEIGHT;
-        trigger.w = START_SVG_WIDTH;
+        trigger.lw = START_SVG_WIDTH / 2;
+        trigger.rw = START_SVG_WIDTH / 2;
+        trigger.w = trigger.lw + trigger.rw;
 
+        end.bBox.rw = STOP_SVG_WIDTH / 2;
+        end.bBox.lw = STOP_SVG_WIDTH / 2;
         end.bBox.w = STOP_SVG_WIDTH;
         end.bBox.h = STOP_SVG_HEIGHT;
 
@@ -1196,8 +1237,9 @@ export class SizingVisitor implements Visitor {
 
         viewState.bBox.h = lifeLine.h + trigger.h + end.bBox.h + DefaultConfig.serviceVerticalPadding * 2
             + DefaultConfig.functionHeaderHeight;
-        viewState.bBox.w = (trigger.w > bodyViewState.bBox.w ? trigger.w : bodyViewState.bBox.w)
-            + DefaultConfig.serviceFrontPadding + DefaultConfig.serviceRearPadding + allEndpoints.size * 150 * 2;
+        viewState.bBox.lw = (trigger.lw > bodyViewState.bBox.lw ? trigger.lw : bodyViewState.bBox.lw) + DefaultConfig.serviceFrontPadding;
+        viewState.bBox.rw = (trigger.rw > bodyViewState.bBox.rw ? trigger.rw : bodyViewState.bBox.rw) + DefaultConfig.serviceRearPadding;
+        viewState.bBox.w = viewState.bBox.lw + viewState.bBox.rw;
 
         if (viewState.initPlus && viewState.initPlus.selectedComponent === "PROCESS") {
             viewState.bBox.h += DefaultConfig.PLUS_HOLDER_STATEMENT_HEIGHT;

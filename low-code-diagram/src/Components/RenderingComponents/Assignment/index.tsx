@@ -16,6 +16,7 @@ import React, { ReactElement, useContext, useEffect, useState } from "react";
 import classNames from "classnames";
 
 import { Context } from "../../../Context/diagram";
+import { DefaultTooltip } from "../DefaultTooltip";
 
 import "./style.scss";
 
@@ -27,7 +28,6 @@ export function Assignment(props: { x: number, y: number, assignment: string, cl
     const diagramContext = useContext(Context);
     const showTooltip = diagramContext?.api?.edit?.showTooltip;
     const [tooltip, setTooltip] = useState(undefined);
-
     useEffect(() => {
         setTextWidth(document.getElementById("textLegnth_" + key_id)?.getBoundingClientRect().width);
     }, []);
@@ -46,6 +46,10 @@ export function Assignment(props: { x: number, y: number, assignment: string, cl
         </text>
     );
 
+    const defaultTooltip = (
+        <DefaultTooltip text={{ heading: assignment }}>{assignmentComponent}</DefaultTooltip>
+    );
+
     useEffect(() => {
         if (assignmentMaxWidth && showTooltip) {
             setTooltip(showTooltip(assignmentComponent, "heading", { heading: assignment }, "top-start", true, undefined, undefined, false, undefined, {
@@ -57,7 +61,7 @@ export function Assignment(props: { x: number, y: number, assignment: string, cl
 
     return (
         <svg {...xyProps} className="assignment-expression">
-            {assignmentMaxWidth ? tooltip : assignmentComponent}
+            {assignmentMaxWidth && tooltip ? tooltip : defaultTooltip}
         </svg>
     );
 }

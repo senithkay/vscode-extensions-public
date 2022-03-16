@@ -173,6 +173,7 @@ export function ModuleVariable(props: ModuleVariableProps) {
                                 model
                             }
                         }}
+                        targetPosition={model.position}
                         onCancel={handleEditBtnCancel}
                         onSave={handleEditBtnCancel}
                     />
