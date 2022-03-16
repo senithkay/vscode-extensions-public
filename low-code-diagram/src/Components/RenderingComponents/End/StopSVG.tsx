@@ -48,15 +48,16 @@ export function StopSVG(props: { x: number, y: number, text: string, codeSnippet
         </g>
     );
 
-    const defaultTooltip = (
-        <DefaultTooltip text={{ code: codeSnippet }}>{rectElement}</DefaultTooltip>
-    );
+    //TODO:Add new tooltip component to support this scenario
+    // const defaultTooltip = (
+    //     <DefaultTooltip text={{ code: codeSnippet }}>{rectElement}</DefaultTooltip>
+    // );
 
-    useEffect(() => {
-        if (codeSnippet && showTooltip) {
-            setTooltip(showTooltip(rectElement, "diagram-code", { code: codeSnippet }, "right", true, undefined, undefined, false, openInCodeView));
-        }
-    }, [codeSnippet]);
+    // useEffect(() => {
+    //     if (codeSnippet && showTooltip) {
+    //         setTooltip(showTooltip(rectElement, "diagram-code", { code: codeSnippet }, "right", true, undefined, undefined, false, openInCodeView));
+    //     }
+    // }, [codeSnippet]);
 
     return (
         <svg {...xyProps} height={STOP_SVG_HEIGHT_WITH_SHADOW} width={STOP_SVG_WIDTH_WITH_SHADOW} >
@@ -73,7 +74,7 @@ export function StopSVG(props: { x: number, y: number, text: string, codeSnippet
                     <stop offset="1" stopColor="#f7f8fb" />
                 </linearGradient>
             </defs>
-            {tooltip ? tooltip : defaultTooltip}
+            {rectElement}
         </svg >
     )
 }

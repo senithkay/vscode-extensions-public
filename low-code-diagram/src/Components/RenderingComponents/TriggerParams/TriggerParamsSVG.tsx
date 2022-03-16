@@ -41,15 +41,18 @@ export function TriggerParamsSVG(props: { x: number, y: number, text: any }) {
             </g>
         </g>
     );
-    useEffect(() => {
-        if (text && showTooltip) {
-            setTooltip(showTooltip(paramSVG, "truncate-code", tooltipText, "right", true));
-        }
-    }, [text]);
+
+    //TODO:Add new tooltip component to support this scenario
+
+    // useEffect(() => {
+    //     if (text && showTooltip) {
+    //         setTooltip(showTooltip(paramSVG, "truncate-code", tooltipText, "right", true));
+    //     }
+    // }, [text]);
 
     return (
         <svg {...xyProps} width={TRIGGER_PARAMS_SVG_WIDTH_WITH_SHADOW} height={TRIGGER_PARAMS_SVG_HEIGHT_WITH_SHADOW} >
-            {tooltip ? tooltip : paramSVG}
+            {paramSVG}
         </svg>
     )
 }

@@ -75,17 +75,18 @@ export function ListenerC(props: ListenerProps) {
         <tspan x="0" y="0">{typeMaxWidth ? listenerType.slice(0, 10).toUpperCase() + "..." : listenerType.toUpperCase()}</tspan>
     );
 
-    useEffect(() => {
-        if (model && showTooltip) {
-            setTooltip(showTooltip(listenerTypeComponent, "heading-content", {
-                content: model.source.slice(1, -1),
-                heading: ""
-            }, "top-start", true, undefined, undefined, false, undefined, {
-                inverted: false,
-                interactive: true
-            }));
-        }
-    }, [model]);
+    //TODO:Add new tooltip component to support this scenario
+    // useEffect(() => {
+    //     if (model && showTooltip) {
+    //         setTooltip(showTooltip(listenerTypeComponent, "heading-content", {
+    //             content: model.source.slice(1, -1),
+    //             heading: ""
+    //         }, "top-start", true, undefined, undefined, false, undefined, {
+    //             inverted: false,
+    //             interactive: true
+    //         }));
+    //     }
+    // }, [model]);
 
     return (
         <>
@@ -101,7 +102,7 @@ export function ListenerC(props: ListenerProps) {
                             <ListenerIcon />
                         </div>
                         <div className="listener-type">
-                            {tooltip ? tooltip : listenerTypeComponent}
+                            {listenerTypeComponent}
                         </div>
                         <div className="listener-name">
                             <tspan x="0" y="0">{nameMaxWidth ? listenerName.slice(0, 20) + "..." : listenerName}</tspan>

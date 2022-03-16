@@ -125,21 +125,21 @@ export default function PanAndZoom(props: PanAndZoomProps) {
             <FitToScreenSVG />
         </div>
     );
+    //TODO:Add new tooltip component to support this scenario
+    // const zoomInTooltip = showTooltip ? showTooltip(zoomInButton, "heading-content", {
+    //     content: "Zoom In",
+    //     heading: ""
+    // }, "left-start", true) : zoomInButton;
 
-    const zoomInTooltip = showTooltip ? showTooltip(zoomInButton, "heading-content", {
-        content: "Zoom In",
-        heading: ""
-    }, "left-start", true) : zoomInButton;
+    // const zoomOutTooltip = showTooltip ? showTooltip(zoomOutButton, "heading-content", {
+    //     content: "Zoom Out",
+    //     heading: ""
+    // }, "left-start", true) : zoomOutButton;
 
-    const zoomOutTooltip = showTooltip ? showTooltip(zoomOutButton, "heading-content", {
-        content: "Zoom Out",
-        heading: ""
-    }, "left-start", true) : zoomOutButton;
-
-    const fitToScreenTooltip = showTooltip ? showTooltip(fitToScreenButton, "heading-content", {
-        content: "Fit to screen",
-        heading: ""
-    }, "left-start", true) : fitToScreenButton;
+    // const fitToScreenTooltip = showTooltip ? showTooltip(fitToScreenButton, "heading-content", {
+    //     content: "Fit to screen",
+    //     heading: ""
+    // }, "left-start", true) : fitToScreenButton;
 
     return (
         <div className={classNames("pan-zoom-wrapper", "pan-zoom-root")} onWheel={onWheel}>
@@ -161,13 +161,13 @@ export default function PanAndZoom(props: PanAndZoomProps) {
 
             <div className={"zoomControls"}>
                 <button className={"panelBtn"} onClick={onClickZoomIn}>
-                    {zoomInTooltip}
+                    {zoomInButton}
                 </button>
                 <button className={"panelBtn"} onClick={onClickZoomOut}>
-                    {zoomOutTooltip}
+                    {zoomOutButton}
                 </button>
                 <button className={"panelBtn"} onClick={onClickFitToScreen}>
-                    {fitToScreenTooltip}
+                    {fitToScreenButton}
                 </button>
             </div>
         </div>

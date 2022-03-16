@@ -74,19 +74,19 @@ export const TopLevelPlus = (props: PlusProps) => {
         setPlusOptions(undefined);
     };
 
-    useEffect(() => {
-        if (!isDocumentEmpty && showTooltip) {
-            setTooltip(showTooltip(<TopLevelPlusIcon />, "heading-content", { content: 'Add Construct' }, "right", true));
-        }
-    }, [isDocumentEmpty])
+    //TODO:Add new tooltip component to support this scenario
+
+    // useEffect(() => {
+    //     if (!isDocumentEmpty && showTooltip) {
+    //         setTooltip(showTooltip(<TopLevelPlusIcon />, "heading-content", { content: 'Add Construct' }, "right", true));
+    //     }
+    // }, [isDocumentEmpty])
 
     return (
         <div className="plus-container" ref={containerElement} target-line={targetPosition.startLine}>
             <div className={'plus-btn-wrapper'} onClick={handlePlusClick}>
                 {
-                    !isDocumentEmpty && tooltip ?
-                        tooltip
-                        : <TopLevelPlusIcon />
+                    !isDocumentEmpty &&  <TopLevelPlusIcon />
                 }
             </div>
             {

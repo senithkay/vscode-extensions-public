@@ -52,25 +52,27 @@ export function VariableName(props: { x: number, y: number, variableName: string
         </text>
     );
 
-    const defaultTooltip = (
-        <DefaultTooltip text={{ heading: variableName }}>{variableTextComp}</DefaultTooltip>
-    );
+    //TODO:Add new tooltip component to support this scenario
 
-    useEffect(() => {
-        if (variableName && showTooltip) {
-            setTooltip(showTooltip(variableTextComp, "heading-content", { heading: variableName }, "top-start", true, undefined, undefined, false, undefined, {
-                inverted: false,
-                interactive: true
-            }));
-        }
-        setTextWidth(document.getElementById("variableLegnth_" + key_id).getBoundingClientRect().width);
-    }, [variableName]);
+    // const defaultTooltip = (
+    //     <DefaultTooltip text={{ heading: variableName }}>{variableTextComp}</DefaultTooltip>
+    // );
+
+    // useEffect(() => {
+    //     if (variableName && showTooltip) {
+    //         setTooltip(showTooltip(variableTextComp, "heading-content", { heading: variableName }, "top-start", true, undefined, undefined, false, undefined, {
+    //             inverted: false,
+    //             interactive: true
+    //         }));
+    //     }
+    //     setTextWidth(document.getElementById("variableLegnth_" + key_id).getBoundingClientRect().width);
+    // }, [variableName]);
 
     return (
         <svg {...xyProps} width="150" height="50" className="variable-wrapper">
             {/* {tooltip ? tooltip : defaultTooltip} */}
             {/* {variableTextComp} */}
-            {defaultTooltip}
+            {variableTextComp}
         </svg >
     );
 }

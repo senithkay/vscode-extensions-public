@@ -97,17 +97,18 @@ export function ModuleVariable(props: ModuleVariableProps) {
         <tspan x="0" y="0">{typeMaxWidth ? varType.slice(0, 10) + "..." : varType}</tspan>
     );
 
-    useEffect(() => {
-        if (model && showTooltip) {
-            setTooltip(showTooltip(moduleVariableTypeElement, "heading-content", {
-                content: model.source.slice(1, -1),
-                heading: ""
-            }, "top-start", true, undefined, undefined, false, undefined, {
-                inverted: false,
-                interactive: true
-            }));
-        }
-    }, [model]);
+    //TODO:Add new tooltip component to support this scenario
+    // useEffect(() => {
+    //     if (model && showTooltip) {
+    //         setTooltip(showTooltip(moduleVariableTypeElement, "heading-content", {
+    //             content: model.source.slice(1, -1),
+    //             heading: ""
+    //         }, "top-start", true, undefined, undefined, false, undefined, {
+    //             inverted: false,
+    //             interactive: true
+    //         }));
+    //     }
+    // }, [model]);
 
     return (
         <div>
@@ -123,7 +124,7 @@ export function ModuleVariable(props: ModuleVariableProps) {
                             {!isModuleConnector && !isConfigurable && <ModuleVariableIcon />}
                         </div>
                         <div className={"module-variable-type-text"}>
-                            {tooltip ? tooltip : moduleVariableTypeElement}
+                            {moduleVariableTypeElement}
                         </div>
                         <div className={'module-variable-name-text'}>
                             <tspan x="0" y="0">{nameMaxWidth ? varName.slice(0, 20) + "..." : varName}</tspan>
