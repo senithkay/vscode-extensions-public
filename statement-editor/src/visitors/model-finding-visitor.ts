@@ -23,13 +23,15 @@ class ModelFindingVisitor implements Visitor {
     private model: STNode;
 
     public beginVisitSTNode(node: STNode, parent?: STNode) {
-        if (isPositionsEquals(node.position, this.position)) {
+        if (!this.model && isPositionsEquals(node.position, this.position)) {
             this.model = node;
         }
     }
 
     getModel(): STNode {
-        return this.model;
+        const newModel = this.model;
+        this.model = undefined;
+        return newModel;
     }
 
     setPosition(position: NodePosition) {
