@@ -326,9 +326,6 @@ export const addInjectables = async (oldModelValue: string, injectables?: Inject
             const source = item.config?.STATEMENT || ''
             modelContent[item.startLine] = addToTargetPosition(modelContent[item.startLine], item.startColumn, source, item.endColumn);
         }
-        if (modelContent[0]?.startsWith(`\n`)){
-            modelContent[0] = modelContent[0].replace(`\n`, '');
-        }
     }
     return modelContent.join('\n');
 }
