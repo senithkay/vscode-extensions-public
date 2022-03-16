@@ -33,12 +33,12 @@ export function ModuleIcon(props: ModuleIconProps) {
     const iconWidth = width || 42;
     const marginError = iconWidth / 4;
     let iconUrl = "";
-    let defaultProps: DefaultIconProps = { scale: scale || 1, cx: cx, cy: cy, width: iconWidth };
+    const defaultProps: DefaultIconProps = { scale: scale || 1, cx, cy, width: iconWidth };
 
     const [showDefaultIcon, setShowDefaultIcon] = useState(false);
 
-    const getIconUrl = (baseUrl: string, org: string, module: string, version: string) => {
-        return `${baseUrl}/${org}_${module}_${version}.png`;
+    const getIconUrl = (baseUrl: string, orgName: string, moduleName: string, version: string) => {
+        return `${baseUrl}/${orgName}_${moduleName}_${version}.png`;
     };
 
     if (node && (STKindChecker.isLocalVarDecl(node) || STKindChecker.isModuleVarDecl(node))) {
@@ -50,7 +50,7 @@ export function ModuleIcon(props: ModuleIconProps) {
             ? getIconUrl(balCentralCdn, moduleInfo.orgName, moduleInfo.moduleName, moduleInfo.version)
             : "";
     } else if (node && STKindChecker.isActionStatement(node) && node.expression.expression.typeData?.symbol?.moduleID) {
-        let moduleInfo = node.expression.expression.typeData?.symbol?.moduleID;
+        const moduleInfo = node.expression.expression.typeData?.symbol?.moduleID;
         iconUrl = moduleInfo
             ? getIconUrl(balCentralCdn, moduleInfo.orgName, moduleInfo.moduleName, moduleInfo.version)
             : "";
@@ -67,7 +67,7 @@ export function ModuleIcon(props: ModuleIconProps) {
 
     const handleLoadingError = () => {
         setShowDefaultIcon(true);
-    };    
+    };
 
     const svgIcon = (
         <svg x={cx} y={cy} width={iconWidth} height={iconWidth} xmlns="http://www.w3.org/2000/svg">
