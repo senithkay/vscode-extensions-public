@@ -15,9 +15,7 @@ import React, { useContext, useEffect, useState } from "react";
 
 import { Context } from "../../../Context/diagram";
 import { ErrorSnippet } from "../../../Types/type";
-import { DefaultTooltip } from "../DefaultTooltip";
 import { DiagramTooltipCodeSnippet } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";;
-import { DiagramTooltip } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import "./style.scss"
 import { STNode } from "@wso2-enterprise/syntax-tree";
 
@@ -36,7 +34,7 @@ export function ProcessRectSVG(props: ProcessRectSVGProps) {
     const diagramContext = useContext(Context);
     const showTooltip = diagramContext?.api?.edit?.showTooltip;
     const diagnosticStyles = diagnostic?.severity === "ERROR" ? "data-processor-error" : "data-processor-warning";
-    const processRectStyles = diagnostic ? diagnosticStyles : "data-processor process-active"
+    const processRectStyles = diagnostic.diagnosticMsgs ? diagnosticStyles : "data-processor process-active"
     const [tooltip, setTooltip] = useState(undefined);
     const [diagTooltip, setDiagTooltip] = useState(undefined);
 
@@ -57,7 +55,7 @@ export function ProcessRectSVG(props: ProcessRectSVGProps) {
     );
     useEffect(() => {
         if (STNode && showTooltip) {
-            setDiagTooltip(showTooltip(rectSVG,onClick, STNode,));
+            setDiagTooltip(showTooltip(rectSVG, onClick, STNode,));
         }
         return () => {
             setTooltip(undefined);
@@ -67,10 +65,7 @@ export function ProcessRectSVG(props: ProcessRectSVGProps) {
 
     return (
         <>
-
-
             {defaultTooltip}
-
         </>
     );
 }
