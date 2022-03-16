@@ -58,7 +58,7 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
             varValue: state.hasDefaultValue ? state.varValue : '?',
         }
         if (isFromExpressionEditor && updateParentConfigurable) {
-            const modification = createConfigurableDecl(modifyState, targetPosition, isLastMember);
+            const modification = createConfigurableDecl(modifyState, targetPosition, isLastMember, true);
             const editItemIndex = updateInjectables?.list.findIndex((item: InjectableItem) => item.id === configurableId);
             let newInjectableList = updateInjectables?.list;
             const newInjectable = {
