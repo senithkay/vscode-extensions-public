@@ -12,7 +12,7 @@
  */
 
 import { DiagnosticMsgSeverity, DiagramDiagnostic } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { ForeachStatement, STNode, WhileStatement } from '@wso2-enterprise/syntax-tree';
+import { ForeachStatement, IfElseStatement, STNode, WhileStatement } from '@wso2-enterprise/syntax-tree';
 
 export function getSourceFromST(STNode: STNode): string {
     if (STNode) {
@@ -25,11 +25,17 @@ export function getDiagnosticsFromST(STNode: STNode): DiagnosticMsgSeverity {
     if (STNode) {
         if (STNode.kind === "ForeachStatement") {
             const forEachModel = STNode as ForeachStatement
-            diagnostics = (forEachModel?.actionOrExpressionNode?.typeData.diagnostics).length !== 0 ? (forEachModel?.actionOrExpressionNode?.typeData?.diagnostics) : (forEachModel?.typedBindingPattern?.typeData?.diagnostics);
+            diagnostics = (forEachModel?.actionOrExpressionNode?.typeData?.diagnostics).length !== 0 ?
+                (forEachModel?.actionOrExpressionNode?.typeData?.diagnostics)
+                : (forEachModel?.typedBindingPattern?.typeData?.diagnostics);
         }
         else if (STNode.kind === "WhileStatement") {
             const modelWhile = STNode as WhileStatement;
             diagnostics = modelWhile?.condition?.typeData?.diagnostics;
+        }
+        else if (STNode.kind === "IfElseStatement") {
+            const modelIf = STNode as IfElseStatement;
+            diagnostics = modelIf?.condition?.typeData?.diagnostics;
         }
         else {
             diagnostics = STNode?.typeData?.diagnostics;
