@@ -225,7 +225,7 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
                 <ConnectorProcessSVG
                     x={viewState.bBox.cx - CONNECTOR_PROCESS_SVG_WIDTH / 2}
                     y={viewState.bBox.cy}
-                    STNode={model}
+                    componentSTNode={model}
                     diagnostics={errorSnippet}
                     openInCodeView={onClickOpenInCodeView}
                 />

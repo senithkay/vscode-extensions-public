@@ -11,10 +11,11 @@
  * associated services.
  */
 
-import { STNode } from "@wso2-enterprise/syntax-tree";
 import React, { ReactNode, useContext, useEffect, useState } from "react";
-import { DiagramTooltipCodeSnippet } from "../../../../../low-code-ui-components";
 
+import { STNode } from "@wso2-enterprise/syntax-tree";
+
+import { DiagramTooltipCodeSnippet } from "../../../../../low-code-ui-components";
 import { Context } from "../../../Context/diagram";
 import { ErrorSnippet } from "../../../Types/type";
 interface WhileRectSVGProps {
@@ -24,11 +25,11 @@ interface WhileRectSVGProps {
     text?: { heading?: string, content?: string, example?: string, code?: string },
     diagnostic?: ErrorSnippet,
     icon?: ReactNode;
-    STNode:STNode
+    model: STNode
 }
 
 export function WhileRectSVG(props: WhileRectSVGProps) {
-    const { onClick, diagnostic, STNode } = props;
+    const { onClick, diagnostic, model } = props;
     const diagnosticStyles = diagnostic?.severity === "ERROR" ? "while-block-error" : "while-block-warning";
     const whileRectStyles = diagnostic?.diagnosticMsgs ? diagnosticStyles : "while-block";
     const diagramContext = useContext(Context);
@@ -60,17 +61,17 @@ export function WhileRectSVG(props: WhileRectSVGProps) {
     );
 
     const defaultTooltip = (
-        <DiagramTooltipCodeSnippet STNode={STNode} onClick={onClick} >{rectSVG}</DiagramTooltipCodeSnippet>
+        <DiagramTooltipCodeSnippet STNode={model} onClick={onClick} >{rectSVG}</DiagramTooltipCodeSnippet>
     );
     useEffect(() => {
-        if (STNode && showTooltip) {
-            setDiagTooltip(showTooltip(rectSVG, onClick, STNode,));
+        if (model && showTooltip) {
+            setDiagTooltip(showTooltip(rectSVG, onClick, model));
         }
         return () => {
             setTooltip(undefined);
             setDiagTooltip(undefined);
         };
-    }, [STNode]);
+    }, [model]);
 
     return (
         <>

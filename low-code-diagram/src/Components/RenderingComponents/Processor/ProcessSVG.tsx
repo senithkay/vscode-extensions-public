@@ -34,11 +34,11 @@ export function ProcessSVG(props: {
     x: number, y: number, varName: any,
     position: NodePosition,
     openInCodeView?: () => void,
-    processType: string, 
+    processType: string,
     diagnostics?: ErrorSnippet,
-    STNode: STNode
+    componentSTNode: STNode
 }) {
-    const { varName, processType, openInCodeView, diagnostics, STNode, ...xyProps } = props;
+    const { varName, processType, openInCodeView, diagnostics, componentSTNode, ...xyProps } = props;
     const processTypeIndicator: JSX.Element[] = [];
     const logIcon: ReactElement = (
         <g className="log-icon" transform="translate(242 522)">
@@ -119,7 +119,7 @@ export function ProcessSVG(props: {
                 (
                 <ProcessRectSVG
                     onClick={openInCodeView}
-                    STNode={STNode}
+                    model={componentSTNode}
                     diagnostic={diagnostics}
                     processTypeIndicator={processTypeIndicator}
                 />

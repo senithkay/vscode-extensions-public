@@ -11,23 +11,23 @@
  * associated services.
  */
 
-import { STNode } from "@wso2-enterprise/syntax-tree";
 import React, { ReactElement, ReactNode, useContext, useEffect, useState } from "react";
-import { DiagramTooltipCodeSnippet } from "../../../../../low-code-ui-components";
 
+import { STNode } from "@wso2-enterprise/syntax-tree";
+
+import { DiagramTooltipCodeSnippet } from "../../../../../low-code-ui-components";
 import { Context } from "../../../Context/diagram";
-import { ErrorSnippet } from "../../../Types/type";
 interface IfElseRectSVGProps {
     type?: string,
     className?: string,
     onClick?: () => void,
     text?: { heading?: string, content?: string, example?: string, code?: string },
     icon?: ReactNode;
-    STNode: STNode
+    model: STNode
 }
 
 export function IfElseRectSVG(props: IfElseRectSVGProps) {
-    const { onClick, icon, className, STNode } = props;
+    const { onClick, icon, className, model } = props;
     const diagramContext = useContext(Context);
     const showTooltip = diagramContext?.api?.edit?.showTooltip;
     const [tooltip, setTooltip] = useState(undefined);
@@ -46,17 +46,17 @@ export function IfElseRectSVG(props: IfElseRectSVGProps) {
     );
 
     const defaultTooltip = (
-        <DiagramTooltipCodeSnippet STNode={STNode} onClick={onClick} >{component}</DiagramTooltipCodeSnippet>
+        <DiagramTooltipCodeSnippet STNode={model} onClick={onClick} >{component}</DiagramTooltipCodeSnippet>
     );
     useEffect(() => {
-        if (STNode && showTooltip) {
-            setDiagTooltip(showTooltip(component, onClick, STNode,));
+        if (model && showTooltip) {
+            setDiagTooltip(showTooltip(component, onClick, model));
         }
         return () => {
             setTooltip(undefined);
             setDiagTooltip(undefined);
         };
-    }, [STNode]);
+    }, [model]);
 
     return (
         <>

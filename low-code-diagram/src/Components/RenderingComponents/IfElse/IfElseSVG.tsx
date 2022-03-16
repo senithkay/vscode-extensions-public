@@ -11,10 +11,12 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import { STNode } from "@wso2-enterprise/syntax-tree";
 import React, { ReactNode } from "react";
 
+import { STNode } from "@wso2-enterprise/syntax-tree";
+
 import { ErrorSnippet } from "../../../Types/type";
+
 import { IfElseRectSVG } from "./IfElseRectSVG";
 
 export const IFELSE_SVG_WIDTH_WITH_SHADOW = 66.686;
@@ -32,9 +34,9 @@ export function IfElseSVG(props: {
     openInCodeView?: () => void,
     codeSnippetOnSvg: string,
     diagnostics?: ErrorSnippet,
-    STNode: STNode
+    componentSTNode: STNode
 }) {
-    const { text, codeSnippet, openInCodeView, conditionType, codeSnippetOnSvg, diagnostics, STNode, ...xyProps } = props;
+    const { text, codeSnippet, openInCodeView, conditionType, codeSnippetOnSvg, diagnostics, componentSTNode, ...xyProps } = props;
     const ifXPosition = (text === "IF") ? "45%" : "44%";
 
     let icon: ReactNode = null;
@@ -120,7 +122,7 @@ export function IfElseSVG(props: {
 
             <IfElseRectSVG
                 onClick={openInCodeView}
-                STNode={STNode}
+                model={componentSTNode}
                 icon={icon}
                 className="if-else-group if-else-group-active"
             />

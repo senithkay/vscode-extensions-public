@@ -10,10 +10,11 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { STNode } from "@wso2-enterprise/syntax-tree";
 import React, { useContext, useEffect, useState } from "react";
-import { DiagramTooltipCodeSnippet } from "../../../../../low-code-ui-components";
 
+import { STNode } from "@wso2-enterprise/syntax-tree";
+
+import { DiagramTooltipCodeSnippet } from "../../../../../low-code-ui-components";
 import { Context } from "../../../Context/diagram";
 import { ErrorSnippet } from "../../../Types/type";
 
@@ -23,11 +24,11 @@ interface ForEachRectSVGProps {
     onClick?: () => void,
     text?: { heading?: string, content?: string, example?: string, code?: string },
     diagnostic?: ErrorSnippet,
-    STNode: STNode
+    model: STNode
 }
 
 export function ForEachRectSVG(props: ForEachRectSVGProps) {
-    const { type, onClick, text, diagnostic, STNode } = props;
+    const { type, onClick, text, diagnostic, model } = props;
     const diagnosticStyles = diagnostic?.severity === "ERROR" ? "foreach-block-error" : "foreach-block-warning";
     const forEachRectStyles = diagnostic?.diagnosticMsgs ? diagnosticStyles : "foreach-block";
     const diagramContext = useContext(Context);
@@ -51,17 +52,17 @@ export function ForEachRectSVG(props: ForEachRectSVGProps) {
     );
 
     const defaultTooltip = (
-        <DiagramTooltipCodeSnippet STNode={STNode} onClick={onClick} >{svgElement}</DiagramTooltipCodeSnippet>
+        <DiagramTooltipCodeSnippet STNode={model} onClick={onClick} >{svgElement}</DiagramTooltipCodeSnippet>
     );
     useEffect(() => {
-        if (STNode && showTooltip) {
-            setDiagTooltip(showTooltip(svgElement, onClick, STNode,));
+        if (model && showTooltip) {
+            setDiagTooltip(showTooltip(svgElement, onClick, model));
         }
         return () => {
             setTooltip(undefined);
             setDiagTooltip(undefined);
         };
-    }, [STNode]);
+    }, [model]);
 
     return (
         <>

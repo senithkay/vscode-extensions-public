@@ -11,8 +11,9 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import { STNode } from "@wso2-enterprise/syntax-tree";
 import * as React from "react";
+
+import { STNode } from "@wso2-enterprise/syntax-tree";
 
 import { ErrorSnippet } from "../../../Types/type";
 
@@ -30,9 +31,9 @@ export function WhileSVG(props: {
     codeSnippetOnSvg?: string,
     codeSnippet?: string,
     diagnostics?: ErrorSnippet,
-    STNode: STNode
+    componentSTNode: STNode
 }) {
-    const { codeSnippet, openInCodeView, codeSnippetOnSvg, diagnostics, STNode, ...xyProps } = props;
+    const { codeSnippet, openInCodeView, codeSnippetOnSvg, diagnostics, componentSTNode, ...xyProps } = props;
     return (
         <svg {...xyProps} width={WHILE_SVG_WIDTH_WITH_SHADOW} height={WHILE_SVG_HEIGHT_WITH_SHADOW}>
             <defs>
@@ -58,7 +59,7 @@ export function WhileSVG(props: {
             (
             <WhileRectSVG
                 onClick={openInCodeView}
-                STNode={STNode}
+                model={componentSTNode}
                 diagnostic={diagnostics}
             />
             )

@@ -59,7 +59,7 @@ export interface LowCodeDiagramAPI {
             component: any,
             onClick?: () => void,
             additionalParams?: any) => any;
-            STNode?: STNode;
+        STNode?: STNode;
     };
 
     // FIXME Doesn't make sense to take these methods below from outside

@@ -10,10 +10,11 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { STNode } from "@wso2-enterprise/syntax-tree";
 import React, { ReactNode, useContext, useEffect, useState } from "react";
-import { DiagramTooltipCodeSnippet } from "../../../../../low-code-ui-components";
 
+import { STNode } from "@wso2-enterprise/syntax-tree";
+
+import { DiagramTooltipCodeSnippet } from "../../../../../low-code-ui-components";
 import { Context } from "../../../Context/diagram";
 import { ErrorSnippet } from "../../../Types/type";
 
@@ -24,12 +25,12 @@ interface ReturnRectSVGProps {
     text?: { heading?: string, content?: string, example?: string, code?: string },
     diagnostic?: ErrorSnippet,
     icon?: ReactNode;
-    STNode: STNode;
+    model: STNode;
 }
 
 
 export function ReturnRectSVG(props: ReturnRectSVGProps) {
-    const { type, onClick, diagnostic, text, STNode } = props;
+    const { type, onClick, diagnostic, text, model } = props;
     const diagnosticStyles = diagnostic?.severity === "ERROR" ? "return-comp-error" : "return-comp-warning";
     const returnRectStyles = diagnostic.diagnosticMsgs ? diagnosticStyles : "return-comp";
     const diagramContext = useContext(Context);
@@ -58,17 +59,17 @@ export function ReturnRectSVG(props: ReturnRectSVGProps) {
     );
 
     const defaultTooltip = (
-        <DiagramTooltipCodeSnippet STNode={STNode} onClick={onClick} >{rectSVG}</DiagramTooltipCodeSnippet>
+        <DiagramTooltipCodeSnippet STNode={model} onClick={onClick} >{rectSVG}</DiagramTooltipCodeSnippet>
     );
     useEffect(() => {
-        if (STNode && showTooltip) {
-            setDiagTooltip(showTooltip(rectSVG, onClick, STNode,));
+        if (model && showTooltip) {
+            setDiagTooltip(showTooltip(rectSVG, onClick, model));
         }
         return () => {
             setTooltip(undefined);
             setDiagTooltip(undefined);
         };
-    }, [STNode]);
+    }, [model]);
 
     return (
         <>

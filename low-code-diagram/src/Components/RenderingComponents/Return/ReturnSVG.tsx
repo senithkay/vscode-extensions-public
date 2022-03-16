@@ -11,17 +11,19 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import { STNode } from "@wso2-enterprise/syntax-tree";
 import * as React from "react";
 
+import { STNode } from "@wso2-enterprise/syntax-tree";
+
 import { ErrorSnippet } from "../../../Types/type";
+
 import { ReturnRectSVG } from "./ReturnRectSVG";
 
 export const RETURN_SVG_HEIGHT = 42;
 export const RETURN_SVG_WIDTH = 83;
 
-export function ReturnSVG(props: { x: number, y: number, text?: string, openInCodeView?: () => void , diagnostics?: ErrorSnippet,STNode:STNode }) {
-    const { diagnostics, text, openInCodeView, STNode, ...xyProps } = props;
+export function ReturnSVG(props: { x: number, y: number, text?: string, openInCodeView?: () => void , diagnostics?: ErrorSnippet, componentSTNode: STNode }) {
+    const { diagnostics, text, openInCodeView, componentSTNode, ...xyProps } = props;
 
     return (
         <svg {...xyProps} height={RETURN_SVG_HEIGHT} width={RETURN_SVG_WIDTH} className="return">
@@ -48,7 +50,7 @@ export function ReturnSVG(props: { x: number, y: number, text?: string, openInCo
                 (
                     <ReturnRectSVG
                         onClick={openInCodeView}
-                        STNode={STNode}
+                        model={componentSTNode}
                         diagnostic={diagnostics}
                         className="while-group"
                     />

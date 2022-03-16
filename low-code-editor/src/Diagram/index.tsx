@@ -15,9 +15,9 @@ import React, { useContext, useState } from "react";
 
 import { DefaultConfig, LowCodeDiagram, PlusViewState, ViewState } from "@wso2-enterprise/ballerina-low-code-diagram";
 import { ConfigOverlayFormStatus, ConnectorConfigWizardProps, DiagramOverlayPosition, LowcodeEvent, OPEN_LOW_CODE, PlusWidgetProps, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { DiagramTooltipCodeSnippet } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
-import Tooltip from "../components/TooltipV2";
 import { Context as DiagramContext } from "../Contexts/Diagram";
 import { addAdvancedLabels } from "../DiagramGenerator/performanceUtil";
 import { TextPreLoader } from "../PreLoader/TextPreLoader";
@@ -28,7 +28,6 @@ import { FormGenerator, FormGeneratorProps } from "./components/FormComponents/F
 import "./style.scss";
 import { useStyles } from "./styles";
 import { removeStatement } from "./utils/modification-util";
-import { DiagramTooltipCodeSnippet } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 
 export function Diagram() {
     const {
@@ -239,10 +238,10 @@ export function Diagram() {
     const handleShowTooltip = (
         component: any,
         onClick?: () => void,
-        STNode?: STNode,
+        model?: STNode,
         additionalParams?: any): any => {
         return (
-            <DiagramTooltipCodeSnippet STNode={STNode} onClick={onClick} >
+            <DiagramTooltipCodeSnippet STNode={model} onClick={onClick} >
                 {component}
             </DiagramTooltipCodeSnippet>
         );

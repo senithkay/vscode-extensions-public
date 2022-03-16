@@ -11,10 +11,11 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import { STNode } from "@wso2-enterprise/syntax-tree";
 import React, { useContext, useEffect, useState } from "react";
-import { DiagramTooltipCodeSnippet } from "../../../../../low-code-ui-components";
 
+import { STNode } from "@wso2-enterprise/syntax-tree";
+
+import { DiagramTooltipCodeSnippet } from "../../../../../low-code-ui-components";
 import { Context } from "../../../Context/diagram";
 
 export const RESPOND_SVG_HEIGHT_WITH_SHADOW = 46;
@@ -24,8 +25,8 @@ export const RESPOND_SVG_HEIGHT = 41 + RESPOND_STROKE_HEIGHT;
 export const RESPOND_SVG_WIDTH = 83;
 export const RESPOND_SVG_SHADOW_OFFSET = RESPOND_SVG_HEIGHT_WITH_SHADOW - RESPOND_SVG_HEIGHT;
 
-export function RespondSVG(props: { x: number, y: number, text: string, sourceSnippet?: string, STNode: STNode, openInCodeView?: () => void }) {
-    const { text, sourceSnippet, openInCodeView, STNode, ...xyProps } = props;
+export function RespondSVG(props: { x: number, y: number, text: string, sourceSnippet?: string, model: STNode, openInCodeView?: () => void }) {
+    const { text, sourceSnippet, openInCodeView, model, ...xyProps } = props;
     const diagramContext = useContext(Context);
     const showTooltip = diagramContext?.api?.edit?.showTooltip;
     const [tooltip, setTooltip] = useState(undefined);
@@ -47,17 +48,17 @@ export function RespondSVG(props: { x: number, y: number, text: string, sourceSn
     );
 
     const defaultTooltip = (
-        <DiagramTooltipCodeSnippet STNode={STNode} onClick={openInCodeView} >{responseRect}</DiagramTooltipCodeSnippet>
+        <DiagramTooltipCodeSnippet STNode={model} onClick={openInCodeView} >{responseRect}</DiagramTooltipCodeSnippet>
     );
     useEffect(() => {
-        if (STNode && showTooltip) {
-            setDiagTooltip(showTooltip(responseRect, openInCodeView, STNode,));
+        if (model && showTooltip) {
+            setDiagTooltip(showTooltip(responseRect, openInCodeView, model));
         }
         return () => {
             setTooltip(undefined);
             setDiagTooltip(undefined);
         };
-    }, [STNode]);
+    }, [model]);
 
     return (
         <svg {...xyProps} height={RESPOND_SVG_HEIGHT_WITH_SHADOW} width={RESPOND_SVG_WIDTH_WITH_SHADOW} className="respond">

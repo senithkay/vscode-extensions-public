@@ -308,7 +308,7 @@ export function DataProcessor(props: ProcessorProps) {
                             processType={processType}
                             position={model?.position}
                             diagnostics={errorSnippet}
-                            STNode={model}
+                            componentSTNode={model}
                             openInCodeView={!isReadOnly && model && model.position && onClickOpenInCodeView}
                         />
                         <Assignment

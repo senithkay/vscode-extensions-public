@@ -35,11 +35,11 @@ interface ProcessSVGProps {
     openInCodeView?: () => void,
     processType: string,
     diagnostics?: ErrorSnippet,
-    STNode:STNode
+    componentSTNode: STNode
 }
 
 export function ProcessSVG(props: ProcessSVGProps) {
-    const { varName, processType, openInCodeView, diagnostics, STNode, ...xyProps } = props;
+    const { varName, processType, openInCodeView, diagnostics, componentSTNode, ...xyProps } = props;
     return (
         <svg {...xyProps} width={PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW} height={PROCESS_SVG_HEIGHT_WITH_HOVER_SHADOW} className="process" >
             <defs>
@@ -66,7 +66,7 @@ export function ProcessSVG(props: ProcessSVGProps) {
                 (
                 <ActionProcessRectSVG
                     onClick={openInCodeView}
-                    STNode={STNode}
+                    model={componentSTNode}
                     diagnostic={diagnostics}
                 />
                 )

@@ -13,11 +13,13 @@
 
 import React, { useContext, useEffect, useState } from "react";
 
+import { STNode } from "@wso2-enterprise/syntax-tree";
+
+import { DiagramTooltipCodeSnippet } from "../../../../../low-code-ui-components";
 import { Context } from "../../../Context/diagram";
 import { ErrorSnippet } from "../../../Types/type";
-import { DiagramTooltipCodeSnippet } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";;
+
 import "./style.scss"
-import { STNode } from "@wso2-enterprise/syntax-tree";
 
 interface ProcessRectSVGProps {
     type?: string,
@@ -26,11 +28,11 @@ interface ProcessRectSVGProps {
     text?: { heading?: string, content?: string, example?: string, code?: string },
     diagnostic?: ErrorSnippet,
     processTypeIndicator?: JSX.Element[];
-    STNode: STNode;
+    model: STNode
 }
 
 export function ProcessRectSVG(props: ProcessRectSVGProps) {
-    const { type, onClick, diagnostic, processTypeIndicator, text, className, STNode } = props;
+    const { type, onClick, diagnostic, processTypeIndicator, text, className, model } = props;
     const diagramContext = useContext(Context);
     const showTooltip = diagramContext?.api?.edit?.showTooltip;
     const diagnosticStyles = diagnostic?.severity === "ERROR" ? "data-processor-error" : "data-processor-warning";
@@ -51,17 +53,17 @@ export function ProcessRectSVG(props: ProcessRectSVGProps) {
     );
 
     const defaultTooltip = (
-        <DiagramTooltipCodeSnippet STNode={STNode} onClick={onClick} >{rectSVG}</DiagramTooltipCodeSnippet>
+        <DiagramTooltipCodeSnippet STNode={model} onClick={onClick} >{rectSVG}</DiagramTooltipCodeSnippet>
     );
     useEffect(() => {
-        if (STNode && showTooltip) {
-            setDiagTooltip(showTooltip(rectSVG, onClick, STNode,));
+        if (model && showTooltip) {
+            setDiagTooltip(showTooltip(rectSVG, onClick, model));
         }
         return () => {
             setTooltip(undefined);
             setDiagTooltip(undefined);
         };
-    }, [STNode]);
+    }, [model]);
 
     return (
         <>
