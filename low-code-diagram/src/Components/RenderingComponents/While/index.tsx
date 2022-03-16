@@ -207,7 +207,7 @@ export function While(props: WhileProps) {
                 <WhileSVG
                     x={x - WHILE_SVG_WIDTH_WITH_SHADOW / 2}
                     y={y}
-                    STNode={model}
+                    componentSTNode={model}
                     codeSnippet={codeSnippet}
                     codeSnippetOnSvg={codeSnippetOnSvg}
                     diagnostics={errorSnippet}
@@ -270,7 +270,7 @@ export function While(props: WhileProps) {
                 <WhileSVG
                     x={x - WHILE_SVG_WIDTH_WITH_SHADOW / 2}
                     y={y}
-                    STNode={model}
+                    componentSTNode={model}
                     codeSnippet={codeSnippet}
                     codeSnippetOnSvg={codeSnippetOnSvg}
                     diagnostics={errorSnippet}

@@ -25,7 +25,7 @@ export const FOREACH_SVG_WIDTH = 54.845;
 export const FOREACH_SVG_HEIGHT = 52.845;
 export const FOREACH_SHADOW_OFFSET = FOREACH_SVG_HEIGHT_WITH_SHADOW - FOREACH_SVG_HEIGHT;
 
-export function ForeachSVG(props: { x: number, y: number, text: string, openInCodeView?: () => void, codeSnippet?: string, diagnostics?: ErrorSnippet, componentSTNode: STNode }) {
+export function ForeachSVG(props: { x: number, y: number, text: string, openInCodeView?: () => void, codeSnippet?: string, diagnostics?: ErrorSnippet, componentSTNode?: STNode }) {
     const { text, openInCodeView, diagnostics, componentSTNode, ...xyProps } = props;
 
     return (

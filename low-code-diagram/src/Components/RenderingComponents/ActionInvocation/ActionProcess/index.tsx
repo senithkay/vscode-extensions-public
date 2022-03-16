@@ -263,7 +263,7 @@ export function ActionProcessor(props: ProcessorProps) {
                         processType={processType}
                         diagnostics={errorSnippet}
                         position={model?.position}
-                        STNode={model}
+                        componentSTNode={model}
                         openInCodeView={
                             !isReadOnly &&
                             model &&

@@ -227,7 +227,7 @@ export function ForEach(props: ForeachProps) {
                     x={x - FOREACH_SVG_WIDTH_WITH_SHADOW / 2}
                     y={y}
                     text="FOR EACH"
-                    STNode={model}
+                    componentSTNode={model}
                     diagnostics={errorSnippet}
                     openInCodeView={model && model?.position && onClickOpenInCodeView}
                 />

@@ -98,7 +98,7 @@ export function Return(props: ReturnProps) {
                     y={cy - DefaultConfig.dotGap / 4}
                     text={(model as ReturnStatement).expression?.source}
                     diagnostics={errorSnippet}
-                    STNode={model}
+                    componentSTNode={model}
                     openInCodeView={model && model.position && onClickOpenInCodeView}
                 />
             </g>

@@ -77,8 +77,9 @@ const useStyles = makeStyles(() =>
             lineHeight: "25px"
         },
         codeHintWrap: {
-            marginTop: "10px",
+            marginTop: "5px",
             marginBottom: "5px",
+            paddingTop:"-2px"
         },
         codeHint: {
             marginTop: "3px"
