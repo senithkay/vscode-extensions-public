@@ -21,6 +21,11 @@ import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 
 export const useStyles = makeStyles((theme: Theme) =>
     createStyles({
+        cardContent: {
+            "&:last-child": {
+                paddingBottom: theme.spacing(1),
+            },
+        },
         descriptionLabel: {
             display: "flex",
             marginBottom: theme.spacing(0.5),
@@ -31,13 +36,13 @@ export const useStyles = makeStyles((theme: Theme) =>
             fontSize: theme.spacing(1.4),
         },
         formGroup: {
-            marginBottom: theme.spacing(2),
+            marginBottom: theme.spacing(1),
         },
         formInputBox: {
             width: "100%",
         },
         innerBoxCard: {
-            marginTop: theme.spacing(2),
+            marginTop: theme.spacing(1),
         },
         innerBoxHead: {
             marginBottom: theme.spacing(1),
@@ -63,7 +68,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             "& .MuiInputBase-root": {
                 backgroundColor: "#ffffff",
             },
-            "marginBottom": theme.spacing(2),
+            "marginBottom": theme.spacing(1),
         },
     }),
 );

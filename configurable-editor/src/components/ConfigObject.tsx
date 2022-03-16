@@ -50,7 +50,7 @@ export const getConfigObject = (configObjectProps: ConfigObjectProps, classes: R
     return (
         <Box className={classes.innerBoxCard}>
             <Card variant="outlined">
-                <CardContent>
+                <CardContent className={classes.cardContent}>
                     <Box className={classes.innerBoxHead}>
                         <Typography className={classes.innerBoxTitle}>
                             {configObjectProps.name}
