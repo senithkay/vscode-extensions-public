@@ -316,6 +316,11 @@ export class SizingVisitor implements Visitor {
     }
 
     public beginVisitResourceAccessorDefinition(node: ResourceAccessorDefinition) {
+        if (node.viewState) {
+            const viewState: FunctionViewState = node.viewState as FunctionViewState;
+            viewState.isResource = true;
+        }
+
         this.beginVisitFunctionDefinition(node);
     }
 
@@ -356,6 +361,9 @@ export class SizingVisitor implements Visitor {
         const lifeLine = viewState.workerLine;
         const trigger = viewState.trigger;
         const end = viewState.end;
+
+        // Mark the body as a resource if function we are in is a resource function.
+        bodyViewState.isResource = viewState.isResource;
 
         trigger.h = START_SVG_HEIGHT;
         trigger.w = START_SVG_WIDTH;
@@ -469,6 +477,15 @@ export class SizingVisitor implements Visitor {
 
             this.currentWorker.pop();
             this.cleanMaps();
+        }
+
+        if (body.VisibleEndpoints && body.VisibleEndpoints.length > 0) {
+            for (const value of body.VisibleEndpoints) {
+                if (value.isCaller) {
+                    bodyViewState.isCallerAvailable = value.isCaller;
+                    break;
+                }
+            }
         }
     }
 
