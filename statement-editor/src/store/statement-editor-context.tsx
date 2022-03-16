@@ -18,7 +18,7 @@ import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import { languages } from "monaco-editor";
 
 import { LowCodeEditorProps } from '../components/StatementEditor';
-import { ModelKind, SuggestionsList } from "../models/definitions";
+import { ModelKind, SuggestionItem } from "../models/definitions";
 
 import { InputEditorContextProvider } from "./input-editor-context";
 
@@ -44,8 +44,7 @@ export const StatementEditorContext = React.createContext({
         diagnostics: null
     },
     suggestionsCtx: {
-        lsSuggestions: [],
-        exprSuggestions: []
+        lsSuggestions: []
     },
     getLangClient: () => (Promise.resolve({} as any)),
     applyModifications: (modifications: STModification[]) => undefined,
@@ -81,7 +80,7 @@ interface CtxProviderProps extends LowCodeEditorProps {
     hasUndo?: boolean,
     hasRedo?: boolean,
     diagnostics?: Diagnostic[],
-    suggestions?: SuggestionsList
+    lsSuggestions?: SuggestionItem[]
 }
 
 export const StatementEditorContextProvider = (props: CtxProviderProps) => {
@@ -102,7 +101,7 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
         library,
         initialSource,
         diagnostics,
-        suggestions,
+        lsSuggestions,
         ...restProps
     } = props;
 
@@ -128,8 +127,7 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
                     diagnostics
                 },
                 suggestionsCtx: {
-                    lsSuggestions: suggestions?.lsSuggestions,
-                    exprSuggestions: suggestions?.expressionSuggestions
+                    lsSuggestions
                 },
                 library,
                 modules: {

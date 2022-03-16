@@ -14,7 +14,6 @@
 import React, { useContext } from "react";
 
 import { List, ListItem, ListItemIcon, ListItemText, Typography } from "@material-ui/core";
-import { STNode } from "@wso2-enterprise/syntax-tree";
 
 import { SuggestionItem } from "../../../models/definitions";
 import { InputEditorContext } from "../../../store/input-editor-context";
@@ -23,18 +22,13 @@ import { getSuggestionIconStyle } from "../../../utils";
 import { acceptedCompletionKindForTypes } from "../../InputEditor/constants";
 import { useStatementEditorStyles } from "../../styles";
 
-export interface LSSuggestionsProps {
-    model: STNode;
-    isSuggestion: boolean;
-}
-
-export function LSSuggestions(props: LSSuggestionsProps) {
+export function LSSuggestions() {
     const statementEditorClasses = useStatementEditorStyles();
-    const { model, isSuggestion } = props;
     const inputEditorCtx = useContext(InputEditorContext);
 
     const {
         modelCtx: {
+            currentModel,
             updateModel,
         },
         suggestionsCtx: {
@@ -59,13 +53,13 @@ export function LSSuggestions(props: LSSuggestionsProps) {
             }
             variable = variable.split('(')[0] + "(" + paramArray.toString() + ")";
         }
-        updateModel(variable, model ? model.position : formModelPosition);
+        updateModel(variable, currentModel ? currentModel.model.position : formModelPosition);
         inputEditorCtx.onInputChange('');
     }
 
     return (
         <>
-            { isSuggestion && lsSuggestions && !!lsSuggestions.length && (
+            { lsSuggestions && !!lsSuggestions.length && (
                 <>
                     <div className={statementEditorClasses.lsSuggestionList}>
                         <List className={statementEditorClasses.suggestionList}>
@@ -107,7 +101,7 @@ export function LSSuggestions(props: LSSuggestionsProps) {
                     </div>
                 </>
             )}
-            { isSuggestion && lsSuggestions && !lsSuggestions.length && (
+            { lsSuggestions && !lsSuggestions.length && (
                 <p className={statementEditorClasses.noSuggestionText}>Suggestions not available</p>
             )}
         </>

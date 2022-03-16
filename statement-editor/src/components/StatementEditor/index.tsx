@@ -27,7 +27,6 @@ import * as monaco from "monaco-editor";
 import {
     APPEND_EXPR_LIST_CONSTRUCTOR,
     CUSTOM_CONFIG_TYPE,
-    DEFAULT_EXPRESSIONS,
     INIT_EXPR_LIST_CONSTRUCTOR
 } from "../../constants";
 import {
@@ -38,12 +37,8 @@ import {
 import { StatementEditorContextProvider } from "../../store/statement-editor-context";
 import {
     getCurrentModel,
-    getKindBasedOnOperator,
-    getOperatorSuggestions,
-    getSuggestionsBasedOnExpressionKind,
     isBindingPattern,
-    isOperator,
-    isTypeDesc
+    isOperator
 } from "../../utils";
 import {
     addImportStatements,
@@ -110,7 +105,6 @@ export function StatementEditor(props: StatementEditorProps) {
     const [diagnostics, setDiagnostics] = useState([]);
     const [moduleList, setModuleList] = useState(new Set<string>());
     const [lsSuggestionsList, setLSSuggestionsList] = useState([]);
-    const [exprSuggestionList, setExprSuggestionsList] = useState([]);
 
     const fileURI = monaco.Uri.file(currentFile.path).toString().replace(FILE_SCHEME, EXPR_SCHEME);
 
@@ -155,24 +149,16 @@ export function StatementEditor(props: StatementEditorProps) {
             if (model) {
                 const modelKind = currentModel?.kind;
                 let lsSuggestions : SuggestionItem[] = [];
-                let exprSuggestions : SuggestionItem[] = [];
 
-                if (isOperator(modelKind)) {
-                    const kind = getKindBasedOnOperator(currentModel.model.kind);
-                    exprSuggestions = getOperatorSuggestions(kind);
-                } else if (isBindingPattern(modelKind)) {
-                    // TODO: Add expr suggestions for binding patterns
-                } else {
+                if (!isOperator(modelKind) && !isBindingPattern(modelKind)) {
                     const content: string = await addStatementToTargetLine(
                         currentFile.content, formArgs.formArgs.targetPosition, model.source, getLangClient);
                     sendDidChange(fileURI, content, getLangClient).then();
                     lsSuggestions = await getCompletions(fileURI, formArgs.formArgs.targetPosition, model,
                         currentModel, getLangClient);
-                    exprSuggestions = isTypeDesc(modelKind) ? [] : getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS);
                 }
 
                 setLSSuggestionsList(lsSuggestions);
-                setExprSuggestionsList(exprSuggestions);
             }
         })();
     }, [currentModel.model]);
@@ -317,10 +303,7 @@ export function StatementEditor(props: StatementEditorProps) {
                     hasRedo={undoRedoManager.hasRedo()}
                     hasUndo={undoRedoManager.hasUndo()}
                     diagnostics={diagnostics}
-                    suggestions={{
-                        lsSuggestions: lsSuggestionsList,
-                        expressionSuggestions: exprSuggestionList
-                    }}
+                    lsSuggestions={lsSuggestionsList}
                 >
                     <ViewContainer
                         label={label}

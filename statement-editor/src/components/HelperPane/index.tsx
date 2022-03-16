@@ -11,10 +11,9 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 
 import { ALL_LIBS_IDENTIFIER, LANG_LIBS_IDENTIFIER, STD_LIBS_IDENTIFIER } from "../../constants";
-import { StatementEditorContext } from "../../store/statement-editor-context";
 import SelectDropdown from "../Dropdown";
 import { LibraryBrowser } from "../LibraryBrowser";
 import { useStatementEditorStyles } from "../styles";
@@ -30,12 +29,6 @@ enum TabElements {
 
 export function HelperPane() {
     const statementEditorClasses = useStatementEditorStyles();
-    const stmtCtx = useContext(StatementEditorContext);
-    const {
-        modelCtx: {
-            currentModel
-        }
-    } = stmtCtx;
 
     const [selectedTab, setSelectedTab] = useState(TabElements.suggestions);
     const [libraryType, setLibraryType] = useState('');
@@ -69,19 +62,9 @@ export function HelperPane() {
                 </div>
             </div>
             <div className={statementEditorClasses.suggestionsInner}>
-                <LSSuggestions
-                    model={currentModel.model}
-                    isSuggestion={selectedTab === TabElements.suggestions}
-                />
-                {(selectedTab === TabElements.expressions) && (
-                    <ExpressionSuggestions
-                        model={currentModel.model}
-                    />
-                )}
-                <LibraryBrowser
-                    libraryType={libraryType}
-                    isLibrary={selectedTab === TabElements.libraries}
-                />
+                {selectedTab === TabElements.suggestions && <LSSuggestions />}
+                {selectedTab === TabElements.expressions && <ExpressionSuggestions />}
+                {selectedTab === TabElements.libraries && <LibraryBrowser libraryType={libraryType} />}
             </div>
         </>
     );

@@ -38,11 +38,6 @@ export interface SuggestionItem {
     suggestionType?: number
 }
 
-export interface SuggestionsList {
-    lsSuggestions?: SuggestionItem[],
-    expressionSuggestions?: SuggestionItem[]
-}
-
 export interface RemainingContent {
     code: string,
     position: NodePosition

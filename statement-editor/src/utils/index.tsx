@@ -23,17 +23,11 @@ import {
 import * as expressionTypeComponents from '../components/ExpressionTypes';
 import * as statementTypeComponents from '../components/Statements';
 import { OTHER_EXPRESSION, OTHER_STATEMENT, StatementNodes } from "../constants";
-import { ModelKind, RemainingContent, SuggestionItem } from '../models/definitions';
+import { ModelKind, RemainingContent } from '../models/definitions';
 import { visitor as ExpressionDeletingVisitor } from "../visitors/expression-deleting-visitor";
 import { visitor as ModelFindingVisitor } from "../visitors/model-finding-visitor";
 
 import { createImportStatement, createStatement, updateStatement } from "./statement-modifications";
-import {
-    DataTypeByExpressionKind,
-    ExpressionKindByOperator,
-    ExpressionSuggestionsByKind,
-    OperatorsForExpressionKind
-} from "./utils";
 
 export function getModifications(
         model: STNode,
@@ -79,25 +73,6 @@ export function getModifications(
     }
 
     return modifications;
-}
-
-export function getSuggestionsBasedOnExpressionKind(kind: string): SuggestionItem[] {
-    return ExpressionSuggestionsByKind[kind];
-}
-
-export function getKindBasedOnOperator(operator: string): string {
-    return ExpressionKindByOperator[operator];
-}
-
-export function getOperatorSuggestions(kind: string): SuggestionItem[] {
-    if (kind in OperatorsForExpressionKind) {
-        return OperatorsForExpressionKind[kind];
-    }
-    return []; // we can remove the empty array return if we only set the operator prop to true for the expressions with operators
-}
-
-export function getDataTypeOnExpressionKind(kind: string): string[] {
-    return DataTypeByExpressionKind[kind];
 }
 
 export function getExpressionTypeComponent(expression: STNode, isTypeDescriptor: boolean): ReactNode {

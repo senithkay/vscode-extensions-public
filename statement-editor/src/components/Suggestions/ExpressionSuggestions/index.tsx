@@ -16,7 +16,6 @@ import React, { useContext, useState } from "react";
 import {
     Input, InputAdornment, List, ListItem, ListItemText, Typography
 } from "@material-ui/core";
-import { STNode } from "@wso2-enterprise/syntax-tree";
 
 import LibrarySearchIcon from "../../../assets/icons/LibrarySearchIcon";
 import { InputEditorContext } from "../../../store/input-editor-context";
@@ -24,33 +23,22 @@ import { StatementEditorContext } from "../../../store/statement-editor-context"
 import { Expression, ExpressionGroup, expressions, SELECTED_EXPRESSION } from "../../../utils/expressions";
 import { useStatementEditorStyles } from "../../styles";
 
-export interface ExpressionSuggestionsProps {
-    model: STNode;
-}
-
-export function ExpressionSuggestions(props: ExpressionSuggestionsProps) {
+export function ExpressionSuggestions() {
     const statementEditorClasses = useStatementEditorStyles();
-    const { model } = props;
     const inputEditorCtx = useContext(InputEditorContext);
     const [keyword, setKeyword] = useState('');
     const [filteredExpressions, setFilteredExpressions] = useState(expressions);
     const {
         modelCtx: {
+            currentModel,
             updateModel,
-        },
-        suggestionsCtx: {
-            exprSuggestions: suggestions
-        },
+        }
     } = useContext(StatementEditorContext);
 
     const onClickExpressionSuggestion = (expression: Expression) => {
-        const text = expression.template.replace(SELECTED_EXPRESSION, model.source);
-        updateModel(text, model.position);
+        const text = expression.template.replace(SELECTED_EXPRESSION, currentModel.model.source);
+        updateModel(text, currentModel.model.position);
         inputEditorCtx.onInputChange('');
-    }
-
-    const onClickOperatorSuggestion = (operatorSuggestion: SuggestionItem) => {
-        updateModel(operatorSuggestion.value, model.position);
     }
 
     const searchExpressions = (searchValue: string) => {
@@ -87,7 +75,7 @@ export function ExpressionSuggestions(props: ExpressionSuggestionsProps) {
                 />
                 {!!filteredExpressions.length && (
                     <>
-                        {filteredExpressions.map((group, i) => (
+                        {filteredExpressions.map((group) => (
                             <>
                                 <h3 className={statementEditorClasses.librarySearchSubHeader}>{group.name}</h3>
                                 <List className={statementEditorClasses.expressionList}>
