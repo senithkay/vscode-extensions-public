@@ -5,7 +5,6 @@ webviews/node_modules
 .vscode-test/
 *.vsix
 !resources/jslibs/font/DroidSansMono.ttf
-!resources/jslibs/webviewCommons.js
 resources/jslibs
 !.vscode
 coverage
