@@ -64,9 +64,7 @@ export function EditorPane(props: ModelProps) {
                         model={statementModel}
                     />
                 </div>
-                <div className={statementEditorClasses.diagnosticsPane}>
-                    <Diagnostics/>
-                </div>
+                <Diagnostics/>
             </div>
             <div className={statementEditorClasses.suggestionsSection}>
                 <HelperPane/>

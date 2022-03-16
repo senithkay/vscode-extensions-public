@@ -10,15 +10,19 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+// tslint:disable: jsx-no-multiline-js
 import React, { useContext } from "react";
 
+import { List, ListItemText, Typography } from "@material-ui/core";
 import { getDiagnosticMessage } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { INPUT_EDITOR_PLACE_HOLDERS } from "../InputEditor/constants";
+import { useStatementEditorStyles } from "../styles";
 
 export function Diagnostics() {
+    const statementEditorClasses = useStatementEditorStyles();
     const stmtCtx = useContext(StatementEditorContext);
     const {
         modelCtx: {
@@ -43,10 +47,23 @@ export function Diagnostics() {
         endColumn: targetPosition?.endColumn || 0
     };
 
-    const message = !hasPlaceHolders &&
-        getDiagnosticMessage(diagnostics, diagnosticTargetPosition, 0, statementModel?.source.length, 0, 0);
+    const messages = !hasPlaceHolders &&
+        getDiagnosticMessage(diagnostics, diagnosticTargetPosition, 0, statementModel?.source.length, 0, 0).split('.');
 
     return (
-        <span>{message}</span>
+        <div className={statementEditorClasses.diagnosticsPane}>
+            <List>
+                {
+                    messages && messages.map((msg: string, index: number) => (
+                        <ListItemText
+                            key={index}
+                            primary={(
+                                <Typography>{msg}</Typography>
+                            )}
+                        />
+                    ))
+                }
+            </List>
+        </div>
     )
 }

@@ -93,7 +93,7 @@ export const useStatementEditorStyles = makeStyles(() =>
         },
         statementExpressionContent: {
             paddingTop: theme.spacing(1.5),
-            paddingBottom: theme.spacing(1),
+            paddingBottom: theme.spacing(1.5),
             fontSize: "18px",
             'user-select': 'none'
         },
@@ -213,9 +213,12 @@ export const useStatementEditorStyles = makeStyles(() =>
         },
         diagnosticsPane: {
             color: '#ea4c4d',
-            display: 'flex',
-            height: '5%',
-            paddingLeft: '5%'
+            "& .MuiList-padding": {
+                padding: '0px'
+            },
+            "& .MuiListItemText-root": {
+                margin: '0px'
+            }
         },
         suggestionButton: {
             boxSizing: 'border-box',
