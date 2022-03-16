@@ -93,6 +93,7 @@ export function Connector(props: ConnectorProps) {
 
                     <line x1={x} y1={y} x2={x} y2={y + h} />
                     {!tooltip && textComponent()}
+                    {!showTooltip && <DefaultTooltip text={{heading: connectorName}}/>}
                     {tooltip}
                 </g>
                 <g>
@@ -121,6 +122,7 @@ export function Connector(props: ConnectorProps) {
                 >
                     <line x1={x} y1={viewState.bBox.cy + CLIENT_RADIUS} x2={x} y2={viewState.bBox.cy + h} />
                     {!tooltip && textComponent()}
+                    {!showTooltip && <DefaultTooltip text={{heading: connectorName}}/>}
                     {tooltip}
                 </g>
                 <g>
