@@ -9,6 +9,10 @@ module.exports = {
   },
   resolve: {
     extensions: [".js", ".jsx", ".json", ".ts", ".tsx"],
+    alias: {
+      'react': 'preact/compat',
+      'react-dom': 'preact/compat',
+    },
   },
 	experiments: {
 		outputModule: true,
