@@ -11,10 +11,11 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
+import { STNode } from "@wso2-enterprise/syntax-tree";
 import React, { useContext, useEffect, useState } from "react";
+import { DiagramTooltipCodeSnippet } from "../../../../../low-code-ui-components";
 
 import { Context } from "../../../Context/diagram";
-import { DefaultTooltip } from "../DefaultTooltip";
 
 export const RESPOND_SVG_HEIGHT_WITH_SHADOW = 46;
 export const RESPOND_SVG_WIDTH_WITH_SHADOW = 96;
@@ -23,11 +24,12 @@ export const RESPOND_SVG_HEIGHT = 41 + RESPOND_STROKE_HEIGHT;
 export const RESPOND_SVG_WIDTH = 83;
 export const RESPOND_SVG_SHADOW_OFFSET = RESPOND_SVG_HEIGHT_WITH_SHADOW - RESPOND_SVG_HEIGHT;
 
-export function RespondSVG(props: { x: number, y: number, text: string, sourceSnippet?: string, openInCodeView?: () => void }) {
-    const { text, sourceSnippet, openInCodeView, ...xyProps } = props;
+export function RespondSVG(props: { x: number, y: number, text: string, sourceSnippet?: string, STNode: STNode, openInCodeView?: () => void }) {
+    const { text, sourceSnippet, openInCodeView, STNode, ...xyProps } = props;
     const diagramContext = useContext(Context);
     const showTooltip = diagramContext?.api?.edit?.showTooltip;
     const [tooltip, setTooltip] = useState(undefined);
+    const [diagTooltip, setDiagTooltip] = useState(undefined);
     const responseRect = (
         <g id="Respond" className="respond-comp respond-active" transform="translate(7 6)">
             <g transform="matrix(1, 0, 0, 1, -7, -6)">
@@ -45,14 +47,17 @@ export function RespondSVG(props: { x: number, y: number, text: string, sourceSn
     );
 
     const defaultTooltip = (
-        <DefaultTooltip text={{ code: sourceSnippet }}>{responseRect}</DefaultTooltip>
+        <DiagramTooltipCodeSnippet STNode={STNode} onClick={openInCodeView} >{responseRect}</DiagramTooltipCodeSnippet>
     );
-
     useEffect(() => {
-        if (sourceSnippet && showTooltip) {
-            setTooltip(showTooltip(responseRect, "diagram-code", { code: sourceSnippet }, "right", true, undefined, undefined, false, openInCodeView));
+        if (STNode && showTooltip) {
+            setDiagTooltip(showTooltip(responseRect, openInCodeView, STNode,));
         }
-    }, [sourceSnippet]);
+        return () => {
+            setTooltip(undefined);
+            setDiagTooltip(undefined);
+        };
+    }, [STNode]);
 
     return (
         <svg {...xyProps} height={RESPOND_SVG_HEIGHT_WITH_SHADOW} width={RESPOND_SVG_WIDTH_WITH_SHADOW} className="respond">
@@ -76,7 +81,7 @@ export function RespondSVG(props: { x: number, y: number, text: string, sourceSn
                     <feComposite in="SourceGraphic" />
                 </filter>
             </defs>
-            {tooltip ? tooltip : defaultTooltip}
+            {defaultTooltip}
         </svg >
     )
 }

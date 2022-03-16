@@ -95,6 +95,7 @@ export function Respond(props: RespondProps) {
                     x={cx - (RESPOND_SVG_WIDTH_WITH_SHADOW / 2)}
                     y={cy - DefaultConfig.shadow + DefaultConfig.dotGap / 2}
                     text={compType}
+                    STNode={model}
                     sourceSnippet={sourceSnippet}
                     openInCodeView={model && model.position && onClickOpenInCodeView}
                 />
