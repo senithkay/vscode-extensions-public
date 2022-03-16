@@ -31,7 +31,7 @@ import { DELETE_SVG_HEIGHT_WITH_SHADOW, DELETE_SVG_WIDTH_WITH_SHADOW } from "../
 import { EditBtn } from "../../../Components/DiagramActions/EditBtn";
 import { EDIT_SVG_OFFSET, EDIT_SVG_WIDTH_WITH_SHADOW } from "../../../Components/DiagramActions/EditBtn/EditSVG";
 import { Context } from "../../../Context/diagram";
-import { getDiagnosticInfo, getMethodCallFunctionName, getOverlayFormConfig, getRandomInt, getStatementTypesFromST } from "../../../Utils";
+import { filterComments, getDiagnosticInfo, getMethodCallFunctionName, getOverlayFormConfig, getRandomInt, getStatementTypesFromST } from "../../../Utils";
 import { BlockViewState, StatementViewState } from "../../../ViewState";
 import { DraftStatementViewState } from "../../../ViewState/draft";
 import { DefaultConfig } from "../../../Visitors/default";
@@ -238,7 +238,7 @@ export function DataProcessor(props: ProcessorProps) {
         }
     } else if (!isDraftStatement && STKindChecker?.isAssignmentStatement(model)) {
         assignmentText = (model as AssignmentStatement)?.expression?.source;
-        statmentTypeText = model.varRef?.typeData?.typeSymbol?.signature
+        statmentTypeText = model.varRef?.typeData?.typeSymbol?.signature;
     } else if (!isDraftStatement && STKindChecker?.isLocalVarDecl(model)) {
         assignmentText = model?.initializer?.source;
         statmentTypeText = getStatementTypesFromST(localModel);
@@ -285,7 +285,7 @@ export function DataProcessor(props: ProcessorProps) {
                                 {statmentTypeText &&
                                     <>
                                         <StatementTypes
-                                            statementType={statmentTypeText}
+                                            statementType={filterComments(statmentTypeText)}
                                             x={cx - (VARIABLE_NAME_WIDTH + DefaultConfig.textAlignmentOffset)}
                                             y={cy + PROCESS_SVG_HEIGHT / 4 + leftTextOffset}
                                             key_id={getRandomInt(1000)}
@@ -314,7 +314,7 @@ export function DataProcessor(props: ProcessorProps) {
                         <Assignment
                             x={cx + PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW / 2 + (DefaultConfig.dotGap * 3)}
                             y={prosessTypes ? (cy + PROCESS_SVG_HEIGHT / 2 + rightTextOffset) : (cy + PROCESS_SVG_HEIGHT / 3 + rightTextOffset)}
-                            assignment={assignmentText}
+                            assignment={filterComments(assignmentText)}
                             className={assignmentTextStyles}
                             key_id={getRandomInt(1000)}
                         />
@@ -322,7 +322,7 @@ export function DataProcessor(props: ProcessorProps) {
                         <MethodCall
                             x={cx + PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW / 2 + (DefaultConfig.dotGap * 3)}
                             y={(cy + PROCESS_SVG_HEIGHT / 4) - (DefaultConfig.dotGap / 2)}
-                            methodCall={methodCallText}
+                            methodCall={filterComments(methodCallText)}
                             key_id={getRandomInt(1000)}
                         />
 
