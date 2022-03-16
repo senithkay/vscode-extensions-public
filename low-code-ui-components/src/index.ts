@@ -14,5 +14,4 @@ export * from "./buttons";
 export * from "./FormHeader";
 export * from "./FormActionButtons";
 export * from "./Tooltip";
-export * from "./Tooltip/diagramTooltip";
 export * from "./ComponentExpandButton";
