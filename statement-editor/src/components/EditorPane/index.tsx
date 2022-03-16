@@ -13,37 +13,31 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useState } from "react";
 
-import IconButton from "@material-ui/core/IconButton";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 
-import ToolbarDeleteIcon from "../../assets/icons/ToolbarDeleteIcon";
-import ToolbarRedoIcon from "../../assets/icons/ToolbarRedoIcon";
-import ToolbarUndoIcon from "../../assets/icons/ToolbarUndoIcon";
 import * as c from "../../constants";
 import { SuggestionItem, VariableUserInputs } from "../../models/definitions";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { SuggestionsContext } from "../../store/suggestions-context";
-import { getRemainingContent, getSuggestionsBasedOnExpressionKind } from "../../utils";
+import { getSuggestionsBasedOnExpressionKind } from "../../utils";
 import { Diagnostics } from "../Diagnostics";
 import { HelperPane } from "../HelperPane";
 import { StatementRenderer } from "../StatementRenderer";
 import { useStatementEditorStyles } from "../styles";
+import Toolbar from "../Toolbar";
 
 interface ModelProps {
     label: string,
     currentModel: { model: STNode },
     userInputs?: VariableUserInputs
     currentModelHandler: (model: STNode) => void
-    exprDeletable: boolean
 }
 
 export function EditorPane(props: ModelProps) {
     const statementEditorClasses = useStatementEditorStyles();
-    const { label, userInputs, currentModelHandler, currentModel, exprDeletable } = props;
+    const { label, userInputs, currentModelHandler, currentModel } = props;
 
     const { modelCtx } = useContext(StatementEditorContext);
-
-    const { undo, redo, hasRedo, hasUndo, statementModel: completeModel, updateModel } = modelCtx;
 
     const [suggestionList, setSuggestionsList] = useState(modelCtx.statementModel ?
         getSuggestionsBasedOnExpressionKind(c.DEFAULT_EXPRESSIONS) : []);
@@ -83,48 +77,6 @@ export function EditorPane(props: ModelProps) {
         setDiagnostic(diagnostics)
     }
 
-    const onClickOnDelete = () => {
-        const {
-            code: newCode,
-            position: newPosition
-        } = getRemainingContent(currentModel.model.position, completeModel);
-        updateModel(newCode, newPosition);
-    }
-
-    const toolbar = (
-        <span className={statementEditorClasses.toolbar}>
-            <IconButton
-                onClick={undo}
-                disabled={!hasUndo}
-                className={statementEditorClasses.toolbarIcons}
-                style={{marginLeft: '14px'}}
-            >
-                 <ToolbarUndoIcon/>
-            </IconButton>
-            <IconButton onClick={redo} disabled={!hasRedo} className={statementEditorClasses.toolbarIcons}>
-                <ToolbarRedoIcon />
-            </IconButton>
-            {currentModel.model && exprDeletable ? (
-                <IconButton
-                    onClick={onClickOnDelete}
-                    style={{color: '#FE523C', marginRight: '14px'}}
-                    className={statementEditorClasses.toolbarIcons}
-                >
-                    <ToolbarDeleteIcon/>
-                </IconButton>
-            ) : (
-                <IconButton
-                    disabled={true}
-                    style={{color: '#8D91A3', marginRight: '14px'}}
-                    className={statementEditorClasses.toolbarIcons}
-                >
-                    <ToolbarDeleteIcon/>
-                </IconButton>
-            )}
-        </span>
-    );
-
-
     return (
         <div>
             <div className={statementEditorClasses.stmtEditorContentWrapper}>
@@ -133,7 +85,7 @@ export function EditorPane(props: ModelProps) {
                         expressionHandler
                     }}
                 >
-                    <div className={statementEditorClasses.statementExpressionTitle}>{label}{toolbar}</div>
+                    <div className={statementEditorClasses.statementExpressionTitle}>{label}<Toolbar/></div>
                     <div className={statementEditorClasses.statementExpressionContent}>
                         <StatementRenderer
                             model={modelCtx.statementModel}

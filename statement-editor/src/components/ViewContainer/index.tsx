@@ -39,7 +39,6 @@ export interface ViewContainerProps {
     currentModelHandler: (model: STNode) => void;
     onWizardClose: () => void;
     onCancel: () => void;
-    exprDeletable: boolean
 }
 
 export function ViewContainer(props: ViewContainerProps) {
@@ -51,8 +50,7 @@ export function ViewContainer(props: ViewContainerProps) {
         isStatementValid,
         currentModelHandler,
         onWizardClose,
-        onCancel,
-        exprDeletable
+        onCancel
     } = props;
     const intl = useIntl();
     const overlayClasses = useStatementEditorStyles();
@@ -102,7 +100,6 @@ export function ViewContainer(props: ViewContainerProps) {
                         label={label}
                         userInputs={userInputs}
                         currentModelHandler={currentModelHandler}
-                        exprDeletable={exprDeletable}
                     />
                 </div>
                 <div className={overlayClasses.statementBtnWrapper}>
