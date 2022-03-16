@@ -241,7 +241,7 @@ export function Diagram() {
         model?: STNode,
         additionalParams?: any): any => {
         return (
-            <DiagramTooltipCodeSnippet STNode={model} onClick={onClick} >
+            <DiagramTooltipCodeSnippet componentModel={model} onClick={onClick} >
                 {component}
             </DiagramTooltipCodeSnippet>
         );

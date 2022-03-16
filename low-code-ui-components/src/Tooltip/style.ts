@@ -79,7 +79,7 @@ const useStyles = makeStyles(() =>
         codeHintWrap: {
             marginTop: "5px",
             marginBottom: "5px",
-            paddingTop:"-2px"
+            paddingTop: "-2px"
         },
         codeHint: {
             marginTop: "3px"

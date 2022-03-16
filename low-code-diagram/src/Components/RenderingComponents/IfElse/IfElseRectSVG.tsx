@@ -46,7 +46,7 @@ export function IfElseRectSVG(props: IfElseRectSVGProps) {
     );
 
     const defaultTooltip = (
-        <DiagramTooltipCodeSnippet STNode={model} onClick={onClick} >{component}</DiagramTooltipCodeSnippet>
+        <DiagramTooltipCodeSnippet componentModel={model} onClick={onClick} >{component}</DiagramTooltipCodeSnippet>
     );
     useEffect(() => {
         if (model && showTooltip) {

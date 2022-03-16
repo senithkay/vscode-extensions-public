@@ -52,7 +52,7 @@ export function ForEachRectSVG(props: ForEachRectSVGProps) {
     );
 
     const defaultTooltip = (
-        <DiagramTooltipCodeSnippet STNode={model} onClick={onClick} >{svgElement}</DiagramTooltipCodeSnippet>
+        <DiagramTooltipCodeSnippet componentModel={model} onClick={onClick} >{svgElement}</DiagramTooltipCodeSnippet>
     );
     useEffect(() => {
         if (model && showTooltip) {

@@ -48,7 +48,7 @@ export function RespondSVG(props: { x: number, y: number, text: string, sourceSn
     );
 
     const defaultTooltip = (
-        <DiagramTooltipCodeSnippet STNode={model} onClick={openInCodeView} >{responseRect}</DiagramTooltipCodeSnippet>
+        <DiagramTooltipCodeSnippet componentModel={model} onClick={openInCodeView} >{responseRect}</DiagramTooltipCodeSnippet>
     );
     useEffect(() => {
         if (model && showTooltip) {

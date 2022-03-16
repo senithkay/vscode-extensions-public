@@ -14,37 +14,38 @@
 import { DiagnosticMsgSeverity, DiagramDiagnostic } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { ForeachStatement, IfElseStatement, STNode, WhileStatement } from '@wso2-enterprise/syntax-tree';
 
-export function getSourceFromST(STNode: STNode): string {
-    if (STNode) {
-        return STNode?.source?.trim().split(')')[0]
+export function getSourceFromST(componentSTNode: STNode): string {
+    if (componentSTNode) {
+        return componentSTNode?.source?.trim().split(')')[0]
     }
 }
 
-export function getDiagnosticsFromST(STNode: STNode): DiagnosticMsgSeverity {
+export function getDiagnosticsFromST(componentSTNode: STNode): DiagnosticMsgSeverity {
     let diagnostics;
-    if (STNode) {
-        if (STNode.kind === "ForeachStatement") {
-            const forEachModel = STNode as ForeachStatement
+    if (componentSTNode) {
+        if (componentSTNode.kind === "ForeachStatement") {
+            const forEachModel = componentSTNode as ForeachStatement
             diagnostics = (forEachModel?.actionOrExpressionNode?.typeData?.diagnostics).length !== 0 ?
                 (forEachModel?.actionOrExpressionNode?.typeData?.diagnostics)
                 : (forEachModel?.typedBindingPattern?.typeData?.diagnostics);
         }
-        else if (STNode.kind === "WhileStatement") {
-            const modelWhile = STNode as WhileStatement;
+        else if (componentSTNode.kind === "WhileStatement") {
+            const modelWhile = componentSTNode as WhileStatement;
             diagnostics = modelWhile?.condition?.typeData?.diagnostics;
         }
-        else if (STNode.kind === "IfElseStatement") {
-            const modelIf = STNode as IfElseStatement;
+        else if (componentSTNode.kind === "IfElseStatement") {
+            const modelIf = componentSTNode as IfElseStatement;
             diagnostics = modelIf?.condition?.typeData?.diagnostics;
         }
         else {
-            diagnostics = STNode?.typeData?.diagnostics;
+            diagnostics = componentSTNode?.typeData?.diagnostics;
         }
         return (getDiagnosticInfo(diagnostics));
     }
 }
 
 export function getDiagnosticInfo(diagnostics: DiagramDiagnostic[]): DiagnosticMsgSeverity {
+    /* tslint:disable prefer-for-of */
     const diagnosticMsgsArray: string[] = [];
     if (diagnostics?.length === 0 || diagnostics === undefined) {
         return undefined;

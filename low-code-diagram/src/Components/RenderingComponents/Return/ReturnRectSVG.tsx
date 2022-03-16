@@ -59,7 +59,7 @@ export function ReturnRectSVG(props: ReturnRectSVGProps) {
     );
 
     const defaultTooltip = (
-        <DiagramTooltipCodeSnippet STNode={model} onClick={onClick} >{rectSVG}</DiagramTooltipCodeSnippet>
+        <DiagramTooltipCodeSnippet componentModel={model} onClick={onClick} >{rectSVG}</DiagramTooltipCodeSnippet>
     );
     useEffect(() => {
         if (model && showTooltip) {
