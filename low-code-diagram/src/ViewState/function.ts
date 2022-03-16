@@ -36,6 +36,7 @@ export class FunctionViewState extends ViewState {
     public onFail: OnFailClause = undefined;
     public precedingPlus: PlusViewState = undefined;
     public triggerParams: TriggerParamsViewState = new TriggerParamsViewState();
+    public isResource: boolean = false;
 
     constructor() {
         super();

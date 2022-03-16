@@ -1,4 +1,4 @@
-import { PerformanceAnalyzerRealtimeResponse } from ".";
+import { PerformanceAnalyzerRealtimeResponse } from "./lang-client-extended";
 
 export interface PerformanceData {
     data: PerformanceAnalyzerRealtimeResponse,

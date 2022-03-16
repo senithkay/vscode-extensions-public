@@ -32,6 +32,7 @@ export class BlockViewState extends ViewState {
     public isCallerAvailable: boolean = false;
     public hasWorkerDecl: boolean = false;
     public workerArrows: SimpleBBox[] = [];
+    public workerIndicatorLine: SimpleBBox = new SimpleBBox();
 
     constructor() {
         super();

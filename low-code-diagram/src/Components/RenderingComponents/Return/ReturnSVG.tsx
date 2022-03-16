@@ -20,7 +20,7 @@ import { ErrorSnippet } from "../../../Types/type";
 import { ReturnRectSVG } from "./ReturnRectSVG";
 
 export const RETURN_SVG_HEIGHT = 42;
-export const RETURN_SVG_WIDTH = 83;
+export const RETURN_SVG_WIDTH = 84;
 
 export function ReturnSVG(props: { x: number, y: number, text?: string, openInCodeView?: () => void , diagnostics?: ErrorSnippet, componentSTNode: STNode }) {
     const { diagnostics, text, openInCodeView, componentSTNode, ...xyProps } = props;

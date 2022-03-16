@@ -39,7 +39,7 @@ export function ReturnRectSVG(props: ReturnRectSVGProps) {
     const [diagTooltip, setDiagTooltip] = useState(undefined);
 
     const rectSVG = (
-        <g className={returnRectStyles} transform="translate(7 6)">
+        <g className={returnRectStyles} transform="translate(8 6)">
             <g transform="matrix(1, 0, 0, 1, -14, -9)">
                 <g id="Rectangle-2" transform="translate(7 6)">
                     <rect width="82" height="32" rx="16" stroke="none" />
