@@ -20,7 +20,6 @@ import { ErrorSnippet } from "../../../Types/type";
 
 import { ProcessRectSVG } from "./ProcessRectSVG";
 import "./style.scss";
-import { DiagramTooltip } from "../../../../../low-code-ui-components/lib/Tooltip/diagramTooltip";
 
 export const PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW = 62;
 export const PROCESS_SVG_HEIGHT_WITH_HOVER_SHADOW = 62;

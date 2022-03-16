@@ -16,6 +16,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { Context } from "../../../Context/diagram";
 import { ErrorSnippet } from "../../../Types/type";
 import { DefaultTooltip } from "../DefaultTooltip";
+import { DiagramTooltipCodeSnippet } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";;
 import { DiagramTooltip } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import "./style.scss"
 import { STNode } from "@wso2-enterprise/syntax-tree";
@@ -52,7 +53,7 @@ export function ProcessRectSVG(props: ProcessRectSVGProps) {
     );
 
     const defaultTooltip = (
-        <DiagramTooltip STNode={STNode} onClick={onClick} >{rectSVG}</DiagramTooltip>
+        <DiagramTooltipCodeSnippet STNode={STNode} onClick={onClick} >{rectSVG}</DiagramTooltipCodeSnippet>
     );
     useEffect(() => {
         if (STNode && showTooltip) {

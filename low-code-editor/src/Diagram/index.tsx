@@ -28,7 +28,7 @@ import { FormGenerator, FormGeneratorProps } from "./components/FormComponents/F
 import "./style.scss";
 import { useStyles } from "./styles";
 import { removeStatement } from "./utils/modification-util";
-import { DiagramTooltip } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
+import { DiagramTooltipCodeSnippet } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 
 export function Diagram() {
     const {
@@ -236,31 +236,15 @@ export function Diagram() {
         return (<ChildComp {...plusWidgetProps} viewState={plusViewState} />);
     };
 
-    const handleShowTooltip = (component: any,
-        // type: string,
-        //    text?: { heading?: string, content?: string, example?: string, code?: string },
-        //    placement?: | 'bottom-end' | 'bottom-start' | 'bottom' | 'left-end' | 'left-start' | 'left' | 'right-end' | 'right-start' | 'right' | 'top-end' | 'top-start' | 'top',
-        //    arrow?: boolean,
-        //    diagnostic?: { diagnosticMsgs?: string, code?: string, severity?: string },
-        //    action?: { link: string, text: string },
-        STNode: STNode,
-
-        //    disabled?: boolean,
+    const handleShowTooltip = (
+        component: any,
         onClick?: () => void,
+        STNode?: STNode,
         additionalParams?: any): any => {
         return (
-            // additionalParams ? (
-            //     <Tooltip type={type} text={text} diagnostic={diagnostic} placement={placement} arrow={arrow} action={action} onClick={onClick} disabled={disabled} {...additionalParams} >
-            //         {component}
-            //     </Tooltip>
-            // ) : (
-            //     <Tooltip type={type} text={text} diagnostic={diagnostic} placement={placement} arrow={arrow} action={action} onClick={onClick} disabled={disabled} >
-            //         {component}
-            //     </Tooltip>
-            // )
-            <DiagramTooltip STNode={STNode} onClick={onClick} >
+            <DiagramTooltipCodeSnippet STNode={STNode} onClick={onClick} >
                 {component}
-            </DiagramTooltip>
+            </DiagramTooltipCodeSnippet>
         );
     };
 
