@@ -11,6 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
+import { STNode } from "@wso2-enterprise/syntax-tree";
 import * as React from "react";
 
 import { ErrorSnippet } from "../../../../Types/type";
@@ -25,10 +26,12 @@ export const CONNECTOR_PROCESS_SHADOW_OFFSET = CONNECTOR_PROCESS_SVG_WIDTH_WITH_
 
 export function ConnectorProcessSVG(props: {
     x: number, y: number,
-    sourceSnippet?: string, diagnostics?: ErrorSnippet,
-    openInCodeView?: () => void
+    sourceSnippet?: string, 
+    diagnostics?: ErrorSnippet,
+    openInCodeView?: () => void,
+    STNode:STNode
 }) {
-    const { sourceSnippet, diagnostics, openInCodeView, ...xyProps } = props;
+    const { sourceSnippet, diagnostics, openInCodeView,STNode, ...xyProps } = props;
     const tooltipText = sourceSnippet ? {
         code: sourceSnippet
     } : undefined;
@@ -47,22 +50,13 @@ export function ConnectorProcessSVG(props: {
                     <feComposite in="SourceGraphic" />
                 </filter>
             </defs>
-            {diagnostics?.diagnosticMsgs ?
-                    (
-                        <ConnectorRectSVG
-                            type={"diagram-diagnostic"}
-                            onClick={openInCodeView}
-                            diagnostic={diagnostics}
-                        />
-                    )
-                    :
-                    (
-                        <ConnectorRectSVG
-                            type={"diagram-code"}
-                            onClick={openInCodeView}
-                            text={tooltipText}
-                        />
-                    )}
+            (
+            <ConnectorRectSVG
+                onClick={openInCodeView}
+                STNode={STNode}
+                diagnostic={diagnostics}
+            />
+            )
         </svg>
     )
 }
