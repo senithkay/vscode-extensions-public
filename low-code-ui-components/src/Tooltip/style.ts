@@ -126,8 +126,6 @@ const useStyles = makeStyles(() =>
             fontSize: '12px',
             letterSpacing: '0',
         }
-
-
     }),
 );
 
