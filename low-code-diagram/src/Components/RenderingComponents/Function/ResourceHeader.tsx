@@ -71,7 +71,7 @@ export function ResourceHeader(props: ResourceHeaderProps) {
             {errorIcon}
         </div>
     );
-    //TODO:Add new tooltip component to support this scenario
+    // TODO:Add new tooltip component to support this scenario
     // useEffect(() => {
     //     if (diagnosticMsgs && showTooltip) {
     //         setTooltip(showTooltip(iconElement, "diagram-diagnostic", undefined, "left", true, errorSnippet, undefined, false, openInCodeView));

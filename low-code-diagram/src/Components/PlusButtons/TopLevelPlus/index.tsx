@@ -74,7 +74,7 @@ export const TopLevelPlus = (props: PlusProps) => {
         setPlusOptions(undefined);
     };
 
-    //TODO:Add new tooltip component to support this scenario
+    // TODO:Add new tooltip component to support this scenario
 
     // useEffect(() => {
     //     if (!isDocumentEmpty && showTooltip) {

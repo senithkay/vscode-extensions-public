@@ -41,7 +41,7 @@ export function PerformanceBar(props: PerformanceProps) {
         <p className={"more"} onClick={onClickPerformance}>{"Show More →"}</p>
     );
 
-    //TODO:Add new tooltip component to support this scenario
+    // TODO:Add new tooltip component to support this scenario
     // useEffect(() => {
     //     if (showTooltip) {
     //         setTooltip(showTooltip(element, "heading-content", {

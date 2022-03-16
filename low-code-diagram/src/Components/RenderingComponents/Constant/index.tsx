@@ -65,7 +65,7 @@ export function Constant(props: ConstantProps) {
         <tspan x="0" y="0">{typeMaxWidth ? varType.slice(0, 10) + "..." : varType}</tspan>
     );
 
-    //TODO:Add new tooltip component to support this scenario
+    // TODO:Add new tooltip component to support this scenario
     // useEffect(() => {
     //     if (model && showTooltip) {
     //         setTooltip(showTooltip(typeText, "heading", { heading: model.source.slice(1, -1) }, "top-start", true, undefined, undefined, false, undefined, {

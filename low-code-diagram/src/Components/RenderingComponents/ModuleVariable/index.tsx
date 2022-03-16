@@ -97,7 +97,7 @@ export function ModuleVariable(props: ModuleVariableProps) {
         <tspan x="0" y="0">{typeMaxWidth ? varType.slice(0, 10) + "..." : varType}</tspan>
     );
 
-    //TODO:Add new tooltip component to support this scenario
+    // TODO:Add new tooltip component to support this scenario
     // useEffect(() => {
     //     if (model && showTooltip) {
     //         setTooltip(showTooltip(moduleVariableTypeElement, "heading-content", {

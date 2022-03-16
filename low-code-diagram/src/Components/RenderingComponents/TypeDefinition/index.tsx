@@ -100,8 +100,8 @@ export function TypeDefinitionComponent(props: TypeDefComponentProps) {
             <tspan x="0" y="0">{typeMaxWidth ? type.slice(0, 10) + "..." : type}</tspan>
         );
 
-        //TODO:Add new tooltip component to support this scenario
-        //let tooltip: ReactElement;
+        // TODO:Add new tooltip component to support this scenario
+        // let tooltip: ReactElement;
         // if (showTooltip) {
         //     tooltip = showTooltip(typeText, "heading-content", {
         //         content: model.source.slice(1, -1),

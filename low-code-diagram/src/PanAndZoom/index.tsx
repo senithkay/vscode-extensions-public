@@ -125,7 +125,7 @@ export default function PanAndZoom(props: PanAndZoomProps) {
             <FitToScreenSVG />
         </div>
     );
-    //TODO:Add new tooltip component to support this scenario
+    // TODO:Add new tooltip component to support this scenario
     // const zoomInTooltip = showTooltip ? showTooltip(zoomInButton, "heading-content", {
     //     content: "Zoom In",
     //     heading: ""

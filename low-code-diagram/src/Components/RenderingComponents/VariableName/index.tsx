@@ -52,7 +52,7 @@ export function VariableName(props: { x: number, y: number, variableName: string
         </text>
     );
 
-    //TODO:Add new tooltip component to support this scenario
+    // TODO:Add new tooltip component to support this scenario
 
     // const defaultTooltip = (
     //     <DefaultTooltip text={{ heading: variableName }}>{variableTextComp}</DefaultTooltip>

@@ -75,7 +75,7 @@ export function ListenerC(props: ListenerProps) {
         <tspan x="0" y="0">{typeMaxWidth ? listenerType.slice(0, 10).toUpperCase() + "..." : listenerType.toUpperCase()}</tspan>
     );
 
-    //TODO:Add new tooltip component to support this scenario
+    // TODO:Add new tooltip component to support this scenario
     // useEffect(() => {
     //     if (model && showTooltip) {
     //         setTooltip(showTooltip(listenerTypeComponent, "heading-content", {

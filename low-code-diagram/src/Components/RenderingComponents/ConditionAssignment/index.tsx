@@ -49,7 +49,7 @@ export function ConditionAssignment(props: { x: number, y: number, assignment: s
         </text>
     );
 
-    //TODO:Add new tooltip component to support this scenario
+    // TODO:Add new tooltip component to support this scenario
     // const defaultTooltip = (
     //     <DefaultTooltip text={{ heading: assignment }}>{assignemtComponant}</DefaultTooltip>
     // );

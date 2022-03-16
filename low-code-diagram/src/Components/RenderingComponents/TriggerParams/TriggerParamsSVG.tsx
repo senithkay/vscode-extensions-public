@@ -42,7 +42,7 @@ export function TriggerParamsSVG(props: { x: number, y: number, text: any }) {
         </g>
     );
 
-    //TODO:Add new tooltip component to support this scenario
+    // TODO:Add new tooltip component to support this scenario
 
     // useEffect(() => {
     //     if (text && showTooltip) {

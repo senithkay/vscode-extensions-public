@@ -48,7 +48,7 @@ export function StopSVG(props: { x: number, y: number, text: string, codeSnippet
         </g>
     );
 
-    //TODO:Add new tooltip component to support this scenario
+    // TODO:Add new tooltip component to support this scenario
     // const defaultTooltip = (
     //     <DefaultTooltip text={{ code: codeSnippet }}>{rectElement}</DefaultTooltip>
     // );
