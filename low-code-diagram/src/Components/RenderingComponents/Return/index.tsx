@@ -97,8 +97,8 @@ export function Return(props: ReturnProps) {
                     x={cx - (RETURN_SVG_WIDTH / 2)}
                     y={cy - DefaultConfig.dotGap / 4}
                     text={(model as ReturnStatement).expression?.source}
-                    codeSnippet={sourceSnippet}
                     diagnostics={errorSnippet}
+                    STNode={model}
                     openInCodeView={model && model.position && onClickOpenInCodeView}
                 />
             </g>
