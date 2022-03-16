@@ -226,7 +226,7 @@ export class SizingVisitor implements Visitor {
         const body: FunctionBodyBlock = node.functionBody as FunctionBodyBlock;
         const bodyViewState: BlockViewState = body.viewState;
         viewState.collapsed = !expandTracker.isExpanded(getNodeSignature(node));
-        
+
         // Set isCallerAvailable to false.
         bodyViewState.isCallerAvailable = false;
 
