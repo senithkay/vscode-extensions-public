@@ -25,7 +25,7 @@ import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tre
 import { APPEND_EXPR_LIST_CONSTRUCTOR, CUSTOM_CONFIG_TYPE, INIT_EXPR_LIST_CONSTRUCTOR } from "../../constants";
 import { VariableUserInputs } from '../../models/definitions';
 import { StatementEditorContextProvider } from "../../store/statement-editor-context";
-import { getCurrentModel, getExprDeletableStateForModel } from "../../utils";
+import { enrichModelWithDeletableState, getCurrentModel } from "../../utils";
 import { getPartialSTForStatement } from "../../utils/ls-utils";
 import { StmtEditorUndoRedoManager } from '../../utils/undo-redo';
 import { ViewContainer } from "../ViewContainer";
@@ -92,14 +92,14 @@ export function StatementEditor(props: StatementEditorProps) {
     const undo = React.useCallback(() => {
         const undoItem = undoRedoManager.getUndoModel();
         if (undoItem) {
-            setModel(getExprDeletableStateForModel(undoItem.oldModel));
+            setModel(enrichModelWithDeletableState(undoItem.oldModel));
         }
     }, []);
 
     const redo = React.useCallback(() => {
         const redoItem = undoRedoManager.getRedoModel();
         if (redoItem) {
-            setModel(getExprDeletableStateForModel(redoItem.newModel));
+            setModel(enrichModelWithDeletableState(redoItem.newModel));
         }
     }, []);
 
@@ -110,7 +110,7 @@ export function StatementEditor(props: StatementEditorProps) {
                     { codeSnippet: initialSource.trim() }, getLangClient);
 
                 if (partialST.syntaxDiagnostics.length === 0) {
-                    setModel(getExprDeletableStateForModel(partialST));
+                    setModel(enrichModelWithDeletableState(partialST));
                 }
             })();
         }
@@ -143,7 +143,7 @@ export function StatementEditor(props: StatementEditorProps) {
         undoRedoManager.add(model, partialST);
 
         if (partialST.syntaxDiagnostics.length === 0 || config.type === CUSTOM_CONFIG_TYPE) {
-            setModel(getExprDeletableStateForModel(partialST));
+            setModel(enrichModelWithDeletableState(partialST));
         }
 
         // Since in list constructor we add expression with comma and close-bracket,
@@ -167,7 +167,7 @@ export function StatementEditor(props: StatementEditorProps) {
             };
         }
 
-        const newCurrentModel = getCurrentModel(currentModelPosition, getExprDeletableStateForModel(partialST));
+        const newCurrentModel = getCurrentModel(currentModelPosition, enrichModelWithDeletableState(partialST));
         setCurrentModel({model: newCurrentModel});
     }
 

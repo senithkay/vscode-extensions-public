@@ -154,7 +154,7 @@ export function getCurrentModel(position: NodePosition, model: STNode): STNode {
     return ModelFindingVisitor.getModel();
 }
 
-export function getExprDeletableStateForModel(model: STNode): STNode  {
+export function enrichModelWithDeletableState(model: STNode): STNode  {
     traversNode(model, ViewStateSetupVisitor);
     traversNode(model, DeleteConfigSetupVisitor);
 
