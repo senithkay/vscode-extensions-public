@@ -103,13 +103,13 @@ export function HelperPane(props: HelperPaneProps) {
                         isSuggestion={selectedTab === TabElements.suggestions}
                     />
                 )}
-                {(selectedTab === TabElements.expressions) &&
+                {(selectedTab === TabElements.expressions) && (
                     <ExpressionSuggestions
                         model={currentModel.model}
                         isOperator={isOperator}
                         isType={isTypeDescSuggestion}
                     />
-                }
+                )}
                 <LibraryBrowser
                     libraryType={libraryType}
                     isLibrary={selectedTab === TabElements.libraries}

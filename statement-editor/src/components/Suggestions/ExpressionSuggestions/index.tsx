@@ -11,18 +11,21 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
+
 import React, { useContext, useState } from "react";
+
 import {
-    Avatar, List, ListItem, ListItemIcon, ListItemText, Typography, Input, InputAdornment
+    Input, InputAdornment, List, ListItem, ListItemText, Typography
 } from "@material-ui/core";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 
+import LibrarySearchIcon from "../../../assets/icons/LibrarySearchIcon";
 import { InputEditorContext } from "../../../store/input-editor-context";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
+import { Expression, ExpressionGroup, expressions, SELECTED_EXPRESSION } from "../../../utils/expressions";
 import { useStatementEditorStyles } from "../../styles";
-import LibrarySearchIcon from "../../../assets/icons/LibrarySearchIcon";
-import { expressions, ExpressionGroup, Expression, SELECTED_EXPRESSION } from "../../../utils/expressions";
-import { filter } from "lodash";
+
+
 
 export interface ExpressionSuggestionsProps {
     model: STNode;
@@ -52,8 +55,8 @@ export function ExpressionSuggestions(props: ExpressionSuggestionsProps) {
         setKeyword(searchValue);
         const filteredGroups: ExpressionGroup[] = [];
         expressions.forEach(group => {
-            // Search expression in case insensitive manner 
-            let filtered: Expression[] = group.expressions.filter(
+            // Search expression in case insensitive manner
+            const filtered: Expression[] = group.expressions.filter(
                 (ex) => ex.name.toLowerCase().includes(searchValue.toLowerCase()));
             // Only push group to filter list if have at least one expression
             if (filtered.length > 0) {
@@ -80,33 +83,37 @@ export function ExpressionSuggestions(props: ExpressionSuggestionsProps) {
                         </InputAdornment>
                     )}
                 />
-                {!!filteredExpressions.length && (<>
-                    {filteredExpressions.map((group, i) => (<>
-                        <h3 className={statementEditorClasses.librarySearchSubHeader}>{group.name}</h3>
-                        <List className={statementEditorClasses.expressionList}>
-                            {
-                                group.expressions.map((expression, i) => (
-                                    <ListItem
-                                        button={true}
-                                        className={statementEditorClasses.suggestionListItem}
-                                        key={i}
-                                        onClick={() => onClickExpressionSuggestion(expression)}
-                                        disableRipple={true}
-                                    >
-                                        <ListItemText
-                                            title={expression.name}
-                                            primary={(
-                                                <Typography>
-                                                    {expression.example}
-                                                </Typography>
-                                            )}
-                                        />
-                                    </ListItem>
-                                ))
-                            }
-                        </List>
-                    </>))}
-                </>)}
+                {!!filteredExpressions.length && (
+                    <>
+                        {filteredExpressions.map((group, i) => (
+                            <>
+                                <h3 className={statementEditorClasses.librarySearchSubHeader}>{group.name}</h3>
+                                <List className={statementEditorClasses.expressionList}>
+                                    {
+                                        group.expressions.map((expression, index) => (
+                                            <ListItem
+                                                button={true}
+                                                className={statementEditorClasses.suggestionListItem}
+                                                key={index}
+                                                onClick={() => onClickExpressionSuggestion(expression)}
+                                                disableRipple={true}
+                                            >
+                                                <ListItemText
+                                                    title={expression.name}
+                                                    primary={(
+                                                        <Typography>
+                                                            {expression.example}
+                                                        </Typography>
+                                                    )}
+                                                />
+                                            </ListItem>
+                                        ))
+                                    }
+                                </List>
+                            </>
+                        ))}
+                    </>
+                )}
             </div>
             {!filteredExpressions.length && (
                 <p className={statementEditorClasses.noSuggestionText}>Expressions not available</p>

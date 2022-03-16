@@ -24,6 +24,7 @@ export interface ExpressionGroup {
 }
 
 export const PLACE_HOLDER = "expression";
+/* tslint:disable-next-line */
 export const SELECTED_EXPRESSION = "${SELECTED_EXPRESSION}";
 
 // Copied from Ballerina Spec 2022R1
