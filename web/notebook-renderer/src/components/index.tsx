@@ -18,8 +18,6 @@
  */
 
 import { h, render } from 'preact';
-import React from 'react';
-import * as ReactDOM from "react-dom";
 import { ActivationFunction, OutputItem, RendererContext } from 'vscode-notebook-renderer';
 import { MIME_TYPE_JSON, MIME_TYPE_TABLE } from './renderer/constants';
 import { Json } from './renderer/json/json';

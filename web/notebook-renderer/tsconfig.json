@@ -1,8 +1,7 @@
   {
     "compilerOptions": {
       "lib": [
-        "es6",
-        "ES2021.String"
+        "esnext"
       ],
       "allowJs": true,
       "allowSyntheticDefaultImports": true,
