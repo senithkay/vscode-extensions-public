@@ -21,12 +21,12 @@ import { h, FunctionComponent } from "preact";
 import ReactJson from "react-json-view";
 import { NotebookCellResult } from "../types";
 
-export const Json: FunctionComponent<{ notebookCellOutput: Readonly<NotebookCellResult> }> = ({ notebookCellOutput }) => {
+export const Json: FunctionComponent<{ notebookCellOutput: Readonly<NotebookCellResult> }> = ({ notebookCellOutput }) => {    
     const renderJson = (value: Object) => {
         return <ReactJson
             src={value}
             name={false}
-            // enableClipboard={false}
+            enableClipboard={false}
             // displayObjectSize={false}
             // displayDataTypes={false}
             theme="monokai"
@@ -35,7 +35,7 @@ export const Json: FunctionComponent<{ notebookCellOutput: Readonly<NotebookCell
                 fontFamily: "monospace",
                 letterSpacing: "1px",
                 padding: 24,
-                minHeight: 280
+                minHeight: 180
             }}
         />
     }
