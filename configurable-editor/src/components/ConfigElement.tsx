@@ -22,10 +22,10 @@ import React, { ReactElement, useEffect, useState } from "react";
 import { Box, Typography } from "@material-ui/core";
 
 import { AddInputButton } from "./elements/AddInputButton";
-import { CheckBoxInput } from "./elements/CheckBoxInput";
+import OutlinedLabel from "./elements/OutlinedLabel";
+import { RadioGroupInput } from "./elements/RadioGroupInput";
 import { TextFieldInput } from "./elements/TextFieldInput";
 import { ConfigType, ConfigValue } from "./model";
-import OutlinedLabel from "./OutlinedLabel";
 import { useStyles } from "./style";
 import { getType } from "./utils";
 
@@ -248,12 +248,11 @@ const getInnerElement = (
             case ConfigType.BOOLEAN:
                 return (
                     <div key={configElementProps.id + "-CHECK"}>
-                        <CheckBoxInput
+                        <RadioGroupInput
                             id={configElementProps.id}
-                            label={configElementProps.name}
                             existingValue={value as boolean}
                             isRequired={configElementProps.isRequired}
-                            setCheckBoxValue={handleSetElementValue}
+                            setRadioGroupValue={handleSetElementValue}
                         />
                     </div>
                 );

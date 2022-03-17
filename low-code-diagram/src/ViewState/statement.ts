@@ -26,10 +26,14 @@ export class StatementViewState extends ViewState {
     public conditionAssignment: SimpleBBox = new SimpleBBox();
     public action: ActionViewState = new ActionViewState();
     public isReached: boolean;
+    public isReceive: boolean;
+    public isSend: boolean;
+    public arrowFrom: 'Left' | 'Right';
 
     constructor() {
         super();
         this.isAction = false;
         this.isEndpoint = false;
     }
+
 }

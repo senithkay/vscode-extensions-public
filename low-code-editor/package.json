@@ -1,6 +1,6 @@
 {
   "name": "@wso2-enterprise/ballerina-low-code-editor",
-  "version": "1.1.6",
+  "version": "1.1.8",
   "description": "Ballerina Low Code Editor",
   "files": [
     "build"
@@ -19,7 +19,7 @@
     "lint": "tslint --project .",
     "lint:fix": "tslint --fix --project .",
     "stylelint": "stylelint 'src/**/*.scss' --config ./.stylelintrc.json --syntax scss --fix",
-    "watch": "npm run watch:webpack",
+    "watch": "npm run storybook:setup && npm run watch:webpack",
     "watch:tsc": "tsc --pretty --watch",
     "watch:webpack": "webpack-dev-server --mode=development --progress",
     "deploy": "npm publish",

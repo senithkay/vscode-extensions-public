@@ -84,6 +84,6 @@ describe('add a http service to an empty file', () => {
 
         SourceCode.shouldBeEqualTo(
             getCurrentSpecFolder() + "edit-respond.expected.bal");
-    })
+    });
 
 })

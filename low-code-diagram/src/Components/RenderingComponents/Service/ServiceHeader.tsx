@@ -72,11 +72,11 @@ export function ServiceHeader(props: ServiceHeaderProps) {
             serviceType = model.expressions[0].typeDescriptor.modulePrefix.value.toUpperCase();
             listeningOnText = model.expressions[0].source;
         }
-    } else if (STKindChecker.isSimpleNameReference(model.expressions[0])) {
+    } else if (STKindChecker.isSimpleNameReference(model.expressions[0]) && stSymbolInfo) {
         const listenerNode: ListenerDeclaration = stSymbolInfo.listeners.get(
             model.expressions[0].name.value
         ) as ListenerDeclaration;
-        if (STKindChecker.isQualifiedNameReference(listenerNode.typeDescriptor)) {
+        if (listenerNode && STKindChecker.isQualifiedNameReference(listenerNode.typeDescriptor)) {
             serviceType = listenerNode.typeDescriptor.modulePrefix.value.toUpperCase();
             listeningOnText = model.expressions[0].source;
         }

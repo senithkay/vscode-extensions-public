@@ -1,5 +1,5 @@
 const { spawn, execSync } = require("child_process");
-var glob = require( 'glob' );  
+var glob = require('glob');
 const { cp, writeFile, existsSync, writeFileSync } = require("fs");
 const path = require("path");
 
@@ -28,13 +28,13 @@ function setupDevBalProject() {
         }
     }
 
-    glob(path.join(devProjectFolder, '**/*.bal'), function( err, files ) {
+    glob(path.join(devProjectFolder, '**/*.bal'), function (err, files) {
         if (err) {
             console.log("Error while analyzing development project. ", err)
             return
         }
         writeFile(path.join(storyDataDir, "devproject.json"),
-`
+            `
 {
     "projectPath": "${devProjectFolder}/",
     "balFiles": ${JSON.stringify(files)},
@@ -42,10 +42,10 @@ function setupDevBalProject() {
     "sourceRoot": "${sourceRoot}/"
 }
 `    ,
-    (err) => err ? console.log("dev project json make error: " + err ) : console.log("dev project json make successful")
-    )
+            (err) => err ? console.log("dev project json make error: " + err) : console.log("dev project json make successful")
+        )
     });
-    
+
 }
 
 function startLS() {
@@ -60,12 +60,12 @@ function startLS() {
     });
 
     ls.on('close', (code) => {
-     console.log(`lang-server:process exited with code ${code}`);
+        console.log(`lang-server:process exited with code ${code}`);
     });
 }
 
 function startVSCodeMockServer() {
-    const vs = spawn('node', ['../ballerina-languageclient/tools/vscode-mock-server.js']);
+    const vs = spawn('node', ['../integration-tests/tools/vscode-mock-server.js']);
 
     vs.stdout.on('data', (data) => {
         console.log(`vs-mock-server:stdout: ${data}`);
@@ -76,7 +76,7 @@ function startVSCodeMockServer() {
     });
 
     vs.on('close', (code) => {
-     console.log(`vs-mock-server:process exited with code ${code}`);
+        console.log(`vs-mock-server:process exited with code ${code}`);
     });
 }
 

@@ -13,3 +13,10 @@ export interface Endpoint {
     actions?: StatementViewState[];
     firstAction?: StatementViewState;
 }
+
+export interface TooltipContent {
+    heading?: string,
+    content?: string,
+    example?: string,
+    code?: string
+}

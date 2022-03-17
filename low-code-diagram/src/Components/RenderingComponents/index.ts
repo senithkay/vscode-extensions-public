@@ -26,6 +26,7 @@ import { Service } from "./Service";
 import { Statement } from "./Statement";
 import { TypeDefinitionComponent } from './TypeDefinition';
 import { While } from './While';
+import { Worker } from './WorkerDeclaration';
 
 export { IfElse as IfElseStatement };
 export { ForEach as ForeachStatement };
@@ -34,7 +35,6 @@ export { Statement as LocalVarDecl };
 export { Statement as CallStatement };
 export { Statement as ActionStatement };
 export { Statement as AssignmentStatement }
-export { Statement as DoStatement };
 export { Listener as ListenerDeclaration };
 export { Constant as ConstDeclaration };
 export { ModuleVariable as ModuleVarDecl };
@@ -48,3 +48,4 @@ export { ModulePartComponent as ModulePart };
 export { While as WhileStatement };
 export { ClassComponent as ClassDefinition }
 export { EnumDeclarationComponent as EnumDeclaration }
+export { Worker as NamedWorkerDeclaration }

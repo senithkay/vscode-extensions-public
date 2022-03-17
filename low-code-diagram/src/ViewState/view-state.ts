@@ -19,4 +19,8 @@ export class ViewState {
     public synced: boolean = false;
     public collapsed: boolean = false;
     public folded: boolean = false;
+
+    public getHeight(): number {
+        return (this.bBox.h + this.bBox.offsetFromBottom + this.bBox.offsetFromTop);
+    }
 }

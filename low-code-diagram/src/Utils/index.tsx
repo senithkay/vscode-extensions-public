@@ -12,32 +12,26 @@ import { Respond } from "../Components/RenderingComponents/Respond";
 import { Statement } from "../Components/RenderingComponents/Statement";
 import { BlockViewState, FunctionViewState, StatementViewState } from "../ViewState";
 import { DraftStatementViewState } from "../ViewState/draft";
-import { initVisitor } from "../Visitors/init-visitor";
-import { positionVisitor } from "../Visitors/positioning-visitor";
-import { sizingVisitor } from "../Visitors/sizing-visitor";
+import { InitVisitor } from "../Visitors/init-visitor";
+import { PositioningVisitor } from "../Visitors/positioning-visitor";
+import { SizingVisitor } from "../Visitors/sizing-visitor";
 import { isSTActionInvocation } from "../Visitors/util";
 
 export function sizingAndPositioning(st: STNode): STNode {
-    traversNode(st, initVisitor);
-    traversNode(st, sizingVisitor);
-    traversNode(st, positionVisitor);
-
-    if (STKindChecker.isFunctionDefinition(st) && st?.viewState?.onFail) {
-        const viewState = st.viewState as FunctionViewState;
-        traversNode(viewState.onFail, sizingVisitor);
-        traversNode(viewState.onFail, positionVisitor);
-    }
+    traversNode(st, new InitVisitor());
+    traversNode(st, new SizingVisitor());
+    traversNode(st, new PositioningVisitor());
     const clone = { ...st };
     return clone;
 }
 
 export function recalculateSizingAndPositioning(st: STNode): STNode {
-    traversNode(st, sizingVisitor);
-    traversNode(st, positionVisitor);
+    traversNode(st, new SizingVisitor());
+    traversNode(st, new PositioningVisitor());
     if (STKindChecker.isFunctionDefinition(st) && st?.viewState?.onFail) {
         const viewState = st.viewState as FunctionViewState;
-        traversNode(viewState.onFail, sizingVisitor);
-        traversNode(viewState.onFail, positionVisitor);
+        traversNode(viewState.onFail, new SizingVisitor());
+        traversNode(viewState.onFail, new PositioningVisitor());
     }
     const clone = { ...st };
     return clone;
@@ -104,6 +98,8 @@ export function getDraftComponent(viewState: BlockViewState, state: any, insertC
                 case "Log":
                     draftComponents.push(<DataProcessor model={null} blockViewState={viewState} />);
                     break;
+                case "Worker":
+                    draftComponents.push(<DataProcessor model={null} blockViewState={viewState} />);
                 case "AssignmentStatement":
                 case "Variable":
                     draftComponents.push(<DataProcessor model={null} blockViewState={viewState} />);
@@ -473,10 +469,10 @@ export function getServiceTypeFromModel(model: ServiceDeclaration, symbolInfo: S
                 } else {
                     return undefined;
                 }
-            } else if (STKindChecker.isSimpleNameReference(listenerExpression)) {
+            } else if (STKindChecker.isSimpleNameReference(listenerExpression) && symbolInfo) {
                 const listenerNode: ListenerDeclaration
                     = symbolInfo.listeners.get(listenerExpression.name.value) as ListenerDeclaration;
-                if (STKindChecker.isQualifiedNameReference(listenerNode.typeDescriptor)) {
+                if (listenerNode && STKindChecker.isQualifiedNameReference(listenerNode.typeDescriptor)) {
                     return listenerNode.typeDescriptor.modulePrefix.value;
                 } else {
                     return undefined;

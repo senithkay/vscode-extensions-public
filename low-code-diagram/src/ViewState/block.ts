@@ -14,6 +14,7 @@ import { CollapseViewState } from "./collapse";
 import { ControlFlowState } from './controlflow';
 import { DraftStatementViewState } from "./draft";
 import { PlusViewState } from "./plus";
+import { SimpleBBox } from "./simple-bbox";
 import { ViewState } from "./view-state";
 export class BlockViewState extends ViewState {
     public plusButtons: PlusViewState[] = [];
@@ -29,6 +30,9 @@ export class BlockViewState extends ViewState {
     public controlFlow = new ControlFlowState();
     public isResource: boolean = false;
     public isCallerAvailable: boolean = false;
+    public hasWorkerDecl: boolean = false;
+    public workerArrows: SimpleBBox[] = [];
+    public workerIndicatorLine: SimpleBBox = new SimpleBBox();
 
     constructor() {
         super();
