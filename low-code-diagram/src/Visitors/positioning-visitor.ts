@@ -891,7 +891,7 @@ export class PositioningVisitor implements Visitor {
                 elseIfViewState.elseIfTopHorizontalLine.y = viewState.bBox.cy + elseIfViewState.elseIfHeadHeightOffset;
 
                 elseIfViewState.bBox.cx = elseIfViewState.elseIfTopHorizontalLine.x
-                    + elseIfViewState.elseIfTopHorizontalLine.length + elseIfViewState.headIf.rw; // (elseIfViewState.headIf.w / 2)
+                    + elseIfViewState.elseIfTopHorizontalLine.length + elseIfViewState.headIf.lw; // (elseIfViewState.headIf.w / 2)
                 elseIfViewState.bBox.cy = viewState.bBox.cy;
 
                 elseIfViewState.elseIfLifeLine.x = elseIfViewState.bBox.cx;
