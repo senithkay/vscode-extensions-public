@@ -346,9 +346,9 @@ export const recordStyles = makeStyles((theme: Theme) =>
         },
         recordExpandBtnWrapper: {
             flex: "0 0 36px",
-            maxWidth: 25,
-            marginTop: 10,
-            marginLeft: 15
+            maxWidth: `25px`,
+            marginTop: `10px`,
+            marginLeft: `15px`
         },
         typeDefEditBtnWrapper: {
             cursor: "pointer",
@@ -384,13 +384,13 @@ export const recordStyles = makeStyles((theme: Theme) =>
         },
         recordSubFieldWrapper: {
             display: `flex`,
-            marginLeft: 25,
+            marginLeft: `25px`,
             flexDirection: `column`,
             borderLeft: `1px solid #e8e8e8`
         },
         activeRecordSubFieldWrapper: {
             display: `flex`,
-            marginLeft: 25,
+            marginLeft: `25px`,
             flexDirection: `column`,
             borderLeft: `1px solid #cdcdcd`
         },
