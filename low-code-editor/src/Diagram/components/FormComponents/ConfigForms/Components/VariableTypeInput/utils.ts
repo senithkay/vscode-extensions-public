@@ -12,12 +12,13 @@ export const getVarTypeCompletions = (ignoredCompletions: string[] = [], additio
     const langClient: ExpressionEditorLangClientInterface = await getExpressionEditorLangClient(langServerURL);
     const values: CompletionResponse[] = await langClient.getCompletion(completionParams);
 
-    const acceptedKind: CompletionItemKind[] = [11, 22];
+    //Supported Types: Class:7, Interface:8, Module:9, Unit:11, Enum:13, EnumMember:20, Struct:22   
+    const acceptedKind: CompletionItemKind[] = [7, 8, 9, 11, 13, 20, 22];
 
     const filteredCompletionItem: CompletionResponse[] = values.filter(
         (completionResponse: CompletionResponse) =>
           (acceptedKind.includes(completionResponse.kind as CompletionItemKind) || completionResponse.label === 'var') &&
-          !ignoredCompletions.includes(completionResponse.label)
+          !ignoredCompletions.includes(completionResponse.label) && !completionResponse.label.includes("/")
       );
 
     const sortText: string[] = [];
