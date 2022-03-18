@@ -20,6 +20,7 @@
 import { Uri, ExtensionContext, WebviewOptions, WebviewPanelOptions } from "vscode";
 import { join, sep } from "path";
 import { ballerinaExtInstance } from "../core";
+import { BLCEDITOR_CDN } from "../diagram/renderer";
 
 function getWebViewResourceRoot(): string {
     return join((ballerinaExtInstance.context as ExtensionContext).extensionPath,
@@ -65,7 +66,6 @@ export function getLibraryWebViewContent(options: WebViewOptions) {
         styles,
         bodyCss
     } = options;
-    const resourceRoot = getVSCodeResourceURI(getWebViewResourceRoot());
     const externalScripts = jsFiles
         ? jsFiles.map(jsFile =>
             '<script charset="UTF-8" onload="loadedScript();" src="' + jsFile + '"></script>').join('\n')
@@ -81,6 +81,7 @@ export function getLibraryWebViewContent(options: WebViewOptions) {
     const fontDirWithSeparatorReplaced = fontDir.split(sep).join("/");
 
     const isCodeServer = ballerinaExtInstance.getCodeServerContext().codeServerEnv;
+    const resourceRoot = isCodeServer ? BLCEDITOR_CDN : getVSCodeResourceURI(getWebViewResourceRoot());
     const whatFixUrl = process.env.BALLERINA_DEV_CENTRAL || process.env.BALLERINA_STAGE_CENTRAL ?
         'https://whatfix.com/c9fb1d90-71f0-11ec-a69b-2a8342861064/embed/embed.nocache.js' :
         'https://cdn.whatfix.com/prod/c9fb1d90-71f0-11ec-a69b-2a8342861064/embed/embed.nocache.js';
@@ -217,9 +218,7 @@ export function getLibraryWebViewContent(options: WebViewOptions) {
                 <script>
                     ${scripts}
                 </script>
-                <script charset="UTF-8" src="${resourceRoot}/jslibs/pako.min.js"></script>
-                <script charset="UTF-8" src="${resourceRoot}/utils/messaging.js"></script>
-                <script charset="UTF-8" src="${resourceRoot}/utils/undo-redo.js"></script>
+                <script charset="UTF-8" src="${resourceRoot}/jslibs/webviewCommons.js"></script>
                 ${externalScripts}
             </body>
             </html>
