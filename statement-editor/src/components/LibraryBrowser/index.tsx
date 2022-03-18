@@ -41,7 +41,6 @@ import { filterByKeyword } from "./utils";
 
 interface LibraryBrowserProps {
     libraryType: string;
-    isLibrary: boolean;
 }
 
 enum LibraryBrowserMode {
@@ -53,7 +52,7 @@ enum LibraryBrowserMode {
 const DEFAULT_SEARCH_SCOPE = "distribution";
 
 export function LibraryBrowser(props: LibraryBrowserProps) {
-    const { libraryType, isLibrary } = props;
+    const { libraryType } = props;
     const statementEditorClasses = useStatementEditorStyles();
     const stmtCtx = useContext(StatementEditorContext);
     const {
@@ -156,65 +155,61 @@ export function LibraryBrowser(props: LibraryBrowserProps) {
     );
 
     return (
-        <>
-        { isLibrary && (
-            <div className={statementEditorClasses.libraryBrowser}>
-                <div className={statementEditorClasses.libraryBrowserHeader}>
-                    {(libraryBrowserMode !== LibraryBrowserMode.LIB_LIST || searchScope !== DEFAULT_SEARCH_SCOPE) && (
-                        <>
-                            <IconButton onClick={onClickOnReturnIcon} className={statementEditorClasses.libraryReturnIcon}>
-                                <ArrowBack className={statementEditorClasses.arrowBack}/>
-                            </IconButton>
-                            {moduleTitle && (
-                                <div className={statementEditorClasses.libraryModuleIcon}>
-                                    <LibraryModuleIcon/>
-                                </div>
-                            )}
-                            <div className={statementEditorClasses.moduleTitle}>{moduleTitle}</div>
-                        </>
-                    )}
-                    <FormControl style={{width: 'inherit', marginRight: '10px'}}>
-                        <Input
-                            className={statementEditorClasses.librarySearchBox}
-                            value={keyword}
-                            placeholder={`search in ${searchScope}`}
-                            onChange={(e) => setKeyword(e.target.value)}
-                            endAdornment={(
-                                <InputAdornment position={"end"} style={{padding: '8.5px'}}>
-                                    <LibrarySearchIcon/>
-                                </InputAdornment>
-                            )}
-                        />
-                    </FormControl>
-                </div>
-                {isLoading ? loadingScreen : (
+        <div className={statementEditorClasses.libraryBrowser}>
+            <div className={statementEditorClasses.libraryBrowserHeader}>
+                {(libraryBrowserMode !== LibraryBrowserMode.LIB_LIST || searchScope !== DEFAULT_SEARCH_SCOPE) && (
                     <>
-                        {libraryBrowserMode === LibraryBrowserMode.LIB_LIST && !moduleTitle && (
-                            <LibrariesList
-                                libraries={libraries}
-                                libraryBrowsingHandler={libraryBrowsingHandler}
-                                libraryDataFetchingHandler={libraryDataFetchingHandler}
-                            />
+                        <IconButton onClick={onClickOnReturnIcon} className={statementEditorClasses.libraryReturnIcon}>
+                            <ArrowBack className={statementEditorClasses.arrowBack}/>
+                        </IconButton>
+                        {moduleTitle && (
+                            <div className={statementEditorClasses.libraryModuleIcon}>
+                                <LibraryModuleIcon/>
+                            </div>
                         )}
-                        {libraryBrowserMode === LibraryBrowserMode.LIB_BROWSE && (
-                            <SearchResult
-                                librarySearchResponse={libraryData.searchData}
-                                moduleSelected={moduleSelected}
-                                libraryDataFetchingHandler={libraryDataFetchingHandler}
-                            />
-                        )}
-                        {libraryBrowserMode === LibraryBrowserMode.LIB_SEARCH && filteredSearchData && (
-                            <SearchResult
-                                librarySearchResponse={filteredSearchData}
-                                libraryBrowsingHandler={libraryBrowsingHandler}
-                                moduleSelected={moduleSelected}
-                                libraryDataFetchingHandler={libraryDataFetchingHandler}
-                            />
-                        )}
+                        <div className={statementEditorClasses.moduleTitle}>{moduleTitle}</div>
                     </>
                 )}
+                <FormControl style={{width: 'inherit', marginRight: '10px'}}>
+                    <Input
+                        className={statementEditorClasses.librarySearchBox}
+                        value={keyword}
+                        placeholder={`search in ${searchScope}`}
+                        onChange={(e) => setKeyword(e.target.value)}
+                        endAdornment={(
+                            <InputAdornment position={"end"} style={{padding: '8.5px'}}>
+                                <LibrarySearchIcon/>
+                            </InputAdornment>
+                        )}
+                    />
+                </FormControl>
             </div>
-        )}
-        </>
+            {isLoading ? loadingScreen : (
+                <>
+                    {libraryBrowserMode === LibraryBrowserMode.LIB_LIST && !moduleTitle && (
+                        <LibrariesList
+                            libraries={libraries}
+                            libraryBrowsingHandler={libraryBrowsingHandler}
+                            libraryDataFetchingHandler={libraryDataFetchingHandler}
+                        />
+                    )}
+                    {libraryBrowserMode === LibraryBrowserMode.LIB_BROWSE && (
+                        <SearchResult
+                            librarySearchResponse={libraryData.searchData}
+                            moduleSelected={moduleSelected}
+                            libraryDataFetchingHandler={libraryDataFetchingHandler}
+                        />
+                    )}
+                    {libraryBrowserMode === LibraryBrowserMode.LIB_SEARCH && filteredSearchData && (
+                        <SearchResult
+                            librarySearchResponse={filteredSearchData}
+                            libraryBrowsingHandler={libraryBrowsingHandler}
+                            moduleSelected={moduleSelected}
+                            libraryDataFetchingHandler={libraryDataFetchingHandler}
+                        />
+                    )}
+                </>
+            )}
+        </div>
     );
 }

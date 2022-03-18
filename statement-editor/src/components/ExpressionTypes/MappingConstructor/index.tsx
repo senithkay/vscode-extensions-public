@@ -16,33 +16,27 @@ import React, { useContext } from "react";
 import { MappingConstructor, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
-import { DEFAULT_EXPRESSIONS, MAPPING_CONSTRUCTOR } from "../../../constants";
-import { VariableUserInputs } from "../../../models/definitions";
+import { MAPPING_CONSTRUCTOR } from "../../../constants";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
-import { SuggestionsContext } from "../../../store/suggestions-context";
-import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
 import { generateExpressionTemplate } from "../../../utils/utils";
 import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
 
 interface MappingConstructorProps {
     model: MappingConstructor;
-    userInputs: VariableUserInputs;
-    isElseIfMember: boolean;
-    diagnosticHandler: (diagnostics: string) => void;
 }
 
 export function MappingConstructorComponent(props: MappingConstructorProps) {
-    const { model, userInputs, isElseIfMember, diagnosticHandler } = props;
-
-    const statementEditorClasses = useStatementEditorStyles();
-
+    const { model } = props;
+    const stmtCtx = useContext(StatementEditorContext);
     const {
         modelCtx: {
             updateModel,
+            changeCurrentModel
         }
-    } = useContext(StatementEditorContext);
-    const { expressionHandler } = useContext(SuggestionsContext);
+    } = stmtCtx;
+
+    const statementEditorClasses = useStatementEditorStyles();
 
     const onClickOnPlusIcon = () => {
         const expressionTemplate = generateExpressionTemplate(MAPPING_CONSTRUCTOR);
@@ -52,8 +46,7 @@ export function MappingConstructorComponent(props: MappingConstructorProps) {
 
     const onClickOnExpression = (clickedExpression: STNode, event: any) => {
         event.stopPropagation();
-        expressionHandler(clickedExpression, false, false,
-            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) })
+        changeCurrentModel(clickedExpression);
     };
 
     const fieldsComponent = (
@@ -74,10 +67,6 @@ export function MappingConstructorComponent(props: MappingConstructorProps) {
                         <ExpressionComponent
                             key={index}
                             model={expression}
-                            userInputs={userInputs}
-                            isElseIfMember={isElseIfMember}
-                            diagnosticHandler={diagnosticHandler}
-                            isTypeDescriptor={false}
                             onSelect={(event) => onClickOnExpression(expression, event)}
                             deleteConfig={{defaultExprDeletable: true}}
                         />
