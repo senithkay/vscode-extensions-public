@@ -16,25 +16,22 @@ import React, {useContext} from "react";
 import { ListBindingPattern } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
-import { VariableUserInputs } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
-import { SuggestionsContext } from "../../../store/suggestions-context";
 import { isPositionsEquals } from "../../../utils";
 import { InputEditor } from "../../InputEditor";
 import { useStatementEditorStyles } from "../../styles";
 
 interface ListBindingPatternProps {
-    model: ListBindingPattern
-    userInputs: VariableUserInputs
-    diagnosticHandler: (diagnostics: string) => void
+    model: ListBindingPattern;
 }
 
 export function ListBindingPatternComponent(props: ListBindingPatternProps) {
-    const { model, userInputs, diagnosticHandler } = props;
+    const { model } = props;
     const stmtCtx = useContext(StatementEditorContext);
     const {
         modelCtx: {
-            currentModel
+            currentModel,
+            changeCurrentModel
         }
     } = stmtCtx;
 
@@ -42,31 +39,24 @@ export function ListBindingPatternComponent(props: ListBindingPatternProps) {
         isPositionsEquals(currentModel.model.position, model.position);
 
     const statementEditorClasses = useStatementEditorStyles();
-    const { expressionHandler } = useContext(SuggestionsContext);
 
     const inputEditorProps = {
-        statementType: model.kind,
-        model,
-        expressionHandler,
-        userInputs,
-        diagnosticHandler,
-        isTypeDescriptor: false
+        model
     };
 
     const onClickOnBindingPattern = (event: any) => {
-        event.stopPropagation()
-        expressionHandler(model, false, false,
-            { expressionSuggestions: [], typeSuggestions: [], variableSuggestions: [] })
+        event.stopPropagation();
+        changeCurrentModel(model);
     };
 
     return (
-        <button
+        <span
             className={classNames(
                 statementEditorClasses.expressionElement,
                 hasBindingPatternSelected && statementEditorClasses.expressionElementSelected)}
             onClick={onClickOnBindingPattern}
         >
             <InputEditor {...inputEditorProps} />
-        </button>
+        </span>
     );
 }

@@ -13,22 +13,18 @@
 // tslint:disable: jsx-no-multiline-js
 // tslint:disable: ordered-imports
 import React, { useContext, useEffect, useState } from "react";
-import { FormattedMessage, useIntl } from "react-intl";
+import { useIntl } from "react-intl";
 
-import { Box, FormControl, Typography } from "@material-ui/core";
+import { FormControl } from "@material-ui/core";
+import { ADD_OTHER_STATEMENT, LowcodeEvent, SAVE_OTHER_STATEMENT, ProcessConfig, CustomExpressionConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FormActionButtons, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
+import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
+import { STNode } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
-import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
 import { useStyles as useFormStyles } from "../../../../DynamicConnectorForm/style";
-import { CustomExpressionConfig, ProcessConfig } from "../../../../Types";
 import { wizardStyles } from "../../../style";
-import { STNode } from "@wso2-enterprise/syntax-tree";
-import {
-    FormActionButtons,
-    FormHeaderSection
-} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { ADD_OTHER_STATEMENT, LowcodeEvent, SAVE_OTHER_STATEMENT } from "../../../../../../models";
 import { LowCodeExpressionEditor } from "../../../../FormFieldComponents/LowCodeExpressionEditor";
 
 interface LogConfigProps {
@@ -167,12 +163,14 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
                                 tooltipActionLink: customStatementTooltipMessages.actionLink,
                                 interactive: true,
                                 customTemplate: {
-                                    defaultCodeSnippet: '',
+                                    defaultCodeSnippet: ' ',
                                     targetColumn: 1,
                                 },
                                 editPosition: config?.model?.position || formArgs?.targetPosition,
                                 initialDiagnostics: config?.model?.typeData?.diagnostics,
-                                disableFiltering: true
+                                disableFiltering: true,
+                                diagnosticsFilterExtraColumns: { end: 1 },
+                                diagnosticsFilterExtraRows: { end: 1 }
                             }}
                             onChange={onExpressionChange}
                         />

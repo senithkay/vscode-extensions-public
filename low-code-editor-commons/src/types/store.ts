@@ -11,10 +11,10 @@
  * associated services.
  */
 // tslint:disable-next-line: no-submodule-imports
-import { STNode } from "@wso2-enterprise/syntax-tree";
+import { LocalVarDecl, NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import { Diagnostic } from "vscode-languageserver-protocol";
 
-import { Connector } from "./lang-client-extended";
+import { BallerinaConnectorInfo, Connector } from "./lang-client-extended";
 
 export interface DiagramCoordinates {
     start: RectCoordinates;
@@ -113,4 +113,51 @@ export interface ComponentInitCoordinates {
     x: number;
     y: number;
     statement: STNode;
+}
+
+export interface DiagramOverlayPosition {
+    x: number,
+    y: number
+};
+
+export interface ConnectorConfigWizardProps {
+    position: DiagramOverlayPosition;
+    connectorInfo: BallerinaConnectorInfo;
+    targetPosition: NodePosition;
+    // This prop is used to load connectors from statement menu
+    specialConnectorName?: string;
+    endpointName?: string;
+    model?: STNode;
+    onClose: () => void;
+    onSave: () => void;
+    selectedConnector?: LocalVarDecl;
+    isModuleEndpoint?: boolean;
+    isAction?: boolean;
+    isEdit?: boolean;
+    functionNode?: STNode;
+}
+
+export interface Margin {
+    top?: number;
+    bottom?: number;
+    left?: number;
+    right?: number;
+}
+
+export interface PlusWidgetProps {
+    position?: DiagramOverlayPosition;
+    isPlusActive?: boolean;
+    onChange?: (type: string, subType: string, connector?: BallerinaConnectorInfo, isExisting?: boolean, selectedConnector?: LocalVarDecl) => void;
+    onClose?: () => void;
+    initPlus?: boolean;
+    isResource?: boolean;
+    isCallerAvailable?: boolean;
+    kind?: string;
+    targetPosition?: NodePosition;
+    isTriggerType?: boolean;
+    isLastMember?: boolean;
+    showCategorized?: boolean;
+    overlayId?: string;
+    overlayNode? : HTMLDivElement;
+    offset?: any;
 }

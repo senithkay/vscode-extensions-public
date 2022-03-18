@@ -11,33 +11,23 @@
  * associated services.
  */
 // tslint:disable: jsx-wrap-multiline
-import React, { useContext } from "react";
+import React from "react";
 
 import { SimpleNameReference } from "@wso2-enterprise/syntax-tree";
 
-import { VariableUserInputs } from "../../../models/definitions";
-import { SuggestionsContext } from "../../../store/suggestions-context";
 import { InputEditor } from "../../InputEditor";
 
 interface NameRefProps {
-    model: SimpleNameReference
-    userInputs: VariableUserInputs
-    diagnosticHandler: (diagnostics: string) => void
-    isTypeDescriptor: boolean
+    model: SimpleNameReference;
+    isTypeDesc?: boolean;
 }
 
 export function SimpleNameReferenceComponent(props: NameRefProps) {
-    const { model, userInputs, diagnosticHandler, isTypeDescriptor} = props;
-
-    const { expressionHandler } = useContext(SuggestionsContext);
+    const { model, isTypeDesc } = props;
 
     const inputEditorProps = {
-        statementType: model.kind,
         model,
-        expressionHandler,
-        userInputs,
-        diagnosticHandler,
-        isTypeDescriptor
+        isTypeDesc
     };
 
     return (

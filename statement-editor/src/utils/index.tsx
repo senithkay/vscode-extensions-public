@@ -16,22 +16,18 @@ import { CompletionResponse, STModification } from "@wso2-enterprise/ballerina-l
 import {
     NodePosition,
     STKindChecker,
-    STNode, traversNode
+    STNode,
+    traversNode
 } from "@wso2-enterprise/syntax-tree";
 
 import * as expressionTypeComponents from '../components/ExpressionTypes';
 import * as statementTypeComponents from '../components/Statements';
-import * as c from "../constants";
-import { SuggestionItem, VariableUserInputs } from '../models/definitions';
+import { OTHER_EXPRESSION, OTHER_STATEMENT, StatementNodes } from "../constants";
+import { ModelKind, RemainingContent } from '../models/definitions';
+import { visitor as ExpressionDeletingVisitor } from "../visitors/expression-deleting-visitor";
 import { visitor as ModelFindingVisitor } from "../visitors/model-finding-visitor";
 
 import { createImportStatement, createStatement, updateStatement } from "./statement-modifications";
-import {
-    DataTypeByExpressionKind,
-    ExpressionKindByOperator,
-    ExpressionSuggestionsByKind,
-    OperatorsForExpressionKind
-} from "./utils";
 
 export function getModifications(
         model: STNode,
@@ -79,67 +75,33 @@ export function getModifications(
     return modifications;
 }
 
-export function getSuggestionsBasedOnExpressionKind(kind: string): SuggestionItem[] {
-    return ExpressionSuggestionsByKind[kind];
-}
-
-export function getKindBasedOnOperator(operator: string): string {
-    return ExpressionKindByOperator[operator];
-}
-
-export function getOperatorSuggestions(kind: string): SuggestionItem[] {
-    if (kind in OperatorsForExpressionKind) {
-        return OperatorsForExpressionKind[kind];
-    }
-    return []; // we can remove the empty array return if we only set the operator prop to true for the expressions with operators
-}
-
-export function getDataTypeOnExpressionKind(kind: string): string[] {
-    return DataTypeByExpressionKind[kind];
-}
-
-export function getExpressionTypeComponent(
-    expression: STNode,
-    userInputs: VariableUserInputs,
-    isElseIfMember: boolean,
-    diagnosticHandler: (diagnostics: string) => void,
-    isTypeDescriptor: boolean
-): ReactNode {
+export function getExpressionTypeComponent(expression: STNode, isTypeDescriptor: boolean): ReactNode {
     let ExprTypeComponent = (expressionTypeComponents as any)[expression.kind];
 
     if (!ExprTypeComponent) {
-        ExprTypeComponent = (expressionTypeComponents as any)[c.OTHER_EXPRESSION];
+        ExprTypeComponent = (expressionTypeComponents as any)[OTHER_EXPRESSION];
     }
 
     return (
         <ExprTypeComponent
             model={expression}
-            userInputs={userInputs}
-            isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
-            isTypeDescriptor={isTypeDescriptor}
+            isTypeDesc={isTypeDescriptor}
         />
     );
 }
 
 export function getStatementTypeComponent(
-    model: c.StatementNodes,
-    userInputs: VariableUserInputs,
-    isElseIfMember: boolean,
-    diagnosticHandler: (diagnostics: string) => void
+    model: StatementNodes
 ): ReactNode {
     let StatementTypeComponent = (statementTypeComponents as any)[model?.kind];
 
     if (!StatementTypeComponent) {
-        StatementTypeComponent = (statementTypeComponents as any)[c.OTHER_STATEMENT];
+        StatementTypeComponent = (statementTypeComponents as any)[OTHER_STATEMENT];
     }
 
     return (
         <StatementTypeComponent
             model={model}
-            userInputs={userInputs}
-            isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
         />
     );
 }
@@ -151,11 +113,30 @@ export function getCurrentModel(position: NodePosition, model: STNode): STNode {
     return ModelFindingVisitor.getModel();
 }
 
+export function getRemainingContent(position: NodePosition, model: STNode): RemainingContent {
+    ExpressionDeletingVisitor.setPosition(position);
+    traversNode(model, ExpressionDeletingVisitor);
+
+    return ExpressionDeletingVisitor.getContent();
+}
+
 export function isPositionsEquals(position1: NodePosition, position2: NodePosition): boolean {
     return position1?.startLine === position2?.startLine &&
         position1?.startColumn === position2?.startColumn &&
         position1?.endLine === position2?.endLine &&
         position1?.endColumn === position2?.endColumn;
+}
+
+export function isOperator(modelKind: ModelKind): boolean {
+    return modelKind === ModelKind.Operator;
+}
+
+export function isTypeDesc(modelKind: ModelKind): boolean {
+    return modelKind === ModelKind.TypeDesc;
+}
+
+export function isBindingPattern(modelKind: ModelKind): boolean {
+    return modelKind === ModelKind.BindingPattern;
 }
 
 export function getSuggestionIconStyle(suggestionType: number): string {
@@ -169,6 +150,9 @@ export function getSuggestionIconStyle(suggestionType: number): string {
             break;
         case 6:
             suggestionIconStyle = "suggest-icon codicon codicon-symbol-variable"
+            break;
+        case 11:
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-ruler"
             break;
         case 14:
             suggestionIconStyle = "suggest-icon codicon codicon-symbol-keyword"
@@ -190,5 +174,42 @@ export function getSuggestionIconStyle(suggestionType: number): string {
 }
 
 export function sortSuggestions(x: CompletionResponse, y: CompletionResponse) {
-    return x.sortText.localeCompare(y.sortText);
+    if (!!x.sortText && !!y.sortText) {
+        return x.sortText.localeCompare(y.sortText);
+    }
+    return 0;
+}
+
+export function getModuleIconStyle(label: string): string {
+    let suggestionIconStyle: string;
+    switch (label) {
+        case "Functions":
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-function"
+            break;
+        case "Classes":
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-interface"
+            break;
+        case "Constants":
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-variable"
+            break;
+        case "Errors":
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-event"
+            break;
+        case "Enums":
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-enum"
+            break;
+        case "Records":
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-struct"
+            break;
+        case "Types":
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-ruler"
+            break;
+        case "Listeners":
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-variable"
+            break;
+        default:
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-interface"
+            break;
+    }
+    return suggestionIconStyle;
 }

@@ -16,124 +16,58 @@ import React, { ReactNode, useContext } from "react";
 import { FieldAccess } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
-import { DEFAULT_EXPRESSIONS } from "../../../constants";
-import { SuggestionItem, VariableUserInputs } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
-import { SuggestionsContext } from "../../../store/suggestions-context";
-import { getSuggestionsBasedOnExpressionKind, isPositionsEquals } from "../../../utils";
-import { addStatementToTargetLine, getContextBasedCompletions } from "../../../utils/ls-utils";
 import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
 
 interface FieldAccessProps {
     model: FieldAccess;
-    userInputs: VariableUserInputs;
-    isElseIfMember: boolean;
-    diagnosticHandler: (diagnostics: string) => void;
 }
 
 export function FieldAccessComponent(props: FieldAccessProps) {
-    const { model, userInputs, isElseIfMember, diagnosticHandler } = props;
+    const { model } = props;
     const stmtCtx = useContext(StatementEditorContext);
-    const { modelCtx } = stmtCtx;
-    const { currentModel } = modelCtx;
-    const hasFieldAccessExprSelected = currentModel.model &&
-        isPositionsEquals(currentModel.model.position, model.position);
-    const hasExprSelected =  currentModel.model &&
-        isPositionsEquals(currentModel.model.position, model.expression.position);
-    const hasFieldNameSelected =  currentModel.model &&
-        isPositionsEquals(currentModel.model.position, model.fieldName.position);
+    const {
+        modelCtx: {
+            changeCurrentModel
+        }
+    } = stmtCtx;
 
     const statementEditorClasses = useStatementEditorStyles();
-    const { expressionHandler } = useContext(SuggestionsContext);
-    const { currentFile, getLangClient } = stmtCtx;
-    const targetPosition = stmtCtx.formCtx.formModelPosition;
-    const fileURI = `expr://${currentFile.path}`;
+
+    const onClickOnFieldAccessExpr = async (event: any) => {
+        event.stopPropagation();
+        changeCurrentModel(model.fieldName);
+    }
+
+    const onClickOnExpr = (event: any) => {
+        event.stopPropagation();
+        changeCurrentModel(model.expression);
+    }
 
     const expression: ReactNode = (
         <ExpressionComponent
             model={model.expression}
-            userInputs={userInputs}
-            isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
-            isTypeDescriptor={false}
-        />
+            onSelect={onClickOnExpr}
+        >
+            <span
+                className={classNames(
+                    statementEditorClasses.expressionBlock,
+                    statementEditorClasses.expressionBlockDisabled
+                )}
+            >
+                {model.dotToken.value}
+            </span>
+            <ExpressionComponent
+                model={model.fieldName}
+                onSelect={onClickOnFieldAccessExpr}
+            />
+        </ExpressionComponent>
     );
-
-    const fieldName: ReactNode = (
-        <ExpressionComponent
-            model={model.fieldName}
-            userInputs={userInputs}
-            isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
-            isTypeDescriptor={false}
-        />
-    );
-
-    const onClickOnFieldAccessExpr = async (event: any) => {
-        event.stopPropagation();
-
-        const content: string = await addStatementToTargetLine(
-            currentFile.content, targetPosition, stmtCtx.modelCtx.statementModel.source, getLangClient);
-
-        const completions: SuggestionItem[] = await getContextBasedCompletions(
-            fileURI, content, targetPosition, model.position,
-            false, isElseIfMember, model.source, getLangClient);
-
-        expressionHandler(model, false, false, {
-            expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
-            typeSuggestions: [],
-            variableSuggestions: completions
-        });
-    }
-
-    const onClickOnExpr = (event: any) => {
-        event.stopPropagation()
-        expressionHandler(model.expression, true, false,
-            { expressionSuggestions: [], typeSuggestions: [], variableSuggestions: [] })
-    }
-
-    const onClickOnFieldName = (event: any) => {
-        event.stopPropagation()
-        expressionHandler(model.fieldName, true, false,
-            { expressionSuggestions: [], typeSuggestions: [], variableSuggestions: [] })
-    }
 
     return (
         <span>
-            <button
-                className={classNames(
-                    statementEditorClasses.expressionElement,
-                    hasFieldAccessExprSelected && statementEditorClasses.expressionElementSelected
-                )}
-                onClick={onClickOnFieldAccessExpr}
-            >
-                <button
-                    className={classNames(statementEditorClasses.expressionElement,
-                        hasExprSelected && statementEditorClasses.expressionElementSelected
-                    )}
-                    onClick={onClickOnExpr}
-                >
-                    {expression}
-                </button>
-                <span
-                    className={classNames(
-                        statementEditorClasses.expressionBlock,
-                        statementEditorClasses.expressionBlockDisabled
-                    )}
-                >
-                    {model.dotToken.value}
-                </span>
-                <button
-                    className={classNames(
-                        statementEditorClasses.expressionElement,
-                        hasFieldNameSelected && statementEditorClasses.expressionElementSelected
-                    )}
-                    onClick={onClickOnFieldName}
-                >
-                    {fieldName}
-                </button>
-            </button>
+            {expression}
         </span>
     );
 }

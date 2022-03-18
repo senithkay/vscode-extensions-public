@@ -105,7 +105,6 @@ const statementEditorContextProps = {
     onCancelClicked: false,
     onSave: dummyFunctionWithoutArgs,
     onChange: dummyFunction,
-    validateStatement: dummyFunction,
     getLangClient: () => (Promise.resolve({} as any)),
     applyModifications: () => (Promise.resolve({} as any)),
     library: {
@@ -118,7 +117,6 @@ const statementEditorContextProps = {
         path: "",
         size: 0
     },
-    importStatements: [''],
     initialSource: ''
 }
 
@@ -127,9 +125,6 @@ const Template: Story<StatementRendererProps> = (args: StatementRendererProps) =
             <StatementRenderer {...args} />
         </StatementEditorContextProvider>
 );
-
-const dummyDiagnosticHandler = () => {
-};
 
 export const VarDeclBinaryExprStmt = Template.bind({});
 
@@ -148,90 +143,34 @@ export const OtherStmt = Template.bind({});
 export const ReturnStmt = Template.bind({});
 
 VarDeclBinaryExprStmt.args = {
-    model: varDeclBinaryExpr,
-    userInputs: {
-        "selectedType": "string",
-        "varName": "name",
-        "variableExpression": "(expression+expression)",
-        "formField": "Expression"
-    },
-    diagnosticHandler: dummyDiagnosticHandler
+    model: varDeclBinaryExpr
 };
 
 VarDeclStringLiteral.args = {
-    model: varDeclStringLiteral,
-    userInputs: {
-        "selectedType": "string",
-        "varName": "name",
-        "variableExpression": "expression",
-        "formField": "Expression"
-    },
-    diagnosticHandler: dummyDiagnosticHandler
+    model: varDeclStringLiteral
 };
 
 WhileStmt.args = {
-    model: whileModel,
-    userInputs: {
-        "selectedType": "string",
-        "varName": "name",
-        "variableExpression": "expression",
-        "formField": "Expression"
-    },
-    diagnosticHandler: dummyDiagnosticHandler
+    model: whileModel
 }
 
 
 ForeachStmt.args = {
-    model: foreachModel,
-    userInputs: {
-        "selectedType": "string",
-        "varName": "name",
-        "variableExpression": "expression",
-        "formField": "Expression"
-    },
-    diagnosticHandler: dummyDiagnosticHandler
+    model: foreachModel
 }
 
 IfElseStmt.args = {
-    model: ifElseModel,
-    userInputs: {
-        "selectedType": "boolean",
-        "varName": "name",
-        "variableExpression": "expression",
-        "formField": "Expression"
-    },
-    diagnosticHandler: dummyDiagnosticHandler
+    model: ifElseModel
 }
 
 IfElseBooleanLiteralStmt.args = {
-    model: ifElseBooleanLiteralModel,
-    userInputs: {
-        "selectedType": "boolean",
-        "varName": "name",
-        "variableExpression": "expression",
-        "formField": "Expression"
-    },
-    diagnosticHandler: dummyDiagnosticHandler
+    model: ifElseBooleanLiteralModel
 }
 
 OtherStmt.args = {
-    model: panicModel,
-    userInputs: {
-        "selectedType": "",
-        "varName": "",
-        "variableExpression": "",
-        "formField": "Expression"
-    },
-    diagnosticHandler: dummyDiagnosticHandler
+    model: panicModel
 }
 
 ReturnStmt.args = {
-    model: returnModel,
-    userInputs: {
-        "selectedType": "",
-        "varName": "",
-        "variableExpression": "",
-        "formField": "Expression"
-    },
-    diagnosticHandler: dummyDiagnosticHandler
+    model: returnModel
 }

@@ -1,6 +1,6 @@
 {
   "name": "@wso2-enterprise/ballerina-languageclient",
-  "version": "1.0.1",
+  "version": "1.0.4",
   "description": "Ballerina Language Server Client",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -40,6 +40,7 @@
     "isomorphic-ws": "^4.0.1",
     "prepend-transform": "^0.0.1019",
     "react-monaco-editor": "0.43.0",
+    "tree-kill": "^1.2.2",
     "vscode-jsonrpc": "^6.0.0",
     "vscode-languageclient": "^6.1.4",
     "vscode-languageserver-protocol": "^3.16.0",

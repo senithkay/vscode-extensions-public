@@ -11,34 +11,40 @@
  * associated services.
  */
 // tslint:disable: jsx-wrap-multiline
-import React, { ReactNode } from "react";
+import React, { ReactNode, useContext } from "react";
 
 import { BracedExpression} from "@wso2-enterprise/syntax-tree";
 
-import { VariableUserInputs } from "../../../models/definitions";
+import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { ExpressionComponent } from "../../Expression";
 
 interface BracedExprProps {
     model: BracedExpression;
-    userInputs: VariableUserInputs;
-    isElseIfMember: boolean;
-    diagnosticHandler: (diagnostics: string) => void;
 }
 
 export function BracedExpressionComponent(props: BracedExprProps) {
-    const { model, userInputs, isElseIfMember, diagnosticHandler } = props;
+    const { model } = props;
+    const stmtCtx = useContext(StatementEditorContext);
+    const {
+        modelCtx: {
+            changeCurrentModel
+        }
+    } = stmtCtx;
+
+    const onClickExpression = async (event: any) => {
+        event.stopPropagation();
+        changeCurrentModel(model.expression);
+    };
 
     const expressionComponent: ReactNode = <ExpressionComponent
         model={model.expression}
-        userInputs={userInputs}
-        isElseIfMember={isElseIfMember}
-        diagnosticHandler={diagnosticHandler}
-        isTypeDescriptor={false}
+        onSelect={onClickExpression}
     />;
-
     return (
         <span>
+            <span>(</span>
             {expressionComponent}
+            <span>)</span>
         </span>
     );
 }

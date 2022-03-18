@@ -15,73 +15,47 @@ import React, { ReactNode, useContext } from "react";
 import { CheckAction } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
-import { DEFAULT_EXPRESSIONS } from "../../../constants";
-import { VariableUserInputs } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
-import { SuggestionsContext } from "../../../store/suggestions-context";
-import { getSuggestionsBasedOnExpressionKind, isPositionsEquals } from "../../../utils";
 import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
 
 interface CheckActionProps {
-    model: CheckAction
-    userInputs: VariableUserInputs
-    diagnosticHandler: (diagnostics: string) => void
-    isElseIfMember: boolean
+    model: CheckAction;
 }
 
 export function CheckActionComponent(props: CheckActionProps) {
-    const { model, userInputs, diagnosticHandler, isElseIfMember } = props;
+    const { model } = props;
     const stmtCtx = useContext(StatementEditorContext);
-    const { modelCtx } = stmtCtx;
-    const { currentModel } = modelCtx;
+    const {
+        modelCtx: {
+            changeCurrentModel
+        }
+    } = stmtCtx;
 
     const statementEditorClasses = useStatementEditorStyles();
-    const { expressionHandler } = useContext(SuggestionsContext);
-    const { currentFile, getLangClient } = stmtCtx;
-    const targetPosition = stmtCtx.formCtx.formModelPosition;
-    const fileURI = `expr://${currentFile.path}`;
-
-    const hasExpressionSelected = currentModel.model &&
-        isPositionsEquals(currentModel.model.position, model.expression.position);
-
-
-    const expressionComponent: ReactNode = (
-        <ExpressionComponent
-            model={model.expression}
-            userInputs={userInputs}
-            isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
-            isTypeDescriptor={false}
-        />
-    );
 
     const onClickOnExpression = async (event: any) => {
         event.stopPropagation();
-
-        expressionHandler(model.expression, false, false,
-            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS), typeSuggestions: [], variableSuggestions: [] });
+        changeCurrentModel(model.expression);
     };
 
-    const buttonClassName = classNames(
-                                statementEditorClasses.expressionElement,
-                                hasExpressionSelected && statementEditorClasses.expressionElementSelected
-                            );
     const spanClassName =  classNames(
                                 statementEditorClasses.expressionBlock,
-                                statementEditorClasses.expressionBlockDisabled
+                                statementEditorClasses.expressionBlockDisabled,
+                                "keyword"
                             );
+    const expressionComponent: ReactNode = (
+        <ExpressionComponent
+            model={model.expression}
+            onSelect={onClickOnExpression}
+        />
+    );
     return (
         <span>
             <span className={spanClassName}>
                 {model.checkKeyword.value}
             </span>
-            <button
-                className={buttonClassName}
-                onClick={onClickOnExpression}
-            >
-                {expressionComponent}
-            </button>
+            {expressionComponent}
         </span>
     );
 }

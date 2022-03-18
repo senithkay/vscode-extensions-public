@@ -13,7 +13,6 @@
 // tslint:disable: jsx-no-multiline-js
 import React from 'react';
 
-import Paper from '@material-ui/core/Paper';
 import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
 
@@ -39,20 +38,18 @@ export default function TabPanel(props: TabPanelProps) {
     if (values) {
         values.forEach((tabValue) => {
             tabs.push(
-                <Tab value={tabValue} label={tabValue} />
+                <Tab value={tabValue} label={tabValue} disableRipple={true}/>
             );
         });
     }
 
     return (
-        <Paper className={statementEditorClasses.tabsPanelPaperSe}>
-            <Tabs
-                value={value}
-                onChange={handleChange}
-                className={statementEditorClasses.tabsPanelSe}
-            >
-                {tabs}
-            </Tabs>
-        </Paper>
+        <Tabs
+            value={value}
+            onChange={handleChange}
+            className={statementEditorClasses.tabsPanelSe}
+        >
+            {tabs}
+        </Tabs>
     );
 }

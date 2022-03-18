@@ -17,7 +17,7 @@ import { withStyles } from "@material-ui/core/styles";
 import TooltipBase, { TooltipProps } from '@material-ui/core/Tooltip';
 import * as MonacoEditor from 'monaco-editor';
 
-import { ErrorIcon , InfoIcon , WarningIcon } from '../../assets/icons';
+import { ErrorIcon, InfoIcon, WarningIcon } from '../../assets/icons';
 
 import useStyles, { tooltipBaseStyles } from "./style";
 
@@ -40,60 +40,68 @@ const codeRef = (ref: HTMLPreElement) => {
 export default function Tooltip(props: Partial<TooltipPropsExtended>) {
     const { children, title, text, action, disabled, onClick, type, diagnostic, ...restProps } = props;
     const classes = useStyles();
-    let tooltipComp = diagnostic ?
+
+    let tooltipComp = diagnostic && diagnostic.diagnosticMsgs ?
         (
             <div>
                 <h4 className={classes.heading}>{diagnostic.diagnosticMsgs}</h4>
-
             </div>
         )
-        : (
-            <div>
-                <h4 className={classes.heading}>{text.heading}</h4>
-            </div>
-        )
+        : (text && text.heading) ?
+            (
+                <div>
+                    <h4 className={classes.heading}>{text.heading}</h4>
+                </div>
+            )
+            : (
+                <div>
+                    <h4 className={classes.heading} />
+                </div>
+            );
 
-    switch (type) {
-        // this type is used for tooltips which have code snippet and open with code view link
-        case "diagram-code":
-            tooltipComp = DiagramCodeTooltip(props)
-            break;
-        // this type is used when there are examples to displayed in the tooltip
-        case "example":
-            tooltipComp = ExampleTooltip(props)
-            break;
-        // this type is used when there is only heading or a title in the tooltip
-        case "heading":
-            tooltipComp = HeadingTooltip(props)
-            break;
-        // this type is used when there is a heading/title with a paragraph/content in the tooltip
-        case "heading-content":
-            tooltipComp = HeadingContentTooltip(props)
-            break;
-        // this type is similar to diagram-code[1] but this is used when there is no open in code view button and
-        // for short code snippets
-        case "truncate-code":
-            tooltipComp = CodeTruncateTooltip(props)
-            break;
-        // this type is used when there is an action link in the tooltip
-        case "info":
-            tooltipComp = ActionTooltip(props)
-            break;
-        // this type is used when we need to add the tooltip icon
-        case "icon":
-            tooltipComp = TooltipIcon(props)
-            break;
-        // this type is similar to example[2] but this type can have code snippets as well as examples
-        case "example-code":
-            tooltipComp = ExampleCodeTooltip(props)
-            break;
-        // this type is similar to example-code[3] but we have have code snippet, example as well as action link
-        case "example-code-info":
-            tooltipComp = ExampleCodeInfoTooltip(props)
-            break;
-        case "diagram-diagnostic":
-            tooltipComp = DiagramDiagnosticTooltip(props)
-            break;
+    if (text) {
+        switch (type) {
+            // this type is used for tooltips which have code snippet and open with code view link
+            case "diagram-code":
+                tooltipComp = DiagramCodeTooltip(props)
+                break;
+            // this type is used when there are examples to displayed in the tooltip
+            case "example":
+                tooltipComp = ExampleTooltip(props)
+                break;
+            // this type is used when there is only heading or a title in the tooltip
+            case "heading":
+                tooltipComp = HeadingTooltip(props)
+                break;
+            // this type is used when there is a heading/title with a paragraph/content in the tooltip
+            case "heading-content":
+                tooltipComp = HeadingContentTooltip(props)
+                break;
+            // this type is similar to diagram-code[1] but this is used when there is no open in code view button and
+            // for short code snippets
+            case "truncate-code":
+                tooltipComp = CodeTruncateTooltip(props)
+                break;
+            // this type is used when there is an action link in the tooltip
+            case "info":
+                tooltipComp = ActionTooltip(props)
+                break;
+            // this type is used when we need to add the tooltip icon
+            case "icon":
+                tooltipComp = TooltipIcon(props)
+                break;
+            // this type is similar to example[2] but this type can have code snippets as well as examples
+            case "example-code":
+                tooltipComp = ExampleCodeTooltip(props)
+                break;
+            // this type is similar to example-code[3] but we have have code snippet, example as well as action link
+            case "example-code-info":
+                tooltipComp = ExampleCodeInfoTooltip(props)
+                break;
+            case "diagram-diagnostic":
+                tooltipComp = DiagramDiagnosticTooltip(props)
+                break;
+        }
     }
     if (disabled) return (<>{children}</>);
 
@@ -124,7 +132,7 @@ function DiagramCodeTooltip(props: Partial<TooltipPropsExtended>) {
             data-lang="ballerina"
             className={classes.code}
         >
-            {text.code.trim()}
+            {text?.code.trim()}
         </code>
     );
     const OpenInCodeLink = () => (
@@ -135,7 +143,7 @@ function DiagramCodeTooltip(props: Partial<TooltipPropsExtended>) {
     )
     return (
         <pre className={classes.pre}>
-            {text.code && <Code />}
+            {text && text.code && <Code />}
             {onClick && <OpenInCodeLink />}
         </pre>
     );

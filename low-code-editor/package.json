@@ -1,6 +1,6 @@
 {
   "name": "@wso2-enterprise/ballerina-low-code-editor",
-  "version": "1.1.6",
+  "version": "1.1.8",
   "description": "Ballerina Low Code Editor",
   "files": [
     "build"
@@ -10,20 +10,20 @@
   "typings": "build/index",
   "scripts": {
     "prebuild": "npm run lint",
-    "build": "npm run build:webpack",
+    "build": "npm run storybook:setup && npm run build:tsc",
     "build:tsc": "tsc --pretty && npm run copy:assets",
     "build:webpack": "webpack --config webpack.config.js --mode=production",
-    "copy:assets": "copyfiles -u 1 src/**/*.scss src/**/*.svg src/**/*.css src/**/*.png src/**/*.txt src/**/*.json build/",
+    "copy:assets": "copyfiles -u 1 \"src/**/*.scss\" \"src/**/*.svg\"  \"src/**/*.css\" \"src/**/*.png\" \"src/**/*.txt\" \"src/**/*.json\" \"src/assets/fonts/Glimer/*.*\" build/",
     "clean": "rimraf build/",
     "clean:nm": "rimraf node_modules",
     "lint": "tslint --project .",
     "lint:fix": "tslint --fix --project .",
     "stylelint": "stylelint 'src/**/*.scss' --config ./.stylelintrc.json --syntax scss --fix",
-    "watch": "npm run watch:webpack",
+    "watch": "npm run storybook:setup && npm run watch:webpack",
     "watch:tsc": "tsc --pretty --watch",
     "watch:webpack": "webpack-dev-server --mode=development --progress",
     "deploy": "npm publish",
-    "storybook": "npm run storybook:setup",
+    "storybook": "npm run storybook:setup && node tools/start-storybook.js",
     "storybook:setup": "node tools/setup-storybook.js",
     "cypress": "cypress open",
     "build-storybook": "build-storybook"
@@ -39,7 +39,9 @@
     "@sentry/react": "^6.16.1",
     "@sentry/tracing": "^6.16.1",
     "@wso2-enterprise/ballerina-languageclient": "^1.0.0",
+    "@wso2-enterprise/ballerina-low-code-diagram": "^1.0.0",
     "@wso2-enterprise/ballerina-low-code-edtior-commons": "^1.0.0",
+    "@wso2-enterprise/ballerina-low-code-edtior-ui-components": "^1.0.0",
     "@wso2-enterprise/ballerina-statement-editor": "^1.0.0",
     "@wso2-enterprise/lang-service": "^1.0.0",
     "@wso2-enterprise/syntax-tree": "^1.0.0",
@@ -139,9 +141,6 @@
     "puppeteer": "^1.19.0",
     "react": "^17.0.1",
     "react-dom": "^17.0.1"
-  },
-  "exports": {
-    "./DiagramGenerator": "./src/DiagramGenerator/"
   },
   "repository": {
     "type": "git",

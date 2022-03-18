@@ -16,54 +16,30 @@ import React, { useContext } from "react";
 import { ListConstructor, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
-import { APPEND_EXPR_LIST_CONSTRUCTOR, DEFAULT_EXPRESSIONS, INIT_EXPR_LIST_CONSTRUCTOR } from "../../../constants";
-import { SuggestionItem, VariableUserInputs } from "../../../models/definitions";
+import { APPEND_EXPR_LIST_CONSTRUCTOR, INIT_EXPR_LIST_CONSTRUCTOR } from "../../../constants";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
-import { SuggestionsContext } from "../../../store/suggestions-context";
-import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
-import { addStatementToTargetLine, getContextBasedCompletions } from "../../../utils/ls-utils";
 import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
 
 interface ListConstructorProps {
     model: ListConstructor;
-    userInputs: VariableUserInputs;
-    isElseIfMember: boolean;
-    diagnosticHandler: (diagnostics: string) => void;
 }
 
 export function ListConstructorComponent(props: ListConstructorProps) {
-    const { model, userInputs, isElseIfMember, diagnosticHandler } = props;
+    const { model } = props;
+    const stmtCtx = useContext(StatementEditorContext);
     const {
         modelCtx: {
-            statementModel,
-            currentModel,
             updateModel,
-        },
-        currentFile,
-        formCtx: {
-            formModelPosition
-        },
-        getLangClient
-    } = useContext(StatementEditorContext);
-    const fileURI = `expr://${currentFile.path}`;
+            changeCurrentModel
+        }
+    } = stmtCtx;
 
     const statementEditorClasses = useStatementEditorStyles();
-    const { expressionHandler } = useContext(SuggestionsContext);
 
     const onClickOnExpression = async (clickedExpression: STNode, event: any) => {
         event.stopPropagation();
-        const content: string = await addStatementToTargetLine(
-            currentFile.content, formModelPosition, statementModel.source, getLangClient);
-
-        const completions: SuggestionItem[] = await getContextBasedCompletions(
-            fileURI, content, formModelPosition, clickedExpression.position,
-            false, isElseIfMember, clickedExpression.source, getLangClient);
-        expressionHandler(clickedExpression, false, false, {
-            expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
-            typeSuggestions: [],
-            variableSuggestions: completions
-        });
+        changeCurrentModel(clickedExpression);
     };
 
     const expressionComponent = (
@@ -81,23 +57,12 @@ export function ListConstructorComponent(props: ListConstructorProps) {
                             {expression.value}
                         </span>
                     ) : (
-                        <button
+                        <ExpressionComponent
                             key={index}
-                            className={classNames(
-                                statementEditorClasses.expressionElement,
-                                (currentModel.model && currentModel.model.position === expression.position) &&
-                                    statementEditorClasses.expressionElementSelected
-                            )}
-                            onClick={(event) => onClickOnExpression(expression, event)}
-                        >
-                            <ExpressionComponent
-                                model={expression}
-                                userInputs={userInputs}
-                                isElseIfMember={isElseIfMember}
-                                diagnosticHandler={diagnosticHandler}
-                                isTypeDescriptor={false}
-                            />
-                        </button>
+                            model={expression}
+                            onSelect={(event) => onClickOnExpression(expression, event)}
+                            deleteConfig={{defaultExprDeletable: true}}
+                        />
                     )
                 ))
             }
@@ -121,12 +86,12 @@ export function ListConstructorComponent(props: ListConstructorProps) {
                 {model.openBracket.value}
             </span>
             {expressionComponent}
-            <button
-                className={statementEditorClasses.plusIconBorder}
+            <span
+                className={statementEditorClasses.plusIcon}
                 onClick={onClickOnPlusIcon}
             >
                 +
-            </button>
+            </span>
             <span
                 className={classNames(
                     statementEditorClasses.expressionBlock,

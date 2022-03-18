@@ -14,25 +14,18 @@ import React from "react";
 
 import { StringLiteral } from "@wso2-enterprise/syntax-tree";
 
-import { VariableUserInputs } from "../../../../models/definitions";
 import { InputEditor } from "../../../InputEditor";
 
 interface StringLiteralProps {
-    model: StringLiteral
-    userInputs: VariableUserInputs
-    diagnosticHandler: (diagnostics: string) => void
-    isTypeDescriptor: boolean
+    model: StringLiteral;
 }
 
 export function StringLiteralComponent(props: StringLiteralProps) {
-    const { model, userInputs, diagnosticHandler, isTypeDescriptor } = props;
+    const { model } = props;
 
     const inputEditorProps = {
-        statementType: model.kind,
         model,
-        userInputs,
-        diagnosticHandler,
-        isTypeDescriptor
+        classNames: "string-literal"
     };
 
     return (

@@ -15,7 +15,8 @@ import React, { useEffect, useState } from "react";
 import { FormattedMessage } from "react-intl";
 
 import { FormHelperText, InputAdornment, TextField as MuiTextField } from "@material-ui/core";
-import { FormElementProps, TooltipIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FormElementProps } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { TooltipIcon } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 
 import { useStyles as useFormStyles } from "../../../DynamicConnectorForm/style";
 import { useStyles as useTextInputStyles } from "../style";

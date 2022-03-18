@@ -1,0 +1,40 @@
+{
+  "name": "@wso2-enterprise/ballerina-low-code-editor-distribution",
+  "version": "1.0.2",
+  "description": "Ballerina Low Code Editor Distribution",
+  "files": [
+    "build"
+  ],
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
+  "typings": "build/index",
+  "scripts": {
+    "build": "npm run build:webpack",
+    "watch:webpack": "webpack-dev-server --mode=development --progress",
+    "build:webpack": "webpack --config webpack.config.js --mode=production"
+  },
+  "dependencies": {
+    "@wso2-enterprise/ballerina-low-code-editor": "^1.0.0"
+  },
+  "devDependencies": {
+    "buffer": "^6.0.3",
+    "html-webpack-plugin": "^5.5.0",
+    "webpack": "^5.50.0",
+    "webpack-cli": "^4.8.0",
+    "webpack-dev-server": "^4.1.1"
+  },
+  "peerDependencies": {
+    "puppeteer": "^1.19.0",
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wso2-enterprise/choreo-console.git"
+  },
+  "author": "wso2",
+  "license": "UNLICENSED",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
+  }
+}

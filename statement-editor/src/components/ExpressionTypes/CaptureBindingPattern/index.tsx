@@ -11,62 +11,23 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, {useContext} from "react";
+import React from "react";
 
 import { CaptureBindingPattern } from "@wso2-enterprise/syntax-tree";
-import classNames from "classnames";
 
-import { VariableUserInputs } from "../../../models/definitions";
-import { StatementEditorContext } from "../../../store/statement-editor-context";
-import { SuggestionsContext } from "../../../store/suggestions-context";
-import { isPositionsEquals } from "../../../utils";
 import { InputEditor } from "../../InputEditor";
-import { useStatementEditorStyles } from "../../styles";
 
 interface CaptureBindingPatternProps {
-    model: CaptureBindingPattern
-    userInputs: VariableUserInputs
-    diagnosticHandler: (diagnostics: string) => void
+    model: CaptureBindingPattern;
 }
 
 export function CaptureBindingPatternComponent(props: CaptureBindingPatternProps) {
-    const { model, userInputs, diagnosticHandler } = props;
-    const stmtCtx = useContext(StatementEditorContext);
-    const {
-        modelCtx: {
-            currentModel
-        }
-    } = stmtCtx;
-
-    const hasVarNameSelected = currentModel.model &&
-        isPositionsEquals(currentModel.model.position, model.variableName.position);
-
-    const statementEditorClasses = useStatementEditorStyles();
-    const { expressionHandler } = useContext(SuggestionsContext);
+    const { model } = props;
 
     const inputEditorProps = {
-        statementType: model.kind,
-        model,
-        expressionHandler,
-        userInputs,
-        diagnosticHandler,
-        isTypeDescriptor: false
+        model
     };
-
-    const onClickOnVarName = (event: any) => {
-        event.stopPropagation()
-        expressionHandler(model.variableName, false, false,
-            { expressionSuggestions: [], typeSuggestions: [], variableSuggestions: [] })
-    };
-
     return (
-        <button
-            className={classNames(
-                statementEditorClasses.expressionElement,
-                hasVarNameSelected && statementEditorClasses.expressionElementSelected)}
-            onClick={onClickOnVarName}
-        >
-            <InputEditor {...inputEditorProps} />
-        </button>
+        <InputEditor {...inputEditorProps} />
     );
 }

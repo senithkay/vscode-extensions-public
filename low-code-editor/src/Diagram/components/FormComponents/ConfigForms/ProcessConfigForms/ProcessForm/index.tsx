@@ -13,17 +13,17 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext } from "react";
 
-import { ConfigOverlayFormStatus, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { LocalVarDecl } from "@wso2-enterprise/syntax-tree";
+import { ConfigOverlayFormStatus, ProcessConfig, WizardType, WorkerConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { LocalVarDecl, NamedWorkerDeclaration } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../../Contexts/Diagram";
 import { TextPreloaderVertical } from "../../../../../../PreLoader/TextPreloaderVertical";
-import { ProcessConfig } from "../../../Types";
 
 import { AddAssignmentConfig } from "./AddAssignmentConfig";
 import { AddCustomStatementConfig } from "./AddCustomStatementConfig";
 import { AddLogConfig } from "./AddLogConfig";
 import { AddVariableConfig } from "./AddVariableConfig";
+import { AddWorkerConfigForm } from "./AddWorkerConfig";
 
 interface ProcessFormProps {
     config: ProcessConfig;
@@ -35,7 +35,7 @@ interface ProcessFormProps {
 
 export function ProcessForm(props: ProcessFormProps) {
     const { config, onCancel, onSave, onWizardClose, configOverlayFormStatus } = props;
-    const { isLoading, error, formType, formArgs } = configOverlayFormStatus;
+    const { isLoading, error, formType: type, formArgs } = configOverlayFormStatus;
     const {
         api: {
             panNZoom: {
@@ -44,6 +44,8 @@ export function ProcessForm(props: ProcessFormProps) {
             }
         }
     } = useContext(Context);
+
+    let formType: string = type;
 
     if (formType === "Variable") {
         if (config.wizardType === WizardType.EXISTING) {
@@ -61,7 +63,20 @@ export function ProcessForm(props: ProcessFormProps) {
             type: "",
             expression: ""
         };
-    } else if (formType === "Call" || formType === "Custom") {
+    } else if (formType === "Call" || formType === "Custom" || formType === "AssignmentStatement") {
+        config.config = {
+            expression: ""
+        };
+    } else if (formType === "Worker") {
+        const workerConfig: WorkerConfig = {
+            name: config.model ? (config.model as NamedWorkerDeclaration).workerName.value : '',
+            returnType: config.model && (config.model as NamedWorkerDeclaration).returnTypeDesc ?
+                (config.model as NamedWorkerDeclaration).returnTypeDesc.type.source : ''
+        }
+
+        config.config = workerConfig;
+    } else {
+        formType = "Custom";
         config.config = {
             expression: ""
         };
@@ -106,6 +121,17 @@ export function ProcessForm(props: ProcessFormProps) {
                 {
                     formType === "Log" && (
                         <AddLogConfig
+                            config={config}
+                            formArgs={formArgs}
+                            onSave={onSave}
+                            onWizardClose={onWizardClose}
+                            onCancel={onCancel}
+                        />
+                    )
+                }
+                {
+                    formType === "Worker" && (
+                        <AddWorkerConfigForm
                             config={config}
                             formArgs={formArgs}
                             onSave={onSave}

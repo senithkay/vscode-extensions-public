@@ -8,7 +8,7 @@ export class FunctionDiagram {
         this.container.within(() => {
             cy.get('.diagram-canvas .start-wrapper .start-button .start-text')
                 .should("be.visible")
-                .should("have.text", " START  ");
+                .should("have.text", "STARTSTART");
         })
         return this;
     }

@@ -17,18 +17,15 @@ import { FormattedMessage, useIntl } from "react-intl";
 import { WhileStatement } from "@wso2-enterprise/syntax-tree";
 import { FormControl, Typography } from "@material-ui/core";
 
-import {
-    FormField,
-    FormActionButtons,
-    FormElementProps,
-    FormHeaderSection
-} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FormField, ConditionConfig, } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FormActionButtons, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
+import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { createWhileStatement, createWhileStatementWithBlock, getInitialSource } from "../../../../../../utils/modification-util";
 import { ExpressionEditorProps } from "@wso2-enterprise/ballerina-expression-editor";
 import { useStyles } from "../../../../DynamicConnectorForm/style";
 import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
-import { ConditionConfig } from "../../../../Types";
+import { FormElementProps } from "../../../../Types";
 import Tooltip from '../../../../../../../components/TooltipV2';
 import { LowCodeExpressionEditor } from "../../../../FormFieldComponents/LowCodeExpressionEditor";
 
@@ -185,11 +182,11 @@ export function AddWhileForm(props: WhileProps) {
                 <div className={classes.formContentWrapper}>
                     <div className={classes.formCodeBlockWrapper}>
                         <div className={classes.formCodeExpressionEndWrapper}>
-                            <Typography variant='body2' className={classes.startCode}>while</Typography>
+                            <Typography variant='body2' className={classes.ifStartCode}>while</Typography>
                             <div className={classes.formCodeExpressionField}>
                                 <LowCodeExpressionEditor {...expElementProps} />
                             </div>
-                            <Typography variant='body2' className={classes.endCode}>{`{`}</Typography>
+                            <Typography variant='body2' className={classes.ifStartCode}>{`{`}</Typography>
                         </div>
                     </div>
                     <div className={classes.formCodeExpressionValueRegularField}>

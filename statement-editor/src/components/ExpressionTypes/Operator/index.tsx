@@ -33,7 +33,6 @@ import { AsteriskToken,
     SlashToken,
     TrippleEqualToken } from "@wso2-enterprise/syntax-tree";
 
-import { VariableUserInputs } from "../../../models/definitions";
 import { InputEditor } from "../../InputEditor";
 
 export interface OperatorProps {
@@ -56,22 +55,16 @@ export interface OperatorProps {
             PipeToken |
             PlusToken |
             SlashToken |
-            TrippleEqualToken,
-    userInputs: VariableUserInputs,
-    diagnosticHandler: (diagnostics: string) => void,
-    isTypeDescriptor: boolean,
+            TrippleEqualToken;
 }
 
 export function OperatorComponent(props: OperatorProps) {
-    const { model, userInputs, diagnosticHandler, isTypeDescriptor } = props;
+    const { model } = props;
 
     const inputEditorProps = {
-        statementType: model.kind,
         model,
-        userInputs,
-        diagnosticHandler,
-        isTypeDescriptor,
-        isToken: true
+        isToken: true,
+        classNames: "operator"
     };
 
     return (

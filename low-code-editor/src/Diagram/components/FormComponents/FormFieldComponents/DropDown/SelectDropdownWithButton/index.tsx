@@ -16,7 +16,8 @@ import { FormattedMessage } from "react-intl";
 
 import { FormHelperText, MenuItem, Select } from "@material-ui/core";
 import AddRounded from "@material-ui/icons/AddRounded";
-import { FormElementProps, TooltipIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FormElementProps } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { TooltipIcon } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import classNames from "classnames";
 
 import { AddIcon } from "../../../../../../assets/icons";

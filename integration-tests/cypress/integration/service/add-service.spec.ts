@@ -6,14 +6,16 @@ import { HttpForm } from "../../utils/forms/connectors/http-form"
 import { LogForm } from "../../utils/forms/log-form"
 import { ResourceForm } from "../../utils/forms/resource-form"
 import { ServiceForm } from "../../utils/forms/service-form"
-import { getIntegrationTestStoryURL } from "../../utils/story-url-utils"
+import { getIntegrationTestPageURL } from "../../utils/story-url-utils"
+
+const BAL_FILE_PATH = "service/add-service-to-empty-file.bal";
 
 describe('add a http service to an empty file', () => {
   beforeEach(() => {
-    cy.visit(getIntegrationTestStoryURL("service/add-service-to-empty-file.bal"))
+    cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH))
   })
 
-  it('Add new service and resource', () => {
+  it.skip('Add new service and resource', () => {
     Canvas
       .welcomeMessageShouldBeVisible()
       .clickTopLevelPlusButton();

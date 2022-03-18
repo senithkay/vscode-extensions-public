@@ -11,26 +11,20 @@
  * associated services.
  */
 import React, { useEffect, useReducer } from 'react';
-import { FormattedMessage } from 'react-intl';
 
-import { Box, FormControl, FormHelperText, Typography } from '@material-ui/core';
+import { FormControl } from '@material-ui/core';
 import { ExpressionEditorProps } from '@wso2-enterprise/ballerina-expression-editor';
-import {
-    FormActionButtons,
-    FormElementProps,
-    FormHeaderSection,
-    STModification
-} from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { FormElementProps, STModification } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { FormActionButtons, FormHeaderSection } from '@wso2-enterprise/ballerina-low-code-edtior-ui-components';
 import { ModuleVarDecl, NodePosition } from '@wso2-enterprise/syntax-tree';
 
-import { VariableIcon } from '../../../../../assets/icons';
 import { useDiagramContext } from '../../../../../Contexts/Diagram';
-import { ADD_VARIABLE, LowcodeEvent, SAVE_VARIABLE } from '../../../../models';
+import { getAllModuleVariables } from '../../../../utils/mixins';
 import { createModuleVarDecl, updateModuleVarDecl } from '../../../../utils/modification-util';
-import { getVariableNameFromST } from '../../../../utils/st-util';
+import { getVarNamePositionFromST } from '../../../../utils/st-util';
+import { genVariableName } from '../../../Portals/utils';
 import { useStyles as useFormStyles } from "../../DynamicConnectorForm/style";
 import CheckBoxGroup from '../../FormFieldComponents/CheckBox';
-import { SelectDropdownWithButton } from '../../FormFieldComponents/DropDown/SelectDropdownWithButton';
 import { LowCodeExpressionEditor } from "../../FormFieldComponents/LowCodeExpressionEditor";
 import { TextLabel } from '../../FormFieldComponents/TextField/TextLabel';
 import { VariableNameInput } from '../Components/VariableNameInput';
@@ -51,7 +45,7 @@ interface ModuleVariableFormProps {
 
 export function ModuleVariableForm(props: ModuleVariableFormProps) {
     const formClasses = useFormStyles();
-    const { api: { code: { modifyDiagram }, insights: { onEvent } } } = useDiagramContext();
+    const { api: { code: { modifyDiagram }, insights: { onEvent } }, props: { stSymbolInfo } } = useDiagramContext();
     const { onSave, onCancel, targetPosition, model, formType, isLastMember } = props;
     const [state, dispatch] = useReducer(moduleVarFormReducer, getFormConfigFromModel(model));
     const variableTypes: string[] = ["int", "float", "boolean", "string", "json", "xml"];
@@ -71,6 +65,7 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
 
     const handleOnSave = () => {
         const modifications: STModification[] = []
+        state.varName  = genVariableName(state.varName, getAllModuleVariables(stSymbolInfo));
         if (model) {
             modifications.push(updateModuleVarDecl(state, model.position));
         } else {
@@ -158,7 +153,7 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
     let namePosition: NodePosition = { startLine: 0, startColumn: 0, endLine: 0, endColumn: 0 }
 
     if (model) {
-        namePosition = getVariableNameFromST(model).position;
+        namePosition = getVarNamePositionFromST(model);
     } else {
         namePosition.startLine = targetPosition.startLine;
         namePosition.endLine = targetPosition.startLine;

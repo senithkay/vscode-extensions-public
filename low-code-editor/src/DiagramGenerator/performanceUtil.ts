@@ -18,8 +18,9 @@
  */
 
 import {
+    ANALYZE_TYPE,
     DiagramEditorLangClientInterface, GraphData, GraphPoint, PerformanceAnalyzerGraphResponse,
-    PerformanceAnalyzerRealtimeResponse, PerformanceAnalyzerResponse, SequenceGraphPoint, SequenceGraphPointValue
+    PerformanceAnalyzerRealtimeResponse, PerformanceAnalyzerResponse, PerformanceData, SequenceGraphPoint, SequenceGraphPointValue
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
@@ -41,16 +42,6 @@ const endpoints = new Map<string, PerformanceAnalyzerResponse>();
 export interface PerformanceGraphRequest {
     file: string;
     data: GraphData;
-}
-
-export interface PerformanceData {
-    data: PerformanceAnalyzerRealtimeResponse,
-    type: ANALYZE_TYPE
-}
-
-export enum ANALYZE_TYPE {
-    ADVANCED = "advanced",
-    REALTIME = "realtime",
 }
 
 /**

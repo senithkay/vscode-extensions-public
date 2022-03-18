@@ -11,6 +11,19 @@
  * associated services.
  */
 
+import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
+
+export enum ModelKind {
+    Operator,
+    TypeDesc,
+    BindingPattern
+}
+
+export interface CurrentModel {
+    model: STNode,
+    kind?: ModelKind
+}
+
 export interface VariableUserInputs {
     selectedType: string
     otherType?: string
@@ -23,4 +36,14 @@ export interface SuggestionItem {
     value: string,
     kind?: string,
     suggestionType?: number
+}
+
+export interface RemainingContent {
+    code: string,
+    position: NodePosition
+}
+
+export interface ExprDeleteConfig {
+    exprNotDeletable?: boolean,
+    defaultExprDeletable?: boolean
 }

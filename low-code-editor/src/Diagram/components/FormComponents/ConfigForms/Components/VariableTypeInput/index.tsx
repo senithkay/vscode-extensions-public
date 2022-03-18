@@ -60,7 +60,7 @@ export function VariableTypeInput(props: VariableTypeInputProps) {
     const revertFocus = () => {
         setEditorFocus(false);
     };
-
+    const [uniqueId] = useState(uuid());
     const expressionEditorNameConfig: FormElementProps<ExpressionEditorProps> = {
         model: {
             name: "variableType",
@@ -73,7 +73,7 @@ export function VariableTypeInput(props: VariableTypeInputProps) {
             interactive: true,
             editPosition: position,
             customTemplate: overrideTemplate ? overrideTemplate : {
-                defaultCodeSnippet: `${value === 'var' ? '' : '|()'}  tempVar_${uuid().replaceAll('-', '_')} = ();`,
+                defaultCodeSnippet: `${value === 'var' ? '' : '|()'}  tempVar_${uniqueId.replaceAll('-', '_')} = ();`,
                 targetColumn: 1
             },
             hideExpand: true,

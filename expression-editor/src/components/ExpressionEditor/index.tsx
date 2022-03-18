@@ -24,13 +24,19 @@ import {
     ExpressionEditorState,
     ExpressionInjectablesProps,
     FormElementProps,
-    PrimitiveBalType,
-    TooltipCodeSnippet
+    getDiagnosticMessage,
+    getFilteredDiagnostics,
+    getSelectedDiagnostics,
+    PrimitiveBalType
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import {
+    TooltipCodeSnippet
+} from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 import debounce from "lodash.debounce";
 import * as monaco from "monaco-editor";
+import { Diagnostic } from "vscode-languageserver-protocol";
 
 import grammar from "../../ballerina.monarch.json";
 import { useStyles as useFormStyles } from "../../themes";
@@ -60,13 +66,10 @@ import {
     customErrorMessage,
     diagnosticCheckerExp,
     diagnosticInRange,
-    getDiagnosticMessage,
-    getFilteredDiagnostics,
     getHints,
     getInitialDiagnosticMessage,
     getInitialValue,
     getRandomInt,
-    getSelectedDiagnostics,
     getStandardExpCompletions,
     getTargetPosition,
     getValueWithoutSemiColon,
@@ -193,7 +196,12 @@ export interface ExpressionEditorProps {
         start?: number;
         end?: number;
     };
+    diagnosticsFilterExtraRows?: {
+        start?: number;
+        end?: number;
+    };
     disableFiltering?: boolean;
+    customTemplateVarName?: string;
 }
 
 export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>) {
@@ -237,7 +245,9 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         onFocus,
         initialDiagnostics = [],
         diagnosticsFilterExtraColumns,
-        disableFiltering
+        diagnosticsFilterExtraRows,
+        disableFiltering,
+        customTemplateVarName
     } = customProps;
     const targetPosition = getTargetPosition(editPosition || targetPositionDraft, syntaxTree);
     const [invalidSourceCode, setInvalidSourceCode] = useState(false);
@@ -246,7 +256,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     const [cursorOnEditor, setCursorOnEditor] = useState(false);
 
     const textLabel = model?.displayAnnotation?.label || model?.name || model.typeName;
-    const varName = "temp_" + textLabel.replace(/[^A-Z0-9]+/gi, "");
+    const varName = customTemplateVarName ? customTemplateVarName : "temp_" + textLabel.replace(/[^A-Z0-9]+/gi, "");
     const varType = transformFormFieldTypeToString(model);
     const initalValue = getInitialValue(defaultValue, model);
     const defaultCodeSnippet = customTemplate ? customTemplate.defaultCodeSnippet || "" : varType + " " + varName + " = ;";
@@ -293,7 +303,9 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                     targetPosition,
                     snippetTargetPosition,
                     diagnosticsFilterExtraColumns?.start,
-                    diagnosticsFilterExtraColumns?.end
+                    diagnosticsFilterExtraColumns?.end,
+                    diagnosticsFilterExtraRows?.start,
+                    diagnosticsFilterExtraRows?.end,
                 )
             );
             if (monacoRef.current) {
@@ -335,7 +347,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                     monaco.editor.setModelMarkers(
                         monacoRef.current.editor.getModel(),
                         "expression editor",
-                        diagnostics.map((diagnostic) => ({
+                        diagnostics.map((diagnostic: Diagnostic) => ({
                             startLineNumber: 1,
                             startColumn: diagnostic.range.start.character - snippetTargetPosition + 2,
                             endLineNumber: 1,
@@ -373,7 +385,9 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                     snippetTargetPosition,
                     inputLength,
                     diagnosticsFilterExtraColumns?.start,
-                    diagnosticsFilterExtraColumns?.end
+                    diagnosticsFilterExtraColumns?.end,
+                    diagnosticsFilterExtraRows?.start,
+                    diagnosticsFilterExtraRows?.end,
                 );
                 if (diagnosticMsg) {
                     notValidExpEditor(diagnosticMsg, false);

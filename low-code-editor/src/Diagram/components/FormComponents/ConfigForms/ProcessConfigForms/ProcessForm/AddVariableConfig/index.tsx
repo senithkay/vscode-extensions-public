@@ -14,32 +14,24 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
-import { Box, FormControl, Typography } from "@material-ui/core";
+import { FormControl, Typography } from "@material-ui/core";
 import { ExpressionEditorProps } from "@wso2-enterprise/ballerina-expression-editor";
-import {
-    FormActionButtons,
-    FormElementProps,
-    FormHeaderSection
-} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ADD_VARIABLE, LowcodeEvent, ProcessConfig, SAVE_VARIABLE } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FormActionButtons, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
 import { LocalVarDecl, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../../../Contexts/Diagram";
-import { ADD_VARIABLE, LowcodeEvent, SAVE_VARIABLE } from "../../../../../../models";
+import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
 import { getAllVariables } from "../../../../../../utils/mixins";
-import {
-    createModuleVarDecl,
-    createModuleVarDeclWithoutInitialization,
-    getInitialSource
-} from "../../../../../../utils/modification-util";
-import { getVariableNameFromST } from "../../../../../../utils/st-util";
+import { createModuleVarDecl, createModuleVarDeclWithoutInitialization, getInitialSource } from "../../../../../../utils/modification-util";
+import { getVariableNameFromST, getVarNamePositionFromST } from "../../../../../../utils/st-util";
 import { genVariableName } from "../../../../../Portals/utils";
 import { useStyles } from "../../../../DynamicConnectorForm/style";
 import { SelectDropdownWithButton } from "../../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
 import { LowCodeExpressionEditor } from "../../../../FormFieldComponents/LowCodeExpressionEditor";
 import { SwitchToggle } from "../../../../FormFieldComponents/SwitchToggle";
-import { FormTextInput } from "../../../../FormFieldComponents/TextField/FormTextInput";
-import { ProcessConfig } from "../../../../Types";
+import { FormElementProps } from "../../../../Types";
 import { VariableNameInput, VariableNameInputProps } from "../../../Components/VariableNameInput";
 import {
     VariableTypeInput,
@@ -101,7 +93,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         } else {
             initialModelType = typeDescriptor.source.trim();
         }
-        variableName = getVariableNameFromST(config.model).value;
+        variableName = getVariableNameFromST(config?.model);
         varExpression = localVarDec?.initializer?.source || '';
         initializedState = localVarDec?.initializer ? true : false;
     } else {
@@ -203,13 +195,6 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         ? varName.length > 0 && variableExpression?.length > 0 && selectedType.length > 0
         : varName.length > 0 && selectedType.length > 0;
 
-    const userInputs = {
-        selectedType,
-        varName,
-        variableExpression,
-        formField
-    };
-
     const variableTypeConfig: VariableTypeInputProps = {
         displayName: 'Variable Type',
         value: selectedType,
@@ -229,7 +214,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         onValueChange: setVarName,
         validateExpression: validateVarName,
         position: config.model ?
-            getVariableNameFromST(config.model as LocalVarDecl).position
+        getVarNamePositionFromST(config?.model as LocalVarDecl)
             : formArgs.targetPosition,
         isEdit: !!config.model,
         initialDiagnostics: (config.model as LocalVarDecl)?.typedBindingPattern?.bindingPattern?.typeData?.diagnostics
@@ -265,7 +250,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         defaultValue: variableExpression,
     };
 
-    const initialSource = formArgs.model ? formArgs.model.source : (initialized ? (
+    const initialSource = initialized ? (
                 getInitialSource(createModuleVarDecl(
                     {
                         varName: varName ? varName : genVariableName("variable", getAllVariables(stSymbolInfo)),
@@ -284,8 +269,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                         varValue: null
                     }
                 ))
-            )
-    );
+            );
 
     const handleStatementEditorChange = (partialModel: LocalVarDecl) => {
         setSelectedType(partialModel.typedBindingPattern.typeDescriptor.source.trim())
@@ -298,7 +282,6 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
             label: intl.formatMessage({ id: "lowcode.develop.configForms.variable.statementEditor.label" }),
             initialSource,
             formArgs: { formArgs },
-            userInputs,
             validForm,
             config,
             onWizardClose,

@@ -12,35 +12,26 @@
  */
 import React from "react";
 
-import { TextField } from "@material-ui/core";
-
 import { OtherStatementNodeTypes } from "../../../constants";
-import { VariableUserInputs } from "../../../models/definitions";
 import { InputEditor } from "../../InputEditor";
 import { useStatementEditorStyles } from "../../styles";
 
 interface OtherStatementProps {
-    model: OtherStatementNodeTypes
-    userInputs: VariableUserInputs
-    diagnosticHandler: (diagnostics: string) => void
+    model: OtherStatementNodeTypes;
 }
 
 export function OtherStatementTypes(props: OtherStatementProps) {
-    const { model, userInputs, diagnosticHandler } = props;
+    const { model } = props;
 
     const statementEditorClasses = useStatementEditorStyles();
 
     const inputEditorProps = {
-        statementType: model?.kind,
-        model,
-        userInputs,
-        diagnosticHandler,
-        isTypeDescriptor: false
+        model
     };
 
     return (
-        <button className={statementEditorClasses.expressionElement}>
+        <span className={statementEditorClasses.expressionElement}>
             <InputEditor {...inputEditorProps} />
-        </button>
+        </span>
     );
 }

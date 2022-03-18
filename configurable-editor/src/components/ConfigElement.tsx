@@ -22,10 +22,10 @@ import React, { ReactElement, useEffect, useState } from "react";
 import { Box, Typography } from "@material-ui/core";
 
 import { AddInputButton } from "./elements/AddInputButton";
-import { CheckBoxInput } from "./elements/CheckBoxInput";
+import OutlinedLabel from "./elements/OutlinedLabel";
+import { RadioGroupInput } from "./elements/RadioGroupInput";
 import { TextFieldInput } from "./elements/TextFieldInput";
 import { ConfigType, ConfigValue } from "./model";
-import OutlinedLabel from "./OutlinedLabel";
 import { useStyles } from "./style";
 import { getType } from "./utils";
 
@@ -38,6 +38,7 @@ export interface ConfigElementProps {
     isRequired: boolean;
     name: string;
     type: ConfigType;
+    description?: string;
     value?: number | string | boolean | number[] | string[] | boolean[];
     setConfigElement?: (configValue: ConfigValue) => void;
 }
@@ -57,8 +58,10 @@ export function setConfigElementProps(
     type: string,
     name: string,
     isRequired: boolean,
+    description: string,
 ): ConfigElementProps {
     return {
+        description,
         id,
         isArray,
         isRequired,
@@ -96,6 +99,7 @@ export const getConfigElement = (configElementProps: ConfigElementProps, classes
                         shape="square"
                     />
                 </Box>
+                {getDescription(configElementProps.description, classes)}
             </Box>
 
             <Box className={classes.formInputBox}>
@@ -213,6 +217,21 @@ const ConfigElement = (configElement: ConfigElementProps): ReactElement => {
     return <>{returnElement}</>;
 };
 
+const getDescription = (description: string, classes: ReturnType<typeof useStyles>) => {
+    if (description) {
+        return (
+            <Box className={classes.descriptionLabel}>
+                <Typography
+                    component="div"
+                    className={classes.descriptionLabelText}
+                >
+                    {description}
+                </Typography>
+            </Box>
+        );
+    }
+};
+
 const getInnerElement = (
     configElementProps: ConfigElementProps,
     handleValueChange: (key: string, value: any) => void,
@@ -229,12 +248,11 @@ const getInnerElement = (
             case ConfigType.BOOLEAN:
                 return (
                     <div key={configElementProps.id + "-CHECK"}>
-                        <CheckBoxInput
+                        <RadioGroupInput
                             id={configElementProps.id}
-                            label={configElementProps.name}
                             existingValue={value as boolean}
                             isRequired={configElementProps.isRequired}
-                            setCheckBoxValue={handleSetElementValue}
+                            setRadioGroupValue={handleSetElementValue}
                         />
                     </div>
                 );

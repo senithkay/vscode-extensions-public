@@ -14,7 +14,8 @@ import React, { useEffect, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import { FormControl, Typography } from "@material-ui/core";
-import { BallerinaTriggerRequest, BallerinaTriggerResponse, DiagramEditorLangClientInterface, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { BallerinaTriggerRequest, BallerinaTriggerResponse, DiagramEditorLangClientInterface } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 
 import { AddIcon } from "../../../../../../assets/icons";
 import DeleteButton from "../../../../../../assets/icons/DeleteButton";
