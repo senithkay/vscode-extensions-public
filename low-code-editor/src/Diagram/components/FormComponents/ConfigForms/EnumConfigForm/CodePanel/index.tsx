@@ -50,7 +50,7 @@ export function CodePanel() {
                         state.enumModel.name,
                         getMemberArray(state.enumModel),
                         updatePosition,
-                        !state.sourceModel
+                        false
                     )
                 ]);
             } else {
@@ -59,7 +59,7 @@ export function CodePanel() {
                         state.enumModel.name,
                         getMemberArray(state.enumModel),
                         state.targetPosition,
-                        !state.sourceModel
+                        true
                     )
                 ]);
             }
