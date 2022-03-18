@@ -20,9 +20,9 @@ import React, { useState } from "react";
 
 import { Box, Button, CardActions } from "@material-ui/core";
 
-import ButtonContainer from "./ButtonContainer";
 import { ConfigElementProps, getConfigElement } from "./ConfigElement";
 import { ConfigObjectProps, getConfigObject } from "./ConfigObject";
+import ButtonContainer from "./elements/ButtonContainer";
 import {
     ConfigSchema,
     ConfigValue,

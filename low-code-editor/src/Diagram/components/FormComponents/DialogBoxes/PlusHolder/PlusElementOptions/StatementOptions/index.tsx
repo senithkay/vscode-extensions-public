@@ -418,7 +418,7 @@ export function StatementOptions(props: StatementOptionsProps) {
                 title={plusHolderStatementTooltipMessages.respondStatement.title}
                 placement="right"
                 arrow={true}
-                disabled={!isResource}
+                disabled={!isResource || !isCallerAvailable}
                 interactive={true}
             >
                 <div

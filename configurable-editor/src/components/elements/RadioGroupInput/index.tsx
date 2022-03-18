@@ -60,14 +60,19 @@ export function RadioGroupInput(props: RadioGroupInputProps) {
         if (!isRequired) {
             return (
                 <div>
-                    {getRadioButton("undefined", "Undefined")}
+                    {getRadioButton("undefined", "Use default value")}
                 </div>
             );
         }
     };
 
+    let defaultValue = "true";
+    if (!isRequired || (isRequired && existingValue !== undefined)) {
+        defaultValue = String(existingValue);
+    }
+
     return (
-        <RadioGroup name="booleanValue" row={true} onChange={handleChange} defaultValue={String(existingValue)}>
+        <RadioGroup name="booleanValue" row={true} onChange={handleChange} defaultValue={defaultValue}>
             {getRadioButton("true", "True")}
             {getRadioButton("false", "False")}
             {getUndefinedRadioButton()}
