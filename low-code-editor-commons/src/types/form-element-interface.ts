@@ -6,6 +6,7 @@ import { Diagnostic } from "vscode-languageserver-protocol";
 import { FormField } from "./config-spec"
 import { ExpressionConfigurableProps } from "./expression-configurable-interface";
 import { ExpressionEditorLangClientInterface } from "./expression-editor-lang-client-interface";
+import { CurrentFile } from "./lang-client-extended";
 import { ExpressionEditorState } from "./store";
 
 export interface FormElementProps<T = {}> extends FormElementEvents {
@@ -31,11 +32,7 @@ export interface FormElementProps<T = {}> extends FormElementEvents {
     hideLabelTooltips?: boolean;
     hideLabel?: boolean;
     expressionConfigurable?: React.FC<ExpressionConfigurableProps>;
-    currentFile?: {
-        content: string,
-        path: string,
-        size: number
-    };
+    currentFile?: CurrentFile;
     langServerURL?: string;
     syntaxTree?: STNode;
     getExpressionEditorLangClient?: () => Promise<ExpressionEditorLangClientInterface>;

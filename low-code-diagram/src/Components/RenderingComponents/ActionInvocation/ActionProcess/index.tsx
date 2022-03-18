@@ -114,14 +114,6 @@ export function ActionProcessor(props: ProcessorProps) {
         setConfigWizardOpen(false);
     };
 
-    const onActionFormClose = () => {
-        if (blockViewState) {
-            blockViewState.draft = undefined;
-            diagramCleanDraw(syntaxTree);
-        }
-        setConfigWizardOpen(false);
-    };
-
     React.useEffect(() => {
         if (!isReadOnly && !model && !draftViewState?.connector && blockViewState) {
             const draftVS = blockViewState.draft[1];
@@ -130,12 +122,12 @@ export function ActionProcessor(props: ProcessorProps) {
                 formType: "EndpointList",
                 formArgs: {
                     functionNode,
-                    onSelect: onEndpointSelect,
+                    onSelect: onSelectEndpoint,
                     onCancel: onWizardClose,
                     onAddConnector,
                 },
                 isLoading: true,
-            }, onActionFormClose);
+            }, onWizardClose);
         }
     }, []);
 
@@ -156,7 +148,7 @@ export function ActionProcessor(props: ProcessorProps) {
 
     const toggleSelection = () => {
         const connectorInit: LocalVarDecl = model as LocalVarDecl;
-        const matchedConnector = getMatchingConnector(connectorInit, stSymbolInfo);
+        const matchedConnector = getMatchingConnector(connectorInit);
         if (matchedConnector) {
             setConfigWizardOpen(true);
             renderConnectorWizard({
@@ -165,10 +157,10 @@ export function ActionProcessor(props: ProcessorProps) {
                     x: viewState.bBox.cx + 80,
                     y: viewState.bBox.cy,
                 },
-                targetPosition: draftViewState.targetPosition,
+                targetPosition: draftViewState.targetPosition || model?.position,
                 selectedConnector: draftViewState.selectedConnector,
                 model,
-                onClose: onActionFormClose,
+                onClose: onWizardClose,
                 onSave: onWizardClose,
                 isAction: true,
                 isEdit: true,
@@ -184,27 +176,27 @@ export function ActionProcessor(props: ProcessorProps) {
         }
     }
 
-    const onEndpointSelect = (actionInvo: STNode) => {
-        const matchedConnector = getMatchingConnector(actionInvo, stSymbolInfo);
-        if (matchedConnector) {
-            setConfigWizardOpen(true);
-            renderConnectorWizard({
-                connectorInfo: matchedConnector,
-                position: {
-                    x: viewState.bBox.cx + 80,
-                    y: viewState.bBox.cy,
-                },
-                targetPosition: draftViewState.targetPosition,
-                selectedConnector: actionInvo as LocalVarDecl,
-                model: actionInvo,
-                onClose: onActionFormClose,
-                onSave: onWizardClose,
-                isAction: true,
-                isEdit: false,
-                functionNode
-            });
+    const onSelectEndpoint = (connector: BallerinaConnectorInfo, endpointName: string) => {
+        if (!connector) {
+            return;
         }
-    }
+
+        setConfigWizardOpen(true);
+        renderConnectorWizard({
+            connectorInfo: connector,
+            endpointName,
+            position: {
+                x: viewState.bBox.cx + 80,
+                y: viewState.bBox.cy,
+            },
+            targetPosition: draftViewState.targetPosition,
+            onClose: onWizardClose,
+            onSave: onWizardClose,
+            isAction: true,
+            isEdit: false,
+            functionNode,
+        });
+    };
 
     const errorSnippet = {
         diagnosticMsgs: diagnosticMsgs?.message,

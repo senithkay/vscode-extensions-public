@@ -6,11 +6,13 @@ import { HttpForm } from "../../utils/forms/connectors/http-form"
 import { LogForm } from "../../utils/forms/log-form"
 import { ResourceForm } from "../../utils/forms/resource-form"
 import { ServiceForm } from "../../utils/forms/service-form"
-import { getIntegrationTestStoryURL } from "../../utils/story-url-utils"
+import { getIntegrationTestPageURL } from "../../utils/story-url-utils"
+
+const BAL_FILE_PATH = "service/add-service-to-empty-file.bal";
 
 describe('delete resource after adding it', () => {
   beforeEach(() => {
-    cy.visit(getIntegrationTestStoryURL("service/add-service-to-empty-file.bal"))
+    cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH))
   })
 
   it('Delete after adding service', () => {

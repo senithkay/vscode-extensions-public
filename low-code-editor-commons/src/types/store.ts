@@ -126,6 +126,7 @@ export interface ConnectorConfigWizardProps {
     targetPosition: NodePosition;
     // This prop is used to load connectors from statement menu
     specialConnectorName?: string;
+    endpointName?: string;
     model?: STNode;
     onClose: () => void;
     onSave: () => void;

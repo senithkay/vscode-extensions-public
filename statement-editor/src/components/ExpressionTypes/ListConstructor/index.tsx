@@ -16,53 +16,30 @@ import React, { useContext } from "react";
 import { ListConstructor, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
-import { APPEND_EXPR_LIST_CONSTRUCTOR, DEFAULT_EXPRESSIONS, INIT_EXPR_LIST_CONSTRUCTOR } from "../../../constants";
-import { SuggestionItem, VariableUserInputs } from "../../../models/definitions";
+import { APPEND_EXPR_LIST_CONSTRUCTOR, INIT_EXPR_LIST_CONSTRUCTOR } from "../../../constants";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
-import { SuggestionsContext } from "../../../store/suggestions-context";
-import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
-import { addStatementToTargetLine, getContextBasedCompletions } from "../../../utils/ls-utils";
 import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
 
 interface ListConstructorProps {
     model: ListConstructor;
-    userInputs: VariableUserInputs;
-    isElseIfMember: boolean;
-    diagnosticHandler: (diagnostics: string) => void;
 }
 
 export function ListConstructorComponent(props: ListConstructorProps) {
-    const { model, userInputs, isElseIfMember, diagnosticHandler } = props;
+    const { model } = props;
+    const stmtCtx = useContext(StatementEditorContext);
     const {
         modelCtx: {
-            statementModel,
             updateModel,
-        },
-        currentFile,
-        formCtx: {
-            formModelPosition
-        },
-        getLangClient
-    } = useContext(StatementEditorContext);
-    const fileURI = `expr://${currentFile.path}`;
+            changeCurrentModel
+        }
+    } = stmtCtx;
 
     const statementEditorClasses = useStatementEditorStyles();
-    const { expressionHandler } = useContext(SuggestionsContext);
 
     const onClickOnExpression = async (clickedExpression: STNode, event: any) => {
         event.stopPropagation();
-        const content: string = await addStatementToTargetLine(
-            currentFile.content, formModelPosition, statementModel.source, getLangClient);
-
-        const completions: SuggestionItem[] = await getContextBasedCompletions(
-            fileURI, content, formModelPosition, clickedExpression.position,
-            false, isElseIfMember, clickedExpression.source, getLangClient);
-        expressionHandler(clickedExpression, false, false, {
-            expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
-            typeSuggestions: [],
-            variableSuggestions: completions
-        });
+        changeCurrentModel(clickedExpression);
     };
 
     const expressionComponent = (
@@ -83,10 +60,6 @@ export function ListConstructorComponent(props: ListConstructorProps) {
                         <ExpressionComponent
                             key={index}
                             model={expression}
-                            userInputs={userInputs}
-                            isElseIfMember={isElseIfMember}
-                            diagnosticHandler={diagnosticHandler}
-                            isTypeDescriptor={false}
                             onSelect={(event) => onClickOnExpression(expression, event)}
                         />
                     )

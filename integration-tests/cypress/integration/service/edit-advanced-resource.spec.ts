@@ -19,14 +19,16 @@ import { LogForm } from "../../utils/forms/log-form"
 import { ResourceForm } from "../../utils/forms/resource-form"
 import { ServiceForm } from "../../utils/forms/service-form"
 import { VariableFormBlockLevel } from "../../utils/forms/variable-form-block-level"
-import { getIntegrationTestStoryURL } from "../../utils/story-url-utils"
+import { getIntegrationTestPageURL } from "../../utils/story-url-utils"
+
+const BAL_FILE_PATH = "service/edit-existing-resource-file.bal";
 
 describe('edit a http advanced resource', () => {
     beforeEach(() => {
-        cy.visit(getIntegrationTestStoryURL("service/edit-existing-resource-file.bal"))
+        cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH))
     })
 
-    it('Edit service and add statements', () => {
+    it.skip('Edit service and add statements', () => {
         Canvas.getService("/wso2")
             .getResourceFunction("GET", "path1/path2")
             .editDiagram();

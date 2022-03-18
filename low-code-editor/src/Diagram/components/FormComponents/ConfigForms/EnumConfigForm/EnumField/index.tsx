@@ -112,7 +112,7 @@ export function EnumField(props: CodePanelProps) {
         const newField: SimpleField = {type: "", name: "", isFieldOptional: false, isActive: true,
                                        isNameInvalid: false, isEditInProgress: true};
         enumModel.fields.push(newField);
-        callBacks.updateEditorValidity(true);
+        callBacks.updateEditorValidity(false);
         return newField;
     };
 
@@ -146,43 +146,45 @@ export function EnumField(props: CodePanelProps) {
         setIsEnumExpanded(!isEnumExpanded);
     };
 
+    const handleValidity = (event: any) => {
+        if (!event.target.value) {
+            enumModel.name = genEnumName("Enum", []);
+            state.currentField = getNewField();
+            callBacks.onUpdateCurrentField(state.currentField);
+            setIsEnumEditInProgress(false);
+            setEnumNameError("");
+            callBacks.onUpdateEnumSelection(false);
+            callBacks.onChangeFormState(FormState.UPDATE_FIELD);
+            callBacks.updateEditorValidity(false);
+        } else if (nameRegex.test(event.target.value)) {
+            state.currentField = getNewField();
+            callBacks.onUpdateCurrentField(state.currentField);
+            setIsEnumEditInProgress(false);
+            setEnumNameError("");
+            callBacks.onUpdateEnumSelection(false);
+            callBacks.onChangeFormState(FormState.UPDATE_FIELD);
+            callBacks.updateEditorValidity(false);
+        } else {
+            callBacks.updateEditorValidity(true);
+            setEnumNameError("Invalid name");
+        }
+    }
     const handleKeyUp = (event: any) => {
         if (event.key === 'Enter') {
-            if (!event.target.value) {
-                enumModel.name = genEnumName("Enum", []);
-                state.currentField = getNewField();
-                callBacks.onUpdateCurrentField(state.currentField);
-                setIsEnumEditInProgress(false);
-                setEnumNameError("");
-                callBacks.onUpdateEnumSelection(false);
-                callBacks.onChangeFormState(FormState.UPDATE_FIELD);
-                callBacks.updateEditorValidity(false);
-            } else if (nameRegex.test(event.target.value)) {
-                state.currentField = getNewField();
-                callBacks.onUpdateCurrentField(state.currentField);
-                setIsEnumEditInProgress(false);
-                setEnumNameError("");
-                callBacks.onUpdateEnumSelection(false);
-                callBacks.onChangeFormState(FormState.UPDATE_FIELD);
-                callBacks.updateEditorValidity(false);
-            } else {
-                callBacks.updateEditorValidity(true);
-                setEnumNameError("Invalid name");
-            }
+            handleValidity(event);
         } else {
             state.currentEnum.name = event.target.value;
             callBacks.onChangeFormState(FormState.EDIT_RECORD_FORM);
         }
         callBacks.onUpdateModel(state.enumModel);
+        if (state.currentEnum.name === "") {
+            callBacks.updateEditorValidity(false);
+        }
     };
 
     const handleOnBlur = (event: any) => {
-        if (!event.target.value) {
-            enumModel.name = genEnumName("Enum", []);
-            callBacks.onUpdateModel(state.enumModel);
-        }
-        setIsEnumEditInProgress(false);
-        callBacks.onUpdateEnumSelection(false);
+        handleValidity(event);
+        callBacks.onUpdateModel(state.enumModel);
     };
 
     const handleFieldEditorChange = (event: any) => {
@@ -196,25 +198,26 @@ export function EnumField(props: CodePanelProps) {
             }
         } else {
             state.currentField.name = event.target.value;
+            const isNameAlreadyExists = state.currentEnum.fields.find(field => (field.name === event.target.value) && field.isActive === false)
+            if (isNameAlreadyExists) {
+                setFieldNameError("Name already exists");
+                state.currentField.isNameInvalid = true;
+                callBacks.updateEditorValidity(state.currentField.isNameInvalid || state.currentField.isValueInvalid);
+            } else if (keywords.includes(event.target.value)) {
+                setFieldNameError("Keywords are not allowed");
+                state.currentField.isNameInvalid = true;
+                callBacks.updateEditorValidity(state.currentField.isNameInvalid || state.currentField.isValueInvalid);
+            } else if (!nameRegex.test(event.target.value) && event.target.value !== "") {
+                setFieldNameError("Invalid name");
+                state.currentField.isNameInvalid = true;
+                callBacks.updateEditorValidity(state.currentField.isNameInvalid || state.currentField.isValueInvalid);
+            } else {
+                setFieldNameError("");
+                state.currentField.isNameInvalid = false;
+                callBacks.updateEditorValidity(state.currentField.isNameInvalid || state.currentField.isValueInvalid);
+            }
         }
-        const isNameAlreadyExists = state.currentEnum.fields.find(field => (field.name === event.target.value)) &&
-            !(state.currentField?.name === event.target.value);
-        if (false) {
-            setFieldNameError("Name already exists");
-            state.currentField.isNameInvalid = true;
-            callBacks.updateEditorValidity(state.currentField.isNameInvalid ||
-                state.currentField.isValueInvalid);
-        } else if (keywords.includes(event.target.value)) {
-            setFieldNameError("Keyword are not allowed");
-            state.currentField.isNameInvalid = true;
-            callBacks.updateEditorValidity(state.currentField.isNameInvalid ||
-                state.currentField.isValueInvalid);
-        } else {
-            setFieldNameError("");
-            state.currentField.isNameInvalid = false;
-            callBacks.updateEditorValidity(state.currentField.isNameInvalid ||
-                state.currentField.isValueInvalid);
-        }
+
         callBacks.onUpdateCurrentField(state.currentField);
     };
 
@@ -230,7 +233,7 @@ export function EnumField(props: CodePanelProps) {
     };
 
     const handleEnumClick = () => {
-        if (!(state.isEditorInvalid || state.currentField?.name === "" || state.currentField?.type === "")) {
+        if (!(state.isEditorInvalid || state.currentEnum?.name === "" || state.currentEnum?.type === "")) {
             state.currentEnum.isActive = false;
             enumModel.isActive = true;
             setIsEnumEditInProgress(true);
@@ -306,13 +309,13 @@ export function EnumField(props: CodePanelProps) {
                                 <FormTextInput
                                     dataTestId="enum-name"
                                     customProps={{
-                                        isErrored: false,
+                                        isErrored: state.isEditorInvalid,
                                         focused: true
                                     }}
                                     defaultValue={typeDefName}
                                     onKeyUp={handleKeyUp}
                                     onBlur={handleOnBlur}
-                                    errorMessage={""}
+                                    errorMessage={enumNameError}
                                     placeholder={"Enum name"}
                                     size="small"
                                 />
@@ -342,11 +345,11 @@ export function EnumField(props: CodePanelProps) {
                     {!state.isEditorInvalid && (
                         <div className={enumModel.isTypeDefinition ? enumClasses.typeDefEditBtnWrapper : enumClasses.enumHeaderBtnWrapper}>
                             <div className={enumClasses.actionBtnWrapper}>
-                                <EditButton onClick={handleEnumClick}/>
+                                <EditButton onClick={handleEnumClick} />
                             </div>
                             {!enumModel.isTypeDefinition && (
                                 <div className={enumClasses.actionBtnWrapper}>
-                                    <DeleteButton onClick={handleEnumDelete}/>
+                                    <DeleteButton onClick={handleEnumDelete} />
                                 </div>
                             )}
                         </div>
@@ -357,7 +360,7 @@ export function EnumField(props: CodePanelProps) {
                         {fieldItems}
                         {!state.isEditorInvalid && (
                             <div className={enumClasses.addFieldBtnWrap} onClick={handleAddField}>
-                                <AddIcon/>
+                                <AddIcon />
                                 <p>{addFieldText}</p>
                             </div>
                         )}

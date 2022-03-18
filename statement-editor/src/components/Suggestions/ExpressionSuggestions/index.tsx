@@ -11,94 +11,101 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 
-import { List, ListItem, ListItemText, Typography } from "@material-ui/core";
-import { STNode } from "@wso2-enterprise/syntax-tree";
+import {
+    Input, InputAdornment, List, ListItem, ListItemText, Typography
+} from "@material-ui/core";
 
-import { SuggestionItem } from "../../../models/definitions";
+import LibrarySearchIcon from "../../../assets/icons/LibrarySearchIcon";
 import { InputEditorContext } from "../../../store/input-editor-context";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
-import { generateExpressionTemplate } from "../../../utils/utils";
+import { Expression, ExpressionGroup, expressions, SELECTED_EXPRESSION } from "../../../utils/expressions";
 import { useStatementEditorStyles } from "../../styles";
 
-export interface ExpressionSuggestionsProps {
-    model: STNode;
-    suggestions?: SuggestionItem[];
-    operator: boolean;
-    suggestionHandler: () => void;
-    isExpression: boolean;
-}
-
-export function ExpressionSuggestions(props: ExpressionSuggestionsProps) {
+export function ExpressionSuggestions() {
     const statementEditorClasses = useStatementEditorStyles();
-    const { model, suggestions, suggestionHandler, operator, isExpression } = props;
     const inputEditorCtx = useContext(InputEditorContext);
-
+    const [keyword, setKeyword] = useState('');
+    const [filteredExpressions, setFilteredExpressions] = useState(expressions);
     const {
         modelCtx: {
+            currentModel,
             updateModel,
         }
     } = useContext(StatementEditorContext);
 
-    const onClickExpressionSuggestion = (kind: string) => {
-        updateModel(generateExpressionTemplate(kind), model.position);
+    const onClickExpressionSuggestion = (expression: Expression) => {
+        const text = expression.template.replace(SELECTED_EXPRESSION, currentModel.model.source);
+        updateModel(text, currentModel.model.position);
         inputEditorCtx.onInputChange('');
-        suggestionHandler();
     }
 
-    const onClickOperatorSuggestion = (operatorSuggestion: SuggestionItem) => {
-        updateModel(operatorSuggestion.value, model.position);
-        suggestionHandler();
+    const searchExpressions = (searchValue: string) => {
+        setKeyword(searchValue);
+        const filteredGroups: ExpressionGroup[] = [];
+        expressions.forEach(group => {
+            // Search expression in case insensitive manner
+            const filtered: Expression[] = group.expressions.filter(
+                (ex) => ex.name.toLowerCase().includes(searchValue.toLowerCase()));
+            // Only push group to filter list if have at least one expression
+            if (filtered.length > 0) {
+                filteredGroups.push({
+                    name: group.name,
+                    expressions: filtered
+                })
+            }
+        });
+        setFilteredExpressions(filteredGroups);
     }
 
     return (
         <>
-            {isExpression && !!suggestions.length && (
-                <>
-                    <div className={statementEditorClasses.expressionSuggestionList}>
-                        <List className={statementEditorClasses.expressionList}>
-                            {
-                                suggestions.map((suggestion: SuggestionItem, index: number) => (
-                                    (suggestion.kind) ?
-                                        (
+            <div className={statementEditorClasses.expressionSuggestionList}>
+                <Input
+                    className={statementEditorClasses.librarySearchBox}
+                    value={keyword}
+                    placeholder={`Search Expression`}
+                    onChange={(e) => searchExpressions(e.target.value)}
+                    endAdornment={(
+                        <InputAdornment position={"end"} style={{ padding: '8.5px' }}>
+                            <LibrarySearchIcon />
+                        </InputAdornment>
+                    )}
+                />
+                {!!filteredExpressions.length && (
+                    <>
+                        {filteredExpressions.map((group) => (
+                            <>
+                                <h3 className={statementEditorClasses.librarySearchSubHeader}>{group.name}</h3>
+                                <List className={statementEditorClasses.expressionList}>
+                                    {
+                                        group.expressions.map((expression, index) => (
                                             <ListItem
                                                 button={true}
                                                 className={statementEditorClasses.suggestionListItem}
                                                 key={index}
-                                                onClick={() => onClickOperatorSuggestion(suggestion)}
+                                                onClick={() => onClickExpressionSuggestion(expression)}
                                                 disableRipple={true}
                                             >
                                                 <ListItemText
+                                                    title={expression.name}
                                                     primary={(
-                                                        <Typography>{suggestion.value}</Typography>
+                                                        <Typography>
+                                                            {expression.example}
+                                                        </Typography>
                                                     )}
                                                 />
                                             </ListItem>
-                                        )
-                                        :
-                                        (
-                                            <ListItem
-                                                button={true}
-                                                className={statementEditorClasses.suggestionListItem}
-                                                key={index}
-                                                onClick={() => onClickExpressionSuggestion(suggestion.value)}
-                                                disableRipple={true}
-                                            >
-                                                <ListItemText
-                                                    primary={(
-                                                        <Typography>{suggestion.value}</Typography>
-                                                    )}
-                                                />
-                                            </ListItem>
-                                        )
-                                ))
-                            }
-                        </List>
-                    </div>
-                </>
-            )}
-            {isExpression && !suggestions.length && (
+                                        ))
+                                    }
+                                </List>
+                            </>
+                        ))}
+                    </>
+                )}
+            </div>
+            {!filteredExpressions.length && (
                 <p className={statementEditorClasses.noSuggestionText}>Expressions not available</p>
             )}
         </>

@@ -20,7 +20,9 @@ import { CaptureBindingPattern, ModuleVarDecl, NodePosition } from '@wso2-enterp
 import { v4 as uuid } from "uuid";
 
 import { useDiagramContext } from '../../../../../Contexts/Diagram';
+import { getAllModuleVariables } from '../../../../utils/mixins';
 import { createConfigurableDecl, updateConfigurableVarDecl } from '../../../../utils/modification-util';
+import { genVariableName } from '../../../Portals/utils';
 import { useStyles as useFormStyles } from "../../DynamicConnectorForm/style";
 import CheckBoxGroup from '../../FormFieldComponents/CheckBox';
 import { LowCodeExpressionEditor } from "../../FormFieldComponents/LowCodeExpressionEditor";
@@ -52,13 +54,15 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
     const { updateInjectables, updateParentConfigurable, configurableId } = configOverlayFormStatus?.formArgs || {};
     const isFromExpressionEditor = !!updateInjectables;
     const [uniqueId] = useState(uuid());
+    const tempVarName: string = `temp_var_${uniqueId.replaceAll('-', '_')}`;
     const handleOnSave = () => {
+        state.varName  = genVariableName(state.varName, getAllModuleVariables(stSymbolInfo));
         const modifyState: ConfigurableFormState = {
             ...state,
             varValue: state.hasDefaultValue ? state.varValue : '?',
         }
         if (isFromExpressionEditor && updateParentConfigurable) {
-            const modification = createConfigurableDecl(modifyState, targetPosition, isLastMember);
+            const modification = createConfigurableDecl(modifyState, targetPosition, isLastMember, true);
             const editItemIndex = updateInjectables?.list.findIndex((item: InjectableItem) => item.id === configurableId);
             let newInjectableList = updateInjectables?.list;
             const newInjectable = {
@@ -141,11 +145,12 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
                 endColumn: 0
             },
             customTemplate: {
-                defaultCodeSnippet: `configurable ${state.varType} temp_var_${uniqueId.replaceAll('-', '_')} = ;`,
+                defaultCodeSnippet: `configurable ${state.varType} ${tempVarName} = ;`,
                 targetColumn: 62 + state.varType.length,
             },
             hideTextLabel: true,
             initialDiagnostics: model?.initializer?.typeData?.diagnostics,
+            customTemplateVarName: tempVarName
         },
         onChange: onValueChange,
         defaultValue: state.varValue

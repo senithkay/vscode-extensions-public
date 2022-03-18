@@ -22,16 +22,22 @@ import { Library } from '../Library';
 interface LibrariesListProps {
     libraries: LibraryInfo[],
     libraryBrowsingHandler: (libraryData: LibraryDataResponse) => void
+    libraryDataFetchingHandler: (isFetching: boolean) => void
 }
 
 export function LibrariesList(props: LibrariesListProps) {
     const statementEditorClasses = useStatementEditorStyles();
-    const { libraries, libraryBrowsingHandler } = props;
+    const { libraries, libraryBrowsingHandler, libraryDataFetchingHandler } = props;
 
     return (
         <List className={statementEditorClasses.libraryListBlock}>
             {libraries.map((library: LibraryInfo, index: number) => (
-                <Library libraryInfo={library} key={index} libraryBrowsingHandler={libraryBrowsingHandler} />
+                <Library
+                    libraryInfo={library}
+                    key={index}
+                    libraryBrowsingHandler={libraryBrowsingHandler}
+                    libraryDataFetchingHandler={libraryDataFetchingHandler}
+                />
             ))}
         </List>
     );

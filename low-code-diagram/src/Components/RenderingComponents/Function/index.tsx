@@ -43,6 +43,7 @@ export const FUNCTION_PLUS_MARGIN_LEFT = 10;
 
 export interface FunctionProps {
     model: FunctionDefinition;
+    hideHeader?: boolean;
 }
 
 export function Function(props: FunctionProps) {
@@ -51,7 +52,7 @@ export function Function(props: FunctionProps) {
     const { isReadOnly } = diagramContext.props;
     const run = diagramContext?.api?.project?.run;
 
-    const { model } = props;
+    const { model, hideHeader } = props;
 
     const viewState: FunctionViewState = model.viewState;
     const isInitPlusAvailable: boolean = viewState.initPlus !== undefined;
@@ -83,7 +84,7 @@ export function Function(props: FunctionProps) {
         );
     } else {
         const block: FunctionBodyBlock = model.functionBody as FunctionBodyBlock;
-        const isStatementsAvailable: boolean = block.statements.length > 0;
+        const isStatementsAvailable: boolean = block.statements.length > 0 || !!block.namedWorkerDeclarator;
         const bodyViewState: BlockViewState = block.viewState;
 
         component = (
@@ -134,7 +135,7 @@ export function Function(props: FunctionProps) {
         if (model.isRunnable) {
             return (
                 <div className={"action-container"}>
-                    <button onClick={onClickRun}>Run</button>
+                    <button className={"action-button"} onClick={onClickRun}>Run</button>
                 </div>
             );
         }
@@ -157,7 +158,7 @@ export function Function(props: FunctionProps) {
             )}
             data-function-name={model?.functionName?.value}
         >
-            {STKindChecker.isResourceAccessorDefinition(model) ? (
+            {!hideHeader && (STKindChecker.isResourceAccessorDefinition(model) ? (
                 <ResourceHeader
                     isExpanded={diagramExpanded}
                     model={model}
@@ -172,8 +173,8 @@ export function Function(props: FunctionProps) {
                         onExpandClick={onExpandClick}
                     />
                 </div>
-            )}
-            {diagramExpanded && functionBody}
+            ))}
+            {(diagramExpanded || hideHeader) && functionBody}
         </div>
     );
 }

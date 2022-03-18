@@ -45,7 +45,7 @@ export function OperationDropdown(props: OperationDropdownProps) {
         onOperationSelect(value.name);
         const connector = (stSymbolInfo.localEndpoints.get(connectionDetails.name)?.typeData?.typeSymbol?.moduleID) as Connector;
         const name = stSymbolInfo.localEndpoints.get(connectionDetails.name)?.typeData?.typeSymbol?.name;
-        if (connector){
+        if (connector && connector.package){
             const {moduleName, package: {version, organization}} = connector;
             openConnectorHelp({moduleName, package: {name: value.name, version, organization}, name}, value.name);
         }

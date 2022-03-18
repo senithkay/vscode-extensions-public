@@ -17,6 +17,7 @@ import classNames from "classnames";
 
 import { Context } from "../../../Context/diagram";
 import { DefaultConfig } from "../../../Visitors/default";
+import { DefaultTooltip } from "../DefaultTooltip";
 
 import "./style.scss"
 
@@ -37,7 +38,7 @@ export function ConditionAssignment(props: { x: number, y: number, assignment: s
     const assignmentWidth = textWidth
     let assignmentX = 0;
 
-    assignmentX = (assignmentWidth > 125) ? CONDITION_ASSIGNMENT_NAME_WIDTH - DefaultConfig.dotGap : assignmentX = (CONDITION_ASSIGNMENT_NAME_WIDTH - assignmentWidth - (DefaultConfig.dotGap * 2));
+    assignmentX = (assignmentWidth > CONDITION_ASSIGNMENT_NAME_WIDTH) ? CONDITION_ASSIGNMENT_NAME_WIDTH - DefaultConfig.dotGap : assignmentX = (CONDITION_ASSIGNMENT_NAME_WIDTH - assignmentWidth - (DefaultConfig.dotGap * 2));
     const assignemtComponant: ReactElement = (
         <text
             className={classNames("assignment-text", className)}
@@ -46,6 +47,10 @@ export function ConditionAssignment(props: { x: number, y: number, assignment: s
         >
             <tspan x={assignmentX} y="0" id={"textLegnth_" + key_id}>  {assignmentMaxWidth ? assignment.slice(0, 16) + "..." : assignment} </tspan>
         </text>
+    );
+
+    const defaultTooltip = (
+        <DefaultTooltip text={{ heading: assignment }}>{assignemtComponant}</DefaultTooltip>
     );
 
     useEffect(() => {
@@ -59,7 +64,7 @@ export function ConditionAssignment(props: { x: number, y: number, assignment: s
 
     return (
         <svg {...xyProps}>
-            {assignmentMaxWidth ? tooltip : assignemtComponant}
+            {assignmentMaxWidth && tooltip ? tooltip : defaultTooltip}
         </svg >
     );
 }

@@ -21,6 +21,7 @@ export class PlusViewState extends ViewState {
     public isAPICallsExisting: boolean = false;
     public isAPICallsExistingCollapsed: boolean = false;
     public isAPICallsExistingCreateCollapsed: boolean = false;
+    public allowWorker: boolean = false;
     constructor() {
         super();
     }

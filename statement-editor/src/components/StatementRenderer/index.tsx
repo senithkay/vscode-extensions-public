@@ -13,20 +13,16 @@
 import React from "react";
 
 import { StatementNodes } from "../../constants";
-import { VariableUserInputs } from "../../models/definitions";
 import { getStatementTypeComponent } from "../../utils";
 
 export interface StatementRendererProps {
     model: StatementNodes;
-    userInputs?: VariableUserInputs;
-    isElseIfMember: boolean;
-    diagnosticHandler: (diagnostics: string) => void;
 }
 
 export function StatementRenderer(props: StatementRendererProps) {
-    const { model, userInputs, isElseIfMember, diagnosticHandler } = props;
+    const { model } = props;
 
-    const component = getStatementTypeComponent(model, userInputs, isElseIfMember, diagnosticHandler);
+    const component = getStatementTypeComponent(model);
 
     return (
        <span>

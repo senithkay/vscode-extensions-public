@@ -15,6 +15,8 @@ import {
     LocalVarDecl,
     ModulePart,
     ModuleVarDecl,
+    NamedWorkerDeclaration,
+    NamedWorkerDeclarator,
     ObjectMethodDefinition,
     OnFailClause,
     RemoteMethodCallAction,
@@ -52,6 +54,7 @@ import {
     WhileViewState
 } from "../ViewState";
 import { DraftStatementViewState } from "../ViewState/draft";
+import { WorkerDeclarationViewState } from "../ViewState/worker-declaration";
 
 import { DefaultConfig } from "./default";
 import { isSTActionInvocation } from "./util";
@@ -60,7 +63,7 @@ let allEndpoints: Map<string, Endpoint> = new Map<string, Endpoint>();
 let currentFnBody: FunctionBodyBlock | ExpressionFunctionBody;
 const allDiagnostics: Diagnostic[] = [];
 
-class InitVisitor implements Visitor {
+export class InitVisitor implements Visitor {
     public beginVisitSTNode(node: STNode, parent?: STNode) {
         if (!node.viewState) {
             node.viewState = new ViewState();
@@ -103,6 +106,21 @@ class InitVisitor implements Visitor {
             const bindingPattern = node.typedBindingPattern.bindingPattern as CaptureBindingPattern;
             if (allEndpoints.get(bindingPattern.variableName.value)) {
                 node.viewState.endpoint.epName = bindingPattern.variableName.value;
+                node.viewState.isEndpoint = true;
+            }
+        }
+    }
+
+    public beginVisitRequiredParam(node: RequiredParam, parent?: STNode): void {
+        if (!node.viewState) {
+            const viewState = new ModuleMemberViewState();
+            node.viewState = viewState;
+        }
+
+        if (node.typeData && node.typeData.isEndpoint) {
+            const endpointName = node.paramName?.value;
+            if (endpointName) {
+                node.viewState.endpoint.epName = endpointName;
                 node.viewState.isEndpoint = true;
             }
         }
@@ -247,6 +265,7 @@ class InitVisitor implements Visitor {
     public endVisitFunctionBodyBlock(node: FunctionBodyBlock, parent?: STNode) {
         const blockViewState: BlockViewState = node.viewState;
         blockViewState.connectors = allEndpoints;
+        blockViewState.hasWorkerDecl = !!node.namedWorkerDeclarator;
         currentFnBody = undefined;
     }
 
@@ -335,42 +354,9 @@ class InitVisitor implements Visitor {
         }
     }
 
-    public beginVisitDoStatement(node: DoStatement, parent?: STNode) {
+    public beginVisitNamedWorkerDeclaration(node: NamedWorkerDeclaration) {
         if (!node.viewState) {
-            node.viewState = new DoViewState();
-        }
-        const viewState = new BlockViewState();
-        if (node.viewState && node.viewState.isFirstInFunctionBody) {
-            const doViewState: DoViewState = node.viewState as DoViewState;
-            if (node.blockStatement) {
-                viewState.isDoBlock = true;
-            }
-
-            if (node.onFailClause) {
-                const onFailViewState: OnErrorViewState = new OnErrorViewState();
-                onFailViewState.isFirstInFunctionBody = true;
-                node.onFailClause.viewState = onFailViewState;
-            }
-        } else {
-            this.initStatement(node, parent);
-        }
-
-        if (node.blockStatement) {
-            node.blockStatement.viewState = viewState;
-        }
-    }
-
-    public beginVisitOnFailClause(node: OnFailClause, parent?: STNode) {
-        if (!node.viewState) {
-            node.viewState = new OnErrorViewState();
-        }
-        const viewState = new BlockViewState();
-        if (node.viewState && node.viewState.isFirstInFunctionBody && node.blockStatement) {
-            viewState.isOnErrorBlock = true;
-        }
-
-        if (node.blockStatement) {
-            node.blockStatement.viewState = viewState;
+            node.viewState = new WorkerDeclarationViewState();
         }
     }
 

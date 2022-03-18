@@ -31,7 +31,9 @@ export const useStatementEditor = (props: StatementEditorProps) => {
 
     const handleStmtEditorToggle = () => {
         setIsStmtEditor(!isStmtEditor);
-        handleStatementEditorChange(stmtEditorModel);
+        if (stmtEditorModel) {
+            handleStatementEditorChange(stmtEditorModel);
+        }
     };
 
     const onStmtEditorModelChange = (model: STNode) => {

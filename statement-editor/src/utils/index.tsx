@@ -16,25 +16,20 @@ import { CompletionResponse, STModification } from "@wso2-enterprise/ballerina-l
 import {
     NodePosition,
     STKindChecker,
-    STNode, traversNode
+    STNode,
+    traversNode
 } from "@wso2-enterprise/syntax-tree";
 
 import * as expressionTypeComponents from '../components/ExpressionTypes';
 import * as statementTypeComponents from '../components/Statements';
-import * as c from "../constants";
-import { RemainingContent, SuggestionItem, VariableUserInputs } from '../models/definitions';
+import { OTHER_EXPRESSION, OTHER_STATEMENT, StatementNodes } from "../constants";
+import { ModelKind, RemainingContent } from '../models/definitions';
 import { visitor as DeleteConfigSetupVisitor } from "../visitors/delete-config-setup-visitor";
 import { visitor as ExpressionDeletingVisitor } from "../visitors/expression-deleting-visitor";
 import { visitor as ModelFindingVisitor } from "../visitors/model-finding-visitor";
 import { viewStateSetupVisitor as ViewStateSetupVisitor } from "../visitors/view-state-setup-visitor";
 
 import { createImportStatement, createStatement, updateStatement } from "./statement-modifications";
-import {
-    DataTypeByExpressionKind,
-    ExpressionKindByOperator,
-    ExpressionSuggestionsByKind,
-    OperatorsForExpressionKind
-} from "./utils";
 
 export function getModifications(
         model: STNode,
@@ -82,67 +77,33 @@ export function getModifications(
     return modifications;
 }
 
-export function getSuggestionsBasedOnExpressionKind(kind: string): SuggestionItem[] {
-    return ExpressionSuggestionsByKind[kind];
-}
-
-export function getKindBasedOnOperator(operator: string): string {
-    return ExpressionKindByOperator[operator];
-}
-
-export function getOperatorSuggestions(kind: string): SuggestionItem[] {
-    if (kind in OperatorsForExpressionKind) {
-        return OperatorsForExpressionKind[kind];
-    }
-    return []; // we can remove the empty array return if we only set the operator prop to true for the expressions with operators
-}
-
-export function getDataTypeOnExpressionKind(kind: string): string[] {
-    return DataTypeByExpressionKind[kind];
-}
-
-export function getExpressionTypeComponent(
-    expression: STNode,
-    userInputs: VariableUserInputs,
-    isElseIfMember: boolean,
-    diagnosticHandler: (diagnostics: string) => void,
-    isTypeDescriptor: boolean
-): ReactNode {
+export function getExpressionTypeComponent(expression: STNode, isTypeDescriptor: boolean): ReactNode {
     let ExprTypeComponent = (expressionTypeComponents as any)[expression.kind];
 
     if (!ExprTypeComponent) {
-        ExprTypeComponent = (expressionTypeComponents as any)[c.OTHER_EXPRESSION];
+        ExprTypeComponent = (expressionTypeComponents as any)[OTHER_EXPRESSION];
     }
 
     return (
         <ExprTypeComponent
             model={expression}
-            userInputs={userInputs}
-            isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
-            isTypeDescriptor={isTypeDescriptor}
+            isTypeDesc={isTypeDescriptor}
         />
     );
 }
 
 export function getStatementTypeComponent(
-    model: c.StatementNodes,
-    userInputs: VariableUserInputs,
-    isElseIfMember: boolean,
-    diagnosticHandler: (diagnostics: string) => void
+    model: StatementNodes
 ): ReactNode {
     let StatementTypeComponent = (statementTypeComponents as any)[model?.kind];
 
     if (!StatementTypeComponent) {
-        StatementTypeComponent = (statementTypeComponents as any)[c.OTHER_STATEMENT];
+        StatementTypeComponent = (statementTypeComponents as any)[OTHER_STATEMENT];
     }
 
     return (
         <StatementTypeComponent
             model={model}
-            userInputs={userInputs}
-            isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
         />
     );
 }
@@ -175,6 +136,18 @@ export function isPositionsEquals(position1: NodePosition, position2: NodePositi
         position1?.endColumn === position2?.endColumn;
 }
 
+export function isOperator(modelKind: ModelKind): boolean {
+    return modelKind === ModelKind.Operator;
+}
+
+export function isTypeDesc(modelKind: ModelKind): boolean {
+    return modelKind === ModelKind.TypeDesc;
+}
+
+export function isBindingPattern(modelKind: ModelKind): boolean {
+    return modelKind === ModelKind.BindingPattern;
+}
+
 export function getSuggestionIconStyle(suggestionType: number): string {
     let suggestionIconStyle: string;
     switch (suggestionType) {
@@ -186,6 +159,9 @@ export function getSuggestionIconStyle(suggestionType: number): string {
             break;
         case 6:
             suggestionIconStyle = "suggest-icon codicon codicon-symbol-variable"
+            break;
+        case 11:
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-ruler"
             break;
         case 14:
             suggestionIconStyle = "suggest-icon codicon codicon-symbol-keyword"
