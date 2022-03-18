@@ -42,7 +42,8 @@ export function ModuleElement(props: ModuleElementProps) {
     const {
         modelCtx: {
             currentModel,
-            updateModel        },
+            updateModel
+        },
         formCtx: {
             formModelPosition
         },

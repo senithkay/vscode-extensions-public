@@ -19,6 +19,7 @@ import {
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     NodePosition,
+    STKindChecker,
     STNode
 } from "@wso2-enterprise/syntax-tree";
 
@@ -26,9 +27,9 @@ import {
     acceptedCompletionKindForExpressions,
     acceptedCompletionKindForTypes
 } from "../components/InputEditor/constants";
-import { SuggestionItem } from '../models/definitions';
+import { CurrentModel, SuggestionItem } from '../models/definitions';
 
-import { sortSuggestions } from "./index";
+import { isTypeDesc, sortSuggestions } from "./index";
 
 export async function getPartialSTForStatement(
             partialSTRequest: PartialSTRequest,
@@ -46,19 +47,23 @@ export async function getPartialSTForExpression(
     return resp.syntaxTree;
 }
 
-export async function getContextBasedCompletions (
-            docUri: string,
-            content: string,
-            targetPosition: NodePosition,
-            modelPosition: NodePosition,
-            isTypeDescriptor: boolean,
-            isElseIfMember: boolean,
-            selection: string,
-            getLangClient: () => Promise<ExpressionEditorLangClientInterface>,
-            currentFileContent?: string): Promise<SuggestionItem[]> {
+export async function getCompletions (docUri: string,
+                                      targetPosition: NodePosition,
+                                      completeModel: STNode,
+                                      currentModel: CurrentModel,
+                                      getLangClient: () => Promise<ExpressionEditorLangClientInterface>,
+                                      userInput: string = ''
+                                    ) : Promise<SuggestionItem[]> {
+
+    const isTypeDescriptor = isTypeDesc(currentModel?.kind);
+    const isElseIfMember = STKindChecker.isElseBlock(currentModel.model);
+    const varName = STKindChecker.isLocalVarDecl(completeModel)
+        && completeModel.typedBindingPattern.bindingPattern.source.trim();
+    const currentModelPosition = currentModel.model.position;
+    const currentModelSource = STKindChecker.isIdentifierToken(currentModel.model) ?
+        currentModel.model.value.trim() : currentModel.model.source.trim();
     const suggestions: SuggestionItem[] = [];
-    await sendDidOpen(docUri, currentFileContent, getLangClient);
-    await sendDidChange(docUri, content, getLangClient);
+
     const completionParams: CompletionParams = {
         textDocument: {
             uri: docUri
@@ -67,27 +72,40 @@ export async function getContextBasedCompletions (
             triggerKind: 1
         },
         position: {
-            character: isElseIfMember ?
-                modelPosition.startColumn :
-                targetPosition.startColumn + modelPosition.startColumn,
-            line: targetPosition.startLine + modelPosition.startLine
+            character: currentModel.model ?
+                (isElseIfMember ?
+                    currentModelPosition.startColumn :
+                    targetPosition.startColumn + currentModelPosition.startColumn + userInput.length
+                ) :
+                targetPosition.startColumn + userInput.length,
+            line: targetPosition.startLine + currentModelPosition.startLine
         }
     }
+
+    // CodeSnippet is split to get the suggestions for field-access-expr (expression.field-name)
+    const inputElements = userInput.split('.');
 
     const langClient = await getLangClient();
     const completions: CompletionResponse[] = await langClient.getCompletion(completionParams);
 
     const filteredCompletionItems = completions.filter((completionResponse: CompletionResponse) => (
-        (
-            !completionResponse.kind || (
-                isTypeDescriptor ?
+        (!completionResponse.kind ||
+            (isTypeDescriptor ?
                     acceptedCompletionKindForTypes.includes(completionResponse.kind) :
                     acceptedCompletionKindForExpressions.includes(completionResponse.kind)
             )
-        ) && completionResponse.label !== selection.trim() && !(completionResponse.label.includes("main"))
+        ) &&
+        completionResponse.label !== varName &&
+        !(completionResponse.label.includes("main")) &&
+        (userInput ?
+            inputElements.some(element => (
+                completionResponse.label.toLowerCase()).includes(element.toLowerCase())
+            ) :
+            completionResponse.label !== currentModelSource
+        )
     ));
 
-    filteredCompletionItems.sort(sortSuggestions)
+    filteredCompletionItems.sort(sortSuggestions);
 
     filteredCompletionItems.map((completion) => {
         suggestions.push({ value: completion.label, kind: completion.detail, suggestionType: completion.kind  });

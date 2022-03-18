@@ -16,31 +16,24 @@ import React, { ReactNode, useContext } from "react";
 import { RemoteMethodCallAction, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
-import { DEFAULT_EXPRESSIONS } from "../../../constants";
-import { SuggestionItem, VariableUserInputs } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
-import { SuggestionsContext } from "../../../store/suggestions-context";
-import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
-import { addStatementToTargetLine, getContextBasedCompletions } from "../../../utils/ls-utils";
 import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
 
 interface RemoteMethodCallActionProps {
     model: RemoteMethodCallAction;
-    userInputs: VariableUserInputs;
-    isElseIfMember: boolean;
-    diagnosticHandler: (diagnostics: string) => void;
 }
 
 export function RemoteMethodCallActionComponent(props: RemoteMethodCallActionProps) {
-    const { model, userInputs, isElseIfMember, diagnosticHandler } = props;
+    const { model } = props;
     const stmtCtx = useContext(StatementEditorContext);
+    const {
+        modelCtx: {
+            changeCurrentModel
+        }
+    } = stmtCtx;
 
     const statementEditorClasses = useStatementEditorStyles();
-    const { expressionHandler } = useContext(SuggestionsContext);
-    const { currentFile, getLangClient } = stmtCtx;
-    const targetPosition = stmtCtx.formCtx.formModelPosition;
-    const fileURI = `expr://${currentFile.path}`;
 
     const expressionArgComponent = (
         <span>
@@ -59,10 +52,6 @@ export function RemoteMethodCallActionComponent(props: RemoteMethodCallActionPro
                     ) : (
                         <ExpressionComponent
                             model={argument}
-                            userInputs={userInputs}
-                            isElseIfMember={isElseIfMember}
-                            diagnosticHandler={diagnosticHandler}
-                            isTypeDescriptor={false}
                         />
                     )
                 ))
@@ -73,45 +62,17 @@ export function RemoteMethodCallActionComponent(props: RemoteMethodCallActionPro
 
     const onClickOnExpression = async (event: any) => {
         event.stopPropagation();
-
-        const content: string = await addStatementToTargetLine(
-            currentFile.content, targetPosition, stmtCtx.modelCtx.statementModel.source, getLangClient);
-
-        const completions: SuggestionItem[] = await getContextBasedCompletions(
-            fileURI, content, targetPosition, model.expression.position,
-            false, isElseIfMember, model.expression.source, getLangClient);
-
-        expressionHandler(model.expression, false, false, {
-            expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
-            typeSuggestions: [],
-            variableSuggestions: completions
-        });
+        changeCurrentModel(model.expression);
     };
 
     const onClickOnMethodName = async (event: any) => {
         event.stopPropagation();
-
-        const content: string = await addStatementToTargetLine(
-            currentFile.content, targetPosition, stmtCtx.modelCtx.statementModel.source, getLangClient);
-
-        const completions: SuggestionItem[] = await getContextBasedCompletions(
-            fileURI, content, targetPosition, model.methodName.position,
-            false, isElseIfMember, model.methodName.source, getLangClient);
-
-        expressionHandler(model.methodName, false, false, {
-            expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
-            typeSuggestions: [],
-            variableSuggestions: completions
-        });
+        changeCurrentModel(model.methodName);
     };
 
     const methodName: ReactNode = (
         <ExpressionComponent
             model={model.methodName}
-            userInputs={userInputs}
-            isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
-            isTypeDescriptor={false}
             onSelect={onClickOnMethodName}
         >
             <span
@@ -137,10 +98,6 @@ export function RemoteMethodCallActionComponent(props: RemoteMethodCallActionPro
     const expression: ReactNode = (
         <ExpressionComponent
             model={model.expression}
-            userInputs={userInputs}
-            isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
-            isTypeDescriptor={false}
             onSelect={onClickOnExpression}
         />
     );

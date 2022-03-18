@@ -14,29 +14,25 @@
 import React, { useContext } from "react";
 
 import { List, ListItem, ListItemIcon, ListItemText, Typography } from "@material-ui/core";
-import { STNode } from "@wso2-enterprise/syntax-tree";
 
 import { SuggestionItem } from "../../../models/definitions";
 import { InputEditorContext } from "../../../store/input-editor-context";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { getSuggestionIconStyle } from "../../../utils";
+import { acceptedCompletionKindForTypes } from "../../InputEditor/constants";
 import { useStatementEditorStyles } from "../../styles";
 
-export interface VariableSuggestionsProps {
-    model: STNode;
-    variableSuggestions?: SuggestionItem[];
-    suggestionHandler: () => void;
-    isSuggestion: boolean;
-}
-
-export function VariableSuggestions(props: VariableSuggestionsProps) {
+export function LSSuggestions() {
     const statementEditorClasses = useStatementEditorStyles();
-    const { model, variableSuggestions, suggestionHandler, isSuggestion } = props;
     const inputEditorCtx = useContext(InputEditorContext);
 
     const {
         modelCtx: {
+            currentModel,
             updateModel,
+        },
+        suggestionsCtx: {
+            lsSuggestions
         },
         formCtx: {
             formModelPosition
@@ -44,7 +40,7 @@ export function VariableSuggestions(props: VariableSuggestionsProps) {
     } = useContext(StatementEditorContext);
     const resourceAccessRegex = /.+\./gm;
 
-    const onClickVariableSuggestion = (suggestion: SuggestionItem) => {
+    const onClickLSSuggestion = (suggestion: SuggestionItem) => {
         let variable = suggestion.value;
         if (inputEditorCtx.userInput.includes('.')) {
             variable = resourceAccessRegex.exec(inputEditorCtx.userInput) + suggestion.value;
@@ -57,23 +53,22 @@ export function VariableSuggestions(props: VariableSuggestionsProps) {
             }
             variable = variable.split('(')[0] + "(" + paramArray.toString() + ")";
         }
-        updateModel(variable, model ? model.position : formModelPosition);
+        updateModel(variable, currentModel ? currentModel.model.position : formModelPosition);
         inputEditorCtx.onInputChange('');
-        suggestionHandler();
     }
 
     return (
         <>
-            { isSuggestion && !!variableSuggestions.length && (
+            { !!lsSuggestions?.length && (
                 <>
                     <div className={statementEditorClasses.lsSuggestionList}>
                         <List className={statementEditorClasses.suggestionList}>
                             {
-                                variableSuggestions.map((suggestion: SuggestionItem, index: number) => (
+                                lsSuggestions.map((suggestion: SuggestionItem, index: number) => (
                                     <ListItem
                                         button={true}
                                         key={index}
-                                        onClick={() => onClickVariableSuggestion(suggestion)}
+                                        onClick={() => onClickLSSuggestion(suggestion)}
                                         className={statementEditorClasses.suggestionListItem}
                                         disableRipple={true}
                                     >
@@ -89,14 +84,16 @@ export function VariableSuggestions(props: VariableSuggestionsProps) {
                                                 </Typography>
                                             )}
                                         />
-                                        <ListItemText
-                                            style={{ minWidth: '10%', marginLeft: '8px' }}
-                                            primary={(
-                                                <Typography className={statementEditorClasses.suggestionDataType}>{
-                                                    suggestion.kind}
-                                                </Typography>
-                                            )}
-                                        />
+                                        { !acceptedCompletionKindForTypes.includes(suggestion.suggestionType) && (
+                                            <ListItemText
+                                                style={{ minWidth: '10%', marginLeft: '8px' }}
+                                                primary={(
+                                                    <Typography className={statementEditorClasses.suggestionDataType}>
+                                                        {suggestion.kind}
+                                                    </Typography>
+                                                )}
+                                            />
+                                        )}
                                     </ListItem>
                                 ))
                             }
@@ -104,7 +101,7 @@ export function VariableSuggestions(props: VariableSuggestionsProps) {
                     </div>
                 </>
             )}
-            { isSuggestion && !variableSuggestions.length && (
+            { !lsSuggestions?.length && (
                 <p className={statementEditorClasses.noSuggestionText}>Suggestions not available</p>
             )}
         </>
