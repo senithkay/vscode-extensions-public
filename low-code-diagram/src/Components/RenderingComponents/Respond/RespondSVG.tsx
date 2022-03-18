@@ -52,7 +52,7 @@ export function RespondSVG(props: { x: number, y: number, text: string, sourceSn
     );
     useEffect(() => {
         if (model && showTooltip) {
-            setDiagTooltip(showTooltip(responseRect, openInCodeView, model));
+            setDiagTooltip(showTooltip(responseRect,undefined, openInCodeView, model));
         }
         return () => {
             setTooltip(undefined);

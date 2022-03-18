@@ -63,7 +63,7 @@ export function ReturnRectSVG(props: ReturnRectSVGProps) {
     );
     useEffect(() => {
         if (model && showTooltip) {
-            setDiagTooltip(showTooltip(rectSVG, onClick, model));
+            setDiagTooltip(showTooltip(rectSVG,undefined, onClick, model));
         }
         return () => {
             setTooltip(undefined);

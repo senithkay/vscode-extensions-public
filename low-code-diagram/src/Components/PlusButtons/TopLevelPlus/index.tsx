@@ -20,6 +20,7 @@ import { Context } from "../../../Context/diagram";
 
 import { InitialPlusTooltipBubble } from "./InitialPlusTooltipBubble";
 import "./style.scss";
+import { DiagramTooltipCodeSnippet } from "../../../../../low-code-ui-components/lib";
 
 export const PLUS_WIDTH = 16;
 export const PLUS_AND_OPTIONS_GAP = 6;
@@ -74,19 +75,29 @@ export const TopLevelPlus = (props: PlusProps) => {
         setPlusOptions(undefined);
     };
 
-    // TODO:Add new tooltip component to support this scenario
-
     // useEffect(() => {
     //     if (!isDocumentEmpty && showTooltip) {
-    //         setTooltip(showTooltip(<TopLevelPlusIcon />, "heading-content", { content: 'Add Construct' }, "right", true));
+    //         setDiagTooltip(showTooltip(<TopLevelPlusIcon />,'Add Construct'));
     //     }
     // }, [isDocumentEmpty])
+
+    useEffect(() => {
+        if (!isDocumentEmpty && showTooltip) {
+            setTooltip(showTooltip(<TopLevelPlusIcon />, "Add Construct"));
+        }
+        return () => {
+            setTooltip(undefined);
+        };
+    }, [isDocumentEmpty]);
 
     return (
         <div className="plus-container" ref={containerElement} target-line={targetPosition.startLine}>
             <div className={'plus-btn-wrapper'} onClick={handlePlusClick}>
                 {
-                    !isDocumentEmpty &&  <TopLevelPlusIcon />
+                    !isDocumentEmpty && tooltip ?
+                        tooltip
+                        : 
+                            <TopLevelPlusIcon /> 
                 }
             </div>
             {

@@ -50,7 +50,7 @@ export function IfElseRectSVG(props: IfElseRectSVGProps) {
     );
     useEffect(() => {
         if (model && showTooltip) {
-            setDiagTooltip(showTooltip(component, onClick, model));
+            setDiagTooltip(showTooltip(component, undefined ,onClick, model));
         }
         return () => {
             setTooltip(undefined);

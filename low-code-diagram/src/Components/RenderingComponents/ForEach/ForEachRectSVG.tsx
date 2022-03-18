@@ -56,7 +56,7 @@ export function ForEachRectSVG(props: ForEachRectSVGProps) {
     );
     useEffect(() => {
         if (model && showTooltip) {
-            setDiagTooltip(showTooltip(svgElement, onClick, model));
+            setDiagTooltip(showTooltip(svgElement, undefined ,onClick, model));
         }
         return () => {
             setTooltip(undefined);

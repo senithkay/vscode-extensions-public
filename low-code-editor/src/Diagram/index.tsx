@@ -237,11 +237,12 @@ export function Diagram() {
 
     const handleShowTooltip = (
         component: any,
+        content?:string,
         onClick?: () => void,
         model?: STNode,
         additionalParams?: any): any => {
         return (
-            <DiagramTooltipCodeSnippet componentModel={model} onClick={onClick} >
+            <DiagramTooltipCodeSnippet content={content} componentModel={model} onClick={onClick}  >
                 {component}
             </DiagramTooltipCodeSnippet>
         );

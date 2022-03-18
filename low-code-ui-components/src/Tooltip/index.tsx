@@ -38,6 +38,7 @@ interface TooltipPropsExtended extends TooltipProps {
     typeExamples?: string;
     componentModel?: STNode;
     onClick: () => void;
+    toolTipContent?: string
 };
 
 const TooltipComponent = withStyles(tooltipStyles)(TooltipBase);
@@ -68,7 +69,7 @@ export function Tooltip(props: Partial<TooltipPropsExtended>) {
         }
     };
 
-    const { children, heading, title, content, example, actionText, actionLink, inverted, disabled, codeSnippet, openInCodeView, typeExamples, componentModel, onClick, ...restProps } = props;
+    const { children, heading, title, content, example, actionText, actionLink, inverted, disabled, codeSnippet, openInCodeView, typeExamples, componentModel, onClick, toolTipContent, ...restProps } = props;
 
     // Skip Tooltip rendering if disabled prop provided.
     if (disabled) return (<>{children}</>);
@@ -108,7 +109,7 @@ export function Tooltip(props: Partial<TooltipPropsExtended>) {
         const source = getSourceFromST(componentModel);
         const diagnosticMsgs = getDiagnosticsFromST(componentModel);
         const icon = diagnosticMsgs ? diagnosticMsgs?.severity === "ERROR" ? <ErrorIcon /> : <WarningIcon /> : null;
-        const diagnosticStyles = diagnosticMsgs?.severity  === "ERROR" ? styles.diagnosticErrorWrapper : styles.diagnosticWarningWrapper;
+        const diagnosticStyles = diagnosticMsgs?.severity === "ERROR" ? styles.diagnosticErrorWrapper : styles.diagnosticWarningWrapper;
 
         const Diagnostic = () => (
             <div className={styles.codeHintWrap}>
@@ -152,6 +153,18 @@ export function Tooltip(props: Partial<TooltipPropsExtended>) {
         );
     }
 
+    if (toolTipContent) {
+
+        const ToolTipContent = () => (
+            <div >{toolTipContent}</div>
+        );
+
+        tooltipTitle = (
+            <ToolTipContent />
+        );
+
+    }
+
     return <TooltipComponentRef {...restProps} title={tooltipTitle}>{children}</TooltipComponentRef>
 }
 
@@ -193,7 +206,7 @@ export function TooltipCodeSnippet(props: Partial<TooltipPropsExtended>) {
 }
 
 export function DiagramTooltipCodeSnippet(props: Partial<TooltipPropsExtended>) {
-    const { onClick, children, componentModel, ...restProps } = props;
+    const { onClick, children, componentModel, content, ...restProps } = props;
 
     return (
         <Tooltip
@@ -204,6 +217,7 @@ export function DiagramTooltipCodeSnippet(props: Partial<TooltipPropsExtended>) 
             componentModel={componentModel}
             placement="right"
             arrow={true}
+            toolTipContent={content}
         >
             {children}
         </Tooltip>
