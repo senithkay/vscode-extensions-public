@@ -36,7 +36,7 @@ export function CodePanel() {
 
     const handleEnumSave = () => {
         if (state.enumModel.isTypeDefinition) {
-            const isNewTypeDesc = (state.targetPosition !== undefined);
+            const isNewTypeDesc = (!state.sourceModel);
             if (!isNewTypeDesc) {
                 const modelPosition = state.sourceModel.position as NodePosition;
                 const updatePosition = {
