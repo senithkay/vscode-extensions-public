@@ -43,7 +43,7 @@ export function TypeTestExpressionComponent(props: TypeTestExpressionProps) {
 
     const onClickOnTypeDescriptor = async (event: any) => {
         event.stopPropagation();
-        changeCurrentModel(model.typeDescriptor, ModelKind.TypeDesc);
+        changeCurrentModel(model.typeDescriptor);
     };
 
 
@@ -58,7 +58,6 @@ export function TypeTestExpressionComponent(props: TypeTestExpressionProps) {
         <ExpressionComponent
             model={model.typeDescriptor}
             onSelect={onClickOnTypeDescriptor}
-            isTypeDesc={true}
         />
     );
 

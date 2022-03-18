@@ -36,7 +36,7 @@ import {
 } from "../../models/definitions";
 import { StatementEditorContextProvider } from "../../store/statement-editor-context";
 import {
-    enrichModelWithDeletableState,
+    enrichModelWithViewState,
     getCurrentModel,
     isBindingPattern,
     isOperator
@@ -249,7 +249,7 @@ export function StatementEditor(props: StatementEditorProps) {
             };
         }
 
-        const newCurrentModel = getCurrentModel(currentModelPosition, enrichModelWithDeletableState(partialST));
+        const newCurrentModel = getCurrentModel(currentModelPosition, enrichModelWithViewState(partialST));
         setCurrentModel({model: newCurrentModel});
     }
 
@@ -283,7 +283,7 @@ export function StatementEditor(props: StatementEditorProps) {
     }
 
     function updateEditedModel(editedModel: STNode) {
-        setModel(enrichModelWithDeletableState(editedModel));
+        setModel(enrichModelWithViewState(editedModel));
     }
 
     return (

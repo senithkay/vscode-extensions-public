@@ -28,6 +28,7 @@ import debounce from "lodash.debounce";
 import * as c from "../../constants";
 import { InputEditorContext } from "../../store/input-editor-context";
 import { StatementEditorContext } from "../../store/statement-editor-context";
+import { StatementEditorViewState } from "../../utils/statement-editor-viewstate";
 import { useStatementEditorStyles } from "../styles";
 
 import {
@@ -38,12 +39,11 @@ export interface InputEditorProps {
     model?: STNode;
     isToken?: boolean;
     classNames?: string;
-    isTypeDesc?: boolean;
 }
 
 export function InputEditor(props: InputEditorProps) {
 
-    const { model, isToken, classNames, isTypeDesc } = props;
+    const { model, isToken, classNames } = props;
 
     const stmtCtx = useContext(StatementEditorContext);
     const {
@@ -160,7 +160,7 @@ export function InputEditor(props: InputEditorProps) {
         if (INPUT_EDITOR_PLACE_HOLDERS.has(inputText)) {
             return INPUT_EDITOR_PLACE_HOLDERS.get(inputText);
         } else if (inputText === "") {
-            isTypeDesc ? (inputText = 'TYPE_DESCRIPTOR') : (inputText = 'EXPRESSION');
+            (model.viewState as StatementEditorViewState).isTypeDescriptor ? (inputText = 'TYPE_DESCRIPTOR') : (inputText = 'EXPRESSION');
             return INPUT_EDITOR_PLACE_HOLDERS.get(inputText);
         }
         return inputText;

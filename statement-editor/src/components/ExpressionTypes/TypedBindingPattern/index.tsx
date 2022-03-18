@@ -47,7 +47,7 @@ export function TypedBindingPatternComponent(props: TypedBindingPatternProps) {
 
     const onClickOnType = async (event: any) => {
         event.stopPropagation();
-        changeCurrentModel(model.typeDescriptor, ModelKind.TypeDesc);
+        changeCurrentModel(model.typeDescriptor);
     };
 
     const typeDescriptorComponent: ReactNode = (
@@ -56,7 +56,6 @@ export function TypedBindingPatternComponent(props: TypedBindingPatternProps) {
             onSelect={onClickOnType}
             classNames="type-descriptor"
             deleteConfig={{defaultExprDeletable: true}}
-            isTypeDesc={true}
         />
     );
 
