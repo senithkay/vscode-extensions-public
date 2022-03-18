@@ -774,6 +774,18 @@ export class PositioningVisitor implements Visitor {
                         visibleEndpoint.viewState = endpointViewState;
 
                         epCount++;
+                    }else if (!endpoint.firstAction) {
+                        // Add parameter level endpoints to the action view statement.
+                        statementViewState.endpoint = mainEp;
+                        const endpointViewState: EndpointViewState = statementViewState.endpoint;
+                        endpointViewState.typeName = visibleEndpoint.typeName;
+                        endpointViewState.lifeLine.cx = blockViewState.bBox.cx +
+                            endpointViewState.bBox.rw + epGap + (epGap * epCount);
+                        endpointViewState.lifeLine.cy = statementViewState.bBox.cy;
+                        endpointViewState.isExternal = true;
+                        visibleEndpoint.viewState = endpointViewState;
+
+                        epCount++;
                     }
 
                     // to check whether the action is invoked for the first time
@@ -905,7 +917,7 @@ export class PositioningVisitor implements Visitor {
                 elseIfViewState.elseIfTopHorizontalLine.y = viewState.bBox.cy + elseIfViewState.elseIfHeadHeightOffset;
 
                 elseIfViewState.bBox.cx = elseIfViewState.elseIfTopHorizontalLine.x
-                    + elseIfViewState.elseIfTopHorizontalLine.length + elseIfViewState.headIf.rw; // (elseIfViewState.headIf.w / 2)
+                    + elseIfViewState.elseIfTopHorizontalLine.length + elseIfViewState.headIf.lw; // (elseIfViewState.headIf.w / 2)
                 elseIfViewState.bBox.cy = viewState.bBox.cy;
 
                 elseIfViewState.elseIfLifeLine.x = elseIfViewState.bBox.cx;

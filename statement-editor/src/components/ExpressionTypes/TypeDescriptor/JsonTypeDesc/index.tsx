@@ -10,34 +10,24 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, { useContext } from "react";
+import React from "react";
 
 import { JsonTypeDesc } from "@wso2-enterprise/syntax-tree";
 
-import { VariableUserInputs } from "../../../../models/definitions";
-import { SuggestionsContext } from "../../../../store/suggestions-context";
 import { InputEditor } from "../../../InputEditor";
 
 interface JsonTypeDescProps {
-    model: JsonTypeDesc
-    userInputs: VariableUserInputs
-    diagnosticHandler: (diagnostics: string) => void
-    isTypeDescriptor: boolean
+    model: JsonTypeDesc;
+    isTypeDesc?: boolean;
 }
 
 export function JsonTypeDescComponent(props: JsonTypeDescProps) {
-    const { model, userInputs, diagnosticHandler, isTypeDescriptor } = props;
-
-    const { expressionHandler } = useContext(SuggestionsContext);
+    const { model, isTypeDesc } = props;
 
     const inputEditorProps = {
-        statementType: model.kind,
         model,
-        expressionHandler,
-        userInputs,
-        diagnosticHandler,
-        isTypeDescriptor,
-        classNames: "type-descriptor json"
+        classNames: "type-descriptor json",
+        isTypeDesc
     };
 
     return (

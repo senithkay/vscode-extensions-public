@@ -140,7 +140,7 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
 
     if (isEditConnector && !connector) {
         const connectorInit: LocalVarDecl = model as LocalVarDecl;
-        const matchedConnector = getMatchingConnector(connectorInit, stSymbolInfo);
+        const matchedConnector = getMatchingConnector(connectorInit);
         if (matchedConnector) {
             setConnector(matchedConnector);
         }
@@ -167,7 +167,7 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
                         x: viewState.bBox.cx + 80,
                         y: viewState.bBox.cy,
                     },
-                    targetPosition: draftVS.targetPosition,
+                    targetPosition: draftVS.targetPosition || model?.position,
                     selectedConnector: draftVS.selectedConnector,
                     specialConnectorName,
                     model,

@@ -1085,18 +1085,18 @@ export class SizingVisitor implements Visitor {
 
                 elseIfViewState.elseIfLifeLine.h = elseIfViewState.bBox.h - elseIfViewState.headIf.h;
 
-                let diffElseIfWidthWithHeadWidth = 0;
-                if (elseIfBodyViewState.bBox.rw > elseIfViewState.headIf.rw) {
-                    diffElseIfWidthWithHeadWidth = (elseIfBodyViewState.bBox.rw - elseIfViewState.headIf.rw);
+                let diffElseIfWidthWithHeadWidthLeft = 0;
+                if (elseIfBodyViewState.bBox.lw > elseIfViewState.headIf.lw) {
+                    diffElseIfWidthWithHeadWidthLeft = (elseIfBodyViewState.bBox.lw - elseIfViewState.headIf.lw);
                 }
 
                 elseWidth = elseIfViewState.bBox.w;
                 elseLeftWidth = elseIfViewState.bBox.lw;
                 elseRightWidth = elseIfViewState.bBox.rw;
 
-                elseIfViewState.elseIfTopHorizontalLine.length = diffIfWidthWithHeadWidth + elseIfViewState.offSetBetweenIfElse + diffElseIfWidthWithHeadWidth;
+                elseIfViewState.elseIfTopHorizontalLine.length = diffIfWidthWithHeadWidth + elseIfViewState.offSetBetweenIfElse + diffElseIfWidthWithHeadWidthLeft;
                 elseIfViewState.elseIfBottomHorizontalLine.length = (viewState.headIf.rw) + diffIfWidthWithHeadWidth + elseIfViewState.offSetBetweenIfElse
-                    + diffElseIfWidthWithHeadWidth + (elseIfViewState.headIf.rw);
+                    + diffElseIfWidthWithHeadWidthLeft + (elseIfViewState.headIf.lw);
 
                 elseIfViewState.childElseIfViewState.forEach((childViewState: IfViewState) => {
                     viewState.childElseIfViewState.push(childViewState)
@@ -1147,7 +1147,7 @@ export class SizingVisitor implements Visitor {
             elseLeftWidth = defaultElseVS.bBox.lw;
             elseRightWidth = defaultElseVS.bBox.rw;
 
-            defaultElseVS.elseTopHorizontalLine.length = viewState.offSetBetweenIfElse + diffIfWidthWithHeadWidth;
+            defaultElseVS.elseTopHorizontalLine.length =  diffIfWidthWithHeadWidth + viewState.offSetBetweenIfElse;
             defaultElseVS.elseBottomHorizontalLine.length = defaultElseVS.ifHeadWidthOffset +
                 diffIfWidthWithHeadWidth + viewState.offSetBetweenIfElse;
             viewState.childElseViewState = defaultElseVS;
