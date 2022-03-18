@@ -602,9 +602,17 @@ function getChangedElement(st: SyntaxTree, change: Change): DiagramOptions {
 		return { isDiagram: false };
 	}
 
-	const member: Member[] = st.members.filter(member => {
+	let member: Member[] = st.members.filter(member => {
 		return isWithinRange(member, change);
 	});
+
+	//Add import members
+	if (st != null && st.hasOwnProperty("imports")) {
+		const imports: Member[] = st["imports"].filter(importStatement => {
+			return isWithinRange(importStatement, change);
+		});
+		member = [ ...member, ...imports];
+	}
 
 	if (member.length == 0) {
 		return { isDiagram: false };
@@ -632,7 +640,8 @@ function getChangedElement(st: SyntaxTree, change: Change): DiagramOptions {
 
 	} else if (member[0].kind === 'ListenerDeclaration' || member[0].kind === 'ModuleVarDecl' ||
 		member[0].kind === 'TypeDefinition' || member[0].kind === 'ConstDeclaration' ||
-		member[0].kind === 'EnumDeclaration' || member[0].kind === 'ClassDefinition') {
+		member[0].kind === 'EnumDeclaration' || member[0].kind === 'ClassDefinition' ||
+		member[0].kind === 'ImportDeclaration') {
 		return {
 			isDiagram: true, fileUri: change.fileUri, startLine: member[0].position.startLine,
 			startColumn: member[0].position.startColumn
