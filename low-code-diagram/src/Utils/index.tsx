@@ -282,6 +282,11 @@ export function getStatementTypesFromST(model: LocalVarDecl): string {
     return model.typedBindingPattern.typeDescriptor.source.trim();
 }
 
+export function filterComments(source: string) {
+    const regex = /\/\/.*\\n|[\n]/gm;
+    return source ? source.split(regex).pop().trim() : "";
+}
+
 export function getRandomInt(max: number) {
     return Math.floor(Math.random() * Math.floor(max));
 }

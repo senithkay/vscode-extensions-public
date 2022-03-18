@@ -19,7 +19,7 @@ import cn from "classnames";
 
 import { Context } from "../../../../Context/diagram";
 import { useFunctionContext } from "../../../../Context/Function";
-import { getDiagnosticInfo, getMatchingConnector, getRandomInt, getStatementTypesFromST } from "../../../../Utils";
+import { filterComments, getDiagnosticInfo, getMatchingConnector, getRandomInt, getStatementTypesFromST } from "../../../../Utils";
 import { BlockViewState, StatementViewState } from "../../../../ViewState";
 import { DraftStatementViewState } from "../../../../ViewState/draft";
 import { DefaultConfig } from "../../../../Visitors/default";
@@ -240,7 +240,7 @@ export function ActionProcessor(props: ProcessorProps) {
                             {statmentTypeText &&
                                 <>
                                     <StatementTypes
-                                        statementType={statmentTypeText}
+                                        statementType={filterComments(statmentTypeText)}
                                         x={cx - (VARIABLE_NAME_WIDTH + DefaultConfig.textAlignmentOffset)}
                                         y={cy + PROCESS_SVG_HEIGHT / 4}
                                         key_id={getRandomInt(1000)}
