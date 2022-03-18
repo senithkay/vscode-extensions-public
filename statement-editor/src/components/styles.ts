@@ -38,16 +38,18 @@ const syntaxHighlightingRules = {
 export const useStatementEditorStyles = makeStyles(() =>
     createStyles({
         toolbar: {
-            position: 'absolute',
             right: '13px',
             top: '60px',
             border: '1px solid #e6e7ec',
             borderRadius: '8px',
-            height: '32px',
+            marginLeft: '30px',
             backgroundColor: '#ffffff'
         },
         toolbarIcons: {
-            padding: '5px'
+            padding: '5px',
+            '&:hover': {
+                backgroundColor: '#F0F1FB',
+            }
         },
         mainStatementWrapper: {
             display: 'flex',
@@ -95,7 +97,8 @@ export const useStatementEditorStyles = makeStyles(() =>
             width: '50%',
         },
         statementExpressionTitle: {
-            // paddingTop: theme.spacing(1.5),
+            display: 'flex',
+            alignItems: 'center',
             paddingBottom: theme.spacing(1),
         },
         statementExpressionContent: {

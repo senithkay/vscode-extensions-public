@@ -54,11 +54,16 @@ export default function Toolbar(){
                 onClick={undo}
                 disabled={!hasUndo}
                 className={statementEditorClasses.toolbarIcons}
-                style={{marginLeft: '14px'}}
+                style={{marginLeft: '14px', marginRight: '7px'}}
             >
                  <ToolbarUndoIcon/>
             </IconButton>
-            <IconButton onClick={redo} disabled={!hasRedo} className={statementEditorClasses.toolbarIcons}>
+            <IconButton
+                onClick={redo}
+                disabled={!hasRedo}
+                className={statementEditorClasses.toolbarIcons}
+                style={{marginRight: '7px'}}
+            >
                 <ToolbarRedoIcon />
             </IconButton>
             {currentModel.model && isExprDeletable() ? (
