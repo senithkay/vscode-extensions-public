@@ -15,7 +15,6 @@ import React, { ReactNode, useContext } from "react";
 
 import { TypedBindingPattern } from "@wso2-enterprise/syntax-tree";
 
-import { ModelKind } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { ExpressionComponent } from "../../Expression";
 
@@ -34,7 +33,7 @@ export function TypedBindingPatternComponent(props: TypedBindingPatternProps) {
 
     const onClickOnTypeBindingPattern = async (event: any) => {
         event.stopPropagation();
-        changeCurrentModel(model.bindingPattern, ModelKind.BindingPattern);
+        changeCurrentModel(model.bindingPattern);
     };
 
     const bindingPatternComponent: ReactNode = (

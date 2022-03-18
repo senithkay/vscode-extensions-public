@@ -23,7 +23,7 @@ import {
 import * as expressionTypeComponents from '../components/ExpressionTypes';
 import * as statementTypeComponents from '../components/Statements';
 import { OTHER_EXPRESSION, OTHER_STATEMENT, StatementNodes } from "../constants";
-import { ModelKind, RemainingContent } from '../models/definitions';
+import { RemainingContent } from '../models/definitions';
 import { visitor as DeleteConfigSetupVisitor } from "../visitors/delete-config-setup-visitor";
 import { visitor as ExpressionDeletingVisitor } from "../visitors/expression-deleting-visitor";
 import { visitor as ModelFindingVisitor } from "../visitors/model-finding-visitor";
@@ -135,14 +135,6 @@ export function isPositionsEquals(position1: NodePosition, position2: NodePositi
         position1?.startColumn === position2?.startColumn &&
         position1?.endLine === position2?.endLine &&
         position1?.endColumn === position2?.endColumn;
-}
-
-export function isOperator(modelKind: ModelKind): boolean {
-    return modelKind === ModelKind.Operator;
-}
-
-export function isBindingPattern(modelKind: ModelKind): boolean {
-    return modelKind === ModelKind.BindingPattern;
 }
 
 export function getSuggestionIconStyle(suggestionType: number): string {

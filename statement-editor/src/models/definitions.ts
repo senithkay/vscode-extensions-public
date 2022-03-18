@@ -13,14 +13,9 @@
 
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
-export enum ModelKind {
-    Operator,
-    BindingPattern
-}
 
 export interface CurrentModel {
-    model: STNode,
-    kind?: ModelKind
+    model: STNode
 }
 
 export interface VariableUserInputs {

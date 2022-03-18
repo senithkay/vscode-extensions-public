@@ -10,17 +10,22 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { TypedBindingPattern, TypeTestExpression, Visitor } from "@wso2-enterprise/syntax-tree";
+import { BinaryExpression, TypedBindingPattern, TypeTestExpression, Visitor } from "@wso2-enterprise/syntax-tree";
 
 import { StatementEditorViewState } from "../utils/statement-editor-viewstate";
 
 class ModelKindSetupVisitor implements Visitor {
     public beginVisitTypedBindingPattern(node: TypedBindingPattern) {
         (node.typeDescriptor.viewState as StatementEditorViewState).isTypeDescriptor = true;
+        (node.bindingPattern.viewState as StatementEditorViewState).isBindingPattern = true;
     }
 
     public beginVisitTypeTestExpression(node: TypeTestExpression) {
         (node.typeDescriptor.viewState as StatementEditorViewState).isTypeDescriptor = true;
+    }
+
+    public beginVisitBinaryExpression(node: BinaryExpression) {
+        (node.operator.viewState as StatementEditorViewState).isOperator = true;
     }
 }
 

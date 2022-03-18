@@ -31,15 +31,12 @@ import {
 } from "../../constants";
 import {
     CurrentModel,
-    ModelKind,
     SuggestionItem
 } from "../../models/definitions";
 import { StatementEditorContextProvider } from "../../store/statement-editor-context";
 import {
     enrichModelWithViewState,
-    getCurrentModel,
-    isBindingPattern,
-    isOperator
+    getCurrentModel
 } from "../../utils";
 import {
     addImportStatements,
@@ -50,6 +47,7 @@ import {
     sendDidChange,
     sendDidOpen
 } from "../../utils/ls-utils";
+import { StatementEditorViewState } from "../../utils/statement-editor-viewstate";
 import { StmtEditorUndoRedoManager } from '../../utils/undo-redo';
 import { EXPR_SCHEME, FILE_SCHEME } from "../InputEditor/constants";
 import { ViewContainer } from "../ViewContainer";
@@ -148,17 +146,17 @@ export function StatementEditor(props: StatementEditorProps) {
     useEffect(() => {
         (async () => {
             if (model) {
-                const modelKind = currentModel?.kind;
                 let lsSuggestions : SuggestionItem[] = [];
-
-                if (!isOperator(modelKind) && !isBindingPattern(modelKind)) {
-                    const content: string = await addStatementToTargetLine(
-                        currentFile.content, formArgs.formArgs.targetPosition, model.source, getLangClient);
-                    sendDidChange(fileURI, content, getLangClient).then();
-                    lsSuggestions = await getCompletions(fileURI, formArgs.formArgs.targetPosition, model,
-                        currentModel, getLangClient);
+                if (currentModel.model){
+                    if (!((currentModel.model?.viewState as StatementEditorViewState).isOperator) &&
+                        !((currentModel.model?.viewState as StatementEditorViewState).isBindingPattern)) {
+                        const content: string = await addStatementToTargetLine(
+                            currentFile.content, formArgs.formArgs.targetPosition, model.source, getLangClient);
+                        sendDidChange(fileURI, content, getLangClient).then();
+                        lsSuggestions = await getCompletions(fileURI, formArgs.formArgs.targetPosition, model,
+                            currentModel, getLangClient);
+                    }
                 }
-
                 setLSSuggestionsList(lsSuggestions);
             }
         })();
@@ -261,10 +259,9 @@ export function StatementEditor(props: StatementEditorProps) {
         }
     };
 
-    const currentModelHandler = (cModel: STNode, kind?: ModelKind) => {
+    const currentModelHandler = (cModel: STNode) => {
         setCurrentModel({
-            model: cModel,
-            kind
+            model: cModel
         });
     };
 
