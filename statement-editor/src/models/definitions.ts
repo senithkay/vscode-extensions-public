@@ -42,8 +42,3 @@ export interface RemainingContent {
     code: string,
     position: NodePosition
 }
-
-export interface ExprDeleteConfig {
-    exprNotDeletable?: boolean,
-    defaultExprDeletable?: boolean
-}
