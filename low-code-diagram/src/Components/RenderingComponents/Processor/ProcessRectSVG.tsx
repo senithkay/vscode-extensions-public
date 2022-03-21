@@ -38,7 +38,10 @@ export function ProcessRectSVG(props: ProcessRectSVGProps) {
     const diagnosticStyles = diagnostic?.severity === "ERROR" ? "data-processor-error" : "data-processor-warning";
     const processRectStyles = diagnostic.diagnosticMsgs ? diagnosticStyles : "data-processor process-active"
     const [tooltipComp, setTooltipComp] = useState(undefined);
-    const sourceSnippet = model?.source;
+    let sourceSnippet;
+    if (model) {
+        sourceSnippet = model?.source?.trim();
+    }
 
     const rectSVG = (
         <g id="Process" className={processRectStyles} transform="translate(-221.5 -506)">

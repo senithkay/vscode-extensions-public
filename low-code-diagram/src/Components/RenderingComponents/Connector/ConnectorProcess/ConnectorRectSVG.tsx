@@ -36,7 +36,10 @@ export function ConnectorRectSVG(props: ConnectorRectSVGProps) {
     const diagramContext = useContext(Context);
     const showTooltip = diagramContext?.api?.edit?.showTooltip;
     const [tooltipComp, setTooltipComp] = useState(undefined);
-    const sourceSnippet = model?.source;
+    let sourceSnippet;
+    if (model) {
+        sourceSnippet = model?.source?.trim();
+    }
 
     const rectSVG = (
         <g id="Group_2_Copy_2" className={connectorRectStyles} transform="translate(5 1)" >

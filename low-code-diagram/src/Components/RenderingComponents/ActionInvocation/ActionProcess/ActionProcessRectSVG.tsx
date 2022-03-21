@@ -36,7 +36,10 @@ export function ActionProcessRectSVG(props: DiagnosticTooltipProps) {
     const diagramContext = useContext(Context);
     const showTooltip = diagramContext?.api?.edit?.showTooltip;
     const [tooltipComp, setTooltipComp] = useState(undefined);
-    const sourceSnippet = model.source;
+    let sourceSnippet;
+    if (model) {
+        sourceSnippet = model?.source?.trim();
+    }
 
     const rectSVG = (
         <g id="Process" className={actionRectStyles} transform="translate(-221.5 -506)">
@@ -60,8 +63,8 @@ export function ActionProcessRectSVG(props: DiagnosticTooltipProps) {
     );
 
     const defaultTooltip = (
-            <DefaultTooltip text={sourceSnippet}>{rectSVG}</DefaultTooltip>
-        );
+        <DefaultTooltip text={sourceSnippet}>{rectSVG}</DefaultTooltip>
+    );
 
     useEffect(() => {
         if (model && showTooltip) {

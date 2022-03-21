@@ -34,8 +34,11 @@ export function ForEachRectSVG(props: ForEachRectSVGProps) {
     const diagramContext = useContext(Context);
     const showTooltip = diagramContext?.api?.edit?.showTooltip;
     const [tooltipComp, setTooltipComp] = useState(undefined);
-    const forEachModel = model as ForeachStatement
-    const sourceSnippet = forEachModel?.actionOrExpressionNode?.source;
+    let sourceSnippet;
+    if (model) {
+        const forEachModel = model as ForeachStatement
+        sourceSnippet = forEachModel?.actionOrExpressionNode?.source?.trim();
+    }
 
     const svgElement = (
         <g id="Foreach" className={forEachRectStyles} transform="translate(7 6)">

@@ -31,7 +31,10 @@ export function IfElseRectSVG(props: IfElseRectSVGProps) {
     const diagramContext = useContext(Context);
     const showTooltip = diagramContext?.api?.edit?.showTooltip;
     const [tooltipComp, setTooltipComp] = useState(undefined);
-    const sourceSnippet = model.source.trim().split(')')[0];
+    let sourceSnippet;
+    if (model) {
+        sourceSnippet = model?.source?.trim().split(')')[0];
+    }
 
     const component = (
         <g id="IfElse" className={className} transform="translate(7 6)">

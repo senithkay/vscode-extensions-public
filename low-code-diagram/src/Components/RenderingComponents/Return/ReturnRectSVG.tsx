@@ -36,7 +36,10 @@ export function ReturnRectSVG(props: ReturnRectSVGProps) {
     const diagramContext = useContext(Context);
     const showTooltip = diagramContext?.api?.edit?.showTooltip;
     const [tooltipComp, setTooltipComp] = useState(undefined);
-    const sourceSnippet = model.source;
+    let sourceSnippet;
+    if (model) {
+        sourceSnippet = model?.source?.trim();
+    }
 
     const rectSVG = (
         <g className={returnRectStyles} transform="translate(8 6)">
