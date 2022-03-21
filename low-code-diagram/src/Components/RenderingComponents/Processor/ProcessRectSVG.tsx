@@ -37,7 +37,6 @@ export function ProcessRectSVG(props: ProcessRectSVGProps) {
     const showTooltip = diagramContext?.api?.edit?.showTooltip;
     const diagnosticStyles = diagnostic?.severity === "ERROR" ? "data-processor-error" : "data-processor-warning";
     const processRectStyles = diagnostic.diagnosticMsgs ? diagnosticStyles : "data-processor process-active"
-    const [tooltip, setTooltip] = useState(undefined);
     const [tooltipComp, setTooltipComp] = useState(undefined);
     const sourceSnippet = model?.source;
 
