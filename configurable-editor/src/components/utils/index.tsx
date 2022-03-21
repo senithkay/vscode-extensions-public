@@ -48,21 +48,23 @@ export function getType(type: string): ConfigType {
  * @param name      Name of the config property object, the first one is set to 'root'.
  * @returns         A populated config `ConfigObjectProps` object.
  */
-export function getConfigProperties(configObj: object, id: string = "1", name: string = "root"): ConfigObjectProps {
+export function getConfigProperties(configObj: object, id: string = "1", name: string = "root",
+                                    requiredItem = true): ConfigObjectProps {
     const propertiesObj: object = configObj[SchemaConstants.PROPERTIES];
     const requiredProperties: string[] = configObj[SchemaConstants.REQUIRED];
-    const configProperty: ConfigObjectProps = { id: String(id), name, properties: [] };
+    const configProperty: ConfigObjectProps = { id: String(id), name, isRequired: requiredItem, properties: [] };
 
     Object.keys(propertiesObj).forEach((key, index) => {
         let isArrayProperty: boolean = false;
         const configPropertyValues = propertiesObj[key];
         let configPropertyType: string = configPropertyValues[SchemaConstants.TYPE];
         const configPropertyDesc: string = configPropertyValues[SchemaConstants.DESCRIPTION];
+        const required = isRequired(key, requiredProperties);
 
         if (configPropertyType === ConfigType.OBJECT) {
             // Iterate through nested objects.
             const childProperty: ConfigObjectProps = getConfigProperties(configPropertyValues,
-                id + "-" + (index + 1), key);
+                id + "-" + (index + 1), key, required);
             configProperty.properties.push(childProperty);
         } else {
             // Handle array values.
@@ -71,7 +73,6 @@ export function getConfigProperties(configObj: object, id: string = "1", name: s
                 configPropertyType = configPropertyValues[SchemaConstants.ITEMS][SchemaConstants.TYPE];
             }
 
-            const required = isRequired(key, requiredProperties);
             const idValue = configProperty.id + "-" + (index + 1);
 
             const element: ConfigElementProps = setConfigElementProps(idValue, isArrayProperty,

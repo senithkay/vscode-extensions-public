@@ -61,7 +61,6 @@ export function ListConstructorComponent(props: ListConstructorProps) {
                             key={index}
                             model={expression}
                             onSelect={(event) => onClickOnExpression(expression, event)}
-                            deleteConfig={{defaultExprDeletable: true}}
                         />
                     )
                 ))
