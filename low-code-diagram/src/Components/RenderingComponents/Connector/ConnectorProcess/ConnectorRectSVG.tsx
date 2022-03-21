@@ -15,9 +15,9 @@ import React, { ReactNode, useContext, useEffect, useState } from "react";
 
 import { STNode } from "@wso2-enterprise/syntax-tree";
 
-import { DiagramTooltipCodeSnippet } from "../../../../../../low-code-ui-components";
 import { Context } from "../../../../Context/diagram";
 import { ErrorSnippet } from "../../../../Types/type";
+import { DefaultTooltip } from "../../DefaultTooltip";
 
 interface ConnectorRectSVGProps {
     type?: string,
@@ -35,8 +35,8 @@ export function ConnectorRectSVG(props: ConnectorRectSVGProps) {
     const connectorRectStyles = diagnostic?.diagnosticMsgs ? diagnosticStyles : "connector-process-default";
     const diagramContext = useContext(Context);
     const showTooltip = diagramContext?.api?.edit?.showTooltip;
-    const [tooltip, setTooltip] = useState(undefined);
-    const [diagTooltip, setDiagTooltip] = useState(undefined);
+    const [tooltipComp, setTooltipComp] = useState(undefined);
+    const sourceSnippet = model?.source;
 
     const rectSVG = (
         <g id="Group_2_Copy_2" className={connectorRectStyles} transform="translate(5 1)" >
@@ -53,21 +53,18 @@ export function ConnectorRectSVG(props: ConnectorRectSVGProps) {
     );
 
     const defaultTooltip = (
-        <DiagramTooltipCodeSnippet componentModel={model} onClick={onClick} >{rectSVG}</DiagramTooltipCodeSnippet>
+        <DefaultTooltip text={sourceSnippet}>{rectSVG}</DefaultTooltip>
     );
+
     useEffect(() => {
         if (model && showTooltip) {
-            setDiagTooltip(showTooltip(rectSVG,undefined, onClick, model));
+            setTooltipComp(showTooltip(rectSVG, undefined, onClick, model));
         }
-        return () => {
-            setTooltip(undefined);
-            setDiagTooltip(undefined);
-        };
     }, [model]);
 
     return (
         <>
-            {defaultTooltip}
+            {tooltipComp ? tooltipComp : defaultTooltip}
         </>
     );
 
