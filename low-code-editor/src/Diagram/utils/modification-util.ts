@@ -708,7 +708,7 @@ export function updateModuleVarDecl(config: ModuleVariableFormState, targetPosit
 }
 
 export function createConfigurableDecl(config: ConfigurableFormState, targetPosition: NodePosition,
-                                       isLastMember?: boolean): STModification {
+                                       isLastMember?: boolean, skipNewLine?: boolean): STModification {
     const { isPublic, varName, varType, varValue, label } = config;
 
     const modification: STModification = {
@@ -724,6 +724,10 @@ export function createConfigurableDecl(config: ConfigurableFormState, targetPosi
             'VAR_NAME': varName,
             'VAR_VALUE': varValue
         }
+    }
+
+    if (skipNewLine) {
+        modification.type = 'MODULE_VAR_DECL_WITH_INIT_WITHOUT_NEWLINE';
     }
 
     if (label.length > 0) {

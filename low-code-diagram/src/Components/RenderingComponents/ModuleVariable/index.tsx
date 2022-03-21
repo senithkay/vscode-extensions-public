@@ -18,6 +18,7 @@ import { CaptureBindingPattern, ModuleVarDecl, QualifiedNameReference, STKindChe
 import classNames from "classnames";
 
 import { Context } from "../../../Context/diagram";
+import { filterComments } from "../../../Utils";
 import { ModuleIcon } from "../Connector/ConnectorHeader/ModuleIcon";
 
 import "./style.scss";
@@ -73,6 +74,7 @@ export function ModuleVariable(props: ModuleVariableProps) {
         varValue = model.source.trim();
     }
 
+    varType = filterComments(varType);
     const typeMaxWidth = varType?.length >= 10;
     const nameMaxWidth = varName?.length >= 20;
 

@@ -11,34 +11,43 @@
  * associated services.
  */
 // tslint:disable: no-empty jsx-no-multiline-js
-import React, { useState } from 'react';
+import React from 'react';
 
 import { LibraryKind, STModification } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
+import { languages } from "monaco-editor";
 
 import { LowCodeEditorProps } from '../components/StatementEditor';
+import { ModelKind, SuggestionItem } from "../models/definitions";
 
 import { InputEditorContextProvider } from "./input-editor-context";
+
+import Diagnostic = languages.typescript.Diagnostic;
 
 export const StatementEditorContext = React.createContext({
     modelCtx: {
         initialSource: '',
         statementModel: null,
         currentModel: null,
-        updateModel: (codeSnippet: string, position: NodePosition) => {},
+        changeCurrentModel: (model: STNode, kind?: ModelKind) => {},
+        handleChange: (codeSnippet: string, isEditedViaInputEditor?: boolean) => {},
+        updateModel: (codeSnippet: string, position: NodePosition, isEditedViaInputEditor?: boolean) => {},
         undo: () => undefined,
         redo: () => undefined,
         hasUndo: false,
-        hasRedo: false
+        hasRedo: false,
     },
     formCtx: {
         formModelPosition: null
     },
     statementCtx: {
-        validateStatement: (isValid: boolean) => {}
+        diagnostics: null
+    },
+    suggestionsCtx: {
+        lsSuggestions: []
     },
     getLangClient: () => (Promise.resolve({} as any)),
-    applyModifications: (modifications: STModification[]) => (undefined),
+    applyModifications: (modifications: STModification[]) => undefined,
     library: {
         getLibrariesList: (kind?: LibraryKind) => (Promise.resolve({} as any)),
         getLibrariesData: () => (Promise.resolve({} as any)),
@@ -59,14 +68,19 @@ interface CtxProviderProps extends LowCodeEditorProps {
     children?: React.ReactNode,
     model: STNode,
     currentModel: { model: STNode },
-    updateModel?: (codeSnippet: string, position: NodePosition) => void,
+    changeCurrentModel?: (model: STNode, kind?: ModelKind) => void,
+    handleChange?: (codeSnippet: string, isEditedViaInputEditor?: boolean) => void,
+    handleModules?: (module: string) => void,
+    modulesToBeImported?: Set<string>,
+    updateModel?: (codeSnippet: string, position: NodePosition, isEditedViaInputEditor?: boolean) => void,
     formArgs?: any,
-    validateStatement: (isValid: boolean) => void,
     initialSource: string,
     undo?: () => void,
     redo?: () => void,
     hasUndo?: boolean,
-    hasRedo?: boolean
+    hasRedo?: boolean,
+    diagnostics?: Diagnostic[],
+    lsSuggestions?: SuggestionItem[]
 }
 
 export const StatementEditorContextProvider = (props: CtxProviderProps) => {
@@ -74,28 +88,22 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
         children,
         model,
         currentModel,
-        importStatements,
+        changeCurrentModel,
+        handleChange,
         updateModel,
+        handleModules,
+        modulesToBeImported,
         undo,
         redo,
         hasRedo,
         hasUndo,
         formArgs,
-        validateStatement,
         library,
         initialSource,
+        diagnostics,
+        lsSuggestions,
         ...restProps
     } = props;
-
-    const [moduleList, setModuleList] = useState(new Set<string>());
-
-    const moduleHandler = (module: string) => {
-        if (!importStatements.includes(module)) {
-            setModuleList((prevModuleList: Set<string>) => {
-                return new Set(prevModuleList.add(module));
-            });
-        }
-    };
 
     return (
         <StatementEditorContext.Provider
@@ -104,6 +112,8 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
                     initialSource,
                     statementModel: model,
                     currentModel,
+                    changeCurrentModel,
+                    handleChange,
                     updateModel,
                     undo,
                     redo,
@@ -114,12 +124,15 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
                     formModelPosition: formArgs.formArgs.targetPosition
                 },
                 statementCtx: {
-                    validateStatement
+                    diagnostics
+                },
+                suggestionsCtx: {
+                    lsSuggestions
                 },
                 library,
                 modules: {
-                    modulesToBeImported: moduleList,
-                    updateModuleList: moduleHandler
+                    modulesToBeImported,
+                    updateModuleList: handleModules
                 },
                 ...restProps
             }}

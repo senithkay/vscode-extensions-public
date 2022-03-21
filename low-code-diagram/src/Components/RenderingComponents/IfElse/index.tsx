@@ -394,7 +394,7 @@ export function IfElse(props: IfElseProps) {
                                             configOverlayFormStatus={ifElseConfigOverlayFormState}
                                         />
                                     } */}
-                                    {(!isDraftStatement && !viewState?.isElseIf) &&
+                                    {(!isDraftStatement) &&
                                         <>
                                             <DeleteBtn
                                                 {...deleteTriggerPosition}
