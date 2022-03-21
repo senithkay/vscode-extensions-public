@@ -12,11 +12,11 @@
  */
 import React, { useContext, useEffect, useState } from "react";
 
-import { STNode } from "@wso2-enterprise/syntax-tree";
+import { ForeachStatement, STNode } from "@wso2-enterprise/syntax-tree";
 
-import { DiagramTooltipCodeSnippet } from "../../../../../low-code-ui-components";
 import { Context } from "../../../Context/diagram";
 import { ErrorSnippet } from "../../../Types/type";
+import { DefaultTooltip } from "../DefaultTooltip";
 
 interface ForEachRectSVGProps {
     type?: string,
@@ -33,8 +33,9 @@ export function ForEachRectSVG(props: ForEachRectSVGProps) {
     const forEachRectStyles = diagnostic?.diagnosticMsgs ? diagnosticStyles : "foreach-block";
     const diagramContext = useContext(Context);
     const showTooltip = diagramContext?.api?.edit?.showTooltip;
-    const [tooltip, setTooltip] = useState(undefined);
-    const [diagTooltip, setDiagTooltip] = useState(undefined);
+    const [tooltipComp, setTooltipComp] = useState(undefined);
+    const forEachModel = model as ForeachStatement
+    const sourceSnippet = forEachModel?.actionOrExpressionNode?.source;
 
     const svgElement = (
         <g id="Foreach" className={forEachRectStyles} transform="translate(7 6)">
@@ -51,22 +52,20 @@ export function ForEachRectSVG(props: ForEachRectSVGProps) {
         </g>
     );
 
+
     const defaultTooltip = (
-        <DiagramTooltipCodeSnippet componentModel={model} onClick={onClick} >{svgElement}</DiagramTooltipCodeSnippet>
+        <DefaultTooltip text={sourceSnippet}>{svgElement}</DefaultTooltip>
     );
+
     useEffect(() => {
         if (model && showTooltip) {
-            setDiagTooltip(showTooltip(svgElement, undefined ,onClick, model));
+            setTooltipComp(showTooltip(svgElement, undefined, onClick, model));
         }
-        return () => {
-            setTooltip(undefined);
-            setDiagTooltip(undefined);
-        };
     }, [model]);
 
     return (
         <>
-            {defaultTooltip}
+            {tooltipComp ? tooltipComp : defaultTooltip}
         </>
     )
 }
