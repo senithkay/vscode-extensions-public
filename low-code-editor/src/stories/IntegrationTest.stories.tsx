@@ -1,7 +1,6 @@
 import React from 'react';
 
 import { storiesOf } from '@storybook/react';
-import { PerformanceAnalyzerGraphResponse, PerformanceAnalyzerRealtimeResponse } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 
 import testProject from "./data/testproject.json";
 import { DiagramGeneratorWrapper } from './DiagramGeneratorWrapper';

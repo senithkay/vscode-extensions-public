@@ -146,10 +146,11 @@ export class FunctionDiagram {
 
     public assertPerfButton(text: string) {
         this.container.within(() => {
-            return cy.get('.performance-bar .more').invoke('attr', 'title').should(
-                "eq",
-                text
-            )
+            cy.get('.performance-bar .more').realHover();
         })
+        return cy.get('[role=tooltip]').first().should(
+            "have.text",
+            text
+        )
     }
 }
