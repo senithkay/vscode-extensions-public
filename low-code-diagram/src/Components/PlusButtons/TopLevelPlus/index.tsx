@@ -74,11 +74,15 @@ export const TopLevelPlus = (props: PlusProps) => {
         setPlusOptions(undefined);
     };
 
+    // TODO:Check the rendering issue in this tooltip
     useEffect(() => {
         if (!isDocumentEmpty && showTooltip) {
-            setTooltip(showTooltip(<TopLevelPlusIcon />, "heading-content", { content: 'Add Construct' }, "right", true));
+            setTooltip(showTooltip(<TopLevelPlusIcon />, "Add Construct"));
         }
-    }, [isDocumentEmpty])
+        return () => {
+            setTooltip(undefined);
+        };
+    }, [isDocumentEmpty]);
 
     return (
         <div className="plus-container" ref={containerElement} target-line={targetPosition.startLine}>
@@ -86,7 +90,8 @@ export const TopLevelPlus = (props: PlusProps) => {
                 {
                     !isDocumentEmpty && tooltip ?
                         tooltip
-                        : <TopLevelPlusIcon />
+                        :
+                            <TopLevelPlusIcon />
                 }
             </div>
             {

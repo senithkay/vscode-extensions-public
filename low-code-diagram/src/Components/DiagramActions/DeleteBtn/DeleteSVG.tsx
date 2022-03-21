@@ -49,7 +49,7 @@ export function DeleteSVG(props: { x: number, y: number, toolTipTitle?: string, 
 
     useEffect(() => {
         if (props.toolTipTitle && showTooltip) {
-            setTooltipComp(showTooltip(deleteSVGIcon, "heading", {heading: toolTipTitle}, "left", true));
+            setTooltipComp(showTooltip(deleteSVGIcon, props.toolTipTitle));
         }
     }, [toolTipTitle]);
 

@@ -13,6 +13,8 @@
 
 import React, { useContext, useEffect, useState } from "react";
 
+import { STNode } from "@wso2-enterprise/syntax-tree";
+
 import { Context } from "../../../Context/diagram";
 import { ErrorSnippet } from "../../../Types/type";
 import { DefaultTooltip } from "../DefaultTooltip";
@@ -26,16 +28,20 @@ interface ProcessRectSVGProps {
     text?: { heading?: string, content?: string, example?: string, code?: string },
     diagnostic?: ErrorSnippet,
     processTypeIndicator?: JSX.Element[];
+    model: STNode
 }
 
 export function ProcessRectSVG(props: ProcessRectSVGProps) {
-    const { type, onClick, diagnostic, processTypeIndicator, text, className } = props;
+    const { type, onClick, diagnostic, processTypeIndicator, text, className, model } = props;
     const diagramContext = useContext(Context);
     const showTooltip = diagramContext?.api?.edit?.showTooltip;
     const diagnosticStyles = diagnostic?.severity === "ERROR" ? "data-processor-error" : "data-processor-warning";
-    const processRectStyles = diagnostic ? diagnosticStyles : "data-processor process-active"
-    const [tooltip, setTooltip] = useState(undefined);
-    const [diagTooltip, setDiagTooltip] = useState(undefined);
+    const processRectStyles = diagnostic.diagnosticMsgs ? diagnosticStyles : "data-processor process-active"
+    const [tooltipComp, setTooltipComp] = useState(undefined);
+    let sourceSnippet;
+    if (model) {
+        sourceSnippet = model?.source?.trim();
+    }
 
     const rectSVG = (
         <g id="Process" className={processRectStyles} transform="translate(-221.5 -506)">
@@ -50,35 +56,18 @@ export function ProcessRectSVG(props: ProcessRectSVGProps) {
     );
 
     const defaultTooltip = (
-        <DefaultTooltip text={text} diagnostic={diagnostic}>{rectSVG}</DefaultTooltip>
+        <DefaultTooltip text={sourceSnippet}>{rectSVG}</DefaultTooltip>
     );
 
-    // TODO: Check how we can optimize this by rewriting the tooltip
-    // component.
     useEffect(() => {
-        if ((text) && showTooltip) {
-            setTooltip(showTooltip(rectSVG, type, text, "right", true, undefined, undefined, false, onClick));
+        if (model && showTooltip) {
+            setTooltipComp(showTooltip(rectSVG, undefined, onClick, model));
         }
-        return () => {
-            setTooltip(undefined);
-            setDiagTooltip(undefined);
-        };
-    }, [text]);
-
-    useEffect(() => {
-        if (diagnostic && showTooltip) {
-            setDiagTooltip(showTooltip(rectSVG, type, undefined, "right", true, diagnostic, undefined, false, onClick));
-        }
-        return () => {
-            setTooltip(undefined);
-            setDiagTooltip(undefined);
-        };
-    }, [diagnostic]);
+    }, [model]);
 
     return (
         <>
-            {tooltip ? tooltip : defaultTooltip}
-            {diagTooltip ? diagTooltip : defaultTooltip}
+            {tooltipComp ? tooltipComp : defaultTooltip}
         </>
     );
 }

@@ -33,7 +33,6 @@ export function Assignment(props: { x: number, y: number, assignment: string, cl
     }, []);
 
     const assignmentMaxWidth = assignment?.length >= 15;
-    const assignmentWidth = textWidth;
 
     const assignmentComponent: ReactElement = (
         <text
@@ -51,11 +50,9 @@ export function Assignment(props: { x: number, y: number, assignment: string, cl
     );
 
     useEffect(() => {
+
         if (assignmentMaxWidth && showTooltip) {
-            setTooltip(showTooltip(assignmentComponent, "heading", { heading: assignment }, "top-start", true, undefined, undefined, false, undefined, {
-                inverted: false,
-                interactive: true
-            }));
+            setTooltip(showTooltip(assignmentComponent, assignment));
         }
     }, [assignment]);
 

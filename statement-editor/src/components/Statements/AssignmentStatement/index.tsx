@@ -62,7 +62,6 @@ export function AssignmentStatementComponent(props: AssignmentStatementProps) {
         <ExpressionComponent
             model={model.varRef}
             onSelect={onClickOnVarRef}
-            deleteConfig={{exprNotDeletable: true}}
         />
     );
 

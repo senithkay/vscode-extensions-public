@@ -13,15 +13,12 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext } from "react";
 
-import IconButton from "@material-ui/core/IconButton";
-import RedoIcon from "@material-ui/icons/Redo";
-import UndoIcon from "@material-ui/icons/Undo";
-
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { Diagnostics } from "../Diagnostics";
 import { HelperPane } from "../HelperPane";
 import { StatementRenderer } from "../StatementRenderer";
 import { useStatementEditorStyles } from "../styles";
+import Toolbar from "../Toolbar";
 
 interface ModelProps {
     label: string
@@ -35,30 +32,14 @@ export function EditorPane(props: ModelProps) {
 
     const {
         modelCtx: {
-            undo,
-            redo,
-            hasRedo,
-            hasUndo,
             statementModel
         }
     } = stmtCtx;
 
-    const undoRedoButtons = (
-        <span className={statementEditorClasses.undoRedoButtons}>
-            <IconButton onClick={undo} disabled={!hasUndo}>
-                <UndoIcon />
-            </IconButton>
-            <IconButton onClick={redo} disabled={!hasRedo}>
-                <RedoIcon />
-            </IconButton>
-        </span>
-    );
-
-
     return (
         <div>
             <div className={statementEditorClasses.stmtEditorContentWrapper}>
-                <div className={statementEditorClasses.statementExpressionTitle}>{label}{undoRedoButtons}</div>
+                <div className={statementEditorClasses.statementExpressionTitle}>{label}<Toolbar/></div>
                 <div className={statementEditorClasses.statementExpressionContent}>
                     <StatementRenderer
                         model={statementModel}

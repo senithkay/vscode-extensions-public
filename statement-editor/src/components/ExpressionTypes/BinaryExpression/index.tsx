@@ -51,14 +51,12 @@ export function BinaryExpressionComponent(props: BinaryProps) {
         <ExpressionComponent
             model={model.lhsExpr}
             onSelect={onClickOnLhsExpression}
-            deleteConfig={{defaultExprDeletable: true}}
         />
     );
     const rhs: ReactNode = (
         <ExpressionComponent
             model={model.rhsExpr}
             onSelect={onClickOnRhsExpression}
-            deleteConfig={{defaultExprDeletable: true}}
         />
     );
 

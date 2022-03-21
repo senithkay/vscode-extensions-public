@@ -170,7 +170,7 @@ export function IfElse(props: IfElseProps) {
                     codeSnippet={codeSnippet}
                     codeSnippetOnSvg={codeSnippetOnSvg}
                     conditionType={conditionType}
-                    diagnostics={errorSnippet}
+                    componentSTNode={model}
                     openInCodeView={model && model?.position && onClickOpenInCodeView}
                 />
                 <ConditionAssignment
@@ -356,6 +356,7 @@ export function IfElse(props: IfElseProps) {
                             diagnostics={errorSnippet}
                             codeSnippetOnSvg={codeSnippetOnSvg}
                             conditionType={conditionType}
+                            componentSTNode={model}
                             openInCodeView={model && model?.position && onClickOpenInCodeView}
                         />
                         <ConditionAssignment

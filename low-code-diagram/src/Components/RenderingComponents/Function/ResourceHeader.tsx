@@ -72,9 +72,11 @@ export function ResourceHeader(props: ResourceHeaderProps) {
         </div>
     );
 
+
+    // TODO:Check this and fix the tooltip rendering issue
     useEffect(() => {
         if (diagnosticMsgs && showTooltip) {
-            setTooltip(showTooltip(iconElement, "diagram-diagnostic", undefined, "left", true, errorSnippet, undefined, false, openInCodeView));
+            setTooltip(showTooltip(iconElement, errorSnippet.diagnosticMsgs, undefined, model));
         }
     }, [model]);
 
