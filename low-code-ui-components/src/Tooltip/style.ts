@@ -77,8 +77,9 @@ const useStyles = makeStyles(() =>
             lineHeight: "25px"
         },
         codeHintWrap: {
-            marginTop: "10px",
+            marginTop: "5px",
             marginBottom: "5px",
+            paddingTop: "-2px"
         },
         codeHint: {
             marginTop: "3px"
@@ -111,6 +112,20 @@ const useStyles = makeStyles(() =>
         },
         tooltipHints: {
             padding: "0 15px",
+        },
+        diagnosticWarningWrapper: {
+            width: '231px',
+            color: '#FF9D52',
+            fontFamily: "Droid Sans Mono",
+            fontSize: '12px',
+            letterSpacing: '0',
+        },
+        diagnosticErrorWrapper: {
+            width: '231px',
+            color: '#FE523C',
+            fontFamily: "Droid Sans Mono",
+            fontSize: '12px',
+            letterSpacing: '0',
         }
     }),
 );

@@ -99,13 +99,13 @@ export function TypeDefinitionComponent(props: TypeDefComponentProps) {
         const typeText = (
             <tspan x="0" y="0">{typeMaxWidth ? type.slice(0, 10) + "..." : type}</tspan>
         );
+
+        // TODO:Check the rendering issue in this tooltip
         let tooltip: ReactElement;
         if (showTooltip) {
-            tooltip = showTooltip(typeText, "heading-content", {
-                content: model.source.slice(1, -1),
-                heading: ""
-            }, "top-start", true);
+            tooltip = showTooltip(typeText, model.source.slice(1, -1));
         }
+
         component.push(
             <div>
                 <div className="type-comp" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>

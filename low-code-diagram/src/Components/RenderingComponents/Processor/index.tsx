@@ -306,9 +306,9 @@ export function DataProcessor(props: ProcessorProps) {
                             y={cy - (PROCESS_SVG_SHADOW_OFFSET / 2)}
                             varName={variableName}
                             processType={processType}
-                            sourceSnippet={sourceSnippet}
                             position={model?.position}
                             diagnostics={errorSnippet}
+                            componentSTNode={model}
                             openInCodeView={!isReadOnly && model && model.position && onClickOpenInCodeView}
                         />
                         <Assignment

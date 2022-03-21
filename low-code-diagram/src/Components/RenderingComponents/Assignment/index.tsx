@@ -50,11 +50,9 @@ export function Assignment(props: { x: number, y: number, assignment: string, cl
     );
 
     useEffect(() => {
+
         if (assignmentMaxWidth && showTooltip) {
-            setTooltip(showTooltip(assignmentComponent, "heading", { heading: assignment }, "top-start", true, undefined, undefined, false, undefined, {
-                inverted: false,
-                interactive: true
-            }));
+            setTooltip(showTooltip(assignmentComponent, assignment));
         }
     }, [assignment]);
 

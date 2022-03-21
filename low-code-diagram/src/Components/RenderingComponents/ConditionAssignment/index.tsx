@@ -54,17 +54,14 @@ export function ConditionAssignment(props: { x: number, y: number, assignment: s
     );
 
     useEffect(() => {
-        if (assignmentMaxWidth && showTooltip) {
-            setTooltip(showTooltip(assignemtComponant, "heading", { heading: assignment }, "top-start", true, undefined, undefined, false, undefined, {
-                inverted: false,
-                interactive: true
-            }));
+        if (assignment && showTooltip) {
+            setTooltip(showTooltip(assignemtComponant, assignment));
         }
     }, [assignment]);
 
     return (
         <svg {...xyProps}>
-            {assignmentMaxWidth && tooltip ? tooltip : defaultTooltip}
+            {assignmentMaxWidth ? tooltip ? tooltip : defaultTooltip : assignemtComponant}
         </svg >
     );
 }
