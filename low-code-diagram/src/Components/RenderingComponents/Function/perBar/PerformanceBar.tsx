@@ -41,19 +41,13 @@ export function PerformanceBar(props: PerformanceProps) {
         <p className={"more"} onClick={onClickPerformance}>{"Show More →"}</p>
     );
 
-    // TODO:Add new tooltip component to support this scenario
-    // useEffect(() => {
-    //     if (showTooltip) {
-    //         setTooltip(showTooltip(element, "heading-content", {
-    //             heading: "Performance graph",
-    //             content: (
-    //                 isAdvancedPerfDataAvailable
-    //                     ? "Click here to open the performance graph"
-    //                     : "Insufficient data to provide detailed estimations"
-    //             )
-    //         }));
-    //     }
-    // }, [model]);
+    const content = isAdvancedPerfDataAvailable ? "Click here to open the performance graph" : "Insufficient data to provide detailed estimations";
+
+    useEffect(() => {
+        if (showTooltip) {
+            setTooltip(showTooltip(element, content));
+        }
+    }, [model]);
 
     const perBar = (
         <div className={"performance-bar"}>
@@ -61,7 +55,7 @@ export function PerformanceBar(props: PerformanceProps) {
             <p>
                 {isAdvancedPerfDataAvailable ? `Forecasted performance for concurrency ${concurrency} | Latency: ${latency} | Tps: ${tps}` : `Forecasted performance for a single user: Latency: ${latency} | Tps: ${tps}`}
             </p>
-            {element}
+            {tooltip ? tooltip : element}
         </div>
     );
 
