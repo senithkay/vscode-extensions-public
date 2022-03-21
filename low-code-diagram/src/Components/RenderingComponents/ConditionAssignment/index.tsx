@@ -49,23 +49,19 @@ export function ConditionAssignment(props: { x: number, y: number, assignment: s
         </text>
     );
 
-    // TODO:Add new tooltip component to support this scenario
-    // const defaultTooltip = (
-    //     <DefaultTooltip text={{ heading: assignment }}>{assignemtComponant}</DefaultTooltip>
-    // );
+    const defaultTooltip = (
+        <DefaultTooltip text={{ heading: assignment }}>{assignemtComponant}</DefaultTooltip>
+    );
 
-    // useEffect(() => {
-    //     if (assignmentMaxWidth && showTooltip) {
-    //         setTooltip(showTooltip(assignemtComponant, "heading", { heading: assignment }, "top-start", true, undefined, undefined, false, undefined, {
-    //             inverted: false,
-    //             interactive: true
-    //         }));
-    //     }
-    // }, [assignment]);
+    useEffect(() => {
+        if (assignment && showTooltip) {
+            setTooltip(showTooltip(assignemtComponant, assignment));
+        }
+    }, [assignment]);
 
     return (
         <svg {...xyProps}>
-            {assignemtComponant}
+            {assignmentMaxWidth ? tooltip ? tooltip : defaultTooltip : assignemtComponant}
         </svg >
     );
 }
