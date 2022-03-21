@@ -11,16 +11,13 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext, useEffect } from "react";
+import React, { useContext } from "react";
 
 import { STNode } from "@wso2-enterprise/syntax-tree";
 import cn from "classnames";
 
-import { ExprDeleteConfig } from "../../models/definitions";
 import { StatementEditorContext } from "../../store/statement-editor-context";
-import { getExpressionTypeComponent, getRemainingContent, isPositionsEquals } from "../../utils";
-import DeleteButton from "../Button/DeleteButton";
-import { INPUT_EDITOR_PLACE_HOLDERS } from "../InputEditor/constants";
+import { getExpressionTypeComponent, isPositionsEquals } from "../../utils";
 import { useStatementEditorStyles } from "../styles";
 
 export interface ExpressionComponentProps {
@@ -28,11 +25,10 @@ export interface ExpressionComponentProps {
     onSelect?: (event: React.MouseEvent) => void;
     children?: React.ReactElement[];
     classNames?: string;
-    deleteConfig?: ExprDeleteConfig;
 }
 
 export function ExpressionComponent(props: ExpressionComponentProps) {
-    const { model, onSelect, children, classNames, deleteConfig } = props;
+    const { model, onSelect, children, classNames } = props;
 
     const component = getExpressionTypeComponent(model);
 

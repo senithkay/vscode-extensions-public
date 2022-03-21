@@ -774,7 +774,10 @@ export class PositioningVisitor implements Visitor {
                         visibleEndpoint.viewState = endpointViewState;
 
                         epCount++;
-                    }else if (!endpoint.firstAction) {
+                    } else if (STKindChecker.isLocalVarDecl(statement) &&
+                        STKindChecker.isCheckAction(statement.initializer) &&
+                        statement.initializer?.expression.expression.typeData?.symbol?.kind === "PARAMETER" &&
+                        !endpoint.firstAction) {
                         // Add parameter level endpoints to the action view statement.
                         statementViewState.endpoint = mainEp;
                         const endpointViewState: EndpointViewState = statementViewState.endpoint;
@@ -783,6 +786,7 @@ export class PositioningVisitor implements Visitor {
                             endpointViewState.bBox.rw + epGap + (epGap * epCount);
                         endpointViewState.lifeLine.cy = statementViewState.bBox.cy;
                         endpointViewState.isExternal = true;
+                        endpointViewState.isParameter = true;
                         visibleEndpoint.viewState = endpointViewState;
 
                         epCount++;

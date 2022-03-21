@@ -36,8 +36,7 @@ export function CodePanel() {
 
     const handleEnumSave = () => {
         if (state.enumModel.isTypeDefinition) {
-            const isNewTypeDesc = (state.targetPosition !== undefined);
-            if (!isNewTypeDesc) {
+            if (state.sourceModel) {
                 const modelPosition = state.sourceModel.position as NodePosition;
                 const updatePosition = {
                     startLine: modelPosition.startLine,
@@ -51,7 +50,7 @@ export function CodePanel() {
                         state.enumModel.name,
                         getMemberArray(state.enumModel),
                         updatePosition,
-                        isNewTypeDesc
+                        false
                     )
                 ]);
             } else {
@@ -60,7 +59,7 @@ export function CodePanel() {
                         state.enumModel.name,
                         getMemberArray(state.enumModel),
                         state.targetPosition,
-                        isNewTypeDesc
+                        true
                     )
                 ]);
             }

@@ -45,6 +45,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             marginTop: theme.spacing(1),
         },
         innerBoxHead: {
+            display: "flex",
             marginBottom: theme.spacing(1),
         },
         innerBoxTitle: {
