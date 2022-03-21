@@ -52,19 +52,7 @@ export function StatementC(props: StatementProps) {
                     <ActionInvocation model={clientInit} />
                 );
 
-                if (epViewState.isExternal) {
-                    externalConnector = (
-                        <Connector
-                            model={model}
-                            x={epViewState.lifeLine.cx}
-                            y={epViewState.lifeLine.cy}
-                            h={epViewState.lifeLine.h}
-                            connectorName={viewState.action.endpointName}
-                        />
-                    );
-                }
-
-                if (!epViewState.isExternal && epViewState.isUsed) {
+                if (epViewState.isExternal || epViewState.isParameter) {
                     externalConnector = (
                         <Connector
                             model={model}
