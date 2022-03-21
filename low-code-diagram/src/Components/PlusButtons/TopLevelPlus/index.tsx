@@ -20,7 +20,6 @@ import { Context } from "../../../Context/diagram";
 
 import { InitialPlusTooltipBubble } from "./InitialPlusTooltipBubble";
 import "./style.scss";
-import { DiagramTooltipCodeSnippet } from "../../../../../low-code-ui-components/lib";
 
 export const PLUS_WIDTH = 16;
 export const PLUS_AND_OPTIONS_GAP = 6;
