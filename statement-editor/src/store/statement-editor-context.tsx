@@ -15,14 +15,11 @@ import React from 'react';
 
 import { LibraryKind, STModification } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
-import { languages } from "monaco-editor";
 
 import { LowCodeEditorProps } from '../components/StatementEditor';
-import { ModelKind, SuggestionItem } from "../models/definitions";
+import { ModelKind, StmtDiagnostic, SuggestionItem } from "../models/definitions";
 
 import { InputEditorContextProvider } from "./input-editor-context";
-
-import Diagnostic = languages.typescript.Diagnostic;
 
 export const StatementEditorContext = React.createContext({
     modelCtx: {
@@ -41,7 +38,7 @@ export const StatementEditorContext = React.createContext({
         formModelPosition: null
     },
     statementCtx: {
-        diagnostics: null
+        diagnostics: []
     },
     suggestionsCtx: {
         lsSuggestions: []
@@ -79,7 +76,7 @@ interface CtxProviderProps extends LowCodeEditorProps {
     redo?: () => void,
     hasUndo?: boolean,
     hasRedo?: boolean,
-    diagnostics?: Diagnostic[],
+    diagnostics?: StmtDiagnostic[],
     lsSuggestions?: SuggestionItem[]
 }
 

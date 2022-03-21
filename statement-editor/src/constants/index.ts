@@ -57,6 +57,9 @@ export const STD_LIBS_IDENTIFIER = "Standard"
 export const INIT_EXPR_LIST_CONSTRUCTOR = "EXPRESSION]"
 export const APPEND_EXPR_LIST_CONSTRUCTOR = ", EXPRESSION]"
 
+export const EXPR_PLACE_HOLDER_DIAG = "undefined symbol 'EXPRESSION'";
+export const TYPE_DESC_PLACE_HOLDER_DIAG = "unknown type 'TYPE_DESCRIPTOR'";
+
 // Statement types supported in function-body-block
 export type StatementNodes = ActionStatement
     | AssignmentStatement
