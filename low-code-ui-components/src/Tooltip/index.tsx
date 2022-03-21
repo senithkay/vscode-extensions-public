@@ -144,10 +144,12 @@ export function Tooltip(props: Partial<TooltipPropsExtended>) {
         );
         tooltipTitle = (
             diagnosticMsgs ?
-                (<>
-                    <Diagnostic />
-                    <CodeSnippet />
-                </>)
+                (
+                    <>
+                        <Diagnostic />
+                        <CodeSnippet />
+                    </>
+                )
                 :
                 <CodeSnippet />
         );
