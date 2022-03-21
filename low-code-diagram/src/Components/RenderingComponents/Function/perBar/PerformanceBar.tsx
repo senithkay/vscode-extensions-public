@@ -47,7 +47,7 @@ export function PerformanceBar(props: PerformanceProps) {
         if (showTooltip) {
             setTooltip(showTooltip(element, content));
         }
-    }, [model]);
+    }, [isAdvancedPerfDataAvailable]);
 
     const perBar = (
         <div className={"performance-bar"}>
