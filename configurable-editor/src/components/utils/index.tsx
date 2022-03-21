@@ -17,6 +17,7 @@
  *
  */
 
+import { __String } from "typescript";
 import { ConfigElementProps, setConfigElementProps } from "../ConfigElement";
 import { ConfigObjectProps } from "../ConfigObject";
 import { ConfigType, ConfigValue, MetaData, SchemaConstants } from "../model";
@@ -72,11 +73,11 @@ export function getConfigProperties(configObj: object, id: string = "1", name: s
                 const additionalProperties = configPropertyValues[SchemaConstants.ADDITIONAL_PROPERTIES];
                 // Handle map values.
                 if (additionalProperties) {
-                    const configPropertyType = getMapType(additionalProperties);
+                    const mapPropertyType = getMapType(additionalProperties);
                     const idValue = configProperty.id + "-" + (index + 1);
-                    const required = isRequired(key, requiredProperties);
-                    const element: ConfigElementProps = setConfigElementProps(idValue, false,
-                        configPropertyType, key, true, required, configPropertyDesc);
+                    const isRequiredMap = isRequired(key, requiredProperties);
+                    const element: ConfigElementProps = setConfigElementProps(idValue, false, ConfigType.MAP,
+                        key, true, isRequiredMap, configPropertyDesc, `map<${mapPropertyType}>`);
                     if (element) {
                         configProperty.properties.push(element);
                     }
@@ -106,12 +107,13 @@ export function getConfigProperties(configObj: object, id: string = "1", name: s
  * @param propertiesObj Additional properties object.
  * @returns             Returns the type of the map.
  */
-function getMapType(propertiesObj: object) {
+function getMapType(propertiesObj: object): string {
     let type;
     const properties = propertiesObj[SchemaConstants.PROPERTIES];
     const anyOf = propertiesObj[SchemaConstants.ANY_OF];
     if (properties) {
         // TODO: Object types
+        type = ConfigType.OBJECT;
     } else if (anyOf) {
         // TODO: Union types
     } else {

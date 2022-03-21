@@ -40,6 +40,7 @@ export interface ConfigElementProps {
     name: string;
     type: ConfigType;
     description?: string;
+    typeLabel?: string,
     value?: number | string | boolean | number[] | string[] | boolean[];
     setConfigElement?: (configValue: ConfigValue) => void;
 }
@@ -61,6 +62,7 @@ export function setConfigElementProps(
     isMap: boolean,
     isRequired: boolean,
     description: string,
+    typeLabel?: string,
 ): ConfigElementProps {
     return {
         description,
@@ -70,6 +72,7 @@ export function setConfigElementProps(
         isRequired,
         name,
         type: getType(type),
+        typeLabel,
     };
 }
 
@@ -98,7 +101,7 @@ export const getConfigElement = (configElementProps: ConfigElementProps, classes
                 <Box className={classes.labelTag}>
                     <OutlinedLabel
                         type="success"
-                        label={configElementProps.type}
+                        label={configElementProps.typeLabel ? configElementProps.typeLabel : configElementProps.type}
                         shape="square"
                     />
                 </Box>
