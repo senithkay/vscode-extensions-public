@@ -60,7 +60,7 @@ export function VariableName(props: { x: number, y: number, variableName: string
 
     useEffect(() => {
         if (variableName && showTooltip) {
-            setTooltip(showTooltip(variableTextComp, variableName )
+            setTooltip(showTooltip(variableTextComp, variableName)
             );
         }
         setTextWidth(document.getElementById("variableLegnth_" + key_id).getBoundingClientRect().width);
