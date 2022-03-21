@@ -52,7 +52,7 @@ export function getFormConfigFromModel(model: any, stSymbolInfo: STSymbolInfo): 
 
         if (model?.typedBindingPattern?.typeDescriptor) {
             if (STKindChecker.isQualifiedNameReference(model.typedBindingPattern.typeDescriptor)) {
-                defaultFormState.varType = model?.typedBindingPattern?.typeDescriptor?.source.trim(); 
+                defaultFormState.varType = model?.typedBindingPattern?.typeDescriptor?.source.trim();
             } else if (STKindChecker.isSimpleNameReference(model.typedBindingPattern.typeDescriptor)) {
                 defaultFormState.varType = model?.typedBindingPattern?.typeDescriptor?.name?.value;
             }
