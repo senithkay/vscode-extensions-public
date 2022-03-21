@@ -12,18 +12,30 @@
  */
 import React, { ReactNode } from 'react';
 
-import { CompletionResponse, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import {
+    CompletionResponse,
+    getDiagnosticMessage,
+    getFilteredDiagnostics,
+    STModification
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     NodePosition,
     STKindChecker,
     STNode,
     traversNode
 } from "@wso2-enterprise/syntax-tree";
+import { Diagnostic } from "vscode-languageserver-protocol";
 
 import * as expressionTypeComponents from '../components/ExpressionTypes';
 import * as statementTypeComponents from '../components/Statements';
-import { OTHER_EXPRESSION, OTHER_STATEMENT, StatementNodes } from "../constants";
-import { ModelKind, RemainingContent } from '../models/definitions';
+import {
+    EXPR_PLACE_HOLDER_DIAG,
+    OTHER_EXPRESSION,
+    OTHER_STATEMENT,
+    StatementNodes,
+    TYPE_DESC_PLACE_HOLDER_DIAG
+} from "../constants";
+import { ModelKind, RemainingContent, StmtDiagnostic } from '../models/definitions';
 import { visitor as DeleteConfigSetupVisitor } from "../visitors/delete-config-setup-visitor";
 import { visitor as ExpressionDeletingVisitor } from "../visitors/expression-deleting-visitor";
 import { visitor as ModelFindingVisitor } from "../visitors/model-finding-visitor";
@@ -146,6 +158,32 @@ export function isTypeDesc(modelKind: ModelKind): boolean {
 
 export function isBindingPattern(modelKind: ModelKind): boolean {
     return modelKind === ModelKind.BindingPattern;
+}
+
+export function getFilteredDiagnosticMessages(source: string, targetPosition: NodePosition,
+                                              diagnostics: Diagnostic[]): StmtDiagnostic[] {
+    const stmtDiagnostics: StmtDiagnostic[] = [];
+
+    const diag = getFilteredDiagnostics(diagnostics, false);
+
+    const diagnosticTargetPosition: NodePosition = {
+        startLine: targetPosition.startLine || 0,
+        startColumn: targetPosition.startColumn || 0,
+        endLine: targetPosition?.endLine || targetPosition.startLine,
+        endColumn: targetPosition?.endColumn || 0
+    };
+
+    getDiagnosticMessage(diag, diagnosticTargetPosition, 0, source.length, 0, 0).split('. ').map(message => {
+            let isPlaceHolderDiag = false;
+            if (message === EXPR_PLACE_HOLDER_DIAG || message === TYPE_DESC_PLACE_HOLDER_DIAG) {
+                isPlaceHolderDiag = true;
+            }
+            if (!!message) {
+                stmtDiagnostics.push({message, isPlaceHolderDiag});
+            }
+        });
+
+    return stmtDiagnostics;
 }
 
 export function getSuggestionIconStyle(suggestionType: number): string {
