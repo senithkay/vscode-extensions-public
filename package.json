@@ -515,6 +515,7 @@
         "@types/vscode": "^1.59.0",
         "axios": "^0.22.0",
         "chai": "^4.3.4",
+        "copy-webpack-plugin": "^10.2.4",
         "cross-env": "^7.0.3",
         "decache": "^4.6.0",
         "express": "^4.17.1",
