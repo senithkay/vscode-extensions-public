@@ -15,8 +15,8 @@ import React, { useContext, useEffect, useState } from "react";
 
 import { STNode } from "@wso2-enterprise/syntax-tree";
 
-import { DiagramTooltipCodeSnippet } from "../../../../../low-code-ui-components";
 import { Context } from "../../../Context/diagram";
+import { DefaultTooltip } from "../DefaultTooltip";
 
 export const RESPOND_SVG_HEIGHT_WITH_SHADOW = 46;
 export const RESPOND_SVG_WIDTH_WITH_SHADOW = 96;
@@ -29,8 +29,7 @@ export function RespondSVG(props: { x: number, y: number, text: string, sourceSn
     const { text, sourceSnippet, openInCodeView, model, ...xyProps } = props;
     const diagramContext = useContext(Context);
     const showTooltip = diagramContext?.api?.edit?.showTooltip;
-    const [tooltip, setTooltip] = useState(undefined);
-    const [diagTooltip, setDiagTooltip] = useState(undefined);
+    const [tooltipComp, setTooltipComp] = useState(undefined);
     const responseRect = (
         <g id="Respond" className="respond-comp respond-active" transform="translate(7 6)">
             <g transform="matrix(1, 0, 0, 1, -7, -6)">
@@ -47,17 +46,15 @@ export function RespondSVG(props: { x: number, y: number, text: string, sourceSn
         </g>
     );
 
+
     const defaultTooltip = (
-        <DiagramTooltipCodeSnippet componentModel={model} onClick={openInCodeView} >{responseRect}</DiagramTooltipCodeSnippet>
+        <DefaultTooltip text={sourceSnippet}>{responseRect}</DefaultTooltip>
     );
+
     useEffect(() => {
         if (model && showTooltip) {
-            setDiagTooltip(showTooltip(responseRect,undefined, openInCodeView, model));
+            setTooltipComp(showTooltip(responseRect, undefined, openInCodeView, model));
         }
-        return () => {
-            setTooltip(undefined);
-            setDiagTooltip(undefined);
-        };
     }, [model]);
 
     return (
@@ -82,7 +79,7 @@ export function RespondSVG(props: { x: number, y: number, text: string, sourceSn
                     <feComposite in="SourceGraphic" />
                 </filter>
             </defs>
-            {defaultTooltip}
+            {tooltipComp ? tooltipComp : defaultTooltip}
         </svg >
     )
 }
