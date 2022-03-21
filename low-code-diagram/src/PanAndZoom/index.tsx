@@ -126,9 +126,9 @@ export default function PanAndZoom(props: PanAndZoomProps) {
         </div>
     );
     // TODO:Check rendering issue in the below tooltips
-    const zoomInTooltip = showTooltip ? showTooltip(zoomInButton,"Zoom In"): zoomInButton;
+    const zoomInTooltip = showTooltip ? showTooltip(zoomInButton, "Zoom In") : zoomInButton;
 
-    const zoomOutTooltip = showTooltip ? showTooltip(zoomOutButton,"Zoom Out") : zoomOutButton;
+    const zoomOutTooltip = showTooltip ? showTooltip(zoomOutButton, "Zoom Out") : zoomOutButton;
 
     const fitToScreenTooltip = showTooltip ? showTooltip(fitToScreenButton, "Fit to screen") : fitToScreenButton;
 

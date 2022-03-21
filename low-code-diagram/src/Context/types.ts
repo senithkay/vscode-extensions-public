@@ -57,10 +57,10 @@ export interface LowCodeDiagramAPI {
         openPerformanceChart?: (name: string, range: NodePosition, diagramRedrawFunc: any) => void;
         showTooltip?: (
             component: any,
-            content?:string,
+            content?: string,
             onClick?: () => void,
             additionalParams?: any) => any;
-            STNode?: STNode;
+        STNode?: STNode;
     };
 
     // FIXME Doesn't make sense to take these methods below from outside

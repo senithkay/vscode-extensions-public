@@ -17,9 +17,9 @@ import { STNode } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../Context/diagram";
 import { ErrorSnippet } from "../../../Types/type";
+import { DefaultTooltip } from "../DefaultTooltip";
 
 import "./style.scss"
-import { DefaultTooltip } from "../DefaultTooltip";
 
 interface ProcessRectSVGProps {
     type?: string,

@@ -44,7 +44,7 @@ export function TriggerParamsSVG(props: { x: number, y: number, text: any }) {
 
     useEffect(() => {
         if (text && showTooltip) {
-            setTooltip(showTooltip(paramSVG, tooltipText.code,));
+            setTooltip(showTooltip(paramSVG, tooltipText.code));
         }
     }, [text]);
 

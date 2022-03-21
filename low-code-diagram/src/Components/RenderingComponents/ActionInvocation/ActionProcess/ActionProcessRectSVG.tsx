@@ -65,7 +65,7 @@ export function ActionProcessRectSVG(props: DiagnosticTooltipProps) {
 
     useEffect(() => {
         if (model && showTooltip) {
-            setTooltipComp(showTooltip(rectSVG,undefined,onClick,model));
+            setTooltipComp(showTooltip(rectSVG, undefined, onClick, model));
         }
     }, [model]);
 

@@ -237,7 +237,7 @@ export function Diagram() {
 
     const handleShowTooltip = (
         component: any,
-        content?:string,
+        content?: string,
         onClick?: () => void,
         model?: STNode,
         additionalParams?: any): any => {

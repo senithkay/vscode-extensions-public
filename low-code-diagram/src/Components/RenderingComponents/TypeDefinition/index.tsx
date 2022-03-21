@@ -100,7 +100,7 @@ export function TypeDefinitionComponent(props: TypeDefComponentProps) {
             <tspan x="0" y="0">{typeMaxWidth ? type.slice(0, 10) + "..." : type}</tspan>
         );
 
-        //TODO:Check the rendering issue in this tooltip
+        // TODO:Check the rendering issue in this tooltip
         let tooltip: ReactElement;
         if (showTooltip) {
             tooltip = showTooltip(typeText, model.source.slice(1, -1));
