@@ -20,7 +20,8 @@
 import { Uri, ExtensionContext, WebviewOptions, WebviewPanelOptions } from "vscode";
 import { join, sep } from "path";
 import { ballerinaExtInstance } from "../core";
-import { BLCEDITOR_CDN } from "../diagram/renderer";
+
+export const RESOURCES_CDN = `https://choreo-shared-codeserver-cdne.azureedge.net/ballerina-low-code-resources@${process.env.BALLERINA_LOW_CODE_RESOURCES_VERSION}`;
 
 function getWebViewResourceRoot(): string {
     return join((ballerinaExtInstance.context as ExtensionContext).extensionPath,
@@ -81,7 +82,7 @@ export function getLibraryWebViewContent(options: WebViewOptions) {
     const fontDirWithSeparatorReplaced = fontDir.split(sep).join("/");
 
     const isCodeServer = ballerinaExtInstance.getCodeServerContext().codeServerEnv;
-    const resourceRoot = isCodeServer ? BLCEDITOR_CDN : getVSCodeResourceURI(getWebViewResourceRoot());
+    const resourceRoot = isCodeServer ? RESOURCES_CDN : getVSCodeResourceURI(getWebViewResourceRoot());
     const whatFixUrl = process.env.BALLERINA_DEV_CENTRAL || process.env.BALLERINA_STAGE_CENTRAL ?
         'https://whatfix.com/c9fb1d90-71f0-11ec-a69b-2a8342861064/embed/embed.nocache.js' :
         'https://cdn.whatfix.com/prod/c9fb1d90-71f0-11ec-a69b-2a8342861064/embed/embed.nocache.js';
@@ -236,22 +237,24 @@ export function getComposerPath(): string {
         : getComposerURI();
 }
 
-function getComposerCSSFiles(componentName: string): string[] {
+function getComposerCSSFiles(): string[] {
+    const isCodeServer = ballerinaExtInstance.getCodeServerContext().codeServerEnv;
     return [
-        join(getComposerPath(), 'themes', 'ballerina-default.min.css')
+        isCodeServer ? (`${RESOURCES_CDN}/jslibs/themes/ballerina-default.min.css`) : join(getComposerPath(), 'themes', 'ballerina-default.min.css')
     ];
 }
 
 function getComposerJSFiles(componentName: string): string[] {
+    const isCodeServer = ballerinaExtInstance.getCodeServerContext().codeServerEnv;
     return [
-        join(getComposerPath(), componentName + '.js'),
+        isCodeServer ? (`${RESOURCES_CDN}/jslibs/${componentName}.js`) : join(getComposerPath(), componentName + '.js'),
         process.env.COMPOSER_DEBUG === "true" ? 'http://localhost:8097' : '' // For React Dev Tools
     ];
 }
 
 export function getComposerWebViewOptions(componentName: string): Partial<WebViewOptions> {
     return {
-        cssFiles: getComposerCSSFiles(componentName),
+        cssFiles: getComposerCSSFiles(),
         jsFiles: getComposerJSFiles(componentName)
     };
 }
