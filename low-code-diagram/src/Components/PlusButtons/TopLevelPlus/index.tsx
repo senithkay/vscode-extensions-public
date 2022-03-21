@@ -75,6 +75,7 @@ export const TopLevelPlus = (props: PlusProps) => {
         setPlusOptions(undefined);
     };
 
+    //TODO:Check the rendering issue in this tooltip
     useEffect(() => {
         if (!isDocumentEmpty && showTooltip) {
             setTooltip(showTooltip(<TopLevelPlusIcon />, "Add Construct"));
