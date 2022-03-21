@@ -11,9 +11,63 @@
                         "prices": {
                             "type": "array",
                             "items": {
-                              "type": "integer"
+                                "type": "integer"
                             },
                             "description": ""
+                        },
+                        "mapValue1": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            },
+                            "description": "Simple type maps"
+                        },
+                        "mapValue2": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "object",
+                                "properties": {
+                                    "age": {
+                                        "type": "integer"
+                                    },
+                                    "name": {
+                                        "type": "string"
+                                    }
+                                },
+                                "additionalProperties": false,
+                                "required": [
+                                    "age",
+                                    "name"
+                                ]
+                            },
+                            "description": "Object type maps"
+                        },
+                        "mapValue3": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "anyOf": [
+                                    {
+                                        "type": "object",
+                                        "properties": {
+                                            "age": {
+                                                "type": "integer"
+                                            },
+                                            "name": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "additionalProperties": false,
+                                        "required": [
+                                            "age",
+                                            "name"
+                                        ]
+                                    },
+                                    {
+                                        "type": "string"
+                                    }
+                                ]
+                            },
+                            "description": "Union type maps"
                         },
                         "itemCode": {
                             "type": "string",
@@ -39,22 +93,22 @@
                         "person": {
                             "type": "object",
                             "properties": {
-                              "name": {
-                                "type": "string"
-                              },
-                              "age": {
-                                "type": "integer"
-                              },
-                              "category": {
-                                "type": "object",
-                                "properties": {
-                                  "fullTime": {
-                                    "type": "boolean"
-                                  }
+                                "name": {
+                                    "type": "string"
                                 },
-                                "additionalProperties": false,
-                                "description": ""
-                              }
+                                "age": {
+                                    "type": "integer"
+                                },
+                                "category": {
+                                    "type": "object",
+                                    "properties": {
+                                        "fullTime": {
+                                            "type": "boolean"
+                                        }
+                                    },
+                                    "additionalProperties": false,
+                                    "description": ""
+                                }
                             },
                             "additionalProperties": false,
                             "description": ""

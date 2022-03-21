@@ -26,6 +26,8 @@ export enum SchemaConstants {
     DESCRIPTION = "description",
     PROPERTIES = "properties",
     REQUIRED = "required",
+    ADDITIONAL_PROPERTIES = "additionalProperties",
+    ANY_OF = "anyOf",
 }
 
 /**

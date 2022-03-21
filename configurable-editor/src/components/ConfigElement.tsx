@@ -35,6 +35,7 @@ import { getType } from "./utils";
 export interface ConfigElementProps {
     id: string;
     isArray: boolean;
+    isMap: boolean;
     isRequired: boolean;
     name: string;
     type: ConfigType;
@@ -57,6 +58,7 @@ export function setConfigElementProps(
     isArray: boolean,
     type: string,
     name: string,
+    isMap: boolean,
     isRequired: boolean,
     description: string,
 ): ConfigElementProps {
@@ -64,6 +66,7 @@ export function setConfigElementProps(
         description,
         id,
         isArray,
+        isMap,
         isRequired,
         name,
         type: getType(type),

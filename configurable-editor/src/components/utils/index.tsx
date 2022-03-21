@@ -62,10 +62,26 @@ export function getConfigProperties(configObj: object, id: string = "1", name: s
         const required = isRequired(key, requiredProperties);
 
         if (configPropertyType === ConfigType.OBJECT) {
-            // Iterate through nested objects.
-            const childProperty: ConfigObjectProps = getConfigProperties(configPropertyValues,
-                id + "-" + (index + 1), key, required);
-            configProperty.properties.push(childProperty);
+            const isRecord: string = configPropertyValues[SchemaConstants.PROPERTIES];
+            if (isRecord) {
+                // Iterate through nested objects.
+                const childProperty: ConfigObjectProps = getConfigProperties(configPropertyValues,
+                    id + "-" + (index + 1), key, required);
+                configProperty.properties.push(childProperty);
+            } else {
+                const additionalProperties = configPropertyValues[SchemaConstants.ADDITIONAL_PROPERTIES];
+                // Handle map values.
+                if (additionalProperties) {
+                    const configPropertyType = getMapType(additionalProperties);
+                    const idValue = configProperty.id + "-" + (index + 1);
+                    const required = isRequired(key, requiredProperties);
+                    const element: ConfigElementProps = setConfigElementProps(idValue, false,
+                        configPropertyType, key, true, required, configPropertyDesc);
+                    if (element) {
+                        configProperty.properties.push(element);
+                    }
+                }
+            }
         } else {
             // Handle array values.
             if (configPropertyType === ConfigType.ARRAY) {
@@ -76,13 +92,32 @@ export function getConfigProperties(configObj: object, id: string = "1", name: s
             const idValue = configProperty.id + "-" + (index + 1);
 
             const element: ConfigElementProps = setConfigElementProps(idValue, isArrayProperty,
-                configPropertyType, key, required, configPropertyDesc);
+                configPropertyType, key, false, required, configPropertyDesc);
             if (element) {
                 configProperty.properties.push(element);
             }
         }
     });
     return configProperty;
+}
+
+/**
+ * Get the ballerina map type using the additional properties object.
+ * @param propertiesObj Additional properties object.
+ * @returns             Returns the type of the map.
+ */
+function getMapType(propertiesObj: object) {
+    let type;
+    const properties = propertiesObj[SchemaConstants.PROPERTIES];
+    const anyOf = propertiesObj[SchemaConstants.ANY_OF];
+    if (properties) {
+        // TODO: Object types
+    } else if (anyOf) {
+        // TODO: Union types
+    } else {
+        type = propertiesObj[SchemaConstants.TYPE];
+    }
+    return type;
 }
 
 /**
