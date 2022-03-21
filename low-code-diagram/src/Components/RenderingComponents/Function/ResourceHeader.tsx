@@ -71,12 +71,14 @@ export function ResourceHeader(props: ResourceHeaderProps) {
             {errorIcon}
         </div>
     );
-    // TODO:Add new tooltip component to support this scenario
-    // useEffect(() => {
-    //     if (diagnosticMsgs && showTooltip) {
-    //         setTooltip(showTooltip(iconElement, "diagram-diagnostic", undefined, "left", true, errorSnippet, undefined, false, openInCodeView));
-    //     }
-    // }, [model]);
+
+
+    //TODO:Check this and fix the tooltip rendering issue 
+    useEffect(() => {
+        if (diagnosticMsgs && showTooltip) {
+            setTooltip(showTooltip(iconElement,errorSnippet.diagnosticMsgs,undefined,model));
+        }
+    }, [model]);
 
     return (
         <HeaderWrapper
@@ -96,7 +98,7 @@ export function ResourceHeader(props: ResourceHeaderProps) {
             {diagnosticMsgs ?
                 (
                     <div>
-                        {iconElement}
+                        {tooltip ? tooltip : iconElement}
                     </div>
                 )
                 : null
