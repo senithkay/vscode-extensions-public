@@ -21,7 +21,7 @@ import React, { useState } from "react";
 import { Box, Button, CardActions } from "@material-ui/core";
 
 import { ConfigElementProps, getConfigElement } from "./ConfigElement";
-import { ConfigObjectProps, getConfigObject } from "./ConfigObject";
+import { ConfigObjectProps, GetConfigObject } from "./ConfigObject";
 import ButtonContainer from "./elements/ButtonContainer";
 import {
     ConfigSchema,
@@ -137,7 +137,7 @@ export const ConfigForm = ({
         } else {
             return (
                 <div key={configProperty.id}>
-                    {getConfigObject(configProperty as ConfigObjectProps, classes)}
+                    <GetConfigObject {...configProperty as ConfigObjectProps} />
                 </div>
             );
         }

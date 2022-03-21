@@ -14,7 +14,9 @@ export function genInterfacesFileCode(modelInfo: any) {
             isCaller: boolean;
             moduleName: string;
             name: string;
+            packageName: string;
             orgName: string;
+            version: string;
             typeName: string;
             viewState?: any;
         }

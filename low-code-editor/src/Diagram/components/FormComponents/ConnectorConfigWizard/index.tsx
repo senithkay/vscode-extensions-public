@@ -79,6 +79,7 @@ export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
     const {
         position,
         connectorInfo,
+        endpointName,
         targetPosition,
         model,
         onClose,
@@ -144,6 +145,9 @@ export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
                 );
                 if (connectorInfoResponse) {
                     connectorInfoResponse.wizardType = isEdit ? WizardType.EXISTING : WizardType.NEW;
+                    if (endpointName && isAction && !isEdit){
+                        connectorInfoResponse.connectorConfig.name = endpointName;
+                    }
                     setWizardState(connectorInfoResponse);
                 } else {
                     triggerErrorNotification(new Error(connectionErrorMsgText));

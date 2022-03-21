@@ -16,91 +16,44 @@ import React, { ReactNode, useContext } from "react";
 import { ConditionalExpression } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
-import { DEFAULT_EXPRESSIONS } from "../../../constants";
-import { SuggestionItem, VariableUserInputs } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
-import { SuggestionsContext } from "../../../store/suggestions-context";
-import { getSuggestionsBasedOnExpressionKind, isPositionsEquals } from "../../../utils";
-import { addStatementToTargetLine, getContextBasedCompletions } from "../../../utils/ls-utils";
 import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
 import { TokenComponent } from "../../Token";
 
 interface ConditionalExpressionProps {
     model: ConditionalExpression;
-    userInputs: VariableUserInputs;
-    isElseIfMember: boolean;
-    diagnosticHandler: (diagnostics: string) => void;
 }
 
 export function ConditionalExpressionComponent(props: ConditionalExpressionProps) {
-    const { model, userInputs, isElseIfMember, diagnosticHandler } = props;
+    const { model } = props;
     const stmtCtx = useContext(StatementEditorContext);
+    const {
+        modelCtx: {
+            changeCurrentModel
+        }
+    } = stmtCtx;
 
     const statementEditorClasses = useStatementEditorStyles();
-    const { expressionHandler } = useContext(SuggestionsContext);
-    const { currentFile, getLangClient } = stmtCtx;
-    const targetPosition = stmtCtx.formCtx.formModelPosition;
-    const fileURI = `expr://${currentFile.path}`;
 
     const onClickOnLhsExpression = async (event: any) => {
         event.stopPropagation();
-
-        const content: string = await addStatementToTargetLine(
-            currentFile.content, targetPosition, stmtCtx.modelCtx.statementModel.source, getLangClient);
-
-        const completions: SuggestionItem[] = await getContextBasedCompletions(
-            fileURI, content, targetPosition, model.lhsExpression.position,
-            false, isElseIfMember, model.lhsExpression.source, getLangClient);
-
-        expressionHandler(model.lhsExpression, false, false, {
-            expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
-            typeSuggestions: [],
-            variableSuggestions: completions
-        });
+        changeCurrentModel(model.lhsExpression);
     }
 
     const onClickOnMiddleExpression = async (event: any) => {
         event.stopPropagation();
-
-        const content: string = await addStatementToTargetLine(
-            currentFile.content, targetPosition, stmtCtx.modelCtx.statementModel.source, getLangClient);
-
-        const completions: SuggestionItem[] = await getContextBasedCompletions(
-            fileURI, content, targetPosition, model.middleExpression.position,
-            false, isElseIfMember, model.middleExpression.source, getLangClient);
-
-        expressionHandler(model.middleExpression, false, false, {
-            expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
-            typeSuggestions: [],
-            variableSuggestions: completions
-        });
+        changeCurrentModel(model.middleExpression);
     };
 
     const onClickOnEndExpression = async (event: any) => {
         event.stopPropagation();
-
-        const content: string = await addStatementToTargetLine(
-            currentFile.content, targetPosition, stmtCtx.modelCtx.statementModel.source, getLangClient);
-
-        const completions: SuggestionItem[] = await getContextBasedCompletions(
-            fileURI, content, targetPosition, model.endExpression.position,
-            false, isElseIfMember, model.endExpression.source, getLangClient);
-
-        expressionHandler(model.endExpression, false, false, {
-            expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
-            typeSuggestions: [],
-            variableSuggestions: completions
-        });
+        changeCurrentModel(model.endExpression);
     };
 
     const lhsExpression: ReactNode = (
         <ExpressionComponent
             model={model.lhsExpression}
-            userInputs={userInputs}
-            isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
-            isTypeDescriptor={false}
             onSelect={onClickOnLhsExpression}
         />
     );
@@ -108,10 +61,6 @@ export function ConditionalExpressionComponent(props: ConditionalExpressionProps
     const middleExpression: ReactNode = (
         <ExpressionComponent
             model={model.middleExpression}
-            userInputs={userInputs}
-            isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
-            isTypeDescriptor={false}
             onSelect={onClickOnMiddleExpression}
         />
     );
@@ -119,10 +68,6 @@ export function ConditionalExpressionComponent(props: ConditionalExpressionProps
     const endExpression: ReactNode = (
         <ExpressionComponent
             model={model.endExpression}
-            userInputs={userInputs}
-            isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
-            isTypeDescriptor={false}
             onSelect={onClickOnEndExpression}
         />
     );

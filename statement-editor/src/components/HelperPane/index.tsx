@@ -11,26 +11,15 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 
 import { ALL_LIBS_IDENTIFIER, LANG_LIBS_IDENTIFIER, STD_LIBS_IDENTIFIER } from "../../constants";
-import { SuggestionItem } from "../../models/definitions";
-import { StatementEditorContext } from "../../store/statement-editor-context";
 import SelectDropdown from "../Dropdown";
 import { LibraryBrowser } from "../LibraryBrowser";
 import { useStatementEditorStyles } from "../styles";
 import { ExpressionSuggestions } from "../Suggestions/ExpressionSuggestions";
-import { TypeSuggestions } from "../Suggestions/TypeSuggestions";
-import { VariableSuggestions } from "../Suggestions/VariableSuggestions";
+import { LSSuggestions } from "../Suggestions/LangServerSuggestions";
 import TabPanel from "../Tab";
-
-interface HelperPaneProps {
-    variableList: SuggestionItem[];
-    typeDescriptorList: SuggestionItem[];
-    suggestionList: SuggestionItem[];
-    isOperator: boolean;
-    isTypeDescSuggestion: boolean;
-}
 
 enum TabElements {
     suggestions = 'Suggestions',
@@ -38,25 +27,11 @@ enum TabElements {
     libraries = 'Libraries',
 }
 
-export function HelperPane(props: HelperPaneProps) {
+export function HelperPane() {
     const statementEditorClasses = useStatementEditorStyles();
-    const { variableList, typeDescriptorList, suggestionList, isOperator, isTypeDescSuggestion } = props;
-    const stmtCtx = useContext(StatementEditorContext);
-    const {
-        modelCtx: {
-            currentModel
-        }
-    } = stmtCtx;
 
     const [selectedTab, setSelectedTab] = useState(TabElements.suggestions);
-    const [, setIsSuggestionClicked] = useState(false);
     const [libraryType, setLibraryType] = useState('');
-
-    const suggestionHandler = () => {
-        setIsSuggestionClicked(prevState => {
-            return !prevState;
-        });
-    }
 
     const onTabElementSelection = async (value: TabElements) => {
         setSelectedTab(value);
@@ -87,33 +62,9 @@ export function HelperPane(props: HelperPaneProps) {
                 </div>
             </div>
             <div className={statementEditorClasses.suggestionsInner}>
-                {(!isTypeDescSuggestion) && (
-                    <VariableSuggestions
-                        model={currentModel.model}
-                        variableSuggestions={variableList}
-                        suggestionHandler={suggestionHandler}
-                        isSuggestion={selectedTab === TabElements.suggestions}
-                    />
-                )}
-                {isTypeDescSuggestion && (
-                    <TypeSuggestions
-                        model={currentModel.model}
-                        typeSuggestions={typeDescriptorList}
-                        suggestionHandler={suggestionHandler}
-                        isSuggestion={selectedTab === TabElements.suggestions}
-                    />
-                )}
-                {(selectedTab === TabElements.expressions) && (
-                    <ExpressionSuggestions
-                        model={currentModel.model}
-                        isOperator={isOperator}
-                        isType={isTypeDescSuggestion}
-                    />
-                )}
-                <LibraryBrowser
-                    libraryType={libraryType}
-                    isLibrary={selectedTab === TabElements.libraries}
-                />
+                {selectedTab === TabElements.suggestions && <LSSuggestions />}
+                {selectedTab === TabElements.expressions && <ExpressionSuggestions />}
+                {selectedTab === TabElements.libraries && <LibraryBrowser libraryType={libraryType} />}
             </div>
         </>
     );

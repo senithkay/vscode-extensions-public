@@ -16,12 +16,8 @@ import React, { ReactNode, useContext } from "react";
 import { SpecificField, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
-import { DEFAULT_EXPRESSIONS } from "../../../constants";
-import { SuggestionItem, VariableUserInputs } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
-import { SuggestionsContext } from "../../../store/suggestions-context";
-import { getSuggestionsBasedOnExpressionKind, isPositionsEquals } from "../../../utils";
-import { addStatementToTargetLine, getContextBasedCompletions } from "../../../utils/ls-utils";
+import { isPositionsEquals } from "../../../utils";
 import { ExpressionComponent } from "../../Expression";
 import { InputEditor } from "../../InputEditor";
 import { useStatementEditorStyles } from "../../styles";
@@ -29,47 +25,31 @@ import { TokenComponent } from "../../Token";
 
 interface SpecificFieldProps {
     model: SpecificField;
-    userInputs: VariableUserInputs;
-    isElseIfMember: boolean;
-    diagnosticHandler: (diagnostics: string) => void;
-    isTypeDescriptor: boolean;
 }
 
 export function SpecificFieldComponent(props: SpecificFieldProps) {
-    const { model, userInputs, isElseIfMember, diagnosticHandler, isTypeDescriptor } = props;
+    const { model } = props;
     const stmtCtx = useContext(StatementEditorContext);
-    const { modelCtx } = stmtCtx;
-    const { currentModel } = modelCtx;
+    const {
+        modelCtx: {
+            currentModel,
+            changeCurrentModel
+        }
+    } = stmtCtx;
+
     const hasFieldNameSelected = currentModel.model &&
         isPositionsEquals(currentModel.model.position, model.fieldName.position);
 
     const statementEditorClasses = useStatementEditorStyles();
-    const { expressionHandler } = useContext(SuggestionsContext);
-    const { currentFile, getLangClient } = stmtCtx;
-    const targetPosition = stmtCtx.formCtx.formModelPosition;
-    const fileURI = `expr://${currentFile.path}`;
 
     const onClickOnFieldName = (event: any) => {
-        event.stopPropagation()
-        expressionHandler(model.fieldName, false, false,
-            { expressionSuggestions: [], typeSuggestions: [], variableSuggestions: [] })
+        event.stopPropagation();
+        changeCurrentModel(model.fieldName);
     };
 
     const onClickOnValueExpr = async (event: any) => {
         event.stopPropagation();
-
-        const content: string = await addStatementToTargetLine(
-            currentFile.content, targetPosition, stmtCtx.modelCtx.statementModel.source, getLangClient);
-
-        const completions: SuggestionItem[] = await getContextBasedCompletions(
-            fileURI, content, targetPosition, model.valueExpr.position,
-            false, isElseIfMember, model.valueExpr.source, getLangClient);
-
-        expressionHandler(model.valueExpr, false, false, {
-            expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
-            typeSuggestions: [],
-            variableSuggestions: completions
-        });
+        changeCurrentModel(model.valueExpr);
     };
 
     let fieldName: ReactNode;
@@ -77,22 +57,13 @@ export function SpecificFieldComponent(props: SpecificFieldProps) {
     const valueExpression: ReactNode = (
         <ExpressionComponent
             model={model.valueExpr}
-            userInputs={userInputs}
-            isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
-            isTypeDescriptor={false}
             onSelect={onClickOnValueExpr}
         />
     );
 
     if (STKindChecker.isIdentifierToken(model.fieldName)) {
         const inputEditorProps = {
-            statementType: model.kind,
-            model: model.fieldName,
-            expressionHandler,
-            userInputs,
-            diagnosticHandler,
-            isTypeDescriptor
+            model: model.fieldName
         };
 
         fieldName =  (
@@ -110,10 +81,6 @@ export function SpecificFieldComponent(props: SpecificFieldProps) {
         fieldName = (
             <ExpressionComponent
                 model={model.fieldName}
-                userInputs={userInputs}
-                isElseIfMember={isElseIfMember}
-                diagnosticHandler={diagnosticHandler}
-                isTypeDescriptor={false}
                 onSelect={onClickOnFieldName}
             />
         );
