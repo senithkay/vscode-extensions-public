@@ -46,12 +46,12 @@ export function DeleteSVG(props: { x: number, y: number, toolTipTitle?: string, 
                 />
         </g>
     );
-    // TODO:Add new tooltip component to support this scenario
-    // useEffect(() => {
-    //     if (props.toolTipTitle && showTooltip) {
-    //         setTooltipComp(showTooltip(deleteSVGIcon, "heading", {heading: toolTipTitle}, "left", true));
-    //     }
-    // }, [toolTipTitle]);
+    
+    useEffect(() => {
+        if (props.toolTipTitle && showTooltip) {
+            setTooltipComp(showTooltip(deleteSVGIcon, props.toolTipTitle));
+        }
+    }, [toolTipTitle]);
 
     return (
         <svg  {...xyProps} width={DELETE_SVG_WIDTH_WITH_SHADOW} height={DELETE_SVG_HEIGHT_WITH_SHADOW}>
@@ -82,10 +82,13 @@ export function DeleteSVG(props: { x: number, y: number, toolTipTitle?: string, 
                     <feComposite in="SourceGraphic" />
                 </filter>
             </defs>
-            {
+            {props.toolTipTitle && tooltipComp ? (
+                tooltipComp
+            ) : (
                 <g>
                     {deleteSVGIcon}
                 </g>
+            )
             }
         </svg>
     )
