@@ -36,6 +36,7 @@ import {
 } from "../../models/definitions";
 import { StatementEditorContextProvider } from "../../store/statement-editor-context";
 import {
+    enrichModelWithDeletableState,
     getCurrentModel,
     isBindingPattern,
     isOperator
@@ -113,14 +114,14 @@ export function StatementEditor(props: StatementEditorProps) {
     const undo = React.useCallback(() => {
         const undoItem = undoRedoManager.getUndoModel();
         if (undoItem) {
-            setModel(undoItem.oldModel);
+            updateEditedModel(undoItem.oldModel);
         }
     }, []);
 
     const redo = React.useCallback(() => {
         const redoItem = undoRedoManager.getRedoModel();
         if (redoItem) {
-            setModel(redoItem.newModel);
+            updateEditedModel(redoItem.newModel);
         }
     }, []);
 
@@ -131,7 +132,7 @@ export function StatementEditor(props: StatementEditorProps) {
                     { codeSnippet: initialSource.trim() }, getLangClient);
 
                 if (!partialST.syntaxDiagnostics.length) {
-                    setModel(partialST);
+                    updateEditedModel(partialST);
                 }
 
                 sendDidOpen(fileURI, currentFile.content, getLangClient).then();
@@ -224,7 +225,7 @@ export function StatementEditor(props: StatementEditorProps) {
         undoRedoManager.add(model, partialST);
 
         if (!partialST.syntaxDiagnostics.length || config.type === CUSTOM_CONFIG_TYPE) {
-            setModel(partialST);
+            updateEditedModel(partialST);
         }
 
         // Since in list constructor we add expression with comma and close-bracket,
@@ -248,7 +249,7 @@ export function StatementEditor(props: StatementEditorProps) {
             };
         }
 
-        const newCurrentModel = getCurrentModel(currentModelPosition, partialST);
+        const newCurrentModel = getCurrentModel(currentModelPosition, enrichModelWithDeletableState(partialST));
         setCurrentModel({model: newCurrentModel});
     }
 
@@ -279,6 +280,10 @@ export function StatementEditor(props: StatementEditorProps) {
             return splitStatement.join('\n');
         }
         return currentStmt.slice(0, targetColumn) + codeSnippet + currentStmt.slice(endColumn || targetColumn);
+    }
+
+    function updateEditedModel(editedModel: STNode) {
+        setModel(enrichModelWithDeletableState(editedModel));
     }
 
     return (

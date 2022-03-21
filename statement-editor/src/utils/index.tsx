@@ -24,8 +24,10 @@ import * as expressionTypeComponents from '../components/ExpressionTypes';
 import * as statementTypeComponents from '../components/Statements';
 import { OTHER_EXPRESSION, OTHER_STATEMENT, StatementNodes } from "../constants";
 import { ModelKind, RemainingContent } from '../models/definitions';
+import { visitor as DeleteConfigSetupVisitor } from "../visitors/delete-config-setup-visitor";
 import { visitor as ExpressionDeletingVisitor } from "../visitors/expression-deleting-visitor";
 import { visitor as ModelFindingVisitor } from "../visitors/model-finding-visitor";
+import { viewStateSetupVisitor as ViewStateSetupVisitor } from "../visitors/view-state-setup-visitor";
 
 import { createImportStatement, createStatement, updateStatement } from "./statement-modifications";
 
@@ -111,6 +113,13 @@ export function getCurrentModel(position: NodePosition, model: STNode): STNode {
     traversNode(model, ModelFindingVisitor);
 
     return ModelFindingVisitor.getModel();
+}
+
+export function enrichModelWithDeletableState(model: STNode): STNode  {
+    traversNode(model, ViewStateSetupVisitor);
+    traversNode(model, DeleteConfigSetupVisitor);
+
+    return model;
 }
 
 export function getRemainingContent(position: NodePosition, model: STNode): RemainingContent {

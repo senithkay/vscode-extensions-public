@@ -68,7 +68,6 @@ export function MappingConstructorComponent(props: MappingConstructorProps) {
                             key={index}
                             model={expression}
                             onSelect={(event) => onClickOnExpression(expression, event)}
-                            deleteConfig={{defaultExprDeletable: true}}
                         />
                     )
                 ))
