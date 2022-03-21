@@ -602,20 +602,23 @@ function getChangedElement(st: SyntaxTree, change: Change): DiagramOptions {
 		return { isDiagram: false };
 	}
 
-	const member: Member[] = st.members.filter(member => {
+	let member: Member[] = st.members.filter(member => {
 		return isWithinRange(member, change);
 	});
+
+	//Add import members
+	if (st != null && st.hasOwnProperty("imports")) {
+		const imports: Member[] = st["imports"].filter(importStatement => {
+			return isWithinRange(importStatement, change);
+		});
+		member = [ ...member, ...imports];
+	}
 
 	if (member.length == 0) {
 		return { isDiagram: false };
 	}
 
-	if (member[0].kind === 'FunctionDefinition') {
-		return {
-			isDiagram: true, fileUri: change.fileUri, startLine: member[0].functionName?.position.startLine,
-			startColumn: member[0].functionName?.position.startColumn
-		};
-	} else if (member[0].kind === 'ServiceDeclaration') {
+	if (member[0].kind === 'ServiceDeclaration') {
 		for (let ri = 0; ri < member[0].members.length; ri++) {
 			const resource = member[0].members[ri];
 			if (resource.kind === 'ResourceAccessorDefinition' && isWithinRange(resource, change)) {
@@ -632,11 +635,20 @@ function getChangedElement(st: SyntaxTree, change: Change): DiagramOptions {
 
 	} else if (member[0].kind === 'ListenerDeclaration' || member[0].kind === 'ModuleVarDecl' ||
 		member[0].kind === 'TypeDefinition' || member[0].kind === 'ConstDeclaration' ||
-		member[0].kind === 'EnumDeclaration' || member[0].kind === 'ClassDefinition') {
-		return {
-			isDiagram: true, fileUri: change.fileUri, startLine: member[0].position.startLine,
-			startColumn: member[0].position.startColumn
-		};
+		member[0].kind === 'EnumDeclaration' || member[0].kind === 'ClassDefinition' ||
+		member[0].kind === 'ImportDeclaration' || member[0].kind === 'FunctionDefinition') {
+			if (member[0].kind === 'FunctionDefinition') {
+				return {
+					isDiagram: true, fileUri: change.fileUri,
+					startLine: member[0].functionName?.position.startLine,
+					startColumn: member[0].functionName?.position.startColumn
+				};
+			} else {
+				return {
+					isDiagram: true, fileUri: change.fileUri, startLine: member[0].position.startLine,
+					startColumn: member[0].position.startColumn
+				};
+			}
 	}
 	return { isDiagram: false };
 }
