@@ -16,18 +16,15 @@ import React, { ReactNode } from "react";
 import { ElseBlock, STKindChecker } from "@wso2-enterprise/syntax-tree"
 import classNames from "classnames";
 
-import { VariableUserInputs } from "../../../models/definitions";
 import { StatementRenderer } from "../../StatementRenderer";
 import { useStatementEditorStyles } from "../../styles";
 
 interface ElseBlockProps {
-    model: ElseBlock
-    userInputs: VariableUserInputs
-    diagnosticHandler: (diagnostics: string) => void
+    model: ElseBlock;
 }
 
 export function ElseBlockC(props: ElseBlockProps) {
-    const { model, userInputs, diagnosticHandler } = props;
+    const { model } = props;
 
     const statementEditorClasses = useStatementEditorStyles();
 
@@ -59,9 +56,6 @@ export function ElseBlockC(props: ElseBlockProps) {
                 </span>
                 <StatementRenderer
                     model={model?.elseBody}
-                    userInputs={userInputs}
-                    isElseIfMember={true}
-                    diagnosticHandler={diagnosticHandler}
                 />
             </span>
         );

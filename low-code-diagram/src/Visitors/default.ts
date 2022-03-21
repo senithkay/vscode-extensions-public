@@ -25,6 +25,7 @@ class DiagramConfig {
     public offSet: number = 11.5;
 
     public epGap: number = 120;
+    public connectorEPWidth = 150;
 
     public horizontalGapBetweenParentComponents: number = 150;
 

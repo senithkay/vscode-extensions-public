@@ -18,15 +18,14 @@ import { Story } from '@storybook/react/types-6-0';
 import { SuggestionItem } from "../../../models/definitions";
 import varDeclBinaryExprModel from "../../StatementRenderer/data/local-var-decl-with-binary-expr-st-model.json";
 
-import { ExpressionSuggestions, ExpressionSuggestionsProps } from "./index";
+import { ExpressionSuggestions } from "./index";
 
 export default {
     title: 'Low Code Editor/Testing/StatementEditor/ExpressionSuggestions',
     component: ExpressionSuggestions,
 };
 
-const Template: Story<ExpressionSuggestionsProps> = (args: ExpressionSuggestionsProps) =>
-    <ExpressionSuggestions {...args} />;
+const Template: Story = () => <ExpressionSuggestions />;
 
 const expressionSuggestions: SuggestionItem[] = [{ value: "StringLiteral" },
     { value: "Conditional" },

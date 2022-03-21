@@ -227,6 +227,9 @@ export class SizingVisitor implements Visitor {
         const bodyViewState: BlockViewState = body.viewState;
         viewState.collapsed = !expandTracker.isExpanded(getNodeSignature(node));
 
+        // Set isCallerAvailable to false.
+        bodyViewState.isCallerAvailable = false;
+
         // If body has no statements and doesn't have a end component
         // Add the plus button to show up on the start end
         if (!bodyViewState.isEndComponentAvailable && body.statements.length <= 0
@@ -316,6 +319,11 @@ export class SizingVisitor implements Visitor {
     }
 
     public beginVisitResourceAccessorDefinition(node: ResourceAccessorDefinition) {
+        if (node.viewState) {
+            const viewState: FunctionViewState = node.viewState as FunctionViewState;
+            viewState.isResource = true;
+        }
+
         this.beginVisitFunctionDefinition(node);
     }
 
@@ -357,6 +365,9 @@ export class SizingVisitor implements Visitor {
         const trigger = viewState.trigger;
         const end = viewState.end;
 
+        // Mark the body as a resource if function we are in is a resource function.
+        bodyViewState.isResource = viewState.isResource;
+
         trigger.h = START_SVG_HEIGHT;
         trigger.w = START_SVG_WIDTH;
         trigger.lw = START_SVG_WIDTH / 2;
@@ -375,7 +386,7 @@ export class SizingVisitor implements Visitor {
 
         viewState.bBox.h = lifeLine.h + trigger.h + end.bBox.h + (DefaultConfig.serviceVerticalPadding * 2) + DefaultConfig.functionHeaderHeight;
         viewState.bBox.lw = (trigger.lw > bodyViewState.bBox.lw ? trigger.lw : bodyViewState.bBox.lw) + DefaultConfig.serviceFrontPadding;
-        viewState.bBox.rw = (trigger.rw > bodyViewState.bBox.rw ? trigger.rw : bodyViewState.bBox.rw) + DefaultConfig.serviceRearPadding + (allEndpoints.size * 150 * 2);
+        viewState.bBox.rw = (trigger.rw > bodyViewState.bBox.rw ? trigger.rw : bodyViewState.bBox.rw) + DefaultConfig.serviceRearPadding + (allEndpoints.size * (DefaultConfig.connectorEPWidth + DefaultConfig.epGap));
         viewState.bBox.w = viewState.bBox.lw + viewState.bBox.rw;
 
         if (viewState.initPlus && viewState.initPlus.selectedComponent === "PROCESS") {
@@ -415,7 +426,7 @@ export class SizingVisitor implements Visitor {
                 workerVS.bBox.h = workerLifeLine.h + workerTrigger.h + end.bBox.h + DefaultConfig.serviceVerticalPadding * 2
                     + DefaultConfig.functionHeaderHeight;
                 workerVS.bBox.lw = (workerTrigger.lw > workerBodyVS.bBox.lw ? workerTrigger.lw : workerBodyVS.bBox.lw) + DefaultConfig.serviceFrontPadding;
-                workerVS.bBox.rw = (workerTrigger.rw > workerBodyVS.bBox.rw ? workerTrigger.rw : workerBodyVS.bBox.rw) + DefaultConfig.serviceRearPadding + (allEndpoints.size * 150 * 2);
+                workerVS.bBox.rw = (workerTrigger.rw > workerBodyVS.bBox.rw ? workerTrigger.rw : workerBodyVS.bBox.rw) + DefaultConfig.serviceRearPadding;
                 workerVS.bBox.w = workerVS.bBox.lw + workerVS.bBox.rw;
 
                 if (workerVS.initPlus && workerVS.initPlus.selectedComponent === "PROCESS") {
@@ -445,8 +456,8 @@ export class SizingVisitor implements Visitor {
 
             viewState.bBox.h = lifeLine.h + trigger.h + end.bBox.h + DefaultConfig.serviceVerticalPadding * 2 + DefaultConfig.functionHeaderHeight;
             viewState.bBox.lw = (trigger.lw > bodyViewState.bBox.lw ? trigger.lw : bodyViewState.bBox.lw) + DefaultConfig.serviceFrontPadding;
-            viewState.bBox.rw = (trigger.rw > bodyViewState.bBox.rw ? trigger.rw : bodyViewState.bBox.rw) + DefaultConfig.serviceRearPadding + (allEndpoints.size * 150 * 2);
-            viewState.bBox.w = viewState.bBox.lw + viewState.bBox.rw + totalWorkerWidth;
+            viewState.bBox.rw = (trigger.rw > bodyViewState.bBox.rw ? trigger.rw : bodyViewState.bBox.rw) + DefaultConfig.serviceRearPadding + totalWorkerWidth + (allEndpoints.size * (DefaultConfig.connectorEPWidth + DefaultConfig.epGap));
+            viewState.bBox.w = viewState.bBox.lw + viewState.bBox.rw;
 
             const maxWorkerFullHeight = body.namedWorkerDeclarator.workerInitStatements.length * 72 + maxWorkerHeight;
 
@@ -469,6 +480,15 @@ export class SizingVisitor implements Visitor {
 
             this.currentWorker.pop();
             this.cleanMaps();
+        }
+
+        if (body.VisibleEndpoints && body.VisibleEndpoints.length > 0) {
+            for (const value of body.VisibleEndpoints) {
+                if (value.isCaller) {
+                    bodyViewState.isCallerAvailable = value.isCaller;
+                    break;
+                }
+            }
         }
     }
 
@@ -696,7 +716,7 @@ export class SizingVisitor implements Visitor {
 
         viewState.bBox.h = lifeLine.h + trigger.h + end.bBox.h + DefaultConfig.serviceVerticalPadding * 2 + DefaultConfig.functionHeaderHeight;
         viewState.bBox.lw = (trigger.lw > bodyViewState.bBox.lw ? trigger.lw : bodyViewState.bBox.lw) + DefaultConfig.serviceFrontPadding;
-        viewState.bBox.rw = (trigger.rw > bodyViewState.bBox.rw ? trigger.rw : bodyViewState.bBox.rw) + DefaultConfig.serviceRearPadding + allEndpoints.size * 150 * 2;
+        viewState.bBox.rw = (trigger.rw > bodyViewState.bBox.rw ? trigger.rw : bodyViewState.bBox.rw) + DefaultConfig.serviceRearPadding + (allEndpoints.size * (DefaultConfig.connectorEPWidth + DefaultConfig.epGap));
         viewState.bBox.w = viewState.bBox.lw + viewState.bBox.rw;
 
         if (viewState.initPlus && viewState.initPlus.selectedComponent === "PROCESS") {
@@ -793,7 +813,7 @@ export class SizingVisitor implements Visitor {
                 plusAfterWorker.allowWorker = true;
             }
 
-            height += PLUS_SVG_HEIGHT + PROCESS_SVG_HEIGHT;
+            height += DefaultConfig.dotGap * 10;
         }
 
         this.endSizingBlock(node, index + node.statements.length, width, height, index, leftWidth, rightWidth);
@@ -1065,18 +1085,18 @@ export class SizingVisitor implements Visitor {
 
                 elseIfViewState.elseIfLifeLine.h = elseIfViewState.bBox.h - elseIfViewState.headIf.h;
 
-                let diffElseIfWidthWithHeadWidth = 0;
-                if (elseIfBodyViewState.bBox.rw > elseIfViewState.headIf.rw) {
-                    diffElseIfWidthWithHeadWidth = (elseIfBodyViewState.bBox.rw - elseIfViewState.headIf.rw);
+                let diffElseIfWidthWithHeadWidthLeft = 0;
+                if (elseIfBodyViewState.bBox.lw > elseIfViewState.headIf.lw) {
+                    diffElseIfWidthWithHeadWidthLeft = (elseIfBodyViewState.bBox.lw - elseIfViewState.headIf.lw);
                 }
 
                 elseWidth = elseIfViewState.bBox.w;
                 elseLeftWidth = elseIfViewState.bBox.lw;
                 elseRightWidth = elseIfViewState.bBox.rw;
 
-                elseIfViewState.elseIfTopHorizontalLine.length = diffIfWidthWithHeadWidth + elseIfViewState.offSetBetweenIfElse + diffElseIfWidthWithHeadWidth;
+                elseIfViewState.elseIfTopHorizontalLine.length = diffIfWidthWithHeadWidth + elseIfViewState.offSetBetweenIfElse + diffElseIfWidthWithHeadWidthLeft;
                 elseIfViewState.elseIfBottomHorizontalLine.length = (viewState.headIf.rw) + diffIfWidthWithHeadWidth + elseIfViewState.offSetBetweenIfElse
-                    + diffElseIfWidthWithHeadWidth + (elseIfViewState.headIf.rw);
+                    + diffElseIfWidthWithHeadWidthLeft + (elseIfViewState.headIf.lw);
 
                 elseIfViewState.childElseIfViewState.forEach((childViewState: IfViewState) => {
                     viewState.childElseIfViewState.push(childViewState)
@@ -1127,7 +1147,7 @@ export class SizingVisitor implements Visitor {
             elseLeftWidth = defaultElseVS.bBox.lw;
             elseRightWidth = defaultElseVS.bBox.rw;
 
-            defaultElseVS.elseTopHorizontalLine.length = viewState.offSetBetweenIfElse + diffIfWidthWithHeadWidth;
+            defaultElseVS.elseTopHorizontalLine.length =  diffIfWidthWithHeadWidth + viewState.offSetBetweenIfElse;
             defaultElseVS.elseBottomHorizontalLine.length = defaultElseVS.ifHeadWidthOffset +
                 diffIfWidthWithHeadWidth + viewState.offSetBetweenIfElse;
             viewState.childElseViewState = defaultElseVS;
@@ -1398,7 +1418,7 @@ export class SizingVisitor implements Visitor {
 
         ({ index, height, width, leftWidth, rightWidth } = this.calculateStatementSizing(node.statements, index, blockViewState, height, width, lastStatementIndex, leftWidth, rightWidth));
 
-        if (blockViewState.draft && blockViewState.draft[0] === node.statements.length) {
+        if (blockViewState.draft && blockViewState.draft[0] === lastStatementIndex) {
             // Get the draft.
             const draft = blockViewState.draft[1];
             if (draft) {

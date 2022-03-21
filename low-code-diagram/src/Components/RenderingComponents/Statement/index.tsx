@@ -63,6 +63,18 @@ export function StatementC(props: StatementProps) {
                         />
                     );
                 }
+
+                if (!epViewState.isExternal && epViewState.isUsed) {
+                    externalConnector = (
+                        <Connector
+                            model={model}
+                            x={epViewState.lifeLine.cx}
+                            y={epViewState.lifeLine.cy}
+                            h={epViewState.lifeLine.h}
+                            connectorName={viewState.action.endpointName}
+                        />
+                    );
+                }
             }
 
             if (viewState.isEndpoint && viewState.endpoint.epName) {

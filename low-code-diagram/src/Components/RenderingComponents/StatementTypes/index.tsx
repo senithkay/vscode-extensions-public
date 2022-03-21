@@ -12,6 +12,7 @@
  */
 import React, { ReactElement, useEffect, useState } from "react";
 
+import { filterComments } from "../../../Utils";
 import { DefaultConfig } from "../../../Visitors/default";
 import { DefaultTooltip } from "../DefaultTooltip";
 
@@ -28,6 +29,7 @@ export function StatementTypes(props: { x: number, y: number, key_id: number, st
         setStatementTextWidth(document.getElementById("statementLegnth_" + key_id).getBoundingClientRect().width);
     }, []);
 
+    const statementText = filterComments(statementType);
     const statementTypeMaxWidth = 132;
     const statementWidth = statementTextWidth;
     const statmentTypeX = statementTypeMaxWidth - statementWidth;
@@ -39,11 +41,11 @@ export function StatementTypes(props: { x: number, y: number, key_id: number, st
 
     const maxStatementRectX = statementRectwidth + statementTextPadding;
 
-    const statmentTypeMaxWidth = statementType && statementType.length >= 12;
+    const statmentTypeMaxWidth = statementText && statementText.length >= 12;
     const statementReactX = statmentTypeMaxWidth ?
         (statementRectX - statementTextPadding) : (statementRectX - statementTextPadding / 2);
 
-    const statementTruncate = statmentTypeMaxWidth && statementType && statementType.slice(0, 10);
+    const statementTruncate = statmentTypeMaxWidth && statementText && statementText.slice(0, 10);
 
     const statementRect: ReactElement = (
         <g className="statement-text-wrapper">
@@ -54,7 +56,7 @@ export function StatementTypes(props: { x: number, y: number, key_id: number, st
                 stroke="none"
             />
             <rect
-                x={statementReactX}
+                x={statementReactX - 2}
                 y="0"
                 width={statmentTypeMaxWidth ? maxStatementRectX : statementRectwidth}
                 height="13.25"
@@ -77,20 +79,20 @@ export function StatementTypes(props: { x: number, y: number, key_id: number, st
             <text className="statement-name">
 
                 <tspan
-                    x={statmentTypeMaxWidth ? statmentTypeX - statementTextPadding : statmentTypeX}
+                    x={statmentTypeMaxWidth ? (statmentTypeX - statementTextPadding - 2) : statmentTypeX}
                     id={"statementLegnth_" + key_id}
                     y="10"
                 >
-                    {statmentTypeMaxWidth ? statementTruncateText : statementType}
+                    {statmentTypeMaxWidth ? statementTruncateText : statementText}
                 </tspan>
             </text>
-            {statementType && statementType.length > 0 && statementRect}
+            {statementText && statementText.length > 0 && statementRect}
         </g>
     );
 
     return (
         <svg {...xyProps} width="150" height="24" className="statement-wrapper">
-            <DefaultTooltip text={{ heading: statementType }}>{statementTypeTextGroup}</DefaultTooltip>
+            <DefaultTooltip text={{ heading: statementText }}>{statementTypeTextGroup}</DefaultTooltip>
         </svg>
     );
 }

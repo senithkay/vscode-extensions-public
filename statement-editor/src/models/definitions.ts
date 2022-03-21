@@ -11,7 +11,18 @@
  * associated services.
  */
 
-import {NodePosition} from "@wso2-enterprise/syntax-tree";
+import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
+
+export enum ModelKind {
+    Operator,
+    TypeDesc,
+    BindingPattern
+}
+
+export interface CurrentModel {
+    model: STNode,
+    kind?: ModelKind
+}
 
 export interface VariableUserInputs {
     selectedType: string

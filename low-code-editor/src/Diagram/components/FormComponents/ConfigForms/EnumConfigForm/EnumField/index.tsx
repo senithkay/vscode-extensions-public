@@ -149,16 +149,20 @@ export function EnumField(props: CodePanelProps) {
     const handleValidity = (event: any) => {
         if (!event.target.value) {
             enumModel.name = genEnumName("Enum", []);
-            state.currentField = getNewField();
-            callBacks.onUpdateCurrentField(state.currentField);
+            if (state.currentEnum.fields.length === 0) {
+                state.currentField = getNewField();
+                callBacks.onUpdateCurrentField(state.currentField);
+            }
             setIsEnumEditInProgress(false);
             setEnumNameError("");
             callBacks.onUpdateEnumSelection(false);
             callBacks.onChangeFormState(FormState.UPDATE_FIELD);
             callBacks.updateEditorValidity(false);
         } else if (nameRegex.test(event.target.value)) {
-            state.currentField = getNewField();
-            callBacks.onUpdateCurrentField(state.currentField);
+            if (state.currentEnum.fields.length === 0) {
+                state.currentField = getNewField();
+                callBacks.onUpdateCurrentField(state.currentField);
+            }
             setIsEnumEditInProgress(false);
             setEnumNameError("");
             callBacks.onUpdateEnumSelection(false);
