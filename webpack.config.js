@@ -4,6 +4,7 @@
 
 const path = require('path');
 const MergeIntoSingleFile = require('webpack-merge-and-include-globally');
+const CopyPlugin = require("copy-webpack-plugin");
 
 /** @type {import('webpack').Configuration} */
 module.exports = {
@@ -55,6 +56,11 @@ module.exports = {
       transform: {
         'webviewCommons.js': code => require("uglify-js").minify(code).code
       }
+    }),
+    new CopyPlugin({
+      patterns: [
+        { from: "dist/webviewCommons.js", to: "../resources/jslibs" },
+      ],
     }),
   ]
 };

@@ -50,13 +50,6 @@ task copyConfigEditorDeps(type: Copy) {
     include "ConfigEditor.js"
 }
 
-task copyWebViewCommonsDeps(type: Copy) {
-    dependsOn npmBuild
-    from "$rootDir/dist"
-    into "$rootDir/resources/jslibs"
-    include "webviewCommons.js"
-}
-
 npmBuild() {
     dependsOn ':bbe-viewer:buildBBEViewer'
     dependsOn ':perf-viewer:buildPerfViewer'
@@ -93,7 +86,6 @@ npmBuild() {
 
 task assemble(overwrite: true) {
     dependsOn 'npmBuild'
-    dependsOn copyWebViewCommonsDeps
 }
 
 task test(type: Exec) {
