@@ -353,6 +353,30 @@
                 "command": "ballerina.pasteAsRecord",
                 "title": "Paste JSON as Record",
                 "category": "Ballerina"
+            },
+            {
+                "command": "ballerina.notebook.restartnotebook",
+                "title": "Restart Notebook",
+                "icon": {
+                    "light": "./resources/images/icons/refresh.svg",
+                    "dark": "./resources/images/icons/refresh-inverse.svg"
+                },
+                "category": "Ballerina",
+                "when": "notebookType == 'ballerina-notebook' && isWorkspaceTrusted"
+            },
+            {
+                "command": "ballerina.notebook.openVariableView",
+                "title": "Variables",
+                "icon": "$(zap)",
+                "category": "Ballerina",
+                "enablement": "notebookType == 'ballerina-notebook' && isWorkspaceTrusted"
+            },
+            {
+                "command": "ballerina.notebook.openOutlineView",
+                "title": "Outline",
+                "icon": "$(list-unordered)",
+                "category": "Ballerina",
+                "enablement": "notebookType == 'ballerina-notebook'"
             }
         ],
         "views": {
@@ -417,6 +441,26 @@
                     "when": "isBallerinaDiagram",
                     "command": "ballerina.show.source",
                     "group": "navigation"
+                }
+            ],
+            "notebook/toolbar": [
+                {
+                    "command": "ballerina.notebook.restartnotebook",
+                    "title": "Restart Notebook",
+                    "group": "navigation@1",
+                    "when": "notebookType == 'ballerina-notebook' && isWorkspaceTrusted"
+                },
+                {
+                    "command": "ballerina.notebook.openVariableView",
+                    "title": "Variables",
+                    "group": "navigation@2",
+                    "when": "notebookType == 'ballerina-notebook' && isWorkspaceTrusted"
+                },
+                {
+                    "command": "ballerina.notebook.openOutlineView",
+                    "title": "Outline",
+                    "group": "navigation@3",
+                    "when": "notebookType == 'ballerina-notebook'"
                 }
             ],
             "view/item/context": [
