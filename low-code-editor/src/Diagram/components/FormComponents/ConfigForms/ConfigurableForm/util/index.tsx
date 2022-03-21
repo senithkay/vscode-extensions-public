@@ -11,11 +11,11 @@
  * associated services.
  */
 
-import {STSymbolInfo} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { STSymbolInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { CaptureBindingPattern, MappingConstructor, ModuleVarDecl, SimpleNameReference, SpecificField, STKindChecker, TypedBindingPattern } from "@wso2-enterprise/syntax-tree";
 
-import {getAllModuleVariables} from "../../../../../utils/mixins";
-import {genVariableName} from "../../../../Portals/utils";
+import { getAllModuleVariables } from "../../../../../utils/mixins";
+import { genVariableName } from "../../../../Portals/utils";
 
 export const ModuleVarNameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
 
@@ -51,7 +51,11 @@ export function getFormConfigFromModel(model: any, stSymbolInfo: STSymbolInfo): 
         const typeData = model.initializer.typeData;
 
         if (model?.typedBindingPattern?.typeDescriptor) {
-            defaultFormState.varType = model?.typedBindingPattern?.typeDescriptor?.name?.value;
+            if (STKindChecker.isQualifiedNameReference(model.typedBindingPattern.typeDescriptor)) {
+                defaultFormState.varType = model?.typedBindingPattern?.typeDescriptor?.source.trim(); 
+            } else if (STKindChecker.isSimpleNameReference(model.typedBindingPattern.typeDescriptor)) {
+                defaultFormState.varType = model?.typedBindingPattern?.typeDescriptor?.name?.value;
+            }
         } else if (typeData) {
             const typeSymbol = typeData.typeSymbol;
             if (typeSymbol) {
@@ -65,7 +69,7 @@ export function getFormConfigFromModel(model: any, stSymbolInfo: STSymbolInfo): 
         defaultFormState.varValue = model.initializer.source === "?" ? "" : model.initializer.source;
         const configurableNameValue = ((model.typedBindingPattern as TypedBindingPattern)
             .bindingPattern as CaptureBindingPattern).variableName.value;
-        defaultFormState.varName  = configurableNameValue;
+        defaultFormState.varName = configurableNameValue;
 
         const displayAnnotation = (model as ModuleVarDecl)
             .metadata?.annotations?.filter(annotation =>
