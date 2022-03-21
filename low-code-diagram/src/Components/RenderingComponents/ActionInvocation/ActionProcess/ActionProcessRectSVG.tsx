@@ -16,7 +16,6 @@ import React, { ReactNode, useContext, useEffect, useState } from "react";
 
 import { STNode } from "@wso2-enterprise/syntax-tree";
 
-import { DiagramTooltipCodeSnippet } from "../../../../../../low-code-ui-components";
 import { Context } from "../../../../Context/diagram";
 import { ErrorSnippet } from "../../../../Types/type";
 import { DefaultTooltip } from "../../DefaultTooltip";
