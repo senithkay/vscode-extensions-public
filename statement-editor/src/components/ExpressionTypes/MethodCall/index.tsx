@@ -23,7 +23,9 @@ import { SuggestionsContext } from "../../../store/suggestions-context";
 import { getSuggestionsBasedOnExpressionKind, isPositionsEquals } from "../../../utils";
 import { addStatementToTargetLine, getContextBasedCompletions } from "../../../utils/ls-utils";
 import { ExpressionComponent } from "../../Expression";
+import { ExpressionArrayComponent } from "../../ExpressionArray";
 import { useStatementEditorStyles } from "../../styles";
+import { TokenComponent } from "../../Token";
 
 interface MethodCallProps {
     model: MethodCall;
@@ -43,31 +45,12 @@ export function MethodCallComponent(props: MethodCallProps) {
     const fileURI = `expr://${currentFile.path}`;
 
     const expressionArgComponent = (
-        <span>
-            {
-                model.arguments.map((argument: STNode, index: number) => (
-                    (STKindChecker.isCommaToken(argument)) ? (
-                        <span
-                            key={index}
-                            className={classNames(
-                                statementEditorClasses.expressionBlock,
-                                statementEditorClasses.expressionBlockDisabled
-                            )}
-                        >
-                            {argument.value}
-                        </span>
-                    ) : (
-                        <ExpressionComponent
-                            model={argument}
-                            userInputs={userInputs}
-                            isElseIfMember={isElseIfMember}
-                            diagnosticHandler={diagnosticHandler}
-                            isTypeDescriptor={false}
-                        />
-                    )
-                ))
-            }
-        </span>
+        <ExpressionArrayComponent
+            expressions={model.arguments}
+            userInputs={userInputs}
+            isElseIfMember={isElseIfMember}
+            diagnosticHandler={diagnosticHandler}
+        />
     );
 
     const onClickOnExpression = async (event: any) => {
@@ -124,37 +107,16 @@ export function MethodCallComponent(props: MethodCallProps) {
             isTypeDescriptor={false}
             onSelect={onClickOnMethodName}
         >
-            <span
-                className={classNames(
-                    statementEditorClasses.expressionBlock,
-                    statementEditorClasses.expressionBlockDisabled
-                )}
-            >
-                {model.openParenToken.value}
-            </span>
+            <TokenComponent model={model.openParenToken} />
             {expressionArgComponent}
-            <span
-                className={classNames(
-                    statementEditorClasses.expressionBlock,
-                    statementEditorClasses.expressionBlockDisabled
-                )}
-            >
-                {model.closeParenToken.value}
-            </span>
+            <TokenComponent model={model.closeParenToken} />
         </ExpressionComponent>
     );
 
     return (
         <span>
             {expression}
-            <span
-                className={classNames(
-                    statementEditorClasses.expressionBlock,
-                    statementEditorClasses.expressionBlockDisabled
-                )}
-            >
-                {model.dotToken.value}
-            </span>
+            <TokenComponent model={model.dotToken} />
             {methodName}
         </span>
     );

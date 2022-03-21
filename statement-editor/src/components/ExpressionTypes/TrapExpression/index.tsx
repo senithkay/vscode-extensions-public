@@ -12,8 +12,7 @@
  */
 import React, { ReactNode, useContext } from "react";
 
-import { CheckAction, CheckExpression } from "@wso2-enterprise/syntax-tree";
-import classNames from "classnames";
+import { TrapExpression } from "@wso2-enterprise/syntax-tree";
 
 import { DEFAULT_EXPRESSIONS } from "../../../constants";
 import { VariableUserInputs } from "../../../models/definitions";
@@ -21,17 +20,16 @@ import { StatementEditorContext } from "../../../store/statement-editor-context"
 import { SuggestionsContext } from "../../../store/suggestions-context";
 import { getSuggestionsBasedOnExpressionKind, isPositionsEquals } from "../../../utils";
 import { ExpressionComponent } from "../../Expression";
-import { useStatementEditorStyles } from "../../styles";
 import { TokenComponent } from "../../Token";
 
-interface CheckActionProps {
-    model: CheckAction | CheckExpression
+interface TrapExpressionProps {
+    model: TrapExpression
     userInputs: VariableUserInputs
     diagnosticHandler: (diagnostics: string) => void
     isElseIfMember: boolean
 }
 
-export function CheckActionComponent(props: CheckActionProps) {
+export function TrapExpressionComponent(props: TrapExpressionProps) {
     const { model, userInputs, diagnosticHandler, isElseIfMember } = props;
     const stmtCtx = useContext(StatementEditorContext);
 
@@ -56,7 +54,7 @@ export function CheckActionComponent(props: CheckActionProps) {
     );
     return (
         <span>
-            <TokenComponent model={model.checkKeyword} className={"keyword"} />
+            <TokenComponent model={model.trapKeyword} className={"keyword"} />
             {expressionComponent}
         </span>
     );

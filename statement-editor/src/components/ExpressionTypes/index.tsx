@@ -43,6 +43,7 @@ import { JsonTypeDescComponent } from './TypeDescriptor/JsonTypeDesc';
 import { StringTypeDescComponent } from './TypeDescriptor/StringTypeDesc';
 import { VarTypeDescComponent } from './TypeDescriptor/VarTypeDesc';
 import { TypeTestExpressionComponent} from "./TypeTestExpression";
+import { UnaryExpressionComponent } from './UnaryExpression';
 
 export { BinaryExpressionComponent as BinaryExpression };
 export { CaptureBindingPatternComponent as CaptureBindingPattern };
@@ -94,6 +95,8 @@ export { OperatorComponent as PlusToken };
 export { OperatorComponent as SlashToken };
 export { OperatorComponent as TrippleEqualToken };
 export { CheckActionComponent as CheckAction };
+export { CheckActionComponent as CheckExpression };
 export { RemoteMethodCallActionComponent as RemoteMethodCallAction };
 export { ListBindingPatternComponent as ListBindingPattern };
 export { MappingBindingPatternComponent as MappingBindingPattern };
+export { UnaryExpressionComponent as UnaryExpression }

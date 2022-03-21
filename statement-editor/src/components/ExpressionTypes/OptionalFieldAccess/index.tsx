@@ -24,6 +24,7 @@ import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
 import { addStatementToTargetLine, getContextBasedCompletions } from "../../../utils/ls-utils";
 import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
+import { TokenComponent } from "../../Token";
 
 interface OptionalFieldAccessProps {
     model: OptionalFieldAccess;
@@ -74,14 +75,7 @@ export function OptionalFieldAccessComponent(props: OptionalFieldAccessProps) {
             isTypeDescriptor={false}
             onSelect={onClickOnExpr}
         >
-            <span
-                className={classNames(
-                    statementEditorClasses.expressionBlock,
-                    statementEditorClasses.expressionBlockDisabled
-                )}
-            >
-                {model.optionalChainingToken.value}
-            </span>
+            <TokenComponent model={model.optionalChainingToken} />
             <ExpressionComponent
                 model={model.fieldName}
                 userInputs={userInputs}

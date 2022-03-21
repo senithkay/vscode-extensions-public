@@ -22,7 +22,7 @@ import { StatementEditorContext } from "../../../store/statement-editor-context"
 import { SuggestionsContext } from "../../../store/suggestions-context";
 import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
 import { addStatementToTargetLine, getContextBasedCompletions } from "../../../utils/ls-utils";
-import { ExpressionComponent } from "../../Expression";
+import { ExpressionArrayComponent } from "../../ExpressionArray";
 import { useStatementEditorStyles } from "../../styles";
 
 interface ListConstructorProps {
@@ -66,34 +66,12 @@ export function ListConstructorComponent(props: ListConstructorProps) {
     };
 
     const expressionComponent = (
-        <span>
-            {
-                model.expressions.map((expression: STNode, index: number) => (
-                    (STKindChecker.isCommaToken(expression)) ? (
-                        <span
-                            key={index}
-                            className={classNames(
-                                statementEditorClasses.expressionBlock,
-                                statementEditorClasses.expressionBlockDisabled
-                            )}
-                        >
-                            {expression.value}
-                        </span>
-                    ) : (
-                        <ExpressionComponent
-                            key={index}
-                            model={expression}
-                            userInputs={userInputs}
-                            isElseIfMember={isElseIfMember}
-                            diagnosticHandler={diagnosticHandler}
-                            isTypeDescriptor={false}
-                            onSelect={(event) => onClickOnExpression(expression, event)}
-                            deleteConfig={{defaultExprDeletable: true}}
-                        />
-                    )
-                ))
-            }
-        </span>
+        <ExpressionArrayComponent
+            expressions={model.expressions}
+            userInputs={userInputs}
+            isElseIfMember={isElseIfMember}
+            diagnosticHandler={diagnosticHandler}
+        />
     );
 
     const onClickOnPlusIcon = (event: any) => {

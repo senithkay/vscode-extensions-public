@@ -25,6 +25,7 @@ import { addStatementToTargetLine, getContextBasedCompletions } from "../../../u
 import { ExpressionComponent } from "../../Expression";
 import { InputEditor } from "../../InputEditor";
 import { useStatementEditorStyles } from "../../styles";
+import { TokenComponent } from "../../Token";
 
 interface SpecificFieldProps {
     model: SpecificField;
@@ -121,14 +122,7 @@ export function SpecificFieldComponent(props: SpecificFieldProps) {
     return (
         <span>
             {fieldName}
-            <span
-                className={classNames(
-                    statementEditorClasses.expressionBlock,
-                    statementEditorClasses.expressionBlockDisabled
-                )}
-            >
-                {model.colon.value}
-            </span>
+            <TokenComponent model={model.colon} />
             {valueExpression}
         </span>
     );

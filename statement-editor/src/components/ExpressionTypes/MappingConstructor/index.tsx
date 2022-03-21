@@ -24,6 +24,7 @@ import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
 import { generateExpressionTemplate } from "../../../utils/utils";
 import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
+import { TokenComponent } from "../../Token";
 
 interface MappingConstructorProps {
     model: MappingConstructor;
@@ -89,14 +90,7 @@ export function MappingConstructorComponent(props: MappingConstructorProps) {
 
     return (
         <span>
-            <span
-                className={classNames(
-                    statementEditorClasses.expressionBlock,
-                    statementEditorClasses.expressionBlockDisabled
-                )}
-            >
-                {model.openBrace.value}
-            </span>
+            <TokenComponent model={model.openBrace} />
             {fieldsComponent}
             <span
                 className={statementEditorClasses.plusIcon}
@@ -104,14 +98,7 @@ export function MappingConstructorComponent(props: MappingConstructorProps) {
             >
                 +
             </span>
-            <span
-                className={classNames(
-                    statementEditorClasses.expressionBlock,
-                    statementEditorClasses.expressionBlockDisabled
-                )}
-            >
-                {model.closeBrace.value}
-            </span>
+            <TokenComponent model={model.closeBrace} />
         </span>
     );
 }

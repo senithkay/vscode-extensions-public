@@ -23,7 +23,9 @@ import { SuggestionsContext } from "../../../store/suggestions-context";
 import { getSuggestionsBasedOnExpressionKind, isPositionsEquals } from "../../../utils";
 import { addStatementToTargetLine, getContextBasedCompletions } from "../../../utils/ls-utils";
 import { ExpressionComponent } from "../../Expression";
+import { ExpressionArrayComponent } from "../../ExpressionArray";
 import { useStatementEditorStyles } from "../../styles";
+import { TokenComponent } from "../../Token";
 
 interface FunctionCallProps {
     model: FunctionCall;
@@ -59,31 +61,12 @@ export function FunctionCallComponent(props: FunctionCallProps) {
     }
 
     const expressionComponent = (
-        <span>
-            {
-                model.arguments.map((expression: STNode, index: number) => (
-                    (STKindChecker.isCommaToken(expression)) ? (
-                        <span
-                            key={index}
-                            className={classNames(
-                                statementEditorClasses.expressionBlock,
-                                statementEditorClasses.expressionBlockDisabled
-                            )}
-                        >
-                            {expression.value}
-                        </span>
-                    ) : (
-                        <ExpressionComponent
-                            model={expression}
-                            userInputs={userInputs}
-                            isElseIfMember={isElseIfMember}
-                            diagnosticHandler={diagnosticHandler}
-                            isTypeDescriptor={false}
-                        />
-                    )
-                ))
-            }
-        </span>
+        <ExpressionArrayComponent
+            expressions={model.arguments}
+            userInputs={userInputs}
+            isElseIfMember={isElseIfMember}
+            diagnosticHandler={diagnosticHandler}
+        />
     );
 
     const functionName: ReactNode = (
@@ -95,23 +78,10 @@ export function FunctionCallComponent(props: FunctionCallProps) {
             isTypeDescriptor={false}
             onSelect={onClickOnFunctionCallExpr}
         >
-            <span
-                className={classNames(
-                    statementEditorClasses.expressionBlock,
-                    statementEditorClasses.expressionBlockDisabled
-                )}
-            >
-                {model.openParenToken.value}
-            </span>
+            <TokenComponent model={model.openParenToken} />
+
             {expressionComponent}
-            <span
-                className={classNames(
-                    statementEditorClasses.expressionBlock,
-                    statementEditorClasses.expressionBlockDisabled
-                )}
-            >
-                {model.closeParenToken.value}
-            </span>
+            <TokenComponent model={model.closeParenToken} />
         </ExpressionComponent>
     );
 

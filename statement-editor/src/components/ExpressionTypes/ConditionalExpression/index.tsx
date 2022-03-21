@@ -24,6 +24,7 @@ import { getSuggestionsBasedOnExpressionKind, isPositionsEquals } from "../../..
 import { addStatementToTargetLine, getContextBasedCompletions } from "../../../utils/ls-utils";
 import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
+import { TokenComponent } from "../../Token";
 
 interface ConditionalExpressionProps {
     model: ConditionalExpression;
@@ -129,25 +130,9 @@ export function ConditionalExpressionComponent(props: ConditionalExpressionProps
     return (
         <span>
             {lhsExpression}
-            <span
-                className={classNames(
-                    statementEditorClasses.expressionBlock,
-                    statementEditorClasses.expressionBlockDisabled,
-                    "operator"
-                )}
-            >
-                &nbsp;{model.questionMarkToken.value}
-            </span>
+            <TokenComponent model={model.questionMarkToken} className={"operator"} />
             {middleExpression}
-            <span
-                className={classNames(
-                    statementEditorClasses.expressionBlock,
-                    statementEditorClasses.expressionBlockDisabled,
-                    "operator"
-                )}
-            >
-                &nbsp;{model.colonToken.value}
-            </span>
+            <TokenComponent model={model.colonToken} className={"operator"} />
             {endExpression}
         </span>
     );

@@ -23,7 +23,9 @@ import { SuggestionsContext } from "../../../store/suggestions-context";
 import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
 import { addStatementToTargetLine, getContextBasedCompletions } from "../../../utils/ls-utils";
 import { ExpressionComponent } from "../../Expression";
+import { ExpressionArrayComponent } from "../../ExpressionArray";
 import { useStatementEditorStyles } from "../../styles";
+import { TokenComponent } from "../../Token";
 
 interface RemoteMethodCallActionProps {
     model: RemoteMethodCallAction;
@@ -43,32 +45,12 @@ export function RemoteMethodCallActionComponent(props: RemoteMethodCallActionPro
     const fileURI = `expr://${currentFile.path}`;
 
     const expressionArgComponent = (
-        <span>
-            { model.arguments.length > 0 &&
-                (model.arguments.map((argument: STNode, index: number) => (
-                    (STKindChecker.isCommaToken(argument)) ? (
-                        <span
-                            key={index}
-                            className={classNames(
-                                statementEditorClasses.expressionBlock,
-                                statementEditorClasses.expressionBlockDisabled
-                            )}
-                        >
-                            {argument.value}
-                        </span>
-                    ) : (
-                        <ExpressionComponent
-                            model={argument}
-                            userInputs={userInputs}
-                            isElseIfMember={isElseIfMember}
-                            diagnosticHandler={diagnosticHandler}
-                            isTypeDescriptor={false}
-                        />
-                    )
-                ))
-                )
-            }
-        </span>
+        <ExpressionArrayComponent
+            expressions={model.arguments}
+            userInputs={userInputs}
+            isElseIfMember={isElseIfMember}
+            diagnosticHandler={diagnosticHandler}
+        />
     );
 
     const onClickOnExpression = async (event: any) => {
@@ -114,23 +96,9 @@ export function RemoteMethodCallActionComponent(props: RemoteMethodCallActionPro
             isTypeDescriptor={false}
             onSelect={onClickOnMethodName}
         >
-            <span
-                className={classNames(
-                    statementEditorClasses.expressionBlock,
-                    statementEditorClasses.expressionBlockDisabled
-                )}
-            >
-                {model.openParenToken.value}
-            </span>
+            <TokenComponent model={model.openParenToken} />
             {expressionArgComponent}
-            <span
-                className={classNames(
-                    statementEditorClasses.expressionBlock,
-                    statementEditorClasses.expressionBlockDisabled
-                )}
-            >
-                {model.closeParenToken.value}
-            </span>
+            <TokenComponent model={model.closeParenToken} />
         </ExpressionComponent>
     );
 
@@ -148,15 +116,7 @@ export function RemoteMethodCallActionComponent(props: RemoteMethodCallActionPro
     return (
         <span>
             {expression}
-            <span
-                className={classNames(
-                    statementEditorClasses.expressionBlock,
-                    statementEditorClasses.expressionBlockDisabled,
-                    "operator"
-                )}
-            >
-                {model.rightArrowToken.value}
-            </span>
+            <TokenComponent model={model.rightArrowToken} className={"operator"} />
             {methodName}
         </span>
     );

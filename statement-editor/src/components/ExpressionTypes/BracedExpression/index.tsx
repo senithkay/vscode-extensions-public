@@ -22,6 +22,7 @@ import { SuggestionsContext } from "../../../store/suggestions-context";
 import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
 import { addStatementToTargetLine, getContextBasedCompletions } from "../../../utils/ls-utils";
 import { ExpressionComponent } from "../../Expression";
+import { TokenComponent } from "../../Token";
 
 interface BracedExprProps {
     model: BracedExpression;
@@ -67,9 +68,9 @@ export function BracedExpressionComponent(props: BracedExprProps) {
     />;
     return (
         <span>
-            <span>(</span>
+            <TokenComponent model={model.openParen} />
             {expressionComponent}
-            <span>)</span>
+            <TokenComponent model={model.closeParen} />
         </span>
     );
 }

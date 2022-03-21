@@ -24,6 +24,7 @@ import { getSuggestionsBasedOnExpressionKind, isPositionsEquals } from "../../..
 import { addStatementToTargetLine, getContextBasedCompletions } from "../../../utils/ls-utils";
 import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
+import { TokenComponent } from "../../Token";
 
 interface IndexedExpressionProps {
     model: IndexedExpression;
@@ -100,23 +101,9 @@ export function IndexedExpressionComponent(props: IndexedExpressionProps) {
     return (
         <span>
             {containerExpr}
-            <span
-                className={classNames(
-                    statementEditorClasses.expressionBlock,
-                    statementEditorClasses.expressionBlockDisabled
-                )}
-            >
-                {model.openBracket.value}
-            </span>
+            <TokenComponent model={model.openBracket} />
             {keyExprComponent}
-            <span
-                className={classNames(
-                    statementEditorClasses.expressionBlock,
-                    statementEditorClasses.expressionBlockDisabled
-                )}
-            >
-                {model.closeBracket.value}
-            </span>
+            <TokenComponent model={model.closeBracket} />
         </span>
     );
 }
