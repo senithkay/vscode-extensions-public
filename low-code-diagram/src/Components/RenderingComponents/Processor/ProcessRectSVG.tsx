@@ -15,11 +15,11 @@ import React, { useContext, useEffect, useState } from "react";
 
 import { STNode } from "@wso2-enterprise/syntax-tree";
 
-import { DiagramTooltipCodeSnippet } from "../../../../../low-code-ui-components";
 import { Context } from "../../../Context/diagram";
 import { ErrorSnippet } from "../../../Types/type";
 
 import "./style.scss"
+import { DefaultTooltip } from "../DefaultTooltip";
 
 interface ProcessRectSVGProps {
     type?: string,
@@ -38,7 +38,8 @@ export function ProcessRectSVG(props: ProcessRectSVGProps) {
     const diagnosticStyles = diagnostic?.severity === "ERROR" ? "data-processor-error" : "data-processor-warning";
     const processRectStyles = diagnostic.diagnosticMsgs ? diagnosticStyles : "data-processor process-active"
     const [tooltip, setTooltip] = useState(undefined);
-    const [diagTooltip, setDiagTooltip] = useState(undefined);
+    const [tooltipComp, setTooltipComp] = useState(undefined);
+    const sourceSnippet = model?.source;
 
     const rectSVG = (
         <g id="Process" className={processRectStyles} transform="translate(-221.5 -506)">
@@ -53,21 +54,18 @@ export function ProcessRectSVG(props: ProcessRectSVGProps) {
     );
 
     const defaultTooltip = (
-        <DiagramTooltipCodeSnippet componentModel={model} onClick={onClick} >{rectSVG}</DiagramTooltipCodeSnippet>
+        <DefaultTooltip text={sourceSnippet}>{rectSVG}</DefaultTooltip>
     );
+
     useEffect(() => {
         if (model && showTooltip) {
-            setDiagTooltip(showTooltip(rectSVG, undefined,onClick, model));
+            setTooltipComp(showTooltip(rectSVG, undefined, onClick, model));
         }
-        return () => {
-            setTooltip(undefined);
-            setDiagTooltip(undefined);
-        };
     }, [model]);
 
     return (
         <>
-            {defaultTooltip}
+            {tooltipComp ? tooltipComp : defaultTooltip}
         </>
     );
 }
