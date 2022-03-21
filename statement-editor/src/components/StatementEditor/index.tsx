@@ -38,6 +38,7 @@ import {
 import { StatementEditorContextProvider } from "../../store/statement-editor-context";
 import {
     enrichModelWithDeletableState,
+    enrichModelWithDiagnostics,
     getCurrentModel,
     getFilteredDiagnosticMessages,
     isBindingPattern,
@@ -106,7 +107,7 @@ export function StatementEditor(props: StatementEditorProps) {
     const [model, setModel] = useState<STNode>(null);
     const [currentModel, setCurrentModel] = useState<CurrentModel>({ model });
     const [stmtDiagnostics, setStmtDiagnostics] = useState<StmtDiagnostic[]>([]);
-    const [_, setDiagnosticResp] = useState<Diagnostic[]>([]);
+    const [diagnosticResp, setDiagnosticResp] = useState<Diagnostic[]>([]);
     const [moduleList, setModuleList] = useState(new Set<string>());
     const [lsSuggestionsList, setLSSuggestionsList] = useState([]);
 
@@ -292,6 +293,7 @@ export function StatementEditor(props: StatementEditorProps) {
     }
 
     function updateEditedModel(editedModel: STNode) {
+        editedModel = enrichModelWithDiagnostics(diagnosticResp, targetPosition, editedModel);
         setModel(enrichModelWithDeletableState(editedModel));
     }
 
