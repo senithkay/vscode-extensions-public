@@ -65,15 +65,13 @@ export function Constant(props: ConstantProps) {
         <tspan x="0" y="0">{typeMaxWidth ? varType.slice(0, 10) + "..." : varType}</tspan>
     );
 
-    // TODO:Add new tooltip component to support this scenario
-    // useEffect(() => {
-    //     if (model && showTooltip) {
-    //         setTooltip(showTooltip(typeText, "heading", { heading: model.source.slice(1, -1) }, "top-start", true, undefined, undefined, false, undefined, {
-    //             inverted: false,
-    //             interactive: true
-    //         }));
-    //     }
-    // }, [model]);
+
+    useEffect(() => {
+        if (model && showTooltip) {
+            setTooltip(showTooltip(typeText, model.source.slice(1, -1)));
+        }
+    }, [model]);
+
 
     return (
         <div>
@@ -86,7 +84,7 @@ export function Constant(props: ConstantProps) {
                         <ConstantIcon />
                     </div>
                     <div className={"const-type-text"}>
-                        {typeText}
+                        {tooltip ? tooltip : typeText}
                     </div>
                     <div className={"const-name-text"}>
                         <tspan x="0" y="0">{nameMaxWidth ? varName.slice(0, 20) + "..." : varName}</tspan>

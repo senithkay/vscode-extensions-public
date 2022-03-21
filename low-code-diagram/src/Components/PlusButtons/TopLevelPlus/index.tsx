@@ -75,12 +75,6 @@ export const TopLevelPlus = (props: PlusProps) => {
         setPlusOptions(undefined);
     };
 
-    // useEffect(() => {
-    //     if (!isDocumentEmpty && showTooltip) {
-    //         setDiagTooltip(showTooltip(<TopLevelPlusIcon />,'Add Construct'));
-    //     }
-    // }, [isDocumentEmpty])
-
     useEffect(() => {
         if (!isDocumentEmpty && showTooltip) {
             setTooltip(showTooltip(<TopLevelPlusIcon />, "Add Construct"));
