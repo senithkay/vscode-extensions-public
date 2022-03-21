@@ -15,9 +15,9 @@ import React, { ReactNode, useContext, useEffect, useState } from "react";
 
 import { STNode } from "@wso2-enterprise/syntax-tree";
 
-import { DiagramTooltipCodeSnippet } from "../../../../../low-code-ui-components";
 import { Context } from "../../../Context/diagram";
 import { ErrorSnippet } from "../../../Types/type";
+import { DefaultTooltip } from "../DefaultTooltip";
 interface WhileRectSVGProps {
     type?: string,
     className?: string,
@@ -34,8 +34,8 @@ export function WhileRectSVG(props: WhileRectSVGProps) {
     const whileRectStyles = diagnostic?.diagnosticMsgs ? diagnosticStyles : "while-block";
     const diagramContext = useContext(Context);
     const showTooltip = diagramContext?.api?.edit?.showTooltip;
-    const [tooltip, setTooltip] = useState(undefined);
-    const [diagTooltip, setDiagTooltip] = useState(undefined);
+    const [tooltipComp, setTooltipComp] = useState(undefined);
+    const sourceSnippet = model?.source?.trim().split('{')[0];
 
     const rectSVG = (
         <g id="While" className={whileRectStyles} transform="translate(7 6)">
@@ -61,21 +61,18 @@ export function WhileRectSVG(props: WhileRectSVGProps) {
     );
 
     const defaultTooltip = (
-        <DiagramTooltipCodeSnippet componentModel={model} onClick={onClick} >{rectSVG}</DiagramTooltipCodeSnippet>
+        <DefaultTooltip text={sourceSnippet}>{rectSVG}</DefaultTooltip>
     );
+
     useEffect(() => {
         if (model && showTooltip) {
-            setDiagTooltip(showTooltip(rectSVG, undefined ,onClick, model));
+            setTooltipComp(showTooltip(rectSVG, undefined, onClick, model));
         }
-        return () => {
-            setTooltip(undefined);
-            setDiagTooltip(undefined);
-        };
     }, [model]);
 
     return (
         <>
-            {defaultTooltip}
+            {tooltipComp ? tooltipComp : defaultTooltip}
         </>
     );
 }
