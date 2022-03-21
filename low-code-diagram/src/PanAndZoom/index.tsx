@@ -125,21 +125,12 @@ export default function PanAndZoom(props: PanAndZoomProps) {
             <FitToScreenSVG />
         </div>
     );
-    // TODO:Add new tooltip component to support this scenario
-    // const zoomInTooltip = showTooltip ? showTooltip(zoomInButton, "heading-content", {
-    //     content: "Zoom In",
-    //     heading: ""
-    // }, "left-start", true) : zoomInButton;
+    // TODO:Check rendering issue in the below tooltips
+    const zoomInTooltip = showTooltip ? showTooltip(zoomInButton,"Zoom In"): zoomInButton;
 
-    // const zoomOutTooltip = showTooltip ? showTooltip(zoomOutButton, "heading-content", {
-    //     content: "Zoom Out",
-    //     heading: ""
-    // }, "left-start", true) : zoomOutButton;
+    const zoomOutTooltip = showTooltip ? showTooltip(zoomOutButton,"Zoom Out") : zoomOutButton;
 
-    // const fitToScreenTooltip = showTooltip ? showTooltip(fitToScreenButton, "heading-content", {
-    //     content: "Fit to screen",
-    //     heading: ""
-    // }, "left-start", true) : fitToScreenButton;
+    const fitToScreenTooltip = showTooltip ? showTooltip(fitToScreenButton, "Fit to screen") : fitToScreenButton;
 
     return (
         <div className={classNames("pan-zoom-wrapper", "pan-zoom-root")} onWheel={onWheel}>
@@ -161,13 +152,13 @@ export default function PanAndZoom(props: PanAndZoomProps) {
 
             <div className={"zoomControls"}>
                 <button className={"panelBtn"} onClick={onClickZoomIn}>
-                    {zoomInButton}
+                    {zoomInTooltip}
                 </button>
                 <button className={"panelBtn"} onClick={onClickZoomOut}>
-                    {zoomOutButton}
+                    {zoomOutTooltip}
                 </button>
                 <button className={"panelBtn"} onClick={onClickFitToScreen}>
-                    {fitToScreenButton}
+                    {fitToScreenTooltip}
                 </button>
             </div>
         </div>
