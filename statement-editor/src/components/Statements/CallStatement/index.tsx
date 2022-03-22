@@ -13,10 +13,9 @@
 import React, { ReactNode } from "react";
 
 import { CallStatement } from "@wso2-enterprise/syntax-tree";
-import classNames from "classnames";
 
 import { ExpressionComponent } from "../../Expression";
-import { useStatementEditorStyles } from "../../styles";
+import { TokenComponent } from "../../Token";
 
 interface CallStatementProps {
     model: CallStatement;
@@ -24,8 +23,6 @@ interface CallStatementProps {
 
 export function CallStatementC(props: CallStatementProps) {
     const { model } = props;
-
-    const statementEditorClasses = useStatementEditorStyles();
 
     const expressionComponent: ReactNode = (
         <ExpressionComponent
@@ -36,9 +33,7 @@ export function CallStatementC(props: CallStatementProps) {
     return (
         <span>
             {expressionComponent}
-            <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>
-                {model.semicolonToken.value}
-            </span>
+            <TokenComponent model={model.semicolonToken} />
         </span>
     );
 }

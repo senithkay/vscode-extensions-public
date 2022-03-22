@@ -14,11 +14,10 @@
 import React, { ReactNode, useContext } from "react";
 
 import { AssignmentStatement } from "@wso2-enterprise/syntax-tree";
-import classNames from "classnames";
 
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { ExpressionComponent } from "../../Expression";
-import { useStatementEditorStyles } from "../../styles";
+import { TokenComponent } from "../../Token";
 
 interface AssignmentStatementProps {
     model: AssignmentStatement;
@@ -34,18 +33,6 @@ export function AssignmentStatementComponent(props: AssignmentStatementProps) {
         }
     } = stmtCtx;
 
-    const statementEditorClasses = useStatementEditorStyles();
-
-    const onClickOnVarRef = async (event: any) => {
-        event.stopPropagation();
-        changeCurrentModel(model.varRef);
-    };
-
-    const onClickOnExpression = async (event: any) => {
-        event.stopPropagation();
-        changeCurrentModel(model.expression);
-    };
-
     if (!currentModel.model) {
         changeCurrentModel(model.expression);
     }
@@ -53,38 +40,21 @@ export function AssignmentStatementComponent(props: AssignmentStatementProps) {
     const expression: ReactNode = (
         <ExpressionComponent
             model={model.expression}
-            onSelect={onClickOnExpression}
         />
     );
 
     const varRef: ReactNode = (
         <ExpressionComponent
             model={model.varRef}
-            onSelect={onClickOnVarRef}
         />
     );
 
     return (
         <span>
             {varRef}
-            <span
-                className={classNames(
-                    statementEditorClasses.expressionBlock,
-                    statementEditorClasses.expressionBlockDisabled,
-                    "operator"
-                )}
-            >
-                {model.equalsToken.value}
-            </span>
+            <TokenComponent model={model.equalsToken} className="operator" />
             {expression}
-            <span
-                className={classNames(
-                    statementEditorClasses.expressionBlock,
-                    statementEditorClasses.expressionBlockDisabled
-                )}
-            >
-                {model.semicolonToken.value}
-            </span>
+            <TokenComponent model={model.semicolonToken} />
         </span>
     );
 }

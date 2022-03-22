@@ -19,6 +19,7 @@ import classNames from "classnames";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
+import { TokenComponent } from "../../Token";
 
 interface ReturnStatementProps {
     model: ReturnStatement;
@@ -48,31 +49,14 @@ export function ReturnStatementC(props: ReturnStatementProps) {
     const expressionComponent: ReactNode = (
         <ExpressionComponent
             model={model.expression}
-            onSelect={onClickOnExpression}
         />
     );
 
     return (
         <span>
-            <span
-                className={classNames(
-                    statementEditorClasses.expressionBlock,
-                    statementEditorClasses.expressionBlockDisabled,
-                    "keyword"
-                )}
-            >
-                {model.returnKeyword.value}
-            </span>
+            <TokenComponent model={model.returnKeyword}  className="keyword" />
             {expressionComponent}
-            <span
-                className={classNames(
-                    statementEditorClasses.expressionBlock,
-                    statementEditorClasses.expressionBlockDisabled
-                )}
-            >
-                {model.semicolonToken.value}
-            </span>
-
+            <TokenComponent model={model.semicolonToken} />
         </span>
     );
 }

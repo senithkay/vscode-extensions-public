@@ -19,6 +19,7 @@ import classNames from "classnames";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
+import { TokenComponent } from "../../Token";
 
 interface ForeachStatementProps {
     model: ForeachStatement;
@@ -37,56 +38,27 @@ export function ForeachStatementC(props: ForeachStatementProps) {
 
     const statementEditorClasses = useStatementEditorStyles();
 
-    const onClickOnBindingPattern = (event: any) => {
-        event.stopPropagation();
-        changeCurrentModel(model.typedBindingPattern);
-    };
-
-    const onClickOnActionOrExpr = async (event: any) => {
-        event.stopPropagation();
-        changeCurrentModel(model.actionOrExpressionNode);
-    };
-
     if (!currentModel.model) {
-
         changeCurrentModel(model.actionOrExpressionNode);
     }
 
     const typedBindingComponent: ReactNode = (
         <ExpressionComponent
             model={model.typedBindingPattern}
-            onSelect={onClickOnBindingPattern}
         />
     );
 
     const actionOrExprComponent: ReactNode = (
         <ExpressionComponent
             model={model.actionOrExpressionNode}
-            onSelect={onClickOnActionOrExpr}
         />
     );
 
     return (
         <span>
-            <span
-                className={classNames(
-                    statementEditorClasses.expressionBlock,
-                    statementEditorClasses.expressionBlockDisabled,
-                    "keyword"
-                )}
-            >
-                {model.forEachKeyword.value}
-            </span>
+            <TokenComponent model={model.forEachKeyword}  className="keyword" />
             {typedBindingComponent}
-            <span
-                className={classNames(
-                    statementEditorClasses.expressionBlock,
-                    statementEditorClasses.expressionBlockDisabled,
-                    "keyword"
-                )}
-            >
-                &nbsp;{model.inKeyword.value}
-            </span>
+            <TokenComponent model={model.finKeyword}  className="keyword" />
             {actionOrExprComponent}
             <span
                 className={classNames(

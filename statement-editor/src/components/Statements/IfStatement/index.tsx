@@ -20,6 +20,7 @@ import { StatementEditorContext } from "../../../store/statement-editor-context"
 import { ExpressionComponent } from "../../Expression";
 import { StatementRenderer } from "../../StatementRenderer";
 import { useStatementEditorStyles } from "../../styles";
+import { TokenComponent } from "../../Token";
 
 interface IfStatementProps {
     model: IfElseStatement;
@@ -43,11 +44,6 @@ export function IfStatementC(props: IfStatementProps) {
         />
     );
 
-    const onClickOnConditionExpression = async (event: any) => {
-        event.stopPropagation();
-        changeCurrentModel(model.condition);
-    };
-
     if (!currentModel.model && !STKindChecker.isElseBlock(model)) {
         changeCurrentModel(model.condition);
     }
@@ -55,21 +51,12 @@ export function IfStatementC(props: IfStatementProps) {
     const conditionComponent: ReactNode = (
         <ExpressionComponent
             model={model.condition}
-            onSelect={onClickOnConditionExpression}
         />
     );
 
     return (
         <span>
-            <span
-                className={classNames(
-                    statementEditorClasses.expressionBlock,
-                    statementEditorClasses.expressionBlockDisabled,
-                    "keyword"
-                )}
-            >
-                {model.ifKeyword.value}
-            </span>
+            <TokenComponent model={model.ifKeyword}  className="keyword" />
             {conditionComponent}
             <span
                 className={classNames(

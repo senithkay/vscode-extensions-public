@@ -19,6 +19,7 @@ import classNames from "classnames";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
+import { TokenComponent } from "../../Token";
 
 interface WhileStatementProps {
     model: WhileStatement;
@@ -36,11 +37,6 @@ export function WhileStatementC(props: WhileStatementProps) {
 
     const statementEditorClasses = useStatementEditorStyles();
 
-    const onClickOnConditionExpression = async (event: any) => {
-        event.stopPropagation();
-        changeCurrentModel(model.condition);
-    };
-
     if (!currentModel.model) {
         changeCurrentModel(model.condition);
     }
@@ -49,21 +45,12 @@ export function WhileStatementC(props: WhileStatementProps) {
     const conditionComponent: ReactNode = (
         <ExpressionComponent
             model={model.condition}
-            onSelect={onClickOnConditionExpression}
         />
     );
 
     return (
         <span>
-            <span
-                className={classNames(
-                    statementEditorClasses.expressionBlock,
-                    statementEditorClasses.expressionBlockDisabled,
-                    "keyword"
-                )}
-            >
-                {model.whileKeyword.value}
-            </span>
+            <TokenComponent model={model.whileKeyword}  className="keyword" />
             {conditionComponent}
             <span
                 className={classNames(

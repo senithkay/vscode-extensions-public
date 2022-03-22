@@ -35,7 +35,6 @@ export function ExpressionArrayComponent(props: ExpressionArrayProps) {
                     <ExpressionComponent
                         key={index}
                         model={expression}
-                        deleteConfig={{defaultExprDeletable: true}}
                     />
                 )
             ))
