@@ -1,9 +1,11 @@
 import { Canvas } from "../../utils/components/canvas"
-import { getIntegrationTestStoryURL } from "../../utils/story-url-utils"
+import { getIntegrationTestPageURL } from "../../utils/story-url-utils"
+
+const BAL_FILE_PATH = "service/perf-analyzer.bal";
 
 describe('Test Performance Analyzer', () => {
   beforeEach(() => {
-    cy.visit(getIntegrationTestStoryURL("service/perf-analyzer.bal"))
+    cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH))
   })
 
   it('Test Performance Analyzer', () => {
