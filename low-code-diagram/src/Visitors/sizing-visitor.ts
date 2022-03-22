@@ -15,7 +15,6 @@ import {
     AssignmentStatement,
     BlockStatement,
     CallStatement,
-    DoStatement,
     ExpressionFunctionBody,
     ForeachStatement,
     FunctionBodyBlock,
@@ -27,7 +26,6 @@ import {
     ModuleVarDecl,
     NamedWorkerDeclaration,
     ObjectMethodDefinition,
-    OnFailClause,
     ResourceAccessorDefinition,
     ServiceDeclaration,
     STKindChecker,
@@ -1158,50 +1156,6 @@ export class SizingVisitor implements Visitor {
         viewState.bBox.lw = viewState.headIf.lw + (diffIfWidthWithHeadWidthLeft > viewState.conditionAssignment.w ? diffIfWidthWithHeadWidthLeft : viewState.conditionAssignment.w);
         viewState.bBox.rw = viewState.headIf.rw + diffIfWidthWithHeadWidth + viewState.offSetBetweenIfElse + elseWidth;
         viewState.bBox.w = viewState.bBox.lw + viewState.bBox.rw;
-    }
-
-    public endVisitDoStatement(node: DoStatement) {
-        // TODO: Fix rendering
-        const viewState = node.viewState as DoViewState;
-        if (node.viewState && node.viewState.isFirstInFunctionBody) {
-            const blockViewState = node.blockStatement.viewState as BlockViewState;
-            viewState.container.h = viewState.container.offsetFromTop + blockViewState.bBox.h + viewState.container.offsetFromBottom;
-            viewState.container.w = blockViewState.bBox.w + (DefaultConfig.horizontalGapBetweenComponents * 2);
-
-            viewState.bBox.w = viewState.container.w;
-            viewState.bBox.h = viewState.container.h;
-        } else {
-            this.sizeStatement(node);
-        }
-    }
-
-    public beginVisitOnFailClause(node: OnFailClause) {
-        // TODO: Fix rendering
-        const viewState = node.viewState as OnErrorViewState;
-        if (node.viewState && node.viewState.isFirstInFunctionBody) {
-            const blockViewState = node.blockStatement.viewState as BlockViewState;
-            viewState.header.h = DefaultConfig.onErrorHeader.h;
-            viewState.header.w = DefaultConfig.onErrorHeader.w;
-            viewState.lifeLine.h = blockViewState.bBox.h;
-            viewState.bBox.w = blockViewState.bBox.w + viewState.header.w + DefaultConfig.onErrorHeader.w;
-            viewState.bBox.h = blockViewState.bBox.h + viewState.header.h;
-        }
-    }
-
-    public endVisitOnFailClause(node: OnFailClause) {
-        // TODO: Fix rendering.
-        const viewState = node.viewState as OnErrorViewState;
-        if (node.viewState && node.viewState.isFirstInFunctionBody) {
-            const blockViewState = node.blockStatement.viewState as BlockViewState;
-            viewState.lifeLine.h = blockViewState.bBox.h;
-
-            if (blockViewState.isEndComponentAvailable) {
-                viewState.lifeLine.h -= (blockViewState.bBox.offsetFromBottom + blockViewState.bBox.offsetFromTop + blockViewState.bBox.offsetFromBottom);
-            }
-
-            viewState.bBox.w = blockViewState.bBox.w + viewState.header.w;
-            viewState.bBox.h = blockViewState.bBox.h + viewState.header.h;
-        }
     }
 
     public beginVisitNamedWorkerDeclaration(node: NamedWorkerDeclaration) {
