@@ -56,7 +56,6 @@ export async function getCompletions (docUri: string,
                                     ) : Promise<SuggestionItem[]> {
 
     const isTypeDescriptor = isTypeDesc(currentModel?.kind);
-    const isElseIfMember = STKindChecker.isElseBlock(currentModel.model);
     const varName = STKindChecker.isLocalVarDecl(completeModel)
         && completeModel.typedBindingPattern.bindingPattern.source.trim();
     const currentModelPosition = currentModel.model.position;
@@ -72,12 +71,7 @@ export async function getCompletions (docUri: string,
             triggerKind: 1
         },
         position: {
-            character: currentModel.model ?
-                (isElseIfMember ?
-                    currentModelPosition.startColumn :
-                    targetPosition.startColumn + currentModelPosition.startColumn + userInput.length
-                ) :
-                targetPosition.startColumn + userInput.length,
+            character: targetPosition.startColumn + currentModelPosition.startColumn + userInput.length,
             line: targetPosition.startLine + currentModelPosition.startLine
         }
     }

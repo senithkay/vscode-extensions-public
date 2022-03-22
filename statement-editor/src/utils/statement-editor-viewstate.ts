@@ -13,4 +13,5 @@
 export class StatementEditorViewState {
     public exprNotDeletable: boolean = false;
     public templateExprDeletable: boolean = false;
+    public isWithinBlockStatement: boolean = false;
 }

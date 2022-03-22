@@ -130,8 +130,28 @@ export function getCurrentModel(position: NodePosition, model: STNode): STNode {
     return ModelFindingVisitor.getModel();
 }
 
-export function enrichModelWithDeletableState(model: STNode): STNode  {
+export function enrichModel(model: STNode, targetPosition: NodePosition, diagnostics?: Diagnostic[]): STNode {
     traversNode(model, ViewStateSetupVisitor);
+    model = enrichModelWithDiagnostics(model, targetPosition, diagnostics);
+    return enrichModelWithDeletableState(model);
+}
+
+export function enrichModelWithDiagnostics(model: STNode, targetPosition: NodePosition,
+                                           diagnostics: Diagnostic[]): STNode {
+    if (diagnostics) {
+        const offset: StmtOffset = {
+            startColumn: targetPosition.startColumn,
+            startLine: targetPosition.startLine
+        }
+        diagnostics.map(diagnostic => {
+            DiagnosticsMappingVisitor.setDiagnosticsNOffset(diagnostic, offset);
+            traversNode(model, DiagnosticsMappingVisitor);
+        });
+    }
+    return model;
+}
+
+export function enrichModelWithDeletableState(model: STNode): STNode  {
     traversNode(model, DeleteConfigSetupVisitor);
 
     return model;
@@ -142,20 +162,6 @@ export function getRemainingContent(position: NodePosition, model: STNode): Rema
     traversNode(model, ExpressionDeletingVisitor);
 
     return ExpressionDeletingVisitor.getContent();
-}
-
-export function enrichModelWithDiagnostics(diagnostics: Diagnostic[], targetPosition: NodePosition,
-                                           model: STNode): STNode {
-    const offset: StmtOffset = {
-        startColumn: targetPosition.startColumn,
-        startLine: targetPosition.startLine
-    }
-    diagnostics.map(diagnostic => {
-        DiagnosticsMappingVisitor.setDiagnosticsNOffset(diagnostic, offset);
-        traversNode(model, DiagnosticsMappingVisitor);
-    });
-
-    return model;
 }
 
 export function isPositionsEquals(position1: NodePosition, position2: NodePosition): boolean {

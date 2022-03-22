@@ -38,8 +38,7 @@ import {
 import { StatementEditorContextProvider } from "../../store/statement-editor-context";
 import {
     addExpressionToTargetPosition,
-    enrichModelWithDeletableState,
-    enrichModelWithDiagnostics,
+    enrichModel,
     getCurrentModel,
     getFilteredDiagnosticMessages,
     getUpdatedSource,
@@ -161,7 +160,7 @@ export function StatementEditor(props: StatementEditorProps) {
 
     useEffect(() => {
         (async () => {
-            if (model) {
+            if (model && currentModel.model) {
                 const modelKind = currentModel?.kind;
                 let lsSuggestions : SuggestionItem[] = [];
 
@@ -243,7 +242,7 @@ export function StatementEditor(props: StatementEditorProps) {
             };
         }
 
-        const newCurrentModel = getCurrentModel(currentModelPosition, enrichModelWithDeletableState(partialST));
+        const newCurrentModel = getCurrentModel(currentModelPosition, enrichModel(partialST, targetPosition));
         setCurrentModel({model: newCurrentModel});
     }
 
@@ -277,8 +276,7 @@ export function StatementEditor(props: StatementEditorProps) {
     };
 
     function updateEditedModel(editedModel: STNode, diagnostics?: Diagnostic[]) {
-        editedModel = enrichModelWithDiagnostics(diagnostics, targetPosition, editedModel);
-        setModel(enrichModelWithDeletableState(editedModel));
+        setModel(enrichModel(editedModel, targetPosition, diagnostics));
     }
 
     return (

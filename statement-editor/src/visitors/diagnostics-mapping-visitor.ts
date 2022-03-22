@@ -11,6 +11,7 @@
  * associated services.
  */
 import {
+    BlockStatement,
     NodePosition,
     STNode,
     Visitor
@@ -19,12 +20,26 @@ import { Diagnostic } from "vscode-languageserver-protocol";
 
 import { StmtOffset } from "../models/definitions";
 import { isPositionsEquals } from "../utils";
+import { StatementEditorViewState } from "../utils/statement-editor-viewstate";
 
 class DiagnosticsMappingVisitor implements Visitor {
     private diagnostic: Diagnostic;
     private offset: StmtOffset;
 
     public beginVisitSTNode(node: STNode, parent?: STNode) {
+        if (parent && (parent.viewState as StatementEditorViewState)?.isWithinBlockStatement) {
+            (node.viewState as StatementEditorViewState).isWithinBlockStatement = true;
+        }
+    }
+
+    public beginVisitBlockStatement(node: BlockStatement, parent?: STNode) {
+        node.statements.map((stmt: STNode) => {
+            (stmt.viewState as StatementEditorViewState).isWithinBlockStatement = true;
+        });
+    }
+
+    public endVisitSTNode(node: STNode, parent?: STNode) {
+        const isWithinBlockStatement = (node.viewState as StatementEditorViewState)?.isWithinBlockStatement;
         const diagPosition: NodePosition = {
             startLine: this.diagnostic.range.start.line,
             startColumn: this.diagnostic.range.start.character,
@@ -33,9 +48,9 @@ class DiagnosticsMappingVisitor implements Visitor {
         }
         const nodePosition: NodePosition = {
             startLine: node?.position?.startLine + this.offset.startLine,
-            startColumn: node?.position?.startColumn + this.offset.startColumn,
+            startColumn: node?.position?.startColumn + (!isWithinBlockStatement ? this.offset.startColumn : 0),
             endLine: node?.position?.endLine + this.offset.startLine,
-            endColumn: node?.position?.endColumn + this.offset.startColumn,
+            endColumn: node?.position?.endColumn + (!isWithinBlockStatement ? this.offset.startColumn : 0)
         }
         if (isPositionsEquals(diagPosition, nodePosition)) {
             node?.syntaxDiagnostics?.push({
