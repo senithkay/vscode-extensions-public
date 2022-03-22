@@ -144,8 +144,10 @@ export function StatementEditor(props: StatementEditorProps) {
     useEffect(() => {
         if (config.type !== CUSTOM_CONFIG_TYPE || initialSource) {
             (async () => {
-                sendDidOpen(fileURI, currentFile.content, getLangClient).then();
+                const updatedContent = await getUpdatedSource(initialSource.trim(), currentFile.content,
+                    targetPosition, moduleList, getLangClient);
 
+                sendDidOpen(fileURI, updatedContent, getLangClient).then();
                 const diagnostics = await handleDiagnostics(initialSource.length);
 
                 const partialST = await getPartialSTForStatement(
