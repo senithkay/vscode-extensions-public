@@ -17,7 +17,7 @@
  *
  */
 
-import { workspace, ExtensionContext, commands } from 'vscode';
+import { workspace, ExtensionContext, commands, Disposable } from 'vscode';
 import { BallerinaExtension } from '../core';
 import { BallerinaNotebookSerializer } from "./notebookSerializer";
 import { BallerinaNotebookController } from "./notebookController";
@@ -31,9 +31,11 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
     );
     context.subscriptions.push(new BallerinaNotebookController(ballerinaExtInstance));
     context.subscriptions.push(registerLanguageProviders(ballerinaExtInstance));
-    context.subscriptions.push(
-        commands.registerCommand('ballerina.notebook.openOutlineView', () => {
-            commands.executeCommand('outline.focus');
-        })
-    );
+    context.subscriptions.push(registerFocusToOutline());
+}
+
+function registerFocusToOutline(): Disposable {
+    return commands.registerCommand('ballerina.notebook.openOutlineView', () => {
+        commands.executeCommand('outline.focus');
+    });
 }

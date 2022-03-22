@@ -113,7 +113,7 @@ export class NotebookCompletionItemProvider implements CompletionItemProvider{
     }
 }
 
-export function registerLanguageProviders(ballerinaExtInstance: BallerinaExtension): Disposable{
+export function registerLanguageProviders(ballerinaExtInstance: BallerinaExtension): Disposable {
     const disposables: Disposable[] = [];
     disposables.push(
         languages.registerCompletionItemProvider(selector, new NotebookCompletionItemProvider(ballerinaExtInstance)));
