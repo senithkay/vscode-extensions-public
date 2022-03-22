@@ -15,19 +15,8 @@ import React, { ReactNode, useContext } from "react";
 
 import { UnaryExpression } from "@wso2-enterprise/syntax-tree";
 
-import { DEFAULT_EXPRESSIONS } from "../../../constants";
-import { SuggestionItem, VariableUserInputs } from "../../../models/definitions";
+import { VariableUserInputs } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
-import { SuggestionsContext } from "../../../store/suggestions-context";
-import {
-    getKindBasedOnOperator,
-    getOperatorSuggestions,
-    getSuggestionsBasedOnExpressionKind,
-} from "../../../utils";
-import {
-    addStatementToTargetLine,
-    getContextBasedCompletions
-} from "../../../utils/ls-utils";
 import { ExpressionComponent } from "../../Expression";
 
 interface UnaryProps {
@@ -42,32 +31,20 @@ export function UnaryExpressionComponent(props: UnaryProps) {
     const stmtCtx = useContext(StatementEditorContext);
     const { modelCtx } = stmtCtx;
 
-    const { expressionHandler } = useContext(SuggestionsContext);
     const { currentFile, getLangClient } = stmtCtx;
     const targetPosition = stmtCtx.formCtx.formModelPosition;
     const fileURI = `expr://${currentFile.path}`;
 
-    const kind = getKindBasedOnOperator(model.unaryOperator.kind);
 
     const expression: ReactNode = (
         <ExpressionComponent
             model={model.expression}
-            userInputs={userInputs}
-            isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
-            isTypeDescriptor={false}
-            deleteConfig={{defaultExprDeletable: true}}
         />
     );
 
     const operator: ReactNode = (
         <ExpressionComponent
             model={model.unaryOperator}
-            userInputs={userInputs}
-            isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
-            isTypeDescriptor={false}
-            classNames="operator"
         />
     );
 

@@ -32,14 +32,14 @@ export function BracedExpressionComponent(props: BracedExprProps) {
         }
     } = stmtCtx;
 
-    const onClickExpression = async (event: any) => {
-        event.stopPropagation();
-        changeCurrentModel(model.expression);
-    };
+    // const onClickExpression = async (event: any) => {
+    //     event.stopPropagation();
+    //     changeCurrentModel(model.expression);
+    // };
 
     const expressionComponent: ReactNode = <ExpressionComponent
         model={model.expression}
-        onSelect={onClickExpression}
+        // onSelect={onClickExpression}
     />;
     return (
         <span>

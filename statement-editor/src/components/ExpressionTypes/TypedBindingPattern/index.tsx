@@ -42,6 +42,7 @@ export function TypedBindingPatternComponent(props: TypedBindingPatternProps) {
             model={model.bindingPattern}
             onSelect={onClickOnTypeBindingPattern}
             deleteConfig={{exprNotDeletable: true}}
+            modelKind={ModelKind.BindingPattern}
         />
     );
 
@@ -57,6 +58,7 @@ export function TypedBindingPatternComponent(props: TypedBindingPatternProps) {
             classNames="type-descriptor"
             deleteConfig={{defaultExprDeletable: true}}
             isTypeDesc={true}
+            modelKind={ModelKind.TypeDesc}
         />
     );
 

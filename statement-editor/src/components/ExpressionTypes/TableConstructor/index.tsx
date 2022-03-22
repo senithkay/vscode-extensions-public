@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 Inc. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -13,26 +13,22 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import React, { useContext } from "react";
 
-import { MappingConstructor, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { TableConstructor } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
-import { MAPPING_CONSTRUCTOR } from "../../../constants";
-import { VariableUserInputs } from "../../../models/definitions";
+import { TABLE_CONSTRUCTOR } from "../../../constants";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { generateExpressionTemplate } from "../../../utils/utils";
 import { ExpressionArrayComponent } from "../../ExpressionArray";
 import { useStatementEditorStyles } from "../../styles";
 import { TokenComponent } from "../../Token";
 
-interface MappingConstructorProps {
-    model: MappingConstructor;
-    userInputs: VariableUserInputs;
-    isElseIfMember: boolean;
-    diagnosticHandler: (diagnostics: string) => void;
+interface TableConstructorProps {
+    model: TableConstructor;
 }
 
-export function MappingConstructorComponent(props: MappingConstructorProps) {
-    const { model, userInputs, isElseIfMember, diagnosticHandler } = props;
+export function TableConstructorComponent(props: TableConstructorProps) {
+    const { model } = props;
 
     const statementEditorClasses = useStatementEditorStyles();
 
@@ -43,28 +39,29 @@ export function MappingConstructorComponent(props: MappingConstructorProps) {
     } = useContext(StatementEditorContext);
 
     const onClickOnPlusIcon = () => {
-        const expressionTemplate = generateExpressionTemplate(MAPPING_CONSTRUCTOR);
-        const newField = model.fields.length !== 0 ? `, ${expressionTemplate} }` : `${expressionTemplate} }`;
-        updateModel(newField, model.closeBrace.position);
+        const expressionTemplate = generateExpressionTemplate(TABLE_CONSTRUCTOR);
+        const newField = model.rows.length !== 0 ? `, ${expressionTemplate} ]` : `${expressionTemplate} ]`;
+        updateModel(newField, model.closeBracket.position);
     };
 
-    const fieldsComponent = (
+    const rowsComponent = (
         <ExpressionArrayComponent
-            expressions={model.fields}
+            expressions={model.rows}
         />
     );
 
     return (
         <span>
-            <TokenComponent model={model.openBrace} />
-            {fieldsComponent}
+            <TokenComponent model={model.tableKeyword} className={"keyword"} />
+            <TokenComponent model={model.openBracket} />
+            {rowsComponent}
             <span
                 className={statementEditorClasses.plusIcon}
                 onClick={onClickOnPlusIcon}
             >
                 +
             </span>
-            <TokenComponent model={model.closeBrace} />
+            <TokenComponent model={model.closeBracket} />
         </span>
     );
 }

@@ -16,8 +16,13 @@ import { CaptureBindingPatternComponent } from './CaptureBindingPattern';
 import { CheckActionComponent } from './CheckAction';
 import { ConditionalExpressionComponent } from "./ConditionalExpression";
 import { FieldAccessComponent } from "./FieldAccess";
+import { FromClauseComponent } from './FromClause';
 import { FunctionCallComponent } from "./FunctionCall";
 import { IndexedExpressionComponent } from "./IndexedExpression";
+import { InterpolationComponent } from './Interpolation';
+import { LetClauseComponent } from './LetClause';
+import { LetExpressionComponent } from './LetExpression';
+import { LimitClauseComponent } from './LimitClause';
 import { ListBindingPatternComponent } from './ListBindingPattern';
 import { ListConstructorComponent } from './ListConstructor';
 import { BooleanLiteralComponent } from './Literal/Boolean';
@@ -32,8 +37,17 @@ import { OptionalFieldAccessComponent } from "./OptionalFieldAccess";
 import { OtherExpressionComponent} from "./OtherExpression";
 import { PositionalArgComponent } from "./PositionalArg";
 import { QualifiedNameReferenceComponent } from "./QualifiedNameReference";
+import { QueryExpressionComponent } from './QueryExpression';
+import { QueryPipelineComponent } from './QueryPipeline';
+import { RawTemplateExpressionComponent } from './RawTemplate';
 import { RemoteMethodCallActionComponent } from './RemoteMethodCallAction';
+import { SelectClauseComponent } from './SelectClause';
 import { SpecificFieldComponent } from "./SpecificField";
+import { StringTemplateExpressionComponent } from './StringTemplate';
+import { TableConstructorComponent } from './TableConstructor'
+import { TemplateStringComponent } from './TemplateString';
+import { TrapExpressionComponent } from './TrapExpression';
+import { TypeCastExpressionComponent } from './TypeCast';
 import { TypedBindingPatternComponent } from './TypedBindingPattern';
 import { BooleanTypeDescComponent } from './TypeDescriptor/BooleanTypeDesc';
 import { DecimalTypeDescComponent } from './TypeDescriptor/DecimalTypeDesc';
@@ -44,6 +58,8 @@ import { StringTypeDescComponent } from './TypeDescriptor/StringTypeDesc';
 import { VarTypeDescComponent } from './TypeDescriptor/VarTypeDesc';
 import { TypeTestExpressionComponent} from "./TypeTestExpression";
 import { UnaryExpressionComponent } from './UnaryExpression';
+import { WhereClauseComponent } from './WhereClause';
+import { XmlTemplateExpressionComponent } from './XmlTemplate';
 
 export { BinaryExpressionComponent as BinaryExpression };
 export { CaptureBindingPatternComponent as CaptureBindingPattern };
@@ -100,3 +116,19 @@ export { RemoteMethodCallActionComponent as RemoteMethodCallAction };
 export { ListBindingPatternComponent as ListBindingPattern };
 export { MappingBindingPatternComponent as MappingBindingPattern };
 export { UnaryExpressionComponent as UnaryExpression }
+export { FromClauseComponent as FromClause }
+export { InterpolationComponent as Interpolation }
+export { LetClauseComponent as LetClause }
+export { LimitClauseComponent as LimitClause }
+export { LetExpressionComponent as LetExpression }
+export { TrapExpressionComponent as TrapExpression }
+export { QueryExpressionComponent as QueryExpression }
+export { QueryPipelineComponent as QueryPipeline }
+export { SelectClauseComponent as SelectClause }
+export { WhereClauseComponent as WhereClause }
+export { TypeCastExpressionComponent as TypeCastExpression}
+export { StringTemplateExpressionComponent as StringTemplateExpression }
+export { TableConstructorComponent as TableConstructor }
+export { RawTemplateExpressionComponent as RawTemplateExpression }
+export { XmlTemplateExpressionComponent as XmlTemplateExpression }
+export { TemplateStringComponent as TemplateString }

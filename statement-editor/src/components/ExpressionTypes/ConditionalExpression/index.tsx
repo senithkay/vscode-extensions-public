@@ -14,7 +14,6 @@
 import React, { ReactNode, useContext } from "react";
 
 import { ConditionalExpression } from "@wso2-enterprise/syntax-tree";
-import classNames from "classnames";
 
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { ExpressionComponent } from "../../Expression";
@@ -34,41 +33,40 @@ export function ConditionalExpressionComponent(props: ConditionalExpressionProps
         }
     } = stmtCtx;
 
-    const statementEditorClasses = useStatementEditorStyles();
 
-    const onClickOnLhsExpression = async (event: any) => {
-        event.stopPropagation();
-        changeCurrentModel(model.lhsExpression);
-    }
+    // const onClickOnLhsExpression = async (event: any) => {
+    //     event.stopPropagation();
+    //     changeCurrentModel(model.lhsExpression);
+    // }
 
-    const onClickOnMiddleExpression = async (event: any) => {
-        event.stopPropagation();
-        changeCurrentModel(model.middleExpression);
-    };
+    // const onClickOnMiddleExpression = async (event: any) => {
+    //     event.stopPropagation();
+    //     changeCurrentModel(model.middleExpression);
+    // };
 
-    const onClickOnEndExpression = async (event: any) => {
-        event.stopPropagation();
-        changeCurrentModel(model.endExpression);
-    };
+    // const onClickOnEndExpression = async (event: any) => {
+    //     event.stopPropagation();
+    //     changeCurrentModel(model.endExpression);
+    // };
 
     const lhsExpression: ReactNode = (
         <ExpressionComponent
             model={model.lhsExpression}
-            onSelect={onClickOnLhsExpression}
+            // onSelect={onClickOnLhsExpression}
         />
     );
 
     const middleExpression: ReactNode = (
         <ExpressionComponent
             model={model.middleExpression}
-            onSelect={onClickOnMiddleExpression}
+            // onSelect={onClickOnMiddleExpression}
         />
     );
 
     const endExpression: ReactNode = (
         <ExpressionComponent
             model={model.endExpression}
-            onSelect={onClickOnEndExpression}
+            // onSelect={onClickOnEndExpression}
         />
     );
 

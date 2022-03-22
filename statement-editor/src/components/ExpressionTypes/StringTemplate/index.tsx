@@ -10,37 +10,32 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+// tslint:disable: jsx-wrap-multiline
 import React, { ReactNode, useContext } from "react";
 
-import { TrapExpression } from "@wso2-enterprise/syntax-tree";
+import { RawTemplateExpression, StringTemplateExpression} from "@wso2-enterprise/syntax-tree";
 
-import { VariableUserInputs } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
-import { ExpressionComponent } from "../../Expression";
+import { ExpressionArrayComponent } from "../../ExpressionArray";
 import { TokenComponent } from "../../Token";
 
-interface TrapExpressionProps {
-    model: TrapExpression
-    userInputs: VariableUserInputs
-    diagnosticHandler: (diagnostics: string) => void
-    isElseIfMember: boolean
+interface StringTemplateExpressionProps {
+    model: StringTemplateExpression;
 }
 
-export function TrapExpressionComponent(props: TrapExpressionProps) {
-    const { model, userInputs, diagnosticHandler, isElseIfMember } = props;
+export function StringTemplateExpressionComponent(props: StringTemplateExpressionProps) {
+    const { model } = props;
     const stmtCtx = useContext(StatementEditorContext);
 
-
-
-    const expressionComponent: ReactNode = (
-        <ExpressionComponent
-            model={model.expression}
-        />
-    );
+    const contentComponent: ReactNode = <ExpressionArrayComponent
+        expressions={model.content}
+    />;
     return (
         <span>
-            <TokenComponent model={model.trapKeyword} className={"keyword"} />
-            {expressionComponent}
+            <TokenComponent model={model.type} className={"keyword"} />
+            <TokenComponent model={model.startBacktick} />
+            {contentComponent}
+            <TokenComponent model={model.endBacktick} />
         </span>
     );
 }

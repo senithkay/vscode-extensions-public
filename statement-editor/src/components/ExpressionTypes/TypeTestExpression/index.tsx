@@ -60,6 +60,7 @@ export function TypeTestExpressionComponent(props: TypeTestExpressionProps) {
             model={model.typeDescriptor}
             onSelect={onClickOnTypeDescriptor}
             isTypeDesc={true}
+            modelKind={ModelKind.TypeDesc}
         />
     );
 

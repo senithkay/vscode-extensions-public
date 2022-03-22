@@ -40,9 +40,6 @@ export function MethodCallComponent(props: MethodCallProps) {
     const expressionArgComponent = (
         <ExpressionArrayComponent
             expressions={model.arguments}
-            userInputs={userInputs}
-            isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
         />
     );
 

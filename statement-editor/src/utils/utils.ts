@@ -50,4 +50,10 @@ export function generateExpressionTemplate (kind: string, value?: any) {
     } else if (kind === c.JSON_TYPE_DESC) {
         return "json";
     }
+    else if (kind === c.TABLE_CONSTRUCTOR) {
+        return "{ EXPRESSION : EXPRESSION }"
+    }
+    else if (kind === c.OBJECT_CONSTRUCTOR) {
+        return "EXPRESSION"
+    }
 }

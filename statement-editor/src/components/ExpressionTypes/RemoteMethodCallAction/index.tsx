@@ -40,9 +40,6 @@ export function RemoteMethodCallActionComponent(props: RemoteMethodCallActionPro
     const expressionArgComponent = (
         <ExpressionArrayComponent
             expressions={model.arguments}
-            userInputs={userInputs}
-            isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
         />
     );
 

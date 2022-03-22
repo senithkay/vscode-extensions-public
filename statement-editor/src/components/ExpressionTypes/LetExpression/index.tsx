@@ -15,12 +15,8 @@ import React, { ReactNode, useContext } from "react";
 
 import { LetExpression } from "@wso2-enterprise/syntax-tree";
 
-import { DEFAULT_EXPRESSIONS } from "../../../constants";
 import { SuggestionItem, VariableUserInputs } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
-import { SuggestionsContext } from "../../../store/suggestions-context";
-import { getSuggestionsBasedOnExpressionKind, isPositionsEquals } from "../../../utils";
-import { addStatementToTargetLine, getContextBasedCompletions } from "../../../utils/ls-utils";
 import { ExpressionComponent } from "../../Expression";
 import { ExpressionArrayComponent } from "../../ExpressionArray";
 import { useStatementEditorStyles } from "../../styles";
@@ -37,45 +33,20 @@ export function LetExpressionComponent(props: LetExpressionProps) {
     const { model, userInputs, isElseIfMember, diagnosticHandler } = props;
     const stmtCtx = useContext(StatementEditorContext);
     const statementEditorClasses = useStatementEditorStyles();
-    const { expressionHandler } = useContext(SuggestionsContext);
     const { currentFile, getLangClient } = stmtCtx;
     const targetPosition = stmtCtx.formCtx.formModelPosition;
     const fileURI = `expr://${currentFile.path}`;
 
-    const onClickOnFunctionCallExpr = async (event: any) => {
-        event.stopPropagation();
-
-        const content: string = await addStatementToTargetLine(
-            currentFile.content, targetPosition, stmtCtx.modelCtx.statementModel.source, getLangClient);
-
-        const completions: SuggestionItem[] = await getContextBasedCompletions(
-            fileURI, content, targetPosition, model.position,
-            false, isElseIfMember, model.source, getLangClient);
-
-        expressionHandler(model, false, false, {
-            expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
-            typeSuggestions: [],
-            variableSuggestions: completions
-        });
-    }
 
     const varDeclarationComponent = (
         <ExpressionArrayComponent
             expressions={model.letVarDeclarations}
-            userInputs={userInputs}
-            isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
         />
     );
 
     const expressionName: ReactNode = (
         <ExpressionComponent
             model={model.expression}
-            userInputs={userInputs}
-            isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
-            isTypeDescriptor={false}
-            onSelect={onClickOnFunctionCallExpr}
         />
     );
 

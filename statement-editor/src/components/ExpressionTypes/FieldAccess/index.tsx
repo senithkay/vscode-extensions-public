@@ -14,7 +14,6 @@
 import React, { ReactNode, useContext } from "react";
 
 import { FieldAccess } from "@wso2-enterprise/syntax-tree";
-import classNames from "classnames";
 
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { ExpressionComponent } from "../../Expression";
@@ -34,7 +33,6 @@ export function FieldAccessComponent(props: FieldAccessProps) {
         }
     } = stmtCtx;
 
-    const statementEditorClasses = useStatementEditorStyles();
 
     const onClickOnFieldAccessExpr = async (event: any) => {
         event.stopPropagation();

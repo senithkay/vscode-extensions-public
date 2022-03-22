@@ -22,13 +22,10 @@ import { TokenComponent } from "../Token";
 
 export interface ExpressionArrayProps {
     expressions: STNode[];
-    userInputs?: VariableUserInputs;
-    isElseIfMember: boolean;
-    diagnosticHandler: (diagnostics: string) => void;
 }
 
 export function ExpressionArrayComponent(props: ExpressionArrayProps) {
-    const { expressions, userInputs, isElseIfMember, diagnosticHandler } = props;
+    const { expressions } = props;
 
     const statementEditorClasses = useStatementEditorStyles();
 
@@ -42,10 +39,6 @@ export function ExpressionArrayComponent(props: ExpressionArrayProps) {
                     <ExpressionComponent
                         key={index}
                         model={expression}
-                        userInputs={userInputs}
-                        isElseIfMember={isElseIfMember}
-                        diagnosticHandler={diagnosticHandler}
-                        isTypeDescriptor={false}
                         deleteConfig={{defaultExprDeletable: true}}
                     />
                 )

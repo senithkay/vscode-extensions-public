@@ -13,11 +13,9 @@
 import React, { ReactNode, useContext } from "react";
 
 import { CheckAction, CheckExpression } from "@wso2-enterprise/syntax-tree";
-import classNames from "classnames";
 
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { ExpressionComponent } from "../../Expression";
-import { useStatementEditorStyles } from "../../styles";
 import { TokenComponent } from "../../Token";
 
 interface CheckActionProps {
@@ -33,17 +31,16 @@ export function CheckActionComponent(props: CheckActionProps) {
         }
     } = stmtCtx;
 
-    const { expressionHandler } = useContext(SuggestionsContext);
 
-    const onClickOnExpression = async (event: any) => {
-        event.stopPropagation();
-        changeCurrentModel(model.expression);
-    };
+    // const onClickOnExpression = async (event: any) => {
+    //     event.stopPropagation();
+    //     changeCurrentModel(model.expression);
+    // };
 
     const expressionComponent: ReactNode = (
         <ExpressionComponent
             model={model.expression}
-            onSelect={onClickOnExpression}
+            // onSelect={onClickOnExpression}
         />
     );
     return (

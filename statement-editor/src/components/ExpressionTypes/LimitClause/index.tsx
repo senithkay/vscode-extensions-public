@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 Inc. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -13,54 +13,36 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { ReactNode, useContext } from "react";
 
-import { FunctionCall, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
-import classNames from "classnames";
+import { LimitClause } from "@wso2-enterprise/syntax-tree";
 
+import { SuggestionItem, VariableUserInputs } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { ExpressionComponent } from "../../Expression";
 import { ExpressionArrayComponent } from "../../ExpressionArray";
 import { useStatementEditorStyles } from "../../styles";
 import { TokenComponent } from "../../Token";
 
-interface FunctionCallProps {
-    model: FunctionCall;
+interface LimitClauseProps {
+    model: LimitClause;
+    userInputs: VariableUserInputs;
+    isElseIfMember: boolean;
+    diagnosticHandler: (diagnostics: string) => void;
 }
 
-export function FunctionCallComponent(props: FunctionCallProps) {
+export function LimitClauseComponent(props: LimitClauseProps) {
     const { model } = props;
     const stmtCtx = useContext(StatementEditorContext);
-    const {
-        modelCtx: {
-            changeCurrentModel
-        }
-    } = stmtCtx;
-    const statementEditorClasses = useStatementEditorStyles();
-
-    const onClickOnFunctionCallExpr = async (event: any) => {
-        event.stopPropagation();
-        changeCurrentModel(model);
-    }
 
     const expressionComponent = (
-        <ExpressionArrayComponent
-            expressions={model.arguments}
-        />
-    );
-
-    const functionName: ReactNode = (
         <ExpressionComponent
-            model={model.functionName}
-        >
-            <TokenComponent model={model.openParenToken} />
-
-            {expressionComponent}
-            <TokenComponent model={model.closeParenToken} />
-        </ExpressionComponent>
+            model={model.expression}
+        />
     );
 
     return (
         <span>
-            {functionName}
+            <TokenComponent model={model.limitKeyword} className={"keyword"} />
+            {expressionComponent}
         </span>
     );
 }

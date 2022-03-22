@@ -12,13 +12,10 @@
  */
 import React, { ReactNode, useContext } from "react";
 
-import { TrapExpression, TypeCastExpression } from "@wso2-enterprise/syntax-tree";
+import { TypeCastExpression } from "@wso2-enterprise/syntax-tree";
 
-import { DEFAULT_EXPRESSIONS } from "../../../constants";
 import { VariableUserInputs } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
-import { SuggestionsContext } from "../../../store/suggestions-context";
-import { getSuggestionsBasedOnExpressionKind, isPositionsEquals } from "../../../utils";
 import { ExpressionComponent } from "../../Expression";
 import { TokenComponent } from "../../Token";
 
@@ -33,34 +30,15 @@ export function TypeCastExpressionComponent(props: TypeCastExpressionProps) {
     const { model, userInputs, diagnosticHandler, isElseIfMember } = props;
     const stmtCtx = useContext(StatementEditorContext);
 
-    const { expressionHandler } = useContext(SuggestionsContext);
-
-    const onClickOnExpression = async (event: any) => {
-        event.stopPropagation();
-
-        expressionHandler(model.expression, false, false,
-            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS), typeSuggestions: [], variableSuggestions: [] });
-    };
-
     const expressionComponent: ReactNode = (
         <ExpressionComponent
             model={model.expression}
-            userInputs={userInputs}
-            isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
-            isTypeDescriptor={false}
-            onSelect={onClickOnExpression}
         />
     );
 
     const typeCastParamComponent: ReactNode = (
         <ExpressionComponent
             model={model.typeCastParam}
-            userInputs={userInputs}
-            isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
-            isTypeDescriptor={false}
-            onSelect={onClickOnExpression}
         />
     );
     return (

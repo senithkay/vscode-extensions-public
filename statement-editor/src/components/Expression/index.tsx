@@ -16,7 +16,7 @@ import React, { useContext, useEffect } from "react";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 import cn from "classnames";
 
-import { ExprDeleteConfig } from "../../models/definitions";
+import { ExprDeleteConfig, ModelKind } from "../../models/definitions";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { getExpressionTypeComponent, getRemainingContent, isPositionsEquals } from "../../utils";
 import DeleteButton from "../Button/DeleteButton";
@@ -30,10 +30,11 @@ export interface ExpressionComponentProps {
     classNames?: string;
     deleteConfig?: ExprDeleteConfig;
     isTypeDesc?: boolean;
+    modelKind?: ModelKind;
 }
 
 export function ExpressionComponent(props: ExpressionComponentProps) {
-    const { model, onSelect, children, classNames, deleteConfig, isTypeDesc } = props;
+    const { model, onSelect, children, classNames, deleteConfig, isTypeDesc, modelKind } = props;
 
     const component = getExpressionTypeComponent(model, isTypeDesc);
 
@@ -44,7 +45,8 @@ export function ExpressionComponent(props: ExpressionComponentProps) {
     const {
         statementModel: completeModel,
         currentModel: selectedModel,
-        updateModel
+        updateModel,
+        changeCurrentModel
     } = modelCtx;
 
     const statementEditorClasses = useStatementEditorStyles();
@@ -74,9 +76,10 @@ export function ExpressionComponent(props: ExpressionComponentProps) {
     const onMouseClick = (e: React.MouseEvent) => {
         e.stopPropagation();
         e.preventDefault();
-        if (onSelect) {
-            onSelect(e);
-        }
+        // if (onSelect) {
+        //     onSelect(e);
+        // }
+        changeCurrentModel(model, modelKind);
     }
 
     const onClickOnDelete = () => {
@@ -84,6 +87,7 @@ export function ExpressionComponent(props: ExpressionComponentProps) {
             code: newCode,
             position: newPosition
         } = getRemainingContent(model.position, completeModel);
+
         updateModel(newCode, newPosition);
     }
 
