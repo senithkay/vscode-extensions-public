@@ -14,6 +14,7 @@ import React, { ReactNode } from 'react';
 
 import {
     CompletionResponse,
+    ExpressionEditorLangClientInterface,
     getDiagnosticMessage,
     getFilteredDiagnostics,
     STModification
@@ -42,6 +43,7 @@ import { visitor as ExpressionDeletingVisitor } from "../visitors/expression-del
 import { visitor as ModelFindingVisitor } from "../visitors/model-finding-visitor";
 import { viewStateSetupVisitor as ViewStateSetupVisitor } from "../visitors/view-state-setup-visitor";
 
+import { addImportStatements, addStatementToTargetLine } from "./ls-utils";
 import { createImportStatement, createStatement, updateStatement } from "./statement-modifications";
 
 export function getModifications(
@@ -199,6 +201,41 @@ export function getFilteredDiagnosticMessages(source: string, targetPosition: No
         });
 
     return stmtDiagnostics;
+}
+
+export async function getUpdatedSource(statementModel: STNode, currentModel: NodePosition, newValue: string,
+                                       currentFileContent: string, targetPosition: NodePosition, moduleList: Set<string>,
+                                       getLangClient: () => Promise<ExpressionEditorLangClientInterface>)
+    : Promise<string> {
+
+    let updatedStatement = addExpressionToTargetPosition(statementModel, currentModel, newValue);
+    if (updatedStatement.slice(-1) !== ';') {
+        updatedStatement += ';';
+    }
+    let updatedContent: string = await addStatementToTargetLine(currentFileContent, targetPosition,
+        updatedStatement, getLangClient);
+    if (!!moduleList.size) {
+        updatedContent = await addImportStatements(updatedContent, Array.from(moduleList) as string[]);
+    }
+
+    return updatedContent;
+}
+
+function addExpressionToTargetPosition(statementModel: STNode, currentPosition: NodePosition, newValue: string): string {
+    const startLine = currentPosition.startLine;
+    const startColumn = currentPosition.startColumn;
+    const endColumn = currentPosition.endColumn;
+
+    if (statementModel && STKindChecker.isIfElseStatement(statementModel)) {
+        const splitStatement: string[] = statementModel.source.split(/\n/g) || [];
+
+        splitStatement.splice(startLine, 1, splitStatement[startLine].slice(0, startColumn) +
+            newValue + splitStatement[startLine].slice(endColumn || startColumn));
+
+        return splitStatement.join('\n');
+    }
+
+    return statementModel.source.slice(0, startColumn) + newValue + statementModel.source.slice(endColumn || startColumn);
 }
 
 export function getSuggestionIconStyle(suggestionType: number): string {

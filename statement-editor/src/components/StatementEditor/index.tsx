@@ -41,11 +41,11 @@ import {
     enrichModelWithDiagnostics,
     getCurrentModel,
     getFilteredDiagnosticMessages,
+    getUpdatedSource,
     isBindingPattern,
     isOperator
 } from "../../utils";
 import {
-    addImportStatements,
     addStatementToTargetLine,
     getCompletions,
     getDiagnostics,
@@ -181,21 +181,8 @@ export function StatementEditor(props: StatementEditorProps) {
     }, [model]);
 
     const handleChange = async (newValue: string, isEditedViaInputEditor?: boolean) => {
-        let updatedStatement = addExpressionToTargetPosition(
-            model.source,
-            currentModel ? currentModel.model.position.startLine : 0,
-            currentModel ? currentModel.model.position.startColumn : 0,
-            newValue,
-            currentModel ? currentModel.model.position.endColumn : 0
-        );
-        if (updatedStatement.slice(-1) !== ';') {
-            updatedStatement += ';';
-        }
-        let updatedContent: string = await addStatementToTargetLine(
-            currentFile.content, targetPosition, updatedStatement, getLangClient);
-        if (!!moduleList.size) {
-            updatedContent = await addImportStatements(updatedContent, Array.from(moduleList) as string[]);
-        }
+        const updatedContent = await getUpdatedSource(model, currentModel.model.position, newValue,
+            currentFile.content, targetPosition, moduleList, getLangClient);
 
         sendDidChange(fileURI, updatedContent, getLangClient).then();
 
@@ -277,20 +264,6 @@ export function StatementEditor(props: StatementEditorProps) {
             kind
         });
     };
-
-    function addExpressionToTargetPosition(currentStmt: string,
-                                           targetLine: number,
-                                           targetColumn: number,
-                                           codeSnippet: string,
-                                           endColumn?: number): string {
-        if (model && STKindChecker.isIfElseStatement(model)) {
-            const splitStatement: string[] = currentStmt.split(/\n/g) || [];
-            splitStatement.splice(targetLine, 1, splitStatement[targetLine].slice(0, targetColumn) +
-                codeSnippet + splitStatement[targetLine].slice(endColumn || targetColumn));
-            return splitStatement.join('\n');
-        }
-        return currentStmt.slice(0, targetColumn) + codeSnippet + currentStmt.slice(endColumn || targetColumn);
-    }
 
     function updateEditedModel(editedModel: STNode, diagnostics?: Diagnostic[]) {
         editedModel = enrichModelWithDiagnostics(diagnostics, targetPosition, editedModel);
