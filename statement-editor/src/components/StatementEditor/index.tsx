@@ -137,20 +137,20 @@ export function StatementEditor(props: StatementEditorProps) {
     useEffect(() => {
         if (config.type !== CUSTOM_CONFIG_TYPE || initialSource) {
             (async () => {
+                sendDidOpen(fileURI, currentFile.content, getLangClient).then();
+
+                const diagResp = await getDiagnostics(fileURI, getLangClient);
+                const diagnostics  = diagResp[0]?.diagnostics ? diagResp[0].diagnostics : [];
+                const messages = getFilteredDiagnosticMessages(initialSource, targetPosition, diagnostics);
+                setStmtDiagnostics(messages);
+                setDiagnosticResp(diagnostics);
+
                 const partialST = await getPartialSTForStatement(
                     { codeSnippet: initialSource.trim() }, getLangClient);
 
                 if (!partialST.syntaxDiagnostics.length) {
-                    updateEditedModel(partialST);
+                    updateEditedModel(partialST, diagnostics);
                 }
-
-                sendDidOpen(fileURI, currentFile.content, getLangClient).then();
-
-                const diagResp = await getDiagnostics(fileURI, getLangClient);
-                const diag  = diagResp[0]?.diagnostics ? diagResp[0].diagnostics : [];
-                const messages = getFilteredDiagnosticMessages(initialSource, targetPosition, diag);
-                setStmtDiagnostics(messages);
-                setDiagnosticResp(diag);
             })();
         }
     }, []);
@@ -292,8 +292,8 @@ export function StatementEditor(props: StatementEditorProps) {
         return currentStmt.slice(0, targetColumn) + codeSnippet + currentStmt.slice(endColumn || targetColumn);
     }
 
-    function updateEditedModel(editedModel: STNode) {
-        editedModel = enrichModelWithDiagnostics(diagnosticResp, targetPosition, editedModel);
+    function updateEditedModel(editedModel: STNode, diagnostics?: Diagnostic[]) {
+        editedModel = enrichModelWithDiagnostics(diagnostics, targetPosition, editedModel);
         setModel(enrichModelWithDeletableState(editedModel));
     }
 

@@ -32,10 +32,10 @@ class DiagnosticsMappingVisitor implements Visitor {
             endColumn: this.diagnostic.range.end.character
         }
         const nodePosition: NodePosition = {
-            startLine: node.position.startLine + this.offset.startLine,
-            startColumn: node.position.startColumn + this.offset.startColumn,
-            endLine: node.position.endLine + this.offset.startLine,
-            endColumn: node.position.endColumn + this.offset.startColumn,
+            startLine: node?.position?.startLine + this.offset.startLine,
+            startColumn: node?.position?.startColumn + this.offset.startColumn,
+            endLine: node?.position?.endLine + this.offset.startLine,
+            endColumn: node?.position?.endColumn + this.offset.startColumn,
         }
         if (isPositionsEquals(diagPosition, nodePosition)) {
             node.syntaxDiagnostics.push({
