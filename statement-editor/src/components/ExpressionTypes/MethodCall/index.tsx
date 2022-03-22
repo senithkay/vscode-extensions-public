@@ -10,16 +10,12 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js
-import React, { ReactNode, useContext } from "react";
+import React, { ReactNode } from "react";
 
-import { MethodCall, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
-import classNames from "classnames";
+import { MethodCall } from "@wso2-enterprise/syntax-tree";
 
-import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { ExpressionComponent } from "../../Expression";
 import { ExpressionArrayComponent } from "../../ExpressionArray";
-import { useStatementEditorStyles } from "../../styles";
 import { TokenComponent } from "../../Token";
 
 interface MethodCallProps {
@@ -28,14 +24,6 @@ interface MethodCallProps {
 
 export function MethodCallComponent(props: MethodCallProps) {
     const { model } = props;
-    const stmtCtx = useContext(StatementEditorContext);
-    const {
-        modelCtx: {
-            changeCurrentModel
-        }
-    } = stmtCtx;
-
-    const statementEditorClasses = useStatementEditorStyles();
 
     const expressionArgComponent = (
         <ExpressionArrayComponent
@@ -43,27 +31,15 @@ export function MethodCallComponent(props: MethodCallProps) {
         />
     );
 
-    const onClickOnExpression = async (event: any) => {
-        event.stopPropagation();
-        changeCurrentModel(model.expression);
-    };
-
-    const onClickOnMethodName = async (event: any) => {
-        event.stopPropagation();
-        changeCurrentModel(model.methodName);
-    };
-
     const expression: ReactNode = (
         <ExpressionComponent
             model={model.expression}
-            onSelect={onClickOnExpression}
         />
     );
 
     const methodName: ReactNode = (
         <ExpressionComponent
             model={model.methodName}
-            onSelect={onClickOnMethodName}
         >
             <TokenComponent model={model.openParenToken} />
             {expressionArgComponent}

@@ -10,12 +10,10 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-wrap-multiline
-import React, { ReactNode, useContext } from "react";
+import React, { ReactNode } from "react";
 
 import { XmlTemplateExpression} from "@wso2-enterprise/syntax-tree";
 
-import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { ExpressionArrayComponent } from "../../ExpressionArray";
 import { TokenComponent } from "../../Token";
 
@@ -25,11 +23,13 @@ interface XmlTemplateExpressionProps {
 
 export function XmlTemplateExpressionComponent(props: XmlTemplateExpressionProps) {
     const { model } = props;
-    const stmtCtx = useContext(StatementEditorContext);
 
-    const contentComponent: ReactNode = <ExpressionArrayComponent
-        expressions={model.content}
-    />;
+    const contentComponent: ReactNode = (
+        <ExpressionArrayComponent
+            expressions={model.content}
+        />
+    );
+
     return (
         <span>
             <TokenComponent model={model.type} className={"keyword"} />

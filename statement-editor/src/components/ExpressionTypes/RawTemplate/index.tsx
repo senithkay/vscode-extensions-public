@@ -10,8 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-wrap-multiline
-import React, { ReactNode, useContext } from "react";
+import React, { ReactNode } from "react";
 
 import { RawTemplateExpression, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
@@ -28,15 +27,20 @@ export function RawTemplateExpressionComponent(props: RawTemplateExpressionProps
 
     let contentComponent: ReactNode
     if (Array.isArray(model.content)) {
-        contentComponent = <ExpressionArrayComponent
-            expressions={model.content}
-        />;
+        contentComponent = (
+            <ExpressionArrayComponent
+                expressions={model.content}
+            />
+        );
     }
     else if (STKindChecker.isInterpolation(model.content)) {
-        contentComponent = <ExpressionComponent
-            model={model.content}
-        />;
+        contentComponent = (
+            <ExpressionComponent
+                model={model.content}
+            />
+        );
     }
+
     return (
         <span>
             <TokenComponent model={model.startBacktick} />

@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import React, { useContext } from "react";
 
-import { ListConstructor, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { ListConstructor } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
 import { APPEND_EXPR_LIST_CONSTRUCTOR, INIT_EXPR_LIST_CONSTRUCTOR } from "../../../constants";
@@ -31,16 +31,11 @@ export function ListConstructorComponent(props: ListConstructorProps) {
     const {
         modelCtx: {
             updateModel,
-            changeCurrentModel
         }
     } = stmtCtx;
 
     const statementEditorClasses = useStatementEditorStyles();
 
-    const onClickOnExpression = async (clickedExpression: STNode, event: any) => {
-        event.stopPropagation();
-        changeCurrentModel(clickedExpression);
-    };
 
     const expressionComponent = (
         <ExpressionArrayComponent

@@ -10,14 +10,11 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js
-import React, { ReactNode, useContext } from "react";
+import React, { ReactNode } from "react";
 
 import { ConditionalExpression } from "@wso2-enterprise/syntax-tree";
 
-import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { ExpressionComponent } from "../../Expression";
-import { useStatementEditorStyles } from "../../styles";
 import { TokenComponent } from "../../Token";
 
 interface ConditionalExpressionProps {
@@ -26,47 +23,22 @@ interface ConditionalExpressionProps {
 
 export function ConditionalExpressionComponent(props: ConditionalExpressionProps) {
     const { model } = props;
-    const stmtCtx = useContext(StatementEditorContext);
-    const {
-        modelCtx: {
-            changeCurrentModel
-        }
-    } = stmtCtx;
-
-
-    // const onClickOnLhsExpression = async (event: any) => {
-    //     event.stopPropagation();
-    //     changeCurrentModel(model.lhsExpression);
-    // }
-
-    // const onClickOnMiddleExpression = async (event: any) => {
-    //     event.stopPropagation();
-    //     changeCurrentModel(model.middleExpression);
-    // };
-
-    // const onClickOnEndExpression = async (event: any) => {
-    //     event.stopPropagation();
-    //     changeCurrentModel(model.endExpression);
-    // };
 
     const lhsExpression: ReactNode = (
         <ExpressionComponent
             model={model.lhsExpression}
-            // onSelect={onClickOnLhsExpression}
         />
     );
 
     const middleExpression: ReactNode = (
         <ExpressionComponent
             model={model.middleExpression}
-            // onSelect={onClickOnMiddleExpression}
         />
     );
 
     const endExpression: ReactNode = (
         <ExpressionComponent
             model={model.endExpression}
-            // onSelect={onClickOnEndExpression}
         />
     );
 

@@ -10,16 +10,12 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js
-import React, { ReactNode, useContext } from "react";
+import React, { ReactNode } from "react";
 
-import { FunctionCall, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
-import classNames from "classnames";
+import { FunctionCall } from "@wso2-enterprise/syntax-tree";
 
-import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { ExpressionComponent } from "../../Expression";
 import { ExpressionArrayComponent } from "../../ExpressionArray";
-import { useStatementEditorStyles } from "../../styles";
 import { TokenComponent } from "../../Token";
 
 interface FunctionCallProps {
@@ -28,18 +24,6 @@ interface FunctionCallProps {
 
 export function FunctionCallComponent(props: FunctionCallProps) {
     const { model } = props;
-    const stmtCtx = useContext(StatementEditorContext);
-    const {
-        modelCtx: {
-            changeCurrentModel
-        }
-    } = stmtCtx;
-    const statementEditorClasses = useStatementEditorStyles();
-
-    const onClickOnFunctionCallExpr = async (event: any) => {
-        event.stopPropagation();
-        changeCurrentModel(model);
-    }
 
     const expressionComponent = (
         <ExpressionArrayComponent
@@ -52,7 +36,6 @@ export function FunctionCallComponent(props: FunctionCallProps) {
             model={model.functionName}
         >
             <TokenComponent model={model.openParenToken} />
-
             {expressionComponent}
             <TokenComponent model={model.closeParenToken} />
         </ExpressionComponent>

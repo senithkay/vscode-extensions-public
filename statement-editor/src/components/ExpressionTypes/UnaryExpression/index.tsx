@@ -10,31 +10,18 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js
-import React, { ReactNode, useContext } from "react";
+import React, { ReactNode } from "react";
 
 import { UnaryExpression } from "@wso2-enterprise/syntax-tree";
 
-import { VariableUserInputs } from "../../../models/definitions";
-import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { ExpressionComponent } from "../../Expression";
 
 interface UnaryProps {
     model: UnaryExpression;
-    userInputs: VariableUserInputs;
-    isElseIfMember: boolean;
-    diagnosticHandler: (diagnostics: string) => void;
 }
 
 export function UnaryExpressionComponent(props: UnaryProps) {
-    const { model, userInputs, isElseIfMember, diagnosticHandler } = props;
-    const stmtCtx = useContext(StatementEditorContext);
-    const { modelCtx } = stmtCtx;
-
-    const { currentFile, getLangClient } = stmtCtx;
-    const targetPosition = stmtCtx.formCtx.formModelPosition;
-    const fileURI = `expr://${currentFile.path}`;
-
+    const { model } = props;
 
     const expression: ReactNode = (
         <ExpressionComponent

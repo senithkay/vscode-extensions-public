@@ -10,12 +10,10 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js
-import React, { ReactNode, useContext } from "react";
+import React, { ReactNode } from "react";
 
 import { PositionalArg } from "@wso2-enterprise/syntax-tree";
 
-import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { ExpressionComponent } from "../../Expression";
 
 interface PositionalArgProps {
@@ -24,23 +22,10 @@ interface PositionalArgProps {
 
 export function PositionalArgComponent(props: PositionalArgProps) {
     const { model } = props;
-    const stmtCtx = useContext(StatementEditorContext);
-
-    const {
-        modelCtx: {
-            changeCurrentModel
-        }
-    } = stmtCtx;
-
-    const onClickOnExpression = async (event: any) => {
-        event.stopPropagation();
-        changeCurrentModel(model.expression);
-    };
 
     const expression: ReactNode = (
         <ExpressionComponent
             model={model.expression}
-            onSelect={onClickOnExpression}
         />
     );
 

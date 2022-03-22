@@ -10,15 +10,12 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js jsx-no-lambda
-import React, { ReactNode, useContext } from "react";
+// tslint:disable: jsx-no-multiline-js
+import React, { ReactNode } from "react";
 
 import { IndexedExpression, STNode } from "@wso2-enterprise/syntax-tree";
-import classNames from "classnames";
 
-import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { ExpressionComponent } from "../../Expression";
-import { useStatementEditorStyles } from "../../styles";
 import { TokenComponent } from "../../Token";
 
 interface IndexedExpressionProps {
@@ -27,14 +24,6 @@ interface IndexedExpressionProps {
 
 export function IndexedExpressionComponent(props: IndexedExpressionProps) {
     const { model } = props;
-    const stmtCtx = useContext(StatementEditorContext);
-    const {
-        modelCtx: {
-            changeCurrentModel
-        }
-    } = stmtCtx;
-
-    const statementEditorClasses = useStatementEditorStyles();
 
     const keyExprComponent = (
         <span>
@@ -43,27 +32,15 @@ export function IndexedExpressionComponent(props: IndexedExpressionProps) {
                     <ExpressionComponent
                             key={index}
                             model={expression}
-                            onSelect={(event) => onClickOnKeyExpr(expression, event)}
                     />
                 ))
             }
         </span>
     );
 
-    const onClickOnContainerExpr = (event: any) => {
-        event.stopPropagation();
-        changeCurrentModel(model.containerExpression);
-    };
-
-    const onClickOnKeyExpr = async (clickedExpression: STNode, event: any) => {
-        event.stopPropagation();
-        changeCurrentModel(clickedExpression);
-    };
-
     const containerExpr: ReactNode = (
         <ExpressionComponent
             model={model.containerExpression}
-            onSelect={onClickOnContainerExpr}
         />
     );
 

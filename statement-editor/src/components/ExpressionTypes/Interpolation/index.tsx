@@ -10,12 +10,10 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-wrap-multiline
-import React, { ReactNode, useContext } from "react";
+import React, { ReactNode } from "react";
 
 import { Interpolation} from "@wso2-enterprise/syntax-tree";
 
-import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { ExpressionComponent } from "../../Expression";
 import { TokenComponent } from "../../Token";
 
@@ -25,11 +23,13 @@ interface InterpolationProps {
 
 export function InterpolationComponent(props: InterpolationProps) {
     const { model } = props;
-    const stmtCtx = useContext(StatementEditorContext);
 
-    const expressionComponent: ReactNode = <ExpressionComponent
-        model={model.expression}
-    />;
+    const expressionComponent: ReactNode = (
+        <ExpressionComponent
+            model={model.expression}
+        />
+    );
+
     return (
         <span>
             <TokenComponent model={model.interpolationStartToken} />

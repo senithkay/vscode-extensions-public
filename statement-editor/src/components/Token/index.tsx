@@ -10,8 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js
-import React, { useContext, useEffect } from "react";
+import React from "react";
 
 import { STNode } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
@@ -28,14 +27,14 @@ export function TokenComponent(props: TokenComponentProps) {
 
     const statementEditorClasses = useStatementEditorStyles();
 
+    const styleClassName = classNames(
+        statementEditorClasses.expressionBlock,
+        statementEditorClasses.expressionBlockDisabled,
+        className
+    );
+
     return (
-        <span
-            className={classNames(
-                statementEditorClasses.expressionBlock,
-                statementEditorClasses.expressionBlockDisabled,
-                className
-            )}
-        >
+        <span className={styleClassName} >
             {model.value}
         </span>
     );

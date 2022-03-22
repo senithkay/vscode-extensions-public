@@ -10,11 +10,9 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import React, { useContext } from "react";
 
 import { TableConstructor } from "@wso2-enterprise/syntax-tree";
-import classNames from "classnames";
 
 import { TABLE_CONSTRUCTOR } from "../../../constants";
 import { StatementEditorContext } from "../../../store/statement-editor-context";

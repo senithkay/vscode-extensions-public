@@ -13,11 +13,9 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import React, { useContext } from "react";
 
-import { MappingConstructor, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
-import classNames from "classnames";
+import { MappingConstructor } from "@wso2-enterprise/syntax-tree";
 
 import { MAPPING_CONSTRUCTOR } from "../../../constants";
-import { VariableUserInputs } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { generateExpressionTemplate } from "../../../utils/utils";
 import { ExpressionArrayComponent } from "../../ExpressionArray";
@@ -26,13 +24,10 @@ import { TokenComponent } from "../../Token";
 
 interface MappingConstructorProps {
     model: MappingConstructor;
-    userInputs: VariableUserInputs;
-    isElseIfMember: boolean;
-    diagnosticHandler: (diagnostics: string) => void;
 }
 
 export function MappingConstructorComponent(props: MappingConstructorProps) {
-    const { model, userInputs, isElseIfMember, diagnosticHandler } = props;
+    const { model } = props;
 
     const statementEditorClasses = useStatementEditorStyles();
 

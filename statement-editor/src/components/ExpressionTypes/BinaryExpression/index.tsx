@@ -10,7 +10,6 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js
 import React, { ReactNode, useContext } from "react";
 
 import { BinaryExpression } from "@wso2-enterprise/syntax-tree";
@@ -32,32 +31,16 @@ export function BinaryExpressionComponent(props: BinaryProps) {
         }
     } = stmtCtx;
 
-    // const onClickOperator = (event: any) => {
-    //     event.stopPropagation();
-    //     changeCurrentModel(model.operator, ModelKind.Operator);
-    // }
-
-    // const onClickOnLhsExpression = async (event: any) => {
-    //     event.stopPropagation();
-    //     changeCurrentModel(model.lhsExpr);
-    // };
-
-    // const onClickOnRhsExpression = async (event: any) => {
-    //     event.stopPropagation();
-    //     changeCurrentModel(model.rhsExpr);
-    // };
 
     const lhs: ReactNode = (
         <ExpressionComponent
             model={model.lhsExpr}
-            // onSelect={onClickOnLhsExpression}
             deleteConfig={{defaultExprDeletable: true}}
         />
     );
     const rhs: ReactNode = (
         <ExpressionComponent
             model={model.rhsExpr}
-            // onSelect={onClickOnRhsExpression}
             deleteConfig={{defaultExprDeletable: true}}
         />
     );
@@ -65,7 +48,6 @@ export function BinaryExpressionComponent(props: BinaryProps) {
     const operator: ReactNode = (
         <ExpressionComponent
             model={model.operator}
-            // onSelect={onClickOperator}
             classNames="operator"
             modelKind={ModelKind.Operator}
         />

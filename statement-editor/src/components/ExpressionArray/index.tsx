@@ -11,13 +11,11 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext, useEffect } from "react";
+import React from "react";
 
 import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
-import { VariableUserInputs } from "../../models/definitions";
 import { ExpressionComponent } from "../Expression";
-import { useStatementEditorStyles } from "../styles";
 import { TokenComponent } from "../Token";
 
 export interface ExpressionArrayProps {
@@ -26,8 +24,6 @@ export interface ExpressionArrayProps {
 
 export function ExpressionArrayComponent(props: ExpressionArrayProps) {
     const { expressions } = props;
-
-    const statementEditorClasses = useStatementEditorStyles();
 
     return (
         <span>
@@ -44,6 +40,6 @@ export function ExpressionArrayComponent(props: ExpressionArrayProps) {
                 )
             ))
         }
-    </span>
+        </span>
     );
 }

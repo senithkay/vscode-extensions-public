@@ -10,7 +10,6 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js
 import React, { ReactNode, useContext } from "react";
 
 import { SpecificField, STKindChecker } from "@wso2-enterprise/syntax-tree";
@@ -47,18 +46,18 @@ export function SpecificFieldComponent(props: SpecificFieldProps) {
         changeCurrentModel(model.fieldName);
     };
 
-    const onClickOnValueExpr = async (event: any) => {
-        event.stopPropagation();
-        changeCurrentModel(model.valueExpr);
-    };
 
     let fieldName: ReactNode;
 
     const valueExpression: ReactNode = (
         <ExpressionComponent
             model={model.valueExpr}
-            onSelect={onClickOnValueExpr}
         />
+    );
+
+    const styleClassName = classNames(
+        statementEditorClasses.expressionElement,
+        hasFieldNameSelected && statementEditorClasses.expressionElementSelected
     );
 
     if (STKindChecker.isIdentifierToken(model.fieldName)) {
@@ -67,13 +66,7 @@ export function SpecificFieldComponent(props: SpecificFieldProps) {
         };
 
         fieldName =  (
-            <span
-                className={classNames(
-                    statementEditorClasses.expressionElement,
-                    hasFieldNameSelected && statementEditorClasses.expressionElementSelected
-                )}
-                onClick={onClickOnFieldName}
-            >
+            <span className={styleClassName}  onClick={onClickOnFieldName} >
                 <InputEditor {...inputEditorProps} />
             </span>
         );
@@ -81,7 +74,6 @@ export function SpecificFieldComponent(props: SpecificFieldProps) {
         fieldName = (
             <ExpressionComponent
                 model={model.fieldName}
-                onSelect={onClickOnFieldName}
             />
         );
     }

@@ -10,28 +10,20 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js
-import React, { ReactNode, useContext } from "react";
+import React from "react";
 
 import { LimitClause } from "@wso2-enterprise/syntax-tree";
 
-import { SuggestionItem, VariableUserInputs } from "../../../models/definitions";
-import { StatementEditorContext } from "../../../store/statement-editor-context";
+
 import { ExpressionComponent } from "../../Expression";
-import { ExpressionArrayComponent } from "../../ExpressionArray";
-import { useStatementEditorStyles } from "../../styles";
 import { TokenComponent } from "../../Token";
 
 interface LimitClauseProps {
     model: LimitClause;
-    userInputs: VariableUserInputs;
-    isElseIfMember: boolean;
-    diagnosticHandler: (diagnostics: string) => void;
 }
 
 export function LimitClauseComponent(props: LimitClauseProps) {
     const { model } = props;
-    const stmtCtx = useContext(StatementEditorContext);
 
     const expressionComponent = (
         <ExpressionComponent

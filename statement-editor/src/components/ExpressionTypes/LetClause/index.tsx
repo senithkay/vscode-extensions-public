@@ -10,28 +10,20 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js
-import React, { ReactNode, useContext } from "react";
+import React from "react";
 
 import { LetClause } from "@wso2-enterprise/syntax-tree";
 
-import { SuggestionItem, VariableUserInputs } from "../../../models/definitions";
-import { StatementEditorContext } from "../../../store/statement-editor-context";
-import { ExpressionComponent } from "../../Expression";
+
 import { ExpressionArrayComponent } from "../../ExpressionArray";
-import { useStatementEditorStyles } from "../../styles";
 import { TokenComponent } from "../../Token";
 
 interface LetClauseProps {
     model: LetClause;
-    userInputs: VariableUserInputs;
-    isElseIfMember: boolean;
-    diagnosticHandler: (diagnostics: string) => void;
 }
 
 export function LetClauseComponent(props: LetClauseProps) {
     const { model } = props;
-    const stmtCtx = useContext(StatementEditorContext);
 
     const varDeclarationComponent = (
         <ExpressionArrayComponent
