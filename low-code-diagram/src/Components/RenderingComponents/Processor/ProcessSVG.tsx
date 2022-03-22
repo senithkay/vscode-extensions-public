@@ -13,10 +13,9 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { ReactElement } from "react";
 
-import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { ErrorSnippet } from "../../../Types/type";
-// import { ErrorSnippet } from "../../../../../../DiagramGenerator/generatorUtil";
 
 import { ProcessRectSVG } from "./ProcessRectSVG";
 import "./style.scss";
@@ -33,15 +32,14 @@ export const PROCESS_SVG_SHADOW_OFFSET = PROCESS_SVG_HEIGHT_WITH_SHADOW - PROCES
 
 export function ProcessSVG(props: {
     x: number, y: number, varName: any,
-    sourceSnippet: any, position: NodePosition,
+    position: NodePosition,
     openInCodeView?: () => void,
-    processType: string, diagnostics?: ErrorSnippet
+    processType: string,
+    diagnostics?: ErrorSnippet,
+    componentSTNode: STNode
 }) {
-    const { varName, sourceSnippet, processType, openInCodeView, diagnostics, ...xyProps } = props;
+    const { varName, processType, openInCodeView, diagnostics, componentSTNode, ...xyProps } = props;
     const processTypeIndicator: JSX.Element[] = [];
-    const tooltipText = {
-        code: sourceSnippet
-    }
     const logIcon: ReactElement = (
         <g className="log-icon" transform="translate(242 522)">
             <path className="log-icon-dark-path" id="Path_23" d="M7.2,0a.8.8,0,0,1,.093,1.595L7.2,1.6H.8A.8.8,0,0,1,.707.005L.8,0Z" transform="translate(8 11.2)" fill="#5567d5" />
@@ -118,24 +116,14 @@ export function ProcessSVG(props: {
                 </filter>
             </defs>
             <g>
-                {diagnostics?.diagnosticMsgs ?
-                    (
-                        <ProcessRectSVG
-                            type={"diagram-diagnostic"}
-                            onClick={openInCodeView}
-                            diagnostic={diagnostics}
-                            processTypeIndicator={processTypeIndicator}
-                        />
-                    )
-                    :
-                    (
-                        <ProcessRectSVG
-                            type={"diagram-code"}
-                            onClick={openInCodeView}
-                            text={tooltipText}
-                            processTypeIndicator={processTypeIndicator}
-                        />
-                    )}
+                (
+                <ProcessRectSVG
+                    onClick={openInCodeView}
+                    model={componentSTNode}
+                    diagnostic={diagnostics}
+                    processTypeIndicator={processTypeIndicator}
+                />
+                )
             </g>
         </svg>
     )

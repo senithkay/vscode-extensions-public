@@ -36,3 +36,8 @@ export interface RemainingContent {
     code: string,
     position: NodePosition
 }
+
+export interface StmtDiagnostic {
+    message: string;
+    isPlaceHolderDiag?: boolean;
+}

@@ -101,13 +101,7 @@ export function ModuleVariable(props: ModuleVariableProps) {
 
     useEffect(() => {
         if (model && showTooltip) {
-            setTooltip(showTooltip(moduleVariableTypeElement, "heading-content", {
-                content: model.source.slice(1, -1),
-                heading: ""
-            }, "top-start", true, undefined, undefined, false, undefined, {
-                inverted: false,
-                interactive: true
-            }));
+            setTooltip(showTooltip(moduleVariableTypeElement, model.source.slice(1, -1)));
         }
     }, [model]);
 

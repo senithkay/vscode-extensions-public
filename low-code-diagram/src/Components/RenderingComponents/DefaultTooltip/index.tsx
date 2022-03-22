@@ -3,7 +3,7 @@ import React, { ReactElement } from "react";
 import { ErrorSnippet, TooltipContent } from "../../../Types/type";
 
 interface DefaultTooltipProps {
-    text?: TooltipContent,
+    text?: any,
     diagnostic?: ErrorSnippet,
     children?: React.ReactElement<any, any>;
 }

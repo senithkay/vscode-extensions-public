@@ -13,8 +13,9 @@
 // tslint:disable: jsx-no-multiline-js
 import * as React from "react";
 
+import { STNode } from "@wso2-enterprise/syntax-tree";
+
 import { ErrorSnippet } from "../../../Types/type";
-// import { ErrorSnippet } from "../../../../../../DiagramGenerator/generatorUtil";
 
 import { WhileRectSVG } from "./WhileRectSVG";
 
@@ -28,12 +29,11 @@ export function WhileSVG(props: {
     x: number, y: number,
     openInCodeView?: () => void,
     codeSnippetOnSvg?: string,
-    codeSnippet?: string, diagnostics?: ErrorSnippet
+    codeSnippet?: string,
+    diagnostics?: ErrorSnippet,
+    componentSTNode: STNode
 }) {
-    const { codeSnippet, openInCodeView, codeSnippetOnSvg, diagnostics, ...xyProps } = props;
-    const tooltipText = {
-        code: codeSnippet
-    }
+    const { codeSnippet, openInCodeView, codeSnippetOnSvg, diagnostics, componentSTNode, ...xyProps } = props;
     return (
         <svg {...xyProps} width={WHILE_SVG_WIDTH_WITH_SHADOW} height={WHILE_SVG_HEIGHT_WITH_SHADOW}>
             <defs>
@@ -56,26 +56,13 @@ export function WhileSVG(props: {
                     <feComposite in="SourceGraphic" />
                 </filter>
             </defs>
-            {diagnostics?.diagnosticMsgs ?
-                (
-                    <WhileRectSVG
-                        type={"diagram-diagnostic"}
-                        onClick={openInCodeView}
-                        diagnostic={diagnostics}
-                        className="while-group"
-                    />
-
-                )
-                :
-                (
-                    <WhileRectSVG
-                        type={"diagram-code"}
-                        onClick={openInCodeView}
-                        text={tooltipText}
-                        className="while-group"
-                    />
-
-                )}
+            (
+            <WhileRectSVG
+                onClick={openInCodeView}
+                model={componentSTNode}
+                diagnostic={diagnostics}
+            />
+            )
         </svg>
     )
 }

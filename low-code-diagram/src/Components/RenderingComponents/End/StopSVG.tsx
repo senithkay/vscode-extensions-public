@@ -54,7 +54,7 @@ export function StopSVG(props: { x: number, y: number, text: string, codeSnippet
 
     useEffect(() => {
         if (codeSnippet && showTooltip) {
-            setTooltip(showTooltip(rectElement, "diagram-code", { code: codeSnippet }, "right", true, undefined, undefined, false, openInCodeView));
+            setTooltip(showTooltip(rectElement, codeSnippet));
         }
     }, [codeSnippet]);
 

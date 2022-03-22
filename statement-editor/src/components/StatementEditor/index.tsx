@@ -15,7 +15,6 @@ import React, { useEffect, useState } from 'react';
 
 import {
     ExpressionEditorLangClientInterface,
-    getFilteredDiagnostics,
     LibraryDataResponse,
     LibraryDocResponse,
     LibrarySearchResponse,
@@ -31,12 +30,14 @@ import {
 } from "../../constants";
 import {
     CurrentModel,
+    StmtDiagnostic,
     SuggestionItem
 } from "../../models/definitions";
 import { StatementEditorContextProvider } from "../../store/statement-editor-context";
 import {
     enrichModelWithViewState,
-    getCurrentModel
+    getCurrentModel,
+    getFilteredDiagnosticMessages
 } from "../../utils";
 import {
     addImportStatements,
@@ -101,7 +102,7 @@ export function StatementEditor(props: StatementEditorProps) {
 
     const [model, setModel] = useState<STNode>(null);
     const [currentModel, setCurrentModel] = useState<CurrentModel>({ model });
-    const [diagnostics, setDiagnostics] = useState([]);
+    const [diagnostics, setDiagnostics] = useState<StmtDiagnostic[]>([]);
     const [moduleList, setModuleList] = useState(new Set<string>());
     const [lsSuggestionsList, setLSSuggestionsList] = useState([]);
 
@@ -136,7 +137,7 @@ export function StatementEditor(props: StatementEditorProps) {
                 sendDidOpen(fileURI, currentFile.content, getLangClient).then();
                 const diagResp = await getDiagnostics(fileURI, getLangClient);
                 const diag = diagResp[0]?.diagnostics ?
-                    getFilteredDiagnostics(diagResp[0]?.diagnostics, false) :
+                    getFilteredDiagnosticMessages(initialSource, formArgs.formArgs.targetPosition, diagResp[0].diagnostics) :
                     [];
                 setDiagnostics(diag);
             })();
@@ -189,7 +190,7 @@ export function StatementEditor(props: StatementEditorProps) {
 
         const diagResp = await getDiagnostics(fileURI, getLangClient);
         const diag = diagResp[0]?.diagnostics ?
-            getFilteredDiagnostics(diagResp[0]?.diagnostics, false) :
+            getFilteredDiagnosticMessages(updatedStatement, formArgs.formArgs.targetPosition, diagResp[0].diagnostics) :
             [];
         setDiagnostics(diag);
 
