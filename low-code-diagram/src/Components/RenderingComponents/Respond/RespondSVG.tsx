@@ -13,6 +13,8 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useState } from "react";
 
+import { STNode } from "@wso2-enterprise/syntax-tree";
+
 import { Context } from "../../../Context/diagram";
 import { DefaultTooltip } from "../DefaultTooltip";
 
@@ -23,11 +25,11 @@ export const RESPOND_SVG_HEIGHT = 41 + RESPOND_STROKE_HEIGHT;
 export const RESPOND_SVG_WIDTH = 83;
 export const RESPOND_SVG_SHADOW_OFFSET = RESPOND_SVG_HEIGHT_WITH_SHADOW - RESPOND_SVG_HEIGHT;
 
-export function RespondSVG(props: { x: number, y: number, text: string, sourceSnippet?: string, openInCodeView?: () => void }) {
-    const { text, sourceSnippet, openInCodeView, ...xyProps } = props;
+export function RespondSVG(props: { x: number, y: number, text: string, sourceSnippet?: string, model: STNode, openInCodeView?: () => void }) {
+    const { text, sourceSnippet, openInCodeView, model, ...xyProps } = props;
     const diagramContext = useContext(Context);
     const showTooltip = diagramContext?.api?.edit?.showTooltip;
-    const [tooltip, setTooltip] = useState(undefined);
+    const [tooltipComp, setTooltipComp] = useState(undefined);
     const responseRect = (
         <g id="Respond" className="respond-comp respond-active" transform="translate(7 6)">
             <g transform="matrix(1, 0, 0, 1, -7, -6)">
@@ -44,15 +46,16 @@ export function RespondSVG(props: { x: number, y: number, text: string, sourceSn
         </g>
     );
 
+
     const defaultTooltip = (
-        <DefaultTooltip text={{ code: sourceSnippet }}>{responseRect}</DefaultTooltip>
+        <DefaultTooltip text={sourceSnippet}>{responseRect}</DefaultTooltip>
     );
 
     useEffect(() => {
-        if (sourceSnippet && showTooltip) {
-            setTooltip(showTooltip(responseRect, "diagram-code", { code: sourceSnippet }, "right", true, undefined, undefined, false, openInCodeView));
+        if (model && showTooltip) {
+            setTooltipComp(showTooltip(responseRect, undefined, openInCodeView, model));
         }
-    }, [sourceSnippet]);
+    }, [model]);
 
     return (
         <svg {...xyProps} height={RESPOND_SVG_HEIGHT_WITH_SHADOW} width={RESPOND_SVG_WIDTH_WITH_SHADOW} className="respond">
@@ -76,7 +79,7 @@ export function RespondSVG(props: { x: number, y: number, text: string, sourceSn
                     <feComposite in="SourceGraphic" />
                 </filter>
             </defs>
-            {tooltip ? tooltip : defaultTooltip}
+            {tooltipComp ? tooltipComp : defaultTooltip}
         </svg >
     )
 }

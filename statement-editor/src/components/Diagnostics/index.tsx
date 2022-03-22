@@ -14,53 +14,33 @@
 import React, { useContext } from "react";
 
 import { List, ListItemText, Typography } from "@material-ui/core";
-import { getDiagnosticMessage } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
+import { StmtDiagnostic } from "../../models/definitions";
 import { StatementEditorContext } from "../../store/statement-editor-context";
-import { INPUT_EDITOR_PLACE_HOLDERS } from "../InputEditor/constants";
 import { useStatementEditorStyles } from "../styles";
 
 export function Diagnostics() {
     const statementEditorClasses = useStatementEditorStyles();
     const stmtCtx = useContext(StatementEditorContext);
     const {
-        modelCtx: {
-            statementModel
-        },
         statementCtx: {
             diagnostics
-        },
-        formCtx: {
-            formModelPosition: targetPosition
         }
     } = stmtCtx;
-
-    const hasPlaceHolders = Array.from(INPUT_EDITOR_PLACE_HOLDERS.keys()).some(word =>
-        statementModel?.source.includes(word)
-    );
-
-    const diagnosticTargetPosition: NodePosition = {
-        startLine: targetPosition.startLine || 0,
-        startColumn: targetPosition.startColumn || 0,
-        endLine: targetPosition?.endLine || targetPosition.startLine,
-        endColumn: targetPosition?.endColumn || 0
-    };
-
-    const messages = !hasPlaceHolders &&
-        getDiagnosticMessage(diagnostics, diagnosticTargetPosition, 0, statementModel?.source.length, 0, 0).split('. ');
 
     return (
         <div className={statementEditorClasses.diagnosticsPane}>
             <List>
                 {
-                    messages && messages.map((msg: string, index: number) => (
-                        <ListItemText
-                            key={index}
-                            primary={(
-                                <Typography>{msg}</Typography>
-                            )}
-                        />
+                    diagnostics && diagnostics.map((diag: StmtDiagnostic, index: number) => (
+                        !diag.isPlaceHolderDiag && (
+                            <ListItemText
+                                key={index}
+                                primary={(
+                                    <Typography>{diag.message}</Typography>
+                                )}
+                            />
+                        )
                     ))
                 }
             </List>

@@ -75,15 +75,11 @@ export function ListenerC(props: ListenerProps) {
         <tspan x="0" y="0">{typeMaxWidth ? listenerType.slice(0, 10).toUpperCase() + "..." : listenerType.toUpperCase()}</tspan>
     );
 
+    // TODO:Check the rendering issue in this tooltip
+
     useEffect(() => {
         if (model && showTooltip) {
-            setTooltip(showTooltip(listenerTypeComponent, "heading-content", {
-                content: model.source.slice(1, -1),
-                heading: ""
-            }, "top-start", true, undefined, undefined, false, undefined, {
-                inverted: false,
-                interactive: true
-            }));
+            setTooltip(showTooltip(listenerTypeComponent, model.source.slice(1, -1)));
         }
     }, [model]);
 

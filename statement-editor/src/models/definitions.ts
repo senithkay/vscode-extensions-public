@@ -43,7 +43,7 @@ export interface RemainingContent {
     position: NodePosition
 }
 
-export interface ExprDeleteConfig {
-    exprNotDeletable?: boolean,
-    defaultExprDeletable?: boolean
+export interface StmtDiagnostic {
+    message: string;
+    isPlaceHolderDiag?: boolean;
 }
