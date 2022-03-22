@@ -37,6 +37,7 @@ import {
 } from "../../models/definitions";
 import { StatementEditorContextProvider } from "../../store/statement-editor-context";
 import {
+    addExpressionToTargetPosition,
     enrichModelWithDeletableState,
     enrichModelWithDiagnostics,
     getCurrentModel,
@@ -107,7 +108,6 @@ export function StatementEditor(props: StatementEditorProps) {
     const [model, setModel] = useState<STNode>(null);
     const [currentModel, setCurrentModel] = useState<CurrentModel>({ model });
     const [stmtDiagnostics, setStmtDiagnostics] = useState<StmtDiagnostic[]>([]);
-    const [diagnosticResp, setDiagnosticResp] = useState<Diagnostic[]>([]);
     const [moduleList, setModuleList] = useState(new Set<string>());
     const [lsSuggestionsList, setLSSuggestionsList] = useState([]);
 
@@ -120,17 +120,25 @@ export function StatementEditor(props: StatementEditorProps) {
 
     const undoRedoManager = React.useMemo(() => new StmtEditorUndoRedoManager(), []);
 
-    const undo = React.useCallback(() => {
+    const undo = React.useCallback(async () => {
         const undoItem = undoRedoManager.getUndoModel();
         if (undoItem) {
-            updateEditedModel(undoItem.oldModel, diagnosticResp);
+            const updatedContent = await getUpdatedSource(undoItem.oldModel.source, currentFile.content,
+                targetPosition, moduleList, getLangClient);
+            sendDidChange(fileURI, updatedContent, getLangClient).then();
+            const diagnostics = await handleDiagnostics(undoItem.oldModel.source.length);
+            updateEditedModel(undoItem.oldModel, diagnostics);
         }
     }, []);
 
-    const redo = React.useCallback(() => {
+    const redo = React.useCallback(async () => {
         const redoItem = undoRedoManager.getRedoModel();
         if (redoItem) {
-            updateEditedModel(redoItem.newModel, diagnosticResp);
+            const updatedContent = await getUpdatedSource(redoItem.oldModel.source, currentFile.content,
+                targetPosition, moduleList, getLangClient);
+            sendDidChange(fileURI, updatedContent, getLangClient).then();
+            const diagnostics = await handleDiagnostics(redoItem.oldModel.source.length);
+            updateEditedModel(redoItem.newModel, diagnostics);
         }
     }, []);
 
@@ -139,11 +147,7 @@ export function StatementEditor(props: StatementEditorProps) {
             (async () => {
                 sendDidOpen(fileURI, currentFile.content, getLangClient).then();
 
-                const diagResp = await getDiagnostics(fileURI, getLangClient);
-                const diagnostics  = diagResp[0]?.diagnostics ? diagResp[0].diagnostics : [];
-                const messages = getFilteredDiagnosticMessages(initialSource, targetPosition, diagnostics);
-                setStmtDiagnostics(messages);
-                setDiagnosticResp(diagnostics);
+                const diagnostics = await handleDiagnostics(initialSource.length);
 
                 const partialST = await getPartialSTForStatement(
                     { codeSnippet: initialSource.trim() }, getLangClient);
@@ -180,29 +184,17 @@ export function StatementEditor(props: StatementEditorProps) {
         }
     }, [model]);
 
-    const handleChange = async (newValue: string, isEditedViaInputEditor?: boolean) => {
-        const updatedContent = await getUpdatedSource(model, currentModel.model.position, newValue,
-            currentFile.content, targetPosition, moduleList, getLangClient);
+    const handleChange = async (newValue: string) => {
+        const updatedStatement = addExpressionToTargetPosition(model, currentModel.model.position, newValue);
+        const updatedContent = await getUpdatedSource(updatedStatement, currentFile.content,
+            targetPosition, moduleList, getLangClient);
 
         sendDidChange(fileURI, updatedContent, getLangClient).then();
-
-        const diagResp = await getDiagnostics(fileURI, getLangClient);
-        const diag  = diagResp[0]?.diagnostics ? diagResp[0].diagnostics : [];
-        const messages = getFilteredDiagnosticMessages(updatedContent, targetPosition, diag);
-        setStmtDiagnostics(messages);
-        setDiagnosticResp(diag);
-
-        if (isEditedViaInputEditor) {
-            const lsSuggestions = await getCompletions(fileURI, targetPosition, model,
-                currentModel, getLangClient, newValue);
-            setLSSuggestionsList(lsSuggestions);
-        }
+        handleDiagnostics(updatedStatement.length).then();
+        handleCompletions(newValue).then();
     }
 
-    const updateModel = async (codeSnippet: string, position: NodePosition, isEditedViaInputEditor?: boolean) => {
-        if (!isEditedViaInputEditor) {
-            handleChange(codeSnippet).then();
-        }
+    const updateModel = async (codeSnippet: string, position: NodePosition) => {
         let partialST: STNode;
         if (model) {
             const stModification = {
@@ -221,8 +213,13 @@ export function StatementEditor(props: StatementEditorProps) {
 
         undoRedoManager.add(model, partialST);
 
+        const updatedContent = await getUpdatedSource(partialST.source, currentFile.content, targetPosition,
+            moduleList, getLangClient);
+        sendDidChange(fileURI, updatedContent, getLangClient).then();
+        const diagnostics = await handleDiagnostics(partialST.source.length);
+
         if (!partialST.syntaxDiagnostics.length || config.type === CUSTOM_CONFIG_TYPE) {
-            updateEditedModel(partialST, diagnosticResp);
+            updateEditedModel(partialST, diagnostics);
         }
 
         // Since in list constructor we add expression with comma and close-bracket,
@@ -257,6 +254,20 @@ export function StatementEditor(props: StatementEditorProps) {
             });
         }
     };
+
+    const handleCompletions = async (newValue: string) => {
+        const lsSuggestions = await getCompletions(fileURI, targetPosition, model,
+            currentModel, getLangClient, newValue);
+        setLSSuggestionsList(lsSuggestions);
+    }
+
+    const handleDiagnostics = async (stmtLength: number): Promise<Diagnostic[]> => {
+        const diagResp = await getDiagnostics(fileURI, getLangClient);
+        const diag  = diagResp[0]?.diagnostics ? diagResp[0].diagnostics : [];
+        const messages = getFilteredDiagnosticMessages(stmtLength, targetPosition, diag);
+        setStmtDiagnostics(messages);
+        return diag;
+    }
 
     const currentModelHandler = (cModel: STNode, kind?: ModelKind) => {
         setCurrentModel({

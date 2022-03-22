@@ -177,7 +177,7 @@ export function isBindingPattern(modelKind: ModelKind): boolean {
     return modelKind === ModelKind.BindingPattern;
 }
 
-export function getFilteredDiagnosticMessages(source: string, targetPosition: NodePosition,
+export function getFilteredDiagnosticMessages(stmtLength: number, targetPosition: NodePosition,
                                               diagnostics: Diagnostic[]): StmtDiagnostic[] {
     const stmtDiagnostics: StmtDiagnostic[] = [];
 
@@ -190,7 +190,7 @@ export function getFilteredDiagnosticMessages(source: string, targetPosition: No
         endColumn: targetPosition?.endColumn || 0
     };
 
-    getDiagnosticMessage(diag, diagnosticTargetPosition, 0, source.length, 0, 0).split('. ').map(message => {
+    getDiagnosticMessage(diag, diagnosticTargetPosition, 0, stmtLength, 0, 0).split('. ').map(message => {
             let isPlaceHolderDiag = false;
             if (message === EXPR_PLACE_HOLDER_DIAG || message === TYPE_DESC_PLACE_HOLDER_DIAG) {
                 isPlaceHolderDiag = true;
@@ -203,15 +203,11 @@ export function getFilteredDiagnosticMessages(source: string, targetPosition: No
     return stmtDiagnostics;
 }
 
-export async function getUpdatedSource(statementModel: STNode, currentModel: NodePosition, newValue: string,
-                                       currentFileContent: string, targetPosition: NodePosition, moduleList: Set<string>,
+export async function getUpdatedSource(updatedStatement: string, currentFileContent: string,
+                                       targetPosition: NodePosition, moduleList: Set<string>,
                                        getLangClient: () => Promise<ExpressionEditorLangClientInterface>)
     : Promise<string> {
 
-    let updatedStatement = addExpressionToTargetPosition(statementModel, currentModel, newValue);
-    if (updatedStatement.slice(-1) !== ';') {
-        updatedStatement += ';';
-    }
     let updatedContent: string = await addStatementToTargetLine(currentFileContent, targetPosition,
         updatedStatement, getLangClient);
     if (!!moduleList.size) {
@@ -221,7 +217,9 @@ export async function getUpdatedSource(statementModel: STNode, currentModel: Nod
     return updatedContent;
 }
 
-function addExpressionToTargetPosition(statementModel: STNode, currentPosition: NodePosition, newValue: string): string {
+export function addExpressionToTargetPosition(statementModel: STNode, currentPosition: NodePosition,
+                                              newValue: string): string {
+
     const startLine = currentPosition.startLine;
     const startColumn = currentPosition.startColumn;
     const endColumn = currentPosition.endColumn;
@@ -235,7 +233,10 @@ function addExpressionToTargetPosition(statementModel: STNode, currentPosition: 
         return splitStatement.join('\n');
     }
 
-    return statementModel.source.slice(0, startColumn) + newValue + statementModel.source.slice(endColumn || startColumn);
+    const newStatement =  statementModel.source.slice(0, startColumn) + newValue +
+        statementModel.source.slice(endColumn || startColumn);
+
+    return newStatement.slice(-1) !== ';' ? newStatement + ';' : newStatement;
 }
 
 export function getSuggestionIconStyle(suggestionType: number): string {
