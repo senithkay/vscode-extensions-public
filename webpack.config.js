@@ -46,10 +46,10 @@ module.exports = {
   plugins: [
     new MergeIntoSingleFile({
       files: {
-        "../resources/jslibs/webviewCommons.js": [
-          'resources/utils/messaging.js',
-          'resources/utils/undo-redo.js',
-          'node_modules/pako/dist/pako.min.js'
+        [path.join('..', 'resources', 'jslibs', 'webviewCommons.js')]: [
+          path.resolve('resources', 'utils', 'messaging.js'),
+          path.resolve('resources', 'utils', 'undo-redo.js'),
+          path.resolve('node_modules', 'pako', 'dist', 'pako.min.js'),
         ],
       },
       transform: {
