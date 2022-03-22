@@ -123,14 +123,14 @@ export function StatementEditor(props: StatementEditorProps) {
     const undo = React.useCallback(() => {
         const undoItem = undoRedoManager.getUndoModel();
         if (undoItem) {
-            updateEditedModel(undoItem.oldModel);
+            updateEditedModel(undoItem.oldModel, diagnosticResp);
         }
     }, []);
 
     const redo = React.useCallback(() => {
         const redoItem = undoRedoManager.getRedoModel();
         if (redoItem) {
-            updateEditedModel(redoItem.newModel);
+            updateEditedModel(redoItem.newModel, diagnosticResp);
         }
     }, []);
 
@@ -235,7 +235,7 @@ export function StatementEditor(props: StatementEditorProps) {
         undoRedoManager.add(model, partialST);
 
         if (!partialST.syntaxDiagnostics.length || config.type === CUSTOM_CONFIG_TYPE) {
-            updateEditedModel(partialST);
+            updateEditedModel(partialST, diagnosticResp);
         }
 
         // Since in list constructor we add expression with comma and close-bracket,

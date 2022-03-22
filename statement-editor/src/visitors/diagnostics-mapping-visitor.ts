@@ -38,7 +38,7 @@ class DiagnosticsMappingVisitor implements Visitor {
             endColumn: node?.position?.endColumn + this.offset.startColumn,
         }
         if (isPositionsEquals(diagPosition, nodePosition)) {
-            node.syntaxDiagnostics.push({
+            node?.syntaxDiagnostics?.push({
                 diagnosticInfo: {
                     code: this.diagnostic.code.toString(),
                     severity: this.diagnostic.severity.toString()
