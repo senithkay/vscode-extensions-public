@@ -1,4 +1,4 @@
-FROM choreoanonymouspullable.azurecr.io/choreoipaas/choreo-ballerina:2201.0.1 as choreo-ballerina
+FROM choreoanonymouspullable.azurecr.io/choreoipaas/choreo-ballerina:2201.0.2 as choreo-ballerina
 
 FROM linuxserver/code-server:version-v3.12.0
 
