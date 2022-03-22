@@ -4,7 +4,6 @@
 
 const path = require('path');
 const MergeIntoSingleFile = require('webpack-merge-and-include-globally');
-const CopyPlugin = require("copy-webpack-plugin");
 
 /** @type {import('webpack').Configuration} */
 module.exports = {
@@ -47,20 +46,15 @@ module.exports = {
   plugins: [
     new MergeIntoSingleFile({
       files: {
-        "webviewCommons.js": [
-          'resources/utils/messaging.js',
-          'resources/utils/undo-redo.js',
-          'node_modules/pako/dist/pako.min.js'
+        [path.join('..', 'resources', 'jslibs', 'webviewCommons.js')]: [
+          path.resolve('resources', 'utils', 'messaging.js'),
+          path.resolve('resources', 'utils', 'undo-redo.js'),
+          path.resolve('node_modules', 'pako', 'dist', 'pako.min.js'),
         ],
       },
       transform: {
         'webviewCommons.js': code => require("uglify-js").minify(code).code
       }
-    }),
-    new CopyPlugin({
-      patterns: [
-        { from: "dist/webviewCommons.js", to: "../resources/jslibs" },
-      ],
     }),
   ]
 };
