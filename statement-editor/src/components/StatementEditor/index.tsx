@@ -149,8 +149,8 @@ export function StatementEditor(props: StatementEditorProps) {
             if (model) {
                 let lsSuggestions : SuggestionItem[] = [];
                 if (currentModel.model){
-                    if (!((currentModel.model?.viewState as StatementEditorViewState).isOperator) &&
-                        !((currentModel.model?.viewState as StatementEditorViewState).isBindingPattern)) {
+                    const currentModelViewState = currentModel.model?.viewState as StatementEditorViewState;
+                    if (!currentModelViewState.isOperator && !currentModelViewState.isBindingPattern) {
                         const content: string = await addStatementToTargetLine(
                             currentFile.content, formArgs.formArgs.targetPosition, model.source, getLangClient);
                         sendDidChange(fileURI, content, getLangClient).then();
