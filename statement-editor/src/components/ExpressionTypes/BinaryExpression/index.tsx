@@ -10,12 +10,11 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, { ReactNode, useContext } from "react";
+import React, { ReactNode } from "react";
 
 import { BinaryExpression } from "@wso2-enterprise/syntax-tree";
 
 import { ModelKind } from "../../../models/definitions";
-import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { ExpressionComponent } from "../../Expression";
 
 interface BinaryProps {
@@ -24,24 +23,15 @@ interface BinaryProps {
 
 export function BinaryExpressionComponent(props: BinaryProps) {
     const { model } = props;
-    const stmtCtx = useContext(StatementEditorContext);
-    const {
-        modelCtx: {
-            changeCurrentModel
-        }
-    } = stmtCtx;
-
 
     const lhs: ReactNode = (
         <ExpressionComponent
             model={model.lhsExpr}
-            deleteConfig={{defaultExprDeletable: true}}
         />
     );
     const rhs: ReactNode = (
         <ExpressionComponent
             model={model.rhsExpr}
-            deleteConfig={{defaultExprDeletable: true}}
         />
     );
 

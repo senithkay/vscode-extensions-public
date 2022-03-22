@@ -41,9 +41,10 @@ export function TriggerParamsSVG(props: { x: number, y: number, text: any }) {
             </g>
         </g>
     );
+
     useEffect(() => {
         if (text && showTooltip) {
-            setTooltip(showTooltip(paramSVG, "truncate-code", tooltipText, "right", true));
+            setTooltip(showTooltip(paramSVG, tooltipText.code));
         }
     }, [text]);
 

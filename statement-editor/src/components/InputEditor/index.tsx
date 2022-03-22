@@ -135,6 +135,9 @@ export function InputEditor(props: InputEditorProps) {
     };
 
     const changeInput = (newValue: string) => {
+        if (!newValue) {
+            newValue = isTypeDesc ? 'TYPE_DESCRIPTOR' : 'EXPRESSION';
+        }
         setUserInput(newValue);
         inputEditorCtx.onInputChange(newValue);
         debouncedContentChange(newValue, true);
@@ -154,16 +157,6 @@ export function InputEditor(props: InputEditorProps) {
         if (userInput !== "") {
             updateModel(userInput, model ? model.position : targetPosition, true);
         }
-    }
-
-    const getInputDisplayValue = (inputText: string): string => {
-        if (INPUT_EDITOR_PLACE_HOLDERS.has(inputText)) {
-            return INPUT_EDITOR_PLACE_HOLDERS.get(inputText);
-        } else if (inputText === "") {
-            isTypeDesc ? (inputText = 'TYPE_DESCRIPTOR') : (inputText = 'EXPRESSION');
-            return INPUT_EDITOR_PLACE_HOLDERS.get(inputText);
-        }
-        return inputText;
     }
 
     return isEditing ?
@@ -189,7 +182,7 @@ export function InputEditor(props: InputEditorProps) {
                 className={statementEditorClasses.inputEditorTemplate + ' ' + classNames}
                 onDoubleClick={handleDoubleClick}
             >
-                {getInputDisplayValue(userInput)}
+                {INPUT_EDITOR_PLACE_HOLDERS.has(userInput) ? INPUT_EDITOR_PLACE_HOLDERS.get(userInput) : userInput}
             </span>
         );
 }

@@ -11,54 +11,40 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext, useEffect } from "react";
+import React, { useContext } from "react";
 
 import { STNode } from "@wso2-enterprise/syntax-tree";
 import cn from "classnames";
 
-import { ExprDeleteConfig, ModelKind } from "../../models/definitions";
+import { ModelKind } from "../../models/definitions";
 import { StatementEditorContext } from "../../store/statement-editor-context";
-import { getExpressionTypeComponent, getRemainingContent, isPositionsEquals } from "../../utils";
-import DeleteButton from "../Button/DeleteButton";
-import { INPUT_EDITOR_PLACE_HOLDERS } from "../InputEditor/constants";
+import { getExpressionTypeComponent, isPositionsEquals } from "../../utils";
 import { useStatementEditorStyles } from "../styles";
 
 export interface ExpressionComponentProps {
     model: STNode;
     children?: React.ReactElement[];
     classNames?: string;
-    deleteConfig?: ExprDeleteConfig;
     isTypeDesc?: boolean;
     modelKind?: ModelKind;
 }
 
 export function ExpressionComponent(props: ExpressionComponentProps) {
-    const { model, children, classNames, deleteConfig, isTypeDesc, modelKind } = props;
+    const { model, children, classNames, isTypeDesc, modelKind } = props;
 
     const component = getExpressionTypeComponent(model, isTypeDesc);
 
     const [isHovered, setHovered] = React.useState(false);
-    const [deletable, setDeletable] = React.useState(false);
 
     const { modelCtx } = useContext(StatementEditorContext);
     const {
-        statementModel: completeModel,
         currentModel: selectedModel,
-        updateModel,
         changeCurrentModel
     } = modelCtx;
 
     const statementEditorClasses = useStatementEditorStyles();
 
     const isSelected = selectedModel.model && model && isPositionsEquals(selectedModel.model.position, model.position);
-
-    useEffect(() => {
-        let exprDeletable = !deleteConfig?.exprNotDeletable;
-        if (model.source && INPUT_EDITOR_PLACE_HOLDERS.has(model.source.trim())) {
-            exprDeletable = deleteConfig?.defaultExprDeletable;
-        }
-        setDeletable(exprDeletable);
-    }, [model.source]);
 
     const onMouseOver = (e: React.MouseEvent) => {
         setHovered(true);
@@ -78,15 +64,6 @@ export function ExpressionComponent(props: ExpressionComponentProps) {
         changeCurrentModel(model, modelKind);
     }
 
-    const onClickOnDelete = () => {
-        const {
-            code: newCode,
-            position: newPosition
-        } = getRemainingContent(model.position, completeModel);
-
-        updateModel(newCode, newPosition);
-    }
-
     const styleClassNames = cn(statementEditorClasses.expressionElement,
         isSelected && statementEditorClasses.expressionElementSelected,
         {
@@ -104,11 +81,6 @@ export function ExpressionComponent(props: ExpressionComponentProps) {
         >
             {component}
             {children}
-            {isSelected && deletable && (
-                <div className={statementEditorClasses.expressionDeleteButton}>
-                    <DeleteButton onClick={onClickOnDelete} />
-                </div>
-            )}
         </span>
     );
 }

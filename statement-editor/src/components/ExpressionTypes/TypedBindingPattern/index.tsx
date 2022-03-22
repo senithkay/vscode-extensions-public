@@ -27,7 +27,6 @@ export function TypedBindingPatternComponent(props: TypedBindingPatternProps) {
     const bindingPatternComponent: ReactNode = (
         <ExpressionComponent
             model={model.bindingPattern}
-            deleteConfig={{exprNotDeletable: true}}
             modelKind={ModelKind.BindingPattern}
         />
     );
@@ -36,7 +35,6 @@ export function TypedBindingPatternComponent(props: TypedBindingPatternProps) {
         <ExpressionComponent
             model={model.typeDescriptor}
             classNames="type-descriptor"
-            deleteConfig={{defaultExprDeletable: true}}
             isTypeDesc={true}
             modelKind={ModelKind.TypeDesc}
         />
