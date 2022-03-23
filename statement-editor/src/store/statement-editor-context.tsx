@@ -37,6 +37,9 @@ export const StatementEditorContext = React.createContext({
     formCtx: {
         formModelPosition: null
     },
+    config: {
+        type: ''
+    },
     statementCtx: {
         diagnostics: []
     },
@@ -65,6 +68,7 @@ interface CtxProviderProps extends LowCodeEditorProps {
     children?: React.ReactNode,
     model: STNode,
     currentModel: { model: STNode },
+    config?: {type: string, model?: STNode},
     changeCurrentModel?: (model: STNode) => void,
     handleChange?: (codeSnippet: string, isEditedViaInputEditor?: boolean) => void,
     handleModules?: (module: string) => void,
@@ -85,6 +89,7 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
         children,
         model,
         currentModel,
+        config,
         changeCurrentModel,
         handleChange,
         updateModel,
@@ -120,6 +125,7 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
                 formCtx: {
                     formModelPosition: formArgs.formArgs.targetPosition
                 },
+                config,
                 statementCtx: {
                     diagnostics
                 },

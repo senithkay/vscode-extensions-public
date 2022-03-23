@@ -16,6 +16,7 @@ import React, { ReactNode, useContext } from "react";
 import { LocalVarDecl } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
+import { CUSTOM_CONFIG_TYPE } from "../../../constants";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { isPositionsEquals } from "../../../utils";
 import { ExpressionComponent } from "../../Expression";
@@ -34,7 +35,8 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
         modelCtx: {
             currentModel,
             changeCurrentModel
-        }
+        },
+        config
     } = stmtCtx;
     const hasTypedBindingPatternSelected = currentModel.model &&
         isPositionsEquals(currentModel.model.position, model.typedBindingPattern.position);
@@ -46,8 +48,12 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
         changeCurrentModel(model.typedBindingPattern);
     };
 
-    if (!currentModel.model && model.initializer) {
-        changeCurrentModel(model.initializer);
+    if (!currentModel.model) {
+        if (model.initializer) {
+            changeCurrentModel(model.initializer);
+        } else if (config.type === CUSTOM_CONFIG_TYPE) {
+            changeCurrentModel(model);
+        }
     }
 
     let typedBindingComponent: ReactNode;
