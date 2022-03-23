@@ -15,7 +15,7 @@ import React from "react";
 import { BinaryExpression } from "@wso2-enterprise/syntax-tree";
 
 import { ExpressionComponent } from "../../Expression";
-import { OperatorComponent } from "../Operator";
+import { OperatorComponent } from "../../Operator";
 
 interface BinaryProps {
     model: BinaryExpression;

@@ -37,10 +37,10 @@ import { AsteriskToken,
     TrippleGtToken } from "@wso2-enterprise/syntax-tree";
 import cn from "classnames";
 
-import { StatementEditorContext } from "../../../store/statement-editor-context";
-import { isPositionsEquals } from "../../../utils";
-import { InputEditor } from "../../InputEditor";
-import { useStatementEditorStyles } from "../../styles";
+import { StatementEditorContext } from "../../store/statement-editor-context";
+import { isPositionsEquals } from "../../utils";
+import { InputEditor } from "../InputEditor";
+import { useStatementEditorStyles } from "../styles";
 
 export interface OperatorProps {
     model:  AsteriskToken |
