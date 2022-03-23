@@ -37,7 +37,6 @@ export const NUMERIC_LITERAL = "NumericLiteral"
 export const BOOLEAN_LITERAL = "BooleanLiteral"
 export const SIMPLE_NAME_REFERENCE = "SimpleNameReference"
 export const QUALIFIED_NAME_REFERENCE = "QualifiedNameReference"
-export const TRUE_KEYWORD = "true";
 export const OTHER_STATEMENT = "OtherStatement"
 export const STRING_TYPE_DESC = "StringTypeDesc"
 export const DECIMAL_TYPE_DESC = "DecimalTypeDesc"
@@ -47,7 +46,6 @@ export const JSON_TYPE_DESC = "JsonTypeDesc"
 export const VAR_TYPE_DESC = "VarTypeDesc"
 export const TYPE_TEST = "TypeTestExpression"
 export const TYPE_DESCRIPTOR = "TypeDescriptor"
-export const DEFAULT_EXPRESSIONS = "DefaultExpressions"
 export const BOOLEAN_TYPE_DESC = "BooleanTypeDesc"
 export const OTHER_EXPRESSION = "OtherExpression"
 export const MAPPING_CONSTRUCTOR = "MappingConstructor"
@@ -58,6 +56,9 @@ export const STD_LIBS_IDENTIFIER = "Standard"
 
 export const INIT_EXPR_LIST_CONSTRUCTOR = "EXPRESSION]"
 export const APPEND_EXPR_LIST_CONSTRUCTOR = ", EXPRESSION]"
+
+export const EXPR_PLACE_HOLDER_DIAG = "undefined symbol 'EXPRESSION'";
+export const TYPE_DESC_PLACE_HOLDER_DIAG = "unknown type 'TYPE_DESCRIPTOR'";
 
 // Statement types supported in function-body-block
 export type StatementNodes = ActionStatement

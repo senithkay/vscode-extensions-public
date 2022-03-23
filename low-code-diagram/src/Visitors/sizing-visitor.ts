@@ -15,7 +15,6 @@ import {
     AssignmentStatement,
     BlockStatement,
     CallStatement,
-    DoStatement,
     ExpressionFunctionBody,
     ForeachStatement,
     FunctionBodyBlock,
@@ -27,7 +26,6 @@ import {
     ModuleVarDecl,
     NamedWorkerDeclaration,
     ObjectMethodDefinition,
-    OnFailClause,
     ResourceAccessorDefinition,
     ServiceDeclaration,
     STKindChecker,
@@ -1085,18 +1083,18 @@ export class SizingVisitor implements Visitor {
 
                 elseIfViewState.elseIfLifeLine.h = elseIfViewState.bBox.h - elseIfViewState.headIf.h;
 
-                let diffElseIfWidthWithHeadWidth = 0;
-                if (elseIfBodyViewState.bBox.rw > elseIfViewState.headIf.rw) {
-                    diffElseIfWidthWithHeadWidth = (elseIfBodyViewState.bBox.rw - elseIfViewState.headIf.rw);
+                let diffElseIfWidthWithHeadWidthLeft = 0;
+                if (elseIfBodyViewState.bBox.lw > elseIfViewState.headIf.lw) {
+                    diffElseIfWidthWithHeadWidthLeft = (elseIfBodyViewState.bBox.lw - elseIfViewState.headIf.lw);
                 }
 
                 elseWidth = elseIfViewState.bBox.w;
                 elseLeftWidth = elseIfViewState.bBox.lw;
                 elseRightWidth = elseIfViewState.bBox.rw;
 
-                elseIfViewState.elseIfTopHorizontalLine.length = diffIfWidthWithHeadWidth + elseIfViewState.offSetBetweenIfElse + diffElseIfWidthWithHeadWidth;
+                elseIfViewState.elseIfTopHorizontalLine.length = diffIfWidthWithHeadWidth + elseIfViewState.offSetBetweenIfElse + diffElseIfWidthWithHeadWidthLeft;
                 elseIfViewState.elseIfBottomHorizontalLine.length = (viewState.headIf.rw) + diffIfWidthWithHeadWidth + elseIfViewState.offSetBetweenIfElse
-                    + diffElseIfWidthWithHeadWidth + (elseIfViewState.headIf.rw);
+                    + diffElseIfWidthWithHeadWidthLeft + (elseIfViewState.headIf.lw);
 
                 elseIfViewState.childElseIfViewState.forEach((childViewState: IfViewState) => {
                     viewState.childElseIfViewState.push(childViewState)
@@ -1147,7 +1145,7 @@ export class SizingVisitor implements Visitor {
             elseLeftWidth = defaultElseVS.bBox.lw;
             elseRightWidth = defaultElseVS.bBox.rw;
 
-            defaultElseVS.elseTopHorizontalLine.length = viewState.offSetBetweenIfElse + diffIfWidthWithHeadWidth;
+            defaultElseVS.elseTopHorizontalLine.length =  diffIfWidthWithHeadWidth + viewState.offSetBetweenIfElse;
             defaultElseVS.elseBottomHorizontalLine.length = defaultElseVS.ifHeadWidthOffset +
                 diffIfWidthWithHeadWidth + viewState.offSetBetweenIfElse;
             viewState.childElseViewState = defaultElseVS;
@@ -1158,50 +1156,6 @@ export class SizingVisitor implements Visitor {
         viewState.bBox.lw = viewState.headIf.lw + (diffIfWidthWithHeadWidthLeft > viewState.conditionAssignment.w ? diffIfWidthWithHeadWidthLeft : viewState.conditionAssignment.w);
         viewState.bBox.rw = viewState.headIf.rw + diffIfWidthWithHeadWidth + viewState.offSetBetweenIfElse + elseWidth;
         viewState.bBox.w = viewState.bBox.lw + viewState.bBox.rw;
-    }
-
-    public endVisitDoStatement(node: DoStatement) {
-        // TODO: Fix rendering
-        const viewState = node.viewState as DoViewState;
-        if (node.viewState && node.viewState.isFirstInFunctionBody) {
-            const blockViewState = node.blockStatement.viewState as BlockViewState;
-            viewState.container.h = viewState.container.offsetFromTop + blockViewState.bBox.h + viewState.container.offsetFromBottom;
-            viewState.container.w = blockViewState.bBox.w + (DefaultConfig.horizontalGapBetweenComponents * 2);
-
-            viewState.bBox.w = viewState.container.w;
-            viewState.bBox.h = viewState.container.h;
-        } else {
-            this.sizeStatement(node);
-        }
-    }
-
-    public beginVisitOnFailClause(node: OnFailClause) {
-        // TODO: Fix rendering
-        const viewState = node.viewState as OnErrorViewState;
-        if (node.viewState && node.viewState.isFirstInFunctionBody) {
-            const blockViewState = node.blockStatement.viewState as BlockViewState;
-            viewState.header.h = DefaultConfig.onErrorHeader.h;
-            viewState.header.w = DefaultConfig.onErrorHeader.w;
-            viewState.lifeLine.h = blockViewState.bBox.h;
-            viewState.bBox.w = blockViewState.bBox.w + viewState.header.w + DefaultConfig.onErrorHeader.w;
-            viewState.bBox.h = blockViewState.bBox.h + viewState.header.h;
-        }
-    }
-
-    public endVisitOnFailClause(node: OnFailClause) {
-        // TODO: Fix rendering.
-        const viewState = node.viewState as OnErrorViewState;
-        if (node.viewState && node.viewState.isFirstInFunctionBody) {
-            const blockViewState = node.blockStatement.viewState as BlockViewState;
-            viewState.lifeLine.h = blockViewState.bBox.h;
-
-            if (blockViewState.isEndComponentAvailable) {
-                viewState.lifeLine.h -= (blockViewState.bBox.offsetFromBottom + blockViewState.bBox.offsetFromTop + blockViewState.bBox.offsetFromBottom);
-            }
-
-            viewState.bBox.w = blockViewState.bBox.w + viewState.header.w;
-            viewState.bBox.h = blockViewState.bBox.h + viewState.header.h;
-        }
     }
 
     public beginVisitNamedWorkerDeclaration(node: NamedWorkerDeclaration) {

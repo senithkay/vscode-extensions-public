@@ -136,10 +136,11 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
         }
         targetPosition = captureBingingPattern.position;
     }
+    draftVS.targetPosition = draftVS.targetPosition ? draftVS.targetPosition : model?.position;
 
     if (isEditConnector && !connector) {
         const connectorInit: LocalVarDecl = model as LocalVarDecl;
-        const matchedConnector = getMatchingConnector(connectorInit, stSymbolInfo);
+        const matchedConnector = getMatchingConnector(connectorInit);
         if (matchedConnector) {
             setConnector(matchedConnector);
         }
@@ -166,7 +167,7 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
                         x: viewState.bBox.cx + 80,
                         y: viewState.bBox.cy,
                     },
-                    targetPosition: draftVS.targetPosition,
+                    targetPosition: draftVS.targetPosition || model?.position,
                     selectedConnector: draftVS.selectedConnector,
                     specialConnectorName,
                     model,
@@ -225,10 +226,9 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
                 <ConnectorProcessSVG
                     x={viewState.bBox.cx - CONNECTOR_PROCESS_SVG_WIDTH / 2}
                     y={viewState.bBox.cy}
-                    sourceSnippet={sourceSnippet}
+                    componentSTNode={model}
                     diagnostics={errorSnippet}
                     openInCodeView={onClickOpenInCodeView}
-
                 />
                 {/* {!model && !connector && !specialConnectorName && connectorList} */}
                 {/* {(connector || specialConnectorName) && connectorWizard} */}

@@ -15,34 +15,30 @@ import React, { ReactNode, useContext } from "react";
 import { CheckAction } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
-import { DEFAULT_EXPRESSIONS } from "../../../constants";
-import { VariableUserInputs } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
-import { SuggestionsContext } from "../../../store/suggestions-context";
-import { getSuggestionsBasedOnExpressionKind, isPositionsEquals } from "../../../utils";
 import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
 
 interface CheckActionProps {
-    model: CheckAction
-    userInputs: VariableUserInputs
-    diagnosticHandler: (diagnostics: string) => void
-    isElseIfMember: boolean
+    model: CheckAction;
 }
 
 export function CheckActionComponent(props: CheckActionProps) {
-    const { model, userInputs, diagnosticHandler, isElseIfMember } = props;
+    const { model } = props;
     const stmtCtx = useContext(StatementEditorContext);
+    const {
+        modelCtx: {
+            changeCurrentModel
+        }
+    } = stmtCtx;
 
     const statementEditorClasses = useStatementEditorStyles();
-    const { expressionHandler } = useContext(SuggestionsContext);
 
     const onClickOnExpression = async (event: any) => {
         event.stopPropagation();
-
-        expressionHandler(model.expression, false, false,
-            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS), typeSuggestions: [], variableSuggestions: [] });
+        changeCurrentModel(model.expression);
     };
+
     const spanClassName =  classNames(
                                 statementEditorClasses.expressionBlock,
                                 statementEditorClasses.expressionBlockDisabled,
@@ -51,10 +47,6 @@ export function CheckActionComponent(props: CheckActionProps) {
     const expressionComponent: ReactNode = (
         <ExpressionComponent
             model={model.expression}
-            userInputs={userInputs}
-            isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
-            isTypeDescriptor={false}
             onSelect={onClickOnExpression}
         />
     );

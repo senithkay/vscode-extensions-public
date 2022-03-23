@@ -238,7 +238,7 @@ export function DataProcessor(props: ProcessorProps) {
         }
     } else if (!isDraftStatement && STKindChecker?.isAssignmentStatement(model)) {
         assignmentText = (model as AssignmentStatement)?.expression?.source;
-        statmentTypeText = model.varRef?.typeData?.typeSymbol?.signature
+        statmentTypeText = model.varRef?.typeData?.typeSymbol?.signature;
     } else if (!isDraftStatement && STKindChecker?.isLocalVarDecl(model)) {
         assignmentText = model?.initializer?.source;
         statmentTypeText = getStatementTypesFromST(localModel);
@@ -306,9 +306,9 @@ export function DataProcessor(props: ProcessorProps) {
                             y={cy - (PROCESS_SVG_SHADOW_OFFSET / 2)}
                             varName={variableName}
                             processType={processType}
-                            sourceSnippet={sourceSnippet}
                             position={model?.position}
                             diagnostics={errorSnippet}
+                            componentSTNode={model}
                             openInCodeView={!isReadOnly && model && model.position && onClickOpenInCodeView}
                         />
                         <Assignment

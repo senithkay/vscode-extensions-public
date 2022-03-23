@@ -52,7 +52,7 @@ export function StatementC(props: StatementProps) {
                     <ActionInvocation model={clientInit} />
                 );
 
-                if (epViewState.isExternal) {
+                if (epViewState.isExternal || epViewState.isParameter) {
                     externalConnector = (
                         <Connector
                             model={model}

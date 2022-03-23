@@ -21,13 +21,36 @@ import {
     STModification
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import * as monaco from "monaco-editor";
 
-import { APPEND_EXPR_LIST_CONSTRUCTOR, CUSTOM_CONFIG_TYPE, INIT_EXPR_LIST_CONSTRUCTOR } from "../../constants";
-import { VariableUserInputs } from '../../models/definitions';
+import {
+    APPEND_EXPR_LIST_CONSTRUCTOR,
+    CUSTOM_CONFIG_TYPE,
+    INIT_EXPR_LIST_CONSTRUCTOR
+} from "../../constants";
+import {
+    CurrentModel,
+    StmtDiagnostic,
+    SuggestionItem
+} from "../../models/definitions";
 import { StatementEditorContextProvider } from "../../store/statement-editor-context";
-import { getCurrentModel } from "../../utils";
-import { getPartialSTForStatement } from "../../utils/ls-utils";
+import {
+    enrichModelWithViewState,
+    getCurrentModel,
+    getFilteredDiagnosticMessages
+} from "../../utils";
+import {
+    addImportStatements,
+    addStatementToTargetLine,
+    getCompletions,
+    getDiagnostics,
+    getPartialSTForStatement,
+    sendDidChange,
+    sendDidOpen
+} from "../../utils/ls-utils";
+import { StatementEditorViewState } from "../../utils/statement-editor-viewstate";
 import { StmtEditorUndoRedoManager } from '../../utils/undo-redo';
+import { EXPR_SCHEME, FILE_SCHEME } from "../InputEditor/constants";
 import { ViewContainer } from "../ViewContainer";
 
 export interface LowCodeEditorProps {
@@ -43,14 +66,13 @@ export interface LowCodeEditorProps {
         getLibrariesData: () => Promise<LibrarySearchResponse>;
         getLibraryData: (orgName: string, moduleName: string, version: string) => Promise<LibraryDataResponse>;
     };
-    importStatements: string[];
+    importStatements?: string[];
     experimentalEnabled?: boolean;
 }
 export interface StatementEditorProps extends LowCodeEditorProps {
     label: string;
     initialSource: string;
     formArgs: any;
-    userInputs?: VariableUserInputs;
     config: {
         type: string;
         model?: STNode;
@@ -58,8 +80,6 @@ export interface StatementEditorProps extends LowCodeEditorProps {
     validForm?: boolean;
     onWizardClose: () => void;
     onCancel: () => void;
-    handleNameOnChange?: (name: string) => void;
-    handleTypeChange?: (name: string) => void;
     handleStatementEditorChange?: (partialModel: STNode) => void;
     onStmtEditorModelChange?: (partialModel: STNode) => void;
 }
@@ -69,12 +89,9 @@ export function StatementEditor(props: StatementEditorProps) {
         label,
         initialSource,
         formArgs,
-        userInputs,
         config,
         onCancel,
         onWizardClose,
-        handleNameOnChange,
-        handleTypeChange,
         onStmtEditorModelChange,
         getLangClient,
         applyModifications,
@@ -84,46 +101,110 @@ export function StatementEditor(props: StatementEditorProps) {
     } = props;
 
     const [model, setModel] = useState<STNode>(null);
-    const [isStatementValid, setIsStatementValid] = useState(false);
-    const [currentModel, setCurrentModel] = useState({ model });
+    const [currentModel, setCurrentModel] = useState<CurrentModel>({ model });
+    const [diagnostics, setDiagnostics] = useState<StmtDiagnostic[]>([]);
+    const [moduleList, setModuleList] = useState(new Set<string>());
+    const [lsSuggestionsList, setLSSuggestionsList] = useState([]);
+
+    const fileURI = monaco.Uri.file(currentFile.path).toString().replace(FILE_SCHEME, EXPR_SCHEME);
 
     const undoRedoManager = React.useMemo(() => new StmtEditorUndoRedoManager(), []);
 
     const undo = React.useCallback(() => {
         const undoItem = undoRedoManager.getUndoModel();
         if (undoItem) {
-            setModel(undoItem.oldModel);
+            updateEditedModel(undoItem.oldModel);
         }
     }, []);
 
     const redo = React.useCallback(() => {
         const redoItem = undoRedoManager.getRedoModel();
         if (redoItem) {
-            setModel(redoItem.newModel);
+            updateEditedModel(redoItem.newModel);
         }
     }, []);
 
     useEffect(() => {
-        if (!(config.type === CUSTOM_CONFIG_TYPE) || initialSource) {
+        if (config.type !== CUSTOM_CONFIG_TYPE || initialSource) {
             (async () => {
                 const partialST = await getPartialSTForStatement(
                     { codeSnippet: initialSource.trim() }, getLangClient);
 
-                if (partialST.syntaxDiagnostics.length === 0) {
-                    setModel(partialST);
+                if (!partialST.syntaxDiagnostics.length) {
+                    updateEditedModel(partialST);
                 }
+
+                sendDidOpen(fileURI, currentFile.content, getLangClient).then();
+                const diagResp = await getDiagnostics(fileURI, getLangClient);
+                const diag = diagResp[0]?.diagnostics ?
+                    getFilteredDiagnosticMessages(initialSource, formArgs.formArgs.targetPosition, diagResp[0].diagnostics) :
+                    [];
+                setDiagnostics(diag);
             })();
         }
     }, []);
 
     useEffect(() => {
-        if (!!model && STKindChecker.isLocalVarDecl(model) && handleNameOnChange && handleTypeChange) {
-            handleNameOnChange(model.typedBindingPattern.bindingPattern.source)
-            handleTypeChange(model.typedBindingPattern.typeDescriptor.source)
+        (async () => {
+            if (model) {
+                let lsSuggestions : SuggestionItem[] = [];
+                if (currentModel.model){
+                    const currentModelViewState = currentModel.model?.viewState as StatementEditorViewState;
+                    if (!currentModelViewState.isOperator && !currentModelViewState.isBindingPattern) {
+                        const content: string = await addStatementToTargetLine(
+                            currentFile.content, formArgs.formArgs.targetPosition, model.source, getLangClient);
+                        sendDidChange(fileURI, content, getLangClient).then();
+                        lsSuggestions = await getCompletions(fileURI, formArgs.formArgs.targetPosition, model,
+                            currentModel, getLangClient);
+                    }
+                }
+                setLSSuggestionsList(lsSuggestions);
+            }
+        })();
+    }, [currentModel.model]);
+
+    useEffect(() => {
+        if (!!model) {
+            onStmtEditorModelChange(model);
         }
     }, [model]);
 
-    const updateModel = async (codeSnippet: string, position: NodePosition) => {
+    const handleChange = async (newValue: string, isEditedViaInputEditor?: boolean) => {
+        let updatedStatement = addExpressionToTargetPosition(
+            model.source,
+            currentModel ? currentModel.model.position.startLine : 0,
+            currentModel ? currentModel.model.position.startColumn : 0,
+            newValue,
+            currentModel ? currentModel.model.position.endColumn : 0
+        );
+        if (updatedStatement.slice(-1) !== ';') {
+            updatedStatement += ';';
+        }
+        let updatedContent: string = await addStatementToTargetLine(
+            currentFile.content, formArgs.formArgs.targetPosition, updatedStatement, getLangClient);
+        if (!!moduleList.size) {
+            updatedContent = await addImportStatements(updatedContent, Array.from(moduleList) as string[]);
+        }
+
+        sendDidChange(fileURI, updatedContent, getLangClient).then();
+
+        const diagResp = await getDiagnostics(fileURI, getLangClient);
+        const diag = diagResp[0]?.diagnostics ?
+            getFilteredDiagnosticMessages(updatedStatement, formArgs.formArgs.targetPosition, diagResp[0].diagnostics) :
+            [];
+        setDiagnostics(diag);
+
+        if (isEditedViaInputEditor) {
+            const lsSuggestions = await getCompletions(fileURI, formArgs.formArgs.targetPosition, model,
+                currentModel, getLangClient, newValue);
+            setLSSuggestionsList(lsSuggestions);
+        }
+    }
+
+    const updateModel = async (codeSnippet: string, position: NodePosition, isEditedViaInputEditor?: boolean) => {
+        if (!isEditedViaInputEditor) {
+            handleChange(codeSnippet).then();
+        }
         let partialST: STNode;
         if (model) {
             const stModification = {
@@ -142,8 +223,8 @@ export function StatementEditor(props: StatementEditorProps) {
 
         undoRedoManager.add(model, partialST);
 
-        if (partialST.syntaxDiagnostics.length === 0 || config.type === CUSTOM_CONFIG_TYPE) {
-            setModel(partialST);
+        if (!partialST.syntaxDiagnostics.length || config.type === CUSTOM_CONFIG_TYPE) {
+            updateEditedModel(partialST);
         }
 
         // Since in list constructor we add expression with comma and close-bracket,
@@ -167,9 +248,17 @@ export function StatementEditor(props: StatementEditorProps) {
             };
         }
 
-        const newCurrentModel = getCurrentModel(currentModelPosition, partialST);
+        const newCurrentModel = getCurrentModel(currentModelPosition, enrichModelWithViewState(partialST));
         setCurrentModel({model: newCurrentModel});
     }
+
+    const handleModules = (module: string) => {
+        if (!importStatements.includes(module)) {
+            setModuleList((prevModuleList: Set<string>) => {
+                return new Set(prevModuleList.add(module));
+            });
+        }
+    };
 
     const currentModelHandler = (cModel: STNode) => {
         setCurrentModel({
@@ -177,15 +266,23 @@ export function StatementEditor(props: StatementEditorProps) {
         });
     };
 
-    useEffect(() => {
-        if (!!model) {
-            onStmtEditorModelChange(model);
+    function addExpressionToTargetPosition(currentStmt: string,
+                                           targetLine: number,
+                                           targetColumn: number,
+                                           codeSnippet: string,
+                                           endColumn?: number): string {
+        if (model && STKindChecker.isIfElseStatement(model)) {
+            const splitStatement: string[] = currentStmt.split(/\n/g) || [];
+            splitStatement.splice(targetLine, 1, splitStatement[targetLine].slice(0, targetColumn) +
+                codeSnippet + splitStatement[targetLine].slice(endColumn || targetColumn));
+            return splitStatement.join('\n');
         }
-    }, [model])
+        return currentStmt.slice(0, targetColumn) + codeSnippet + currentStmt.slice(endColumn || targetColumn);
+    }
 
-    const validateStatement = (isValid: boolean) => {
-        setIsStatementValid(isValid);
-    };
+    function updateEditedModel(editedModel: STNode) {
+        setModel(enrichModelWithViewState(editedModel));
+    }
 
     return (
         (
@@ -193,10 +290,12 @@ export function StatementEditor(props: StatementEditorProps) {
                 <StatementEditorContextProvider
                     model={model}
                     currentModel={currentModel}
-                    importStatements={importStatements}
+                    changeCurrentModel={currentModelHandler}
+                    handleChange={handleChange}
                     updateModel={updateModel}
+                    handleModules={handleModules}
+                    modulesToBeImported={moduleList}
                     formArgs={formArgs}
-                    validateStatement={validateStatement}
                     applyModifications={applyModifications}
                     library={library}
                     currentFile={currentFile}
@@ -206,14 +305,14 @@ export function StatementEditor(props: StatementEditorProps) {
                     redo={redo}
                     hasRedo={undoRedoManager.hasRedo()}
                     hasUndo={undoRedoManager.hasUndo()}
+                    diagnostics={diagnostics}
+                    lsSuggestions={lsSuggestionsList}
                 >
                     <ViewContainer
                         label={label}
                         formArgs={formArgs}
-                        userInputs={userInputs}
                         config={config}
-                        isStatementValid={isStatementValid}
-                        currentModelHandler={currentModelHandler}
+                        isStatementValid={!diagnostics.length}
                         onWizardClose={onWizardClose}
                         onCancel={onCancel}
                     />

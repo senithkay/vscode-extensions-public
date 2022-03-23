@@ -14,10 +14,11 @@
 
 import React, { ReactNode, useContext, useEffect, useState } from "react";
 
+import { STNode } from "@wso2-enterprise/syntax-tree";
+
 import { Context } from "../../../../Context/diagram";
 import { ErrorSnippet } from "../../../../Types/type";
 import { DefaultTooltip } from "../../DefaultTooltip";
-
 interface DiagnosticTooltipProps {
     type?: string,
     className?: string,
@@ -25,16 +26,21 @@ interface DiagnosticTooltipProps {
     text?: { heading?: string, content?: string, example?: string, code?: string },
     diagnostic?: ErrorSnippet,
     icon?: ReactNode;
+    model: STNode;
 }
 
 export function ActionProcessRectSVG(props: DiagnosticTooltipProps) {
-    const { type, onClick, diagnostic, text } = props;
+    const { type, onClick, diagnostic, model } = props;
     const diagnosticStyles = diagnostic?.severity === "ERROR" ? "action-processor-error" : "action-processor-warning";
-    const actionRectStyles = diagnostic ? diagnosticStyles : "action-processor";
+    const actionRectStyles = diagnostic?.diagnosticMsgs ? diagnosticStyles : "action-processor";
     const diagramContext = useContext(Context);
     const showTooltip = diagramContext?.api?.edit?.showTooltip;
-    const [tooltip, setTooltip] = useState(undefined);
-    const [diagTooltip, setDiagTooltip] = useState(undefined);
+    const [tooltipComp, setTooltipComp] = useState(undefined);
+    let sourceSnippet;
+    if (model) {
+        sourceSnippet = model?.source?.trim();
+    }
+
     const rectSVG = (
         <g id="Process" className={actionRectStyles} transform="translate(-221.5 -506)">
             <g transform="matrix(1, 0, 0, 1, 222, 509)">
@@ -57,35 +63,18 @@ export function ActionProcessRectSVG(props: DiagnosticTooltipProps) {
     );
 
     const defaultTooltip = (
-        <DefaultTooltip text={text} diagnostic={diagnostic}>{rectSVG}</DefaultTooltip>
+        <DefaultTooltip text={sourceSnippet}>{rectSVG}</DefaultTooltip>
     );
 
-    // TODO: Check how we can optimize this by rewriting the tooltip
-    // component.
     useEffect(() => {
-        if (showTooltip && text) {
-            setTooltip(showTooltip(rectSVG, type, text, "right", true));
+        if (model && showTooltip) {
+            setTooltipComp(showTooltip(rectSVG, undefined, onClick, model));
         }
-        return () => {
-            setTooltip(undefined);
-            setDiagTooltip(undefined);
-        };
-    }, [text]);
-
-    useEffect(() => {
-        if (showTooltip && diagnostic) {
-            setDiagTooltip(showTooltip(rectSVG, type, undefined, "right", true, diagnostic));
-        }
-        return () => {
-            setTooltip(undefined);
-            setDiagTooltip(undefined);
-        };
-    }, [diagnostic]);
+    }, [model]);
 
     return (
         <>
-            {tooltip ? tooltip : defaultTooltip}
-            {diagTooltip ? diagTooltip : defaultTooltip}
+            {tooltipComp ? tooltipComp : defaultTooltip}
         </>
     );
 }

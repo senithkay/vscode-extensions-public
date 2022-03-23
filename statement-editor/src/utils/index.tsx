@@ -12,27 +12,37 @@
  */
 import React, { ReactNode } from 'react';
 
-import { CompletionResponse, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import {
+    CompletionResponse,
+    getDiagnosticMessage,
+    getFilteredDiagnostics,
+    STModification
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     NodePosition,
     STKindChecker,
-    STNode, traversNode
+    STNode,
+    traversNode
 } from "@wso2-enterprise/syntax-tree";
+import { Diagnostic } from "vscode-languageserver-protocol";
 
 import * as expressionTypeComponents from '../components/ExpressionTypes';
 import * as statementTypeComponents from '../components/Statements';
-import * as c from "../constants";
-import { RemainingContent, SuggestionItem, VariableUserInputs } from '../models/definitions';
+import {
+    EXPR_PLACE_HOLDER_DIAG,
+    OTHER_EXPRESSION,
+    OTHER_STATEMENT,
+    StatementNodes,
+    TYPE_DESC_PLACE_HOLDER_DIAG
+} from "../constants";
+import { RemainingContent, StmtDiagnostic } from '../models/definitions';
+import { visitor as DeleteConfigSetupVisitor } from "../visitors/delete-config-setup-visitor";
 import { visitor as ExpressionDeletingVisitor } from "../visitors/expression-deleting-visitor";
 import { visitor as ModelFindingVisitor } from "../visitors/model-finding-visitor";
+import { visitor as ModelKindSetupVisitor } from "../visitors/model-kind-setup-visitor";
+import { viewStateSetupVisitor as ViewStateSetupVisitor } from "../visitors/view-state-setup-visitor";
 
 import { createImportStatement, createStatement, updateStatement } from "./statement-modifications";
-import {
-    DataTypeByExpressionKind,
-    ExpressionKindByOperator,
-    ExpressionSuggestionsByKind,
-    OperatorsForExpressionKind
-} from "./utils";
 
 export function getModifications(
         model: STNode,
@@ -80,67 +90,32 @@ export function getModifications(
     return modifications;
 }
 
-export function getSuggestionsBasedOnExpressionKind(kind: string): SuggestionItem[] {
-    return ExpressionSuggestionsByKind[kind];
-}
-
-export function getKindBasedOnOperator(operator: string): string {
-    return ExpressionKindByOperator[operator];
-}
-
-export function getOperatorSuggestions(kind: string): SuggestionItem[] {
-    if (kind in OperatorsForExpressionKind) {
-        return OperatorsForExpressionKind[kind];
-    }
-    return []; // we can remove the empty array return if we only set the operator prop to true for the expressions with operators
-}
-
-export function getDataTypeOnExpressionKind(kind: string): string[] {
-    return DataTypeByExpressionKind[kind];
-}
-
-export function getExpressionTypeComponent(
-    expression: STNode,
-    userInputs: VariableUserInputs,
-    isElseIfMember: boolean,
-    diagnosticHandler: (diagnostics: string) => void,
-    isTypeDescriptor: boolean
-): ReactNode {
+export function getExpressionTypeComponent(expression: STNode): ReactNode {
     let ExprTypeComponent = (expressionTypeComponents as any)[expression.kind];
 
     if (!ExprTypeComponent) {
-        ExprTypeComponent = (expressionTypeComponents as any)[c.OTHER_EXPRESSION];
+        ExprTypeComponent = (expressionTypeComponents as any)[OTHER_EXPRESSION];
     }
 
     return (
         <ExprTypeComponent
             model={expression}
-            userInputs={userInputs}
-            isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
-            isTypeDescriptor={isTypeDescriptor}
         />
     );
 }
 
 export function getStatementTypeComponent(
-    model: c.StatementNodes,
-    userInputs: VariableUserInputs,
-    isElseIfMember: boolean,
-    diagnosticHandler: (diagnostics: string) => void
+    model: StatementNodes
 ): ReactNode {
     let StatementTypeComponent = (statementTypeComponents as any)[model?.kind];
 
     if (!StatementTypeComponent) {
-        StatementTypeComponent = (statementTypeComponents as any)[c.OTHER_STATEMENT];
+        StatementTypeComponent = (statementTypeComponents as any)[OTHER_STATEMENT];
     }
 
     return (
         <StatementTypeComponent
             model={model}
-            userInputs={userInputs}
-            isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
         />
     );
 }
@@ -150,6 +125,14 @@ export function getCurrentModel(position: NodePosition, model: STNode): STNode {
     traversNode(model, ModelFindingVisitor);
 
     return ModelFindingVisitor.getModel();
+}
+
+export function enrichModelWithViewState(model: STNode): STNode  {
+    traversNode(model, ViewStateSetupVisitor);
+    traversNode(model, DeleteConfigSetupVisitor);
+    traversNode(model, ModelKindSetupVisitor);
+
+    return model;
 }
 
 export function getRemainingContent(position: NodePosition, model: STNode): RemainingContent {
@@ -164,6 +147,32 @@ export function isPositionsEquals(position1: NodePosition, position2: NodePositi
         position1?.startColumn === position2?.startColumn &&
         position1?.endLine === position2?.endLine &&
         position1?.endColumn === position2?.endColumn;
+}
+
+export function getFilteredDiagnosticMessages(source: string, targetPosition: NodePosition,
+                                              diagnostics: Diagnostic[]): StmtDiagnostic[] {
+    const stmtDiagnostics: StmtDiagnostic[] = [];
+
+    const diag = getFilteredDiagnostics(diagnostics, false);
+
+    const diagnosticTargetPosition: NodePosition = {
+        startLine: targetPosition.startLine || 0,
+        startColumn: targetPosition.startColumn || 0,
+        endLine: targetPosition?.endLine || targetPosition.startLine,
+        endColumn: targetPosition?.endColumn || 0
+    };
+
+    getDiagnosticMessage(diag, diagnosticTargetPosition, 0, source.length, 0, 0).split('. ').map(message => {
+            let isPlaceHolderDiag = false;
+            if (message === EXPR_PLACE_HOLDER_DIAG || message === TYPE_DESC_PLACE_HOLDER_DIAG) {
+                isPlaceHolderDiag = true;
+            }
+            if (!!message) {
+                stmtDiagnostics.push({message, isPlaceHolderDiag});
+            }
+        });
+
+    return stmtDiagnostics;
 }
 
 export function getSuggestionIconStyle(suggestionType: number): string {

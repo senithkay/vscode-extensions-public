@@ -12,6 +12,8 @@
  */
 import React, { useContext, useEffect, useState } from "react";
 
+import { ForeachStatement, STNode } from "@wso2-enterprise/syntax-tree";
+
 import { Context } from "../../../Context/diagram";
 import { ErrorSnippet } from "../../../Types/type";
 import { DefaultTooltip } from "../DefaultTooltip";
@@ -22,16 +24,21 @@ interface ForEachRectSVGProps {
     onClick?: () => void,
     text?: { heading?: string, content?: string, example?: string, code?: string },
     diagnostic?: ErrorSnippet,
+    model: STNode
 }
 
 export function ForEachRectSVG(props: ForEachRectSVGProps) {
-    const { type, onClick, text, diagnostic } = props;
+    const { type, onClick, text, diagnostic, model } = props;
     const diagnosticStyles = diagnostic?.severity === "ERROR" ? "foreach-block-error" : "foreach-block-warning";
-    const forEachRectStyles = diagnostic ? diagnosticStyles : "foreach-block";
+    const forEachRectStyles = diagnostic?.diagnosticMsgs ? diagnosticStyles : "foreach-block";
     const diagramContext = useContext(Context);
     const showTooltip = diagramContext?.api?.edit?.showTooltip;
-    const [tooltip, setTooltip] = useState(undefined);
-    const [diagTooltip, setDiagTooltip] = useState(undefined);
+    const [tooltipComp, setTooltipComp] = useState(undefined);
+    let sourceSnippet;
+    if (model) {
+        const forEachModel = model as ForeachStatement
+        sourceSnippet = forEachModel?.actionOrExpressionNode?.source?.trim();
+    }
 
     const svgElement = (
         <g id="Foreach" className={forEachRectStyles} transform="translate(7 6)">
@@ -48,36 +55,20 @@ export function ForEachRectSVG(props: ForEachRectSVGProps) {
         </g>
     );
 
+
     const defaultTooltip = (
-        <DefaultTooltip text={text} diagnostic={diagnostic}>{svgElement}</DefaultTooltip>
+        <DefaultTooltip text={sourceSnippet}>{svgElement}</DefaultTooltip>
     );
 
-    // TODO: Check how we can optimize this by rewriting the tooltip
-    // component.
     useEffect(() => {
-        if (text && showTooltip) {
-            setTooltip(showTooltip(svgElement, type, text, "right", true, undefined, undefined, false, onClick));
+        if (model && showTooltip) {
+            setTooltipComp(showTooltip(svgElement, undefined, onClick, model));
         }
-        return () => {
-            setTooltip(undefined);
-            setDiagTooltip(undefined);
-        };
-    }, [text]);
-
-    useEffect(() => {
-        if (diagnostic && showTooltip) {
-            setDiagTooltip(showTooltip(svgElement, type, undefined, "right", true, diagnostic, undefined, false, onClick));
-        }
-        return () => {
-            setTooltip(undefined);
-            setDiagTooltip(undefined);
-        };
-    }, [diagnostic]);
+    }, [model]);
 
     return (
         <>
-            {tooltip ? tooltip : defaultTooltip}
-            {diagTooltip ? diagTooltip : defaultTooltip}
+            {tooltipComp ? tooltipComp : defaultTooltip}
         </>
     )
 }
