@@ -27,7 +27,7 @@ class DiagnosticsMappingVisitor implements Visitor {
     private offset: StmtOffset;
 
     public beginVisitSTNode(node: STNode, parent?: STNode) {
-        if (parent && (parent.viewState as StatementEditorViewState)?.isWithinBlockStatement) {
+        if (parent && (parent.viewState as StatementEditorViewState).isWithinBlockStatement) {
             (node.viewState as StatementEditorViewState).isWithinBlockStatement = true;
         }
     }
@@ -39,7 +39,7 @@ class DiagnosticsMappingVisitor implements Visitor {
     }
 
     public endVisitSTNode(node: STNode, parent?: STNode) {
-        const isWithinBlockStatement = (node.viewState as StatementEditorViewState)?.isWithinBlockStatement;
+        const isWithinBlockStatement = (node.viewState as StatementEditorViewState).isWithinBlockStatement;
         const diagPosition: NodePosition = {
             startLine: this.diagnostic.range.start.line,
             startColumn: this.diagnostic.range.start.character,

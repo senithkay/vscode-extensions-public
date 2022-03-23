@@ -154,7 +154,7 @@ export function createForeachStatementWithBlock(collection: string, variableName
             "COLLECTION": collection,
             "TYPE": type,
             "VARIABLE": variableName,
-            "BLOCKSTATEMENTS": statements
+            "BLOCKSTATEMENTS": statements.join('')
         }
     };
 
