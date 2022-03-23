@@ -60,8 +60,12 @@ export const OBJECT_CONSTRUCTOR = "ObjectConstructor"
 export const INIT_EXPR_LIST_CONSTRUCTOR = "EXPRESSION]"
 export const APPEND_EXPR_LIST_CONSTRUCTOR = ", EXPRESSION]"
 
-export const EXPR_PLACE_HOLDER_DIAG = "undefined symbol 'EXPRESSION'";
-export const TYPE_DESC_PLACE_HOLDER_DIAG = "unknown type 'TYPE_DESCRIPTOR'";
+export const PLACE_HOLDER_DIAGNOSTIC_MESSAGES: string[] = [
+    `undefined symbol 'EXPRESSION'`,
+    `unknown type 'EXPRESSION'`,
+    `unknown type 'TYPE_DESCRIPTOR'`,
+    `invalid usage of map literal: duplicate key 'EXPRESSION'`
+];
 
 // Statement types supported in function-body-block
 export type StatementNodes = ActionStatement

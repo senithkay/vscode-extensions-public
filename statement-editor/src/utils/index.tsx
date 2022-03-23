@@ -30,11 +30,10 @@ import { Diagnostic } from "vscode-languageserver-protocol";
 import * as expressionTypeComponents from '../components/ExpressionTypes';
 import * as statementTypeComponents from '../components/Statements';
 import {
-    EXPR_PLACE_HOLDER_DIAG,
     OTHER_EXPRESSION,
     OTHER_STATEMENT,
-    StatementNodes,
-    TYPE_DESC_PLACE_HOLDER_DIAG
+    PLACE_HOLDER_DIAGNOSTIC_MESSAGES,
+    StatementNodes
 } from "../constants";
 import { RemainingContent, StmtDiagnostic, StmtOffset } from '../models/definitions';
 import { visitor as DeleteConfigSetupVisitor } from "../visitors/delete-config-setup-visitor";
@@ -187,7 +186,7 @@ export function getFilteredDiagnosticMessages(stmtLength: number, targetPosition
 
     getDiagnosticMessage(diag, diagnosticTargetPosition, 0, stmtLength, 0, 0).split('. ').map(message => {
             let isPlaceHolderDiag = false;
-            if (message === EXPR_PLACE_HOLDER_DIAG || message === TYPE_DESC_PLACE_HOLDER_DIAG) {
+            if (PLACE_HOLDER_DIAGNOSTIC_MESSAGES.includes(message)) {
                 isPlaceHolderDiag = true;
             }
             if (!!message) {
