@@ -194,10 +194,11 @@ export async function addStatementToTargetLine(
 export async function addImportStatements(
             currentFileContent: string,
             modulesToBeImported: string[]): Promise<string> {
-    const modelContent: string[] = currentFileContent.split(/\n/g) || [];
-    modulesToBeImported.join('');
-    modelContent.splice(0, 0, modulesToBeImported.join(''));
-    return modelContent.join('\n');
+    let moduleList : string = "";
+    modulesToBeImported.forEach(module => {
+        moduleList += "import " + module + "; ";
+   });
+    return moduleList + currentFileContent;
 }
 
 async function getModifiedStatement(

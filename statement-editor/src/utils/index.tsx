@@ -82,9 +82,9 @@ export function getModifications(
     }
 
     if (modulesToBeImported) {
-        modulesToBeImported.map((moduleNameStr: string) => (
-            modifications.push(createImportStatement(importStatementRegex.exec(moduleNameStr).pop()))
-        ));
+        modulesToBeImported.map((moduleNameStr: string) => {
+            modifications.push(createImportStatement(moduleNameStr));
+        });
     }
 
     return modifications;
