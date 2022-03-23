@@ -39,11 +39,12 @@ export interface InputEditorProps {
     model?: STNode;
     isToken?: boolean;
     classNames?: string;
+    notEditable?: boolean;
 }
 
 export function InputEditor(props: InputEditorProps) {
 
-    const { model, isToken, classNames } = props;
+    const { model, isToken, classNames, notEditable } = props;
 
     const stmtCtx = useContext(StatementEditorContext);
     const {
@@ -146,7 +147,7 @@ export function InputEditor(props: InputEditorProps) {
     const debouncedContentChange = debounce(handleChange, 500);
 
     const handleDoubleClick = () => {
-        if (!isToken){
+        if (!isToken && !notEditable){
             setIsEditing(true);
         }
     };

@@ -14,8 +14,8 @@ import React from "react";
 
 import { FunctionCall } from "@wso2-enterprise/syntax-tree";
 
-import { ExpressionComponent } from "../../Expression";
 import { ExpressionArrayComponent } from "../../ExpressionArray";
+import { InputEditor, InputEditorProps } from "../../InputEditor";
 import { TokenComponent } from "../../Token";
 
 interface FunctionCallProps {
@@ -25,13 +25,16 @@ interface FunctionCallProps {
 export function FunctionCallComponent(props: FunctionCallProps) {
     const { model } = props;
 
+    const inputEditorProps: InputEditorProps = {
+        model: model.functionName,
+        notEditable: true
+    }
     return (
         <span>
-            <ExpressionComponent model={model.functionName} >
-                <TokenComponent model={model.openParenToken} />
-                <ExpressionArrayComponent expressions={model.arguments} />
-                <TokenComponent model={model.closeParenToken} />
-            </ExpressionComponent>
+            <InputEditor {...inputEditorProps} />
+            <TokenComponent model={model.openParenToken} />
+            <ExpressionArrayComponent expressions={model.arguments} />
+            <TokenComponent model={model.closeParenToken} />
         </span>
     );
 }
