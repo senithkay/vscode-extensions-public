@@ -23,7 +23,7 @@ export interface ExpressionGroup {
     expressions: Expression[];
 }
 
-export const PLACE_HOLDER = "expression";
+export const PLACE_HOLDER = "EXPRESSION";
 /* tslint:disable-next-line */
 export const SELECTED_EXPRESSION = "${SELECTED_EXPRESSION}";
 
