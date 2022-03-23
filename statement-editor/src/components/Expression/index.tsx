@@ -22,13 +22,12 @@ import { useStatementEditorStyles } from "../styles";
 
 export interface ExpressionComponentProps {
     model: STNode;
-    onSelect?: (event: React.MouseEvent) => void;
     children?: React.ReactElement[];
     classNames?: string;
 }
 
 export function ExpressionComponent(props: ExpressionComponentProps) {
-    const { model, onSelect, children, classNames } = props;
+    const { model, children, classNames,  } = props;
 
     const component = getExpressionTypeComponent(model);
 
@@ -37,6 +36,7 @@ export function ExpressionComponent(props: ExpressionComponentProps) {
     const { modelCtx } = useContext(StatementEditorContext);
     const {
         currentModel: selectedModel,
+        changeCurrentModel
     } = modelCtx;
 
     const statementEditorClasses = useStatementEditorStyles();
@@ -58,23 +58,22 @@ export function ExpressionComponent(props: ExpressionComponentProps) {
     const onMouseClick = (e: React.MouseEvent) => {
         e.stopPropagation();
         e.preventDefault();
-        if (onSelect) {
-            onSelect(e);
-        }
+        changeCurrentModel(model);
     }
+
+    const styleClassNames = cn(statementEditorClasses.expressionElement,
+        isSelected && statementEditorClasses.expressionElementSelected,
+        {
+            "hovered": !isSelected && isHovered,
+        },
+        classNames
+    )
 
     return (
         <span
             onMouseOver={onMouseOver}
             onMouseOut={onMouseOut}
-            // tslint:disable-next-line: jsx-no-multiline-js
-            className={cn(statementEditorClasses.expressionElement,
-                isSelected && statementEditorClasses.expressionElementSelected,
-                {
-                    "hovered": !isSelected && isHovered,
-                },
-                classNames
-            )}
+            className={styleClassNames}
             onClick={onMouseClick}
         >
             {component}

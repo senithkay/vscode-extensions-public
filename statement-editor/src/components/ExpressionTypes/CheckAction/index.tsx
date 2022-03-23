@@ -10,52 +10,24 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, { ReactNode, useContext } from "react";
+import React from "react";
 
-import { CheckAction } from "@wso2-enterprise/syntax-tree";
-import classNames from "classnames";
+import { CheckAction, CheckExpression } from "@wso2-enterprise/syntax-tree";
 
-import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { ExpressionComponent } from "../../Expression";
-import { useStatementEditorStyles } from "../../styles";
+import { TokenComponent } from "../../Token";
 
 interface CheckActionProps {
-    model: CheckAction;
+    model: CheckAction | CheckExpression;
 }
 
 export function CheckActionComponent(props: CheckActionProps) {
     const { model } = props;
-    const stmtCtx = useContext(StatementEditorContext);
-    const {
-        modelCtx: {
-            changeCurrentModel
-        }
-    } = stmtCtx;
 
-    const statementEditorClasses = useStatementEditorStyles();
-
-    const onClickOnExpression = async (event: any) => {
-        event.stopPropagation();
-        changeCurrentModel(model.expression);
-    };
-
-    const spanClassName =  classNames(
-                                statementEditorClasses.expressionBlock,
-                                statementEditorClasses.expressionBlockDisabled,
-                                "keyword"
-                            );
-    const expressionComponent: ReactNode = (
-        <ExpressionComponent
-            model={model.expression}
-            onSelect={onClickOnExpression}
-        />
-    );
     return (
         <span>
-            <span className={spanClassName}>
-                {model.checkKeyword.value}
-            </span>
-            {expressionComponent}
+            <TokenComponent model={model.checkKeyword} className={"keyword"} />
+            <ExpressionComponent model={model.expression} />
         </span>
     );
 }

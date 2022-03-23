@@ -10,12 +10,10 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js
-import React, { ReactNode, useContext } from "react";
+import React from "react";
 
 import { TypedBindingPattern } from "@wso2-enterprise/syntax-tree";
 
-import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { ExpressionComponent } from "../../Expression";
 
 interface TypedBindingPatternProps {
@@ -24,42 +22,11 @@ interface TypedBindingPatternProps {
 
 export function TypedBindingPatternComponent(props: TypedBindingPatternProps) {
     const { model } = props;
-    const stmtCtx = useContext(StatementEditorContext);
-    const {
-        modelCtx: {
-            changeCurrentModel
-        }
-    } = stmtCtx;
-
-    const onClickOnTypeBindingPattern = async (event: any) => {
-        event.stopPropagation();
-        changeCurrentModel(model.bindingPattern);
-    };
-
-    const bindingPatternComponent: ReactNode = (
-        <ExpressionComponent
-            model={model.bindingPattern}
-            onSelect={onClickOnTypeBindingPattern}
-        />
-    );
-
-    const onClickOnType = async (event: any) => {
-        event.stopPropagation();
-        changeCurrentModel(model.typeDescriptor);
-    };
-
-    const typeDescriptorComponent: ReactNode = (
-        <ExpressionComponent
-            model={model.typeDescriptor}
-            onSelect={onClickOnType}
-            classNames="type-descriptor"
-        />
-    );
 
     return (
         <span>
-            {typeDescriptorComponent}
-            {bindingPatternComponent}
+            <ExpressionComponent model={model.typeDescriptor} classNames="type-descriptor" />
+            <ExpressionComponent model={model.bindingPattern} />
         </span>
     );
 }

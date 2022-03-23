@@ -10,15 +10,12 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js
-import React, { ReactNode, useContext } from "react";
+import React from "react";
 
 import { OptionalFieldAccess } from "@wso2-enterprise/syntax-tree";
-import classNames from "classnames";
 
-import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { ExpressionComponent } from "../../Expression";
-import { useStatementEditorStyles } from "../../styles";
+import { TokenComponent } from "../../Token";
 
 interface OptionalFieldAccessProps {
     model: OptionalFieldAccess;
@@ -26,48 +23,13 @@ interface OptionalFieldAccessProps {
 
 export function OptionalFieldAccessComponent(props: OptionalFieldAccessProps) {
     const { model } = props;
-    const stmtCtx = useContext(StatementEditorContext);
-    const {
-        modelCtx: {
-            changeCurrentModel
-        }
-    } = stmtCtx;
-
-    const statementEditorClasses = useStatementEditorStyles();
-
-    const onClickOnFieldAccessExpr = async (event: any) => {
-        event.stopPropagation();
-        changeCurrentModel(model.fieldName);
-    }
-
-    const onClickOnExpr = (event: any) => {
-        event.stopPropagation();
-        changeCurrentModel(model.expression);
-    }
-
-    const expression: ReactNode = (
-        <ExpressionComponent
-            model={model.expression}
-            onSelect={onClickOnExpr}
-        >
-            <span
-                className={classNames(
-                    statementEditorClasses.expressionBlock,
-                    statementEditorClasses.expressionBlockDisabled
-                )}
-            >
-                {model.optionalChainingToken.value}
-            </span>
-            <ExpressionComponent
-                model={model.fieldName}
-                onSelect={onClickOnFieldAccessExpr}
-            />
-        </ExpressionComponent>
-    );
 
     return (
         <span>
-            {expression}
+            <ExpressionComponent model={model.expression} >
+                <TokenComponent model={model.optionalChainingToken} />
+                <ExpressionComponent model={model.fieldName} />
+            </ExpressionComponent>
         </span>
     );
 }

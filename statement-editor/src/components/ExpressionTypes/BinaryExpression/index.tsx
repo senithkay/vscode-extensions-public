@@ -10,13 +10,12 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js
-import React, { ReactNode, useContext } from "react";
+import React from "react";
 
 import { BinaryExpression } from "@wso2-enterprise/syntax-tree";
 
-import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { ExpressionComponent } from "../../Expression";
+import { OperatorComponent } from "../../Operator";
 
 interface BinaryProps {
     model: BinaryExpression;
@@ -24,54 +23,12 @@ interface BinaryProps {
 
 export function BinaryExpressionComponent(props: BinaryProps) {
     const { model } = props;
-    const stmtCtx = useContext(StatementEditorContext);
-    const {
-        modelCtx: {
-            changeCurrentModel
-        }
-    } = stmtCtx;
-
-    const onClickOperator = (event: any) => {
-        event.stopPropagation();
-        changeCurrentModel(model.operator);
-    }
-
-    const onClickOnLhsExpression = async (event: any) => {
-        event.stopPropagation();
-        changeCurrentModel(model.lhsExpr);
-    };
-
-    const onClickOnRhsExpression = async (event: any) => {
-        event.stopPropagation();
-        changeCurrentModel(model.rhsExpr);
-    };
-
-    const lhs: ReactNode = (
-        <ExpressionComponent
-            model={model.lhsExpr}
-            onSelect={onClickOnLhsExpression}
-        />
-    );
-    const rhs: ReactNode = (
-        <ExpressionComponent
-            model={model.rhsExpr}
-            onSelect={onClickOnRhsExpression}
-        />
-    );
-
-    const operator: ReactNode = (
-        <ExpressionComponent
-            model={model.operator}
-            onSelect={onClickOperator}
-            classNames="operator"
-        />
-    );
 
     return (
         <span>
-            {lhs}
-            {operator}
-            {rhs}
+            <ExpressionComponent model={model.lhsExpr} />
+            <OperatorComponent model={model.operator} />
+            <ExpressionComponent model={model.rhsExpr} />
         </span>
     );
 }

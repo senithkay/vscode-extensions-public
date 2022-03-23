@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { ReactNode, useContext } from "react";
+import React, { useContext } from "react";
 
 import { WhileStatement } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
@@ -19,6 +19,7 @@ import classNames from "classnames";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
+import { TokenComponent } from "../../Token";
 
 interface WhileStatementProps {
     model: WhileStatement;
@@ -36,35 +37,14 @@ export function WhileStatementC(props: WhileStatementProps) {
 
     const statementEditorClasses = useStatementEditorStyles();
 
-    const onClickOnConditionExpression = async (event: any) => {
-        event.stopPropagation();
-        changeCurrentModel(model.condition);
-    };
-
     if (!currentModel.model) {
         changeCurrentModel(model.condition);
     }
 
-
-    const conditionComponent: ReactNode = (
-        <ExpressionComponent
-            model={model.condition}
-            onSelect={onClickOnConditionExpression}
-        />
-    );
-
     return (
         <span>
-            <span
-                className={classNames(
-                    statementEditorClasses.expressionBlock,
-                    statementEditorClasses.expressionBlockDisabled,
-                    "keyword"
-                )}
-            >
-                {model.whileKeyword.value}
-            </span>
-            {conditionComponent}
+            <TokenComponent model={model.whileKeyword}  className="keyword" />
+            <ExpressionComponent model={model.condition} />
             <span
                 className={classNames(
                     statementEditorClasses.expressionBlock,

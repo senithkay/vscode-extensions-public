@@ -21,6 +21,7 @@ import { isPositionsEquals } from "../../../utils";
 import { ExpressionComponent } from "../../Expression";
 import { InputEditor } from "../../InputEditor";
 import { useStatementEditorStyles } from "../../styles";
+import { TokenComponent } from "../../Token";
 
 interface LocalVarDeclProps {
     model: LocalVarDecl;
@@ -45,11 +46,6 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
         changeCurrentModel(model.typedBindingPattern);
     };
 
-    const onClickOnInitializer = async (event: any) => {
-        event.stopPropagation();
-        changeCurrentModel(model.initializer);
-    };
-
     if (!currentModel.model && model.initializer) {
         changeCurrentModel(model.initializer);
     }
@@ -59,7 +55,6 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
         typedBindingComponent = (
             <ExpressionComponent
                 model={model.typedBindingPattern}
-                onSelect={onClickOnBindingPattern}
             />
         )
     } else {
@@ -80,12 +75,6 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
         )
     }
 
-    const expressionComponent: ReactNode = (
-        <ExpressionComponent
-            model={model.initializer}
-            onSelect={onClickOnInitializer}
-        />
-    );
 
     return (
         <span>
@@ -93,30 +82,15 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
             {
                 model.equalsToken && (
                     <>
-                        <span
-                            className={classNames(
-                                statementEditorClasses.expressionBlock,
-                                statementEditorClasses.expressionBlockDisabled,
-                                "operator"
-                            )}
-                        >
-                            &nbsp;{model.equalsToken.value}
-                        </span>
-                        {expressionComponent}
+                        <TokenComponent model={model.equalsToken}  className="operator" />
+                        <ExpressionComponent model={model.initializer} />
                     </>
                 )
             }
 
-            <span
-                className={classNames(
-                    statementEditorClasses.expressionBlock,
-                    statementEditorClasses.expressionBlockDisabled
-                )}
-            >
             {/* TODO: use model.semicolonToken.isMissing when the ST interface is supporting */}
-                {model.semicolonToken.position.startColumn !== model.semicolonToken.position.endColumn &&
-                    model.semicolonToken.value}
-            </span>
+            {model.semicolonToken.position.startColumn !== model.semicolonToken.position.endColumn &&
+                <TokenComponent model={model.semicolonToken} />}
         </span>
     );
 }

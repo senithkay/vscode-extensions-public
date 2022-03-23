@@ -10,7 +10,6 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js
 import React from "react";
 
 import { CaptureBindingPattern } from "@wso2-enterprise/syntax-tree";
@@ -27,6 +26,7 @@ export function CaptureBindingPatternComponent(props: CaptureBindingPatternProps
     const inputEditorProps = {
         model
     };
+
     return (
         <InputEditor {...inputEditorProps} />
     );
