@@ -23,8 +23,16 @@ class ModelFindingVisitor implements Visitor {
     private model: STNode;
 
     public beginVisitSTNode(node: STNode, parent?: STNode) {
-        if (!this.model && isPositionsEquals(node.position, this.position)) {
-            this.model = node;
+        if (!this.model) {
+            if (isPositionsEquals(node.position, this.position)) {
+                this.model = node;
+            } else if (node?.source?.trim() === 'EXPRESSION') {
+                const isWithinRange = node.position.startColumn >= this.position.startColumn &&
+                    node.position.endColumn <= this.position.endColumn;
+                if (isWithinRange) {
+                    this.model = node;
+                }
+            }
         }
     }
 
