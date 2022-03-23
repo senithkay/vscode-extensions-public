@@ -622,6 +622,10 @@ export class BallerinaExtension {
     public getBallerinaConfigPath(): string {
         return this.ballerinaConfigPath;
     }
+
+    public setNotebookVariableViewEnabled(value: boolean) {
+        commands.executeCommand('setContext', 'isNotebookVariableViewEnabled', value);
+    }
 }
 
 /**

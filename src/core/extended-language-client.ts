@@ -68,7 +68,9 @@ enum EXTENDED_APIS {
     RESOLVE_MISSING_DEPENDENCIES = 'ballerinaDocument/resolveMissingDependencies',
     BALLERINA_TO_OPENAPI = 'openAPILSExtension/generateOpenAPI',
     NOTEBOOK_RESULT = "balShell/getResult",
-    NOTEBOOK_FILE_SOURCE = "balShell/getShellFileSource"
+    NOTEBOOK_FILE_SOURCE = "balShell/getShellFileSource",
+    NOTEBOOK_RESTART = "balShell/restartNotebook",
+    NOTEBOOK_VARIABLES = "balShell/getVariableValues"
 }
 
 enum EXTENDED_APIS_ORG {
@@ -572,6 +574,20 @@ export class ExtendedLangClient extends LanguageClient {
         return this.sendRequest(EXTENDED_APIS.NOTEBOOK_FILE_SOURCE);
     }
 
+    restartNotebook(): Thenable<String[]> {
+        if (!this.isExtendedServiceSupported(EXTENDED_APIS.NOTEBOOK_RESTART)) {
+            Promise.resolve(NOT_SUPPORTED);
+        }
+        return this.sendRequest(EXTENDED_APIS.NOTEBOOK_RESTART);
+    }
+
+    getNotebookVariables(): Thenable<String[]> {
+        if (!this.isExtendedServiceSupported(EXTENDED_APIS.NOTEBOOK_VARIABLES)) {
+            Promise.resolve(NOT_SUPPORTED);
+        }
+        return this.sendRequest(EXTENDED_APIS.NOTEBOOK_VARIABLES);
+    }
+
     getSTForSingleStatement(params: PartialSTRequestParams): Thenable<PartialSTResponse> {
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.PARTIAL_PARSE_SINGLE_STATEMENT)) {
             Promise.resolve(NOT_SUPPORTED);
@@ -644,7 +660,10 @@ export class ExtendedLangClient extends LanguageClient {
                 { name: EXTENDED_APIS_ORG.PERF_ANALYZER, getResourcesWithEndpoints: true },
                 { name: EXTENDED_APIS_ORG.PARTIAL_PARSER, getSTForSingleStatement: true, getSTForExpression: true },
                 { name: EXTENDED_APIS_ORG.BALLERINA_TO_OPENAPI, generateOpenAPI: true },
-                { name: EXTENDED_APIS_ORG.NOTEBOOK_SUPPORT, getResult: true, getShellFileSource: true }
+                { 
+                    name: EXTENDED_APIS_ORG.NOTEBOOK_SUPPORT, getResult: true, getShellFileSource: true, 
+                    getVariableValues: true, restartNotebook: true 
+                }
             ]
         }).then(response => {
             this.ballerinaExtendedServices = new Set();

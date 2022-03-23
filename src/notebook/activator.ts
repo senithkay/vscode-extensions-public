@@ -17,11 +17,12 @@
  *
  */
 
-import { workspace, ExtensionContext, commands, Disposable } from 'vscode';
+import { workspace, ExtensionContext, commands, Disposable, window } from 'vscode';
 import { BallerinaExtension } from '../core';
 import { BallerinaNotebookSerializer } from "./notebookSerializer";
 import { BallerinaNotebookController } from "./notebookController";
 import { registerLanguageProviders } from './languageProvider';
+import { VariableViewProvider } from './variableView';
 
 export function activate(ballerinaExtInstance: BallerinaExtension) {
     const context = <ExtensionContext>ballerinaExtInstance.context;
@@ -32,6 +33,10 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
     context.subscriptions.push(new BallerinaNotebookController(ballerinaExtInstance));
     context.subscriptions.push(registerLanguageProviders(ballerinaExtInstance));
     context.subscriptions.push(registerFocusToOutline());
+
+	context.subscriptions.push(
+		window.registerWebviewViewProvider(VariableViewProvider.viewType, new VariableViewProvider(ballerinaExtInstance))
+    );
 }
 
 function registerFocusToOutline(): Disposable {

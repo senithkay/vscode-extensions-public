@@ -391,6 +391,13 @@
                     "name": "Choreo",
                     "contextualTitle": "Choreo Session Details"
                 }
+            ],
+            "notebook-variables": [
+                {
+                    "type": "webview",
+                    "id": "ballerinaViewVariables",
+                    "name": "Variables"
+                }
             ]
         },
         "viewsContainers": {
@@ -399,6 +406,13 @@
                     "id": "diagram-explorer",
                     "title": "Ballerina Low-Code",
                     "icon": "resources/images/icons/tab.svg"
+                }
+            ],
+            "panel": [
+                {
+                    "id": "notebook-variables",
+                    "title": "Variable View",
+                    "icon": "$(notebook)"
                 }
             ]
         },
