@@ -82,7 +82,7 @@ export function ModuleElement(props: ModuleElementProps) {
             }
         }
         setClickedModuleElement('');
-        updateModuleList(`import ${getFQModuleName(moduleOrgName, moduleId)};`);
+        updateModuleList(getFQModuleName(moduleOrgName, moduleId));
         updateModel(content, currentModel.model ? currentModel.model.position : formModelPosition);
     }
 
