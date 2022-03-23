@@ -36,11 +36,12 @@ import {
     StatementNodes,
     TYPE_DESC_PLACE_HOLDER_DIAG
 } from "../constants";
-import { ModelKind, RemainingContent, StmtDiagnostic, StmtOffset } from '../models/definitions';
+import { RemainingContent, StmtDiagnostic, StmtOffset } from '../models/definitions';
 import { visitor as DeleteConfigSetupVisitor } from "../visitors/delete-config-setup-visitor";
 import { visitor as DiagnosticsMappingVisitor } from "../visitors/diagnostics-mapping-visitor";
 import { visitor as ExpressionDeletingVisitor } from "../visitors/expression-deleting-visitor";
 import { visitor as ModelFindingVisitor } from "../visitors/model-finding-visitor";
+import { visitor as ModelKindSetupVisitor } from "../visitors/model-kind-setup-visitor";
 import { viewStateSetupVisitor as ViewStateSetupVisitor } from "../visitors/view-state-setup-visitor";
 
 import { addImportStatements, addStatementToTargetLine } from "./ls-utils";
@@ -92,7 +93,7 @@ export function getModifications(
     return modifications;
 }
 
-export function getExpressionTypeComponent(expression: STNode, isTypeDescriptor: boolean): ReactNode {
+export function getExpressionTypeComponent(expression: STNode): ReactNode {
     let ExprTypeComponent = (expressionTypeComponents as any)[expression.kind];
 
     if (!ExprTypeComponent) {
@@ -102,7 +103,6 @@ export function getExpressionTypeComponent(expression: STNode, isTypeDescriptor:
     return (
         <ExprTypeComponent
             model={expression}
-            isTypeDesc={isTypeDescriptor}
         />
     );
 }
@@ -133,7 +133,7 @@ export function getCurrentModel(position: NodePosition, model: STNode): STNode {
 export function enrichModel(model: STNode, targetPosition: NodePosition, diagnostics?: Diagnostic[]): STNode {
     traversNode(model, ViewStateSetupVisitor);
     model = enrichModelWithDiagnostics(model, targetPosition, diagnostics);
-    return enrichModelWithDeletableState(model);
+    return enrichModelWithViewState(model);
 }
 
 export function enrichModelWithDiagnostics(model: STNode, targetPosition: NodePosition,
@@ -151,8 +151,9 @@ export function enrichModelWithDiagnostics(model: STNode, targetPosition: NodePo
     return model;
 }
 
-export function enrichModelWithDeletableState(model: STNode): STNode  {
+export function enrichModelWithViewState(model: STNode): STNode  {
     traversNode(model, DeleteConfigSetupVisitor);
+    traversNode(model, ModelKindSetupVisitor);
 
     return model;
 }
@@ -169,18 +170,6 @@ export function isPositionsEquals(position1: NodePosition, position2: NodePositi
         position1?.startColumn === position2?.startColumn &&
         position1?.endLine === position2?.endLine &&
         position1?.endColumn === position2?.endColumn;
-}
-
-export function isOperator(modelKind: ModelKind): boolean {
-    return modelKind === ModelKind.Operator;
-}
-
-export function isTypeDesc(modelKind: ModelKind): boolean {
-    return modelKind === ModelKind.TypeDesc;
-}
-
-export function isBindingPattern(modelKind: ModelKind): boolean {
-    return modelKind === ModelKind.BindingPattern;
 }
 
 export function getFilteredDiagnosticMessages(stmtLength: number, targetPosition: NodePosition,

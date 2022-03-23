@@ -18,16 +18,14 @@ import { InputEditor } from "../../../InputEditor";
 
 interface IntTypeDescProps {
     model: IntTypeDesc;
-    isTypeDesc?: boolean;
 }
 
 export function IntTypeDescComponent(props: IntTypeDescProps) {
-    const { model, isTypeDesc } = props;
+    const { model } = props;
 
     const inputEditorProps = {
         model,
-        classNames: "type-descriptor int",
-        isTypeDesc
+        classNames: "type-descriptor int"
     };
 
     return (

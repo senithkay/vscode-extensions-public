@@ -31,7 +31,6 @@ import {
 } from "../../constants";
 import {
     CurrentModel,
-    ModelKind,
     StmtDiagnostic,
     SuggestionItem
 } from "../../models/definitions";
@@ -42,8 +41,6 @@ import {
     getCurrentModel,
     getFilteredDiagnosticMessages,
     getUpdatedSource,
-    isBindingPattern,
-    isOperator
 } from "../../utils";
 import {
     addStatementToTargetLine,
@@ -53,6 +50,7 @@ import {
     sendDidChange,
     sendDidOpen
 } from "../../utils/ls-utils";
+import { StatementEditorViewState } from "../../utils/statement-editor-viewstate";
 import { StmtEditorUndoRedoManager } from '../../utils/undo-redo';
 import { EXPR_SCHEME, FILE_SCHEME } from "../InputEditor/constants";
 import { ViewContainer } from "../ViewContainer";
@@ -163,17 +161,16 @@ export function StatementEditor(props: StatementEditorProps) {
     useEffect(() => {
         (async () => {
             if (model && currentModel.model) {
-                const modelKind = currentModel?.kind;
                 let lsSuggestions : SuggestionItem[] = [];
+                const currentModelViewState = currentModel.model?.viewState as StatementEditorViewState;
 
-                if (!isOperator(modelKind) && !isBindingPattern(modelKind)) {
+                if (!currentModelViewState.isOperator && !currentModelViewState.isBindingPattern) {
                     const content: string = await addStatementToTargetLine(
                         currentFile.content, targetPosition, model.source, getLangClient);
                     sendDidChange(fileURI, content, getLangClient).then();
                     lsSuggestions = await getCompletions(fileURI, targetPosition, model,
                         currentModel, getLangClient);
                 }
-
                 setLSSuggestionsList(lsSuggestions);
             }
         })();
@@ -270,10 +267,9 @@ export function StatementEditor(props: StatementEditorProps) {
         return diag;
     }
 
-    const currentModelHandler = (cModel: STNode, kind?: ModelKind) => {
+    const currentModelHandler = (cModel: STNode) => {
         setCurrentModel({
-            model: cModel,
-            kind
+            model: cModel
         });
     };
 
