@@ -17,7 +17,7 @@ import {
     ExpressionEditorLangClientInterface,
     LibraryDataResponse,
     LibraryDocResponse,
-    LibrarySearchResponse,
+    LibrarySearchResponse, PublishDiagnosticsParams,
     STModification
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
@@ -268,11 +268,34 @@ export function StatementEditor(props: StatementEditorProps) {
 
     const handleDiagnostics = async (stmtLength: number): Promise<Diagnostic[]> => {
         const diagResp = await getDiagnostics(fileURI, getLangClient);
+        removeUnusedModules(diagResp);
         const diag  = diagResp[0]?.diagnostics ? diagResp[0].diagnostics : [];
         const messages = getFilteredDiagnosticMessages(stmtLength, targetPosition, diag);
         setStmtDiagnostics(messages);
         return diag;
     }
+
+    const removeUnusedModules = (completeDiagnostic:  PublishDiagnosticsParams[]) => {
+        if (!!moduleList.size) {
+            const unusedModuleName = new RegExp(/'(.*?[^\\])'/g);
+            completeDiagnostic[0]?.diagnostics.forEach(diagnostic => {
+                let extracted;
+                if (diagnostic.message.includes("unused module prefix '") ||
+                    diagnostic.message.includes("undefined module '")) {
+                        extracted = unusedModuleName.exec(diagnostic.message);
+                        if (extracted) {
+                            const extractedModule = extracted[1]
+                            moduleList.forEach(moduleName => {
+                                if (moduleName.includes(extractedModule)) {
+                                    moduleList.delete(moduleName);
+                                    setModuleList(moduleList);
+                                }
+                            });
+                        }
+                }
+            });
+        }
+    };
 
     const currentModelHandler = (cModel: STNode) => {
         setCurrentModel({
