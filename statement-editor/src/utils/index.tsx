@@ -35,10 +35,11 @@ import {
     StatementNodes,
     TYPE_DESC_PLACE_HOLDER_DIAG
 } from "../constants";
-import { ModelKind, RemainingContent, StmtDiagnostic } from '../models/definitions';
+import { RemainingContent, StmtDiagnostic } from '../models/definitions';
 import { visitor as DeleteConfigSetupVisitor } from "../visitors/delete-config-setup-visitor";
 import { visitor as ExpressionDeletingVisitor } from "../visitors/expression-deleting-visitor";
 import { visitor as ModelFindingVisitor } from "../visitors/model-finding-visitor";
+import { visitor as ModelKindSetupVisitor } from "../visitors/model-kind-setup-visitor";
 import { viewStateSetupVisitor as ViewStateSetupVisitor } from "../visitors/view-state-setup-visitor";
 
 import { createImportStatement, createStatement, updateStatement } from "./statement-modifications";
@@ -89,7 +90,7 @@ export function getModifications(
     return modifications;
 }
 
-export function getExpressionTypeComponent(expression: STNode, isTypeDescriptor: boolean): ReactNode {
+export function getExpressionTypeComponent(expression: STNode): ReactNode {
     let ExprTypeComponent = (expressionTypeComponents as any)[expression.kind];
 
     if (!ExprTypeComponent) {
@@ -99,7 +100,6 @@ export function getExpressionTypeComponent(expression: STNode, isTypeDescriptor:
     return (
         <ExprTypeComponent
             model={expression}
-            isTypeDesc={isTypeDescriptor}
         />
     );
 }
@@ -127,9 +127,10 @@ export function getCurrentModel(position: NodePosition, model: STNode): STNode {
     return ModelFindingVisitor.getModel();
 }
 
-export function enrichModelWithDeletableState(model: STNode): STNode  {
+export function enrichModelWithViewState(model: STNode): STNode  {
     traversNode(model, ViewStateSetupVisitor);
     traversNode(model, DeleteConfigSetupVisitor);
+    traversNode(model, ModelKindSetupVisitor);
 
     return model;
 }
@@ -146,18 +147,6 @@ export function isPositionsEquals(position1: NodePosition, position2: NodePositi
         position1?.startColumn === position2?.startColumn &&
         position1?.endLine === position2?.endLine &&
         position1?.endColumn === position2?.endColumn;
-}
-
-export function isOperator(modelKind: ModelKind): boolean {
-    return modelKind === ModelKind.Operator;
-}
-
-export function isTypeDesc(modelKind: ModelKind): boolean {
-    return modelKind === ModelKind.TypeDesc;
-}
-
-export function isBindingPattern(modelKind: ModelKind): boolean {
-    return modelKind === ModelKind.BindingPattern;
 }
 
 export function getFilteredDiagnosticMessages(source: string, targetPosition: NodePosition,
