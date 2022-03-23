@@ -146,11 +146,14 @@ export class FunctionDiagram {
 
     public assertPerfButton(text: string) {
         this.container.within(() => {
-            cy.get('.performance-bar .more').realHover();
-        })
-        return cy.get('[role=tooltip]').first().should(
-            "have.text",
-            text
-        )
+            cy.get('.performance-bar .more').as("perfBtn")
+        });
+        cy.get('@perfBtn').realClick().invoke('attr', 'aria-describedby').as("perfToolTipId")
+            .then(($perfToolTipId) => {
+                return cy.get('#' + $perfToolTipId).first().should(
+                    "have.text",
+                    text
+                )
+            });
     }
 }
