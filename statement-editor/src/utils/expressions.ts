@@ -103,7 +103,6 @@ const structuralConstructors: ExpressionGroup = {
 //     6.17 Error constructor
 //     6.18 Anonymous function expression
 //     6.19 Let expression
-//     6.20 Type cast expression
 //     6.21 Typeof expression
 const typeofEx: ExpressionGroup = {
     name: "Typeof",
@@ -112,6 +111,17 @@ const typeofEx: ExpressionGroup = {
             name: "Typeof",
             template: `typeof ${SELECTED_EXPRESSION}`,
             example: "typeof Es"
+        }
+    ]
+}
+//     6.20 Type cast expression
+const typeCastEx: ExpressionGroup = {
+    name: "Type Cast",
+    expressions: [
+        {
+            name: "Type Cast",
+            template: `<${TYPE_DESC_PLACE_HOLDER}>${SELECTED_EXPRESSION}`,
+            example: "<type>Es"
         }
     ]
 }
@@ -358,6 +368,7 @@ export const expressions: ExpressionGroup[] = [
     trap,
     typeTest,
     typeofEx,
+    typeCastEx,
     templates,
     structuralConstructors,
     range,
