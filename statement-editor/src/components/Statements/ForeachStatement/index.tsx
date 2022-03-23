@@ -58,7 +58,7 @@ export function ForeachStatementC(props: ForeachStatementProps) {
         <span>
             <TokenComponent model={model.forEachKeyword}  className="keyword" />
             {typedBindingComponent}
-            <TokenComponent model={model.finKeyword}  className="keyword" />
+            <TokenComponent model={model.inKeyword}  className="keyword" />
             {actionOrExprComponent}
             <span
                 className={classNames(
