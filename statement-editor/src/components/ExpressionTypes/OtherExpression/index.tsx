@@ -14,7 +14,7 @@ import React from "react";
 
 import { STNode } from "@wso2-enterprise/syntax-tree";
 
-import { InputEditor } from "../../InputEditor";
+import { InputEditor, InputEditorProps } from "../../InputEditor";
 import { useStatementEditorStyles } from "../../styles";
 
 interface OtherExpressionProps {
@@ -27,9 +27,10 @@ export function OtherExpressionComponent(props: OtherExpressionProps) {
 
     const statementEditorClasses = useStatementEditorStyles();
 
-    const inputEditorProps = {
+    const inputEditorProps: InputEditorProps = {
         model,
-        isTypeDesc
+        isTypeDesc,
+        isToken: model.value ? true : false
     };
 
     return (

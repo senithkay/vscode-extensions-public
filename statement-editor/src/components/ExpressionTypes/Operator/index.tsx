@@ -17,6 +17,8 @@ import { AsteriskToken,
     BitwiseXorToken,
     DoubleDotLtToken,
     DoubleEqualToken,
+    DoubleGtToken,
+    DoubleLtToken,
     EllipsisToken,
     ElvisToken,
     GtEqualToken,
@@ -31,7 +33,8 @@ import { AsteriskToken,
     PipeToken,
     PlusToken,
     SlashToken,
-    TrippleEqualToken } from "@wso2-enterprise/syntax-tree";
+    TrippleEqualToken,
+    TrippleGtToken } from "@wso2-enterprise/syntax-tree";
 
 import { InputEditor } from "../../InputEditor";
 
@@ -41,6 +44,8 @@ export interface OperatorProps {
             BitwiseXorToken |
             DoubleDotLtToken |
             DoubleEqualToken |
+            DoubleGtToken |
+            DoubleLtToken |
             EllipsisToken |
             ElvisToken |
             GtEqualToken |
@@ -55,7 +60,8 @@ export interface OperatorProps {
             PipeToken |
             PlusToken |
             SlashToken |
-            TrippleEqualToken;
+            TrippleEqualToken |
+            TrippleGtToken;
 }
 
 export function OperatorComponent(props: OperatorProps) {
