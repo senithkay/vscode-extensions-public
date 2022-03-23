@@ -140,7 +140,6 @@ export class PositioningVisitor implements Visitor {
         viewState.end.bBox.cx = viewState.bBox.cx;
         viewState.end.bBox.cy = DefaultConfig.startingY + viewState.workerLine.h + DefaultConfig.canvas.childPaddingY;
 
-
         this.currentWorker.push('function');
         plusHolderHeight = 0;
     }

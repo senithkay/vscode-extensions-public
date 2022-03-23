@@ -1148,7 +1148,7 @@ export class SizingVisitor implements Visitor {
             elseLeftWidth = defaultElseVS.bBox.lw;
             elseRightWidth = defaultElseVS.bBox.rw;
 
-            defaultElseVS.elseTopHorizontalLine.length =  diffIfWidthWithHeadWidth + viewState.offSetBetweenIfElse;
+            defaultElseVS.elseTopHorizontalLine.length = diffIfWidthWithHeadWidth + viewState.offSetBetweenIfElse;
             defaultElseVS.elseBottomHorizontalLine.length = defaultElseVS.ifHeadWidthOffset +
                 diffIfWidthWithHeadWidth + viewState.offSetBetweenIfElse;
             viewState.childElseViewState = defaultElseVS;
@@ -1277,17 +1277,9 @@ export class SizingVisitor implements Visitor {
 
                 viewState.bBox.h = viewState.dataProcess.h;
 
-                // As call statement only has a assignment text which shown on the right
-                // Add only the width for that text to the right width.
-                if (STKindChecker.isCallStatement(node)) {
-                    viewState.bBox.lw = viewState.dataProcess.lw;
-                    viewState.bBox.rw = viewState.dataProcess.rw + viewState.variableAssignment.w;
-                    viewState.bBox.w = viewState.bBox.lw + viewState.bBox.rw;
-                } else {
-                    viewState.bBox.lw = viewState.dataProcess.lw + viewState.variableName.w;
-                    viewState.bBox.rw = viewState.dataProcess.rw + viewState.variableAssignment.w;
-                    viewState.bBox.w = viewState.bBox.lw + viewState.bBox.rw;
-                }
+                viewState.bBox.lw = viewState.dataProcess.lw + viewState.variableName.w;
+                viewState.bBox.rw = viewState.dataProcess.rw + viewState.variableAssignment.w;
+                viewState.bBox.w = viewState.bBox.lw + viewState.bBox.rw;
 
                 // todo: commented because this is always true
                 // if (STKindChecker.isLocalVarDecl) {

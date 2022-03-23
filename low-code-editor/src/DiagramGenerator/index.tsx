@@ -78,6 +78,13 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     const [loaderText, setLoaderText] = React.useState<string>('Loading...');
     const [performanceData, setPerformanceData] = React.useState(undefined);
 
+    const initSelectedPosition = startColumn === 0 && startLine === 0 && syntaxTree ? // TODO: change to use undefined for unselection
+        getDefaultSelectedPosition(syntaxTree)
+        : { startLine, startColumn }
+
+    const [selectedPosition, setSelectedPosition] = React.useState(initSelectedPosition);
+
+
     React.useEffect(() => {
         (async () => {
             try {
@@ -98,6 +105,9 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                 // Add performance data
                 await addPerfData(vistedSyntaxTree);
 
+                setSelectedPosition(startColumn === 0 && startLine === 0 ?
+                getDefaultSelectedPosition(vistedSyntaxTree as ModulePart)
+                : { startLine, startColumn });
             } catch (err) {
                 throw err;
             }
@@ -227,10 +237,6 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     // on top of typed context
     const missingProps: any = {};
 
-    const selectedPosition = startColumn === 0 && startLine === 0 ? // TODO: change to use undefined for unselection
-        getDefaultSelectedPosition(syntaxTree)
-        : { startLine, startColumn }
-
     return (
         <MuiThemeProvider theme={theme}>
             <div className={classes.lowCodeContainer}>
@@ -305,6 +311,14 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                                     setModulePullInProgress(false);
                                                 }
                                             }
+                                            let newActivePosition = getDefaultSelectedPosition(vistedSyntaxTree as ModulePart);
+                                            for (const mutation of mutations) {
+                                                if (mutation.type.toLowerCase() !== "import") {
+                                                    newActivePosition = { startLine: mutation.startLine, startColumn: mutation.startColumn };
+                                                    break;
+                                                }
+                                            }
+                                            setSelectedPosition(newActivePosition)
                                         } else {
                                             // TODO show error
                                         }
