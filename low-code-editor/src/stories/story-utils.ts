@@ -2,7 +2,7 @@ import { createElement } from "react";
 import { render } from "react-dom";
 
 import { BalleriaLanguageClient, WSConnection } from "@wso2-enterprise/ballerina-languageclient";
-import { LibraryDataResponse, LibraryDocResponse, LibraryKind, LibrarySearchResponse } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ANALYZE_TYPE, LibraryDataResponse, LibraryDocResponse, LibraryKind, LibrarySearchResponse, PerformanceAnalyzerGraphResponse, PerformanceAnalyzerRealtimeResponse } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { DiagramGeneratorProps } from "../DiagramGenerator";
 
@@ -50,7 +50,7 @@ export function getDiagramGeneratorProps(filePath: string, enableSave: boolean =
     startLine: 0,
     getFileContent,
     getPFSession: () => Promise.resolve(undefined),
-    getPerfDataFromChoreo: () =>  Promise.resolve(undefined),
+    getPerfDataFromChoreo: generatePerfData,
     gotoSource: () => Promise.resolve(false),
     lastUpdatedAt: (new Date()).toISOString(),
     resolveMissingDependency: () => Promise.resolve(false),
@@ -105,4 +105,35 @@ export async function getLibraryData(orgName: string, moduleName: string, versio
     .then(response => {
       return response.json()
     });
+}
+
+export function generatePerfData(data: any, analyzeType: ANALYZE_TYPE): Promise<PerformanceAnalyzerRealtimeResponse | PerformanceAnalyzerGraphResponse> {
+  if (analyzeType === ANALYZE_TYPE.REALTIME) {
+    if (data.resourcePos.start.line === 20) {
+      return Promise.resolve({
+        concurrency: { max: 50, min: 1 }, latency: { max: 3738, min: 46 }, tps: { max: 21.66, min: 8.28 }, message: undefined, type: undefined });
+    }
+    return Promise.resolve({
+      concurrency: { max: 1, min: 1 }, latency: { max: 3738, min: 46 }, tps: { max: 21.66, min: 8.28 }, message: undefined, type: undefined });
+
+  } else {
+    return Promise.resolve({
+      graphData: [
+        { concurrency: "1", latency: "137", tps: "7.28" },
+        { concurrency: "25", latency: "2399", tps: "10.42" },
+        { concurrency: "50", latency: "4366", tps: "11.45" },
+        { concurrency: "75", latency: "6638", tps: "11.3" },
+        { concurrency: "100", latency: "9213", tps: "10.85" }
+      ],
+      sequenceDiagramData: [
+        { concurrency: "1", values: [{ latency: 46, name: "sample.bal/(22:33,22:67)", tps: 7.28 }, { latency: 45, name: "sample.bal/(24:34,24:68)", tps: 7.28 }, { latency: 47, name: "sample.bal/(25:34,25:68)", tps: 7.28 }] },
+        { concurrency: "25", values: [{ latency: 800, name: "sample.bal/(22:33,22:67)", tps: 10.42 }, { latency: 800, name: "sample.bal/(24:34,24:68)", tps: 10.42 }, { latency: 800, name: "sample.bal/(25:34,25:68)", tps: 10.42 }] },
+        { concurrency: "50", values: [{ latency: 1455, name: "sample.bal/(22:33,22:67)", tps: 11.45 }, { latency: 1455, name: "sample.bal/(24:34,24:68)", tps: 11.45 }, { latency: 1455, name: "sample.bal/(25:34,25:68)", tps: 11.45 }] },
+        { concurrency: "75", values: [{ latency: 2213, name: "sample.bal/(22:33,22:67)", tps: 11.3 }, { latency: 2213, name: "sample.bal/(24:34,24:68)", tps: 11.3 }, { latency: 2213, name: "sample.bal/(25:34,25:68)", tps: 11.3 }] },
+        { concurrency: "100", values: [{ latency: 3071, name: "sample.bal/(22:33,22:67)", tps: 10.85 }, { latency: 3071, name: "sample.bal/(24:34,24:68)", tps: 10.85 }, { latency: 3071, name: "sample.bal/(25:34,25:68)", tps: 10.85 }] }
+      ],
+      message: undefined,
+      type: undefined
+    });
+  }
 }

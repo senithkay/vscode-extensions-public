@@ -42,12 +42,17 @@ export function mergeAnalysisDetails(
 }
 
 export class AnalysisDetailMerger implements Visitor {
-    public anaylisisDetailMap: { [key: string]: RemoteMethodCallAction } = {};
-    constructor(
-        public serviceData: GraphPoint,
-        public analysisData: SequenceGraphPointValue[],
-        public cUnit: string,
-        public currentResourcePos: NodePosition) {
+    anaylisisDetailMap: { [key: string]: RemoteMethodCallAction } = {};
+    serviceData: GraphPoint;
+    analysisData: SequenceGraphPointValue[];
+    cUnit: string;
+    currentResourcePos: NodePosition;
+    constructor(serviceData: GraphPoint, analysisData: SequenceGraphPointValue[], cUnit: string,
+                currentResourcePos: NodePosition) {
+        this.serviceData = serviceData;
+        this.analysisData = analysisData;
+        this.cUnit = cUnit;
+        this.currentResourcePos = currentResourcePos;
     }
     public beginVisitRemoteMethodCallAction(node: RemoteMethodCallAction) {
         const { position: { startLine, startColumn, endLine, endColumn } } = node;
