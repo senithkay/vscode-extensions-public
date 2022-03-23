@@ -18,16 +18,14 @@ import { InputEditor } from "../../../InputEditor";
 
 interface DecimalTypeDescProps {
     model: DecimalTypeDesc;
-    isTypeDesc?: boolean;
 }
 
 export function DecimalTypeDescComponent(props: DecimalTypeDescProps) {
-    const { model, isTypeDesc } = props;
+    const { model } = props;
 
     const inputEditorProps = {
         model,
-        classNames: "type-descriptor decimal",
-        isTypeDesc
+        classNames: "type-descriptor decimal"
     };
 
     return (

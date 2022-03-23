@@ -32,7 +32,7 @@ export interface ExpressionComponentProps {
 export function ExpressionComponent(props: ExpressionComponentProps) {
     const { model, children, classNames, isTypeDesc, modelKind } = props;
 
-    const component = getExpressionTypeComponent(model, isTypeDesc);
+    const component = getExpressionTypeComponent(model);
 
     const [isHovered, setHovered] = React.useState(false);
 

@@ -18,16 +18,14 @@ import { InputEditor } from "../../../InputEditor";
 
 interface JsonTypeDescProps {
     model: JsonTypeDesc;
-    isTypeDesc?: boolean;
 }
 
 export function JsonTypeDescComponent(props: JsonTypeDescProps) {
-    const { model, isTypeDesc } = props;
+    const { model } = props;
 
     const inputEditorProps = {
         model,
-        classNames: "type-descriptor json",
-        isTypeDesc
+        classNames: "type-descriptor json"
     };
 
     return (

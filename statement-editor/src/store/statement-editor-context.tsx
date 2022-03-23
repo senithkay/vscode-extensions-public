@@ -17,7 +17,7 @@ import { LibraryKind, STModification } from '@wso2-enterprise/ballerina-low-code
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { LowCodeEditorProps } from '../components/StatementEditor';
-import { ModelKind, StmtDiagnostic, SuggestionItem } from "../models/definitions";
+import { StmtDiagnostic, SuggestionItem } from "../models/definitions";
 
 import { InputEditorContextProvider } from "./input-editor-context";
 
@@ -26,7 +26,7 @@ export const StatementEditorContext = React.createContext({
         initialSource: '',
         statementModel: null,
         currentModel: null,
-        changeCurrentModel: (model: STNode, kind?: ModelKind) => {},
+        changeCurrentModel: (model: STNode) => {},
         handleChange: (codeSnippet: string, isEditedViaInputEditor?: boolean) => {},
         updateModel: (codeSnippet: string, position: NodePosition, isEditedViaInputEditor?: boolean) => {},
         undo: () => undefined,
@@ -65,7 +65,7 @@ interface CtxProviderProps extends LowCodeEditorProps {
     children?: React.ReactNode,
     model: STNode,
     currentModel: { model: STNode },
-    changeCurrentModel?: (model: STNode, kind?: ModelKind) => void,
+    changeCurrentModel?: (model: STNode) => void,
     handleChange?: (codeSnippet: string, isEditedViaInputEditor?: boolean) => void,
     handleModules?: (module: string) => void,
     modulesToBeImported?: Set<string>,

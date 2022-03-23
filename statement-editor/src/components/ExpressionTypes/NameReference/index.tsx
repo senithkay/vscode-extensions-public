@@ -18,15 +18,13 @@ import { InputEditor } from "../../InputEditor";
 
 interface NameRefProps {
     model: SimpleNameReference;
-    isTypeDesc?: boolean;
 }
 
 export function SimpleNameReferenceComponent(props: NameRefProps) {
-    const { model, isTypeDesc } = props;
+    const { model } = props;
 
     const inputEditorProps = {
-        model,
-        isTypeDesc
+        model
     };
 
     return (
