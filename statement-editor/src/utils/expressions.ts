@@ -246,11 +246,11 @@ const equality: ExpressionGroup = {
         {
             name: "Equal",
             template: ` ${SELECTED_EXPRESSION} == ${PLACE_HOLDER}`,
-            example: "Es is Ex"
+            example: "Es == Ex"
         }, {
             name: "Not Equal",
-            template: ` ${SELECTED_EXPRESSION} !is ${PLACE_HOLDER}`,
-            example: "Es !is Ex"
+            template: ` ${SELECTED_EXPRESSION} != ${PLACE_HOLDER}`,
+            example: "Es != Ex"
         }
     ]
 }

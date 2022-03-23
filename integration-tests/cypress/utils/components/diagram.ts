@@ -110,4 +110,50 @@ export class FunctionDiagram {
         })
         return this;
     }
+
+    public shouldHavePerfBar() {
+        this.container.within(() => {
+            cy.get('.performance-bar .rectangle')
+                .should("be.visible");
+        })
+        return this;
+    }
+
+    public getAdvancedPerfData() {
+        this.container.within(() => {
+            cy.get('.performance-bar .more').click();
+        })
+        return this;
+    }
+
+    public assertPerfText(text: string) {
+        this.container.within(() => {
+            return cy.get('.performance-bar').find('p').first().should(
+                "have.text",
+                text
+            )
+        })
+    }
+
+    public assertPerfLabel(index: number, text: string) {
+        this.container.within(() => {
+            return cy.get('.performance').eq(index).find('tspan').should(
+                "have.text",
+                text
+            )
+        })
+    }
+
+    public assertPerfButton(text: string) {
+        this.container.within(() => {
+            cy.get('.performance-bar .more').as("perfBtn")
+        });
+        cy.get('@perfBtn').realClick().invoke('attr', 'aria-describedby').as("perfToolTipId")
+            .then(($perfToolTipId) => {
+                return cy.get('#' + $perfToolTipId).first().should(
+                    "have.text",
+                    text
+                )
+            });
+    }
 }

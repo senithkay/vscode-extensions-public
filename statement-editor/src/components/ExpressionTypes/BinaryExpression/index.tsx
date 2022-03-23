@@ -15,7 +15,6 @@ import React, { ReactNode, useContext } from "react";
 
 import { BinaryExpression } from "@wso2-enterprise/syntax-tree";
 
-import { ModelKind } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { ExpressionComponent } from "../../Expression";
 
@@ -34,7 +33,7 @@ export function BinaryExpressionComponent(props: BinaryProps) {
 
     const onClickOperator = (event: any) => {
         event.stopPropagation();
-        changeCurrentModel(model.operator, ModelKind.Operator);
+        changeCurrentModel(model.operator);
     }
 
     const onClickOnLhsExpression = async (event: any) => {
