@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { ReactNode, useContext } from "react";
+import React, { useContext } from "react";
 
 import { WhileStatement } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
@@ -41,17 +41,10 @@ export function WhileStatementC(props: WhileStatementProps) {
         changeCurrentModel(model.condition);
     }
 
-
-    const conditionComponent: ReactNode = (
-        <ExpressionComponent
-            model={model.condition}
-        />
-    );
-
     return (
         <span>
             <TokenComponent model={model.whileKeyword}  className="keyword" />
-            {conditionComponent}
+            <ExpressionComponent model={model.condition} />
             <span
                 className={classNames(
                     statementEditorClasses.expressionBlock,

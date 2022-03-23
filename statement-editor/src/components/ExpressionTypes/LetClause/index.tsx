@@ -25,16 +25,10 @@ interface LetClauseProps {
 export function LetClauseComponent(props: LetClauseProps) {
     const { model } = props;
 
-    const varDeclarationComponent = (
-        <ExpressionArrayComponent
-            expressions={model.letVarDeclarations}
-        />
-    );
-
     return (
         <span>
             <TokenComponent model={model.letKeyword} className={"keyword"} />
-            {varDeclarationComponent}
+            <ExpressionArrayComponent expressions={model.letVarDeclarations} />
         </span>
     );
 }

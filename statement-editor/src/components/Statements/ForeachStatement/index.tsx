@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { ReactNode, useContext } from "react";
+import React, { useContext } from "react";
 
 import { ForeachStatement } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
@@ -42,24 +42,12 @@ export function ForeachStatementC(props: ForeachStatementProps) {
         changeCurrentModel(model.actionOrExpressionNode);
     }
 
-    const typedBindingComponent: ReactNode = (
-        <ExpressionComponent
-            model={model.typedBindingPattern}
-        />
-    );
-
-    const actionOrExprComponent: ReactNode = (
-        <ExpressionComponent
-            model={model.actionOrExpressionNode}
-        />
-    );
-
     return (
         <span>
             <TokenComponent model={model.forEachKeyword}  className="keyword" />
-            {typedBindingComponent}
+            <ExpressionComponent model={model.typedBindingPattern} />
             <TokenComponent model={model.inKeyword}  className="keyword" />
-            {actionOrExprComponent}
+            <ExpressionComponent model={model.actionOrExpressionNode} />
             <span
                 className={classNames(
                     statementEditorClasses.expressionBlock,

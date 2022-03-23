@@ -28,12 +28,11 @@ export function OtherExpressionComponent(props: OtherExpressionProps) {
 
     const inputEditorProps: InputEditorProps = {
         model,
-        isToken: model.value ? true : false
+        isToken: model.value ? true : false,
+        classNames: statementEditorClasses.expressionElement
     };
 
     return (
-        <span className={statementEditorClasses.expressionElement}>
-            <InputEditor {...inputEditorProps} />
-        </span>
+        <InputEditor {...inputEditorProps} />
     );
 }

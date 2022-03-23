@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { ReactNode, useContext } from "react";
+import React, { useContext } from "react";
 
 import { IfElseStatement, STKindChecker } from "@wso2-enterprise/syntax-tree"
 import classNames from "classnames";
@@ -38,26 +38,15 @@ export function IfStatementC(props: IfStatementProps) {
 
     const statementEditorClasses = useStatementEditorStyles();
 
-    const elseBlockComponent: ReactNode = (
-        <StatementRenderer
-            model={model.elseBody}
-        />
-    );
 
     if (!currentModel.model && !STKindChecker.isElseBlock(model)) {
         changeCurrentModel(model.condition);
     }
 
-    const conditionComponent: ReactNode = (
-        <ExpressionComponent
-            model={model.condition}
-        />
-    );
-
     return (
         <span>
             <TokenComponent model={model.ifKeyword}  className="keyword" />
-            {conditionComponent}
+            <ExpressionComponent model={model.condition} />
             <span
                 className={classNames(
                     statementEditorClasses.expressionBlock,
@@ -70,7 +59,7 @@ export function IfStatementC(props: IfStatementProps) {
                 <br/>
                 {model.ifBody.closeBraceToken.value}
             </span>
-            {!!model.elseBody && elseBlockComponent}
+            {!!model.elseBody && <StatementRenderer model={model.elseBody} />}
         </span>
     );
 }

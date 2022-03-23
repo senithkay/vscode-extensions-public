@@ -10,11 +10,10 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, { ReactNode } from "react";
+import React from "react";
 
 import { TypedBindingPattern } from "@wso2-enterprise/syntax-tree";
 
-import { ModelKind } from "../../../models/definitions";
 import { ExpressionComponent } from "../../Expression";
 
 interface TypedBindingPatternProps {
@@ -24,26 +23,10 @@ interface TypedBindingPatternProps {
 export function TypedBindingPatternComponent(props: TypedBindingPatternProps) {
     const { model } = props;
 
-    const bindingPatternComponent: ReactNode = (
-        <ExpressionComponent
-            model={model.bindingPattern}
-            modelKind={ModelKind.BindingPattern}
-        />
-    );
-
-    const typeDescriptorComponent: ReactNode = (
-        <ExpressionComponent
-            model={model.typeDescriptor}
-            classNames="type-descriptor"
-            isTypeDesc={true}
-            modelKind={ModelKind.TypeDesc}
-        />
-    );
-
     return (
         <span>
-            {typeDescriptorComponent}
-            {bindingPatternComponent}
+            <ExpressionComponent model={model.typeDescriptor} classNames="type-descriptor" />
+            <ExpressionComponent model={model.bindingPattern} />
         </span>
     );
 }

@@ -11,11 +11,12 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { ReactNode } from "react";
+import React from "react";
 
-import { IndexedExpression, STNode } from "@wso2-enterprise/syntax-tree";
+import { IndexedExpression } from "@wso2-enterprise/syntax-tree";
 
 import { ExpressionComponent } from "../../Expression";
+import { ExpressionArrayComponent } from "../../ExpressionArray";
 import { TokenComponent } from "../../Token";
 
 interface IndexedExpressionProps {
@@ -25,30 +26,11 @@ interface IndexedExpressionProps {
 export function IndexedExpressionComponent(props: IndexedExpressionProps) {
     const { model } = props;
 
-    const keyExprComponent = (
-        <span>
-            {
-                model.keyExpression.map((expression: STNode, index: number) => (
-                    <ExpressionComponent
-                            key={index}
-                            model={expression}
-                    />
-                ))
-            }
-        </span>
-    );
-
-    const containerExpr: ReactNode = (
-        <ExpressionComponent
-            model={model.containerExpression}
-        />
-    );
-
     return (
         <span>
-            {containerExpr}
+            <ExpressionComponent model={model.containerExpression} />
             <TokenComponent model={model.openBracket} />
-            {keyExprComponent}
+            <ExpressionArrayComponent expressions={model.keyExpression} />
             <TokenComponent model={model.closeBracket} />
         </span>
     );

@@ -14,12 +14,12 @@
 import React, { useContext } from "react";
 
 import { ListConstructor } from "@wso2-enterprise/syntax-tree";
-import classNames from "classnames";
 
 import { APPEND_EXPR_LIST_CONSTRUCTOR, INIT_EXPR_LIST_CONSTRUCTOR } from "../../../constants";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { ExpressionArrayComponent } from "../../ExpressionArray";
 import { useStatementEditorStyles } from "../../styles";
+import { TokenComponent } from "../../Token";
 
 interface ListConstructorProps {
     model: ListConstructor;
@@ -36,13 +36,6 @@ export function ListConstructorComponent(props: ListConstructorProps) {
 
     const statementEditorClasses = useStatementEditorStyles();
 
-
-    const expressionComponent = (
-        <ExpressionArrayComponent
-            expressions={model.expressions}
-        />
-    );
-
     const onClickOnPlusIcon = (event: any) => {
         event.stopPropagation();
         const newExpression = model.expressions.length !== 0 ? APPEND_EXPR_LIST_CONSTRUCTOR : INIT_EXPR_LIST_CONSTRUCTOR;
@@ -51,29 +44,15 @@ export function ListConstructorComponent(props: ListConstructorProps) {
 
     return (
         <span>
-            <span
-                className={classNames(
-                    statementEditorClasses.expressionBlock,
-                    statementEditorClasses.expressionBlockDisabled
-                )}
-            >
-                {model.openBracket.value}
-            </span>
-            {expressionComponent}
+            <TokenComponent model={model.openBracket} />
+            <ExpressionArrayComponent expressions={model.expressions} />
             <span
                 className={statementEditorClasses.plusIcon}
                 onClick={onClickOnPlusIcon}
             >
                 +
             </span>
-            <span
-                className={classNames(
-                    statementEditorClasses.expressionBlock,
-                    statementEditorClasses.expressionBlockDisabled
-                )}
-            >
-                {model.closeBracket.value}
-            </span>
+            <TokenComponent model={model.closeBracket} />
         </span>
     );
 }

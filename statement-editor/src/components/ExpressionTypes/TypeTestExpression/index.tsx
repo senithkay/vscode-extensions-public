@@ -10,11 +10,10 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, { ReactNode } from "react";
+import React from "react";
 
 import { TypeTestExpression } from "@wso2-enterprise/syntax-tree";
 
-import { ModelKind } from "../../../models/definitions";
 import { ExpressionComponent } from "../../Expression";
 import { TokenComponent } from "../../Token";
 
@@ -25,25 +24,11 @@ interface TypeTestExpressionProps {
 export function TypeTestExpressionComponent(props: TypeTestExpressionProps) {
     const { model } = props;
 
-    const expr: ReactNode = (
-        <ExpressionComponent
-            model={model.expression}
-        />
-    );
-
-    const typeDescriptor: ReactNode = (
-        <ExpressionComponent
-            model={model.typeDescriptor}
-            isTypeDesc={true}
-            modelKind={ModelKind.TypeDesc}
-        />
-    );
-
     return (
         <span>
-            {expr}
+            <ExpressionComponent model={model.expression} />
             <TokenComponent model={model.isKeyword} />
-            {typeDescriptor}
+            <ExpressionComponent model={model.typeDescriptor} />
         </span>
     );
 }

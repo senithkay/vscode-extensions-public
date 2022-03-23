@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, { ReactNode } from "react";
+import React from "react";
 
 import { QueryExpression } from "@wso2-enterprise/syntax-tree";
 
@@ -24,28 +24,11 @@ interface QueryExpressionProps {
 export function QueryExpressionComponent(props: QueryExpressionProps) {
     const { model } = props;
 
-    const selectClauseComponent: ReactNode = (
-        <ExpressionComponent
-            model={model.selectClause}
-        />
-    );
-    const queryConstructTypeComponent: ReactNode = (
-        <ExpressionComponent
-            model={model.queryConstructType}
-        />
-    );
-
-    const queryPipelineComponent: ReactNode = (
-        <ExpressionComponent
-            model={model.queryPipeline}
-        />
-    );
-
     return (
         <span>
-            {model.queryConstructType && queryConstructTypeComponent}
-            {queryPipelineComponent}
-            {selectClauseComponent}
+            {model.queryConstructType && <ExpressionComponent model={model.queryConstructType} />}
+            <ExpressionComponent model={model.queryPipeline} />
+            <ExpressionComponent  model={model.selectClause} />
         </span>
     );
 }

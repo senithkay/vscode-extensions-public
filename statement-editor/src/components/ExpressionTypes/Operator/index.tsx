@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React from "react";
+import React, { useContext } from "react";
 
 import { AsteriskToken,
     BitwiseAndToken,
@@ -35,8 +35,12 @@ import { AsteriskToken,
     SlashToken,
     TrippleEqualToken,
     TrippleGtToken } from "@wso2-enterprise/syntax-tree";
+import cn from "classnames";
 
+import { StatementEditorContext } from "../../../store/statement-editor-context";
+import { isPositionsEquals } from "../../../utils";
 import { InputEditor } from "../../InputEditor";
+import { useStatementEditorStyles } from "../../styles";
 
 export interface OperatorProps {
     model:  AsteriskToken |
@@ -67,6 +71,42 @@ export interface OperatorProps {
 export function OperatorComponent(props: OperatorProps) {
     const { model } = props;
 
+    const [isHovered, setHovered] = React.useState(false);
+
+    const { modelCtx } = useContext(StatementEditorContext);
+    const {
+        currentModel: selectedModel,
+        changeCurrentModel
+    } = modelCtx;
+
+    const statementEditorClasses = useStatementEditorStyles();
+
+    const isSelected = selectedModel.model && model && isPositionsEquals(selectedModel.model.position, model.position);
+
+    const onMouseOver = (e: React.MouseEvent) => {
+        setHovered(true);
+        e.stopPropagation();
+        e.preventDefault();
+    }
+
+    const onMouseOut = (e: React.MouseEvent) => {
+        setHovered(false);
+        e.stopPropagation();
+        e.preventDefault();
+    }
+
+    const onMouseClick = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        e.preventDefault();
+        changeCurrentModel(model);
+    }
+
+    const styleClassNames = cn(statementEditorClasses.expressionElement,
+        isSelected && statementEditorClasses.expressionElementSelected,
+        {
+            "hovered": !isSelected && isHovered,
+        },
+    )
     const inputEditorProps = {
         model,
         isToken: true,
@@ -74,6 +114,13 @@ export function OperatorComponent(props: OperatorProps) {
     };
 
     return (
-        <InputEditor {...inputEditorProps} />
+        <span
+            onMouseOver={onMouseOver}
+            onMouseOut={onMouseOut}
+            className={styleClassNames}
+            onClick={onMouseClick}
+        >
+            <InputEditor {...inputEditorProps} />
+        </span>
     );
 }

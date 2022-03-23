@@ -24,16 +24,10 @@ interface WhereClauseProps {
 export function WhereClauseComponent(props: WhereClauseProps) {
     const { model } = props;
 
-    const expressionComponent = (
-        <ExpressionComponent
-            model={model.expression}
-        />
-    );
-
     return (
         <span>
             <TokenComponent model={model.whereKeyword} className={"keyword"} />
-            {expressionComponent}
+            <ExpressionComponent model={model.expression} />
         </span>
     );
 }

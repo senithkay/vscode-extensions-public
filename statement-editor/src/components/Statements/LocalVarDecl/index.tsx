@@ -75,11 +75,6 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
         )
     }
 
-    const expressionComponent: ReactNode = (
-        <ExpressionComponent
-            model={model.initializer}
-        />
-    );
 
     return (
         <span>
@@ -88,7 +83,7 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
                 model.equalsToken && (
                     <>
                         <TokenComponent model={model.equalsToken}  className="operator" />
-                        {expressionComponent}
+                        <ExpressionComponent model={model.initializer} />
                     </>
                 )
             }

@@ -25,16 +25,10 @@ interface LimitClauseProps {
 export function LimitClauseComponent(props: LimitClauseProps) {
     const { model } = props;
 
-    const expressionComponent = (
-        <ExpressionComponent
-            model={model.expression}
-        />
-    );
-
     return (
         <span>
             <TokenComponent model={model.limitKeyword} className={"keyword"} />
-            {expressionComponent}
+            <ExpressionComponent model={model.expression} />
         </span>
     );
 }

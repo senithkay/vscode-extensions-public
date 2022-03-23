@@ -24,16 +24,10 @@ interface StartActionProps {
 export function StartActionComponent(props: StartActionProps) {
     const { model } = props;
 
-    const expressionComponent = (
-        <ExpressionComponent
-            model={model.expression}
-        />
-    );
-
     return (
         <span>
             <TokenComponent model={model.startKeyword} className={"keyword"} />
-            {expressionComponent}
+            <ExpressionComponent model={model.expression} />
         </span>
     );
 }

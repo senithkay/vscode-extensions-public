@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, { ReactNode } from "react";
+import React from "react";
 
 import { FunctionCall } from "@wso2-enterprise/syntax-tree";
 
@@ -25,25 +25,13 @@ interface FunctionCallProps {
 export function FunctionCallComponent(props: FunctionCallProps) {
     const { model } = props;
 
-    const expressionComponent = (
-        <ExpressionArrayComponent
-            expressions={model.arguments}
-        />
-    );
-
-    const functionName: ReactNode = (
-        <ExpressionComponent
-            model={model.functionName}
-        >
-            <TokenComponent model={model.openParenToken} />
-            {expressionComponent}
-            <TokenComponent model={model.closeParenToken} />
-        </ExpressionComponent>
-    );
-
     return (
         <span>
-            {functionName}
+            <ExpressionComponent model={model.functionName} >
+                <TokenComponent model={model.openParenToken} />
+                <ExpressionArrayComponent expressions={model.arguments} />
+                <TokenComponent model={model.closeParenToken} />
+            </ExpressionComponent>
         </span>
     );
 }

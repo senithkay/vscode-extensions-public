@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, { ReactNode } from "react";
+import React from "react";
 
 import { LetExpression } from "@wso2-enterprise/syntax-tree";
 
@@ -26,26 +26,12 @@ interface LetExpressionProps {
 export function LetExpressionComponent(props: LetExpressionProps) {
     const { model } = props;
 
-
-
-    const varDeclarationComponent = (
-        <ExpressionArrayComponent
-            expressions={model.letVarDeclarations}
-        />
-    );
-
-    const expressionName: ReactNode = (
-        <ExpressionComponent
-            model={model.expression}
-        />
-    );
-
     return (
         <span>
             <TokenComponent model={model.letKeyword} className={"keyword"} />
-            {varDeclarationComponent}
+            <ExpressionArrayComponent expressions={model.letVarDeclarations} />
             <TokenComponent model={model.inKeyword} className={"keyword"} />
-            {expressionName}
+            <ExpressionComponent model={model.expression} />
         </span>
     );
 }

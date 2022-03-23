@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, { ReactNode } from "react";
+import React from "react";
 
 import { TrapExpression } from "@wso2-enterprise/syntax-tree";
 
@@ -24,15 +24,10 @@ interface TrapExpressionProps {
 export function TrapExpressionComponent(props: TrapExpressionProps) {
     const { model } = props;
 
-    const expressionComponent: ReactNode = (
-        <ExpressionComponent
-            model={model.expression}
-        />
-    );
     return (
         <span>
             <TokenComponent model={model.trapKeyword} className={"keyword"} />
-            {expressionComponent}
+            <ExpressionComponent model={model.expression} />
         </span>
     );
 }

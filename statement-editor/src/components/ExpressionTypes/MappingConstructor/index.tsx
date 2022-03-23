@@ -43,16 +43,10 @@ export function MappingConstructorComponent(props: MappingConstructorProps) {
         updateModel(newField, model.closeBrace.position);
     };
 
-    const fieldsComponent = (
-        <ExpressionArrayComponent
-            expressions={model.fields}
-        />
-    );
-
     return (
         <span>
             <TokenComponent model={model.openBrace} />
-            {fieldsComponent}
+            <ExpressionArrayComponent expressions={model.fields} />
             <span
                 className={statementEditorClasses.plusIcon}
                 onClick={onClickOnPlusIcon}

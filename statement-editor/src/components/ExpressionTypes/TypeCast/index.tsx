@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, { ReactNode } from "react";
+import React from "react";
 
 import { TypeCastExpression } from "@wso2-enterprise/syntax-tree";
 
@@ -24,23 +24,12 @@ interface TypeCastExpressionProps {
 export function TypeCastExpressionComponent(props: TypeCastExpressionProps) {
     const { model } = props;
 
-    const expressionComponent: ReactNode = (
-        <ExpressionComponent
-            model={model.expression}
-        />
-    );
-
-    const typeCastParamComponent: ReactNode = (
-        <ExpressionComponent
-            model={model.typeCastParam}
-        />
-    );
     return (
         <span>
             <TokenComponent model={model.ltToken} />
-            {typeCastParamComponent}
+            <ExpressionComponent model={model.typeCastParam} />
             <TokenComponent model={model.gtToken} />
-            {expressionComponent}
+            <ExpressionComponent model={model.expression} />
         </span>
     );
 }

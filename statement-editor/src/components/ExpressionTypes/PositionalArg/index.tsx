@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, { ReactNode } from "react";
+import React from "react";
 
 import { PositionalArg } from "@wso2-enterprise/syntax-tree";
 
@@ -23,11 +23,7 @@ interface PositionalArgProps {
 export function PositionalArgComponent(props: PositionalArgProps) {
     const { model } = props;
 
-    const expression: ReactNode = (
-        <ExpressionComponent
-            model={model.expression}
-        />
+    return (
+        <ExpressionComponent model={model.expression} />
     );
-
-    return expression;
 }

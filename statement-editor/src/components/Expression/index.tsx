@@ -16,7 +16,6 @@ import React, { useContext } from "react";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 import cn from "classnames";
 
-import { ModelKind } from "../../models/definitions";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { getExpressionTypeComponent, isPositionsEquals } from "../../utils";
 import { useStatementEditorStyles } from "../styles";
@@ -25,12 +24,10 @@ export interface ExpressionComponentProps {
     model: STNode;
     children?: React.ReactElement[];
     classNames?: string;
-    isTypeDesc?: boolean;
-    modelKind?: ModelKind;
 }
 
 export function ExpressionComponent(props: ExpressionComponentProps) {
-    const { model, children, classNames, isTypeDesc, modelKind } = props;
+    const { model, children, classNames,  } = props;
 
     const component = getExpressionTypeComponent(model);
 
@@ -61,7 +58,7 @@ export function ExpressionComponent(props: ExpressionComponentProps) {
     const onMouseClick = (e: React.MouseEvent) => {
         e.stopPropagation();
         e.preventDefault();
-        changeCurrentModel(model, modelKind);
+        changeCurrentModel(model);
     }
 
     const styleClassNames = cn(statementEditorClasses.expressionElement,

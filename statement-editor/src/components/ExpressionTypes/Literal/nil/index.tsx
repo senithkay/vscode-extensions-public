@@ -25,14 +25,10 @@ interface NilLiteralProps {
 }
 
 export function NilLiteralComponent(props: NilLiteralProps) {
-    const { model, userInputs, diagnosticHandler, isTypeDescriptor } = props;
+    const { model } = props;
 
     const inputEditorProps = {
         statementType: model.kind,
-        model,
-        userInputs,
-        diagnosticHandler,
-        isTypeDescriptor,
         classNames: "string-literal"
     };
 

@@ -10,12 +10,12 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, { ReactNode } from "react";
+import React from "react";
 
 import { BinaryExpression } from "@wso2-enterprise/syntax-tree";
 
-import { ModelKind } from "../../../models/definitions";
 import { ExpressionComponent } from "../../Expression";
+import { OperatorComponent } from "../Operator";
 
 interface BinaryProps {
     model: BinaryExpression;
@@ -24,30 +24,11 @@ interface BinaryProps {
 export function BinaryExpressionComponent(props: BinaryProps) {
     const { model } = props;
 
-    const lhs: ReactNode = (
-        <ExpressionComponent
-            model={model.lhsExpr}
-        />
-    );
-    const rhs: ReactNode = (
-        <ExpressionComponent
-            model={model.rhsExpr}
-        />
-    );
-
-    const operator: ReactNode = (
-        <ExpressionComponent
-            model={model.operator}
-            classNames="operator"
-            modelKind={ModelKind.Operator}
-        />
-    );
-
     return (
         <span>
-            {lhs}
-            {operator}
-            {rhs}
+            <ExpressionComponent model={model.lhsExpr} />
+            <OperatorComponent model={model.operator} />
+            <ExpressionComponent model={model.rhsExpr} />
         </span>
     );
 }

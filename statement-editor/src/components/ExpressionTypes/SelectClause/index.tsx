@@ -24,16 +24,10 @@ interface SelectClauseProps {
 export function SelectClauseComponent(props: SelectClauseProps) {
     const { model } = props;
 
-    const expressionComponent = (
-        <ExpressionComponent
-            model={model.expression}
-        />
-    );
-
     return (
         <span>
             <TokenComponent model={model.selectKeyword} className={"keyword"} />
-            {expressionComponent}
+            <ExpressionComponent model={model.expression} />
         </span>
     );
 }

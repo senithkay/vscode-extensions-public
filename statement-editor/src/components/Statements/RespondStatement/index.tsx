@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { ReactNode, useContext } from "react";
+import React, { useContext } from "react";
 
 import { ReturnStatement } from "@wso2-enterprise/syntax-tree";
 
@@ -38,15 +38,9 @@ export function RespondStatementC(props: ReturnStatementProps) {
         changeCurrentModel(model.expression);
     }
 
-    const expressionComponent: ReactNode = (
-        <ExpressionComponent
-            model={model.expression}
-        />
-    );
-
     return (
         <span>
-            {expressionComponent}
+            <ExpressionComponent model={model.expression} />
             <TokenComponent model={model.semicolonToken} />
         </span>
     );

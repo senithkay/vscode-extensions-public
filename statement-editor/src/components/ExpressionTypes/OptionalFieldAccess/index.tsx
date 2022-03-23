@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, { ReactNode } from "react";
+import React from "react";
 
 import { OptionalFieldAccess } from "@wso2-enterprise/syntax-tree";
 
@@ -24,20 +24,12 @@ interface OptionalFieldAccessProps {
 export function OptionalFieldAccessComponent(props: OptionalFieldAccessProps) {
     const { model } = props;
 
-    const expression: ReactNode = (
-        <ExpressionComponent
-            model={model.expression}
-        >
-            <TokenComponent model={model.optionalChainingToken} />
-            <ExpressionComponent
-                model={model.fieldName}
-            />
-        </ExpressionComponent>
-    );
-
     return (
         <span>
-            {expression}
+            <ExpressionComponent model={model.expression} >
+                <TokenComponent model={model.optionalChainingToken} />
+                <ExpressionComponent model={model.fieldName} />
+            </ExpressionComponent>
         </span>
     );
 }

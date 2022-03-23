@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, { ReactNode } from "react";
+import React from "react";
 
 import { XmlTemplateExpression} from "@wso2-enterprise/syntax-tree";
 
@@ -24,17 +24,11 @@ interface XmlTemplateExpressionProps {
 export function XmlTemplateExpressionComponent(props: XmlTemplateExpressionProps) {
     const { model } = props;
 
-    const contentComponent: ReactNode = (
-        <ExpressionArrayComponent
-            expressions={model.content}
-        />
-    );
-
     return (
         <span>
             <TokenComponent model={model.type} className={"keyword"} />
             <TokenComponent model={model.startBacktick} />
-            {contentComponent}
+            <ExpressionArrayComponent expressions={model.content} />
             <TokenComponent model={model.endBacktick} />
         </span>
     );

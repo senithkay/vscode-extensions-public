@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, { ReactNode, useContext } from "react";
+import React from "react";
 
 import { FromClause } from "@wso2-enterprise/syntax-tree";
 
@@ -24,24 +24,12 @@ interface FromClauseProps {
 export function FromClauseComponent(props: FromClauseProps) {
     const { model } = props;
 
-    const typedBindinfPatternComponent = (
-        <ExpressionComponent
-            model={model.typedBindingPattern}
-        />
-    );
-
-    const expressionName: ReactNode = (
-        <ExpressionComponent
-            model={model.expression}
-        />
-    );
-
     return (
         <span>
             <TokenComponent model={model.fromKeyword} className={"keyword"} />
-            {typedBindinfPatternComponent}
+            <ExpressionComponent model={model.typedBindingPattern} />
             <TokenComponent model={model.inKeyword} className={"keyword"} />
-            {expressionName}
+            <ExpressionComponent model={model.expression} />
         </span>
     );
 }

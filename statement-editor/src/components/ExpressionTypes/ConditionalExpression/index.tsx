@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, { ReactNode } from "react";
+import React from "react";
 
 import { ConditionalExpression } from "@wso2-enterprise/syntax-tree";
 
@@ -24,31 +24,13 @@ interface ConditionalExpressionProps {
 export function ConditionalExpressionComponent(props: ConditionalExpressionProps) {
     const { model } = props;
 
-    const lhsExpression: ReactNode = (
-        <ExpressionComponent
-            model={model.lhsExpression}
-        />
-    );
-
-    const middleExpression: ReactNode = (
-        <ExpressionComponent
-            model={model.middleExpression}
-        />
-    );
-
-    const endExpression: ReactNode = (
-        <ExpressionComponent
-            model={model.endExpression}
-        />
-    );
-
     return (
         <span>
-            {lhsExpression}
+            <ExpressionComponent model={model.lhsExpression} />
             <TokenComponent model={model.questionMarkToken} className={"operator"} />
-            {middleExpression}
+            <ExpressionComponent model={model.middleExpression} />
             <TokenComponent model={model.colonToken} className={"operator"} />
-            {endExpression}
+            <ExpressionComponent model={model.endExpression} />
         </span>
     );
 }

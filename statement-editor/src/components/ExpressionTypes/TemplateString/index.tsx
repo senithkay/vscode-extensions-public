@@ -18,15 +18,13 @@ import { InputEditor, InputEditorProps } from "../../InputEditor";
 
 interface TemplateStringProps {
     model: TemplateString;
-    isTypeDesc?: boolean;
 }
 
 export function TemplateStringComponent(props: TemplateStringProps) {
-    const { model, isTypeDesc } = props;
+    const { model } = props;
 
     const inputEditorProps: InputEditorProps = {
         model,
-        isTypeDesc,
         isToken: true
     };
 

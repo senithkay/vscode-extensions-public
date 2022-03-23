@@ -42,17 +42,11 @@ export function TableConstructorComponent(props: TableConstructorProps) {
         updateModel(newField, model.closeBracket.position);
     };
 
-    const rowsComponent = (
-        <ExpressionArrayComponent
-            expressions={model.rows}
-        />
-    );
-
     return (
         <span>
             <TokenComponent model={model.tableKeyword} className={"keyword"} />
             <TokenComponent model={model.openBracket} />
-            {rowsComponent}
+            <ExpressionArrayComponent expressions={model.rows} />
             <span
                 className={statementEditorClasses.plusIcon}
                 onClick={onClickOnPlusIcon}

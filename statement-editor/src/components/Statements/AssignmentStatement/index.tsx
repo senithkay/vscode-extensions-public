@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { ReactNode, useContext } from "react";
+import React, { useContext } from "react";
 
 import { AssignmentStatement } from "@wso2-enterprise/syntax-tree";
 
@@ -37,23 +37,11 @@ export function AssignmentStatementComponent(props: AssignmentStatementProps) {
         changeCurrentModel(model.expression);
     }
 
-    const expression: ReactNode = (
-        <ExpressionComponent
-            model={model.expression}
-        />
-    );
-
-    const varRef: ReactNode = (
-        <ExpressionComponent
-            model={model.varRef}
-        />
-    );
-
     return (
         <span>
-            {varRef}
+            <ExpressionComponent model={model.varRef} />
             <TokenComponent model={model.equalsToken} className="operator" />
-            {expression}
+            <ExpressionComponent model={model.expression} />
             <TokenComponent model={model.semicolonToken} />
         </span>
     );

@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, { ReactNode } from "react";
+import React from "react";
 
 import { Interpolation} from "@wso2-enterprise/syntax-tree";
 
@@ -24,16 +24,10 @@ interface InterpolationProps {
 export function InterpolationComponent(props: InterpolationProps) {
     const { model } = props;
 
-    const expressionComponent: ReactNode = (
-        <ExpressionComponent
-            model={model.expression}
-        />
-    );
-
     return (
         <span>
             <TokenComponent model={model.interpolationStartToken} />
-            {expressionComponent}
+            <ExpressionComponent model={model.expression} />
             <TokenComponent model={model.interpolationEndToken} />
         </span>
     );
