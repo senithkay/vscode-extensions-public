@@ -13,6 +13,7 @@
 export class StatementEditorViewState {
     public exprNotDeletable: boolean = false;
     public templateExprDeletable: boolean = false;
+    public isWithinBlockStatement: boolean = false;
     public isTypeDescriptor: boolean = false;
     public isOperator: boolean = false;
     public isBindingPattern: boolean = false;

@@ -50,7 +50,7 @@ export function createIfStatementWithBlock(condition: string, statements: string
         type: "IF_CONDITION_WITH_BLOCK",
         config: {
             "CONDITION": condition,
-            "BLOCKSTATEMENTS": statements
+            "BLOCKSTATEMENTS": statements.join('')
         }
     };
 
@@ -80,7 +80,7 @@ export function createElseIfStatementWithBlock(condition: string, statements: st
         type: "ELSE_IF_CONDITION_WITH_BLOCK",
         config: {
             "CONDITION": condition,
-            "BLOCKSTATEMENTS": statements
+            "BLOCKSTATEMENTS": statements.join('')
         }
     };
     return elseIfStatement;
@@ -105,7 +105,7 @@ export function createElseStatementWithBlock(statements: string[], targetPositio
         endColumn: 0,
         type: "ELSE_STATEMENT_WITH_BLOCK",
         config: {
-            "BLOCKSTATEMENTS": statements
+            "BLOCKSTATEMENTS": statements.join('')
         }
     };
     return elseStatement;
@@ -154,7 +154,7 @@ export function createForeachStatementWithBlock(collection: string, variableName
             "COLLECTION": collection,
             "TYPE": type,
             "VARIABLE": variableName,
-            "BLOCKSTATEMENTS": statements
+            "BLOCKSTATEMENTS": statements.join('')
         }
     };
 
@@ -218,7 +218,7 @@ export function createWhileStatementWithBlock(conditionExpression: string, state
         type: "WHILE_STATEMENT_WITH_BLOCK",
         config: {
             "CONDITION": conditionExpression,
-            "BLOCKSTATEMENTS": statements
+            "BLOCKSTATEMENTS": statements.join('')
         }
     };
 

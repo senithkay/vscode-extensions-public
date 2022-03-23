@@ -155,7 +155,7 @@ export function InputEditor(props: InputEditorProps) {
         setIsEditing(false);
         setPrevUserInput(userInput);
         if (userInput !== "") {
-            updateModel(userInput, model ? model.position : targetPosition, true);
+            updateModel(userInput, model ? model.position : targetPosition);
         }
     }
 

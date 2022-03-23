@@ -41,3 +41,8 @@ export interface StmtDiagnostic {
     message: string;
     isPlaceHolderDiag?: boolean;
 }
+
+export interface StmtOffset {
+    startLine: number;
+    startColumn: number;
+}

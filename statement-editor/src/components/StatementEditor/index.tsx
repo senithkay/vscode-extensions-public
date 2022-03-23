@@ -22,6 +22,7 @@ import {
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import * as monaco from "monaco-editor";
+import { Diagnostic } from "vscode-languageserver-protocol";
 
 import {
     APPEND_EXPR_LIST_CONSTRUCTOR,
@@ -35,12 +36,13 @@ import {
 } from "../../models/definitions";
 import { StatementEditorContextProvider } from "../../store/statement-editor-context";
 import {
-    enrichModelWithViewState,
+    addExpressionToTargetPosition,
+    enrichModel,
     getCurrentModel,
-    getFilteredDiagnosticMessages
+    getFilteredDiagnosticMessages,
+    getUpdatedSource,
 } from "../../utils";
 import {
-    addImportStatements,
     addStatementToTargetLine,
     getCompletions,
     getDiagnostics,
@@ -102,61 +104,72 @@ export function StatementEditor(props: StatementEditorProps) {
 
     const [model, setModel] = useState<STNode>(null);
     const [currentModel, setCurrentModel] = useState<CurrentModel>({ model });
-    const [diagnostics, setDiagnostics] = useState<StmtDiagnostic[]>([]);
+    const [stmtDiagnostics, setStmtDiagnostics] = useState<StmtDiagnostic[]>([]);
     const [moduleList, setModuleList] = useState(new Set<string>());
     const [lsSuggestionsList, setLSSuggestionsList] = useState([]);
 
     const fileURI = monaco.Uri.file(currentFile.path).toString().replace(FILE_SCHEME, EXPR_SCHEME);
+    const {
+        formArgs : {
+            targetPosition : targetPosition
+        }
+    } = formArgs;
 
     const undoRedoManager = React.useMemo(() => new StmtEditorUndoRedoManager(), []);
 
-    const undo = React.useCallback(() => {
+    const undo = React.useCallback(async () => {
         const undoItem = undoRedoManager.getUndoModel();
         if (undoItem) {
-            updateEditedModel(undoItem.oldModel);
+            const updatedContent = await getUpdatedSource(undoItem.oldModel.source, currentFile.content,
+                targetPosition, moduleList, getLangClient);
+            sendDidChange(fileURI, updatedContent, getLangClient).then();
+            const diagnostics = await handleDiagnostics(undoItem.oldModel.source.length);
+            updateEditedModel(undoItem.oldModel, diagnostics);
         }
     }, []);
 
-    const redo = React.useCallback(() => {
+    const redo = React.useCallback(async () => {
         const redoItem = undoRedoManager.getRedoModel();
         if (redoItem) {
-            updateEditedModel(redoItem.newModel);
+            const updatedContent = await getUpdatedSource(redoItem.oldModel.source, currentFile.content,
+                targetPosition, moduleList, getLangClient);
+            sendDidChange(fileURI, updatedContent, getLangClient).then();
+            const diagnostics = await handleDiagnostics(redoItem.oldModel.source.length);
+            updateEditedModel(redoItem.newModel, diagnostics);
         }
     }, []);
 
     useEffect(() => {
         if (config.type !== CUSTOM_CONFIG_TYPE || initialSource) {
             (async () => {
+                const updatedContent = await getUpdatedSource(initialSource.trim(), currentFile.content,
+                    targetPosition, moduleList, getLangClient);
+
+                sendDidOpen(fileURI, updatedContent, getLangClient).then();
+                const diagnostics = await handleDiagnostics(initialSource.length);
+
                 const partialST = await getPartialSTForStatement(
                     { codeSnippet: initialSource.trim() }, getLangClient);
 
                 if (!partialST.syntaxDiagnostics.length) {
-                    updateEditedModel(partialST);
+                    updateEditedModel(partialST, diagnostics);
                 }
-
-                sendDidOpen(fileURI, currentFile.content, getLangClient).then();
-                const diagResp = await getDiagnostics(fileURI, getLangClient);
-                const diag = diagResp[0]?.diagnostics ?
-                    getFilteredDiagnosticMessages(initialSource, formArgs.formArgs.targetPosition, diagResp[0].diagnostics) :
-                    [];
-                setDiagnostics(diag);
             })();
         }
     }, []);
 
     useEffect(() => {
         (async () => {
-            if (model) {
+            if (model && currentModel.model) {
                 let lsSuggestions : SuggestionItem[] = [];
-                if (currentModel.model){
-                    const currentModelViewState = currentModel.model?.viewState as StatementEditorViewState;
-                    if (!currentModelViewState.isOperator && !currentModelViewState.isBindingPattern) {
-                        const content: string = await addStatementToTargetLine(
-                            currentFile.content, formArgs.formArgs.targetPosition, model.source, getLangClient);
-                        sendDidChange(fileURI, content, getLangClient).then();
-                        lsSuggestions = await getCompletions(fileURI, formArgs.formArgs.targetPosition, model,
-                            currentModel, getLangClient);
-                    }
+                const currentModelViewState = currentModel.model?.viewState as StatementEditorViewState;
+
+                if (!currentModelViewState.isOperator && !currentModelViewState.isBindingPattern) {
+                    const content: string = await addStatementToTargetLine(
+                        currentFile.content, targetPosition, model.source, getLangClient);
+                    sendDidChange(fileURI, content, getLangClient).then();
+                    lsSuggestions = await getCompletions(fileURI, targetPosition, model,
+                        currentModel, getLangClient);
                 }
                 setLSSuggestionsList(lsSuggestions);
             }
@@ -169,42 +182,17 @@ export function StatementEditor(props: StatementEditorProps) {
         }
     }, [model]);
 
-    const handleChange = async (newValue: string, isEditedViaInputEditor?: boolean) => {
-        let updatedStatement = addExpressionToTargetPosition(
-            model.source,
-            currentModel ? currentModel.model.position.startLine : 0,
-            currentModel ? currentModel.model.position.startColumn : 0,
-            newValue,
-            currentModel ? currentModel.model.position.endColumn : 0
-        );
-        if (updatedStatement.slice(-1) !== ';') {
-            updatedStatement += ';';
-        }
-        let updatedContent: string = await addStatementToTargetLine(
-            currentFile.content, formArgs.formArgs.targetPosition, updatedStatement, getLangClient);
-        if (!!moduleList.size) {
-            updatedContent = await addImportStatements(updatedContent, Array.from(moduleList) as string[]);
-        }
+    const handleChange = async (newValue: string) => {
+        const updatedStatement = addExpressionToTargetPosition(model, currentModel.model.position, newValue);
+        const updatedContent = await getUpdatedSource(updatedStatement, currentFile.content,
+            targetPosition, moduleList, getLangClient);
 
         sendDidChange(fileURI, updatedContent, getLangClient).then();
-
-        const diagResp = await getDiagnostics(fileURI, getLangClient);
-        const diag = diagResp[0]?.diagnostics ?
-            getFilteredDiagnosticMessages(updatedStatement, formArgs.formArgs.targetPosition, diagResp[0].diagnostics) :
-            [];
-        setDiagnostics(diag);
-
-        if (isEditedViaInputEditor) {
-            const lsSuggestions = await getCompletions(fileURI, formArgs.formArgs.targetPosition, model,
-                currentModel, getLangClient, newValue);
-            setLSSuggestionsList(lsSuggestions);
-        }
+        handleDiagnostics(updatedStatement.length).then();
+        handleCompletions(newValue).then();
     }
 
-    const updateModel = async (codeSnippet: string, position: NodePosition, isEditedViaInputEditor?: boolean) => {
-        if (!isEditedViaInputEditor) {
-            handleChange(codeSnippet).then();
-        }
+    const updateModel = async (codeSnippet: string, position: NodePosition) => {
         let partialST: STNode;
         if (model) {
             const stModification = {
@@ -223,8 +211,13 @@ export function StatementEditor(props: StatementEditorProps) {
 
         undoRedoManager.add(model, partialST);
 
+        const updatedContent = await getUpdatedSource(partialST.source, currentFile.content, targetPosition,
+            moduleList, getLangClient);
+        sendDidChange(fileURI, updatedContent, getLangClient).then();
+        const diagnostics = await handleDiagnostics(partialST.source.length);
+
         if (!partialST.syntaxDiagnostics.length || config.type === CUSTOM_CONFIG_TYPE) {
-            updateEditedModel(partialST);
+            updateEditedModel(partialST, diagnostics);
         }
 
         // Since in list constructor we add expression with comma and close-bracket,
@@ -248,7 +241,7 @@ export function StatementEditor(props: StatementEditorProps) {
             };
         }
 
-        const newCurrentModel = getCurrentModel(currentModelPosition, enrichModelWithViewState(partialST));
+        const newCurrentModel = getCurrentModel(currentModelPosition, enrichModel(partialST, targetPosition));
         setCurrentModel({model: newCurrentModel});
     }
 
@@ -267,28 +260,28 @@ export function StatementEditor(props: StatementEditorProps) {
         }
     };
 
+    const handleCompletions = async (newValue: string) => {
+        const lsSuggestions = await getCompletions(fileURI, targetPosition, model,
+            currentModel, getLangClient, newValue);
+        setLSSuggestionsList(lsSuggestions);
+    }
+
+    const handleDiagnostics = async (stmtLength: number): Promise<Diagnostic[]> => {
+        const diagResp = await getDiagnostics(fileURI, getLangClient);
+        const diag  = diagResp[0]?.diagnostics ? diagResp[0].diagnostics : [];
+        const messages = getFilteredDiagnosticMessages(stmtLength, targetPosition, diag);
+        setStmtDiagnostics(messages);
+        return diag;
+    }
+
     const currentModelHandler = (cModel: STNode) => {
         setCurrentModel({
             model: cModel
         });
     };
 
-    function addExpressionToTargetPosition(currentStmt: string,
-                                           targetLine: number,
-                                           targetColumn: number,
-                                           codeSnippet: string,
-                                           endColumn?: number): string {
-        if (model && STKindChecker.isIfElseStatement(model)) {
-            const splitStatement: string[] = currentStmt.split(/\n/g) || [];
-            splitStatement.splice(targetLine, 1, splitStatement[targetLine].slice(0, targetColumn) +
-                codeSnippet + splitStatement[targetLine].slice(endColumn || targetColumn));
-            return splitStatement.join('\n');
-        }
-        return currentStmt.slice(0, targetColumn) + codeSnippet + currentStmt.slice(endColumn || targetColumn);
-    }
-
-    function updateEditedModel(editedModel: STNode) {
-        setModel(enrichModelWithViewState(editedModel));
+    function updateEditedModel(editedModel: STNode, diagnostics?: Diagnostic[]) {
+        setModel(enrichModel(editedModel, targetPosition, diagnostics));
     }
 
     return (
@@ -312,14 +305,14 @@ export function StatementEditor(props: StatementEditorProps) {
                     redo={redo}
                     hasRedo={undoRedoManager.hasRedo()}
                     hasUndo={undoRedoManager.hasUndo()}
-                    diagnostics={diagnostics}
+                    diagnostics={stmtDiagnostics}
                     lsSuggestions={lsSuggestionsList}
                 >
                     <ViewContainer
                         label={label}
                         formArgs={formArgs}
                         config={config}
-                        isStatementValid={!diagnostics.length}
+                        isStatementValid={!stmtDiagnostics.length}
                         onWizardClose={onWizardClose}
                         onCancel={onCancel}
                     />

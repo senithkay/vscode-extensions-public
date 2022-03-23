@@ -14,6 +14,7 @@ import React, { ReactNode } from 'react';
 
 import {
     CompletionResponse,
+    ExpressionEditorLangClientInterface,
     getDiagnosticMessage,
     getFilteredDiagnostics,
     STModification
@@ -35,13 +36,15 @@ import {
     StatementNodes,
     TYPE_DESC_PLACE_HOLDER_DIAG
 } from "../constants";
-import { RemainingContent, StmtDiagnostic } from '../models/definitions';
+import { RemainingContent, StmtDiagnostic, StmtOffset } from '../models/definitions';
 import { visitor as DeleteConfigSetupVisitor } from "../visitors/delete-config-setup-visitor";
+import { visitor as DiagnosticsMappingVisitor } from "../visitors/diagnostics-mapping-visitor";
 import { visitor as ExpressionDeletingVisitor } from "../visitors/expression-deleting-visitor";
 import { visitor as ModelFindingVisitor } from "../visitors/model-finding-visitor";
 import { visitor as ModelKindSetupVisitor } from "../visitors/model-kind-setup-visitor";
 import { viewStateSetupVisitor as ViewStateSetupVisitor } from "../visitors/view-state-setup-visitor";
 
+import { addImportStatements, addStatementToTargetLine } from "./ls-utils";
 import { createImportStatement, createStatement, updateStatement } from "./statement-modifications";
 
 export function getModifications(
@@ -127,8 +130,28 @@ export function getCurrentModel(position: NodePosition, model: STNode): STNode {
     return ModelFindingVisitor.getModel();
 }
 
-export function enrichModelWithViewState(model: STNode): STNode  {
+export function enrichModel(model: STNode, targetPosition: NodePosition, diagnostics?: Diagnostic[]): STNode {
     traversNode(model, ViewStateSetupVisitor);
+    model = enrichModelWithDiagnostics(model, targetPosition, diagnostics);
+    return enrichModelWithViewState(model);
+}
+
+export function enrichModelWithDiagnostics(model: STNode, targetPosition: NodePosition,
+                                           diagnostics: Diagnostic[]): STNode {
+    if (diagnostics) {
+        const offset: StmtOffset = {
+            startColumn: targetPosition.startColumn,
+            startLine: targetPosition.startLine
+        }
+        diagnostics.map(diagnostic => {
+            DiagnosticsMappingVisitor.setDiagnosticsNOffset(diagnostic, offset);
+            traversNode(model, DiagnosticsMappingVisitor);
+        });
+    }
+    return model;
+}
+
+export function enrichModelWithViewState(model: STNode): STNode  {
     traversNode(model, DeleteConfigSetupVisitor);
     traversNode(model, ModelKindSetupVisitor);
 
@@ -149,7 +172,7 @@ export function isPositionsEquals(position1: NodePosition, position2: NodePositi
         position1?.endColumn === position2?.endColumn;
 }
 
-export function getFilteredDiagnosticMessages(source: string, targetPosition: NodePosition,
+export function getFilteredDiagnosticMessages(stmtLength: number, targetPosition: NodePosition,
                                               diagnostics: Diagnostic[]): StmtDiagnostic[] {
     const stmtDiagnostics: StmtDiagnostic[] = [];
 
@@ -162,7 +185,7 @@ export function getFilteredDiagnosticMessages(source: string, targetPosition: No
         endColumn: targetPosition?.endColumn || 0
     };
 
-    getDiagnosticMessage(diag, diagnosticTargetPosition, 0, source.length, 0, 0).split('. ').map(message => {
+    getDiagnosticMessage(diag, diagnosticTargetPosition, 0, stmtLength, 0, 0).split('. ').map(message => {
             let isPlaceHolderDiag = false;
             if (message === EXPR_PLACE_HOLDER_DIAG || message === TYPE_DESC_PLACE_HOLDER_DIAG) {
                 isPlaceHolderDiag = true;
@@ -173,6 +196,42 @@ export function getFilteredDiagnosticMessages(source: string, targetPosition: No
         });
 
     return stmtDiagnostics;
+}
+
+export async function getUpdatedSource(updatedStatement: string, currentFileContent: string,
+                                       targetPosition: NodePosition, moduleList: Set<string>,
+                                       getLangClient: () => Promise<ExpressionEditorLangClientInterface>)
+    : Promise<string> {
+
+    let updatedContent: string = await addStatementToTargetLine(currentFileContent, targetPosition,
+        updatedStatement, getLangClient);
+    if (!!moduleList.size) {
+        updatedContent = await addImportStatements(updatedContent, Array.from(moduleList) as string[]);
+    }
+
+    return updatedContent;
+}
+
+export function addExpressionToTargetPosition(statementModel: STNode, currentPosition: NodePosition,
+                                              newValue: string): string {
+
+    const startLine = currentPosition.startLine;
+    const startColumn = currentPosition.startColumn;
+    const endColumn = currentPosition.endColumn;
+
+    if (statementModel && STKindChecker.isIfElseStatement(statementModel)) {
+        const splitStatement: string[] = statementModel.source.split(/\n/g) || [];
+
+        splitStatement.splice(startLine, 1, splitStatement[startLine].slice(0, startColumn) +
+            newValue + splitStatement[startLine].slice(endColumn || startColumn));
+
+        return splitStatement.join('\n');
+    }
+
+    const newStatement =  statementModel.source.slice(0, startColumn) + newValue +
+        statementModel.source.slice(endColumn || startColumn);
+
+    return newStatement.slice(-1) !== ';' ? newStatement + ';' : newStatement;
 }
 
 export function getSuggestionIconStyle(suggestionType: number): string {
