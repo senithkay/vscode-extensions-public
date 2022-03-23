@@ -33,7 +33,6 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
     context.subscriptions.push(new BallerinaNotebookController(ballerinaExtInstance));
     context.subscriptions.push(registerLanguageProviders(ballerinaExtInstance));
     context.subscriptions.push(registerFocusToOutline());
-
 	context.subscriptions.push(
 		window.registerWebviewViewProvider(VariableViewProvider.viewType, new VariableViewProvider(ballerinaExtInstance))
     );
