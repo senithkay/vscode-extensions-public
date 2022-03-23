@@ -253,7 +253,14 @@ export function StatementEditor(props: StatementEditorProps) {
     }
 
     const handleModules = (module: string) => {
-        if (!importStatements.includes(module)) {
+        let moduleIncluded : boolean;
+        importStatements.forEach(importedModule => {
+            if (importedModule.includes(module)){
+                moduleIncluded = true;
+            }
+        });
+
+        if (!moduleIncluded){
             setModuleList((prevModuleList: Set<string>) => {
                 return new Set(prevModuleList.add(module));
             });
