@@ -18,7 +18,6 @@ import {
     PrimaryButton,
     SecondaryButton
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
-import { STNode } from "@wso2-enterprise/syntax-tree";
 
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { getModifications } from "../../utils";
@@ -29,10 +28,6 @@ import { useStatementEditorStyles } from "../styles";
 export interface ViewContainerProps {
     label: string;
     formArgs: any;
-    config: {
-        type: string;
-        model?: STNode;
-    };
     isStatementValid: boolean;
     onWizardClose: () => void;
     onCancel: () => void;
@@ -42,7 +37,6 @@ export function ViewContainer(props: ViewContainerProps) {
     const {
         label,
         formArgs,
-        config,
         isStatementValid,
         onWizardClose,
         onCancel
@@ -57,6 +51,7 @@ export function ViewContainer(props: ViewContainerProps) {
         getLangClient,
         applyModifications,
         currentFile,
+        config,
         modules: {
             modulesToBeImported
         }

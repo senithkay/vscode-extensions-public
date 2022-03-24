@@ -205,7 +205,7 @@ class DiagramConfig {
     functionHeaderHeight = 50;
 
     // default body sizing
-    defaultBlockWidth = 150;
+    defaultBlockWidth = 200;
     defaultBlockHeight = this.offSet * 2;
 }
 

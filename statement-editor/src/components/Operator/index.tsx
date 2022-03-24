@@ -110,7 +110,8 @@ export function OperatorComponent(props: OperatorProps) {
     const inputEditorProps = {
         model,
         isToken: true,
-        classNames: "operator"
+        classNames: "operator",
+        notEditable: true
     };
 
     return (

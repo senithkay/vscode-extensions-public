@@ -10,7 +10,13 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { BinaryExpression, TypedBindingPattern, TypeTestExpression, Visitor } from "@wso2-enterprise/syntax-tree";
+import {
+    BinaryExpression,
+    TypeCastExpression,
+    TypedBindingPattern,
+    TypeTestExpression,
+    Visitor
+} from "@wso2-enterprise/syntax-tree";
 
 import { StatementEditorViewState } from "../utils/statement-editor-viewstate";
 
@@ -26,6 +32,10 @@ class ModelKindSetupVisitor implements Visitor {
 
     public beginVisitBinaryExpression(node: BinaryExpression) {
         (node.operator.viewState as StatementEditorViewState).isOperator = true;
+    }
+
+    public beginVisitTypeCastExpression(node: TypeCastExpression) {
+        (node.typeCastParam.viewState as StatementEditorViewState).isTypeDescriptor = true;
     }
 }
 

@@ -151,7 +151,7 @@ export function StatementEditor(props: StatementEditorProps) {
                 const partialST = await getPartialSTForStatement(
                     { codeSnippet: initialSource.trim() }, getLangClient);
 
-                if (!partialST.syntaxDiagnostics.length) {
+                if (!partialST.syntaxDiagnostics.length || config.type === CUSTOM_CONFIG_TYPE) {
                     updateEditedModel(partialST, diagnostics);
                 }
             })();
@@ -313,6 +313,7 @@ export function StatementEditor(props: StatementEditorProps) {
                 <StatementEditorContextProvider
                     model={model}
                     currentModel={currentModel}
+                    config={config}
                     changeCurrentModel={currentModelHandler}
                     handleChange={handleChange}
                     updateModel={updateModel}
@@ -334,7 +335,6 @@ export function StatementEditor(props: StatementEditorProps) {
                     <ViewContainer
                         label={label}
                         formArgs={formArgs}
-                        config={config}
                         isStatementValid={!stmtDiagnostics.length}
                         onWizardClose={onWizardClose}
                         onCancel={onCancel}

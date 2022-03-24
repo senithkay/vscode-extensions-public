@@ -147,7 +147,7 @@ export function InputEditor(props: InputEditorProps) {
     const debouncedContentChange = debounce(handleChange, 500);
 
     const handleDoubleClick = () => {
-        if (!isToken && !notEditable){
+        if (!notEditable){
             setIsEditing(true);
         }
     };

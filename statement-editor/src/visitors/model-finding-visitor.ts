@@ -16,6 +16,7 @@ import {
     Visitor
 } from "@wso2-enterprise/syntax-tree";
 
+import { INPUT_EDITOR_PLACE_HOLDERS } from "../components/InputEditor/constants";
 import { isPositionsEquals } from "../utils";
 
 class ModelFindingVisitor implements Visitor {
@@ -26,7 +27,7 @@ class ModelFindingVisitor implements Visitor {
         if (!this.model) {
             if (isPositionsEquals(node.position, this.position)) {
                 this.model = node;
-            } else if (node?.source?.trim() === 'EXPRESSION') {
+            } else if (INPUT_EDITOR_PLACE_HOLDERS.has(node?.source?.trim())) {
                 const isWithinRange = node.position.startColumn >= this.position.startColumn &&
                     node.position.endColumn <= this.position.endColumn;
                 if (isWithinRange) {
