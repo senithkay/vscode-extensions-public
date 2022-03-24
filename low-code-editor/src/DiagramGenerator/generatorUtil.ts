@@ -68,6 +68,54 @@ export function getDefaultSelectedPosition(modulePart: ModulePart): SelectedPosi
     }
 }
 
+export function getSelectedPosition(modulePart: ModulePart, startLine?: number, startColumn?: number): SelectedPosition {
+    if (modulePart.members && modulePart.members.length > 0) {
+        let selectedNode: any;
+        for (const member of modulePart.members) {
+            if (STKindChecker.isServiceDeclaration(member)) {
+                const isSelected = isNodeSelected({ startLine, startColumn }, member);
+                if (isSelected) {
+                    selectedNode = member;
+                    break;
+                }
+            }
+        }
+        if (selectedNode && STKindChecker.isServiceDeclaration(selectedNode) && selectedNode.members && selectedNode.members.length === 1) {
+            const resources = selectedNode.members;
+            if (resources && resources.length > 0) {
+                let selectedResourceNode: any;
+                for (const member of modulePart.members) {
+                    const isSelected = isNodeSelected({ startLine, startColumn }, member);
+                    if (isSelected) {
+                        selectedResourceNode = member;
+                        break;
+                    }
+                }
+                if (selectedResourceNode) {
+                    return { startLine, startColumn };
+                }
+                return getFnStartPosition(resources[0]);
+            }
+        }
+    }
+
+    return { startLine, startColumn };
+}
+
+export function isNodeSelected(selectedPosition: SelectedPosition, node: any): boolean {
+    let lineOffset: number = 0;
+    if (node?.leadingMinutiae && node?.leadingMinutiae.length > 0) {
+        for (const minutiae of node.leadingMinutiae) {
+            if (minutiae.kind === "END_OF_LINE_MINUTIAE") {
+                lineOffset += 1;
+            }
+        }
+    }
+
+    return selectedPosition?.startLine >= (node.position?.startLine - lineOffset)
+        && selectedPosition?.startLine <= node.position?.endLine;
+}
+
 export function sizingAndPositioningST(st: STNode): STNode {
     traversNode(st, initVisitor);
     traversNode(st, new SizingVisitor());

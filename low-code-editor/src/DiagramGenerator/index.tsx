@@ -31,7 +31,7 @@ import { init } from "../utils/sentry";
 
 import { DiagramGenErrorBoundary } from "./ErrorBoundrary";
 import {
-    getDefaultSelectedPosition, getLowcodeST, getSyntaxTree, isDeleteModificationAvailable,
+    getDefaultSelectedPosition, getLowcodeST, getSelectedPosition, getSyntaxTree, isDeleteModificationAvailable,
     isUnresolvedModulesAvailable
 } from "./generatorUtil";
 import { addPerformanceData } from "./performanceUtil";
@@ -311,10 +311,12 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                                     setModulePullInProgress(false);
                                                 }
                                             }
+
+
                                             let newActivePosition = getDefaultSelectedPosition(vistedSyntaxTree as ModulePart);
                                             for (const mutation of mutations) {
                                                 if (mutation.type.toLowerCase() !== "import") {
-                                                    newActivePosition = { startLine: mutation.startLine, startColumn: mutation.startColumn };
+                                                    newActivePosition = getSelectedPosition(vistedSyntaxTree as ModulePart, mutation.startLine, mutation.startColumn);
                                                     break;
                                                 }
                                             }
