@@ -1145,7 +1145,7 @@ export class SizingVisitor implements Visitor {
             elseLeftWidth = defaultElseVS.bBox.lw;
             elseRightWidth = defaultElseVS.bBox.rw;
 
-            defaultElseVS.elseTopHorizontalLine.length =  diffIfWidthWithHeadWidth + viewState.offSetBetweenIfElse;
+            defaultElseVS.elseTopHorizontalLine.length = diffIfWidthWithHeadWidth + viewState.offSetBetweenIfElse;
             defaultElseVS.elseBottomHorizontalLine.length = defaultElseVS.ifHeadWidthOffset +
                 diffIfWidthWithHeadWidth + viewState.offSetBetweenIfElse;
             viewState.childElseViewState = defaultElseVS;
@@ -1398,10 +1398,11 @@ export class SizingVisitor implements Visitor {
             blockViewState.bBox.h = height;
         }
 
-        blockViewState.bBox.w = width > 0 ? width : DefaultConfig.defaultBlockWidth
 
         blockViewState.bBox.lw = leftWidth > 0 ? leftWidth : DefaultConfig.defaultBlockWidth / 2;
         blockViewState.bBox.rw = rightWidth > 0 ? rightWidth : DefaultConfig.defaultBlockWidth / 2;
+
+        blockViewState.bBox.w = blockViewState.bBox.lw + blockViewState.bBox.rw;
     }
 
     private addToSendReceiveMap(type: 'Send' | 'Receive' | 'Wait', entry: AsyncReceiveInfo | AsyncSendInfo | WaitInfo) {
@@ -1669,9 +1670,10 @@ export class SizingVisitor implements Visitor {
                 if (draft) {
                     const { h, w } = getDraftComponentSizes(draft.type, draft.subType);
                     draft.bBox.h = draft.bBox.offsetFromTop + h + draft.bBox.offsetFromBottom;
-                    draft.bBox.w = w;
                     draft.bBox.lw = w / 2;
                     draft.bBox.rw = w / 2;
+                    draft.bBox.w = draft.bBox.lw + draft.bBox.rw;
+
                     height += draft.bBox.h;
                     if (width < draft.bBox.w) {
                         width = draft.bBox.w;
