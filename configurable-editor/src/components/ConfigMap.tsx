@@ -78,20 +78,14 @@ export const ConfigMap = (configMapProps: ConfigMapProps): ReactElement => {
 
     const [mapValues, setMapValues] = useState<ConfigMapValue[]>([]);
     const classes = useStyles();
-    console.log(configMapProps);
-    // configMapProps.properties.forEach((entry) => {
-    //     entry.setConfigElement = configMapProps.setConfigElement;
-    // });
 
     const addMapField = () => {
-        console.log(mapValues);
         const mapValue: ConfigMapValue = {
             id: configMapProps.id + "-" + (mapValues.length + 1),
             key: "Key",
             value: "Value"
         };
         setMapValues([...mapValues, mapValue]);
-        console.log(mapValues);
     };
 
     let removeMapField = (i: number) => {
@@ -100,42 +94,29 @@ export const ConfigMap = (configMapProps: ConfigMapProps): ReactElement => {
         setMapValues(newMapValues)
     }
 
-    const handleValueChange = () => {
-        // setMapValues((prevValues) => {
-        //     return new Map(prevValues).set(null, null);
-        // });
+    const handleValueChange = (id: string, value: string) => {
+        let newMapValues = [...mapValues];
+        const existingMap = newMapValues.findIndex(
+            (property) => property.id === id,
+        );
+        if (existingMap > -1) {
+            newMapValues[existingMap].value = value;
+        }
+        setMapValues(newMapValues);
+        console.log(newMapValues);
     };
 
-    const getMapField = (
-        configMapProps: ConfigMapProps[],
-        handleValueChange: (key: string, value: any) => void,
-    ) => {
-        {
-            configMapProps.map((element, index) => (
-                <div className="form-inline" key={index}>
-                    <label>{element}</label>
-                </div>
-            ))
+    const handleKeyChange = (id: string, key: string) => {
+        let newMapValues = [...mapValues];
+        const existingMap = newMapValues.findIndex(
+            (property) => property.id === id,
+        );
+        if (existingMap > -1) {
+            newMapValues[existingMap].key = key;
         }
-    }
-
-    useEffect(() => {
-        if (configMapProps.value !== undefined) {
-            const mapValue: ConfigMapValue = {
-                id: configMapProps.id + "-" + mapValues.length + 1,
-                key: "",
-                value: ""
-            };
-            // const existingValue = mapValues.(x => x.id === mapValue.id);
-            // const newMapArray = mapValues
-            // setMapValues(mapValues.);
-        }
-    }, []);
-
-    // useEffect(() => {
-    //     const configValue = { key: configElement.id, value: values };
-    //     configElement.setConfigElement(configValue);
-    // }, [mapValues]);
+        setMapValues(newMapValues);
+        console.log(newMapValues);
+    };
 
     return (
         <Box className={classes.innerBoxCard}>
@@ -153,7 +134,7 @@ export const ConfigMap = (configMapProps: ConfigMapProps): ReactElement => {
                         <Box className={classes.labelTag}>
                             <OutlinedLabel
                                 type="success"
-                                label="map"
+                                label={`map<${type}>`}
                                 shape="square"
                             />
                         </Box>
@@ -166,15 +147,14 @@ export const ConfigMap = (configMapProps: ConfigMapProps): ReactElement => {
                                     <CardContent className={classes.cardContent}>
                                         <Box key={element.id + "-ENTRY"}>
                                             <TextFieldInput
-                                                id={element.id + "-" + index + "-KEY"}
+                                                id={element.id}
                                                 isRequired={true}
                                                 existingValue={element.key}
                                                 type={type}
-                                                setTextFieldValue={handleValueChange}
+                                                setTextFieldValue={handleKeyChange}
                                             />
-                                            {' '}
                                             <TextFieldInput
-                                                id={element.id + "-" + index + "-VALUE"}
+                                                id={element.id}
                                                 isRequired={true}
                                                 existingValue={element.value}
                                                 type={type}
