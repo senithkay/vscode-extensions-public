@@ -10,22 +10,22 @@
                     "properties": {
                         "itemCode": {
                             "type": "string",
-                            "description": "description"
+                            "description": "Sample description of the itemCode configurable."
                         },
                         "discount": {
                             "type": "number",
-                            "description": "description"
+                            "description": "Sample description of the discount configurable."
                         },
                         "testMode": {
                             "type": "boolean",
-                            "description": "description"
+                            "description": "Sample description of the testMode configurable."
                         },
                         "mod1": {
                             "type": "object",
                             "properties": {
                                 "nameVal": {
                                     "type": "string",
-                                    "description": "description"
+                                    "description": "Sample description of the nameVal configurable."
                                 }
                             }
                         },
@@ -46,39 +46,39 @@
                                         }
                                     },
                                     "additionalProperties": false,
-                                    "description": ""
+                                    "description": "Sample description of the category configurable."
                                 }
                             },
                             "additionalProperties": false,
-                            "description": ""
+                            "description": "Sample description of the person configurable."
                         },
                         "prices": {
                             "type": "array",
                             "items": {
                                 "type": "integer"
                             },
-                            "description": ""
+                            "description": "Sample description of the prices configurable."
                         },
                         "mapValueString": {
                             "type": "object",
                             "additionalProperties": {
                                 "type": "string"
                             },
-                            "description": "Simple type maps"
+                            "description": "Sample description of the mapValueString configurable."
                         },
                         "mapValueInteger": {
                             "type": "object",
                             "additionalProperties": {
                                 "type": "integer"
                             },
-                            "description": "Simple type maps"
+                            "description": "Sample description of the mapValueInteger configurable."
                         },
                         "mapValueIntBoolean": {
                             "type": "object",
                             "additionalProperties": {
                                 "type": "boolean"
                             },
-                            "description": "Simple type maps"
+                            "description": "Sample description of the mapValueIntBoolean configurable."
                         },
                         "mapValueRecord": {
                             "type": "object",
@@ -98,7 +98,7 @@
                                     "name"
                                 ]
                             },
-                            "description": "Object type maps"
+                            "description": "Sample description of the mapValueRecord configurable."
                         },
                         "mapValueUnion": {
                             "type": "object",
@@ -125,7 +125,7 @@
                                     }
                                 ]
                             },
-                            "description": "Union type maps"
+                            "description": "Sample description of the mapValueUnion configurable."
                         }
                     },
                     "required": [
