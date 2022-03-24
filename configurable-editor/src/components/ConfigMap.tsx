@@ -17,18 +17,17 @@
  *
  */
 
-import React, { ReactElement, useEffect, useState } from "react";
+import React, { ReactElement, useState } from "react";
 
 import { Box, Card, CardContent, Typography } from "@material-ui/core";
 
 import { useStyles } from "./style";
 import OutlinedLabel from "./elements/OutlinedLabel";
 import { AddInputButton } from "./elements/AddInputButton";
-import { getDescription } from "./utils";
+import { getDescription, getType } from "./utils";
 import { TextFieldInput } from "./elements/TextFieldInput";
 import { ConfigType, SchemaConstants } from "./model";
-import { RadioGroupInput } from "./elements/RadioGroupInput";
-import { ConfigElementProps } from "./ConfigElement";
+import ConfigElement, { ConfigElementProps } from "./ConfigElement";
 
 /**
  * A high level config property which can contain configurable maps.
@@ -131,6 +130,20 @@ export const ConfigMap = (configMapProps: ConfigMapProps): ReactElement => {
         setMapValues(newMapValues);
     };
 
+    const getConfigElement = (id: string) => {
+        const configElementProps: ConfigElementProps = {
+            id: id,
+            isArray: false,
+            isRequired: false,
+            name: configMapProps.name,
+            type: getType(types[0]),
+        };
+
+        return(
+            <ConfigElement {...configElementProps} />
+        );
+    };
+
     return (
         <Box className={classes.innerBoxCard}>
             <Card variant="outlined">
@@ -166,7 +179,7 @@ export const ConfigMap = (configMapProps: ConfigMapProps): ReactElement => {
                                                 type={"string"}
                                                 setTextFieldValue={handleKeyChange}
                                             />
-                                            {getMapValueElement(types, configMapProps, handleValueChange)}
+                                            {getConfigElement(element.id)}
                                         </Box>
                                     </CardContent>
                                 </Card>
@@ -180,49 +193,6 @@ export const ConfigMap = (configMapProps: ConfigMapProps): ReactElement => {
             </Card>
         </Box>
     );
-};
-
-const getMapValueElement = (
-    type: string[],
-    configMapProps: ConfigMapProps,
-    handleValueChange: (key: string, value: any) => void,
-) => {
-    const isUnion = type.length > 1;
-    if (!isUnion) {
-        if (type[0] === ConfigType.RECORD) {
-            // TODO: Implement the Record Types
-        } else if (type[0] === ConfigType.UNION) {
-            // TODO: Implement the Union Types
-        } else {
-            switch (type[0]) {
-                case ConfigType.BOOLEAN:
-                    return (
-                        <div key={configMapProps.id + "-CHECK"}>
-                            <RadioGroupInput
-                                id={configMapProps.id}
-                                existingValue={configMapProps.value as boolean}
-                                isRequired={configMapProps.isRequired}
-                                setRadioGroupValue={handleValueChange}
-                            />
-                        </div>
-                    );
-                case ConfigType.STRING:
-                case ConfigType.INTEGER:
-                case ConfigType.NUMBER:
-                    return (
-                        <div key={configMapProps.id + "-" + configMapProps.id + "-FIELD"}>
-                            <TextFieldInput
-                                id={configMapProps.id}
-                                isRequired={configMapProps.isRequired}
-                                existingValue={"Value"}
-                                type={type[0]}
-                                setTextFieldValue={handleValueChange}
-                            />
-                        </div>
-                    );
-            }
-        }
-    }
 };
 
 function getMapTypeLabel(types: string[]): string {

@@ -111,26 +111,6 @@ export function getConfigProperties(configObj: object, id: string = "1", name: s
 }
 
 /**
- * Get the ballerina map type using the additional properties object.
- * @param propertiesObj Additional properties object.
- * @returns             Returns the type of the map.
- */
-function getMapType(propertiesObj: object): string {
-    let type;
-    const properties = propertiesObj[SchemaConstants.PROPERTIES];
-    const anyOf = propertiesObj[SchemaConstants.ANY_OF];
-    if (properties) {
-        // TODO: Object types
-        type = ConfigType.OBJECT;
-    } else if (anyOf) {
-        // TODO: Union types
-    } else {
-        type = propertiesObj[SchemaConstants.TYPE];
-    }
-    return type;
-}
-
-/**
  * Check if a property is marked as a required property.
  * @param propertyName Name of the property.
  * @param requiredList Array of required properties.
