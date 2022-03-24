@@ -101,7 +101,7 @@ export function getConfigProperties(configObj: object, id: string = "1", name: s
             const idValue = configProperty.id + "-" + (index + 1);
 
             const element: ConfigElementProps = setConfigElementProps(idValue, isArrayProperty,
-                configPropertyType, key, false, required, configPropertyDesc);
+                configPropertyType, key, required, configPropertyDesc);
             if (element) {
                 configProperty.properties.push(element);
             }

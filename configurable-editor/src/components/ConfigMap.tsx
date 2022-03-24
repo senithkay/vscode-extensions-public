@@ -28,6 +28,7 @@ import { getDescription } from "./utils";
 import { TextFieldInput } from "./elements/TextFieldInput";
 import { ConfigType, SchemaConstants } from "./model";
 import { RadioGroupInput } from "./elements/RadioGroupInput";
+import { ConfigElementProps } from "./ConfigElement";
 
 /**
  * A high level config property which can contain configurable maps.
@@ -77,7 +78,7 @@ export const ConfigMap = (configMapProps: ConfigMapProps): ReactElement => {
 
     const types: string[] = getMapType(configMapProps.additionalProperties);
     const typeLabel: string = getMapTypeLabel(types);
-    if (types.length > 1) {
+    if (types.length > 1 || types[0] === ConfigType.RECORD) {
         return(
             <Box className={classes.innerBoxCard}>
                 <Card variant="outlined">
@@ -188,32 +189,38 @@ const getMapValueElement = (
 ) => {
     const isUnion = type.length > 1;
     if (!isUnion) {
-        switch (type[0]) {
-            case ConfigType.BOOLEAN:
-                return (
-                    <div key={configMapProps.id + "-CHECK"}>
-                        <RadioGroupInput
-                            id={configMapProps.id}
-                            existingValue={configMapProps.value as boolean}
-                            isRequired={configMapProps.isRequired}
-                            setRadioGroupValue={handleValueChange}
-                        />
-                    </div>
-                );
-            case ConfigType.STRING:
-            case ConfigType.INTEGER:
-            case ConfigType.NUMBER:
-                return (
-                    <div key={configMapProps.id + "-" + configMapProps.id + "-FIELD"}>
-                        <TextFieldInput
-                            id={configMapProps.id}
-                            isRequired={configMapProps.isRequired}
-                            existingValue={"Value"}
-                            type={type[0]}
-                            setTextFieldValue={handleValueChange}
-                        />
-                    </div>
-                );
+        if (type[0] === ConfigType.RECORD) {
+            // TODO: Implement the Record Types
+        } else if (type[0] === ConfigType.UNION) {
+            // TODO: Implement the Union Types
+        } else {
+            switch (type[0]) {
+                case ConfigType.BOOLEAN:
+                    return (
+                        <div key={configMapProps.id + "-CHECK"}>
+                            <RadioGroupInput
+                                id={configMapProps.id}
+                                existingValue={configMapProps.value as boolean}
+                                isRequired={configMapProps.isRequired}
+                                setRadioGroupValue={handleValueChange}
+                            />
+                        </div>
+                    );
+                case ConfigType.STRING:
+                case ConfigType.INTEGER:
+                case ConfigType.NUMBER:
+                    return (
+                        <div key={configMapProps.id + "-" + configMapProps.id + "-FIELD"}>
+                            <TextFieldInput
+                                id={configMapProps.id}
+                                isRequired={configMapProps.isRequired}
+                                existingValue={"Value"}
+                                type={type[0]}
+                                setTextFieldValue={handleValueChange}
+                            />
+                        </div>
+                    );
+            }
         }
     }
 };
