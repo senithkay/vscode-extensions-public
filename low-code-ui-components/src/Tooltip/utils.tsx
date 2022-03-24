@@ -16,6 +16,9 @@ import { ForeachStatement, IfElseStatement, STNode, WhileStatement } from '@wso2
 
 export function getSourceFromST(componentSTNode: STNode): string {
     if (componentSTNode) {
+        if((componentSTNode.kind === "IfElseStatement")||(componentSTNode.kind === "ForeachStatement")){
+            return componentSTNode?.source?.trim();
+        }
         return filterCommentsFromSource(componentSTNode?.source?.trim());
     }
 }
@@ -74,5 +77,6 @@ export function getDiagnosticInfo(diagnostics: DiagramDiagnostic[]): DiagnosticM
 
 export function filterCommentsFromSource(source: string) {
     const regex = /\/\/.*\\n|[\n]/gm;
-    return source ? source.split(regex).pop().trim() : "";
+    let ttt= source ? source.split(regex).pop().trim() : ""
+    return ttt ;
 }
