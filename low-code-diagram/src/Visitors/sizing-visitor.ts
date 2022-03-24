@@ -547,8 +547,8 @@ export class SizingVisitor implements Visitor {
                     return;
                 }
 
-                const matchedReceive = this.senderReceiverInfo.get(sendInfo.to).receives
-                    .find(receiveInfo => receiveInfo.from === key && !receiveInfo.paired)
+                const matchedReceive = this.senderReceiverInfo
+                    .get(sendInfo.to)?.receives?.find(receiveInfo => receiveInfo.from === key && !receiveInfo.paired);
 
                 if (matchedReceive) {
                     matchedReceive.paired = true;
@@ -584,8 +584,8 @@ export class SizingVisitor implements Visitor {
                     return;
                 }
 
-                const matchedSend = this.senderReceiverInfo.get(receiveInfo.from).sends
-                    .find(senderInfo => senderInfo.to === key && !senderInfo.paired)
+                const matchedSend = this.senderReceiverInfo
+                    .get(receiveInfo.from)?.sends?.find(senderInfo => senderInfo.to === key && !senderInfo.paired);
 
                 if (matchedSend) {
                     matchedSend.paired = true;
