@@ -37,10 +37,10 @@ export enum ConfigType {
     ARRAY = "array",
     BOOLEAN = "boolean",
     INTEGER = "integer",
-    MAP = "map",
     NUMBER = "number",
     OBJECT = "object",
     STRING = "string",
+    UNION = "union",
     UNSUPPORTED = "unsupported", // Types other than the above ones.
 }
 

@@ -34,9 +34,11 @@ import { useStyles } from "./style";
 import {
     getConfigProperties,
     instanceOfConfigElement,
+    instanceOfConfigMap,
     setExistingValues,
     updateConfigObjectProps,
 } from "./utils";
+import ConfigMap, { ConfigMapProps } from "./ConfigMap";
 
 let metaData: MetaData = null;
 
@@ -125,13 +127,18 @@ export const ConfigForm = ({
     });
 
     const getConfigForm = (
-        configProperty: ConfigObjectProps | ConfigElementProps,
+        configProperty: ConfigObjectProps | ConfigElementProps | ConfigMapProps,
     ) => {
-
         if (instanceOfConfigElement(configProperty)) {
             return (
                 <div key={configProperty.id}>
                     {getConfigElement(configProperty as ConfigElementProps, classes)}
+                </div>
+            );
+        } else if (instanceOfConfigMap(configProperty)) {
+            return (
+                <div key={configProperty.id}>
+                    <ConfigMap {...configProperty as ConfigMapProps} />
                 </div>
             );
         } else {

@@ -17,10 +17,14 @@
  *
  */
 
+import { Box, Typography } from "@material-ui/core";
+import React from "react";
 import { __String } from "typescript";
 import { ConfigElementProps, setConfigElementProps } from "../ConfigElement";
+import ConfigMap, { ConfigMapProps, setConfigMapProps } from "../ConfigMap";
 import { ConfigObjectProps } from "../ConfigObject";
 import { ConfigType, ConfigValue, MetaData, SchemaConstants } from "../model";
+import { useStyles } from "../style";
 
 /**
  * Checks if the provided object is a leaf property or not.
@@ -29,6 +33,15 @@ import { ConfigType, ConfigValue, MetaData, SchemaConstants } from "../model";
  */
 export function instanceOfConfigElement(data: any): boolean {
     return data.type !== undefined;
+}
+
+/**
+ * Checks if the provided object is a map property or not.
+ * @param data The object that needs to be evaluated.
+ * @returns    A boolean value if the object is an `ConfigMap` or not.
+ */
+ export function instanceOfConfigMap(data: any): boolean {
+    return data.properties === undefined && data.additionalProperties !== undefined;
 }
 
 /**
@@ -63,24 +76,19 @@ export function getConfigProperties(configObj: object, id: string = "1", name: s
         const required = isRequired(key, requiredProperties);
 
         if (configPropertyType === ConfigType.OBJECT) {
-            const isRecord: string = configPropertyValues[SchemaConstants.PROPERTIES];
-            if (isRecord) {
-                // Iterate through nested objects.
+            const propertyValue: string = configPropertyValues[SchemaConstants.PROPERTIES];
+            const additionalProperties = configPropertyValues[SchemaConstants.ADDITIONAL_PROPERTIES];
+            if (propertyValue) {
+                // Handle record values
                 const childProperty: ConfigObjectProps = getConfigProperties(configPropertyValues,
                     id + "-" + (index + 1), key, required);
                 configProperty.properties.push(childProperty);
-            } else {
-                const additionalProperties = configPropertyValues[SchemaConstants.ADDITIONAL_PROPERTIES];
-                // Handle map values.
-                if (additionalProperties) {
-                    const mapPropertyType = getMapType(additionalProperties);
-                    const idValue = configProperty.id + "-" + (index + 1);
-                    const isRequiredMap = isRequired(key, requiredProperties);
-                    const element: ConfigElementProps = setConfigElementProps(idValue, false, ConfigType.MAP,
-                        key, true, isRequiredMap, configPropertyDesc, `map<${mapPropertyType}>`);
-                    if (element) {
-                        configProperty.properties.push(element);
-                    }
+            } else if (additionalProperties) {
+                // Handle map values
+                const mapConfigElement: ConfigMapProps = setConfigMapProps(id + "-" + (index + 1), key,
+                    required, additionalProperties);
+                if (mapConfigElement) {
+                    configProperty.properties.push(mapConfigElement);
                 }
             }
         } else {
@@ -206,6 +214,9 @@ export function updateConfigObjectProps(configObjects: ConfigObjectProps,
  * @param configValues     The config values object, could be a nested value.
  */
 function setConfigValue(configProperties: object, configValues: object) {
+    if (configProperties === undefined) {
+        return;
+    }
     Object.keys(configProperties).forEach((key) => {
         if (instanceOfConfigElement(configProperties[key])) {
             const value = getValue(configProperties[key].name, configValues);
@@ -231,3 +242,18 @@ function getValue(key: string, obj: object): any {
         }
     }
 }
+
+export const getDescription = (description: string, classes: ReturnType<typeof useStyles>) => {
+    if (description) {
+        return (
+            <Box className={classes.descriptionLabel}>
+                <Typography
+                    component="div"
+                    className={classes.descriptionLabelText}
+                >
+                    {description}
+                </Typography>
+            </Box>
+        );
+    }
+};

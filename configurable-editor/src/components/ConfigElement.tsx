@@ -27,7 +27,7 @@ import { RadioGroupInput } from "./elements/RadioGroupInput";
 import { TextFieldInput } from "./elements/TextFieldInput";
 import { ConfigType, ConfigValue } from "./model";
 import { useStyles } from "./style";
-import { getType } from "./utils";
+import { getDescription, getType } from "./utils";
 
 /**
  * A leaf level config property model.
@@ -221,21 +221,6 @@ const ConfigElement = (configElement: ConfigElementProps): ReactElement => {
         );
     }
     return <>{returnElement}</>;
-};
-
-const getDescription = (description: string, classes: ReturnType<typeof useStyles>) => {
-    if (description) {
-        return (
-            <Box className={classes.descriptionLabel}>
-                <Typography
-                    component="div"
-                    className={classes.descriptionLabelText}
-                >
-                    {description}
-                </Typography>
-            </Box>
-        );
-    }
 };
 
 const getInnerElement = (
