@@ -26,7 +26,7 @@ import "../assets/fonts/Glimer/glimer.css";
 import { UndoRedoManager } from "../Diagram/components/FormComponents/UndoRedoManager";
 import messages from '../lang/en.json';
 import { CirclePreloader } from "../PreLoader/CirclePreloader";
-import { MESSAGE_TYPE } from "../types";
+import { MESSAGE_TYPE, SelectedPosition } from "../types";
 import { init } from "../utils/sentry";
 
 import { DiagramGenErrorBoundary } from "./ErrorBoundrary";
@@ -106,8 +106,8 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                 await addPerfData(vistedSyntaxTree);
 
                 setSelectedPosition(startColumn === 0 && startLine === 0 ?
-                getDefaultSelectedPosition(vistedSyntaxTree as ModulePart)
-                : { startLine, startColumn });
+                    getDefaultSelectedPosition(vistedSyntaxTree as ModulePart)
+                    : { startLine, startColumn });
             } catch (err) {
                 throw err;
             }
@@ -313,14 +313,16 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                             }
 
 
-                                            let newActivePosition = getDefaultSelectedPosition(vistedSyntaxTree as ModulePart);
+                                            let newActivePosition: SelectedPosition = { ...selectedPosition };
                                             for (const mutation of mutations) {
-                                                if (mutation.type.toLowerCase() !== "import") {
+                                                if (mutation.type.toLowerCase() !== "import" && mutation.type.toLowerCase() !== "delete") {
                                                     newActivePosition = getSelectedPosition(vistedSyntaxTree as ModulePart, mutation.startLine, mutation.startColumn);
                                                     break;
                                                 }
                                             }
-                                            setSelectedPosition(newActivePosition)
+                                            setSelectedPosition(newActivePosition.startColumn === 0 && newActivePosition.startLine === 0 && vistedSyntaxTree
+                                                ? getDefaultSelectedPosition(vistedSyntaxTree as ModulePart)
+                                                : newActivePosition);
                                         } else {
                                             // TODO show error
                                         }

@@ -80,14 +80,14 @@ export function getSelectedPosition(modulePart: ModulePart, startLine?: number, 
                 }
             }
         }
-        if (selectedNode && STKindChecker.isServiceDeclaration(selectedNode) && selectedNode.members && selectedNode.members.length === 1) {
+        if (selectedNode && STKindChecker.isServiceDeclaration(selectedNode) && selectedNode.members && selectedNode.members.length > 0) {
             const resources = selectedNode.members;
             if (resources && resources.length > 0) {
                 let selectedResourceNode: any;
-                for (const member of modulePart.members) {
-                    const isSelected = isNodeSelected({ startLine, startColumn }, member);
+                for (const resourceMember of resources) {
+                    const isSelected = isNodeSelected({ startLine, startColumn }, resourceMember);
                     if (isSelected) {
-                        selectedResourceNode = member;
+                        selectedResourceNode = resourceMember;
                         break;
                     }
                 }
@@ -98,7 +98,6 @@ export function getSelectedPosition(modulePart: ModulePart, startLine?: number, 
             }
         }
     }
-
     return { startLine, startColumn };
 }
 
