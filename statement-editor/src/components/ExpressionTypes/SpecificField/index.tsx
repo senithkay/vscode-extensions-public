@@ -25,10 +25,10 @@ export function SpecificFieldComponent(props: SpecificFieldProps) {
     const { model } = props;
 
     return (
-        <span>
+        <>
             <ExpressionComponent model={model.fieldName} />
             <TokenComponent model={model.colon} />
             <ExpressionComponent model={model.valueExpr} />
-        </span>
+        </>
     );
 }

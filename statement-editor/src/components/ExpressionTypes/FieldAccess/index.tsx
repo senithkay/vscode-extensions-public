@@ -25,11 +25,11 @@ export function FieldAccessComponent(props: FieldAccessProps) {
     const { model } = props;
 
     return (
-        <span>
+        <>
             <ExpressionComponent model={model.expression} >
                 <TokenComponent model={model.dotToken} />
                 <ExpressionComponent model={model.fieldName} />
             </ExpressionComponent>
-        </span>
+        </>
     );
 }

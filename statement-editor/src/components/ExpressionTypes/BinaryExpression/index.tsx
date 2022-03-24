@@ -25,10 +25,10 @@ export function BinaryExpressionComponent(props: BinaryProps) {
     const { model } = props;
 
     return (
-        <span>
+        <>
             <ExpressionComponent model={model.lhsExpr} />
             <OperatorComponent model={model.operator} />
             <ExpressionComponent model={model.rhsExpr} />
-        </span>
+        </>
     );
 }

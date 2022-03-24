@@ -25,10 +25,10 @@ export function TypeTestExpressionComponent(props: TypeTestExpressionProps) {
     const { model } = props;
 
     return (
-        <span>
+        <>
             <ExpressionComponent model={model.expression} />
             <TokenComponent model={model.isKeyword} />
             <ExpressionComponent model={model.typeDescriptor} />
-        </span>
+        </>
     );
 }

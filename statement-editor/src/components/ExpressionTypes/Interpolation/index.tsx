@@ -25,10 +25,10 @@ export function InterpolationComponent(props: InterpolationProps) {
     const { model } = props;
 
     return (
-        <span>
+        <>
             <TokenComponent model={model.interpolationStartToken} />
             <ExpressionComponent model={model.expression} />
             <TokenComponent model={model.interpolationEndToken} />
-        </span>
+        </>
     );
 }

@@ -38,11 +38,11 @@ export function AssignmentStatementComponent(props: AssignmentStatementProps) {
     }
 
     return (
-        <span>
+        <>
             <ExpressionComponent model={model.varRef} />
             <TokenComponent model={model.equalsToken} className="operator" />
             <ExpressionComponent model={model.expression} />
             <TokenComponent model={model.semicolonToken} />
-        </span>
+        </>
     );
 }

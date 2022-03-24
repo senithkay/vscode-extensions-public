@@ -38,10 +38,10 @@ export function ReturnStatementC(props: ReturnStatementProps) {
     }
 
     return (
-        <span>
+        <>
             <TokenComponent model={model.returnKeyword}  className="keyword" />
             <ExpressionComponent model={model.expression} />
             <TokenComponent model={model.semicolonToken} />
-        </span>
+        </>
     );
 }

@@ -25,11 +25,11 @@ export function OptionalFieldAccessComponent(props: OptionalFieldAccessProps) {
     const { model } = props;
 
     return (
-        <span>
+        <>
             <ExpressionComponent model={model.expression} >
                 <TokenComponent model={model.optionalChainingToken} />
                 <ExpressionComponent model={model.fieldName} />
             </ExpressionComponent>
-        </span>
+        </>
     );
 }
