@@ -37,7 +37,7 @@ export function TextFieldInput(props: TextFieldInputProps) {
     const { id, isRequired, existingValue, type, setTextFieldValue } =
         props;
 
-    const placeholder: string = isRequired ? "Required value" : "Leave blank to use default value";
+    const placeholder: string = isRequired ? "Required value" : "";
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         let value = e.target.value;

@@ -38,6 +38,7 @@ export enum ConfigType {
     BOOLEAN = "boolean",
     INTEGER = "integer",
     NUMBER = "number",
+    RECORD = "record",
     OBJECT = "object",
     STRING = "string",
     UNION = "union",
