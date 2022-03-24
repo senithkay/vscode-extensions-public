@@ -56,10 +56,13 @@ const useStyles = makeStyles((theme: Theme) =>
             alignContent: 'flex-start',
         },
         filterBtn: {
+            '& .MuiIconButton-root': {
+                padding: 0
+            },
             '& h5': {
                 color: theme.palette.common.black,
                 fontWeight: 400,
-                marginLeft: theme.spacing(1)
+                marginLeft: theme.spacing(1),
             },
         },
         filterTagWrap: {
