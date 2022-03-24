@@ -1242,13 +1242,15 @@ export class SizingVisitor implements Visitor {
 
                 if (isVarTypeDescriptor(node)) {
                     // renders process box if the endpoint var type
-                    viewState.dataProcess.w = PROCESS_SVG_WIDTH;
-                    viewState.dataProcess.lw = PROCESS_SVG_WIDTH / 2;
-                    viewState.dataProcess.rw = PROCESS_SVG_WIDTH / 2;
+                    viewState.dataProcess.lw = (DefaultConfig.defaultBlockWidth) / 2;
+                    viewState.dataProcess.rw = (DefaultConfig.defaultBlockWidth) / 2;
+
+                    viewState.dataProcess.w = viewState.dataProcess.lw + viewState.dataProcess.rw;
                 } else {
-                    viewState.bBox.w = CLIENT_SVG_WIDTH;
-                    viewState.bBox.lw = CLIENT_SVG_WIDTH / 2;
-                    viewState.bBox.rw = CLIENT_SVG_WIDTH / 2;
+                    viewState.bBox.lw = (DefaultConfig.defaultBlockWidth) / 2;
+                    viewState.bBox.rw = (DefaultConfig.defaultBlockWidth) / 2;
+
+                    viewState.bBox.w = viewState.bBox.lw + viewState.bBox.rw;
                 }
             }
         } else {
