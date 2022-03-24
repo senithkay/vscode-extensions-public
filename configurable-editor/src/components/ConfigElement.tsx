@@ -85,7 +85,7 @@ export const getConfigElement = (configElementProps: ConfigElementProps, classes
     }
 
     return (
-        <Box className={classes.formGroup}>
+        <Box className={classes.innerBoxCard}>
             <Card variant="outlined">
                 <CardContent className={classes.cardContent}>
                     <Box className={classes.labelCont}>

@@ -8,6 +8,50 @@
                 "simpleconfigs": {
                     "type": "object",
                     "properties": {
+                        "itemCode": {
+                            "type": "string",
+                            "description": "description"
+                        },
+                        "discount": {
+                            "type": "number",
+                            "description": "description"
+                        },
+                        "testMode": {
+                            "type": "boolean",
+                            "description": "description"
+                        },
+                        "mod1": {
+                            "type": "object",
+                            "properties": {
+                                "nameVal": {
+                                    "type": "string",
+                                    "description": "description"
+                                }
+                            }
+                        },
+                        "person": {
+                            "type": "object",
+                            "properties": {
+                                "name": {
+                                    "type": "string"
+                                },
+                                "age": {
+                                    "type": "integer"
+                                },
+                                "category": {
+                                    "type": "object",
+                                    "properties": {
+                                        "fullTime": {
+                                            "type": "boolean"
+                                        }
+                                    },
+                                    "additionalProperties": false,
+                                    "description": ""
+                                }
+                            },
+                            "additionalProperties": false,
+                            "description": ""
+                        },
                         "prices": {
                             "type": "array",
                             "items": {
@@ -82,50 +126,6 @@
                                 ]
                             },
                             "description": "Union type maps"
-                        },
-                        "itemCode": {
-                            "type": "string",
-                            "description": "description"
-                        },
-                        "discount": {
-                            "type": "number",
-                            "description": "description"
-                        },
-                        "testMode": {
-                            "type": "boolean",
-                            "description": "description"
-                        },
-                        "mod1": {
-                            "type": "object",
-                            "properties": {
-                                "nameVal": {
-                                    "type": "string",
-                                    "description": "description"
-                                }
-                            }
-                        },
-                        "person": {
-                            "type": "object",
-                            "properties": {
-                                "name": {
-                                    "type": "string"
-                                },
-                                "age": {
-                                    "type": "integer"
-                                },
-                                "category": {
-                                    "type": "object",
-                                    "properties": {
-                                        "fullTime": {
-                                            "type": "boolean"
-                                        }
-                                    },
-                                    "additionalProperties": false,
-                                    "description": ""
-                                }
-                            },
-                            "additionalProperties": false,
-                            "description": ""
                         }
                     },
                     "required": [
