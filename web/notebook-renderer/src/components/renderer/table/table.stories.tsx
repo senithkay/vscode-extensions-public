@@ -1,15 +1,15 @@
 import { Attributes, ComponentChildren, h, Ref } from 'preact';
 import { Meta } from '@storybook/react';
-import { Table } from './table';
+import { TableForNotebookOutput } from './table';
 import { NotebookCellResult } from '../types';
 
 export default {
-    component: Table,
+    component: TableForNotebookOutput,
     title: 'Components/Table',
 } as Meta;
 
 const Template = (args: JSX.IntrinsicAttributes & { notebookCellOutput: Readonly<NotebookCellResult>; } 
-    & Readonly<Attributes & { children?: ComponentChildren; ref?: Ref<any>; }>) => <Table {...args} />;
+    & Readonly<Attributes & { children?: ComponentChildren; ref?: Ref<any>; }>) => <TableForNotebookOutput {...args} />;
 
 export const SimpleTable1 = {
     args: {

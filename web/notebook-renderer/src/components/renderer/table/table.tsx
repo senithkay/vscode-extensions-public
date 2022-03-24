@@ -18,24 +18,27 @@
  */
 
 import { h, FunctionComponent } from "preact";
+import { useEffect, useState } from 'preact/hooks';
 import { NotebookCellResult } from "../types";
 
-export const Table: FunctionComponent<{ notebookCellOutput: Readonly<NotebookCellResult> }> = ({ notebookCellOutput }) => {
-    const tableContent = JSON.parse(notebookCellOutput.shellValue.value);
-    const getKeys = () => Object.keys(tableContent[0]);
+interface TableProps {
+    header: string[];
+    values: Object[];
+}
+
+export const Table: FunctionComponent<{ tableContent: Readonly<TableProps> }> = ({ tableContent }) => {
+    const tableContentValues = tableContent.values;
     const getValue = (element: { [x: string]: any; }, key: string | number) => element[key] ? JSON.stringify(element[key], undefined, 2) : '';
     const renderHeader = () => {
-        var keys = getKeys();
-        return keys.map((key) => {
+        return tableContent.header.map((key) => {
             return <th key={key}>{key.toUpperCase()}</th>;
         });
     };
     const renderBody = () => {
-        var keys = getKeys();
         let body: h.JSX.Element[] = [];
-        for (let index = 0; index < tableContent.length; index++) {
+        for (let index = 0; index < tableContentValues.length; index++) {
             body.push(
-                <tr>{ keys.map( key =>{ return <td><pre>{getValue(tableContent[index], key)}</pre></td>; }) }</tr>
+                <tr>{ tableContent.header.map( key =>{ return <td><pre>{getValue(tableContentValues[index], key)}</pre></td>; }) }</tr>
             );
         }
         return body;
@@ -48,3 +51,33 @@ export const Table: FunctionComponent<{ notebookCellOutput: Readonly<NotebookCel
     };
     return <div>{ renderTable() }</div>;
 };
+
+export const TableForNotebookOutput: FunctionComponent<{ notebookCellOutput: Readonly<NotebookCellResult> }> = ({ notebookCellOutput }) => {
+    const values = JSON.parse(notebookCellOutput.shellValue.value);
+    const getKeys = () => Object.keys(values[0]);
+    const tableProps = {
+        header: getKeys(),
+        values: values
+    };
+    return <Table tableContent={tableProps} />;
+}
+
+export interface VariableViewProps {
+    getVariableValues: () => Promise<any>;
+}
+
+export const TableForVariableView: FunctionComponent<{ props: Readonly<VariableViewProps> }> = ({ props }) => {
+    const [tableProps, setTableProps] = useState({
+        header:["Name", "Type", "Value"],
+        values: [{}]
+    });
+    useEffect(() => {
+        props.getVariableValues().then((vals) => {
+            return setTableProps({
+                ...tableProps,
+                values: vals
+            });
+        });
+    });
+    return <Table tableContent={tableProps} />
+}

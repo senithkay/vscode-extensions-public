@@ -51,7 +51,7 @@ task buildRenderer {
         copy {
             from './build'
             into './../../resources/jslibs'
-            include 'renderer.js'
+            include 'NotebookRenderer.js'
         }
     }
 }

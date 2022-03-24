@@ -581,7 +581,7 @@ export class ExtendedLangClient extends LanguageClient {
         return this.sendRequest(EXTENDED_APIS.NOTEBOOK_RESTART);
     }
 
-    getNotebookVariables(): Thenable<String[]> {
+    getNotebookVariables(): Thenable<Object[]> {
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.NOTEBOOK_VARIABLES)) {
             Promise.resolve(NOT_SUPPORTED);
         }

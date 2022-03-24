@@ -17,18 +17,18 @@
  *
  */
 
-import { h, render } from 'preact';
+import { createElement, h, render } from 'preact';
 import { ActivationFunction, OutputItem, RendererContext } from 'vscode-notebook-renderer';
 import { MIME_TYPE_JSON, MIME_TYPE_TABLE } from './renderer/constants';
 import { Json } from './renderer/json/json';
-import { Table } from './renderer/table/table';
+import { TableForNotebookOutput, TableForVariableView } from './renderer/table/table';
 
 export const activate: ActivationFunction = (context: RendererContext<any>) => ({
     renderOutputItem(data: OutputItem, element) {
         try {
             switch (data.mime) {
                 case MIME_TYPE_TABLE:
-                    render(<Table notebookCellOutput={data.json()}/>, element);
+                    render(<TableForNotebookOutput notebookCellOutput={data.json()}/>, element);
                     break;
                 case MIME_TYPE_JSON:
                     render(<Json notebookCellOutput={data.json()}/>, element);
@@ -42,3 +42,12 @@ export const activate: ActivationFunction = (context: RendererContext<any>) => (
     }
 });
 
+export function renderVariableView(target: HTMLElement, getVariableValues: () => Promise<string[]>) {
+    const props = {
+        getVariableValues
+    };
+    const variableTable = createElement(TableForVariableView, { props });
+    console.log("hello");
+    
+    render(variableTable, target);
+}

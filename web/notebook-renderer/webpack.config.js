@@ -4,7 +4,7 @@ module.exports = {
   entry: "./src/components/index.tsx",
   output: {
     path: path.resolve(__dirname, "build"),
-    filename: "renderer.js",
+    filename: "NotebookRenderer.js",
 		libraryTarget: 'module',
   },
   resolve: {
