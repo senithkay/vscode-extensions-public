@@ -272,8 +272,8 @@ export function Marketplace(props: MarketplaceProps) {
         return (
             <>
                 {shortName !== "Triggers" ? (
-                    <Grid item={true} sm={12} className={classes.balModuleSectionWrap}>
-                        <Grid item={true} sm={6} md={6} lg={6}>
+                    <Grid item={true} xs={12} className={classes.balModuleSectionWrap}>
+                        <Grid item={true} xs={6}>
                             <Typography variant="h4">{modulesListTitle}</Typography>
                         </Grid>
                     </Grid>
@@ -309,7 +309,7 @@ export function Marketplace(props: MarketplaceProps) {
     const modulesList = (
         <Grid
             item={true}
-            sm={12}
+            xs={12}
             container={true}
             direction="row"
             justifyContent="flex-start"
@@ -370,8 +370,8 @@ export function Marketplace(props: MarketplaceProps) {
                 toggleChecked={false}
             />
             <div id="module-list-container" className={formClasses.formWrapper} onWheel={preventDiagramScrolling}>
-                <Grid item={true} sm={12} container={true}>
-                    <Grid item={true} sm={4} container={true}>
+                <Grid item={true} xs={12} container={true}>
+                    <Grid item={true} xs={4} container={true}>
                         <IconBtnWithText
                             onClick={toggleFilters}
                             className={classes.filterBtn}
@@ -379,7 +379,7 @@ export function Marketplace(props: MarketplaceProps) {
                             icon={<FilterIcon filled={showFilters} />}
                         />
                     </Grid>
-                    <Grid item={true} sm={8} container={true}>
+                    <Grid item={true} xs={8} container={true}>
                         {searchBar}
                     </Grid>
                 </Grid>
