@@ -22,7 +22,7 @@ import {
 
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { getModuleIconStyle } from "../../../utils";
-import { getFQModuleName } from "../../../utils/statement-modifications";
+import { getFQModuleName, keywords } from "../../../utils/statement-modifications";
 import { useStatementEditorStyles } from "../../styles";
 
 interface ModuleElementProps {
@@ -56,7 +56,8 @@ export function ModuleElement(props: ModuleElementProps) {
     } = stmtCtx;
 
     const onClickOnModuleElement = async () => {
-        let content = moduleId.includes('.') ? `${moduleId.split('.').pop()}0:${id}` : `${moduleId}:${id}`;
+        const moduleName = moduleId.includes('.') ? moduleId.split('.').pop() : moduleId;
+        let content = keywords.includes(moduleName) ? `${moduleName}0:${id}` : `${moduleName}:${id}`;
         setClickedModuleElement(content);
         if (isFunction) {
             const response: LibraryDataResponse = await getLibraryData(moduleOrgName, moduleId, moduleVersion);
