@@ -19,7 +19,7 @@
 
 import React, { ReactElement, useEffect, useState } from "react";
 
-import { Box, Typography } from "@material-ui/core";
+import { Box, Card, CardContent, Typography } from "@material-ui/core";
 
 import { AddInputButton } from "./elements/AddInputButton";
 import OutlinedLabel from "./elements/OutlinedLabel";
@@ -86,28 +86,32 @@ export const getConfigElement = (configElementProps: ConfigElementProps, classes
 
     return (
         <Box className={classes.formGroup}>
-            <Box className={classes.labelCont}>
-                <Box className={classes.mainLabel}>
-                    <Typography
-                        component="div"
-                        className={classes.mainLabelText}
-                    >
-                        {configElementProps.name}
-                    </Typography>
-                </Box>
-                <Box className={classes.labelTag}>
-                    <OutlinedLabel
-                        type="success"
-                        label={configElementProps.typeLabel ? configElementProps.typeLabel : configElementProps.type}
-                        shape="square"
-                    />
-                </Box>
-                {getDescription(configElementProps.description, classes)}
-            </Box>
+            <Card variant="outlined">
+                <CardContent className={classes.cardContent}>
+                    <Box className={classes.labelCont}>
+                        <Box className={classes.mainLabel}>
+                            <Typography
+                                component="div"
+                                className={classes.mainLabelText}
+                            >
+                                {configElementProps.name}
+                            </Typography>
+                        </Box>
+                        <Box className={classes.labelTag}>
+                            <OutlinedLabel
+                                type="success"
+                                label={configElementProps.typeLabel ? configElementProps.typeLabel : configElementProps.type}
+                                shape="square"
+                            />
+                        </Box>
+                        {getDescription(configElementProps.description, classes)}
+                    </Box>
 
-            <Box className={classes.formInputBox}>
-                {<ConfigElement {...configElementProps} />}
-            </Box>
+                    <Box className={classes.formInputBox}>
+                        {<ConfigElement {...configElementProps} />}
+                    </Box>
+                </CardContent>
+            </Card>
         </Box>
     );
 };
