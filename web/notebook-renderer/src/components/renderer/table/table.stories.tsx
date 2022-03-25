@@ -1,4 +1,4 @@
-import { Attributes, ComponentChildren, h, Ref } from 'preact';
+import { Attributes, ComponentChildren, Ref } from 'preact';
 import { Meta } from '@storybook/react';
 import { TableForNotebookOutput } from './table';
 import { NotebookCellResult } from '../types';
