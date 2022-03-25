@@ -43,7 +43,7 @@ export function TableConstructorComponent(props: TableConstructorProps) {
     };
 
     return (
-        <span>
+        <>
             <TokenComponent model={model.tableKeyword} className={"keyword"} />
             <TokenComponent model={model.openBracket} />
             <ExpressionArrayComponent expressions={model.rows} />
@@ -54,6 +54,6 @@ export function TableConstructorComponent(props: TableConstructorProps) {
                 +
             </span>
             <TokenComponent model={model.closeBracket} />
-        </span>
+        </>
     );
 }

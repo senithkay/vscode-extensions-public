@@ -39,9 +39,9 @@ export function RespondStatementC(props: ReturnStatementProps) {
     }
 
     return (
-        <span>
+        <>
             <ExpressionComponent model={model.expression} />
             <TokenComponent model={model.semicolonToken} />
-        </span>
+        </>
     );
 }

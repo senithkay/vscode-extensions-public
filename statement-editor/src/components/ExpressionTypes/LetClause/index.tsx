@@ -26,9 +26,9 @@ export function LetClauseComponent(props: LetClauseProps) {
     const { model } = props;
 
     return (
-        <span>
+        <>
             <TokenComponent model={model.letKeyword} className={"keyword"} />
             <ExpressionArrayComponent expressions={model.letVarDeclarations} />
-        </span>
+        </>
     );
 }

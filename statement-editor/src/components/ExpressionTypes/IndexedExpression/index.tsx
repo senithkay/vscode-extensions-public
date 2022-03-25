@@ -27,11 +27,11 @@ export function IndexedExpressionComponent(props: IndexedExpressionProps) {
     const { model } = props;
 
     return (
-        <span>
+        <>
             <ExpressionComponent model={model.containerExpression} />
             <TokenComponent model={model.openBracket} />
             <ExpressionArrayComponent expressions={model.keyExpression} />
             <TokenComponent model={model.closeBracket} />
-        </span>
+        </>
     );
 }

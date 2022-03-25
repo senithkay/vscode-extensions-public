@@ -25,9 +25,9 @@ export function UnaryExpressionComponent(props: UnaryProps) {
     const { model } = props;
 
     return (
-        <span>
+        <>
             <OperatorComponent model={model.unaryOperator} />
             <ExpressionComponent model={model.expression} />
-        </span>
+        </>
     );
 }

@@ -25,9 +25,9 @@ export function WhereClauseComponent(props: WhereClauseProps) {
     const { model } = props;
 
     return (
-        <span>
+        <>
             <TokenComponent model={model.whereKeyword} className={"keyword"} />
             <ExpressionComponent model={model.expression} />
-        </span>
+        </>
     );
 }

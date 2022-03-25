@@ -43,7 +43,7 @@ export function ForeachStatementC(props: ForeachStatementProps) {
     }
 
     return (
-        <span>
+        <>
             <TokenComponent model={model.forEachKeyword}  className="keyword" />
             <ExpressionComponent model={model.typedBindingPattern} />
             <TokenComponent model={model.inKeyword}  className="keyword" />
@@ -60,6 +60,6 @@ export function ForeachStatementC(props: ForeachStatementProps) {
                 <br/>
                 {model.blockStatement.closeBraceToken.value}
             </span>
-        </span>
+        </>
     );
 }

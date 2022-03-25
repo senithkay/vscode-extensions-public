@@ -26,7 +26,7 @@ export function MethodCallComponent(props: MethodCallProps) {
     const { model } = props;
 
     return (
-        <span>
+        <>
             <ExpressionComponent model={model.expression} />
             <TokenComponent model={model.dotToken} />
             <ExpressionComponent model={model.methodName} >
@@ -34,6 +34,6 @@ export function MethodCallComponent(props: MethodCallProps) {
                 <ExpressionArrayComponent expressions={model.arguments} />
                 <TokenComponent model={model.closeParenToken} />
             </ExpressionComponent>
-        </span>
+        </>
     );
 }

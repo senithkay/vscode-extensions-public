@@ -25,11 +25,11 @@ export function TypeCastExpressionComponent(props: TypeCastExpressionProps) {
     const { model } = props;
 
     return (
-        <span>
+        <>
             <TokenComponent model={model.ltToken} />
             <ExpressionComponent model={model.typeCastParam} />
             <TokenComponent model={model.gtToken} />
             <ExpressionComponent model={model.expression} />
-        </span>
+        </>
     );
 }

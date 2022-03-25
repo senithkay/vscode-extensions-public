@@ -44,7 +44,7 @@ export function MappingConstructorComponent(props: MappingConstructorProps) {
     };
 
     return (
-        <span>
+        <>
             <TokenComponent model={model.openBrace} />
             <ExpressionArrayComponent expressions={model.fields} />
             <span
@@ -54,6 +54,6 @@ export function MappingConstructorComponent(props: MappingConstructorProps) {
                 +
             </span>
             <TokenComponent model={model.closeBrace} />
-        </span>
+        </>
     );
 }

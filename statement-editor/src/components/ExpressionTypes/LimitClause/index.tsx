@@ -26,9 +26,9 @@ export function LimitClauseComponent(props: LimitClauseProps) {
     const { model } = props;
 
     return (
-        <span>
+        <>
             <TokenComponent model={model.limitKeyword} className={"keyword"} />
             <ExpressionComponent model={model.expression} />
-        </span>
+        </>
     );
 }

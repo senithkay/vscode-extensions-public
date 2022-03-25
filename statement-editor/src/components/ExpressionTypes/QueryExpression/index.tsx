@@ -25,10 +25,10 @@ export function QueryExpressionComponent(props: QueryExpressionProps) {
     const { model } = props;
 
     return (
-        <span>
+        <>
             {model.queryConstructType && <ExpressionComponent model={model.queryConstructType} />}
             <ExpressionComponent model={model.queryPipeline} />
             <ExpressionComponent  model={model.selectClause} />
-        </span>
+        </>
     );
 }

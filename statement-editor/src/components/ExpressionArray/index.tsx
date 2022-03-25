@@ -26,7 +26,7 @@ export function ExpressionArrayComponent(props: ExpressionArrayProps) {
     const { expressions } = props;
 
     return (
-        <span>
+        <>
         {
             expressions.map((expression: STNode, index: number) => (
                 (STKindChecker.isCommaToken(expression)) ? (
@@ -39,6 +39,6 @@ export function ExpressionArrayComponent(props: ExpressionArrayProps) {
                 )
             ))
         }
-        </span>
+        </>
     );
 }
