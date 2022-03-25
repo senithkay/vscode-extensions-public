@@ -57,7 +57,7 @@ export function EnumField(props: CodePanelProps) {
 
     const [isEnumEditInProgress, setIsEnumEditInProgress] = useState((enumModel.name === "") ||
         (enumModel.name === undefined));
-    const [isEnumFocus, setIsEnumFocus] = useState(false);
+    const [isEnumFocus, setIsEnumFocus] = useState(true);
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
 
     const allEnumVariables = getAllVariables(stSymbolInfo)

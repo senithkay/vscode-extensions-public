@@ -66,7 +66,7 @@ export function RecordField(props: CodePanelProps) {
     const [recordNameError, setRecordNameError] = useState<string>("");
     const [isRecordEditInProgress, setIsRecordEditInProgress] = useState((recordModel.name === "") ||
         (recordModel.name === undefined));
-    const [isRecordFocus, setIsRecordFocus] = useState(false);
+    const [isRecordFocus, setIsRecordFocus] = useState(true);
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
 
     const handleFieldEdit = (field: SimpleField) => {
