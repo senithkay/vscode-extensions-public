@@ -12,7 +12,6 @@
  */
 import React, { ReactNode } from "react";
 
-import { ExpressionEditor } from "@wso2-enterprise/ballerina-expression-editor";
 import { StatementViewState } from "@wso2-enterprise/ballerina-low-code-diagram";
 import {
     ActionConfig,
@@ -51,6 +50,7 @@ import { ConfigWizardState } from "../../FormComponents/ConnectorConfigWizard";
 import * as ConnectorExtension from "../../FormComponents/ConnectorExtensions";
 import * as OverlayElement from "../../FormComponents/DialogBoxes/PlusHolder";
 import * as Elements from "../../FormComponents/FormFieldComponents";
+import { LowCodeExpressionEditor } from "../../FormComponents/FormFieldComponents/LowCodeExpressionEditor";
 import { getUnionFormFieldName } from "../../FormComponents/FormFieldComponents/Union";
 import { FormElementProps } from "../../FormComponents/Types";
 
@@ -89,7 +89,7 @@ export function getFormElement(elementProps: FormElementProps, type: string) {
         return <FormElement {...elementProps} />;
     }
 
-    return <ExpressionEditor {...elementProps} />;
+    return <LowCodeExpressionEditor {...elementProps} />;
 }
 
 export function getForm(type: string, args: any) {
@@ -265,6 +265,8 @@ export function getParams(formFields: FormField[], depth = 1): string[] {
                 paramString += params;
             } else if (formField.typeName === "handle" && formField.value) {
                 paramString += formField.value;
+            } else if (paramString === "" && formField.typeName !== "" && formField.value) {
+                paramString += formField.value; // Default case
             }
 
             if (paramString !== "") {
@@ -687,10 +689,6 @@ export async function fetchConnectorInfo(
         connectorRequest.packageName = connector.package.name;
         connectorRequest.version = connector.package.version;
         connectorRequest.targetFile = currentFilePath;
-        // HACK: Http endpoint STNode will get 2.0.1 version, but Ballerina Central have only 2.0.0 version.
-        if (connector.package.name === "http" && connector.package.version === "2.0.1") {
-            connectorRequest.version = "2.0.0";
-        }
     }
 
     if (!connectorInfo && connectorRequest) {
@@ -947,6 +945,12 @@ function getFormFieldReturnType(formField: FormField, depth = 1): FormFieldRetur
                     // remove error return
                     response.hasError = false;
                 }
+                if (type === "" && formField.typeName.includes("map<")) {
+                    // map type
+                    // INFO: Need to update map type metadata generation to extract inside type
+                    type = formField.typeName;
+                    response.hasReturn = true;
+                }
                 if (type === "" && !formField.isStream && formField.typeName && primitives.includes(formField.typeName)) {
                     // set primitive types
                     type = formField.typeName;
@@ -961,7 +965,7 @@ function getFormFieldReturnType(formField: FormField, depth = 1): FormFieldRetur
                     // set array type
                     type = type.includes('|') ? `(${type})[]` : `${type}[]`;
                 }
-                if (type !== "" && formField?.optional) {
+                if ((type !== "" || formField.isErrorType) && formField?.optional) {
                     // set optional tag
                     type = type.includes('|') ? `(${type})?` : `${type}?`;
                 }

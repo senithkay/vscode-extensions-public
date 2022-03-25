@@ -10,33 +10,21 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, { useContext } from "react";
+import React from "react";
 
 import { VarTypeDesc } from "@wso2-enterprise/syntax-tree";
 
-import { VariableUserInputs } from "../../../../models/definitions";
-import { SuggestionsContext } from "../../../../store/suggestions-context";
 import { InputEditor } from "../../../InputEditor";
 
 interface VarTypeDescProps {
-    model: VarTypeDesc
-    userInputs: VariableUserInputs
-    diagnosticHandler: (diagnostics: string) => void
-    isTypeDescriptor: boolean
+    model: VarTypeDesc;
 }
 
 export function VarTypeDescComponent(props: VarTypeDescProps) {
-    const { model, userInputs, diagnosticHandler, isTypeDescriptor } = props;
-
-    const { expressionHandler } = useContext(SuggestionsContext);
+    const { model } = props;
 
     const inputEditorProps = {
-        statementType: model.kind,
         model,
-        expressionHandler,
-        userInputs,
-        diagnosticHandler,
-        isTypeDescriptor,
         classNames: "type-descriptor var"
     };
 

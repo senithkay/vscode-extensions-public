@@ -10,15 +10,17 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import * as React from "react";
+import React, { useContext, useState } from "react";
 
 import { STNode } from "@wso2-enterprise/syntax-tree";
 import cn from "classnames";
 
+import { Context } from "../../../Context/diagram";
 import { EndpointViewState, StatementViewState } from "../../../ViewState";
 import { DefaultConfig } from "../../../Visitors/default";
 import { ActionInvoLine } from "../ActionInvocation/ActionInvoLine";
 import ControlFlowArrow from "../ControlFlowArrow";
+import { DefaultTooltip } from "../DefaultTooltip";
 
 import { ConnectorHeader } from "./ConnectorHeader";
 import { CLIENT_RADIUS, CLIENT_SHADOW_OFFSET, CLIENT_SVG_HEIGHT, CLIENT_SVG_WIDTH_WITH_SHADOW } from "./ConnectorHeader/ConnectorClientSVG";
@@ -40,27 +42,59 @@ export function Connector(props: ConnectorProps) {
     const toggleSelection = () => {
         setSelected(!selected);
     };
-
+    const diagramContext = useContext(Context);
+    const showTooltip = diagramContext?.api?.edit?.showTooltip;
+    const [tooltip, setTooltip] = useState(undefined);
     const classes = cn("connector", { selected });
     let component: any;
 
     const viewState: StatementViewState = model.viewState as StatementViewState;
     const epViewState: EndpointViewState = viewState.endpoint;
+
+    const textComponent = () => {
+        const yPosition = epViewState.isExternal ?
+            y - CLIENT_SVG_HEIGHT - DefaultConfig.textLine.height - (DefaultConfig.dotGap * 2)
+            : viewState.bBox.cy - DefaultConfig.textLine.height - (DefaultConfig.dotGap * 2)
+
+        return (
+            <text
+                x={x}
+                y={yPosition}
+                textAnchor="middle"
+                dominantBaseline="central"
+                className='endpont-name'
+            >
+                {connectorName.length > 15 ? `${connectorName.slice(0, 16)}...` : connectorName}
+            </text>
+        )
+    }
+
+    const onTextAreaMouseOver = () => {
+        if (showTooltip) {
+            setTooltip(showTooltip(textComponent(), connectorName));
+        }
+    }
+
+    const onTextAreaMouseOut = () => {
+        if (showTooltip) {
+            setTooltip(undefined);
+        }
+    }
+
     if (epViewState.isExternal) {
         component = (
             <g>
+                <g
+                    className={classes}
+                    onClick={toggleSelection}
+                    onMouseEnter={onTextAreaMouseOver}
+                    onMouseOut={onTextAreaMouseOut}
+                >
 
-                <g className={classes} onClick={toggleSelection}>
                     <line x1={x} y1={y} x2={x} y2={y + h} />
-                    <text
-                        x={x}
-                        y={y - CLIENT_SVG_HEIGHT - DefaultConfig.textLine.height - (DefaultConfig.dotGap * 2)}
-                        textAnchor="middle"
-                        dominantBaseline="central"
-                        className='endpont-name'
-                    >
-                        {connectorName}
-                    </text>
+                    {!tooltip && textComponent()}
+                    {!showTooltip && <DefaultTooltip text={{ heading: connectorName }} />}
+                    {tooltip}
                 </g>
                 <g>
                     <ConnectorHeader model={model} />
@@ -80,17 +114,16 @@ export function Connector(props: ConnectorProps) {
         component = (
             <g>
                 <ConnectorProcess model={model} />
-                <g className={classes} onClick={toggleSelection}>
+                <g
+                    className={classes}
+                    onClick={toggleSelection}
+                    onMouseEnter={onTextAreaMouseOver}
+                    onMouseOut={onTextAreaMouseOut}
+                >
                     <line x1={x} y1={viewState.bBox.cy + CLIENT_RADIUS} x2={x} y2={viewState.bBox.cy + h} />
-                    <text
-                        x={x}
-                        y={viewState.bBox.cy - DefaultConfig.textLine.height - (DefaultConfig.dotGap * 2)}
-                        textAnchor="middle"
-                        dominantBaseline="central"
-                        className='endpont-name'
-                    >
-                        {connectorName}
-                    </text>
+                    {!tooltip && textComponent()}
+                    {!showTooltip && <DefaultTooltip text={{ heading: connectorName }} />}
+                    {tooltip}
                 </g>
                 <g>
                     <ConnectorHeader model={model} />

@@ -13,9 +13,11 @@
 
 import React, { ReactNode, useContext, useEffect, useState } from "react";
 
+import { STNode } from "@wso2-enterprise/syntax-tree";
+
 import { Context } from "../../../Context/diagram";
 import { ErrorSnippet } from "../../../Types/type";
-
+import { DefaultTooltip } from "../DefaultTooltip";
 interface WhileRectSVGProps {
     type?: string,
     className?: string,
@@ -23,15 +25,21 @@ interface WhileRectSVGProps {
     text?: { heading?: string, content?: string, example?: string, code?: string },
     diagnostic?: ErrorSnippet,
     icon?: ReactNode;
+    model: STNode
 }
 
 export function WhileRectSVG(props: WhileRectSVGProps) {
-    const { type, onClick, diagnostic, text } = props;
+    const { onClick, diagnostic, model } = props;
     const diagnosticStyles = diagnostic?.severity === "ERROR" ? "while-block-error" : "while-block-warning";
-    const whileRectStyles = diagnostic ? diagnosticStyles : "while-block";
+    const whileRectStyles = diagnostic?.diagnosticMsgs ? diagnosticStyles : "while-block";
     const diagramContext = useContext(Context);
     const showTooltip = diagramContext?.api?.edit?.showTooltip;
-    const [tooltip, setTooltip] = useState(undefined);
+    const [tooltipComp, setTooltipComp] = useState(undefined);
+    let sourceSnippet;
+    if (model) {
+        sourceSnippet = model?.source?.trim().split('{')[0];
+    }
+
     const rectSVG = (
         <g id="While" className={whileRectStyles} transform="translate(7 6)">
             <g transform="matrix(1, 0, 0, 1, -7, -6)">
@@ -55,13 +63,19 @@ export function WhileRectSVG(props: WhileRectSVGProps) {
         </g>
     );
 
+    const defaultTooltip = (
+        <DefaultTooltip text={sourceSnippet}>{rectSVG}</DefaultTooltip>
+    );
+
     useEffect(() => {
-        if (text && showTooltip) {
-            setTooltip(showTooltip(rectSVG, type, text, "right", true, diagnostic, undefined, false, onClick));
+        if (model && showTooltip) {
+            setTooltipComp(showTooltip(rectSVG, undefined, onClick, model));
         }
-    }, [text]);
+    }, [model]);
 
     return (
-        <>{tooltip ? tooltip : rectSVG}</>
-    )
+        <>
+            {tooltipComp ? tooltipComp : defaultTooltip}
+        </>
+    );
 }

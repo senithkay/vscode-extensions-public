@@ -11,57 +11,37 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext, useEffect } from "react";
+import React, { useContext } from "react";
 
 import { STNode } from "@wso2-enterprise/syntax-tree";
 import cn from "classnames";
 
-import { ExprDeleteConfig, VariableUserInputs } from "../../models/definitions";
 import { StatementEditorContext } from "../../store/statement-editor-context";
-import { getExpressionTypeComponent, getRemainingContent, isPositionsEquals } from "../../utils";
-import DeleteButton from "../Button/DeleteButton";
-import { INPUT_EDITOR_PLACE_HOLDERS } from "../InputEditor/constants";
+import { getExpressionTypeComponent, isPositionsEquals } from "../../utils";
 import { useStatementEditorStyles } from "../styles";
 
 export interface ExpressionComponentProps {
     model: STNode;
-    userInputs?: VariableUserInputs;
-    isElseIfMember: boolean;
-    diagnosticHandler: (diagnostics: string) => void;
-    isTypeDescriptor: boolean;
-    onSelect?: (event: React.MouseEvent) => void;
     children?: React.ReactElement[];
     classNames?: string;
-    deleteConfig?: ExprDeleteConfig
 }
 
 export function ExpressionComponent(props: ExpressionComponentProps) {
-    const { model, userInputs, isElseIfMember, diagnosticHandler,
-            isTypeDescriptor, onSelect, children, classNames, deleteConfig } = props;
+    const { model, children, classNames,  } = props;
 
-    const component = getExpressionTypeComponent(model, userInputs, isElseIfMember, diagnosticHandler, isTypeDescriptor);
+    const component = getExpressionTypeComponent(model);
 
     const [isHovered, setHovered] = React.useState(false);
-    const [deletable, setDeletable] = React.useState(false);
 
     const { modelCtx } = useContext(StatementEditorContext);
     const {
-        statementModel: completeModel,
         currentModel: selectedModel,
-        updateModel
+        changeCurrentModel
     } = modelCtx;
 
     const statementEditorClasses = useStatementEditorStyles();
 
     const isSelected = selectedModel.model && model && isPositionsEquals(selectedModel.model.position, model.position);
-
-    useEffect(() => {
-        let exprDeletable = !deleteConfig?.exprNotDeletable;
-        if (model.source && INPUT_EDITOR_PLACE_HOLDERS.has(model.source.trim())) {
-            exprDeletable = deleteConfig?.defaultExprDeletable;
-        }
-        setDeletable(exprDeletable);
-    }, [model.source]);
 
     const onMouseOver = (e: React.MouseEvent) => {
         setHovered(true);
@@ -78,40 +58,26 @@ export function ExpressionComponent(props: ExpressionComponentProps) {
     const onMouseClick = (e: React.MouseEvent) => {
         e.stopPropagation();
         e.preventDefault();
-        if (onSelect) {
-            onSelect(e);
-        }
+        changeCurrentModel(model);
     }
 
-    const onClickOnDelete = () => {
-        const {
-            code: newCode,
-            position: newPosition
-        } = getRemainingContent(model.position, completeModel);
-        updateModel(newCode, newPosition);
-    }
+    const styleClassNames = cn(statementEditorClasses.expressionElement,
+        isSelected && statementEditorClasses.expressionElementSelected,
+        {
+            "hovered": !isSelected && isHovered,
+        },
+        classNames
+    )
 
     return (
         <span
             onMouseOver={onMouseOver}
             onMouseOut={onMouseOut}
-            // tslint:disable-next-line: jsx-no-multiline-js
-            className={cn(statementEditorClasses.expressionElement,
-                isSelected && statementEditorClasses.expressionElementSelected,
-                {
-                    "hovered": !isSelected && isHovered,
-                },
-                classNames
-            )}
+            className={styleClassNames}
             onClick={onMouseClick}
         >
             {component}
             {children}
-            {isSelected && deletable && (
-                <div className={statementEditorClasses.expressionDeleteButton}>
-                    <DeleteButton onClick={onClickOnDelete} />
-                </div>
-            )}
         </span>
     );
 }

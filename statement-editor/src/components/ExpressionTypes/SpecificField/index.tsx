@@ -10,126 +10,25 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js
-import React, { ReactNode, useContext } from "react";
+import React from "react";
 
-import { SpecificField, STKindChecker } from "@wso2-enterprise/syntax-tree";
-import classNames from "classnames";
+import { SpecificField } from "@wso2-enterprise/syntax-tree";
 
-import { DEFAULT_EXPRESSIONS } from "../../../constants";
-import { SuggestionItem, VariableUserInputs } from "../../../models/definitions";
-import { StatementEditorContext } from "../../../store/statement-editor-context";
-import { SuggestionsContext } from "../../../store/suggestions-context";
-import { getSuggestionsBasedOnExpressionKind, isPositionsEquals } from "../../../utils";
-import { addStatementToTargetLine, getContextBasedCompletions } from "../../../utils/ls-utils";
 import { ExpressionComponent } from "../../Expression";
-import { InputEditor } from "../../InputEditor";
-import { useStatementEditorStyles } from "../../styles";
+import { TokenComponent } from "../../Token";
 
 interface SpecificFieldProps {
     model: SpecificField;
-    userInputs: VariableUserInputs;
-    isElseIfMember: boolean;
-    diagnosticHandler: (diagnostics: string) => void;
-    isTypeDescriptor: boolean;
 }
 
 export function SpecificFieldComponent(props: SpecificFieldProps) {
-    const { model, userInputs, isElseIfMember, diagnosticHandler, isTypeDescriptor } = props;
-    const stmtCtx = useContext(StatementEditorContext);
-    const { modelCtx } = stmtCtx;
-    const { currentModel } = modelCtx;
-    const hasFieldNameSelected = currentModel.model &&
-        isPositionsEquals(currentModel.model.position, model.fieldName.position);
-
-    const statementEditorClasses = useStatementEditorStyles();
-    const { expressionHandler } = useContext(SuggestionsContext);
-    const { currentFile, getLangClient } = stmtCtx;
-    const targetPosition = stmtCtx.formCtx.formModelPosition;
-    const fileURI = `expr://${currentFile.path}`;
-
-    const onClickOnFieldName = (event: any) => {
-        event.stopPropagation()
-        expressionHandler(model.fieldName, false, false,
-            { expressionSuggestions: [], typeSuggestions: [], variableSuggestions: [] })
-    };
-
-    const onClickOnValueExpr = async (event: any) => {
-        event.stopPropagation();
-
-        const content: string = await addStatementToTargetLine(
-            currentFile.content, targetPosition, stmtCtx.modelCtx.statementModel.source, getLangClient);
-
-        const completions: SuggestionItem[] = await getContextBasedCompletions(
-            fileURI, content, targetPosition, model.valueExpr.position,
-            false, isElseIfMember, model.valueExpr.source, getLangClient);
-
-        expressionHandler(model.valueExpr, false, false, {
-            expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
-            typeSuggestions: [],
-            variableSuggestions: completions
-        });
-    };
-
-    let fieldName: ReactNode;
-
-    const valueExpression: ReactNode = (
-        <ExpressionComponent
-            model={model.valueExpr}
-            userInputs={userInputs}
-            isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
-            isTypeDescriptor={false}
-            onSelect={onClickOnValueExpr}
-        />
-    );
-
-    if (STKindChecker.isIdentifierToken(model.fieldName)) {
-        const inputEditorProps = {
-            statementType: model.kind,
-            model: model.fieldName,
-            expressionHandler,
-            userInputs,
-            diagnosticHandler,
-            isTypeDescriptor
-        };
-
-        fieldName =  (
-            <span
-                className={classNames(
-                    statementEditorClasses.expressionElement,
-                    hasFieldNameSelected && statementEditorClasses.expressionElementSelected
-                )}
-                onClick={onClickOnFieldName}
-            >
-                <InputEditor {...inputEditorProps} />
-            </span>
-        );
-    } else {
-        fieldName = (
-            <ExpressionComponent
-                model={model.fieldName}
-                userInputs={userInputs}
-                isElseIfMember={isElseIfMember}
-                diagnosticHandler={diagnosticHandler}
-                isTypeDescriptor={false}
-                onSelect={onClickOnFieldName}
-            />
-        );
-    }
+    const { model } = props;
 
     return (
         <span>
-            {fieldName}
-            <span
-                className={classNames(
-                    statementEditorClasses.expressionBlock,
-                    statementEditorClasses.expressionBlockDisabled
-                )}
-            >
-                {model.colon.value}
-            </span>
-            {valueExpression}
+            <ExpressionComponent model={model.fieldName} />
+            <TokenComponent model={model.colon} />
+            <ExpressionComponent model={model.valueExpr} />
         </span>
     );
 }

@@ -37,10 +37,19 @@ const syntaxHighlightingRules = {
 
 export const useStatementEditorStyles = makeStyles(() =>
     createStyles({
-        undoRedoButtons: {
-            position: 'absolute',
-            right: '0',
-            top: '48px'
+        toolbar: {
+            right: '13px',
+            top: '60px',
+            border: '1px solid #e6e7ec',
+            borderRadius: '8px',
+            marginLeft: '30px',
+            backgroundColor: '#ffffff'
+        },
+        toolbarIcons: {
+            padding: '5px',
+            '&:hover': {
+                backgroundColor: '#F0F1FB',
+            }
         },
         mainStatementWrapper: {
             display: 'flex',
@@ -88,12 +97,13 @@ export const useStatementEditorStyles = makeStyles(() =>
             width: '50%',
         },
         statementExpressionTitle: {
-            paddingTop: theme.spacing(1.5),
+            display: 'flex',
+            alignItems: 'center',
             paddingBottom: theme.spacing(1),
         },
         statementExpressionContent: {
             paddingTop: theme.spacing(1.5),
-            paddingBottom: theme.spacing(1),
+            paddingBottom: theme.spacing(1.5),
             fontSize: "18px",
             'user-select': 'none'
         },
@@ -213,9 +223,12 @@ export const useStatementEditorStyles = makeStyles(() =>
         },
         diagnosticsPane: {
             color: '#ea4c4d',
-            display: 'flex',
-            height: '5%',
-            paddingLeft: '5%'
+            "& .MuiList-padding": {
+                padding: '0px'
+            },
+            "& .MuiListItemText-root": {
+                margin: '0px'
+            }
         },
         suggestionButton: {
             boxSizing: 'border-box',
@@ -585,6 +598,9 @@ export const useStatementEditorStyles = makeStyles(() =>
             height: '60vh',
             alignContent: 'center',
             alignItems: 'center',
+        },
+        helpText: {
+            fontStyle: "italic"
         }
     }),
 );

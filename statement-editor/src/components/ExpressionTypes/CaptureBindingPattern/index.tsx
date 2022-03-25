@@ -10,41 +10,23 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js
-import React, {useContext} from "react";
+import React from "react";
 
 import { CaptureBindingPattern } from "@wso2-enterprise/syntax-tree";
-import classNames from "classnames";
 
-import { VariableUserInputs } from "../../../models/definitions";
-import { StatementEditorContext } from "../../../store/statement-editor-context";
-import { SuggestionsContext } from "../../../store/suggestions-context";
-import { isPositionsEquals } from "../../../utils";
 import { InputEditor } from "../../InputEditor";
-import { useStatementEditorStyles } from "../../styles";
 
 interface CaptureBindingPatternProps {
-    model: CaptureBindingPattern
-    userInputs: VariableUserInputs
-    diagnosticHandler: (diagnostics: string) => void
+    model: CaptureBindingPattern;
 }
 
 export function CaptureBindingPatternComponent(props: CaptureBindingPatternProps) {
-    const { model, userInputs, diagnosticHandler } = props;
-    const stmtCtx = useContext(StatementEditorContext);
-    const {
-    } = stmtCtx;
-
-    const { expressionHandler } = useContext(SuggestionsContext);
+    const { model } = props;
 
     const inputEditorProps = {
-        statementType: model.kind,
-        model,
-        expressionHandler,
-        userInputs,
-        diagnosticHandler,
-        isTypeDescriptor: false
+        model
     };
+
     return (
         <InputEditor {...inputEditorProps} />
     );

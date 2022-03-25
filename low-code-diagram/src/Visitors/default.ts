@@ -25,6 +25,7 @@ class DiagramConfig {
     public offSet: number = 11.5;
 
     public epGap: number = 120;
+    public connectorEPWidth = 150;
 
     public horizontalGapBetweenParentComponents: number = 150;
 
@@ -202,6 +203,10 @@ class DiagramConfig {
 
     // function header area height
     functionHeaderHeight = 50;
+
+    // default body sizing
+    defaultBlockWidth = 200;
+    defaultBlockHeight = this.offSet * 2;
 }
 
 export const DefaultConfig = new DiagramConfig();

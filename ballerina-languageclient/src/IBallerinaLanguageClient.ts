@@ -38,7 +38,7 @@ export enum EXTENDED_APIS {
     PARTIAL_PARSE_EXPRESSION = 'partialParser/getSTForExpression',
     PARTIAL_PARSE_MODULE_MEMBER = 'partialParser/getSTForModuleMembers',
     EXAMPLE_LIST = 'ballerinaExample/list',
-    PERF_ANALYZER_ENDPOINTS = 'performanceAnalyzer/getEndpoints',
+    PERF_ANALYZER_ENDPOINTS = 'performanceAnalyzer/getResourcesWithEndpoints',
     RESOLVE_MISSING_DEPENDENCIES = 'ballerinaDocument/resolveMissingDependencies',
     BALLERINA_TO_OPENAPI = 'openAPILSExtension/generateOpenAPI'
 }
@@ -158,7 +158,9 @@ export interface VisibleEndpoint {
     isCaller: boolean;
     moduleName: string;
     name: string;
+    packageName: string;
     orgName: string;
+    version: string;
     typeName: string;
     viewState?: any;
 }
@@ -623,9 +625,29 @@ export interface DocumentIdentifier {
     uri: string;
 }
 
-export interface PerformanceAnalyzerEndpointsRequest {
+export interface PerformanceAnalyzerRequest {
     documentIdentifier: DocumentIdentifier;
-    range: Range;
+}
+
+export interface PerformanceAnalyzerGraphResponse {
+    message: string;
+    type: any;
+    sequenceDiagramData: SequenceGraphPoint[];
+    graphData: GraphPoint[];
+}
+
+export interface PerformanceAnalyzerResponse {
+    resourcePos: RRange;
+    endpoints: any;
+    actionInvocations: any;
+    type: string;
+    message: string;
+    name: string;
+}
+
+interface RRange {
+    start: Position;
+    end: Position;
 }
 
 export interface GraphPoint {
@@ -728,7 +750,7 @@ export interface IBallerinaLangClient {
 
     getDocumentSymbol: (params: DocumentSymbolParams) => Thenable<DocumentSymbol[] | SymbolInformation[] | null>;
 
-    getPerfEndpoints: (params: PerformanceAnalyzerEndpointsRequest) => Thenable<any>;
+    getPerfEndpoints: (params: PerformanceAnalyzerRequest) => Thenable<PerformanceAnalyzerResponse[]>;
 
     resolveMissingDependencies: (params: GetSyntaxTreeParams) => Thenable<GetSyntaxTreeResponse>;
 

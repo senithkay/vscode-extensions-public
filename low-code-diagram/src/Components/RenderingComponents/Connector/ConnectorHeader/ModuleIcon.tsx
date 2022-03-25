@@ -33,29 +33,34 @@ export function ModuleIcon(props: ModuleIconProps) {
     const iconWidth = width || 42;
     const marginError = iconWidth / 4;
     let iconUrl = "";
-    let defaultProps: DefaultIconProps = { scale: scale || 1 };
+    const defaultProps: DefaultIconProps = { scale: scale || 1, cx, cy, width: iconWidth };
 
     const [showDefaultIcon, setShowDefaultIcon] = useState(false);
+
+    const getIconUrl = (baseUrl: string, orgName: string, moduleName: string, version: string) => {
+        return `${baseUrl}/${orgName}_${moduleName}_${version}.png`;
+    };
 
     if (node && (STKindChecker.isLocalVarDecl(node) || STKindChecker.isModuleVarDecl(node))) {
         let moduleInfo = node.typedBindingPattern.typeDescriptor?.typeData.typeSymbol?.moduleID;
         if (STKindChecker.isArrayTypeDesc(node.typedBindingPattern.typeDescriptor)) {
             moduleInfo = node.typedBindingPattern.typeDescriptor?.typeData.typeSymbol?.memberTypeDescriptor.moduleID;
         }
-        iconUrl = `${balCentralCdn}/${moduleInfo?.orgName}_${moduleInfo?.moduleName}_${moduleInfo?.version}.png`;
-        defaultProps = {
-            cx: cx - marginError,
-            cy: cy - marginError,
-            width: iconWidth,
-            scale,
-        };
+        iconUrl = moduleInfo
+            ? getIconUrl(balCentralCdn, moduleInfo.orgName, moduleInfo.moduleName, moduleInfo.version)
+            : "";
+    } else if (node && STKindChecker.isActionStatement(node) && node.expression.expression.typeData?.symbol?.moduleID) {
+        const moduleInfo = node.expression.expression.typeData?.symbol?.moduleID;
+        iconUrl = moduleInfo
+            ? getIconUrl(balCentralCdn, moduleInfo.orgName, moduleInfo.moduleName, moduleInfo.version)
+            : "";
     } else if (module && module.icon === "" && !showDefaultIcon) {
         setShowDefaultIcon(true);
     } else if (module) {
         iconUrl =
             module.icon ||
             module.package?.icon ||
-            `${balCentralCdn}/${module.package.organization}_${module.moduleName}_${module.package.version}.png`;
+            getIconUrl(balCentralCdn, module.package.organization, module.moduleName, module.package.version);
     } else if (!showDefaultIcon) {
         setShowDefaultIcon(true);
     }

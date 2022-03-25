@@ -105,35 +105,39 @@ export function getDraftComponentSizes(type: string, subType: string): { h: numb
                 case "ForEach":
                 case "While":
                     h = IFELSE_SVG_HEIGHT;
-                    w = IFELSE_SVG_WIDTH;
+                    w = IFELSE_SVG_WIDTH + (DefaultConfig.defaultBlockWidth - IFELSE_SVG_HEIGHT);
                     break;
                 case "Log":
                     h = PROCESS_SVG_HEIGHT;
-                    w = PROCESS_SVG_WIDTH;
+                    w = PROCESS_SVG_WIDTH + (DefaultConfig.defaultBlockWidth - PROCESS_SVG_HEIGHT);
+                    break;
+                case "Worker":
+                    h = PROCESS_SVG_HEIGHT;
+                    w = PROCESS_SVG_WIDTH + (DefaultConfig.defaultBlockWidth - PROCESS_SVG_HEIGHT);
                     break;
                 case "Variable":
                     h = PROCESS_SVG_HEIGHT;
-                    w = PROCESS_SVG_WIDTH;
+                    w = PROCESS_SVG_WIDTH + (DefaultConfig.defaultBlockWidth - PROCESS_SVG_HEIGHT);
                     break;
                 case "AssignmentStatement":
                     h = PROCESS_SVG_HEIGHT;
-                    w = PROCESS_SVG_WIDTH;
+                    w = PROCESS_SVG_WIDTH + (DefaultConfig.defaultBlockWidth - PROCESS_SVG_HEIGHT);
                     break;
                 case "Custom":
                     h = PROCESS_SVG_HEIGHT;
-                    w = PROCESS_SVG_WIDTH;
+                    w = PROCESS_SVG_WIDTH + (DefaultConfig.defaultBlockWidth - PROCESS_SVG_HEIGHT);
                     break;
                 case "HTTP":
                     h = PROCESS_SVG_HEIGHT;
-                    w = PROCESS_SVG_WIDTH;
+                    w = PROCESS_SVG_WIDTH + (DefaultConfig.defaultBlockWidth - PROCESS_SVG_HEIGHT);
                     break;
                 case "Respond":
                     h = RESPOND_SVG_HEIGHT;
-                    w = RESPOND_SVG_WIDTH;
+                    w = RESPOND_SVG_WIDTH + (DefaultConfig.defaultBlockWidth - PROCESS_SVG_HEIGHT);
                     break;
                 case "Return":
                     h = RESPOND_SVG_HEIGHT;
-                    w = RESPOND_SVG_WIDTH;
+                    w = RESPOND_SVG_WIDTH + (DefaultConfig.defaultBlockWidth - PROCESS_SVG_HEIGHT);
                     break;
             }
             break;

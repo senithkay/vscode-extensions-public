@@ -13,10 +13,9 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { ReactElement } from "react";
 
-import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { ErrorSnippet } from "../../../Types/type";
-// import { ErrorSnippet } from "../../../../../../DiagramGenerator/generatorUtil";
 
 import { ProcessRectSVG } from "./ProcessRectSVG";
 import "./style.scss";
@@ -33,15 +32,14 @@ export const PROCESS_SVG_SHADOW_OFFSET = PROCESS_SVG_HEIGHT_WITH_SHADOW - PROCES
 
 export function ProcessSVG(props: {
     x: number, y: number, varName: any,
-    sourceSnippet: any, position: NodePosition,
+    position: NodePosition,
     openInCodeView?: () => void,
-    processType: string, diagnostics?: ErrorSnippet
+    processType: string,
+    diagnostics?: ErrorSnippet,
+    componentSTNode: STNode
 }) {
-    const { varName, sourceSnippet, processType, openInCodeView, diagnostics, ...xyProps } = props;
+    const { varName, processType, openInCodeView, diagnostics, componentSTNode, ...xyProps } = props;
     const processTypeIndicator: JSX.Element[] = [];
-    const tooltipText = {
-        code: sourceSnippet
-    }
     const logIcon: ReactElement = (
         <g className="log-icon" transform="translate(242 522)">
             <path className="log-icon-dark-path" id="Path_23" d="M7.2,0a.8.8,0,0,1,.093,1.595L7.2,1.6H.8A.8.8,0,0,1,.707.005L.8,0Z" transform="translate(8 11.2)" fill="#5567d5" />
@@ -49,9 +47,16 @@ export function ProcessSVG(props: {
         </g>
     );
     const callIcon: ReactElement = (
-        <g className="call-icon"transform="translate(242 522)">
+        <g className="call-icon" transform="translate(242 522)">
             <path className="call-icon-dark-path" id="Combined-Shape" d="M17.189,1V5.094a.819.819,0,0,1-1.632.1l-.006-.1v-1.3L10.4,8.948A.819.819,0,0,1,9.172,7.867L9.24,7.79l5.151-5.152h-1.3a.818.818,0,0,1-.813-.723l-.006-.1A.818.818,0,0,1,13,1.006l.1-.006Z" transform="translate(-2.006 -0.181)" fill="#5567d5" />
             <path className="call-icon-light-path" id="Path" d="M8,0A.8.8,0,1,1,8,1.6,6.4,6.4,0,1,0,14.4,8,.8.8,0,1,1,16,8,8,8,0,1,1,8,0Z" fill="#ccd1f2" />
+        </g>
+    );
+
+    const sendIcon: ReactElement = (
+        <g id="send-copy" transform="translate(242 522)">
+            <path d="M13.8787307,2.29053955 C14.2392146,1.93005559 14.8064457,1.90232605 15.1987369,2.20735094 L15.2929442,2.29053955 L20.0024047,7 L15.2929442,11.7094604 C14.9024199,12.0999847 14.269255,12.0999847 13.8787307,11.7094604 C13.5182467,11.3489765 13.4905172,10.7817454 13.7955421,10.3894542 L13.8787307,10.2952469 L17.1731911,6.999 L13.8787307,3.70475311 C13.5182467,3.34426915 13.4905172,2.7770381 13.7955421,2.38474689 L13.8787307,2.29053955 Z M5,5.99764633 L17.5858375,5.99764633 L17.5858375,5.99764633 L17.5858375,7.99764633 L5,7.99764633 C4.44771525,7.99764633 4,7.54993108 4,6.99764633 C4,6.44536158 4.44771525,5.99764633 5,5.99764633 Z" id="Combined-Shape" fill="#CCD1F2" fill-rule="nonzero" />
+            <path d="M1,0 C1.55228475,-1.01453063e-16 2,0.44771525 2,1 L2,13 C2,13.5522847 1.55228475,14 1,14 C0.44771525,14 6.76353751e-17,13.5522847 0,13 L0,1 C-6.76353751e-17,0.44771525 0.44771525,1.01453063e-16 1,0 Z" id="Rectangle" fill="#5567D5" />
         </g>
     );
 
@@ -63,6 +68,16 @@ export function ProcessSVG(props: {
                     {processType === 'Log' ? logIcon : callIcon}
                     <text id="new" transform="translate(242 548)" className="process-icon-text">
                         <tspan x="1" y="1">{processType.toLowerCase()}</tspan>
+                    </text>
+                </g>
+            );
+            break;
+        case 'AsyncSend':
+            processTypeIndicator.push(
+                <g>
+                    {sendIcon}
+                    <text id="new" transform="translate(242 548)" className="process-icon-text">
+                        <tspan x="-2" y="1">send</tspan>
                     </text>
                 </g>
             );
@@ -101,24 +116,14 @@ export function ProcessSVG(props: {
                 </filter>
             </defs>
             <g>
-                {diagnostics?.diagnosticMsgs ?
-                    (
-                        <ProcessRectSVG
-                            type={"diagram-diagnostic"}
-                            onClick={openInCodeView}
-                            diagnostic={diagnostics}
-                            processTypeIndicator={processTypeIndicator}
-                        />
-                    )
-                    :
-                    (
-                        <ProcessRectSVG
-                            type={"diagram-code"}
-                            onClick={openInCodeView}
-                            text={tooltipText}
-                            processTypeIndicator={processTypeIndicator}
-                        />
-                    )}
+                (
+                <ProcessRectSVG
+                    onClick={openInCodeView}
+                    model={componentSTNode}
+                    diagnostic={diagnostics}
+                    processTypeIndicator={processTypeIndicator}
+                />
+                )
             </g>
         </svg>
     )

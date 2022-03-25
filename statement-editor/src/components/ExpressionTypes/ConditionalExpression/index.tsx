@@ -10,145 +10,27 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js
-import React, { ReactNode, useContext } from "react";
+import React from "react";
 
 import { ConditionalExpression } from "@wso2-enterprise/syntax-tree";
-import classNames from "classnames";
 
-import { DEFAULT_EXPRESSIONS } from "../../../constants";
-import { SuggestionItem, VariableUserInputs } from "../../../models/definitions";
-import { StatementEditorContext } from "../../../store/statement-editor-context";
-import { SuggestionsContext } from "../../../store/suggestions-context";
-import { getSuggestionsBasedOnExpressionKind, isPositionsEquals } from "../../../utils";
-import { addStatementToTargetLine, getContextBasedCompletions } from "../../../utils/ls-utils";
 import { ExpressionComponent } from "../../Expression";
-import { useStatementEditorStyles } from "../../styles";
+import { TokenComponent } from "../../Token";
 
 interface ConditionalExpressionProps {
     model: ConditionalExpression;
-    userInputs: VariableUserInputs;
-    isElseIfMember: boolean;
-    diagnosticHandler: (diagnostics: string) => void;
 }
 
 export function ConditionalExpressionComponent(props: ConditionalExpressionProps) {
-    const { model, userInputs, isElseIfMember, diagnosticHandler } = props;
-    const stmtCtx = useContext(StatementEditorContext);
-
-    const statementEditorClasses = useStatementEditorStyles();
-    const { expressionHandler } = useContext(SuggestionsContext);
-    const { currentFile, getLangClient } = stmtCtx;
-    const targetPosition = stmtCtx.formCtx.formModelPosition;
-    const fileURI = `expr://${currentFile.path}`;
-
-    const onClickOnLhsExpression = async (event: any) => {
-        event.stopPropagation();
-
-        const content: string = await addStatementToTargetLine(
-            currentFile.content, targetPosition, stmtCtx.modelCtx.statementModel.source, getLangClient);
-
-        const completions: SuggestionItem[] = await getContextBasedCompletions(
-            fileURI, content, targetPosition, model.lhsExpression.position,
-            false, isElseIfMember, model.lhsExpression.source, getLangClient);
-
-        expressionHandler(model.lhsExpression, false, false, {
-            expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
-            typeSuggestions: [],
-            variableSuggestions: completions
-        });
-    }
-
-    const onClickOnMiddleExpression = async (event: any) => {
-        event.stopPropagation();
-
-        const content: string = await addStatementToTargetLine(
-            currentFile.content, targetPosition, stmtCtx.modelCtx.statementModel.source, getLangClient);
-
-        const completions: SuggestionItem[] = await getContextBasedCompletions(
-            fileURI, content, targetPosition, model.middleExpression.position,
-            false, isElseIfMember, model.middleExpression.source, getLangClient);
-
-        expressionHandler(model.middleExpression, false, false, {
-            expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
-            typeSuggestions: [],
-            variableSuggestions: completions
-        });
-    };
-
-    const onClickOnEndExpression = async (event: any) => {
-        event.stopPropagation();
-
-        const content: string = await addStatementToTargetLine(
-            currentFile.content, targetPosition, stmtCtx.modelCtx.statementModel.source, getLangClient);
-
-        const completions: SuggestionItem[] = await getContextBasedCompletions(
-            fileURI, content, targetPosition, model.endExpression.position,
-            false, isElseIfMember, model.endExpression.source, getLangClient);
-
-        expressionHandler(model.endExpression, false, false, {
-            expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
-            typeSuggestions: [],
-            variableSuggestions: completions
-        });
-    };
-
-    const lhsExpression: ReactNode = (
-        <ExpressionComponent
-            model={model.lhsExpression}
-            userInputs={userInputs}
-            isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
-            isTypeDescriptor={false}
-            onSelect={onClickOnLhsExpression}
-        />
-    );
-
-    const middleExpression: ReactNode = (
-        <ExpressionComponent
-            model={model.middleExpression}
-            userInputs={userInputs}
-            isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
-            isTypeDescriptor={false}
-            onSelect={onClickOnMiddleExpression}
-        />
-    );
-
-    const endExpression: ReactNode = (
-        <ExpressionComponent
-            model={model.endExpression}
-            userInputs={userInputs}
-            isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
-            isTypeDescriptor={false}
-            onSelect={onClickOnEndExpression}
-        />
-    );
+    const { model } = props;
 
     return (
         <span>
-            {lhsExpression}
-            <span
-                className={classNames(
-                    statementEditorClasses.expressionBlock,
-                    statementEditorClasses.expressionBlockDisabled,
-                    "operator"
-                )}
-            >
-                &nbsp;{model.questionMarkToken.value}
-            </span>
-            {middleExpression}
-            <span
-                className={classNames(
-                    statementEditorClasses.expressionBlock,
-                    statementEditorClasses.expressionBlockDisabled,
-                    "operator"
-                )}
-            >
-                &nbsp;{model.colonToken.value}
-            </span>
-            {endExpression}
+            <ExpressionComponent model={model.lhsExpression} />
+            <TokenComponent model={model.questionMarkToken} className={"operator"} />
+            <ExpressionComponent model={model.middleExpression} />
+            <TokenComponent model={model.colonToken} className={"operator"} />
+            <ExpressionComponent model={model.endExpression} />
         </span>
     );
 }

@@ -11,135 +11,38 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, {ReactNode, useContext} from "react";
+import React, { useContext } from "react";
 
 import { AssignmentStatement } from "@wso2-enterprise/syntax-tree";
-import classNames from "classnames";
 
-import { DEFAULT_EXPRESSIONS } from "../../../constants";
-import { SuggestionItem, VariableUserInputs } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
-import { SuggestionsContext } from "../../../store/suggestions-context";
-import { getSuggestionsBasedOnExpressionKind, isPositionsEquals } from "../../../utils";
-import { addStatementToTargetLine, getContextBasedCompletions } from "../../../utils/ls-utils";
 import { ExpressionComponent } from "../../Expression";
-import { useStatementEditorStyles } from "../../styles";
+import { TokenComponent } from "../../Token";
 
 interface AssignmentStatementProps {
     model: AssignmentStatement;
-    userInputs: VariableUserInputs;
-    isElseIfMember: boolean;
-    diagnosticHandler: (diagnostics: string) => void;
 }
 
 export function AssignmentStatementComponent(props: AssignmentStatementProps) {
-    const { model, userInputs, isElseIfMember, diagnosticHandler } = props;
+    const { model } = props;
     const stmtCtx = useContext(StatementEditorContext);
-    const { modelCtx } = stmtCtx;
-    const { currentModel } = modelCtx;
-    const hasVarRefSelected = currentModel.model &&
-        isPositionsEquals(currentModel.model.position, model.varRef.position);
-    const hasExpressionSelected = currentModel.model &&
-        isPositionsEquals(currentModel.model.position, model.expression.position);
-
-    const statementEditorClasses = useStatementEditorStyles();
-    const { expressionHandler } = useContext(SuggestionsContext);
-    const { currentFile, getLangClient } = stmtCtx;
-    const targetPosition = stmtCtx.formCtx.formModelPosition;
-    const fileURI = `expr://${currentFile.path}`;
-
-    const onClickOnVarRef = async (event: any) => {
-        event.stopPropagation();
-
-        const content: string = await addStatementToTargetLine(
-            currentFile.content, targetPosition, stmtCtx.modelCtx.statementModel.source, getLangClient);
-
-        const completions: SuggestionItem[] = await getContextBasedCompletions(
-            fileURI, content, targetPosition, model.varRef.position,
-            false, isElseIfMember, model.varRef.source, getLangClient);
-
-        expressionHandler(model.varRef, false, false, {
-            expressionSuggestions: [],
-            typeSuggestions: [],
-            variableSuggestions: completions
-        });
-    };
-
-    const onClickOnExpression = async (event: any) => {
-        event.stopPropagation();
-
-        const content: string = await addStatementToTargetLine(
-            currentFile.content, targetPosition, stmtCtx.modelCtx.statementModel.source, getLangClient);
-
-        const completions: SuggestionItem[] = await getContextBasedCompletions(
-            fileURI, content, targetPosition, model.expression.position,
-            false, isElseIfMember, model.expression.source, getLangClient);
-
-        expressionHandler(model.expression, false, false, {
-            expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
-            typeSuggestions: [],
-            variableSuggestions: completions
-        });
-    };
+    const {
+        modelCtx: {
+            currentModel,
+            changeCurrentModel
+        }
+    } = stmtCtx;
 
     if (!currentModel.model) {
-        addStatementToTargetLine(currentFile.content, targetPosition,
-            stmtCtx.modelCtx.statementModel.source, getLangClient).then((content: string) => {
-            getContextBasedCompletions(fileURI, content, targetPosition, model.expression.position, false,
-                isElseIfMember, model.expression.source, getLangClient,  currentFile.content).then((completions) => {
-                expressionHandler(model.expression, false, false, {
-                    expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
-                    typeSuggestions: [],
-                    variableSuggestions: completions
-                });
-            });
-        });
+        changeCurrentModel(model.expression);
     }
-
-    const expression: ReactNode = (
-        <ExpressionComponent
-            model={model.expression}
-            userInputs={userInputs}
-            isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
-            isTypeDescriptor={false}
-            onSelect={onClickOnExpression}
-        />
-    );
-
-    const varRef: ReactNode = (
-        <ExpressionComponent
-            model={model.varRef}
-            userInputs={userInputs}
-            isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
-            isTypeDescriptor={false}
-            onSelect={onClickOnVarRef}
-            deleteConfig={{exprNotDeletable: true}}
-        />
-    );
 
     return (
         <span>
-            {varRef}
-            <span
-                className={classNames(
-                    statementEditorClasses.expressionBlock,
-                    statementEditorClasses.expressionBlockDisabled,
-                    "operator"
-                )}
-            >
-                {model.equalsToken.value}
-            </span>
-            {expression}
-            <span
-                className={classNames(
-                    statementEditorClasses.expressionBlock,
-                    statementEditorClasses.expressionBlockDisabled
-                )}
-            >
-                {model.semicolonToken.value}
-            </span>
+            <ExpressionComponent model={model.varRef} />
+            <TokenComponent model={model.equalsToken} className="operator" />
+            <ExpressionComponent model={model.expression} />
+            <TokenComponent model={model.semicolonToken} />
         </span>
     );
 }

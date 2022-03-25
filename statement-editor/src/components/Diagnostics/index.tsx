@@ -10,16 +10,40 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React from "react";
+// tslint:disable: jsx-no-multiline-js
+import React, { useContext } from "react";
 
-export interface DiagnosticsProps {
-    message?: string
-}
+import { List, ListItemText, Typography } from "@material-ui/core";
 
-export function Diagnostics(props: DiagnosticsProps) {
-    const { message } = props
+import { StmtDiagnostic } from "../../models/definitions";
+import { StatementEditorContext } from "../../store/statement-editor-context";
+import { useStatementEditorStyles } from "../styles";
+
+export function Diagnostics() {
+    const statementEditorClasses = useStatementEditorStyles();
+    const stmtCtx = useContext(StatementEditorContext);
+    const {
+        statementCtx: {
+            diagnostics
+        }
+    } = stmtCtx;
 
     return (
-        <span>{message}</span>
+        <div className={statementEditorClasses.diagnosticsPane}>
+            <List>
+                {
+                    diagnostics && diagnostics.map((diag: StmtDiagnostic, index: number) => (
+                        !diag.isPlaceHolderDiag && (
+                            <ListItemText
+                                key={index}
+                                primary={(
+                                    <Typography>{diag.message}</Typography>
+                                )}
+                            />
+                        )
+                    ))
+                }
+            </List>
+        </div>
     )
 }

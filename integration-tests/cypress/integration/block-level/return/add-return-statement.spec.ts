@@ -41,7 +41,7 @@ describe('Add return statement', () => {
             getCurrentSpecFolder() + "add-return-statement.expected.bal");
     })
 
-    it.skip('Type a return statement and Cancel', () => {
+    it('Type a return statement and Cancel', () => {
         Canvas
             .welcomeMessageShouldBeVisible()
             .clickTopLevelPlusButton();

@@ -5,15 +5,24 @@ const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { argv } = require('process');
 
-const LOW_CODE_DIR = path.resolve(__dirname, '../low-code-editor');
-const MONACO_DIR = path.resolve(__dirname, '../node_modules/monaco-editor');
+const BASE_DIR = path.resolve(__dirname, "..");
 
 const SentryPlugin = require("@sentry/webpack-plugin");
 const APP_VERSION = process.env.APP_VERSION || "Low-code-default";
 
 
-function getConfig(mode, entrypointName, entrypointPath, outputPath, disableChunks = false, genHTML = false) {
+// Add any new modules, for which coverage reports are needed, here.
+const LOW_CODE_MODULES = [
+    path.join(BASE_DIR, "expression-editor"),
+    path.join(BASE_DIR, "low-code-diagram"),
+    path.join(BASE_DIR, "low-code-editor"),
+    path.join(BASE_DIR, "low-code-editor-commons"),
+    path.join(BASE_DIR, "low-code-ui-components"),
+];
+
+function getConfig(mode, entrypointName, entrypointPath, outputPath, disableChunks = false, isTestArtifact = false) {
     const optionalPlugins = [];
+    const optionalRules = [];
     if (disableChunks) {
         optionalPlugins.push(
             new webpack.optimize.LimitChunkCountPlugin({
@@ -21,13 +30,18 @@ function getConfig(mode, entrypointName, entrypointPath, outputPath, disableChun
             })
         );
     }
-    if (genHTML) {
+    if (isTestArtifact) {
         optionalPlugins.push(
             new HtmlWebpackPlugin({
-                title: genHTML.title,
-                template: genHTML.template
+                title: isTestArtifact.title,
+                template: isTestArtifact.template
             })
         );
+        optionalRules.push({
+            test: /\.(js|jsx)$/,
+            use: "@jsdevtools/coverage-istanbul-loader",
+            include: LOW_CODE_MODULES,
+        })
     }
     if (process.env.IS_RELEASE) {
         optionalPlugins.push(
@@ -48,7 +62,7 @@ function getConfig(mode, entrypointName, entrypointPath, outputPath, disableChun
             [entrypointName]: entrypointPath,
         },
         target: 'web',
-        devtool: mode === "production" ? undefined : "source-map",
+        devtool: "source-map",
         resolve: {
             extensions: [".ts", ".tsx", ".js", ".mjs"],
             alias: {
@@ -115,6 +129,7 @@ function getConfig(mode, entrypointName, entrypointPath, outputPath, disableChun
                         }
                     }
                 },
+                ...optionalRules
             ],
         },
         ignoreWarnings: [/Failed to parse source map/],
@@ -145,8 +160,7 @@ function getConfig(mode, entrypointName, entrypointPath, outputPath, disableChun
                 languages: ['ballerina', 'yaml', 'json']
             }),
             new webpack.DefinePlugin({
-                'process.env.NODE_ENV': JSON.stringify(mode),
-                'process.env.APP_VERSION': JSON.stringify(APP_VERSION)
+                'process.env.NODE_ENV': JSON.stringify(mode)
             }),
             ...optionalPlugins
         ]

@@ -14,6 +14,7 @@
 import React, { useContext, useEffect, useState } from "react";
 
 import { Context } from "../../../Context/diagram";
+import { DefaultTooltip } from "../DefaultTooltip";
 
 export const STOP_SVG_HEIGHT_WITH_SHADOW = 44;
 export const STOP_SVG_WIDTH_WITH_SHADOW = 60;
@@ -46,9 +47,14 @@ export function StopSVG(props: { x: number, y: number, text: string, codeSnippet
             </text>
         </g>
     );
+
+    const defaultTooltip = (
+        <DefaultTooltip text={{ code: codeSnippet }}>{rectElement}</DefaultTooltip>
+    );
+
     useEffect(() => {
         if (codeSnippet && showTooltip) {
-            setTooltip(showTooltip(rectElement, "diagram-code", { code: codeSnippet }, "right", true, undefined, undefined, false, openInCodeView));
+            setTooltip(showTooltip(rectElement, codeSnippet));
         }
     }, [codeSnippet]);
 
@@ -67,7 +73,7 @@ export function StopSVG(props: { x: number, y: number, text: string, codeSnippet
                     <stop offset="1" stopColor="#f7f8fb" />
                 </linearGradient>
             </defs>
-            {tooltip ? tooltip : rectElement}
+            {tooltip ? tooltip : defaultTooltip}
         </svg >
     )
 }

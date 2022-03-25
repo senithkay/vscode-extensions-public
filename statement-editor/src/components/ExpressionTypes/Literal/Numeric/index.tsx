@@ -10,34 +10,25 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js
 import React from "react";
 
 import { NumericLiteral } from "@wso2-enterprise/syntax-tree";
 
-import { VariableUserInputs } from "../../../../models/definitions";
 import { InputEditor } from "../../../InputEditor";
 
 interface NumericLiteralProps {
-    model: NumericLiteral
-    userInputs: VariableUserInputs
-    diagnosticHandler: (diagnostics: string) => void
-    isTypeDescriptor: boolean
+    model: NumericLiteral;
 }
 
 export function NumericLiteralComponent(props: NumericLiteralProps) {
-    const { model, userInputs, diagnosticHandler, isTypeDescriptor } = props;
+    const { model } = props;
+
     const inputEditorProps = {
-        statementType: model.kind,
         model,
-        userInputs,
-        diagnosticHandler,
-        isTypeDescriptor
+        className: "numeric-literal"
     };
 
     return (
-        <span className="numeric-literal">
-            <InputEditor {...inputEditorProps} />
-        </span>
+        <InputEditor {...inputEditorProps} />
     );
 }

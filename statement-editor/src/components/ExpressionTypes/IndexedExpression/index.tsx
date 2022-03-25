@@ -10,113 +10,28 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js jsx-no-lambda
-import React, { ReactNode, useContext } from "react";
+// tslint:disable: jsx-no-multiline-js
+import React from "react";
 
-import { IndexedExpression, STNode } from "@wso2-enterprise/syntax-tree";
-import classNames from "classnames";
+import { IndexedExpression } from "@wso2-enterprise/syntax-tree";
 
-import { DEFAULT_EXPRESSIONS } from "../../../constants";
-import { SuggestionItem, VariableUserInputs } from "../../../models/definitions";
-import { StatementEditorContext } from "../../../store/statement-editor-context";
-import { SuggestionsContext } from "../../../store/suggestions-context";
-import { getSuggestionsBasedOnExpressionKind, isPositionsEquals } from "../../../utils";
-import { addStatementToTargetLine, getContextBasedCompletions } from "../../../utils/ls-utils";
 import { ExpressionComponent } from "../../Expression";
-import { useStatementEditorStyles } from "../../styles";
+import { ExpressionArrayComponent } from "../../ExpressionArray";
+import { TokenComponent } from "../../Token";
 
 interface IndexedExpressionProps {
     model: IndexedExpression;
-    userInputs: VariableUserInputs;
-    isElseIfMember: boolean;
-    diagnosticHandler: (diagnostics: string) => void;
 }
 
 export function IndexedExpressionComponent(props: IndexedExpressionProps) {
-    const { model, userInputs, isElseIfMember, diagnosticHandler } = props;
-    const stmtCtx = useContext(StatementEditorContext);
-
-    const statementEditorClasses = useStatementEditorStyles();
-    const { expressionHandler } = useContext(SuggestionsContext);
-    const { currentFile, getLangClient } = stmtCtx;
-    const targetPosition = stmtCtx.formCtx.formModelPosition;
-    const fileURI = `expr://${currentFile.path}`;
-
-    const keyExprComponent = (
-        <span>
-            {
-                model.keyExpression.map((expression: STNode, index: number) => (
-                    <ExpressionComponent
-                            key={index}
-                            model={expression}
-                            userInputs={userInputs}
-                            isElseIfMember={isElseIfMember}
-                            diagnosticHandler={diagnosticHandler}
-                            isTypeDescriptor={false}
-                            onSelect={(event) => onClickOnKeyExpr(expression, event)}
-                    />
-                ))
-            }
-        </span>
-    );
-
-    const onClickOnContainerExpr = (event: any) => {
-        event.stopPropagation()
-        expressionHandler(model.containerExpression, false, false, {
-            expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
-            typeSuggestions: [],
-            variableSuggestions: []
-        });
-    };
-
-    const onClickOnKeyExpr = async (clickedExpression: STNode, event: any) => {
-        event.stopPropagation();
-
-        const content: string = await addStatementToTargetLine(
-            currentFile.content, targetPosition, stmtCtx.modelCtx.statementModel.source, getLangClient);
-
-        const completions: SuggestionItem[] = await getContextBasedCompletions(
-            fileURI, content, targetPosition, clickedExpression.position,
-            false, isElseIfMember, clickedExpression.source, getLangClient);
-
-        expressionHandler(clickedExpression, false, false, {
-            expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
-            typeSuggestions: [],
-            variableSuggestions: completions
-        });
-    };
-
-    const containerExpr: ReactNode = (
-        <ExpressionComponent
-            model={model.containerExpression}
-            userInputs={userInputs}
-            isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
-            isTypeDescriptor={false}
-            onSelect={onClickOnContainerExpr}
-        />
-    );
+    const { model } = props;
 
     return (
         <span>
-            {containerExpr}
-            <span
-                className={classNames(
-                    statementEditorClasses.expressionBlock,
-                    statementEditorClasses.expressionBlockDisabled
-                )}
-            >
-                {model.openBracket.value}
-            </span>
-            {keyExprComponent}
-            <span
-                className={classNames(
-                    statementEditorClasses.expressionBlock,
-                    statementEditorClasses.expressionBlockDisabled
-                )}
-            >
-                {model.closeBracket.value}
-            </span>
+            <ExpressionComponent model={model.containerExpression} />
+            <TokenComponent model={model.openBracket} />
+            <ExpressionArrayComponent expressions={model.keyExpression} />
+            <TokenComponent model={model.closeBracket} />
         </span>
     );
 }

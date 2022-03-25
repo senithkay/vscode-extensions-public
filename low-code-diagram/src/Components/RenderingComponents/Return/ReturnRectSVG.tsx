@@ -12,8 +12,11 @@
  */
 import React, { ReactNode, useContext, useEffect, useState } from "react";
 
+import { STNode } from "@wso2-enterprise/syntax-tree";
+
 import { Context } from "../../../Context/diagram";
 import { ErrorSnippet } from "../../../Types/type";
+import { DefaultTooltip } from "../DefaultTooltip";
 
 interface ReturnRectSVGProps {
     type?: string,
@@ -22,18 +25,24 @@ interface ReturnRectSVGProps {
     text?: { heading?: string, content?: string, example?: string, code?: string },
     diagnostic?: ErrorSnippet,
     icon?: ReactNode;
+    model: STNode;
 }
 
 
 export function ReturnRectSVG(props: ReturnRectSVGProps) {
-    const { type, onClick, diagnostic, text } = props;
+    const { type, onClick, diagnostic, text, model } = props;
     const diagnosticStyles = diagnostic?.severity === "ERROR" ? "return-comp-error" : "return-comp-warning";
-    const returnRectStyles = diagnostic ? diagnosticStyles : "return-comp";
+    const returnRectStyles = diagnostic.diagnosticMsgs ? diagnosticStyles : "return-comp";
     const diagramContext = useContext(Context);
     const showTooltip = diagramContext?.api?.edit?.showTooltip;
-    const [tooltip, setTooltip] = useState(undefined);
+    const [tooltipComp, setTooltipComp] = useState(undefined);
+    let sourceSnippet;
+    if (model) {
+        sourceSnippet = model?.source?.trim();
+    }
+
     const rectSVG = (
-        <g className={returnRectStyles} transform="translate(7 6)">
+        <g className={returnRectStyles} transform="translate(8 6)">
             <g transform="matrix(1, 0, 0, 1, -14, -9)">
                 <g id="Rectangle-2" transform="translate(7 6)">
                     <rect width="82" height="32" rx="16" stroke="none" />
@@ -51,13 +60,20 @@ export function ReturnRectSVG(props: ReturnRectSVGProps) {
             </g>
         </g>
     );
+
+    const defaultTooltip = (
+        <DefaultTooltip text={sourceSnippet}>{rectSVG}</DefaultTooltip>
+    );
+
     useEffect(() => {
-        if (text && showTooltip) {
-            setTooltip(showTooltip(rectSVG, type, text, "right", true, diagnostic, undefined, false, onClick));
+        if (model && showTooltip) {
+            setTooltipComp(showTooltip(rectSVG, undefined, onClick, model));
         }
-    }, [text]);
+    }, [model]);
 
     return (
-        <>{tooltip ? tooltip : rectSVG}</>
+        <>
+            {tooltipComp ? tooltipComp : defaultTooltip}
+        </>
     );
 }

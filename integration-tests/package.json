@@ -1,11 +1,11 @@
 {
     "name": "@wso2-enterprise/ballerina-low-code-integration-tests",
-    "version": "1.0.1",
+    "version": "1.0.3",
     "description": "Ballerina Low Code Integration Tests",
     "scripts": {
         "build": "echo 'not imlemented'",
         "test": "npm-run-all --parallel start-servers test-cypress",
-        "test-cypress": "cypress run --browser chrome --headless && node tools/kill-servers.js",
+        "test-cypress": "cypress run --browser chrome && node tools/kill-servers.js",
         "start-servers": "npm-run-all --parallel start-ls start-vscode-mock",
         "start-ls": "npx start-ws-lang-server",
         "start-vscode-mock": "node tools/vscode-mock-server.js",
@@ -35,5 +35,8 @@
     },
     "dependencies": {
         "cypress-real-events": "^1.7.0"
+    },
+    "nyc": { 
+        "reporter": "cobertura"
     }
 }

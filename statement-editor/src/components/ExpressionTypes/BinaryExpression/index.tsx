@@ -10,128 +10,25 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js
-import React, { ReactNode, useContext } from "react";
+import React from "react";
 
 import { BinaryExpression } from "@wso2-enterprise/syntax-tree";
 
-import { DEFAULT_EXPRESSIONS } from "../../../constants";
-import { SuggestionItem, VariableUserInputs } from "../../../models/definitions";
-import { StatementEditorContext } from "../../../store/statement-editor-context";
-import { SuggestionsContext } from "../../../store/suggestions-context";
-import {
-    getKindBasedOnOperator,
-    getOperatorSuggestions,
-    getSuggestionsBasedOnExpressionKind,
-} from "../../../utils";
-import {
-    addStatementToTargetLine,
-    getContextBasedCompletions
-} from "../../../utils/ls-utils";
 import { ExpressionComponent } from "../../Expression";
+import { OperatorComponent } from "../../Operator";
 
 interface BinaryProps {
     model: BinaryExpression;
-    userInputs: VariableUserInputs;
-    isElseIfMember: boolean;
-    diagnosticHandler: (diagnostics: string) => void;
 }
 
 export function BinaryExpressionComponent(props: BinaryProps) {
-    const { model, userInputs, isElseIfMember, diagnosticHandler } = props;
-    const stmtCtx = useContext(StatementEditorContext);
-    const { modelCtx } = stmtCtx;
-
-    const { expressionHandler } = useContext(SuggestionsContext);
-    const { currentFile, getLangClient } = stmtCtx;
-    const targetPosition = stmtCtx.formCtx.formModelPosition;
-    const fileURI = `expr://${currentFile.path}`;
-
-    const kind = getKindBasedOnOperator(model.operator.kind);
-
-    const onClickOperator = (event: any) => {
-        event.stopPropagation()
-        expressionHandler(model.operator, true, false, {
-            expressionSuggestions: getOperatorSuggestions(kind),
-            typeSuggestions: [],
-            variableSuggestions: []
-        });
-    }
-
-    const onClickOnLhsExpression = async (event: any) => {
-        event.stopPropagation();
-
-        const content: string = await addStatementToTargetLine(
-            currentFile.content, targetPosition, stmtCtx.modelCtx.statementModel.source, getLangClient);
-
-        const completions: SuggestionItem[] = await getContextBasedCompletions(
-            fileURI, content, targetPosition, model.lhsExpr.position,
-            false, isElseIfMember, model.lhsExpr.source, getLangClient);
-
-        expressionHandler(model.lhsExpr, false, false, {
-            expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
-            typeSuggestions: [],
-            variableSuggestions: completions
-        });
-    };
-
-    const onClickOnRhsExpression = async (event: any) => {
-        event.stopPropagation();
-
-        const content: string = await addStatementToTargetLine(
-            currentFile.content, targetPosition, stmtCtx.modelCtx.statementModel.source, getLangClient);
-
-        const completions: SuggestionItem[] = await getContextBasedCompletions(
-            fileURI, content, targetPosition, model.rhsExpr.position,
-            false, isElseIfMember, model.rhsExpr.source, getLangClient);
-
-        expressionHandler(model.rhsExpr, false, false, {
-            expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
-            typeSuggestions: [],
-            variableSuggestions: completions
-        });
-    };
-
-    const lhs: ReactNode = (
-        <ExpressionComponent
-            model={model.lhsExpr}
-            userInputs={userInputs}
-            isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
-            isTypeDescriptor={false}
-            onSelect={onClickOnLhsExpression}
-            deleteConfig={{defaultExprDeletable: true}}
-        />
-    );
-    const rhs: ReactNode = (
-        <ExpressionComponent
-            model={model.rhsExpr}
-            userInputs={userInputs}
-            isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
-            isTypeDescriptor={false}
-            onSelect={onClickOnRhsExpression}
-            deleteConfig={{defaultExprDeletable: true}}
-        />
-    );
-
-    const operator: ReactNode = (
-        <ExpressionComponent
-            model={model.operator}
-            userInputs={userInputs}
-            isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
-            isTypeDescriptor={false}
-            onSelect={onClickOperator}
-            classNames="operator"
-        />
-    );
+    const { model } = props;
 
     return (
         <span>
-            {lhs}
-            {operator}
-            {rhs}
+            <ExpressionComponent model={model.lhsExpr} />
+            <OperatorComponent model={model.operator} />
+            <ExpressionComponent model={model.rhsExpr} />
         </span>
     );
 }

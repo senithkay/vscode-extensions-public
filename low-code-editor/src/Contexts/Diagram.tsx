@@ -12,7 +12,6 @@
  */
 import React, { useContext, useReducer } from "react";
 
-import { DataMapperConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { recalculateSizingAndPositioning, sizingAndPositioning } from "../Diagram/utils/diagram-util";

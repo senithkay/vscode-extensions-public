@@ -10,93 +10,23 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js
-import React, { ReactNode, useContext } from "react";
+import React from "react";
 
 import { TypedBindingPattern } from "@wso2-enterprise/syntax-tree";
-import classNames from "classnames";
 
-import { SuggestionItem, VariableUserInputs } from "../../../models/definitions";
-import { StatementEditorContext } from "../../../store/statement-editor-context";
-import { SuggestionsContext } from "../../../store/suggestions-context";
-import { isPositionsEquals } from "../../../utils";
-import {
-    addStatementToTargetLine,
-    getContextBasedCompletions
-} from "../../../utils/ls-utils";
 import { ExpressionComponent } from "../../Expression";
-import { useStatementEditorStyles } from "../../styles";
 
 interface TypedBindingPatternProps {
     model: TypedBindingPattern;
-    userInputs: VariableUserInputs;
-    isElseIfMember: boolean;
-    diagnosticHandler: (diagnostics: string) => void;
 }
 
 export function TypedBindingPatternComponent(props: TypedBindingPatternProps) {
-    const { model, userInputs, isElseIfMember, diagnosticHandler } = props;
-    const stmtCtx = useContext(StatementEditorContext);
-    const { expressionHandler } = useContext(SuggestionsContext);
-    const { currentFile, getLangClient } = stmtCtx;
-    const targetPosition = stmtCtx.formCtx.formModelPosition;
-    const fileURI = `expr://${currentFile.path}`;
-
-    const onClickOnTypeBindingPatter = async (event: any) => {
-        event.stopPropagation();
-        expressionHandler(model.bindingPattern, false, false, {
-            expressionSuggestions: [],
-            typeSuggestions: [],
-            variableSuggestions: []
-        });
-    };
-
-    const bindingPatternComponent: ReactNode = (
-        <ExpressionComponent
-            model={model.bindingPattern}
-            userInputs={userInputs}
-            isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
-            isTypeDescriptor={false}
-            onSelect={onClickOnTypeBindingPatter}
-            deleteConfig={{exprNotDeletable: true}}
-        />
-    );
-
-    const onClickOnType = async (event: any) => {
-        event.stopPropagation();
-
-        const content: string = await addStatementToTargetLine(
-            currentFile.content, targetPosition, stmtCtx.modelCtx.statementModel.source, getLangClient);
-
-        const completions: SuggestionItem[] = await getContextBasedCompletions(
-            fileURI, content, targetPosition, model.typeDescriptor.position,
-            true, isElseIfMember, model.typeDescriptor.source, getLangClient);
-
-        expressionHandler(model.typeDescriptor, false, true, {
-            expressionSuggestions: [],
-            typeSuggestions: completions,
-            variableSuggestions: []
-        });
-    };
-
-    const typeDescriptorComponent: ReactNode = (
-        <ExpressionComponent
-            model={model.typeDescriptor}
-            userInputs={userInputs}
-            isElseIfMember={isElseIfMember}
-            diagnosticHandler={diagnosticHandler}
-            isTypeDescriptor={true}
-            onSelect={onClickOnType}
-            classNames="type-descriptor"
-            deleteConfig={{defaultExprDeletable: true}}
-        />
-    );
+    const { model } = props;
 
     return (
         <span>
-            {typeDescriptorComponent}
-            {bindingPatternComponent}
+            <ExpressionComponent model={model.typeDescriptor} classNames="type-descriptor" />
+            <ExpressionComponent model={model.bindingPattern} />
         </span>
     );
 }

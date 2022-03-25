@@ -13,23 +13,28 @@
 
 import React, { ReactElement, ReactNode, useContext, useEffect, useState } from "react";
 
-import { Context } from "../../../Context/diagram";
-import { ErrorSnippet } from "../../../Types/type";
+import { STNode } from "@wso2-enterprise/syntax-tree";
 
+import { Context } from "../../../Context/diagram";
+import { DefaultTooltip } from "../DefaultTooltip";
 interface IfElseRectSVGProps {
     type?: string,
     className?: string,
     onClick?: () => void,
     text?: { heading?: string, content?: string, example?: string, code?: string },
-    diagnostic?: ErrorSnippet,
     icon?: ReactNode;
+    model: STNode
 }
 
 export function IfElseRectSVG(props: IfElseRectSVGProps) {
-    const { type, onClick, diagnostic, icon, text, className } = props;
+    const { onClick, icon, className, model } = props;
     const diagramContext = useContext(Context);
     const showTooltip = diagramContext?.api?.edit?.showTooltip;
-    const [tooltip, setTooltip] = useState(undefined);
+    const [tooltipComp, setTooltipComp] = useState(undefined);
+    let sourceSnippet;
+    if (model) {
+        sourceSnippet = model?.source?.trim().split(')')[0];
+    }
 
     const component = (
         <g id="IfElse" className={className} transform="translate(7 6)">
@@ -43,15 +48,19 @@ export function IfElseRectSVG(props: IfElseRectSVGProps) {
         </g>
     );
 
+    const defaultTooltip = (
+        <DefaultTooltip text={sourceSnippet}>{component}</DefaultTooltip>
+    );
+
     useEffect(() => {
-        if (text && showTooltip) {
-            setTooltip(showTooltip(component, type, text, "right", true, diagnostic, undefined, false, onClick));
+        if (model && showTooltip) {
+            setTooltipComp(showTooltip(component, undefined, onClick, model));
         }
-    }, [text]);
+    }, [model]);
 
     return (
         <>
-            {tooltip ? tooltip : component}
+            {tooltipComp ? tooltipComp : defaultTooltip}
         </>
     );
 }

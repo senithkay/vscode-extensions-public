@@ -107,6 +107,7 @@ service {{{ BASE_PATH }}} on new http:Listener({{{ PORT }}})`,
 service {{{ BASE_PATH }}} on {{{ LISTENER_NAME }}}`,
     MODULE_VAR_DECL_WITH_INIT: `
 {{{ACCESS_MODIFIER}}} {{{VAR_QUALIFIER}}} {{{VAR_TYPE}}} {{{VAR_NAME}}} = {{{VAR_VALUE}}};`,
+    MODULE_VAR_DECL_WITH_INIT_WITHOUT_NEWLINE: `{{{ACCESS_MODIFIER}}} {{{VAR_QUALIFIER}}} {{{VAR_TYPE}}} {{{VAR_NAME}}} = {{{VAR_VALUE}}};`,
     MODULE_VAR_DECL_WITHOUT_INIT: `
 {{{ACCESS_MODIFIER}}} {{{VAR_QUALIFIER}}} {{{VAR_TYPE}}} {{{VAR_NAME}}};`,
     CONSTANT_DECLARATION: `
@@ -144,5 +145,15 @@ service {{{ BASE_PATH }}} on {{{ LISTENER_NAME }}}`,
         {{#each MEMBERS}}
             {{{ this }}}
         {{/each}}
-    }`
+    }`,
+    WORKER_DEFINITION: `
+    worker {{{NAME}}} {
+
+    }
+    `,
+    WORKER_DEFINITION_WITH_RETURN: `
+    worker {{{NAME}}} returns {{{RETURN_TYPE}}} {
+
+    }
+    `
 }

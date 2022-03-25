@@ -36,25 +36,12 @@ export interface RespondProps {
 }
 
 export function Respond(props: RespondProps) {
-    const {
-        actions: {
-            diagramCleanDraw
-        },
-        props: {
-            syntaxTree,
-            stSymbolInfo,
-            isReadOnly,
-        },
-        api: {
-            edit: {
-                renderAddForm,
-                renderEditForm
-            },
-            code: {
-                gotoSource
-            }
-        }
-    } = useContext(Context);
+    const diagramContext = useContext(Context);
+    const { syntaxTree, stSymbolInfo, isReadOnly } = diagramContext.props;
+    const { diagramCleanDraw } = diagramContext.actions;
+    const renderAddForm = diagramContext?.api?.edit?.renderAddForm;
+    const renderEditForm = diagramContext?.api?.edit?.renderEditForm;
+    const gotoSource = diagramContext?.api?.code?.gotoSource;
 
     const { model, blockViewState } = props;
 
@@ -95,7 +82,7 @@ export function Respond(props: RespondProps) {
     };
 
     const onClickOpenInCodeView = () => {
-        if (model) {
+        if (model && gotoSource) {
             const position: NodePosition = model.position as NodePosition;
             gotoSource({ startLine: position.startLine, startColumn: position.startColumn });
         }
@@ -108,6 +95,7 @@ export function Respond(props: RespondProps) {
                     x={cx - (RESPOND_SVG_WIDTH_WITH_SHADOW / 2)}
                     y={cy - DefaultConfig.shadow + DefaultConfig.dotGap / 2}
                     text={compType}
+                    model={model}
                     sourceSnippet={sourceSnippet}
                     openInCodeView={model && model.position && onClickOpenInCodeView}
                 />
@@ -132,7 +120,7 @@ export function Respond(props: RespondProps) {
     }
 
     React.useEffect(() => {
-        if (blockViewState) {
+        if (blockViewState && renderAddForm) {
             const draftVS = blockViewState.draft[1] as DraftStatementViewState;
             const overlayFormConfig = getOverlayFormConfig(draftVS.subType, draftVS.targetPosition, WizardType.NEW,
                 blockViewState, undefined, stSymbolInfo);
@@ -141,9 +129,11 @@ export function Respond(props: RespondProps) {
     }, []);
 
     const onEditClick = () => {
-        const overlayFormConfig = getOverlayFormConfig("Respond", model.position, WizardType.EXISTING,
-            blockViewState, undefined, stSymbolInfo, model);
-        renderEditForm(model, model.position, overlayFormConfig as ConfigOverlayFormStatus, onCancel, onSave);
+        if (renderEditForm) {
+            const overlayFormConfig = getOverlayFormConfig("Respond", model.position, WizardType.EXISTING,
+                blockViewState, undefined, stSymbolInfo, model);
+            renderEditForm(model, model.position, overlayFormConfig as ConfigOverlayFormStatus, onCancel, onSave);
+        }
     }
 
     const onSave = () => {

@@ -17,6 +17,7 @@ import classNames from "classnames";
 
 import { Context } from "../../../Context/diagram";
 import { DefaultConfig } from "../../../Visitors/default";
+import { DefaultTooltip } from "../DefaultTooltip";
 
 import "./style.scss"
 
@@ -37,7 +38,7 @@ export function ConditionAssignment(props: { x: number, y: number, assignment: s
     const assignmentWidth = textWidth
     let assignmentX = 0;
 
-    assignmentX = (assignmentWidth > 125) ? CONDITION_ASSIGNMENT_NAME_WIDTH - DefaultConfig.dotGap : assignmentX = (CONDITION_ASSIGNMENT_NAME_WIDTH - assignmentWidth - (DefaultConfig.dotGap * 2));
+    assignmentX = (assignmentWidth > CONDITION_ASSIGNMENT_NAME_WIDTH) ? CONDITION_ASSIGNMENT_NAME_WIDTH - DefaultConfig.dotGap : assignmentX = (CONDITION_ASSIGNMENT_NAME_WIDTH - assignmentWidth - (DefaultConfig.dotGap * 2));
     const assignemtComponant: ReactElement = (
         <text
             className={classNames("assignment-text", className)}
@@ -48,18 +49,19 @@ export function ConditionAssignment(props: { x: number, y: number, assignment: s
         </text>
     );
 
+    const defaultTooltip = (
+        <DefaultTooltip text={{ heading: assignment }}>{assignemtComponant}</DefaultTooltip>
+    );
+
     useEffect(() => {
-        if (assignmentMaxWidth && showTooltip) {
-            setTooltip(showTooltip(assignemtComponant, "heading", { heading: assignment }, "top-start", true, undefined, undefined, false, undefined, {
-                inverted: false,
-                interactive: true
-            }));
+        if (assignment && showTooltip) {
+            setTooltip(showTooltip(assignemtComponant, assignment));
         }
     }, [assignment]);
 
     return (
         <svg {...xyProps}>
-            {assignmentMaxWidth ? tooltip : assignemtComponant}
+            {assignmentMaxWidth ? tooltip ? tooltip : defaultTooltip : assignemtComponant}
         </svg >
     );
 }

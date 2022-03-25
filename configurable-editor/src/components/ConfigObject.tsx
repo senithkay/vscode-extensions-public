@@ -17,11 +17,12 @@
  *
  */
 
-import React, { ReactElement } from "react";
+import React, { ReactElement, useState } from "react";
 
-import { Box, Card, CardContent, Typography } from "@material-ui/core";
+import { Box, Card, CardContent, Collapse, Typography } from "@material-ui/core";
 
 import { ConfigElementProps, getConfigElement } from "./ConfigElement";
+import ExpandMore from "./elements/ExpandMore";
 import { ConfigValue } from "./model";
 import { useStyles } from "./style";
 import { instanceOfConfigElement } from "./utils";
@@ -32,12 +33,19 @@ import { instanceOfConfigElement } from "./utils";
 export interface ConfigObjectProps {
     id: string;
     name: string;
+    isRequired: boolean;
     properties?: Array<ConfigElementProps | ConfigObjectProps>;
     setConfigElement?: (configValue: ConfigValue) => void;
 
 }
 
-export const getConfigObject = (configObjectProps: ConfigObjectProps, classes: ReturnType<typeof useStyles>) => {
+export const GetConfigObject = (configObjectProps: ConfigObjectProps) => {
+    const classes = useStyles();
+    const [expanded, setExpanded] = useState(configObjectProps.isRequired);
+
+    const handleExpandClick = () => {
+        setExpanded(!expanded);
+    };
 
     if (configObjectProps === undefined) {
         return;
@@ -50,14 +58,20 @@ export const getConfigObject = (configObjectProps: ConfigObjectProps, classes: R
     return (
         <Box className={classes.innerBoxCard}>
             <Card variant="outlined">
-                <CardContent>
+                <CardContent className={classes.cardContent}>
                     <Box className={classes.innerBoxHead}>
                         <Typography className={classes.innerBoxTitle}>
                             {configObjectProps.name}
                         </Typography>
+                        <ExpandMore
+                            expand={expanded}
+                            onClick={handleExpandClick}
+                        />
                     </Box>
 
-                    {<ConfigObject {...configObjectProps.properties} />}
+                    <Collapse in={expanded} timeout="auto" unmountOnExit={true}>
+                        <ConfigObject {...configObjectProps.properties} />
+                    </Collapse>
                 </CardContent>
             </Card>
         </Box>
@@ -83,7 +97,7 @@ const ConfigObject = (
             returnElement.push(
                 (
                     <div key={configProperties[key].id}>
-                        {getConfigObject(configProperties[key] as ConfigObjectProps, classes)}
+                        <GetConfigObject {...configProperties[key] as ConfigObjectProps} />
                     </div>
                 ),
             );

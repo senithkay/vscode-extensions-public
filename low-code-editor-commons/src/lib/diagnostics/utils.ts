@@ -21,18 +21,24 @@ export function getSelectedDiagnostics(
     snippetColumn: number,
     inputLength: number,
     startExtraColumns: number = 0,
-    endExtraColumns: number = 0
+    endExtraColumns: number = 0,
+    startExtraRows: number = 0,
+    endExtraRows: number = 0,
 ): Diagnostic[] {
     const { startLine, endLine, startColumn } = targetPosition || {};
     const inputStartCol = startColumn + snippetColumn - startExtraColumns;
     const inputEndCol = startColumn + snippetColumn + inputLength + endExtraColumns - 1;
+    const inputStartLine = startLine + startExtraRows;
+    const inputEndLine = endLine + endExtraRows;
 
     const filteredDiagnostics = diagnostics.filter((diagnostic) => {
         const isError = diagnostic.severity === 1;
         const { start, end } = diagnostic.range || {};
         const diagnosticStartCol = start?.character;
         const diagnosticEndCol = end?.character;
-        return isError && startLine <= start.line && endLine >= end.line && diagnosticEndCol >= inputStartCol && diagnosticStartCol <= inputEndCol;
+        const diagnosticStartLine = start?.line;
+        const diagnosticEndLine = end?.line;
+        return isError && inputStartLine <= diagnosticStartLine && inputEndLine >= diagnosticEndLine && diagnosticEndCol >= inputStartCol && diagnosticStartCol <= inputEndCol;
     });
 
     return filteredDiagnostics;
@@ -44,9 +50,11 @@ export function getDiagnosticMessage(
     snippetColumn: number,
     inputLength: number,
     startExtraColumns: number = 0,
-    endExtraColumns: number = 0
+    endExtraColumns: number = 0,
+    startExtraRows: number = 0,
+    endExtraRows: number = 0
 ): string {
-    return getSelectedDiagnostics(diagnostics, targetPosition, snippetColumn, inputLength, startExtraColumns, endExtraColumns)
+    return getSelectedDiagnostics(diagnostics, targetPosition, snippetColumn, inputLength, startExtraColumns, endExtraColumns, startExtraRows, endExtraRows)
         .reduce((errArr: string[], diagnostic) => (!errArr.includes(diagnostic.message) ? [...errArr, diagnostic.message] : errArr), [])
         .join(". ");
 }

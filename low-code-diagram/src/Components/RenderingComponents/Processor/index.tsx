@@ -15,6 +15,7 @@ import React, { useContext, useState } from "react";
 
 import { ConfigOverlayFormStatus, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
+    ActionStatement,
     AssignmentStatement,
     CallStatement,
     FunctionCall,
@@ -113,6 +114,18 @@ export function DataProcessor(props: ProcessorProps) {
             if (STKindChecker.isSimpleNameReference(model?.varRef)) {
                 processName = model?.varRef?.name?.value
             }
+        } else if (STKindChecker.isActionStatement(model) && model.expression.kind === 'AsyncSendAction') {
+            processType = "AsyncSend";
+            processName = "Send"
+        } else if (STKindChecker.isActionStatement(model) && STKindChecker.isWaitAction(model.expression)
+            || (STKindChecker.isActionStatement(model)
+                && STKindChecker.isCheckAction(model.expression)
+                && STKindChecker.isWaitAction(model.expression.expression))) {
+            processType = "Wait";
+            processName = "Wait"
+        } else if (STKindChecker.isCheckAction(model) && STKindChecker.isWaitAction(model.expression)) {
+            processType = "Wait";
+            processName = "Wait"
         } else {
             processType = "Custom";
             processName = "Custom";
@@ -225,7 +238,7 @@ export function DataProcessor(props: ProcessorProps) {
         }
     } else if (!isDraftStatement && STKindChecker?.isAssignmentStatement(model)) {
         assignmentText = (model as AssignmentStatement)?.expression?.source;
-        statmentTypeText = model.varRef?.typeData?.typeSymbol?.signature
+        statmentTypeText = model.varRef?.typeData?.typeSymbol?.signature;
     } else if (!isDraftStatement && STKindChecker?.isLocalVarDecl(model)) {
         assignmentText = model?.initializer?.source;
         statmentTypeText = getStatementTypesFromST(localModel);
@@ -236,19 +249,45 @@ export function DataProcessor(props: ProcessorProps) {
 
     const prosessTypes = (processType === "Log" || processType === "Call");
 
+    let leftTextOffset: number = 0;
+    let rightTextOffset: number = 0;
+
+    if (viewState.isReceive) {
+        if (viewState.arrowFrom === 'Left') {
+            leftTextOffset = -(PROCESS_SVG_HEIGHT / 2);
+        } else {
+            rightTextOffset = -(PROCESS_SVG_HEIGHT / 3);
+        }
+    }
+
+    let sendTextComponent: JSX.Element;
+
+    if (viewState.isSend) {
+        sendTextComponent = (
+            <Assignment
+                x={viewState.arrowFrom === 'Left' ? cx - DefaultConfig.dotGap * 3 : cx + PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW / 2 + (DefaultConfig.dotGap * 3)}
+                y={cy}
+                assignment={(model as ActionStatement).expression.expression.source.trim()}
+                className={assignmentTextStyles}
+                key_id={getRandomInt(1000)}
+                textAnchor={viewState.arrowFrom === 'Left' ? 'end' : undefined}
+            />
+        )
+    }
+
     const component: React.ReactNode = (!viewState.collapsed &&
         (
             <g>
                 <g className={processWrapper} data-testid="data-processor-block" z-index="1000" target-line={model?.position.startLine}>
                     <React.Fragment>
-                        {(processType !== "Log" && processType !== "Call") && !isDraftStatement &&
+                        {(processType !== "Log" && processType !== "Call" && processType !== "AsyncSend") && !isDraftStatement &&
                             <>
                                 {statmentTypeText &&
                                     <>
                                         <StatementTypes
                                             statementType={statmentTypeText}
                                             x={cx - (VARIABLE_NAME_WIDTH + DefaultConfig.textAlignmentOffset)}
-                                            y={cy + PROCESS_SVG_HEIGHT / 4}
+                                            y={cy + PROCESS_SVG_HEIGHT / 4 + leftTextOffset}
                                             key_id={getRandomInt(1000)}
                                         />
                                     </>
@@ -257,7 +296,7 @@ export function DataProcessor(props: ProcessorProps) {
                                     processType={processType}
                                     variableName={processName}
                                     x={cx - (VARIABLE_NAME_WIDTH + DefaultConfig.textAlignmentOffset)}
-                                    y={cy + PROCESS_SVG_HEIGHT / 4}
+                                    y={cy + PROCESS_SVG_HEIGHT / 4 + leftTextOffset}
                                     key_id={getRandomInt(1000)}
                                 />
                             </>
@@ -267,18 +306,19 @@ export function DataProcessor(props: ProcessorProps) {
                             y={cy - (PROCESS_SVG_SHADOW_OFFSET / 2)}
                             varName={variableName}
                             processType={processType}
-                            sourceSnippet={sourceSnippet}
                             position={model?.position}
                             diagnostics={errorSnippet}
+                            componentSTNode={model}
                             openInCodeView={!isReadOnly && model && model.position && onClickOpenInCodeView}
                         />
                         <Assignment
                             x={cx + PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW / 2 + (DefaultConfig.dotGap * 3)}
-                            y={prosessTypes ? (cy + PROCESS_SVG_HEIGHT / 2) : (cy + PROCESS_SVG_HEIGHT / 3)}
+                            y={prosessTypes ? (cy + PROCESS_SVG_HEIGHT / 2 + rightTextOffset) : (cy + PROCESS_SVG_HEIGHT / 3 + rightTextOffset)}
                             assignment={assignmentText}
                             className={assignmentTextStyles}
                             key_id={getRandomInt(1000)}
                         />
+                        {sendTextComponent}
                         <MethodCall
                             x={cx + PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW / 2 + (DefaultConfig.dotGap * 3)}
                             y={(cy + PROCESS_SVG_HEIGHT / 4) - (DefaultConfig.dotGap / 2)}

@@ -11,62 +11,24 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, {useContext} from "react";
+import React from "react";
 
 import { MappingBindingPattern } from "@wso2-enterprise/syntax-tree";
-import classNames from "classnames";
 
-import { VariableUserInputs } from "../../../models/definitions";
-import { StatementEditorContext } from "../../../store/statement-editor-context";
-import { SuggestionsContext } from "../../../store/suggestions-context";
-import { isPositionsEquals } from "../../../utils";
 import { InputEditor } from "../../InputEditor";
-import { useStatementEditorStyles } from "../../styles";
 
 interface MappingBindingPatternProps {
-    model: MappingBindingPattern
-    userInputs: VariableUserInputs
-    diagnosticHandler: (diagnostics: string) => void
+    model: MappingBindingPattern;
 }
 
 export function MappingBindingPatternComponent(props: MappingBindingPatternProps) {
-    const { model, userInputs, diagnosticHandler } = props;
-    const stmtCtx = useContext(StatementEditorContext);
-    const {
-        modelCtx: {
-            currentModel
-        }
-    } = stmtCtx;
-
-    const hasBindingPatternSelected = currentModel.model &&
-        isPositionsEquals(currentModel.model.position, model.position);
-
-    const statementEditorClasses = useStatementEditorStyles();
-    const { expressionHandler } = useContext(SuggestionsContext);
+    const { model } = props;
 
     const inputEditorProps = {
-        statementType: model.kind,
-        model,
-        expressionHandler,
-        userInputs,
-        diagnosticHandler,
-        isTypeDescriptor: false
-    };
-
-    const onClickOnBindingPattern = (event: any) => {
-        event.stopPropagation()
-        expressionHandler(model, false, false,
-            { expressionSuggestions: [], typeSuggestions: [], variableSuggestions: [] })
+        model
     };
 
     return (
-        <span
-            className={classNames(
-                statementEditorClasses.expressionElement,
-                hasBindingPatternSelected && statementEditorClasses.expressionElementSelected)}
-            onClick={onClickOnBindingPattern}
-        >
-            <InputEditor {...inputEditorProps} />
-        </span>
+        <InputEditor {...inputEditorProps} />
     );
 }

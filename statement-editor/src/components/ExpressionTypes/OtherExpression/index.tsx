@@ -14,33 +14,25 @@ import React from "react";
 
 import { STNode } from "@wso2-enterprise/syntax-tree";
 
-import { VariableUserInputs } from "../../../models/definitions";
-import { InputEditor } from "../../InputEditor";
+import { InputEditor, InputEditorProps } from "../../InputEditor";
 import { useStatementEditorStyles } from "../../styles";
 
 interface OtherExpressionProps {
-    model: STNode
-    userInputs: VariableUserInputs
-    diagnosticHandler: (diagnostics: string) => void
-    isTypeDescriptor: boolean
+    model: STNode;
 }
 
 export function OtherExpressionComponent(props: OtherExpressionProps) {
-    const { model, userInputs, diagnosticHandler, isTypeDescriptor } = props;
+    const { model } = props;
 
     const statementEditorClasses = useStatementEditorStyles();
 
-    const inputEditorProps = {
-        statementType: model.kind,
+    const inputEditorProps: InputEditorProps = {
         model,
-        userInputs,
-        diagnosticHandler,
-        isTypeDescriptor
+        isToken: model.value ? true : false,
+        classNames: statementEditorClasses.expressionElement
     };
 
     return (
-        <span className={statementEditorClasses.expressionElement}>
-            <InputEditor {...inputEditorProps} />
-        </span>
+        <InputEditor {...inputEditorProps} />
     );
 }

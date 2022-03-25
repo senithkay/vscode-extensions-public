@@ -13,27 +13,21 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import React, { useContext } from "react";
 
-import { MappingConstructor, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
-import classNames from "classnames";
+import { MappingConstructor } from "@wso2-enterprise/syntax-tree";
 
-import { DEFAULT_EXPRESSIONS, MAPPING_CONSTRUCTOR } from "../../../constants";
-import { VariableUserInputs } from "../../../models/definitions";
+import { MAPPING_CONSTRUCTOR } from "../../../constants";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
-import { SuggestionsContext } from "../../../store/suggestions-context";
-import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
 import { generateExpressionTemplate } from "../../../utils/utils";
-import { ExpressionComponent } from "../../Expression";
+import { ExpressionArrayComponent } from "../../ExpressionArray";
 import { useStatementEditorStyles } from "../../styles";
+import { TokenComponent } from "../../Token";
 
 interface MappingConstructorProps {
     model: MappingConstructor;
-    userInputs: VariableUserInputs;
-    isElseIfMember: boolean;
-    diagnosticHandler: (diagnostics: string) => void;
 }
 
 export function MappingConstructorComponent(props: MappingConstructorProps) {
-    const { model, userInputs, isElseIfMember, diagnosticHandler } = props;
+    const { model } = props;
 
     const statementEditorClasses = useStatementEditorStyles();
 
@@ -42,7 +36,6 @@ export function MappingConstructorComponent(props: MappingConstructorProps) {
             updateModel,
         }
     } = useContext(StatementEditorContext);
-    const { expressionHandler } = useContext(SuggestionsContext);
 
     const onClickOnPlusIcon = () => {
         const expressionTemplate = generateExpressionTemplate(MAPPING_CONSTRUCTOR);
@@ -50,68 +43,17 @@ export function MappingConstructorComponent(props: MappingConstructorProps) {
         updateModel(newField, model.closeBrace.position);
     };
 
-    const onClickOnExpression = (clickedExpression: STNode, event: any) => {
-        event.stopPropagation();
-        expressionHandler(clickedExpression, false, false,
-            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) })
-    };
-
-    const fieldsComponent = (
-        <span>
-            {
-                model.fields.map((expression: STNode, index: number) => (
-                    (STKindChecker.isCommaToken(expression)) ? (
-                        <span
-                            key={index}
-                            className={classNames(
-                                statementEditorClasses.expressionBlock,
-                                statementEditorClasses.expressionBlockDisabled
-                            )}
-                        >
-                            {expression.value}
-                        </span>
-                    ) : (
-                        <ExpressionComponent
-                            key={index}
-                            model={expression}
-                            userInputs={userInputs}
-                            isElseIfMember={isElseIfMember}
-                            diagnosticHandler={diagnosticHandler}
-                            isTypeDescriptor={false}
-                            onSelect={(event) => onClickOnExpression(expression, event)}
-                            deleteConfig={{defaultExprDeletable: true}}
-                        />
-                    )
-                ))
-            }
-        </span>
-    );
-
     return (
         <span>
-            <span
-                className={classNames(
-                    statementEditorClasses.expressionBlock,
-                    statementEditorClasses.expressionBlockDisabled
-                )}
-            >
-                {model.openBrace.value}
-            </span>
-            {fieldsComponent}
+            <TokenComponent model={model.openBrace} />
+            <ExpressionArrayComponent expressions={model.fields} />
             <span
                 className={statementEditorClasses.plusIcon}
                 onClick={onClickOnPlusIcon}
             >
                 +
             </span>
-            <span
-                className={classNames(
-                    statementEditorClasses.expressionBlock,
-                    statementEditorClasses.expressionBlockDisabled
-                )}
-            >
-                {model.closeBrace.value}
-            </span>
+            <TokenComponent model={model.closeBrace} />
         </span>
     );
 }

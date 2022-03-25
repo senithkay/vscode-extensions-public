@@ -18,25 +18,17 @@ import {
     PrimaryButton,
     SecondaryButton
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
-import { STNode } from "@wso2-enterprise/syntax-tree";
 
-import { VariableUserInputs } from '../../models/definitions';
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { getModifications } from "../../utils";
-import { sendDidChange } from "../../utils/ls-utils";
+import { sendDidChange, sendDidClose, sendDidOpen } from "../../utils/ls-utils";
 import { EditorPane } from '../EditorPane';
 import { useStatementEditorStyles } from "../styles";
 
 export interface ViewContainerProps {
     label: string;
     formArgs: any;
-    userInputs?: VariableUserInputs;
-    config: {
-        type: string;
-        model?: STNode;
-    };
     isStatementValid: boolean;
-    currentModelHandler: (model: STNode) => void;
     onWizardClose: () => void;
     onCancel: () => void;
 }
@@ -45,10 +37,7 @@ export function ViewContainer(props: ViewContainerProps) {
     const {
         label,
         formArgs,
-        userInputs,
-        config,
         isStatementValid,
-        currentModelHandler,
         onWizardClose,
         onCancel
     } = props;
@@ -57,18 +46,18 @@ export function ViewContainer(props: ViewContainerProps) {
     const stmtCtx = useContext(StatementEditorContext);
     const {
         modelCtx: {
-            statementModel,
-            currentModel
+            statementModel
         },
         getLangClient,
         applyModifications,
         currentFile,
+        config,
         modules: {
             modulesToBeImported
         }
     } = stmtCtx;
-    const fileURI = `expr://${currentFile.path}`;
-
+    const exprSchemeURI = `expr://${currentFile.path}`;
+    const fileSchemeURI = `file://${currentFile.path}`;
 
     const saveVariableButtonText = intl.formatMessage({
         id: "lowcode.develop.configForms.variable.saveButton.text",
@@ -81,13 +70,17 @@ export function ViewContainer(props: ViewContainerProps) {
     });
 
     const onSaveClick = () => {
+        sendDidClose(exprSchemeURI, getLangClient).then();
+        sendDidOpen(fileSchemeURI, currentFile.content, getLangClient).then();
         const modifications = getModifications(statementModel, config, formArgs, Array.from(modulesToBeImported) as string[]);
         applyModifications(modifications);
         onWizardClose();
+        sendDidClose(fileSchemeURI, getLangClient).then();
     };
 
     const onCancelClick = async () => {
-        await sendDidChange(fileURI, currentFile.content, getLangClient);
+        await sendDidChange(exprSchemeURI, currentFile.content, getLangClient);
+        sendDidClose(exprSchemeURI, getLangClient).then();
         onCancel();
     }
 
@@ -96,10 +89,7 @@ export function ViewContainer(props: ViewContainerProps) {
             <div className={overlayClasses.mainStatementWrapper}>
                 <div className={overlayClasses.statementExpressionWrapper}>
                     <EditorPane
-                        currentModel={currentModel}
                         label={label}
-                        userInputs={userInputs}
-                        currentModelHandler={currentModelHandler}
                     />
                 </div>
                 <div className={overlayClasses.statementBtnWrapper}>

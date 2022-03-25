@@ -11,7 +11,7 @@
  * associated services.
  */
 import { FormField, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, StringTemplateExpression } from "@wso2-enterprise/syntax-tree";
 
 import { ConfigurableFormState } from "../components/FormComponents/ConfigForms/ConfigurableForm/util";
 import { ConstantConfigFormState } from "../components/FormComponents/ConfigForms/ConstantConfigForm/util";
@@ -50,7 +50,7 @@ export function createIfStatementWithBlock(condition: string, statements: string
         type: "IF_CONDITION_WITH_BLOCK",
         config: {
             "CONDITION": condition,
-            "BLOCKSTATEMENTS": statements
+            "BLOCKSTATEMENTS": statements.join('')
         }
     };
 
@@ -80,7 +80,7 @@ export function createElseIfStatementWithBlock(condition: string, statements: st
         type: "ELSE_IF_CONDITION_WITH_BLOCK",
         config: {
             "CONDITION": condition,
-            "BLOCKSTATEMENTS": statements
+            "BLOCKSTATEMENTS": statements.join('')
         }
     };
     return elseIfStatement;
@@ -105,7 +105,7 @@ export function createElseStatementWithBlock(statements: string[], targetPositio
         endColumn: 0,
         type: "ELSE_STATEMENT_WITH_BLOCK",
         config: {
-            "BLOCKSTATEMENTS": statements
+            "BLOCKSTATEMENTS": statements.join('')
         }
     };
     return elseStatement;
@@ -154,7 +154,7 @@ export function createForeachStatementWithBlock(collection: string, variableName
             "COLLECTION": collection,
             "TYPE": type,
             "VARIABLE": variableName,
-            "BLOCKSTATEMENTS": statements
+            "BLOCKSTATEMENTS": statements.join('')
         }
     };
 
@@ -218,7 +218,7 @@ export function createWhileStatementWithBlock(conditionExpression: string, state
         type: "WHILE_STATEMENT_WITH_BLOCK",
         config: {
             "CONDITION": conditionExpression,
-            "BLOCKSTATEMENTS": statements
+            "BLOCKSTATEMENTS": statements.join('')
         }
     };
 
@@ -342,6 +342,20 @@ export function updateLogStatement(type: string, logExpr: string, targetPosition
     };
 
     return propertyStatement;
+}
+
+export function createWorker(name: string, returnType: string, targetPosition: NodePosition): STModification {
+    return {
+        startLine: targetPosition.startLine,
+        startColumn: 0,
+        endLine: targetPosition.startLine,
+        endColumn: 0,
+        type: returnType.trim().length > 0 ? 'WORKER_DEFINITION_WITH_RETURN' : 'WORKER_DEFINITION',
+        config: {
+            "NAME": name,
+            "RETURN_TYPE": returnType
+        }
+    }
 }
 
 export function createReturnStatement(returnExpr: string, targetPosition?: NodePosition): STModification {
@@ -694,7 +708,7 @@ export function updateModuleVarDecl(config: ModuleVariableFormState, targetPosit
 }
 
 export function createConfigurableDecl(config: ConfigurableFormState, targetPosition: NodePosition,
-                                       isLastMember?: boolean): STModification {
+                                       isLastMember?: boolean, skipNewLine?: boolean): STModification {
     const { isPublic, varName, varType, varValue, label } = config;
 
     const modification: STModification = {
@@ -710,6 +724,10 @@ export function createConfigurableDecl(config: ConfigurableFormState, targetPosi
             'VAR_NAME': varName,
             'VAR_VALUE': varValue
         }
+    }
+
+    if (skipNewLine) {
+        modification.type = 'MODULE_VAR_DECL_WITH_INIT_WITHOUT_NEWLINE';
     }
 
     if (label.length > 0) {
@@ -754,7 +772,7 @@ export function createConstDeclaration(config: ConstantConfigFormState, targetPo
         startLine: targetPosition.startLine,
         endLine: targetPosition.startLine,
         startColumn: isLastMember ? targetPosition.endColumn : 0,
-        endColumn: isLastMember ? targetPosition.endColumn :  0,
+        endColumn: isLastMember ? targetPosition.endColumn : 0,
         type: 'CONSTANT_DECLARATION',
         config: {
             'ACCESS_MODIFIER': isPublic ? 'public' : '',

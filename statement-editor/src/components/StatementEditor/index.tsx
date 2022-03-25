@@ -21,13 +21,38 @@ import {
     STModification
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import * as monaco from "monaco-editor";
+import { Diagnostic } from "vscode-languageserver-protocol";
 
-import { APPEND_EXPR_LIST_CONSTRUCTOR, CUSTOM_CONFIG_TYPE, INIT_EXPR_LIST_CONSTRUCTOR } from "../../constants";
-import { VariableUserInputs } from '../../models/definitions';
+import {
+    APPEND_EXPR_LIST_CONSTRUCTOR,
+    CUSTOM_CONFIG_TYPE,
+    INIT_EXPR_LIST_CONSTRUCTOR
+} from "../../constants";
+import {
+    CurrentModel,
+    StmtDiagnostic,
+    SuggestionItem
+} from "../../models/definitions";
 import { StatementEditorContextProvider } from "../../store/statement-editor-context";
-import { getCurrentModel } from "../../utils";
-import { getPartialSTForStatement } from "../../utils/ls-utils";
+import {
+    addExpressionToTargetPosition,
+    enrichModel,
+    getCurrentModel,
+    getFilteredDiagnosticMessages,
+    getUpdatedSource,
+} from "../../utils";
+import {
+    addStatementToTargetLine,
+    getCompletions,
+    getDiagnostics,
+    getPartialSTForStatement,
+    sendDidChange,
+    sendDidOpen
+} from "../../utils/ls-utils";
+import { StatementEditorViewState } from "../../utils/statement-editor-viewstate";
 import { StmtEditorUndoRedoManager } from '../../utils/undo-redo';
+import { EXPR_SCHEME, FILE_SCHEME } from "../InputEditor/constants";
 import { ViewContainer } from "../ViewContainer";
 
 export interface LowCodeEditorProps {
@@ -43,14 +68,13 @@ export interface LowCodeEditorProps {
         getLibrariesData: () => Promise<LibrarySearchResponse>;
         getLibraryData: (orgName: string, moduleName: string, version: string) => Promise<LibraryDataResponse>;
     };
-    importStatements: string[];
+    importStatements?: string[];
     experimentalEnabled?: boolean;
 }
 export interface StatementEditorProps extends LowCodeEditorProps {
     label: string;
     initialSource: string;
     formArgs: any;
-    userInputs?: VariableUserInputs;
     config: {
         type: string;
         model?: STNode;
@@ -58,8 +82,6 @@ export interface StatementEditorProps extends LowCodeEditorProps {
     validForm?: boolean;
     onWizardClose: () => void;
     onCancel: () => void;
-    handleNameOnChange?: (name: string) => void;
-    handleTypeChange?: (name: string) => void;
     handleStatementEditorChange?: (partialModel: STNode) => void;
     onStmtEditorModelChange?: (partialModel: STNode) => void;
 }
@@ -69,12 +91,9 @@ export function StatementEditor(props: StatementEditorProps) {
         label,
         initialSource,
         formArgs,
-        userInputs,
         config,
         onCancel,
         onWizardClose,
-        handleNameOnChange,
-        handleTypeChange,
         onStmtEditorModelChange,
         getLangClient,
         applyModifications,
@@ -84,44 +103,94 @@ export function StatementEditor(props: StatementEditorProps) {
     } = props;
 
     const [model, setModel] = useState<STNode>(null);
-    const [isStatementValid, setIsStatementValid] = useState(false);
-    const [currentModel, setCurrentModel] = useState({ model });
+    const [currentModel, setCurrentModel] = useState<CurrentModel>({ model });
+    const [stmtDiagnostics, setStmtDiagnostics] = useState<StmtDiagnostic[]>([]);
+    const [moduleList, setModuleList] = useState(new Set<string>());
+    const [lsSuggestionsList, setLSSuggestionsList] = useState([]);
+
+    const fileURI = monaco.Uri.file(currentFile.path).toString().replace(FILE_SCHEME, EXPR_SCHEME);
+    const {
+        formArgs : {
+            targetPosition : targetPosition
+        }
+    } = formArgs;
 
     const undoRedoManager = React.useMemo(() => new StmtEditorUndoRedoManager(), []);
 
-    const undo = React.useCallback(() => {
+    const undo = React.useCallback(async () => {
         const undoItem = undoRedoManager.getUndoModel();
         if (undoItem) {
-            setModel(undoItem.oldModel);
+            const updatedContent = await getUpdatedSource(undoItem.oldModel.source, currentFile.content,
+                targetPosition, moduleList, getLangClient);
+            sendDidChange(fileURI, updatedContent, getLangClient).then();
+            const diagnostics = await handleDiagnostics(undoItem.oldModel.source.length);
+            updateEditedModel(undoItem.oldModel, diagnostics);
         }
     }, []);
 
-    const redo = React.useCallback(() => {
+    const redo = React.useCallback(async () => {
         const redoItem = undoRedoManager.getRedoModel();
         if (redoItem) {
-            setModel(redoItem.newModel);
+            const updatedContent = await getUpdatedSource(redoItem.oldModel.source, currentFile.content,
+                targetPosition, moduleList, getLangClient);
+            sendDidChange(fileURI, updatedContent, getLangClient).then();
+            const diagnostics = await handleDiagnostics(redoItem.oldModel.source.length);
+            updateEditedModel(redoItem.newModel, diagnostics);
         }
     }, []);
 
     useEffect(() => {
-        if (!(config.type === CUSTOM_CONFIG_TYPE) || initialSource) {
+        if (config.type !== CUSTOM_CONFIG_TYPE || initialSource) {
             (async () => {
+                const updatedContent = await getUpdatedSource(initialSource.trim(), currentFile.content,
+                    targetPosition, moduleList, getLangClient);
+
+                sendDidOpen(fileURI, updatedContent, getLangClient).then();
+                const diagnostics = await handleDiagnostics(initialSource.length);
+
                 const partialST = await getPartialSTForStatement(
                     { codeSnippet: initialSource.trim() }, getLangClient);
 
-                if (partialST.syntaxDiagnostics.length === 0) {
-                    setModel(partialST);
+                if (!partialST.syntaxDiagnostics.length || config.type === CUSTOM_CONFIG_TYPE) {
+                    updateEditedModel(partialST, diagnostics);
                 }
             })();
         }
     }, []);
 
     useEffect(() => {
-        if (!!model && STKindChecker.isLocalVarDecl(model) && handleNameOnChange && handleTypeChange) {
-            handleNameOnChange(model.typedBindingPattern.bindingPattern.source)
-            handleTypeChange(model.typedBindingPattern.typeDescriptor.source)
+        (async () => {
+            if (model && currentModel.model) {
+                let lsSuggestions : SuggestionItem[] = [];
+                const currentModelViewState = currentModel.model?.viewState as StatementEditorViewState;
+
+                if (!currentModelViewState.isOperator && !currentModelViewState.isBindingPattern) {
+                    const content: string = await addStatementToTargetLine(
+                        currentFile.content, targetPosition, model.source, getLangClient);
+                    sendDidChange(fileURI, content, getLangClient).then();
+                    lsSuggestions = await getCompletions(fileURI, targetPosition, model,
+                        currentModel, getLangClient);
+                }
+                setLSSuggestionsList(lsSuggestions);
+            }
+        })();
+    }, [currentModel.model]);
+
+    useEffect(() => {
+        if (!!model) {
+            onStmtEditorModelChange(model);
         }
     }, [model]);
+
+    const handleChange = async (newValue: string) => {
+        const updatedStatement = addExpressionToTargetPosition(model, currentModel.model.position, newValue);
+        const updatedContent = await getUpdatedSource(updatedStatement, currentFile.content,
+            targetPosition, moduleList, getLangClient);
+
+        sendDidChange(fileURI, updatedContent, getLangClient).then();
+        handleDiagnostics(updatedStatement.length).then();
+        handleCompletions(newValue).then();
+    }
 
     const updateModel = async (codeSnippet: string, position: NodePosition) => {
         let partialST: STNode;
@@ -142,8 +211,13 @@ export function StatementEditor(props: StatementEditorProps) {
 
         undoRedoManager.add(model, partialST);
 
-        if (partialST.syntaxDiagnostics.length === 0 || config.type === CUSTOM_CONFIG_TYPE) {
-            setModel(partialST);
+        const updatedContent = await getUpdatedSource(partialST.source, currentFile.content, targetPosition,
+            moduleList, getLangClient);
+        sendDidChange(fileURI, updatedContent, getLangClient).then();
+        const diagnostics = await handleDiagnostics(partialST.source.length);
+
+        if (!partialST.syntaxDiagnostics.length || config.type === CUSTOM_CONFIG_TYPE) {
+            updateEditedModel(partialST, diagnostics);
         }
 
         // Since in list constructor we add expression with comma and close-bracket,
@@ -167,9 +241,61 @@ export function StatementEditor(props: StatementEditorProps) {
             };
         }
 
-        const newCurrentModel = getCurrentModel(currentModelPosition, partialST);
+        const newCurrentModel = getCurrentModel(currentModelPosition, enrichModel(partialST, targetPosition));
         setCurrentModel({model: newCurrentModel});
     }
+
+    const handleModules = (module: string) => {
+        let moduleIncluded : boolean;
+        importStatements.forEach(importedModule => {
+            if (importedModule.includes(module)){
+                moduleIncluded = true;
+            }
+        });
+
+        if (!moduleIncluded){
+            setModuleList((prevModuleList: Set<string>) => {
+                return new Set(prevModuleList.add(module));
+            });
+        }
+    };
+
+    const handleCompletions = async (newValue: string) => {
+        const lsSuggestions = await getCompletions(fileURI, targetPosition, model,
+            currentModel, getLangClient, newValue);
+        setLSSuggestionsList(lsSuggestions);
+    }
+
+    const handleDiagnostics = async (stmtLength: number): Promise<Diagnostic[]> => {
+        const diagResp = await getDiagnostics(fileURI, getLangClient);
+        const diag  = diagResp[0]?.diagnostics ? diagResp[0].diagnostics : [];
+        removeUnusedModules(diag);
+        const messages = getFilteredDiagnosticMessages(stmtLength, targetPosition, diag);
+        setStmtDiagnostics(messages);
+        return diag;
+    }
+
+    const removeUnusedModules = (completeDiagnostic:  Diagnostic[]) => {
+        if (!!moduleList.size) {
+            const unusedModuleName = new RegExp(/'(.*?[^\\])'/g);
+            completeDiagnostic.forEach(diagnostic => {
+                let extracted;
+                if (diagnostic.message.includes("unused module prefix '") ||
+                    diagnostic.message.includes("undefined module '")) {
+                        extracted = unusedModuleName.exec(diagnostic.message);
+                        if (extracted) {
+                            const extractedModule = extracted[1]
+                            moduleList.forEach(moduleName => {
+                                if (moduleName.includes(extractedModule)) {
+                                    moduleList.delete(moduleName);
+                                    setModuleList(moduleList);
+                                }
+                            });
+                        }
+                }
+            });
+        }
+    };
 
     const currentModelHandler = (cModel: STNode) => {
         setCurrentModel({
@@ -177,15 +303,9 @@ export function StatementEditor(props: StatementEditorProps) {
         });
     };
 
-    useEffect(() => {
-        if (!!model) {
-            onStmtEditorModelChange(model);
-        }
-    }, [model])
-
-    const validateStatement = (isValid: boolean) => {
-        setIsStatementValid(isValid);
-    };
+    function updateEditedModel(editedModel: STNode, diagnostics?: Diagnostic[]) {
+        setModel(enrichModel(editedModel, targetPosition, diagnostics));
+    }
 
     return (
         (
@@ -193,10 +313,13 @@ export function StatementEditor(props: StatementEditorProps) {
                 <StatementEditorContextProvider
                     model={model}
                     currentModel={currentModel}
-                    importStatements={importStatements}
+                    config={config}
+                    changeCurrentModel={currentModelHandler}
+                    handleChange={handleChange}
                     updateModel={updateModel}
+                    handleModules={handleModules}
+                    modulesToBeImported={moduleList}
                     formArgs={formArgs}
-                    validateStatement={validateStatement}
                     applyModifications={applyModifications}
                     library={library}
                     currentFile={currentFile}
@@ -206,14 +329,13 @@ export function StatementEditor(props: StatementEditorProps) {
                     redo={redo}
                     hasRedo={undoRedoManager.hasRedo()}
                     hasUndo={undoRedoManager.hasUndo()}
+                    diagnostics={stmtDiagnostics}
+                    lsSuggestions={lsSuggestionsList}
                 >
                     <ViewContainer
                         label={label}
                         formArgs={formArgs}
-                        userInputs={userInputs}
-                        config={config}
-                        isStatementValid={isStatementValid}
-                        currentModelHandler={currentModelHandler}
+                        isStatementValid={!stmtDiagnostics.length}
                         onWizardClose={onWizardClose}
                         onCancel={onCancel}
                     />

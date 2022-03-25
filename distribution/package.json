@@ -1,6 +1,6 @@
 {
   "name": "@wso2-enterprise/ballerina-low-code-editor-distribution",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "Ballerina Low Code Editor Distribution",
   "files": [
     "build"
@@ -11,12 +11,13 @@
   "scripts": {
     "build": "npm run build:webpack",
     "watch:webpack": "webpack-dev-server --mode=development --progress",
-    "build:webpack": "webpack --config webpack.config.js --mode=production"
+    "build:webpack": "node --max-old-space-size=4096 ../node_modules/webpack/bin/webpack.js --config webpack.config.js --mode=production"
   },
   "dependencies": {
     "@wso2-enterprise/ballerina-low-code-editor": "^1.0.0"
   },
   "devDependencies": {
+    "@jsdevtools/coverage-istanbul-loader": "^3.0.5",
     "buffer": "^6.0.3",
     "html-webpack-plugin": "^5.5.0",
     "webpack": "^5.50.0",

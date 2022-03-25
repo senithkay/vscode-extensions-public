@@ -15,18 +15,20 @@ import React, { ReactNode, useContext } from "react";
 import { FormattedMessage } from "react-intl";
 
 import { Box, FormControl, List, ListItem, Typography } from "@material-ui/core";
+import { BallerinaConnectorInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FormHeaderSection, PrimaryButton } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
-import { STNode } from "@wso2-enterprise/syntax-tree";
+import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../Contexts/Diagram";
 import { FormGeneratorProps } from "../../FormGenerator";
 import { wizardStyles as useFormStyles } from "../style";
 
 import useStyles from "./style";
+import { getMatchingConnector } from "./util";
 
 export interface EndpointListProps {
-    functionNode: STNode,
-    onSelect: (actionInvo: STNode) => void;
+    functionNode: STNode;
+    onSelect: (connector: BallerinaConnectorInfo, endpointName: string) => void;
     onCancel: () => void;
     onAddConnector: () => void;
 }
@@ -39,13 +41,16 @@ export function EndpointList(props: FormGeneratorProps) {
             stSymbolInfo: { moduleEndpoints, localEndpoints },
         },
     } = useContext(Context);
-    const { functionNode, onSelect, onCancel, onAddConnector } = props.configOverlayFormStatus.formArgs as EndpointListProps;
+    const { targetPosition, onCancel } = props;
+    const { functionNode, onSelect, onAddConnector } = props.configOverlayFormStatus.formArgs as EndpointListProps;
+    const endpointElementList: ReactNode[] = [];
+    const visitedEndpoints: string[] = [];
     let isEndpointExists = false;
-    const endpointList: ReactNode[] = [];
+    let isOldVisibleEpVersion = false; // This field used to trigger previous implementation for Ballerina GA version.
 
-    const getListComponent = (node: STNode, name: string) => {
+    const getListComponent = (connector: BallerinaConnectorInfo, name: string) => {
         const handleOnSelect = () => {
-            onSelect(node);
+            onSelect(connector, name);
         };
         return (
             <ListItem key={`endpoint-${name.toLowerCase()}`} button={true} onClick={handleOnSelect}>
@@ -54,20 +59,60 @@ export function EndpointList(props: FormGeneratorProps) {
         );
     };
 
-    moduleEndpoints?.forEach((node, name) => {
-        endpointList.push(getListComponent(node, name));
-        isEndpointExists = true;
-    });
-
-    localEndpoints?.forEach((node, name) => {
-        if (
-            functionNode.position.startLine < node.position.startLine &&
-            functionNode.position.endLine > node.position.endLine
-        ) {
-            endpointList.push(getListComponent(node, name));
+    if (STKindChecker.isFunctionDefinition(functionNode) || STKindChecker.isResourceAccessorDefinition(functionNode)) {
+        functionNode.functionBody.VisibleEndpoints?.forEach((endpoint) => {
+            if (!(endpoint.packageName && endpoint.version)) {
+                isOldVisibleEpVersion = true;
+                return;
+            }
+            if (visitedEndpoints.indexOf(endpoint.name) < 0) {
+                const connector: BallerinaConnectorInfo = {
+                    name: endpoint.typeName,
+                    moduleName: endpoint.moduleName,
+                    package: {
+                        organization: endpoint.orgName,
+                        name: endpoint.packageName,
+                        version: endpoint.version,
+                    },
+                    functions: [],
+                };
+                endpointElementList.push(getListComponent(connector, endpoint.name));
+            }
+            visitedEndpoints.push(endpoint.name);
             isEndpointExists = true;
-        }
-    });
+        });
+    }
+
+    // INFO: keep previous implementation to work with Ballerina GA update.
+    if (isOldVisibleEpVersion) {
+        const getListComponentFromNode = (node: STNode, epName: string) => {
+            const connector = getMatchingConnector(node);
+            if (!connector) {
+                return <></>;
+            }
+            return getListComponent(connector, epName);
+        };
+
+        moduleEndpoints?.forEach((node, name) => {
+            endpointElementList.push(getListComponentFromNode(node, name));
+            visitedEndpoints.push(name);
+            isEndpointExists = true;
+        });
+
+        localEndpoints?.forEach((node, name) => {
+            if (
+                functionNode.position &&
+                node.position &&
+                targetPosition &&
+                functionNode.position.startLine < node.position.startLine &&
+                node.position.endLine < targetPosition.startLine
+            ) {
+                endpointElementList.push(getListComponentFromNode(node, name));
+                isEndpointExists = true;
+            }
+            visitedEndpoints.push(name);
+        });
+    }
 
     return (
         <FormControl data-testid="endpoint-list-form" className={formClasses.wizardFormControl}>
@@ -90,11 +135,7 @@ export function EndpointList(props: FormGeneratorProps) {
                                     />
                                 </Typography>
                                 <Box marginY={2}>
-                                    <PrimaryButton
-                                        text="Add Connector"
-                                        fullWidth={false}
-                                        onClick={onAddConnector}
-                                    />
+                                    <PrimaryButton text="Add Connector" fullWidth={false} onClick={onAddConnector} />
                                 </Box>
                             </Box>
                         )}
@@ -106,7 +147,7 @@ export function EndpointList(props: FormGeneratorProps) {
                                         defaultMessage="Select a connector"
                                     />
                                 </Typography>
-                                <List>{endpointList}</List>
+                                <List>{endpointElementList}</List>
                             </>
                         )}
                     </div>

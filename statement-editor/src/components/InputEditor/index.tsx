@@ -15,15 +15,7 @@ import React, { useContext, useEffect, useState } from "react";
 
 import { ClickAwayListener } from "@material-ui/core";
 import {
-    CompletionParams,
-    CompletionResponse,
-    ExpressionEditorLangClientInterface,
-    getDiagnosticMessage,
-    getFilteredDiagnostics
-} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import {
     BooleanLiteral,
-    NodePosition,
     NumericLiteral,
     QualifiedNameReference,
     SimpleNameReference,
@@ -32,68 +24,41 @@ import {
     StringLiteral
 } from "@wso2-enterprise/syntax-tree";
 import debounce from "lodash.debounce";
-import * as monaco from "monaco-editor";
 
 import * as c from "../../constants";
-import { SuggestionItem, VariableUserInputs } from "../../models/definitions";
 import { InputEditorContext } from "../../store/input-editor-context";
 import { StatementEditorContext } from "../../store/statement-editor-context";
-import { SuggestionsContext } from "../../store/suggestions-context";
-import { sortSuggestions } from "../../utils";
-import {
-    addImportStatements,
-    addStatementToTargetLine,
-    getDiagnostics,
-    sendDidChange,
-    sendDidClose,
-    sendDidOpen
-} from "../../utils/ls-utils";
+import { StatementEditorViewState } from "../../utils/statement-editor-viewstate";
 import { useStatementEditorStyles } from "../styles";
 
 import {
-    acceptedCompletionKindForExpressions,
-    acceptedCompletionKindForTypes,
-    EXPR_SCHEME,
-    FILE_SCHEME,
     INPUT_EDITOR_PLACE_HOLDERS
 } from "./constants";
 
 export interface InputEditorProps {
     model?: STNode;
-    statementType: any;
-    diagnosticHandler: (diagnostics: string) => void;
-    userInputs: VariableUserInputs;
-    isTypeDescriptor: boolean;
     isToken?: boolean;
     classNames?: string;
+    notEditable?: boolean;
 }
 
 export function InputEditor(props: InputEditorProps) {
 
-    const [isEditing, setIsEditing] = useState(false);
-    const [inputEditorState, setInputEditorState] = useState({
-        name: undefined,
-        content: undefined,
-        uri: undefined,
-        diagnostic: [],
-    });
-
-    const { model, diagnosticHandler, userInputs, isTypeDescriptor, isToken, classNames } = props;
+    const { model, isToken, classNames, notEditable } = props;
 
     const stmtCtx = useContext(StatementEditorContext);
-    const inputEditorCtx = useContext(InputEditorContext);
-    const { expressionHandler } = useContext(SuggestionsContext);
     const {
         modelCtx: {
-            initialSource
+            initialSource,
+            updateModel,
+            handleChange
         },
-        currentFile,
-        getLangClient,
-        modules: {
-            modulesToBeImported
+        formCtx: {
+            formModelPosition: targetPosition
         }
     } = stmtCtx;
-    const fileURI = monaco.Uri.file(currentFile.path).toString().replace(FILE_SCHEME, EXPR_SCHEME);
+
+    const inputEditorCtx = useContext(InputEditorContext);
 
     const statementEditorClasses = useStatementEditorStyles();
 
@@ -140,34 +105,14 @@ export function InputEditor(props: InputEditorProps) {
             source = model.source;
         }
         return [source, nodeKind];
-    }, [model])
+    }, [model]);
 
+    const [isEditing, setIsEditing] = useState(false);
     const [userInput, setUserInput] = useState<string>(originalValue);
     const [prevUserInput, setPrevUserInput] = useState<string>(userInput);
 
-
-    const targetPosition = stmtCtx.formCtx.formModelPosition;
-    const textLabel = userInputs && userInputs.formField ? userInputs.formField : "modelName"
-    const varName = userInputs && userInputs.varName ? userInputs.varName : "temp_" + (textLabel).replace(/[^A-Z0-9]+/ig, "");
-    const varType = userInputs ? userInputs.selectedType : 'string';
-    const isCustomTemplate = false;
-    let currentContent = stmtCtx.modelCtx.statementModel ? stmtCtx.modelCtx.statementModel.source : "";
-
-    useEffect(() => {
-        if (isEditing) {
-            handleOnFocus(currentContent).then();
-        }
-    }, [isEditing]);
-
-    useEffect(() => {
-        handleDiagnostic();
-    }, [inputEditorState.diagnostic]);
-
     useEffect(() => {
         setUserInput(originalValue);
-        handleOnFocus(currentContent).then(() => {
-            handleContentChange(currentContent).then();
-        });
     }, [originalValue]);
 
     useEffect(() => {
@@ -175,129 +120,6 @@ export function InputEditor(props: InputEditorProps) {
             setIsEditing(true);
         }
     }, [userInput]);
-
-    const handleOnFocus = async (currentStatement: string) => {
-        let initContent: string = await addStatementToTargetLine(
-            currentFile.content, targetPosition, currentStatement, getLangClient);
-
-        if (modulesToBeImported.size > 0) {
-            initContent = await addImportStatements(initContent, Array.from(modulesToBeImported) as string[]);
-        }
-
-        inputEditorState.name = userInputs && userInputs.formField ? userInputs.formField : "modelName";
-        inputEditorState.content = initContent;
-        inputEditorState.uri = fileURI;
-        sendDidOpen(inputEditorState.uri, currentFile.content, getLangClient).then();
-        sendDidChange(inputEditorState.uri, inputEditorState.content, getLangClient).then();
-    }
-
-    const handleDiagnostic = () => {
-        const hasDiagnostic = !!inputEditorState.diagnostic.length;
-
-        stmtCtx.statementCtx.validateStatement(!hasDiagnostic);
-
-        // TODO: Need to obtain the default value as a prop
-        if (!Array.from(INPUT_EDITOR_PLACE_HOLDERS.keys()).some(word => currentContent.includes(word))) {
-            const diagnosticTargetPosition: NodePosition = {
-                ...targetPosition,
-                startColumn: 0,
-            };
-            diagnosticHandler(getDiagnosticMessage(inputEditorState.diagnostic, diagnosticTargetPosition, 0, stmtCtx.modelCtx.statementModel?.source.length, 0, 0));
-        }
-    }
-
-    const handleContentChange = async (currentStatement: string, currentCodeSnippet?: string) => {
-        if (currentStatement.slice(-1) !== ';') {
-            currentStatement += ';';
-        }
-        let initContent: string = await addStatementToTargetLine(
-            currentFile.content, targetPosition, currentStatement, getLangClient);
-
-        if (modulesToBeImported.size > 0) {
-            initContent = await addImportStatements(initContent, Array.from(modulesToBeImported) as string[]);
-        }
-
-        inputEditorState.name = userInputs && userInputs.formField ? userInputs.formField : "modelName";
-        inputEditorState.content = initContent;
-        inputEditorState.uri = fileURI;
-        sendDidChange(inputEditorState.uri, inputEditorState.content, getLangClient).then();
-        const diagResp = await getDiagnostics(inputEditorState.uri, getLangClient);
-        const diag = diagResp[0]?.diagnostics ?
-            getFilteredDiagnostics(diagResp[0]?.diagnostics, isCustomTemplate) :
-            [];
-        setInputEditorState((prevState) => {
-            return {
-                ...prevState,
-                diagnostic: diagResp[0]?.diagnostics ?
-                    getFilteredDiagnostics(diagResp[0]?.diagnostics, isCustomTemplate) :
-                    []
-            };
-        });
-        currentContent = currentStatement;
-
-        if (isEditing) {
-            await getContextBasedCompletions(currentCodeSnippet != null ? currentCodeSnippet : userInput);
-        }
-    }
-
-    const handleOnOutFocus = async () => {
-        inputEditorState.name = userInputs && userInputs.formField ? userInputs.formField : "modelName";
-        inputEditorState.content = currentFile.content;
-        inputEditorState.uri = fileURI;
-
-        sendDidClose(inputEditorState.uri, getLangClient).then();
-    }
-
-    // TODO: To be removed with expression editor integration
-    const getContextBasedCompletions = async (codeSnippet: string) => {
-        const completionParams: CompletionParams = {
-            textDocument: {
-                uri: inputEditorState?.uri
-            },
-            context: {
-                triggerKind: 1
-            },
-            position: {
-                character: model ? (targetPosition.startColumn + (model.position.startColumn) + codeSnippet.length) :
-                    (targetPosition.startColumn + codeSnippet.length),
-                line: targetPosition.startLine
-            }
-        }
-
-        // CodeSnippet is split to get the suggestions for field-access-expr (expression.field-name)
-        const splitCodeSnippet = codeSnippet.split('.');
-
-        getLangClient().then((langClient: ExpressionEditorLangClientInterface) => {
-            langClient.getCompletion(completionParams).then((values: CompletionResponse[]) => {
-                const filteredCompletionItem: CompletionResponse[] = values.filter((completionResponse: CompletionResponse) => (
-                    (!completionResponse.kind ||
-                        (isTypeDescriptor ?
-                            acceptedCompletionKindForTypes.includes(completionResponse.kind) :
-                            acceptedCompletionKindForExpressions.includes(completionResponse.kind)
-                        )
-                    ) &&
-                    completionResponse.label !== varName.trim() &&
-                    !(completionResponse.label.includes("main")) &&
-                    (splitCodeSnippet.some((element) => (
-                        ((completionResponse.label.toLowerCase()).includes(element.toLowerCase()))
-                    )
-                    ))
-                ));
-
-                filteredCompletionItem.sort(sortSuggestions)
-
-                const variableSuggestions: SuggestionItem[] = filteredCompletionItem.map((obj) => {
-                    return { value: obj.label, kind: obj.detail, suggestionType: obj.kind }
-                });
-
-                if (isTypeDescriptor) {
-                    expressionHandler(model, false, true, { typeSuggestions: variableSuggestions });
-                } else {
-                    expressionHandler(model, false, false, { variableSuggestions });
-                }
-            });
-        });
-    }
 
     const inputEnterHandler = (event: React.KeyboardEvent<HTMLInputElement>) => {
         if (event.key === "Enter" || event.key === "Tab") {
@@ -309,38 +131,23 @@ export function InputEditor(props: InputEditorProps) {
         }
     };
 
-    function addExpressionToTargetPosition(currentStmt: string, targetLine: number, targetColumn: number, codeSnippet: string, endColumn?: number): string {
-        if (model && STKindChecker.isIfElseStatement(stmtCtx.modelCtx.statementModel)) {
-            const splitStatement: string[] = currentStmt.split(/\n/g) || [];
-            splitStatement.splice(targetLine, 1,
-                splitStatement[targetLine].slice(0, targetColumn) + codeSnippet + splitStatement[targetLine].slice(endColumn || targetColumn));
-            return splitStatement.join('\n');
-        }
-        return currentStmt.slice(0, targetColumn) + codeSnippet + currentStmt.slice(endColumn || targetColumn);
-    }
-
     const inputChangeHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
         changeInput(event.target.value);
     };
 
     const changeInput = (newValue: string) => {
-        const currentStatement = stmtCtx.modelCtx.statementModel ? stmtCtx.modelCtx.statementModel.source : "";
+        if (!newValue) {
+            newValue = (model.viewState as StatementEditorViewState).isTypeDescriptor ? 'TYPE_DESCRIPTOR' : 'EXPRESSION';
+        }
         setUserInput(newValue);
         inputEditorCtx.onInputChange(newValue);
-        const updatedStatement = addExpressionToTargetPosition(
-            currentStatement,
-            model ? model.position.startLine : 0,
-            model ? model.position.startColumn : 0,
-            newValue ? newValue : "",
-            model ? model.position.endColumn : 0
-        );
-        debouncedContentChange(updatedStatement, newValue);
+        debouncedContentChange(newValue, true);
     }
 
-    const debouncedContentChange = debounce(handleContentChange, 500);
+    const debouncedContentChange = debounce(handleChange, 500);
 
     const handleDoubleClick = () => {
-        if (!isToken){
+        if (!notEditable){
             setIsEditing(true);
         }
     };
@@ -349,22 +156,8 @@ export function InputEditor(props: InputEditorProps) {
         setIsEditing(false);
         setPrevUserInput(userInput);
         if (userInput !== "") {
-            stmtCtx.modelCtx.updateModel(userInput, model ? model.position : targetPosition);
-            expressionHandler(model, false, false, { expressionSuggestions: [] });
-
-            const ignore = handleOnOutFocus();
+            updateModel(userInput, model ? model.position : targetPosition);
         }
-        getContextBasedCompletions(userInput);
-    }
-
-    const getInputDisplayValue = (inputText: string): string => {
-        if (INPUT_EDITOR_PLACE_HOLDERS.has(inputText)) {
-            return INPUT_EDITOR_PLACE_HOLDERS.get(inputText);
-        } else if (inputText === "") {
-            isTypeDescriptor ? (inputText = 'TYPE_DESCRIPTOR') : (inputText = 'EXPRESSION');
-            return INPUT_EDITOR_PLACE_HOLDERS.get(inputText);
-        }
-        return inputText;
     }
 
     return isEditing ?
@@ -390,7 +183,7 @@ export function InputEditor(props: InputEditorProps) {
                 className={statementEditorClasses.inputEditorTemplate + ' ' + classNames}
                 onDoubleClick={handleDoubleClick}
             >
-                {getInputDisplayValue(userInput)}
+                {INPUT_EDITOR_PLACE_HOLDERS.has(userInput) ? INPUT_EDITOR_PLACE_HOLDERS.get(userInput) : userInput}
             </span>
         );
 }
