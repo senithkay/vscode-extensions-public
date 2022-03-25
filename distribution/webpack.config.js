@@ -10,6 +10,9 @@ const BASE_DIR = path.resolve(__dirname, "..");
 const SentryPlugin = require("@sentry/webpack-plugin");
 const APP_VERSION = process.env.APP_VERSION || "Low-code-default";
 
+const LOW_CODE_DIR = path.join(BASE_DIR, 'low-code-editor');
+const MONACO_DIR = path.join(BASE_DIR, 'node_modules', 'monaco-editor');
+
 
 // Add any new modules, for which coverage reports are needed, here.
 const LOW_CODE_MODULES = [
