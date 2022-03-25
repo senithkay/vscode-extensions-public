@@ -389,6 +389,15 @@ function getLangClient() {
                     }
                 );
             })
+        },
+        getNotebookVariables: () => {
+            return new Promise((resolve, _reject) => {
+                const start = new Date();
+                webViewRPCHandler.invokeRemoteMethod('getNotebookVariables', [], (resp) => {
+                    consoleLog(start, 'getNotebookVariables');
+                    resolve(resp);
+                });
+            });
         },        
     }
 }

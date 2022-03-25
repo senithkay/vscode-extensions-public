@@ -33,6 +33,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
     context.subscriptions.push(new BallerinaNotebookController(ballerinaExtInstance));
     context.subscriptions.push(registerLanguageProviders(ballerinaExtInstance));
     context.subscriptions.push(registerFocusToOutline());
+    context.subscriptions.push(registerVariableView(ballerinaExtInstance));
 	context.subscriptions.push(
 		window.registerWebviewViewProvider(VariableViewProvider.viewType, new VariableViewProvider(ballerinaExtInstance))
     );
@@ -41,5 +42,12 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 function registerFocusToOutline(): Disposable {
     return commands.registerCommand('ballerina.notebook.openOutlineView', () => {
         commands.executeCommand('outline.focus');
+    });
+}
+
+function registerVariableView(ballerinaExtInstance: BallerinaExtension): Disposable {
+    return commands.registerCommand('ballerina.notebook.openVariableView', () => {
+        ballerinaExtInstance.setNotebookVariableViewEnabled(true);
+        commands.executeCommand('ballerinaViewVariables.focus');
     });
 }
