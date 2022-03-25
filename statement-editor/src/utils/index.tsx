@@ -40,7 +40,7 @@ import { visitor as DeleteConfigSetupVisitor } from "../visitors/delete-config-s
 import { visitor as DiagnosticsMappingVisitor } from "../visitors/diagnostics-mapping-visitor";
 import { visitor as ExpressionDeletingVisitor } from "../visitors/expression-deleting-visitor";
 import { visitor as ModelFindingVisitor } from "../visitors/model-finding-visitor";
-import { visitor as ModelKindSetupVisitor } from "../visitors/model-kind-setup-visitor";
+import { visitor as ModelTypeSetupVisitor } from "../visitors/model-type-setup-visitor";
 import { viewStateSetupVisitor as ViewStateSetupVisitor } from "../visitors/view-state-setup-visitor";
 
 import { addImportStatements, addStatementToTargetLine } from "./ls-utils";
@@ -152,7 +152,7 @@ export function enrichModelWithDiagnostics(model: STNode, targetPosition: NodePo
 
 export function enrichModelWithViewState(model: STNode): STNode  {
     traversNode(model, DeleteConfigSetupVisitor);
-    traversNode(model, ModelKindSetupVisitor);
+    traversNode(model, ModelTypeSetupVisitor);
 
     return model;
 }

@@ -20,7 +20,7 @@ import {
 
 import { ModelType, StatementEditorViewState } from "../utils/statement-editor-viewstate";
 
-class ModelKindSetupVisitor implements Visitor {
+class ModelTypeSetupVisitor implements Visitor {
     public beginVisitTypedBindingPattern(node: TypedBindingPattern) {
         (node.typeDescriptor.viewState as StatementEditorViewState).modelType = ModelType.TYPE_DESCRIPTOR;
         (node.bindingPattern.viewState as StatementEditorViewState).modelType = ModelType.BINDING_PATTERN;
@@ -39,4 +39,4 @@ class ModelKindSetupVisitor implements Visitor {
     }
 }
 
-export const visitor = new ModelKindSetupVisitor();
+export const visitor = new ModelTypeSetupVisitor();
