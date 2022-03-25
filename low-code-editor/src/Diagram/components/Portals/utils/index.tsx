@@ -602,6 +602,24 @@ export function getAllVariablesForAi(symbolInfo: STSymbolInfo): { [key: string]:
             }
         }
     });
+    symbolInfo.enumDeclarations.forEach((variableNode: STNode, type: string) => {
+        if (STKindChecker.isEnumDeclaration(variableNode) && !variableCollection[type]) {
+            variableCollection[type] = {
+                "type": type,
+                "position": 0,
+                "isUsed": 0
+            }
+        }
+    });
+    symbolInfo.recordTypeDescriptions.forEach((variableNode: STNode, type: string) => {
+        if (STKindChecker.isRecordTypeDesc(variableNode) && !variableCollection[type]) {
+            variableCollection[type] = {
+                "type": type,
+                "position": 0,
+                "isUsed": 0
+            }
+        }
+    });
     symbolInfo.localEndpoints.forEach((variableNodes: STNode, type: string) => {
         const variableDef: LocalVarDecl = variableNodes as LocalVarDecl;
         const variable: CaptureBindingPattern = variableDef.typedBindingPattern.bindingPattern as
