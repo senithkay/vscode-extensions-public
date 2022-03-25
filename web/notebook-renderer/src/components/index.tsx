@@ -47,7 +47,5 @@ export function renderVariableView(target: HTMLElement, getVariableValues: () =>
         getVariableValues
     };
     const variableTable = createElement(TableForVariableView, { props });
-    console.log("hello");
-    
     render(variableTable, target);
 }
