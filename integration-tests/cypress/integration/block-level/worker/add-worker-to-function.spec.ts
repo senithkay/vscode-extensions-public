@@ -6,12 +6,12 @@ import { getIntegrationTestPageURL, getIntegrationTestStoryURL } from "../../../
 
 const BAL_FILE_PATH = "block-level/worker/add-worker-to-function.bal";
 
-describe('Add while to function via Low Code', () => {
+describe('Add worker to function via Low Code', () => {
     beforeEach(() => {
         cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH))
     })
 
-    it('Add a while to function', () => {
+    it('Add a worker to function', () => {
         Canvas.getFunction("sampleFunction")
             .nameShouldBe("sampleFunction")
             .shouldBeExpanded()
