@@ -17,7 +17,10 @@ import { useIntl } from "react-intl";
 import { Typography } from "@material-ui/core";
 
 import { AddIcon } from "../../../../../../assets/icons";
+import { Context as DiagramContext } from "../../../../../../Contexts/Diagram";
 import { Context, FormState } from "../../../../../../Contexts/RecordEditor";
+import { getAllVariables } from "../../../../../utils";
+import { genVariableName } from "../../../../Portals/utils";
 import { keywords } from "../../../../Portals/utils/constants";
 import { FormTextInput } from "../../../FormFieldComponents/TextField/FormTextInput";
 import { FormGenerator } from "../../../FormGenerator";
@@ -46,7 +49,16 @@ export function RecordField(props: CodePanelProps) {
     });
 
     const { state, callBacks } = useContext(Context);
+    const { props: { stSymbolInfo } } = useContext(DiagramContext);
 
+    const allRecodVariables = getAllVariables(stSymbolInfo);
+    const recordNames: string[] = [];
+    allRecodVariables.forEach((variable) => {
+        const data = variable.split(':').pop();
+        recordNames.push(data);
+    });
+    const defaultRecordName = genVariableName("Record_name", recordNames);
+    const [recordName, setRecordName] = useState<string>(defaultRecordName);
     // TODO: Fix record expand and collapse
     const [isRecordExpanded, setIsRecordExpanded] = useState(true);
     const [isImportFormVisible, setIsImportFormVisible] = useState(false);
@@ -54,9 +66,11 @@ export function RecordField(props: CodePanelProps) {
     const [recordNameError, setRecordNameError] = useState<string>("");
     const [isRecordEditInProgress, setIsRecordEditInProgress] = useState((recordModel.name === "") ||
         (recordModel.name === undefined));
+    const [isRecordFocus, setIsRecordFocus] = useState(false);
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
 
     const handleFieldEdit = (field: SimpleField) => {
+        setIsRecordEditInProgress(false)
         if (state.currentField && state.currentField.name  === "" && (state.currentField.value === "" ||
             state.currentField.value === undefined) && state.currentField.type === "" &&
             state.currentField.isEditInProgress) {
@@ -108,6 +122,7 @@ export function RecordField(props: CodePanelProps) {
     }
 
     const handleFieldDelete = (field: SimpleField) => {
+        setIsRecordEditInProgress(false)
         const index = recordModel.fields.indexOf(field);
         if (index !== -1) {
             recordModel.fields.splice(index, 1);
@@ -310,18 +325,23 @@ export function RecordField(props: CodePanelProps) {
             callBacks.onUpdateModel(state.recordModel);
             callBacks.onUpdateRecordSelection(true);
             callBacks.onChangeFormState(FormState.EDIT_RECORD_FORM);
+            setIsRecordFocus(true)
         } else if ((!(state.isEditorInvalid || state.currentField?.name === "" || state.currentField?.type === "")) ||
             (!state.currentField)) {
             state.currentRecord.isActive = false;
             recordModel.isActive = true;
             setIsRecordEditInProgress(true);
+            setRecordName(state.currentRecord.name)
             callBacks.onUpdateCurrentRecord(recordModel);
             callBacks.onUpdateModel(state.recordModel);
             callBacks.onUpdateRecordSelection(true);
             callBacks.onChangeFormState(FormState.EDIT_RECORD_FORM);
+            setIsRecordFocus(true)
         }
     };
-
+    const handleRevertFocus = () => {
+        setIsRecordFocus(false);
+    }
     const handleRecordExpand = () => {
         setIsRecordExpanded(!isRecordExpanded);
     };
@@ -391,6 +411,9 @@ export function RecordField(props: CodePanelProps) {
                     setIsRecordEditInProgress={handleRecordEditInProgress}
                     toggleRecordExpand={handleRecordExpand}
                     onEditRecord={handleRecordEdit}
+                    recordName={recordName}
+                    isRecordFocued={isRecordFocus}
+                    recordRevertFocus={handleRevertFocus}
                 />
                 {isRecordExpanded && (
                     <div data-testid={`fieldItems-${recordModel.name}`}className={recordModel?.isActive ? recordClasses.activeRecordSubFieldWrapper : recordClasses.recordSubFieldWrapper}>
