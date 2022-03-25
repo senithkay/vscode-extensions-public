@@ -42,7 +42,7 @@ export function WhileStatementC(props: WhileStatementProps) {
     }
 
     return (
-        <span>
+        <>
             <TokenComponent model={model.whileKeyword}  className="keyword" />
             <ExpressionComponent model={model.condition} />
             <span
@@ -57,6 +57,6 @@ export function WhileStatementC(props: WhileStatementProps) {
                 <br/>
                 {model.whileBody.closeBraceToken.value}
             </span>
-        </span>
+        </>
     );
 }

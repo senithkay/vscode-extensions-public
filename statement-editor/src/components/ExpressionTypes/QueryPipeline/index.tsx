@@ -25,9 +25,9 @@ export function QueryPipelineComponent(props: QueryPipelineProps) {
     const { model } = props;
 
     return (
-        <span>
+        <>
             <ExpressionComponent model={model.fromClause} />
             <ExpressionArrayComponent expressions={model.intermediateClauses} />
-        </span>
+        </>
     );
 }

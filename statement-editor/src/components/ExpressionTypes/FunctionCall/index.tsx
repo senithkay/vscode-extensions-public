@@ -30,11 +30,11 @@ export function FunctionCallComponent(props: FunctionCallProps) {
         notEditable: true
     }
     return (
-        <span>
+        <>
             <InputEditor {...inputEditorProps} />
             <TokenComponent model={model.openParenToken} />
             <ExpressionArrayComponent expressions={model.arguments} />
             <TokenComponent model={model.closeParenToken} />
-        </span>
+        </>
     );
 }

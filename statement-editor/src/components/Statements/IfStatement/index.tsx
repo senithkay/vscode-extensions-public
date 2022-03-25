@@ -44,7 +44,7 @@ export function IfStatementC(props: IfStatementProps) {
     }
 
     return (
-        <span>
+        <>
             <TokenComponent model={model.ifKeyword}  className="keyword" />
             <ExpressionComponent model={model.condition} />
             <span
@@ -60,6 +60,6 @@ export function IfStatementC(props: IfStatementProps) {
                 {model.ifBody.closeBraceToken.value}
             </span>
             {!!model.elseBody && <StatementRenderer model={model.elseBody} />}
-        </span>
+        </>
     );
 }

@@ -25,9 +25,9 @@ export function CallStatementC(props: CallStatementProps) {
     const { model } = props;
 
     return (
-        <span>
+        <>
             <ExpressionComponent model={model.expression} />
             <TokenComponent model={model.semicolonToken} />
-        </span>
+        </>
     );
 }

@@ -27,11 +27,11 @@ export function LetExpressionComponent(props: LetExpressionProps) {
     const { model } = props;
 
     return (
-        <span>
+        <>
             <TokenComponent model={model.letKeyword} className={"keyword"} />
             <ExpressionArrayComponent expressions={model.letVarDeclarations} />
             <TokenComponent model={model.inKeyword} className={"keyword"} />
             <ExpressionComponent model={model.expression} />
-        </span>
+        </>
     );
 }

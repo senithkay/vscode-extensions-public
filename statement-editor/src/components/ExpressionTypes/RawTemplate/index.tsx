@@ -42,10 +42,10 @@ export function RawTemplateExpressionComponent(props: RawTemplateExpressionProps
     }
 
     return (
-        <span>
+        <>
             <TokenComponent model={model.startBacktick} />
             {contentComponent}
             <TokenComponent model={model.endBacktick} />
-        </span>
+        </>
     );
 }

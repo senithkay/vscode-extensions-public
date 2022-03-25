@@ -83,7 +83,7 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
 
 
     return (
-        <span>
+        <>
             {typedBindingComponent}
             {
                 model.equalsToken && (
@@ -97,7 +97,7 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
             {/* TODO: use model.semicolonToken.isMissing when the ST interface is supporting */}
             {model.semicolonToken.position.startColumn !== model.semicolonToken.position.endColumn &&
                 <TokenComponent model={model.semicolonToken} />}
-        </span>
+        </>
     );
 }
 

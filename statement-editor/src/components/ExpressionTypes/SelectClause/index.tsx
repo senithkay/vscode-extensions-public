@@ -25,9 +25,9 @@ export function SelectClauseComponent(props: SelectClauseProps) {
     const { model } = props;
 
     return (
-        <span>
+        <>
             <TokenComponent model={model.selectKeyword} className={"keyword"} />
             <ExpressionComponent model={model.expression} />
-        </span>
+        </>
     );
 }

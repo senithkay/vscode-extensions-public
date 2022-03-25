@@ -25,12 +25,12 @@ export function ConditionalExpressionComponent(props: ConditionalExpressionProps
     const { model } = props;
 
     return (
-        <span>
+        <>
             <ExpressionComponent model={model.lhsExpression} />
             <TokenComponent model={model.questionMarkToken} className={"operator"} />
             <ExpressionComponent model={model.middleExpression} />
             <TokenComponent model={model.colonToken} className={"operator"} />
             <ExpressionComponent model={model.endExpression} />
-        </span>
+        </>
     );
 }

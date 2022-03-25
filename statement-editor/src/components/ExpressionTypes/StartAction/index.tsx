@@ -25,9 +25,9 @@ export function StartActionComponent(props: StartActionProps) {
     const { model } = props;
 
     return (
-        <span>
+        <>
             <TokenComponent model={model.startKeyword} className={"keyword"} />
             <ExpressionComponent model={model.expression} />
-        </span>
+        </>
     );
 }

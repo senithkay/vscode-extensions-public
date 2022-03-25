@@ -25,10 +25,10 @@ export function BracedExpressionComponent(props: BracedExprProps) {
     const { model } = props;
 
     return (
-        <span>
+        <>
             <TokenComponent model={model.openParen} />
             <ExpressionComponent model={model.expression} />
             <TokenComponent model={model.closeParen} />
-        </span>
+        </>
     );
 }
