@@ -48,7 +48,7 @@ function getConfig(mode, entrypointName, entrypointPath, outputPath, disableChun
             [entrypointName]: entrypointPath,
         },
         target: 'web',
-        devtool: "source-map",
+        devtool: mode === "production" ? undefined : "source-map",
         resolve: {
             extensions: [".ts", ".tsx", ".js", ".mjs"],
             alias: {
