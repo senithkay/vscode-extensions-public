@@ -396,7 +396,8 @@
                 {
                     "type": "webview",
                     "id": "ballerinaViewVariables",
-                    "name": "Variables"
+                    "name": "Variables",
+                    "when": "isNotebookVariableViewEnabled"
                 }
             ]
         },
