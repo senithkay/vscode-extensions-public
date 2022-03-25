@@ -17,9 +17,9 @@ import { DeleteButton, EditButton, ListenerIcon } from '@wso2-enterprise/balleri
 import { ListenerDeclaration, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from '../../../Context/diagram';
+import { DefaultTooltip } from '../DefaultTooltip';
 
 import "./style.scss";
-import { DefaultTooltip } from '../DefaultTooltip';
 
 export const LISTENER_MARGIN_LEFT: number = 24.5;
 export const LISTENER_PLUS_OFFSET: number = 7.5;
