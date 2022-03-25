@@ -77,6 +77,5 @@ export function getDiagnosticInfo(diagnostics: DiagramDiagnostic[]): DiagnosticM
 
 export function filterCommentsFromSource(source: string) {
     const regex = /\/\/.*\\n|[\n]/gm;
-    let ttt= source ? source.split(regex).pop().trim() : ""
-    return ttt ;
+    return source ? source.split(regex).pop().trim() : "" ;
 }

@@ -19,6 +19,7 @@ import { ListenerDeclaration, STNode } from "@wso2-enterprise/syntax-tree";
 import { Context } from '../../../Context/diagram';
 
 import "./style.scss";
+import { DefaultTooltip } from '../DefaultTooltip';
 
 export const LISTENER_MARGIN_LEFT: number = 24.5;
 export const LISTENER_PLUS_OFFSET: number = 7.5;
@@ -75,13 +76,20 @@ export function ListenerC(props: ListenerProps) {
         <tspan x="0" y="0">{typeMaxWidth ? listenerType.slice(0, 10).toUpperCase() + "..." : listenerType.toUpperCase()}</tspan>
     );
 
-    // TODO:Check the rendering issue in this tooltip
+    const listenerNameComponent = (
+        <tspan x="0" y="0">{nameMaxWidth ? listenerName.slice(0, 20) + "..." : listenerName}</tspan>
+    );
+
+    const defaultTooltip = (
+        <DefaultTooltip text={model.source.slice(1, -1)}>{listenerNameComponent}</DefaultTooltip>
+    );
 
     useEffect(() => {
         if (model && showTooltip) {
-            setTooltip(showTooltip(listenerTypeComponent, model.source.slice(1, -1)));
+            setTooltip(showTooltip(listenerNameComponent, model.source.slice(1, -1)));
         }
     }, [model]);
+
 
     return (
         <>
@@ -97,10 +105,10 @@ export function ListenerC(props: ListenerProps) {
                             <ListenerIcon />
                         </div>
                         <div className="listener-type">
-                            {tooltip ? tooltip : listenerTypeComponent}
+                            {listenerTypeComponent}
                         </div>
                         <div className="listener-name">
-                            <tspan x="0" y="0">{nameMaxWidth ? listenerName.slice(0, 20) + "..." : listenerName}</tspan>
+                            {tooltip ? tooltip : defaultTooltip}
                         </div>
                     </div>
                     {!isReadOnly && isEditable && (
