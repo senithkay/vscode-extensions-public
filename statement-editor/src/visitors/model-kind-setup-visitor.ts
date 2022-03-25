@@ -18,24 +18,24 @@ import {
     Visitor
 } from "@wso2-enterprise/syntax-tree";
 
-import { StatementEditorViewState } from "../utils/statement-editor-viewstate";
+import { ModelType, StatementEditorViewState } from "../utils/statement-editor-viewstate";
 
 class ModelKindSetupVisitor implements Visitor {
     public beginVisitTypedBindingPattern(node: TypedBindingPattern) {
-        (node.typeDescriptor.viewState as StatementEditorViewState).isTypeDescriptor = true;
-        (node.bindingPattern.viewState as StatementEditorViewState).isBindingPattern = true;
+        (node.typeDescriptor.viewState as StatementEditorViewState).modelType = ModelType.TYPE_DESCRIPTOR;
+        (node.bindingPattern.viewState as StatementEditorViewState).modelType = ModelType.BINDING_PATTERN;
     }
 
     public beginVisitTypeTestExpression(node: TypeTestExpression) {
-        (node.typeDescriptor.viewState as StatementEditorViewState).isTypeDescriptor = true;
+        (node.typeDescriptor.viewState as StatementEditorViewState).modelType = ModelType.TYPE_DESCRIPTOR;
     }
 
     public beginVisitBinaryExpression(node: BinaryExpression) {
-        (node.operator.viewState as StatementEditorViewState).isOperator = true;
+        (node.operator.viewState as StatementEditorViewState).modelType = ModelType.OPERATOR;
     }
 
     public beginVisitTypeCastExpression(node: TypeCastExpression) {
-        (node.typeCastParam.viewState as StatementEditorViewState).isTypeDescriptor = true;
+        (node.typeCastParam.viewState as StatementEditorViewState).modelType = ModelType.TYPE_DESCRIPTOR;
     }
 }
 

@@ -50,7 +50,7 @@ import {
     sendDidChange,
     sendDidOpen
 } from "../../utils/ls-utils";
-import { StatementEditorViewState } from "../../utils/statement-editor-viewstate";
+import { ModelType, StatementEditorViewState } from "../../utils/statement-editor-viewstate";
 import { StmtEditorUndoRedoManager } from '../../utils/undo-redo';
 import { EXPR_SCHEME, FILE_SCHEME } from "../InputEditor/constants";
 import { ViewContainer } from "../ViewContainer";
@@ -164,7 +164,8 @@ export function StatementEditor(props: StatementEditorProps) {
                 let lsSuggestions : SuggestionItem[] = [];
                 const currentModelViewState = currentModel.model?.viewState as StatementEditorViewState;
 
-                if (!currentModelViewState.isOperator && !currentModelViewState.isBindingPattern) {
+                if (!(currentModelViewState.modelType === ModelType.OPERATOR) &&
+                    !(currentModelViewState.modelType === ModelType.BINDING_PATTERN)) {
                     const content: string = await addStatementToTargetLine(
                         currentFile.content, targetPosition, model.source, getLangClient);
                     sendDidChange(fileURI, content, getLangClient).then();
