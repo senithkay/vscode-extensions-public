@@ -68,7 +68,7 @@ export function getDefaultSelectedPosition(modulePart: ModulePart): SelectedPosi
     }
 }
 
-export function getSelectedPosition(modulePart: ModulePart, startLine?: number, startColumn?: number): SelectedPosition {
+export function getSelectedPosition(modulePart: ModulePart, startLine: number, startColumn: number): SelectedPosition {
     if (modulePart.members && modulePart.members.length > 0) {
         let selectedNode: any;
         for (const member of modulePart.members) {
