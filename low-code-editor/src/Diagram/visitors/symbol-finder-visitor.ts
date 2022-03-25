@@ -18,6 +18,7 @@ import {
     CallStatement,
     CaptureBindingPattern,
     CheckAction,
+    EnumDeclaration,
     ForeachStatement,
     FunctionDefinition,
     ListenerDeclaration,
@@ -45,7 +46,7 @@ const variableNameReferences: Map<string, STNode[]> = new Map();
 const recordTypeDescriptions: Map<string, STNode> = new Map();
 const listeners: Map<string, STNode> = new Map();
 const moduleVariables: Map<string, STNode> = new Map();
-
+const enumDeclarations: Map<string, STNode> = new Map();
 
 class SymbolFindingVisitor implements Visitor {
     public beginVisitLocalVarDecl(node: LocalVarDecl) {
@@ -176,6 +177,15 @@ class SymbolFindingVisitor implements Visitor {
         }
     }
 
+    public beginVisitEnumDeclaration(node: EnumDeclaration) {
+        const typeData = node.typeData;
+        const typeSymbol = typeData.typeSymbol;
+        if (typeSymbol.moduleID) {
+            const enumMapKey = `${typeSymbol.moduleID.orgName}/${typeSymbol.moduleID.moduleName}:${typeSymbol.moduleID.version}:${typeSymbol.name}`
+            enumDeclarations.set(enumMapKey, node);
+        }
+    }
+
     public beginVisitResourcePathSegmentParam(node: any) {
         const type = getType(node.typeDescriptor);
 
@@ -265,7 +275,8 @@ export function getSymbolInfo(): STSymbolInfo {
         assignmentStatement,
         recordTypeDescriptions,
         listeners,
-        moduleVariables
+        moduleVariables,
+        enumDeclarations
     }
 }
 
