@@ -26,12 +26,12 @@ import "../assets/fonts/Glimer/glimer.css";
 import { UndoRedoManager } from "../Diagram/components/FormComponents/UndoRedoManager";
 import messages from '../lang/en.json';
 import { CirclePreloader } from "../PreLoader/CirclePreloader";
-import { MESSAGE_TYPE } from "../types";
+import { MESSAGE_TYPE, SelectedPosition } from "../types";
 import { init } from "../utils/sentry";
 
 import { DiagramGenErrorBoundary } from "./ErrorBoundrary";
 import {
-    getDefaultSelectedPosition, getLowcodeST, getSyntaxTree, isDeleteModificationAvailable,
+    getDefaultSelectedPosition, getLowcodeST, getSelectedPosition, getSyntaxTree, isDeleteModificationAvailable,
     isUnresolvedModulesAvailable
 } from "./generatorUtil";
 import { addPerformanceData } from "./performanceUtil";
@@ -78,6 +78,13 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     const [loaderText, setLoaderText] = React.useState<string>('Loading...');
     const [performanceData, setPerformanceData] = React.useState(undefined);
 
+    const initSelectedPosition = startColumn === 0 && startLine === 0 && syntaxTree ? // TODO: change to use undefined for unselection
+        getDefaultSelectedPosition(syntaxTree)
+        : { startLine, startColumn }
+
+    const [selectedPosition, setSelectedPosition] = React.useState(initSelectedPosition);
+
+
     React.useEffect(() => {
         (async () => {
             try {
@@ -98,6 +105,9 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                 // Add performance data
                 await addPerfData(vistedSyntaxTree);
 
+                setSelectedPosition(startColumn === 0 && startLine === 0 ?
+                    getDefaultSelectedPosition(vistedSyntaxTree as ModulePart)
+                    : { startLine, startColumn });
             } catch (err) {
                 throw err;
             }
@@ -227,10 +237,6 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     // on top of typed context
     const missingProps: any = {};
 
-    const selectedPosition = startColumn === 0 && startLine === 0 ? // TODO: change to use undefined for unselection
-        getDefaultSelectedPosition(syntaxTree)
-        : { startLine, startColumn }
-
     return (
         <MuiThemeProvider theme={theme}>
             <div className={classes.lowCodeContainer}>
@@ -305,6 +311,18 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                                     setModulePullInProgress(false);
                                                 }
                                             }
+
+
+                                            let newActivePosition: SelectedPosition = { ...selectedPosition };
+                                            for (const mutation of mutations) {
+                                                if (mutation.type.toLowerCase() !== "import" && mutation.type.toLowerCase() !== "delete") {
+                                                    newActivePosition = getSelectedPosition(vistedSyntaxTree as ModulePart, mutation.startLine, mutation.startColumn);
+                                                    break;
+                                                }
+                                            }
+                                            setSelectedPosition(newActivePosition.startColumn === 0 && newActivePosition.startLine === 0 && vistedSyntaxTree
+                                                ? getDefaultSelectedPosition(vistedSyntaxTree as ModulePart)
+                                                : newActivePosition);
                                         } else {
                                             // TODO show error
                                         }

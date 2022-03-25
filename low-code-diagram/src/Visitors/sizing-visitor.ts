@@ -1043,15 +1043,18 @@ export class SizingVisitor implements Visitor {
         // as they grow to the right.
         let diffIfWidthWithHeadWidth = 0;
         let diffIfWidthWithHeadWidthLeft = 0;
-        if (viewState.headIf.w < ifBodyViewState.bBox.w) {
+        if (viewState.headIf.rw < ifBodyViewState.bBox.rw) {
             diffIfWidthWithHeadWidth = (ifBodyViewState.bBox.rw - viewState.headIf.rw);
+        }
+
+        if (viewState.headIf.lw < ifBodyViewState.bBox.lw) {
             diffIfWidthWithHeadWidthLeft = (ifBodyViewState.bBox.lw - viewState.headIf.lw);
         }
 
         if (node.elseBody) {
             if (node.elseBody.elseBody.kind === "BlockStatement") {
                 const elseStmt: BlockStatement = node.elseBody.elseBody as BlockStatement;
-                const elseViewState: ElseViewState = node.elseBody.elseBody.viewState as ElseViewState;
+                const elseViewState: ElseViewState = elseStmt.viewState as ElseViewState;
 
                 viewState.childElseViewState = elseViewState;
 
@@ -1274,9 +1277,10 @@ export class SizingVisitor implements Visitor {
 
                 viewState.bBox.h = viewState.dataProcess.h;
 
-                viewState.bBox.w = viewState.dataProcess.w + viewState.variableName.w + viewState.variableAssignment.w;
                 viewState.bBox.lw = viewState.dataProcess.lw + viewState.variableName.w;
                 viewState.bBox.rw = viewState.dataProcess.rw + viewState.variableAssignment.w;
+                viewState.bBox.w = viewState.bBox.lw + viewState.bBox.rw;
+
                 // todo: commented because this is always true
                 // if (STKindChecker.isLocalVarDecl) {
                 //     const varDeclatarion = node as LocalVarDecl
