@@ -15,6 +15,7 @@ import React, { useContext, useState } from "react";
 
 import { Typography } from "@material-ui/core";
 import { ComponentExpandButton } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
+import { NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import ActiveArray from "../../../../../../assets/icons/ActiveArray";
 import ActiveClosed from "../../../../../../assets/icons/ActiveClosed";
@@ -27,10 +28,9 @@ import InactiveClosed from "../../../../../../assets/icons/InactiveClosed";
 import InactiveOptional from "../../../../../../assets/icons/InactiveOptional";
 import InactivePublic from "../../../../../../assets/icons/InactivePublic";
 import { Context, FormState } from "../../../../../../Contexts/RecordEditor";
-import { FormTextInput } from "../../../FormFieldComponents/TextField/FormTextInput";
+import { VariableNameInput } from "../../Components/VariableNameInput";
 import { recordStyles } from "../style";
 import { RecordModel, SimpleField } from "../types";
-import { genRecordName } from "../utils";
 
 export interface RecordHeaderProps {
     recordModel: RecordModel;
@@ -40,22 +40,21 @@ export interface RecordHeaderProps {
     toggleRecordExpand: () => void;
     setIsRecordEditInProgress: (isEditInProgress: boolean) => void;
     onEditRecord: () => void;
+    recordName: string;
+    isRecordFocued: boolean;
+    recordRevertFocus: () => void
 }
 
 export function RecordHeader(props: RecordHeaderProps) {
     const { recordModel, parentRecordModel, recordExpanded, isRecordEditInProgress, toggleRecordExpand,
-            setIsRecordEditInProgress, onEditRecord } = props;
+            setIsRecordEditInProgress, onEditRecord, recordName, isRecordFocued, recordRevertFocus } = props;
 
     const recordClasses = recordStyles();
 
     const { state, callBacks } = useContext(Context);
 
-    const [recordNameError, setRecordNameError] = useState<string>("");
-    const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
-
     const handleIsClosedChange = () => {
         state.currentRecord.isActive = false;
-
         recordModel.isClosed = !recordModel.isClosed;
         recordModel.isActive = true;
         callBacks.onUpdateCurrentRecord(recordModel);
@@ -64,7 +63,6 @@ export function RecordHeader(props: RecordHeaderProps) {
 
     const handleIsPublicChange = () => {
         state.currentRecord.isActive = false;
-
         recordModel.isPublic = !recordModel.isPublic;
         recordModel.isActive = true;
         callBacks.onUpdateCurrentRecord(recordModel);
@@ -73,7 +71,6 @@ export function RecordHeader(props: RecordHeaderProps) {
 
     const handleIsArrayChange = () => {
         state.currentRecord.isActive = false;
-
         recordModel.isArray = !recordModel.isArray;
         recordModel.isActive = true;
         callBacks.onUpdateCurrentRecord(recordModel);
@@ -82,7 +79,6 @@ export function RecordHeader(props: RecordHeaderProps) {
 
     const handleOptionalChange = () => {
         state.currentRecord.isActive = false;
-
         recordModel.isOptional = !recordModel.isOptional;
         recordModel.isActive = true;
         callBacks.onUpdateCurrentRecord(recordModel);
@@ -103,51 +99,21 @@ export function RecordHeader(props: RecordHeaderProps) {
         }
     };
 
-    const getNewField = () : SimpleField => {
-        const newField: SimpleField = {type: "", name: "", isFieldOptional: false, isActive: true,
-                                       isNameInvalid: false, isEditInProgress: true};
-        recordModel.fields.push(newField);
-        return newField;
+    const handleRecordBlur = () => {
+        state.isEditorInvalid ? setIsRecordEditInProgress(true) : setIsRecordEditInProgress(false)
     };
 
-    const handleKeyUp = (event: any) => {
-        if (event.key === 'Enter') {
-            if (!event.target.value) {
-                recordModel.name = genRecordName("Record", []);
-                state.currentField = getNewField();
-                callBacks.onUpdateCurrentField(state.currentField);
-                setIsRecordEditInProgress(false);
-                setRecordNameError("");
-                callBacks.onUpdateRecordSelection(false);
-                callBacks.onChangeFormState(FormState.UPDATE_FIELD);
-                callBacks.updateEditorValidity(false);
-            } else if (nameRegex.test(event.target.value)) {
-                state.currentField = getNewField();
-                callBacks.onUpdateCurrentField(state.currentField);
-                setIsRecordEditInProgress(false);
-                setRecordNameError("");
-                callBacks.onUpdateRecordSelection(false);
-                callBacks.onChangeFormState(FormState.UPDATE_FIELD);
-                callBacks.updateEditorValidity(false);
-            } else {
-                callBacks.updateEditorValidity(true);
-                setRecordNameError("Invalid name");
-            }
-        } else {
-            state.currentRecord.name = event.target.value;
-            callBacks.onChangeFormState(FormState.EDIT_RECORD_FORM);
-        }
+    const validateRecordName = (fieldName: string, isInValid: boolean) => {
+        callBacks.updateEditorValidity(isInValid);
+    };
+    const handleOnChange = (value: string) => {
+        state.currentRecord.name = value;
+        callBacks.onChangeFormState(FormState.EDIT_RECORD_FORM);
         callBacks.onUpdateModel(state.recordModel);
-    };
-
-    const handleOnBlur = (event: any) => {
-        if (!event.target.value) {
-            recordModel.name = genRecordName("Record", []);
-            callBacks.onUpdateModel(state.recordModel);
+        if (state.currentRecord.name === "") {
+            callBacks.updateEditorValidity(false);
         }
-        setIsRecordEditInProgress(false);
-        callBacks.onUpdateRecordSelection(false);
-    };
+    }
 
     const handleRecordEdit = () => {
         onEditRecord();
@@ -157,7 +123,8 @@ export function RecordHeader(props: RecordHeaderProps) {
     const recordTypeNVisibility = `${recordModel.isTypeDefinition ? `${accessModifier} type` : ""}`;
     const openBraceTokens = `{ ${recordModel.isClosed ? "|" : ""}`;
     const typeDefName = `${recordModel.isTypeDefinition ? `${recordModel.name ? recordModel.name : ""}` : ""}`;
-
+    const recordNamePosition: NodePosition = (state.sourceModel && STKindChecker.isTypeDefinition(state.sourceModel)) ?
+        state.sourceModel?.typeName?.position : state.targetPosition;
     return (
         <div data-testid={recordModel.name}>
             <div
@@ -178,19 +145,21 @@ export function RecordHeader(props: RecordHeaderProps) {
                             </Typography>
                         )}
                         {recordModel.isTypeDefinition && isRecordEditInProgress && (
-                            <div className={recordClasses.typeTextFieldWrapper}>
-                                <FormTextInput
-                                    dataTestId="record-name"
-                                    customProps={{
-                                        isErrored: false,
-                                        focused: true
+                            <div className={recordClasses.typeTextFieldWrapper} onBlur={handleRecordBlur}>
+                                <VariableNameInput
+                                    displayName="Record name"
+                                    value={recordName}
+                                    isEdit={!!state.sourceModel}
+                                    onValueChange={handleOnChange}
+                                    validateExpression={validateRecordName}
+                                    position={recordNamePosition}
+                                    hideLabel={true}
+                                    overrideTemplate={{
+                                        defaultCodeSnippet: 'type  record',
+                                        targetColumn: 6
                                     }}
-                                    defaultValue={typeDefName}
-                                    onKeyUp={handleKeyUp}
-                                    onBlur={handleOnBlur}
-                                    errorMessage={""}
-                                    placeholder={"Record name"}
-                                    size="small"
+                                    focus={isRecordFocued}
+                                    revertFocus={recordRevertFocus}
                                 />
                             </div>
                         )}
@@ -307,11 +276,11 @@ export function RecordHeader(props: RecordHeaderProps) {
                                 </>
                             )}
                             <div className={recordClasses.actionBtnWrapper}>
-                                <EditButton onClick={handleRecordEdit}/>
+                                <EditButton onClick={handleRecordEdit} />
                             </div>
                             {!recordModel.isTypeDefinition && (
                                 <div className={recordClasses.actionBtnWrapper}>
-                                    <DeleteButton onClick={handleRecordDelete}/>
+                                    <DeleteButton onClick={handleRecordDelete} />
                                 </div>
                             )}
                         </div>
