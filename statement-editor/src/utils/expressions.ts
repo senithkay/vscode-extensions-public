@@ -11,6 +11,8 @@
  * associated services.
  */
 
+import { ModelType } from "./statement-editor-viewstate";
+
 export interface Expression {
     name: string;
     template: string;
@@ -21,6 +23,7 @@ export interface Expression {
 export interface ExpressionGroup {
     name: string;
     expressions: Expression[];
+    relatedModelType: ModelType;
 }
 
 export const EXPR_PLACE_HOLDER = "EXPRESSION";
@@ -61,7 +64,8 @@ const templates: ExpressionGroup = {
             template: "`value`",
             example: "`value`"
         }
-    ]
+    ],
+    relatedModelType: ModelType.EXPRESSION
 }
 //     6.7 Structural constructors
 //         6.7.1 List constructor
@@ -83,7 +87,8 @@ const structuralConstructors: ExpressionGroup = {
             template: ` table [ { key: value } ]`,
             example: "table [ { key: value } ]"
         }
-    ]
+    ],
+    relatedModelType: ModelType.EXPRESSION
 }
 //     6.8 Object construction
 //         6.8.1 Object constructor
@@ -112,7 +117,8 @@ const typeofEx: ExpressionGroup = {
             template: `typeof ${SELECTED_EXPRESSION}`,
             example: "typeof Es"
         }
-    ]
+    ],
+    relatedModelType: ModelType.EXPRESSION
 }
 //     6.20 Type cast expression
 const typeCastEx: ExpressionGroup = {
@@ -123,7 +129,8 @@ const typeCastEx: ExpressionGroup = {
             template: `<${TYPE_DESC_PLACE_HOLDER}>${SELECTED_EXPRESSION}`,
             example: "<type>Es"
         }
-    ]
+    ],
+    relatedModelType: ModelType.EXPRESSION
 }
 //     6.22 Unary expression
 //         6.22.1 Unary numeric expression
@@ -148,7 +155,8 @@ const unary: ExpressionGroup = {
             template: `! ${SELECTED_EXPRESSION}`,
             example: "! Es"
         }
-    ]
+    ],
+    relatedModelType: ModelType.EXPRESSION
 }
 //     6.24 Additive expression
 //     6.23 Multiplicative expression
@@ -176,7 +184,8 @@ const operators: ExpressionGroup = {
             template: ` ${SELECTED_EXPRESSION} % ${EXPR_PLACE_HOLDER}`,
             example: "Es % Ex"
         },
-    ]
+    ],
+    relatedModelType: ModelType.EXPRESSION
 }
 //     6.25 Shift expression
 const shift: ExpressionGroup = {
@@ -195,7 +204,8 @@ const shift: ExpressionGroup = {
             template: ` ${SELECTED_EXPRESSION} >>> ${EXPR_PLACE_HOLDER}`,
             example: "Es >>> Ex"
         }
-    ]
+    ],
+    relatedModelType: ModelType.EXPRESSION
 }
 //     6.26 Range expression
 const range: ExpressionGroup = {
@@ -210,7 +220,8 @@ const range: ExpressionGroup = {
             template: ` ${SELECTED_EXPRESSION} ..< ${EXPR_PLACE_HOLDER}`,
             example: "Es ..< Ex"
         }
-    ]
+    ],
+    relatedModelType: ModelType.EXPRESSION
 }
 //     6.27 Relational expression
 const relational: ExpressionGroup = {
@@ -233,7 +244,8 @@ const relational: ExpressionGroup = {
             template: ` ${SELECTED_EXPRESSION} >= ${EXPR_PLACE_HOLDER}`,
             example: "Es >= En"
         }
-    ]
+    ],
+    relatedModelType: ModelType.EXPRESSION
 }
 //     6.28 Type test expression
 const typeTest: ExpressionGroup = {
@@ -248,7 +260,8 @@ const typeTest: ExpressionGroup = {
             template: ` ${SELECTED_EXPRESSION} !is ${TYPE_DESC_PLACE_HOLDER}`,
             example: "Es !is Ex"
         }
-    ]
+    ],
+    relatedModelType: ModelType.EXPRESSION
 }
 //     6.29 Equality expression
 const equality: ExpressionGroup = {
@@ -263,7 +276,8 @@ const equality: ExpressionGroup = {
             template: ` ${SELECTED_EXPRESSION} != ${EXPR_PLACE_HOLDER}`,
             example: "Es != Ex"
         }
-    ]
+    ],
+    relatedModelType: ModelType.EXPRESSION
 }
 //     6.30 Binary bitwise expression
 const binaryBitwise: ExpressionGroup = {
@@ -282,7 +296,8 @@ const binaryBitwise: ExpressionGroup = {
             template: ` ${SELECTED_EXPRESSION} ^ ${EXPR_PLACE_HOLDER}`,
             example: "Es ^ Ex"
         }
-    ]
+    ],
+    relatedModelType: ModelType.EXPRESSION
 }
 //     6.31 Logical expression
 const logical: ExpressionGroup = {
@@ -297,7 +312,8 @@ const logical: ExpressionGroup = {
             template: ` ${SELECTED_EXPRESSION} || ${EXPR_PLACE_HOLDER}`,
             example: "Es || Ex"
         }
-    ]
+    ],
+    relatedModelType: ModelType.EXPRESSION
 }
 //     6.32 Conditional expression
 const conditional: ExpressionGroup = {
@@ -312,7 +328,8 @@ const conditional: ExpressionGroup = {
             template: ` ${SELECTED_EXPRESSION} ?: R`,
             example: "L ?: R"
         }
-    ]
+    ],
+    relatedModelType: ModelType.EXPRESSION
 }
 //     6.33 Checking expression
 const checking: ExpressionGroup = {
@@ -327,7 +344,8 @@ const checking: ExpressionGroup = {
             template: `checkpanic ${SELECTED_EXPRESSION}`,
             example: "checkpanic Es"
         }
-    ]
+    ],
+    relatedModelType: ModelType.EXPRESSION
 }
 //     6.34 Trap expression
 const trap: ExpressionGroup = {
@@ -338,7 +356,8 @@ const trap: ExpressionGroup = {
             template: `trap ${SELECTED_EXPRESSION}`,
             example: "trap Es"
         }
-    ]
+    ],
+    relatedModelType: ModelType.EXPRESSION
 }
 //     6.35 Query expression
 //         6.35.1 From clause
