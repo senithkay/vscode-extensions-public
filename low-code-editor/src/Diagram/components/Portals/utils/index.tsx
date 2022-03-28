@@ -602,7 +602,7 @@ export function getAllVariablesForAi(symbolInfo: STSymbolInfo): { [key: string]:
             }
         }
     });
-    symbolInfo.enumDeclarations.forEach((variableNode: STNode, type: string) => {
+    symbolInfo.enums.forEach((variableNode: STNode, type: string) => {
         if (STKindChecker.isEnumDeclaration(variableNode) && !variableCollection[type]) {
             variableCollection[type] = {
                 "type": type,

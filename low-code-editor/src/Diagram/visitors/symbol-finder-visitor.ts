@@ -46,7 +46,7 @@ const variableNameReferences: Map<string, STNode[]> = new Map();
 const recordTypeDescriptions: Map<string, STNode> = new Map();
 const listeners: Map<string, STNode> = new Map();
 const moduleVariables: Map<string, STNode> = new Map();
-const enumDeclarations: Map<string, STNode> = new Map();
+const enums: Map<string, STNode> = new Map();
 
 class SymbolFindingVisitor implements Visitor {
     public beginVisitLocalVarDecl(node: LocalVarDecl) {
@@ -182,7 +182,7 @@ class SymbolFindingVisitor implements Visitor {
         const typeSymbol = typeData.typeSymbol;
         if (typeSymbol.moduleID) {
             const enumMapKey = `${typeSymbol.moduleID.orgName}/${typeSymbol.moduleID.moduleName}:${typeSymbol.moduleID.version}:${typeSymbol.name}`
-            enumDeclarations.set(enumMapKey, node);
+            enums.set(enumMapKey, node);
         }
     }
 
@@ -276,7 +276,7 @@ export function getSymbolInfo(): STSymbolInfo {
         recordTypeDescriptions,
         listeners,
         moduleVariables,
-        enumDeclarations
+        enums
     }
 }
 

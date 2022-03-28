@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { ReactNode, useContext, useEffect, useState } from "react";
+import React, { ReactNode, useContext, useEffect, useMemo, useState } from "react";
 import { useIntl } from "react-intl";
 
 import { Typography } from "@material-ui/core";
@@ -60,7 +60,7 @@ export function EnumField(props: CodePanelProps) {
     const [isEnumFocus, setIsEnumFocus] = useState(true);
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
 
-    const allEnumVariables = getAllVariables(stSymbolInfo)
+    const allEnumVariables = useMemo(() => getAllVariables(stSymbolInfo), [stSymbolInfo])
     const enumNames: string[] = [];
     allEnumVariables.forEach((variable) => {
         const data = variable.split(':').pop();
@@ -165,7 +165,7 @@ export function EnumField(props: CodePanelProps) {
     };
 
     const handleEnumBlur = () => {
-        state.isEditorInvalid ? setIsEnumEditInProgress(true) : setIsEnumEditInProgress(false);
+        setIsEnumEditInProgress(state.isEditorInvalid)
     }
 
     const handleRevertFocus = () => {

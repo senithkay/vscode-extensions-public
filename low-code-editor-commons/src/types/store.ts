@@ -107,7 +107,7 @@ export interface STSymbolInfo {
     recordTypeDescriptions: Map<string, STNode>;
     listeners: Map<string, STNode>;
     moduleVariables: Map<string, STNode>;
-    enumDeclarations: Map<string, STNode>;
+    enums: Map<string, STNode>;
 }
 
 export interface ComponentInitCoordinates {

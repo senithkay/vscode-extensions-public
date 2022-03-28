@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { ReactNode, useContext, useEffect, useState } from "react";
+import React, { ReactNode, useContext, useEffect, useMemo, useState } from "react";
 import { useIntl } from "react-intl";
 
 import { Typography } from "@material-ui/core";
@@ -51,7 +51,7 @@ export function RecordField(props: CodePanelProps) {
     const { state, callBacks } = useContext(Context);
     const { props: { stSymbolInfo } } = useContext(DiagramContext);
 
-    const allRecodVariables = getAllVariables(stSymbolInfo);
+    const allRecodVariables = useMemo(() => getAllVariables(stSymbolInfo), [stSymbolInfo]);
     const recordNames: string[] = [];
     allRecodVariables.forEach((variable) => {
         const data = variable.split(':').pop();
