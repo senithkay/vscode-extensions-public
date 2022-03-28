@@ -101,7 +101,8 @@ export function ExpressionEditorMap(props: FormElementProps<ExpressionEditorProp
     const [valueEditorContent, setValueEditorContent] = useState("");
     // We can safely get 0'th element since currently map constraint type
     // supports single(union/record etc..) field only.
-    const valueEditorType: string = transformFormFieldTypeToString(model?.fields?.[0]);
+    const fields = (model?.paramType && model?.paramType?.typeName) ?  model?.paramType?.typeName : model?.fields?.[0];
+    const valueEditorType: string = transformFormFieldTypeToString(fields);
 
     const handleValueEditorValidation = (_field: string, isInvalid: boolean) => {
         if (valueEditorContent === "") {
