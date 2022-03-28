@@ -12,7 +12,7 @@ describe('edit and delete google-sheet connector', () => {
   })
 
   it('edit a google-sheet connector and save', () => {
-    cy.wait(10000);
+    cy.exec('bal pull ballerinax/googleapis.sheets');
     Canvas
       .getConnector('gsheet')
       .clickEdit();
