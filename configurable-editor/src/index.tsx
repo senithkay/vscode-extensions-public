@@ -22,7 +22,7 @@ import ReactDOM from "react-dom";
 
 import ConfigEditor from "./components/ConfigEditor";
 import { ConfigForm } from "./components/ConfigForm";
-import { ConfigObjectProps } from "./components/ConfigObject";
+import { ConfigObjectProps } from "./components/ConfigRecord";
 import { ConfigSchema } from "./components/model";
 export { ConfigForm, ConfigObjectProps, ConfigSchema };
 

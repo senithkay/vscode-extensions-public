@@ -2,7 +2,7 @@ import React from "react";
 
 import ConfigEditor from "../components/ConfigEditor";
 import ConfigForm from "../components/ConfigForm";
-import { ConfigObjectProps } from "../components/ConfigObject";
+import { ConfigObjectProps } from "../components/ConfigRecord";
 import { ConfigSchema } from "../components/model";
 
 import configSchema from "./data/config-schema.json";

@@ -39,7 +39,7 @@ export interface ConfigObjectProps {
 
 }
 
-export const GetConfigObject = (configObjectProps: ConfigObjectProps) => {
+export const ConfigRecord = (configObjectProps: ConfigObjectProps) => {
     const classes = useStyles();
     const [expanded, setExpanded] = useState(configObjectProps.isRequired);
 
@@ -70,7 +70,7 @@ export const GetConfigObject = (configObjectProps: ConfigObjectProps) => {
                     </Box>
 
                     <Collapse in={expanded} timeout="auto" unmountOnExit={true}>
-                        <ConfigObject {...configObjectProps.properties} />
+                        <ConfigRecordInput {...configObjectProps.properties} />
                     </Collapse>
                 </CardContent>
             </Card>
@@ -78,7 +78,7 @@ export const GetConfigObject = (configObjectProps: ConfigObjectProps) => {
     );
 };
 
-const ConfigObject = (
+const ConfigRecordInput = (
     configProperties: Array<ConfigElementProps | ConfigObjectProps>,
 ): ReactElement => {
     const classes = useStyles();
@@ -97,7 +97,7 @@ const ConfigObject = (
             returnElement.push(
                 (
                     <div key={configProperties[key].id}>
-                        <GetConfigObject {...configProperties[key] as ConfigObjectProps} />
+                        <ConfigRecord {...configProperties[key] as ConfigObjectProps} />
                     </div>
                 ),
             );
@@ -106,4 +106,4 @@ const ConfigObject = (
     return <>{returnElement}</>;
 };
 
-export default ConfigObject;
+export default ConfigRecord;

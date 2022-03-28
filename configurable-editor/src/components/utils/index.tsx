@@ -23,7 +23,7 @@ import { __String } from "typescript";
 
 import { ConfigElementProps, setConfigElementProps } from "../ConfigElement";
 import { ConfigMapProps, setConfigMapProps } from "../ConfigMap";
-import { ConfigObjectProps } from "../ConfigObject";
+import { ConfigObjectProps } from "../ConfigRecord";
 import { ConfigType, ConfigValue, MetaData, SchemaConstants } from "../model";
 import { useStyles } from "../style";
 

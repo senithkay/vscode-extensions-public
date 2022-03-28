@@ -22,12 +22,13 @@ import React, { ReactElement, useState } from "react";
 import { Box, Card, CardContent, Typography } from "@material-ui/core";
 
 import ConfigElement, { ConfigElementProps } from "./ConfigElement";
+import { ConfigObjectProps, ConfigRecord } from "./ConfigRecord";
 import { AddInputButton } from "./elements/AddInputButton";
 import OutlinedLabel from "./elements/OutlinedLabel";
 import { TextFieldInput } from "./elements/TextFieldInput";
 import { ConfigType, SchemaConstants } from "./model";
 import { useStyles } from "./style";
-import { getDescription, getType } from "./utils";
+import { getConfigProperties, getDescription, getType } from "./utils";
 
 /**
  * A high level config property which can contain configurable maps.
@@ -77,7 +78,7 @@ export const ConfigMap = (configMapProps: ConfigMapProps): ReactElement => {
 
     const types: string[] = getMapType(configMapProps.additionalProperties);
     const typeLabel: string = getMapTypeLabel(types);
-    if (types.length > 1 || types[0] === ConfigType.RECORD) {
+    if (types.length > 1) {
         return(
             <Box className={classes.innerBoxCard}>
                 <Card variant="outlined">
@@ -152,17 +153,27 @@ export const ConfigMap = (configMapProps: ConfigMapProps): ReactElement => {
     };
 
     const getConfigElement = (id: string) => {
-        const configElementProps: ConfigElementProps = {
-            id,
-            isArray: false,
-            isRequired: false,
-            name: configMapProps.name,
-            type: getType(types[0]),
-        };
-
-        return(
-            <ConfigElement {...configElementProps} />
-        );
+        const elementType = getType(types[0]);
+        if (elementType === ConfigType.RECORD) {
+            const configObjectProps: ConfigObjectProps = getConfigProperties(
+                configMapProps.additionalProperties,
+            );
+            configObjectProps.name = "Value";
+            return(
+                <ConfigRecord {...configObjectProps as ConfigObjectProps} />
+            );
+        } else {
+            const configElementProps: ConfigElementProps = {
+                id,
+                isArray: false,
+                isRequired: false,
+                name: configMapProps.name,
+                type: elementType,
+            };
+            return(
+                <ConfigElement {...configElementProps} />
+            );
+        }
     };
 
     return (

@@ -22,7 +22,7 @@ import { Box, Button, CardActions } from "@material-ui/core";
 
 import { ConfigElementProps, getConfigElement } from "./ConfigElement";
 import ConfigMap, { ConfigMapProps } from "./ConfigMap";
-import { ConfigObjectProps, GetConfigObject } from "./ConfigObject";
+import ConfigRecord, { ConfigObjectProps } from "./ConfigRecord";
 import ButtonContainer from "./elements/ButtonContainer";
 import {
     ConfigSchema,
@@ -144,7 +144,7 @@ export const ConfigForm = ({
         } else {
             return (
                 <div key={configProperty.id}>
-                    <GetConfigObject {...configProperty as ConfigObjectProps} />
+                    <ConfigRecord {...configProperty as ConfigObjectProps} />
                 </div>
             );
         }
