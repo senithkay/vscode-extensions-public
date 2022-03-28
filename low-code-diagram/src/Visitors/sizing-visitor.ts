@@ -642,50 +642,51 @@ export class SizingVisitor implements Visitor {
         matchedStatements.forEach(matchedPair => {
             let sendHeight = 0;
             let receiveHeight = 0;
+            let sourceBody;
+            let targetBody;
 
             if (matchedPair.sourceName === DEFAULT_WORKER_NAME) {
-                let index = 0;
-                while (matchedPair.sourceIndex !== index) {
-                    const viewState: ViewState = mainWorkerBody.statements[index].viewState as ViewState;
-                    sendHeight += viewState.getHeight();
-                    index++;
-                }
+                sourceBody = mainWorkerBody;
             } else {
                 const workerDecl = this.workerMap.get(matchedPair.sourceName) as NamedWorkerDeclaration;
-                let index = 0;
-                while (matchedPair.sourceIndex !== index) {
-                    const viewState: ViewState = workerDecl.workerBody.statements[index].viewState as ViewState;
-                    sendHeight += viewState.getHeight();
-                    index++;
-                }
-
+                sourceBody = workerDecl.workerBody;
             }
 
             if (matchedPair.targetName === DEFAULT_WORKER_NAME) {
-                let index = 0;
-                while (matchedPair.targetIndex !== index) {
-                    const viewState: ViewState = mainWorkerBody.statements[index].viewState as ViewState;
-                    receiveHeight += viewState.getHeight();
-                    index++;
-                }
+                targetBody = mainWorkerBody;
             } else {
                 const workerDecl = this.workerMap.get(matchedPair.targetName) as NamedWorkerDeclaration;
-                let index = 0;
-                while (matchedPair.targetIndex !== index) {
-                    const viewState: ViewState = workerDecl.workerBody.statements[index].viewState as ViewState;
-                    receiveHeight += viewState.getHeight();
-                    index++;
-                }
+                targetBody = workerDecl.workerBody;
             }
+
+            sendHeight = this.calculateHeightUptoIndex(matchedPair.sourceIndex, sourceBody);
+            receiveHeight = this.calculateHeightUptoIndex(matchedPair.targetIndex, targetBody);
 
             if (sendHeight > receiveHeight) {
                 const targetVS = matchedPair.targetViewState as StatementViewState;
-                targetVS.bBox.offsetFromTop += (sendHeight - receiveHeight);
+                targetVS.bBox.offsetFromTop = DefaultConfig.offSet + (sendHeight - receiveHeight);
             } else {
                 const sourceVS = matchedPair.sourceViewState as StatementViewState;
-                sourceVS.bBox.offsetFromTop += (receiveHeight - sendHeight);
+                sourceVS.bBox.offsetFromTop = DefaultConfig.offSet + (receiveHeight - sendHeight);
             }
         });
+    }
+
+    private calculateHeightUptoIndex(targetIndex: number, workerBody: BlockStatement) {
+        let index = 0;
+        let height = 0;
+        const workerBodyVS = workerBody.viewState as BlockViewState;
+        while (targetIndex !== index) {
+            const viewState: ViewState = workerBody.statements[index].viewState as ViewState;
+            height += viewState.getHeight();
+            index++;
+        }
+
+        if (workerBodyVS.draft && workerBodyVS.draft[0] <= targetIndex) {
+            height += workerBodyVS.draft[1].getHeight();
+        }
+
+        return height;
     }
 
     public endVisitObjectMethodDefinition(node: ObjectMethodDefinition) {
@@ -1383,11 +1384,12 @@ export class SizingVisitor implements Visitor {
             const draft = blockViewState.draft[1];
             if (draft) {
                 const { h, w } = getDraftComponentSizes(draft.type, draft.subType);
-                draft.bBox.h = draft.bBox.offsetFromTop + h + draft.bBox.offsetFromBottom
+                draft.bBox.h = h;
+                draft.bBox.offsetFromBottom = draft.bBox.offsetFromTop = DefaultConfig.offSet;
                 draft.bBox.w = w;
                 draft.bBox.lw = w / 2;
                 draft.bBox.rw = w / 2;
-                height += draft.bBox.h;
+                height += draft.getHeight();
                 if (width < draft.bBox.w) {
                     width = draft.bBox.w;
                 }
@@ -1675,12 +1677,14 @@ export class SizingVisitor implements Visitor {
                 const draft = blockViewState.draft[1];
                 if (draft) {
                     const { h, w } = getDraftComponentSizes(draft.type, draft.subType);
-                    draft.bBox.h = draft.bBox.offsetFromTop + h + draft.bBox.offsetFromBottom;
+                    draft.bBox.h = h;
+                    draft.bBox.offsetFromTop = draft.bBox.offsetFromBottom = DefaultConfig.offSet
                     draft.bBox.lw = w / 2;
                     draft.bBox.rw = w / 2;
                     draft.bBox.w = draft.bBox.lw + draft.bBox.rw;
 
-                    height += draft.bBox.h;
+                    height += draft.getHeight();
+
                     if (width < draft.bBox.w) {
                         width = draft.bBox.w;
                     }
