@@ -221,17 +221,12 @@ export function addExpressionToTargetPosition(statementModel: STNode, currentPos
     const startColumn = currentPosition.startColumn;
     const endColumn = currentPosition.endColumn;
 
-    if (statementModel && STKindChecker.isIfElseStatement(statementModel)) {
-        const splitStatement: string[] = statementModel.source.split(/\n/g) || [];
+    const splitStatement: string[] = statementModel.source.split(/\n/g) || [];
 
-        splitStatement.splice(startLine, 1, splitStatement[startLine].slice(0, startColumn) +
-            newValue + splitStatement[startLine].slice(endColumn || startColumn));
+    splitStatement.splice(startLine, 1, splitStatement[startLine].slice(0, startColumn) +
+        newValue + splitStatement[startLine].slice(endColumn || startColumn));
 
-        return splitStatement.join('\n');
-    }
-
-    const newStatement =  statementModel.source.slice(0, startColumn) + newValue +
-        statementModel.source.slice(endColumn || startColumn);
+    const newStatement = splitStatement.join('\n');
 
     return newStatement.slice(-1) !== ';' ? newStatement + ';' : newStatement;
 }
