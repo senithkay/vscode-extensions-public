@@ -295,6 +295,9 @@ export class InitVisitor implements Visitor {
 
     public beginVisitIfElseStatement(node: IfElseStatement, parent?: STNode) {
         node.viewState = new IfViewState();
+        if (!STKindChecker.isElseBlock(parent)){
+            (node.viewState as IfViewState).isMainIfBody = true;
+        }
         if (node.elseBody) {
             if (node.elseBody.elseBody?.kind === "BlockStatement") {
                 const elseBlock: BlockStatement = node.elseBody.elseBody as BlockStatement;
