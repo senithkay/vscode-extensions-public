@@ -16,12 +16,13 @@
  * under the License.
  *
  */
+import React from "react";
 
 import { Box, Typography } from "@material-ui/core";
-import React from "react";
 import { __String } from "typescript";
+
 import { ConfigElementProps, setConfigElementProps } from "../ConfigElement";
-import ConfigMap, { ConfigMapProps, setConfigMapProps } from "../ConfigMap";
+import { ConfigMapProps, setConfigMapProps } from "../ConfigMap";
 import { ConfigObjectProps } from "../ConfigObject";
 import { ConfigType, ConfigValue, MetaData, SchemaConstants } from "../model";
 import { useStyles } from "../style";
@@ -40,7 +41,7 @@ export function instanceOfConfigElement(data: any): boolean {
  * @param data The object that needs to be evaluated.
  * @returns    A boolean value if the object is an `ConfigMap` or not.
  */
- export function instanceOfConfigMap(data: any): boolean {
+export function instanceOfConfigMap(data: any): boolean {
     return data.properties === undefined && data.additionalProperties !== undefined;
 }
 

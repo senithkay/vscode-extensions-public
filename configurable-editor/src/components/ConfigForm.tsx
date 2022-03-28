@@ -21,6 +21,7 @@ import React, { useState } from "react";
 import { Box, Button, CardActions } from "@material-ui/core";
 
 import { ConfigElementProps, getConfigElement } from "./ConfigElement";
+import ConfigMap, { ConfigMapProps } from "./ConfigMap";
 import { ConfigObjectProps, GetConfigObject } from "./ConfigObject";
 import ButtonContainer from "./elements/ButtonContainer";
 import {
@@ -38,7 +39,6 @@ import {
     setExistingValues,
     updateConfigObjectProps,
 } from "./utils";
-import ConfigMap, { ConfigMapProps } from "./ConfigMap";
 
 let metaData: MetaData = null;
 

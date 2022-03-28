@@ -39,7 +39,7 @@ export interface ConfigElementProps {
     name: string;
     type: ConfigType;
     description?: string;
-    typeLabel?: string,
+    typeLabel?: string;
     value?: number | string | boolean | number[] | string[] | boolean[];
     setConfigElement?: (configValue: ConfigValue) => void;
 }
@@ -83,6 +83,7 @@ export const getConfigElement = (configElementProps: ConfigElementProps, classes
     if (configElementProps === undefined) {
         return null;
     }
+    const label = configElementProps.typeLabel ? configElementProps.typeLabel : configElementProps.type;
 
     return (
         <Box className={classes.innerBoxCard}>
@@ -100,7 +101,7 @@ export const getConfigElement = (configElementProps: ConfigElementProps, classes
                         <Box className={classes.labelTag}>
                             <OutlinedLabel
                                 type="success"
-                                label={configElementProps.typeLabel ? configElementProps.typeLabel : configElementProps.type}
+                                label={label}
                                 shape="square"
                             />
                         </Box>

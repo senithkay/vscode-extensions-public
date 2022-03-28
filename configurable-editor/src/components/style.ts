@@ -74,7 +74,7 @@ export const useStyles = makeStyles((theme: Theme) =>
         unsupportedLabelText: {
             color: "#FF9494",
             fontSize: theme.spacing(1.4),
-            "marginBottom": theme.spacing(1),
+            marginBottom: theme.spacing(1),
         },
     }),
 );

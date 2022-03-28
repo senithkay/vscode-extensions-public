@@ -34,8 +34,7 @@ export interface TextFieldInputProps {
 
 export function TextFieldInput(props: TextFieldInputProps) {
     const classes = useStyles();
-    const { id, isRequired, existingValue, type, setTextFieldValue } =
-        props;
+    const { id, isRequired, existingValue, type, setTextFieldValue } = props;
 
     const placeholder: string = isRequired ? "Required value" : "";
 

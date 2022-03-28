@@ -21,13 +21,13 @@ import React, { ReactElement, useState } from "react";
 
 import { Box, Card, CardContent, Typography } from "@material-ui/core";
 
-import { useStyles } from "./style";
-import OutlinedLabel from "./elements/OutlinedLabel";
+import ConfigElement, { ConfigElementProps } from "./ConfigElement";
 import { AddInputButton } from "./elements/AddInputButton";
-import { getDescription, getType } from "./utils";
+import OutlinedLabel from "./elements/OutlinedLabel";
 import { TextFieldInput } from "./elements/TextFieldInput";
 import { ConfigType, SchemaConstants } from "./model";
-import ConfigElement, { ConfigElementProps } from "./ConfigElement";
+import { useStyles } from "./style";
+import { getDescription, getType } from "./utils";
 
 /**
  * A high level config property which can contain configurable maps.
@@ -44,7 +44,7 @@ export interface ConfigMapProps {
 }
 
 interface ConfigMapValue {
-    id: string
+    id: string;
     key: string;
     value: any;
 }
@@ -58,22 +58,22 @@ export function setConfigMapProps(
     value?: any,
 ): ConfigMapProps {
     return {
-        id,
-        name,
-        isRequired,
         additionalProperties,
         description,
-        value
+        id,
+        isRequired,
+        name,
+        value,
     };
 }
 
 export const ConfigMap = (configMapProps: ConfigMapProps): ReactElement => {
+    const [mapValues, setMapValues] = useState<ConfigMapValue[]>([]);
+    const classes = useStyles();
+
     if (configMapProps === undefined) {
         return;
     }
-
-    const [mapValues, setMapValues] = useState<ConfigMapValue[]>([]);
-    const classes = useStyles();
 
     const types: string[] = getMapType(configMapProps.additionalProperties);
     const typeLabel: string = getMapTypeLabel(types);
@@ -97,19 +97,19 @@ export const ConfigMap = (configMapProps: ConfigMapProps): ReactElement => {
         const mapValue: ConfigMapValue = {
             id: configMapProps.id + "-" + (mapValues.length + 1),
             key: "Key",
-            value: "Value"
+            value: "Value",
         };
         setMapValues([...mapValues, mapValue]);
     };
 
-    let removeMapField = (i: number) => {
-        let newMapValues = [...mapValues];
+    const removeMapField = (i: number) => {
+        const newMapValues = [...mapValues];
         newMapValues.splice(i, 1);
-        setMapValues(newMapValues)
-    }
+        setMapValues(newMapValues);
+    };
 
     const handleValueChange = (id: string, value: string) => {
-        let newMapValues = [...mapValues];
+        const newMapValues = [...mapValues];
         const existingMap = newMapValues.findIndex(
             (property) => property.id === id,
         );
@@ -120,7 +120,7 @@ export const ConfigMap = (configMapProps: ConfigMapProps): ReactElement => {
     };
 
     const handleKeyChange = (id: string, key: string) => {
-        let newMapValues = [...mapValues];
+        const newMapValues = [...mapValues];
         const existingMap = newMapValues.findIndex(
             (property) => property.id === id,
         );
@@ -130,9 +130,30 @@ export const ConfigMap = (configMapProps: ConfigMapProps): ReactElement => {
         setMapValues(newMapValues);
     };
 
+    const getConfigElements = (element: ConfigMapValue) => {
+        return(
+            <Box key={element.id} className={classes.innerBoxCard}>
+                <Card variant="outlined">
+                    <CardContent className={classes.cardContent}>
+                        <Box key={element.id + "-ENTRY"}>
+                            <TextFieldInput
+                                id={element.id}
+                                isRequired={true}
+                                existingValue={element.key}
+                                type={"string"}
+                                setTextFieldValue={handleKeyChange}
+                            />
+                            {getConfigElement(element.id)}
+                        </Box>
+                    </CardContent>
+                </Card>
+            </Box>
+        );
+    };
+
     const getConfigElement = (id: string) => {
         const configElementProps: ConfigElementProps = {
-            id: id,
+            id,
             isArray: false,
             isRequired: false,
             name: configMapProps.name,
@@ -167,24 +188,7 @@ export const ConfigMap = (configMapProps: ConfigMapProps): ReactElement => {
                         {getDescription(configMapProps.description, classes)}
                     </Box>
                     <Box className={classes.formInputBox}>
-                        {mapValues.map((element) => (
-                            <Box key={element.id} className={classes.innerBoxCard}>
-                                <Card variant="outlined">
-                                    <CardContent className={classes.cardContent}>
-                                        <Box key={element.id + "-ENTRY"}>
-                                            <TextFieldInput
-                                                id={element.id}
-                                                isRequired={true}
-                                                existingValue={element.key}
-                                                type={"string"}
-                                                setTextFieldValue={handleKeyChange}
-                                            />
-                                            {getConfigElement(element.id)}
-                                        </Box>
-                                    </CardContent>
-                                </Card>
-                            </Box>
-                        ))}
+                        {mapValues.map((element) => (getConfigElements(element)))}
                     </Box>
                     <div key={configMapProps.id + "-ADD"}>
                         <AddInputButton onAdd={addMapField} />
@@ -198,17 +202,13 @@ export const ConfigMap = (configMapProps: ConfigMapProps): ReactElement => {
 function getMapTypeLabel(types: string[]): string {
     let unionType: string = "";
     types.forEach((type, index) => {
-        if (index === 0) {
-            unionType = unionType.concat(type);
-        } else {
-            unionType = unionType.concat(`|${type}`);
-        }
+        unionType = index === 0 ? unionType.concat(type) : unionType.concat(`|${type}`);
     });
     return unionType;
 }
 
 function getMapType(propertiesObj: object): string[] {
-    let types: string[] = [];
+    const types: string[] = [];
     const properties = propertiesObj[SchemaConstants.PROPERTIES];
     const anyOf = propertiesObj[SchemaConstants.ANY_OF];
     if (properties) {
