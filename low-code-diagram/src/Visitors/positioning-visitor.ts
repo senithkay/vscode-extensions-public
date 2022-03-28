@@ -347,6 +347,8 @@ export class PositioningVisitor implements Visitor {
 
         });
 
+        (node.functionBody.viewState as BlockViewState).workerArrows = [];
+
         // assign position values to send lines
         matchedStatements.forEach(matchedPair => {
             const sourceViewState = matchedPair.sourceViewState as StatementViewState;
@@ -514,7 +516,7 @@ export class PositioningVisitor implements Visitor {
             if (draft) {
                 draft.bBox.cx = blockViewState.bBox.cx;
                 draft.bBox.cy = (blockViewState.bBox.cy + blockViewState.bBox.offsetFromTop + height);
-                height += draft.bBox.h;
+                height += draft.getHeight();
             }
         }
 
@@ -551,8 +553,8 @@ export class PositioningVisitor implements Visitor {
                 if (draft) {
                     draft.bBox.cx = statementViewState.bBox.cx;
                     draft.bBox.cy = statementViewState.bBox.cy;
-                    statementViewState.bBox.cy += draft.bBox.h;
-                    height += draft.bBox.h;
+                    statementViewState.bBox.cy += draft.getHeight();
+                    height += draft.getHeight();
                 }
             }
 
