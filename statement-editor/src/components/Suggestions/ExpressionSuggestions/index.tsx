@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 
 import {
     Input, InputAdornment, List, ListItem, ListItemText, Typography
@@ -41,6 +41,12 @@ export function ExpressionSuggestions() {
         inputEditorCtx.onInputChange('');
     }
 
+    useEffect(() => {
+        const filteredGroups: ExpressionGroup[] = expressions.filter(
+            (exprGroup) => exprGroup.relatedModelType === currentModel.model.viewState.modelType);
+        setFilteredExpressions(filteredGroups);
+    }, [currentModel.model]);
+
     const searchExpressions = (searchValue: string) => {
         setKeyword(searchValue);
         const filteredGroups: ExpressionGroup[] = [];
@@ -52,7 +58,8 @@ export function ExpressionSuggestions() {
             if (filtered.length > 0) {
                 filteredGroups.push({
                     name: group.name,
-                    expressions: filtered
+                    expressions: filtered,
+                    relatedModelType: group.relatedModelType
                 })
             }
         });
