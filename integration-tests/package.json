@@ -35,5 +35,8 @@
     },
     "dependencies": {
         "cypress-real-events": "^1.7.0"
+    },
+    "nyc": { 
+        "reporter": "cobertura"
     }
 }

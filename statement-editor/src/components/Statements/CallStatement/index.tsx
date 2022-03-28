@@ -10,13 +10,12 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, { ReactNode } from "react";
+import React from "react";
 
 import { CallStatement } from "@wso2-enterprise/syntax-tree";
-import classNames from "classnames";
 
 import { ExpressionComponent } from "../../Expression";
-import { useStatementEditorStyles } from "../../styles";
+import { TokenComponent } from "../../Token";
 
 interface CallStatementProps {
     model: CallStatement;
@@ -25,20 +24,10 @@ interface CallStatementProps {
 export function CallStatementC(props: CallStatementProps) {
     const { model } = props;
 
-    const statementEditorClasses = useStatementEditorStyles();
-
-    const expressionComponent: ReactNode = (
-        <ExpressionComponent
-            model={model.expression}
-        />
-    );
-
     return (
-        <span>
-            {expressionComponent}
-            <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>
-                {model.semicolonToken.value}
-            </span>
-        </span>
+        <>
+            <ExpressionComponent model={model.expression} />
+            <TokenComponent model={model.semicolonToken} />
+        </>
     );
 }

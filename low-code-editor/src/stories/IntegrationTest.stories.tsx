@@ -8,7 +8,7 @@ import { getDiagramGeneratorProps } from './story-utils';
 
 const stories = storiesOf('Low Code Editor/IntegrationTest/project', module);
 
-testProject.balFiles.forEach((balFile: string)  => {
+testProject.balFiles.forEach((balFile: string) => {
   const relativePath = balFile.substring(testProject.projectPath.length);
   stories.add(
     relativePath,

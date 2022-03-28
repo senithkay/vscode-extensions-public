@@ -10,15 +10,13 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js
-import React, { ReactNode, useContext } from "react";
+import React from "react";
 
-import { MethodCall, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
-import classNames from "classnames";
+import { MethodCall } from "@wso2-enterprise/syntax-tree";
 
-import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { ExpressionComponent } from "../../Expression";
-import { useStatementEditorStyles } from "../../styles";
+import { ExpressionArrayComponent } from "../../ExpressionArray";
+import { TokenComponent } from "../../Token";
 
 interface MethodCallProps {
     model: MethodCall;
@@ -26,93 +24,16 @@ interface MethodCallProps {
 
 export function MethodCallComponent(props: MethodCallProps) {
     const { model } = props;
-    const stmtCtx = useContext(StatementEditorContext);
-    const {
-        modelCtx: {
-            changeCurrentModel
-        }
-    } = stmtCtx;
-
-    const statementEditorClasses = useStatementEditorStyles();
-
-    const expressionArgComponent = (
-        <span>
-            {
-                model.arguments.map((argument: STNode, index: number) => (
-                    (STKindChecker.isCommaToken(argument)) ? (
-                        <span
-                            key={index}
-                            className={classNames(
-                                statementEditorClasses.expressionBlock,
-                                statementEditorClasses.expressionBlockDisabled
-                            )}
-                        >
-                            {argument.value}
-                        </span>
-                    ) : (
-                        <ExpressionComponent
-                            model={argument}
-                        />
-                    )
-                ))
-            }
-        </span>
-    );
-
-    const onClickOnExpression = async (event: any) => {
-        event.stopPropagation();
-        changeCurrentModel(model.expression);
-    };
-
-    const onClickOnMethodName = async (event: any) => {
-        event.stopPropagation();
-        changeCurrentModel(model.methodName);
-    };
-
-    const expression: ReactNode = (
-        <ExpressionComponent
-            model={model.expression}
-            onSelect={onClickOnExpression}
-        />
-    );
-
-    const methodName: ReactNode = (
-        <ExpressionComponent
-            model={model.methodName}
-            onSelect={onClickOnMethodName}
-        >
-            <span
-                className={classNames(
-                    statementEditorClasses.expressionBlock,
-                    statementEditorClasses.expressionBlockDisabled
-                )}
-            >
-                {model.openParenToken.value}
-            </span>
-            {expressionArgComponent}
-            <span
-                className={classNames(
-                    statementEditorClasses.expressionBlock,
-                    statementEditorClasses.expressionBlockDisabled
-                )}
-            >
-                {model.closeParenToken.value}
-            </span>
-        </ExpressionComponent>
-    );
 
     return (
-        <span>
-            {expression}
-            <span
-                className={classNames(
-                    statementEditorClasses.expressionBlock,
-                    statementEditorClasses.expressionBlockDisabled
-                )}
-            >
-                {model.dotToken.value}
-            </span>
-            {methodName}
-        </span>
+        <>
+            <ExpressionComponent model={model.expression} />
+            <TokenComponent model={model.dotToken} />
+            <ExpressionComponent model={model.methodName} >
+                <TokenComponent model={model.openParenToken} />
+                <ExpressionArrayComponent expressions={model.arguments} />
+                <TokenComponent model={model.closeParenToken} />
+            </ExpressionComponent>
+        </>
     );
 }

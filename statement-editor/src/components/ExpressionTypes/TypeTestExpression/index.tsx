@@ -10,16 +10,12 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js
-import React, { ReactNode, useContext } from "react";
+import React from "react";
 
 import { TypeTestExpression } from "@wso2-enterprise/syntax-tree";
-import classNames from "classnames";
 
-import { ModelKind } from "../../../models/definitions";
-import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { ExpressionComponent } from "../../Expression";
-import { useStatementEditorStyles } from "../../styles";
+import { TokenComponent } from "../../Token";
 
 interface TypeTestExpressionProps {
     model: TypeTestExpression;
@@ -27,53 +23,12 @@ interface TypeTestExpressionProps {
 
 export function TypeTestExpressionComponent(props: TypeTestExpressionProps) {
     const { model } = props;
-    const stmtCtx = useContext(StatementEditorContext);
-    const {
-        modelCtx: {
-            changeCurrentModel
-        }
-    } = stmtCtx;
-
-    const statementEditorClasses = useStatementEditorStyles();
-
-    const onClickOnExpression = async (event: any) => {
-        event.stopPropagation();
-        changeCurrentModel(model.expression);
-    };
-
-    const onClickOnTypeDescriptor = async (event: any) => {
-        event.stopPropagation();
-        changeCurrentModel(model.typeDescriptor, ModelKind.TypeDesc);
-    };
-
-
-    const expr: ReactNode = (
-        <ExpressionComponent
-            model={model.expression}
-            onSelect={onClickOnExpression}
-        />
-    );
-
-    const typeDescriptor: ReactNode = (
-        <ExpressionComponent
-            model={model.typeDescriptor}
-            onSelect={onClickOnTypeDescriptor}
-            isTypeDesc={true}
-        />
-    );
 
     return (
-        <span>
-            {expr}
-            <span
-                className={classNames(
-                    statementEditorClasses.expressionBlock,
-                    statementEditorClasses.expressionBlockDisabled
-                )}
-            >
-                 &nbsp;{model.isKeyword.value}
-            </span>
-            {typeDescriptor}
-        </span>
+        <>
+            <ExpressionComponent model={model.expression} />
+            <TokenComponent model={model.isKeyword} />
+            <ExpressionComponent model={model.typeDescriptor} />
+        </>
     );
 }

@@ -10,15 +10,13 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js
-import React, { ReactNode, useContext } from "react";
+import React from "react";
 
-import { FunctionCall, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
-import classNames from "classnames";
+import { FunctionCall } from "@wso2-enterprise/syntax-tree";
 
-import { StatementEditorContext } from "../../../store/statement-editor-context";
-import { ExpressionComponent } from "../../Expression";
-import { useStatementEditorStyles } from "../../styles";
+import { ExpressionArrayComponent } from "../../ExpressionArray";
+import { InputEditor, InputEditorProps } from "../../InputEditor";
+import { TokenComponent } from "../../Token";
 
 interface FunctionCallProps {
     model: FunctionCall;
@@ -26,71 +24,17 @@ interface FunctionCallProps {
 
 export function FunctionCallComponent(props: FunctionCallProps) {
     const { model } = props;
-    const stmtCtx = useContext(StatementEditorContext);
-    const {
-        modelCtx: {
-            changeCurrentModel
-        }
-    } = stmtCtx;
-    const statementEditorClasses = useStatementEditorStyles();
 
-    const onClickOnFunctionCallExpr = async (event: any) => {
-        event.stopPropagation();
-        changeCurrentModel(model);
+    const inputEditorProps: InputEditorProps = {
+        model: model.functionName,
+        notEditable: true
     }
-
-    const expressionComponent = (
-        <span>
-            {
-                model.arguments.map((expression: STNode, index: number) => (
-                    (STKindChecker.isCommaToken(expression)) ? (
-                        <span
-                            key={index}
-                            className={classNames(
-                                statementEditorClasses.expressionBlock,
-                                statementEditorClasses.expressionBlockDisabled
-                            )}
-                        >
-                            {expression.value}
-                        </span>
-                    ) : (
-                        <ExpressionComponent
-                            model={expression}
-                        />
-                    )
-                ))
-            }
-        </span>
-    );
-
-    const functionName: ReactNode = (
-        <ExpressionComponent
-            model={model.functionName}
-            onSelect={onClickOnFunctionCallExpr}
-        >
-            <span
-                className={classNames(
-                    statementEditorClasses.expressionBlock,
-                    statementEditorClasses.expressionBlockDisabled
-                )}
-            >
-                {model.openParenToken.value}
-            </span>
-            {expressionComponent}
-            <span
-                className={classNames(
-                    statementEditorClasses.expressionBlock,
-                    statementEditorClasses.expressionBlockDisabled
-                )}
-            >
-                {model.closeParenToken.value}
-            </span>
-        </ExpressionComponent>
-    );
-
     return (
-        <span>
-            {functionName}
-        </span>
+        <>
+            <InputEditor {...inputEditorProps} />
+            <TokenComponent model={model.openParenToken} />
+            <ExpressionArrayComponent expressions={model.arguments} />
+            <TokenComponent model={model.closeParenToken} />
+        </>
     );
 }

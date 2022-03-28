@@ -20,7 +20,7 @@ function ModuleCard(props: ModuleCardProps) {
     const moduleName = (module.displayAnnotation?.label || `${module.package?.name} / ${module.name}`).replace(/["']/g, "");
     const itemWidth = (columns === 2) ? 6 : 4;
     return (
-        <Grid item={true} sm={itemWidth} alignItems="center">
+        <Grid item={true} xs={itemWidth} alignItems="center">
             <div key={moduleName} onClick={onSelectModule.bind(this, module)} data-testid={moduleName.toLowerCase()}>
                 <div className={classes.balModule}>
                     <div>

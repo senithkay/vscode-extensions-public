@@ -12,7 +12,7 @@ import {
     ASTDidChangeParams, ASTDidChangeResponse, BallerinaConnectorRequest, BallerinaConnectorResponse, BallerinaConnectorsRequest, BallerinaConnectorsResponse, BallerinaExampleListParams,
     BallerinaExampleListResponse, BallerinaProject, BallerinaProjectParams, BallerinaRecordRequest, BallerinaRecordResponse, BallerinaSTModifyRequest, BallerinaSTModifyResponse, BallerinaTriggerRequest, BallerinaTriggerResponse, BallerinaTriggersRequest, BallerinaTriggersResponse, CompletionParams, CompletionResponse, ExecutorPositionsResponse, ExpressionTypeRequest, ExpressionTypeResponse, EXTENDED_APIS, GetASTParams, GetASTResponse,
     GetBallerinaProjectParams, GetProjectASTParams, GetProjectASTResponse, GetSyntaxTreeParams,
-    GetSyntaxTreeResponse, GoToSourceParams, IBallerinaLangClient, JsonToRecordRequest, JsonToRecordResponse, PartialSTRequest, PartialSTResponse, PerformanceAnalyzerEndpointsRequest, RevealRangeParams, TriggerModifyRequest
+    GetSyntaxTreeResponse, GoToSourceParams, IBallerinaLangClient, JsonToRecordRequest, JsonToRecordResponse, PartialSTRequest, PartialSTResponse, PerformanceAnalyzerRequest, PerformanceAnalyzerResponse, RevealRangeParams, TriggerModifyRequest
 } from './IBallerinaLanguageClient'
 import { BallerinaASTNode, BallerinaEndpoint, BallerinaSourceFragment } from "./ast-models";
 import { LSConnection } from "./LSConnection";
@@ -196,9 +196,8 @@ export class BalleriaLanguageClient implements IBallerinaLangClient {
         return this._clientConnection.sendRequest("textDocument/documentSymbol", params);
     }
 
-    public getPerfEndpoints(params: PerformanceAnalyzerEndpointsRequest): Thenable<any> {
-        // not supported yet
-        return Promise.reject("Not implmented");
+    public getPerfEndpoints(params: PerformanceAnalyzerRequest): Thenable<PerformanceAnalyzerResponse[]> {
+        return this._clientConnection.sendRequest(EXTENDED_APIS.PERF_ANALYZER_ENDPOINTS, params);
     }
 
     public resolveMissingDependencies(params: GetSyntaxTreeParams): Thenable<GetSyntaxTreeResponse> {

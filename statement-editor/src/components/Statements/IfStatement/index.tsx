@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { ReactNode, useContext } from "react";
+import React, { useContext } from "react";
 
 import { IfElseStatement, STKindChecker } from "@wso2-enterprise/syntax-tree"
 import classNames from "classnames";
@@ -20,6 +20,7 @@ import { StatementEditorContext } from "../../../store/statement-editor-context"
 import { ExpressionComponent } from "../../Expression";
 import { StatementRenderer } from "../../StatementRenderer";
 import { useStatementEditorStyles } from "../../styles";
+import { TokenComponent } from "../../Token";
 
 interface IfStatementProps {
     model: IfElseStatement;
@@ -37,40 +38,15 @@ export function IfStatementC(props: IfStatementProps) {
 
     const statementEditorClasses = useStatementEditorStyles();
 
-    const elseBlockComponent: ReactNode = (
-        <StatementRenderer
-            model={model.elseBody}
-        />
-    );
-
-    const onClickOnConditionExpression = async (event: any) => {
-        event.stopPropagation();
-        changeCurrentModel(model.condition);
-    };
 
     if (!currentModel.model && !STKindChecker.isElseBlock(model)) {
         changeCurrentModel(model.condition);
     }
 
-    const conditionComponent: ReactNode = (
-        <ExpressionComponent
-            model={model.condition}
-            onSelect={onClickOnConditionExpression}
-        />
-    );
-
     return (
-        <span>
-            <span
-                className={classNames(
-                    statementEditorClasses.expressionBlock,
-                    statementEditorClasses.expressionBlockDisabled,
-                    "keyword"
-                )}
-            >
-                {model.ifKeyword.value}
-            </span>
-            {conditionComponent}
+        <>
+            <TokenComponent model={model.ifKeyword}  className="keyword" />
+            <ExpressionComponent model={model.condition} />
             <span
                 className={classNames(
                     statementEditorClasses.expressionBlock,
@@ -83,7 +59,7 @@ export function IfStatementC(props: IfStatementProps) {
                 <br/>
                 {model.ifBody.closeBraceToken.value}
             </span>
-            {!!model.elseBody && elseBlockComponent}
-        </span>
+            {!!model.elseBody && <StatementRenderer model={model.elseBody} />}
+        </>
     );
 }

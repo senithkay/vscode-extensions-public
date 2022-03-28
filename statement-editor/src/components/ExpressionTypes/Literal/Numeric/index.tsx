@@ -10,7 +10,6 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js
 import React from "react";
 
 import { NumericLiteral } from "@wso2-enterprise/syntax-tree";
@@ -23,13 +22,13 @@ interface NumericLiteralProps {
 
 export function NumericLiteralComponent(props: NumericLiteralProps) {
     const { model } = props;
+
     const inputEditorProps = {
-        model
+        model,
+        className: "numeric-literal"
     };
 
     return (
-        <span className="numeric-literal">
-            <InputEditor {...inputEditorProps} />
-        </span>
+        <InputEditor {...inputEditorProps} />
     );
 }

@@ -16,10 +16,12 @@ import { useIntl } from 'react-intl';
 import Divider from '@material-ui/core/Divider';
 import { withStyles } from '@material-ui/core/styles';
 import TooltipBase, { TooltipProps } from '@material-ui/core/Tooltip';
-import { InfoIcon } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { ErrorIcon, InfoIcon, WarningIcon } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { STNode } from '@wso2-enterprise/syntax-tree';
 import * as MonacoEditor from 'monaco-editor';
 
 import useStyles, { tooltipInvertedStyles, tooltipStyles } from "./style";
+import { getDiagnosticsFromST, getSourceFromST } from './utils';
 
 export { TooltipProps } from '@material-ui/core/Tooltip';
 
@@ -34,6 +36,9 @@ interface TooltipPropsExtended extends TooltipProps {
     openInCodeView?: () => void;
     heading?: string;
     typeExamples?: string;
+    componentModel?: STNode;
+    onClick: () => void;
+    toolTipContent?: string
 };
 
 const TooltipComponent = withStyles(tooltipStyles)(TooltipBase);
@@ -64,7 +69,7 @@ export function Tooltip(props: Partial<TooltipPropsExtended>) {
         }
     };
 
-    const { children, heading, title, content, example, actionText, actionLink, inverted, disabled, codeSnippet, openInCodeView,  typeExamples, ...restProps } = props;
+    const { children, heading, title, content, example, actionText, actionLink, inverted, disabled, codeSnippet, openInCodeView, typeExamples, componentModel, onClick, toolTipContent, ...restProps } = props;
 
     // Skip Tooltip rendering if disabled prop provided.
     if (disabled) return (<>{children}</>);
@@ -100,15 +105,27 @@ export function Tooltip(props: Partial<TooltipPropsExtended>) {
         </div>
     );
 
-    // Modify tooltipTitle if codeSnippet prop has set.
-    if (codeSnippet) {
+    if (codeSnippet && componentModel) {
+        const source = getSourceFromST(componentModel);
+        const diagnosticMsgs = getDiagnosticsFromST(componentModel);
+        const icon = diagnosticMsgs ? diagnosticMsgs?.severity === "ERROR" ? <ErrorIcon /> : <WarningIcon /> : null;
+        const diagnosticStyles = diagnosticMsgs?.severity === "ERROR" ? styles.diagnosticErrorWrapper : styles.diagnosticWarningWrapper;
+
+        const Diagnostic = () => (
+            <div className={styles.codeHintWrap}>
+                <div className={styles.iconWrapper}>{icon}</div>
+                <div className={diagnosticStyles}><b>{diagnosticMsgs?.message}</b></div>
+                <Divider className={styles.divider} light={true} />
+            </ div>
+        );
+
         const Code = () => (
             <code
                 ref={codeRef}
                 data-lang="ballerina"
                 className={example ? styles.codeExample : styles.code}
             >
-                {content}
+                {source}
             </code>
         );
 
@@ -119,30 +136,35 @@ export function Tooltip(props: Partial<TooltipPropsExtended>) {
             </React.Fragment>
         )
 
-        let CodeSnippet = () => (
+        const CodeSnippet = () => (
             <pre className={styles.pre}>
                 <Code />
                 {openInCodeView && <OpenInCodeLink />}
             </pre>
         );
+        tooltipTitle = (
+            diagnosticMsgs ?
+                (
+                    <>
+                        <Diagnostic />
+                        <CodeSnippet />
+                    </>
+                )
+                :
+                <CodeSnippet />
+        );
+    }
 
-        if (example) {
-            CodeSnippet = () => (
-                <div className={styles.exampleCodeWrap}>
-                    <div>E.g.</div> <Code />
-                </div>
-            );
-        }
+    if (toolTipContent) {
+
+        const ToolTipContent = () => (
+            <div >{toolTipContent}</div>
+        );
 
         tooltipTitle = (
-            <>
-                {heading && (<h4 className={styles.heading}>{heading}</h4>)}
-                {title && (<p>{title}</p>)}
-                <CodeSnippet />
-                <GenericExamples />
-                <GenericCodeHints />
-            </>
+            <ToolTipContent />
         );
+
     }
 
     return <TooltipComponentRef {...restProps} title={tooltipTitle}>{children}</TooltipComponentRef>
@@ -151,7 +173,7 @@ export function Tooltip(props: Partial<TooltipPropsExtended>) {
 export function TooltipIcon(props: Partial<TooltipPropsExtended>) {
     const styles = useStyles();
 
-    let iconComponent =  <InfoIcon />;
+    let iconComponent = <InfoIcon />;
 
     const { title, children, ...restProps } = props;
 
@@ -179,6 +201,25 @@ export function TooltipCodeSnippet(props: Partial<TooltipPropsExtended>) {
             title={null}
             codeSnippet={true}
             interactive={true}
+        >
+            {children}
+        </Tooltip>
+    );
+}
+
+export function DiagramTooltipCodeSnippet(props: Partial<TooltipPropsExtended>) {
+    const { onClick, children, componentModel, content, ...restProps } = props;
+
+    return (
+        <Tooltip
+            {...restProps}
+            openInCodeView={onClick}
+            codeSnippet={true}
+            interactive={true}
+            componentModel={componentModel}
+            placement="right"
+            arrow={true}
+            toolTipContent={content}
         >
             {children}
         </Tooltip>

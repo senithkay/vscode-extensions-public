@@ -15,23 +15,20 @@ import React from 'react';
 
 import { LibraryKind, STModification } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
-import { languages } from "monaco-editor";
 
 import { LowCodeEditorProps } from '../components/StatementEditor';
-import { ModelKind, SuggestionItem } from "../models/definitions";
+import { StmtDiagnostic, SuggestionItem } from "../models/definitions";
 
 import { InputEditorContextProvider } from "./input-editor-context";
-
-import Diagnostic = languages.typescript.Diagnostic;
 
 export const StatementEditorContext = React.createContext({
     modelCtx: {
         initialSource: '',
         statementModel: null,
         currentModel: null,
-        changeCurrentModel: (model: STNode, kind?: ModelKind) => {},
+        changeCurrentModel: (model: STNode) => {},
         handleChange: (codeSnippet: string, isEditedViaInputEditor?: boolean) => {},
-        updateModel: (codeSnippet: string, position: NodePosition, isEditedViaInputEditor?: boolean) => {},
+        updateModel: (codeSnippet: string, position: NodePosition) => {},
         undo: () => undefined,
         redo: () => undefined,
         hasUndo: false,
@@ -40,8 +37,11 @@ export const StatementEditorContext = React.createContext({
     formCtx: {
         formModelPosition: null
     },
+    config: {
+        type: ''
+    },
     statementCtx: {
-        diagnostics: null
+        diagnostics: []
     },
     suggestionsCtx: {
         lsSuggestions: []
@@ -68,18 +68,19 @@ interface CtxProviderProps extends LowCodeEditorProps {
     children?: React.ReactNode,
     model: STNode,
     currentModel: { model: STNode },
-    changeCurrentModel?: (model: STNode, kind?: ModelKind) => void,
+    config?: {type: string, model?: STNode},
+    changeCurrentModel?: (model: STNode) => void,
     handleChange?: (codeSnippet: string, isEditedViaInputEditor?: boolean) => void,
     handleModules?: (module: string) => void,
     modulesToBeImported?: Set<string>,
-    updateModel?: (codeSnippet: string, position: NodePosition, isEditedViaInputEditor?: boolean) => void,
+    updateModel?: (codeSnippet: string, position: NodePosition) => void,
     formArgs?: any,
     initialSource: string,
     undo?: () => void,
     redo?: () => void,
     hasUndo?: boolean,
     hasRedo?: boolean,
-    diagnostics?: Diagnostic[],
+    diagnostics?: StmtDiagnostic[],
     lsSuggestions?: SuggestionItem[]
 }
 
@@ -88,6 +89,7 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
         children,
         model,
         currentModel,
+        config,
         changeCurrentModel,
         handleChange,
         updateModel,
@@ -123,6 +125,7 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
                 formCtx: {
                     formModelPosition: formArgs.formArgs.targetPosition
                 },
+                config,
                 statementCtx: {
                     diagnostics
                 },

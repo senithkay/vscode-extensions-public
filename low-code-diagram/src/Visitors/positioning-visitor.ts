@@ -12,7 +12,6 @@
  */
 import {
     BlockStatement,
-    DoStatement,
     ExpressionFunctionBody,
     ForeachStatement,
     FunctionBodyBlock,
@@ -21,8 +20,6 @@ import {
     ModulePart,
     NamedWorkerDeclaration,
     ObjectMethodDefinition,
-    OnFailClause,
-    QualifiedNameReference,
     ResourceAccessorDefinition,
     STKindChecker,
     STNode,
@@ -143,7 +140,6 @@ export class PositioningVisitor implements Visitor {
         viewState.end.bBox.cx = viewState.bBox.cx;
         viewState.end.bBox.cy = DefaultConfig.startingY + viewState.workerLine.h + DefaultConfig.canvas.childPaddingY;
 
-
         this.currentWorker.push('function');
         plusHolderHeight = 0;
     }
@@ -247,22 +243,6 @@ export class PositioningVisitor implements Visitor {
             }
         }
 
-        let widthOfOnFailClause = 0;
-        if (!STKindChecker.isExpressionFunctionBody(body) && body.statements.length > 0) {
-            for (const statement of body.statements) {
-                if (STKindChecker.isDoStatement(statement) && statement.viewState.isFirstInFunctionBody) {
-                    if (statement.onFailClause) {
-                        const onFailBlockViewState = statement.onFailClause.blockStatement.viewState as BlockViewState;
-                        widthOfOnFailClause = onFailBlockViewState.bBox.w;
-                        const onFailViewState = statement.onFailClause.viewState as OnErrorViewState;
-                        onFailViewState.bBox.cx = viewState.end.bBox.cx + (DefaultConfig.startingOnErrorX * 2);
-                        onFailViewState.bBox.cy = viewState.end.bBox.cy + DefaultConfig.startingOnErrorY + (onFailBlockViewState.bBox.offsetFromBottom * 2) + viewState.bBox.offsetFromBottom + (DefaultConfig.startingOnErrorY * 2);
-                        viewState.onFail = statement.onFailClause;
-                    }
-                }
-            }
-        }
-
         let widthOfWorkers = 0;
 
         if (bodyViewState.hasWorkerDecl) {
@@ -324,8 +304,8 @@ export class PositioningVisitor implements Visitor {
             });
             workerEntry.sends.forEach(sendInfo => {
                 if (!sendInfo.paired) {
-                    const matchedReceive = this.senderReceiverInfo.get(sendInfo.to).receives
-                        .find(receiveInfo => receiveInfo.from === key && !receiveInfo.paired)
+                    const matchedReceive = this.senderReceiverInfo
+                        .get(sendInfo.to)?.receives?.find(receiveInfo => receiveInfo.from === key && !receiveInfo.paired);
 
                     if (matchedReceive) {
                         matchedReceive.paired = true;
@@ -345,8 +325,8 @@ export class PositioningVisitor implements Visitor {
 
             workerEntry.receives.forEach(receiveInfo => {
                 if (!receiveInfo.paired) {
-                    const matchedSend = this.senderReceiverInfo.get(receiveInfo.from).sends
-                        .find(senderInfo => senderInfo.to === key && !senderInfo.paired)
+                    const matchedSend = this.senderReceiverInfo
+                        .get(receiveInfo.from)?.sends?.find(senderInfo => senderInfo.to === key && !senderInfo.paired)
 
                     if (matchedSend) {
                         matchedSend.paired = true;
@@ -365,6 +345,8 @@ export class PositioningVisitor implements Visitor {
             });
 
         });
+
+        (node.functionBody.viewState as BlockViewState).workerArrows = [];
 
         // assign position values to send lines
         matchedStatements.forEach(matchedPair => {
@@ -533,7 +515,7 @@ export class PositioningVisitor implements Visitor {
             if (draft) {
                 draft.bBox.cx = blockViewState.bBox.cx;
                 draft.bBox.cy = (blockViewState.bBox.cy + blockViewState.bBox.offsetFromTop + height);
-                height += draft.bBox.h;
+                height += draft.getHeight();
             }
         }
 
@@ -570,8 +552,8 @@ export class PositioningVisitor implements Visitor {
                 if (draft) {
                     draft.bBox.cx = statementViewState.bBox.cx;
                     draft.bBox.cy = statementViewState.bBox.cy;
-                    statementViewState.bBox.cy += draft.bBox.h;
-                    height += draft.bBox.h;
+                    statementViewState.bBox.cy += draft.getHeight();
+                    height += draft.getHeight();
                 }
             }
 
@@ -774,7 +756,10 @@ export class PositioningVisitor implements Visitor {
                         visibleEndpoint.viewState = endpointViewState;
 
                         epCount++;
-                    }else if (!endpoint.firstAction) {
+                    } else if (STKindChecker.isLocalVarDecl(statement) &&
+                        STKindChecker.isCheckAction(statement.initializer) &&
+                        statement.initializer?.expression.expression.typeData?.symbol?.kind === "PARAMETER" &&
+                        !endpoint.firstAction) {
                         // Add parameter level endpoints to the action view statement.
                         statementViewState.endpoint = mainEp;
                         const endpointViewState: EndpointViewState = statementViewState.endpoint;
@@ -783,6 +768,7 @@ export class PositioningVisitor implements Visitor {
                             endpointViewState.bBox.rw + epGap + (epGap * epCount);
                         endpointViewState.lifeLine.cy = statementViewState.bBox.cy;
                         endpointViewState.isExternal = true;
+                        endpointViewState.isParameter = true;
                         visibleEndpoint.viewState = endpointViewState;
 
                         epCount++;
@@ -997,42 +983,6 @@ export class PositioningVisitor implements Visitor {
             };
             defaultElseVS?.controlFlow.lineStates.push(defaultBodyControlFlowLine);
         }
-    }
-
-    public beginVisitDoStatement(node: DoStatement) {
-        const viewState = node.viewState as DoViewState;
-        if (viewState.isFirstInFunctionBody) {
-            const blockViewState = node.blockStatement.viewState as BlockViewState;
-            blockViewState.bBox.cx = viewState.bBox.cx;
-            blockViewState.bBox.cy = blockViewState.bBox.offsetFromTop + viewState.bBox.cy;
-
-            viewState.container.x = blockViewState.bBox.cx - (viewState.container.w / 2);
-            viewState.container.y = blockViewState.bBox.cy - DefaultConfig.plus.radius;
-        }
-    }
-
-    public beginVisitOnFailClause(node: OnFailClause) {
-        const viewState = node.viewState as OnErrorViewState;
-        if (viewState.isFirstInFunctionBody) {
-            const onFailViewState = node.viewState as OnErrorViewState;
-            const blockViewState = node.blockStatement.viewState as BlockViewState;
-            blockViewState.bBox.cx = onFailViewState.bBox.cx;
-            blockViewState.bBox.cy = onFailViewState.bBox.cy;
-            // blockViewState.bBox.cy = (blockViewState.bBox.offsetFromBottom * 2) + (DefaultConfig.startingOnErrorY * 2);
-        }
-    }
-
-    public endVisitOnFailClause(node: OnFailClause) {
-        const viewState = node.viewState as OnErrorViewState;
-        if (viewState.isFirstInFunctionBody) {
-            const onFailBlockViewState = node.blockStatement.viewState as BlockViewState;
-            viewState.header.cx = viewState.bBox.cx;
-            viewState.header.cy = viewState.bBox.cy - (onFailBlockViewState.bBox.offsetFromBottom);
-            viewState.lifeLine.x = viewState.bBox.cx;
-            viewState.lifeLine.y = viewState.bBox.cy - (onFailBlockViewState.bBox.offsetFromBottom);
-            viewState.lifeLine.h = viewState.lifeLine.h + onFailBlockViewState.bBox.offsetFromBottom;
-        }
-
     }
 }
 

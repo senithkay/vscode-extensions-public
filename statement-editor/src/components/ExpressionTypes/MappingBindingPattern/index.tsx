@@ -11,15 +11,11 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, {useContext} from "react";
+import React from "react";
 
 import { MappingBindingPattern } from "@wso2-enterprise/syntax-tree";
-import classNames from "classnames";
 
-import { StatementEditorContext } from "../../../store/statement-editor-context";
-import { isPositionsEquals } from "../../../utils";
 import { InputEditor } from "../../InputEditor";
-import { useStatementEditorStyles } from "../../styles";
 
 interface MappingBindingPatternProps {
     model: MappingBindingPattern;
@@ -27,36 +23,12 @@ interface MappingBindingPatternProps {
 
 export function MappingBindingPatternComponent(props: MappingBindingPatternProps) {
     const { model } = props;
-    const stmtCtx = useContext(StatementEditorContext);
-    const {
-        modelCtx: {
-            currentModel,
-            changeCurrentModel
-        }
-    } = stmtCtx;
-
-    const hasBindingPatternSelected = currentModel.model &&
-        isPositionsEquals(currentModel.model.position, model.position);
-
-    const statementEditorClasses = useStatementEditorStyles();
 
     const inputEditorProps = {
         model
     };
 
-    const onClickOnBindingPattern = (event: any) => {
-        event.stopPropagation();
-        changeCurrentModel(model);
-    };
-
     return (
-        <span
-            className={classNames(
-                statementEditorClasses.expressionElement,
-                hasBindingPatternSelected && statementEditorClasses.expressionElementSelected)}
-            onClick={onClickOnBindingPattern}
-        >
-            <InputEditor {...inputEditorProps} />
-        </span>
+        <InputEditor {...inputEditorProps} />
     );
 }

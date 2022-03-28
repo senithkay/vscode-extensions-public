@@ -10,13 +10,12 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-wrap-multiline
-import React, { ReactNode, useContext } from "react";
+import React from "react";
 
 import { BracedExpression} from "@wso2-enterprise/syntax-tree";
 
-import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { ExpressionComponent } from "../../Expression";
+import { TokenComponent } from "../../Token";
 
 interface BracedExprProps {
     model: BracedExpression;
@@ -24,27 +23,12 @@ interface BracedExprProps {
 
 export function BracedExpressionComponent(props: BracedExprProps) {
     const { model } = props;
-    const stmtCtx = useContext(StatementEditorContext);
-    const {
-        modelCtx: {
-            changeCurrentModel
-        }
-    } = stmtCtx;
 
-    const onClickExpression = async (event: any) => {
-        event.stopPropagation();
-        changeCurrentModel(model.expression);
-    };
-
-    const expressionComponent: ReactNode = <ExpressionComponent
-        model={model.expression}
-        onSelect={onClickExpression}
-    />;
     return (
-        <span>
-            <span>(</span>
-            {expressionComponent}
-            <span>)</span>
-        </span>
+        <>
+            <TokenComponent model={model.openParen} />
+            <ExpressionComponent model={model.expression} />
+            <TokenComponent model={model.closeParen} />
+        </>
     );
 }

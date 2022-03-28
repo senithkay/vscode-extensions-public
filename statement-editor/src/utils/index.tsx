@@ -12,21 +12,38 @@
  */
 import React, { ReactNode } from 'react';
 
-import { CompletionResponse, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import {
+    CompletionResponse,
+    ExpressionEditorLangClientInterface,
+    getDiagnosticMessage,
+    getFilteredDiagnostics,
+    STModification
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     NodePosition,
     STKindChecker,
     STNode,
     traversNode
 } from "@wso2-enterprise/syntax-tree";
+import { Diagnostic } from "vscode-languageserver-protocol";
 
 import * as expressionTypeComponents from '../components/ExpressionTypes';
 import * as statementTypeComponents from '../components/Statements';
-import { OTHER_EXPRESSION, OTHER_STATEMENT, StatementNodes } from "../constants";
-import { ModelKind, RemainingContent } from '../models/definitions';
+import {
+    OTHER_EXPRESSION,
+    OTHER_STATEMENT,
+    PLACE_HOLDER_DIAGNOSTIC_MESSAGES,
+    StatementNodes
+} from "../constants";
+import { RemainingContent, StmtDiagnostic, StmtOffset } from '../models/definitions';
+import { visitor as DeleteConfigSetupVisitor } from "../visitors/delete-config-setup-visitor";
+import { visitor as DiagnosticsMappingVisitor } from "../visitors/diagnostics-mapping-visitor";
 import { visitor as ExpressionDeletingVisitor } from "../visitors/expression-deleting-visitor";
 import { visitor as ModelFindingVisitor } from "../visitors/model-finding-visitor";
+import { visitor as ModelKindSetupVisitor } from "../visitors/model-kind-setup-visitor";
+import { viewStateSetupVisitor as ViewStateSetupVisitor } from "../visitors/view-state-setup-visitor";
 
+import { addImportStatements, addStatementToTargetLine } from "./ls-utils";
 import { createImportStatement, createStatement, updateStatement } from "./statement-modifications";
 
 export function getModifications(
@@ -67,15 +84,15 @@ export function getModifications(
     }
 
     if (modulesToBeImported) {
-        modulesToBeImported.map((moduleNameStr: string) => (
-            modifications.push(createImportStatement(importStatementRegex.exec(moduleNameStr).pop()))
-        ));
+        modulesToBeImported.map((moduleNameStr: string) => {
+            modifications.push(createImportStatement(moduleNameStr));
+        });
     }
 
     return modifications;
 }
 
-export function getExpressionTypeComponent(expression: STNode, isTypeDescriptor: boolean): ReactNode {
+export function getExpressionTypeComponent(expression: STNode): ReactNode {
     let ExprTypeComponent = (expressionTypeComponents as any)[expression.kind];
 
     if (!ExprTypeComponent) {
@@ -85,7 +102,6 @@ export function getExpressionTypeComponent(expression: STNode, isTypeDescriptor:
     return (
         <ExprTypeComponent
             model={expression}
-            isTypeDesc={isTypeDescriptor}
         />
     );
 }
@@ -113,6 +129,34 @@ export function getCurrentModel(position: NodePosition, model: STNode): STNode {
     return ModelFindingVisitor.getModel();
 }
 
+export function enrichModel(model: STNode, targetPosition: NodePosition, diagnostics?: Diagnostic[]): STNode {
+    traversNode(model, ViewStateSetupVisitor);
+    model = enrichModelWithDiagnostics(model, targetPosition, diagnostics);
+    return enrichModelWithViewState(model);
+}
+
+export function enrichModelWithDiagnostics(model: STNode, targetPosition: NodePosition,
+                                           diagnostics: Diagnostic[]): STNode {
+    if (diagnostics) {
+        const offset: StmtOffset = {
+            startColumn: targetPosition.startColumn,
+            startLine: targetPosition.startLine
+        }
+        diagnostics.map(diagnostic => {
+            DiagnosticsMappingVisitor.setDiagnosticsNOffset(diagnostic, offset);
+            traversNode(model, DiagnosticsMappingVisitor);
+        });
+    }
+    return model;
+}
+
+export function enrichModelWithViewState(model: STNode): STNode  {
+    traversNode(model, DeleteConfigSetupVisitor);
+    traversNode(model, ModelKindSetupVisitor);
+
+    return model;
+}
+
 export function getRemainingContent(position: NodePosition, model: STNode): RemainingContent {
     ExpressionDeletingVisitor.setPosition(position);
     traversNode(model, ExpressionDeletingVisitor);
@@ -127,16 +171,66 @@ export function isPositionsEquals(position1: NodePosition, position2: NodePositi
         position1?.endColumn === position2?.endColumn;
 }
 
-export function isOperator(modelKind: ModelKind): boolean {
-    return modelKind === ModelKind.Operator;
+export function getFilteredDiagnosticMessages(stmtLength: number, targetPosition: NodePosition,
+                                              diagnostics: Diagnostic[]): StmtDiagnostic[] {
+    const stmtDiagnostics: StmtDiagnostic[] = [];
+
+    const diag = getFilteredDiagnostics(diagnostics, false);
+
+    const diagnosticTargetPosition: NodePosition = {
+        startLine: targetPosition.startLine || 0,
+        startColumn: targetPosition.startColumn || 0,
+        endLine: targetPosition?.endLine || targetPosition.startLine,
+        endColumn: targetPosition?.endColumn || 0
+    };
+
+    getDiagnosticMessage(diag, diagnosticTargetPosition, 0, stmtLength, 0, 0).split('. ').map(message => {
+            let isPlaceHolderDiag = false;
+            if (PLACE_HOLDER_DIAGNOSTIC_MESSAGES.includes(message)) {
+                isPlaceHolderDiag = true;
+            }
+            if (!!message) {
+                stmtDiagnostics.push({message, isPlaceHolderDiag});
+            }
+        });
+
+    return stmtDiagnostics;
 }
 
-export function isTypeDesc(modelKind: ModelKind): boolean {
-    return modelKind === ModelKind.TypeDesc;
+export async function getUpdatedSource(updatedStatement: string, currentFileContent: string,
+                                       targetPosition: NodePosition, moduleList: Set<string>,
+                                       getLangClient: () => Promise<ExpressionEditorLangClientInterface>)
+    : Promise<string> {
+
+    let updatedContent: string = await addStatementToTargetLine(currentFileContent, targetPosition,
+        updatedStatement, getLangClient);
+    if (!!moduleList.size) {
+        updatedContent = await addImportStatements(updatedContent, Array.from(moduleList) as string[]);
+    }
+
+    return updatedContent;
 }
 
-export function isBindingPattern(modelKind: ModelKind): boolean {
-    return modelKind === ModelKind.BindingPattern;
+export function addExpressionToTargetPosition(statementModel: STNode, currentPosition: NodePosition,
+                                              newValue: string): string {
+
+    const startLine = currentPosition.startLine;
+    const startColumn = currentPosition.startColumn;
+    const endColumn = currentPosition.endColumn;
+
+    if (statementModel && STKindChecker.isIfElseStatement(statementModel)) {
+        const splitStatement: string[] = statementModel.source.split(/\n/g) || [];
+
+        splitStatement.splice(startLine, 1, splitStatement[startLine].slice(0, startColumn) +
+            newValue + splitStatement[startLine].slice(endColumn || startColumn));
+
+        return splitStatement.join('\n');
+    }
+
+    const newStatement =  statementModel.source.slice(0, startColumn) + newValue +
+        statementModel.source.slice(endColumn || startColumn);
+
+    return newStatement.slice(-1) !== ';' ? newStatement + ';' : newStatement;
 }
 
 export function getSuggestionIconStyle(suggestionType: number): string {

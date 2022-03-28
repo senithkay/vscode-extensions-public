@@ -10,7 +10,6 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-wrap-multiline
 import React from "react";
 
 import { SimpleNameReference } from "@wso2-enterprise/syntax-tree";
@@ -19,15 +18,13 @@ import { InputEditor } from "../../InputEditor";
 
 interface NameRefProps {
     model: SimpleNameReference;
-    isTypeDesc?: boolean;
 }
 
 export function SimpleNameReferenceComponent(props: NameRefProps) {
-    const { model, isTypeDesc } = props;
+    const { model } = props;
 
     const inputEditorProps = {
-        model,
-        isTypeDesc
+        model
     };
 
     return (

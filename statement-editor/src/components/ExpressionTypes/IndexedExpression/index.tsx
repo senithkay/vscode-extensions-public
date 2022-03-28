@@ -10,15 +10,14 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js jsx-no-lambda
-import React, { ReactNode, useContext } from "react";
+// tslint:disable: jsx-no-multiline-js
+import React from "react";
 
-import { IndexedExpression, STNode } from "@wso2-enterprise/syntax-tree";
-import classNames from "classnames";
+import { IndexedExpression } from "@wso2-enterprise/syntax-tree";
 
-import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { ExpressionComponent } from "../../Expression";
-import { useStatementEditorStyles } from "../../styles";
+import { ExpressionArrayComponent } from "../../ExpressionArray";
+import { TokenComponent } from "../../Token";
 
 interface IndexedExpressionProps {
     model: IndexedExpression;
@@ -26,66 +25,13 @@ interface IndexedExpressionProps {
 
 export function IndexedExpressionComponent(props: IndexedExpressionProps) {
     const { model } = props;
-    const stmtCtx = useContext(StatementEditorContext);
-    const {
-        modelCtx: {
-            changeCurrentModel
-        }
-    } = stmtCtx;
-
-    const statementEditorClasses = useStatementEditorStyles();
-
-    const keyExprComponent = (
-        <span>
-            {
-                model.keyExpression.map((expression: STNode, index: number) => (
-                    <ExpressionComponent
-                            key={index}
-                            model={expression}
-                            onSelect={(event) => onClickOnKeyExpr(expression, event)}
-                    />
-                ))
-            }
-        </span>
-    );
-
-    const onClickOnContainerExpr = (event: any) => {
-        event.stopPropagation();
-        changeCurrentModel(model.containerExpression);
-    };
-
-    const onClickOnKeyExpr = async (clickedExpression: STNode, event: any) => {
-        event.stopPropagation();
-        changeCurrentModel(clickedExpression);
-    };
-
-    const containerExpr: ReactNode = (
-        <ExpressionComponent
-            model={model.containerExpression}
-            onSelect={onClickOnContainerExpr}
-        />
-    );
 
     return (
-        <span>
-            {containerExpr}
-            <span
-                className={classNames(
-                    statementEditorClasses.expressionBlock,
-                    statementEditorClasses.expressionBlockDisabled
-                )}
-            >
-                {model.openBracket.value}
-            </span>
-            {keyExprComponent}
-            <span
-                className={classNames(
-                    statementEditorClasses.expressionBlock,
-                    statementEditorClasses.expressionBlockDisabled
-                )}
-            >
-                {model.closeBracket.value}
-            </span>
-        </span>
+        <>
+            <ExpressionComponent model={model.containerExpression} />
+            <TokenComponent model={model.openBracket} />
+            <ExpressionArrayComponent expressions={model.keyExpression} />
+            <TokenComponent model={model.closeBracket} />
+        </>
     );
 }

@@ -53,9 +53,19 @@ export const CUSTOM_CONFIG_TYPE = "Custom"
 export const ALL_LIBS_IDENTIFIER = "All"
 export const LANG_LIBS_IDENTIFIER = "Language"
 export const STD_LIBS_IDENTIFIER = "Standard"
+export const TABLE_CONSTRUCTOR = "TableConstructor"
+export const OBJECT_CONSTRUCTOR = "ObjectConstructor"
+
 
 export const INIT_EXPR_LIST_CONSTRUCTOR = "EXPRESSION]"
 export const APPEND_EXPR_LIST_CONSTRUCTOR = ", EXPRESSION]"
+
+export const PLACE_HOLDER_DIAGNOSTIC_MESSAGES: string[] = [
+    `undefined symbol 'EXPRESSION'`,
+    `unknown type 'EXPRESSION'`,
+    `unknown type 'TYPE_DESCRIPTOR'`,
+    `invalid usage of map literal: duplicate key 'EXPRESSION'`
+];
 
 // Statement types supported in function-body-block
 export type StatementNodes = ActionStatement

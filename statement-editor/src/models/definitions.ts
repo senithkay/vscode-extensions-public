@@ -13,15 +13,9 @@
 
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
-export enum ModelKind {
-    Operator,
-    TypeDesc,
-    BindingPattern
-}
 
 export interface CurrentModel {
-    model: STNode,
-    kind?: ModelKind
+    model: STNode
 }
 
 export interface VariableUserInputs {
@@ -43,7 +37,12 @@ export interface RemainingContent {
     position: NodePosition
 }
 
-export interface ExprDeleteConfig {
-    exprNotDeletable?: boolean,
-    defaultExprDeletable?: boolean
+export interface StmtDiagnostic {
+    message: string;
+    isPlaceHolderDiag?: boolean;
+}
+
+export interface StmtOffset {
+    startLine: number;
+    startColumn: number;
 }

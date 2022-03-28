@@ -13,14 +13,14 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import React, { useContext } from "react";
 
-import { MappingConstructor, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
-import classNames from "classnames";
+import { MappingConstructor } from "@wso2-enterprise/syntax-tree";
 
 import { MAPPING_CONSTRUCTOR } from "../../../constants";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { generateExpressionTemplate } from "../../../utils/utils";
-import { ExpressionComponent } from "../../Expression";
+import { ExpressionArrayComponent } from "../../ExpressionArray";
 import { useStatementEditorStyles } from "../../styles";
+import { TokenComponent } from "../../Token";
 
 interface MappingConstructorProps {
     model: MappingConstructor;
@@ -28,15 +28,14 @@ interface MappingConstructorProps {
 
 export function MappingConstructorComponent(props: MappingConstructorProps) {
     const { model } = props;
-    const stmtCtx = useContext(StatementEditorContext);
+
+    const statementEditorClasses = useStatementEditorStyles();
+
     const {
         modelCtx: {
             updateModel,
-            changeCurrentModel
         }
-    } = stmtCtx;
-
-    const statementEditorClasses = useStatementEditorStyles();
+    } = useContext(StatementEditorContext);
 
     const onClickOnPlusIcon = () => {
         const expressionTemplate = generateExpressionTemplate(MAPPING_CONSTRUCTOR);
@@ -44,63 +43,17 @@ export function MappingConstructorComponent(props: MappingConstructorProps) {
         updateModel(newField, model.closeBrace.position);
     };
 
-    const onClickOnExpression = (clickedExpression: STNode, event: any) => {
-        event.stopPropagation();
-        changeCurrentModel(clickedExpression);
-    };
-
-    const fieldsComponent = (
-        <span>
-            {
-                model.fields.map((expression: STNode, index: number) => (
-                    (STKindChecker.isCommaToken(expression)) ? (
-                        <span
-                            key={index}
-                            className={classNames(
-                                statementEditorClasses.expressionBlock,
-                                statementEditorClasses.expressionBlockDisabled
-                            )}
-                        >
-                            {expression.value}
-                        </span>
-                    ) : (
-                        <ExpressionComponent
-                            key={index}
-                            model={expression}
-                            onSelect={(event) => onClickOnExpression(expression, event)}
-                            deleteConfig={{defaultExprDeletable: true}}
-                        />
-                    )
-                ))
-            }
-        </span>
-    );
-
     return (
-        <span>
-            <span
-                className={classNames(
-                    statementEditorClasses.expressionBlock,
-                    statementEditorClasses.expressionBlockDisabled
-                )}
-            >
-                {model.openBrace.value}
-            </span>
-            {fieldsComponent}
+        <>
+            <TokenComponent model={model.openBrace} />
+            <ExpressionArrayComponent expressions={model.fields} />
             <span
                 className={statementEditorClasses.plusIcon}
                 onClick={onClickOnPlusIcon}
             >
                 +
             </span>
-            <span
-                className={classNames(
-                    statementEditorClasses.expressionBlock,
-                    statementEditorClasses.expressionBlockDisabled
-                )}
-            >
-                {model.closeBrace.value}
-            </span>
-        </span>
+            <TokenComponent model={model.closeBrace} />
+        </>
     );
 }

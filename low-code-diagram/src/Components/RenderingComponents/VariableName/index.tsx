@@ -52,16 +52,16 @@ export function VariableName(props: { x: number, y: number, variableName: string
         </text>
     );
 
+    // TODO:Check the rendering issue in this tooltip
+
     const defaultTooltip = (
         <DefaultTooltip text={{ heading: variableName }}>{variableTextComp}</DefaultTooltip>
     );
 
     useEffect(() => {
         if (variableName && showTooltip) {
-            setTooltip(showTooltip(variableTextComp, "heading-content", { heading: variableName }, "top-start", true, undefined, undefined, false, undefined, {
-                inverted: false,
-                interactive: true
-            }));
+            setTooltip(showTooltip(variableTextComp, variableName)
+            );
         }
         setTextWidth(document.getElementById("variableLegnth_" + key_id).getBoundingClientRect().width);
     }, [variableName]);

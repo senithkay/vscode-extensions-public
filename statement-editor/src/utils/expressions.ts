@@ -23,7 +23,8 @@ export interface ExpressionGroup {
     expressions: Expression[];
 }
 
-export const PLACE_HOLDER = "expression";
+export const EXPR_PLACE_HOLDER = "EXPRESSION";
+export const TYPE_DESC_PLACE_HOLDER = "TYPE_DESCRIPTOR";
 /* tslint:disable-next-line */
 export const SELECTED_EXPRESSION = "${SELECTED_EXPRESSION}";
 
@@ -49,7 +50,7 @@ const templates: ExpressionGroup = {
     expressions: [
         {
             name: "String Template",
-            template: "string`value`",
+            template: "string `value`",
             example: "string `value`"
         }, {
             name: "XML Template",
@@ -75,7 +76,7 @@ const structuralConstructors: ExpressionGroup = {
             example: "[ Es ]"
         }, {
             name: "Mapping",
-            template: ` { key: ${PLACE_HOLDER} }`,
+            template: ` { key: ${EXPR_PLACE_HOLDER} }`,
             example: "{ key : value }"
         }, {
             name: "Table",
@@ -102,7 +103,6 @@ const structuralConstructors: ExpressionGroup = {
 //     6.17 Error constructor
 //     6.18 Anonymous function expression
 //     6.19 Let expression
-//     6.20 Type cast expression
 //     6.21 Typeof expression
 const typeofEx: ExpressionGroup = {
     name: "Typeof",
@@ -111,6 +111,17 @@ const typeofEx: ExpressionGroup = {
             name: "Typeof",
             template: `typeof ${SELECTED_EXPRESSION}`,
             example: "typeof Es"
+        }
+    ]
+}
+//     6.20 Type cast expression
+const typeCastEx: ExpressionGroup = {
+    name: "Type Cast",
+    expressions: [
+        {
+            name: "Type Cast",
+            template: `<${TYPE_DESC_PLACE_HOLDER}>${SELECTED_EXPRESSION}`,
+            example: "<type>Es"
         }
     ]
 }
@@ -146,23 +157,23 @@ const operators: ExpressionGroup = {
     expressions: [
         {
             name: "Add",
-            template: ` ${SELECTED_EXPRESSION} + ${PLACE_HOLDER}`,
+            template: ` ${SELECTED_EXPRESSION} + ${EXPR_PLACE_HOLDER}`,
             example: "Es + Ex"
         }, {
             name: "Substract",
-            template: ` ${SELECTED_EXPRESSION} - ${PLACE_HOLDER}`,
+            template: ` ${SELECTED_EXPRESSION} - ${EXPR_PLACE_HOLDER}`,
             example: "Es - Ex"
         }, {
             name: "Multiply",
-            template: ` ${SELECTED_EXPRESSION} * ${PLACE_HOLDER}`,
+            template: ` ${SELECTED_EXPRESSION} * ${EXPR_PLACE_HOLDER}`,
             example: "Es * Ex"
         }, {
             name: "Divide",
-            template: ` ${SELECTED_EXPRESSION} / ${PLACE_HOLDER}`,
+            template: ` ${SELECTED_EXPRESSION} / ${EXPR_PLACE_HOLDER}`,
             example: "Es / En"
         }, {
             name: "Modules",
-            template: ` ${SELECTED_EXPRESSION} % ${PLACE_HOLDER}`,
+            template: ` ${SELECTED_EXPRESSION} % ${EXPR_PLACE_HOLDER}`,
             example: "Es % Ex"
         },
     ]
@@ -173,15 +184,15 @@ const shift: ExpressionGroup = {
     expressions: [
         {
             name: "Left Shift",
-            template: ` ${SELECTED_EXPRESSION} << ${PLACE_HOLDER}`,
+            template: ` ${SELECTED_EXPRESSION} << ${EXPR_PLACE_HOLDER}`,
             example: "Es << Ex"
         }, {
             name: "Signed Right Shipt",
-            template: ` ${SELECTED_EXPRESSION} >> ${PLACE_HOLDER}`,
+            template: ` ${SELECTED_EXPRESSION} >> ${EXPR_PLACE_HOLDER}`,
             example: "Es >> Ex"
         }, {
             name: "Right Shipt",
-            template: ` ${SELECTED_EXPRESSION} >>> ${PLACE_HOLDER}`,
+            template: ` ${SELECTED_EXPRESSION} >>> ${EXPR_PLACE_HOLDER}`,
             example: "Es >>> Ex"
         }
     ]
@@ -192,11 +203,11 @@ const range: ExpressionGroup = {
     expressions: [
         {
             name: "Range less than or equal",
-            template: ` ${SELECTED_EXPRESSION} ... ${PLACE_HOLDER}`,
+            template: ` ${SELECTED_EXPRESSION} ... ${EXPR_PLACE_HOLDER}`,
             example: "Es ... Ex"
         }, {
             name: "Range less than ",
-            template: ` ${SELECTED_EXPRESSION} ..< ${PLACE_HOLDER}`,
+            template: ` ${SELECTED_EXPRESSION} ..< ${EXPR_PLACE_HOLDER}`,
             example: "Es ..< Ex"
         }
     ]
@@ -207,19 +218,19 @@ const relational: ExpressionGroup = {
     expressions: [
         {
             name: "Less Than",
-            template: ` ${SELECTED_EXPRESSION} < ${PLACE_HOLDER}`,
+            template: ` ${SELECTED_EXPRESSION} < ${EXPR_PLACE_HOLDER}`,
             example: "Es < Ex"
         }, {
             name: "GreaterThan",
-            template: ` ${SELECTED_EXPRESSION} > ${PLACE_HOLDER}`,
+            template: ` ${SELECTED_EXPRESSION} > ${EXPR_PLACE_HOLDER}`,
             example: "Es > Ex"
         }, {
             name: "Less Than or Equal",
-            template: ` ${SELECTED_EXPRESSION} <= ${PLACE_HOLDER}`,
+            template: ` ${SELECTED_EXPRESSION} <= ${EXPR_PLACE_HOLDER}`,
             example: "Es <= Ex"
         }, {
             name: "Greater Than or Equal",
-            template: ` ${SELECTED_EXPRESSION} >= ${PLACE_HOLDER}`,
+            template: ` ${SELECTED_EXPRESSION} >= ${EXPR_PLACE_HOLDER}`,
             example: "Es >= En"
         }
     ]
@@ -230,11 +241,11 @@ const typeTest: ExpressionGroup = {
     expressions: [
         {
             name: "Type Test",
-            template: ` ${SELECTED_EXPRESSION} is ${PLACE_HOLDER}`,
+            template: ` ${SELECTED_EXPRESSION} is ${TYPE_DESC_PLACE_HOLDER}`,
             example: "Es is Ex"
         }, {
             name: "Type Test Nigation",
-            template: ` ${SELECTED_EXPRESSION} !is ${PLACE_HOLDER}`,
+            template: ` ${SELECTED_EXPRESSION} !is ${TYPE_DESC_PLACE_HOLDER}`,
             example: "Es !is Ex"
         }
     ]
@@ -245,12 +256,12 @@ const equality: ExpressionGroup = {
     expressions: [
         {
             name: "Equal",
-            template: ` ${SELECTED_EXPRESSION} == ${PLACE_HOLDER}`,
-            example: "Es is Ex"
+            template: ` ${SELECTED_EXPRESSION} == ${EXPR_PLACE_HOLDER}`,
+            example: "Es == Ex"
         }, {
             name: "Not Equal",
-            template: ` ${SELECTED_EXPRESSION} !is ${PLACE_HOLDER}`,
-            example: "Es !is Ex"
+            template: ` ${SELECTED_EXPRESSION} != ${EXPR_PLACE_HOLDER}`,
+            example: "Es != Ex"
         }
     ]
 }
@@ -260,15 +271,15 @@ const binaryBitwise: ExpressionGroup = {
     expressions: [
         {
             name: "Bitwise AND",
-            template: ` ${SELECTED_EXPRESSION} & ${PLACE_HOLDER}`,
+            template: ` ${SELECTED_EXPRESSION} & ${EXPR_PLACE_HOLDER}`,
             example: "Es & Ex"
         }, {
             name: "Bitwise OR",
-            template: ` ${SELECTED_EXPRESSION} | ${PLACE_HOLDER}`,
+            template: ` ${SELECTED_EXPRESSION} | ${EXPR_PLACE_HOLDER}`,
             example: "Es | Ex"
         }, {
             name: "Bitwise XOR",
-            template: ` ${SELECTED_EXPRESSION} ^ ${PLACE_HOLDER}`,
+            template: ` ${SELECTED_EXPRESSION} ^ ${EXPR_PLACE_HOLDER}`,
             example: "Es ^ Ex"
         }
     ]
@@ -279,11 +290,11 @@ const logical: ExpressionGroup = {
     expressions: [
         {
             name: "Logical AND",
-            template: ` ${SELECTED_EXPRESSION} && ${PLACE_HOLDER}`,
+            template: ` ${SELECTED_EXPRESSION} && ${EXPR_PLACE_HOLDER}`,
             example: "Es && Ex"
         }, {
             name: "Logical OR",
-            template: ` ${SELECTED_EXPRESSION} || ${PLACE_HOLDER}`,
+            template: ` ${SELECTED_EXPRESSION} || ${EXPR_PLACE_HOLDER}`,
             example: "Es || Ex"
         }
     ]
@@ -357,6 +368,7 @@ export const expressions: ExpressionGroup[] = [
     trap,
     typeTest,
     typeofEx,
+    typeCastEx,
     templates,
     structuralConstructors,
     range,

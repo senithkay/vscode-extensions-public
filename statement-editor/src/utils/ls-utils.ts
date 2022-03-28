@@ -29,7 +29,8 @@ import {
 } from "../components/InputEditor/constants";
 import { CurrentModel, SuggestionItem } from '../models/definitions';
 
-import { isTypeDesc, sortSuggestions } from "./index";
+import { sortSuggestions } from "./index";
+import { StatementEditorViewState } from "./statement-editor-viewstate";
 
 export async function getPartialSTForStatement(
             partialSTRequest: PartialSTRequest,
@@ -55,8 +56,7 @@ export async function getCompletions (docUri: string,
                                       userInput: string = ''
                                     ) : Promise<SuggestionItem[]> {
 
-    const isTypeDescriptor = isTypeDesc(currentModel?.kind);
-    const isElseIfMember = STKindChecker.isElseBlock(currentModel.model);
+    const isTypeDescriptor = (currentModel.model.viewState as StatementEditorViewState).isTypeDescriptor;
     const varName = STKindChecker.isLocalVarDecl(completeModel)
         && completeModel.typedBindingPattern.bindingPattern.source.trim();
     const currentModelPosition = currentModel.model.position;
@@ -72,12 +72,7 @@ export async function getCompletions (docUri: string,
             triggerKind: 1
         },
         position: {
-            character: currentModel.model ?
-                (isElseIfMember ?
-                    currentModelPosition.startColumn :
-                    targetPosition.startColumn + currentModelPosition.startColumn + userInput.length
-                ) :
-                targetPosition.startColumn + userInput.length,
+            character: targetPosition.startColumn + currentModelPosition.startColumn + userInput.length,
             line: targetPosition.startLine + currentModelPosition.startLine
         }
     }
@@ -193,10 +188,11 @@ export async function addStatementToTargetLine(
 export async function addImportStatements(
             currentFileContent: string,
             modulesToBeImported: string[]): Promise<string> {
-    const modelContent: string[] = currentFileContent.split(/\n/g) || [];
-    modulesToBeImported.join('');
-    modelContent.splice(0, 0, modulesToBeImported.join(''));
-    return modelContent.join('\n');
+    let moduleList : string = "";
+    modulesToBeImported.forEach(module => {
+        moduleList += "import " + module + "; ";
+   });
+    return moduleList + currentFileContent;
 }
 
 async function getModifiedStatement(

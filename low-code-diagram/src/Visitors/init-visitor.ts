@@ -5,7 +5,6 @@ import {
     CallStatement,
     CaptureBindingPattern,
     CheckAction,
-    DoStatement,
     ExpressionFunctionBody,
     ForeachStatement,
     FunctionBodyBlock,
@@ -18,7 +17,6 @@ import {
     NamedWorkerDeclaration,
     NamedWorkerDeclarator,
     ObjectMethodDefinition,
-    OnFailClause,
     RemoteMethodCallAction,
     RequiredParam,
     ResourceAccessorDefinition,
@@ -57,7 +55,7 @@ import { DraftStatementViewState } from "../ViewState/draft";
 import { WorkerDeclarationViewState } from "../ViewState/worker-declaration";
 
 import { DefaultConfig } from "./default";
-import { isSTActionInvocation } from "./util";
+import { haveBlockStatement, isSTActionInvocation } from "./util";
 
 let allEndpoints: Map<string, Endpoint> = new Map<string, Endpoint>();
 let currentFnBody: FunctionBodyBlock | ExpressionFunctionBody;
@@ -297,6 +295,9 @@ export class InitVisitor implements Visitor {
 
     public beginVisitIfElseStatement(node: IfElseStatement, parent?: STNode) {
         node.viewState = new IfViewState();
+        if (!STKindChecker.isElseBlock(parent)){
+            (node.viewState as IfViewState).isMainIfBody = true;
+        }
         if (node.elseBody) {
             if (node.elseBody.elseBody?.kind === "BlockStatement") {
                 const elseBlock: BlockStatement = node.elseBody.elseBody as BlockStatement;
@@ -364,7 +365,7 @@ export class InitVisitor implements Visitor {
         node.viewState = new StatementViewState();
         const stmtViewState: StatementViewState = node.viewState;
         // todo: In here we need to catch only the action invocations.
-        if (isSTActionInvocation(node)) {
+        if (isSTActionInvocation(node) && !haveBlockStatement(node)) {
             stmtViewState.isAction = true;
         }
 
@@ -507,17 +508,6 @@ export class InitVisitor implements Visitor {
         // evaluating return statement
         if (node.statements.length > 0 && STKindChecker.isReturnStatement(node.statements[node.statements.length - 1])) {
             node.viewState.isEndComponentAvailable = true;
-        }
-
-        if (STKindChecker.isFunctionDefinition(parent)) {
-            for (const statement of node.statements) {
-                if (STKindChecker.isDoStatement(statement)) {
-                    const viewState: DoViewState = new DoViewState();
-                    viewState.isFirstInFunctionBody = true;
-                    statement.viewState = viewState;
-                    break;
-                }
-            };
         }
     }
 

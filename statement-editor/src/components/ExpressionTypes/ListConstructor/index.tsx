@@ -13,13 +13,13 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import React, { useContext } from "react";
 
-import { ListConstructor, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
-import classNames from "classnames";
+import { ListConstructor } from "@wso2-enterprise/syntax-tree";
 
 import { APPEND_EXPR_LIST_CONSTRUCTOR, INIT_EXPR_LIST_CONSTRUCTOR } from "../../../constants";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
-import { ExpressionComponent } from "../../Expression";
+import { ExpressionArrayComponent } from "../../ExpressionArray";
 import { useStatementEditorStyles } from "../../styles";
+import { TokenComponent } from "../../Token";
 
 interface ListConstructorProps {
     model: ListConstructor;
@@ -31,43 +31,10 @@ export function ListConstructorComponent(props: ListConstructorProps) {
     const {
         modelCtx: {
             updateModel,
-            changeCurrentModel
         }
     } = stmtCtx;
 
     const statementEditorClasses = useStatementEditorStyles();
-
-    const onClickOnExpression = async (clickedExpression: STNode, event: any) => {
-        event.stopPropagation();
-        changeCurrentModel(clickedExpression);
-    };
-
-    const expressionComponent = (
-        <span>
-            {
-                model.expressions.map((expression: STNode, index: number) => (
-                    (STKindChecker.isCommaToken(expression)) ? (
-                        <span
-                            key={index}
-                            className={classNames(
-                                statementEditorClasses.expressionBlock,
-                                statementEditorClasses.expressionBlockDisabled
-                            )}
-                        >
-                            {expression.value}
-                        </span>
-                    ) : (
-                        <ExpressionComponent
-                            key={index}
-                            model={expression}
-                            onSelect={(event) => onClickOnExpression(expression, event)}
-                            deleteConfig={{defaultExprDeletable: true}}
-                        />
-                    )
-                ))
-            }
-        </span>
-    );
 
     const onClickOnPlusIcon = (event: any) => {
         event.stopPropagation();
@@ -76,30 +43,16 @@ export function ListConstructorComponent(props: ListConstructorProps) {
     };
 
     return (
-        <span>
-            <span
-                className={classNames(
-                    statementEditorClasses.expressionBlock,
-                    statementEditorClasses.expressionBlockDisabled
-                )}
-            >
-                {model.openBracket.value}
-            </span>
-            {expressionComponent}
+        <>
+            <TokenComponent model={model.openBracket} />
+            <ExpressionArrayComponent expressions={model.expressions} />
             <span
                 className={statementEditorClasses.plusIcon}
                 onClick={onClickOnPlusIcon}
             >
                 +
             </span>
-            <span
-                className={classNames(
-                    statementEditorClasses.expressionBlock,
-                    statementEditorClasses.expressionBlockDisabled
-                )}
-            >
-                {model.closeBracket.value}
-            </span>
-        </span>
+            <TokenComponent model={model.closeBracket} />
+        </>
     );
 }

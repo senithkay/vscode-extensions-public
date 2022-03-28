@@ -10,15 +10,12 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js
-import React, { ReactNode, useContext } from "react";
+import React from "react";
 
 import { ConditionalExpression } from "@wso2-enterprise/syntax-tree";
-import classNames from "classnames";
 
-import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { ExpressionComponent } from "../../Expression";
-import { useStatementEditorStyles } from "../../styles";
+import { TokenComponent } from "../../Token";
 
 interface ConditionalExpressionProps {
     model: ConditionalExpression;
@@ -26,74 +23,14 @@ interface ConditionalExpressionProps {
 
 export function ConditionalExpressionComponent(props: ConditionalExpressionProps) {
     const { model } = props;
-    const stmtCtx = useContext(StatementEditorContext);
-    const {
-        modelCtx: {
-            changeCurrentModel
-        }
-    } = stmtCtx;
-
-    const statementEditorClasses = useStatementEditorStyles();
-
-    const onClickOnLhsExpression = async (event: any) => {
-        event.stopPropagation();
-        changeCurrentModel(model.lhsExpression);
-    }
-
-    const onClickOnMiddleExpression = async (event: any) => {
-        event.stopPropagation();
-        changeCurrentModel(model.middleExpression);
-    };
-
-    const onClickOnEndExpression = async (event: any) => {
-        event.stopPropagation();
-        changeCurrentModel(model.endExpression);
-    };
-
-    const lhsExpression: ReactNode = (
-        <ExpressionComponent
-            model={model.lhsExpression}
-            onSelect={onClickOnLhsExpression}
-        />
-    );
-
-    const middleExpression: ReactNode = (
-        <ExpressionComponent
-            model={model.middleExpression}
-            onSelect={onClickOnMiddleExpression}
-        />
-    );
-
-    const endExpression: ReactNode = (
-        <ExpressionComponent
-            model={model.endExpression}
-            onSelect={onClickOnEndExpression}
-        />
-    );
 
     return (
-        <span>
-            {lhsExpression}
-            <span
-                className={classNames(
-                    statementEditorClasses.expressionBlock,
-                    statementEditorClasses.expressionBlockDisabled,
-                    "operator"
-                )}
-            >
-                &nbsp;{model.questionMarkToken.value}
-            </span>
-            {middleExpression}
-            <span
-                className={classNames(
-                    statementEditorClasses.expressionBlock,
-                    statementEditorClasses.expressionBlockDisabled,
-                    "operator"
-                )}
-            >
-                &nbsp;{model.colonToken.value}
-            </span>
-            {endExpression}
-        </span>
+        <>
+            <ExpressionComponent model={model.lhsExpression} />
+            <TokenComponent model={model.questionMarkToken} className={"operator"} />
+            <ExpressionComponent model={model.middleExpression} />
+            <TokenComponent model={model.colonToken} className={"operator"} />
+            <ExpressionComponent model={model.endExpression} />
+        </>
     );
 }

@@ -11,14 +11,13 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { ReactNode, useContext } from "react";
+import React, { useContext } from "react";
 
 import { ReturnStatement } from "@wso2-enterprise/syntax-tree";
-import classNames from "classnames";
 
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { ExpressionComponent } from "../../Expression";
-import { useStatementEditorStyles } from "../../styles";
+import { TokenComponent } from "../../Token";
 
 
 interface ReturnStatementProps {
@@ -35,30 +34,14 @@ export function RespondStatementC(props: ReturnStatementProps) {
         }
     } = stmtCtx;
 
-    const statementEditorClasses = useStatementEditorStyles();
-
-    const onClickOnExpression = async (event: any) => {
-        event.stopPropagation();
-        changeCurrentModel(model.expression);
-    };
-
     if (!currentModel.model) {
         changeCurrentModel(model.expression);
     }
 
-    const expressionComponent: ReactNode = (
-        <ExpressionComponent
-            model={model.expression}
-            onSelect={onClickOnExpression}
-        />
-    );
-
     return (
-        <span>
-            {expressionComponent}
-            <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>
-                {model.semicolonToken.value}
-            </span>
-        </span>
+        <>
+            <ExpressionComponent model={model.expression} />
+            <TokenComponent model={model.semicolonToken} />
+        </>
     );
 }

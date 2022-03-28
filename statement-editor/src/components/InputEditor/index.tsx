@@ -28,6 +28,7 @@ import debounce from "lodash.debounce";
 import * as c from "../../constants";
 import { InputEditorContext } from "../../store/input-editor-context";
 import { StatementEditorContext } from "../../store/statement-editor-context";
+import { StatementEditorViewState } from "../../utils/statement-editor-viewstate";
 import { useStatementEditorStyles } from "../styles";
 
 import {
@@ -38,12 +39,12 @@ export interface InputEditorProps {
     model?: STNode;
     isToken?: boolean;
     classNames?: string;
-    isTypeDesc?: boolean;
+    notEditable?: boolean;
 }
 
 export function InputEditor(props: InputEditorProps) {
 
-    const { model, isToken, classNames, isTypeDesc } = props;
+    const { model, isToken, classNames, notEditable } = props;
 
     const stmtCtx = useContext(StatementEditorContext);
     const {
@@ -135,6 +136,9 @@ export function InputEditor(props: InputEditorProps) {
     };
 
     const changeInput = (newValue: string) => {
+        if (!newValue) {
+            newValue = (model.viewState as StatementEditorViewState).isTypeDescriptor ? 'TYPE_DESCRIPTOR' : 'EXPRESSION';
+        }
         setUserInput(newValue);
         inputEditorCtx.onInputChange(newValue);
         debouncedContentChange(newValue, true);
@@ -143,7 +147,7 @@ export function InputEditor(props: InputEditorProps) {
     const debouncedContentChange = debounce(handleChange, 500);
 
     const handleDoubleClick = () => {
-        if (!isToken){
+        if (!notEditable){
             setIsEditing(true);
         }
     };
@@ -152,18 +156,8 @@ export function InputEditor(props: InputEditorProps) {
         setIsEditing(false);
         setPrevUserInput(userInput);
         if (userInput !== "") {
-            updateModel(userInput, model ? model.position : targetPosition, true);
+            updateModel(userInput, model ? model.position : targetPosition);
         }
-    }
-
-    const getInputDisplayValue = (inputText: string): string => {
-        if (INPUT_EDITOR_PLACE_HOLDERS.has(inputText)) {
-            return INPUT_EDITOR_PLACE_HOLDERS.get(inputText);
-        } else if (inputText === "") {
-            isTypeDesc ? (inputText = 'TYPE_DESCRIPTOR') : (inputText = 'EXPRESSION');
-            return INPUT_EDITOR_PLACE_HOLDERS.get(inputText);
-        }
-        return inputText;
     }
 
     return isEditing ?
@@ -189,7 +183,7 @@ export function InputEditor(props: InputEditorProps) {
                 className={statementEditorClasses.inputEditorTemplate + ' ' + classNames}
                 onDoubleClick={handleDoubleClick}
             >
-                {getInputDisplayValue(userInput)}
+                {INPUT_EDITOR_PLACE_HOLDERS.has(userInput) ? INPUT_EDITOR_PLACE_HOLDERS.get(userInput) : userInput}
             </span>
         );
 }

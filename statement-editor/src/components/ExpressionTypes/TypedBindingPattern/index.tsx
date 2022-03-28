@@ -10,13 +10,10 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js
-import React, { ReactNode, useContext } from "react";
+import React from "react";
 
 import { TypedBindingPattern } from "@wso2-enterprise/syntax-tree";
 
-import { ModelKind } from "../../../models/definitions";
-import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { ExpressionComponent } from "../../Expression";
 
 interface TypedBindingPatternProps {
@@ -25,45 +22,11 @@ interface TypedBindingPatternProps {
 
 export function TypedBindingPatternComponent(props: TypedBindingPatternProps) {
     const { model } = props;
-    const stmtCtx = useContext(StatementEditorContext);
-    const {
-        modelCtx: {
-            changeCurrentModel
-        }
-    } = stmtCtx;
-
-    const onClickOnTypeBindingPattern = async (event: any) => {
-        event.stopPropagation();
-        changeCurrentModel(model.bindingPattern, ModelKind.BindingPattern);
-    };
-
-    const bindingPatternComponent: ReactNode = (
-        <ExpressionComponent
-            model={model.bindingPattern}
-            onSelect={onClickOnTypeBindingPattern}
-            deleteConfig={{exprNotDeletable: true}}
-        />
-    );
-
-    const onClickOnType = async (event: any) => {
-        event.stopPropagation();
-        changeCurrentModel(model.typeDescriptor, ModelKind.TypeDesc);
-    };
-
-    const typeDescriptorComponent: ReactNode = (
-        <ExpressionComponent
-            model={model.typeDescriptor}
-            onSelect={onClickOnType}
-            classNames="type-descriptor"
-            deleteConfig={{defaultExprDeletable: true}}
-            isTypeDesc={true}
-        />
-    );
 
     return (
-        <span>
-            {typeDescriptorComponent}
-            {bindingPatternComponent}
-        </span>
+        <>
+            <ExpressionComponent model={model.typeDescriptor} classNames="type-descriptor" />
+            <ExpressionComponent model={model.bindingPattern} />
+        </>
     );
 }

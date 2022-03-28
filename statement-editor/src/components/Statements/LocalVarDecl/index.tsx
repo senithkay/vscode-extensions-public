@@ -16,11 +16,13 @@ import React, { ReactNode, useContext } from "react";
 import { LocalVarDecl } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
+import { CUSTOM_CONFIG_TYPE } from "../../../constants";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { isPositionsEquals } from "../../../utils";
 import { ExpressionComponent } from "../../Expression";
 import { InputEditor } from "../../InputEditor";
 import { useStatementEditorStyles } from "../../styles";
+import { TokenComponent } from "../../Token";
 
 interface LocalVarDeclProps {
     model: LocalVarDecl;
@@ -33,7 +35,8 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
         modelCtx: {
             currentModel,
             changeCurrentModel
-        }
+        },
+        config
     } = stmtCtx;
     const hasTypedBindingPatternSelected = currentModel.model &&
         isPositionsEquals(currentModel.model.position, model.typedBindingPattern.position);
@@ -45,13 +48,12 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
         changeCurrentModel(model.typedBindingPattern);
     };
 
-    const onClickOnInitializer = async (event: any) => {
-        event.stopPropagation();
-        changeCurrentModel(model.initializer);
-    };
-
-    if (!currentModel.model && model.initializer) {
-        changeCurrentModel(model.initializer);
+    if (!currentModel.model) {
+        if (model.initializer) {
+            changeCurrentModel(model.initializer);
+        } else if (config.type === CUSTOM_CONFIG_TYPE) {
+            changeCurrentModel(model);
+        }
     }
 
     let typedBindingComponent: ReactNode;
@@ -59,7 +61,6 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
         typedBindingComponent = (
             <ExpressionComponent
                 model={model.typedBindingPattern}
-                onSelect={onClickOnBindingPattern}
             />
         )
     } else {
@@ -80,44 +81,23 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
         )
     }
 
-    const expressionComponent: ReactNode = (
-        <ExpressionComponent
-            model={model.initializer}
-            onSelect={onClickOnInitializer}
-        />
-    );
 
     return (
-        <span>
+        <>
             {typedBindingComponent}
             {
                 model.equalsToken && (
                     <>
-                        <span
-                            className={classNames(
-                                statementEditorClasses.expressionBlock,
-                                statementEditorClasses.expressionBlockDisabled,
-                                "operator"
-                            )}
-                        >
-                            &nbsp;{model.equalsToken.value}
-                        </span>
-                        {expressionComponent}
+                        <TokenComponent model={model.equalsToken}  className="operator" />
+                        <ExpressionComponent model={model.initializer} />
                     </>
                 )
             }
 
-            <span
-                className={classNames(
-                    statementEditorClasses.expressionBlock,
-                    statementEditorClasses.expressionBlockDisabled
-                )}
-            >
             {/* TODO: use model.semicolonToken.isMissing when the ST interface is supporting */}
-                {model.semicolonToken.position.startColumn !== model.semicolonToken.position.endColumn &&
-                    model.semicolonToken.value}
-            </span>
-        </span>
+            {model.semicolonToken.position.startColumn !== model.semicolonToken.position.endColumn &&
+                <TokenComponent model={model.semicolonToken} />}
+        </>
     );
 }
 

@@ -18,16 +18,14 @@ import { InputEditor } from "../../../InputEditor";
 
 interface FloatTypeDescProps {
     model: FloatTypeDesc;
-    isTypeDesc?: boolean;
 }
 
 export function FloatTypeDescComponent(props: FloatTypeDescProps) {
-    const { model, isTypeDesc } = props;
+    const { model } = props;
 
     const inputEditorProps = {
         model,
-        classNames: "type-descriptor float",
-        isTypeDesc
+        classNames: "type-descriptor float"
     };
 
     return (
