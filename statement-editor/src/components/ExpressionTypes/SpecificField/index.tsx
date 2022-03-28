@@ -10,11 +10,15 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React from "react";
+import React, { useContext } from "react";
 
 import { SpecificField } from "@wso2-enterprise/syntax-tree";
 
+import { MAPPING_CONSTRUCTOR } from "../../../constants";
+import { StatementEditorContext } from "../../../store/statement-editor-context";
+import { generateExpressionTemplate } from "../../../utils/utils";
 import { ExpressionComponent } from "../../Expression";
+import { useStatementEditorStyles } from "../../styles";
 import { TokenComponent } from "../../Token";
 
 interface SpecificFieldProps {
@@ -24,11 +28,34 @@ interface SpecificFieldProps {
 export function SpecificFieldComponent(props: SpecificFieldProps) {
     const { model } = props;
 
+    const statementEditorClasses = useStatementEditorStyles();
+
+    const {
+        modelCtx: {
+            updateModel,
+        }
+    } = useContext(StatementEditorContext);
+
+    const onClickOnPlusIcon = () => {
+        const minutiae = model.fieldName.leadingMinutiae.pop()?.minutiae;
+        const newField = `,\n${minutiae === undefined ? '' : minutiae}${generateExpressionTemplate(MAPPING_CONSTRUCTOR)}`;
+        updateModel(newField, {
+            ...model.valueExpr.position,
+            startColumn: model.valueExpr.position.endColumn
+        });
+    };
+
     return (
         <>
             <ExpressionComponent model={model.fieldName} />
             <TokenComponent model={model.colon} />
             <ExpressionComponent model={model.valueExpr} />
+            <span
+                className={statementEditorClasses.plusIcon}
+                onClick={onClickOnPlusIcon}
+            >
+                +
+            </span>
         </>
     );
 }

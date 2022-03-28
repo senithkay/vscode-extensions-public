@@ -26,7 +26,7 @@ export function generateExpressionTemplate (kind: string, value?: any) {
     } else if (kind === c.RANGE) {
         return "(EXPRESSION ... EXPRESSION)";
     } else if (kind === c.MAPPING_CONSTRUCTOR) {
-        return "EXPRESSION : EXPRESSION";
+        return "key : EXPRESSION";
     } else if (kind === c.TYPE_TEST) {
         return "(EXPRESSION is TYPE_DESCRIPTOR)";
     } else if (kind === c.STRING_LITERAL) {

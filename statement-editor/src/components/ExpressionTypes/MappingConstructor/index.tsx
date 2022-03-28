@@ -39,7 +39,7 @@ export function MappingConstructorComponent(props: MappingConstructorProps) {
 
     const onClickOnPlusIcon = () => {
         const expressionTemplate = generateExpressionTemplate(MAPPING_CONSTRUCTOR);
-        const newField = model.fields.length !== 0 ? `, ${expressionTemplate} }` : `${expressionTemplate} }`;
+        const newField = `${expressionTemplate} }`;
         updateModel(newField, model.closeBrace.position);
     };
 
@@ -47,12 +47,14 @@ export function MappingConstructorComponent(props: MappingConstructorProps) {
         <>
             <TokenComponent model={model.openBrace} />
             <ExpressionArrayComponent expressions={model.fields} />
-            <span
-                className={statementEditorClasses.plusIcon}
-                onClick={onClickOnPlusIcon}
-            >
-                +
-            </span>
+            {(model.fields.length === 0) && (
+                <span
+                    className={statementEditorClasses.plusIcon}
+                    onClick={onClickOnPlusIcon}
+                >
+                    +
+                </span>
+            )}
             <TokenComponent model={model.closeBrace} />
         </>
     );
