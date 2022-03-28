@@ -45,6 +45,10 @@ export class BallerinaNotebookController {
         this.controller.executeHandler = this.execute.bind(this);
     }
 
+    public restartExecutionOrder = () =>{
+        this.executionOrder = 0;
+    }
+
     private async execute(cells: NotebookCell[], _notebook: NotebookDocument, 
         controller: NotebookController): Promise<void> {
         for (let cell of cells) {

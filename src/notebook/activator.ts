@@ -18,7 +18,7 @@
  */
 
 import { workspace, ExtensionContext, commands, Disposable, window } from 'vscode';
-import { BallerinaExtension } from '../core';
+import { BallerinaExtension, ExtendedLangClient } from '../core';
 import { BallerinaNotebookSerializer } from "./notebookSerializer";
 import { BallerinaNotebookController } from "./notebookController";
 import { registerLanguageProviders } from './languageProvider';
@@ -26,14 +26,16 @@ import { VariableViewProvider } from './variableView';
 
 export function activate(ballerinaExtInstance: BallerinaExtension) {
     const context = <ExtensionContext>ballerinaExtInstance.context;
+    const notebookController = new BallerinaNotebookController(ballerinaExtInstance);
 
     context.subscriptions.push(
         workspace.registerNotebookSerializer('ballerina-notebook', new BallerinaNotebookSerializer())
     );
-    context.subscriptions.push(new BallerinaNotebookController(ballerinaExtInstance));
+    context.subscriptions.push(notebookController);
     context.subscriptions.push(registerLanguageProviders(ballerinaExtInstance));
     context.subscriptions.push(registerFocusToOutline());
     context.subscriptions.push(registerVariableView(ballerinaExtInstance));
+    context.subscriptions.push(registerRestartNotebook(ballerinaExtInstance, notebookController));
 	context.subscriptions.push(
 		window.registerWebviewViewProvider(VariableViewProvider.viewType, new VariableViewProvider(ballerinaExtInstance))
     );
@@ -49,5 +51,18 @@ function registerVariableView(ballerinaExtInstance: BallerinaExtension): Disposa
     return commands.registerCommand('ballerina.notebook.openVariableView', () => {
         ballerinaExtInstance.setNotebookVariableViewEnabled(true);
         commands.executeCommand('ballerinaViewVariables.focus');
+    });
+}
+
+function registerRestartNotebook(ballerinaExtInstance: BallerinaExtension, 
+    notebookController: BallerinaNotebookController): Disposable {
+    return commands.registerCommand('ballerina.notebook.restartnotebook', async () => {
+		const langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
+        if (!langClient) {
+            return;
+        }
+        await langClient.restartNotebook();
+        notebookController.restartExecutionOrder();
+        await commands.executeCommand('notebook.clearAllCellsOutputs');
     });
 }
