@@ -45,10 +45,10 @@ export class BallerinaNotebookController {
         this.controller.executeHandler = this.execute.bind(this);
     }
 
-    private execute(cells: NotebookCell[], _notebook: NotebookDocument, 
-        controller: NotebookController): void {
+    private async execute(cells: NotebookCell[], _notebook: NotebookDocument, 
+        controller: NotebookController): Promise<void> {
         for (let cell of cells) {
-            this.doExecution(cell);
+            await this.doExecution(cell);
         }
     }
 
