@@ -15,6 +15,7 @@ import React from "react";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
+import { getJSXForMinutiae } from "../../utils";
 import { useStatementEditorStyles } from "../styles";
 
 export interface TokenComponentProps {
@@ -33,9 +34,14 @@ export function TokenComponent(props: TokenComponentProps) {
         className
     );
 
+    const leadingMinutiae = getJSXForMinutiae(model.leadingMinutiae);
+    const trailingMinutiae = getJSXForMinutiae(model.trailingMinutiae);
+
     return (
         <span className={styleClassName} >
+            {leadingMinutiae}
             {model.value}
+            {trailingMinutiae}
         </span>
     );
 }

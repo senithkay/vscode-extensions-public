@@ -55,6 +55,8 @@ export const LANG_LIBS_IDENTIFIER = "Language"
 export const STD_LIBS_IDENTIFIER = "Standard"
 export const TABLE_CONSTRUCTOR = "TableConstructor"
 export const OBJECT_CONSTRUCTOR = "ObjectConstructor"
+export const WHITESPACE_MINUTIAE = "WHITESPACE_MINUTIAE"
+export const END_OF_LINE_MINUTIAE = "END_OF_LINE_MINUTIAE"
 
 
 export const INIT_EXPR_LIST_CONSTRUCTOR = "EXPRESSION]"

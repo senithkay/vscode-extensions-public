@@ -17,7 +17,7 @@ import { STNode } from "@wso2-enterprise/syntax-tree";
 import cn from "classnames";
 
 import { StatementEditorContext } from "../../store/statement-editor-context";
-import { getExpressionTypeComponent, isPositionsEquals } from "../../utils";
+import { getExpressionTypeComponent, getJSXForMinutiae, isPositionsEquals } from "../../utils";
 import { useStatementEditorStyles } from "../styles";
 
 export interface ExpressionComponentProps {
@@ -69,6 +69,9 @@ export function ExpressionComponent(props: ExpressionComponentProps) {
         classNames
     )
 
+    const leadingMinutiae = getJSXForMinutiae(model.leadingMinutiae);
+    const trailingMinutiae = getJSXForMinutiae(model.trailingMinutiae);
+
     return (
         <span
             onMouseOver={onMouseOver}
@@ -76,8 +79,10 @@ export function ExpressionComponent(props: ExpressionComponentProps) {
             className={styleClassNames}
             onClick={onMouseClick}
         >
+            {leadingMinutiae}
             {component}
             {children}
+            {trailingMinutiae}
         </span>
     );
 }

@@ -20,6 +20,7 @@ import {
     STModification
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
+    Minutiae,
     NodePosition,
     STKindChecker,
     STNode,
@@ -30,10 +31,12 @@ import { Diagnostic } from "vscode-languageserver-protocol";
 import * as expressionTypeComponents from '../components/ExpressionTypes';
 import * as statementTypeComponents from '../components/Statements';
 import {
+    END_OF_LINE_MINUTIAE,
     OTHER_EXPRESSION,
     OTHER_STATEMENT,
     PLACE_HOLDER_DIAGNOSTIC_MESSAGES,
-    StatementNodes
+    StatementNodes,
+    WHITESPACE_MINUTIAE
 } from "../constants";
 import { RemainingContent, StmtDiagnostic, StmtOffset } from '../models/definitions';
 import { visitor as DeleteConfigSetupVisitor } from "../visitors/delete-config-setup-visitor";
@@ -231,6 +234,16 @@ export function addExpressionToTargetPosition(statementModel: STNode, currentPos
         statementModel.source.slice(endColumn || startColumn);
 
     return newStatement.slice(-1) !== ';' ? newStatement + ';' : newStatement;
+}
+
+export function getJSXForMinutiae(minutiae: Minutiae[]): ReactNode[] {
+    return minutiae.map((element) => {
+        if (element.kind === WHITESPACE_MINUTIAE) {
+            return Array.from({length: element.minutiae.length}, () => <>&nbsp;</>);
+        } else if (element.kind === END_OF_LINE_MINUTIAE) {
+            return <br/>;
+        }
+    });
 }
 
 export function getSuggestionIconStyle(suggestionType: number): string {
