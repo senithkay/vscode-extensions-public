@@ -38,7 +38,7 @@ import { AsteriskToken,
 import cn from "classnames";
 
 import { StatementEditorContext } from "../../store/statement-editor-context";
-import { isPositionsEquals } from "../../utils";
+import { getJSXForMinutiae, isPositionsEquals } from "../../utils";
 import { InputEditor } from "../InputEditor";
 import { useStatementEditorStyles } from "../styles";
 
@@ -114,6 +114,9 @@ export function OperatorComponent(props: OperatorProps) {
         notEditable: true
     };
 
+    const leadingMinutiae = getJSXForMinutiae(model.leadingMinutiae);
+    const trailingMinutiae = getJSXForMinutiae(model.trailingMinutiae);
+
     return (
         <span
             onMouseOver={onMouseOver}
@@ -121,7 +124,9 @@ export function OperatorComponent(props: OperatorProps) {
             className={styleClassNames}
             onClick={onMouseClick}
         >
+            {leadingMinutiae}
             <InputEditor {...inputEditorProps} />
+            {trailingMinutiae}
         </span>
     );
 }
