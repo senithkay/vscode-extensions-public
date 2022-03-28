@@ -23,6 +23,7 @@ import { BallerinaNotebookSerializer } from "./notebookSerializer";
 import { BallerinaNotebookController } from "./notebookController";
 import { registerLanguageProviders } from './languageProvider';
 import { VariableViewProvider } from './variableView';
+import { OPEN_OUTLINE_VIEW_COMMAND, OPEN_VARIABLE_VIEW_COMMAND, RESTART_NOTEBOOK_COMMAND } from './constants';
 
 export function activate(ballerinaExtInstance: BallerinaExtension) {
     const context = <ExtensionContext>ballerinaExtInstance.context;
@@ -42,13 +43,13 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 }
 
 function registerFocusToOutline(): Disposable {
-    return commands.registerCommand('ballerina.notebook.openOutlineView', () => {
+    return commands.registerCommand(OPEN_OUTLINE_VIEW_COMMAND, () => {
         commands.executeCommand('outline.focus');
     });
 }
 
 function registerVariableView(ballerinaExtInstance: BallerinaExtension): Disposable {
-    return commands.registerCommand('ballerina.notebook.openVariableView', () => {
+    return commands.registerCommand(OPEN_VARIABLE_VIEW_COMMAND, () => {
         ballerinaExtInstance.setNotebookVariableViewEnabled(true);
         commands.executeCommand('ballerinaViewVariables.focus');
     });
@@ -56,7 +57,7 @@ function registerVariableView(ballerinaExtInstance: BallerinaExtension): Disposa
 
 function registerRestartNotebook(ballerinaExtInstance: BallerinaExtension, 
     notebookController: BallerinaNotebookController): Disposable {
-    return commands.registerCommand('ballerina.notebook.restartnotebook', async () => {
+    return commands.registerCommand(RESTART_NOTEBOOK_COMMAND , async () => {
 		const langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
         if (!langClient) {
             return;

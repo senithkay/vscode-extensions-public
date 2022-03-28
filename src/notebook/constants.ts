@@ -17,9 +17,19 @@
  *
  */
 
+/* Ballerina notebook extension */
 export const BAL_NOTEBOOK = ".balnotebook";
+
+/* Notebook scheme type */
 export const NOTEBOOK_SCHEME = "vscode-notebook-cell";
+
+/* Available mime type to render */
 export const MIME_TYPE_PLAIN_TEXT = "plain/text";
 export const MIME_TYPE_TABLE = "ballerina-notebook/table-view";
 export const MIME_TYPE_JSON = "ballerina-notebook/json-view";
 export const MIME_TYPE_XML = "application/xml";
+
+/* Commands for notebook*/
+export const RESTART_NOTEBOOK_COMMAND = "ballerina.notebook.restartnotebook";
+export const OPEN_OUTLINE_VIEW_COMMAND = "ballerina.notebook.openOutlineView";
+export const OPEN_VARIABLE_VIEW_COMMAND = "ballerina.notebook.openVariableView";
