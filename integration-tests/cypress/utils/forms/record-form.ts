@@ -40,11 +40,12 @@ export class RecordForm {
     }
 
     static typeRecordName(name: string) {
-        const clearKeyStroke = "{selectall}{del}{esc}";
-        this.getForm().get('[placeholder="Record name"]')
-            .type(clearKeyStroke)
-            .type(name);
-        return this;
+        ExpressionEditor
+        .getForField("Record name", this.selector)
+        .clear()
+        .type(name)
+        .waitForValidations();
+    return this;
     }
 
     static addNewField(type: string, name: string, value?: any) {

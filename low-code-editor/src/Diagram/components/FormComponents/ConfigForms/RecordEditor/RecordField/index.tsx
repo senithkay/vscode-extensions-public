@@ -312,6 +312,7 @@ export function RecordField(props: CodePanelProps) {
     };
 
     const handleRecordEdit = () => {
+        setRecordName(state.currentRecord.name)
         if (state.currentField && state.currentField.name  === "" && (state.currentField.value === "" ||
             state.currentField.value === undefined) && state.currentField.type === "" &&
             state.currentField.isEditInProgress) {
