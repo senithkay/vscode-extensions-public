@@ -304,8 +304,8 @@ export class PositioningVisitor implements Visitor {
             });
             workerEntry.sends.forEach(sendInfo => {
                 if (!sendInfo.paired) {
-                    const matchedReceive = this.senderReceiverInfo.get(sendInfo.to).receives
-                        .find(receiveInfo => receiveInfo.from === key && !receiveInfo.paired)
+                    const matchedReceive = this.senderReceiverInfo
+                        .get(sendInfo.to)?.receives?.find(receiveInfo => receiveInfo.from === key && !receiveInfo.paired);
 
                     if (matchedReceive) {
                         matchedReceive.paired = true;
@@ -325,8 +325,8 @@ export class PositioningVisitor implements Visitor {
 
             workerEntry.receives.forEach(receiveInfo => {
                 if (!receiveInfo.paired) {
-                    const matchedSend = this.senderReceiverInfo.get(receiveInfo.from).sends
-                        .find(senderInfo => senderInfo.to === key && !senderInfo.paired)
+                    const matchedSend = this.senderReceiverInfo
+                        .get(receiveInfo.from)?.sends?.find(senderInfo => senderInfo.to === key && !senderInfo.paired)
 
                     if (matchedSend) {
                         matchedSend.paired = true;

@@ -547,8 +547,8 @@ export class SizingVisitor implements Visitor {
                     return;
                 }
 
-                const matchedReceive = this.senderReceiverInfo.get(sendInfo.to).receives
-                    .find(receiveInfo => receiveInfo.from === key && !receiveInfo.paired)
+                const matchedReceive = this.senderReceiverInfo
+                    .get(sendInfo.to)?.receives?.find(receiveInfo => receiveInfo.from === key && !receiveInfo.paired);
 
                 if (matchedReceive) {
                     matchedReceive.paired = true;
@@ -584,8 +584,8 @@ export class SizingVisitor implements Visitor {
                     return;
                 }
 
-                const matchedSend = this.senderReceiverInfo.get(receiveInfo.from).sends
-                    .find(senderInfo => senderInfo.to === key && !senderInfo.paired)
+                const matchedSend = this.senderReceiverInfo
+                    .get(receiveInfo.from)?.sends?.find(senderInfo => senderInfo.to === key && !senderInfo.paired);
 
                 if (matchedSend) {
                     matchedSend.paired = true;
@@ -1245,13 +1245,15 @@ export class SizingVisitor implements Visitor {
 
                 if (isVarTypeDescriptor(node)) {
                     // renders process box if the endpoint var type
-                    viewState.dataProcess.w = PROCESS_SVG_WIDTH;
-                    viewState.dataProcess.lw = PROCESS_SVG_WIDTH / 2;
-                    viewState.dataProcess.rw = PROCESS_SVG_WIDTH / 2;
+                    viewState.dataProcess.lw = (DefaultConfig.defaultBlockWidth) / 2;
+                    viewState.dataProcess.rw = (DefaultConfig.defaultBlockWidth) / 2;
+
+                    viewState.dataProcess.w = viewState.dataProcess.lw + viewState.dataProcess.rw;
                 } else {
-                    viewState.bBox.w = CLIENT_SVG_WIDTH;
-                    viewState.bBox.lw = CLIENT_SVG_WIDTH / 2;
-                    viewState.bBox.rw = CLIENT_SVG_WIDTH / 2;
+                    viewState.bBox.lw = (DefaultConfig.defaultBlockWidth) / 2;
+                    viewState.bBox.rw = (DefaultConfig.defaultBlockWidth) / 2;
+
+                    viewState.bBox.w = viewState.bBox.lw + viewState.bBox.rw;
                 }
             }
         } else {
