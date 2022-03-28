@@ -131,6 +131,12 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
         })();
     }, []);
 
+    React.useEffect(() => {
+        setSelectedPosition(startColumn === 0 && startLine === 0 && syntaxTree ?
+            getDefaultSelectedPosition(syntaxTree as ModulePart)
+            : { startLine, startColumn });
+    }, [syntaxTree]);
+
     function zoomIn() {
         const newZoomStatus = cloneDeep(zoomStatus);
         newZoomStatus.scale = (zoomStatus.scale + ZOOM_STEP >= MAX_ZOOM) ? MAX_ZOOM : zoomStatus.scale + ZOOM_STEP;
