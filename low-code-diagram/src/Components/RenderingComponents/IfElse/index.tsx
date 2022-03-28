@@ -266,6 +266,12 @@ export function IfElse(props: IfElseProps) {
             pluses.push(<PlusButton viewState={plusView} model={ifStatement.ifBody} initPlus={false} />)
         }
 
+        if (isElseExist) {
+            for (const plusView of ifStatement.elseBody.elseBody.viewState.plusButtons) {
+                pluses.push(<PlusButton viewState={plusView} model={ifStatement.elseBody.elseBody as BlockStatement} initPlus={false} />)
+            }
+        }
+
         if (bodyViewState.collapseView) {
             children.push(<Collapse blockViewState={bodyViewState} />)
         }
