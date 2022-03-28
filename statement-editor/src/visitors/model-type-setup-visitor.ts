@@ -12,6 +12,8 @@
  */
 import {
     BinaryExpression,
+    QueryPipeline,
+    STNode,
     TypeCastExpression,
     TypedBindingPattern,
     TypeTestExpression,
@@ -36,6 +38,12 @@ class ModelTypeSetupVisitor implements Visitor {
 
     public beginVisitTypeCastExpression(node: TypeCastExpression) {
         (node.typeCastParam.viewState as StatementEditorViewState).modelType = ModelType.TYPE_DESCRIPTOR;
+    }
+
+    public beginVisitQueryPipeline(node: QueryPipeline) {
+        node.intermediateClauses.map((intermediateClause: STNode) => {
+            (intermediateClause.viewState as StatementEditorViewState).modelType = ModelType.QUERY_CLAUSE;
+        });
     }
 }
 
