@@ -19,7 +19,7 @@
 
 import { WebviewViewProvider, WebviewView, WebviewViewResolveContext, CancellationToken, ExtensionContext } from "vscode";
 import { BallerinaExtension, ExtendedLangClient } from "../core";
-import { getComposerWebViewOptions, getLibraryWebViewContent, WebViewOptions } from "../utils";
+import { getComposerWebViewOptions, getLibraryWebViewContent, WebViewOptions, WebViewRPCHandler } from "../utils";
 
 export class VariableViewProvider implements WebviewViewProvider {
 
@@ -37,6 +37,7 @@ export class VariableViewProvider implements WebviewViewProvider {
 		webviewView.webview.options = {
 			enableScripts: true,
 		};
+		WebViewRPCHandler.create(webviewView, langClient, []);
 		const html = this.getHtmlForWebview(context, langClient);
 		webviewView.webview.html = html;
 	}
@@ -49,7 +50,7 @@ export class VariableViewProvider implements WebviewViewProvider {
 				function loadedScript() {
 					const langClient = getLangClient();
 					function renderVariableValues() {
-						NotebookRenderer.renderVariableView(document.getElementById("variables"), 
+						variableView.renderVariableView(document.getElementById("variables"), 
 						langClient.getNotebookVariables);
 					}
 					renderVariableValues();
@@ -57,7 +58,7 @@ export class VariableViewProvider implements WebviewViewProvider {
 			`;
 
 		const webViewOptions: WebViewOptions = {
-			...getComposerWebViewOptions("NotebookRenderer"),
+			...getComposerWebViewOptions("variableView"),
 			body, scripts, styles, bodyCss
 		};
 
