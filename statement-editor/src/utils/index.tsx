@@ -186,7 +186,7 @@ export function getFilteredDiagnosticMessages(stmtLength: number, targetPosition
 
     getDiagnosticMessage(diag, diagnosticTargetPosition, 0, stmtLength, 0, 0).split('. ').map(message => {
             let isPlaceHolderDiag = false;
-            if (PLACE_HOLDER_DIAGNOSTIC_MESSAGES.includes(message)) {
+            if (PLACE_HOLDER_DIAGNOSTIC_MESSAGES.some(msg => message.includes(msg))) {
                 isPlaceHolderDiag = true;
             }
             if (!!message) {

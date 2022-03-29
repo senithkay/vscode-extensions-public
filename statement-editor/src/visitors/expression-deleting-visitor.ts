@@ -31,8 +31,8 @@ import {
 import { RemainingContent } from "../models/definitions";
 import { isPositionsEquals } from "../utils";
 
-const DEFAULT_EXPR = "EXPRESSION";
-const DEFAULT_TYPE_DESC = "TYPE_DESCRIPTOR";
+export const DEFAULT_EXPR = "EXPRESSION";
+export const DEFAULT_TYPE_DESC = "TYPE_DESCRIPTOR";
 
 class ExpressionDeletingVisitor implements Visitor {
     private deletePosition: NodePosition;
