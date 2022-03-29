@@ -716,7 +716,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         if (onChange) {
             onChange(currentContent);
         }
-        // Mark content as valid - if not empty and set model value directly.
+        // Mark content as valid - if not empty - and set model value directly.
         // Later when the validations from LS side are done,
         // validate callback will be invoked again with actual validity.
         // This is a optimisitc validation to handle several edge cases where
@@ -747,7 +747,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             expressionEditorState.uri = expressionEditorState?.uri;
 
             // update the change of the field
-            model.value = monacoRef.current.editor.getModel().getValue();
+            model.value = currentContent;
             const langClient = await getExpressionEditorLangClient();
             langClient.didChange({
                 contentChanges: [{ text: expressionEditorState.content }],
