@@ -17,10 +17,10 @@
  *
  */
 
-import { WebviewPanel } from "vscode";
+import { WebviewPanel, WebviewView } from "vscode";
 
 export interface WebViewMethodHandler {
-    (args: any[], webviewPanel: WebviewPanel) : Thenable<any> | void | any;
+    (args: any[], webviewPanel: WebviewPanel | WebviewView) : Thenable<any> | void | any;
 }
 
 export interface WebViewMethod {
