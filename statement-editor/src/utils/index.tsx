@@ -241,6 +241,12 @@ export function getJSXForMinutiae(minutiae: Minutiae[]): ReactNode[] {
     });
 }
 
+export function getStringForMinutiae(minutiae: Minutiae[]): string {
+    return minutiae.map((element) => {
+        return element.minutiae;
+    }).join('');
+}
+
 export function getSuggestionIconStyle(suggestionType: number): string {
     let suggestionIconStyle: string;
     switch (suggestionType) {

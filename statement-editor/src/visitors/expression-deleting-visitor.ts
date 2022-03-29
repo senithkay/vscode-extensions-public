@@ -29,7 +29,7 @@ import {
 } from "@wso2-enterprise/syntax-tree";
 
 import { RemainingContent } from "../models/definitions";
-import { isPositionsEquals } from "../utils";
+import { getStringForMinutiae, isPositionsEquals } from "../utils";
 
 const DEFAULT_EXPR = "EXPRESSION";
 const DEFAULT_TYPE_DESC = "TYPE_DESCRIPTOR";
@@ -127,21 +127,32 @@ class ExpressionDeletingVisitor implements Visitor {
     public beginVisitMappingConstructor(node: MappingConstructor) {
         if (!this.isNodeFound) {
             const hasItemsToBeDeleted = node.fields.some((field: STNode) => {
-                return this.deletePosition === field.position;
+                return isPositionsEquals(this.deletePosition, field.position);
             });
 
             if (hasItemsToBeDeleted) {
                 const expressions: string[] = [];
+                let nextCommaDeletable = false;
                 node.fields.map((field: STNode) => {
-                    if (this.deletePosition !== field.position && !STKindChecker.isCommaToken(field)) {
-                        expressions.push(field.source);
+                    if (!isPositionsEquals(this.deletePosition, field.position)) {
+                        if (STKindChecker.isCommaToken(field)) {
+                            if (!nextCommaDeletable) {
+                                expressions.push(getStringForMinutiae(field.leadingMinutiae) + field.value +
+                                    getStringForMinutiae(field.trailingMinutiae));
+                            }
+                        } else {
+                            expressions.push(field.source);
+                        }
+                        nextCommaDeletable = false;
+                    } else {
+                        nextCommaDeletable = true;
                     }
                 });
 
-                this.setProperties(expressions.join(','), {
-                    startLine: node.openBrace.position.startLine,
-                    startColumn: node.openBrace.position.endColumn,
-                    endLine: node.closeBrace.position.endLine,
+                this.setProperties(expressions.join(''), {
+                    startLine: node.fields[0].position.startLine,
+                    startColumn: node.fields[0].position.startColumn - getStringForMinutiae(node.fields[0].leadingMinutiae).length,
+                    endLine: node.closeBrace.position.startLine,
                     endColumn: node.closeBrace.position.startColumn
                 });
             }
