@@ -15,7 +15,7 @@ import {
     IntersectionTypeDesc,
     OptionalTypeDesc,
     QueryPipeline,
-    STNode,
+    STNode, TupleTypeDesc,
     TypeCastExpression,
     TypedBindingPattern,
     TypeTestExpression,
@@ -61,6 +61,12 @@ class ModelTypeSetupVisitor implements Visitor {
 
     public beginVisitOptionalTypeDesc(node: OptionalTypeDesc) {
         (node.typeDescriptor.viewState as StatementEditorViewState).modelType = ModelType.TYPE_DESCRIPTOR;
+    }
+
+    public beginVisitTupleTypeDesc(node: TupleTypeDesc) {
+        node.memberTypeDesc.map((memberTypeDesc: STNode) => {
+            (memberTypeDesc.viewState as StatementEditorViewState).modelType = ModelType.TYPE_DESCRIPTOR;
+        });
     }
 
 }

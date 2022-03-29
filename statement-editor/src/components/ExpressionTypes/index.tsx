@@ -57,6 +57,7 @@ import { IntTypeDescComponent } from './TypeDescriptor/IntTypeDesc';
 import { JsonTypeDescComponent } from './TypeDescriptor/JsonTypeDesc';
 import { OptionalTypeDescComponent } from "./TypeDescriptor/OptionalTypeDesc";
 import { StringTypeDescComponent } from './TypeDescriptor/StringTypeDesc';
+import { TupleTypeDescComponent} from "./TypeDescriptor/TupleTypeDesc";
 import { UnionTypeDescComponent} from "./TypeDescriptor/UnionTypeDesc";
 import { VarTypeDescComponent } from './TypeDescriptor/VarTypeDesc';
 import { TypeTestExpressionComponent} from "./TypeTestExpression";
@@ -118,3 +119,4 @@ export { TemplateStringComponent as TemplateString }
 export { UnionTypeDescComponent as UnionTypeDesc }
 export { OptionalTypeDescComponent as OptionalTypeDesc }
 export { IntersectionTypeDescComponent as IntersectionTypeDesc }
+export { TupleTypeDescComponent as TupleTypeDesc }

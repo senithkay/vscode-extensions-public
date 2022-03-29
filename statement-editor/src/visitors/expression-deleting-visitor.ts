@@ -22,7 +22,7 @@ import {
     OptionalFieldAccess,
     SpecificField,
     STKindChecker,
-    STNode,
+    STNode, TupleTypeDesc,
     TypedBindingPattern,
     TypeTestExpression,
     Visitor
@@ -119,6 +119,29 @@ class ExpressionDeletingVisitor implements Visitor {
                     ...node.position,
                     startColumn: node.openBracket.position.endColumn,
                     endColumn: node.closeBracket.position.startColumn
+                });
+            }
+        }
+    }
+
+    public beginVisitTupleTypeDesc(node: TupleTypeDesc) {
+        if (!this.isNodeFound) {
+            const hasItemsToBeDeleted = node.memberTypeDesc.some((item: STNode) => {
+                return this.deletePosition === item.position;
+            });
+
+            if (hasItemsToBeDeleted) {
+                const typeDescList: string[] = [];
+                node.memberTypeDesc.map((types: STNode) => {
+                    if (this.deletePosition !== types.position && !STKindChecker.isCommaToken(types)) {
+                        typeDescList.push(types.source);
+                    }
+                });
+
+                this.setProperties(typeDescList.join(','), {
+                    ...node.position,
+                    startColumn: node.openBracketToken.position.endColumn,
+                    endColumn: node.closeBracketToken.position.startColumn
                 });
             }
         }
