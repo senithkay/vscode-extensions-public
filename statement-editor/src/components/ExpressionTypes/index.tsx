@@ -52,9 +52,12 @@ import { TypedBindingPatternComponent } from './TypedBindingPattern';
 import { BooleanTypeDescComponent } from './TypeDescriptor/BooleanTypeDesc';
 import { DecimalTypeDescComponent } from './TypeDescriptor/DecimalTypeDesc';
 import { FloatTypeDescComponent } from './TypeDescriptor/FloatTypeDesc';
+import { IntersectionTypeDescComponent } from "./TypeDescriptor/IntersectionTypeDesc";
 import { IntTypeDescComponent } from './TypeDescriptor/IntTypeDesc';
 import { JsonTypeDescComponent } from './TypeDescriptor/JsonTypeDesc';
+import { OptionalTypeDescComponent } from "./TypeDescriptor/OptionalTypeDesc";
 import { StringTypeDescComponent } from './TypeDescriptor/StringTypeDesc';
+import { UnionTypeDescComponent} from "./TypeDescriptor/UnionTypeDesc";
 import { VarTypeDescComponent } from './TypeDescriptor/VarTypeDesc';
 import { TypeTestExpressionComponent} from "./TypeTestExpression";
 import { UnaryExpressionComponent } from './UnaryExpression';
@@ -112,3 +115,6 @@ export { TableConstructorComponent as TableConstructor }
 export { RawTemplateExpressionComponent as RawTemplateExpression }
 export { XmlTemplateExpressionComponent as XmlTemplateExpression }
 export { TemplateStringComponent as TemplateString }
+export { UnionTypeDescComponent as UnionTypeDesc }
+export { OptionalTypeDescComponent as OptionalTypeDesc }
+export { IntersectionTypeDescComponent as IntersectionTypeDesc }

@@ -374,6 +374,28 @@ const trap: ExpressionGroup = {
 //         6.36.3 XML step expression
 //     6.37 Transactional expression
 
+// 5.6 Other type descriptors
+// 5.6.6 Distinct types TODO: Add the distinctTypeDesc when ST-interface is added
+
+const otherTypeDesc : ExpressionGroup = {
+    name: "Type Descriptors",
+    expressions: [
+        {
+            name: "Union",
+            template: `${SELECTED_EXPRESSION} | ${TYPE_DESC_PLACE_HOLDER}`,
+            example: "Es | Ex"
+        }, {
+            name: "Intersection",
+            template: `${SELECTED_EXPRESSION} & ${TYPE_DESC_PLACE_HOLDER}`,
+            example: "Es & Ex"
+        }, {
+            name: "Optional",
+            template: `${SELECTED_EXPRESSION}?`,
+            example: "Es?"
+        }
+    ],
+    relatedModelType: ModelType.TYPE_DESCRIPTOR
+}
 
 export const expressions: ExpressionGroup[] = [
     operators,
@@ -391,5 +413,6 @@ export const expressions: ExpressionGroup[] = [
     templates,
     structuralConstructors,
     range,
-    shift
+    shift,
+    otherTypeDesc
 ];

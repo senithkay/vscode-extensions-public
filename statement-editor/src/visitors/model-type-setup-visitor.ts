@@ -12,11 +12,14 @@
  */
 import {
     BinaryExpression,
+    IntersectionTypeDesc,
+    OptionalTypeDesc,
     QueryPipeline,
     STNode,
     TypeCastExpression,
     TypedBindingPattern,
     TypeTestExpression,
+    UnionTypeDesc,
     Visitor
 } from "@wso2-enterprise/syntax-tree";
 
@@ -45,6 +48,21 @@ class ModelTypeSetupVisitor implements Visitor {
             (intermediateClause.viewState as StatementEditorViewState).modelType = ModelType.QUERY_CLAUSE;
         });
     }
+
+    public beginVisitUnionTypeDesc(node: UnionTypeDesc) {
+        (node.leftTypeDesc.viewState as StatementEditorViewState).modelType = ModelType.TYPE_DESCRIPTOR;
+        (node.rightTypeDesc.viewState as StatementEditorViewState).modelType = ModelType.TYPE_DESCRIPTOR;
+    }
+
+    public beginVisitIntersectionTypeDesc(node: IntersectionTypeDesc) {
+        (node.leftTypeDesc.viewState as StatementEditorViewState).modelType = ModelType.TYPE_DESCRIPTOR;
+        (node.rightTypeDesc.viewState as StatementEditorViewState).modelType = ModelType.TYPE_DESCRIPTOR;
+    }
+
+    public beginVisitOptionalTypeDesc(node: OptionalTypeDesc) {
+        (node.typeDescriptor.viewState as StatementEditorViewState).modelType = ModelType.TYPE_DESCRIPTOR;
+    }
+
 }
 
 export const visitor = new ModelTypeSetupVisitor();

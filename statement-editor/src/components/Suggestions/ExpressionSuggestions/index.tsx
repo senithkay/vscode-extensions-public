@@ -42,9 +42,11 @@ export function ExpressionSuggestions() {
     }
 
     useEffect(() => {
-        const filteredGroups: ExpressionGroup[] = expressions.filter(
-            (exprGroup) => exprGroup.relatedModelType === currentModel.model.viewState.modelType);
-        setFilteredExpressions(filteredGroups);
+        if (currentModel.model){
+            const filteredGroups: ExpressionGroup[] = expressions.filter(
+                (exprGroup) => exprGroup.relatedModelType === currentModel.model.viewState.modelType);
+            setFilteredExpressions(filteredGroups);
+        }
     }, [currentModel.model]);
 
     const searchExpressions = (searchValue: string) => {
