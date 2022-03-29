@@ -4,7 +4,7 @@ module.exports = {
   entry: "./src/components/index.tsx",
   output: {
     path: path.resolve(__dirname, "build"),
-    filename: "variableView.js",
+    filename: "VariableView.js",
     library: 'variableView',
   },
   resolve: {

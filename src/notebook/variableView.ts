@@ -58,7 +58,7 @@ export class VariableViewProvider implements WebviewViewProvider {
 			`;
 
 		const webViewOptions: WebViewOptions = {
-			...getComposerWebViewOptions("variableView"),
+			...getComposerWebViewOptions("VariableView"),
 			body, scripts, styles, bodyCss
 		};
 
