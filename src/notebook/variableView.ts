@@ -45,7 +45,11 @@ export class VariableViewProvider implements WebviewViewProvider {
 	private getHtmlForWebview(_context: ExtensionContext, _langClient: ExtendedLangClient) {
 		const body = `<div id="variables" class="variables-container" />`;
 		const bodyCss = "variables";
-		const styles = ``;
+		const styles = `
+			.variables {
+				background-color: transparent;
+			}
+		`;
 		const scripts = `
 				function loadedScript() {
 					const langClient = getLangClient();

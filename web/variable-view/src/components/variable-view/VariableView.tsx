@@ -20,25 +20,31 @@
 import React, { useState } from 'react';
 import { useEffect } from 'react';
 
+import "./style.css";
+
 interface TableProps {
     header: string[];
     values: Object[];
 }
 
 export const Table = ({ header, values }: TableProps): JSX.Element => {
-    const darkMode = document.body.getAttribute('data-vscode-theme-kind')?.includes('dark') ?? false;
     const tableContentValues = values;
-    const getValue = (element: { [x: string]: any; }, key: string | number) => element[key] ? JSON.stringify(element[key], undefined, 2) : '';
+    const getValue = (element: { [x: string]: any; }, key: string | number) => element[key] ? element[key] : '';
     const renderHeader = () => {
         return header.map((key) => {
-            return <th key={key}>{key.toUpperCase()}</th>;
+            return <th key={key} data-key={key}>{key.toUpperCase()}</th>;
         });
     };
     const renderBody = () => {
         let body: JSX.Element[] = [];
         for (let index = 0; index < tableContentValues.length; index++) {
             body.push(
-                <tr>{ header.map( (key: string | number) =>{ return <td><pre>{getValue(tableContentValues[index], key)}</pre></td>; }) }</tr>
+                <tr>{ header.map( (key: string) =>{ 
+                    return <td className='table-data' data-key={key}>
+                        <span className='actual-value'>{getValue(tableContentValues[index], key)}</span>
+                        <span className='tooltip-text'>{getValue(tableContentValues[index], key)}</span>
+                        </td>; 
+                }) }</tr>
             );
         }
         return body;
@@ -71,5 +77,9 @@ export const VariableView = ({ getVariableValues }: VariableViewProps): JSX.Elem
     useEffect(() => {
         updateVals();
     });
-    return <Table header={header} values={tableProps.values}  />
+    const message = "No variables defined";
+    return <div id="variables-view" className="variables-view">
+            {tableProps.values == [{}] ? <div id="no-vars-message">{message}</div> :
+            <Table header={header} values={tableProps.values} /> }
+        </div>;
 }
