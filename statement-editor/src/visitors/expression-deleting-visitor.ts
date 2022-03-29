@@ -149,9 +149,11 @@ class ExpressionDeletingVisitor implements Visitor {
                     }
                 });
 
+                const _ = expressions[expressions.length - 1]?.trim() === ',' && expressions.pop();
+
                 this.setProperties(expressions.join(''), {
-                    startLine: node.fields[0].position.startLine,
-                    startColumn: node.fields[0].position.startColumn - getStringForMinutiae(node.fields[0].leadingMinutiae).length,
+                    startLine: node.openBrace.position.endLine,
+                    startColumn: node.openBrace.position.endColumn,
                     endLine: node.closeBrace.position.startLine,
                     endColumn: node.closeBrace.position.startColumn
                 });

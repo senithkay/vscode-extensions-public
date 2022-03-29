@@ -37,8 +37,7 @@ export function SpecificFieldComponent(props: SpecificFieldProps) {
     } = useContext(StatementEditorContext);
 
     const onClickOnPlusIcon = () => {
-        const minutiae = model.fieldName.leadingMinutiae.pop()?.minutiae;
-        const newField = `,\n${minutiae === undefined ? '' : minutiae}${generateExpressionTemplate(MAPPING_CONSTRUCTOR)}`;
+        const newField = `,\n${generateExpressionTemplate(MAPPING_CONSTRUCTOR)}`;
         updateModel(newField, {
             ...model.valueExpr.position,
             startColumn: model.valueExpr.position.endColumn
