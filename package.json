@@ -367,7 +367,7 @@
             {
                 "command": "ballerina.notebook.openVariableView",
                 "title": "Variables",
-                "icon": "$(zap)",
+                "icon": "$(notebook)",
                 "category": "Ballerina",
                 "enablement": "notebookType == 'ballerina-notebook' && isWorkspaceTrusted"
             },
@@ -396,7 +396,7 @@
                 {
                     "type": "webview",
                     "id": "ballerinaViewVariables",
-                    "name": "Variables",
+                    "name": "Variable View",
                     "when": "isNotebookVariableViewEnabled"
                 }
             ]
@@ -412,7 +412,7 @@
             "panel": [
                 {
                     "id": "notebook-variables",
-                    "title": "Variable View",
+                    "title": "Ballerina",
                     "icon": "$(notebook)"
                 }
             ]

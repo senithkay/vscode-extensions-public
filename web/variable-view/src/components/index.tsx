@@ -19,9 +19,9 @@
 
 import { createElement } from "react";
 import { render } from "react-dom";
-import { VariableView } from "./variable-view/VariableView";
+import { VariableValue, VariableView } from "./variable-view/VariableView";
 
-export function renderVariableView(target: HTMLElement, getVariableValues: () => Promise<Object[]>) {
+export function renderVariableView(target: HTMLElement, getVariableValues: () => Promise<VariableValue[]>) {
     const props = {
         getVariableValues
     };

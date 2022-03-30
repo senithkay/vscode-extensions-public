@@ -24,7 +24,17 @@ import "./style.css";
 
 interface TableProps {
     header: string[];
-    values: Object[];
+    values: VariableValue[];
+}
+
+export interface VariableValue{
+    name: string;
+    type: string;
+    value: string;
+}
+
+export interface VariableViewProps {
+    getVariableValues: () => Promise<VariableValue[]>;
 }
 
 export const Table = ({ header, values }: TableProps): JSX.Element => {
@@ -39,7 +49,7 @@ export const Table = ({ header, values }: TableProps): JSX.Element => {
         let body: JSX.Element[] = [];
         for (let index = 0; index < tableContentValues.length; index++) {
             body.push(
-                <tr>{ header.map( (key: string) =>{ 
+                <tr key={tableContentValues[index].name}>{ header.map( (key: string) =>{ 
                     return <td className='table-data' data-key={key}>
                         <span className='actual-value'>{getValue(tableContentValues[index], key)}</span>
                         <span className='tooltip-text'>{getValue(tableContentValues[index], key)}</span>
@@ -58,28 +68,23 @@ export const Table = ({ header, values }: TableProps): JSX.Element => {
     return <div>{ renderTable() }</div>;
 };
 
-export interface VariableViewProps {
-    getVariableValues: () => Promise<Object[]>;
-}
-
 export const VariableView = ({ getVariableValues }: VariableViewProps): JSX.Element => {
     const header = ["name", "type", "value"];
-    const [tableProps, setTableProps] = useState({
-        values: [{}]
-    });
+    const message = "No variables defined";
+    const [tableValues, setTableValues] = useState([{
+        name: message,
+        type: '',
+        value: ''
+    }]);
     const updateVals = () => {        
         getVariableValues().then((vals) => {
-            return setTableProps({
-                values: vals
-            });
+            return setTableValues(vals.sort((val1, val2) => val1.name.localeCompare(val2.name)));
         });
     }
     useEffect(() => {
         updateVals();
-    });
-    const message = "No variables defined";
+    }, []);
     return <div id="variables-view" className="variables-view">
-            {tableProps.values == [{}] ? <div id="no-vars-message">{message}</div> :
-            <Table header={header} values={tableProps.values} /> }
+            <Table header={header} values={tableValues} /> 
         </div>;
 }
