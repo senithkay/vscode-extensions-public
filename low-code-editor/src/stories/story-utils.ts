@@ -138,8 +138,3 @@ export function generatePerfData(data: any, analyzeType: ANALYZE_TYPE): Promise<
     });
   }
 }
-
-export function getWorkerCDNUrl() {
-  const version = process.env.BALLERINA_LOW_CODE_RESOURCES_VERSION;
-  return `https://choreosharedcodeserver.blob.core.windows.net/${version}/codeserver/editor.worker.js`;
-}

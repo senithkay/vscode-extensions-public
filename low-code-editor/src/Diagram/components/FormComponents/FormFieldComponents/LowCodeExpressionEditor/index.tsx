@@ -78,7 +78,7 @@ export function LowCodeExpressionEditor(props: FormElementProps<LowCodeExpressio
             lowCodeResourcesVersion
         },
         api: {
-            ls: { getExpressionEditorLangClient },
+            ls: { getExpressionEditorLangClient }
         }
     } = useContext(Context);
 
