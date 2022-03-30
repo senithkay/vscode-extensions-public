@@ -86,7 +86,7 @@ describe('Add functions via Low Code', () => {
 
     Canvas.getFunction("getGreeting")
       .nameShouldBe("getGreeting")
-      .expand()
+      // .expand()
       .getDiagram()
       .shouldBeRenderedProperly()
       .getBlockLevelPlusWidget()
@@ -165,7 +165,7 @@ describe('Add functions via Low Code', () => {
     // Add return
     Canvas.getFunction("getGreeting")
       .nameShouldBe("getGreeting")
-      .expand()
+      // .expand()
       .getDiagram()
       .shouldBeRenderedProperly()
       .getBlockLevelPlusWidget()

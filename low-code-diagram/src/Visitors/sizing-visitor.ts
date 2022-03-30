@@ -547,8 +547,8 @@ export class SizingVisitor implements Visitor {
                     return;
                 }
 
-                const matchedReceive = this.senderReceiverInfo.get(sendInfo.to).receives
-                    .find(receiveInfo => receiveInfo.from === key && !receiveInfo.paired)
+                const matchedReceive = this.senderReceiverInfo
+                    .get(sendInfo.to)?.receives?.find(receiveInfo => receiveInfo.from === key && !receiveInfo.paired);
 
                 if (matchedReceive) {
                     matchedReceive.paired = true;
@@ -584,8 +584,8 @@ export class SizingVisitor implements Visitor {
                     return;
                 }
 
-                const matchedSend = this.senderReceiverInfo.get(receiveInfo.from).sends
-                    .find(senderInfo => senderInfo.to === key && !senderInfo.paired)
+                const matchedSend = this.senderReceiverInfo
+                    .get(receiveInfo.from)?.sends?.find(senderInfo => senderInfo.to === key && !senderInfo.paired);
 
                 if (matchedSend) {
                     matchedSend.paired = true;
@@ -642,50 +642,51 @@ export class SizingVisitor implements Visitor {
         matchedStatements.forEach(matchedPair => {
             let sendHeight = 0;
             let receiveHeight = 0;
+            let sourceBody;
+            let targetBody;
 
             if (matchedPair.sourceName === DEFAULT_WORKER_NAME) {
-                let index = 0;
-                while (matchedPair.sourceIndex !== index) {
-                    const viewState: ViewState = mainWorkerBody.statements[index].viewState as ViewState;
-                    sendHeight += viewState.getHeight();
-                    index++;
-                }
+                sourceBody = mainWorkerBody;
             } else {
                 const workerDecl = this.workerMap.get(matchedPair.sourceName) as NamedWorkerDeclaration;
-                let index = 0;
-                while (matchedPair.sourceIndex !== index) {
-                    const viewState: ViewState = workerDecl.workerBody.statements[index].viewState as ViewState;
-                    sendHeight += viewState.getHeight();
-                    index++;
-                }
-
+                sourceBody = workerDecl.workerBody;
             }
 
             if (matchedPair.targetName === DEFAULT_WORKER_NAME) {
-                let index = 0;
-                while (matchedPair.targetIndex !== index) {
-                    const viewState: ViewState = mainWorkerBody.statements[index].viewState as ViewState;
-                    receiveHeight += viewState.getHeight();
-                    index++;
-                }
+                targetBody = mainWorkerBody;
             } else {
                 const workerDecl = this.workerMap.get(matchedPair.targetName) as NamedWorkerDeclaration;
-                let index = 0;
-                while (matchedPair.targetIndex !== index) {
-                    const viewState: ViewState = workerDecl.workerBody.statements[index].viewState as ViewState;
-                    receiveHeight += viewState.getHeight();
-                    index++;
-                }
+                targetBody = workerDecl.workerBody;
             }
+
+            sendHeight = this.calculateHeightUptoIndex(matchedPair.sourceIndex, sourceBody);
+            receiveHeight = this.calculateHeightUptoIndex(matchedPair.targetIndex, targetBody);
 
             if (sendHeight > receiveHeight) {
                 const targetVS = matchedPair.targetViewState as StatementViewState;
-                targetVS.bBox.offsetFromTop += (sendHeight - receiveHeight);
+                targetVS.bBox.offsetFromTop = DefaultConfig.offSet + (sendHeight - receiveHeight);
             } else {
                 const sourceVS = matchedPair.sourceViewState as StatementViewState;
-                sourceVS.bBox.offsetFromTop += (receiveHeight - sendHeight);
+                sourceVS.bBox.offsetFromTop = DefaultConfig.offSet + (receiveHeight - sendHeight);
             }
         });
+    }
+
+    private calculateHeightUptoIndex(targetIndex: number, workerBody: BlockStatement) {
+        let index = 0;
+        let height = 0;
+        const workerBodyVS = workerBody.viewState as BlockViewState;
+        while (targetIndex !== index) {
+            const viewState: ViewState = workerBody.statements[index].viewState as ViewState;
+            height += viewState.getHeight();
+            index++;
+        }
+
+        if (workerBodyVS.draft && workerBodyVS.draft[0] <= targetIndex) {
+            height += workerBodyVS.draft[1].getHeight();
+        }
+
+        return height;
     }
 
     public endVisitObjectMethodDefinition(node: ObjectMethodDefinition) {
@@ -1043,15 +1044,18 @@ export class SizingVisitor implements Visitor {
         // as they grow to the right.
         let diffIfWidthWithHeadWidth = 0;
         let diffIfWidthWithHeadWidthLeft = 0;
-        if (viewState.headIf.w < ifBodyViewState.bBox.w) {
+        if (viewState.headIf.rw < ifBodyViewState.bBox.rw) {
             diffIfWidthWithHeadWidth = (ifBodyViewState.bBox.rw - viewState.headIf.rw);
+        }
+
+        if (viewState.headIf.lw < ifBodyViewState.bBox.lw) {
             diffIfWidthWithHeadWidthLeft = (ifBodyViewState.bBox.lw - viewState.headIf.lw);
         }
 
         if (node.elseBody) {
             if (node.elseBody.elseBody.kind === "BlockStatement") {
                 const elseStmt: BlockStatement = node.elseBody.elseBody as BlockStatement;
-                const elseViewState: ElseViewState = node.elseBody.elseBody.viewState as ElseViewState;
+                const elseViewState: ElseViewState = elseStmt.viewState as ElseViewState;
 
                 viewState.childElseViewState = elseViewState;
 
@@ -1242,13 +1246,15 @@ export class SizingVisitor implements Visitor {
 
                 if (isVarTypeDescriptor(node)) {
                     // renders process box if the endpoint var type
-                    viewState.dataProcess.w = PROCESS_SVG_WIDTH;
-                    viewState.dataProcess.lw = PROCESS_SVG_WIDTH / 2;
-                    viewState.dataProcess.rw = PROCESS_SVG_WIDTH / 2;
+                    viewState.dataProcess.lw = (DefaultConfig.defaultBlockWidth) / 2;
+                    viewState.dataProcess.rw = (DefaultConfig.defaultBlockWidth) / 2;
+
+                    viewState.dataProcess.w = viewState.dataProcess.lw + viewState.dataProcess.rw;
                 } else {
-                    viewState.bBox.w = CLIENT_SVG_WIDTH;
-                    viewState.bBox.lw = CLIENT_SVG_WIDTH / 2;
-                    viewState.bBox.rw = CLIENT_SVG_WIDTH / 2;
+                    viewState.bBox.lw = (DefaultConfig.defaultBlockWidth) / 2;
+                    viewState.bBox.rw = (DefaultConfig.defaultBlockWidth) / 2;
+
+                    viewState.bBox.w = viewState.bBox.lw + viewState.bBox.rw;
                 }
             }
         } else {
@@ -1274,9 +1280,10 @@ export class SizingVisitor implements Visitor {
 
                 viewState.bBox.h = viewState.dataProcess.h;
 
-                viewState.bBox.w = viewState.dataProcess.w + viewState.variableName.w + viewState.variableAssignment.w;
                 viewState.bBox.lw = viewState.dataProcess.lw + viewState.variableName.w;
                 viewState.bBox.rw = viewState.dataProcess.rw + viewState.variableAssignment.w;
+                viewState.bBox.w = viewState.bBox.lw + viewState.bBox.rw;
+
                 // todo: commented because this is always true
                 // if (STKindChecker.isLocalVarDecl) {
                 //     const varDeclatarion = node as LocalVarDecl
@@ -1377,11 +1384,12 @@ export class SizingVisitor implements Visitor {
             const draft = blockViewState.draft[1];
             if (draft) {
                 const { h, w } = getDraftComponentSizes(draft.type, draft.subType);
-                draft.bBox.h = draft.bBox.offsetFromTop + h + draft.bBox.offsetFromBottom
+                draft.bBox.h = h;
+                draft.bBox.offsetFromBottom = draft.bBox.offsetFromTop = DefaultConfig.offSet;
                 draft.bBox.w = w;
                 draft.bBox.lw = w / 2;
                 draft.bBox.rw = w / 2;
-                height += draft.bBox.h;
+                height += draft.getHeight();
                 if (width < draft.bBox.w) {
                     width = draft.bBox.w;
                 }
@@ -1669,12 +1677,14 @@ export class SizingVisitor implements Visitor {
                 const draft = blockViewState.draft[1];
                 if (draft) {
                     const { h, w } = getDraftComponentSizes(draft.type, draft.subType);
-                    draft.bBox.h = draft.bBox.offsetFromTop + h + draft.bBox.offsetFromBottom;
+                    draft.bBox.h = h;
+                    draft.bBox.offsetFromTop = draft.bBox.offsetFromBottom = DefaultConfig.offSet
                     draft.bBox.lw = w / 2;
                     draft.bBox.rw = w / 2;
                     draft.bBox.w = draft.bBox.lw + draft.bBox.rw;
 
-                    height += draft.bBox.h;
+                    height += draft.getHeight();
+
                     if (width < draft.bBox.w) {
                         width = draft.bBox.w;
                     }

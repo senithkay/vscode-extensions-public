@@ -40,10 +40,12 @@ export interface VariableNameInputProps {
     };
     disabled?: boolean;
     hideSuggestions?: boolean;
+    focus?: boolean;
+    revertFocus?: () => void
 }
 
 export function VariableNameInput(props: VariableNameInputProps) {
-    const { onValueChange, validateExpression, position, value, displayName, overrideTemplate, overrideEditTemplate, isEdit, hideLabel, initialDiagnostics, diagnosticsFilterExtraColumns, disabled, hideSuggestions = true } = props;
+    const { onValueChange, validateExpression, revertFocus, focus, position, value, displayName, overrideTemplate, overrideEditTemplate, isEdit, hideLabel, initialDiagnostics, diagnosticsFilterExtraColumns, disabled, hideSuggestions = true } = props;
     const formClasses = useFormStyles();
 
     let customTemplate;
@@ -76,6 +78,8 @@ export function VariableNameInput(props: VariableNameInputProps) {
         },
         customProps: {
             validate: validateExpression,
+            revertFocus,
+            focus,
             interactive: true,
             editPosition: {
                 startLine: position.startLine,

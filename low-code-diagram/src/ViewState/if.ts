@@ -32,6 +32,7 @@ export class IfViewState extends StatementViewState {
     public elseIfLifeLine: SimpleBBox = new SimpleBBox();
     public childElseIfViewState: IfViewState[];
     public childElseViewState: ElseViewState;
+    public isMainIfBody: boolean = false;
 
     constructor() {
         super();

@@ -11,23 +11,26 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { ReactNode, useContext, useEffect, useState } from "react";
+import React, { ReactNode, useContext, useEffect, useMemo, useState } from "react";
 import { useIntl } from "react-intl";
 
 import { Typography } from "@material-ui/core";
+import { NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { AddIcon } from "../../../../../../assets/icons";
 import DeleteButton from "../../../../../../assets/icons/DeleteButton";
 import EditButton from "../../../../../../assets/icons/EditButton";
+import { Context as DiagramContext } from "../../../../../../Contexts/Diagram";
 import { Context, FormState } from "../../../../../../Contexts/EnumEditor";
+import { getAllVariables } from "../../../../../utils/mixins";
+import { genVariableName } from "../../../../Portals/utils";
 import { keywords } from "../../../../Portals/utils/constants";
-import { FormTextInput } from "../../../FormFieldComponents/TextField/FormTextInput";
+import { VariableNameInput } from "../../Components/VariableNameInput";
 import { FieldEditor } from "../FieldEditor";
 import { FieldItem } from "../FieldItem";
 import { enumStyles } from "../style";
 import { EnumModel, SimpleField } from "../types";
 import { genEnumName, getFieldNames } from "../utils";
-
 export interface CodePanelProps {
     enumModel: EnumModel;
     parentEnumModel?: EnumModel;
@@ -45,16 +48,29 @@ export function EnumField(props: CodePanelProps) {
         defaultMessage: "Add Member"
     });
 
+    const { props: { stSymbolInfo } } = useContext(DiagramContext);
+
     const { state, callBacks } = useContext(Context);
 
     const [isEnumExpanded, setIsEnumExpanded] = useState(true);
     const [fieldNameError, setFieldNameError] = useState<string>("");
-    const [enumNameError, setEnumNameError] = useState<string>("");
+
     const [isEnumEditInProgress, setIsEnumEditInProgress] = useState((enumModel.name === "") ||
         (enumModel.name === undefined));
+    const [isEnumFocus, setIsEnumFocus] = useState(true);
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
 
+    const allEnumVariables = useMemo(() => getAllVariables(stSymbolInfo), [stSymbolInfo])
+    const enumNames: string[] = [];
+    allEnumVariables.forEach((variable) => {
+        const data = variable.split(':').pop();
+        enumNames.push(data);
+    });
+    const defaultEnumName = genVariableName("Enum_name", enumNames);
+    const [enumName, setEnumName] = useState<string>(defaultEnumName);
+
     const handleFieldEdit = (field: SimpleField) => {
+        setIsEnumEditInProgress(false);
         if (!(state.isEditorInvalid || (state.currentField && state.currentField.name === ""))) {
             const index = enumModel.fields.indexOf(field);
             if (index !== -1) {
@@ -118,6 +134,8 @@ export function EnumField(props: CodePanelProps) {
 
     const handleAddField = () => {
         // Changes the active state to selected enum model
+        setEnumName(state.currentEnum.name)
+        setIsEnumEditInProgress(false);
         state.currentEnum.isActive = false;
         if (state.currentField && state.currentField.name === "") {
             state.currentField.name = genEnumName("fieldName", getFieldNames(state.currentEnum.fields));
@@ -146,50 +164,25 @@ export function EnumField(props: CodePanelProps) {
         setIsEnumExpanded(!isEnumExpanded);
     };
 
-    const handleValidity = (event: any) => {
-        if (!event.target.value) {
-            enumModel.name = genEnumName("Enum", []);
-            if (state.currentEnum.fields.length === 0) {
-                state.currentField = getNewField();
-                callBacks.onUpdateCurrentField(state.currentField);
-            }
-            setIsEnumEditInProgress(false);
-            setEnumNameError("");
-            callBacks.onUpdateEnumSelection(false);
-            callBacks.onChangeFormState(FormState.UPDATE_FIELD);
-            callBacks.updateEditorValidity(false);
-        } else if (nameRegex.test(event.target.value)) {
-            if (state.currentEnum.fields.length === 0) {
-                state.currentField = getNewField();
-                callBacks.onUpdateCurrentField(state.currentField);
-            }
-            setIsEnumEditInProgress(false);
-            setEnumNameError("");
-            callBacks.onUpdateEnumSelection(false);
-            callBacks.onChangeFormState(FormState.UPDATE_FIELD);
-            callBacks.updateEditorValidity(false);
-        } else {
-            callBacks.updateEditorValidity(true);
-            setEnumNameError("Invalid name");
-        }
+    const handleEnumBlur = () => {
+        setIsEnumEditInProgress(state.isEditorInvalid)
     }
-    const handleKeyUp = (event: any) => {
-        if (event.key === 'Enter') {
-            handleValidity(event);
-        } else {
-            state.currentEnum.name = event.target.value;
-            callBacks.onChangeFormState(FormState.EDIT_RECORD_FORM);
-        }
+
+    const handleRevertFocus = () => {
+        setIsEnumFocus(false);
+    }
+    const validateEnumName = (fieldName: string, isInValid: boolean) => {
+        callBacks.updateEditorValidity(isInValid);
+    };
+
+    const handleOnChange = (value: string) => {
+        state.currentEnum.name = value;
+        callBacks.onChangeFormState(FormState.EDIT_RECORD_FORM);
         callBacks.onUpdateModel(state.enumModel);
         if (state.currentEnum.name === "") {
             callBacks.updateEditorValidity(false);
         }
-    };
-
-    const handleOnBlur = (event: any) => {
-        handleValidity(event);
-        callBacks.onUpdateModel(state.enumModel);
-    };
+    }
 
     const handleFieldEditorChange = (event: any) => {
         if (event.key === 'Enter') {
@@ -240,11 +233,13 @@ export function EnumField(props: CodePanelProps) {
         if (!(state.isEditorInvalid || state.currentEnum?.name === "" || state.currentEnum?.type === "")) {
             state.currentEnum.isActive = false;
             enumModel.isActive = true;
+            setEnumName(state.currentEnum.name)
             setIsEnumEditInProgress(true);
             callBacks.onUpdateCurrentEnum(enumModel);
             callBacks.onUpdateModel(state.enumModel);
             callBacks.onUpdateEnumSelection(true);
             callBacks.onChangeFormState(FormState.EDIT_RECORD_FORM);
+            setIsEnumFocus(true);
         }
     };
 
@@ -276,6 +271,8 @@ export function EnumField(props: CodePanelProps) {
     const openBraceTokens = `{`;
     const enumEn = `}`;
     const typeDefName = enumModel.name ? enumModel.name : "";
+    const enumNamePosition: NodePosition = (state.sourceModel && STKindChecker.isEnumDeclaration(state.sourceModel)) ?
+        state.sourceModel?.identifier?.position : state.targetPosition;
 
     useEffect(() => {
         // Checks whether enum is clicked to edit, if so resetting field insertion
@@ -291,7 +288,6 @@ export function EnumField(props: CodePanelProps) {
             callBacks.onUpdateCurrentField(state.currentField);
         }
     }, [state.isEnumSelected]);
-
     return (
         <div>
             <div
@@ -309,19 +305,21 @@ export function EnumField(props: CodePanelProps) {
                             </Typography>
                         )}
                         {enumModel.isTypeDefinition && isEnumEditInProgress && (
-                            <div className={enumClasses.typeTextFieldWrapper}>
-                                <FormTextInput
-                                    dataTestId="enum-name"
-                                    customProps={{
-                                        isErrored: state.isEditorInvalid,
-                                        focused: true
+                            <div className={enumClasses.typeTextFieldWrapper} onBlur={handleEnumBlur}>
+                                <VariableNameInput
+                                    displayName="Enum name"
+                                    value={enumName}
+                                    isEdit={!!state.sourceModel}
+                                    onValueChange={handleOnChange}
+                                    validateExpression={validateEnumName}
+                                    position={enumNamePosition}
+                                    hideLabel={true}
+                                    overrideTemplate={{
+                                        defaultCodeSnippet: 'enum { enum_fields }',
+                                        targetColumn: 6
                                     }}
-                                    defaultValue={typeDefName}
-                                    onKeyUp={handleKeyUp}
-                                    onBlur={handleOnBlur}
-                                    errorMessage={enumNameError}
-                                    placeholder={"Enum name"}
-                                    size="small"
+                                    focus={isEnumFocus}
+                                    revertFocus={handleRevertFocus}
                                 />
                             </div>
                         )}

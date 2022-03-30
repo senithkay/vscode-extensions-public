@@ -16,7 +16,7 @@ import React, { useContext, useState } from "react";
 import { DefaultConfig, LowCodeDiagram, PlusViewState, ViewState } from "@wso2-enterprise/ballerina-low-code-diagram";
 import { ConfigOverlayFormStatus, ConnectorConfigWizardProps, DiagramOverlayPosition, LowcodeEvent, OPEN_LOW_CODE, PlusWidgetProps, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { DiagramTooltipCodeSnippet } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
-import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { Context as DiagramContext } from "../Contexts/Diagram";
 import { addAdvancedLabels } from "../DiagramGenerator/performanceUtil";
@@ -182,14 +182,22 @@ export function Diagram() {
                 modifications.push(deleteConfig);
             }
         });
-
         // delete action
-        const deleteAction: STModification = removeStatement(
-            model.position
-        );
-        modifications.push(deleteAction);
+        if (STKindChecker.isIfElseStatement(model) && !model.viewState.isMainIfBody){
+            const ifElseRemovePosition = model.position;
+            ifElseRemovePosition.endLine = model.elseBody.elseBody.position.startLine;
+            ifElseRemovePosition.endColumn = model.elseBody.elseBody.position.startColumn;
 
-        modifyDiagram(modifications);
+            const deleteConfig: STModification = removeStatement(ifElseRemovePosition);
+            modifications.push(deleteConfig);
+            modifyDiagram(modifications);
+        } else {
+            const deleteAction: STModification = removeStatement(
+                model.position
+            );
+            modifications.push(deleteAction);
+            modifyDiagram(modifications);
+        }
 
         // If onDelete callback is available invoke it.
         if (onDelete) {

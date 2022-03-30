@@ -470,7 +470,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                                 context: { triggerKind: 1 },
                                 position: {
                                     character: targetPosition.startColumn + monacoRef.current.editor.getPosition().column - 1 + (snippetTargetPosition - 1),
-                                    line: targetPosition.startLine + (expressionInjectables?.list?.length || 0),
+                                    line: targetPosition.startLine,
                                 },
                             };
 
@@ -724,6 +724,14 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         if (onChange) {
             onChange(currentContent);
         }
+        // Mark content as valid - if not empty - and set model value directly.
+        // Later when the validations from LS side are done,
+        // validate callback will be invoked again with actual validity.
+        // This is a optimisitc validation to handle several edge cases where
+        // users quickly fills the field and jumps to other fields using Tab keypress, etc.
+        model.value = currentContent;
+        validate(model.name, false, currentContent.length === 0, canIgnore);
+
         if (expressionEditorState?.name === model.name && monacoRef.current && monacoRef.current.editor.hasTextFocus()) {
             let newModel: string = null;
             let newCodeSnippet: string = "";
@@ -747,8 +755,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             expressionEditorState.uri = expressionEditorState?.uri;
 
             // update the change of the field
-            model.value = monacoRef.current.editor.getModel().getValue();
-
+            model.value = currentContent;
             const langClient = await getExpressionEditorLangClient();
             langClient.didChange({
                 contentChanges: [{ text: expressionEditorState.content }],
@@ -807,7 +814,6 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 }
             }
         }
-
         if (expressionEditorState?.uri) {
             expressionEditorState.name = model.name;
             expressionEditorState.content = currentFile.content;
