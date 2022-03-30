@@ -214,6 +214,17 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ex
                     );
                 })
             }
+            function getEnv(env) {
+                return new Promise((resolve, _reject) => {
+                    webViewRPCHandler.invokeRemoteMethod(
+                        'getEnv',
+                        [env],
+                        (response) => {
+                            resolve(response);
+                        }
+                    );
+                })
+            }
             function drawDiagram({
                 filePath,
                 startLine,
@@ -244,7 +255,8 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ex
                             getLibrariesList,
                             getLibrariesData,
                             getLibraryData,
-                            getSentryConfig,                           
+                            getSentryConfig,
+                            getEnv,                           
                             experimentalEnabled
                         }
                     };
