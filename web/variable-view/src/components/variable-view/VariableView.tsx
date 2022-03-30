@@ -71,13 +71,17 @@ export const Table = ({ header, values }: TableProps): JSX.Element => {
 export const VariableView = ({ getVariableValues }: VariableViewProps): JSX.Element => {
     const header = ["name", "type", "value"];
     const message = "No variables defined";
-    const [tableValues, setTableValues] = useState([{
+    const initialTableValues = {
         name: message,
         type: '',
         value: ''
-    }]);
+    };
+    const [tableValues, setTableValues] = useState([initialTableValues]);
     const updateVals = () => {        
         getVariableValues().then((vals) => {
+            if (vals === []) {
+                return setTableValues([initialTableValues]);
+            }
             return setTableValues(vals.sort((val1, val2) => val1.name.localeCompare(val2.name)));
         });
     }
