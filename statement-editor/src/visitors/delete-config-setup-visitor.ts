@@ -12,7 +12,7 @@
  */
 import {
     AssignmentStatement,
-    BinaryExpression,
+    BinaryExpression, KeySpecifier,
     ListConstructor, MappingConstructor, OptionalTypeDesc,
     STNode, TupleTypeDesc, TypedBindingPattern,
     Visitor
@@ -56,6 +56,17 @@ class DeleteConfigSetupVisitor implements Visitor {
         } else {
             node.memberTypeDesc.map((memberTypeDesc: STNode) => {
                 (memberTypeDesc.viewState as StatementEditorViewState).templateExprDeletable = true;
+            });
+        }
+    }
+
+    public beginVisitKeySpecifier(node: KeySpecifier) {
+        if (node.fieldNames.length === 1) {
+            (node.fieldNames[0].viewState as StatementEditorViewState).exprNotDeletable = true;
+            (node.fieldNames[0].viewState as StatementEditorViewState).templateExprDeletable = false;
+        } else {
+            node.fieldNames.map((fieldNames: STNode) => {
+                (fieldNames.viewState as StatementEditorViewState).templateExprDeletable = true;
             });
         }
     }

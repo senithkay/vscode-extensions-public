@@ -375,7 +375,7 @@ const trap: ExpressionGroup = {
 //     6.37 Transactional expression
 
 // 5.4 Structured values
-
+// 5.4.1.1 Array types TODO: Add when the ArrayTypeDesc interface has been updated to proper format
 // 5.6 Other type descriptors
 // 5.6.6 Distinct types TODO: Add the distinctTypeDesc when ST-interface is added
 
@@ -386,6 +386,14 @@ const typeDescriptors : ExpressionGroup = {
             name: "Tuple",
             template: `[${SELECTED_EXPRESSION}]`,
             example: "[Es, Ex]"
+        }, {
+            name: "Table",
+            template: `table<${SELECTED_EXPRESSION}>`,
+            example: "table<Es>"
+        }, {
+            name: "Table with Key-Fields",
+            template: `table<${SELECTED_EXPRESSION}> key(${EXPR_PLACE_HOLDER})`,
+            example: "table<Es> key(Ex)"
         }, {
             name: "Union",
             template: `${SELECTED_EXPRESSION} | ${TYPE_DESC_PLACE_HOLDER}`,

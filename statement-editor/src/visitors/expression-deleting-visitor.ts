@@ -14,7 +14,7 @@ import {
     BinaryExpression,
     FieldAccess,
     FunctionCall,
-    IndexedExpression, IntersectionTypeDesc,
+    IndexedExpression, IntersectionTypeDesc, KeySpecifier,
     ListConstructor,
     MappingConstructor,
     MethodCall,
@@ -23,7 +23,7 @@ import {
     SpecificField,
     STKindChecker,
     STNode, TupleTypeDesc,
-    TypedBindingPattern,
+    TypedBindingPattern, TypeParameter,
     TypeTestExpression, UnionTypeDesc,
     Visitor
 } from "@wso2-enterprise/syntax-tree";
@@ -248,6 +248,35 @@ class ExpressionDeletingVisitor implements Visitor {
     public beginVisitOptionalTypeDesc(node: OptionalTypeDesc) {
         if (!this.isNodeFound && isPositionsEquals(this.deletePosition, node.typeDescriptor.position)){
             this.setProperties(DEFAULT_TYPE_DESC, node.typeDescriptor.position);
+        }
+    }
+
+    public beginVisitTypeParameter(node: TypeParameter) {
+        if (!this.isNodeFound && isPositionsEquals(this.deletePosition, node.typeNode.position)){
+            this.setProperties(DEFAULT_TYPE_DESC, node.typeNode.position);
+        }
+    }
+
+    public beginVisitKeySpecifier(node: KeySpecifier) {
+        if (!this.isNodeFound) {
+            const hasItemsToBeDeleted = node.fieldNames.some((item: STNode) => {
+                return this.deletePosition === item.position;
+            });
+
+            if (hasItemsToBeDeleted) {
+                const expressions: string[] = [];
+                node.fieldNames.map((expr: STNode) => {
+                    if (this.deletePosition !== expr.position && !STKindChecker.isCommaToken(expr)) {
+                        expressions.push(expr.value);
+                    }
+                });
+
+                this.setProperties(expressions.join(','), {
+                    ...node.position,
+                    startColumn: node.openParenToken.position.endColumn,
+                    endColumn: node.closeParenToken.position.startColumn
+                });
+            }
         }
     }
 

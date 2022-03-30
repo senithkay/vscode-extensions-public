@@ -17,9 +17,11 @@ import {
     ParenthesisedTypeDesc,
     QueryPipeline,
     STNode,
+    TableTypeDesc,
     TupleTypeDesc,
     TypeCastExpression,
     TypedBindingPattern,
+    TypeParameter,
     TypeTestExpression,
     UnionTypeDesc,
     Visitor
@@ -73,6 +75,15 @@ class ModelTypeSetupVisitor implements Visitor {
 
     public beginVisitParenthesisedTypeDesc(node: ParenthesisedTypeDesc) {
         (node.typedesc.viewState as StatementEditorViewState).modelType = ModelType.TYPE_DESCRIPTOR;
+    }
+
+    public beginVisitTableTypeDesc(node: TableTypeDesc) {
+        (node.viewState as StatementEditorViewState).modelType = ModelType.TYPE_DESCRIPTOR;
+        (node.rowTypeParameterNode.viewState as StatementEditorViewState).modelType = ModelType.TYPE_DESCRIPTOR;
+    }
+
+    public beginVisitTypeParameter(node: TypeParameter) {
+        (node.typeNode.viewState as StatementEditorViewState).modelType = ModelType.TYPE_DESCRIPTOR;
     }
 
 }
