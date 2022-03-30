@@ -37,13 +37,13 @@ import {
 import { StatementEditorContextProvider } from "../../store/statement-editor-context";
 import {
     addExpressionToTargetPosition,
+    addStatementToTargetLine,
     enrichModel,
     getCurrentModel,
     getFilteredDiagnosticMessages,
     getUpdatedSource,
 } from "../../utils";
 import {
-    addStatementToTargetLine,
     getCompletions,
     getDiagnostics,
     getPartialSTForStatement,
@@ -121,7 +121,7 @@ export function StatementEditor(props: StatementEditorProps) {
         const undoItem = undoRedoManager.getUndoModel();
         if (undoItem) {
             const updatedContent = await getUpdatedSource(undoItem.oldModel.source, currentFile.content,
-                targetPosition, moduleList, getLangClient);
+                targetPosition, moduleList);
             sendDidChange(fileURI, updatedContent, getLangClient).then();
             const diagnostics = await handleDiagnostics(undoItem.oldModel.source.length);
             updateEditedModel(undoItem.oldModel, diagnostics);
@@ -132,7 +132,7 @@ export function StatementEditor(props: StatementEditorProps) {
         const redoItem = undoRedoManager.getRedoModel();
         if (redoItem) {
             const updatedContent = await getUpdatedSource(redoItem.oldModel.source, currentFile.content,
-                targetPosition, moduleList, getLangClient);
+                targetPosition, moduleList);
             sendDidChange(fileURI, updatedContent, getLangClient).then();
             const diagnostics = await handleDiagnostics(redoItem.oldModel.source.length);
             updateEditedModel(redoItem.newModel, diagnostics);
@@ -143,7 +143,7 @@ export function StatementEditor(props: StatementEditorProps) {
         if (config.type !== CUSTOM_CONFIG_TYPE || initialSource) {
             (async () => {
                 const updatedContent = await getUpdatedSource(initialSource.trim(), currentFile.content,
-                    targetPosition, moduleList, getLangClient);
+                    targetPosition, moduleList);
 
                 sendDidOpen(fileURI, updatedContent, getLangClient).then();
                 const diagnostics = await handleDiagnostics(initialSource.length);
@@ -165,8 +165,7 @@ export function StatementEditor(props: StatementEditorProps) {
                 const currentModelViewState = currentModel.model?.viewState as StatementEditorViewState;
 
                 if (!currentModelViewState.isOperator && !currentModelViewState.isBindingPattern) {
-                    const content: string = await addStatementToTargetLine(
-                        currentFile.content, targetPosition, model.source, getLangClient);
+                    const content: string = addStatementToTargetLine(currentFile.content, targetPosition, model.source);
                     sendDidChange(fileURI, content, getLangClient).then();
                     lsSuggestions = await getCompletions(fileURI, targetPosition, model,
                         currentModel, getLangClient);
@@ -185,7 +184,7 @@ export function StatementEditor(props: StatementEditorProps) {
     const handleChange = async (newValue: string) => {
         const updatedStatement = addExpressionToTargetPosition(model, currentModel.model.position, newValue);
         const updatedContent = await getUpdatedSource(updatedStatement, currentFile.content,
-            targetPosition, moduleList, getLangClient);
+            targetPosition, moduleList);
 
         sendDidChange(fileURI, updatedContent, getLangClient).then();
         handleDiagnostics(updatedStatement.length).then();
@@ -212,7 +211,7 @@ export function StatementEditor(props: StatementEditorProps) {
         undoRedoManager.add(model, partialST);
 
         const updatedContent = await getUpdatedSource(partialST.source, currentFile.content, targetPosition,
-            moduleList, getLangClient);
+            moduleList);
         sendDidChange(fileURI, updatedContent, getLangClient).then();
         const diagnostics = await handleDiagnostics(partialST.source.length);
 

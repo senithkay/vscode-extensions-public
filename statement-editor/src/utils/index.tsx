@@ -14,7 +14,6 @@ import React, { ReactNode } from 'react';
 
 import {
     CompletionResponse,
-    ExpressionEditorLangClientInterface,
     getDiagnosticMessage,
     getFilteredDiagnostics,
     STModification
@@ -46,7 +45,6 @@ import { visitor as ModelFindingVisitor } from "../visitors/model-finding-visito
 import { visitor as ModelKindSetupVisitor } from "../visitors/model-kind-setup-visitor";
 import { viewStateSetupVisitor as ViewStateSetupVisitor } from "../visitors/view-state-setup-visitor";
 
-import { addImportStatements, addStatementToTargetLine } from "./ls-utils";
 import { createImportStatement, createStatement, updateStatement } from "./statement-modifications";
 
 export function getModifications(
@@ -58,7 +56,6 @@ export function getModifications(
         formArgs: any,
         modulesToBeImported?: string[]): STModification[] {
     const modifications: STModification[] = [];
-    const importStatementRegex = /ballerinax?\/[^;]+/g;
 
     if (STKindChecker.isLocalVarDecl(model) ||
             STKindChecker.isCallStatement(model) ||
@@ -201,14 +198,11 @@ export function getFilteredDiagnosticMessages(stmtLength: number, targetPosition
 }
 
 export async function getUpdatedSource(updatedStatement: string, currentFileContent: string,
-                                       targetPosition: NodePosition, moduleList: Set<string>,
-                                       getLangClient: () => Promise<ExpressionEditorLangClientInterface>)
-    : Promise<string> {
+                                       targetPosition: NodePosition, moduleList: Set<string>): Promise<string> {
 
-    let updatedContent: string = await addStatementToTargetLine(currentFileContent, targetPosition,
-        updatedStatement, getLangClient);
+    let updatedContent: string = addStatementToTargetLine(currentFileContent, targetPosition, updatedStatement);
     if (!!moduleList.size) {
-        updatedContent = await addImportStatements(updatedContent, Array.from(moduleList) as string[]);
+        updatedContent = addImportStatements(updatedContent, Array.from(moduleList) as string[]);
     }
 
     return updatedContent;
@@ -228,7 +222,47 @@ export function addExpressionToTargetPosition(statementModel: STNode, currentPos
 
     const newStatement = splitStatement.join('\n');
 
-    return newStatement.slice(-1) !== ';' ? newStatement + ';' : newStatement;
+    return newStatement.trim().endsWith(';') ? newStatement : newStatement + ';';
+}
+
+export function addStatementToTargetLine(currentFileContent: string,
+                                         position: NodePosition,
+                                         updatedStatement: string): string {
+
+    const splitContent: string[] = currentFileContent.split(/\n/g) || [];
+    const splitUpdatedStatement: string[] = updatedStatement.trimEnd().split(/\n/g) || [];
+    const noOfLines: number = position.endLine - position.startLine + 1;
+    const startLine = splitContent[position.startLine].slice(0, position.startColumn);
+    const endLine = position?.endLine ?
+        splitContent[position.endLine].slice(position.endColumn || position.startColumn) : 0;
+
+    const replacements = splitUpdatedStatement.map((line, index) => {
+        let modifiedLine = line;
+        if (index === 0) {
+            modifiedLine = startLine + modifiedLine;
+        }
+        if (index === splitUpdatedStatement.length - 1) {
+            modifiedLine = modifiedLine + endLine;
+        }
+        if (index > 0) {
+            modifiedLine = " ".repeat(position.startColumn) + modifiedLine;
+        }
+        return modifiedLine;
+    });
+
+    splitContent.splice(position.startLine, noOfLines, ...replacements);
+
+    return splitContent.join('\n');
+}
+
+export function addImportStatements(
+    currentFileContent: string,
+    modulesToBeImported: string[]): string {
+    let moduleList : string = "";
+    modulesToBeImported.forEach(module => {
+        moduleList += "import " + module + "; ";
+    });
+    return moduleList + currentFileContent;
 }
 
 export function getJSXForMinutiae(minutiae: Minutiae[]): ReactNode[] {
