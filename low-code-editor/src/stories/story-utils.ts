@@ -63,7 +63,8 @@ export function getDiagramGeneratorProps(filePath: string, enableSave: boolean =
     getLibrariesList: () => Promise.resolve(undefined),
     getLibrariesData: () => Promise.resolve(undefined),
     getLibraryData: () => Promise.resolve(undefined),
-    getSentryConfig: () => Promise.resolve(undefined)
+    getSentryConfig: () => Promise.resolve(undefined),
+    getEnv: (name: string) => Promise.resolve(undefined)
   }
 }
 
@@ -136,4 +137,9 @@ export function generatePerfData(data: any, analyzeType: ANALYZE_TYPE): Promise<
       type: undefined
     });
   }
+}
+
+export function getWorkerCDNUrl() {
+  const version = process.env.BALLERINA_LOW_CODE_RESOURCES_VERSION;
+  return `https://choreosharedcodeserver.blob.core.windows.net/${version}/codeserver/editor.worker.js`;
 }

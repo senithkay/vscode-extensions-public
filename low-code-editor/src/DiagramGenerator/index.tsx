@@ -63,6 +63,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     const getLibrariesData: () => Promise<LibrarySearchResponse | undefined> = props.getLibrariesData;
     const getLibraryData: (orgName: string, moduleName: string, version: string) => Promise<LibraryDataResponse | undefined> = props.getLibraryData;
     const getSentryConfig: () => Promise<SentryConfig | undefined> = props.getSentryConfig;
+    const getEnv: (name: string) => Promise<any> = props.getEnv;
 
     const defaultZoomStatus = {
         scale: defaultScale,
@@ -77,6 +78,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     const [isModulePullInProgress, setModulePullInProgress] = React.useState<boolean>(false);
     const [loaderText, setLoaderText] = React.useState<string>('Loading...');
     const [performanceData, setPerformanceData] = React.useState(undefined);
+    const [lowCodeResourcesVersion, setLowCodeResourcesVersion] = React.useState(undefined);
 
     React.useEffect(() => {
         (async () => {
@@ -94,6 +96,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                 setSyntaxTree(vistedSyntaxTree);
                 undoRedo.updateContent(filePath, content);
                 setFileContent(content);
+                setLowCodeResourcesVersion(await getEnv("BALLERINA_LOW_CODE_RESOURCES_VERSION"));
 
                 // Add performance data
                 await addPerfData(vistedSyntaxTree);
@@ -253,6 +256,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                             performanceData={performanceData}
                             importStatements={getImportStatements(syntaxTree)}
                             experimentalEnabled={experimentalEnabled}
+                            lowCodeResourcesVersion={lowCodeResourcesVersion}
                             // tslint:disable-next-line: jsx-no-multiline-js
                             api={{
                                 helpPanel: {

@@ -36,6 +36,7 @@ export interface FormElementProps<T = {}> extends FormElementEvents {
     langServerURL?: string;
     syntaxTree?: STNode;
     getExpressionEditorLangClient?: () => Promise<ExpressionEditorLangClientInterface>;
+    lowCodeResourcesVersion?: string;
 }
 
 export interface FormElementEvents {

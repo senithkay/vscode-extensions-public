@@ -222,7 +222,8 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             langServerURL,
             syntaxTree,
             mainDiagnostics, // FIXME: REMOVE mainDiagnostics as it doesn't seem to be used anymore
-            getExpressionEditorLangClient
+            getExpressionEditorLangClient,
+            lowCodeResourcesVersion
         } = props;
     const {
         validate,
@@ -249,6 +250,13 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         disableFiltering,
         customTemplateVarName
     } = customProps;
+
+    (self as any).MonacoEnvironment = {
+        getWorkerUrl: () =>
+            `data:text/javascript;charset=utf-8,${encodeURIComponent(`
+            importScripts('https://choreo-shared-codeserver-cdne.azureedge.net/ballerina-low-code-resources@${lowCodeResourcesVersion}/jslibs/editor.worker.js');`)}`
+    };
+
     const targetPosition = getTargetPosition(editPosition || targetPositionDraft, syntaxTree);
     const [invalidSourceCode, setInvalidSourceCode] = useState(false);
     const [expand, setExpand] = useState(expandDefault || false);

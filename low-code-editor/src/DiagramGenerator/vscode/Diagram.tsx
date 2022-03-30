@@ -38,6 +38,7 @@ export interface EditorAPI {
     getLibrariesData: () => Promise<LibrarySearchResponse | undefined>;
     getLibraryData: (orgName: string, moduleName: string, version: string) => Promise<LibraryDataResponse | undefined>;
     getSentryConfig: () => Promise<SentryConfig | undefined>;
+    getEnv: (name: string) => Promise<any>;
 }
 
 export enum PALETTE_COMMANDS {
@@ -53,7 +54,7 @@ export const Diagram: React.FC<EditorProps> = (props: EditorProps) => {
     const { getFileContent, updateFileContent, gotoSource, getPFSession, showPerformanceGraph, getPerfDataFromChoreo,
             sendTelemetryEvent, getSentryConfig,
             showMessage, resolveMissingDependency, resolveMissingDependencyByCodeAction,
-            runCommand, getLibrariesList, getLibrariesData, getLibraryData, ...restProps } = props;
+            runCommand, getLibrariesList, getLibrariesData, getLibraryData, getEnv, ...restProps } = props;
     const [state, setState] = React.useState<EditorState>(restProps);
 
     React.useEffect(() => {
@@ -80,6 +81,7 @@ export const Diagram: React.FC<EditorProps> = (props: EditorProps) => {
                     getLibrariesData={getLibrariesData}
                     getLibraryData={getLibraryData}
                     getSentryConfig={getSentryConfig}
+                    getEnv={getEnv}
                     panX="-30"
                     panY="0"
                     scale="0.9"
