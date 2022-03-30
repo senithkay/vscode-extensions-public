@@ -379,7 +379,7 @@ const trap: ExpressionGroup = {
 // 5.6 Other type descriptors
 // 5.6.6 Distinct types TODO: Add the distinctTypeDesc when ST-interface is added
 
-const otherTypeDesc : ExpressionGroup = {
+const typeDescriptors : ExpressionGroup = {
     name: "Type Descriptors",
     expressions: [
         {
@@ -398,6 +398,10 @@ const otherTypeDesc : ExpressionGroup = {
             name: "Optional",
             template: `${SELECTED_EXPRESSION}?`,
             example: "Es?"
+        }, {
+            name: "Parenthesised TypeDesc",
+            template: `(${SELECTED_EXPRESSION} )`,
+            example: "(Es)"
         }
     ],
     relatedModelType: ModelType.TYPE_DESCRIPTOR
@@ -420,5 +424,5 @@ export const expressions: ExpressionGroup[] = [
     structuralConstructors,
     range,
     shift,
-    otherTypeDesc
+    typeDescriptors
 ];

@@ -13,7 +13,7 @@
 import {
     AssignmentStatement,
     BinaryExpression,
-    ListConstructor, MappingConstructor,
+    ListConstructor, MappingConstructor, OptionalTypeDesc,
     STNode, TupleTypeDesc, TypedBindingPattern,
     Visitor
 } from "@wso2-enterprise/syntax-tree";

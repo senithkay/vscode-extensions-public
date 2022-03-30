@@ -14,17 +14,17 @@ import {
     BinaryExpression,
     FieldAccess,
     FunctionCall,
-    IndexedExpression,
+    IndexedExpression, IntersectionTypeDesc,
     ListConstructor,
     MappingConstructor,
     MethodCall,
     NodePosition,
-    OptionalFieldAccess,
+    OptionalFieldAccess, OptionalTypeDesc, ParenthesisedTypeDesc,
     SpecificField,
     STKindChecker,
     STNode, TupleTypeDesc,
     TypedBindingPattern,
-    TypeTestExpression,
+    TypeTestExpression, UnionTypeDesc,
     Visitor
 } from "@wso2-enterprise/syntax-tree";
 
@@ -220,6 +220,34 @@ class ExpressionDeletingVisitor implements Visitor {
             } else {
                 this.setProperties(DEFAULT_TYPE_DESC, node.typeDescriptor.position);
             }
+        }
+    }
+
+    public beginVisitParenthesisedTypeDesc(node: ParenthesisedTypeDesc) {
+        if (!this.isNodeFound && isPositionsEquals(this.deletePosition, node.typedesc.position)){
+            this.setProperties(DEFAULT_TYPE_DESC, node.typedesc.position);
+        }
+    }
+
+    public beginVisitUnionTypeDesc(node: UnionTypeDesc) {
+        if (!this.isNodeFound && isPositionsEquals(this.deletePosition, node.leftTypeDesc.position)){
+            this.setProperties(DEFAULT_TYPE_DESC, node.leftTypeDesc.position);
+        } else if (!this.isNodeFound && isPositionsEquals(this.deletePosition, node.rightTypeDesc.position)) {
+            this.setProperties(DEFAULT_TYPE_DESC, node.rightTypeDesc.position);
+        }
+    }
+
+    public beginVisitIntersectionTypeDesc(node: IntersectionTypeDesc) {
+        if (!this.isNodeFound && isPositionsEquals(this.deletePosition, node.leftTypeDesc.position)){
+            this.setProperties(DEFAULT_TYPE_DESC, node.leftTypeDesc.position);
+        } else if (!this.isNodeFound && isPositionsEquals(this.deletePosition, node.rightTypeDesc.position)) {
+            this.setProperties(DEFAULT_TYPE_DESC, node.rightTypeDesc.position);
+        }
+    }
+
+    public beginVisitOptionalTypeDesc(node: OptionalTypeDesc) {
+        if (!this.isNodeFound && isPositionsEquals(this.deletePosition, node.typeDescriptor.position)){
+            this.setProperties(DEFAULT_TYPE_DESC, node.typeDescriptor.position);
         }
     }
 

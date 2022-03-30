@@ -14,8 +14,10 @@ import {
     BinaryExpression,
     IntersectionTypeDesc,
     OptionalTypeDesc,
+    ParenthesisedTypeDesc,
     QueryPipeline,
-    STNode, TupleTypeDesc,
+    STNode,
+    TupleTypeDesc,
     TypeCastExpression,
     TypedBindingPattern,
     TypeTestExpression,
@@ -67,6 +69,10 @@ class ModelTypeSetupVisitor implements Visitor {
         node.memberTypeDesc.map((memberTypeDesc: STNode) => {
             (memberTypeDesc.viewState as StatementEditorViewState).modelType = ModelType.TYPE_DESCRIPTOR;
         });
+    }
+
+    public beginVisitParenthesisedTypeDesc(node: ParenthesisedTypeDesc) {
+        (node.typedesc.viewState as StatementEditorViewState).modelType = ModelType.TYPE_DESCRIPTOR;
     }
 
 }
