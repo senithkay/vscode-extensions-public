@@ -26,7 +26,7 @@ export function getSelectedDiagnostics(
     endExtraRows: number = 0,
 ): Diagnostic[] {
     const { startLine, endLine, startColumn } = targetPosition || {};
-    const inputStartCol = startColumn + snippetColumn - startExtraColumns;
+    const inputStartCol = startColumn + snippetColumn - startExtraColumns - 1;
     const inputEndCol = startColumn + snippetColumn + inputLength + endExtraColumns - 1;
     const inputStartLine = startLine + startExtraRows;
     const inputEndLine = endLine + endExtraRows;
