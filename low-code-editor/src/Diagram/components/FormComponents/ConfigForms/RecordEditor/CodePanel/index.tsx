@@ -53,9 +53,8 @@ export function CodePanel() {
             state.currentRecord.fields.splice(index, 1);
         }
         if (state.recordModel.isTypeDefinition) {
-            const isNewTypeDesc = (state.targetPosition !== undefined);
             const accessModifier = state.recordModel.isPublic ? "public" : null;
-            if (!isNewTypeDesc) {
+            if (state.sourceModel) {
                 const modelPosition = state.sourceModel.position as NodePosition;
                 const updatePosition = {
                     startLine: modelPosition.startLine,
@@ -69,14 +68,14 @@ export function CodePanel() {
                         state.recordModel.name,
                         getGeneratedCode(state.recordModel, true),
                         updatePosition,
-                        isNewTypeDesc,
+                        false,
                         accessModifier
                     )
                 ]);
             } else {
                 modifyDiagram([
                     mutateTypeDefinition(state.recordModel.name, getGeneratedCode(state.recordModel, true),
-                        state.targetPosition, isNewTypeDesc, accessModifier)
+                        state.targetPosition, true, accessModifier)
                 ]);
             }
             state.onCancel();

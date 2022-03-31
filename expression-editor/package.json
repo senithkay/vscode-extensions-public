@@ -18,7 +18,7 @@
     "lint": "tslint --project .",
     "lint:fix": "tslint --fix --project .",
     "stylelint": "stylelint 'src/**/*.scss' --config ./.stylelintrc.json --syntax scss --fix",
-    "watch": "npm run watch:webpack",
+    "watch": "npm run watch:tsc",
     "watch:tsc": "tsc --pretty --watch",
     "deploy": "npm publish",
     "storybook": "start-storybook -p 6006",

@@ -69,21 +69,20 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
         }
     }
 
-    const [config, setCofig] = useState<ListenerConfig>(defaultState);
-    const saveBtnEnabled = isListenerConfigValid(config);
+    // const [config, setCofig] = useState<ListenerConfig>(defaultState);
+    const [listenerName, setListenerName] = useState<string>(defaultState.listenerName);
+    const [listenerPort, setListenerPort] = useState<string>(defaultState.listenerPort);
+    const [listenerType, setListenerType] = useState<string>(defaultState.listenerType);
+    const [isExpressionValid, setExpressionValid] = useState<boolean>(defaultState.isExpressionValid);
 
-    const onListenerNameChange = (listenerName: string) => {
-        setCofig(prev => ({
-            ...prev,
-            listenerName
-        }));
+    const saveBtnEnabled = isListenerConfigValid({ listenerName, listenerPort, listenerType, isExpressionValid });
+
+    const onListenerNameChange = (newName: string) => {
+        setListenerName(newName);
     }
 
-    const onListenerPortChange = (listenerPort: string) => {
-        setCofig(prev => ({
-            ...prev,
-            listenerPort
-        }));
+    const onListenerPortChange = (newPort: string) => {
+        setListenerPort(newPort);
     }
 
     const handleOnSave = () => {
@@ -100,7 +99,7 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
 
             modifyDiagram([
                 createListenerDeclartion(
-                    config,
+                    { listenerName, listenerPort, listenerType, isExpressionValid },
                     updatePosition,
                     isNewListener
                 )
@@ -109,17 +108,14 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
             isNewListener = true;
             modifyDiagram([
                 createImportStatement('ballerina', 'http', { startColumn: 0, startLine: 0 }),
-                createListenerDeclartion(config, targetPosition, isNewListener, isLastMember)
+                createListenerDeclartion({ listenerName, listenerPort, listenerType, isExpressionValid }, targetPosition, isNewListener, isLastMember)
             ]);
         }
         onSave();
     }
 
     const updateExpressionValidity = (fieldName: string, isInValid: boolean) => {
-        setCofig({
-            ...config,
-            isExpressionValid: !isInValid
-        });
+       setExpressionValid(!isInValid);
     }
 
     const portNumberExpressionEditorProps: FormElementProps<ExpressionEditorProps>  = {
@@ -127,7 +123,7 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
             name: "listenerPort",
             displayName: "Listener Port",
             typeName: "int",
-            value: config?.listenerPort
+            value: listenerPort
         },
         customProps: {
             validate: updateExpressionValidity,
@@ -142,7 +138,7 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
             initialDiagnostics: model?.initializer?.typeData?.diagnostics
         },
         onChange: onListenerPortChange,
-        defaultValue: config.listenerPort
+        defaultValue: listenerPort
     };
 
     const listenerPortInputComponent = (
@@ -177,12 +173,12 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
                     />
                     <SelectDropdownWithButton
                         customProps={{ values: ['HTTP'], disableCreateNew: true }}
-                        defaultValue={config.listenerType}
+                        defaultValue={listenerType}
                         placeholder="Select Type"
                     />
                     <VariableNameInput
                         displayName={'Listener Name'}
-                        value={config.listenerName}
+                        value={listenerName}
                         onValueChange={onListenerNameChange}
                         validateExpression={updateExpressionValidity}
                         position={namePosition}

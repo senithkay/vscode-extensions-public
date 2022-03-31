@@ -52,8 +52,17 @@ export function useSelectedStatus(node: STNode, containerRef?: React.MutableRefO
     return [isExpanded, setIsExpanded];
 }
 
-export function isNodeSelected(selectedPosition: SelectedPosition, node: STNode): boolean {
-    return selectedPosition?.startLine >= node.position?.startLine
+export function isNodeSelected(selectedPosition: SelectedPosition, node: any): boolean {
+    let lineOffset: number = 0;
+    if (node?.leadingMinutiae && node?.leadingMinutiae.length > 0) {
+        for (const minutiae of node.leadingMinutiae) {
+            if (minutiae.kind === "END_OF_LINE_MINUTIAE") {
+                lineOffset += 1;
+            }
+        }
+    }
+
+    return selectedPosition?.startLine >= (node.position?.startLine - lineOffset)
         && selectedPosition?.startLine <= node.position?.endLine;
 }
 
