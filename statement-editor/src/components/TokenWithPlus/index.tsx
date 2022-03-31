@@ -12,21 +12,21 @@
  */
 import React from "react";
 
-import { CommaToken, STNode } from "@wso2-enterprise/syntax-tree";
+import { STNode } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
 import { getJSXForMinutiae } from "../../utils";
-import {PlusButton} from "../Button/PlusButton";
+import { NewExprAddButton } from "../Button/NewExprAddButton";
 import { useStatementEditorStyles } from "../styles";
 
 export interface TokenComponentProps {
     model: STNode;
     className?: string;
-    plusHandler?: (model: STNode) => void;
+    addNewExpr?: (model: STNode) => void;
 }
 
 export function TokenWithPlus(props: TokenComponentProps) {
-    const { model, className, plusHandler } = props;
+    const { model, className, addNewExpr } = props;
 
     const statementEditorClasses = useStatementEditorStyles();
 
@@ -43,7 +43,7 @@ export function TokenWithPlus(props: TokenComponentProps) {
         <span className={styleClassName} >
             {leadingMinutiae}
             {model.value}
-            <PlusButton model={model} plusHandler={plusHandler} />
+            <NewExprAddButton model={model} onClick={addNewExpr} />
             {trailingMinutiae}
         </span>
     );

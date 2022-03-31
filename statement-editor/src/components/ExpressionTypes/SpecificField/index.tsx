@@ -30,7 +30,7 @@ export function SpecificFieldComponent(props: SpecificFieldProps) {
         <>
             <ExpressionComponent model={model.fieldName} />
             <TokenComponent model={model.colon} />
-            {plusHandler ? <ExpressionComponent model={model.valueExpr} plusHandler={plusHandler} /> :
+            {plusHandler ? <ExpressionComponent model={model.valueExpr} addNewExpr={plusHandler} /> :
             <ExpressionComponent model={model.valueExpr} />}
         </>
     );

@@ -32,7 +32,7 @@ export function ExpressionArrayWithPlus(props: ExpressionArrayProps) {
         }
     } = useContext(StatementEditorContext);
 
-    const onClickOnPlusButton = (model: STNode) => {
+    const addNewExpression = (model: STNode) => {
         const template = generateExpressionTemplate(MAPPING_CONSTRUCTOR);
         const newField = STKindChecker.isCommaToken(model) ? `\n${template},` : `,\n${template}`;
         let position: NodePosition = {
@@ -56,7 +56,7 @@ export function ExpressionArrayWithPlus(props: ExpressionArrayProps) {
                     <TokenWithPlus
                         key={index}
                         model={expression}
-                        plusHandler={onClickOnPlusButton}
+                        addNewExpr={addNewExpression}
                     />
                 ) : (
                     (index < expressions.length - 1) ? (
@@ -69,7 +69,7 @@ export function ExpressionArrayWithPlus(props: ExpressionArrayProps) {
                         <ExpressionComponent
                             key={index}
                             model={expression}
-                            plusHandler={onClickOnPlusButton}
+                            addNewExpr={addNewExpression}
                         />
                     )
                 )

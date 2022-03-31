@@ -18,7 +18,7 @@ import { MappingConstructor } from "@wso2-enterprise/syntax-tree";
 import { MAPPING_CONSTRUCTOR } from "../../../constants";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { generateExpressionTemplate } from "../../../utils/utils";
-import { PlusButton } from "../../Button/PlusButton";
+import { NewExprAddButton } from "../../Button/NewExprAddButton";
 import { ExpressionArrayWithPlus } from "../../ExpressionArrayWithPlusButton";
 // import { ExpressionArrayComponent } from "../../ExpressionArray";
 import { TokenComponent } from "../../Token";
@@ -36,7 +36,7 @@ export function MappingConstructorComponent(props: MappingConstructorProps) {
         }
     } = useContext(StatementEditorContext);
 
-    const onClickOnPlusButton = () => {
+    const addNewExpression = () => {
         const expressionTemplate = generateExpressionTemplate(MAPPING_CONSTRUCTOR);
         const newField = `${expressionTemplate} }`;
         updateModel(newField, model.closeBrace.position);
@@ -46,7 +46,7 @@ export function MappingConstructorComponent(props: MappingConstructorProps) {
         <>
             <TokenComponent model={model.openBrace} />
             <ExpressionArrayWithPlus expressions={model.fields} />
-            {(model.fields.length === 0) && (<PlusButton model={model} plusHandler={onClickOnPlusButton} />)}
+            {(model.fields.length === 0) && (<NewExprAddButton model={model} onClick={addNewExpression} />)}
             <TokenComponent model={model.closeBrace} />
         </>
     );

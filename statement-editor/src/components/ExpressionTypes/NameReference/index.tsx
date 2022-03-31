@@ -14,16 +14,16 @@ import React from "react";
 
 import { SimpleNameReference, STNode } from "@wso2-enterprise/syntax-tree";
 
-import { PlusButton } from "../../Button/PlusButton";
+import { NewExprAddButton } from "../../Button/NewExprAddButton";
 import { InputEditor } from "../../InputEditor";
 
 interface NameRefProps {
     model: SimpleNameReference;
-    plusHandler?: (model: STNode) => void;
+    addNewExpr?: (model: STNode) => void;
 }
 
 export function SimpleNameReferenceComponent(props: NameRefProps) {
-    const { model, plusHandler } = props;
+    const { model, addNewExpr } = props;
 
     const inputEditorProps = {
         model
@@ -32,7 +32,7 @@ export function SimpleNameReferenceComponent(props: NameRefProps) {
     return (
         <>
             <InputEditor {...inputEditorProps} />
-            {plusHandler && (<PlusButton model={model} plusHandler={plusHandler} />)}
+            {addNewExpr && (<NewExprAddButton model={model} onClick={addNewExpr} />)}
         </>
     );
 }

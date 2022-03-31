@@ -14,16 +14,16 @@ import React from "react";
 
 import { NumericLiteral, STNode } from "@wso2-enterprise/syntax-tree";
 
-import { PlusButton } from "../../../Button/PlusButton";
+import { NewExprAddButton } from "../../../Button/NewExprAddButton";
 import { InputEditor } from "../../../InputEditor";
 
 interface NumericLiteralProps {
     model: NumericLiteral;
-    plusHandler?: (model: STNode) => void;
+    addNewExpr?: (model: STNode) => void;
 }
 
 export function NumericLiteralComponent(props: NumericLiteralProps) {
-    const { model, plusHandler } = props;
+    const { model, addNewExpr } = props;
 
     const inputEditorProps = {
         model,
@@ -33,7 +33,7 @@ export function NumericLiteralComponent(props: NumericLiteralProps) {
     return (
         <>
             <InputEditor {...inputEditorProps} />
-            {plusHandler && (<PlusButton model={model} plusHandler={plusHandler} />)}
+            {addNewExpr && (<NewExprAddButton model={model} onClick={addNewExpr} />)}
         </>
     );
 }

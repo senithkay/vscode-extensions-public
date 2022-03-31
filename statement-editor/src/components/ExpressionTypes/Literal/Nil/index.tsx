@@ -12,27 +12,28 @@
  */
 import React from "react";
 
-import { NilLiteral } from "@wso2-enterprise/syntax-tree";
+import { NilLiteral, STNode } from "@wso2-enterprise/syntax-tree";
 
-import { VariableUserInputs } from "../../../../models/definitions";
+import { NewExprAddButton } from "../../../Button/NewExprAddButton";
 import { InputEditor } from "../../../InputEditor";
 
 interface NilLiteralProps {
-    model: NilLiteral
-    userInputs: VariableUserInputs
-    diagnosticHandler: (diagnostics: string) => void
-    isTypeDescriptor: boolean
+    model: NilLiteral;
+    addNewExpr?: (model: STNode) => void;
 }
 
 export function NilLiteralComponent(props: NilLiteralProps) {
-    const { model } = props;
+    const { model, addNewExpr } = props;
 
     const inputEditorProps = {
         statementType: model.kind,
-        classNames: "string-literal"
+        classNames: "nil-literal"
     };
 
     return (
-        <InputEditor {...inputEditorProps} />
+        <>
+            <InputEditor {...inputEditorProps} />
+            {addNewExpr && (<NewExprAddButton model={model} onClick={addNewExpr} />)}
+        </>
     );
 }

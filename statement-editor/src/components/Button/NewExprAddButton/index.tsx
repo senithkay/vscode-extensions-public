@@ -16,24 +16,24 @@ import { STNode } from "@wso2-enterprise/syntax-tree";
 
 import { useStatementEditorStyles } from "../../styles";
 
-export interface PlusButtonProps {
+export interface AddButtonProps {
     model: STNode;
-    plusHandler?: (model?: STNode) => void;
+    onClick?: (model?: STNode) => void;
 }
 
-export function PlusButton(props: PlusButtonProps) {
-    const { model, plusHandler } = props;
+export function NewExprAddButton(props: AddButtonProps) {
+    const { model, onClick } = props;
 
     const statementEditorClasses = useStatementEditorStyles();
 
-    const onClickOnPlusButton = () => {
-        plusHandler(model);
+    const onClickOnAddButton = () => {
+        onClick(model);
     };
 
     return (
         <span
             className={statementEditorClasses.plusIcon}
-            onClick={onClickOnPlusButton}
+            onClick={onClickOnAddButton}
         >
             +
         </span>
