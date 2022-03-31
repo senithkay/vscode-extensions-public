@@ -415,6 +415,106 @@ const typeDescriptors : ExpressionGroup = {
     relatedModelType: ModelType.TYPE_DESCRIPTOR
 }
 
+const operatorSymbols : ExpressionGroup = {
+    name: "Operators",
+    expressions: [
+        {
+            name: "Plus",
+            template: `+`,
+            example: "+"
+        }, {
+            name: "Minus",
+            template: "-",
+            example: "-"
+        }, {
+            name: "Slash",
+            template: `/`,
+            example: "/"
+        }, {
+            name: "Asterisk",
+            template: `*`,
+            example: "*"
+        }, {
+            name: "BitwiseAnd",
+            template: `&`,
+            example: "&"
+        }, {
+            name: "BitwiseXor",
+            template: `|`,
+            example: "|"
+        }, {
+            name: "LogicalAnd",
+            template: `&&`,
+            example: "&&"
+        }, {
+            name: "LogicalOr",
+            template: `||`,
+            example: "||"
+        }, {
+            name: "DoubleEqual",
+            template: `==`,
+            example: "=="
+        }, {
+            name: "GreaterThan",
+            template: `>`,
+            example: ">"
+        }, {
+            name: "LessThan",
+            template: "<",
+            example: "<"
+        }, {
+            name: "Double-greater-than",
+            template: `>>`,
+            example: ">>"
+        }, {
+            name: "Double-less-than",
+            template: `<<`,
+            example: "<<"
+        }, {
+            name: "Elvis",
+            template: `?:`,
+            example: "?:"
+        }, {
+            name: "GreaterThan and Equal",
+            template: `>=`,
+            example: ">="
+        }, {
+            name: "LessThan and Equal",
+            template: `<=`,
+            example: "<="
+        }, {
+            name: "DoubleEqual",
+            template: `==`,
+            example: "=="
+        }, {
+            name: "NotEqual",
+            template: `!=`,
+            example: "!="
+        }, {
+            name: "TripleEqual",
+            template: `===`,
+            example: "==="
+        }, {
+            name: "Not-DoubleEqual",
+            template: `!==`,
+            example: "!=="
+        }, {
+            name: "TripleGreaterThan",
+            template: `>>>`,
+            example: ">>>"
+        }, {
+            name: "DoubleDot-less-than",
+            template: `..<`,
+            example: "..<"
+        }, {
+            name: "Ellipsis",
+            template: `...`,
+            example: "..."
+        }
+    ],
+    relatedModelType: ModelType.OPERATOR
+}
+
 export const expressions: ExpressionGroup[] = [
     operators,
     equality,
@@ -432,5 +532,6 @@ export const expressions: ExpressionGroup[] = [
     structuralConstructors,
     range,
     shift,
-    typeDescriptors
+    typeDescriptors,
+    operatorSymbols
 ];
