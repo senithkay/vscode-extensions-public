@@ -18,8 +18,9 @@ import { MappingConstructor } from "@wso2-enterprise/syntax-tree";
 import { MAPPING_CONSTRUCTOR } from "../../../constants";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { generateExpressionTemplate } from "../../../utils/utils";
-import { ExpressionArrayComponent } from "../../ExpressionArray";
-import { useStatementEditorStyles } from "../../styles";
+import { PlusButton } from "../../Button/PlusButton";
+import { ExpressionArrayWithPlus } from "../../ExpressionArrayWithPlusButton";
+// import { ExpressionArrayComponent } from "../../ExpressionArray";
 import { TokenComponent } from "../../Token";
 
 interface MappingConstructorProps {
@@ -29,15 +30,13 @@ interface MappingConstructorProps {
 export function MappingConstructorComponent(props: MappingConstructorProps) {
     const { model } = props;
 
-    const statementEditorClasses = useStatementEditorStyles();
-
     const {
         modelCtx: {
             updateModel,
         }
     } = useContext(StatementEditorContext);
 
-    const onClickOnPlusIcon = () => {
+    const onClickOnPlusButton = () => {
         const expressionTemplate = generateExpressionTemplate(MAPPING_CONSTRUCTOR);
         const newField = `${expressionTemplate} }`;
         updateModel(newField, model.closeBrace.position);
@@ -46,15 +45,8 @@ export function MappingConstructorComponent(props: MappingConstructorProps) {
     return (
         <>
             <TokenComponent model={model.openBrace} />
-            <ExpressionArrayComponent expressions={model.fields} />
-            {(model.fields.length === 0) && (
-                <span
-                    className={statementEditorClasses.plusIcon}
-                    onClick={onClickOnPlusIcon}
-                >
-                    +
-                </span>
-            )}
+            <ExpressionArrayWithPlus expressions={model.fields} />
+            {(model.fields.length === 0) && (<PlusButton model={model} plusHandler={onClickOnPlusButton} />)}
             <TokenComponent model={model.closeBrace} />
         </>
     );

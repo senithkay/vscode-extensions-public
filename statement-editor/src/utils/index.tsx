@@ -92,7 +92,7 @@ export function getModifications(
     return modifications;
 }
 
-export function getExpressionTypeComponent(expression: STNode): ReactNode {
+export function getExpressionTypeComponent(expression: STNode, plusHandler?: (model: STNode) => void): ReactNode {
     let ExprTypeComponent = (expressionTypeComponents as any)[expression.kind];
 
     if (!ExprTypeComponent) {
@@ -100,9 +100,18 @@ export function getExpressionTypeComponent(expression: STNode): ReactNode {
     }
 
     return (
-        <ExprTypeComponent
-            model={expression}
-        />
+        plusHandler ?
+            (
+                <ExprTypeComponent
+                    model={expression}
+                    plusHandler={plusHandler}
+                />
+            ) :
+            (
+                <ExprTypeComponent
+                    model={expression}
+                />
+            )
     );
 }
 

@@ -12,16 +12,18 @@
  */
 import React from "react";
 
-import { BooleanLiteral } from "@wso2-enterprise/syntax-tree";
+import { BooleanLiteral, STNode } from "@wso2-enterprise/syntax-tree";
 
+import { PlusButton } from "../../../Button/PlusButton";
 import { InputEditor } from "../../../InputEditor";
 
 interface BooleanLiteralProps {
     model: BooleanLiteral;
+    plusHandler?: (model: STNode) => void;
 }
 
 export function BooleanLiteralComponent(props: BooleanLiteralProps) {
-    const { model } = props;
+    const { model, plusHandler } = props;
 
     const inputEditorProps = {
         model,
@@ -29,6 +31,9 @@ export function BooleanLiteralComponent(props: BooleanLiteralProps) {
     };
 
     return (
-        <InputEditor {...inputEditorProps} />
+        <>
+            <InputEditor {...inputEditorProps} />
+            {plusHandler && (<PlusButton model={model} plusHandler={plusHandler} />)}
+        </>
     );
 }

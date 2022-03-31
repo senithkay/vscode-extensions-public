@@ -10,51 +10,28 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, { useContext } from "react";
+// tslint:disable: jsx-no-multiline-js
+import React from "react";
 
-import { SpecificField } from "@wso2-enterprise/syntax-tree";
+import { SpecificField, STNode } from "@wso2-enterprise/syntax-tree";
 
-import { MAPPING_CONSTRUCTOR } from "../../../constants";
-import { StatementEditorContext } from "../../../store/statement-editor-context";
-import { generateExpressionTemplate } from "../../../utils/utils";
 import { ExpressionComponent } from "../../Expression";
-import { useStatementEditorStyles } from "../../styles";
 import { TokenComponent } from "../../Token";
 
 interface SpecificFieldProps {
     model: SpecificField;
+    plusHandler?: (model: STNode) => void;
 }
 
 export function SpecificFieldComponent(props: SpecificFieldProps) {
-    const { model } = props;
-
-    const statementEditorClasses = useStatementEditorStyles();
-
-    const {
-        modelCtx: {
-            updateModel,
-        }
-    } = useContext(StatementEditorContext);
-
-    const onClickOnPlusIcon = () => {
-        const newField = `,\n${generateExpressionTemplate(MAPPING_CONSTRUCTOR)}`;
-        updateModel(newField, {
-            ...model.valueExpr.position,
-            startColumn: model.valueExpr.position.endColumn
-        });
-    };
+    const { model, plusHandler } = props;
 
     return (
         <>
             <ExpressionComponent model={model.fieldName} />
             <TokenComponent model={model.colon} />
-            <ExpressionComponent model={model.valueExpr} />
-            <span
-                className={statementEditorClasses.plusIcon}
-                onClick={onClickOnPlusIcon}
-            >
-                +
-            </span>
+            {plusHandler ? <ExpressionComponent model={model.valueExpr} plusHandler={plusHandler} /> :
+            <ExpressionComponent model={model.valueExpr} />}
         </>
     );
 }

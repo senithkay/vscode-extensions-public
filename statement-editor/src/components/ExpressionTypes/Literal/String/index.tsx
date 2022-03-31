@@ -12,16 +12,18 @@
  */
 import React from "react";
 
-import { StringLiteral } from "@wso2-enterprise/syntax-tree";
+import { STNode, StringLiteral } from "@wso2-enterprise/syntax-tree";
 
+import { PlusButton } from "../../../Button/PlusButton";
 import { InputEditor } from "../../../InputEditor";
 
 interface StringLiteralProps {
     model: StringLiteral;
+    plusHandler?: (model: STNode) => void;
 }
 
 export function StringLiteralComponent(props: StringLiteralProps) {
-    const { model } = props;
+    const { model, plusHandler } = props;
 
     const inputEditorProps = {
         model,
@@ -29,6 +31,9 @@ export function StringLiteralComponent(props: StringLiteralProps) {
     };
 
     return (
-        <InputEditor {...inputEditorProps} />
+        <>
+            <InputEditor {...inputEditorProps} />
+            {plusHandler && (<PlusButton model={model} plusHandler={plusHandler} />)}
+        </>
     );
 }

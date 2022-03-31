@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 Inc. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -12,27 +12,30 @@
  */
 import React from "react";
 
-import { SimpleNameReference, STNode } from "@wso2-enterprise/syntax-tree";
+import { STNode } from "@wso2-enterprise/syntax-tree";
 
-import { PlusButton } from "../../Button/PlusButton";
-import { InputEditor } from "../../InputEditor";
+import { useStatementEditorStyles } from "../../styles";
 
-interface NameRefProps {
-    model: SimpleNameReference;
-    plusHandler?: (model: STNode) => void;
+export interface PlusButtonProps {
+    model: STNode;
+    plusHandler?: (model?: STNode) => void;
 }
 
-export function SimpleNameReferenceComponent(props: NameRefProps) {
+export function PlusButton(props: PlusButtonProps) {
     const { model, plusHandler } = props;
 
-    const inputEditorProps = {
-        model
+    const statementEditorClasses = useStatementEditorStyles();
+
+    const onClickOnPlusButton = () => {
+        plusHandler(model);
     };
 
     return (
-        <>
-            <InputEditor {...inputEditorProps} />
-            {plusHandler && (<PlusButton model={model} plusHandler={plusHandler} />)}
-        </>
+        <span
+            className={statementEditorClasses.plusIcon}
+            onClick={onClickOnPlusButton}
+        >
+            +
+        </span>
     );
 }
