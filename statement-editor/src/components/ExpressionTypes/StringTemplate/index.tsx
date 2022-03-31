@@ -25,11 +25,11 @@ export function StringTemplateExpressionComponent(props: StringTemplateExpressio
     const { model } = props;
 
     return (
-        <span>
+        <>
             <TokenComponent model={model.type} className={"keyword"} />
             <TokenComponent model={model.startBacktick} />
             <ExpressionArrayComponent expressions={model.content} />
             <TokenComponent model={model.endBacktick} />
-        </span>
+        </>
     );
 }

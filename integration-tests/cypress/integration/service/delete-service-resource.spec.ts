@@ -38,7 +38,7 @@ describe('delete resource after adding it', () => {
 
     Canvas.getService("/hello")
       .getResourceFunction("GET", "world")
-      .expand()
+      // .expand()
       .shouldBeExpanded()
       .getDiagram()
       .shouldBeRenderedProperly()

@@ -25,9 +25,9 @@ export function CheckActionComponent(props: CheckActionProps) {
     const { model } = props;
 
     return (
-        <span>
+        <>
             <TokenComponent model={model.checkKeyword} className={"keyword"} />
             <ExpressionComponent model={model.expression} />
-        </span>
+        </>
     );
 }

@@ -269,10 +269,33 @@ export function StatementEditor(props: StatementEditorProps) {
     const handleDiagnostics = async (stmtLength: number): Promise<Diagnostic[]> => {
         const diagResp = await getDiagnostics(fileURI, getLangClient);
         const diag  = diagResp[0]?.diagnostics ? diagResp[0].diagnostics : [];
+        removeUnusedModules(diag);
         const messages = getFilteredDiagnosticMessages(stmtLength, targetPosition, diag);
         setStmtDiagnostics(messages);
         return diag;
     }
+
+    const removeUnusedModules = (completeDiagnostic:  Diagnostic[]) => {
+        if (!!moduleList.size) {
+            const unusedModuleName = new RegExp(/'(.*?[^\\])'/g);
+            completeDiagnostic.forEach(diagnostic => {
+                let extracted;
+                if (diagnostic.message.includes("unused module prefix '") ||
+                    diagnostic.message.includes("undefined module '")) {
+                        extracted = unusedModuleName.exec(diagnostic.message);
+                        if (extracted) {
+                            const extractedModule = extracted[1]
+                            moduleList.forEach(moduleName => {
+                                if (moduleName.includes(extractedModule)) {
+                                    moduleList.delete(moduleName);
+                                    setModuleList(moduleList);
+                                }
+                            });
+                        }
+                }
+            });
+        }
+    };
 
     const currentModelHandler = (cModel: STNode) => {
         setCurrentModel({

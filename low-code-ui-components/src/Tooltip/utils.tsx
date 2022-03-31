@@ -16,6 +16,9 @@ import { ForeachStatement, IfElseStatement, STNode, WhileStatement } from '@wso2
 
 export function getSourceFromST(componentSTNode: STNode): string {
     if (componentSTNode) {
+        if ((componentSTNode.kind === "IfElseStatement") || (componentSTNode.kind === "ForeachStatement")) {
+            return componentSTNode?.source?.trim();
+        }
         return filterCommentsFromSource(componentSTNode?.source?.trim());
     }
 }

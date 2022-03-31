@@ -43,7 +43,7 @@ export function ListConstructorComponent(props: ListConstructorProps) {
     };
 
     return (
-        <span>
+        <>
             <TokenComponent model={model.openBracket} />
             <ExpressionArrayComponent expressions={model.expressions} />
             <span
@@ -53,6 +53,6 @@ export function ListConstructorComponent(props: ListConstructorProps) {
                 +
             </span>
             <TokenComponent model={model.closeBracket} />
-        </span>
+        </>
     );
 }

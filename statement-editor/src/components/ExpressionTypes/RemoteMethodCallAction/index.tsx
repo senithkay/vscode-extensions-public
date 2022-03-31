@@ -26,7 +26,7 @@ export function RemoteMethodCallActionComponent(props: RemoteMethodCallActionPro
     const { model } = props;
 
     return (
-        <span>
+        <>
             <ExpressionComponent model={model.expression} />
             <TokenComponent model={model.rightArrowToken} className={"operator"} />
             <ExpressionComponent model={model.methodName} >
@@ -34,6 +34,6 @@ export function RemoteMethodCallActionComponent(props: RemoteMethodCallActionPro
                 <ExpressionArrayComponent expressions={model.arguments} />
                 <TokenComponent model={model.closeParenToken} />
             </ExpressionComponent>
-        </span>
+        </>
     );
 }

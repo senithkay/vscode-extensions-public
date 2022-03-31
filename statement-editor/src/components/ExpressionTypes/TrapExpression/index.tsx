@@ -25,9 +25,9 @@ export function TrapExpressionComponent(props: TrapExpressionProps) {
     const { model } = props;
 
     return (
-        <span>
+        <>
             <TokenComponent model={model.trapKeyword} className={"keyword"} />
             <ExpressionComponent model={model.expression} />
-        </span>
+        </>
     );
 }

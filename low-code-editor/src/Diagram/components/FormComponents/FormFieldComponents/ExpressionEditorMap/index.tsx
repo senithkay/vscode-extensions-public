@@ -80,7 +80,7 @@ export function ExpressionEditorMap(props: FormElementProps<ExpressionEditorProp
         model: {
             name: "key_editor_" + model.name,
             label: `${model.name} Key`,
-            type: keyEditorType,
+            typeName: keyEditorType,
             value: keyEditorContent,
             tooltip: "Key of the Key-Value pair",
             optional: true,
@@ -99,7 +99,10 @@ export function ExpressionEditorMap(props: FormElementProps<ExpressionEditorProp
     // States and functions for value-exp-editor
     const [valueEditorValid, setValueEditorValid] = useState(false);
     const [valueEditorContent, setValueEditorContent] = useState("");
-    const valueEditorType: string = model?.paramType?.typeName;
+    // We can safely get 0'th element since currently map constraint type
+    // supports single(union/record etc..) field only.
+    const fields = (model?.paramType && model?.paramType?.typeName) ?  model?.paramType?.typeName : model?.fields?.[0];
+    const valueEditorType: string = transformFormFieldTypeToString(fields);
 
     const handleValueEditorValidation = (_field: string, isInvalid: boolean) => {
         if (valueEditorContent === "") {
@@ -117,7 +120,7 @@ export function ExpressionEditorMap(props: FormElementProps<ExpressionEditorProp
         model: {
             name: "value_editor_" + model.name,
             label: `${model.name} Value`,
-            type: valueEditorType,
+            typeName: valueEditorType,
             value: valueEditorContent,
             tooltip: "Value of the Key-Value pair",
             optional: true,

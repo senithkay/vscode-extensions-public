@@ -25,11 +25,11 @@ export function FromClauseComponent(props: FromClauseProps) {
     const { model } = props;
 
     return (
-        <span>
+        <>
             <TokenComponent model={model.fromKeyword} className={"keyword"} />
             <ExpressionComponent model={model.typedBindingPattern} />
             <TokenComponent model={model.inKeyword} className={"keyword"} />
             <ExpressionComponent model={model.expression} />
-        </span>
+        </>
     );
 }

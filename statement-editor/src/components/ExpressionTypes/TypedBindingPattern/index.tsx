@@ -24,9 +24,9 @@ export function TypedBindingPatternComponent(props: TypedBindingPatternProps) {
     const { model } = props;
 
     return (
-        <span>
+        <>
             <ExpressionComponent model={model.typeDescriptor} classNames="type-descriptor" />
             <ExpressionComponent model={model.bindingPattern} />
-        </span>
+        </>
     );
 }

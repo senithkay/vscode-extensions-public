@@ -13,7 +13,7 @@
 import { STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
-const keywords = [
+export const keywords = [
     "if", "else", "fork", "join", "while", "foreach",
     "in", "return", "returns", "break", "transaction",
     "transactional", "retry", "commit", "rollback", "continue",
