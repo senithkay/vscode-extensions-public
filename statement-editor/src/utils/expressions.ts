@@ -377,7 +377,7 @@ const trap: ExpressionGroup = {
 
 // 5.4 Structured values
 // TODO: Add MapTypeDesc, FutureTypeDesc and distinctTypeDesc when interfaces are added,
-// TODO: Add ArrayTypeDesc and XmlTypeDesc when the interfaces are updated with proper format
+// TODO: Add ArrayTypeDesc, XmlTypeDesc and ErrorTypeDesc when the interfaces are updated with proper format
 // 5.6 Other type descriptors
 
 const typeDescriptors : ExpressionGroup = {
