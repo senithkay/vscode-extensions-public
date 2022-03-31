@@ -59,6 +59,9 @@ import { KeySpecifierComponent } from "./TypeDescriptor/KeySpecifier";
 import { KeyTypeConstraintComponent } from "./TypeDescriptor/KeyTypeConstraint";
 import { OptionalTypeDescComponent } from "./TypeDescriptor/OptionalTypeDesc";
 import { ParenthesisedTypeDescComponent } from "./TypeDescriptor/ParenthesisedTypeDesc";
+import { RecordFieldComponent} from "./TypeDescriptor/RecordField";
+import { RecordFieldWithDefaultValueComponent } from "./TypeDescriptor/RecordFieldWithDefaultValue";
+import { RecordTypeDescComponent } from "./TypeDescriptor/RecordTypeDesc";
 import { StringTypeDescComponent } from './TypeDescriptor/StringTypeDesc';
 import { TableTypeDescComponent } from "./TypeDescriptor/TableTypeDesc";
 import { TupleTypeDescComponent} from "./TypeDescriptor/TupleTypeDesc";
@@ -130,3 +133,6 @@ export { TypeParameterComponent as TypeParameter }
 export { TableTypeDescComponent as TableTypeDesc }
 export { KeySpecifierComponent as KeySpecifier }
 export { KeyTypeConstraintComponent as KeyTypeConstraint }
+export { RecordTypeDescComponent as RecordTypeDesc }
+export { RecordFieldWithDefaultValueComponent as RecordFieldWithDefaultValue }
+export { RecordFieldComponent as RecordField }

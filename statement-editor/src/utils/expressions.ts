@@ -375,9 +375,9 @@ const trap: ExpressionGroup = {
 //     6.37 Transactional expression
 
 // 5.4 Structured values
-// 5.4.1.1 Array types TODO: Add when the ArrayTypeDesc interface has been updated to proper format
+// TODO: Add MapTypeDesc, FutureTypeDesc and distinctTypeDesc when interfaces are added,
+// TODO: Add ArrayTypeDesc and XmlTypeDesc when the interfaces are updated with proper format
 // 5.6 Other type descriptors
-// 5.6.6 Distinct types TODO: Add the distinctTypeDesc when ST-interface is added
 
 const typeDescriptors : ExpressionGroup = {
     name: "Type Descriptors",
@@ -410,6 +410,14 @@ const typeDescriptors : ExpressionGroup = {
             name: "Parenthesised TypeDesc",
             template: `(${SELECTED_EXPRESSION} )`,
             example: "(Es)"
+        }, {
+            name: "Inclusive Record",
+            template: `record{${SELECTED_EXPRESSION} ${EXPR_PLACE_HOLDER};}`,
+            example: "record{Es Ex;}"
+        }, {
+            name: "Exclusive Record",
+            template: `record{|${SELECTED_EXPRESSION} ${EXPR_PLACE_HOLDER};|}`,
+            example: "record{|Es Ex;|}"
         }
     ],
     relatedModelType: ModelType.TYPE_DESCRIPTOR

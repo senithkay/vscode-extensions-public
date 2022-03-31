@@ -16,6 +16,8 @@ import {
     OptionalTypeDesc,
     ParenthesisedTypeDesc,
     QueryPipeline,
+    RecordField,
+    RecordFieldWithDefaultValue,
     STNode,
     TableTypeDesc,
     TupleTypeDesc,
@@ -84,6 +86,16 @@ class ModelTypeSetupVisitor implements Visitor {
 
     public beginVisitTypeParameter(node: TypeParameter) {
         (node.typeNode.viewState as StatementEditorViewState).modelType = ModelType.TYPE_DESCRIPTOR;
+    }
+
+    public beginVisitRecordField(node: RecordField) {
+        (node.typeName.viewState as StatementEditorViewState).modelType = ModelType.TYPE_DESCRIPTOR;
+        (node.fieldName.viewState as StatementEditorViewState).modelType = ModelType.BINDING_PATTERN;
+    }
+
+    public beginVisitRecordFieldWithDefaultValue(node: RecordFieldWithDefaultValue) {
+        (node.typeName.viewState as StatementEditorViewState).modelType = ModelType.TYPE_DESCRIPTOR;
+        (node.fieldName.viewState as StatementEditorViewState).modelType = ModelType.BINDING_PATTERN;
     }
 
 }

@@ -13,7 +13,7 @@
 import {
     AssignmentStatement,
     BinaryExpression, KeySpecifier,
-    ListConstructor, MappingConstructor, OptionalTypeDesc,
+    ListConstructor, MappingConstructor, OptionalTypeDesc, RecordField, RecordFieldWithDefaultValue,
     STNode, TupleTypeDesc, TypedBindingPattern,
     Visitor
 } from "@wso2-enterprise/syntax-tree";
@@ -69,6 +69,14 @@ class DeleteConfigSetupVisitor implements Visitor {
                 (fieldNames.viewState as StatementEditorViewState).templateExprDeletable = true;
             });
         }
+    }
+
+    public beginVisitRecordField(node: RecordField) {
+        (node.fieldName.viewState as StatementEditorViewState).templateExprDeletable = false;
+    }
+
+    public beginVisitRecordFieldWithDefaultValue(node: RecordFieldWithDefaultValue) {
+        (node.fieldName.viewState as StatementEditorViewState).templateExprDeletable = false;
     }
 }
 

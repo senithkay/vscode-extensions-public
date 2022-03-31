@@ -14,17 +14,27 @@ import {
     BinaryExpression,
     FieldAccess,
     FunctionCall,
-    IndexedExpression, IntersectionTypeDesc, KeySpecifier,
+    IndexedExpression,
+    IntersectionTypeDesc,
+    KeySpecifier,
     ListConstructor,
     MappingConstructor,
     MethodCall,
     NodePosition,
-    OptionalFieldAccess, OptionalTypeDesc, ParenthesisedTypeDesc,
+    OptionalFieldAccess,
+    OptionalTypeDesc,
+    ParenthesisedTypeDesc,
+    RecordField,
+    RecordFieldWithDefaultValue,
+    RecordTypeDesc,
     SpecificField,
     STKindChecker,
-    STNode, TupleTypeDesc,
-    TypedBindingPattern, TypeParameter,
-    TypeTestExpression, UnionTypeDesc,
+    STNode,
+    TupleTypeDesc,
+    TypedBindingPattern,
+    TypeParameter,
+    TypeTestExpression,
+    UnionTypeDesc,
     Visitor
 } from "@wso2-enterprise/syntax-tree";
 
@@ -277,6 +287,41 @@ class ExpressionDeletingVisitor implements Visitor {
                     endColumn: node.closeParenToken.position.startColumn
                 });
             }
+        }
+    }
+
+    public beginVisitRecordTypeDesc(node: RecordTypeDesc) {
+        if (!this.isNodeFound) {
+                const hasItemsToBeDeleted = node.fields.some((item: STNode) => {
+                    return this.deletePosition === item.position;
+                });
+
+                if (hasItemsToBeDeleted) {
+                    const expressions: string[] = [];
+                    node.fields.map((expr: STNode) => {
+                        if (this.deletePosition !== expr.position) {
+                            expressions.push(expr.source);
+                        }
+                    });
+
+                    this.setProperties(expressions.join(), {
+                        ...node.position,
+                        startColumn: node.bodyStartDelimiter.position.endColumn,
+                        endColumn: node.bodyEndDelimiter.position.startColumn
+                    });
+                }
+            }
+    }
+
+    public beginVisitRecordField(node: RecordField) {
+        if (!this.isNodeFound && isPositionsEquals(this.deletePosition, node.typeName.position)){
+            this.setProperties(DEFAULT_TYPE_DESC, node.typeName.position);
+        }
+    }
+
+    public beginVisitRecordFieldWithDefaultValue(node: RecordFieldWithDefaultValue) {
+        if (!this.isNodeFound && isPositionsEquals(this.deletePosition, node.typeName.position)){
+            this.setProperties(DEFAULT_TYPE_DESC, node.typeName.position);
         }
     }
 
