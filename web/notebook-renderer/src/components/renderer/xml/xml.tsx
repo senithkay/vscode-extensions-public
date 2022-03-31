@@ -17,7 +17,8 @@
  *
  */
 
-import { FunctionComponent } from "preact";
+import { h, FunctionComponent } from "preact";
+// @ts-ignore
 import XMLViewer from 'react-xml-viewer';
 import { NotebookCellResult } from "../types";
  

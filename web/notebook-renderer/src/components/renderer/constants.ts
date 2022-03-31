@@ -20,5 +20,5 @@
 export const MIME_TYPE_PLAIN_TEXT = "plain/text";
 export const MIME_TYPE_TABLE = "ballerina-notebook/table-view";
 export const MIME_TYPE_JSON = "ballerina-notebook/json-view";
-export const MIME_TYPE_XML = "application/xml";
+export const MIME_TYPE_XML = "ballerina-notebook/xml-view";
  
