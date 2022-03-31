@@ -43,6 +43,7 @@ import { isPositionsEquals } from "../utils";
 
 export const DEFAULT_EXPR = "EXPRESSION";
 export const DEFAULT_TYPE_DESC = "TYPE_DESCRIPTOR";
+export const DEFAULT_BINDING_PATTERN = "BINDING_PATTERN";
 
 class ExpressionDeletingVisitor implements Visitor {
     private deletePosition: NodePosition;
@@ -316,12 +317,16 @@ class ExpressionDeletingVisitor implements Visitor {
     public beginVisitRecordField(node: RecordField) {
         if (!this.isNodeFound && isPositionsEquals(this.deletePosition, node.typeName.position)){
             this.setProperties(DEFAULT_TYPE_DESC, node.typeName.position);
+        } else if (!this.isNodeFound && isPositionsEquals(this.deletePosition, node.fieldName.position)){
+            this.setProperties(DEFAULT_BINDING_PATTERN, node.fieldName.position);
         }
     }
 
     public beginVisitRecordFieldWithDefaultValue(node: RecordFieldWithDefaultValue) {
         if (!this.isNodeFound && isPositionsEquals(this.deletePosition, node.typeName.position)){
             this.setProperties(DEFAULT_TYPE_DESC, node.typeName.position);
+        } else if (!this.isNodeFound && isPositionsEquals(this.deletePosition, node.fieldName.position)){
+            this.setProperties(DEFAULT_BINDING_PATTERN, node.fieldName.position);
         }
     }
 

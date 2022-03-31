@@ -28,6 +28,7 @@ export interface ExpressionGroup {
 
 export const EXPR_PLACE_HOLDER = "EXPRESSION";
 export const TYPE_DESC_PLACE_HOLDER = "TYPE_DESCRIPTOR";
+export const BINDING_PATTERN_PLACE_HOLDER = "BINDING_PATTERN";
 /* tslint:disable-next-line */
 export const SELECTED_EXPRESSION = "${SELECTED_EXPRESSION}";
 
@@ -412,11 +413,11 @@ const typeDescriptors : ExpressionGroup = {
             example: "(Es)"
         }, {
             name: "Inclusive Record",
-            template: `record{${SELECTED_EXPRESSION} ${EXPR_PLACE_HOLDER};}`,
+            template: `record{${SELECTED_EXPRESSION} ${BINDING_PATTERN_PLACE_HOLDER};}`,
             example: "record{Es Ex;}"
         }, {
             name: "Exclusive Record",
-            template: `record{|${SELECTED_EXPRESSION} ${EXPR_PLACE_HOLDER};|}`,
+            template: `record{|${SELECTED_EXPRESSION} ${BINDING_PATTERN_PLACE_HOLDER};|}`,
             example: "record{|Es Ex;|}"
         }
     ],

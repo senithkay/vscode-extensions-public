@@ -17,7 +17,7 @@ import {
     ParenthesisedTypeDesc,
     QueryPipeline,
     RecordField,
-    RecordFieldWithDefaultValue,
+    RecordFieldWithDefaultValue, RecordTypeDesc,
     STNode,
     TableTypeDesc,
     TupleTypeDesc,
