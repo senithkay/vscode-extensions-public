@@ -19,8 +19,7 @@ import { MAPPING_CONSTRUCTOR } from "../../../constants";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { generateExpressionTemplate } from "../../../utils/utils";
 import { NewExprAddButton } from "../../Button/NewExprAddButton";
-import { ExpressionArrayWithPlus } from "../../ExpressionArrayWithPlusButton";
-// import { ExpressionArrayComponent } from "../../ExpressionArray";
+import { ExpressionArrayComponent } from "../../ExpressionArray";
 import { TokenComponent } from "../../Token";
 
 interface MappingConstructorProps {
@@ -45,7 +44,7 @@ export function MappingConstructorComponent(props: MappingConstructorProps) {
     return (
         <>
             <TokenComponent model={model.openBrace} />
-            <ExpressionArrayWithPlus expressions={model.fields} />
+            <ExpressionArrayComponent expressions={model.fields} modifiable={true} />
             {(model.fields.length === 0) && (<NewExprAddButton model={model} onClick={addNewExpression} />)}
             <TokenComponent model={model.closeBrace} />
         </>
