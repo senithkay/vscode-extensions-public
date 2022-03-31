@@ -20,18 +20,17 @@ import { TokenComponent } from "../../Token";
 
 interface SpecificFieldProps {
     model: SpecificField;
-    plusHandler?: (model: STNode) => void;
+    addNewExpr?: (model: STNode) => void;
 }
 
 export function SpecificFieldComponent(props: SpecificFieldProps) {
-    const { model, plusHandler } = props;
+    const { model, addNewExpr } = props;
 
     return (
         <>
             <ExpressionComponent model={model.fieldName} />
             <TokenComponent model={model.colon} />
-            {plusHandler ? <ExpressionComponent model={model.valueExpr} addNewExpr={plusHandler} /> :
-            <ExpressionComponent model={model.valueExpr} />}
+            <ExpressionComponent model={model.valueExpr} addNewExpr={addNewExpr} />
         </>
     );
 }

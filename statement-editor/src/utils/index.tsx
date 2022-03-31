@@ -100,18 +100,10 @@ export function getExpressionTypeComponent(expression: STNode, addNewExpr?: (mod
     }
 
     return (
-        addNewExpr ?
-            (
-                <ExprTypeComponent
-                    model={expression}
-                    addNewExpr={addNewExpr}
-                />
-            ) :
-            (
-                <ExprTypeComponent
-                    model={expression}
-                />
-            )
+        <ExprTypeComponent
+            model={expression}
+            addNewExpr={addNewExpr}
+        />
     );
 }
 
