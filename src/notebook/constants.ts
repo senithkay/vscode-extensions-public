@@ -27,9 +27,10 @@ export const NOTEBOOK_SCHEME = "vscode-notebook-cell";
 export const MIME_TYPE_PLAIN_TEXT = "plain/text";
 export const MIME_TYPE_TABLE = "ballerina-notebook/table-view";
 export const MIME_TYPE_JSON = "ballerina-notebook/json-view";
-export const MIME_TYPE_XML = "application/xml";
+export const MIME_TYPE_XML = "ballerina-notebook/xml-view";
 
 /* Commands for notebook*/
 export const RESTART_NOTEBOOK_COMMAND = "ballerina.notebook.restartnotebook";
 export const OPEN_OUTLINE_VIEW_COMMAND = "ballerina.notebook.openOutlineView";
 export const OPEN_VARIABLE_VIEW_COMMAND = "ballerina.notebook.openVariableView";
+export const DEBUG_CELL_COMMAND = "ballerina.notebook.debugcell";

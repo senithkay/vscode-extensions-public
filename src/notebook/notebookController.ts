@@ -20,7 +20,7 @@
 import { NotebookCell, NotebookCellOutput, NotebookCellOutputItem, NotebookController, 
     NotebookDocument, notebooks } from 'vscode';
 import { BallerinaExtension, ExtendedLangClient, NoteBookCellOutputResponse } from '../core';
-import { MIME_TYPE_JSON, MIME_TYPE_TABLE } from './constants';
+import { MIME_TYPE_JSON, MIME_TYPE_TABLE, MIME_TYPE_XML } from './constants';
 
 export class BallerinaNotebookController {
     readonly controllerId = 'ballerina-notebook-controller-id';
@@ -100,6 +100,13 @@ export class BallerinaNotebookController {
                 else if (output.shellValue.mimeType === MIME_TYPE_JSON) {
                     execution.replaceOutput([ new NotebookCellOutput([
                             NotebookCellOutputItem.json(output, MIME_TYPE_JSON),
+                            NotebookCellOutputItem.text(output.shellValue.value)
+                        ])
+                    ]);
+                }
+                else if (output.shellValue.mimeType === MIME_TYPE_XML) {
+                    execution.replaceOutput([ new NotebookCellOutput([
+                            NotebookCellOutputItem.json(output, MIME_TYPE_XML),
                             NotebookCellOutputItem.text(output.shellValue.value)
                         ])
                     ]);
