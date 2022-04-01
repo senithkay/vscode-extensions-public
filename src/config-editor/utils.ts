@@ -89,14 +89,9 @@ function getLeafConfig(object: any, configProperty: ConfigProperty) {
         return;
     }
 
-    let intValues: any = object[value];
-    if (object.type === "integer") {
-        intValues = Number(object[value]);
-    }
-
     const newConfigElement: ConfigValue = {
         configName: object[name],
-        configValue: intValues,
+        configValue: object[value],
     };
 
     const found = configProperties.some((element) => element.headerNames.join(".") === headers.join("."));

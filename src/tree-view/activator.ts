@@ -76,8 +76,12 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
         window.showWarningMessage(`Are you sure you want to delete ${item.getUri().fsPath}?`,
             cancelAction, deleteAction).then((selection) => {
                 if (deleteAction === selection) {
-                    item.getKind() == 'folder' ? rmdir(item.getUri().fsPath, { recursive: true }, () => { }) :
-                        rm(item.getUri().fsPath, () => { });
+                    const callback = (error) => {
+                        error !== null ? ballerinaExtInstance.showMsgAndRestart(
+                            "The workspace doesn't seem to be synced with the file system.") : null;
+                    }
+                    item.getKind() == 'folder' ? rmdir(item.getUri().fsPath, { recursive: true }, callback) :
+                        rm(item.getUri().fsPath, callback);
                 }
             });
     });
