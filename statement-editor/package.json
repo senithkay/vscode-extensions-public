@@ -16,7 +16,8 @@
         "clean": "rimraf build/",
         "clean:nm": "rimraf node_modules",
         "lint": "tslint --project .",
-        "lint:fix": "tslint --fix --project ."
+        "lint:fix": "tslint --fix --project .",
+        "storybook": "node tools/setup-storybook.js"
     },
     "dependencies": {
         "@wso2-enterprise/syntax-tree": "^1.0.0",
