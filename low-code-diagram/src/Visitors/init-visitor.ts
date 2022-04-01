@@ -150,6 +150,7 @@ export class InitVisitor implements Visitor {
 
     public beginVisitServiceDeclaration(node: ServiceDeclaration, parent?: STNode) {
         node.viewState = new ServiceViewState();
+        this.allEndpoints = new Map<string, Endpoint>();
     }
 
     public beginVisitFunctionBodyBlock(node: FunctionBodyBlock, parent?: STNode) {
