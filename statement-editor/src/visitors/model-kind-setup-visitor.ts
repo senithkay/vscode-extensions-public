@@ -11,7 +11,7 @@
  * associated services.
  */
 import {
-    BinaryExpression,
+    BinaryExpression, STNode,
     TypeCastExpression,
     TypedBindingPattern,
     TypeTestExpression,
@@ -21,6 +21,13 @@ import {
 import { StatementEditorViewState } from "../utils/statement-editor-viewstate";
 
 class ModelKindSetupVisitor implements Visitor {
+    public beginVisitSTNode(node: STNode, parent?: STNode) {
+        if (parent && (parent.viewState as StatementEditorViewState).isTypeDescriptor) {
+            // Propagate type descriptor info to leaf nodes to identify the custom type descriptors
+            (node.viewState as StatementEditorViewState).isTypeDescriptor = true;
+        }
+    }
+
     public beginVisitTypedBindingPattern(node: TypedBindingPattern) {
         (node.typeDescriptor.viewState as StatementEditorViewState).isTypeDescriptor = true;
         (node.bindingPattern.viewState as StatementEditorViewState).isBindingPattern = true;
