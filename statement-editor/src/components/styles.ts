@@ -267,7 +267,6 @@ export const useStatementEditorStyles = makeStyles(() =>
             margin: '0 2px 0 2px',
             '&': {
                 width: 'fit-content',
-                padding: '4px',
                 borderRadius: '4px',
             },
             '&.hovered': {

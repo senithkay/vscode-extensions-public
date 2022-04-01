@@ -15,7 +15,7 @@ import React from "react";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
-import { getJSXForMinutiae } from "../../utils";
+import { getMinutiaeJSX } from "../../utils";
 import { NewExprAddButton } from "../Button/NewExprAddButton";
 import { useStatementEditorStyles } from "../styles";
 
@@ -36,15 +36,14 @@ export function TokenComponent(props: TokenComponentProps) {
         className
     );
 
-    const leadingMinutiae = getJSXForMinutiae(model.leadingMinutiae);
-    const trailingMinutiae = getJSXForMinutiae(model.trailingMinutiae);
+    const { leadingMinutiaeJSX, trailingMinutiaeJSX } = getMinutiaeJSX(model);
 
     return (
         <span className={styleClassName} >
-            {leadingMinutiae}
+            {leadingMinutiaeJSX}
             {model.value}
             {addNewExpr && <NewExprAddButton model={model} onClick={addNewExpr} />}
-            {trailingMinutiae}
+            {trailingMinutiaeJSX}
         </span>
     );
 }

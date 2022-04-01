@@ -37,7 +37,7 @@ import {
     StatementNodes,
     WHITESPACE_MINUTIAE
 } from "../constants";
-import { RemainingContent, StmtDiagnostic, StmtOffset } from '../models/definitions';
+import { MinutiaeJSX, RemainingContent, StmtDiagnostic, StmtOffset } from '../models/definitions';
 import { visitor as DeleteConfigSetupVisitor } from "../visitors/delete-config-setup-visitor";
 import { visitor as DiagnosticsMappingVisitor } from "../visitors/diagnostics-mapping-visitor";
 import { visitor as ExpressionDeletingVisitor } from "../visitors/expression-deleting-visitor";
@@ -266,7 +266,14 @@ export function addImportStatements(
     return moduleList + currentFileContent;
 }
 
-export function getJSXForMinutiae(minutiae: Minutiae[]): ReactNode[] {
+export function getMinutiaeJSX(model: STNode): MinutiaeJSX {
+    return {
+        leadingMinutiaeJSX: getJSXForMinutiae(model.leadingMinutiae),
+        trailingMinutiaeJSX: getJSXForMinutiae(model.trailingMinutiae)
+    };
+}
+
+function getJSXForMinutiae(minutiae: Minutiae[]): ReactNode[] {
     return minutiae.map((element) => {
         if (element.kind === WHITESPACE_MINUTIAE) {
             return Array.from({length: element.minutiae.length}, () => <>&nbsp;</>);
@@ -274,6 +281,34 @@ export function getJSXForMinutiae(minutiae: Minutiae[]): ReactNode[] {
             return <br/>;
         }
     });
+}
+
+export function getClassNameForToken(model: STNode): string {
+    let className = '';
+
+    if (STKindChecker.isBooleanLiteral(model)) {
+        className = 'boolean-literal';
+    } else if (STKindChecker.isNumericLiteral(model)) {
+        className = 'numeric-literal';
+    } else if (STKindChecker.isStringLiteralToken(model)) {
+        className = 'string-literal';
+    } else if (STKindChecker.isBooleanKeyword(model)) {
+        className = 'type-descriptor boolean';
+    } else if (STKindChecker.isDecimalKeyword(model)) {
+        className = 'type-descriptor decimal';
+    } else if (STKindChecker.isFloatKeyword(model)) {
+        className = 'type-descriptor float';
+    } else if (STKindChecker.isIntKeyword(model)) {
+        className = 'type-descriptor int';
+    } else if (STKindChecker.isJsonKeyword(model)) {
+        className = 'type-descriptor json';
+    } else if (STKindChecker.isStringKeyword(model)) {
+        className = 'type-descriptor string';
+    } else if (STKindChecker.isVarKeyword(model)) {
+        className = 'type-descriptor var';
+    }
+
+    return className;
 }
 
 export function getStringForMinutiae(minutiae: Minutiae[]): string {

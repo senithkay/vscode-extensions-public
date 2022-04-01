@@ -12,27 +12,20 @@
  */
 import React from "react";
 
-import { SimpleNameReference, STNode } from "@wso2-enterprise/syntax-tree";
+import { SimpleNameReference } from "@wso2-enterprise/syntax-tree";
 
-import { NewExprAddButton } from "../../Button/NewExprAddButton";
-import { InputEditor } from "../../InputEditor";
+import { ExpressionComponent } from "../../Expression";
 
 interface NameRefProps {
     model: SimpleNameReference;
-    addNewExpr?: (model: STNode) => void;
 }
 
 export function SimpleNameReferenceComponent(props: NameRefProps) {
-    const { model, addNewExpr } = props;
-
-    const inputEditorProps = {
-        model
-    };
+    const { model } = props;
 
     return (
         <>
-            <InputEditor {...inputEditorProps} />
-            {addNewExpr && (<NewExprAddButton model={model} onClick={addNewExpr} />)}
+            <ExpressionComponent model={model.name} />
         </>
     );
 }
