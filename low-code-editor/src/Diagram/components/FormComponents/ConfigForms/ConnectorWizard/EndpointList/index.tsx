@@ -53,7 +53,6 @@ export function EndpointList(props: FormGeneratorProps) {
     const visitedEndpoints: string[] = [];
     let isEndpointExists = false;
     let executePhaseOne = false;
-    let executePhaseTwo = false;
 
     const getListComponent = (connector: BallerinaConnectorInfo, name: string) => {
         const handleOnSelect = () => {
@@ -93,21 +92,16 @@ export function EndpointList(props: FormGeneratorProps) {
                     isEndpointExists = true;
                 }
             });
-        } else if (
-            targetBlock?.VisibleEndpoints === undefined ||
-            (targetBlock.VisibleEndpoints.length > 0 && targetBlock.VisibleEndpoints[0].position === undefined)
-        ) {
-            // INFO: enable phase two. phase three need position information.
-            executePhaseTwo = true;
         }
     }
 
     // INFO: this code block use to work with phase two.
-    if (
-        executePhaseTwo &&
-        (STKindChecker.isFunctionDefinition(functionNode) || STKindChecker.isResourceAccessorDefinition(functionNode))
-    ) {
+    if (STKindChecker.isFunctionDefinition(functionNode) || STKindChecker.isResourceAccessorDefinition(functionNode)) {
         functionNode.functionBody.VisibleEndpoints?.forEach((endpoint) => {
+            if (endpoint.position) {
+                // INFO: This is a phase three visible endpoint. This endpoint has already rendered by above code section
+                return;
+            }
             if (!(endpoint.packageName && endpoint.version)) {
                 // INFO: enable phase one. phase two need package name and version information.
                 executePhaseOne = true;
