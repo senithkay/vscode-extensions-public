@@ -73,7 +73,6 @@ export function ExpressionArrayComponent(props: ExpressionArrayProps) {
                                     model={expression}
                                     onClick={addNewExpression}
                                     isLastElement={index === expressions.length - 1}
-                                    startColumn={expression.position.endColumn}
                                 />
                             </>
                         )

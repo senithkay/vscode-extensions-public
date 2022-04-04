@@ -380,7 +380,7 @@ export const useStatementEditorStyles = makeStyles(() =>
                 backgroundColor: 'rgba(173, 214, 255, 0.3)'
             }
         },
-        mappingConstructorPlusIcon: {
+        plusIconForMap: {
             boxSizing: 'border-box',
             border: '1px dashed #A6B3FF',
             borderRadius: '4px',
@@ -394,22 +394,10 @@ export const useStatementEditorStyles = makeStyles(() =>
             padding: '0px 4px',
             '&:hover': {
                 backgroundColor: 'rgba(173, 214, 255, 0.3)'
-            }
-        },
-        mappingConstructorPlusIconLast: {
-            boxSizing: 'border-box',
-            border: '1px dashed #A6B3FF',
-            borderRadius: '4px',
-            position: 'relative',
-            width: 'fit-content',
-            backgroundColor: '#F0F1FB',
-            fontFamily: "monospace",
-            color: '#0095FF',
-            fontSize: '12px',
-            padding: '0px 4px',
-            marginTop: '-20px',
-            '&:hover': {
-                backgroundColor: 'rgba(173, 214, 255, 0.3)'
+            },
+            '&.lastElement': {
+                marginLeft: '250px',
+                marginTop: '-20px'
             }
         },
         mainExpStatementWrapper: {

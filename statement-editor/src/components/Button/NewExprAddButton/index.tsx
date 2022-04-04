@@ -11,28 +11,20 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext } from "react";
+import React from "react";
 
 import { STNode } from "@wso2-enterprise/syntax-tree";
 
-import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { useStatementEditorStyles } from "../../styles";
 
 export interface AddButtonProps {
     model: STNode;
     onClick?: (model?: STNode) => void;
     isLastElement?: boolean;
-    startColumn?: number;
 }
 
 export function NewExprAddButton(props: AddButtonProps) {
-    const { model, onClick, isLastElement, startColumn } = props;
-
-    const {
-        formCtx: {
-            formModelPosition: targetPosition
-        }
-    } = useContext(StatementEditorContext);
+    const { model, onClick, isLastElement } = props;
 
     const statementEditorClasses = useStatementEditorStyles();
 
@@ -41,28 +33,11 @@ export function NewExprAddButton(props: AddButtonProps) {
     };
 
     return (
-        <>
-            { isLastElement
-                ? (
-                    <>
-                        <span
-                            className={statementEditorClasses.mappingConstructorPlusIconLast}
-                            onClick={onClickOnAddButton}
-                            style={{marginLeft : (targetPosition.startColumn + startColumn) * 5, position : 'absolute'}}
-                        >
-                            +
-                        </span>
-                    </>
-                )
-                : (
-                    <span
-                        className={statementEditorClasses.mappingConstructorPlusIcon}
-                        onClick={onClickOnAddButton}
-                    >
-                        +
-                    </span>
-                )
-            }
-        </>
+        <span
+            className={`${statementEditorClasses.plusIconForMap} ${isLastElement && 'lastElement'}`}
+            onClick={onClickOnAddButton}
+        >
+            +
+        </span>
     );
 }
