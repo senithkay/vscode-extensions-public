@@ -47,39 +47,26 @@ export function ExpressionArrayComponent(props: ExpressionArrayProps) {
 
     return (
         <>
-        {
-            expressions.map((expression: STNode, index: number) => {
-                if (modifiable) {
-                    return (STKindChecker.isCommaToken(expression))
-                        ? (
-                            <>
-                                <TokenComponent key={index} model={expression} />
-                            </>
-                        )
-                        : (
-                            <>
-                                <ExpressionComponent
-                                    key={index}
-                                    model={expression}
-                                />
-                                <NewExprAddButton
-                                    model={expression}
-                                    onClick={addNewExpression}
-                                    classNames={`map ${index === expressions.length - 1 && 'lastElement'}`}
-                                />
-                            </>
-                        )
-                }
-                return (STKindChecker.isCommaToken(expression)) ? (
-                    <TokenComponent key={index} model={expression} />
+            { expressions.map((expression: STNode, index: number) => {
+                return (STKindChecker.isCommaToken(expression))
+                ? (
+                     <TokenComponent key={index} model={expression} />
                 ) : (
-                    <ExpressionComponent
-                        key={index}
-                        model={expression}
-                    />
+                    <>
+                        <ExpressionComponent
+                            key={index}
+                            model={expression}
+                        />
+                        {modifiable && (
+                            <NewExprAddButton
+                                model={expression}
+                                onClick={addNewExpression}
+                                classNames={`modifiable ${index === expressions.length - 1 && 'lastElement'}`}
+                            />
+                        )}
+                    </>
                 )
-            })
-        }
+            })}
         </>
     );
 }

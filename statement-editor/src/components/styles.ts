@@ -378,7 +378,7 @@ export const useStatementEditorStyles = makeStyles(() =>
             '&:hover': {
                 backgroundColor: 'rgba(173, 214, 255, 0.3)'
             },
-            '&.map': {
+            '&.modifiable': {
                 position: 'absolute',
                 marginLeft: '10px',
                 '&.lastElement': {
