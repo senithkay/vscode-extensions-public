@@ -44,6 +44,7 @@ import { visitor as ModelTypeSetupVisitor } from "../visitors/model-type-setup-v
 import { viewStateSetupVisitor as ViewStateSetupVisitor } from "../visitors/view-state-setup-visitor";
 
 import { addImportStatements, addStatementToTargetLine } from "./ls-utils";
+import { ModelType } from "./statement-editor-viewstate";
 import { createImportStatement, createStatement, updateStatement } from "./statement-modifications";
 
 export function getModifications(
@@ -169,6 +170,14 @@ export function isPositionsEquals(position1: NodePosition, position2: NodePositi
         position1?.startColumn === position2?.startColumn &&
         position1?.endLine === position2?.endLine &&
         position1?.endColumn === position2?.endColumn;
+}
+
+export function isOperator(modelType: number): boolean {
+    return modelType === ModelType.OPERATOR;
+}
+
+export function isBindingPattern(modelType: number): boolean {
+    return modelType === ModelType.BINDING_PATTERN;
 }
 
 export function getFilteredDiagnosticMessages(stmtLength: number, targetPosition: NodePosition,

@@ -26,7 +26,7 @@ export function RecordFieldComponent(props: RecordFieldProps) {
 
     return (
         <>
-            {model.readonlyKeyword && <TokenComponent model={model.readonlyKeyword}/>}
+            {model.readonlyKeyword && <ExpressionComponent model={model.readonlyKeyword} />}
             <ExpressionComponent model={model.typeName} />
             <ExpressionComponent model={model.fieldName} />
             {model.questionMarkToken && <TokenComponent model={model.questionMarkToken}/>}
