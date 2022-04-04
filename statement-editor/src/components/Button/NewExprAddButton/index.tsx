@@ -20,11 +20,11 @@ import { useStatementEditorStyles } from "../../styles";
 export interface AddButtonProps {
     model: STNode;
     onClick?: (model?: STNode) => void;
-    isLastElement?: boolean;
+    classNames?: string;
 }
 
 export function NewExprAddButton(props: AddButtonProps) {
-    const { model, onClick, isLastElement } = props;
+    const { model, onClick, classNames } = props;
 
     const statementEditorClasses = useStatementEditorStyles();
 
@@ -34,7 +34,7 @@ export function NewExprAddButton(props: AddButtonProps) {
 
     return (
         <span
-            className={`${statementEditorClasses.plusIconForMap} ${isLastElement && 'lastElement'}`}
+            className={`${statementEditorClasses.plusIcon} ${classNames}`}
             onClick={onClickOnAddButton}
         >
             +
