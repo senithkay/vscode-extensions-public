@@ -43,25 +43,6 @@ describe('delete resource after adding it', () => {
       .getDiagram()
       .shouldBeRenderedProperly()
       .getBlockLevelPlusWidget()
-      .clickOption("HTTP");
-
-    HttpForm
-      .shouldBeVisible()
-      .waitForConnectorLoad()
-      .haveDefaultName()
-      .typeConnectionName("boo")
-      .typeUrl('"https://foo.com"')
-      .continueToInvoke()
-      .selectOperation("GET")
-      .typeOperationPath('"foo"')
-      .saveAndDone();
-
-    Canvas.getService("/hello")
-      .getResourceFunction("GET", "world")
-      .shouldBeExpanded()
-      .getDiagram()
-      .clickDefaultWorkerPlusBtn(2)
-      .getBlockLevelPlusWidget()
       .clickOption("Log")
 
     LogForm
