@@ -215,8 +215,8 @@ export function addToTargetPosition(currentContent: string, position: NodePositi
     const splitUpdatedStatement: string[] = updatedStatement.trimEnd().split(/\n/g) || [];
     const noOfLines: number = position.endLine - position.startLine + 1;
     const startLine = splitContent[position.startLine].slice(0, position.startColumn);
-    const endLine = position?.endLine ?
-        splitContent[position.endLine].slice(position.endColumn || position.startColumn) : 0;
+    const endLine = isFinite(position?.endLine) ?
+        splitContent[position.endLine].slice(position.endColumn || position.startColumn) : '';
 
     const replacements = splitUpdatedStatement.map((line, index) => {
         let modifiedLine = line;
