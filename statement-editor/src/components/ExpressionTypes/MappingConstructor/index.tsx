@@ -35,17 +35,20 @@ export function MappingConstructorComponent(props: MappingConstructorProps) {
         }
     } = useContext(StatementEditorContext);
 
+    const isSingleLine = model.position.startLine === model.position.endLine;
+    const isEmpty = model.fields.length === 0;
+
     const addNewExpression = () => {
         const expressionTemplate = generateExpressionTemplate(MAPPING_CONSTRUCTOR);
-        const newField = `${expressionTemplate} }`;
+        const newField = isEmpty ? `${expressionTemplate} }` : `,\n${expressionTemplate} }`;
         updateModel(newField, model.closeBrace.position);
     };
 
     return (
         <>
             <TokenComponent model={model.openBrace} />
-            <ExpressionArrayComponent expressions={model.fields} modifiable={true} />
-            {(model.fields.length === 0) && (<NewExprAddButton model={model} onClick={addNewExpression} />)}
+            <ExpressionArrayComponent expressions={model.fields} modifiable={!isSingleLine} />
+            {(isEmpty || isSingleLine) && (<NewExprAddButton model={model} onClick={addNewExpression} />)}
             <TokenComponent model={model.closeBrace} />
         </>
     );
