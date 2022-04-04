@@ -10,19 +10,29 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React from "react";
+// tslint:disable: jsx-no-multiline-js
+import React, { useContext } from "react";
 
 import { STNode } from "@wso2-enterprise/syntax-tree";
 
+import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { useStatementEditorStyles } from "../../styles";
 
 export interface AddButtonProps {
     model: STNode;
     onClick?: (model?: STNode) => void;
+    isLastElement?: boolean;
+    startColumn?: number;
 }
 
 export function NewExprAddButton(props: AddButtonProps) {
-    const { model, onClick } = props;
+    const { model, onClick, isLastElement, startColumn } = props;
+
+    const {
+        formCtx: {
+            formModelPosition: targetPosition
+        }
+    } = useContext(StatementEditorContext);
 
     const statementEditorClasses = useStatementEditorStyles();
 
@@ -31,11 +41,28 @@ export function NewExprAddButton(props: AddButtonProps) {
     };
 
     return (
-        <span
-            className={statementEditorClasses.plusIcon}
-            onClick={onClickOnAddButton}
-        >
-            +
-        </span>
+        <>
+            { isLastElement
+                ? (
+                    <>
+                        <span
+                            className={statementEditorClasses.mappingConstructorPlusIconLast}
+                            onClick={onClickOnAddButton}
+                            style={{marginLeft : (targetPosition.startColumn + startColumn) * 5, position : 'absolute'}}
+                        >
+                            +
+                        </span>
+                    </>
+                )
+                : (
+                    <span
+                        className={statementEditorClasses.mappingConstructorPlusIcon}
+                        onClick={onClickOnAddButton}
+                    >
+                        +
+                    </span>
+                )
+            }
+        </>
     );
 }

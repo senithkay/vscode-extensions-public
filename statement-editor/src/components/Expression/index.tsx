@@ -24,13 +24,12 @@ export interface ExpressionComponentProps {
     model: any;
     children?: React.ReactElement[];
     classNames?: string;
-    addNewExpr?: (model: STNode) => void;
 }
 
 export function ExpressionComponent(props: ExpressionComponentProps) {
-    const { model, children, classNames, addNewExpr } = props;
+    const { model, children, classNames } = props;
 
-    const component = getExpressionTypeComponent(model, addNewExpr);
+    const component = getExpressionTypeComponent(model);
 
     const [isHovered, setHovered] = React.useState(false);
 

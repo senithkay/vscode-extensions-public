@@ -18,6 +18,7 @@ import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tre
 import { MAPPING_CONSTRUCTOR } from "../../constants";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { generateExpressionTemplate } from "../../utils/utils";
+import { NewExprAddButton } from "../Button/NewExprAddButton";
 import { ExpressionComponent } from "../Expression";
 import { TokenComponent } from "../Token";
 
@@ -56,23 +57,26 @@ export function ExpressionArrayComponent(props: ExpressionArrayProps) {
         {
             expressions.map((expression: STNode, index: number) => {
                 if (modifiable) {
-                    return (STKindChecker.isCommaToken(expression)) ? (
-                        <TokenComponent key={index} model={expression} addNewExpr={addNewExpression} />
-                    ) : (
-                        (index < expressions.length - 1) ? (
+                    return (STKindChecker.isCommaToken(expression))
+                        ? (
+                            <>
+                                <TokenComponent key={index} model={expression} />
+                            </>
+                        )
+                        : (
+                            <>
                                 <ExpressionComponent
                                     key={index}
                                     model={expression}
                                 />
-                            ) :
-                            (
-                                <ExpressionComponent
-                                    key={index}
+                                <NewExprAddButton
                                     model={expression}
-                                    addNewExpr={addNewExpression}
+                                    onClick={addNewExpression}
+                                    isLastElement={index === expressions.length - 1}
+                                    startColumn={expression.position.endColumn}
                                 />
-                            )
-                    )
+                            </>
+                        )
                 }
                 return (STKindChecker.isCommaToken(expression)) ? (
                     <TokenComponent key={index} model={expression} />

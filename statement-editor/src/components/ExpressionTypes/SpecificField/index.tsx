@@ -13,24 +13,23 @@
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
 
-import { SpecificField, STNode } from "@wso2-enterprise/syntax-tree";
+import { SpecificField } from "@wso2-enterprise/syntax-tree";
 
 import { ExpressionComponent } from "../../Expression";
 import { TokenComponent } from "../../Token";
 
 interface SpecificFieldProps {
     model: SpecificField;
-    addNewExpr?: (model: STNode) => void;
 }
 
 export function SpecificFieldComponent(props: SpecificFieldProps) {
-    const { model, addNewExpr } = props;
+    const { model } = props;
 
     return (
         <>
             <ExpressionComponent model={model.fieldName} />
             <TokenComponent model={model.colon} />
-            <ExpressionComponent model={model.valueExpr} addNewExpr={addNewExpr} />
+            <ExpressionComponent model={model.valueExpr} />
         </>
     );
 }

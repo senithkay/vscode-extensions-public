@@ -16,17 +16,15 @@ import { STNode } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
 import { getMinutiaeJSX } from "../../utils";
-import { NewExprAddButton } from "../Button/NewExprAddButton";
 import { useStatementEditorStyles } from "../styles";
 
 export interface TokenComponentProps {
     model: STNode;
     className?: string;
-    addNewExpr?: (model: STNode) => void;
 }
 
 export function TokenComponent(props: TokenComponentProps) {
-    const { model, className, addNewExpr } = props;
+    const { model, className } = props;
 
     const statementEditorClasses = useStatementEditorStyles();
 
@@ -42,7 +40,6 @@ export function TokenComponent(props: TokenComponentProps) {
         <span className={styleClassName} >
             {leadingMinutiaeJSX}
             {model.value}
-            {addNewExpr && <NewExprAddButton model={model} onClick={addNewExpr} />}
             {trailingMinutiaeJSX}
         </span>
     );
