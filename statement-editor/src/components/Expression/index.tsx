@@ -69,21 +69,14 @@ export function ExpressionComponent(props: ExpressionComponentProps) {
     )
 
     return (
-        <>
-            { model?.isToken
-                ? component
-                : (
-                    <span
-                        onMouseOver={onMouseOver}
-                        onMouseOut={onMouseOut}
-                        className={styleClassNames}
-                        onClick={onMouseClick}
-                    >
-                        {component}
-                        {children}
-                    </span>
-                )
-            }
-        </>
+        <span
+            onMouseOver={onMouseOver}
+            onMouseOut={onMouseOut}
+            className={styleClassNames}
+            onClick={onMouseClick}
+        >
+            {component}
+            {children}
+        </span>
     );
 }

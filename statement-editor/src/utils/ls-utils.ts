@@ -60,8 +60,9 @@ export async function getCompletions (docUri: string,
     const varName = STKindChecker.isLocalVarDecl(completeModel)
         && completeModel.typedBindingPattern.bindingPattern.source.trim();
     const currentModelPosition = currentModel.model.position;
-    const currentModelSource = STKindChecker.isIdentifierToken(currentModel.model) ?
-        currentModel.model.value.trim() : currentModel.model.source.trim();
+    const currentModelSource = currentModel.model.source
+        ? currentModel.model.source.trim()
+        : currentModel.model.value.trim();
     const suggestions: SuggestionItem[] = [];
 
     const completionParams: CompletionParams = {
