@@ -36,8 +36,7 @@ import {
 } from "../../models/definitions";
 import { StatementEditorContextProvider } from "../../store/statement-editor-context";
 import {
-    addExpressionToTargetPosition,
-    addStatementToTargetLine,
+    addToTargetPosition,
     enrichModel,
     getCurrentModel,
     getFilteredDiagnosticMessages,
@@ -165,7 +164,7 @@ export function StatementEditor(props: StatementEditorProps) {
                 const currentModelViewState = currentModel.model?.viewState as StatementEditorViewState;
 
                 if (!currentModelViewState.isOperator && !currentModelViewState.isBindingPattern) {
-                    const content: string = addStatementToTargetLine(currentFile.content, targetPosition, model.source);
+                    const content: string = addToTargetPosition(currentFile.content, targetPosition, model.source);
                     sendDidChange(fileURI, content, getLangClient).then();
                     lsSuggestions = await getCompletions(fileURI, targetPosition, model,
                         currentModel, getLangClient);
@@ -182,7 +181,7 @@ export function StatementEditor(props: StatementEditorProps) {
     }, [model]);
 
     const handleChange = async (newValue: string) => {
-        const updatedStatement = addExpressionToTargetPosition(model, currentModel.model.position, newValue);
+        const updatedStatement = addToTargetPosition(model.source, currentModel.model.position, newValue);
         const updatedContent = await getUpdatedSource(updatedStatement, currentFile.content,
             targetPosition, moduleList);
 

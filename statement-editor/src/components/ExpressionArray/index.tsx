@@ -13,10 +13,11 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext } from "react";
 
-import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { MAPPING_CONSTRUCTOR } from "../../constants";
 import { StatementEditorContext } from "../../store/statement-editor-context";
+import { addToTargetPosition } from "../../utils";
 import { generateExpressionTemplate } from "../../utils/utils";
 import { NewExprAddButton } from "../Button/NewExprAddButton";
 import { ExpressionComponent } from "../Expression";
@@ -32,24 +33,16 @@ export function ExpressionArrayComponent(props: ExpressionArrayProps) {
 
     const {
         modelCtx: {
+            statementModel,
             updateModel,
         }
     } = useContext(StatementEditorContext);
 
     const addNewExpression = (model: STNode) => {
         const template = generateExpressionTemplate(MAPPING_CONSTRUCTOR);
-        const newField = STKindChecker.isCommaToken(model) ? `\n${template},` : `,\n${template}`;
-        let position: NodePosition = {
-            ...model.position,
-            startColumn: model.position.endColumn
-        };
-        if (STKindChecker.isSpecificField(model)) {
-            position = {
-                ...model.valueExpr.position,
-                startColumn: model.valueExpr.position.endColumn
-            }
-        }
-        updateModel(newField, position);
+        const newField = `,\n${template}`;
+        const newValue = addToTargetPosition(statementModel.source, model.position, model.source.trim() + newField);
+        updateModel(newValue, statementModel.position);
     };
 
     return (

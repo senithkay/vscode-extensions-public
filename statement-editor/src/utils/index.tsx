@@ -200,7 +200,8 @@ export function getFilteredDiagnosticMessages(stmtLength: number, targetPosition
 export async function getUpdatedSource(updatedStatement: string, currentFileContent: string,
                                        targetPosition: NodePosition, moduleList: Set<string>): Promise<string> {
 
-    let updatedContent: string = addStatementToTargetLine(currentFileContent, targetPosition, updatedStatement);
+    const statement = updatedStatement.trim().endsWith(';') ? updatedStatement : updatedStatement + ';';
+    let updatedContent: string = addToTargetPosition(currentFileContent, targetPosition, statement);
     if (!!moduleList.size) {
         updatedContent = addImportStatements(updatedContent, Array.from(moduleList) as string[]);
     }
@@ -208,28 +209,9 @@ export async function getUpdatedSource(updatedStatement: string, currentFileCont
     return updatedContent;
 }
 
-export function addExpressionToTargetPosition(statementModel: STNode, currentPosition: NodePosition,
-                                              newValue: string): string {
+export function addToTargetPosition(currentContent: string, position: NodePosition, updatedStatement: string): string {
 
-    const startLine = currentPosition.startLine;
-    const startColumn = currentPosition.startColumn;
-    const endColumn = currentPosition.endColumn;
-
-    const splitStatement: string[] = statementModel.source.split(/\n/g) || [];
-
-    splitStatement.splice(startLine, 1, splitStatement[startLine].slice(0, startColumn) +
-        newValue + splitStatement[startLine].slice(endColumn || startColumn));
-
-    const newStatement = splitStatement.join('\n');
-
-    return newStatement.trim().endsWith(';') ? newStatement : newStatement + ';';
-}
-
-export function addStatementToTargetLine(currentFileContent: string,
-                                         position: NodePosition,
-                                         updatedStatement: string): string {
-
-    const splitContent: string[] = currentFileContent.split(/\n/g) || [];
+    const splitContent: string[] = currentContent.split(/\n/g) || [];
     const splitUpdatedStatement: string[] = updatedStatement.trimEnd().split(/\n/g) || [];
     const noOfLines: number = position.endLine - position.startLine + 1;
     const startLine = splitContent[position.startLine].slice(0, position.startColumn);
