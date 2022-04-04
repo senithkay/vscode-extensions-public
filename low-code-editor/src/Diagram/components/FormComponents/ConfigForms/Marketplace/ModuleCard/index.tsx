@@ -24,7 +24,7 @@ function ModuleCard(props: ModuleCardProps) {
             <div key={moduleName} onClick={onSelectModule.bind(this, module)} data-testid={moduleName.toLowerCase()}>
                 <div className={classes.balModule}>
                     <div>
-                        <ModuleIcon module={module} />
+                        <ModuleIcon module={module} scale={0.9}/>
                     </div>
                     <Tooltip type={"heading-content"} text={{ content: moduleName }}>
                         <div className={classes.balModuleName}>{moduleName}</div>
