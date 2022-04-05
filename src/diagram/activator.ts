@@ -494,11 +494,7 @@ class DiagramPanel {
 				methodName: "getEnv",
 				handler: async (args: any[]): Promise<any> => {
 					const envName = args[0];
-					if (envName in process.env) {
-						return process.env[envName];
-					} else {
-						return "NOT_FOUND";
-					}
+					return (envName in process.env) ? process.env[envName]: "NOT_FOUND";
 				}
 			},
 		];
