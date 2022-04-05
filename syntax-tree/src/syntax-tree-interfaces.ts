@@ -5,8 +5,6 @@
 export interface VisibleEndpoint {
   kind?: string;
   isCaller: boolean;
-  isExternal: boolean;
-  isModuleVar: boolean;
   moduleName: string;
   name: string;
   packageName: string;
@@ -57,765 +55,1929 @@ export interface STNode {
 }
 
 export interface ActionStatement extends STNode {
-  expression: CheckAction | RemoteMethodCallAction;
+  expression:
+    | AsyncSendAction
+    | CheckAction
+    | FlushAction
+    | ReceiveAction
+    | RemoteMethodCallAction
+    | StartAction
+    | SyncSendAction
+    | WaitAction;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   semicolonToken: SemicolonToken;
+  syntaxDiagnostics: any[];
+  trailingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+}
+
+export interface AnnotAccess extends STNode {
+  annotChainingToken: AnnotChainingToken;
+  annotTagReference: QualifiedNameReference | SimpleNameReference;
+  expression: BracedExpression | SimpleNameReference;
+  leadingMinutiae: any;
+  syntaxDiagnostics: any;
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
+}
+
+export interface AnnotChainingToken extends STNode {
+  isMissing: boolean;
+  isToken: boolean;
+  leadingMinutiae: any;
+  trailingMinutiae: any;
+  value: string;
 }
 
 export interface Annotation extends STNode {
   annotReference: QualifiedNameReference | SimpleNameReference;
   annotValue?: MappingConstructor;
   atToken: AtToken;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  syntaxDiagnostics: any[];
+  trailingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+}
+
+export interface AnnotationAttachPoint extends STNode {
+  identifiers:
+    | AnnotationKeyword
+    | ClassKeyword
+    | ConstKeyword
+    | ExternalKeyword
+    | FieldKeyword
+    | FunctionKeyword
+    | ListenerKeyword
+    | ObjectKeyword
+    | ParameterKeyword
+    | RecordKeyword
+    | ReturnKeyword
+    | ServiceKeyword
+    | TypeKeyword
+    | VarKeyword
+    | WorkerKeyword[];
+  leadingMinutiae: INVALID_NODE_MINUTIAE[];
+  sourceKeyword?: SourceKeyword;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
+}
+
+export interface AnnotationDeclaration extends STNode {
+  annotationKeyword: AnnotationKeyword;
+  annotationTag: IdentifierToken;
+  attachPoints: AnnotationAttachPoint | CommaToken[];
+  constKeyword?: ConstKeyword;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE[];
+  metadata?: Metadata;
+  onKeyword?: OnKeyword;
+  semicolonToken: SemicolonToken;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE[];
+  typeDescriptor?:
+    | ArrayTypeDesc
+    | IntTypeDesc
+    | MapTypeDesc
+    | RecordTypeDesc
+    | SimpleNameReference;
+  visibilityQualifier?: PublicKeyword;
+}
+
+export interface AnnotationDocReferenceToken extends STNode {
+  isMissing: boolean;
+  isToken: boolean;
+  leadingMinutiae: any;
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
+  value: string;
+}
+
+export interface AnnotationKeyword extends STNode {
+  isMissing: boolean;
+  isToken: boolean;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
+  value: string;
 }
 
 export interface AnyKeyword extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface AnyTypeDesc extends STNode {
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   name: AnyKeyword;
+  syntaxDiagnostics: any;
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
 }
 
 export interface AnydataKeyword extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface AnydataTypeDesc extends STNode {
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   name: AnydataKeyword;
+  syntaxDiagnostics: any;
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
+}
+
+export interface ArrayDimension extends STNode {
+  arrayLength?:
+    | AsteriskLiteral
+    | NumericLiteral
+    | QualifiedNameReference
+    | SimpleNameReference;
+  closeBracket: CloseBracketToken;
+  leadingMinutiae: INVALID_NODE_MINUTIAE[];
+  openBracket: OpenBracketToken;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
 }
 
 export interface ArrayTypeDesc extends STNode {
-  arrayLength?: AsteriskLiteral | NumericLiteral;
-  closeBracket: CloseBracketToken;
+  dimensions: ArrayDimension[];
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   memberTypeDesc:
-  | AnydataTypeDesc
-  | ArrayTypeDesc
-  | BooleanTypeDesc
-  | ByteTypeDesc
-  | DecimalTypeDesc
-  | FloatTypeDesc
-  | IntTypeDesc
-  | JsonTypeDesc
-  | OptionalTypeDesc
-  | ParenthesisedTypeDesc
-  | QualifiedNameReference
-  | SimpleNameReference
-  | StringTypeDesc;
-  openBracket: OpenBracketToken;
+    | AnyTypeDesc
+    | AnydataTypeDesc
+    | BooleanTypeDesc
+    | ByteTypeDesc
+    | DecimalTypeDesc
+    | ErrorTypeDesc
+    | FloatTypeDesc
+    | FunctionTypeDesc
+    | HandleTypeDesc
+    | IntTypeDesc
+    | JsonTypeDesc
+    | MapTypeDesc
+    | NeverTypeDesc
+    | NilTypeDesc
+    | ObjectTypeDesc
+    | OptionalTypeDesc
+    | ParenthesisedTypeDesc
+    | QualifiedNameReference
+    | RecordTypeDesc
+    | SimpleNameReference
+    | SingletonTypeDesc
+    | StreamTypeDesc
+    | StringTypeDesc
+    | TableTypeDesc
+    | TupleTypeDesc
+    | TypedescTypeDesc
+    | XmlTypeDesc;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
 }
 
 export interface AsKeyword extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae: INVALID_NODE_MINUTIAE | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
+  value: string;
+}
+
+export interface AscendingKeyword extends STNode {
+  isMissing: boolean;
+  isToken: boolean;
+  leadingMinutiae: any;
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface AssignmentStatement extends STNode {
   equalsToken: EqualToken;
   expression:
-  | BinaryExpression
-  | BooleanLiteral
-  | CheckAction
-  | CheckExpression
-  | FieldAccess
-  | FunctionCall
-  | IndexedExpression
-  | ListConstructor
-  | MappingConstructor
-  | MethodCall
-  | NumericLiteral
-  | OptionalFieldAccess
-  | QualifiedNameReference
-  | RemoteMethodCallAction
-  | SimpleNameReference
-  | StringLiteral
-  | StringTemplateExpression
-  | TypeCastExpression
-  | WaitAction;
+    | AnnotAccess
+    | BinaryExpression
+    | BooleanLiteral
+    | BracedAction
+    | BracedExpression
+    | ByteArrayLiteral
+    | CheckAction
+    | CheckExpression
+    | ConditionalExpression
+    | ErrorConstructor
+    | ExplicitAnonymousFunctionExpression
+    | ExplicitNewExpression
+    | FieldAccess
+    | FunctionCall
+    | ImplicitAnonymousFunctionExpression
+    | ImplicitNewExpression
+    | IndexedExpression
+    | IntTypeDesc
+    | LetExpression
+    | ListConstructor
+    | MappingConstructor
+    | MethodCall
+    | NilLiteral
+    | NullLiteral
+    | NumericLiteral
+    | ObjectConstructor
+    | OptionalFieldAccess
+    | QualifiedNameReference
+    | QueryAction
+    | QueryExpression
+    | RawTemplateExpression
+    | ReceiveAction
+    | RemoteMethodCallAction
+    | SimpleNameReference
+    | StartAction
+    | StringLiteral
+    | StringTemplateExpression
+    | SyncSendAction
+    | TableConstructor
+    | TrapExpression
+    | TypeCastExpression
+    | TypeTestExpression
+    | TypeofExpression
+    | UnaryExpression
+    | WaitAction
+    | XmlFilterExpression
+    | XmlStepExpression
+    | XmlTemplateExpression;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   semicolonToken: SemicolonToken;
+  syntaxDiagnostics: any[];
+  trailingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   varRef:
-  | ErrorBindingPattern
-  | FieldAccess
-  | IndexedExpression
-  | ListBindingPattern
-  | SimpleNameReference;
+    | ErrorBindingPattern
+    | FieldAccess
+    | IndexedExpression
+    | ListBindingPattern
+    | MappingBindingPattern
+    | QualifiedNameReference
+    | SimpleNameReference
+    | WildcardBindingPattern;
 }
 
 export interface AsteriskLiteral extends STNode {
+  leadingMinutiae: any;
   literalToken: AsteriskToken;
+  syntaxDiagnostics: any;
+  trailingMinutiae: any;
 }
 
 export interface AsteriskToken extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
   value: string;
+}
+
+export interface AsyncSendAction extends STNode {
+  expression:
+    | BinaryExpression
+    | BracedExpression
+    | NumericLiteral
+    | SimpleNameReference
+    | StringLiteral;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  peerWorker: SimpleNameReference;
+  rightArrowToken: RightArrowToken;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: any;
 }
 
 export interface AtToken extends STNode {
+  isMissing: boolean;
   isToken: boolean;
-  value: string;
-}
-
-export interface BacktickContent extends STNode {
-  isToken: boolean;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface BacktickToken extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae: WHITESPACE_MINUTIAE[];
+  trailingMinutiae:
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   value: string;
 }
 
+export interface BallerinaNameReference extends STNode {
+  endBacktick: BacktickToken;
+  leadingMinutiae: any;
+  nameReference:
+    | CodeContent
+    | FunctionCall
+    | MethodCall
+    | QualifiedNameReference
+    | SimpleNameReference;
+  referenceType:
+    | AnnotationDocReferenceToken
+    | ConstDocReferenceToken
+    | FunctionDocReferenceToken
+    | ParameterDocReferenceToken
+    | ServiceDocReferenceToken
+    | TypeDocReferenceToken
+    | VarDocReferenceToken
+    | VariableDocReferenceToken;
+  startBacktick: BacktickToken;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE[];
+}
+
 export interface Base16Keyword extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae: any;
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface Base64Keyword extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae: any;
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface BinaryExpression extends STNode {
+  leadingMinutiae: WHITESPACE_MINUTIAE[];
   lhsExpr:
-  | BinaryExpression
-  | FieldAccess
-  | FunctionCall
-  | IndexedExpression
-  | MethodCall
-  | NumericLiteral
-  | OptionalFieldAccess
-  | QualifiedNameReference
-  | SimpleNameReference
-  | StringLiteral
-  | OptionalFieldAccess;
+    | BinaryExpression
+    | BooleanLiteral
+    | BracedExpression
+    | ByteArrayLiteral
+    | CheckExpression
+    | FieldAccess
+    | FunctionCall
+    | IndexedExpression
+    | ListConstructor
+    | MappingConstructor
+    | MethodCall
+    | NilLiteral
+    | NullLiteral
+    | NumericLiteral
+    | ObjectConstructor
+    | OptionalFieldAccess
+    | QualifiedNameReference
+    | SimpleNameReference
+    | StringLiteral
+    | StringTemplateExpression
+    | StringTypeDesc
+    | TableConstructor
+    | TypeCastExpression
+    | TypeTestExpression
+    | TypeofExpression
+    | UnaryExpression
+    | XmlStepExpression
+    | XmlTemplateExpression;
   operator:
-  | AsteriskToken
-  | BitwiseAndToken
-  | BitwiseXorToken
-  | DoubleDotLtToken
-  | DoubleEqualToken
-  | EllipsisToken
-  | ElvisToken
-  | GtEqualToken
-  | GtToken
-  | LogicalAndToken
-  | LogicalOrToken
-  | LtEqualToken
-  | LtToken
-  | NotDoubleEqualToken
-  | NotEqualToken
-  | PercentToken
-  | PipeToken
-  | PlusToken
-  | SlashToken
-  | TrippleEqualToken;
+    | AsteriskToken
+    | BitwiseAndToken
+    | BitwiseXorToken
+    | DoubleDotLtToken
+    | DoubleEqualToken
+    | DoubleGtToken
+    | DoubleLtToken
+    | EllipsisToken
+    | ElvisToken
+    | GtEqualToken
+    | GtToken
+    | LogicalAndToken
+    | LogicalOrToken
+    | LtEqualToken
+    | LtToken
+    | MinusToken
+    | NotDoubleEqualToken
+    | NotEqualToken
+    | PercentToken
+    | PipeToken
+    | PlusToken
+    | SlashToken
+    | TrippleEqualToken
+    | TrippleGtToken;
   rhsExpr:
-  | BinaryExpression
-  | BracedExpression
-  | CheckExpression
-  | FieldAccess
-  | FunctionCall
-  | IndexedExpression
-  | MethodCall
-  | NilLiteral
-  | NumericLiteral
-  | QualifiedNameReference
-  | SimpleNameReference
-  | StringLiteral
-  | StringTypeDesc
-  | TypeCastExpression
-  | TypeTestExpression;
+    | BinaryExpression
+    | BooleanLiteral
+    | BracedExpression
+    | CheckExpression
+    | ErrorConstructor
+    | ExplicitAnonymousFunctionExpression
+    | FieldAccess
+    | FunctionCall
+    | ImplicitAnonymousFunctionExpression
+    | IndexedExpression
+    | LetExpression
+    | ListConstructor
+    | MappingConstructor
+    | MethodCall
+    | NilLiteral
+    | NullLiteral
+    | NumericLiteral
+    | ObjectConstructor
+    | QualifiedNameReference
+    | SimpleNameReference
+    | StringLiteral
+    | StringTemplateExpression
+    | TableConstructor
+    | TypeCastExpression
+    | TypeTestExpression
+    | TypeofExpression
+    | UnaryExpression
+    | XmlFilterExpression
+    | XmlTemplateExpression;
+  syntaxDiagnostics: any[];
+  trailingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
 }
 
 export interface BitwiseAndToken extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae: any;
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface BitwiseXorToken extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae: any;
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface BlockStatement extends STNode {
   closeBraceToken: CloseBraceToken;
+  leadingMinutiae:
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   openBraceToken: OpenBraceToken;
-  statements: (
+  statements:
     | ActionStatement
     | AssignmentStatement
+    | BlockStatement
     | BreakStatement
     | CallStatement
     | CompoundAssignmentStatement
     | ContinueStatement
+    | DoStatement
     | FailStatement
     | ForeachStatement
+    | ForkStatement
     | IfElseStatement
+    | InvalidExpressionStatement
     | LocalVarDecl
+    | LockStatement
     | MatchStatement
     | PanicStatement
     | ReturnStatement
     | RollbackStatement
     | WhileStatement
-  )[];
+    | XmlNamespaceDeclaration[];
+  syntaxDiagnostics: any[];
+  trailingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
 }
 
 export interface BooleanKeyword extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface BooleanLiteral extends STNode {
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   literalToken: FalseKeyword | TrueKeyword;
+  syntaxDiagnostics: any[];
+  trailingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
 }
 
 export interface BooleanTypeDesc extends STNode {
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   name: BooleanKeyword;
+  syntaxDiagnostics: any;
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
+}
+
+export interface BracedAction extends STNode {
+  closeParen: CloseParenToken;
+  expression: CheckAction | QueryAction | TrapAction | WaitAction;
+  leadingMinutiae: WHITESPACE_MINUTIAE[];
+  openParen: OpenParenToken;
+  syntaxDiagnostics: any;
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
 }
 
 export interface BracedExpression extends STNode {
   closeParen: CloseParenToken;
   expression:
-  | BinaryExpression
-  | BooleanLiteral
-  | CheckExpression
-  | FunctionCall
-  | MethodCall
-  | SimpleNameReference
-  | TypeCastExpression
-  | TypeTestExpression
-  | UnaryExpression
-  | XmlStepExpression;
+    | BinaryExpression
+    | BooleanLiteral
+    | BracedExpression
+    | CheckExpression
+    | ConditionalExpression
+    | ErrorConstructor
+    | ExplicitNewExpression
+    | FieldAccess
+    | FunctionCall
+    | ImplicitAnonymousFunctionExpression
+    | IndexedExpression
+    | IntTypeDesc
+    | LetExpression
+    | ListConstructor
+    | MappingConstructor
+    | MethodCall
+    | NumericLiteral
+    | OptionalFieldAccess
+    | QualifiedNameReference
+    | QueryExpression
+    | RawTemplateExpression
+    | SimpleNameReference
+    | StringLiteral
+    | TableConstructor
+    | TrapExpression
+    | TypeCastExpression
+    | TypeTestExpression
+    | TypeofExpression
+    | UnaryExpression
+    | XmlFilterExpression
+    | XmlStepExpression;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   openParen: OpenParenToken;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
 }
 
 export interface BreakKeyword extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: any;
   value: string;
 }
 
 export interface BreakStatement extends STNode {
   breakToken: BreakKeyword;
+  leadingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
   semicolonToken: SemicolonToken;
+  syntaxDiagnostics: any;
+  trailingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+}
+
+export interface ByKeyword extends STNode {
+  isMissing: boolean;
+  isToken: boolean;
+  leadingMinutiae: any;
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
+  value: string;
 }
 
 export interface ByteArrayLiteral extends STNode {
-  content: TemplateString;
+  content?: TemplateString;
   endBacktick: BacktickToken;
+  leadingMinutiae: any;
   startBacktick: BacktickToken;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: any;
   type: Base16Keyword | Base64Keyword;
 }
 
 export interface ByteKeyword extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface ByteTypeDesc extends STNode {
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   name: ByteKeyword;
+  syntaxDiagnostics: any;
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
+}
+
+export interface COMMENT_MINUTIAE extends STNode {
+  isInvalid: boolean;
+  minutiae: string;
 }
 
 export interface CallStatement extends STNode {
   expression: CheckExpression | FunctionCall | MethodCall;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   semicolonToken: SemicolonToken;
+  syntaxDiagnostics: any[];
+  trailingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
 }
 
 export interface CaptureBindingPattern extends STNode {
+  leadingMinutiae:
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  syntaxDiagnostics: any[];
+  trailingMinutiae:
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   variableName: IdentifierToken;
 }
 
 export interface CheckAction extends STNode {
   checkKeyword: CheckKeyword | CheckpanicKeyword;
-  expression: RemoteMethodCallAction;
+  expression:
+    | BracedAction
+    | CommitAction
+    | QueryAction
+    | ReceiveAction
+    | RemoteMethodCallAction
+    | TrapAction
+    | WaitAction;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  syntaxDiagnostics: any[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
 }
 
 export interface CheckExpression extends STNode {
   checkKeyword: CheckKeyword | CheckpanicKeyword;
   expression:
-  | FieldAccess
-  | FunctionCall
-  | ImplicitNewExpression
-  | MethodCall
-  | SimpleNameReference;
+    | BracedExpression
+    | ExplicitNewExpression
+    | FieldAccess
+    | FunctionCall
+    | ImplicitNewExpression
+    | IndexedExpression
+    | LetExpression
+    | MethodCall
+    | NumericLiteral
+    | OptionalFieldAccess
+    | QueryExpression
+    | SimpleNameReference
+    | TrapExpression
+    | TypeCastExpression;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  syntaxDiagnostics: any[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
 }
 
 export interface CheckKeyword extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface CheckpanicKeyword extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface ClassDefinition extends STNode {
   classKeyword: ClassKeyword;
   className: IdentifierToken;
-  classTypeQualifiers: (IsolatedKeyword | ReadonlyKeyword | ClientKeyword)[];
+  classTypeQualifiers:
+    | ClientKeyword
+    | DistinctKeyword
+    | IsolatedKeyword
+    | ReadonlyKeyword
+    | ServiceKeyword[];
   closeBrace: CloseBraceToken;
-  members: (ObjectField | ObjectMethodDefinition | TypeReference)[];
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  members:
+    | ObjectField
+    | ObjectMethodDefinition
+    | ResourceAccessorDefinition
+    | TypeReference[];
   metadata?: Metadata;
   openBrace: OpenBraceToken;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE[];
   visibilityQualifier?: PublicKeyword;
 }
 
 export interface ClassKeyword extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface ClientKeyword extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface CloseBracePipeToken extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae:
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface CloseBraceToken extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  trailingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface CloseBracketToken extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  trailingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface CloseParenToken extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae: INVALID_NODE_MINUTIAE | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
+  value: string;
+}
+
+export interface CodeContent extends STNode {
+  isMissing: boolean;
+  isToken: boolean;
+  leadingMinutiae: any;
+  trailingMinutiae: END_OF_LINE_MINUTIAE[];
   value: string;
 }
 
 export interface ColonToken extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae: any;
+  trailingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface CommaToken extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae: INVALID_NODE_MINUTIAE | WHITESPACE_MINUTIAE[];
+  trailingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface CommitAction extends STNode {
   commitKeyword: CommitKeyword;
+  leadingMinutiae: any;
+  syntaxDiagnostics: any;
+  trailingMinutiae: any;
 }
 
 export interface CommitKeyword extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae: any;
+  trailingMinutiae: any;
   value: string;
 }
 
 export interface CompoundAssignmentStatement extends STNode {
   binaryOperator:
-  | AsteriskToken
-  | BitwiseAndToken
-  | BitwiseXorToken
-  | DoubleGtToken
-  | DoubleLtToken
-  | MinusToken
-  | PipeToken
-  | PlusToken
-  | SlashToken
-  | TrippleGtToken;
+    | AsteriskToken
+    | BitwiseAndToken
+    | BitwiseXorToken
+    | DoubleGtToken
+    | DoubleLtToken
+    | MinusToken
+    | PipeToken
+    | PlusToken
+    | SlashToken
+    | TrippleGtToken;
   equalsToken: EqualToken;
-  lhsExpression: FieldAccess | SimpleNameReference;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  lhsExpression: FieldAccess | IndexedExpression | SimpleNameReference;
   rhsExpression:
-  | MethodCall
-  | NumericLiteral
-  | SimpleNameReference
-  | StringTemplateExpression;
+    | BinaryExpression
+    | BracedExpression
+    | ConditionalExpression
+    | FieldAccess
+    | FunctionCall
+    | IndexedExpression
+    | LetExpression
+    | MethodCall
+    | NumericLiteral
+    | SimpleNameReference
+    | StringLiteral
+    | TypeCastExpression;
   semicolonToken: SemicolonToken;
+  syntaxDiagnostics: any[];
+  trailingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
 }
 
 export interface ComputedNameField extends STNode {
   closeBracket: CloseBracketToken;
   colonToken: ColonToken;
-  fieldNameExpr: SimpleNameReference;
+  fieldNameExpr:
+    | BinaryExpression
+    | FunctionCall
+    | QualifiedNameReference
+    | SimpleNameReference
+    | StringTemplateExpression;
+  leadingMinutiae: WHITESPACE_MINUTIAE[];
   openBracket: OpenBracketToken;
-  valueExpr: StringLiteral;
+  syntaxDiagnostics: any;
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
+  valueExpr:
+    | BinaryExpression
+    | BooleanLiteral
+    | FieldAccess
+    | FunctionCall
+    | MappingConstructor
+    | NumericLiteral
+    | SimpleNameReference
+    | StringLiteral
+    | StringTemplateExpression;
 }
 
 export interface ConditionalExpression extends STNode {
   colonToken: ColonToken;
-  endExpression: MethodCall | SimpleNameReference;
-  lhsExpression: TypeTestExpression;
-  middleExpression: MethodCall | StringLiteral;
+  endExpression:
+    | BinaryExpression
+    | BooleanLiteral
+    | BracedExpression
+    | ConditionalExpression
+    | FieldAccess
+    | FunctionCall
+    | ListConstructor
+    | MappingConstructor
+    | MethodCall
+    | NilLiteral
+    | NullLiteral
+    | NumericLiteral
+    | SimpleNameReference
+    | StringLiteral
+    | TrapExpression
+    | TypeCastExpression
+    | UnaryExpression
+    | XmlTemplateExpression;
+  leadingMinutiae: any;
+  lhsExpression:
+    | BinaryExpression
+    | BooleanLiteral
+    | BracedExpression
+    | FunctionCall
+    | MethodCall
+    | SimpleNameReference
+    | TypeCastExpression
+    | TypeTestExpression
+    | UnaryExpression;
+  middleExpression:
+    | BinaryExpression
+    | BooleanLiteral
+    | BracedExpression
+    | ConditionalExpression
+    | ErrorConstructor
+    | FieldAccess
+    | FunctionCall
+    | IndexedExpression
+    | MappingConstructor
+    | MethodCall
+    | NilLiteral
+    | NullLiteral
+    | NumericLiteral
+    | QueryExpression
+    | SimpleNameReference
+    | StringLiteral
+    | StringTemplateExpression
+    | TrapExpression
+    | TypeCastExpression
+    | UnaryExpression;
   questionMarkToken: QuestionMarkToken;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
 }
 
 export interface ConfigurableKeyword extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
+  value: string;
+}
+
+export interface ConflictKeyword extends STNode {
+  isMissing: boolean;
+  isToken: boolean;
+  leadingMinutiae: any;
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface ConstDeclaration extends STNode {
   constKeyword: ConstKeyword;
   equalsToken: EqualToken;
-  initializer: MappingConstructor | NumericLiteral | StringLiteral;
+  initializer:
+    | BinaryExpression
+    | BooleanLiteral
+    | BracedExpression
+    | ImplicitNewExpression
+    | MappingConstructor
+    | NilLiteral
+    | NumericLiteral
+    | SimpleNameReference
+    | StringLiteral
+    | UnaryExpression;
+  leadingMinutiae: COMMENT_MINUTIAE | END_OF_LINE_MINUTIAE[];
   metadata?: Metadata;
   semicolonToken: SemicolonToken;
-  typeDescriptor?: FloatTypeDesc | ParameterizedTypeDesc | StringTypeDesc;
+  syntaxDiagnostics: any[];
+  trailingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  typeDescriptor?:
+    | BooleanTypeDesc
+    | ByteTypeDesc
+    | DecimalTypeDesc
+    | FloatTypeDesc
+    | IntTypeDesc
+    | JsonTypeDesc
+    | MapTypeDesc
+    | NeverTypeDesc
+    | NilTypeDesc
+    | QualifiedNameReference
+    | SimpleNameReference
+    | StringTypeDesc;
   variableName: IdentifierToken;
   visibilityQualifier?: PublicKeyword;
 }
 
-export interface ConstKeyword extends STNode {
+export interface ConstDocReferenceToken extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae: any;
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
+  value: string;
+}
+
+export interface ConstKeyword extends STNode {
+  isMissing: boolean;
+  isToken: boolean;
+  leadingMinutiae: COMMENT_MINUTIAE | END_OF_LINE_MINUTIAE[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface ContinueKeyword extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae: WHITESPACE_MINUTIAE[];
+  trailingMinutiae: any;
   value: string;
 }
 
 export interface ContinueStatement extends STNode {
   continueToken: ContinueKeyword;
+  leadingMinutiae: WHITESPACE_MINUTIAE[];
   semicolonToken: SemicolonToken;
+  syntaxDiagnostics: any;
+  trailingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
 }
 
 export interface DecimalFloatingPointLiteralToken extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae:
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  trailingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface DecimalIntegerLiteralToken extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  trailingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface DecimalKeyword extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface DecimalTypeDesc extends STNode {
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   name: DecimalKeyword;
-  source: string;
+  syntaxDiagnostics: any;
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
 }
 
 export interface DefaultableParam extends STNode {
-  annotations: any;
+  annotations: Annotation[];
   equalsToken: EqualToken;
-  expression: NilLiteral | NumericLiteral;
+  expression:
+    | BinaryExpression
+    | BooleanLiteral
+    | BracedExpression
+    | ErrorConstructor
+    | ExplicitAnonymousFunctionExpression
+    | ExplicitNewExpression
+    | FloatTypeDesc
+    | FunctionCall
+    | ImplicitAnonymousFunctionExpression
+    | ImplicitNewExpression
+    | InferredTypedescDefault
+    | IntTypeDesc
+    | ListConstructor
+    | MappingConstructor
+    | NilLiteral
+    | NumericLiteral
+    | ObjectConstructor
+    | QualifiedNameReference
+    | SimpleNameReference
+    | StringLiteral
+    | UnaryExpression
+    | XmlTemplateExpression;
+  leadingMinutiae:
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   paramName: IdentifierToken;
-  typeName: FloatTypeDesc | IntTypeDesc | OptionalTypeDesc;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: INVALID_NODE_MINUTIAE | WHITESPACE_MINUTIAE[];
+  typeName:
+    | AnyTypeDesc
+    | ArrayTypeDesc
+    | BooleanTypeDesc
+    | ByteTypeDesc
+    | DecimalTypeDesc
+    | ErrorTypeDesc
+    | FloatTypeDesc
+    | FunctionTypeDesc
+    | IntTypeDesc
+    | IntersectionTypeDesc
+    | JsonTypeDesc
+    | MapTypeDesc
+    | NilTypeDesc
+    | ObjectTypeDesc
+    | OptionalTypeDesc
+    | QualifiedNameReference
+    | RecordTypeDesc
+    | SimpleNameReference
+    | SingletonTypeDesc
+    | StringTypeDesc
+    | TupleTypeDesc
+    | TypedescTypeDesc
+    | UnionTypeDesc
+    | XmlTypeDesc;
 }
 
 export interface DeprecationLiteral extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae: any;
+  trailingMinutiae: END_OF_LINE_MINUTIAE[];
   value: string;
 }
 
-export interface DoKeyword extends STNode {
+export interface DescendingKeyword extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae: any;
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
+  value: string;
+}
+
+export interface DistinctKeyword extends STNode {
+  isMissing: boolean;
+  isToken: boolean;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
+  value: string;
+}
+
+export interface DistinctTypeDesc extends STNode {
+  distinctKeyword: DistinctKeyword;
+  leadingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
+  syntaxDiagnostics: any;
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
+  typeDescriptor:
+    | ErrorTypeDesc
+    | IntTypeDesc
+    | ObjectTypeDesc
+    | ParenthesisedTypeDesc
+    | QualifiedNameReference
+    | ReadonlyTypeDesc
+    | RecordTypeDesc
+    | SimpleNameReference
+    | TypedescTypeDesc;
+}
+
+export interface DoKeyword extends STNode {
+  isMissing: boolean;
+  isToken: boolean;
+  leadingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface DoStatement extends STNode {
   blockStatement: BlockStatement;
   doKeyword: DoKeyword;
-  onFailClause: OnFailClause;
+  leadingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
+  onFailClause?: OnFailClause;
+  syntaxDiagnostics: any;
+  trailingMinutiae: END_OF_LINE_MINUTIAE[];
 }
 
 export interface DocumentationDescription extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae: any;
+  trailingMinutiae: END_OF_LINE_MINUTIAE[];
   value: string;
 }
 
-export interface DocumentationReference extends STNode {
-  backtickContent: BacktickContent | SimpleNameReference;
-  endBacktick: BacktickToken;
-  referenceType?: TypeDocReferenceToken;
-  startBacktick: BacktickToken;
+export interface DotLtToken extends STNode {
+  isMissing: boolean;
+  isToken: boolean;
+  leadingMinutiae: any;
+  trailingMinutiae: any;
+  value: string;
 }
 
 export interface DotToken extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae: WHITESPACE_MINUTIAE[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
+  value: string;
+}
+
+export interface DoubleBacktickToken extends STNode {
+  isMissing: boolean;
+  isToken: boolean;
+  leadingMinutiae: any;
+  trailingMinutiae: END_OF_LINE_MINUTIAE[];
   value: string;
 }
 
 export interface DoubleDotLtToken extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae: any;
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface DoubleEqualToken extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae: any;
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface DoubleGtToken extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae: any;
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface DoubleLtToken extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae: any;
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface DoubleQuoteToken extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae: any;
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
   value: string;
 }
 
-export interface EllipsisToken extends STNode {
+export interface DoubleSlashDoubleAsteriskLtToken extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae: any;
+  trailingMinutiae: any;
+  value: string;
+}
+
+export interface END_OF_LINE_MINUTIAE extends STNode {
+  isInvalid: boolean;
+  minutiae: string;
+}
+
+export interface EllipsisToken extends STNode {
+  isMissing: boolean;
+  isToken: boolean;
+  leadingMinutiae:
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface ElseBlock extends STNode {
   elseBody: BlockStatement | IfElseStatement;
   elseKeyword: ElseKeyword;
+  leadingMinutiae: WHITESPACE_MINUTIAE[];
+  syntaxDiagnostics: any[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE[];
 }
 
 export interface ElseKeyword extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae: WHITESPACE_MINUTIAE[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface ElvisToken extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae: any;
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface EnumDeclaration extends STNode {
   closeBraceToken: CloseBraceToken;
   enumKeywordToken: EnumKeyword;
-  enumMemberList: (CommaToken | EnumMember)[];
+  enumMemberList: CommaToken | EnumMember[];
   identifier: IdentifierToken;
+  leadingMinutiae: COMMENT_MINUTIAE | END_OF_LINE_MINUTIAE[];
+  metadata?: Metadata;
   openBraceToken: OpenBraceToken;
+  qualifier?: PublicKeyword;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE[];
 }
 
 export interface EnumKeyword extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae: COMMENT_MINUTIAE | END_OF_LINE_MINUTIAE[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface EnumMember extends STNode {
-  constExprNode?: BinaryExpression | StringLiteral;
+  constExprNode?:
+    | BinaryExpression
+    | NumericLiteral
+    | SimpleNameReference
+    | StringLiteral;
   equalToken?: EqualToken;
   identifier: IdentifierToken;
+  leadingMinutiae: INVALID_NODE_MINUTIAE | WHITESPACE_MINUTIAE[];
+  metadata?: Metadata;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
 }
 
 export interface EofToken extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: any;
   value: string;
 }
 
 export interface EqualToken extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae: INVALID_NODE_MINUTIAE | WHITESPACE_MINUTIAE[];
+  trailingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  value: string;
+}
+
+export interface EqualsKeyword extends STNode {
+  isMissing: boolean;
+  isToken: boolean;
+  leadingMinutiae: any;
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface ErrorBindingPattern extends STNode {
-  argListBindingPatterns: (
+  argListBindingPatterns:
     | CaptureBindingPattern
     | CommaToken
+    | ErrorBindingPattern
     | NamedArgBindingPattern
     | RestBindingPattern
-    | WildcardBindingPattern
-  )[];
+    | WildcardBindingPattern[];
   closeParenthesis: CloseParenToken;
   errorKeyword: ErrorKeyword;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   openParenthesis: OpenParenToken;
-}
-
-export interface ErrorConstructor extends STNode {
-  arguments: (CommaToken | NamedArg | PositionalArg)[];
-  closeParenToken: CloseParenToken;
-  errorKeyword: ErrorKeyword;
-  openParenToken: OpenParenToken;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   typeReference?: SimpleNameReference;
 }
 
+export interface ErrorConstructor extends STNode {
+  arguments: CommaToken | NamedArg | PositionalArg[];
+  closeParenToken: CloseParenToken;
+  errorKeyword: ErrorKeyword;
+  leadingMinutiae: INVALID_NODE_MINUTIAE | WHITESPACE_MINUTIAE[];
+  openParenToken: OpenParenToken;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
+  typeReference?: QualifiedNameReference | SimpleNameReference;
+}
+
 export interface ErrorKeyword extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface ErrorMatchPattern extends STNode {
-  argListMatchPatternNode: (
+  argListMatchPatternNode:
     | CommaToken
+    | ErrorMatchPattern
+    | IdentifierToken
     | NamedArgMatchPattern
     | RestMatchPattern
     | StringLiteral
-  )[];
+    | TypedBindingPattern[];
   closeParenthesisToken: CloseParenToken;
   errorKeyword: ErrorKeyword;
+  leadingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
   openParenthesisToken: OpenParenToken;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   typeReference?: SimpleNameReference;
 }
 
 export interface ErrorTypeDesc extends STNode {
-  errorKeywordToken: ErrorKeyword;
-  errorTypeParamsNode?: ErrorTypeParams;
-  name?: ErrorKeyword;
-}
-
-export interface ErrorTypeParams extends STNode {
-  gtToken: GtToken;
-  ltToken: LtToken;
-  parameter: SimpleNameReference;
+  keywordToken: ErrorKeyword;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  syntaxDiagnostics: any[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
+  typeParamNode?: TypeParameter;
 }
 
 export interface ExclamationMarkToken extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae: WHITESPACE_MINUTIAE[];
+  trailingMinutiae: any;
   value: string;
 }
 
 export interface ExplicitAnonymousFunctionExpression extends STNode {
-  annotations: any;
+  annotations: Annotation[];
   functionBody: ExpressionFunctionBody | FunctionBodyBlock;
   functionKeyword: FunctionKeyword;
   functionSignature: FunctionSignature;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   qualifierList: IsolatedKeyword[];
+  syntaxDiagnostics: any[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
 }
 
 export interface ExplicitNewExpression extends STNode {
+  leadingMinutiae: WHITESPACE_MINUTIAE[];
   newKeyword: NewKeyword;
   parenthesizedArgList: ParenthesizedArgList;
-  typeDescriptor: QualifiedNameReference | SimpleNameReference;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
+  typeDescriptor: QualifiedNameReference | SimpleNameReference | StreamTypeDesc;
 }
 
 export interface ExpressionFunctionBody extends STNode {
   expression:
-  | BinaryExpression
-  | ConditionalExpression
-  | FieldAccess
-  | MappingConstructor
-  | StringLiteral
-  | StringTemplateExpression
-  | NumericLiteral;
+    | BinaryExpression
+    | BooleanLiteral
+    | CheckExpression
+    | ConditionalExpression
+    | ErrorConstructor
+    | ExplicitAnonymousFunctionExpression
+    | ExplicitNewExpression
+    | FieldAccess
+    | FunctionCall
+    | ImplicitAnonymousFunctionExpression
+    | ImplicitNewExpression
+    | IntTypeDesc
+    | LetExpression
+    | ListConstructor
+    | MappingConstructor
+    | MethodCall
+    | NilLiteral
+    | NumericLiteral
+    | ObjectConstructor
+    | SimpleNameReference
+    | StringLiteral
+    | StringTemplateExpression
+    | XmlTemplateExpression;
+  leadingMinutiae: any;
   rightDoubleArrow: RightDoubleArrowToken;
   semicolon?: SemicolonToken;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
 }
 
 export interface ExternalFunctionBody extends STNode {
   annotations: Annotation[];
   equalsToken: EqualToken;
   externalKeyword: ExternalKeyword;
+  leadingMinutiae: any;
   semicolonToken: SemicolonToken;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE[];
 }
 
 export interface ExternalKeyword extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae: any;
+  trailingMinutiae: any;
   value: string;
 }
 
 export interface FailKeyword extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface FailStatement extends STNode {
-  expression: SimpleNameReference;
+  expression: ErrorConstructor | FunctionCall | SimpleNameReference;
   failKeyword: FailKeyword;
+  leadingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
   semicolonToken: SemicolonToken;
+  syntaxDiagnostics: any;
+  trailingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
 }
 
 export interface FalseKeyword extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  trailingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface FieldAccess extends STNode {
   dotToken: DotToken;
   expression:
-  | FieldAccess
-  | FunctionCall
-  | IndexedExpression
-  | MethodCall
-  | SimpleNameReference;
-  fieldName: SimpleNameReference;
+    | BracedExpression
+    | ExplicitNewExpression
+    | FieldAccess
+    | FunctionCall
+    | IndexedExpression
+    | MethodCall
+    | OptionalFieldAccess
+    | QualifiedNameReference
+    | SimpleNameReference
+    | XmlStepExpression;
+  fieldName: QualifiedNameReference | SimpleNameReference;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  syntaxDiagnostics: any[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
 }
 
 export interface FieldBindingPattern extends STNode {
-  bindingPattern: CaptureBindingPattern;
-  colon: ColonToken;
+  bindingPattern?:
+    | CaptureBindingPattern
+    | ErrorBindingPattern
+    | ListBindingPattern
+    | MappingBindingPattern
+    | WildcardBindingPattern;
+  colon?: ColonToken;
+  leadingMinutiae: INVALID_NODE_MINUTIAE | WHITESPACE_MINUTIAE[];
+  syntaxDiagnostics: any[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   variableName: SimpleNameReference;
+}
+
+export interface FieldKeyword extends STNode {
+  isMissing: boolean;
+  isToken: boolean;
+  leadingMinutiae: any;
+  trailingMinutiae: any;
+  value: string;
 }
 
 export interface FieldMatchPattern extends STNode {
   colonToken: ColonToken;
   fieldNameNode: IdentifierToken;
-  matchPattern: TypedBindingPattern;
+  leadingMinutiae: any;
+  matchPattern:
+    | BooleanLiteral
+    | ListMatchPattern
+    | MappingMatchPattern
+    | NilLiteral
+    | NumericLiteral
+    | QualifiedNameReference
+    | SimpleNameReference
+    | StringLiteral
+    | TypedBindingPattern;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
 }
 
 export interface FinalKeyword extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface FloatKeyword extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface FloatTypeDesc extends STNode {
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   name: FloatKeyword;
+  syntaxDiagnostics: any;
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
+}
+
+export interface FlushAction extends STNode {
+  flushKeyword: FlushKeyword;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  peerWorker?: SimpleNameReference;
+  syntaxDiagnostics: any;
+  trailingMinutiae: any;
+}
+
+export interface FlushKeyword extends STNode {
+  isMissing: boolean;
+  isToken: boolean;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
+  value: string;
 }
 
 export interface ForeachKeyword extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface ForeachStatement extends STNode {
   actionOrExpressionNode:
-  | BinaryExpression
-  | MethodCall
-  | SimpleNameReference
-  | XmlStepExpression;
+    | BinaryExpression
+    | FieldAccess
+    | IndexedExpression
+    | ListConstructor
+    | MethodCall
+    | SimpleNameReference
+    | StringTypeDesc
+    | WaitAction
+    | XmlStepExpression;
   blockStatement: BlockStatement;
   forEachKeyword: ForeachKeyword;
   inKeyword: InKeyword;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  onFailClause?: OnFailClause;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE[];
   typedBindingPattern: TypedBindingPattern;
 }
 
 export interface ForkKeyword extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface ForkStatement extends STNode {
   closeBraceToken: CloseBraceToken;
   forkKeyword: ForkKeyword;
+  leadingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
   namedWorkerDeclarations: NamedWorkerDeclaration[];
   openBraceToken: OpenBraceToken;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
 }
 
 export interface FromClause extends STNode {
-  expression: SimpleNameReference;
+  expression:
+    | BinaryExpression
+    | BracedExpression
+    | ExplicitNewExpression
+    | FieldAccess
+    | FunctionCall
+    | ListConstructor
+    | MethodCall
+    | NumericLiteral
+    | QueryExpression
+    | SimpleNameReference
+    | TypeCastExpression
+    | XmlStepExpression;
   fromKeyword: FromKeyword;
   inKeyword: InKeyword;
-  source: string;
+  leadingMinutiae: WHITESPACE_MINUTIAE[];
+  syntaxDiagnostics: any;
+  trailingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   typedBindingPattern: TypedBindingPattern;
 }
 
 export interface FromKeyword extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae: WHITESPACE_MINUTIAE[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface FunctionBodyBlock extends STNode {
   VisibleEndpoints?: any[];
   closeBraceToken: CloseBraceToken;
+  leadingMinutiae:
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   namedWorkerDeclarator?: NamedWorkerDeclarator;
   openBraceToken: OpenBraceToken;
-  statements: (
+  statements:
     | ActionStatement
     | AssignmentStatement
+    | BlockStatement
+    | BreakStatement
     | CallStatement
     | CompoundAssignmentStatement
+    | ContinueStatement
     | DoStatement
+    | FailStatement
     | ForeachStatement
     | ForkStatement
     | IfElseStatement
+    | InvalidExpressionStatement
     | LocalVarDecl
     | LockStatement
     | MatchStatement
@@ -824,1724 +1986,4444 @@ export interface FunctionBodyBlock extends STNode {
     | RollbackStatement
     | TransactionStatement
     | WhileStatement
-  )[];
+    | XmlNamespaceDeclaration[];
+  syntaxDiagnostics: any[];
+  trailingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
 }
 
 export interface FunctionCall extends STNode {
-  arguments: (CommaToken | NamedArg | PositionalArg | RestArg)[];
+  arguments: CommaToken | NamedArg | PositionalArg | RestArg[];
   closeParenToken: CloseParenToken;
-  functionName: ErrorTypeDesc | QualifiedNameReference | SimpleNameReference;
+  functionName: QualifiedNameReference | SimpleNameReference;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   openParenToken: OpenParenToken;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
 }
 
 export interface FunctionDefinition extends STNode {
   functionBody:
-  | ExpressionFunctionBody
-  | ExternalFunctionBody
-  | FunctionBodyBlock;
+    | ExpressionFunctionBody
+    | ExternalFunctionBody
+    | FunctionBodyBlock;
   functionKeyword: FunctionKeyword;
   functionName: IdentifierToken;
   functionSignature: FunctionSignature;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   metadata?: Metadata;
-  qualifierList: (
-    | IsolatedKeyword
-    | PublicKeyword
-    | TransactionalKeyword
-    | ResourceKeyword
-  )[];
+  qualifierList: IsolatedKeyword | PublicKeyword | TransactionalKeyword[];
   relativeResourcePath: any;
-  isRunnable?: boolean;
-  runArgs?: any[];
+  syntaxDiagnostics: any[];
+  trailingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+}
+
+export interface FunctionDocReferenceToken extends STNode {
+  isMissing: boolean;
+  isToken: boolean;
+  leadingMinutiae: any;
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
+  value: string;
 }
 
 export interface FunctionKeyword extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface FunctionSignature extends STNode {
   closeParenToken: CloseParenToken;
+  leadingMinutiae: INVALID_NODE_MINUTIAE | WHITESPACE_MINUTIAE[];
   openParenToken: OpenParenToken;
-  parameters: (
+  parameters:
     | CommaToken
     | DefaultableParam
     | IncludedRecordParam
     | RequiredParam
-    | RestParam
-  )[];
+    | RestParam[];
   returnTypeDesc?: ReturnTypeDescriptor;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
 }
 
 export interface FunctionTypeDesc extends STNode {
   functionKeyword: FunctionKeyword;
-  functionSignature: FunctionSignature;
-  qualifierList: any;
+  functionSignature?: FunctionSignature;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  qualifierList: IsolatedKeyword | TransactionalKeyword[];
+  syntaxDiagnostics: any[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
 }
 
 export interface FutureKeyword extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   value: string;
 }
 
+export interface FutureTypeDesc extends STNode {
+  keywordToken: FutureKeyword;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  syntaxDiagnostics: any;
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
+  typeParamNode?: TypeParameter;
+}
+
 export interface GtEqualToken extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae: any;
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface GtToken extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae: INVALID_NODE_MINUTIAE | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface HandleKeyword extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface HandleTypeDesc extends STNode {
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   name: HandleKeyword;
+  syntaxDiagnostics: any;
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
 }
 
 export interface HashToken extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
   value: string;
 }
 
-export interface IdentifierToken extends STNode {
+export interface HexFloatingPointLiteralToken extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
+  value: string;
+}
+
+export interface HexIntegerLiteralToken extends STNode {
+  isMissing: boolean;
+  isToken: boolean;
+  leadingMinutiae: WHITESPACE_MINUTIAE[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
+  value: string;
+}
+
+export interface INVALID_NODE_MINUTIAE extends STNode {
+  isInvalid: boolean;
+  minutiae: string;
+}
+
+export interface IdentifierToken extends STNode {
+  isMissing: boolean;
+  isToken: boolean;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  trailingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface IfElseStatement extends STNode {
   condition:
-  | BinaryExpression
-  | BracedExpression
-  | TypeTestExpression
-  | UnaryExpression;
+    | BinaryExpression
+    | BooleanLiteral
+    | BracedExpression
+    | FunctionCall
+    | LetExpression
+    | ListConstructor
+    | NumericLiteral
+    | SimpleNameReference
+    | StringLiteral
+    | TransactionalExpression
+    | TrapExpression
+    | TypeTestExpression
+    | UnaryExpression;
   elseBody?: ElseBlock;
   ifBody: BlockStatement;
   ifKeyword: IfKeyword;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  syntaxDiagnostics: any[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
 }
 
 export interface IfKeyword extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface ImplicitAnonymousFunctionExpression extends STNode {
-  expression: BinaryExpression;
-  params: InferParamList;
+  expression:
+    | BinaryExpression
+    | BooleanLiteral
+    | CheckExpression
+    | ExplicitAnonymousFunctionExpression
+    | FunctionCall
+    | ImplicitAnonymousFunctionExpression
+    | IndexedExpression
+    | LetExpression
+    | ListConstructor
+    | MappingConstructor
+    | MethodCall
+    | NilLiteral
+    | NumericLiteral
+    | SimpleNameReference
+    | StringLiteral
+    | StringTemplateExpression
+    | UnaryExpression;
+  leadingMinutiae: INVALID_NODE_MINUTIAE | WHITESPACE_MINUTIAE[];
+  params: InferParamList | SimpleNameReference;
   rightDoubleArrow: RightDoubleArrowToken;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
 }
 
 export interface ImplicitNewExpression extends STNode {
+  leadingMinutiae: WHITESPACE_MINUTIAE[];
   newKeyword: NewKeyword;
   parenthesizedArgList?: ParenthesizedArgList;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
 }
 
 export interface ImportDeclaration extends STNode {
   importKeyword: ImportKeyword;
-  moduleName: (DotToken | IdentifierToken)[];
-  orgName: ImportOrgName;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  moduleName: DotToken | IdentifierToken[];
+  orgName?: ImportOrgName;
   prefix?: ImportPrefix;
   semicolon: SemicolonToken;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE[];
 }
 
 export interface ImportKeyword extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface ImportOrgName extends STNode {
+  leadingMinutiae: any;
   orgName: IdentifierToken;
   slashToken: SlashToken;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: any;
 }
 
 export interface ImportPrefix extends STNode {
   asKeyword: AsKeyword;
-  prefix: IdentifierToken;
+  leadingMinutiae: INVALID_NODE_MINUTIAE | WHITESPACE_MINUTIAE[];
+  prefix: IdentifierToken | UnderscoreKeyword;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
 }
 
 export interface InKeyword extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae: WHITESPACE_MINUTIAE[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface IncludedRecordParam extends STNode {
   annotations: any;
   asteriskToken: AsteriskToken;
+  leadingMinutiae: any;
   paramName: IdentifierToken;
-  typeName: SimpleNameReference;
+  syntaxDiagnostics: any;
+  trailingMinutiae: any;
+  typeName: IntTypeDesc | QualifiedNameReference | SimpleNameReference;
 }
 
 export interface IndexedExpression extends STNode {
   closeBracket: CloseBracketToken;
   containerExpression:
-  | FieldAccess
-  | IndexedExpression
-  | MethodCall
-  | SimpleNameReference;
-  keyExpression: (
+    | BracedExpression
     | FieldAccess
+    | FunctionCall
+    | IndexedExpression
+    | ListConstructor
+    | MappingConstructor
     | MethodCall
-    | NumericLiteral
+    | OptionalFieldAccess
+    | QualifiedNameReference
     | SimpleNameReference
     | StringLiteral
-  )[];
+    | TableConstructor
+    | XmlStepExpression;
+  keyExpression:
+    | BinaryExpression
+    | BooleanLiteral
+    | BracedExpression
+    | CommaToken
+    | FieldAccess
+    | FunctionCall
+    | IndexedExpression
+    | ListConstructor
+    | MappingConstructor
+    | MethodCall
+    | NumericLiteral
+    | QualifiedNameReference
+    | SimpleNameReference
+    | StringLiteral
+    | TypeCastExpression
+    | UnaryExpression
+    | XmlTemplateExpression[];
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   openBracket: OpenBracketToken;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
 }
 
 export interface InferParamList extends STNode {
   closeParenToken: CloseParenToken;
+  leadingMinutiae: WHITESPACE_MINUTIAE[];
   openParenToken: OpenParenToken;
-  parameters: SimpleNameReference[];
+  parameters: CommaToken | SimpleNameReference[];
+  syntaxDiagnostics: any[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
+}
+
+export interface InferredTypedescDefault extends STNode {
+  gtToken: GtToken;
+  leadingMinutiae: any;
+  ltToken: LtToken;
+  syntaxDiagnostics: any;
+  trailingMinutiae: any;
+}
+
+export interface InlineCodeReference extends STNode {
+  codeReference: CodeContent;
+  endBacktick: BacktickToken | DoubleBacktickToken | TripleBacktickToken;
+  leadingMinutiae: any;
+  startBacktick: BacktickToken | DoubleBacktickToken | TripleBacktickToken;
+  syntaxDiagnostics: any;
+  trailingMinutiae: END_OF_LINE_MINUTIAE[];
 }
 
 export interface IntKeyword extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface IntTypeDesc extends STNode {
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   name: IntKeyword;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
 }
 
 export interface Interpolation extends STNode {
-  expression: FieldAccess | MethodCall | SimpleNameReference;
+  expression:
+    | BinaryExpression
+    | ConditionalExpression
+    | ExplicitNewExpression
+    | FieldAccess
+    | FunctionCall
+    | IndexedExpression
+    | LetExpression
+    | MethodCall
+    | NumericLiteral
+    | QueryExpression
+    | SimpleNameReference
+    | StringLiteral
+    | TypeCastExpression
+    | XmlTemplateExpression;
   interpolationEndToken: CloseBraceToken;
   interpolationStartToken: InterpolationStartToken;
+  leadingMinutiae: any;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: any;
 }
 
 export interface InterpolationStartToken extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae: any;
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface IntersectionTypeDesc extends STNode {
   bitwiseAndToken: BitwiseAndToken;
-  leftTypeDesc: ArrayTypeDesc | ReadonlyTypeDesc | SimpleNameReference;
-  rightTypeDesc: ArrayTypeDesc | ReadonlyTypeDesc;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  leftTypeDesc:
+    | AnyTypeDesc
+    | AnydataTypeDesc
+    | ArrayTypeDesc
+    | BooleanTypeDesc
+    | DistinctTypeDesc
+    | ErrorTypeDesc
+    | FutureTypeDesc
+    | IntTypeDesc
+    | IntersectionTypeDesc
+    | JsonTypeDesc
+    | MapTypeDesc
+    | NeverTypeDesc
+    | ObjectTypeDesc
+    | OptionalTypeDesc
+    | ParenthesisedTypeDesc
+    | QualifiedNameReference
+    | ReadonlyTypeDesc
+    | RecordTypeDesc
+    | SimpleNameReference
+    | StringTypeDesc
+    | TableTypeDesc
+    | TupleTypeDesc
+    | XmlTypeDesc;
+  rightTypeDesc:
+    | AnyTypeDesc
+    | AnydataTypeDesc
+    | ArrayTypeDesc
+    | DistinctTypeDesc
+    | ErrorTypeDesc
+    | FunctionTypeDesc
+    | IntTypeDesc
+    | JsonTypeDesc
+    | MapTypeDesc
+    | NilTypeDesc
+    | ObjectTypeDesc
+    | OptionalTypeDesc
+    | ParenthesisedTypeDesc
+    | QualifiedNameReference
+    | ReadonlyTypeDesc
+    | RecordTypeDesc
+    | SimpleNameReference
+    | StringTypeDesc
+    | TableTypeDesc
+    | TupleTypeDesc
+    | XmlTypeDesc;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
+}
+
+export interface InvalidExpressionStatement extends STNode {
+  expression:
+    | BinaryExpression
+    | BracedExpression
+    | FieldAccess
+    | ImplicitAnonymousFunctionExpression
+    | IndexedExpression
+    | ListConstructor
+    | MappingConstructor
+    | XmlTemplateExpression;
+  leadingMinutiae:
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  semicolonToken: SemicolonToken;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE[];
 }
 
 export interface IsKeyword extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae: any;
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface IsolatedKeyword extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
+  value: string;
+}
+
+export interface JoinClause extends STNode {
+  expression: BracedExpression | MethodCall | SimpleNameReference;
+  inKeyword: InKeyword;
+  joinKeyword: JoinKeyword;
+  joinOnCondition: OnClause;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  outerKeyword?: OuterKeyword;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
+  typedBindingPattern: TypedBindingPattern;
+}
+
+export interface JoinKeyword extends STNode {
+  isMissing: boolean;
+  isToken: boolean;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface JsonKeyword extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface JsonTypeDesc extends STNode {
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   name: JsonKeyword;
+  syntaxDiagnostics: any;
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
 }
 
 export interface KeyKeyword extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae: any;
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface KeySpecifier extends STNode {
   closeParenToken: CloseParenToken;
-  fieldNames: IdentifierToken[];
+  fieldNames: CommaToken | IdentifierToken[];
   keyKeyword: KeyKeyword;
+  leadingMinutiae: any;
   openParenToken: OpenParenToken;
+  syntaxDiagnostics: any;
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
 }
 
 export interface KeyTypeConstraint extends STNode {
   keyKeywordToken: KeyKeyword;
-  source: string;
+  leadingMinutiae: any;
+  syntaxDiagnostics: any;
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   typeParameterNode: TypeParameter;
 }
 
+export interface LeftArrowToken extends STNode {
+  isMissing: boolean;
+  isToken: boolean;
+  leadingMinutiae: WHITESPACE_MINUTIAE[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
+  value: string;
+}
+
 export interface LetClause extends STNode {
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   letKeyword: LetKeyword;
-  letVarDeclarations: (CommaToken | LetVarDecl)[];
-  source: string;
+  letVarDeclarations: CommaToken | LetVarDecl[];
+  syntaxDiagnostics: any;
+  trailingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
 }
 
 export interface LetExpression extends STNode {
-  expression: BinaryExpression | SimpleNameReference;
+  expression:
+    | BinaryExpression
+    | BracedExpression
+    | ConditionalExpression
+    | ExplicitAnonymousFunctionExpression
+    | FieldAccess
+    | FunctionCall
+    | ImplicitAnonymousFunctionExpression
+    | ImplicitNewExpression
+    | IndexedExpression
+    | LetExpression
+    | ListConstructor
+    | MappingConstructor
+    | MethodCall
+    | NumericLiteral
+    | SimpleNameReference
+    | TypeCastExpression;
   inKeyword: InKeyword;
+  leadingMinutiae: WHITESPACE_MINUTIAE[];
   letKeyword: LetKeyword;
-  letVarDeclarations: (CommaToken | LetVarDecl)[];
-  source: string;
+  letVarDeclarations: CommaToken | LetVarDecl[];
+  syntaxDiagnostics: any[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
 }
 
 export interface LetKeyword extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface LetVarDecl extends STNode {
-  annotations: any;
+  annotations: Annotation[];
   equalsToken: EqualToken;
   expression:
-  | BinaryExpression
-  | FunctionCall
-  | NumericLiteral
-  | SimpleNameReference
-  | StringLiteral;
-  source: string;
-  typedBindingPattern: TypedBindingPattern;
-}
-
-export interface LimitClause extends STNode {
-  expression: NumericLiteral;
-  limitKeyword: LimitKeyword;
-  source: string;
-}
-
-export interface LimitKeyword extends STNode {
-  isToken: boolean;
-  value: string;
-}
-
-export interface ListBindingPattern extends STNode {
-  bindingPatterns: (
-    | CaptureBindingPattern
-    | CommaToken
-    | WildcardBindingPattern
-  )[];
-  closeBracket: CloseBracketToken;
-  openBracket: OpenBracketToken;
-}
-
-export interface ListConstructor extends STNode {
-  closeBracket: CloseBracketToken;
-  expressions: (
-    | BooleanLiteral
-    | CommaToken
+    | BinaryExpression
+    | BracedExpression
+    | CheckExpression
+    | ErrorConstructor
+    | ExplicitAnonymousFunctionExpression
+    | ExplicitNewExpression
     | FieldAccess
+    | FunctionCall
+    | ImplicitNewExpression
     | IndexedExpression
     | ListConstructor
     | MappingConstructor
     | MethodCall
+    | NumericLiteral
+    | OptionalFieldAccess
+    | SimpleNameReference
+    | StringLiteral
+    | TypeCastExpression
+    | UnaryExpression;
+  leadingMinutiae: WHITESPACE_MINUTIAE[];
+  syntaxDiagnostics: any;
+  trailingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  typedBindingPattern: TypedBindingPattern;
+}
+
+export interface LimitClause extends STNode {
+  expression:
+    | FunctionCall
+    | NumericLiteral
+    | SimpleNameReference
+    | UnaryExpression;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  limitKeyword: LimitKeyword;
+  syntaxDiagnostics: any;
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
+}
+
+export interface LimitKeyword extends STNode {
+  isMissing: boolean;
+  isToken: boolean;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
+  value: string;
+}
+
+export interface ListBindingPattern extends STNode {
+  bindingPatterns:
+    | CaptureBindingPattern
+    | CommaToken
+    | ErrorBindingPattern
+    | ListBindingPattern
+    | MappingBindingPattern
+    | RestBindingPattern
+    | WildcardBindingPattern[];
+  closeBracket: CloseBracketToken;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  openBracket: OpenBracketToken;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
+}
+
+export interface ListConstructor extends STNode {
+  closeBracket: CloseBracketToken;
+  expressions:
+    | BinaryExpression
+    | BooleanLiteral
+    | BracedExpression
+    | ByteTypeDesc
+    | CheckExpression
+    | CommaToken
+    | ConditionalExpression
+    | ErrorConstructor
+    | ExplicitNewExpression
+    | FieldAccess
+    | FunctionCall
+    | ImplicitNewExpression
+    | IndexedExpression
+    | IntTypeDesc
+    | LetExpression
+    | ListConstructor
+    | MappingConstructor
+    | MethodCall
+    | NilLiteral
     | NullLiteral
     | NumericLiteral
+    | ObjectConstructor
+    | OptionalFieldAccess
     | QualifiedNameReference
     | SimpleNameReference
     | StringLiteral
+    | StringTemplateExpression
+    | StringTypeDesc
+    | TableConstructor
+    | TrapExpression
+    | TypeCastExpression
+    | TypeTestExpression
+    | TypeofExpression
     | UnaryExpression
-  )[];
+    | XmlStepExpression
+    | XmlTemplateExpression[];
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   openBracket: OpenBracketToken;
+  syntaxDiagnostics: any[];
+  trailingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
 }
 
 export interface ListMatchPattern extends STNode {
   closeBracket: CloseBracketToken;
-  matchPatterns: (CommaToken | TypedBindingPattern)[];
+  leadingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
+  matchPatterns:
+    | BooleanLiteral
+    | CommaToken
+    | ErrorMatchPattern
+    | ListMatchPattern
+    | MappingMatchPattern
+    | NumericLiteral
+    | QualifiedNameReference
+    | RestMatchPattern
+    | SimpleNameReference
+    | StringLiteral
+    | TypedBindingPattern[];
   openBracket: OpenBracketToken;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
 }
 
 export interface ListenerDeclaration extends STNode {
   equalsToken: EqualToken;
-  initializer: ExplicitNewExpression | ImplicitNewExpression;
+  initializer:
+    | CheckExpression
+    | ExplicitNewExpression
+    | ImplicitNewExpression
+    | NilLiteral
+    | NumericLiteral
+    | ObjectConstructor
+    | SimpleNameReference;
+  leadingMinutiae: COMMENT_MINUTIAE | END_OF_LINE_MINUTIAE[];
   listenerKeyword: ListenerKeyword;
   metadata?: Metadata;
   semicolonToken: SemicolonToken;
-  typeDescriptor: QualifiedNameReference;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE[];
+  typeDescriptor?:
+    | FunctionTypeDesc
+    | ObjectTypeDesc
+    | QualifiedNameReference
+    | SimpleNameReference;
   variableName: IdentifierToken;
+  visibilityQualifier?: PublicKeyword;
 }
 
 export interface ListenerKeyword extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae: COMMENT_MINUTIAE | END_OF_LINE_MINUTIAE[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface LocalVarDecl extends STNode {
-  annotations: any;
+  annotations: Annotation[];
   equalsToken?: EqualToken;
+  finalKeyword?: FinalKeyword;
   initializer?:
-  | BinaryExpression
-  | BooleanLiteral
-  | ByteArrayLiteral
-  | CheckAction
-  | CheckExpression
-  | CommitAction
-  | ConditionalExpression
-  | ErrorConstructor
-  | ExplicitAnonymousFunctionExpression
-  | ExplicitNewExpression
-  | FieldAccess
-  | FunctionCall
-  | ImplicitAnonymousFunctionExpression
-  | ImplicitNewExpression
-  | IndexedExpression
-  | LetExpression
-  | ListConstructor
-  | MappingConstructor
-  | MethodCall
-  | NilLiteral
-  | NullLiteral
-  | NumericLiteral
-  | ObjectConstructor
-  | OptionalFieldAccess
-  | QualifiedNameReference
-  | QueryAction
-  | QueryExpression
-  | RawTemplateExpression
-  | RemoteMethodCallAction
-  | SimpleNameReference
-  | StartAction
-  | StringLiteral
-  | StringTemplateExpression
-  | TableConstructor
-  | TrapExpression
-  | TypeCastExpression
-  | UnaryExpression
-  | WaitAction
-  | XmlTemplateExpression;
+    | AnnotAccess
+    | AsyncSendAction
+    | BinaryExpression
+    | BooleanLiteral
+    | BooleanTypeDesc
+    | BracedAction
+    | BracedExpression
+    | ByteArrayLiteral
+    | ByteTypeDesc
+    | CheckAction
+    | CheckExpression
+    | CommitAction
+    | ConditionalExpression
+    | ErrorConstructor
+    | ExplicitAnonymousFunctionExpression
+    | ExplicitNewExpression
+    | FieldAccess
+    | FloatTypeDesc
+    | FlushAction
+    | FunctionCall
+    | ImplicitAnonymousFunctionExpression
+    | ImplicitNewExpression
+    | IndexedExpression
+    | IntTypeDesc
+    | JsonTypeDesc
+    | LetExpression
+    | ListConstructor
+    | MappingConstructor
+    | MethodCall
+    | NilLiteral
+    | NullLiteral
+    | NumericLiteral
+    | ObjectConstructor
+    | OptionalFieldAccess
+    | QualifiedNameReference
+    | QueryAction
+    | QueryExpression
+    | RawTemplateExpression
+    | ReceiveAction
+    | RemoteMethodCallAction
+    | SimpleNameReference
+    | StartAction
+    | StringLiteral
+    | StringTemplateExpression
+    | StringTypeDesc
+    | SyncSendAction
+    | TableConstructor
+    | TrapAction
+    | TrapExpression
+    | TypeCastExpression
+    | TypeTestExpression
+    | TypeofExpression
+    | UnaryExpression
+    | WaitAction
+    | XmlFilterExpression
+    | XmlStepExpression
+    | XmlTemplateExpression;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   semicolonToken: SemicolonToken;
+  syntaxDiagnostics: any[];
+  trailingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   typedBindingPattern: TypedBindingPattern;
 }
 
 export interface LockKeyword extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface LockStatement extends STNode {
   blockStatement: BlockStatement;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   lockKeyword: LockKeyword;
+  onFailClause?: OnFailClause;
+  syntaxDiagnostics: any;
+  trailingMinutiae: END_OF_LINE_MINUTIAE[];
 }
 
 export interface LogicalAndToken extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae: WHITESPACE_MINUTIAE[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface LogicalOrToken extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae: WHITESPACE_MINUTIAE[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface LtEqualToken extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae: any;
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface LtToken extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae: WHITESPACE_MINUTIAE[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface MapKeyword extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   value: string;
+}
+
+export interface MapTypeDesc extends STNode {
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  mapKeywordToken: MapKeyword;
+  mapTypeParamsNode: TypeParameter;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
 }
 
 export interface MappingBindingPattern extends STNode {
   closeBrace: CloseBraceToken;
-  fieldBindingPatterns: (CommaToken | FieldBindingPattern)[];
+  fieldBindingPatterns: CommaToken | FieldBindingPattern | RestBindingPattern[];
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   openBrace: OpenBraceToken;
-  restBindingPattern: RestBindingPattern;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
 }
 
 export interface MappingConstructor extends STNode {
   closeBrace: CloseBraceToken;
-  fields: (CommaToken | ComputedNameField | SpecificField | SpreadField)[];
+  fields: CommaToken | ComputedNameField | SpecificField | SpreadField[];
+  leadingMinutiae:
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   openBrace: OpenBraceToken;
+  syntaxDiagnostics: any[];
+  trailingMinutiae:
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
 }
 
 export interface MappingMatchPattern extends STNode {
   closeBraceToken: CloseBraceToken;
-  fieldMatchPatterns: (CommaToken | FieldMatchPattern)[];
+  fieldMatchPatterns: CommaToken | FieldMatchPattern | RestMatchPattern[];
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   openBraceToken: OpenBraceToken;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
+}
+
+export interface MarkdownCodeBlock extends STNode {
+  codeLines: MarkdownCodeLine[];
+  endBacktick: TripleBacktickToken;
+  endLineHashToken: HashToken;
+  langAttribute?: CodeContent;
+  leadingMinutiae: WHITESPACE_MINUTIAE[];
+  startBacktick: TripleBacktickToken;
+  startLineHashToken: HashToken;
+  syntaxDiagnostics: any;
+  trailingMinutiae: END_OF_LINE_MINUTIAE[];
+}
+
+export interface MarkdownCodeLine extends STNode {
+  codeDescription: CodeContent;
+  hashToken: HashToken;
+  leadingMinutiae: WHITESPACE_MINUTIAE[];
+  syntaxDiagnostics: any;
+  trailingMinutiae: END_OF_LINE_MINUTIAE[];
 }
 
 export interface MarkdownDeprecationDocumentationLine extends STNode {
-  documentElements: DeprecationLiteral[];
+  documentElements: DeprecationLiteral | DocumentationDescription[];
   hashToken: HashToken;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  syntaxDiagnostics: any;
+  trailingMinutiae: END_OF_LINE_MINUTIAE[];
 }
 
 export interface MarkdownDocumentation extends STNode {
-  documentationLines: (
+  documentationLines:
+    | MarkdownCodeBlock
     | MarkdownDeprecationDocumentationLine
     | MarkdownDocumentationLine
     | MarkdownParameterDocumentationLine
     | MarkdownReferenceDocumentationLine
-    | MarkdownReturnParameterDocumentationLine
-  )[];
+    | MarkdownReturnParameterDocumentationLine[];
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  syntaxDiagnostics: any[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE[];
 }
 
 export interface MarkdownDocumentationLine extends STNode {
   documentElements: DocumentationDescription[];
   hashToken: HashToken;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  syntaxDiagnostics: any;
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
 }
 
 export interface MarkdownParameterDocumentationLine extends STNode {
-  documentElements: (DocumentationDescription | DocumentationReference)[];
+  documentElements:
+    | BallerinaNameReference
+    | DocumentationDescription
+    | InlineCodeReference[];
   hashToken: HashToken;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   minusToken: MinusToken;
   parameterName: ParameterName;
   plusToken: PlusToken;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE[];
 }
 
 export interface MarkdownReferenceDocumentationLine extends STNode {
-  documentElements: (DocumentationDescription | DocumentationReference)[];
+  documentElements:
+    | BallerinaNameReference
+    | DocumentationDescription
+    | InlineCodeReference[];
   hashToken: HashToken;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  syntaxDiagnostics: any[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE[];
 }
 
 export interface MarkdownReturnParameterDocumentationLine extends STNode {
-  documentElements: (DocumentationDescription | DocumentationReference)[];
+  documentElements: DocumentationDescription | InlineCodeReference[];
   hashToken: HashToken;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   minusToken: MinusToken;
   parameterName: ReturnKeyword;
   plusToken: PlusToken;
+  syntaxDiagnostics: any;
+  trailingMinutiae: END_OF_LINE_MINUTIAE[];
 }
 
 export interface MatchClause extends STNode {
   blockStatement: BlockStatement;
-  matchPatterns: (
-    | NumericLiteral
-    | PipeToken
-    | SimpleNameReference
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  matchGuard?: MatchGuard;
+  matchPatterns:
+    | BooleanLiteral
     | ErrorMatchPattern
     | ListMatchPattern
     | MappingMatchPattern
+    | NilLiteral
+    | NullLiteral
+    | NumericLiteral
+    | PipeToken
+    | QualifiedNameReference
+    | SimpleNameReference
     | StringLiteral
-  )[];
+    | TypedBindingPattern
+    | UnaryExpression[];
   rightDoubleArrow: RightDoubleArrowToken;
+  syntaxDiagnostics: any[];
+  trailingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+}
+
+export interface MatchGuard extends STNode {
+  expression:
+    | BinaryExpression
+    | BooleanLiteral
+    | BracedExpression
+    | FunctionCall
+    | MethodCall
+    | SimpleNameReference
+    | TypeTestExpression
+    | UnaryExpression;
+  ifKeyword: IfKeyword;
+  leadingMinutiae: WHITESPACE_MINUTIAE[];
+  syntaxDiagnostics: any[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
 }
 
 export interface MatchKeyword extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface MatchStatement extends STNode {
   closeBrace: CloseBraceToken;
-  condition: SimpleNameReference;
+  condition:
+    | BracedAction
+    | BracedExpression
+    | CheckAction
+    | LetExpression
+    | QueryAction
+    | SimpleNameReference
+    | TypeCastExpression
+    | WaitAction;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   matchClauses: MatchClause[];
   matchKeyword: MatchKeyword;
+  onFailClause?: OnFailClause;
   openBrace: OpenBraceToken;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
 }
 
 export interface Metadata extends STNode {
   annotations: Annotation[];
   documentationString?: MarkdownDocumentation;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  syntaxDiagnostics: any[];
+  trailingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
 }
 
 export interface MethodCall extends STNode {
-  arguments: (CommaToken | NamedArg | PositionalArg | RestArg)[];
+  arguments: CommaToken | NamedArg | PositionalArg | RestArg[];
   closeParenToken: CloseParenToken;
   dotToken: DotToken;
   expression:
-  | BracedExpression
-  | FieldAccess
-  | FunctionCall
-  | IndexedExpression
-  | MethodCall
-  | OptionalFieldAccess
-  | SimpleNameReference
-  | StringLiteral;
+    | BracedExpression
+    | ExplicitNewExpression
+    | FieldAccess
+    | FunctionCall
+    | IndexedExpression
+    | IntTypeDesc
+    | ListConstructor
+    | MappingConstructor
+    | MethodCall
+    | OptionalFieldAccess
+    | QualifiedNameReference
+    | SimpleNameReference
+    | StringLiteral
+    | StringTypeDesc
+    | XmlStepExpression;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   methodName: SimpleNameReference;
   openParenToken: OpenParenToken;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
 }
 
 export interface MethodDeclaration extends STNode {
   functionKeyword: FunctionKeyword;
-  metadata: Metadata;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  metadata?: Metadata;
   methodName: IdentifierToken;
   methodSignature: FunctionSignature;
-  qualifierList: PublicKeyword[];
+  qualifierList:
+    | IsolatedKeyword
+    | PublicKeyword
+    | RemoteKeyword
+    | TransactionalKeyword[];
   relativeResourcePath: any;
   semicolon: SemicolonToken;
+  syntaxDiagnostics: any[];
+  trailingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
 }
 
 export interface MinusToken extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface ModulePart extends STNode {
   eofToken: EofToken;
   imports: ImportDeclaration[];
-  members: (
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  members:
+    | AnnotationDeclaration
     | ClassDefinition
     | ConstDeclaration
     | EnumDeclaration
     | FunctionDefinition
     | ListenerDeclaration
     | ModuleVarDecl
+    | ModuleXmlNamespaceDeclaration
     | ServiceDeclaration
-    | TypeDefinition
-  )[];
+    | TypeDefinition[];
+  syntaxDiagnostics: any[];
+  trailingMinutiae: any;
 }
 
 export interface ModuleVarDecl extends STNode {
-  equalsToken: EqualToken;
-  initializer:
-  | BinaryExpression
-  | BooleanLiteral
-  | CheckExpression
-  | ImplicitNewExpression
-  | ListConstructor
-  | MappingConstructor
-  | NumericLiteral
-  | ServiceConstructorExpression
-  | ObjectConstructor
-  | RequiredExpression
-  | StringLiteral;
+  equalsToken?: EqualToken;
+  initializer?:
+    | BinaryExpression
+    | BooleanLiteral
+    | BracedExpression
+    | ByteArrayLiteral
+    | CheckExpression
+    | ConditionalExpression
+    | ErrorConstructor
+    | ExplicitAnonymousFunctionExpression
+    | ExplicitNewExpression
+    | FieldAccess
+    | FunctionCall
+    | ImplicitAnonymousFunctionExpression
+    | ImplicitNewExpression
+    | IndexedExpression
+    | IntTypeDesc
+    | JsonTypeDesc
+    | LetExpression
+    | ListConstructor
+    | MappingConstructor
+    | MethodCall
+    | NilLiteral
+    | NullLiteral
+    | NumericLiteral
+    | ObjectConstructor
+    | OptionalFieldAccess
+    | QualifiedNameReference
+    | QueryExpression
+    | RequiredExpression
+    | SimpleNameReference
+    | StringLiteral
+    | TableConstructor
+    | TypeCastExpression
+    | TypeofExpression
+    | UnaryExpression
+    | XmlFilterExpression
+    | XmlTemplateExpression;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   metadata?: Metadata;
-  qualifiers: (ConfigurableKeyword | FinalKeyword)[];
+  qualifiers: ConfigurableKeyword | FinalKeyword | IsolatedKeyword[];
   semicolonToken: SemicolonToken;
+  syntaxDiagnostics: any[];
+  trailingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   typedBindingPattern: TypedBindingPattern;
+  visibilityQualifier?: PublicKeyword;
+}
+
+export interface ModuleXmlNamespaceDeclaration extends STNode {
+  asKeyword?: AsKeyword;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  namespacePrefix?: IdentifierToken;
+  namespaceuri: SimpleNameReference | StringLiteral;
+  semicolonToken: SemicolonToken;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
+  xmlnsKeyword: XmlnsKeyword;
 }
 
 export interface NamedArg extends STNode {
   argumentName: SimpleNameReference;
   equalsToken: EqualToken;
   expression:
-  | BinaryExpression
-  | BooleanLiteral
-  | FunctionCall
-  | MappingConstructor
-  | NumericLiteral
-  | QualifiedNameReference
-  | SimpleNameReference
-  | StringLiteral
-  | StringTypeDesc;
+    | BinaryExpression
+    | BooleanLiteral
+    | BooleanTypeDesc
+    | ErrorConstructor
+    | ExplicitAnonymousFunctionExpression
+    | ExplicitNewExpression
+    | FieldAccess
+    | FloatTypeDesc
+    | FunctionCall
+    | ImplicitNewExpression
+    | IndexedExpression
+    | IntTypeDesc
+    | JsonTypeDesc
+    | ListConstructor
+    | MappingConstructor
+    | MethodCall
+    | NumericLiteral
+    | QualifiedNameReference
+    | SimpleNameReference
+    | StringLiteral
+    | StringTypeDesc
+    | TypeCastExpression
+    | TypeTestExpression;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  syntaxDiagnostics: any[];
+  trailingMinutiae:
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
 }
 
 export interface NamedArgBindingPattern extends STNode {
   argName: IdentifierToken;
-  bindingPattern: CaptureBindingPattern;
+  bindingPattern:
+    | CaptureBindingPattern
+    | ErrorBindingPattern
+    | ListBindingPattern
+    | MappingBindingPattern
+    | WildcardBindingPattern;
   equalsToken: EqualToken;
+  leadingMinutiae: WHITESPACE_MINUTIAE[];
+  syntaxDiagnostics: any;
+  trailingMinutiae: any;
 }
 
 export interface NamedArgMatchPattern extends STNode {
   equalToken: EqualToken;
   identifier: IdentifierToken;
-  matchPattern: TypedBindingPattern;
+  leadingMinutiae: any;
+  matchPattern:
+    | ListMatchPattern
+    | MappingMatchPattern
+    | NumericLiteral
+    | QualifiedNameReference
+    | TypedBindingPattern;
+  syntaxDiagnostics: any;
+  trailingMinutiae: any;
 }
 
 export interface NamedWorkerDeclaration extends STNode {
   annotations: Annotation[];
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   returnTypeDesc?: ReturnTypeDescriptor;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE[];
+  transactionalKeyword?: TransactionalKeyword;
   workerBody: BlockStatement;
   workerKeyword: WorkerKeyword;
   workerName: IdentifierToken;
 }
 
 export interface NamedWorkerDeclarator extends STNode {
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   namedWorkerDeclarations: NamedWorkerDeclaration[];
-  workerInitStatements: any;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE[];
+  workerInitStatements:
+    | ActionStatement
+    | AssignmentStatement
+    | CallStatement
+    | ForkStatement
+    | IfElseStatement
+    | LocalVarDecl[];
+}
+
+export interface NegationToken extends STNode {
+  isMissing: boolean;
+  isToken: boolean;
+  leadingMinutiae: any;
+  trailingMinutiae: any;
+  value: string;
 }
 
 export interface NeverKeyword extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface NeverTypeDesc extends STNode {
+  leadingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
   name: NeverKeyword;
+  syntaxDiagnostics: any;
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
 }
 
 export interface NewKeyword extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae: WHITESPACE_MINUTIAE[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface NilLiteral extends STNode {
   closeParenToken: CloseParenToken;
+  leadingMinutiae: WHITESPACE_MINUTIAE[];
   openParenToken: OpenParenToken;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
 }
 
 export interface NilTypeDesc extends STNode {
   closeParenToken: CloseParenToken;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   openParenToken: OpenParenToken;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
 }
 
 export interface NotDoubleEqualToken extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae: any;
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface NotEqualToken extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae: WHITESPACE_MINUTIAE[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
+  value: string;
+}
+
+export interface NotIsKeyword extends STNode {
+  isMissing: boolean;
+  isToken: boolean;
+  leadingMinutiae: any;
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface NullKeyword extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae:
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface NullLiteral extends STNode {
+  leadingMinutiae:
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   literalToken: NullKeyword;
-  source: string;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
 }
 
 export interface NumericLiteral extends STNode {
-  literalToken: DecimalFloatingPointLiteralToken | DecimalIntegerLiteralToken;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  literalToken:
+    | DecimalFloatingPointLiteralToken
+    | DecimalIntegerLiteralToken
+    | HexFloatingPointLiteralToken
+    | HexIntegerLiteralToken;
+  syntaxDiagnostics: any[];
+  trailingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
 }
 
 export interface ObjectConstructor extends STNode {
-  annotations: any;
+  annotations: Annotation[];
   closeBraceToken: CloseBraceToken;
-  members: (
-    | ObjectField
-    | ObjectMethodDefinition
-    | ResourceAccessorDefinition
-  )[];
+  leadingMinutiae: INVALID_NODE_MINUTIAE | WHITESPACE_MINUTIAE[];
+  members: ObjectField | ObjectMethodDefinition | ResourceAccessorDefinition[];
   objectKeyword: ObjectKeyword;
-  objectTypeQualifiers: (ServiceKeyword | any)[];
+  objectTypeQualifiers: ClientKeyword | IsolatedKeyword | ServiceKeyword[];
   openBraceToken: OpenBraceToken;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
+  typeReference?: QualifiedNameReference | SimpleNameReference;
 }
 
 export interface ObjectField extends STNode {
   equalsToken?: EqualToken;
   expression?:
-  | ListConstructor
-  | MappingConstructor
-  | NilLiteral
-  | NumericLiteral
-  | StringLiteral
-  | UnaryExpression;
+    | BinaryExpression
+    | BooleanLiteral
+    | BracedExpression
+    | ByteArrayLiteral
+    | CheckExpression
+    | ErrorConstructor
+    | ExplicitAnonymousFunctionExpression
+    | ExplicitNewExpression
+    | FunctionCall
+    | ImplicitAnonymousFunctionExpression
+    | ImplicitNewExpression
+    | LetExpression
+    | ListConstructor
+    | MappingConstructor
+    | MethodCall
+    | NilLiteral
+    | NumericLiteral
+    | ObjectConstructor
+    | QualifiedNameReference
+    | SimpleNameReference
+    | StringLiteral
+    | TableConstructor
+    | TypeCastExpression
+    | UnaryExpression
+    | XmlTemplateExpression;
   fieldName: IdentifierToken;
-  finalKeyword?: FinalKeyword;
-  qualifierList: any;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  metadata?: Metadata;
+  qualifierList: FinalKeyword[];
   semicolonToken: SemicolonToken;
+  syntaxDiagnostics: any[];
+  trailingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   typeName:
-  | ArrayTypeDesc
-  | BooleanTypeDesc
-  | FloatTypeDesc
-  | IntTypeDesc
-  | IntersectionTypeDesc
-  | OptionalTypeDesc
-  | QualifiedNameReference
-  | SimpleNameReference
-  | StringTypeDesc
-  | UnionTypeDesc;
+    | AnyTypeDesc
+    | AnydataTypeDesc
+    | ArrayTypeDesc
+    | BooleanTypeDesc
+    | ByteTypeDesc
+    | DecimalTypeDesc
+    | DistinctTypeDesc
+    | ErrorTypeDesc
+    | FloatTypeDesc
+    | FunctionTypeDesc
+    | FutureTypeDesc
+    | HandleTypeDesc
+    | IntTypeDesc
+    | IntersectionTypeDesc
+    | JsonTypeDesc
+    | MapTypeDesc
+    | NeverTypeDesc
+    | NilTypeDesc
+    | ObjectTypeDesc
+    | OptionalTypeDesc
+    | ParenthesisedTypeDesc
+    | QualifiedNameReference
+    | ReadonlyTypeDesc
+    | RecordTypeDesc
+    | SimpleNameReference
+    | SingletonTypeDesc
+    | StreamTypeDesc
+    | StringTypeDesc
+    | TableTypeDesc
+    | TupleTypeDesc
+    | UnionTypeDesc
+    | XmlTypeDesc;
   visibilityQualifier?: PrivateKeyword | PublicKeyword;
 }
 
 export interface ObjectKeyword extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface ObjectMethodDefinition extends STNode {
-  functionBody: ExpressionFunctionBody | FunctionBodyBlock;
+  functionBody:
+    | ExpressionFunctionBody
+    | ExternalFunctionBody
+    | FunctionBodyBlock;
   functionKeyword: FunctionKeyword;
   functionName: IdentifierToken;
   functionSignature: FunctionSignature;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   metadata?: Metadata;
-  qualifierList: (
+  qualifierList:
     | IsolatedKeyword
     | PrivateKeyword
     | PublicKeyword
     | RemoteKeyword
-  )[];
+    | TransactionalKeyword[];
   relativeResourcePath: any;
+  syntaxDiagnostics: any[];
+  trailingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
 }
 
 export interface ObjectTypeDesc extends STNode {
   closeBrace: CloseBraceToken;
-  members: (MethodDeclaration | ObjectField | TypeReference)[];
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  members:
+    | MethodDeclaration
+    | ObjectField
+    | ResourceAccessorDeclaration
+    | TypeReference[];
   objectKeyword: ObjectKeyword;
-  objectTypeQualifiers: any;
+  objectTypeQualifiers: ClientKeyword | IsolatedKeyword | ServiceKeyword[];
   openBrace: OpenBraceToken;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
+}
+
+export interface OnClause extends STNode {
+  equalsKeyword: EqualsKeyword;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  lhsExpression:
+    | BinaryExpression
+    | BooleanLiteral
+    | FieldAccess
+    | FunctionCall
+    | MethodCall
+    | NumericLiteral
+    | SimpleNameReference;
+  onKeyword: OnKeyword;
+  rhsExpression:
+    | BooleanLiteral
+    | FieldAccess
+    | FunctionCall
+    | MethodCall
+    | NumericLiteral
+    | SimpleNameReference;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
+}
+
+export interface OnConflictClause extends STNode {
+  conflictKeyword: ConflictKeyword;
+  expression: ErrorConstructor | FunctionCall | SimpleNameReference;
+  leadingMinutiae: WHITESPACE_MINUTIAE[];
+  onKeyword: OnKeyword;
+  syntaxDiagnostics: any;
+  trailingMinutiae: any;
 }
 
 export interface OnFailClause extends STNode {
   blockStatement: BlockStatement;
   failErrorName: IdentifierToken;
   failKeyword: FailKeyword;
+  leadingMinutiae: WHITESPACE_MINUTIAE[];
   onKeyword: OnKeyword;
-  typeDescriptor: ErrorTypeDesc | UnionTypeDesc;
+  syntaxDiagnostics: any;
+  trailingMinutiae: END_OF_LINE_MINUTIAE[];
+  typeDescriptor:
+    | ErrorTypeDesc
+    | SimpleNameReference
+    | StringTypeDesc
+    | UnionTypeDesc
+    | VarTypeDesc;
 }
 
 export interface OnKeyword extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface OpenBracePipeToken extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
+  trailingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface OpenBraceToken extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  trailingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface OpenBracketToken extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  trailingMinutiae:
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface OpenParenToken extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface OptionalChainingToken extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae: any;
+  trailingMinutiae: any;
   value: string;
 }
 
 export interface OptionalFieldAccess extends STNode {
-  expression: SimpleNameReference | OptionalFieldAccess | MethodCall;
-  fieldName: SimpleNameReference;
+  expression:
+    | AnnotAccess
+    | BracedExpression
+    | FieldAccess
+    | FunctionCall
+    | IndexedExpression
+    | MethodCall
+    | OptionalFieldAccess
+    | SimpleNameReference;
+  fieldName: QualifiedNameReference | SimpleNameReference;
+  leadingMinutiae: WHITESPACE_MINUTIAE[];
   optionalChainingToken: OptionalChainingToken;
+  syntaxDiagnostics: any;
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
 }
 
 export interface OptionalTypeDesc extends STNode {
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   questionMarkToken: QuestionMarkToken;
+  syntaxDiagnostics: any;
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   typeDescriptor:
-  | ArrayTypeDesc
-  | ErrorTypeDesc
-  | IntTypeDesc
-  | QualifiedNameReference
-  | RecordTypeDesc
-  | SimpleNameReference
-  | StreamTypeDesc
-  | StringTypeDesc;
+    | AnyTypeDesc
+    | AnydataTypeDesc
+    | ArrayTypeDesc
+    | BooleanTypeDesc
+    | ByteTypeDesc
+    | DecimalTypeDesc
+    | ErrorTypeDesc
+    | FloatTypeDesc
+    | FunctionTypeDesc
+    | HandleTypeDesc
+    | IntTypeDesc
+    | JsonTypeDesc
+    | MapTypeDesc
+    | NeverTypeDesc
+    | NilTypeDesc
+    | ParenthesisedTypeDesc
+    | QualifiedNameReference
+    | ReadonlyTypeDesc
+    | RecordTypeDesc
+    | SimpleNameReference
+    | SingletonTypeDesc
+    | StreamTypeDesc
+    | StringTypeDesc
+    | TableTypeDesc
+    | TupleTypeDesc
+    | TypedescTypeDesc
+    | XmlTypeDesc;
+}
+
+export interface OrderByClause extends STNode {
+  byKeyword: ByKeyword;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  orderKey: CommaToken | OrderKey[];
+  orderKeyword: OrderKeyword;
+  syntaxDiagnostics: any;
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
+}
+
+export interface OrderKey extends STNode {
+  expression:
+    | FieldAccess
+    | FunctionCall
+    | IndexedExpression
+    | MethodCall
+    | SimpleNameReference;
+  leadingMinutiae: any;
+  orderDirection?: AscendingKeyword | DescendingKeyword;
+  syntaxDiagnostics: any;
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
+}
+
+export interface OrderKeyword extends STNode {
+  isMissing: boolean;
+  isToken: boolean;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
+  value: string;
+}
+
+export interface OuterKeyword extends STNode {
+  isMissing: boolean;
+  isToken: boolean;
+  leadingMinutiae: WHITESPACE_MINUTIAE[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
+  value: string;
 }
 
 export interface PanicKeyword extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface PanicStatement extends STNode {
-  expression: FunctionCall | SimpleNameReference;
+  expression:
+    | BracedExpression
+    | ErrorConstructor
+    | FieldAccess
+    | FunctionCall
+    | SimpleNameReference
+    | TypeCastExpression;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   panicKeyword: PanicKeyword;
   semicolonToken: SemicolonToken;
+  syntaxDiagnostics: any;
+  trailingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
 }
 
-export interface ParameterName extends STNode {
+export interface ParameterDocReferenceToken extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae: any;
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   value: string;
 }
 
-export interface ParameterizedTypeDesc extends STNode {
-  parameterizedType: FutureKeyword | MapKeyword;
-  typeParameter: TypeParameter;
+export interface ParameterKeyword extends STNode {
+  isMissing: boolean;
+  isToken: boolean;
+  leadingMinutiae: any;
+  trailingMinutiae: any;
+  value: string;
+}
+
+export interface ParameterName extends STNode {
+  isMissing: boolean;
+  isToken: boolean;
+  leadingMinutiae: any;
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
+  value: string;
 }
 
 export interface ParenthesisedTypeDesc extends STNode {
   closeParenToken: CloseParenToken;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   openParenToken: OpenParenToken;
-  typedesc: FunctionTypeDesc | StringTypeDesc | UnionTypeDesc;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
+  typedesc:
+    | AnyTypeDesc
+    | AnydataTypeDesc
+    | ArrayTypeDesc
+    | BooleanTypeDesc
+    | DecimalTypeDesc
+    | ErrorTypeDesc
+    | FloatTypeDesc
+    | FunctionTypeDesc
+    | IntTypeDesc
+    | IntersectionTypeDesc
+    | JsonTypeDesc
+    | MapTypeDesc
+    | OptionalTypeDesc
+    | ParenthesisedTypeDesc
+    | QualifiedNameReference
+    | RecordTypeDesc
+    | SimpleNameReference
+    | SingletonTypeDesc
+    | StringTypeDesc
+    | TableTypeDesc
+    | TupleTypeDesc
+    | UnionTypeDesc
+    | XmlTypeDesc;
 }
 
 export interface ParenthesizedArgList extends STNode {
-  arguments: (CommaToken | NamedArg | PositionalArg)[];
+  arguments: CommaToken | NamedArg | PositionalArg | RestArg[];
   closeParenToken: CloseParenToken;
+  leadingMinutiae: any;
   openParenToken: OpenParenToken;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
 }
 
 export interface PercentToken extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae: any;
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   value: string;
 }
 
-export interface PerfData {
-  concurrency: string;
-  latency: string;
-  tps: string;
-  analyzeType: string;
-}
-
 export interface PipeToken extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae: any;
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface PlusToken extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface PositionalArg extends STNode {
   expression:
-  | BinaryExpression
-  | BooleanLiteral
-  | CheckExpression
-  | ExplicitAnonymousFunctionExpression
-  | FieldAccess
-  | FunctionCall
-  | ImplicitAnonymousFunctionExpression
-  | IndexedExpression
-  | IntTypeDesc
-  | JsonTypeDesc
-  | MappingConstructor
-  | MethodCall
-  | NilLiteral
-  | NumericLiteral
-  | OptionalFieldAccess
-  | QualifiedNameReference
-  | SimpleNameReference
-  | StringLiteral
-  | StringTemplateExpression
-  | TypeCastExpression
-  | TypeTestExpression
-  | UnaryExpression
-  | XmlTemplateExpression
-  | ListConstructor;
+    | AnnotAccess
+    | AnyTypeDesc
+    | AnydataTypeDesc
+    | BinaryExpression
+    | BooleanLiteral
+    | BooleanTypeDesc
+    | BracedExpression
+    | ByteArrayLiteral
+    | CheckExpression
+    | ConditionalExpression
+    | DecimalTypeDesc
+    | ErrorConstructor
+    | ExplicitAnonymousFunctionExpression
+    | ExplicitNewExpression
+    | FieldAccess
+    | FloatTypeDesc
+    | FunctionCall
+    | ImplicitAnonymousFunctionExpression
+    | ImplicitNewExpression
+    | IndexedExpression
+    | IntTypeDesc
+    | JsonTypeDesc
+    | LetExpression
+    | ListConstructor
+    | MappingConstructor
+    | MethodCall
+    | NilLiteral
+    | NullLiteral
+    | NumericLiteral
+    | ObjectConstructor
+    | OptionalFieldAccess
+    | QualifiedNameReference
+    | RawTemplateExpression
+    | SimpleNameReference
+    | StringLiteral
+    | StringTemplateExpression
+    | StringTypeDesc
+    | TableConstructor
+    | TrapExpression
+    | TypeCastExpression
+    | TypeTestExpression
+    | TypeofExpression
+    | UnaryExpression
+    | XmlTemplateExpression;
+  leadingMinutiae: WHITESPACE_MINUTIAE[];
+  syntaxDiagnostics: any[];
+  trailingMinutiae:
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
 }
 
 export interface PrivateKeyword extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface PublicKeyword extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface QualifiedNameReference extends STNode {
   colon: ColonToken;
   identifier: IdentifierToken;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   modulePrefix: IdentifierToken;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
 }
 
 export interface QueryAction extends STNode {
   blockStatement: BlockStatement;
   doKeyword: DoKeyword;
+  leadingMinutiae: WHITESPACE_MINUTIAE[];
   queryPipeline: QueryPipeline;
-  source: string;
+  syntaxDiagnostics: any;
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
 }
 
 export interface QueryConstructType extends STNode {
-  keyword: StreamKeyword;
-  source: string;
+  keySpecifier?: KeySpecifier;
+  keyword: StreamKeyword | TableKeyword;
+  leadingMinutiae: WHITESPACE_MINUTIAE[];
+  syntaxDiagnostics: any;
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
 }
 
 export interface QueryExpression extends STNode {
+  leadingMinutiae: WHITESPACE_MINUTIAE[];
+  onConflictClause?: OnConflictClause;
   queryConstructType?: QueryConstructType;
   queryPipeline: QueryPipeline;
   selectClause: SelectClause;
-  source: string;
+  syntaxDiagnostics: any[];
+  trailingMinutiae:
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
 }
 
 export interface QueryPipeline extends STNode {
   fromClause: FromClause;
-  intermediateClauses: (LetClause | LimitClause | WhereClause)[];
-  source: string;
+  intermediateClauses:
+    | FromClause
+    | JoinClause
+    | LetClause
+    | LimitClause
+    | OrderByClause
+    | WhereClause[];
+  leadingMinutiae: WHITESPACE_MINUTIAE[];
+  syntaxDiagnostics: any[];
+  trailingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
 }
 
 export interface QuestionMarkToken extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae: any;
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface RawTemplateExpression extends STNode {
   content: Interpolation | TemplateString[];
   endBacktick: BacktickToken;
-  source: string;
+  leadingMinutiae: WHITESPACE_MINUTIAE[];
   startBacktick: BacktickToken;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: any;
 }
 
 export interface ReadonlyKeyword extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface ReadonlyTypeDesc extends STNode {
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   name: ReadonlyKeyword;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
+}
+
+export interface ReceiveAction extends STNode {
+  leadingMinutiae: WHITESPACE_MINUTIAE[];
+  leftArrow: LeftArrowToken;
+  receiveWorkers: ReceiveFields | SimpleNameReference;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: any;
+}
+
+export interface ReceiveFields extends STNode {
+  closeBrace: CloseBraceToken;
+  leadingMinutiae: any;
+  openBrace: OpenBraceToken;
+  receiveFields: IdentifierToken[];
+  syntaxDiagnostics: any;
+  trailingMinutiae: any;
 }
 
 export interface RecordField extends STNode {
   fieldName: IdentifierToken;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  metadata?: Metadata;
   questionMarkToken?: QuestionMarkToken;
   readonlyKeyword?: ReadonlyKeyword;
   semicolonToken: SemicolonToken;
+  syntaxDiagnostics: any[];
+  trailingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   typeName:
-  | ArrayTypeDesc
-  | BooleanTypeDesc
-  | ErrorTypeDesc
-  | FloatTypeDesc
-  | IntTypeDesc
-  | NeverTypeDesc
-  | OptionalTypeDesc
-  | ParameterizedTypeDesc
-  | QualifiedNameReference
-  | RecordTypeDesc
-  | SimpleNameReference
-  | StringTypeDesc;
+    | AnyTypeDesc
+    | AnydataTypeDesc
+    | ArrayTypeDesc
+    | BooleanTypeDesc
+    | ByteTypeDesc
+    | DecimalTypeDesc
+    | DistinctTypeDesc
+    | ErrorTypeDesc
+    | FloatTypeDesc
+    | FunctionTypeDesc
+    | FutureTypeDesc
+    | HandleTypeDesc
+    | IntTypeDesc
+    | IntersectionTypeDesc
+    | JsonTypeDesc
+    | MapTypeDesc
+    | NeverTypeDesc
+    | NilTypeDesc
+    | ObjectTypeDesc
+    | OptionalTypeDesc
+    | ParenthesisedTypeDesc
+    | QualifiedNameReference
+    | ReadonlyTypeDesc
+    | RecordTypeDesc
+    | SimpleNameReference
+    | SingletonTypeDesc
+    | StreamTypeDesc
+    | StringTypeDesc
+    | TableTypeDesc
+    | TupleTypeDesc
+    | TypedescTypeDesc
+    | UnionTypeDesc
+    | XmlTypeDesc;
 }
 
 export interface RecordFieldWithDefaultValue extends STNode {
   equalsToken: EqualToken;
-  expression: BooleanLiteral | NumericLiteral | StringLiteral;
+  expression:
+    | BinaryExpression
+    | BooleanLiteral
+    | ByteTypeDesc
+    | CheckExpression
+    | ExplicitAnonymousFunctionExpression
+    | ExplicitNewExpression
+    | FieldAccess
+    | FunctionCall
+    | ImplicitAnonymousFunctionExpression
+    | ImplicitNewExpression
+    | IntTypeDesc
+    | LetExpression
+    | ListConstructor
+    | MappingConstructor
+    | MethodCall
+    | NilLiteral
+    | NullLiteral
+    | NumericLiteral
+    | ObjectConstructor
+    | SimpleNameReference
+    | StringLiteral
+    | StringTypeDesc
+    | TableConstructor
+    | TypeCastExpression
+    | UnaryExpression;
   fieldName: IdentifierToken;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  metadata?: Metadata;
+  readonlyKeyword?: ReadonlyKeyword;
   semicolonToken: SemicolonToken;
-  typeName: BooleanTypeDesc | FloatTypeDesc | IntTypeDesc | StringTypeDesc;
+  syntaxDiagnostics: any[];
+  trailingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  typeName:
+    | AnyTypeDesc
+    | AnydataTypeDesc
+    | ArrayTypeDesc
+    | BooleanTypeDesc
+    | ByteTypeDesc
+    | DecimalTypeDesc
+    | FloatTypeDesc
+    | FunctionTypeDesc
+    | IntTypeDesc
+    | IntersectionTypeDesc
+    | JsonTypeDesc
+    | MapTypeDesc
+    | ObjectTypeDesc
+    | OptionalTypeDesc
+    | QualifiedNameReference
+    | ReadonlyTypeDesc
+    | RecordTypeDesc
+    | SimpleNameReference
+    | SingletonTypeDesc
+    | StreamTypeDesc
+    | StringTypeDesc
+    | TableTypeDesc
+    | TupleTypeDesc
+    | TypedescTypeDesc
+    | UnionTypeDesc;
 }
 
 export interface RecordKeyword extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface RecordRestType extends STNode {
   ellipsisToken: EllipsisToken;
+  leadingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
   semicolonToken: SemicolonToken;
-  typeName: IntTypeDesc | StringTypeDesc;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
+  typeName:
+    | AnyTypeDesc
+    | AnydataTypeDesc
+    | ArrayTypeDesc
+    | BooleanTypeDesc
+    | ByteTypeDesc
+    | DecimalTypeDesc
+    | ErrorTypeDesc
+    | FloatTypeDesc
+    | FunctionTypeDesc
+    | FutureTypeDesc
+    | IntTypeDesc
+    | IntersectionTypeDesc
+    | JsonTypeDesc
+    | MapTypeDesc
+    | NeverTypeDesc
+    | NilTypeDesc
+    | ObjectTypeDesc
+    | OptionalTypeDesc
+    | ParenthesisedTypeDesc
+    | QualifiedNameReference
+    | RecordTypeDesc
+    | SimpleNameReference
+    | StreamTypeDesc
+    | StringTypeDesc
+    | TupleTypeDesc
+    | UnionTypeDesc;
 }
 
 export interface RecordTypeDesc extends STNode {
   bodyEndDelimiter: CloseBracePipeToken | CloseBraceToken;
   bodyStartDelimiter: OpenBracePipeToken | OpenBraceToken;
-  fields: (RecordField | RecordFieldWithDefaultValue)[];
+  fields: RecordField | RecordFieldWithDefaultValue | TypeReference[];
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   recordKeyword: RecordKeyword;
   recordRestDescriptor?: RecordRestType;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
 }
 
 export interface RemoteKeyword extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface RemoteMethodCallAction extends STNode {
-  arguments: (CommaToken | NamedArg | PositionalArg)[];
+  arguments: CommaToken | NamedArg | PositionalArg | RestArg[];
   closeParenToken: CloseParenToken;
-  expression: FieldAccess | SimpleNameReference;
+  expression:
+    | FieldAccess
+    | FunctionCall
+    | NumericLiteral
+    | SimpleNameReference
+    | StringLiteral;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   methodName: SimpleNameReference;
   openParenToken: OpenParenToken;
   rightArrowToken: RightArrowToken;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
 }
 
 export interface RequiredExpression extends STNode {
+  leadingMinutiae: any;
   questionMarkToken: QuestionMarkToken;
+  syntaxDiagnostics: any;
+  trailingMinutiae: any;
 }
 
 export interface RequiredParam extends STNode {
   annotations: Annotation[];
+  leadingMinutiae: INVALID_NODE_MINUTIAE | WHITESPACE_MINUTIAE[];
   paramName?: IdentifierToken;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   typeName:
-  | AnyTypeDesc
-  | ArrayTypeDesc
-  | BooleanTypeDesc
-  | ErrorTypeDesc
-  | FunctionTypeDesc
-  | IntTypeDesc
-  | IntersectionTypeDesc
-  | JsonTypeDesc
-  | OptionalTypeDesc
-  | ParameterizedTypeDesc
-  | QualifiedNameReference
-  | RecordTypeDesc
-  | SimpleNameReference
-  | StreamTypeDesc
-  | StringTypeDesc
-  | TupleTypeDesc
-  | UnionTypeDesc
-  | XmlTypeDesc;
+    | AnyTypeDesc
+    | AnydataTypeDesc
+    | ArrayTypeDesc
+    | BooleanTypeDesc
+    | ByteTypeDesc
+    | DecimalTypeDesc
+    | ErrorTypeDesc
+    | FloatTypeDesc
+    | FunctionTypeDesc
+    | FutureTypeDesc
+    | HandleTypeDesc
+    | IntTypeDesc
+    | IntersectionTypeDesc
+    | JsonTypeDesc
+    | MapTypeDesc
+    | NeverTypeDesc
+    | NilTypeDesc
+    | ObjectTypeDesc
+    | OptionalTypeDesc
+    | ParenthesisedTypeDesc
+    | QualifiedNameReference
+    | ReadonlyTypeDesc
+    | RecordTypeDesc
+    | SimpleNameReference
+    | SingletonTypeDesc
+    | StreamTypeDesc
+    | StringTypeDesc
+    | TableTypeDesc
+    | TupleTypeDesc
+    | TypedescTypeDesc
+    | UnionTypeDesc
+    | XmlTypeDesc;
+}
+
+export interface ResourceAccessorDeclaration extends STNode {
+  functionKeyword: FunctionKeyword;
+  leadingMinutiae:
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  methodName: IdentifierToken;
+  methodSignature: FunctionSignature;
+  qualifierList: ResourceKeyword[];
+  relativeResourcePath:
+    | DotToken
+    | IdentifierToken
+    | ResourcePathSegmentParam
+    | SlashToken[];
+  semicolon: SemicolonToken;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE[];
 }
 
 export interface ResourceAccessorDefinition extends STNode {
-  functionBody: FunctionBodyBlock;
+  functionBody:
+    | ExpressionFunctionBody
+    | ExternalFunctionBody
+    | FunctionBodyBlock;
   functionKeyword: FunctionKeyword;
   functionName: IdentifierToken;
   functionSignature: FunctionSignature;
-  qualifierList: (ResourceKeyword | TransactionalKeyword)[];
-  relativeResourcePath: (IdentifierToken | SlashToken)[];
-  performance?: PerfData;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  metadata?: Metadata;
+  qualifierList: IsolatedKeyword | ResourceKeyword[];
+  relativeResourcePath:
+    | DotToken
+    | IdentifierToken
+    | ResourcePathRestParam
+    | ResourcePathSegmentParam
+    | SlashToken[];
+  syntaxDiagnostics: any[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
 }
 
 export interface ResourceKeyword extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   value: string;
+}
+
+export interface ResourcePathRestParam extends STNode {
+  annotations: any;
+  closeBracketToken: CloseBracketToken;
+  ellipsisToken: EllipsisToken;
+  leadingMinutiae: any;
+  openBracketToken: OpenBracketToken;
+  paramName: IdentifierToken;
+  syntaxDiagnostics: any;
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
+  typeDescriptor: AnydataTypeDesc | IntTypeDesc | StringTypeDesc;
+}
+
+export interface ResourcePathSegmentParam extends STNode {
+  annotations: any;
+  closeBracketToken: CloseBracketToken;
+  leadingMinutiae: any;
+  openBracketToken: OpenBracketToken;
+  paramName: IdentifierToken;
+  syntaxDiagnostics: any;
+  trailingMinutiae: any;
+  typeDescriptor:
+    | AnydataTypeDesc
+    | BooleanTypeDesc
+    | FloatTypeDesc
+    | IntTypeDesc
+    | JsonTypeDesc
+    | QualifiedNameReference
+    | StringTypeDesc;
 }
 
 export interface RestArg extends STNode {
   ellipsis: EllipsisToken;
-  expression: SimpleNameReference;
+  expression:
+    | FieldAccess
+    | FunctionCall
+    | ListConstructor
+    | MethodCall
+    | NilLiteral
+    | SimpleNameReference;
+  leadingMinutiae: any;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: INVALID_NODE_MINUTIAE | WHITESPACE_MINUTIAE[];
 }
 
 export interface RestBindingPattern extends STNode {
   ellipsisToken: EllipsisToken;
+  leadingMinutiae: any;
+  syntaxDiagnostics: any;
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   variableName: SimpleNameReference;
 }
 
 export interface RestMatchPattern extends STNode {
   ellipsisToken: EllipsisToken;
+  leadingMinutiae: any;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: INVALID_NODE_MINUTIAE | WHITESPACE_MINUTIAE[];
   varKeywordToken: VarKeyword;
   variableName: SimpleNameReference;
 }
 
 export interface RestParam extends STNode {
-  annotations: any;
+  annotations: Annotation[];
   ellipsisToken: EllipsisToken;
-  paramName: IdentifierToken;
-  typeName: AnyTypeDesc | StringTypeDesc | UnionTypeDesc;
+  leadingMinutiae: WHITESPACE_MINUTIAE[];
+  paramName?: IdentifierToken;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: INVALID_NODE_MINUTIAE | WHITESPACE_MINUTIAE[];
+  typeName:
+    | AnyTypeDesc
+    | AnydataTypeDesc
+    | ArrayTypeDesc
+    | BooleanTypeDesc
+    | FloatTypeDesc
+    | FunctionTypeDesc
+    | HandleTypeDesc
+    | IntTypeDesc
+    | MapTypeDesc
+    | ParenthesisedTypeDesc
+    | QualifiedNameReference
+    | RecordTypeDesc
+    | SimpleNameReference
+    | StringTypeDesc
+    | TupleTypeDesc
+    | TypedescTypeDesc
+    | UnionTypeDesc;
+}
+
+export interface RestType extends STNode {
+  ellipsisToken: EllipsisToken;
+  leadingMinutiae: any;
+  syntaxDiagnostics: any;
+  trailingMinutiae: any;
+  typeDescriptor:
+    | AnydataTypeDesc
+    | ArrayTypeDesc
+    | BooleanTypeDesc
+    | DecimalTypeDesc
+    | ErrorTypeDesc
+    | FloatTypeDesc
+    | IntTypeDesc
+    | IntersectionTypeDesc
+    | JsonTypeDesc
+    | MapTypeDesc
+    | NilTypeDesc
+    | OptionalTypeDesc
+    | ParenthesisedTypeDesc
+    | RecordTypeDesc
+    | SimpleNameReference
+    | StringTypeDesc
+    | TupleTypeDesc
+    | TypedescTypeDesc
+    | UnionTypeDesc
+    | XmlTypeDesc;
 }
 
 export interface RetryKeyword extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface ReturnKeyword extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface ReturnStatement extends STNode {
   expression?:
-  | BinaryExpression
-  | BooleanLiteral
-  | BracedExpression
-  | CheckExpression
-  | ErrorConstructor
-  | ExplicitAnonymousFunctionExpression
-  | ExplicitNewExpression
-  | FieldAccess
-  | FunctionCall
-  | IndexedExpression
-  | ListConstructor
-  | MappingConstructor
-  | MethodCall
-  | NilLiteral
-  | NumericLiteral
-  | QualifiedNameReference
-  | RemoteMethodCallAction
-  | SimpleNameReference
-  | StringLiteral
-  | StringTemplateExpression
-  | TypeCastExpression;
+    | AnnotAccess
+    | BinaryExpression
+    | BooleanLiteral
+    | BracedAction
+    | BracedExpression
+    | CheckAction
+    | CheckExpression
+    | ConditionalExpression
+    | ErrorConstructor
+    | ExplicitAnonymousFunctionExpression
+    | ExplicitNewExpression
+    | FieldAccess
+    | FunctionCall
+    | ImplicitAnonymousFunctionExpression
+    | ImplicitNewExpression
+    | IndexedExpression
+    | LetExpression
+    | ListConstructor
+    | MappingConstructor
+    | MethodCall
+    | NilLiteral
+    | NullLiteral
+    | NumericLiteral
+    | ObjectConstructor
+    | OptionalFieldAccess
+    | QualifiedNameReference
+    | QueryAction
+    | QueryExpression
+    | RawTemplateExpression
+    | RemoteMethodCallAction
+    | SimpleNameReference
+    | StartAction
+    | StringLiteral
+    | StringTemplateExpression
+    | TrapAction
+    | TrapExpression
+    | TypeCastExpression
+    | TypeTestExpression
+    | TypeofExpression
+    | UnaryExpression
+    | WaitAction
+    | XmlStepExpression
+    | XmlTemplateExpression;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   returnKeyword: ReturnKeyword;
   semicolonToken: SemicolonToken;
+  syntaxDiagnostics: any[];
+  trailingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
 }
 
 export interface ReturnTypeDescriptor extends STNode {
   annotations: Annotation[];
+  leadingMinutiae: WHITESPACE_MINUTIAE[];
   returnsKeyword: ReturnsKeyword;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
   type:
-  | AnyTypeDesc
-  | ArrayTypeDesc
-  | BooleanTypeDesc
-  | ErrorTypeDesc
-  | FloatTypeDesc
-  | HandleTypeDesc
-  | IntTypeDesc
-  | NeverTypeDesc
-  | ObjectTypeDesc
-  | JsonTypeDesc
-  | OptionalTypeDesc
-  | ParenthesisedTypeDesc
-  | QualifiedNameReference
-  | SimpleNameReference
-  | StreamTypeDesc
-  | StringTypeDesc
-  | TableTypeDesc
-  | TupleTypeDesc
-  | UnionTypeDesc;
+    | AnyTypeDesc
+    | AnydataTypeDesc
+    | ArrayTypeDesc
+    | BooleanTypeDesc
+    | ByteTypeDesc
+    | DecimalTypeDesc
+    | ErrorTypeDesc
+    | FloatTypeDesc
+    | FunctionTypeDesc
+    | FutureTypeDesc
+    | HandleTypeDesc
+    | IntTypeDesc
+    | IntersectionTypeDesc
+    | JsonTypeDesc
+    | MapTypeDesc
+    | NeverTypeDesc
+    | NilTypeDesc
+    | ObjectTypeDesc
+    | OptionalTypeDesc
+    | ParenthesisedTypeDesc
+    | QualifiedNameReference
+    | ReadonlyTypeDesc
+    | RecordTypeDesc
+    | SimpleNameReference
+    | SingletonTypeDesc
+    | StreamTypeDesc
+    | StringTypeDesc
+    | TableTypeDesc
+    | TupleTypeDesc
+    | TypedescTypeDesc
+    | UnionTypeDesc
+    | XmlTypeDesc;
 }
 
 export interface ReturnsKeyword extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae: WHITESPACE_MINUTIAE[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface RightArrowToken extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae: any;
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface RightDoubleArrowToken extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae: INVALID_NODE_MINUTIAE | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface RollbackKeyword extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae: WHITESPACE_MINUTIAE[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface RollbackStatement extends STNode {
   arguments?: ParenthesizedArgList;
-  retryBody?: BlockStatement;
+  expression?: FunctionCall;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  onFailClause?: OnFailClause;
+  retryBody?: BlockStatement | TransactionStatement;
   retryKeyword?: RetryKeyword;
   rollbackKeyword?: RollbackKeyword;
   semicolon?: SemicolonToken;
+  syntaxDiagnostics: any;
+  trailingMinutiae: END_OF_LINE_MINUTIAE[];
+  typeParameter?: TypeParameter;
 }
 
 export interface SelectClause extends STNode {
-  expression: BinaryExpression | MappingConstructor | RawTemplateExpression;
+  expression:
+    | BinaryExpression
+    | BracedExpression
+    | CheckExpression
+    | ExplicitAnonymousFunctionExpression
+    | FieldAccess
+    | FunctionCall
+    | ImplicitNewExpression
+    | MappingConstructor
+    | MethodCall
+    | NumericLiteral
+    | QueryExpression
+    | RawTemplateExpression
+    | SimpleNameReference
+    | TypeCastExpression
+    | XmlTemplateExpression;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   selectKeyword: SelectKeyword;
-  source: string;
+  syntaxDiagnostics: any[];
+  trailingMinutiae:
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
 }
 
 export interface SelectKeyword extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface SemicolonToken extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae:
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  trailingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   value: string;
-}
-
-export interface ServiceBody extends STNode {
-  closeBraceToken: CloseBraceToken;
-  openBraceToken: OpenBraceToken;
-  resources: FunctionDefinition[];
-}
-
-export interface ServiceConstructorExpression extends STNode {
-  annotations: Annotation[];
-  serviceBody: ServiceBody;
-  serviceKeyword: ServiceKeyword;
 }
 
 export interface ServiceDeclaration extends STNode {
-  absoluteResourcePath: (IdentifierToken | SlashToken | StringLiteral)[];
+  absoluteResourcePath: IdentifierToken | SlashToken | StringLiteral[];
   closeBraceToken: CloseBraceToken;
-  expressions: (ExplicitNewExpression | SimpleNameReference)[];
-  members: (ObjectMethodDefinition | ResourceAccessorDefinition)[];
+  expressions:
+    | BinaryExpression
+    | CommaToken
+    | ExplicitNewExpression
+    | ImplicitNewExpression
+    | MappingConstructor
+    | NumericLiteral
+    | QualifiedNameReference
+    | SimpleNameReference[];
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  members: ObjectField | ObjectMethodDefinition | ResourceAccessorDefinition[];
   metadata?: Metadata;
   onKeyword: OnKeyword;
   openBraceToken: OpenBraceToken;
-  qualifiers: any;
+  qualifiers: IsolatedKeyword[];
   serviceKeyword: ServiceKeyword;
-  typeDescriptor?: QualifiedNameReference;
-  serviceBody: ServiceBody;
-  serviceName: IdentifierToken;
-  isRunnable?: boolean;
-  runArgs?: any[];
+  syntaxDiagnostics: any[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
+  typeDescriptor?: MapTypeDesc | QualifiedNameReference | SimpleNameReference;
 }
 
-export interface ServiceKeyword extends STNode {
+export interface ServiceDocReferenceToken extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae: any;
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   value: string;
 }
 
-export interface ServiceTypeDesc extends STNode {
-  name: ServiceKeyword;
-  source: string;
+export interface ServiceKeyword extends STNode {
+  isMissing: boolean;
+  isToken: boolean;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
+  value: string;
 }
 
 export interface SimpleNameReference extends STNode {
-  name: IdentifierToken;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  name: FunctionKeyword | IdentifierToken;
+  syntaxDiagnostics: any[];
+  trailingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+}
+
+export interface SingleQuoteToken extends STNode {
+  isMissing: boolean;
+  isToken: boolean;
+  leadingMinutiae: any;
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
+  value: string;
+}
+
+export interface SingletonTypeDesc extends STNode {
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  simpleContExprNode:
+    | BooleanLiteral
+    | NullLiteral
+    | NumericLiteral
+    | StringLiteral
+    | UnaryExpression;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
+}
+
+export interface SlashAsteriskToken extends STNode {
+  isMissing: boolean;
+  isToken: boolean;
+  leadingMinutiae: any;
+  trailingMinutiae: END_OF_LINE_MINUTIAE[];
+  value: string;
 }
 
 export interface SlashLtToken extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae: any;
+  trailingMinutiae: any;
   value: string;
 }
 
 export interface SlashToken extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae: any;
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
+  value: string;
+}
+
+export interface SourceKeyword extends STNode {
+  isMissing: boolean;
+  isToken: boolean;
+  leadingMinutiae: any;
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface SpecificField extends STNode {
   colon?: ColonToken;
   fieldName: IdentifierToken | StringLiteral;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  readonlyKeyword?: ReadonlyKeyword;
+  syntaxDiagnostics: any[];
+  trailingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   valueExpr?:
-  | BinaryExpression
-  | BooleanLiteral
-  | FieldAccess
-  | IndexedExpression
-  | FunctionCall
-  | ListConstructor
-  | MappingConstructor
-  | NilLiteral
-  | NullLiteral
-  | MethodCall
-  | NumericLiteral
-  | ObjectConstructor
-  | QualifiedNameReference
-  | SimpleNameReference
-  | StringLiteral
-  | TypeCastExpression
-  | UnaryExpression;
+    | BinaryExpression
+    | BooleanLiteral
+    | BracedExpression
+    | ByteTypeDesc
+    | CheckExpression
+    | ConditionalExpression
+    | ErrorConstructor
+    | ExplicitAnonymousFunctionExpression
+    | ExplicitNewExpression
+    | FieldAccess
+    | FunctionCall
+    | ImplicitAnonymousFunctionExpression
+    | ImplicitNewExpression
+    | IndexedExpression
+    | IntTypeDesc
+    | LetExpression
+    | ListConstructor
+    | MappingConstructor
+    | MethodCall
+    | NilLiteral
+    | NullLiteral
+    | NumericLiteral
+    | ObjectConstructor
+    | QualifiedNameReference
+    | SimpleNameReference
+    | StringLiteral
+    | StringTemplateExpression
+    | StringTypeDesc
+    | TableConstructor
+    | TypeCastExpression
+    | TypeTestExpression
+    | TypeofExpression
+    | UnaryExpression
+    | XmlTemplateExpression;
 }
 
 export interface SpreadField extends STNode {
   ellipsis: EllipsisToken;
-  valueExpr: SimpleNameReference;
+  leadingMinutiae: WHITESPACE_MINUTIAE[];
+  syntaxDiagnostics: any[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
+  valueExpr:
+    | BooleanLiteral
+    | BracedExpression
+    | FunctionCall
+    | MappingConstructor
+    | SimpleNameReference;
 }
 
 export interface StartAction extends STNode {
-  annotations: any;
-  expression: FunctionCall;
+  annotations: Annotation[];
+  expression: FunctionCall | MethodCall | RemoteMethodCallAction;
+  leadingMinutiae: WHITESPACE_MINUTIAE[];
   startKeyword: StartKeyword;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
 }
 
 export interface StartKeyword extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae: WHITESPACE_MINUTIAE[];
+  trailingMinutiae:
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface StreamKeyword extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface StreamTypeDesc extends STNode {
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   streamKeywordToken: StreamKeyword;
-  streamTypeParamsNode: StreamTypeParams;
+  streamTypeParamsNode?: StreamTypeParams;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
 }
 
 export interface StreamTypeParams extends STNode {
-  commaToken: CommaToken;
+  commaToken?: CommaToken;
   gtToken: GtToken;
+  leadingMinutiae: any;
   leftTypeDescNode:
-  | ArrayTypeDesc
-  | RecordTypeDesc
-  | QualifiedNameReference
-  | SimpleNameReference
-  | StringTypeDesc;
+    | AnydataTypeDesc
+    | ArrayTypeDesc
+    | BooleanTypeDesc
+    | ByteTypeDesc
+    | FloatTypeDesc
+    | IntTypeDesc
+    | IntersectionTypeDesc
+    | OptionalTypeDesc
+    | QualifiedNameReference
+    | RecordTypeDesc
+    | SimpleNameReference
+    | StreamTypeDesc
+    | StringTypeDesc
+    | UnionTypeDesc;
   ltToken: LtToken;
-  rightTypeDescNode: ErrorTypeDesc | OptionalTypeDesc | QualifiedNameReference;
+  rightTypeDescNode?:
+    | ErrorTypeDesc
+    | IntTypeDesc
+    | NeverTypeDesc
+    | NilTypeDesc
+    | OptionalTypeDesc
+    | QualifiedNameReference;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
 }
 
 export interface StringKeyword extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface StringLiteral extends STNode {
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   literalToken: StringLiteralToken;
+  syntaxDiagnostics: any[];
+  trailingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
 }
 
 export interface StringLiteralToken extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  trailingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface StringTemplateExpression extends STNode {
-  content: (Interpolation | TemplateString)[];
+  content: Interpolation | TemplateString[];
   endBacktick: BacktickToken;
+  leadingMinutiae: WHITESPACE_MINUTIAE[];
   startBacktick: BacktickToken;
+  syntaxDiagnostics: any[];
+  trailingMinutiae:
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   type: StringKeyword;
 }
 
 export interface StringTypeDesc extends STNode {
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   name: StringKeyword;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
+}
+
+export interface SyncSendAction extends STNode {
+  expression:
+    | BinaryExpression
+    | NumericLiteral
+    | SimpleNameReference
+    | StringLiteral;
+  leadingMinutiae: WHITESPACE_MINUTIAE[];
+  peerWorker: SimpleNameReference;
+  syncSendToken: SyncSendToken;
+  syntaxDiagnostics: any;
+  trailingMinutiae: any;
+}
+
+export interface SyncSendToken extends STNode {
+  isMissing: boolean;
+  isToken: boolean;
+  leadingMinutiae: any;
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
+  value: string;
 }
 
 export interface TableConstructor extends STNode {
   closeBracket: CloseBracketToken;
+  keySpecifier?: KeySpecifier;
+  leadingMinutiae: WHITESPACE_MINUTIAE[];
   openBracket: OpenBracketToken;
-  rows: (CommaToken | MappingConstructor)[];
+  rows: CommaToken | MappingConstructor[];
+  syntaxDiagnostics: any[];
   tableKeyword: TableKeyword;
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
 }
 
 export interface TableKeyword extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface TableTypeDesc extends STNode {
-  keyConstraintNode: KeySpecifier | KeyTypeConstraint;
+  keyConstraintNode?: KeySpecifier | KeyTypeConstraint;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   rowTypeParameterNode: TypeParameter;
+  syntaxDiagnostics: any[];
   tableKeywordToken: TableKeyword;
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
 }
 
 export interface TemplateString extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae: any;
+  trailingMinutiae: any;
   value: string;
 }
 
 export interface TransactionKeyword extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface TransactionStatement extends STNode {
   blockStatement: BlockStatement;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   onFailClause?: OnFailClause;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
   transactionKeyword: TransactionKeyword;
 }
 
+export interface TransactionalExpression extends STNode {
+  leadingMinutiae: any;
+  syntaxDiagnostics: any;
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
+  transactionalKeyword: TransactionalKeyword;
+}
+
 export interface TransactionalKeyword extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   value: string;
 }
 
+export interface TrapAction extends STNode {
+  expression:
+    | BracedAction
+    | CheckAction
+    | QueryAction
+    | ReceiveAction
+    | StartAction
+    | WaitAction;
+  leadingMinutiae: any;
+  syntaxDiagnostics: any;
+  trailingMinutiae: any;
+  trapKeyword: TrapKeyword;
+}
+
 export interface TrapExpression extends STNode {
-  expression: FunctionCall;
-  source: string;
+  expression:
+    | BinaryExpression
+    | BracedExpression
+    | ConditionalExpression
+    | ExplicitNewExpression
+    | FunctionCall
+    | IndexedExpression
+    | MethodCall
+    | SimpleNameReference
+    | StringLiteral
+    | TypeCastExpression;
+  leadingMinutiae: WHITESPACE_MINUTIAE[];
+  syntaxDiagnostics: any[];
+  trailingMinutiae: INVALID_NODE_MINUTIAE | WHITESPACE_MINUTIAE[];
   trapKeyword: TrapKeyword;
 }
 
 export interface TrapKeyword extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae: WHITESPACE_MINUTIAE[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
+  value: string;
+}
+
+export interface TripleBacktickToken extends STNode {
+  isMissing: boolean;
+  isToken: boolean;
+  leadingMinutiae: any;
+  trailingMinutiae: END_OF_LINE_MINUTIAE[];
   value: string;
 }
 
 export interface TrippleEqualToken extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae: any;
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface TrippleGtToken extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae: any;
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface TrueKeyword extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae:
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface TupleTypeDesc extends STNode {
   closeBracketToken: CloseBracketToken;
-  memberTypeDesc: (
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  memberTypeDesc:
+    | AnyTypeDesc
     | AnydataTypeDesc
     | ArrayTypeDesc
     | BooleanTypeDesc
+    | ByteTypeDesc
     | CommaToken
+    | DecimalTypeDesc
+    | ErrorTypeDesc
     | FloatTypeDesc
+    | FunctionTypeDesc
+    | HandleTypeDesc
     | IntTypeDesc
-    | ParameterizedTypeDesc
+    | IntersectionTypeDesc
+    | JsonTypeDesc
+    | MapTypeDesc
+    | NeverTypeDesc
+    | NilTypeDesc
+    | ObjectTypeDesc
+    | OptionalTypeDesc
+    | ParenthesisedTypeDesc
     | QualifiedNameReference
+    | RecordTypeDesc
+    | RestType
+    | SimpleNameReference
+    | SingletonTypeDesc
     | StringTypeDesc
+    | TableTypeDesc
+    | TupleTypeDesc
+    | TypedescTypeDesc
     | UnionTypeDesc
-  )[];
+    | XmlTypeDesc[];
   openBracketToken: OpenBracketToken;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
 }
 
 export interface TypeCastExpression extends STNode {
   expression:
-  | BracedExpression
-  | CheckAction
-  | CheckExpression
-  | ErrorConstructor
-  | FieldAccess
-  | FunctionCall
-  | IndexedExpression
-  | MethodCall
-  | SimpleNameReference
-  | TypeCastExpression
-  | RemoteMethodCallAction;
+    | AnnotAccess
+    | BooleanLiteral
+    | BracedAction
+    | BracedExpression
+    | CheckAction
+    | CheckExpression
+    | ErrorConstructor
+    | ExplicitNewExpression
+    | FieldAccess
+    | FunctionCall
+    | IndexedExpression
+    | ListConstructor
+    | MappingConstructor
+    | MethodCall
+    | NumericLiteral
+    | ObjectConstructor
+    | OptionalFieldAccess
+    | QueryAction
+    | RemoteMethodCallAction
+    | SimpleNameReference
+    | StringLiteral
+    | TrapExpression
+    | TypeCastExpression
+    | XmlTemplateExpression;
   gtToken: GtToken;
+  leadingMinutiae: WHITESPACE_MINUTIAE[];
   ltToken: LtToken;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
   typeCastParam: TypeCastParam;
 }
 
 export interface TypeCastParam extends STNode {
   annotations: Annotation[];
+  leadingMinutiae: any;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   type?:
-  | ArrayTypeDesc
-  | ByteTypeDesc
-  | ErrorTypeDesc
-  | IntTypeDesc
-  | JsonTypeDesc
-  | ParameterizedTypeDesc
-  | QualifiedNameReference
-  | SimpleNameReference
-  | StreamTypeDesc
-  | StringTypeDesc
-  | XmlTypeDesc;
+    | AnyTypeDesc
+    | AnydataTypeDesc
+    | ArrayTypeDesc
+    | BooleanTypeDesc
+    | ByteTypeDesc
+    | DecimalTypeDesc
+    | ErrorTypeDesc
+    | FloatTypeDesc
+    | FunctionTypeDesc
+    | FutureTypeDesc
+    | HandleTypeDesc
+    | IntTypeDesc
+    | IntersectionTypeDesc
+    | JsonTypeDesc
+    | MapTypeDesc
+    | NilTypeDesc
+    | ObjectTypeDesc
+    | OptionalTypeDesc
+    | QualifiedNameReference
+    | ReadonlyTypeDesc
+    | RecordTypeDesc
+    | SimpleNameReference
+    | SingletonTypeDesc
+    | StreamTypeDesc
+    | StringTypeDesc
+    | TableTypeDesc
+    | TupleTypeDesc
+    | TypedescTypeDesc
+    | UnionTypeDesc
+    | XmlTypeDesc;
 }
 
 export interface TypeDefinition extends STNode {
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   metadata?: Metadata;
   semicolonToken: SemicolonToken;
+  syntaxDiagnostics: any[];
+  trailingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   typeDescriptor:
-  | ErrorTypeDesc
-  | ObjectTypeDesc
-  | ParameterizedTypeDesc
-  | RecordTypeDesc
-  | TableTypeDesc
-  | UnionTypeDesc;
+    | AnyTypeDesc
+    | AnydataTypeDesc
+    | ArrayTypeDesc
+    | BooleanTypeDesc
+    | ByteTypeDesc
+    | DecimalTypeDesc
+    | DistinctTypeDesc
+    | ErrorTypeDesc
+    | FloatTypeDesc
+    | FunctionTypeDesc
+    | FutureTypeDesc
+    | HandleTypeDesc
+    | IntTypeDesc
+    | IntersectionTypeDesc
+    | JsonTypeDesc
+    | MapTypeDesc
+    | NeverTypeDesc
+    | NilTypeDesc
+    | ObjectTypeDesc
+    | OptionalTypeDesc
+    | ParenthesisedTypeDesc
+    | QualifiedNameReference
+    | ReadonlyTypeDesc
+    | RecordTypeDesc
+    | SimpleNameReference
+    | SingletonTypeDesc
+    | StreamTypeDesc
+    | StringTypeDesc
+    | TableTypeDesc
+    | TupleTypeDesc
+    | TypedescTypeDesc
+    | UnionTypeDesc
+    | XmlTypeDesc;
   typeKeyword: TypeKeyword;
   typeName: IdentifierToken;
   visibilityQualifier?: PublicKeyword;
 }
 
 export interface TypeDocReferenceToken extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae: any;
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface TypeKeyword extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface TypeParameter extends STNode {
   gtToken: GtToken;
+  leadingMinutiae: any;
   ltToken: LtToken;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   typeNode:
-  | AnyTypeDesc
-  | AnydataTypeDesc
-  | IntTypeDesc
-  | JsonTypeDesc
-  | NeverTypeDesc
-  | ParameterizedTypeDesc
-  | QualifiedNameReference
-  | RecordTypeDesc
-  | SimpleNameReference
-  | StringTypeDesc
-  | UnionTypeDesc;
+    | AnyTypeDesc
+    | AnydataTypeDesc
+    | ArrayTypeDesc
+    | BooleanTypeDesc
+    | ByteTypeDesc
+    | DecimalTypeDesc
+    | ErrorTypeDesc
+    | FloatTypeDesc
+    | FunctionTypeDesc
+    | FutureTypeDesc
+    | HandleTypeDesc
+    | IntTypeDesc
+    | IntersectionTypeDesc
+    | JsonTypeDesc
+    | MapTypeDesc
+    | NeverTypeDesc
+    | NilTypeDesc
+    | ObjectTypeDesc
+    | OptionalTypeDesc
+    | ParenthesisedTypeDesc
+    | QualifiedNameReference
+    | RecordTypeDesc
+    | SimpleNameReference
+    | StreamTypeDesc
+    | StringTypeDesc
+    | TableTypeDesc
+    | TupleTypeDesc
+    | TypedescTypeDesc
+    | UnionTypeDesc
+    | XmlTypeDesc;
 }
 
 export interface TypeReference extends STNode {
   asteriskToken: AsteriskToken;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   semicolonToken: SemicolonToken;
+  syntaxDiagnostics: any[];
+  trailingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   typeName: QualifiedNameReference | SimpleNameReference;
 }
 
 export interface TypeTestExpression extends STNode {
-  expression: SimpleNameReference;
-  isKeyword: IsKeyword;
+  expression:
+    | AnnotAccess
+    | BooleanLiteral
+    | BracedExpression
+    | ExplicitAnonymousFunctionExpression
+    | ExplicitNewExpression
+    | FieldAccess
+    | FunctionCall
+    | IndexedExpression
+    | ListConstructor
+    | MethodCall
+    | NumericLiteral
+    | ObjectConstructor
+    | OptionalFieldAccess
+    | QualifiedNameReference
+    | SimpleNameReference
+    | StringLiteral
+    | TypeCastExpression;
+  isKeyword: IsKeyword | NotIsKeyword;
+  leadingMinutiae: WHITESPACE_MINUTIAE[];
+  syntaxDiagnostics: any[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
   typeDescriptor:
-  | ArrayTypeDesc
-  | BooleanTypeDesc
-  | ErrorTypeDesc
-  | FloatTypeDesc
-  | IntTypeDesc
-  | JsonTypeDesc
-  | NilTypeDesc
-  | ParameterizedTypeDesc
-  | QualifiedNameReference
-  | RecordTypeDesc
-  | SimpleNameReference
-  | StreamTypeDesc
-  | StringTypeDesc
-  | TableTypeDesc
-  | XmlTypeDesc;
+    | AnyTypeDesc
+    | AnydataTypeDesc
+    | ArrayTypeDesc
+    | BooleanTypeDesc
+    | ByteTypeDesc
+    | DecimalTypeDesc
+    | ErrorTypeDesc
+    | FloatTypeDesc
+    | FunctionTypeDesc
+    | FutureTypeDesc
+    | HandleTypeDesc
+    | IntTypeDesc
+    | IntersectionTypeDesc
+    | JsonTypeDesc
+    | MapTypeDesc
+    | NeverTypeDesc
+    | NilTypeDesc
+    | ObjectTypeDesc
+    | OptionalTypeDesc
+    | ParenthesisedTypeDesc
+    | QualifiedNameReference
+    | ReadonlyTypeDesc
+    | RecordTypeDesc
+    | SimpleNameReference
+    | SingletonTypeDesc
+    | StreamTypeDesc
+    | StringTypeDesc
+    | TableTypeDesc
+    | TupleTypeDesc
+    | TypedescTypeDesc
+    | UnionTypeDesc
+    | XmlTypeDesc;
 }
 
 export interface TypedBindingPattern extends STNode {
   bindingPattern:
-  | CaptureBindingPattern
-  | ListBindingPattern
-  | MappingBindingPattern;
+    | CaptureBindingPattern
+    | ErrorBindingPattern
+    | ListBindingPattern
+    | MappingBindingPattern
+    | WildcardBindingPattern;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  syntaxDiagnostics: any[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
   typeDescriptor:
-  | AnyTypeDesc
-  | AnydataTypeDesc
-  | ArrayTypeDesc
-  | BooleanTypeDesc
-  | ByteTypeDesc
-  | ErrorTypeDesc
-  | FloatTypeDesc
-  | FunctionTypeDesc
-  | IntTypeDesc
-  | IntersectionTypeDesc
-  | JsonTypeDesc
-  | ObjectTypeDesc
-  | OptionalTypeDesc
-  | ParameterizedTypeDesc
-  | QualifiedNameReference
-  | RecordTypeDesc
-  | ServiceTypeDesc
-  | SimpleNameReference
-  | StreamTypeDesc
-  | StringTypeDesc
-  | TableTypeDesc
-  | TupleTypeDesc
-  | UnionTypeDesc
-  | VarTypeDesc
-  | XmlTypeDesc;
+    | AnyTypeDesc
+    | AnydataTypeDesc
+    | ArrayTypeDesc
+    | BooleanTypeDesc
+    | ByteTypeDesc
+    | DecimalTypeDesc
+    | DistinctTypeDesc
+    | ErrorTypeDesc
+    | FloatTypeDesc
+    | FunctionTypeDesc
+    | FutureTypeDesc
+    | HandleTypeDesc
+    | IntTypeDesc
+    | IntersectionTypeDesc
+    | JsonTypeDesc
+    | MapTypeDesc
+    | NeverTypeDesc
+    | NilTypeDesc
+    | ObjectTypeDesc
+    | OptionalTypeDesc
+    | ParenthesisedTypeDesc
+    | QualifiedNameReference
+    | ReadonlyTypeDesc
+    | RecordTypeDesc
+    | SimpleNameReference
+    | SingletonTypeDesc
+    | StreamTypeDesc
+    | StringTypeDesc
+    | TableTypeDesc
+    | TupleTypeDesc
+    | TypedescTypeDesc
+    | UnionTypeDesc
+    | VarTypeDesc
+    | XmlTypeDesc;
+}
+
+export interface TypedescKeyword extends STNode {
+  isMissing: boolean;
+  isToken: boolean;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
+  value: string;
+}
+
+export interface TypedescTypeDesc extends STNode {
+  keywordToken: TypedescKeyword;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  syntaxDiagnostics: any[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
+  typeParamNode?: TypeParameter;
+}
+
+export interface TypeofExpression extends STNode {
+  expression:
+    | BracedExpression
+    | CheckExpression
+    | FieldAccess
+    | IndexedExpression
+    | ListConstructor
+    | NumericLiteral
+    | SimpleNameReference;
+  leadingMinutiae: any;
+  syntaxDiagnostics: any;
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
+  typeofKeyword: TypeofKeyword;
+}
+
+export interface TypeofKeyword extends STNode {
+  isMissing: boolean;
+  isToken: boolean;
+  leadingMinutiae: any;
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
+  value: string;
 }
 
 export interface UnaryExpression extends STNode {
   expression:
-  | BracedExpression
-  | MethodCall
-  | NumericLiteral
-  | SimpleNameReference;
-  unaryOperator: ExclamationMarkToken | MinusToken;
+    | BooleanLiteral
+    | BracedExpression
+    | FunctionCall
+    | IndexedExpression
+    | MethodCall
+    | NumericLiteral
+    | SimpleNameReference
+    | StringLiteral
+    | UnaryExpression;
+  leadingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
+  syntaxDiagnostics: any[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
+  unaryOperator: ExclamationMarkToken | MinusToken | NegationToken | PlusToken;
+}
+
+export interface UnderscoreKeyword extends STNode {
+  isMissing: boolean;
+  isToken: boolean;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
+  value: string;
 }
 
 export interface UnionTypeDesc extends STNode {
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   leftTypeDesc:
-  | AnyTypeDesc
-  | AnydataTypeDesc
-  | ArrayTypeDesc
-  | BooleanTypeDesc
-  | FloatTypeDesc
-  | IntTypeDesc
-  | JsonTypeDesc
-  | ParameterizedTypeDesc
-  | QualifiedNameReference
-  | RecordTypeDesc
-  | SimpleNameReference
-  | StreamTypeDesc
-  | StringTypeDesc
-  | TupleTypeDesc;
+    | AnyTypeDesc
+    | AnydataTypeDesc
+    | ArrayTypeDesc
+    | BooleanTypeDesc
+    | ByteTypeDesc
+    | DecimalTypeDesc
+    | ErrorTypeDesc
+    | FloatTypeDesc
+    | FunctionTypeDesc
+    | FutureTypeDesc
+    | HandleTypeDesc
+    | IntTypeDesc
+    | IntersectionTypeDesc
+    | JsonTypeDesc
+    | MapTypeDesc
+    | NeverTypeDesc
+    | NilTypeDesc
+    | ObjectTypeDesc
+    | OptionalTypeDesc
+    | ParenthesisedTypeDesc
+    | QualifiedNameReference
+    | ReadonlyTypeDesc
+    | RecordTypeDesc
+    | SimpleNameReference
+    | SingletonTypeDesc
+    | StreamTypeDesc
+    | StringTypeDesc
+    | TableTypeDesc
+    | TupleTypeDesc
+    | TypedescTypeDesc
+    | UnionTypeDesc
+    | XmlTypeDesc;
   pipeToken: PipeToken;
   rightTypeDesc:
-  | ArrayTypeDesc
-  | ErrorTypeDesc
-  | IntTypeDesc
-  | OptionalTypeDesc
-  | ParenthesisedTypeDesc
-  | QualifiedNameReference
-  | SimpleNameReference
-  | StringTypeDesc
-  | UnionTypeDesc;
+    | AnyTypeDesc
+    | AnydataTypeDesc
+    | ArrayTypeDesc
+    | BooleanTypeDesc
+    | ByteTypeDesc
+    | DecimalTypeDesc
+    | DistinctTypeDesc
+    | ErrorTypeDesc
+    | FloatTypeDesc
+    | FunctionTypeDesc
+    | FutureTypeDesc
+    | HandleTypeDesc
+    | IntTypeDesc
+    | IntersectionTypeDesc
+    | JsonTypeDesc
+    | MapTypeDesc
+    | NeverTypeDesc
+    | NilTypeDesc
+    | ObjectTypeDesc
+    | OptionalTypeDesc
+    | ParenthesisedTypeDesc
+    | QualifiedNameReference
+    | ReadonlyTypeDesc
+    | RecordTypeDesc
+    | SimpleNameReference
+    | SingletonTypeDesc
+    | StreamTypeDesc
+    | StringTypeDesc
+    | TableTypeDesc
+    | TupleTypeDesc
+    | TypedescTypeDesc
+    | XmlTypeDesc;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
+}
+
+export interface VarDocReferenceToken extends STNode {
+  isMissing: boolean;
+  isToken: boolean;
+  leadingMinutiae: any;
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
+  value: string;
 }
 
 export interface VarKeyword extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface VarTypeDesc extends STNode {
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   name: VarKeyword;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
+}
+
+export interface VariableDocReferenceToken extends STNode {
+  isMissing: boolean;
+  isToken: boolean;
+  leadingMinutiae: any;
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
+  value: string;
+}
+
+export interface WHITESPACE_MINUTIAE extends STNode {
+  isInvalid: boolean;
+  minutiae: string;
 }
 
 export interface WaitAction extends STNode {
-  waitFutureExpr: BinaryExpression | SimpleNameReference | WaitFieldsList;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  syntaxDiagnostics: any[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
+  waitFutureExpr:
+    | BinaryExpression
+    | FieldAccess
+    | FunctionCall
+    | SimpleNameReference
+    | StartAction
+    | WaitFieldsList;
   waitKeyword: WaitKeyword;
 }
 
 export interface WaitField extends STNode {
   colon: ColonToken;
   fieldName: SimpleNameReference;
-  waitFutureExpr: SimpleNameReference;
+  leadingMinutiae: WHITESPACE_MINUTIAE[];
+  syntaxDiagnostics: any;
+  trailingMinutiae: any;
+  waitFutureExpr: FunctionCall | SimpleNameReference;
 }
 
 export interface WaitFieldsList extends STNode {
   closeBrace: CloseBraceToken;
+  leadingMinutiae: any;
   openBrace: OpenBraceToken;
-  waitFields: (CommaToken | SimpleNameReference | WaitField)[];
+  syntaxDiagnostics: any;
+  trailingMinutiae: any;
+  waitFields: CommaToken | SimpleNameReference | WaitField[];
 }
 
 export interface WaitKeyword extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface WhereClause extends STNode {
-  expression: BinaryExpression;
-  source: string;
+  expression:
+    | BinaryExpression
+    | BooleanLiteral
+    | BracedExpression
+    | NumericLiteral
+    | TypeTestExpression
+    | UnaryExpression;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  syntaxDiagnostics: any;
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
   whereKeyword: WhereKeyword;
 }
 
 export interface WhereKeyword extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface WhileKeyword extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface WhileStatement extends STNode {
-  condition: BracedExpression | UnaryExpression;
+  condition:
+    | BinaryExpression
+    | BooleanLiteral
+    | BracedExpression
+    | FunctionCall
+    | ListConstructor
+    | NumericLiteral
+    | SimpleNameReference
+    | StringLiteral
+    | TypeTestExpression
+    | UnaryExpression;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  onFailClause?: OnFailClause;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
   whileBody: BlockStatement;
   whileKeyword: WhileKeyword;
 }
 
 export interface WildcardBindingPattern extends STNode {
-  underscoreToken: IdentifierToken;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  syntaxDiagnostics: any;
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
+  underscoreToken: UnderscoreKeyword;
 }
 
 export interface WorkerKeyword extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   value: string;
+}
+
+export interface XmlAtomicNamePattern extends STNode {
+  colon: ColonToken;
+  leadingMinutiae: any;
+  name: AsteriskToken | IdentifierToken;
+  prefix: IdentifierToken;
+  syntaxDiagnostics: any;
+  trailingMinutiae: any;
 }
 
 export interface XmlAttribute extends STNode {
   attributeName: XmlQualifiedName | XmlSimpleName;
   equalToken: EqualToken;
-  source: string;
+  leadingMinutiae: WHITESPACE_MINUTIAE[];
+  syntaxDiagnostics: any;
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
   value: XmlAttributeValue;
 }
 
 export interface XmlAttributeValue extends STNode {
-  endQuote: DoubleQuoteToken;
-  source: string;
-  startQuote: DoubleQuoteToken;
-  value: XmlTextContent[];
+  endQuote: DoubleQuoteToken | SingleQuoteToken;
+  leadingMinutiae: any;
+  startQuote: DoubleQuoteToken | SingleQuoteToken;
+  syntaxDiagnostics: any;
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
+  value: Interpolation | XmlTextContent[];
+}
+
+export interface XmlCdata extends STNode {
+  cdataEnd: XmlCdataEndToken;
+  cdataStart: XmlCdataStartToken;
+  content: Interpolation | XmlTextContent[];
+  leadingMinutiae: any;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: any;
+}
+
+export interface XmlCdataEndToken extends STNode {
+  isMissing: boolean;
+  isToken: boolean;
+  leadingMinutiae: any;
+  trailingMinutiae: any;
+  value: string;
+}
+
+export interface XmlCdataStartToken extends STNode {
+  isMissing: boolean;
+  isToken: boolean;
+  leadingMinutiae: any;
+  trailingMinutiae: any;
+  value: string;
 }
 
 export interface XmlComment extends STNode {
   commentEnd: XmlCommentEndToken;
   commentStart: XmlCommentStartToken;
-  content: XmlTextContent[];
-  source: string;
+  content: Interpolation | XmlTextContent[];
+  leadingMinutiae: any;
+  syntaxDiagnostics: any;
+  trailingMinutiae: any;
 }
 
 export interface XmlCommentEndToken extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae: any;
+  trailingMinutiae: any;
   value: string;
 }
 
 export interface XmlCommentStartToken extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae: any;
+  trailingMinutiae: any;
   value: string;
 }
 
 export interface XmlElement extends STNode {
-  content: (XmlElement | XmlText | XmlComment)[];
+  content:
+    | Interpolation
+    | XmlCdata
+    | XmlComment
+    | XmlElement
+    | XmlEmptyElement
+    | XmlPi
+    | XmlText[];
   endTag: XmlElementEndTag;
+  leadingMinutiae: any;
   startTag: XmlElementStartTag;
+  syntaxDiagnostics: any;
+  trailingMinutiae: any;
 }
 
 export interface XmlElementEndTag extends STNode {
   getToken: GtToken;
+  leadingMinutiae: any;
   ltToken: LtToken;
   name: XmlQualifiedName | XmlSimpleName;
   slashToken: SlashToken;
+  syntaxDiagnostics: any;
+  trailingMinutiae: any;
 }
 
 export interface XmlElementStartTag extends STNode {
-  attributes: any;
+  attributes: XmlAttribute[];
   getToken: GtToken;
+  leadingMinutiae: any;
   ltToken: LtToken;
   name: XmlQualifiedName | XmlSimpleName;
+  syntaxDiagnostics: any;
+  trailingMinutiae: any;
+}
+
+export interface XmlEmptyElement extends STNode {
+  attributes: XmlAttribute[];
+  getToken: GtToken;
+  leadingMinutiae: any;
+  ltToken: LtToken;
+  name: XmlQualifiedName | XmlSimpleName;
+  slashToken: SlashToken;
+  syntaxDiagnostics: any;
+  trailingMinutiae: any;
+}
+
+export interface XmlFilterExpression extends STNode {
+  expression: FunctionCall | SimpleNameReference | XmlStepExpression;
+  leadingMinutiae: any;
+  syntaxDiagnostics: any;
+  trailingMinutiae: any;
+  xmlPatternChain: XmlNamePatternChain;
 }
 
 export interface XmlKeyword extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
   value: string;
 }
 
 export interface XmlNamePatternChain extends STNode {
   gtToken: GtToken;
-  startToken: SlashLtToken;
-  xmlNamePattern: AsteriskToken[];
+  leadingMinutiae: any;
+  startToken: DotLtToken | DoubleSlashDoubleAsteriskLtToken | SlashLtToken;
+  syntaxDiagnostics: any;
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
+  xmlNamePattern:
+    | AsteriskToken
+    | PipeToken
+    | SimpleNameReference
+    | XmlAtomicNamePattern[];
+}
+
+export interface XmlNamespaceDeclaration extends STNode {
+  asKeyword?: AsKeyword;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  namespacePrefix?: IdentifierToken;
+  namespaceuri: StringLiteral;
+  semicolonToken: SemicolonToken;
+  syntaxDiagnostics: any;
+  trailingMinutiae: END_OF_LINE_MINUTIAE[];
+  xmlnsKeyword: XmlnsKeyword;
+}
+
+export interface XmlPi extends STNode {
+  data: Interpolation | XmlTextContent[];
+  leadingMinutiae: any;
+  piEnd: XmlPiEndToken;
+  piStart: XmlPiStartToken;
+  syntaxDiagnostics: any;
+  target: XmlSimpleName;
+  trailingMinutiae: END_OF_LINE_MINUTIAE[];
+}
+
+export interface XmlPiEndToken extends STNode {
+  isMissing: boolean;
+  isToken: boolean;
+  leadingMinutiae: any;
+  trailingMinutiae: END_OF_LINE_MINUTIAE[];
+  value: string;
+}
+
+export interface XmlPiStartToken extends STNode {
+  isMissing: boolean;
+  isToken: boolean;
+  leadingMinutiae: any;
+  trailingMinutiae: any;
+  value: string;
 }
 
 export interface XmlQualifiedName extends STNode {
   colon: ColonToken;
+  leadingMinutiae: WHITESPACE_MINUTIAE[];
   name: XmlSimpleName;
   prefix: XmlSimpleName;
-  source: string;
+  syntaxDiagnostics: any;
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
 }
 
 export interface XmlSimpleName extends STNode {
+  leadingMinutiae: WHITESPACE_MINUTIAE[];
   name: IdentifierToken;
+  syntaxDiagnostics: any;
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
 }
 
 export interface XmlStepExpression extends STNode {
-  expression: SimpleNameReference;
-  xmlStepStart: XmlNamePatternChain;
+  expression:
+    | BracedExpression
+    | IndexedExpression
+    | SimpleNameReference
+    | TypeCastExpression
+    | XmlFilterExpression
+    | XmlStepExpression;
+  leadingMinutiae: any;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: END_OF_LINE_MINUTIAE | WHITESPACE_MINUTIAE[];
+  xmlStepStart: SlashAsteriskToken | XmlNamePatternChain;
 }
 
 export interface XmlTemplateExpression extends STNode {
-  content: XmlElement[];
+  content:
+    | Interpolation
+    | XmlCdata
+    | XmlComment
+    | XmlElement
+    | XmlEmptyElement
+    | XmlPi
+    | XmlText[];
   endBacktick: BacktickToken;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
   startBacktick: BacktickToken;
+  syntaxDiagnostics: any[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
   type: XmlKeyword;
 }
 
 export interface XmlText extends STNode {
   content: XmlTextContent;
+  leadingMinutiae: any;
+  syntaxDiagnostics: any;
+  trailingMinutiae: any;
 }
 
 export interface XmlTextContent extends STNode {
+  isMissing: boolean;
   isToken: boolean;
+  leadingMinutiae: any;
+  trailingMinutiae: any;
   value: string;
 }
 
 export interface XmlTypeDesc extends STNode {
-  xmlKeywordToken: XmlKeyword;
-  xmlTypeParamsNode?: TypeParameter;
   keywordToken: XmlKeyword;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  syntaxDiagnostics: any;
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
+  typeParamNode?: TypeParameter;
 }
+
+export interface XmlnsKeyword extends STNode {
+  isMissing: boolean;
+  isToken: boolean;
+  leadingMinutiae:
+    | COMMENT_MINUTIAE
+    | END_OF_LINE_MINUTIAE
+    | INVALID_NODE_MINUTIAE
+    | WHITESPACE_MINUTIAE[];
+  trailingMinutiae: WHITESPACE_MINUTIAE[];
+  value: string;
+}
+
+export interface undefined extends STNode {}
 
 // tslint:enable:ban-types
