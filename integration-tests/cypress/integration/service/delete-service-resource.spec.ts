@@ -15,7 +15,7 @@ describe('delete resource after adding it', () => {
     cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH))
   })
 
-  it('Delete after adding service', () => {
+  it.skip('Delete after adding service', () => {
     Canvas
       .welcomeMessageShouldBeVisible()
       .clickTopLevelPlusButton();
@@ -42,25 +42,6 @@ describe('delete resource after adding it', () => {
       .shouldBeExpanded()
       .getDiagram()
       .shouldBeRenderedProperly()
-      .getBlockLevelPlusWidget()
-      .clickOption("HTTP");
-
-    HttpForm
-      .shouldBeVisible()
-      .waitForConnectorLoad()
-      .haveDefaultName()
-      .typeConnectionName("boo")
-      .typeUrl('"https://foo.com"')
-      .continueToInvoke()
-      .selectOperation("GET")
-      .typeOperationPath('"foo"')
-      .saveAndDone();
-
-    Canvas.getService("/hello")
-      .getResourceFunction("GET", "world")
-      .shouldBeExpanded()
-      .getDiagram()
-      .clickDefaultWorkerPlusBtn(2)
       .getBlockLevelPlusWidget()
       .clickOption("Log")
 
