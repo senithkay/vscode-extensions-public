@@ -305,7 +305,7 @@ class ExpressionDeletingVisitor implements Visitor {
                         }
                     });
 
-                    this.setProperties(expressions.join(), {
+                    this.setProperties(expressions.join(''), {
                         ...node.position,
                         startColumn: node.bodyStartDelimiter.position.endColumn,
                         endColumn: node.bodyEndDelimiter.position.startColumn

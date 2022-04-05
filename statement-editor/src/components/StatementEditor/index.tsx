@@ -25,9 +25,8 @@ import * as monaco from "monaco-editor";
 import { Diagnostic } from "vscode-languageserver-protocol";
 
 import {
-    APPEND_EXPR_LIST_CONSTRUCTOR,
-    CUSTOM_CONFIG_TYPE,
-    INIT_EXPR_LIST_CONSTRUCTOR
+    APPEND_EXPR_CONSTRUCTOR,
+    CUSTOM_CONFIG_TYPE, INIT_EXPR_CONSTRUCTOR
 } from "../../constants";
 import {
     CurrentModel,
@@ -220,26 +219,10 @@ export function StatementEditor(props: StatementEditorProps) {
             updateEditedModel(partialST, diagnostics);
         }
 
-        // Since in list constructor we add expression with comma and close-bracket,
-        // we need to reduce that length from the code snippet to get the correct current model
-        let currentModelPosition: NodePosition;
-        if (currentModel.model && STKindChecker.isListConstructor(currentModel.model) && codeSnippet === INIT_EXPR_LIST_CONSTRUCTOR) {
-            currentModelPosition = {
-                ...position,
-                endColumn: position.startColumn + codeSnippet.length - 1
-            };
-        } else if (currentModel.model && codeSnippet === APPEND_EXPR_LIST_CONSTRUCTOR){
-            currentModelPosition = {
-                ...position,
-                startColumn: position.startColumn + 2,
-                endColumn: position.startColumn + codeSnippet.length - 1
-            }
-        } else {
-            currentModelPosition = {
-                ...position,
-                endColumn: position.startColumn + codeSnippet.length
-            };
-        }
+        const currentModelPosition : NodePosition = {
+            ...position,
+            endColumn: position.startColumn + codeSnippet.length
+        };
 
         const newCurrentModel = getCurrentModel(currentModelPosition, enrichModel(partialST, targetPosition));
         setCurrentModel({model: newCurrentModel});

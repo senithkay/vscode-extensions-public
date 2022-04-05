@@ -21,8 +21,6 @@ import { ExpressionArrayComponent } from "../../../ExpressionArray";
 import { useStatementEditorStyles } from "../../../styles";
 import { TokenComponent } from "../../../Token";
 
-
-
 interface TupleTypeDescProps {
     model: TupleTypeDesc;
 }
@@ -40,8 +38,14 @@ export function TupleTypeDescComponent(props: TupleTypeDescProps) {
 
     const onClickOnPlusIcon = (event: any) => {
         event.stopPropagation();
-        const newExpression = model.memberTypeDesc.length !== 0 ? APPEND_TYPE_DESC_CONSTRUCTOR : INIT_TYPE_DESC_CONSTRUCTOR;
-        updateModel(newExpression, model.closeBracketToken.position);
+        model.memberTypeDesc.length !== 0 ? updateModel(APPEND_TYPE_DESC_CONSTRUCTOR, {
+                ...model.closeBracketToken.position,
+                endColumn: model.closeBracketToken.position.endColumn - 1
+            }) :
+            updateModel(INIT_TYPE_DESC_CONSTRUCTOR, {
+                ...model.closeBracketToken.position,
+                endColumn: model.closeBracketToken.position.endColumn - 1
+            });
     };
 
     return (

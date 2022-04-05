@@ -15,7 +15,10 @@ import React, { useContext } from "react";
 
 import { ListConstructor } from "@wso2-enterprise/syntax-tree";
 
-import { APPEND_EXPR_LIST_CONSTRUCTOR, INIT_EXPR_LIST_CONSTRUCTOR } from "../../../constants";
+import {
+    APPEND_EXPR_CONSTRUCTOR,
+    INIT_EXPR_CONSTRUCTOR,
+} from "../../../constants";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { ExpressionArrayComponent } from "../../ExpressionArray";
 import { useStatementEditorStyles } from "../../styles";
@@ -38,8 +41,14 @@ export function ListConstructorComponent(props: ListConstructorProps) {
 
     const onClickOnPlusIcon = (event: any) => {
         event.stopPropagation();
-        const newExpression = model.expressions.length !== 0 ? APPEND_EXPR_LIST_CONSTRUCTOR : INIT_EXPR_LIST_CONSTRUCTOR;
-        updateModel(newExpression, model.closeBracket.position);
+        model.expressions.length !== 0 ? updateModel(APPEND_EXPR_CONSTRUCTOR, {
+                ...model.closeBracket.position,
+                endColumn: model.closeBracket.position.endColumn - 1
+            }) :
+            updateModel(INIT_EXPR_CONSTRUCTOR, {
+                ...model.closeBracket.position,
+                endColumn: model.closeBracket.position.endColumn - 1
+            })
     };
 
     return (

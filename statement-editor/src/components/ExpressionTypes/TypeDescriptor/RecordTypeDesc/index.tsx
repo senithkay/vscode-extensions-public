@@ -14,11 +14,7 @@ import React, { useContext } from "react";
 
 import { RecordTypeDesc, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
-import {
-    APPEND_EXCLUSIVE_RECORD_CONSTRUCTOR,
-    APPEND_INCLUSIVE_RECORD_CONSTRUCTOR, INIT_EXCLUSIVE_RECORD_CONSTRUCTOR,
-    INIT_INCLUSIVE_RECORD_CONSTRUCTOR
-} from "../../../../constants";
+import { TYPED_BINDING_CONSTRUCTOR } from "../../../../constants";
 import { StatementEditorContext } from "../../../../store/statement-editor-context";
 import { ExpressionComponent } from "../../../Expression";
 import { ExpressionArrayComponent } from "../../../ExpressionArray";
@@ -42,10 +38,14 @@ export function RecordTypeDescComponent(props: RecordTypeDescProps) {
 
     const onClickOnPlusIcon = (event: any) => {
         event.stopPropagation();
-        const newExpression = STKindChecker.isOpenBracePipeToken(model.bodyStartDelimiter) ?
-            (model.fields.length !== 0 ? APPEND_EXCLUSIVE_RECORD_CONSTRUCTOR : INIT_EXCLUSIVE_RECORD_CONSTRUCTOR) :
-            (model.fields.length !== 0 ? APPEND_INCLUSIVE_RECORD_CONSTRUCTOR : INIT_INCLUSIVE_RECORD_CONSTRUCTOR)
-        updateModel(newExpression, model.bodyEndDelimiter.position);
+        STKindChecker.isOpenBracePipeToken(model.bodyStartDelimiter) ?
+        updateModel(TYPED_BINDING_CONSTRUCTOR, {
+            ...model.bodyEndDelimiter.position,
+            endColumn: model.bodyEndDelimiter.position.endColumn - 2
+        }) : updateModel(TYPED_BINDING_CONSTRUCTOR, {
+                ...model.bodyEndDelimiter.position,
+                endColumn: model.bodyEndDelimiter.position.endColumn - 1
+            })
     };
 
     return (

@@ -15,8 +15,8 @@ import React, { useContext } from "react";
 import { KeySpecifier } from "@wso2-enterprise/syntax-tree";
 
 import {
-    APPEND_FIELD_CONSTRUCTOR,
-    INIT_FIELD_CONSTRUCTOR
+    APPEND_EXPR_CONSTRUCTOR,
+    INIT_EXPR_CONSTRUCTOR,
 } from "../../../../constants";
 import { StatementEditorContext } from "../../../../store/statement-editor-context";
 import { ExpressionArrayComponent } from "../../../ExpressionArray";
@@ -40,8 +40,14 @@ export function KeySpecifierComponent(props: KeySpecifierProps) {
 
     const onClickOnPlusIcon = (event: any) => {
         event.stopPropagation();
-        const newExpression = model.fieldNames.length !== 0 ? APPEND_FIELD_CONSTRUCTOR : INIT_FIELD_CONSTRUCTOR;
-        updateModel(newExpression, model.closeParenToken.position);
+        model.fieldNames.length !== 0 ? updateModel(APPEND_EXPR_CONSTRUCTOR, {
+            ...model.closeParenToken.position,
+            endColumn: model.closeParenToken.position.endColumn - 1
+        }) :
+        updateModel(INIT_EXPR_CONSTRUCTOR, {
+            ...model.closeParenToken.position,
+            endColumn: model.closeParenToken.position.endColumn - 1
+        })
     };
 
     return (
