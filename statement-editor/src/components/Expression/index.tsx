@@ -13,6 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext } from "react";
 
+import { STNode } from "@wso2-enterprise/syntax-tree";
 import cn from "classnames";
 
 import { StatementEditorContext } from "../../store/statement-editor-context";
@@ -20,7 +21,7 @@ import { getExpressionTypeComponent, isPositionsEquals } from "../../utils";
 import { useStatementEditorStyles } from "../styles";
 
 export interface ExpressionComponentProps {
-    model: any;
+    model: STNode;
     children?: React.ReactElement[];
     classNames?: string;
 }

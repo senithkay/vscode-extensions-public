@@ -29,7 +29,7 @@ import {
 } from "@wso2-enterprise/syntax-tree";
 
 import { RemainingContent } from "../models/definitions";
-import { getStringForMinutiae, isPositionsEquals } from "../utils";
+import { isPositionsEquals } from "../utils";
 
 const DEFAULT_EXPR = "EXPRESSION";
 const DEFAULT_TYPE_DESC = "TYPE_DESCRIPTOR";
@@ -127,34 +127,21 @@ class ExpressionDeletingVisitor implements Visitor {
     public beginVisitMappingConstructor(node: MappingConstructor) {
         if (!this.isNodeFound) {
             const hasItemsToBeDeleted = node.fields.some((field: STNode) => {
-                return isPositionsEquals(this.deletePosition, field.position);
+                return this.deletePosition === field.position;
             });
 
             if (hasItemsToBeDeleted) {
                 const expressions: string[] = [];
-                let nextCommaDeletable = false;
                 node.fields.map((field: STNode) => {
-                    if (!isPositionsEquals(this.deletePosition, field.position)) {
-                        if (STKindChecker.isCommaToken(field)) {
-                            if (!nextCommaDeletable) {
-                                expressions.push(getStringForMinutiae(field.leadingMinutiae) + field.value +
-                                    getStringForMinutiae(field.trailingMinutiae));
-                            }
-                        } else {
-                            expressions.push(field.source);
-                        }
-                        nextCommaDeletable = false;
-                    } else {
-                        nextCommaDeletable = true;
+                    if (this.deletePosition !== field.position && !STKindChecker.isCommaToken(field)) {
+                        expressions.push(field.source);
                     }
                 });
 
-                const _ = expressions[expressions.length - 1]?.trim() === ',' && expressions.pop();
-
-                this.setProperties(expressions.join(''), {
-                    startLine: node.openBrace.position.endLine,
+                this.setProperties(expressions.join(','), {
+                    startLine: node.openBrace.position.startLine,
                     startColumn: node.openBrace.position.endColumn,
-                    endLine: node.closeBrace.position.startLine,
+                    endLine: node.closeBrace.position.endLine,
                     endColumn: node.closeBrace.position.startColumn
                 });
             }
