@@ -171,20 +171,20 @@ export function isPositionsEquals(position1: NodePosition, position2: NodePositi
         position1?.endColumn === position2?.endColumn;
 }
 
-export function getFilteredDiagnosticMessages(stmtLength: number, targetPosition: NodePosition,
+export function getFilteredDiagnosticMessages(statement: string, targetPosition: NodePosition,
                                               diagnostics: Diagnostic[]): StmtDiagnostic[] {
+
     const stmtDiagnostics: StmtDiagnostic[] = [];
-
     const diag = getFilteredDiagnostics(diagnostics, false);
-
-    const diagnosticTargetPosition: NodePosition = {
+    const noOfLines = statement.trim().split('\n').length;
+    const diagTargetPosition: NodePosition = {
         startLine: targetPosition.startLine || 0,
         startColumn: targetPosition.startColumn || 0,
-        endLine: targetPosition?.endLine || targetPosition.startLine,
+        endLine: targetPosition?.startLine + noOfLines - 1 || targetPosition.startLine,
         endColumn: targetPosition?.endColumn || 0
     };
 
-    getDiagnosticMessage(diag, diagnosticTargetPosition, 0, stmtLength, 0, 0).split('. ').map(message => {
+    getDiagnosticMessage(diag, diagTargetPosition, 0, statement.length, 0, 0).split('. ').map(message => {
             let isPlaceHolderDiag = false;
             if (PLACE_HOLDER_DIAGNOSTIC_MESSAGES.includes(message)) {
                 isPlaceHolderDiag = true;

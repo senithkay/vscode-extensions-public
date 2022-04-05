@@ -122,7 +122,7 @@ export function StatementEditor(props: StatementEditorProps) {
             const updatedContent = await getUpdatedSource(undoItem.oldModel.source, currentFile.content,
                 targetPosition, moduleList);
             sendDidChange(fileURI, updatedContent, getLangClient).then();
-            const diagnostics = await handleDiagnostics(undoItem.oldModel.source.length);
+            const diagnostics = await handleDiagnostics(undoItem.oldModel.source);
             updateEditedModel(undoItem.oldModel, diagnostics);
         }
     }, []);
@@ -133,7 +133,7 @@ export function StatementEditor(props: StatementEditorProps) {
             const updatedContent = await getUpdatedSource(redoItem.oldModel.source, currentFile.content,
                 targetPosition, moduleList);
             sendDidChange(fileURI, updatedContent, getLangClient).then();
-            const diagnostics = await handleDiagnostics(redoItem.oldModel.source.length);
+            const diagnostics = await handleDiagnostics(redoItem.oldModel.source);
             updateEditedModel(redoItem.newModel, diagnostics);
         }
     }, []);
@@ -145,7 +145,7 @@ export function StatementEditor(props: StatementEditorProps) {
                     targetPosition, moduleList);
 
                 sendDidOpen(fileURI, updatedContent, getLangClient).then();
-                const diagnostics = await handleDiagnostics(initialSource.length);
+                const diagnostics = await handleDiagnostics(initialSource);
 
                 const partialST = await getPartialSTForStatement(
                     { codeSnippet: initialSource.trim() }, getLangClient);
@@ -186,7 +186,7 @@ export function StatementEditor(props: StatementEditorProps) {
             targetPosition, moduleList);
 
         sendDidChange(fileURI, updatedContent, getLangClient).then();
-        handleDiagnostics(updatedStatement.length).then();
+        handleDiagnostics(updatedStatement).then();
         handleCompletions(newValue).then();
     }
 
@@ -212,7 +212,7 @@ export function StatementEditor(props: StatementEditorProps) {
         const updatedContent = await getUpdatedSource(partialST.source, currentFile.content, targetPosition,
             moduleList);
         sendDidChange(fileURI, updatedContent, getLangClient).then();
-        const diagnostics = await handleDiagnostics(partialST.source.length);
+        const diagnostics = await handleDiagnostics(partialST.source);
 
         if (!partialST.syntaxDiagnostics.length || config.type === CUSTOM_CONFIG_TYPE) {
             updateEditedModel(partialST, diagnostics);
@@ -264,11 +264,11 @@ export function StatementEditor(props: StatementEditorProps) {
         setLSSuggestionsList(lsSuggestions);
     }
 
-    const handleDiagnostics = async (stmtLength: number): Promise<Diagnostic[]> => {
+    const handleDiagnostics = async (statement: string): Promise<Diagnostic[]> => {
         const diagResp = await getDiagnostics(fileURI, getLangClient);
         const diag  = diagResp[0]?.diagnostics ? diagResp[0].diagnostics : [];
         removeUnusedModules(diag);
-        const messages = getFilteredDiagnosticMessages(stmtLength, targetPosition, diag);
+        const messages = getFilteredDiagnosticMessages(statement, targetPosition, diag);
         setStmtDiagnostics(messages);
         return diag;
     }
