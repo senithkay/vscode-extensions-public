@@ -314,8 +314,8 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                                 if (isAvailable) {
                                                     setModulePullInProgress(true);
                                                     setLoaderText('Pulling packages...');
-                                                    const { parseSuccess } = await resolveMissingDependency(filePath, source);
-                                                    if (parseSuccess) {
+                                                    const { parseSuccess: pullSuccess } = await resolveMissingDependency(filePath, source);
+                                                    if (pullSuccess) {
                                                         // Rebuild the file At backend
                                                         langClient.didChange({
                                                             textDocument: { uri, version: 1 },

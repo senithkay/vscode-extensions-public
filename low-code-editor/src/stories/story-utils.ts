@@ -3,12 +3,12 @@ import { render } from "react-dom";
 
 import { BalleriaLanguageClient, WSConnection } from "@wso2-enterprise/ballerina-languageclient";
 import { ANALYZE_TYPE, LibraryDataResponse, LibraryDocResponse, LibraryKind, LibrarySearchResponse, PerformanceAnalyzerGraphResponse, PerformanceAnalyzerRealtimeResponse } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { Uri } from "monaco-editor";
 
 import { DiagramGeneratorProps } from "../DiagramGenerator";
 
 import balDist from "./data/baldist.json";
 import { StandaloneDiagramApp } from "./StandaloneDiagramApp";
-import { Uri } from "monaco-editor";
 
 export const MOCK_SERVER_URL = "http://localhost:3000"
 export const LANG_SERVER_URL = "ws://localhost:9095"
