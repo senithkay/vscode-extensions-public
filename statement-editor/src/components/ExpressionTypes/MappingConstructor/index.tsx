@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import React, { useContext } from "react";
 
-import { MappingConstructor } from "@wso2-enterprise/syntax-tree";
+import { MappingConstructor, NodePosition } from "@wso2-enterprise/syntax-tree";
 
 import { MAPPING_CONSTRUCTOR } from "../../../constants";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
@@ -40,8 +40,19 @@ export function MappingConstructorComponent(props: MappingConstructorProps) {
 
     const addNewExpression = () => {
         const expressionTemplate = generateExpressionTemplate(MAPPING_CONSTRUCTOR);
-        const newField = isEmpty ? `${expressionTemplate} }` : `,\n${expressionTemplate} }`;
-        updateModel(newField, model.closeBrace.position);
+        const newField = isEmpty ? expressionTemplate : `,\n${expressionTemplate}`;
+        const newPosition: NodePosition = isEmpty
+            ? {
+                ...model.closeBrace.position,
+                endColumn: model.closeBrace.position.startColumn
+            }
+            : {
+                startLine: model.fields[model.fields.length - 1].position.endLine,
+                startColumn:  model.fields[model.fields.length - 1].position.endColumn,
+                endLine: model.closeBrace.position.startLine,
+                endColumn: model.closeBrace.position.startColumn
+            }
+        updateModel(newField, newPosition);
     };
 
     return (
