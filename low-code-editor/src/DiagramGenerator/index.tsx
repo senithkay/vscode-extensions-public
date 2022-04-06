@@ -290,12 +290,13 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                 code: {
                                     modifyDiagram: async (mutations: STModification[], options?: any) => {
                                         const langClient = await langClientPromise;
+                                        const uri = monaco.Uri.file(filePath).toString();
                                         setMutationInProgress(true);
                                         setLoaderText('Updating...');
                                         const { parseSuccess, source, syntaxTree: newST } = await langClient.stModify({
                                             astModifications: await InsertorDelete(mutations),
                                             documentIdentifier: {
-                                                uri: monaco.Uri.file(filePath).toString()
+                                                uri
                                             }
                                         });
                                         let vistedSyntaxTree: STNode;
@@ -313,11 +314,24 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                                 if (isAvailable) {
                                                     setModulePullInProgress(true);
                                                     setLoaderText('Pulling packages...');
-                                                    await resolveMissingDependency(filePath, source);
+                                                    const { parseSuccess } = await resolveMissingDependency(filePath, source);
+                                                    if (parseSuccess) {
+                                                        // Rebuild the file At backend
+                                                        langClient.didChange({
+                                                            textDocument: { uri, version: 1 },
+                                                            contentChanges: [
+                                                                {
+                                                                    text: source
+                                                                }
+                                                            ],
+                                                        })
+                                                        const { syntaxTree: stWithoutDiagnostics } = await langClient.getSyntaxTree({ documentIdentifier: { uri }})
+                                                        vistedSyntaxTree = await getLowcodeST(stWithoutDiagnostics, filePath, langClient);
+                                                        setSyntaxTree(vistedSyntaxTree);
+                                                    }
                                                     setModulePullInProgress(false);
                                                 }
                                             }
-
 
                                             let newActivePosition: SelectedPosition = { ...selectedPosition };
                                             for (const mutation of mutations) {

@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { ANALYZE_TYPE, DiagramEditorLangClientInterface, LibraryDataResponse, LibraryDocResponse, LibraryKind, LibrarySearchResponse, LowcodeEvent, PerformanceAnalyzerGraphResponse, PerformanceAnalyzerRealtimeResponse, SentryConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ANALYZE_TYPE, DiagramEditorLangClientInterface, GetSyntaxTreeResponse, LibraryDataResponse, LibraryDocResponse, LibraryKind, LibrarySearchResponse, LowcodeEvent, PerformanceAnalyzerGraphResponse, PerformanceAnalyzerRealtimeResponse, SentryConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { DiagramGenerator } from "..";
 import { DiagramGenErrorBoundary } from "../ErrorBoundrary";
@@ -30,7 +30,7 @@ export interface EditorAPI {
     showPerformanceGraph: () => Promise<boolean>;
     getPerfDataFromChoreo: (data: any, analyzeType: ANALYZE_TYPE) => Promise<PerformanceAnalyzerRealtimeResponse | PerformanceAnalyzerGraphResponse | undefined>;
     showMessage: () => Promise<boolean>;
-    resolveMissingDependency: (filePath: string, fileContent: string) => Promise<boolean>;
+    resolveMissingDependency: (filePath: string, fileContent: string) => Promise<GetSyntaxTreeResponse>;
     resolveMissingDependencyByCodeAction: (filePath: string, fileContent: string, diagnostic: any) => Promise<boolean>;
     runCommand: (command: PALETTE_COMMANDS, args: any[]) => Promise<boolean>;
     sendTelemetryEvent: (event: LowcodeEvent) => Promise<void>;

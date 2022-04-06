@@ -7,8 +7,8 @@ import { ANALYZE_TYPE, LibraryDataResponse, LibraryDocResponse, LibraryKind, Lib
 import { DiagramGeneratorProps } from "../DiagramGenerator";
 
 import balDist from "./data/baldist.json";
-import { DiagramGeneratorWrapper } from "./DiagramGeneratorWrapper";
 import { StandaloneDiagramApp } from "./StandaloneDiagramApp";
+import { Uri } from "monaco-editor";
 
 export const MOCK_SERVER_URL = "http://localhost:3000"
 export const LANG_SERVER_URL = "ws://localhost:9095"
@@ -53,7 +53,14 @@ export function getDiagramGeneratorProps(filePath: string, enableSave: boolean =
     getPerfDataFromChoreo: generatePerfData,
     gotoSource: () => Promise.resolve(false),
     lastUpdatedAt: (new Date()).toISOString(),
-    resolveMissingDependency: () => Promise.resolve(false),
+    resolveMissingDependency: async () => {
+      const langClient = await langClientPromise;
+      return langClient.resolveMissingDependencies({
+        documentIdentifier: {
+          uri: Uri.file(filePath).toString()
+        }
+      });
+    },
     resolveMissingDependencyByCodeAction: () => Promise.resolve(false),
     runCommand: () => Promise.resolve(false),
     sendTelemetryEvent: () => Promise.resolve(undefined),
