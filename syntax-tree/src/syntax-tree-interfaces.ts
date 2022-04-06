@@ -6423,7 +6423,4 @@ export interface XmlnsKeyword extends STNode {
   trailingMinutiae: WHITESPACE_MINUTIAE[];
   value: string;
 }
-
-export interface undefined extends STNode {}
-
 // tslint:enable:ban-types
