@@ -80,16 +80,7 @@ export class BallerinaNotebookController {
             let output: NoteBookCellOutputResponse = await langClient.getBalShellResult({
                 source: cell.document.getText().trim()
             });
-            if (output.diagnostics.length) {
-                output.diagnostics.length > 1 ? output.diagnostics.pop() : null;
-                output.diagnostics.forEach(diagnostic => 
-                        execution.appendOutput(new NotebookCellOutput([
-                            NotebookCellOutputItem.text(diagnostic)
-                        ]))
-                );
-                execution.end(false, Date.now());
-            }
-            else if (output.shellValue?.value) {
+            if (output.shellValue?.value) {
                 if (CUSTOM_DESIGNED_MIME_TYPES.includes(output.shellValue!.mimeType)) {
                     execution.replaceOutput([ new NotebookCellOutput([
                             NotebookCellOutputItem.json(output, output.shellValue!.mimeType),
@@ -103,11 +94,23 @@ export class BallerinaNotebookController {
                         ])
                     ]);
                 }
-                execution.end(true, Date.now());
             } 
-            else {
-                execution.end(true, Date.now());
+            if (output.diagnostics.length) {
+                output.diagnostics.length > 1 ? output.diagnostics.pop() : null;
+                output.diagnostics.forEach(diagnostic => 
+                        execution.appendOutput(new NotebookCellOutput([
+                            NotebookCellOutputItem.text(diagnostic)
+                        ]))
+                );
             }
+            if (output.errors.length) {
+                output.errors.forEach(err => 
+                        execution.appendOutput(new NotebookCellOutput([
+                            NotebookCellOutputItem.text(err)
+                        ]))
+                );
+            }
+            execution.end(!(output.diagnostics.length) && !(output.errors.length), Date.now());
         } catch (error) {
             execution.end(false, Date.now());
         }

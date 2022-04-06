@@ -377,12 +377,6 @@
                 "icon": "$(list-unordered)",
                 "category": "Ballerina",
                 "enablement": "notebookType == 'ballerina-notebook'"
-            },
-            {
-                "command": "ballerina.notebook.debugcell",
-                "title": "Debug Cell",
-                "category": "Ballerina",
-                "when": "notebookType === 'ballerina-notebook'"
             }
         ],
         "views": {
@@ -482,12 +476,6 @@
                     "title": "Outline",
                     "group": "navigation@3",
                     "when": "notebookType == 'ballerina-notebook'"
-                }
-            ],
-            "notebook/cell/execute": [
-                {
-                    "command": "ballerina.notebook.debugcell",
-                    "title": "Debug Cell"
                 }
             ],
             "view/item/context": [
