@@ -21,22 +21,21 @@ import React from "react";
 
 import { TextField } from "@material-ui/core";
 
-import { ConfigType } from "../../model";
 import { useStyles } from "../../style";
 
 export interface TextFieldInputProps {
     id: string;
     isRequired: boolean;
-    existingValue: any;
+    value: any;
     type: string;
-    setTextFieldValue: (key: string, value: any) => void;
+    inputProps?: object;
+    placeholder?: string;
+    setTextFieldValue: (id: string, value: any) => void;
 }
 
 export function TextFieldInput(props: TextFieldInputProps) {
     const classes = useStyles();
-    const { id, isRequired, existingValue, type, setTextFieldValue } = props;
-
-    const placeholder: string = isRequired ? "Required value" : "";
+    const { id, isRequired, value, type, inputProps, placeholder, setTextFieldValue } = props;
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         let value = e.target.value;
@@ -46,23 +45,14 @@ export function TextFieldInput(props: TextFieldInputProps) {
         setTextFieldValue(id, value);
     };
 
-    let fieldType: string = type;
-    let inputProps: object = {};
-    if (type === ConfigType.INTEGER) {
-        fieldType = "number";
-    } else if (type === ConfigType.NUMBER) {
-        fieldType = "text";
-        inputProps = { inputMode: "numeric", pattern: "[\-\+]?[0-9]*(\.[0-9]+)?" };
-    }
-
     return (
         <TextField
             required={isRequired}
             variant="outlined"
             placeholder={placeholder}
             fullWidth={true}
-            defaultValue={existingValue}
-            type={fieldType}
+            defaultValue={value}
+            type={type}
             margin="none"
             onChange={handleChange}
             size="small"

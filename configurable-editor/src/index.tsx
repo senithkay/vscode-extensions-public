@@ -22,9 +22,9 @@ import ReactDOM from "react-dom";
 
 import ConfigEditor from "./components/ConfigEditor";
 import { ConfigForm } from "./components/ConfigForm";
-import { ConfigObjectProps } from "./components/ConfigRecord";
+import { RecordTypeProps } from "./components/types/RecordType";
 import { ConfigSchema } from "./components/model";
-export { ConfigForm, ConfigObjectProps, ConfigSchema };
+export { ConfigForm, RecordTypeProps as ConfigObjectProps, ConfigSchema };
 
 export function renderConfigEditor(
     data: ConfigSchema,
@@ -32,7 +32,7 @@ export function renderConfigEditor(
     defaultButtonText: string,
     primaryButtonText: string,
     onClickDefaultButton: () => void,
-    onClickPrimaryButton: (configProperties: ConfigObjectProps) => void,
+    onClickPrimaryButton: (configProperties: RecordTypeProps) => void,
 ) {
     ReactDOM.render(
             (

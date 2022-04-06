@@ -17,23 +17,4 @@
  *
  */
 
-import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
-
-export const useStyles = makeStyles((theme: Theme) =>
-    createStyles({
-        expandLessIcon: {
-            marginLeft: "auto",
-            transform: "rotate(180deg)",
-            transition: theme.transitions.create("transform", {
-                duration: theme.transitions.duration.shortest,
-            })
-        },
-        expandMoreIcon: {
-            marginLeft: "auto",
-            transform: "rotate(0deg)",
-            transition: theme.transitions.create("transform", {
-                duration: theme.transitions.duration.shortest,
-            }),
-        },
-    }),
-);
+export { default } from "./DeleteButton";

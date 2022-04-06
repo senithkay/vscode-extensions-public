@@ -52,7 +52,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             fontSize: theme.spacing(1.8),
         },
         labelCont: {
-            marginBottom: theme.spacing(1),
+            marginTop: theme.spacing(0.5),
         },
         labelTag: {
             display: "flex",
@@ -64,6 +64,7 @@ export const useStyles = makeStyles((theme: Theme) =>
         mainLabelText: {
             color: "#1D2028",
             fontSize: theme.spacing(1.6),
+            marginTop: theme.spacing(0.4),
         },
         textInputRoot: {
             "& .MuiInputBase-root": {

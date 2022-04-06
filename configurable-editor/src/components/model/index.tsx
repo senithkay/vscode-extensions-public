@@ -17,12 +17,19 @@
  *
  */
 
+import { ArrayTypeProps } from "../types/ArrayType";
+import { MapTypeProps } from "../types/MapType";
+import { RecordTypeProps } from "../types/RecordType";
+import { SimpleTypeProps } from "../types/SimpleType";
+
 /**
  * Common properties in the config schema.
  */
 export enum SchemaConstants {
     ITEMS = "items",
     TYPE = "type",
+    VALUE = "value",
+    NAME = "name",
     DESCRIPTION = "description",
     PROPERTIES = "properties",
     REQUIRED = "required",
@@ -33,16 +40,20 @@ export enum SchemaConstants {
 /**
  * Types of config values mapped into the model from the config schema.
  */
+
 export enum ConfigType {
     ARRAY = "array",
     BOOLEAN = "boolean",
     INTEGER = "integer",
-    NUMBER = "number",
+    FLOAT = "float",
     RECORD = "record",
+    MAP = "map",
+    NUMBER = "number",
     OBJECT = "object",
     STRING = "string",
     UNION = "union",
-    UNSUPPORTED = "unsupported", // Types other than the above ones.
+    UNSUPPORTED = "unsupported",
+    ANY_OF = "anyOf"
 }
 
 /**
@@ -70,14 +81,3 @@ export interface ConfigSchema {
     properties: object;
 }
 
-/**
- * Set the metadata values.
- * @param orgName     The organization of the Ballerina project.
- * @param packageName The package name of the Ballerina project.
- */
-export function setMetaData(orgName: string, packageName: string): MetaData {
-    return {
-        orgName,
-        packageName,
-    };
-}

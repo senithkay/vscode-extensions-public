@@ -25,7 +25,7 @@ export interface RadioGroupInputProps {
     id: string;
     existingValue: boolean;
     isRequired: boolean;
-    setRadioGroupValue: (key: string, value: any) => void;
+    setRadioGroupValue: (id: string, value: boolean) => void;
 }
 
 export function RadioGroupInput(props: RadioGroupInputProps) {

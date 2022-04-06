@@ -16,24 +16,28 @@
  * under the License.
  *
  */
+import React from "react";
 
-import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
+import { IconButton } from "@material-ui/core";
+import DeleteIcon from "@material-ui/icons/Delete";
 
-export const useStyles = makeStyles((theme: Theme) =>
-    createStyles({
-        expandLessIcon: {
-            marginLeft: "auto",
-            transform: "rotate(180deg)",
-            transition: theme.transitions.create("transform", {
-                duration: theme.transitions.duration.shortest,
-            })
-        },
-        expandMoreIcon: {
-            marginLeft: "auto",
-            transform: "rotate(0deg)",
-            transition: theme.transitions.create("transform", {
-                duration: theme.transitions.duration.shortest,
-            }),
-        },
-    }),
-);
+interface DeleteButtonProps {
+    id: string;
+    onDelete: (id: string) => void;
+}
+const DeleteButton = ({ id, onDelete }: DeleteButtonProps) => {
+
+    const handleDelete = () => {
+        onDelete(id);
+    };
+
+    return (
+        <IconButton
+            onClick={handleDelete}
+            size={"small"}
+        >
+            <DeleteIcon style={{ marginBottom: 5 }}/>
+        </IconButton>
+    );
+};
+export default DeleteButton;

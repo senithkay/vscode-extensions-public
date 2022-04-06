@@ -10,10 +10,14 @@
                     "properties": {
                         "itemCode": {
                             "type": "string",
-                            "description": "Sample description of the itemCode configurable."
+                            "description": ""
                         },
                         "discount": {
                             "type": "number",
+                            "description": "Sample description of the discount configurable."
+                        },
+                        "age": {
+                            "type": "integer",
                             "description": "Sample description of the discount configurable."
                         },
                         "testMode": {
@@ -73,7 +77,7 @@
                             },
                             "description": "Sample description of the mapValueInteger configurable."
                         },
-                        "mapValueIntBoolean": {
+                        "mapValueBoolean": {
                             "type": "object",
                             "additionalProperties": {
                                 "type": "boolean"
@@ -94,7 +98,6 @@
                                 },
                                 "additionalProperties": false,
                                 "required": [
-                                    "age",
                                     "name"
                                 ]
                             },
@@ -126,6 +129,50 @@
                                 ]
                             },
                             "description": "Sample description of the mapValueUnion configurable."
+                        },
+                        "intArray": {
+                            "type": "array",
+                            "items": { "type": "integer" },
+                            "description": ""
+                        },
+                        "stringArray": {
+                            "type": "array",
+                            "items": { "type": "string" },
+                            "description": ""
+                        },
+                        "decimalArray": {
+                            "type": "array",
+                            "items": { "type": "number" },
+                            "description": ""
+                        },
+                        "floatArray": {
+                            "type": "array",
+                            "items": { "type": "number" },
+                            "description": ""
+                        },
+                        "booleanArray": {
+                            "type": "array",
+                            "items": { "type": "boolean" },
+                            "description": ""
+                        },
+                        "recordArray": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "name": { "type": "string" },
+                                    "id": { "type": "integer" },
+                                    "weight": { "type": "number" },
+                                    "employeed": { "type": "boolean" }
+                                },
+                                "additionalProperties": false,
+                                "required": ["name", "id", "weight"]
+                            },
+                            "description": ""
+                        },
+                        "unionType": {
+                            "anyOf": [{ "type": "integer" }, { "type": "string" }],
+                            "description": ""
                         }
                     },
                     "required": [
