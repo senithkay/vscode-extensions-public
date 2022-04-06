@@ -13,11 +13,10 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext } from "react";
 
-import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { MAPPING_CONSTRUCTOR } from "../../constants";
 import { StatementEditorContext } from "../../store/statement-editor-context";
-import { addToTargetPosition } from "../../utils";
 import { generateExpressionTemplate } from "../../utils/utils";
 import { NewExprAddButton } from "../Button/NewExprAddButton";
 import { ExpressionComponent } from "../Expression";
@@ -33,7 +32,6 @@ export function ExpressionArrayComponent(props: ExpressionArrayProps) {
 
     const {
         modelCtx: {
-            statementModel,
             updateModel,
         }
     } = useContext(StatementEditorContext);
@@ -41,8 +39,12 @@ export function ExpressionArrayComponent(props: ExpressionArrayProps) {
     const addNewExpression = (model: STNode) => {
         const template = generateExpressionTemplate(MAPPING_CONSTRUCTOR);
         const newField = `,\n${template}`;
-        const newValue = addToTargetPosition(statementModel.source, model.position, model.source.trim() + newField);
-        updateModel(newValue, statementModel.position);
+        const newPosition: NodePosition = {
+                ...model.position,
+                startLine: model.position.endLine,
+                startColumn: model.position.endColumn
+            }
+        updateModel(newField, newPosition);
     };
 
     return (
