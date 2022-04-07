@@ -51,6 +51,7 @@ describe('add a http service to an empty file', () => {
             .addQueryParam("query")
             .togglePayload()
             .typePayloadType("string")
+            .typePayloadName("reqPayload")
             .clickRequestCheckBox()
             .clickCallerCheckBox()
             .save()
