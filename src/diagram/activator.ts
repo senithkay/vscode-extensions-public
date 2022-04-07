@@ -490,6 +490,13 @@ class DiagramPanel {
 					return ballerinaExtension.getCodeServerContext().codeServerEnv ? await getSentryConfig() : undefined;
 				}
 			},
+			{
+				methodName: "getEnv",
+				handler: async (args: any[]): Promise<any> => {
+					const envName = args[0];
+					return (envName in process.env) ? process.env[envName]: "NOT_FOUND";
+				}
+			},
 		];
 
 		webviewRPCHandler = WebViewRPCHandler.create(panel, langClient, remoteMethods);
