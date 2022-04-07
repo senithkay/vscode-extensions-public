@@ -14,10 +14,7 @@ import React, { useContext } from "react";
 
 import { KeySpecifier } from "@wso2-enterprise/syntax-tree";
 
-import {
-    APPEND_EXPR_CONSTRUCTOR,
-    INIT_EXPR_CONSTRUCTOR,
-} from "../../../../constants";
+import { EXPR_CONSTRUCTOR } from "../../../../constants";
 import { StatementEditorContext } from "../../../../store/statement-editor-context";
 import { ExpressionArrayComponent } from "../../../ExpressionArray";
 import { useStatementEditorStyles } from "../../../styles";
@@ -40,13 +37,12 @@ export function KeySpecifierComponent(props: KeySpecifierProps) {
 
     const onClickOnPlusIcon = (event: any) => {
         event.stopPropagation();
-        model.fieldNames.length !== 0 ? updateModel(APPEND_EXPR_CONSTRUCTOR, {
-            ...model.closeParenToken.position,
-            endColumn: model.closeParenToken.position.endColumn - 1
-        }) :
-        updateModel(INIT_EXPR_CONSTRUCTOR, {
-            ...model.closeParenToken.position,
-            endColumn: model.closeParenToken.position.endColumn - 1
+        const expr = model.fieldNames.length !== 0 ? `, ${EXPR_CONSTRUCTOR}` : EXPR_CONSTRUCTOR;
+        updateModel(expr, {
+            startLine: model.fieldNames[model.fieldNames.length - 1].position.endLine,
+            startColumn: model.fieldNames[model.fieldNames.length - 1].position.endColumn,
+            endLine: model.closeParenToken.position.startLine,
+            endColumn: model.closeParenToken.position.startColumn
         })
     };
 

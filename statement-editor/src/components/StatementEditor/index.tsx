@@ -24,10 +24,7 @@ import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tre
 import * as monaco from "monaco-editor";
 import { Diagnostic } from "vscode-languageserver-protocol";
 
-import {
-    APPEND_EXPR_CONSTRUCTOR,
-    CUSTOM_CONFIG_TYPE, INIT_EXPR_CONSTRUCTOR
-} from "../../constants";
+import { CUSTOM_CONFIG_TYPE } from "../../constants";
 import {
     CurrentModel,
     StmtDiagnostic,

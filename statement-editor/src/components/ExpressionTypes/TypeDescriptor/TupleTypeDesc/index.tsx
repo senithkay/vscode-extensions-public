@@ -15,7 +15,7 @@ import React, { useContext } from "react";
 
 import { TupleTypeDesc } from "@wso2-enterprise/syntax-tree";
 
-import { APPEND_TYPE_DESC_CONSTRUCTOR, INIT_TYPE_DESC_CONSTRUCTOR } from "../../../../constants";
+import { TYPE_DESC_CONSTRUCTOR } from "../../../../constants";
 import { StatementEditorContext } from "../../../../store/statement-editor-context";
 import { ExpressionArrayComponent } from "../../../ExpressionArray";
 import { useStatementEditorStyles } from "../../../styles";
@@ -38,14 +38,13 @@ export function TupleTypeDescComponent(props: TupleTypeDescProps) {
 
     const onClickOnPlusIcon = (event: any) => {
         event.stopPropagation();
-        model.memberTypeDesc.length !== 0 ? updateModel(APPEND_TYPE_DESC_CONSTRUCTOR, {
-                ...model.closeBracketToken.position,
-                endColumn: model.closeBracketToken.position.endColumn - 1
-            }) :
-            updateModel(INIT_TYPE_DESC_CONSTRUCTOR, {
-                ...model.closeBracketToken.position,
-                endColumn: model.closeBracketToken.position.endColumn - 1
-            });
+        const expr = model.memberTypeDesc.length !== 0 ? `, ${TYPE_DESC_CONSTRUCTOR}` : TYPE_DESC_CONSTRUCTOR;
+        updateModel(expr, {
+            startLine: model.memberTypeDesc[model.memberTypeDesc.length - 1].position.endLine,
+            startColumn: model.memberTypeDesc[model.memberTypeDesc.length - 1].position.endColumn,
+            endLine: model.closeBracketToken.position.startLine,
+            endColumn: model.closeBracketToken.position.startColumn
+        })
     };
 
     return (

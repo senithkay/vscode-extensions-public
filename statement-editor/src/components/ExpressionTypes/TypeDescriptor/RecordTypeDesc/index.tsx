@@ -12,7 +12,7 @@
  */
 import React, { useContext } from "react";
 
-import { RecordTypeDesc, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { RecordTypeDesc } from "@wso2-enterprise/syntax-tree";
 
 import { TYPED_BINDING_CONSTRUCTOR } from "../../../../constants";
 import { StatementEditorContext } from "../../../../store/statement-editor-context";
@@ -38,14 +38,12 @@ export function RecordTypeDescComponent(props: RecordTypeDescProps) {
 
     const onClickOnPlusIcon = (event: any) => {
         event.stopPropagation();
-        STKindChecker.isOpenBracePipeToken(model.bodyStartDelimiter) ?
-        updateModel(TYPED_BINDING_CONSTRUCTOR, {
-            ...model.bodyEndDelimiter.position,
-            endColumn: model.bodyEndDelimiter.position.endColumn - 2
-        }) : updateModel(TYPED_BINDING_CONSTRUCTOR, {
-                ...model.bodyEndDelimiter.position,
-                endColumn: model.bodyEndDelimiter.position.endColumn - 1
-            })
+        updateModel(`${TYPED_BINDING_CONSTRUCTOR};`, {
+            startLine: model.fields[model.fields.length - 1].position.endLine,
+            startColumn: model.fields[model.fields.length - 1].position.endColumn,
+            endLine: model.bodyEndDelimiter.position.startLine,
+            endColumn: model.bodyEndDelimiter.position.startColumn
+        })
     };
 
     return (
