@@ -38,12 +38,16 @@ export function RecordTypeDescComponent(props: RecordTypeDescProps) {
 
     const onClickOnPlusIcon = (event: any) => {
         event.stopPropagation();
-        updateModel(`${TYPED_BINDING_CONSTRUCTOR};`, {
+        const newPosition = model.fields.length === 0 ? {
+            ...model.bodyEndDelimiter.position,
+            endColumn: model.bodyEndDelimiter.position.startColumn
+        } : {
             startLine: model.fields[model.fields.length - 1].position.endLine,
             startColumn: model.fields[model.fields.length - 1].position.endColumn,
             endLine: model.bodyEndDelimiter.position.startLine,
             endColumn: model.bodyEndDelimiter.position.startColumn
-        })
+        }
+        updateModel(`${TYPED_BINDING_CONSTRUCTOR};`, newPosition);
     };
 
     return (

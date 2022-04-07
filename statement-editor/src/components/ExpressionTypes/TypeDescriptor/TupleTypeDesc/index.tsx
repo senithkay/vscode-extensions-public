@@ -38,13 +38,18 @@ export function TupleTypeDescComponent(props: TupleTypeDescProps) {
 
     const onClickOnPlusIcon = (event: any) => {
         event.stopPropagation();
-        const expr = model.memberTypeDesc.length !== 0 ? `, ${TYPE_DESC_CONSTRUCTOR}` : TYPE_DESC_CONSTRUCTOR;
-        updateModel(expr, {
+        const isEmpty = model.memberTypeDesc.length === 0;
+        const expr = isEmpty ? TYPE_DESC_CONSTRUCTOR : `, ${TYPE_DESC_CONSTRUCTOR}`;
+        const newPosition = isEmpty ? {
+            ...model.closeBracketToken.position,
+            endColumn: model.closeBracketToken.position.startColumn
+        } : {
             startLine: model.memberTypeDesc[model.memberTypeDesc.length - 1].position.endLine,
             startColumn: model.memberTypeDesc[model.memberTypeDesc.length - 1].position.endColumn,
             endLine: model.closeBracketToken.position.startLine,
             endColumn: model.closeBracketToken.position.startColumn
-        })
+        }
+        updateModel(expr, newPosition);
     };
 
     return (

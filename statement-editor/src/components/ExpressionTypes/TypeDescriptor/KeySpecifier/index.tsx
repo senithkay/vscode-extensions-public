@@ -37,13 +37,18 @@ export function KeySpecifierComponent(props: KeySpecifierProps) {
 
     const onClickOnPlusIcon = (event: any) => {
         event.stopPropagation();
-        const expr = model.fieldNames.length !== 0 ? `, ${EXPR_CONSTRUCTOR}` : EXPR_CONSTRUCTOR;
-        updateModel(expr, {
+        const isEmpty = model.fieldNames.length === 0;
+        const expr = isEmpty ? EXPR_CONSTRUCTOR : `, ${EXPR_CONSTRUCTOR}`;
+        const newPosition = isEmpty ? {
+            ...model.closeParenToken.position,
+            endColumn: model.closeParenToken.position.startColumn
+        } : {
             startLine: model.fieldNames[model.fieldNames.length - 1].position.endLine,
             startColumn: model.fieldNames[model.fieldNames.length - 1].position.endColumn,
             endLine: model.closeParenToken.position.startLine,
             endColumn: model.closeParenToken.position.startColumn
-        })
+        }
+        updateModel(expr, newPosition);
     };
 
     return (

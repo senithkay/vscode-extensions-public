@@ -38,13 +38,18 @@ export function ListConstructorComponent(props: ListConstructorProps) {
 
     const onClickOnPlusIcon = (event: any) => {
         event.stopPropagation();
-        const expr = model.expressions.length !== 0 ? `, ${EXPR_CONSTRUCTOR}` : EXPR_CONSTRUCTOR;
-        updateModel(expr, {
+        const isEmpty = model.expressions.length === 0;
+        const expr = isEmpty ? EXPR_CONSTRUCTOR : `, ${EXPR_CONSTRUCTOR}`;
+        const newPosition = isEmpty ? {
+            ...model.closeBracket.position,
+            endColumn: model.closeBracket.position.startColumn
+        } : {
             startLine: model.expressions[model.expressions.length - 1].position.endLine,
             startColumn: model.expressions[model.expressions.length - 1].position.endColumn,
             endLine: model.closeBracket.position.startLine,
             endColumn: model.closeBracket.position.startColumn
-        })
+        }
+        updateModel(expr, newPosition);
     };
 
     return (
