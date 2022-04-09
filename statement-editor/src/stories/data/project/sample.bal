@@ -15,7 +15,7 @@ type Report record {
     int expectedGradYear;
 };
 
-public function main() {
+public function sample() {
 
     Student s1 = {firstName: "Alex", lastName: "George", intakeYear: 2020, score: 1.5};
     Student s2 = {firstName: "Ranjan", lastName: "Fonseka", intakeYear: 2020, score: 0.9};

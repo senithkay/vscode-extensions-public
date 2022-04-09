@@ -10,10 +10,15 @@ export const langClientPromise = WSConnection.initialize(LANG_SERVER_URL).then((
 });
 
 export async function getFileContent(filePath: string): Promise<string> {
-  return fetch(MOCK_SERVER_URL + "/file/" + encodeURIComponent(filePath))
+
+  return fetch(MOCK_SERVER_URL + "/file/" + encodeURIComponent(getProjectPath() + filePath))
     .then(response => {
       return response.text()
     })
+}
+
+export  function getFileURI(filePath: string): string {
+  return getProjectPath() + filePath
 }
 
 export async function updateFileContent(filePath: string, text: string): Promise<boolean> {
@@ -32,16 +37,8 @@ export async function updateFileContent(filePath: string, text: string): Promise
 }
 
 
-export function getProjectRoot() {
-  return devproject.projectRoot;
-}
-
-export function getSourceRoot() {
-  return devproject.sourceRoot;
-}
-
-export function getComponentDataPath(componentName: string, fileName: string) {
-  return devproject.sourceRoot + "Components/RenderingComponents/" + componentName + "/stories/data/" + fileName;
+function getProjectPath() {
+  return devproject.projectPath;
 }
 
 export async function fetchSyntaxTree(filePath: string) {

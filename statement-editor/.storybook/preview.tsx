@@ -1,6 +1,8 @@
 import React from 'react';
 import { IntlProvider } from 'react-intl';
 
+import { StylesProvider } from '@material-ui/core';
+
 import messages from '../src/lang/en.json';
 
 
@@ -17,7 +19,9 @@ export const parameters = {
 export const decorators = [
   (Story: any) => (
     <IntlProvider locale='en' defaultLocale='en' messages={messages}>
-      <Story />
+        <StylesProvider injectFirst>
+          <Story />
+      </StylesProvider>
     </IntlProvider>
   )
 ];
