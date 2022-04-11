@@ -40,10 +40,11 @@ import { visitor as DeleteConfigSetupVisitor } from "../visitors/delete-config-s
 import { visitor as DiagnosticsMappingVisitor } from "../visitors/diagnostics-mapping-visitor";
 import { visitor as ExpressionDeletingVisitor } from "../visitors/expression-deleting-visitor";
 import { visitor as ModelFindingVisitor } from "../visitors/model-finding-visitor";
-import { visitor as ModelKindSetupVisitor } from "../visitors/model-kind-setup-visitor";
+import { visitor as ModelTypeSetupVisitor } from "../visitors/model-type-setup-visitor";
 import { viewStateSetupVisitor as ViewStateSetupVisitor } from "../visitors/view-state-setup-visitor";
 
 import { addImportStatements, addStatementToTargetLine } from "./ls-utils";
+import { ModelType } from "./statement-editor-viewstate";
 import { createImportStatement, createStatement, updateStatement } from "./statement-modifications";
 
 export function getModifications(
@@ -152,7 +153,7 @@ export function enrichModelWithDiagnostics(model: STNode, targetPosition: NodePo
 
 export function enrichModelWithViewState(model: STNode): STNode  {
     traversNode(model, DeleteConfigSetupVisitor);
-    traversNode(model, ModelKindSetupVisitor);
+    traversNode(model, ModelTypeSetupVisitor);
 
     return model;
 }
@@ -171,6 +172,14 @@ export function isPositionsEquals(position1: NodePosition, position2: NodePositi
         position1?.endColumn === position2?.endColumn;
 }
 
+export function isOperator(modelType: number): boolean {
+    return modelType === ModelType.OPERATOR;
+}
+
+export function isBindingPattern(modelType: number): boolean {
+    return modelType === ModelType.BINDING_PATTERN;
+}
+
 export function getFilteredDiagnosticMessages(stmtLength: number, targetPosition: NodePosition,
                                               diagnostics: Diagnostic[]): StmtDiagnostic[] {
     const stmtDiagnostics: StmtDiagnostic[] = [];
@@ -186,7 +195,7 @@ export function getFilteredDiagnosticMessages(stmtLength: number, targetPosition
 
     getDiagnosticMessage(diag, diagnosticTargetPosition, 0, stmtLength, 0, 0).split('. ').map(message => {
             let isPlaceHolderDiag = false;
-            if (PLACE_HOLDER_DIAGNOSTIC_MESSAGES.includes(message)) {
+            if (PLACE_HOLDER_DIAGNOSTIC_MESSAGES.some(msg => message.includes(msg))) {
                 isPlaceHolderDiag = true;
             }
             if (!!message) {

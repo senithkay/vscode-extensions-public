@@ -2,12 +2,7 @@ name: "Release Low Code Editor"
 
 on:
   workflow_dispatch:
-    inputs:
-      vs_code_path:
-        description: VS Code path
-        required: true
-        default: ~/config/extensions/wso2.ballerina-3.0.1-preview/resources/jslibs
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   publish-package:
@@ -22,8 +17,8 @@ jobs:
         uses: actions/setup-node@v2
         with:
           always-auth: true
-          node-version: '16.x'
-          registry-url: 'https://npm.pkg.github.com'
+          node-version: "16.x"
+          registry-url: "https://npm.pkg.github.com"
       - name: Install NPM v8.5.0
         run: npm install -g npm@8.5.0
       - name: Install Ballerina 2201.0.0
@@ -32,9 +27,6 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
           APP_VERSION: ${{ steps.timestamp.outputs.timestamp }}
-          BALLERINA_VS_CODE_PATH: ${{ github.event.inputs.vs_code_path }}
-          IS_RELEASE: ${{ true }}
-          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
       - run: npm version prepatch --preid=${{ steps.timestamp.outputs.timestamp }} --workspaces
       - name: Create tag
         uses: actions/github-script@v5
