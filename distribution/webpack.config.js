@@ -7,9 +7,6 @@ const { argv } = require('process');
 
 const BASE_DIR = path.resolve(__dirname, "..");
 
-const SentryPlugin = require("@sentry/webpack-plugin");
-const APP_VERSION = process.env.APP_VERSION || "Low-code-default";
-
 const LOW_CODE_DIR = path.join(BASE_DIR, 'low-code-editor');
 const MONACO_DIR = path.join(BASE_DIR, 'node_modules', 'monaco-editor');
 
@@ -45,19 +42,6 @@ function getConfig(mode, entrypointName, entrypointPath, outputPath, disableChun
             use: "@jsdevtools/coverage-istanbul-loader",
             include: LOW_CODE_MODULES,
         })
-    }
-    if (process.env.IS_RELEASE) {
-        optionalPlugins.push(
-            new SentryPlugin({
-                release: APP_VERSION,
-                include: ["./build/"],
-                urlPrefix: process.env.BALLERINA_VS_CODE_PATH,
-                authToken: process.env.SENTRY_AUTH_TOKEN,
-                org: "platformer-cloud-rm",
-                project: "choreo-low-code",
-                ignore: ["node_modules", "webpack.config.js"],
-            })
-        )
     }
     return {
         mode: 'none',

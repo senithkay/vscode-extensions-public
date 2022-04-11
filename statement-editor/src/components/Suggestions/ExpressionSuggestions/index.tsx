@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 
 import {
     Input, InputAdornment, List, ListItem, ListItemText, Typography
@@ -36,13 +36,21 @@ export function ExpressionSuggestions() {
     } = useContext(StatementEditorContext);
 
     const onClickExpressionSuggestion = (expression: Expression) => {
-        const currentModelSource = currentModel.model.source
-            ? currentModel.model.source.trim()
-            : currentModel.model.value.trim();
+        const currentModelSource = currentModel.model.viewState.modelType === 1
+            ? currentModel.model.value.trim()
+            : currentModel.model.source.trim();
         const text = expression.template.replace(SELECTED_EXPRESSION, currentModelSource);
         updateModel(text, currentModel.model.position);
         inputEditorCtx.onInputChange('');
     }
+
+    useEffect(() => {
+        if (currentModel.model){
+            const filteredGroups: ExpressionGroup[] = expressions.filter(
+                (exprGroup) => exprGroup.relatedModelType === currentModel.model.viewState.modelType);
+            setFilteredExpressions(filteredGroups);
+        }
+    }, [currentModel.model]);
 
     const searchExpressions = (searchValue: string) => {
         setKeyword(searchValue);
@@ -55,7 +63,8 @@ export function ExpressionSuggestions() {
             if (filtered.length > 0) {
                 filteredGroups.push({
                     name: group.name,
-                    expressions: filtered
+                    expressions: filtered,
+                    relatedModelType: group.relatedModelType
                 })
             }
         });

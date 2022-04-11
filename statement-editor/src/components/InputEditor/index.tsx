@@ -19,7 +19,7 @@ import debounce from "lodash.debounce";
 
 import { InputEditorContext } from "../../store/input-editor-context";
 import { StatementEditorContext } from "../../store/statement-editor-context";
-import { StatementEditorViewState } from "../../utils/statement-editor-viewstate";
+import { ModelType, StatementEditorViewState } from "../../utils/statement-editor-viewstate";
 import { useStatementEditorStyles } from "../styles";
 
 import {
@@ -96,7 +96,7 @@ export function InputEditor(props: InputEditorProps) {
 
     const changeInput = (newValue: string) => {
         if (!newValue) {
-            newValue = (model.viewState as StatementEditorViewState).isTypeDescriptor ? 'TYPE_DESCRIPTOR' : 'EXPRESSION';
+            newValue = (model.viewState as StatementEditorViewState).modelType === ModelType.TYPE_DESCRIPTOR ? 'TYPE_DESCRIPTOR' : 'EXPRESSION';
         }
         setUserInput(newValue);
         inputEditorCtx.onInputChange(newValue);

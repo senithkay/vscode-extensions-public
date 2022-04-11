@@ -155,7 +155,7 @@ export function RecordHeader(props: RecordHeaderProps) {
                                     position={recordNamePosition}
                                     hideLabel={true}
                                     overrideTemplate={{
-                                        defaultCodeSnippet: 'type  record',
+                                        defaultCodeSnippet: 'type  record {};',
                                         targetColumn: 6
                                     }}
                                     focus={isRecordFocued}

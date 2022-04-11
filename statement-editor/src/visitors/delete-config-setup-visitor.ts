@@ -12,9 +12,9 @@
  */
 import {
     AssignmentStatement,
-    BinaryExpression,
-    ListConstructor, MappingConstructor,
-    STNode, TypedBindingPattern,
+    BinaryExpression, KeySpecifier,
+    ListConstructor, MappingConstructor, OptionalTypeDesc, RecordField, RecordFieldWithDefaultValue,
+    STNode, TupleTypeDesc, TypedBindingPattern,
     Visitor
 } from "@wso2-enterprise/syntax-tree";
 
@@ -47,6 +47,36 @@ class DeleteConfigSetupVisitor implements Visitor {
 
     public beginVisitAssignmentStatement(node: AssignmentStatement) {
         (node.varRef.viewState as StatementEditorViewState).exprNotDeletable = true;
+    }
+
+    public beginVisitTupleTypeDesc(node: TupleTypeDesc) {
+        if (node.memberTypeDesc.length === 1) {
+            (node.memberTypeDesc[0].viewState as StatementEditorViewState).exprNotDeletable = true;
+            (node.memberTypeDesc[0].viewState as StatementEditorViewState).templateExprDeletable = false;
+        } else {
+            node.memberTypeDesc.map((memberTypeDesc: STNode) => {
+                (memberTypeDesc.viewState as StatementEditorViewState).templateExprDeletable = true;
+            });
+        }
+    }
+
+    public beginVisitKeySpecifier(node: KeySpecifier) {
+        if (node.fieldNames.length === 1) {
+            (node.fieldNames[0].viewState as StatementEditorViewState).exprNotDeletable = true;
+            (node.fieldNames[0].viewState as StatementEditorViewState).templateExprDeletable = false;
+        } else {
+            node.fieldNames.map((fieldNames: STNode) => {
+                (fieldNames.viewState as StatementEditorViewState).templateExprDeletable = true;
+            });
+        }
+    }
+
+    public beginVisitRecordField(node: RecordField) {
+        (node.fieldName.viewState as StatementEditorViewState).templateExprDeletable = false;
+    }
+
+    public beginVisitRecordFieldWithDefaultValue(node: RecordFieldWithDefaultValue) {
+        (node.fieldName.viewState as StatementEditorViewState).templateExprDeletable = false;
     }
 }
 

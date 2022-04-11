@@ -2,7 +2,7 @@ import {
     InitializeParams, DidOpenTextDocumentParams, ClientCapabilities
 } from 'vscode-languageserver-protocol';
 import * as fs from 'fs';
-import { monaco } from "react-monaco-editor";
+import { URI } from "vscode-uri";
 
 
 const capabilities: ClientCapabilities = {
@@ -286,5 +286,5 @@ export function didOpenTextDocumentParams(path: string): DidOpenTextDocumentPara
 
 
 export function file(path: string): string {
-    return monaco.Uri.file(path).toString()
+    return URI.file(path).toString()
 }
