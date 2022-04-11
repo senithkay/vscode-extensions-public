@@ -10,17 +10,25 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-export enum ModelType {
-    EXPRESSION,
-    OPERATOR,
-    BINDING_PATTERN,
-    TYPE_DESCRIPTOR,
-    QUERY_CLAUSE
+import React from "react";
+
+import { TableTypeDesc } from "@wso2-enterprise/syntax-tree";
+
+import { ExpressionComponent } from "../../../Expression";
+import { TokenComponent } from "../../../Token";
+
+interface TableTypeDescProps {
+    model: TableTypeDesc;
 }
 
-export class StatementEditorViewState {
-    public exprNotDeletable: boolean = false;
-    public templateExprDeletable: boolean = false;
-    public isWithinBlockStatement: boolean = false;
-    public modelType: ModelType = ModelType.EXPRESSION;
+export function TableTypeDescComponent(props: TableTypeDescProps) {
+    const { model } = props;
+
+    return (
+        <>
+            <TokenComponent model={model.tableKeywordToken} />
+            <ExpressionComponent model={model.rowTypeParameterNode} />
+            {model.keyConstraintNode && <ExpressionComponent model={model.keyConstraintNode}/>}
+        </>
+    );
 }

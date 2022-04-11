@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 Inc. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -10,22 +10,21 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import React, { useContext } from "react";
 
-import { ListConstructor } from "@wso2-enterprise/syntax-tree";
+import { KeySpecifier } from "@wso2-enterprise/syntax-tree";
 
-import { EXPR_CONSTRUCTOR } from "../../../constants";
-import { StatementEditorContext } from "../../../store/statement-editor-context";
-import { ExpressionArrayComponent } from "../../ExpressionArray";
-import { useStatementEditorStyles } from "../../styles";
-import { TokenComponent } from "../../Token";
+import { EXPR_CONSTRUCTOR } from "../../../../constants";
+import { StatementEditorContext } from "../../../../store/statement-editor-context";
+import { ExpressionArrayComponent } from "../../../ExpressionArray";
+import { useStatementEditorStyles } from "../../../styles";
+import { TokenComponent } from "../../../Token";
 
-interface ListConstructorProps {
-    model: ListConstructor;
+interface KeySpecifierProps {
+    model: KeySpecifier;
 }
 
-export function ListConstructorComponent(props: ListConstructorProps) {
+export function KeySpecifierComponent(props: KeySpecifierProps) {
     const { model } = props;
     const stmtCtx = useContext(StatementEditorContext);
     const {
@@ -38,31 +37,32 @@ export function ListConstructorComponent(props: ListConstructorProps) {
 
     const onClickOnPlusIcon = (event: any) => {
         event.stopPropagation();
-        const isEmpty = model.expressions.length === 0;
+        const isEmpty = model.fieldNames.length === 0;
         const expr = isEmpty ? EXPR_CONSTRUCTOR : `, ${EXPR_CONSTRUCTOR}`;
         const newPosition = isEmpty ? {
-            ...model.closeBracket.position,
-            endColumn: model.closeBracket.position.startColumn
+            ...model.closeParenToken.position,
+            endColumn: model.closeParenToken.position.startColumn
         } : {
-            startLine: model.expressions[model.expressions.length - 1].position.endLine,
-            startColumn: model.expressions[model.expressions.length - 1].position.endColumn,
-            endLine: model.closeBracket.position.startLine,
-            endColumn: model.closeBracket.position.startColumn
+            startLine: model.fieldNames[model.fieldNames.length - 1].position.endLine,
+            startColumn: model.fieldNames[model.fieldNames.length - 1].position.endColumn,
+            endLine: model.closeParenToken.position.startLine,
+            endColumn: model.closeParenToken.position.startColumn
         }
         updateModel(expr, newPosition);
     };
 
     return (
         <>
-            <TokenComponent model={model.openBracket} />
-            <ExpressionArrayComponent expressions={model.expressions} />
+            <TokenComponent model={model.keyKeyword} />
+            <TokenComponent model={model.openParenToken} />
+            <ExpressionArrayComponent expressions={model.fieldNames} />
             <span
                 className={statementEditorClasses.plusIcon}
                 onClick={onClickOnPlusIcon}
             >
                 +
             </span>
-            <TokenComponent model={model.closeBracket} />
+            <TokenComponent model={model.closeParenToken} />
         </>
     );
 }
