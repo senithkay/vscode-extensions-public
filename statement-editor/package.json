@@ -10,14 +10,15 @@
     "typings": "lib/index",
     "scripts": {
         "prebuild": "npm run lint",
-        "build": "tsc --pretty && npm run copy:assets",
+        "build": "npm run mock-storybook && tsc --pretty && npm run copy:assets",
         "copy:assets": "copyfiles -u 1 src/**/*.scss src/**/*.svg src/**/*.css src/**/*.png src/**/*.txt src/**/*.json build/",
         "watch": "tsc --pretty --watch",
         "clean": "rimraf build/",
         "clean:nm": "rimraf node_modules",
         "lint": "tslint --project .",
         "lint:fix": "tslint --fix --project .",
-        "storybook": "node tools/setup-storybook.js"
+        "storybook": "node tools/setup-storybook.js",
+        "mock-storybook": "node tools/mock-setup-storybook.js"
     },
     "dependencies": {
         "@wso2-enterprise/ballerina-languageclient": "^1.0.0",

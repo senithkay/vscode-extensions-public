@@ -13,12 +13,12 @@ Object.entries(stList).forEach(([file, syntaxTree]) => {
   traversNode(syntaxTree, FunctionFindingVisitor);
   const functions = FunctionFindingVisitor.getFunctions();
   functions.forEach((functionDefintion: FunctionDefinition) => {
-    const stories = storiesOf('Statement Editor/StatementEditor/' + functionDefintion.functionName.value, module);
+    const stories = storiesOf('Statement Editor/StatementEditor/' +  functionDefintion.functionName.value, module);
 
     const functionBody = functionDefintion.functionBody
     if (STKindChecker.isFunctionBodyBlock(functionBody) && functionBody.statements.length > 0){
       stories.add(
-        functionDefintion.functionName.value,
+        functionDefintion.functionName.value + "_" + functionBody.statements[0].kind,
         () => {
           return (
             <StatementEditorWrapper  statement={functionBody.statements[0]} file={file} />
