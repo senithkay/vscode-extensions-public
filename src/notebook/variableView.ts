@@ -59,13 +59,9 @@ export class VariableViewProvider implements WebviewViewProvider {
 						variableView.renderVariableView(document.getElementById("variables"), 
 						langClient.getNotebookVariables);
 					}
-					window.addEventListener('message', event => {
-						const message = event.data;
-						switch (message.methodName) {
-							case 'updateVariableValues':
-								variableView.updateVariableValues();
-								break;
-						}
+					webViewRPCHandler.addMethod("updateVariableValues", (args) => {
+						variableView.updateVariableValues();
+						return Promise.resolve({});
 					});
 					renderVariableValues();
 				}

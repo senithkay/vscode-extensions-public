@@ -29,5 +29,7 @@ export function renderVariableView(target: HTMLElement, getVariableValues: () =>
 }
 
 export function updateVariableValues() {
-    container.dispatchEvent(new Event(UPDATE_EVENT));
+    if (container) {
+        container.dispatchEvent(new Event(UPDATE_EVENT));
+    }
 }
