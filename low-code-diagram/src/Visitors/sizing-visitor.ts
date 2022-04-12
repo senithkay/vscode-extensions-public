@@ -97,6 +97,12 @@ export interface SendRecievePairInfo {
     targetName: string;
     targetViewState: ViewState;
     targetIndex: number;
+    restrictedSpace?: {
+        x1: number;
+        x2: number;
+        y1: number;
+        y2: number;
+    };
 }
 
 export const DEFAULT_WORKER_NAME = 'function'; // todo: move to appropriate place.
@@ -637,6 +643,8 @@ export class SizingVisitor implements Visitor {
             return 0;
         });
 
+        const workerNameArr = Array.from(this.workerMap.keys());
+        workerNameArr.unshift(DEFAULT_WORKER_NAME);
 
         // for each pair calculate the heights until the send or receive statement and add the diff to the shorter one
         matchedStatements.forEach(matchedPair => {
@@ -668,6 +676,16 @@ export class SizingVisitor implements Visitor {
             } else {
                 const sourceVS = matchedPair.sourceViewState as StatementViewState;
                 sourceVS.bBox.offsetFromTop = DefaultConfig.offSet + (receiveHeight - sendHeight);
+            }
+
+            const sourceWorkerIndex = workerNameArr.indexOf(matchedPair.sourceName);
+            const receiveWorkerIndex = workerNameArr.indexOf(matchedPair.targetName);
+
+            matchedPair.restrictedSpace = {
+                x1: sourceWorkerIndex < receiveWorkerIndex ? sourceWorkerIndex : receiveWorkerIndex,
+                x2: sourceWorkerIndex < receiveWorkerIndex ? receiveWorkerIndex : sourceWorkerIndex,
+                y1: sendHeight > receiveHeight ? sendHeight : receiveHeight,
+                y2: matchedPair.sourceViewState.bBox.h + (sendHeight > receiveHeight ? sendHeight : receiveHeight)
             }
         });
     }
