@@ -33,6 +33,7 @@ export interface VariableValue {
 
 export interface VariableViewProps {
     getVariableValues: () => Promise<VariableValue[]>;
+    container: HTMLElement;
 }
 
 export const UPDATE_EVENT = "UPDATE_VIEW";
@@ -72,7 +73,7 @@ export const Table = ({ header, values }: TableProps): JSX.Element => {
     return <div>{renderTable()}</div>;
 };
 
-export const VariableView = ({ getVariableValues }: VariableViewProps): JSX.Element => {
+export const VariableView = ({ getVariableValues, container }: VariableViewProps): JSX.Element => {
     const header = ["name", "type", "value"];
     const message = "No variables defined";
     const initialTableValues = {
@@ -93,10 +94,10 @@ export const VariableView = ({ getVariableValues }: VariableViewProps): JSX.Elem
 
     useEffect(() => {
         updateVals();
-        window.addEventListener(UPDATE_EVENT, updateVals);
+        container.addEventListener(UPDATE_EVENT, updateVals);
 
         return () => {
-            window.removeEventListener(UPDATE_EVENT, updateVals);
+            container.removeEventListener(UPDATE_EVENT, updateVals);
         }
     }, []);
 

@@ -17,18 +17,17 @@
  *
  */
 
-import { createElement } from "react";
+import React from "react";
 import { render } from "react-dom";
 import { UPDATE_EVENT, VariableValue, VariableView } from "./variable-view/VariableView";
 
+let container: HTMLElement;
+
 export function renderVariableView(target: HTMLElement, getVariableValues: () => Promise<VariableValue[]>) {
-    const props = {
-        getVariableValues
-    };
-    const variableTable = createElement(VariableView, props);
-    render(variableTable, target);
+    container = target;
+    render(<VariableView getVariableValues={getVariableValues} container={target} />, target);
 }
 
 export function updateVariableValues() {
-    window.dispatchEvent(new Event(UPDATE_EVENT));
+    container.dispatchEvent(new Event(UPDATE_EVENT));
 }
