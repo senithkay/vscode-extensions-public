@@ -36,9 +36,9 @@ export function ExpressionSuggestions() {
     } = useContext(StatementEditorContext);
 
     const onClickExpressionSuggestion = (expression: Expression) => {
-        const currentModelSource = currentModel.model.viewState.modelType === 1
-            ? currentModel.model.value.trim()
-            : currentModel.model.source.trim();
+        const currentModelSource = currentModel.model.source
+            ? currentModel.model.source.trim()
+            : currentModel.model.value.trim();
         const text = expression.template.replace(SELECTED_EXPRESSION, currentModelSource);
         updateModel(text, currentModel.model.position);
         inputEditorCtx.onInputChange('');
