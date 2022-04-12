@@ -75,6 +75,7 @@ export function LowCodeExpressionEditor(props: FormElementProps<LowCodeExpressio
             langServerURL,
             syntaxTree,
             diagnostics: mainDiagnostics,
+            lowCodeResourcesVersion
         },
         api: {
             ls: { getExpressionEditorLangClient }
@@ -91,6 +92,7 @@ export function LowCodeExpressionEditor(props: FormElementProps<LowCodeExpressio
                 getExpressionEditorLangClient={getExpressionEditorLangClient}
                 expressionConfigurable={(configProps: any) => (<ExpressionConfigurable {...configProps}/>)}
                 syntaxTree={syntaxTree}
+                lowCodeResourcesVersion={lowCodeResourcesVersion}
                 {...props}
             />
         </>

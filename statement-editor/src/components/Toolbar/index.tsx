@@ -35,6 +35,8 @@ export default function Toolbar(){
             let exprDeletable = !stmtViewState.exprNotDeletable;
             if (currentModel.model.source && INPUT_EDITOR_PLACE_HOLDERS.has(currentModel.model.source.trim())) {
                 exprDeletable =  stmtViewState.templateExprDeletable;
+            } else if (currentModel.model.value && INPUT_EDITOR_PLACE_HOLDERS.has(currentModel.model.value.trim())) {
+                exprDeletable =  stmtViewState.templateExprDeletable;
             }
             return exprDeletable;
         }

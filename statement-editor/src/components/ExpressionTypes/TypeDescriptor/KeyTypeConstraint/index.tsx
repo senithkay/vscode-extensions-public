@@ -10,17 +10,24 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-export enum ModelType {
-    EXPRESSION,
-    OPERATOR,
-    BINDING_PATTERN,
-    TYPE_DESCRIPTOR,
-    QUERY_CLAUSE
+import React from "react";
+
+import { KeyTypeConstraint } from "@wso2-enterprise/syntax-tree";
+
+import { ExpressionComponent } from "../../../Expression";
+import { TokenComponent } from "../../../Token";
+
+interface KeyTypeConstraintProps {
+    model: KeyTypeConstraint;
 }
 
-export class StatementEditorViewState {
-    public exprNotDeletable: boolean = false;
-    public templateExprDeletable: boolean = false;
-    public isWithinBlockStatement: boolean = false;
-    public modelType: ModelType = ModelType.EXPRESSION;
+export function KeyTypeConstraintComponent(props: KeyTypeConstraintProps) {
+    const { model } = props;
+
+    return (
+        <>
+            <TokenComponent model={model.keyKeywordToken} />
+            <ExpressionComponent model={model.typeParameterNode} />
+        </>
+    );
 }

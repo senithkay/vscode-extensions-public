@@ -30,7 +30,7 @@ import {
 import { CurrentModel, SuggestionItem } from '../models/definitions';
 
 import { sortSuggestions } from "./index";
-import { StatementEditorViewState } from "./statement-editor-viewstate";
+import { ModelType, StatementEditorViewState } from "./statement-editor-viewstate";
 
 export async function getPartialSTForStatement(
             partialSTRequest: PartialSTRequest,
@@ -56,12 +56,11 @@ export async function getCompletions (docUri: string,
                                       userInput: string = ''
                                     ) : Promise<SuggestionItem[]> {
 
-    const isTypeDescriptor = (currentModel.model.viewState as StatementEditorViewState).isTypeDescriptor;
+    const isTypeDescriptor = (currentModel.model.viewState as StatementEditorViewState).modelType === ModelType.TYPE_DESCRIPTOR;
     const varName = STKindChecker.isLocalVarDecl(completeModel)
         && completeModel.typedBindingPattern.bindingPattern.source.trim();
     const currentModelPosition = currentModel.model.position;
-    const currentModelSource = STKindChecker.isIdentifierToken(currentModel.model) ?
-        currentModel.model.value.trim() : currentModel.model.source.trim();
+    const currentModelSource = currentModel.model.source ? currentModel.model.source.trim() : currentModel.model.value.trim();
     const suggestions: SuggestionItem[] = [];
 
     const completionParams: CompletionParams = {

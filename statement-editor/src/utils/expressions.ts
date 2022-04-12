@@ -11,6 +11,8 @@
  * associated services.
  */
 
+import { ModelType } from "./statement-editor-viewstate";
+
 export interface Expression {
     name: string;
     template: string;
@@ -21,10 +23,12 @@ export interface Expression {
 export interface ExpressionGroup {
     name: string;
     expressions: Expression[];
+    relatedModelType: ModelType;
 }
 
 export const EXPR_PLACE_HOLDER = "EXPRESSION";
 export const TYPE_DESC_PLACE_HOLDER = "TYPE_DESCRIPTOR";
+export const BINDING_PATTERN_PLACE_HOLDER = "BINDING_PATTERN";
 /* tslint:disable-next-line */
 export const SELECTED_EXPRESSION = "${SELECTED_EXPRESSION}";
 
@@ -61,7 +65,8 @@ const templates: ExpressionGroup = {
             template: "`value`",
             example: "`value`"
         }
-    ]
+    ],
+    relatedModelType: ModelType.EXPRESSION
 }
 //     6.7 Structural constructors
 //         6.7.1 List constructor
@@ -83,7 +88,8 @@ const structuralConstructors: ExpressionGroup = {
             template: ` table [ { key: value } ]`,
             example: "table [ { key: value } ]"
         }
-    ]
+    ],
+    relatedModelType: ModelType.EXPRESSION
 }
 //     6.8 Object construction
 //         6.8.1 Object constructor
@@ -112,7 +118,8 @@ const typeofEx: ExpressionGroup = {
             template: `typeof ${SELECTED_EXPRESSION}`,
             example: "typeof Es"
         }
-    ]
+    ],
+    relatedModelType: ModelType.EXPRESSION
 }
 //     6.20 Type cast expression
 const typeCastEx: ExpressionGroup = {
@@ -123,7 +130,8 @@ const typeCastEx: ExpressionGroup = {
             template: `<${TYPE_DESC_PLACE_HOLDER}>${SELECTED_EXPRESSION}`,
             example: "<type>Es"
         }
-    ]
+    ],
+    relatedModelType: ModelType.EXPRESSION
 }
 //     6.22 Unary expression
 //         6.22.1 Unary numeric expression
@@ -148,7 +156,8 @@ const unary: ExpressionGroup = {
             template: `! ${SELECTED_EXPRESSION}`,
             example: "! Es"
         }
-    ]
+    ],
+    relatedModelType: ModelType.EXPRESSION
 }
 //     6.24 Additive expression
 //     6.23 Multiplicative expression
@@ -176,7 +185,8 @@ const operators: ExpressionGroup = {
             template: ` ${SELECTED_EXPRESSION} % ${EXPR_PLACE_HOLDER}`,
             example: "Es % Ex"
         },
-    ]
+    ],
+    relatedModelType: ModelType.EXPRESSION
 }
 //     6.25 Shift expression
 const shift: ExpressionGroup = {
@@ -195,7 +205,8 @@ const shift: ExpressionGroup = {
             template: ` ${SELECTED_EXPRESSION} >>> ${EXPR_PLACE_HOLDER}`,
             example: "Es >>> Ex"
         }
-    ]
+    ],
+    relatedModelType: ModelType.EXPRESSION
 }
 //     6.26 Range expression
 const range: ExpressionGroup = {
@@ -210,7 +221,8 @@ const range: ExpressionGroup = {
             template: ` ${SELECTED_EXPRESSION} ..< ${EXPR_PLACE_HOLDER}`,
             example: "Es ..< Ex"
         }
-    ]
+    ],
+    relatedModelType: ModelType.EXPRESSION
 }
 //     6.27 Relational expression
 const relational: ExpressionGroup = {
@@ -233,7 +245,8 @@ const relational: ExpressionGroup = {
             template: ` ${SELECTED_EXPRESSION} >= ${EXPR_PLACE_HOLDER}`,
             example: "Es >= En"
         }
-    ]
+    ],
+    relatedModelType: ModelType.EXPRESSION
 }
 //     6.28 Type test expression
 const typeTest: ExpressionGroup = {
@@ -248,7 +261,8 @@ const typeTest: ExpressionGroup = {
             template: ` ${SELECTED_EXPRESSION} !is ${TYPE_DESC_PLACE_HOLDER}`,
             example: "Es !is Ex"
         }
-    ]
+    ],
+    relatedModelType: ModelType.EXPRESSION
 }
 //     6.29 Equality expression
 const equality: ExpressionGroup = {
@@ -263,7 +277,8 @@ const equality: ExpressionGroup = {
             template: ` ${SELECTED_EXPRESSION} != ${EXPR_PLACE_HOLDER}`,
             example: "Es != Ex"
         }
-    ]
+    ],
+    relatedModelType: ModelType.EXPRESSION
 }
 //     6.30 Binary bitwise expression
 const binaryBitwise: ExpressionGroup = {
@@ -282,7 +297,8 @@ const binaryBitwise: ExpressionGroup = {
             template: ` ${SELECTED_EXPRESSION} ^ ${EXPR_PLACE_HOLDER}`,
             example: "Es ^ Ex"
         }
-    ]
+    ],
+    relatedModelType: ModelType.EXPRESSION
 }
 //     6.31 Logical expression
 const logical: ExpressionGroup = {
@@ -297,7 +313,8 @@ const logical: ExpressionGroup = {
             template: ` ${SELECTED_EXPRESSION} || ${EXPR_PLACE_HOLDER}`,
             example: "Es || Ex"
         }
-    ]
+    ],
+    relatedModelType: ModelType.EXPRESSION
 }
 //     6.32 Conditional expression
 const conditional: ExpressionGroup = {
@@ -312,7 +329,8 @@ const conditional: ExpressionGroup = {
             template: ` ${SELECTED_EXPRESSION} ?: R`,
             example: "L ?: R"
         }
-    ]
+    ],
+    relatedModelType: ModelType.EXPRESSION
 }
 //     6.33 Checking expression
 const checking: ExpressionGroup = {
@@ -327,7 +345,8 @@ const checking: ExpressionGroup = {
             template: `checkpanic ${SELECTED_EXPRESSION}`,
             example: "checkpanic Es"
         }
-    ]
+    ],
+    relatedModelType: ModelType.EXPRESSION
 }
 //     6.34 Trap expression
 const trap: ExpressionGroup = {
@@ -338,7 +357,8 @@ const trap: ExpressionGroup = {
             template: `trap ${SELECTED_EXPRESSION}`,
             example: "trap Es"
         }
-    ]
+    ],
+    relatedModelType: ModelType.EXPRESSION
 }
 //     6.35 Query expression
 //         6.35.1 From clause
@@ -355,6 +375,154 @@ const trap: ExpressionGroup = {
 //         6.36.3 XML step expression
 //     6.37 Transactional expression
 
+// 5.4 Structured values
+// TODO: Add MapTypeDesc, FutureTypeDesc and distinctTypeDesc when interfaces are added,
+// TODO: Add ArrayTypeDesc, XmlTypeDesc and ErrorTypeDesc when the interfaces are updated with proper format
+// 5.6 Other type descriptors
+
+const typeDescriptors : ExpressionGroup = {
+    name: "Type Descriptors",
+    expressions: [
+        {
+            name: "Tuple",
+            template: `[${SELECTED_EXPRESSION}]`,
+            example: "[Es, Ex]"
+        }, {
+            name: "Table",
+            template: `table<${SELECTED_EXPRESSION}>`,
+            example: "table<Es>"
+        }, {
+            name: "Table with Key-Fields",
+            template: `table<${SELECTED_EXPRESSION}> key(${EXPR_PLACE_HOLDER})`,
+            example: "table<Es> key(Ex)"
+        }, {
+            name: "Union",
+            template: `${SELECTED_EXPRESSION} | ${TYPE_DESC_PLACE_HOLDER}`,
+            example: "Es | Ex"
+        }, {
+            name: "Intersection",
+            template: `${SELECTED_EXPRESSION} & ${TYPE_DESC_PLACE_HOLDER}`,
+            example: "Es & Ex"
+        }, {
+            name: "Optional",
+            template: `${SELECTED_EXPRESSION}?`,
+            example: "Es?"
+        }, {
+            name: "Parenthesised TypeDesc",
+            template: `(${SELECTED_EXPRESSION} )`,
+            example: "(Es)"
+        }, {
+            name: "Inclusive Record",
+            template: `record{${SELECTED_EXPRESSION} ${BINDING_PATTERN_PLACE_HOLDER};}`,
+            example: "record{Es Ex;}"
+        }, {
+            name: "Exclusive Record",
+            template: `record{|${SELECTED_EXPRESSION} ${BINDING_PATTERN_PLACE_HOLDER};|}`,
+            example: "record{|Es Ex;|}"
+        }
+    ],
+    relatedModelType: ModelType.TYPE_DESCRIPTOR
+}
+
+const operatorSymbols : ExpressionGroup = {
+    name: "Operators",
+    expressions: [
+        {
+            name: "Plus",
+            template: `+`,
+            example: "+"
+        }, {
+            name: "Minus",
+            template: "-",
+            example: "-"
+        }, {
+            name: "Slash",
+            template: `/`,
+            example: "/"
+        }, {
+            name: "Asterisk",
+            template: `*`,
+            example: "*"
+        }, {
+            name: "BitwiseAnd",
+            template: `&`,
+            example: "&"
+        }, {
+            name: "BitwiseXor",
+            template: `|`,
+            example: "|"
+        }, {
+            name: "LogicalAnd",
+            template: `&&`,
+            example: "&&"
+        }, {
+            name: "LogicalOr",
+            template: `||`,
+            example: "||"
+        }, {
+            name: "DoubleEqual",
+            template: `==`,
+            example: "=="
+        }, {
+            name: "GreaterThan",
+            template: `>`,
+            example: ">"
+        }, {
+            name: "LessThan",
+            template: "<",
+            example: "<"
+        }, {
+            name: "Double-greater-than",
+            template: `>>`,
+            example: ">>"
+        }, {
+            name: "Double-less-than",
+            template: `<<`,
+            example: "<<"
+        }, {
+            name: "Elvis",
+            template: `?:`,
+            example: "?:"
+        }, {
+            name: "GreaterThan and Equal",
+            template: `>=`,
+            example: ">="
+        }, {
+            name: "LessThan and Equal",
+            template: `<=`,
+            example: "<="
+        }, {
+            name: "DoubleEqual",
+            template: `==`,
+            example: "=="
+        }, {
+            name: "NotEqual",
+            template: `!=`,
+            example: "!="
+        }, {
+            name: "TripleEqual",
+            template: `===`,
+            example: "==="
+        }, {
+            name: "Not-DoubleEqual",
+            template: `!==`,
+            example: "!=="
+        }, {
+            name: "TripleGreaterThan",
+            template: `>>>`,
+            example: ">>>"
+        }, {
+            name: "DoubleDot-less-than",
+            template: `..<`,
+            example: "..<"
+        }, {
+            name: "Ellipsis",
+            template: `...`,
+            example: "..."
+        }
+    ],
+    relatedModelType: ModelType.OPERATOR
+}
 
 export const expressions: ExpressionGroup[] = [
     operators,
@@ -372,5 +540,7 @@ export const expressions: ExpressionGroup[] = [
     templates,
     structuralConstructors,
     range,
-    shift
+    shift,
+    typeDescriptors,
+    operatorSymbols
 ];

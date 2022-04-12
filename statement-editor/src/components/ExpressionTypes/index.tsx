@@ -52,9 +52,21 @@ import { TypedBindingPatternComponent } from './TypedBindingPattern';
 import { BooleanTypeDescComponent } from './TypeDescriptor/BooleanTypeDesc';
 import { DecimalTypeDescComponent } from './TypeDescriptor/DecimalTypeDesc';
 import { FloatTypeDescComponent } from './TypeDescriptor/FloatTypeDesc';
+import { IntersectionTypeDescComponent } from "./TypeDescriptor/IntersectionTypeDesc";
 import { IntTypeDescComponent } from './TypeDescriptor/IntTypeDesc';
 import { JsonTypeDescComponent } from './TypeDescriptor/JsonTypeDesc';
+import { KeySpecifierComponent } from "./TypeDescriptor/KeySpecifier";
+import { KeyTypeConstraintComponent } from "./TypeDescriptor/KeyTypeConstraint";
+import { OptionalTypeDescComponent } from "./TypeDescriptor/OptionalTypeDesc";
+import { ParenthesisedTypeDescComponent } from "./TypeDescriptor/ParenthesisedTypeDesc";
+import { RecordFieldComponent} from "./TypeDescriptor/RecordField";
+import { RecordFieldWithDefaultValueComponent } from "./TypeDescriptor/RecordFieldWithDefaultValue";
+import { RecordTypeDescComponent } from "./TypeDescriptor/RecordTypeDesc";
 import { StringTypeDescComponent } from './TypeDescriptor/StringTypeDesc';
+import { TableTypeDescComponent } from "./TypeDescriptor/TableTypeDesc";
+import { TupleTypeDescComponent} from "./TypeDescriptor/TupleTypeDesc";
+import { TypeParameterComponent } from "./TypeDescriptor/TypeParameter";
+import { UnionTypeDescComponent} from "./TypeDescriptor/UnionTypeDesc";
 import { VarTypeDescComponent } from './TypeDescriptor/VarTypeDesc';
 import { TypeTestExpressionComponent} from "./TypeTestExpression";
 import { UnaryExpressionComponent } from './UnaryExpression';
@@ -112,3 +124,15 @@ export { TableConstructorComponent as TableConstructor }
 export { RawTemplateExpressionComponent as RawTemplateExpression }
 export { XmlTemplateExpressionComponent as XmlTemplateExpression }
 export { TemplateStringComponent as TemplateString }
+export { UnionTypeDescComponent as UnionTypeDesc }
+export { OptionalTypeDescComponent as OptionalTypeDesc }
+export { IntersectionTypeDescComponent as IntersectionTypeDesc }
+export { TupleTypeDescComponent as TupleTypeDesc }
+export { ParenthesisedTypeDescComponent as ParenthesisedTypeDesc }
+export { TypeParameterComponent as TypeParameter }
+export { TableTypeDescComponent as TableTypeDesc }
+export { KeySpecifierComponent as KeySpecifier }
+export { KeyTypeConstraintComponent as KeyTypeConstraint }
+export { RecordTypeDescComponent as RecordTypeDesc }
+export { RecordFieldWithDefaultValueComponent as RecordFieldWithDefaultValue }
+export { RecordFieldComponent as RecordField }

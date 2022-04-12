@@ -141,6 +141,7 @@ export interface LowCodeEditorProperties {
     performanceData?: Map<string, PerformanceData>;
     importStatements: string[];
     experimentalEnabled?: boolean;
+    lowCodeResourcesVersion?: string;
 }
 
 export interface SelectedPosition {

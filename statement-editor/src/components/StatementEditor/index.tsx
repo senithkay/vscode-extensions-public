@@ -24,11 +24,7 @@ import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tre
 import * as monaco from "monaco-editor";
 import { Diagnostic } from "vscode-languageserver-protocol";
 
-import {
-    APPEND_EXPR_LIST_CONSTRUCTOR,
-    CUSTOM_CONFIG_TYPE,
-    INIT_EXPR_LIST_CONSTRUCTOR
-} from "../../constants";
+import { CUSTOM_CONFIG_TYPE } from "../../constants";
 import {
     CurrentModel,
     StmtDiagnostic,
@@ -40,7 +36,7 @@ import {
     enrichModel,
     getCurrentModel,
     getFilteredDiagnosticMessages,
-    getUpdatedSource,
+    getUpdatedSource, isBindingPattern, isOperator,
 } from "../../utils";
 import {
     addStatementToTargetLine,
@@ -164,7 +160,7 @@ export function StatementEditor(props: StatementEditorProps) {
                 let lsSuggestions : SuggestionItem[] = [];
                 const currentModelViewState = currentModel.model?.viewState as StatementEditorViewState;
 
-                if (!currentModelViewState.isOperator && !currentModelViewState.isBindingPattern) {
+                if (!isOperator(currentModelViewState.modelType) && !isBindingPattern(currentModelViewState.modelType)) {
                     const content: string = await addStatementToTargetLine(
                         currentFile.content, targetPosition, model.source, getLangClient);
                     sendDidChange(fileURI, content, getLangClient).then();
@@ -220,26 +216,10 @@ export function StatementEditor(props: StatementEditorProps) {
             updateEditedModel(partialST, diagnostics);
         }
 
-        // Since in list constructor we add expression with comma and close-bracket,
-        // we need to reduce that length from the code snippet to get the correct current model
-        let currentModelPosition: NodePosition;
-        if (currentModel.model && STKindChecker.isListConstructor(currentModel.model) && codeSnippet === INIT_EXPR_LIST_CONSTRUCTOR) {
-            currentModelPosition = {
-                ...position,
-                endColumn: position.startColumn + codeSnippet.length - 1
-            };
-        } else if (currentModel.model && codeSnippet === APPEND_EXPR_LIST_CONSTRUCTOR){
-            currentModelPosition = {
-                ...position,
-                startColumn: position.startColumn + 2,
-                endColumn: position.startColumn + codeSnippet.length - 1
-            }
-        } else {
-            currentModelPosition = {
-                ...position,
-                endColumn: position.startColumn + codeSnippet.length
-            };
-        }
+        const currentModelPosition : NodePosition = {
+            ...position,
+            endColumn: position.startColumn + codeSnippet.length
+        };
 
         const newCurrentModel = getCurrentModel(currentModelPosition, enrichModel(partialST, targetPosition));
         setCurrentModel({model: newCurrentModel});
