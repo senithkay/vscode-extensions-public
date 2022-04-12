@@ -15,9 +15,8 @@ import React, { useContext } from "react";
 
 import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
-import { MAPPING_CONSTRUCTOR } from "../../constants";
+import { ArrayType, EXPR_CONSTRUCTOR, MAPPING_CONSTRUCTOR } from "../../constants";
 import { StatementEditorContext } from "../../store/statement-editor-context";
-import { generateExpressionTemplate } from "../../utils/utils";
 import { NewExprAddButton } from "../Button/NewExprAddButton";
 import { ExpressionComponent } from "../Expression";
 import { TokenComponent } from "../Token";
@@ -25,10 +24,11 @@ import { TokenComponent } from "../Token";
 export interface ExpressionArrayProps {
     expressions: STNode[];
     modifiable?: boolean;
+    arrayType?: ArrayType
 }
 
 export function ExpressionArrayComponent(props: ExpressionArrayProps) {
-    const { expressions, modifiable } = props;
+    const { expressions, modifiable, arrayType } = props;
 
     const {
         modelCtx: {
@@ -37,7 +37,7 @@ export function ExpressionArrayComponent(props: ExpressionArrayProps) {
     } = useContext(StatementEditorContext);
 
     const addNewExpression = (model: STNode) => {
-        const template = generateExpressionTemplate(MAPPING_CONSTRUCTOR);
+        const template = arrayType === ArrayType.MAPPING_CONSTRUCTOR ? MAPPING_CONSTRUCTOR : EXPR_CONSTRUCTOR;
         const newField = `,\n${template}`;
         const newPosition: NodePosition = {
                 ...model.position,

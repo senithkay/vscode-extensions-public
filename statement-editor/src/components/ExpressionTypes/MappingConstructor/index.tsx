@@ -15,9 +15,8 @@ import React, { useContext } from "react";
 
 import { MappingConstructor, NodePosition } from "@wso2-enterprise/syntax-tree";
 
-import { MAPPING_CONSTRUCTOR } from "../../../constants";
+import { ArrayType, MAPPING_CONSTRUCTOR } from "../../../constants";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
-import { generateExpressionTemplate } from "../../../utils/utils";
 import { NewExprAddButton } from "../../Button/NewExprAddButton";
 import { ExpressionArrayComponent } from "../../ExpressionArray";
 import { TokenComponent } from "../../Token";
@@ -39,7 +38,7 @@ export function MappingConstructorComponent(props: MappingConstructorProps) {
     const isEmpty = model.fields.length === 0;
 
     const addNewExpression = () => {
-        const expressionTemplate = generateExpressionTemplate(MAPPING_CONSTRUCTOR);
+        const expressionTemplate = MAPPING_CONSTRUCTOR;
         const newField = isEmpty ? expressionTemplate : `,\n${expressionTemplate}`;
         const newPosition: NodePosition = isEmpty
             ? {
@@ -58,7 +57,11 @@ export function MappingConstructorComponent(props: MappingConstructorProps) {
     return (
         <>
             <TokenComponent model={model.openBrace} />
-            <ExpressionArrayComponent expressions={model.fields} modifiable={!isSingleLine} />
+            <ExpressionArrayComponent
+                expressions={model.fields}
+                modifiable={!isSingleLine}
+                arrayType={ArrayType.MAPPING_CONSTRUCTOR}
+            />
             {(isEmpty || isSingleLine) && (<NewExprAddButton model={model} onClick={addNewExpression} />)}
             <TokenComponent model={model.closeBrace} />
         </>

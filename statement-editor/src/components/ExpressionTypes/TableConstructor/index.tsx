@@ -14,9 +14,8 @@ import React, { useContext } from "react";
 
 import { TableConstructor } from "@wso2-enterprise/syntax-tree";
 
-import { TABLE_CONSTRUCTOR } from "../../../constants";
+import { MAPPING_CONSTRUCTOR } from "../../../constants";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
-import { generateExpressionTemplate } from "../../../utils/utils";
 import { NewExprAddButton } from "../../Button/NewExprAddButton";
 import { ExpressionArrayComponent } from "../../ExpressionArray";
 import { TokenComponent } from "../../Token";
@@ -35,7 +34,7 @@ export function TableConstructorComponent(props: TableConstructorProps) {
     } = useContext(StatementEditorContext);
 
     const addNewExpression = () => {
-        const expressionTemplate = generateExpressionTemplate(TABLE_CONSTRUCTOR);
+        const expressionTemplate = MAPPING_CONSTRUCTOR;
         const newField = model.rows.length !== 0 ? `, ${expressionTemplate} ]` : `${expressionTemplate} ]`;
         updateModel(newField, model.closeBracket.position);
     };

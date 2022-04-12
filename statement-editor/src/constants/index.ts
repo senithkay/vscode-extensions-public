@@ -50,7 +50,6 @@ export const TYPE_TEST = "TypeTestExpression"
 export const TYPE_DESCRIPTOR = "TypeDescriptor"
 export const BOOLEAN_TYPE_DESC = "BooleanTypeDesc"
 export const OTHER_EXPRESSION = "OtherExpression"
-export const MAPPING_CONSTRUCTOR = "MappingConstructor"
 export const CUSTOM_CONFIG_TYPE = "Custom"
 export const ALL_LIBS_IDENTIFIER = "All"
 export const LANG_LIBS_IDENTIFIER = "Language"
@@ -64,6 +63,7 @@ export const END_OF_LINE_MINUTIAE = "END_OF_LINE_MINUTIAE"
 export const TYPE_DESC_CONSTRUCTOR = "TYPE_DESCRIPTOR"
 export const EXPR_CONSTRUCTOR = "EXPRESSION"
 export const TYPED_BINDING_CONSTRUCTOR = "TYPE_DESCRIPTOR BINDING_PATTERN"
+export const MAPPING_CONSTRUCTOR = "key : EXPRESSION";
 
 export const PLACE_HOLDER_DIAGNOSTIC_MESSAGES: string[] = [
     DEFAULT_EXPR, DEFAULT_TYPE_DESC, DEFAULT_BINDING_PATTERN
@@ -99,3 +99,7 @@ export type OtherStatementNodeTypes = ActionStatement
     | ReturnStatement
     | RollbackStatement
     | TransactionStatement;
+
+export enum ArrayType {
+    MAPPING_CONSTRUCTOR
+}
