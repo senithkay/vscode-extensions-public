@@ -21,6 +21,8 @@ import { WebviewViewProvider, WebviewView, WebviewViewResolveContext, Cancellati
 import { BallerinaExtension, ExtendedLangClient } from "../core";
 import { getComposerWebViewOptions, getLibraryWebViewContent, WebViewOptions, WebViewRPCHandler } from "../utils";
 
+let webviewRPCHandler: WebViewRPCHandler;
+
 export class VariableViewProvider implements WebviewViewProvider {
 
 	public static readonly viewType = 'ballerinaViewVariables';
@@ -37,7 +39,7 @@ export class VariableViewProvider implements WebviewViewProvider {
 		webviewView.webview.options = {
 			enableScripts: true,
 		};
-		WebViewRPCHandler.create(webviewView, langClient, []);
+		webviewRPCHandler = WebViewRPCHandler.create(webviewView, langClient, []);
 		const html = this.getHtmlForWebview(context, langClient);
 		webviewView.webview.html = html;
 	}
@@ -57,6 +59,14 @@ export class VariableViewProvider implements WebviewViewProvider {
 						variableView.renderVariableView(document.getElementById("variables"), 
 						langClient.getNotebookVariables);
 					}
+					window.addEventListener('message', event => {
+						const message = event.data;
+						switch (message.methodName) {
+							case 'updateVariableValues':
+								variableView.updateVariableValues();
+								break;
+						}
+					});
 					renderVariableValues();
 				}
 			`;
@@ -68,4 +78,10 @@ export class VariableViewProvider implements WebviewViewProvider {
 
 		return getLibraryWebViewContent(webViewOptions);
 	}
+
+    public updateVariables() {
+		if (webviewRPCHandler) {
+			webviewRPCHandler.invokeRemoteMethod("updateVariableValues", undefined, () => {});
+		}
+    }
 }

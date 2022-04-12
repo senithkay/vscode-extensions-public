@@ -17,9 +17,7 @@
  *
  */
 
-import React, { useState } from 'react';
-import { useEffect } from 'react';
-
+import React, { useState, useEffect } from 'react';
 import "./style.css";
 
 interface TableProps {
@@ -27,7 +25,7 @@ interface TableProps {
     values: VariableValue[];
 }
 
-export interface VariableValue{
+export interface VariableValue {
     name: string;
     type: string;
     value: string;
@@ -37,20 +35,24 @@ export interface VariableViewProps {
     getVariableValues: () => Promise<VariableValue[]>;
 }
 
+export const UPDATE_EVENT = "UPDATE_VIEW";
+
 export const Table = ({ header, values }: TableProps): JSX.Element => {
     const tableContentValues = values;
     const getValue = (element: { [x: string]: any; }, key: string | number) => element[key] ? element[key] : '';
+
     const renderHeader = () => {
         return header.map((key) => {
-            return <th key={key} data-key={key}>{key.toUpperCase()}</th>;
+            return <th key={ key } data-key={ key }>{key.toUpperCase()}</th>;
         });
     };
+
     const renderBody = () => {
         let body: JSX.Element[] = [];
         for (let index = 0; index < tableContentValues.length; index++) {
             body.push(
-                <tr key={tableContentValues[index].name}>{ header.map( (key: string) =>{ 
-                    return <td className='table-data' data-key={key}>
+                <tr key={ tableContentValues[index].name }>{header.map((key: string) =>{ 
+                    return <td className='table-data' data-key={ key }>
                         <span className='actual-value'>{getValue(tableContentValues[index], key)}</span>
                         <span className='tooltip-text'>{getValue(tableContentValues[index], key)}</span>
                         </td>; 
@@ -59,13 +61,15 @@ export const Table = ({ header, values }: TableProps): JSX.Element => {
         }
         return body;
     };
+
     const renderTable = () => {
         return <table>
-                <thead>{ renderHeader() }</thead>
-                <tbody>{ renderBody() }</tbody>
+                <thead>{renderHeader()}</thead>
+                <tbody>{renderBody()}</tbody>
             </table>;
     };
-    return <div>{ renderTable() }</div>;
+
+    return <div>{renderTable()}</div>;
 };
 
 export const VariableView = ({ getVariableValues }: VariableViewProps): JSX.Element => {
@@ -77,17 +81,25 @@ export const VariableView = ({ getVariableValues }: VariableViewProps): JSX.Elem
         value: ''
     };
     const [tableValues, setTableValues] = useState([initialTableValues]);
+
     const updateVals = () => {        
         getVariableValues().then((vals) => {
-            if (vals === []) {
+            if (!vals.length) {
                 return setTableValues([initialTableValues]);
             }
             return setTableValues(vals.sort((val1, val2) => val1.name.localeCompare(val2.name)));
         });
     }
+
     useEffect(() => {
         updateVals();
+        window.addEventListener(UPDATE_EVENT, updateVals);
+
+        return () => {
+            window.removeEventListener(UPDATE_EVENT, updateVals);
+        }
     }, []);
+
     return <div id="variables-view" className="variables-view">
             <Table header={header} values={tableValues} /> 
         </div>;

@@ -19,7 +19,7 @@
 
 import { createElement } from "react";
 import { render } from "react-dom";
-import { VariableValue, VariableView } from "./variable-view/VariableView";
+import { UPDATE_EVENT, VariableValue, VariableView } from "./variable-view/VariableView";
 
 export function renderVariableView(target: HTMLElement, getVariableValues: () => Promise<VariableValue[]>) {
     const props = {
@@ -28,4 +28,7 @@ export function renderVariableView(target: HTMLElement, getVariableValues: () =>
     const variableTable = createElement(VariableView, props);
     render(variableTable, target);
 }
- 
+
+export function updateVariableValues() {
+    window.dispatchEvent(new Event(UPDATE_EVENT));
+}

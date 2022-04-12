@@ -21,6 +21,7 @@ import { NotebookCell, NotebookCellOutput, NotebookCellOutputItem, NotebookContr
     NotebookDocument, notebooks } from 'vscode';
 import { BallerinaExtension, ExtendedLangClient, NoteBookCellOutputResponse } from '../core';
 import { CUSTOM_DESIGNED_MIME_TYPES } from './constants';
+import { VariableViewProvider } from './variableView';
 
 export class BallerinaNotebookController {
     readonly controllerId = 'ballerina-notebook-controller-id';
@@ -29,11 +30,13 @@ export class BallerinaNotebookController {
     readonly supportedLanguages = ['ballerina'];
 
     private ballerinaExtension: BallerinaExtension;
+    private variableView: VariableViewProvider;
     private readonly controller: NotebookController;
     private executionOrder = 0;
 
-    constructor(extensionInstance: BallerinaExtension) {
+    constructor(extensionInstance: BallerinaExtension, variableViewProvider: VariableViewProvider) {
         this.ballerinaExtension = extensionInstance;
+        this.variableView = variableViewProvider;
         this.controller = notebooks.createNotebookController(
             this.controllerId,
             this.notebookType,
@@ -45,14 +48,11 @@ export class BallerinaNotebookController {
         this.controller.executeHandler = this.execute.bind(this);
     }
 
-    public restartExecutionOrder = () =>{
-        this.executionOrder = 0;
-    }
-
     private async execute(cells: NotebookCell[], _notebook: NotebookDocument, 
         controller: NotebookController): Promise<void> {
         for (let cell of cells) {
             await this.doExecution(cell);
+            this.updateVariableView();
         }
     }
 
@@ -114,6 +114,14 @@ export class BallerinaNotebookController {
         } catch (error) {
             execution.end(false, Date.now());
         }
+    }
+
+    public updateVariableView() {
+        this.variableView.updateVariables();
+    }
+
+    public resetExecutionOrder() {
+        this.executionOrder = 0;
     }
 
     dispose(): void {

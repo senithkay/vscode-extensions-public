@@ -377,6 +377,16 @@
                 "icon": "$(list-unordered)",
                 "category": "Ballerina",
                 "enablement": "notebookType == 'ballerina-notebook'"
+            },
+            {
+                "command": "ballerina.notebook.refreshVariableView",
+                "title": "Refresh",
+                "icon": {
+                    "light": "./resources/images/icons/refresh.svg",
+                    "dark": "./resources/images/icons/refresh-inverse.svg"
+                },
+                "category": "Ballerina",
+                "enablement": "notebookType == 'ballerina-notebook'"
             }
         ],
         "views": {
@@ -443,6 +453,11 @@
                 {
                     "command": "ballerina.new.module",
                     "when": "view == ballerinaExplorerTreeView",
+                    "group": "navigation"
+                },
+                {
+                    "command": "ballerina.notebook.refreshVariableView",
+                    "when": "view == ballerinaViewVariables",
                     "group": "navigation"
                 }
             ],

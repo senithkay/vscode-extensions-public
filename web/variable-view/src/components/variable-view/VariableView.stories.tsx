@@ -1,11 +1,11 @@
 import { storiesOf } from '@storybook/react';
-import { VariableView } from './VariableView';
+import { VariableValue, VariableView } from './VariableView';
 
-const getVariableValues = (): Promise<Object[]> => {
+const getVariableValues = (): Promise<VariableValue[]> => {
     return Promise.resolve([{
         name: "a",
         type: "int",
-        value: 10
+        value: "10"
     },
     {
         name: "b",

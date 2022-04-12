@@ -23,11 +23,12 @@ import { BallerinaNotebookSerializer } from "./notebookSerializer";
 import { BallerinaNotebookController } from "./notebookController";
 import { registerLanguageProviders } from './languageProvider';
 import { VariableViewProvider } from './variableView';
-import { OPEN_OUTLINE_VIEW_COMMAND, OPEN_VARIABLE_VIEW_COMMAND, RESTART_NOTEBOOK_COMMAND } from './constants';
+import { OPEN_OUTLINE_VIEW_COMMAND, OPEN_VARIABLE_VIEW_COMMAND, RESTART_NOTEBOOK_COMMAND, UPDATE_VARIABLE_VIEW_COMMAND } from './constants';
 
 export function activate(ballerinaExtInstance: BallerinaExtension) {
     const context = <ExtensionContext>ballerinaExtInstance.context;
-    const notebookController = new BallerinaNotebookController(ballerinaExtInstance);
+    const variableViewProvider = new VariableViewProvider(ballerinaExtInstance);
+    const notebookController = new BallerinaNotebookController(ballerinaExtInstance, variableViewProvider);
 
     context.subscriptions.push(
         workspace.registerNotebookSerializer('ballerina-notebook', new BallerinaNotebookSerializer())
@@ -36,9 +37,10 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
     context.subscriptions.push(registerLanguageProviders(ballerinaExtInstance));
     context.subscriptions.push(registerFocusToOutline());
     context.subscriptions.push(registerVariableView(ballerinaExtInstance));
+    context.subscriptions.push(registerRefreshVariableView(notebookController));
     context.subscriptions.push(registerRestartNotebook(ballerinaExtInstance, notebookController));
 	context.subscriptions.push(
-		window.registerWebviewViewProvider(VariableViewProvider.viewType, new VariableViewProvider(ballerinaExtInstance))
+		window.registerWebviewViewProvider(VariableViewProvider.viewType, variableViewProvider)
     );
 }
 
@@ -55,6 +57,12 @@ function registerVariableView(ballerinaExtInstance: BallerinaExtension): Disposa
     });
 }
 
+function registerRefreshVariableView(notebookController: BallerinaNotebookController): Disposable {
+    return commands.registerCommand(UPDATE_VARIABLE_VIEW_COMMAND, () => {
+        notebookController.updateVariableView();
+    });
+}
+
 function registerRestartNotebook(ballerinaExtInstance: BallerinaExtension, 
     notebookController: BallerinaNotebookController): Disposable {
     return commands.registerCommand(RESTART_NOTEBOOK_COMMAND , async () => {
@@ -63,7 +71,8 @@ function registerRestartNotebook(ballerinaExtInstance: BallerinaExtension,
             return;
         }
         await langClient.restartNotebook();
-        notebookController.restartExecutionOrder();
+        notebookController.resetExecutionOrder();
+        notebookController.updateVariableView();
         await commands.executeCommand('notebook.clearAllCellsOutputs');
     });
 }

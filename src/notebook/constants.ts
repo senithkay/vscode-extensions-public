@@ -37,3 +37,4 @@ export const CUSTOM_DESIGNED_MIME_TYPES = [
 export const RESTART_NOTEBOOK_COMMAND = "ballerina.notebook.restartnotebook";
 export const OPEN_OUTLINE_VIEW_COMMAND = "ballerina.notebook.openOutlineView";
 export const OPEN_VARIABLE_VIEW_COMMAND = "ballerina.notebook.openVariableView";
+export const UPDATE_VARIABLE_VIEW_COMMAND = "ballerina.notebook.refreshVariableView";
