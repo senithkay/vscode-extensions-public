@@ -12,12 +12,13 @@
     overflow: scroll;
 }
 
-.variables-view td, .variables-view th {
+.variables-view td, 
+.variables-view th {
     padding-left: 4px;
     border: 1px solid #ddd;
 }
 
-.variables-view tr{
+.variables-view tr {
     background-color: #f2f2f2;
 }
 
@@ -37,19 +38,22 @@
   background-color: #ddd;
 }
 
-.variables-view th[data-key="name"], .variables-view td[data-key="name"]{
+.variables-view th[data-key="name"], 
+.variables-view td[data-key="name"] {
     width: 180px;
 }
 
-.variables-view th[data-key="type"], .variables-view td[data-key="type"]{
+.variables-view th[data-key="type"], 
+.variables-view td[data-key="type"] {
     width: 180px;
 }
 
-.variables-view th[data-key="value"], .variables-view td[data-key="value"]{
+.variables-view th[data-key="value"], 
+.variables-view td[data-key="value"] {
     width: 300px;
 }
 
-.variables-view .actual-value{
+.variables-view .actual-value {
     display: inline-block;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -70,4 +74,33 @@
 
 .variables-view .table-data:hover .tooltip-text {
     visibility: visible;
+}
+
+.variables-view th i.sort-by { 
+    visibility: visible;
+	padding-right: 18px;
+	position: relative;
+    cursor: pointer;
+}
+
+.variables-view th i.sort-by:before,
+.variables-view th i.sort-by:after {
+	border: 4px solid transparent;
+	content: "";
+	display: block;
+	height: 0;
+	right: 5px;
+	top: 50%;
+	position: absolute;
+	width: 0;
+}
+
+.variables-view th i.sort-by:before {
+	border-bottom-color: #666;
+	margin-top: -9px;
+}
+
+.variables-view th i.sort-by:after {
+	border-top-color: #666;
+	margin-top: 1px;
 }

@@ -4,7 +4,7 @@ import { VariableValue, VariableView } from './VariableView';
 
 const getVariableValues = (): Promise<VariableValue[]> => {
     return Promise.resolve([{
-        name: "a",
+        name: "x",
         type: "int",
         value: "10"
     },

@@ -19,10 +19,17 @@
 
 import React, { useState, useEffect } from 'react';
 import "./style.css";
+import { sortArrayOfObjectsByKey } from "./utils";
 
 interface TableProps {
-    header: string[];
+    header: HeaderValue[];
     values: VariableValue[];
+    sortHandler: (key: string) => void;
+}
+
+export interface HeaderValue {
+    key: string;
+    sortable: boolean;
 }
 
 export interface VariableValue {
@@ -38,13 +45,15 @@ export interface VariableViewProps {
 
 export const UPDATE_EVENT = "UPDATE_VIEW";
 
-export const Table = ({ header, values }: TableProps): JSX.Element => {
+export const Table = ({ header, values, sortHandler }: TableProps): JSX.Element => {
     const tableContentValues = values;
     const getValue = (element: { [x: string]: any; }, key: string | number) => element[key] ? element[key] : '';
 
     const renderHeader = () => {
-        return header.map((key) => {
-            return <th key={ key } data-key={ key }>{key.toUpperCase()}</th>;
+        return header.map(({key, sortable}) => {
+            return <th key={ key } data-key={ key }>
+                {key.toUpperCase()}{sortable && <i className="sort-by" onClick={() => sortHandler(key)}/>}
+                </th>;
         });
     };
 
@@ -52,12 +61,13 @@ export const Table = ({ header, values }: TableProps): JSX.Element => {
         let body: JSX.Element[] = [];
         for (let index = 0; index < tableContentValues.length; index++) {
             body.push(
-                <tr key={ tableContentValues[index].name }>{header.map((key: string) =>{ 
-                    return <td className='table-data' data-key={ key }>
+                <tr key={ tableContentValues[index].name }>{ header.map(({ key }) => { 
+                    return <td className='table-data' data-key={ key } key={`${key}_${index}`}>
                         <span className='actual-value'>{getValue(tableContentValues[index], key)}</span>
                         <span className='tooltip-text'>{getValue(tableContentValues[index], key)}</span>
                         </td>; 
-                }) }</tr>
+                    })
+                }</tr>
             );
         }
         return body;
@@ -74,7 +84,11 @@ export const Table = ({ header, values }: TableProps): JSX.Element => {
 };
 
 export const VariableView = ({ getVariableValues, container }: VariableViewProps): JSX.Element => {
-    const header = ["name", "type", "value"];
+    const header = [
+        {key: "name", sortable: true},
+        {key: "type", sortable: false},
+        {key: "value", sortable: false},
+    ];
     const message = "No variables defined";
     const initialTableValues = {
         name: message,
@@ -82,13 +96,21 @@ export const VariableView = ({ getVariableValues, container }: VariableViewProps
         value: ''
     };
     const [tableValues, setTableValues] = useState([initialTableValues]);
+    const [sortConfig, setSortConfig] = useState({
+        key: "name",
+        isAscending: true
+    });
+
+    const sortVals = (values: VariableValue[]) => {
+        return sortArrayOfObjectsByKey(values, sortConfig.key, sortConfig.isAscending);
+    }
 
     const updateVals = () => {        
         getVariableValues().then((vals) => {
             if (!vals.length) {
                 return setTableValues([initialTableValues]);
             }
-            return setTableValues(vals.sort((val1, val2) => val1.name.localeCompare(val2.name)));
+            return setTableValues(sortVals(vals));
         });
     }
 
@@ -101,7 +123,19 @@ export const VariableView = ({ getVariableValues, container }: VariableViewProps
         }
     }, []);
 
+    useEffect(() => {
+        setTableValues(sortVals(tableValues));
+    }, [sortConfig]);
+
+    const updateSortConfig = (key: string) => {
+        key === sortConfig.key ?
+            // same key -> change ascending order
+            setSortConfig({...sortConfig, isAscending: !sortConfig.isAscending}) :
+            // new key -> change key and make ascending
+            setSortConfig({ key: key, isAscending: true});
+    }
+
     return <div id="variables-view" className="variables-view">
-            <Table header={header} values={tableValues} /> 
+            <Table header={header} values={tableValues} sortHandler={updateSortConfig}/> 
         </div>;
 }
