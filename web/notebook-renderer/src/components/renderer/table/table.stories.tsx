@@ -11,6 +11,18 @@ export default {
 const Template = (args: JSX.IntrinsicAttributes & { notebookCellOutput: Readonly<NotebookCellResult>; } 
     & Readonly<Attributes & { children?: ComponentChildren; ref?: Ref<any>; }>) => <TableForNotebookOutput {...args} />;
 
+export const EmptyTable = {
+    args: {
+        notebookCellOutput:{
+            shellValue: {
+                value: `[]`,
+                mimeType: 'table',
+                type: 'table'
+            }
+        }
+    },
+};
+
 export const SimpleTable1 = {
     args: {
         notebookCellOutput:{
@@ -35,6 +47,22 @@ export const SimpleTable2 = {
                     {"username":"John","salary":100,"fullname":{"firstname":"John","lastname":"Doe"}},
                     {"username":"Adam","salary":300,"fullname":{"firstname":"Adam","lastname":"Smith"}},
                     {"username":"Jake","salary":100,"fullname":{"firstname":"jake","lastname":"Peralta"}}
+                ]`,
+                mimeType: 'table',
+                type: 'table'
+            }
+        }
+    },
+};
+
+export const InconsistentTable1 = {
+    args: {
+        notebookCellOutput:{
+            shellValue: {
+                value: `[
+                    {"username":"John","salary":100,"region":"LA"},
+                    {"username":"Adam","salary":300,"title":"Manager"},
+                    {"username":"Jake","salary":100}
                 ]`,
                 mimeType: 'table',
                 type: 'table'

@@ -17,12 +17,12 @@
  *
  */
 
-import { createElement, h, render } from 'preact';
+import { h, render } from 'preact';
 import { ActivationFunction, OutputItem, RendererContext } from 'vscode-notebook-renderer';
 import { MIME_TYPE_JSON, MIME_TYPE_TABLE, MIME_TYPE_XML } from './renderer/constants';
 import { Json } from './renderer/json/json';
 import { Xml } from "./renderer/xml/xml";
-import { TableForNotebookOutput, TableForVariableView } from './renderer/table/table';
+import { TableForNotebookOutput } from './renderer/table/table';
 
 export const activate: ActivationFunction = (context: RendererContext<any>) => ({
     renderOutputItem(data: OutputItem, element) {
@@ -45,11 +45,3 @@ export const activate: ActivationFunction = (context: RendererContext<any>) => (
         }
     }
 });
-
-export function renderVariableView(target: HTMLElement, getVariableValues: () => Promise<string[]>) {
-    const props = {
-        getVariableValues
-    };
-    const variableTable = createElement(TableForVariableView, { props });
-    render(variableTable, target);
-}
