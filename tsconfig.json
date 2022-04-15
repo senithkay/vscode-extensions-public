@@ -22,7 +22,6 @@
         "baseUrl": ".",
         "paths": {},
         "jsx": "react",
-		"jsxFactory": "h",
         "noImplicitAny": false,
         "declaration": true,
         "moduleResolution": "node",
