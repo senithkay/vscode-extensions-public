@@ -17,6 +17,7 @@
  *
  */
 
+import { spawn } from 'child_process';
 import { NotebookCell, NotebookCellOutput, NotebookCellOutputItem, NotebookController, 
     NotebookDocument, notebooks } from 'vscode';
 import { BallerinaExtension, ExtendedLangClient, NoteBookCellOutputResponse } from '../core';
@@ -67,18 +68,40 @@ export class BallerinaNotebookController {
         }
         
         const execution = this.controller.createNotebookCellExecution(cell);
+        const appendToOutput = (data: any) => {
+            execution.appendOutput([new NotebookCellOutput([
+                    NotebookCellOutputItem.text(data.toString())
+                ])
+            ]);
+        };
         execution.executionOrder = ++this.executionOrder;
         execution.start(Date.now());
         execution.clearOutput();
         execution.token.onCancellationRequested(()=> {
-            execution.appendOutput(new NotebookCellOutput([
-                NotebookCellOutputItem.text('Execution Interrupted')
-            ]));
+            appendToOutput('Execution Interrupted');
             execution.end(false, Date.now());
         });
+        const cellContent = cell.document.getText().trim();
         try {
+            // bal cmds
+            if (cellContent.startsWith("bal")) {
+                // TODO: fix for when command contain "" and spaces
+                const balRunner = spawn("bal", cellContent.substring("bal".length).trim().split(" "));
+
+                balRunner.stdout.setEncoding('utf8');
+                balRunner.stdout.on('data', appendToOutput);
+
+                balRunner.stderr.setEncoding('utf8');
+                balRunner.stderr.on('data', appendToOutput);
+
+                balRunner.on('close', (code) => {
+                    execution.end(code === 0, Date.now());
+                });
+                return;
+            }
+            // code snippets
             let output: NoteBookCellOutputResponse = await langClient.getBalShellResult({
-                source: cell.document.getText().trim()
+                source: cellContent
             });
             if (output.shellValue?.value) {
                 if (CUSTOM_DESIGNED_MIME_TYPES.includes(output.shellValue!.mimeType)) {
@@ -96,19 +119,11 @@ export class BallerinaNotebookController {
                 }
             } 
             if (output.diagnostics.length) {
-                output.diagnostics.length > 1 ? output.diagnostics.pop() : null;
-                output.diagnostics.forEach(diagnostic => 
-                        execution.appendOutput(new NotebookCellOutput([
-                            NotebookCellOutputItem.text(diagnostic)
-                        ]))
-                );
+                output.diagnostics.pop();
+                output.diagnostics.forEach(appendToOutput);
             }
             if (output.errors.length) {
-                output.errors.forEach(err => 
-                        execution.appendOutput(new NotebookCellOutput([
-                            NotebookCellOutputItem.text(err)
-                        ]))
-                );
+                output.errors.forEach(appendToOutput);
             }
             execution.end(!(output.diagnostics.length) && !(output.errors.length), Date.now());
         } catch (error) {
