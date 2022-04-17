@@ -70,7 +70,7 @@ export class BallerinaNotebookController {
         const execution = this.controller.createNotebookCellExecution(cell);
         const appendToOutput = (data: any) => {
             execution.appendOutput([new NotebookCellOutput([
-                    NotebookCellOutputItem.text(data.toString())
+                    NotebookCellOutputItem.text(data.toString().trim())
                 ])
             ]);
         };
@@ -85,8 +85,8 @@ export class BallerinaNotebookController {
         try {
             // bal cmds
             if (cellContent.startsWith("bal")) {
-                // TODO: fix for when command contain "" and spaces
-                const balRunner = spawn("bal", cellContent.substring("bal".length).trim().split(" "));
+                const args = cellContent.substring("bal".length).trim().match(/(?:[^\s"]+|"[^"]*")+/g) || [];
+                const balRunner = spawn("bal", args);
 
                 balRunner.stdout.setEncoding('utf8');
                 balRunner.stdout.on('data', appendToOutput);
