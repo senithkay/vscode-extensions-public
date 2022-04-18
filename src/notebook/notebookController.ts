@@ -23,6 +23,7 @@ import { NotebookCell, NotebookCellOutput, NotebookCellOutputItem, NotebookContr
 import { BallerinaExtension, ExtendedLangClient, NoteBookCellOutputResponse } from '../core';
 import { CUSTOM_DESIGNED_MIME_TYPES } from './constants';
 import { VariableViewProvider } from './variableView';
+import { isWindows } from '../utils';
 
 export class BallerinaNotebookController {
     readonly controllerId = 'ballerina-notebook-controller-id';
@@ -85,7 +86,8 @@ export class BallerinaNotebookController {
         try {
             // bal cmds
             if (cellContent.startsWith("bal")) {
-                const args = cellContent.substring("bal".length).trim().match(/(?:[^\s"]+|"[^"]*")+/g) || [];
+                const regex = isWindows() ? /(?:[^\s"]+|"[^"]*")+/g : /(?:[^\s"']+|"[^"]*"|'[^']*')+/g;
+                const args = cellContent.substring("bal".length).trim().match(regex) || [];
                 const balRunner = spawn("bal", args);
 
                 balRunner.stdout.setEncoding('utf8');
