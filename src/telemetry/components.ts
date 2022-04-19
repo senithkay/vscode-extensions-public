@@ -39,3 +39,4 @@ export const CMP_GIT_STATUS = "component.git.status";
 export const CMP_TRYIT_VIEW = "component.tryit.view";
 export const CMP_EDITOR_SUPPORT = "component.editor.support";
 export const CMP_CHOREO_AUTHENTICATION = "component.choreo.authentication";
+export const CMP_PERF_ANALYZER = "component.perf.analyzer";
