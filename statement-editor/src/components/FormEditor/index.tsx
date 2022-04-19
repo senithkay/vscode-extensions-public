@@ -13,17 +13,15 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useEffect, useState } from 'react';
 
-import { FormControl } from "@material-ui/core";
-import { FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
-import { STNode } from "@wso2-enterprise/syntax-tree";
-import * as monaco from "monaco-editor";
+import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
-import { EXPR_SCHEME, FILE_SCHEME } from "../InputEditor/constants";
+import {getPartialSTForStatement, getPartialSTForTopLevelComponents} from "../../utils/ls-utils";
+import { FormRenderer } from "../FormRenderer";
 import { LowCodeEditorProps } from "../StatementEditor";
 
 export interface FormEditorProps extends LowCodeEditorProps {
     initialSource?: string;
-    targetPosition?: string;
+    targetPosition: NodePosition;
     type: string;
     onCancel: () => void;
 }
@@ -36,31 +34,38 @@ export function FormEditor(props: FormEditorProps) {
         applyModifications,
         library,
         currentFile,
-        importStatements
+        importStatements,
+        type,
+        targetPosition,
+        topLevelComponent
     } = props;
 
     const [model, setModel] = useState<STNode>(null);
 
-    const fileURI = monaco.Uri.file(currentFile.path).toString().replace(FILE_SCHEME, EXPR_SCHEME);
-
     useEffect(() => {
-        // gg
-    }, []);
+        if (initialSource) {
+            (async () => {
+                if (topLevelComponent) {
+                    const partialST = await getPartialSTForTopLevelComponents(
+                        { codeSnippet: initialSource.trim() }, getLangClient
+                    );
+                    setModel(partialST);
+                }
+            })();
+        }
+    }, [initialSource]);
 
-    useEffect(() => {
-        const d = 12;
-    }, [model]);
+    const onChange = (genSource: string) => {
+    // TODO: Implement
+    }
 
     return (
-        <>
-            <FormControl data-testid="listener-form" className={formClasses.wizardFormControl}>
-                <FormHeaderSection
-                    onCancel={onCancel}
-                    formTitle={"Function Configuration"}
-                    defaultMessage={"Listener"}
-                    formType={""}
-                />
-            </FormControl>
-        </>
+        <FormRenderer
+            type={type}
+            model={model}
+            targetPosition={targetPosition}
+            onChange={onChange}
+            onCancel={onCancel}
+        />
     )
 }

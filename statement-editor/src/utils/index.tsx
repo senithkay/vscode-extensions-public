@@ -29,6 +29,7 @@ import { Diagnostic } from "vscode-languageserver-protocol";
 
 import * as expressionTypeComponents from '../components/ExpressionTypes';
 import * as statementTypeComponents from '../components/Statements';
+import * as formComponents from '../components/Forms';
 import {
     END_OF_LINE_MINUTIAE,
     OTHER_EXPRESSION,
@@ -119,6 +120,20 @@ export function getStatementTypeComponent(
     return (
         <StatementTypeComponent
             model={model}
+        />
+    );
+}
+
+export function getFormComponent(
+    type: string, model: STNode, targetPosition: NodePosition, onChange: (code: string) => void, onCancel: () => void
+): ReactNode {
+    const FormComponent = (formComponents as any)[type];
+    return (
+        <FormComponent
+            model={model}
+            targetPosition={targetPosition}
+            onChange={onChange}
+            onCancel={onCancel}
         />
     );
 }

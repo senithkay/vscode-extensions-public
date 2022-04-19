@@ -56,11 +56,6 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
         },
     } = useDiagramContext();
 
-
-    const handleStatementEditorChange = (partialModel: LocalVarDecl) => {
-        onCancel();
-    }
-
     return (
         <>
             <FormEditor
@@ -72,8 +67,8 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
                 getLangClient={getExpressionEditorLangClient}
                 applyModifications={modifyDiagram}
                 library={library}
-                importStatements={importStatements}
                 experimentalEnabled={experimentalEnabled}
+                topLevelComponent={true}
             />
         </>
     )

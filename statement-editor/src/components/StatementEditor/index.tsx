@@ -67,6 +67,7 @@ export interface LowCodeEditorProps {
     };
     importStatements?: string[];
     experimentalEnabled?: boolean;
+    topLevelComponent?: boolean;
 }
 export interface StatementEditorProps extends LowCodeEditorProps {
     label: string;

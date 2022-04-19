@@ -40,6 +40,14 @@ export async function getPartialSTForStatement(
     return resp.syntaxTree;
 }
 
+export async function getPartialSTForTopLevelComponents(
+    partialSTRequest: PartialSTRequest,
+    getLangClient: () => Promise<ExpressionEditorLangClientInterface>): Promise<STNode> {
+    const langClient: ExpressionEditorLangClientInterface = await getLangClient();
+    const resp = await langClient.getSTForModuleMembers(partialSTRequest);
+    return resp.syntaxTree;
+}
+
 export async function getPartialSTForExpression(
             partialSTRequest: PartialSTRequest,
             getLangClient: () => Promise<ExpressionEditorLangClientInterface>): Promise<STNode> {
