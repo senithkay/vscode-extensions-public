@@ -12,23 +12,32 @@
  */
 import React from "react";
 
-import { TemplateString } from "@wso2-enterprise/syntax-tree";
+import {
+    BooleanTypeDesc,
+    DecimalTypeDesc,
+    FloatTypeDesc,
+    IntTypeDesc,
+    JsonTypeDesc,
+    StringTypeDesc,
+    VarTypeDesc
+} from "@wso2-enterprise/syntax-tree";
 
-import { InputEditor, InputEditorProps } from "../../InputEditor";
+import { ExpressionComponent } from "../../Expression";
 
-interface TemplateStringProps {
-    model: TemplateString;
+interface TypeDescProps {
+    model: BooleanTypeDesc
+        | DecimalTypeDesc
+        | FloatTypeDesc
+        | IntTypeDesc
+        | JsonTypeDesc
+        | StringTypeDesc
+        | VarTypeDesc;
 }
 
-export function TemplateStringComponent(props: TemplateStringProps) {
+export function TypeDescComponent(props: TypeDescProps) {
     const { model } = props;
 
-    const inputEditorProps: InputEditorProps = {
-        model,
-        isToken: true
-    };
-
     return (
-        <InputEditor {...inputEditorProps} />
+        <ExpressionComponent model={model.name} />
     );
 }

@@ -267,7 +267,6 @@ export const useStatementEditorStyles = makeStyles(() =>
             margin: '0 2px 0 2px',
             '&': {
                 width: 'fit-content',
-                padding: '4px',
                 borderRadius: '4px',
             },
             '&.hovered': {
@@ -376,9 +375,16 @@ export const useStatementEditorStyles = makeStyles(() =>
             margin: '0px 2px',
             fontSize: '12px',
             padding: '0px 4px',
-            bottom: '1px',
             '&:hover': {
                 backgroundColor: 'rgba(173, 214, 255, 0.3)'
+            },
+            '&.modifiable': {
+                position: 'absolute',
+                marginLeft: '10px',
+                '&.lastElement': {
+                    marginLeft: '250px',
+                    marginTop: '-20px'
+                }
             }
         },
         mainExpStatementWrapper: {

@@ -17,7 +17,7 @@ import {
     ParenthesisedTypeDesc,
     QueryPipeline,
     RecordField,
-    RecordFieldWithDefaultValue, RecordTypeDesc,
+    RecordFieldWithDefaultValue,
     STNode,
     TableTypeDesc,
     TupleTypeDesc,
@@ -32,6 +32,13 @@ import {
 import { ModelType, StatementEditorViewState } from "../utils/statement-editor-viewstate";
 
 class ModelTypeSetupVisitor implements Visitor {
+    public beginVisitSTNode(node: STNode, parent?: STNode) {
+        if (parent && (parent.viewState as StatementEditorViewState).modelType === ModelType.TYPE_DESCRIPTOR) {
+            // Propagate type descriptor info to leaf nodes to identify the custom type descriptors
+            (node.viewState as StatementEditorViewState).modelType = ModelType.TYPE_DESCRIPTOR;
+        }
+    }
+
     public beginVisitTypedBindingPattern(node: TypedBindingPattern) {
         (node.typeDescriptor.viewState as StatementEditorViewState).modelType = ModelType.TYPE_DESCRIPTOR;
         (node.bindingPattern.viewState as StatementEditorViewState).modelType = ModelType.BINDING_PATTERN;

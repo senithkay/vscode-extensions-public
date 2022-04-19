@@ -14,11 +14,10 @@ import React, { useContext } from "react";
 
 import { TableConstructor } from "@wso2-enterprise/syntax-tree";
 
-import { TABLE_CONSTRUCTOR } from "../../../constants";
+import { MAPPING_CONSTRUCTOR } from "../../../constants";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
-import { generateExpressionTemplate } from "../../../utils/utils";
+import { NewExprAddButton } from "../../Button/NewExprAddButton";
 import { ExpressionArrayComponent } from "../../ExpressionArray";
-import { useStatementEditorStyles } from "../../styles";
 import { TokenComponent } from "../../Token";
 
 interface TableConstructorProps {
@@ -28,16 +27,14 @@ interface TableConstructorProps {
 export function TableConstructorComponent(props: TableConstructorProps) {
     const { model } = props;
 
-    const statementEditorClasses = useStatementEditorStyles();
-
     const {
         modelCtx: {
             updateModel,
         }
     } = useContext(StatementEditorContext);
 
-    const onClickOnPlusIcon = () => {
-        const expressionTemplate = generateExpressionTemplate(TABLE_CONSTRUCTOR);
+    const addNewExpression = () => {
+        const expressionTemplate = MAPPING_CONSTRUCTOR;
         const newField = model.rows.length !== 0 ? `, ${expressionTemplate} ]` : `${expressionTemplate} ]`;
         updateModel(newField, model.closeBracket.position);
     };
@@ -47,12 +44,7 @@ export function TableConstructorComponent(props: TableConstructorProps) {
             <TokenComponent model={model.tableKeyword} className={"keyword"} />
             <TokenComponent model={model.openBracket} />
             <ExpressionArrayComponent expressions={model.rows} />
-            <span
-                className={statementEditorClasses.plusIcon}
-                onClick={onClickOnPlusIcon}
-            >
-                +
-            </span>
+            <NewExprAddButton model={model} onClick={addNewExpression}/>
             <TokenComponent model={model.closeBracket} />
         </>
     );

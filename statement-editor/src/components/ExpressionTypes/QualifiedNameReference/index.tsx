@@ -14,7 +14,8 @@ import React from "react";
 
 import { QualifiedNameReference } from "@wso2-enterprise/syntax-tree";
 
-import { InputEditor } from "../../InputEditor";
+import { ExpressionComponent } from "../../Expression";
+import { TokenComponent } from "../../Token";
 
 interface QualifiedNameReferenceProps {
     model: QualifiedNameReference;
@@ -23,11 +24,10 @@ interface QualifiedNameReferenceProps {
 export function QualifiedNameReferenceComponent(props: QualifiedNameReferenceProps) {
     const { model } = props;
 
-    const inputEditorProps = {
-        model
-    };
-
     return (
-        <InputEditor {...inputEditorProps} />
+        <ExpressionComponent model={model.modulePrefix}>
+            <TokenComponent model={model.colon} />
+            <ExpressionComponent model={model.identifier} />
+        </ExpressionComponent>
     );
 }

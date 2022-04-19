@@ -45,6 +45,12 @@ export function genInterfacesFileCode(modelInfo: any) {
             severity: string;
         }
 
+        export interface Minutiae {
+          isInvalid: boolean;
+          kind: string;
+          minutiae: string;
+        }
+
         export interface STNode {
             kind: string;
             value?: any;
@@ -59,6 +65,8 @@ export function genInterfacesFileCode(modelInfo: any) {
             configurablePosition?: NodePosition;
             controlFlow?: ControlFlow;
             syntaxDiagnostics: SyntaxDiagnostics[];
+            leadingMinutiae: Minutiae[];
+            trailingMinutiae: Minutiae[];
         }
 
         ${interfaces.join("\n")}

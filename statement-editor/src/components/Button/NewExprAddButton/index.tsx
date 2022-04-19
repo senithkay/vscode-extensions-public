@@ -10,29 +10,34 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+// tslint:disable: jsx-no-multiline-js
 import React from "react";
 
-import { NilLiteral } from "@wso2-enterprise/syntax-tree";
+import { STNode } from "@wso2-enterprise/syntax-tree";
 
-import { VariableUserInputs } from "../../../../models/definitions";
-import { InputEditor } from "../../../InputEditor";
+import { useStatementEditorStyles } from "../../styles";
 
-interface NilLiteralProps {
-    model: NilLiteral
-    userInputs: VariableUserInputs
-    diagnosticHandler: (diagnostics: string) => void
-    isTypeDescriptor: boolean
+export interface AddButtonProps {
+    model: STNode;
+    onClick?: (model?: STNode) => void;
+    classNames?: string;
 }
 
-export function NilLiteralComponent(props: NilLiteralProps) {
-    const { model } = props;
+export function NewExprAddButton(props: AddButtonProps) {
+    const { model, onClick, classNames } = props;
 
-    const inputEditorProps = {
-        statementType: model.kind,
-        classNames: "string-literal"
+    const statementEditorClasses = useStatementEditorStyles();
+
+    const onClickOnAddButton = () => {
+        onClick(model);
     };
 
     return (
-        <InputEditor {...inputEditorProps} />
+        <span
+            className={`${statementEditorClasses.plusIcon} ${classNames}`}
+            onClick={onClickOnAddButton}
+        >
+            +
+        </span>
     );
 }
