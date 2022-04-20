@@ -257,15 +257,13 @@ export function StatementEditor(props: StatementEditorProps) {
                 }
             }
             undoRedoManager.add(undoModel.oldModel, undoModel.newModel);
-            
-
             const newCurrentModel = getCurrentModel(selectedPosition, enrichModel(partialST, targetPosition));
             setCurrentModel({model: newCurrentModel});
             setHasSyntaxDiagnostics(false);
+
         } else if (partialST.syntaxDiagnostics.length){
             setHasSyntaxDiagnostics(true);
         }
-
     }
 
     const handleModules = (module: string) => {
