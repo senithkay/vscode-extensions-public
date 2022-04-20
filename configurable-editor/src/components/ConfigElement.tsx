@@ -88,6 +88,7 @@ export const ConfigElement = (props: ConfigElementProps): ReactElement => {
                 type: props.type,
                 label: props.label,
                 description: props.description,
+                required: props.isRequired,
             };
 
             const simpleTypeProp: SimpleTypeProps = {

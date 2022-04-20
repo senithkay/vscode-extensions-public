@@ -118,6 +118,7 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
         name: props.name,
         type: "array",
         description: props.description,
+        required: props.isRequired,
     };
 
     return (

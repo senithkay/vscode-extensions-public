@@ -180,6 +180,7 @@ export const MapType = (props: MapTypeProps): ReactElement => {
         label: props.label,
         type: "map",
         description: props.description,
+        required: props.isRequired,
     };
 
     return (

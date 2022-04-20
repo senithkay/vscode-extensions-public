@@ -71,6 +71,7 @@ export const UnionType = (props: UnionTypeProps): ReactElement => {
         type: getUnionType(props.schema[SchemaConstants.ANY_OF]),
         label: props.label,
         description: props.description,
+        required: props.isRequired,
     };
 
     returnElement.push(

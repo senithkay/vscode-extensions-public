@@ -19,10 +19,11 @@
 
 import React from "react";
 
-import { Box, FormLabel, Typography } from "@material-ui/core";
+import { Box, createTheme, FormLabel, ThemeProvider, Typography } from "@material-ui/core";
 import { useStyles } from "../../style";
 import OutlinedLabel from "../OutlinedLabel";
 import { ConfigType } from "../../model";
+import { theme } from "./style";
 
 export interface FieldLabelProps {
     name: string;
@@ -41,13 +42,15 @@ export function FieldLabel(props: FieldLabelProps) {
     return (
         <Box className={classes.labelCont}>
             <Box className={classes.mainLabel}>
-                <FormLabel
-                    component="div"
-                    className={classes.mainLabelText}
-                    required={required}
-                >
-                    {fieldLabel}
-                </FormLabel>
+                <ThemeProvider theme={theme}>
+                    <FormLabel
+                        component="div"
+                        className={classes.mainLabelText}
+                        required={required}
+                    >
+                        {fieldLabel}
+                    </FormLabel>
+                </ThemeProvider>
                 <OutlinedLabel
                     type="success"
                     label={type === ConfigType.NUMBER ? ConfigType.FLOAT : type}
