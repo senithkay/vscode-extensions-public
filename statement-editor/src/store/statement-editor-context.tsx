@@ -33,6 +33,7 @@ export const StatementEditorContext = React.createContext({
         redo: () => undefined,
         hasUndo: false,
         hasRedo: false,
+        hasSyntaxDiagnostics: false,
         restArg: (restCheckClicked: boolean) => undefined,
         hasRestArg: false
     },
@@ -95,6 +96,7 @@ export interface CtxProviderProps extends LowCodeEditorProps {
     hasRedo?: boolean,
     diagnostics?: StmtDiagnostic[],
     lsSuggestions?: SuggestionItem[],
+    hasSyntaxDiagnostics?: boolean,
     documentation?: SymbolInfoResponse,
     restArg?: (restCheckClicked: boolean) => void,
     hasRestArg?: boolean,
@@ -136,6 +138,7 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
         formArgs,
         importStatements,
         experimentalEnabled,
+        hasSyntaxDiagnostics,
         ...restProps
     } = props;
 
@@ -154,7 +157,8 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
                     hasRedo,
                     hasUndo,
                     restArg,
-                    hasRestArg
+                    hasRestArg,
+                    hasSyntaxDiagnostics
                 },
                 statementCtx: {
                     diagnostics

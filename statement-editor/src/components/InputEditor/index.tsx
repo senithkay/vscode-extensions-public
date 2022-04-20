@@ -42,7 +42,8 @@ export function InputEditor(props: InputEditorProps) {
             initialSource,
             statementModel,
             updateModel,
-            handleChange
+            handleChange,
+            hasSyntaxDiagnostics
         },
         targetPosition,
     } = useContext(StatementEditorContext);
@@ -66,6 +67,7 @@ export function InputEditor(props: InputEditorProps) {
     }, [model]);
 
     const [isEditing, setIsEditing] = useState(false);
+    const [lastUpdatedModel, setLastUpdatedModel] = useState<STNode>();
     const [userInput, setUserInput] = useState<string>(originalValue);
     const [prevUserInput, setPrevUserInput] = useState<string>(userInput);
 
@@ -125,17 +127,20 @@ export function InputEditor(props: InputEditorProps) {
     const debouncedContentChange = debounce(handleChange, 500);
 
     const handleDoubleClick = () => {
-        if (!notEditable){
+        if (!notEditable && !hasSyntaxDiagnostics) {
+            setIsEditing(true);
+        } else if (!notEditable && hasSyntaxDiagnostics && (lastUpdatedModel===model)) {
             setIsEditing(true);
         }
     };
 
     const handleEditEnd = () => {
-        setIsEditing(false);
         setPrevUserInput(userInput);
         if (userInput !== "") {
             updateModel(userInput, model ? model.position : targetPosition);
+            setLastUpdatedModel(model)
         }
+        setIsEditing(false);
     }
 
     return isEditing ?

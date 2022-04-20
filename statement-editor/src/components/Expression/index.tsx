@@ -36,7 +36,8 @@ export function ExpressionComponent(props: ExpressionComponentProps) {
     const { modelCtx } = useContext(StatementEditorContext);
     const {
         currentModel: selectedModel,
-        changeCurrentModel
+        changeCurrentModel,
+        hasSyntaxDiagnostics
     } = modelCtx;
 
     const statementRendererClasses = useStatementRendererStyles();
@@ -56,9 +57,11 @@ export function ExpressionComponent(props: ExpressionComponentProps) {
     }
 
     const onMouseClick = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        e.preventDefault();
-        changeCurrentModel(model);
+        if (!hasSyntaxDiagnostics) {
+            e.stopPropagation();
+            e.preventDefault();
+            changeCurrentModel(model);
+        }
     }
 
     const styleClassNames = cn(statementRendererClasses.expressionElement,

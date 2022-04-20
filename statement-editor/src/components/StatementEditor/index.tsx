@@ -107,6 +107,7 @@ export function StatementEditor(props: StatementEditorProps) {
 
     const [model, setModel] = useState<STNode>(null);
     const [currentModel, setCurrentModel] = useState<CurrentModel>({ model });
+    const [hasSyntaxDiagnostics, setHasSyntaxDiagnostics] = useState<boolean>(false);
     const [stmtDiagnostics, setStmtDiagnostics] = useState<StmtDiagnostic[]>([]);
     const [moduleList, setModuleList] = useState(new Set<string>());
     const [lsSuggestionsList, setLSSuggestionsList] = useState([]);
@@ -256,10 +257,15 @@ export function StatementEditor(props: StatementEditorProps) {
                 }
             }
             undoRedoManager.add(undoModel.oldModel, undoModel.newModel);
+            
 
             const newCurrentModel = getCurrentModel(selectedPosition, enrichModel(partialST, targetPosition));
             setCurrentModel({model: newCurrentModel});
+            setHasSyntaxDiagnostics(false);
+        } else if (partialST.syntaxDiagnostics.length){
+            setHasSyntaxDiagnostics(true);
         }
+
     }
 
     const handleModules = (module: string) => {
@@ -402,6 +408,7 @@ export function StatementEditor(props: StatementEditorProps) {
                     documentation={documentation}
                     restArg={restArg}
                     hasRestArg={isRestArg}
+                    hasSyntaxDiagnostics={hasSyntaxDiagnostics}
                 >
                     <ViewContainer
                         isStatementValid={!stmtDiagnostics.length}
