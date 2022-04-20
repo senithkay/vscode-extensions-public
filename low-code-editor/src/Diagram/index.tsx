@@ -236,11 +236,33 @@ export function Diagram() {
     };
 
     const handleRenderPlusWidget = (dialogType: string, plusWidgetProps: PlusWidgetProps, plusViewState?: PlusViewState): any => {
-        const ChildComp = (DialogBoxes as any)[dialogType];
-        if (!ChildComp) {
-            return;
-        }
-        return (<ChildComp {...plusWidgetProps} viewState={plusViewState} />);
+        // const ChildComp = (DialogBoxes as any)[dialogType];
+        // if (!ChildComp) {
+        //     return;
+        // }
+        // return (<ChildComp {...plusWidgetProps} viewState={plusViewState} />);
+        const configOverlayFormStatus: ConfigOverlayFormStatus = {
+            isLoading: false,
+            formType: dialogType,
+            formArgs: {
+               ...plusWidgetProps,
+               viewState: plusViewState
+            }
+        };
+        setFormConfig({
+            configOverlayFormStatus,
+            onCancel: () => {
+                setIsFormOpen(false);
+                if (plusWidgetProps.onClose) {
+                    plusWidgetProps.onClose();
+                }
+            },
+            onSave: () => {
+                setIsFormOpen(false);
+            }
+        });
+        setIsFormOpen(true);
+        setIsConnectorConfigWizardOpen(false);
     };
 
     const handleShowTooltip = (

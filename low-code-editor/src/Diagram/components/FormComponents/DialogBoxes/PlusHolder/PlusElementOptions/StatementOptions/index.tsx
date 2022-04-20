@@ -164,7 +164,7 @@ export function StatementOptions(props: StatementOptionsProps) {
 
     const logStm: StatementComponent = {
         name: "log",
-        category: 'process',
+        category: 'generics',
         component:
             (
                 <Tooltip
@@ -184,7 +184,7 @@ export function StatementOptions(props: StatementOptionsProps) {
     }
     const workerBlock: StatementComponent = {
         name: "worker",
-        category: 'process',
+        category: 'actors',
         component:
             (
                 <Tooltip
@@ -204,7 +204,7 @@ export function StatementOptions(props: StatementOptionsProps) {
     }
     const propertyStm: StatementComponent = {
         name: "variable",
-        category: 'process',
+        category: 'generics',
         component: (
             <Tooltip
                 title={plusHolderStatementTooltipMessages.variableStatement.title}
@@ -223,7 +223,7 @@ export function StatementOptions(props: StatementOptionsProps) {
     }
     const assignmentStm: StatementComponent = {
         name: "assignment",
-        category: 'process',
+        category: 'generics',
         component: (
             <Tooltip
                 title={plusHolderStatementTooltipMessages.assignmentStatement.title}
@@ -251,7 +251,7 @@ export function StatementOptions(props: StatementOptionsProps) {
     }
     const ifStm: StatementComponent = {
         name: "if",
-        category: 'condition',
+        category: 'controlflows',
         component: (
             <Tooltip
                 title={plusHolderStatementTooltipMessages.ifStatement.title}
@@ -270,7 +270,7 @@ export function StatementOptions(props: StatementOptionsProps) {
     }
     const foreachStm: StatementComponent = {
         name: "foreach",
-        category: 'condition',
+        category: 'controlflows',
         component: (
             <Tooltip
                 title={plusHolderStatementTooltipMessages.foreachStatement.title}
@@ -289,7 +289,7 @@ export function StatementOptions(props: StatementOptionsProps) {
     }
     const whileStmt: StatementComponent = {
         name: "while",
-        category: 'condition',
+        category: 'controlflows',
         component: (
             <Tooltip
                 title={plusHolderStatementTooltipMessages.whileStatement.title}
@@ -308,7 +308,7 @@ export function StatementOptions(props: StatementOptionsProps) {
     }
     const connectorStatement: StatementComponent = {
         name: "connector",
-        category: "connector",
+        category: "actors",
         component: (
             <Tooltip
                 title={plusHolderStatementTooltipMessages.connectorStatement.title}
@@ -336,7 +336,7 @@ export function StatementOptions(props: StatementOptionsProps) {
     };
     const actionStatement: StatementComponent = {
         name: "action",
-        category: "connector",
+        category: "communications",
         component: (
             <Tooltip
                 title={plusHolderStatementTooltipMessages.actionStatement.title}
@@ -388,7 +388,7 @@ export function StatementOptions(props: StatementOptionsProps) {
 
     const returnStm: StatementComponent = {
         name: "return",
-        category: 'stop',
+        category: 'communications',
         component: (
             <Tooltip
                 title={plusHolderStatementTooltipMessages.returnStatement.title}
@@ -412,7 +412,7 @@ export function StatementOptions(props: StatementOptionsProps) {
     }
     const respondStm: StatementComponent = {
         name: "respond",
-        category: 'stop',
+        category: 'communications',
         component: (
             <Tooltip
                 title={plusHolderStatementTooltipMessages.respondStatement.title}
@@ -437,7 +437,7 @@ export function StatementOptions(props: StatementOptionsProps) {
 
     const customStatement: StatementComponent = {
         name: "customStatement",
-        category: 'process',
+        category: 'generics',
         component: (
             <Tooltip
                 title={plusHolderStatementTooltipMessages.customStatement.title}
@@ -484,33 +484,34 @@ export function StatementOptions(props: StatementOptionsProps) {
     };
     const [selectedCompName, setSelectedCompName] = useState("");
 
-    const connectorComp: ReactNode[] = [];
-    const processComp: ReactNode[] = [];
-    const conditionComp: ReactNode[] = [];
-    const stopComp: ReactNode[] = [];
+    const actorsComp: ReactNode[] = [];
+    const genericsComp: ReactNode[] = [];
+    const controlFlowComp: ReactNode[] = [];
+    const communicationComp: ReactNode[] = [];
+
     if (selectedCompName !== "") {
         const stmts: StatementComponent[] = initStatements.statement.filter(el => el.name.toLowerCase().includes(selectedCompName.toLowerCase()));
         stmts.forEach((stmt) => {
-            if (stmt.category === "connector") {
-                connectorComp.push(stmt.component);
-            } else if (stmt.category === "process") {
-                processComp.push(stmt.component);
-            } else if (stmt.category === "condition") {
-                conditionComp.push(stmt.component);
-            } else if (stmt.category === "stop") {
-                stopComp.push(stmt.component);
+            if (stmt.category === "actors") {
+                actorsComp.push(stmt.component);
+            } else if (stmt.category === "generics") {
+                genericsComp.push(stmt.component);
+            } else if (stmt.category === "controlflows") {
+                controlFlowComp.push(stmt.component);
+            } else if (stmt.category === "communications") {
+                communicationComp.push(stmt.component);
             }
         });
     } else {
         initStatements.statement.forEach((stmt) => {
-            if (stmt.category === "connector") {
-                connectorComp.push(stmt.component);
-            } else if (stmt.category === "process") {
-                processComp.push(stmt.component);
-            } else if (stmt.category === "condition") {
-                conditionComp.push(stmt.component);
-            } else if (stmt.category === "stop") {
-                stopComp.push(stmt.component);
+            if (stmt.category === "actors") {
+                actorsComp.push(stmt.component);
+            } else if (stmt.category === "generics") {
+                genericsComp.push(stmt.component);
+            } else if (stmt.category === "controlflows") {
+                controlFlowComp.push(stmt.component);
+            } else if (stmt.category === "communications") {
+                communicationComp.push(stmt.component);
             }
         });
     }
@@ -519,13 +520,13 @@ export function StatementOptions(props: StatementOptionsProps) {
         <>
             <div className="element-option-holder" >
                 <div className="options-wrapper">
-                    {connectorComp}
-                    {(processComp.length > 0 ? <Divider className="options-divider" /> : null)}
-                    {processComp}
-                    {(conditionComp.length > 0 ? <Divider className="options-divider" /> : null)}
-                    {conditionComp}
-                    {(stopComp.length > 0 ? <Divider className="options-divider" /> : null)}
-                    {stopComp}
+                    {actorsComp}
+                    {(controlFlowComp.length > 0 ? <Divider className="options-divider" /> : null)}
+                    {controlFlowComp}
+                    {(genericsComp.length > 0 ? <Divider className="options-divider" /> : null)}
+                    {genericsComp}
+                    {(communicationComp.length > 0 ? <Divider className="options-divider" /> : null)}
+                    {communicationComp}
                 </div>
             </div>
         </>

@@ -28,7 +28,6 @@ import {
     WhileStatement
 } from "@wso2-enterprise/syntax-tree";
 
-import { BIGPLUS_SVG_WIDTH } from "../Components/PlusButtons/Plus/Initial";
 import { PLUS_SVG_HEIGHT } from "../Components/PlusButtons/Plus/PlusAndCollapse/PlusSVG";
 import { EXECUTION_TIME_DEFAULT_X_OFFSET, EXECUTION_TIME_IF_X_OFFSET } from "../Components/RenderingComponents/ControlFlowExecutionTime";
 import { BOTTOM_CURVE_SVG_WIDTH } from "../Components/RenderingComponents/IfElse/Else/BottomCurve";
@@ -176,7 +175,7 @@ export class PositioningVisitor implements Visitor {
         if (!bodyViewState.isEndComponentAvailable && node.workerBody.statements.length <= 0) {
             const plusBtnViewState: PlusViewState = viewState.initPlus;
             if (bodyViewState.draft === undefined && plusBtnViewState) {
-                plusBtnViewState.bBox.cx = viewState.trigger.cx - (BIGPLUS_SVG_WIDTH / 2);
+                plusBtnViewState.bBox.cx = viewState.trigger.cx;
                 plusBtnViewState.bBox.cy = viewState.trigger.cy + (viewState.trigger.h / 2) + viewState.trigger.offsetFromBottom + (START_SVG_SHADOW_OFFSET / 4);
             }
         }
@@ -238,7 +237,7 @@ export class PositioningVisitor implements Visitor {
             && (!body.namedWorkerDeclarator)) {
             const plusBtnViewState: PlusViewState = viewState.initPlus;
             if (bodyViewState.draft === undefined && plusBtnViewState) {
-                plusBtnViewState.bBox.cx = viewState.trigger.cx - (BIGPLUS_SVG_WIDTH / 2);
+                plusBtnViewState.bBox.cx = viewState.trigger.cx;
                 plusBtnViewState.bBox.cy = viewState.trigger.cy + (viewState.trigger.h / 2) + viewState.trigger.offsetFromBottom + (START_SVG_SHADOW_OFFSET / 4);
             }
         }
@@ -382,7 +381,7 @@ export class PositioningVisitor implements Visitor {
             && !body.namedWorkerDeclarator) {
             const plusBtnViewState: PlusViewState = viewState.initPlus;
             if (bodyViewState.draft === undefined && plusBtnViewState) {
-                plusBtnViewState.bBox.cx = viewState.trigger.cx - (BIGPLUS_SVG_WIDTH / 2);
+                plusBtnViewState.bBox.cx = viewState.trigger.cx;
                 plusBtnViewState.bBox.cy = viewState.trigger.cy + (viewState.trigger.h / 2) + viewState.trigger.offsetFromBottom + (START_SVG_SHADOW_OFFSET / 4);
             }
         }
