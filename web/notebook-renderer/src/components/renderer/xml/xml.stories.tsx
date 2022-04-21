@@ -31,8 +31,10 @@ export const SimpleXml2 = {
                 value: `<note>
                     <to>Jane</to>
                     <from>Jon</from>
+                    <!-- <comment> some comment </comment> -->
                     <heading>Reminder</heading>
-                    <body>Hello World!</body>
+                    <![CDATA[<foo></bar>]]>
+                    <body attr="Attribute value">Hello World!</body>
                 </note>
                 `,
                 mimeType: 'xml',

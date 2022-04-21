@@ -23,9 +23,32 @@ import XMLViewer from 'react-xml-viewer';
 import { NotebookCellResult } from "../types";
  
 export const Xml: FunctionComponent<{ notebookCellOutput: Readonly<NotebookCellResult> }> = ({ notebookCellOutput }) => {    
-    const renderXml = (xml: string) => {
-        return <XMLViewer xml={xml} />
+    const darkMode = document.body.getAttribute('data-vscode-theme-kind')?.includes('dark') ?? false;
+    const darkTheme = {
+        "attributeKeyColor": "#b46900",
+        "attributeValueColor": "#dd6900",
+        "cdataColor": "#22a21f",
+        "commentColor": "#aaa",
+        "separatorColor": "#d43900",
+        "tagColor": "#d43900",
+        "textColor": "#fff"
+    };
+    const lightTheme = {
+        ...darkTheme,
+        "textColor": "#000"
     }
-    return <div>{renderXml(notebookCellOutput.shellValue.value)}</div>;
+    const renderXml = (xml: string) => {
+        return <XMLViewer xml={xml} theme={darkMode ? darkTheme : lightTheme} />
+    }
+    return <div style={{
+            fontFamily: "monospace",
+            letterSpacing: "1px",
+            padding: 24,
+            maxHeight: "400px",
+            overflowY: "scroll",
+            backgroundColor: darkMode ? "#151515" : "transparent"
+        }}>
+            {renderXml(notebookCellOutput.shellValue.value)}
+        </div>;
 }
  
