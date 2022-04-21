@@ -32,12 +32,15 @@ export default function Toolbar(){
     const isExprDeletable = (): boolean => {
         if (currentModel.model){
             const stmtViewState: StatementEditorViewState = currentModel.model.viewState as StatementEditorViewState;
+            const currentModelSource = currentModel.model.source
+                ? currentModel.model.source.trim()
+                : currentModel.model.value ? currentModel.model.value.trim() : '';
+
             let exprDeletable = !stmtViewState.exprNotDeletable;
-            if (currentModel.model.source && INPUT_EDITOR_PLACE_HOLDERS.has(currentModel.model.source.trim())) {
-                exprDeletable =  stmtViewState.templateExprDeletable;
-            } else if (currentModel.model.value && INPUT_EDITOR_PLACE_HOLDERS.has(currentModel.model.value.trim())) {
+            if (INPUT_EDITOR_PLACE_HOLDERS.has(currentModelSource)) {
                 exprDeletable =  stmtViewState.templateExprDeletable;
             }
+
             return exprDeletable;
         }
     }
@@ -49,6 +52,8 @@ export default function Toolbar(){
         } = getRemainingContent(currentModel.model.position, completeModel);
         updateModel(newCode, newPosition);
     }
+
+    const deleteButtonEnabled = currentModel.model && isExprDeletable();
 
     return(
         <span className={statementEditorClasses.toolbar}>
@@ -68,23 +73,14 @@ export default function Toolbar(){
             >
                 <ToolbarRedoIcon />
             </IconButton>
-            {currentModel.model && isExprDeletable() ? (
-                <IconButton
-                    onClick={onClickOnDelete}
-                    style={{color: '#FE523C', marginRight: '14px'}}
-                    className={statementEditorClasses.toolbarIcons}
-                >
-                    <ToolbarDeleteIcon/>
-                </IconButton>
-            ) : (
-                <IconButton
-                    disabled={true}
-                    style={{color: '#8D91A3', marginRight: '14px'}}
-                    className={statementEditorClasses.toolbarIcons}
-                >
-                    <ToolbarDeleteIcon/>
-                </IconButton>
-            )}
+            <IconButton
+                onClick={onClickOnDelete}
+                disabled={!deleteButtonEnabled}
+                style={{color: deleteButtonEnabled ? '#FE523C' : '#8D91A3', marginRight: '14px'}}
+                className={statementEditorClasses.toolbarIcons}
+            >
+                <ToolbarDeleteIcon/>
+            </IconButton>
         </span>
     );
 }
