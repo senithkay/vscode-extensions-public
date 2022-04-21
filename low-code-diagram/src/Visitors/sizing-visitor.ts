@@ -30,6 +30,7 @@ import {
     ServiceDeclaration,
     STKindChecker,
     STNode,
+    traversNode,
     TypeDefinition,
     Visitor, WhileStatement
 } from "@wso2-enterprise/syntax-tree";
@@ -64,7 +65,7 @@ import { ServiceViewState } from "../ViewState/service";
 import { WhileViewState } from "../ViewState/while";
 import { WorkerDeclarationViewState } from "../ViewState/worker-declaration";
 
-
+import { ConflictResolutionVisitor } from "./conflict-resolution-visitor";
 import { DefaultConfig } from "./default";
 import { getDraftComponentSizes, getPlusViewState, haveBlockStatement, isSTActionInvocation } from "./util";
 
@@ -103,6 +104,7 @@ export interface SendRecievePairInfo {
         y1: number;
         y2: number;
     };
+    pairHeight?: number;
 }
 
 export const DEFAULT_WORKER_NAME = 'function'; // todo: move to appropriate place.
@@ -406,7 +408,12 @@ export class SizingVisitor implements Visitor {
             }
         }
 
-        this.syncAsyncStatements(node);
+        const matchedStatements = this.syncAsyncStatements(node);
+        const resolutionVisitor = new ConflictResolutionVisitor(matchedStatements);
+        do {
+            resolutionVisitor.resetConflictStatus();
+            traversNode(node, resolutionVisitor);
+        } while (resolutionVisitor.conflictFound())
 
         if (bodyViewState.hasWorkerDecl) {
             let maxWorkerHeight = 0;
@@ -496,7 +503,7 @@ export class SizingVisitor implements Visitor {
         }
     }
 
-    private syncAsyncStatements(funcitonDef: FunctionDefinition) {
+    private syncAsyncStatements(funcitonDef: FunctionDefinition): SendRecievePairInfo[] {
         const matchedStatements: SendRecievePairInfo[] = [];
         const mainWorkerBody: FunctionBodyBlock = funcitonDef.functionBody as FunctionBodyBlock;
 
@@ -544,6 +551,7 @@ export class SizingVisitor implements Visitor {
                         sourceViewState: sourceViewstate,
                         targetViewState: waitInfo.node.viewState,
                         targetIndex: waitInfo.index,
+                        pairHeight: 0,
                     });
                 }
             });
@@ -580,7 +588,8 @@ export class SizingVisitor implements Visitor {
                         targetName: sendInfo.to,
                         sourceViewState,
                         targetViewState,
-                        targetIndex: matchedReceive.index
+                        targetIndex: matchedReceive.index,
+                        pairHeight: 0,
                     });
                 }
             });
@@ -617,7 +626,8 @@ export class SizingVisitor implements Visitor {
                         sourceViewState: matchedSend.node.viewState,
                         targetName: matchedSend.to,
                         targetIndex: receiveInfo.index,
-                        targetViewState: receiveInfo.node.viewState
+                        targetViewState: receiveInfo.node.viewState,
+                        pairHeight: 0,
                     });
                 }
             });
@@ -684,10 +694,15 @@ export class SizingVisitor implements Visitor {
             matchedPair.restrictedSpace = {
                 x1: sourceWorkerIndex < receiveWorkerIndex ? sourceWorkerIndex : receiveWorkerIndex,
                 x2: sourceWorkerIndex < receiveWorkerIndex ? receiveWorkerIndex : sourceWorkerIndex,
-                y1: sendHeight > receiveHeight ? sendHeight : receiveHeight,
-                y2: matchedPair.sourceViewState.bBox.h + (sendHeight > receiveHeight ? sendHeight : receiveHeight)
+                y1: DefaultConfig.offSet + (sendHeight > receiveHeight ? sendHeight : receiveHeight),
+                y2: matchedPair.sourceViewState.bBox.h + DefaultConfig.offSet + (sendHeight > receiveHeight ? sendHeight : receiveHeight)
             }
+
+            matchedPair.pairHeight = matchedPair.restrictedSpace.y1;
         });
+
+        console.log('matched statements >>>', matchedStatements);
+        return matchedStatements;
     }
 
     private calculateHeightUptoIndex(targetIndex: number, workerBody: BlockStatement) {
