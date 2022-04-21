@@ -23,7 +23,6 @@ import { NotebookCellResult } from "../types";
 
 export const Json: FunctionComponent<{ notebookCellOutput: Readonly<NotebookCellResult> }> = ({ notebookCellOutput }) => {  
     const darkMode = document.body.getAttribute('data-vscode-theme-kind')?.includes('dark') ?? false;
-    console.log(darkMode);
     const renderJson = (value: Object) => {
         return <ReactJson
             src={value}

@@ -22,8 +22,7 @@ import { CancellationToken, CompletionContext, CompletionItem, CompletionItemPro
     CompletionList, Disposable, DocumentSelector, languages, Position, ProviderResult, 
     TextDocument, } from "vscode";
 import { NOTEBOOK_SCHEME } from "./constants";
-import { getPlainTextSnippet, translateCompletionItemKind,  } from "./utils";
-import { CompletionResponse } from "@wso2-enterprise/ballerina-low-code-editor";
+import { filterCompletions, getPlainTextSnippet, translateCompletionItemKind  } from "./utils";
 import { CompletionItemKind as MonacoCompletionItemKind } from "monaco-languageclient";
 
 const selector: DocumentSelector = {
@@ -129,12 +128,4 @@ function performDidOpen(langClient: ExtendedLangClient, filePath: string, conten
             text: content
         }
     });
-}
-function filterCompletions(completions: CompletionResponse[]): CompletionResponse[] {
-    const labelsUsedInShell = [
-        "__last__", "__java_recall(handle context_id, handle name)", "__memorize(string name, any|error value)",
-        "main()", "init()", "__run()", "__recall_any_error(string name)", "__recall_any(string name)", 
-        "__java_memorize(handle context_id, handle name, any|error value)", "__stmts()", 
-    ];
-    return completions.filter(item => !labelsUsedInShell.includes(item.label));
 }
