@@ -56,4 +56,4 @@ task buildVariableView {
     }
 }
 
-artifacts.add('variableViewer', file("build/"))
+artifacts.add('variableView', file("build/"))

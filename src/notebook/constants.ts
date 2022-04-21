@@ -31,7 +31,7 @@ export const CUSTOM_DESIGNED_MIME_TYPES = [
     MIME_TYPE_TABLE,
     MIME_TYPE_JSON,
     MIME_TYPE_XML
-]
+];
 
 /* Commands for notebook*/
 export const RESTART_NOTEBOOK_COMMAND = "ballerina.notebook.restartnotebook";
