@@ -81,3 +81,9 @@ export const TM_EVENT_EDIT_SOURCE = "editor-workspace-edit-source";
 export const TM_EVENT_EDIT_DIAGRAM = "editor-workspace-edit-diagram"
 
 export const TM_EVENT_LANG_CLIENT = "ballerina.langclient.event";
+
+// performance analyzer events
+export const TM_EVENT_PERF_REQUEST = "perfomance-analyzer-request";
+export const TM_EVENT_PERF_LS_REQUEST = "perfomance-analyzer-ls-request";
+export const TM_EVENT_OPEN_PERF_GRAPH = "perfomance-graph-open";
+export const TM_EVENT_CLICK_PERF_GRAPH = "perfomance-graph-click";

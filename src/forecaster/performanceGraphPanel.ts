@@ -26,6 +26,7 @@ import { ExecutorCodeLensProvider } from "./codelens-provider";
 import { refreshDiagramForPerformanceConcurrencyChanges } from "../diagram";
 import { GraphData } from "./model";
 import { join } from "path";
+import { sendTelemetryEvent, CMP_PERF_ANALYZER, TM_EVENT_CLICK_PERF_GRAPH } from "../telemetry";
 
 let clearCodeLenses = true;
 
@@ -78,6 +79,7 @@ export class DefaultWebviewPanel {
             message => {
                 switch (message.command) {
                     case 'updateCodeLenses':
+                        sendTelemetryEvent(extension, TM_EVENT_CLICK_PERF_GRAPH, CMP_PERF_ANALYZER, { 'concurrency': `${message.text}` });
                         for (let editor of window.visibleTextEditors) {
                             if (editor.document.uri.path === currentFileUri.path) {
                                 updateCodeLenses(message.text, editor.viewColumn);
