@@ -1669,6 +1669,16 @@ export class SizingVisitor implements Visitor {
                     if ((rightWidth < stmtViewState.bBox.rw) && !stmtViewState.collapsed) {
                         rightWidth = stmtViewState.bBox.rw;
                     }
+
+                    if (stmtViewState.functionNode) {
+                        if (stmtViewState.functionNodeExpanded) {
+                            stmtViewState.bBox.h += stmtViewState.functionNode.viewState.bBox.h - 80;
+                            height += stmtViewState.functionNode.viewState.bBox.h - 80;
+                            if (rightWidth < stmtViewState.functionNode.viewState.bBox.w - 80) {
+                                rightWidth += stmtViewState.functionNode.viewState.bBox.w - 80;
+                            }
+                        }
+                    }
                 }
             }
 

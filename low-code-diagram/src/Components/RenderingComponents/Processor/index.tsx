@@ -38,7 +38,7 @@ import { getDiagnosticInfo, getMethodCallFunctionName, getOverlayFormConfig, get
 import { BlockViewState, StatementViewState } from "../../../ViewState";
 import { DraftStatementViewState } from "../../../ViewState/draft";
 import { DefaultConfig } from "../../../Visitors/default";
-import { ShowFuntionBtn } from "../../DiagramActions/ShowFunctionBtn";
+import { ShowFunctionBtn } from "../../DiagramActions/ShowFunctionBtn";
 import { Assignment } from "../Assignment";
 import { MethodCall } from "../MethodCall";
 import { StatementTypes } from "../StatementTypes";
@@ -291,11 +291,7 @@ export function DataProcessor(props: ProcessorProps) {
         )
     }
     const processWrapper = isDraftStatement ? cn("main-process-wrapper active-data-processor") : cn("main-process-wrapper data-processor");
-    const processStyles = diagnostics && !isDraftStatement ? cn("main-process-wrapper data-processor-error ") : processWrapper;
-    const assignmentTextcx = cx + PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW / 2 + (DefaultConfig.dotGap * 3);
-    const assignmentTextcy = cy + PROCESS_SVG_HEIGHT / 3;
-    const textWidth = assignmentText ? assignmentText.length : 0;
-    const textWidthFixed = textWidth >= 15 ? assignmentText?.slice(0, 16).length * 9 : textWidth * 9;
+    const textWidthFixed = functionName?.value.length >= 15 ? functionName?.value?.slice(0, 16).length * 9 : functionName?.value.length * 9;
 
     const component: React.ReactNode = (!viewState.collapsed &&
         (
@@ -335,7 +331,7 @@ export function DataProcessor(props: ProcessorProps) {
                         />
                         <Assignment
                             x={cx + PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW / 2 + (DefaultConfig.dotGap * 3)}
-                            y={prosessTypes ? (cy + PROCESS_SVG_HEIGHT / 2 + rightTextOffset) : (cy + PROCESS_SVG_HEIGHT / 3 + rightTextOffset)}
+                            y={(cy + PROCESS_SVG_HEIGHT / 4) - (DefaultConfig.dotGap / 2)}
                             assignment={assignmentText}
                             className={assignmentTextStyles}
                             key_id={getRandomInt(1000)}
@@ -347,19 +343,6 @@ export function DataProcessor(props: ProcessorProps) {
                             methodCall={methodCallText}
                             key_id={getRandomInt(1000)}
                         />
-                        {haveFunction ?
-                            <g>
-                                <ShowFuntionBtn
-                                    model={model}
-                                    functionName={functionName}
-                                    x={assignmentTextcx + textWidthFixed}
-                                    y={assignmentTextcy + 2}
-                                    onDraftDelete={onDraftDelete}
-                                />
-                            </g>
-                            : ''
-                        }
-
                         {!isReadOnly &&
                             <g
                                 className="process-options-wrapper"
@@ -383,6 +366,17 @@ export function DataProcessor(props: ProcessorProps) {
                         }
                     </React.Fragment>
                 </g>
+                {haveFunction ?
+                    <g>
+                        <ShowFunctionBtn
+                            model={model}
+                            functionName={functionName}
+                            x={cx + PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW / 2 + (DefaultConfig.dotGap * 3) + textWidthFixed}
+                            y={(cy + PROCESS_SVG_HEIGHT / 4) - (DefaultConfig.dotGap / 2)}
+                        />
+                    </g>
+                    : ''
+                }
             </g>
         )
     );

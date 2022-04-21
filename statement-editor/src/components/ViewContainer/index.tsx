@@ -71,10 +71,10 @@ export function ViewContainer(props: ViewContainerProps) {
 
     const onSaveClick = () => {
         sendDidClose(exprSchemeURI, getLangClient).then();
-        sendDidOpen(fileSchemeURI, currentFile.content, getLangClient).then();
+        // sendDidOpen(fileSchemeURI, currentFile.content, getLangClient).then();
         const modifications = getModifications(statementModel, config, formArgs, Array.from(modulesToBeImported) as string[]);
         applyModifications(modifications);
-        onWizardClose();
+        // onWizardClose();
         sendDidClose(fileSchemeURI, getLangClient).then();
     };
 

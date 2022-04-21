@@ -11,23 +11,26 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 
-// import { FunctionBody } from "../../RenderingComponents/FunctionBody";
 import { STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
   FunctionDefinition,
   IdentifierToken,
-  STKindChecker,
   STNode,
 } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../Context/diagram";
+import {
+  recalculateSizingAndPositioning,
+  sizingAndPositioning,
+} from "../../../Utils";
 import { StatementViewState } from "../../../ViewState";
+import { FunctionExpand } from "../../RenderingComponents/FunctionExpand";
 
 import { ShowFunctionSVG } from "./ShowFunctionSVG";
 import "./style.scss";
-import { Function } from "../../RenderingComponents/Function";
+import { HideFunctionSVG } from "./HideFunctionSVG";
 
 export interface ShowFunctionBtnProps {
   x: number;
@@ -36,22 +39,20 @@ export interface ShowFunctionBtnProps {
   functionName: IdentifierToken;
   toolTipTitle?: string;
   isButtonDisabled?: boolean;
-  onDraftDelete?: () => void;
   createModifications?: (model: STNode) => STModification[];
 }
 
-export function ShowFuntionBtn(props: ShowFunctionBtnProps) {
+export function ShowFunctionBtn(props: ShowFunctionBtnProps) {
   const {
-    props: { isReadOnly, stSymbolInfo, syntaxTree },
+    props: { isReadOnly, syntaxTree },
     api: {
-      code: { modifyDiagram },
+      code: { getFunctionDef },
     },
     actions: { diagramRedraw },
   } = useContext(Context);
 
   const {
     model,
-    onDraftDelete,
     createModifications,
     toolTipTitle,
     isButtonDisabled,
@@ -62,95 +63,70 @@ export function ShowFuntionBtn(props: ShowFunctionBtnProps) {
   const [isConfirmDialogActive, setConfirmDialogActive] = useState(false);
   const [, setBtnActive] = useState(false);
   const [functionBlock, setFunctionBlock] = useState(null);
-  // const [functionBBox, setFunctionBBox] = useState(null);
   const nodeViewState: StatementViewState = model.viewState;
 
-  // const modifications: STModification[] = [];
+  useEffect(() => {
+    setConfirmDialogActive(false);
+  }, [syntaxTree]);
 
-  // const onMouseEnter = () => {
-  //     setBtnActive(true);
-  // };
-
-  // const onMouseLeave = () => {
-  //     // if confirm dialog is active keep btn active,
-  //     // else hide on mouse leave
-  //     setBtnActive(isConfirmDialogActive);
-  //     // setConfirmDialogActive(false);
-  // };
-
-  const onBtnClick = () => {
-    // console.log("model", model);
-    // console.log("ST", syntaxTree);
+  const onBtnClick = async () => {
     if (isConfirmDialogActive) {
       nodeViewState.functionNodeExpanded = false;
-      diagramRedraw(syntaxTree);
+      diagramRedraw(recalculateSizingAndPositioning(syntaxTree));
       setConfirmDialogActive(false);
     } else {
-      // setFunctionBBox(model.viewState.bBox);
-      const functionDiagram: FunctionDefinition = (
-        syntaxTree as any
-      ).members.filter(
-        (member: any) =>
-          STKindChecker.isFunctionDefinition(member) &&
-          member.functionName.value === functionName.value
-      )[0];
-      // const funcViewState: FunctionViewState = functionDiagram.viewState;
-      // console.log("functionDiagram viewState", funcViewState.bBox);
-      // console.log("nodeViewState viewState", nodeViewState.bBox);
+      const range: any = {
+        start: {
+          line: functionName.position?.startLine,
+          character: functionName.position?.startColumn,
+        },
+        end: {
+          line: functionName.position?.endLine,
+          character: functionName.position?.endColumn,
+        },
+      };
 
-      // model.viewState.bBox = funcViewState.bBox;
-      nodeViewState.functionNode = functionDiagram;
-      nodeViewState.functionNodeExpanded = true;
-      diagramRedraw(syntaxTree);
-      setConfirmDialogActive(true);
-      setFunctionBlock(functionDiagram);
+      try {
+        if (!nodeViewState.functionNode) {
+          const funDef = await getFunctionDef(range);
+          const sizedBlock = sizingAndPositioning(funDef);
+          nodeViewState.functionNode = sizedBlock as FunctionDefinition;
+          setFunctionBlock(sizedBlock);
+        }
+        nodeViewState.functionNodeExpanded = true;
+        setConfirmDialogActive(true);
+        diagramRedraw(syntaxTree);
+      } catch (e) {
+        // console.error(e);
+      }
     }
   };
 
-  const closeConfirmDialog = () => {
-    setConfirmDialogActive(false);
-    // setBtnActive(false);
-  };
-
-  // const onDeleteConfirm = () => {
-  //     // delete logic
-  //     if (model) {
-
-  //     } else if (onDraftDelete) {
-  //         onDraftDelete();
-  //     }
-  // };
-
-  // const callStatement: CallStatement = model as CallStatement;
-  // const stmtFunctionCall: FunctionCall = callStatement.expression as FunctionCall;
-  // const nameRef: SimpleNameReference = stmtFunctionCall.functionName as SimpleNameReference;
-
-  // const functionBlock: FunctionBodyBlock = block.functionBody as FunctionBodyBlock;
-
-  // const viewState: BlockViewState = {}
   return (
-    <svg className="assignment-expression">
-      <g>
-        {!isReadOnly && (
-          <g>
-            <g
-              className="expand-icon-show"
-              data-testid="func-expand-btn"
-              onClick={onBtnClick}
-            >
+    <g>
+      {!isReadOnly && (
+        <g>
+          <g
+            className="expand-icon-show"
+            data-testid="func-expand-btn"
+            onClick={onBtnClick}
+          >
+            {!isConfirmDialogActive ? (
               <ShowFunctionSVG {...xyProps} />
-            </g>
-
-            {isConfirmDialogActive && (
-              <g {...xyProps}>
-                {/* <FunctionBody model={functionBlock} onClose={closeConfirmDialog} {...xyProps}/> */}
-                <Function model={functionBlock} />
-                HELLO WORLD
-              </g>
+            ) : (
+              <HideFunctionSVG {...xyProps} />
             )}
           </g>
-        )}
-      </g>
-    </svg>
+
+          {isConfirmDialogActive && functionBlock && (
+            <FunctionExpand
+              model={functionBlock}
+              hideHeader={true}
+              {...xyProps}
+            />
+          )}
+        </g>
+      )}
+    </g>
   );
 }
