@@ -20,20 +20,20 @@ import React, { useState } from "react";
 
 import { Box, Button, Card, CardActions, CardContent, Collapse, FormLabel } from "@material-ui/core";
 
+import ConfigElement, { ConfigElementProps } from "./ConfigElement";
 import ButtonContainer from "./elements/ButtonContainer";
+import ExpandMore from "./elements/ExpandMore";
 import {
     ConfigSchema,
     ConfigType,
 } from "./model";
+import { useStyles } from "./style";
 import {
     getConfigProperties,
     getMetaData,
     getPackageConfig,
     setExistingValues,
 } from "./utils";
-import ConfigElement, { ConfigElementProps } from "./ConfigElement";
-import { useStyles } from "./style";
-import ExpandMore from "./elements/ExpandMore";
 
 export interface ConfigFormProps {
     configSchema: ConfigSchema;
@@ -42,6 +42,7 @@ export interface ConfigFormProps {
     primaryButtonText: string;
     onClickDefaultButton: () => void;
     onClickPrimaryButton: (configProperties: ConfigElementProps) => void;
+    isLowCode?: boolean;
 }
 
 export const ConfigForm = (props: ConfigFormProps) => {
@@ -59,7 +60,7 @@ export const ConfigForm = (props: ConfigFormProps) => {
     } = props;
 
     // The config property object retrieved from the config schema.
-    let configElements: ConfigElementProps = getConfigProperties(
+    const configElements: ConfigElementProps = getConfigProperties(
         getPackageConfig(configSchema),
     );
 
@@ -85,12 +86,11 @@ export const ConfigForm = (props: ConfigFormProps) => {
         event.preventDefault();
         const returnElement: ConfigElementProps = {
             id: "1",
-            name: "root",
             isRequired: true,
-            type: ConfigType.OBJECT,
+            name: "root",
             properties: [...configValue],
+            type: ConfigType.OBJECT,
         };
-        console.log(returnElement);
         onClickPrimaryButton(returnElement);
     };
 
@@ -104,7 +104,7 @@ export const ConfigForm = (props: ConfigFormProps) => {
 
     const requiredElements: ConfigElementProps[] = [];
     const defaultableElements: ConfigElementProps[] = [];
-    configElements.properties.forEach(element => {
+    configElements.properties.forEach((element) => {
         if (element.isRequired) {
             requiredElements.push(element);
         } else {
@@ -167,3 +167,7 @@ export const ConfigForm = (props: ConfigFormProps) => {
 };
 
 export default ConfigForm;
+
+ConfigForm.defaultProps = {
+    isLowCode: false,
+};

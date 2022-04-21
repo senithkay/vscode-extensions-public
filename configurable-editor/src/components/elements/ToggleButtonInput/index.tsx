@@ -17,7 +17,7 @@
  *
  */
 
-import React from "react";
+import React, { useEffect } from "react";
 
 import ToggleButton from "@material-ui/lab/ToggleButton";
 import ToggleButtonGroup from "@material-ui/lab/ToggleButtonGroup";
@@ -31,7 +31,7 @@ export interface ToggleButtonInputProps {
 
 export function ToggleButtonInput(props: ToggleButtonInputProps) {
     const { id, existingValue, isRequired, setToggleButtonValue } = props;
-    const [alignment, setAlignment] = React.useState(String(existingValue));
+    const [inputValue, setInputValue] = React.useState(String(existingValue));
 
     const getBooleanValue = (value: string): boolean => {
         switch (value) {
@@ -47,19 +47,22 @@ export function ToggleButtonInput(props: ToggleButtonInputProps) {
     const handleChange = (e: any, newAlignment: string) => {
         if (isRequired) {
             if (newAlignment !== null) {
-                setAlignment(newAlignment);
+                setInputValue(newAlignment);
             }
         } else {
-            setAlignment(newAlignment);
+            setInputValue(newAlignment);
         }
-        setToggleButtonValue(id, getBooleanValue(newAlignment));
     };
+
+    useEffect(() => {
+        setToggleButtonValue(id, getBooleanValue(inputValue));
+    }, [inputValue]);
 
     return (
         <ToggleButtonGroup
             color="primary"
-            value={alignment}
-            exclusive
+            value={inputValue}
+            exclusive={true}
             onChange={handleChange}
             size={"small"}
         >

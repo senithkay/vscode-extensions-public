@@ -17,9 +17,10 @@
  *
  */
 
-import { Box, Card, CardContent, Grid } from "@material-ui/core";
 import React, { ReactElement, useEffect, useState } from "react";
-import { ArrayTypeProps } from ".";
+
+import { Box, Card, CardContent, Grid } from "@material-ui/core";
+
 import { ConfigElementProps } from "../../ConfigElement";
 import { AddInputButton } from "../../elements/AddInputButton";
 import DeleteButton from "../../elements/DeleteButton";
@@ -29,8 +30,9 @@ import { useStyles } from "../../style";
 import { getConfigProperties } from "../../utils";
 import ObjectType, { ObjectTypeProps } from "../ObjectType";
 
+import { ArrayTypeProps } from ".";
 export interface ObjectArrayProps extends ArrayTypeProps {
-    values?: any[],
+    values?: any[];
     setArrayElement?: (id: string, objectArrayValue: any) => void;
 }
 
@@ -43,37 +45,37 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
     const elementSchema: object[] = props.schema[SchemaConstants.ITEMS];
 
     const element: ConfigElementProps = {
-        id: props.id,
-        name: props.name,
-        isRequired: props.isRequired,
         description: props.description,
+        id: props.id,
+        isRequired: props.isRequired,
+        name: props.name,
         type: props.type,
         value: props.value,
     };
 
     const addArrayElememt = () => {
-        let propertiesValue: ConfigElementProps = undefined;
+        let propertiesValue: ConfigElementProps;
         if (elementSchema[SchemaConstants.PROPERTIES] !== undefined) {
             propertiesValue = getConfigProperties(elementSchema, props.id + "-" + counter);
         }
 
         const objectArrayProps: ObjectArrayProps = {
+            description: props.schema[SchemaConstants.DESCRIPTION],
             id: props.id + "-" + counter,
             isRequired: false,
-            type: props.arrayType,
-            schema: elementSchema,
+            name: "",
             properties: propertiesValue.properties,
-            description: props.schema[SchemaConstants.DESCRIPTION],
-            name: ""
+            schema: elementSchema,
+            type: props.arrayType,
         };
-        setCounter(prevState => prevState + 1);
-        setArrayValues(prevState => [...prevState, objectArrayProps]);
+        setCounter((prevState) => prevState + 1);
+        setArrayValues((prevState) => [...prevState, objectArrayProps]);
     };
 
     const removeArrayElement = (id: string) => {
         let newArrayValues = [...arrayValues];
-        newArrayValues = newArrayValues.filter((element) => {
-            return element.id !== id;
+        newArrayValues = newArrayValues.filter((arrayElement) => {
+            return arrayElement.id !== id;
         });
         setArrayValues(newArrayValues);
     };
@@ -94,41 +96,50 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
         props.setArrayElement(props.id, element);
     }, [arrayValues]);
 
-    arrayValues.forEach((element) => {
+    arrayValues.forEach((arrayElement) => {
         const objectTypeProps: ObjectTypeProps = {
-            ...element,
+            ...arrayElement,
             setObjectConfig: handleValueChange,
         };
 
         returnElement.push(
-            <Grid key={element.id} container spacing={1} direction="row" alignItems="center" justifyContent="center">
-                <Grid item xs={11}>
-                    <Box key={element.id + "-ENTRY"}>
-                        <ObjectType {...objectTypeProps} />
-                    </Box>
+            (
+                <Grid
+                    key={arrayElement.id}
+                    container={true}
+                    spacing={1}
+                    direction="row"
+                    alignItems="center"
+                    justifyContent="center"
+                >
+                    <Grid item={true} xs={11}>
+                        <Box key={arrayElement.id + "-ENTRY"}>
+                            <ObjectType {...objectTypeProps} />
+                        </Box>
+                    </Grid>
+                    <Grid item={true} xs={1}>
+                        <DeleteButton onDelete={removeArrayElement} id={arrayElement.id}/>
+                    </Grid>
                 </Grid>
-                <Grid item xs={1}>
-                    <DeleteButton onDelete={removeArrayElement} id={element.id}/>
-                </Grid>
-            </Grid>
+            ),
         );
     });
 
     const fieldLabelProps: FieldLabelProps = {
-        name: props.name,
-        type: "array",
         description: props.description,
+        name: props.name,
         required: props.isRequired,
+        type: "array",
     };
 
     return (
         <Box className={classes.innerBoxCard}>
             <Card variant="outlined">
                 <CardContent className={classes.cardContent}>
-                    <FieldLabel {...fieldLabelProps} />
+                    <FieldLabel {...fieldLabelProps}/>
                     <Box className={classes.formInputBox}>
                         {returnElement}
-                    </Box>   
+                    </Box>
                     <div key={props.id + "-ADD"}>
                         <AddInputButton onAdd={addArrayElememt} />
                     </div>

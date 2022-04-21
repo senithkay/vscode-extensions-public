@@ -18,9 +18,9 @@
  */
 
 import React, { ReactElement, useEffect } from "react";
+
 import { ConfigElementProps } from "../../ConfigElement";
 import { ConfigType } from "../../model";
-
 import BooleanType, { BooleanTypeProps } from "../BooleanType";
 import FloatType, { FloatTypeProps } from "../FloatType";
 import IntegerType, { IntegerTypeProps } from "../IntegerType";
@@ -38,10 +38,10 @@ const SimpleType = (props: SimpleTypeProps): ReactElement => {
     const type = props.type === ConfigType.NUMBER ? ConfigType.FLOAT : props.type;
 
     const element: ConfigElementProps = {
-        id: props.id,
-        name: props.name,
-        isRequired: props.isRequired,
         description: props.description,
+        id: props.id,
+        isRequired: props.isRequired,
+        name: props.name,
         type: props.type,
         value: props.value,
     };
@@ -49,7 +49,7 @@ const SimpleType = (props: SimpleTypeProps): ReactElement => {
     useEffect(() => {
         props.setSimpleConfig(props.id, element);
     }, []);
-    
+
     const setSimpleElememt = (id: string, value: any) => {
         element.value = value;
         props.setSimpleConfig(id, element);
@@ -63,9 +63,11 @@ const SimpleType = (props: SimpleTypeProps): ReactElement => {
             };
 
             returnElement.push (
-                <div key={props.id + "-FIELD"}>
-                    <BooleanType {...booleanTypeProp} />
-                </div>
+                (
+                    <div key={props.id + "-FIELD"}>
+                        <BooleanType {...booleanTypeProp} />
+                    </div>
+                ),
             );
             break;
         case ConfigType.INTEGER:
@@ -75,9 +77,11 @@ const SimpleType = (props: SimpleTypeProps): ReactElement => {
             };
 
             returnElement.push (
-                <div key={props.id + "-FIELD"}>
-                    <IntegerType {...integerTypeProp} />
-                </div>
+                (
+                    <div key={props.id + "-FIELD"}>
+                        <IntegerType {...integerTypeProp} />
+                    </div>
+                ),
             );
             break;
         case ConfigType.FLOAT:
@@ -87,9 +91,11 @@ const SimpleType = (props: SimpleTypeProps): ReactElement => {
             };
 
             returnElement.push (
-                <div key={props.id + "-FIELD"}>
-                    <FloatType {...floatTypeProp} />
-                </div>
+                (
+                    <div key={props.id + "-FIELD"}>
+                        <FloatType {...floatTypeProp} />
+                    </div>
+                ),
             );
             break;
         case ConfigType.STRING:
@@ -99,9 +105,11 @@ const SimpleType = (props: SimpleTypeProps): ReactElement => {
             };
 
             returnElement.push (
-                <div key={props.id + "-FIELD"}>
-                    <StringType {...stringTypeProp} />
-                </div>
+                (
+                    <div key={props.id + "-FIELD"}>
+                        <StringType {...stringTypeProp} />
+                    </div>
+                ),
             );
             break;
     }

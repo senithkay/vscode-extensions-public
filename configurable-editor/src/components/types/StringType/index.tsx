@@ -36,11 +36,11 @@ const StringType = (props: StringTypeProps): ReactElement => {
 
     const textFieldInputProps: TextFieldInputProps = {
         id,
-        isRequired: isRequired,
-        value: value,
-        type: "text",
+        isRequired,
+        placeholder,
         setTextFieldValue: setStringType,
-        placeholder: placeholder
+        type: "text",
+        value,
     };
 
     returnElement.push(

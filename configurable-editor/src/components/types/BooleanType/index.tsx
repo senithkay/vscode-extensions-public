@@ -18,8 +18,8 @@
  */
 
 import React, { ReactElement } from "react";
-import { ToggleButtonInput, ToggleButtonInputProps } from "../../elements/ToggleButtonInput";
 
+import { ToggleButtonInput, ToggleButtonInputProps } from "../../elements/ToggleButtonInput";
 import { SimpleTypeProps } from "../SimpleType";
 
 /**
@@ -34,14 +34,14 @@ const BooleanType = (props: BooleanTypeProps): ReactElement => {
     const returnElement: ReactElement[] = [];
     const { id, isRequired, value, setBooleanConfig } = props;
 
-    const setBooleanValue = (id: string, value: boolean) => {
-        setBooleanConfig(id, Boolean(value))
+    const setBooleanValue = (propertyId: string, propertyValue: boolean) => {
+        setBooleanConfig(propertyId, Boolean(propertyValue));
     };
 
     const toggleButtonInputProps: ToggleButtonInputProps = {
-        id,
         existingValue: value,
-        isRequired: isRequired,
+        id,
+        isRequired,
         setToggleButtonValue: setBooleanValue,
     };
 

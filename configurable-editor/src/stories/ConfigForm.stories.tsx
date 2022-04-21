@@ -1,8 +1,8 @@
 import React from "react";
 
 import ConfigEditor from "../components/ConfigEditor";
+import { ConfigElementProps } from "../components/ConfigElement";
 import ConfigForm from "../components/ConfigForm";
-import { RecordTypeProps } from "../components/types/RecordType";
 import { ConfigSchema } from "../components/model";
 
 import configSchema from "./data/config-schema.json";
@@ -18,7 +18,7 @@ const onClickDefaultButton = () => {
     console.log("Default Button clicked");
 };
 
-const onClickPrimaryButton = (configProperties: RecordTypeProps) => {
+const onClickPrimaryButton = (configProperties: ConfigElementProps) => {
     // tslint:disable-next-line: no-console
     console.log(configProperties);
 };

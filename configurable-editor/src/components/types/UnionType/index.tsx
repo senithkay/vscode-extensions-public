@@ -18,9 +18,9 @@
  */
 
 import React, { ReactElement, useEffect, useState } from "react";
+
 import { ConfigElementProps } from "../../ConfigElement";
 import { FieldLabel, FieldLabelProps } from "../../elements/FieldLabel";
-
 import { TextFieldInput, TextFieldInputProps } from "../../elements/TextFieldInput";
 import { SchemaConstants } from "../../model";
 import { SimpleTypeProps } from "../SimpleType";
@@ -35,20 +35,20 @@ export interface UnionTypeProps extends SimpleTypeProps {
 
 export const UnionType = (props: UnionTypeProps): ReactElement => {
     const [unionValue, setUnionValue] = useState<ConfigElementProps>({
-        id: props.id,
-        name: props.name,
-        isRequired: props.isRequired,
         description: props.description,
+        id: props.id,
+        isRequired: props.isRequired,
+        name: props.name,
         type: props.type,
         value: props.value,
     });
     const returnElement: ReactElement[] = [];
     const { id, isRequired, value, setUnionType, placeholder } = props;
 
-    const setUnionElememt = (id: string, value: any) => {
+    const setUnionElememt = (elementId: string, elementValue: any) => {
         const newUnionValue: ConfigElementProps = unionValue;
-        if (newUnionValue.id === id) {
-            newUnionValue.value = value;
+        if (newUnionValue.id === elementId) {
+            newUnionValue.value = elementValue;
         }
         setUnionValue(newUnionValue);
     };
@@ -59,19 +59,19 @@ export const UnionType = (props: UnionTypeProps): ReactElement => {
 
     const textFieldInputProps: TextFieldInputProps = {
         id,
-        isRequired: isRequired,
-        value: value,
-        type: "text",
+        isRequired,
+        placeholder,
         setTextFieldValue: setUnionElememt,
-        placeholder: placeholder
+        type: "text",
+        value,
     };
 
     const fieldLabelProps: FieldLabelProps = {
-        name: props.name,
-        type: getUnionType(props.schema[SchemaConstants.ANY_OF]),
-        label: props.label,
         description: props.description,
+        label: props.label,
+        name: props.name,
         required: props.isRequired,
+        type: getUnionType(props.schema[SchemaConstants.ANY_OF]),
     };
 
     returnElement.push(
@@ -89,9 +89,9 @@ export const UnionType = (props: UnionTypeProps): ReactElement => {
 export default UnionType;
 
 function getUnionType(properties: object[]): string {
-    let unionTypes: string[] = [];
+    const unionTypes: string[] = [];
     Object.keys(properties).forEach((key) => {
         unionTypes.push(properties[key].type);
     });
     return unionTypes.join(" | ");
-};
+}

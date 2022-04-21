@@ -17,9 +17,10 @@
  *
  */
 
-import { Box, Card, CardContent, Grid } from "@material-ui/core";
 import React, { ReactElement, useEffect, useState } from "react";
-import { ArrayTypeProps } from ".";
+
+import { Box, Card, CardContent, Grid } from "@material-ui/core";
+
 import { ConfigElementProps } from "../../ConfigElement";
 import { AddInputButton } from "../../elements/AddInputButton";
 import DeleteButton from "../../elements/DeleteButton";
@@ -27,6 +28,8 @@ import { FieldLabel, FieldLabelProps } from "../../elements/FieldLabel";
 import { ConfigValue } from "../../model";
 import { useStyles } from "../../style";
 import SimpleType, { SimpleTypeProps } from "../SimpleType";
+
+import { ArrayTypeProps } from ".";
 
 /**
  * The leaf level configurable type representing boolean values.
@@ -40,12 +43,12 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
     const returnElement: ReactElement[] = [];
     const [arrayValues, setArrayValues] = useState<ConfigValue[]>(getInitialValues(props.value, props.id));
     const [counter, setCounter] = useState(arrayValues.length + 1);
-    
+
     const element: ConfigElementProps = {
-        id: props.id,
-        name: props.name,
-        isRequired: props.isRequired,
         description: props.description,
+        id: props.id,
+        isRequired: props.isRequired,
+        name: props.name,
         type: props.type,
         value: props.value,
     };
@@ -55,14 +58,14 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
             key: props.id + "-" + counter,
             value: undefined,
         };
-        setCounter(prevState => prevState + 1);
-        setArrayValues(prevState => [...prevState, configValue]);
+        setCounter((prevState) => prevState + 1);
+        setArrayValues((prevState) => [...prevState, configValue]);
     };
 
     const removeArrayElement = (id: string) => {
         let newSimpleArray = [...arrayValues];
-        newSimpleArray = newSimpleArray.filter((element) => {
-            return element.key !== id;
+        newSimpleArray = newSimpleArray.filter((arrayElement) => {
+            return arrayElement.key !== id;
         });
         setArrayValues(newSimpleArray);
     };
@@ -79,7 +82,7 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
     };
 
     useEffect(() => {
-        let values: any[] = [];
+        const values: any[] = [];
         arrayValues.forEach((entry) => {
             values.push(entry.value);
         });
@@ -87,33 +90,42 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
         props.setArrayElement(props.id, element);
     }, [arrayValues]);
 
-    arrayValues.forEach((element) => {
+    arrayValues.forEach((arrayElement) => {
         const simpleTypeProps: SimpleTypeProps = {
             ...props,
-            id: element.key,
-            type: props.arrayType,
-            value: element.value,
+            id: arrayElement.key,
             setSimpleConfig: handleValueChange,
+            type: props.arrayType,
+            value: arrayElement.value,
         };
         returnElement.push(
-            <Grid key={element.key} container spacing={1} direction="row" alignItems="center" justifyContent="center">
-                <Grid item xs={11}>
-                    <Box>
-                        <SimpleType {...simpleTypeProps} />
-                    </Box>
+            (
+                <Grid
+                    key={arrayElement.key}
+                    container={true}
+                    spacing={1}
+                    direction="row"
+                    alignItems="center"
+                    justifyContent="center"
+                >
+                    <Grid item={true} xs={11}>
+                        <Box>
+                            <SimpleType {...simpleTypeProps} />
+                        </Box>
+                    </Grid>
+                    <Grid item={true} xs={1}>
+                        <DeleteButton onDelete={removeArrayElement} id={arrayElement.key}/>
+                    </Grid>
                 </Grid>
-                <Grid item xs={1}>
-                    <DeleteButton onDelete={removeArrayElement} id={element.key}/>
-                </Grid>
-            </Grid>
+            ),
         );
     });
 
     const fieldLabelProps: FieldLabelProps = {
-        name: props.name,
-        type: "array",
         description: props.description,
+        name: props.name,
         required: props.isRequired,
+        type: "array",
     };
 
     return (
@@ -123,14 +135,14 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
                     <FieldLabel {...fieldLabelProps} />
                     <Box className={classes.formInputBox}>
                         {returnElement}
-                    </Box>   
+                    </Box>
                     <div key={props.id + "-ADD"}>
                         <AddInputButton onAdd={addArrayElememt} />
                     </div>
                 </CardContent>
             </Card>
         </Box>
-    );;
+    );
 };
 
 export default SimpleArray;

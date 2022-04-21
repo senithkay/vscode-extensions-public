@@ -23,11 +23,11 @@ export const theme = createTheme({
     overrides: {
         MuiFormLabel: {
             asterisk: {
-                color: "#db3131",
                 "&$error": {
-                    color: "#db3131"
-                }
-            }
-        }
-    }
+                    color: "#db3131",
+                },
+                "color": "#db3131",
+            },
+        },
+    },
 });

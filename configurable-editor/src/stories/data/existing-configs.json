@@ -17,7 +17,30 @@
                 "category": {
                     "fullTime": true
                 }
-            }
+            },
+            "mapValueRecord": [
+                {
+                    "name": "john",
+                    "age": 22
+                },
+                {
+                    "name": "anne",
+                    "age": 31
+                }
+            ],
+            "recordArray": [
+                {
+                    "name": "william",
+                    "id": 2792,
+                    "weight": 60.6
+                },
+                {
+                    "name": "kate",
+                    "id": 3122,
+                    "weight": 32.6,
+                    "employeed": true
+                }
+            ]
         }
     }
 }

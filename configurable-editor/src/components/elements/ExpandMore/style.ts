@@ -26,7 +26,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             transform: "rotate(180deg)",
             transition: theme.transitions.create("transform", {
                 duration: theme.transitions.duration.shortest,
-            })
+            }),
         },
         expandMoreIcon: {
             marginLeft: "auto",

@@ -21,15 +21,15 @@ import React, { ReactElement, useEffect, useState } from "react";
 
 import { Box, Card, CardContent, Grid } from "@material-ui/core";
 
+import ConfigElement, { ConfigElementProps } from "../../ConfigElement";
 import { AddInputButton } from "../../elements/AddInputButton";
+import DeleteButton from "../../elements/DeleteButton";
+import { FieldLabel, FieldLabelProps } from "../../elements/FieldLabel";
 import { TextFieldInput } from "../../elements/TextFieldInput";
 import { ConfigType, SchemaConstants } from "../../model";
 import { useStyles } from "../../style";
-import { ObjectTypeProps } from "../ObjectType";
-import ConfigElement, { ConfigElementProps } from "../../ConfigElement";
-import { FieldLabel, FieldLabelProps } from "../../elements/FieldLabel";
 import { getConfigProperties } from "../../utils";
-import DeleteButton from "../../elements/DeleteButton";
+import { ObjectTypeProps } from "../ObjectType";
 
 /**
  * A high level config property which can contain configurable maps.
@@ -46,7 +46,7 @@ export const MapType = (props: MapTypeProps): ReactElement => {
     const elementSchema: object[] = props.schema[SchemaConstants.ADDITIONAL_PROPERTIES];
     let propertyType = elementSchema[SchemaConstants.TYPE];
 
-    let propertiesValue: ConfigElementProps[] = undefined;
+    let propertiesValue: ConfigElementProps[];
     if (elementSchema[SchemaConstants.PROPERTIES] !== undefined) {
         propertiesValue = getConfigProperties(elementSchema, props.id + "-" + counter).properties;
     } else if (elementSchema[SchemaConstants.ANY_OF] !== undefined) {
@@ -54,14 +54,14 @@ export const MapType = (props: MapTypeProps): ReactElement => {
     }
 
     const element: ConfigElementProps = {
-        id: props.id,
-        name: props.name,
-        isRequired: props.isRequired,
         description: props.description,
+        id: props.id,
+        isRequired: props.isRequired,
+        name: props.name,
+        properties: [],
+        schema: elementSchema,
         type: props.type,
         value: props.value,
-        schema: elementSchema,
-        properties: [],
     };
 
     useEffect(() => {
@@ -70,23 +70,23 @@ export const MapType = (props: MapTypeProps): ReactElement => {
 
     const addMapField = () => {
         const configElementProps: ConfigElementProps = {
-            id: props.id + "-" + counter,
-            name: "",
-            label: "value",
-            isRequired: false,
-            type: propertyType,
-            schema: elementSchema,
-            properties: propertiesValue,
             description: elementSchema[SchemaConstants.DESCRIPTION],
+            id: props.id + "-" + counter,
+            isRequired: false,
+            label: "value",
+            name: "",
+            properties: propertiesValue,
+            schema: elementSchema,
+            type: propertyType,
         };
-        setCounter(prevState => prevState + 1);
+        setCounter((prevState) => prevState + 1);
         setMapValues([...mapValues, configElementProps]);
     };
 
     const removeMapField = (id: string) => {
         let newMapValues = [...mapValues];
-        newMapValues = newMapValues.filter((element) => {
-            return element.id !== id;
+        newMapValues = newMapValues.filter((entry) => {
+            return entry.id !== id;
         });
         setMapValues(newMapValues);
     };
@@ -99,11 +99,11 @@ export const MapType = (props: MapTypeProps): ReactElement => {
         if (existingMap > -1) {
             if (newMapValues[existingMap].properties !== undefined) {
                 value.name = newMapValues[existingMap].name;
-                value.label = "";
+                value.label = "value";
                 newMapValues[existingMap] = value;
             } else {
                 newMapValues[existingMap].value = value.value;
-            } 
+            }
         }
         setMapValues(newMapValues);
     };
@@ -122,14 +122,14 @@ export const MapType = (props: MapTypeProps): ReactElement => {
     useEffect(() => {
         if (mapValues.length > 0) {
             const newMapValues = [...mapValues];
-            newMapValues.forEach(entry => {
+            newMapValues.forEach((entry) => {
                 const configProperty: ConfigElementProps = {
-                    id: entry.id,
-                    name: entry.name,
-                    isRequired: entry.isRequired,
-                    type: entry.type,
-                    properties: entry.properties,
                     description: entry.description,
+                    id: entry.id,
+                    isRequired: entry.isRequired,
+                    name: entry.name,
+                    properties: entry.properties,
+                    type: entry.type,
                     value: entry.value,
                 };
                 const existingMap = element.properties.findIndex(
@@ -145,28 +145,28 @@ export const MapType = (props: MapTypeProps): ReactElement => {
         }
     }, [mapValues]);
 
-    const getConfigElements = (element: ConfigElementProps) => {
-        element.setConfigElement = handleValueChange;
+    const getConfigElements = (configElement: ConfigElementProps) => {
+        configElement.setConfigElement = handleValueChange;
         return(
-            <Box key={element.id} className={classes.innerBoxCard}>
+            <Box key={configElement.id} className={classes.innerBoxCard}>
                 <Card variant="outlined">
                     <CardContent className={classes.cardContent}>
-                        <Grid container spacing={1} direction="row" alignItems="center" justifyContent="center">
-                            <Grid item xs={11}>
-                                <Box key={element.id + "-ENTRY"}>
+                        <Grid container={true} spacing={1} direction="row" alignItems="center" justifyContent="center">
+                            <Grid item={true} xs={11}>
+                                <Box key={configElement.id + "-ENTRY"}>
                                     <TextFieldInput
-                                        id={element.id}
+                                        id={configElement.id}
                                         isRequired={true}
-                                        value={element.value}
+                                        value={configElement.value}
                                         placeholder="key"
                                         type="string"
                                         setTextFieldValue={handleKeyChange}
                                     />
-                                    <ConfigElement {...element}/>
+                                    <ConfigElement {...configElement}/>
                                 </Box>
                             </Grid>
-                            <Grid item xs={1}>
-                                <DeleteButton onDelete={removeMapField} id={element.id}/>
+                            <Grid item={true} xs={1}>
+                                <DeleteButton onDelete={removeMapField} id={configElement.id}/>
                             </Grid>
                         </Grid>
                     </CardContent>
@@ -176,11 +176,11 @@ export const MapType = (props: MapTypeProps): ReactElement => {
     };
 
     const fieldLabelProps: FieldLabelProps = {
-        name: props.name,
-        label: props.label,
-        type: "map",
         description: props.description,
+        label: props.label,
+        name: props.name,
         required: props.isRequired,
+        type: "map",
     };
 
     return (

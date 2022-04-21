@@ -20,12 +20,12 @@ import React, { ReactElement } from "react";
 
 import { Box, Card, CardContent } from "@material-ui/core";
 
-import SimpleType, { SimpleTypeProps } from "./types/SimpleType";
-import { ConfigType } from "./model";
-import ObjectType, { ObjectTypeProps } from "./types/ObjectType";
-import ArrayType, { ArrayTypeProps } from "./types/ArrayType";
 import { FieldLabel, FieldLabelProps } from "./elements/FieldLabel";
+import { ConfigType } from "./model";
 import { useStyles } from "./style";
+import ArrayType, { ArrayTypeProps } from "./types/ArrayType";
+import ObjectType, { ObjectTypeProps } from "./types/ObjectType";
+import SimpleType, { SimpleTypeProps } from "./types/SimpleType";
 import UnionType, { UnionTypeProps } from "./types/UnionType";
 
 export interface ConfigElementProps {
@@ -34,7 +34,7 @@ export interface ConfigElementProps {
     isRequired: boolean;
     type?: ConfigType;
     schema?: object;
-    properties?: Array<ConfigElementProps>;
+    properties?: ConfigElementProps[];
     label?: string;
     value?: any;
     description?: string;
@@ -77,18 +77,20 @@ export const ConfigElement = (props: ConfigElementProps): ReactElement => {
             };
 
             returnElement.push(
-                <div key={props.id}>
-                    <UnionType {...unionTypeProps} />
-                </div>
+                (
+                    <div key={props.id}>
+                        <UnionType {...unionTypeProps} />
+                    </div>
+                ),
             );
             break;
         default:
             const fieldLabelProps: FieldLabelProps = {
-                name: props.name,
-                type: props.type,
-                label: props.label,
                 description: props.description,
+                label: props.label,
+                name: props.name,
                 required: props.isRequired,
+                type: props.type,
             };
 
             const simpleTypeProp: SimpleTypeProps = {
@@ -97,10 +99,12 @@ export const ConfigElement = (props: ConfigElementProps): ReactElement => {
             };
 
             returnElement.push(
-                <div key={props.id + "ELEMENT"}>
-                    <FieldLabel {...fieldLabelProps} />
-                    <SimpleType {...simpleTypeProp} />
-                </div>
+                (
+                    <div key={props.id + "ELEMENT"}>
+                        <FieldLabel {...fieldLabelProps} />
+                        <SimpleType {...simpleTypeProp} />
+                    </div>
+                ),
             );
             break;
     }

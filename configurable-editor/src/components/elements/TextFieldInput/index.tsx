@@ -38,11 +38,11 @@ export function TextFieldInput(props: TextFieldInputProps) {
     const { id, isRequired, value, type, inputProps, placeholder, setTextFieldValue } = props;
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        let value = e.target.value;
+        let newValue = e.target.value;
         if (type === "string") {
-            value = handleQuotes(value);
+            newValue = handleQuotes(newValue);
         }
-        setTextFieldValue(id, value);
+        setTextFieldValue(id, newValue);
     };
 
     return (

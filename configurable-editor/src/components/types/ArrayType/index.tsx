@@ -19,9 +19,10 @@
 
 import React, { ReactElement } from "react";
 
-import { ConfigType, SchemaConstants } from "../../model";
 import { ConfigElementProps } from "../../ConfigElement";
+import { ConfigType, SchemaConstants } from "../../model";
 import { getType } from "../../utils";
+
 import ObjectArray, { ObjectArrayProps } from "./ObjectArray";
 import SimpleArray, { SimpleArrayProps } from "./SimpleArray";
 
@@ -30,7 +31,7 @@ import SimpleArray, { SimpleArrayProps } from "./SimpleArray";
  */
 export interface ArrayTypeProps extends ConfigElementProps {
     arrayType?: ConfigType;
-    setArrayType?: (id: string, objectValue: any) => void; 
+    setArrayType?: (id: string, objectValue: any) => void;
 }
 
 export const ArrayType = (props: ArrayTypeProps): ReactElement => {
@@ -38,7 +39,7 @@ export const ArrayType = (props: ArrayTypeProps): ReactElement => {
 
     const arrayTypeProps: ObjectArrayProps | SimpleArrayProps = {
         ...props,
-        arrayType: arrayType,
+        arrayType,
         setArrayElement: props.setConfigElement,
     };
 

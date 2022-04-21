@@ -18,8 +18,8 @@
  */
 import { __String } from "typescript";
 
-import { ConfigSchema, ConfigType, ConfigValue, MetaData, SchemaConstants } from "../model";
 import { ConfigElementProps } from "../ConfigElement";
+import { ConfigSchema, ConfigType, ConfigValue, MetaData, SchemaConstants } from "../model";
 import { SimpleTypeProps } from "../types/SimpleType";
 
 /**
@@ -48,16 +48,16 @@ export function getConfigProperties(configObj: object, id: string = "1", name: s
     const propertiesObj: object = configObj[SchemaConstants.PROPERTIES];
     const addPropertiesObj: object = configObj[SchemaConstants.ADDITIONAL_PROPERTIES];
     const requiredProperties: string[] = configObj[SchemaConstants.REQUIRED];
-    let propertyType: string = configObj[SchemaConstants.TYPE];
+    const propertyType: string = configObj[SchemaConstants.TYPE];
     const propertyDesc: string = configObj[SchemaConstants.DESCRIPTION];
 
-    const configProperty: ConfigElementProps = { 
+    const configProperty: ConfigElementProps = {
+        description: propertyDesc,
         id: String(id),
-        name, isRequired:
-        requiredItem,
+        isRequired: requiredItem,
+        name,
         properties: [],
         type: getType(propertyType),
-        description: propertyDesc,
     };
 
     if (propertiesObj === undefined) {
@@ -69,19 +69,19 @@ export function getConfigProperties(configObj: object, id: string = "1", name: s
 
     Object.keys(propertiesObj).forEach((key, index) => {
         const configPropertyValues = propertiesObj[key];
-        let unionType: string = configPropertyValues[SchemaConstants.ANY_OF];
-        let configPropertyType: string = configPropertyValues[SchemaConstants.TYPE];
+        const unionType: string = configPropertyValues[SchemaConstants.ANY_OF];
+        const configPropertyType: string = configPropertyValues[SchemaConstants.TYPE];
         const configPropertyDesc: string = configPropertyValues[SchemaConstants.DESCRIPTION];
         const properties: object = configPropertyValues[SchemaConstants.PROPERTIES];
         const required = isRequired(key, requiredProperties);
 
         const element: ConfigElementProps = {
-            id: configProperty.id + "-" + (index + 1),
-            type: unionType !== undefined ? ConfigType.ANY_OF : getType(configPropertyType), 
-            name: key,
-            isRequired: required,
             description: configPropertyDesc,
+            id: configProperty.id + "-" + (index + 1),
+            isRequired: required,
+            name: key,
             schema: configPropertyValues,
+            type: unionType !== undefined ? ConfigType.ANY_OF : getType(configPropertyType),
         };
 
         if (configPropertyType === ConfigType.OBJECT && properties !== undefined) {
@@ -169,7 +169,6 @@ export function updateConfigObjectProps(configObjects: ConfigElementProps,
                     updateConfigObjectProps(configObjects.properties[key], configValues);
                     break;
                 case ConfigType.UNION:
-                    
                     break;
                 default:
                     const property: SimpleTypeProps = configObjects.properties[key];
@@ -240,7 +239,6 @@ function setConfigValue(configProperties: object, configValues: object) {
                 configProperties[key].value = arrayValue;
                 break;
             case ConfigType.UNION:
-                
                 break;
             default:
                 const value = getValue(configProperties[key].name, configValues);
@@ -264,26 +262,3 @@ function getValue(key: string, obj: object): any {
         }
     }
 }
-
-export function getMapType(propertiesObj: object): string {
-    const types: string[] = [];
-    const properties = propertiesObj[SchemaConstants.PROPERTIES];
-    const anyOf = propertiesObj[SchemaConstants.ANY_OF];
-    if (properties) {
-        types.push(ConfigType.RECORD);
-    } else if (anyOf) {
-        anyOf.forEach((value: any) => {
-            const type: string = (value.type === ConfigType.OBJECT) ? ConfigType.RECORD : value.type;
-            types.push(type);
-        });
-    } else {
-        types.push(propertiesObj[SchemaConstants.TYPE]);
-    }
-    
-    let unionType: string = "";
-    types.forEach((type, index) => {
-        unionType = index === 0 ? unionType.concat(type) : unionType.concat(` | ${type}`);
-    });
-    return unionType;
-}
-

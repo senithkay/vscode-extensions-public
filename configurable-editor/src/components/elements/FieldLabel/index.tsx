@@ -19,12 +19,13 @@
 
 import React from "react";
 
-import { Box, createTheme, FormLabel, ThemeProvider, Typography } from "@material-ui/core";
+import { Box, FormLabel, ThemeProvider, Typography } from "@material-ui/core";
+
+import { ConfigType } from "../../model";
 import { useStyles } from "../../style";
 import OutlinedLabel from "../OutlinedLabel";
-import { ConfigType } from "../../model";
-import { theme } from "./style";
 
+import { theme } from "./style";
 export interface FieldLabelProps {
     name: string;
     type: string;

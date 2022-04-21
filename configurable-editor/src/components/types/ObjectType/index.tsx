@@ -18,6 +18,7 @@
  */
 
 import React, { ReactElement } from "react";
+
 import { ConfigElementProps } from "../../ConfigElement";
 import { SchemaConstants } from "../../model";
 import MapType, { MapTypeProps } from "../MapType";

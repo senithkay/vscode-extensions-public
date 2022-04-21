@@ -21,12 +21,12 @@ import React, { ReactElement, useEffect, useState } from "react";
 
 import { Box, Card, CardContent, Collapse } from "@material-ui/core";
 
+import ConfigElement, { ConfigElementProps } from "../../ConfigElement";
 import ExpandMore from "../../elements/ExpandMore";
+import { FieldLabel, FieldLabelProps } from "../../elements/FieldLabel";
 import { ConfigType } from "../../model";
 import { useStyles } from "../../style";
 import { ObjectTypeProps } from "../ObjectType";
-import ConfigElement, { ConfigElementProps } from "../../ConfigElement";
-import { FieldLabel, FieldLabelProps } from "../../elements/FieldLabel";
 
 /**
  * A high level config property which can contain nested objects.
@@ -55,7 +55,7 @@ export const RecordType = (props: RecordTypeProps) => {
         setRecordValue(newRecordValue);
         props.setConfigRecord(props.id, newRecordValue);
     };
-    
+
     Object.keys(recordValue.properties).forEach((key, index) => {
         const property = recordValue.properties[key];
         const configElementProps: ConfigElementProps = {
@@ -64,17 +64,20 @@ export const RecordType = (props: RecordTypeProps) => {
         };
 
         returnElement.push(
-            <div key={props.id + "-" + index}>
-                <ConfigElement {...configElementProps} />
-            </div>
+            (
+                <div key={props.id + "-" + index}>
+                    <ConfigElement {...configElementProps} />
+                </div>
+            ),
         );
     });
 
     const fieldLabelProps: FieldLabelProps = {
-        name: props.name,
-        type: ConfigType.RECORD,
-        label: props.label,
         description: props.description,
+        label: props.label,
+        name: props.name,
+        required: props.isRequired,
+        type: ConfigType.RECORD,
     };
 
     return (
@@ -101,13 +104,13 @@ export default RecordType;
 
 function updateRecordValue(recordObject: ConfigElementProps, id: string, value: any): ConfigElementProps {
     if (recordObject.properties !== undefined) {
-        const key = recordObject.properties.findIndex((item => item.id === id));
+        const key = recordObject.properties.findIndex(((item) => item.id === id));
         if (key > -1) {
             recordObject.properties[key] = value;
         } else {
-            Object.keys(recordObject.properties).forEach((key) => {
-                const property: ConfigElementProps = recordObject.properties[key];
-                recordObject.properties[key] = updateRecordValue(property, id, value);
+            Object.keys(recordObject.properties).forEach((propertyKey) => {
+                const property: ConfigElementProps = recordObject.properties[propertyKey];
+                recordObject.properties[propertyKey] = updateRecordValue(property, id, value);
             });
         }
     } else if (recordObject.id === id) {
@@ -118,14 +121,14 @@ function updateRecordValue(recordObject: ConfigElementProps, id: string, value: 
 
 function getObjectElement(configObject: ConfigElementProps): ConfigElementProps {
     return {
+        description: configObject.description,
         id: configObject.id,
-        name: configObject.name,
         isRequired: configObject.isRequired,
+        name: configObject.name,
+        properties: getNestedElements(configObject.properties),
+        schema: configObject.schema,
         type: configObject.type,
         value: configObject.value,
-        description: configObject.description,
-        schema: configObject.schema,
-        properties: getNestedElements(configObject.properties),
     };
 }
 
@@ -134,18 +137,18 @@ function getNestedElements(nestedObjects: ConfigElementProps[]): ConfigElementPr
         return;
     }
 
-    let properties: ConfigElementProps[] = [];
+    const properties: ConfigElementProps[] = [];
     nestedObjects.forEach((property) => {
         properties.push({
+            description: property.description,
             id: property.id,
-            name: property.name,
             isRequired: property.isRequired,
+            name: property.name,
+            properties: getNestedElements(property.properties),
+            schema: property.schema,
             type: property.type,
             value: property.value,
-            description: property.description,
-            schema: property.schema,
-            properties: getNestedElements(property.properties)
         });
-    }); 
+    });
     return properties;
 }

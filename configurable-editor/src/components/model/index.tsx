@@ -17,11 +17,6 @@
  *
  */
 
-import { ArrayTypeProps } from "../types/ArrayType";
-import { MapTypeProps } from "../types/MapType";
-import { RecordTypeProps } from "../types/RecordType";
-import { SimpleTypeProps } from "../types/SimpleType";
-
 /**
  * Common properties in the config schema.
  */
@@ -53,7 +48,7 @@ export enum ConfigType {
     STRING = "string",
     UNION = "union",
     UNSUPPORTED = "unsupported",
-    ANY_OF = "anyOf"
+    ANY_OF = "anyOf",
 }
 
 /**
@@ -80,4 +75,3 @@ export interface ConfigSchema {
     type: string;
     properties: object;
 }
-

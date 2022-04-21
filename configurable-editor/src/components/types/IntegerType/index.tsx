@@ -34,17 +34,17 @@ const IntegerType = (props: IntegerTypeProps): ReactElement => {
     const returnElement: ReactElement[] = [];
     const { id, isRequired, value, setIntegerConfig, placeholder } = props;
 
-    const setIntegerValue = (id: string, value: number) => {
-        setIntegerConfig(id, Number(value))
+    const setIntegerValue = (propertyId: string, propertyValue: number) => {
+        setIntegerConfig(propertyId, Number(propertyValue));
     };
 
     const textFieldInputProps: TextFieldInputProps = {
         id,
-        isRequired: isRequired,
-        value: value,
-        type: "number",
+        isRequired,
+        placeholder,
         setTextFieldValue: setIntegerValue,
-        placeholder: placeholder
+        type: "number",
+        value,
     };
 
     returnElement.push(

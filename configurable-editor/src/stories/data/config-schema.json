@@ -176,7 +176,7 @@
                         }
                     },
                     "required": [
-                        "testMode"
+                        "testMode", "discount", "person", "prices", "mapValueRecord", "mapValueInteger", "unionType"
                     ]
                 }
             }

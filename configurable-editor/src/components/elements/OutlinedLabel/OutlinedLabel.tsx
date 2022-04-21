@@ -53,14 +53,21 @@ const OutlinedLabel = ({ type, label, isLink, shape }: OutlinedLabelProps) => {
             chipColor = "#5567D5";
     }
 
+    const chipStyles = {
+        borderColor: chipColor,
+        borderRadius: shape === "square" ? 3 : 10,
+        color: chipColor,
+        cursor,
+        marginLeft: 5,
+    };
+
     return (
         <Chip
             size="small"
             label={label}
             variant="outlined"
             classes={{root: classes.chipRoot, label: classes.chiplabel}}
-            style={{borderColor: chipColor, borderRadius: shape === "square" ? 3 : 10, 
-                    color: chipColor, cursor, marginLeft: 5}}
+            style={chipStyles}
         />
     );
 };
