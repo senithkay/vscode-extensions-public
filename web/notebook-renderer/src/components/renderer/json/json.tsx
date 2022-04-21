@@ -19,6 +19,7 @@
 
 import { h, FunctionComponent } from "preact";
 import ReactJson from "react-json-view";
+import { JSON_DARK_THEME, JSON_LIGHT_THEME } from "../constants";
 import { NotebookCellResult } from "../types";
 
 export const Json: FunctionComponent<{ notebookCellOutput: Readonly<NotebookCellResult> }> = ({ notebookCellOutput }) => {  
@@ -28,7 +29,7 @@ export const Json: FunctionComponent<{ notebookCellOutput: Readonly<NotebookCell
             src={value}
             name={false}
             enableClipboard={false}
-            theme={darkMode ? "summerfruit" : "summerfruit:inverted"}
+            theme={darkMode ? JSON_DARK_THEME : JSON_LIGHT_THEME}
             collapsed={3}
             style={{
                 fontFamily: "monospace",

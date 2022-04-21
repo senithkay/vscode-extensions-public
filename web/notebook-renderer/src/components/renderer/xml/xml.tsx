@@ -20,33 +20,22 @@
 import { h, FunctionComponent } from "preact";
 // @ts-ignore
 import XMLViewer from 'react-xml-viewer';
+import { XML_DARK_THEME, XML_LIGHT_THEME } from "../constants";
 import { NotebookCellResult } from "../types";
  
 export const Xml: FunctionComponent<{ notebookCellOutput: Readonly<NotebookCellResult> }> = ({ notebookCellOutput }) => {    
     const darkMode = document.body.getAttribute('data-vscode-theme-kind')?.includes('dark') ?? false;
-    const darkTheme = {
-        "attributeKeyColor": "#b46900",
-        "attributeValueColor": "#dd6900",
-        "cdataColor": "#22a21f",
-        "commentColor": "#aaa",
-        "separatorColor": "#d43900",
-        "tagColor": "#d43900",
-        "textColor": "#fff"
-    };
-    const lightTheme = {
-        ...darkTheme,
-        "textColor": "#000"
-    }
     const renderXml = (xml: string) => {
-        return <XMLViewer xml={xml} theme={darkMode ? darkTheme : lightTheme} />
+        return <XMLViewer xml={xml} theme={darkMode ? XML_DARK_THEME : XML_LIGHT_THEME} />
     }
     return <div style={{
             fontFamily: "monospace",
+            fontSize: 14,
             letterSpacing: "1px",
             padding: 24,
             maxHeight: "400px",
             overflowY: "scroll",
-            backgroundColor: darkMode ? "#151515" : "transparent"
+            backgroundColor: darkMode ? "black" : "transparent"
         }}>
             {renderXml(notebookCellOutput.shellValue.value)}
         </div>;
