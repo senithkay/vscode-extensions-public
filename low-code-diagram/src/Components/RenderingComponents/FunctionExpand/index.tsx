@@ -112,10 +112,10 @@ export function FunctionExpand(props: FunctionProps) {
   const arrowClasses = cn("action-invocation");
   const blockHeight = model.viewState.bBox.h;
   const blockWidth = model.viewState.bBox.w;
-  const svgWidth = model ? model.functionName.value.length * 5 : 0;
+  // const svgWidth = model ? model.functionName.value.length * 5 : 0;
 
   return (
-    <svg y={xyProps.y - 150 / 2} x={svgWidth} className="expand-expression">
+    <svg y={xyProps.y - 150 / 2} x={120} className="expand-expression">
       <g className={arrowClasses}>
         <ControlFlowArrow
           isDotted={false}
