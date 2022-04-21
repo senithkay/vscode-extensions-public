@@ -18,8 +18,8 @@
  */
 
 import React, { ReactElement } from "react";
+import { ToggleButtonInput, ToggleButtonInputProps } from "../../elements/ToggleButtonInput";
 
-import { RadioGroupInput, RadioGroupInputProps } from "../../elements/RadioGroupInput";
 import { SimpleTypeProps } from "../SimpleType";
 
 /**
@@ -38,17 +38,17 @@ const BooleanType = (props: BooleanTypeProps): ReactElement => {
         setBooleanConfig(id, Boolean(value))
     };
 
-    const radioGroupInputProps: RadioGroupInputProps = {
+    const toggleButtonInputProps: ToggleButtonInputProps = {
         id,
         existingValue: value,
         isRequired: isRequired,
-        setRadioGroupValue: setBooleanValue,
+        setToggleButtonValue: setBooleanValue,
     };
 
     returnElement.push(
         (
             <div key={id + "-FIELD"}>
-                <RadioGroupInput {...radioGroupInputProps} />
+                <ToggleButtonInput {...toggleButtonInputProps} />
             </div>
         ),
     );
