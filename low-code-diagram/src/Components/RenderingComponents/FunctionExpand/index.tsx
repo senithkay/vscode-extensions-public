@@ -133,14 +133,14 @@ export function FunctionExpand(props: FunctionProps) {
         />
       </g>
       <svg
-        x={model.viewState.bBox.cx + 150 / 2 + 15}
+        x={model.viewState.bBox.cx + 150 / 2 + 40}
         y={model.viewState.bBox.cy - 80}
       >
         <rect
-          y="50"
-          x="80"
-          width={blockWidth}
-          height={blockHeight - 60}
+          y="35"
+          x="40"
+          width={blockWidth - 120}
+          height={blockHeight - 40}
           rx="30"
           strokeDasharray={"0.3em"}
           strokeWidth={1}
