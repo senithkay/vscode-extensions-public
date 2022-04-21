@@ -21,23 +21,27 @@ import { h, FunctionComponent } from "preact";
 import ReactJson from "react-json-view";
 import { NotebookCellResult } from "../types";
 
-export const Json: FunctionComponent<{ notebookCellOutput: Readonly<NotebookCellResult> }> = ({ notebookCellOutput }) => {    
+export const Json: FunctionComponent<{ notebookCellOutput: Readonly<NotebookCellResult> }> = ({ notebookCellOutput }) => {  
+    const darkMode = document.body.getAttribute('data-vscode-theme-kind')?.includes('dark') ?? false;
+    console.log(darkMode);
     const renderJson = (value: Object) => {
         return <ReactJson
             src={value}
             name={false}
             enableClipboard={false}
-            // displayObjectSize={false}
-            // displayDataTypes={false}
-            theme="monokai"
+            theme={darkMode ? "summerfruit" : "summerfruit:inverted"}
+            collapsed={3}
             style={{
-                fontWeight: "bold",
                 fontFamily: "monospace",
                 letterSpacing: "1px",
                 padding: 24,
-                minHeight: 180
             }}
         />
     }
-    return <div>{renderJson(JSON.parse(notebookCellOutput.shellValue.value))}</div>;
+    return <div style={{
+            maxHeight: "400px", 
+            overflowY: "scroll"
+        }}>
+            {renderJson(JSON.parse(notebookCellOutput.shellValue.value))}
+        </div>;
 }
