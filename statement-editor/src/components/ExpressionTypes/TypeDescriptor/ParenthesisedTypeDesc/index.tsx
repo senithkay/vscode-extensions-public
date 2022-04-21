@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 Inc. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -12,23 +12,23 @@
  */
 import React from "react";
 
-import { StringLiteral } from "@wso2-enterprise/syntax-tree";
+import { ParenthesisedTypeDesc } from "@wso2-enterprise/syntax-tree";
 
-import { InputEditor } from "../../../InputEditor";
+import { ExpressionComponent } from "../../../Expression";
+import { TokenComponent } from "../../../Token";
 
-interface StringLiteralProps {
-    model: StringLiteral;
+interface ParenthesisedTypeDescProps {
+    model: ParenthesisedTypeDesc;
 }
 
-export function StringLiteralComponent(props: StringLiteralProps) {
+export function ParenthesisedTypeDescComponent(props: ParenthesisedTypeDescProps) {
     const { model } = props;
 
-    const inputEditorProps = {
-        model,
-        classNames: "string-literal"
-    };
-
     return (
-        <InputEditor {...inputEditorProps} />
+        <>
+            <TokenComponent model={model.openParenToken} />
+            <ExpressionComponent model={model.typedesc} />
+            <TokenComponent model={model.closeParenToken} />
+        </>
     );
 }

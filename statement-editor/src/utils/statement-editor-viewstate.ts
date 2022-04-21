@@ -10,11 +10,17 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+export enum ModelType {
+    EXPRESSION,
+    OPERATOR,
+    BINDING_PATTERN,
+    TYPE_DESCRIPTOR,
+    QUERY_CLAUSE
+}
+
 export class StatementEditorViewState {
     public exprNotDeletable: boolean = false;
     public templateExprDeletable: boolean = false;
     public isWithinBlockStatement: boolean = false;
-    public isTypeDescriptor: boolean = false;
-    public isOperator: boolean = false;
-    public isBindingPattern: boolean = false;
+    public modelType: ModelType = ModelType.EXPRESSION;
 }

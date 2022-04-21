@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 Inc. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -12,23 +12,23 @@
  */
 import React from "react";
 
-import { DecimalTypeDesc } from "@wso2-enterprise/syntax-tree";
+import { TypeParameter } from "@wso2-enterprise/syntax-tree";
 
-import { InputEditor } from "../../../InputEditor";
+import { ExpressionComponent } from "../../../Expression";
+import { TokenComponent } from "../../../Token";
 
-interface DecimalTypeDescProps {
-    model: DecimalTypeDesc;
+interface TypeParameterProps {
+    model: TypeParameter;
 }
 
-export function DecimalTypeDescComponent(props: DecimalTypeDescProps) {
+export function TypeParameterComponent(props: TypeParameterProps) {
     const { model } = props;
 
-    const inputEditorProps = {
-        model,
-        classNames: "type-descriptor decimal"
-    };
-
     return (
-        <InputEditor {...inputEditorProps} />
+        <>
+            <TokenComponent model={model.ltToken} />
+            <ExpressionComponent model={model.typeNode} />
+            <TokenComponent model={model.gtToken} />
+        </>
     );
 }

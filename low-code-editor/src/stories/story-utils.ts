@@ -3,11 +3,11 @@ import { render } from "react-dom";
 
 import { BalleriaLanguageClient, WSConnection } from "@wso2-enterprise/ballerina-languageclient";
 import { ANALYZE_TYPE, LibraryDataResponse, LibraryDocResponse, LibraryKind, LibrarySearchResponse, PerformanceAnalyzerGraphResponse, PerformanceAnalyzerRealtimeResponse } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { Uri } from "monaco-editor";
 
 import { DiagramGeneratorProps } from "../DiagramGenerator";
 
 import balDist from "./data/baldist.json";
-import { DiagramGeneratorWrapper } from "./DiagramGeneratorWrapper";
 import { StandaloneDiagramApp } from "./StandaloneDiagramApp";
 
 export const MOCK_SERVER_URL = "http://localhost:3000"
@@ -53,7 +53,14 @@ export function getDiagramGeneratorProps(filePath: string, enableSave: boolean =
     getPerfDataFromChoreo: generatePerfData,
     gotoSource: () => Promise.resolve(false),
     lastUpdatedAt: (new Date()).toISOString(),
-    resolveMissingDependency: () => Promise.resolve(false),
+    resolveMissingDependency: async () => {
+      const langClient = await langClientPromise;
+      return langClient.resolveMissingDependencies({
+        documentIdentifier: {
+          uri: Uri.file(filePath).toString()
+        }
+      });
+    },
     resolveMissingDependencyByCodeAction: () => Promise.resolve(false),
     runCommand: () => Promise.resolve(false),
     sendTelemetryEvent: () => Promise.resolve(undefined),
@@ -63,7 +70,8 @@ export function getDiagramGeneratorProps(filePath: string, enableSave: boolean =
     getLibrariesList: () => Promise.resolve(undefined),
     getLibrariesData: () => Promise.resolve(undefined),
     getLibraryData: () => Promise.resolve(undefined),
-    getSentryConfig: () => Promise.resolve(undefined)
+    getSentryConfig: () => Promise.resolve(undefined),
+    getEnv: (name: string) => Promise.resolve(undefined)
   }
 }
 

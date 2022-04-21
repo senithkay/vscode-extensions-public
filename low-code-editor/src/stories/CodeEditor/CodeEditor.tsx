@@ -40,11 +40,6 @@ export interface CodeEditorProps {
 let storeTriggerredChange: boolean = false;
 let codeHighlightOldDecoration: string[] = [];
 
-(self as any).MonacoEnvironment = {
-    getWorkerUrl: () => './editor.worker.js'
-};
-
-
 export function CodeEditor(props: CodeEditorProps) {
     const { filePath, content, onChange, selectedArea } = props;
 

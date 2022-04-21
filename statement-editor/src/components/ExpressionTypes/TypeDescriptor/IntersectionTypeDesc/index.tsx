@@ -12,27 +12,23 @@
  */
 import React from "react";
 
-import { NilLiteral } from "@wso2-enterprise/syntax-tree";
+import { IntersectionTypeDesc } from "@wso2-enterprise/syntax-tree";
 
-import { VariableUserInputs } from "../../../../models/definitions";
-import { InputEditor } from "../../../InputEditor";
+import { ExpressionComponent } from "../../../Expression";
+import { TokenComponent } from "../../../Token";
 
-interface NilLiteralProps {
-    model: NilLiteral
-    userInputs: VariableUserInputs
-    diagnosticHandler: (diagnostics: string) => void
-    isTypeDescriptor: boolean
+interface IntersectionTypeDescProps {
+    model: IntersectionTypeDesc;
 }
 
-export function NilLiteralComponent(props: NilLiteralProps) {
+export function IntersectionTypeDescComponent(props: IntersectionTypeDescProps) {
     const { model } = props;
 
-    const inputEditorProps = {
-        statementType: model.kind,
-        classNames: "string-literal"
-    };
-
     return (
-        <InputEditor {...inputEditorProps} />
+        <>
+            <ExpressionComponent model={model.leftTypeDesc} />
+            <TokenComponent model={model.bitwiseAndToken} />
+            <ExpressionComponent model={model.rightTypeDesc} />
+        </>
     );
 }

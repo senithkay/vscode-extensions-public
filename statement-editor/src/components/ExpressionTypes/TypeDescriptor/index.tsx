@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 Inc. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -12,23 +12,32 @@
  */
 import React from "react";
 
-import { FloatTypeDesc } from "@wso2-enterprise/syntax-tree";
+import {
+    BooleanTypeDesc,
+    DecimalTypeDesc,
+    FloatTypeDesc,
+    IntTypeDesc,
+    JsonTypeDesc,
+    StringTypeDesc,
+    VarTypeDesc
+} from "@wso2-enterprise/syntax-tree";
 
-import { InputEditor } from "../../../InputEditor";
+import { ExpressionComponent } from "../../Expression";
 
-interface FloatTypeDescProps {
-    model: FloatTypeDesc;
+interface TypeDescProps {
+    model: BooleanTypeDesc
+        | DecimalTypeDesc
+        | FloatTypeDesc
+        | IntTypeDesc
+        | JsonTypeDesc
+        | StringTypeDesc
+        | VarTypeDesc;
 }
 
-export function FloatTypeDescComponent(props: FloatTypeDescProps) {
+export function TypeDescComponent(props: TypeDescProps) {
     const { model } = props;
 
-    const inputEditorProps = {
-        model,
-        classNames: "type-descriptor float"
-    };
-
     return (
-        <InputEditor {...inputEditorProps} />
+        <ExpressionComponent model={model.name} />
     );
 }

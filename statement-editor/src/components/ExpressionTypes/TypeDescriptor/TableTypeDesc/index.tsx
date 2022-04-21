@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 Inc. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -12,23 +12,23 @@
  */
 import React from "react";
 
-import { JsonTypeDesc } from "@wso2-enterprise/syntax-tree";
+import { TableTypeDesc } from "@wso2-enterprise/syntax-tree";
 
-import { InputEditor } from "../../../InputEditor";
+import { ExpressionComponent } from "../../../Expression";
+import { TokenComponent } from "../../../Token";
 
-interface JsonTypeDescProps {
-    model: JsonTypeDesc;
+interface TableTypeDescProps {
+    model: TableTypeDesc;
 }
 
-export function JsonTypeDescComponent(props: JsonTypeDescProps) {
+export function TableTypeDescComponent(props: TableTypeDescProps) {
     const { model } = props;
 
-    const inputEditorProps = {
-        model,
-        classNames: "type-descriptor json"
-    };
-
     return (
-        <InputEditor {...inputEditorProps} />
+        <>
+            <TokenComponent model={model.tableKeywordToken} />
+            <ExpressionComponent model={model.rowTypeParameterNode} />
+            {model.keyConstraintNode && <ExpressionComponent model={model.keyConstraintNode}/>}
+        </>
     );
 }

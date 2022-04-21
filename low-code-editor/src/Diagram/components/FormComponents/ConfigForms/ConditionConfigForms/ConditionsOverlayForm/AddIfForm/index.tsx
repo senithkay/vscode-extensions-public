@@ -245,6 +245,8 @@ export function AddIfForm(props: IfProps) {
                         return statement.source
                     })
                 ));
+            } else {
+                source = source + "}";
             }
 
         }

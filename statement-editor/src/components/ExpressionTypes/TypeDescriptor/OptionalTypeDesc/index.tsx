@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 Inc. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -12,23 +12,22 @@
  */
 import React from "react";
 
-import { BooleanTypeDesc } from "@wso2-enterprise/syntax-tree";
+import { OptionalTypeDesc } from "@wso2-enterprise/syntax-tree";
 
-import { InputEditor } from "../../../InputEditor";
+import { ExpressionComponent } from "../../../Expression";
+import { TokenComponent } from "../../../Token";
 
-interface BooleanTypeDescProps {
-    model: BooleanTypeDesc;
+interface OptionalTypeDescProps {
+    model: OptionalTypeDesc;
 }
 
-export function BooleanTypeDescComponent(props: BooleanTypeDescProps) {
+export function OptionalTypeDescComponent(props: OptionalTypeDescProps) {
     const { model } = props;
 
-    const inputEditorProps = {
-        model,
-        classNames: "type-descriptor boolean"
-    };
-
     return (
-        <InputEditor {...inputEditorProps} />
+        <>
+            <ExpressionComponent model={model.typeDescriptor} />
+            <TokenComponent model={model.questionMarkToken} />
+        </>
     );
 }

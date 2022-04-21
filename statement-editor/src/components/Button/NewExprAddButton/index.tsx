@@ -10,25 +10,34 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+// tslint:disable: jsx-no-multiline-js
 import React from "react";
 
-import { TemplateString } from "@wso2-enterprise/syntax-tree";
+import { STNode } from "@wso2-enterprise/syntax-tree";
 
-import { InputEditor, InputEditorProps } from "../../InputEditor";
+import { useStatementEditorStyles } from "../../styles";
 
-interface TemplateStringProps {
-    model: TemplateString;
+export interface AddButtonProps {
+    model: STNode;
+    onClick?: (model?: STNode) => void;
+    classNames?: string;
 }
 
-export function TemplateStringComponent(props: TemplateStringProps) {
-    const { model } = props;
+export function NewExprAddButton(props: AddButtonProps) {
+    const { model, onClick, classNames } = props;
 
-    const inputEditorProps: InputEditorProps = {
-        model,
-        isToken: true
+    const statementEditorClasses = useStatementEditorStyles();
+
+    const onClickOnAddButton = () => {
+        onClick(model);
     };
 
     return (
-        <InputEditor {...inputEditorProps} />
+        <span
+            className={`${statementEditorClasses.plusIcon} ${classNames}`}
+            onClick={onClickOnAddButton}
+        >
+            +
+        </span>
     );
 }

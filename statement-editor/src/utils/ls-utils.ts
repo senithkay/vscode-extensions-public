@@ -30,7 +30,7 @@ import {
 import { CurrentModel, SuggestionItem } from '../models/definitions';
 
 import { sortSuggestions } from "./index";
-import { StatementEditorViewState } from "./statement-editor-viewstate";
+import { ModelType, StatementEditorViewState } from "./statement-editor-viewstate";
 
 export async function getPartialSTForStatement(
             partialSTRequest: PartialSTRequest,
@@ -56,12 +56,13 @@ export async function getCompletions (docUri: string,
                                       userInput: string = ''
                                     ) : Promise<SuggestionItem[]> {
 
-    const isTypeDescriptor = (currentModel.model.viewState as StatementEditorViewState).isTypeDescriptor;
+    const isTypeDescriptor = (currentModel.model.viewState as StatementEditorViewState).modelType === ModelType.TYPE_DESCRIPTOR;
     const varName = STKindChecker.isLocalVarDecl(completeModel)
         && completeModel.typedBindingPattern.bindingPattern.source.trim();
     const currentModelPosition = currentModel.model.position;
-    const currentModelSource = STKindChecker.isIdentifierToken(currentModel.model) ?
-        currentModel.model.value.trim() : currentModel.model.source.trim();
+    const currentModelSource = currentModel.model.source
+        ? currentModel.model.source.trim()
+        : currentModel.model.value.trim();
     const suggestions: SuggestionItem[] = [];
 
     const completionParams: CompletionParams = {
@@ -166,50 +167,3 @@ export async function getDiagnostics(
     return diagnostics;
 }
 
-export async function addStatementToTargetLine(
-            currentFileContent: string,
-            position: NodePosition,
-            currentStatement: string,
-            getLangClient: () => Promise<ExpressionEditorLangClientInterface>): Promise<string> {
-    const modelContent: string[] = currentFileContent.split(/\n/g) || [];
-    if (position?.startColumn && position?.endColumn && position?.endLine) {
-        return getModifiedStatement(currentFileContent, currentStatement, position, getLangClient);
-    } else {
-        // TODO: Change the backend to accomodate STModifications without endline and endcolumn values and then remove the following logic
-        // Issue: https://github.com/wso2-enterprise/choreo/issues/11069
-        if (!!position?.startColumn) {
-            currentStatement = " ".repeat(position.startColumn) + currentStatement;
-        }
-        modelContent.splice(position?.startLine, 0, currentStatement);
-        return modelContent.join('\n');
-    }
-}
-
-export async function addImportStatements(
-            currentFileContent: string,
-            modulesToBeImported: string[]): Promise<string> {
-    let moduleList : string = "";
-    modulesToBeImported.forEach(module => {
-        moduleList += "import " + module + "; ";
-   });
-    return moduleList + currentFileContent;
-}
-
-async function getModifiedStatement(
-            currentFileContent: string,
-            codeSnippet: string,
-            position: NodePosition,
-            getLangClient: () => Promise<ExpressionEditorLangClientInterface>): Promise<string> {
-    const stModification = {
-        startLine: position.startLine,
-        startColumn: position.startColumn,
-        endLine: position.endLine,
-        endColumn: position.endColumn,
-        newCodeSnippet: codeSnippet
-    }
-    const partialST: STNode = await getPartialSTForStatement({
-        codeSnippet: currentFileContent,
-        stModification
-    }, getLangClient);
-    return partialST.source;
-}
