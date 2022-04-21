@@ -18,7 +18,7 @@
  */
 import React, { useState } from "react";
 
-import { Box, Button, CardActions } from "@material-ui/core";
+import { Box, Button, Card, CardActions, CardContent, Collapse, FormLabel } from "@material-ui/core";
 
 import ButtonContainer from "./elements/ButtonContainer";
 import {
@@ -32,6 +32,8 @@ import {
     setExistingValues,
 } from "./utils";
 import ConfigElement, { ConfigElementProps } from "./ConfigElement";
+import { useStyles } from "./style";
+import ExpandMore from "./elements/ExpandMore";
 
 export interface ConfigFormProps {
     configSchema: ConfigSchema;
@@ -43,7 +45,9 @@ export interface ConfigFormProps {
 }
 
 export const ConfigForm = (props: ConfigFormProps) => {
+    const classes = useStyles();
     const [configValue, setConfigValue] = useState<ConfigElementProps[]>([]);
+    const [expanded, setExpanded] = useState(false);
 
     const {
         configSchema,
@@ -98,10 +102,45 @@ export const ConfigForm = (props: ConfigFormProps) => {
         entry.setConfigElement = handleSetConfigValue;
     });
 
+    const requiredElements: ConfigElementProps[] = [];
+    const defaultableElements: ConfigElementProps[] = [];
+    configElements.properties.forEach(element => {
+        if (element.isRequired) {
+            requiredElements.push(element);
+        } else {
+            defaultableElements.push(element);
+        }
+    });
+
+    const handleExpandClick = () => {
+        setExpanded(!expanded);
+    };
+
     return (
         <Box width="100%">
             <form className="ConfigForm" onSubmit={handleSubmit}>
-                {configElements.properties.map(ConfigElement)}
+                {requiredElements.map(ConfigElement)}
+                <Box className={classes.innerBoxCard}>
+                    <Card variant="outlined">
+                        <CardContent className={classes.cardContent}>
+                            <Box className={classes.innerBoxHead}>
+                                <FormLabel
+                                    component="div"
+                                    className={classes.mainLabelText}
+                                >
+                                    Defaultable Configurables
+                                </FormLabel>
+                                <ExpandMore
+                                    expand={expanded}
+                                    onClick={handleExpandClick}
+                                />
+                            </Box>
+                            <Collapse in={expanded} timeout="auto" unmountOnExit={true}>
+                                {defaultableElements.map(ConfigElement)}
+                            </Collapse>
+                        </CardContent>
+                    </Card>
+                </Box>
                 <CardActions>
                     <ButtonContainer justifyContent="flex-end">
                         <Button
