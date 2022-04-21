@@ -83,4 +83,12 @@ export class VariableFormBlockLevel {
         .click();
     }
 
+    static waitForDiagramUpdate() {
+        cy.get(`[id="canvas-overlay"]`)
+            .children().should("have.length", 0)
+        cy.get(`[data-testid="diagram-loader"]`)
+            .should("not.exist")
+        return this;
+    }
+
 }
