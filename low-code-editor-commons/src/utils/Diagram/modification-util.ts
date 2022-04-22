@@ -60,6 +60,42 @@ export async function InsertorDelete(modifications: STModification[]): Promise<S
     return stModifications;
 }
 
+export function createFunctionSignature(accessModifier: string, name: string, parameters: string, returnTypes: string,
+                                        targetPosition: NodePosition, isLastMember?: boolean): STModification {
+    const functionStatement: STModification = {
+        startLine: targetPosition.startLine,
+        startColumn: isLastMember ? targetPosition.endColumn : 0,
+        endLine: targetPosition.startLine,
+        endColumn: isLastMember ? targetPosition.endColumn : 0,
+        type: "FUNCTION_DEFINITION",
+        config: {
+            "ACCESS_MODIFIER": accessModifier,
+            "NAME": name,
+            "PARAMETERS": parameters,
+            "RETURN_TYPE": returnTypes
+        }
+    };
+
+    return functionStatement;
+}
+
+export function updateFunctionSignature(name: string, parameters: string, returnTypes: string, targetPosition: NodePosition): STModification {
+    const functionStatement: STModification = {
+        startLine: targetPosition.startLine,
+        startColumn: targetPosition.startColumn,
+        endLine: targetPosition.endLine,
+        endColumn: targetPosition.endColumn,
+        type: "FUNCTION_DEFINITION_SIGNATURE",
+        config: {
+            "NAME": name,
+            "PARAMETERS": parameters,
+            "RETURN_TYPE": returnTypes
+        }
+    };
+
+    return functionStatement;
+}
+
 export function mutateFunctionSignature(accessModifier: string, name: string, parameters: string, returnTypes: string,
                                         targetPosition: NodePosition): STModification {
     const functionStatement: STModification = {

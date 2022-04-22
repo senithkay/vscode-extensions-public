@@ -15,11 +15,15 @@ import React, { useEffect, useState } from 'react';
 
 import { FormControl } from "@material-ui/core";
 import {
+    createFunctionSignature,
     ExpressionEditorLangClientInterface,
     getSource,
-    mutateFunctionSignature
+    mutateFunctionSignature,
+    STModification,
+    updateFunctionSignature,
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
+    FormActionButtons,
     FormHeaderSection,
     FormTextInput,
     useStyles as useFormStyles
@@ -35,10 +39,11 @@ export interface FunctionProps {
     onChange: (genSource: string) => void;
     onCancel: () => void;
     getLangClient: () => Promise<ExpressionEditorLangClientInterface>;
+    applyModifications: (modifications: STModification[]) => void;
 }
 
 export function FunctionForm(props: FunctionProps) {
-    const { targetPosition, model, onChange, onCancel, getLangClient  } = props;
+    const { targetPosition, model, onChange, onCancel, getLangClient, applyModifications } = props;
 
     const formClasses = useFormStyles();
 
@@ -65,11 +70,12 @@ export function FunctionForm(props: FunctionProps) {
             setIsNameSyntaxError(true);
             setNameDiagnostics(partialST.syntaxDiagnostics);
         }
+        onChange(genSource);
     }
 
     const onReturnTypeChange = async (value: string) => {
         setReturnType(value);
-        const genSource = getSource(mutateFunctionSignature("", functionName, "",
+        const genSource = getSource(createFunctionSignature("", functionName, "",
             value ? `returns ${value}` : "", targetPosition));
         const partialST = await getPartialSTForTopLevelComponents(
             {codeSnippet: genSource.trim()}, getLangClient
@@ -80,6 +86,22 @@ export function FunctionForm(props: FunctionProps) {
         } else {
             setIsReturnSyntaxError(true);
             setReturnDiagnostics(partialST.syntaxDiagnostics);
+        }
+    }
+
+    const handleOnSave = () => {
+        if (model) {
+            applyModifications([
+                updateFunctionSignature(functionName, "",
+                    returnType ? `returns ${returnType}` : "", {
+                    ...targetPosition, startColumn : model?.functionName?.position?.startColumn
+                })
+            ]);
+        } else {
+            applyModifications([
+                createFunctionSignature("", functionName, "",
+                    returnType ? `returns ${returnType}` : "", targetPosition)
+            ]);
         }
     }
 
@@ -126,6 +148,14 @@ export function FunctionForm(props: FunctionProps) {
                 placeholder={"Enter Return Type"}
                 size="small"
                 disabled={(isNameSyntaxError)}
+            />
+            <FormActionButtons
+                cancelBtnText="Cancel"
+                cancelBtn={true}
+                saveBtnText="Save"
+                onSave={handleOnSave}
+                onCancel={onCancel}
+                validForm={true}
             />
         </FormControl>
     )

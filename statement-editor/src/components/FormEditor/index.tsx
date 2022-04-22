@@ -24,7 +24,6 @@ import { getDiagnostics, getPartialSTForTopLevelComponents, sendDidChange } from
 import { FormRenderer } from "../FormRenderer";
 import { EXPR_SCHEME, FILE_SCHEME } from "../InputEditor/constants";
 import { LowCodeEditorProps } from "../StatementEditor";
-import {ExpressionEditorLangClientInterface} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 export interface FormEditorProps extends LowCodeEditorProps {
     initialSource?: string;
@@ -61,7 +60,8 @@ export function FormEditor(props: FormEditorProps) {
     };
 
     const onChange = async (genSource: string) => {
-        const updatedContent = await getUpdatedSource(genSource, currentFile.content, targetPosition);
+        const updatedContent = await getUpdatedSource(genSource, currentFile.content, targetPosition,
+            undefined, true);
         sendDidChange(fileURI, updatedContent, getLangClient).then();
         handleDiagnostics(genSource).then();
     };
@@ -88,6 +88,7 @@ export function FormEditor(props: FormEditorProps) {
                 onChange={onChange}
                 onCancel={onCancel}
                 getLangClient={getLangClient}
+                applyModifications={applyModifications}
             />
             <List>
                 {

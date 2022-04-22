@@ -12,7 +12,7 @@
  */
 import React from "react";
 
-import { ExpressionEditorLangClientInterface } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ExpressionEditorLangClientInterface, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { getFormComponent } from "../../utils";
@@ -24,12 +24,14 @@ export interface FormRendererProps {
     onChange: (code: string) => void;
     onCancel: () => void;
     getLangClient: () => Promise<ExpressionEditorLangClientInterface>;
+    applyModifications: (modifications: STModification[]) => void;
 }
 
 export function FormRenderer(props: FormRendererProps) {
-    const { type, model, targetPosition, onChange, onCancel, getLangClient } = props;
+    const { type, model, targetPosition, onChange, onCancel, getLangClient, applyModifications } = props;
 
-    const component = getFormComponent(type, model, targetPosition, onChange, onCancel, getLangClient);
+    const component = getFormComponent(type, model, targetPosition, onChange, onCancel, getLangClient,
+        applyModifications);
 
     return (
        <>
