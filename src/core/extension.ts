@@ -31,18 +31,20 @@ import { exec, spawnSync } from 'child_process';
 import { LanguageClientOptions, State as LS_STATE, RevealOutputChannelOn, ServerOptions } from "vscode-languageclient/node";
 import { getServerOptions } from '../server/server';
 import { ExtendedLangClient } from './extended-language-client';
-import { debug, log, getOutputChannel, outputChannel, isWindows } from '../utils';
+import { debug, log, getOutputChannel, outputChannel, isWindows, isSupportedVersion, VERSION } from '../utils';
 import { AssertionError } from "assert";
 import {
-    BALLERINA_HOME, ENABLE_ALL_CODELENS, ENABLE_EXECUTOR_CODELENS, ENABLE_TELEMETRY,
-    ENABLE_SEMANTIC_HIGHLIGHTING, OVERRIDE_BALLERINA_HOME, BALLERINA_LOW_CODE_MODE, ENABLE_PERFORMANCE_FORECAST
+    BALLERINA_HOME, ENABLE_ALL_CODELENS, ENABLE_TELEMETRY, ENABLE_SEMANTIC_HIGHLIGHTING, OVERRIDE_BALLERINA_HOME,
+    BALLERINA_LOW_CODE_MODE, ENABLE_PERFORMANCE_FORECAST, ENABLE_DEBUG_LOG, ENABLE_BALLERINA_LS_DEBUG,
+    ENABLE_CONFIGURABLE_EDITOR, ENABLE_EXPERIMENTAL_FEATURES
 }
     from "./preferences";
 import TelemetryReporter from "vscode-extension-telemetry";
 import {
     createTelemetryReporter, CMP_EXTENSION_CORE, sendTelemetryEvent, sendTelemetryException,
     TM_EVENT_ERROR_INVALID_BAL_HOME_CONFIGURED, TM_EVENT_EXTENSION_INIT, TM_EVENT_EXTENSION_INI_FAILED,
-    TM_EVENT_ERROR_OLD_BAL_HOME_DETECTED
+    TM_EVENT_ERROR_OLD_BAL_HOME_DETECTED,
+    getMessageObject
 } from "../telemetry";
 import { BALLERINA_COMMANDS, runCommand } from "../project";
 import { SessionDataProvider } from "../tree-view/session-tree-data-provider";
@@ -86,6 +88,7 @@ export interface ChoreoSession {
     choreoCookie?: string;
     choreoRefreshToken?: string;
     choreoLoginTime?: Date;
+    tokenExpirationTime?: number;
 }
 
 interface CodeServerContext {
@@ -96,6 +99,7 @@ interface CodeServerContext {
         messageFirstEdit: boolean;
         sourceControlMessage: boolean;
     };
+    telemetryTracker?: TelemetryTracker;
 }
 
 interface PerformanceForecastContext {
@@ -164,6 +168,7 @@ export class BallerinaExtension {
         };
         if (this.getCodeServerContext().codeServerEnv) {
             commands.executeCommand('workbench.action.closeAllEditors');
+            this.getCodeServerContext().telemetryTracker = new TelemetryTracker();
         }
         this.webviewContext = { isOpen: false };
         this.perfForecastContext = {
@@ -196,7 +201,7 @@ export class BallerinaExtension {
             if (this.overrideBallerinaHome()) {
                 if (!this.getConfiguredBallerinaHome()) {
                     const message = "Trying to get ballerina version without setting ballerina home.";
-                    sendTelemetryEvent(this, TM_EVENT_ERROR_INVALID_BAL_HOME_CONFIGURED, CMP_EXTENSION_CORE, message);
+                    sendTelemetryEvent(this, TM_EVENT_ERROR_INVALID_BAL_HOME_CONFIGURED, CMP_EXTENSION_CORE, getMessageObject(message));
                     throw new AssertionError({
                         message: message
                     });
@@ -210,26 +215,23 @@ export class BallerinaExtension {
             const pluginVersion = this.extension.packageJSON.version.split('-')[0];
             return this.getBallerinaVersion(this.ballerinaHome, this.overrideBallerinaHome()).then(runtimeVersion => {
                 this.ballerinaVersion = runtimeVersion.split('-')[0];
-                if (!this.overrideBallerinaHome()) {
-                    const { home } = this.autoDetectBallerinaHome();
-                    this.ballerinaHome = home;
-                }
+                const { home } = this.autoDetectBallerinaHome();
+                this.ballerinaHome = home;
                 log(`Plugin version: ${pluginVersion}\nBallerina version: ${this.ballerinaVersion}`);
                 this.sdkVersion.text = `Ballerina SDK: ${this.ballerinaVersion}`;
 
-                if (!this.ballerinaVersion.match(SWAN_LAKE_REGEX)) {
+                if (!this.ballerinaVersion.match(SWAN_LAKE_REGEX) || (this.ballerinaVersion.match(SWAN_LAKE_REGEX) &&
+                    !isSupportedVersion(ballerinaExtInstance, VERSION.BETA, 3))) {
                     this.showMessageOldBallerina();
                     const message = `Ballerina version ${this.ballerinaVersion} is not supported. 
-                        The extension supports Ballerina Swan Lake version.`;
-                    sendTelemetryEvent(this, TM_EVENT_ERROR_OLD_BAL_HOME_DETECTED, CMP_EXTENSION_CORE, message);
-                    throw new AssertionError({
-                        message: message
-                    });
+                        The extension supports Ballerina Swan Lake Beta 3+ versions.`;
+                    sendTelemetryEvent(this, TM_EVENT_ERROR_OLD_BAL_HOME_DETECTED, CMP_EXTENSION_CORE, getMessageObject(message));
+                    return;
                 }
 
                 // if Home is found load Language Server.
                 let serverOptions: ServerOptions;
-                serverOptions = getServerOptions(this.ballerinaCmd);
+                serverOptions = getServerOptions(this.ballerinaCmd, this);
                 this.langClient = new ExtendedLangClient('ballerina-vscode', 'Ballerina LS Client', serverOptions,
                     this.clientOptions, this, false);
 
@@ -237,7 +239,7 @@ export class BallerinaExtension {
                 const disposeDidChange = this.langClient.onDidChangeState(stateChangeEvent => {
                     if (stateChangeEvent.newState === LS_STATE.Stopped) {
                         const message = "Couldn't establish language server connection.";
-                        sendTelemetryEvent(this, TM_EVENT_EXTENSION_INI_FAILED, CMP_EXTENSION_CORE, message);
+                        sendTelemetryEvent(this, TM_EVENT_EXTENSION_INI_FAILED, CMP_EXTENSION_CORE, getMessageObject(message));
                         log(message);
                         this.showPluginActivationError();
                     } else if (stateChangeEvent.newState === LS_STATE.Running) {
@@ -256,7 +258,7 @@ export class BallerinaExtension {
                 throw new Error(reason);
             }).catch(e => {
                 const msg = `Error when checking ballerina version. ${e.message}`;
-                sendTelemetryException(this, e, CMP_EXTENSION_CORE, msg);
+                sendTelemetryException(this, e, CMP_EXTENSION_CORE, getMessageObject(msg));
                 this.telemetryReporter.dispose();
                 throw new Error(msg);
             });
@@ -266,7 +268,7 @@ export class BallerinaExtension {
                 msg = "Error while activating plugin. " + (ex.message ? ex.message : ex);
                 // If any failure occurs while initializing show an error message
                 this.showPluginActivationError();
-                sendTelemetryException(this, ex, CMP_EXTENSION_CORE, msg);
+                sendTelemetryException(this, ex, CMP_EXTENSION_CORE, getMessageObject(msg));
                 this.telemetryReporter.dispose();
             }
             return Promise.reject(msg);
@@ -277,7 +279,7 @@ export class BallerinaExtension {
         if (!this.langClient) {
             const message = `Ballerina SDK: Error`;
             this.sdkVersion.text = message;
-            sendTelemetryEvent(this, TM_EVENT_EXTENSION_INI_FAILED, CMP_EXTENSION_CORE, message);
+            sendTelemetryEvent(this, TM_EVENT_EXTENSION_INI_FAILED, CMP_EXTENSION_CORE, getMessageObject(message));
             this.telemetryReporter.dispose();
             return Promise.reject('BallerinaExtension is not initialized');
         }
@@ -297,8 +299,9 @@ export class BallerinaExtension {
         workspace.onDidChangeConfiguration((params: ConfigurationChangeEvent) => {
             if (params.affectsConfiguration(BALLERINA_HOME) || params.affectsConfiguration(OVERRIDE_BALLERINA_HOME)
                 || params.affectsConfiguration(ENABLE_ALL_CODELENS) ||
-                params.affectsConfiguration(ENABLE_EXECUTOR_CODELENS) ||
-                params.affectsConfiguration(BALLERINA_LOW_CODE_MODE)) {
+                params.affectsConfiguration(BALLERINA_LOW_CODE_MODE) || params.affectsConfiguration(ENABLE_DEBUG_LOG)
+                || params.affectsConfiguration(ENABLE_BALLERINA_LS_DEBUG) ||
+                params.affectsConfiguration(ENABLE_EXPERIMENTAL_FEATURES)) {
                 this.showMsgAndRestart(CONFIG_CHANGED);
             }
         });
@@ -551,17 +554,26 @@ export class BallerinaExtension {
         return <boolean>workspace.getConfiguration().get(ENABLE_ALL_CODELENS);
     }
 
-    public isExecutorCodeLensEnabled(): boolean {
-        return <boolean>workspace.getConfiguration().get(ENABLE_EXECUTOR_CODELENS);
-    }
-
     public isBallerinaLowCodeMode(): boolean {
         return <boolean>workspace.getConfiguration().get(BALLERINA_LOW_CODE_MODE) ||
             process.env.LOW_CODE_MODE === 'true';
     }
 
+    public enableLSDebug(): boolean {
+        return this.overrideBallerinaHome() && <boolean>workspace.getConfiguration().get(ENABLE_BALLERINA_LS_DEBUG);
+    }
+
     public enabledPerformanceForecasting(): boolean {
         return <boolean>workspace.getConfiguration().get(ENABLE_PERFORMANCE_FORECAST);
+    }
+
+    public isConfigurableEditorEnabled(): boolean {
+        return process.env.CODE_SERVER_ENV === 'true' ||
+            <boolean>workspace.getConfiguration().get(ENABLE_CONFIGURABLE_EDITOR);
+    }
+
+    public enabledExperimentalFeatures(): boolean {
+        return <boolean>workspace.getConfiguration().get(ENABLE_EXPERIMENTAL_FEATURES);
     }
 
     public async updatePerformanceForecastSetting(status: boolean) {
@@ -574,6 +586,7 @@ export class BallerinaExtension {
 
     public setDiagramActiveContext(value: boolean) {
         commands.executeCommand('setContext', 'isBallerinaDiagram', value);
+        this.documentContext.setActiveDiagram(value);
     }
 
     public setChoreoAuthEnabled(value: boolean) {
@@ -585,9 +598,10 @@ export class BallerinaExtension {
     }
 
     public getChoreoSession(): ChoreoSession {
-        if (this.choreoSession.loginStatus && this.choreoSession.choreoLoginTime) {
-            let tokenDuration = new Date().getTime() - new Date(this.choreoSession.choreoLoginTime).getTime();
-            if (tokenDuration > 3000000) {
+        if (this.choreoSession.loginStatus && this.choreoSession.choreoLoginTime
+            && this.choreoSession.tokenExpirationTime) {
+            let tokenDuration = (new Date().getTime() - new Date(this.choreoSession.choreoLoginTime).getTime()) / 1000;
+            if (tokenDuration > this.choreoSession.tokenExpirationTime) {
                 debug(`Exchanging refresh token. ${new Date()}`);
                 new OAuthTokenHandler(this).exchangeRefreshToken(this.choreoSession.choreoRefreshToken!);
             }
@@ -631,6 +645,7 @@ class DocumentContext {
     private diagramTreeElementClickedCallbacks: Array<(construct: ConstructIdentifier) => void> = [];
     private editorChangesCallbacks: Array<(change: Change) => void> = [];
     private latestDocument: Uri | undefined;
+    private activeDiagram: boolean = false;
 
     public diagramTreeElementClicked(construct: ConstructIdentifier): void {
         this.diagramTreeElementClickedCallbacks.forEach((callback) => {
@@ -661,6 +676,49 @@ class DocumentContext {
 
     public getLatestDocument(): Uri | undefined {
         return this.latestDocument;
+    }
+
+    public isActiveDiagram(): boolean {
+        return this.activeDiagram;
+    }
+
+    public setActiveDiagram(isActiveDiagram: boolean) {
+        this.activeDiagram = isActiveDiagram;
+    }
+}
+
+/**
+ * Telemetry tracker keeps track of the events, and
+ * it is used to send telemetry events in batches.
+ */
+export class TelemetryTracker {
+    private textEditCount: number;
+    private diagramEditCount: number;
+
+    constructor() {
+        this.diagramEditCount = 0;
+        this.textEditCount = 0;
+    }
+
+    public reset() {
+        this.textEditCount = 0;
+        this.diagramEditCount = 0;
+    }
+
+    public hasTextEdits(): boolean {
+        return this.textEditCount > 0;
+    }
+
+    public hasDiagramEdits(): boolean {
+        return this.diagramEditCount > 0;
+    }
+
+    public incrementTextEditCount() {
+        this.textEditCount++;
+    }
+
+    public incrementDiagramEditCount() {
+        this.diagramEditCount++;
     }
 }
 

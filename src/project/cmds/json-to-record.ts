@@ -27,7 +27,6 @@ import { PALETTE_COMMANDS, MESSAGES } from "./cmd-runner";
 const MSG_NOT_SUPPORT = "Paste JSON as a Ballerina record feature is not supported";
 
 export function activatePasteJsonAsRecord() {
-    sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_PASTE_AS_RECORD, CMP_JSON_TO_RECORD);
 
     if (!ballerinaExtInstance.langClient) {
         return;
@@ -55,6 +54,7 @@ export function activatePasteJsonAsRecord() {
             window.showErrorMessage("Target is not a Ballerina file!");
             return;
         }
+        sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_PASTE_AS_RECORD, CMP_JSON_TO_RECORD);
         env.clipboard.readText()
             .then(clipboardText => {
                 if (!ballerinaExtInstance.langClient) {

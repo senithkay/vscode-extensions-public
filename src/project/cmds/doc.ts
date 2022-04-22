@@ -17,11 +17,12 @@
  *
  */
 
-import { ballerinaExtInstance } from "../../core";
+import { ballerinaExtInstance, LANGUAGE } from "../../core";
 import { commands, window } from "vscode";
 import {
     TM_EVENT_PROJECT_DOC, TM_EVENT_ERROR_EXECUTE_PROJECT_DOC, CMP_PROJECT_DOC, sendTelemetryEvent,
-    sendTelemetryException
+    sendTelemetryException,
+    getMessageObject
 } from "../../telemetry";
 import { runCommand, BALLERINA_COMMANDS, MESSAGES, PROJECT_TYPE, PALETTE_COMMANDS } from "./cmd-runner";
 import { getCurrentBallerinaProject } from "../../utils/project-utils";
@@ -32,10 +33,17 @@ function activateDocCommand() {
         try {
             sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_PROJECT_DOC, CMP_PROJECT_DOC);
 
-            const currentProject = await getCurrentBallerinaProject();
+            if (window.activeTextEditor && window.activeTextEditor.document.languageId != LANGUAGE.BALLERINA) {
+                window.showErrorMessage(MESSAGES.NOT_IN_PROJECT);
+                return;
+            }
+
+            const currentProject = await ballerinaExtInstance.getDocumentContext().isActiveDiagram() ? await
+                getCurrentBallerinaProject(ballerinaExtInstance.getDocumentContext().getLatestDocument()?.toString())
+                : await getCurrentBallerinaProject();
             if (currentProject.kind === PROJECT_TYPE.SINGLE_FILE) {
                 sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_ERROR_EXECUTE_PROJECT_DOC, CMP_PROJECT_DOC,
-                    MESSAGES.NOT_IN_PROJECT);
+                    getMessageObject(MESSAGES.NOT_IN_PROJECT));
                 window.showErrorMessage(MESSAGES.NOT_IN_PROJECT);
                 return;
             }

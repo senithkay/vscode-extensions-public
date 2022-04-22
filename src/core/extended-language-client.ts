@@ -29,14 +29,13 @@ import {
     CompletionResponse,
     ExpressionTypeRequest,
     ExpressionTypeResponse,
-} from "@wso2-enterprise/ballerina-low-code-editor";
+} from "@wso2-enterprise/ballerina-low-code-editor-distribution";
 import { BallerinaConnectorsRequest, BallerinaTriggerRequest, BallerinaTriggerResponse, BallerinaTriggersRequest, BallerinaTriggersResponse } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { BallerinaExtension } from "./index";
 import { showChoreoPushMessage } from "../editor-support/git-status";
-import { MESSAGE_TYPE } from "../utils/showMessage";
 import { showChoreoSigninMessage, Values } from "../forecaster";
 import { debug } from "../utils";
-import { CMP_LS_CLIENT_COMPLETIONS, CMP_LS_CLIENT_DIAGNOSTICS, sendTelemetryEvent, TM_EVENT_LANG_CLIENT } from "../telemetry";
+import { CMP_LS_CLIENT_COMPLETIONS, CMP_LS_CLIENT_DIAGNOSTICS, getMessageObject, sendTelemetryEvent, TM_EVENT_LANG_CLIENT } from "../telemetry";
 
 export const CONNECTOR_LIST_CACHE = "CONNECTOR_LIST_CACHE";
 export const HTTP_CONNECTOR_LIST_CACHE = "HTTP_CONNECTOR_LIST_CACHE";
@@ -65,7 +64,7 @@ enum EXTENDED_APIS {
     PARTIAL_PARSE_EXPRESSION = 'partialParser/getSTForExpression',
     PARTIAL_PARSE_MODULE_MEMBER = 'partialParser/getSTForModuleMembers',
     EXAMPLE_LIST = 'ballerinaExample/list',
-    PERF_ANALYZER_ENDPOINTS = 'performanceAnalyzer/getEndpoints',
+    PERF_ANALYZER_RESOURCES_ENDPOINTS = 'performanceAnalyzer/getResourcesWithEndpoints',
     RESOLVE_MISSING_DEPENDENCIES = 'ballerinaDocument/resolveMissingDependencies',
     BALLERINA_TO_OPENAPI = 'openAPILSExtension/generateOpenAPI'
 }
@@ -248,9 +247,17 @@ export interface PerformanceAnalyzerGraphRequest {
     choreoToken: String;
 }
 
-export interface PerformanceAnalyzerEndpointsRequest {
+export interface PerformanceAnalyzerRequest {
     documentIdentifier: DocumentIdentifier;
-    range: Range;
+}
+
+export interface PerformanceAnalyzerResponse {
+    resourcePos: Range;
+    endpoints: any;
+    actionInvocations: any;
+    type: string;
+    message: string;
+    name: string;
 }
 
 export interface PerformanceAnalyzerGraphResponse {
@@ -343,19 +350,21 @@ export class ExtendedLangClient extends LanguageClient {
         debug(`didChange at ${new Date()} - ${new Date().getTime()}`);
         this.sendNotification("textDocument/didChange", params);
     }
-    getPerfEndpoints(params: PerformanceAnalyzerEndpointsRequest): Promise<any> {
+    getResourcesWithEndpoints(params: PerformanceAnalyzerRequest): Promise<PerformanceAnalyzerResponse[]> {
         if (!this.ballerinaExtInstance?.enabledPerformanceForecasting() ||
             !this.ballerinaExtInstance?.getChoreoSession().loginStatus ||
             this.ballerinaExtInstance.getPerformanceForecastContext().temporaryDisabled) {
-            return Promise.resolve({
-                type: MESSAGE_TYPE.IGNORE, message: '', concurrency: { min: 0, max: 0 },
-                tps: { min: 0, max: 0 }, latency: { min: 0, max: 0 }
-            });
+            return Promise.resolve([{
+                type: 'error', message: "error",
+                endpoints: null, actionInvocations: null,
+                resourcePos: { start: { line: 0, character: 0 }, end: { line: 0, character: 0 } },
+                name: ""
+            }]);
         }
-        if (!this.isExtendedServiceSupported(EXTENDED_APIS.PERF_ANALYZER_ENDPOINTS)) {
+        if (!this.isExtendedServiceSupported(EXTENDED_APIS.PERF_ANALYZER_RESOURCES_ENDPOINTS)) {
             Promise.resolve(NOT_SUPPORTED);
         }
-        return this.sendRequest(EXTENDED_APIS.PERF_ANALYZER_ENDPOINTS, params);
+        return this.sendRequest(EXTENDED_APIS.PERF_ANALYZER_RESOURCES_ENDPOINTS, params);
     }
     async getDiagnostics(params: BallerinaProjectParams): Promise<PublishDiagnosticsParams[]> {
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.DOCUMENT_DIAGNOSTICS)) {
@@ -594,7 +603,7 @@ export class ExtendedLangClient extends LanguageClient {
                 },
                 { name: EXTENDED_APIS_ORG.EXAMPLE, list: true },
                 { name: EXTENDED_APIS_ORG.JSON_TO_RECORD, convert: true },
-                { name: EXTENDED_APIS_ORG.PERF_ANALYZER, getEndpoints: true },
+                { name: EXTENDED_APIS_ORG.PERF_ANALYZER, getResourcesWithEndpoints: true },
                 { name: EXTENDED_APIS_ORG.PARTIAL_PARSER, getSTForSingleStatement: true, getSTForExpression: true },
                 { name: EXTENDED_APIS_ORG.BALLERINA_TO_OPENAPI, generateOpenAPI: true }
             ]
@@ -628,7 +637,7 @@ export class ExtendedLangClient extends LanguageClient {
         if (this.timeConsumption.completion.length > 0) {
             const completionValues = calculateTelemetryValues(this.timeConsumption.completion, 'completion');
             sendTelemetryEvent(this.ballerinaExtInstance!, TM_EVENT_LANG_CLIENT, CMP_LS_CLIENT_COMPLETIONS,
-                process.env.HOSTNAME, completionValues);
+                getMessageObject(process.env.HOSTNAME), completionValues);
             this.timeConsumption.completion = [];
         }
 
@@ -636,7 +645,7 @@ export class ExtendedLangClient extends LanguageClient {
             const diagnosticValues = calculateTelemetryValues(this.timeConsumption.diagnostics, 'diagnostic');
             this.timeConsumption.diagnostics = [];
             sendTelemetryEvent(this.ballerinaExtInstance!, TM_EVENT_LANG_CLIENT, CMP_LS_CLIENT_DIAGNOSTICS,
-                process.env.HOSTNAME, diagnosticValues);
+                getMessageObject(process.env.HOSTNAME), diagnosticValues);
         }
     }
 }

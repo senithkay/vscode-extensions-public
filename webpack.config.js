@@ -3,9 +3,11 @@
 'use strict';
 
 const path = require('path');
+const MergeIntoSingleFile = require('webpack-merge-and-include-globally');
 
 /** @type {import('webpack').Configuration} */
-const config = {
+module.exports = {
+  watch: false,
   target: 'node',
   entry: './src/extension.ts',
   output: {
@@ -39,6 +41,20 @@ const config = {
         ]
       }
     ]
-  }
+  },
+  stats: 'normal',
+  plugins: [
+    new MergeIntoSingleFile({
+      files: {
+        [path.join('..', 'resources', 'jslibs', 'webviewCommons.js')]: [
+          path.resolve('resources', 'utils', 'messaging.js'),
+          path.resolve('resources', 'utils', 'undo-redo.js'),
+          path.resolve('node_modules', 'pako', 'dist', 'pako.min.js'),
+        ],
+      },
+      transform: {
+        'webviewCommons.js': code => require("uglify-js").minify(code).code
+      }
+    }),
+  ]
 };
-module.exports = config;

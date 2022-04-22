@@ -34,15 +34,17 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
             ballerinaExtInstance));
     }
 
-    if ((ballerinaExtInstance.isAllCodeLensEnabled() || ballerinaExtInstance.isExecutorCodeLensEnabled()) &&
-        isSupportedVersion(ballerinaExtInstance, VERSION.BETA, 1)) {
-        languages.registerCodeLensProvider([{ language: LANGUAGE.BALLERINA }],
-            new ExecutorCodeLensProvider(ballerinaExtInstance));
-    }
-
     // Create new content provider for ballerina library files
     const blProvider = new ReadOnlyContentProvider();
     ballerinaExtInstance.context.subscriptions.push(workspace.registerTextDocumentContentProvider('bala', blProvider));
 
     gitStatus.activate(ballerinaExtInstance);
+
+    if (!ballerinaExtInstance.isAllCodeLensEnabled()) {
+        return;
+    }
+    if (ballerinaExtInstance.isAllCodeLensEnabled() && isSupportedVersion(ballerinaExtInstance, VERSION.BETA, 1)) {
+        languages.registerCodeLensProvider([{ language: LANGUAGE.BALLERINA, scheme: 'file' }],
+            new ExecutorCodeLensProvider(ballerinaExtInstance));
+    }
 }

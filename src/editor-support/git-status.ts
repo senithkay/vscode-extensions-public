@@ -16,61 +16,61 @@
  * under the License.
  *
  */
-import simpleGit, { SimpleGit, SimpleGitOptions } from 'simple-git';
 import { BallerinaExtension } from '../core';
-import { commands, StatusBarAlignment, StatusBarItem, ThemeColor, window, workspace } from 'vscode';
+import { commands, extensions, StatusBarAlignment, StatusBarItem, ThemeColor, window, workspace } from 'vscode';
 import { PALETTE_COMMANDS } from '../project';
-import { debug } from './../utils';
 import { hasDiagram } from '../diagram';
+import { CMP_GIT_STATUS, sendTelemetryEvent, TM_EVENT_GIT_COMMIT } from '../telemetry';
 const schedule = require('node-schedule');
+
+const gitExtension = extensions.getExtension('vscode.git')?.exports;
+const api = gitExtension.getAPI(1);
 
 export class gitStatusBarItem {
     private statusBarItem: StatusBarItem;
-    private baseDir: string = "";
-    private git: SimpleGit | undefined;
+    private latestGitHash: string = "";
+    private extension: BallerinaExtension;
+    private repo;
 
-    constructor() {
+    constructor(extension: BallerinaExtension) {
         this.statusBarItem = window.createStatusBarItem(StatusBarAlignment.Left, 100);
+        this.extension = extension;
+        this.repo = api.repositories[0];
     }
 
-    updateGitStatus() {
-        this.createSimpleGit();
-        if (!this.git) {
-            return;
-        }
+    async updateGitStatus() {
+        const head = this.repo.state.HEAD;
+        const { ahead, behind } = head;
 
-        this.git.status((error, status) => {
-            if (error) {
-                this.statusBarItem.hide();
-            } else if (status.files.length > 0 || status.ahead > 0) {
-                this.statusBarItem.text = `$(cloud-upload) Sync with Choreo upsteam`;
-                this.statusBarItem.backgroundColor = new ThemeColor('statusBarItem.errorBackground');
-                this.statusBarItem.command = {
-                    command: PALETTE_COMMANDS.CHOREO_SYNC_CHANGES,
-                    title: 'Focus Source Control'
-                };
-                this.statusBarItem.show();
-            } else {
-                this.statusBarItem.text = `$(compare-changes) In sync with Choreo upsteam`;
-                this.statusBarItem.backgroundColor = new ThemeColor('statusBarItem.activeBackground');
-                this.statusBarItem.show();
-            }
-        });
-    }
-
-    createSimpleGit() {
-        if (!workspace.workspaceFolders || workspace.workspaceFolders.length == 0) {
-            return;
-        }
-
-        if (!this.git || this.baseDir != workspace.workspaceFolders[0].uri.fsPath) {
-            const options: Partial<SimpleGitOptions> = {
-                baseDir: workspace.workspaceFolders[0].uri.fsPath,
-                binary: 'git',
-                maxConcurrentProcesses: 1,
+        if (this.repo.state.workingTreeChanges.length > 0 || this.repo.state.indexChanges.length > 0 || ahead > 0 ||
+            behind > 0) {
+            this.statusBarItem.text = `$(cloud-upload) Sync with Choreo upstream`;
+            this.statusBarItem.backgroundColor = new ThemeColor('statusBarItem.errorBackground');
+            this.statusBarItem.command = {
+                command: PALETTE_COMMANDS.CHOREO_SYNC_CHANGES,
+                title: 'Focus Source Control'
             };
-            this.baseDir = workspace.workspaceFolders[0].uri.fsPath;
-            this.git = simpleGit(options);
+            this.statusBarItem.show();
+        } else {
+            this.statusBarItem.text = `$(compare-changes) In sync with Choreo upstream`;
+            this.statusBarItem.backgroundColor = new ThemeColor('statusBarItem.activeBackground');
+            this.statusBarItem.show();
+        }
+    }
+
+    updateGitCommit() {
+        const head = this.repo.state.HEAD;
+        const { commit } = head;
+
+        if (this.latestGitHash === "") {
+            this.latestGitHash = commit;
+            return;
+        }
+
+        if (this.latestGitHash != commit) {
+            this.latestGitHash = commit;
+            //editor-workspace-git-commit
+            sendTelemetryEvent(this.extension, TM_EVENT_GIT_COMMIT, CMP_GIT_STATUS);
         }
     }
 }
@@ -81,7 +81,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
     }
 
     // Update status bar
-    const statusBarItem = new gitStatusBarItem();
+    const statusBarItem = new gitStatusBarItem(ballerinaExtInstance);
     ballerinaExtInstance.getCodeServerContext().statusBarItem = statusBarItem;
     workspace.onDidChangeTextDocument(_event => {
         if (hasDiagram) {
@@ -93,8 +93,8 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
         statusBarItem.updateGitStatus();
     });
     schedule.scheduleJob('*/10 * * * * *', function () {
-        debug(`Updated the git status at ${new Date()}`)
         statusBarItem.updateGitStatus();
+        statusBarItem.updateGitCommit();
     });
 
     const commitAndPush = commands.registerCommand(PALETTE_COMMANDS.CHOREO_SYNC_CHANGES, () => {

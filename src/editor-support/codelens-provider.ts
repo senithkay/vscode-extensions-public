@@ -28,7 +28,6 @@ import {
     CMP_EXECUTOR_CODELENS, sendTelemetryEvent, TM_EVENT_SOURCE_DEBUG_CODELENS, TM_EVENT_TEST_DEBUG_CODELENS
 } from '../telemetry';
 import { DEBUG_CONFIG, DEBUG_REQUEST } from '../debugger';
-import { TryOutCodeLensProvider } from '../swagger/codelens-provider';
 
 export enum EXEC_POSITION_TYPE {
     SOURCE = 'source',
@@ -54,7 +53,6 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
     public readonly onDidChangeCodeLenses: Event<void> = this._onDidChangeCodeLenses.event;
 
     private ballerinaExtension: BallerinaExtension;
-    private tryOutCodeLensProvider = new TryOutCodeLensProvider();
 
     constructor(extensionInstance: BallerinaExtension) {
         this.ballerinaExtension = extensionInstance;
@@ -104,24 +102,34 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
             return codeLenses;
         }
 
-        await langClient.getExecutorPositions({
-            documentIdentifier: {
-                uri: window.activeTextEditor!.document.uri.toString()
-            }
-        }).then(response => {
-            if (response.executorPositions) {
-                response.executorPositions.forEach(position => {
-                    codeLenses.push(this.createCodeLens(position, EXEC_TYPE.RUN));
-                    codeLenses.push(this.createCodeLens(position, EXEC_TYPE.DEBUG));
-                });
-            }
-        }, _error => {
-            return codeLenses;
+        await langClient.onReady().then(async () => {
+            await langClient!.getExecutorPositions({
+                documentIdentifier: {
+                    uri: window.activeTextEditor!.document.uri.toString()
+                }
+            }).then(response => {
+                if (response.executorPositions) {
+                    response.executorPositions.forEach(position => {
+                        codeLenses.push(this.createCodeLens(position, EXEC_TYPE.RUN));
+                        codeLenses.push(this.createCodeLens(position, EXEC_TYPE.DEBUG));
+
+                        if (position.kind == 'source' && position.name != 'main') {
+                            const codeLens = new CodeLens(new Range(position.range.startLine.line, 0, position.range.endLine.line, 0));
+                            codeLens.command = {
+                                title: "Try it",
+                                tooltip: "Try running this service on swagger view",
+                                command: PALETTE_COMMANDS.SWAGGER_VIEW,
+                                arguments: [position.name]
+                            };
+                            codeLenses.push(codeLens);
+                        }
+                    });
+                }
+            }, _error => {
+                return codeLenses;
+            });
+
         });
-
-        const tryItCodelenses = await this.tryOutCodeLensProvider.getCodeLensList(langClient);
-        codeLenses.push(...tryItCodelenses);
-
         return codeLenses;
     }
 
@@ -135,7 +143,7 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
             title: execType.toString(),
             tooltip: `${execType.toString()} ${execPosition.name}`,
             command: execPosition.kind === EXEC_POSITION_TYPE.SOURCE ? (execType === EXEC_TYPE.RUN ?
-                PALETTE_COMMANDS.RUN : SOURCE_DEBUG_COMMAND) : (execType === EXEC_TYPE.RUN ? PALETTE_COMMANDS.TEST :
+                PALETTE_COMMANDS.RUN_CMD : SOURCE_DEBUG_COMMAND) : (execType === EXEC_TYPE.RUN ? PALETTE_COMMANDS.TEST :
                     TEST_DEBUG_COMMAND),
             arguments: execPosition.kind === EXEC_POSITION_TYPE.SOURCE ? [] : (execType === EXEC_TYPE.RUN ?
                 [EXEC_ARG.TESTS, execPosition.name] : [execPosition.name])

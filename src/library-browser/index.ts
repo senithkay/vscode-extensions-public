@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -17,14 +17,4 @@
  *
  */
 
-export const EXECUTE_RUN_WITH_CONFIGS: string = 'ballerina.executeRunWithConfigs';
-
-export interface ConfigProperty {
-    headerNames: string[];
-    configs: ConfigValue[];
-}
-
-export interface ConfigValue {
-    configName: string;
-    configValue?: any[];
-}
+export * from './activator';

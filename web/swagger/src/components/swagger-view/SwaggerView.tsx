@@ -83,7 +83,7 @@ export const SwaggerView = (props: any) => {
         });
 
         if (file && serviceName && file === spec.file &&
-            serviceName.toLocaleLowerCase() === `/${spec.serviceName.toLocaleLowerCase()}`) {
+            serviceName.toLocaleLowerCase() === spec.serviceName.trim().replaceAll(" ", "_").toLocaleLowerCase()) {
             selectedService = index;
         }
     });

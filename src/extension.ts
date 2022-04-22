@@ -21,7 +21,10 @@ import { ExtensionContext, commands, window, Location, Uri } from 'vscode';
 import { ballerinaExtInstance } from './core';
 import { activate as activateDiagram } from './diagram';
 import { activate as activateBBE } from './bbe';
-import { activate as activateTelemetryListener } from './telemetry';
+import {
+    activate as activateTelemetryListener, CMP_EXTENSION_CORE, sendTelemetryEvent,
+    TM_EVENT_EXTENSION_ACTIVATE
+} from './telemetry';
 import { activateDebugConfigProvider } from './debugger';
 import { activate as activateProjectFeatures } from './project';
 import { activate as activateEditorSupport } from './editor-support';
@@ -32,6 +35,7 @@ import { StaticFeature, DocumentSelector, ServerCapabilities, InitializeParams }
 import { ExtendedClientCapabilities, ExtendedLangClient } from './core/extended-language-client';
 import { activate as activatePerformanceForecaster } from './forecaster';
 import { activate as activateSwaggerView } from './swagger';
+import { activate as activateLibraryBrowser } from './library-browser';
 import { debug, log } from './utils';
 
 let langClient: ExtendedLangClient;
@@ -69,6 +73,7 @@ function onBeforeInit(langClient: ExtendedLangClient) {
 
 export function activate(context: ExtensionContext): Promise<any> {
     debug('Active the Ballerina VS Code extension.');
+    sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_EXTENSION_ACTIVATE, CMP_EXTENSION_CORE);
     ballerinaExtInstance.setContext(context);
     return ballerinaExtInstance.init(onBeforeInit).then(() => {
         // start the features.
@@ -92,6 +97,7 @@ export function activate(context: ExtensionContext): Promise<any> {
         // Enable Ballerina Telemetry listener
         activateTelemetryListener(ballerinaExtInstance);
         activateTesting(ballerinaExtInstance);
+        activateLibraryBrowser(ballerinaExtInstance);
 
         ballerinaExtInstance.onReady().then(() => {
             langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
@@ -135,5 +141,6 @@ export function deactivate(): Thenable<void> | undefined {
     if (!langClient) {
         return;
     }
+    ballerinaExtInstance.telemetryReporter.dispose();
     return langClient.stop();
 }

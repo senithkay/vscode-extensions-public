@@ -74,6 +74,7 @@ function getConfigProperty(object: any, configProperty: ConfigProperty) {
                 return getLeafConfig(entry, newProperty);
             }
         });
+        configProperty.headerNames.pop();
     } else {
         return getLeafConfig(object, configProperty);
     }
@@ -88,14 +89,9 @@ function getLeafConfig(object: any, configProperty: ConfigProperty) {
         return;
     }
 
-    let intValues: any = object[value];
-    if (object.type === "integer") {
-        intValues = Number(object[value]);
-    }
-
     const newConfigElement: ConfigValue = {
         configName: object[name],
-        configValue: intValues,
+        configValue: object[value],
     };
 
     const found = configProperties.some((element) => element.headerNames.join(".") === headers.join("."));
@@ -114,12 +110,19 @@ function configToTomlString(configs: ConfigProperty[]): string {
             let header: string = "";
             header = entry.headerNames.join(".");
             configToml = configToml.concat(`\n[${header}]\n`);
-        }
-        if (entry.configs) {
-            entry.configs.forEach((element: ConfigValue) => {
-                const configVal: any = element.configValue;
-                configToml = configToml.concat(`${element.configName} = ${JSON.stringify(configVal)}\n`);
-            });
+            if (entry.configs) {
+                entry.configs.forEach((element: ConfigValue) => {
+                    const configVal: any = element.configValue;
+                    configToml = configToml.concat(`${element.configName} = ${JSON.stringify(configVal)}\n`);
+                });
+            }
+        } else {
+            if (entry.configs) {
+                entry.configs.forEach((element: ConfigValue) => {
+                    const configVal: any = element.configValue;
+                    configToml = (`${element.configName} = ${JSON.stringify(configVal)}\n`).concat(configToml);
+                });
+            }
         }
     });
     return configToml;

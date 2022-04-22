@@ -27,11 +27,13 @@ export enum PALETTE_COMMANDS {
     CLOUD = 'ballerina.create.cloud',
     DOC = 'ballerina.project.doc',
     FOCUS_EXPLORER = 'ballerinaExplorerTreeView.focus',
+    RUN_CMD = 'ballerina.project.run.cmd',
     RUN = 'ballerina.project.run',
     SAVE_ALL = 'workbench.action.files.saveFiles',
     TEST = 'ballerina.project.test',
     PASTE_JSON_AS_RECORD = 'ballerina.pasteAsRecord',
     CHOREO_SIGNIN = 'ballerina.choreo.signin',
+    CHOREO_ANON_SIGNIN = 'ballerina.choreo.anonymous.signin',
     CHOREO_SIGNOUT = 'ballerina.choreo.signout',
     FOCUS_SOURCE_CONTROL = 'workbench.view.scm',
     CHOREO_SYNC_CHANGES = 'ballerina.choreo.sync',
@@ -60,8 +62,10 @@ export enum MESSAGES {
     INVALID_JSON = "Invalid JSON String"
 }
 
+export const CONFIG_FILE = 'Config.toml';
 export const BAL_TOML = "Ballerina.toml";
 const TERMINAL_NAME = 'Terminal';
+const BAL_CONFIG_FILES = 'BAL_CONFIG_FILES';
 
 let terminal: Terminal;
 
@@ -81,6 +85,8 @@ export function runCommandWithConf(file: BallerinaProject | string, executor: st
     if (args && args.length > 0) {
         args.forEach((arg) => {
             try {
+                arg = arg.trim();
+                arg = /\s/g.test(arg) ? `"${arg}"` : arg;
                 argsList += arg.concat(' ');
             } catch (e) {
                 // error
@@ -95,12 +101,15 @@ export function runCommandWithConf(file: BallerinaProject | string, executor: st
         commandText = `${executor} ${cmd} ${argsList}`;
         let configEnv = {};
         if (confPath !== '') {
-            configEnv = { "BAL_CONFIG_FILES": confPath };
+            configEnv = { BAL_CONFIG_FILES: confPath };
         }
         terminal = window.createTerminal({ name: TERMINAL_NAME, cwd: filePath, env: configEnv });
     }
     terminal.sendText(isWindows() ? 'cls' : 'clear', true);
     terminal.show(true);
+    if (confPath !== '') {
+        terminal.sendText(isWindows() ? `echo $Env:${BAL_CONFIG_FILES}` : `echo $${BAL_CONFIG_FILES}`);
+    }
     terminal.sendText(commandText, true);
 }
 

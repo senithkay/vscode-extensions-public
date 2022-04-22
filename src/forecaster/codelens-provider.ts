@@ -17,13 +17,13 @@
  *
  */
 
-import { BallerinaExtension, ExtendedLangClient, LANGUAGE, WEBVIEW_TYPE } from '../core';
+import { BallerinaExtension, LANGUAGE, WEBVIEW_TYPE } from '../core';
 import {
     CancellationToken, CodeLens, CodeLensProvider, Event, EventEmitter,
     ProviderResult, Range, TextDocument, Uri, window, workspace
 } from 'vscode';
 import { createPerformanceGraphAndCodeLenses } from './activator';
-import { DataLabel, Member, SyntaxTree } from './model';
+import { DataLabel } from './model';
 import path from 'path';
 import { ANALYZETYPE } from './model';
 import { SHOW_GRAPH_COMMAND } from './activator';
@@ -36,7 +36,6 @@ export enum CODELENSE_TYPE {
 
 const debounceTime: number = 5000;
 let lastRefresh: number = Date.now();
-let langClient: ExtendedLangClient;
 
 /**
  * Codelense provider for performance forecaster.
@@ -53,7 +52,6 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
 
     constructor(extensionInstance: BallerinaExtension) {
         ExecutorCodeLensProvider.onDidChangeCodeLenses = this._onDidChangeCodeLenses;
-        langClient = <ExtendedLangClient>extensionInstance.langClient;
         this.extension = extensionInstance;
         workspace.onDidOpenTextDocument(async (document) => {
             if (document.languageId === LANGUAGE.BALLERINA) {
@@ -64,21 +62,24 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
         });
 
         workspace.onDidChangeTextDocument(async (activatedTextEditor) => {
-            if (activatedTextEditor && activatedTextEditor.document.languageId === LANGUAGE.BALLERINA) {
-                const activeEditor = window.activeTextEditor;
-                const uri = activeEditor?.document.uri;
+            if (!activatedTextEditor || activatedTextEditor.document.languageId !== LANGUAGE.BALLERINA) {
+                return;
+            }
 
-                if (this.extension.getWebviewContext().isOpen &&
-                    this.extension.getWebviewContext().type === WEBVIEW_TYPE.PERFORMANCE_FORECAST) {
-                    // Close graph while editing.
-                    DefaultWebviewPanel.currentPanel?.dispose();
-                }
+            if (this.extension.getCodeServerContext().codeServerEnv && !this.extension.getDocumentContext().isActiveDiagram()) {
+                this.extension.getCodeServerContext().telemetryTracker?.incrementTextEditCount();
+            }
 
-                const currentTime: number = Date.now();
-                if (currentTime - lastRefresh > debounceTime) {
-                    await ExecutorCodeLensProvider.addCodeLenses(uri);
-                    lastRefresh = currentTime;
-                }
+            if (this.extension.getWebviewContext().isOpen &&
+                this.extension.getWebviewContext().type === WEBVIEW_TYPE.PERFORMANCE_FORECAST) {
+                // Close graph while editing.
+                DefaultWebviewPanel.currentPanel?.dispose();
+            }
+
+            const currentTime: number = Date.now();
+            if (currentTime - lastRefresh > debounceTime) {
+                await ExecutorCodeLensProvider.addCodeLenses(activatedTextEditor.document.uri);
+                lastRefresh = currentTime;
             }
         });
 
@@ -89,11 +90,11 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
         }
     }
 
-    public static async addCodeLenses(uri: Uri | undefined) {
+    public static async addCodeLenses(uri: Uri) {
         if (!ExecutorCodeLensProvider.isProccessing) {
             ExecutorCodeLensProvider.isProccessing = true;
             ExecutorCodeLensProvider.dataLabels = [];
-            await findResources(uri);
+            await createPerformanceGraphAndCodeLenses(uri.fsPath, ANALYZETYPE.REALTIME);
             ExecutorCodeLensProvider.onDidChangeCodeLenses.fire();
             ExecutorCodeLensProvider.isProccessing = false;
         }
@@ -107,7 +108,7 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
         return this.getCodeLensList();
     }
 
-    private getCodeLensList(): CodeLens[] {
+    public getCodeLensList(): CodeLens[] {
         let codeLenses: CodeLens[] = [];
 
         // add codelenses to actions invocations
@@ -147,55 +148,9 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
             tooltip: label.getType == CODELENSE_TYPE.REALTIME ? `Click here to view the performance graph.` : ``,
             command: SHOW_GRAPH_COMMAND,
             arguments: (label.getType == CODELENSE_TYPE.ADVANCED || concurrencies.max !== 1) ?
-                [label.getResourcePos, label.getResourceName] : []
+                [label.getResourcePos, label.getResourceName, label.getData] : []
         };
         return codeLens;
     }
 
-}
-
-async function findResources(uri: Uri | undefined) {
-    if (!uri || !langClient) {
-        return;
-    }
-
-    // add codelenses to resources
-    await langClient.onReady().then(async () => {
-        await langClient.getSyntaxTree({
-            documentIdentifier: {
-                uri: uri.toString()
-            }
-        }).then(async (response) => {
-            const syntaxTree: SyntaxTree = response.syntaxTree;
-            if (!syntaxTree || !syntaxTree.members) {
-                return;
-            }
-            const members: Member[] = syntaxTree.members;
-            for (let i = 0; i < members.length; i++) {
-                if (members[i].kind === 'ServiceDeclaration') {
-                    const serviceMembers: Member[] = members[i].members;
-                    for (let ri = 0; ri < members[i].members.length; ri++) {
-                        const serviceMember: Member = serviceMembers[ri];
-                        if (serviceMember.kind === 'ResourceAccessorDefinition') {
-                            const pos = serviceMember.position;
-
-                            const range: Range = new Range(pos.startLine, pos.startColumn,
-                                pos.endLine, pos.endColumn);
-
-                            if (!serviceMember.functionName || !serviceMember.relativeResourcePath) {
-                                continue;
-                            }
-                            let fullPath = "";
-                            for (const path of serviceMember.relativeResourcePath) {
-                                fullPath += (path as any).value;
-                            }
-                            await createPerformanceGraphAndCodeLenses(uri.fsPath, range, ANALYZETYPE.REALTIME,
-                                `${serviceMember.functionName.value.toUpperCase()} ` +
-                                `/${fullPath}`);
-                        }
-                    }
-                }
-            }
-        });
-    });
 }
