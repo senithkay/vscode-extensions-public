@@ -14,6 +14,7 @@
 import React, { useContext } from "react";
 
 import IconButton from "@material-ui/core/IconButton";
+import { ConfigurableIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import ToolbarDeleteIcon from "../../assets/icons/ToolbarDeleteIcon";
 import ToolbarRedoIcon from "../../assets/icons/ToolbarRedoIcon";
@@ -80,6 +81,12 @@ export default function Toolbar(){
                 className={statementEditorClasses.toolbarIcons}
             >
                 <ToolbarDeleteIcon/>
+            </IconButton>
+            <IconButton
+                style={{color: deleteButtonEnabled ? '#FE523C' : '#8D91A3', marginRight: '14px'}}
+                className={statementEditorClasses.toolbarIcons}
+            >
+                <ConfigurableIcon/>
             </IconButton>
         </span>
     );
