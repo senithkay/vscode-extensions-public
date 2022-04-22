@@ -25,7 +25,7 @@ interface RawNotebookCell {
     language: string;
     value: string;
     kind: NotebookCellKind;
-    outputs: RawCellOutput[];
+    outputs: RawCellOutput[][];
     executionSummary?: NotebookCellExecutionSummary;
     metadata?: {[key: string]: any};
 }
@@ -49,7 +49,7 @@ export class BallerinaNotebookSerializer implements NotebookSerializer {
         const cells = raw.map(
             item => {
                 let cellData: NotebookCellData = new NotebookCellData(item.kind, item.value, item.language);
-                cellData.outputs = [new NotebookCellOutput(this.getCellOutputs(item.outputs))];
+                cellData.outputs = this.getCellOutputs(item.outputs);
                 cellData.executionSummary = item.executionSummary;
                 cellData.metadata = item.metadata;
                 return cellData;
@@ -74,24 +74,34 @@ export class BallerinaNotebookSerializer implements NotebookSerializer {
         return new TextEncoder().encode(JSON.stringify(contents));
     }
 
-    getCellOutputs(rawCellOutputs: RawCellOutput[]): NotebookCellOutputItem[] {
-        let cellOutputs: NotebookCellOutputItem[] = [];
+    getCellOutputs(rawCellOutputs: RawCellOutput[][]): NotebookCellOutput[] {
+        let cellOutputs: NotebookCellOutput[] = [];
         for(let output of rawCellOutputs) {
-            let data = new TextEncoder().encode(output.value);
-            cellOutputs.push(new NotebookCellOutputItem(data, output.mime));
+            let cellOutputItems: NotebookCellOutputItem[] = [];
+            for (let item of output){
+                let data = new TextEncoder().encode(item.value);
+                cellOutputItems.push(new NotebookCellOutputItem(data, item.mime));
+            }
+            if (cellOutputItems) {
+                cellOutputs.push(new NotebookCellOutput(cellOutputItems));
+            }
         }
         return cellOutputs;
     }
 
-    getRawCellOutputs(cellOutputs: NotebookCellOutput[]|undefined): RawCellOutput[] {
-        let rawCellOutputs: RawCellOutput[] = [];
+    getRawCellOutputs(cellOutputs: NotebookCellOutput[]|undefined): RawCellOutput[][] {
+        let rawCellOutputs: RawCellOutput[][] = [];
         for (const output of cellOutputs ?? []) {
+            let rawCellOutputItems: RawCellOutput[] = [];
             for (const item of output.items) {
                 let outputItemContent = new TextDecoder().decode(item.data);
-                rawCellOutputs.push({
+                rawCellOutputItems.push({
                     mime: item.mime,
                     value: outputItemContent
                 });
+            }
+            if (rawCellOutputItems) {
+                rawCellOutputs.push(rawCellOutputItems);
             }
         }
         return rawCellOutputs;
