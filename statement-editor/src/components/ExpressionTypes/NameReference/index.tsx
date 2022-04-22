@@ -14,7 +14,7 @@ import React from "react";
 
 import { SimpleNameReference } from "@wso2-enterprise/syntax-tree";
 
-import { InputEditor } from "../../InputEditor";
+import { ExpressionComponent } from "../../Expression";
 
 interface NameRefProps {
     model: SimpleNameReference;
@@ -23,11 +23,9 @@ interface NameRefProps {
 export function SimpleNameReferenceComponent(props: NameRefProps) {
     const { model } = props;
 
-    const inputEditorProps = {
-        model
-    };
-
     return (
-        <InputEditor {...inputEditorProps} />
+        <>
+            <ExpressionComponent model={model.name} />
+        </>
     );
 }

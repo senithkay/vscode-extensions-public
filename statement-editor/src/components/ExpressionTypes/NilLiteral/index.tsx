@@ -12,23 +12,21 @@
  */
 import React from "react";
 
-import { TemplateString } from "@wso2-enterprise/syntax-tree";
+import { NilLiteral } from "@wso2-enterprise/syntax-tree";
 
-import { InputEditor, InputEditorProps } from "../../InputEditor";
+import { TokenComponent } from "../../Token";
 
-interface TemplateStringProps {
-    model: TemplateString;
+interface NilLiteralProps {
+    model: NilLiteral;
 }
 
-export function TemplateStringComponent(props: TemplateStringProps) {
+export function NilLiteralComponent(props: NilLiteralProps) {
     const { model } = props;
 
-    const inputEditorProps: InputEditorProps = {
-        model,
-        isToken: true
-    };
-
     return (
-        <InputEditor {...inputEditorProps} />
+        <>
+            <TokenComponent model={model.openParenToken} />
+            <TokenComponent model={model.closeParenToken} />
+        </>
     );
 }

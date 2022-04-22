@@ -27,7 +27,7 @@ export interface ExpressionComponentProps {
 }
 
 export function ExpressionComponent(props: ExpressionComponentProps) {
-    const { model, children, classNames,  } = props;
+    const { model, children, classNames } = props;
 
     const component = getExpressionTypeComponent(model);
 

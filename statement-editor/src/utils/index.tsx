@@ -13,13 +13,13 @@
 import React, { ReactNode } from 'react';
 
 import {
-    CompletionResponse,
-    ExpressionEditorLangClientInterface,
+    CompletionResponse, ExpressionEditorLangClientInterface,
     getDiagnosticMessage,
     getFilteredDiagnostics,
     STModification
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
+    Minutiae,
     NodePosition,
     STKindChecker,
     STNode,
@@ -28,14 +28,17 @@ import {
 import { Diagnostic } from "vscode-languageserver-protocol";
 
 import * as expressionTypeComponents from '../components/ExpressionTypes';
+import * as formComponents from '../components/Forms/Form';
 import * as statementTypeComponents from '../components/Statements';
 import {
+    END_OF_LINE_MINUTIAE,
     OTHER_EXPRESSION,
     OTHER_STATEMENT,
     PLACE_HOLDER_DIAGNOSTIC_MESSAGES,
-    StatementNodes
+    StatementNodes,
+    WHITESPACE_MINUTIAE
 } from "../constants";
-import { RemainingContent, StmtDiagnostic, StmtOffset } from '../models/definitions';
+import { MinutiaeJSX, RemainingContent, StmtDiagnostic, StmtOffset } from '../models/definitions';
 import { visitor as DeleteConfigSetupVisitor } from "../visitors/delete-config-setup-visitor";
 import { visitor as DiagnosticsMappingVisitor } from "../visitors/diagnostics-mapping-visitor";
 import { visitor as ExpressionDeletingVisitor } from "../visitors/expression-deleting-visitor";
@@ -43,7 +46,6 @@ import { visitor as ModelFindingVisitor } from "../visitors/model-finding-visito
 import { visitor as ModelTypeSetupVisitor } from "../visitors/model-type-setup-visitor";
 import { viewStateSetupVisitor as ViewStateSetupVisitor } from "../visitors/view-state-setup-visitor";
 
-import { addImportStatements, addStatementToTargetLine } from "./ls-utils";
 import { ModelType } from "./statement-editor-viewstate";
 import { createImportStatement, createStatement, updateStatement } from "./statement-modifications";
 
@@ -56,7 +58,6 @@ export function getModifications(
         formArgs: any,
         modulesToBeImported?: string[]): STModification[] {
     const modifications: STModification[] = [];
-    const importStatementRegex = /ballerinax?\/[^;]+/g;
 
     if (STKindChecker.isLocalVarDecl(model) ||
             STKindChecker.isCallStatement(model) ||
@@ -123,6 +124,22 @@ export function getStatementTypeComponent(
     );
 }
 
+export function getFormComponent(
+    type: string, model: STNode, targetPosition: NodePosition, onChange: (code: string) => void, onCancel: () => void,
+    getLangClient: () => Promise<ExpressionEditorLangClientInterface>
+): ReactNode {
+    const FormComponent = (formComponents as any)[type];
+    return (
+        <FormComponent
+            model={model}
+            targetPosition={targetPosition}
+            onChange={onChange}
+            onCancel={onCancel}
+            getLangClient={getLangClient}
+        />
+    );
+}
+
 export function getCurrentModel(position: NodePosition, model: STNode): STNode {
     ModelFindingVisitor.setPosition(position);
     traversNode(model, ModelFindingVisitor);
@@ -180,20 +197,20 @@ export function isBindingPattern(modelType: number): boolean {
     return modelType === ModelType.BINDING_PATTERN;
 }
 
-export function getFilteredDiagnosticMessages(stmtLength: number, targetPosition: NodePosition,
+export function getFilteredDiagnosticMessages(statement: string, targetPosition: NodePosition,
                                               diagnostics: Diagnostic[]): StmtDiagnostic[] {
+
     const stmtDiagnostics: StmtDiagnostic[] = [];
-
     const diag = getFilteredDiagnostics(diagnostics, false);
-
-    const diagnosticTargetPosition: NodePosition = {
+    const noOfLines = statement.trim().split('\n').length;
+    const diagTargetPosition: NodePosition = {
         startLine: targetPosition.startLine || 0,
         startColumn: targetPosition.startColumn || 0,
-        endLine: targetPosition?.endLine || targetPosition.startLine,
+        endLine: targetPosition?.startLine + noOfLines - 1 || targetPosition.startLine,
         endColumn: targetPosition?.endColumn || 0
     };
 
-    getDiagnosticMessage(diag, diagnosticTargetPosition, 0, stmtLength, 0, 0).split('. ').map(message => {
+    getDiagnosticMessage(diag, diagTargetPosition, 0, statement.length, 0, 0).split('. ').map(message => {
             let isPlaceHolderDiag = false;
             if (PLACE_HOLDER_DIAGNOSTIC_MESSAGES.some(msg => message.includes(msg))) {
                 isPlaceHolderDiag = true;
@@ -207,39 +224,104 @@ export function getFilteredDiagnosticMessages(stmtLength: number, targetPosition
 }
 
 export async function getUpdatedSource(updatedStatement: string, currentFileContent: string,
-                                       targetPosition: NodePosition, moduleList: Set<string>,
-                                       getLangClient: () => Promise<ExpressionEditorLangClientInterface>)
-    : Promise<string> {
+                                       targetPosition: NodePosition, moduleList?: Set<string>): Promise<string> {
 
-    let updatedContent: string = await addStatementToTargetLine(currentFileContent, targetPosition,
-        updatedStatement, getLangClient);
-    if (!!moduleList.size) {
-        updatedContent = await addImportStatements(updatedContent, Array.from(moduleList) as string[]);
+    const statement = updatedStatement.trim().endsWith(';') ? updatedStatement : updatedStatement + ';';
+    let updatedContent: string = addToTargetPosition(currentFileContent, targetPosition, statement);
+    if (!!moduleList?.size) {
+        updatedContent = addImportStatements(updatedContent, Array.from(moduleList) as string[]);
     }
 
     return updatedContent;
 }
 
-export function addExpressionToTargetPosition(statementModel: STNode, currentPosition: NodePosition,
-                                              newValue: string): string {
+export function addToTargetPosition(currentContent: string, position: NodePosition, updatedStatement: string): string {
 
-    const startLine = currentPosition.startLine;
-    const startColumn = currentPosition.startColumn;
-    const endColumn = currentPosition.endColumn;
+    const splitContent: string[] = currentContent.split(/\n/g) || [];
+    const splitUpdatedStatement: string[] = updatedStatement.trimEnd().split(/\n/g) || [];
+    const noOfLines: number = position.endLine - position.startLine + 1;
+    const startLine = splitContent[position.startLine].slice(0, position.startColumn);
+    const endLine = isFinite(position?.endLine) ?
+        splitContent[position.endLine].slice(position.endColumn || position.startColumn) : '';
 
-    if (statementModel && STKindChecker.isIfElseStatement(statementModel)) {
-        const splitStatement: string[] = statementModel.source.split(/\n/g) || [];
+    const replacements = splitUpdatedStatement.map((line, index) => {
+        let modifiedLine = line;
+        if (index === 0) {
+            modifiedLine = startLine + modifiedLine;
+        }
+        if (index === splitUpdatedStatement.length - 1) {
+            modifiedLine = modifiedLine + endLine;
+        }
+        if (index > 0) {
+            modifiedLine = " ".repeat(position.startColumn) + modifiedLine;
+        }
+        return modifiedLine;
+    });
 
-        splitStatement.splice(startLine, 1, splitStatement[startLine].slice(0, startColumn) +
-            newValue + splitStatement[startLine].slice(endColumn || startColumn));
+    splitContent.splice(position.startLine, noOfLines, ...replacements);
 
-        return splitStatement.join('\n');
+    return splitContent.join('\n');
+}
+
+export function addImportStatements(
+    currentFileContent: string,
+    modulesToBeImported: string[]): string {
+    let moduleList : string = "";
+    modulesToBeImported.forEach(module => {
+        moduleList += "import " + module + "; ";
+    });
+    return moduleList + currentFileContent;
+}
+
+export function getMinutiaeJSX(model: STNode): MinutiaeJSX {
+    return {
+        leadingMinutiaeJSX: getJSXForMinutiae(model.leadingMinutiae),
+        trailingMinutiaeJSX: getJSXForMinutiae(model.trailingMinutiae)
+    };
+}
+
+function getJSXForMinutiae(minutiae: Minutiae[]): ReactNode[] {
+    return minutiae.map((element) => {
+        if (element.kind === WHITESPACE_MINUTIAE) {
+            return Array.from({length: element.minutiae.length}, () => <>&nbsp;</>);
+        } else if (element.kind === END_OF_LINE_MINUTIAE) {
+            return <br/>;
+        }
+    });
+}
+
+export function getClassNameForToken(model: STNode): string {
+    let className = '';
+
+    if (STKindChecker.isBooleanLiteral(model)) {
+        className = 'boolean-literal';
+    } else if (STKindChecker.isNumericLiteral(model)) {
+        className = 'numeric-literal';
+    } else if (STKindChecker.isStringLiteralToken(model)) {
+        className = 'string-literal';
+    } else if (STKindChecker.isBooleanKeyword(model)) {
+        className = 'type-descriptor boolean';
+    } else if (STKindChecker.isDecimalKeyword(model)) {
+        className = 'type-descriptor decimal';
+    } else if (STKindChecker.isFloatKeyword(model)) {
+        className = 'type-descriptor float';
+    } else if (STKindChecker.isIntKeyword(model)) {
+        className = 'type-descriptor int';
+    } else if (STKindChecker.isJsonKeyword(model)) {
+        className = 'type-descriptor json';
+    } else if (STKindChecker.isStringKeyword(model)) {
+        className = 'type-descriptor string';
+    } else if (STKindChecker.isVarKeyword(model)) {
+        className = 'type-descriptor var';
     }
 
-    const newStatement =  statementModel.source.slice(0, startColumn) + newValue +
-        statementModel.source.slice(endColumn || startColumn);
+    return className;
+}
 
-    return newStatement.slice(-1) !== ';' ? newStatement + ';' : newStatement;
+export function getStringForMinutiae(minutiae: Minutiae[]): string {
+    return minutiae.map((element) => {
+        return element.minutiae;
+    }).join('');
 }
 
 export function getSuggestionIconStyle(suggestionType: number): string {
