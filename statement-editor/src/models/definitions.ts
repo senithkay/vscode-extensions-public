@@ -11,6 +11,8 @@
  * associated services.
  */
 
+import { ReactNode } from "react";
+
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 
@@ -45,4 +47,9 @@ export interface StmtDiagnostic {
 export interface StmtOffset {
     startLine: number;
     startColumn: number;
+}
+
+export interface MinutiaeJSX {
+    leadingMinutiaeJSX: ReactNode[];
+    trailingMinutiaeJSX: ReactNode[];
 }

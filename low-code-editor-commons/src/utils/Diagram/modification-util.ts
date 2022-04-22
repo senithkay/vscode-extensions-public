@@ -10,8 +10,11 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { STModification } from "../../types";
+import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import { compile } from "handlebars";
 
+import { default as templates } from "../../templates/components";
+import { STModification } from "../../types";
 
 import { getInsertComponentSource } from "./template-utils";
 
@@ -55,4 +58,33 @@ export async function InsertorDelete(modifications: STModification[]): Promise<S
         stModifications.push(stModification);
     }
     return stModifications;
+}
+
+export function mutateFunctionSignature(accessModifier: string, name: string, parameters: string, returnTypes: string,
+                                        targetPosition: NodePosition): STModification {
+    const functionStatement: STModification = {
+        startLine: targetPosition.startLine,
+        startColumn: targetPosition.endColumn ? targetPosition.endColumn : 0,
+        endLine: targetPosition.startLine,
+        endColumn: targetPosition.endColumn ? targetPosition.endColumn : 0,
+        type: "FUNCTION_DEFINITION",
+        config: {
+            "ACCESS_MODIFIER": accessModifier,
+            "NAME": name,
+            "PARAMETERS": parameters,
+            "RETURN_TYPE": returnTypes
+        }
+    };
+
+    return functionStatement;
+}
+
+export function getComponentSource(insertTempName: string, config: { [key: string]: any }) {
+    const hbTemplate = compile(templates[insertTempName]);
+    return hbTemplate(config);
+}
+
+export function getSource(modification: STModification): string {
+    const source = getComponentSource(modification.type, modification.config);
+    return source;
 }

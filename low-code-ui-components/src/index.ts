@@ -15,3 +15,7 @@ export * from "./FormHeader";
 export * from "./FormActionButtons";
 export * from "./Tooltip";
 export * from "./ComponentExpandButton";
+export * from "./FormTextInput";
+export * from "./SwitchToggle";
+export * from "./formStyle";
+export * from "./connectorStyle";

@@ -10,25 +10,6 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React from "react";
+import { FunctionForm } from "./FunctionForm/FunctionForm";
 
-import { BooleanLiteral } from "@wso2-enterprise/syntax-tree";
-
-import { InputEditor } from "../../../InputEditor";
-
-interface BooleanLiteralProps {
-    model: BooleanLiteral;
-}
-
-export function BooleanLiteralComponent(props: BooleanLiteralProps) {
-    const { model } = props;
-
-    const inputEditorProps = {
-        model,
-        classNames: "boolean-literal"
-    };
-
-    return (
-        <InputEditor {...inputEditorProps} />
-    );
-}
+export { FunctionForm as Function };
