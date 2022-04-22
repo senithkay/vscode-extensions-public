@@ -59,17 +59,13 @@ export class BallerinaNotebookController {
     }
 
     private async doExecution(cell: NotebookCell): Promise<void> {
+        // if cell content is empty no need for an code execution
         if (cell && cell.document && !cell.document.getText().trim()) {
-            return;
-        }
-        let langClient: ExtendedLangClient = <ExtendedLangClient>this.ballerinaExtension.langClient;
-
-        if (!langClient) {
             return;
         }
         
         const execution = this.controller.createNotebookCellExecution(cell);
-        const appendToOutput = (data: any) => {
+        const appendTextToOutput = (data: any) => {
             execution.appendOutput([new NotebookCellOutput([
                     NotebookCellOutputItem.text(data.toString().trim())
                 ])
@@ -78,29 +74,46 @@ export class BallerinaNotebookController {
         execution.executionOrder = ++this.executionOrder;
         execution.start(Date.now());
         execution.clearOutput();
+        // handle request to cancel the running execution 
         execution.token.onCancellationRequested(()=> {
-            appendToOutput('Execution Interrupted');
+            appendTextToOutput('Execution Interrupted');
             execution.end(false, Date.now());
         });
+
+        let langClient: ExtendedLangClient = <ExtendedLangClient>this.ballerinaExtension.langClient;
+
+        // handle if language client is not ready yet 
+        if (!langClient) {
+            execution.replaceOutput([ new NotebookCellOutput([
+                    NotebookCellOutputItem.text("Language client is not ready yet")
+                ])
+            ]);
+            execution.end(false, Date.now());
+            return;
+        }
+
         const cellContent = cell.document.getText().trim();
+
         try {
             // bal cmds
             if (cellContent.startsWith("bal")) {
+                // unlike linux, windows does not identify single quotes as separators
                 const regex = isWindows() ? /(?:[^\s"]+|"[^"]*")+/g : /(?:[^\s"']+|"[^"]*"|'[^']*')+/g;
                 const args = cellContent.substring("bal".length).trim().match(regex) || [];
                 const balRunner = spawn("bal", args);
 
                 balRunner.stdout.setEncoding('utf8');
-                balRunner.stdout.on('data', appendToOutput);
+                balRunner.stdout.on('data', appendTextToOutput);
 
                 balRunner.stderr.setEncoding('utf8');
-                balRunner.stderr.on('data', appendToOutput);
+                balRunner.stderr.on('data', appendTextToOutput);
 
                 balRunner.on('close', (code) => {
                     execution.end(code === 0, Date.now());
                 });
                 return;
             }
+
             // code snippets
             let output: NoteBookCellOutputResponse = await langClient.getBalShellResult({
                 source: cellContent
@@ -121,14 +134,14 @@ export class BallerinaNotebookController {
                 }
             } 
             if (output.diagnostics.length) {
-                output.diagnostics.pop();
-                output.diagnostics.forEach(appendToOutput);
+                output.diagnostics.forEach(appendTextToOutput);
             }
             if (output.errors.length) {
-                output.errors.forEach(appendToOutput);
+                output.errors.forEach(appendTextToOutput);
             }
             execution.end(!(output.diagnostics.length) && !(output.errors.length), Date.now());
         } catch (error) {
+            appendTextToOutput(error);
             execution.end(false, Date.now());
         }
     }
