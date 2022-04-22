@@ -10,6 +10,6 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { Function } from "./Function";
+import { FunctionForm } from "./FunctionForm/FunctionForm";
 
-export { Function as Function };
+export { FunctionForm as Function };

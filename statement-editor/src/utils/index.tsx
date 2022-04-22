@@ -13,7 +13,7 @@
 import React, { ReactNode } from 'react';
 
 import {
-    CompletionResponse,
+    CompletionResponse, ExpressionEditorLangClientInterface,
     getDiagnosticMessage,
     getFilteredDiagnostics,
     STModification
@@ -28,8 +28,8 @@ import {
 import { Diagnostic } from "vscode-languageserver-protocol";
 
 import * as expressionTypeComponents from '../components/ExpressionTypes';
+import * as formComponents from '../components/Forms/Form';
 import * as statementTypeComponents from '../components/Statements';
-import * as formComponents from '../components/Forms';
 import {
     END_OF_LINE_MINUTIAE,
     OTHER_EXPRESSION,
@@ -125,7 +125,8 @@ export function getStatementTypeComponent(
 }
 
 export function getFormComponent(
-    type: string, model: STNode, targetPosition: NodePosition, onChange: (code: string) => void, onCancel: () => void
+    type: string, model: STNode, targetPosition: NodePosition, onChange: (code: string) => void, onCancel: () => void,
+    getLangClient: () => Promise<ExpressionEditorLangClientInterface>
 ): ReactNode {
     const FormComponent = (formComponents as any)[type];
     return (
@@ -134,6 +135,7 @@ export function getFormComponent(
             targetPosition={targetPosition}
             onChange={onChange}
             onCancel={onCancel}
+            getLangClient={getLangClient}
         />
     );
 }
@@ -222,11 +224,11 @@ export function getFilteredDiagnosticMessages(statement: string, targetPosition:
 }
 
 export async function getUpdatedSource(updatedStatement: string, currentFileContent: string,
-                                       targetPosition: NodePosition, moduleList: Set<string>): Promise<string> {
+                                       targetPosition: NodePosition, moduleList?: Set<string>): Promise<string> {
 
     const statement = updatedStatement.trim().endsWith(';') ? updatedStatement : updatedStatement + ';';
     let updatedContent: string = addToTargetPosition(currentFileContent, targetPosition, statement);
-    if (!!moduleList.size) {
+    if (!!moduleList?.size) {
         updatedContent = addImportStatements(updatedContent, Array.from(moduleList) as string[]);
     }
 

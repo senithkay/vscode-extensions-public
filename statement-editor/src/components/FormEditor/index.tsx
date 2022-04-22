@@ -13,11 +13,18 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useEffect, useState } from 'react';
 
+import { List, ListItemText, Typography } from "@material-ui/core";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
+import * as monaco from "monaco-editor";
+import { Diagnostic } from "vscode-languageserver-protocol";
 
-import {getPartialSTForStatement, getPartialSTForTopLevelComponents} from "../../utils/ls-utils";
+import { StmtDiagnostic } from "../../models/definitions";
+import { getFilteredDiagnosticMessages, getUpdatedSource} from "../../utils";
+import { getDiagnostics, getPartialSTForTopLevelComponents, sendDidChange } from "../../utils/ls-utils";
 import { FormRenderer } from "../FormRenderer";
+import { EXPR_SCHEME, FILE_SCHEME } from "../InputEditor/constants";
 import { LowCodeEditorProps } from "../StatementEditor";
+import {ExpressionEditorLangClientInterface} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 export interface FormEditorProps extends LowCodeEditorProps {
     initialSource?: string;
@@ -41,6 +48,23 @@ export function FormEditor(props: FormEditorProps) {
     } = props;
 
     const [model, setModel] = useState<STNode>(null);
+    const [stmtDiagnostics, setStmtDiagnostics] = useState<StmtDiagnostic[]>(null);
+
+    const fileURI = monaco.Uri.file(currentFile.path).toString().replace(FILE_SCHEME, EXPR_SCHEME);
+
+    const handleDiagnostics = async (source: string): Promise<Diagnostic[]> => {
+        const diagResp = await getDiagnostics(fileURI, getLangClient);
+        const diag  = diagResp[0]?.diagnostics ? diagResp[0].diagnostics : [];
+        const messages = getFilteredDiagnosticMessages(source, targetPosition, diag);
+        setStmtDiagnostics(messages);
+        return diag;
+    };
+
+    const onChange = async (genSource: string) => {
+        const updatedContent = await getUpdatedSource(genSource, currentFile.content, targetPosition);
+        sendDidChange(fileURI, updatedContent, getLangClient).then();
+        handleDiagnostics(genSource).then();
+    };
 
     useEffect(() => {
         if (initialSource) {
@@ -55,17 +79,30 @@ export function FormEditor(props: FormEditorProps) {
         }
     }, [initialSource]);
 
-    const onChange = (genSource: string) => {
-    // TODO: Implement
-    }
-
     return (
-        <FormRenderer
-            type={type}
-            model={model}
-            targetPosition={targetPosition}
-            onChange={onChange}
-            onCancel={onCancel}
-        />
+        <div>
+            <FormRenderer
+                type={type}
+                model={model}
+                targetPosition={targetPosition}
+                onChange={onChange}
+                onCancel={onCancel}
+                getLangClient={getLangClient}
+            />
+            <List>
+                {
+                    stmtDiagnostics && stmtDiagnostics.map((diag: StmtDiagnostic, index: number) => (
+                        !diag.isPlaceHolderDiag && (
+                            <ListItemText
+                                key={index}
+                                primary={(
+                                    <Typography>{diag.message}</Typography>
+                                )}
+                            />
+                        )
+                    ))
+                }
+            </List>
+        </div>
     )
 }

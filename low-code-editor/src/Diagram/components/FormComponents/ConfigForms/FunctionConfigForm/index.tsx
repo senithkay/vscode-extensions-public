@@ -65,10 +65,9 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
                 type={"Function"}
                 currentFile={currentFile}
                 getLangClient={getExpressionEditorLangClient}
-                applyModifications={modifyDiagram}
                 library={library}
-                experimentalEnabled={experimentalEnabled}
-                topLevelComponent={true}
+                applyModifications={modifyDiagram}
+                topLevelComponent={true}// todo: Remove this
             />
         </>
     )

@@ -14,7 +14,11 @@
 import React, { useEffect, useState } from 'react';
 
 import { FormControl } from "@material-ui/core";
-import { getInitialSource, mutateFunctionSignature } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import {
+    ExpressionEditorLangClientInterface,
+    getSource,
+    mutateFunctionSignature
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     FormHeaderSection,
     FormTextInput,
@@ -22,34 +26,61 @@ import {
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { FunctionDefinition, NodePosition } from "@wso2-enterprise/syntax-tree";
 
+import { StmtDiagnostic } from "../../../models/definitions";
+import { getPartialSTForTopLevelComponents } from "../../../utils/ls-utils";
+
 export interface FunctionProps {
     model: FunctionDefinition;
     targetPosition: NodePosition;
     onChange: (genSource: string) => void;
     onCancel: () => void;
+    getLangClient: () => Promise<ExpressionEditorLangClientInterface>;
 }
 
-export function Function(props: FunctionProps) {
-    const { targetPosition, model, onChange, onCancel  } = props;
+export function FunctionForm(props: FunctionProps) {
+    const { targetPosition, model, onChange, onCancel, getLangClient  } = props;
 
     const formClasses = useFormStyles();
 
     const [functionName, setFunctionName] = useState<string>(model ? model.functionName.value : "");
+    const [nameDiagnostics, setNameDiagnostics] = useState<StmtDiagnostic[]>(undefined);
+    const [isNameSyntaxError, setIsNameSyntaxError] = useState<boolean>(false);
+
     const [returnType, setReturnType] = useState<string>(model ?
         model.functionSignature?.returnTypeDesc?.type?.source?.trim() : "");
+    const [returnDiagnostics, setReturnDiagnostics] = useState<StmtDiagnostic[]>(undefined);
+    const [isReturnSyntaxError, setIsReturnSyntaxError] = useState<boolean>(false);
 
-    const onNameChange = (value: string) => {
+    const onNameChange = async (value: string) => {
         setFunctionName(value);
-        const genSource = getInitialSource(mutateFunctionSignature("", value, "",
-            returnType, targetPosition));
-        // onChange(genSource);
+        const genSource = getSource(mutateFunctionSignature("", value, "",
+            returnType ? `returns ${returnType}` : "", targetPosition));
+        const partialST = await getPartialSTForTopLevelComponents(
+            {codeSnippet: genSource.trim()}, getLangClient
+        );
+        if (!partialST.syntaxDiagnostics.length) {
+            setIsNameSyntaxError(false);
+            setNameDiagnostics(undefined);
+        } else {
+            setIsNameSyntaxError(true);
+            setNameDiagnostics(partialST.syntaxDiagnostics);
+        }
     }
 
-    const onReturnTypeChange = (value: string) => {
+    const onReturnTypeChange = async (value: string) => {
         setReturnType(value);
-        const genSource = getInitialSource(mutateFunctionSignature("", functionName, value,
-            returnType, targetPosition));
-        // onChange(genSource);
+        const genSource = getSource(mutateFunctionSignature("", functionName, "",
+            value ? `returns ${value}` : "", targetPosition));
+        const partialST = await getPartialSTForTopLevelComponents(
+            {codeSnippet: genSource.trim()}, getLangClient
+        );
+        if (!partialST.syntaxDiagnostics.length) {
+            setIsReturnSyntaxError(false);
+            setReturnDiagnostics(undefined);
+        } else {
+            setIsReturnSyntaxError(true);
+            setReturnDiagnostics(partialST.syntaxDiagnostics);
+        }
     }
 
     useEffect(() => {
@@ -69,10 +100,16 @@ export function Function(props: FunctionProps) {
                 dataTestId="service-name"
                 defaultValue={functionName}
                 onChange={onNameChange}
+                customProps={{
+                    optional: true,
+                    isErrored: (nameDiagnostics !== undefined)
+                }}
+                errorMessage={"Diagnostics Name"}
                 onBlur={null}
                 onFocus={null}
                 placeholder={"Enter Name"}
                 size="small"
+                disabled={(isReturnSyntaxError)}
             />
             <FormTextInput
                 label="Return Type"
@@ -80,12 +117,15 @@ export function Function(props: FunctionProps) {
                 defaultValue={returnType}
                 customProps={{
                     optional: true,
+                    isErrored: (returnDiagnostics !== undefined)
                 }}
+                errorMessage={"Diagnostics"}
                 onChange={onReturnTypeChange}
                 onBlur={null}
                 onFocus={null}
                 placeholder={"Enter Return Type"}
                 size="small"
+                disabled={(isNameSyntaxError)}
             />
         </FormControl>
     )

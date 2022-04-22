@@ -84,7 +84,7 @@ export function getComponentSource(insertTempName: string, config: { [key: strin
     return hbTemplate(config);
 }
 
-export function getInitialSource(modification: STModification): string {
+export function getSource(modification: STModification): string {
     const source = getComponentSource(modification.type, modification.config);
     return source;
 }
