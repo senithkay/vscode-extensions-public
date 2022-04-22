@@ -109,7 +109,7 @@ export class TriggerForm {
     }
 
     static waitForDiagramUpdate() {
-        cy.wait(5000);
+        cy.wait(10000);
         cy.get(`[id="canvas-overlay"]`)
             .children().should("have.length", 0)
         cy.get(`[data-testid="diagram-loader"]`)
