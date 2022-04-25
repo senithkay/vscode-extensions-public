@@ -291,7 +291,7 @@ export function DataProcessor(props: ProcessorProps) {
         )
     }
     const processWrapper = isDraftStatement ? cn("main-process-wrapper active-data-processor") : cn("main-process-wrapper data-processor");
-    const textWidthFixed = functionName?.value.length >= 15 ? functionName?.value?.slice(0, 16).length * 9 : functionName?.value.length * 9;
+    const textWidthFixed = functionName?.value.length >= 16 ? functionName?.value?.slice(0, 16).length * 9 : functionName?.value.length * 10;
 
     const component: React.ReactNode = (!viewState.collapsed &&
         (
@@ -331,7 +331,7 @@ export function DataProcessor(props: ProcessorProps) {
                         />
                         <Assignment
                             x={cx + PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW / 2 + (DefaultConfig.dotGap * 3)}
-                            y={(cy + PROCESS_SVG_HEIGHT / 4) - (DefaultConfig.dotGap / 2)}
+                            y={prosessTypes ? (cy + PROCESS_SVG_HEIGHT / 2 + rightTextOffset) : (cy + PROCESS_SVG_HEIGHT / 3 + rightTextOffset)}
                             assignment={assignmentText}
                             className={assignmentTextStyles}
                             key_id={getRandomInt(1000)}
@@ -372,7 +372,7 @@ export function DataProcessor(props: ProcessorProps) {
                             model={model}
                             functionName={functionName}
                             x={cx + PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW / 2 + (DefaultConfig.dotGap * 3) + textWidthFixed}
-                            y={(cy + PROCESS_SVG_HEIGHT / 4) - (DefaultConfig.dotGap / 2)}
+                            y={processType !== "Call" ? (cy + PROCESS_SVG_HEIGHT / 3 + rightTextOffset) : (cy + PROCESS_SVG_HEIGHT / 4) - (DefaultConfig.dotGap / 2)}
                         />
                     </g>
                     : ''

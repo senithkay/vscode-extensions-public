@@ -32,7 +32,7 @@ export function Assignment(props: { x: number, y: number, assignment: string, cl
         setTextWidth(document.getElementById("textLegnth_" + key_id)?.getBoundingClientRect().width);
     }, []);
 
-    const assignmentMaxWidth = assignment?.length >= 25;
+    const assignmentMaxWidth = assignment?.length >= 16;
 
     const assignmentComponent: ReactElement = (
         <text
