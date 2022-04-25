@@ -143,7 +143,7 @@ suite('Ballerina Debug Adapter', () => {
             };
 
             dc.on('output', (res) => {
-                if (res.body.output.indexOf("Running executable\n") > -1) {
+                if (res.body.output.indexOf("Running executable") > -1) {
                     setTimeout(function () {
                         http.get('http://0.0.0.0:9090/hello/sayHello');
                     }, 5000);
@@ -166,7 +166,7 @@ suite('Ballerina Debug Adapter', () => {
             };
 
             dc.on('output', (res) => {
-                if (res.body.output.indexOf("Running executable\n") > -1) {
+                if (res.body.output.indexOf("Running executable") > -1) {
                     setTimeout(function () {
                         http.get('http://0.0.0.0:9091/hello/sayHello');
                     }, 5000);
