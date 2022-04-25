@@ -23,9 +23,6 @@ import { hasDiagram } from '../diagram';
 import { CMP_GIT_STATUS, sendTelemetryEvent, TM_EVENT_GIT_COMMIT } from '../telemetry';
 const schedule = require('node-schedule');
 
-const gitExtension = extensions.getExtension('vscode.git')?.exports;
-const api = gitExtension.getAPI(1);
-
 export class gitStatusBarItem {
     private statusBarItem: StatusBarItem;
     private latestGitHash: string = "";
@@ -33,12 +30,19 @@ export class gitStatusBarItem {
     private repo;
 
     constructor(extension: BallerinaExtension) {
+        const gitExtension = extensions.getExtension('vscode.git');
+        const api = gitExtension ? gitExtension.exports.getAPI(1) : null;
+
         this.statusBarItem = window.createStatusBarItem(StatusBarAlignment.Left, 100);
         this.extension = extension;
-        this.repo = api.repositories[0];
+        this.repo = api ? api.repositories[0] : null;
     }
 
     async updateGitStatus() {
+        if (!this.repo) {
+            return;
+        }
+
         const head = this.repo.state.HEAD;
         const { ahead, behind } = head;
 
@@ -59,6 +63,10 @@ export class gitStatusBarItem {
     }
 
     updateGitCommit() {
+        if (!this.repo) {
+            return;
+        }
+
         const head = this.repo.state.HEAD;
         const { commit } = head;
 

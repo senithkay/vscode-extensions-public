@@ -772,9 +772,20 @@ suite("Language Server Tests", function () {
     });
 
     test("Test Semantic Highlighting", async function (): Promise<void> {
-        const result: boolean = await runSemanticTokensTestCases(langClient);
-        assert.equal(result, true, "Semantic highlighting test cases failed.");
-        return Promise.resolve();
+        langClient.onReady().then(async () => {
+            const result: boolean = await runSemanticTokensTestCases(langClient);
+            console.log("xxxxx");
+            console.log(result);
+            assert.equal(result, true, "Semantic highlighting test cases failed.");
+            return Promise.resolve();
+
+        }, () => {
+            return Promise.reject();
+
+        }).catch((err) => {
+            return Promise.reject();
+
+        });
     });
 
     test("Test Language Server Stop", (done) => {

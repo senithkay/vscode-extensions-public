@@ -38,7 +38,7 @@ suite('Ballerina Debug Adapter', () => {
     let dc: DebugClient;
     let serverProcess: any;
 
-    suiteSetup(async () => {
+    setup(async () => {
         const cwd = path.join(BALLERINA_HOME, "bin");
 
         let opt: ExecutableOptions = { cwd: cwd };
@@ -70,7 +70,7 @@ suite('Ballerina Debug Adapter', () => {
         return await dc.start(DEBUG_PORT);
     });
 
-    suiteTeardown(() => {
+    teardown(() => {
         if (isWindows()) {
             dc.stop();
             if (serverProcess) {
