@@ -377,7 +377,7 @@ export class SizingVisitor implements Visitor {
         end.bBox.h = STOP_SVG_HEIGHT;
 
         lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h + end.bBox.offsetFromTop;
-        
+
         viewState.bBox.h = lifeLine.h + trigger.h + end.bBox.h + (DefaultConfig.serviceVerticalPadding * 2) + DefaultConfig.functionHeaderHeight;
         viewState.bBox.lw = (trigger.lw > bodyViewState.bBox.lw ? trigger.lw : bodyViewState.bBox.lw) + DefaultConfig.serviceFrontPadding;
         viewState.bBox.rw = (trigger.rw > bodyViewState.bBox.rw ? trigger.rw : bodyViewState.bBox.rw) + DefaultConfig.serviceRearPadding + (allEndpoints.size * (DefaultConfig.connectorEPWidth + DefaultConfig.epGap));
