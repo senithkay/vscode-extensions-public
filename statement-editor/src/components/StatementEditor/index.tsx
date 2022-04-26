@@ -133,6 +133,7 @@ export function StatementEditor(props: StatementEditorProps) {
 
                 if (!partialST.syntaxDiagnostics.length || config.type === CUSTOM_CONFIG_TYPE) {
                     setStmtModel(partialST, diagnostics);
+                    setCurrentModel({model: undefined});
                 }
             })();
         }
