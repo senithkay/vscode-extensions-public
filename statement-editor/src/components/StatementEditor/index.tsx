@@ -83,7 +83,7 @@ export function StatementEditor(props: StatementEditorProps) {
                 targetPosition, moduleList);
             sendDidChange(fileURI, updatedContent, getLangClient).then();
             const diagnostics = await handleDiagnostics(undoItem.oldModel.source);
-            updateEditedModel(undoItem.oldModel, diagnostics);
+            setStmtModel(undoItem.oldModel, diagnostics);
         }
     }, []);
 
@@ -94,7 +94,7 @@ export function StatementEditor(props: StatementEditorProps) {
                 targetPosition, moduleList);
             sendDidChange(fileURI, updatedContent, getLangClient).then();
             const diagnostics = await handleDiagnostics(redoItem.oldModel.source);
-            updateEditedModel(redoItem.newModel, diagnostics);
+            setStmtModel(redoItem.newModel, diagnostics);
         }
     }, []);
 
@@ -111,7 +111,7 @@ export function StatementEditor(props: StatementEditorProps) {
                     { codeSnippet: source.trim() }, getLangClient);
 
                 if (!partialST.syntaxDiagnostics.length || config.type === CUSTOM_CONFIG_TYPE) {
-                    updateEditedModel(partialST, diagnostics);
+                    setStmtModel(partialST, diagnostics);
                 }
             })();
         }
@@ -132,7 +132,7 @@ export function StatementEditor(props: StatementEditorProps) {
                     : await getPartialSTForStatement({ codeSnippet: source.trim() }, getLangClient);
 
                 if (!partialST.syntaxDiagnostics.length || config.type === CUSTOM_CONFIG_TYPE) {
-                    updateEditedModel(partialST, diagnostics);
+                    setStmtModel(partialST, diagnostics);
                 }
             })();
         }
@@ -196,7 +196,7 @@ export function StatementEditor(props: StatementEditorProps) {
         const diagnostics = await handleDiagnostics(partialST.source);
 
         if (!partialST.syntaxDiagnostics.length || config.type === CUSTOM_CONFIG_TYPE) {
-            updateEditedModel(partialST, diagnostics);
+            setStmtModel(partialST, diagnostics);
         }
 
         const currentModelPosition : NodePosition = {
@@ -266,7 +266,7 @@ export function StatementEditor(props: StatementEditorProps) {
         });
     };
 
-    function updateEditedModel(editedModel: STNode, diagnostics?: Diagnostic[]) {
+    function setStmtModel(editedModel: STNode, diagnostics?: Diagnostic[]) {
         setModel(enrichModel(editedModel, targetPosition, diagnostics));
     }
 
