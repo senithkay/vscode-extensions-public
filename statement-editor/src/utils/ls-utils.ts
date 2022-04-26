@@ -22,14 +22,15 @@ import {
     STKindChecker,
     STNode
 } from "@wso2-enterprise/syntax-tree";
+import {Diagnostic} from "vscode-languageserver-protocol";
 
 import {
     acceptedCompletionKindForExpressions,
     acceptedCompletionKindForTypes
 } from "../components/InputEditor/constants";
-import { CurrentModel, SuggestionItem } from '../models/definitions';
+import {CurrentModel, StmtDiagnostic, SuggestionItem} from '../models/definitions';
 
-import { sortSuggestions } from "./index";
+import {getFilteredDiagnosticMessages, sortSuggestions} from "./index";
 import { ModelType, StatementEditorViewState } from "./statement-editor-viewstate";
 
 export async function getPartialSTForStatement(
@@ -173,5 +174,14 @@ export async function getDiagnostics(
     });
 
     return diagnostics;
+}
+
+export const handleDiagnostics = async (source: string, fileURI: string, targetPosition: NodePosition,
+                                        getLangClient: () => Promise<ExpressionEditorLangClientInterface>):
+        Promise<Diagnostic[]> => {
+    const diagResp = await getDiagnostics(fileURI, getLangClient);
+    const diag  = diagResp[0]?.diagnostics ? diagResp[0].diagnostics : [];
+    const filtered = getFilteredDiagnosticMessages(source, targetPosition, diag);
+    return diag;
 }
 

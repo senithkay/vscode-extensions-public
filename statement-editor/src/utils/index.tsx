@@ -125,8 +125,9 @@ export function getStatementTypeComponent(
 }
 
 export function getFormComponent(
-    type: string, model: STNode, targetPosition: NodePosition, onChange: (code: string) => void, onCancel: () => void,
-    getLangClient: () => Promise<ExpressionEditorLangClientInterface>
+    type: string, model: STNode, targetPosition: NodePosition, onChange: (code: string) => void,
+    onCancel: () => void, getLangClient: () => Promise<ExpressionEditorLangClientInterface>, fileURI: string,
+    applyModifications: (modifications: STModification[]) => void
 ): ReactNode {
     const FormComponent = (formComponents as any)[type];
     return (
@@ -136,6 +137,8 @@ export function getFormComponent(
             onChange={onChange}
             onCancel={onCancel}
             getLangClient={getLangClient}
+            fileURI={fileURI}
+            applyModifications={applyModifications}
         />
     );
 }
@@ -224,9 +227,10 @@ export function getFilteredDiagnosticMessages(statement: string, targetPosition:
 }
 
 export async function getUpdatedSource(updatedStatement: string, currentFileContent: string,
-                                       targetPosition: NodePosition, moduleList?: Set<string>): Promise<string> {
+                                       targetPosition: NodePosition, moduleList?: Set<string>,
+                                       skipSemiColon?: boolean): Promise<string> {
 
-    const statement = updatedStatement.trim().endsWith(';') ? updatedStatement : updatedStatement + ';';
+    const statement = skipSemiColon ? updatedStatement : (updatedStatement.trim().endsWith(';') ? updatedStatement : updatedStatement + ';');
     let updatedContent: string = addToTargetPosition(currentFileContent, targetPosition, statement);
     if (!!moduleList?.size) {
         updatedContent = addImportStatements(updatedContent, Array.from(moduleList) as string[]);

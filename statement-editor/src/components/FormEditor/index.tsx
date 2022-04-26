@@ -19,15 +19,20 @@ import * as monaco from "monaco-editor";
 import { Diagnostic } from "vscode-languageserver-protocol";
 
 import { StmtDiagnostic } from "../../models/definitions";
-import { getFilteredDiagnosticMessages, getUpdatedSource} from "../../utils";
-import { getDiagnostics, getPartialSTForTopLevelComponents, sendDidChange } from "../../utils/ls-utils";
+import {enrichModel, getFilteredDiagnosticMessages, getUpdatedSource} from "../../utils";
+import {
+    getDiagnostics, getPartialSTForStatement,
+    getPartialSTForTopLevelComponents,
+    handleDiagnostics,
+    sendDidChange
+} from "../../utils/ls-utils";
 import { FormRenderer } from "../FormRenderer";
 import { EXPR_SCHEME, FILE_SCHEME } from "../InputEditor/constants";
 import { LowCodeEditorProps } from "../StatementEditor";
-import {ExpressionEditorLangClientInterface} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 export interface FormEditorProps extends LowCodeEditorProps {
     initialSource?: string;
+    initialModel?: STNode;
     targetPosition: NodePosition;
     type: string;
     onCancel: () => void;
@@ -36,6 +41,7 @@ export interface FormEditorProps extends LowCodeEditorProps {
 export function FormEditor(props: FormEditorProps) {
     const {
         initialSource,
+        initialModel,
         onCancel,
         getLangClient,
         applyModifications,
@@ -52,18 +58,15 @@ export function FormEditor(props: FormEditorProps) {
 
     const fileURI = monaco.Uri.file(currentFile.path).toString().replace(FILE_SCHEME, EXPR_SCHEME);
 
-    const handleDiagnostics = async (source: string): Promise<Diagnostic[]> => {
-        const diagResp = await getDiagnostics(fileURI, getLangClient);
-        const diag  = diagResp[0]?.diagnostics ? diagResp[0].diagnostics : [];
-        const messages = getFilteredDiagnosticMessages(source, targetPosition, diag);
-        setStmtDiagnostics(messages);
-        return diag;
-    };
-
     const onChange = async (genSource: string) => {
-        const updatedContent = await getUpdatedSource(genSource, currentFile.content, targetPosition);
+        const updatedContent = await getUpdatedSource(genSource.trim(), currentFile.content, initialModel ?
+                initialModel.position : targetPosition, undefined, true);
         sendDidChange(fileURI, updatedContent, getLangClient).then();
-        handleDiagnostics(genSource).then();
+        const diagnostics = await handleDiagnostics(genSource, fileURI, targetPosition, getLangClient).then();
+        const partialST = await getPartialSTForTopLevelComponents(
+            { codeSnippet: genSource.trim() }, getLangClient);
+        setModel(enrichModel(partialST, initialModel ?
+            initialModel.position : targetPosition, diagnostics));
     };
 
     useEffect(() => {
@@ -88,6 +91,8 @@ export function FormEditor(props: FormEditorProps) {
                 onChange={onChange}
                 onCancel={onCancel}
                 getLangClient={getLangClient}
+                fileURI={fileURI}
+                applyModifications={applyModifications}
             />
             <List>
                 {
