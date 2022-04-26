@@ -23,17 +23,16 @@ import {
     updateFunctionSignature,
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
+    dynamicConnectorStyles as connectorStyles,
     FormActionButtons,
     FormHeaderSection,
     FormTextInput,
     useStyles as useFormStyles
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { FunctionDefinition, NodePosition } from "@wso2-enterprise/syntax-tree";
-import { Diagnostic } from "vscode-languageserver-protocol";
 
 import { StmtDiagnostic } from "../../../models/definitions";
-import { getFilteredDiagnosticMessages } from "../../../utils";
-import { getDiagnostics, getPartialSTForTopLevelComponents } from "../../../utils/ls-utils";
+import { getPartialSTForTopLevelComponents } from "../../../utils/ls-utils";
 
 export interface FunctionProps {
     model: FunctionDefinition;
@@ -49,6 +48,7 @@ export function FunctionForm(props: FunctionProps) {
     const { targetPosition, model, fileURI, onChange, onCancel, getLangClient, applyModifications } = props;
 
     const formClasses = useFormStyles();
+    const connectorClasses = connectorStyles();
 
     const [functionName, setFunctionName] = useState<string>(model ? model.functionName.value : "");
 
@@ -70,7 +70,6 @@ export function FunctionForm(props: FunctionProps) {
             {codeSnippet: genSource.trim()}, getLangClient
         );
         if (!partialST.syntaxDiagnostics.length) {
-            // setIsNameSyntaxError(false)
             setCurrentComponentDiag(undefined);
             onChange(genSource);
         } else {
@@ -125,38 +124,42 @@ export function FunctionForm(props: FunctionProps) {
                 formTitle={"Function Configuration"}
                 defaultMessage={"Function Configuration"}
             />
-            <FormTextInput
-                label="Name"
-                dataTestId="service-name"
-                defaultValue={functionName}
-                onChange={onNameChange}
-                customProps={{
-                    optional: true,
-                    isErrored: (currentComponentDiag !== undefined && currentComponentName === "Name")
-                }}
-                errorMessage={"Diagnostics Name"}
-                onBlur={null}
-                onFocus={onNameFocus}
-                placeholder={"Enter Name"}
-                size="small"
-                disabled={(currentComponentDiag && currentComponentName !== "Name")}
-            />
-            <FormTextInput
-                label="Return Type"
-                dataTestId="return-type"
-                defaultValue={returnType}
-                customProps={{
-                    optional: true,
-                    isErrored: (currentComponentDiag !== undefined && currentComponentName === "Return")
-                }}
-                errorMessage={"Diagnostics"}
-                onChange={onReturnTypeChange}
-                onBlur={null}
-                onFocus={onReturnFocus}
-                placeholder={"Enter Return Type"}
-                size="small"
-                disabled={(currentComponentDiag && currentComponentName !== "Return")}
-            />
+            <div className={connectorClasses.formContentWrapper}>
+                <div className={connectorClasses.formNameWrapper}>
+                    <FormTextInput
+                        label="Name"
+                        dataTestId="service-name"
+                        defaultValue={functionName}
+                        onChange={onNameChange}
+                        customProps={{
+                            optional: true,
+                            isErrored: (currentComponentDiag !== undefined && currentComponentName === "Name")
+                        }}
+                        errorMessage={"Diagnostics Name"}
+                        onBlur={null}
+                        onFocus={onNameFocus}
+                        placeholder={"Enter Name"}
+                        size="small"
+                        disabled={(currentComponentDiag && currentComponentName !== "Name")}
+                    />
+                    <FormTextInput
+                        label="Return Type"
+                        dataTestId="return-type"
+                        defaultValue={returnType}
+                        customProps={{
+                            optional: true,
+                            isErrored: (currentComponentDiag !== undefined && currentComponentName === "Return")
+                        }}
+                        errorMessage={"Diagnostics"}
+                        onChange={onReturnTypeChange}
+                        onBlur={null}
+                        onFocus={onReturnFocus}
+                        placeholder={"Enter Return Type"}
+                        size="small"
+                        disabled={(currentComponentDiag && currentComponentName !== "Return")}
+                    />
+                </div>
+            </div>
             <FormActionButtons
                 cancelBtnText="Cancel"
                 cancelBtn={true}
