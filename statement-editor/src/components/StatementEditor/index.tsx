@@ -128,8 +128,8 @@ export function StatementEditor(props: StatementEditorProps) {
 
                 let partialST;
                 partialST = isConfigurableStmt
-                    ? await getPartialSTForStatement({ codeSnippet: source.trim() }, getLangClient)
-                    : await getPartialSTForModuleMembers({ codeSnippet: source.trim() }, getLangClient);
+                    ? await getPartialSTForModuleMembers({ codeSnippet: source.trim() }, getLangClient)
+                    : await getPartialSTForStatement({ codeSnippet: source.trim() }, getLangClient);
 
                 if (!partialST.syntaxDiagnostics.length || config.type === CUSTOM_CONFIG_TYPE) {
                     updateEditedModel(partialST, diagnostics);

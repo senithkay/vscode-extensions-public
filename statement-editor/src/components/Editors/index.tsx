@@ -93,7 +93,7 @@ export function Editors(props: EditorsProps) {
     const addConfigurable = React.useCallback((newLabel: string, newPosition: NodePosition, newSource: string) => {
         editorManager.add(newLabel, newSource, newPosition, true);
         setEditors([...editorManager.getAll()]);
-        setEditor({label: newLabel, position: newPosition, source: newSource});
+        setEditor({label: newLabel, position: newPosition, source: newSource, isConfigurableStmt: true});
     }, []);
 
     useEffect(() => {
