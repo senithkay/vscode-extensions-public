@@ -14,6 +14,7 @@
 import React, { useEffect, useState } from 'react';
 
 import { List, ListItemText, Typography } from "@material-ui/core";
+import {ExpressionEditorLangClientInterface} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import * as monaco from "monaco-editor";
 import { Diagnostic } from "vscode-languageserver-protocol";

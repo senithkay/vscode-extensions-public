@@ -103,8 +103,7 @@ export function Function(props: FunctionProps) {
                 {!isInitPlusAvailable && (
                     <WorkerBody model={block} viewState={block.viewState} />
                 )}
-                {!isInitPlusAvailable &&
-                    isStatementsAvailable &&
+                {
                     (!bodyViewState?.isEndComponentInMain ||
                         bodyViewState?.collapseView) && <End viewState={viewState.end} />}
             </g>
