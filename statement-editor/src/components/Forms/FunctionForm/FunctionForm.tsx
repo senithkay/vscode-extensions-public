@@ -29,13 +29,16 @@ import {
     useStyles as useFormStyles
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { FunctionDefinition, NodePosition } from "@wso2-enterprise/syntax-tree";
+import { Diagnostic } from "vscode-languageserver-protocol";
 
 import { StmtDiagnostic } from "../../../models/definitions";
-import { getPartialSTForTopLevelComponents } from "../../../utils/ls-utils";
+import { getFilteredDiagnosticMessages } from "../../../utils";
+import { getDiagnostics, getPartialSTForTopLevelComponents } from "../../../utils/ls-utils";
 
 export interface FunctionProps {
     model: FunctionDefinition;
     targetPosition: NodePosition;
+    fileURI: string;
     onChange: (genSource: string) => void;
     onCancel: () => void;
     getLangClient: () => Promise<ExpressionEditorLangClientInterface>;
@@ -43,19 +46,22 @@ export interface FunctionProps {
 }
 
 export function FunctionForm(props: FunctionProps) {
-    const { targetPosition, model, onChange, onCancel, getLangClient, applyModifications } = props;
+    const { targetPosition, model, fileURI, onChange, onCancel, getLangClient, applyModifications } = props;
 
     const formClasses = useFormStyles();
 
     const [functionName, setFunctionName] = useState<string>(model ? model.functionName.value : "");
-    const [nameDiagnostics, setNameDiagnostics] = useState<StmtDiagnostic[]>(undefined);
-    const [isNameSyntaxError, setIsNameSyntaxError] = useState<boolean>(false);
 
     const [returnType, setReturnType] = useState<string>(model ?
         model.functionSignature?.returnTypeDesc?.type?.source?.trim() : "");
     const [returnDiagnostics, setReturnDiagnostics] = useState<StmtDiagnostic[]>(undefined);
-    const [isReturnSyntaxError, setIsReturnSyntaxError] = useState<boolean>(false);
 
+    const [currentComponentName, setCurrentComponentName] = useState<string>("");
+    const [currentComponentDiag, setCurrentComponentDiag] = useState<StmtDiagnostic[]>(undefined);
+
+    const onNameFocus = (value: string) => {
+        setCurrentComponentName("Name");
+    }
     const onNameChange = async (value: string) => {
         setFunctionName(value);
         const genSource = getSource(mutateFunctionSignature("", value, "",
@@ -64,13 +70,13 @@ export function FunctionForm(props: FunctionProps) {
             {codeSnippet: genSource.trim()}, getLangClient
         );
         if (!partialST.syntaxDiagnostics.length) {
-            setIsNameSyntaxError(false);
-            setNameDiagnostics(undefined);
+            // setIsNameSyntaxError(false)
+            setCurrentComponentDiag(undefined);
+            onChange(genSource);
         } else {
-            setIsNameSyntaxError(true);
-            setNameDiagnostics(partialST.syntaxDiagnostics);
+            // setIsNameSyntaxError(true);
+            setCurrentComponentDiag(partialST.syntaxDiagnostics);
         }
-        onChange(genSource);
     }
 
     const onReturnTypeChange = async (value: string) => {
@@ -81,12 +87,14 @@ export function FunctionForm(props: FunctionProps) {
             {codeSnippet: genSource.trim()}, getLangClient
         );
         if (!partialST.syntaxDiagnostics.length) {
-            setIsReturnSyntaxError(false);
-            setReturnDiagnostics(undefined);
+            setCurrentComponentDiag(undefined);
+            onChange(genSource);
         } else {
-            setIsReturnSyntaxError(true);
-            setReturnDiagnostics(partialST.syntaxDiagnostics);
+            setCurrentComponentDiag(partialST.syntaxDiagnostics);
         }
+    }
+    const onReturnFocus = (value: string) => {
+        setCurrentComponentName("Return");
     }
 
     const handleOnSave = () => {
@@ -124,14 +132,14 @@ export function FunctionForm(props: FunctionProps) {
                 onChange={onNameChange}
                 customProps={{
                     optional: true,
-                    isErrored: (nameDiagnostics !== undefined)
+                    isErrored: (currentComponentDiag !== undefined && currentComponentName === "Name")
                 }}
                 errorMessage={"Diagnostics Name"}
                 onBlur={null}
-                onFocus={null}
+                onFocus={onNameFocus}
                 placeholder={"Enter Name"}
                 size="small"
-                disabled={(isReturnSyntaxError)}
+                disabled={(currentComponentDiag && currentComponentName !== "Name")}
             />
             <FormTextInput
                 label="Return Type"
@@ -139,15 +147,15 @@ export function FunctionForm(props: FunctionProps) {
                 defaultValue={returnType}
                 customProps={{
                     optional: true,
-                    isErrored: (returnDiagnostics !== undefined)
+                    isErrored: (currentComponentDiag !== undefined && currentComponentName === "Return")
                 }}
                 errorMessage={"Diagnostics"}
                 onChange={onReturnTypeChange}
                 onBlur={null}
-                onFocus={null}
+                onFocus={onReturnFocus}
                 placeholder={"Enter Return Type"}
                 size="small"
-                disabled={(isNameSyntaxError)}
+                disabled={(currentComponentDiag && currentComponentName !== "Return")}
             />
             <FormActionButtons
                 cancelBtnText="Cancel"

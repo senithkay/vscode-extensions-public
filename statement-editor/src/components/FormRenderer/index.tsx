@@ -21,6 +21,7 @@ export interface FormRendererProps {
     type: string;
     model: STNode;
     targetPosition: NodePosition;
+    fileURI: string;
     onChange: (code: string) => void;
     onCancel: () => void;
     getLangClient: () => Promise<ExpressionEditorLangClientInterface>;
@@ -28,9 +29,9 @@ export interface FormRendererProps {
 }
 
 export function FormRenderer(props: FormRendererProps) {
-    const { type, model, targetPosition, onChange, onCancel, getLangClient, applyModifications } = props;
+    const { type, model, targetPosition, onChange, onCancel, getLangClient, fileURI, applyModifications } = props;
 
-    const component = getFormComponent(type, model, targetPosition, onChange, onCancel, getLangClient,
+    const component = getFormComponent(type, model, targetPosition, onChange, onCancel, getLangClient, fileURI,
         applyModifications);
 
     return (

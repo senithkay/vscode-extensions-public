@@ -125,8 +125,8 @@ export function getStatementTypeComponent(
 }
 
 export function getFormComponent(
-    type: string, model: STNode, targetPosition: NodePosition, onChange: (code: string) => void, onCancel: () => void,
-    getLangClient: () => Promise<ExpressionEditorLangClientInterface>,
+    type: string, model: STNode, targetPosition: NodePosition, onChange: (code: string) => void,
+    onCancel: () => void, getLangClient: () => Promise<ExpressionEditorLangClientInterface>, fileURI: string,
     applyModifications: (modifications: STModification[]) => void
 ): ReactNode {
     const FormComponent = (formComponents as any)[type];
@@ -137,6 +137,7 @@ export function getFormComponent(
             onChange={onChange}
             onCancel={onCancel}
             getLangClient={getLangClient}
+            fileURI={fileURI}
             applyModifications={applyModifications}
         />
     );
