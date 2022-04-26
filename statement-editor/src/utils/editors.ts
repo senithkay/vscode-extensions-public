@@ -16,6 +16,7 @@ export interface StmtEditorStackItem {
     label: string;
     source: string;
     position: NodePosition;
+    isConfigurableStmt?: boolean;
 }
 
 class StmtEditorStack {
@@ -72,11 +73,12 @@ export class StmtEditorManager {
         this.stmtStack = new StmtEditorStack();
     }
 
-    public add(label: string, source: string, position: NodePosition) {
+    public add(label: string, source: string, position: NodePosition, isConfigurableStmt: boolean = false) {
         this.stmtStack.add({
             source,
             label,
-            position
+            position,
+            isConfigurableStmt
         });
     }
 

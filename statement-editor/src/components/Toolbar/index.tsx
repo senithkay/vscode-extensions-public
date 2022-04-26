@@ -66,7 +66,7 @@ export default function Toolbar(){
     }
 
     const onClickOnConfigurable = () => {
-        const configurableStmt = "configurable TYPE_DESC VAR_NAME = ?;";
+        const configurableStmt = "configurable string VAR_NAME = ?;";
         addConfigurable("Add Configurable", {endColumn: 0, endLine: 0, startColumn: 0, startLine: 0}, configurableStmt);
     }
 

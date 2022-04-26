@@ -38,6 +38,7 @@ import { StmtEditorStackItem } from "../../utils/editors";
 import {
     getCompletions,
     getDiagnostics,
+    getPartialSTForModuleMembers,
     getPartialSTForStatement,
     sendDidChange,
     sendDidOpen
@@ -62,7 +63,7 @@ export function StatementEditor(props: StatementEditorProps) {
         onStmtEditorModelChange
     } = props;
 
-    const { source, position : targetPosition, label } = editor;
+    const { source, position : targetPosition, isConfigurableStmt } = editor;
     const { currentFile, formCtx, config, importStatements, getLangClient } = useContext(StatementEditorWrapperContext);
 
     const undoRedoManager = React.useMemo(() => new StmtEditorUndoRedoManager(), []);
@@ -115,6 +116,27 @@ export function StatementEditor(props: StatementEditorProps) {
             })();
         }
     }, []);
+
+    useEffect(() => {
+        if (config.type !== CUSTOM_CONFIG_TYPE) {
+            (async () => {
+                const updatedContent = await getUpdatedSource(source.trim(), currentFile.content,
+                    targetPosition, moduleList);
+
+                sendDidChange(fileURI, updatedContent, getLangClient).then();
+                const diagnostics = await handleDiagnostics(source);
+
+                let partialST;
+                partialST = isConfigurableStmt
+                    ? await getPartialSTForStatement({ codeSnippet: source.trim() }, getLangClient)
+                    : await getPartialSTForModuleMembers({ codeSnippet: source.trim() }, getLangClient);
+
+                if (!partialST.syntaxDiagnostics.length || config.type === CUSTOM_CONFIG_TYPE) {
+                    updateEditedModel(partialST, diagnostics);
+                }
+            })();
+        }
+    }, [editor]);
 
     useEffect(() => {
         (async () => {
