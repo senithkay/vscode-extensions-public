@@ -16,9 +16,9 @@ import { FormControl } from "@material-ui/core";
 import { FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 
-import { StatementEditor, StatementEditorProps } from "../components/StatementEditor";
+import { Editors, EditorsProps } from "../components/Editors";
 
-export const useStatementEditor = (props: StatementEditorProps) => {
+export const useStatementEditor = (props: EditorsProps) => {
     const {
         onCancel,
         experimentalEnabled,
@@ -52,7 +52,7 @@ export const useStatementEditor = (props: StatementEditorProps) => {
                     toggleChecked={true}
                     experimentalEnabled={experimentalEnabled}
                 />
-                <StatementEditor
+                <Editors
                     onCancel={onCancel}
                     onStmtEditorModelChange={onStmtEditorModelChange}
                     {...restProps}

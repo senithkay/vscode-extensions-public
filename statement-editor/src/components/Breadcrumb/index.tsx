@@ -19,7 +19,7 @@ import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import NavigateNextIcon from '@material-ui/icons/NavigateNext';
 
-import { StatementEditorContext } from "../../store/statement-editor-context";
+import { StatementEditorWrapperContext } from "../../store/statement-editor-wrapper-context";
 import { StmtEditorStackItem } from "../../utils/editors";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -34,9 +34,12 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export default function Breadcrumb() {
     const classes = useStyles();
-    const { modelCtx, editorCtx } = useContext(StatementEditorContext);
-    const { editors } = editorCtx;
-    const { handleConfigurable } = modelCtx;
+    const {
+        editorCtx: {
+            editors,
+            handleConfigurable
+        }
+    } = useContext(StatementEditorWrapperContext);
 
     function handleClick(event: React.MouseEvent<HTMLAnchorElement, MouseEvent>) {
         event.preventDefault();

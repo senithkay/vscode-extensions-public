@@ -32,7 +32,7 @@ import {
 import LibraryModuleIcon from "../../assets/icons/LibraryModuleIcon";
 import LibrarySearchIcon from "../../assets/icons/LibrarySearchIcon";
 import { LANG_LIBS_IDENTIFIER, STD_LIBS_IDENTIFIER } from "../../constants";
-import { StatementEditorContext } from "../../store/statement-editor-context";
+import { StatementEditorWrapperContext } from "../../store/statement-editor-wrapper-context";
 import { useStatementEditorStyles } from "../styles";
 
 import { LibrariesList } from "./LibrariesList";
@@ -54,13 +54,12 @@ const DEFAULT_SEARCH_SCOPE = "distribution";
 export function LibraryBrowser(props: LibraryBrowserProps) {
     const { libraryType } = props;
     const statementEditorClasses = useStatementEditorStyles();
-    const stmtCtx = useContext(StatementEditorContext);
     const {
         library: {
             getLibrariesList,
             getLibrariesData
         }
-    } = stmtCtx;
+    } = useContext(StatementEditorWrapperContext);
 
     const [libraryBrowserMode, setLibraryBrowserMode] = useState(LibraryBrowserMode.LIB_LIST);
     const [keyword, setKeyword] = useState('');
@@ -137,7 +136,7 @@ export function LibraryBrowser(props: LibraryBrowserProps) {
         setKeyword('');
     }
 
-    const libraryDataFetchingHandler = (isFetching: boolean, moduleElement?: string) => {
+    const libraryDataFetchingHandler = (isFetching: boolean) => {
         setIsLoading(isFetching);
     }
 

@@ -21,6 +21,7 @@ import {
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { StatementEditorContext } from "../../../store/statement-editor-context";
+import { StatementEditorWrapperContext } from "../../../store/statement-editor-wrapper-context";
 import { getModuleIconStyle } from "../../../utils";
 import { getFQModuleName, keywords } from "../../../utils/statement-modifications";
 import { useStatementEditorStyles } from "../../styles";
@@ -33,27 +34,28 @@ interface ModuleElementProps {
 }
 
 export function ModuleElement(props: ModuleElementProps) {
-    const stmtCtx = useContext(StatementEditorContext);
     const statementEditorClasses = useStatementEditorStyles();
     const { moduleProperty, key, isFunction, label } = props;
     const { id, moduleId, moduleOrgName, moduleVersion } = moduleProperty;
     const [clickedModuleElement, setClickedModuleElement] = useState('');
 
     const {
-        modelCtx: {
-            currentModel,
-            updateModel
-        },
         formCtx: {
             formModelPosition
         },
         library: {
             getLibraryData
+        }
+    } = useContext(StatementEditorWrapperContext);
+    const {
+        modelCtx: {
+            currentModel,
+            updateModel
         },
         modules: {
             updateModuleList
         }
-    } = stmtCtx;
+    } = useContext(StatementEditorContext);
 
     const onClickOnModuleElement = async () => {
         const moduleName = moduleId.includes('.') ? moduleId.split('.').pop() : moduleId;

@@ -13,12 +13,9 @@
 // tslint:disable: no-empty jsx-no-multiline-js
 import React from 'react';
 
-import { LibraryKind, STModification } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
-import { LowCodeEditorProps } from '../components/StatementEditor';
 import { StmtDiagnostic, SuggestionItem } from "../models/definitions";
-import { StmtEditorManager, StmtEditorStackItem } from "../utils/editors";
 
 import { InputEditorContextProvider } from "./input-editor-context";
 
@@ -32,16 +29,8 @@ export const StatementEditorContext = React.createContext({
         updateModel: (codeSnippet: string, position: NodePosition) => {},
         undo: () => undefined,
         redo: () => undefined,
-        handleConfigurable: (index: number) => undefined,
-        addConfigurable: (newLabel: string, newPosition: NodePosition, newSource: string) => undefined,
         hasUndo: false,
         hasRedo: false,
-    },
-    formCtx: {
-        formModelPosition: null
-    },
-    config: {
-        type: ''
     },
     statementCtx: {
         diagnostics: []
@@ -49,50 +38,28 @@ export const StatementEditorContext = React.createContext({
     suggestionsCtx: {
         lsSuggestions: []
     },
-    editorCtx: {
-        editorManager: null,
-        editors: []
-    },
-    getLangClient: () => (Promise.resolve({} as any)),
-    applyModifications: (modifications: STModification[]) => undefined,
-    library: {
-        getLibrariesList: (kind?: LibraryKind) => (Promise.resolve({} as any)),
-        getLibrariesData: () => (Promise.resolve({} as any)),
-        getLibraryData: (orgName: string, moduleName: string, version: string) => (Promise.resolve({} as any))
-    },
-    currentFile: {
-        content: "",
-        path: "",
-        size: 0
-    },
     modules: {
         modulesToBeImported: new Set(),
         updateModuleList: (module: string) => {}
     }
 });
 
-interface CtxProviderProps extends LowCodeEditorProps {
+interface CtxProviderProps {
     children?: React.ReactNode,
     model: STNode,
     currentModel: { model: STNode },
-    config?: {type: string, model?: STNode},
     changeCurrentModel?: (model: STNode) => void,
     handleChange?: (codeSnippet: string, isEditedViaInputEditor?: boolean) => void,
+    updateModel?: (codeSnippet: string, position: NodePosition) => void,
     handleModules?: (module: string) => void,
     modulesToBeImported?: Set<string>,
-    updateModel?: (codeSnippet: string, position: NodePosition) => void,
-    formArgs?: any,
     initialSource: string,
     undo?: () => void,
     redo?: () => void,
-    handleConfigurable?: (index: number) => void,
-    addConfigurable?: (newLabel: string, newPosition: NodePosition, newSource: string) => void,
     hasUndo?: boolean,
     hasRedo?: boolean,
     diagnostics?: StmtDiagnostic[],
     lsSuggestions?: SuggestionItem[],
-    editors?: StmtEditorStackItem[],
-    editorManager?: StmtEditorManager
 }
 
 export const StatementEditorContextProvider = (props: CtxProviderProps) => {
@@ -100,7 +67,6 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
         children,
         model,
         currentModel,
-        config,
         changeCurrentModel,
         handleChange,
         updateModel,
@@ -108,17 +74,11 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
         modulesToBeImported,
         undo,
         redo,
-        handleConfigurable,
-        addConfigurable,
         hasRedo,
         hasUndo,
-        formArgs,
-        library,
         initialSource,
         diagnostics,
         lsSuggestions,
-        editors,
-        editorManager,
         ...restProps
     } = props;
 
@@ -134,26 +94,15 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
                     updateModel,
                     undo,
                     redo,
-                    handleConfigurable,
-                    addConfigurable,
                     hasRedo,
                     hasUndo,
                 },
-                formCtx: {
-                    formModelPosition: formArgs.formArgs.targetPosition
-                },
-                config,
                 statementCtx: {
                     diagnostics
                 },
                 suggestionsCtx: {
                     lsSuggestions
                 },
-                editorCtx: {
-                    editorManager,
-                    editors
-                },
-                library,
                 modules: {
                     modulesToBeImported,
                     updateModuleList: handleModules

@@ -20,6 +20,7 @@ import ToolbarDeleteIcon from "../../assets/icons/ToolbarDeleteIcon";
 import ToolbarRedoIcon from "../../assets/icons/ToolbarRedoIcon";
 import ToolbarUndoIcon from "../../assets/icons/ToolbarUndoIcon";
 import { StatementEditorContext } from "../../store/statement-editor-context";
+import { StatementEditorWrapperContext } from "../../store/statement-editor-wrapper-context";
 import { getRemainingContent } from "../../utils";
 import { StatementEditorViewState } from "../../utils/statement-editor-viewstate";
 import { INPUT_EDITOR_PLACE_HOLDERS } from "../InputEditor/constants";
@@ -27,17 +28,18 @@ import { useStatementEditorStyles } from "../styles";
 
 export default function Toolbar(){
     const statementEditorClasses = useStatementEditorStyles();
+    const { editorCtx } = useContext(StatementEditorWrapperContext);
     const { modelCtx } = useContext(StatementEditorContext);
     const {
         undo,
         redo,
-        addConfigurable,
         hasRedo,
         hasUndo,
         statementModel: completeModel,
         updateModel,
         currentModel
     } = modelCtx;
+    const { addConfigurable } = editorCtx;
 
     const isExprDeletable = (): boolean => {
         if (currentModel.model){

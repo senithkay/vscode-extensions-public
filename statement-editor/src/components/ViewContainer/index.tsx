@@ -20,13 +20,13 @@ import {
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 
 import { StatementEditorContext } from "../../store/statement-editor-context";
+import { StatementEditorWrapperContext } from "../../store/statement-editor-wrapper-context";
 import { getModifications } from "../../utils";
 import { sendDidChange, sendDidClose, sendDidOpen } from "../../utils/ls-utils";
 import { EditorPane } from '../EditorPane';
 import { useStatementEditorStyles } from "../styles";
 
 export interface ViewContainerProps {
-    label: string;
     formArgs: any;
     isStatementValid: boolean;
     onWizardClose: () => void;
@@ -35,7 +35,6 @@ export interface ViewContainerProps {
 
 export function ViewContainer(props: ViewContainerProps) {
     const {
-        label,
         formArgs,
         isStatementValid,
         onWizardClose,
@@ -43,15 +42,12 @@ export function ViewContainer(props: ViewContainerProps) {
     } = props;
     const intl = useIntl();
     const overlayClasses = useStatementEditorStyles();
+    const { currentFile, config, applyModifications, getLangClient } = useContext(StatementEditorWrapperContext);
     const stmtCtx = useContext(StatementEditorContext);
     const {
         modelCtx: {
             statementModel
         },
-        getLangClient,
-        applyModifications,
-        currentFile,
-        config,
         modules: {
             modulesToBeImported
         }
@@ -88,9 +84,7 @@ export function ViewContainer(props: ViewContainerProps) {
         (
             <div className={overlayClasses.mainStatementWrapper}>
                 <div className={overlayClasses.statementExpressionWrapper}>
-                    <EditorPane
-                        label={label}
-                    />
+                    <EditorPane />
                 </div>
                 <div className={overlayClasses.statementBtnWrapper}>
                     <div className={overlayClasses.bottomPane}>

@@ -18,6 +18,7 @@ import classNames from "classnames";
 
 import { CUSTOM_CONFIG_TYPE } from "../../../constants";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
+import { StatementEditorWrapperContext } from "../../../store/statement-editor-wrapper-context";
 import { isPositionsEquals } from "../../../utils";
 import { ExpressionComponent } from "../../Expression";
 import { InputEditor } from "../../InputEditor";
@@ -30,14 +31,13 @@ interface LocalVarDeclProps {
 
 export function LocalVarDeclC(props: LocalVarDeclProps) {
     const { model } = props;
-    const stmtCtx = useContext(StatementEditorContext);
+    const { config } = useContext(StatementEditorWrapperContext);
     const {
         modelCtx: {
             currentModel,
             changeCurrentModel
-        },
-        config
-    } = stmtCtx;
+        }
+    } = useContext(StatementEditorContext);
     const hasTypedBindingPatternSelected = currentModel.model &&
         isPositionsEquals(currentModel.model.position, model.typedBindingPattern.position);
 
