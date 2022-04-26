@@ -5,6 +5,7 @@ import { PlusViewState } from "../ViewState";
 
 export interface LowCodeDiagramProps extends LowCodeDiagramProperties {
     api?: LowCodeDiagramAPI;
+    experimentalEnabled?: boolean;
 }
 
 export interface ZoomStatus {
@@ -35,6 +36,7 @@ export interface LowCodeDiagramState {
     isDataMapperShown: boolean;
     isConfigOverlayFormOpen: boolean;
     targetPosition: NodePosition; // FIXME check and remove usage of update position if not used anymore
+    experimentalEnabled?: boolean;
 }
 
 export interface LowCodeDiagramActions {

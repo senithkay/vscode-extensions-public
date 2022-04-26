@@ -14,6 +14,7 @@
 import React, { useEffect, useState } from 'react';
 
 import { List, ListItemText, Typography } from "@material-ui/core";
+import {ExpressionEditorLangClientInterface} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import * as monaco from "monaco-editor";
 import { Diagnostic } from "vscode-languageserver-protocol";
@@ -24,7 +25,6 @@ import { getDiagnostics, getPartialSTForTopLevelComponents, sendDidChange } from
 import { FormRenderer } from "../FormRenderer";
 import { EXPR_SCHEME, FILE_SCHEME } from "../InputEditor/constants";
 import { LowCodeEditorProps } from "../StatementEditor";
-import {ExpressionEditorLangClientInterface} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 export interface FormEditorProps extends LowCodeEditorProps {
     initialSource?: string;

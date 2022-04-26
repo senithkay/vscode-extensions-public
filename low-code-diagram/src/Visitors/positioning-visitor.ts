@@ -137,7 +137,7 @@ export class PositioningVisitor implements Visitor {
         bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
 
         viewState.end.bBox.cx = viewState.bBox.cx;
-        viewState.end.bBox.cy = DefaultConfig.startingY + viewState.workerLine.h + DefaultConfig.canvas.childPaddingY;
+        viewState.end.bBox.cy = viewState.trigger.cy + viewState.workerLine.h + DefaultConfig.canvas.childPaddingY;
 
         this.currentWorker.push('function');
         plusHolderHeight = 0;
@@ -238,7 +238,7 @@ export class PositioningVisitor implements Visitor {
             const plusBtnViewState: PlusViewState = viewState.initPlus;
             if (bodyViewState.draft === undefined && plusBtnViewState) {
                 plusBtnViewState.bBox.cx = viewState.trigger.cx;
-                plusBtnViewState.bBox.cy = viewState.trigger.cy + (viewState.trigger.h / 2) + viewState.trigger.offsetFromBottom + (START_SVG_SHADOW_OFFSET / 4);
+                plusBtnViewState.bBox.cy = viewState.trigger.cy + (viewState.trigger.h / 2) + viewState.trigger.offsetFromBottom;
             }
         }
 
