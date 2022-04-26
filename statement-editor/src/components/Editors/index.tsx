@@ -22,7 +22,6 @@ import {
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
-import { CUSTOM_CONFIG_TYPE } from "../../constants";
 import { StatementEditorWrapperContextProvider } from "../../store/statement-editor-wrapper-context";
 import { StmtEditorManager, StmtEditorStackItem } from "../../utils/editors";
 import { StatementEditor } from "../StatementEditor";

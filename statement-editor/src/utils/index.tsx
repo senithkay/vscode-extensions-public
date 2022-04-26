@@ -56,14 +56,19 @@ export function getModifications(
         },
         formArgs: any,
         modulesToBeImported?: string[]): STModification[] {
+
     const modifications: STModification[] = [];
+    let source = model.source;
+
+    if (STKindChecker.isModuleVarDecl(model)) {
+        modifications.push(createStatement(source, {endColumn: 0, endLine: 0, startColumn: 0, startLine: 0}));
+    }
 
     if (STKindChecker.isLocalVarDecl(model) ||
             STKindChecker.isCallStatement(model) ||
             STKindChecker.isReturnStatement(model) ||
             STKindChecker.isAssignmentStatement(model) ||
             (config && config.type === 'Custom')) {
-        let source = model.source;
         if (STKindChecker.isCallStatement(model) && model.source.slice(-1) !== ';') {
             source += ';';
         }
@@ -78,9 +83,9 @@ export function getModifications(
             STKindChecker.isIfElseStatement(model) ||
             STKindChecker.isForeachStatement(model)) {
         if (!formArgs.formArgs?.config) {
-            modifications.push(createStatement(model.source, formArgs.formArgs?.targetPosition));
+            modifications.push(createStatement(source, formArgs.formArgs?.targetPosition));
         } else {
-            modifications.push(updateStatement(model.source, config.model.position));
+            modifications.push(updateStatement(source, config.model.position));
         }
     }
 
