@@ -18,6 +18,7 @@ import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { LowCodeEditorProps } from '../components/StatementEditor';
 import { StmtDiagnostic, SuggestionItem } from "../models/definitions";
+import { StmtEditorManager, StmtEditorStackItem } from "../utils/editors";
 
 import { InputEditorContextProvider } from "./input-editor-context";
 
@@ -31,6 +32,8 @@ export const StatementEditorContext = React.createContext({
         updateModel: (codeSnippet: string, position: NodePosition) => {},
         undo: () => undefined,
         redo: () => undefined,
+        handleConfigurable: (index: number) => undefined,
+        addConfigurable: (newLabel: string, newPosition: NodePosition, newSource: string) => undefined,
         hasUndo: false,
         hasRedo: false,
     },
@@ -45,6 +48,10 @@ export const StatementEditorContext = React.createContext({
     },
     suggestionsCtx: {
         lsSuggestions: []
+    },
+    editorCtx: {
+        editorManager: null,
+        editors: []
     },
     getLangClient: () => (Promise.resolve({} as any)),
     applyModifications: (modifications: STModification[]) => undefined,
@@ -78,10 +85,14 @@ interface CtxProviderProps extends LowCodeEditorProps {
     initialSource: string,
     undo?: () => void,
     redo?: () => void,
+    handleConfigurable?: (index: number) => void,
+    addConfigurable?: (newLabel: string, newPosition: NodePosition, newSource: string) => void,
     hasUndo?: boolean,
     hasRedo?: boolean,
     diagnostics?: StmtDiagnostic[],
-    lsSuggestions?: SuggestionItem[]
+    lsSuggestions?: SuggestionItem[],
+    editors?: StmtEditorStackItem[],
+    editorManager?: StmtEditorManager
 }
 
 export const StatementEditorContextProvider = (props: CtxProviderProps) => {
@@ -97,6 +108,8 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
         modulesToBeImported,
         undo,
         redo,
+        handleConfigurable,
+        addConfigurable,
         hasRedo,
         hasUndo,
         formArgs,
@@ -104,6 +117,8 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
         initialSource,
         diagnostics,
         lsSuggestions,
+        editors,
+        editorManager,
         ...restProps
     } = props;
 
@@ -119,6 +134,8 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
                     updateModel,
                     undo,
                     redo,
+                    handleConfigurable,
+                    addConfigurable,
                     hasRedo,
                     hasUndo,
                 },
@@ -131,6 +148,10 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
                 },
                 suggestionsCtx: {
                     lsSuggestions
+                },
+                editorCtx: {
+                    editorManager,
+                    editors
                 },
                 library,
                 modules: {

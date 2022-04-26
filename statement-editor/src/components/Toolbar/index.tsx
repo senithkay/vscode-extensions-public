@@ -28,7 +28,16 @@ import { useStatementEditorStyles } from "../styles";
 export default function Toolbar(){
     const statementEditorClasses = useStatementEditorStyles();
     const { modelCtx } = useContext(StatementEditorContext);
-    const { undo, redo, hasRedo, hasUndo, statementModel: completeModel, updateModel, currentModel } = modelCtx;
+    const {
+        undo,
+        redo,
+        addConfigurable,
+        hasRedo,
+        hasUndo,
+        statementModel: completeModel,
+        updateModel,
+        currentModel
+    } = modelCtx;
 
     const isExprDeletable = (): boolean => {
         if (currentModel.model){
@@ -52,6 +61,11 @@ export default function Toolbar(){
             position: newPosition
         } = getRemainingContent(currentModel.model.position, completeModel);
         updateModel(newCode, newPosition);
+    }
+
+    const onClickOnConfigurable = () => {
+        const configurableStmt = "configurable TYPE_DESC VAR_NAME = ?;";
+        addConfigurable("Add Configurable", {endColumn: 0, endLine: 0, startColumn: 0, startLine: 0}, configurableStmt);
     }
 
     const deleteButtonEnabled = currentModel.model && isExprDeletable();
@@ -83,6 +97,7 @@ export default function Toolbar(){
                 <ToolbarDeleteIcon/>
             </IconButton>
             <IconButton
+                onClick={onClickOnConfigurable}
                 style={{color: deleteButtonEnabled ? '#FE523C' : '#8D91A3', marginRight: '14px'}}
                 className={statementEditorClasses.toolbarIcons}
             >

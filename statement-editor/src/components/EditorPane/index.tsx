@@ -14,19 +14,15 @@
 import React, { useContext } from "react";
 
 import { StatementEditorContext } from "../../store/statement-editor-context";
+import Breadcrumb from "../Breadcrumb";
 import { Diagnostics } from "../Diagnostics";
 import { HelperPane } from "../HelperPane";
 import { StatementRenderer } from "../StatementRenderer";
 import { useStatementEditorStyles } from "../styles";
 import Toolbar from "../Toolbar";
 
-interface ModelProps {
-    label: string
-}
-
-export function EditorPane(props: ModelProps) {
+export function EditorPane() {
     const statementEditorClasses = useStatementEditorStyles();
-    const { label } = props;
 
     const stmtCtx = useContext(StatementEditorContext);
 
@@ -39,7 +35,10 @@ export function EditorPane(props: ModelProps) {
     return (
         <div>
             <div className={statementEditorClasses.stmtEditorContentWrapper}>
-                <div className={statementEditorClasses.statementExpressionTitle}>{label}<Toolbar/></div>
+                <div className={statementEditorClasses.statementExpressionTitle}>
+                    <Breadcrumb/>
+                    <Toolbar/>
+                </div>
                 <div className={statementEditorClasses.statementExpressionContent}>
                     <StatementRenderer
                         model={statementModel}

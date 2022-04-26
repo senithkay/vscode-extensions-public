@@ -40,6 +40,7 @@ import {
     isBindingPattern,
     isOperator,
 } from "../../utils";
+import { StmtEditorManager, StmtEditorStackItem } from "../../utils/editors";
 import {
     getCompletions,
     getDiagnostics,
@@ -99,11 +100,8 @@ export function StatementEditor(props: StatementEditorProps) {
         importStatements
     } = props;
 
-    const [model, setModel] = useState<STNode>(null);
-    const [currentModel, setCurrentModel] = useState<CurrentModel>({ model });
-    const [stmtDiagnostics, setStmtDiagnostics] = useState<StmtDiagnostic[]>([]);
-    const [moduleList, setModuleList] = useState(new Set<string>());
-    const [lsSuggestionsList, setLSSuggestionsList] = useState([]);
+    const undoRedoManager = React.useMemo(() => new StmtEditorUndoRedoManager(), []);
+    const editorManager = React.useMemo(() => new StmtEditorManager(), []);
 
     const fileURI = monaco.Uri.file(currentFile.path).toString().replace(FILE_SCHEME, EXPR_SCHEME);
     const {
@@ -112,7 +110,12 @@ export function StatementEditor(props: StatementEditorProps) {
         }
     } = formArgs;
 
-    const undoRedoManager = React.useMemo(() => new StmtEditorUndoRedoManager(), []);
+    const [model, setModel] = useState<STNode>(null);
+    const [currentModel, setCurrentModel] = useState<CurrentModel>({ model });
+    const [stmtDiagnostics, setStmtDiagnostics] = useState<StmtDiagnostic[]>([]);
+    const [moduleList, setModuleList] = useState(new Set<string>());
+    const [lsSuggestionsList, setLSSuggestionsList] = useState([]);
+    const [editors, setEditors] = useState<StmtEditorStackItem[]>(editorManager.getAll());
 
     const undo = React.useCallback(async () => {
         const undoItem = undoRedoManager.getUndoModel();
@@ -136,8 +139,29 @@ export function StatementEditor(props: StatementEditorProps) {
         }
     }, []);
 
+    const handleConfigurable = React.useCallback(async (index: number) => {
+        const editor = editorManager.getEditor(index);
+
+        const updatedContent = await getUpdatedSource(editor.source, currentFile.content,
+            editor.position, moduleList);
+        sendDidChange(fileURI, updatedContent, getLangClient).then();
+        const diagnostics = await handleDiagnostics(editor.source);
+        const partialST = await getPartialSTForStatement(
+            { codeSnippet: editor.source.trim() }, getLangClient);
+
+        if (!partialST.syntaxDiagnostics.length || config.type === CUSTOM_CONFIG_TYPE) {
+            updateEditedModel(partialST, diagnostics);
+        }
+    }, []);
+
+    const addConfigurable = React.useCallback((newLabel: string, newPosition: NodePosition, newSource: string) => {
+        editorManager.add(newLabel, newSource, newPosition);
+        setEditors([...editorManager.getAll()]);
+    }, []);
+
     useEffect(() => {
         if (config.type !== CUSTOM_CONFIG_TYPE || initialSource) {
+            editorManager.add(label, initialSource, targetPosition);
             (async () => {
                 const updatedContent = await getUpdatedSource(initialSource.trim(), currentFile.content,
                     targetPosition, moduleList);
@@ -307,10 +331,14 @@ export function StatementEditor(props: StatementEditorProps) {
                     initialSource={initialSource}
                     undo={undo}
                     redo={redo}
+                    handleConfigurable={handleConfigurable}
+                    addConfigurable={addConfigurable}
                     hasRedo={undoRedoManager.hasRedo()}
                     hasUndo={undoRedoManager.hasUndo()}
                     diagnostics={stmtDiagnostics}
                     lsSuggestions={lsSuggestionsList}
+                    editors={editors}
+                    editorManager={editorManager}
                 >
                     <ViewContainer
                         label={label}
