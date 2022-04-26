@@ -43,7 +43,7 @@ export default function Breadcrumb() {
 
     function handleClick(event: React.MouseEvent<HTMLAnchorElement, MouseEvent>) {
         event.preventDefault();
-        handleConfigurable(event.currentTarget.dataset.index as unknown as number);
+        handleConfigurable(event.currentTarget.getAttribute('data-index') as unknown as number);
     }
 
     return (
@@ -52,7 +52,7 @@ export default function Breadcrumb() {
                 { editors.map((editor: StmtEditorStackItem, index: number) => {
                     return index !== editors.length - 1
                         ? (
-                            <Link key={index} color="inherit" href="/" onClick={handleClick}>
+                            <Link data-index={index} color="inherit" href="/" onClick={handleClick}>
                                 {editor.label}
                             </Link>
                         )
