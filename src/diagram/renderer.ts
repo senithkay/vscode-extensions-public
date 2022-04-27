@@ -20,11 +20,11 @@
 import { Uri } from 'vscode';
 import { getLibraryWebViewContent, WebViewOptions, getComposerWebViewOptions } from '../utils';
 
-export function render(filePath: Uri, startLine: number, startColumn: number): string {
-    return renderDiagram(filePath, startLine, startColumn);
+export function render(filePath: Uri, startLine: number, startColumn: number, experimental: boolean): string {
+    return renderDiagram(filePath, startLine, startColumn, experimental);
 }
 
-function renderDiagram(filePath: Uri, startLine: number, startColumn: number): string {
+function renderDiagram(filePath: Uri, startLine: number, startColumn: number, experimental: boolean): string {
 
     const body = `
         <div class="ballerina-editor design-view-container" id="diagram"><div class="loader" /></div>
@@ -214,11 +214,23 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number): s
                     );
                 })
             }
+            function getEnv(env) {
+                return new Promise((resolve, _reject) => {
+                    webViewRPCHandler.invokeRemoteMethod(
+                        'getEnv',
+                        [env],
+                        (response) => {
+                            resolve(response);
+                        }
+                    );
+                })
+            }
             function drawDiagram({
                 filePath,
                 startLine,
                 startColumn,
-                lastUpdatedAt
+                lastUpdatedAt,
+                experimentalEnabled
             }) {
                 try {
                     const options = {
@@ -239,7 +251,13 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number): s
                             resolveMissingDependency,
                             resolveMissingDependencyByCodeAction,
                             runCommand,
-                            sendTelemetryEvent
+                            sendTelemetryEvent,
+                            getLibrariesList,
+                            getLibrariesData,
+                            getLibraryData,
+                            getSentryConfig,
+                            getEnv,                           
+                            experimentalEnabled
                         }
                     };
                     BLCEditor.renderDiagramEditor(options);
@@ -264,12 +282,57 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number): s
                 <div class="loader"></div>
                 \`;
             }
+            function getLibrariesList(kind) {
+                return new Promise((resolve, _reject) => {
+                    webViewRPCHandler.invokeRemoteMethod(
+                        'getLibrariesList',
+                        [kind],
+                        (resp) => {
+                            resolve(resp);
+                        }
+                    );
+                })
+            }
+            function getLibrariesData() {
+                return new Promise((resolve, _reject) => {
+                    webViewRPCHandler.invokeRemoteMethod(
+                        'getLibrariesData',
+                        [],
+                        (resp) => {
+                            resolve(resp);
+                        }
+                    );
+                })
+            }
+            function getSentryConfig() {
+                return new Promise((resolve, _reject) => {
+                    webViewRPCHandler.invokeRemoteMethod(
+                        'getSentryConfig',
+                        [],
+                        (resp) => {
+                            resolve(resp);
+                        }
+                    );
+                })
+            }
+            function getLibraryData(orgName, moduleName, version) {
+                return new Promise((resolve, _reject) => {
+                    webViewRPCHandler.invokeRemoteMethod(
+                        'getLibraryData',
+                        [orgName, moduleName, version],
+                        (resp) => {
+                            resolve(resp);
+                        }
+                    );
+                })
+            }
             webViewRPCHandler.addMethod("updateDiagram", (args) => {
                 drawDiagram({
                     filePath: args[0].filePath,
                     startLine: args[0].startLine,
                     startColumn: args[0].startColumn,
-                    lastUpdatedAt: (new Date()).toISOString()
+                    lastUpdatedAt: (new Date()).toISOString(),
+                    experimentalEnabled: ${experimental}
                 });
                 return Promise.resolve({});
             });
@@ -281,7 +344,8 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number): s
                 filePath: ${JSON.stringify(ballerinaFilePath)},
                 startLine: ${startLine},
                 startColumn: ${startColumn},
-                lastUpdatedAt: (new Date()).toISOString()
+                lastUpdatedAt: (new Date()).toISOString(),
+                experimentalEnabled: ${experimental}
             });
 
             window.addEventListener('focus', event => {

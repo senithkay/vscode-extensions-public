@@ -38,7 +38,7 @@ suite('Ballerina Debug Adapter', () => {
     let dc: DebugClient;
     let serverProcess: any;
 
-    suiteSetup(async () => {
+    setup(async () => {
         const cwd = path.join(BALLERINA_HOME, "bin");
 
         let opt: ExecutableOptions = { cwd: cwd };
@@ -70,7 +70,7 @@ suite('Ballerina Debug Adapter', () => {
         return await dc.start(DEBUG_PORT);
     });
 
-    suiteTeardown(() => {
+    teardown(() => {
         if (isWindows()) {
             dc.stop();
             if (serverProcess) {
@@ -126,7 +126,8 @@ suite('Ballerina Debug Adapter', () => {
                 "debugServer": DEBUG_PORT,
                 "debuggeePort": debuggeePort
             };
-            return await dc.hitBreakpoint(launchArgs, { path: program, line: 5 });
+            return await dc.hitBreakpoint(launchArgs, { path: program, line: 5 },
+                { path: `file://${program}`, line: 5 });
         });
 
         test('should stop on a breakpoint, hello world service', async () => {
@@ -142,11 +143,14 @@ suite('Ballerina Debug Adapter', () => {
             };
 
             dc.on('output', (res) => {
-                if (res.body.output.indexOf("started HTTP/WS") > -1) {
-                    http.get('http://0.0.0.0:9090/hello/sayHello');
+                if (res.body.output.indexOf("Running executable") > -1) {
+                    setTimeout(function () {
+                        http.get('http://0.0.0.0:9090/hello/sayHello');
+                    }, 5000);
                 }
             });
-            return await dc.hitBreakpoint(launchArgs, { path: program, line: 11 });
+            return await dc.hitBreakpoint(launchArgs, { path: program, line: 10 },
+                { path: `file://${program}`, line: 10 });
         });
 
         test('should stop on a breakpoint, hello world service - package', async () => {
@@ -162,11 +166,14 @@ suite('Ballerina Debug Adapter', () => {
             };
 
             dc.on('output', (res) => {
-                if (res.body.output.indexOf("started HTTP/WS") > -1) {
-                    http.get('http://0.0.0.0:9091/hello/sayHello');
+                if (res.body.output.indexOf("Running executable") > -1) {
+                    setTimeout(function () {
+                        http.get('http://0.0.0.0:9091/hello/sayHello');
+                    }, 5000);
                 }
             });
-            return await dc.hitBreakpoint(launchArgs, { path: program, line: 11 });
+            return await dc.hitBreakpoint(launchArgs, { path: program, line: 11 },
+                { path: `file://${program}`, line: 11 });
         });
 
         test('step In, hello world service - package', async () => {
@@ -211,7 +218,7 @@ suite('Ballerina Debug Adapter', () => {
                 dc.launch(launchArgs),
                 dc.waitForEvent('stopped').then(async event => {
                     assert.equal(event.body.reason, 'breakpoint', 'Invalid \'breakpoint\' stopped event.');
-                    await dc.stepInRequest({
+                    dc.stepInRequest({
                         threadId: event.body.threadId
                     });
                     const stepInEvent = await dc.waitForEvent('stopped', 25000);

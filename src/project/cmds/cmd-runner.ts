@@ -27,6 +27,7 @@ export enum PALETTE_COMMANDS {
     CLOUD = 'ballerina.create.cloud',
     DOC = 'ballerina.project.doc',
     FOCUS_EXPLORER = 'ballerinaExplorerTreeView.focus',
+    RUN_CMD = 'ballerina.project.run.cmd',
     RUN = 'ballerina.project.run',
     SAVE_ALL = 'workbench.action.files.saveFiles',
     TEST = 'ballerina.project.test',
@@ -61,6 +62,7 @@ export enum MESSAGES {
     INVALID_JSON = "Invalid JSON String"
 }
 
+export const CONFIG_FILE = 'Config.toml';
 export const BAL_TOML = "Ballerina.toml";
 const TERMINAL_NAME = 'Terminal';
 const BAL_CONFIG_FILES = 'BAL_CONFIG_FILES';

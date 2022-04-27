@@ -16,28 +16,24 @@
  * under the License.
  */
 
-import { BallerinaExtension, BallerinaProject, ChoreoSession, ConstructIdentifier } from "../core";
+import { BallerinaExtension, ChoreoSession, ConstructIdentifier } from "../core";
 import { renderFirstDiagramElement, showDiagramEditor } from '../diagram';
-import { sendTelemetryEvent, CMP_PACKAGE_VIEW, TM_EVENT_OPEN_PACKAGE_OVERVIEW, TM_EVENT_WORKSPACE_RUN } from "../telemetry";
+import { sendTelemetryEvent, CMP_PACKAGE_VIEW, TM_EVENT_OPEN_PACKAGE_OVERVIEW } from "../telemetry";
 import { commands, Uri, window, workspace } from 'vscode';
 import {
     TREE_ELEMENT_EXECUTE_COMMAND, EXPLORER_TREE_REFRESH_COMMAND, EXPLORER_TREE_NEW_FILE_COMMAND,
     EXPLORER_TREE_NEW_FOLDER_COMMAND, ExplorerTreeItem, EXPLORER_TREE_NEW_MODULE_COMMAND,
-    EXPLRER_TREE_DELETE_FILE_COMMAND, CONFIG_EDITOR_EXECUTE_COMMAND, EXPLORER_ITEM_KIND, DOCUMENTATION_VIEW
+    EXPLRER_TREE_DELETE_FILE_COMMAND, EXPLORER_ITEM_KIND, DOCUMENTATION_VIEW
 } from "./model";
 import { SessionDataProvider } from "./session-tree-data-provider";
 import { ExplorerDataProvider } from "./explorer-tree-data-provider";
-import { existsSync, mkdirSync, open, openSync, rm, rmdir } from 'fs';
-import path, { join } from 'path';
-import os from 'os';
-import { BALLERINA_COMMANDS, BAL_TOML, PALETTE_COMMANDS, runCommand } from "../project";
+import { existsSync, mkdirSync, open, rm, rmdir } from 'fs';
+import { join } from 'path';
+import { BALLERINA_COMMANDS, PALETTE_COMMANDS, runCommand } from "../project";
 import { getChoreoKeytarSession } from "../choreo-auth/auth-session";
 import { showChoreoPushMessage } from "../editor-support/git-status";
-import { showConfigEditor } from "../config-editor/configEditorPanel";
-import { getCurrentBallerinaProject } from "../utils/project-utils";
 import { showDocumentationView } from "../documentation/docPanel";
 
-const CONFIG_FILE = 'Config.toml';
 export function activate(ballerinaExtInstance: BallerinaExtension) {
 
     sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_OPEN_PACKAGE_OVERVIEW, CMP_PACKAGE_VIEW);
@@ -80,8 +76,12 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
         window.showWarningMessage(`Are you sure you want to delete ${item.getUri().fsPath}?`,
             cancelAction, deleteAction).then((selection) => {
                 if (deleteAction === selection) {
-                    item.getKind() == 'folder' ? rmdir(item.getUri().fsPath, { recursive: true }, () => { }) :
-                        rm(item.getUri().fsPath, () => { });
+                    const callback = (error) => {
+                        error !== null ? ballerinaExtInstance.showMsgAndRestart(
+                            "The workspace doesn't seem to be synced with the file system.") : null;
+                    }
+                    item.getKind() == 'folder' ? rmdir(item.getUri().fsPath, { recursive: true }, callback) :
+                        rm(item.getUri().fsPath, callback);
                 }
             });
     });
@@ -145,59 +145,6 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
             startColumn,
             name
         });
-    });
-
-    commands.registerCommand(CONFIG_EDITOR_EXECUTE_COMMAND, async (filePath: string) => {
-        if (!ballerinaExtInstance.langClient) {
-            return;
-        }
-
-        let configFile: string = filePath;
-
-        if (!filePath || !filePath.toString().endsWith(CONFIG_FILE)) {
-            let currentProject: BallerinaProject = {};
-            if (window.activeTextEditor) {
-                currentProject = await getCurrentBallerinaProject();
-
-            } else {
-                const document = ballerinaExtInstance.getDocumentContext().getLatestDocument();
-                if (document) {
-                    currentProject = await getCurrentBallerinaProject(document.toString());
-                }
-            }
-
-            if (!currentProject || currentProject === {}) {
-                return;
-            }
-
-            filePath = `${currentProject.path}/${BAL_TOML}`;
-
-            const directory = path.join(os.tmpdir(), "ballerina-project", currentProject.packageName!);
-            if (!existsSync(directory)) {
-                mkdirSync(directory, { recursive: true });
-            }
-            console.debug("Project temp directory: " + directory);
-
-            configFile = `${directory}/${CONFIG_FILE}`;
-            if (!existsSync(configFile)) {
-                openSync(configFile, 'w');
-            }
-        }
-
-        await ballerinaExtInstance.langClient.getBallerinaProjectConfigSchema({
-            documentIdentifier: {
-                uri: Uri.file(filePath).toString()
-            }
-        }).then(data => {
-            if (data.configSchema == null) {
-                window.showErrorMessage('Unable to render the configurable editor: Error while '
-                    + 'retrieving the configurable schema.');
-                return Promise.reject();
-            }
-            showConfigEditor(ballerinaExtInstance, data.configSchema, Uri.parse(configFile));
-        });
-        //editor-lowcode-workspace-run
-        sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_WORKSPACE_RUN, CMP_PACKAGE_VIEW);
     });
 
     commands.registerCommand(DOCUMENTATION_VIEW, async (url: string) => {

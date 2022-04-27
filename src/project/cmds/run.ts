@@ -24,10 +24,21 @@ import {
 } from "../../telemetry";
 import { runCommand, BALLERINA_COMMANDS, PROJECT_TYPE, PALETTE_COMMANDS, runCommandWithConf, MESSAGES } from "./cmd-runner";
 import { getCurrentBallerinaProject, getCurrentBallerinaFile, getCurrenDirectoryPath } from "../../utils/project-utils";
+import { openConfigEditor } from "../../config-editor/configEditorPanel";
 
 function activateRunCommand() {
+    // register the run command execution flow
+    commands.registerCommand(PALETTE_COMMANDS.RUN, async (filePath: string) => {
+        if (!ballerinaExtInstance.isConfigurableEditorEnabled() &&
+            !ballerinaExtInstance.getDocumentContext().isActiveDiagram()) {
+            commands.executeCommand(PALETTE_COMMANDS.RUN_CMD);
+            return;
+        }
+        openConfigEditor(ballerinaExtInstance, filePath);
+    });
+
     // register ballerina run handler
-    commands.registerCommand(PALETTE_COMMANDS.RUN, async (...args: any[]) => {
+    commands.registerCommand(PALETTE_COMMANDS.RUN_CMD, async (...args: any[]) => {
         await run(args);
     });
 

@@ -19,6 +19,7 @@
 
 // feature usage events
 export const TM_EVENT_EXTENSION_INIT = "ballerina.extension.init";
+export const TM_EVENT_EXTENSION_ACTIVATE = "editor-workspace-ballerina-extension-activate";
 
 // events for opening custom views
 export const TM_EVENT_OPEN_EXAMPLES = "open.examples";
@@ -77,5 +78,12 @@ export const TM_EVENT_SWAGGER_RUN = "editor-lowcode-code-tryit";
 export const TM_EVENT_KILL_TERMINAL = "editor-terminal-kill";
 export const TM_EVENT_GIT_COMMIT = "editor-workspace-git-commit";
 export const TM_EVENT_EDIT_SOURCE = "editor-workspace-edit-source";
+export const TM_EVENT_EDIT_DIAGRAM = "editor-workspace-edit-diagram"
 
 export const TM_EVENT_LANG_CLIENT = "ballerina.langclient.event";
+
+// performance analyzer events
+export const TM_EVENT_PERF_REQUEST = "perfomance-analyzer-request";
+export const TM_EVENT_PERF_LS_REQUEST = "perfomance-analyzer-ls-request";
+export const TM_EVENT_OPEN_PERF_GRAPH = "perfomance-graph-open";
+export const TM_EVENT_CLICK_PERF_GRAPH = "perfomance-graph-click";

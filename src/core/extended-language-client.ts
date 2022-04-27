@@ -29,13 +29,13 @@ import {
     CompletionResponse,
     ExpressionTypeRequest,
     ExpressionTypeResponse,
-} from "@wso2-enterprise/ballerina-low-code-editor";
+} from "@wso2-enterprise/ballerina-low-code-editor-distribution";
 import { BallerinaConnectorsRequest, BallerinaTriggerRequest, BallerinaTriggerResponse, BallerinaTriggersRequest, BallerinaTriggersResponse } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { BallerinaExtension } from "./index";
 import { showChoreoPushMessage } from "../editor-support/git-status";
 import { showChoreoSigninMessage, Values } from "../forecaster";
 import { debug } from "../utils";
-import { CMP_LS_CLIENT_COMPLETIONS, CMP_LS_CLIENT_DIAGNOSTICS, sendTelemetryEvent, TM_EVENT_LANG_CLIENT } from "../telemetry";
+import { CMP_LS_CLIENT_COMPLETIONS, CMP_LS_CLIENT_DIAGNOSTICS, getMessageObject, sendTelemetryEvent, TM_EVENT_LANG_CLIENT } from "../telemetry";
 
 export const CONNECTOR_LIST_CACHE = "CONNECTOR_LIST_CACHE";
 export const HTTP_CONNECTOR_LIST_CACHE = "HTTP_CONNECTOR_LIST_CACHE";
@@ -695,7 +695,7 @@ export class ExtendedLangClient extends LanguageClient {
         if (this.timeConsumption.completion.length > 0) {
             const completionValues = calculateTelemetryValues(this.timeConsumption.completion, 'completion');
             sendTelemetryEvent(this.ballerinaExtInstance!, TM_EVENT_LANG_CLIENT, CMP_LS_CLIENT_COMPLETIONS,
-                process.env.HOSTNAME, completionValues);
+                getMessageObject(process.env.HOSTNAME), completionValues);
             this.timeConsumption.completion = [];
         }
 
@@ -703,7 +703,7 @@ export class ExtendedLangClient extends LanguageClient {
             const diagnosticValues = calculateTelemetryValues(this.timeConsumption.diagnostics, 'diagnostic');
             this.timeConsumption.diagnostics = [];
             sendTelemetryEvent(this.ballerinaExtInstance!, TM_EVENT_LANG_CLIENT, CMP_LS_CLIENT_DIAGNOSTICS,
-                process.env.HOSTNAME, diagnosticValues);
+                getMessageObject(process.env.HOSTNAME), diagnosticValues);
         }
     }
 }

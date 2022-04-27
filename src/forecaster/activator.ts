@@ -29,6 +29,7 @@ import { DefaultWebviewPanel } from "./performanceGraphPanel";
 import { MESSAGE_TYPE, showMessage } from "../utils/showMessage";
 import { PALETTE_COMMANDS } from "../project";
 import { URL } from "url";
+import { CMP_PERF_ANALYZER, sendTelemetryEvent, sendTelemetryException, TM_EVENT_OPEN_PERF_GRAPH, TM_EVENT_PERF_LS_REQUEST, TM_EVENT_PERF_REQUEST } from "../telemetry";
 
 export const SHOW_GRAPH_COMMAND = "ballerina.forecast.performance.showGraph";
 export const CHOREO_API_PF = process.env.VSCODE_CHOREO_GATEWAY_BASE_URI ?
@@ -84,7 +85,7 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
     context.subscriptions.push(getEndpoints);
 
     if (ballerinaExtInstance.isAllCodeLensEnabled()) {
-        languages.registerCodeLensProvider([{ language: LANGUAGE.BALLERINA }],
+        languages.registerCodeLensProvider([{ language: LANGUAGE.BALLERINA, scheme: 'file' }],
             new ExecutorCodeLensProvider(ballerinaExtInstance));
     }
 
@@ -119,13 +120,17 @@ export async function createPerformanceGraphAndCodeLenses(uri: string | undefine
             if (resource.type === SUCCESS) {
                 currentResourceData = resource;
 
+                sendTelemetryEvent(extension, TM_EVENT_PERF_LS_REQUEST, CMP_PERF_ANALYZER, { 'is_successful': "true" });
                 await addPerfData(uri, resource.resourcePos, type, resource.name, resource);
             } else {
+                sendTelemetryEvent(extension, TM_EVENT_PERF_LS_REQUEST, CMP_PERF_ANALYZER,
+                    { 'is_successful': "false", 'error_code': `${resource.message}` });
                 checkErrors(resource);
             }
         }
 
     }).catch(error => {
+        sendTelemetryException(extension, error, CMP_PERF_ANALYZER);
         debug(`${error} ${new Date()}`);
     });
 }
@@ -151,8 +156,9 @@ async function addPerfData(uri: string, pos: Range, type: ANALYZETYPE, name: Str
             return;
         }
 
+        sendTelemetryEvent(extension, TM_EVENT_OPEN_PERF_GRAPH, CMP_PERF_ANALYZER, { 'initiator': "codelense" });
         DefaultWebviewPanel.create(langClient, uiData, currentFile.uri, `Performance Forecast of ${uiData.name}`,
-            ViewColumn.Two, extension, WEBVIEW_TYPE.PERFORMANCE_FORECAST);
+            ViewColumn.Three, extension, WEBVIEW_TYPE.PERFORMANCE_FORECAST);
 
     }
 }
@@ -169,7 +175,8 @@ function checkErrors(response: PerformanceAnalyzerRealtimeResponse | Performance
         // AI Error
         showMessage("Performance plots are not available due to insufficient data", MESSAGE_TYPE.INFO, false);
 
-    } else if (response.message !== 'NO_DATA' && response.message !== 'ESTIMATOR_ERROR' && response.message !== 'INVALID_DATA' && response.message !== 'MODEL_NOT_FOUND') {
+    } else if (response.message !== 'NO_DATA' && response.message !== 'ESTIMATOR_ERROR' && response.message !== 'INVALID_DATA' &&
+        response.message !== 'MODEL_NOT_FOUND' && response.message !== 'ENDPOINT_RESOLVE_ERROR') {
         debug(`Retry counted. ${new Date()}`);
         handleRetries();
     }
@@ -272,7 +279,7 @@ function addEndpointPerformanceLabels(data: PerformanceAnalyzerRealtimeResponse 
 
 }
 
-export function updateCodeLenses(concurrency: number) {
+export function updateCodeLenses(concurrency: number, column: ViewColumn | undefined) {
     ExecutorCodeLensProvider.dataLabels = [];
     addPerformanceLabels(concurrency);
     ExecutorCodeLensProvider.onDidChangeCodeLenses.fire();
@@ -280,12 +287,13 @@ export function updateCodeLenses(concurrency: number) {
     if (!currentFile) {
         return;
     }
-    window.showTextDocument(currentFile, ViewColumn.One);
+    window.showTextDocument(currentFile, column ?? ViewColumn.Beside);
 }
 
 export function openPerformanceDiagram(request: PerformanceGraphRequest) {
+    sendTelemetryEvent(extension, TM_EVENT_OPEN_PERF_GRAPH, CMP_PERF_ANALYZER, { 'initiator': "button" });
     DefaultWebviewPanel.create(langClient, request.data, Uri.parse(request.file),
-        `Performance Forecast of ${request.data.name}`, ViewColumn.Beside, extension,
+        `Performance Forecast of ${request.data.name}`, ViewColumn.Three, extension,
         WEBVIEW_TYPE.PERFORMANCE_FORECAST);
     return true;
 }
@@ -356,6 +364,8 @@ export function getDataFromChoreo(data: any, analyzeType: ANALYZETYPE): Promise<
                 if (res.statusCode != 200) {
                     debug(`Perf Error - ${res.statusCode} Status code. Retry counted. ${new Date()}`);
                     debug(str);
+                    sendTelemetryEvent(extension, TM_EVENT_PERF_REQUEST, CMP_PERF_ANALYZER,
+                        { 'is_successful': "false", 'error_code': `${res.statusCode}` });
                     handleRetries();
                     reject();
                 }
@@ -367,16 +377,32 @@ export function getDataFromChoreo(data: any, analyzeType: ANALYZETYPE): Promise<
 
                     if (res.message) {
                         debug(`Perf Error ${new Date()}`);
+                        sendTelemetryEvent(extension, TM_EVENT_PERF_REQUEST, CMP_PERF_ANALYZER,
+                            { 'is_successful': "false", 'error_code': `${res.message}` });
                         checkErrors(res);
                         return reject();
                     }
+
                     cachedResponses.set(data, res);
+                    if (analyzeType === ANALYZETYPE.REALTIME) {
+                        sendTelemetryEvent(extension, TM_EVENT_PERF_REQUEST, CMP_PERF_ANALYZER,
+                            {
+                                'is_successful': "true", 'type': `${analyzeType}`,
+                                'is_low_data': `${((res as PerformanceAnalyzerRealtimeResponse).concurrency.max == 1)}`
+                            });
+
+                    } else {
+                        sendTelemetryEvent(extension, TM_EVENT_PERF_REQUEST, CMP_PERF_ANALYZER,
+                            { 'is_successful': "true", 'type': `${analyzeType}` });
+
+                    }
                     return resolve(res);
 
                 } catch (e: any) {
                     debug(`Perf Error - Response json parsing failed. Retry counted. ${new Date()}`);
                     debug(str);
                     debug(e.toString())
+                    sendTelemetryException(extension, e, CMP_PERF_ANALYZER);
                     handleRetries();
                     reject();
                 }
@@ -386,6 +412,7 @@ export function getDataFromChoreo(data: any, analyzeType: ANALYZETYPE): Promise<
         req.on('error', error => {
             debug(`Perf Error - Connection Error. Retry counted. ${new Date()}`);
             debug(error);
+            sendTelemetryException(extension, error, CMP_PERF_ANALYZER);
             handleRetries();
             reject();
         })
