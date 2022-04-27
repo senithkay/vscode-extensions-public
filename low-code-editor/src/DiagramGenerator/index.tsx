@@ -16,7 +16,7 @@ import { monaco } from "react-monaco-editor";
 
 import { MuiThemeProvider } from "@material-ui/core/styles";
 import { BlockViewState } from "@wso2-enterprise/ballerina-low-code-diagram";
-import { ConditionConfig, Connector, DiagramDiagnostic, DIAGRAM_MODIFIED, getImportStatements, LibraryDataResponse, LibraryDocResponse, LibraryKind, LibrarySearchResponse, LowcodeEvent, Range, SentryConfig, STModification, STSymbolInfo, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ConditionConfig, Connector, DiagramDiagnostic, DIAGRAM_MODIFIED, getImportStatements, LibraryDataResponse, LibraryDocResponse, LibraryKind, LibrarySearchResponse, LowcodeEvent, SentryConfig, STModification, STSymbolInfo, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FunctionDefinition, ModulePart, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import cloneDeep from "lodash.clonedeep";
 import Mousetrap from 'mousetrap';
@@ -31,7 +31,7 @@ import { init } from "../utils/sentry";
 
 import { DiagramGenErrorBoundary } from "./ErrorBoundrary";
 import {
-    getDefaultSelectedPosition, getFunctionSyntaxTree, getLowcodeST, getSelectedPosition, getSyntaxTree, isDeleteModificationAvailable,
+    getDefaultSelectedPosition, getLowcodeST, getSelectedPosition, getSyntaxTree, isDeleteModificationAvailable,
     isUnresolvedModulesAvailable
 } from "./generatorUtil";
 import { addPerformanceData } from "./performanceUtil";
@@ -364,18 +364,6 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                     setCodeLocationToHighlight: (position: NodePosition) => undefined,
                                     gotoSource: (position: { startLine: number, startColumn: number }) => {
                                         props.gotoSource(filePath, position);
-                                    },
-                                    getFunctionDef: async (lineRange: Range) => {
-                                        const langClient = await langClientPromise;
-                                        setMutationInProgress(true);
-                                        setLoaderText('Fetching...');
-                                        const res = await getFunctionSyntaxTree(
-                                            monaco.Uri.file(filePath).toString(),
-                                            lineRange,
-                                            langClient
-                                        );
-                                        setMutationInProgress(false);
-                                        return res;
                                     },
                                     isMutationInProgress,
                                     isModulePullInProgress,

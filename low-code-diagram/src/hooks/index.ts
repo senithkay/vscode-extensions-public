@@ -30,7 +30,7 @@ export function useSelectedStatus(node: STNode, containerRef?: React.MutableRefO
             const selected = isNodeSelected(selectedPosition, node);
             setSelected(selected);
             if (selected && containerRef) {
-                containerRef.current?.scrollIntoView();
+                containerRef.current.scrollIntoView();
             }
         }
     }, [selectedPosition, node]);

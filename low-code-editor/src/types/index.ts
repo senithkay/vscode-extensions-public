@@ -77,7 +77,6 @@ export interface LowCodeEditorAPI {
         // Reuse go-to-def from LangServer?
         setCodeLocationToHighlight: (position: NodePosition) => void;
         gotoSource: (position: { startLine: number, startColumn: number }) => void;
-        getFunctionDef: (lineRange: Range) => Promise<STNode>;
         isMutationInProgress: boolean;
         isModulePullInProgress: boolean;
         loaderText: string;

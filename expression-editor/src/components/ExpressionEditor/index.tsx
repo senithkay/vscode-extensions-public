@@ -930,7 +930,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                         className={expEditorStyle}
                         style={{
                             height: expand ? (superExpand ? "200px" : "100px") : "34px",
-                            opacity: disabled ? 0.8 : 1,
+                            opacity: disabled ? 0.5 : 1,
                         }}
                     >
                         <MonacoEditor

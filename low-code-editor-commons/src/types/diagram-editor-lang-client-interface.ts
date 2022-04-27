@@ -25,7 +25,6 @@ import {
     BallerinaConnectorResponse,
     BallerinaConnectorsRequest,
     BallerinaConnectorsResponse,
-    BallerinaFunctionSTRequest,
     BallerinaProjectParams,
     BallerinaRecordRequest,
     BallerinaRecordResponse,
@@ -136,8 +135,5 @@ export interface DiagramEditorLangClientInterface extends BaseLangClientInterfac
     ) => Thenable<ExecutorPositionsResponse>;
     convert: (
         params: JsonToRecordRequest
-    ) => Thenable<JsonToRecordResponse>;
-    getSTForFunction: (
-        params: BallerinaFunctionSTRequest
-    ) => Thenable<BallerinaSTModifyResponse>;
+    ) => Thenable<JsonToRecordResponse>
 }

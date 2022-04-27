@@ -46,13 +46,4 @@ export class WorkerForm {
         .get('.close-btn-wrap button')
         .click();
     }
-
-    static waitForDiagramUpdate() {
-        cy.wait(10000);
-        cy.get(`[id="canvas-overlay"]`)
-            .children().should("have.length", 0)
-        cy.get(`[data-testid="diagram-loader"]`)
-            .should("not.exist")
-        return this;
-    }
 }

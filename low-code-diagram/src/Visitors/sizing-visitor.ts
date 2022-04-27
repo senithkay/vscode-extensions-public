@@ -55,7 +55,7 @@ import { START_SVG_HEIGHT, START_SVG_WIDTH } from "../Components/RenderingCompon
 import { VARIABLE_NAME_WIDTH } from "../Components/RenderingComponents/VariableName";
 import { WHILE_SVG_HEIGHT, WHILE_SVG_WIDTH } from "../Components/RenderingComponents/While/WhileSVG";
 import { Endpoint } from "../Types/type";
-import { getNodeSignature, isVarTypeDescriptor, recalculateSizingAndPositioning, sizingAndPositioning } from "../Utils";
+import { getNodeSignature, isVarTypeDescriptor } from "../Utils";
 import expandTracker from "../Utils/expand-tracker";
 import { BlockViewState, CollapseViewState, CompilationUnitViewState, DoViewState, ElseViewState, EndViewState, ForEachViewState, FunctionViewState, IfViewState, OnErrorViewState, PlusViewState, StatementViewState, ViewState } from "../ViewState";
 import { DraftStatementViewState } from "../ViewState/draft";
@@ -1288,17 +1288,6 @@ export class SizingVisitor implements Visitor {
                 // }
             }
         }
-        if (viewState.functionNode) {
-            if (viewState.functionNodeExpanded) {
-                recalculateSizingAndPositioning(viewState.functionNode);
-                viewState.bBox.h += viewState.functionNode.viewState.bBox.h;
-                // height += viewState.functionNode.viewState.bBox.h;
-                // if (viewState.bBox.rw < viewState.functionNode.viewState.bBox.w) {
-                    viewState.bBox.rw += viewState.functionNode.viewState.bBox.w + 120;
-                    viewState.bBox.w = viewState.bBox.rw + viewState.bBox.lw;
-                // }
-            }
-        }
     }
 
     private beginSizingBlock(node: BlockStatement, index: number = 0) {
@@ -1676,7 +1665,6 @@ export class SizingVisitor implements Visitor {
                     if ((rightWidth < stmtViewState.bBox.rw) && !stmtViewState.collapsed) {
                         rightWidth = stmtViewState.bBox.rw;
                     }
-   
                 }
             }
 

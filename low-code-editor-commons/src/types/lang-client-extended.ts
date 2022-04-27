@@ -226,11 +226,6 @@ export interface BallerinaSTModifyRequest {
     astModifications: STModification[];
 }
 
-export interface BallerinaFunctionSTRequest {
-    lineRange: Range;
-    documentIdentifier: DocumentIdentifier;
-}
-
 export interface BallerinaSTModifyResponse {
     source: string;
     syntaxTree: STNode;
