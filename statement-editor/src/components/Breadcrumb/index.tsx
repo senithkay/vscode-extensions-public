@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 
 import Breadcrumbs from '@material-ui/core/Breadcrumbs';
 import Link from '@material-ui/core/Link';
@@ -41,23 +41,27 @@ export default function Breadcrumb() {
         }
     } = useContext(StatementEditorWrapperContext);
 
+    const [editorId, setEditorId] = useState<number>();
+
     function handleClick(event: React.MouseEvent<HTMLAnchorElement, MouseEvent>) {
         event.preventDefault();
-        handleConfigurable(event.currentTarget.getAttribute('data-index') as unknown as number);
+        const index: number = +event.currentTarget.getAttribute('data-index');
+        setEditorId(index);
+        handleConfigurable(index);
     }
 
     return (
         <div className={classes.root}>
             <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />} aria-label="breadcrumb">
                 { editors.map((editor: StmtEditorStackItem, index: number) => {
-                    return index !== editors.length - 1
+                    return (index === editorId)
                         ? (
+                            <Typography color="textPrimary">{editor.label}</Typography>
+                        )
+                        : (
                             <Link data-index={index} color="inherit" href="/" onClick={handleClick}>
                                 {editor.label}
                             </Link>
-                        )
-                        : (
-                            <Typography color="textPrimary">{editor.label}</Typography>
                         )
                 })}
             </Breadcrumbs>
