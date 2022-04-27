@@ -11,27 +11,20 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-
-// NOTE: This component contains three updates in the language server extension.
-//      phase one - simple visibleEndpoint object ( GA Release)
-//      phase two - update the visibleEndpoint object with package names and versions ( RC 1 patch)
-//      phase three - update visibleEndpoint object with position and add visibleEndpoints to every blockStatement
-// We need to remove these extra code blocks once VS Code plugin sync with latests changes.
-
 import React, { ReactNode, useContext } from "react";
 import { FormattedMessage } from "react-intl";
 
 import { Box, FormControl, List, ListItem, Typography } from "@material-ui/core";
 import { BallerinaConnectorInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FormHeaderSection, PrimaryButton } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
-import { STKindChecker, STNode, VisibleEndpoint } from "@wso2-enterprise/syntax-tree";
+import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../Contexts/Diagram";
 import { FormGeneratorProps } from "../../FormGenerator";
 import { wizardStyles as useFormStyles } from "../style";
 
 import useStyles from "./style";
-import { getConnectorFromVisibleEp, getMatchingConnector, getTargetBlock } from "./util";
+import { getMatchingConnector } from "./util";
 
 export interface EndpointListProps {
     functionNode: STNode;
@@ -53,7 +46,7 @@ export function EndpointList(props: FormGeneratorProps) {
     const endpointElementList: ReactNode[] = [];
     const visitedEndpoints: string[] = [];
     let isEndpointExists = false;
-    let executePhaseOne = false;
+    let isOldVisibleEpVersion = false; // This field used to trigger previous implementation for Ballerina GA version.
 
     const getListComponent = (connector: BallerinaConnectorInfo, name: string) => {
         const handleOnSelect = () => {
@@ -66,45 +59,23 @@ export function EndpointList(props: FormGeneratorProps) {
         );
     };
 
-    if (
-        targetPosition &&
-        functionNode &&
-        (STKindChecker.isFunctionDefinition(functionNode) ||
-            STKindChecker.isResourceAccessorDefinition(functionNode)) &&
-        STKindChecker.isFunctionBodyBlock(functionNode.functionBody)
-    ) {
-        const targetBlock = getTargetBlock(targetPosition, functionNode.functionBody);
-
-        if (
-            targetBlock.VisibleEndpoints &&
-            targetBlock.VisibleEndpoints.length > 0 &&
-            targetBlock.VisibleEndpoints[0].position
-        ) {
-            const blockVisibleEndpoints: VisibleEndpoint[] = targetBlock?.VisibleEndpoints;
-            blockVisibleEndpoints?.forEach((endpoint) => {
-                if (endpoint.position && endpoint.position.endLine < targetPosition.startLine) {
-                    const connector = getConnectorFromVisibleEp(endpoint);
-                    endpointElementList.push(getListComponent(connector, endpoint.name));
-                    isEndpointExists = true;
-                }
-            });
-        }
-    }
-
-    // INFO: this code block use to work with phase two.
     if (STKindChecker.isFunctionDefinition(functionNode) || STKindChecker.isResourceAccessorDefinition(functionNode)) {
         functionNode.functionBody.VisibleEndpoints?.forEach((endpoint) => {
-            if (endpoint.position) {
-                // INFO: This is a phase three visible endpoint. This endpoint has already rendered by above code section
-                return;
-            }
             if (!(endpoint.packageName && endpoint.version)) {
-                // INFO: enable phase one. phase two need package name and version information.
-                executePhaseOne = true;
+                isOldVisibleEpVersion = true;
                 return;
             }
             if (visitedEndpoints.indexOf(endpoint.name) < 0) {
-                const connector = getConnectorFromVisibleEp(endpoint);
+                const connector: BallerinaConnectorInfo = {
+                    name: endpoint.typeName,
+                    moduleName: endpoint.moduleName,
+                    package: {
+                        organization: endpoint.orgName,
+                        name: endpoint.packageName,
+                        version: endpoint.version,
+                    },
+                    functions: [],
+                };
                 endpointElementList.push(getListComponent(connector, endpoint.name));
             }
             visitedEndpoints.push(endpoint.name);
@@ -112,8 +83,8 @@ export function EndpointList(props: FormGeneratorProps) {
         });
     }
 
-    // INFO: this code block use to work with phase one.
-    if (executePhaseOne) {
+    // INFO: keep previous implementation to work with Ballerina GA update.
+    if (isOldVisibleEpVersion) {
         const getListComponentFromNode = (node: STNode, epName: string) => {
             const connector = getMatchingConnector(node);
             if (!connector) {
@@ -124,6 +95,7 @@ export function EndpointList(props: FormGeneratorProps) {
 
         moduleEndpoints?.forEach((node, name) => {
             endpointElementList.push(getListComponentFromNode(node, name));
+            visitedEndpoints.push(name);
             isEndpointExists = true;
         });
 
@@ -138,6 +110,7 @@ export function EndpointList(props: FormGeneratorProps) {
                 endpointElementList.push(getListComponentFromNode(node, name));
                 isEndpointExists = true;
             }
+            visitedEndpoints.push(name);
         });
     }
 

@@ -19,15 +19,12 @@ import {
     AssignmentStatement,
     CallStatement,
     FunctionCall,
-    IdentifierToken,
     LocalVarDecl,
     NodePosition,
     QualifiedNameReference,
-    SimpleNameReference,
     STKindChecker,
     STNode
 } from "@wso2-enterprise/syntax-tree";
-import cn from "classnames";
 
 import { DeleteBtn } from "../../../Components/DiagramActions/DeleteBtn";
 import { DELETE_SVG_HEIGHT_WITH_SHADOW, DELETE_SVG_WIDTH_WITH_SHADOW } from "../../../Components/DiagramActions/DeleteBtn/DeleteSVG";
@@ -38,7 +35,6 @@ import { getDiagnosticInfo, getMethodCallFunctionName, getOverlayFormConfig, get
 import { BlockViewState, StatementViewState } from "../../../ViewState";
 import { DraftStatementViewState } from "../../../ViewState/draft";
 import { DefaultConfig } from "../../../Visitors/default";
-import { ShowFunctionBtn } from "../../DiagramActions/ShowFunctionBtn";
 import { Assignment } from "../Assignment";
 import { MethodCall } from "../MethodCall";
 import { StatementTypes } from "../StatementTypes";
@@ -46,7 +42,6 @@ import { VariableName, VARIABLE_NAME_WIDTH } from "../VariableName";
 
 import { ProcessSVG, PROCESS_SVG_HEIGHT, PROCESS_SVG_HEIGHT_WITH_SHADOW, PROCESS_SVG_SHADOW_OFFSET, PROCESS_SVG_WIDTH, PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW } from "./ProcessSVG";
 import "./style.scss";
-
 
 export interface ProcessorProps {
     model: STNode;
@@ -75,8 +70,6 @@ export function DataProcessor(props: ProcessorProps) {
     let processName = "Variable";
     let sourceSnippet = "Source";
     const diagnostics = model?.typeData?.diagnostics;
-    let haveFunction = false;
-    let functionName: IdentifierToken = null;
 
     let isIntializedVariable = false;
     let isLogStmt = false;
@@ -98,9 +91,6 @@ export function DataProcessor(props: ProcessorProps) {
             } else {
                 processType = "Call";
                 processName = processType;
-                haveFunction = true;
-                const simpleName: SimpleNameReference = stmtFunctionCall.functionName as SimpleNameReference;
-                functionName = simpleName.name;
             }
         } else if (STKindChecker.isLocalVarDecl(model)) {
 
@@ -117,12 +107,6 @@ export function DataProcessor(props: ProcessorProps) {
 
             if (model?.initializer && !STKindChecker.isImplicitNewExpression(model?.initializer)) {
                 isIntializedVariable = true;
-            }
-            if (model?.initializer && STKindChecker.isFunctionCall(model?.initializer)) {
-                const callStatement: FunctionCall = model?.initializer as FunctionCall;
-                const nameRef: SimpleNameReference = callStatement.functionName as SimpleNameReference;
-                haveFunction = true;
-                functionName = nameRef.name;
             }
         } else if (STKindChecker.isAssignmentStatement(model)) {
             processType = "AssignmentStatement";
@@ -260,7 +244,7 @@ export function DataProcessor(props: ProcessorProps) {
         statmentTypeText = getStatementTypesFromST(localModel);
     }
 
-    // const processWrapper = isDraftStatement ? "main-process-wrapper active-data-processor" : "main-process-wrapper data-processor";
+    const processWrapper = isDraftStatement ? "main-process-wrapper active-data-processor" : "main-process-wrapper data-processor";
     const assignmentTextStyles = diagnosticMsgs?.severity === "ERROR" ? "assignment-text-error" : "assignment-text-default";
 
     const prosessTypes = (processType === "Log" || processType === "Call");
@@ -290,8 +274,6 @@ export function DataProcessor(props: ProcessorProps) {
             />
         )
     }
-    const processWrapper = isDraftStatement ? cn("main-process-wrapper active-data-processor") : cn("main-process-wrapper data-processor");
-    const textWidthFixed = functionName?.value.length >= 16 ? functionName?.value?.slice(0, 16).length * 9 : functionName?.value.length * 10;
 
     const component: React.ReactNode = (!viewState.collapsed &&
         (
@@ -343,6 +325,7 @@ export function DataProcessor(props: ProcessorProps) {
                             methodCall={methodCallText}
                             key_id={getRandomInt(1000)}
                         />
+
                         {!isReadOnly &&
                             <g
                                 className="process-options-wrapper"
@@ -366,17 +349,6 @@ export function DataProcessor(props: ProcessorProps) {
                         }
                     </React.Fragment>
                 </g>
-                {haveFunction ?
-                    <g>
-                        <ShowFunctionBtn
-                            model={model}
-                            functionName={functionName}
-                            x={cx + PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW / 2 + (DefaultConfig.dotGap * 3) + 100}
-                            y={processType !== "Call" ? (cy + PROCESS_SVG_HEIGHT / 3 + rightTextOffset) : (cy + PROCESS_SVG_HEIGHT / 4) - (DefaultConfig.dotGap / 2)}
-                        />
-                    </g>
-                    : ''
-                }
             </g>
         )
     );

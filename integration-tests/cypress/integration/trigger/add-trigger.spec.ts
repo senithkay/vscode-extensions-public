@@ -34,8 +34,7 @@ describe('add a Github Trigger to an empty file', () => {
       .selectTriggerType("Github")
       .createBtnShouldNotBeClickable()
       .selectServiceType("IssuesService")
-      .create()
-      .waitForDiagramUpdate();
+      .create();
     SourceCode.shouldBeEqualTo(
       getCurrentSpecFolder() + "add-trigger.expected.bal");
   });
@@ -52,8 +51,7 @@ describe('add a Github Trigger to an empty file', () => {
       .selectTriggerType("Slack")
       .createBtnShouldNotBeClickable()
       .selectServiceType("SlackEventsAppService")
-      .create()
-      .waitForDiagramUpdate();
+      .create();
     SourceCode.shouldBeEqualTo(
       getCurrentSpecFolder() + "add-trigger-slack.expected.bal");
   });
@@ -72,8 +70,7 @@ describe('add a Github Trigger to an empty file', () => {
       .createBtnShouldNotBeClickable()
       .selectServiceType("SlackEventsAppService")
       .addChannel("SlackEventsDndService")
-      .create()
-      .waitForDiagramUpdate();
+      .create();
     SourceCode.shouldBeEqualTo(
       getCurrentSpecFolder() + "add-multiple-channel.expected.bal");
   });
@@ -90,8 +87,7 @@ describe('add a Github Trigger to an empty file', () => {
       .selectServiceType("SlackEventsAppService")
       .addChannel("SlackEventsDndService")
       .deleteChannel("SlackEventsDndService")
-      .create()
-      .waitForDiagramUpdate();
+      .create();
 
     SourceCode.shouldBeEqualTo(
       getCurrentSpecFolder() + "add-trigger-slack.expected.bal");
@@ -112,8 +108,7 @@ describe('add a Github Trigger to an empty file', () => {
       .selectTriggerType("Github")
       .createBtnShouldNotBeClickable()
       .selectServiceType("IssuesService")
-      .create()
-      .waitForDiagramUpdate();
+      .create();
 
     SourceCode.shouldBeEqualTo(
       getCurrentSpecFolder() + "add-trigger.expected.bal");

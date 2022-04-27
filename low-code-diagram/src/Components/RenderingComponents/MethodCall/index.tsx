@@ -27,7 +27,7 @@ export function MethodCall(props: { x: number, y: number, methodCall: string, ke
     }, []);
 
     const methodCallText = filterComments(methodCall);
-    const methodCallMaxWidth = methodCallText?.length >= 16;
+    const methodCallMaxWidth = methodCallText?.length >= 25;
 
     return (
         <svg {...xyProps} width="150" height="24" className="method-call-wrapper">
@@ -36,7 +36,7 @@ export function MethodCall(props: { x: number, y: number, methodCall: string, ke
                     className={"method-name"}
                     transform="translate(4 13.5)"
                 >
-                    <tspan x="0" y="0">{methodCallMaxWidth ? methodCallText.slice(0, 16) + "..." : methodCallText}</tspan>
+                    <tspan x="0" y="0">{methodCallMaxWidth ? methodCallText.slice(0, 26) + "..." : methodCallText}</tspan>
                 </text>
             </g>
         </svg >

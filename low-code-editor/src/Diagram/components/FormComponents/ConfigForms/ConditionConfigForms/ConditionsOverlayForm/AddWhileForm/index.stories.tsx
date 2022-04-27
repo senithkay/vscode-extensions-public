@@ -27,7 +27,6 @@ export default {
 
 // tslint:disable-next-line:no-empty
 const dummyFunction = (arg: any) => {} ;
-const dummyFunctionReturn = (arg: any): any => { return; };
 // tslint:disable-next-line:no-empty
 const dummyFunctionWithoutArgs =  () => {};
 
@@ -45,8 +44,7 @@ const api = {
         gotoSource: dummyFunction,
         isMutationInProgress: false,
         isModulePullInProgress: false,
-        loaderText: '',
-        getFunctionDef: dummyFunctionReturn
+        loaderText: ''
     },
     splitPanel: {
         maximize: dummyFunction,

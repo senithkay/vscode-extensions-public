@@ -1,5 +1,3 @@
-import { Diagnostic } from "@wso2-enterprise/syntax-tree";
-
 /*
  * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
  *
@@ -25,5 +23,4 @@ export class StatementEditorViewState {
     public templateExprDeletable: boolean = false;
     public isWithinBlockStatement: boolean = false;
     public modelType: ModelType = ModelType.EXPRESSION;
-    public diagnostics?: Diagnostic[] = [];
 }

@@ -766,7 +766,6 @@ export class PositioningVisitor implements Visitor {
                         endpointViewState.lifeLine.cx = blockViewState.bBox.cx +
                             endpointViewState.bBox.rw + epGap + (epGap * epCount);
                         endpointViewState.lifeLine.cy = statementViewState.bBox.cy;
-                        // NOTE: we can remove this section after Ballerina release with these changes ballerina-lang/pull/35604
                         endpointViewState.isExternal = true;
                         endpointViewState.isParameter = true;
                         visibleEndpoint.viewState = endpointViewState;
@@ -800,12 +799,10 @@ export class PositioningVisitor implements Visitor {
                         endpointViewState.bBox.rw + epGap + (epGap * epCount);
                     endpointViewState.lifeLine.cy = statementViewState.bBox.cy;
                     const endpoint: Endpoint = allEndpoints.get(statementViewState.endpoint.epName);
-                    if (endpoint){
-                        const visibleEndpoint: VisibleEndpoint = endpoint?.visibleEndpoint;
-                        const mainEp = endpointViewState;
-                        visibleEndpoint.viewState = mainEp;
-                        epCount++;
-                    }
+                    const visibleEndpoint: VisibleEndpoint = endpoint.visibleEndpoint;
+                    const mainEp = endpointViewState;
+                    visibleEndpoint.viewState = mainEp;
+                    epCount++;
                 }
 
                 if ((statementViewState.isEndpoint && statementViewState.isAction && !statementViewState.hidden)

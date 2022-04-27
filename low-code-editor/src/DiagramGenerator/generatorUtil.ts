@@ -1,7 +1,7 @@
 import { monaco } from "react-monaco-editor";
 
 import { initVisitor, PositioningVisitor, SizingVisitor } from "@wso2-enterprise/ballerina-low-code-diagram";
-import { DiagramDiagnostic, DiagramEditorLangClientInterface, PerformanceAnalyzerGraphResponse, PerformanceAnalyzerRealtimeResponse, Range, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { DiagramDiagnostic, DiagramEditorLangClientInterface, PerformanceAnalyzerGraphResponse, PerformanceAnalyzerRealtimeResponse, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FunctionDefinition, ModulePart, ResourceAccessorDefinition, ServiceDeclaration, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 
 import { cleanLocalSymbols, cleanModuleLevelSymbols } from "../Diagram/visitors/symbol-finder-visitor";
@@ -18,17 +18,6 @@ export async function getSyntaxTree(filePath: string, langClient: DiagramEditorL
     });
     return resp.syntaxTree;
 }
-
-export async function getFunctionSyntaxTree(filePath: string, range: any, langClient: DiagramEditorLangClientInterface) {
-    const resp = await langClient.getSTForFunction({
-        documentIdentifier: {
-            uri: filePath
-        },
-        lineRange: range
-    });
-    return resp.syntaxTree;
-}
-
 
 export async function resolveMissingDependencies(filePath: string, langClient: DiagramEditorLangClientInterface) {
     const resp = await langClient.resolveMissingDependencies({

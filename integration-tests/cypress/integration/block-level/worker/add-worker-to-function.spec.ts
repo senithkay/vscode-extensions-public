@@ -23,8 +23,7 @@ describe('Add worker to function via Low Code', () => {
         WorkerForm
             .shouldBeVisible()
             .typeWorkerName("Test")
-            .save()
-            .waitForDiagramUpdate();
+            .save();
 
         SourceCode.shouldBeEqualTo(
             getCurrentSpecFolder() + "add-worker-to-function.expected.bal");

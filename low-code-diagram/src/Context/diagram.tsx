@@ -82,7 +82,7 @@ export const Provider: React.FC<LowCodeDiagramProps> = (props) => {
         diagramCleanDraw: diagramCleanDraw(dispatch),
         diagramRedraw: diagramRedraw(dispatch),
         insertComponentStart: insertComponentStart(dispatch),
-        editorComponentStart: editorComponentStart(dispatch)
+        editorComponentStart: editorComponentStart(dispatch),
     };
 
     return (
