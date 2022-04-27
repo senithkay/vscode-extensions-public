@@ -53,13 +53,30 @@ class DiagnosticsMappingVisitor implements Visitor {
             endColumn: node?.position?.endColumn + (!isWithinBlockStatement ? this.offset.startColumn : 0)
         }
         if (isPositionsEquals(diagPosition, nodePosition)) {
-            node?.syntaxDiagnostics?.push({
-                diagnosticInfo: {
-                    code: this.diagnostic.code.toString(),
-                    severity: this.diagnostic.severity.toString()
-                },
-                message: this.diagnostic.message
-            });
+            // TODO: Remove this If block as all nodes coming through here
+            // doesn't contain "syntaxDiagnostics" property as it is something
+            // we pushed from backend.
+            if (node && node.syntaxDiagnostics) {
+                node?.syntaxDiagnostics?.push({
+                    diagnosticInfo: {
+                        code: this.diagnostic.code.toString(),
+                        severity: this.diagnostic.severity.toString()
+                    },
+                    message: this.diagnostic.message
+                });
+            }
+
+            // Statement Editor viewstate will hold the diagnostics for
+            // each nodes which matched to above condition.
+            if (node && node.viewState) {
+                node?.viewState?.diagnostics.push({
+                    diagnosticInfo: {
+                        code: this.diagnostic.code.toString(),
+                        severity: this.diagnostic.severity.toString()
+                    },
+                    message: this.diagnostic.message
+                });
+            }
         }
     }
 
