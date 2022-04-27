@@ -126,12 +126,15 @@ export interface BallerinaRecordResponse {
 export interface VisibleEndpoint {
     kind?: string;
     isCaller: boolean;
+    isExternal: boolean;
+    isModuleVar: boolean;
     moduleName: string;
     name: string;
     packageName: string;
     orgName: string;
     version: string;
     typeName: string;
+    position: NodePosition;
     viewState?: any;
 }
 export interface NodePosition {

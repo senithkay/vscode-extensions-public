@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 Inc. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -11,14 +11,19 @@
  * associated services.
  */
 
-.control-flow-line-expand {
-    .arrow-head {
-        fill: #32324d !important;
+export class Connector {
+    public constructor(private container: Cypress.Chainable<JQuery<HTMLElement>>) {
     }
 
-    .line-dashed {
-        stroke: #32324d !important;
-        stroke-width: 1;
-        stroke-dasharray: 5;
+    public clickEdit() {
+        this.container.trigger('mouseover').within(() => {
+            cy.get('#edit-button').click({ force: true });
+        })
+    }
+
+    public clickDelete() {
+        this.container.trigger('mouseover').within(() => {
+            cy.get('#delete-button').click({ force: true });
+        })
     }
 }
