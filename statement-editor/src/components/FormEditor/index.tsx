@@ -14,23 +14,20 @@
 import React, { useEffect, useState } from 'react';
 
 import { List, ListItemText, Typography } from "@material-ui/core";
-import {ExpressionEditorLangClientInterface} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import * as monaco from "monaco-editor";
-import { Diagnostic } from "vscode-languageserver-protocol";
 
 import { StmtDiagnostic } from "../../models/definitions";
-import {enrichModel, getFilteredDiagnosticMessages, getUpdatedSource} from "../../utils";
+import { enrichModel, getUpdatedSource} from "../../utils";
 import {
-    getDiagnostics, getPartialSTForStatement,
     getPartialSTForTopLevelComponents,
     handleDiagnostics,
     sendDidChange
 } from "../../utils/ls-utils";
 import { FormRenderer } from "../FormRenderer";
+import { getInitialSource } from "../Forms/Utils/FormUtils";
 import { EXPR_SCHEME, FILE_SCHEME } from "../InputEditor/constants";
 import { LowCodeEditorProps } from "../StatementEditor";
-import {getInitialSource} from "../Forms/Utils/FormUtils";
 
 export interface FormEditorProps extends LowCodeEditorProps {
     initialSource?: string;
