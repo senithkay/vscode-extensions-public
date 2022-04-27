@@ -67,7 +67,7 @@ export const ConfigElement = (props: ConfigElementProps): ReactElement => {
 
             return (
                 <div key={props.id}>
-                    <ArrayType {...props} />
+                    <ArrayType {...arrayTypeProps} />
                 </div>
             );
         case ConfigType.ANY_OF:

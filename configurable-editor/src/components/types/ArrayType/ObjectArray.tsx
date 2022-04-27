@@ -50,8 +50,31 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
         isRequired: props.isRequired,
         name: props.name,
         type: props.type,
-        value: props.value,
     };
+
+    useEffect(() => {
+        props.setArrayElement(props.id, element);
+        if (props.value) {
+            const initialValue: ConfigElementProps[] = [];
+            let newCounter = counter;
+            Object.keys(props.value).forEach((key) => {
+                const objectArrayProps: ObjectArrayProps = {
+                    description: props.schema[SchemaConstants.DESCRIPTION],
+                    id: props.id + "-" + newCounter,
+                    isRequired: false,
+                    name: "",
+                    properties: getConfigProperties(elementSchema, props.id + "-" + newCounter).properties,
+                    schema: elementSchema,
+                    type: props.arrayType,
+                    value: props.value[key],
+                };
+                newCounter = newCounter + 1;
+                initialValue.push(objectArrayProps);
+            });
+            setCounter(newCounter);
+            setArrayValues(initialValue);
+        }
+    }, []);
 
     const addArrayElememt = () => {
         let propertiesValue: ConfigElementProps;

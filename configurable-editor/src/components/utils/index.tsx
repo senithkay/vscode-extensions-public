@@ -19,8 +19,7 @@
 import { __String } from "typescript";
 
 import { ConfigElementProps } from "../ConfigElement";
-import { ConfigSchema, ConfigType, ConfigValue, MetaData, SchemaConstants } from "../model";
-import { SimpleTypeProps } from "../types/SimpleType";
+import { ConfigSchema, ConfigType, MetaData, SchemaConstants } from "../model";
 
 /**
  * Gets the `ConfigType` enum type from a string value.
@@ -150,41 +149,6 @@ export function setExistingValues(properties: ConfigElementProps,
 }
 
 /**
- * Updates the existing config values of a `ConfigObjectProps` with the values
- * provided in the `ConfigValue[]` array.
- * @param configObjects The `ConfigObjectProps` that needs to be updated.
- * @param configValues  The `ConfigValue[]` array containing the new key value pairs.
- * @returns             The updated `ConfigObjectProps` object.
- */
-export function updateConfigObjectProps(configObjects: ConfigElementProps,
-                                        configValues: ConfigValue[]): ConfigElementProps {
-    if (configObjects && configValues && configObjects.properties) {
-        Object.keys(configObjects.properties).forEach((key) => {
-            const type: ConfigType = getType(configObjects.properties[key].type);
-            switch (type) {
-                case ConfigType.OBJECT:
-                    updateConfigObjectProps(configObjects.properties[key], configValues);
-                    break;
-                case ConfigType.ARRAY:
-                    updateConfigObjectProps(configObjects.properties[key], configValues);
-                    break;
-                case ConfigType.UNION:
-                    break;
-                default:
-                    const property: SimpleTypeProps = configObjects.properties[key];
-                    const existingConfig = configValues.findIndex((item) => item.key === property.id);
-                    if (existingConfig > -1) {
-                        configObjects.properties[key].value = configValues[existingConfig].value;
-                    }
-                    break;
-        }
-        });
-    }
-
-    return configObjects;
-}
-
-/**
  * Returns a `MetaData` object containing the values of orgName and packageName.
  * @param configSchema The original config schema object.
  * @returns            The `MetaData` object.
@@ -223,29 +187,17 @@ export function getPackageConfig(configSchema: ConfigSchema): object {
  * @param configProperties The config properties object, could be a `ConfigProperty` or `ConfigElement`.
  * @param configValues     The config values object, could be a nested value.
  */
-function setConfigValue(configProperties: object, configValues: object) {
+export function setConfigValue(configProperties: ConfigElementProps[], configValues: object): ConfigElementProps[] {
     if (configProperties === undefined) {
         return;
     }
     Object.keys(configProperties).forEach((key) => {
-        const type: ConfigType = getType(configProperties[key].type);
-        switch (type) {
-            case ConfigType.OBJECT:
-                const objectValue = getValue(configProperties[key].name, configValues);
-                setConfigValue(configProperties[key][SchemaConstants.PROPERTIES], objectValue);
-                break;
-            case ConfigType.ARRAY:
-                const arrayValue = getValue(configProperties[key].name, configValues);
-                configProperties[key].value = arrayValue;
-                break;
-            case ConfigType.UNION:
-                break;
-            default:
-                const value = getValue(configProperties[key].name, configValues);
-                configProperties[key].value = value;
-                break;
+        const value = getValue(configProperties[key].name, configValues);
+        if (value !== undefined) {
+            configProperties[key].value = value;
         }
     });
+    return configProperties;
 }
 
 /**

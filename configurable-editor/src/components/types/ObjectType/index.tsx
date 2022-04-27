@@ -21,6 +21,7 @@ import React, { ReactElement } from "react";
 
 import { ConfigElementProps } from "../../ConfigElement";
 import { SchemaConstants } from "../../model";
+import { setConfigValue } from "../../utils";
 import MapType, { MapTypeProps } from "../MapType";
 import RecordType, { RecordTypeProps } from "../RecordType";
 
@@ -36,6 +37,7 @@ const ObjectType = (props: ObjectTypeProps): ReactElement => {
     const isRecord: boolean = props.schema[SchemaConstants.PROPERTIES] !== undefined;
 
     if (isRecord) {
+        setConfigValue(props.properties, props.value);
         const recordTypeProps: RecordTypeProps = {
             ...props,
             setConfigRecord: props.setObjectConfig,

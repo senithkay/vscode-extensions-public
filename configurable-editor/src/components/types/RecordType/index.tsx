@@ -128,7 +128,6 @@ function getObjectElement(configObject: ConfigElementProps): ConfigElementProps 
         properties: getNestedElements(configObject.properties),
         schema: configObject.schema,
         type: configObject.type,
-        value: configObject.value,
     };
 }
 

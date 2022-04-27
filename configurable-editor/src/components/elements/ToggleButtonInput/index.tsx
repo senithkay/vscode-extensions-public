@@ -17,10 +17,12 @@
  *
  */
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 
 import ToggleButton from "@material-ui/lab/ToggleButton";
 import ToggleButtonGroup from "@material-ui/lab/ToggleButtonGroup";
+
+import { useStyles } from "./style";
 
 export interface ToggleButtonInputProps {
     id: string;
@@ -30,8 +32,9 @@ export interface ToggleButtonInputProps {
 }
 
 export function ToggleButtonInput(props: ToggleButtonInputProps) {
+    const classes = useStyles();
     const { id, existingValue, isRequired, setToggleButtonValue } = props;
-    const [inputValue, setInputValue] = React.useState(String(existingValue));
+    const [inputValue, setInputValue] = useState(String(existingValue));
 
     const getBooleanValue = (value: string): boolean => {
         switch (value) {
@@ -56,6 +59,10 @@ export function ToggleButtonInput(props: ToggleButtonInputProps) {
 
     useEffect(() => {
         setToggleButtonValue(id, getBooleanValue(inputValue));
+    }, []);
+
+    useEffect(() => {
+        setToggleButtonValue(id, getBooleanValue(inputValue));
     }, [inputValue]);
 
     return (
@@ -64,10 +71,10 @@ export function ToggleButtonInput(props: ToggleButtonInputProps) {
             value={inputValue}
             exclusive={true}
             onChange={handleChange}
-            size={"small"}
+            classes={{root: classes.toggleButton}}
         >
-            <ToggleButton value="true">True</ToggleButton>
-            <ToggleButton value="false">False</ToggleButton>
+            <ToggleButton value="true" classes={{root: classes.toggleButtonLabel}}>True</ToggleButton>
+            <ToggleButton value="false" classes={{root: classes.toggleButtonLabel}}>False</ToggleButton>
         </ToggleButtonGroup>
     );
 }

@@ -17,7 +17,7 @@
  *
  */
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 import { TextField } from "@material-ui/core";
 
@@ -36,13 +36,27 @@ export interface TextFieldInputProps {
 export function TextFieldInput(props: TextFieldInputProps) {
     const classes = useStyles();
     const { id, isRequired, value, type, inputProps, placeholder, setTextFieldValue } = props;
+    const [inputValue, setInputValue] = useState(value ? String(value) : undefined);
+
+    useEffect(() => {
+        setTextFieldValue(id, inputValue);
+    }, []);
+
+    useEffect(() => {
+        setTextFieldValue(id, inputValue);
+    }, [inputValue]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         let newValue = e.target.value;
         if (type === "string") {
             newValue = handleQuotes(newValue);
         }
-        setTextFieldValue(id, newValue);
+        setInputValue(newValue);
+    };
+
+    const newInputProps = {
+        ...inputProps,
+        style: { fontSize: 14 },
     };
 
     return (
@@ -51,14 +65,14 @@ export function TextFieldInput(props: TextFieldInputProps) {
             variant="outlined"
             placeholder={placeholder}
             fullWidth={true}
-            defaultValue={value}
+            defaultValue={inputValue}
             type={type}
             margin="none"
             onChange={handleChange}
             size="small"
             classes={{ root: classes.textInputRoot }}
             InputLabelProps={{ shrink: false }}
-            inputProps={inputProps}
+            inputProps={newInputProps}
         />
     );
 }

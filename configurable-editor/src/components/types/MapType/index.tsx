@@ -66,6 +66,27 @@ export const MapType = (props: MapTypeProps): ReactElement => {
 
     useEffect(() => {
         props.setConfigMap(props.id, element);
+        if (props.value) {
+            const initialValue: ConfigElementProps[] = [];
+            let newCounter = counter;
+            Object.keys(props.value).forEach((key) => {
+                const configElementProps: ConfigElementProps = {
+                    description: elementSchema[SchemaConstants.DESCRIPTION],
+                    id: props.id + "-" + newCounter,
+                    isRequired: false,
+                    label: "value",
+                    name: key,
+                    properties: propertiesValue,
+                    schema: elementSchema,
+                    type: propertyType,
+                    value: props.value[key],
+                };
+                newCounter = newCounter + 1;
+                initialValue.push(configElementProps);
+            });
+            setCounter(newCounter);
+            setMapValues(initialValue);
+        }
     }, []);
 
     const addMapField = () => {
@@ -157,7 +178,7 @@ export const MapType = (props: MapTypeProps): ReactElement => {
                                     <TextFieldInput
                                         id={configElement.id}
                                         isRequired={true}
-                                        value={configElement.value}
+                                        value={configElement.name}
                                         placeholder="key"
                                         type="string"
                                         setTextFieldValue={handleKeyChange}

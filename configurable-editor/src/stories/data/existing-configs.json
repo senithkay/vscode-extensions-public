@@ -18,16 +18,20 @@
                     "fullTime": true
                 }
             },
-            "mapValueRecord": [
-                {
-                    "name": "john",
-                    "age": 22
+            "mapValueInteger": {
+                "age": 22,
+                "value": 31
+            },
+            "mapValueRecord": {
+                "value1": {
+                    "name": "anne",
+                    "age": 31
                 },
-                {
+                "value2": {
                     "name": "anne",
                     "age": 31
                 }
-            ],
+            },
             "recordArray": [
                 {
                     "name": "william",

@@ -32,7 +32,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             marginTop: theme.spacing(0.5),
         },
         descriptionLabelText: {
-            color: "#1D2028",
+            color: "#3f51b5",
             fontSize: theme.spacing(1.4),
         },
         formGroup: {

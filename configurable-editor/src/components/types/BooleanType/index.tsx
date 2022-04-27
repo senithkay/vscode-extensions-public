@@ -35,7 +35,7 @@ const BooleanType = (props: BooleanTypeProps): ReactElement => {
     const { id, isRequired, value, setBooleanConfig } = props;
 
     const setBooleanValue = (propertyId: string, propertyValue: boolean) => {
-        setBooleanConfig(propertyId, Boolean(propertyValue));
+        setBooleanConfig(propertyId, propertyValue ? Boolean(propertyValue) : undefined);
     };
 
     const toggleButtonInputProps: ToggleButtonInputProps = {

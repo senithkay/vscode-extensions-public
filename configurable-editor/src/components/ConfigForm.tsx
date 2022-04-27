@@ -16,7 +16,7 @@
  * under the License.
  *
  */
-import React, { useState } from "react";
+import React, { ReactElement, useEffect, useState } from "react";
 
 import { Box, Button, Card, CardActions, CardContent, Collapse, FormLabel } from "@material-ui/core";
 
@@ -47,8 +47,13 @@ export interface ConfigFormProps {
 
 export const ConfigForm = (props: ConfigFormProps) => {
     const classes = useStyles();
+    const defaultableFields: ReactElement[] = [];
     const [configValue, setConfigValue] = useState<ConfigElementProps[]>([]);
-    const [expanded, setExpanded] = useState(false);
+    const [expanded, setExpanded] = useState(true);
+
+    useEffect(() => {
+        setExpanded(!expanded);
+    }, []);
 
     const {
         configSchema,
@@ -116,11 +121,10 @@ export const ConfigForm = (props: ConfigFormProps) => {
         setExpanded(!expanded);
     };
 
-    return (
-        <Box width="100%">
-            <form className="ConfigForm" onSubmit={handleSubmit}>
-                {requiredElements.map(ConfigElement)}
-                <Box className={classes.innerBoxCard}>
+    if (defaultableElements.length > 0) {
+        defaultableFields.push(
+            (
+                <Box key="defaultable fields" className={classes.innerBoxCard}>
                     <Card variant="outlined">
                         <CardContent className={classes.cardContent}>
                             <Box className={classes.innerBoxHead}>
@@ -141,6 +145,15 @@ export const ConfigForm = (props: ConfigFormProps) => {
                         </CardContent>
                     </Card>
                 </Box>
+            ),
+        );
+    }
+
+    return (
+        <Box width="100%">
+            <form className="ConfigForm" onSubmit={handleSubmit}>
+                {requiredElements.map(ConfigElement)}
+                {defaultableFields}
                 <CardActions>
                     <ButtonContainer justifyContent="flex-end">
                         <Button
