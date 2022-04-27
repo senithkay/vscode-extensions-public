@@ -16,14 +16,14 @@ import React from "react";
 import { CloseRounded } from "@material-ui/icons";
 import { ButtonWithIcon } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 
-import { SimpleField } from "../../Types";
+import { FormEditorField } from "../../Types";
 
 import { useStyles } from './style';
 
 export interface FunctionParam {
     id: number;
-    type: SimpleField;
-    name: SimpleField;
+    type: FormEditorField;
+    name: FormEditorField;
 }
 
 interface FunctionParamItemProps {

@@ -18,7 +18,7 @@ import { FormTextInput, PrimaryButton, SecondaryButton } from "@wso2-enterprise/
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 import { StmtDiagnostic } from "../../../../models/definitions";
-import { SimpleField } from "../../Types";
+import { FormEditorField } from "../../Types";
 
 import { FunctionParam } from "./FunctionParamItem";
 import { useStyles } from './style';
@@ -46,10 +46,10 @@ export function FunctionParamSegmentEditor(props: FunctionParamSegmentEditorProp
         type: { value: "string", isInteracted: false },
     };
 
-    const [segmentType, setSegmentType] = useState<SimpleField>(segment?.type || {
+    const [segmentType, setSegmentType] = useState<FormEditorField>(segment?.type || {
         value: "string", isInteracted: false
     });
-    const [segmentName, setSegmentName] = useState<SimpleField>(segment?.name || {
+    const [segmentName, setSegmentName] = useState<FormEditorField>(segment?.name || {
         value: "name", isInteracted: false
     });
 

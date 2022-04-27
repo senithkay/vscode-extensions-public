@@ -35,7 +35,7 @@ import { FunctionDefinition, NodePosition, STKindChecker } from "@wso2-enterpris
 
 import { StmtDiagnostic } from "../../../models/definitions";
 import { getPartialSTForTopLevelComponents } from "../../../utils/ls-utils";
-import { SimpleField } from "../Types";
+import { FormEditorField } from "../Types";
 import { recalculateItemIds } from "../Utils/FormUtils";
 
 import { FunctionParam, FunctionParamItem } from "./FunctionParamEditor/FunctionParamItem";
@@ -58,10 +58,10 @@ export function FunctionForm(props: FunctionProps) {
     const connectorClasses = connectorStyles();
 
     // States related to component model
-    const [functionName, setFunctionName] = useState<SimpleField>({
+    const [functionName, setFunctionName] = useState<FormEditorField>({
         value: model ? model.functionName.value : "", isInteracted: false
     });
-    const [returnType, setReturnType] = useState<SimpleField>({
+    const [returnType, setReturnType] = useState<FormEditorField>({
         value: model ? model.functionSignature?.returnTypeDesc?.type?.source?.trim() : "", isInteracted: false
     });
 

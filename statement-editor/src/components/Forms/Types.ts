@@ -11,7 +11,7 @@
  * associated services.
  */
 
-export interface SimpleField {
+export interface FormEditorField {
     value: string;
     isInteracted: boolean;
 }
