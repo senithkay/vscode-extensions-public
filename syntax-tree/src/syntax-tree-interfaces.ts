@@ -13,6 +13,7 @@ export interface VisibleEndpoint {
   orgName: string;
   version: string;
   typeName: string;
+  position: NodePosition;
   viewState?: any;
 }
 
