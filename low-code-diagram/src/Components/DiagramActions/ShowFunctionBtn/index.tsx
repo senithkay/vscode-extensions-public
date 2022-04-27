@@ -22,6 +22,7 @@ import {
 
 import { Context } from "../../../Context/diagram";
 import {
+  initializeViewState,
   recalculateSizingAndPositioning,
   sizingAndPositioning,
 } from "../../../Utils";
@@ -75,27 +76,26 @@ export function ShowFunctionBtn(props: ShowFunctionBtnProps) {
       diagramRedraw(recalculateSizingAndPositioning(syntaxTree));
       setConfirmDialogActive(false);
     } else {
-      const range: any = {
-        start: {
-          line: functionName.position?.startLine,
-          character: functionName.position?.startColumn,
-        },
-        end: {
-          line: functionName.position?.endLine,
-          character: functionName.position?.endColumn,
-        },
-      };
-
       try {
         if (!nodeViewState.functionNode) {
+          const range: any = {
+            start: {
+              line: functionName.position?.startLine,
+              character: functionName.position?.startColumn,
+            },
+            end: {
+              line: functionName.position?.endLine,
+              character: functionName.position?.endColumn,
+            },
+          };
           const funDef = await getFunctionDef(range);
-          const sizedBlock = sizingAndPositioning(funDef);
+          const sizedBlock = initializeViewState(funDef);
           nodeViewState.functionNode = sizedBlock as FunctionDefinition;
-          setFunctionBlock(sizedBlock);
         }
         nodeViewState.functionNodeExpanded = true;
         setConfirmDialogActive(true);
         diagramRedraw(syntaxTree);
+        setFunctionBlock(nodeViewState.functionNode);
       } catch (e) {
         // console.error(e);
       }

@@ -31,7 +31,7 @@ export class StatementViewState extends ViewState {
     public isReceive: boolean;
     public isSend: boolean;
     public arrowFrom: 'Left' | 'Right';
-    public functionNodeExpanded: boolean = false;
+    public functionNodeExpanded: boolean;
     public functionNode: FunctionDefinition;
 
     constructor() {

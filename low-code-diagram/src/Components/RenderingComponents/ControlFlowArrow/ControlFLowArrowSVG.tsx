@@ -62,7 +62,7 @@ export function ControlFLowArrowSVG(props: {
             x1={x1}
             y1={y}
             x2={x1}
-            y2={h - 30}
+            y2={h - 50}
             fill="none"
             stroke="#32324d"
             strokeMiterlimit="10"
@@ -70,10 +70,10 @@ export function ControlFLowArrowSVG(props: {
           />
           <line
             className={isDotted ? "line-dashed" : "line"}
-            x1={x1 + 30}
-            y1={h - 30}
-            x2={x2 + 30}
-            y2={h - 30}
+            x1={x1 + 50}
+            y1={h - 50}
+            x2={x2 + 50}
+            y2={h - 50}
             fill="none"
             stroke="#32324d"
             strokeMiterlimit="10"

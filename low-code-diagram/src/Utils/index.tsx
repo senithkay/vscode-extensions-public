@@ -37,6 +37,12 @@ export function recalculateSizingAndPositioning(st: STNode): STNode {
     return clone;
 }
 
+export function initializeViewState(st: STNode): STNode {
+    traversNode(st, new InitVisitor());
+    const clone = { ...st };
+    return clone;
+}
+
 export function getSTComponents(nodeArray: any): React.ReactNode[] {
     // Convert to array
     if (!(nodeArray instanceof Array)) {

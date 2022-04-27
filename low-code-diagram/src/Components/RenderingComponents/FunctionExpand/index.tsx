@@ -119,15 +119,15 @@ export function FunctionExpand(props: FunctionProps) {
       <g className={arrowClasses}>
         <ControlFlowArrow
           isDotted={false}
-          x={model.viewState.bBox.cx + 150 / 2 + 15}
+          x={model.viewState.bBox.cx + 40}
           y={model.viewState.bBox.cy}
-          w={60}
+          w={100}
         />
         <ControlFlowArrow
           isDotted={true}
-          x={model.viewState.bBox.cx + 150 / 2 + 15}
+          x={model.viewState.bBox.cx + 40}
           y={model.viewState.bBox.cy + 10}
-          w={30}
+          w={50}
           h={blockHeight}
           isTurnArrow={true}
         />
