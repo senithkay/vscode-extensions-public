@@ -110,6 +110,7 @@ export function ModuleVariable(props: ModuleVariableProps) {
             <div
                 className={"module-variable-container"}
                 data-test-id="module-var"
+                data-var-name={varName}
             >
                 <div className="module-variable-header" >
                     <div className={"module-variable-wrapper"}>
