@@ -60,6 +60,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
             currentFile,
             isMutationProgress: isMutationInProgress,
             stSymbolInfo,
+            syntaxTree,
             importStatements,
             experimentalEnabled
         },
@@ -291,6 +292,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
             getLangClient: getExpressionEditorLangClient,
             applyModifications: modifyDiagram,
             library,
+            syntaxTree,
             importStatements,
             experimentalEnabled
         }

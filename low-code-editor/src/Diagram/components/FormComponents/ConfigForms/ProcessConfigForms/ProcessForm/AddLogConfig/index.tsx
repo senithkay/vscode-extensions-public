@@ -46,6 +46,7 @@ export function AddLogConfig(props: LogConfigProps) {
         props: {
             isMutationProgress: isMutationInProgress,
             currentFile,
+            syntaxTree,
             importStatements,
             experimentalEnabled
         },
@@ -146,6 +147,7 @@ export function AddLogConfig(props: LogConfigProps) {
             getLangClient: getExpressionEditorLangClient,
             applyModifications: modifyDiagram,
             library,
+            syntaxTree,
             importStatements,
             experimentalEnabled
         }

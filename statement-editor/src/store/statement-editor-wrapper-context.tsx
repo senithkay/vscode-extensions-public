@@ -20,9 +20,7 @@ import { LowCodeEditorProps } from "../components/Editors";
 import { StmtEditorManager, StmtEditorStackItem } from "../utils/editors";
 
 export const StatementEditorWrapperContext = React.createContext({
-    formCtx: {
-        formModelPosition: null
-    },
+    formCtx: null,
     config: {
         type: ''
     },
@@ -44,6 +42,7 @@ export const StatementEditorWrapperContext = React.createContext({
         path: "",
         size: 0
     },
+    syntaxTree: null,
     importStatements: []
 });
 
@@ -73,9 +72,7 @@ export const StatementEditorWrapperContextProvider = (props: SEWrapperCtxProvide
     return (
         <StatementEditorWrapperContext.Provider
             value={{
-                formCtx: {
-                    formModelPosition: formArgs.formArgs.targetPosition
-                },
+                formCtx: formArgs,
                 config,
                 editorCtx: {
                     editorManager,

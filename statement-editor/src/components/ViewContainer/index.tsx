@@ -43,7 +43,7 @@ export function ViewContainer(props: ViewContainerProps) {
     const intl = useIntl();
     const overlayClasses = useStatementEditorStyles();
     const { currentFile, config, applyModifications, getLangClient } = useContext(StatementEditorWrapperContext);
-    const stmtCtx = useContext(StatementEditorContext);
+    const { syntaxTree } = useContext(StatementEditorWrapperContext);
     const {
         modelCtx: {
             statementModel
@@ -51,7 +51,7 @@ export function ViewContainer(props: ViewContainerProps) {
         modules: {
             modulesToBeImported
         }
-    } = stmtCtx;
+    } =  useContext(StatementEditorContext);
     const exprSchemeURI = `expr://${currentFile.path}`;
     const fileSchemeURI = `file://${currentFile.path}`;
 
@@ -68,7 +68,7 @@ export function ViewContainer(props: ViewContainerProps) {
     const onSaveClick = () => {
         sendDidClose(exprSchemeURI, getLangClient).then();
         sendDidOpen(fileSchemeURI, currentFile.content, getLangClient).then();
-        const modifications = getModifications(statementModel, config, formArgs, Array.from(modulesToBeImported) as string[]);
+        const modifications = getModifications(statementModel, config, formArgs, syntaxTree, Array.from(modulesToBeImported) as string[]);
         applyModifications(modifications);
         onWizardClose();
         sendDidClose(fileSchemeURI, getLangClient).then();

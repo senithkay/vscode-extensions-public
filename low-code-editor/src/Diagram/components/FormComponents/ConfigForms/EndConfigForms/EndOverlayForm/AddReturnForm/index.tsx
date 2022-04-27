@@ -135,6 +135,7 @@ export function AddReturnForm(props: ReturnFormProps) {
             getLangClient: getExpressionEditorLangClient,
             applyModifications: modifyDiagram,
             library,
+            syntaxTree,
             importStatements,
             experimentalEnabled
         }

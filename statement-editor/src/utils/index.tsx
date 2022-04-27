@@ -55,13 +55,15 @@ export function getModifications(
             model?: STNode;
         },
         formArgs: any,
+        syntaxTree?: STNode,
         modulesToBeImported?: string[]): STModification[] {
 
     const modifications: STModification[] = [];
     let source = model.source;
 
     if (STKindChecker.isModuleVarDecl(model)) {
-        modifications.push(createStatement(source, {endColumn: 0, endLine: 0, startColumn: 0, startLine: 0}));
+        const position = getModuleElementDeclPosition(syntaxTree);
+        modifications.push(createStatement(source, position));
     }
 
     if (STKindChecker.isLocalVarDecl(model) ||
@@ -351,6 +353,24 @@ export function sortSuggestions(x: CompletionResponse, y: CompletionResponse) {
         return x.sortText.localeCompare(y.sortText);
     }
     return 0;
+}
+
+export function getModuleElementDeclPosition(syntaxTree: STNode) {
+    const position: NodePosition = {
+        startLine: 0,
+        startColumn: 0,
+        endLine: 0,
+        endColumn: 0,
+    };
+    if (STKindChecker.isModulePart(syntaxTree) && syntaxTree.imports.length > 0) {
+        const lastImportPosition =
+            syntaxTree.imports[syntaxTree.imports.length - 1].position;
+        position.startLine = lastImportPosition?.endLine + 1;
+        position.endLine = lastImportPosition?.endLine + 1;
+        position.startColumn = lastImportPosition?.endColumn; // 0
+        position.endColumn = lastImportPosition?.endColumn; // 0
+    }
+    return position;
 }
 
 export function getModuleIconStyle(label: string): string {

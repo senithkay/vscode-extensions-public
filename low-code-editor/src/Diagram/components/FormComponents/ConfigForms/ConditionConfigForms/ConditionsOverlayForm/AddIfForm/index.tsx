@@ -62,6 +62,7 @@ export function AddIfForm(props: IfProps) {
         props: {
             isMutationProgress: isMutationInProgress,
             currentFile,
+            syntaxTree,
             importStatements,
             experimentalEnabled
         },
@@ -282,6 +283,7 @@ export function AddIfForm(props: IfProps) {
             getLangClient: getExpressionEditorLangClient,
             applyModifications: modifyDiagram,
             library,
+            syntaxTree,
             importStatements,
             experimentalEnabled
         }

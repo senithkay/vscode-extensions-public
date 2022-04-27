@@ -58,6 +58,7 @@ export function AddForeachForm(props: ForeachProps) {
             isMutationProgress: isMutationInProgress,
             stSymbolInfo,
             currentFile,
+            syntaxTree,
             importStatements,
             experimentalEnabled
         },
@@ -262,6 +263,7 @@ export function AddForeachForm(props: ForeachProps) {
             getLangClient: getExpressionEditorLangClient,
             applyModifications: modifyDiagram,
             library,
+            syntaxTree,
             importStatements,
             experimentalEnabled
         }

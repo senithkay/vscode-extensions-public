@@ -21,14 +21,14 @@ import ToolbarRedoIcon from "../../assets/icons/ToolbarRedoIcon";
 import ToolbarUndoIcon from "../../assets/icons/ToolbarUndoIcon";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { StatementEditorWrapperContext } from "../../store/statement-editor-wrapper-context";
-import { getRemainingContent } from "../../utils";
+import { getModuleElementDeclPosition, getRemainingContent } from "../../utils";
 import { StatementEditorViewState } from "../../utils/statement-editor-viewstate";
 import { INPUT_EDITOR_PLACE_HOLDERS } from "../InputEditor/constants";
 import { useStatementEditorStyles } from "../styles";
 
 export default function Toolbar(){
     const statementEditorClasses = useStatementEditorStyles();
-    const { editorCtx } = useContext(StatementEditorWrapperContext);
+    const { editorCtx, syntaxTree } = useContext(StatementEditorWrapperContext);
     const { modelCtx } = useContext(StatementEditorContext);
     const {
         undo,
@@ -40,6 +40,8 @@ export default function Toolbar(){
         currentModel
     } = modelCtx;
     const { addConfigurable } = editorCtx;
+
+    const configurableInsertPosition = getModuleElementDeclPosition(syntaxTree);
 
     const isExprDeletable = (): boolean => {
         if (currentModel.model){
@@ -67,7 +69,7 @@ export default function Toolbar(){
 
     const onClickOnConfigurable = () => {
         const configurableStmt = "configurable string VAR_NAME = ?;";
-        addConfigurable("Add Configurable", {endColumn: 0, endLine: 0, startColumn: 0, startLine: 0}, configurableStmt);
+        addConfigurable("Add Configurable", configurableInsertPosition, configurableStmt);
     }
 
     const deleteButtonEnabled = currentModel.model && isExprDeletable();
