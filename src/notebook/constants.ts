@@ -20,8 +20,8 @@
 /* Ballerina notebook extension */
 export const BAL_NOTEBOOK = ".balnotebook";
 
-/* Notebook scheme type */
-export const NOTEBOOK_SCHEME = "vscode-notebook-cell";
+/* Notebook type */
+export const NOTEBOOK_TYPE = "ballerina-notebook";
 
 /* Available mime type to render */
 export const MIME_TYPE_TABLE = "ballerina-notebook/table-view";

@@ -21,12 +21,12 @@ import { BallerinaExtension, ExtendedLangClient, LANGUAGE } from "../core";
 import { CancellationToken, CompletionContext, CompletionItem, CompletionItemProvider, 
     CompletionList, Disposable, DocumentSelector, languages, Position, ProviderResult, 
     TextDocument, } from "vscode";
-import { NOTEBOOK_SCHEME } from "./constants";
-import { filterCompletions, getPlainTextSnippet, translateCompletionItemKind  } from "./utils";
 import { CompletionItemKind as MonacoCompletionItemKind } from "monaco-languageclient";
+import { filterCompletions, getPlainTextSnippet, translateCompletionItemKind  } from "./utils";
+import { NOTEBOOK_TYPE } from "./constants";
 
 const selector: DocumentSelector = {
-    scheme: NOTEBOOK_SCHEME,
+    notebookType: NOTEBOOK_TYPE,
     language: LANGUAGE.BALLERINA
 };
 

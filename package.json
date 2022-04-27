@@ -599,7 +599,7 @@
         "lint": "tslint --fix 'src/**/*{.ts,.tsx}'"
     },
     "dependencies": {
-        "@types/vscode": "^1.59.0",
+        "@types/vscode": "^1.66.0",
         "@wso2-enterprise/ballerina-configurable-editor": "next",
         "@wso2-enterprise/ballerina-low-code-editor": "next",
         "@wso2-enterprise/ballerina-low-code-edtior-commons": "next",
