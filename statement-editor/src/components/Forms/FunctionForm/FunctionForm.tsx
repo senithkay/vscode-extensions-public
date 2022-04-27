@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 Inc. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -13,7 +13,8 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useEffect, useState } from 'react';
 
-import { FormControl } from "@material-ui/core";
+import { Button, Divider, FormControl } from "@material-ui/core";
+import { default as AddIcon } from "@material-ui/icons/Add";
 import {
     createFunctionSignature,
     ExpressionEditorLangClientInterface,
@@ -23,16 +24,22 @@ import {
     updateFunctionSignature,
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
+    ConfigPanelSection,
     dynamicConnectorStyles as connectorStyles,
     FormActionButtons,
     FormHeaderSection,
     FormTextInput,
     useStyles as useFormStyles
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
-import { FunctionDefinition, NodePosition } from "@wso2-enterprise/syntax-tree";
+import { FunctionDefinition, NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { StmtDiagnostic } from "../../../models/definitions";
 import { getPartialSTForTopLevelComponents } from "../../../utils/ls-utils";
+import { SimpleField } from "../Types";
+import { recalculateItemIds } from "../Utils/FormUtils";
+
+import { FunctionParam, FunctionParamItem } from "./FunctionParamEditor/FunctionParamItem";
+import { FunctionParamSegmentEditor } from "./FunctionParamEditor/FunctionSegmentEditor";
 
 export interface FunctionProps {
     model: FunctionDefinition;
@@ -50,22 +57,30 @@ export function FunctionForm(props: FunctionProps) {
     const formClasses = useFormStyles();
     const connectorClasses = connectorStyles();
 
-    const [functionName, setFunctionName] = useState<string>(model ? model.functionName.value : "");
+    // States related to component model
+    const [functionName, setFunctionName] = useState<SimpleField>({
+        value: model ? model.functionName.value : "", isInteracted: false
+    });
+    const [returnType, setReturnType] = useState<SimpleField>({
+        value: model ? model.functionSignature?.returnTypeDesc?.type?.source?.trim() : "", isInteracted: false
+    });
 
-    const [returnType, setReturnType] = useState<string>(model ?
-        model.functionSignature?.returnTypeDesc?.type?.source?.trim() : "");
-    const [returnDiagnostics, setReturnDiagnostics] = useState<StmtDiagnostic[]>(undefined);
-
+    // States related to syntax diagnostics
     const [currentComponentName, setCurrentComponentName] = useState<string>("");
     const [currentComponentDiag, setCurrentComponentDiag] = useState<StmtDiagnostic[]>(undefined);
+
+    // States related parameters
+    const [parameters, setParameters] = useState<FunctionParam[]>([]);
+    const [editingSegmentId, setEditingSegmentId] = useState<number>(-1);
+    const [addingNewParam, setAddingNewParam] = useState(false);
 
     const onNameFocus = (value: string) => {
         setCurrentComponentName("Name");
     }
     const onNameChange = async (value: string) => {
-        setFunctionName(value);
+        setFunctionName({value, isInteracted: true});
         const genSource = getSource(mutateFunctionSignature("", value, "",
-            returnType ? `returns ${returnType}` : "", targetPosition));
+            returnType.value ? `returns ${returnType.value}` : "", targetPosition));
         const partialST = await getPartialSTForTopLevelComponents(
             {codeSnippet: genSource.trim()}, getLangClient
         );
@@ -73,14 +88,13 @@ export function FunctionForm(props: FunctionProps) {
             setCurrentComponentDiag(undefined);
             onChange(genSource);
         } else {
-            // setIsNameSyntaxError(true);
             setCurrentComponentDiag(partialST.syntaxDiagnostics);
         }
     }
 
     const onReturnTypeChange = async (value: string) => {
-        setReturnType(value);
-        const genSource = getSource(createFunctionSignature("", functionName, "",
+        setReturnType({value, isInteracted: true});
+        const genSource = getSource(createFunctionSignature("", functionName.value, "",
             value ? `returns ${value}` : "", targetPosition));
         const partialST = await getPartialSTForTopLevelComponents(
             {codeSnippet: genSource.trim()}, getLangClient
@@ -96,25 +110,127 @@ export function FunctionForm(props: FunctionProps) {
         setCurrentComponentName("Return");
     }
 
+    // Param related functions
+    const openNewParamView = () => {
+        setAddingNewParam(true);
+        setEditingSegmentId(-1);
+    };
+    const handleOnEdit = (funcParam: FunctionParam) => {
+        const id = parameters.findIndex(param => param.id === funcParam.id);
+        // Once edit is clicked
+        if (id > -1) {
+            setEditingSegmentId(id);
+        }
+        setAddingNewParam(false);
+    };
+    const onDeleteParam = (paramItem: FunctionParam) => {
+        setParameters(parameters.filter((item) => item.id !== paramItem.id));
+        recalculateItemIds(parameters);
+    }
+    const closeNewParamView = () => {
+        setAddingNewParam(false);
+        setEditingSegmentId(-1);
+        setCurrentComponentName(undefined);
+        setCurrentComponentDiag(undefined);
+    };
+    const handleOnUpdateParam = (param: FunctionParam) => {
+        const id = param.id;
+        if (id > -1) {
+            parameters[id] = param;
+            setParameters(parameters);
+        }
+        setAddingNewParam(false);
+        setEditingSegmentId(-1);
+    };
+    const onParamChange = async (param: FunctionParam) => {
+        const d = parameters;
+        setCurrentComponentName("Param")
+        const newParams = [...parameters, param];
+        const parametersStr = newParams
+            .map((item) => `${item.type.value} ${item.name.value}`)
+            .join(",");
+        const genSource = getSource(mutateFunctionSignature("", functionName.value, parametersStr,
+            returnType.value ? `returns ${returnType.value}` : "", targetPosition));
+        const partialST = await getPartialSTForTopLevelComponents(
+            {codeSnippet: genSource.trim()}, getLangClient
+        );
+        if (!partialST.syntaxDiagnostics.length) {
+            setCurrentComponentDiag(undefined);
+            onChange(genSource);
+        } else {
+            setCurrentComponentDiag(partialST.syntaxDiagnostics);
+        }
+    };
+    const onSaveNewParam = (param: FunctionParam) => {
+        setParameters([...parameters, param]);
+        setAddingNewParam(false);
+        setEditingSegmentId(-1);
+    };
+
     const handleOnSave = () => {
         if (model) {
             applyModifications([
-                updateFunctionSignature(functionName, "",
-                    returnType ? `returns ${returnType}` : "", {
+                updateFunctionSignature(functionName.value, "",
+                    returnType.value ? `returns ${returnType.value}` : "", {
                     ...targetPosition, startColumn : model?.functionName?.position?.startColumn
                 })
             ]);
         } else {
             applyModifications([
-                createFunctionSignature("", functionName, "",
-                    returnType ? `returns ${returnType}` : "", targetPosition)
+                createFunctionSignature("", functionName.value, "",
+                    returnType.value ? `returns ${returnType.value}` : "", targetPosition)
             ]);
         }
     }
 
+    const paramElements: React.ReactElement[] = [];
+    parameters?.forEach((value, index) => {
+        if (value.name.value) {
+            if (editingSegmentId !== index) {
+                paramElements.push(
+                    <FunctionParamItem
+                        key={index}
+                        functionParam={value}
+                        readonly={addingNewParam || (currentComponentDiag?.length > 0)}
+                        onDelete={onDeleteParam}
+                        onEditClick={handleOnEdit}
+                    />
+                );
+            } else if (editingSegmentId === index) {
+                paramElements.push(
+                    <FunctionParamSegmentEditor
+                        id={editingSegmentId}
+                        segment={value}
+                        syntaxDiag={currentComponentDiag}
+                        onCancel={closeNewParamView}
+                        onUpdate={handleOnUpdateParam}
+                        onChange={onParamChange}
+                        validateParams={null}
+                        // position={paramPosition}
+                        isEdit={!!model}
+                        paramCount={parameters.length}
+                    />
+                );
+            }
+        }
+    });
+
     useEffect(() => {
-        setReturnType(model ? model.functionSignature?.returnTypeDesc?.type?.source?.trim() : "");
-        setFunctionName(model ? model.functionName.value : "");
+        setReturnType({
+            ...returnType, value: model ? model.functionSignature?.returnTypeDesc?.type?.source?.trim() : ""
+        });
+        setFunctionName({...functionName, value: model ? model.functionName.value : ""});
+
+        if (currentComponentName === "") {
+            const editParams: FunctionParam[] = model?.functionSignature.parameters
+                .filter((param) => STKindChecker.isRequiredParam(param))
+                .map((param: any, index) => ({
+                    id: index,
+                    name: param.paramName.value,
+                    type: param.typeName.source.trim(),
+                }));
+            setParameters(editParams);
+        }
     }, [model]);
 
     return (
@@ -129,7 +245,7 @@ export function FunctionForm(props: FunctionProps) {
                     <FormTextInput
                         label="Name"
                         dataTestId="service-name"
-                        defaultValue={functionName}
+                        defaultValue={functionName.value}
                         onChange={onNameChange}
                         customProps={{
                             optional: true,
@@ -140,12 +256,38 @@ export function FunctionForm(props: FunctionProps) {
                         onFocus={onNameFocus}
                         placeholder={"Enter Name"}
                         size="small"
-                        disabled={(currentComponentDiag && currentComponentName !== "Name")}
+                        disabled={addingNewParam || (currentComponentDiag && currentComponentName !== "Name")}
                     />
+                    <Divider className={connectorClasses.sectionSeperatorHR} />
+                    <ConfigPanelSection title={"Parameters"}>
+                        {paramElements}
+                        {addingNewParam ? (
+                            <FunctionParamSegmentEditor
+                                id={parameters.length}
+                                syntaxDiag={currentComponentDiag}
+                                onCancel={closeNewParamView}
+                                onChange={onParamChange}
+                                onSave={onSaveNewParam}
+                                // position={paramPosition}
+                                isEdit={!!model}
+                                paramCount={parameters.length}
+                            />
+                        ) : (!(currentComponentDiag?.length > 0) && (
+                                <Button
+                                    onClick={openNewParamView}
+                                    className={connectorClasses.addParameterBtn}
+                                    startIcon={<AddIcon />}
+                                    color="primary"
+                                >
+                                    Add parameter
+                                </Button>
+                        ))}
+                    </ConfigPanelSection>
+                    <Divider className={connectorClasses.sectionSeperatorHR} />
                     <FormTextInput
                         label="Return Type"
                         dataTestId="return-type"
-                        defaultValue={returnType}
+                        defaultValue={returnType.value}
                         customProps={{
                             optional: true,
                             isErrored: (currentComponentDiag !== undefined && currentComponentName === "Return")
@@ -156,7 +298,7 @@ export function FunctionForm(props: FunctionProps) {
                         onFocus={onReturnFocus}
                         placeholder={"Enter Return Type"}
                         size="small"
-                        disabled={(currentComponentDiag && currentComponentName !== "Return")}
+                        disabled={addingNewParam || (currentComponentDiag && currentComponentName !== "Return")}
                     />
                 </div>
             </div>

@@ -30,6 +30,7 @@ import {
 import { FormRenderer } from "../FormRenderer";
 import { EXPR_SCHEME, FILE_SCHEME } from "../InputEditor/constants";
 import { LowCodeEditorProps } from "../StatementEditor";
+import {getInitialSource} from "../Forms/Utils/FormUtils";
 
 export interface FormEditorProps extends LowCodeEditorProps {
     initialSource?: string;
@@ -76,6 +77,15 @@ export function FormEditor(props: FormEditorProps) {
                 if (topLevelComponent) {
                     const partialST = await getPartialSTForTopLevelComponents(
                         { codeSnippet: initialSource.trim() }, getLangClient
+                    );
+                    setModel(partialST);
+                }
+            })();
+        } else {
+            (async () => {
+                if (topLevelComponent) {
+                    const partialST = await getPartialSTForTopLevelComponents(
+                        {codeSnippet: getInitialSource(type, targetPosition)}, getLangClient
                     );
                     setModel(partialST);
                 }
