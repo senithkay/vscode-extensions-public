@@ -19,3 +19,5 @@ export * from "./FormTextInput";
 export * from "./SwitchToggle";
 export * from "./formStyle";
 export * from "./connectorStyle";
+export * from "./dynamicConnectorStyles";
+export * from "./Section";

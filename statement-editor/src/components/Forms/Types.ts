@@ -11,19 +11,7 @@
  * associated services.
  */
 
-export class Connector {
-    public constructor(private container: Cypress.Chainable<JQuery<HTMLElement>>) {
-    }
-
-    public clickEdit() {
-        this.container.trigger('mouseover').within(() => {
-            cy.get('#edit-button').click({ force: true });
-        })
-    }
-
-    public clickDelete() {
-        this.container.trigger('mouseover').within(() => {
-            cy.get('#delete-button').click({ force: true });
-        })
-    }
+export interface FormEditorField {
+    value: string;
+    isInteracted: boolean;
 }

@@ -137,7 +137,7 @@ export class PositioningVisitor implements Visitor {
         bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
 
         viewState.end.bBox.cx = viewState.bBox.cx;
-        viewState.end.bBox.cy = DefaultConfig.startingY + viewState.workerLine.h + DefaultConfig.canvas.childPaddingY;
+        viewState.end.bBox.cy = viewState.trigger.cy + viewState.workerLine.h + DefaultConfig.canvas.childPaddingY;
 
         this.currentWorker.push('function');
         plusHolderHeight = 0;
@@ -238,7 +238,7 @@ export class PositioningVisitor implements Visitor {
             const plusBtnViewState: PlusViewState = viewState.initPlus;
             if (bodyViewState.draft === undefined && plusBtnViewState) {
                 plusBtnViewState.bBox.cx = viewState.trigger.cx;
-                plusBtnViewState.bBox.cy = viewState.trigger.cy + (viewState.trigger.h / 2) + viewState.trigger.offsetFromBottom + (START_SVG_SHADOW_OFFSET / 4);
+                plusBtnViewState.bBox.cy = viewState.trigger.cy + (viewState.trigger.h / 2) + viewState.trigger.offsetFromBottom;
             }
         }
 
@@ -766,7 +766,6 @@ export class PositioningVisitor implements Visitor {
                         endpointViewState.lifeLine.cx = blockViewState.bBox.cx +
                             endpointViewState.bBox.rw + epGap + (epGap * epCount);
                         endpointViewState.lifeLine.cy = statementViewState.bBox.cy;
-                        // NOTE: we can remove this section after Ballerina release with these changes ballerina-lang/pull/35604
                         endpointViewState.isExternal = true;
                         endpointViewState.isParameter = true;
                         visibleEndpoint.viewState = endpointViewState;
@@ -800,12 +799,10 @@ export class PositioningVisitor implements Visitor {
                         endpointViewState.bBox.rw + epGap + (epGap * epCount);
                     endpointViewState.lifeLine.cy = statementViewState.bBox.cy;
                     const endpoint: Endpoint = allEndpoints.get(statementViewState.endpoint.epName);
-                    if (endpoint){
-                        const visibleEndpoint: VisibleEndpoint = endpoint?.visibleEndpoint;
-                        const mainEp = endpointViewState;
-                        visibleEndpoint.viewState = mainEp;
-                        epCount++;
-                    }
+                    const visibleEndpoint: VisibleEndpoint = endpoint.visibleEndpoint;
+                    const mainEp = endpointViewState;
+                    visibleEndpoint.viewState = mainEp;
+                    epCount++;
                 }
 
                 if ((statementViewState.isEndpoint && statementViewState.isAction && !statementViewState.hidden)

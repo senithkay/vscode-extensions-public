@@ -60,7 +60,8 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
         <>
             <FormEditor
                 initialSource={model ? model.source : undefined}
-                targetPosition={model ? model.position : targetPosition}
+                initialModel={model}
+                targetPosition={model ? model?.functionSignature?.position : targetPosition}
                 onCancel={onCancel}
                 type={"Function"}
                 currentFile={currentFile}

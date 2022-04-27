@@ -13,7 +13,6 @@ export interface VisibleEndpoint {
   orgName: string;
   version: string;
   typeName: string;
-  position: NodePosition;
   viewState?: any;
 }
 
@@ -31,7 +30,7 @@ export interface ControlFlow {
   executionTime?: number;
 }
 
-export interface SyntaxDiagnostics {
+export interface Diagnostic {
   diagnosticInfo: DiagnosticInfo;
   message: string;
 }
@@ -60,7 +59,8 @@ export interface STNode {
   source: string;
   configurablePosition?: NodePosition;
   controlFlow?: ControlFlow;
-  syntaxDiagnostics: SyntaxDiagnostics[];
+  syntaxDiagnostics: Diagnostic[];
+  diagnostics?: Diagnostic[];
   leadingMinutiae: Minutiae[];
   trailingMinutiae: Minutiae[];
 }
