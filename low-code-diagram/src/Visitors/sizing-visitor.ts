@@ -98,13 +98,15 @@ export interface SendRecievePairInfo {
     targetName: string;
     targetViewState: ViewState;
     targetIndex: number;
-    restrictedSpace?: {
-        x1: number;
-        x2: number;
-        y1: number;
-        y2: number;
-    };
+    restrictedSpace?: ConflictRestrictSpace;
     pairHeight?: number;
+}
+
+export interface ConflictRestrictSpace {
+    x1: number;
+    x2: number;
+    y1: number;
+    y2: number;
 }
 
 export const DEFAULT_WORKER_NAME = 'function'; // todo: move to appropriate place.
@@ -409,11 +411,15 @@ export class SizingVisitor implements Visitor {
         }
 
         const matchedStatements = this.syncAsyncStatements(node);
-        const resolutionVisitor = new ConflictResolutionVisitor(matchedStatements);
+        const resolutionVisitor = new ConflictResolutionVisitor(matchedStatements, this.workerMap.size);
+        let count = 1;
         do {
+            count++;
             resolutionVisitor.resetConflictStatus();
             traversNode(node, resolutionVisitor);
         } while (resolutionVisitor.conflictFound())
+
+        console.log('while count >>>', count);
 
         if (bodyViewState.hasWorkerDecl) {
             let maxWorkerHeight = 0;
