@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, {useContext, useEffect, useState} from 'react';
 
-import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import * as monaco from "monaco-editor";
 import { Diagnostic } from "vscode-languageserver-protocol";
 
@@ -182,11 +182,11 @@ export function StatementEditor(props: StatementEditorProps) {
                 endColumn: position.endColumn,
                 newCodeSnippet: codeSnippet
             }
-            partialST = await getPartialSTForStatement(
-                { codeSnippet: model.source , stModification }, getLangClient);
+            partialST = STKindChecker.isModuleVarDecl(model)
+                ? await getPartialSTForModuleMembers({ codeSnippet: model.source , stModification }, getLangClient)
+                : await getPartialSTForStatement({ codeSnippet: model.source , stModification }, getLangClient);
         } else {
-            partialST = await getPartialSTForStatement(
-                { codeSnippet }, getLangClient);
+            partialST = await getPartialSTForStatement({ codeSnippet }, getLangClient);
         }
 
         undoRedoManager.add(model, partialST);
