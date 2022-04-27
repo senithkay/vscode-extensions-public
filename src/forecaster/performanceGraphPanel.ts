@@ -28,14 +28,12 @@ import { GraphData } from "./model";
 import { join } from "path";
 import { sendTelemetryEvent, CMP_PERF_ANALYZER, TM_EVENT_CLICK_PERF_GRAPH } from "../telemetry";
 
-let clearCodeLenses = true;
-
 export class DefaultWebviewPanel {
     public static currentPanel: DefaultWebviewPanel | undefined;
     private readonly webviewPanel: WebviewPanel;
     private disposables: Disposable[] = [];
     private extension: BallerinaExtension;
-
+    static clearCodeLenses = true;
 
     private constructor(panel: WebviewPanel, data: GraphData, type: WEBVIEW_TYPE, title: string, extension: BallerinaExtension) {
         this.webviewPanel = panel;
@@ -49,7 +47,7 @@ export class DefaultWebviewPanel {
         extension.setWebviewContext({ isOpen: true, type });
         if (DefaultWebviewPanel.currentPanel && DefaultWebviewPanel.currentPanel.webviewPanel.viewColumn
             && DefaultWebviewPanel.currentPanel.webviewPanel.viewColumn == viewColumn) {
-            clearCodeLenses = false;
+            DefaultWebviewPanel.clearCodeLenses = false;
 
             DefaultWebviewPanel.currentPanel.webviewPanel.reveal();
             DefaultWebviewPanel.currentPanel.update(data, type, title);
@@ -94,7 +92,7 @@ export class DefaultWebviewPanel {
         );
 
         DefaultWebviewPanel.currentPanel.webviewPanel.onDidDispose(() => {
-            if (clearCodeLenses) {
+            if (DefaultWebviewPanel.clearCodeLenses) {
                 refreshDiagramForPerformanceConcurrencyChanges(-1);
                 ExecutorCodeLensProvider.addCodeLenses(currentFileUri);
             }
@@ -115,7 +113,7 @@ export class DefaultWebviewPanel {
             this.updateTitle(title);
         }
         this.webviewPanel.webview.html = render(type, { name: data.name, data: data.graphData });
-        clearCodeLenses = true;
+        DefaultWebviewPanel.clearCodeLenses = true;
     }
 
     public updateTitle(title: string) {
