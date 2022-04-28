@@ -63,7 +63,7 @@ export function StatementEditor(props: StatementEditorProps) {
         onStmtEditorModelChange
     } = props;
 
-    const { source, position : targetPosition, isConfigurableStmt } = editor;
+    const { source, position : targetPosition, isConfigurableStmt, selectedNodePosition } = editor;
     const { currentFile, formCtx, config, importStatements, getLangClient } = useContext(StatementEditorWrapperContext);
 
     const undoRedoManager = React.useMemo(() => new StmtEditorUndoRedoManager(), []);
@@ -133,7 +133,9 @@ export function StatementEditor(props: StatementEditorProps) {
 
                 if (!partialST.syntaxDiagnostics.length || config.type === CUSTOM_CONFIG_TYPE) {
                     setStmtModel(partialST, diagnostics);
-                    setCurrentModel({model: undefined});
+                    setCurrentModel({
+                        model: selectedNodePosition ? getCurrentModel(selectedNodePosition, partialST) : undefined
+                    });
                 }
             })();
         }
