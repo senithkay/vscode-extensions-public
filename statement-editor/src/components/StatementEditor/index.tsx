@@ -293,6 +293,7 @@ export function StatementEditor(props: StatementEditorProps) {
                     <ViewContainer
                         formArgs={formCtx}
                         isStatementValid={!stmtDiagnostics.length}
+                        isConfigurableStmt={isConfigurableStmt}
                         onWizardClose={onWizardClose}
                         onCancel={onCancel}
                     />

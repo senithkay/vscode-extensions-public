@@ -22,13 +22,14 @@ import {
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { StatementEditorWrapperContext } from "../../store/statement-editor-wrapper-context";
 import { getModifications } from "../../utils";
-import { sendDidChange, sendDidClose, sendDidOpen } from "../../utils/ls-utils";
+import { sendDidChange, sendDidClose } from "../../utils/ls-utils";
 import { EditorPane } from '../EditorPane';
 import { useStatementEditorStyles } from "../styles";
 
 export interface ViewContainerProps {
     formArgs: any;
     isStatementValid: boolean;
+    isConfigurableStmt: boolean;
     onWizardClose: () => void;
     onCancel: () => void;
 }
@@ -37,13 +38,19 @@ export function ViewContainer(props: ViewContainerProps) {
     const {
         formArgs,
         isStatementValid,
+        isConfigurableStmt,
         onWizardClose,
         onCancel
     } = props;
     const intl = useIntl();
     const overlayClasses = useStatementEditorStyles();
     const { currentFile, config, applyModifications, getLangClient } = useContext(StatementEditorWrapperContext);
-    const { syntaxTree } = useContext(StatementEditorWrapperContext);
+    const {
+        editorCtx: {
+            dropNSwitchEditor
+        },
+        syntaxTree
+    } = useContext(StatementEditorWrapperContext);
     const {
         modelCtx: {
             statementModel
@@ -55,30 +62,60 @@ export function ViewContainer(props: ViewContainerProps) {
     const exprSchemeURI = `expr://${currentFile.path}`;
     const fileSchemeURI = `file://${currentFile.path}`;
 
-    const saveVariableButtonText = intl.formatMessage({
-        id: "lowcode.develop.configForms.variable.saveButton.text",
+    const saveButtonText = intl.formatMessage({
+        id: "lowcode.develop.configForms.statementEditor.saveButton.text",
         defaultMessage: "Save"
     });
 
-    const cancelVariableButtonText = intl.formatMessage({
-        id: "lowcode.develop.configForms.variable.cancelButton.text",
+    const cancelButtonText = intl.formatMessage({
+        id: "lowcode.develop.configForms.statementEditor.cancelButton.text",
         defaultMessage: "Cancel"
     });
 
-    const onSaveClick = () => {
-        sendDidClose(exprSchemeURI, getLangClient).then();
-        sendDidOpen(fileSchemeURI, currentFile.content, getLangClient).then();
-        const modifications = getModifications(statementModel, config, formArgs, syntaxTree, Array.from(modulesToBeImported) as string[]);
-        applyModifications(modifications);
+    const addConfigurableButtonText = intl.formatMessage({
+        id: "lowcode.develop.configForms.statementEditor.addConfigurableButton.text",
+        defaultMessage: "Add"
+    });
+
+    const backButtonText = intl.formatMessage({
+        id: "lowcode.develop.configForms.statementEditor.backButton.text",
+        defaultMessage: "Back"
+    });
+
+    const onSaveClick = async () => {
+        await handleModifications();
         onWizardClose();
-        sendDidClose(fileSchemeURI, getLangClient).then();
+        await sendDidClose(fileSchemeURI, getLangClient);
+    };
+
+    const onAddConfigurableClick = async () => {
+        await handleModifications();
+        dropNSwitchEditor();
+        await sendDidClose(fileSchemeURI, getLangClient);
+    };
+
+    const onBackClick = async () => {
+        await handleClose();
+        dropNSwitchEditor();
     };
 
     const onCancelClick = async () => {
-        await sendDidChange(exprSchemeURI, currentFile.content, getLangClient);
-        sendDidClose(exprSchemeURI, getLangClient).then();
+        await handleClose();
         onCancel();
-    }
+    };
+
+    const handleModifications = async () => {
+        await sendDidClose(exprSchemeURI, getLangClient);
+        await sendDidChange(fileSchemeURI, currentFile.content, getLangClient);
+        const modifications = getModifications(statementModel, config, formArgs,
+            syntaxTree, Array.from(modulesToBeImported) as string[]);
+        applyModifications(modifications);
+    };
+
+    const handleClose = async () => {
+        await sendDidChange(exprSchemeURI, currentFile.content, getLangClient);
+        await sendDidClose(exprSchemeURI, getLangClient);
+    };
 
     return (
         (
@@ -90,16 +127,16 @@ export function ViewContainer(props: ViewContainerProps) {
                     <div className={overlayClasses.bottomPane}>
                         <div className={overlayClasses.buttonWrapper}>
                             <SecondaryButton
-                                text={cancelVariableButtonText}
+                                text={isConfigurableStmt ? backButtonText : cancelButtonText}
                                 fullWidth={false}
-                                onClick={onCancelClick}
+                                onClick={isConfigurableStmt ? onBackClick : onCancelClick}
                             />
                             <PrimaryButton
                                 dataTestId="save-btn"
-                                text={saveVariableButtonText}
+                                text={isConfigurableStmt ? addConfigurableButtonText : saveButtonText}
                                 disabled={!isStatementValid}
                                 fullWidth={false}
-                                onClick={onSaveClick}
+                                onClick={isConfigurableStmt ? onAddConfigurableClick : onSaveClick}
                             />
                         </div>
                     </div>

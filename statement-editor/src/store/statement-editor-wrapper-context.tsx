@@ -27,7 +27,8 @@ export const StatementEditorWrapperContext = React.createContext({
     editorCtx: {
         editorManager: null,
         editors: [],
-        handleConfigurable: (index: number) => undefined,
+        switchEditor: (index: number) => undefined,
+        dropNSwitchEditor: () => undefined,
         addConfigurable: (newLabel: string, newPosition: NodePosition, newSource: string) => undefined
     },
     getLangClient: () => (Promise.resolve({} as any)),
@@ -50,7 +51,8 @@ interface SEWrapperCtxProviderProps extends LowCodeEditorProps {
     children?: React.ReactNode,
     config?: {type: string, model?: STNode},
     formArgs?: any,
-    handleConfigurable?: (index: number) => void,
+    switchEditor?: (index: number) => void,
+    dropNSwitchEditor?: () => void,
     addConfigurable?: (newLabel: string, newPosition: NodePosition, newSource: string) => void,
     editors?: StmtEditorStackItem[],
     editorManager?: StmtEditorManager
@@ -61,7 +63,8 @@ export const StatementEditorWrapperContextProvider = (props: SEWrapperCtxProvide
         children,
         config,
         formArgs,
-        handleConfigurable,
+        switchEditor,
+        dropNSwitchEditor,
         addConfigurable,
         editors,
         editorManager,
@@ -77,7 +80,8 @@ export const StatementEditorWrapperContextProvider = (props: SEWrapperCtxProvide
                 editorCtx: {
                     editorManager,
                     editors,
-                    handleConfigurable,
+                    switchEditor,
+                    dropNSwitchEditor,
                     addConfigurable
                 },
                 importStatements,

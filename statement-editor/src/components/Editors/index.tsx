@@ -87,8 +87,15 @@ export function Editors(props: EditorsProps) {
     const [editors, setEditors] = useState<StmtEditorStackItem[]>([]);
     const [editor, setEditor] = useState<StmtEditorStackItem>();
 
-    const handleConfigurable = React.useCallback(async (index: number) => {
+    const switchEditor = React.useCallback(async (index: number) => {
         setEditor(editorManager.getEditor(index));
+    }, []);
+
+    const dropNSwitchEditor = React.useCallback(async () => {
+        editorManager.remove();
+        const remainingEditors = editorManager.getAll();
+        setEditors([...remainingEditors]);
+        setEditor(editorManager.getEditor(remainingEditors.length - 1));
     }, []);
 
     const addConfigurable = React.useCallback((newLabel: string, newPosition: NodePosition, newSource: string) => {
@@ -110,7 +117,8 @@ export function Editors(props: EditorsProps) {
                     <StatementEditorWrapperContextProvider
                         config={config}
                         formArgs={formArgs}
-                        handleConfigurable={handleConfigurable}
+                        switchEditor={switchEditor}
+                        dropNSwitchEditor={dropNSwitchEditor}
                         addConfigurable={addConfigurable}
                         editors={editors}
                         editorManager={editorManager}

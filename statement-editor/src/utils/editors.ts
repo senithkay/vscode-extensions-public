@@ -91,4 +91,8 @@ export class StmtEditorManager {
     public getAll() {
         return this.stmtStack.getAll();
     }
+
+    public remove() {
+        return this.stmtStack.remove();
+    }
 }

@@ -37,7 +37,7 @@ export default function Breadcrumb() {
     const {
         editorCtx: {
             editors,
-            handleConfigurable
+            switchEditor
         }
     } = useContext(StatementEditorWrapperContext);
 
@@ -47,7 +47,7 @@ export default function Breadcrumb() {
         event.preventDefault();
         const index: number = +event.currentTarget.getAttribute('data-index');
         setEditorId(index);
-        handleConfigurable(index);
+        switchEditor(index);
     }
 
     return (
