@@ -2,8 +2,26 @@
 
 'use strict';
 
+const SentryPlugin = require("@sentry/webpack-plugin");
 const path = require('path');
 const MergeIntoSingleFile = require('webpack-merge-and-include-globally');
+const APP_VERSION = "20220428-0406";
+const optionalPlugins = [];
+const BALLERINA_VS_CODE_PATH = "~/config/extensions/wso2.ballerina-3.0.1-preview/resources/jslibs";
+
+if (process.env.IS_RELEASE) {
+  optionalPlugins.push(
+    new SentryPlugin({
+        release: APP_VERSION,
+        include: ["./node_modules/@wso2-enterprise/ballerina-low-code-editor-distribution/build/"],
+        urlPrefix: BALLERINA_VS_CODE_PATH,
+        authToken: process.env.SENTRY_AUTH_TOKEN,
+        org: "platformer-cloud-rm",
+        project: "choreo-low-code",
+        ignore: ["node_modules", "webpack.config.js"],
+    })
+  )
+}
 
 /** @type {import('webpack').Configuration} */
 module.exports = {
@@ -56,5 +74,6 @@ module.exports = {
         'webviewCommons.js': code => require("uglify-js").minify(code).code
       }
     }),
+    ...optionalPlugins
   ]
 };

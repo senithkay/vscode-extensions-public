@@ -32,6 +32,8 @@ jobs:
         run: sudo apt-get install xvfb && xvfb-run --auto-servernum ./gradlew clean build -x test
         env:
           NPM_ACCESS_TOKEN: ${{ secrets.PUBLISH_PAT }}
+          IS_RELEASE: ${{ true }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
       - run: find . -type f -name '*.vsix' -exec sh -c 'x="{}"; mv "$x" ballerina.vsix' \;
       - name: Create a release in wso2/ballerina-plugin-vscode repo
         run: |
