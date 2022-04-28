@@ -18,18 +18,18 @@ import {
   FunctionDefinition,
   STKindChecker,
 } from "@wso2-enterprise/syntax-tree";
+import cn from "classnames";
 
 import { Context } from "../../../Context/diagram";
 import { useOverlayRef, useSelectedStatus } from "../../../hooks";
 import { BlockViewState, FunctionViewState } from "../../../ViewState";
+import ControlFlowArrow from "../ControlFlowArrow";
 import { End } from "../End";
 import { StartButton } from "../Start";
 import { WorkerBody } from "../WorkerBody";
 import { WorkerLine } from "../WorkerLine";
 
 import "./style.scss";
-import ControlFlowArrow from "../ControlFlowArrow";
-import cn from "classnames";
 
 export const FUNCTION_PLUS_MARGIN_TOP = 7.5;
 export const FUNCTION_PLUS_MARGIN_BOTTOM = 7.5;
