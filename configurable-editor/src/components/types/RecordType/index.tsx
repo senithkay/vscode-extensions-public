@@ -42,7 +42,6 @@ export const RecordType = (props: RecordTypeProps) => {
     const returnElement: ReactElement[] = [];
 
     useEffect(() => {
-        props.setConfigRecord(props.id, getObjectElement(props));
         setExpanded(props.isRequired);
     }, []);
 
@@ -121,12 +120,13 @@ function updateRecordValue(recordObject: ConfigElementProps, id: string, value: 
 }
 
 function getObjectElement(configObject: ConfigElementProps): ConfigElementProps {
+    const nestedProperties: ConfigElementProps[] = getNestedElements(configObject.properties);
     return {
         description: configObject.description,
         id: configObject.id,
         isRequired: configObject.isRequired,
         name: configObject.name,
-        properties: getNestedElements(configObject.properties),
+        properties: nestedProperties,
         schema: configObject.schema,
         type: configObject.type,
     };
@@ -139,12 +139,13 @@ function getNestedElements(nestedObjects: ConfigElementProps[]): ConfigElementPr
 
     const properties: ConfigElementProps[] = [];
     nestedObjects.forEach((property) => {
+        const nestedProperties: ConfigElementProps[] = getNestedElements(property.properties);
         properties.push({
             description: property.description,
             id: property.id,
             isRequired: property.isRequired,
             name: property.name,
-            properties: getNestedElements(property.properties),
+            properties: nestedProperties,
             schema: property.schema,
             type: property.type,
             value: property.value,
