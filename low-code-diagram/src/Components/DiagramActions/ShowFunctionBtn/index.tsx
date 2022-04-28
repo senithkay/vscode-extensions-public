@@ -29,9 +29,9 @@ import {
 import { StatementViewState } from "../../../ViewState";
 import { FunctionExpand } from "../../RenderingComponents/FunctionExpand";
 
+import { HideFunctionSVG } from "./HideFunctionSVG";
 import { ShowFunctionSVG } from "./ShowFunctionSVG";
 import "./style.scss";
-import { HideFunctionSVG } from "./HideFunctionSVG";
 
 export interface ShowFunctionBtnProps {
   x: number;
