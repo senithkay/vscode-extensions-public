@@ -115,7 +115,14 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
     };
 
     useEffect(() => {
-        element.value = arrayValues;
+        const newArrayValues: ConfigElementProps[] = [];
+        arrayValues.forEach(entry => {
+            if (entry.properties !== undefined && entry.properties.length > 0) {
+                entry.value = undefined;
+            }
+            newArrayValues.push(entry);
+        });
+        element.value = newArrayValues;
         props.setArrayElement(props.id, element);
     }, [arrayValues]);
 

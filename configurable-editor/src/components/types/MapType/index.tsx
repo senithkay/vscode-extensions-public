@@ -151,7 +151,7 @@ export const MapType = (props: MapTypeProps): ReactElement => {
                     name: entry.name,
                     properties: entry.properties,
                     type: entry.type,
-                    value: entry.value,
+                    value: entry.properties ? undefined : entry.value,
                 };
                 const existingMap = element.properties.findIndex(
                     (property) => property.id === entry.id,
@@ -162,6 +162,7 @@ export const MapType = (props: MapTypeProps): ReactElement => {
                     element.properties.push(configProperty);
                 }
             });
+            element.value = undefined;
             props.setConfigMap(props.id, element);
         }
     }, [mapValues]);

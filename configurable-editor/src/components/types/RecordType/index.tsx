@@ -38,11 +38,12 @@ export interface RecordTypeProps extends ObjectTypeProps {
 export const RecordType = (props: RecordTypeProps) => {
     const classes = useStyles();
     const [recordValue, setRecordValue] = useState<ConfigElementProps>(getObjectElement(props));
-    const [expanded, setExpanded] = useState(props.isRequired);
+    const [expanded, setExpanded] = useState(true);
     const returnElement: ReactElement[] = [];
 
     useEffect(() => {
         props.setConfigRecord(props.id, getObjectElement(props));
+        setExpanded(props.isRequired);
     }, []);
 
     const handleExpandClick = () => {
