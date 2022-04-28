@@ -21,6 +21,7 @@ import { CUSTOM_CONFIG_TYPE } from "../../constants";
 import {
     CurrentModel,
     StmtDiagnostic,
+    StmtEditorStackItem,
     SuggestionItem
 } from "../../models/definitions";
 import { StatementEditorContextProvider} from "../../store/statement-editor-context";
@@ -34,7 +35,6 @@ import {
     isBindingPattern,
     isOperator,
 } from "../../utils";
-import { StmtEditorStackItem } from "../../utils/editors";
 import {
     getCompletions,
     getDiagnostics,

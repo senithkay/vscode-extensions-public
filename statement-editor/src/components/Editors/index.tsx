@@ -22,8 +22,8 @@ import {
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
+import { StmtEditorStackItem } from "../../models/definitions";
 import { StatementEditorWrapperContextProvider } from "../../store/statement-editor-wrapper-context";
-import { StmtEditorManager, StmtEditorStackItem } from "../../utils/editors";
 import { StatementEditor } from "../StatementEditor";
 
 export interface LowCodeEditorProps {
@@ -76,8 +76,6 @@ export function Editors(props: EditorsProps) {
         importStatements
     } = props;
 
-    const editorManager = React.useMemo(() => new StmtEditorManager(), []);
-
     const {
         formArgs : {
             targetPosition : targetPosition
@@ -87,28 +85,42 @@ export function Editors(props: EditorsProps) {
     const [editors, setEditors] = useState<StmtEditorStackItem[]>([]);
     const [editor, setEditor] = useState<StmtEditorStackItem>();
 
-    const switchEditor = React.useCallback(async (index: number) => {
-        setEditor(editorManager.getEditor(index));
-    }, []);
+    const switchEditor = (index: number) => {
+        setEditor(editors[index]);
+    };
 
-    const dropNSwitchEditor = React.useCallback(async () => {
-        editorManager.remove();
-        const remainingEditors = editorManager.getAll();
-        setEditors([...remainingEditors]);
-        setEditor(editorManager.getEditor(remainingEditors.length - 1));
-    }, []);
+    const dropNSwitchEditor = () => {
+        setEditors((prevEditors: StmtEditorStackItem[]) => {
+            return prevEditors.slice(0, -1);
+        });
+    };
 
-    const addConfigurable = React.useCallback((newLabel: string, newPosition: NodePosition, newSource: string) => {
-        editorManager.add(newLabel, newSource, newPosition, true);
-        setEditors([...editorManager.getAll()]);
-        setEditor({label: newLabel, position: newPosition, source: newSource, isConfigurableStmt: true});
+    const addConfigurable = (newLabel: string, newPosition: NodePosition, newSource: string) => {
+        const newEditor: StmtEditorStackItem = {
+            label: newLabel,
+            position: newPosition,
+            source: newSource,
+            isConfigurableStmt: true
+        };
+        setEditors((prevEditors: StmtEditorStackItem[]) => {
+            return [...prevEditors, newEditor];
+        });
+    };
+
+    useEffect(() => {
+        const newEditor: StmtEditorStackItem = {
+            label,
+            position: targetPosition,
+            source: initialSource
+        };
+        setEditors((prevEditors: StmtEditorStackItem[]) => {
+            return [...prevEditors, newEditor];
+        });
     }, []);
 
     useEffect(() => {
-        editorManager.add(label, initialSource, targetPosition);
-        setEditors(editorManager.getAll());
-        setEditor(editorManager.getEditor(0));
-    }, []);
+        setEditor(editors[editors.length - 1]);
+    }, [editors]);
 
     return (
         editor
@@ -121,7 +133,6 @@ export function Editors(props: EditorsProps) {
                         dropNSwitchEditor={dropNSwitchEditor}
                         addConfigurable={addConfigurable}
                         editors={editors}
-                        editorManager={editorManager}
                         getLangClient={getLangClient}
                         applyModifications={applyModifications}
                         currentFile={currentFile}

@@ -53,3 +53,10 @@ export interface MinutiaeJSX {
     leadingMinutiaeJSX: ReactNode[];
     trailingMinutiaeJSX: ReactNode[];
 }
+
+export interface StmtEditorStackItem {
+    label: string;
+    source: string;
+    position: NodePosition;
+    isConfigurableStmt?: boolean;
+}

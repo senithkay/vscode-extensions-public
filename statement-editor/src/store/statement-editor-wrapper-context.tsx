@@ -17,7 +17,7 @@ import { LibraryKind, STModification } from '@wso2-enterprise/ballerina-low-code
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { LowCodeEditorProps } from "../components/Editors";
-import { StmtEditorManager, StmtEditorStackItem } from "../utils/editors";
+import { StmtEditorStackItem } from "../models/definitions";
 
 export const StatementEditorWrapperContext = React.createContext({
     formCtx: null,
@@ -25,7 +25,6 @@ export const StatementEditorWrapperContext = React.createContext({
         type: ''
     },
     editorCtx: {
-        editorManager: null,
         editors: [],
         switchEditor: (index: number) => undefined,
         dropNSwitchEditor: () => undefined,
@@ -54,8 +53,7 @@ interface SEWrapperCtxProviderProps extends LowCodeEditorProps {
     switchEditor?: (index: number) => void,
     dropNSwitchEditor?: () => void,
     addConfigurable?: (newLabel: string, newPosition: NodePosition, newSource: string) => void,
-    editors?: StmtEditorStackItem[],
-    editorManager?: StmtEditorManager
+    editors?: StmtEditorStackItem[]
 }
 
 export const StatementEditorWrapperContextProvider = (props: SEWrapperCtxProviderProps) => {
@@ -67,7 +65,6 @@ export const StatementEditorWrapperContextProvider = (props: SEWrapperCtxProvide
         dropNSwitchEditor,
         addConfigurable,
         editors,
-        editorManager,
         importStatements,
         ...restProps
     } = props;
@@ -78,7 +75,6 @@ export const StatementEditorWrapperContextProvider = (props: SEWrapperCtxProvide
                 formCtx: formArgs,
                 config,
                 editorCtx: {
-                    editorManager,
                     editors,
                     switchEditor,
                     dropNSwitchEditor,

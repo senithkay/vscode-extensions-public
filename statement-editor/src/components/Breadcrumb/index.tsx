@@ -19,8 +19,8 @@ import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import NavigateNextIcon from '@material-ui/icons/NavigateNext';
 
+import { StmtEditorStackItem } from "../../models/definitions";
 import { StatementEditorWrapperContext } from "../../store/statement-editor-wrapper-context";
-import { StmtEditorStackItem } from "../../utils/editors";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
