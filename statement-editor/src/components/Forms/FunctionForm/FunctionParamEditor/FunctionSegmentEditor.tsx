@@ -15,7 +15,13 @@ import React, { useState } from "react";
 
 import { Grid } from "@material-ui/core";
 import { FormTextInput, PrimaryButton, SecondaryButton } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
-import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import {
+    DefaultableParam,
+    IncludedRecordParam,
+    NodePosition,
+    RequiredParam,
+    RestParam
+} from "@wso2-enterprise/syntax-tree";
 
 import { StmtDiagnostic } from "../../../../models/definitions";
 import { FormEditorField } from "../../Types";
@@ -24,6 +30,7 @@ import { FunctionParam } from "./FunctionParamItem";
 import { useStyles } from './style';
 
 interface FunctionParamSegmentEditorProps {
+    param?: DefaultableParam | IncludedRecordParam | RequiredParam | RestParam;
     id?: number;
     segment?: FunctionParam,
     onSave?: (segment: FunctionParam) => void;
@@ -38,7 +45,7 @@ interface FunctionParamSegmentEditorProps {
 }
 
 export function FunctionParamSegmentEditor(props: FunctionParamSegmentEditorProps) {
-    const { segment, onSave, onUpdate, onChange, id, onCancel, syntaxDiag } = props;
+    const { param, segment, onSave, onUpdate, onChange, id, onCancel, syntaxDiag } = props;
     const classes = useStyles();
     const initValue: FunctionParam = segment ? { ...segment } : {
         id: id ? id : 0,
@@ -117,9 +124,13 @@ export function FunctionParamSegmentEditor(props: FunctionParamSegmentEditorProp
                             onChange={handleOnTypeChange}
                             customProps={{
                                 optional: true,
-                                isErrored: (syntaxDiag !== undefined && currentComponentName === "Type")
+                                isErrored: (syntaxDiag !== undefined && currentComponentName === "Type" || (
+                                    param?.typeName?.viewState?.diagnostics?.length > 0
+                                ))
                             }}
-                            errorMessage={typeError}
+                            errorMessage={(syntaxDiag && currentComponentName === "Type" && syntaxDiag[0].message) ||
+                                param?.typeName?.viewState?.diagnostics[0]?.message
+                            }
                             disabled={(syntaxDiag?.length > 0) && currentComponentName !== "Type"}
                         />
                     </Grid>
@@ -130,9 +141,13 @@ export function FunctionParamSegmentEditor(props: FunctionParamSegmentEditorProp
                             onChange={handleOnNameChange}
                             customProps={{
                                 optional: true,
-                                isErrored: (syntaxDiag !== undefined && currentComponentName === "Name")
+                                isErrored: ((syntaxDiag !== undefined && currentComponentName === "Name") || (
+                                    param?.paramName?.viewState?.diagnostics?.length > 0
+                                ))
                             }}
-                            errorMessage={nameError}
+                            errorMessage={(syntaxDiag && currentComponentName === "Name" && syntaxDiag[0].message) ||
+                                param?.paramName?.viewState?.diagnostics[0]?.message
+                            }
                             disabled={(syntaxDiag?.length > 0) && currentComponentName !== "Name"}
                         />
                     </Grid>

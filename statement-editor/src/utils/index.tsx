@@ -192,6 +192,13 @@ export function isPositionsEquals(position1: NodePosition, position2: NodePositi
         position1?.endColumn === position2?.endColumn;
 }
 
+export function isDiagnosticInRange(diagPosition: NodePosition, nodePosition: NodePosition): boolean {
+    return diagPosition?.startLine >= nodePosition?.startLine &&
+        diagPosition?.startColumn >= nodePosition?.startColumn &&
+        diagPosition?.endLine <= nodePosition?.endLine &&
+        diagPosition?.endColumn <= nodePosition?.endColumn;
+}
+
 export function isOperator(modelType: number): boolean {
     return modelType === ModelType.OPERATOR;
 }

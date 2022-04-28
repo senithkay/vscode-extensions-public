@@ -31,7 +31,13 @@ import {
     FormTextInput,
     useStyles as useFormStyles
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
-import { FunctionDefinition, NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import {
+    DefaultableParam,
+    FunctionDefinition,
+    IncludedRecordParam,
+    NodePosition, RequiredParam, RestParam,
+    STKindChecker
+} from "@wso2-enterprise/syntax-tree";
 
 import { StmtDiagnostic } from "../../../models/definitions";
 import { getPartialSTForTopLevelComponents } from "../../../utils/ls-utils";
@@ -73,6 +79,9 @@ export function FunctionForm(props: FunctionProps) {
     const [parameters, setParameters] = useState<FunctionParam[]>([]);
     const [editingSegmentId, setEditingSegmentId] = useState<number>(-1);
     const [addingNewParam, setAddingNewParam] = useState(false);
+
+    const functionBodyBlock = model && STKindChecker.isFunctionBodyBlock(model.functionBody) && model?.functionBody;
+    const params = model?.functionSignature?.parameters.filter(param => !STKindChecker.isCommaToken(param));
 
     const onNameFocus = (value: string) => {
         setCurrentComponentName("Name");
@@ -143,9 +152,27 @@ export function FunctionForm(props: FunctionProps) {
         setEditingSegmentId(-1);
     };
     const onParamChange = async (param: FunctionParam) => {
-        const d = parameters;
         setCurrentComponentName("Param")
         const newParams = [...parameters, param];
+        const parametersStr = newParams
+            .map((item) => `${item.type.value} ${item.name.value}`)
+            .join(",");
+        const genSource = getSource(mutateFunctionSignature("", functionName.value, parametersStr,
+            returnType.value ? `returns ${returnType.value}` : "", targetPosition));
+        const partialST = await getPartialSTForTopLevelComponents(
+            {codeSnippet: genSource.trim()}, getLangClient
+        );
+        if (!partialST.syntaxDiagnostics.length) {
+            setCurrentComponentDiag(undefined);
+            onChange(genSource);
+        } else {
+            setCurrentComponentDiag(partialST.syntaxDiagnostics);
+        }
+    };
+    const onUpdateParamChange = async (param: FunctionParam) => {
+        setCurrentComponentName("Param")
+        const newParams = [...parameters];
+        newParams[param.id] = param;
         const parametersStr = newParams
             .map((item) => `${item.type.value} ${item.name.value}`)
             .join(",");
@@ -199,12 +226,14 @@ export function FunctionForm(props: FunctionProps) {
             } else if (editingSegmentId === index) {
                 paramElements.push(
                     <FunctionParamSegmentEditor
+                        param={params[editingSegmentId] as (DefaultableParam | IncludedRecordParam | RequiredParam |
+                            RestParam)}
                         id={editingSegmentId}
                         segment={value}
                         syntaxDiag={currentComponentDiag}
                         onCancel={closeNewParamView}
                         onUpdate={handleOnUpdateParam}
-                        onChange={onParamChange}
+                        onChange={onUpdateParamChange}
                         validateParams={null}
                         // position={paramPosition}
                         isEdit={!!model}
@@ -226,8 +255,8 @@ export function FunctionForm(props: FunctionProps) {
                 .filter((param) => STKindChecker.isRequiredParam(param))
                 .map((param: any, index) => ({
                     id: index,
-                    name: param.paramName.value,
-                    type: param.typeName.source.trim(),
+                    name: {value: param.paramName.value, isInteracted: false},
+                    type: {value: param.typeName.source.trim(), isInteracted: false},
                 }));
             setParameters(editParams);
         }
@@ -249,9 +278,12 @@ export function FunctionForm(props: FunctionProps) {
                         onChange={onNameChange}
                         customProps={{
                             optional: true,
-                            isErrored: (currentComponentDiag !== undefined && currentComponentName === "Name")
+                            isErrored: ((currentComponentDiag !== undefined && currentComponentName === "Name") ||
+                                model?.functionName?.viewState?.diagnostics[0]?.message)
                         }}
-                        errorMessage={"Diagnostics Name"}
+                        errorMessage={(currentComponentDiag && currentComponentName === "Name"
+                                && currentComponentDiag[0].message) ||
+                                model?.functionName?.viewState?.diagnostics[0]?.message}
                         onBlur={null}
                         onFocus={onNameFocus}
                         placeholder={"Enter Name"}
@@ -263,12 +295,13 @@ export function FunctionForm(props: FunctionProps) {
                         {paramElements}
                         {addingNewParam ? (
                             <FunctionParamSegmentEditor
+                                param={params[parameters.length] as (DefaultableParam | IncludedRecordParam |
+                                    RequiredParam | RestParam)}
                                 id={parameters.length}
                                 syntaxDiag={currentComponentDiag}
                                 onCancel={closeNewParamView}
                                 onChange={onParamChange}
                                 onSave={onSaveNewParam}
-                                // position={paramPosition}
                                 isEdit={!!model}
                                 paramCount={parameters.length}
                             />
@@ -290,9 +323,14 @@ export function FunctionForm(props: FunctionProps) {
                         defaultValue={returnType.value}
                         customProps={{
                             optional: true,
-                            isErrored: (currentComponentDiag !== undefined && currentComponentName === "Return")
+                            isErrored: (currentComponentDiag !== undefined && currentComponentName === "Return") ||
+                                    model?.functionSignature?.returnTypeDesc?.viewState?.diagnostics?.length > 0 ||
+                                    (functionBodyBlock?.closeBraceToken?.viewState?.diagnostics?.length > 0)
                         }}
-                        errorMessage={"Diagnostics"}
+                        errorMessage={(currentComponentDiag && currentComponentName === "Return"
+                                && currentComponentDiag[0].message) || model?.functionSignature?.returnTypeDesc?.
+                                viewState?.diagnostics[0]?.message || (functionBodyBlock?.closeBraceToken?.viewState?.
+                                diagnostics && functionBodyBlock?.closeBraceToken?.viewState?.diagnostics[0]?.message)}
                         onChange={onReturnTypeChange}
                         onBlur={null}
                         onFocus={onReturnFocus}
