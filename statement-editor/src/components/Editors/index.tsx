@@ -89,7 +89,7 @@ export function Editors(props: EditorsProps) {
         setEditor(editors[index]);
     };
 
-    const dropNSwitchEditor = () => {
+    const dropLastEditor = () => {
         setEditors((prevEditors: StmtEditorStackItem[]) => {
             return prevEditors.slice(0, -1);
         });
@@ -130,7 +130,7 @@ export function Editors(props: EditorsProps) {
                         config={config}
                         formArgs={formArgs}
                         switchEditor={switchEditor}
-                        dropNSwitchEditor={dropNSwitchEditor}
+                        dropLastEditor={dropLastEditor}
                         addConfigurable={addConfigurable}
                         editors={editors}
                         getLangClient={getLangClient}

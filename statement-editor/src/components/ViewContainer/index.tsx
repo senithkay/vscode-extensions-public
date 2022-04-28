@@ -47,7 +47,7 @@ export function ViewContainer(props: ViewContainerProps) {
     const { currentFile, config, applyModifications, getLangClient } = useContext(StatementEditorWrapperContext);
     const {
         editorCtx: {
-            dropNSwitchEditor
+            dropLastEditor
         },
         syntaxTree
     } = useContext(StatementEditorWrapperContext);
@@ -90,13 +90,13 @@ export function ViewContainer(props: ViewContainerProps) {
 
     const onAddConfigurableClick = async () => {
         await handleModifications();
-        dropNSwitchEditor();
+        dropLastEditor();
         await sendDidClose(fileSchemeURI, getLangClient);
     };
 
     const onBackClick = async () => {
         await handleClose();
-        dropNSwitchEditor();
+        dropLastEditor();
     };
 
     const onCancelClick = async () => {
