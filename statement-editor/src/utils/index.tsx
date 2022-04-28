@@ -367,8 +367,6 @@ export function getModuleElementDeclPosition(syntaxTree: STNode) {
             syntaxTree.imports[syntaxTree.imports.length - 1].position;
         position.startLine = lastImportPosition?.endLine + 1;
         position.endLine = lastImportPosition?.endLine + 1;
-        position.startColumn = lastImportPosition?.endColumn; // 0
-        position.endColumn = lastImportPosition?.endColumn; // 0
     }
     return position;
 }
