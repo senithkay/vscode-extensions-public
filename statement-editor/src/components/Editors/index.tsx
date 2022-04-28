@@ -84,9 +84,18 @@ export function Editors(props: EditorsProps) {
 
     const [editors, setEditors] = useState<StmtEditorStackItem[]>([]);
     const [editor, setEditor] = useState<StmtEditorStackItem>();
+    const [activeEditorId, setActiveEditorId] = useState<number>(0);
 
     const switchEditor = (index: number) => {
         setEditor(editors[index]);
+        setActiveEditorId(index);
+    };
+
+    const updateEditor = (index: number, newContent: StmtEditorStackItem) => {
+        setEditors((prevEditors: StmtEditorStackItem[]) => {
+            prevEditors[index] = newContent;
+            return prevEditors;
+        });
     };
 
     const dropLastEditor = () => {
@@ -119,7 +128,9 @@ export function Editors(props: EditorsProps) {
     }, []);
 
     useEffect(() => {
-        setEditor(editors[editors.length - 1]);
+        const editorIndex = editors.length - 1;
+        setEditor(editors[editorIndex]);
+        setActiveEditorId(editorIndex);
     }, [editors]);
 
     return (
@@ -130,8 +141,10 @@ export function Editors(props: EditorsProps) {
                         config={config}
                         formArgs={formArgs}
                         switchEditor={switchEditor}
+                        updateEditor={updateEditor}
                         dropLastEditor={dropLastEditor}
                         addConfigurable={addConfigurable}
+                        activeEditorId={activeEditorId}
                         editors={editors}
                         getLangClient={getLangClient}
                         applyModifications={applyModifications}

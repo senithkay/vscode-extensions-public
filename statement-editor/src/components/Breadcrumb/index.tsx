@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 
 import Breadcrumbs from '@material-ui/core/Breadcrumbs';
 import Link from '@material-ui/core/Link';
@@ -20,6 +20,7 @@ import Typography from '@material-ui/core/Typography';
 import NavigateNextIcon from '@material-ui/icons/NavigateNext';
 
 import { StmtEditorStackItem } from "../../models/definitions";
+import { StatementEditorContext } from "../../store/statement-editor-context";
 import { StatementEditorWrapperContext } from "../../store/statement-editor-wrapper-context";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -37,16 +38,21 @@ export default function Breadcrumb() {
     const {
         editorCtx: {
             editors,
-            switchEditor
+            switchEditor,
+            updateEditor,
+            activeEditorId
         }
     } = useContext(StatementEditorWrapperContext);
-
-    const [editorId, setEditorId] = useState<number>();
+    const {
+        modelCtx: {
+            statementModel
+        }
+    } = useContext(StatementEditorContext);
 
     function handleClick(event: React.MouseEvent<HTMLAnchorElement, MouseEvent>) {
         event.preventDefault();
         const index: number = +event.currentTarget.getAttribute('data-index');
-        setEditorId(index);
+        updateEditor(activeEditorId, { ...editors[activeEditorId], source: statementModel.source })
         switchEditor(index);
     }
 
@@ -54,7 +60,7 @@ export default function Breadcrumb() {
         <div className={classes.root}>
             <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />} aria-label="breadcrumb">
                 { editors.map((editor: StmtEditorStackItem, index: number) => {
-                    return (index === editorId)
+                    return (index === activeEditorId)
                         ? (
                             <Typography color="textPrimary">{editor.label}</Typography>
                         )
