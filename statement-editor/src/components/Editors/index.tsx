@@ -21,9 +21,14 @@ import {
     STModification
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
+import * as monaco from "monaco-editor";
 
+import { CUSTOM_CONFIG_TYPE } from "../../constants";
 import { StmtEditorStackItem } from "../../models/definitions";
 import { StatementEditorWrapperContextProvider } from "../../store/statement-editor-wrapper-context";
+import { getUpdatedSource } from "../../utils";
+import { getPartialSTForModuleMembers, getPartialSTForStatement, sendDidOpen } from "../../utils/ls-utils";
+import { EXPR_SCHEME, FILE_SCHEME } from "../InputEditor/constants";
 import { StatementEditor } from "../StatementEditor";
 
 export interface LowCodeEditorProps {
@@ -82,6 +87,8 @@ export function Editors(props: EditorsProps) {
         }
     } = formArgs;
 
+    const fileURI = monaco.Uri.file(currentFile.path).toString().replace(FILE_SCHEME, EXPR_SCHEME);
+
     const [editors, setEditors] = useState<StmtEditorStackItem[]>([]);
     const [editor, setEditor] = useState<StmtEditorStackItem>();
     const [activeEditorId, setActiveEditorId] = useState<number>(0);
@@ -104,11 +111,15 @@ export function Editors(props: EditorsProps) {
         });
     };
 
-    const addConfigurable = (newLabel: string, newPosition: NodePosition, newSource: string) => {
+    const addConfigurable = async (newLabel: string, newPosition: NodePosition, newSource: string) => {
+        const partialST = await getPartialSTForModuleMembers(
+            {codeSnippet: newSource.trim()}, getLangClient);
+
         const newEditor: StmtEditorStackItem = {
             label: newLabel,
-            position: newPosition,
+            model: !partialST.syntaxDiagnostics.length ? partialST : null,
             source: newSource,
+            position: newPosition,
             isConfigurableStmt: true
         };
         setEditors((prevEditors: StmtEditorStackItem[]) => {
@@ -117,14 +128,34 @@ export function Editors(props: EditorsProps) {
     };
 
     useEffect(() => {
-        const newEditor: StmtEditorStackItem = {
-            label,
-            position: targetPosition,
-            source: initialSource
-        };
-        setEditors((prevEditors: StmtEditorStackItem[]) => {
-            return [...prevEditors, newEditor];
-        });
+        if (config.type !== CUSTOM_CONFIG_TYPE) {
+            (async () => {
+                let model = null;
+                const updatedContent = await getUpdatedSource(initialSource.trim(), currentFile.content,
+                    targetPosition);
+
+                await sendDidOpen(fileURI, updatedContent, getLangClient);
+
+                const partialST = await getPartialSTForStatement(
+                    { codeSnippet: initialSource.trim() }, getLangClient);
+
+                if (!partialST.syntaxDiagnostics.length) {
+                    model = partialST;
+                }
+
+                const newEditor: StmtEditorStackItem = {
+                    label,
+                    model,
+                    source: initialSource,
+                    position: targetPosition
+                };
+
+                setEditors((prevEditors: StmtEditorStackItem[]) => {
+                    return [...prevEditors, newEditor];
+                });
+
+            })();
+        }
     }, []);
 
     useEffect(() => {

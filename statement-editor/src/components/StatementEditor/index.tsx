@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, {useContext, useEffect, useState} from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 
 import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import * as monaco from "monaco-editor";
@@ -40,8 +40,7 @@ import {
     getDiagnostics,
     getPartialSTForModuleMembers,
     getPartialSTForStatement,
-    sendDidChange,
-    sendDidOpen
+    sendDidChange
 } from "../../utils/ls-utils";
 import { StatementEditorViewState } from "../../utils/statement-editor-viewstate";
 import { StmtEditorUndoRedoManager } from '../../utils/undo-redo';
@@ -63,7 +62,14 @@ export function StatementEditor(props: StatementEditorProps) {
         onStmtEditorModelChange
     } = props;
 
-    const { source, position : targetPosition, isConfigurableStmt, selectedNodePosition, newConfigurableName } = editor;
+    const {
+        model: editorModel,
+        source,
+        position : targetPosition,
+        isConfigurableStmt,
+        selectedNodePosition,
+        newConfigurableName
+    } = editor;
     const { currentFile, formCtx, config, importStatements, getLangClient } = useContext(StatementEditorWrapperContext);
 
     const undoRedoManager = React.useMemo(() => new StmtEditorUndoRedoManager(), []);
@@ -99,22 +105,19 @@ export function StatementEditor(props: StatementEditorProps) {
     }, []);
 
     useEffect(() => {
-        if (config.type !== CUSTOM_CONFIG_TYPE) {
-            (async () => {
+        (async () => {
+            if (config.type !== CUSTOM_CONFIG_TYPE) {
                 const updatedContent = await getUpdatedSource(source.trim(), currentFile.content,
                     targetPosition, moduleList);
 
-                sendDidOpen(fileURI, updatedContent, getLangClient).then();
+                sendDidChange(fileURI, updatedContent, getLangClient).then();
                 const diagnostics = await handleDiagnostics(source);
 
-                const partialST = await getPartialSTForStatement(
-                    { codeSnippet: source.trim() }, getLangClient);
-
-                if (!partialST.syntaxDiagnostics.length || config.type === CUSTOM_CONFIG_TYPE) {
-                    setStmtModel(partialST, diagnostics);
+                if (editorModel) {
+                    setStmtModel(editorModel, diagnostics);
                 }
-            })();
-        }
+            }
+        })();
     }, []);
 
     useEffect(() => {

@@ -214,11 +214,11 @@ export function getFilteredDiagnosticMessages(statement: string, targetPosition:
 }
 
 export async function getUpdatedSource(updatedStatement: string, currentFileContent: string,
-                                       targetPosition: NodePosition, moduleList: Set<string>): Promise<string> {
+                                       targetPosition: NodePosition, moduleList?: Set<string>): Promise<string> {
 
     const statement = updatedStatement.trim().endsWith(';') ? updatedStatement : updatedStatement + ';';
     let updatedContent: string = addToTargetPosition(currentFileContent, targetPosition, statement);
-    if (!!moduleList.size) {
+    if (moduleList && !!moduleList.size) {
         updatedContent = addImportStatements(updatedContent, Array.from(moduleList) as string[]);
     }
 

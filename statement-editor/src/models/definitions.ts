@@ -56,6 +56,7 @@ export interface MinutiaeJSX {
 
 export interface StmtEditorStackItem {
     label: string;
+    model: STNode;
     source: string;
     position: NodePosition;
     isConfigurableStmt?: boolean;
