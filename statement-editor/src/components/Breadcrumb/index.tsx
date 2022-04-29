@@ -53,7 +53,12 @@ export default function Breadcrumb() {
     function handleClick(event: React.MouseEvent<HTMLAnchorElement, MouseEvent>) {
         event.preventDefault();
         const index: number = +event.currentTarget.getAttribute('data-index');
-        updateEditor(activeEditorId, { ...editors[activeEditorId], source: statementModel.source, selectedNodePosition: currentModel.model.position });
+        updateEditor(activeEditorId, {
+            ...editors[activeEditorId],
+            model: statementModel,
+            source: statementModel.source,
+            selectedNodePosition: currentModel.model.position
+        });
         switchEditor(index);
     }
 

@@ -70,7 +70,18 @@ export function StatementEditor(props: StatementEditorProps) {
         selectedNodePosition,
         newConfigurableName
     } = editor;
-    const { currentFile, formCtx, config, importStatements, getLangClient } = useContext(StatementEditorWrapperContext);
+    const {
+        currentFile,
+        formCtx,
+        config,
+        importStatements,
+        editorCtx: {
+            editors,
+            activeEditorId,
+            updateEditor
+        },
+        getLangClient
+    } = useContext(StatementEditorWrapperContext);
 
     const undoRedoManager = React.useMemo(() => new StmtEditorUndoRedoManager(), []);
 
@@ -106,7 +117,7 @@ export function StatementEditor(props: StatementEditorProps) {
 
     useEffect(() => {
         (async () => {
-            if (config.type !== CUSTOM_CONFIG_TYPE) {
+            if (config.type !== CUSTOM_CONFIG_TYPE && editorModel) {
                 const updatedContent = await getUpdatedSource(source.trim(), currentFile.content,
                     targetPosition, moduleList);
 
@@ -115,29 +126,8 @@ export function StatementEditor(props: StatementEditorProps) {
 
                 if (editorModel) {
                     setStmtModel(editorModel, diagnostics);
-                }
-            }
-        })();
-    }, []);
-
-    useEffect(() => {
-        (async () => {
-            if (config.type !== CUSTOM_CONFIG_TYPE) {
-                const updatedContent = await getUpdatedSource(source.trim(), currentFile.content,
-                    targetPosition, moduleList);
-
-                sendDidChange(fileURI, updatedContent, getLangClient).then();
-                const diagnostics = await handleDiagnostics(source);
-
-                let partialST;
-                partialST = isConfigurableStmt
-                    ? await getPartialSTForModuleMembers({ codeSnippet: source.trim() }, getLangClient)
-                    : await getPartialSTForStatement({ codeSnippet: source.trim() }, getLangClient);
-
-                if (!partialST.syntaxDiagnostics.length || config.type === CUSTOM_CONFIG_TYPE) {
-                    setStmtModel(partialST, diagnostics);
                     setCurrentModel({
-                        model: selectedNodePosition ? getCurrentModel(selectedNodePosition, partialST) : undefined
+                        model: selectedNodePosition ? getCurrentModel(selectedNodePosition, editorModel) : undefined
                     });
                 }
             }
@@ -162,18 +152,21 @@ export function StatementEditor(props: StatementEditorProps) {
     }, [currentModel.model]);
 
     useEffect(() => {
+        (async () => {
+            if (config.type !== CUSTOM_CONFIG_TYPE) {
+                if (editorModel && newConfigurableName) {
+                    await updateModel(newConfigurableName, selectedNodePosition, editorModel);
+                    updateEditor(activeEditorId, {...editors[activeEditorId], newConfigurableName: undefined});
+                }
+            }
+        })();
+    }, [currentFile.content]);
+
+    useEffect(() => {
         if (!!model) {
             onStmtEditorModelChange(model);
         }
     }, [model]);
-
-    useEffect(() => {
-        if (!!model) {
-            if (selectedNodePosition && newConfigurableName) {
-                updateModel(newConfigurableName, selectedNodePosition).then();
-            }
-        }
-    }, [model, newConfigurableName, selectedNodePosition]);
 
     const handleChange = async (newValue: string) => {
         const updatedStatement = addToTargetPosition(model.source, currentModel.model.position, newValue);
@@ -185,9 +178,10 @@ export function StatementEditor(props: StatementEditorProps) {
         handleCompletions(newValue).then();
     }
 
-    const updateModel = async (codeSnippet: string, position: NodePosition) => {
+    const updateModel = async (codeSnippet: string, position: NodePosition, stmtModel?: STNode) => {
+        const existingModel = stmtModel || model;
         let partialST: STNode;
-        if (model) {
+        if (existingModel) {
             const stModification = {
                 startLine: position.startLine,
                 startColumn: position.startColumn,
@@ -195,14 +189,14 @@ export function StatementEditor(props: StatementEditorProps) {
                 endColumn: position.endColumn,
                 newCodeSnippet: codeSnippet
             }
-            partialST = STKindChecker.isModuleVarDecl(model)
-                ? await getPartialSTForModuleMembers({ codeSnippet: model.source , stModification }, getLangClient)
-                : await getPartialSTForStatement({ codeSnippet: model.source , stModification }, getLangClient);
+            partialST = STKindChecker.isModuleVarDecl(existingModel)
+                ? await getPartialSTForModuleMembers({ codeSnippet: existingModel.source , stModification }, getLangClient)
+                : await getPartialSTForStatement({ codeSnippet: existingModel.source , stModification }, getLangClient);
         } else {
             partialST = await getPartialSTForStatement({ codeSnippet }, getLangClient);
         }
 
-        undoRedoManager.add(model, partialST);
+        undoRedoManager.add(existingModel, partialST);
 
         const updatedContent = await getUpdatedSource(partialST.source, currentFile.content, targetPosition,
             moduleList);

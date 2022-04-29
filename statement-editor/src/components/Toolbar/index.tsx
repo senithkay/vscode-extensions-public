@@ -74,7 +74,12 @@ export default function Toolbar(){
 
     const onClickOnConfigurable = () => {
         const configurableStmt = "configurable string VAR_NAME = ?;";
-        updateEditor(activeEditorId, { ...editors[activeEditorId], source: completeModel.source, selectedNodePosition: currentModel.model.position });
+        updateEditor(activeEditorId, {
+            ...editors[activeEditorId],
+            model: completeModel,
+            source: completeModel.source,
+            selectedNodePosition: currentModel.model.position
+        });
         addConfigurable("Add Configurable", configurableInsertPosition, configurableStmt);
     }
 
