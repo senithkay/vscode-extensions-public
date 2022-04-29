@@ -15,10 +15,16 @@ import React, { useContext } from "react";
 
 import IconButton from "@material-ui/core/IconButton";
 import { ConfigurableIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import ToolbarDeleteIcon from "../../assets/icons/ToolbarDeleteIcon";
 import ToolbarRedoIcon from "../../assets/icons/ToolbarRedoIcon";
 import ToolbarUndoIcon from "../../assets/icons/ToolbarUndoIcon";
+import {
+    ADD_CONFIGURABLE_LABEL,
+    CONFIGURABLE_TYPE_BOOLEAN,
+    CONFIGURABLE_TYPE_STRING
+} from "../../constants";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { StatementEditorWrapperContext } from "../../store/statement-editor-wrapper-context";
 import { getModuleElementDeclPosition, getRemainingContent } from "../../utils";
@@ -73,14 +79,34 @@ export default function Toolbar(){
     }
 
     const onClickOnConfigurable = () => {
-        const configurableStmt = "configurable string VAR_NAME = ?;";
+        let configurableType = CONFIGURABLE_TYPE_STRING;
+        if (STKindChecker.isModuleVarDecl(completeModel) || STKindChecker.isLocalVarDecl(completeModel)) {
+            const typeDescNode = completeModel.typedBindingPattern.typeDescriptor;
+            if (!STKindChecker.isAnyTypeDesc(typeDescNode)
+                && !STKindChecker.isErrorTypeDesc(typeDescNode)
+                && !STKindChecker.isFunctionTypeDesc(typeDescNode)
+                && !STKindChecker.isJsonTypeDesc(typeDescNode)
+                && !STKindChecker.isObjectTypeDesc(typeDescNode)
+                && !STKindChecker.isOptionalTypeDesc(typeDescNode)
+                && !STKindChecker.isParameterizedTypeDesc(typeDescNode)
+                && !STKindChecker.isServiceTypeDesc(typeDescNode)
+                && !STKindChecker.isStreamTypeDesc(typeDescNode)
+                && !STKindChecker.isTableTypeDesc(typeDescNode)
+                && !STKindChecker.isVarTypeDesc(typeDescNode)){
+
+                configurableType = completeModel.typedBindingPattern.typeDescriptor.source;
+            }
+        } else if (STKindChecker.isWhileStatement(completeModel) || STKindChecker.isIfElseStatement(completeModel)) {
+            configurableType = CONFIGURABLE_TYPE_BOOLEAN;
+        }
+        const configurableStmt = `configurable ${configurableType} CONF_NAME = ?;`;
         updateEditor(activeEditorId, {
             ...editors[activeEditorId],
             model: completeModel,
             source: completeModel.source,
             selectedNodePosition: currentModel.model.position
         });
-        addConfigurable("Add Configurable", configurableInsertPosition, configurableStmt);
+        addConfigurable(ADD_CONFIGURABLE_LABEL, configurableInsertPosition, configurableStmt);
     }
 
     const deleteButtonEnabled = currentModel.model && isExprDeletable();
