@@ -38,14 +38,11 @@ interface FunctionParamSegmentEditorProps {
     onChange?: (segment: FunctionParam) => void;
     syntaxDiag?: StmtDiagnostic[];
     onCancel?: () => void;
-    validateParams?: (paramName: string) => { error: boolean, message: string };
-    position?: NodePosition;
     isEdit?: boolean;
-    paramCount?: number;
 }
 
 export function FunctionParamSegmentEditor(props: FunctionParamSegmentEditorProps) {
-    const { param, segment, onSave, onUpdate, onChange, id, onCancel, syntaxDiag } = props;
+    const { param, segment, onSave, onUpdate, onChange, id, onCancel, syntaxDiag, isEdit } = props;
     const classes = useStyles();
     const initValue: FunctionParam = segment ? { ...segment } : {
         id: id ? id : 0,
@@ -62,9 +59,6 @@ export function FunctionParamSegmentEditor(props: FunctionParamSegmentEditorProp
 
     // States related to syntax diagnostics
     const [currentComponentName, setCurrentComponentName] = useState<string>("");
-
-    const typeError = "Type Error";
-    const nameError = "Name Error";
 
     const handleOnSave = () => {
         onSave({
@@ -120,8 +114,9 @@ export function FunctionParamSegmentEditor(props: FunctionParamSegmentEditorProp
                     <Grid item={true} xs={5}>
                         <FormTextInput
                             dataTestId="api-function-param-type"
-                            defaultValue={segmentType.value}
+                            defaultValue={(segmentType.isInteracted || isEdit) ? segmentType.value : ""}
                             onChange={handleOnTypeChange}
+                            placeholder={"string"}
                             customProps={{
                                 optional: true,
                                 isErrored: (syntaxDiag !== undefined && currentComponentName === "Type" || (
@@ -137,8 +132,9 @@ export function FunctionParamSegmentEditor(props: FunctionParamSegmentEditorProp
                     <Grid item={true} xs={7}>
                         <FormTextInput
                             dataTestId="api-function-param-name"
-                            defaultValue={segmentName.value}
+                            defaultValue={(segmentName.isInteracted || isEdit) ? segmentName.value : ""}
                             onChange={handleOnNameChange}
+                            placeholder={"name"}
                             customProps={{
                                 optional: true,
                                 isErrored: ((syntaxDiag !== undefined && currentComponentName === "Name") || (
@@ -164,7 +160,9 @@ export function FunctionParamSegmentEditor(props: FunctionParamSegmentEditorProp
                             <PrimaryButton
                                 dataTestId={"custom-expression-save-btn"}
                                 text={onUpdate ? "Update" : " Add"}
-                                disabled={!segmentName || !segmentType || (syntaxDiag?.length === 0)}
+                                disabled={(syntaxDiag?.length > 0) || (param?.viewState?.diagnostics?.length > 0) ||
+                                    !(segmentName.isInteracted || isEdit) || !(segmentType.isInteracted || isEdit)
+                                }
                                 fullWidth={false}
                                 onClick={onUpdate ? handleOnUpdate : handleOnSave}
                             />

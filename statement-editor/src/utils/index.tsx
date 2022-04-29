@@ -126,7 +126,7 @@ export function getStatementTypeComponent(
 
 export function getFormComponent(
     type: string, model: STNode, targetPosition: NodePosition, onChange: (code: string) => void,
-    onCancel: () => void, getLangClient: () => Promise<ExpressionEditorLangClientInterface>, fileURI: string,
+    onCancel: () => void, getLangClient: () => Promise<ExpressionEditorLangClientInterface>, isEdit: boolean,
     applyModifications: (modifications: STModification[]) => void
 ): ReactNode {
     const FormComponent = (formComponents as any)[type];
@@ -137,7 +137,7 @@ export function getFormComponent(
             onChange={onChange}
             onCancel={onCancel}
             getLangClient={getLangClient}
-            fileURI={fileURI}
+            isEdit={isEdit}
             applyModifications={applyModifications}
         />
     );
@@ -196,7 +196,8 @@ export function isDiagnosticInRange(diagPosition: NodePosition, nodePosition: No
     return diagPosition?.startLine >= nodePosition?.startLine &&
         diagPosition?.startColumn >= nodePosition?.startColumn &&
         diagPosition?.endLine <= nodePosition?.endLine &&
-        diagPosition?.endColumn <= nodePosition?.endColumn;
+        (((diagPosition?.startLine === nodePosition?.startLine) && (diagPosition?.endLine === nodePosition?.
+            endLine)) ? (diagPosition?.endColumn <= nodePosition?.endColumn) : true);
 }
 
 export function isOperator(modelType: number): boolean {

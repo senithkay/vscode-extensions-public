@@ -99,7 +99,7 @@ export function FormEditor(props: FormEditorProps) {
                 onChange={onChange}
                 onCancel={onCancel}
                 getLangClient={getLangClient}
-                fileURI={fileURI}
+                isEdit={initialSource !== undefined}
                 applyModifications={applyModifications}
             />
             <List>
