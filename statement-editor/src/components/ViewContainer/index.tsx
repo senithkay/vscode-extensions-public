@@ -18,6 +18,7 @@ import {
     PrimaryButton,
     SecondaryButton
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
+import { ModuleVarDecl } from "@wso2-enterprise/syntax-tree";
 
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { StatementEditorWrapperContext } from "../../store/statement-editor-wrapper-context";
@@ -47,7 +48,10 @@ export function ViewContainer(props: ViewContainerProps) {
     const { currentFile, config, applyModifications, getLangClient } = useContext(StatementEditorWrapperContext);
     const {
         editorCtx: {
-            dropLastEditor
+            editors,
+            dropLastEditor,
+            updateEditor,
+            activeEditorId
         },
         syntaxTree
     } = useContext(StatementEditorWrapperContext);
@@ -90,6 +94,11 @@ export function ViewContainer(props: ViewContainerProps) {
 
     const onAddConfigurableClick = async () => {
         await handleModifications();
+        const model = statementModel as ModuleVarDecl;
+        updateEditor(activeEditorId - 1, {
+            ...editors[activeEditorId - 1],
+            newConfigurableName : model.typedBindingPattern.bindingPattern.source
+        });
         dropLastEditor();
         await sendDidClose(fileSchemeURI, getLangClient);
     };

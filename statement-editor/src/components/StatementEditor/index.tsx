@@ -63,7 +63,7 @@ export function StatementEditor(props: StatementEditorProps) {
         onStmtEditorModelChange
     } = props;
 
-    const { source, position : targetPosition, isConfigurableStmt, selectedNodePosition } = editor;
+    const { source, position : targetPosition, isConfigurableStmt, selectedNodePosition, newConfigurableName } = editor;
     const { currentFile, formCtx, config, importStatements, getLangClient } = useContext(StatementEditorWrapperContext);
 
     const undoRedoManager = React.useMemo(() => new StmtEditorUndoRedoManager(), []);
@@ -118,8 +118,8 @@ export function StatementEditor(props: StatementEditorProps) {
     }, []);
 
     useEffect(() => {
-        if (config.type !== CUSTOM_CONFIG_TYPE) {
-            (async () => {
+        (async () => {
+            if (config.type !== CUSTOM_CONFIG_TYPE) {
                 const updatedContent = await getUpdatedSource(source.trim(), currentFile.content,
                     targetPosition, moduleList);
 
@@ -137,8 +137,8 @@ export function StatementEditor(props: StatementEditorProps) {
                         model: selectedNodePosition ? getCurrentModel(selectedNodePosition, partialST) : undefined
                     });
                 }
-            })();
-        }
+            }
+        })();
     }, [editor]);
 
     useEffect(() => {
@@ -163,6 +163,14 @@ export function StatementEditor(props: StatementEditorProps) {
             onStmtEditorModelChange(model);
         }
     }, [model]);
+
+    useEffect(() => {
+        if (!!model) {
+            if (selectedNodePosition && newConfigurableName) {
+                updateModel(newConfigurableName, selectedNodePosition).then();
+            }
+        }
+    }, [model, newConfigurableName, selectedNodePosition]);
 
     const handleChange = async (newValue: string) => {
         const updatedStatement = addToTargetPosition(model.source, currentModel.model.position, newValue);

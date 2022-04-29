@@ -60,4 +60,5 @@ export interface StmtEditorStackItem {
     position: NodePosition;
     isConfigurableStmt?: boolean;
     selectedNodePosition?: NodePosition;
+    newConfigurableName?: string;
 }
