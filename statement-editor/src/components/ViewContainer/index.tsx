@@ -143,7 +143,7 @@ export function ViewContainer(props: ViewContainerProps) {
                             <PrimaryButton
                                 dataTestId="save-btn"
                                 text={isConfigurableStmt ? addConfigurableButtonText : saveButtonText}
-                                disabled={!isStatementValid}
+                                disabled={!isStatementValid || activeEditorId !== editors.length - 1}
                                 fullWidth={false}
                                 onClick={isConfigurableStmt ? onAddConfigurableClick : onSaveClick}
                             />
