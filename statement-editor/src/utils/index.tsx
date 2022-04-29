@@ -56,7 +56,8 @@ export function getModifications(
         },
         formArgs: any,
         syntaxTree?: STNode,
-        modulesToBeImported?: string[]): STModification[] {
+        modulesToBeImported?: string[],
+        lineOffset: number = 0): STModification[] {
 
     const modifications: STModification[] = [];
     let source = model.source;
@@ -75,9 +76,17 @@ export function getModifications(
             source += ';';
         }
         if (config.model) {
-            modifications.push(updateStatement(source, formArgs.formArgs?.model.position));
+            modifications.push(updateStatement(source, {
+                ...formArgs.formArgs?.model.position,
+                startLine: formArgs.formArgs?.model.position.startLine + lineOffset,
+                endLine: formArgs.formArgs?.model.position.endLine + lineOffset
+            }));
         } else {
-            modifications.push(createStatement(source, formArgs.formArgs?.targetPosition));
+            modifications.push(createStatement(source, {
+                ...formArgs.formArgs?.targetPosition,
+                startLine: formArgs.formArgs?.targetPosition.startLine + lineOffset,
+                endLine: formArgs.formArgs?.targetPosition.endLine + lineOffset
+            }));
         }
     }
 
@@ -85,9 +94,17 @@ export function getModifications(
             STKindChecker.isIfElseStatement(model) ||
             STKindChecker.isForeachStatement(model)) {
         if (!formArgs.formArgs?.config) {
-            modifications.push(createStatement(source, formArgs.formArgs?.targetPosition));
+            modifications.push(createStatement(source, {
+                ...formArgs.formArgs?.targetPosition,
+                startLine: formArgs.formArgs?.targetPosition.startLine + lineOffset,
+                endLine: formArgs.formArgs?.targetPosition.endLine + lineOffset
+            }));
         } else {
-            modifications.push(updateStatement(source, config.model.position));
+            modifications.push(updateStatement(source, {
+                ...config.model.position,
+                startLine: config.model.position.startLine + lineOffset,
+                endLine: config.model.position.endLine + lineOffset
+            }));
         }
     }
 

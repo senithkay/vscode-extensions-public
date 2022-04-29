@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { useIntl } from "react-intl";
 
 import {
@@ -28,7 +28,6 @@ import { EditorPane } from '../EditorPane';
 import { useStatementEditorStyles } from "../styles";
 
 export interface ViewContainerProps {
-    formArgs: any;
     isStatementValid: boolean;
     isConfigurableStmt: boolean;
     onWizardClose: () => void;
@@ -37,7 +36,6 @@ export interface ViewContainerProps {
 
 export function ViewContainer(props: ViewContainerProps) {
     const {
-        formArgs,
         isStatementValid,
         isConfigurableStmt,
         onWizardClose,
@@ -47,6 +45,7 @@ export function ViewContainer(props: ViewContainerProps) {
     const overlayClasses = useStatementEditorStyles();
     const { currentFile, config, applyModifications, getLangClient } = useContext(StatementEditorWrapperContext);
     const {
+        formCtx,
         editorCtx: {
             editors,
             dropLastEditor,
@@ -65,6 +64,8 @@ export function ViewContainer(props: ViewContainerProps) {
     } =  useContext(StatementEditorContext);
     const exprSchemeURI = `expr://${currentFile.path}`;
     const fileSchemeURI = `file://${currentFile.path}`;
+
+    const [lineOffset, setLineOffset] = useState<number>(0);
 
     const saveButtonText = intl.formatMessage({
         id: "lowcode.develop.configForms.statementEditor.saveButton.text",
@@ -100,6 +101,9 @@ export function ViewContainer(props: ViewContainerProps) {
             newConfigurableName : model.typedBindingPattern.bindingPattern.source
         });
         dropLastEditor();
+        setLineOffset((prevLineOffset: number) => {
+            return prevLineOffset + 2;
+        });
         await sendDidClose(fileSchemeURI, getLangClient);
     };
 
@@ -116,8 +120,8 @@ export function ViewContainer(props: ViewContainerProps) {
     const handleModifications = async () => {
         await sendDidClose(exprSchemeURI, getLangClient);
         await sendDidChange(fileSchemeURI, currentFile.content, getLangClient);
-        const modifications = getModifications(statementModel, config, formArgs,
-            syntaxTree, Array.from(modulesToBeImported) as string[]);
+        const modifications = getModifications(statementModel, config, formCtx,
+            syntaxTree, Array.from(modulesToBeImported) as string[], lineOffset);
         applyModifications(modifications);
     };
 

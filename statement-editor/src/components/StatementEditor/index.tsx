@@ -72,7 +72,6 @@ export function StatementEditor(props: StatementEditorProps) {
     } = editor;
     const {
         currentFile,
-        formCtx,
         config,
         importStatements,
         editorCtx: {
@@ -298,7 +297,6 @@ export function StatementEditor(props: StatementEditorProps) {
                     lsSuggestions={lsSuggestionsList}
                 >
                     <ViewContainer
-                        formArgs={formCtx}
                         isStatementValid={!stmtDiagnostics.length}
                         isConfigurableStmt={isConfigurableStmt}
                         onWizardClose={onWizardClose}
