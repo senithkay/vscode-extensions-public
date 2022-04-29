@@ -16,7 +16,7 @@ import React from 'react';
 import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
 
-import { useStatementEditorStyles } from "../styles";
+import { useStmtEditorHelperPanelStyles } from "../styles";
 
 interface TabPanelProps {
     values: string[]
@@ -25,7 +25,7 @@ interface TabPanelProps {
 }
 
 export default function TabPanel(props: TabPanelProps) {
-    const statementEditorClasses = useStatementEditorStyles();
+    const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
     const { values, defaultValue, onSelection } = props;
     const [value, setValue] = React.useState(defaultValue);
 
@@ -47,7 +47,7 @@ export default function TabPanel(props: TabPanelProps) {
         <Tabs
             value={value}
             onChange={handleChange}
-            className={statementEditorClasses.tabsPanelSe}
+            className={stmtEditorHelperClasses.tabsPanelSe}
         >
             {tabs}
         </Tabs>

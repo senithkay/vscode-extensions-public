@@ -20,10 +20,10 @@ import { InputEditorContext } from "../../../store/input-editor-context";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { getSuggestionIconStyle } from "../../../utils";
 import { acceptedCompletionKindForTypes } from "../../InputEditor/constants";
-import { useStatementEditorStyles } from "../../styles";
+import { useStmtEditorHelperPanelStyles } from "../../styles";
 
 export function LSSuggestions() {
-    const statementEditorClasses = useStatementEditorStyles();
+    const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
     const inputEditorCtx = useContext(InputEditorContext);
 
     const {
@@ -61,15 +61,15 @@ export function LSSuggestions() {
         <>
             { !!lsSuggestions?.length && (
                 <>
-                    <div className={statementEditorClasses.lsSuggestionList}>
-                        <List className={statementEditorClasses.suggestionList}>
+                    <div className={stmtEditorHelperClasses.lsSuggestionList}>
+                        <List className={stmtEditorHelperClasses.suggestionList}>
                             {
                                 lsSuggestions.map((suggestion: SuggestionItem, index: number) => (
                                     <ListItem
                                         button={true}
                                         key={index}
                                         onClick={() => onClickLSSuggestion(suggestion)}
-                                        className={statementEditorClasses.suggestionListItem}
+                                        className={stmtEditorHelperClasses.suggestionListItem}
                                         disableRipple={true}
                                     >
                                         <ListItemIcon
@@ -79,7 +79,7 @@ export function LSSuggestions() {
                                         <ListItemText
                                             style={{ flex: 'none', maxWidth: '80%' }}
                                             primary={(
-                                                <Typography className={statementEditorClasses.suggestionValue}>
+                                                <Typography className={stmtEditorHelperClasses.suggestionValue}>
                                                     {suggestion.value}
                                                 </Typography>
                                             )}
@@ -88,7 +88,7 @@ export function LSSuggestions() {
                                             <ListItemText
                                                 style={{ minWidth: '10%', marginLeft: '8px' }}
                                                 primary={(
-                                                    <Typography className={statementEditorClasses.suggestionDataType}>
+                                                    <Typography className={stmtEditorHelperClasses.suggestionDataType}>
                                                         {suggestion.kind}
                                                     </Typography>
                                                 )}
@@ -102,7 +102,7 @@ export function LSSuggestions() {
                 </>
             )}
             { !lsSuggestions?.length && (
-                <p className={statementEditorClasses.noSuggestionText}>Suggestions not available</p>
+                <p className={stmtEditorHelperClasses.noSuggestionText}>Suggestions not available</p>
             )}
         </>
     );

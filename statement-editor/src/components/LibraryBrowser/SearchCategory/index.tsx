@@ -17,7 +17,7 @@ import { List } from "@material-ui/core";
 import { ModuleProperty } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import classNames from "classnames";
 
-import { useStatementEditorStyles } from "../../styles";
+import { useStmtEditorHelperPanelStyles } from "../../styles";
 import { ModuleElement } from "../ModuleElement";
 
 interface SearchCategoryProps {
@@ -26,20 +26,20 @@ interface SearchCategoryProps {
 }
 
 export function SearchCategory(props: SearchCategoryProps) {
-    const statementEditorClasses = useStatementEditorStyles();
+    const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
     const { label, searchResult } = props;
 
     return (
-        <div className={statementEditorClasses.libraryElementBlock}>
+        <div className={stmtEditorHelperClasses.libraryElementBlock}>
             <div
                 className={classNames(
-                    statementEditorClasses.librarySearchSubHeader,
-                    statementEditorClasses.libraryElementBlockLabel
+                    stmtEditorHelperClasses.librarySearchSubHeader,
+                    stmtEditorHelperClasses.libraryElementBlockLabel
                 )}
             >
                 {label}
             </div>
-            <List className={statementEditorClasses.libraryElementBlockContent}>
+            <List className={stmtEditorHelperClasses.libraryElementBlockContent}>
                 {searchResult.map((property: ModuleProperty, index: number) => (
                     <ModuleElement
                         moduleProperty={property}

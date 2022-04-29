@@ -33,7 +33,7 @@ import LibraryModuleIcon from "../../assets/icons/LibraryModuleIcon";
 import LibrarySearchIcon from "../../assets/icons/LibrarySearchIcon";
 import { LANG_LIBS_IDENTIFIER, STD_LIBS_IDENTIFIER } from "../../constants";
 import { StatementEditorContext } from "../../store/statement-editor-context";
-import { useStatementEditorStyles } from "../styles";
+import { useStmtEditorHelperPanelStyles } from "../styles";
 
 import { LibrariesList } from "./LibrariesList";
 import { SearchResult } from "./SearchResult";
@@ -53,7 +53,7 @@ const DEFAULT_SEARCH_SCOPE = "distribution";
 
 export function LibraryBrowser(props: LibraryBrowserProps) {
     const { libraryType } = props;
-    const statementEditorClasses = useStatementEditorStyles();
+    const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
     const stmtCtx = useContext(StatementEditorContext);
     const {
         library: {
@@ -142,7 +142,7 @@ export function LibraryBrowser(props: LibraryBrowserProps) {
     }
 
     const loadingScreen = (
-        <Grid sm={12} item={true} container={true} className={statementEditorClasses.loadingContainer}>
+        <Grid sm={12} item={true} container={true} className={stmtEditorHelperClasses.loadingContainer}>
             <Grid item={true} sm={12}>
                 <Box display="flex" justifyContent="center">
                     <CircularProgress/>
@@ -155,24 +155,24 @@ export function LibraryBrowser(props: LibraryBrowserProps) {
     );
 
     return (
-        <div className={statementEditorClasses.libraryBrowser}>
-            <div className={statementEditorClasses.libraryBrowserHeader}>
+        <div className={stmtEditorHelperClasses.libraryBrowser}>
+            <div className={stmtEditorHelperClasses.libraryBrowserHeader}>
                 {(libraryBrowserMode !== LibraryBrowserMode.LIB_LIST || searchScope !== DEFAULT_SEARCH_SCOPE) && (
                     <>
-                        <IconButton onClick={onClickOnReturnIcon} className={statementEditorClasses.libraryReturnIcon}>
-                            <ArrowBack className={statementEditorClasses.arrowBack}/>
+                        <IconButton onClick={onClickOnReturnIcon} className={stmtEditorHelperClasses.libraryReturnIcon}>
+                            <ArrowBack className={stmtEditorHelperClasses.arrowBack}/>
                         </IconButton>
                         {moduleTitle && (
-                            <div className={statementEditorClasses.libraryModuleIcon}>
+                            <div className={stmtEditorHelperClasses.libraryModuleIcon}>
                                 <LibraryModuleIcon/>
                             </div>
                         )}
-                        <div className={statementEditorClasses.moduleTitle}>{moduleTitle}</div>
+                        <div className={stmtEditorHelperClasses.moduleTitle}>{moduleTitle}</div>
                     </>
                 )}
                 <FormControl style={{width: 'inherit', marginRight: '10px'}}>
                     <Input
-                        className={statementEditorClasses.librarySearchBox}
+                        className={stmtEditorHelperClasses.librarySearchBox}
                         value={keyword}
                         placeholder={`search in ${searchScope}`}
                         onChange={(e) => setKeyword(e.target.value)}

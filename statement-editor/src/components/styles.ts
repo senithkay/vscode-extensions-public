@@ -35,6 +35,260 @@ const syntaxHighlightingRules = {
     }
 }
 
+export const useStmtEditorHelperPanelStyles = makeStyles(() =>
+    createStyles({
+        tabPanelWrapper: {
+            width: 'auto',
+            height: '48px',
+            boxShadow: '0px 1px 1px -1px rgb(0 0 0 / 20%), 0px 1px 1px 0px rgb(0 0 0 / 14%), 0px 1px 3px 0px rgb(0 0 0 / 12%)',
+            display: 'flex',
+            flexDirection: 'row'
+        },
+        tabPanel: {
+            width: '70%'
+        },
+        libraryTypeSelector: {
+            width: '30%',
+            height: '48px',
+            padding: '9px',
+            textAlignLast: 'right'
+        },
+        suggestionsInner: {
+            overflowY: 'scroll',
+            height: '100%',
+            paddingLeft: '25px',
+            paddingTop: '11px',
+        },
+        selectDropDownSe: {
+            height: '32px',
+            width: "auto",
+            borderRadius: 4,
+            fontSize: "12px",
+            color: '#222228',
+            background: "linear-gradient(180deg, #FFFFFF 0%, #F7F7F9 100%)",
+            boxShadow: "inset 0 0 0 1px #DEE0E7, 0 1px 2px -1px rgba(0,0,0,0.08)",
+            cursor: "pointer",
+            marginBottom: theme.spacing(2.5),
+            border: 1,
+            "&:active": {
+                background: "linear-gradient(180deg, #ffffff 0%, #f7f7f9 100%)",
+                boxShadow: "inset 0 0 0 1px #a6b3ff, 0 1px 1px 0 rgba(0, 0, 0, 0.06)",
+                border: "1px solid #5567d5",
+            },
+            "&:focused": {
+                background: "linear-gradient(180deg, #ffffff 0%, #f7f7f9 100%)",
+                boxShadow: "inset 0 0 0 1px #a6b3ff, 0 1px 1px 0 rgba(0, 0, 0, 0.06)",
+                border: "1px solid #5567d5 !important",
+                backgroundColor: "none"
+            },
+            '& .MuiSelect-icon': {
+                marginRight: 11,
+            },
+            "& .MuiSelect-selectMenu": {
+                height: "inherit !important",
+                paddingLeft: 10,
+                "& .TextSpan": {
+                    top: "calc(50% - 8px)",
+                    position: "absolute",
+                    maxWidth: "156px",
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                }
+            },
+            "& .MuiSelect-select.MuiSelect-select": {
+                padding: "0 0 0 10px",
+                minWidth: "100px"
+            },
+            "& .MuiSelect-select.MuiSelect-select:focus": {
+                backgroundColor: "transparent"
+            }
+        },
+        dropdownStyle: {
+            backgroundColor: "#fff",
+            boxSizing: "border-box",
+            width: "auto",
+            border: "1px solid #DEE0E7",
+            borderRadius: "5px",
+            boxShadow: "0 5px 10px -3px rgba(50,50,77,0.1)",
+            color: "#222228",
+            marginTop: '0.25rem',
+            marginLeft: '4px'
+        },
+        tabsPanelSe: {
+            "& .MuiTab-wrapper": {
+                textTransform: 'none',
+                fontSize: '13px',
+                fontWeight: 'normal'
+            },
+            "& .MuiTab-root": {
+                marginLeft: '24px',
+                paddingRight: '0px',
+                paddingLeft: '0px',
+                fontSize: '13px',
+                minWidth: 'fit-content'
+            },
+            "& .MuiTab-textColorInherit": {
+                color: '#8D91A3'
+            },
+            "& .MuiTab-textColorInherit.Mui-selected": {
+                opacity: 1,
+                color: '#40404B'
+            },
+            "& .MuiTabs-indicator": {
+                backgroundColor: '#40404B',
+                height: '1px'
+            },
+            "& .MuiTabs-scroller": {
+                height: '48px'
+            }
+        },
+        lsSuggestionList: {
+            top: '5%',
+            height: '95%',
+            overflowY: 'scroll',
+            overflowX: 'hidden',
+        },
+        suggestionList: {
+            columnGap: '6%',
+            display: 'grid',
+            gridTemplateColumns: '47% 47%'
+        },
+        suggestionListItem: {
+            padding: '0 0 0 8px',
+            '&:hover': {
+                backgroundColor: '#F0F1FB',
+            },
+            '&:focus': {
+                backgroundColor: 'rgba(204,209,242,0.61)'
+            }
+        },
+        suggestionDataType: {
+            color: '#05A26B',
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis'
+        },
+        suggestionValue: {
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis'
+        },
+        noSuggestionText: {
+            fontSize: '12px',
+            fontWeight: 'normal',
+            padding: theme.spacing(1.5)
+        },
+        expressionSuggestionList: {
+            maxHeight: '100%',
+            overflowY: 'scroll',
+            overflowX: 'hidden',
+        },
+        librarySearchBox: {
+            position: 'relative',
+            height: '32px',
+            width: 'inherit',
+            border: '1px #E0E3E9',
+            borderRadius: '5px',
+            backgroundColor: '#FFFFFF',
+            boxShadow: 'inset 0 0 0 1px #DEE0E7, inset 0 2px 1px 0 rgba(0,0,0,0.07), 0 0 0 0 rgba(50,50,77,0.07)',
+            color: '#CBCEDB',
+            textIndent: '12px',
+            fontSize: '12px',
+            textAlign: 'left',
+            paddingLeft: '12px',
+            marginRight: '10px'
+        },
+        librarySearchSubHeader: {
+            height: '12px',
+            color: '#1D2028',
+            fontFamily: 'Gilmer,sans-serif',
+            fontSize: '13px',
+            letterSpacing: 0,
+            lineHeight: '14px',
+            marginBottom: '7px'
+        },
+        expressionList: {
+            columnGap: '6%',
+            display: 'grid',
+            gridTemplateColumns: '47% 47%'
+        },
+        loadingContainer: {
+            height: '60vh',
+            alignContent: 'center',
+            alignItems: 'center',
+        },
+        libraryBrowser: {
+            height: '100%',
+            overflowY: 'scroll',
+            overflowX: 'hidden',
+        },
+        libraryBrowserHeader: {
+            display: 'flex',
+            flexDirection: 'row',
+            width: '100%',
+            alignItems: 'center',
+            position: 'sticky',
+            top: '0px',
+            zIndex: 1,
+            backgroundColor: '#FFFFFF',
+            paddingBottom: '16px'
+        },
+
+        moduleTitle: {
+            marginRight: '43px',
+            marginLeft: '4.25px',
+            marginBottom: '2px',
+            fontSize: '13px'
+        },
+        libraryReturnIcon: {
+            padding: '0px',
+            '&:hover': {
+                backgroundColor: '#F0F1FB',
+            },
+            '&:focus': {
+                backgroundColor: 'rgba(204,209,242,0.61)'
+            }
+        },
+        arrowBack: {
+            fontSize: '17px',
+            lineHeight: '24px',
+            color: '#5567D5'
+        },
+        libraryModuleIcon: {
+            marginLeft: '8.25px'
+        },
+        libraryListBlock: {
+            paddingRight: '5px',
+            paddingBottom: '8px',
+            columnGap: '6%',
+            display: 'grid',
+            gridTemplateColumns: '47% 47%',
+            padding: '0px'
+        },
+        libraryElementBlockContent: {
+            padding: '0px',
+            top: '10%',
+            height: '80%',
+            overflowY: 'scroll',
+            overflowX: 'hidden',
+            columnGap: '6%',
+            display: 'grid',
+            gridTemplateColumns: '29% 29% 29%',
+            paddingBottom: '8px'
+        },
+        libraryElementBlock: {
+            top: '5%',
+            display: 'flex',
+            flexDirection: 'column',
+            paddingBottom: '25px'
+        },
+        libraryElementBlockLabel: {
+            height: '10%',
+        },
+    }),
+);
+
 export const useStatementEditorStyles = makeStyles(() =>
     createStyles({
         toolbar: {
@@ -66,22 +320,6 @@ export const useStatementEditorStyles = makeStyles(() =>
             borderBottom: '1px solid #e6e7ec',
             minHeight: '50vh',
             height: '75vh'
-        },
-        tabPanelWrapper: {
-            width: 'auto',
-            height: '48px',
-            boxShadow: '0px 1px 1px -1px rgb(0 0 0 / 20%), 0px 1px 1px 0px rgb(0 0 0 / 14%), 0px 1px 3px 0px rgb(0 0 0 / 12%)',
-            display: 'flex',
-            flexDirection: 'row'
-        },
-        tabPanel: {
-            width: '70%'
-        },
-        libraryTypeSelector: {
-            width: '30%',
-            height: '48px',
-            padding: '9px',
-            textAlignLast: 'right'
         },
         stmtEditorContentWrapper: {
             backgroundColor: '#f9fafc',
@@ -161,11 +399,6 @@ export const useStatementEditorStyles = makeStyles(() =>
             top: '2%',
             bottom: '10%'
         },
-        libraryBrowser: {
-            height: '100%',
-            overflowY: 'scroll',
-            overflowX: 'hidden',
-        },
         leftPane: {
             display: 'flex',
             flexDirection: 'column',
@@ -207,12 +440,6 @@ export const useStatementEditorStyles = makeStyles(() =>
             height: '93%',
             width: '100%',
             overflowY: 'scroll'
-        },
-        suggestionsInner: {
-            overflowY: 'scroll',
-            height: '100%',
-            paddingLeft: '25px',
-            paddingTop: '11px',
         },
         contextSensitivePane: {
             display: 'flex',
@@ -326,17 +553,6 @@ export const useStatementEditorStyles = makeStyles(() =>
             margin: '4px 2px',
             borderRadius: '50%'
         },
-        libraryBrowserHeader: {
-            display: 'flex',
-            flexDirection: 'row',
-            width: '100%',
-            alignItems: 'center',
-            position: 'sticky',
-            top: '0px',
-            zIndex: 1,
-            backgroundColor: '#FFFFFF',
-            paddingBottom: '16px'
-        },
         libraryDropdown: {
             flex: '0 0 50%',
             display: 'flex',
@@ -394,216 +610,6 @@ export const useStatementEditorStyles = makeStyles(() =>
         expressionComponent: {
             display: 'flex',
             flexDirection: 'row'
-        },
-        libraryListBlock: {
-            paddingRight: '5px',
-            paddingBottom: '8px',
-            columnGap: '6%',
-            display: 'grid',
-            gridTemplateColumns: '47% 47%',
-            padding: '0px'
-        },
-        librarySearchBox: {
-            position: 'relative',
-            height: '32px',
-            width: 'inherit',
-            border: '1px #E0E3E9',
-            borderRadius: '5px',
-            backgroundColor: '#FFFFFF',
-            boxShadow: 'inset 0 0 0 1px #DEE0E7, inset 0 2px 1px 0 rgba(0,0,0,0.07), 0 0 0 0 rgba(50,50,77,0.07)',
-            color: '#CBCEDB',
-            textIndent: '12px',
-            fontSize: '12px',
-            textAlign: 'left',
-            paddingLeft: '12px',
-            marginRight: '10px'
-        },
-        librarySearchSubHeader: {
-            height: '12px',
-            color: '#1D2028',
-            fontFamily: 'Gilmer,sans-serif',
-            fontSize: '13px',
-            letterSpacing: 0,
-            lineHeight: '14px',
-            marginBottom: '7px'
-        },
-        libraryElementBlock: {
-            top: '5%',
-            display: 'flex',
-            flexDirection: 'column',
-            paddingBottom: '25px'
-        },
-        libraryElementBlockLabel: {
-            height: '10%',
-        },
-        libraryElementBlockContent: {
-            padding: '0px',
-            top: '10%',
-            height: '80%',
-            overflowY: 'scroll',
-            overflowX: 'hidden',
-            columnGap: '6%',
-            display: 'grid',
-            gridTemplateColumns: '29% 29% 29%',
-            paddingBottom: '8px'
-        },
-        lsSuggestionList: {
-            top: '5%',
-            height: '95%',
-            overflowY: 'scroll',
-            overflowX: 'hidden',
-        },
-        expressionSuggestionList: {
-            maxHeight: '100%',
-            overflowY: 'scroll',
-            overflowX: 'hidden',
-        },
-        suggestionListItem: {
-            padding: '0 0 0 8px',
-            '&:hover': {
-                backgroundColor: '#F0F1FB',
-            },
-            '&:focus': {
-                backgroundColor: 'rgba(204,209,242,0.61)'
-            }
-        },
-        suggestionDataType: {
-            color: '#05A26B',
-            whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis'
-        },
-        suggestionValue: {
-            whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis'
-        },
-        suggestionList: {
-            columnGap: '6%',
-            display: 'grid',
-            gridTemplateColumns: '47% 47%'
-        },
-        selectDropDownSe: {
-            height: '32px',
-            width: "auto",
-            borderRadius: 4,
-            fontSize: "12px",
-            color: '#222228',
-            background: "linear-gradient(180deg, #FFFFFF 0%, #F7F7F9 100%)",
-            boxShadow: "inset 0 0 0 1px #DEE0E7, 0 1px 2px -1px rgba(0,0,0,0.08)",
-            cursor: "pointer",
-            marginBottom: theme.spacing(2.5),
-            border: 1,
-            "&:active": {
-                background: "linear-gradient(180deg, #ffffff 0%, #f7f7f9 100%)",
-                boxShadow: "inset 0 0 0 1px #a6b3ff, 0 1px 1px 0 rgba(0, 0, 0, 0.06)",
-                border: "1px solid #5567d5",
-            },
-            "&:focused": {
-                background: "linear-gradient(180deg, #ffffff 0%, #f7f7f9 100%)",
-                boxShadow: "inset 0 0 0 1px #a6b3ff, 0 1px 1px 0 rgba(0, 0, 0, 0.06)",
-                border: "1px solid #5567d5 !important",
-                backgroundColor: "none"
-            },
-            '& .MuiSelect-icon': {
-                marginRight: 11,
-            },
-            "& .MuiSelect-selectMenu": {
-                height: "inherit !important",
-                paddingLeft: 10,
-                "& .TextSpan": {
-                    top: "calc(50% - 8px)",
-                    position: "absolute",
-                    maxWidth: "156px",
-                    whiteSpace: "nowrap",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                }
-            },
-            "& .MuiSelect-select.MuiSelect-select": {
-                padding: "0 0 0 10px",
-                minWidth: "100px"
-            },
-            "& .MuiSelect-select.MuiSelect-select:focus": {
-                backgroundColor: "transparent"
-            }
-        },
-        dropdownStyle: {
-            backgroundColor: "#fff",
-            boxSizing: "border-box",
-            width: "auto",
-            border: "1px solid #DEE0E7",
-            borderRadius: "5px",
-            boxShadow: "0 5px 10px -3px rgba(50,50,77,0.1)",
-            color: "#222228",
-            marginTop: '0.25rem',
-            marginLeft: '4px'
-        },
-        tabsPanelSe: {
-            "& .MuiTab-wrapper": {
-                textTransform: 'none',
-                fontSize: '13px',
-                fontWeight: 'normal'
-            },
-            "& .MuiTab-root": {
-                marginLeft: '24px',
-                paddingRight: '0px',
-                paddingLeft: '0px',
-                fontSize: '13px',
-                minWidth: 'fit-content'
-            },
-            "& .MuiTab-textColorInherit": {
-                color: '#8D91A3'
-            },
-            "& .MuiTab-textColorInherit.Mui-selected": {
-                opacity: 1,
-                color: '#40404B'
-            },
-            "& .MuiTabs-indicator": {
-                backgroundColor: '#40404B',
-                height: '1px'
-            },
-            "& .MuiTabs-scroller": {
-                height: '48px'
-            }
-        },
-        noSuggestionText: {
-            fontSize: '12px',
-            fontWeight: 'normal',
-            padding: theme.spacing(1.5)
-        },
-        expressionList: {
-            columnGap: '6%',
-            display: 'grid',
-            gridTemplateColumns: '47% 47%'
-        },
-        moduleTitle: {
-            marginRight: '43px',
-            marginLeft: '4.25px',
-            marginBottom: '2px',
-            fontSize: '13px'
-        },
-        libraryReturnIcon: {
-            padding: '0px',
-            '&:hover': {
-                backgroundColor: '#F0F1FB',
-            },
-            '&:focus': {
-                backgroundColor: 'rgba(204,209,242,0.61)'
-            }
-        },
-        arrowBack: {
-            fontSize: '17px',
-            lineHeight: '24px',
-            color: '#5567D5'
-        },
-        libraryModuleIcon: {
-            marginLeft: '8.25px'
-        },
-        loadingContainer: {
-            height: '60vh',
-            alignContent: 'center',
-            alignItems: 'center',
         },
         helpText: {
             fontStyle: "italic"

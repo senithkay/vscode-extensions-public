@@ -21,10 +21,10 @@ import LibrarySearchIcon from "../../../assets/icons/LibrarySearchIcon";
 import { InputEditorContext } from "../../../store/input-editor-context";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { Expression, ExpressionGroup, expressions, SELECTED_EXPRESSION } from "../../../utils/expressions";
-import { useStatementEditorStyles } from "../../styles";
+import { useStmtEditorHelperPanelStyles } from "../../styles";
 
 export function ExpressionSuggestions() {
-    const statementEditorClasses = useStatementEditorStyles();
+    const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
     const inputEditorCtx = useContext(InputEditorContext);
     const [keyword, setKeyword] = useState('');
     const [filteredExpressions, setFilteredExpressions] = useState(expressions);
@@ -73,9 +73,9 @@ export function ExpressionSuggestions() {
 
     return (
         <>
-            <div className={statementEditorClasses.expressionSuggestionList}>
+            <div className={stmtEditorHelperClasses.expressionSuggestionList}>
                 <Input
-                    className={statementEditorClasses.librarySearchBox}
+                    className={stmtEditorHelperClasses.librarySearchBox}
                     value={keyword}
                     placeholder={`Search Expression`}
                     onChange={(e) => searchExpressions(e.target.value)}
@@ -89,13 +89,13 @@ export function ExpressionSuggestions() {
                     <>
                         {filteredExpressions.map((group) => (
                             <>
-                                <h3 className={statementEditorClasses.librarySearchSubHeader}>{group.name}</h3>
-                                <List className={statementEditorClasses.expressionList}>
+                                <h3 className={stmtEditorHelperClasses.librarySearchSubHeader}>{group.name}</h3>
+                                <List className={stmtEditorHelperClasses.expressionList}>
                                     {
                                         group.expressions.map((expression, index) => (
                                             <ListItem
                                                 button={true}
-                                                className={statementEditorClasses.suggestionListItem}
+                                                className={stmtEditorHelperClasses.suggestionListItem}
                                                 key={index}
                                                 onClick={() => onClickExpressionSuggestion(expression)}
                                                 disableRipple={true}
@@ -118,7 +118,7 @@ export function ExpressionSuggestions() {
                 )}
             </div>
             {!filteredExpressions.length && (
-                <p className={statementEditorClasses.noSuggestionText}>Expressions not available</p>
+                <p className={stmtEditorHelperClasses.noSuggestionText}>Expressions not available</p>
             )}
         </>
     );
