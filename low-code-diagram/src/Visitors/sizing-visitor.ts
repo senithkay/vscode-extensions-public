@@ -411,15 +411,11 @@ export class SizingVisitor implements Visitor {
         }
 
         const matchedStatements = this.syncAsyncStatements(node);
-        const resolutionVisitor = new ConflictResolutionVisitor(matchedStatements, this.workerMap.size);
-        let count = 1;
+        const resolutionVisitor = new ConflictResolutionVisitor(matchedStatements, this.workerMap.size + 1);
         do {
-            count++;
             resolutionVisitor.resetConflictStatus();
             traversNode(node, resolutionVisitor);
         } while (resolutionVisitor.conflictFound())
-
-        console.log('while count >>>', count);
 
         if (bodyViewState.hasWorkerDecl) {
             let maxWorkerHeight = 0;
@@ -707,7 +703,6 @@ export class SizingVisitor implements Visitor {
             matchedPair.pairHeight = matchedPair.restrictedSpace.y1;
         });
 
-        console.log('matched statements >>>', matchedStatements);
         return matchedStatements;
     }
 

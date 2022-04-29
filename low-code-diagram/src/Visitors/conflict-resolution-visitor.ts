@@ -45,10 +45,10 @@ export class ConflictResolutionVisitor implements Visitor {
 
     beginVisitFunctionBodyBlock(node: FunctionBodyBlock, parent?: STNode): void {
         this.workerNames.push(DEFAULT_WORKER_NAME);
+        this.visitBlockStatement(node, parent);
     }
 
     endVisitFunctionBodyBlock(node: FunctionBodyBlock, parent?: STNode): void {
-        this.endVisitBlockStatement(node, parent);
         this.workerNames = [];
     }
 
@@ -56,14 +56,11 @@ export class ConflictResolutionVisitor implements Visitor {
         this.workerNames.push(node.workerName.value);
     }
 
-    endVisitNamedWorkerDeclaration(node: NamedWorkerDeclaration, parent?: STNode): void {
+    beginVisitBlockStatement(node: BlockStatement, parent?: STNode): void {
+        this.visitBlockStatement(node, parent);
     }
 
-    beginVisitIfElseStatement(node: IfElseStatement, parent?: STNode): void {
-
-    }
-
-    endVisitBlockStatement(node: BlockStatement, parent?: STNode): void {
+    private visitBlockStatement(node: BlockStatement, parent?: STNode) {
         const blockViewState: BlockViewState = node.viewState as BlockViewState;
         let height: number = 0;
         node.statements.forEach((statementNode, statementIndex) => {
@@ -73,7 +70,6 @@ export class ConflictResolutionVisitor implements Visitor {
             let updatedAsConflict = false;
 
             if (!this.hasConflict) {
-                console.log('>>>', this.endPointPositions);
                 this.endPointPositions.forEach(endPointRange => {
                     updatedAsConflict = this.fixIfConflicts(statementBoxStartHeight,
                         statementBoxEndHeight, endPointRange, statementVS, statementIndex);
@@ -114,7 +110,7 @@ export class ConflictResolutionVisitor implements Visitor {
                 }
             }
 
-            if (statementVS.isEndpoint) {
+            if (statementVS.isEndpoint || statementVS.isAction) {
                 this.endPointPositions.push({
                     y1: height + statementVS.bBox.offsetFromTop,
                     y2: height + statementVS.bBox.offsetFromTop + statementVS.bBox.h,
@@ -131,49 +127,21 @@ export class ConflictResolutionVisitor implements Visitor {
             && !blockViewState.isEndComponentAvailable) {
             const parentViewState = parent.viewState as FunctionViewState | WorkerDeclarationViewState;
             const endViewState = parentViewState.end as EndViewState;
-
             if (endViewState) {
                 const endBlockStartHeight = height + endViewState.bBox.offsetFromTop;
                 const endBlockEndHeight = endBlockStartHeight + endViewState.bBox.h;
                 if (!this.hasConflict) {
                     this.matchedPairInfo.forEach(matchedPair => {
-                        if (endBlockStartHeight <= matchedPair.restrictedSpace.y2
-                            && endBlockStartHeight >= matchedPair.restrictedSpace.y1
-                            && this.workerNames.length - 1 > matchedPair.restrictedSpace.x1
-                            && this.workerNames.length - 1 < matchedPair.restrictedSpace.x2) {
-
-                            // debugger;
-                            const newOffset = matchedPair.restrictedSpace.y2 - endBlockStartHeight + DefaultConfig.offSet;
-                            endViewState.bBox.offsetFromTop += newOffset;
-
-                            let correspondingPair;
-
-                            if (endViewState.isSend) {
-                                correspondingPair = this.matchedPairInfo.find(pairInfo =>
-                                    pairInfo.sourceName === this.workerNames[this.workerNames.length - 1]
-                                    && pairInfo.sourceIndex === node.statements.length);
-                            }
-
-
-                            if (correspondingPair) {
-                                correspondingPair.pairHeight += newOffset;
-                                const viewStateToUpdate = endViewState.isSend ?
-                                    correspondingPair.targetViewState : correspondingPair.sourceViewState;
-                                viewStateToUpdate.bBox.offsetFromTop += newOffset;
-                                correspondingPair.restrictedSpace.y1 += newOffset;
-                                correspondingPair.restrictedSpace.y2 += newOffset;
-                            }
-                            this.hasConflict = true;
-                        }
+                        this.fixIfConflicts(endBlockStartHeight, endBlockEndHeight, matchedPair.restrictedSpace,
+                            endViewState as StatementViewState, node.statements.length);
                     });
                 }
             }
         }
-
     }
 
-    private fixIfConflicts(statementBoxStartHeight: number, statementBoxEndHeight: number, 
-                           restrictedSpace: ConflictRestrictSpace, statementVS: StatementViewState, 
+    private fixIfConflicts(statementBoxStartHeight: number, statementBoxEndHeight: number,
+                           restrictedSpace: ConflictRestrictSpace, statementVS: StatementViewState,
                            statementIndex: number) {
 
         let updatedAsConflict: boolean = false;
@@ -184,7 +152,7 @@ export class ConflictResolutionVisitor implements Visitor {
             && this.workerNames.length - 1 > restrictedSpace.x1
             && this.workerNames.length - 1 < restrictedSpace.x2) {
 
-            const newOffset = restrictedSpace.y2 - statementBoxStartHeight + DefaultConfig.offSet;
+            const newOffset = restrictedSpace.y2 - statementBoxStartHeight + (DefaultConfig.offSet * 2);
             statementVS.bBox.offsetFromTop += newOffset;
 
             let correspondingPair;
