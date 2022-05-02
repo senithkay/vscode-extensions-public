@@ -60,6 +60,8 @@ export class BallerinaNotebookController {
 
     private async doExecution(cell: NotebookCell): Promise<void> {
         // if cell content is empty no need for an code execution
+        // TODO: But if the cell contained executed code with definitions and imports
+        // remove them from the shell invokermemory
         if (cell && cell.document && !cell.document.getText().trim()) {
             return;
         }
@@ -100,7 +102,7 @@ export class BallerinaNotebookController {
                 // unlike linux, windows does not identify single quotes as separators
                 const regex = isWindows() ? /(?:[^\s"]+|"[^"]*")+/g : /(?:[^\s"']+|"[^"]*"|'[^']*')+/g;
                 const args = cellContent.substring("bal".length).trim().match(regex) || [];
-                const balRunner = spawn("bal", args);
+                const balRunner = spawn(this.ballerinaExtension.getBallerinaCmd(), args);
 
                 balRunner.stdout.setEncoding('utf8');
                 balRunner.stdout.on('data', appendTextToOutput);
@@ -144,6 +146,7 @@ export class BallerinaNotebookController {
             appendTextToOutput(error);
             execution.end(false, Date.now());
         }
+        // TODO: Collect and store if there is any declarations and imports using cell meta data
     }
 
     public updateVariableView() {
