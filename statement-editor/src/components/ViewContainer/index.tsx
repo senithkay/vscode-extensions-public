@@ -25,6 +25,8 @@ import { StatementEditorContext } from "../../store/statement-editor-context";
 import { StatementEditorWrapperContext } from "../../store/statement-editor-wrapper-context";
 import { getModifications } from "../../utils";
 import { sendDidChange, sendDidClose } from "../../utils/ls-utils";
+import Breadcrumb from "../Breadcrumb";
+import { CloseButton } from "../Button/CloseButton";
 import { StatementEditorButton } from "../Button/StatementEditorButton";
 import { EditorPane } from '../EditorPane';
 import { useStatementEditorStyles } from "../styles";
@@ -151,6 +153,12 @@ export function ViewContainer(props: ViewContainerProps) {
     return (
         (
             <div className={overlayClasses.mainStatementWrapper}>
+                <div className={overlayClasses.statementEditorHeader}>
+                    <Breadcrumb/>
+                    <div className={overlayClasses.closeButton}>
+                        {onCancel && <CloseButton onCancel={onCancel} />}
+                    </div>
+                </div>
                 <div className={overlayClasses.statementExpressionWrapper}>
                     <EditorPane />
                 </div>

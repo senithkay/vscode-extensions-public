@@ -28,8 +28,11 @@ import { StmtEditorStackItem } from "../../models/definitions";
 import { StatementEditorWrapperContextProvider } from "../../store/statement-editor-wrapper-context";
 import { getUpdatedSource } from "../../utils";
 import { getPartialSTForModuleMembers, getPartialSTForStatement, sendDidOpen } from "../../utils/ls-utils";
+import Breadcrumb from "../Breadcrumb";
+import { CloseButton } from "../Button/CloseButton";
 import { EXPR_SCHEME, FILE_SCHEME } from "../InputEditor/constants";
 import { StatementEditor } from "../StatementEditor";
+import { useStatementEditorStyles } from "../styles";
 
 export interface LowCodeEditorProps {
     getLangClient: () => Promise<ExpressionEditorLangClientInterface>;
@@ -89,6 +92,8 @@ export function Editors(props: EditorsProps) {
             targetPosition : targetPosition
         }
     } = formArgs;
+
+    const statementEditorClasses = useStatementEditorStyles();
 
     const fileURI = monaco.Uri.file(currentFile.path).toString().replace(FILE_SCHEME, EXPR_SCHEME);
 

@@ -50,6 +50,17 @@ export const useStatementEditorStyles = makeStyles(() =>
                 backgroundColor: '#F0F1FB',
             }
         },
+        statementEditorHeader: {
+            height: '5vh',
+            display: 'flex',
+            borderBottom: 'solid 1px #d8d8d8',
+            padding: theme.spacing(1.5)
+        },
+        closeButton: {
+            display: 'flex',
+            justifyContent: 'flex-end',
+            width: '10%'
+        },
         mainStatementWrapper: {
             display: 'flex',
             height: 'auto',
@@ -605,8 +616,7 @@ export const useStatementEditorStyles = makeStyles(() =>
             fontStyle: "italic"
         },
         editorsBreadcrumb: {
-            position: "absolute",
-            marginTop: "-107px",
+            width: '90%',
             '& > * + *': {
                 marginTop: theme.spacing(2),
             },

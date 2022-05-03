@@ -36,7 +36,6 @@ export function EditorPane() {
         <div>
             <div className={statementEditorClasses.stmtEditorContentWrapper}>
                 <div className={statementEditorClasses.statementExpressionTitle}>
-                    <Breadcrumb/>
                     <Toolbar/>
                 </div>
                 <div className={statementEditorClasses.statementExpressionContent}>

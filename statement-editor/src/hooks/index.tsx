@@ -44,11 +44,6 @@ export const useStatementEditor = (props: EditorsProps) => {
     const stmtEditorComponent =
         isStmtEditor && (
             <FormControl data-testid="property-form">
-                <FormHeaderSection
-                    onCancel={onCancel}
-                    formTitle={"lowcode.develop.configForms.statementEditor.title"}
-                    defaultMessage={"Statement Editor"}
-                />
                 <Editors
                     onCancel={onCancel}
                     onStmtEditorModelChange={onStmtEditorModelChange}
