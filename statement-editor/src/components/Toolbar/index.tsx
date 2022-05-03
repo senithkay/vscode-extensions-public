@@ -14,21 +14,17 @@
 import React, { useContext } from "react";
 
 import IconButton from "@material-ui/core/IconButton";
-import { ConfigurableIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { STKindChecker } from "@wso2-enterprise/syntax-tree";
 
+import ToolbarConfigurableIcon from "../../assets/icons/ToolbarConfigurableIcon";
 import ToolbarDeleteIcon from "../../assets/icons/ToolbarDeleteIcon";
 import ToolbarRedoIcon from "../../assets/icons/ToolbarRedoIcon";
 import ToolbarUndoIcon from "../../assets/icons/ToolbarUndoIcon";
-import {
-    ADD_CONFIGURABLE_LABEL,
-    CONFIGURABLE_TYPE_BOOLEAN,
-    CONFIGURABLE_TYPE_STRING
-} from "../../constants";
+import { ADD_CONFIGURABLE_LABEL, CONFIGURABLE_TYPE_BOOLEAN, CONFIGURABLE_TYPE_STRING } from "../../constants";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { StatementEditorWrapperContext } from "../../store/statement-editor-wrapper-context";
 import { getModuleElementDeclPosition, getRemainingContent } from "../../utils";
-import { StatementEditorViewState } from "../../utils/statement-editor-viewstate";
+import { ModelType, StatementEditorViewState } from "../../utils/statement-editor-viewstate";
 import { INPUT_EDITOR_PLACE_HOLDERS } from "../InputEditor/constants";
 import { useStatementEditorStyles } from "../styles";
 
@@ -96,7 +92,9 @@ export default function Toolbar(){
 
                 configurableType = completeModel.typedBindingPattern.typeDescriptor.source;
             }
-        } else if (STKindChecker.isWhileStatement(completeModel) || STKindChecker.isIfElseStatement(completeModel)) {
+        } else if (STKindChecker.isWhileStatement(completeModel)
+            || STKindChecker.isIfElseStatement(completeModel)) {
+
             configurableType = CONFIGURABLE_TYPE_BOOLEAN;
         }
         const configurableStmt = `configurable ${configurableType} CONF_NAME = ?;`;
@@ -110,6 +108,9 @@ export default function Toolbar(){
     }
 
     const deleteButtonEnabled = currentModel.model && isExprDeletable();
+    const isConfigurable = currentModel.model && (
+        (currentModel.model.viewState as StatementEditorViewState).modelType === ModelType.EXPRESSION
+    );
 
     return(
         <span className={statementEditorClasses.toolbar}>
@@ -139,10 +140,11 @@ export default function Toolbar(){
             </IconButton>
             <IconButton
                 onClick={onClickOnConfigurable}
-                style={{color: deleteButtonEnabled ? '#FE523C' : '#8D91A3', marginRight: '14px'}}
+                disabled={!isConfigurable}
                 className={statementEditorClasses.toolbarIcons}
+                style={{marginRight: '7px'}}
             >
-                <ConfigurableIcon/>
+                <ToolbarConfigurableIcon/>
             </IconButton>
         </span>
     );
