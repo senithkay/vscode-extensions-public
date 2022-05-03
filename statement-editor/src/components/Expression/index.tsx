@@ -65,9 +65,10 @@ export function ExpressionComponent(props: ExpressionComponentProps) {
     }
 
     const styleClassNames = cn(statementRendererClasses.expressionElement,
-        isSelected && statementRendererClasses.expressionElementSelected,
+        isSelected && !hasSyntaxDiagnostics && statementRendererClasses.expressionElementSelected,
+        isSelected && hasSyntaxDiagnostics && statementRendererClasses.syntaxErrorElementSelected,
         {
-            "hovered": !isSelected && isHovered,
+            "hovered": !isSelected && isHovered && !hasSyntaxDiagnostics,
         },
         classNames
     )
