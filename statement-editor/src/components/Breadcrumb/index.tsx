@@ -15,26 +15,16 @@ import React, { useContext } from 'react';
 
 import Breadcrumbs from '@material-ui/core/Breadcrumbs';
 import Link from '@material-ui/core/Link';
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import NavigateNextIcon from '@material-ui/icons/NavigateNext';
 
 import { StmtEditorStackItem } from "../../models/definitions";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { StatementEditorWrapperContext } from "../../store/statement-editor-wrapper-context";
-
-const useStyles = makeStyles((theme: Theme) =>
-    createStyles({
-        root: {
-            '& > * + *': {
-                marginTop: theme.spacing(2),
-            },
-        },
-    }),
-);
+import { useStatementEditorStyles } from "../styles";
 
 export default function Breadcrumb() {
-    const classes = useStyles();
+    const statementEditorClasses = useStatementEditorStyles();
     const {
         editorCtx: {
             editors,
@@ -63,7 +53,7 @@ export default function Breadcrumb() {
     }
 
     return (
-        <div className={classes.root}>
+        <div className={statementEditorClasses.editorsBreadcrumb}>
             <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />} aria-label="breadcrumb">
                 { editors.map((editor: StmtEditorStackItem, index: number) => {
                     return (index === activeEditorId)

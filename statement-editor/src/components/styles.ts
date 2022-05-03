@@ -607,6 +607,11 @@ export const useStatementEditorStyles = makeStyles(() =>
         },
         helpText: {
             fontStyle: "italic"
+        },
+        editorsBreadcrumb: {
+            '& > * + *': {
+                marginTop: theme.spacing(2),
+            },
         }
     }),
 );
