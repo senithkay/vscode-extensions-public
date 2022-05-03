@@ -350,7 +350,7 @@ export function FunctionForm(props: FunctionProps) {
                 onSave={handleOnSave}
                 onCancel={onCancel}
                 validForm={(isEdit || functionName.isInteracted === true)
-                    && !(model?.viewState?.diagnostics?.length > 0)}
+                    && !(model?.viewState?.diagnostics?.length > 0) && !(currentComponentSyntaxDiag?.length > 0)}
             />
         </FormControl>
     )

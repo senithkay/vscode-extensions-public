@@ -28,6 +28,9 @@ export const useStyles = makeStyles((theme: Theme) =>
             width: '100%',
             alignItems: 'center',
         },
+        disabledColor: {
+            color: "rgba(0, 0, 0, 0.26)"
+        },
         headerLabelCursor: {
             cursor: "pointer",
             width: "100%"
