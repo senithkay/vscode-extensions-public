@@ -25,6 +25,7 @@ import { StatementEditorContext } from "../../store/statement-editor-context";
 import { StatementEditorWrapperContext } from "../../store/statement-editor-wrapper-context";
 import { getModifications } from "../../utils";
 import { sendDidChange, sendDidClose } from "../../utils/ls-utils";
+import { StatementEditorButton } from "../Button/StatementEditorButton";
 import { EditorPane } from '../EditorPane';
 import { useStatementEditorStyles } from "../styles";
 
@@ -53,7 +54,9 @@ export function ViewContainer(props: ViewContainerProps) {
             updateEditor,
             activeEditorId
         },
-        syntaxTree
+        syntaxTree,
+        experimentalEnabled,
+        handleStmtEditorToggle
     } = useContext(StatementEditorWrapperContext);
     const {
         modelCtx: {
@@ -151,22 +154,25 @@ export function ViewContainer(props: ViewContainerProps) {
                 <div className={overlayClasses.statementExpressionWrapper}>
                     <EditorPane />
                 </div>
-                <div className={overlayClasses.statementBtnWrapper}>
-                    <div className={overlayClasses.bottomPane}>
-                        <div className={overlayClasses.buttonWrapper}>
-                            <SecondaryButton
-                                text={isConfigurableStmt ? backButtonText : cancelButtonText}
-                                fullWidth={false}
-                                onClick={isConfigurableStmt ? onBackClick : onCancelClick}
-                            />
-                            <PrimaryButton
-                                dataTestId="save-btn"
-                                text={isConfigurableStmt ? addConfigurableButtonText : saveButtonText}
-                                disabled={!isStatementValid || activeEditorId !== editors.length - 1}
-                                fullWidth={false}
-                                onClick={isConfigurableStmt ? onAddConfigurableClick : onSaveClick}
-                            />
-                        </div>
+                <div className={overlayClasses.footer}>
+                    <div className={overlayClasses.stmtEditorToggle}>
+                        {experimentalEnabled && (
+                            <StatementEditorButton handleChange={handleStmtEditorToggle} checked={true} />
+                        )}
+                    </div>
+                    <div className={overlayClasses.buttonWrapper}>
+                        <SecondaryButton
+                            text={isConfigurableStmt ? backButtonText : cancelButtonText}
+                            fullWidth={false}
+                            onClick={isConfigurableStmt ? onBackClick : onCancelClick}
+                        />
+                        <PrimaryButton
+                            dataTestId="save-btn"
+                            text={isConfigurableStmt ? addConfigurableButtonText : saveButtonText}
+                            disabled={!isStatementValid || activeEditorId !== editors.length - 1}
+                            fullWidth={false}
+                            onClick={isConfigurableStmt ? onAddConfigurableClick : onSaveClick}
+                        />
                     </div>
                 </div>
             </div>

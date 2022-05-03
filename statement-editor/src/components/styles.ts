@@ -109,10 +109,6 @@ export const useStatementEditorStyles = makeStyles(() =>
         expressionSugession: {
             padding: theme.spacing(1.5),
         },
-        statementBtnWrapper: {
-            height: 'auto',
-            padding: theme.spacing(1.5),
-        },
         stmtEditor: {
             display: "flex",
             flexDirection: 'column',
@@ -178,13 +174,6 @@ export const useStatementEditorStyles = makeStyles(() =>
             backgroundColor: '#fff',
             width: '100%',
             height: '90%'
-        },
-        bottomPane: {
-            display: 'flex',
-            flexDirection: 'column',
-            backgroundColor: '#fff',
-            width: '100%',
-            height: '10%'
         },
         rightPaneBlock: {
             // backgroundColor: '#00ff00',
@@ -355,12 +344,20 @@ export const useStatementEditorStyles = makeStyles(() =>
             opacity: 0.52,
             backgroundColor: '#DCDEE4'
         },
-        buttonWrapper: {
+        footer: {
             height: 'auto',
             display: 'flex',
-            justifyContent: 'flex-end',
             width: '100%',
-            zIndex: 100,
+            marginTop: '12px',
+            paddingRight: theme.spacing(2.5),
+        },
+        buttonWrapper: {
+            display: 'flex',
+            justifyContent: 'flex-end',
+            width: '50%'
+        },
+        stmtEditorToggle: {
+            width: '50%'
         },
         plusIcon: {
             boxSizing: 'border-box',

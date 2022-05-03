@@ -45,7 +45,9 @@ export const StatementEditorWrapperContext = React.createContext({
         size: 0
     },
     syntaxTree: null,
-    importStatements: []
+    importStatements: [],
+    handleStmtEditorToggle: () => undefined,
+    experimentalEnabled: false
 });
 
 interface SEWrapperCtxProviderProps extends LowCodeEditorProps {
@@ -57,7 +59,8 @@ interface SEWrapperCtxProviderProps extends LowCodeEditorProps {
     dropLastEditor?: () => void,
     addConfigurable?: (newLabel: string, newPosition: NodePosition, newSource: string) => void,
     activeEditorId?: number,
-    editors?: StmtEditorStackItem[]
+    editors?: StmtEditorStackItem[],
+    handleStmtEditorToggle?: () => void
 }
 
 export const StatementEditorWrapperContextProvider = (props: SEWrapperCtxProviderProps) => {
@@ -72,6 +75,8 @@ export const StatementEditorWrapperContextProvider = (props: SEWrapperCtxProvide
         activeEditorId,
         editors,
         importStatements,
+        experimentalEnabled,
+        handleStmtEditorToggle,
         ...restProps
     } = props;
 
@@ -89,6 +94,8 @@ export const StatementEditorWrapperContextProvider = (props: SEWrapperCtxProvide
                     activeEditorId
                 },
                 importStatements,
+                experimentalEnabled,
+                handleStmtEditorToggle,
                 ...restProps
             }}
         >

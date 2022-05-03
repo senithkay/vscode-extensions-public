@@ -62,6 +62,7 @@ export interface EditorsProps extends LowCodeEditorProps {
     onCancel: () => void;
     handleStatementEditorChange?: (partialModel: STNode) => void;
     onStmtEditorModelChange?: (partialModel: STNode) => void;
+    handleStmtEditorToggle?: () => void;
 }
 
 export function Editors(props: EditorsProps) {
@@ -78,7 +79,9 @@ export function Editors(props: EditorsProps) {
         library,
         currentFile,
         syntaxTree,
-        importStatements
+        importStatements,
+        experimentalEnabled,
+        handleStmtEditorToggle
     } = props;
 
     const {
@@ -183,6 +186,8 @@ export function Editors(props: EditorsProps) {
                         library={library}
                         importStatements={importStatements}
                         syntaxTree={syntaxTree}
+                        experimentalEnabled={experimentalEnabled}
+                        handleStmtEditorToggle={handleStmtEditorToggle}
                     >
                         <StatementEditor
                             editor={editor}

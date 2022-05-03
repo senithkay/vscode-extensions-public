@@ -21,7 +21,6 @@ import { Editors, EditorsProps } from "../components/Editors";
 export const useStatementEditor = (props: EditorsProps) => {
     const {
         onCancel,
-        experimentalEnabled,
         handleStatementEditorChange,
         ...restProps
     } = props;
@@ -30,7 +29,9 @@ export const useStatementEditor = (props: EditorsProps) => {
     let stmtEditorModel: STNode;
 
     const handleStmtEditorToggle = () => {
-        setIsStmtEditor(!isStmtEditor);
+        setIsStmtEditor((prevState: boolean) => {
+            return !prevState;
+        });
         if (stmtEditorModel) {
             handleStatementEditorChange(stmtEditorModel);
         }
@@ -51,6 +52,7 @@ export const useStatementEditor = (props: EditorsProps) => {
                 <Editors
                     onCancel={onCancel}
                     onStmtEditorModelChange={onStmtEditorModelChange}
+                    handleStmtEditorToggle={handleStmtEditorToggle}
                     {...restProps}
                 />
             </FormControl>
