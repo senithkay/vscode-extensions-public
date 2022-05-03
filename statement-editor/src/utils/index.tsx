@@ -126,7 +126,7 @@ export function getStatementTypeComponent(
 
 export function getFormComponent(
     type: string, model: STNode, targetPosition: NodePosition, onChange: (code: string) => void,
-    onCancel: () => void, getLangClient: () => Promise<ExpressionEditorLangClientInterface>, fileURI: string,
+    onCancel: () => void, getLangClient: () => Promise<ExpressionEditorLangClientInterface>, isEdit: boolean,
     applyModifications: (modifications: STModification[]) => void
 ): ReactNode {
     const FormComponent = (formComponents as any)[type];
@@ -137,7 +137,7 @@ export function getFormComponent(
             onChange={onChange}
             onCancel={onCancel}
             getLangClient={getLangClient}
-            fileURI={fileURI}
+            isEdit={isEdit}
             applyModifications={applyModifications}
         />
     );
@@ -190,6 +190,14 @@ export function isPositionsEquals(position1: NodePosition, position2: NodePositi
         position1?.startColumn === position2?.startColumn &&
         position1?.endLine === position2?.endLine &&
         position1?.endColumn === position2?.endColumn;
+}
+
+export function isDiagnosticInRange(diagPosition: NodePosition, nodePosition: NodePosition): boolean {
+    return diagPosition?.startLine >= nodePosition?.startLine &&
+        diagPosition?.startColumn >= nodePosition?.startColumn &&
+        diagPosition?.endLine <= nodePosition?.endLine &&
+        (((diagPosition?.startLine === nodePosition?.startLine) && (diagPosition?.endLine === nodePosition?.
+            endLine)) ? (diagPosition?.endColumn <= nodePosition?.endColumn) : true);
 }
 
 export function isOperator(modelType: number): boolean {
