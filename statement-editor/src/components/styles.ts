@@ -42,7 +42,6 @@ export const useStatementEditorStyles = makeStyles(() =>
             top: '60px',
             border: '1px solid #e6e7ec',
             borderRadius: '8px',
-            marginLeft: '30px',
             backgroundColor: '#ffffff'
         },
         toolbarIcons: {
@@ -609,6 +608,8 @@ export const useStatementEditorStyles = makeStyles(() =>
             fontStyle: "italic"
         },
         editorsBreadcrumb: {
+            position: "absolute",
+            marginTop: "-107px",
             '& > * + *': {
                 marginTop: theme.spacing(2),
             },

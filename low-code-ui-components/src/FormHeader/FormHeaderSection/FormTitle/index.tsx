@@ -10,6 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+// tslint:disable: jsx-no-multiline-js
 import React from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
@@ -36,11 +37,13 @@ export function FormTitle(props: FormTitleProps) {
     return (
         <div className={formClasses.formTitleWrapper}>
             <div className={formClasses.mainTitleWrapper}>
-                <Typography variant="h4">
-                    <Box paddingTop={2} paddingBottom={2}>
-                        <FormattedMessage id={formTitle} defaultMessage={defaultMessage} />
-                    </Box>
-                </Typography>
+                {!toggleChecked && (
+                    <Typography variant="h4">
+                        <Box paddingTop={2} paddingBottom={2}>
+                            <FormattedMessage id={formTitle} defaultMessage={defaultMessage} />
+                        </Box>
+                    </Typography>
+                )}
             </div>
             {experimentalEnabled && statementEditor && <StatementEditorButton handleChange={handleStmtEditorToggle} checked={toggleChecked} />}
         </div>
