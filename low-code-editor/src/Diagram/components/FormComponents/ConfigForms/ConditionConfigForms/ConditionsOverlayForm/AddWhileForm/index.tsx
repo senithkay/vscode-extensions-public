@@ -174,12 +174,8 @@ export function AddWhileForm(props: WhileProps) {
             <FormControl data-testid="while-form" className={classes.wizardFormControl}>
                 <FormHeaderSection
                     onCancel={onCancel}
-                    statementEditor={true}
                     formTitle={"lowcode.develop.configForms.while.title"}
                     defaultMessage={"While"}
-                    handleStmtEditorToggle={handleStmtEditorToggle}
-                    toggleChecked={false}
-                    experimentalEnabled={experimentalEnabled}
                 />
                 <div className={classes.formContentWrapper}>
                     <div className={classes.formCodeBlockWrapper}>
@@ -206,6 +202,10 @@ export function AddWhileForm(props: WhileProps) {
                     saveBtnText={saveWhileButtonLabel}
                     isMutationInProgress={isMutationInProgress}
                     validForm={!isInvalid && (conditionExpression as string)?.length > 0}
+                    statementEditor={true}
+                    toggleChecked={false}
+                    experimentalEnabled={experimentalEnabled}
+                    handleStmtEditorToggle={handleStmtEditorToggle}
                     onSave={handleOnSaveClick}
                     onCancel={onCancel}
                 />

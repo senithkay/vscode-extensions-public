@@ -158,12 +158,8 @@ export function AddLogConfig(props: LogConfigProps) {
             <FormControl data-testid="log-form" className={formClasses.wizardFormControl}>
                 <FormHeaderSection
                     onCancel={onCancel}
-                    statementEditor={true}
                     formTitle={"lowcode.develop.configForms.log.title"}
                     defaultMessage={"Log"}
-                    handleStmtEditorToggle={handleStmtEditorToggle}
-                    toggleChecked={false}
-                    experimentalEnabled={experimentalEnabled}
                 />
                 <div className={formClasses.formContentWrapper}>
                     <div className={formClasses.formNameWrapper}>
@@ -211,6 +207,10 @@ export function AddLogConfig(props: LogConfigProps) {
                     saveBtnText={saveLogButtonLabel}
                     isMutationInProgress={isMutationInProgress}
                     validForm={isFormValid}
+                    statementEditor={true}
+                    toggleChecked={false}
+                    experimentalEnabled={experimentalEnabled}
+                    handleStmtEditorToggle={handleStmtEditorToggle}
                     onSave={onSaveBtnClick}
                     onCancel={onCancel}
                 />

@@ -147,12 +147,8 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
             <FormControl data-testid="custom-expression-form" className={formClasses.wizardFormControl}>
                 <FormHeaderSection
                     onCancel={onCancel}
-                    statementEditor={true}
                     formTitle={"lowcode.develop.configForms.customStatement.title"}
                     defaultMessage={"Other"}
-                    handleStmtEditorToggle={handleStmtEditorToggle}
-                    toggleChecked={false}
-                    experimentalEnabled={experimentalEnabled}
                 />
                 <div className={formClasses.formContentWrapper}>
                     <div className={formClasses.formNameWrapper}>
@@ -186,6 +182,10 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
                     validForm={isFormValid}
                     onSave={onSaveBtnClick}
                     onCancel={onCancel}
+                    statementEditor={true}
+                    toggleChecked={false}
+                    experimentalEnabled={experimentalEnabled}
+                    handleStmtEditorToggle={handleStmtEditorToggle}
                 />
             </FormControl>
         );

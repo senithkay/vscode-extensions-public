@@ -16,36 +16,27 @@ import { FormattedMessage, useIntl } from "react-intl";
 
 import { Box, Typography } from "@material-ui/core";
 
-import { StatementEditorButton } from "../../../buttons/StatementEditorButton";
 import { useStyles } from "../style";
 
 interface FormTitleProps {
-    statementEditor?: boolean;
-    handleStmtEditorToggle?: () => void;
-    toggleChecked?: boolean;
     formTitle: string;
     defaultMessage: string;
-    experimentalEnabled?: boolean;
 }
 
 export function FormTitle(props: FormTitleProps) {
-    const { formTitle, defaultMessage, statementEditor,
-            handleStmtEditorToggle, toggleChecked, experimentalEnabled } = props;
+    const { formTitle, defaultMessage } = props;
     const formClasses = useStyles();
     const intl = useIntl();
 
     return (
         <div className={formClasses.formTitleWrapper}>
             <div className={formClasses.mainTitleWrapper}>
-                {!toggleChecked && (
-                    <Typography variant="h4">
-                        <Box paddingTop={2} paddingBottom={2}>
-                            <FormattedMessage id={formTitle} defaultMessage={defaultMessage} />
-                        </Box>
-                    </Typography>
-                )}
+                <Typography variant="h4">
+                    <Box paddingTop={2} paddingBottom={2}>
+                        <FormattedMessage id={formTitle} defaultMessage={defaultMessage} />
+                    </Box>
+                </Typography>
             </div>
-            {experimentalEnabled && statementEditor && <StatementEditorButton handleChange={handleStmtEditorToggle} checked={toggleChecked} />}
         </div>
     );
 }

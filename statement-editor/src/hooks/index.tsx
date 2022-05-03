@@ -47,10 +47,6 @@ export const useStatementEditor = (props: EditorsProps) => {
                     onCancel={onCancel}
                     formTitle={"lowcode.develop.configForms.statementEditor.title"}
                     defaultMessage={"Statement Editor"}
-                    statementEditor={true}
-                    handleStmtEditorToggle={handleStmtEditorToggle}
-                    toggleChecked={true}
-                    experimentalEnabled={experimentalEnabled}
                 />
                 <Editors
                     onCancel={onCancel}

@@ -146,12 +146,8 @@ export function AddReturnForm(props: ReturnFormProps) {
             <FormControl data-testid="return-form" className={classes.wizardFormControl}>
                 <FormHeaderSection
                     onCancel={onCancel}
-                    statementEditor={true}
                     formTitle={"lowcode.develop.configForms.Return.title"}
                     defaultMessage={"Return"}
-                    handleStmtEditorToggle={handleStmtEditorToggle}
-                    toggleChecked={false}
-                    experimentalEnabled={experimentalEnabled}
                 />
                 <div className={classes.formContentWrapper}>
                     <div className={classes.formNameWrapper}>
@@ -181,6 +177,10 @@ export function AddReturnForm(props: ReturnFormProps) {
                     saveBtnText={saveReturnButtonLabel}
                     isMutationInProgress={isMutationInProgress}
                     validForm={isValidValue}
+                    statementEditor={true}
+                    toggleChecked={false}
+                    experimentalEnabled={experimentalEnabled}
+                    handleStmtEditorToggle={handleStmtEditorToggle}
                     onSave={onReturnExpressionSave}
                     onCancel={onCancel}
                 />

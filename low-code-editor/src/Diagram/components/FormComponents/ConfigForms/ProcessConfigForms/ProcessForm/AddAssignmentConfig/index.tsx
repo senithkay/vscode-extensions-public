@@ -198,12 +198,8 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
             <FormControl data-testid="property-form" className={classes.wizardFormControl}>
                 <FormHeaderSection
                     onCancel={onCancel}
-                    statementEditor={true}
                     formTitle={"lowcode.develop.configForms.assignment.title"}
                     defaultMessage={"Assignment"}
-                    handleStmtEditorToggle={handleStmtEditorToggle}
-                    toggleChecked={false}
-                    experimentalEnabled={experimentalEnabled}
                 />
                 <div className={classes.formContentWrapper}>
                     <div className={classes.formNameWrapper}>
@@ -228,6 +224,10 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
                     saveBtnText={saveVariableButtonText}
                     isMutationInProgress={isMutationInProgress}
                     validForm={validForm}
+                    statementEditor={true}
+                    toggleChecked={false}
+                    experimentalEnabled={experimentalEnabled}
+                    handleStmtEditorToggle={handleStmtEditorToggle}
                     onSave={handleSave}
                     onCancel={onCancel}
                 />

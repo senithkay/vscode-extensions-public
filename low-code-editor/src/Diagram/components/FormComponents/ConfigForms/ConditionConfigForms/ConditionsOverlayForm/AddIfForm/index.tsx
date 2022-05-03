@@ -326,12 +326,8 @@ export function AddIfForm(props: IfProps) {
             <FormControl data-testid="if-form" className={classes.wizardFormControl}>
                 <FormHeaderSection
                     onCancel={onCancel}
-                    statementEditor={true}
                     formTitle={"lowcode.develop.configForms.if.title"}
                     defaultMessage={"If"}
-                    handleStmtEditorToggle={handleStmtEditorToggle}
-                    toggleChecked={false}
-                    experimentalEnabled={experimentalEnabled}
                 />
                 <div className={classes.formContentWrapper}>
                     <div className={classes.formCodeBlockWrapper}>
@@ -383,6 +379,10 @@ export function AddIfForm(props: IfProps) {
                     saveBtnText={saveIfConditionButtonLabel}
                     isMutationInProgress={isMutationInProgress}
                     validForm={validForm}
+                    statementEditor={true}
+                    toggleChecked={false}
+                    experimentalEnabled={experimentalEnabled}
+                    handleStmtEditorToggle={handleStmtEditorToggle}
                     onSave={handleOnSaveClick}
                     onCancel={onCancel}
                 />
