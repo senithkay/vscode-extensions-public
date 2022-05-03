@@ -620,6 +620,15 @@ export const useStatementEditorStyles = makeStyles(() =>
             '& > * + *': {
                 marginTop: theme.spacing(2),
             },
-        }
+        },
+        editorOverlay: {
+            position: 'absolute',
+            marginTop: '5vh',
+            height: 820,
+            width: 700,
+            backgroundColor: '#fff',
+            opacity: '0.7',
+            zIndex: 100
+        },
     }),
 );

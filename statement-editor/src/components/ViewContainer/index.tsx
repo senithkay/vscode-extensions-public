@@ -159,18 +159,26 @@ export function ViewContainer(props: ViewContainerProps) {
                         {onCancel && <CloseButton onCancel={onCancel} />}
                     </div>
                 </div>
+                {activeEditorId !== editors.length - 1 && (
+                    <div className={overlayClasses.editorOverlay} />
+                )}
                 <div className={overlayClasses.statementExpressionWrapper}>
                     <EditorPane />
                 </div>
                 <div className={overlayClasses.footer}>
                     <div className={overlayClasses.stmtEditorToggle}>
                         {experimentalEnabled && (
-                            <StatementEditorButton handleChange={handleStmtEditorToggle} checked={true} />
+                            <StatementEditorButton
+                                handleChange={handleStmtEditorToggle}
+                                checked={true}
+                                disabled={!isStatementValid || activeEditorId !== editors.length - 1}
+                            />
                         )}
                     </div>
                     <div className={overlayClasses.buttonWrapper}>
                         <SecondaryButton
                             text={isConfigurableStmt ? backButtonText : cancelButtonText}
+                            disabled={!isStatementValid || activeEditorId !== editors.length - 1}
                             fullWidth={false}
                             onClick={isConfigurableStmt ? onBackClick : onCancelClick}
                         />
