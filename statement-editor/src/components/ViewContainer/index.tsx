@@ -18,8 +18,9 @@ import {
     PrimaryButton,
     SecondaryButton
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
-import { ModuleVarDecl } from "@wso2-enterprise/syntax-tree";
+import { ModuleVarDecl, NodePosition } from "@wso2-enterprise/syntax-tree";
 
+import { StmtEditorStackItem } from "../../models/definitions";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { StatementEditorWrapperContext } from "../../store/statement-editor-wrapper-context";
 import { getModifications } from "../../utils";
@@ -95,15 +96,29 @@ export function ViewContainer(props: ViewContainerProps) {
 
     const onAddConfigurableClick = async () => {
         await handleModifications();
+
         const model = statementModel as ModuleVarDecl;
+
+        const noOfLines = model.source.split('\n').length;
+        const nextEditor: StmtEditorStackItem = editors[activeEditorId - 1];
+        const nextEditorPosition: NodePosition = {
+            ...nextEditor.position,
+            startLine: nextEditor.position.startLine + noOfLines,
+            endLine: nextEditor.position.endLine + noOfLines
+        };
+
         updateEditor(activeEditorId - 1, {
-            ...editors[activeEditorId - 1],
+            ...nextEditor,
+            position: nextEditorPosition,
             newConfigurableName : model.typedBindingPattern.bindingPattern.source
         });
+
         dropLastEditor();
+
         setLineOffset((prevLineOffset: number) => {
-            return prevLineOffset + 2;
+            return prevLineOffset + noOfLines;
         });
+
         await sendDidClose(fileSchemeURI, getLangClient);
     };
 
