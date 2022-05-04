@@ -403,6 +403,22 @@ export function isNodeDeletable(selectedNode: STNode): boolean {
     return exprDeletable;
 }
 
+export function isConfigAllowedTypeDesc(typeDescNode: STNode): boolean {
+    return (
+        !STKindChecker.isAnyTypeDesc(typeDescNode)
+        && !STKindChecker.isErrorTypeDesc(typeDescNode)
+        && !STKindChecker.isFunctionTypeDesc(typeDescNode)
+        && !STKindChecker.isJsonTypeDesc(typeDescNode)
+        && !STKindChecker.isObjectTypeDesc(typeDescNode)
+        && !STKindChecker.isOptionalTypeDesc(typeDescNode)
+        && !STKindChecker.isParameterizedTypeDesc(typeDescNode)
+        && !STKindChecker.isServiceTypeDesc(typeDescNode)
+        && !STKindChecker.isStreamTypeDesc(typeDescNode)
+        && !STKindChecker.isTableTypeDesc(typeDescNode)
+        && !STKindChecker.isVarTypeDesc(typeDescNode)
+    );
+}
+
 export function getModuleIconStyle(label: string): string {
     let suggestionIconStyle: string;
     switch (label) {

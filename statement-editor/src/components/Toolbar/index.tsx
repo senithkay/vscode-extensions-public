@@ -23,7 +23,7 @@ import ToolbarUndoIcon from "../../assets/icons/ToolbarUndoIcon";
 import { ADD_CONFIGURABLE_LABEL, CONFIGURABLE_TYPE_BOOLEAN, CONFIGURABLE_TYPE_STRING } from "../../constants";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { StatementEditorWrapperContext } from "../../store/statement-editor-wrapper-context";
-import { getModuleElementDeclPosition, getRemainingContent, isNodeDeletable } from "../../utils";
+import {getModuleElementDeclPosition, getRemainingContent, isConfigAllowedTypeDesc, isNodeDeletable} from "../../utils";
 import { ModelType, StatementEditorViewState } from "../../utils/statement-editor-viewstate";
 import { useStatementEditorStyles } from "../styles";
 
@@ -47,8 +47,6 @@ export default function Toolbar(){
         activeEditorId
     } = editorCtx;
 
-    const configurableInsertPosition = getModuleElementDeclPosition(syntaxTree);
-
     const [deletable, configurable] = useMemo(() => {
         let modelDeletable = false;
         let modelConfigurable = false;
@@ -70,35 +68,27 @@ export default function Toolbar(){
     }
 
     const onClickOnConfigurable = () => {
+        const configurableInsertPosition = getModuleElementDeclPosition(syntaxTree);
         let configurableType = CONFIGURABLE_TYPE_STRING;
+
         if (STKindChecker.isModuleVarDecl(completeModel) || STKindChecker.isLocalVarDecl(completeModel)) {
             const typeDescNode = completeModel.typedBindingPattern.typeDescriptor;
-            if (!STKindChecker.isAnyTypeDesc(typeDescNode)
-                && !STKindChecker.isErrorTypeDesc(typeDescNode)
-                && !STKindChecker.isFunctionTypeDesc(typeDescNode)
-                && !STKindChecker.isJsonTypeDesc(typeDescNode)
-                && !STKindChecker.isObjectTypeDesc(typeDescNode)
-                && !STKindChecker.isOptionalTypeDesc(typeDescNode)
-                && !STKindChecker.isParameterizedTypeDesc(typeDescNode)
-                && !STKindChecker.isServiceTypeDesc(typeDescNode)
-                && !STKindChecker.isStreamTypeDesc(typeDescNode)
-                && !STKindChecker.isTableTypeDesc(typeDescNode)
-                && !STKindChecker.isVarTypeDesc(typeDescNode)){
-
+            if (isConfigAllowedTypeDesc(typeDescNode)) {
                 configurableType = completeModel.typedBindingPattern.typeDescriptor.source;
             }
-        } else if (STKindChecker.isWhileStatement(completeModel)
-            || STKindChecker.isIfElseStatement(completeModel)) {
-
+        } else if (STKindChecker.isWhileStatement(completeModel) || STKindChecker.isIfElseStatement(completeModel)) {
             configurableType = CONFIGURABLE_TYPE_BOOLEAN;
         }
+
         const configurableStmt = `configurable ${configurableType} CONF_NAME = ?;`;
+
         updateEditor(activeEditorId, {
             ...editors[activeEditorId],
             model: completeModel,
             source: completeModel.source,
             selectedNodePosition: currentModel.model.position
         });
+
         addConfigurable(ADD_CONFIGURABLE_LABEL, configurableInsertPosition, configurableStmt);
     }
 
