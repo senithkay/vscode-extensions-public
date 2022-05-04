@@ -20,8 +20,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             flexDirection: 'row',
             alignItems: 'center',
             justifyContent: 'space-around',
-            borderBottom: '1px solid #d8d8d8',
-            padding: "0 0 5px 20px"
+            borderBottom: '1px solid #d8d8d8'
         },
         titleIcon: {
             display: 'flex',

@@ -78,7 +78,7 @@ export const useStatementRendererStyles = makeStyles(() =>
         expressionElement: {
             position: 'relative',
             width: 'fit-content',
-            margin: '0 2px 0 2px',
+            margin: '0 2px 0 0',
             '&': {
                 width: 'fit-content',
                 borderRadius: '4px',
@@ -159,8 +159,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
         suggestionsInner: {
             overflowY: 'scroll',
             height: '100%',
-            paddingLeft: '25px',
-            paddingTop: '11px',
+            paddingTop: '16px',
         },
         selectDropDownSe: {
             height: '32px',
@@ -225,7 +224,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
                 fontWeight: 'normal'
             },
             "& .MuiTab-root": {
-                marginLeft: '24px',
+                marginRight: '24px',
                 paddingRight: '0px',
                 paddingLeft: '0px',
                 fontSize: '13px',
@@ -258,13 +257,15 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             gridTemplateColumns: '47% 47%'
         },
         suggestionListItem: {
-            padding: '0 0 0 8px',
             '&:hover': {
                 backgroundColor: '#F0F1FB',
             },
             '&:focus': {
                 backgroundColor: 'rgba(204,209,242,0.61)'
-            }
+            },
+            "& .MuiListItemText-root": {
+                margin: '0'
+            },
         },
         suggestionDataType: {
             color: '#05A26B',
@@ -286,6 +287,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             maxHeight: '100%',
             overflowY: 'scroll',
             overflowX: 'hidden',
+            width: '100%'
         },
         librarySearchBox: {
             position: 'relative',
@@ -300,7 +302,8 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             fontSize: '12px',
             textAlign: 'left',
             paddingLeft: '12px',
-            marginRight: '10px'
+            marginRight: '10px',
+            marginBottom: '16px'
         },
         librarySearchSubHeader: {
             height: '12px',
@@ -309,12 +312,16 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             fontSize: '13px',
             letterSpacing: 0,
             lineHeight: '14px',
-            marginBottom: '7px'
+            margin: '0px'
         },
         expressionList: {
             columnGap: '6%',
             display: 'grid',
-            gridTemplateColumns: '47% 47%'
+            gridTemplateColumns: '47% 47%',
+            "& .MuiListItem-root": {
+                margin: '0 0 8px 0',
+                padding: '0'
+            },
         },
         loadingContainer: {
             height: '60vh',
@@ -414,17 +421,15 @@ export const useStatementEditorStyles = makeStyles(() =>
             backgroundColor: '#f9fafc',
             display: 'flex',
             flexDirection: 'column',
-            padding: theme.spacing(1.5),
+            padding: "18px 0px 34px 0px",
             borderBottom: '1px solid #e6e7ec'
         },
         statementExpressionTitle: {
             display: 'flex',
             alignItems: 'center',
-            paddingBottom: theme.spacing(1),
+            paddingBottom: '20px',
         },
         statementExpressionContent: {
-            paddingTop: theme.spacing(1.5),
-            paddingBottom: theme.spacing(1.5),
             fontSize: "18px",
             'user-select': 'none'
         },

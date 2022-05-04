@@ -14,6 +14,7 @@
 import React, { useContext, useEffect, useState } from "react";
 
 import {
+    FormControl,
     Input, InputAdornment, List, ListItem, ListItemText, Typography
 } from "@material-ui/core";
 
@@ -45,7 +46,7 @@ export function ExpressionSuggestions() {
     }
 
     useEffect(() => {
-        if (currentModel.model){
+        if (currentModel.model) {
             const filteredGroups: ExpressionGroup[] = expressions.filter(
                 (exprGroup) => exprGroup.relatedModelType === currentModel.model.viewState.modelType);
             setFilteredExpressions(filteredGroups);
@@ -74,17 +75,19 @@ export function ExpressionSuggestions() {
     return (
         <>
             <div className={stmtEditorHelperClasses.expressionSuggestionList}>
-                <Input
-                    className={stmtEditorHelperClasses.librarySearchBox}
-                    value={keyword}
-                    placeholder={`Search Expression`}
-                    onChange={(e) => searchExpressions(e.target.value)}
-                    endAdornment={(
-                        <InputAdornment position={"end"} style={{ padding: '8.5px' }}>
-                            <LibrarySearchIcon />
-                        </InputAdornment>
-                    )}
-                />
+                <FormControl style={{ width: 'inherit', paddingRight: '10px' }}>
+                    <Input
+                        className={stmtEditorHelperClasses.librarySearchBox}
+                        value={keyword}
+                        placeholder={`Search Expression`}
+                        onChange={(e) => searchExpressions(e.target.value)}
+                        endAdornment={(
+                            <InputAdornment position={"end"} style={{ padding: '8.5px' }}>
+                                <LibrarySearchIcon />
+                            </InputAdornment>
+                        )}
+                    />
+                </FormControl>
                 {!!filteredExpressions.length && (
                     <>
                         {filteredExpressions.map((group) => (
