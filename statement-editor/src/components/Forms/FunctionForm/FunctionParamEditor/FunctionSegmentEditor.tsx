@@ -120,11 +120,11 @@ export function FunctionParamSegmentEditor(props: FunctionParamSegmentEditorProp
                             customProps={{
                                 optional: true,
                                 isErrored: (syntaxDiag !== undefined && currentComponentName === "Type" || (
-                                    param?.typeName?.viewState?.diagnostics?.length > 0
+                                    param?.typeName?.viewState?.diagnosticsInRange?.length > 0
                                 ))
                             }}
                             errorMessage={(syntaxDiag && currentComponentName === "Type" && syntaxDiag[0].message) ||
-                                param?.typeName?.viewState?.diagnostics[0]?.message
+                                param?.typeName?.viewState?.diagnosticsInRange[0]?.message
                             }
                             disabled={(syntaxDiag?.length > 0) && currentComponentName !== "Type"}
                         />
@@ -138,11 +138,11 @@ export function FunctionParamSegmentEditor(props: FunctionParamSegmentEditorProp
                             customProps={{
                                 optional: true,
                                 isErrored: ((syntaxDiag !== undefined && currentComponentName === "Name") || (
-                                    param?.paramName?.viewState?.diagnostics?.length > 0
+                                    param?.paramName?.viewState?.diagnosticsInRange?.length > 0
                                 ))
                             }}
                             errorMessage={(syntaxDiag && currentComponentName === "Name" && syntaxDiag[0].message) ||
-                                param?.paramName?.viewState?.diagnostics[0]?.message
+                                param?.paramName?.viewState?.diagnosticsInRange[0]?.message
                             }
                             disabled={(syntaxDiag?.length > 0) && currentComponentName !== "Name"}
                         />
@@ -160,8 +160,8 @@ export function FunctionParamSegmentEditor(props: FunctionParamSegmentEditorProp
                             <PrimaryButton
                                 dataTestId={"custom-expression-save-btn"}
                                 text={onUpdate ? "Update" : " Add"}
-                                disabled={(syntaxDiag?.length > 0) || (param?.viewState?.diagnostics?.length > 0) ||
-                                    !(segmentName.isInteracted || isEdit) || !(segmentType.isInteracted || isEdit)
+                                disabled={(syntaxDiag?.length > 0) || (param?.viewState?.diagnosticsInRange?.length > 0)
+                                    || !(segmentName.isInteracted || isEdit) || !(segmentType.isInteracted || isEdit)
                                 }
                                 fullWidth={false}
                                 onClick={onUpdate ? handleOnUpdate : handleOnSave}
