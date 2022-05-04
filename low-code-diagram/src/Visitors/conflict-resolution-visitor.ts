@@ -11,9 +11,9 @@
  * associated services.
  */
 
-import { BlockStatement, FunctionBodyBlock, IfElseStatement, NamedWorkerDeclaration, STKindChecker, STNode, Visitor } from "@wso2-enterprise/syntax-tree";
+import { BlockStatement, FunctionBodyBlock, FunctionDefinition, IfElseStatement, NamedWorkerDeclaration, STKindChecker, STNode, Visitor } from "@wso2-enterprise/syntax-tree";
 
-import { BlockViewState, EndViewState, FunctionViewState, StatementViewState } from "../ViewState";
+import { BlockViewState, EndViewState, FunctionViewState, StatementViewState, ViewState } from "../ViewState";
 import { WorkerDeclarationViewState } from "../ViewState/worker-declaration";
 
 import { DefaultConfig } from "./default";
@@ -49,137 +49,189 @@ export class ConflictResolutionVisitor implements Visitor {
     }
 
     endVisitFunctionBodyBlock(node: FunctionBodyBlock, parent?: STNode): void {
+        console.log('>>> ==============================');
         this.workerNames = [];
     }
 
     beginVisitNamedWorkerDeclaration(node: NamedWorkerDeclaration, parent?: STNode): void {
         this.workerNames.push(node.workerName.value);
+        this.visitBlockStatement(node.workerBody, node);
     }
 
-    beginVisitBlockStatement(node: BlockStatement, parent?: STNode): void {
-        this.visitBlockStatement(node, parent);
-    }
+    // beginVisitBlockStatement(node: BlockStatement, parent?: STNode): void {
+    // }
 
-    private visitBlockStatement(node: BlockStatement, parent?: STNode) {
+    private visitBlockStatement(node: BlockStatement, parent?: STNode, height: number = 0) {
         const blockViewState: BlockViewState = node.viewState as BlockViewState;
-        let height: number = 0;
+        console.log('>>> worker name', this.workerNames[this.workerNames.length - 1]);
         node.statements.forEach((statementNode, statementIndex) => {
-            const statementVS: StatementViewState = statementNode.viewState as StatementViewState;
-            const statementBoxStartHeight = height + statementVS.bBox.offsetFromTop;
-            const statementBoxEndHeight = statementBoxStartHeight + statementVS.bBox.h;
+            const statementViewState: StatementViewState = statementNode.viewState as StatementViewState;
             let updatedAsConflict = false;
+            const statementBoxStartHeight = height + statementViewState.bBox.offsetFromTop;
+            const statementBoxEndHeight = statementBoxStartHeight + statementViewState.bBox.h;
 
             if (!this.hasConflict) {
-                this.endPointPositions.forEach(endPointRange => {
-                    updatedAsConflict = this.fixIfConflicts(statementBoxStartHeight,
-                        statementBoxEndHeight, endPointRange, statementVS, statementIndex);
-                })
-            }
-
-            if (!this.hasConflict) {
-                this.matchedPairInfo.forEach(matchedPair => {
-                    updatedAsConflict = this.fixIfConflicts(statementBoxStartHeight,
-                        statementBoxEndHeight, matchedPair.restrictedSpace, statementVS, statementIndex);
-                });
-
-            }
-
-            if (!updatedAsConflict && (statementVS.isSend || statementVS.isReceive)) {
-                let correspondingPair;
-
-                if (statementVS.isSend) {
-                    correspondingPair = this.matchedPairInfo.find(pairInfo =>
-                        pairInfo.sourceName === this.workerNames[this.workerNames.length - 1]
-                        && pairInfo.sourceIndex === statementIndex);
-                }
-
-                if (statementVS.isReceive) {
-                    correspondingPair = this.matchedPairInfo.find(pairInfo =>
-                        pairInfo.targetName === this.workerNames[this.workerNames.length - 1]
-                        && pairInfo.targetIndex === statementIndex);
-                }
-
-                if (correspondingPair && correspondingPair.pairHeight !== statementBoxStartHeight) {
-                    const newOffset = statementBoxStartHeight - correspondingPair.pairHeight;
-                    correspondingPair.pairHeight += newOffset;
-                    const viewStateToUpdate = statementVS.isSend ?
-                        correspondingPair.targetViewState : correspondingPair.sourceViewState;
-                    viewStateToUpdate.bBox.offsetFromTop += newOffset;
-                    correspondingPair.restrictedSpace.y1 += newOffset;
-                    correspondingPair.restrictedSpace.y2 += newOffset;
+                updatedAsConflict = this.fixIfConflictWithEndPoint(statementBoxStartHeight, statementBoxEndHeight,
+                    statementViewState, statementIndex);
+                if (!this.hasConflict) {
+                    updatedAsConflict = this.fixIfConflictsWithMessage(statementBoxStartHeight, statementBoxEndHeight,
+                        statementViewState, statementIndex);
                 }
             }
 
-            if (statementVS.isEndpoint || statementVS.isAction) {
+            if (!updatedAsConflict) {
+                let relatedPairInfo;
+                let linkedViewState;
+
+                if (statementViewState.isSend) {
+                    relatedPairInfo = this.matchedPairInfo.find(pairInfo =>
+                        pairInfo.sourceIndex === statementIndex
+                        && pairInfo.sourceName === this.workerNames[this.workerNames.length - 1]);
+
+                    linkedViewState = relatedPairInfo.targetViewState as StatementViewState;
+                }
+
+                if (statementViewState.isReceive) {
+                    relatedPairInfo = this.matchedPairInfo.find(pairInfo =>
+                        pairInfo.targetIndex === statementIndex
+                        && pairInfo.targetName === this.workerNames[this.workerNames.length - 1]);
+
+                    linkedViewState = relatedPairInfo.sourceViewState as StatementViewState;
+                }
+
+                if (relatedPairInfo && linkedViewState) {
+                    if (height + statementViewState.bBox.offsetFromTop > relatedPairInfo.pairHeight) {
+                        const newOffset = (height + statementViewState.bBox.offsetFromTop) - relatedPairInfo.pairHeight;
+
+                        linkedViewState.bBox.offsetFromTop += newOffset;
+                        relatedPairInfo.pairHeight += newOffset;
+                        relatedPairInfo.restrictedSpace.y1 += newOffset;
+                        relatedPairInfo.restrictedSpace.y2 += newOffset;
+                    }
+                }
+            }
+
+            if (statementViewState.isEndpoint || statementViewState.isAction) {
                 this.endPointPositions.push({
-                    y1: height + statementVS.bBox.offsetFromTop,
-                    y2: height + statementVS.bBox.offsetFromTop + statementVS.bBox.h,
                     x1: this.workerNames.length - 1,
-                    x2: this.workerCount + 1
+                    x2: this.workerCount + 1,
+                    y1: height + statementViewState.bBox.offsetFromTop,
+                    y2: height + statementViewState.bBox.offsetFromTop + statementViewState.bBox.h
                 })
             }
 
-            height += statementVS.getHeight();
+            height += statementViewState.getHeight();
         });
 
         if (parent
             && (STKindChecker.isFunctionDefinition(parent) || STKindChecker.isNamedWorkerDeclaration(parent))
             && !blockViewState.isEndComponentAvailable) {
+            console.log('>>> end stuff');
             const parentViewState = parent.viewState as FunctionViewState | WorkerDeclarationViewState;
             const endViewState = parentViewState.end as EndViewState;
             if (endViewState) {
                 const endBlockStartHeight = height + endViewState.bBox.offsetFromTop;
                 const endBlockEndHeight = endBlockStartHeight + endViewState.bBox.h;
                 if (!this.hasConflict) {
-                    this.matchedPairInfo.forEach(matchedPair => {
-                        this.fixIfConflicts(endBlockStartHeight, endBlockEndHeight, matchedPair.restrictedSpace,
-                            endViewState as StatementViewState, node.statements.length);
-                    });
+                    this.fixIfConflictsWithMessage(endBlockStartHeight, endBlockEndHeight,
+                        endViewState as StatementViewState, node.statements.length);
                 }
             }
         }
     }
 
-    private fixIfConflicts(statementBoxStartHeight: number, statementBoxEndHeight: number,
-                           restrictedSpace: ConflictRestrictSpace, statementVS: StatementViewState,
-                           statementIndex: number) {
-
+    private fixIfConflictsWithMessage(boxStartHeight: number, boxEndHeight: number, viewState: StatementViewState, statementIndex: number): boolean {
         let updatedAsConflict: boolean = false;
-        if (((statementBoxStartHeight <= restrictedSpace.y2
-            && statementBoxStartHeight >= restrictedSpace.y1)
-            || (statementBoxEndHeight <= restrictedSpace.y2
-                && statementBoxEndHeight >= restrictedSpace.y1))
-            && this.workerNames.length - 1 > restrictedSpace.x1
-            && this.workerNames.length - 1 < restrictedSpace.x2) {
+        // console.log('>>> information fed', boxStartHeight, boxEndHeight, viewState, statmentIndex);
 
-            const newOffset = restrictedSpace.y2 - statementBoxStartHeight + (DefaultConfig.offSet * 2);
-            statementVS.bBox.offsetFromTop += newOffset;
+        this.matchedPairInfo.forEach(matchedPair => {
+            const restrictedSpaceCoords = matchedPair.restrictedSpace;
 
-            let correspondingPair;
+            console.log('>>> conflict check', boxStartHeight, boxEndHeight, restrictedSpaceCoords)
+            if (((boxStartHeight >= restrictedSpaceCoords.y1 && boxStartHeight <= restrictedSpaceCoords.y2)
+                || (boxEndHeight >= restrictedSpaceCoords.y1 && boxEndHeight <= restrictedSpaceCoords.y2))
+                && this.workerNames.length - 1 > restrictedSpaceCoords.x1
+                && this.workerNames.length - 1 < restrictedSpaceCoords.x2) {
+                this.hasConflict = true;
+                updatedAsConflict = true;
+                const newOffset = (restrictedSpaceCoords.y2 - boxStartHeight) + DefaultConfig.offSet * 2;
+                console.log('>>> conflict')
 
-            if (statementVS.isSend) {
-                correspondingPair = this.matchedPairInfo.find(pairInfo =>
-                    pairInfo.sourceName === this.workerNames[this.workerNames.length - 1]
-                    && pairInfo.sourceIndex === statementIndex);
+                viewState.bBox.offsetFromTop += newOffset;
+
+                let relatedPairInfo: SendRecievePairInfo;
+                let linkedViewState: StatementViewState;
+                if (viewState.isSend) {
+                    relatedPairInfo = this.matchedPairInfo.find(pairInfo =>
+                        pairInfo.sourceIndex === statementIndex
+                        && pairInfo.sourceName === this.workerNames[this.workerNames.length - 1]);
+
+                    linkedViewState = relatedPairInfo.targetViewState as StatementViewState;
+                }
+
+                if (viewState.isReceive) {
+                    relatedPairInfo = this.matchedPairInfo.find(pairInfo =>
+                        pairInfo.targetIndex === statementIndex
+                        && pairInfo.targetName === this.workerNames[this.workerNames.length - 1]);
+
+                    linkedViewState = relatedPairInfo.sourceViewState as StatementViewState;
+                }
+
+                if (relatedPairInfo && linkedViewState) {
+                    linkedViewState.bBox.offsetFromTop += newOffset;
+                    relatedPairInfo.pairHeight += newOffset;
+                    relatedPairInfo.restrictedSpace.y1 += newOffset;
+                    relatedPairInfo.restrictedSpace.y2 += newOffset;
+                }
             }
+        });
 
-            if (statementVS.isReceive) {
-                correspondingPair = this.matchedPairInfo.find(pairInfo =>
-                    pairInfo.targetName === this.workerNames[this.workerNames.length - 1]
-                    && pairInfo.targetIndex === statementIndex);
-            }
 
-            if (correspondingPair) {
-                correspondingPair.pairHeight += newOffset;
-                const viewStateToUpdate = statementVS.isSend ?
-                    correspondingPair.targetViewState : correspondingPair.sourceViewState;
-                viewStateToUpdate.bBox.offsetFromTop += newOffset;
-                correspondingPair.restrictedSpace.y1 += newOffset;
-                correspondingPair.restrictedSpace.y2 += newOffset;
+        return updatedAsConflict;
+    }
+
+    private fixIfConflictWithEndPoint(boxStartHeight: number, boxEndHeight: number, viewState: StatementViewState,
+        statementIndex: number): boolean {
+        let updatedAsConflict = false;
+        this.endPointPositions.forEach(position => {
+            if (((boxStartHeight >= position.y1 && boxStartHeight <= position.y2)
+                || (boxEndHeight >= position.y1 && boxEndHeight <= position.y2))
+                && this.workerNames.length - 1 > position.x1
+                && this.workerNames.length - 1 < position.x2) {
+
+                this.hasConflict = true;
+                updatedAsConflict = true;
+                const newOffset = (position.y2 - boxStartHeight) + DefaultConfig.offSet * 2;
+
+                viewState.bBox.offsetFromTop += newOffset;
+
+                let relatedPairInfo: SendRecievePairInfo;
+                let linkedViewState: StatementViewState;
+                if (viewState.isSend) {
+                    relatedPairInfo = this.matchedPairInfo.find(pairInfo =>
+                        pairInfo.sourceIndex === statementIndex
+                        && pairInfo.sourceName === this.workerNames[this.workerNames.length - 1]);
+
+                    linkedViewState = relatedPairInfo.targetViewState as StatementViewState;
+                }
+
+                if (viewState.isReceive) {
+                    relatedPairInfo = this.matchedPairInfo.find(pairInfo =>
+                        pairInfo.targetIndex === statementIndex
+                        && pairInfo.targetName === this.workerNames[this.workerNames.length - 1]);
+
+                    linkedViewState = relatedPairInfo.sourceViewState as StatementViewState;
+                }
+
+                if (relatedPairInfo && linkedViewState) {
+                    linkedViewState.bBox.offsetFromTop += newOffset;
+                    relatedPairInfo.pairHeight += newOffset;
+                    relatedPairInfo.restrictedSpace.y1 += newOffset;
+                    relatedPairInfo.restrictedSpace.y2 += newOffset;
+                }
             }
-            updatedAsConflict = true;
-            this.hasConflict = true;
-        }
+        })
+
         return updatedAsConflict;
     }
 }

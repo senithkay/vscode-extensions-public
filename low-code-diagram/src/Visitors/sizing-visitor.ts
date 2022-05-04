@@ -412,6 +412,8 @@ export class SizingVisitor implements Visitor {
 
         const matchedStatements = this.syncAsyncStatements(node);
         const resolutionVisitor = new ConflictResolutionVisitor(matchedStatements, this.workerMap.size + 1);
+
+        console.log('>>> ~~~~~~~~~~~~~ new visit ~~~~~~~~~~~~~');
         do {
             resolutionVisitor.resetConflictStatus();
             traversNode(node, resolutionVisitor);
