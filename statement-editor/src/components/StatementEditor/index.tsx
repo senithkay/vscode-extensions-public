@@ -20,7 +20,7 @@ import {
     LibrarySearchResponse,
     STModification
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 import * as monaco from "monaco-editor";
 import { Diagnostic } from "vscode-languageserver-protocol";
 
@@ -36,6 +36,8 @@ import {
     enrichModel,
     getCurrentModel,
     getFilteredDiagnosticMessages,
+    getNextNode,
+    getPreviousNode,
     getUpdatedSource,
     isBindingPattern,
     isOperator,
@@ -51,6 +53,9 @@ import { StatementEditorViewState } from "../../utils/statement-editor-viewstate
 import { StmtEditorUndoRedoManager } from '../../utils/undo-redo';
 import { EXPR_SCHEME, FILE_SCHEME } from "../InputEditor/constants";
 import { ViewContainer } from "../ViewContainer";
+import Mousetrap from 'mousetrap'
+import { parentSetupVisitor } from '../../visitors/parent-setup-visitor';
+import { KeyboardNavigationManager } from '../../utils/keyboard-navigation-manager';
 
 export interface LowCodeEditorProps {
     getLangClient: () => Promise<ExpressionEditorLangClientInterface>;
@@ -283,9 +288,65 @@ export function StatementEditor(props: StatementEditorProps) {
         });
     };
 
+    const parentModelHandler = () => {
+            this.setCurrentModel( (currentModel: CurrentModel) => {
+               if ( !!currentModel.model?.parent){
+                   return {model: currentModel.model.parent}
+               }
+               else {
+                   return currentModel
+               }
+            });
+    }
+
+    const nextModelHandler = () => {
+        const nextModel = getNextNode(currentModel.model,model ) 
+        this.setCurrentModel( (currentModel: CurrentModel) => {
+         
+               return {model: nextModel}
+
+        });
+    };
+
+    const previousModelHandler = () => {
+        const previousModel = getPreviousNode(currentModel.model,model ) 
+        this.setCurrentModel( (currentModel: CurrentModel) => {
+         
+               return {model: previousModel}
+
+        });
+    };
+
     function updateEditedModel(editedModel: STNode, diagnostics?: Diagnostic[]) {
         setModel(enrichModel(editedModel, targetPosition, diagnostics));
     }
+
+    // traversNode(model, parentSetupVisitor);
+
+    const keyboardNavigationManager = new KeyboardNavigationManager()
+    const trap = new Mousetrap()
+    React.useEffect(() => {
+
+        const client = keyboardNavigationManager.getClient();
+
+        keyboardNavigationManager.bindNewKey(client, ['ctrl+left'], parentModelHandler );
+        keyboardNavigationManager.bindNewKey(client, ['ctrl+right'], parentModelHandler);
+        keyboardNavigationManager.bindNewKey(client, ['d'], nextModelHandler);
+        keyboardNavigationManager.bindNewKey(client, ['a'], previousModelHandler);
+
+        // trap.bind(['ctrl+left'], () => {
+        //     parentModelHandler();
+        //     return false;
+        // });
+
+        return () => {  
+            
+            keyboardNavigationManager.resetMouseTrapInstance(client)
+            // trap.reset();
+            
+        }
+    }, [currentModel.model]);
+
 
     return (
         (

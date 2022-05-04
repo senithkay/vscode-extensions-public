@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 
 import { List, ListItem, ListItemIcon, ListItemText, Typography } from "@material-ui/core";
 
@@ -21,10 +21,13 @@ import { StatementEditorContext } from "../../../store/statement-editor-context"
 import { getSuggestionIconStyle } from "../../../utils";
 import { acceptedCompletionKindForTypes } from "../../InputEditor/constants";
 import { useStatementEditorStyles } from "../../styles";
+import Mousetrap from "mousetrap";
+import { KeyboardNavigationManager } from "../../../utils/keyboard-navigation-manager";
 
 export function LSSuggestions() {
     const statementEditorClasses = useStatementEditorStyles();
     const inputEditorCtx = useContext(InputEditorContext);
+    const [selectedListItem, setSelectedItem] = React.useState(0);
 
     const {
         modelCtx: {
@@ -40,6 +43,44 @@ export function LSSuggestions() {
     } = useContext(StatementEditorContext);
     const resourceAccessRegex = /.+\./gm;
 
+    const changeSelected = (key: number) => {
+        const newSelected = selectedListItem + key;
+        if ( newSelected >= 0 ){
+            setSelectedItem(newSelected)
+        }
+
+
+
+    }
+
+    const trap = new Mousetrap()
+
+    const keyboardNavigationManager = new KeyboardNavigationManager()
+
+    React.useEffect(() => {
+        
+        trap.bind('right', () => {
+            changeSelected(1);
+            return false;
+        });
+        trap.bind('left', () => {
+            changeSelected(-1)
+            return false;
+        });
+        trap.bind('down', () => {
+            changeSelected(2)
+            return false;
+        });
+        trap.bind('up', () => {
+            changeSelected(-2);
+            return false;
+        });
+
+        return () => {  
+            trap.reset();
+            
+        }
+    }, [selectedListItem]);
     const onClickLSSuggestion = (suggestion: SuggestionItem) => {
         let variable = suggestion.value;
         if (inputEditorCtx.userInput.includes('.')) {
@@ -69,6 +110,7 @@ export function LSSuggestions() {
                                         button={true}
                                         key={index}
                                         onClick={() => onClickLSSuggestion(suggestion)}
+                                        selected={index == selectedListItem}
                                         className={statementEditorClasses.suggestionListItem}
                                         disableRipple={true}
                                     >

@@ -20,6 +20,7 @@ import { useStatementEditorStyles } from "../styles";
 import { ExpressionSuggestions } from "../Suggestions/ExpressionSuggestions";
 import { LSSuggestions } from "../Suggestions/LangServerSuggestions";
 import TabPanel from "../Tab";
+import Mousetrap from "mousetrap";
 
 enum TabElements {
     suggestions = 'Suggestions',
@@ -40,6 +41,29 @@ export function HelperPane() {
     const onLibTypeSelection = (value: string) => {
         setLibraryType(value);
     };
+
+    const trap = new Mousetrap();
+
+    React.useEffect(() => {
+        trap.bind(['ctrl+shift+s'], () => {
+            setSelectedTab(TabElements.suggestions);
+            return false;
+        });
+        trap.bind(['ctrl+shift+e'], () => {
+            setSelectedTab(TabElements.expressions);
+            return false;
+        });
+        trap.bind(['ctrl+shift+l'], () => {
+            setSelectedTab(TabElements.libraries);
+            return false;
+        });
+
+        return () => {  
+            trap.reset();
+            
+        }
+    }, []);
+
 
     return (
         <>

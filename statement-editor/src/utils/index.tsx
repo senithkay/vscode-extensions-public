@@ -44,9 +44,11 @@ import { visitor as ExpressionDeletingVisitor } from "../visitors/expression-del
 import { visitor as ModelFindingVisitor } from "../visitors/model-finding-visitor";
 import { visitor as ModelTypeSetupVisitor } from "../visitors/model-type-setup-visitor";
 import { viewStateSetupVisitor as ViewStateSetupVisitor } from "../visitors/view-state-setup-visitor";
+import {nextNodeSetupVisitor} from "../visitors/next-node--setup-visitor"
 
 import { ModelType } from "./statement-editor-viewstate";
 import { createImportStatement, createStatement, updateStatement } from "./statement-modifications";
+import { parentSetupVisitor } from '../visitors/parent-setup-visitor';
 
 export function getModifications(
         model: STNode,
@@ -130,8 +132,26 @@ export function getCurrentModel(position: NodePosition, model: STNode): STNode {
     return ModelFindingVisitor.getModel();
 }
 
+export function getNextNode(currentModel: STNode, statementModel: STNode): STNode {
+    nextNodeSetupVisitor.setPropetiesDefault();
+    nextNodeSetupVisitor.setCurrentNode(currentModel)
+
+    traversNode(statementModel, nextNodeSetupVisitor);
+
+    return nextNodeSetupVisitor.getNextNode();
+}
+export function getPreviousNode(currentModel: STNode, statementModel: STNode): STNode {
+    nextNodeSetupVisitor.setPropetiesDefault();
+    nextNodeSetupVisitor.setCurrentNode(currentModel)
+
+    traversNode(statementModel, nextNodeSetupVisitor);
+
+    return nextNodeSetupVisitor.getPreviousNode();
+}
+
 export function enrichModel(model: STNode, targetPosition: NodePosition, diagnostics?: Diagnostic[]): STNode {
     traversNode(model, ViewStateSetupVisitor);
+    traversNode(model, parentSetupVisitor);
     model = enrichModelWithDiagnostics(model, targetPosition, diagnostics);
     return enrichModelWithViewState(model);
 }

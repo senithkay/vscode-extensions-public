@@ -23,11 +23,47 @@ import { getRemainingContent } from "../../utils";
 import { StatementEditorViewState } from "../../utils/statement-editor-viewstate";
 import { INPUT_EDITOR_PLACE_HOLDERS } from "../InputEditor/constants";
 import { useStatementEditorStyles } from "../styles";
+import Mousetrap from 'mousetrap';
+import { KeyboardNavigationManager } from "../../utils/keyboard-navigation-manager";
+// import { KeyboardNavigationManager } from "../KeyBoardNavigationManager";
 
 export default function Toolbar(){
     const statementEditorClasses = useStatementEditorStyles();
-    const { modelCtx } = useContext(StatementEditorContext);
+    const { modelCtx} = useContext(StatementEditorContext);
     const { undo, redo, hasRedo, hasUndo, statementModel: completeModel, updateModel, currentModel } = modelCtx;
+
+    const keyboardNavigationManager = new KeyboardNavigationManager()
+    React.useEffect(() => {
+        const client = keyboardNavigationManager.getClient();
+        keyboardNavigationManager.bindNewKey(client, ['command+z', 'ctrl+z'], undo );
+        keyboardNavigationManager.bindNewKey(client, ['command+shift+z', 'ctrl+shift+z'], redo)
+        keyboardNavigationManager.bindNewKey(client, ['del'], onClickOnDelete)
+
+
+        // trap.bind(['command+z', 'ctrl+z'], () => {
+        //     undo();
+        //     return false;
+        // });
+        // trap.bind([' command+shift+z', 'ctrl+y'], () => {
+        //     redo();
+        //     return false;
+        // });
+
+        // trap.bind(['del'], ()=> {
+        //     // if (isExprDeletable){
+        //     // }
+        //     React.useCallback(async ()=>{
+        //         onClickOnDelete();
+
+        //     },[])
+        //     return false;
+        // })
+        return () => {  
+            // trap.reset();
+            keyboardNavigationManager.resetMouseTrapInstance(client)
+            
+        }
+    }, []);
 
     const isExprDeletable = (): boolean => {
         if (currentModel.model){
