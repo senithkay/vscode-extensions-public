@@ -278,7 +278,6 @@ export function FunctionForm(props: FunctionProps) {
                         defaultValue={(functionName?.isInteracted || isEdit) ? functionName.value : ""}
                         onChange={onNameChange}
                         customProps={{
-                            optional: true,
                             isErrored: ((currentComponentSyntaxDiag !== undefined && currentComponentName === "Name") ||
                                 model?.functionName?.viewState?.diagnostics[0]?.message)
                         }}
