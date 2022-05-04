@@ -13,11 +13,9 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useEffect, useState } from 'react';
 
-import { List, ListItemText, Typography } from "@material-ui/core";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import * as monaco from "monaco-editor";
 
-import { StmtDiagnostic } from "../../models/definitions";
 import { enrichModel, getUpdatedSource} from "../../utils";
 import {
     getPartialSTForTopLevelComponents,
@@ -53,7 +51,6 @@ export function FormEditor(props: FormEditorProps) {
     } = props;
 
     const [model, setModel] = useState<STNode>(null);
-    const [stmtDiagnostics, setStmtDiagnostics] = useState<StmtDiagnostic[]>(null);
 
     const fileURI = monaco.Uri.file(currentFile.path).toString().replace(FILE_SCHEME, EXPR_SCHEME);
 
@@ -102,20 +99,6 @@ export function FormEditor(props: FormEditorProps) {
                 isEdit={initialSource !== undefined}
                 applyModifications={applyModifications}
             />
-            <List>
-                {
-                    stmtDiagnostics && stmtDiagnostics.map((diag: StmtDiagnostic, index: number) => (
-                        !diag.isPlaceHolderDiag && (
-                            <ListItemText
-                                key={index}
-                                primary={(
-                                    <Typography>{diag.message}</Typography>
-                                )}
-                            />
-                        )
-                    ))
-                }
-            </List>
         </div>
     )
 }
