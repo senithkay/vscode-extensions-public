@@ -19,10 +19,11 @@
 
 import React, { ReactElement, useEffect, useState } from "react";
 
-import { ConfigElementProps } from "../../ConfigElement";
+import ConfigElement, { ConfigElementProps } from "../../ConfigElement";
 import { FieldLabel, FieldLabelProps } from "../../elements/FieldLabel";
-import { TextFieldInput, TextFieldInputProps } from "../../elements/TextFieldInput";
+import { RadioGroupInput, RadioGroupInputProps } from "../../elements/RadioGroupInput";
 import { SchemaConstants } from "../../model";
+import { getType } from "../../utils";
 import { SimpleTypeProps } from "../SimpleType";
 
 /**
@@ -34,16 +35,20 @@ export interface UnionTypeProps extends SimpleTypeProps {
 }
 
 export const UnionType = (props: UnionTypeProps): ReactElement => {
+    const { description, id, isRequired, label, name, type, value, setUnionType, placeholder } = props;
+    const [fieldType, setFieldType] = useState("");
     const [unionValue, setUnionValue] = useState<ConfigElementProps>({
-        description: props.description,
-        id: props.id,
-        isRequired: props.isRequired,
-        name: props.name,
-        type: props.type,
-        value: props.value,
+        description,
+        id,
+        isRequired,
+        name,
+        type,
+        value,
     });
-    const returnElement: ReactElement[] = [];
-    const { id, isRequired, value, setUnionType, placeholder } = props;
+
+    let fieldElement: ReactElement;
+
+    const types: string[] = getAllTypes(props.schema[SchemaConstants.ANY_OF]);
 
     const setUnionElememt = (elementId: string, elementValue: any) => {
         const newUnionValue: ConfigElementProps = unionValue;
@@ -53,45 +58,61 @@ export const UnionType = (props: UnionTypeProps): ReactElement => {
         setUnionValue(newUnionValue);
     };
 
+    if (fieldType !== "") {
+        const inputFieldProps: ConfigElementProps = {
+            id,
+            isRequired,
+            name: "value",
+            placeholder,
+            setConfigElement: setUnionElememt,
+            type: getType(fieldType),
+            value,
+        };
+        fieldElement = <ConfigElement {...inputFieldProps}/>;
+    }
+
+    const setReturnType = (elementId: string, elementType: string) => {
+        setFieldType(elementType);
+    };
+
     useEffect(() => {
-        props.setUnionType(props.id, unionValue);
+        setUnionType(props.id, unionValue);
     }, [unionValue]);
 
-    const textFieldInputProps: TextFieldInputProps = {
-        id,
-        isRequired,
-        placeholder,
-        setTextFieldValue: setUnionElememt,
-        type: "text",
-        value,
-    };
-
     const fieldLabelProps: FieldLabelProps = {
-        description: props.description,
-        label: props.label,
-        name: props.name,
-        required: props.isRequired,
-        type: getUnionType(props.schema[SchemaConstants.ANY_OF]),
+        description,
+        label,
+        name,
+        required: isRequired,
+        type: getUnionType(types),
     };
 
-    returnElement.push(
-        (
-            <div key={id + "-FIELD"}>
-                <FieldLabel {...fieldLabelProps} />
-                <TextFieldInput {...textFieldInputProps} />
-            </div>
-        ),
-    );
+    const radioGroupInputProps: RadioGroupInputProps = {
+        id,
+        setRadioGroupValue: setReturnType,
+        types,
+        value: types[0],
+    };
 
-    return <>{returnElement}</>;
+    return(
+        <div key={id + "-FIELD"}>
+            <FieldLabel {...fieldLabelProps} />
+            <RadioGroupInput {...radioGroupInputProps}/>
+            {fieldElement}
+        </div>
+    );
 };
 
 export default UnionType;
 
-function getUnionType(properties: object[]): string {
+function getUnionType(types: string[]): string {
+    return types.join(" | ");
+}
+
+function getAllTypes(properties: object[]): string[] {
     const unionTypes: string[] = [];
     Object.keys(properties).forEach((key) => {
         unionTypes.push(properties[key].type);
     });
-    return unionTypes.join(" | ");
+    return unionTypes;
 }
