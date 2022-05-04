@@ -17,10 +17,10 @@ import { List, ListItemText, Typography } from "@material-ui/core";
 
 import { StmtDiagnostic } from "../../models/definitions";
 import { StatementEditorContext } from "../../store/statement-editor-context";
-import { useStatementEditorStyles } from "../styles";
+import { useStatementEditorDiagnosticStyles } from "../styles";
 
 export function Diagnostics() {
-    const statementEditorClasses = useStatementEditorStyles();
+    const statementEditorDiagnosticClasses = useStatementEditorDiagnosticStyles();
     const stmtCtx = useContext(StatementEditorContext);
     const {
         statementCtx: {
@@ -29,7 +29,7 @@ export function Diagnostics() {
     } = stmtCtx;
 
     return (
-        <div className={statementEditorClasses.diagnosticsPane}>
+        <div className={statementEditorDiagnosticClasses.diagnosticsPane}>
             <List>
                 {
                     diagnostics && diagnostics.map((diag: StmtDiagnostic, index: number) => (

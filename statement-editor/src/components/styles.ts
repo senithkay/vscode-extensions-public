@@ -35,6 +35,109 @@ const syntaxHighlightingRules = {
     }
 }
 
+export const useStatementEditorToolbarStyles = makeStyles(() =>
+    createStyles({
+        toolbar: {
+            right: '13px',
+            top: '60px',
+            border: '1px solid #e6e7ec',
+            borderRadius: '8px',
+            marginLeft: '30px',
+            backgroundColor: '#ffffff'
+        },
+        toolbarIcons: {
+            padding: '5px',
+            '&:hover': {
+                backgroundColor: '#F0F1FB',
+            }
+        },
+    }),
+);
+
+export const useStatementRendererStyles = makeStyles(() =>
+    createStyles({
+        expressionBlock: {
+            position: 'relative',
+            paddingRight: '10px',
+            ...syntaxHighlightingRules
+        },
+        expressionBlockDisabled: {
+            height: '24px',
+            width: '15px',
+            letterSpacing: 0,
+        },
+        inputEditorTemplate: {
+            minWidth: '20px',
+            letterSpacing: 0,
+            position: 'relative',
+            border: 'none',
+            '&:focus': {
+                outline: 'none'
+            }
+        },
+        expressionElement: {
+            position: 'relative',
+            width: 'fit-content',
+            margin: '0 2px 0 2px',
+            '&': {
+                width: 'fit-content',
+                borderRadius: '4px',
+            },
+            '&.hovered': {
+                backgroundColor: '#e5ebf1'
+            },
+            cursor: "pointer",
+            ...syntaxHighlightingRules
+        },
+        expressionElementSelected: {
+            '&': {
+                backgroundColor: '#b3d9ff',
+            },
+            '&.hovered': {
+                backgroundColor: '#e5ebf1',
+            },
+        },
+        plusIcon: {
+            boxSizing: 'border-box',
+            border: '1px dashed #A6B3FF',
+            borderRadius: '4px',
+            position: 'relative',
+            width: 'fit-content',
+            backgroundColor: '#F0F1FB',
+            fontFamily: "monospace",
+            color: '#0095FF',
+            margin: '0px 2px',
+            fontSize: '12px',
+            padding: '0px 4px',
+            '&:hover': {
+                backgroundColor: 'rgba(173, 214, 255, 0.3)'
+            },
+            '&.modifiable': {
+                position: 'absolute',
+                marginLeft: '10px',
+                '&.lastElement': {
+                    marginLeft: '250px',
+                    marginTop: '-20px'
+                }
+            }
+        },
+    }),
+);
+
+export const useStatementEditorDiagnosticStyles = makeStyles(() =>
+    createStyles({
+        diagnosticsPane: {
+            color: '#ea4c4d',
+            "& .MuiList-padding": {
+                padding: '0px'
+            },
+            "& .MuiListItemText-root": {
+                margin: '0px'
+            }
+        },
+    }),
+);
+
 export const useStmtEditorHelperPanelStyles = makeStyles(() =>
     createStyles({
         tabPanelWrapper: {
@@ -291,20 +394,6 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
 
 export const useStatementEditorStyles = makeStyles(() =>
     createStyles({
-        toolbar: {
-            right: '13px',
-            top: '60px',
-            border: '1px solid #e6e7ec',
-            borderRadius: '8px',
-            marginLeft: '30px',
-            backgroundColor: '#ffffff'
-        },
-        toolbarIcons: {
-            padding: '5px',
-            '&:hover': {
-                backgroundColor: '#F0F1FB',
-            }
-        },
         mainStatementWrapper: {
             display: 'flex',
             height: 'auto',
@@ -328,12 +417,6 @@ export const useStatementEditorStyles = makeStyles(() =>
             padding: theme.spacing(1.5),
             borderBottom: '1px solid #e6e7ec'
         },
-        sugessionsWrapper: {
-            width: '100%',
-        },
-        LibraryBrowsingWrapper: {
-            width: '50%',
-        },
         statementExpressionTitle: {
             display: 'flex',
             alignItems: 'center',
@@ -345,73 +428,9 @@ export const useStatementEditorStyles = makeStyles(() =>
             fontSize: "18px",
             'user-select': 'none'
         },
-        expressionSugession: {
-            padding: theme.spacing(1.5),
-        },
         statementBtnWrapper: {
             height: 'auto',
             padding: theme.spacing(1.5),
-        },
-        stmtEditor: {
-            display: "flex",
-            flexDirection: 'column',
-            backgroundColor: '#fff',
-            width: 700,
-            height: 700
-        },
-        titleLine: {
-            height: '1px',
-            width: 700,
-            opacity: 0.43,
-            backgroundColor: '#D8D8D8',
-        },
-        leftPaneDivider: {
-            height: '1px',
-            width: '393px',
-            opacity: 0.43,
-            backgroundColor: '#D8D8D8'
-        },
-        subHeader: {
-            height: '14px',
-            width: '146px',
-            color: '#1D2028',
-            fontFamily: 'Gilmer,sans-serif',
-            fontSize: '13px',
-            letterSpacing: 0,
-            lineHeight: '14px',
-            paddingTop: '10px',
-            paddingBottom: '15px'
-        },
-        codeLine: {
-            height: '24px',
-            width: '15px',
-            color: '#0095FF',
-            fontFamily: "Droid Sans Mono",
-            fontSize: '12px',
-            letterSpacing: 0,
-            lineHeight: '24px',
-        },
-        vl: {
-            borderLeft: '1px solid #E6E7EC',
-            height: '100%',
-            left: '60%',
-            marginLeft: '-3px',
-            top: '2%',
-            bottom: '10%'
-        },
-        leftPane: {
-            display: 'flex',
-            flexDirection: 'column',
-            backgroundColor: '#fff',
-            width: '60%',
-            height: '100%'
-        },
-        contentPane: {
-            display: 'flex',
-            flexDirection: 'row',
-            backgroundColor: '#fff',
-            width: '100%',
-            height: '90%'
         },
         bottomPane: {
             display: 'flex',
@@ -420,158 +439,6 @@ export const useStatementEditorStyles = makeStyles(() =>
             width: '100%',
             height: '10%'
         },
-        rightPaneBlock: {
-            // backgroundColor: '#00ff00',
-            display: 'flex',
-            position: 'relative',
-            // left: '5%',
-            height: '30%',
-            width: '100%'
-        },
-        templateEditor: {
-            position: 'relative',
-            height: '30%',
-            width: '95%',
-            display: 'flex'
-        },
-        templateEditorInner: {
-            position: 'relative',
-            top: '12%',
-            height: '93%',
-            width: '100%',
-            overflowY: 'scroll'
-        },
-        contextSensitivePane: {
-            display: 'flex',
-            flexDirection: 'column',
-            height: '100%',
-            position: 'relative',
-            marginLeft: '5%'
-        },
-        diagnosticsPane: {
-            color: '#ea4c4d',
-            "& .MuiList-padding": {
-                padding: '0px'
-            },
-            "& .MuiListItemText-root": {
-                margin: '0px'
-            }
-        },
-        suggestionButton: {
-            boxSizing: 'border-box',
-            border: '1px solid #CBCEDB',
-            borderRadius: '4px',
-            fontFamily: 'inherit',
-            backgroundColor: 'rgba(255,255,255,0.5)',
-            marginLeft: '2%',
-            marginTop: '3%',
-            color: '#40404B',
-            fontSize: 12,
-            padding: '5px 10px',
-            letterSpacing: 0,
-            '&:hover': {
-                backgroundColor: '#8e9bdc',
-                color: 'white'
-            },
-            '&:disabled': {
-                backgroundColor: 'rgba(0,0,0,0.1)',
-                color: '#404040',
-            }
-        },
-        expressionBlock: {
-            position: 'relative',
-            paddingRight: '10px',
-            ...syntaxHighlightingRules
-        },
-        expressionBlockDisabled: {
-            height: '24px',
-            width: '15px',
-            letterSpacing: 0,
-        },
-        expressionElement: {
-            position: 'relative',
-            width: 'fit-content',
-            margin: '0 2px 0 2px',
-            '&': {
-                width: 'fit-content',
-                borderRadius: '4px',
-            },
-            '&.hovered': {
-                backgroundColor: '#e5ebf1'
-            },
-            cursor: "pointer",
-            ...syntaxHighlightingRules
-        },
-        expressionElementCloseButton: {
-            display: 'inline',
-            boxSizing: 'border-box',
-            border: '1px solid #A6B3FF',
-            borderRadius: '2px',
-            position: 'relative',
-            width: '10px',
-            backgroundColor: '#000000',
-            color: '#ffffff',
-            fontSize: '7px',
-            '&:hover': {
-                backgroundColor: '#00ff00',
-                color: '#fff'
-            }
-        },
-        expressionDeleteButton: {
-            display: 'inline',
-            position: 'absolute',
-            marginLeft: '-12px',
-            marginTop: '-20px',
-            "& .MuiIconButton-root": {
-                padding: theme.spacing(0.25),
-            }
-        },
-        expressionElementSelected: {
-            '&': {
-                backgroundColor: '#b3d9ff',
-            },
-            '&.hovered': {
-                backgroundColor: '#e5ebf1',
-            },
-        },
-        inputEditorTemplate: {
-            minWidth: '20px',
-            letterSpacing: 0,
-            position: 'relative',
-            border: 'none',
-            '&:focus': {
-                outline: 'none'
-            }
-        },
-        addNewExpressionButton: {
-            backgroundColor: '#f7f8fb',
-            border: '#6830e9',
-            borderStyle: 'solid',
-            color: '#6830e9',
-            textAlign: 'center',
-            fontSize: '16px',
-            margin: '4px 2px',
-            borderRadius: '50%'
-        },
-        libraryDropdown: {
-            flex: '0 0 50%',
-            display: 'flex',
-            justifyContent: 'flex-end'
-        },
-        rhsComponent: {
-            position: 'relative',
-            top: '10px',
-            width: '90%',
-            marginLeft: '5%'
-        },
-        propertyDivider: {
-            height: '1px',
-            marginTop: '2%',
-            marginBottom: '10px',
-            width: '94%',
-            opacity: 0.52,
-            backgroundColor: '#DCDEE4'
-        },
         buttonWrapper: {
             height: 'auto',
             display: 'flex',
@@ -579,40 +446,5 @@ export const useStatementEditorStyles = makeStyles(() =>
             width: '100%',
             zIndex: 100,
         },
-        plusIcon: {
-            boxSizing: 'border-box',
-            border: '1px dashed #A6B3FF',
-            borderRadius: '4px',
-            position: 'relative',
-            width: 'fit-content',
-            backgroundColor: '#F0F1FB',
-            fontFamily: "monospace",
-            color: '#0095FF',
-            margin: '0px 2px',
-            fontSize: '12px',
-            padding: '0px 4px',
-            '&:hover': {
-                backgroundColor: 'rgba(173, 214, 255, 0.3)'
-            },
-            '&.modifiable': {
-                position: 'absolute',
-                marginLeft: '10px',
-                '&.lastElement': {
-                    marginLeft: '250px',
-                    marginTop: '-20px'
-                }
-            }
-        },
-        mainExpStatementWrapper: {
-            display: 'flex',
-            flexDirection: 'row'
-        },
-        expressionComponent: {
-            display: 'flex',
-            flexDirection: 'row'
-        },
-        helpText: {
-            fontStyle: "italic"
-        }
     }),
 );

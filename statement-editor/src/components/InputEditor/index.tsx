@@ -20,7 +20,7 @@ import debounce from "lodash.debounce";
 import { InputEditorContext } from "../../store/input-editor-context";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { ModelType, StatementEditorViewState } from "../../utils/statement-editor-viewstate";
-import { useStatementEditorStyles } from "../styles";
+import { useStatementRendererStyles } from "../styles";
 
 import {
     INPUT_EDITOR_PLACE_HOLDERS
@@ -50,7 +50,7 @@ export function InputEditor(props: InputEditorProps) {
 
     const inputEditorCtx = useContext(InputEditorContext);
 
-    const statementEditorClasses = useStatementEditorStyles();
+    const statementRendererClasses = useStatementRendererStyles();
 
     const [originalValue] = React.useMemo(() => {
         let source: string;
@@ -128,7 +128,7 @@ export function InputEditor(props: InputEditorProps) {
             >
                 <input
                     value={INPUT_EDITOR_PLACE_HOLDERS.has(userInput) ? "" : userInput}
-                    className={statementEditorClasses.inputEditorTemplate + ' ' + classNames}
+                    className={statementRendererClasses.inputEditorTemplate + ' ' + classNames}
                     onKeyDown={inputEnterHandler}
                     onInput={inputChangeHandler}
                     size={userInput.length}
@@ -139,7 +139,7 @@ export function InputEditor(props: InputEditorProps) {
             </ClickAwayListener>
         ) : (
             <span
-                className={statementEditorClasses.inputEditorTemplate + ' ' + classNames}
+                className={statementRendererClasses.inputEditorTemplate + ' ' + classNames}
                 onDoubleClick={handleDoubleClick}
             >
                 {INPUT_EDITOR_PLACE_HOLDERS.has(userInput) ? INPUT_EDITOR_PLACE_HOLDERS.get(userInput) : userInput}

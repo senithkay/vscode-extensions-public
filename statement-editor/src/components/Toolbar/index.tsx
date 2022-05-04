@@ -22,10 +22,10 @@ import { StatementEditorContext } from "../../store/statement-editor-context";
 import { getRemainingContent } from "../../utils";
 import { StatementEditorViewState } from "../../utils/statement-editor-viewstate";
 import { INPUT_EDITOR_PLACE_HOLDERS } from "../InputEditor/constants";
-import { useStatementEditorStyles } from "../styles";
+import { useStatementEditorToolbarStyles } from "../styles";
 
 export default function Toolbar(){
-    const statementEditorClasses = useStatementEditorStyles();
+    const statementEditorClasses = useStatementEditorToolbarStyles();
     const { modelCtx } = useContext(StatementEditorContext);
     const { undo, redo, hasRedo, hasUndo, statementModel: completeModel, updateModel, currentModel } = modelCtx;
 
