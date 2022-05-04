@@ -278,7 +278,6 @@ export function FunctionForm(props: FunctionProps) {
                         defaultValue={(functionName?.isInteracted || isEdit) ? functionName.value : ""}
                         onChange={onNameChange}
                         customProps={{
-                            optional: true,
                             isErrored: ((currentComponentSyntaxDiag !== undefined && currentComponentName === "Name") ||
                                 model?.functionName?.viewState?.diagnostics[0]?.message)
                         }}
@@ -350,7 +349,7 @@ export function FunctionForm(props: FunctionProps) {
                 onSave={handleOnSave}
                 onCancel={onCancel}
                 validForm={(isEdit || functionName.isInteracted === true)
-                    && !(model?.viewState?.diagnostics?.length > 0)}
+                    && !(model?.viewState?.diagnostics?.length > 0) && !(currentComponentSyntaxDiag?.length > 0)}
             />
         </FormControl>
     )

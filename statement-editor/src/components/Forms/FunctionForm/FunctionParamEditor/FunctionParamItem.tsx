@@ -49,7 +49,7 @@ export function FunctionParamItem(props: FunctionParamItemProps) {
     return (
         <div className={classes.headerWrapper}>
             <div className={classes.headerLabel}>
-                <div className={classes.headerLabelCursor} onClick={handleEdit}>
+                <div className={readonly ? classes.disabledColor : classes.headerLabelCursor} onClick={handleEdit}>
                     {segmentLabel}
                 </div>
                 {!readonly && (
