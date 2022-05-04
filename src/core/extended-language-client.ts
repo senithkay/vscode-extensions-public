@@ -66,7 +66,8 @@ enum EXTENDED_APIS {
     EXAMPLE_LIST = 'ballerinaExample/list',
     PERF_ANALYZER_RESOURCES_ENDPOINTS = 'performanceAnalyzer/getResourcesWithEndpoints',
     RESOLVE_MISSING_DEPENDENCIES = 'ballerinaDocument/resolveMissingDependencies',
-    BALLERINA_TO_OPENAPI = 'openAPILSExtension/generateOpenAPI'
+    BALLERINA_TO_OPENAPI = 'openAPILSExtension/generateOpenAPI',
+    SYMBOL_DOC = 'ballerinaSymbol/getSymbol'
 }
 
 enum EXTENDED_APIS_ORG {
@@ -319,6 +320,36 @@ export interface APITimeConsumption {
     completion: number[];
 }
 
+export interface SymbolInfoRequest {
+    textDocumentIdentifier: {
+        uri: string;
+    },
+    position: {
+        line: number;
+        character: number;
+    }
+}
+
+export interface ParameterInfo {
+    name : string,
+    description : string,
+    kind : string,
+    type :string
+}
+
+export interface SymbolDocumentation {
+    description : string,
+    parameters? : ParameterInfo[],
+    returnValueDescription? : string,
+    deprecatedDocumentation? : string,
+    deprecatedParams? : ParameterInfo[]
+}
+
+export interface SymbolInfoResponse {
+    symbolKind: string,
+    documentation : SymbolDocumentation
+}
+
 export class ExtendedLangClient extends LanguageClient {
     private ballerinaExtendedServices: Set<String> | undefined;
     private isDynamicRegistrationSupported: boolean;
@@ -451,6 +482,13 @@ export class ExtendedLangClient extends LanguageClient {
             Promise.resolve(NOT_SUPPORTED);
         }
         return this.sendRequest<BallerinaSTModifyResponse>(EXTENDED_APIS.DOCUMENT_TRIGGER_MODIFY, params);
+    }
+    getSymbolDocumentation(params: SymbolInfoRequest): Thenable<SymbolInfoResponse> {
+        if (!this.isExtendedServiceSupported(EXTENDED_APIS.SYMBOL_DOC)) {
+            Promise.resolve(NOT_SUPPORTED);
+        }
+        return this.sendRequest<SymbolInfoResponse>(EXTENDED_APIS.SYMBOL_DOC, params);
+
     }
 
     public getDocumentSymbol(params: DocumentSymbolParams): Thenable<DocumentSymbol[] | SymbolInformation[] | null> {
@@ -594,7 +632,7 @@ export class ExtendedLangClient extends LanguageClient {
                     resolveMissingDependencies: true
                 },
                 { name: EXTENDED_APIS_ORG.PACKAGE, components: true, metadata: true, configSchema: true },
-                { name: EXTENDED_APIS_ORG.SYMBOL, type: true },
+                { name: EXTENDED_APIS_ORG.SYMBOL, type: true, getSymbol: true },
                 {
                     name: EXTENDED_APIS_ORG.CONNECTOR, connectors: true, connector: true, record: true
                 },
