@@ -51,7 +51,7 @@ export const useStatementEditorStyles = makeStyles(() =>
             }
         },
         statementEditorHeader: {
-            height: '5vh',
+            minHeight: '5vh',
             display: 'flex',
             borderBottom: 'solid 1px #d8d8d8',
             padding: theme.spacing(1.5)
@@ -69,6 +69,13 @@ export const useStatementEditorStyles = makeStyles(() =>
         },
         statementExpressionWrapper: {
             height: 'auto',
+            '&.overlay': {
+                display: 'block',
+                position: 'relative',
+                backgroundColor: '#fff',
+                opacity: '0.7',
+                zIndex: -1
+            }
         },
         suggestionsSection: {
             display: 'flex',
@@ -620,15 +627,6 @@ export const useStatementEditorStyles = makeStyles(() =>
             '& > * + *': {
                 marginTop: theme.spacing(2),
             },
-        },
-        editorOverlay: {
-            position: 'absolute',
-            marginTop: '5vh',
-            height: 820,
-            width: 700,
-            backgroundColor: '#fff',
-            opacity: '0.7',
-            zIndex: 100
-        },
+        }
     }),
 );

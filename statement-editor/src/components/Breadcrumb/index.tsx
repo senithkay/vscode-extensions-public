@@ -54,7 +54,7 @@ export default function Breadcrumb() {
 
     return (
         <div className={statementEditorClasses.editorsBreadcrumb}>
-            <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />} aria-label="breadcrumb">
+            <Breadcrumbs maxItems={3} separator={<NavigateNextIcon fontSize="small" />} aria-label="breadcrumb">
                 { editors.map((editor: StmtEditorStackItem, index: number) => {
                     return (index === activeEditorId)
                         ? (

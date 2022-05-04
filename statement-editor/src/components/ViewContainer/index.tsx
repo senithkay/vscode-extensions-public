@@ -159,10 +159,11 @@ export function ViewContainer(props: ViewContainerProps) {
                         {onCancel && <CloseButton onCancel={onCancel} />}
                     </div>
                 </div>
-                {activeEditorId !== editors.length - 1 && (
-                    <div className={overlayClasses.editorOverlay} />
-                )}
-                <div className={overlayClasses.statementExpressionWrapper}>
+                <div
+                    className={`${overlayClasses.statementExpressionWrapper} ${
+                        activeEditorId !== editors.length - 1 && 'overlay'}`
+                    }
+                >
                     <EditorPane />
                 </div>
                 <div className={overlayClasses.footer}>
