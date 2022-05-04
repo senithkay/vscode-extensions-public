@@ -50,7 +50,7 @@ export interface LowCodeEditorProps {
     experimentalEnabled?: boolean;
 }
 
-export interface EditorsProps extends LowCodeEditorProps {
+export interface StatementEditorWrapperProps extends LowCodeEditorProps {
     label: string;
     initialSource: string;
     formArgs: any;
@@ -66,7 +66,7 @@ export interface EditorsProps extends LowCodeEditorProps {
     handleStmtEditorToggle?: () => void;
 }
 
-export function Editors(props: EditorsProps) {
+export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
     const {
         label,
         initialSource,

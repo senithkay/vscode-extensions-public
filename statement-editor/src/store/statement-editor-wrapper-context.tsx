@@ -16,7 +16,7 @@ import React from 'react';
 import { LibraryKind, STModification } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
-import { LowCodeEditorProps } from "../components/Editors";
+import { LowCodeEditorProps } from "../components/StatementEditorWrapper";
 import { StmtEditorStackItem } from "../models/definitions";
 
 export const StatementEditorWrapperContext = React.createContext({
