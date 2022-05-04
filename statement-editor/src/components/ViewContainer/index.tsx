@@ -172,7 +172,7 @@ export function ViewContainer(props: ViewContainerProps) {
                             <StatementEditorButton
                                 handleChange={handleStmtEditorToggle}
                                 checked={true}
-                                disabled={!isStatementValid || activeEditorId !== editors.length - 1}
+                                disabled={editors.length > 1}
                             />
                         )}
                     </div>
