@@ -12,6 +12,7 @@ describe('Add worker to function via Low Code', () => {
     })
 
     it('Add a worker to function', () => {
+        cy.wait(10000);
         Canvas.getFunction("sampleFunction")
             .nameShouldBe("sampleFunction")
             .shouldBeExpanded()
