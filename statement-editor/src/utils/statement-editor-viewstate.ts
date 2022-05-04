@@ -15,7 +15,9 @@ export enum ModelType {
     OPERATOR,
     BINDING_PATTERN,
     TYPE_DESCRIPTOR,
-    QUERY_CLAUSE
+    QUERY_CLAUSE,
+    METHOD_CALL,
+    FIELD_ACCESS
 }
 
 export class StatementEditorViewState {
