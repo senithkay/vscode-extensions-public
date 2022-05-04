@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext } from "react";
+import React, { useContext, useMemo } from "react";
 
 import IconButton from "@material-ui/core/IconButton";
 import { STKindChecker } from "@wso2-enterprise/syntax-tree";
@@ -23,9 +23,8 @@ import ToolbarUndoIcon from "../../assets/icons/ToolbarUndoIcon";
 import { ADD_CONFIGURABLE_LABEL, CONFIGURABLE_TYPE_BOOLEAN, CONFIGURABLE_TYPE_STRING } from "../../constants";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { StatementEditorWrapperContext } from "../../store/statement-editor-wrapper-context";
-import { getModuleElementDeclPosition, getRemainingContent } from "../../utils";
+import { getModuleElementDeclPosition, getRemainingContent, isNodeDeletable } from "../../utils";
 import { ModelType, StatementEditorViewState } from "../../utils/statement-editor-viewstate";
-import { INPUT_EDITOR_PLACE_HOLDERS } from "../InputEditor/constants";
 import { useStatementEditorStyles } from "../styles";
 
 export default function Toolbar(){
@@ -50,21 +49,17 @@ export default function Toolbar(){
 
     const configurableInsertPosition = getModuleElementDeclPosition(syntaxTree);
 
-    const isExprDeletable = (): boolean => {
-        if (currentModel.model){
-            const stmtViewState: StatementEditorViewState = currentModel.model.viewState as StatementEditorViewState;
-            const currentModelSource = currentModel.model.source
-                ? currentModel.model.source.trim()
-                : currentModel.model.value ? currentModel.model.value.trim() : '';
+    const [deletable, configurable] = useMemo(() => {
+        let modelDeletable = false;
+        let modelConfigurable = false;
 
-            let exprDeletable = !stmtViewState.exprNotDeletable;
-            if (INPUT_EDITOR_PLACE_HOLDERS.has(currentModelSource)) {
-                exprDeletable =  stmtViewState.templateExprDeletable;
-            }
-
-            return exprDeletable;
+        if (currentModel.model) {
+            modelDeletable = isNodeDeletable(currentModel.model);
+            modelConfigurable = (currentModel.model.viewState as StatementEditorViewState).modelType === ModelType.EXPRESSION;
         }
-    }
+
+        return [modelDeletable, modelConfigurable]
+    }, [currentModel.model]);
 
     const onClickOnDelete = () => {
         const {
@@ -107,11 +102,6 @@ export default function Toolbar(){
         addConfigurable(ADD_CONFIGURABLE_LABEL, configurableInsertPosition, configurableStmt);
     }
 
-    const deleteButtonEnabled = currentModel.model && isExprDeletable();
-    const isConfigurable = currentModel.model && (
-        (currentModel.model.viewState as StatementEditorViewState).modelType === ModelType.EXPRESSION
-    );
-
     return(
         <span className={statementEditorClasses.toolbar}>
             <IconButton
@@ -132,15 +122,15 @@ export default function Toolbar(){
             </IconButton>
             <IconButton
                 onClick={onClickOnDelete}
-                disabled={!deleteButtonEnabled}
-                style={{color: deleteButtonEnabled ? '#FE523C' : '#8D91A3', marginRight: '14px'}}
+                disabled={!deletable}
+                style={{color: deletable ? '#FE523C' : '#8D91A3', marginRight: '14px'}}
                 className={statementEditorClasses.toolbarIcons}
             >
                 <ToolbarDeleteIcon/>
             </IconButton>
             <IconButton
                 onClick={onClickOnConfigurable}
-                disabled={!isConfigurable}
+                disabled={!configurable}
                 className={statementEditorClasses.toolbarIcons}
                 style={{marginRight: '7px'}}
             >

@@ -28,6 +28,7 @@ import {
 import { Diagnostic } from "vscode-languageserver-protocol";
 
 import * as expressionTypeComponents from '../components/ExpressionTypes';
+import { INPUT_EDITOR_PLACE_HOLDERS } from "../components/InputEditor/constants";
 import * as statementTypeComponents from '../components/Statements';
 import {
     END_OF_LINE_MINUTIAE,
@@ -45,7 +46,7 @@ import { visitor as ModelFindingVisitor } from "../visitors/model-finding-visito
 import { visitor as ModelTypeSetupVisitor } from "../visitors/model-type-setup-visitor";
 import { viewStateSetupVisitor as ViewStateSetupVisitor } from "../visitors/view-state-setup-visitor";
 
-import { ModelType } from "./statement-editor-viewstate";
+import { ModelType, StatementEditorViewState } from "./statement-editor-viewstate";
 import { createImportStatement, createStatement, updateStatement } from "./statement-modifications";
 
 export function getModifications(
@@ -372,7 +373,7 @@ export function sortSuggestions(x: CompletionResponse, y: CompletionResponse) {
     return 0;
 }
 
-export function getModuleElementDeclPosition(syntaxTree: STNode) {
+export function getModuleElementDeclPosition(syntaxTree: STNode): NodePosition {
     const position: NodePosition = {
         startLine: 0,
         startColumn: 0,
@@ -386,6 +387,20 @@ export function getModuleElementDeclPosition(syntaxTree: STNode) {
         position.endLine = lastImportPosition?.endLine + 1;
     }
     return position;
+}
+
+export function isNodeDeletable(selectedNode: STNode): boolean {
+    const stmtViewState: StatementEditorViewState = selectedNode.viewState as StatementEditorViewState;
+    const currentModelSource = selectedNode.source
+        ? selectedNode.source.trim()
+        : selectedNode.value ? selectedNode.value.trim() : '';
+
+    let exprDeletable = !stmtViewState.exprNotDeletable;
+    if (INPUT_EDITOR_PLACE_HOLDERS.has(currentModelSource)) {
+        exprDeletable =  stmtViewState.templateExprDeletable;
+    }
+
+    return exprDeletable;
 }
 
 export function getModuleIconStyle(label: string): string {
