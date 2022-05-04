@@ -36,7 +36,7 @@ const FloatType = (props: FloatTypeProps): ReactElement => {
 
     const textFieldInputProps: TextFieldInputProps = {
         id,
-        inputProps: { inputMode: "numeric", pattern: "[\-\+]?[0-9]*(\.[0-9]+)?" },
+        inputProps: { inputMode: "numeric", pattern: "[\-\+]?[0-9]*[\.]([0-9]+)" },
         isRequired,
         placeholder,
         setTextFieldValue: setFloatConfig,
