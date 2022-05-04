@@ -70,7 +70,7 @@ class DiagnosticsMappingVisitor implements Visitor {
             // Statement Editor viewState will hold the diagnostics for
             // each node which matched to above condition.
             if (node && node.viewState && this.diagnostic.severity === 1) {
-                node?.viewState?.diagnostics.push({
+                node?.viewState?.diagnosticsInRange.push({
                     diagnosticInfo: {
                         code: this.diagnostic.code.toString(),
                         severity: this.diagnostic.severity.toString()

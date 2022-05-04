@@ -279,11 +279,11 @@ export function FunctionForm(props: FunctionProps) {
                         onChange={onNameChange}
                         customProps={{
                             isErrored: ((currentComponentSyntaxDiag !== undefined && currentComponentName === "Name") ||
-                                model?.functionName?.viewState?.diagnostics[0]?.message)
+                                model?.functionName?.viewState?.diagnosticsInRange[0]?.message)
                         }}
                         errorMessage={(currentComponentSyntaxDiag && currentComponentName === "Name"
                                 && currentComponentSyntaxDiag[0].message) ||
-                                model?.functionName?.viewState?.diagnostics[0]?.message}
+                                model?.functionName?.viewState?.diagnosticsInRange[0]?.message}
                         onBlur={null}
                         onFocus={onNameFocus}
                         placeholder={"name"}
@@ -325,14 +325,14 @@ export function FunctionForm(props: FunctionProps) {
                             optional: true,
                             isErrored: returnType?.isInteracted && ((currentComponentSyntaxDiag !== undefined &&
                                     currentComponentName === "Return") || model?.functionSignature?.returnTypeDesc?.
-                                    viewState?.diagnostics?.length > 0 || (functionBodyBlock?.closeBraceToken?.
-                                    viewState?.diagnostics?.length > 0))
+                                    viewState?.diagnosticsInRange?.length > 0 || (functionBodyBlock?.closeBraceToken?.
+                                    viewState?.diagnosticsInRange?.length > 0))
                         }}
                         errorMessage={returnType?.isInteracted && ((currentComponentSyntaxDiag &&
                                 currentComponentName === "Return" && currentComponentSyntaxDiag[0].message) || model?.
-                                functionSignature?.returnTypeDesc?.viewState?.diagnostics[0]?.message ||
-                                (functionBodyBlock?.closeBraceToken?.viewState?.diagnostics && functionBodyBlock?.
-                                    closeBraceToken?.viewState?.diagnostics[0]?.message))}
+                                functionSignature?.returnTypeDesc?.viewState?.diagnosticsInRange[0]?.message ||
+                                (functionBodyBlock?.closeBraceToken?.viewState?.diagnosticsInRange && functionBodyBlock?.
+                                    closeBraceToken?.viewState?.diagnosticsInRange[0]?.message))}
                         onChange={onReturnTypeChange}
                         onBlur={null}
                         onFocus={onReturnFocus}
@@ -349,7 +349,7 @@ export function FunctionForm(props: FunctionProps) {
                 onSave={handleOnSave}
                 onCancel={onCancel}
                 validForm={(isEdit || functionName.isInteracted === true)
-                    && !(model?.viewState?.diagnostics?.length > 0) && !(currentComponentSyntaxDiag?.length > 0)}
+                    && !(model?.viewState?.diagnosticsInRange?.length > 0) && !(currentComponentSyntaxDiag?.length > 0)}
             />
         </FormControl>
     )
