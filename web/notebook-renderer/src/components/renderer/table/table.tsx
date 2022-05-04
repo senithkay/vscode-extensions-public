@@ -65,7 +65,7 @@ export const TableForNotebookOutput: FunctionComponent<{ notebookCellOutput: Rea
     }
 
     const getKeys = () => {
-        var cols = [];
+        let cols = [];
         for (var i = 0; i < values.length; i++) {
             for (var key in values[i]) {
                 if (cols.indexOf(key) === -1) {
@@ -80,5 +80,10 @@ export const TableForNotebookOutput: FunctionComponent<{ notebookCellOutput: Rea
         header: getKeys(),
         values: values
     };
-    return <Table tableContent={tableProps} />;
+    return <div style={{
+        maxHeight: "400px", 
+        overflowY: "scroll"
+    }}>
+        <Table tableContent={tableProps} />
+    </div>;
 }
