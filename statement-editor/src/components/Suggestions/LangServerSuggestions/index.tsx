@@ -74,7 +74,7 @@ export function LSSuggestions() {
                                     >
                                         <ListItemIcon
                                             className={getSuggestionIconStyle(suggestion.suggestionType)}
-                                            style={{ minWidth: '8%', textAlign: 'left' }}
+                                            style={{ minWidth: '22px', textAlign: 'left' }}
                                         />
                                         <ListItemText
                                             style={{ flex: 'none', maxWidth: '80%' }}

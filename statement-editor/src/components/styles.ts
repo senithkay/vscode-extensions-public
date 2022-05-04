@@ -159,7 +159,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
         suggestionsInner: {
             overflowY: 'scroll',
             height: '100%',
-            paddingTop: '16px',
+            paddingTop: '14px',
         },
         selectDropDownSe: {
             height: '32px',
@@ -250,11 +250,18 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             height: '95%',
             overflowY: 'scroll',
             overflowX: 'hidden',
+            "& .MuiList-padding": {
+                padding: '0'
+            }
         },
         suggestionList: {
             columnGap: '6%',
             display: 'grid',
-            gridTemplateColumns: '47% 47%'
+            gridTemplateColumns: '47% 47%',
+            "& .MuiListItem-root": {
+                margin: '0 0 8px 0',
+                padding: '0'
+            },
         },
         suggestionListItem: {
             '&:hover': {
