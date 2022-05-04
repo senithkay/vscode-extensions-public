@@ -28,11 +28,9 @@ import { StmtEditorStackItem } from "../../models/definitions";
 import { StatementEditorWrapperContextProvider } from "../../store/statement-editor-wrapper-context";
 import { getUpdatedSource } from "../../utils";
 import { getPartialSTForModuleMembers, getPartialSTForStatement, sendDidOpen } from "../../utils/ls-utils";
-import Breadcrumb from "../Breadcrumb";
-import { CloseButton } from "../Button/CloseButton";
+import { StmtEditorUndoRedoManager } from "../../utils/undo-redo";
 import { EXPR_SCHEME, FILE_SCHEME } from "../InputEditor/constants";
 import { StatementEditor } from "../StatementEditor";
-import { useStatementEditorStyles } from "../styles";
 
 export interface LowCodeEditorProps {
     getLangClient: () => Promise<ExpressionEditorLangClientInterface>;
@@ -93,8 +91,6 @@ export function Editors(props: EditorsProps) {
         }
     } = formArgs;
 
-    const statementEditorClasses = useStatementEditorStyles();
-
     const fileURI = monaco.Uri.file(currentFile.path).toString().replace(FILE_SCHEME, EXPR_SCHEME);
 
     const [editors, setEditors] = useState<StmtEditorStackItem[]>([]);
@@ -128,6 +124,7 @@ export function Editors(props: EditorsProps) {
             model: !partialST.syntaxDiagnostics.length ? partialST : null,
             source: newSource,
             position: newPosition,
+            undoRedoManager: new StmtEditorUndoRedoManager(),
             isConfigurableStmt: true
         };
         setEditors((prevEditors: StmtEditorStackItem[]) => {
@@ -155,7 +152,8 @@ export function Editors(props: EditorsProps) {
                     label,
                     model,
                     source: initialSource,
-                    position: targetPosition
+                    position: targetPosition,
+                    undoRedoManager: new StmtEditorUndoRedoManager()
                 };
 
                 setEditors((prevEditors: StmtEditorStackItem[]) => {

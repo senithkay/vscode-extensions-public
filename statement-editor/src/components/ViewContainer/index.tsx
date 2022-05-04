@@ -179,7 +179,7 @@ export function ViewContainer(props: ViewContainerProps) {
                     <div className={overlayClasses.buttonWrapper}>
                         <SecondaryButton
                             text={isConfigurableStmt ? backButtonText : cancelButtonText}
-                            disabled={!isStatementValid || activeEditorId !== editors.length - 1}
+                            disabled={activeEditorId !== editors.length - 1}
                             fullWidth={false}
                             onClick={isConfigurableStmt ? onBackClick : onCancelClick}
                         />

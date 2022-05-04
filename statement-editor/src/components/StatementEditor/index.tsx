@@ -43,7 +43,6 @@ import {
     sendDidChange
 } from "../../utils/ls-utils";
 import { StatementEditorViewState } from "../../utils/statement-editor-viewstate";
-import { StmtEditorUndoRedoManager } from '../../utils/undo-redo';
 import { EXPR_SCHEME, FILE_SCHEME } from "../InputEditor/constants";
 import { ViewContainer } from "../ViewContainer";
 
@@ -66,6 +65,7 @@ export function StatementEditor(props: StatementEditorProps) {
         model: editorModel,
         source,
         position : targetPosition,
+        undoRedoManager,
         isConfigurableStmt,
         selectedNodePosition,
         newConfigurableName
@@ -82,8 +82,6 @@ export function StatementEditor(props: StatementEditorProps) {
         getLangClient
     } = useContext(StatementEditorWrapperContext);
 
-    const undoRedoManager = React.useMemo(() => new StmtEditorUndoRedoManager(), []);
-
     const fileURI = monaco.Uri.file(currentFile.path).toString().replace(FILE_SCHEME, EXPR_SCHEME);
 
     const [model, setModel] = useState<STNode>(null);
@@ -92,7 +90,7 @@ export function StatementEditor(props: StatementEditorProps) {
     const [moduleList, setModuleList] = useState(new Set<string>());
     const [lsSuggestionsList, setLSSuggestionsList] = useState([]);
 
-    const undo = React.useCallback(async () => {
+    const undo = async () => {
         const undoItem = undoRedoManager.getUndoModel();
         if (undoItem) {
             const updatedContent = await getUpdatedSource(undoItem.oldModel.source, currentFile.content,
@@ -101,9 +99,9 @@ export function StatementEditor(props: StatementEditorProps) {
             const diagnostics = await handleDiagnostics(undoItem.oldModel.source);
             setStmtModel(undoItem.oldModel, diagnostics);
         }
-    }, []);
+    };
 
-    const redo = React.useCallback(async () => {
+    const redo = async () => {
         const redoItem = undoRedoManager.getRedoModel();
         if (redoItem) {
             const updatedContent = await getUpdatedSource(redoItem.oldModel.source, currentFile.content,
@@ -112,7 +110,7 @@ export function StatementEditor(props: StatementEditorProps) {
             const diagnostics = await handleDiagnostics(redoItem.oldModel.source);
             setStmtModel(redoItem.newModel, diagnostics);
         }
-    }, []);
+    };
 
     useEffect(() => {
         (async () => {
