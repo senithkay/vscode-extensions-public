@@ -264,7 +264,7 @@ export function FunctionForm(props: FunctionProps) {
     }, [model]);
 
     return (
-        <FormControl data-testid="listener-form" className={formClasses.wizardFormControl}>
+        <FormControl data-testid="function-form" className={formClasses.wizardFormControl}>
             <FormHeaderSection
                 onCancel={onCancel}
                 formTitle={"Function Configuration"}
@@ -274,7 +274,7 @@ export function FunctionForm(props: FunctionProps) {
                 <div className={connectorClasses.formNameWrapper}>
                     <FormTextInput
                         label="Name"
-                        dataTestId="service-name"
+                        dataTestId="function-name"
                         defaultValue={(functionName?.isInteracted || isEdit) ? functionName.value : ""}
                         onChange={onNameChange}
                         customProps={{
@@ -306,6 +306,7 @@ export function FunctionForm(props: FunctionProps) {
                             />
                         ) : (
                             <Button
+                                data-test-id="param-add-button"
                                 onClick={openNewParamView}
                                 className={connectorClasses.addParameterBtn}
                                 startIcon={<AddIcon />}

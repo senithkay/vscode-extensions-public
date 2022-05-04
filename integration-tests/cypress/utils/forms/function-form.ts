@@ -5,22 +5,19 @@ export class FunctionForm {
     private static selector = '[data-testid="function-form"]';
 
     static typeFunctionName(fnName: string) {
-        ExpressionEditor
-            .getForField("Function Name", this.selector)
-            .clear()
-            .type(fnName)
-            .waitForValidations();
+        this.getForm()
+            .get('[data-testid="function-name"]')
+            .click()
+            .type(fnName);
         return this;
     }
 
     static typeReturnType(retType: string) {
-        ExpressionEditor
-            .getForField("Return Type", this.selector)
-            .clear()
-            .type(retType)
-            .waitForValidations();
+        this.getForm()
+            .get('[data-testid="return-type"]')
+            .click()
+            .type(retType);
         return this;
-
     }
 
     static shouldBeVisible() {

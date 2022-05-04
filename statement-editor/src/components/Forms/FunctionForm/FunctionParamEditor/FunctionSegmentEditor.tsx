@@ -113,7 +113,7 @@ export function FunctionParamSegmentEditor(props: FunctionParamSegmentEditorProp
                 <Grid container={true} item={true} spacing={2}>
                     <Grid item={true} xs={5}>
                         <FormTextInput
-                            dataTestId="api-function-param-type"
+                            dataTestId="function-param-type"
                             defaultValue={(segmentType.isInteracted || isEdit) ? segmentType.value : ""}
                             onChange={handleOnTypeChange}
                             placeholder={"string"}
@@ -131,7 +131,7 @@ export function FunctionParamSegmentEditor(props: FunctionParamSegmentEditorProp
                     </Grid>
                     <Grid item={true} xs={7}>
                         <FormTextInput
-                            dataTestId="api-function-param-name"
+                            dataTestId="function-param-name"
                             defaultValue={(segmentName.isInteracted || isEdit) ? segmentName.value : ""}
                             onChange={handleOnNameChange}
                             placeholder={"name"}
@@ -158,7 +158,7 @@ export function FunctionParamSegmentEditor(props: FunctionParamSegmentEditorProp
                                 onClick={onCancel}
                             />
                             <PrimaryButton
-                                dataTestId={"custom-expression-save-btn"}
+                                dataTestId={"param-save-btn"}
                                 text={onUpdate ? "Update" : " Add"}
                                 disabled={(syntaxDiag?.length > 0) || (param?.viewState?.diagnosticsInRange?.length > 0)
                                     || !(segmentName.isInteracted || isEdit) || !(segmentType.isInteracted || isEdit)
