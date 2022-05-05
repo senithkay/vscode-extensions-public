@@ -54,13 +54,11 @@ export function FormEditor(props: FormEditorProps) {
 
     const fileURI = monaco.Uri.file(currentFile.path).toString().replace(FILE_SCHEME, EXPR_SCHEME);
 
-    const onChange = async (genSource: string) => {
+    const onChange = async (genSource: string, partialST: STNode) => {
         const updatedContent = await getUpdatedSource(genSource.trim(), currentFile.content, initialModel ?
                 initialModel.position : targetPosition, undefined, true);
         sendDidChange(fileURI, updatedContent, getLangClient).then();
         const diagnostics = await handleDiagnostics(genSource, fileURI, targetPosition, getLangClient).then();
-        const partialST = await getPartialSTForTopLevelComponents(
-            { codeSnippet: genSource.trim() }, getLangClient);
         setModel(enrichModel(partialST, initialModel ?
             initialModel.position : targetPosition, diagnostics));
     };

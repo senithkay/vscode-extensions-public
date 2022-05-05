@@ -36,7 +36,7 @@ import {
     FunctionDefinition,
     IncludedRecordParam,
     NodePosition, RequiredParam, RestParam,
-    STKindChecker
+    STKindChecker, STNode
 } from "@wso2-enterprise/syntax-tree";
 
 import { StmtDiagnostic } from "../../../models/definitions";
@@ -51,7 +51,7 @@ export interface FunctionProps {
     model: FunctionDefinition;
     targetPosition: NodePosition;
     isEdit: boolean;
-    onChange: (genSource: string) => void;
+    onChange: (genSource: string, partialST: STNode) => void;
     onCancel: () => void;
     getLangClient: () => Promise<ExpressionEditorLangClientInterface>;
     applyModifications: (modifications: STModification[]) => void;
@@ -97,7 +97,7 @@ export function FunctionForm(props: FunctionProps) {
         );
         if (!partialST.syntaxDiagnostics.length) {
             setCurrentComponentSyntaxDiag(undefined);
-            onChange(genSource);
+            onChange(genSource, partialST);
         } else {
             setCurrentComponentSyntaxDiag(partialST.syntaxDiagnostics);
         }
@@ -112,7 +112,7 @@ export function FunctionForm(props: FunctionProps) {
         );
         if (!partialST.syntaxDiagnostics.length) {
             setCurrentComponentSyntaxDiag(undefined);
-            onChange(genSource);
+            onChange(genSource, partialST);
         } else {
             setCurrentComponentSyntaxDiag(partialST.syntaxDiagnostics);
         }
@@ -166,7 +166,7 @@ export function FunctionForm(props: FunctionProps) {
         );
         if (!partialST.syntaxDiagnostics.length) {
             setCurrentComponentSyntaxDiag(undefined);
-            onChange(genSource);
+            onChange(genSource, partialST);
         } else {
             setCurrentComponentSyntaxDiag(partialST.syntaxDiagnostics);
         }
@@ -185,7 +185,7 @@ export function FunctionForm(props: FunctionProps) {
         );
         if (!partialST.syntaxDiagnostics.length) {
             setCurrentComponentSyntaxDiag(undefined);
-            onChange(genSource);
+            onChange(genSource, partialST);
         } else {
             setCurrentComponentSyntaxDiag(partialST.syntaxDiagnostics);
         }
