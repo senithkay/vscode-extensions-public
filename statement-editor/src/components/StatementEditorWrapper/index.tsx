@@ -134,21 +134,21 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
     };
 
     useEffect(() => {
-        if (config.type !== CUSTOM_CONFIG_TYPE) {
             (async () => {
                 let model = null;
-                const updatedContent = await getUpdatedSource(initialSource.trim(), currentFile.content,
-                    targetPosition);
+                if (config.type !== CUSTOM_CONFIG_TYPE) {
+                    const updatedContent = await getUpdatedSource(initialSource.trim(), currentFile.content,
+                        targetPosition);
 
-                await sendDidOpen(fileURI, updatedContent, getLangClient);
+                    await sendDidOpen(fileURI, updatedContent, getLangClient);
 
-                const partialST = await getPartialSTForStatement(
-                    { codeSnippet: initialSource.trim() }, getLangClient);
+                    const partialST = await getPartialSTForStatement(
+                        { codeSnippet: initialSource.trim() }, getLangClient);
 
-                if (!partialST.syntaxDiagnostics.length) {
-                    model = partialST;
+                    if (!partialST.syntaxDiagnostics.length) {
+                        model = partialST;
+                    }
                 }
-
                 const newEditor: EditorModel = {
                     label,
                     model,
@@ -160,9 +160,8 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
                 setEditors((prevEditors: EditorModel[]) => {
                     return [...prevEditors, newEditor];
                 });
-
             })();
-        }
+
     }, []);
 
     useEffect(() => {
