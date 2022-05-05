@@ -59,7 +59,7 @@ interface CtxProviderProps {
     hasUndo?: boolean,
     hasRedo?: boolean,
     diagnostics?: StmtDiagnostic[],
-    lsSuggestions?: SuggestionItem[],
+    lsSuggestions?: SuggestionItem[]
 }
 
 export const StatementEditorContextProvider = (props: CtxProviderProps) => {

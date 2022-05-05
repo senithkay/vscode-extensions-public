@@ -33,7 +33,8 @@ describe('edit a http service', () => {
       .valueExpressionShouldBeHidden()
       .toggleInitializeVariable()
       .typeVariableValue(123)
-      .save();
+      .save()
+      .waitForDiagramUpdate();
 
     Canvas.getService("/hello")
       .getResourceFunction("POST", "/")
@@ -49,7 +50,8 @@ describe('edit a http service', () => {
       .isInitializeVariable()
       .toggleInitializeVariable()
       .valueExpressionShouldBeHidden()
-      .save();
+      .save()
+      .waitForDiagramUpdate();
 
     SourceCode.shouldBeEqualTo(
       getCurrentSpecFolder() + "edit-service-http.expected.bal");
