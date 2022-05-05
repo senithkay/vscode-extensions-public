@@ -22,9 +22,7 @@ import { StatementEditorContext } from "../../store/statement-editor-context";
 import { ModelType, StatementEditorViewState } from "../../utils/statement-editor-viewstate";
 import { useStatementEditorStyles } from "../styles";
 
-import {
-    INPUT_EDITOR_PLACE_HOLDERS
-} from "./constants";
+import { INPUT_EDITOR_PLACE_HOLDERS } from "./constants";
 
 export interface InputEditorProps {
     model?: STNode;
@@ -126,7 +124,7 @@ export function InputEditor(props: InputEditorProps) {
                 onClickAway={handleEditEnd}
             >
                 <input
-                    value={INPUT_EDITOR_PLACE_HOLDERS.has(userInput) ? "" : userInput}
+                    value={INPUT_EDITOR_PLACE_HOLDERS.has(userInput.trim()) ? "" : userInput}
                     className={statementEditorClasses.inputEditorTemplate + ' ' + classNames}
                     onKeyDown={inputEnterHandler}
                     onInput={inputChangeHandler}
@@ -141,7 +139,10 @@ export function InputEditor(props: InputEditorProps) {
                 className={statementEditorClasses.inputEditorTemplate + ' ' + classNames}
                 onDoubleClick={handleDoubleClick}
             >
-                {INPUT_EDITOR_PLACE_HOLDERS.has(userInput) ? INPUT_EDITOR_PLACE_HOLDERS.get(userInput) : userInput}
+                {INPUT_EDITOR_PLACE_HOLDERS.has(userInput.trim())
+                    ? INPUT_EDITOR_PLACE_HOLDERS.get(userInput.trim())
+                    : userInput
+                }
             </span>
         );
 }
