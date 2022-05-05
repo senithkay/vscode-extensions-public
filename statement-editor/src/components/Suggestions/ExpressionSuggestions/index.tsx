@@ -92,7 +92,7 @@ export function ExpressionSuggestions() {
                     <>
                         {filteredExpressions.map((group) => (
                             <>
-                                <h3 className={stmtEditorHelperClasses.librarySearchSubHeader}>{group.name}</h3>
+                                <div className={stmtEditorHelperClasses.librarySearchSubHeader}>{group.name}</div>
                                 <List className={stmtEditorHelperClasses.expressionList}>
                                     {
                                         group.expressions.map((expression, index) => (
@@ -121,7 +121,7 @@ export function ExpressionSuggestions() {
                 )}
             </div>
             {!filteredExpressions.length && (
-                <p className={stmtEditorHelperClasses.noSuggestionText}>Expressions not available</p>
+                <p>Expressions not available</p>
             )}
         </>
     );

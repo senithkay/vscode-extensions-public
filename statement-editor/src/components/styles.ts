@@ -107,7 +107,6 @@ export const useStatementRendererStyles = makeStyles(() =>
             fontFamily: "monospace",
             color: '#0095FF',
             margin: '0px 2px',
-            fontSize: '12px',
             padding: '0px 4px',
             '&:hover': {
                 backgroundColor: 'rgba(173, 214, 255, 0.3)'
@@ -165,7 +164,6 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             height: '32px',
             width: "auto",
             borderRadius: 4,
-            fontSize: "12px",
             color: '#222228',
             background: "linear-gradient(180deg, #FFFFFF 0%, #F7F7F9 100%)",
             boxShadow: "inset 0 0 0 1px #DEE0E7, 0 1px 2px -1px rgba(0,0,0,0.08)",
@@ -220,15 +218,14 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
         tabsPanelSe: {
             "& .MuiTab-wrapper": {
                 textTransform: 'none',
-                fontSize: '13px',
                 fontWeight: 'normal'
             },
             "& .MuiTab-root": {
                 marginRight: '24px',
                 paddingRight: '0px',
                 paddingLeft: '0px',
-                fontSize: '13px',
-                minWidth: 'fit-content'
+                minWidth: 'fit-content',
+                fontSize: '13px'
             },
             "& .MuiTab-textColorInherit": {
                 color: '#8D91A3'
@@ -285,11 +282,6 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             overflow: 'hidden',
             textOverflow: 'ellipsis'
         },
-        noSuggestionText: {
-            fontSize: '12px',
-            fontWeight: 'normal',
-            padding: theme.spacing(1.5)
-        },
         expressionSuggestionList: {
             maxHeight: '100%',
             overflowY: 'scroll',
@@ -306,20 +298,15 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             boxShadow: 'inset 0 0 0 1px #DEE0E7, inset 0 2px 1px 0 rgba(0,0,0,0.07), 0 0 0 0 rgba(50,50,77,0.07)',
             color: '#CBCEDB',
             textIndent: '12px',
-            fontSize: '12px',
             textAlign: 'left',
             paddingLeft: '12px',
             marginRight: '10px',
             marginBottom: '16px'
         },
         librarySearchSubHeader: {
-            height: '12px',
             color: '#1D2028',
-            fontFamily: 'Gilmer,sans-serif',
-            fontSize: '13px',
-            letterSpacing: 0,
-            lineHeight: '14px',
-            margin: '0px'
+            margin: '0px',
+            fontWeight: 'bold'
         },
         expressionList: {
             columnGap: '6%',
@@ -355,7 +342,6 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             marginRight: '43px',
             marginLeft: '4.25px',
             marginBottom: '2px',
-            fontSize: '13px'
         },
         libraryReturnIcon: {
             padding: '0px',
@@ -419,6 +405,7 @@ export const useStatementEditorStyles = makeStyles(() =>
         },
         stmtEditorInnerWrapper: {
             paddingLeft: '25px',
+            fontSize: '13px'
         },
         statementExpressionWrapper: {
             height: 'auto',
@@ -441,14 +428,15 @@ export const useStatementEditorStyles = makeStyles(() =>
             display: 'flex',
             alignItems: 'center',
             paddingBottom: '20px',
+            fontWeight: 500
         },
         statementExpressionContent: {
-            fontSize: "18px",
-            'user-select': 'none'
+            fontSize: "15px",
+            'user-select': 'none',
         },
         statementBtnWrapper: {
             height: 'auto',
-            padding: theme.spacing(1.5),
+            padding: "15px 15px 17px 0px",
         },
         bottomPane: {
             display: 'flex',

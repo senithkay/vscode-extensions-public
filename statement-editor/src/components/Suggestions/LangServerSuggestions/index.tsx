@@ -102,7 +102,7 @@ export function LSSuggestions() {
                 </>
             )}
             { !lsSuggestions?.length && (
-                <p className={stmtEditorHelperClasses.noSuggestionText}>Suggestions not available</p>
+                <p>Suggestions not available</p>
             )}
         </>
     );
