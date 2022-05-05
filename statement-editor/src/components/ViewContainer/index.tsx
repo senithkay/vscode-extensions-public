@@ -20,7 +20,7 @@ import {
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { ModuleVarDecl, NodePosition } from "@wso2-enterprise/syntax-tree";
 
-import { StmtEditorStackItem } from "../../models/definitions";
+import { EditorModel } from "../../models/definitions";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { StatementEditorWrapperContext } from "../../store/statement-editor-wrapper-context";
 import { getModifications } from "../../utils";
@@ -105,7 +105,7 @@ export function ViewContainer(props: ViewContainerProps) {
         const model = statementModel as ModuleVarDecl;
 
         const noOfLines = model.source.split('\n').length;
-        const nextEditor: StmtEditorStackItem = editors[activeEditorId - 1];
+        const nextEditor: EditorModel = editors[activeEditorId - 1];
         const nextEditorPosition: NodePosition = {
             ...nextEditor.position,
             startLine: nextEditor.position.startLine + noOfLines,

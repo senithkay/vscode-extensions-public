@@ -20,8 +20,8 @@ import { Diagnostic } from "vscode-languageserver-protocol";
 import { CUSTOM_CONFIG_TYPE } from "../../constants";
 import {
     CurrentModel,
+    EditorModel,
     StmtDiagnostic,
-    StmtEditorStackItem,
     SuggestionItem
 } from "../../models/definitions";
 import { StatementEditorContextProvider} from "../../store/statement-editor-context";
@@ -47,7 +47,7 @@ import { EXPR_SCHEME, FILE_SCHEME } from "../InputEditor/constants";
 import { ViewContainer } from "../ViewContainer";
 
 export interface StatementEditorProps {
-    editor: StmtEditorStackItem;
+    editor: EditorModel;
     onWizardClose: () => void;
     onCancel: () => void;
     onStmtEditorModelChange?: (partialModel: STNode) => void;

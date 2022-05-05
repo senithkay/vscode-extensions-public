@@ -56,7 +56,7 @@ export interface MinutiaeJSX {
     trailingMinutiaeJSX: ReactNode[];
 }
 
-export interface StmtEditorStackItem {
+export interface EditorModel {
     label: string;
     model: STNode;
     source: string;

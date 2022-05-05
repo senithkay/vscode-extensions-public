@@ -17,7 +17,7 @@ import { LibraryKind, STModification } from '@wso2-enterprise/ballerina-low-code
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { LowCodeEditorProps } from "../components/StatementEditorWrapper";
-import { StmtEditorStackItem } from "../models/definitions";
+import { EditorModel } from "../models/definitions";
 
 export const StatementEditorWrapperContext = React.createContext({
     formCtx: null,
@@ -27,7 +27,7 @@ export const StatementEditorWrapperContext = React.createContext({
     editorCtx: {
         editors: [],
         switchEditor: (index: number) => undefined,
-        updateEditor: (index: number, newContent: StmtEditorStackItem) => undefined,
+        updateEditor: (index: number, newContent: EditorModel) => undefined,
         dropLastEditor: () => undefined,
         addConfigurable: (newLabel: string, newPosition: NodePosition, newSource: string) => undefined,
         activeEditorId: 0
@@ -55,11 +55,11 @@ interface SEWrapperCtxProviderProps extends LowCodeEditorProps {
     config?: {type: string, model?: STNode},
     formArgs?: any,
     switchEditor?: (index: number) => void,
-    updateEditor?: (index: number, newContent: StmtEditorStackItem) => void,
+    updateEditor?: (index: number, newContent: EditorModel) => void,
     dropLastEditor?: () => void,
     addConfigurable?: (newLabel: string, newPosition: NodePosition, newSource: string) => void,
     activeEditorId?: number,
-    editors?: StmtEditorStackItem[],
+    editors?: EditorModel[],
     handleStmtEditorToggle?: () => void
 }
 

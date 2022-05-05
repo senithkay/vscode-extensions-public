@@ -24,7 +24,7 @@ import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import * as monaco from "monaco-editor";
 
 import { CUSTOM_CONFIG_TYPE } from "../../constants";
-import { StmtEditorStackItem } from "../../models/definitions";
+import { EditorModel } from "../../models/definitions";
 import { StatementEditorWrapperContextProvider } from "../../store/statement-editor-wrapper-context";
 import { getUpdatedSource } from "../../utils";
 import { getPartialSTForModuleMembers, getPartialSTForStatement, sendDidOpen } from "../../utils/ls-utils";
@@ -93,8 +93,8 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
 
     const fileURI = monaco.Uri.file(currentFile.path).toString().replace(FILE_SCHEME, EXPR_SCHEME);
 
-    const [editors, setEditors] = useState<StmtEditorStackItem[]>([]);
-    const [editor, setEditor] = useState<StmtEditorStackItem>();
+    const [editors, setEditors] = useState<EditorModel[]>([]);
+    const [editor, setEditor] = useState<EditorModel>();
     const [activeEditorId, setActiveEditorId] = useState<number>(0);
 
     const switchEditor = (index: number) => {
@@ -102,15 +102,15 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
         setActiveEditorId(index);
     };
 
-    const updateEditor = (index: number, newContent: StmtEditorStackItem) => {
-        setEditors((prevEditors: StmtEditorStackItem[]) => {
+    const updateEditor = (index: number, newContent: EditorModel) => {
+        setEditors((prevEditors: EditorModel[]) => {
             prevEditors[index] = newContent;
             return prevEditors;
         });
     };
 
     const dropLastEditor = () => {
-        setEditors((prevEditors: StmtEditorStackItem[]) => {
+        setEditors((prevEditors: EditorModel[]) => {
             return prevEditors.slice(0, -1);
         });
     };
@@ -119,7 +119,7 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
         const partialST = await getPartialSTForModuleMembers(
             {codeSnippet: newSource.trim()}, getLangClient);
 
-        const newEditor: StmtEditorStackItem = {
+        const newEditor: EditorModel = {
             label: newLabel,
             model: !partialST.syntaxDiagnostics.length ? partialST : null,
             source: newSource,
@@ -127,7 +127,7 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
             undoRedoManager: new StmtEditorUndoRedoManager(),
             isConfigurableStmt: true
         };
-        setEditors((prevEditors: StmtEditorStackItem[]) => {
+        setEditors((prevEditors: EditorModel[]) => {
             return [...prevEditors, newEditor];
         });
     };
@@ -148,7 +148,7 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
                     model = partialST;
                 }
 
-                const newEditor: StmtEditorStackItem = {
+                const newEditor: EditorModel = {
                     label,
                     model,
                     source: initialSource,
@@ -156,7 +156,7 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
                     undoRedoManager: new StmtEditorUndoRedoManager()
                 };
 
-                setEditors((prevEditors: StmtEditorStackItem[]) => {
+                setEditors((prevEditors: EditorModel[]) => {
                     return [...prevEditors, newEditor];
                 });
 
