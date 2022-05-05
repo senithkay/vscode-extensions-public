@@ -40,6 +40,7 @@ export const RecordType = (props: RecordTypeProps) => {
     const [recordValue, setRecordValue] = useState<ConfigElementProps>(getObjectElement(props));
     const [expanded, setExpanded] = useState(true);
     const returnElement: ReactElement[] = [];
+    const recordName: string = getRecordName(props.schema["name"]);
 
     useEffect(() => {
         setExpanded(props.isRequired);
@@ -77,7 +78,7 @@ export const RecordType = (props: RecordTypeProps) => {
         label: props.label,
         name: props.name,
         required: props.isRequired,
-        type: ConfigType.RECORD,
+        type: recordName ? recordName : ConfigType.MODULE,
     };
 
     return (
@@ -152,4 +153,12 @@ function getNestedElements(nestedObjects: ConfigElementProps[]): ConfigElementPr
         });
     });
     return properties;
+}
+
+function getRecordName(name: string): string {
+    if (name === undefined) {
+        return name;
+    }
+
+    return name.split('/')[1];
 }
