@@ -16,14 +16,15 @@
  * under the License.
  *
  */
+import React, { ReactElement, useState } from "react";
 
-import React, { ReactElement, useEffect, useState } from "react";
+import { Box } from "@material-ui/core";
 
 import ConfigElement, { ConfigElementProps } from "../../ConfigElement";
 import { FieldLabel, FieldLabelProps } from "../../elements/FieldLabel";
 import { RadioGroupInput, RadioGroupInputProps } from "../../elements/RadioGroupInput";
 import { SchemaConstants } from "../../model";
-import { getType } from "../../utils";
+import { getConfigProperties, getRecordName, getType } from "../../utils";
 import { SimpleTypeProps } from "../SimpleType";
 
 /**
@@ -35,84 +36,130 @@ export interface UnionTypeProps extends SimpleTypeProps {
 }
 
 export const UnionType = (props: UnionTypeProps): ReactElement => {
-    const { description, id, isRequired, label, name, type, value, setUnionType, placeholder } = props;
-    const [fieldType, setFieldType] = useState("");
-    const [unionValue, setUnionValue] = useState<ConfigElementProps>({
-        description,
-        id,
-        isRequired,
-        name,
-        type,
-        value,
-    });
+    const schema: object[] = props.schema[SchemaConstants.ANY_OF];
+    const typeLabels: string[] = getAllTypeLabels(schema);
+    const [fieldType, setFieldType] = useState<string>(typeLabels[0]);
 
-    let fieldElement: ReactElement;
-
-    const types: string[] = getAllTypes(props.schema[SchemaConstants.ANY_OF]);
+    const unionValue: ConfigElementProps = {
+        description: props.description,
+        id: props.id,
+        isRequired: props.isRequired,
+        name: props.name,
+        schema: props.schema,
+        type: props.type,
+        value: props.value,
+    };
 
     const setUnionElememt = (elementId: string, elementValue: any) => {
-        const newUnionValue: ConfigElementProps = unionValue;
-        if (newUnionValue.id === elementId) {
-            newUnionValue.value = elementValue;
+        if (unionValue.id === elementId) {
+            unionValue.value = elementValue;
+            props.setUnionType(props.id, unionValue);
         }
-        setUnionValue(newUnionValue);
     };
 
-    if (fieldType !== "") {
-        const inputFieldProps: ConfigElementProps = {
-            id,
-            isRequired,
-            name: "value",
-            placeholder,
+    const getConfigElementProps = (property: object, type: string, element: ConfigElementProps): ConfigElementProps => {
+        const configProperty = schema[SchemaConstants.PROPERTIES];
+        let configProperties: ConfigElementProps;
+        if (configProperty) {
+            configProperties = getConfigProperties(property, props.id);
+        }
+        const configElementProps: ConfigElementProps = {
+            description: element.description,
+            id: element.id,
+            isRequired: element.isRequired,
+            name: element.name,
+            properties: configProperties ? configProperties.properties : undefined,
+            schema: property,
             setConfigElement: setUnionElememt,
-            type: getType(fieldType),
-            value,
+            type: getType(getTypeFromLabel([property], type)),
         };
-        fieldElement = <ConfigElement {...inputFieldProps}/>;
-    }
+        return configElementProps;
+    };
+
+    let innerElement: ConfigElementProps = getConfigElementProps(schema[0], typeLabels[0], props);
 
     const setReturnType = (elementId: string, elementType: string) => {
-        setFieldType(elementType);
+        if (props.id === elementId) {
+            const typeName: string = getTypeFromLabel(schema, elementType);
+            const innerSchema = getCurrentSchema(schema, typeName);
+            innerElement = getConfigElementProps(innerSchema, elementType, props);
+            setFieldType(elementType);
+        }
     };
 
-    useEffect(() => {
-        setUnionType(props.id, unionValue);
-    }, [unionValue]);
+    const getFieldElement = (elementType: string): ReactElement => {
+        let returnElement: ReactElement = <></>;
+        if (schema && typeLabels.length > 0) {
+            const innerSchema = getCurrentSchema(schema,  getTypeFromLabel(schema, elementType));
+            if (innerSchema) {
+                const configElementProps = getConfigElementProps(innerSchema, elementType, innerElement);
+                returnElement = <ConfigElement {...configElementProps}/>;
+            }
+        }
+        return returnElement;
+    };
 
     const fieldLabelProps: FieldLabelProps = {
-        description,
-        label,
-        name,
-        required: isRequired,
-        type: getUnionType(types),
+        description: props.description,
+        label: props.label,
+        name: props.name,
+        required: props.isRequired,
+        type: getUnionType(typeLabels),
     };
 
     const radioGroupInputProps: RadioGroupInputProps = {
-        id,
+        id: props.id,
         setRadioGroupValue: setReturnType,
-        types,
-        value: types[0],
+        types: typeLabels,
+        value: typeLabels[0],
     };
 
     return(
-        <div key={id + "-FIELD"}>
+        <div key={props.id + "-FIELD"}>
             <FieldLabel {...fieldLabelProps} />
             <RadioGroupInput {...radioGroupInputProps}/>
-            {fieldElement}
+            <Box>
+                {getFieldElement(fieldType)}
+            </Box>
         </div>
     );
 };
 
 export default UnionType;
 
+function getCurrentSchema(schema: object[], type: string): object {
+    let currentSchema: object;
+    Object.keys(schema).forEach((key) => {
+        if (schema[key].type !== undefined && schema[key].type === type) {
+            currentSchema = schema[key];
+        }
+    });
+    return currentSchema;
+}
+
+function getTypeFromLabel(schema: object[], name: string): string {
+    let type: string = name;
+    Object.keys(schema).forEach((key) => {
+        const recordName: string = schema[key].name;
+        if (recordName !== undefined && recordName.includes(name)) {
+            type = schema[key].type;
+        }
+    });
+    return type;
+}
+
 function getUnionType(types: string[]): string {
     return types.join(" | ");
 }
 
-function getAllTypes(properties: object[]): string[] {
+function getAllTypeLabels(properties: object[]): string[] {
     const unionTypes: string[] = [];
+    if (properties === undefined) {
+        return unionTypes;
+    }
     Object.keys(properties).forEach((key) => {
-        unionTypes.push(properties[key].type);
+        const name: string = getRecordName(properties[key].name);
+        unionTypes.push(name ? name : properties[key].type);
     });
     return unionTypes;
 }

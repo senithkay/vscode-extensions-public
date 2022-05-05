@@ -24,8 +24,9 @@ import { Box, Card, CardContent, Collapse } from "@material-ui/core";
 import ConfigElement, { ConfigElementProps } from "../../ConfigElement";
 import ExpandMore from "../../elements/ExpandMore";
 import { FieldLabel, FieldLabelProps } from "../../elements/FieldLabel";
-import { ConfigType } from "../../model";
+import { ConfigType, SchemaConstants } from "../../model";
 import { useStyles } from "../../style";
+import { getRecordName } from "../../utils";
 import { ObjectTypeProps } from "../ObjectType";
 
 /**
@@ -40,7 +41,7 @@ export const RecordType = (props: RecordTypeProps) => {
     const [recordValue, setRecordValue] = useState<ConfigElementProps>(getObjectElement(props));
     const [expanded, setExpanded] = useState(true);
     const returnElement: ReactElement[] = [];
-    const recordName: string = getRecordName(props.schema["name"]);
+    const recordName: string = getRecordName(props.schema[SchemaConstants.NAME]);
 
     useEffect(() => {
         setExpanded(props.isRequired);
@@ -153,12 +154,4 @@ function getNestedElements(nestedObjects: ConfigElementProps[]): ConfigElementPr
         });
     });
     return properties;
-}
-
-function getRecordName(name: string): string {
-    if (name === undefined) {
-        return name;
-    }
-
-    return name.split('/')[1];
 }

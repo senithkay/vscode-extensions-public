@@ -214,3 +214,11 @@ function getValue(key: string, obj: object): any {
         }
     }
 }
+
+export function getRecordName(name: string): string {
+    if (name === undefined) {
+        return name;
+    }
+
+    return name.split("/")[1];
+}
