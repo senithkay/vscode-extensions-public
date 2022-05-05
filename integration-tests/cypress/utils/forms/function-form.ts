@@ -5,17 +5,17 @@ export class FunctionForm {
     private static selector = '[data-testid="function-form"]';
 
     static typeFunctionName(fnName: string) {
+        this.getForm().wait(1000);
         this.getForm()
             .get('[data-testid="function-name"]')
-            .click()
             .type(fnName);
         return this;
     }
 
     static typeReturnType(retType: string) {
+        this.getForm().wait(1000);
         this.getForm()
             .get('[data-testid="return-type"]')
-            .click()
             .type(retType);
         return this;
     }
@@ -33,12 +33,12 @@ export class FunctionForm {
     }
 
     static save() {
+        this.getForm().wait(1000);
         this.getForm()
-            .get('button')
             .contains("Save")
+            .should('be.enabled', { timeout: 5000 })
             .click();
         return this;
-
     }
 
     static cancel() {

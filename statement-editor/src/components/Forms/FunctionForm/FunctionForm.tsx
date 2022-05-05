@@ -38,6 +38,7 @@ import {
     NodePosition, RequiredParam, RestParam,
     STKindChecker
 } from "@wso2-enterprise/syntax-tree";
+import debounce from "lodash.debounce";
 
 import { StmtDiagnostic } from "../../../models/definitions";
 import { getPartialSTForTopLevelComponents } from "../../../utils/ls-utils";
@@ -102,6 +103,7 @@ export function FunctionForm(props: FunctionProps) {
             setCurrentComponentSyntaxDiag(partialST.syntaxDiagnostics);
         }
     }
+    const debouncedNameChange = debounce(onNameChange, 500);
 
     const onReturnTypeChange = async (value: string) => {
         setReturnType({value, isInteracted: true});
@@ -120,6 +122,7 @@ export function FunctionForm(props: FunctionProps) {
     const onReturnFocus = (value: string) => {
         setCurrentComponentName("Return");
     }
+    const debouncedReturnChange = debounce(onReturnTypeChange, 500);
 
     // Param related functions
     const openNewParamView = () => {
@@ -276,7 +279,7 @@ export function FunctionForm(props: FunctionProps) {
                         label="Name"
                         dataTestId="function-name"
                         defaultValue={(functionName?.isInteracted || isEdit) ? functionName.value : ""}
-                        onChange={onNameChange}
+                        onChange={debouncedNameChange}
                         customProps={{
                             isErrored: ((currentComponentSyntaxDiag !== undefined && currentComponentName === "Name") ||
                                 model?.functionName?.viewState?.diagnosticsInRange[0]?.message)
@@ -334,7 +337,7 @@ export function FunctionForm(props: FunctionProps) {
                                 functionSignature?.returnTypeDesc?.viewState?.diagnosticsInRange[0]?.message ||
                                 (functionBodyBlock?.closeBraceToken?.viewState?.diagnosticsInRange && functionBodyBlock?.
                                     closeBraceToken?.viewState?.diagnosticsInRange[0]?.message))}
-                        onChange={onReturnTypeChange}
+                        onChange={debouncedReturnChange}
                         onBlur={null}
                         onFocus={onReturnFocus}
                         placeholder={"Enter Return Type"}
