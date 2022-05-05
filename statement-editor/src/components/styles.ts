@@ -159,7 +159,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
         suggestionsInner: {
             overflowY: 'scroll',
             height: '100%',
-            paddingTop: '14px',
+            paddingTop: '16px',
         },
         selectDropDownSe: {
             height: '32px',
@@ -348,8 +348,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             position: 'sticky',
             top: '0px',
             zIndex: 1,
-            backgroundColor: '#FFFFFF',
-            paddingBottom: '16px'
+            backgroundColor: '#FFFFFF'
         },
 
         moduleTitle: {
@@ -381,7 +380,11 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             columnGap: '6%',
             display: 'grid',
             gridTemplateColumns: '47% 47%',
-            padding: '0px'
+            padding: '0px',
+            "& .MuiListItem-root": {
+                margin: '0 0 8px 0',
+                padding: '0'
+            },
         },
         libraryElementBlockContent: {
             padding: '0px',
@@ -413,6 +416,9 @@ export const useStatementEditorStyles = makeStyles(() =>
             height: 'auto',
             width: 700,
             flexDirection: 'column',
+        },
+        stmtEditorInnerWrapper: {
+            paddingLeft: '25px',
         },
         statementExpressionWrapper: {
             height: 'auto',

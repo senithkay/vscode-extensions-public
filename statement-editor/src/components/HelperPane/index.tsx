@@ -16,7 +16,7 @@ import React, { useState } from "react";
 import { ALL_LIBS_IDENTIFIER, LANG_LIBS_IDENTIFIER, STD_LIBS_IDENTIFIER } from "../../constants";
 import SelectDropdown from "../Dropdown";
 import { LibraryBrowser } from "../LibraryBrowser";
-import { useStmtEditorHelperPanelStyles  } from "../styles";
+import { useStmtEditorHelperPanelStyles, useStatementEditorStyles } from "../styles";
 import { ExpressionSuggestions } from "../Suggestions/ExpressionSuggestions";
 import { LSSuggestions } from "../Suggestions/LangServerSuggestions";
 import TabPanel from "../Tab";
@@ -29,6 +29,7 @@ enum TabElements {
 
 export function HelperPane() {
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
+    const statementEditorClasses = useStatementEditorStyles();
 
     const [selectedTab, setSelectedTab] = useState(TabElements.suggestions);
     const [libraryType, setLibraryType] = useState('');
@@ -45,11 +46,13 @@ export function HelperPane() {
         <>
             <div className={stmtEditorHelperClasses.tabPanelWrapper}>
                 <div className={stmtEditorHelperClasses.tabPanel}>
-                    <TabPanel
-                        values={[TabElements.suggestions, TabElements.expressions, TabElements.libraries]}
-                        defaultValue={TabElements.suggestions}
-                        onSelection={onTabElementSelection}
-                    />
+                    <div className={statementEditorClasses.stmtEditorInnerWrapper}>
+                        <TabPanel
+                            values={[TabElements.suggestions, TabElements.expressions, TabElements.libraries]}
+                            defaultValue={TabElements.suggestions}
+                            onSelection={onTabElementSelection}
+                        />
+                    </div>
                 </div>
                 <div className={stmtEditorHelperClasses.libraryTypeSelector}>
                     {selectedTab === TabElements.libraries && (
@@ -62,9 +65,11 @@ export function HelperPane() {
                 </div>
             </div>
             <div className={stmtEditorHelperClasses.suggestionsInner}>
-                {selectedTab === TabElements.suggestions && <LSSuggestions />}
-                {selectedTab === TabElements.expressions && <ExpressionSuggestions />}
-                {selectedTab === TabElements.libraries && <LibraryBrowser libraryType={libraryType} />}
+                <div className={statementEditorClasses.stmtEditorInnerWrapper}>
+                    {selectedTab === TabElements.suggestions && <LSSuggestions />}
+                    {selectedTab === TabElements.expressions && <ExpressionSuggestions />}
+                    {selectedTab === TabElements.libraries && <LibraryBrowser libraryType={libraryType} />}
+                </div>
             </div>
         </>
     );

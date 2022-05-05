@@ -39,16 +39,18 @@ export function EditorPane(props: ModelProps) {
     return (
         <div>
             <div className={statementEditorClasses.stmtEditorContentWrapper}>
-                <div className={statementEditorClasses.statementExpressionTitle}>{label}<Toolbar/></div>
-                <div className={statementEditorClasses.statementExpressionContent}>
-                    <StatementRenderer
-                        model={statementModel}
-                    />
+                <div className={statementEditorClasses.stmtEditorInnerWrapper}>
+                    <div className={statementEditorClasses.statementExpressionTitle}>{label}<Toolbar /></div>
+                    <div className={statementEditorClasses.statementExpressionContent}>
+                        <StatementRenderer
+                            model={statementModel}
+                        />
+                    </div>
+                    <Diagnostics />
                 </div>
-                <Diagnostics/>
             </div>
             <div className={statementEditorClasses.suggestionsSection}>
-                <HelperPane/>
+                <HelperPane />
             </div>
         </div>
     );
