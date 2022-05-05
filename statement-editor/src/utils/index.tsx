@@ -125,7 +125,7 @@ export function getStatementTypeComponent(
 }
 
 export function getFormComponent(
-    type: string, model: STNode, targetPosition: NodePosition, onChange: (code: string) => void,
+    type: string, model: STNode, targetPosition: NodePosition, onChange: (code: string, partialST: STNode) => void,
     onCancel: () => void, getLangClient: () => Promise<ExpressionEditorLangClientInterface>, isEdit: boolean,
     applyModifications: (modifications: STModification[]) => void
 ): ReactNode {
