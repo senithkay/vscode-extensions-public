@@ -13,9 +13,11 @@
 // tslint:disable: no-empty jsx-no-multiline-js
 import React from 'react';
 
+import { LibraryKind, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
-import { StmtDiagnostic, SuggestionItem } from "../models/definitions";
+import { LowCodeEditorProps } from "../components/StatementEditorWrapper";
+import { EditorModel, StmtDiagnostic, SuggestionItem } from "../models/definitions";
 
 import { InputEditorContextProvider } from "./input-editor-context";
 
@@ -41,10 +43,40 @@ export const StatementEditorContext = React.createContext({
     modules: {
         modulesToBeImported: new Set(),
         updateModuleList: (module: string) => {}
-    }
+    },
+    formCtx: null,
+    config: {
+        type: ''
+    },
+    editorCtx: {
+        switchEditor: (index: number) => undefined,
+        updateEditor: (index: number, newContent: EditorModel) => undefined,
+        dropLastEditor: () => undefined,
+        addConfigurable: (newLabel: string, newPosition: NodePosition, newSource: string) => undefined,
+        activeEditorId: 0,
+        editors: []
+    },
+    getLangClient: () => (Promise.resolve({} as any)),
+    applyModifications: (modifications: STModification[]) => undefined,
+    library: {
+        getLibrariesList: (kind?: LibraryKind) => (Promise.resolve({} as any)),
+        getLibrariesData: () => (Promise.resolve({} as any)),
+        getLibraryData: (orgName: string, moduleName: string, version: string) => (Promise.resolve({} as any))
+    },
+    currentFile: {
+        content: "",
+        path: "",
+        size: 0
+    },
+    syntaxTree: null,
+    importStatements: [],
+    handleStmtEditorToggle: () => undefined,
+    onWizardClose: () => undefined,
+    onCancel: () => undefined,
+    experimentalEnabled: false
 });
 
-interface CtxProviderProps {
+interface CtxProviderProps extends LowCodeEditorProps {
     children?: React.ReactNode,
     model: STNode,
     currentModel: { model: STNode },
@@ -59,7 +91,16 @@ interface CtxProviderProps {
     hasUndo?: boolean,
     hasRedo?: boolean,
     diagnostics?: StmtDiagnostic[],
-    lsSuggestions?: SuggestionItem[]
+    lsSuggestions?: SuggestionItem[],
+    handleStmtEditorToggle: () => void,
+    editorManager: {
+        switchEditor?: (index: number) => void,
+        updateEditor?: (index: number, newContent: EditorModel) => void,
+        dropLastEditor?: () => void,
+        addConfigurable?: (newLabel: string, newPosition: NodePosition, newSource: string) => void,
+        activeEditorId?: number,
+        editors?: EditorModel[]
+    }
 }
 
 export const StatementEditorContextProvider = (props: CtxProviderProps) => {
@@ -79,6 +120,11 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
         initialSource,
         diagnostics,
         lsSuggestions,
+        editorManager,
+        config,
+        formArgs,
+        importStatements,
+        experimentalEnabled,
         ...restProps
     } = props;
 
@@ -107,6 +153,18 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
                     modulesToBeImported,
                     updateModuleList: handleModules
                 },
+                formCtx: formArgs,
+                config,
+                editorCtx: {
+                    switchEditor: editorManager.switchEditor,
+                    updateEditor: editorManager.updateEditor,
+                    dropLastEditor: editorManager.dropLastEditor,
+                    addConfigurable: editorManager.addConfigurable,
+                    activeEditorId: editorManager.activeEditorId,
+                    editors: editorManager.editors
+                },
+                importStatements,
+                experimentalEnabled,
                 ...restProps
             }}
         >

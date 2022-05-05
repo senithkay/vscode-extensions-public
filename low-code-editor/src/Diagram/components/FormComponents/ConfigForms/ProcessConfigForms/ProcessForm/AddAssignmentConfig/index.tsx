@@ -178,7 +178,6 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
             label: intl.formatMessage({ id: "lowcode.develop.configForms.assignment.statementEditor.label", defaultMessage: 'Assignment' }),
             initialSource,
             formArgs: { formArgs },
-            validForm,
             config,
             onWizardClose,
             handleStatementEditorChange,

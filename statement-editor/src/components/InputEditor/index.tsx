@@ -19,7 +19,6 @@ import debounce from "lodash.debounce";
 
 import { InputEditorContext } from "../../store/input-editor-context";
 import { StatementEditorContext } from "../../store/statement-editor-context";
-import { StatementEditorWrapperContext } from "../../store/statement-editor-wrapper-context";
 import { ModelType, StatementEditorViewState } from "../../utils/statement-editor-viewstate";
 import { useStatementEditorStyles } from "../styles";
 
@@ -38,15 +37,13 @@ export function InputEditor(props: InputEditorProps) {
     const { model, classNames, notEditable } = props;
 
     const {
-        formCtx: {
-            formModelPosition: targetPosition
-        }
-    } = useContext(StatementEditorWrapperContext);
-    const {
         modelCtx: {
             initialSource,
             updateModel,
             handleChange
+        },
+        formCtx: {
+            formModelPosition: targetPosition
         }
     } = useContext(StatementEditorContext);
 

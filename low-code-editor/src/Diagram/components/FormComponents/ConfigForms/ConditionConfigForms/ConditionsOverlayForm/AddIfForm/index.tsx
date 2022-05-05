@@ -274,7 +274,6 @@ export function AddIfForm(props: IfProps) {
             label: intl.formatMessage({ id: "lowcode.develop.configForms.if.statementEditor.label" }),
             initialSource,
             formArgs: { formArgs },
-            validForm,
             config: condition,
             onWizardClose,
             handleStatementEditorChange,

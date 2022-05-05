@@ -18,7 +18,6 @@ import { List, ListItem, ListItemIcon, ListItemText, Typography } from "@materia
 import { SuggestionItem } from "../../../models/definitions";
 import { InputEditorContext } from "../../../store/input-editor-context";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
-import { StatementEditorWrapperContext } from "../../../store/statement-editor-wrapper-context";
 import { getSuggestionIconStyle } from "../../../utils";
 import { acceptedCompletionKindForTypes } from "../../InputEditor/constants";
 import { useStatementEditorStyles } from "../../styles";
@@ -28,17 +27,15 @@ export function LSSuggestions() {
     const inputEditorCtx = useContext(InputEditorContext);
 
     const {
-        formCtx: {
-            formModelPosition
-        }
-    } = useContext(StatementEditorWrapperContext);
-    const {
         modelCtx: {
             currentModel,
             updateModel,
         },
         suggestionsCtx: {
             lsSuggestions
+        },
+        formCtx: {
+            formModelPosition
         }
     } = useContext(StatementEditorContext);
     const resourceAccessRegex = /.+\./gm;

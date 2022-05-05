@@ -32,7 +32,7 @@ import {
 import LibraryModuleIcon from "../../assets/icons/LibraryModuleIcon";
 import LibrarySearchIcon from "../../assets/icons/LibrarySearchIcon";
 import { LANG_LIBS_IDENTIFIER, STD_LIBS_IDENTIFIER } from "../../constants";
-import { StatementEditorWrapperContext } from "../../store/statement-editor-wrapper-context";
+import { StatementEditorContext } from "../../store/statement-editor-context";
 import { useStatementEditorStyles } from "../styles";
 
 import { LibrariesList } from "./LibrariesList";
@@ -59,7 +59,7 @@ export function LibraryBrowser(props: LibraryBrowserProps) {
             getLibrariesList,
             getLibrariesData
         }
-    } = useContext(StatementEditorWrapperContext);
+    } = useContext(StatementEditorContext);
 
     const [libraryBrowserMode, setLibraryBrowserMode] = useState(LibraryBrowserMode.LIB_LIST);
     const [keyword, setKeyword] = useState('');

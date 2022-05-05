@@ -20,23 +20,20 @@ import NavigateNextIcon from '@material-ui/icons/NavigateNext';
 
 import { EditorModel } from "../../models/definitions";
 import { StatementEditorContext } from "../../store/statement-editor-context";
-import { StatementEditorWrapperContext } from "../../store/statement-editor-wrapper-context";
 import { useStatementEditorStyles } from "../styles";
 
 export default function Breadcrumb() {
     const statementEditorClasses = useStatementEditorStyles();
     const {
+        modelCtx: {
+            statementModel,
+            currentModel
+        },
         editorCtx: {
             editors,
             switchEditor,
             updateEditor,
             activeEditorId
-        }
-    } = useContext(StatementEditorWrapperContext);
-    const {
-        modelCtx: {
-            statementModel,
-            currentModel
         }
     } = useContext(StatementEditorContext);
 

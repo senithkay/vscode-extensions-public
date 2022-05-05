@@ -22,15 +22,13 @@ import ToolbarRedoIcon from "../../assets/icons/ToolbarRedoIcon";
 import ToolbarUndoIcon from "../../assets/icons/ToolbarUndoIcon";
 import { ADD_CONFIGURABLE_LABEL, CONFIGURABLE_TYPE_BOOLEAN, CONFIGURABLE_TYPE_STRING } from "../../constants";
 import { StatementEditorContext } from "../../store/statement-editor-context";
-import { StatementEditorWrapperContext } from "../../store/statement-editor-wrapper-context";
-import {getModuleElementDeclPosition, getRemainingContent, isConfigAllowedTypeDesc, isNodeDeletable} from "../../utils";
+import { getModuleElementDeclPosition, getRemainingContent, isConfigAllowedTypeDesc, isNodeDeletable } from "../../utils";
 import { ModelType, StatementEditorViewState } from "../../utils/statement-editor-viewstate";
 import { useStatementEditorStyles } from "../styles";
 
 export default function Toolbar(){
     const statementEditorClasses = useStatementEditorStyles();
-    const { editorCtx, syntaxTree } = useContext(StatementEditorWrapperContext);
-    const { modelCtx } = useContext(StatementEditorContext);
+    const { modelCtx, editorCtx, syntaxTree } = useContext(StatementEditorContext);
     const {
         undo,
         redo,

@@ -127,7 +127,6 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
             label: intl.formatMessage({ id: "lowcode.develop.configForms.customStatement.statementEditor.label" }),
             initialSource: expression ? expression : "EXPRESSION",
             formArgs: { formArgs },
-            validForm: isFormValid,
             config,
             onWizardClose,
             handleStatementEditorChange,

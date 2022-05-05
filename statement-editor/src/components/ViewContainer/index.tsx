@@ -22,7 +22,6 @@ import { ModuleVarDecl, NodePosition } from "@wso2-enterprise/syntax-tree";
 
 import { EditorModel } from "../../models/definitions";
 import { StatementEditorContext } from "../../store/statement-editor-context";
-import { StatementEditorWrapperContext } from "../../store/statement-editor-wrapper-context";
 import { getModifications } from "../../utils";
 import { sendDidChange, sendDidClose } from "../../utils/ls-utils";
 import Breadcrumb from "../Breadcrumb";
@@ -34,21 +33,30 @@ import { useStatementEditorStyles } from "../styles";
 export interface ViewContainerProps {
     isStatementValid: boolean;
     isConfigurableStmt: boolean;
-    onWizardClose: () => void;
-    onCancel: () => void;
 }
 
 export function ViewContainer(props: ViewContainerProps) {
     const {
         isStatementValid,
-        isConfigurableStmt,
-        onWizardClose,
-        onCancel
+        isConfigurableStmt
     } = props;
     const intl = useIntl();
     const overlayClasses = useStatementEditorStyles();
-    const { currentFile, config, applyModifications, getLangClient } = useContext(StatementEditorWrapperContext);
     const {
+        currentFile,
+        config,
+        applyModifications,
+        getLangClient,
+        onCancel,
+        onWizardClose
+    } = useContext(StatementEditorContext);
+    const {
+        modelCtx: {
+            statementModel
+        },
+        modules: {
+            modulesToBeImported
+        },
         formCtx,
         editorCtx: {
             editors,
@@ -59,14 +67,6 @@ export function ViewContainer(props: ViewContainerProps) {
         syntaxTree,
         experimentalEnabled,
         handleStmtEditorToggle
-    } = useContext(StatementEditorWrapperContext);
-    const {
-        modelCtx: {
-            statementModel
-        },
-        modules: {
-            modulesToBeImported
-        }
     } =  useContext(StatementEditorContext);
     const exprSchemeURI = `expr://${currentFile.path}`;
     const fileSchemeURI = `file://${currentFile.path}`;

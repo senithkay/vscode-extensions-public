@@ -138,7 +138,6 @@ export function AddLogConfig(props: LogConfigProps) {
             label: intl.formatMessage({ id: "lowcode.develop.configForms.log.statementEditor.label" }),
             initialSource,
             formArgs: { formArgs },
-            validForm: !!isFormValid,
             config,
             onWizardClose,
             handleStatementEditorChange,

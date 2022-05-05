@@ -17,7 +17,6 @@ import { ConfigurableKeyword, FinalKeyword, ModuleVarDecl } from "@wso2-enterpri
 
 import { CUSTOM_CONFIG_TYPE } from "../../../constants";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
-import { StatementEditorWrapperContext } from "../../../store/statement-editor-wrapper-context";
 import { ExpressionComponent } from "../../Expression";
 import { TokenComponent } from "../../Token";
 
@@ -27,12 +26,12 @@ interface ModuleVarDeclProps {
 
 export function ModuleVarDeclC(props: ModuleVarDeclProps) {
     const { model } = props;
-    const { config } = useContext(StatementEditorWrapperContext);
     const {
         modelCtx: {
             currentModel,
             changeCurrentModel
-        }
+        },
+        config
     } = useContext(StatementEditorContext);
 
     if (!currentModel.model) {

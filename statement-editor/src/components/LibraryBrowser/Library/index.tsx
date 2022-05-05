@@ -17,7 +17,7 @@ import { ListItem, ListItemIcon, ListItemText, Typography } from "@material-ui/c
 import { LibraryDataResponse, LibraryInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import LibraryModuleIcon from "../../../assets/icons/LibraryModuleIcon";
-import { StatementEditorWrapperContext } from "../../../store/statement-editor-wrapper-context";
+import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { useStatementEditorStyles } from "../../styles";
 
 interface LibraryProps {
@@ -32,7 +32,7 @@ export function Library(props: LibraryProps) {
         library: {
             getLibraryData
         }
-    } = useContext(StatementEditorWrapperContext);
+    } = useContext(StatementEditorContext);
     const statementEditorClasses = useStatementEditorStyles();
     const { libraryInfo, key, libraryBrowsingHandler, libraryDataFetchingHandler } = props;
     const { id, orgName, version } = libraryInfo;

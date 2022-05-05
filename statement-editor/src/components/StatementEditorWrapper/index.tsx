@@ -25,7 +25,6 @@ import * as monaco from "monaco-editor";
 
 import { CUSTOM_CONFIG_TYPE } from "../../constants";
 import { EditorModel } from "../../models/definitions";
-import { StatementEditorWrapperContextProvider } from "../../store/statement-editor-wrapper-context";
 import { getUpdatedSource } from "../../utils";
 import { getPartialSTForModuleMembers, getPartialSTForStatement, sendDidOpen } from "../../utils/ls-utils";
 import { StmtEditorUndoRedoManager } from "../../utils/undo-redo";
@@ -45,25 +44,27 @@ export interface LowCodeEditorProps {
         getLibrariesData: () => Promise<LibrarySearchResponse>;
         getLibraryData: (orgName: string, moduleName: string, version: string) => Promise<LibraryDataResponse>;
     };
-    syntaxTree: STNode;
-    importStatements?: string[];
-    experimentalEnabled?: boolean;
-}
-
-export interface StatementEditorWrapperProps extends LowCodeEditorProps {
-    label: string;
-    initialSource: string;
     formArgs: any;
     config: {
         type: string;
         model?: STNode;
     };
-    validForm?: boolean;
     onWizardClose: () => void;
     onCancel: () => void;
+    syntaxTree: STNode;
+    importStatements?: string[];
+    experimentalEnabled?: boolean;
+}
+
+export interface FormHandlingProps extends LowCodeEditorProps {
     handleStatementEditorChange?: (partialModel: STNode) => void;
     onStmtEditorModelChange?: (partialModel: STNode) => void;
     handleStmtEditorToggle?: () => void;
+}
+
+export interface StatementEditorWrapperProps extends FormHandlingProps {
+    label: string;
+    initialSource: string;
 }
 
 export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
@@ -174,15 +175,21 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
         editor
             ? (
                 <>
-                    <StatementEditorWrapperContextProvider
+                    <StatementEditor
+                        editor={editor}
+                        editorManager={{
+                            switchEditor,
+                            updateEditor,
+                            dropLastEditor,
+                            addConfigurable,
+                            activeEditorId,
+                            editors
+                        }}
+                        onWizardClose={onWizardClose}
+                        onCancel={onCancel}
+                        onStmtEditorModelChange={onStmtEditorModelChange}
                         config={config}
                         formArgs={formArgs}
-                        switchEditor={switchEditor}
-                        updateEditor={updateEditor}
-                        dropLastEditor={dropLastEditor}
-                        addConfigurable={addConfigurable}
-                        activeEditorId={activeEditorId}
-                        editors={editors}
                         getLangClient={getLangClient}
                         applyModifications={applyModifications}
                         currentFile={currentFile}
@@ -191,14 +198,7 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
                         syntaxTree={syntaxTree}
                         experimentalEnabled={experimentalEnabled}
                         handleStmtEditorToggle={handleStmtEditorToggle}
-                    >
-                        <StatementEditor
-                            editor={editor}
-                            onWizardClose={onWizardClose}
-                            onCancel={onCancel}
-                            onStmtEditorModelChange={onStmtEditorModelChange}
-                        />
-                    </StatementEditorWrapperContextProvider>
+                    />
                 </>
             )
             : (

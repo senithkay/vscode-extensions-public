@@ -254,7 +254,6 @@ export function AddForeachForm(props: ForeachProps) {
             label: intl.formatMessage({ id: "lowcode.develop.configForms.forEach.statementEditor.label" }),
             initialSource,
             formArgs: { formArgs },
-            validForm: isValidExpression,
             config: condition,
             onWizardClose,
             handleStatementEditorChange,

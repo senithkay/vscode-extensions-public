@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import * as monaco from "monaco-editor";
@@ -25,7 +25,6 @@ import {
     SuggestionItem
 } from "../../models/definitions";
 import { StatementEditorContextProvider} from "../../store/statement-editor-context";
-import { StatementEditorWrapperContext } from "../../store/statement-editor-wrapper-context";
 import {
     addToTargetPosition,
     enrichModel,
@@ -44,10 +43,19 @@ import {
 } from "../../utils/ls-utils";
 import { StatementEditorViewState } from "../../utils/statement-editor-viewstate";
 import { EXPR_SCHEME, FILE_SCHEME } from "../InputEditor/constants";
+import { FormHandlingProps as StmtEditorWrapperProps} from "../StatementEditorWrapper";
 import { ViewContainer } from "../ViewContainer";
 
-export interface StatementEditorProps {
+export interface StatementEditorProps extends StmtEditorWrapperProps {
     editor: EditorModel;
+    editorManager: {
+        switchEditor: (index: number) => void;
+        updateEditor: (index: number, newContent: EditorModel) => void;
+        dropLastEditor: () => void;
+        addConfigurable: (newLabel: string, newPosition: NodePosition, newSource: string) => void;
+        activeEditorId: number;
+        editors: EditorModel[];
+    };
     onWizardClose: () => void;
     onCancel: () => void;
     onStmtEditorModelChange?: (partialModel: STNode) => void;
@@ -58,7 +66,18 @@ export function StatementEditor(props: StatementEditorProps) {
         editor,
         onCancel,
         onWizardClose,
-        onStmtEditorModelChange
+        onStmtEditorModelChange,
+        editorManager,
+        formArgs,
+        config,
+        getLangClient,
+        applyModifications,
+        library,
+        currentFile,
+        syntaxTree,
+        importStatements,
+        experimentalEnabled,
+        handleStmtEditorToggle
     } = props;
 
     const {
@@ -71,16 +90,10 @@ export function StatementEditor(props: StatementEditorProps) {
         newConfigurableName
     } = editor;
     const {
-        currentFile,
-        config,
-        importStatements,
-        editorCtx: {
-            editors,
-            activeEditorId,
-            updateEditor
-        },
-        getLangClient
-    } = useContext(StatementEditorWrapperContext);
+        editors,
+        activeEditorId,
+        updateEditor
+    } = editorManager;
 
     const fileURI = monaco.Uri.file(currentFile.path).toString().replace(FILE_SCHEME, EXPR_SCHEME);
 
@@ -293,12 +306,23 @@ export function StatementEditor(props: StatementEditorProps) {
                     hasUndo={undoRedoManager.hasUndo()}
                     diagnostics={stmtDiagnostics}
                     lsSuggestions={lsSuggestionsList}
+                    editorManager={editorManager}
+                    config={config}
+                    formArgs={formArgs}
+                    getLangClient={getLangClient}
+                    applyModifications={applyModifications}
+                    currentFile={currentFile}
+                    library={library}
+                    importStatements={importStatements}
+                    syntaxTree={syntaxTree}
+                    experimentalEnabled={experimentalEnabled}
+                    onWizardClose={onWizardClose}
+                    onCancel={onCancel}
+                    handleStmtEditorToggle={handleStmtEditorToggle}
                 >
                     <ViewContainer
                         isStatementValid={!stmtDiagnostics.length}
                         isConfigurableStmt={isConfigurableStmt}
-                        onWizardClose={onWizardClose}
-                        onCancel={onCancel}
                     />
                 </StatementEditorContextProvider>
             </>

@@ -174,7 +174,6 @@ export function AddRespondForm(props: RespondFormProps) {
             label: intl.formatMessage({ id: "lowcode.develop.configForms.respond.statementEditor.label" }),
             initialSource,
             formArgs: { formArgs },
-            validForm,
             config,
             onWizardClose,
             handleStatementEditorChange,
