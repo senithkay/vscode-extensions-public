@@ -6,7 +6,7 @@ import { FunctionDefinition, STKindChecker, STNode, traversNode } from '@wso2-en
 import { visitor as FunctionFindingVisitor } from "../visitors/function-finding-vistor"
 
 import stList from "./data/syntaxTreeList.json";
-import { StatementEditorWrapper } from './statementEditorWrapper';
+import { StatementEditorWrapperStoryWrapper } from './statementEditorWrapperStoryWrapper';
 
 Object.entries(stList).forEach(([file, syntaxTree]) => {
   FunctionFindingVisitor.setFunctionsNull();
@@ -21,8 +21,8 @@ Object.entries(stList).forEach(([file, syntaxTree]) => {
         functionDefintion.functionName.value + "_" + functionBody.statements[0].kind,
         () => {
           return (
-            <StatementEditorWrapper  statement={functionBody.statements[0]} file={file} />
-            );
+            <StatementEditorWrapperStoryWrapper statement={functionBody.statements[0]} file={file} />
+          );
         }
       );
     }

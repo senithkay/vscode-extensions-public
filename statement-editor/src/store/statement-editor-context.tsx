@@ -76,7 +76,7 @@ export const StatementEditorContext = React.createContext({
     experimentalEnabled: false
 });
 
-interface CtxProviderProps extends LowCodeEditorProps {
+export interface CtxProviderProps extends LowCodeEditorProps {
     children?: React.ReactNode,
     model: STNode,
     currentModel: { model: STNode },

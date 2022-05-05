@@ -13,12 +13,12 @@
 // tslint:disable: jsx-no-multiline-js
 import React from 'react';
 
-
 import { Toolbar } from '@material-ui/core';
-import { FunctionDefinition, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
+import { FunctionDefinition, NodePosition, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 
 import { StatementRenderer } from '../components/StatementRenderer';
 import { useStatementEditorStyles } from '../components/styles';
+import { EditorModel } from "../models/definitions";
 import { CtxProviderProps, StatementEditorContextProvider } from '../store/statement-editor-context';
 import { visitor  as StatementFindingVisitor} from '../visitors/statement-finding-vistor';
 
@@ -68,30 +68,46 @@ export function StatementRendererWrapper(props: StatementRendererWrapperrProps) 
 function getStatementEditorContextProps(statement: any): CtxProviderProps {
 
     return {
-      model: statement,
-      currentModel: {
-        model: statement
-      },
-      initialSource: statement.source,
-      formArgs: {
-        formArgs: statement
-      },
-      handleChange: (arg: any) => null,
-      getLangClient: async () =>  {
-          const ls = await langClientPromise;
-          await ls.onReady();
-          return ls
+        model: statement,
+        currentModel: {
+            model: statement
         },
-      applyModifications: (arg: any) => null,
-      currentFile: {
-        content: "",
-        path: "",
-        size: 10
-      },
-      library: {
-        getLibrariesList: () => Promise.resolve(undefined),
-        getLibrariesData: () => Promise.resolve(undefined),
-        getLibraryData: () => Promise.resolve(undefined),
-      }
+        initialSource: statement.source,
+        formArgs: {
+            formArgs: statement
+        },
+        handleChange: (arg: any) => null,
+        getLangClient: async () =>  {
+            const ls = await langClientPromise;
+            await ls.onReady();
+            return ls
+        },
+        applyModifications: (arg: any) => null,
+        currentFile: {
+            content: "",
+            path: "",
+            size: 10
+        },
+        library: {
+            getLibrariesList: () => Promise.resolve(undefined),
+            getLibrariesData: () => Promise.resolve(undefined),
+            getLibraryData: () => Promise.resolve(undefined),
+        },
+        onCancel: () => null,
+        onWizardClose: () => null,
+        config: {
+            type: statement.kind,
+            model: statement
+        },
+        syntaxTree: null,
+        editorManager: {
+            activeEditorId: 0,
+            addConfigurable: (newLabel: string, newPosition: NodePosition, newSource: string) => null,
+            dropLastEditor: () => null,
+            editors: [],
+            switchEditor: (index: number) => null,
+            updateEditor: (index: number, newContent: EditorModel) => null
+        },
+        handleStmtEditorToggle: () => null
     }
 }
