@@ -127,6 +127,7 @@ export const useStatementEditorDiagnosticStyles = makeStyles(() =>
     createStyles({
         diagnosticsPane: {
             color: '#ea4c4d',
+            paddingTop: '13px',
             "& .MuiList-padding": {
                 padding: '0px'
             },
@@ -305,13 +306,14 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
         },
         librarySearchSubHeader: {
             color: '#1D2028',
-            margin: '0px',
-            fontWeight: 'bold'
+            margin: '0 0 4px 0',
+            fontWeight: 500
         },
         expressionList: {
             columnGap: '6%',
             display: 'grid',
             gridTemplateColumns: '47% 47%',
+            padding: 0,
             "& .MuiListItem-root": {
                 margin: '0 0 8px 0',
                 padding: '0'
@@ -326,6 +328,12 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             height: '100%',
             overflowY: 'scroll',
             overflowX: 'hidden',
+            "& .MuiListItem-root": {
+                padding: '4px 0 4px 0'
+            },
+            "& .MuiIconButton-root": {
+                padding: '0'
+            }
         },
         libraryBrowserHeader: {
             display: 'flex',
@@ -344,17 +352,19 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             marginBottom: '2px',
         },
         libraryReturnIcon: {
-            padding: '0px',
+            alignSelf: 'center',
             '&:hover': {
                 backgroundColor: '#F0F1FB',
             },
             '&:focus': {
                 backgroundColor: 'rgba(204,209,242,0.61)'
+            },
+            margin: '0 10px 16px 0',
+            "& .MuiSvgIcon-root": {
+                fontSize: '13px',
             }
         },
         arrowBack: {
-            fontSize: '17px',
-            lineHeight: '24px',
             color: '#5567D5'
         },
         libraryModuleIcon: {
@@ -367,10 +377,6 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             display: 'grid',
             gridTemplateColumns: '47% 47%',
             padding: '0px',
-            "& .MuiListItem-root": {
-                margin: '0 0 8px 0',
-                padding: '0'
-            },
         },
         libraryElementBlockContent: {
             padding: '0px',
@@ -421,7 +427,7 @@ export const useStatementEditorStyles = makeStyles(() =>
             backgroundColor: '#f9fafc',
             display: 'flex',
             flexDirection: 'column',
-            padding: "18px 0px 34px 0px",
+            padding: "18px 0px 20px 0px",
             borderBottom: '1px solid #e6e7ec'
         },
         statementExpressionTitle: {

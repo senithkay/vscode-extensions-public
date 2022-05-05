@@ -162,12 +162,6 @@ export function LibraryBrowser(props: LibraryBrowserProps) {
                         <IconButton onClick={onClickOnReturnIcon} className={stmtEditorHelperClasses.libraryReturnIcon}>
                             <ArrowBack className={stmtEditorHelperClasses.arrowBack}/>
                         </IconButton>
-                        {moduleTitle && (
-                            <div className={stmtEditorHelperClasses.libraryModuleIcon}>
-                                <LibraryModuleIcon/>
-                            </div>
-                        )}
-                        <div className={stmtEditorHelperClasses.moduleTitle}>{moduleTitle}</div>
                     </>
                 )}
                 <FormControl style={{width: 'inherit', marginRight: '10px'}}>
