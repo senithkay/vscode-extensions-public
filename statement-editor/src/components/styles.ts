@@ -45,6 +45,7 @@ export const useStatementEditorToolbarStyles = makeStyles(() =>
         toolbarSet: {
             border: '1px solid #e6e7ec',
             borderRadius: '8px',
+            display: 'flex',
             flexDirection: 'row',
             marginRight: '16px'
         },
@@ -54,6 +55,13 @@ export const useStatementEditorToolbarStyles = makeStyles(() =>
                 backgroundColor: '#F0F1FB',
             }
         },
+        undoRedoSeparator: {
+            height: '32px',
+            width: '1px',
+            borderRadius: '5px',
+            backgroundColor: '#FFFFFF',
+            boxShadow: 'inset 0 0 0 1px #E6E7EC'
+          }
     }),
 );
 
@@ -94,7 +102,7 @@ export const useStatementRendererStyles = makeStyles(() =>
         },
         expressionElementSelected: {
             '&': {
-                backgroundColor: '#b3d9ff',
+                backgroundColor: '#ccd1f29c',
             },
             '&.hovered': {
                 backgroundColor: '#e5ebf1',
@@ -398,8 +406,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
         libraryElementBlock: {
             top: '5%',
             display: 'flex',
-            flexDirection: 'column',
-            paddingBottom: '25px'
+            flexDirection: 'column'
         },
         libraryElementBlockLabel: {
             height: '10%',
@@ -434,13 +441,13 @@ export const useStatementEditorStyles = makeStyles(() =>
             backgroundColor: '#f9fafc',
             display: 'flex',
             flexDirection: 'column',
-            padding: "11px 0px 20px 0px",
+            padding: "11px 0px 8px 0px",
             borderBottom: '1px solid #e6e7ec'
         },
         statementExpressionTitle: {
             display: 'flex',
             alignItems: 'center',
-            paddingBottom: '20px',
+            paddingBottom: '15px',
             fontWeight: 500
         },
         statementExpressionName: {
@@ -449,6 +456,7 @@ export const useStatementEditorStyles = makeStyles(() =>
         statementExpressionContent: {
             fontSize: "15px",
             'user-select': 'none',
+            fontFamily: 'Droid sans mono'
         },
         statementBtnWrapper: {
             height: 'auto',

@@ -17,7 +17,7 @@ import { List } from "@material-ui/core";
 import { ModuleProperty } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import classNames from "classnames";
 
-import { useStmtEditorHelperPanelStyles } from "../../styles";
+import { useStmtEditorHelperPanelStyles, useStatementEditorStyles } from "../../styles";
 import { ModuleElement } from "../ModuleElement";
 
 interface SearchCategoryProps {
@@ -27,6 +27,7 @@ interface SearchCategoryProps {
 
 export function SearchCategory(props: SearchCategoryProps) {
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
+    const statementEditorClasses = useStatementEditorStyles();
     const { label, searchResult } = props;
 
     return (
@@ -49,6 +50,7 @@ export function SearchCategory(props: SearchCategoryProps) {
                     />
                 ))}
             </List>
+            <div className={statementEditorClasses.separatorLine} />
         </div>
     );
 }

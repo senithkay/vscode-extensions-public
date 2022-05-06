@@ -60,6 +60,7 @@ export default function Toolbar() {
                 >
                     <ToolbarUndoIcon />
                 </IconButton>
+                <div className={statementEditorClasses.undoRedoSeparator} />
                 <IconButton
                     onClick={redo}
                     disabled={!hasRedo}
