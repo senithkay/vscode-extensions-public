@@ -16,7 +16,8 @@ import {
     CompletionResponse,
     getDiagnosticMessage,
     getFilteredDiagnostics,
-    STModification
+    STModification,
+    STSymbolInfo
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     Minutiae,
@@ -31,6 +32,7 @@ import * as expressionTypeComponents from '../components/ExpressionTypes';
 import { INPUT_EDITOR_PLACE_HOLDERS } from "../components/InputEditor/constants";
 import * as statementTypeComponents from '../components/Statements';
 import {
+    CUSTOM_CONFIG_TYPE,
     END_OF_LINE_MINUTIAE,
     OTHER_EXPRESSION,
     OTHER_STATEMENT,
@@ -47,71 +49,22 @@ import { visitor as ModelTypeSetupVisitor } from "../visitors/model-type-setup-v
 import { viewStateSetupVisitor as ViewStateSetupVisitor } from "../visitors/view-state-setup-visitor";
 
 import { ModelType, StatementEditorViewState } from "./statement-editor-viewstate";
-import { createImportStatement, createStatement, updateStatement } from "./statement-modifications";
+import { getImportModification, getStatementModification } from "./statement-modifications";
 
-export function getModifications(
-        model: STNode,
-        config: {
-            type: string;
-            model?: STNode;
-        },
-        formArgs: any,
-        syntaxTree?: STNode,
-        modulesToBeImported?: string[],
-        lineOffset: number = 0): STModification[] {
+export function getModifications(model: STNode, configType: string, targetPosition: NodePosition,
+                                 modulesToBeImported?: string[]): STModification[] {
 
     const modifications: STModification[] = [];
     let source = model.source;
 
-    if (STKindChecker.isModuleVarDecl(model)) {
-        const position = getModuleElementDeclPosition(syntaxTree);
-        modifications.push(createStatement(source, position));
+    if (configType === CUSTOM_CONFIG_TYPE && source.trim().slice(-1) !== ';') {
+        source += ';';
     }
-
-    if (STKindChecker.isLocalVarDecl(model) ||
-            STKindChecker.isCallStatement(model) ||
-            STKindChecker.isReturnStatement(model) ||
-            STKindChecker.isAssignmentStatement(model) ||
-            (config && config.type === 'Custom')) {
-        if (STKindChecker.isCallStatement(model) && model.source.slice(-1) !== ';') {
-            source += ';';
-        }
-        if (config.model) {
-            modifications.push(updateStatement(source, {
-                ...formArgs.formArgs?.model.position,
-                startLine: formArgs.formArgs?.model.position.startLine + lineOffset,
-                endLine: formArgs.formArgs?.model.position.endLine + lineOffset
-            }));
-        } else {
-            modifications.push(createStatement(source, {
-                ...formArgs.formArgs?.targetPosition,
-                startLine: formArgs.formArgs?.targetPosition.startLine + lineOffset,
-                endLine: formArgs.formArgs?.targetPosition.endLine + lineOffset
-            }));
-        }
-    }
-
-    if (STKindChecker.isWhileStatement(model) ||
-            STKindChecker.isIfElseStatement(model) ||
-            STKindChecker.isForeachStatement(model)) {
-        if (!formArgs.formArgs?.config) {
-            modifications.push(createStatement(source, {
-                ...formArgs.formArgs?.targetPosition,
-                startLine: formArgs.formArgs?.targetPosition.startLine + lineOffset,
-                endLine: formArgs.formArgs?.targetPosition.endLine + lineOffset
-            }));
-        } else {
-            modifications.push(updateStatement(source, {
-                ...config.model.position,
-                startLine: config.model.position.startLine + lineOffset,
-                endLine: config.model.position.endLine + lineOffset
-            }));
-        }
-    }
+    modifications.push(getStatementModification(source, targetPosition));
 
     if (modulesToBeImported) {
         modulesToBeImported.map((moduleNameStr: string) => {
-            modifications.push(createImportStatement(moduleNameStr));
+            modifications.push(getImportModification(moduleNameStr));
         });
     }
 
@@ -381,8 +334,7 @@ export function getModuleElementDeclPosition(syntaxTree: STNode): NodePosition {
         endColumn: 0,
     };
     if (STKindChecker.isModulePart(syntaxTree) && syntaxTree.imports.length > 0) {
-        const lastImportPosition =
-            syntaxTree.imports[syntaxTree.imports.length - 1].position;
+        const lastImportPosition = syntaxTree.imports[syntaxTree.imports.length - 1].position;
         position.startLine = lastImportPosition?.endLine + 1;
         position.endLine = lastImportPosition?.endLine + 1;
     }
@@ -417,6 +369,15 @@ export function isConfigAllowedTypeDesc(typeDescNode: STNode): boolean {
         && !STKindChecker.isTableTypeDesc(typeDescNode)
         && !STKindChecker.isVarTypeDesc(typeDescNode)
     );
+}
+
+export function getExistingConfigurable(selectedModel: STNode, stSymbolInfo: STSymbolInfo): STNode {
+    const currentModelSource = selectedModel.source ? selectedModel.source.trim() : selectedModel.value.trim();
+    const isExistingConfigurable = stSymbolInfo.configurables.has(currentModelSource);
+    if (isExistingConfigurable) {
+        return stSymbolInfo.configurables.get(currentModelSource);
+    }
+    return undefined;
 }
 
 export function getModuleIconStyle(label: string): string {

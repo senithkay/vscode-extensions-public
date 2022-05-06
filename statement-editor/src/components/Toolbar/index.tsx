@@ -14,7 +14,7 @@
 import React, { useContext, useMemo } from "react";
 
 import IconButton from "@material-ui/core/IconButton";
-import { STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
 import ToolbarConfigurableIcon from "../../assets/icons/ToolbarConfigurableIcon";
 import ToolbarDeleteIcon from "../../assets/icons/ToolbarDeleteIcon";
@@ -27,7 +27,13 @@ import {
     CONFIGURABLE_TYPE_STRING
 } from "../../constants";
 import { StatementEditorContext } from "../../store/statement-editor-context";
-import { getModuleElementDeclPosition, getRemainingContent, isConfigAllowedTypeDesc, isNodeDeletable } from "../../utils";
+import {
+    getExistingConfigurable,
+    getModuleElementDeclPosition,
+    getRemainingContent,
+    isConfigAllowedTypeDesc,
+    isNodeDeletable
+} from "../../utils";
 import { ModelType, StatementEditorViewState } from "../../utils/statement-editor-viewstate";
 import { useStatementEditorStyles } from "../styles";
 
@@ -77,13 +83,9 @@ export default function Toolbar(){
             source: completeModel.source,
             selectedNodePosition: currentModel.model.position
         });
-        const currentModelSource = currentModel.model.source
-            ? currentModel.model.source.trim()
-            : currentModel.model.value.trim();
-
-        const isExistingConfigurable = stSymbolInfo.configurables.has(currentModelSource);
-        if (isExistingConfigurable) {
-            fetchExistingConfigurable();
+        const existingConfigurable = getExistingConfigurable(currentModel.model, stSymbolInfo);
+        if (existingConfigurable) {
+            editExistingConfigurable(existingConfigurable);
         } else {
             createNewConfigurable();
         }
@@ -107,10 +109,10 @@ export default function Toolbar(){
         addConfigurable(ADD_CONFIGURABLE_LABEL, configurableInsertPosition, configurableStmt);
     }
 
-    const fetchExistingConfigurable = () => {
-        const configurableInsertPosition = getModuleElementDeclPosition(syntaxTree);
-        const configurableStmt = `configurable string EXISTING_CONF = ?;`;
-        addConfigurable(ADD_CONFIGURABLE_LABEL, configurableInsertPosition, configurableStmt);
+    const editExistingConfigurable = (confModel: STNode) => {
+        const configurableInsertPosition = confModel.position;
+        const configurableStmt = confModel.source;
+        addConfigurable(ADD_CONFIGURABLE_LABEL, configurableInsertPosition, configurableStmt, true);
     }
 
     return(
