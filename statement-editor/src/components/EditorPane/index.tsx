@@ -40,7 +40,10 @@ export function EditorPane(props: ModelProps) {
         <div>
             <div className={statementEditorClasses.stmtEditorContentWrapper}>
                 <div className={statementEditorClasses.stmtEditorInnerWrapper}>
-                    <div className={statementEditorClasses.statementExpressionTitle}>{label}<Toolbar /></div>
+                    <div className={statementEditorClasses.statementExpressionTitle}>
+                        <div className={statementEditorClasses.statementExpressionName}> {label} </div>
+                        <Toolbar />
+                    </div>
                     <div className={statementEditorClasses.statementExpressionContent}>
                         <StatementRenderer
                             model={statementModel}

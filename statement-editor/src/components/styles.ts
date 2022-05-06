@@ -38,15 +38,13 @@ const syntaxHighlightingRules = {
 export const useStatementEditorToolbarStyles = makeStyles(() =>
     createStyles({
         toolbar: {
-            right: '13px',
-            top: '60px',
             border: '1px solid #e6e7ec',
             borderRadius: '8px',
-            marginLeft: '30px',
-            backgroundColor: '#ffffff'
+            backgroundColor: '#ffffff',
+            marginRight: '16px',
+            flexDirection: 'row',
         },
         toolbarIcons: {
-            padding: '5px',
             '&:hover': {
                 backgroundColor: '#F0F1FB',
             }
@@ -135,6 +133,9 @@ export const useStatementEditorDiagnosticStyles = makeStyles(() =>
                 margin: '0px'
             }
         },
+        diagnosticsErrorIcon: {
+            padding: '4px 6px 0 0'
+        },
     }),
 );
 
@@ -143,9 +144,10 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
         tabPanelWrapper: {
             width: 'auto',
             height: '48px',
-            boxShadow: '0px 1px 1px -1px rgb(0 0 0 / 20%), 0px 1px 1px 0px rgb(0 0 0 / 14%), 0px 1px 3px 0px rgb(0 0 0 / 12%)',
+            // boxShadow: '0px 1px 1px -1px rgb(0 0 0 / 20%), 0px 1px 1px 0px rgb(0 0 0 / 14%), 0px 1px 3px 0px rgb(0 0 0 / 12%)',
             display: 'flex',
-            flexDirection: 'row'
+            flexDirection: 'row',
+            marginRight: '20px'
         },
         tabPanel: {
             width: '70%'
@@ -435,6 +437,9 @@ export const useStatementEditorStyles = makeStyles(() =>
             alignItems: 'center',
             paddingBottom: '20px',
             fontWeight: 500
+        },
+        statementExpressionName: {
+            marginRight: '400px'
         },
         statementExpressionContent: {
             fontSize: "15px",
