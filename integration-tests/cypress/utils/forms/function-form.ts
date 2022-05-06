@@ -5,18 +5,38 @@ export class FunctionForm {
     private static selector = '[data-testid="function-form"]';
 
     static typeFunctionName(fnName: string) {
-        this.getForm().wait(1000);
+        const typeInput = `{selectall}${fnName}`;
         this.getForm()
             .get('[data-testid="function-name"]')
-            .type(fnName);
+            .type(typeInput);
+        this.getForm().wait(1000);
         return this;
     }
 
     static typeReturnType(retType: string) {
-        this.getForm().wait(1000);
+        const typeInput = `{selectall}${retType}`;
         this.getForm()
             .get('[data-testid="return-type"]')
-            .type(retType);
+            .type(typeInput);
+        this.getForm().wait(1000);
+        return this;
+    }
+
+    static typeParamType(type: string) {
+        const typeInput = `{selectall}${type}`;
+        this.getForm()
+            .get('[data-testid="function-param-type"]')
+            .type(typeInput);
+        this.getForm().wait(1000);
+        return this;
+    }
+
+    static typeParamName(name: string) {
+        const clearKeyStroke = `{selectall}${name}`;
+        this.getForm()
+            .get('[data-testid="function-param-name"]')
+            .type(clearKeyStroke);
+        this.getForm().wait(1000);
         return this;
     }
 
@@ -33,7 +53,6 @@ export class FunctionForm {
     }
 
     static save() {
-        this.getForm().wait(1000);
         this.getForm()
             .contains("Save")
             .should('be.enabled', { timeout: 5000 })
@@ -65,8 +84,7 @@ export class FunctionForm {
             .click();
         FunctionForm.fillParameterForm(type, name);
         this.getForm()
-            .get('button')
-            .contains("Add")
+            .get('[data-testid="param-save-btn"]')
             .click();
 
         return this;
@@ -78,7 +96,7 @@ export class FunctionForm {
             .contains(parameter)
             .parent()
             .click();
-        FunctionForm.fillParameterForm(type, name);
+        FunctionForm.updateParameterForm(type, name);
         this.getForm()
             .get('button')
             .contains("Update")
@@ -89,15 +107,15 @@ export class FunctionForm {
     }
 
     private static fillParameterForm(type: string, name: string) {
-        ExpressionEditor
-            .getForField("Param Type", this.selector)
-            .clear()
-            .type(type)
-            .waitForValidations();
-        cy.get(`.MuiFormControl-root[data-testid="api-function-param-name"] .MuiInput-input`)
-            .clear()
-            .type(name);
+        FunctionForm.typeParamType(type);
+        FunctionForm.typeParamName(name);
 
+        return this;
+    }
+
+    private static updateParameterForm(type: string, name: string) {
+        FunctionForm.typeParamType(type);
+        FunctionForm.typeParamName(name);
         return this;
     }
 

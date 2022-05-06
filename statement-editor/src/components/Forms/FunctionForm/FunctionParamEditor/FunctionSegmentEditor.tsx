@@ -22,6 +22,7 @@ import {
     RequiredParam,
     RestParam
 } from "@wso2-enterprise/syntax-tree";
+import debounce from "lodash.debounce";
 
 import { StmtDiagnostic } from "../../../../models/definitions";
 import { FormEditorField } from "../../Types";
@@ -85,6 +86,7 @@ export function FunctionParamSegmentEditor(props: FunctionParamSegmentEditorProp
             type: {value, isInteracted: true}
         });
     };
+    const debouncedTypeChange = debounce(handleOnTypeChange, 500);
     const handleOnNameChange = (value: string) => {
         setSegmentName({value, isInteracted: true});
         setCurrentComponentName("Name");
@@ -94,9 +96,10 @@ export function FunctionParamSegmentEditor(props: FunctionParamSegmentEditorProp
             type: {value: segmentType.value, isInteracted: true}
         });
     };
+    const debouncedNameChange = debounce(handleOnNameChange, 500);
 
     return (
-        <div className={classes.functionParamEditorWrap}>
+        <div className={classes.functionParamEditorWrap} >
             <div>
                 <Grid container={true} spacing={1}>
                     <Grid item={true} xs={5}>
@@ -115,7 +118,7 @@ export function FunctionParamSegmentEditor(props: FunctionParamSegmentEditorProp
                         <FormTextInput
                             dataTestId="function-param-type"
                             defaultValue={(segmentType.isInteracted || isEdit) ? segmentType.value : ""}
-                            onChange={handleOnTypeChange}
+                            onChange={debouncedTypeChange}
                             placeholder={"string"}
                             customProps={{
                                 optional: true,
@@ -133,7 +136,7 @@ export function FunctionParamSegmentEditor(props: FunctionParamSegmentEditorProp
                         <FormTextInput
                             dataTestId="function-param-name"
                             defaultValue={(segmentName.isInteracted || isEdit) ? segmentName.value : ""}
-                            onChange={handleOnNameChange}
+                            onChange={debouncedNameChange}
                             placeholder={"name"}
                             customProps={{
                                 optional: true,
