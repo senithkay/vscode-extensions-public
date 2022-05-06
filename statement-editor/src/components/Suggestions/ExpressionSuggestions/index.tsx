@@ -107,7 +107,7 @@ export function ExpressionSuggestions() {
                                                 <ListItemText
                                                     title={expression.name}
                                                     primary={(
-                                                        <Typography>
+                                                        <Typography style={{ fontFamily: 'monospace' }}>
                                                             {expression.example}
                                                         </Typography>
                                                     )}
