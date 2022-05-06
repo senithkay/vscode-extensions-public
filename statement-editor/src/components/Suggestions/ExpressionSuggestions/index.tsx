@@ -22,10 +22,11 @@ import LibrarySearchIcon from "../../../assets/icons/LibrarySearchIcon";
 import { InputEditorContext } from "../../../store/input-editor-context";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { Expression, ExpressionGroup, expressions, SELECTED_EXPRESSION } from "../../../utils/expressions";
-import { useStmtEditorHelperPanelStyles } from "../../styles";
+import { useStmtEditorHelperPanelStyles, useStatementEditorStyles } from "../../styles";
 
 export function ExpressionSuggestions() {
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
+    const statementEditorClasses = useStatementEditorStyles();
     const inputEditorCtx = useContext(InputEditorContext);
     const [keyword, setKeyword] = useState('');
     const [filteredExpressions, setFilteredExpressions] = useState(expressions);
@@ -115,6 +116,7 @@ export function ExpressionSuggestions() {
                                         ))
                                     }
                                 </List>
+                                <div className={statementEditorClasses.separatorLine} />
                             </>
                         ))}
                     </>

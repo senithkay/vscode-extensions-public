@@ -64,6 +64,9 @@ export function HelperPane() {
                     )}
                 </div>
             </div>
+            <div className={statementEditorClasses.stmtEditorInnerWrapper}>
+                <div className={statementEditorClasses.separatorLine} />
+            </div>
             <div className={stmtEditorHelperClasses.suggestionsInner}>
                 <div className={statementEditorClasses.stmtEditorInnerWrapper}>
                     {selectedTab === TabElements.suggestions && <LSSuggestions />}

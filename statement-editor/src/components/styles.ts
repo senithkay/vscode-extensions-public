@@ -38,13 +38,18 @@ const syntaxHighlightingRules = {
 export const useStatementEditorToolbarStyles = makeStyles(() =>
     createStyles({
         toolbar: {
+            display: 'flex',
+            flexDirection: 'row',
+            marginLeft: '15px'
+        },
+        toolbarSet: {
             border: '1px solid #e6e7ec',
             borderRadius: '8px',
-            backgroundColor: '#ffffff',
-            marginRight: '16px',
             flexDirection: 'row',
+            marginRight: '16px'
         },
         toolbarIcons: {
+            padding: '8px',
             '&:hover': {
                 backgroundColor: '#F0F1FB',
             }
@@ -160,8 +165,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
         },
         suggestionsInner: {
             overflowY: 'scroll',
-            height: '100%',
-            paddingTop: '16px',
+            height: '100%'
         },
         selectDropDownSe: {
             height: '32px',
@@ -312,9 +316,9 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             fontWeight: 500
         },
         expressionList: {
-            columnGap: '6%',
+            columnGap: '5%',
             display: 'grid',
-            gridTemplateColumns: '47% 47%',
+            gridTemplateColumns: '28% 28% 28%',
             padding: 0,
             "& .MuiListItem-root": {
                 margin: '0 0 8px 0',
@@ -331,7 +335,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             overflowY: 'scroll',
             overflowX: 'hidden',
             "& .MuiListItem-root": {
-                padding: '4px 0 4px 0'
+                padding: '6px 0 6px 0'
             },
             "& .MuiIconButton-root": {
                 padding: '0'
@@ -375,9 +379,9 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
         libraryListBlock: {
             paddingRight: '5px',
             paddingBottom: '8px',
-            columnGap: '6%',
+            columnGap: '5%',
             display: 'grid',
-            gridTemplateColumns: '47% 47%',
+            gridTemplateColumns: '28% 28% 28%',
             padding: '0px',
         },
         libraryElementBlockContent: {
@@ -413,7 +417,8 @@ export const useStatementEditorStyles = makeStyles(() =>
         },
         stmtEditorInnerWrapper: {
             paddingLeft: '25px',
-            fontSize: '13px'
+            fontSize: '13px',
+            fontFamily: 'Gilmer'
         },
         statementExpressionWrapper: {
             height: 'auto',
@@ -429,7 +434,7 @@ export const useStatementEditorStyles = makeStyles(() =>
             backgroundColor: '#f9fafc',
             display: 'flex',
             flexDirection: 'column',
-            padding: "18px 0px 20px 0px",
+            padding: "11px 0px 20px 0px",
             borderBottom: '1px solid #e6e7ec'
         },
         statementExpressionTitle: {
@@ -463,5 +468,12 @@ export const useStatementEditorStyles = makeStyles(() =>
             width: '100%',
             zIndex: 100,
         },
+        separatorLine: {
+            height: '1px',
+            width: '645px',
+            opacity: '0.52',
+            backgroundColor: '#DCDEE4',
+            marginBottom: '15px'
+        }
     }),
 );
