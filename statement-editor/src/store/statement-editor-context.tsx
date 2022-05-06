@@ -69,6 +69,7 @@ export const StatementEditorContext = React.createContext({
         size: 0
     },
     syntaxTree: null,
+    stSymbolInfo: null,
     importStatements: [],
     handleStmtEditorToggle: () => undefined,
     onWizardClose: () => undefined,

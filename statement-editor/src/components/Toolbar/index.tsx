@@ -20,7 +20,12 @@ import ToolbarConfigurableIcon from "../../assets/icons/ToolbarConfigurableIcon"
 import ToolbarDeleteIcon from "../../assets/icons/ToolbarDeleteIcon";
 import ToolbarRedoIcon from "../../assets/icons/ToolbarRedoIcon";
 import ToolbarUndoIcon from "../../assets/icons/ToolbarUndoIcon";
-import { ADD_CONFIGURABLE_LABEL, CONFIGURABLE_TYPE_BOOLEAN, CONFIGURABLE_TYPE_STRING } from "../../constants";
+import {
+    ADD_CONFIGURABLE_LABEL,
+    CONFIGURABLE_NAME_CONSTRUCTOR,
+    CONFIGURABLE_TYPE_BOOLEAN,
+    CONFIGURABLE_TYPE_STRING
+} from "../../constants";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { getModuleElementDeclPosition, getRemainingContent, isConfigAllowedTypeDesc, isNodeDeletable } from "../../utils";
 import { ModelType, StatementEditorViewState } from "../../utils/statement-editor-viewstate";
@@ -28,7 +33,7 @@ import { useStatementEditorStyles } from "../styles";
 
 export default function Toolbar(){
     const statementEditorClasses = useStatementEditorStyles();
-    const { modelCtx, editorCtx, syntaxTree } = useContext(StatementEditorContext);
+    const { modelCtx, editorCtx, syntaxTree, stSymbolInfo } = useContext(StatementEditorContext);
     const {
         undo,
         redo,
@@ -66,6 +71,25 @@ export default function Toolbar(){
     }
 
     const onClickOnConfigurable = () => {
+        updateEditor(activeEditorId, {
+            ...editors[activeEditorId],
+            model: completeModel,
+            source: completeModel.source,
+            selectedNodePosition: currentModel.model.position
+        });
+        const currentModelSource = currentModel.model.source
+            ? currentModel.model.source.trim()
+            : currentModel.model.value.trim();
+
+        const isExistingConfigurable = stSymbolInfo.configurables.has(currentModelSource);
+        if (isExistingConfigurable) {
+            fetchExistingConfigurable();
+        } else {
+            createNewConfigurable();
+        }
+    }
+
+    const createNewConfigurable = () => {
         const configurableInsertPosition = getModuleElementDeclPosition(syntaxTree);
         let configurableType = CONFIGURABLE_TYPE_STRING;
 
@@ -78,15 +102,14 @@ export default function Toolbar(){
             configurableType = CONFIGURABLE_TYPE_BOOLEAN;
         }
 
-        const configurableStmt = `configurable ${configurableType} CONF_NAME = ?;`;
+        const configurableStmt = `configurable ${configurableType} ${CONFIGURABLE_NAME_CONSTRUCTOR} = ?;`;
 
-        updateEditor(activeEditorId, {
-            ...editors[activeEditorId],
-            model: completeModel,
-            source: completeModel.source,
-            selectedNodePosition: currentModel.model.position
-        });
+        addConfigurable(ADD_CONFIGURABLE_LABEL, configurableInsertPosition, configurableStmt);
+    }
 
+    const fetchExistingConfigurable = () => {
+        const configurableInsertPosition = getModuleElementDeclPosition(syntaxTree);
+        const configurableStmt = `configurable string EXISTING_CONF = ?;`;
         addConfigurable(ADD_CONFIGURABLE_LABEL, configurableInsertPosition, configurableStmt);
     }
 
