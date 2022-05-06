@@ -119,7 +119,8 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
         });
     };
 
-    const addConfigurable = async (newLabel: string, newPosition: NodePosition, newSource: string) => {
+    const addConfigurable = async (newLabel: string, newPosition: NodePosition,
+                                   newSource: string, isExistingStmt: boolean = false) => {
         const partialST = await getPartialSTForModuleMembers(
             {codeSnippet: newSource.trim()}, getLangClient);
 
@@ -129,7 +130,8 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
             source: newSource,
             position: newPosition,
             undoRedoManager: new StmtEditorUndoRedoManager(),
-            isConfigurableStmt: true
+            isConfigurableStmt: true,
+            isExistingStmt
         };
         setEditors((prevEditors: EditorModel[]) => {
             return [...prevEditors, newEditor];

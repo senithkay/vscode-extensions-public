@@ -45,14 +45,12 @@ export const StatementEditorContext = React.createContext({
         updateModuleList: (module: string) => {}
     },
     formCtx: null,
-    config: {
-        type: ''
-    },
+    config: null,
     editorCtx: {
         switchEditor: (index: number) => undefined,
         updateEditor: (index: number, newContent: EditorModel) => undefined,
         dropLastEditor: () => undefined,
-        addConfigurable: (newLabel: string, newPosition: NodePosition, newSource: string) => undefined,
+        addConfigurable: (newLabel: string, newPosition: NodePosition, newSource: string, isExistingStmt?: boolean) => undefined,
         activeEditorId: 0,
         editors: []
     },
