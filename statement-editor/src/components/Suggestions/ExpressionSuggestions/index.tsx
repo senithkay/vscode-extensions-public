@@ -22,7 +22,7 @@ import LibrarySearchIcon from "../../../assets/icons/LibrarySearchIcon";
 import { InputEditorContext } from "../../../store/input-editor-context";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { Expression, ExpressionGroup, expressions, SELECTED_EXPRESSION } from "../../../utils/expressions";
-import { useStmtEditorHelperPanelStyles, useStatementEditorStyles } from "../../styles";
+import { useStatementEditorStyles, useStmtEditorHelperPanelStyles } from "../../styles";
 
 export function ExpressionSuggestions() {
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();

@@ -16,7 +16,7 @@ import React, { useState } from "react";
 import { ALL_LIBS_IDENTIFIER, LANG_LIBS_IDENTIFIER, STD_LIBS_IDENTIFIER } from "../../constants";
 import SelectDropdown from "../Dropdown";
 import { LibraryBrowser } from "../LibraryBrowser";
-import { useStmtEditorHelperPanelStyles, useStatementEditorStyles } from "../styles";
+import { useStatementEditorStyles, useStmtEditorHelperPanelStyles } from "../styles";
 import { ExpressionSuggestions } from "../Suggestions/ExpressionSuggestions";
 import { LSSuggestions } from "../Suggestions/LangServerSuggestions";
 import TabPanel from "../Tab";

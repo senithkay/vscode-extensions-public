@@ -9,7 +9,7 @@
  * this license, please see the license as well as any agreement you’ve
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
- */useStatementRendererStyles
+ */
 import React, { useContext } from "react";
 
 import { AsteriskToken,

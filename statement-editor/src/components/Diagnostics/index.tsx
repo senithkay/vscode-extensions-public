@@ -15,10 +15,10 @@ import React, { useContext } from "react";
 
 import { List, ListItemText, Typography } from "@material-ui/core";
 
+import DiagnosticsErrorIcon from "../../assets/icons/DiagnosticsErrorIcon";
 import { StmtDiagnostic } from "../../models/definitions";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { useStatementEditorDiagnosticStyles } from "../styles";
-import DiagnosticsErrorIcon from "../../assets/icons/DiagnosticsErrorIcon";
 
 export function Diagnostics() {
     const statementEditorDiagnosticClasses = useStatementEditorDiagnosticStyles();
@@ -38,7 +38,7 @@ export function Diagnostics() {
                             <ListItemText
                                 key={index}
                                 primary={(
-                                    <Typography style={{ display: 'flex', flexDirection: 'row' }}> 
+                                    <Typography style={{ display: 'flex', flexDirection: 'row' }}>
                                         <div className={statementEditorDiagnosticClasses.diagnosticsErrorIcon}>
                                             <DiagnosticsErrorIcon />
                                         </div>

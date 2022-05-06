@@ -17,7 +17,7 @@ import { List } from "@material-ui/core";
 import { ModuleProperty } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import classNames from "classnames";
 
-import { useStmtEditorHelperPanelStyles, useStatementEditorStyles } from "../../styles";
+import { useStatementEditorStyles, useStmtEditorHelperPanelStyles } from "../../styles";
 import { ModuleElement } from "../ModuleElement";
 
 interface SearchCategoryProps {
