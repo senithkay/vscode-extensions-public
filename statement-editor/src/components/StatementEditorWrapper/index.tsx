@@ -18,7 +18,8 @@ import {
     LibraryDataResponse,
     LibraryDocResponse,
     LibrarySearchResponse,
-    STModification
+    STModification,
+    STSymbolInfo
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import * as monaco from "monaco-editor";
@@ -52,6 +53,7 @@ export interface LowCodeEditorProps {
     onWizardClose: () => void;
     onCancel: () => void;
     syntaxTree: STNode;
+    stSymbolInfo: STSymbolInfo;
     importStatements?: string[];
     experimentalEnabled?: boolean;
 }
@@ -81,6 +83,7 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
         library,
         currentFile,
         syntaxTree,
+        stSymbolInfo,
         importStatements,
         experimentalEnabled,
         handleStmtEditorToggle
@@ -195,6 +198,7 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
                         library={library}
                         importStatements={importStatements}
                         syntaxTree={syntaxTree}
+                        stSymbolInfo={stSymbolInfo}
                         experimentalEnabled={experimentalEnabled}
                         handleStmtEditorToggle={handleStmtEditorToggle}
                     />

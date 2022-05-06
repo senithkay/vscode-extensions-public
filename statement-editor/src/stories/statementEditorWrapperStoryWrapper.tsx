@@ -73,6 +73,7 @@ function getStatementEditorWrapperProps(statement: STNode, file: string,
         },
         onWizardClose: () => null,
         syntaxTree: null,
+        stSymbolInfo: null,
         getLangClient: async () =>  {
             const ls = await langClientPromise;
             await ls.onReady();

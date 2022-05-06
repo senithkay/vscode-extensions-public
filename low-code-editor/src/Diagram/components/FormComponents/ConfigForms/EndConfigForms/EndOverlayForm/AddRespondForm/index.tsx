@@ -45,6 +45,7 @@ export function AddRespondForm(props: RespondFormProps) {
             isMutationProgress: isMutationInProgress,
             currentFile,
             syntaxTree,
+            stSymbolInfo,
             importStatements,
             experimentalEnabled
         },
@@ -183,6 +184,7 @@ export function AddRespondForm(props: RespondFormProps) {
             applyModifications: modifyDiagram,
             library,
             syntaxTree,
+            stSymbolInfo,
             importStatements,
             experimentalEnabled
         }

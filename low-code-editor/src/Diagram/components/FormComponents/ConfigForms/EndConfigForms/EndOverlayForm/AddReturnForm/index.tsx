@@ -40,6 +40,7 @@ export function AddReturnForm(props: ReturnFormProps) {
             isMutationProgress: isMutationInProgress,
             currentFile,
             syntaxTree,
+            stSymbolInfo,
             importStatements,
             experimentalEnabled
         },
@@ -135,6 +136,7 @@ export function AddReturnForm(props: ReturnFormProps) {
             applyModifications: modifyDiagram,
             library,
             syntaxTree,
+            stSymbolInfo,
             importStatements,
             experimentalEnabled
         }

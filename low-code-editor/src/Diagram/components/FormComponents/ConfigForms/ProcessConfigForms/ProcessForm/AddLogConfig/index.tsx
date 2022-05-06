@@ -47,6 +47,7 @@ export function AddLogConfig(props: LogConfigProps) {
             isMutationProgress: isMutationInProgress,
             currentFile,
             syntaxTree,
+            stSymbolInfo,
             importStatements,
             experimentalEnabled
         },
@@ -147,6 +148,7 @@ export function AddLogConfig(props: LogConfigProps) {
             applyModifications: modifyDiagram,
             library,
             syntaxTree,
+            stSymbolInfo,
             importStatements,
             experimentalEnabled
         }

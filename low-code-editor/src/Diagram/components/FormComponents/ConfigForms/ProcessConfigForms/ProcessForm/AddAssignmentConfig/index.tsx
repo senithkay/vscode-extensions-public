@@ -44,6 +44,7 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
             isMutationProgress: isMutationInProgress,
             currentFile,
             syntaxTree,
+            stSymbolInfo,
             importStatements,
             experimentalEnabled
         },
@@ -187,6 +188,7 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
             applyModifications: modifyDiagram,
             library,
             syntaxTree,
+            stSymbolInfo,
             importStatements,
             experimentalEnabled
         }

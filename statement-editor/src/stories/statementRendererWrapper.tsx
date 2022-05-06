@@ -100,6 +100,7 @@ function getStatementEditorContextProps(statement: any): CtxProviderProps {
             model: statement
         },
         syntaxTree: null,
+        stSymbolInfo: null,
         editorManager: {
             activeEditorId: 0,
             addConfigurable: (newLabel: string, newPosition: NodePosition, newSource: string) => null,

@@ -75,6 +75,7 @@ export function StatementEditor(props: StatementEditorProps) {
         library,
         currentFile,
         syntaxTree,
+        stSymbolInfo,
         importStatements,
         experimentalEnabled,
         handleStmtEditorToggle
@@ -315,6 +316,7 @@ export function StatementEditor(props: StatementEditorProps) {
                     library={library}
                     importStatements={importStatements}
                     syntaxTree={syntaxTree}
+                    stSymbolInfo={stSymbolInfo}
                     experimentalEnabled={experimentalEnabled}
                     onWizardClose={onWizardClose}
                     onCancel={onCancel}

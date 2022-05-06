@@ -292,6 +292,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
             applyModifications: modifyDiagram,
             library,
             syntaxTree,
+            stSymbolInfo,
             importStatements,
             experimentalEnabled
         }

@@ -44,6 +44,7 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
         props: {
             isMutationProgress: isMutationInProgress,
             currentFile,
+            stSymbolInfo,
             syntaxTree,
             importStatements,
             experimentalEnabled
@@ -136,6 +137,7 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
             applyModifications: modifyDiagram,
             library,
             syntaxTree,
+            stSymbolInfo,
             importStatements,
             experimentalEnabled
         }
