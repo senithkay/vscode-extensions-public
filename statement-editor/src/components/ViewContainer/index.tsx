@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import { useIntl } from "react-intl";
 
 import {
@@ -57,21 +57,17 @@ export function ViewContainer(props: ViewContainerProps) {
         modules: {
             modulesToBeImported
         },
-        formCtx,
         editorCtx: {
             editors,
             dropLastEditor,
             updateEditor,
             activeEditorId
         },
-        syntaxTree,
         experimentalEnabled,
         handleStmtEditorToggle
     } =  useContext(StatementEditorContext);
     const exprSchemeURI = `expr://${currentFile.path}`;
     const fileSchemeURI = `file://${currentFile.path}`;
-
-    const [lineOffset, setLineOffset] = useState<number>(0);
 
     const saveButtonText = intl.formatMessage({
         id: "lowcode.develop.configForms.statementEditor.saveButton.text",
@@ -104,27 +100,36 @@ export function ViewContainer(props: ViewContainerProps) {
 
         const model = statementModel as ModuleVarDecl;
 
-        const noOfLines = model.source.split('\n').length;
+        const noOfLines = editors[activeEditorId].isExistingStmt ? 0 : model.source.split('\n').length;
+        const originalEditor: EditorModel = editors[0];
         const nextEditor: EditorModel = editors[activeEditorId - 1];
-        const nextEditorPosition: NodePosition = {
-            ...nextEditor.position,
-            startLine: nextEditor.position.startLine + noOfLines,
-            endLine: nextEditor.position.endLine + noOfLines
+        const originalEditorPosition: NodePosition = {
+            ...originalEditor.position,
+            startLine: originalEditor.position.startLine + noOfLines,
+            endLine: originalEditor.position.endLine + noOfLines
         };
 
-        updateEditor(activeEditorId - 1, {
-            ...nextEditor,
-            position: nextEditorPosition,
-            newConfigurableName : model.typedBindingPattern.bindingPattern.source
-        });
+        if (editors.length > 2) {
+            // Update the position property of the original editor
+            updateEditor(0, {
+                ...originalEditor,
+                position: originalEditorPosition,
+            });
+            // Add newConfigurableName to the next editor
+            updateEditor(activeEditorId - 1, {
+                ...nextEditor,
+                newConfigurableName : model.typedBindingPattern.bindingPattern.source
+            });
+        } else {
+            // Update the position property and newConfigurableName of the remaining(original) editor
+            updateEditor(0, {
+                ...originalEditor,
+                position: originalEditorPosition,
+                newConfigurableName : model.typedBindingPattern.bindingPattern.source
+            });
+        }
 
         dropLastEditor();
-
-        setLineOffset((prevLineOffset: number) => {
-            return prevLineOffset + noOfLines;
-        });
-
-        await sendDidClose(fileSchemeURI, getLangClient);
     };
 
     const onBackClick = async () => {
@@ -138,10 +143,11 @@ export function ViewContainer(props: ViewContainerProps) {
     };
 
     const handleModifications = async () => {
+        const targetPosition = editors[activeEditorId].position;
         await sendDidClose(exprSchemeURI, getLangClient);
         await sendDidChange(fileSchemeURI, currentFile.content, getLangClient);
-        const modifications = getModifications(statementModel, config, formCtx,
-            syntaxTree, Array.from(modulesToBeImported) as string[], lineOffset);
+        const imports = Array.from(modulesToBeImported) as string[];
+        const modifications = getModifications(statementModel, config.type, targetPosition, imports);
         applyModifications(modifications);
     };
 
