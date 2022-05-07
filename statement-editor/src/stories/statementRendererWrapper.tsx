@@ -24,20 +24,20 @@ import { visitor  as StatementFindingVisitor} from '../visitors/statement-findin
 
 import { langClientPromise } from './story-utils';
 
-export interface StatementRendererWrapperrProps {
+export interface StatementRendererWrapperProps {
     functions: FunctionDefinition[];
 }
 
-export function StatementRendererWrapper(props: StatementRendererWrapperrProps) {
+export function StatementRendererWrapper(props: StatementRendererWrapperProps) {
     const { functions } = props;
     const statementEditorClasses = useStatementEditorStyles();
     const statementDict:  { [functionName: string]: STNode[]} = {}
 
-    functions.forEach((functionDefintion: FunctionDefinition) => {
+    functions.forEach((functionDefinition: FunctionDefinition) => {
       StatementFindingVisitor.setStatementsNull();
-      traversNode(functionDefintion, StatementFindingVisitor);
+      traversNode(functionDefinition, StatementFindingVisitor);
       const statements: STNode[] = StatementFindingVisitor.getStatements();
-      statementDict[functionDefintion.functionName.value] = statements;
+      statementDict[functionDefinition.functionName.value] = statements;
     })
 
     return (
