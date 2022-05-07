@@ -40,9 +40,7 @@ export function InputEditor(props: InputEditorProps) {
             updateModel,
             handleChange
         },
-        formCtx: {
-            formModelPosition: targetPosition
-        }
+        targetPosition,
     } = useContext(StatementEditorContext);
 
     const inputEditorCtx = useContext(InputEditorContext);

@@ -34,9 +34,7 @@ export function LSSuggestions() {
         suggestionsCtx: {
             lsSuggestions
         },
-        formCtx: {
-            formModelPosition
-        }
+        targetPosition
     } = useContext(StatementEditorContext);
     const resourceAccessRegex = /.+\./gm;
 
@@ -53,7 +51,7 @@ export function LSSuggestions() {
             }
             variable = variable.split('(')[0] + "(" + paramArray.toString() + ")";
         }
-        updateModel(variable, currentModel ? currentModel.model.position : formModelPosition);
+        updateModel(variable, currentModel ? currentModel.model.position : targetPosition);
         inputEditorCtx.onInputChange('');
     }
 

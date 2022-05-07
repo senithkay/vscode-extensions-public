@@ -51,7 +51,7 @@ export interface StatementEditorProps extends StmtEditorWrapperProps {
     editorManager: {
         switchEditor: (index: number) => void;
         updateEditor: (index: number, newContent: EditorModel) => void;
-        dropLastEditor: () => void;
+        dropLastEditor: (offset?: number) => void;
         addConfigurable: (newLabel: string, newPosition: NodePosition, newSource: string) => void;
         activeEditorId: number;
         editors: EditorModel[];
@@ -308,6 +308,7 @@ export function StatementEditor(props: StatementEditorProps) {
                     diagnostics={stmtDiagnostics}
                     lsSuggestions={lsSuggestionsList}
                     editorManager={editorManager}
+                    targetPosition={targetPosition}
                     config={config}
                     formArgs={formArgs}
                     getLangClient={getLangClient}

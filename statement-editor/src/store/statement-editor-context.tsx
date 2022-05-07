@@ -46,10 +46,11 @@ export const StatementEditorContext = React.createContext({
     },
     formCtx: null,
     config: null,
+    targetPosition: null,
     editorCtx: {
         switchEditor: (index: number) => undefined,
         updateEditor: (index: number, newContent: EditorModel) => undefined,
-        dropLastEditor: () => undefined,
+        dropLastEditor: (offset?: number) => undefined,
         addConfigurable: (newLabel: string, newPosition: NodePosition, newSource: string, isExistingStmt?: boolean) => undefined,
         activeEditorId: 0,
         editors: []
@@ -95,11 +96,12 @@ export interface CtxProviderProps extends LowCodeEditorProps {
     editorManager: {
         switchEditor?: (index: number) => void,
         updateEditor?: (index: number, newContent: EditorModel) => void,
-        dropLastEditor?: () => void,
+        dropLastEditor?: (offset?: number) => void,
         addConfigurable?: (newLabel: string, newPosition: NodePosition, newSource: string) => void,
         activeEditorId?: number,
         editors?: EditorModel[]
-    }
+    },
+    targetPosition: NodePosition
 }
 
 export const StatementEditorContextProvider = (props: CtxProviderProps) => {
@@ -120,6 +122,7 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
         diagnostics,
         lsSuggestions,
         editorManager,
+        targetPosition,
         config,
         formArgs,
         importStatements,
@@ -162,6 +165,7 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
                     activeEditorId: editorManager.activeEditorId,
                     editors: editorManager.editors
                 },
+                targetPosition,
                 importStatements,
                 experimentalEnabled,
                 ...restProps

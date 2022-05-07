@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { storiesOf } from '@storybook/react';
-import { FunctionDefinition, STKindChecker, STNode, traversNode } from '@wso2-enterprise/syntax-tree';
+import { FunctionDefinition, STKindChecker, traversNode } from '@wso2-enterprise/syntax-tree';
 
 import { visitor as FunctionFindingVisitor } from "../visitors/function-finding-vistor"
 

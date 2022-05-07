@@ -46,9 +46,7 @@ export function ModuleElement(props: ModuleElementProps) {
         modules: {
             updateModuleList
         },
-        formCtx: {
-            formModelPosition
-        },
+        targetPosition,
         library: {
             getLibraryData
         }
@@ -83,7 +81,7 @@ export function ModuleElement(props: ModuleElementProps) {
         }
         setClickedModuleElement('');
         updateModuleList(getFQModuleName(moduleOrgName, moduleId));
-        updateModel(content, currentModel.model ? currentModel.model.position : formModelPosition);
+        updateModel(content, currentModel.model ? currentModel.model.position : targetPosition);
     }
 
     const circularProgress = (

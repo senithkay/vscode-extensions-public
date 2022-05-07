@@ -100,9 +100,21 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
     const [editors, setEditors] = useState<EditorModel[]>([]);
     const [editor, setEditor] = useState<EditorModel>();
     const [activeEditorId, setActiveEditorId] = useState<number>(0);
+    const [lineOffset, setLineOffset] = useState<number>(0);
 
     const switchEditor = (index: number) => {
-        setEditor(editors[index]);
+        const switchedEditor = editors[index];
+        const position: NodePosition = {
+            ...switchedEditor.position,
+            startLine: switchedEditor.position.startLine
+                + ((switchedEditor.isExistingStmt || !switchedEditor.isConfigurableStmt) && lineOffset),
+            endLine: switchedEditor.position.endLine
+                + ((switchedEditor.isExistingStmt || !switchedEditor.isConfigurableStmt) && lineOffset)
+        };
+        setEditor({
+            ...switchedEditor,
+            position
+        });
         setActiveEditorId(index);
     };
 
@@ -113,7 +125,12 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
         });
     };
 
-    const dropLastEditor = () => {
+    const dropLastEditor = (offset?: number) => {
+        if (!!offset) {
+            setLineOffset((prevOffset: number) => {
+                return prevOffset + offset;
+            });
+        }
         setEditors((prevEditors: EditorModel[]) => {
             return prevEditors.slice(0, -1);
         });
@@ -170,10 +187,11 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
     }, []);
 
     useEffect(() => {
-        const editorIndex = editors.length - 1;
-        setEditor(editors[editorIndex]);
-        setActiveEditorId(editorIndex);
-    }, [editors]);
+        if (!!editors.length) {
+            const lastEditorIndex = editors.length - 1;
+            switchEditor(lastEditorIndex);
+        }
+    }, [editors, lineOffset]);
 
     return (
         editor
