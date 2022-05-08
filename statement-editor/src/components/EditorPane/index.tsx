@@ -15,6 +15,7 @@ import React, { useContext } from "react";
 
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { Diagnostics } from "../Diagnostics";
+import { InlineDocumentation } from "../Documentation/InlineDocumentation";
 import { HelperPane } from "../HelperPane";
 import { StatementRenderer } from "../StatementRenderer";
 import { useStatementEditorStyles } from "../styles";
@@ -33,7 +34,8 @@ export function EditorPane(props: ModelProps) {
     const {
         modelCtx: {
             statementModel
-        }
+        },
+        documentation
     } = stmtCtx;
 
     return (
@@ -45,6 +47,10 @@ export function EditorPane(props: ModelProps) {
                         model={statementModel}
                     />
                 </div>
+                {documentation &&
+                    !(documentation.documentation === undefined) &&  (
+                        <InlineDocumentation/>
+                )}
                 <Diagnostics/>
             </div>
             <div className={statementEditorClasses.suggestionsSection}>
