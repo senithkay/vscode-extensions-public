@@ -100,20 +100,11 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
     const [editors, setEditors] = useState<EditorModel[]>([]);
     const [editor, setEditor] = useState<EditorModel>();
     const [activeEditorId, setActiveEditorId] = useState<number>(0);
-    const [lineOffset, setLineOffset] = useState<number>(0);
 
     const switchEditor = (index: number) => {
         const switchedEditor = editors[index];
-        const position: NodePosition = {
-            ...switchedEditor.position,
-            startLine: switchedEditor.position.startLine
-                + ((switchedEditor.isExistingStmt || !switchedEditor.isConfigurableStmt) && lineOffset),
-            endLine: switchedEditor.position.endLine
-                + ((switchedEditor.isExistingStmt || !switchedEditor.isConfigurableStmt) && lineOffset)
-        };
         setEditor({
-            ...switchedEditor,
-            position
+            ...switchedEditor
         });
         setActiveEditorId(index);
     };
@@ -125,14 +116,17 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
         });
     };
 
-    const dropLastEditor = (offset?: number) => {
-        if (!!offset) {
-            setLineOffset((prevOffset: number) => {
-                return prevOffset + offset;
-            });
-        }
+    const dropLastEditor = (offset: number = 0) => {
         setEditors((prevEditors: EditorModel[]) => {
-            return prevEditors.slice(0, -1);
+            const remainingEditors = prevEditors.slice(0, -1);
+            remainingEditors.map((e: EditorModel) => {
+                e.position = {
+                    ...e.position,
+                    startLine: e.position.startLine + ((e.isExistingStmt || !e.isConfigurableStmt) && offset),
+                    endLine: e.position.endLine + ((e.isExistingStmt || !e.isConfigurableStmt) && offset)
+                };
+            });
+            return remainingEditors;
         });
     };
 
@@ -191,7 +185,7 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
             const lastEditorIndex = editors.length - 1;
             switchEditor(lastEditorIndex);
         }
-    }, [editors, lineOffset]);
+    }, [editors]);
 
     return (
         editor
