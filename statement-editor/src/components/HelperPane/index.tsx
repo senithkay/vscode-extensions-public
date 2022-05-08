@@ -16,6 +16,7 @@ import React, { useState } from "react";
 import { ALL_LIBS_IDENTIFIER, LANG_LIBS_IDENTIFIER, STD_LIBS_IDENTIFIER } from "../../constants";
 import SelectDropdown from "../Dropdown";
 import { LibraryBrowser } from "../LibraryBrowser";
+import { Parameters } from "../Parameters";
 import { useStatementEditorStyles } from "../styles";
 import { ExpressionSuggestions } from "../Suggestions/ExpressionSuggestions";
 import { LSSuggestions } from "../Suggestions/LangServerSuggestions";
@@ -25,6 +26,7 @@ enum TabElements {
     suggestions = 'Suggestions',
     expressions = 'Expressions',
     libraries = 'Libraries',
+    parameters = 'Parameters'
 }
 
 export function HelperPane() {
@@ -46,7 +48,7 @@ export function HelperPane() {
             <div className={statementEditorClasses.tabPanelWrapper}>
                 <div className={statementEditorClasses.tabPanel}>
                     <TabPanel
-                        values={[TabElements.suggestions, TabElements.expressions, TabElements.libraries]}
+                        values={[TabElements.suggestions, TabElements.expressions, TabElements.libraries, TabElements.parameters]}
                         defaultValue={TabElements.suggestions}
                         onSelection={onTabElementSelection}
                     />
@@ -65,6 +67,7 @@ export function HelperPane() {
                 {selectedTab === TabElements.suggestions && <LSSuggestions />}
                 {selectedTab === TabElements.expressions && <ExpressionSuggestions />}
                 {selectedTab === TabElements.libraries && <LibraryBrowser libraryType={libraryType} />}
+                {selectedTab === TabElements.parameters && <Parameters />}
             </div>
         </>
     );
