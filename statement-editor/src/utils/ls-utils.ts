@@ -15,7 +15,7 @@ import {
     CompletionResponse,
     ExpressionEditorLangClientInterface,
     PartialSTRequest,
-    PublishDiagnosticsParams
+    PublishDiagnosticsParams, SymbolInfoResponse
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     NodePosition,
@@ -29,7 +29,7 @@ import {
 } from "../components/InputEditor/constants";
 import { CurrentModel, SuggestionItem } from '../models/definitions';
 
-import { sortSuggestions } from "./index";
+import { getSymbolPosition, sortSuggestions } from "./index";
 import { ModelType, StatementEditorViewState } from "./statement-editor-viewstate";
 
 export async function getPartialSTForStatement(
@@ -167,3 +167,22 @@ export async function getDiagnostics(
     return diagnostics;
 }
 
+export async function getSymbolDocumentation(
+    docUri: string,
+    targetPosition: NodePosition,
+    currentModel: CurrentModel,
+    getLangClient: () => Promise<ExpressionEditorLangClientInterface>,
+    userInput: string = ''): Promise<SymbolInfoResponse> {
+    const langClient = await getLangClient();
+    const symbolPos = getSymbolPosition(targetPosition, currentModel, userInput);
+    const symbolDoc = await  langClient.getSymbolDocumentation({
+        textDocumentIdentifier : {
+            uri: docUri
+        },
+        position: {
+            line: symbolPos.line,
+            character: symbolPos.offset
+        }
+    });
+    return symbolDoc;
+}

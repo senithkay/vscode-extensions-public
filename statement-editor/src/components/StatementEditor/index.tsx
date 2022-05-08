@@ -42,7 +42,7 @@ import {
 } from "../../utils";
 import {
     getCompletions,
-    getDiagnostics,
+    getDiagnostics, getHoverDocumentation,
     getPartialSTForStatement,
     sendDidChange,
     sendDidOpen
@@ -166,6 +166,7 @@ export function StatementEditor(props: StatementEditorProps) {
                     sendDidChange(fileURI, content, getLangClient).then();
                     lsSuggestions = await getCompletions(fileURI, targetPosition, model,
                         currentModel, getLangClient);
+                    const hoverDoc = await getHoverDocumentation(fileURI, targetPosition, currentModel, getLangClient);
                 }
                 setLSSuggestionsList(lsSuggestions);
             }
