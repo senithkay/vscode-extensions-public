@@ -70,7 +70,8 @@ enum EXTENDED_APIS {
     NOTEBOOK_RESULT = "balShell/getResult",
     NOTEBOOK_FILE_SOURCE = "balShell/getShellFileSource",
     NOTEBOOK_RESTART = "balShell/restartNotebook",
-    NOTEBOOK_VARIABLES = "balShell/getVariableValues"
+    NOTEBOOK_VARIABLES = "balShell/getVariableValues",
+    NOTEBOOK_DELETE_DCLNS = "balShell/deleteDeclarations"
 }
 
 enum EXTENDED_APIS_ORG {
@@ -161,10 +162,16 @@ export interface NoteBookCellOutputValue {
     type: number;
 }
 
+export interface NotebookCellMetaInfo {
+    definedVars: string[];
+    moduleDclns: string[];
+}
+
 export interface NoteBookCellOutputResponse {
     shellValue?: NoteBookCellOutputValue;
     errors: string[];
     diagnostics: string[];
+    metaInfo?: NotebookCellMetaInfo;
 }
 
 export interface NotebookFileSourceResponse{
@@ -588,6 +595,13 @@ export class ExtendedLangClient extends LanguageClient {
         return this.sendRequest(EXTENDED_APIS.NOTEBOOK_VARIABLES);
     }
 
+    deleteDeclarations(params: NotebookCellMetaInfo): Thenable<Object[]> {
+        if (!this.isExtendedServiceSupported(EXTENDED_APIS.NOTEBOOK_DELETE_DCLNS)) {
+            Promise.resolve(NOT_SUPPORTED);
+        }
+        return this.sendRequest(EXTENDED_APIS.NOTEBOOK_DELETE_DCLNS, params);
+    }
+
     getSTForSingleStatement(params: PartialSTRequestParams): Thenable<PartialSTResponse> {
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.PARTIAL_PARSE_SINGLE_STATEMENT)) {
             Promise.resolve(NOT_SUPPORTED);
@@ -662,7 +676,7 @@ export class ExtendedLangClient extends LanguageClient {
                 { name: EXTENDED_APIS_ORG.BALLERINA_TO_OPENAPI, generateOpenAPI: true },
                 { 
                     name: EXTENDED_APIS_ORG.NOTEBOOK_SUPPORT, getResult: true, getShellFileSource: true, 
-                    getVariableValues: true, restartNotebook: true 
+                    getVariableValues: true, deleteDeclarations: true, restartNotebook: true 
                 }
             ]
         }).then(response => {
