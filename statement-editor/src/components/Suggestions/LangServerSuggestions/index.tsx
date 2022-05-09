@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 
 import { List, ListItem, ListItemIcon, ListItemText, Typography } from "@material-ui/core";
 
@@ -19,10 +19,9 @@ import { SuggestionItem } from "../../../models/definitions";
 import { InputEditorContext } from "../../../store/input-editor-context";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { getSuggestionIconStyle } from "../../../utils";
+import { KeyboardNavigationManager } from "../../../utils/keyboard-navigation-manager";
 import { acceptedCompletionKindForTypes } from "../../InputEditor/constants";
 import { useStatementEditorStyles } from "../../styles";
-import Mousetrap from "mousetrap";
-import { KeyboardNavigationManager } from "../../../utils/keyboard-navigation-manager";
 
 export function LSSuggestions() {
     const statementEditorClasses = useStatementEditorStyles();
@@ -42,45 +41,38 @@ export function LSSuggestions() {
         }
     } = useContext(StatementEditorContext);
     const resourceAccessRegex = /.+\./gm;
+    const [lenghtOfSuggestions, setLength] = useState<number>(lsSuggestions.length)
+    const [Suggestions, setSuggestions] = useState<SuggestionItem[]>(lsSuggestions);
+
+    useEffect(() => {
+        setLength(lsSuggestions.length);
+        setSuggestions(lsSuggestions)
+    }, [lsSuggestions]);
 
     const changeSelected = (key: number) => {
         const newSelected = selectedListItem + key;
-        if ( newSelected >= 0 ){
+        if (newSelected >= 0 && newSelected < lenghtOfSuggestions){
             setSelectedItem(newSelected)
         }
-
-
-
     }
-
-    const trap = new Mousetrap()
 
     const keyboardNavigationManager = new KeyboardNavigationManager()
 
     React.useEffect(() => {
-        
-        trap.bind('right', () => {
-            changeSelected(1);
-            return false;
-        });
-        trap.bind('left', () => {
-            changeSelected(-1)
-            return false;
-        });
-        trap.bind('down', () => {
-            changeSelected(2)
-            return false;
-        });
-        trap.bind('up', () => {
-            changeSelected(-2);
-            return false;
-        });
 
-        return () => {  
-            trap.reset();
-            
+        const client = keyboardNavigationManager.getClient()
+
+        keyboardNavigationManager.bindNewKey(client, ['right'], changeSelected, 1);
+        keyboardNavigationManager.bindNewKey(client, ['left'], changeSelected, -1);
+        keyboardNavigationManager.bindNewKey(client, ['up'], changeSelected, -2);
+        keyboardNavigationManager.bindNewKey(client, ['down'], changeSelected, 2);
+        keyboardNavigationManager.bindNewKey(client, ['enter'], onClickLSSuggestion, Suggestions[selectedListItem]);
+
+        return () => {
+            keyboardNavigationManager.resetMouseTrapInstance(client)
         }
     }, [selectedListItem]);
+
     const onClickLSSuggestion = (suggestion: SuggestionItem) => {
         let variable = suggestion.value;
         if (inputEditorCtx.userInput.includes('.')) {
@@ -110,7 +102,7 @@ export function LSSuggestions() {
                                         button={true}
                                         key={index}
                                         onClick={() => onClickLSSuggestion(suggestion)}
-                                        selected={index == selectedListItem}
+                                        selected={index === selectedListItem}
                                         className={statementEditorClasses.suggestionListItem}
                                         disableRipple={true}
                                     >

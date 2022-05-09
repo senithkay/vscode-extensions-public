@@ -25,15 +25,11 @@ export class KeyboardNavigationManager {
     }
 
     public getClient() {
-        if (!this.trap){
-            this.trap = new Mousetrap();
-        }
-        this.trap.reset()
-        return this.trap;
+        return new Mousetrap();
     }
 
-    public bindNewKey(trap: Mousetrap.MousetrapInstance, key: string | string[], callbackFunction: (args: any) => void, args?:any ) {
-        trap.bind(key,() =>{
+    public bindNewKey(trap: Mousetrap.MousetrapInstance, key: string | string[], callbackFunction: (args: any) => void, args?: any) {
+        trap.bind(key, () => {
             callbackFunction(args);
             return false;
         });

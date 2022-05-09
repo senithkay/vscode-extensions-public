@@ -14,13 +14,13 @@
 import React, { useState } from "react";
 
 import { ALL_LIBS_IDENTIFIER, LANG_LIBS_IDENTIFIER, STD_LIBS_IDENTIFIER } from "../../constants";
+import { KeyboardNavigationManager } from "../../utils/keyboard-navigation-manager";
 import SelectDropdown from "../Dropdown";
 import { LibraryBrowser } from "../LibraryBrowser";
 import { useStatementEditorStyles } from "../styles";
 import { ExpressionSuggestions } from "../Suggestions/ExpressionSuggestions";
 import { LSSuggestions } from "../Suggestions/LangServerSuggestions";
 import TabPanel from "../Tab";
-import Mousetrap from "mousetrap";
 
 enum TabElements {
     suggestions = 'Suggestions',
@@ -42,28 +42,20 @@ export function HelperPane() {
         setLibraryType(value);
     };
 
-    const trap = new Mousetrap();
+    const keyboardNavigationManager = new KeyboardNavigationManager();
 
     React.useEffect(() => {
-        trap.bind(['ctrl+shift+s'], () => {
-            setSelectedTab(TabElements.suggestions);
-            return false;
-        });
-        trap.bind(['ctrl+shift+e'], () => {
-            setSelectedTab(TabElements.expressions);
-            return false;
-        });
-        trap.bind(['ctrl+shift+l'], () => {
-            setSelectedTab(TabElements.libraries);
-            return false;
-        });
 
-        return () => {  
-            trap.reset();
-            
+        const client = keyboardNavigationManager.getClient()
+
+        keyboardNavigationManager.bindNewKey(client, ['ctrl+shift+s', 'command+shift+s'], setSelectedTab, TabElements.suggestions)
+        keyboardNavigationManager.bindNewKey(client, ['ctrl+shift+e', 'command+shift+e'], setSelectedTab, TabElements.expressions)
+        keyboardNavigationManager.bindNewKey(client, ['ctrl+shift+l', 'command+shift+l'], setSelectedTab, TabElements.libraries)
+
+        return () => {
+            keyboardNavigationManager.resetMouseTrapInstance(client);
         }
     }, []);
-
 
     return (
         <>

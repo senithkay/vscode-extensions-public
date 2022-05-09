@@ -43,12 +43,12 @@ import { visitor as DiagnosticsMappingVisitor } from "../visitors/diagnostics-ma
 import { visitor as ExpressionDeletingVisitor } from "../visitors/expression-deleting-visitor";
 import { visitor as ModelFindingVisitor } from "../visitors/model-finding-visitor";
 import { visitor as ModelTypeSetupVisitor } from "../visitors/model-type-setup-visitor";
-import { viewStateSetupVisitor as ViewStateSetupVisitor } from "../visitors/view-state-setup-visitor";
 import {nextNodeSetupVisitor} from "../visitors/next-node--setup-visitor"
+import { parentSetupVisitor } from '../visitors/parent-setup-visitor';
+import { viewStateSetupVisitor as ViewStateSetupVisitor } from "../visitors/view-state-setup-visitor";
 
 import { ModelType } from "./statement-editor-viewstate";
 import { createImportStatement, createStatement, updateStatement } from "./statement-modifications";
-import { parentSetupVisitor } from '../visitors/parent-setup-visitor';
 
 export function getModifications(
         model: STNode,
