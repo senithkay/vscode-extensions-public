@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 Inc. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -12,23 +12,21 @@
  */
 import React from "react";
 
-import { VarTypeDesc } from "@wso2-enterprise/syntax-tree";
+import { NilLiteral } from "@wso2-enterprise/syntax-tree";
 
-import { InputEditor } from "../../../InputEditor";
+import { TokenComponent } from "../../Token";
 
-interface VarTypeDescProps {
-    model: VarTypeDesc;
+interface NilLiteralProps {
+    model: NilLiteral;
 }
 
-export function VarTypeDescComponent(props: VarTypeDescProps) {
+export function NilLiteralComponent(props: NilLiteralProps) {
     const { model } = props;
 
-    const inputEditorProps = {
-        model,
-        classNames: "type-descriptor var"
-    };
-
     return (
-        <InputEditor {...inputEditorProps} />
+        <>
+            <TokenComponent model={model.openParenToken} />
+            <TokenComponent model={model.closeParenToken} />
+        </>
     );
 }

@@ -12,12 +12,15 @@ export function genInterfacesFileCode(modelInfo: any) {
         export interface VisibleEndpoint {
             kind?: string;
             isCaller: boolean;
+            isExternal: boolean;
+            isModuleVar: boolean;
             moduleName: string;
             name: string;
             packageName: string;
             orgName: string;
             version: string;
             typeName: string;
+            position: NodePosition;
             viewState?: any;
         }
 
@@ -45,6 +48,12 @@ export function genInterfacesFileCode(modelInfo: any) {
             severity: string;
         }
 
+        export interface Minutiae {
+          isInvalid: boolean;
+          kind: string;
+          minutiae: string;
+        }
+
         export interface STNode {
             kind: string;
             value?: any;
@@ -59,6 +68,8 @@ export function genInterfacesFileCode(modelInfo: any) {
             configurablePosition?: NodePosition;
             controlFlow?: ControlFlow;
             syntaxDiagnostics: SyntaxDiagnostics[];
+            leadingMinutiae: Minutiae[];
+            trailingMinutiae: Minutiae[];
         }
 
         ${interfaces.join("\n")}

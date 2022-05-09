@@ -85,6 +85,7 @@ export class InitVisitor implements Visitor {
                 viewState.initPlus = undefined;
             }
         }
+        allEndpoints = new Map<string, Endpoint>();
     }
 
     public beginVisitListenerDeclaration(node: ListenerDeclaration, parent?: STNode) {
@@ -147,11 +148,11 @@ export class InitVisitor implements Visitor {
 
     public beginVisitServiceDeclaration(node: ServiceDeclaration, parent?: STNode) {
         node.viewState = new ServiceViewState();
+        allEndpoints = new Map<string, Endpoint>();
     }
 
     public beginVisitFunctionBodyBlock(node: FunctionBodyBlock, parent?: STNode) {
         currentFnBody = node;
-        allEndpoints = new Map<string, Endpoint>();
         this.visitBlock(node, parent);
     }
 
@@ -281,8 +282,7 @@ export class InitVisitor implements Visitor {
         // todo: Check if this is the function to replace beginVisitExpressionStatement
         node.viewState = new BlockViewState();
         currentFnBody = node;
-        allEndpoints = new Map<string, Endpoint>();
-        // this.visitBlock(node, parent);
+
         node.viewState.isEndComponentAvailable = true;
     }
 
