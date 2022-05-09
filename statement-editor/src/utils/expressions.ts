@@ -163,7 +163,7 @@ const unary: ExpressionGroup = {
 //     6.24 Additive expression
 //     6.23 Multiplicative expression
 const operators: ExpressionGroup = {
-    name: "Operators",
+    name: "Arithmetic",
     expressions: [
         {
             name: "Add",
