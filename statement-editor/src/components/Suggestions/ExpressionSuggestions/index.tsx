@@ -76,7 +76,7 @@ export function ExpressionSuggestions() {
     return (
         <>
             <div className={stmtEditorHelperClasses.expressionSuggestionList}>
-                <FormControl style={{ width: '100%', paddingRight: '10px' }}>
+                <FormControl style={{ width: 'inherit' }}>
                     <Input
                         className={stmtEditorHelperClasses.librarySearchBox}
                         value={keyword}

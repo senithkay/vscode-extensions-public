@@ -39,15 +39,14 @@ export const useStatementEditorToolbarStyles = makeStyles(() =>
     createStyles({
         toolbar: {
             display: 'flex',
-            flexDirection: 'row',
-            marginLeft: '15px'
+            width: '81%',
+            justifyContent: 'flex-end'
         },
         toolbarSet: {
             border: '1px solid #e6e7ec',
             borderRadius: '8px',
             display: 'flex',
-            flexDirection: 'row',
-            marginRight: '16px'
+            marginLeft: '16px'
         },
         toolbarIcons: {
             padding: '8px',
@@ -56,7 +55,6 @@ export const useStatementEditorToolbarStyles = makeStyles(() =>
             }
         },
         undoRedoSeparator: {
-            height: '32px',
             width: '1px',
             borderRadius: '5px',
             backgroundColor: '#FFFFFF',
@@ -155,36 +153,27 @@ export const useStatementEditorDiagnosticStyles = makeStyles(() =>
 export const useStmtEditorHelperPanelStyles = makeStyles(() =>
     createStyles({
         tabPanelWrapper: {
-            width: 'auto',
-            height: '48px',
-            // boxShadow: '0px 1px 1px -1px rgb(0 0 0 / 20%), 0px 1px 1px 0px rgb(0 0 0 / 14%), 0px 1px 3px 0px rgb(0 0 0 / 12%)',
             display: 'flex',
-            flexDirection: 'row',
-            marginRight: '20px'
-        },
-        tabPanel: {
-            width: '70%'
+            flexDirection: 'row'
         },
         libraryTypeSelector: {
-            width: '30%',
             height: '48px',
-            padding: '9px',
-            textAlignLast: 'right'
+            width: '60%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'flex-end'
         },
         suggestionsInner: {
             overflowY: 'scroll',
-            height: '100%'
+            height: '100%',
+            width: '102%'
         },
         selectDropDownSe: {
             height: '32px',
-            width: "auto",
             borderRadius: 4,
-            color: '#222228',
             background: "linear-gradient(180deg, #FFFFFF 0%, #F7F7F9 100%)",
             boxShadow: "inset 0 0 0 1px #DEE0E7, 0 1px 2px -1px rgba(0,0,0,0.08)",
             cursor: "pointer",
-            marginBottom: theme.spacing(2.5),
-            border: 1,
             "&:active": {
                 background: "linear-gradient(180deg, #ffffff 0%, #f7f7f9 100%)",
                 boxShadow: "inset 0 0 0 1px #a6b3ff, 0 1px 1px 0 rgba(0, 0, 0, 0.06)",
@@ -314,8 +303,6 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             color: '#CBCEDB',
             textIndent: '12px',
             textAlign: 'left',
-            paddingLeft: '12px',
-            marginRight: '10px',
             marginBottom: '16px'
         },
         librarySearchSubHeader: {
@@ -339,8 +326,6 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             alignItems: 'center',
         },
         libraryBrowser: {
-            height: '100%',
-            overflowY: 'scroll',
             overflowX: 'hidden',
             "& .MuiListItem-root": {
                 padding: '6px 0 6px 0'
@@ -354,10 +339,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             flexDirection: 'row',
             width: '100%',
             alignItems: 'center',
-            position: 'sticky',
-            top: '0px',
             zIndex: 1,
-            backgroundColor: '#FFFFFF'
         },
 
         moduleTitle: {
@@ -385,7 +367,6 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             marginLeft: '8.25px'
         },
         libraryListBlock: {
-            paddingRight: '5px',
             paddingBottom: '8px',
             columnGap: '5%',
             display: 'grid',
@@ -424,8 +405,10 @@ export const useStatementEditorStyles = makeStyles(() =>
         },
         stmtEditorInnerWrapper: {
             paddingLeft: '25px',
+            paddingRight: '25px',
             fontSize: '13px',
-            fontFamily: 'Gilmer'
+            fontFamily: 'Gilmer',
+            overflowY: 'hidden'
         },
         statementExpressionWrapper: {
             height: 'auto',
@@ -449,9 +432,6 @@ export const useStatementEditorStyles = makeStyles(() =>
             alignItems: 'center',
             paddingBottom: '15px',
             fontWeight: 500
-        },
-        statementExpressionName: {
-            marginRight: '400px'
         },
         statementExpressionContent: {
             fontSize: "15px",
@@ -478,7 +458,6 @@ export const useStatementEditorStyles = makeStyles(() =>
         },
         separatorLine: {
             height: '1px',
-            width: '645px',
             opacity: '0.52',
             backgroundColor: '#DCDEE4',
             marginBottom: '15px'

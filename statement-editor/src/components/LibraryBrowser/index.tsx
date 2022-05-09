@@ -164,7 +164,7 @@ export function LibraryBrowser(props: LibraryBrowserProps) {
                         </IconButton>
                     </>
                 )}
-                <FormControl style={{width: 'inherit', marginRight: '10px'}}>
+                <FormControl style={{width: 'inherit'}}>
                     <Input
                         className={stmtEditorHelperClasses.librarySearchBox}
                         value={keyword}

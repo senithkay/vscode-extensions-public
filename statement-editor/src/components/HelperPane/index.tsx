@@ -45,15 +45,11 @@ export function HelperPane() {
     return (
         <>
             <div className={stmtEditorHelperClasses.tabPanelWrapper}>
-                <div className={stmtEditorHelperClasses.tabPanel}>
-                    <div className={statementEditorClasses.stmtEditorInnerWrapper}>
-                        <TabPanel
-                            values={[TabElements.suggestions, TabElements.expressions, TabElements.libraries]}
-                            defaultValue={TabElements.suggestions}
-                            onSelection={onTabElementSelection}
-                        />
-                    </div>
-                </div>
+                <TabPanel
+                    values={[TabElements.suggestions, TabElements.expressions, TabElements.libraries]}
+                    defaultValue={TabElements.suggestions}
+                    onSelection={onTabElementSelection}
+                />
                 <div className={stmtEditorHelperClasses.libraryTypeSelector}>
                     {selectedTab === TabElements.libraries && (
                         <SelectDropdown
@@ -64,15 +60,11 @@ export function HelperPane() {
                     )}
                 </div>
             </div>
-            <div className={statementEditorClasses.stmtEditorInnerWrapper}>
-                <div className={statementEditorClasses.separatorLine} />
-            </div>
+            <div className={statementEditorClasses.separatorLine} />
             <div className={stmtEditorHelperClasses.suggestionsInner}>
-                <div className={statementEditorClasses.stmtEditorInnerWrapper}>
-                    {selectedTab === TabElements.suggestions && <LSSuggestions />}
-                    {selectedTab === TabElements.expressions && <ExpressionSuggestions />}
-                    {selectedTab === TabElements.libraries && <LibraryBrowser libraryType={libraryType} />}
-                </div>
+                {selectedTab === TabElements.suggestions && <LSSuggestions />}
+                {selectedTab === TabElements.expressions && <ExpressionSuggestions />}
+                {selectedTab === TabElements.libraries && <LibraryBrowser libraryType={libraryType} />}
             </div>
         </>
     );
