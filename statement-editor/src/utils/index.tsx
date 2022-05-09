@@ -33,7 +33,7 @@ import {
     END_OF_LINE_MINUTIAE,
     OTHER_EXPRESSION,
     OTHER_STATEMENT,
-    PLACE_HOLDER_DIAGNOSTIC_MESSAGES,
+    PLACEHOLDER_DIAGNOSTICS,
     StatementNodes,
     WHITESPACE_MINUTIAE
 } from "../constants";
@@ -195,7 +195,7 @@ export function getFilteredDiagnosticMessages(statement: string, targetPosition:
 
     getDiagnosticMessage(diag, diagTargetPosition, 0, statement.length, 0, 0).split('. ').map(message => {
             let isPlaceHolderDiag = false;
-            if (PLACE_HOLDER_DIAGNOSTIC_MESSAGES.some(msg => message.includes(msg))) {
+            if (PLACEHOLDER_DIAGNOSTICS.some(msg => message.includes(msg))) {
                 isPlaceHolderDiag = true;
             }
             if (!!message) {
