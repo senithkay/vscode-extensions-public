@@ -125,7 +125,7 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
         description: props.description,
         name: props.name,
         required: props.isRequired,
-        type: "array",
+        type: props.arrayType + " [ ]",
     };
 
     return (

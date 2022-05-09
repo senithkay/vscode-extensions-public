@@ -80,19 +80,18 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
         let propertiesValue: ConfigElementProps;
         if (elementSchema[SchemaConstants.PROPERTIES] !== undefined) {
             propertiesValue = getConfigProperties(elementSchema, props.id + "-" + counter);
+            const objectArrayProps: ObjectArrayProps = {
+                description: props.schema[SchemaConstants.DESCRIPTION],
+                id: props.id + "-" + counter,
+                isRequired: false,
+                name: "",
+                properties: propertiesValue ? propertiesValue.properties : undefined,
+                schema: elementSchema,
+                type: props.arrayType,
+            };
+            setCounter((prevState) => prevState + 1);
+            setArrayValues((prevState) => [...prevState, objectArrayProps]);
         }
-
-        const objectArrayProps: ObjectArrayProps = {
-            description: props.schema[SchemaConstants.DESCRIPTION],
-            id: props.id + "-" + counter,
-            isRequired: false,
-            name: "",
-            properties: propertiesValue.properties,
-            schema: elementSchema,
-            type: props.arrayType,
-        };
-        setCounter((prevState) => prevState + 1);
-        setArrayValues((prevState) => [...prevState, objectArrayProps]);
     };
 
     const removeArrayElement = (id: string) => {
@@ -159,7 +158,7 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
         description: props.description,
         name: props.name,
         required: props.isRequired,
-        type: "array",
+        type: props.arrayType + " [ ]",
     };
 
     return (
