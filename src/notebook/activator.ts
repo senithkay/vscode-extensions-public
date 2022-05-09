@@ -71,8 +71,7 @@ function registerRestartNotebook(ballerinaExtInstance: BallerinaExtension,
             return;
         }
         await langClient.restartNotebook();
-        notebookController.resetExecutionOrder();
-        notebookController.updateVariableView();
+        notebookController.resetController();
         await commands.executeCommand('notebook.clearAllCellsOutputs');
     });
 }

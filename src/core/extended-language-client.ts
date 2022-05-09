@@ -581,7 +581,7 @@ export class ExtendedLangClient extends LanguageClient {
         return this.sendRequest(EXTENDED_APIS.NOTEBOOK_FILE_SOURCE);
     }
 
-    restartNotebook(): Thenable<String[]> {
+    restartNotebook(): Thenable<boolean> {
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.NOTEBOOK_RESTART)) {
             Promise.resolve(NOT_SUPPORTED);
         }
@@ -595,7 +595,7 @@ export class ExtendedLangClient extends LanguageClient {
         return this.sendRequest(EXTENDED_APIS.NOTEBOOK_VARIABLES);
     }
 
-    deleteDeclarations(params: NotebookCellMetaInfo): Thenable<Object[]> {
+    deleteDeclarations(params: NotebookCellMetaInfo): Thenable<boolean> {
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.NOTEBOOK_DELETE_DCLNS)) {
             Promise.resolve(NOT_SUPPORTED);
         }

@@ -20,7 +20,7 @@
 import { spawn } from 'child_process';
 import { NotebookCell, NotebookCellOutput, NotebookCellOutputItem, NotebookController, 
     NotebookDocument, notebooks } from 'vscode';
-import { BallerinaExtension, ExtendedLangClient, NoteBookCellOutputResponse } from '../core';
+import { BallerinaExtension, ExtendedLangClient, NotebookCellMetaInfo, NoteBookCellOutputResponse } from '../core';
 import { CUSTOM_DESIGNED_MIME_TYPES } from './constants';
 import { VariableViewProvider } from './variableView';
 import { isWindows } from '../utils';
@@ -33,24 +33,26 @@ export class BallerinaNotebookController {
 
     private ballerinaExtension: BallerinaExtension;
     private variableView: VariableViewProvider;
+    private metaInfoHandler: MetoInfoHandler;
     private readonly controller: NotebookController;
     private executionOrder = 0;
 
     constructor(extensionInstance: BallerinaExtension, variableViewProvider: VariableViewProvider) {
         this.ballerinaExtension = extensionInstance;
         this.variableView = variableViewProvider;
+        this.metaInfoHandler = new MetoInfoHandler();
+
         this.controller = notebooks.createNotebookController(
             this.controllerId,
             this.notebookType,
             this.label
         );
-
         this.controller.supportedLanguages = this.supportedLanguages;
         this.controller.supportsExecutionOrder = true;
         this.controller.executeHandler = this.execute.bind(this);
     }
 
-    private async execute(cells: NotebookCell[], _notebook: NotebookDocument, 
+    private async execute(cells: NotebookCell[], _notebook: NotebookDocument,
         controller: NotebookController): Promise<void> {
         for (let cell of cells) {
             await this.doExecution(cell);
@@ -59,42 +61,44 @@ export class BallerinaNotebookController {
     }
 
     private async doExecution(cell: NotebookCell): Promise<void> {
-        // if cell content is empty no need for an code execution
-        // TODO: But if the cell contained executed code with definitions and imports
-        // remove them from the shell invokermemory
-        if (cell && cell.document && !cell.document.getText().trim()) {
-            return;
-        }
+        let langClient: ExtendedLangClient = <ExtendedLangClient>this.ballerinaExtension.langClient;
+        const cellContent = cell.document.getText().trim();
         
-        const execution = this.controller.createNotebookCellExecution(cell);
         const appendTextToOutput = (data: any) => {
             execution.appendOutput([new NotebookCellOutput([
-                    NotebookCellOutputItem.text(data.toString().trim())
-                ])
-            ]);
+                NotebookCellOutputItem.text(data.toString().trim())
+            ])]);
         };
+        
+        const execution = this.controller.createNotebookCellExecution(cell);
         execution.executionOrder = ++this.executionOrder;
         execution.start(Date.now());
         execution.clearOutput();
+
         // handle request to cancel the running execution 
-        execution.token.onCancellationRequested(()=> {
+        execution.token.onCancellationRequested(() => {
             appendTextToOutput('Execution Interrupted');
             execution.end(false, Date.now());
         });
-
-        let langClient: ExtendedLangClient = <ExtendedLangClient>this.ballerinaExtension.langClient;
-
-        // handle if language client is not ready yet 
-        if (!langClient) {
-            execution.replaceOutput([ new NotebookCellOutput([
-                    NotebookCellOutputItem.text("Language client is not ready yet")
-                ])
-            ]);
-            execution.end(false, Date.now());
+        
+        // if cell content is empty no need for an code execution
+        // But if the cell contained executed code with definitions
+        // remove them from the shell invokermemory
+        if (!cellContent && !!langClient) {
+            let deleteSuccess = await langClient.deleteDeclarations(this.metaInfoHandler.getMetaForCell(cell));
+            deleteSuccess && this.metaInfoHandler.clearInfoForCell(cell);
+            execution.end(deleteSuccess, Date.now());
             return;
         }
 
-        const cellContent = cell.document.getText().trim();
+        // handle if language client is not ready yet 
+        if (!langClient) {
+            execution.replaceOutput([new NotebookCellOutput([
+                NotebookCellOutputItem.text("Language client is not ready yet")
+            ])]);
+            execution.end(false, Date.now());
+            return;
+        }
 
         try {
             // bal cmds
@@ -122,19 +126,17 @@ export class BallerinaNotebookController {
             });
             if (output.shellValue?.value) {
                 if (CUSTOM_DESIGNED_MIME_TYPES.includes(output.shellValue!.mimeType)) {
-                    execution.replaceOutput([ new NotebookCellOutput([
-                            NotebookCellOutputItem.json(output, output.shellValue!.mimeType),
-                            NotebookCellOutputItem.text(output.shellValue.value)
-                        ])
-                    ]);
+                    execution.replaceOutput([new NotebookCellOutput([
+                        NotebookCellOutputItem.json(output, output.shellValue!.mimeType),
+                        NotebookCellOutputItem.text(output.shellValue.value)
+                    ])]);
                 }
                 else {
-                    execution.replaceOutput([ new NotebookCellOutput([
-                            NotebookCellOutputItem.text(output.shellValue.value)
-                        ])
-                    ]);
+                    execution.replaceOutput([new NotebookCellOutput([
+                        NotebookCellOutputItem.text(output.shellValue.value)
+                    ])]);
                 }
-            } 
+            }
             if (output.diagnostics.length) {
                 output.diagnostics.forEach(appendTextToOutput);
             }
@@ -142,22 +144,89 @@ export class BallerinaNotebookController {
                 output.errors.forEach(appendTextToOutput);
             }
             execution.end(!(output.diagnostics.length) && !(output.errors.length), Date.now());
+            // TODO: Collect and store if there is any declarations cell meta data
+            output.metaInfo && this.metaInfoHandler.handleNewMetaInfo(cell, output.metaInfo);
         } catch (error) {
             appendTextToOutput(error);
             execution.end(false, Date.now());
         }
-        // TODO: Collect and store if there is any declarations and imports using cell meta data
+    }
+
+    private resetMetaInfoHandler() {
+        this.metaInfoHandler.reset();
     }
 
     public updateVariableView() {
         this.variableView.updateVariables();
     }
 
-    public resetExecutionOrder() {
+    public resetController() {
         this.executionOrder = 0;
+        this.updateVariableView();
+        this.resetMetaInfoHandler();
     }
 
     dispose(): void {
         throw new Error('Method not implemented.');
+    }
+}
+
+interface CellInfo {
+    cell: NotebookCell;
+    definedVars: string[];
+    moduleDclns: string[];
+}
+
+class MetoInfoHandler {
+    private cellInfoList: CellInfo[];
+
+    constructor() {
+        this.cellInfoList = [];
+    }
+
+    getMetaForCell(cell: NotebookCell): NotebookCellMetaInfo {
+        let definedVarsForCell: string[] = [];
+        let moduleDclnsForCell: string[] = [];
+        for (const cellInfo of this.cellInfoList) {
+            if (cellInfo.cell.document.uri === cell.document.uri) {
+                definedVarsForCell = cellInfo.definedVars;
+                moduleDclnsForCell = cellInfo.moduleDclns;
+            }
+        }
+        return {
+            definedVars: definedVarsForCell,
+            moduleDclns: moduleDclnsForCell
+        }
+    }
+
+    clearInfoForCell(cell: NotebookCell) {
+        for (const cellInfo of this.cellInfoList) {
+            if (cellInfo.cell.document.uri === cell.document.uri) {
+                cellInfo.definedVars = [];
+                cellInfo.moduleDclns = [];
+            }
+        }
+    }
+
+    handleNewMetaInfo(cell: NotebookCell, metaInfo: NotebookCellMetaInfo) {
+        let found = false;
+        for (const cellInfo of this.cellInfoList) {
+            if (cellInfo.cell.document.uri === cell.document.uri) {
+                found = true;
+                cellInfo.definedVars.push.apply(cellInfo.definedVars, metaInfo.definedVars);
+                cellInfo.moduleDclns.push.apply(cellInfo.moduleDclns, metaInfo.moduleDclns);
+            }
+        }
+        if (!found) {
+            this.cellInfoList.push({
+                cell: cell,
+                definedVars: metaInfo.definedVars,
+                moduleDclns: metaInfo.moduleDclns
+            })
+        }
+    }
+
+    reset() {
+        this.cellInfoList = [];
     }
 }
