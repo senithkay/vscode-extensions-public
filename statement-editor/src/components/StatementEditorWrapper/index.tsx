@@ -152,7 +152,7 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
     useEffect(() => {
             (async () => {
                 let model = null;
-                if (config.type !== CUSTOM_CONFIG_TYPE) {
+                if (initialSource) {
                     const updatedContent = await getUpdatedSource(initialSource.trim(), currentFile.content,
                         targetPosition);
 
@@ -161,7 +161,7 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
                     const partialST = await getPartialSTForStatement(
                         { codeSnippet: initialSource.trim() }, getLangClient);
 
-                    if (!partialST.syntaxDiagnostics.length) {
+                    if (!partialST.syntaxDiagnostics.length || config.type === CUSTOM_CONFIG_TYPE) {
                         model = partialST;
                     }
                 }

@@ -128,20 +128,16 @@ export function StatementEditor(props: StatementEditorProps) {
 
     useEffect(() => {
         (async () => {
-            if (config.type !== CUSTOM_CONFIG_TYPE && editorModel) {
-                const updatedContent = await getUpdatedSource(source.trim(), currentFile.content,
-                    targetPosition, moduleList);
+            const updatedContent = await getUpdatedSource(source.trim(), currentFile.content,
+                targetPosition, moduleList);
 
-                sendDidChange(fileURI, updatedContent, getLangClient).then();
-                const diagnostics = await handleDiagnostics(source);
+            sendDidChange(fileURI, updatedContent, getLangClient).then();
+            const diagnostics = await handleDiagnostics(source);
 
-                if (editorModel) {
-                    setStmtModel(editorModel, diagnostics);
-                    setCurrentModel({
-                        model: selectedNodePosition ? getCurrentModel(selectedNodePosition, editorModel) : undefined
-                    });
-                }
-            }
+            setStmtModel(editorModel, diagnostics);
+            setCurrentModel({
+                model: selectedNodePosition ? getCurrentModel(selectedNodePosition, editorModel) : undefined
+            });
         })();
     }, [editor]);
 
