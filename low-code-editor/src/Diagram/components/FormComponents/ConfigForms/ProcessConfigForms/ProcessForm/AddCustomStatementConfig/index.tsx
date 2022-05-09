@@ -129,7 +129,7 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
     const { handleStmtEditorToggle, stmtEditorComponent } = useStatementEditor(
         {
             label: formTitle,
-            initialSource: expression ? expression : "EXPRESSION",
+            initialSource: expression ? expression : "STATEMENT",
             formArgs: { formArgs },
             validForm: isFormValid,
             config,
