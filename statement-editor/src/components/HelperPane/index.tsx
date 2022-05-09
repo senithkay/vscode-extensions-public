@@ -29,10 +29,15 @@ enum TabElements {
     parameters = 'Parameters'
 }
 
-export function HelperPane() {
-    const statementEditorClasses = useStatementEditorStyles();
+export interface HelperPaneProps{
+    docExpandClicked : boolean
+}
 
-    const [selectedTab, setSelectedTab] = useState(TabElements.suggestions);
+export function HelperPane(props: HelperPaneProps) {
+    const { docExpandClicked } = props;
+    const statementEditorClasses = useStatementEditorStyles();
+    const initialVal2 = docExpandClicked ? TabElements.parameters : TabElements.suggestions;
+    const [selectedTab, setSelectedTab] = useState(initialVal2);
     const [libraryType, setLibraryType] = useState('');
 
     const onTabElementSelection = async (value: TabElements) => {

@@ -106,7 +106,7 @@ export function Parameters() {
 
 
     useEffect(() => {
-        if (documentation.documentation?.parameters) {
+        if (documentation && documentation.documentation?.parameters) {
             const newChecked = [...checked];
 
             // Creating the parameter list with the arg position of the current function
@@ -190,7 +190,15 @@ export function Parameters() {
             <>
                 {checked.indexOf(value) !== -1 && (
                     <ListItem>
-                        <Checkbox style={{ flex: 'inherit' }} checked={checked.indexOf(value) !== -1} onClick={handleToggle(value, param)}/>
+                        <Checkbox
+                            classes={{
+                            root : statementEditorClasses.parameterCheckbox,
+                            checked : statementEditorClasses.checked
+                        }}
+                            style={{ flex: 'inherit' }}
+                            checked={checked.indexOf(value) !== -1}
+                            onClick={handleToggle(value, param)}
+                        />
                         <ListItemText
                             style={{ flex: 'inherit' }}
                             primary={(argList[value] && STKindChecker.isNamedArg(argList[value])) ? (argList[value] as NamedArg).argumentName.source : param.name}
@@ -240,7 +248,14 @@ export function Parameters() {
 
                                         {param.kind === SymbolParameterType.REQUIRED ? (
                                             <ListItem key={value} style={{ paddingTop: '0px', paddingBottom: '0px', flex: 'inherit' }}>
-                                                <Checkbox checked={checked.indexOf(value) !== -1} disabled={true}/>
+                                                <Checkbox
+                                                    classes={{
+                                                    root : statementEditorClasses.disabledCheckbox,
+                                                    checked : statementEditorClasses.checked
+                                                }}
+                                                    checked={checked.indexOf(value) !== -1}
+                                                    disabled={true}
+                                                />
                                                 <ListItemText
                                                     style={{ flex: 'inherit' }}
                                                     primary={param.name}
@@ -288,7 +303,10 @@ export function Parameters() {
                                                         {param.kind !== SymbolParameterType.INCLUDED_RECORD && (
                                                             <ListItem key={value} style={{ paddingTop: '0px', paddingBottom: '0px' }}>
                                                                 <Checkbox
-                                                                    className={statementEditorClasses.parameterCheckbox}
+                                                                    classes={{
+                                                                        root : statementEditorClasses.parameterCheckbox,
+                                                                        checked : statementEditorClasses.checked
+                                                                    }}
                                                                     checked={checked.indexOf(value) !== -1}
                                                                     onClick={handleToggle(value, param)}
                                                                 />

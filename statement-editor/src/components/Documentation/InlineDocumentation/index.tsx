@@ -5,8 +5,12 @@ import { ExpandMore } from "@material-ui/icons";
 
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 
-export function InlineDocumentation(){
+export interface InlineDocumentationProps {
+    documentationHandler : () => void
+}
+export function InlineDocumentation(props: InlineDocumentationProps){
 
+    const { documentationHandler} = props;
     const {
         documentation
     } = useContext(StatementEditorContext);
@@ -17,7 +21,7 @@ export function InlineDocumentation(){
             <List style={{padding: '0px'}}>
                 <ListItem>
                     <ListItemText primary={documentation.documentation.description}/>
-                    <ExpandMore/>
+                    <ExpandMore onClick={documentationHandler}/>
                 </ListItem>
             </List>
         </div>

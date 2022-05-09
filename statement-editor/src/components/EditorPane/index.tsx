@@ -10,8 +10,11 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js
+// tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import React, { useContext } from "react";
+
+import { FormControl, FormControlLabel, FormGroup, Switch } from "@material-ui/core";
+import PrimarySwitchToggle from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { Diagnostics } from "../Diagnostics";
@@ -28,6 +31,8 @@ interface ModelProps {
 export function EditorPane(props: ModelProps) {
     const statementEditorClasses = useStatementEditorStyles();
     const { label } = props;
+    const [docEnabled, setDocEnabled] = React.useState(false);
+    const [docExpandClicked, setDocExpand] = React.useState(false);
 
     const stmtCtx = useContext(StatementEditorContext);
 
@@ -38,23 +43,43 @@ export function EditorPane(props: ModelProps) {
         documentation
     } = stmtCtx;
 
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setDocEnabled(event.target.checked);
+    };
+
+    const documentationHandler = () => {
+        setDocEnabled(false);
+        setDocExpand(true);
+    }
+
     return (
         <div>
             <div className={statementEditorClasses.stmtEditorContentWrapper}>
-                <div className={statementEditorClasses.statementExpressionTitle}>{label}<Toolbar/></div>
+                <div className={statementEditorClasses.statementExpressionTitle}>
+                    {label}
+                    <Toolbar/>
+                    <FormGroup>
+                        <FormControlLabel
+                            control={<Switch checked={docEnabled} onChange={handleChange}/>}
+                            label={"Documentation"}
+                            labelPlacement={"start"}
+                        />
+                    </FormGroup>
+
+                </div>
                 <div className={statementEditorClasses.statementExpressionContent}>
                     <StatementRenderer
                         model={statementModel}
                     />
                 </div>
-                {documentation &&
+                {docEnabled && documentation &&
                     !(documentation.documentation === undefined) &&  (
-                        <InlineDocumentation/>
+                        <InlineDocumentation documentationHandler={documentationHandler}/>
                 )}
                 <Diagnostics/>
             </div>
             <div className={statementEditorClasses.suggestionsSection}>
-                <HelperPane/>
+                <HelperPane docExpandClicked={docExpandClicked}/>
             </div>
         </div>
     );
