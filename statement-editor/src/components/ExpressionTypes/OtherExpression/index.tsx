@@ -28,7 +28,6 @@ export function OtherExpressionComponent(props: OtherExpressionProps) {
 
     const inputEditorProps: InputEditorProps = {
         model,
-        isToken: model.value ? true : false,
         classNames: statementEditorClasses.expressionElement
     };
 

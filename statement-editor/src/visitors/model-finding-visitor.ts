@@ -24,15 +24,13 @@ class ModelFindingVisitor implements Visitor {
     private model: STNode;
 
     public beginVisitSTNode(node: STNode, parent?: STNode) {
-        if (!this.model) {
-            if (isPositionsEquals(node.position, this.position)) {
+        if (isPositionsEquals(node.position, this.position)) {
+            this.model = node;
+        } else if (INPUT_EDITOR_PLACE_HOLDERS.has(node?.source?.trim())) {
+            const isWithinRange = node.position.startColumn >= this.position.startColumn &&
+                node.position.endColumn <= this.position.endColumn;
+            if (isWithinRange) {
                 this.model = node;
-            } else if (INPUT_EDITOR_PLACE_HOLDERS.has(node?.source?.trim())) {
-                const isWithinRange = node.position.startColumn >= this.position.startColumn &&
-                    node.position.endColumn <= this.position.endColumn;
-                if (isWithinRange) {
-                    this.model = node;
-                }
             }
         }
     }

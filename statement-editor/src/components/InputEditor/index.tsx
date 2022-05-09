@@ -14,18 +14,9 @@
 import React, { useContext, useEffect, useState } from "react";
 
 import { ClickAwayListener } from "@material-ui/core";
-import {
-    BooleanLiteral,
-    NumericLiteral,
-    QualifiedNameReference,
-    SimpleNameReference,
-    STKindChecker,
-    STNode,
-    StringLiteral
-} from "@wso2-enterprise/syntax-tree";
+import { STNode } from "@wso2-enterprise/syntax-tree";
 import debounce from "lodash.debounce";
 
-import * as c from "../../constants";
 import { InputEditorContext } from "../../store/input-editor-context";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { ModelType, StatementEditorViewState } from "../../utils/statement-editor-viewstate";
@@ -37,14 +28,13 @@ import {
 
 export interface InputEditorProps {
     model?: STNode;
-    isToken?: boolean;
     classNames?: string;
     notEditable?: boolean;
 }
 
 export function InputEditor(props: InputEditorProps) {
 
-    const { model, isToken, classNames, notEditable } = props;
+    const { model, classNames, notEditable } = props;
 
     const stmtCtx = useContext(StatementEditorContext);
     const {
@@ -62,49 +52,18 @@ export function InputEditor(props: InputEditorProps) {
 
     const statementEditorClasses = useStatementEditorStyles();
 
-    const [originalValue, kind] = React.useMemo(() => {
-        let literalModel: StringLiteral | NumericLiteral | SimpleNameReference | QualifiedNameReference;
+    const [originalValue] = React.useMemo(() => {
         let source: string;
-        let nodeKind: string;
 
         if (!model) {
             source = initialSource ? initialSource : '';
-        } else if (STKindChecker.isStringLiteral(model)) {
-            literalModel = model as StringLiteral;
-            nodeKind = c.STRING_LITERAL;
-            source = literalModel.literalToken.value;
-        } else if (STKindChecker.isNumericLiteral(model)) {
-            literalModel = model as NumericLiteral;
-            nodeKind = c.NUMERIC_LITERAL;
-            source = literalModel.literalToken.value;
-        } else if (STKindChecker.isIdentifierToken(model)) {
-            source = model.value;
-        } else if (STKindChecker.isSimpleNameReference(model)) {
-            literalModel = model as SimpleNameReference;
-            nodeKind = c.SIMPLE_NAME_REFERENCE;
-            source = literalModel.name.value;
-        } else if (STKindChecker.isQualifiedNameReference(model)) {
-            literalModel = model as QualifiedNameReference;
-            nodeKind = c.QUALIFIED_NAME_REFERENCE;
-            source = `${literalModel.modulePrefix.value}${literalModel.colon.value}${literalModel.identifier.value}`;
-        } else if (STKindChecker.isBooleanLiteral(model)) {
-            literalModel = model as BooleanLiteral;
-            nodeKind = c.BOOLEAN_LITERAL;
-            source = literalModel.literalToken.value;
-        } else if ((STKindChecker.isStringTypeDesc(model)
-            || STKindChecker.isBooleanTypeDesc(model)
-            || STKindChecker.isDecimalTypeDesc(model)
-            || STKindChecker.isFloatTypeDesc(model)
-            || STKindChecker.isIntTypeDesc(model)
-            || STKindChecker.isJsonTypeDesc(model)
-            || STKindChecker.isVarTypeDesc(model))) {
-            source = model.name.value;
-        } else if (isToken) {
+        } else if (model?.value) {
             source = model.value;
         } else {
             source = model.source;
         }
-        return [source, nodeKind];
+
+        return [source];
     }, [model]);
 
     const [isEditing, setIsEditing] = useState(false);

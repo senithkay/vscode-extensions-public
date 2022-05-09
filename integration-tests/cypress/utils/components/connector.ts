@@ -10,25 +10,20 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React from "react";
 
-import { TemplateString } from "@wso2-enterprise/syntax-tree";
+export class Connector {
+    public constructor(private container: Cypress.Chainable<JQuery<HTMLElement>>) {
+    }
 
-import { InputEditor, InputEditorProps } from "../../InputEditor";
+    public clickEdit() {
+        this.container.trigger('mouseover').within(() => {
+            cy.get('#edit-button').click({ force: true });
+        })
+    }
 
-interface TemplateStringProps {
-    model: TemplateString;
-}
-
-export function TemplateStringComponent(props: TemplateStringProps) {
-    const { model } = props;
-
-    const inputEditorProps: InputEditorProps = {
-        model,
-        isToken: true
-    };
-
-    return (
-        <InputEditor {...inputEditorProps} />
-    );
+    public clickDelete() {
+        this.container.trigger('mouseover').within(() => {
+            cy.get('#delete-button').click({ force: true });
+        })
+    }
 }

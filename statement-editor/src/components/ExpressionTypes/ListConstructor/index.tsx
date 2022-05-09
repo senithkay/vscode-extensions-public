@@ -17,8 +17,8 @@ import { ListConstructor } from "@wso2-enterprise/syntax-tree";
 
 import { EXPR_CONSTRUCTOR } from "../../../constants";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
+import { NewExprAddButton } from "../../Button/NewExprAddButton";
 import { ExpressionArrayComponent } from "../../ExpressionArray";
-import { useStatementEditorStyles } from "../../styles";
 import { TokenComponent } from "../../Token";
 
 interface ListConstructorProps {
@@ -34,10 +34,7 @@ export function ListConstructorComponent(props: ListConstructorProps) {
         }
     } = stmtCtx;
 
-    const statementEditorClasses = useStatementEditorStyles();
-
-    const onClickOnPlusIcon = (event: any) => {
-        event.stopPropagation();
+    const addNewExpression = () => {
         const isEmpty = model.expressions.length === 0;
         const expr = isEmpty ? EXPR_CONSTRUCTOR : `, ${EXPR_CONSTRUCTOR}`;
         const newPosition = isEmpty ? {
@@ -56,12 +53,7 @@ export function ListConstructorComponent(props: ListConstructorProps) {
         <>
             <TokenComponent model={model.openBracket} />
             <ExpressionArrayComponent expressions={model.expressions} />
-            <span
-                className={statementEditorClasses.plusIcon}
-                onClick={onClickOnPlusIcon}
-            >
-                +
-            </span>
+            <NewExprAddButton model={model} onClick={addNewExpression}/>
             <TokenComponent model={model.closeBracket} />
         </>
     );
