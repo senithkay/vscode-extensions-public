@@ -103,7 +103,7 @@ class ExpressionDeletingVisitor implements Visitor {
                 });
             } else {
                 const hasArgToBeDeleted = node.arguments.some((arg: STNode) => {
-                    return this.deletePosition === arg.position;
+                    return isPositionsEquals(this.deletePosition, arg.position);
                 });
 
                 if (hasArgToBeDeleted) {
@@ -139,13 +139,13 @@ class ExpressionDeletingVisitor implements Visitor {
     public beginVisitTupleTypeDesc(node: TupleTypeDesc) {
         if (!this.isNodeFound) {
             const hasItemsToBeDeleted = node.memberTypeDesc.some((item: STNode) => {
-                return this.deletePosition === item.position;
+                return isPositionsEquals(this.deletePosition, item.position);
             });
 
             if (hasItemsToBeDeleted) {
                 const typeDescList: string[] = [];
                 node.memberTypeDesc.map((types: STNode) => {
-                    if (this.deletePosition !== types.position && !STKindChecker.isCommaToken(types)) {
+                    if (!isPositionsEquals(this.deletePosition, types.position) && !STKindChecker.isCommaToken(types)) {
                         typeDescList.push(types.source);
                     }
                 });
@@ -162,14 +162,14 @@ class ExpressionDeletingVisitor implements Visitor {
     public beginVisitMappingConstructor(node: MappingConstructor) {
         if (!this.isNodeFound) {
             const hasItemsToBeDeleted = node.fields.some((field: STNode) => {
-                return this.deletePosition === field.position;
+                return isPositionsEquals(this.deletePosition, field.position);
             });
 
             if (hasItemsToBeDeleted) {
                 const expressions: string[] = [];
                 let separator;
                 node.fields.map((field: STNode) => {
-                    if (this.deletePosition !== field.position) {
+                    if (!isPositionsEquals(this.deletePosition, field.position)) {
                         if (!STKindChecker.isCommaToken(field)) {
                             expressions.push(field.source);
                         } else {
@@ -201,7 +201,7 @@ class ExpressionDeletingVisitor implements Visitor {
                 this.setProperties(DEFAULT_EXPR, node.position);
             } else {
                 const hasKeyExprToBeDeleted = node.keyExpression.some((expr: STNode) => {
-                    return this.deletePosition === expr.position;
+                    return isPositionsEquals(this.deletePosition, expr.position);
                 });
 
                 if (hasKeyExprToBeDeleted) {
@@ -214,7 +214,7 @@ class ExpressionDeletingVisitor implements Visitor {
     public beginVisitFunctionCall(node: FunctionCall) {
         if (!this.isNodeFound) {
             const hasArgToBeDeleted = node.arguments.some((arg: STNode) => {
-                return this.deletePosition === arg.position;
+                return isPositionsEquals(this.deletePosition, arg.position);
             });
 
             if (hasArgToBeDeleted) {
@@ -278,13 +278,13 @@ class ExpressionDeletingVisitor implements Visitor {
     public beginVisitKeySpecifier(node: KeySpecifier) {
         if (!this.isNodeFound) {
             const hasItemsToBeDeleted = node.fieldNames.some((item: STNode) => {
-                return this.deletePosition === item.position;
+                return isPositionsEquals(this.deletePosition, item.position);
             });
 
             if (hasItemsToBeDeleted) {
                 const expressions: string[] = [];
                 node.fieldNames.map((expr: STNode) => {
-                    if (this.deletePosition !== expr.position && !STKindChecker.isCommaToken(expr)) {
+                    if (!isPositionsEquals(this.deletePosition, expr.position) && !STKindChecker.isCommaToken(expr)) {
                         expressions.push(expr.value);
                     }
                 });
@@ -301,13 +301,13 @@ class ExpressionDeletingVisitor implements Visitor {
     public beginVisitRecordTypeDesc(node: RecordTypeDesc) {
         if (!this.isNodeFound) {
                 const hasItemsToBeDeleted = node.fields.some((item: STNode) => {
-                    return this.deletePosition === item.position;
+                    return isPositionsEquals(this.deletePosition, item.position);
                 });
 
                 if (hasItemsToBeDeleted) {
                     const expressions: string[] = [];
                     node.fields.map((expr: STNode) => {
-                        if (this.deletePosition !== expr.position) {
+                        if (!isPositionsEquals(this.deletePosition, expr.position)) {
                             expressions.push(expr.source);
                         }
                     });
