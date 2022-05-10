@@ -226,8 +226,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             },
             "& .MuiTab-root": {
                 marginRight: '24px',
-                paddingRight: '0px',
-                paddingLeft: '0px',
+                padding: '0',
                 minWidth: 'fit-content',
                 fontSize: '13px'
             },
@@ -287,10 +286,10 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             textOverflow: 'ellipsis'
         },
         expressionSuggestionList: {
-            maxHeight: '100%',
             overflowY: 'scroll',
             overflowX: 'hidden',
-            width: '100%'
+            width: '100%',
+            marginBottom: '60px'
         },
         librarySearchBox: {
             position: 'relative',
@@ -313,7 +312,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
         expressionList: {
             columnGap: '5%',
             display: 'grid',
-            gridTemplateColumns: '28% 28% 28%',
+            gridTemplateColumns: '30% 30% 30%',
             padding: 0,
             "& .MuiListItem-root": {
                 margin: '0 0 8px 0',
@@ -327,6 +326,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
         },
         libraryBrowser: {
             overflowX: 'hidden',
+            marginBottom: '60px',
             "& .MuiListItem-root": {
                 padding: '6px 0 6px 0'
             },
@@ -374,15 +374,13 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             padding: '0px',
         },
         libraryElementBlockContent: {
-            padding: '0px',
             top: '10%',
             height: '80%',
             overflowY: 'scroll',
             overflowX: 'hidden',
             columnGap: '6%',
             display: 'grid',
-            gridTemplateColumns: '29% 29% 29%',
-            paddingBottom: '8px'
+            gridTemplateColumns: '29% 29% 29%'
         },
         libraryElementBlock: {
             top: '5%',
