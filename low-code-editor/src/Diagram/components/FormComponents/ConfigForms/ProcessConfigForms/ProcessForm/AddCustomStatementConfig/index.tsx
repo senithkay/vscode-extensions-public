@@ -97,6 +97,11 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
         setIsFormValid(isValidExpression);
     }
 
+    const formTitle = intl.formatMessage({
+        id: "lowcode.develop.configForms.customStatement.title",
+        defaultMessage: "Other"
+    });
+
     const saveCustomStatementButtonLabel = intl.formatMessage({
         id: "lowcode.develop.configForms.customStatement.saveButton.label",
         defaultMessage: "Save"
@@ -123,8 +128,8 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
 
     const { handleStmtEditorToggle, stmtEditorComponent } = useStatementEditor(
         {
-            label: intl.formatMessage({ id: "lowcode.develop.configForms.customStatement.statementEditor.label" }),
-            initialSource: expression ? expression : "EXPRESSION",
+            label: formTitle,
+            initialSource: expression ? expression : "STATEMENT",
             formArgs: { formArgs },
             validForm: isFormValid,
             config,
@@ -146,7 +151,7 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
                 <FormHeaderSection
                     onCancel={onCancel}
                     statementEditor={true}
-                    formTitle={"lowcode.develop.configForms.customStatement.title"}
+                    formTitle={formTitle}
                     defaultMessage={"Other"}
                     handleStmtEditorToggle={handleStmtEditorToggle}
                     toggleChecked={false}

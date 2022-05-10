@@ -139,6 +139,11 @@ export function AddWhileForm(props: WhileProps) {
         defaultMessage: "Cancel"
     });
 
+    const formTitle = intl.formatMessage({
+        id: "lowcode.develop.configForms.while.title",
+        defaultMessage: "If"
+    });
+
     const initialSource = formArgs.model ? getInitialSource(createWhileStatementWithBlock(
                                 conditionExpression ? conditionExpression as string : 'EXPRESSION',
                                 (formArgs.model as WhileStatement).whileBody.statements.map(statement => {
@@ -150,7 +155,7 @@ export function AddWhileForm(props: WhileProps) {
 
     const { handleStmtEditorToggle, stmtEditorComponent } = useStatementEditor(
         {
-            label: intl.formatMessage({ id: "lowcode.develop.configForms.while.statementEditor.label" }),
+            label: formTitle,
             initialSource,
             formArgs: { formArgs },
             validForm: !isInvalid,
@@ -173,7 +178,7 @@ export function AddWhileForm(props: WhileProps) {
                 <FormHeaderSection
                     onCancel={onCancel}
                     statementEditor={true}
-                    formTitle={"lowcode.develop.configForms.while.title"}
+                    formTitle={formTitle}
                     defaultMessage={"While"}
                     handleStmtEditorToggle={handleStmtEditorToggle}
                     toggleChecked={false}

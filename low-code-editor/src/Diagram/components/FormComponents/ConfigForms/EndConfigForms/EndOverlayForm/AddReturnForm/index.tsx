@@ -97,6 +97,11 @@ export function AddReturnForm(props: ReturnFormProps) {
         defaultMessage: "Save"
     });
 
+    const formTitle = intl.formatMessage({
+        id: "lowcode.develop.configForms.Return.title",
+        defaultMessage: "Return"
+    });
+
     const returnStatementTooltipMessages = {
         title: intl.formatMessage({
             id: "lowcode.develop.configForms.returnStatementTooltipMessages.expressionEditor.tooltip.title",
@@ -123,7 +128,7 @@ export function AddReturnForm(props: ReturnFormProps) {
 
     const { handleStmtEditorToggle, stmtEditorComponent } = useStatementEditor(
         {
-            label: intl.formatMessage({ id: "lowcode.develop.configForms.return.statementEditor.label" }),
+            label: formTitle,
             initialSource,
             formArgs: { formArgs },
             validForm: isValidValue,
@@ -146,7 +151,7 @@ export function AddReturnForm(props: ReturnFormProps) {
                 <FormHeaderSection
                     onCancel={onCancel}
                     statementEditor={true}
-                    formTitle={"lowcode.develop.configForms.Return.title"}
+                    formTitle={formTitle}
                     defaultMessage={"Return"}
                     handleStmtEditorToggle={handleStmtEditorToggle}
                     toggleChecked={false}

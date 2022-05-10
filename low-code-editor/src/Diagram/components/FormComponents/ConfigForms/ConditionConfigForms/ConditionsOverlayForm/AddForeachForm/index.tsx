@@ -187,6 +187,11 @@ export function AddForeachForm(props: ForeachProps) {
         defaultMessage: "Save"
     });
 
+    const formTitle = intl.formatMessage({
+        id: "lowcode.develop.configForms.foreach.title",
+        defaultMessage: "Foreach"
+    });
+
     const currentValueVariableLabel = intl.formatMessage({
         id: "lowcode.develop.configForms.forEach.currentValueVariable.label",
         defaultMessage: "Current Value Variable"
@@ -250,7 +255,7 @@ export function AddForeachForm(props: ForeachProps) {
 
     const { handleStmtEditorToggle, stmtEditorComponent } = useStatementEditor(
         {
-            label: intl.formatMessage({ id: "lowcode.develop.configForms.forEach.statementEditor.label" }),
+            label: formTitle,
             initialSource,
             formArgs: { formArgs },
             validForm: isValidExpression,
@@ -295,7 +300,7 @@ export function AddForeachForm(props: ForeachProps) {
                 <FormHeaderSection
                     onCancel={onCancel}
                     statementEditor={true}
-                    formTitle={"lowcode.develop.configForms.foreach.title"}
+                    formTitle={formTitle}
                     defaultMessage={"Foreach"}
                     handleStmtEditorToggle={handleStmtEditorToggle}
                     toggleChecked={false}
