@@ -99,19 +99,21 @@ export function ExpressionSuggestions() {
                                         group.expressions.map((expression, index) => (
                                             <ListItem
                                                 button={true}
-                                                className={stmtEditorHelperClasses.suggestionListItem}
+                                                className={stmtEditorHelperClasses.expressionListItem}
                                                 key={index}
                                                 onClick={() => onClickExpressionSuggestion(expression)}
                                                 disableRipple={true}
                                             >
-                                                <ListItemText
-                                                    title={expression.name}
-                                                    primary={(
-                                                        <Typography style={{ fontFamily: 'monospace' }}>
-                                                            {expression.example}
-                                                        </Typography>
-                                                    )}
-                                                />
+                                                <div className={stmtEditorHelperClasses.expressionListItemText}>
+                                                    <ListItemText
+                                                        title={expression.name}
+                                                        primary={(
+                                                            <Typography style={{ fontFamily: 'monospace' }}>
+                                                                {expression.example}
+                                                            </Typography>
+                                                        )}
+                                                    />
+                                                </div>
                                             </ListItem>
                                         ))
                                     }

@@ -327,6 +327,17 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             },
             ...removePadding
         },
+        expressionListItem: {
+            width: '100px',
+            "& .MuiListItemText-root": {
+                margin: '0'
+            },
+            ...hoverColor1,
+            ...focusColor1
+        },
+        expressionListItemText: {
+            paddingLeft: '10px'
+        },
         loadingContainer: {
             height: '60vh',
             alignContent: 'center',
