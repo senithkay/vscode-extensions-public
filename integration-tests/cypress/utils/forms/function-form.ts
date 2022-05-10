@@ -46,6 +46,34 @@ export class FunctionForm {
 
     }
 
+    static saveShouldBeDisabled() {
+        this.getForm()
+            .contains("Save")
+            .should('be.disabled', { timeout: 5000 })
+        return this;
+    }
+
+    static saveShouldBeEnabled() {
+        this.getForm()
+            .contains("Save")
+            .should('be.enabled', { timeout: 5000 })
+        return this;
+    }
+
+    static paramSaveShouldBeDisabled() {
+        this.getForm()
+            .get('[data-testid="param-save-btn"]')
+            .should('be.disabled', { timeout: 5000 })
+        return this;
+    }
+
+    static paramSaveShouldBeEnabled() {
+        this.getForm()
+            .get('[data-testid="param-save-btn"]')
+            .should('be.enabled', { timeout: 5000 })
+        return this;
+    }
+
     private static getForm() {
         return cy
             .get(this.selector);
@@ -73,6 +101,16 @@ export class FunctionForm {
         this.getForm()
             .get('.panel-close-button')
             .click();
+        return this;
+
+    }
+
+    static addParameterClick() {
+        this.getForm()
+            .get('button')
+            .contains("Add parameter")
+            .click();
+
         return this;
 
     }
