@@ -21,6 +21,9 @@ import { TextDecoder, TextEncoder } from 'util';
 import { CancellationToken, NotebookCellData, NotebookCellExecutionSummary, NotebookCellKind, 
     NotebookCellOutput, NotebookCellOutputItem, NotebookData, NotebookSerializer } from 'vscode';
 
+/**
+ * Data structure to store infomation of notebook cells
+ */
 interface RawNotebookCell {
     language: string;
     value: string;
@@ -35,6 +38,10 @@ interface RawCellOutput {
     value: any;
 }
 
+/**
+ * Enables the editor to open notebook files and 
+ * handles how the content of notebook is written into a file
+ */
 export class BallerinaNotebookSerializer implements NotebookSerializer {
     async deserializeNotebook(content: Uint8Array, _token: CancellationToken): Promise<NotebookData> {
         var contents = new TextDecoder().decode(content);
@@ -58,7 +65,7 @@ export class BallerinaNotebookSerializer implements NotebookSerializer {
 
         return new NotebookData(cells);
     }
-   
+
     async serializeNotebook(data: NotebookData, _token: CancellationToken): Promise<Uint8Array> {
         let contents: RawNotebookCell[] = [];
         for (const cell of data.cells) {
@@ -74,6 +81,7 @@ export class BallerinaNotebookSerializer implements NotebookSerializer {
         return new TextEncoder().encode(JSON.stringify(contents));
     }
 
+    // Helper function to get standard notebook cell outputs for raw cell output
     getCellOutputs(rawCellOutputs: RawCellOutput[][]): NotebookCellOutput[] {
         let cellOutputs: NotebookCellOutput[] = [];
         for(let output of rawCellOutputs) {
@@ -89,6 +97,7 @@ export class BallerinaNotebookSerializer implements NotebookSerializer {
         return cellOutputs;
     }
 
+    // Helper function to get raw cell outputs for standard notebook cell output
     getRawCellOutputs(cellOutputs: NotebookCellOutput[]|undefined): RawCellOutput[][] {
         let rawCellOutputs: RawCellOutput[][] = [];
         for (const output of cellOutputs ?? []) {

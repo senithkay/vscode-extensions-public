@@ -25,6 +25,9 @@ import { CUSTOM_DESIGNED_MIME_TYPES } from './constants';
 import { VariableViewProvider } from './variableView';
 import { isWindows } from '../utils';
 
+/**
+ * Notebook controller to provide functionality of code execution.
+ */
 export class BallerinaNotebookController {
     readonly controllerId = 'ballerina-notebook-controller-id';
     readonly notebookType = 'ballerina-notebook';
@@ -37,6 +40,12 @@ export class BallerinaNotebookController {
     private readonly controller: NotebookController;
     private executionOrder = 0;
 
+    /**
+     * Constuctor for Ballerina notebook controller
+     * 
+     * @param extensionInstance Ballerina extension instance
+     * @param variableViewProvider Provider for variable view
+     */
     constructor(extensionInstance: BallerinaExtension, variableViewProvider: VariableViewProvider) {
         this.ballerinaExtension = extensionInstance;
         this.variableView = variableViewProvider;
@@ -52,10 +61,18 @@ export class BallerinaNotebookController {
         this.controller.executeHandler = this.execute.bind(this);
     }
 
+    /**
+     * Handler for cell execution.
+     * 
+     * @param cells Set of notebook cells to execute.
+     * @param _notebook Notebook document
+     * @param controller Notebook controller
+     */
     private async execute(cells: NotebookCell[], _notebook: NotebookDocument,
         controller: NotebookController): Promise<void> {
         for (let cell of cells) {
             await this.doExecution(cell);
+            // update the variable view to reflect changes
             this.updateVariableView();
         }
     }
@@ -64,16 +81,17 @@ export class BallerinaNotebookController {
         let langClient: ExtendedLangClient = <ExtendedLangClient>this.ballerinaExtension.langClient;
         const cellContent = cell.document.getText().trim();
         
+        const execution = this.controller.createNotebookCellExecution(cell);
+        execution.executionOrder = ++this.executionOrder;
+        execution.start(Date.now());
+        execution.clearOutput();
+        
+        // appends string output to the current execution cell output
         const appendTextToOutput = (data: any) => {
             execution.appendOutput([new NotebookCellOutput([
                 NotebookCellOutputItem.text(data.toString().trim())
             ])]);
         };
-        
-        const execution = this.controller.createNotebookCellExecution(cell);
-        execution.executionOrder = ++this.executionOrder;
-        execution.start(Date.now());
-        execution.clearOutput();
 
         // handle request to cancel the running execution 
         execution.token.onCancellationRequested(() => {
@@ -144,7 +162,7 @@ export class BallerinaNotebookController {
                 output.errors.forEach(appendTextToOutput);
             }
             execution.end(!(output.diagnostics.length) && !(output.errors.length), Date.now());
-            // TODO: Collect and store if there is any declarations cell meta data
+            // Collect and store if there is any declarations cell meta data
             output.metaInfo && this.metaInfoHandler.handleNewMetaInfo(cell, output.metaInfo);
         } catch (error) {
             appendTextToOutput(error);
@@ -160,6 +178,12 @@ export class BallerinaNotebookController {
         this.variableView.updateVariables();
     }
 
+    /**
+     * Brings controller to intial state by
+     *  - resetting excution counter
+     *  - updating variale view
+     *  - resetting meta info on cells
+     */
     public resetController() {
         this.executionOrder = 0;
         this.updateVariableView();
@@ -177,6 +201,10 @@ interface CellInfo {
     moduleDclns: string[];
 }
 
+/**
+ * Stores and handles info on variable declarations and module declarations for
+ * executed cells
+ */
 class MetoInfoHandler {
     private cellInfoList: CellInfo[];
 
@@ -184,6 +212,13 @@ class MetoInfoHandler {
         this.cellInfoList = [];
     }
 
+    /**
+     * Returns variable declarations and module declarations for a given cell if there are any
+     * otherwise empty arrays will return for each
+     * 
+     * @param cell Notebook cell
+     * @returns Variable declarations and module declarations for the cell
+     */
     getMetaForCell(cell: NotebookCell): NotebookCellMetaInfo {
         let definedVarsForCell: string[] = [];
         let moduleDclnsForCell: string[] = [];
@@ -199,6 +234,11 @@ class MetoInfoHandler {
         }
     }
 
+    /**
+     * Clears out info on a given cell if there is any
+     * 
+     * @param cell Notebook cell
+     */
     clearInfoForCell(cell: NotebookCell) {
         for (const cellInfo of this.cellInfoList) {
             if (cellInfo.cell.document.uri === cell.document.uri) {
@@ -208,13 +248,23 @@ class MetoInfoHandler {
         }
     }
 
+    /**
+     * Handles collection of meta info for cells
+     * if the given cell is already in the cellinfoList, this will update info for thet cell
+     * otherwise create a new entry with the info
+     * 
+     * TODO: handle cell delete, split and join
+     * 
+     * @param cell Notebook cell
+     * @param metaInfo New info on the cell
+     */
     handleNewMetaInfo(cell: NotebookCell, metaInfo: NotebookCellMetaInfo) {
         let found = false;
         for (const cellInfo of this.cellInfoList) {
             if (cellInfo.cell.document.uri === cell.document.uri) {
                 found = true;
-                cellInfo.definedVars.push.apply(cellInfo.definedVars, metaInfo.definedVars);
-                cellInfo.moduleDclns.push.apply(cellInfo.moduleDclns, metaInfo.moduleDclns);
+                cellInfo.definedVars = metaInfo.definedVars;
+                cellInfo.moduleDclns = metaInfo.moduleDclns;
             }
         }
         if (!found) {
@@ -226,6 +276,9 @@ class MetoInfoHandler {
         }
     }
 
+    /**
+     * Clears out cell info list
+     */
     reset() {
         this.cellInfoList = [];
     }
