@@ -98,6 +98,11 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
         defaultMessage: "Cancel"
     });
 
+    const formTitle = intl.formatMessage({
+        id: "lowcode.develop.configForms.assignment.title",
+        defaultMessage: "Assignment"
+    });
+
     const validForm: boolean = varName.length > 0 && variableExpression.length > 0;
 
     const nameExpressionEditorConfig: FormElementProps<ExpressionEditorProps> = {
@@ -174,7 +179,7 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
 
     const { handleStmtEditorToggle, stmtEditorComponent } = useStatementEditor(
         {
-            label: intl.formatMessage({ id: "lowcode.develop.configForms.assignment.statementEditor.label", defaultMessage: 'Assignment' }),
+            label: formTitle,
             initialSource,
             formArgs: { formArgs },
             validForm,
@@ -197,7 +202,7 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
                 <FormHeaderSection
                     onCancel={onCancel}
                     statementEditor={true}
-                    formTitle={"lowcode.develop.configForms.assignment.title"}
+                    formTitle={formTitle}
                     defaultMessage={"Assignment"}
                     handleStmtEditorToggle={handleStmtEditorToggle}
                     toggleChecked={false}
