@@ -38,6 +38,7 @@ import {
     Visitor
 } from "@wso2-enterprise/syntax-tree";
 
+import { END_OF_LINE_MINUTIAE } from "../constants";
 import { RemainingContent } from "../models/definitions";
 import { isPositionsEquals } from "../utils";
 
@@ -166,13 +167,19 @@ class ExpressionDeletingVisitor implements Visitor {
 
             if (hasItemsToBeDeleted) {
                 const expressions: string[] = [];
+                let separator;
                 node.fields.map((field: STNode) => {
-                    if (this.deletePosition !== field.position && !STKindChecker.isCommaToken(field)) {
-                        expressions.push(field.source);
+                    if (this.deletePosition !== field.position) {
+                        if (!STKindChecker.isCommaToken(field)) {
+                            expressions.push(field.source);
+                        } else {
+                            separator = field.trailingMinutiae.some(minutiae => minutiae.kind === END_OF_LINE_MINUTIAE)
+                                ? ',\n' : ',';
+                        }
                     }
                 });
 
-                this.setProperties(expressions.join(','), {
+                this.setProperties(expressions.join(separator), {
                     startLine: node.openBrace.position.startLine,
                     startColumn: node.openBrace.position.endColumn,
                     endLine: node.closeBrace.position.endLine,
