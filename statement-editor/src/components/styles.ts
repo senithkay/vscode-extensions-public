@@ -53,6 +53,10 @@ const focusColor1 = {
     },
 }
 
+const removePadding = {
+    padding: '0px'
+}
+
 export const useStatementEditorToolbarStyles = makeStyles(() =>
     createStyles({
         toolbar: {
@@ -102,7 +106,7 @@ export const useStatementRendererStyles = makeStyles(() =>
         expressionElement: {
             position: 'relative',
             width: 'fit-content',
-            margin: '0 2px 0 0',
+            marginRight: '2px',
             '&': {
                 width: 'fit-content',
                 borderRadius: '4px',
@@ -149,7 +153,7 @@ export const useStatementEditorDiagnosticStyles = makeStyles(() =>
             color: '#ea4c4d',
             paddingTop: '13px',
             "& .MuiList-padding": {
-                padding: '0px'
+                ...removePadding
             },
             "& .MuiListItemText-root": {
                 margin: '0px'
@@ -235,9 +239,9 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             },
             "& .MuiTab-root": {
                 marginRight: '24px',
-                padding: '0',
                 minWidth: 'fit-content',
-                fontSize: '13px'
+                fontSize: '13px',
+                ...removePadding
             },
             "& .MuiTab-textColorInherit": {
                 color: '#8D91A3'
@@ -260,7 +264,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             overflowY: 'scroll',
             overflowX: 'hidden',
             "& .MuiList-padding": {
-                padding: '0'
+                ...removePadding
             }
         },
         suggestionList: {
@@ -268,8 +272,8 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             display: 'grid',
             gridTemplateColumns: '47% 47%',
             "& .MuiListItem-root": {
-                margin: '0 0 8px 0',
-                padding: '0'
+                marginBottom: '8px',
+                ...removePadding
             },
         },
         suggestionListItem: {
@@ -310,18 +314,18 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
         },
         librarySearchSubHeader: {
             color: '#1D2028',
-            margin: '0 0 4px 0',
+            marginBottom: '4px',
             fontWeight: 500
         },
         expressionList: {
             columnGap: '5%',
             display: 'grid',
             gridTemplateColumns: '30% 30% 30%',
-            padding: 0,
             "& .MuiListItem-root": {
-                margin: '0 0 8px 0',
-                padding: '0'
+                marginBottom: '8px',
+                ...removePadding
             },
+            ...removePadding
         },
         loadingContainer: {
             height: '60vh',
@@ -335,7 +339,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
                 padding: '6px 0 6px 0'
             },
             "& .MuiIconButton-root": {
-                padding: '0'
+                ...removePadding
             }
         },
         libraryBrowserHeader: {
@@ -371,7 +375,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             columnGap: '5%',
             display: 'grid',
             gridTemplateColumns: '28% 28% 28%',
-            padding: '0px',
+            ...removePadding
         },
         libraryElementBlockContent: {
             top: '10%',
