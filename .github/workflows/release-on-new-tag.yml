@@ -3,9 +3,7 @@
 name: Release for a new tag
 
 on:
-  push:
-    tags:
-      - "v*"
+  workflow_dispatch:
 
 jobs:
   build:

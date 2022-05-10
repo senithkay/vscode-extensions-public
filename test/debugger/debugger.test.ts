@@ -176,7 +176,7 @@ suite('Ballerina Debug Adapter', () => {
                 { path: `file://${program}`, line: 11, verified: false });
         });
 
-        test('step In, hello world service - package', async () => {
+        test.skip('step In, hello world service - package', async () => {
             const program = path.join(DATA_ROOT, 'helloPackage', 'modules', 'hello', 'hello_service.bal');
             const debuggeePort = await getAvailablePort(5009);
             const launchArgs = {
