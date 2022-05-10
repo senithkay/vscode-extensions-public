@@ -116,13 +116,13 @@ class ExpressionDeletingVisitor implements Visitor {
     public beginVisitListConstructor(node: ListConstructor) {
         if (!this.isNodeFound) {
             const hasItemsToBeDeleted = node.expressions.some((item: STNode) => {
-                return this.deletePosition === item.position;
+                return isPositionsEquals(this.deletePosition, item.position);
             });
 
             if (hasItemsToBeDeleted) {
                 const expressions: string[] = [];
                 node.expressions.map((expr: STNode) => {
-                    if (this.deletePosition !== expr.position && !STKindChecker.isCommaToken(expr)) {
+                    if (!isPositionsEquals(this.deletePosition, expr.position) && !STKindChecker.isCommaToken(expr)) {
                         expressions.push(expr.source);
                     }
                 });

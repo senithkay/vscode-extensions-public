@@ -12,7 +12,7 @@
  */
 import {
     AssignmentStatement,
-    BinaryExpression, KeySpecifier,
+    BinaryExpression, IdentifierToken, KeySpecifier,
     ListConstructor, MappingConstructor, OptionalTypeDesc, RecordField, RecordFieldWithDefaultValue,
     STNode, TupleTypeDesc, TypedBindingPattern,
     Visitor
@@ -77,6 +77,12 @@ class DeleteConfigSetupVisitor implements Visitor {
 
     public beginVisitRecordFieldWithDefaultValue(node: RecordFieldWithDefaultValue) {
         (node.fieldName.viewState as StatementEditorViewState).templateExprDeletable = false;
+    }
+
+    public beginVisitIdentifierToken(node: IdentifierToken, parent?: STNode) {
+        if (parent && (parent.viewState as StatementEditorViewState).templateExprDeletable) {
+            (node.viewState as StatementEditorViewState).templateExprDeletable = true;
+        }
     }
 }
 
