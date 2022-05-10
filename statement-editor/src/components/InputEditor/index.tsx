@@ -150,7 +150,7 @@ export function InputEditor(props: InputEditorProps) {
                 onClickAway={handleEditEnd}
             >
                 <input
-                    value={INPUT_EDITOR_PLACEHOLDERS.has(userInput) ? "" : userInput}
+                    value={INPUT_EDITOR_PLACEHOLDERS.has(userInput.trim()) ? "" : userInput}
                     className={statementEditorClasses.inputEditorTemplate + ' ' + classNames}
                     onKeyDown={inputEnterHandler}
                     onInput={inputChangeHandler}
