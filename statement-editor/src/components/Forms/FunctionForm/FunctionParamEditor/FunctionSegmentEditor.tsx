@@ -18,7 +18,6 @@ import { FormTextInput, PrimaryButton, SecondaryButton } from "@wso2-enterprise/
 import {
     DefaultableParam,
     IncludedRecordParam,
-    NodePosition,
     RequiredParam,
     RestParam
 } from "@wso2-enterprise/syntax-tree";
@@ -122,12 +121,14 @@ export function FunctionParamSegmentEditor(props: FunctionParamSegmentEditorProp
                             placeholder={"string"}
                             customProps={{
                                 optional: true,
-                                isErrored: (syntaxDiag !== undefined && currentComponentName === "Type" || (
-                                    param?.typeName?.viewState?.diagnosticsInRange?.length > 0
+                                isErrored: segmentType.isInteracted && (syntaxDiag !== undefined &&
+                                    currentComponentName === "Type" || (param?.typeName?.viewState?.
+                                            diagnosticsInRange?.length > 0
                                 ))
                             }}
-                            errorMessage={(syntaxDiag && currentComponentName === "Type" && syntaxDiag[0].message) ||
-                                param?.typeName?.viewState?.diagnosticsInRange[0]?.message
+                            errorMessage={(syntaxDiag && currentComponentName === "Type"
+                                && syntaxDiag[0].message) || segmentType.isInteracted && param?.typeName?.viewState?.
+                                diagnosticsInRange[0]?.message
                             }
                             disabled={(syntaxDiag?.length > 0) && currentComponentName !== "Type"}
                         />
@@ -140,12 +141,13 @@ export function FunctionParamSegmentEditor(props: FunctionParamSegmentEditorProp
                             placeholder={"name"}
                             customProps={{
                                 optional: true,
-                                isErrored: ((syntaxDiag !== undefined && currentComponentName === "Name") || (
-                                    param?.paramName?.viewState?.diagnosticsInRange?.length > 0
+                                isErrored: segmentName.isInteracted && ((syntaxDiag !== undefined &&
+                                    currentComponentName === "Name") || (param?.paramName?.viewState?.
+                                        diagnosticsInRange?.length > 0
                                 ))
                             }}
-                            errorMessage={(syntaxDiag && currentComponentName === "Name" && syntaxDiag[0].message) ||
-                                param?.paramName?.viewState?.diagnosticsInRange[0]?.message
+                            errorMessage={(syntaxDiag && currentComponentName === "Name"
+                                && syntaxDiag[0].message) || param?.paramName?.viewState?.diagnosticsInRange[0]?.message
                             }
                             disabled={(syntaxDiag?.length > 0) && currentComponentName !== "Name"}
                         />

@@ -19,7 +19,6 @@ import {
     createFunctionSignature,
     ExpressionEditorLangClientInterface,
     getSource,
-    mutateFunctionSignature,
     STModification,
     updateFunctionSignature,
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
@@ -41,6 +40,7 @@ import {
 import debounce from "lodash.debounce";
 
 import { StmtDiagnostic } from "../../../models/definitions";
+import { getUpdatedSource } from "../../../utils";
 import { getPartialSTForTopLevelComponents } from "../../../utils/ls-utils";
 import { FormEditorField } from "../Types";
 import { recalculateItemIds } from "../Utils/FormUtils";
@@ -86,38 +86,42 @@ export function FunctionForm(props: FunctionProps) {
     const functionBodyBlock = model && STKindChecker.isFunctionBodyBlock(model.functionBody) && model?.functionBody;
     const params = model?.functionSignature?.parameters.filter(param => !STKindChecker.isCommaToken(param));
 
+    const functionParamChange = async (funcName: string, parametersStr: string, returnTypeStr: string) => {
+        const codeSnippet = getSource(updateFunctionSignature(funcName, parametersStr,
+            returnTypeStr ? `returns ${returnTypeStr}` : "", {
+                ...targetPosition, startColumn : model?.functionName?.position?.startColumn
+            })
+        );
+        const updatedContent = await getUpdatedSource(codeSnippet, model?.source, {
+            ...model?.functionSignature?.position, startColumn : model?.functionName?.position?.startColumn
+        }, undefined, true);
+        const partialST = await getPartialSTForTopLevelComponents(
+            {codeSnippet: updatedContent.trim()}, getLangClient
+        );
+        if (!partialST.syntaxDiagnostics.length) {
+            setCurrentComponentSyntaxDiag(undefined);
+            onChange(updatedContent, partialST);
+        } else {
+            setCurrentComponentSyntaxDiag(partialST.syntaxDiagnostics);
+        }
+    }
+
+    // Function name related functions
     const onNameFocus = (value: string) => {
         setCurrentComponentName("Name");
     }
     const onNameChange = async (value: string) => {
         setFunctionName({value, isInteracted: true});
-        const genSource = getSource(mutateFunctionSignature(accessModifier, value, "",
-            returnType.value ? `returns ${returnType.value}` : "", targetPosition));
-        const partialST = await getPartialSTForTopLevelComponents(
-            {codeSnippet: genSource.trim()}, getLangClient
-        );
-        if (!partialST.syntaxDiagnostics.length) {
-            setCurrentComponentSyntaxDiag(undefined);
-            onChange(genSource, partialST);
-        } else {
-            setCurrentComponentSyntaxDiag(partialST.syntaxDiagnostics);
-        }
+        const parametersStr = parameters.map((item) => `${item.type.value} ${item.name.value}`).join(",");
+        await functionParamChange(value, parametersStr, returnType.value);
     }
     const debouncedNameChange = debounce(onNameChange, 500);
 
+    // Return type related functions
     const onReturnTypeChange = async (value: string) => {
         setReturnType({value, isInteracted: true});
-        const genSource = getSource(createFunctionSignature(accessModifier, functionName.value, "",
-            value ? `returns ${value}` : "", targetPosition));
-        const partialST = await getPartialSTForTopLevelComponents(
-            {codeSnippet: genSource.trim()}, getLangClient
-        );
-        if (!partialST.syntaxDiagnostics.length) {
-            setCurrentComponentSyntaxDiag(undefined);
-            onChange(genSource, partialST);
-        } else {
-            setCurrentComponentSyntaxDiag(partialST.syntaxDiagnostics);
-        }
+        const parametersStr = parameters.map((item) => `${item.type.value} ${item.name.value}`).join(",");
+        await functionParamChange(functionName.value, parametersStr, value);
     }
     const onReturnFocus = (value: string) => {
         setCurrentComponentName("Return");
@@ -162,17 +166,7 @@ export function FunctionForm(props: FunctionProps) {
         const parametersStr = newParams
             .map((item) => `${item.type.value} ${item.name.value}`)
             .join(",");
-        const genSource = getSource(mutateFunctionSignature(accessModifier, functionName.value, parametersStr,
-            returnType.value ? `returns ${returnType.value}` : "", targetPosition));
-        const partialST = await getPartialSTForTopLevelComponents(
-            {codeSnippet: genSource.trim()}, getLangClient
-        );
-        if (!partialST.syntaxDiagnostics.length) {
-            setCurrentComponentSyntaxDiag(undefined);
-            onChange(genSource, partialST);
-        } else {
-            setCurrentComponentSyntaxDiag(partialST.syntaxDiagnostics);
-        }
+        await functionParamChange(functionName.value, parametersStr, returnType.value);
     };
     const onUpdateParamChange = async (param: FunctionParam) => {
         setCurrentComponentName("Param")
@@ -181,17 +175,7 @@ export function FunctionForm(props: FunctionProps) {
         const parametersStr = newParams
             .map((item) => `${item.type.value} ${item.name.value}`)
             .join(",");
-        const genSource = getSource(mutateFunctionSignature(accessModifier, functionName.value, parametersStr,
-            returnType.value ? `returns ${returnType.value}` : "", targetPosition));
-        const partialST = await getPartialSTForTopLevelComponents(
-            {codeSnippet: genSource.trim()}, getLangClient
-        );
-        if (!partialST.syntaxDiagnostics.length) {
-            setCurrentComponentSyntaxDiag(undefined);
-            onChange(genSource, partialST);
-        } else {
-            setCurrentComponentSyntaxDiag(partialST.syntaxDiagnostics);
-        }
+        await functionParamChange(functionName.value, parametersStr, returnType.value);
     };
     const onSaveNewParam = (param: FunctionParam) => {
         setParameters([...parameters, param]);
