@@ -35,11 +35,29 @@ const syntaxHighlightingRules = {
     }
 }
 
+const hoverColor1 = {
+    '&:hover': {
+        backgroundColor: '#F0F1FB',
+    }
+}
+
+const hoverColor2 = {
+    '&.hovered': {
+        backgroundColor: '#e5ebf1'
+    },
+}
+
+const focusColor1 = {
+    '&:focus': {
+        backgroundColor: 'rgba(204,209,242,0.61)'
+    },
+}
+
 export const useStatementEditorToolbarStyles = makeStyles(() =>
     createStyles({
         toolbar: {
             display: 'flex',
-            width: '81%',
+            width: '100%',
             justifyContent: 'flex-end'
         },
         toolbarSet: {
@@ -50,14 +68,11 @@ export const useStatementEditorToolbarStyles = makeStyles(() =>
         },
         toolbarIcons: {
             padding: '8px',
-            '&:hover': {
-                backgroundColor: '#F0F1FB',
-            }
+            ...hoverColor1
         },
         undoRedoSeparator: {
             width: '1px',
             borderRadius: '5px',
-            backgroundColor: '#FFFFFF',
             boxShadow: 'inset 0 0 0 1px #E6E7EC'
           }
     }),
@@ -92,19 +107,15 @@ export const useStatementRendererStyles = makeStyles(() =>
                 width: 'fit-content',
                 borderRadius: '4px',
             },
-            '&.hovered': {
-                backgroundColor: '#e5ebf1'
-            },
             cursor: "pointer",
-            ...syntaxHighlightingRules
+            ...syntaxHighlightingRules,
+            ...hoverColor2
         },
         expressionElementSelected: {
             '&': {
                 backgroundColor: '#ccd1f29c',
             },
-            '&.hovered': {
-                backgroundColor: '#e5ebf1',
-            },
+            ...hoverColor2
         },
         plusIcon: {
             boxSizing: 'border-box',
@@ -182,8 +193,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             "&:focused": {
                 background: "linear-gradient(180deg, #ffffff 0%, #f7f7f9 100%)",
                 boxShadow: "inset 0 0 0 1px #a6b3ff, 0 1px 1px 0 rgba(0, 0, 0, 0.06)",
-                border: "1px solid #5567d5 !important",
-                backgroundColor: "none"
+                border: "1px solid #5567d5 !important"
             },
             '& .MuiSelect-icon': {
                 marginRight: 11,
@@ -209,7 +219,6 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             }
         },
         dropdownStyle: {
-            backgroundColor: "#fff",
             boxSizing: "border-box",
             width: "auto",
             border: "1px solid #DEE0E7",
@@ -264,15 +273,11 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             },
         },
         suggestionListItem: {
-            '&:hover': {
-                backgroundColor: '#F0F1FB',
-            },
-            '&:focus': {
-                backgroundColor: 'rgba(204,209,242,0.61)'
-            },
             "& .MuiListItemText-root": {
                 margin: '0'
             },
+            ...hoverColor1,
+            ...focusColor1
         },
         suggestionDataType: {
             color: '#05A26B',
@@ -297,7 +302,6 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             width: 'inherit',
             border: '1px #E0E3E9',
             borderRadius: '5px',
-            backgroundColor: '#FFFFFF',
             boxShadow: 'inset 0 0 0 1px #DEE0E7, inset 0 2px 1px 0 rgba(0,0,0,0.07), 0 0 0 0 rgba(50,50,77,0.07)',
             color: '#CBCEDB',
             textIndent: '12px',
@@ -349,16 +353,12 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
         },
         libraryReturnIcon: {
             alignSelf: 'center',
-            '&:hover': {
-                backgroundColor: '#F0F1FB',
-            },
-            '&:focus': {
-                backgroundColor: 'rgba(204,209,242,0.61)'
-            },
             margin: '0 10px 16px 0',
             "& .MuiSvgIcon-root": {
                 fontSize: '13px',
-            }
+            },
+            ...hoverColor1,
+            ...focusColor1
         },
         arrowBack: {
             color: '#5567D5'
@@ -443,7 +443,6 @@ export const useStatementEditorStyles = makeStyles(() =>
         bottomPane: {
             display: 'flex',
             flexDirection: 'column',
-            backgroundColor: '#fff',
             width: '100%',
             height: '10%'
         },
