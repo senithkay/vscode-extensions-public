@@ -11,11 +11,17 @@
  * associated services.
  */
 
-import { STNode } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
-interface StmtActionStackItem {
-    oldModel: STNode;
-    newModel: STNode;
+export interface StmtActionStackItem {
+    oldModel: StackElement,
+    newModel: StackElement
+}
+
+
+export interface StackElement {
+    model: STNode,
+    selectedPosition : NodePosition
 }
 
 class StmtActionStack {
@@ -64,7 +70,7 @@ export class StmtEditorUndoRedoManager {
         this.redoStack = new StmtActionStack();
     }
 
-    public add(oldModel: STNode, newModel: STNode) {
+    public add(oldModel: StackElement, newModel: StackElement) {
         this.undoStack.add({ oldModel, newModel});
         // Reset redo stack when new actions are performed.
         // Otherwise history will be confusing for the user.

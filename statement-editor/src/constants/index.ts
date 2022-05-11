@@ -113,3 +113,10 @@ export type OtherStatementNodeTypes = ActionStatement
 export enum ArrayType {
     MAPPING_CONSTRUCTOR
 }
+
+export enum SymbolParameterType {
+    REQUIRED = "REQUIRED",
+    DEFAULTABLE = "DEFAULTABLE",
+    INCLUDED_RECORD = "INCLUDED_RECORD",
+    REST = "REST"
+}

@@ -13,7 +13,7 @@
 // tslint:disable: no-empty jsx-no-multiline-js
 import React from 'react';
 
-import { LibraryKind, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { LibraryKind, STModification, SymbolInfoResponse } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { LowCodeEditorProps } from "../components/StatementEditorWrapper";
@@ -33,6 +33,8 @@ export const StatementEditorContext = React.createContext({
         redo: () => undefined,
         hasUndo: false,
         hasRedo: false,
+        restArg: (restCheckClicked: boolean) => undefined,
+        hasRestArg: false
     },
     statementCtx: {
         diagnostics: []
@@ -67,6 +69,7 @@ export const StatementEditorContext = React.createContext({
         path: "",
         size: 0
     },
+    documentation: null,
     syntaxTree: null,
     stSymbolInfo: null,
     importStatements: [],
@@ -92,6 +95,9 @@ export interface CtxProviderProps extends LowCodeEditorProps {
     hasRedo?: boolean,
     diagnostics?: StmtDiagnostic[],
     lsSuggestions?: SuggestionItem[],
+    documentation?: SymbolInfoResponse,
+    restArg?: (restCheckClicked: boolean) => void,
+    hasRestArg?: boolean,
     handleStmtEditorToggle: () => void,
     editorManager: {
         switchEditor?: (index: number) => void,
@@ -121,6 +127,9 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
         initialSource,
         diagnostics,
         lsSuggestions,
+        documentation,
+        restArg,
+        hasRestArg,
         editorManager,
         targetPosition,
         config,
@@ -144,6 +153,8 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
                     redo,
                     hasRedo,
                     hasUndo,
+                    restArg,
+                    hasRestArg
                 },
                 statementCtx: {
                     diagnostics
@@ -155,6 +166,7 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
                     modulesToBeImported,
                     updateModuleList: handleModules
                 },
+                documentation,
                 formCtx: formArgs,
                 config,
                 editorCtx: {
