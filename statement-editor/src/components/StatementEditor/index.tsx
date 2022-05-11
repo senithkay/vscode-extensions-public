@@ -38,6 +38,7 @@ import {
     getFilteredDiagnosticMessages,
     getNextNode,
     getPreviousNode,
+    getSelectedModelPosition,
     getUpdatedSource,
     isBindingPattern,
     isOperator,
@@ -242,27 +243,22 @@ export function StatementEditor(props: StatementEditorProps) {
 
         if (!partialST.syntaxDiagnostics.length || config.type === CUSTOM_CONFIG_TYPE) {
             updateEditedModel(partialST, diagnostics);
-        }
-
-        const currentModelPosition : NodePosition = {
-            ...position,
-            endColumn: position.startColumn + codeSnippet.length
-        };
-
-        const undoModel : StmtActionStackItem = {
-            oldModel: {
-                model,
-                selectedPosition : currentModel.model.position
-            },
-            newModel: {
-                model: partialST,
-                selectedPosition : currentModelPosition
+            const selectedPosition = getSelectedModelPosition(codeSnippet, position);
+            const undoModel : StmtActionStackItem = {
+                oldModel: {
+                    model,
+                    selectedPosition : currentModel.model.position
+                },
+                newModel: {
+                    model: partialST,
+                    selectedPosition
+                }
             }
-        }
-        undoRedoManager.add(undoModel.oldModel, undoModel.newModel);
+            undoRedoManager.add(undoModel.oldModel, undoModel.newModel);
 
-        const newCurrentModel = getCurrentModel(currentModelPosition, enrichModel(partialST, targetPosition));
-        setCurrentModel({model: newCurrentModel});
+            const newCurrentModel = getCurrentModel(selectedPosition, enrichModel(partialST, targetPosition));
+            setCurrentModel({model: newCurrentModel});
+        }
     }
 
     const handleModules = (module: string) => {
