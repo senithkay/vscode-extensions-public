@@ -22,17 +22,31 @@ interface TabPanelProps {
     values: string[]
     defaultValue: string
     onSelection: (value: string) => void
+    docExpandClicked : boolean
+    selectedTab: string
 }
 
 export default function TabPanel(props: TabPanelProps) {
     const statementEditorClasses = useStatementEditorStyles();
-    const { values, defaultValue, onSelection } = props;
+    const { values, defaultValue, onSelection, docExpandClicked, selectedTab } = props;
     const [value, setValue] = React.useState(defaultValue);
 
     const handleChange = (event: React.ChangeEvent<{}>, newValue: string) => {
         setValue(newValue);
         onSelection(newValue);
     };
+
+    // React.useEffect(() => {
+    //     if (docExpandClicked){
+    //         setValue("Parameters");
+    //     }
+    // }, [docExpandClicked])
+
+    // TODO : Fix issue with opening the correct tab when clicked on the other expression
+    React.useEffect(() => {
+        setValue(selectedTab);
+    })
+
 
     const tabs: React.ReactNode[] = [];
     if (values) {

@@ -48,14 +48,20 @@ export function HelperPane(props: HelperPaneProps) {
         setLibraryType(value);
     };
 
+    React.useEffect(() => {
+        setSelectedTab(initialVal2);
+    }, [initialVal2])
+
     return (
         <>
             <div className={statementEditorClasses.tabPanelWrapper}>
                 <div className={statementEditorClasses.tabPanel}>
                     <TabPanel
                         values={[TabElements.suggestions, TabElements.expressions, TabElements.libraries, TabElements.parameters]}
-                        defaultValue={TabElements.suggestions}
+                        defaultValue={initialVal2}
                         onSelection={onTabElementSelection}
+                        docExpandClicked={docExpandClicked}
+                        selectedTab={selectedTab}
                     />
                 </div>
                 <div className={statementEditorClasses.libraryTypeSelector}>
