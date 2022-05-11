@@ -88,14 +88,14 @@ export function LSSuggestions() {
             variable = variable.split('(')[0] + "(" + paramArray.toString() + ")";
         }
 
-        const modelPosition: NodePosition = currentModel ? currentModel.model.position : formModelPosition
+        const nodePosition: NodePosition = currentModel ? currentModel.model.position : formModelPosition
         if (currentModel &&  STKindChecker.isMethodCall(currentModel.model.parent?.parent) &&
                 isPositionsEquals(currentModel.model.position, currentModel.model.parent.parent.methodName.position)){
-            modelPosition.endLine = currentModel.model.parent.parent.closeParenToken.position.endLLine;
-            modelPosition.endColumn = currentModel.model.parent.parent.closeParenToken.position.endColumn;
+            nodePosition.endLine = currentModel.model.parent.parent.closeParenToken.position.endLLine;
+            nodePosition.endColumn = currentModel.model.parent.parent.closeParenToken.position.endColumn;
 
         }
-        updateModel(variable, modelPosition);
+        updateModel(variable, nodePosition);
         inputEditorCtx.onInputChange('');
     }
 
