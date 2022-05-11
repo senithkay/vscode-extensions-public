@@ -38,6 +38,7 @@ const syntaxHighlightingRules = {
 export const useStatementEditorStyles = makeStyles(() =>
     createStyles({
         toolbar: {
+            display: 'inline-block',
             right: '13px',
             top: '60px',
             border: '1px solid #e6e7ec',
@@ -97,7 +98,7 @@ export const useStatementEditorStyles = makeStyles(() =>
             width: '50%',
         },
         statementExpressionTitle: {
-            display: 'flex',
+            display: 'inline-block',
             alignItems: 'center',
             paddingBottom: theme.spacing(1),
         },

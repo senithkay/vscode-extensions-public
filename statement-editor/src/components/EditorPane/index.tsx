@@ -18,6 +18,7 @@ import PrimarySwitchToggle from "@wso2-enterprise/ballerina-low-code-edtior-ui-c
 
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { Diagnostics } from "../Diagnostics";
+import DocumentationSwitchToggle from "../Documentation/DocumentationToggle";
 import { InlineDocumentation } from "../Documentation/InlineDocumentation";
 import { HelperPane } from "../HelperPane";
 import { StatementRenderer } from "../StatementRenderer";
@@ -58,9 +59,9 @@ export function EditorPane(props: ModelProps) {
                 <div className={statementEditorClasses.statementExpressionTitle}>
                     {label}
                     <Toolbar/>
-                    <FormGroup>
+                    <FormGroup style={{float: 'right'}}>
                         <FormControlLabel
-                            control={<Switch checked={docEnabled} onChange={handleChange}/>}
+                            control={<DocumentationSwitchToggle checked={docEnabled} onChange={handleChange}/>}
                             label={"Documentation"}
                             labelPlacement={"start"}
                         />
