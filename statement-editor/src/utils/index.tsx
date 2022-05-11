@@ -348,6 +348,24 @@ export function sortSuggestions(x: CompletionResponse, y: CompletionResponse) {
     return 0;
 }
 
+export function getSelectedModelPosition(codeSnippet: string, targetedPosition: NodePosition): NodePosition {
+    let selectedModelPosition : NodePosition = {
+        ...targetedPosition,
+        endColumn: targetedPosition.startColumn + codeSnippet.length
+    };
+
+    if (codeSnippet.startsWith(',\n')) {
+        selectedModelPosition = {
+            startLine: targetedPosition.startLine + 1,
+            endLine: targetedPosition.endLine + codeSnippet.split('\n').length - 1,
+            startColumn: 0,
+            endColumn: targetedPosition.startColumn + codeSnippet.length
+        };
+    }
+
+    return selectedModelPosition;
+}
+
 export function getModuleIconStyle(label: string): string {
     let suggestionIconStyle: string;
     switch (label) {
