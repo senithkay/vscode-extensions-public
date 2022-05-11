@@ -13,7 +13,6 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useMemo, useState } from "react";
 
-import { ClickAwayListener } from "@material-ui/core";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 import debounce from "lodash.debounce";
 
@@ -144,11 +143,7 @@ export function InputEditor(props: InputEditorProps) {
 
     return isEditing ?
         (
-            <ClickAwayListener
-                mouseEvent="onMouseDown"
-                touchEvent="onTouchStart"
-                onClickAway={handleEditEnd}
-            >
+            <>
                 <input
                     value={INPUT_EDITOR_PLACEHOLDERS.has(userInput.trim()) ? "" : userInput}
                     className={statementRendererClasses.inputEditorTemplate + ' ' + classNames}
@@ -159,7 +154,7 @@ export function InputEditor(props: InputEditorProps) {
                     style={{ maxWidth: userInput === '' ? '10px' : 'fit-content' }}
                     spellCheck="false"
                 />
-            </ClickAwayListener>
+            </>
         ) : (
             <span
                 className={statementRendererClasses.inputEditorTemplate + ' ' + classNames}

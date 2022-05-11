@@ -17,7 +17,8 @@ import { ALL_LIBS_IDENTIFIER, LANG_LIBS_IDENTIFIER, STD_LIBS_IDENTIFIER } from "
 import { KeyboardNavigationManager } from "../../utils/keyboard-navigation-manager";
 import SelectDropdown from "../Dropdown";
 import { LibraryBrowser } from "../LibraryBrowser";
-import { useStatementEditorStyles, useStmtEditorHelperPanelStyles } from "../styles";
+import { ParameterSuggestions } from "../Parameters/ParameterSuggestions";
+import { useStatementEditorStyles, useStmtEditorHelperPanelStyles  } from "../styles";
 import { ExpressionSuggestions } from "../Suggestions/ExpressionSuggestions";
 import { LSSuggestions } from "../Suggestions/LangServerSuggestions";
 import TabPanel from "../Tab";
@@ -26,13 +27,19 @@ enum TabElements {
     suggestions = 'Suggestions',
     expressions = 'Expressions',
     libraries = 'Libraries',
+    parameters = 'Parameters'
 }
 
-export function HelperPane() {
+export interface HelperPaneProps{
+    docExpandClicked : boolean
+}
+
+export function HelperPane(props: HelperPaneProps) {
+    const { docExpandClicked } = props;
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
     const statementEditorClasses = useStatementEditorStyles();
-
-    const [selectedTab, setSelectedTab] = useState(TabElements.suggestions);
+    const initialVal2 = docExpandClicked ? TabElements.parameters : TabElements.suggestions;
+    const [selectedTab, setSelectedTab] = useState(initialVal2);
     const [libraryType, setLibraryType] = useState('');
 
     const onTabElementSelection = async (value: TabElements) => {
@@ -58,15 +65,21 @@ export function HelperPane() {
         }
     }, []);
 
+    React.useEffect(() => {
+        setSelectedTab(initialVal2);
+    }, [initialVal2])
+
     return (
         <>
             <div className={statementEditorClasses.stmtEditorInnerWrapper}>
                 <div className={stmtEditorHelperClasses.tabPanelWrapper}>
 
                     <TabPanel
-                        values={[TabElements.suggestions, TabElements.expressions, TabElements.libraries]}
-                        defaultValue={TabElements.suggestions}
+                        values={[TabElements.suggestions, TabElements.expressions, TabElements.libraries, TabElements.parameters]}
+                        defaultValue={initialVal2}
                         onSelection={onTabElementSelection}
+                        docExpandClicked={docExpandClicked}
+                        selectedTab={selectedTab}
                     />
                     <div className={stmtEditorHelperClasses.libraryTypeSelector}>
                         {selectedTab === TabElements.libraries && (
@@ -84,6 +97,7 @@ export function HelperPane() {
                 {selectedTab === TabElements.suggestions && <LSSuggestions />}
                 {selectedTab === TabElements.expressions && <ExpressionSuggestions />}
                 {selectedTab === TabElements.libraries && <LibraryBrowser libraryType={libraryType} />}
+                {selectedTab === TabElements.parameters && <ParameterSuggestions />}
             </div>
         </>
     );
