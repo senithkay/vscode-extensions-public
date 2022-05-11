@@ -24,16 +24,14 @@ if {{{ CONDITION }}} {
 `,
     IF_CONDITION_WITH_BLOCK: `
 if {{{ CONDITION }}} {
-    {{{ BLOCKSTATEMENTS }}}
-`,
+    {{{ BLOCKSTATEMENTS }}}`,
     ELSE_IF_CONDITION: `
 } else if {{{ CONDITION }}} {
 
 `,
     ELSE_IF_CONDITION_WITH_BLOCK: `
 } else if {{{ CONDITION }}} {
-    {{{ BLOCKSTATEMENTS }}}
-`,
+    {{{ BLOCKSTATEMENTS }}}`,
     ELSE_STATEMENT: `
 } else {
 
