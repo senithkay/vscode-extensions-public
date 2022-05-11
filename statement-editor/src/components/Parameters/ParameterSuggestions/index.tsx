@@ -6,6 +6,7 @@ import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { SymbolParameterType } from "../../../constants";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
+import { useStatementEditorStyles } from "../../styles";
 import { NamedArgIncludedRecord } from "../NamedArgIncludedRecord";
 import { ParameterList } from "../ParameterList";
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
@@ -23,6 +24,7 @@ export function ParameterSuggestions(){
         },
         documentation
     } = useContext(StatementEditorContext);
+    const statementEditorClasses = useStatementEditorStyles();
 
     const [checked, setChecked] = React.useState<any[]>([]);
 
@@ -78,7 +80,7 @@ export function ParameterSuggestions(){
 
     return(
         <>
-            {documentation && !(documentation.documentation === undefined) && (
+            {documentation && !(documentation.documentation === undefined) ? (
                 <List>
                     <ListItem>
                         <ListItemText primary={documentation.documentation.description}/>
@@ -86,7 +88,8 @@ export function ParameterSuggestions(){
                     <ParameterList checkedList={checked} setCheckedList={setCheckedList} />
                     {documentation.documentation.returnValueDescription && (
                         <>
-                            <ListSubheader>
+                            <hr className={statementEditorClasses.parameterSeparater}/>
+                            <ListSubheader className={statementEditorClasses.parameterHeader}>
                                 Return
                             </ListSubheader>
                             <ListItem>
@@ -95,6 +98,10 @@ export function ParameterSuggestions(){
                         </>
                     )}
                 </List>
+            ) : (
+                <div>
+                    <p>No documentation available</p>
+                </div>
             )}
         </>
     );

@@ -2,6 +2,8 @@ import React, { useState } from "react";
 
 import { Checkbox, ListItem, OutlinedInput } from "@material-ui/core";
 
+import { useStatementEditorStyles } from "../../styles";
+
 interface NamedArgIncludedRecordProps {
     isNewRecord: boolean
     value: number
@@ -9,6 +11,7 @@ interface NamedArgIncludedRecordProps {
 }
 // tslint:disable: jsx-no-multiline-js
 export function NamedArgIncludedRecord(props: NamedArgIncludedRecordProps){
+    const statementEditorClasses = useStatementEditorStyles();
     const {isNewRecord, value, addIncludedRecordToModel} = props;
     const defaultNamedArg = "NamedArg";
     const [userInput, setUserInput] = useState<string>(defaultNamedArg);
@@ -28,7 +31,13 @@ export function NamedArgIncludedRecord(props: NamedArgIncludedRecordProps){
         <>
             {isNewRecord && (
                 <ListItem>
-                    <Checkbox style={{ flex: 'inherit' }} checked={true}/>
+                    <Checkbox
+                        classes={{
+                            root : statementEditorClasses.disabledCheckbox,
+                            checked : statementEditorClasses.checked
+                        }}
+                        checked={true}
+                    />
                     <OutlinedInput placeholder={defaultNamedArg} autoFocus={true} onKeyDown={inputEnterHandler} onInput={inputChangeHandler}/>
                 </ListItem>
             )}

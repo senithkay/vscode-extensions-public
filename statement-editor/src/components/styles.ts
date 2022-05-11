@@ -667,6 +667,19 @@ export const useStatementEditorStyles = makeStyles(() =>
                     borderRadius: 3,
                 }
             }
+        },
+        parameterHeader :  {
+            fontSize: '13px',
+            color: '#1D2028',
+            letterSpacing: '0',
+            lineHeight: '14px'
+        },
+        parameterSeparater : {
+            height: '1px',
+            width: '616px',
+            opacity: '0.52',
+            backgroundColor: "#DCDEE4",
+            marginLeft: '16px'
         }
     }),
 );

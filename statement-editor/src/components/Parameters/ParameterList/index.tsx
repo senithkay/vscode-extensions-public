@@ -193,7 +193,7 @@ export function ParameterList(props: ParameterListProps) {
         <>
             {!!documentation.documentation.parameters?.length && (
                 <>
-                    <ListSubheader>
+                    <ListSubheader className={statementEditorClasses.parameterHeader}>
                         Parameter
                     </ListSubheader>
                     {documentation.documentation.parameters.map((param: ParameterInfo, value: number) => (
