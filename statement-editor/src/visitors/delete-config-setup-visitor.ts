@@ -12,9 +12,18 @@
  */
 import {
     AssignmentStatement,
-    BinaryExpression, IdentifierToken, KeySpecifier,
-    ListConstructor, MappingConstructor, OptionalTypeDesc, RecordField, RecordFieldWithDefaultValue,
-    STNode, TupleTypeDesc, TypedBindingPattern,
+    BinaryExpression,
+    IdentifierToken,
+    KeySpecifier,
+    ListConstructor,
+    MappingConstructor,
+    QueryExpression,
+    QueryPipeline,
+    RecordField,
+    RecordFieldWithDefaultValue,
+    STNode,
+    TupleTypeDesc,
+    TypedBindingPattern,
     Visitor
 } from "@wso2-enterprise/syntax-tree";
 
@@ -77,6 +86,15 @@ class DeleteConfigSetupVisitor implements Visitor {
 
     public beginVisitRecordFieldWithDefaultValue(node: RecordFieldWithDefaultValue) {
         (node.fieldName.viewState as StatementEditorViewState).templateExprDeletable = false;
+    }
+
+    public beginVisitQueryExpression(node: QueryExpression) {
+        (node.queryPipeline.viewState as StatementEditorViewState).exprNotDeletable = true;
+        (node.selectClause.viewState as StatementEditorViewState).exprNotDeletable = true;
+    }
+
+    public beginVisitQueryPipeline(node: QueryPipeline) {
+        (node.fromClause.viewState as StatementEditorViewState).exprNotDeletable = true;
     }
 
     public beginVisitIdentifierToken(node: IdentifierToken, parent?: STNode) {

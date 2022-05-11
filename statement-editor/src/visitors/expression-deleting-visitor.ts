@@ -24,6 +24,8 @@ import {
     OptionalFieldAccess,
     OptionalTypeDesc,
     ParenthesisedTypeDesc,
+    QueryExpression,
+    QueryPipeline,
     RecordField,
     RecordFieldWithDefaultValue,
     RecordTypeDesc,
@@ -341,6 +343,32 @@ class ExpressionDeletingVisitor implements Visitor {
             this.setProperties(DEFAULT_TYPE_DESC, node.typeName.position);
         } else if (!this.isNodeFound && isPositionsEquals(this.deletePosition, node.fieldName.position)){
             this.setProperties(DEFAULT_BINDING_PATTERN, node.fieldName.position);
+        }
+    }
+
+    public beginVisitQueryPipeline(node: QueryPipeline, parent?: QueryExpression) {
+        if (!this.isNodeFound) {
+            const hasClausesToBeDeleted = node.intermediateClauses.some((clause: STNode) => {
+                return isPositionsEquals(this.deletePosition, clause.position);
+            });
+
+            if (hasClausesToBeDeleted) {
+                const expressions: string[] = [];
+                node.intermediateClauses.map((clause: STNode) => {
+                    if (!isPositionsEquals(this.deletePosition, clause.position)) {
+                        expressions.push(clause.source);
+                    }
+                });
+
+                if (parent) {
+                    this.setProperties(!!expressions.length ? expressions.join('\n') : ' ', {
+                        startLine: node.fromClause.position.endLine,
+                        endLine: parent.selectClause.position.startLine,
+                        startColumn: node.fromClause.position.endColumn,
+                        endColumn: parent.selectClause.position.startColumn
+                    });
+                }
+            }
         }
     }
 
