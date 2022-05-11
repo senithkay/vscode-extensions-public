@@ -11,23 +11,37 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 
 import IconButton from "@material-ui/core/IconButton";
 
 import ToolbarDeleteIcon from "../../assets/icons/ToolbarDeleteIcon";
 import ToolbarRedoIcon from "../../assets/icons/ToolbarRedoIcon";
 import ToolbarUndoIcon from "../../assets/icons/ToolbarUndoIcon";
+import { CurrentModel } from "../../models/definitions";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { getRemainingContent } from "../../utils";
+import { KeyboardNavigationManager } from "../../utils/keyboard-navigation-manager";
 import { StatementEditorViewState } from "../../utils/statement-editor-viewstate";
 import { INPUT_EDITOR_PLACEHOLDERS } from "../InputEditor/constants";
 import { useStatementEditorStyles } from "../styles";
 
 export default function Toolbar(){
     const statementEditorClasses = useStatementEditorStyles();
-    const { modelCtx } = useContext(StatementEditorContext);
+    const { modelCtx} = useContext(StatementEditorContext);
     const { undo, redo, hasRedo, hasUndo, statementModel: completeModel, updateModel, currentModel } = modelCtx;
+
+    const keyboardNavigationManager = new KeyboardNavigationManager()
+    React.useEffect(() => {
+        const client = keyboardNavigationManager.getClient();
+        keyboardNavigationManager.bindNewKey(client, ['command+z', 'ctrl+z'], undo);
+        keyboardNavigationManager.bindNewKey(client, ['command+shift+z', 'ctrl+shift+z'], redo)
+        keyboardNavigationManager.bindNewKey(client, ['del'], onDelFunction)
+
+        return () => {
+            keyboardNavigationManager.resetMouseTrapInstance(client)
+        }
+    }, [currentModel]);
 
     const isExprDeletable = (): boolean => {
         if (currentModel.model){
@@ -39,6 +53,12 @@ export default function Toolbar(){
                 exprDeletable =  stmtViewState.templateExprDeletable;
             }
             return exprDeletable;
+        }
+    }
+
+    const onDelFunction = () => {
+        if (!!currentModel.model && isExprDeletable()){
+            onClickOnDelete();
         }
     }
 
