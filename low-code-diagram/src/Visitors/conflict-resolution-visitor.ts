@@ -11,10 +11,11 @@
  * associated services.
  */
 
-import { BlockStatement, FunctionBodyBlock, FunctionDefinition, IfElseStatement, NamedWorkerDeclaration, STKindChecker, STNode, traversNode, Visitor } from "@wso2-enterprise/syntax-tree";
+import { BlockStatement, ForeachStatement, FunctionBodyBlock, FunctionDefinition, IfElseStatement, NamedWorkerDeclaration, STKindChecker, STNode, traversNode, Visitor, WhileStatement } from "@wso2-enterprise/syntax-tree";
+import { FOREACH_SVG_HEIGHT } from "../Components/RenderingComponents/ForEach/ForeachSVG";
 import { IFELSE_SVG_HEIGHT, IFELSE_SVG_HEIGHT_WITH_SHADOW } from "../Components/RenderingComponents/IfElse/IfElseSVG";
 
-import { BlockViewState, EndViewState, FunctionViewState, IfViewState, StatementViewState, ViewState } from "../ViewState";
+import { BlockViewState, EndViewState, ForEachViewState, FunctionViewState, IfViewState, StatementViewState, ViewState, WhileViewState } from "../ViewState";
 import { WorkerDeclarationViewState } from "../ViewState/worker-declaration";
 
 import { DefaultConfig } from "./default";
@@ -72,6 +73,19 @@ export class ConflictResolutionVisitor implements Visitor {
                 const ifStatementStartHeight = height + ifViewState.bBox.offsetFromTop + IFELSE_SVG_HEIGHT + DefaultConfig.offSet;
                 this.fixIfElseStatementConflicts(statementNode, ifStatementStartHeight);
             }
+
+            if (STKindChecker.isForeachStatement(statementNode)) {
+                const forEachViewstate: ForEachViewState =  statementNode.viewState as ForEachViewState;
+                const forStatementStartHeight = height + forEachViewstate.bBox.offsetFromTop + FOREACH_SVG_HEIGHT + DefaultConfig.offSet;
+                this.fixForEachBlockConflicts(statementNode, forStatementStartHeight)
+            }
+
+            if (STKindChecker.isWhileStatement(statementNode)) {
+                const whileViewstate: WhileViewState =  statementNode.viewState as WhileViewState;
+                const forStatementStartHeight = height + whileViewstate.bBox.offsetFromTop + FOREACH_SVG_HEIGHT + DefaultConfig.offSet;
+                this.fixWhileBlockConflicts(statementNode, forStatementStartHeight)
+            }
+
             let updatedAsConflict = false;
             const statementBoxStartHeight = height + statementViewState.bBox.offsetFromTop;
             const statementBoxEndHeight = statementBoxStartHeight + statementViewState.bBox.h;
@@ -165,6 +179,16 @@ export class ConflictResolutionVisitor implements Visitor {
         if (!this.evaluatingIf) {
             traversNode(node, new SizingVisitor());
         }
+    }
+
+    private fixForEachBlockConflicts(node: ForeachStatement, height: number) {
+        this.visitBlockStatement(node.blockStatement, undefined, height);
+        traversNode(node, new SizingVisitor());
+    }
+
+    private fixWhileBlockConflicts(node: WhileStatement, height: number) {
+        this.visitBlockStatement(node.whileBody, undefined, height);
+        traversNode(node, new SizingVisitor());
     }
 
     private fixIfConflictsWithMessage(boxStartHeight: number, boxEndHeight: number, viewState: StatementViewState, statementIndex: number): boolean {
