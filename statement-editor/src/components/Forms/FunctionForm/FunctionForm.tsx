@@ -81,8 +81,6 @@ export function FunctionForm(props: FunctionProps) {
     const [editingSegmentId, setEditingSegmentId] = useState<number>(-1);
     const [addingNewParam, setAddingNewParam] = useState(false);
 
-    const accessModifier = model?.qualifierList?.find(qualifier => STKindChecker.isPublicKeyword(qualifier)) ?
-        "public" : "";
     const functionBodyBlock = model && STKindChecker.isFunctionBodyBlock(model.functionBody) && model?.functionBody;
     const params = model?.functionSignature?.parameters.filter(param => !STKindChecker.isCommaToken(param));
 
@@ -319,8 +317,8 @@ export function FunctionForm(props: FunctionProps) {
                         errorMessage={returnType?.isInteracted && ((currentComponentSyntaxDiag &&
                                 currentComponentName === "Return" && currentComponentSyntaxDiag[0].message) || model?.
                                 functionSignature?.returnTypeDesc?.viewState?.diagnosticsInRange[0]?.message ||
-                                (functionBodyBlock?.closeBraceToken?.viewState?.diagnosticsInRange && functionBodyBlock?.
-                                    closeBraceToken?.viewState?.diagnosticsInRange[0]?.message))}
+                                (functionBodyBlock?.closeBraceToken?.viewState?.diagnosticsInRange &&
+                                    functionBodyBlock?.closeBraceToken?.viewState?.diagnosticsInRange[0]?.message))}
                         onChange={debouncedReturnChange}
                         onBlur={null}
                         onFocus={onReturnFocus}
@@ -337,7 +335,10 @@ export function FunctionForm(props: FunctionProps) {
                 onSave={handleOnSave}
                 onCancel={onCancel}
                 validForm={(isEdit || functionName.isInteracted === true)
-                    && !(model?.viewState?.diagnosticsInRange?.length > 0) && !(currentComponentSyntaxDiag?.length > 0)}
+                    && !(model?.functionSignature?.viewState?.diagnosticsInRange?.length > 0)
+                    && !(functionBodyBlock?.closeBraceToken?.viewState?.diagnosticsInRange?.length > 0)
+                    && !(model?.functionName?.viewState?.diagnosticsInRange?.length > 0)
+                    && !(currentComponentSyntaxDiag?.length > 0)}
             />
         </FormControl>
     )
