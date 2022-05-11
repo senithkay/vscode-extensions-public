@@ -370,6 +370,22 @@ const trap: ExpressionGroup = {
 //         6.35.6 Limit clause
 //         6.35.7 Select clause
 //         6.35.8 On conflict clause
+const query: ExpressionGroup = {
+    name: "Query",
+    expressions: [
+        {
+            name: "Query",
+            template: `from ${TYPE_DESC_PLACEHOLDER} ${BINDING_PATTERN_PLACEHOLDER} in ${EXPR_PLACEHOLDER}
+where ${EXPR_PLACEHOLDER}
+select ${EXPR_PLACEHOLDER}`,
+            example: `from var i in numbers
+where i % 2 == 0
+select i`
+        }
+    ],
+    relatedModelType: ModelType.EXPRESSION
+}
+
 //     6.36 XML navigation expression
 //         6.36.1 XML name pattern
 //         6.36.2 XML filter expression
@@ -535,6 +551,7 @@ export const expressions: ExpressionGroup[] = [
     conditional,
     checking,
     trap,
+    query,
     typeTest,
     typeofEx,
     typeCastEx,
