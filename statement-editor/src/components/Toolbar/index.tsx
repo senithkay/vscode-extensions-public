@@ -35,6 +35,7 @@ import {
     isNodeDeletable
 } from "../../utils";
 import { ModelType, StatementEditorViewState } from "../../utils/statement-editor-viewstate";
+import { INPUT_EDITOR_PLACEHOLDERS } from "../InputEditor/constants";
 import { useStatementEditorStyles } from "../styles";
 
 export default function Toolbar(){

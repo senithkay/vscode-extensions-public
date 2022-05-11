@@ -26,9 +26,10 @@ export interface ExpressionGroup {
     relatedModelType: ModelType;
 }
 
-export const EXPR_PLACE_HOLDER = "EXPRESSION";
-export const TYPE_DESC_PLACE_HOLDER = "TYPE_DESCRIPTOR";
-export const BINDING_PATTERN_PLACE_HOLDER = "BINDING_PATTERN";
+export const EXPR_PLACEHOLDER = "EXPRESSION";
+export const STMT_PLACEHOLDER = "STATEMENT";
+export const TYPE_DESC_PLACEHOLDER = "TYPE_DESCRIPTOR";
+export const BINDING_PATTERN_PLACEHOLDER = "BINDING_PATTERN";
 /* tslint:disable-next-line */
 export const SELECTED_EXPRESSION = "${SELECTED_EXPRESSION}";
 
@@ -81,7 +82,7 @@ const structuralConstructors: ExpressionGroup = {
             example: "[ Es ]"
         }, {
             name: "Mapping",
-            template: ` { key: ${EXPR_PLACE_HOLDER} }`,
+            template: ` { key: ${EXPR_PLACEHOLDER} }`,
             example: "{ key : value }"
         }, {
             name: "Table",
@@ -127,7 +128,7 @@ const typeCastEx: ExpressionGroup = {
     expressions: [
         {
             name: "Type Cast",
-            template: `<${TYPE_DESC_PLACE_HOLDER}>${SELECTED_EXPRESSION}`,
+            template: `<${TYPE_DESC_PLACEHOLDER}>${SELECTED_EXPRESSION}`,
             example: "<type>Es"
         }
     ],
@@ -162,27 +163,27 @@ const unary: ExpressionGroup = {
 //     6.24 Additive expression
 //     6.23 Multiplicative expression
 const operators: ExpressionGroup = {
-    name: "Operators",
+    name: "Arithmetic",
     expressions: [
         {
             name: "Add",
-            template: ` ${SELECTED_EXPRESSION} + ${EXPR_PLACE_HOLDER}`,
+            template: ` ${SELECTED_EXPRESSION} + ${EXPR_PLACEHOLDER}`,
             example: "Es + Ex"
         }, {
             name: "Substract",
-            template: ` ${SELECTED_EXPRESSION} - ${EXPR_PLACE_HOLDER}`,
+            template: ` ${SELECTED_EXPRESSION} - ${EXPR_PLACEHOLDER}`,
             example: "Es - Ex"
         }, {
             name: "Multiply",
-            template: ` ${SELECTED_EXPRESSION} * ${EXPR_PLACE_HOLDER}`,
+            template: ` ${SELECTED_EXPRESSION} * ${EXPR_PLACEHOLDER}`,
             example: "Es * Ex"
         }, {
             name: "Divide",
-            template: ` ${SELECTED_EXPRESSION} / ${EXPR_PLACE_HOLDER}`,
+            template: ` ${SELECTED_EXPRESSION} / ${EXPR_PLACEHOLDER}`,
             example: "Es / En"
         }, {
             name: "Modules",
-            template: ` ${SELECTED_EXPRESSION} % ${EXPR_PLACE_HOLDER}`,
+            template: ` ${SELECTED_EXPRESSION} % ${EXPR_PLACEHOLDER}`,
             example: "Es % Ex"
         },
     ],
@@ -194,15 +195,15 @@ const shift: ExpressionGroup = {
     expressions: [
         {
             name: "Left Shift",
-            template: ` ${SELECTED_EXPRESSION} << ${EXPR_PLACE_HOLDER}`,
+            template: ` ${SELECTED_EXPRESSION} << ${EXPR_PLACEHOLDER}`,
             example: "Es << Ex"
         }, {
             name: "Signed Right Shipt",
-            template: ` ${SELECTED_EXPRESSION} >> ${EXPR_PLACE_HOLDER}`,
+            template: ` ${SELECTED_EXPRESSION} >> ${EXPR_PLACEHOLDER}`,
             example: "Es >> Ex"
         }, {
             name: "Right Shipt",
-            template: ` ${SELECTED_EXPRESSION} >>> ${EXPR_PLACE_HOLDER}`,
+            template: ` ${SELECTED_EXPRESSION} >>> ${EXPR_PLACEHOLDER}`,
             example: "Es >>> Ex"
         }
     ],
@@ -214,11 +215,11 @@ const range: ExpressionGroup = {
     expressions: [
         {
             name: "Range less than or equal",
-            template: ` ${SELECTED_EXPRESSION} ... ${EXPR_PLACE_HOLDER}`,
+            template: ` ${SELECTED_EXPRESSION} ... ${EXPR_PLACEHOLDER}`,
             example: "Es ... Ex"
         }, {
             name: "Range less than ",
-            template: ` ${SELECTED_EXPRESSION} ..< ${EXPR_PLACE_HOLDER}`,
+            template: ` ${SELECTED_EXPRESSION} ..< ${EXPR_PLACEHOLDER}`,
             example: "Es ..< Ex"
         }
     ],
@@ -230,19 +231,19 @@ const relational: ExpressionGroup = {
     expressions: [
         {
             name: "Less Than",
-            template: ` ${SELECTED_EXPRESSION} < ${EXPR_PLACE_HOLDER}`,
+            template: ` ${SELECTED_EXPRESSION} < ${EXPR_PLACEHOLDER}`,
             example: "Es < Ex"
         }, {
             name: "GreaterThan",
-            template: ` ${SELECTED_EXPRESSION} > ${EXPR_PLACE_HOLDER}`,
+            template: ` ${SELECTED_EXPRESSION} > ${EXPR_PLACEHOLDER}`,
             example: "Es > Ex"
         }, {
             name: "Less Than or Equal",
-            template: ` ${SELECTED_EXPRESSION} <= ${EXPR_PLACE_HOLDER}`,
+            template: ` ${SELECTED_EXPRESSION} <= ${EXPR_PLACEHOLDER}`,
             example: "Es <= Ex"
         }, {
             name: "Greater Than or Equal",
-            template: ` ${SELECTED_EXPRESSION} >= ${EXPR_PLACE_HOLDER}`,
+            template: ` ${SELECTED_EXPRESSION} >= ${EXPR_PLACEHOLDER}`,
             example: "Es >= En"
         }
     ],
@@ -254,11 +255,11 @@ const typeTest: ExpressionGroup = {
     expressions: [
         {
             name: "Type Test",
-            template: ` ${SELECTED_EXPRESSION} is ${TYPE_DESC_PLACE_HOLDER}`,
+            template: ` ${SELECTED_EXPRESSION} is ${TYPE_DESC_PLACEHOLDER}`,
             example: "Es is Ex"
         }, {
             name: "Type Test Nigation",
-            template: ` ${SELECTED_EXPRESSION} !is ${TYPE_DESC_PLACE_HOLDER}`,
+            template: ` ${SELECTED_EXPRESSION} !is ${TYPE_DESC_PLACEHOLDER}`,
             example: "Es !is Ex"
         }
     ],
@@ -270,11 +271,11 @@ const equality: ExpressionGroup = {
     expressions: [
         {
             name: "Equal",
-            template: ` ${SELECTED_EXPRESSION} == ${EXPR_PLACE_HOLDER}`,
+            template: ` ${SELECTED_EXPRESSION} == ${EXPR_PLACEHOLDER}`,
             example: "Es == Ex"
         }, {
             name: "Not Equal",
-            template: ` ${SELECTED_EXPRESSION} != ${EXPR_PLACE_HOLDER}`,
+            template: ` ${SELECTED_EXPRESSION} != ${EXPR_PLACEHOLDER}`,
             example: "Es != Ex"
         }
     ],
@@ -286,15 +287,15 @@ const binaryBitwise: ExpressionGroup = {
     expressions: [
         {
             name: "Bitwise AND",
-            template: ` ${SELECTED_EXPRESSION} & ${EXPR_PLACE_HOLDER}`,
+            template: ` ${SELECTED_EXPRESSION} & ${EXPR_PLACEHOLDER}`,
             example: "Es & Ex"
         }, {
             name: "Bitwise OR",
-            template: ` ${SELECTED_EXPRESSION} | ${EXPR_PLACE_HOLDER}`,
+            template: ` ${SELECTED_EXPRESSION} | ${EXPR_PLACEHOLDER}`,
             example: "Es | Ex"
         }, {
             name: "Bitwise XOR",
-            template: ` ${SELECTED_EXPRESSION} ^ ${EXPR_PLACE_HOLDER}`,
+            template: ` ${SELECTED_EXPRESSION} ^ ${EXPR_PLACEHOLDER}`,
             example: "Es ^ Ex"
         }
     ],
@@ -306,11 +307,11 @@ const logical: ExpressionGroup = {
     expressions: [
         {
             name: "Logical AND",
-            template: ` ${SELECTED_EXPRESSION} && ${EXPR_PLACE_HOLDER}`,
+            template: ` ${SELECTED_EXPRESSION} && ${EXPR_PLACEHOLDER}`,
             example: "Es && Ex"
         }, {
             name: "Logical OR",
-            template: ` ${SELECTED_EXPRESSION} || ${EXPR_PLACE_HOLDER}`,
+            template: ` ${SELECTED_EXPRESSION} || ${EXPR_PLACEHOLDER}`,
             example: "Es || Ex"
         }
     ],
@@ -393,15 +394,15 @@ const typeDescriptors : ExpressionGroup = {
             example: "table<Es>"
         }, {
             name: "Table with Key-Fields",
-            template: `table<${SELECTED_EXPRESSION}> key(${EXPR_PLACE_HOLDER})`,
+            template: `table<${SELECTED_EXPRESSION}> key(${EXPR_PLACEHOLDER})`,
             example: "table<Es> key(Ex)"
         }, {
             name: "Union",
-            template: `${SELECTED_EXPRESSION} | ${TYPE_DESC_PLACE_HOLDER}`,
+            template: `${SELECTED_EXPRESSION} | ${TYPE_DESC_PLACEHOLDER}`,
             example: "Es | Ex"
         }, {
             name: "Intersection",
-            template: `${SELECTED_EXPRESSION} & ${TYPE_DESC_PLACE_HOLDER}`,
+            template: `${SELECTED_EXPRESSION} & ${TYPE_DESC_PLACEHOLDER}`,
             example: "Es & Ex"
         }, {
             name: "Optional",
@@ -413,11 +414,11 @@ const typeDescriptors : ExpressionGroup = {
             example: "(Es)"
         }, {
             name: "Inclusive Record",
-            template: `record{${SELECTED_EXPRESSION} ${BINDING_PATTERN_PLACE_HOLDER};}`,
+            template: `record{${SELECTED_EXPRESSION} ${BINDING_PATTERN_PLACEHOLDER};}`,
             example: "record{Es Ex;}"
         }, {
             name: "Exclusive Record",
-            template: `record{|${SELECTED_EXPRESSION} ${BINDING_PATTERN_PLACE_HOLDER};|}`,
+            template: `record{|${SELECTED_EXPRESSION} ${BINDING_PATTERN_PLACEHOLDER};|}`,
             example: "record{|Es Ex;|}"
         }
     ],

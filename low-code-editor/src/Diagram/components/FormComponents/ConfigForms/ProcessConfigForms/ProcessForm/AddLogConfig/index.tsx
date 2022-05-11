@@ -106,6 +106,11 @@ export function AddLogConfig(props: LogConfigProps) {
         defaultMessage: "Save"
     });
 
+    const formTitle = intl.formatMessage({
+        id: "lowcode.develop.configForms.log.title",
+        defaultMessage: "Log"
+    });
+
     const logTooltipMessages = {
         title: intl.formatMessage({
             id: "lowcode.develop.configForms.logTooltipMessages.expressionEditor.tooltip.title",
@@ -136,7 +141,7 @@ export function AddLogConfig(props: LogConfigProps) {
 
     const { handleStmtEditorToggle, stmtEditorComponent } = useStatementEditor(
         {
-            label: intl.formatMessage({ id: "lowcode.develop.configForms.log.statementEditor.label" }),
+            label: formTitle,
             initialSource,
             formArgs: { formArgs },
             config,
@@ -159,7 +164,7 @@ export function AddLogConfig(props: LogConfigProps) {
             <FormControl data-testid="log-form" className={formClasses.wizardFormControl}>
                 <FormHeaderSection
                     onCancel={onCancel}
-                    formTitle={"lowcode.develop.configForms.log.title"}
+                    formTitle={formTitle}
                     defaultMessage={"Log"}
                 />
                 <div className={formClasses.formContentWrapper}>

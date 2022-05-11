@@ -29,14 +29,14 @@ import {
 import { Diagnostic } from "vscode-languageserver-protocol";
 
 import * as expressionTypeComponents from '../components/ExpressionTypes';
-import { INPUT_EDITOR_PLACE_HOLDERS } from "../components/InputEditor/constants";
+import { INPUT_EDITOR_PLACEHOLDERS } from "../components/InputEditor/constants";
 import * as statementTypeComponents from '../components/Statements';
 import {
     CUSTOM_CONFIG_TYPE,
     END_OF_LINE_MINUTIAE,
     OTHER_EXPRESSION,
     OTHER_STATEMENT,
-    PLACE_HOLDER_DIAGNOSTIC_MESSAGES,
+    PLACEHOLDER_DIAGNOSTICS,
     StatementNodes,
     WHITESPACE_MINUTIAE
 } from "../constants";
@@ -173,7 +173,7 @@ export function getFilteredDiagnosticMessages(statement: string, targetPosition:
 
     getDiagnosticMessage(diag, diagTargetPosition, 0, statement.length, 0, 0).split('. ').map(message => {
             let isPlaceHolderDiag = false;
-            if (PLACE_HOLDER_DIAGNOSTIC_MESSAGES.some(msg => message.includes(msg))) {
+            if (PLACEHOLDER_DIAGNOSTICS.some(msg => message.includes(msg))) {
                 isPlaceHolderDiag = true;
             }
             if (!!message) {
@@ -348,7 +348,7 @@ export function isNodeDeletable(selectedNode: STNode): boolean {
         : selectedNode.value ? selectedNode.value.trim() : '';
 
     let exprDeletable = !stmtViewState.exprNotDeletable;
-    if (INPUT_EDITOR_PLACE_HOLDERS.has(currentModelSource)) {
+    if (INPUT_EDITOR_PLACEHOLDERS.has(currentModelSource)) {
         exprDeletable =  stmtViewState.templateExprDeletable;
     }
 

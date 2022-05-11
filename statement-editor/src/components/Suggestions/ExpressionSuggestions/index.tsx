@@ -25,7 +25,7 @@ import {
     Expression,
     ExpressionGroup,
     expressions,
-    EXPR_PLACE_HOLDER,
+    EXPR_PLACEHOLDER,
     SELECTED_EXPRESSION
 } from "../../../utils/expressions";
 import { useStatementEditorStyles } from "../../styles";
@@ -48,7 +48,7 @@ export function ExpressionSuggestions() {
             : currentModel.model.value.trim();
         const text = currentModelSource !== CONFIGURABLE_VALUE_REQUIRED_TOKEN
             ? expression.template.replace(SELECTED_EXPRESSION, currentModelSource)
-            : expression.template.replace(SELECTED_EXPRESSION, EXPR_PLACE_HOLDER);
+            : expression.template.replace(SELECTED_EXPRESSION, EXPR_PLACEHOLDER);
         updateModel(text, currentModel.model.position);
         inputEditorCtx.onInputChange('');
     }

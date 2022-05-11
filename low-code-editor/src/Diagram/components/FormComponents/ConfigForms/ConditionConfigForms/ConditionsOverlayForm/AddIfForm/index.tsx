@@ -216,6 +216,11 @@ export function AddIfForm(props: IfProps) {
         defaultMessage: "Cancel",
     });
 
+    const formTitle = intl.formatMessage({
+        id: "lowcode.develop.configForms.if.title",
+        defaultMessage: "If"
+    });
+
     const validForm = compList.every((item) => item.isValid) && compList[0]?.expression !== "";
 
     const getCompleteSource = () => {
@@ -272,7 +277,7 @@ export function AddIfForm(props: IfProps) {
 
     const { handleStmtEditorToggle, stmtEditorComponent } = useStatementEditor(
         {
-            label: intl.formatMessage({ id: "lowcode.develop.configForms.if.statementEditor.label" }),
+            label: formTitle,
             initialSource,
             formArgs: { formArgs },
             config: condition,
@@ -327,7 +332,7 @@ export function AddIfForm(props: IfProps) {
             <FormControl data-testid="if-form" className={classes.wizardFormControl}>
                 <FormHeaderSection
                     onCancel={onCancel}
-                    formTitle={"lowcode.develop.configForms.if.title"}
+                    formTitle={formTitle}
                     defaultMessage={"If"}
                 />
                 <div className={classes.formContentWrapper}>

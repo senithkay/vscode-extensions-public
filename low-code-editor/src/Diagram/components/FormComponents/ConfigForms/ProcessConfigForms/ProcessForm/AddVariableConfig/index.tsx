@@ -168,6 +168,11 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         defaultMessage: "Cancel"
     });
 
+    const formTitle = intl.formatMessage({
+        id: "lowcode.develop.configForms.variable.title",
+        defaultMessage: "Variable"
+    });
+
     const variableTooltipMessages = {
         customVariableType: {
             title: intl.formatMessage({
@@ -280,7 +285,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
 
     const { handleStmtEditorToggle, stmtEditorComponent } = useStatementEditor(
         {
-            label: intl.formatMessage({ id: "lowcode.develop.configForms.variable.statementEditor.label" }),
+            label: formTitle,
             initialSource,
             formArgs: { formArgs },
             config,
@@ -339,7 +344,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
             <FormControl data-testid="property-form" className={classes.wizardFormControlExtended}>
                 <FormHeaderSection
                     onCancel={onCancel}
-                    formTitle={"lowcode.develop.configForms.variable.title"}
+                    formTitle={formTitle}
                     defaultMessage={"Variable"}
                 />
                 <div className={classes.formContentWrapper}>
