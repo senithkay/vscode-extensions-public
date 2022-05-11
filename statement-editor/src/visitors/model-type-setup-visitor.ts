@@ -17,6 +17,7 @@ import {
     MethodCall,
     OptionalTypeDesc,
     ParenthesisedTypeDesc,
+    QueryExpression,
     QueryPipeline,
     RecordField,
     RecordFieldWithDefaultValue,
@@ -44,6 +45,8 @@ class ModelTypeSetupVisitor implements Visitor {
             (node.viewState as StatementEditorViewState).modelType = ModelType.METHOD_CALL;
         } else if (parent && (parent.viewState as StatementEditorViewState).modelType === ModelType.FIELD_ACCESS) {
             (node.viewState as StatementEditorViewState).modelType = ModelType.FIELD_ACCESS;
+        } else if (parent && (parent.viewState as StatementEditorViewState).modelType === ModelType.QUERY_EXPRESSION) {
+            (node.viewState as StatementEditorViewState).modelType = ModelType.QUERY_EXPRESSION;
         }
     }
 
@@ -121,6 +124,14 @@ class ModelTypeSetupVisitor implements Visitor {
     public beginVisitFieldAccess(node: FieldAccess) {
         (node.expression.viewState as StatementEditorViewState).modelType = ModelType.FIELD_ACCESS;
         (node.fieldName.viewState as StatementEditorViewState).modelType = ModelType.FIELD_ACCESS;
+    }
+
+    public beginVisitQueryExpression(node: QueryExpression) {
+        (node.queryPipeline.viewState as StatementEditorViewState).modelType = ModelType.QUERY_EXPRESSION;
+        (node.selectClause.viewState as StatementEditorViewState).modelType = ModelType.QUERY_EXPRESSION;
+        if (node?.queryConstructType) {
+            (node.queryConstructType.viewState as StatementEditorViewState).modelType = ModelType.QUERY_EXPRESSION;
+        }
     }
 
 }
