@@ -419,11 +419,10 @@ export const useStatementEditorStyles = makeStyles(() =>
             flexDirection: 'column',
         },
         stmtEditorInnerWrapper: {
-            paddingLeft: '25px',
-            paddingRight: '25px',
             fontSize: '13px',
             fontFamily: 'Gilmer',
-            overflowY: 'hidden'
+            overflowY: 'hidden',
+            ...stmtEditorPadding
         },
         statementExpressionWrapper: {
             height: 'auto',
