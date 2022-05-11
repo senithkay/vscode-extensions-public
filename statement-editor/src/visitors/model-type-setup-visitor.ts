@@ -45,8 +45,6 @@ class ModelTypeSetupVisitor implements Visitor {
             (node.viewState as StatementEditorViewState).modelType = ModelType.METHOD_CALL;
         } else if (parent && (parent.viewState as StatementEditorViewState).modelType === ModelType.FIELD_ACCESS) {
             (node.viewState as StatementEditorViewState).modelType = ModelType.FIELD_ACCESS;
-        } else if (parent && (parent.viewState as StatementEditorViewState).modelType === ModelType.QUERY_EXPRESSION) {
-            (node.viewState as StatementEditorViewState).modelType = ModelType.QUERY_EXPRESSION;
         }
     }
 
@@ -68,6 +66,7 @@ class ModelTypeSetupVisitor implements Visitor {
     }
 
     public beginVisitQueryPipeline(node: QueryPipeline) {
+        (node.fromClause.viewState as StatementEditorViewState).modelType = ModelType.QUERY_CLAUSE;
         node.intermediateClauses.map((intermediateClause: STNode) => {
             (intermediateClause.viewState as StatementEditorViewState).modelType = ModelType.QUERY_CLAUSE;
         });
