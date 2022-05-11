@@ -86,6 +86,13 @@ export async function getCompletions (docUri: string,
         }
     }
 
+    if (STKindChecker.isIfElseStatement(completeModel)) {
+        completionParams.position = {
+            character: currentModelPosition.startColumn + userInput.length,
+            line: targetPosition.startLine + currentModelPosition.startLine
+        }
+    }
+
     // CodeSnippet is split to get the suggestions for field-access-expr (expression.field-name)
     const inputElements = userInput.split('.');
 

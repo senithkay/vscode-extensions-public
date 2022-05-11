@@ -40,7 +40,7 @@ export function ReturnStatementC(props: ReturnStatementProps) {
     return (
         <>
             <TokenComponent model={model.returnKeyword}  className="keyword" />
-            <ExpressionComponent model={model.expression} />
+            {model.expression && <ExpressionComponent model={model.expression} />}
             <TokenComponent model={model.semicolonToken} />
         </>
     );

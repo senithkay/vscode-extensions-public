@@ -13,7 +13,14 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useEffect, useState } from 'react';
 
-import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import {
+    ExpressionEditorLangClientInterface,
+    LibraryDataResponse,
+    LibraryDocResponse,
+    LibrarySearchResponse,
+    STModification
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 import * as monaco from "monaco-editor";
 import { Diagnostic } from "vscode-languageserver-protocol";
 
@@ -30,10 +37,13 @@ import {
     enrichModel,
     getCurrentModel,
     getFilteredDiagnosticMessages,
+    getNextNode,
+    getPreviousNode,
     getUpdatedSource,
     isBindingPattern,
     isOperator,
 } from "../../utils";
+import { KeyboardNavigationManager } from '../../utils/keyboard-navigation-manager';
 import {
     getCompletions,
     getDiagnostics,
@@ -281,9 +291,51 @@ export function StatementEditor(props: StatementEditorProps) {
         });
     };
 
+    const parentModelHandler = () => {
+        setCurrentModel(() => {
+            if (!!currentModel.model?.parent){
+                return {model: currentModel.model.parent}
+            }
+            else {
+                return currentModel
+            }
+        });
+    }
+
+    const nextModelHandler = () => {
+        const nextModel = getNextNode(currentModel.model, model)
+        setCurrentModel(() => {
+            return {model: nextModel}
+        });
+    };
+
+    const previousModelHandler = () => {
+        const previousModel = getPreviousNode(currentModel.model, model)
+        setCurrentModel(() => {
+            return {model: previousModel};
+        });
+    };
+
     function setStmtModel(editedModel: STNode, diagnostics?: Diagnostic[]) {
         setModel(enrichModel(editedModel, targetPosition, diagnostics));
     }
+
+    const keyboardNavigationManager = new KeyboardNavigationManager()
+
+    React.useEffect(() => {
+
+        const client = keyboardNavigationManager.getClient();
+
+        keyboardNavigationManager.bindNewKey(client, ['ctrl+left', 'command+left'], parentModelHandler);
+        keyboardNavigationManager.bindNewKey(client, ['ctrl+right', 'command+right'], parentModelHandler);
+        keyboardNavigationManager.bindNewKey(client, ['tab'], nextModelHandler);
+        keyboardNavigationManager.bindNewKey(client, ['shift+tab'], previousModelHandler);
+
+        return () => {
+            keyboardNavigationManager.resetMouseTrapInstance(client)
+        }
+    }, [currentModel.model]);
+
 
     return (
         (

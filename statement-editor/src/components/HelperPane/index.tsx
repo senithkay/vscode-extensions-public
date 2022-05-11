@@ -14,6 +14,7 @@
 import React, { useState } from "react";
 
 import { ALL_LIBS_IDENTIFIER, LANG_LIBS_IDENTIFIER, STD_LIBS_IDENTIFIER } from "../../constants";
+import { KeyboardNavigationManager } from "../../utils/keyboard-navigation-manager";
 import SelectDropdown from "../Dropdown";
 import { LibraryBrowser } from "../LibraryBrowser";
 import { useStatementEditorStyles } from "../styles";
@@ -40,6 +41,21 @@ export function HelperPane() {
     const onLibTypeSelection = (value: string) => {
         setLibraryType(value);
     };
+
+    const keyboardNavigationManager = new KeyboardNavigationManager();
+
+    React.useEffect(() => {
+
+        const client = keyboardNavigationManager.getClient()
+
+        keyboardNavigationManager.bindNewKey(client, ['ctrl+shift+s', 'command+shift+s'], setSelectedTab, TabElements.suggestions)
+        keyboardNavigationManager.bindNewKey(client, ['ctrl+shift+e', 'command+shift+e'], setSelectedTab, TabElements.expressions)
+        keyboardNavigationManager.bindNewKey(client, ['ctrl+shift+l', 'command+shift+l'], setSelectedTab, TabElements.libraries)
+
+        return () => {
+            keyboardNavigationManager.resetMouseTrapInstance(client);
+        }
+    }, []);
 
     return (
         <>
