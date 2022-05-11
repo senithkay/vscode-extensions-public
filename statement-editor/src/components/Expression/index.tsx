@@ -12,13 +12,16 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext } from "react";
+import { useIntl } from "react-intl";
 
+import { TooltipIcon } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 import cn from "classnames";
 
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { getExpressionTypeComponent, isPositionsEquals } from "../../utils";
 import { useStatementRendererStyles } from "../styles";
+
 
 export interface ExpressionComponentProps {
     model: STNode;
@@ -40,6 +43,7 @@ export function ExpressionComponent(props: ExpressionComponentProps) {
         hasSyntaxDiagnostics
     } = modelCtx;
 
+    const intl = useIntl();
     const statementRendererClasses = useStatementRendererStyles();
 
     const isSelected = selectedModel.model && model && isPositionsEquals(selectedModel.model.position, model.position);
@@ -73,15 +77,27 @@ export function ExpressionComponent(props: ExpressionComponentProps) {
         classNames
     )
 
+    const syntaxErrorMessage = intl.formatMessage({
+        id: "statement.editor.syntaxError.warning",
+        defaultMessage: "Fix the error first"
+    });
+
     return (
-        <span
-            onMouseOver={onMouseOver}
-            onMouseOut={onMouseOut}
-            className={styleClassNames}
-            onClick={onMouseClick}
-        >
-            {component}
-            {children}
-        </span>
+        <>
+            <span
+                onMouseOver={onMouseOver}
+                onMouseOut={onMouseOut}
+                className={styleClassNames}
+                onClick={onMouseClick}
+            >
+                {component}
+                {children}
+            </span>
+            <span style={{ position: 'absolute', top: '-10px' }}>
+                {isSelected && hasSyntaxDiagnostics && (
+                    <TooltipIcon title={syntaxErrorMessage} placement='top-end' arrow={true} />
+                )}
+            </span>
+        </>
     );
 }
