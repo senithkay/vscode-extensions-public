@@ -19,7 +19,12 @@ import {
     WhileStatement
 } from "@wso2-enterprise/syntax-tree";
 
-import { DEFAULT_BINDING_PATTERN, DEFAULT_EXPR, DEFAULT_TYPE_DESC } from "../visitors/expression-deleting-visitor";
+import {
+    BINDING_PATTERN_PLACEHOLDER,
+    EXPR_PLACEHOLDER,
+    STMT_PLACEHOLDER,
+    TYPE_DESC_PLACEHOLDER
+} from "../utils/expressions";
 
 export const VARIABLE = "Variable";
 export const ARITHMETIC = "Arithmetic";
@@ -65,8 +70,8 @@ export const EXPR_CONSTRUCTOR = "EXPRESSION";
 export const TYPED_BINDING_CONSTRUCTOR = "TYPE_DESCRIPTOR BINDING_PATTERN";
 export const MAPPING_CONSTRUCTOR = "key : EXPRESSION";
 
-export const PLACE_HOLDER_DIAGNOSTIC_MESSAGES: string[] = [
-    DEFAULT_EXPR, DEFAULT_TYPE_DESC, DEFAULT_BINDING_PATTERN
+export const PLACEHOLDER_DIAGNOSTICS: string[] = [
+    EXPR_PLACEHOLDER, STMT_PLACEHOLDER, TYPE_DESC_PLACEHOLDER, BINDING_PATTERN_PLACEHOLDER
 ];
 
 // Statement types supported in function-body-block

@@ -18,6 +18,7 @@ export class GoogleSheetForm {
     static typeToken(token: string) {
         ExpressionEditor
             .getForField("token", this.selector)
+            .clear()
             .type(token)
             .waitForValidations();
         return this;

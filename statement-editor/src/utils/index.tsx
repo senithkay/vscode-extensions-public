@@ -33,7 +33,7 @@ import {
     END_OF_LINE_MINUTIAE,
     OTHER_EXPRESSION,
     OTHER_STATEMENT,
-    PLACE_HOLDER_DIAGNOSTIC_MESSAGES,
+    PLACEHOLDER_DIAGNOSTICS,
     StatementNodes,
     WHITESPACE_MINUTIAE
 } from "../constants";
@@ -43,6 +43,8 @@ import { visitor as DiagnosticsMappingVisitor } from "../visitors/diagnostics-ma
 import { visitor as ExpressionDeletingVisitor } from "../visitors/expression-deleting-visitor";
 import { visitor as ModelFindingVisitor } from "../visitors/model-finding-visitor";
 import { visitor as ModelTypeSetupVisitor } from "../visitors/model-type-setup-visitor";
+import {nextNodeSetupVisitor} from "../visitors/next-node--setup-visitor"
+import { parentSetupVisitor } from '../visitors/parent-setup-visitor';
 import { viewStateSetupVisitor as ViewStateSetupVisitor } from "../visitors/view-state-setup-visitor";
 
 import { ModelType } from "./statement-editor-viewstate";
@@ -130,8 +132,26 @@ export function getCurrentModel(position: NodePosition, model: STNode): STNode {
     return ModelFindingVisitor.getModel();
 }
 
+export function getNextNode(currentModel: STNode, statementModel: STNode): STNode {
+    nextNodeSetupVisitor.setPropetiesDefault();
+    nextNodeSetupVisitor.setCurrentNode(currentModel)
+
+    traversNode(statementModel, nextNodeSetupVisitor);
+
+    return nextNodeSetupVisitor.getNextNode();
+}
+export function getPreviousNode(currentModel: STNode, statementModel: STNode): STNode {
+    nextNodeSetupVisitor.setPropetiesDefault();
+    nextNodeSetupVisitor.setCurrentNode(currentModel)
+
+    traversNode(statementModel, nextNodeSetupVisitor);
+
+    return nextNodeSetupVisitor.getPreviousNode();
+}
+
 export function enrichModel(model: STNode, targetPosition: NodePosition, diagnostics?: Diagnostic[]): STNode {
     traversNode(model, ViewStateSetupVisitor);
+    traversNode(model, parentSetupVisitor);
     model = enrichModelWithDiagnostics(model, targetPosition, diagnostics);
     return enrichModelWithViewState(model);
 }
@@ -195,7 +215,7 @@ export function getFilteredDiagnosticMessages(statement: string, targetPosition:
 
     getDiagnosticMessage(diag, diagTargetPosition, 0, statement.length, 0, 0).split('. ').map(message => {
             let isPlaceHolderDiag = false;
-            if (PLACE_HOLDER_DIAGNOSTIC_MESSAGES.some(msg => message.includes(msg))) {
+            if (PLACEHOLDER_DIAGNOSTICS.some(msg => message.includes(msg))) {
                 isPlaceHolderDiag = true;
             }
             if (!!message) {
