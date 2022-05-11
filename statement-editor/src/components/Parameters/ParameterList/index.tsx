@@ -33,18 +33,6 @@ export function ParameterList(props: ParameterListProps) {
     let isNewRecordBtnClicked : boolean = false;
     const stmodel = statementModel;
     const [plusButtonClick, setPlusButtonClicked] = React.useState(false);
-    /*const paramsInModel2: STNode[] = [];
-    useEffect(() => {
-        if (currentModel.model) {
-            if (STKindChecker.isFunctionCall(currentModel.model)) {
-                currentModel.model.arguments.forEach((parameter: any) => {
-                    if (!parameter.isToken) {
-                        paramsInModel2.push(parameter);
-                    }
-                });
-            }
-        }
-    }, [currentModel.model]);*/
 
     const handleCheckboxClick = (value: number, param?: ParameterInfo) => () => {
         const currentIndex = checkedList.indexOf(value);
@@ -77,7 +65,7 @@ export function ParameterList(props: ParameterListProps) {
         } else {
             newChecked.splice(currentIndex, 1);
             if (STKindChecker.isFunctionCall(currentModel.model)) {
-                const paramsList = currentModel.model.arguments;
+                const paramsList = [...currentModel.model.arguments];
                 // removing the param and the comma infront of it
                 paramsList.length > 1 ? paramsList.splice((currentIndex * 2) - 1, 2) : paramsList.splice(currentIndex, 1);
 
