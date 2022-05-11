@@ -18,9 +18,9 @@ import {
     LibraryDataResponse,
     LibraryDocResponse,
     LibrarySearchResponse,
-    STModification
+    STModification, SymbolInfoResponse
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { NodePosition, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 import * as monaco from "monaco-editor";
 import { Diagnostic } from "vscode-languageserver-protocol";
 
@@ -47,12 +47,12 @@ import { KeyboardNavigationManager } from '../../utils/keyboard-navigation-manag
 import {
     getCompletions,
     getDiagnostics,
-    getPartialSTForStatement,
+    getPartialSTForStatement, getSymbolDocumentation,
     sendDidChange,
     sendDidOpen
 } from "../../utils/ls-utils";
 import { StatementEditorViewState } from "../../utils/statement-editor-viewstate";
-import { StmtEditorUndoRedoManager } from '../../utils/undo-redo';
+import { StmtActionStackItem, StmtEditorUndoRedoManager } from '../../utils/undo-redo';
 import { EXPR_SCHEME, FILE_SCHEME } from "../InputEditor/constants";
 import { ViewContainer } from "../ViewContainer";
 
@@ -108,6 +108,8 @@ export function StatementEditor(props: StatementEditorProps) {
     const [stmtDiagnostics, setStmtDiagnostics] = useState<StmtDiagnostic[]>([]);
     const [moduleList, setModuleList] = useState(new Set<string>());
     const [lsSuggestionsList, setLSSuggestionsList] = useState([]);
+    const [documentation, setDocumentation] = useState<SymbolInfoResponse>(null);
+    const [isRestArg, setRestArg] = useState(false);
 
     const fileURI = monaco.Uri.file(currentFile.path).toString().replace(FILE_SCHEME, EXPR_SCHEME);
     const {
@@ -118,27 +120,39 @@ export function StatementEditor(props: StatementEditorProps) {
 
     const undoRedoManager = React.useMemo(() => new StmtEditorUndoRedoManager(), []);
 
-    const undo = React.useCallback(async () => {
+    const undo = async () => {
         const undoItem = undoRedoManager.getUndoModel();
         if (undoItem) {
-            const updatedContent = await getUpdatedSource(undoItem.oldModel.source, currentFile.content,
+            const updatedContent = await getUpdatedSource(undoItem.oldModel.model.source, currentFile.content,
                 targetPosition, moduleList);
             sendDidChange(fileURI, updatedContent, getLangClient).then();
-            const diagnostics = await handleDiagnostics(undoItem.oldModel.source);
-            updateEditedModel(undoItem.oldModel, diagnostics);
-        }
-    }, []);
+            const diagnostics = await handleDiagnostics(undoItem.oldModel.model.source);
+            updateEditedModel(undoItem.oldModel.model, diagnostics);
 
-    const redo = React.useCallback(async () => {
+            const newCurrentModel = getCurrentModel(undoItem.oldModel.selectedPosition, enrichModel(undoItem.oldModel.model, targetPosition));
+            /*if (STKindChecker.isFunctionCall(newCurrentModel)){
+                await updateModel(newCurrentModel.source, newCurrentModel.position);
+            }*/
+            setCurrentModel({model: newCurrentModel});
+            if (currentModel.model){
+                setDocumentation(await getSymbolDocumentation(fileURI, targetPosition, {model : newCurrentModel}, getLangClient));
+            }
+        }
+    }
+
+    const redo = async () => {
         const redoItem = undoRedoManager.getRedoModel();
         if (redoItem) {
-            const updatedContent = await getUpdatedSource(redoItem.oldModel.source, currentFile.content,
+            const updatedContent = await getUpdatedSource(redoItem.oldModel.model.source, currentFile.content,
                 targetPosition, moduleList);
             sendDidChange(fileURI, updatedContent, getLangClient).then();
-            const diagnostics = await handleDiagnostics(redoItem.oldModel.source);
-            updateEditedModel(redoItem.newModel, diagnostics);
+            const diagnostics = await handleDiagnostics(redoItem.oldModel.model.source);
+            updateEditedModel(redoItem.newModel.model, diagnostics);
+            if (currentModel.model){
+                setDocumentation(await getSymbolDocumentation(fileURI, targetPosition, currentModel, getLangClient));
+            }
         }
-    }, []);
+    }
 
     useEffect(() => {
         if (config.type !== CUSTOM_CONFIG_TYPE || initialSource) {
@@ -155,6 +169,10 @@ export function StatementEditor(props: StatementEditorProps) {
                 if (!partialST.syntaxDiagnostics.length || config.type === CUSTOM_CONFIG_TYPE) {
                     updateEditedModel(partialST, diagnostics);
                 }
+
+                if (currentModel.model){
+                    setDocumentation(await getSymbolDocumentation(fileURI, targetPosition, currentModel, getLangClient));
+                }
             })();
         }
     }, []);
@@ -166,12 +184,15 @@ export function StatementEditor(props: StatementEditorProps) {
                 const currentModelViewState = currentModel.model?.viewState as StatementEditorViewState;
 
                 if (!isOperator(currentModelViewState.modelType) && !isBindingPattern(currentModelViewState.modelType)) {
-                    const content: string = addToTargetPosition(currentFile.content, targetPosition, model.source);
-                    sendDidChange(fileURI, content, getLangClient).then();
+                    // const content: string = addToTargetPosition(currentFile.content, targetPosition, model.source);
+                    const updatedContent = await getUpdatedSource(model.source, currentFile.content,
+                        targetPosition, moduleList);
+                    sendDidChange(fileURI, updatedContent, getLangClient).then();
                     lsSuggestions = await getCompletions(fileURI, targetPosition, model,
                         currentModel, getLangClient);
                 }
                 setLSSuggestionsList(lsSuggestions);
+                setDocumentation(await getSymbolDocumentation(fileURI, targetPosition, currentModel, getLangClient));
             }
         })();
     }, [currentModel.model]);
@@ -181,6 +202,10 @@ export function StatementEditor(props: StatementEditorProps) {
             onStmtEditorModelChange(model);
         }
     }, [model]);
+
+    const restArg = (restCheckClicked: boolean) => {
+        setRestArg(restCheckClicked);
+    }
 
     const handleChange = async (newValue: string) => {
         const updatedStatement = addToTargetPosition(model.source, currentModel.model.position, newValue);
@@ -209,7 +234,7 @@ export function StatementEditor(props: StatementEditorProps) {
                 { codeSnippet }, getLangClient);
         }
 
-        undoRedoManager.add(model, partialST);
+
 
         const updatedContent = await getUpdatedSource(partialST.source, currentFile.content, targetPosition,
             moduleList);
@@ -219,6 +244,18 @@ export function StatementEditor(props: StatementEditorProps) {
         if (!partialST.syntaxDiagnostics.length || config.type === CUSTOM_CONFIG_TYPE) {
             updateEditedModel(partialST, diagnostics);
             const selectedPosition = getSelectedModelPosition(codeSnippet, position);
+            const undoModel : StmtActionStackItem = {
+                oldModel: {
+                    model,
+                    selectedPosition : currentModel.model.position
+                },
+                newModel: {
+                    model: partialST,
+                    selectedPosition
+                }
+            }
+            undoRedoManager.add(undoModel.oldModel, undoModel.newModel);
+
             const newCurrentModel = getCurrentModel(selectedPosition, enrichModel(partialST, targetPosition));
             setCurrentModel({model: newCurrentModel});
         }
@@ -308,7 +345,7 @@ export function StatementEditor(props: StatementEditorProps) {
     };
 
     function updateEditedModel(editedModel: STNode, diagnostics?: Diagnostic[]) {
-        setModel(enrichModel(editedModel, targetPosition, diagnostics));
+        setModel({...enrichModel(editedModel, targetPosition, diagnostics)});
     }
 
     const keyboardNavigationManager = new KeyboardNavigationManager()
@@ -352,6 +389,9 @@ export function StatementEditor(props: StatementEditorProps) {
                     hasUndo={undoRedoManager.hasUndo()}
                     diagnostics={stmtDiagnostics}
                     lsSuggestions={lsSuggestionsList}
+                    documentation={documentation}
+                    restArg={restArg}
+                    hasRestArg={isRestArg}
                 >
                     <ViewContainer
                         label={label}

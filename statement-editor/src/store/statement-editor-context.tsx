@@ -13,7 +13,7 @@
 // tslint:disable: no-empty jsx-no-multiline-js
 import React from 'react';
 
-import { LibraryKind, STModification } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { LibraryKind, STModification, SymbolInfoResponse } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { LowCodeEditorProps } from '../components/StatementEditor';
@@ -33,6 +33,8 @@ export const StatementEditorContext = React.createContext({
         redo: () => undefined,
         hasUndo: false,
         hasRedo: false,
+        restArg: (restCheckClicked: boolean) => undefined,
+        hasRestArg: false
     },
     formCtx: {
         formModelPosition: null
@@ -61,7 +63,8 @@ export const StatementEditorContext = React.createContext({
     modules: {
         modulesToBeImported: new Set(),
         updateModuleList: (module: string) => {}
-    }
+    },
+    documentation: null
 });
 
 export interface CtxProviderProps extends LowCodeEditorProps {
@@ -81,7 +84,10 @@ export interface CtxProviderProps extends LowCodeEditorProps {
     hasUndo?: boolean,
     hasRedo?: boolean,
     diagnostics?: StmtDiagnostic[],
-    lsSuggestions?: SuggestionItem[]
+    lsSuggestions?: SuggestionItem[],
+    documentation?: SymbolInfoResponse,
+    restArg?: (restCheckClicked: boolean) => void,
+    hasRestArg?: boolean
 }
 
 export const StatementEditorContextProvider = (props: CtxProviderProps) => {
@@ -104,6 +110,9 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
         initialSource,
         diagnostics,
         lsSuggestions,
+        documentation,
+        restArg,
+        hasRestArg,
         ...restProps
     } = props;
 
@@ -121,6 +130,8 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
                     redo,
                     hasRedo,
                     hasUndo,
+                    restArg,
+                    hasRestArg
                 },
                 formCtx: {
                     formModelPosition: formArgs.formArgs.targetPosition
@@ -137,6 +148,7 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
                     modulesToBeImported,
                     updateModuleList: handleModules
                 },
+                documentation,
                 ...restProps
             }}
         >

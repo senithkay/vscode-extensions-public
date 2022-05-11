@@ -15,7 +15,7 @@ import React, { ReactNode } from 'react';
 import {
     CompletionResponse,
     getDiagnosticMessage,
-    getFilteredDiagnostics,
+    getFilteredDiagnostics, LinePosition,
     STModification
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
@@ -37,7 +37,7 @@ import {
     StatementNodes,
     WHITESPACE_MINUTIAE
 } from "../constants";
-import { MinutiaeJSX, RemainingContent, StmtDiagnostic, StmtOffset } from '../models/definitions';
+import { CurrentModel, MinutiaeJSX, RemainingContent, StmtDiagnostic, StmtOffset } from '../models/definitions';
 import { visitor as DeleteConfigSetupVisitor } from "../visitors/delete-config-setup-visitor";
 import { visitor as DiagnosticsMappingVisitor } from "../visitors/diagnostics-mapping-visitor";
 import { visitor as ExpressionDeletingVisitor } from "../visitors/expression-deleting-visitor";
@@ -418,4 +418,23 @@ export function getModuleIconStyle(label: string): string {
             break;
     }
     return suggestionIconStyle;
+}
+
+export function getSymbolPosition(targetPos: NodePosition, currentModel: CurrentModel, userInput: string): LinePosition{
+    let position: LinePosition;
+    if (STKindChecker.isFunctionCall(currentModel.model)){
+        position = {
+            line : targetPos.startLine + currentModel.model.position.startLine,
+            offset : (STKindChecker.isQualifiedNameReference(currentModel.model.functionName)) ?
+                targetPos.startColumn + currentModel.model.functionName.identifier.position.endColumn - 1 :
+                targetPos.startColumn + currentModel.model.functionName.name.position.endColumn - 1
+
+        }
+        return  position;
+    }
+    position = {
+        line : targetPos.startLine + currentModel.model.position.startLine,
+        offset : targetPos.startColumn + currentModel.model.position.startColumn + userInput.length
+    }
+    return position;
 }

@@ -72,9 +72,7 @@ export function ModuleElement(props: ModuleElementProps) {
             if (functionProperties) {
                 const parameters: string[] = [];
                 functionProperties.parameters.map((param: FunctionParams) => {
-                    if (param.type.isNullable) {
-                        parameters.push(`${param.name}=${param.defaultValue}`);
-                    } else if (!param.type.isInclusion) {
+                    if (!(param.type.isInclusion || param.type.isNullable)) {
                         parameters.push(`${param.name}`);
                     }
                 });

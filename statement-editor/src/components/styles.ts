@@ -38,6 +38,7 @@ const syntaxHighlightingRules = {
 export const useStatementEditorStyles = makeStyles(() =>
     createStyles({
         toolbar: {
+            display: 'inline-block',
             right: '13px',
             top: '60px',
             border: '1px solid #e6e7ec',
@@ -97,7 +98,7 @@ export const useStatementEditorStyles = makeStyles(() =>
             width: '50%',
         },
         statementExpressionTitle: {
-            display: 'flex',
+            display: 'inline-block',
             alignItems: 'center',
             paddingBottom: theme.spacing(1),
         },
@@ -607,6 +608,78 @@ export const useStatementEditorStyles = makeStyles(() =>
         },
         helpText: {
             fontStyle: "italic"
+        },
+        parameterCheckbox: {
+            color: '#2FA86C',
+            "& .MuiCheckbox-colorSecondary.Mui-checked": {
+                color: "#2FA86C"
+            },
+            "&$checked": {
+                color: "#2FA86C",
+                "&:hover": {
+                    background: "transparent",
+                },
+                "& .MuiIconButton-label": {
+                    position: "relative",
+                    zIndex: 0,
+                },
+                "& .MuiIconButton-label::after": {
+                    content: '""',
+                    left: 1,
+                    top: 1,
+                    width: 19,
+                    height: 19,
+                    position: "absolute",
+                    backgroundColor: "#fff",
+                    zIndex: -1,
+                    borderRadius: 3,
+                }
+            }
+        },
+        parameterTabCheckBox : {
+            root: {
+                "&$checked": {
+                    color: "rgba(0, 0, 0, 0.54)"
+                }
+            }
+        },
+        checked: {},
+        disabledCheckbox : {
+            color: 'rgba(47,168,108,0.5)',
+            "&$checked": {
+                color: "rgba(47,168,108,0.5)",
+                "&:hover": {
+                    background: "transparent",
+                },
+                "& .MuiIconButton-label": {
+                    position: "relative",
+                    zIndex: 0,
+                },
+                "& .MuiIconButton-label::after": {
+                    content: '""',
+                    left: 1,
+                    top: 1,
+                    width: 19,
+                    height: 19,
+                    position: "absolute",
+                    backgroundColor: "#fff",
+                    zIndex: -1,
+                    borderRadius: 3,
+                }
+            }
+        },
+        parameterHeader :  {
+            fontSize: '13px',
+            color: '#1D2028',
+            letterSpacing: '0',
+            lineHeight: '14px'
+        },
+        parameterSeparater : {
+            height: '1px',
+            width: '616px',
+            opacity: '0.52',
+            backgroundColor: "#DCDEE4",
+            marginLeft: '16px'
         }
     }),
 );
