@@ -75,8 +75,9 @@ export function ExpressionSuggestions() {
 
     return (
         <>
+
             <div className={stmtEditorHelperClasses.expressionSuggestionList}>
-                <FormControl style={{ width: 'inherit' }}>
+                <FormControl style={{ width: '100%', padding: '0 25px'}}>
                     <Input
                         className={stmtEditorHelperClasses.librarySearchBox}
                         value={keyword}
@@ -94,17 +95,17 @@ export function ExpressionSuggestions() {
                         {filteredExpressions.map((group) => (
                             <>
                                 <div className={stmtEditorHelperClasses.librarySearchSubHeader}>{group.name}</div>
-                                <List className={stmtEditorHelperClasses.expressionList}>
-                                    {
-                                        group.expressions.map((expression, index) => (
-                                            <ListItem
-                                                button={true}
-                                                className={stmtEditorHelperClasses.expressionListItem}
-                                                key={index}
-                                                onClick={() => onClickExpressionSuggestion(expression)}
-                                                disableRipple={true}
-                                            >
-                                                <div className={stmtEditorHelperClasses.expressionListItemText}>
+                                <div className={statementEditorClasses.stmtEditorExpressionWrapper}>
+                                    <List className={stmtEditorHelperClasses.expressionList}>
+                                        {
+                                            group.expressions.map((expression, index) => (
+                                                <ListItem
+                                                    button={true}
+                                                    className={stmtEditorHelperClasses.expressionListItem}
+                                                    key={index}
+                                                    onClick={() => onClickExpressionSuggestion(expression)}
+                                                    disableRipple={true}
+                                                >
                                                     <ListItemText
                                                         title={expression.name}
                                                         primary={(
@@ -113,11 +114,11 @@ export function ExpressionSuggestions() {
                                                             </Typography>
                                                         )}
                                                     />
-                                                </div>
-                                            </ListItem>
-                                        ))
-                                    }
-                                </List>
+                                                </ListItem>
+                                            ))
+                                        }
+                                    </List>
+                                </div>
                                 <div className={statementEditorClasses.separatorLine} />
                             </>
                         ))}
@@ -125,7 +126,9 @@ export function ExpressionSuggestions() {
                 )}
             </div>
             {!filteredExpressions.length && (
-                <p>Expressions not available</p>
+                <div className={statementEditorClasses.stmtEditorInnerWrapper}>
+                    <p>Expressions not available</p>
+                </div>
             )}
         </>
     );

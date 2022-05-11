@@ -53,9 +53,7 @@ export function EditorPane(props: ModelProps) {
                 </div>
             </div>
             <div className={statementEditorClasses.suggestionsSection}>
-                <div className={statementEditorClasses.stmtEditorInnerWrapper}>
-                    <HelperPane />
-                </div>
+                <HelperPane />
             </div>
         </div>
     );

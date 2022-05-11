@@ -44,23 +44,26 @@ export function HelperPane() {
 
     return (
         <>
-            <div className={stmtEditorHelperClasses.tabPanelWrapper}>
-                <TabPanel
-                    values={[TabElements.suggestions, TabElements.expressions, TabElements.libraries]}
-                    defaultValue={TabElements.suggestions}
-                    onSelection={onTabElementSelection}
-                />
-                <div className={stmtEditorHelperClasses.libraryTypeSelector}>
-                    {selectedTab === TabElements.libraries && (
-                        <SelectDropdown
-                            values={[ALL_LIBS_IDENTIFIER, LANG_LIBS_IDENTIFIER, STD_LIBS_IDENTIFIER]}
-                            defaultValue={ALL_LIBS_IDENTIFIER}
-                            onSelection={onLibTypeSelection}
-                        />
-                    )}
+            <div className={statementEditorClasses.stmtEditorInnerWrapper}>
+                <div className={stmtEditorHelperClasses.tabPanelWrapper}>
+
+                    <TabPanel
+                        values={[TabElements.suggestions, TabElements.expressions, TabElements.libraries]}
+                        defaultValue={TabElements.suggestions}
+                        onSelection={onTabElementSelection}
+                    />
+                    <div className={stmtEditorHelperClasses.libraryTypeSelector}>
+                        {selectedTab === TabElements.libraries && (
+                            <SelectDropdown
+                                values={[ALL_LIBS_IDENTIFIER, LANG_LIBS_IDENTIFIER, STD_LIBS_IDENTIFIER]}
+                                defaultValue={ALL_LIBS_IDENTIFIER}
+                                onSelection={onLibTypeSelection}
+                            />
+                        )}
+                    </div>
                 </div>
+                <div className={statementEditorClasses.separatorLine} />
             </div>
-            <div className={statementEditorClasses.separatorLine} />
             <div className={stmtEditorHelperClasses.suggestionsInner}>
                 {selectedTab === TabElements.suggestions && <LSSuggestions />}
                 {selectedTab === TabElements.expressions && <ExpressionSuggestions />}

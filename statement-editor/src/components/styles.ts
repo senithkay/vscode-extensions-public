@@ -57,6 +57,10 @@ const removePadding = {
     padding: '0px'
 }
 
+const stmtEditorPadding = {
+    paddingLeft: '25px',
+    paddingRight: '25px'
+}
 export const useStatementEditorToolbarStyles = makeStyles(() =>
     createStyles({
         toolbar: {
@@ -117,7 +121,7 @@ export const useStatementRendererStyles = makeStyles(() =>
         },
         expressionElementSelected: {
             '&': {
-                backgroundColor: '#ccd1f29c',
+                backgroundColor: '#ccd1f29c'
             },
             ...hoverColor2
         },
@@ -273,7 +277,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             gridTemplateColumns: '47% 47%',
             "& .MuiListItem-root": {
                 marginBottom: '8px',
-                ...removePadding
+                padding: '0 10px'
             },
         },
         suggestionListItem: {
@@ -295,10 +299,8 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             textOverflow: 'ellipsis'
         },
         expressionSuggestionList: {
-            overflowY: 'scroll',
             overflowX: 'hidden',
-            width: '100%',
-            marginBottom: '60px'
+            width: '100%'
         },
         librarySearchBox: {
             position: 'relative',
@@ -315,7 +317,8 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
         librarySearchSubHeader: {
             color: '#1D2028',
             marginBottom: '4px',
-            fontWeight: 500
+            fontWeight: 500,
+            ...stmtEditorPadding
         },
         expressionList: {
             columnGap: '5%',
@@ -323,7 +326,8 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             gridTemplateColumns: '30% 30% 30%',
             "& .MuiListItem-root": {
                 marginBottom: '8px',
-                ...removePadding
+                padding: '0 10px',
+                width: 'fit-content'
             },
             ...removePadding
         },
@@ -335,9 +339,6 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             ...hoverColor1,
             ...focusColor1
         },
-        expressionListItemText: {
-            paddingLeft: '10px'
-        },
         loadingContainer: {
             height: '60vh',
             alignContent: 'center',
@@ -345,9 +346,8 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
         },
         libraryBrowser: {
             overflowX: 'hidden',
-            marginBottom: '60px',
             "& .MuiListItem-root": {
-                padding: '6px 0 6px 0'
+                padding: '6px 10px'
             },
             "& .MuiIconButton-root": {
                 ...removePadding
@@ -359,6 +359,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             width: '100%',
             alignItems: 'center',
             zIndex: 1,
+            ...stmtEditorPadding
         },
 
         moduleTitle: {
@@ -404,6 +405,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
         },
         libraryElementBlockLabel: {
             height: '10%',
+            padding: '0 10px'
         },
     }),
 );
@@ -472,7 +474,14 @@ export const useStatementEditorStyles = makeStyles(() =>
             height: '1px',
             opacity: '0.52',
             backgroundColor: '#DCDEE4',
-            marginBottom: '15px'
-        }
+            marginBottom: '25px'
+        },
+        stmtEditorExpressionWrapper: {
+            paddingLeft: '15px',
+            paddingRight: '25px',
+            fontSize: '13px',
+            fontFamily: 'Gilmer',
+            overflowY: 'hidden'
+        },
     }),
 );
