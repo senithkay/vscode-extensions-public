@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 
 import { ClickAwayListener } from "@material-ui/core";
 import { STNode } from "@wso2-enterprise/syntax-tree";
@@ -19,11 +19,13 @@ import debounce from "lodash.debounce";
 
 import { InputEditorContext } from "../../store/input-editor-context";
 import { StatementEditorContext } from "../../store/statement-editor-context";
+import { isPositionsEquals } from "../../utils";
+import { EXPR_PLACEHOLDER, STMT_PLACEHOLDER, TYPE_DESC_PLACEHOLDER } from "../../utils/expressions";
 import { ModelType, StatementEditorViewState } from "../../utils/statement-editor-viewstate";
 import { useStatementEditorStyles } from "../styles";
 
 import {
-    INPUT_EDITOR_PLACE_HOLDERS
+    INPUT_EDITOR_PLACEHOLDERS
 } from "./constants";
 
 export interface InputEditorProps {
@@ -40,6 +42,7 @@ export function InputEditor(props: InputEditorProps) {
     const {
         modelCtx: {
             initialSource,
+            statementModel,
             updateModel,
             handleChange
         },
@@ -52,7 +55,7 @@ export function InputEditor(props: InputEditorProps) {
 
     const statementEditorClasses = useStatementEditorStyles();
 
-    const [originalValue] = React.useMemo(() => {
+    const originalValue = React.useMemo(() => {
         let source: string;
 
         if (!model) {
@@ -63,12 +66,26 @@ export function InputEditor(props: InputEditorProps) {
             source = model.source;
         }
 
-        return [source];
+        return source;
     }, [model]);
 
     const [isEditing, setIsEditing] = useState(false);
     const [userInput, setUserInput] = useState<string>(originalValue);
     const [prevUserInput, setPrevUserInput] = useState<string>(userInput);
+
+    const placeHolder = useMemo(() => {
+        const trimmedInput = userInput.trim();
+        if (statementModel && INPUT_EDITOR_PLACEHOLDERS.has(trimmedInput)) {
+            if (isPositionsEquals(statementModel.position, model.position)) {
+                // override the placeholder when the statement is empty
+                return INPUT_EDITOR_PLACEHOLDERS.get(STMT_PLACEHOLDER);
+            } else {
+                return INPUT_EDITOR_PLACEHOLDERS.get(trimmedInput);
+            }
+        } else {
+            return trimmedInput;
+        }
+    }, [userInput]);
 
     useEffect(() => {
         setUserInput(originalValue);
@@ -96,7 +113,13 @@ export function InputEditor(props: InputEditorProps) {
 
     const changeInput = (newValue: string) => {
         if (!newValue) {
-            newValue = (model.viewState as StatementEditorViewState).modelType === ModelType.TYPE_DESCRIPTOR ? 'TYPE_DESCRIPTOR' : 'EXPRESSION';
+            if (isPositionsEquals(statementModel.position, model.position)) {
+                // placeholder for empty custom statements
+                newValue = STMT_PLACEHOLDER;
+            } else {
+                newValue = (model.viewState as StatementEditorViewState).modelType === ModelType.TYPE_DESCRIPTOR
+                    ? TYPE_DESC_PLACEHOLDER : EXPR_PLACEHOLDER;
+            }
         }
         setUserInput(newValue);
         inputEditorCtx.onInputChange(newValue);
@@ -127,7 +150,7 @@ export function InputEditor(props: InputEditorProps) {
                 onClickAway={handleEditEnd}
             >
                 <input
-                    value={INPUT_EDITOR_PLACE_HOLDERS.has(userInput) ? "" : userInput}
+                    value={INPUT_EDITOR_PLACEHOLDERS.has(userInput.trim()) ? "" : userInput}
                     className={statementEditorClasses.inputEditorTemplate + ' ' + classNames}
                     onKeyDown={inputEnterHandler}
                     onInput={inputChangeHandler}
@@ -142,7 +165,7 @@ export function InputEditor(props: InputEditorProps) {
                 className={statementEditorClasses.inputEditorTemplate + ' ' + classNames}
                 onDoubleClick={handleDoubleClick}
             >
-                {INPUT_EDITOR_PLACE_HOLDERS.has(userInput) ? INPUT_EDITOR_PLACE_HOLDERS.get(userInput) : userInput}
+                {placeHolder}
             </span>
         );
 }

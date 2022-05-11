@@ -21,7 +21,7 @@ import ToolbarUndoIcon from "../../assets/icons/ToolbarUndoIcon";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { getRemainingContent } from "../../utils";
 import { StatementEditorViewState } from "../../utils/statement-editor-viewstate";
-import { INPUT_EDITOR_PLACE_HOLDERS } from "../InputEditor/constants";
+import { INPUT_EDITOR_PLACEHOLDERS } from "../InputEditor/constants";
 import { useStatementEditorStyles } from "../styles";
 
 export default function Toolbar(){
@@ -33,9 +33,9 @@ export default function Toolbar(){
         if (currentModel.model){
             const stmtViewState: StatementEditorViewState = currentModel.model.viewState as StatementEditorViewState;
             let exprDeletable = !stmtViewState.exprNotDeletable;
-            if (currentModel.model.source && INPUT_EDITOR_PLACE_HOLDERS.has(currentModel.model.source.trim())) {
+            if (currentModel.model.source && INPUT_EDITOR_PLACEHOLDERS.has(currentModel.model.source.trim())) {
                 exprDeletable =  stmtViewState.templateExprDeletable;
-            } else if (currentModel.model.value && INPUT_EDITOR_PLACE_HOLDERS.has(currentModel.model.value.trim())) {
+            } else if (currentModel.model.value && INPUT_EDITOR_PLACEHOLDERS.has(currentModel.model.value.trim())) {
                 exprDeletable =  stmtViewState.templateExprDeletable;
             }
             return exprDeletable;

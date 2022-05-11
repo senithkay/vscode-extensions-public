@@ -12,7 +12,7 @@ describe('edit and delete google-sheet connector', () => {
   })
 
   it('edit a google-sheet connector and save', () => {
-    cy.wait(10000);
+    cy.wait(15000);
     Canvas
       .getConnector('gsheet')
       .clickEdit();
@@ -23,6 +23,7 @@ describe('edit and delete google-sheet connector', () => {
       .typeToken('"new-Token"')
       .saveConnection();
 
+    cy.wait(15000);
     SourceCode.shouldBeEqualTo(
       getCurrentSpecFolder() + "edit-gsheet-connector.expected.bal");
   })
