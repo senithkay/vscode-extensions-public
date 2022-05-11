@@ -40,7 +40,7 @@ import cn from "classnames";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { getMinutiaeJSX, isPositionsEquals } from "../../utils";
 import { InputEditor } from "../InputEditor";
-import { useStatementEditorStyles } from "../styles";
+import { useStatementRendererStyles } from "../styles";
 
 export interface OperatorProps {
     model:  AsteriskToken |
@@ -79,7 +79,7 @@ export function OperatorComponent(props: OperatorProps) {
         changeCurrentModel
     } = modelCtx;
 
-    const statementEditorClasses = useStatementEditorStyles();
+    const statementRenedererClasses = useStatementRendererStyles();
 
     const isSelected = selectedModel.model && model && isPositionsEquals(selectedModel.model.position, model.position);
 
@@ -101,8 +101,8 @@ export function OperatorComponent(props: OperatorProps) {
         changeCurrentModel(model);
     }
 
-    const styleClassNames = cn(statementEditorClasses.expressionElement,
-        isSelected && statementEditorClasses.expressionElementSelected,
+    const styleClassNames = cn(statementRenedererClasses.expressionElement,
+        isSelected && statementRenedererClasses.expressionElementSelected,
         {
             "hovered": !isSelected && isHovered,
         },

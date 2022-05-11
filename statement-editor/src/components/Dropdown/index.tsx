@@ -15,7 +15,7 @@ import React, { useEffect } from 'react';
 
 import { MenuItem, Select } from "@material-ui/core";
 
-import { useStatementEditorStyles } from "../styles";
+import { useStmtEditorHelperPanelStyles } from "../styles";
 
 interface SelectDropdownProps {
     values: string[]
@@ -25,7 +25,7 @@ interface SelectDropdownProps {
 
 export default function SelectDropdown(props: SelectDropdownProps) {
     const { values, defaultValue, onSelection } = props;
-    const statementEditorClasses = useStatementEditorStyles();
+    const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
     const [state, setState] = React.useState(defaultValue);
 
     useEffect(() => {
@@ -52,11 +52,11 @@ export default function SelectDropdown(props: SelectDropdownProps) {
         <Select
             value={state}
             onChange={handleChange}
-            className={statementEditorClasses.selectDropDownSe}
+            className={stmtEditorHelperClasses.selectDropDownSe}
             inputProps={{ 'aria-label': 'Without label' }}
             MenuProps={{
                 getContentAnchorEl: null,
-                classes: { paper: statementEditorClasses.dropdownStyle },
+                classes: { paper: stmtEditorHelperClasses.dropdownStyle },
                 anchorOrigin: {
                     vertical: "bottom",
                     horizontal: "left",
