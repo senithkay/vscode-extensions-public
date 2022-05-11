@@ -14,11 +14,12 @@
 import React, { useContext, useEffect, useState } from "react";
 
 import { List, ListItem, ListItemIcon, ListItemText, Typography } from "@material-ui/core";
+import { NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { SuggestionItem } from "../../../models/definitions";
 import { InputEditorContext } from "../../../store/input-editor-context";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
-import { getSuggestionIconStyle } from "../../../utils";
+import { getSuggestionIconStyle, isPositionsEquals } from "../../../utils";
 import { KeyboardNavigationManager } from "../../../utils/keyboard-navigation-manager";
 import { acceptedCompletionKindForTypes } from "../../InputEditor/constants";
 import { useStatementEditorStyles } from "../../styles";
@@ -86,7 +87,15 @@ export function LSSuggestions() {
             }
             variable = variable.split('(')[0] + "(" + paramArray.toString() + ")";
         }
-        updateModel(variable, currentModel ? currentModel.model.position : formModelPosition);
+
+        const modelPosition: NodePosition = currentModel ? currentModel.model.position : formModelPosition
+        if (currentModel &&  STKindChecker.isMethodCall(currentModel.model.parent?.parent) &&
+                isPositionsEquals(currentModel.model.position, currentModel.model.parent.parent.methodName.position)){
+            modelPosition.endLine = currentModel.model.parent.parent.closeParenToken.position.endLLine;
+            modelPosition.endColumn = currentModel.model.parent.parent.closeParenToken.position.endColumn;
+
+        }
+        updateModel(variable, modelPosition);
         inputEditorCtx.onInputChange('');
     }
 
