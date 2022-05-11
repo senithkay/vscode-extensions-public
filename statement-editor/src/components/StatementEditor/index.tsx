@@ -20,7 +20,7 @@ import {
     LibrarySearchResponse,
     STModification, SymbolInfoResponse
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import * as monaco from "monaco-editor";
 import { Diagnostic } from "vscode-languageserver-protocol";
 
@@ -48,7 +48,7 @@ import {
     sendDidOpen
 } from "../../utils/ls-utils";
 import { StatementEditorViewState } from "../../utils/statement-editor-viewstate";
-import { StmtEditorUndoRedoManager } from '../../utils/undo-redo';
+import { StmtActionStackItem, StmtEditorUndoRedoManager } from '../../utils/undo-redo';
 import { EXPR_SCHEME, FILE_SCHEME } from "../InputEditor/constants";
 import { ViewContainer } from "../ViewContainer";
 
@@ -116,33 +116,39 @@ export function StatementEditor(props: StatementEditorProps) {
 
     const undoRedoManager = React.useMemo(() => new StmtEditorUndoRedoManager(), []);
 
-    const undo = React.useCallback(async () => {
+    const undo = async () => {
         const undoItem = undoRedoManager.getUndoModel();
         if (undoItem) {
-            const updatedContent = await getUpdatedSource(undoItem.oldModel.source, currentFile.content,
+            const updatedContent = await getUpdatedSource(undoItem.oldModel.model.source, currentFile.content,
                 targetPosition, moduleList);
             sendDidChange(fileURI, updatedContent, getLangClient).then();
-            const diagnostics = await handleDiagnostics(undoItem.oldModel.source);
-            updateEditedModel(undoItem.oldModel, diagnostics);
+            const diagnostics = await handleDiagnostics(undoItem.oldModel.model.source);
+            updateEditedModel(undoItem.oldModel.model, diagnostics);
+
+            const newCurrentModel = getCurrentModel(undoItem.oldModel.selectedPosition, enrichModel(undoItem.oldModel.model, targetPosition));
+            /*if (STKindChecker.isFunctionCall(newCurrentModel)){
+                await updateModel(newCurrentModel.source, newCurrentModel.position);
+            }*/
+            setCurrentModel({model: newCurrentModel});
             if (currentModel.model){
-                setDocumentation(await getSymbolDocumentation(fileURI, targetPosition, currentModel, getLangClient));
+                setDocumentation(await getSymbolDocumentation(fileURI, targetPosition, {model : newCurrentModel}, getLangClient));
             }
         }
-    }, []);
+    }
 
-    const redo = React.useCallback(async () => {
+    const redo = async () => {
         const redoItem = undoRedoManager.getRedoModel();
         if (redoItem) {
-            const updatedContent = await getUpdatedSource(redoItem.oldModel.source, currentFile.content,
+            const updatedContent = await getUpdatedSource(redoItem.oldModel.model.source, currentFile.content,
                 targetPosition, moduleList);
             sendDidChange(fileURI, updatedContent, getLangClient).then();
-            const diagnostics = await handleDiagnostics(redoItem.oldModel.source);
-            updateEditedModel(redoItem.newModel, diagnostics);
+            const diagnostics = await handleDiagnostics(redoItem.oldModel.model.source);
+            updateEditedModel(redoItem.newModel.model, diagnostics);
             if (currentModel.model){
                 setDocumentation(await getSymbolDocumentation(fileURI, targetPosition, currentModel, getLangClient));
             }
         }
-    }, []);
+    }
 
     useEffect(() => {
         if (config.type !== CUSTOM_CONFIG_TYPE || initialSource) {
@@ -224,7 +230,7 @@ export function StatementEditor(props: StatementEditorProps) {
                 { codeSnippet }, getLangClient);
         }
 
-        undoRedoManager.add(model, partialST);
+
 
         const updatedContent = await getUpdatedSource(partialST.source, currentFile.content, targetPosition,
             moduleList);
@@ -239,6 +245,18 @@ export function StatementEditor(props: StatementEditorProps) {
             ...position,
             endColumn: position.startColumn + codeSnippet.length
         };
+
+        const undoModel : StmtActionStackItem = {
+            oldModel: {
+                model,
+                selectedPosition : currentModel.model.position
+            },
+            newModel: {
+                model: partialST,
+                selectedPosition : currentModelPosition
+            }
+        }
+        undoRedoManager.add(undoModel.oldModel, undoModel.newModel);
 
         const newCurrentModel = getCurrentModel(currentModelPosition, enrichModel(partialST, targetPosition));
         setCurrentModel({model: newCurrentModel});
@@ -303,7 +321,7 @@ export function StatementEditor(props: StatementEditorProps) {
     };
 
     function updateEditedModel(editedModel: STNode, diagnostics?: Diagnostic[]) {
-        setModel(enrichModel(editedModel, targetPosition, diagnostics));
+        setModel({...enrichModel(editedModel, targetPosition, diagnostics)});
     }
 
     return (

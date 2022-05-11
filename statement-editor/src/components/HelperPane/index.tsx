@@ -16,7 +16,7 @@ import React, { useState } from "react";
 import { ALL_LIBS_IDENTIFIER, LANG_LIBS_IDENTIFIER, STD_LIBS_IDENTIFIER } from "../../constants";
 import SelectDropdown from "../Dropdown";
 import { LibraryBrowser } from "../LibraryBrowser";
-import { Parameters } from "../Parameters";
+import { ParameterSuggestions } from "../Parameters/ParameterSuggestions";
 import { useStatementEditorStyles } from "../styles";
 import { ExpressionSuggestions } from "../Suggestions/ExpressionSuggestions";
 import { LSSuggestions } from "../Suggestions/LangServerSuggestions";
@@ -72,7 +72,7 @@ export function HelperPane(props: HelperPaneProps) {
                 {selectedTab === TabElements.suggestions && <LSSuggestions />}
                 {selectedTab === TabElements.expressions && <ExpressionSuggestions />}
                 {selectedTab === TabElements.libraries && <LibraryBrowser libraryType={libraryType} />}
-                {selectedTab === TabElements.parameters && <Parameters />}
+                {selectedTab === TabElements.parameters && <ParameterSuggestions />}
             </div>
         </>
     );
