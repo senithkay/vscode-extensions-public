@@ -35,229 +35,59 @@ const syntaxHighlightingRules = {
     }
 }
 
-export const useStatementEditorStyles = makeStyles(() =>
+const hoverColor1 = {
+    '&:hover': {
+        backgroundColor: '#F0F1FB',
+    }
+}
+
+const hoverColor2 = {
+    '&.hovered': {
+        backgroundColor: '#e5ebf1'
+    },
+}
+
+const focusColor1 = {
+    '&:focus': {
+        backgroundColor: 'rgba(204,209,242,0.61)'
+    },
+}
+
+const removePadding = {
+    padding: '0px'
+}
+
+const stmtEditorPadding = {
+    paddingLeft: '25px',
+    paddingRight: '25px'
+}
+export const useStatementEditorToolbarStyles = makeStyles(() =>
     createStyles({
         toolbar: {
-            display: 'inline-block',
-            right: '13px',
-            top: '60px',
+            display: 'flex',
+            width: '100%',
+            justifyContent: 'flex-end'
+        },
+        toolbarSet: {
             border: '1px solid #e6e7ec',
             borderRadius: '8px',
-            backgroundColor: '#ffffff'
+            display: 'flex',
+            marginLeft: '16px'
         },
         toolbarIcons: {
-            padding: '5px',
-            '&:hover': {
-                backgroundColor: '#F0F1FB',
-            }
+            padding: '8px',
+            ...hoverColor1
         },
-        statementEditorHeader: {
-            minHeight: '5vh',
-            display: 'flex',
-            borderBottom: 'solid 1px #d8d8d8',
-            padding: theme.spacing(1.5)
-        },
-        closeButton: {
-            display: 'flex',
-            justifyContent: 'flex-end',
-            width: '10%'
-        },
-        mainStatementWrapper: {
-            display: 'flex',
-            height: 'auto',
-            width: 700,
-            flexDirection: 'column',
-        },
-        statementExpressionWrapper: {
-            height: 'auto',
-            '&.overlay': {
-                display: 'block',
-                position: 'relative',
-                backgroundColor: '#fff',
-                opacity: '0.7',
-                zIndex: -1
-            }
-        },
-        suggestionsSection: {
-            display: 'flex',
-            flexDirection: 'column',
-            borderBottom: '1px solid #e6e7ec',
-            minHeight: '50vh',
-            height: '75vh'
-        },
-        tabPanelWrapper: {
-            width: 'auto',
-            height: '48px',
-            boxShadow: '0px 1px 1px -1px rgb(0 0 0 / 20%), 0px 1px 1px 0px rgb(0 0 0 / 14%), 0px 1px 3px 0px rgb(0 0 0 / 12%)',
-            display: 'flex',
-            flexDirection: 'row'
-        },
-        tabPanel: {
-            width: '70%'
-        },
-        libraryTypeSelector: {
-            width: '30%',
-            height: '48px',
-            padding: '9px',
-            textAlignLast: 'right'
-        },
-        stmtEditorContentWrapper: {
-            backgroundColor: '#f9fafc',
-            display: 'flex',
-            flexDirection: 'column',
-            padding: theme.spacing(1.5),
-            borderBottom: '1px solid #e6e7ec'
-        },
-        sugessionsWrapper: {
-            width: '100%',
-        },
-        LibraryBrowsingWrapper: {
-            width: '50%',
-        },
-        statementExpressionTitle: {
-            display: 'inline-block',
-            alignItems: 'center',
-            paddingBottom: theme.spacing(1),
-        },
-        statementExpressionContent: {
-            paddingTop: theme.spacing(1.5),
-            paddingBottom: theme.spacing(1.5),
-            fontSize: "18px",
-            'user-select': 'none'
-        },
-        expressionSugession: {
-            padding: theme.spacing(1.5),
-        },
-        stmtEditor: {
-            display: "flex",
-            flexDirection: 'column',
-            backgroundColor: '#fff',
-            width: 700,
-            height: 700
-        },
-        titleLine: {
-            height: '1px',
-            width: 700,
-            opacity: 0.43,
-            backgroundColor: '#D8D8D8',
-        },
-        leftPaneDivider: {
-            height: '1px',
-            width: '393px',
-            opacity: 0.43,
-            backgroundColor: '#D8D8D8'
-        },
-        subHeader: {
-            height: '14px',
-            width: '146px',
-            color: '#1D2028',
-            fontFamily: 'Gilmer,sans-serif',
-            fontSize: '13px',
-            letterSpacing: 0,
-            lineHeight: '14px',
-            paddingTop: '10px',
-            paddingBottom: '15px'
-        },
-        codeLine: {
-            height: '24px',
-            width: '15px',
-            color: '#0095FF',
-            fontFamily: "Droid Sans Mono",
-            fontSize: '12px',
-            letterSpacing: 0,
-            lineHeight: '24px',
-        },
-        vl: {
-            borderLeft: '1px solid #E6E7EC',
-            height: '100%',
-            left: '60%',
-            marginLeft: '-3px',
-            top: '2%',
-            bottom: '10%'
-        },
-        libraryBrowser: {
-            height: '100%',
-            overflowY: 'scroll',
-            overflowX: 'hidden',
-        },
-        leftPane: {
-            display: 'flex',
-            flexDirection: 'column',
-            backgroundColor: '#fff',
-            width: '60%',
-            height: '100%'
-        },
-        contentPane: {
-            display: 'flex',
-            flexDirection: 'row',
-            backgroundColor: '#fff',
-            width: '100%',
-            height: '90%'
-        },
-        rightPaneBlock: {
-            // backgroundColor: '#00ff00',
-            display: 'flex',
-            position: 'relative',
-            // left: '5%',
-            height: '30%',
-            width: '100%'
-        },
-        templateEditor: {
-            position: 'relative',
-            height: '30%',
-            width: '95%',
-            display: 'flex'
-        },
-        templateEditorInner: {
-            position: 'relative',
-            top: '12%',
-            height: '93%',
-            width: '100%',
-            overflowY: 'scroll'
-        },
-        suggestionsInner: {
-            overflowY: 'scroll',
-            height: '100%',
-            paddingLeft: '25px',
-            paddingTop: '11px',
-        },
-        contextSensitivePane: {
-            display: 'flex',
-            flexDirection: 'column',
-            height: '100%',
-            position: 'relative',
-            marginLeft: '5%'
-        },
-        diagnosticsPane: {
-            color: '#ea4c4d',
-            "& .MuiList-padding": {
-                padding: '0px'
-            },
-            "& .MuiListItemText-root": {
-                margin: '0px'
-            }
-        },
-        suggestionButton: {
-            boxSizing: 'border-box',
-            border: '1px solid #CBCEDB',
-            borderRadius: '4px',
-            fontFamily: 'inherit',
-            backgroundColor: 'rgba(255,255,255,0.5)',
-            marginLeft: '2%',
-            marginTop: '3%',
-            color: '#40404B',
-            fontSize: 12,
-            padding: '5px 10px',
-            letterSpacing: 0,
-            '&:hover': {
-                backgroundColor: '#8e9bdc',
-                color: 'white'
-            },
-            '&:disabled': {
-                backgroundColor: 'rgba(0,0,0,0.1)',
-                color: '#404040',
-            }
-        },
+        undoRedoSeparator: {
+            width: '1px',
+            borderRadius: '5px',
+            boxShadow: 'inset 0 0 0 1px #E6E7EC'
+          }
+    }),
+);
+
+export const useStatementRendererStyles = makeStyles(() =>
+    createStyles({
         expressionBlock: {
             position: 'relative',
             paddingRight: '10px',
@@ -268,52 +98,6 @@ export const useStatementEditorStyles = makeStyles(() =>
             width: '15px',
             letterSpacing: 0,
         },
-        expressionElement: {
-            position: 'relative',
-            width: 'fit-content',
-            margin: '0 2px 0 2px',
-            '&': {
-                width: 'fit-content',
-                borderRadius: '4px',
-            },
-            '&.hovered': {
-                backgroundColor: '#e5ebf1'
-            },
-            cursor: "pointer",
-            ...syntaxHighlightingRules
-        },
-        expressionElementCloseButton: {
-            display: 'inline',
-            boxSizing: 'border-box',
-            border: '1px solid #A6B3FF',
-            borderRadius: '2px',
-            position: 'relative',
-            width: '10px',
-            backgroundColor: '#000000',
-            color: '#ffffff',
-            fontSize: '7px',
-            '&:hover': {
-                backgroundColor: '#00ff00',
-                color: '#fff'
-            }
-        },
-        expressionDeleteButton: {
-            display: 'inline',
-            position: 'absolute',
-            marginLeft: '-12px',
-            marginTop: '-20px',
-            "& .MuiIconButton-root": {
-                padding: theme.spacing(0.25),
-            }
-        },
-        expressionElementSelected: {
-            '&': {
-                backgroundColor: '#b3d9ff',
-            },
-            '&.hovered': {
-                backgroundColor: '#e5ebf1',
-            },
-        },
         inputEditorTemplate: {
             minWidth: '20px',
             letterSpacing: 0,
@@ -323,60 +107,23 @@ export const useStatementEditorStyles = makeStyles(() =>
                 outline: 'none'
             }
         },
-        addNewExpressionButton: {
-            backgroundColor: '#f7f8fb',
-            border: '#6830e9',
-            borderStyle: 'solid',
-            color: '#6830e9',
-            textAlign: 'center',
-            fontSize: '16px',
-            margin: '4px 2px',
-            borderRadius: '50%'
-        },
-        libraryBrowserHeader: {
-            display: 'flex',
-            flexDirection: 'row',
-            width: '100%',
-            alignItems: 'center',
-            position: 'sticky',
-            top: '0px',
-            zIndex: 1,
-            backgroundColor: '#FFFFFF',
-            paddingBottom: '16px'
-        },
-        libraryDropdown: {
-            flex: '0 0 50%',
-            display: 'flex',
-            justifyContent: 'flex-end'
-        },
-        rhsComponent: {
+        expressionElement: {
             position: 'relative',
-            top: '10px',
-            width: '90%',
-            marginLeft: '5%'
+            width: 'fit-content',
+            marginRight: '2px',
+            '&': {
+                width: 'fit-content',
+                borderRadius: '4px',
+            },
+            cursor: "pointer",
+            ...syntaxHighlightingRules,
+            ...hoverColor2
         },
-        propertyDivider: {
-            height: '1px',
-            marginTop: '2%',
-            marginBottom: '10px',
-            width: '94%',
-            opacity: 0.52,
-            backgroundColor: '#DCDEE4'
-        },
-        footer: {
-            height: 'auto',
-            display: 'flex',
-            width: '100%',
-            marginTop: '12px',
-            paddingRight: theme.spacing(2.5),
-        },
-        buttonWrapper: {
-            display: 'flex',
-            justifyContent: 'flex-end',
-            width: '50%'
-        },
-        stmtEditorToggle: {
-            width: '50%'
+        expressionElementSelected: {
+            '&': {
+                backgroundColor: '#ccd1f29c'
+            },
+            ...hoverColor2
         },
         plusIcon: {
             boxSizing: 'border-box',
@@ -388,7 +135,6 @@ export const useStatementEditorStyles = makeStyles(() =>
             fontFamily: "monospace",
             color: '#0095FF',
             margin: '0px 2px',
-            fontSize: '12px',
             padding: '0px 4px',
             '&:hover': {
                 backgroundColor: 'rgba(173, 214, 255, 0.3)'
@@ -402,113 +148,51 @@ export const useStatementEditorStyles = makeStyles(() =>
                 }
             }
         },
-        mainExpStatementWrapper: {
-            display: 'flex',
-            flexDirection: 'row'
-        },
-        expressionComponent: {
-            display: 'flex',
-            flexDirection: 'row'
-        },
-        libraryListBlock: {
-            paddingRight: '5px',
-            paddingBottom: '8px',
-            columnGap: '6%',
-            display: 'grid',
-            gridTemplateColumns: '47% 47%',
-            padding: '0px'
-        },
-        librarySearchBox: {
-            position: 'relative',
-            height: '32px',
-            width: 'inherit',
-            border: '1px #E0E3E9',
-            borderRadius: '5px',
-            backgroundColor: '#FFFFFF',
-            boxShadow: 'inset 0 0 0 1px #DEE0E7, inset 0 2px 1px 0 rgba(0,0,0,0.07), 0 0 0 0 rgba(50,50,77,0.07)',
-            color: '#CBCEDB',
-            textIndent: '12px',
-            fontSize: '12px',
-            textAlign: 'left',
-            paddingLeft: '12px',
-            marginRight: '10px'
-        },
-        librarySearchSubHeader: {
-            height: '12px',
-            color: '#1D2028',
-            fontFamily: 'Gilmer,sans-serif',
-            fontSize: '13px',
-            letterSpacing: 0,
-            lineHeight: '14px',
-            marginBottom: '7px'
-        },
-        libraryElementBlock: {
-            top: '5%',
-            display: 'flex',
-            flexDirection: 'column',
-            paddingBottom: '25px'
-        },
-        libraryElementBlockLabel: {
-            height: '10%',
-        },
-        libraryElementBlockContent: {
-            padding: '0px',
-            top: '10%',
-            height: '80%',
-            overflowY: 'scroll',
-            overflowX: 'hidden',
-            columnGap: '6%',
-            display: 'grid',
-            gridTemplateColumns: '29% 29% 29%',
-            paddingBottom: '8px'
-        },
-        lsSuggestionList: {
-            top: '5%',
-            height: '95%',
-            overflowY: 'scroll',
-            overflowX: 'hidden',
-        },
-        expressionSuggestionList: {
-            maxHeight: '100%',
-            overflowY: 'scroll',
-            overflowX: 'hidden',
-        },
-        suggestionListItem: {
-            padding: '0 0 0 8px',
-            '&:hover': {
-                backgroundColor: '#F0F1FB',
+    }),
+);
+
+export const useStatementEditorDiagnosticStyles = makeStyles(() =>
+    createStyles({
+        diagnosticsPane: {
+            color: '#ea4c4d',
+            paddingTop: '13px',
+            "& .MuiList-padding": {
+                ...removePadding
             },
-            '&:focus': {
-                backgroundColor: 'rgba(204,209,242,0.61)'
+            "& .MuiListItemText-root": {
+                margin: '0px'
             }
         },
-        suggestionDataType: {
-            color: '#05A26B',
-            whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis'
+        diagnosticsErrorIcon: {
+            padding: '4px 6px 0 0'
         },
-        suggestionValue: {
-            whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis'
+    }),
+);
+
+export const useStmtEditorHelperPanelStyles = makeStyles(() =>
+    createStyles({
+        tabPanelWrapper: {
+            display: 'flex',
+            flexDirection: 'row'
         },
-        suggestionList: {
-            columnGap: '6%',
-            display: 'grid',
-            gridTemplateColumns: '47% 47%'
+        libraryTypeSelector: {
+            height: '48px',
+            width: '60%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'flex-end'
+        },
+        suggestionsInner: {
+            overflowY: 'scroll',
+            height: '100%',
+            width: '102%'
         },
         selectDropDownSe: {
             height: '32px',
-            width: "auto",
             borderRadius: 4,
-            fontSize: "12px",
-            color: '#222228',
             background: "linear-gradient(180deg, #FFFFFF 0%, #F7F7F9 100%)",
             boxShadow: "inset 0 0 0 1px #DEE0E7, 0 1px 2px -1px rgba(0,0,0,0.08)",
             cursor: "pointer",
-            marginBottom: theme.spacing(2.5),
-            border: 1,
             "&:active": {
                 background: "linear-gradient(180deg, #ffffff 0%, #f7f7f9 100%)",
                 boxShadow: "inset 0 0 0 1px #a6b3ff, 0 1px 1px 0 rgba(0, 0, 0, 0.06)",
@@ -517,8 +201,7 @@ export const useStatementEditorStyles = makeStyles(() =>
             "&:focused": {
                 background: "linear-gradient(180deg, #ffffff 0%, #f7f7f9 100%)",
                 boxShadow: "inset 0 0 0 1px #a6b3ff, 0 1px 1px 0 rgba(0, 0, 0, 0.06)",
-                border: "1px solid #5567d5 !important",
-                backgroundColor: "none"
+                border: "1px solid #5567d5 !important"
             },
             '& .MuiSelect-icon': {
                 marginRight: 11,
@@ -544,7 +227,6 @@ export const useStatementEditorStyles = makeStyles(() =>
             }
         },
         dropdownStyle: {
-            backgroundColor: "#fff",
             boxSizing: "border-box",
             width: "auto",
             border: "1px solid #DEE0E7",
@@ -557,15 +239,13 @@ export const useStatementEditorStyles = makeStyles(() =>
         tabsPanelSe: {
             "& .MuiTab-wrapper": {
                 textTransform: 'none',
-                fontSize: '13px',
                 fontWeight: 'normal'
             },
             "& .MuiTab-root": {
-                marginLeft: '24px',
-                paddingRight: '0px',
-                paddingLeft: '0px',
+                marginRight: '24px',
+                minWidth: 'fit-content',
                 fontSize: '13px',
-                minWidth: 'fit-content'
+                ...removePadding
             },
             "& .MuiTab-textColorInherit": {
                 color: '#8D91A3'
@@ -582,43 +262,240 @@ export const useStatementEditorStyles = makeStyles(() =>
                 height: '48px'
             }
         },
-        noSuggestionText: {
-            fontSize: '12px',
-            fontWeight: 'normal',
-            padding: theme.spacing(1.5)
-        },
-        expressionList: {
-            columnGap: '6%',
-            display: 'grid',
-            gridTemplateColumns: '47% 47%'
-        },
-        moduleTitle: {
-            marginRight: '43px',
-            marginLeft: '4.25px',
-            marginBottom: '2px',
-            fontSize: '13px'
-        },
-        libraryReturnIcon: {
-            padding: '0px',
-            '&:hover': {
-                backgroundColor: '#F0F1FB',
-            },
-            '&:focus': {
-                backgroundColor: 'rgba(204,209,242,0.61)'
+        lsSuggestionList: {
+            top: '5%',
+            height: '95%',
+            overflowY: 'scroll',
+            overflowX: 'hidden',
+            "& .MuiList-padding": {
+                ...removePadding
             }
         },
-        arrowBack: {
-            fontSize: '17px',
-            lineHeight: '24px',
-            color: '#5567D5'
+        suggestionList: {
+            columnGap: '6%',
+            display: 'grid',
+            gridTemplateColumns: '47% 47%',
+            "& .MuiListItem-root": {
+                marginBottom: '8px',
+                padding: '0 10px'
+            },
         },
-        libraryModuleIcon: {
-            marginLeft: '8.25px'
+        suggestionListItem: {
+            "& .MuiListItemText-root": {
+                margin: '0'
+            },
+            ...hoverColor1,
+            ...focusColor1
+        },
+        suggestionDataType: {
+            color: '#05A26B',
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis'
+        },
+        suggestionValue: {
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis'
+        },
+        expressionSuggestionList: {
+            overflowX: 'hidden',
+            width: '100%'
+        },
+        librarySearchBox: {
+            position: 'relative',
+            height: '32px',
+            width: 'inherit',
+            border: '1px #E0E3E9',
+            borderRadius: '5px',
+            boxShadow: 'inset 0 0 0 1px #DEE0E7, inset 0 2px 1px 0 rgba(0,0,0,0.07), 0 0 0 0 rgba(50,50,77,0.07)',
+            color: '#CBCEDB',
+            textIndent: '12px',
+            textAlign: 'left',
+            marginBottom: '16px'
+        },
+        librarySearchSubHeader: {
+            color: '#1D2028',
+            marginBottom: '4px',
+            fontWeight: 500,
+            ...stmtEditorPadding
+        },
+        expressionList: {
+            columnGap: '5%',
+            display: 'grid',
+            gridTemplateColumns: '30% 30% 30%',
+            "& .MuiListItem-root": {
+                marginBottom: '8px',
+                padding: '0 10px',
+                width: 'fit-content'
+            },
+            ...removePadding
+        },
+        expressionListItem: {
+            width: '100px',
+            "& .MuiListItemText-root": {
+                margin: '0'
+            },
+            ...hoverColor1,
+            ...focusColor1
         },
         loadingContainer: {
             height: '60vh',
             alignContent: 'center',
             alignItems: 'center',
+        },
+        libraryBrowser: {
+            overflowX: 'hidden',
+            "& .MuiListItem-root": {
+                padding: '6px 10px'
+            },
+            "& .MuiIconButton-root": {
+                ...removePadding
+            }
+        },
+        libraryBrowserHeader: {
+            display: 'flex',
+            flexDirection: 'row',
+            width: '100%',
+            alignItems: 'center',
+            zIndex: 1,
+            ...stmtEditorPadding
+        },
+
+        moduleTitle: {
+            marginRight: '43px',
+            marginLeft: '4.25px',
+            marginBottom: '2px',
+        },
+        libraryReturnIcon: {
+            alignSelf: 'center',
+            margin: '0 10px 16px 0',
+            "& .MuiSvgIcon-root": {
+                fontSize: '13px',
+            },
+            ...hoverColor1,
+            ...focusColor1
+        },
+        arrowBack: {
+            color: '#5567D5'
+        },
+        libraryModuleIcon: {
+            marginLeft: '8.25px'
+        },
+        libraryListBlock: {
+            paddingBottom: '8px',
+            columnGap: '5%',
+            display: 'grid',
+            gridTemplateColumns: '28% 28% 28%',
+            ...removePadding
+        },
+        libraryElementBlockContent: {
+            top: '10%',
+            height: '80%',
+            overflowY: 'scroll',
+            overflowX: 'hidden',
+            columnGap: '6%',
+            display: 'grid',
+            gridTemplateColumns: '29% 29% 29%'
+        },
+        libraryElementBlock: {
+            top: '5%',
+            display: 'flex',
+            flexDirection: 'column'
+        },
+        libraryElementBlockLabel: {
+            height: '10%',
+            padding: '0 10px'
+        },
+    }),
+);
+
+export const useStatementEditorStyles = makeStyles(() =>
+    createStyles({
+        mainStatementWrapper: {
+            display: 'flex',
+            height: 'auto',
+            width: 700,
+            flexDirection: 'column',
+        },
+        stmtEditorInnerWrapper: {
+            fontSize: '13px',
+            fontFamily: 'Gilmer',
+            overflowY: 'hidden',
+            ...stmtEditorPadding
+        },
+        statementExpressionWrapper: {
+            height: 'auto',
+            '&.overlay': {
+                display: 'block',
+                position: 'relative',
+                backgroundColor: '#fff',
+                opacity: '0.7',
+                zIndex: -1
+            }
+        },
+        suggestionsSection: {
+            display: 'flex',
+            flexDirection: 'column',
+            borderBottom: '1px solid #e6e7ec',
+            minHeight: '50vh',
+            height: '75vh'
+        },
+        stmtEditorContentWrapper: {
+            backgroundColor: '#f9fafc',
+            display: 'flex',
+            flexDirection: 'column',
+            padding: "11px 0px 8px 0px",
+            borderBottom: '1px solid #e6e7ec'
+        },
+        statementExpressionTitle: {
+            display: 'flex',
+            alignItems: 'center',
+            paddingBottom: '15px',
+            fontWeight: 500
+        },
+        statementExpressionContent: {
+            fontSize: "15px",
+            'user-select': 'none',
+            fontFamily: 'Droid sans mono'
+        },
+        statementBtnWrapper: {
+            height: 'auto',
+            padding: "15px 15px 17px 0px",
+        },
+        bottomPane: {
+            display: 'flex',
+            flexDirection: 'column',
+            width: '100%',
+            height: '10%'
+        },
+        footer: {
+            height: 'auto',
+            display: 'flex',
+            width: '100%',
+            marginTop: '12px',
+            paddingRight: theme.spacing(2.5),
+        },
+        buttonWrapper: {
+            display: 'flex',
+            justifyContent: 'flex-end',
+            width: '50%'
+        },
+        stmtEditorToggle: {
+            width: '50%'
+        },
+        separatorLine: {
+            height: '1px',
+            opacity: '0.52',
+            backgroundColor: '#DCDEE4',
+            marginBottom: '25px'
+        },
+        stmtEditorExpressionWrapper: {
+            paddingLeft: '15px',
+            paddingRight: '25px',
+            fontSize: '13px',
+            fontFamily: 'Gilmer',
+            overflowY: 'hidden'
         },
         helpText: {
             fontStyle: "italic"
@@ -700,6 +577,17 @@ export const useStatementEditorStyles = makeStyles(() =>
             opacity: '0.52',
             backgroundColor: "#DCDEE4",
             marginLeft: '16px'
+        },
+        statementEditorHeader: {
+            minHeight: '5vh',
+            display: 'flex',
+            borderBottom: 'solid 1px #d8d8d8',
+            padding: theme.spacing(1.5)
+        },
+        closeButton: {
+            display: 'flex',
+            justifyContent: 'flex-end',
+            width: '10%'
         }
     }),
 );

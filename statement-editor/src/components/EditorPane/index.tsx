@@ -50,32 +50,34 @@ export function EditorPane() {
     }
 
     return (
-        <div>
+        <>
             <div className={statementEditorClasses.stmtEditorContentWrapper}>
-                <div className={statementEditorClasses.statementExpressionTitle}>
-                    <Toolbar/>
-                    <FormGroup style={{float: 'right'}}>
-                        <FormControlLabel
-                            control={<DocumentationSwitchToggle checked={docEnabled} onChange={handleChange}/>}
-                            label={"Documentation"}
-                            labelPlacement={"start"}
+                <div className={statementEditorClasses.stmtEditorInnerWrapper}>
+                    <div className={statementEditorClasses.statementExpressionTitle}>
+                        <Toolbar />
+                        <FormGroup style={{ float: 'right' }}>
+                            <FormControlLabel
+                                control={<DocumentationSwitchToggle checked={docEnabled} onChange={handleChange} />}
+                                label={"Documentation"}
+                                labelPlacement={"start"}
+                            />
+                        </FormGroup>
+                    </div>
+                    <div className={statementEditorClasses.statementExpressionContent}>
+                        <StatementRenderer
+                            model={statementModel}
                         />
-                    </FormGroup>
+                    </div>
+                    {docEnabled && documentation &&
+                        !(documentation.documentation === undefined) && (
+                            <InlineDocumentation documentationHandler={documentationHandler} />
+                        )}
+                    <Diagnostics />
                 </div>
-                <div className={statementEditorClasses.statementExpressionContent}>
-                    <StatementRenderer
-                        model={statementModel}
-                    />
-                </div>
-                {docEnabled && documentation &&
-                    !(documentation.documentation === undefined) &&  (
-                        <InlineDocumentation documentationHandler={documentationHandler}/>
-                )}
-                <Diagnostics/>
             </div>
             <div className={statementEditorClasses.suggestionsSection}>
-                <HelperPane docExpandClicked={docExpandClicked}/>
+                <HelperPane docExpandClicked={docExpandClicked} />
             </div>
-        </div>
+        </>
     );
 }

@@ -18,7 +18,7 @@ import { LibraryDataResponse, LibraryInfo } from "@wso2-enterprise/ballerina-low
 
 import LibraryModuleIcon from "../../../assets/icons/LibraryModuleIcon";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
-import { useStatementEditorStyles } from "../../styles";
+import { useStmtEditorHelperPanelStyles } from "../../styles";
 
 interface LibraryProps {
     libraryInfo: LibraryInfo,
@@ -33,7 +33,7 @@ export function Library(props: LibraryProps) {
             getLibraryData
         }
     } = useContext(StatementEditorContext);
-    const statementEditorClasses = useStatementEditorStyles();
+    const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
     const { libraryInfo, key, libraryBrowsingHandler, libraryDataFetchingHandler } = props;
     const { id, orgName, version } = libraryInfo;
 
@@ -50,7 +50,7 @@ export function Library(props: LibraryProps) {
     return (
         <ListItem
             button={true}
-            className={statementEditorClasses.suggestionListItem}
+            className={stmtEditorHelperClasses.suggestionListItem}
             key={key}
             onClick={onClickOnLibrary}
             disableRipple={true}
@@ -59,7 +59,7 @@ export function Library(props: LibraryProps) {
                 <LibraryModuleIcon/>
             </ListItemIcon>
             <ListItemText
-                primary={<Typography className={statementEditorClasses.suggestionValue}>{id}</Typography>}
+                primary={<Typography className={stmtEditorHelperClasses.suggestionValue}>{id}</Typography>}
             />
         </ListItem>
     );

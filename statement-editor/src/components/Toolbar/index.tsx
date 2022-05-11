@@ -36,11 +36,11 @@ import {
 } from "../../utils";
 import { KeyboardNavigationManager } from "../../utils/keyboard-navigation-manager";
 import { ModelType, StatementEditorViewState } from "../../utils/statement-editor-viewstate";
-import { useStatementEditorStyles } from "../styles";
+import { useStatementEditorToolbarStyles } from "../styles";
 
-export default function Toolbar(){
-    const statementEditorClasses = useStatementEditorStyles();
-    const { modelCtx, editorCtx, syntaxTree, stSymbolInfo } = useContext(StatementEditorContext);
+export default function Toolbar() {
+    const statementEditorClasses = useStatementEditorToolbarStyles();
+    const {  modelCtx, editorCtx, syntaxTree, stSymbolInfo } = useContext(StatementEditorContext);
     const {
         undo,
         redo,
@@ -134,40 +134,44 @@ export default function Toolbar(){
         addConfigurable(ADD_CONFIGURABLE_LABEL, configurableInsertPosition, configurableStmt, true);
     }
 
-    return(
-        <span className={statementEditorClasses.toolbar}>
-            <IconButton
-                onClick={undo}
-                disabled={!hasUndo}
-                className={statementEditorClasses.toolbarIcons}
-                style={{marginLeft: '14px', marginRight: '7px'}}
-            >
-                 <ToolbarUndoIcon/>
-            </IconButton>
-            <IconButton
-                onClick={redo}
-                disabled={!hasRedo}
-                className={statementEditorClasses.toolbarIcons}
-                style={{marginRight: '7px'}}
-            >
-                <ToolbarRedoIcon />
-            </IconButton>
-            <IconButton
-                onClick={onClickOnDelete}
-                disabled={!deletable}
-                style={{color: deletable ? '#FE523C' : '#8D91A3', marginRight: '14px'}}
-                className={statementEditorClasses.toolbarIcons}
-            >
-                <ToolbarDeleteIcon/>
-            </IconButton>
-            <IconButton
-                onClick={onClickOnConfigurable}
-                disabled={!configurable}
-                className={statementEditorClasses.toolbarIcons}
-                style={{marginRight: '7px'}}
-            >
-                <ToolbarConfigurableIcon/>
-            </IconButton>
-        </span>
+    return (
+        <div className={statementEditorClasses.toolbar}>
+            <div className={statementEditorClasses.toolbarSet}>
+                <IconButton
+                    onClick={undo}
+                    disabled={!hasUndo}
+                    className={statementEditorClasses.toolbarIcons}
+                >
+                    <ToolbarUndoIcon />
+                </IconButton>
+                <div className={statementEditorClasses.undoRedoSeparator} />
+                <IconButton
+                    onClick={redo}
+                    disabled={!hasRedo}
+                    className={statementEditorClasses.toolbarIcons}
+                >
+                    <ToolbarRedoIcon />
+                </IconButton>
+            </div>
+            <div className={statementEditorClasses.toolbarSet}>
+                <IconButton
+                    onClick={onClickOnDelete}
+                    disabled={!deletable}
+                    style={{color: deletable ? '#FE523C' : '#8D91A3', padding: deletable && '10px'}}
+                    className={statementEditorClasses.toolbarIcons}
+                >
+                    <ToolbarDeleteIcon/>
+                </IconButton>
+            </div>
+            <div className={statementEditorClasses.toolbarSet}>
+                <IconButton
+                    onClick={onClickOnConfigurable}
+                    disabled={!configurable}
+                    className={statementEditorClasses.toolbarIcons}
+                >
+                    <ToolbarConfigurableIcon/>
+                </IconButton>
+            </div>
+        </div>
     );
 }

@@ -32,7 +32,7 @@ export function FormTitle(props: FormTitleProps) {
         <div className={formClasses.formTitleWrapper}>
             <div className={formClasses.mainTitleWrapper}>
                 <Typography variant="h4">
-                    <Box paddingTop={2} paddingBottom={2}>
+                    <Box paddingTop={"19px"} paddingBottom={"16px"}>
                         <FormattedMessage id={formTitle} defaultMessage={defaultMessage} />
                     </Box>
                 </Typography>

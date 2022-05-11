@@ -23,7 +23,7 @@ import {
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { getModuleIconStyle } from "../../../utils";
 import { getFQModuleName, keywords } from "../../../utils/statement-modifications";
-import { useStatementEditorStyles } from "../../styles";
+import { useStmtEditorHelperPanelStyles } from "../../styles";
 
 interface ModuleElementProps {
     moduleProperty: ModuleProperty,
@@ -33,7 +33,7 @@ interface ModuleElementProps {
 }
 
 export function ModuleElement(props: ModuleElementProps) {
-    const statementEditorClasses = useStatementEditorStyles();
+    const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
     const { moduleProperty, key, isFunction, label } = props;
     const { id, moduleId, moduleOrgName, moduleVersion } = moduleProperty;
     const [clickedModuleElement, setClickedModuleElement] = useState('');
@@ -93,7 +93,7 @@ export function ModuleElement(props: ModuleElementProps) {
             button={true}
             key={key}
             onClick={onClickOnModuleElement}
-            className={statementEditorClasses.suggestionListItem}
+            className={stmtEditorHelperClasses.suggestionListItem}
             disableRipple={true}
         >
             <ListItemIcon
@@ -101,7 +101,7 @@ export function ModuleElement(props: ModuleElementProps) {
                 style={{ minWidth: '12%', textAlign: 'left' }}
             />
             <ListItemText
-                primary={<Typography className={statementEditorClasses.suggestionValue}>{`${moduleId}:${id}`}</Typography>}
+                primary={<Typography className={stmtEditorHelperClasses.suggestionValue}>{`${moduleId}:${id}`}</Typography>}
             />
             {`${moduleId}:${id}` === clickedModuleElement && (circularProgress)}
         </ListItem>

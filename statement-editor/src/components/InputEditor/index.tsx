@@ -21,7 +21,7 @@ import { StatementEditorContext } from "../../store/statement-editor-context";
 import { isPositionsEquals } from "../../utils";
 import { EXPR_PLACEHOLDER, STMT_PLACEHOLDER, TYPE_DESC_PLACEHOLDER } from "../../utils/expressions";
 import { ModelType, StatementEditorViewState } from "../../utils/statement-editor-viewstate";
-import { useStatementEditorStyles } from "../styles";
+import { useStatementRendererStyles } from "../styles";
 
 import {
     INPUT_EDITOR_PLACEHOLDERS
@@ -49,7 +49,7 @@ export function InputEditor(props: InputEditorProps) {
 
     const inputEditorCtx = useContext(InputEditorContext);
 
-    const statementEditorClasses = useStatementEditorStyles();
+    const statementRendererClasses = useStatementRendererStyles();
 
     const originalValue = React.useMemo(() => {
         let source: string;
@@ -143,7 +143,7 @@ export function InputEditor(props: InputEditorProps) {
             <>
                 <input
                     value={INPUT_EDITOR_PLACEHOLDERS.has(userInput.trim()) ? "" : userInput}
-                    className={statementEditorClasses.inputEditorTemplate + ' ' + classNames}
+                    className={statementRendererClasses.inputEditorTemplate + ' ' + classNames}
                     onKeyDown={inputEnterHandler}
                     onInput={inputChangeHandler}
                     size={userInput.length}
@@ -154,7 +154,7 @@ export function InputEditor(props: InputEditorProps) {
             </>
         ) : (
             <span
-                className={statementEditorClasses.inputEditorTemplate + ' ' + classNames}
+                className={statementRendererClasses.inputEditorTemplate + ' ' + classNames}
                 onDoubleClick={handleDoubleClick}
             >
                 {placeHolder}

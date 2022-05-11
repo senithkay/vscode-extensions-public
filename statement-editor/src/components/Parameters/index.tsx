@@ -16,7 +16,7 @@ import { NamedArg, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import { EXPR_CONSTRUCTOR, SymbolParameterType } from "../../constants";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { keywords } from "../../utils/statement-modifications";
-import { useStatementEditorStyles } from "../styles";
+import { useStatementEditorStyles, useStmtEditorHelperPanelStyles } from "../styles";
 
 import { NamedArgIncludedRecord } from "./NamedArgIncludedRecord";
 
@@ -25,6 +25,7 @@ import { NamedArgIncludedRecord } from "./NamedArgIncludedRecord";
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
 export function Parameters() {
     const statementEditorClasses = useStatementEditorStyles();
+    const statementEditorHelperClasses = useStmtEditorHelperPanelStyles();
     const {
         modelCtx: {
             currentModel,
@@ -263,7 +264,7 @@ export function Parameters() {
                                                 <ListItemText
                                                     style={{ marginLeft: '8px', marginRight: '8px', flex: 'inherit'}}
                                                     primary={(
-                                                        <Typography className={statementEditorClasses.suggestionDataType}>
+                                                        <Typography className={statementEditorHelperClasses.suggestionDataType}>
                                                             {param.type}
                                                         </Typography>
                                                     )}
@@ -317,7 +318,7 @@ export function Parameters() {
                                                                 <ListItemText
                                                                     style={{ marginLeft: '8px', marginRight: '8px', flex: 'inherit'}}
                                                                     primary={(
-                                                                        <Typography className={statementEditorClasses.suggestionDataType}>
+                                                                        <Typography className={statementEditorHelperClasses.suggestionDataType}>
                                                                             {param.type}
                                                                         </Typography>
                                                                     )}
