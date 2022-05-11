@@ -61,7 +61,7 @@ export function ParameterSuggestions(){
 
             setChecked(newChecked);
         }
-    }, [currentModel.model]);
+    }, [currentModel.model, documentation]);
 
     const setCheckedList = (newChecked : []) => {
         setChecked(newChecked);
