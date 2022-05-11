@@ -154,12 +154,15 @@ export class ConflictResolutionVisitor implements Visitor {
         this.visitBlockStatement(node.ifBody, undefined, height);
         if (node.elseBody) {
             this.evaluatingIf = true;
+            if (STKindChecker.isIfElseStatement(node.elseBody.elseBody)) {
+                this.fixIfElseStatementConflicts(node.elseBody.elseBody, height);
+            } else if (STKindChecker.isBlockStatement(node.elseBody.elseBody)) {
+                this.visitBlockStatement(node.elseBody.elseBody, undefined, height)
+                this.evaluatingIf = false;
+            }
         }
-        if (node.elseBody && STKindChecker.isElseBlock(node.elseBody) && STKindChecker.isIfElseStatement(node.elseBody.elseBody)) {
-            this.fixIfElseStatementConflicts(node.elseBody.elseBody, height);
-        } else if (node.elseBody && STKindChecker.isElseBlock(node.elseBody) && STKindChecker.isBlockStatement(node.elseBody.elseBody)) {
-            this.visitBlockStatement(node.elseBody.elseBody, undefined, height)
-            this.evaluatingIf = false;
+
+        if (!this.evaluatingIf) {
             traversNode(node, new SizingVisitor());
         }
     }
