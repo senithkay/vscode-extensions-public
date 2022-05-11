@@ -18,7 +18,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             height: 'auto',
             display: 'flex',
             width: '100%',
-            paddingRight: theme.spacing(2.5),
+            padding: '15px 20px'
         },
         buttonWrapper: {
             display: 'flex',
