@@ -16,7 +16,8 @@ import { useIntl } from "react-intl";
 
 import {
     PrimaryButton,
-    SecondaryButton
+    SecondaryButton,
+    StatementEditorButton
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { ModuleVarDecl } from "@wso2-enterprise/syntax-tree";
 
@@ -26,7 +27,6 @@ import { getModifications } from "../../utils";
 import { sendDidChange, sendDidClose } from "../../utils/ls-utils";
 import Breadcrumb from "../Breadcrumb";
 import { CloseButton } from "../Button/CloseButton";
-import { StatementEditorButton } from "../Button/StatementEditorButton";
 import { EditorPane } from '../EditorPane';
 import { useStatementEditorStyles } from "../styles";
 
