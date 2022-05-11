@@ -542,7 +542,7 @@ suite("Language Server Tests", function () {
                 langClient.sendRequest('textDocument/codeAction', actionParam).then((response: any) => {
                     assert.equal(response.length, 2, 'Invalid number of code actions.');
                     assert.equal(response[0].title, 'Optimize all imports', 'Invalid \'Optimize all imports\' action.');
-                    assert.equal(response[0].kind, "quickfix", "Invalid code action kind - 1st.");
+                    assert.equal(response[0].kind, "source.organizeImports", "Invalid code action kind - 1st.");
                     assert.equal(response[1].title, 'Pull unresolved modules', 'Invalid \'Pull unresolved modules\' action.');
                     assert.equal(response[1].kind, "quickfix", "Invalid code action kind - 2nd.");
                     done();
@@ -701,8 +701,7 @@ suite("Language Server Tests", function () {
                 };
 
                 langClient.sendRequest('textDocument/codeAction', actionParam).then((response: any) => {
-                    assert.equal(response.length, 2, 'Invalid number of code actions.');
-                    assert.equal(response[1].title, 'Document all', 'Invalid document all action.');
+                    assert.equal(response.length, 1, 'Invalid number of code actions.');
                     assert.equal(response[0].title, 'Update documentation', 'Invalid update documentation action.');
                     done();
                 });
