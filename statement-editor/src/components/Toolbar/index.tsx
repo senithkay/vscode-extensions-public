@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext, useEffect, useMemo, useState } from "react";
+import React, { useContext, useMemo } from "react";
 
 import IconButton from "@material-ui/core/IconButton";
 import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
@@ -26,7 +26,6 @@ import {
     CONFIGURABLE_TYPE_BOOLEAN,
     CONFIGURABLE_TYPE_STRING
 } from "../../constants";
-import { CurrentModel } from "../../models/definitions";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import {
     getExistingConfigurable,
@@ -37,7 +36,6 @@ import {
 } from "../../utils";
 import { KeyboardNavigationManager } from "../../utils/keyboard-navigation-manager";
 import { ModelType, StatementEditorViewState } from "../../utils/statement-editor-viewstate";
-import { INPUT_EDITOR_PLACEHOLDERS } from "../InputEditor/constants";
 import { useStatementEditorStyles } from "../styles";
 
 export default function Toolbar(){
