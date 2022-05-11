@@ -22,7 +22,8 @@ import LibrarySearchIcon from "../../../assets/icons/LibrarySearchIcon";
 import { InputEditorContext } from "../../../store/input-editor-context";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { Expression, ExpressionGroup, expressions, SELECTED_EXPRESSION } from "../../../utils/expressions";
-import { useStatementEditorStyles, useStmtEditorHelperPanelStyles } from "../../styles";
+import { KeyboardNavigationManager } from "../../../utils/keyboard-navigation-manager";
+import { useStatementEditorStyles, useStmtEditorHelperPanelStyles  } from "../../styles";
 
 export function ExpressionSuggestions() {
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
@@ -30,6 +31,9 @@ export function ExpressionSuggestions() {
     const inputEditorCtx = useContext(InputEditorContext);
     const [keyword, setKeyword] = useState('');
     const [filteredExpressions, setFilteredExpressions] = useState(expressions);
+    const [selectedGroup, setSelectedGroup] = React.useState(0);
+    const [selectedListItem, setSelectedItem] = React.useState(0);
+
     const {
         modelCtx: {
             currentModel,
@@ -53,6 +57,45 @@ export function ExpressionSuggestions() {
             setFilteredExpressions(filteredGroups);
         }
     }, [currentModel.model]);
+
+    const changeSelected = (key: number) => {
+        const newSelected = selectedListItem + key;
+        if (newSelected >= 0 && newSelected < filteredExpressions[selectedGroup].expressions.length){
+            setSelectedItem(newSelected)
+        }
+        else if (newSelected < 0){
+            if (selectedGroup > 0) {
+                const newGroup = selectedGroup - 1;
+                setSelectedGroup(newGroup)
+                setSelectedItem(filteredExpressions[newGroup].expressions.length - 1)
+            }
+        }
+        else {
+            if (selectedGroup < filteredExpressions.length - 1){
+                const newGroup = selectedGroup + 1;
+                setSelectedGroup(newGroup)
+                setSelectedItem(0)
+            }
+
+        }
+    }
+
+    const keyboardNavigationManager = new KeyboardNavigationManager()
+
+    React.useEffect(() => {
+
+        const client = keyboardNavigationManager.getClient()
+
+        keyboardNavigationManager.bindNewKey(client, ['right'], changeSelected, 1);
+        keyboardNavigationManager.bindNewKey(client, ['left'], changeSelected, -1);
+        keyboardNavigationManager.bindNewKey(client, ['up'], changeSelected, -2);
+        keyboardNavigationManager.bindNewKey(client, ['down'], changeSelected, 2);
+        keyboardNavigationManager.bindNewKey(client, ['enter'], onClickExpressionSuggestion, filteredExpressions[selectedGroup].expressions[selectedListItem]);
+
+        return () => {
+            keyboardNavigationManager.resetMouseTrapInstance(client)
+        }
+    }, [selectedListItem]);
 
     const searchExpressions = (searchValue: string) => {
         setKeyword(searchValue);
@@ -92,7 +135,7 @@ export function ExpressionSuggestions() {
                 </FormControl>
                 {!!filteredExpressions.length && (
                     <>
-                        {filteredExpressions.map((group) => (
+                        {filteredExpressions.map((group, groupIndex) => (
                             <>
                                 <div className={stmtEditorHelperClasses.librarySearchSubHeader}>{group.name}</div>
                                 <div className={statementEditorClasses.stmtEditorExpressionWrapper}>
@@ -103,6 +146,7 @@ export function ExpressionSuggestions() {
                                                     button={true}
                                                     className={stmtEditorHelperClasses.expressionListItem}
                                                     key={index}
+                                                    selected={groupIndex === selectedGroup && index === selectedListItem}
                                                     onClick={() => onClickExpressionSuggestion(expression)}
                                                     disableRipple={true}
                                                 >

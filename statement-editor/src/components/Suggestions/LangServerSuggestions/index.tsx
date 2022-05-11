@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 
 import { List, ListItem, ListItemIcon, ListItemText, Typography } from "@material-ui/core";
 
@@ -19,6 +19,7 @@ import { SuggestionItem } from "../../../models/definitions";
 import { InputEditorContext } from "../../../store/input-editor-context";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { getSuggestionIconStyle } from "../../../utils";
+import { KeyboardNavigationManager } from "../../../utils/keyboard-navigation-manager";
 import { acceptedCompletionKindForTypes } from "../../InputEditor/constants";
 import { useStatementEditorStyles, useStmtEditorHelperPanelStyles} from "../../styles";
 
@@ -26,6 +27,7 @@ export function LSSuggestions() {
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
     const statementEditorClasses = useStatementEditorStyles();
     const inputEditorCtx = useContext(InputEditorContext);
+    const [selectedListItem, setSelectedItem] = React.useState(0);
 
     const {
         modelCtx: {
@@ -40,6 +42,37 @@ export function LSSuggestions() {
         }
     } = useContext(StatementEditorContext);
     const resourceAccessRegex = /.+\./gm;
+    const [lenghtOfSuggestions, setLength] = useState<number>(lsSuggestions.length)
+    const [Suggestions, setSuggestions] = useState<SuggestionItem[]>(lsSuggestions);
+
+    useEffect(() => {
+        setLength(lsSuggestions.length);
+        setSuggestions(lsSuggestions)
+    }, [lsSuggestions]);
+
+    const changeSelected = (key: number) => {
+        const newSelected = selectedListItem + key;
+        if (newSelected >= 0 && newSelected < lenghtOfSuggestions){
+            setSelectedItem(newSelected)
+        }
+    }
+
+    const keyboardNavigationManager = new KeyboardNavigationManager()
+
+    React.useEffect(() => {
+
+        const client = keyboardNavigationManager.getClient()
+
+        keyboardNavigationManager.bindNewKey(client, ['right'], changeSelected, 1);
+        keyboardNavigationManager.bindNewKey(client, ['left'], changeSelected, -1);
+        keyboardNavigationManager.bindNewKey(client, ['up'], changeSelected, -2);
+        keyboardNavigationManager.bindNewKey(client, ['down'], changeSelected, 2);
+        keyboardNavigationManager.bindNewKey(client, ['enter'], onClickLSSuggestion, Suggestions[selectedListItem]);
+
+        return () => {
+            keyboardNavigationManager.resetMouseTrapInstance(client)
+        }
+    }, [selectedListItem]);
 
     const onClickLSSuggestion = (suggestion: SuggestionItem) => {
         let variable = suggestion.value;
@@ -70,6 +103,7 @@ export function LSSuggestions() {
                                         <ListItem
                                             button={true}
                                             key={index}
+                                            selected={index === selectedListItem}
                                             onClick={() => onClickLSSuggestion(suggestion)}
                                             className={stmtEditorHelperClasses.suggestionListItem}
                                             disableRipple={true}
