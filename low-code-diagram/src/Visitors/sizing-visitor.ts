@@ -413,7 +413,6 @@ export class SizingVisitor implements Visitor {
         const matchedStatements = this.syncAsyncStatements(node);
         const resolutionVisitor = new ConflictResolutionVisitor(matchedStatements, this.workerMap.size + 1);
 
-        console.log('>>> ~~~~~~~~~~~~~ new visit ~~~~~~~~~~~~~');
         do {
             resolutionVisitor.resetConflictStatus();
             traversNode(node, resolutionVisitor);
@@ -1089,7 +1088,7 @@ export class SizingVisitor implements Visitor {
         }
 
         if (node.elseBody) {
-            if (node.elseBody.elseBody.kind === "BlockStatement") {
+            if (STKindChecker.isBlockStatement(node.elseBody.elseBody)) {
                 const elseStmt: BlockStatement = node.elseBody.elseBody as BlockStatement;
                 const elseViewState: ElseViewState = elseStmt.viewState as ElseViewState;
 
@@ -1114,7 +1113,7 @@ export class SizingVisitor implements Visitor {
                 elseViewState.elseTopHorizontalLine.length = diffIfWidthWithHeadWidth + viewState.offSetBetweenIfElse + elseLeftWidth;
                 elseViewState.elseBottomHorizontalLine.length = elseViewState.ifHeadWidthOffset +
                     diffIfWidthWithHeadWidth + viewState.offSetBetweenIfElse + elseLeftWidth;
-            } else if (node.elseBody.elseBody.kind === "IfElseStatement") {
+            } else if (STKindChecker.isIfElseStatement(node.elseBody.elseBody)) {
                 const elseIfStmt: IfElseStatement = node.elseBody.elseBody as IfElseStatement;
                 const elseIfViewState: IfViewState = elseIfStmt.viewState as IfViewState;
                 const elseIfBodyViewState: BlockViewState = elseIfStmt.ifBody.viewState;

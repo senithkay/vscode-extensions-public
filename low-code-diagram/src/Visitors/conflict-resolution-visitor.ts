@@ -11,13 +11,14 @@
  * associated services.
  */
 
-import { BlockStatement, FunctionBodyBlock, FunctionDefinition, IfElseStatement, NamedWorkerDeclaration, STKindChecker, STNode, Visitor } from "@wso2-enterprise/syntax-tree";
+import { BlockStatement, FunctionBodyBlock, FunctionDefinition, IfElseStatement, NamedWorkerDeclaration, STKindChecker, STNode, traversNode, Visitor } from "@wso2-enterprise/syntax-tree";
+import { IFELSE_SVG_HEIGHT, IFELSE_SVG_HEIGHT_WITH_SHADOW } from "../Components/RenderingComponents/IfElse/IfElseSVG";
 
-import { BlockViewState, EndViewState, FunctionViewState, StatementViewState, ViewState } from "../ViewState";
+import { BlockViewState, EndViewState, FunctionViewState, IfViewState, StatementViewState, ViewState } from "../ViewState";
 import { WorkerDeclarationViewState } from "../ViewState/worker-declaration";
 
 import { DefaultConfig } from "./default";
-import { ConflictRestrictSpace, DEFAULT_WORKER_NAME, SendRecievePairInfo } from "./sizing-visitor";
+import { ConflictRestrictSpace, DEFAULT_WORKER_NAME, SendRecievePairInfo, SizingVisitor } from "./sizing-visitor";
 
 export class ConflictResolutionVisitor implements Visitor {
     private matchedPairInfo: SendRecievePairInfo[];
@@ -25,6 +26,7 @@ export class ConflictResolutionVisitor implements Visitor {
     private hasConflict: boolean;
     private endPointPositions: ConflictRestrictSpace[];
     private workerCount: number;
+    private evaluatingIf: boolean;
 
     constructor(matchedPairInfo: SendRecievePairInfo[], workerCount: number) {
         this.matchedPairInfo = matchedPairInfo;
@@ -32,6 +34,7 @@ export class ConflictResolutionVisitor implements Visitor {
         this.hasConflict = false;
         this.workerCount = workerCount;
         this.endPointPositions = [];
+        this.evaluatingIf = false;
     }
 
     public conflictFound() {
@@ -49,7 +52,6 @@ export class ConflictResolutionVisitor implements Visitor {
     }
 
     endVisitFunctionBodyBlock(node: FunctionBodyBlock, parent?: STNode): void {
-        console.log('>>> ==============================');
         this.workerNames = [];
     }
 
@@ -63,9 +65,13 @@ export class ConflictResolutionVisitor implements Visitor {
 
     private visitBlockStatement(node: BlockStatement, parent?: STNode, height: number = 0) {
         const blockViewState: BlockViewState = node.viewState as BlockViewState;
-        console.log('>>> worker name', this.workerNames[this.workerNames.length - 1]);
         node.statements.forEach((statementNode, statementIndex) => {
             const statementViewState: StatementViewState = statementNode.viewState as StatementViewState;
+            if (STKindChecker.isIfElseStatement(statementNode)) {
+                const ifViewState: IfViewState = statementNode.viewState as IfViewState;
+                const ifStatementStartHeight = height + ifViewState.bBox.offsetFromTop + IFELSE_SVG_HEIGHT + DefaultConfig.offSet;
+                this.fixIfElseStatementConflicts(statementNode, ifStatementStartHeight);
+            }
             let updatedAsConflict = false;
             const statementBoxStartHeight = height + statementViewState.bBox.offsetFromTop;
             const statementBoxEndHeight = statementBoxStartHeight + statementViewState.bBox.h;
@@ -126,36 +132,51 @@ export class ConflictResolutionVisitor implements Visitor {
         if (parent
             && (STKindChecker.isFunctionDefinition(parent) || STKindChecker.isNamedWorkerDeclaration(parent))
             && !blockViewState.isEndComponentAvailable) {
-            console.log('>>> end stuff');
             const parentViewState = parent.viewState as FunctionViewState | WorkerDeclarationViewState;
             const endViewState = parentViewState.end as EndViewState;
             if (endViewState) {
                 const endBlockStartHeight = height + endViewState.bBox.offsetFromTop;
                 const endBlockEndHeight = endBlockStartHeight + endViewState.bBox.h;
                 if (!this.hasConflict) {
-                    this.fixIfConflictsWithMessage(endBlockStartHeight, endBlockEndHeight,
+                    this.fixIfConflictWithEndPoint(endBlockStartHeight, endBlockEndHeight,
                         endViewState as StatementViewState, node.statements.length);
+
+                    if (!this.hasConflict) {
+                        this.fixIfConflictsWithMessage(endBlockStartHeight, endBlockEndHeight,
+                            endViewState as StatementViewState, node.statements.length);
+                    }
                 }
             }
         }
     }
 
+    private fixIfElseStatementConflicts(node: IfElseStatement, height: number) {
+        this.visitBlockStatement(node.ifBody, undefined, height);
+        if (node.elseBody) {
+            this.evaluatingIf = true;
+        }
+        if (node.elseBody && STKindChecker.isElseBlock(node.elseBody) && STKindChecker.isIfElseStatement(node.elseBody.elseBody)) {
+            this.fixIfElseStatementConflicts(node.elseBody.elseBody, height);
+        } else if (node.elseBody && STKindChecker.isElseBlock(node.elseBody) && STKindChecker.isBlockStatement(node.elseBody.elseBody)) {
+            this.visitBlockStatement(node.elseBody.elseBody, undefined, height)
+            this.evaluatingIf = false;
+            traversNode(node, new SizingVisitor());
+        }
+    }
+
     private fixIfConflictsWithMessage(boxStartHeight: number, boxEndHeight: number, viewState: StatementViewState, statementIndex: number): boolean {
         let updatedAsConflict: boolean = false;
-        // console.log('>>> information fed', boxStartHeight, boxEndHeight, viewState, statmentIndex);
 
         this.matchedPairInfo.forEach(matchedPair => {
             const restrictedSpaceCoords = matchedPair.restrictedSpace;
 
-            console.log('>>> conflict check', boxStartHeight, boxEndHeight, restrictedSpaceCoords)
             if (((boxStartHeight >= restrictedSpaceCoords.y1 && boxStartHeight <= restrictedSpaceCoords.y2)
                 || (boxEndHeight >= restrictedSpaceCoords.y1 && boxEndHeight <= restrictedSpaceCoords.y2))
-                && this.workerNames.length - 1 > restrictedSpaceCoords.x1
-                && this.workerNames.length - 1 < restrictedSpaceCoords.x2) {
+                && ((this.workerNames.length - 1 > restrictedSpaceCoords.x1
+                    && this.workerNames.length - 1 < restrictedSpaceCoords.x2) || this.evaluatingIf)) {
                 this.hasConflict = true;
                 updatedAsConflict = true;
                 const newOffset = (restrictedSpaceCoords.y2 - boxStartHeight) + DefaultConfig.offSet * 2;
-                console.log('>>> conflict')
 
                 viewState.bBox.offsetFromTop += newOffset;
 
@@ -196,8 +217,8 @@ export class ConflictResolutionVisitor implements Visitor {
         this.endPointPositions.forEach(position => {
             if (((boxStartHeight >= position.y1 && boxStartHeight <= position.y2)
                 || (boxEndHeight >= position.y1 && boxEndHeight <= position.y2))
-                && this.workerNames.length - 1 > position.x1
-                && this.workerNames.length - 1 < position.x2) {
+                && ((this.workerNames.length - 1 > position.x1
+                    && this.workerNames.length - 1 < position.x2) || this.evaluatingIf)) {
 
                 this.hasConflict = true;
                 updatedAsConflict = true;
