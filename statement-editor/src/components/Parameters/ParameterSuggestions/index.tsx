@@ -71,18 +71,18 @@ export function ParameterSuggestions(){
     return(
         <>
             {documentation && !(documentation.documentation === undefined) ? (
-                <List>
-                    <ListItem>
+                <List style={{paddingTop: '0px'}}>
+                    <ListItem style={{paddingLeft: '0px', paddingTop: '0px'}}>
                         <ListItemText primary={documentation.documentation.description}/>
                     </ListItem>
                     <ParameterList checkedList={checked} setCheckedList={setCheckedList} />
                     {documentation.documentation.returnValueDescription && (
                         <>
-                            <hr className={statementEditorClasses.parameterSeparater}/>
+                            <hr className={statementEditorClasses.returnSeparator}/>
                             <ListSubheader className={statementEditorClasses.parameterHeader}>
                                 Return
                             </ListSubheader>
-                            <ListItem>
+                            <ListItem style={{paddingLeft: '0px'}}>
                                 <ListItemText primary={documentation.documentation.returnValueDescription}/>
                             </ListItem>
                         </>

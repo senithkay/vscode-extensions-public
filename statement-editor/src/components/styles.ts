@@ -611,11 +611,13 @@ export const useStatementEditorStyles = makeStyles(() =>
         },
         parameterCheckbox: {
             color: '#2FA86C',
+            paddingLeft: '0px',
             "& .MuiCheckbox-colorSecondary.Mui-checked": {
                 color: "#2FA86C"
             },
             "&$checked": {
                 color: "#2FA86C",
+                paddingLeft: '0px',
                 "&:hover": {
                     background: "transparent",
                 },
@@ -646,6 +648,7 @@ export const useStatementEditorStyles = makeStyles(() =>
         checked: {},
         disabledCheckbox : {
             color: 'rgba(47,168,108,0.5)',
+            paddingLeft: '0px',
             "&$checked": {
                 color: "rgba(47,168,108,0.5)",
                 "&:hover": {
@@ -672,14 +675,15 @@ export const useStatementEditorStyles = makeStyles(() =>
             fontSize: '13px',
             color: '#1D2028',
             letterSpacing: '0',
-            lineHeight: '14px'
+            lineHeight: '14px',
+            paddingLeft: '0px'
         },
-        parameterSeparater : {
-            height: '1px',
+        returnSeparator : {
             width: '616px',
             opacity: '0.52',
             backgroundColor: "#DCDEE4",
-            marginLeft: '16px'
+            display: 'block',
+            float: 'left'
         }
     }),
 );

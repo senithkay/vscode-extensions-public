@@ -105,9 +105,13 @@ export function ParameterList(props: ParameterListProps) {
         return(
             <>
                 {!includedRecordHeader && (
-                    <ListItem key={value} style={{ paddingTop: '0px', paddingBottom: '0px', alignItems: 'flex-start'}}>
-                        <ListItemText style={{ flex: 'inherit', marginLeft: '9px' }} primary={"Add Named Argument"}/>
-                        <IconButton style={{ paddingTop: '5px' }} onClick={handlePlusButton()} disabled={isAllowedIncludedArgsAdded()}>
+                    <ListItem key={value} style={{ padding: '0px', alignItems: 'flex-start'}}>
+                        <ListItemText style={{ flex: 'inherit'}} primary={"Add Named Argument"}/>
+                        <IconButton
+                            style={{ display: 'block', alignSelf: 'center', padding: '0px', marginLeft: '10px' }}
+                            onClick={handlePlusButton()}
+                            disabled={isAllowedIncludedArgsAdded()}
+                        >
                             <AddCircleOutline/>
                         </IconButton>
                     </ListItem>
@@ -137,7 +141,7 @@ export function ParameterList(props: ParameterListProps) {
         return (
             <>
                 {checkedList.indexOf(value) !== -1 && (
-                    <ListItem>
+                    <ListItem style={{ padding: '0px' }}>
                         <Checkbox
                             classes={{
                                 root : statementEditorClasses.parameterCheckbox,
@@ -210,7 +214,7 @@ export function ParameterList(props: ParameterListProps) {
                                         ) : (
                                             <>
                                                 {param.kind !== SymbolParameterType.INCLUDED_RECORD && (
-                                                    <ListItem key={value} style={{ paddingTop: '0px', paddingBottom: '0px' }}>
+                                                    <ListItem key={value} style={{ padding: '0px' }}>
                                                         <Checkbox
                                                             classes={{
                                                                 root : statementEditorClasses.parameterCheckbox,
