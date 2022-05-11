@@ -459,22 +459,13 @@ export const useStatementEditorStyles = makeStyles(() =>
             'user-select': 'none',
             fontFamily: 'Droid sans mono'
         },
-        statementBtnWrapper: {
-            height: 'auto',
-            padding: "15px 15px 17px 0px",
-        },
-        bottomPane: {
-            display: 'flex',
-            flexDirection: 'column',
-            width: '100%',
-            height: '10%'
-        },
         footer: {
             height: 'auto',
             display: 'flex',
             width: '100%',
             marginTop: '12px',
             paddingRight: theme.spacing(2.5),
+            paddingLeft: theme.spacing(2.5)
         },
         buttonWrapper: {
             display: 'flex',
@@ -582,7 +573,8 @@ export const useStatementEditorStyles = makeStyles(() =>
             minHeight: '5vh',
             display: 'flex',
             borderBottom: 'solid 1px #d8d8d8',
-            padding: theme.spacing(1.5)
+            padding: theme.spacing(1.5),
+            ...stmtEditorPadding
         },
         closeButton: {
             display: 'flex',
