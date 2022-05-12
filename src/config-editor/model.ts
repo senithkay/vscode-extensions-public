@@ -26,5 +26,7 @@ export interface ConfigProperty {
 
 export interface ConfigValue {
     configName: string;
+    configType: string;
+    configArrayType?: string;
     configValue?: any[];
 }

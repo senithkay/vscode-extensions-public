@@ -83,6 +83,8 @@ function getConfigProperty(object: any, configProperty: ConfigProperty) {
 function getLeafConfig(object: any, configProperty: ConfigProperty) {
     const name: string = "name";
     const value: string = "value";
+    const type: string = "type";
+    const arrayType: string = "arrayType";
     const headers = [...configProperty.headerNames];
 
     if (object[name] === undefined || object[value] === undefined || object[value] === '' || object[value] === null) {
@@ -91,6 +93,8 @@ function getLeafConfig(object: any, configProperty: ConfigProperty) {
 
     const newConfigElement: ConfigValue = {
         configName: object[name],
+        configType: object[type],
+        configArrayType: object[arrayType],
         configValue: object[value],
     };
 
@@ -112,15 +116,13 @@ function configToTomlString(configs: ConfigProperty[]): string {
             configToml = configToml.concat(`\n[${header}]\n`);
             if (entry.configs) {
                 entry.configs.forEach((element: ConfigValue) => {
-                    const configVal: any = element.configValue;
-                    configToml = configToml.concat(`${element.configName} = ${JSON.stringify(configVal)}\n`);
+                    configToml = configToml.concat(`${element.configName} = ${getConfigJsonValue(element)}\n`);
                 });
             }
         } else {
             if (entry.configs) {
                 entry.configs.forEach((element: ConfigValue) => {
-                    const configVal: any = element.configValue;
-                    configToml = (`${element.configName} = ${JSON.stringify(configVal)}\n`).concat(configToml);
+                    configToml = (`${element.configName} = ${getConfigJsonValue(element)}\n`).concat(configToml);
                 });
             }
         }
@@ -128,3 +130,22 @@ function configToTomlString(configs: ConfigProperty[]): string {
     return configToml;
 }
 
+function getConfigJsonValue(element: ConfigValue) {
+    const configType: string = element.configType;
+    const configArrayType: any = element.configArrayType;
+    let returnValue: any;
+
+    if (configType === "float") {
+        returnValue = element.configValue;
+    } else if (configArrayType === "float") {
+        let arrayValue: string = "[";
+        const valueList: any = element.configValue;
+        valueList.forEach((entry: any) => {
+            arrayValue = arrayValue.concat(entry + ", ");
+        });
+        returnValue = arrayValue.slice(0, -2).concat("]")
+    } else {
+        returnValue = JSON.stringify(element.configValue);
+    }
+    return returnValue;
+}
