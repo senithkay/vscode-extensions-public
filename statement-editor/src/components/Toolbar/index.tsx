@@ -24,11 +24,11 @@ import { getRemainingContent } from "../../utils";
 import { KeyboardNavigationManager } from "../../utils/keyboard-navigation-manager";
 import { StatementEditorViewState } from "../../utils/statement-editor-viewstate";
 import { INPUT_EDITOR_PLACEHOLDERS } from "../InputEditor/constants";
-import { useStatementEditorStyles } from "../styles";
+import { useStatementEditorToolbarStyles } from "../styles";
 
-export default function Toolbar(){
-    const statementEditorClasses = useStatementEditorStyles();
-    const { modelCtx} = useContext(StatementEditorContext);
+export default function Toolbar() {
+    const statementEditorClasses = useStatementEditorToolbarStyles();
+    const { modelCtx } = useContext(StatementEditorContext);
     const { undo, redo, hasRedo, hasUndo, statementModel: completeModel, updateModel, currentModel } = modelCtx;
 
     const keyboardNavigationManager = new KeyboardNavigationManager()
@@ -44,7 +44,7 @@ export default function Toolbar(){
     }, [currentModel]);
 
     const isExprDeletable = (): boolean => {
-        if (currentModel.model){
+        if (currentModel.model) {
             const stmtViewState: StatementEditorViewState = currentModel.model.viewState as StatementEditorViewState;
             let exprDeletable = !stmtViewState.exprNotDeletable;
             if (currentModel.model.source && INPUT_EDITOR_PLACEHOLDERS.has(currentModel.model.source.trim())) {
@@ -70,41 +70,44 @@ export default function Toolbar(){
         updateModel(newCode, newPosition);
     }
 
-    return(
-        <span className={statementEditorClasses.toolbar}>
-            <IconButton
-                onClick={undo}
-                disabled={!hasUndo}
-                className={statementEditorClasses.toolbarIcons}
-                style={{marginLeft: '14px', marginRight: '7px'}}
-            >
-                 <ToolbarUndoIcon/>
-            </IconButton>
-            <IconButton
-                onClick={redo}
-                disabled={!hasRedo}
-                className={statementEditorClasses.toolbarIcons}
-                style={{marginRight: '7px'}}
-            >
-                <ToolbarRedoIcon />
-            </IconButton>
-            {currentModel.model && isExprDeletable() ? (
+    return (
+        <div className={statementEditorClasses.toolbar}>
+            <div className={statementEditorClasses.toolbarSet}>
                 <IconButton
-                    onClick={onClickOnDelete}
-                    style={{color: '#FE523C', marginRight: '14px'}}
+                    onClick={undo}
+                    disabled={!hasUndo}
                     className={statementEditorClasses.toolbarIcons}
                 >
-                    <ToolbarDeleteIcon/>
+                    <ToolbarUndoIcon />
                 </IconButton>
-            ) : (
+                <div className={statementEditorClasses.undoRedoSeparator} />
                 <IconButton
-                    disabled={true}
-                    style={{color: '#8D91A3', marginRight: '14px'}}
+                    onClick={redo}
+                    disabled={!hasRedo}
                     className={statementEditorClasses.toolbarIcons}
                 >
-                    <ToolbarDeleteIcon/>
+                    <ToolbarRedoIcon />
                 </IconButton>
-            )}
-        </span>
+            </div>
+            <div className={statementEditorClasses.toolbarSet}>
+                {currentModel.model && isExprDeletable() ? (
+                    <IconButton
+                        onClick={onClickOnDelete}
+                        style={{ color: '#FE523C' }}
+                        className={statementEditorClasses.toolbarIcons}
+                    >
+                        <ToolbarDeleteIcon />
+                    </IconButton>
+                ) : (
+                    <IconButton
+                        disabled={true}
+                        style={{ color: '#8D91A3', padding: '10px' }}
+                        className={statementEditorClasses.toolbarIcons}
+                    >
+                        <ToolbarDeleteIcon />
+                    </IconButton>
+                )}
+            </div>
+        </div>
     );
 }

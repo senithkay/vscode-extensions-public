@@ -31,7 +31,7 @@ export function StatementEditorButton(props: StatementEditorButtonProps) {
 
     return (
         <FormGroup >
-            <FormControlLabel className={classes.expressionTitle} control={<PrimarySwitchToggle onChange={handleChange} checked={checked} onClick={onClick}/>} label="Statement Editor" />
+            <FormControlLabel className={classes.expressionTitle} control={<PrimarySwitchToggle onChange={handleChange} checked={checked} onClick={onClick}/>} label="" />
         </FormGroup>
     );
 }

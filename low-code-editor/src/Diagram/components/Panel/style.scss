@@ -72,7 +72,6 @@
     .close-btn-wrap {
         display: flex;
         justify-content: flex-end;
-        width: 30px;
         padding: 5px 5px 0 !important;
         height: 48px;
         align-items: center;
@@ -82,6 +81,8 @@
         width: 12px;
         height: 12px;
         padding: 13px;
+        padding-right: 20px;
+        padding-left: 18px;
         font-size: 16px;
         stroke-width: 1px;
         stroke: #cbcedb;

@@ -3,7 +3,7 @@ import React from "react";
 import { Checkbox, ListItem, ListItemText, Typography } from "@material-ui/core";
 import { ParameterInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
-import { useStatementEditorStyles } from "../../styles";
+import { useStatementEditorStyles, useStmtEditorHelperPanelStyles } from "../../styles";
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
 interface RequiredArgProps {
     param : ParameterInfo
@@ -13,6 +13,7 @@ interface RequiredArgProps {
 export function RequiredArg(props : RequiredArgProps){
     const { param, value, checkedList } = props;
     const statementEditorClasses = useStatementEditorStyles();
+    const statementEditorHelperClasses = useStmtEditorHelperPanelStyles();
 
 
     return(
@@ -32,7 +33,7 @@ export function RequiredArg(props : RequiredArgProps){
             <ListItemText
                 style={{ marginLeft: '8px', marginRight: '8px', flex: 'inherit'}}
                 primary={(
-                    <Typography className={statementEditorClasses.suggestionDataType}>
+                    <Typography className={statementEditorHelperClasses.suggestionDataType}>
                         {param.type}
                     </Typography>
                 )}
