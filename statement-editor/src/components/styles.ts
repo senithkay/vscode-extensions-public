@@ -463,10 +463,13 @@ export const useStatementEditorStyles = makeStyles(() =>
         footer: {
             height: 'auto',
             display: 'flex',
-            width: '100%',
+            width: '84%',
             marginTop: '12px',
-            paddingRight: theme.spacing(2.5),
-            paddingLeft: theme.spacing(2.5)
+            padding: '10px 25px',
+            position: 'fixed',
+            bottom: '0',
+            backgroundColor: '#fff',
+            borderTop: '1px solid #e6e7ec'
         },
         buttonWrapper: {
             display: 'flex',
