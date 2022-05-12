@@ -588,6 +588,12 @@ export const useStatementEditorStyles = makeStyles(() =>
             display: 'flex',
             justifyContent: 'flex-end',
             width: '10%'
+        },
+        documentationWrapper: {
+            borderWidth: '2px',
+            backgroundColor: 'white',
+            margin: '10px 0',
+            boxShadow: '0 2px 4px 0 rgba(0,0,0,0.06)'
         }
     }),
 );
