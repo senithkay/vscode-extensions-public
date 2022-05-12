@@ -463,13 +463,10 @@ export const useStatementEditorStyles = makeStyles(() =>
         footer: {
             height: 'auto',
             display: 'flex',
-            width: '84%',
+            width: '100%',
             marginTop: '12px',
-            padding: '10px 25px',
-            position: 'fixed',
-            bottom: '0',
-            backgroundColor: '#fff',
-            borderTop: '1px solid #e6e7ec'
+            paddingRight: theme.spacing(2.5),
+            paddingLeft: theme.spacing(2.5)
         },
         buttonWrapper: {
             display: 'flex',
@@ -588,12 +585,6 @@ export const useStatementEditorStyles = makeStyles(() =>
             display: 'flex',
             justifyContent: 'flex-end',
             width: '10%'
-        },
-        documentationWrapper: {
-            borderWidth: '2px',
-            backgroundColor: 'white',
-            margin: '10px 0',
-            boxShadow: '0 2px 4px 0 rgba(0,0,0,0.06)'
         }
     }),
 );
