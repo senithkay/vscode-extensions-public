@@ -24,6 +24,7 @@ import { FieldLabel, FieldLabelProps } from "./elements/FieldLabel";
 import { ConfigType } from "./model";
 import { useStyles } from "./style";
 import ArrayType, { ArrayTypeProps } from "./types/ArrayType";
+import EnumType, { EnumTypeProps } from "./types/EnumType";
 import ObjectType, { ObjectTypeProps } from "./types/ObjectType";
 import SimpleType, { SimpleTypeProps } from "./types/SimpleType";
 import UnionType, { UnionTypeProps } from "./types/UnionType";
@@ -80,6 +81,20 @@ export const ConfigElement = (props: ConfigElementProps): ReactElement => {
                 (
                     <div key={props.id}>
                         <UnionType {...unionTypeProps} />
+                    </div>
+                ),
+            );
+            break;
+        case ConfigType.ENUM:
+            const enumTypeProps: EnumTypeProps = {
+                ...props,
+                setEnumType: props.setConfigElement,
+            };
+
+            returnElement.push(
+                (
+                    <div key={props.id}>
+                        <EnumType {...enumTypeProps} />
                     </div>
                 ),
             );

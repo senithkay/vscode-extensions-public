@@ -21,6 +21,7 @@
  * Common properties in the config schema.
  */
 export enum SchemaConstants {
+    ENUM = "enum",
     ITEMS = "items",
     TYPE = "type",
     VALUE = "value",
@@ -39,6 +40,7 @@ export enum SchemaConstants {
 export enum ConfigType {
     ARRAY = "array",
     BOOLEAN = "boolean",
+    ENUM = "enum",
     INTEGER = "integer",
     FLOAT = "float",
     RECORD = "record",

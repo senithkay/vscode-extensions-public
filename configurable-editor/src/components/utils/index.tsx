@@ -69,10 +69,12 @@ export function getConfigProperties(configObj: object, id: string = "1", name: s
     Object.keys(propertiesObj).forEach((key, index) => {
         const configPropertyValues = propertiesObj[key];
         const unionType: string = configPropertyValues[SchemaConstants.ANY_OF];
+        const enumType: string = configPropertyValues[SchemaConstants.ENUM];
         const configPropertyType: string = configPropertyValues[SchemaConstants.TYPE];
         const configPropertyDesc: string = configPropertyValues[SchemaConstants.DESCRIPTION];
         const properties: object = configPropertyValues[SchemaConstants.PROPERTIES];
         const required = isRequired(key, requiredProperties);
+        const elementType: ConfigType = getElementType(unionType, enumType, configPropertyType);
 
         const element: ConfigElementProps = {
             description: configPropertyDesc,
@@ -80,7 +82,7 @@ export function getConfigProperties(configObj: object, id: string = "1", name: s
             isRequired: required,
             name: key,
             schema: configPropertyValues,
-            type: unionType !== undefined ? ConfigType.ANY_OF : getType(configPropertyType),
+            type: elementType,
         };
 
         if (configPropertyType === ConfigType.OBJECT && properties !== undefined) {
@@ -96,6 +98,16 @@ export function getConfigProperties(configObj: object, id: string = "1", name: s
     });
 
     return configProperty;
+}
+
+function getElementType(unionType: string, enumType: string, type: string): ConfigType {
+    let returnType: ConfigType = getType(type);
+    if (unionType) {
+        returnType = ConfigType.ANY_OF;
+    } else if (enumType) {
+        returnType = ConfigType.ENUM;
+    }
+    return returnType;
 }
 
 /**

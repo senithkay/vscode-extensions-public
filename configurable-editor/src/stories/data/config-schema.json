@@ -24,6 +24,10 @@
                             "type": "boolean",
                             "description": "Sample description of the testMode configurable."
                         },
+                        "country": {
+                            "enum": ["United States", "Sri Lanka"],
+                            "description": ""
+                        },
                         "mod1": {
                             "type": "object",
                             "properties": {
@@ -176,7 +180,7 @@
                         }
                     },
                     "required": [
-                        "testMode", "discount", "person", "prices", "mapValueRecord", "mapValueInteger", "unionType"
+                        "testMode", "country", "discount", "person", "prices", "mapValueRecord", "mapValueInteger", "unionType"
                     ]
                 }
             }
