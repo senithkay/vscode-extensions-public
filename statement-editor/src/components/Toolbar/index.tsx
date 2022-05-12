@@ -11,13 +11,14 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext, useMemo } from "react";
+import React, { useContext, useEffect, useMemo } from "react";
 
 import IconButton from "@material-ui/core/IconButton";
 import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
 import ToolbarConfigurableIcon from "../../assets/icons/ToolbarConfigurableIcon";
 import ToolbarDeleteIcon from "../../assets/icons/ToolbarDeleteIcon";
+import ToolbarDocumentationIcon from "../../assets/icons/ToolbarDocumentationIcon";
 import ToolbarRedoIcon from "../../assets/icons/ToolbarRedoIcon";
 import ToolbarUndoIcon from "../../assets/icons/ToolbarUndoIcon";
 import {
@@ -38,7 +39,11 @@ import { KeyboardNavigationManager } from "../../utils/keyboard-navigation-manag
 import { ModelType, StatementEditorViewState } from "../../utils/statement-editor-viewstate";
 import { useStatementEditorToolbarStyles } from "../styles";
 
-export default function Toolbar() {
+interface ToolbarProps {
+    inlineDocumentHandler: (docBtnEnabled: boolean) => void
+}
+
+export default function Toolbar(props: ToolbarProps) {
     const statementEditorClasses = useStatementEditorToolbarStyles();
     const {  modelCtx, editorCtx, syntaxTree, stSymbolInfo } = useContext(StatementEditorContext);
     const {
@@ -56,6 +61,8 @@ export default function Toolbar() {
         addConfigurable,
         activeEditorId
     } = editorCtx;
+    const { inlineDocumentHandler } = props;
+    const [docEnabled, setDocEnabled] = React.useState(false);
 
     const keyboardNavigationManager = new KeyboardNavigationManager()
     React.useEffect(() => {
@@ -134,6 +141,14 @@ export default function Toolbar() {
         addConfigurable(ADD_CONFIGURABLE_LABEL, configurableInsertPosition, configurableStmt, true);
     }
 
+    const onClickOnDocumentation = () => {
+        docEnabled ? setDocEnabled(false) : setDocEnabled(true);
+    }
+
+    useEffect(() => {
+        inlineDocumentHandler(docEnabled);
+    }, [docEnabled])
+
     return (
         <div className={statementEditorClasses.toolbar}>
             <div className={statementEditorClasses.toolbarSet}>
@@ -171,6 +186,16 @@ export default function Toolbar() {
                 >
                     <ToolbarConfigurableIcon/>
                 </IconButton>
+            </div>
+            <div className={statementEditorClasses.toolbarSet}>
+                <IconButton
+                    onClick={onClickOnDocumentation}
+                    style={docEnabled ? ({color : '#5567d5'}) : ({color: '#40404B'})}
+                    className={statementEditorClasses.toolbarIcons}
+                >
+                    <ToolbarDocumentationIcon />
+                </IconButton>
+
             </div>
         </div>
     );

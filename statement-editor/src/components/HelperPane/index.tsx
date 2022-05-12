@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { ALL_LIBS_IDENTIFIER, LANG_LIBS_IDENTIFIER, STD_LIBS_IDENTIFIER } from "../../constants";
 import { KeyboardNavigationManager } from "../../utils/keyboard-navigation-manager";
@@ -38,8 +38,7 @@ export function HelperPane(props: HelperPaneProps) {
     const { docExpandClicked } = props;
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
     const statementEditorClasses = useStatementEditorStyles();
-    const initialVal2 = docExpandClicked ? TabElements.parameters : TabElements.suggestions;
-    const [selectedTab, setSelectedTab] = useState(initialVal2);
+    const [selectedTab, setSelectedTab] = useState(TabElements.suggestions);
     const [libraryType, setLibraryType] = useState('');
 
     const onTabElementSelection = async (value: TabElements) => {
@@ -65,9 +64,11 @@ export function HelperPane(props: HelperPaneProps) {
         }
     }, []);
 
-    React.useEffect(() => {
-        setSelectedTab(initialVal2);
-    }, [initialVal2])
+    useEffect(() => {
+        if (docExpandClicked){
+            setSelectedTab(TabElements.parameters);
+        }
+    }, [docExpandClicked])
 
     return (
         <>
@@ -76,9 +77,8 @@ export function HelperPane(props: HelperPaneProps) {
 
                     <TabPanel
                         values={[TabElements.suggestions, TabElements.expressions, TabElements.libraries, TabElements.parameters]}
-                        defaultValue={initialVal2}
+                        defaultValue={TabElements.suggestions}
                         onSelection={onTabElementSelection}
-                        docExpandClicked={docExpandClicked}
                         selectedTab={selectedTab}
                     />
                     <div className={stmtEditorHelperClasses.libraryTypeSelector}>
