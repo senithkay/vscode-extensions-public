@@ -33,6 +33,7 @@ export class BlockViewState extends ViewState {
     public hasWorkerDecl: boolean = false;
     public workerArrows: SimpleBBox[] = [];
     public workerIndicatorLine: SimpleBBox = new SimpleBBox();
+    public functionNodeFilePath?: string = null;
 
     constructor() {
         super();

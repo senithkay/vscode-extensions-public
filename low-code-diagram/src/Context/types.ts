@@ -1,4 +1,4 @@
-import { ConfigOverlayFormStatus, ConnectorConfigWizardProps, DiagramOverlayPosition, LowcodeEvent, PerformanceData, PlusWidgetProps, Range, STModification, STSymbolInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ConfigOverlayFormStatus, ConnectorConfigWizardProps, DiagramOverlayPosition, FunctionDef, LowcodeEvent, PerformanceData, PlusWidgetProps, Range, STModification, STSymbolInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { PlusViewState } from "../ViewState";
@@ -82,7 +82,7 @@ export interface LowCodeDiagramAPI {
     code?: {
         modifyDiagram?: (mutations: STModification[], options?: any) => void;
         gotoSource?: (position: { startLine: number, startColumn: number }) => void;
-        getFunctionDef?: (lineRange: any) => Promise<STNode>;
+        getFunctionDef?: (lineRange: any, defFilePath: string) => Promise<FunctionDef>;
     };
 
     webView?: {

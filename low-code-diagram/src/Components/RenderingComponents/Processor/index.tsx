@@ -366,12 +366,12 @@ export function DataProcessor(props: ProcessorProps) {
                         }
                     </React.Fragment>
                 </g>
-                {haveFunction ?
+                {haveFunction && functionName ?
                     <g>
                         <ShowFunctionBtn
                             model={model}
                             functionName={functionName}
-                            x={cx + PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW / 2 + (DefaultConfig.dotGap * 3) + 100}
+                            x={cx + PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW / 2 + (DefaultConfig.dotGap * 3) + 80}
                             y={processType !== "Call" ? (cy + PROCESS_SVG_HEIGHT / 3 + rightTextOffset) : (cy + PROCESS_SVG_HEIGHT / 4) - (DefaultConfig.dotGap / 2)}
                         />
                     </g>

@@ -88,8 +88,9 @@ export function ShowFunctionBtn(props: ShowFunctionBtnProps) {
               character: functionName.position?.endColumn,
             },
           };
-          const funDef = await getFunctionDef(range);
-          const sizedBlock = initializeViewState(funDef);
+          const funDef = await getFunctionDef(range, model.viewState.functionNodeFilePath);
+          const sizedBlock = initializeViewState(funDef.syntaxTree);
+          sizedBlock.viewState.functionNodeFilePath = funDef.defFilePath;
           nodeViewState.functionNode = sizedBlock as FunctionDefinition;
         }
         nodeViewState.functionNodeExpanded = true;

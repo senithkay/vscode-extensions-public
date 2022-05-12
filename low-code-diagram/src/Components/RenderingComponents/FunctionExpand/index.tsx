@@ -81,6 +81,7 @@ export function FunctionExpand(props: FunctionProps) {
     );
   } else {
     const block: FunctionBodyBlock = model.functionBody as FunctionBodyBlock;
+    block.viewState.functionNodeFilePath = viewState.functionNodeFilePath
     const isStatementsAvailable: boolean =
       block.statements.length > 0 || !!block.namedWorkerDeclarator;
     const bodyViewState: BlockViewState = block.viewState;
@@ -115,7 +116,7 @@ export function FunctionExpand(props: FunctionProps) {
   // const svgWidth = model ? model.functionName.value.length * 5 : 0;
 
   return (
-    <svg y={xyProps.y - 150 / 2} x={120} className="expand-expression">
+    <svg y={xyProps.y - 150 / 2} x={100} className="expand-expression">
       <g className={arrowClasses}>
         <ControlFlowArrow
           isDotted={false}

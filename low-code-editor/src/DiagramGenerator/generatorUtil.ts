@@ -26,7 +26,7 @@ export async function getFunctionSyntaxTree(filePath: string, range: any, langCl
         },
         lineRange: range
     });
-    return resp.syntaxTree;
+    return { syntaxTree: resp.syntaxTree, defFilePath: resp.defFilePath };
 }
 
 

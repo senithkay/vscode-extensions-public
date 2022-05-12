@@ -1297,7 +1297,7 @@ export class SizingVisitor implements Visitor {
                 viewState.bBox.h += viewState.functionNode.viewState.bBox.h;
                 // height += viewState.functionNode.viewState.bBox.h;
                 // if (viewState.bBox.rw < viewState.functionNode.viewState.bBox.w) {
-                viewState.bBox.rw += viewState.functionNode.viewState.bBox.w + 120;
+                viewState.bBox.rw += viewState.functionNode.viewState.bBox.w + 50;
                 viewState.bBox.w = viewState.bBox.rw + viewState.bBox.lw;
                 // }
             }

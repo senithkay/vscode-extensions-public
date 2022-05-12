@@ -16,7 +16,7 @@ import { monaco } from "react-monaco-editor";
 
 import { MuiThemeProvider } from "@material-ui/core/styles";
 import { BlockViewState } from "@wso2-enterprise/ballerina-low-code-diagram";
-import { ConditionConfig, Connector, DiagramDiagnostic, DIAGRAM_MODIFIED, getImportStatements, LibraryDataResponse, LibraryDocResponse, LibraryKind, LibrarySearchResponse, LowcodeEvent, Range, SentryConfig, STModification, STSymbolInfo, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ConditionConfig, Connector, DiagramDiagnostic, DIAGRAM_MODIFIED, FunctionDef, getImportStatements, LibraryDataResponse, LibraryDocResponse, LibraryKind, LibrarySearchResponse, LowcodeEvent, Range, SentryConfig, STModification, STSymbolInfo, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FunctionDefinition, ModulePart, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import cloneDeep from "lodash.clonedeep";
 import Mousetrap from 'mousetrap';
@@ -365,12 +365,12 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                     gotoSource: (position: { startLine: number, startColumn: number }) => {
                                         props.gotoSource(filePath, position);
                                     },
-                                    getFunctionDef: async (lineRange: Range) => {
+                                    getFunctionDef: async (lineRange: Range, defFilePath?: string) => {
                                         const langClient = await langClientPromise;
                                         setMutationInProgress(true);
                                         setLoaderText('Fetching...');
-                                        const res = await getFunctionSyntaxTree(
-                                            monaco.Uri.file(filePath).toString(),
+                                        const res: FunctionDef = await getFunctionSyntaxTree(
+                                            defFilePath ? defFilePath : monaco.Uri.file(filePath).toString(),
                                             lineRange,
                                             langClient
                                         );

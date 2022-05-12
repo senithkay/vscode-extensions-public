@@ -11,6 +11,7 @@
  * associated services.
  */
 
+import { STNode } from "@wso2-enterprise/syntax-tree";
 import {
     DocumentSymbol,
     DocumentSymbolParams,
@@ -95,6 +96,11 @@ export interface PerformanceAnalyzerResponse {
     type: string;
     message: string;
     name: string;
+}
+
+export interface FunctionDef {
+    syntaxTree: STNode;
+    defFilePath: string;
 }
 
 export interface DiagramEditorLangClientInterface extends BaseLangClientInterface {

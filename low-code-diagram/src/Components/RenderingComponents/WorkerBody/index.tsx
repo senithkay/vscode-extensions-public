@@ -40,10 +40,10 @@ export function WorkerBody(props: DiagramProps) {
     const workerIndicatorLine: React.ReactNode[] = [];
 
     if (STKindChecker.isFunctionBodyBlock(model) && viewState.hasWorkerDecl) {
-        children = children.concat(getSTComponents(model.namedWorkerDeclarator.workerInitStatements));
-        children = children.concat(getSTComponents(model.namedWorkerDeclarator.namedWorkerDeclarations))
+        children = children.concat(getSTComponents(model.namedWorkerDeclarator.workerInitStatements, viewState.functionNodeFilePath));
+        children = children.concat(getSTComponents(model.namedWorkerDeclarator.namedWorkerDeclarations, viewState.functionNodeFilePath))
     }
-    children = children.concat(getSTComponents(model.statements))
+    children = children.concat(getSTComponents(model.statements, viewState.functionNodeFilePath))
 
     for (const controlFlowLine of viewState.controlFlow.lineStates) {
         controlFlowLines.push(<ControlFlowLine controlFlowViewState={controlFlowLine} />);

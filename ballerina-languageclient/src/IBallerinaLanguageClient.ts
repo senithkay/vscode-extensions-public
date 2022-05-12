@@ -554,6 +554,7 @@ export interface STModification {
 
 export interface BallerinaSTModifyResponse {
     source: string;
+    defFilePath: string;
     syntaxTree: STNode;
     parseSuccess: boolean;
 }

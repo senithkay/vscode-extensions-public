@@ -233,6 +233,7 @@ export interface BallerinaFunctionSTRequest {
 
 export interface BallerinaSTModifyResponse {
     source: string;
+    defFilePath: string;
     syntaxTree: STNode;
     parseSuccess: boolean;
 }
