@@ -58,7 +58,7 @@ export const UnionType = (props: UnionTypeProps): ReactElement => {
     };
 
     const getConfigElementProps = (property: object, type: string, element: ConfigElementProps): ConfigElementProps => {
-        const configProperty = schema[SchemaConstants.PROPERTIES];
+        const configProperty = property[SchemaConstants.PROPERTIES];
         let configProperties: ConfigElementProps[];
         if (configProperty) {
             configProperties = getConfigProperties(property, props.id).properties;

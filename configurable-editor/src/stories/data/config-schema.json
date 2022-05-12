@@ -35,7 +35,9 @@
                                     "type": "string",
                                     "description": "Sample description of the nameVal configurable."
                                 }
-                            }
+                            },
+                            "additionalProperties": false,
+                            "required": ["nameVal"]
                         },
                         "person": {
                             "type": "object",
@@ -54,10 +56,13 @@
                                         }
                                     },
                                     "additionalProperties": false,
-                                    "description": "Sample description of the category configurable."
+                                    "required": ["fullTime"],
+                                    "name": "user/arrayTypes:0.1.0:Category"
                                 }
                             },
                             "additionalProperties": false,
+                            "required": ["name", "age", "category"],
+                            "name": "user/arrayTypes:0.1.0:Person",
                             "description": "Sample description of the person configurable."
                         },
                         "prices": {
@@ -100,6 +105,7 @@
                                         "type": "string"
                                     }
                                 },
+                                "name": "user/arrayTypes:0.1.0:Person",
                                 "additionalProperties": false,
                                 "required": [
                                     "name"
@@ -121,6 +127,7 @@
                                                 "type": "string"
                                             }
                                         },
+                                        "name": "user/arrayTypes:0.1.0:Person",
                                         "additionalProperties": false,
                                         "required": [
                                             "age",
@@ -169,6 +176,7 @@
                                     "weight": { "type": "number" },
                                     "employeed": { "type": "boolean" }
                                 },
+                                "name": "user/arrayTypes:0.1.0:Employee",
                                 "additionalProperties": false,
                                 "required": ["name", "id", "weight"]
                             },
@@ -176,6 +184,22 @@
                         },
                         "unionType": {
                             "anyOf": [{ "type": "integer" }, { "type": "string" }],
+                            "description": ""
+                        },
+                        "code": {
+                            "anyOf": [
+                                { "type": "integer" },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "name": { "type": "string" },
+                                        "age": { "type": "integer" }
+                                    },
+                                    "additionalProperties": false,
+                                    "required": ["name", "age"],
+                                    "name": "user/arrayTypes:0.1.0:Person"
+                                }
+                            ],
                             "description": ""
                         },
                         "users": {
@@ -188,6 +212,7 @@
                         }
                     },
                     "required": [
+                        "code",
                         "testMode",
                         "users",
                         "country",

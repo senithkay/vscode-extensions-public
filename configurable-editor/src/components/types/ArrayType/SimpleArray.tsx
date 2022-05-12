@@ -45,10 +45,12 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
     const [counter, setCounter] = useState(arrayValues.length + 1);
 
     const element: ConfigElementProps = {
+        arrayType: props.arrayType,
         description: props.description,
         id: props.id,
         isRequired: props.isRequired,
         name: props.name,
+        schema: props.schema,
         type: props.type,
         value: props.value,
     };

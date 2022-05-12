@@ -40,6 +40,7 @@ export interface ConfigElementProps {
     value?: any;
     description?: string;
     placeholder?: string;
+    arrayType?: ConfigType;
     setConfigElement?: (id: string, value: any) => void;
 }
 

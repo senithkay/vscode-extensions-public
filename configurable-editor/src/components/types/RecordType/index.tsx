@@ -38,10 +38,10 @@ export interface RecordTypeProps extends ObjectTypeProps {
 
 export const RecordType = (props: RecordTypeProps) => {
     const classes = useStyles();
-    const [recordValue, setRecordValue] = useState<ConfigElementProps>(getObjectElement(props));
+    const recordName: string = getRecordName(props.schema[SchemaConstants.NAME]);
+    const [recordValue, setRecordValue] = useState<ConfigElementProps>(getObjectElement(props, recordName));
     const [expanded, setExpanded] = useState(true);
     const returnElement: ReactElement[] = [];
-    const recordName: string = getRecordName(props.schema[SchemaConstants.NAME]);
 
     useEffect(() => {
         setExpanded(props.isRequired);
@@ -121,7 +121,7 @@ function updateRecordValue(recordObject: ConfigElementProps, id: string, value: 
     return recordObject;
 }
 
-function getObjectElement(configObject: ConfigElementProps): ConfigElementProps {
+function getObjectElement(configObject: ConfigElementProps, recordName: string): ConfigElementProps {
     const nestedProperties: ConfigElementProps[] = getNestedElements(configObject.properties);
     return {
         description: configObject.description,
@@ -130,7 +130,7 @@ function getObjectElement(configObject: ConfigElementProps): ConfigElementProps 
         name: configObject.name,
         properties: nestedProperties,
         schema: configObject.schema,
-        type: configObject.type,
+        type: recordName ? configObject.type : ConfigType.MODULE,
     };
 }
 

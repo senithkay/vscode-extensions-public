@@ -27,7 +27,7 @@ import DeleteButton from "../../elements/DeleteButton";
 import { FieldLabel, FieldLabelProps } from "../../elements/FieldLabel";
 import { SchemaConstants } from "../../model";
 import { useStyles } from "../../style";
-import { getConfigProperties } from "../../utils";
+import { getConfigProperties, getRecordName } from "../../utils";
 import ObjectType, { ObjectTypeProps } from "../ObjectType";
 
 import { ArrayTypeProps } from ".";
@@ -45,6 +45,7 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
     const elementSchema: object[] = props.schema[SchemaConstants.ITEMS];
 
     const element: ConfigElementProps = {
+        arrayType: props.arrayType,
         description: props.description,
         id: props.id,
         isRequired: props.isRequired,
@@ -65,7 +66,7 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
                 const objectArrayProps: ObjectArrayProps = {
                     description: props.schema[SchemaConstants.DESCRIPTION],
                     id: props.id + "-" + newCounter,
-                    isRequired: false,
+                    isRequired: true,
                     name: "",
                     properties: configProperties,
                     schema: elementSchema,
@@ -88,7 +89,7 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
         const objectArrayProps: ObjectArrayProps = {
             description: props.schema[SchemaConstants.DESCRIPTION],
             id: props.id + "-" + counter,
-            isRequired: false,
+            isRequired: true,
             name: "",
             properties: propertiesValue,
             schema: elementSchema,
@@ -158,11 +159,12 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
         );
     });
 
+    const typeLabel: string = props.schema[SchemaConstants.ITEMS][SchemaConstants.NAME];
     const fieldLabelProps: FieldLabelProps = {
         description: props.description,
         name: props.name,
         required: props.isRequired,
-        type: props.arrayType + " [ ]",
+        type: (typeLabel ? getRecordName(typeLabel) : "map") + " [ ]",
     };
 
     return (
