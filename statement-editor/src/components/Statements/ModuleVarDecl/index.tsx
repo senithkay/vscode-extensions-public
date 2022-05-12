@@ -45,14 +45,14 @@ export function ModuleVarDeclC(props: ModuleVarDeclProps) {
     const qualifiers = model.qualifiers.map((qualifier: ConfigurableKeyword | FinalKeyword) => {
         return (
             <>
-                <TokenComponent model={qualifier} />
+                <TokenComponent model={qualifier} className={"keyword"} />
             </>
         )
     });
 
     return (
         <>
-            {model?.metadata && <TokenComponent model={model.metadata} />}
+            {model?.metadata && <TokenComponent model={model.metadata} className={"keyword"} />}
             {qualifiers}
             <ExpressionComponent model={model.typedBindingPattern} />
             <TokenComponent model={model.equalsToken} className={"operator"} />
