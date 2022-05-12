@@ -110,7 +110,7 @@ export const useStatementRendererStyles = makeStyles(() =>
         expressionElement: {
             position: 'relative',
             width: 'fit-content',
-            margin: '0px 2px',
+            marginRight: '2px',
             '&': {
                 width: 'fit-content',
                 borderRadius: '4px',
@@ -177,7 +177,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
         },
         libraryTypeSelector: {
             height: '48px',
-            width: '60%',
+            width: '45%',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'flex-end'
@@ -272,9 +272,9 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             }
         },
         suggestionList: {
-            columnGap: '6%',
+            columnGap: '5%',
             display: 'grid',
-            gridTemplateColumns: '47% 47%',
+            gridTemplateColumns: '30% 30% 30%',
             "& .MuiListItem-root": {
                 marginBottom: '8px',
                 padding: '0 10px'
@@ -312,7 +312,8 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             color: '#CBCEDB',
             textIndent: '12px',
             textAlign: 'left',
-            marginBottom: '16px'
+            marginBottom: '16px',
+            paddingLeft: '10px'
         },
         librarySearchSubHeader: {
             color: '#1D2028',
