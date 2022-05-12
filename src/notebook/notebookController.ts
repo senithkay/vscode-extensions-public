@@ -72,8 +72,7 @@ export class BallerinaNotebookController {
         controller: NotebookController): Promise<void> {
         for (let cell of cells) {
             await this.doExecution(cell);
-            // update the variable view to reflect changes
-            this.updateVariableView();
+            this.updateVariableView(); // update the variable view to reflect changes
         }
     }
 
@@ -142,26 +141,34 @@ export class BallerinaNotebookController {
             let output: NoteBookCellOutputResponse = await langClient.getBalShellResult({
                 source: cellContent
             });
+
+            // log console output first
+            // since console output will be logged until an exception happens so it comes first
+            output.consoleOut && appendTextToOutput(output.consoleOut);
+
+            // render the output value if available
             if (output.shellValue?.value) {
                 if (CUSTOM_DESIGNED_MIME_TYPES.includes(output.shellValue!.mimeType)) {
-                    execution.replaceOutput([new NotebookCellOutput([
+                    execution.appendOutput([new NotebookCellOutput([
                         NotebookCellOutputItem.json(output, output.shellValue!.mimeType),
                         NotebookCellOutputItem.text(output.shellValue.value)
                     ])]);
                 }
                 else {
-                    execution.replaceOutput([new NotebookCellOutput([
+                    execution.appendOutput([new NotebookCellOutput([
                         NotebookCellOutputItem.text(output.shellValue.value)
                     ])]);
                 }
             }
-            if (output.diagnostics.length) {
-                output.diagnostics.forEach(appendTextToOutput);
-            }
-            if (output.errors.length) {
-                output.errors.forEach(appendTextToOutput);
-            }
+
+            // finally errors and diagnostics
+            output.diagnostics.length && output.diagnostics.forEach(appendTextToOutput);
+            output.errors.length && output.errors.forEach(appendTextToOutput);
+
+            // end execution with succes or fail
+            // success if there are no diagnostics and errors
             execution.end(!(output.diagnostics.length) && !(output.errors.length), Date.now());
+
             // Collect and store if there is any declarations cell meta data
             output.metaInfo && this.metaInfoHandler.handleNewMetaInfo(cell, output.metaInfo);
         } catch (error) {
@@ -179,8 +186,8 @@ export class BallerinaNotebookController {
     }
 
     /**
-     * Brings controller to intial state by
-     *  - resetting excution counter
+     * Brings controller to initial state by
+     *  - resetting execution counter
      *  - updating variale view
      *  - resetting meta info on cells
      */

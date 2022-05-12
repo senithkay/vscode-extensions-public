@@ -172,6 +172,7 @@ export interface NoteBookCellOutputResponse {
     errors: string[];
     diagnostics: string[];
     metaInfo?: NotebookCellMetaInfo;
+    consoleOut: string;
 }
 
 export interface NotebookFileSourceResponse{
