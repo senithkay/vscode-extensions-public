@@ -57,13 +57,17 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
         if (props.value) {
             const initialValue: ConfigElementProps[] = [];
             let newCounter = counter;
+            let configProperties: ConfigElementProps[];
+            if (elementSchema[SchemaConstants.PROPERTIES]) {
+                configProperties = getConfigProperties(elementSchema, props.id + "-" + newCounter).properties;
+            }
             Object.keys(props.value).forEach((key) => {
                 const objectArrayProps: ObjectArrayProps = {
                     description: props.schema[SchemaConstants.DESCRIPTION],
                     id: props.id + "-" + newCounter,
                     isRequired: false,
                     name: "",
-                    properties: getConfigProperties(elementSchema, props.id + "-" + newCounter).properties,
+                    properties: configProperties,
                     schema: elementSchema,
                     type: props.arrayType,
                     value: props.value[key],
@@ -77,21 +81,21 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
     }, []);
 
     const addArrayElememt = () => {
-        let propertiesValue: ConfigElementProps;
-        if (elementSchema[SchemaConstants.PROPERTIES] !== undefined) {
-            propertiesValue = getConfigProperties(elementSchema, props.id + "-" + counter);
-            const objectArrayProps: ObjectArrayProps = {
-                description: props.schema[SchemaConstants.DESCRIPTION],
-                id: props.id + "-" + counter,
-                isRequired: false,
-                name: "",
-                properties: propertiesValue ? propertiesValue.properties : undefined,
-                schema: elementSchema,
-                type: props.arrayType,
-            };
-            setCounter((prevState) => prevState + 1);
-            setArrayValues((prevState) => [...prevState, objectArrayProps]);
+        let propertiesValue: ConfigElementProps[];
+        if (elementSchema[SchemaConstants.PROPERTIES]) {
+            propertiesValue = getConfigProperties(elementSchema, props.id + "-" + counter).properties;
         }
+        const objectArrayProps: ObjectArrayProps = {
+            description: props.schema[SchemaConstants.DESCRIPTION],
+            id: props.id + "-" + counter,
+            isRequired: false,
+            name: "",
+            properties: propertiesValue,
+            schema: elementSchema,
+            type: props.arrayType,
+        };
+        setCounter((prevState) => prevState + 1);
+        setArrayValues((prevState) => [...prevState, objectArrayProps]);
     };
 
     const removeArrayElement = (id: string) => {

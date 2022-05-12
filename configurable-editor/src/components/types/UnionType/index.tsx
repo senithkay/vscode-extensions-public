@@ -59,19 +59,20 @@ export const UnionType = (props: UnionTypeProps): ReactElement => {
 
     const getConfigElementProps = (property: object, type: string, element: ConfigElementProps): ConfigElementProps => {
         const configProperty = schema[SchemaConstants.PROPERTIES];
-        let configProperties: ConfigElementProps;
+        let configProperties: ConfigElementProps[];
         if (configProperty) {
-            configProperties = getConfigProperties(property, props.id);
+            configProperties = getConfigProperties(property, props.id).properties;
         }
         const configElementProps: ConfigElementProps = {
             description: element.description,
             id: element.id,
             isRequired: element.isRequired,
             name: element.name,
-            properties: configProperties ? configProperties.properties : undefined,
+            properties: configProperties,
             schema: property,
             setConfigElement: setUnionElememt,
             type: getType(getTypeFromLabel([property], type)),
+            value: element.value,
         };
         return configElementProps;
     };

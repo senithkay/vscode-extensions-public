@@ -59,7 +59,7 @@ export const MapType = (props: MapTypeProps): ReactElement => {
         isRequired: props.isRequired,
         name: props.name,
         properties: [],
-        schema: elementSchema,
+        schema: props.schema,
         type: props.type,
         value: props.value,
     };
@@ -97,7 +97,7 @@ export const MapType = (props: MapTypeProps): ReactElement => {
             label: "value",
             name: "",
             properties: propertiesValue,
-            schema: elementSchema,
+            schema: props.schema,
             type: propertyType,
         };
         setCounter((prevState) => prevState + 1);

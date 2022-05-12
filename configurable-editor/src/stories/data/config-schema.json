@@ -177,10 +177,26 @@
                         "unionType": {
                             "anyOf": [{ "type": "integer" }, { "type": "string" }],
                             "description": ""
+                        },
+                        "users": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "additionalProperties": { "type": "string" }
+                            },
+                            "description": ""
                         }
                     },
                     "required": [
-                        "testMode", "country", "discount", "person", "prices", "mapValueRecord", "mapValueInteger", "unionType"
+                        "testMode",
+                        "users",
+                        "country",
+                        "discount",
+                        "person",
+                        "prices",
+                        "mapValueRecord",
+                        "mapValueInteger",
+                        "unionType"
                     ]
                 }
             }

@@ -22,6 +22,15 @@
                 "age": 22,
                 "value": 31
             },
+            "users": [
+                {
+                    "age": 22,
+                    "name": "sam"
+                },
+                {
+                    "age": 19
+                }
+            ],
             "mapValueRecord": {
                 "value1": {
                     "name": "anne",
