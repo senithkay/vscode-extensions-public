@@ -130,9 +130,6 @@ export function StatementEditor(props: StatementEditorProps) {
             updateEditedModel(undoItem.oldModel.model, diagnostics);
 
             const newCurrentModel = getCurrentModel(undoItem.oldModel.selectedPosition, enrichModel(undoItem.oldModel.model, targetPosition));
-            /*if (STKindChecker.isFunctionCall(newCurrentModel)){
-                await updateModel(newCurrentModel.source, newCurrentModel.position);
-            }*/
             setCurrentModel({model: newCurrentModel});
             if (currentModel.model){
                 setDocumentation(await getSymbolDocumentation(fileURI, targetPosition, {model : newCurrentModel}, getLangClient));
@@ -148,6 +145,8 @@ export function StatementEditor(props: StatementEditorProps) {
             sendDidChange(fileURI, updatedContent, getLangClient).then();
             const diagnostics = await handleDiagnostics(redoItem.oldModel.model.source);
             updateEditedModel(redoItem.newModel.model, diagnostics);
+            const newCurrentModel = getCurrentModel(redoItem.newModel.selectedPosition, enrichModel(redoItem.newModel.model, targetPosition));
+            setCurrentModel({model: newCurrentModel});
             if (currentModel.model){
                 setDocumentation(await getSymbolDocumentation(fileURI, targetPosition, currentModel, getLangClient));
             }
@@ -184,7 +183,6 @@ export function StatementEditor(props: StatementEditorProps) {
                 const currentModelViewState = currentModel.model?.viewState as StatementEditorViewState;
 
                 if (!isOperator(currentModelViewState.modelType) && !isBindingPattern(currentModelViewState.modelType)) {
-                    // const content: string = addToTargetPosition(currentFile.content, targetPosition, model.source);
                     const updatedContent = await getUpdatedSource(model.source, currentFile.content,
                         targetPosition, moduleList);
                     sendDidChange(fileURI, updatedContent, getLangClient).then();

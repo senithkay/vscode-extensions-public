@@ -38,7 +38,13 @@ export function NamedArgIncludedRecord(props: NamedArgIncludedRecordProps){
                         }}
                         checked={true}
                     />
-                    <OutlinedInput placeholder={defaultNamedArg} autoFocus={true} onKeyDown={inputEnterHandler} onInput={inputChangeHandler}/>
+                    <OutlinedInput
+                        placeholder={defaultNamedArg}
+                        autoFocus={true}
+                        onKeyDown={inputEnterHandler}
+                        onInput={inputChangeHandler}
+                        inputProps={{ style: { padding: '8px'} }}
+                    />
                 </ListItem>
             )}
         </>
