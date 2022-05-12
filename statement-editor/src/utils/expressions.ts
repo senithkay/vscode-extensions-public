@@ -375,7 +375,7 @@ const query: ExpressionGroup = {
     expressions: [
         {
             name: "Query",
-            template: `from ${TYPE_DESC_PLACEHOLDER} ${BINDING_PATTERN_PLACEHOLDER} in ${EXPR_PLACEHOLDER}
+            template: `from ${TYPE_DESC_PLACEHOLDER} item in ${EXPR_PLACEHOLDER}
 where ${EXPR_PLACEHOLDER}
 select ${EXPR_PLACEHOLDER}`,
             example: `from var i in numbers
@@ -401,6 +401,10 @@ const typeDescriptors : ExpressionGroup = {
     name: "Type Descriptors",
     expressions: [
         {
+            name: "Array",
+            template: `${SELECTED_EXPRESSION}[]`,
+            example: "Es[]"
+        }, {
             name: "Tuple",
             template: `[${SELECTED_EXPRESSION}]`,
             example: "[Es, Ex]"

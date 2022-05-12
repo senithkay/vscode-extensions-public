@@ -71,7 +71,7 @@ export function ParameterSuggestions(){
     return(
         <>
             {documentation && !(documentation.documentation === undefined) ? (
-                <List style={{paddingTop: '0px'}}>
+                <List className={statementEditorClasses.stmtEditorInnerWrapper}>
                     <ListItem style={{paddingLeft: '0px', paddingTop: '0px'}}>
                         <ListItemText primary={documentation.documentation.description}/>
                     </ListItem>
