@@ -401,6 +401,10 @@ const typeDescriptors : ExpressionGroup = {
     name: "Type Descriptors",
     expressions: [
         {
+            name: "Array",
+            template: `${SELECTED_EXPRESSION}[]`,
+            example: "Es[]"
+        }, {
             name: "Tuple",
             template: `[${SELECTED_EXPRESSION}]`,
             example: "[Es, Ex]"
