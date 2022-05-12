@@ -44,6 +44,8 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
         props: {
             isMutationProgress: isMutationInProgress,
             currentFile,
+            stSymbolInfo,
+            syntaxTree,
             importStatements,
             experimentalEnabled
         },
@@ -131,7 +133,6 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
             label: formTitle,
             initialSource: expression ? expression : "STATEMENT",
             formArgs: { formArgs },
-            validForm: isFormValid,
             config,
             onWizardClose,
             handleStatementEditorChange,
@@ -140,6 +141,8 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
             getLangClient: getExpressionEditorLangClient,
             applyModifications: modifyDiagram,
             library,
+            syntaxTree,
+            stSymbolInfo,
             importStatements,
             experimentalEnabled
         }
@@ -150,12 +153,8 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
             <FormControl data-testid="custom-expression-form" className={formClasses.wizardFormControl}>
                 <FormHeaderSection
                     onCancel={onCancel}
-                    statementEditor={true}
                     formTitle={formTitle}
                     defaultMessage={"Other"}
-                    handleStmtEditorToggle={handleStmtEditorToggle}
-                    toggleChecked={false}
-                    experimentalEnabled={experimentalEnabled}
                 />
                 <div className={formClasses.formContentWrapper}>
                     <div className={formClasses.formNameWrapper}>
@@ -189,6 +188,10 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
                     validForm={isFormValid}
                     onSave={onSaveBtnClick}
                     onCancel={onCancel}
+                    statementEditor={true}
+                    toggleChecked={false}
+                    experimentalEnabled={experimentalEnabled}
+                    handleStmtEditorToggle={handleStmtEditorToggle}
                 />
             </FormControl>
         );

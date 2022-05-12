@@ -15,6 +15,7 @@ import React from 'react';
 export default function ToolbarRedoIcon(){
     return(
         <svg width="14px" height="16px" viewBox="0 0 14 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
+            <title>Redo</title>
             <g id="Tree-Editor" stroke="none" stroke-width="1" fill="currentColor" fill-rule="evenodd">
                 <g id="SE-f9-suggestions" transform="translate(-1358.000000, -276.000000)" fill="currentColor" fill-rule="nonzero">
                     <g id="Icon/Toolbar-Redo" transform="translate(1365.250000, 283.866965) scale(-1, 1) translate(-1365.250000, -283.866965) translate(1358.500000, 276.000000)">

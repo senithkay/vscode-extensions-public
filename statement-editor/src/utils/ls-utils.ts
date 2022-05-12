@@ -40,6 +40,14 @@ export async function getPartialSTForStatement(
     return resp.syntaxTree;
 }
 
+export async function getPartialSTForModuleMembers(
+            partialSTRequest: PartialSTRequest,
+            getLangClient: () => Promise<ExpressionEditorLangClientInterface>): Promise<STNode> {
+    const langClient: ExpressionEditorLangClientInterface = await getLangClient();
+    const resp = await langClient.getSTForModuleMembers(partialSTRequest);
+    return resp.syntaxTree;
+}
+
 export async function getPartialSTForExpression(
             partialSTRequest: PartialSTRequest,
             getLangClient: () => Promise<ExpressionEditorLangClientInterface>): Promise<STNode> {
@@ -74,13 +82,6 @@ export async function getCompletions (docUri: string,
         },
         position: {
             character: targetPosition.startColumn + currentModelPosition.startColumn + userInput.length,
-            line: targetPosition.startLine + currentModelPosition.startLine
-        }
-    }
-
-    if (STKindChecker.isIfElseStatement(completeModel)) {
-        completionParams.position = {
-            character: currentModelPosition.startColumn + userInput.length,
             line: targetPosition.startLine + currentModelPosition.startLine
         }
     }

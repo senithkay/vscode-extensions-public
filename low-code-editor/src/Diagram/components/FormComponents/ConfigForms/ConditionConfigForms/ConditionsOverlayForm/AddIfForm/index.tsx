@@ -62,6 +62,8 @@ export function AddIfForm(props: IfProps) {
         props: {
             isMutationProgress: isMutationInProgress,
             currentFile,
+            syntaxTree,
+            stSymbolInfo,
             importStatements,
             experimentalEnabled
         },
@@ -278,7 +280,6 @@ export function AddIfForm(props: IfProps) {
             label: formTitle,
             initialSource,
             formArgs: { formArgs },
-            validForm,
             config: condition,
             onWizardClose,
             handleStatementEditorChange,
@@ -287,6 +288,8 @@ export function AddIfForm(props: IfProps) {
             getLangClient: getExpressionEditorLangClient,
             applyModifications: modifyDiagram,
             library,
+            syntaxTree,
+            stSymbolInfo,
             importStatements,
             experimentalEnabled
         }
@@ -329,12 +332,8 @@ export function AddIfForm(props: IfProps) {
             <FormControl data-testid="if-form" className={classes.wizardFormControl}>
                 <FormHeaderSection
                     onCancel={onCancel}
-                    statementEditor={true}
                     formTitle={formTitle}
                     defaultMessage={"If"}
-                    handleStmtEditorToggle={handleStmtEditorToggle}
-                    toggleChecked={false}
-                    experimentalEnabled={experimentalEnabled}
                 />
                 <div className={classes.formContentWrapper}>
                     <div className={classes.formCodeBlockWrapper}>
@@ -386,6 +385,10 @@ export function AddIfForm(props: IfProps) {
                     saveBtnText={saveIfConditionButtonLabel}
                     isMutationInProgress={isMutationInProgress}
                     validForm={validForm}
+                    statementEditor={true}
+                    toggleChecked={false}
+                    experimentalEnabled={experimentalEnabled}
+                    handleStmtEditorToggle={handleStmtEditorToggle}
                     onSave={handleOnSaveClick}
                     onCancel={onCancel}
                 />

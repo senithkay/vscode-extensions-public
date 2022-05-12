@@ -55,13 +55,12 @@ export function LibraryBrowser(props: LibraryBrowserProps) {
     const { libraryType } = props;
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
     const statementEditorClasses = useStatementEditorStyles();
-    const stmtCtx = useContext(StatementEditorContext);
     const {
         library: {
             getLibrariesList,
             getLibrariesData
         }
-    } = stmtCtx;
+    } = useContext(StatementEditorContext);
 
     const [libraryBrowserMode, setLibraryBrowserMode] = useState(LibraryBrowserMode.LIB_LIST);
     const [keyword, setKeyword] = useState('');
@@ -138,7 +137,7 @@ export function LibraryBrowser(props: LibraryBrowserProps) {
         setKeyword('');
     }
 
-    const libraryDataFetchingHandler = (isFetching: boolean, moduleElement?: string) => {
+    const libraryDataFetchingHandler = (isFetching: boolean) => {
         setIsLoading(isFetching);
     }
 

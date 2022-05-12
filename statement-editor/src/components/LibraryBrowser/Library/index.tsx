@@ -28,12 +28,11 @@ interface LibraryProps {
 }
 
 export function Library(props: LibraryProps) {
-    const stmtCtx = useContext(StatementEditorContext);
     const {
         library: {
             getLibraryData
         }
-    } = stmtCtx;
+    } = useContext(StatementEditorContext);
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
     const { libraryInfo, key, libraryBrowsingHandler, libraryDataFetchingHandler } = props;
     const { id, orgName, version } = libraryInfo;

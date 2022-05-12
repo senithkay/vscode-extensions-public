@@ -13,11 +13,11 @@
 // tslint:disable: no-empty jsx-no-multiline-js
 import React from 'react';
 
-import { LibraryKind, STModification, SymbolInfoResponse } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { LibraryKind, STModification, SymbolInfoResponse } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
-import { LowCodeEditorProps } from '../components/StatementEditor';
-import { StmtDiagnostic, SuggestionItem } from "../models/definitions";
+import { LowCodeEditorProps } from "../components/StatementEditorWrapper";
+import { EditorModel, StmtDiagnostic, SuggestionItem } from "../models/definitions";
 
 import { InputEditorContextProvider } from "./input-editor-context";
 
@@ -36,17 +36,26 @@ export const StatementEditorContext = React.createContext({
         restArg: (restCheckClicked: boolean) => undefined,
         hasRestArg: false
     },
-    formCtx: {
-        formModelPosition: null
-    },
-    config: {
-        type: ''
-    },
     statementCtx: {
         diagnostics: []
     },
     suggestionsCtx: {
         lsSuggestions: []
+    },
+    modules: {
+        modulesToBeImported: new Set(),
+        updateModuleList: (module: string) => {}
+    },
+    formCtx: null,
+    config: null,
+    targetPosition: null,
+    editorCtx: {
+        switchEditor: (index: number) => undefined,
+        updateEditor: (index: number, newContent: EditorModel) => undefined,
+        dropLastEditor: (offset?: number) => undefined,
+        addConfigurable: (newLabel: string, newPosition: NodePosition, newSource: string, isExistingStmt?: boolean) => undefined,
+        activeEditorId: 0,
+        editors: []
     },
     getLangClient: () => (Promise.resolve({} as any)),
     applyModifications: (modifications: STModification[]) => undefined,
@@ -60,24 +69,25 @@ export const StatementEditorContext = React.createContext({
         path: "",
         size: 0
     },
-    modules: {
-        modulesToBeImported: new Set(),
-        updateModuleList: (module: string) => {}
-    },
-    documentation: null
+    documentation: null,
+    syntaxTree: null,
+    stSymbolInfo: null,
+    importStatements: [],
+    handleStmtEditorToggle: () => undefined,
+    onWizardClose: () => undefined,
+    onCancel: () => undefined,
+    experimentalEnabled: false
 });
 
 export interface CtxProviderProps extends LowCodeEditorProps {
     children?: React.ReactNode,
     model: STNode,
     currentModel: { model: STNode },
-    config?: {type: string, model?: STNode},
     changeCurrentModel?: (model: STNode) => void,
     handleChange?: (codeSnippet: string, isEditedViaInputEditor?: boolean) => void,
+    updateModel?: (codeSnippet: string, position: NodePosition) => void,
     handleModules?: (module: string) => void,
     modulesToBeImported?: Set<string>,
-    updateModel?: (codeSnippet: string, position: NodePosition) => void,
-    formArgs?: any,
     initialSource: string,
     undo?: () => void,
     redo?: () => void,
@@ -87,7 +97,17 @@ export interface CtxProviderProps extends LowCodeEditorProps {
     lsSuggestions?: SuggestionItem[],
     documentation?: SymbolInfoResponse,
     restArg?: (restCheckClicked: boolean) => void,
-    hasRestArg?: boolean
+    hasRestArg?: boolean,
+    handleStmtEditorToggle: () => void,
+    editorManager: {
+        switchEditor?: (index: number) => void,
+        updateEditor?: (index: number, newContent: EditorModel) => void,
+        dropLastEditor?: (offset?: number) => void,
+        addConfigurable?: (newLabel: string, newPosition: NodePosition, newSource: string) => void,
+        activeEditorId?: number,
+        editors?: EditorModel[]
+    },
+    targetPosition: NodePosition
 }
 
 export const StatementEditorContextProvider = (props: CtxProviderProps) => {
@@ -95,7 +115,6 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
         children,
         model,
         currentModel,
-        config,
         changeCurrentModel,
         handleChange,
         updateModel,
@@ -105,14 +124,18 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
         redo,
         hasRedo,
         hasUndo,
-        formArgs,
-        library,
         initialSource,
         diagnostics,
         lsSuggestions,
         documentation,
         restArg,
         hasRestArg,
+        editorManager,
+        targetPosition,
+        config,
+        formArgs,
+        importStatements,
+        experimentalEnabled,
         ...restProps
     } = props;
 
@@ -133,22 +156,30 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
                     restArg,
                     hasRestArg
                 },
-                formCtx: {
-                    formModelPosition: formArgs.formArgs.targetPosition
-                },
-                config,
                 statementCtx: {
                     diagnostics
                 },
                 suggestionsCtx: {
                     lsSuggestions
                 },
-                library,
                 modules: {
                     modulesToBeImported,
                     updateModuleList: handleModules
                 },
                 documentation,
+                formCtx: formArgs,
+                config,
+                editorCtx: {
+                    switchEditor: editorManager.switchEditor,
+                    updateEditor: editorManager.updateEditor,
+                    dropLastEditor: editorManager.dropLastEditor,
+                    addConfigurable: editorManager.addConfigurable,
+                    activeEditorId: editorManager.activeEditorId,
+                    editors: editorManager.editors
+                },
+                targetPosition,
+                importStatements,
+                experimentalEnabled,
                 ...restProps
             }}
         >

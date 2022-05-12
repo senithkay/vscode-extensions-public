@@ -15,8 +15,10 @@ import React, { ReactNode } from 'react';
 import {
     CompletionResponse,
     getDiagnosticMessage,
-    getFilteredDiagnostics, LinePosition,
-    STModification
+    getFilteredDiagnostics,
+    LinePosition,
+    STModification,
+    STSymbolInfo
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     Minutiae,
@@ -28,8 +30,10 @@ import {
 import { Diagnostic } from "vscode-languageserver-protocol";
 
 import * as expressionTypeComponents from '../components/ExpressionTypes';
+import { INPUT_EDITOR_PLACEHOLDERS } from "../components/InputEditor/constants";
 import * as statementTypeComponents from '../components/Statements';
 import {
+    CUSTOM_CONFIG_TYPE,
     END_OF_LINE_MINUTIAE,
     OTHER_EXPRESSION,
     OTHER_STATEMENT,
@@ -47,48 +51,23 @@ import {nextNodeSetupVisitor} from "../visitors/next-node--setup-visitor"
 import { parentSetupVisitor } from '../visitors/parent-setup-visitor';
 import { viewStateSetupVisitor as ViewStateSetupVisitor } from "../visitors/view-state-setup-visitor";
 
-import { ModelType } from "./statement-editor-viewstate";
-import { createImportStatement, createStatement, updateStatement } from "./statement-modifications";
+import { ModelType, StatementEditorViewState } from "./statement-editor-viewstate";
+import { getImportModification, getStatementModification } from "./statement-modifications";
 
-export function getModifications(
-        model: STNode,
-        config: {
-            type: string;
-            model?: STNode;
-        },
-        formArgs: any,
-        modulesToBeImported?: string[]): STModification[] {
+export function getModifications(model: STNode, configType: string, targetPosition: NodePosition,
+                                 modulesToBeImported?: string[]): STModification[] {
+
     const modifications: STModification[] = [];
+    let source = model.source;
 
-    if (STKindChecker.isLocalVarDecl(model) ||
-            STKindChecker.isCallStatement(model) ||
-            STKindChecker.isReturnStatement(model) ||
-            STKindChecker.isAssignmentStatement(model) ||
-            (config && config.type === 'Custom')) {
-        let source = model.source;
-        if (STKindChecker.isCallStatement(model) && model.source.slice(-1) !== ';') {
-            source += ';';
-        }
-        if (config.model) {
-            modifications.push(updateStatement(source, formArgs.formArgs?.model.position));
-        } else {
-            modifications.push(createStatement(source, formArgs.formArgs?.targetPosition));
-        }
+    if (configType === CUSTOM_CONFIG_TYPE && source.trim().slice(-1) !== ';') {
+        source += ';';
     }
-
-    if (STKindChecker.isWhileStatement(model) ||
-            STKindChecker.isIfElseStatement(model) ||
-            STKindChecker.isForeachStatement(model)) {
-        if (!formArgs.formArgs?.config) {
-            modifications.push(createStatement(model.source, formArgs.formArgs?.targetPosition));
-        } else {
-            modifications.push(updateStatement(model.source, config.model.position));
-        }
-    }
+    modifications.push(getStatementModification(source, targetPosition));
 
     if (modulesToBeImported) {
         modulesToBeImported.map((moduleNameStr: string) => {
-            modifications.push(createImportStatement(moduleNameStr));
+            modifications.push(getImportModification(moduleNameStr));
         });
     }
 
@@ -227,11 +206,11 @@ export function getFilteredDiagnosticMessages(statement: string, targetPosition:
 }
 
 export async function getUpdatedSource(updatedStatement: string, currentFileContent: string,
-                                       targetPosition: NodePosition, moduleList: Set<string>): Promise<string> {
+                                       targetPosition: NodePosition, moduleList?: Set<string>): Promise<string> {
 
     const statement = updatedStatement.trim().endsWith(';') ? updatedStatement : updatedStatement + ';';
     let updatedContent: string = addToTargetPosition(currentFileContent, targetPosition, statement);
-    if (!!moduleList.size) {
+    if (moduleList && !!moduleList.size) {
         updatedContent = addImportStatements(updatedContent, Array.from(moduleList) as string[]);
     }
 
@@ -384,6 +363,60 @@ export function getSelectedModelPosition(codeSnippet: string, targetedPosition: 
     }
 
     return selectedModelPosition;
+}
+
+export function getModuleElementDeclPosition(syntaxTree: STNode): NodePosition {
+    const position: NodePosition = {
+        startLine: 0,
+        startColumn: 0,
+        endLine: 0,
+        endColumn: 0,
+    };
+    if (STKindChecker.isModulePart(syntaxTree) && syntaxTree.imports.length > 0) {
+        const lastImportPosition = syntaxTree.imports[syntaxTree.imports.length - 1].position;
+        position.startLine = lastImportPosition?.endLine + 1;
+        position.endLine = lastImportPosition?.endLine + 1;
+    }
+    return position;
+}
+
+export function isNodeDeletable(selectedNode: STNode): boolean {
+    const stmtViewState: StatementEditorViewState = selectedNode.viewState as StatementEditorViewState;
+    const currentModelSource = selectedNode.source
+        ? selectedNode.source.trim()
+        : selectedNode.value ? selectedNode.value.trim() : '';
+
+    let exprDeletable = !stmtViewState.exprNotDeletable;
+    if (INPUT_EDITOR_PLACEHOLDERS.has(currentModelSource)) {
+        exprDeletable =  stmtViewState.templateExprDeletable;
+    }
+
+    return exprDeletable;
+}
+
+export function isConfigAllowedTypeDesc(typeDescNode: STNode): boolean {
+    return (
+        !STKindChecker.isAnyTypeDesc(typeDescNode)
+        && !STKindChecker.isErrorTypeDesc(typeDescNode)
+        && !STKindChecker.isFunctionTypeDesc(typeDescNode)
+        && !STKindChecker.isJsonTypeDesc(typeDescNode)
+        && !STKindChecker.isObjectTypeDesc(typeDescNode)
+        && !STKindChecker.isOptionalTypeDesc(typeDescNode)
+        && !STKindChecker.isParameterizedTypeDesc(typeDescNode)
+        && !STKindChecker.isServiceTypeDesc(typeDescNode)
+        && !STKindChecker.isStreamTypeDesc(typeDescNode)
+        && !STKindChecker.isTableTypeDesc(typeDescNode)
+        && !STKindChecker.isVarTypeDesc(typeDescNode)
+    );
+}
+
+export function getExistingConfigurable(selectedModel: STNode, stSymbolInfo: STSymbolInfo): STNode {
+    const currentModelSource = selectedModel.source ? selectedModel.source.trim() : selectedModel.value.trim();
+    const isExistingConfigurable = stSymbolInfo.configurables.has(currentModelSource);
+    if (isExistingConfigurable) {
+        return stSymbolInfo.configurables.get(currentModelSource);
+    }
+    return undefined;
 }
 
 export function getModuleIconStyle(label: string): string {

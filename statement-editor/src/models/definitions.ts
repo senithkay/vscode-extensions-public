@@ -15,6 +15,8 @@ import { ReactNode } from "react";
 
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
+import { StmtEditorUndoRedoManager } from "../utils/undo-redo";
+
 
 export interface CurrentModel {
     model: STNode
@@ -52,4 +54,16 @@ export interface StmtOffset {
 export interface MinutiaeJSX {
     leadingMinutiaeJSX: ReactNode[];
     trailingMinutiaeJSX: ReactNode[];
+}
+
+export interface EditorModel {
+    label: string;
+    model: STNode;
+    source: string;
+    position: NodePosition;
+    undoRedoManager: StmtEditorUndoRedoManager;
+    isConfigurableStmt?: boolean;
+    isExistingStmt?: boolean;
+    selectedNodePosition?: NodePosition;
+    newConfigurableName?: string;
 }
