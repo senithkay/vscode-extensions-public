@@ -10,11 +10,10 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js jsx-no-lambda
+// tslint:disable: jsx-no-multiline-js
 import React, { useContext } from "react";
 
-import { FormControl, FormControlLabel, FormGroup, Switch } from "@material-ui/core";
-import PrimarySwitchToggle from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
+import { FormControlLabel, FormGroup } from "@material-ui/core";
 
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { Diagnostics } from "../Diagnostics";
@@ -45,6 +44,7 @@ export function EditorPane(props: ModelProps) {
     } = stmtCtx;
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setDocExpand(false);
         setDocEnabled(event.target.checked);
     };
 
