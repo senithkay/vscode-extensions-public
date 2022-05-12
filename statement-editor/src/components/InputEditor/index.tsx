@@ -134,7 +134,9 @@ export function InputEditor(props: InputEditorProps) {
         setIsEditing(false);
         setPrevUserInput(userInput);
         if (userInput !== "") {
-            updateModel(userInput, model ? model.position : targetPosition);
+            // Replace empty interpolation with placeholder value
+            const codeSnippet = userInput.replaceAll('${}', "${" + EXPR_PLACEHOLDER + "}");
+            updateModel(codeSnippet, model ? model.position : targetPosition);
         }
     }
 
