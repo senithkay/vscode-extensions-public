@@ -60,6 +60,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
             currentFile,
             isMutationProgress: isMutationInProgress,
             stSymbolInfo,
+            syntaxTree,
             importStatements,
             experimentalEnabled
         },
@@ -287,7 +288,6 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
             label: formTitle,
             initialSource,
             formArgs: { formArgs },
-            validForm,
             config,
             onWizardClose,
             handleStatementEditorChange,
@@ -296,6 +296,8 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
             getLangClient: getExpressionEditorLangClient,
             applyModifications: modifyDiagram,
             library,
+            syntaxTree,
+            stSymbolInfo,
             importStatements,
             experimentalEnabled
         }
@@ -342,12 +344,8 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
             <FormControl data-testid="property-form" className={classes.wizardFormControlExtended}>
                 <FormHeaderSection
                     onCancel={onCancel}
-                    statementEditor={true}
                     formTitle={formTitle}
                     defaultMessage={"Variable"}
-                    handleStmtEditorToggle={handleStmtEditorToggle}
-                    toggleChecked={false}
-                    experimentalEnabled={experimentalEnabled}
                 />
                 <div className={classes.formContentWrapper}>
                     <div className={classes.formDeclarationWrapper}>
@@ -380,6 +378,10 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                     saveBtnText={saveVariableButtonText}
                     isMutationInProgress={isMutationInProgress}
                     validForm={validForm}
+                    statementEditor={true}
+                    toggleChecked={false}
+                    experimentalEnabled={experimentalEnabled}
+                    handleStmtEditorToggle={handleStmtEditorToggle}
                     onSave={handleSave}
                     onCancel={onCancel}
                 />

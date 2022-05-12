@@ -19,9 +19,16 @@ import {
 } from "@material-ui/core";
 
 import LibrarySearchIcon from "../../../assets/icons/LibrarySearchIcon";
+import { CONFIGURABLE_VALUE_REQUIRED_TOKEN } from "../../../constants";
 import { InputEditorContext } from "../../../store/input-editor-context";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
-import { Expression, ExpressionGroup, expressions, SELECTED_EXPRESSION } from "../../../utils/expressions";
+import {
+    Expression,
+    ExpressionGroup,
+    expressions,
+    EXPR_PLACEHOLDER,
+    SELECTED_EXPRESSION
+} from "../../../utils/expressions";
 import { KeyboardNavigationManager } from "../../../utils/keyboard-navigation-manager";
 import { useStatementEditorStyles, useStmtEditorHelperPanelStyles  } from "../../styles";
 
@@ -45,7 +52,9 @@ export function ExpressionSuggestions() {
         const currentModelSource = currentModel.model.source
             ? currentModel.model.source.trim()
             : currentModel.model.value.trim();
-        const text = expression.template.replace(SELECTED_EXPRESSION, currentModelSource);
+        const text = currentModelSource !== CONFIGURABLE_VALUE_REQUIRED_TOKEN
+            ? expression.template.replace(SELECTED_EXPRESSION, currentModelSource)
+            : expression.template.replace(SELECTED_EXPRESSION, EXPR_PLACEHOLDER);
         updateModel(text, currentModel.model.position);
         inputEditorCtx.onInputChange('');
     }

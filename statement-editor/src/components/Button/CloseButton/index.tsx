@@ -10,20 +10,22 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-export enum ModelType {
-    EXPRESSION,
-    OPERATOR,
-    BINDING_PATTERN,
-    TYPE_DESCRIPTOR,
-    QUERY_CLAUSE,
-    METHOD_CALL,
-    FIELD_ACCESS,
-    QUERY_EXPRESSION
+import React from "react";
+
+import { CloseRounded } from "@material-ui/icons";
+import { ButtonWithIcon } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
+
+interface CloseButtonProps {
+    onCancel: () => void;
 }
 
-export class StatementEditorViewState {
-    public exprNotDeletable: boolean = false;
-    public templateExprDeletable: boolean = false;
-    public isWithinBlockStatement: boolean = false;
-    public modelType: ModelType = ModelType.EXPRESSION;
+export function CloseButton(props: CloseButtonProps) {
+    const { onCancel } = props;
+    return (
+        <ButtonWithIcon
+            className="panel-close-button"
+            onClick={onCancel}
+            icon={<CloseRounded fontSize="small" />}
+        />
+    );
 }

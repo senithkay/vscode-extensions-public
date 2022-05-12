@@ -37,7 +37,6 @@ export function InputEditor(props: InputEditorProps) {
 
     const { model, classNames, notEditable } = props;
 
-    const stmtCtx = useContext(StatementEditorContext);
     const {
         modelCtx: {
             initialSource,
@@ -45,10 +44,8 @@ export function InputEditor(props: InputEditorProps) {
             updateModel,
             handleChange
         },
-        formCtx: {
-            formModelPosition: targetPosition
-        }
-    } = stmtCtx;
+        targetPosition,
+    } = useContext(StatementEditorContext);
 
     const inputEditorCtx = useContext(InputEditorContext);
 

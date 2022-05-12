@@ -17,6 +17,7 @@ import { FormControl, FormControlLabel, FormGroup, Switch } from "@material-ui/c
 import PrimarySwitchToggle from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 
 import { StatementEditorContext } from "../../store/statement-editor-context";
+import Breadcrumb from "../Breadcrumb";
 import { Diagnostics } from "../Diagnostics";
 import DocumentationSwitchToggle from "../Documentation/DocumentationToggle";
 import { InlineDocumentation } from "../Documentation/InlineDocumentation";
@@ -25,13 +26,8 @@ import { StatementRenderer } from "../StatementRenderer";
 import { useStatementEditorStyles } from "../styles";
 import Toolbar from "../Toolbar";
 
-interface ModelProps {
-    label: string
-}
-
-export function EditorPane(props: ModelProps) {
+export function EditorPane() {
     const statementEditorClasses = useStatementEditorStyles();
-    const { label } = props;
     const [docEnabled, setDocEnabled] = React.useState(false);
     const [docExpandClicked, setDocExpand] = React.useState(false);
 
@@ -58,7 +54,6 @@ export function EditorPane(props: ModelProps) {
             <div className={statementEditorClasses.stmtEditorContentWrapper}>
                 <div className={statementEditorClasses.stmtEditorInnerWrapper}>
                     <div className={statementEditorClasses.statementExpressionTitle}>
-                        {label}
                         <Toolbar />
                         <FormGroup style={{ float: 'right' }}>
                             <FormControlLabel

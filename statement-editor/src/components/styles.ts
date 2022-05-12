@@ -110,7 +110,7 @@ export const useStatementRendererStyles = makeStyles(() =>
         expressionElement: {
             position: 'relative',
             width: 'fit-content',
-            marginRight: '2px',
+            margin: '0px 2px',
             '&': {
                 width: 'fit-content',
                 borderRadius: '4px',
@@ -426,6 +426,13 @@ export const useStatementEditorStyles = makeStyles(() =>
         },
         statementExpressionWrapper: {
             height: 'auto',
+            '&.overlay': {
+                display: 'block',
+                position: 'relative',
+                backgroundColor: '#fff',
+                opacity: '0.7',
+                zIndex: -1
+            }
         },
         suggestionsSection: {
             display: 'flex',
@@ -452,22 +459,21 @@ export const useStatementEditorStyles = makeStyles(() =>
             'user-select': 'none',
             fontFamily: 'Droid sans mono'
         },
-        statementBtnWrapper: {
+        footer: {
             height: 'auto',
-            padding: "15px 15px 17px 0px",
-        },
-        bottomPane: {
             display: 'flex',
-            flexDirection: 'column',
             width: '100%',
-            height: '10%'
+            marginTop: '12px',
+            paddingRight: theme.spacing(2.5),
+            paddingLeft: theme.spacing(2.5)
         },
         buttonWrapper: {
-            height: 'auto',
             display: 'flex',
             justifyContent: 'flex-end',
-            width: '100%',
-            zIndex: 100,
+            width: '50%'
+        },
+        stmtEditorToggle: {
+            width: '50%'
         },
         separatorLine: {
             height: '1px',
@@ -484,6 +490,12 @@ export const useStatementEditorStyles = makeStyles(() =>
         },
         helpText: {
             fontStyle: "italic"
+        },
+        editorsBreadcrumb: {
+            width: '90%',
+            '& > * + *': {
+                marginTop: theme.spacing(2),
+            },
         },
         parameterCheckbox: {
             color: '#2FA86C',
@@ -560,6 +572,18 @@ export const useStatementEditorStyles = makeStyles(() =>
             backgroundColor: "#DCDEE4",
             display: 'block',
             float: 'left'
+        },
+        statementEditorHeader: {
+            minHeight: '5vh',
+            display: 'flex',
+            borderBottom: 'solid 1px #d8d8d8',
+            padding: theme.spacing(1.5),
+            ...stmtEditorPadding
+        },
+        closeButton: {
+            display: 'flex',
+            justifyContent: 'flex-end',
+            width: '10%'
         }
     }),
 );

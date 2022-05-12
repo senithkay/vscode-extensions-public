@@ -10,26 +10,21 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+// tslint:disable: jsx-no-multiline-js
 import React from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import { Box, Typography } from "@material-ui/core";
 
-import { StatementEditorButton } from "../../../buttons/StatementEditorButton";
 import { useStyles } from "../style";
 
 interface FormTitleProps {
-    statementEditor?: boolean;
-    handleStmtEditorToggle?: () => void;
-    toggleChecked?: boolean;
     formTitle: string;
     defaultMessage: string;
-    experimentalEnabled?: boolean;
 }
 
 export function FormTitle(props: FormTitleProps) {
-    const { formTitle, defaultMessage, statementEditor,
-            handleStmtEditorToggle, toggleChecked, experimentalEnabled } = props;
+    const { formTitle, defaultMessage } = props;
     const formClasses = useStyles();
     const intl = useIntl();
 
@@ -42,7 +37,6 @@ export function FormTitle(props: FormTitleProps) {
                     </Box>
                 </Typography>
             </div>
-            {experimentalEnabled && statementEditor && <StatementEditorButton handleChange={handleStmtEditorToggle} checked={toggleChecked} />}
         </div>
     );
 }

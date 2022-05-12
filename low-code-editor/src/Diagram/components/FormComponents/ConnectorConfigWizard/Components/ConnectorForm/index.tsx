@@ -497,7 +497,6 @@ export function ConnectorForm(props: FormGeneratorProps) {
         <FormControl data-testid="connector-form" className={formClasses.wizardFormControl}>
             <FormHeaderSection
                 onCancel={onClose}
-                statementEditor={false}
                 formTitle={"lowcode.develop.configForms.connector.title"}
                 defaultMessage={"Connector"}
             />

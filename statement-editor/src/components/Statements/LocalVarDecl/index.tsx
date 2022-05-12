@@ -30,14 +30,13 @@ interface LocalVarDeclProps {
 
 export function LocalVarDeclC(props: LocalVarDeclProps) {
     const { model } = props;
-    const stmtCtx = useContext(StatementEditorContext);
     const {
         modelCtx: {
             currentModel,
             changeCurrentModel
         },
         config
-    } = stmtCtx;
+    } = useContext(StatementEditorContext);
     const hasTypedBindingPatternSelected = currentModel.model &&
         isPositionsEquals(currentModel.model.position, model.typedBindingPattern.position);
 

@@ -198,7 +198,6 @@ export function TriggerForm(props: FormGeneratorProps) {
             <FormControl data-testid="trigger-form" className={formClasses.wizardFormControl}>
                 <FormHeaderSection
                     onCancel={onCancel}
-                    statementEditor={false}
                     formTitle={"lowcode.develop.triggerConfigForm.trigger.header.title"}
                     defaultMessage={`${label} Trigger`}
                 />

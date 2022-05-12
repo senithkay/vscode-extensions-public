@@ -50,6 +50,7 @@ const PrimarySwitchToggle = withStyles((theme: Theme) => ({
     color: theme.palette.grey[400]
   },
   checked: {},
+  disabled: {}
 }))(Switch) as typeof Switch;
 
 export default PrimarySwitchToggle;

@@ -33,7 +33,6 @@ interface ModuleElementProps {
 }
 
 export function ModuleElement(props: ModuleElementProps) {
-    const stmtCtx = useContext(StatementEditorContext);
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
     const { moduleProperty, key, isFunction, label } = props;
     const { id, moduleId, moduleOrgName, moduleVersion } = moduleProperty;
@@ -44,16 +43,14 @@ export function ModuleElement(props: ModuleElementProps) {
             currentModel,
             updateModel
         },
-        formCtx: {
-            formModelPosition
-        },
-        library: {
-            getLibraryData
-        },
         modules: {
             updateModuleList
+        },
+        targetPosition,
+        library: {
+            getLibraryData
         }
-    } = stmtCtx;
+    } = useContext(StatementEditorContext);
 
     const onClickOnModuleElement = async () => {
         const moduleName = moduleId.includes('.') ? moduleId.split('.').pop() : moduleId;
@@ -82,7 +79,7 @@ export function ModuleElement(props: ModuleElementProps) {
         }
         setClickedModuleElement('');
         updateModuleList(getFQModuleName(moduleOrgName, moduleId));
-        updateModel(content, currentModel.model ? currentModel.model.position : formModelPosition);
+        updateModel(content, currentModel.model ? currentModel.model.position : targetPosition);
     }
 
     const circularProgress = (

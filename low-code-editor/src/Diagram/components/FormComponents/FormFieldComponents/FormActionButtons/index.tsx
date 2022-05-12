@@ -10,27 +10,39 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+// tslint:disable: jsx-no-multiline-js
 import * as React from "react";
 
-import {GreyButton} from "../../../../../components/Buttons/GreyButton";
-import {PrimaryButtonSquare} from "../../../../../components/Buttons/PrimaryButtonSquare";
+import { StatementEditorButton } from "../../../../../../../low-code-ui-components/lib/buttons/StatementEditorButton";
+import { GreyButton } from "../../../../../components/Buttons/GreyButton";
+import { PrimaryButtonSquare } from "../../../../../components/Buttons/PrimaryButtonSquare";
 
-import {useStyles} from "./style";
+import { useStyles } from "./style";
 
 export interface FormActionButtonsProps {
     cancelBtnText?: string;
     saveBtnText?: string;
     isMutationInProgress?: boolean;
     validForm?: boolean;
-    onSave?: () => void,
-    onCancel?: () => void
+    onSave?: () => void;
+    onCancel?: () => void;
+    statementEditor?: boolean;
+    toggleChecked?: boolean;
+    experimentalEnabled?: boolean;
+    handleStmtEditorToggle?: () => void;
 }
 
 export function FormActionButtons(props: FormActionButtonsProps) {
     const classes = useStyles();
-    const {cancelBtnText, saveBtnText, isMutationInProgress, validForm, onSave, onCancel} = props;
+    const { cancelBtnText, saveBtnText, isMutationInProgress, validForm, onSave, onCancel, statementEditor,
+            handleStmtEditorToggle, toggleChecked, experimentalEnabled } = props;
     return (
         <div className={classes.formSave}>
+            <div className={classes.stmtEditorToggle}>
+                {experimentalEnabled && statementEditor && (
+                    <StatementEditorButton handleChange={handleStmtEditorToggle} checked={toggleChecked} />
+                )}
+            </div>
             <div className={classes.buttonWrapper}>
                 <div className={classes.spaceBetween}>
                     <GreyButton text={cancelBtnText} fullWidth={false} onClick={onCancel}/>
