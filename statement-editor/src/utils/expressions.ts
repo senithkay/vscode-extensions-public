@@ -378,9 +378,9 @@ const query: ExpressionGroup = {
             template: `from ${TYPE_DESC_PLACEHOLDER} item in ${EXPR_PLACEHOLDER}
 where ${EXPR_PLACEHOLDER}
 select ${EXPR_PLACEHOLDER}`,
-            example: `from var i in Ex1
-where Ex2
-select Ex3`
+            example: `from var i in numbers
+where i % 2 == 0
+select i`
         }
     ],
     relatedModelType: ModelType.EXPRESSION

@@ -58,7 +58,6 @@ export function HelperPane(props: HelperPaneProps) {
         keyboardNavigationManager.bindNewKey(client, ['ctrl+shift+s', 'command+shift+s'], setSelectedTab, TabElements.suggestions)
         keyboardNavigationManager.bindNewKey(client, ['ctrl+shift+e', 'command+shift+e'], setSelectedTab, TabElements.expressions)
         keyboardNavigationManager.bindNewKey(client, ['ctrl+shift+l', 'command+shift+l'], setSelectedTab, TabElements.libraries)
-        keyboardNavigationManager.bindNewKey(client, ['ctrl+shift+d', 'command+shift+d'], setSelectedTab, TabElements.parameters)
 
         return () => {
             keyboardNavigationManager.resetMouseTrapInstance(client);

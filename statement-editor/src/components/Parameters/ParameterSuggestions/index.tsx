@@ -90,7 +90,7 @@ export function ParameterSuggestions(){
                 </List>
             ) : (
                 <div className={statementEditorClasses.stmtEditorInnerWrapper}>
-                    <p>Please select a function to see the parameter information</p>
+                    <p>No documentation available</p>
                 </div>
             )}
         </>
