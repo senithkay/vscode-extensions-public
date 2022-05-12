@@ -11,14 +11,14 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect } from "react";
 
 import IconButton from "@material-ui/core/IconButton";
 
 import ToolbarDeleteIcon from "../../assets/icons/ToolbarDeleteIcon";
+import ToolbarDocumentationIcon from "../../assets/icons/ToolbarDocumentationIcon";
 import ToolbarRedoIcon from "../../assets/icons/ToolbarRedoIcon";
 import ToolbarUndoIcon from "../../assets/icons/ToolbarUndoIcon";
-import { CurrentModel } from "../../models/definitions";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { getRemainingContent } from "../../utils";
 import { KeyboardNavigationManager } from "../../utils/keyboard-navigation-manager";
@@ -26,10 +26,16 @@ import { StatementEditorViewState } from "../../utils/statement-editor-viewstate
 import { INPUT_EDITOR_PLACEHOLDERS } from "../InputEditor/constants";
 import { useStatementEditorToolbarStyles } from "../styles";
 
-export default function Toolbar() {
+interface ToolbarProps {
+    inlineDocumentHandler: (docBtnEnabled: boolean) => void
+}
+
+export default function Toolbar(props: ToolbarProps) {
     const statementEditorClasses = useStatementEditorToolbarStyles();
     const { modelCtx } = useContext(StatementEditorContext);
+    const { inlineDocumentHandler } = props;
     const { undo, redo, hasRedo, hasUndo, statementModel: completeModel, updateModel, currentModel } = modelCtx;
+    const [docEnabled, setDocEnabled] = React.useState(false);
 
     const keyboardNavigationManager = new KeyboardNavigationManager()
     React.useEffect(() => {
@@ -70,6 +76,14 @@ export default function Toolbar() {
         updateModel(newCode, newPosition);
     }
 
+    const onClickOnDocumentation = () => {
+        docEnabled ? setDocEnabled(false) : setDocEnabled(true);
+    }
+
+    useEffect(() => {
+        inlineDocumentHandler(docEnabled);
+    }, [docEnabled])
+
     return (
         <div className={statementEditorClasses.toolbar}>
             <div className={statementEditorClasses.toolbarSet}>
@@ -107,6 +121,16 @@ export default function Toolbar() {
                         <ToolbarDeleteIcon />
                     </IconButton>
                 )}
+            </div>
+            <div className={statementEditorClasses.toolbarSet}>
+                <IconButton
+                    onClick={onClickOnDocumentation}
+                    style={docEnabled ? ({color : '#5567d5'}) : ({color: '#40404B'})}
+                    className={statementEditorClasses.toolbarIcons}
+                >
+                    <ToolbarDocumentationIcon />
+                </IconButton>
+
             </div>
         </div>
     );

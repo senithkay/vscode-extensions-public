@@ -13,11 +13,8 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext } from "react";
 
-import { FormControlLabel, FormGroup } from "@material-ui/core";
-
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { Diagnostics } from "../Diagnostics";
-import DocumentationSwitchToggle from "../Documentation/DocumentationToggle";
 import { InlineDocumentation } from "../Documentation/InlineDocumentation";
 import { HelperPane } from "../HelperPane";
 import { StatementRenderer } from "../StatementRenderer";
@@ -43,14 +40,12 @@ export function EditorPane(props: ModelProps) {
         documentation
     } = stmtCtx;
 
-    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setDocExpand(false);
-        setDocEnabled(event.target.checked);
-    };
-
     const documentationHandler = () => {
-        setDocEnabled(false);
         setDocExpand(true);
+    }
+
+    const inlineDocumentHandler = (docBtnEnabled : boolean) => {
+        setDocEnabled(docBtnEnabled);
     }
 
     return (
@@ -59,14 +54,7 @@ export function EditorPane(props: ModelProps) {
                 <div className={statementEditorClasses.stmtEditorInnerWrapper}>
                     <div className={statementEditorClasses.statementExpressionTitle}>
                         {label}
-                        <Toolbar />
-                        <FormGroup style={{ float: 'right' }}>
-                            <FormControlLabel
-                                control={<DocumentationSwitchToggle checked={docEnabled} onChange={handleChange} />}
-                                label={"Documentation"}
-                                labelPlacement={"start"}
-                            />
-                        </FormGroup>
+                        <Toolbar inlineDocumentHandler={inlineDocumentHandler}/>
                     </div>
                     <div className={statementEditorClasses.statementExpressionContent}>
                         <StatementRenderer
@@ -74,7 +62,7 @@ export function EditorPane(props: ModelProps) {
                         />
                     </div>
                     {docEnabled && documentation &&
-                        !(documentation.documentation === undefined) && (
+                    !!documentation.documentation?.description && (
                             <InlineDocumentation documentationHandler={documentationHandler} />
                         )}
                     <Diagnostics />
