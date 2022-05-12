@@ -25,7 +25,7 @@ import {
     StmtDiagnostic,
     SuggestionItem
 } from "../../models/definitions";
-import { StatementEditorContextProvider} from "../../store/statement-editor-context";
+import { StatementEditorContextProvider } from "../../store/statement-editor-context";
 import {
     addToTargetPosition,
     enrichModel,
@@ -123,9 +123,6 @@ export function StatementEditor(props: StatementEditorProps) {
             setStmtModel(undoItem.oldModel.model, diagnostics);
 
             const newCurrentModel = getCurrentModel(undoItem.oldModel.selectedPosition, enrichModel(undoItem.oldModel.model, targetPosition));
-            /*if (STKindChecker.isFunctionCall(newCurrentModel)){
-                await updateModel(newCurrentModel.source, newCurrentModel.position);
-            }*/
             setCurrentModel({model: newCurrentModel});
             if (currentModel.model){
                 setDocumentation(await getSymbolDocumentation(fileURI, targetPosition, {model : newCurrentModel}, getLangClient));
@@ -141,6 +138,9 @@ export function StatementEditor(props: StatementEditorProps) {
             sendDidChange(fileURI, updatedContent, getLangClient).then();
             const diagnostics = await handleDiagnostics(redoItem.oldModel.model.source);
             setStmtModel(redoItem.newModel.model, diagnostics);
+
+            const newCurrentModel = getCurrentModel(redoItem.newModel.selectedPosition, enrichModel(redoItem.newModel.model, targetPosition));
+            setCurrentModel({model: newCurrentModel});
             if (currentModel.model){
                 setDocumentation(await getSymbolDocumentation(fileURI, targetPosition, currentModel, getLangClient));
             }
@@ -174,7 +174,6 @@ export function StatementEditor(props: StatementEditorProps) {
                 const currentModelViewState = currentModel.model?.viewState as StatementEditorViewState;
 
                 if (!isOperator(currentModelViewState.modelType) && !isBindingPattern(currentModelViewState.modelType)) {
-                    // const content: string = addToTargetPosition(currentFile.content, targetPosition, model.source);
                     const updatedContent = await getUpdatedSource(model.source, currentFile.content,
                         targetPosition, moduleList);
                     sendDidChange(fileURI, updatedContent, getLangClient).then();

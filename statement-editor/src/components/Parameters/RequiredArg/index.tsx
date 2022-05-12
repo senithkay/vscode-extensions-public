@@ -17,7 +17,7 @@ export function RequiredArg(props : RequiredArgProps){
 
 
     return(
-        <ListItem key={value} style={{ paddingTop: '0px', paddingBottom: '0px', flex: 'inherit' }}>
+        <ListItem key={value} style={{ padding: '0px', flex: 'inherit' }}>
             <Checkbox
                 classes={{
                     root : statementEditorClasses.disabledCheckbox,
