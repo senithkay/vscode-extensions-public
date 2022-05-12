@@ -110,7 +110,7 @@ export const useStatementRendererStyles = makeStyles(() =>
         expressionElement: {
             position: 'relative',
             width: 'fit-content',
-            marginRight: '2px',
+            margin: '0px 2px',
             '&': {
                 width: 'fit-content',
                 borderRadius: '4px',
