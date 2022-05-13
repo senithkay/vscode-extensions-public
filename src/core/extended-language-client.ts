@@ -159,7 +159,7 @@ export interface NoteBookCellOutputRequest {
 export interface NoteBookCellOutputValue {
     value: string;
     mimeType: string;
-    type: string;
+    type: number;
 }
 
 export interface NotebookCellMetaInfo {
