@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 Inc. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -14,6 +14,7 @@ import React, { useState } from "react";
 
 import { Box, FormControl, Typography } from "@material-ui/core";
 import { FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
+import { FormEditor } from "@wso2-enterprise/ballerina-statement-editor";
 import { NodePosition, ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
 
 import { ServiceIcon } from "../../../../../assets/icons";
@@ -41,7 +42,15 @@ export enum ServiceTypes {
 export function ServiceConfigForm(props: ServiceConfigFormProps) {
     const formClasses = useFormStyles();
     const { model, targetPosition, onSave, onCancel, formType, isLastMember } = props;
-    const { props: { stSymbolInfo } } = useDiagramContext();
+
+    const {
+        props: { syntaxTree, currentFile, experimentalEnabled, importStatements, stSymbolInfo },
+        api: {
+            ls: { getExpressionEditorLangClient },
+            code: { modifyDiagram },
+            library
+        },
+    } = useDiagramContext();
     const [serviceType, setServiceType] = useState<string>(getServiceTypeFromModel(model, stSymbolInfo));
 
     let configForm = <div />;
@@ -55,15 +64,19 @@ export function ServiceConfigForm(props: ServiceConfigFormProps) {
     }
 
     return (
-        <FormControl data-testid="service-config-form" className={formClasses.wizardFormControl}>
-            <FormHeaderSection
+        <>
+            <FormEditor
+                initialSource={model ? model.source : undefined}
+                initialModel={model}
+                targetPosition={targetPosition}
                 onCancel={onCancel}
-                formTitle={"lowcode.develop.configForms.ServiceConfigForm.title"}
-                defaultMessage={"Service"}
-                formType={formType}
+                type={"Service"}
+                currentFile={currentFile}
+                getLangClient={getExpressionEditorLangClient}
+                library={library}
+                applyModifications={modifyDiagram}
+                topLevelComponent={true}// todo: Remove this
             />
-            {!serviceType && <ServiceTypeSelector onSelect={setServiceType} />}
-            {serviceType && configForm}
-        </FormControl>
+        </>
     )
 }
