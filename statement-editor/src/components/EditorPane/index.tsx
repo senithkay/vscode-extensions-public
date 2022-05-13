@@ -26,6 +26,7 @@ export function EditorPane() {
     const statementEditorClasses = useStatementEditorStyles();
     const [docEnabled, setDocEnabled] = React.useState(false);
     const [docExpandClicked, setDocExpand] = React.useState(false);
+    const [isParameterTabEnabled, setParameterTabEnabled] = React.useState(false);
 
     const stmtCtx = useContext(StatementEditorContext);
 
@@ -37,11 +38,16 @@ export function EditorPane() {
     } = stmtCtx;
 
     const documentationHandler = () => {
-        setDocExpand(true);
+        // tslint:disable-next-line:no-shadowed-variable
+        setDocExpand((docExpandClicked) => !docExpandClicked);
     }
 
-    const inlineDocumentHandler = (docBtnEnabled : boolean) => {
+    const inlineDocumentHandler = (docBtnEnabled: boolean) => {
         setDocEnabled(docBtnEnabled);
+    }
+
+    const paramTabHandler = (isEnabled: boolean) => {
+        setParameterTabEnabled(isEnabled);
     }
 
     return (
@@ -56,15 +62,15 @@ export function EditorPane() {
                             model={statementModel}
                         />
                     </div>
-                    {docEnabled && documentation &&
-                    !!documentation.documentation?.description && (
-                            <InlineDocumentation documentationHandler={documentationHandler} />
-                        )}
-                    <Diagnostics />
+                    {docEnabled && !isParameterTabEnabled &&
+                    documentation && !!documentation.documentation?.description && (
+                        <InlineDocumentation documentationHandler={documentationHandler}/>
+                    )}
+                    <Diagnostics/>
                 </div>
             </div>
             <div className={statementEditorClasses.suggestionsSection}>
-                <HelperPane docExpandClicked={docExpandClicked} />
+                <HelperPane docExpandClicked={docExpandClicked} paramTabHandler={paramTabHandler}/>
             </div>
         </>
     );
