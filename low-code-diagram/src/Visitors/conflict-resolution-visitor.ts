@@ -211,8 +211,7 @@ export class ConflictResolutionVisitor implements Visitor {
             if (((boxStartHeight >= restrictedSpaceCoords.y1 && boxStartHeight <= restrictedSpaceCoords.y2)
                 || (boxEndHeight >= restrictedSpaceCoords.y1 && boxEndHeight <= restrictedSpaceCoords.y2))
                 && ((this.workerNames.length - 1 > restrictedSpaceCoords.x1
-                    && this.workerNames.length - 1 < restrictedSpaceCoords.x2)
-                    || (this.workerNames.length - 1 === restrictedSpaceCoords.x1 && this.evaluatingIf))) {
+                    && this.workerNames.length - 1 < restrictedSpaceCoords.x2))) {
                 this.hasConflict = true;
                 updatedAsConflict = true;
                 const newOffset = (restrictedSpaceCoords.y2 - boxStartHeight) + DefaultConfig.offSet * 2;
