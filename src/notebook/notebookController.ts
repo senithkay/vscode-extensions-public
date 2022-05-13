@@ -270,6 +270,11 @@ class MetoInfoHandler {
         for (const cellInfo of this.cellInfoList) {
             if (cellInfo.cell.document.uri === cell.document.uri) {
                 found = true;
+                // TODO: handle on changes of meta info
+                // Example: if the new meta info includes only part of previous meta info
+                // then those missing meta info must be deleted from invoker memory if they are
+                // not defined in another cell
+                // this approach should fix splitting of cells but it requires the execution of cells
                 cellInfo.definedVars = metaInfo.definedVars;
                 cellInfo.moduleDclns = metaInfo.moduleDclns;
             }
