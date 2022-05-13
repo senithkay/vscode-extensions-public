@@ -245,6 +245,11 @@
                 "category": "Ballerina"
             },
             {
+                "command": "ballerina.project.pack",
+                "title": "Pack",
+                "category": "Ballerina"
+            },
+            {
                 "command": "ballerina.create.cloud",
                 "title": "Create Cloud.toml",
                 "category": "Ballerina"

@@ -24,6 +24,7 @@ import { activateRunCommand } from "./cmds/run";
 import { activateDocCommand } from "./cmds/doc";
 import { activateAddCommand } from "./cmds/add";
 import { activatePasteJsonAsRecord } from "./cmds/json-to-record";
+import { activatePackCommand } from "./cmds/pack";
 
 export * from "./cmds/cmd-runner";
 
@@ -33,6 +34,9 @@ export function activate() {
 
     // activate ballerina build command
     activateBuildCommand();
+
+    // activate ballerina pack command
+    activatePackCommand();
 
     // activate ballerina run command
     activateRunCommand();
