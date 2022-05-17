@@ -183,12 +183,15 @@ export function ParameterList(props: ParameterListProps) {
         if (currentIndex === -1) {
             if (STKindChecker.isFunctionCall(currentModel.model)) {
                 newChecked.push(value);
-                let funcParams: string = "";
-                currentModel.model.arguments.forEach((parameter: any) => {
-                    funcParams = funcParams + (parameter.isToken ? parameter.value : parameter.source);
+
+                const functionParameters: string[] = [];
+                currentModel.model.arguments.filter((parameter: any) => !STKindChecker.isCommaToken(parameter)).
+                map((parameter: STNode) => {
+                    functionParameters.push(parameter.source);
                 });
-                funcParams = funcParams + ", " + `${userInput} = ${EXPR_CONSTRUCTOR}`;
-                const content: string = currentModel.model.functionName.source + "(" + funcParams + ")";
+
+                functionParameters.push(`${userInput} = ${EXPR_CONSTRUCTOR}`);
+                const content: string = currentModel.model.functionName.source + "(" + functionParameters.join(",") + ")";
                 updateModel(content, currentModel.model.position);
                 setCheckedList(newChecked);
                 setPlusButtonClicked(false);
