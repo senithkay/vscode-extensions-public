@@ -75,7 +75,7 @@ export function HTTPWizard(props: WizardProps) {
         },
         props: {
             stSymbolInfo,
-            envInstance
+            environment
         }
     } = useContext(Context);
 
@@ -264,7 +264,7 @@ export function HTTPWizard(props: WizardProps) {
         if (connector?.package) {
             const { organization, name } = connector?.package;
             if (organization && name) {
-                const docURL = generateDocUrl(organization, name, "", connector?.name, envInstance);
+                const docURL = generateDocUrl(organization, name, "", connector?.name, environment);
                 if (docURL) {
                     showDocumentationView(docURL);
                 }

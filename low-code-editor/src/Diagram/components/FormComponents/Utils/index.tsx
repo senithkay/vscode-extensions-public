@@ -84,13 +84,13 @@ const BALLERINA_CENTRAL_DEV = 'https://dev-lib.ballerina.io';
 
 
 export function generateDocUrl(org: string, module: string, method: string, clientName: string, env: string) {
-    const envInstance = env === "dev" ? BALLERINA_CENTRAL_DEV : env === "stage" ? BALLERINA_CENTRAL_STAGE : BALLERINA_CENTRAL_ROOT;
+    const environment = env === "dev" ? BALLERINA_CENTRAL_DEV : env === "stage" ? BALLERINA_CENTRAL_STAGE : BALLERINA_CENTRAL_ROOT;
 
     // tslint:disable-next-line: no-console
-    return method ? clientName ? `${envInstance}/${org}/${module}/latest/clients/${clientName}#${method}` :
-        `${envInstance}/${org}/${module}/latest/clients/Client#${method}` : clientName ?
-        `${envInstance}/${org}/${module}/latest/clients/${clientName}` :
-        `${envInstance}/${org}/${module}/latest/clients/Client`;
+    return method ? clientName ? `${environment}/${org}/${module}/latest/clients/${clientName}#${method}` :
+        `${environment}/${org}/${module}/latest/clients/Client#${method}` : clientName ?
+        `${environment}/${org}/${module}/latest/clients/${clientName}` :
+        `${environment}/${org}/${module}/latest/clients/Client`;
 }
 
 export function updateFunctionSignatureWithError(modifications: STModification[], activeFunction: FunctionDefinition) {

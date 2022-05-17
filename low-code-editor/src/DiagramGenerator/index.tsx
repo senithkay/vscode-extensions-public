@@ -257,7 +257,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                             isReadOnly={false}
                             syntaxTree={syntaxTree}
                             zoomStatus={zoomStatus}
-                            envInstance={lowCodeEnvInstance}
+                            environment={lowCodeEnvInstance}
                             stSymbolInfo={getSymbolInfo()}
                             // tslint:disable-next-line: jsx-no-multiline-js
                             currentFile={{
