@@ -101,20 +101,16 @@ export function ParameterList(props: ParameterListProps) {
     };
 
     const isAllowedIncludedArgsAdded = (): boolean => {
-        const listIncludedParams: number[] = [];
-        let isIncluded: boolean = false;
-        parameters?.map((docParam: ParameterInfo, value: number) => {
-            if (docParam.kind === SymbolParameterType.INCLUDED_RECORD) {
-                listIncludedParams.push(value);
-            }
-        });
-        listIncludedParams.some((value => {
-                isIncluded = checkedList.includes(value);
-                if (!isIncluded) {
-                    return false;
+        let isIncluded: boolean = true;
+        for (let i = 0; i < parameters.length; i++){
+            const docParam : ParameterInfo = parameters[i];
+            if (docParam.kind === SymbolParameterType.INCLUDED_RECORD){
+                if (!checkedList.includes(i)){
+                    isIncluded = false;
+                    break;
                 }
             }
-        ))
+        }
         return isIncluded;
     }
 

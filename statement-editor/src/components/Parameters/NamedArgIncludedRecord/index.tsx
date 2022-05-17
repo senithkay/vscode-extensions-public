@@ -42,7 +42,7 @@ export function NamedArgIncludedRecord(props: NamedArgIncludedRecordProps){
     return (
         <>
             {isNewRecord && (
-                <ListItem>
+                <ListItem style={{ padding: '0px' }}>
                     <Checkbox
                         classes={{
                             root : statementEditorClasses.disabledCheckbox,

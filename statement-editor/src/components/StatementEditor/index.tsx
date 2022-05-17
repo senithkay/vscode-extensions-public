@@ -48,7 +48,7 @@ import {
     sendDidChange
 } from "../../utils/ls-utils";
 import { StatementEditorViewState } from "../../utils/statement-editor-viewstate";
-import { StmtActionStackItem } from "../../utils/undo-redo";
+import { StackElement } from "../../utils/undo-redo";
 import { EXPR_SCHEME, FILE_SCHEME } from "../InputEditor/constants";
 import { FormHandlingProps as StmtEditorWrapperProps} from "../StatementEditorWrapper";
 import { ViewContainer } from "../ViewContainer";
@@ -245,17 +245,15 @@ export function StatementEditor(props: StatementEditorProps) {
         if (!partialST.syntaxDiagnostics.length || config.type === CUSTOM_CONFIG_TYPE) {
             setStmtModel(partialST, diagnostics);
             const selectedPosition = getSelectedModelPosition(codeSnippet, position);
-            const undoModel : StmtActionStackItem = {
-                oldModel: {
-                    model,
-                    selectedPosition : currentModel.model.position
-                },
-                newModel: {
-                    model: partialST,
-                    selectedPosition
-                }
+            const oldModel : StackElement = {
+                model,
+                selectedPosition : currentModel.model.position
             }
-            undoRedoManager.add(undoModel.oldModel, undoModel.newModel);
+            const newModel : StackElement = {
+                model: partialST,
+                selectedPosition
+            }
+            undoRedoManager.add(oldModel, newModel);
 
             const newCurrentModel = getCurrentModel(selectedPosition, enrichModel(partialST, targetPosition));
             setCurrentModel({model: newCurrentModel});
