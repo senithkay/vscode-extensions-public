@@ -115,11 +115,13 @@ export class SizingVisitor implements Visitor {
     private currentWorker: string[];
     private senderReceiverInfo: Map<string, { sends: AsyncSendInfo[], receives: AsyncReceiveInfo[], waits: WaitInfo[] }>;
     private workerMap: Map<string, NamedWorkerDeclaration>;
+    private experimentalEnabled: boolean;
 
-    constructor() {
+    constructor(experimentalEnabled: boolean = false) {
         this.currentWorker = [];
         this.senderReceiverInfo = new Map();
         this.workerMap = new Map();
+        this.experimentalEnabled = experimentalEnabled;
     }
 
     public endVisitSTNode(node: STNode, parent?: STNode) {
@@ -411,12 +413,16 @@ export class SizingVisitor implements Visitor {
         }
 
         const matchedStatements = this.syncAsyncStatements(node);
-        const resolutionVisitor = new ConflictResolutionVisitor(matchedStatements, this.workerMap.size + 1);
 
-        do {
-            resolutionVisitor.resetConflictStatus();
-            traversNode(node, resolutionVisitor);
-        } while (resolutionVisitor.conflictFound())
+        if (this.experimentalEnabled) {
+            const resolutionVisitor = new ConflictResolutionVisitor(matchedStatements, this.workerMap.size + 1);
+
+            do {
+                console.log('>>> worker stuff');
+                resolutionVisitor.resetConflictStatus();
+                traversNode(node, resolutionVisitor);
+            } while (resolutionVisitor.conflictFound())
+        }
 
         if (bodyViewState.hasWorkerDecl) {
             let maxWorkerHeight = 0;

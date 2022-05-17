@@ -73,8 +73,13 @@ export class ConflictResolutionVisitor implements Visitor {
 
     private visitBlockStatement(node: BlockStatement, parent?: STNode, height: number = 0) {
         const blockViewState: BlockViewState = node.viewState as BlockViewState;
+
         node.statements.forEach((statementNode, statementIndex) => {
             const statementViewState: StatementViewState = statementNode.viewState as StatementViewState;
+
+            if (blockViewState.draft && blockViewState.draft[0] === statementIndex) {
+                height += blockViewState.draft[1].getHeight();
+            }
             if (STKindChecker.isIfElseStatement(statementNode)) {
                 const ifViewState: IfViewState = statementNode.viewState as IfViewState;
                 const ifStatementStartHeight = height + ifViewState.bBox.offsetFromTop + IFELSE_SVG_HEIGHT
@@ -141,6 +146,10 @@ export class ConflictResolutionVisitor implements Visitor {
                 }
             }
 
+            if (blockViewState.draft && blockViewState.draft[0] === node.statements.length) {
+                height += blockViewState.draft[1].getHeight();
+            }
+
             if (statementViewState.isEndpoint || statementViewState.isAction) {
                 this.endPointPositions.push({
                     x1: this.workerNames.length - 1,
@@ -202,7 +211,7 @@ export class ConflictResolutionVisitor implements Visitor {
     }
 
     private fixIfConflictsWithMessage(boxStartHeight: number, boxEndHeight: number, viewState: StatementViewState,
-                                      statementIndex: number): boolean {
+        statementIndex: number): boolean {
         let updatedAsConflict: boolean = false;
 
         this.matchedPairInfo.forEach(matchedPair => {
@@ -250,7 +259,7 @@ export class ConflictResolutionVisitor implements Visitor {
     }
 
     private fixIfConflictWithEndPoint(boxStartHeight: number, boxEndHeight: number, viewState: StatementViewState,
-                                      statementIndex: number): boolean {
+        statementIndex: number): boolean {
         let updatedAsConflict = false;
         this.endPointPositions.forEach(position => {
             if (((boxStartHeight >= position.y1 && boxStartHeight <= position.y2)
