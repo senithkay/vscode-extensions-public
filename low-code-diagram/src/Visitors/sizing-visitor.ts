@@ -418,7 +418,6 @@ export class SizingVisitor implements Visitor {
             const resolutionVisitor = new ConflictResolutionVisitor(matchedStatements, this.workerMap.size + 1);
 
             do {
-                console.log('>>> worker stuff');
                 resolutionVisitor.resetConflictStatus();
                 traversNode(node, resolutionVisitor);
             } while (resolutionVisitor.conflictFound())
