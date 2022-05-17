@@ -79,7 +79,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     const [loaderText, setLoaderText] = React.useState<string>('Loading...');
     const [performanceData, setPerformanceData] = React.useState(undefined);
     const [lowCodeResourcesVersion, setLowCodeResourcesVersion] = React.useState(undefined);
-
+    const [lowCodeEnvInstance, setLowCodeEnvInstance] = React.useState("");
     const initSelectedPosition = startColumn === 0 && startLine === 0 && syntaxTree ? // TODO: change to use undefined for unselection
         getDefaultSelectedPosition(syntaxTree)
         : { startLine, startColumn }
@@ -104,7 +104,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                 undoRedo.updateContent(filePath, content);
                 setFileContent(content);
                 setLowCodeResourcesVersion(await getEnv("BALLERINA_LOW_CODE_RESOURCES_VERSION"));
-
+                setLowCodeEnvInstance(await getEnv("VSCODE_CHOREO_SENTRY_ENV"));
                 // Add performance data
                 await addPerfData(vistedSyntaxTree);
 
@@ -257,6 +257,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                             isReadOnly={false}
                             syntaxTree={syntaxTree}
                             zoomStatus={zoomStatus}
+                            envInstance={lowCodeEnvInstance}
                             stSymbolInfo={getSymbolInfo()}
                             // tslint:disable-next-line: jsx-no-multiline-js
                             currentFile={{

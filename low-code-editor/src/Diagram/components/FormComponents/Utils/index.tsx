@@ -79,12 +79,18 @@ export function isAllFieldsValid(allFieldChecks: Map<string, FormFieldChecks>, m
 }
 
 const BALLERINA_CENTRAL_ROOT = 'https://lib.ballerina.io';
+const BALLERINA_CENTRAL_STAGE = 'https://staging-lib.ballerina.io';
+const BALLERINA_CENTRAL_DEV = 'https://dev-lib.ballerina.io';
 
-export function generateDocUrl(org: string, module: string, method: string, clientName: string) {
-    return method ? clientName ? `${BALLERINA_CENTRAL_ROOT}/${org}/${module}/latest/clients/${clientName}#${method}` :
-            `${BALLERINA_CENTRAL_ROOT}/${org}/${module}/latest/clients/Client#${method}` : clientName ?
-            `${BALLERINA_CENTRAL_ROOT}/${org}/${module}/latest/clients/${clientName}` :
-            `${BALLERINA_CENTRAL_ROOT}/${org}/${module}/latest/clients/Client`;
+
+export function generateDocUrl(org: string, module: string, method: string, clientName: string, env: string) {
+    const envInstance = env === "dev" ? BALLERINA_CENTRAL_DEV : env === "stage" ? BALLERINA_CENTRAL_STAGE : BALLERINA_CENTRAL_ROOT;
+
+    // tslint:disable-next-line: no-console
+    return method ? clientName ? `${envInstance}/${org}/${module}/latest/clients/${clientName}#${method}` :
+        `${envInstance}/${org}/${module}/latest/clients/Client#${method}` : clientName ?
+        `${envInstance}/${org}/${module}/latest/clients/${clientName}` :
+        `${envInstance}/${org}/${module}/latest/clients/Client`;
 }
 
 export function updateFunctionSignatureWithError(modifications: STModification[], activeFunction: FunctionDefinition) {

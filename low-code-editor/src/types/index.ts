@@ -142,6 +142,7 @@ export interface LowCodeEditorProperties {
     importStatements: string[];
     experimentalEnabled?: boolean;
     lowCodeResourcesVersion?: string;
+    envInstance?: string;
 }
 
 export interface SelectedPosition {

@@ -61,7 +61,7 @@ export interface OperationFormProps {
 }
 
 export function OperationForm(props: OperationFormProps) {
-    const { props: { stSymbolInfo }, api: { webView: { showDocumentationView } } } = useContext(Context);
+    const { props: { stSymbolInfo, envInstance }, api: { webView: { showDocumentationView } } } = useContext(Context);
     const symbolInfo: STSymbolInfo = stSymbolInfo;
     const { selectedOperation, showConnectionName, onSave, connectionDetails, onConnectionChange,
             mutationInProgress, isNewConnectorInitWizard, functionDefInfo, expressionInjectables, targetPosition, connectorInfo } = props;
@@ -100,7 +100,7 @@ export function OperationForm(props: OperationFormProps) {
                 if (connectorInfo?.package) {
                     const { organization, name } = connectorInfo?.package;
                     if (organization && name) {
-                        setDocUrl(generateDocUrl(organization, name, operation, connectorInfo?.name));
+                        setDocUrl(generateDocUrl(organization, name, operation, connectorInfo?.name, envInstance));
                         setToolTipInfo(functionDefInfo.get(operation).documentation);
                     }
                 }

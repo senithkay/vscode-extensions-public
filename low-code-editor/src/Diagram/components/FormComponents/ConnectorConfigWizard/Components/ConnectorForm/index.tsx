@@ -128,7 +128,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
     } = props.configOverlayFormStatus.formArgs as ConnectorConfigWizardProps;
 
     const {
-        props: { syntaxTree },
+        props: { syntaxTree, envInstance },
     } = useDiagramContext();
     const {
         connector,
@@ -372,7 +372,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
         if (connectorInfo?.package) {
             const { organization, name } = connectorInfo?.package;
             if (organization && name) {
-                const docURL = generateDocUrl(organization, name, "", connectorInfo?.name);
+                const docURL = generateDocUrl(organization, name, "", connectorInfo?.name, envInstance);
                 if (docURL) {
                     showDocumentationView(docURL);
                 }
