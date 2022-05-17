@@ -18,8 +18,9 @@
  */
 
 import { CompletionItemKind as MonacoCompletionItemKind } from "monaco-languageclient";
-import { CompletionItemKind as VSCodeCompletionItemKind } from "vscode";
+import { CompletionItemKind as VSCodeCompletionItemKind, Uri, workspace } from "vscode";
 import { CompletionResponse } from "@wso2-enterprise/ballerina-low-code-editor";
+import { TextEncoder } from "util";
 
 export function getPlainTextSnippet(snippet: string) {
     return snippet.replace(/\${\d+(:\S+)*}/g, "");
@@ -36,4 +37,9 @@ export function filterCompletions(completions: CompletionResponse[]): Completion
         "__java_memorize(handle context_id, handle name, any|error value)", "__stmts()", 
     ];
     return completions.filter(item => !labelsUsedInShell.includes(item.label));
+}
+
+export async function createFile(uri: Uri, content: string){
+    await workspace.fs.writeFile(uri, new TextEncoder().encode(content));
+    return;
 }

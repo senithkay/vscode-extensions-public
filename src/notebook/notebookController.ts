@@ -21,7 +21,7 @@ import { spawn } from 'child_process';
 import { NotebookCell, NotebookCellOutput, NotebookCellOutputItem, NotebookController, 
     NotebookDocument, notebooks } from 'vscode';
 import { BallerinaExtension, ExtendedLangClient, NotebookCellMetaInfo, NoteBookCellOutputResponse } from '../core';
-import { CUSTOM_DESIGNED_MIME_TYPES } from './constants';
+import { CUSTOM_DESIGNED_MIME_TYPES, NOTEBOOK_TYPE } from './constants';
 import { VariableViewProvider } from './variableView';
 import { isWindows } from '../utils';
 
@@ -30,7 +30,7 @@ import { isWindows } from '../utils';
  */
 export class BallerinaNotebookController {
     readonly controllerId = 'ballerina-notebook-controller-id';
-    readonly notebookType = 'ballerina-notebook';
+    readonly notebookType = NOTEBOOK_TYPE;
     readonly label = 'Ballerina Notebook';
     readonly supportedLanguages = ['ballerina'];
 

@@ -17,13 +17,18 @@
  *
  */
 
-import { workspace, ExtensionContext, commands, Disposable, window } from 'vscode';
+import { workspace, ExtensionContext, commands, Disposable, window, Uri } from 'vscode';
+import * as fs from 'fs';
+import { sep } from 'path';
 import { BallerinaExtension, ExtendedLangClient } from '../core';
+import { outputChannel } from '../utils';
 import { BallerinaNotebookSerializer } from "./notebookSerializer";
 import { BallerinaNotebookController } from "./notebookController";
 import { registerLanguageProviders } from './languageProvider';
 import { VariableViewProvider } from './variableView';
-import { OPEN_OUTLINE_VIEW_COMMAND, OPEN_VARIABLE_VIEW_COMMAND, RESTART_NOTEBOOK_COMMAND, UPDATE_VARIABLE_VIEW_COMMAND } from './constants';
+import { BAL_NOTEBOOK, CREATE_NOTEBOOK_COMMAND, NOTEBOOK_TYPE, OPEN_OUTLINE_VIEW_COMMAND, OPEN_VARIABLE_VIEW_COMMAND, 
+    RESTART_NOTEBOOK_COMMAND, UPDATE_VARIABLE_VIEW_COMMAND } from './constants';
+import { createFile } from './utils';
 
 export function activate(ballerinaExtInstance: BallerinaExtension) {
     const context = <ExtensionContext>ballerinaExtInstance.context;
@@ -31,10 +36,11 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
     const notebookController = new BallerinaNotebookController(ballerinaExtInstance, variableViewProvider);
 
     context.subscriptions.push(
-        workspace.registerNotebookSerializer('ballerina-notebook', new BallerinaNotebookSerializer())
+        workspace.registerNotebookSerializer(NOTEBOOK_TYPE, new BallerinaNotebookSerializer())
     );
     context.subscriptions.push(notebookController);
     context.subscriptions.push(registerLanguageProviders(ballerinaExtInstance));
+    context.subscriptions.push(registerCreateNotebook());
     context.subscriptions.push(registerFocusToOutline());
     context.subscriptions.push(registerVariableView(ballerinaExtInstance));
     context.subscriptions.push(registerRefreshVariableView(notebookController));
@@ -73,5 +79,30 @@ function registerRestartNotebook(ballerinaExtInstance: BallerinaExtension,
         await langClient.restartNotebook();
         notebookController.resetController();
         await commands.executeCommand('notebook.clearAllCellsOutputs');
+    });
+}
+
+function registerCreateNotebook(): Disposable {
+    return commands.registerCommand(CREATE_NOTEBOOK_COMMAND, async () => {
+        try {
+            let notebookName = await window.showInputBox({ placeHolder: "new_notebook"});
+            if (notebookName && notebookName.trim().length > 0) {
+                let newNotebookFile = notebookName.endsWith(BAL_NOTEBOOK) ? notebookName : `${notebookName}${BAL_NOTEBOOK}`;
+                let uri: Uri = Uri.parse(`file:${workspace.workspaceFolders![0].uri!.fsPath}${sep}${newNotebookFile}`);
+                if (!fs.existsSync(uri.fsPath)) {
+                    await createFile(uri, "");
+                    outputChannel.appendLine(`${newNotebookFile} created in workspace`);
+                } else {
+                    const message = `${newNotebookFile} already exists in the workspace.`;
+                    window.showErrorMessage(message);
+                }
+            } 
+        } catch (error) {
+            if (error instanceof Error) {
+                window.showErrorMessage(error.message);
+            } else {
+                window.showErrorMessage("Unkown error occurred.");
+            }
+        }
     });
 }
