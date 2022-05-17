@@ -183,9 +183,9 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             justifyContent: 'flex-end'
         },
         suggestionsInner: {
-            overflowY: 'scroll',
+            overflowY: 'hidden',
             height: '100%',
-            width: '102%'
+            width: '100%'
         },
         selectDropDownSe: {
             height: '32px',
@@ -263,10 +263,8 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             }
         },
         lsSuggestionList: {
-            top: '5%',
-            height: '95%',
+            height: '98%',
             overflowY: 'scroll',
-            overflowX: 'hidden',
             "& .MuiList-padding": {
                 ...removePadding
             }
@@ -299,8 +297,10 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             textOverflow: 'ellipsis'
         },
         expressionSuggestionList: {
-            overflowX: 'hidden',
-            width: '100%'
+            width: '100%',
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'column'
         },
         librarySearchBox: {
             position: 'relative',
@@ -319,7 +319,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             color: '#1D2028',
             marginBottom: '4px',
             fontWeight: 500,
-            ...stmtEditorPadding
+            paddingLeft: '10px'
         },
         expressionList: {
             columnGap: '5%',
@@ -346,7 +346,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             alignItems: 'center',
         },
         libraryBrowser: {
-            overflowX: 'hidden',
+            height: '100%',
             "& .MuiListItem-root": {
                 padding: '6px 10px'
             },
@@ -384,7 +384,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             marginLeft: '8.25px'
         },
         libraryListBlock: {
-            paddingBottom: '8px',
+            paddingBottom: '50px',
             columnGap: '5%',
             display: 'grid',
             gridTemplateColumns: '28% 28% 28%',
@@ -394,7 +394,6 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             top: '10%',
             height: '80%',
             overflowY: 'scroll',
-            overflowX: 'hidden',
             columnGap: '6%',
             display: 'grid',
             gridTemplateColumns: '29% 29% 29%'
@@ -426,21 +425,24 @@ export const useStatementEditorStyles = makeStyles(() =>
             ...stmtEditorPadding
         },
         statementExpressionWrapper: {
-            height: 'auto',
+            height: 'calc(100vh - 110px)',
             '&.overlay': {
                 display: 'block',
                 position: 'relative',
                 backgroundColor: '#fff',
                 opacity: '0.7',
                 zIndex: -1
-            }
+            },
+            overflowY: 'hidden',
+            display: 'flex',
+            flexDirection: 'column'
         },
         suggestionsSection: {
             display: 'flex',
             flexDirection: 'column',
             borderBottom: '1px solid #e6e7ec',
-            minHeight: '50vh',
-            height: '75vh'
+            overflowX: 'hidden',
+            height: 'inherit'
         },
         stmtEditorContentWrapper: {
             backgroundColor: '#f9fafc',
@@ -464,9 +466,8 @@ export const useStatementEditorStyles = makeStyles(() =>
             height: 'auto',
             display: 'flex',
             width: '100%',
-            marginTop: '12px',
-            paddingRight: theme.spacing(2.5),
-            paddingLeft: theme.spacing(2.5)
+            padding: '10px 20px',
+            borderTop: '1px solid #e6e7ec'
         },
         buttonWrapper: {
             display: 'flex',
@@ -487,7 +488,8 @@ export const useStatementEditorStyles = makeStyles(() =>
             paddingRight: '25px',
             fontSize: '13px',
             fontFamily: 'Gilmer',
-            overflowY: 'hidden'
+            height: 'inherit',
+            overflowY: 'scroll',
         },
         helpText: {
             fontStyle: "italic"
