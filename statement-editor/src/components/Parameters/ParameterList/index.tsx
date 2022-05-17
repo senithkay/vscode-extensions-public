@@ -1,4 +1,16 @@
-import React, { useContext, useEffect } from "react";
+/*
+ * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 Inc. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein is strictly forbidden, unless permitted by WSO2 in accordance with
+ * the WSO2 Commercial License available at http://wso2.com/licenses.
+ * For specific language governing the permissions and limitations under
+ * this license, please see the license as well as any agreement you’ve
+ * entered into with WSO2 governing the purchase of this software and any
+ * associated services.
+ */
+import React, { useContext } from "react";
 
 import { Checkbox, IconButton, ListItem, ListItemText, ListSubheader, Typography } from "@material-ui/core";
 import { AddCircleOutline } from "@material-ui/icons";
@@ -24,7 +36,6 @@ export function ParameterList(props: ParameterListProps) {
     const {
         modelCtx: {
             currentModel,
-            statementModel,
             updateModel,
             restArg
         },
@@ -32,7 +43,6 @@ export function ParameterList(props: ParameterListProps) {
     } = useContext(StatementEditorContext);
     let includedRecordHeader: boolean = false;
     let isNewRecordBtnClicked : boolean = false;
-    const stmodel = statementModel;
     const [plusButtonClick, setPlusButtonClicked] = React.useState(false);
 
     const handleCheckboxClick = (value: number, param?: ParameterInfo) => () => {
@@ -139,9 +149,10 @@ export function ParameterList(props: ParameterListProps) {
                 });
             }
         }
+        const argument = checkedList.indexOf(value);
         return (
             <>
-                {checkedList.indexOf(value) !== -1 && (
+                {argument !== -1 && (
                     <ListItem style={{ padding: '0px' }}>
                         <Checkbox
                             classes={{
@@ -149,12 +160,13 @@ export function ParameterList(props: ParameterListProps) {
                                 checked : statementEditorClasses.checked
                             }}
                             style={{ flex: 'inherit' }}
-                            checked={checkedList.indexOf(value) !== -1}
+                            checked={argument !== -1}
                             onClick={handleCheckboxClick(value, param)}
                         />
                         <ListItemText
                             style={{ flex: 'inherit' }}
-                            primary={(argList[value] && STKindChecker.isNamedArg(argList[value])) ? (argList[value] as NamedArg).argumentName.source : param.name}
+                            primary={(argList[argument] && STKindChecker.isNamedArg(argList[argument])) ?
+                                (argList[argument] as NamedArg).argumentName.source : param.name}
                         />
                     </ListItem>
                 )}
@@ -166,7 +178,6 @@ export function ParameterList(props: ParameterListProps) {
         const newChecked = [...checkedList];
         const currentIndex = checkedList.indexOf(value);
         if (currentIndex === -1) {
-            // isNewRecordBtnClicked = true;
             if (STKindChecker.isFunctionCall(currentModel.model)) {
                 newChecked.push(value);
                 let funcParams: string = "";
@@ -210,7 +221,6 @@ export function ParameterList(props: ParameterListProps) {
                                                         {isNewRecordBtnClicked = true}
                                                     </>
                                                 )}
-                                                {/*{isNewRecordBtnClicked = true}*/}
                                             </>
                                         ) : (
                                             <>
