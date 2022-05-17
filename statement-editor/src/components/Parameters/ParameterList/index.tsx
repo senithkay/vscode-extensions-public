@@ -23,12 +23,14 @@ import { keywords } from "../../../utils/statement-modifications";
 import { useStatementEditorStyles, useStmtEditorHelperPanelStyles } from "../../styles";
 import { NamedArgIncludedRecord } from "../NamedArgIncludedRecord";
 import { RequiredArg } from "../RequiredArg";
+
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
 export interface ParameterListProps {
-    checkedList : any[]
-    setCheckedList : (list : any[]) => void
+    checkedList: any[]
+    setCheckedList: (list: any[]) => void
     paramsInModel?: STNode[]
 }
+
 export function ParameterList(props: ParameterListProps) {
     const { checkedList, setCheckedList } = props;
     const statementEditorClasses = useStatementEditorStyles();
@@ -39,10 +41,14 @@ export function ParameterList(props: ParameterListProps) {
             updateModel,
             restArg
         },
-        documentation
+        documentation : {
+            documentation : {
+                parameters
+            }
+        }
     } = useContext(StatementEditorContext);
     let includedRecordHeader: boolean = false;
-    let isNewRecordBtnClicked : boolean = false;
+    let isNewRecordBtnClicked: boolean = false;
     const [plusButtonClick, setPlusButtonClicked] = React.useState(false);
 
     const handleCheckboxClick = (value: number, param?: ParameterInfo) => () => {
@@ -53,22 +59,24 @@ export function ParameterList(props: ParameterListProps) {
             newChecked.push(value);
 
             if (STKindChecker.isFunctionCall(currentModel.model)) {
-                let funcParams: string = "";
-                currentModel.model.arguments.forEach((parameter: any) => {
-                    funcParams = funcParams + (parameter.isToken ? parameter.value : parameter.source);
+                const functionParameters: string[] = [];
+                currentModel.model.arguments.filter((parameter: any) => !STKindChecker.isCommaToken(parameter)).
+                    map((parameter: STNode) => {
+                        functionParameters.push(parameter.source);
                 });
 
-                if (param.kind === SymbolParameterType.DEFAULTABLE){
-                    funcParams = funcParams + ", " +
-                        (keywords.includes(param.name) ? `'${param.name} = ${EXPR_CONSTRUCTOR}` : `${param.name} = ${EXPR_CONSTRUCTOR}`);
-                } else if (param.kind === SymbolParameterType.REST){
-                    funcParams = funcParams + ", " + `${EXPR_CONSTRUCTOR}`;
+                if (param.kind === SymbolParameterType.DEFAULTABLE) {
+                    functionParameters.push((keywords.includes(param.name) ?
+                        `'${param.name} = ${EXPR_CONSTRUCTOR}` :
+                        `${param.name} = ${EXPR_CONSTRUCTOR}`));
+                } else if (param.kind === SymbolParameterType.REST) {
+                    functionParameters.push(EXPR_CONSTRUCTOR);
                 } else {
-                    funcParams = funcParams + ", " + param.name;
+                    functionParameters.push(param.name);
                 }
 
-                const content: string = currentModel.model.functionName.source + "(" + funcParams + ")";
-                if (param.kind === SymbolParameterType.REST){
+                const content: string = currentModel.model.functionName.source + "(" + functionParameters.join(",") + ")";
+                if (param.kind === SymbolParameterType.REST) {
                     restArg(true);
                 }
                 updateModel(content, currentModel.model.position);
@@ -76,16 +84,15 @@ export function ParameterList(props: ParameterListProps) {
         } else {
             newChecked.splice(currentIndex, 1);
             if (STKindChecker.isFunctionCall(currentModel.model)) {
-                const paramsList = [...currentModel.model.arguments];
-                // removing the param and the comma infront of it
-                paramsList.length > 1 ? paramsList.splice((currentIndex * 2) - 1, 2) : paramsList.splice(currentIndex, 1);
-
-                let funcParams: string = "";
-                paramsList.forEach((parameter: any) => {
-                    funcParams = funcParams + (parameter.isToken ? parameter.value : parameter.source);
+                const functionParameters: string[] = [];
+                currentModel.model.arguments.filter((parameter: any) => !STKindChecker.isCommaToken(parameter)).
+                    map((parameter: STNode, pos: number) => {
+                        if (pos !== currentIndex) {
+                            functionParameters.push(parameter.source);
+                        }
                 });
 
-                const content: string = currentModel.model.functionName.source + "(" + funcParams + ")";
+                const content: string = currentModel.model.functionName.source + "(" + functionParameters.join(",") + ")";
                 updateModel(content, currentModel.model.position);
             }
         }
@@ -93,17 +100,17 @@ export function ParameterList(props: ParameterListProps) {
         setCheckedList(newChecked);
     };
 
-    const isAllowedIncludedArgsAdded = () : boolean => {
+    const isAllowedIncludedArgsAdded = (): boolean => {
         const listIncludedParams: number[] = [];
-        let isIncluded : boolean = false;
-        documentation.documentation.parameters.map((docParam: ParameterInfo, value: number) => {
+        let isIncluded: boolean = false;
+        parameters?.map((docParam: ParameterInfo, value: number) => {
             if (docParam.kind === SymbolParameterType.INCLUDED_RECORD) {
                 listIncludedParams.push(value);
             }
         });
         listIncludedParams.some((value => {
                 isIncluded = checkedList.includes(value);
-                if (!isIncluded){
+                if (!isIncluded) {
                     return false;
                 }
             }
@@ -113,11 +120,11 @@ export function ParameterList(props: ParameterListProps) {
 
 
     const addIncludedRecordHeader = (param: ParameterInfo, value: number) => {
-        return(
+        return (
             <>
                 {!includedRecordHeader && (
-                    <ListItem key={value} style={{ padding: '0px', alignItems: 'flex-start'}}>
-                        <ListItemText style={{ flex: 'inherit'}} primary={"Add Named Argument"}/>
+                    <ListItem key={value} style={{ padding: '0px', alignItems: 'flex-start' }}>
+                        <ListItemText style={{ flex: 'inherit' }} primary={"Add Named Argument"}/>
                         <IconButton
                             style={{ display: 'block', alignSelf: 'center', padding: '0px', marginLeft: '10px' }}
                             onClick={handlePlusButton()}
@@ -156,8 +163,8 @@ export function ParameterList(props: ParameterListProps) {
                     <ListItem style={{ padding: '0px' }}>
                         <Checkbox
                             classes={{
-                                root : statementEditorClasses.parameterCheckbox,
-                                checked : statementEditorClasses.checked
+                                root: statementEditorClasses.parameterCheckbox,
+                                checked: statementEditorClasses.checked
                             }}
                             style={{ flex: 'inherit' }}
                             checked={argument !== -1}
@@ -195,12 +202,12 @@ export function ParameterList(props: ParameterListProps) {
 
     return (
         <>
-            {!!documentation.documentation.parameters?.length && (
+            {!!parameters?.length && (
                 <>
                     <ListSubheader className={statementEditorClasses.parameterHeader}>
                         Parameter
                     </ListSubheader>
-                    {documentation.documentation.parameters.map((param: ParameterInfo, value: number) => (
+                    {parameters?.map((param: ParameterInfo, value: number) => (
                             <>
 
                                 {param.kind === SymbolParameterType.REQUIRED ? (
@@ -228,8 +235,8 @@ export function ParameterList(props: ParameterListProps) {
                                                     <ListItem key={value} style={{ padding: '0px' }}>
                                                         <Checkbox
                                                             classes={{
-                                                                root : statementEditorClasses.parameterCheckbox,
-                                                                checked : statementEditorClasses.checked
+                                                                root: statementEditorClasses.parameterCheckbox,
+                                                                checked: statementEditorClasses.checked
                                                             }}
                                                             checked={checkedList.indexOf(value) !== -1}
                                                             onClick={handleCheckboxClick(value, param)}

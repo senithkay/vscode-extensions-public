@@ -27,7 +27,7 @@ export function NamedArgComponent(props: NamedArgProps) {
     return (
         <>
             <ExpressionComponent model={model.argumentName} />
-            <TokenComponent model={model.equalsToken} />
+            <TokenComponent model={model.equalsToken} className="operator" />
             <ExpressionComponent model={model.expression} />
         </>
     );
