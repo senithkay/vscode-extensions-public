@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext } from "react";
 
-import { STNode } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import cn from "classnames";
 
 import { StatementEditorContext } from "../../store/statement-editor-context";
@@ -24,12 +24,13 @@ export interface ExpressionComponentProps {
     model: STNode;
     children?: React.ReactElement[];
     classNames?: string;
+    position?: NodePosition
 }
 
 export function ExpressionComponent(props: ExpressionComponentProps) {
-    const { model, children, classNames } = props;
+    const { model, children, classNames, position } = props;
 
-    const component = getExpressionTypeComponent(model);
+    const component = getExpressionTypeComponent(model, position);
 
     const [isHovered, setHovered] = React.useState(false);
 
@@ -58,7 +59,7 @@ export function ExpressionComponent(props: ExpressionComponentProps) {
     const onMouseClick = (e: React.MouseEvent) => {
         e.stopPropagation();
         e.preventDefault();
-        changeCurrentModel(model);
+        changeCurrentModel(model, position);
     }
 
     const styleClassNames = cn(statementEditorClasses.expressionElement,

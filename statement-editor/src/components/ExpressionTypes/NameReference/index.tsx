@@ -12,20 +12,21 @@
  */
 import React from "react";
 
-import { SimpleNameReference } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, SimpleNameReference } from "@wso2-enterprise/syntax-tree";
 
 import { ExpressionComponent } from "../../Expression";
 
 interface NameRefProps {
     model: SimpleNameReference;
+    position?: NodePosition
 }
 
 export function SimpleNameReferenceComponent(props: NameRefProps) {
-    const { model } = props;
+    const { model, position } = props;
 
     return (
         <>
-            <ExpressionComponent model={model.name} />
+            <ExpressionComponent model={model.name} position={position} />
         </>
     );
 }
