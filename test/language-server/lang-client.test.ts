@@ -20,7 +20,10 @@
 import assert = require('assert');
 import { expect } from 'chai';
 import { join } from 'path';
-import { ExtendedLangClient } from "../../src/core/extended-language-client";
+import {
+    BallerinaExampleListResponse, BallerinaProject, BallerinaProjectComponents, ExecutorPositionsResponse,
+    ExtendedLangClient, SyntaxTreeNodeResponse
+} from "../../src/core/extended-language-client";
 import { getServerOptions } from "../../src/server/server";
 import { getBallerinaCmd, isWindows } from "../test-util";
 import { commands, Uri } from "vscode";
@@ -85,7 +88,8 @@ suite("Language Server Tests", function () {
                         uri: uri.toString()
                     }
                 };
-                langClient.getBallerinaProject(documentIdentifier).then((response) => {
+                langClient.getBallerinaProject(documentIdentifier).then((projectResponse) => {
+                    const response = projectResponse as BallerinaProject;
                     assert.equal(response.packageName, 'helloproject', "Invalid package name.");
                     !isWindows() ? assert.equal(response.path, projectPath, 'Invalid project path') :
                         assert.equal(response.path!.toLowerCase(), projectPath.toLowerCase(), 'Invalid project path');
@@ -107,7 +111,8 @@ suite("Language Server Tests", function () {
                         uri: uri.toString()
                     }
                 };
-                langClient.getBallerinaProject(documentIdentifier).then((response) => {
+                langClient.getBallerinaProject(documentIdentifier).then((projectResponse) => {
+                    const response = projectResponse as BallerinaProject;
                     assert.equal(response.kind, 'SINGLE_FILE_PROJECT', 'Invalid project kind.');
                     done();
                 }, (reason) => {
@@ -119,7 +124,8 @@ suite("Language Server Tests", function () {
 
     test("Test fetchExamples", (done) => {
         langClient.onReady().then(() => {
-            langClient.fetchExamples().then((response) => {
+            langClient.fetchExamples().then((examplesResponse) => {
+                const response = examplesResponse as BallerinaExampleListResponse;
                 assert.notEqual(response.samples.length, 0, 'No samples listed');
                 done();
             }, (reason) => {
@@ -717,7 +723,8 @@ suite("Language Server Tests", function () {
                     documentIdentifiers: [{
                         uri: uri.toString()
                     }]
-                }).then((response) => {
+                }).then((projectResponse) => {
+                    const response = projectResponse as BallerinaProjectComponents;
                     expect(response).to.contain.keys('packages');
                     assert.equal(response!.packages![0].modules[0].functions[0].name, 'main',
                         "Invalid project component function name.");
@@ -745,7 +752,8 @@ suite("Language Server Tests", function () {
                     character: 22
                 }
             }
-        }).then((response) => {
+        }).then((stResponse) => {
+            const response = stResponse as SyntaxTreeNodeResponse;
             expect(response).to.contain.keys('kind');
             assert.equal(response.kind, 'STRING_LITERAL', 'Invalid syntax tree node kind.');
             done();
@@ -760,7 +768,8 @@ suite("Language Server Tests", function () {
             documentIdentifier: {
                 uri: uri.toString()
             }
-        }).then((response) => {
+        }).then((execResponse) => {
+            const response = execResponse as ExecutorPositionsResponse;
             expect(response).to.contain.keys('executorPositions');
             assert.equal(response.executorPositions?.length, 1, "Invalid numer of executor positions");
             assert.equal(response.executorPositions![0].name, 'main', "Invalid executor position function name");

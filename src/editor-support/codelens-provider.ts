@@ -17,7 +17,7 @@
  *
  */
 
-import { BallerinaExtension, ExecutorPosition, ExtendedLangClient, LANGUAGE } from '../core';
+import { BallerinaExtension, ExecutorPosition, ExecutorPositionsResponse, ExtendedLangClient, LANGUAGE } from '../core';
 import {
     CancellationToken, CodeLens, CodeLensProvider, commands, debug, DebugConfiguration, Event, EventEmitter,
     ProviderResult, Range, TextDocument, Uri, window, workspace, WorkspaceFolder
@@ -107,7 +107,8 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
                 documentIdentifier: {
                     uri: window.activeTextEditor!.document.uri.toString()
                 }
-            }).then(response => {
+            }).then(executorsResponse => {
+                const response = executorsResponse as ExecutorPositionsResponse;
                 if (response.executorPositions) {
                     response.executorPositions.forEach(position => {
                         codeLenses.push(this.createCodeLens(position, EXEC_TYPE.RUN));

@@ -35,7 +35,8 @@ function getCurrentBallerinaProject(file?: string): Promise<BallerinaProject> {
                     documentIdentifier: {
                         uri,
                     }
-                }).then((project) => {
+                }).then((response) => {
+                    const project = response as BallerinaProject;
                     if (!project.kind) {
                         reject(`Current file does not belong to a ballerina project.`);
                     }
