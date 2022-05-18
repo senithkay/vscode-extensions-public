@@ -50,7 +50,8 @@ suite("Language Server Tests", function () {
 
 
     test("Test Language Server Start", function (done): void {
-        langClient.onReady().then(() => {
+        langClient.onReady().then(async () => {
+            await langClient.registerExtendedAPICapabilities();
             done();
         }, () => {
             done(new Error("Language Server start failed"));
