@@ -14,7 +14,7 @@ import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import { compile } from "handlebars";
 
 import { default as templates } from "../../templates/components";
-import { STModification } from "../../types";
+import { HTTPServiceConfigState, ListenerConfigFormState, STModification } from "../../types";
 
 import { getInsertComponentSource } from "./template-utils";
 
@@ -94,6 +94,119 @@ export function updateFunctionSignature(name: string, parameters: string, return
     };
 
     return functionStatement;
+}
+
+export function createServiceDeclartion(
+    config: HTTPServiceConfigState, targetPosition: NodePosition, isLastMember?: boolean): STModification {
+    const { serviceBasePath, listenerConfig: { fromVar, listenerName, listenerPort, createNewListener } } = config;
+
+    const modification: STModification = {
+        startLine: targetPosition.startLine,
+        endLine: targetPosition.startLine,
+        startColumn: isLastMember ? targetPosition.endColumn : 0,
+        endColumn: isLastMember ? targetPosition.endColumn : 0,
+        type: ''
+    };
+
+    if (createNewListener && fromVar) {
+        return {
+            ...modification,
+            type: 'SERVICE_AND_LISTENER_DECLARATION',
+            config: {
+                'LISTENER_NAME': listenerName,
+                'PORT': listenerPort,
+                'BASE_PATH': serviceBasePath,
+            }
+        }
+    } else if (!fromVar) {
+        return {
+            ...modification,
+            type: 'SERVICE_DECLARATION_WITH_NEW_INLINE_LISTENER',
+            config: {
+                'PORT': listenerPort,
+                'BASE_PATH': serviceBasePath,
+            }
+        }
+
+    } else {
+        return {
+            ...modification,
+            type: 'SERVICE_DECLARATION_WITH_SHARED_LISTENER',
+            config: {
+                'LISTENER_NAME': listenerName,
+                'BASE_PATH': serviceBasePath,
+            }
+        }
+    }
+}
+
+export function createListenerDeclartion(config: ListenerConfigFormState, targetPosition: NodePosition, isNew: boolean,
+                                         isLastMember?: boolean): STModification {
+    const { listenerName, listenerPort } = config;
+    let modification: STModification;
+    if (isNew) {
+        modification = {
+            startLine: targetPosition.startLine,
+            endLine: targetPosition.startLine,
+            startColumn: isLastMember ? targetPosition.endColumn : 0,
+            endColumn: isLastMember ? targetPosition.endColumn : 0,
+            type: ''
+        };
+    } else {
+        modification = {
+            ...targetPosition,
+            type: ''
+        };
+    }
+
+    return {
+        ...modification,
+        type: 'LISTENER_DECLARATION',
+        config: {
+            'LISTENER_NAME': listenerName,
+            'PORT': listenerPort
+        }
+    }
+}
+
+export function updateServiceDeclartion(config: HTTPServiceConfigState, targetPosition: NodePosition): STModification {
+    const { serviceBasePath, listenerConfig: { fromVar, listenerName, listenerPort, createNewListener } } = config;
+
+    const modification: STModification = {
+        ...targetPosition,
+        type: ''
+    };
+
+    if (createNewListener && fromVar) {
+        return {
+            ...modification,
+            type: 'SERVICE_WITH_LISTENER_DECLARATION_UPDATE',
+            config: {
+                'LISTENER_NAME': listenerName,
+                'PORT': listenerPort,
+                'BASE_PATH': serviceBasePath,
+            }
+        }
+    } else if (!fromVar) {
+        return {
+            ...modification,
+            type: 'SERVICE_DECLARATION_WITH_INLINE_LISTENER_UPDATE',
+            config: {
+                'PORT': listenerPort,
+                'BASE_PATH': serviceBasePath,
+            }
+        }
+
+    } else {
+        return {
+            ...modification,
+            type: 'SERVICE_DECLARATION_WITH_SHARED_LISTENER_UPDATE',
+            config: {
+                'LISTENER_NAME': listenerName,
+                'BASE_PATH': serviceBasePath,
+            }
+        }
+    }
 }
 
 export function getComponentSource(insertTempName: string, config: { [key: string]: any }) {

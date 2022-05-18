@@ -69,6 +69,7 @@ export function ServiceConfigForm(props: ServiceConfigFormProps) {
                 initialSource={model ? model.source : undefined}
                 initialModel={model}
                 targetPosition={targetPosition}
+                stSymbolInfo={stSymbolInfo}
                 onCancel={onCancel}
                 type={"Service"}
                 currentFile={currentFile}
