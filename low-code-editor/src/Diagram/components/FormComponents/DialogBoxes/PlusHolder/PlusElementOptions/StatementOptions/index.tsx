@@ -29,6 +29,10 @@ import {
     CustomStatementIcon,
     ConnectorIcon,
     ActionIcon,
+    AsyncSend,
+    AsyncReceive,
+    AsyncWait,
+    Flush,
 } from "../../../../../../../assets/icons";
 
 import { Context } from "../../../../../../../Contexts/Diagram";
@@ -73,6 +77,30 @@ export function StatementOptions(props: StatementOptionsProps) {
             title: intl.formatMessage({
                 id: "lowcode.develop.plusHolder.plusElements.statements.worker.tooltip.title",
                 defaultMessage: "A worker allows to execute code in parallel with function's default worker and other named workers."
+            })
+        },
+        send: {
+            title: intl.formatMessage({
+                id: "lowcode.develop.plusHolder.plusElements.statements.send.tooltip.title",
+                defaultMessage: "A send allows to send data from one worker to another."
+            })
+        },
+        receive: {
+            title: intl.formatMessage({
+                id: "lowcode.develop.plusHolder.plusElements.statements.receive.tooltip.title",
+                defaultMessage: "A receive allows to receive data from other workers."
+            })
+        },
+        wait: {
+            title: intl.formatMessage({
+                id: "lowcode.develop.plusHolder.plusElements.statements.wait.tooltip.title",
+                defaultMessage: "A wait allows worker to wait for another worker and get the return value of it."
+            })
+        },
+        flush: {
+            title: intl.formatMessage({
+                id: "lowcode.develop.plusHolder.plusElements.statements.flush.tooltip.title",
+                defaultMessage: "A flush allows the worker to wait until all the send messages are consumed by the target workers."
             })
         },
         variableStatement: {
@@ -243,6 +271,118 @@ export function StatementOptions(props: StatementOptionsProps) {
                         <FormattedMessage
                             id="lowcode.develop.plusHolder.plusElements.statements.assignment.title"
                             defaultMessage="Assignment"
+                        />
+                    </div>
+                </div>
+            </Tooltip>
+        )
+    }
+    const sendStmt: StatementComponent = {
+        name: "send",
+        category: 'process',
+        component: (
+            <Tooltip
+                title={plusHolderStatementTooltipMessages.send.title}
+                placement="right"
+                arrow={true}
+                interactive={true}
+            >
+                <div
+                    className="sub-option enabled"
+                    data-testid="addSend"
+                    onClick={onSelectStatement.bind(undefined, "SendStatement")}
+                >
+                    <div className="icon-wrapper">
+                        <AsyncSend />
+                    </div>
+                    <div className="text-label">
+                        <FormattedMessage
+                            id="lowcode.develop.plusHolder.plusElements.statements.send.title"
+                            defaultMessage="Send"
+                        />
+                    </div>
+                </div>
+            </Tooltip>
+        )
+    }
+    const receiveStmt: StatementComponent = {
+        name: "receive",
+        category: 'process',
+        component: (
+            <Tooltip
+                title={plusHolderStatementTooltipMessages.receive.title}
+                placement="right"
+                arrow={true}
+                interactive={true}
+            >
+                <div
+                    className="sub-option enabled"
+                    data-testid="addReceive"
+                    onClick={onSelectStatement.bind(undefined, "ReceiveStatement")}
+                >
+                    <div className="icon-wrapper">
+                        <AsyncReceive />
+                    </div>
+                    <div className="text-label">
+                        <FormattedMessage
+                            id="lowcode.develop.plusHolder.plusElements.statements.receive.title"
+                            defaultMessage="Receive"
+                        />
+                    </div>
+                </div>
+            </Tooltip>
+        )
+    }
+    const waitStmt: StatementComponent = {
+        name: "wait",
+        category: 'process',
+        component: (
+            <Tooltip
+                title={plusHolderStatementTooltipMessages.wait.title}
+                placement="right"
+                arrow={true}
+                interactive={true}
+            >
+                <div
+                    className="sub-option enabled"
+                    data-testid="addWait"
+                    onClick={onSelectStatement.bind(undefined, "WaitStatement")}
+                >
+                    <div className="icon-wrapper">
+                        <AsyncWait />
+                    </div>
+                    <div className="text-label">
+                        <FormattedMessage
+                            id="lowcode.develop.plusHolder.plusElements.statements.wait.title"
+                            defaultMessage="Wait"
+                        />
+                    </div>
+                </div>
+            </Tooltip>
+        )
+    }
+    const flushStmt: StatementComponent = {
+        name: "flush",
+        category: 'process',
+        component: (
+            <Tooltip
+                title={plusHolderStatementTooltipMessages.flush.title}
+                placement="right"
+                arrow={true}
+                interactive={true}
+            >
+                <div
+                    className="sub-option enabled"
+                    data-testid="addFlush"
+                    onClick={onSelectStatement.bind(undefined, "FlushStatement")}
+                >
+                    <div className="icon-wrapper">
+                        <Flush />
+                    </div>
+                    <div className="text-label">
+                        <FormattedMessage
+                            id="lowcode.develop.plusHolder.plusElements.statements.flush.title"
+                            defaultMessage="Flush"
                         />
                     </div>
                 </div>
@@ -470,6 +610,10 @@ export function StatementOptions(props: StatementOptionsProps) {
     statements.push(whileStmt);
     statements.push(returnStm);
     statements.push(respondStm);
+    statements.push(sendStmt);
+    statements.push(receiveStmt);
+    statements.push(waitStmt);
+    statements.push(flushStmt);
     // statements.push(datamappingStatement);
     statements.push(customStatement);
     statements.push(httpConnector);
