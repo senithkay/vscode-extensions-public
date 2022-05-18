@@ -169,24 +169,36 @@ export function StatementEditor(props: StatementEditorProps) {
     useEffect(() => {
         (async () => {
             if (model && currentModel.model) {
-                let lsSuggestions : SuggestionItem[] = [];
+                const lsSuggestions : SuggestionItem[] = [];
                 const currentModelViewState = currentModel.model?.viewState as StatementEditorViewState;
 
                 if (!isOperator(currentModelViewState.modelType) && !isBindingPattern(currentModelViewState.modelType)) {
-                    const currentModelSource = currentModel.model.source
+                    const selectionWithDot = `${currentModel.model.source
                         ? currentModel.model.source.trim()
-                        : currentModel.model.value.trim();
-                    const updatedStatement = addToTargetPosition(model.source, currentModel.model.position, currentModelSource + ".");
-                    const sources = [model.source, updatedStatement];
-                    for (const statement of sources) {
-                        const index = sources.indexOf(statement);
+                        : currentModel.model.value.trim()}.`;
+                    const dotAdded = addToTargetPosition(model.source, currentModel.model.position, selectionWithDot);
+                    const statements = [model.source, dotAdded];
+
+                    for (const statement of statements) {
+                        const index = statements.indexOf(statement);
                         const updatedContent = getUpdatedSource(statement, currentFile.content,
                             targetPosition, moduleList);
                         await sendDidChange(fileURI, updatedContent, getLangClient);
-                        const completions = index === 0
-                            ? await getCompletions(fileURI, targetPosition, model, currentModel, getLangClient)
-                            : await getCompletions(fileURI, targetPosition, model, currentModel, getLangClient, currentModelSource + ".")
-                        lsSuggestions = [...lsSuggestions, ...completions];
+                        let completions: SuggestionItem[];
+
+                        if (index === 0) {
+                            completions = await getCompletions(fileURI, targetPosition, model, currentModel,
+                                getLangClient);
+                        } else {
+                            completions = await getCompletions(fileURI, targetPosition, model, currentModel,
+                                getLangClient, selectionWithDot);
+                            completions = completions.map((suggestionItem) => ({
+                                ...suggestionItem,
+                                value: `${selectionWithDot}${suggestionItem.value}`
+                            }));
+                        }
+
+                        lsSuggestions.push(...completions);
                     }
                 }
 

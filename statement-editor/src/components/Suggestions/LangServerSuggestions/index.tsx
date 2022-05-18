@@ -111,6 +111,7 @@ export function LSSuggestions() {
                                                 style={{ minWidth: '22px', textAlign: 'left' }}
                                             />
                                             <ListItemText
+                                                title={suggestion.value}
                                                 style={{ flex: 'none', maxWidth: '80%' }}
                                                 primary={(
                                                     <Typography className={stmtEditorHelperClasses.suggestionValue}>
