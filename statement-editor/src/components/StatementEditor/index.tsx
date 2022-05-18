@@ -173,12 +173,23 @@ export function StatementEditor(props: StatementEditorProps) {
                 const currentModelViewState = currentModel.model?.viewState as StatementEditorViewState;
 
                 if (!isOperator(currentModelViewState.modelType) && !isBindingPattern(currentModelViewState.modelType)) {
-                    const updatedContent = getUpdatedSource(model.source, currentFile.content,
-                        targetPosition, moduleList);
-                    sendDidChange(fileURI, updatedContent, getLangClient).then();
-                    lsSuggestions = await getCompletions(fileURI, targetPosition, model,
-                        currentModel, getLangClient);
+                    const currentModelSource = currentModel.model.source
+                        ? currentModel.model.source.trim()
+                        : currentModel.model.value.trim();
+                    const updatedStatement = addToTargetPosition(model.source, currentModel.model.position, currentModelSource + ".");
+                    const sources = [model.source, updatedStatement];
+                    for (const statement of sources) {
+                        const index = sources.indexOf(statement);
+                        const updatedContent = getUpdatedSource(statement, currentFile.content,
+                            targetPosition, moduleList);
+                        await sendDidChange(fileURI, updatedContent, getLangClient);
+                        const completions = index === 0
+                            ? await getCompletions(fileURI, targetPosition, model, currentModel, getLangClient)
+                            : await getCompletions(fileURI, targetPosition, model, currentModel, getLangClient, currentModelSource + ".")
+                        lsSuggestions = [...lsSuggestions, ...completions];
+                    }
                 }
+
                 setLSSuggestionsList(lsSuggestions);
                 setDocumentation(await getSymbolDocumentation(fileURI, targetPosition, currentModel, getLangClient));
             }
