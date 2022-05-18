@@ -87,3 +87,14 @@ export const TM_EVENT_PERF_REQUEST = "perfomance-analyzer-request";
 export const TM_EVENT_PERF_LS_REQUEST = "perfomance-analyzer-ls-request";
 export const TM_EVENT_OPEN_PERF_GRAPH = "perfomance-graph-open";
 export const TM_EVENT_CLICK_PERF_GRAPH = "perfomance-graph-click";
+
+// events for notebook
+export const TM_EVENT_CREATE_NOTEBOOK = "notebook.create";
+export const TM_EVENT_OPEN_NOTEBOOK = "notebook.open";
+export const TM_EVENT_CLOSE_NOTEBOOK = "notebook.close";
+export const TM_EVENT_RUN_NOTEBOOK = "notebook.run";
+export const TM_EVENT_RUN_NOTEBOOK_CODE_SNIPPET = "notebook.run.code.snippet";
+export const TM_EVENT_RUN_NOTEBOOK_BAL_CMD = "notebook.run.bal.cmd";
+export const TM_EVENT_RESTART_NOTEBOOK = "notebook.restart";
+export const TM_EVENT_OPEN_VARIABLE_VIEW = "notebook.variable-view.open";
+export const TM_EVENT_UPDATE_VARIABLE_VIEW = "notebook.variable-view.update";

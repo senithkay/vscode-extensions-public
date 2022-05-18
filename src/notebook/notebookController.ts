@@ -23,6 +23,8 @@ import { NotebookCell, NotebookCellOutput, NotebookCellOutputItem, NotebookContr
 import { BallerinaExtension, ExtendedLangClient, NotebookCellMetaInfo, NoteBookCellOutputResponse } from '../core';
 import { CUSTOM_DESIGNED_MIME_TYPES, NOTEBOOK_TYPE } from './constants';
 import { VariableViewProvider } from './variableView';
+import { CMP_NOTEBOOK, sendTelemetryEvent, sendTelemetryException, TM_EVENT_RUN_NOTEBOOK, TM_EVENT_RUN_NOTEBOOK_BAL_CMD, 
+    TM_EVENT_RUN_NOTEBOOK_CODE_SNIPPET } from '../telemetry';
 import { isWindows } from '../utils';
 
 /**
@@ -77,6 +79,7 @@ export class BallerinaNotebookController {
     }
 
     private async doExecution(cell: NotebookCell): Promise<void> {
+        sendTelemetryEvent(this.ballerinaExtension, TM_EVENT_RUN_NOTEBOOK, CMP_NOTEBOOK);
         let langClient: ExtendedLangClient = <ExtendedLangClient>this.ballerinaExtension.langClient;
         const cellContent = cell.document.getText().trim();
         
@@ -120,6 +123,7 @@ export class BallerinaNotebookController {
         try {
             // bal cmds
             if (cellContent.startsWith("bal")) {
+                sendTelemetryEvent(this.ballerinaExtension, TM_EVENT_RUN_NOTEBOOK_BAL_CMD, CMP_NOTEBOOK);
                 // unlike linux, windows does not identify single quotes as separators
                 const regex = isWindows() ? /(?:[^\s"]+|"[^"]*")+/g : /(?:[^\s"']+|"[^"]*"|'[^']*')+/g;
                 const args = cellContent.substring("bal".length).trim().match(regex) || [];
@@ -138,6 +142,7 @@ export class BallerinaNotebookController {
             }
 
             // code snippets
+            sendTelemetryEvent(this.ballerinaExtension, TM_EVENT_RUN_NOTEBOOK_CODE_SNIPPET, CMP_NOTEBOOK);
             let output: NoteBookCellOutputResponse = await langClient.getBalShellResult({
                 source: cellContent
             });
@@ -172,7 +177,12 @@ export class BallerinaNotebookController {
             // Collect and store if there is any declarations cell meta data
             output.metaInfo && this.metaInfoHandler.handleNewMetaInfo(cell, output.metaInfo);
         } catch (error) {
-            appendTextToOutput(error);
+            if (error instanceof Error) {
+                sendTelemetryException(this.ballerinaExtension, error, CMP_NOTEBOOK);
+                appendTextToOutput(error.message);
+            } else {
+                appendTextToOutput("Unknown error occurred.");
+            }
             execution.end(false, Date.now());
         }
     }
