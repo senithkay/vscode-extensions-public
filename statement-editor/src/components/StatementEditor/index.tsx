@@ -116,7 +116,7 @@ export function StatementEditor(props: StatementEditorProps) {
     const undo = async () => {
         const undoItem = undoRedoManager.getUndoModel();
         if (undoItem) {
-            const updatedContent = await getUpdatedSource(undoItem.oldModel.model.source, currentFile.content,
+            const updatedContent = getUpdatedSource(undoItem.oldModel.model.source, currentFile.content,
                 targetPosition, moduleList);
             sendDidChange(fileURI, updatedContent, getLangClient).then();
             const diagnostics = await handleDiagnostics(undoItem.oldModel.model.source);
@@ -133,7 +133,7 @@ export function StatementEditor(props: StatementEditorProps) {
     const redo = async () => {
         const redoItem = undoRedoManager.getRedoModel();
         if (redoItem) {
-            const updatedContent = await getUpdatedSource(redoItem.oldModel.model.source, currentFile.content,
+            const updatedContent = getUpdatedSource(redoItem.oldModel.model.source, currentFile.content,
                 targetPosition, moduleList);
             sendDidChange(fileURI, updatedContent, getLangClient).then();
             const diagnostics = await handleDiagnostics(redoItem.oldModel.model.source);
@@ -149,8 +149,7 @@ export function StatementEditor(props: StatementEditorProps) {
 
     useEffect(() => {
         (async () => {
-            const updatedContent = await getUpdatedSource(source.trim(), currentFile.content,
-                targetPosition, moduleList);
+            const updatedContent = getUpdatedSource(source.trim(), currentFile.content, targetPosition, moduleList);
 
             sendDidChange(fileURI, updatedContent, getLangClient).then();
             const diagnostics = await handleDiagnostics(source);
@@ -174,7 +173,7 @@ export function StatementEditor(props: StatementEditorProps) {
                 const currentModelViewState = currentModel.model?.viewState as StatementEditorViewState;
 
                 if (!isOperator(currentModelViewState.modelType) && !isBindingPattern(currentModelViewState.modelType)) {
-                    const updatedContent = await getUpdatedSource(model.source, currentFile.content,
+                    const updatedContent = getUpdatedSource(model.source, currentFile.content,
                         targetPosition, moduleList);
                     sendDidChange(fileURI, updatedContent, getLangClient).then();
                     lsSuggestions = await getCompletions(fileURI, targetPosition, model,
@@ -209,8 +208,7 @@ export function StatementEditor(props: StatementEditorProps) {
 
     const handleChange = async (newValue: string) => {
         const updatedStatement = addToTargetPosition(model.source, currentModel.model.position, newValue);
-        const updatedContent = await getUpdatedSource(updatedStatement, currentFile.content,
-            targetPosition, moduleList);
+        const updatedContent = getUpdatedSource(updatedStatement, currentFile.content, targetPosition, moduleList);
 
         sendDidChange(fileURI, updatedContent, getLangClient).then();
         handleDiagnostics(updatedStatement).then();
@@ -235,10 +233,7 @@ export function StatementEditor(props: StatementEditorProps) {
             partialST = await getPartialSTForStatement({ codeSnippet }, getLangClient);
         }
 
-
-
-        const updatedContent = await getUpdatedSource(partialST.source, currentFile.content, targetPosition,
-            moduleList);
+        const updatedContent = getUpdatedSource(partialST.source, currentFile.content, targetPosition, moduleList);
         sendDidChange(fileURI, updatedContent, getLangClient).then();
         const diagnostics = await handleDiagnostics(partialST.source);
 
