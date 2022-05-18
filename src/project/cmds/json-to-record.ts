@@ -21,7 +21,7 @@ import {
     sendTelemetryEvent, sendTelemetryException, TM_EVENT_PASTE_AS_RECORD, CMP_JSON_TO_RECORD,
 } from "../../telemetry";
 import { commands, window, env } from "vscode";
-import { ballerinaExtInstance } from "../../core";
+import { ballerinaExtInstance, JsonToRecordResponse } from "../../core";
 import { PALETTE_COMMANDS, MESSAGES } from "./cmd-runner";
 
 const MSG_NOT_SUPPORT = "Paste JSON as a Ballerina record feature is not supported";
@@ -62,8 +62,9 @@ export function activatePasteJsonAsRecord() {
                     return;
                 }
                 ballerinaExtInstance.langClient!.convertJsonToRecord({ jsonString: clipboardText, isClosed: false, isRecordTypeDesc: false, recordName: "" })
-                    .then(response => {
-                        if (!response || response.codeBlock === "") {
+                    .then(lSResponse => {
+                        const response = lSResponse as JsonToRecordResponse;
+                        if (!response || response.codeBlock === undefined || response.codeBlock === "") {
                             window.showErrorMessage(MESSAGES.INVALID_JSON);
                             return;
                         }

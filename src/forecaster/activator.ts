@@ -115,7 +115,8 @@ export async function createPerformanceGraphAndCodeLenses(uri: string | undefine
         documentIdentifier: {
             uri
         }
-    }).then(async (response) => {
+    }).then(async (epResponse) => {
+        const response = epResponse as PerformanceAnalyzerResponse[];
         for (var resource of response) {
             if (resource.type === SUCCESS) {
                 currentResourceData = resource;
