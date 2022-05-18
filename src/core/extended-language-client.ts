@@ -331,24 +331,28 @@ export interface SymbolInfoRequest {
 }
 
 export interface ParameterInfo {
-    name : string,
-    description : string,
-    kind : string,
-    type :string
+    name: string,
+    description: string,
+    kind: string,
+    type: string
 }
 
 export interface SymbolDocumentation {
-    description : string,
-    parameters? : ParameterInfo[],
-    returnValueDescription? : string,
-    deprecatedDocumentation? : string,
-    deprecatedParams? : ParameterInfo[]
+    description: string,
+    parameters?: ParameterInfo[],
+    returnValueDescription?: string,
+    deprecatedDocumentation?: string,
+    deprecatedParams?: ParameterInfo[]
 }
 
 export interface SymbolInfoResponse {
     symbolKind: string,
-    documentation : SymbolDocumentation
+    documentation: SymbolDocumentation
 }
+
+interface NOT_SUPPORTED_TYPE {
+
+};
 
 export class ExtendedLangClient extends LanguageClient {
     private ballerinaExtendedServices: Set<String> | undefined;
@@ -356,6 +360,7 @@ export class ExtendedLangClient extends LanguageClient {
     isInitialized: boolean = true;
     private ballerinaExtInstance: BallerinaExtension | undefined;
     private timeConsumption: APITimeConsumption;
+    private initBalRequestSent = false;
 
     constructor(id: string, name: string, serverOptions: ServerOptions, clientOptions: LanguageClientOptions,
         ballerinaExtInstance: BallerinaExtension | undefined, forceDebug?: boolean) {
@@ -381,7 +386,7 @@ export class ExtendedLangClient extends LanguageClient {
         debug(`didChange at ${new Date()} - ${new Date().getTime()}`);
         this.sendNotification("textDocument/didChange", params);
     }
-    getResourcesWithEndpoints(params: PerformanceAnalyzerRequest): Promise<PerformanceAnalyzerResponse[]> {
+    getResourcesWithEndpoints(params: PerformanceAnalyzerRequest): Promise<PerformanceAnalyzerResponse[] | NOT_SUPPORTED_TYPE> {
         if (!this.ballerinaExtInstance?.enabledPerformanceForecasting() ||
             !this.ballerinaExtInstance?.getChoreoSession().loginStatus ||
             this.ballerinaExtInstance.getPerformanceForecastContext().temporaryDisabled) {
@@ -393,13 +398,13 @@ export class ExtendedLangClient extends LanguageClient {
             }]);
         }
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.PERF_ANALYZER_RESOURCES_ENDPOINTS)) {
-            Promise.resolve(NOT_SUPPORTED);
+            return Promise.resolve(NOT_SUPPORTED);
         }
         return this.sendRequest(EXTENDED_APIS.PERF_ANALYZER_RESOURCES_ENDPOINTS, params);
     }
-    async getDiagnostics(params: BallerinaProjectParams): Promise<PublishDiagnosticsParams[]> {
+    async getDiagnostics(params: BallerinaProjectParams): Promise<PublishDiagnosticsParams[] | NOT_SUPPORTED_TYPE> {
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.DOCUMENT_DIAGNOSTICS)) {
-            Promise.resolve(NOT_SUPPORTED);
+            return Promise.resolve(NOT_SUPPORTED);
         }
         const start = new Date().getTime();
         const response = await this.sendRequest<PublishDiagnosticsParams[]>(EXTENDED_APIS.DOCUMENT_DIAGNOSTICS, params);
@@ -412,15 +417,15 @@ export class ExtendedLangClient extends LanguageClient {
         this.timeConsumption.completion.push(new Date().getTime() - start);
         return resoponse;
     }
-    getType(params: ExpressionTypeRequest): Promise<ExpressionTypeResponse> {
+    getType(params: ExpressionTypeRequest): Promise<ExpressionTypeResponse | NOT_SUPPORTED_TYPE> {
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.SYMBOL_TYPE)) {
-            Promise.resolve(NOT_SUPPORTED);
+            return Promise.resolve(NOT_SUPPORTED);
         }
         return this.sendRequest(EXTENDED_APIS.SYMBOL_TYPE, params);
     }
-    getConnectors(params: BallerinaConnectorsRequest, reset?: boolean): Thenable<BallerinaConnectorsResponse> {
+    getConnectors(params: BallerinaConnectorsRequest, reset?: boolean): Promise<BallerinaConnectorsResponse | NOT_SUPPORTED_TYPE> {
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.CONNECTOR_CONNECTORS)) {
-            Promise.resolve(NOT_SUPPORTED);
+            return Promise.resolve(NOT_SUPPORTED);
         }
         if (!reset && params.query === "" && !params.keyword && !params.organization && !params.offset) {
             let connectorList = this.ballerinaExtInstance?.context?.globalState.get(CONNECTOR_LIST_CACHE) as BallerinaConnectorsResponse;
@@ -435,37 +440,37 @@ export class ExtendedLangClient extends LanguageClient {
         }
         return this.sendRequest<BallerinaConnectorsResponse>(EXTENDED_APIS.CONNECTOR_CONNECTORS, params);
     }
-    getTriggers(params: BallerinaTriggersRequest): Thenable<BallerinaTriggersResponse> {
+    getTriggers(params: BallerinaTriggersRequest): Promise<BallerinaTriggersResponse | NOT_SUPPORTED_TYPE> {
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.TRIGGER_TRIGGERS)) {
-            Promise.resolve(NOT_SUPPORTED);
+            return Promise.resolve(NOT_SUPPORTED);
         }
         return this.sendRequest<BallerinaTriggersResponse>(EXTENDED_APIS.TRIGGER_TRIGGERS, params);
     }
-    getConnector(params: BallerinaConnectorRequest): Thenable<BallerinaConnectorResponse> {
+    getConnector(params: BallerinaConnectorRequest): Promise<BallerinaConnectorResponse | NOT_SUPPORTED_TYPE> {
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.CONNECTOR_CONNECTOR)) {
-            Promise.resolve(NOT_SUPPORTED);
+            return Promise.resolve(NOT_SUPPORTED);
         }
         return this.sendRequest<BallerinaConnectorResponse>(EXTENDED_APIS.CONNECTOR_CONNECTOR, params);
     }
-    getTrigger(params: BallerinaTriggerRequest): Thenable<BallerinaTriggerResponse> {
+    getTrigger(params: BallerinaTriggerRequest): Promise<BallerinaTriggerResponse | NOT_SUPPORTED_TYPE> {
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.TRIGGER_TRIGGER)) {
-            Promise.resolve(NOT_SUPPORTED);
+            return Promise.resolve(NOT_SUPPORTED);
         }
         return this.sendRequest<BallerinaTriggerResponse>(EXTENDED_APIS.TRIGGER_TRIGGER, params);
     }
-    getRecord(params: BallerinaRecordRequest): Thenable<BallerinaRecordResponse> {
+    getRecord(params: BallerinaRecordRequest): Promise<BallerinaRecordResponse | NOT_SUPPORTED_TYPE> {
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.CONNECTOR_RECORD)) {
-            Promise.resolve(NOT_SUPPORTED);
+            return Promise.resolve(NOT_SUPPORTED);
         }
         return this.sendRequest<BallerinaRecordResponse>(EXTENDED_APIS.CONNECTOR_RECORD, params);
     }
-    astModify(params: BallerinaSTModifyRequest): Thenable<BallerinaSTModifyResponse> {
+    astModify(params: BallerinaSTModifyRequest): Promise<BallerinaSTModifyResponse | NOT_SUPPORTED_TYPE> {
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.DOCUMENT_AST_MODIFY)) {
-            Promise.resolve(NOT_SUPPORTED);
+            return Promise.resolve(NOT_SUPPORTED);
         }
         return this.sendRequest<BallerinaSTModifyResponse>(EXTENDED_APIS.DOCUMENT_AST_MODIFY, params);
     }
-    stModify(params: BallerinaSTModifyRequest): Thenable<BallerinaSTModifyResponse> {
+    stModify(params: BallerinaSTModifyRequest): Promise<BallerinaSTModifyResponse | NOT_SUPPORTED_TYPE> {
         if (this.ballerinaExtInstance) {
             showChoreoPushMessage(this.ballerinaExtInstance);
             if (!this.ballerinaExtInstance.getChoreoSession().loginStatus) {
@@ -473,19 +478,19 @@ export class ExtendedLangClient extends LanguageClient {
             }
         }
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.DOCUMENT_ST_MODIFY)) {
-            Promise.resolve(NOT_SUPPORTED);
+            return Promise.resolve(NOT_SUPPORTED);
         }
         return this.sendRequest<BallerinaSTModifyResponse>(EXTENDED_APIS.DOCUMENT_ST_MODIFY, params);
     }
-    triggerModify(params: TriggerModifyRequest): Thenable<BallerinaSTModifyResponse> {
+    triggerModify(params: TriggerModifyRequest): Promise<BallerinaSTModifyResponse | NOT_SUPPORTED_TYPE> {
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.DOCUMENT_TRIGGER_MODIFY)) {
-            Promise.resolve(NOT_SUPPORTED);
+            return Promise.resolve(NOT_SUPPORTED);
         }
         return this.sendRequest<BallerinaSTModifyResponse>(EXTENDED_APIS.DOCUMENT_TRIGGER_MODIFY, params);
     }
-    getSymbolDocumentation(params: SymbolInfoRequest): Thenable<SymbolInfoResponse> {
+    getSymbolDocumentation(params: SymbolInfoRequest): Promise<SymbolInfoResponse | NOT_SUPPORTED_TYPE> {
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.SYMBOL_DOC)) {
-            Promise.resolve(NOT_SUPPORTED);
+            return Promise.resolve(NOT_SUPPORTED);
         }
         return this.sendRequest<SymbolInfoResponse>(EXTENDED_APIS.SYMBOL_DOC, params);
 
@@ -516,86 +521,86 @@ export class ExtendedLangClient extends LanguageClient {
         };
     }
 
-    getSyntaxTree(req: GetSyntaxTreeParams): Thenable<GetSyntaxTreeResponse> {
+    getSyntaxTree(req: GetSyntaxTreeParams): Promise<GetSyntaxTreeResponse | NOT_SUPPORTED_TYPE> {
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.DOCUMENT_ST)) {
-            Promise.resolve(NOT_SUPPORTED);
+            return Promise.resolve(NOT_SUPPORTED);
         }
         return this.sendRequest(EXTENDED_APIS.DOCUMENT_ST, req);
     }
 
-    fetchExamples(args: BallerinaExampleListRequest = {}): Thenable<BallerinaExampleListResponse> {
+    fetchExamples(args: BallerinaExampleListRequest = {}): Promise<BallerinaExampleListResponse | NOT_SUPPORTED_TYPE> {
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.EXAMPLE_LIST)) {
-            Promise.resolve(NOT_SUPPORTED);
+            return Promise.resolve(NOT_SUPPORTED);
         }
         return this.sendRequest(EXTENDED_APIS.EXAMPLE_LIST, args);
     }
 
-    getBallerinaProject(params: GetBallerinaProjectParams): Thenable<BallerinaProject> {
+    getBallerinaProject(params: GetBallerinaProjectParams): Promise<BallerinaProject | NOT_SUPPORTED_TYPE> {
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.PACKAGE_METADATA)) {
-            Promise.resolve(NOT_SUPPORTED);
+            return Promise.resolve(NOT_SUPPORTED);
         }
         return this.sendRequest(EXTENDED_APIS.PACKAGE_METADATA, params);
     }
 
-    getBallerinaProjectComponents(params: GetBallerinaPackagesParams): Thenable<BallerinaProjectComponents> {
+    getBallerinaProjectComponents(params: GetBallerinaPackagesParams): Promise<BallerinaProjectComponents | NOT_SUPPORTED_TYPE> {
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.PACKAGE_COMPONENTS)) {
-            Promise.resolve(NOT_SUPPORTED);
+            return Promise.resolve(NOT_SUPPORTED);
         }
         return this.sendRequest(EXTENDED_APIS.PACKAGE_COMPONENTS, params);
     }
 
-    getBallerinaProjectConfigSchema(params: GetBallerinaProjectParams): Thenable<PackageConfigSchemaResponse> {
+    getBallerinaProjectConfigSchema(params: GetBallerinaProjectParams): Promise<PackageConfigSchemaResponse | NOT_SUPPORTED_TYPE> {
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.PACKAGE_CONFIG_SCHEMA)) {
-            Promise.resolve(NOT_SUPPORTED);
+            return Promise.resolve(NOT_SUPPORTED);
         }
         return this.sendRequest(EXTENDED_APIS.PACKAGE_CONFIG_SCHEMA, params);
     }
 
-    getSyntaxTreeNode(params: SyntaxTreeNodeRequestParams): Thenable<SyntaxTreeNodeResponse> {
+    getSyntaxTreeNode(params: SyntaxTreeNodeRequestParams): Promise<SyntaxTreeNodeResponse | NOT_SUPPORTED_TYPE> {
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.DOCUMENT_ST_NODE)) {
-            Promise.resolve(NOT_SUPPORTED);
+            return Promise.resolve(NOT_SUPPORTED);
         }
         return this.sendRequest(EXTENDED_APIS.DOCUMENT_ST_NODE, params);
     }
 
-    getExecutorPositions(params: GetBallerinaProjectParams): Thenable<ExecutorPositionsResponse> {
+    getExecutorPositions(params: GetBallerinaProjectParams): Promise<ExecutorPositionsResponse | NOT_SUPPORTED_TYPE> {
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.DOCUMENT_EXECUTOR_POSITIONS)) {
-            Promise.resolve(NOT_SUPPORTED);
+            return Promise.resolve(NOT_SUPPORTED);
         }
         return this.sendRequest(EXTENDED_APIS.DOCUMENT_EXECUTOR_POSITIONS, params);
     }
 
-    convertJsonToRecord(params: JsonToRecordRequest): Thenable<JsonToRecordResponse> {
+    convertJsonToRecord(params: JsonToRecordRequest): Promise<JsonToRecordResponse | NOT_SUPPORTED_TYPE> {
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.JSON_TO_RECORD_CONVERT)) {
-            Promise.resolve(NOT_SUPPORTED);
+            return Promise.resolve(NOT_SUPPORTED);
         }
         return this.sendRequest(EXTENDED_APIS.JSON_TO_RECORD_CONVERT, params);
     }
 
-    getSTForSingleStatement(params: PartialSTRequestParams): Thenable<PartialSTResponse> {
+    getSTForSingleStatement(params: PartialSTRequestParams): Promise<PartialSTResponse | NOT_SUPPORTED_TYPE> {
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.PARTIAL_PARSE_SINGLE_STATEMENT)) {
-            Promise.resolve(NOT_SUPPORTED);
+            return Promise.resolve(NOT_SUPPORTED);
         }
         return this.sendRequest(EXTENDED_APIS.PARTIAL_PARSE_SINGLE_STATEMENT, params);
     }
 
-    getSTForExpression(params: PartialSTRequestParams): Thenable<PartialSTResponse> {
+    getSTForExpression(params: PartialSTRequestParams): Promise<PartialSTResponse | NOT_SUPPORTED_TYPE> {
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.PARTIAL_PARSE_EXPRESSION)) {
-            Promise.resolve(NOT_SUPPORTED);
+            return Promise.resolve(NOT_SUPPORTED);
         }
         return this.sendRequest(EXTENDED_APIS.PARTIAL_PARSE_EXPRESSION, params);
     }
 
-    getSTForModuleMembers(params: PartialSTRequestParams): Thenable<PartialSTResponse> {
+    getSTForModuleMembers(params: PartialSTRequestParams): Promise<PartialSTResponse | NOT_SUPPORTED_TYPE> {
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.PARTIAL_PARSE_MODULE_MEMBER)) {
-            Promise.resolve(NOT_SUPPORTED);
+            return Promise.resolve(NOT_SUPPORTED);
         }
         return this.sendRequest(EXTENDED_APIS.PARTIAL_PARSE_MODULE_MEMBER, params);
     }
 
-    resolveMissingDependencies(req: GetSyntaxTreeParams): Thenable<GetSyntaxTreeResponse> {
+    resolveMissingDependencies(req: GetSyntaxTreeParams): Promise<GetSyntaxTreeResponse | NOT_SUPPORTED_TYPE> {
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.RESOLVE_MISSING_DEPENDENCIES)) {
-            Promise.resolve(NOT_SUPPORTED);
+            return Promise.resolve(NOT_SUPPORTED);
         }
         return this.sendRequest(EXTENDED_APIS.RESOLVE_MISSING_DEPENDENCIES, req);
     }
@@ -604,9 +609,9 @@ export class ExtendedLangClient extends LanguageClient {
         return this.sendRequest("initBalServices", params);
     }
 
-    convertToOpenAPI(params: OpenAPIConverterRequest): Promise<OpenAPIConverterResponse> {
+    convertToOpenAPI(params: OpenAPIConverterRequest): Promise<OpenAPIConverterResponse | NOT_SUPPORTED_TYPE> {
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.BALLERINA_TO_OPENAPI)) {
-            Promise.resolve(NOT_SUPPORTED);
+            return Promise.resolve(NOT_SUPPORTED);
         }
         return this.sendRequest(EXTENDED_APIS.BALLERINA_TO_OPENAPI, params);
     }
@@ -623,6 +628,7 @@ export class ExtendedLangClient extends LanguageClient {
         if (!this.isDynamicRegistrationSupported) {
             return;
         }
+        this.initBalRequestSent = true;
 
         await this.initBalServices({
             ballerinaClientCapabilities: [
@@ -666,9 +672,12 @@ export class ExtendedLangClient extends LanguageClient {
             return true;
         }
         if (!this.ballerinaExtendedServices) {
+            if (this.initBalRequestSent) {
+                return false;
+            }
             this.registerExtendedAPICapabilities();
         }
-        return this.ballerinaExtendedServices?.has(serviceName) || true;
+        return this.ballerinaExtendedServices?.has(serviceName) || false;
     }
 
     pushLSClientTelemetries() {
