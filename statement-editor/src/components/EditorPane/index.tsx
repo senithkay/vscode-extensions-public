@@ -34,7 +34,6 @@ export function EditorPane() {
         modelCtx: {
             statementModel
         },
-        documentation
     } = stmtCtx;
 
     const documentationHandler = () => {
@@ -62,8 +61,7 @@ export function EditorPane() {
                             model={statementModel}
                         />
                     </div>
-                    {docEnabled && !isParameterTabEnabled &&
-                    documentation && !!documentation.documentation?.description && (
+                    {docEnabled && !isParameterTabEnabled && (
                         <InlineDocumentation documentationHandler={documentationHandler}/>
                     )}
                     <Diagnostics/>

@@ -10,6 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+// tslint:disable: jsx-no-multiline-js
 import React, { useContext } from "react";
 
 import { List, ListItem, ListItemText } from "@material-ui/core";
@@ -18,24 +19,37 @@ import { ExpandMore } from "@material-ui/icons";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 
 export interface InlineDocumentationProps {
-    documentationHandler : () => void
+    documentationHandler: () => void
 }
-export function InlineDocumentation(props: InlineDocumentationProps){
 
-    const { documentationHandler} = props;
+export function InlineDocumentation(props: InlineDocumentationProps) {
+
+    const { documentationHandler } = props;
     const {
         documentation
     } = useContext(StatementEditorContext);
 
-    return(
-
-        <div style={{borderWidth: '2px', backgroundColor: 'white'}}>
-            <List style={{padding: '0px'}}>
-                <ListItem>
-                    <ListItemText primary={documentation.documentation.description}/>
-                    <ExpandMore onClick={documentationHandler}/>
-                </ListItem>
-            </List>
-        </div>
+    return (
+        <>
+            {documentation === null && (
+                <div style={{ borderWidth: '2px', backgroundColor: 'white' }}>
+                    <List style={{ padding: '0px' }}>
+                        <ListItem>
+                            <ListItemText primary={"Please upgrade to the latest Ballerina version"}/>
+                        </ListItem>
+                    </List>
+                </div>
+            )}
+            {documentation && !!documentation.documentation?.description && (
+                <div style={{ borderWidth: '2px', backgroundColor: 'white' }}>
+                    <List style={{ padding: '0px' }}>
+                        <ListItem>
+                            <ListItemText primary={documentation.documentation.description}/>
+                            <ExpandMore onClick={documentationHandler}/>
+                        </ListItem>
+                    </List>
+                </div>
+            )}
+        </>
     );
 }

@@ -75,28 +75,36 @@ export function ParameterSuggestions(){
 
     return(
         <>
-            {documentation && !(documentation.documentation === undefined) ? (
-                <List className={statementEditorClasses.stmtEditorInnerWrapper}>
-                    <ListItem style={{paddingLeft: '0px', paddingTop: '0px'}}>
-                        <ListItemText primary={documentation.documentation.description}/>
-                    </ListItem>
-                    <ParameterList checkedList={checked} setCheckedList={setCheckedList} />
-                    {documentation.documentation.returnValueDescription && (
-                        <>
-                            <hr className={statementEditorClasses.returnSeparator}/>
-                            <ListSubheader className={statementEditorClasses.parameterHeader}>
-                                Return
-                            </ListSubheader>
-                            <ListItem style={{paddingLeft: '0px'}}>
-                                <ListItemText primary={documentation.documentation.returnValueDescription}/>
-                            </ListItem>
-                        </>
-                    )}
-                </List>
-            ) : (
+            {documentation === null ? (
                 <div className={statementEditorClasses.stmtEditorInnerWrapper}>
-                    <p>Please select a function to see the parameter information</p>
+                    <p>Please upgrade to the latest Ballerina version</p>
                 </div>
+            ) : (
+                <>
+                    {documentation && !(documentation.documentation === undefined) ? (
+                        <List className={statementEditorClasses.stmtEditorInnerWrapper}>
+                            <ListItem style={{paddingLeft: '0px', paddingTop: '0px'}}>
+                                <ListItemText primary={documentation.documentation.description}/>
+                            </ListItem>
+                            <ParameterList checkedList={checked} setCheckedList={setCheckedList} />
+                            {documentation.documentation.returnValueDescription && (
+                                <>
+                                    <hr className={statementEditorClasses.returnSeparator}/>
+                                    <ListSubheader className={statementEditorClasses.parameterHeader}>
+                                        Return
+                                    </ListSubheader>
+                                    <ListItem style={{paddingLeft: '0px'}}>
+                                        <ListItemText primary={documentation.documentation.returnValueDescription}/>
+                                    </ListItem>
+                                </>
+                            )}
+                        </List>
+                    ) : (
+                        <div className={statementEditorClasses.stmtEditorInnerWrapper}>
+                            <p>Please select a function to see the parameter information</p>
+                        </div>
+                    )}
+                </>
             )}
         </>
     );
