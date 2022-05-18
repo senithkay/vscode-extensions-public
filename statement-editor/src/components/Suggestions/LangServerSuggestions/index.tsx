@@ -74,7 +74,7 @@ export function LSSuggestions() {
     }, [selectedListItem]);
 
     const onClickLSSuggestion = (suggestion: SuggestionItem) => {
-        let variable = suggestion.value;
+        let variable = suggestion.insertText ? suggestion.insertText : suggestion.value;
         if (inputEditorCtx.userInput.includes('.')) {
             variable = resourceAccessRegex.exec(inputEditorCtx.userInput) + suggestion.value;
         }

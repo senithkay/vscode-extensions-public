@@ -112,7 +112,14 @@ export async function getCompletions (docUri: string,
     filteredCompletionItems.sort(sortSuggestions);
 
     filteredCompletionItems.map((completion) => {
-        suggestions.push({ value: completion.label, kind: completion.detail, suggestionType: completion.kind  });
+        suggestions.push(
+            {
+                value: completion.label,
+                kind: completion.detail,
+                insertText: completion.insertText,
+                suggestionType: completion.kind
+            }
+        );
     });
 
     return suggestions;
