@@ -18,7 +18,7 @@ import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { SymbolParameterType } from "../../../constants";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
-import { useStatementEditorStyles } from "../../styles";
+import { useStatementEditorStyles, useStmtEditorHelperPanelStyles } from "../../styles";
 import { ParameterList } from "../ParameterList";
 
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
@@ -29,8 +29,8 @@ export function ParameterSuggestions(){
         },
         documentation
     } = useContext(StatementEditorContext);
+    const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
     const statementEditorClasses = useStatementEditorStyles();
-
     const [checked, setChecked] = React.useState<any[]>([]);
 
 
@@ -83,17 +83,17 @@ export function ParameterSuggestions(){
                 <>
                     {documentation && !(documentation.documentation === undefined) ? (
                         <List className={statementEditorClasses.stmtEditorInnerWrapper}>
-                            <ListItem style={{paddingLeft: '0px', paddingTop: '0px'}}>
+                            <ListItem className={stmtEditorHelperClasses.docDescription}>
                                 <ListItemText primary={documentation.documentation.description}/>
                             </ListItem>
                             <ParameterList checkedList={checked} setCheckedList={setCheckedList} />
                             {documentation.documentation.returnValueDescription && (
                                 <>
-                                    <hr className={statementEditorClasses.returnSeparator}/>
-                                    <ListSubheader className={statementEditorClasses.parameterHeader}>
+                                    <hr className={stmtEditorHelperClasses.returnSeparator}/>
+                                    <ListSubheader className={stmtEditorHelperClasses.parameterHeader}>
                                         Return
                                     </ListSubheader>
-                                    <ListItem style={{paddingLeft: '0px'}}>
+                                    <ListItem className={stmtEditorHelperClasses.returnDescription}>
                                         <ListItemText primary={documentation.documentation.returnValueDescription}/>
                                     </ListItem>
                                 </>

@@ -17,23 +17,24 @@ import { List, ListItem, ListItemText } from "@material-ui/core";
 import { ExpandMore } from "@material-ui/icons";
 
 import { StatementEditorContext } from "../../../store/statement-editor-context";
+import { useStatementEditorStyles } from "../../styles";
 
 export interface InlineDocumentationProps {
     documentationHandler: () => void
 }
 
 export function InlineDocumentation(props: InlineDocumentationProps) {
-
     const { documentationHandler } = props;
     const {
         documentation
     } = useContext(StatementEditorContext);
+    const statementEditorClasses = useStatementEditorStyles();
 
     return (
         <>
             {documentation === null && (
-                <div style={{ borderWidth: '2px', backgroundColor: 'white' }}>
-                    <List style={{ padding: '0px' }}>
+                <div className={statementEditorClasses.inlineDocumentation}>
+                    <List className={statementEditorClasses.docListDefault}>
                         <ListItem>
                             <ListItemText primary={"Please upgrade to the latest Ballerina version"}/>
                         </ListItem>
@@ -41,8 +42,8 @@ export function InlineDocumentation(props: InlineDocumentationProps) {
                 </div>
             )}
             {documentation && !!documentation.documentation?.description && (
-                <div style={{ borderWidth: '2px', backgroundColor: 'white' }}>
-                    <List style={{ padding: '0px' }}>
+                <div className={statementEditorClasses.inlineDocumentation}>
+                    <List className={statementEditorClasses.docListDefault}>
                         <ListItem>
                             <ListItemText primary={documentation.documentation.description}/>
                             <ExpandMore onClick={documentationHandler}/>

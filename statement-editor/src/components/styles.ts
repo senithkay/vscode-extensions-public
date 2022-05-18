@@ -407,6 +407,132 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             height: '10%',
             padding: '0 10px'
         },
+        parameterCheckbox: {
+            color: '#2FA86C',
+            paddingLeft: '0px',
+            "& .MuiCheckbox-colorSecondary.Mui-checked": {
+                color: "#2FA86C"
+            },
+            "&$checked": {
+                color: "#2FA86C",
+                paddingLeft: '0px',
+                "&:hover": {
+                    background: "transparent",
+                },
+                "& .MuiIconButton-label": {
+                    position: "relative",
+                    zIndex: 0,
+                },
+                "& .MuiIconButton-label::after": {
+                    content: '""',
+                    left: 1,
+                    top: 1,
+                    width: 19,
+                    height: 19,
+                    position: "absolute",
+                    backgroundColor: "#fff",
+                    zIndex: -1,
+                    borderRadius: 3,
+                }
+            }
+        },
+        parameterTabCheckBox : {
+            root: {
+                "&$checked": {
+                    color: "rgba(0, 0, 0, 0.54)"
+                }
+            }
+        },
+        checked: {},
+        disabledCheckbox : {
+            color: 'rgba(47,168,108,0.5)',
+            paddingLeft: '0px',
+            "&$checked": {
+                color: "rgba(47,168,108,0.5)",
+                "&:hover": {
+                    background: "transparent",
+                },
+                "& .MuiIconButton-label": {
+                    position: "relative",
+                    zIndex: 0,
+                },
+                "& .MuiIconButton-label::after": {
+                    content: '""',
+                    left: 1,
+                    top: 1,
+                    width: 19,
+                    height: 19,
+                    position: "absolute",
+                    backgroundColor: "#fff",
+                    zIndex: -1,
+                    borderRadius: 3,
+                }
+            }
+        },
+        parameterHeader :  {
+            fontSize: '13px',
+            color: '#1D2028',
+            letterSpacing: '0',
+            lineHeight: '14px',
+            paddingLeft: '0px',
+            marginBottom: '7px'
+        },
+        returnSeparator : {
+            width: '616px',
+            opacity: '0.52',
+            backgroundColor: "#DCDEE4",
+            display: 'block',
+            float: 'left'
+        },
+        docListItemText: {
+            ...removePadding
+        },
+        includedRecordPlusBtn: {
+            display: 'block',
+            alignSelf: 'center',
+            padding: '0px',
+            marginLeft: '10px'
+        },
+        paramDataType: {
+            marginLeft: '8px',
+            marginRight: '8px',
+            flex: 'inherit',
+            ...removePadding
+        },
+        requiredArgList: {
+            "& .MuiListItem-root": {
+                padding: '0px',
+                flex: 'inherit'
+            },
+            "& .MuiListItemText-root": {
+                flex: "inherit"
+            },
+            ...removePadding
+        },
+        docDescription: {
+            marginBottom: '13px',
+            "& .MuiListItem-root": {
+                paddingLeft: '0px',
+                paddingTop: '0px',
+            },
+            ...removePadding
+        },
+        returnDescription: {
+            "& .MuiListItem-root": {
+                paddingLeft: '0px'
+            },
+            ...removePadding
+        },
+        includedRecordHeaderList: {
+            "& .MuiListItem-root": {
+                padding: '0px',
+                alignItems: 'flex-start'
+            },
+            "& .MuiListItemText-root": {
+                flex: "inherit"
+            },
+            ...removePadding
+        }
     }),
 );
 
@@ -500,82 +626,6 @@ export const useStatementEditorStyles = makeStyles(() =>
                 marginTop: theme.spacing(2),
             },
         },
-        parameterCheckbox: {
-            color: '#2FA86C',
-            paddingLeft: '0px',
-            "& .MuiCheckbox-colorSecondary.Mui-checked": {
-                color: "#2FA86C"
-            },
-            "&$checked": {
-                color: "#2FA86C",
-                paddingLeft: '0px',
-                "&:hover": {
-                    background: "transparent",
-                },
-                "& .MuiIconButton-label": {
-                    position: "relative",
-                    zIndex: 0,
-                },
-                "& .MuiIconButton-label::after": {
-                    content: '""',
-                    left: 1,
-                    top: 1,
-                    width: 19,
-                    height: 19,
-                    position: "absolute",
-                    backgroundColor: "#fff",
-                    zIndex: -1,
-                    borderRadius: 3,
-                }
-            }
-        },
-        parameterTabCheckBox : {
-            root: {
-                "&$checked": {
-                    color: "rgba(0, 0, 0, 0.54)"
-                }
-            }
-        },
-        checked: {},
-        disabledCheckbox : {
-            color: 'rgba(47,168,108,0.5)',
-            paddingLeft: '0px',
-            "&$checked": {
-                color: "rgba(47,168,108,0.5)",
-                "&:hover": {
-                    background: "transparent",
-                },
-                "& .MuiIconButton-label": {
-                    position: "relative",
-                    zIndex: 0,
-                },
-                "& .MuiIconButton-label::after": {
-                    content: '""',
-                    left: 1,
-                    top: 1,
-                    width: 19,
-                    height: 19,
-                    position: "absolute",
-                    backgroundColor: "#fff",
-                    zIndex: -1,
-                    borderRadius: 3,
-                }
-            }
-        },
-        parameterHeader :  {
-            fontSize: '13px',
-            color: '#1D2028',
-            letterSpacing: '0',
-            lineHeight: '14px',
-            paddingLeft: '0px'
-        },
-        returnSeparator : {
-            width: '616px',
-            opacity: '0.52',
-            backgroundColor: "#DCDEE4",
-            display: 'block',
-            float: 'left'
-        },
         statementEditorHeader: {
             minHeight: '5vh',
             display: 'flex',
@@ -587,6 +637,20 @@ export const useStatementEditorStyles = makeStyles(() =>
             display: 'flex',
             justifyContent: 'flex-end',
             width: '10%'
-        }
+        },
+        inlineDocumentation: {
+            borderWidth: '2px',
+            backgroundColor: 'white'
+        },
+        docListDefault: {
+            "& .MuiListItem-root": {
+                padding: '0px'
+            },
+            "& .MuiListItemText-root": {
+                flex: 'inherit'
+            },
+            ...removePadding
+        },
+
     }),
 );

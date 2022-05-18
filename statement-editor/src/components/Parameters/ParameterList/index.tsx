@@ -34,7 +34,7 @@ export interface ParameterListProps {
 export function ParameterList(props: ParameterListProps) {
     const { checkedList, setCheckedList } = props;
     const statementEditorClasses = useStatementEditorStyles();
-    const statementEditorHelperClasses = useStmtEditorHelperPanelStyles();
+    const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
     const {
         modelCtx: {
             currentModel,
@@ -119,10 +119,10 @@ export function ParameterList(props: ParameterListProps) {
         return (
             <>
                 {!includedRecordHeader && (
-                    <ListItem key={value} style={{ padding: '0px', alignItems: 'flex-start' }}>
-                        <ListItemText style={{ flex: 'inherit' }} primary={"Add Named Argument"}/>
+                    <ListItem key={value} className={stmtEditorHelperClasses.includedRecordHeaderList}>
+                        <ListItemText className={stmtEditorHelperClasses.docListItemText} primary={"Add Named Argument"}/>
                         <IconButton
-                            style={{ display: 'block', alignSelf: 'center', padding: '0px', marginLeft: '10px' }}
+                            className={stmtEditorHelperClasses.includedRecordPlusBtn}
                             onClick={handlePlusButton()}
                             disabled={isAllowedIncludedArgsAdded()}
                         >
@@ -156,18 +156,18 @@ export function ParameterList(props: ParameterListProps) {
         return (
             <>
                 {argument !== -1 && (
-                    <ListItem style={{ padding: '0px' }}>
+                    <ListItem className={statementEditorClasses.docListDefault}>
                         <Checkbox
                             classes={{
-                                root: statementEditorClasses.parameterCheckbox,
-                                checked: statementEditorClasses.checked
+                                root: stmtEditorHelperClasses.parameterCheckbox,
+                                checked: stmtEditorHelperClasses.checked
                             }}
                             style={{ flex: 'inherit' }}
                             checked={argument !== -1}
                             onClick={handleCheckboxClick(value, param)}
                         />
                         <ListItemText
-                            style={{ flex: 'inherit' }}
+                            className={stmtEditorHelperClasses.docListItemText}
                             primary={(argList[argument] && STKindChecker.isNamedArg(argList[argument])) ?
                                 (argList[argument] as NamedArg).argumentName.source : param.name}
                         />
@@ -203,8 +203,8 @@ export function ParameterList(props: ParameterListProps) {
         <>
             {!!parameters?.length && (
                 <>
-                    <ListSubheader className={statementEditorClasses.parameterHeader}>
-                        Parameter
+                    <ListSubheader className={stmtEditorHelperClasses.parameterHeader}>
+                        Parameters
                     </ListSubheader>
                     {parameters?.map((param: ParameterInfo, value: number) => (
                             <>
@@ -231,29 +231,29 @@ export function ParameterList(props: ParameterListProps) {
                                         ) : (
                                             <>
                                                 {param.kind !== SymbolParameterType.INCLUDED_RECORD && (
-                                                    <ListItem key={value} style={{ padding: '0px' }}>
+                                                    <ListItem key={value} className={statementEditorClasses.docListDefault}>
                                                         <Checkbox
                                                             classes={{
-                                                                root: statementEditorClasses.parameterCheckbox,
-                                                                checked: statementEditorClasses.checked
+                                                                root: stmtEditorHelperClasses.parameterCheckbox,
+                                                                checked: stmtEditorHelperClasses.checked
                                                             }}
                                                             checked={checkedList.indexOf(value) !== -1}
                                                             onClick={handleCheckboxClick(value, param)}
                                                         />
                                                         <ListItemText
-                                                            style={{ flex: 'inherit' }}
+                                                            className={stmtEditorHelperClasses.docListItemText}
                                                             primary={param.name}
                                                         />
                                                         <ListItemText
-                                                            style={{ marginLeft: '8px', marginRight: '8px', flex: 'inherit'}}
+                                                            className={stmtEditorHelperClasses.paramDataType}
                                                             primary={(
-                                                                <Typography className={statementEditorHelperClasses.suggestionDataType}>
+                                                                <Typography className={stmtEditorHelperClasses.suggestionDataType}>
                                                                     {param.type}
                                                                 </Typography>
                                                             )}
                                                         />
                                                         <ListItemText
-                                                            style={{ flex: 'inherit' }}
+                                                            className={stmtEditorHelperClasses.docListItemText}
                                                             primary={" : " + param.description}
                                                         />
                                                     </ListItem>
