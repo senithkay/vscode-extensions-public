@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React from "react";
+import React, { useState } from "react";
 import { FormattedMessage } from "react-intl";
 
 import { FormHelperText } from "@material-ui/core";
@@ -21,55 +21,61 @@ import {
     SelectDropdownWithButton,
     wizardStyles as useFormStyles
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
-import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
 
-// import CheckBoxGroup from "../../../../../FormFieldComponents/CheckBox";
-// import { SelectDropdownWithButton } from "../../../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
-// import { VariableNameInput } from "../../../../Components/VariableNameInput";
-// import { wizardStyles as useFormStyles } from "../../../../style";
+import { FormEditorField } from "../Types";
+import { getListenerConfig } from "../Utils/FormUtils";
 
-
-interface ListenerConfigFormProps {
-    // configState: ListenerConfigFormState
-    // actionDispatch: (action: ServiceConfigActions) => void;
-    listenerList: string[];
-    targetPosition: NodePosition;
+export interface ListenerConfig {
+    listenerName?: string;
+    listenerPort?: string;
+    fromRef?: boolean;
 }
 
-// FixMe: show validation messages to listenerName and listenerPort
+interface ListenerConfigFormProps {
+    model?: ServiceDeclaration;
+    listenerList: string[];
+    targetPosition: NodePosition;
+    isEdit?: boolean;
+}
+
 export function ListenerConfigForm(props: ListenerConfigFormProps) {
     const formClasses = useFormStyles();
-    const { listenerList, targetPosition } = props;
+    const { listenerList, model, targetPosition, isEdit } = props;
 
+    const listenerConfig = getListenerConfig(model, isEdit);
+    const [listenerName, setListenerName] = useState<FormEditorField>({isInteracted: false, value:
+        listenerConfig.listenerName});
+    const [listenerPort, setListenerPort] = useState<FormEditorField>({isInteracted: false, value:
+        listenerConfig.listenerPort});
+    const [createNewListener, setCreateNewListener] = useState(false);
+    const [fromVarRef, setFromVarRef] = useState<boolean>(listenerConfig.fromRef);
     const listenerSelectionCustomProps = {
         disableCreateNew: false, values: listenerList || [],
     }
 
     const handleListenerDefModeChange = (mode: string[]) => {
-        // if (listenerList.length === 0) {
-        //     actionDispatch({ type: ServiceConfigActionTypes.CREATE_NEW_LISTENER });
-        // }
-        // actionDispatch({ type: ServiceConfigActionTypes.DEFINE_LISTENER_INLINE, payload: mode.length === 0 })
+        if (listenerList.length === 0) {
+            setCreateNewListener(true);
+        }
+        setFromVarRef(mode.length === 0)
     }
 
-    const onListenerNameChange = (listenerName: string) => {
-        // actionDispatch({ type: ServiceConfigActionTypes.SET_LISTENER_NAME, payload: listenerName })
+    const onListenerNameChange = (name: string) => {
+        setListenerName({isInteracted: true, value: name});
     }
 
-    const onListenerPortChange = (listenerPort: string) => {
-        // actionDispatch({ type: ServiceConfigActionTypes.SET_LISTENER_PORT, payload: listenerPort })
+    const onListenerPortChange = (port: string) => {
+        setListenerPort({isInteracted: true, value: port});
     }
 
-    const onListenerSelect = (listenerName: string) => {
-        // if (listenerName === 'Create New') {
-        //     actionDispatch({ type: ServiceConfigActionTypes.CREATE_NEW_LISTENER });
-        // } else {
-        //     actionDispatch({ type: ServiceConfigActionTypes.SELECT_EXISTING_LISTENER, payload: listenerName });
-        // }
-    }
-
-    const validateField = (fieldName: string, isInvalidFromField: boolean) => {
-        // actionDispatch({ type: ServiceConfigActionTypes.UPDATE_INVALID_CONFIG_STATUS, payload: isInvalidFromField });
+    const onListenerSelect = (name: string) => {
+        if (name === 'Create New') {
+            setCreateNewListener(true);
+        } else {
+            setCreateNewListener(false);
+            setListenerName({isInteracted: true, value: name});
+        }
     }
 
     const listenerSelector = (
@@ -84,39 +90,64 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
                 customProps={listenerSelectionCustomProps}
                 onChange={onListenerSelect}
                 placeholder="Select Property"
-                // defaultValue={!state.createNewListener ? state.listenerName : 'Create New'}
+                defaultValue={!createNewListener  ? listenerName?.value : 'Create New'}
             />
         </>
     );
 
-    // const listenerNameInputComponent = (
-    //     <VariableNameInput
-    //         displayName="Listener Name"
-    //         isEdit={false}
-    //         onValueChange={onListenerNameChange}
-    //         validateExpression={validateField}
-    //         position={{
-    //             startLine: targetPosition.startLine,
-    //             endLine: targetPosition.startLine,
-    //             startColumn: 0,
-    //             endColumn: 0
-    //         }}
-    //         // value={state.listenerName}
-    //     />
-    // )
+    const listenerNameInputComponent = (
+        <FormTextInput
+            label="Name"
+            dataTestId="listener-name"
+            defaultValue={(listenerName?.isInteracted) ? listenerName.value : ""}
+            onChange={onListenerNameChange}
+            customProps={{
+                isErrored: false
+            }}
+            errorMessage={""}
+            onBlur={null}
+            // onFocus={onNameFocus}
+            placeholder={"listener"}
+            size="small"
+            // disabled={addingNewParam || (currentComponentSyntaxDiag && currentComponentName !== "Name")}
+        />
+    );
 
-    const listenerPortInputComponent = (<div/>)
+    const listenerPortInputComponent = (
+        <FormTextInput
+            label="Port"
+            dataTestId="listener-port"
+            defaultValue={(listenerPort?.isInteracted) ? listenerPort.value : ""}
+            onChange={onListenerPortChange}
+            customProps={{
+                isErrored: false
+            }}
+            errorMessage={""}
+            onBlur={null}
+            // onFocus={onNameFocus}
+            placeholder={"9090"}
+            size="small"
+            // disabled={addingNewParam || (currentComponentSyntaxDiag && currentComponentName !== "Name")}
+        />
+    );
+
+    React.useEffect(() => {
+        // Identify initial edit
+        if (listenerList.length === 0 && !isEdit) {
+            setCreateNewListener(true);
+        }
+    }, []);
 
     return (
         <>
             <CheckBoxGroup
                 values={["Define Inline"]}
-                defaultValues={['Define Inline']}
+                defaultValues={fromVarRef ? [] : ['Define Inline']}
                 onChange={handleListenerDefModeChange}
             />
-            {listenerSelector}
-            {/*{state.fromVar && state.createNewListener && [listenerNameInputComponent, listenerPortInputComponent]}*/}
-            {/*{!state.fromVar && listenerPortInputComponent}*/}
+            {fromVarRef && listenerSelector}
+            {fromVarRef && createNewListener && [listenerNameInputComponent, listenerPortInputComponent]}
+            {!fromVarRef && listenerPortInputComponent}
         </>
     )
 }

@@ -14,19 +14,18 @@
 import React, { useReducer, useState } from "react";
 
 import {
-    FormElementProps
+    FormElementProps, STSymbolInfo
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     dynamicConnectorStyles as useFormStyles,
-    FormActionButtons,
+    FormActionButtons, FormTextInput,
     TextLabel
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { ListenerDeclaration, NodePosition, ServiceDeclaration, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
-// import { createImportStatement, createServiceDeclartion, updateServiceDeclartion } from "../../../../../../utils/modification-util";
-
 import { ListenerConfigForm } from "./ListenerConfigFrom";
+import {FormEditorField} from "../Types";
 
 interface HttpServiceFormProps {
     model?: ServiceDeclaration;
@@ -34,31 +33,26 @@ interface HttpServiceFormProps {
     onCancel: () => void;
     onSave: () => void;
     isLastMember?: boolean;
+    stSymbolInfo?: STSymbolInfo;
+    isEdit?: boolean;
 }
 
 const HTTP_MODULE_QUALIFIER = 'http';
 
 export function HttpServiceForm(props: HttpServiceFormProps) {
     const formClasses = useFormStyles();
-    const { model, targetPosition, onCancel, onSave, isLastMember } = props;
-    // const { props: { stSymbolInfo }, api: { code: { modifyDiagram } } } = useDiagramContext();
-    const [isValidPath, setIsValidPath] = useState(false);
+    const { model, targetPosition, onCancel, onSave, isLastMember, stSymbolInfo, isEdit } = props;
 
-    // const listenerList = Array.from(stSymbolInfo.listeners)
-    //     .filter(([key, value]) =>
-    //         STKindChecker.isQualifiedNameReference((value as ListenerDeclaration).typeDescriptor)
-    //         && (value as ListenerDeclaration).typeDescriptor.modulePrefix.value === HTTP_MODULE_QUALIFIER)
-    //     .map(([key, value]) => key);
+    const [basePath, setBsePath] = useState<FormEditorField>({isInteracted: false, value: ""});
 
-
-    React.useEffect(() => {
-        // if (listenerList.length === 0 && !model) {
-        //     dispatch({ type: ServiceConfigActionTypes.CREATE_NEW_LISTENER });
-        // }
-    }, []);
+    const listenerList = Array.from(stSymbolInfo.listeners)
+        .filter(([key, value]) =>
+            STKindChecker.isQualifiedNameReference((value as ListenerDeclaration).typeDescriptor)
+            && (value as ListenerDeclaration).typeDescriptor.modulePrefix.value === HTTP_MODULE_QUALIFIER)
+        .map(([key, value]) => key);
 
     const onBasePathChange = (path: string) => {
-        // dispatch({ type: ServiceConfigActionTypes.SET_PATH, payload: path })
+        setBsePath({isInteracted: false, value: path});
     }
 
     const handleOnSave = () => {
@@ -86,10 +80,6 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
         }
         onSave();
     }
-
-    // const saveBtnEnabled = isServiceConfigValid(state) && isValidPath;
-
-    const updateResourcePathValidation = (_name: string, isInValid: boolean) => setIsValidPath(!isInValid);
 
     const getAbsolutePathPositions = () => {
         const resourcePath = model?.absoluteResourcePath;
@@ -140,27 +130,25 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
         }
     }
 
-    // const servicePathConfig: FormElementProps<ExpressionEditorProps> = {
-    //     model: {
-    //         name: "servicePath",
-    //         displayName: 'Service path',
-    //         isOptional: false
-    //     },
-    //     customProps: {
-    //         validate: updateResourcePathValidation,
-    //         interactive: true,
-    //         editPosition: getAbsolutePathPositions(),
-    //         customTemplate: getCustomTemplate(),
-    //     },
-    //     onChange: onBasePathChange,
-    //     defaultValue: state.serviceBasePath
-    // }
-
     return (
         <>
             <div className={formClasses.formContentWrapper}>
                 <div className={formClasses.formNameWrapper}>
-                    {/*<LowCodeExpressionEditor {...servicePathConfig} />*/}
+                    <FormTextInput
+                        label="Name"
+                        dataTestId="listener-name"
+                        defaultValue={(basePath?.isInteracted) ? basePath.value : ""}
+                        onChange={onBasePathChange}
+                        customProps={{
+                            isErrored: false
+                        }}
+                        errorMessage={""}
+                        onBlur={null}
+                        // onFocus={onNameFocus}
+                        placeholder={"Listener Name"}
+                        size="small"
+                        // disabled={addingNewParam || (currentComponentSyntaxDiag && currentComponentName !== "Name")}
+                    />
                     <TextLabel
                         required={true}
                         textLabelId="lowcode.develop.connectorForms.HTTP.configureNewListener"
@@ -169,7 +157,8 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
                 </div>
                 <div className={classNames(formClasses.groupedForm, formClasses.marginTB)}>
                     <ListenerConfigForm
-                        listenerList={[]}
+                        model={model}
+                        listenerList={listenerList}
                         targetPosition={model ? model.position : targetPosition}
                     />
                 </div>

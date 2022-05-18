@@ -13,6 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useEffect, useState } from 'react';
 
+import { STSymbolInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import * as monaco from "monaco-editor";
 
@@ -31,6 +32,7 @@ export interface FormEditorProps extends LowCodeEditorProps {
     initialSource?: string;
     initialModel?: STNode;
     targetPosition: NodePosition;
+    stSymbolInfo?: STSymbolInfo;
     type: string;
     onCancel: () => void;
 }
@@ -47,7 +49,8 @@ export function FormEditor(props: FormEditorProps) {
         importStatements,
         type,
         targetPosition,
-        topLevelComponent
+        topLevelComponent,
+        stSymbolInfo
     } = props;
 
     const [model, setModel] = useState<STNode>(null);
@@ -91,6 +94,7 @@ export function FormEditor(props: FormEditorProps) {
                 type={type}
                 model={model}
                 targetPosition={targetPosition}
+                stSymbolInfo={stSymbolInfo}
                 onChange={onChange}
                 onCancel={onCancel}
                 getLangClient={getLangClient}

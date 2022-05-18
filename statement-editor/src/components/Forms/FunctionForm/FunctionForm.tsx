@@ -117,6 +117,7 @@ export function FunctionForm(props: FunctionProps) {
 
     // Return type related functions
     const onReturnTypeChange = async (value: string) => {
+        // TODO: remove function return validations
         setReturnType({value, isInteracted: true});
         const parametersStr = parameters.map((item) => `${item.type.value} ${item.name.value}`).join(",");
         await functionParamChange(functionName.value, parametersStr, value);

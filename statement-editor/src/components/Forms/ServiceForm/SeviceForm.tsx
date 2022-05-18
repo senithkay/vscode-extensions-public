@@ -13,8 +13,11 @@
 import React, { useState } from "react";
 
 import { FormControl } from "@material-ui/core";
+import { STSymbolInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { dynamicConnectorStyles as useFormStyles, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { NodePosition, ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
+
+import { getServiceTypeFromModel } from "../Utils/FormUtils";
 
 import { HttpServiceForm } from "./HTTPServiceForm";
 import { ServiceTypeSelector } from "./ServiceTypeSelector";
@@ -26,6 +29,8 @@ interface ServiceConfigFormProps {
     onSave: () => void;
     formType: string;
     isLastMember?: boolean;
+    stSymbolInfo?: STSymbolInfo;
+    isEdit?: boolean;
 }
 
 export enum ServiceTypes {
@@ -34,14 +39,14 @@ export enum ServiceTypes {
 
 export function ServiceConfigForm(props: ServiceConfigFormProps) {
     const formClasses = useFormStyles();
-    const { model, targetPosition, onSave, onCancel, formType, isLastMember } = props;
-    const [serviceType, setServiceType] = useState<string>("http");
+    const { model, targetPosition, onSave, onCancel, formType, isLastMember, stSymbolInfo, isEdit } = props;
+    const [serviceType, setServiceType] = useState<string>(getServiceTypeFromModel(model, stSymbolInfo));
 
     let configForm;
 
     switch (serviceType) {
         case ServiceTypes.HTTP:
-            configForm = <HttpServiceForm onSave={onSave} onCancel={onCancel} model={model} targetPosition={targetPosition} isLastMember={isLastMember} />
+            configForm = <HttpServiceForm onSave={onSave} onCancel={onCancel} model={model} targetPosition={targetPosition} stSymbolInfo={stSymbolInfo} isLastMember={isLastMember} />
             break;
         default:
             // configForm = <TriggerServiceForm onSave={onSave} onCancel={onCancel} model={model} targetPosition={targetPosition} />
