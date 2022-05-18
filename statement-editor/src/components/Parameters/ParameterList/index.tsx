@@ -17,9 +17,13 @@ import { AddCircleOutline } from "@material-ui/icons";
 import { ParameterInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NamedArg, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
-import { EXPR_CONSTRUCTOR, SymbolParameterType } from "../../../constants";
+import { SymbolParameterType } from "../../../constants";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
-import { keywords } from "../../../utils/statement-modifications";
+import {
+    getCurrentModelParams, getUpdatedContentForNewNamedArg,
+    getUpdatedContentOnCheck, getUpdatedContentOnUncheck,
+    isAllowedIncludedArgsAdded
+} from "../../../utils";
 import { useStatementEditorStyles, useStmtEditorHelperPanelStyles } from "../../styles";
 import { NamedArgIncludedRecord } from "../NamedArgIncludedRecord";
 import { RequiredArg } from "../RequiredArg";
@@ -59,61 +63,20 @@ export function ParameterList(props: ParameterListProps) {
             newChecked.push(value);
 
             if (STKindChecker.isFunctionCall(currentModel.model)) {
-                const functionParameters: string[] = [];
-                currentModel.model.arguments.filter((parameter: any) => !STKindChecker.isCommaToken(parameter)).
-                    map((parameter: STNode) => {
-                        functionParameters.push(parameter.source);
-                });
-
-                if (param.kind === SymbolParameterType.DEFAULTABLE) {
-                    functionParameters.push((keywords.includes(param.name) ?
-                        `'${param.name} = ${EXPR_CONSTRUCTOR}` :
-                        `${param.name} = ${EXPR_CONSTRUCTOR}`));
-                } else if (param.kind === SymbolParameterType.REST) {
-                    functionParameters.push(EXPR_CONSTRUCTOR);
-                } else {
-                    functionParameters.push(param.name);
-                }
-
-                const content: string = currentModel.model.functionName.source + "(" + functionParameters.join(",") + ")";
                 if (param.kind === SymbolParameterType.REST) {
                     restArg(true);
                 }
-                updateModel(content, currentModel.model.position);
+                updateModel(getUpdatedContentOnCheck(currentModel.model, param), currentModel.model.position);
             }
         } else {
             newChecked.splice(currentIndex, 1);
             if (STKindChecker.isFunctionCall(currentModel.model)) {
-                const functionParameters: string[] = [];
-                currentModel.model.arguments.filter((parameter: any) => !STKindChecker.isCommaToken(parameter)).
-                    map((parameter: STNode, pos: number) => {
-                        if (pos !== currentIndex) {
-                            functionParameters.push(parameter.source);
-                        }
-                });
-
-                const content: string = currentModel.model.functionName.source + "(" + functionParameters.join(",") + ")";
-                updateModel(content, currentModel.model.position);
+                updateModel(getUpdatedContentOnUncheck(currentModel.model, currentIndex), currentModel.model.position);
             }
         }
 
         setCheckedList(newChecked);
     };
-
-    const isAllowedIncludedArgsAdded = (): boolean => {
-        let isIncluded: boolean = true;
-        for (let i = 0; i < parameters.length; i++){
-            const docParam : ParameterInfo = parameters[i];
-            if (docParam.kind === SymbolParameterType.INCLUDED_RECORD){
-                if (!checkedList.includes(i)){
-                    isIncluded = false;
-                    break;
-                }
-            }
-        }
-        return isIncluded;
-    }
-
 
     const addIncludedRecordHeader = (param: ParameterInfo, value: number) => {
         return (
@@ -124,7 +87,7 @@ export function ParameterList(props: ParameterListProps) {
                         <IconButton
                             className={stmtEditorHelperClasses.includedRecordPlusBtn}
                             onClick={handlePlusButton()}
-                            disabled={isAllowedIncludedArgsAdded()}
+                            disabled={isAllowedIncludedArgsAdded(parameters, checkedList)}
                         >
                             <AddCircleOutline/>
                         </IconButton>
@@ -135,22 +98,15 @@ export function ParameterList(props: ParameterListProps) {
         );
     }
 
-
     const handlePlusButton = () => () => {
         setPlusButtonClicked(true);
     }
 
     const addIncludedRecords = (param: ParameterInfo, value: number) => {
 
-        const argList: STNode[] = [];
+        let argList: STNode[] = [];
         if (currentModel.model) {
-            if (STKindChecker.isFunctionCall(currentModel.model)) {
-                currentModel.model.arguments.forEach((parameter: any) => {
-                    if (!parameter.isToken) {
-                        argList.push(parameter);
-                    }
-                });
-            }
+            argList = getCurrentModelParams(currentModel.model);
         }
         const argument = checkedList.indexOf(value);
         return (
@@ -183,16 +139,7 @@ export function ParameterList(props: ParameterListProps) {
         if (currentIndex === -1) {
             if (STKindChecker.isFunctionCall(currentModel.model)) {
                 newChecked.push(value);
-
-                const functionParameters: string[] = [];
-                currentModel.model.arguments.filter((parameter: any) => !STKindChecker.isCommaToken(parameter)).
-                map((parameter: STNode) => {
-                    functionParameters.push(parameter.source);
-                });
-
-                functionParameters.push(`${userInput} = ${EXPR_CONSTRUCTOR}`);
-                const content: string = currentModel.model.functionName.source + "(" + functionParameters.join(",") + ")";
-                updateModel(content, currentModel.model.position);
+                updateModel(getUpdatedContentForNewNamedArg(currentModel.model, userInput), currentModel.model.position);
                 setCheckedList(newChecked);
                 setPlusButtonClicked(false);
             }
@@ -208,7 +155,6 @@ export function ParameterList(props: ParameterListProps) {
                     </ListSubheader>
                     {parameters?.map((param: ParameterInfo, value: number) => (
                             <>
-
                                 {param.kind === SymbolParameterType.REQUIRED ? (
                                     <RequiredArg param={param} value={value} checkedList={checkedList}/>
                                 ) : (
@@ -270,4 +216,3 @@ export function ParameterList(props: ParameterListProps) {
         </>
     );
 }
-

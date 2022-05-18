@@ -16,11 +16,12 @@ import {
     CompletionResponse,
     getDiagnosticMessage,
     getFilteredDiagnostics,
-    LinePosition,
+    LinePosition, ParameterInfo,
     STModification,
-    STSymbolInfo
+    STSymbolInfo, SymbolDocumentation
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
+    FunctionCall,
     Minutiae,
     NodePosition,
     STKindChecker,
@@ -34,11 +35,11 @@ import { INPUT_EDITOR_PLACEHOLDERS } from "../components/InputEditor/constants";
 import * as statementTypeComponents from '../components/Statements';
 import {
     CUSTOM_CONFIG_TYPE,
-    END_OF_LINE_MINUTIAE,
+    END_OF_LINE_MINUTIAE, EXPR_CONSTRUCTOR,
     OTHER_EXPRESSION,
     OTHER_STATEMENT,
     PLACEHOLDER_DIAGNOSTICS,
-    StatementNodes,
+    StatementNodes, SymbolParameterType,
     WHITESPACE_MINUTIAE
 } from "../constants";
 import { CurrentModel, MinutiaeJSX, RemainingContent, StmtDiagnostic, StmtOffset } from '../models/definitions';
@@ -52,7 +53,7 @@ import { parentSetupVisitor } from '../visitors/parent-setup-visitor';
 import { viewStateSetupVisitor as ViewStateSetupVisitor } from "../visitors/view-state-setup-visitor";
 
 import { ModelType, StatementEditorViewState } from "./statement-editor-viewstate";
-import { getImportModification, getStatementModification } from "./statement-modifications";
+import { getImportModification, getStatementModification, keywords } from "./statement-modifications";
 
 export function getModifications(model: STNode, configType: string, targetPosition: NodePosition,
                                  modulesToBeImported?: string[]): STModification[] {
@@ -470,4 +471,98 @@ export function getSymbolPosition(targetPos: NodePosition, currentModel: Current
         offset : targetPos.startColumn + currentModel.model.position.startColumn + userInput.length
     }
     return position;
+}
+
+export function getCurrentModelParams(currentModel: STNode): STNode[] {
+    const paramsInModel: STNode[] = [];
+    if (STKindChecker.isFunctionCall(currentModel)) {
+        currentModel.arguments.forEach((parameter: any) => {
+            if (!parameter.isToken) {
+                paramsInModel.push(parameter);
+            }
+        });
+    }
+    return paramsInModel;
+}
+
+export function getParamCheckedList(paramsInModel: STNode[], documentation : SymbolDocumentation) : any[] {
+    const checkedList : any[] = [];
+    paramsInModel.map((param: STNode, value: number) => {
+        if (STKindChecker.isNamedArg(param)) {
+            for (let i = 0; i < documentation.parameters.length; i++){
+                const docParam : ParameterInfo = documentation.parameters[i];
+                if (param.argumentName.name.value === docParam.name ||
+                    docParam.kind === SymbolParameterType.INCLUDED_RECORD || docParam.kind === SymbolParameterType.REST){
+                    if (checkedList.indexOf(i) === -1){
+                        checkedList.push(i);
+                        break;
+                    }
+                }
+            }
+        } else {
+            checkedList.push(value);
+        }
+    });
+
+    return checkedList
+}
+
+export function isAllowedIncludedArgsAdded(parameters: ParameterInfo[], checkedList: any[]): boolean {
+    let isIncluded: boolean = true;
+    for (let i = 0; i < parameters.length; i++){
+        const docParam : ParameterInfo = parameters[i];
+        if (docParam.kind === SymbolParameterType.INCLUDED_RECORD){
+            if (!checkedList.includes(i)){
+                isIncluded = false;
+                break;
+            }
+        }
+    }
+    return isIncluded;
+}
+
+export function getUpdatedContentOnCheck(currentModel: FunctionCall, param: ParameterInfo) : string {
+    const functionParameters: string[] = [];
+    currentModel.arguments.filter((parameter: any) => !STKindChecker.isCommaToken(parameter)).
+    map((parameter: STNode) => {
+        functionParameters.push(parameter.source);
+    });
+
+    if (param.kind === SymbolParameterType.DEFAULTABLE) {
+        functionParameters.push((keywords.includes(param.name) ?
+            `'${param.name} = ${EXPR_CONSTRUCTOR}` :
+            `${param.name} = ${EXPR_CONSTRUCTOR}`));
+    } else if (param.kind === SymbolParameterType.REST) {
+        functionParameters.push(EXPR_CONSTRUCTOR);
+    } else {
+        functionParameters.push(param.name);
+    }
+
+    const content: string = currentModel.functionName.source + "(" + functionParameters.join(",") + ")";
+    return content;
+}
+
+export function getUpdatedContentOnUncheck(currentModel: FunctionCall, currentIndex: number) : string {
+    const functionParameters: string[] = [];
+    currentModel.arguments.filter((parameter: any) => !STKindChecker.isCommaToken(parameter)).
+    map((parameter: STNode, pos: number) => {
+        if (pos !== currentIndex) {
+            functionParameters.push(parameter.source);
+        }
+    });
+
+    const content: string = currentModel.functionName.source + "(" + functionParameters.join(",") + ")";
+    return content;
+}
+
+export function getUpdatedContentForNewNamedArg(currentModel: FunctionCall, userInput: string) : string {
+    const functionParameters: string[] = [];
+    currentModel.arguments.filter((parameter: any) => !STKindChecker.isCommaToken(parameter)).
+    map((parameter: STNode) => {
+        functionParameters.push(parameter.source);
+    });
+
+    functionParameters.push(`${userInput} = ${EXPR_CONSTRUCTOR}`);
+    const content: string = currentModel.functionName.source + "(" + functionParameters.join(",") + ")";
+    return content;
 }
