@@ -387,7 +387,7 @@
                     "dark": "./resources/images/icons/refresh-inverse.svg"
                 },
                 "category": "Ballerina",
-                "enablement": "notebookType == 'ballerina-notebook'"
+                "enablement": "isNotebookVariableViewEnabled"
             },
             {
                 "command": "ballerina.notebook.createNotebook",
