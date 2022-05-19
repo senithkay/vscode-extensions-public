@@ -21,7 +21,7 @@ import { Diagnostic } from "vscode-languageserver-protocol";
 import { CUSTOM_CONFIG_TYPE } from "../../constants";
 import {
     CurrentModel,
-    EditorModel,
+    EditorModel, EmptySymbolInfo,
     StmtDiagnostic,
     SuggestionItem
 } from "../../models/definitions";
@@ -48,7 +48,7 @@ import {
     sendDidChange
 } from "../../utils/ls-utils";
 import { StatementEditorViewState } from "../../utils/statement-editor-viewstate";
-import { StmtActionStackItem } from "../../utils/undo-redo";
+import { StackElement } from "../../utils/undo-redo";
 import { EXPR_SCHEME, FILE_SCHEME } from "../InputEditor/constants";
 import { FormHandlingProps as StmtEditorWrapperProps} from "../StatementEditorWrapper";
 import { ViewContainer } from "../ViewContainer";
@@ -104,13 +104,13 @@ export function StatementEditor(props: StatementEditorProps) {
     } = editorManager;
 
     const fileURI = monaco.Uri.file(currentFile.path).toString().replace(FILE_SCHEME, EXPR_SCHEME);
-
+    const initSymbolInfo : EmptySymbolInfo = {}
     const [model, setModel] = useState<STNode>(null);
     const [currentModel, setCurrentModel] = useState<CurrentModel>({ model });
     const [stmtDiagnostics, setStmtDiagnostics] = useState<StmtDiagnostic[]>([]);
     const [moduleList, setModuleList] = useState(new Set<string>());
     const [lsSuggestionsList, setLSSuggestionsList] = useState([]);
-    const [documentation, setDocumentation] = useState<SymbolInfoResponse>(null);
+    const [documentation, setDocumentation] = useState<SymbolInfoResponse | EmptySymbolInfo>(initSymbolInfo);
     const [isRestArg, setRestArg] = useState(false);
 
     const undo = async () => {
@@ -124,9 +124,7 @@ export function StatementEditor(props: StatementEditorProps) {
 
             const newCurrentModel = getCurrentModel(undoItem.oldModel.selectedPosition, enrichModel(undoItem.oldModel.model, targetPosition));
             setCurrentModel({model: newCurrentModel});
-            if (currentModel.model){
-                setDocumentation(await getSymbolDocumentation(fileURI, targetPosition, {model : newCurrentModel}, getLangClient));
-            }
+            await handleDocumentation(newCurrentModel);
         }
     };
 
@@ -141,9 +139,7 @@ export function StatementEditor(props: StatementEditorProps) {
 
             const newCurrentModel = getCurrentModel(redoItem.newModel.selectedPosition, enrichModel(redoItem.newModel.model, targetPosition));
             setCurrentModel({model: newCurrentModel});
-            if (currentModel.model){
-                setDocumentation(await getSymbolDocumentation(fileURI, targetPosition, currentModel, getLangClient));
-            }
+            await handleDocumentation(newCurrentModel);
         }
     };
 
@@ -160,10 +156,7 @@ export function StatementEditor(props: StatementEditorProps) {
 
             setStmtModel(editorModel, diagnostics);
             setCurrentModel({ model: newCurrentModel });
-            if (newCurrentModel){
-                setDocumentation(await getSymbolDocumentation(fileURI, targetPosition,
-                    { model: newCurrentModel }, getLangClient));
-            }
+            await handleDocumentation(newCurrentModel);
         })();
     }, [editor]);
 
@@ -181,7 +174,7 @@ export function StatementEditor(props: StatementEditorProps) {
                         currentModel, getLangClient);
                 }
                 setLSSuggestionsList(lsSuggestions);
-                setDocumentation(await getSymbolDocumentation(fileURI, targetPosition, currentModel, getLangClient));
+                await handleDocumentation(currentModel.model);
             }
         })();
     }, [currentModel.model]);
@@ -245,17 +238,15 @@ export function StatementEditor(props: StatementEditorProps) {
         if (!partialST.syntaxDiagnostics.length || config.type === CUSTOM_CONFIG_TYPE) {
             setStmtModel(partialST, diagnostics);
             const selectedPosition = getSelectedModelPosition(codeSnippet, position);
-            const undoModel : StmtActionStackItem = {
-                oldModel: {
-                    model,
-                    selectedPosition : currentModel.model.position
-                },
-                newModel: {
-                    model: partialST,
-                    selectedPosition
-                }
+            const oldModel : StackElement = {
+                model,
+                selectedPosition : currentModel.model.position
             }
-            undoRedoManager.add(undoModel.oldModel, undoModel.newModel);
+            const newModel : StackElement = {
+                model: partialST,
+                selectedPosition
+            }
+            undoRedoManager.add(oldModel, newModel);
 
             const newCurrentModel = getCurrentModel(selectedPosition, enrichModel(partialST, targetPosition));
             setCurrentModel({model: newCurrentModel});
@@ -290,6 +281,14 @@ export function StatementEditor(props: StatementEditorProps) {
         const messages = getFilteredDiagnosticMessages(statement, targetPosition, diag);
         setStmtDiagnostics(messages);
         return diag;
+    }
+
+    const handleDocumentation = async (newCurrentModel: STNode) => {
+        if (newCurrentModel && STKindChecker.isFunctionCall(newCurrentModel)){
+            setDocumentation(await getSymbolDocumentation(fileURI, targetPosition, newCurrentModel, getLangClient));
+        } else {
+            setDocumentation(initSymbolInfo)
+        }
     }
 
     const removeUnusedModules = (completeDiagnostic:  Diagnostic[]) => {

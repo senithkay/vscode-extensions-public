@@ -17,32 +17,41 @@ import { AddCircleOutline } from "@material-ui/icons";
 import { ParameterInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NamedArg, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
-import { EXPR_CONSTRUCTOR, SymbolParameterType } from "../../../constants";
+import { SymbolParameterType } from "../../../constants";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
-import { keywords } from "../../../utils/statement-modifications";
+import {
+    getCurrentModelParams, getUpdatedContentForNewNamedArg,
+    getUpdatedContentOnCheck, getUpdatedContentOnUncheck,
+    isAllowedIncludedArgsAdded
+} from "../../../utils";
 import { useStatementEditorStyles, useStmtEditorHelperPanelStyles } from "../../styles";
 import { NamedArgIncludedRecord } from "../NamedArgIncludedRecord";
 import { RequiredArg } from "../RequiredArg";
+
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
 export interface ParameterListProps {
-    checkedList : any[]
-    setCheckedList : (list : any[]) => void
+    checkedList: any[]
+    setCheckedList: (list: any[]) => void
     paramsInModel?: STNode[]
 }
+
 export function ParameterList(props: ParameterListProps) {
     const { checkedList, setCheckedList } = props;
-    const statementEditorClasses = useStatementEditorStyles();
-    const statementEditorHelperClasses = useStmtEditorHelperPanelStyles();
+    const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
     const {
         modelCtx: {
             currentModel,
             updateModel,
             restArg
         },
-        documentation
+        documentation : {
+            documentation : {
+                parameters
+            }
+        }
     } = useContext(StatementEditorContext);
     let includedRecordHeader: boolean = false;
-    let isNewRecordBtnClicked : boolean = false;
+    let isNewRecordBtnClicked: boolean = false;
     const [plusButtonClick, setPlusButtonClicked] = React.useState(false);
 
     const handleCheckboxClick = (value: number, param?: ParameterInfo) => () => {
@@ -53,75 +62,31 @@ export function ParameterList(props: ParameterListProps) {
             newChecked.push(value);
 
             if (STKindChecker.isFunctionCall(currentModel.model)) {
-                let funcParams: string = "";
-                currentModel.model.arguments.forEach((parameter: any) => {
-                    funcParams = funcParams + (parameter.isToken ? parameter.value : parameter.source);
-                });
-
-                if (param.kind === SymbolParameterType.DEFAULTABLE){
-                    funcParams = funcParams + ", " +
-                        (keywords.includes(param.name) ? `'${param.name} = ${EXPR_CONSTRUCTOR}` : `${param.name} = ${EXPR_CONSTRUCTOR}`);
-                } else if (param.kind === SymbolParameterType.REST){
-                    funcParams = funcParams + ", " + `${EXPR_CONSTRUCTOR}`;
-                } else {
-                    funcParams = funcParams + ", " + param.name;
-                }
-
-                const content: string = currentModel.model.functionName.source + "(" + funcParams + ")";
-                if (param.kind === SymbolParameterType.REST){
+                if (param.kind === SymbolParameterType.REST) {
                     restArg(true);
                 }
-                updateModel(content, currentModel.model.position);
+                updateModel(getUpdatedContentOnCheck(currentModel.model, param), currentModel.model.position);
             }
         } else {
             newChecked.splice(currentIndex, 1);
             if (STKindChecker.isFunctionCall(currentModel.model)) {
-                const paramsList = [...currentModel.model.arguments];
-                // removing the param and the comma infront of it
-                paramsList.length > 1 ? paramsList.splice((currentIndex * 2) - 1, 2) : paramsList.splice(currentIndex, 1);
-
-                let funcParams: string = "";
-                paramsList.forEach((parameter: any) => {
-                    funcParams = funcParams + (parameter.isToken ? parameter.value : parameter.source);
-                });
-
-                const content: string = currentModel.model.functionName.source + "(" + funcParams + ")";
-                updateModel(content, currentModel.model.position);
+                updateModel(getUpdatedContentOnUncheck(currentModel.model, currentIndex), currentModel.model.position);
             }
         }
 
         setCheckedList(newChecked);
     };
 
-    const isAllowedIncludedArgsAdded = () : boolean => {
-        const listIncludedParams: number[] = [];
-        let isIncluded : boolean = false;
-        documentation.documentation.parameters.map((docParam: ParameterInfo, value: number) => {
-            if (docParam.kind === SymbolParameterType.INCLUDED_RECORD) {
-                listIncludedParams.push(value);
-            }
-        });
-        listIncludedParams.some((value => {
-                isIncluded = checkedList.includes(value);
-                if (!isIncluded){
-                    return false;
-                }
-            }
-        ))
-        return isIncluded;
-    }
-
-
     const addIncludedRecordHeader = (param: ParameterInfo, value: number) => {
-        return(
+        return (
             <>
                 {!includedRecordHeader && (
-                    <ListItem key={value} style={{ padding: '0px', alignItems: 'flex-start'}}>
-                        <ListItemText style={{ flex: 'inherit'}} primary={"Add Named Argument"}/>
+                    <ListItem key={value} className={stmtEditorHelperClasses.includedRecordHeaderList}>
+                        <ListItemText className={stmtEditorHelperClasses.docListItemText} primary={"Add Named Argument"}/>
                         <IconButton
-                            style={{ display: 'block', alignSelf: 'center', padding: '0px', marginLeft: '10px' }}
+                            className={stmtEditorHelperClasses.includedRecordPlusBtn}
                             onClick={handlePlusButton()}
-                            disabled={isAllowedIncludedArgsAdded()}
+                            disabled={isAllowedIncludedArgsAdded(parameters, checkedList)}
                         >
                             <AddCircleOutline/>
                         </IconButton>
@@ -132,39 +97,32 @@ export function ParameterList(props: ParameterListProps) {
         );
     }
 
-
     const handlePlusButton = () => () => {
         setPlusButtonClicked(true);
     }
 
     const addIncludedRecords = (param: ParameterInfo, value: number) => {
 
-        const argList: STNode[] = [];
+        let argList: STNode[] = [];
         if (currentModel.model) {
-            if (STKindChecker.isFunctionCall(currentModel.model)) {
-                currentModel.model.arguments.forEach((parameter: any) => {
-                    if (!parameter.isToken) {
-                        argList.push(parameter);
-                    }
-                });
-            }
+            argList = getCurrentModelParams(currentModel.model);
         }
         const argument = checkedList.indexOf(value);
         return (
             <>
                 {argument !== -1 && (
-                    <ListItem style={{ padding: '0px' }}>
+                    <ListItem className={stmtEditorHelperClasses.docListDefault}>
                         <Checkbox
                             classes={{
-                                root : statementEditorClasses.parameterCheckbox,
-                                checked : statementEditorClasses.checked
+                                root: stmtEditorHelperClasses.parameterCheckbox,
+                                checked: stmtEditorHelperClasses.checked
                             }}
                             style={{ flex: 'inherit' }}
                             checked={argument !== -1}
                             onClick={handleCheckboxClick(value, param)}
                         />
                         <ListItemText
-                            style={{ flex: 'inherit' }}
+                            className={stmtEditorHelperClasses.docListItemText}
                             primary={(argList[argument] && STKindChecker.isNamedArg(argList[argument])) ?
                                 (argList[argument] as NamedArg).argumentName.source : param.name}
                         />
@@ -180,13 +138,7 @@ export function ParameterList(props: ParameterListProps) {
         if (currentIndex === -1) {
             if (STKindChecker.isFunctionCall(currentModel.model)) {
                 newChecked.push(value);
-                let funcParams: string = "";
-                currentModel.model.arguments.forEach((parameter: any) => {
-                    funcParams = funcParams + (parameter.isToken ? parameter.value : parameter.source);
-                });
-                funcParams = funcParams + ", " + `${userInput} = ${EXPR_CONSTRUCTOR}`;
-                const content: string = currentModel.model.functionName.source + "(" + funcParams + ")";
-                updateModel(content, currentModel.model.position);
+                updateModel(getUpdatedContentForNewNamedArg(currentModel.model, userInput), currentModel.model.position);
                 setCheckedList(newChecked);
                 setPlusButtonClicked(false);
             }
@@ -195,14 +147,13 @@ export function ParameterList(props: ParameterListProps) {
 
     return (
         <>
-            {!!documentation.documentation.parameters?.length && (
+            {!!parameters?.length && (
                 <>
-                    <ListSubheader className={statementEditorClasses.parameterHeader}>
-                        Parameter
+                    <ListSubheader className={stmtEditorHelperClasses.parameterHeader}>
+                        Parameters
                     </ListSubheader>
-                    {documentation.documentation.parameters.map((param: ParameterInfo, value: number) => (
+                    {parameters?.map((param: ParameterInfo, value: number) => (
                             <>
-
                                 {param.kind === SymbolParameterType.REQUIRED ? (
                                     <RequiredArg param={param} value={value} checkedList={checkedList}/>
                                 ) : (
@@ -225,29 +176,29 @@ export function ParameterList(props: ParameterListProps) {
                                         ) : (
                                             <>
                                                 {param.kind !== SymbolParameterType.INCLUDED_RECORD && (
-                                                    <ListItem key={value} style={{ padding: '0px' }}>
+                                                    <ListItem key={value} className={stmtEditorHelperClasses.docListDefault}>
                                                         <Checkbox
                                                             classes={{
-                                                                root : statementEditorClasses.parameterCheckbox,
-                                                                checked : statementEditorClasses.checked
+                                                                root: stmtEditorHelperClasses.parameterCheckbox,
+                                                                checked: stmtEditorHelperClasses.checked
                                                             }}
                                                             checked={checkedList.indexOf(value) !== -1}
                                                             onClick={handleCheckboxClick(value, param)}
                                                         />
                                                         <ListItemText
-                                                            style={{ flex: 'inherit' }}
+                                                            className={stmtEditorHelperClasses.docListItemText}
                                                             primary={param.name}
                                                         />
                                                         <ListItemText
-                                                            style={{ marginLeft: '8px', marginRight: '8px', flex: 'inherit'}}
+                                                            className={stmtEditorHelperClasses.paramDataType}
                                                             primary={(
-                                                                <Typography className={statementEditorHelperClasses.suggestionDataType}>
+                                                                <Typography className={stmtEditorHelperClasses.suggestionDataType}>
                                                                     {param.type}
                                                                 </Typography>
                                                             )}
                                                         />
                                                         <ListItemText
-                                                            style={{ flex: 'inherit' }}
+                                                            className={stmtEditorHelperClasses.docListItemText}
                                                             primary={" : " + param.description}
                                                         />
                                                     </ListItem>
@@ -264,4 +215,3 @@ export function ParameterList(props: ParameterListProps) {
         </>
     );
 }
-

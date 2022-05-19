@@ -24,26 +24,25 @@ interface RequiredArgProps {
 }
 export function RequiredArg(props : RequiredArgProps){
     const { param, value, checkedList } = props;
-    const statementEditorClasses = useStatementEditorStyles();
     const statementEditorHelperClasses = useStmtEditorHelperPanelStyles();
 
 
     return(
-        <ListItem key={value} style={{ padding: '0px', flex: 'inherit' }}>
+        <ListItem key={value} className={statementEditorHelperClasses.requiredArgList}>
             <Checkbox
                 classes={{
-                    root : statementEditorClasses.disabledCheckbox,
-                    checked : statementEditorClasses.checked
+                    root : statementEditorHelperClasses.disabledCheckbox,
+                    checked : statementEditorHelperClasses.checked
                 }}
                 checked={checkedList.indexOf(value) !== -1}
                 disabled={true}
             />
             <ListItemText
-                style={{ flex: 'inherit' }}
+                className={statementEditorHelperClasses.docListItemText}
                 primary={param.name}
             />
             <ListItemText
-                style={{ marginLeft: '8px', marginRight: '8px', flex: 'inherit'}}
+                className={statementEditorHelperClasses.paramDataType}
                 primary={(
                     <Typography className={statementEditorHelperClasses.suggestionDataType}>
                         {param.type}
@@ -51,7 +50,7 @@ export function RequiredArg(props : RequiredArgProps){
                 )}
             />
             <ListItemText
-                style={{ flex: 'inherit' }}
+                className={statementEditorHelperClasses.docListItemText}
                 primary={" : " + param.description}
             />
         </ListItem>

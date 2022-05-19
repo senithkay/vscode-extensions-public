@@ -14,7 +14,7 @@ import React, { useState } from "react";
 
 import { Checkbox, ListItem, OutlinedInput } from "@material-ui/core";
 
-import { useStatementEditorStyles } from "../../styles";
+import { useStatementEditorStyles, useStmtEditorHelperPanelStyles } from "../../styles";
 
 interface NamedArgIncludedRecordProps {
     isNewRecord: boolean
@@ -23,7 +23,7 @@ interface NamedArgIncludedRecordProps {
 }
 // tslint:disable: jsx-no-multiline-js
 export function NamedArgIncludedRecord(props: NamedArgIncludedRecordProps){
-    const statementEditorClasses = useStatementEditorStyles();
+    const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
     const {isNewRecord, value, addIncludedRecordToModel} = props;
     const defaultNamedArg = "NamedArg";
     const [userInput, setUserInput] = useState<string>(defaultNamedArg);
@@ -42,11 +42,11 @@ export function NamedArgIncludedRecord(props: NamedArgIncludedRecordProps){
     return (
         <>
             {isNewRecord && (
-                <ListItem>
+                <ListItem className={stmtEditorHelperClasses.docListDefault}>
                     <Checkbox
                         classes={{
-                            root : statementEditorClasses.disabledCheckbox,
-                            checked : statementEditorClasses.checked
+                            root : stmtEditorHelperClasses.disabledCheckbox,
+                            checked : stmtEditorHelperClasses.checked
                         }}
                         checked={true}
                     />
