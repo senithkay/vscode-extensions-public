@@ -14,6 +14,7 @@ import React from "react";
 
 import { NamedArg } from "@wso2-enterprise/syntax-tree";
 
+import { ModelType, StatementEditorViewState } from "../../../utils/statement-editor-viewstate";
 import { ExpressionComponent } from "../../Expression";
 import { TokenComponent } from "../../Token";
 
@@ -27,7 +28,10 @@ export function NamedArgComponent(props: NamedArgProps) {
     return (
         <>
             <ExpressionComponent model={model.argumentName} />
-            <TokenComponent model={model.equalsToken} className="operator" />
+            <TokenComponent
+                model={model.equalsToken}
+                className={((model.equalsToken.viewState as StatementEditorViewState).modelType = ModelType.OPERATOR) && "operator"}
+            />
             <ExpressionComponent model={model.expression} />
         </>
     );
