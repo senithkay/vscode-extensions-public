@@ -563,7 +563,9 @@ export async function refreshDiagramForEditorChange(change: Change) {
 	}
 
 	if (!diagramElement!.isDiagram) {
-		return;
+		diagramElement!.fileUri = window.activeTextEditor?.document.uri;
+		diagramElement!.startLine = 0;
+		diagramElement!.startColumn = 0;
 	}
 	callUpdateDiagramMethod();
 }
