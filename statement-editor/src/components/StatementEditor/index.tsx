@@ -47,7 +47,7 @@ import {
     getSymbolDocumentation,
     sendDidChange
 } from "../../utils/ls-utils";
-import { StatementEditorViewState } from "../../utils/statement-editor-viewstate";
+import { ModelType, StatementEditorViewState } from "../../utils/statement-editor-viewstate";
 import { StmtActionStackItem } from "../../utils/undo-redo";
 import { EXPR_SCHEME, FILE_SCHEME } from "../InputEditor/constants";
 import { FormHandlingProps as StmtEditorWrapperProps} from "../StatementEditorWrapper";
@@ -176,8 +176,11 @@ export function StatementEditor(props: StatementEditorProps) {
                     const selectionWithDot = `${currentModel.model.source
                         ? currentModel.model.source.trim()
                         : currentModel.model.value.trim()}.`;
-                    const dotAdded = addToTargetPosition(model.source, currentModel.model.position, selectionWithDot);
-                    const statements = [model.source, dotAdded];
+                    const statements = [model.source];
+                    if ((currentModel.model.viewState as StatementEditorViewState).modelType === ModelType.EXPRESSION) {
+                        const dotAdded = addToTargetPosition(model.source, currentModel.model.position, selectionWithDot);
+                        statements.push(dotAdded);
+                    }
 
                     for (const statement of statements) {
                         const index = statements.indexOf(statement);
