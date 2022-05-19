@@ -30,6 +30,7 @@ import {
     ServiceDeclaration,
     STKindChecker,
     STNode,
+    traversNode,
     TypeDefinition,
     Visitor, WhileStatement
 } from "@wso2-enterprise/syntax-tree";
@@ -64,7 +65,7 @@ import { ServiceViewState } from "../ViewState/service";
 import { WhileViewState } from "../ViewState/while";
 import { WorkerDeclarationViewState } from "../ViewState/worker-declaration";
 
-
+import { ConflictResolutionVisitor } from "./conflict-resolution-visitor";
 import { DefaultConfig } from "./default";
 import { getDraftComponentSizes, getPlusViewState, haveBlockStatement, isSTActionInvocation } from "./util";
 
@@ -95,6 +96,15 @@ export interface SendRecievePairInfo {
     targetName: string;
     targetViewState: ViewState;
     targetIndex: number;
+    restrictedSpace?: ConflictRestrictSpace;
+    pairHeight?: number;
+}
+
+export interface ConflictRestrictSpace {
+    x1: number;
+    x2: number;
+    y1: number;
+    y2: number;
 }
 
 export const DEFAULT_WORKER_NAME = 'function'; // todo: move to appropriate place.
@@ -104,11 +114,13 @@ export class SizingVisitor implements Visitor {
     private senderReceiverInfo: Map<string, { sends: AsyncSendInfo[], receives: AsyncReceiveInfo[], waits: WaitInfo[] }>;
     private workerMap: Map<string, NamedWorkerDeclaration>;
     private allEndpoints: Map<string, Endpoint> = new Map<string, Endpoint>();
+    private experimentalEnabled: boolean;
 
-    constructor() {
+    constructor(experimentalEnabled: boolean = false) {
         this.currentWorker = [];
         this.senderReceiverInfo = new Map();
         this.workerMap = new Map();
+        this.experimentalEnabled = experimentalEnabled;
     }
 
     public endVisitSTNode(node: STNode, parent?: STNode) {
@@ -399,7 +411,16 @@ export class SizingVisitor implements Visitor {
             }
         }
 
-        this.syncAsyncStatements(node);
+        const matchedStatements = this.syncAsyncStatements(node);
+
+        if (this.experimentalEnabled) {
+            const resolutionVisitor = new ConflictResolutionVisitor(matchedStatements, this.workerMap.size + 1);
+
+            do {
+                resolutionVisitor.resetConflictStatus();
+                traversNode(node, resolutionVisitor);
+            } while (resolutionVisitor.conflictFound())
+        }
 
         if (bodyViewState.hasWorkerDecl) {
             let maxWorkerHeight = 0;
@@ -489,7 +510,7 @@ export class SizingVisitor implements Visitor {
         }
     }
 
-    private syncAsyncStatements(funcitonDef: FunctionDefinition) {
+    private syncAsyncStatements(funcitonDef: FunctionDefinition): SendRecievePairInfo[] {
         const matchedStatements: SendRecievePairInfo[] = [];
         const mainWorkerBody: FunctionBodyBlock = funcitonDef.functionBody as FunctionBodyBlock;
 
@@ -537,6 +558,7 @@ export class SizingVisitor implements Visitor {
                         sourceViewState: sourceViewstate,
                         targetViewState: waitInfo.node.viewState,
                         targetIndex: waitInfo.index,
+                        pairHeight: 0,
                     });
                 }
             });
@@ -573,7 +595,8 @@ export class SizingVisitor implements Visitor {
                         targetName: sendInfo.to,
                         sourceViewState,
                         targetViewState,
-                        targetIndex: matchedReceive.index
+                        targetIndex: matchedReceive.index,
+                        pairHeight: 0,
                     });
                 }
             });
@@ -610,7 +633,8 @@ export class SizingVisitor implements Visitor {
                         sourceViewState: matchedSend.node.viewState,
                         targetName: matchedSend.to,
                         targetIndex: receiveInfo.index,
-                        targetViewState: receiveInfo.node.viewState
+                        targetViewState: receiveInfo.node.viewState,
+                        pairHeight: 0,
                     });
                 }
             });
@@ -636,6 +660,8 @@ export class SizingVisitor implements Visitor {
             return 0;
         });
 
+        const workerNameArr = Array.from(this.workerMap.keys());
+        workerNameArr.unshift(DEFAULT_WORKER_NAME);
 
         // for each pair calculate the heights until the send or receive statement and add the diff to the shorter one
         matchedStatements.forEach(matchedPair => {
@@ -668,7 +694,21 @@ export class SizingVisitor implements Visitor {
                 const sourceVS = matchedPair.sourceViewState as StatementViewState;
                 sourceVS.bBox.offsetFromTop = DefaultConfig.offSet + (receiveHeight - sendHeight);
             }
+
+            const sourceWorkerIndex = workerNameArr.indexOf(matchedPair.sourceName);
+            const receiveWorkerIndex = workerNameArr.indexOf(matchedPair.targetName);
+
+            matchedPair.restrictedSpace = {
+                x1: sourceWorkerIndex < receiveWorkerIndex ? sourceWorkerIndex : receiveWorkerIndex,
+                x2: sourceWorkerIndex < receiveWorkerIndex ? receiveWorkerIndex : sourceWorkerIndex,
+                y1: DefaultConfig.offSet + (sendHeight > receiveHeight ? sendHeight : receiveHeight),
+                y2: matchedPair.sourceViewState.bBox.h + DefaultConfig.offSet + (sendHeight > receiveHeight ? sendHeight : receiveHeight)
+            }
+
+            matchedPair.pairHeight = matchedPair.restrictedSpace.y1;
         });
+
+        return matchedStatements;
     }
 
     private calculateHeightUptoIndex(targetIndex: number, workerBody: BlockStatement) {
@@ -1052,7 +1092,7 @@ export class SizingVisitor implements Visitor {
         }
 
         if (node.elseBody) {
-            if (node.elseBody.elseBody.kind === "BlockStatement") {
+            if (STKindChecker.isBlockStatement(node.elseBody.elseBody)) {
                 const elseStmt: BlockStatement = node.elseBody.elseBody as BlockStatement;
                 const elseViewState: ElseViewState = elseStmt.viewState as ElseViewState;
 
@@ -1077,7 +1117,7 @@ export class SizingVisitor implements Visitor {
                 elseViewState.elseTopHorizontalLine.length = diffIfWidthWithHeadWidth + viewState.offSetBetweenIfElse + elseLeftWidth;
                 elseViewState.elseBottomHorizontalLine.length = elseViewState.ifHeadWidthOffset +
                     diffIfWidthWithHeadWidth + viewState.offSetBetweenIfElse + elseLeftWidth;
-            } else if (node.elseBody.elseBody.kind === "IfElseStatement") {
+            } else if (STKindChecker.isIfElseStatement(node.elseBody.elseBody)) {
                 const elseIfStmt: IfElseStatement = node.elseBody.elseBody as IfElseStatement;
                 const elseIfViewState: IfViewState = elseIfStmt.viewState as IfViewState;
                 const elseIfBodyViewState: BlockViewState = elseIfStmt.ifBody.viewState;

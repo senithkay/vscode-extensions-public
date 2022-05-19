@@ -61,7 +61,8 @@ export function Diagram() {
             error,
             performanceData,
             selectedPosition,
-            zoomStatus
+            zoomStatus,
+            experimentalEnabled
         },
     } = useContext(DiagramContext);
 
@@ -322,6 +323,7 @@ export function Diagram() {
                         selectedPosition={selectedPosition}
                         zoomStatus={zoomStatus}
                         stSymbolInfo={stSymbolInfo}
+                        experimentalEnabled={experimentalEnabled}
                         api={{
                             edit: {
                                 deleteComponent: handleDeleteComponent,

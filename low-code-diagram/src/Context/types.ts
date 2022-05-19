@@ -28,6 +28,7 @@ export interface LowCodeDiagramProperties {
     stSymbolInfo?: STSymbolInfo;
     performanceData?: Map<string, PerformanceData>;
     zoomStatus?: ZoomStatus;
+    experimentalEnabled?: boolean;
 }
 
 export interface LowCodeDiagramState {
@@ -36,6 +37,7 @@ export interface LowCodeDiagramState {
     isConfigOverlayFormOpen: boolean;
     targetPosition: NodePosition; // FIXME check and remove usage of update position if not used anymore
     isDiagramFunctionExpanded: boolean;
+    experimentalEnabled?: boolean;
 }
 
 export interface LowCodeDiagramActions {
