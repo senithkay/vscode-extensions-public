@@ -488,9 +488,9 @@ export class ExtendedLangClient extends LanguageClient {
         }
         return this.sendRequest<BallerinaSTModifyResponse>(EXTENDED_APIS.DOCUMENT_TRIGGER_MODIFY, params);
     }
-    getSymbolDocumentation(params: SymbolInfoRequest): Promise<SymbolInfoResponse | NOT_SUPPORTED_TYPE> {
+    getSymbolDocumentation(params: SymbolInfoRequest): Promise<SymbolInfoResponse | null> {
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.SYMBOL_DOC)) {
-            return Promise.resolve(NOT_SUPPORTED);
+            return Promise.resolve(null);
         }
         return this.sendRequest<SymbolInfoResponse>(EXTENDED_APIS.SYMBOL_DOC, params);
 
