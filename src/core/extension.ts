@@ -218,7 +218,6 @@ export class BallerinaExtension {
                 const { home } = this.autoDetectBallerinaHome();
                 this.ballerinaHome = home;
                 log(`Plugin version: ${pluginVersion}\nBallerina version: ${this.ballerinaVersion}`);
-                this.sdkVersion.text = `Ballerina SDK: ${this.ballerinaVersion}`;
 
                 if (!this.ballerinaVersion.match(SWAN_LAKE_REGEX) || (this.ballerinaVersion.match(SWAN_LAKE_REGEX) &&
                     !isSupportedVersion(ballerinaExtInstance, VERSION.BETA, 3))) {
@@ -236,14 +235,15 @@ export class BallerinaExtension {
                     this.clientOptions, this, false);
 
                 // Following was put in to handle server startup failures.
-                const disposeDidChange = this.langClient.onDidChangeState(stateChangeEvent => {
+                const disposeDidChange = this.langClient.onDidChangeState(async stateChangeEvent => {
                     if (stateChangeEvent.newState === LS_STATE.Stopped) {
                         const message = "Couldn't establish language server connection.";
                         sendTelemetryEvent(this, TM_EVENT_EXTENSION_INI_FAILED, CMP_EXTENSION_CORE, getMessageObject(message));
                         log(message);
                         this.showPluginActivationError();
                     } else if (stateChangeEvent.newState === LS_STATE.Running) {
-                        this.langClient?.registerExtendedAPICapabilities();
+                        await this.langClient?.registerExtendedAPICapabilities();
+                        this.sdkVersion.text = `Ballerina SDK: ${this.ballerinaVersion}`;
                         sendTelemetryEvent(this, TM_EVENT_EXTENSION_INIT, CMP_EXTENSION_CORE);
                     }
                 });
