@@ -156,6 +156,23 @@ export function getLibraryWebViewContent(options: WebViewOptions) {
         })(window, document, "script", "onerror", "onunhandledrejection");
     </script>` : '';
 
+    const hotJarConfig = (isCodeServer && process.env.VSCODE_HOTJAR_ID) ?
+    ` <script>
+        (function(h,o,t,j,a,r){
+            h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};
+            h._hjSettings={hjid:"${process.env.VSCODE_HOTJAR_ID}",hjsv:6};
+            a=o.getElementsByTagName('head')[0];
+            r=o.createElement('script');r.async=1;
+            r.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;
+            a.appendChild(r);
+        })(window,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');
+        window.hj('identify', "${process?.env?.VSCODE_CHOREO_USER_IDP_ID}", { 
+            isWSO2User: "${process?.env?.VSCODE_CHOREO_USER_EMAIL?.endsWith('@wso2.com')}",
+            AnonymousUser: "${process?.env?.VSCODE_CHOREO_USER_EMAIL?.endsWith('@choreo.dev')}",
+            origin: "low-code"
+        });
+    </script>` : '';
+
     return `
             <!DOCTYPE html>
             <html>
@@ -198,17 +215,7 @@ export function getLibraryWebViewContent(options: WebViewOptions) {
                     }
                     ${styles}
                 </style>
-                <!-- Hotjar Tracking Code for https://*.workspace.choreo.dev -->
-                <script>
-                    (function(h,o,t,j,a,r){
-                        h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};
-                        h._hjSettings={hjid:2811498,hjsv:6};
-                        a=o.getElementsByTagName('head')[0];
-                        r=o.createElement('script');r.async=1;
-                        r.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;
-                        a.appendChild(r);
-                    })(window,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');
-                </script>
+                ${hotJarConfig}
                 ${whatFix}
                 ${vwoScript}
                 ${sentryScript}
