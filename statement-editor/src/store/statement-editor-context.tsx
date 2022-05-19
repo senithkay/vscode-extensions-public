@@ -17,7 +17,7 @@ import { LibraryKind, STModification, SymbolInfoResponse } from "@wso2-enterpris
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { LowCodeEditorProps } from "../components/StatementEditorWrapper";
-import { EditorModel, StmtDiagnostic, SuggestionItem } from "../models/definitions";
+import { EditorModel, EmptySymbolInfo, StmtDiagnostic, SuggestionItem } from "../models/definitions";
 
 import { InputEditorContextProvider } from "./input-editor-context";
 
@@ -95,7 +95,7 @@ export interface CtxProviderProps extends LowCodeEditorProps {
     hasRedo?: boolean,
     diagnostics?: StmtDiagnostic[],
     lsSuggestions?: SuggestionItem[],
-    documentation?: SymbolInfoResponse,
+    documentation?: SymbolInfoResponse | EmptySymbolInfo,
     restArg?: (restCheckClicked: boolean) => void,
     hasRestArg?: boolean,
     handleStmtEditorToggle: () => void,
