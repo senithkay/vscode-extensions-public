@@ -130,7 +130,7 @@ suite('Ballerina Debug Adapter', () => {
                 { path: `file://${program}`, line: 5, verified: false });
         });
 
-        test.skip('should stop on a breakpoint, hello world service', async () => {
+        test('should stop on a breakpoint, hello world service', async () => {
             const program = path.join(DATA_ROOT, 'hello_world_service.bal');
             const debuggeePort = await getAvailablePort(5007);
             const launchArgs = {
@@ -153,7 +153,7 @@ suite('Ballerina Debug Adapter', () => {
                 { path: `file://${program}`, line: 10, verified: false });
         });
 
-        test.skip('should stop on a breakpoint, hello world service - package', async () => {
+        test('should stop on a breakpoint, hello world service - package', async () => {
             const program = path.join(DATA_ROOT, 'helloServicePackage', 'hello_service.bal');
             const debuggeePort = await getAvailablePort(5008);
             const launchArgs = {
