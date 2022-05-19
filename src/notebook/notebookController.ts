@@ -167,8 +167,8 @@ export class BallerinaNotebookController {
             }
 
             // finally errors and diagnostics
-            output.diagnostics.length && output.diagnostics.forEach(appendTextToOutput);
             output.errors.length && output.errors.forEach(appendTextToOutput);
+            output.diagnostics.length && output.diagnostics.forEach(appendTextToOutput);
 
             // end execution with succes or fail
             // success if there are no diagnostics and errors
@@ -179,7 +179,9 @@ export class BallerinaNotebookController {
         } catch (error) {
             if (error instanceof Error) {
                 sendTelemetryException(this.ballerinaExtension, error, CMP_NOTEBOOK);
-                appendTextToOutput(error.message);
+                execution.appendOutput([new NotebookCellOutput([
+                    NotebookCellOutputItem.error(error)
+                ])]);
             } else {
                 appendTextToOutput("Unknown error occurred.");
             }
