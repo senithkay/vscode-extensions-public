@@ -27,7 +27,7 @@ import {
   TestController, TestItem, TestItemCollection, TestMessage, TestRunProfileKind, TestRunRequest,
   tests, TextDocument, Uri, window, workspace, WorkspaceFolder
 } from 'vscode';
-import { BallerinaExtension, ExecutorPosition, ExtendedLangClient, LANGUAGE, } from "../core";
+import { BallerinaExtension, BallerinaProject, ExecutorPosition, ExecutorPositionsResponse, ExtendedLangClient, LANGUAGE, } from "../core";
 import { BALLERINA_COMMANDS } from '../project';
 import fileUriToPath from 'file-uri-to-path';
 import { DEBUG_REQUEST, DEBUG_CONFIG } from '../debugger';
@@ -269,11 +269,17 @@ export async function createTests(uri: Uri) {
 
   // create tests for current project
   langClient.onReady().then(async () => {
-    root = (await langClient!.getBallerinaProject({
+    await langClient!.getBallerinaProject({
       documentIdentifier: {
         uri: uri.toString()
       }
-    })).path;
+    }).then(projectResponse => {
+      const response = projectResponse as BallerinaProject;
+      if (response.path !== undefined) {
+        root = response.path;
+      }
+    });
+
   });
 
   if (!root) {
@@ -297,7 +303,8 @@ export async function createTests(uri: Uri) {
       documentIdentifier: {
         uri: uri.toString()
       }
-    }).then(async response => {
+    }).then(async execResponse => {
+      const response = execResponse as ExecutorPositionsResponse;
       if (!response.executorPositions) {
         return;
       }

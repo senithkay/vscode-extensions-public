@@ -23,6 +23,7 @@ import {
 } from 'vscode';
 import { render } from './renderer';
 import {
+	BallerinaProjectComponents,
 	CONNECTOR_LIST_CACHE,
 	DocumentIdentifier,
 	ExtendedLangClient,
@@ -61,6 +62,7 @@ import {
 	LibrarySearchResponse
 } from "../library-browser/model";
 import { getSentryConfig, SentryConfig } from './sentry';
+import { BallerinaConnectorsResponse, GetSyntaxTreeResponse } from '@wso2-enterprise/ballerina-low-code-editor-distribution';
 
 export let hasDiagram: boolean = false;
 
@@ -110,14 +112,22 @@ export async function showDiagramEditor(startLine: number, startColumn: number, 
 	DiagramPanel.create(isCommand ? ViewColumn.Two : ViewColumn.One);
 
 	// Reset cached connector list
-	langClient.getConnectors({ query: "", limit: 18 }, true).then((connectorList) => {
+	langClient.getConnectors({ query: "", limit: 18 }, true).then((response) => {
+		const connectorList = response as BallerinaConnectorsResponse;
+		if (connectorList.central === undefined) {
+			return;
+		}
 		if (connectorList && connectorList.central?.length > 0) {
 			ballerinaExtInstance.context?.globalState.update(CONNECTOR_LIST_CACHE, connectorList);
 		}
 	});
 
 	// Reset cached HTTP connector list
-	langClient.getConnectors({ query: "http", limit: 18 }, true).then((connectorList) => {
+	langClient.getConnectors({ query: "http", limit: 18 }, true).then((response) => {
+		const connectorList = response as BallerinaConnectorsResponse;
+		if (connectorList.central === undefined) {
+			return;
+		}
 		if (connectorList && connectorList.central?.length > 0) {
 			ballerinaExtInstance.context?.globalState.update(HTTP_CONNECTOR_LIST_CACHE, connectorList);
 		}
@@ -247,12 +257,13 @@ async function resolveMissingDependency(filePath: string, fileContent: string, l
 		progress.report({ increment: 0 });
 
 		// Resolve missing dependencies.
-		const response = await langClient.resolveMissingDependencies({
+		const dependenciesResponse = await langClient.resolveMissingDependencies({
 			documentIdentifier: {
 				uri: Uri.file(filePath).toString()
 			}
 		});
 
+		const response = dependenciesResponse as GetSyntaxTreeResponse;
 		progress.report({ increment: 20, message: "Updating code file..." });
 
 		if (response.parseSuccess) {
@@ -543,7 +554,8 @@ export async function refreshDiagramForEditorChange(change: Change) {
 			documentIdentifier: {
 				uri: change.fileUri.toString()
 			}
-		}).then(response => {
+		}).then(stResponse => {
+			const response = stResponse as GetSyntaxTreeResponse;
 			if (response.parseSuccess && response.syntaxTree) {
 				diagramElement = getChangedElement(response.syntaxTree, change);
 			}
@@ -694,7 +706,8 @@ export async function renderFirstDiagramElement(client: ExtendedLangClient) {
 		});
 
 		const documentIdentifiers: DocumentIdentifier[] = [{ uri: currentFileUri }];
-		await client.getBallerinaProjectComponents({ documentIdentifiers }).then(async (response) => {
+		await client.getBallerinaProjectComponents({ documentIdentifiers }).then(async (projectResponse) => {
+			const response = projectResponse as BallerinaProjectComponents;
 			if (!response.packages || response.packages.length == 0 || !response.packages[0].modules) {
 				return;
 			}

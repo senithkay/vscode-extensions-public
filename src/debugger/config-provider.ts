@@ -27,7 +27,7 @@ import * as child_process from "child_process";
 import { getPortPromise } from 'portfinder';
 import * as path from "path";
 import { ballerinaExtInstance, BallerinaExtension, LANGUAGE } from '../core';
-import { ExtendedLangClient } from '../core/extended-language-client';
+import { BallerinaProject, ExtendedLangClient } from '../core/extended-language-client';
 import { BALLERINA_HOME } from '../core/preferences';
 import { TM_EVENT_START_DEBUG_SESSION, CMP_DEBUGGER, sendTelemetryEvent, sendTelemetryException } from '../telemetry';
 import { log, debug as debugLog, isSupportedVersion, VERSION } from "../utils";
@@ -87,7 +87,11 @@ async function getModifiedConfigs(config: DebugConfiguration) {
             documentIdentifier: {
                 uri: activeDoc.uri.toString()
             }
-        }).then((project) => {
+        }).then((response) => {
+            const project = response as BallerinaProject;
+            if (project.kind === undefined) {
+                return Promise.reject();
+            }
             if (!project.kind || (config.request === 'launch' && project.kind === 'BALA_PROJECT')) {
                 ballerinaExtInstance.showMessageInvalidProject();
                 return Promise.reject();
