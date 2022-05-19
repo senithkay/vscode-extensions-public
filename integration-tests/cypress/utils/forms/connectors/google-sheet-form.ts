@@ -42,7 +42,7 @@ export class GoogleSheetForm {
     }
 
     static shouldBeVisible() {
-        this.getForm().get('[data-testid="connector-form"]').should("be.visible");
+        this.getForm().should("be.visible");
         return this;
     }
 
