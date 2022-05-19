@@ -454,21 +454,21 @@ export function getModuleIconStyle(label: string): string {
     return suggestionIconStyle;
 }
 
-export function getSymbolPosition(targetPos: NodePosition, currentModel: CurrentModel, userInput: string): LinePosition{
+export function getSymbolPosition(targetPos: NodePosition, currentModel: STNode, userInput: string): LinePosition{
     let position: LinePosition;
-    if (STKindChecker.isFunctionCall(currentModel.model)){
+    if (STKindChecker.isFunctionCall(currentModel)){
         position = {
-            line : targetPos.startLine + currentModel.model.position.startLine,
-            offset : (STKindChecker.isQualifiedNameReference(currentModel.model.functionName)) ?
-                targetPos.startColumn + currentModel.model.functionName.identifier.position.endColumn - 1 :
-                targetPos.startColumn + currentModel.model.functionName.name.position.endColumn - 1
+            line : targetPos.startLine + currentModel.position.startLine,
+            offset : (STKindChecker.isQualifiedNameReference(currentModel.functionName)) ?
+                targetPos.startColumn + currentModel.functionName.identifier.position.endColumn - 1 :
+                targetPos.startColumn + currentModel.functionName.name.position.endColumn - 1
 
         }
         return  position;
     }
     position = {
-        line : targetPos.startLine + currentModel.model.position.startLine,
-        offset : targetPos.startColumn + currentModel.model.position.startColumn + userInput.length
+        line : targetPos.startLine + currentModel.position.startLine,
+        offset : targetPos.startColumn + currentModel.position.startColumn + userInput.length
     }
     return position;
 }
