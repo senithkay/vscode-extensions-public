@@ -16,9 +16,12 @@ import {
     CompletionResponse,
     getDiagnosticMessage,
     getFilteredDiagnostics,
-    STModification
+    LinePosition, ParameterInfo,
+    STModification,
+    STSymbolInfo, SymbolDocumentation
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
+    FunctionCall,
     Minutiae,
     NodePosition,
     STKindChecker,
@@ -28,16 +31,18 @@ import {
 import { Diagnostic } from "vscode-languageserver-protocol";
 
 import * as expressionTypeComponents from '../components/ExpressionTypes';
+import { INPUT_EDITOR_PLACEHOLDERS } from "../components/InputEditor/constants";
 import * as statementTypeComponents from '../components/Statements';
 import {
-    END_OF_LINE_MINUTIAE,
+    CUSTOM_CONFIG_TYPE,
+    END_OF_LINE_MINUTIAE, EXPR_CONSTRUCTOR,
     OTHER_EXPRESSION,
     OTHER_STATEMENT,
     PLACEHOLDER_DIAGNOSTICS,
-    StatementNodes,
+    StatementNodes, SymbolParameterType,
     WHITESPACE_MINUTIAE
 } from "../constants";
-import { MinutiaeJSX, RemainingContent, StmtDiagnostic, StmtOffset } from '../models/definitions';
+import { CurrentModel, MinutiaeJSX, RemainingContent, StmtDiagnostic, StmtOffset } from '../models/definitions';
 import { visitor as DeleteConfigSetupVisitor } from "../visitors/delete-config-setup-visitor";
 import { visitor as DiagnosticsMappingVisitor } from "../visitors/diagnostics-mapping-visitor";
 import { visitor as ExpressionDeletingVisitor } from "../visitors/expression-deleting-visitor";
@@ -47,48 +52,23 @@ import {nextNodeSetupVisitor} from "../visitors/next-node--setup-visitor"
 import { parentSetupVisitor } from '../visitors/parent-setup-visitor';
 import { viewStateSetupVisitor as ViewStateSetupVisitor } from "../visitors/view-state-setup-visitor";
 
-import { ModelType } from "./statement-editor-viewstate";
-import { createImportStatement, createStatement, updateStatement } from "./statement-modifications";
+import { ModelType, StatementEditorViewState } from "./statement-editor-viewstate";
+import { getImportModification, getStatementModification, keywords } from "./statement-modifications";
 
-export function getModifications(
-        model: STNode,
-        config: {
-            type: string;
-            model?: STNode;
-        },
-        formArgs: any,
-        modulesToBeImported?: string[]): STModification[] {
+export function getModifications(model: STNode, configType: string, targetPosition: NodePosition,
+                                 modulesToBeImported?: string[]): STModification[] {
+
     const modifications: STModification[] = [];
+    let source = model.source;
 
-    if (STKindChecker.isLocalVarDecl(model) ||
-            STKindChecker.isCallStatement(model) ||
-            STKindChecker.isReturnStatement(model) ||
-            STKindChecker.isAssignmentStatement(model) ||
-            (config && config.type === 'Custom')) {
-        let source = model.source;
-        if (STKindChecker.isCallStatement(model) && model.source.slice(-1) !== ';') {
-            source += ';';
-        }
-        if (config.model) {
-            modifications.push(updateStatement(source, formArgs.formArgs?.model.position));
-        } else {
-            modifications.push(createStatement(source, formArgs.formArgs?.targetPosition));
-        }
+    if (configType === CUSTOM_CONFIG_TYPE && source.trim().slice(-1) !== ';') {
+        source += ';';
     }
-
-    if (STKindChecker.isWhileStatement(model) ||
-            STKindChecker.isIfElseStatement(model) ||
-            STKindChecker.isForeachStatement(model)) {
-        if (!formArgs.formArgs?.config) {
-            modifications.push(createStatement(model.source, formArgs.formArgs?.targetPosition));
-        } else {
-            modifications.push(updateStatement(model.source, config.model.position));
-        }
-    }
+    modifications.push(getStatementModification(source, targetPosition));
 
     if (modulesToBeImported) {
         modulesToBeImported.map((moduleNameStr: string) => {
-            modifications.push(createImportStatement(moduleNameStr));
+            modifications.push(getImportModification(moduleNameStr));
         });
     }
 
@@ -227,11 +207,11 @@ export function getFilteredDiagnosticMessages(statement: string, targetPosition:
 }
 
 export async function getUpdatedSource(updatedStatement: string, currentFileContent: string,
-                                       targetPosition: NodePosition, moduleList: Set<string>): Promise<string> {
+                                       targetPosition: NodePosition, moduleList?: Set<string>): Promise<string> {
 
     const statement = updatedStatement.trim().endsWith(';') ? updatedStatement : updatedStatement + ';';
     let updatedContent: string = addToTargetPosition(currentFileContent, targetPosition, statement);
-    if (!!moduleList.size) {
+    if (moduleList && !!moduleList.size) {
         updatedContent = addImportStatements(updatedContent, Array.from(moduleList) as string[]);
     }
 
@@ -368,6 +348,78 @@ export function sortSuggestions(x: CompletionResponse, y: CompletionResponse) {
     return 0;
 }
 
+export function getSelectedModelPosition(codeSnippet: string, targetedPosition: NodePosition): NodePosition {
+    let selectedModelPosition : NodePosition = {
+        ...targetedPosition,
+        endColumn: targetedPosition.startColumn + codeSnippet.length
+    };
+
+    if (codeSnippet.startsWith(',\n')) {
+        selectedModelPosition = {
+            startLine: targetedPosition.startLine + 1,
+            endLine: targetedPosition.endLine + codeSnippet.split('\n').length - 1,
+            startColumn: 0,
+            endColumn: targetedPosition.startColumn + codeSnippet.length
+        };
+    }
+
+    return selectedModelPosition;
+}
+
+export function getModuleElementDeclPosition(syntaxTree: STNode): NodePosition {
+    const position: NodePosition = {
+        startLine: 0,
+        startColumn: 0,
+        endLine: 0,
+        endColumn: 0,
+    };
+    if (STKindChecker.isModulePart(syntaxTree) && syntaxTree.imports.length > 0) {
+        const lastImportPosition = syntaxTree.imports[syntaxTree.imports.length - 1].position;
+        position.startLine = lastImportPosition?.endLine + 1;
+        position.endLine = lastImportPosition?.endLine + 1;
+    }
+    return position;
+}
+
+export function isNodeDeletable(selectedNode: STNode): boolean {
+    const stmtViewState: StatementEditorViewState = selectedNode.viewState as StatementEditorViewState;
+    const currentModelSource = selectedNode.source
+        ? selectedNode.source.trim()
+        : selectedNode.value ? selectedNode.value.trim() : '';
+
+    let exprDeletable = !stmtViewState.exprNotDeletable;
+    if (INPUT_EDITOR_PLACEHOLDERS.has(currentModelSource)) {
+        exprDeletable =  stmtViewState.templateExprDeletable;
+    }
+
+    return exprDeletable;
+}
+
+export function isConfigAllowedTypeDesc(typeDescNode: STNode): boolean {
+    return (
+        !STKindChecker.isAnyTypeDesc(typeDescNode)
+        && !STKindChecker.isErrorTypeDesc(typeDescNode)
+        && !STKindChecker.isFunctionTypeDesc(typeDescNode)
+        && !STKindChecker.isJsonTypeDesc(typeDescNode)
+        && !STKindChecker.isObjectTypeDesc(typeDescNode)
+        && !STKindChecker.isOptionalTypeDesc(typeDescNode)
+        && !STKindChecker.isParameterizedTypeDesc(typeDescNode)
+        && !STKindChecker.isServiceTypeDesc(typeDescNode)
+        && !STKindChecker.isStreamTypeDesc(typeDescNode)
+        && !STKindChecker.isTableTypeDesc(typeDescNode)
+        && !STKindChecker.isVarTypeDesc(typeDescNode)
+    );
+}
+
+export function getExistingConfigurable(selectedModel: STNode, stSymbolInfo: STSymbolInfo): STNode {
+    const currentModelSource = selectedModel.source ? selectedModel.source.trim() : selectedModel.value.trim();
+    const isExistingConfigurable = stSymbolInfo.configurables.has(currentModelSource);
+    if (isExistingConfigurable) {
+        return stSymbolInfo.configurables.get(currentModelSource);
+    }
+    return undefined;
+}
+
 export function getModuleIconStyle(label: string): string {
     let suggestionIconStyle: string;
     switch (label) {
@@ -400,4 +452,117 @@ export function getModuleIconStyle(label: string): string {
             break;
     }
     return suggestionIconStyle;
+}
+
+export function getSymbolPosition(targetPos: NodePosition, currentModel: STNode, userInput: string): LinePosition{
+    let position: LinePosition;
+    if (STKindChecker.isFunctionCall(currentModel)){
+        position = {
+            line : targetPos.startLine + currentModel.position.startLine,
+            offset : (STKindChecker.isQualifiedNameReference(currentModel.functionName)) ?
+                targetPos.startColumn + currentModel.functionName.identifier.position.endColumn - 1 :
+                targetPos.startColumn + currentModel.functionName.name.position.endColumn - 1
+
+        }
+        return  position;
+    }
+    position = {
+        line : targetPos.startLine + currentModel.position.startLine,
+        offset : targetPos.startColumn + currentModel.position.startColumn + userInput.length
+    }
+    return position;
+}
+
+export function getCurrentModelParams(currentModel: STNode): STNode[] {
+    const paramsInModel: STNode[] = [];
+    if (STKindChecker.isFunctionCall(currentModel)) {
+        currentModel.arguments.forEach((parameter: any) => {
+            if (!parameter.isToken) {
+                paramsInModel.push(parameter);
+            }
+        });
+    }
+    return paramsInModel;
+}
+
+export function getParamCheckedList(paramsInModel: STNode[], documentation : SymbolDocumentation) : any[] {
+    const checkedList : any[] = [];
+    paramsInModel.map((param: STNode, value: number) => {
+        if (STKindChecker.isNamedArg(param)) {
+            for (let i = 0; i < documentation.parameters.length; i++){
+                const docParam : ParameterInfo = documentation.parameters[i];
+                if (param.argumentName.name.value === docParam.name ||
+                    docParam.kind === SymbolParameterType.INCLUDED_RECORD || docParam.kind === SymbolParameterType.REST){
+                    if (checkedList.indexOf(i) === -1){
+                        checkedList.push(i);
+                        break;
+                    }
+                }
+            }
+        } else {
+            checkedList.push(value);
+        }
+    });
+
+    return checkedList
+}
+
+export function isAllowedIncludedArgsAdded(parameters: ParameterInfo[], checkedList: any[]): boolean {
+    let isIncluded: boolean = true;
+    for (let i = 0; i < parameters.length; i++){
+        const docParam : ParameterInfo = parameters[i];
+        if (docParam.kind === SymbolParameterType.INCLUDED_RECORD){
+            if (!checkedList.includes(i)){
+                isIncluded = false;
+                break;
+            }
+        }
+    }
+    return isIncluded;
+}
+
+export function getUpdatedContentOnCheck(currentModel: FunctionCall, param: ParameterInfo) : string {
+    const functionParameters: string[] = [];
+    currentModel.arguments.filter((parameter: any) => !STKindChecker.isCommaToken(parameter)).
+    map((parameter: STNode) => {
+        functionParameters.push(parameter.source);
+    });
+
+    if (param.kind === SymbolParameterType.DEFAULTABLE) {
+        functionParameters.push((keywords.includes(param.name) ?
+            `'${param.name} = ${EXPR_CONSTRUCTOR}` :
+            `${param.name} = ${EXPR_CONSTRUCTOR}`));
+    } else if (param.kind === SymbolParameterType.REST) {
+        functionParameters.push(EXPR_CONSTRUCTOR);
+    } else {
+        functionParameters.push(param.name);
+    }
+
+    const content: string = currentModel.functionName.source + "(" + functionParameters.join(",") + ")";
+    return content;
+}
+
+export function getUpdatedContentOnUncheck(currentModel: FunctionCall, currentIndex: number) : string {
+    const functionParameters: string[] = [];
+    currentModel.arguments.filter((parameter: any) => !STKindChecker.isCommaToken(parameter)).
+    map((parameter: STNode, pos: number) => {
+        if (pos !== currentIndex) {
+            functionParameters.push(parameter.source);
+        }
+    });
+
+    const content: string = currentModel.functionName.source + "(" + functionParameters.join(",") + ")";
+    return content;
+}
+
+export function getUpdatedContentForNewNamedArg(currentModel: FunctionCall, userInput: string) : string {
+    const functionParameters: string[] = [];
+    currentModel.arguments.filter((parameter: any) => !STKindChecker.isCommaToken(parameter)).
+    map((parameter: STNode) => {
+        functionParameters.push(parameter.source);
+    });
+
+    functionParameters.push(`${userInput} = ${EXPR_CONSTRUCTOR}`);
+    const content: string = currentModel.functionName.source + "(" + functionParameters.join(",") + ")";
+    return content;
 }

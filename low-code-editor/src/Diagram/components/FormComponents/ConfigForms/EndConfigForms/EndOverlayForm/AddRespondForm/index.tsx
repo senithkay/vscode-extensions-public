@@ -44,6 +44,8 @@ export function AddRespondForm(props: RespondFormProps) {
         props: {
             isMutationProgress: isMutationInProgress,
             currentFile,
+            syntaxTree,
+            stSymbolInfo,
             importStatements,
             experimentalEnabled
         },
@@ -178,7 +180,6 @@ export function AddRespondForm(props: RespondFormProps) {
             label: formTitle,
             initialSource,
             formArgs: { formArgs },
-            validForm,
             config,
             onWizardClose,
             handleStatementEditorChange,
@@ -187,6 +188,8 @@ export function AddRespondForm(props: RespondFormProps) {
             getLangClient: getExpressionEditorLangClient,
             applyModifications: modifyDiagram,
             library,
+            syntaxTree,
+            stSymbolInfo,
             importStatements,
             experimentalEnabled
         }
@@ -208,12 +211,8 @@ export function AddRespondForm(props: RespondFormProps) {
             <FormControl data-testid="respond-form" className={cn(formClasses.wizardFormControl)}>
                 <FormHeaderSection
                     onCancel={onCancel}
-                    statementEditor={true}
                     formTitle={formTitle}
                     defaultMessage={"Respond"}
-                    handleStmtEditorToggle={handleStmtEditorToggle}
-                    toggleChecked={false}
-                    experimentalEnabled={experimentalEnabled}
                 />
                 <div className={formClasses.formContentWrapper}>
                     <div className={formClasses.formNameWrapper}>
@@ -251,6 +250,10 @@ export function AddRespondForm(props: RespondFormProps) {
                     saveBtnText={saveRespondButtonLabel}
                     isMutationInProgress={isMutationInProgress}
                     validForm={validForm}
+                    statementEditor={true}
+                    toggleChecked={false}
+                    experimentalEnabled={experimentalEnabled}
+                    handleStmtEditorToggle={handleStmtEditorToggle}
                     onSave={onSaveWithTour}
                     onCancel={onCancel}
                 />

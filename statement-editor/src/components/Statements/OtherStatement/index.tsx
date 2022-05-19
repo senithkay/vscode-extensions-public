@@ -14,7 +14,7 @@ import React from "react";
 
 import { OtherStatementNodeTypes } from "../../../constants";
 import { InputEditor } from "../../InputEditor";
-import { useStatementEditorStyles } from "../../styles";
+import { useStatementRendererStyles } from "../../styles";
 
 interface OtherStatementProps {
     model: OtherStatementNodeTypes;
@@ -23,14 +23,14 @@ interface OtherStatementProps {
 export function OtherStatementTypes(props: OtherStatementProps) {
     const { model } = props;
 
-    const statementEditorClasses = useStatementEditorStyles();
+    const statementRendererClasses = useStatementRendererStyles();
 
     const inputEditorProps = {
         model
     };
 
     return (
-        <span className={statementEditorClasses.expressionElement}>
+        <span className={statementRendererClasses.expressionElement}>
             <InputEditor {...inputEditorProps} />
         </span>
     );

@@ -14,22 +14,43 @@ import { Theme, withStyles } from '@material-ui/core/styles';
 import Switch from '@material-ui/core/Switch';
 
 const PrimarySwitchToggle = withStyles((theme: Theme) => ({
+  root: {
+    width: theme.spacing(5.25),
+    height: theme.spacing(3),
+    padding: 0,
+    display: 'flex',
+  },
   switchBase: {
-    color: theme.palette.primary.main,
-    '&$checked': {
-      color: theme.palette.primary.dark,
+    padding: theme.spacing(0.375),
+    '&.MuiIconButton-root:hover': {
+      backgroundColor: "transparent"
+    },
+    '&.Mui-checked': {
+      transform: 'translateX(18px)',
+      '& .MuiSwitch-thumb': {
+        color: `${theme.palette.success.main} !important`,
+      },
       '& + $track': {
-        opacity: 0.8,
-        color: theme.palette.primary.dark,
-        backgroundColor: theme.palette.primary.main,
+        opacity: 1,
+        background: "linear-gradient(180deg, #F5F5F9 0%, #FFFFFF 100%)",
+        boxShadow: "inset 0 0 0 1px #36B475, 0 1px 2px -1px rgba(141,145,163,0.21)",
       },
     },
   },
   track: {
+    borderRadius: theme.spacing(2),
     opacity: 1,
-    backgroundColor: theme.palette.grey[300],
+    background: "linear-gradient(180deg, #F5F5F9 0%, #FFFFFF 100%)",
+    boxShadow: "inset 0 0 0 1px #CBCEDB, 0 1px 2px -1px rgba(141,145,163,0.21)",
+  },
+  thumb: {
+    width: theme.spacing(2.25),
+    height: theme.spacing(2.25),
+    boxShadow: 'none',
+    color: theme.palette.grey[400]
   },
   checked: {},
+  disabled: {}
 }))(Switch) as typeof Switch;
 
 export default PrimarySwitchToggle;
