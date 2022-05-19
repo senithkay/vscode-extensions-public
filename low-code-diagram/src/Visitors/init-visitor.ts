@@ -55,7 +55,7 @@ import { DraftStatementViewState } from "../ViewState/draft";
 import { WorkerDeclarationViewState } from "../ViewState/worker-declaration";
 
 import { DefaultConfig } from "./default";
-import { haveBlockStatement, isSTActionInvocation } from "./util";
+import { haveBlockStatement, isEndpointNode, isSTActionInvocation } from "./util";
 
 let allEndpoints: Map<string, Endpoint> = new Map<string, Endpoint>();
 let currentFnBody: FunctionBodyBlock | ExpressionFunctionBody;
@@ -371,12 +371,10 @@ export class InitVisitor implements Visitor {
 
         if (STKindChecker.isLocalVarDecl(node)) {
             // Check whether node is an endpoint initialization.
-            if (node.typeData && node.typeData.isEndpoint) {
+            if (isEndpointNode(node)) {
                 const bindingPattern: CaptureBindingPattern = node.typedBindingPattern.bindingPattern as CaptureBindingPattern;
                 stmtViewState.endpoint.epName = bindingPattern.variableName.value;
-                const endpoint = allEndpoints.get(stmtViewState.endpoint.epName);
-                if (endpoint) {
-                    const vEp = endpoint.visibleEndpoint;
+                if (allEndpoints.has(stmtViewState.endpoint.epName)){
                     stmtViewState.isEndpoint = true;
                 }
             }

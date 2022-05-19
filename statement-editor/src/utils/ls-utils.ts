@@ -178,7 +178,7 @@ export async function getDiagnostics(
 export async function getSymbolDocumentation(
     docUri: string,
     targetPosition: NodePosition,
-    currentModel: CurrentModel,
+    currentModel: STNode,
     getLangClient: () => Promise<ExpressionEditorLangClientInterface>,
     userInput: string = ''): Promise<SymbolInfoResponse> {
     const langClient = await getLangClient();

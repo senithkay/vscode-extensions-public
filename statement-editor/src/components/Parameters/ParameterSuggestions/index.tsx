@@ -13,12 +13,11 @@
 import React, { useContext, useEffect } from "react";
 
 import { List, ListItem, ListItemText, ListSubheader } from "@material-ui/core";
-import { ParameterInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { STNode } from "@wso2-enterprise/syntax-tree";
 
-import { SymbolParameterType } from "../../../constants";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
-import { useStatementEditorStyles } from "../../styles";
+import { getCurrentModelParams, getParamCheckedList } from "../../../utils";
+import { useStatementEditorStyles, useStmtEditorHelperPanelStyles } from "../../styles";
 import { ParameterList } from "../ParameterList";
 
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
@@ -29,42 +28,15 @@ export function ParameterSuggestions(){
         },
         documentation
     } = useContext(StatementEditorContext);
+    const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
     const statementEditorClasses = useStatementEditorStyles();
-
     const [checked, setChecked] = React.useState<any[]>([]);
 
 
     useEffect(() => {
         if (currentModel.model && documentation && documentation.documentation?.parameters) {
-            const newChecked : any[] = [];
-            const paramsInModel: STNode[] = [];
-
-            if (STKindChecker.isFunctionCall(currentModel.model)) {
-                currentModel.model.arguments.forEach((parameter: any) => {
-                    if (!parameter.isToken) {
-                        paramsInModel.push(parameter);
-                    }
-                });
-            }
-
-            paramsInModel.map((param: STNode, value: number) => {
-                if (STKindChecker.isNamedArg(param)) {
-                    for (let i = 0; i < documentation.documentation.parameters.length; i++){
-                        const docParam : ParameterInfo = documentation.documentation.parameters[i];
-                        if (param.argumentName.name.value === docParam.name ||
-                            docParam.kind === SymbolParameterType.INCLUDED_RECORD || docParam.kind === SymbolParameterType.REST){
-                            if (newChecked.indexOf(i) === -1){
-                                newChecked.push(i);
-                                break;
-                            }
-                        }
-                    }
-                } else {
-                    newChecked.push(value);
-                }
-            });
-
-            setChecked(newChecked);
+            const paramsInModel: STNode[] = getCurrentModelParams(currentModel.model);
+            setChecked(getParamCheckedList(paramsInModel, documentation.documentation));
         }
     }, [currentModel.model, documentation]);
 
@@ -75,28 +47,36 @@ export function ParameterSuggestions(){
 
     return(
         <>
-            {documentation && !(documentation.documentation === undefined) ? (
-                <List className={statementEditorClasses.stmtEditorInnerWrapper}>
-                    <ListItem style={{paddingLeft: '0px', paddingTop: '0px'}}>
-                        <ListItemText primary={documentation.documentation.description}/>
-                    </ListItem>
-                    <ParameterList checkedList={checked} setCheckedList={setCheckedList} />
-                    {documentation.documentation.returnValueDescription && (
-                        <>
-                            <hr className={statementEditorClasses.returnSeparator}/>
-                            <ListSubheader className={statementEditorClasses.parameterHeader}>
-                                Return
-                            </ListSubheader>
-                            <ListItem style={{paddingLeft: '0px'}}>
-                                <ListItemText primary={documentation.documentation.returnValueDescription}/>
-                            </ListItem>
-                        </>
-                    )}
-                </List>
-            ) : (
+            {documentation === null ? (
                 <div className={statementEditorClasses.stmtEditorInnerWrapper}>
-                    <p>Please select a function to see the parameter information</p>
+                    <p>Please upgrade to the latest Ballerina version</p>
                 </div>
+            ) : (
+                <>
+                    {documentation && !(documentation.documentation === undefined) ? (
+                        <List className={statementEditorClasses.stmtEditorInnerWrapper}>
+                            <ListItem className={stmtEditorHelperClasses.docDescription}>
+                                <ListItemText primary={documentation.documentation.description}/>
+                            </ListItem>
+                            <ParameterList checkedList={checked} setCheckedList={setCheckedList} />
+                            {documentation.documentation.returnValueDescription && (
+                                <>
+                                    <hr className={stmtEditorHelperClasses.returnSeparator}/>
+                                    <ListSubheader className={stmtEditorHelperClasses.parameterHeader}>
+                                        Return
+                                    </ListSubheader>
+                                    <ListItem className={stmtEditorHelperClasses.returnDescription}>
+                                        <ListItemText primary={documentation.documentation.returnValueDescription}/>
+                                    </ListItem>
+                                </>
+                            )}
+                        </List>
+                    ) : (
+                        <div className={statementEditorClasses.stmtEditorInnerWrapper}>
+                            <p>Please select a function to see the parameter information</p>
+                        </div>
+                    )}
+                </>
             )}
         </>
     );
