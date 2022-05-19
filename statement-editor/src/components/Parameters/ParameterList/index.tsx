@@ -37,7 +37,6 @@ export interface ParameterListProps {
 
 export function ParameterList(props: ParameterListProps) {
     const { checkedList, setCheckedList } = props;
-    const statementEditorClasses = useStatementEditorStyles();
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
     const {
         modelCtx: {
@@ -112,7 +111,7 @@ export function ParameterList(props: ParameterListProps) {
         return (
             <>
                 {argument !== -1 && (
-                    <ListItem className={statementEditorClasses.docListDefault}>
+                    <ListItem className={stmtEditorHelperClasses.docListDefault}>
                         <Checkbox
                             classes={{
                                 root: stmtEditorHelperClasses.parameterCheckbox,
@@ -177,7 +176,7 @@ export function ParameterList(props: ParameterListProps) {
                                         ) : (
                                             <>
                                                 {param.kind !== SymbolParameterType.INCLUDED_RECORD && (
-                                                    <ListItem key={value} className={statementEditorClasses.docListDefault}>
+                                                    <ListItem key={value} className={stmtEditorHelperClasses.docListDefault}>
                                                         <Checkbox
                                                             classes={{
                                                                 root: stmtEditorHelperClasses.parameterCheckbox,

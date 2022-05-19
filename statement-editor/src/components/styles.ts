@@ -532,7 +532,16 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
                 flex: "inherit"
             },
             ...removePadding
-        }
+        },
+        docListDefault: {
+            "& .MuiListItem-root": {
+                padding: '0px'
+            },
+            "& .MuiListItemText-root": {
+                flex: 'inherit'
+            },
+            ...removePadding
+        },
     }),
 );
 
@@ -640,17 +649,19 @@ export const useStatementEditorStyles = makeStyles(() =>
         },
         inlineDocumentation: {
             borderWidth: '2px',
-            backgroundColor: 'white'
+            backgroundColor: 'white',
+            marginTop: '15px'
         },
-        docListDefault: {
+        inlineDocList: {
             "& .MuiListItem-root": {
                 padding: '0px'
             },
             "& .MuiListItemText-root": {
-                flex: 'inherit'
+                paddingLeft: '12.5px',
+                paddingRight: '12.5px'
             },
             ...removePadding
-        },
+        }
 
     }),
 );

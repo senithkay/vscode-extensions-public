@@ -24,7 +24,6 @@ interface NamedArgIncludedRecordProps {
 // tslint:disable: jsx-no-multiline-js
 export function NamedArgIncludedRecord(props: NamedArgIncludedRecordProps){
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
-    const statementEditorClasses = useStatementEditorStyles();
     const {isNewRecord, value, addIncludedRecordToModel} = props;
     const defaultNamedArg = "NamedArg";
     const [userInput, setUserInput] = useState<string>(defaultNamedArg);
@@ -43,7 +42,7 @@ export function NamedArgIncludedRecord(props: NamedArgIncludedRecordProps){
     return (
         <>
             {isNewRecord && (
-                <ListItem className={statementEditorClasses.docListDefault}>
+                <ListItem className={stmtEditorHelperClasses.docListDefault}>
                     <Checkbox
                         classes={{
                             root : stmtEditorHelperClasses.disabledCheckbox,

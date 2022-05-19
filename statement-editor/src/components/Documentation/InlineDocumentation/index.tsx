@@ -34,7 +34,7 @@ export function InlineDocumentation(props: InlineDocumentationProps) {
         <>
             {documentation === null && (
                 <div className={statementEditorClasses.inlineDocumentation}>
-                    <List className={statementEditorClasses.docListDefault}>
+                    <List className={statementEditorClasses.inlineDocList}>
                         <ListItem>
                             <ListItemText primary={"Please upgrade to the latest Ballerina version"}/>
                         </ListItem>
@@ -43,7 +43,7 @@ export function InlineDocumentation(props: InlineDocumentationProps) {
             )}
             {documentation && !!documentation.documentation?.description && (
                 <div className={statementEditorClasses.inlineDocumentation}>
-                    <List className={statementEditorClasses.docListDefault}>
+                    <List className={statementEditorClasses.inlineDocList}>
                         <ListItem>
                             <ListItemText primary={documentation.documentation.description}/>
                             <ExpandMore onClick={documentationHandler}/>
