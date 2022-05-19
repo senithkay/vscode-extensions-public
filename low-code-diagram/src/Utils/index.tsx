@@ -43,7 +43,7 @@ export function initializeViewState(st: STNode): STNode {
     return clone;
 }
 
-export function getSTComponents(nodeArray: any, path?: string): React.ReactNode[] {
+export function getSTComponents(nodeArray: any, viewState?: any): React.ReactNode[] {
     // Convert to array
     if (!(nodeArray instanceof Array)) {
         nodeArray = [nodeArray];
@@ -52,7 +52,8 @@ export function getSTComponents(nodeArray: any, path?: string): React.ReactNode[
     const children: any = [];
     nodeArray.forEach((node: any) => {
         const ChildComp = (stComponents as any)[node.kind];
-        node.viewState.functionNodeFilePath = path;
+        node.viewState.functionNodeFilePath = viewState.functionNodeFilePath;
+        node.viewState.functionNodeSource = viewState.functionNodeSource
         if (!ChildComp) {
             children.push(<Statement model={node} />);
         } else {

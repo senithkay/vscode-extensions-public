@@ -45,6 +45,7 @@ export interface ShowFunctionBtnProps {
 
 export function ShowFunctionBtn(props: ShowFunctionBtnProps) {
   const {
+    state: { isDiagramFunctionExpanded },
     props: { isReadOnly, syntaxTree },
     api: {
       code: { getFunctionDef },
@@ -62,17 +63,26 @@ export function ShowFunctionBtn(props: ShowFunctionBtnProps) {
   } = props;
 
   const [isConfirmDialogActive, setConfirmDialogActive] = useState(false);
-  const [, setBtnActive] = useState(false);
-  const [functionBlock, setFunctionBlock] = useState(null);
+  const [isBtnActive, setBtnActive] = useState(true);
+  const [functionBlock, setFunctionBlock] = useState(undefined);
   const nodeViewState: StatementViewState = model.viewState;
 
   useEffect(() => {
+    setFunctionBlock(undefined);
     setConfirmDialogActive(false);
   }, [syntaxTree]);
 
-  const onBtnClick = async () => {
+
+  useEffect(() => {
+    if (isDiagramFunctionExpanded) {
+      fetchDefinition();
+    }
+  }, [isDiagramFunctionExpanded]);
+
+  const fetchDefinition = async () => {
     if (isConfirmDialogActive) {
       nodeViewState.functionNodeExpanded = false;
+      nodeViewState.functionNode = undefined;
       diagramRedraw(recalculateSizingAndPositioning(syntaxTree));
       setConfirmDialogActive(false);
     } else {
@@ -91,16 +101,25 @@ export function ShowFunctionBtn(props: ShowFunctionBtnProps) {
           const funDef = await getFunctionDef(range, model.viewState.functionNodeFilePath);
           const sizedBlock = initializeViewState(funDef.syntaxTree);
           sizedBlock.viewState.functionNodeFilePath = funDef.defFilePath;
+          sizedBlock.viewState.functionNodeSource = sizedBlock.source;
           nodeViewState.functionNode = sizedBlock as FunctionDefinition;
         }
-        nodeViewState.functionNodeExpanded = true;
-        setConfirmDialogActive(true);
-        diagramRedraw(syntaxTree);
-        setFunctionBlock(nodeViewState.functionNode);
+        if (nodeViewState.functionNode.viewState.functionNodeSource !== model.viewState.functionNodeSource) {
+          nodeViewState.functionNodeExpanded = true;
+          setConfirmDialogActive(true);
+          diagramRedraw(syntaxTree);
+          setFunctionBlock(nodeViewState.functionNode);
+        } else {
+          setBtnActive(false);
+        }
       } catch (e) {
         // console.error(e);
       }
     }
+  }
+
+  const onBtnClick = async () => {
+    fetchDefinition();
   };
 
   return (
@@ -108,7 +127,7 @@ export function ShowFunctionBtn(props: ShowFunctionBtnProps) {
       {!isReadOnly && (
         <g>
           <g
-            className="expand-icon-show"
+            className={isBtnActive ? "expand-icon-show" : "expand-icon-show-disable"}
             data-testid="func-expand-btn"
             onClick={onBtnClick}
           >

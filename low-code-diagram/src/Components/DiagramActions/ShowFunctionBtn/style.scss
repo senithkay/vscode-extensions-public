@@ -1,3 +1,35 @@
+.expand-icon-show-disable {
+    .expand-circle {
+        circle {
+            stroke: #ffa6a6;
+            fill: #f7f8fbe3;
+        }
+        .expand-icon {
+            fill: #5566d5;
+        }
+
+        &:hover {
+            circle {
+                cursor: pointer;
+            }
+    
+            &:hover .expand-icon {
+                fill: #5566d5;
+            }
+        }
+
+        &:active,
+        &.expand-click {
+            circle {
+                cursor: pointer;
+            }
+    
+            &:active .expand-icon {
+                fill: #5566d5;
+            }
+        }
+    }
+}
 .expand-icon-show {
     .expand-circle {
         circle {

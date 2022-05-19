@@ -15,7 +15,7 @@ const reducer = (state: LowCodeDiagramState, action: any) => {
             return {
                 ...state,
                 ...action.payload,
-                targetPosition: state.targetPosition
+                targetPosition: state.targetPosition,
             };
         case 'DIAGRAM_CLEAN_DRAW':
             return {

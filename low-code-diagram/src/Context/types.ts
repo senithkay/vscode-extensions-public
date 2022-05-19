@@ -35,6 +35,7 @@ export interface LowCodeDiagramState {
     isDataMapperShown: boolean;
     isConfigOverlayFormOpen: boolean;
     targetPosition: NodePosition; // FIXME check and remove usage of update position if not used anymore
+    isDiagramFunctionExpanded: boolean;
 }
 
 export interface LowCodeDiagramActions {

@@ -62,6 +62,7 @@ export { default as ComponentCollapseIcon } from "./ComponentCollapseIcon";
 export { default as ComponentExpandIcon } from "./ComponentExpandIcon";
 export { default as DeleteButton } from "./DeleteButton";
 export { default as EditButton } from "./EditButton";
+export { default as ExpandButton } from "./ExpandButton";
 export { default as TopLevelPlusIcon} from "./TopLevelPlusIcon";
 export { default as WarningIcon} from "./Warning";
 export { ServiceIconLight } from "./ServiceIcon";

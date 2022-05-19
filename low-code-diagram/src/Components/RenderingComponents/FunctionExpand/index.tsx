@@ -81,7 +81,8 @@ export function FunctionExpand(props: FunctionProps) {
     );
   } else {
     const block: FunctionBodyBlock = model.functionBody as FunctionBodyBlock;
-    block.viewState.functionNodeFilePath = viewState.functionNodeFilePath
+    block.viewState.functionNodeFilePath = viewState.functionNodeFilePath;
+    block.viewState.functionNodeSource = viewState.functionNodeSource;
     const isStatementsAvailable: boolean =
       block.statements.length > 0 || !!block.namedWorkerDeclarator;
     const bodyViewState: BlockViewState = block.viewState;
