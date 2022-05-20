@@ -12,9 +12,12 @@
  */
 import {
     BinaryExpression,
+    FieldAccess,
     IntersectionTypeDesc,
+    MethodCall,
     OptionalTypeDesc,
     ParenthesisedTypeDesc,
+    QueryExpression,
     QueryPipeline,
     RecordField,
     RecordFieldWithDefaultValue,
@@ -33,9 +36,15 @@ import { ModelType, StatementEditorViewState } from "../utils/statement-editor-v
 
 class ModelTypeSetupVisitor implements Visitor {
     public beginVisitSTNode(node: STNode, parent?: STNode) {
+        // Propagate model type info to leaf nodes
         if (parent && (parent.viewState as StatementEditorViewState).modelType === ModelType.TYPE_DESCRIPTOR) {
-            // Propagate type descriptor info to leaf nodes to identify the custom type descriptors
             (node.viewState as StatementEditorViewState).modelType = ModelType.TYPE_DESCRIPTOR;
+        } else if (parent && (parent.viewState as StatementEditorViewState).modelType === ModelType.BINDING_PATTERN) {
+            (node.viewState as StatementEditorViewState).modelType = ModelType.BINDING_PATTERN;
+        } else if (parent && (parent.viewState as StatementEditorViewState).modelType === ModelType.METHOD_CALL) {
+            (node.viewState as StatementEditorViewState).modelType = ModelType.METHOD_CALL;
+        } else if (parent && (parent.viewState as StatementEditorViewState).modelType === ModelType.FIELD_ACCESS) {
+            (node.viewState as StatementEditorViewState).modelType = ModelType.FIELD_ACCESS;
         }
     }
 
@@ -57,6 +66,7 @@ class ModelTypeSetupVisitor implements Visitor {
     }
 
     public beginVisitQueryPipeline(node: QueryPipeline) {
+        (node.fromClause.viewState as StatementEditorViewState).modelType = ModelType.QUERY_CLAUSE;
         node.intermediateClauses.map((intermediateClause: STNode) => {
             (intermediateClause.viewState as StatementEditorViewState).modelType = ModelType.QUERY_CLAUSE;
         });
@@ -103,6 +113,24 @@ class ModelTypeSetupVisitor implements Visitor {
     public beginVisitRecordFieldWithDefaultValue(node: RecordFieldWithDefaultValue) {
         (node.typeName.viewState as StatementEditorViewState).modelType = ModelType.TYPE_DESCRIPTOR;
         (node.fieldName.viewState as StatementEditorViewState).modelType = ModelType.BINDING_PATTERN;
+    }
+
+    public beginVisitMethodCall(node: MethodCall) {
+        (node.expression.viewState as StatementEditorViewState).modelType = ModelType.METHOD_CALL;
+        (node.methodName.viewState as StatementEditorViewState).modelType = ModelType.METHOD_CALL;
+    }
+
+    public beginVisitFieldAccess(node: FieldAccess) {
+        (node.expression.viewState as StatementEditorViewState).modelType = ModelType.FIELD_ACCESS;
+        (node.fieldName.viewState as StatementEditorViewState).modelType = ModelType.FIELD_ACCESS;
+    }
+
+    public beginVisitQueryExpression(node: QueryExpression) {
+        (node.queryPipeline.viewState as StatementEditorViewState).modelType = ModelType.QUERY_EXPRESSION;
+        (node.selectClause.viewState as StatementEditorViewState).modelType = ModelType.QUERY_EXPRESSION;
+        if (node?.queryConstructType) {
+            (node.queryConstructType.viewState as StatementEditorViewState).modelType = ModelType.QUERY_EXPRESSION;
+        }
     }
 
 }

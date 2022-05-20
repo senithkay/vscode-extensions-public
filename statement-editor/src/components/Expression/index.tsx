@@ -18,7 +18,7 @@ import cn from "classnames";
 
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { getExpressionTypeComponent, isPositionsEquals } from "../../utils";
-import { useStatementEditorStyles } from "../styles";
+import { useStatementRendererStyles } from "../styles";
 
 export interface ExpressionComponentProps {
     model: STNode;
@@ -40,7 +40,7 @@ export function ExpressionComponent(props: ExpressionComponentProps) {
         changeCurrentModel
     } = modelCtx;
 
-    const statementEditorClasses = useStatementEditorStyles();
+    const statementRendererClasses = useStatementRendererStyles();
 
     const isSelected = selectedModel.model && model && isPositionsEquals(selectedModel.model.position, model.position);
 
@@ -62,8 +62,8 @@ export function ExpressionComponent(props: ExpressionComponentProps) {
         changeCurrentModel(model, stmtPosition);
     }
 
-    const styleClassNames = cn(statementEditorClasses.expressionElement,
-        isSelected && statementEditorClasses.expressionElementSelected,
+    const styleClassNames = cn(statementRendererClasses.expressionElement,
+        isSelected && statementRendererClasses.expressionElementSelected,
         {
             "hovered": !isSelected && isHovered,
         },

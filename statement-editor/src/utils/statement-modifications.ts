@@ -31,39 +31,21 @@ export const keywords = [
     "distinct", "stream"
 ];
 
-export function createStatement(property: string, targetPosition: NodePosition): STModification {
-    const modification: STModification = {
-        startLine: targetPosition.startLine,
-        startColumn: 0,
-        endLine: targetPosition.startLine,
-        endColumn: 0,
-        type: "INSERT",
-        isImport: false,
-        config: {
-            "STATEMENT": property
-        }
-    };
-
-    return modification;
-}
-
-export function updateStatement(property: string, targetPosition: NodePosition): STModification {
-    const modification: STModification = {
+export function getStatementModification(statement: string, targetPosition: NodePosition): STModification {
+    return {
         startLine: targetPosition.startLine,
         startColumn: targetPosition.startColumn,
-        endLine: targetPosition.endLine,
-        endColumn: targetPosition.endColumn,
+        endLine: targetPosition?.endLine || targetPosition.startLine,
+        endColumn: targetPosition?.endColumn || targetPosition.startColumn,
         type: "INSERT",
         isImport: false,
         config: {
-            "STATEMENT": property
+            "STATEMENT": statement
         }
     };
-
-    return modification;
 }
 
-export function createImportStatement(moduleNameStr: string): STModification {
+export function getImportModification(moduleNameStr: string): STModification {
     const importStatement: STModification = {
         startLine: 0,
         startColumn: 0,

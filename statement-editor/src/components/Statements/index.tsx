@@ -16,6 +16,7 @@ import { ElseBlockC } from "./ElseIfStatement";
 import { ForeachStatementC } from "./ForeachStatement";
 import { IfStatementC } from "./IfStatement";
 import { LocalVarDeclC } from './LocalVarDecl';
+import { ModuleVarDeclC } from './ModuleVarDecl';
 import { OtherStatementTypes } from "./OtherStatement";
 import { RespondStatementC } from "./RespondStatement";
 import { ReturnStatementC } from "./ReturnStatement";
@@ -23,6 +24,7 @@ import { WhileStatementC } from "./WhileStatement";
 
 
 export { LocalVarDeclC as LocalVarDecl };
+export { ModuleVarDeclC as ModuleVarDecl };
 export { WhileStatementC as WhileStatement };
 export { ElseBlockC as ElseBlock };
 export { ForeachStatementC as ForeachStatement };

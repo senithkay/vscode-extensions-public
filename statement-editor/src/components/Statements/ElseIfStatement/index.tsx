@@ -17,7 +17,7 @@ import { ElseBlock, STKindChecker } from "@wso2-enterprise/syntax-tree"
 import classNames from "classnames";
 
 import { StatementRenderer } from "../../StatementRenderer";
-import { useStatementEditorStyles } from "../../styles";
+import { useStatementRendererStyles } from "../../styles";
 
 interface ElseBlockProps {
     model: ElseBlock;
@@ -26,14 +26,14 @@ interface ElseBlockProps {
 export function ElseBlockC(props: ElseBlockProps) {
     const { model } = props;
 
-    const statementEditorClasses = useStatementEditorStyles();
+    const statementRendererClasses = useStatementRendererStyles();
 
     const conditionComponent: ReactNode = (STKindChecker.isBlockStatement(model.elseBody)) ?
         (
             <span
                 className={classNames(
-                    statementEditorClasses.expressionBlock,
-                    statementEditorClasses.expressionBlockDisabled
+                    statementRendererClasses.expressionBlock,
+                    statementRendererClasses.expressionBlockDisabled
                 )}
             >
                 <span className="keyword">{model.elseKeyword.value}</span>
@@ -47,8 +47,8 @@ export function ElseBlockC(props: ElseBlockProps) {
             <span>
                 <span
                     className={classNames(
-                        statementEditorClasses.expressionBlock,
-                        statementEditorClasses.expressionBlockDisabled,
+                        statementRendererClasses.expressionBlock,
+                        statementRendererClasses.expressionBlockDisabled,
                         "keyword"
                     )}
                 >

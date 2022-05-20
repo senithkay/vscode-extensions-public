@@ -27,8 +27,10 @@ class ModelFindingVisitor implements Visitor {
         if (isPositionsEquals(node.position, this.position)) {
             this.model = node;
         } else if (INPUT_EDITOR_PLACEHOLDERS.has(node?.source?.trim())) {
-            const isWithinRange = node.position.startColumn >= this.position.startColumn &&
-                node.position.endColumn <= this.position.endColumn;
+            const isWithinRange = this.position.startLine <= node.position.startLine
+                && this.position.endLine >= node.position.endLine
+                && this.position.startColumn <= node.position.endColumn
+                && this.position.endColumn >= node.position.startColumn;
             if (isWithinRange) {
                 this.model = node;
             }

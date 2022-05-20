@@ -13,15 +13,13 @@
 import React, { useState } from "react";
 
 import { FormControl } from "@material-ui/core";
-import { FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 
-import { StatementEditor, StatementEditorProps } from "../components/StatementEditor";
+import { StatementEditorWrapper, StatementEditorWrapperProps } from "../components/StatementEditorWrapper";
 
-export const useStatementEditor = (props: StatementEditorProps) => {
+export const useStatementEditor = (props: StatementEditorWrapperProps) => {
     const {
         onCancel,
-        experimentalEnabled,
         handleStatementEditorChange,
         ...restProps
     } = props;
@@ -30,7 +28,9 @@ export const useStatementEditor = (props: StatementEditorProps) => {
     let stmtEditorModel: STNode;
 
     const handleStmtEditorToggle = () => {
-        setIsStmtEditor(!isStmtEditor);
+        setIsStmtEditor((prevState: boolean) => {
+            return !prevState;
+        });
         if (stmtEditorModel) {
             handleStatementEditorChange(stmtEditorModel);
         }
@@ -43,18 +43,10 @@ export const useStatementEditor = (props: StatementEditorProps) => {
     const stmtEditorComponent =
         isStmtEditor && (
             <FormControl data-testid="property-form">
-                <FormHeaderSection
-                    onCancel={onCancel}
-                    formTitle={"lowcode.develop.configForms.statementEditor.title"}
-                    defaultMessage={"Statement Editor"}
-                    statementEditor={true}
-                    handleStmtEditorToggle={handleStmtEditorToggle}
-                    toggleChecked={true}
-                    experimentalEnabled={experimentalEnabled}
-                />
-                <StatementEditor
+                <StatementEditorWrapper
                     onCancel={onCancel}
                     onStmtEditorModelChange={onStmtEditorModelChange}
+                    handleStmtEditorToggle={handleStmtEditorToggle}
                     {...restProps}
                 />
             </FormControl>
