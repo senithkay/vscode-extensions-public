@@ -19,7 +19,7 @@
 import vscode from "vscode";
 import axios from "axios";
 import { BallerinaExtension } from "../core";
-import { getChoreoKeytarSession, setChoreoKeytarSession } from "./auth-session";
+import { deleteChoreoKeytarSession, getChoreoKeytarSession, setChoreoKeytarSession } from "./auth-session";
 import jwt_decode from "jwt-decode";
 import { choreoAuthConfig } from "./activator";
 import { ChoreoFidp } from "./config";
@@ -244,6 +244,7 @@ export class OAuthTokenHandler {
     }
 
     signOut() {
+        deleteChoreoKeytarSession();
         this.extension.setChoreoSession({
             loginStatus: false
         });
