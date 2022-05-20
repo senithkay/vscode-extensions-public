@@ -25,8 +25,9 @@ import {
 
 import {
     acceptedCompletionKindForExpressions,
-    acceptedCompletionKindForTypes
-} from "../components/InputEditor/constants";
+    acceptedCompletionKindForTypes,
+    PROPERTY_COMPLETION_KIND
+} from "../constants";
 import { CurrentModel, SuggestionItem } from '../models/definitions';
 
 import { getSymbolPosition, sortSuggestions } from "./index";
@@ -112,25 +113,26 @@ export async function getCompletions (docUri: string,
     filteredCompletionItems.sort(sortSuggestions);
 
     filteredCompletionItems.map((completion) => {
-        let insertText = completion.insertText;
-        if (completion.kind === 10) {
+        let updatedInsertText = completion.insertText;
+        const isProperty = completion.kind === PROPERTY_COMPLETION_KIND;
+        if (isProperty) {
             const regex = /\${\d+:?(""|0|0.0|false|\(\)|xml ``|{})?}/gm;
             let placeHolder;
             // tslint:disable-next-line:no-conditional-assignment
-            while ((placeHolder = regex.exec(insertText)) !== null) {
+            while ((placeHolder = regex.exec(completion.insertText)) !== null) {
                 // This is necessary to avoid infinite loops with zero-width matches
                 if (placeHolder.index === regex.lastIndex) {
                     regex.lastIndex++;
                 }
-                insertText = insertText.replace(placeHolder[0], placeHolder[1] || '');
+                updatedInsertText = updatedInsertText.replace(placeHolder[0], placeHolder[1] || '');
             }
         }
         suggestions.push(
             {
                 value: completion.label,
                 kind: completion.detail,
-                insertText,
-                suggestionType: completion.kind
+                insertText: isProperty && updatedInsertText,
+                completionKind: completion.kind
             }
         );
     });

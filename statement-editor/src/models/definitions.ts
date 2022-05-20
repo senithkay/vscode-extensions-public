@@ -35,7 +35,7 @@ export interface SuggestionItem {
     value: string;
     kind?: string;
     insertText?: string;
-    suggestionType?: number;
+    completionKind?: number;
 }
 
 export interface RemainingContent {
