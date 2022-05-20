@@ -113,22 +113,17 @@ export async function getCompletions (docUri: string,
 
     filteredCompletionItems.map((completion) => {
         let insertText = completion.insertText;
-        const placeholders = new Map();
         if (completion.kind === 10) {
             const regex = /\${\d+:?(""|0|0.0|false|\(\)|xml ``|{})?}/gm;
-            let m;
+            let placeHolder;
             // tslint:disable-next-line:no-conditional-assignment
-            while ((m = regex.exec(insertText)) !== null) {
+            while ((placeHolder = regex.exec(insertText)) !== null) {
                 // This is necessary to avoid infinite loops with zero-width matches
-                if (m.index === regex.lastIndex) {
+                if (placeHolder.index === regex.lastIndex) {
                     regex.lastIndex++;
                 }
-                placeholders.set(m[0], m[1]);
+                insertText = insertText.replace(placeHolder[0], placeHolder[1] || '');
             }
-
-            placeholders.forEach((val, key) => {
-                insertText = insertText.replace(key, val || '');
-            });
         }
         suggestions.push(
             {
