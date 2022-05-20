@@ -18,15 +18,15 @@ import { ExpressionComponent } from "../../Expression";
 
 interface NameRefProps {
     model: SimpleNameReference;
-    position?: NodePosition
+    stmtPosition?: NodePosition
 }
 
 export function SimpleNameReferenceComponent(props: NameRefProps) {
-    const { model, position } = props;
+    const { model, stmtPosition } = props;
 
     return (
         <>
-            <ExpressionComponent model={model.name} position={position} />
+            <ExpressionComponent model={model.name} stmtPosition={stmtPosition} />
         </>
     );
 }

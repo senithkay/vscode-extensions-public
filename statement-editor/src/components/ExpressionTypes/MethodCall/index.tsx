@@ -25,15 +25,15 @@ interface MethodCallProps {
 export function MethodCallComponent(props: MethodCallProps) {
     const { model } = props;
 
-    const methodNamePosition: NodePosition = model.methodName.position
-    methodNamePosition.endLine = model.closeParenToken.position.endLLine;
-    methodNamePosition.endColumn = model.closeParenToken.position.endColumn;
+    const methodPosition: NodePosition = model.methodName.position
+    methodPosition.endLine = model.closeParenToken.position.endLLine;
+    methodPosition.endColumn = model.closeParenToken.position.endColumn;
 
     return (
         <>
             <ExpressionComponent model={model.expression} />
             <TokenComponent model={model.dotToken} />
-            <ExpressionComponent model={model.methodName} position={methodNamePosition} >
+            <ExpressionComponent model={model.methodName} stmtPosition={methodPosition} >
                 <TokenComponent model={model.openParenToken} />
                 <ExpressionArrayComponent expressions={model.arguments} />
                 <TokenComponent model={model.closeParenToken} />

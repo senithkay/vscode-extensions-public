@@ -95,7 +95,7 @@ export function getModifications(
     return modifications;
 }
 
-export function getExpressionTypeComponent(expression: STNode, position?: NodePosition): ReactNode {
+export function getExpressionTypeComponent(expression: STNode, stmtPosition?: NodePosition): ReactNode {
     let ExprTypeComponent = (expressionTypeComponents as any)[expression.kind];
 
     if (!ExprTypeComponent) {
@@ -105,7 +105,7 @@ export function getExpressionTypeComponent(expression: STNode, position?: NodePo
     return (
         <ExprTypeComponent
             model={expression}
-            position={position}
+            stmtPosition={stmtPosition}
         />
     );
 }

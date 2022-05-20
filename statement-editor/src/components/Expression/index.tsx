@@ -24,13 +24,13 @@ export interface ExpressionComponentProps {
     model: STNode;
     children?: React.ReactElement[];
     classNames?: string;
-    position?: NodePosition
+    stmtPosition?: NodePosition
 }
 
 export function ExpressionComponent(props: ExpressionComponentProps) {
-    const { model, children, classNames, position } = props;
+    const { model, children, classNames, stmtPosition } = props;
 
-    const component = getExpressionTypeComponent(model, position);
+    const component = getExpressionTypeComponent(model, stmtPosition);
 
     const [isHovered, setHovered] = React.useState(false);
 
@@ -59,7 +59,7 @@ export function ExpressionComponent(props: ExpressionComponentProps) {
     const onMouseClick = (e: React.MouseEvent) => {
         e.stopPropagation();
         e.preventDefault();
-        changeCurrentModel(model, position);
+        changeCurrentModel(model, stmtPosition);
     }
 
     const styleClassNames = cn(statementEditorClasses.expressionElement,

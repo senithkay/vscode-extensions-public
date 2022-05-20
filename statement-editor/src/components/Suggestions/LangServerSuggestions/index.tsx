@@ -88,7 +88,7 @@ export function LSSuggestions() {
             variable = variable.split('(')[0] + "(" + paramArray.toString() + ")";
         }
 
-        const nodePosition: NodePosition = currentModel ? (currentModel.position ? currentModel.position : currentModel.model.position) : formModelPosition
+        const nodePosition: NodePosition = currentModel ? (currentModel.stmtPosition ? currentModel.stmtPosition : currentModel.model.position) : formModelPosition
 
         updateModel(variable, nodePosition);
         inputEditorCtx.onInputChange('');

@@ -280,10 +280,10 @@ export function StatementEditor(props: StatementEditorProps) {
         }
     };
 
-    const currentModelHandler = (cModel: STNode, position?: NodePosition) => {
+    const currentModelHandler = (cModel: STNode, stmtPosition?: NodePosition) => {
         setCurrentModel({
             model: cModel,
-            position
+            stmtPosition
         });
     };
 

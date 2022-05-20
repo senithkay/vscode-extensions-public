@@ -18,7 +18,7 @@ import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 export interface CurrentModel {
     model: STNode,
-    position?: NodePosition
+    stmtPosition?: NodePosition
 }
 
 export interface VariableUserInputs {
