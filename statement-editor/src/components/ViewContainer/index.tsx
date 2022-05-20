@@ -163,17 +163,17 @@ export function ViewContainer(props: ViewContainerProps) {
                     </div>
                     <div className={overlayClasses.buttonWrapper}>
                         <SecondaryButton
-                            text={isConfigurableStmt ? backButtonText : cancelButtonText}
+                            text={activeEditorId !== 0 && isConfigurableStmt ? backButtonText : cancelButtonText}
                             disabled={activeEditorId !== editors.length - 1}
                             fullWidth={false}
-                            onClick={isConfigurableStmt ? onBackClick : onCancelClick}
+                            onClick={activeEditorId !== 0 && isConfigurableStmt ? onCancelClick : onCancelClick}
                         />
                         <PrimaryButton
                             dataTestId="save-btn"
-                            text={isConfigurableStmt ? addConfigurableButtonText : saveButtonText}
+                            text={activeEditorId !== 0 && isConfigurableStmt ? addConfigurableButtonText : saveButtonText}
                             disabled={!isStatementValid || activeEditorId !== editors.length - 1}
                             fullWidth={false}
-                            onClick={isConfigurableStmt ? onAddConfigurableClick : onSaveClick}
+                            onClick={activeEditorId !== 0 && isConfigurableStmt ? onAddConfigurableClick : onSaveClick}
                         />
                     </div>
                 </div>
