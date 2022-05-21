@@ -144,6 +144,7 @@ export function InputEditor(props: InputEditorProps) {
         (
             <>
                 <input
+                    data-testid="input-editor"
                     value={INPUT_EDITOR_PLACEHOLDERS.has(userInput.trim()) ? "" : userInput}
                     className={statementRendererClasses.inputEditorTemplate + ' ' + classNames}
                     onKeyDown={inputEnterHandler}
@@ -156,6 +157,7 @@ export function InputEditor(props: InputEditorProps) {
             </>
         ) : (
             <span
+                data-testid="input-editor-span"
                 className={statementRendererClasses.inputEditorTemplate + ' ' + classNames}
                 onDoubleClick={handleDoubleClick}
             >

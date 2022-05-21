@@ -128,7 +128,7 @@ export function ExpressionSuggestions() {
     return (
         <>
 
-            <div className={stmtEditorHelperClasses.expressionSuggestionList}>
+            <div className={stmtEditorHelperClasses.expressionSuggestionList} data-testid="expression-list">
                 <FormControl style={{ width: '100%', padding: '0 25px'}}>
                     <Input
                         className={stmtEditorHelperClasses.librarySearchBox}
@@ -165,6 +165,7 @@ export function ExpressionSuggestions() {
                                                     disableRipple={true}
                                                 >
                                                     <ListItemText
+                                                        data-testid="expression-title"
                                                         title={expression.name}
                                                         primary={(
                                                             <Typography style={{ fontFamily: 'monospace' }}>

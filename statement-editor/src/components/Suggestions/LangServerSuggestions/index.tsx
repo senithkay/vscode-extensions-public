@@ -95,7 +95,7 @@ export function LSSuggestions() {
                 <>
                     <div className={stmtEditorHelperClasses.lsSuggestionList}>
                         <div className={statementEditorClasses.stmtEditorExpressionWrapper}>
-                            <List className={stmtEditorHelperClasses.suggestionList}>
+                            <List className={stmtEditorHelperClasses.suggestionList} data-testid="suggestion-list">
                                 {
                                     lsSuggestions.map((suggestion: SuggestionItem, index: number) => (
                                         <ListItem

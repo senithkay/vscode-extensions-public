@@ -137,10 +137,10 @@ export function ViewContainer(props: ViewContainerProps) {
 
     return (
         (
-            <div className={overlayClasses.mainStatementWrapper}>
+            <div className={overlayClasses.mainStatementWrapper} data-testid="statement-editor">
                 <div className={overlayClasses.statementEditorHeader}>
                     <Breadcrumb/>
-                    <div className={overlayClasses.closeButton}>
+                    <div className={overlayClasses.closeButton} data-testid="close-btn">
                         {onCancel && <CloseButton onCancel={onCancel} />}
                     </div>
                 </div>
@@ -149,7 +149,7 @@ export function ViewContainer(props: ViewContainerProps) {
                         activeEditorId !== editors.length - 1 && 'overlay'}`
                     }
                 >
-                    <EditorPane />
+                    <EditorPane data-testid="editor-pane"/>
                 </div>
                 <div className={overlayClasses.footer}>
                     <div className={overlayClasses.stmtEditorToggle}>
@@ -167,6 +167,7 @@ export function ViewContainer(props: ViewContainerProps) {
                             disabled={activeEditorId !== editors.length - 1}
                             fullWidth={false}
                             onClick={isConfigurableStmt ? onBackClick : onCancelClick}
+                            dataTestId="cancel-btn"
                         />
                         <PrimaryButton
                             dataTestId="save-btn"

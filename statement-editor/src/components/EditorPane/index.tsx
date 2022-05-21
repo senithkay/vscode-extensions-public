@@ -51,12 +51,12 @@ export function EditorPane() {
 
     return (
         <>
-            <div className={statementEditorClasses.stmtEditorContentWrapper}>
+            <div className={statementEditorClasses.stmtEditorContentWrapper} data-testid="statement-contentWrapper">
                 <div className={statementEditorClasses.stmtEditorInnerWrapper}>
-                    <div className={statementEditorClasses.statementExpressionTitle}>
+                    <div className={statementEditorClasses.statementExpressionTitle} data-testid="editor-toolbar">
                         <Toolbar inlineDocumentHandler={inlineDocumentHandler}/>
                     </div>
-                    <div className={statementEditorClasses.statementExpressionContent}>
+                    <div className={statementEditorClasses.statementExpressionContent}  data-testid="statement-renderer">
                         <StatementRenderer
                             model={statementModel}
                         />
@@ -67,7 +67,7 @@ export function EditorPane() {
                     <Diagnostics/>
                 </div>
             </div>
-            <div className={statementEditorClasses.suggestionsSection}>
+            <div className={statementEditorClasses.suggestionsSection} data-testid="suggestions-section">
                 <HelperPane docExpandClicked={docExpandClicked} paramTabHandler={paramTabHandler}/>
             </div>
         </>
