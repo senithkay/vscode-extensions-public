@@ -59,10 +59,6 @@ export function ToggleButtonInput(props: ToggleButtonInputProps) {
 
     useEffect(() => {
         setToggleButtonValue(id, getBooleanValue(inputValue));
-    }, []);
-
-    useEffect(() => {
-        setToggleButtonValue(id, getBooleanValue(inputValue));
     }, [inputValue]);
 
     return (

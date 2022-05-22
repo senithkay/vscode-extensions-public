@@ -86,17 +86,18 @@ export function getConfigProperties(configObj: object, id: string = "1", name: s
         };
 
         if (configPropertyType === ConfigType.OBJECT && properties !== undefined) {
+            const elementName: string = configPropertyValues[SchemaConstants.NAME];
             const childProperty: ConfigElementProps = getConfigProperties(configPropertyValues,
                 id + "-" + (index + 1), key, required);
             childProperty.type = ConfigType.OBJECT;
             childProperty.description = configPropertyDesc;
             childProperty.schema = configPropertyValues;
+            childProperty.isRequired = !elementName ? true : required;
             configProperty.properties.push(childProperty);
         } else {
             configProperty.properties.push(element);
         }
     });
-
     return configProperty;
 }
 

@@ -31,13 +31,18 @@
                         "mod1": {
                             "type": "object",
                             "properties": {
-                                "nameVal": {
-                                    "type": "string",
-                                    "description": "Sample description of the nameVal configurable."
-                                }
+                                "company": {
+                                    "type": "object",
+                                    "properties": { "companyName": { "type": "string" } },
+                                    "additionalProperties": false,
+                                    "required": ["companyName"],
+                                    "name": "user/test4.mod1:0.1.0:Company",
+                                    "description": ""
+                                },
+                                "id": { "type": "integer", "description": "" }
                             },
                             "additionalProperties": false,
-                            "required": ["nameVal"]
+                            "required": ["company"]
                         },
                         "person": {
                             "type": "object",

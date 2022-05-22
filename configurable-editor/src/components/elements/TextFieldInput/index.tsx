@@ -40,10 +40,6 @@ export function TextFieldInput(props: TextFieldInputProps) {
 
     useEffect(() => {
         setTextFieldValue(id, inputValue);
-    }, []);
-
-    useEffect(() => {
-        setTextFieldValue(id, inputValue);
     }, [inputValue]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
