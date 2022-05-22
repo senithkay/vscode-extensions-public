@@ -49,10 +49,12 @@ export function RequiredArg(props : RequiredArgProps){
                     </Typography>
                 )}
             />
-            <ListItemText
-                className={statementEditorHelperClasses.docListItemText}
-                primary={" : " + param.description}
-            />
+            {param.description !== undefined && (
+                <ListItemText
+                    className={statementEditorHelperClasses.docListItemText}
+                    primary={" : " + param.description}
+                />
+            )}
         </ListItem>
     );
 }

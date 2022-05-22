@@ -197,10 +197,12 @@ export function ParameterList(props: ParameterListProps) {
                                                                 </Typography>
                                                             )}
                                                         />
-                                                        <ListItemText
-                                                            className={stmtEditorHelperClasses.docListItemText}
-                                                            primary={" : " + param.description}
-                                                        />
+                                                        {param.description !== undefined && (
+                                                            <ListItemText
+                                                                className={stmtEditorHelperClasses.docListItemText}
+                                                                primary={" : " + param.description}
+                                                            />
+                                                        )}
                                                     </ListItem>
                                                 )}
                                             </>
