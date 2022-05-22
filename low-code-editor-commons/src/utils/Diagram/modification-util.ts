@@ -177,7 +177,7 @@ export function updateServiceDeclartion(config: HTTPServiceConfigState, targetPo
         type: ''
     };
 
-    if (createNewListener && fromVar) {
+    if (createNewListener) {
         return {
             ...modification,
             type: 'SERVICE_WITH_LISTENER_DECLARATION_UPDATE',

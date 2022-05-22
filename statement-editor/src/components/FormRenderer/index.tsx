@@ -27,7 +27,7 @@ export interface FormRendererProps {
     targetPosition: NodePosition;
     isEdit: boolean;
     stSymbolInfo?: STSymbolInfo;
-    onChange: (code: string, partialST: STNode) => void;
+    onChange: (code: string, partialST: STNode, moduleList?: Set<string>) => void;
     onCancel: () => void;
     getLangClient: () => Promise<ExpressionEditorLangClientInterface>;
     applyModifications: (modifications: STModification[]) => void;

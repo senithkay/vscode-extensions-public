@@ -11,39 +11,79 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useReducer, useState } from "react";
+import React, { useState } from "react";
 
 import {
-    FormElementProps, STSymbolInfo
+    ExpressionEditorLangClientInterface,
+    getSource,
+    ListenerConfigFormState, STModification,
+    STSymbolInfo,
+    updateServiceDeclartion
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     dynamicConnectorStyles as useFormStyles,
     FormActionButtons, FormTextInput,
     TextLabel
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
-import { ListenerDeclaration, NodePosition, ServiceDeclaration, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import {
+    ListenerDeclaration, ModulePart,
+    NodePosition,
+    ServiceDeclaration,
+    STKindChecker,
+    STNode
+} from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
+import { StmtDiagnostic } from "../../../models/definitions";
+import { getUpdatedSource } from "../../../utils";
+import { getPartialSTForModulePart } from "../../../utils/ls-utils";
+import { FormEditorField } from "../Types";
+import { getListenerConfig } from "../Utils/FormUtils";
+
 import { ListenerConfigForm } from "./ListenerConfigFrom";
-import {FormEditorField} from "../Types";
 
 interface HttpServiceFormProps {
-    model?: ServiceDeclaration;
+    model?: ServiceDeclaration | ModulePart;
     targetPosition?: NodePosition;
     onCancel: () => void;
     onSave: () => void;
+    onChange: (genSource: string, partialST: STNode, moduleList?: Set<string>) => void;
     isLastMember?: boolean;
     stSymbolInfo?: STSymbolInfo;
     isEdit?: boolean;
+    getLangClient: () => Promise<ExpressionEditorLangClientInterface>;
+    applyModifications: (modifications: STModification[]) => void;
 }
 
 const HTTP_MODULE_QUALIFIER = 'http';
+const HTTP_IMPORT = new Set<string>(['ballerina/http']);
 
 export function HttpServiceForm(props: HttpServiceFormProps) {
     const formClasses = useFormStyles();
-    const { model, targetPosition, onCancel, onSave, isLastMember, stSymbolInfo, isEdit } = props;
+    const { model, targetPosition, onCancel, onSave, isLastMember, stSymbolInfo, isEdit, getLangClient, onChange, applyModifications } = props;
 
-    const [basePath, setBsePath] = useState<FormEditorField>({isInteracted: false, value: ""});
+    // States related to syntax diagnostics
+    const [currentComponentName, setCurrentComponentName] = useState<string>("");
+    const [currentComponentSyntaxDiag, setCurrentComponentSyntaxDiag] = useState<StmtDiagnostic[]>(undefined);
+
+    let serviceModel: ServiceDeclaration;
+    if (STKindChecker.isModulePart(model)) {
+        model.members.forEach(m => {
+            if (STKindChecker.isServiceDeclaration(m)) {
+                serviceModel = m;
+            }
+        })
+    } else {
+        serviceModel = model;
+    }
+    const path = serviceModel?.absoluteResourcePath
+        .map((pathSegments) => pathSegments.value)
+        .join('');
+
+    // States related fields
+    const [basePath, setBsePath] = useState<FormEditorField>({isInteracted: true, value: path});
+    const [listenerConfig, setListenerConfig] = useState<ListenerConfigFormState>(getListenerConfig(serviceModel,
+        isEdit));
 
     const listenerList = Array.from(stSymbolInfo.listeners)
         .filter(([key, value]) =>
@@ -51,14 +91,52 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
             && (value as ListenerDeclaration).typeDescriptor.modulePrefix.value === HTTP_MODULE_QUALIFIER)
         .map(([key, value]) => key);
 
-    const onBasePathChange = (path: string) => {
-        setBsePath({isInteracted: false, value: path});
+    const serviceParamChange = async (servicePath: string, config: ListenerConfigFormState) => {
+        const modelPosition = model.position as NodePosition;
+        const openBracePosition = serviceModel.openBraceToken.position as NodePosition;
+        const updatePosition = {
+            startLine: modelPosition.startLine,
+            startColumn: 0,
+            endLine: openBracePosition.startLine,
+            endColumn: openBracePosition.startColumn - 1
+        };
+        const lc: ListenerConfigFormState =
+            (config.listenerPort !== "" && config.fromVar === true) ? {...config, fromVar: false} : config;
+        const codeSnippet = getSource(updateServiceDeclartion({
+            serviceBasePath: servicePath, listenerConfig: lc
+        }, updatePosition));
+        const updatedContent = await getUpdatedSource(codeSnippet, model?.source, updatePosition, undefined,
+            true);
+        const partialST = await getPartialSTForModulePart(
+            {codeSnippet: updatedContent.trim()}, getLangClient
+        );
+        if (!partialST.syntaxDiagnostics.length) {
+            setCurrentComponentSyntaxDiag(undefined);
+            onChange(updatedContent, partialST, HTTP_IMPORT);
+        } else {
+            setCurrentComponentSyntaxDiag(partialST.syntaxDiagnostics);
+        }
+    }
+
+    const onBasePathFocus = async (value: string) => {
+        setCurrentComponentName("path");
+    }
+
+    const onBasePathChange = async (value: string) => {
+        setBsePath({isInteracted: true, value});
+        await serviceParamChange(value, listenerConfig);
+    }
+
+    const onListenerChange = async (config: ListenerConfigFormState) => {
+        setCurrentComponentName("listener");
+        setListenerConfig(config);
+        await serviceParamChange(basePath.value, config);
     }
 
     const handleOnSave = () => {
-        if (model) {
-            const modelPosition = model.position as NodePosition;
-            const openBracePosition = model.openBraceToken.position as NodePosition;
+        if (serviceModel) {
+            const modelPosition = serviceModel.position as NodePosition;
+            const openBracePosition = serviceModel.openBraceToken.position as NodePosition;
             const updatePosition = {
                 startLine: modelPosition.startLine,
                 startColumn: 0,
@@ -82,7 +160,7 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
     }
 
     const getAbsolutePathPositions = () => {
-        const resourcePath = model?.absoluteResourcePath;
+        const resourcePath = serviceModel?.absoluteResourcePath;
         if (Array.isArray(resourcePath)) {
             if (resourcePath.length) {
                 const firstElement =  resourcePath[0]?.position;
@@ -94,7 +172,7 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
                 }
 
             } else {
-                const onKeyPath = model?.onKeyword?.position;
+                const onKeyPath = serviceModel?.onKeyword?.position;
                 return {
                     ...onKeyPath,
                     startColumn: onKeyPath?.startColumn,
@@ -105,8 +183,8 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
     }
 
     const getCustomTemplate = () => {
-        if (model) {
-            const resourcePath = model?.absoluteResourcePath;
+        if (serviceModel) {
+            const resourcePath = serviceModel?.absoluteResourcePath;
             if (Array.isArray(resourcePath)) {
                 if (resourcePath.length) {
                     return {
@@ -122,7 +200,7 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
                 }
             }
 
-        }else {
+        } else {
             return {
                 defaultCodeSnippet: `service  on new http:Listener(1234) {}`,
                 targetColumn: 9,
@@ -135,19 +213,20 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
             <div className={formClasses.formContentWrapper}>
                 <div className={formClasses.formNameWrapper}>
                     <FormTextInput
-                        label="Name"
-                        dataTestId="listener-name"
-                        defaultValue={(basePath?.isInteracted) ? basePath.value : ""}
+                        label="Path"
+                        dataTestId="base-path"
+                        defaultValue={basePath.value}
                         onChange={onBasePathChange}
                         customProps={{
-                            isErrored: false
+                            isErrored: (currentComponentSyntaxDiag !== undefined && currentComponentName === "path")
                         }}
-                        errorMessage={""}
+                        errorMessage={(currentComponentSyntaxDiag && currentComponentName === "path"
+                            && currentComponentSyntaxDiag[0].message)}
                         onBlur={null}
-                        // onFocus={onNameFocus}
-                        placeholder={"Listener Name"}
+                        onFocus={onBasePathFocus}
+                        placeholder={"/"}
                         size="small"
-                        // disabled={addingNewParam || (currentComponentSyntaxDiag && currentComponentName !== "Name")}
+                        disabled={currentComponentSyntaxDiag && currentComponentName !== "path"}
                     />
                     <TextLabel
                         required={true}
@@ -157,9 +236,11 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
                 </div>
                 <div className={classNames(formClasses.groupedForm, formClasses.marginTB)}>
                     <ListenerConfigForm
-                        model={model}
+                        model={serviceModel}
+                        listenerConfig={listenerConfig}
                         listenerList={listenerList}
-                        targetPosition={model ? model.position : targetPosition}
+                        targetPosition={serviceModel ? serviceModel.position : targetPosition}
+                        onChange={onListenerChange}
                     />
                 </div>
             </div>

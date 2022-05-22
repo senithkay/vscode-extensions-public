@@ -16,7 +16,7 @@ import {
     CompletionResponse, ExpressionEditorLangClientInterface,
     getDiagnosticMessage,
     getFilteredDiagnostics,
-    STModification
+    STModification, STSymbolInfo
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     Minutiae,
@@ -127,7 +127,7 @@ export function getStatementTypeComponent(
 export function getFormComponent(
     type: string, model: STNode, targetPosition: NodePosition, onChange: (code: string, partialST: STNode) => void,
     onCancel: () => void, getLangClient: () => Promise<ExpressionEditorLangClientInterface>, isEdit: boolean,
-    applyModifications: (modifications: STModification[]) => void
+    applyModifications: (modifications: STModification[]) => void, stSymbolInfo?: STSymbolInfo
 ): ReactNode {
     const FormComponent = (formComponents as any)[type];
     return (
@@ -138,6 +138,7 @@ export function getFormComponent(
             onCancel={onCancel}
             getLangClient={getLangClient}
             isEdit={isEdit}
+            stSymbolInfo={stSymbolInfo}
             applyModifications={applyModifications}
         />
     );

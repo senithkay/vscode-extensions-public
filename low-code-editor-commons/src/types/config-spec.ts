@@ -337,6 +337,6 @@ export interface HTTPServiceConfigState {
 export interface ListenerConfigFormState {
     createNewListener?: boolean;
     fromVar?: boolean,
-    listenerName: string,
+    listenerName?: string,
     listenerPort?: string,
 }

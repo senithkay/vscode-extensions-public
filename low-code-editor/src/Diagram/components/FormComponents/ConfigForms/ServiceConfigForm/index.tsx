@@ -63,12 +63,26 @@ export function ServiceConfigForm(props: ServiceConfigFormProps) {
             configForm = <TriggerServiceForm onSave={onSave} onCancel={onCancel} model={model} targetPosition={targetPosition} />
     }
 
+    let position: NodePosition;
+    if (model) {
+        const modelPosition = model.position as NodePosition;
+        const openBracePosition = model.openBraceToken.position as NodePosition;
+        position = {
+            startLine: modelPosition.startLine,
+            startColumn: 0,
+            endLine: openBracePosition.startLine,
+            endColumn: openBracePosition.startColumn - 1
+        };
+    } else {
+        position = targetPosition;
+    }
+
     return (
         <>
             <FormEditor
                 initialSource={model ? model.source : undefined}
                 initialModel={model}
-                targetPosition={targetPosition}
+                targetPosition={position}
                 stSymbolInfo={stSymbolInfo}
                 onCancel={onCancel}
                 type={"Service"}

@@ -14,11 +14,10 @@ import {
     createFunctionSignature,
     createServiceDeclartion,
     getSource,
+    ListenerConfigFormState,
     STSymbolInfo
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { ListenerDeclaration, NodePosition, ServiceDeclaration, STKindChecker } from "@wso2-enterprise/syntax-tree";
-
-import { ListenerConfig } from "../ServiceForm/ListenerConfigFrom";
+import {ListenerDeclaration, NodePosition, ServiceDeclaration, STKindChecker} from "@wso2-enterprise/syntax-tree";
 
 export function recalculateItemIds(items: any[]) {
     items.forEach((item, index) => {
@@ -33,10 +32,11 @@ export function getInitialSource(type: string, targetPosition: NodePosition): st
                 targetPosition));
         }
         case "Service": {
-            const s = getSource(createServiceDeclartion({serviceBasePath: "/", listenerConfig: {
-                    createNewListener: true, listenerName: "listener", listenerPort: "9090"}
-            }, targetPosition, false))
-            return s;
+            return getSource(createServiceDeclartion({
+                serviceBasePath: "/", listenerConfig: {
+                    createNewListener: true, listenerName: "listener", listenerPort: "9090"
+                }
+            }, targetPosition, false));
         }
     }
     return;
@@ -44,7 +44,7 @@ export function getInitialSource(type: string, targetPosition: NodePosition): st
 
 export function getServiceTypeFromModel(model: ServiceDeclaration, symbolInfo: STSymbolInfo): string {
     if (model) {
-        const listenerExpression = model.expressions.length > 0 && model.expressions[0];
+        const listenerExpression = model?.expressions?.length > 0 && model?.expressions[0];
         if (listenerExpression) {
             if (STKindChecker.isExplicitNewExpression(listenerExpression)) {
                 if (STKindChecker.isQualifiedNameReference(listenerExpression.typeDescriptor)) {
@@ -67,18 +67,25 @@ export function getServiceTypeFromModel(model: ServiceDeclaration, symbolInfo: S
     return undefined;
 }
 
-export function getListenerConfig(model: ServiceDeclaration, isEdit: boolean): ListenerConfig {
+export function getListenerConfig(model: ServiceDeclaration, isEdit: boolean): ListenerConfigFormState {
+    const serviceListenerExpression = model.expressions.length > 0 && model.expressions[0];
     if (isEdit) {
-        const serviceListenerExpression = model.expressions.length > 0 && model.expressions[0];
-
         if (STKindChecker.isSimpleNameReference(serviceListenerExpression)) {
-            return { listenerName: serviceListenerExpression.name.value, fromRef: true }
+            return { listenerName: serviceListenerExpression.name.value, fromVar: true }
         } else if (STKindChecker.isExplicitNewExpression(serviceListenerExpression)) {
             return { listenerPort: serviceListenerExpression.parenthesizedArgList.arguments.length > 0 &&
                     serviceListenerExpression.parenthesizedArgList.arguments[0].source,
-                     fromRef: false };
+                     fromVar: false };
         }
     } else {
-        return { listenerName: "", listenerPort: "", fromRef: true };
+        if (STKindChecker.isExplicitNewExpression(serviceListenerExpression)) {
+            return {
+                listenerPort: serviceListenerExpression.parenthesizedArgList.arguments.length > 0 &&
+                    serviceListenerExpression.parenthesizedArgList.arguments[0].source,
+                fromVar: true
+            };
+        } else {
+            return { listenerName: "", listenerPort: "", fromVar: true };
+        }
     }
 }

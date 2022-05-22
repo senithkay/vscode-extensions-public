@@ -13,9 +13,15 @@
 import React, { useState } from "react";
 
 import { FormControl } from "@material-ui/core";
-import { STSymbolInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import {
+    ExpressionEditorLangClientInterface,
+    getSource,
+    STModification,
+    STSymbolInfo,
+    updateFunctionSignature
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { dynamicConnectorStyles as useFormStyles, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
-import { NodePosition, ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
+import {NodePosition, ServiceDeclaration, STNode} from "@wso2-enterprise/syntax-tree";
 
 import { getServiceTypeFromModel } from "../Utils/FormUtils";
 
@@ -31,6 +37,9 @@ interface ServiceConfigFormProps {
     isLastMember?: boolean;
     stSymbolInfo?: STSymbolInfo;
     isEdit?: boolean;
+    onChange: (genSource: string, partialST: STNode, moduleList?: Set<string>) => void;
+    applyModifications: (modifications: STModification[]) => void;
+    getLangClient: () => Promise<ExpressionEditorLangClientInterface>;
 }
 
 export enum ServiceTypes {
@@ -39,14 +48,14 @@ export enum ServiceTypes {
 
 export function ServiceConfigForm(props: ServiceConfigFormProps) {
     const formClasses = useFormStyles();
-    const { model, targetPosition, onSave, onCancel, formType, isLastMember, stSymbolInfo, isEdit } = props;
+    const { model, targetPosition, onSave, onCancel, formType, isLastMember, stSymbolInfo, isEdit, onChange, applyModifications, getLangClient } = props;
     const [serviceType, setServiceType] = useState<string>(getServiceTypeFromModel(model, stSymbolInfo));
 
     let configForm;
 
     switch (serviceType) {
         case ServiceTypes.HTTP:
-            configForm = <HttpServiceForm onSave={onSave} onCancel={onCancel} model={model} targetPosition={targetPosition} stSymbolInfo={stSymbolInfo} isLastMember={isLastMember} />
+            configForm = <HttpServiceForm onSave={onSave} onCancel={onCancel} model={model} targetPosition={targetPosition} stSymbolInfo={stSymbolInfo} isLastMember={isLastMember} onChange={onChange}  applyModifications={applyModifications} getLangClient={getLangClient}/>
             break;
         default:
             // configForm = <TriggerServiceForm onSave={onSave} onCancel={onCancel} model={model} targetPosition={targetPosition} />

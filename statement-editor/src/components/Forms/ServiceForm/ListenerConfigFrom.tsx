@@ -15,41 +15,36 @@ import React, { useState } from "react";
 import { FormattedMessage } from "react-intl";
 
 import { FormHelperText } from "@material-ui/core";
+import { ListenerConfigFormState } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     CheckBoxGroup,
     FormTextInput,
     SelectDropdownWithButton,
     wizardStyles as useFormStyles
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
-import { NodePosition, ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, ServiceDeclaration, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { FormEditorField } from "../Types";
-import { getListenerConfig } from "../Utils/FormUtils";
-
-export interface ListenerConfig {
-    listenerName?: string;
-    listenerPort?: string;
-    fromRef?: boolean;
-}
 
 interface ListenerConfigFormProps {
     model?: ServiceDeclaration;
     listenerList: string[];
     targetPosition: NodePosition;
     isEdit?: boolean;
+    listenerConfig?: ListenerConfigFormState;
+    onChange: (listenerConfig?: ListenerConfigFormState) => void;
 }
 
 export function ListenerConfigForm(props: ListenerConfigFormProps) {
     const formClasses = useFormStyles();
-    const { listenerList, model, targetPosition, isEdit } = props;
+    const { listenerList, model, targetPosition, isEdit, listenerConfig, onChange } = props;
 
-    const listenerConfig = getListenerConfig(model, isEdit);
     const [listenerName, setListenerName] = useState<FormEditorField>({isInteracted: false, value:
         listenerConfig.listenerName});
     const [listenerPort, setListenerPort] = useState<FormEditorField>({isInteracted: false, value:
         listenerConfig.listenerPort});
-    const [createNewListener, setCreateNewListener] = useState(false);
-    const [fromVarRef, setFromVarRef] = useState<boolean>(listenerConfig.fromRef);
+    const [createNewListener, setCreateNewListener] = useState(!isEdit);
+    const [fromVarRef, setFromVarRef] = useState<boolean>(listenerConfig.fromVar);
     const listenerSelectionCustomProps = {
         disableCreateNew: false, values: listenerList || [],
     }
@@ -58,15 +53,26 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
         if (listenerList.length === 0) {
             setCreateNewListener(true);
         }
-        setFromVarRef(mode.length === 0)
+        if (mode.length === 0) {
+            onChange({listenerName: listenerName.value, listenerPort: "", fromVar: fromVarRef,
+                      createNewListener});
+        } else {
+            onChange({listenerName: listenerName.value, listenerPort: "", fromVar: false,
+                      createNewListener: false});
+        }
+        setFromVarRef(mode.length === 0);
     }
 
     const onListenerNameChange = (name: string) => {
         setListenerName({isInteracted: true, value: name});
+        onChange({listenerName: name, listenerPort: listenerPort.value, fromVar: fromVarRef,
+                  createNewListener});
     }
 
     const onListenerPortChange = (port: string) => {
         setListenerPort({isInteracted: true, value: port});
+        onChange({listenerName: listenerName.value, listenerPort: port, fromVar: fromVarRef,
+                  createNewListener});
     }
 
     const onListenerSelect = (name: string) => {
@@ -75,6 +81,8 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
         } else {
             setCreateNewListener(false);
             setListenerName({isInteracted: true, value: name});
+            onChange({listenerName: listenerName.value, listenerPort: "", fromVar: false,
+                      createNewListener: false});
         }
     }
 
@@ -131,12 +139,12 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
         />
     );
 
-    React.useEffect(() => {
-        // Identify initial edit
-        if (listenerList.length === 0 && !isEdit) {
-            setCreateNewListener(true);
-        }
-    }, []);
+    // React.useEffect(() => {
+    //     // Identify initial edit
+    //     if (!isEdit) {
+    //         setCreateNewListener(true);
+    //     }
+    // }, []);
 
     return (
         <>

@@ -52,7 +52,7 @@ export interface FunctionProps {
     model: FunctionDefinition;
     targetPosition: NodePosition;
     isEdit: boolean;
-    onChange: (genSource: string, partialST: STNode) => void;
+    onChange: (genSource: string, partialST: STNode, moduleList?: Set<string>) => void;
     onCancel: () => void;
     getLangClient: () => Promise<ExpressionEditorLangClientInterface>;
     applyModifications: (modifications: STModification[]) => void;
@@ -160,7 +160,7 @@ export function FunctionForm(props: FunctionProps) {
         setEditingSegmentId(-1);
     };
     const onParamChange = async (param: FunctionParam) => {
-        setCurrentComponentName("Param")
+        setCurrentComponentName("Param");
         const newParams = [...parameters, param];
         const parametersStr = newParams
             .map((item) => `${item.type.value} ${item.name.value}`)
