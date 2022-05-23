@@ -28,6 +28,7 @@ import {
 	DocumentIdentifier,
 	ExtendedLangClient,
 	HTTP_CONNECTOR_LIST_CACHE,
+	NOT_SUPPORTED,
 	PerformanceAnalyzerGraphResponse,
 	PerformanceAnalyzerRealtimeResponse
 } from '../core/extended-language-client';
@@ -706,66 +707,73 @@ export async function renderFirstDiagramElement(client: ExtendedLangClient) {
 		});
 
 		const documentIdentifiers: DocumentIdentifier[] = [{ uri: currentFileUri }];
-		await client.getBallerinaProjectComponents({ documentIdentifiers }).then(async (projectResponse) => {
-			const response = projectResponse as BallerinaProjectComponents;
-			if (!response.packages || response.packages.length == 0 || !response.packages[0].modules) {
-				return;
+		let projectResponse;
+		let i = 0;
+		do {
+			projectResponse = await client.getBallerinaProjectComponents({ documentIdentifiers });
+			if (projectResponse === NOT_SUPPORTED) {
+				await new Promise(resolve => setTimeout(resolve, 300));
 			}
-			const defaultModules: Module[] = response.packages[0].modules.filter(module => {
-				return !module.name;
-			});
-			if (defaultModules.length == 0) {
-				return;
-			}
-			if ((defaultModules[0].functions && defaultModules[0].functions.length > 0) ||
-				(defaultModules[0].services && defaultModules[0].services.length > 0)) {
-				const mainFunctionNodes = defaultModules[0].functions.filter(fn => {
-					return fn.name === 'main';
-				});
-				if (mainFunctionNodes.length > 0) {
-					const path = join(folder.uri.path, mainFunctionNodes[0].filePath);
-					await showDiagramEditor(0, 0, path);
-					diagramElement = {
-						isDiagram: true,
-						fileUri: Uri.file(path),
-						startLine: mainFunctionNodes[0].endLine,
-						startColumn: mainFunctionNodes[0].endColumn - 1
-					};
-					callUpdateDiagramMethod();
-				} else if (defaultModules[0].services && defaultModules[0].services.length > 0) {
-					const path = join(folder.uri.path, defaultModules[0].services[0].filePath);
-					for (let i = 0; i < defaultModules[0].services.length; i++) {
-						await showDiagramEditor(0, 0, path);
-						let startLine: number;
-						let startColumn: number;
-						if (defaultModules[0].services[i].resources && defaultModules[0].services[i].resources.length > 0) {
-							startLine = defaultModules[0].services[i].resources[0].startLine;
-							startColumn = defaultModules[0].services[i].resources[0].startColumn;
-						} else {
-							startLine = defaultModules[0].services[i].startLine;
-							startColumn = defaultModules[0].services[i].startColumn;
-						}
-						diagramElement = {
-							isDiagram: true,
-							fileUri: Uri.file(path),
-							startLine,
-							startColumn
-						};
-						callUpdateDiagramMethod();
-						break;
-					}
-				} else if (defaultModules[0].functions.length > 0) {
-					const path = join(folder.uri.path, defaultModules[0].functions[0].filePath);
-					await showDiagramEditor(0, 0, path);
-					diagramElement = {
-						isDiagram: true,
-						fileUri: Uri.file(path),
-						startLine: defaultModules[0].functions[0].endLine,
-						startColumn: defaultModules[0].functions[0].endColumn - 1
-					};
-					callUpdateDiagramMethod();
-				}
-			}
+		} while (i++ < 5 && projectResponse === NOT_SUPPORTED);
+
+		const response = projectResponse as BallerinaProjectComponents;
+		if (!response.packages || response.packages.length == 0 || !response.packages[0].modules) {
+			return;
+		}
+		const defaultModules: Module[] = response.packages[0].modules.filter(module => {
+			return !module.name;
 		});
+		if (defaultModules.length == 0) {
+			return;
+		}
+		if ((defaultModules[0].functions && defaultModules[0].functions.length > 0) ||
+			(defaultModules[0].services && defaultModules[0].services.length > 0)) {
+			const mainFunctionNodes = defaultModules[0].functions.filter(fn => {
+				return fn.name === 'main';
+			});
+			if (mainFunctionNodes.length > 0) {
+				const path = join(folder.uri.path, mainFunctionNodes[0].filePath);
+				await showDiagramEditor(0, 0, path);
+				diagramElement = {
+					isDiagram: true,
+					fileUri: Uri.file(path),
+					startLine: mainFunctionNodes[0].endLine,
+					startColumn: mainFunctionNodes[0].endColumn - 1
+				};
+				callUpdateDiagramMethod();
+			} else if (defaultModules[0].services && defaultModules[0].services.length > 0) {
+				const path = join(folder.uri.path, defaultModules[0].services[0].filePath);
+				for (let i = 0; i < defaultModules[0].services.length; i++) {
+					await showDiagramEditor(0, 0, path);
+					let startLine: number;
+					let startColumn: number;
+					if (defaultModules[0].services[i].resources && defaultModules[0].services[i].resources.length > 0) {
+						startLine = defaultModules[0].services[i].resources[0].startLine;
+						startColumn = defaultModules[0].services[i].resources[0].startColumn;
+					} else {
+						startLine = defaultModules[0].services[i].startLine;
+						startColumn = defaultModules[0].services[i].startColumn;
+					}
+					diagramElement = {
+						isDiagram: true,
+						fileUri: Uri.file(path),
+						startLine,
+						startColumn
+					};
+					callUpdateDiagramMethod();
+					break;
+				}
+			} else if (defaultModules[0].functions.length > 0) {
+				const path = join(folder.uri.path, defaultModules[0].functions[0].filePath);
+				await showDiagramEditor(0, 0, path);
+				diagramElement = {
+					isDiagram: true,
+					fileUri: Uri.file(path),
+					startLine: defaultModules[0].functions[0].endLine,
+					startColumn: defaultModules[0].functions[0].endColumn - 1
+				};
+				callUpdateDiagramMethod();
+			}
+		}
 	});
 }
