@@ -40,10 +40,11 @@ export function parseTomlToConfig(tomlContent: string): object {
  * @param tomlContent The TOML content as a JSON value.
  */
 export function generateExistingValues(tomlContent: object, orgName: string, packageName: string): object {
-    let returnObj: object = { orgName };
-    returnObj[orgName] = { packageName };
-    returnObj[orgName][packageName] = tomlContent;
-    return returnObj;
+    return {
+        [orgName]: {
+            [packageName]: tomlContent
+        }
+    };
 }
 
 /**
