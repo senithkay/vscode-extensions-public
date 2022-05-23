@@ -32,3 +32,21 @@ export interface ConfigValue {
     configArrayType?: string;
     configValue?: any;
 }
+
+export enum Constants {
+    ENUM = "enum",
+    ITEMS = "items",
+    TYPE = "type",
+    VALUE = "value",
+    NAME = "name",
+    DESCRIPTION = "description",
+    PROPERTIES = "properties",
+    REQUIRED = "required",
+    ADDITIONAL_PROPERTIES = "additionalProperties",
+    ANY_OF = "anyOf",
+    ARRAY = "array",
+    MODULE = "module",
+    OBJECT = "object",
+    ARRAY_TYPE = "arrayType",
+    FLOAT = "float",
+}

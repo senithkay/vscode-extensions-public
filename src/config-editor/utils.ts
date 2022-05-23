@@ -18,7 +18,7 @@
  */
 
 import toml from "toml";
-import { ConfigProperty, ConfigValue } from "./model";
+import { ConfigProperty, ConfigValue, Constants } from "./model";
 
 let configProperties: ConfigProperty[] = [];
 
@@ -66,11 +66,11 @@ export function generateExistingValues(tomlContent: object, orgName: string, pac
 }
 
 function addConfigProperties(configObject: any, configProperty: ConfigProperty, packageName: string) {
-    const type: string = configObject["type"];
-    const arrayType: string = configObject["arrayType"];
+    const type: string = configObject[Constants.TYPE];
+    const arrayType: string = configObject[Constants.ARRAY_TYPE];
     switch(type) {
-        case "object": {
-            if (configObject.hasOwnProperty("properties")) {
+        case Constants.OBJECT: {
+            if (configObject.hasOwnProperty(Constants.PROPERTIES)) {
                 if (configObject.name && configObject.name !== "") {
                     configProperty.headerNames.push(configObject.name);
                 }
@@ -81,7 +81,7 @@ function addConfigProperties(configObject: any, configProperty: ConfigProperty, 
                         headerNames: configProperty.headerNames,
                         isNested: configProperty.isNested,
                     };
-                    if (entry.hasOwnProperty("properties")) {
+                    if (entry.hasOwnProperty(Constants.PROPERTIES)) {
                         addConfigProperties(entry, newProperty, packageName);
                     } else {
                         getLeafConfig(entry, newProperty);
@@ -90,14 +90,14 @@ function addConfigProperties(configObject: any, configProperty: ConfigProperty, 
                 if (configObject.name && configObject.name !== "") {
                     configProperty.headerNames.pop();
                 }
-            } else if (arrayType === "object") {
+            } else if (arrayType === Constants.OBJECT) {
                 return getLeafConfig(configObject, configProperty);
             }
            break;
         }
-        case "module": {
+        case Constants.MODULE: {
             configProperty.headerNames.push(packageName);
-            if (configObject.hasOwnProperty("properties")) {
+            if (configObject.hasOwnProperty(Constants.PROPERTIES)) {
                 configProperty.headerNames.push(configObject.name);
                 configObject.properties.forEach((entry: any) => {
                     const newProperty: ConfigProperty = {
@@ -105,7 +105,7 @@ function addConfigProperties(configObject: any, configProperty: ConfigProperty, 
                         configs: [],
                         headerNames: configProperty.headerNames,
                     };
-                    if (entry.hasOwnProperty("properties")) {
+                    if (entry.hasOwnProperty(Constants.PROPERTIES)) {
                         addConfigProperties(entry, newProperty, packageName);
                     } else {
                         getLeafConfig(entry, newProperty);
@@ -118,17 +118,17 @@ function addConfigProperties(configObject: any, configProperty: ConfigProperty, 
             configProperty.headerNames.pop();
             break;
         }
-        case "array": {
+        case Constants.ARRAY: {
             let counter: number = 1;
             const newProperty: ConfigProperty = {
                 id: configProperty.id + "-" + counter,
                 configs: [],
                 headerNames: configProperty.headerNames,
             };
-            if (arrayType === "object") {
-                newProperty.headerNames.push(configObject["name"]);
+            if (arrayType === Constants.OBJECT) {
+                newProperty.headerNames.push(configObject[Constants.NAME]);
                 newProperty.isNested = true;
-                const objectArrayValue = configObject["value"];
+                const objectArrayValue = configObject[Constants.VALUE];
                 objectArrayValue.forEach( (element) => {
                     newProperty.id = configProperty.id + "-" + counter,
                     addConfigProperties(element, newProperty, packageName);
@@ -139,28 +139,28 @@ function addConfigProperties(configObject: any, configProperty: ConfigProperty, 
             }
             break;
         }
-        case "anyOf": {
-            const anyOfValue = configObject["value"];
+        case Constants.ANY_OF: {
+            const anyOfValue = configObject[Constants.VALUE];
             const newProperty: ConfigProperty = {
                 id: configProperty.id + "-" + 1,
                 configs: [],
                 headerNames: configProperty.headerNames,
             };
-            if (anyOfValue.hasOwnProperty("properties")) {
+            if (anyOfValue.hasOwnProperty(Constants.PROPERTIES)) {
                 addConfigProperties(anyOfValue, newProperty, packageName);
             } else {
                 getLeafConfig(anyOfValue, newProperty);
             }
             break;
         }
-        case "enum": {
-            const enumValue = configObject["value"];
+        case Constants.ENUM: {
+            const enumValue = configObject[Constants.VALUE];
             const newProperty: ConfigProperty = {
                 id: configProperty.id + "-" + 1,
                 configs: [],
                 headerNames: configProperty.headerNames,
             };
-            if (enumValue.hasOwnProperty("properties")) {
+            if (enumValue.hasOwnProperty(Constants.PROPERTIES)) {
                 addConfigProperties(enumValue, newProperty, packageName);
             } else {
                 getLeafConfig(configObject, newProperty);
@@ -209,9 +209,9 @@ function getConfigJsonValue(element: ConfigValue) {
     const configArrayType: any = element.configArrayType;
     let returnValue: any;
 
-    if (configType === "array") {
+    if (configType === Constants.ARRAY) {
         const valueList: any = element.configValue;
-        if (configArrayType === "float") {
+        if (configArrayType === Constants.FLOAT) {
             let arrayValue: string = "[";
             valueList.forEach((entry: any) => {
                 arrayValue = arrayValue.concat(entry + ", ");
@@ -227,21 +227,18 @@ function getConfigJsonValue(element: ConfigValue) {
 }
 
 function getLeafConfig(object: any, configProperty: ConfigProperty) {
-    const name: string = "name";
-    const value: string = "value";
-    const type: string = "type";
-    const arrayType: string = "arrayType";
     const headers = [...configProperty.headerNames];
 
-    if (object[name] === undefined || object[value] === undefined || object[value] === '' || object[value] === null) {
+    if (object[Constants.NAME] === undefined || object[Constants.VALUE] === undefined
+        || object[Constants.VALUE] === '' || object[Constants.VALUE] === null) {
         return configProperty;
     }
 
     const configElement: ConfigValue = {
-        configName: object[name],
-        configType: object[type],
-        configValue: object[value],
-        configArrayType: object[arrayType],
+        configName: object[Constants.NAME],
+        configType: object[Constants.TYPE],
+        configValue: object[Constants.VALUE],
+        configArrayType: object[Constants.ARRAY_TYPE],
     };
 
     const found = configProperties.some((element) => element.id === configProperty.id);
@@ -256,7 +253,7 @@ function getLeafConfig(object: any, configProperty: ConfigProperty) {
 function getSimpleTypeValue(value: any, type: string) {
     let returnValue: any;
 
-    if (type === "float") {
+    if (type === Constants.FLOAT) {
         returnValue = value;
     } else {
         returnValue = JSON.stringify(value);
