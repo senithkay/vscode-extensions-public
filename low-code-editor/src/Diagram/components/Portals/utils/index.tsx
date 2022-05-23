@@ -12,6 +12,7 @@
  */
 import React, { ReactNode } from "react";
 
+import { LensTwoTone } from "@material-ui/icons";
 import { StatementViewState } from "@wso2-enterprise/ballerina-low-code-diagram";
 import {
     ActionConfig,
@@ -339,10 +340,20 @@ export function matchEndpointToFormField(endPoint: LocalVarDecl | ModuleVarDecl,
         let formField = formFields[nextValueIndex];
         if (STKindChecker.isNamedArg(positionalArg)) {
             const argName = positionalArg.argumentName.name.value;
-            const matchedField = formFields.find(field => field.name === argName);
-            if (matchedField) {
-                formField = matchedField;
-            }
+            formFields.forEach((field) => {
+                if (field.name === argName) {
+                    formField = field;
+                    return;
+                }
+                if (field.typeName === "inclusion") {
+                    field.inclusionType?.fields?.forEach((subField) => {
+                        if (subField.name === argName) {
+                            formField = subField;
+                            return;
+                        }
+                    });
+                }
+            });
         }
         if (positionalArg.kind === "PositionalArg" || positionalArg.kind === "NamedArg") {
             if (formField.typeName === "string" || formField.typeName === "int" || formField.typeName === "boolean" ||
