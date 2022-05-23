@@ -16,11 +16,12 @@ import {
     CompletionResponse,
     getDiagnosticMessage,
     getFilteredDiagnostics,
-    LinePosition,
+    LinePosition, ParameterInfo,
     STModification,
-    STSymbolInfo
+    STSymbolInfo, SymbolDocumentation
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
+    FunctionCall,
     Minutiae,
     NodePosition,
     STKindChecker,
@@ -34,11 +35,11 @@ import { INPUT_EDITOR_PLACEHOLDERS } from "../components/InputEditor/constants";
 import * as statementTypeComponents from '../components/Statements';
 import {
     CUSTOM_CONFIG_TYPE,
-    END_OF_LINE_MINUTIAE,
+    END_OF_LINE_MINUTIAE, EXPR_CONSTRUCTOR,
     OTHER_EXPRESSION,
     OTHER_STATEMENT,
     PLACEHOLDER_DIAGNOSTICS,
-    StatementNodes,
+    StatementNodes, SymbolParameterType,
     WHITESPACE_MINUTIAE
 } from "../constants";
 import { CurrentModel, MinutiaeJSX, RemainingContent, StmtDiagnostic, StmtOffset } from '../models/definitions';
@@ -52,7 +53,7 @@ import { parentSetupVisitor } from '../visitors/parent-setup-visitor';
 import { viewStateSetupVisitor as ViewStateSetupVisitor } from "../visitors/view-state-setup-visitor";
 
 import { ModelType, StatementEditorViewState } from "./statement-editor-viewstate";
-import { getImportModification, getStatementModification } from "./statement-modifications";
+import { getImportModification, getStatementModification, keywords } from "./statement-modifications";
 
 export function getModifications(model: STNode, configType: string, targetPosition: NodePosition,
                                  modulesToBeImported?: string[]): STModification[] {
@@ -74,7 +75,7 @@ export function getModifications(model: STNode, configType: string, targetPositi
     return modifications;
 }
 
-export function getExpressionTypeComponent(expression: STNode): ReactNode {
+export function getExpressionTypeComponent(expression: STNode, stmtPosition?: NodePosition): ReactNode {
     let ExprTypeComponent = (expressionTypeComponents as any)[expression.kind];
 
     if (!ExprTypeComponent) {
@@ -84,6 +85,7 @@ export function getExpressionTypeComponent(expression: STNode): ReactNode {
     return (
         <ExprTypeComponent
             model={expression}
+            stmtPosition={stmtPosition}
         />
     );
 }
@@ -205,11 +207,11 @@ export function getFilteredDiagnosticMessages(statement: string, targetPosition:
     return stmtDiagnostics;
 }
 
-export async function getUpdatedSource(updatedStatement: string, currentFileContent: string,
-                                       targetPosition: NodePosition, moduleList?: Set<string>): Promise<string> {
+export function getUpdatedSource(statement: string, currentFileContent: string,
+                                 targetPosition: NodePosition, moduleList?: Set<string>): string {
 
-    const statement = updatedStatement.trim().endsWith(';') ? updatedStatement : updatedStatement + ';';
-    let updatedContent: string = addToTargetPosition(currentFileContent, targetPosition, statement);
+    const updatedStatement = statement.trim().endsWith(';') ? statement : statement + ';';
+    let updatedContent: string = addToTargetPosition(currentFileContent, targetPosition, updatedStatement);
     if (moduleList && !!moduleList.size) {
         updatedContent = addImportStatements(updatedContent, Array.from(moduleList) as string[]);
     }
@@ -217,21 +219,21 @@ export async function getUpdatedSource(updatedStatement: string, currentFileCont
     return updatedContent;
 }
 
-export function addToTargetPosition(currentContent: string, position: NodePosition, updatedStatement: string): string {
+export function addToTargetPosition(currentContent: string, position: NodePosition, codeSnippet: string): string {
 
     const splitContent: string[] = currentContent.split(/\n/g) || [];
-    const splitUpdatedStatement: string[] = updatedStatement.trimEnd().split(/\n/g) || [];
+    const splitCodeSnippet: string[] = codeSnippet.trimEnd().split(/\n/g) || [];
     const noOfLines: number = position.endLine - position.startLine + 1;
     const startLine = splitContent[position.startLine].slice(0, position.startColumn);
     const endLine = isFinite(position?.endLine) ?
         splitContent[position.endLine].slice(position.endColumn || position.startColumn) : '';
 
-    const replacements = splitUpdatedStatement.map((line, index) => {
+    const replacements = splitCodeSnippet.map((line, index) => {
         let modifiedLine = line;
         if (index === 0) {
             modifiedLine = startLine + modifiedLine;
         }
-        if (index === splitUpdatedStatement.length - 1) {
+        if (index === splitCodeSnippet.length - 1) {
             modifiedLine = modifiedLine + endLine;
         }
         if (index > 0) {
@@ -453,21 +455,115 @@ export function getModuleIconStyle(label: string): string {
     return suggestionIconStyle;
 }
 
-export function getSymbolPosition(targetPos: NodePosition, currentModel: CurrentModel, userInput: string): LinePosition{
+export function getSymbolPosition(targetPos: NodePosition, currentModel: STNode, userInput: string): LinePosition{
     let position: LinePosition;
-    if (STKindChecker.isFunctionCall(currentModel.model)){
+    if (STKindChecker.isFunctionCall(currentModel)){
         position = {
-            line : targetPos.startLine + currentModel.model.position.startLine,
-            offset : (STKindChecker.isQualifiedNameReference(currentModel.model.functionName)) ?
-                targetPos.startColumn + currentModel.model.functionName.identifier.position.endColumn - 1 :
-                targetPos.startColumn + currentModel.model.functionName.name.position.endColumn - 1
+            line : targetPos.startLine + currentModel.position.startLine,
+            offset : (STKindChecker.isQualifiedNameReference(currentModel.functionName)) ?
+                targetPos.startColumn + currentModel.functionName.identifier.position.endColumn - 1 :
+                targetPos.startColumn + currentModel.functionName.name.position.endColumn - 1
 
         }
         return  position;
     }
     position = {
-        line : targetPos.startLine + currentModel.model.position.startLine,
-        offset : targetPos.startColumn + currentModel.model.position.startColumn + userInput.length
+        line : targetPos.startLine + currentModel.position.startLine,
+        offset : targetPos.startColumn + currentModel.position.startColumn + userInput.length
     }
     return position;
+}
+
+export function getCurrentModelParams(currentModel: STNode): STNode[] {
+    const paramsInModel: STNode[] = [];
+    if (STKindChecker.isFunctionCall(currentModel)) {
+        currentModel.arguments.forEach((parameter: any) => {
+            if (!parameter.isToken) {
+                paramsInModel.push(parameter);
+            }
+        });
+    }
+    return paramsInModel;
+}
+
+export function getParamCheckedList(paramsInModel: STNode[], documentation : SymbolDocumentation) : any[] {
+    const checkedList : any[] = [];
+    paramsInModel.map((param: STNode, value: number) => {
+        if (STKindChecker.isNamedArg(param)) {
+            for (let i = 0; i < documentation.parameters.length; i++){
+                const docParam : ParameterInfo = documentation.parameters[i];
+                if (param.argumentName.name.value === docParam.name ||
+                    docParam.kind === SymbolParameterType.INCLUDED_RECORD || docParam.kind === SymbolParameterType.REST){
+                    if (checkedList.indexOf(i) === -1){
+                        checkedList.push(i);
+                        break;
+                    }
+                }
+            }
+        } else {
+            checkedList.push(value);
+        }
+    });
+
+    return checkedList
+}
+
+export function isAllowedIncludedArgsAdded(parameters: ParameterInfo[], checkedList: any[]): boolean {
+    let isIncluded: boolean = true;
+    for (let i = 0; i < parameters.length; i++){
+        const docParam : ParameterInfo = parameters[i];
+        if (docParam.kind === SymbolParameterType.INCLUDED_RECORD){
+            if (!checkedList.includes(i)){
+                isIncluded = false;
+                break;
+            }
+        }
+    }
+    return isIncluded;
+}
+
+export function getUpdatedContentOnCheck(currentModel: FunctionCall, param: ParameterInfo) : string {
+    const functionParameters: string[] = [];
+    currentModel.arguments.filter((parameter: any) => !STKindChecker.isCommaToken(parameter)).
+    map((parameter: STNode) => {
+        functionParameters.push(parameter.source);
+    });
+
+    if (param.kind === SymbolParameterType.DEFAULTABLE) {
+        functionParameters.push((keywords.includes(param.name) ?
+            `'${param.name} = ${EXPR_CONSTRUCTOR}` :
+            `${param.name} = ${EXPR_CONSTRUCTOR}`));
+    } else if (param.kind === SymbolParameterType.REST) {
+        functionParameters.push(EXPR_CONSTRUCTOR);
+    } else {
+        functionParameters.push(param.name);
+    }
+
+    const content: string = currentModel.functionName.source + "(" + functionParameters.join(",") + ")";
+    return content;
+}
+
+export function getUpdatedContentOnUncheck(currentModel: FunctionCall, currentIndex: number) : string {
+    const functionParameters: string[] = [];
+    currentModel.arguments.filter((parameter: any) => !STKindChecker.isCommaToken(parameter)).
+    map((parameter: STNode, pos: number) => {
+        if (pos !== currentIndex) {
+            functionParameters.push(parameter.source);
+        }
+    });
+
+    const content: string = currentModel.functionName.source + "(" + functionParameters.join(",") + ")";
+    return content;
+}
+
+export function getUpdatedContentForNewNamedArg(currentModel: FunctionCall, userInput: string) : string {
+    const functionParameters: string[] = [];
+    currentModel.arguments.filter((parameter: any) => !STKindChecker.isCommaToken(parameter)).
+    map((parameter: STNode) => {
+        functionParameters.push(parameter.source);
+    });
+
+    functionParameters.push(`${userInput} = ${EXPR_CONSTRUCTOR}`);
+    const content: string = currentModel.functionName.source + "(" + functionParameters.join(",") + ")";
+    return content;
 }

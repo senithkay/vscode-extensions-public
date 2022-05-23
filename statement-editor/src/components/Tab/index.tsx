@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React from 'react';
+import React, { useEffect } from 'react';
 
 import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
@@ -22,13 +22,12 @@ interface TabPanelProps {
     values: string[]
     defaultValue: string
     onSelection: (value: string) => void
-    docExpandClicked : boolean
     selectedTab: string
 }
 
 export default function TabPanel(props: TabPanelProps) {
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
-    const { values, defaultValue, onSelection, docExpandClicked, selectedTab } = props;
+    const { values, defaultValue, onSelection, selectedTab } = props;
     const [value, setValue] = React.useState(defaultValue);
 
     const handleChange = (event: React.ChangeEvent<{}>, newValue: string) => {
@@ -36,17 +35,9 @@ export default function TabPanel(props: TabPanelProps) {
         onSelection(newValue);
     };
 
-    // React.useEffect(() => {
-    //     if (docExpandClicked){
-    //         setValue("Parameters");
-    //     }
-    // }, [docExpandClicked])
-
-    // TODO : Fix issue with opening the correct tab when clicked on the other expression
-    React.useEffect(() => {
+    useEffect(() => {
         setValue(selectedTab);
-    })
-
+    }, [selectedTab])
 
     const tabs: React.ReactNode[] = [];
     if (values) {

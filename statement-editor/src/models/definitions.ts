@@ -19,7 +19,8 @@ import { StmtEditorUndoRedoManager } from "../utils/undo-redo";
 
 
 export interface CurrentModel {
-    model: STNode
+    model: STNode,
+    stmtPosition?: NodePosition
 }
 
 export interface VariableUserInputs {
@@ -67,3 +68,6 @@ export interface EditorModel {
     selectedNodePosition?: NodePosition;
     newConfigurableName?: string;
 }
+
+// tslint:disable-next-line:no-empty-interface
+export interface EmptySymbolInfo {}

@@ -228,15 +228,15 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
         },
         libraryTypeSelector: {
             height: '48px',
-            width: '60%',
+            width: '45%',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'flex-end'
         },
         suggestionsInner: {
-            overflowY: 'scroll',
+            overflowY: 'hidden',
             height: '100%',
-            width: '102%'
+            width: '100%'
         },
         selectDropDownSe: {
             height: '32px',
@@ -314,18 +314,16 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             }
         },
         lsSuggestionList: {
-            top: '5%',
-            height: '95%',
+            height: '98%',
             overflowY: 'scroll',
-            overflowX: 'hidden',
             "& .MuiList-padding": {
                 ...removePadding
             }
         },
         suggestionList: {
-            columnGap: '6%',
+            columnGap: '5%',
             display: 'grid',
-            gridTemplateColumns: '47% 47%',
+            gridTemplateColumns: '30% 30% 30%',
             "& .MuiListItem-root": {
                 marginBottom: '8px',
                 padding: '0 10px'
@@ -350,8 +348,10 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             textOverflow: 'ellipsis'
         },
         expressionSuggestionList: {
-            overflowX: 'hidden',
-            width: '100%'
+            width: '100%',
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'column'
         },
         librarySearchBox: {
             position: 'relative',
@@ -363,13 +363,14 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             color: '#CBCEDB',
             textIndent: '12px',
             textAlign: 'left',
-            marginBottom: '16px'
+            marginBottom: '16px',
+            paddingLeft: '10px'
         },
         librarySearchSubHeader: {
             color: '#1D2028',
             marginBottom: '4px',
             fontWeight: 500,
-            ...stmtEditorPadding
+            paddingLeft: '10px'
         },
         expressionList: {
             columnGap: '5%',
@@ -396,7 +397,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             alignItems: 'center',
         },
         libraryBrowser: {
-            overflowX: 'hidden',
+            height: '100%',
             "& .MuiListItem-root": {
                 padding: '6px 10px'
             },
@@ -434,7 +435,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             marginLeft: '8.25px'
         },
         libraryListBlock: {
-            paddingBottom: '8px',
+            paddingBottom: '50px',
             columnGap: '5%',
             display: 'grid',
             gridTemplateColumns: '28% 28% 28%',
@@ -444,7 +445,6 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             top: '10%',
             height: '80%',
             overflowY: 'scroll',
-            overflowX: 'hidden',
             columnGap: '6%',
             display: 'grid',
             gridTemplateColumns: '29% 29% 29%'
@@ -457,96 +457,6 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
         libraryElementBlockLabel: {
             height: '10%',
             padding: '0 10px'
-        },
-    }),
-);
-
-export const useStatementEditorStyles = makeStyles(() =>
-    createStyles({
-        mainStatementWrapper: {
-            display: 'flex',
-            height: 'auto',
-            width: 700,
-            flexDirection: 'column',
-        },
-        stmtEditorInnerWrapper: {
-            fontSize: '13px',
-            fontFamily: 'Gilmer',
-            overflowY: 'hidden',
-            ...stmtEditorPadding
-        },
-        statementExpressionWrapper: {
-            height: 'auto',
-            '&.overlay': {
-                display: 'block',
-                position: 'relative',
-                backgroundColor: '#fff',
-                opacity: '0.7',
-                zIndex: -1
-            }
-        },
-        suggestionsSection: {
-            display: 'flex',
-            flexDirection: 'column',
-            borderBottom: '1px solid #e6e7ec',
-            minHeight: '50vh',
-            height: '75vh'
-        },
-        stmtEditorContentWrapper: {
-            backgroundColor: '#f9fafc',
-            display: 'flex',
-            flexDirection: 'column',
-            padding: "11px 0px 8px 0px",
-            borderBottom: '1px solid #e6e7ec'
-        },
-        statementExpressionTitle: {
-            display: 'flex',
-            alignItems: 'center',
-            paddingBottom: '15px',
-            fontWeight: 500
-        },
-        statementExpressionContent: {
-            fontSize: "15px",
-            'user-select': 'none',
-            fontFamily: 'Droid sans mono'
-        },
-        footer: {
-            height: 'auto',
-            display: 'flex',
-            width: '100%',
-            marginTop: '12px',
-            paddingRight: theme.spacing(2.5),
-            paddingLeft: theme.spacing(2.5)
-        },
-        buttonWrapper: {
-            display: 'flex',
-            justifyContent: 'flex-end',
-            width: '50%'
-        },
-        stmtEditorToggle: {
-            width: '50%'
-        },
-        separatorLine: {
-            height: '1px',
-            opacity: '0.52',
-            backgroundColor: '#DCDEE4',
-            marginBottom: '25px'
-        },
-        stmtEditorExpressionWrapper: {
-            paddingLeft: '15px',
-            paddingRight: '25px',
-            fontSize: '13px',
-            fontFamily: 'Gilmer',
-            overflowY: 'hidden'
-        },
-        helpText: {
-            fontStyle: "italic"
-        },
-        editorsBreadcrumb: {
-            width: '90%',
-            '& > * + *': {
-                marginTop: theme.spacing(2),
-            },
         },
         parameterCheckbox: {
             color: '#2FA86C',
@@ -615,7 +525,8 @@ export const useStatementEditorStyles = makeStyles(() =>
             color: '#1D2028',
             letterSpacing: '0',
             lineHeight: '14px',
-            paddingLeft: '0px'
+            paddingLeft: '0px',
+            marginBottom: '7px'
         },
         returnSeparator : {
             width: '616px',
@@ -623,6 +534,157 @@ export const useStatementEditorStyles = makeStyles(() =>
             backgroundColor: "#DCDEE4",
             display: 'block',
             float: 'left'
+        },
+        docListItemText: {
+            ...removePadding
+        },
+        includedRecordPlusBtn: {
+            display: 'block',
+            alignSelf: 'center',
+            padding: '0px',
+            marginLeft: '10px'
+        },
+        paramDataType: {
+            marginLeft: '8px',
+            marginRight: '8px',
+            flex: 'inherit',
+            ...removePadding
+        },
+        requiredArgList: {
+            "& .MuiListItem-root": {
+                padding: '0px',
+                flex: 'inherit'
+            },
+            "& .MuiListItemText-root": {
+                flex: "inherit"
+            },
+            ...removePadding
+        },
+        docDescription: {
+            marginBottom: '13px',
+            "& .MuiListItem-root": {
+                paddingLeft: '0px',
+                paddingTop: '0px',
+            },
+            ...removePadding
+        },
+        returnDescription: {
+            "& .MuiListItem-root": {
+                paddingLeft: '0px'
+            },
+            ...removePadding
+        },
+        includedRecordHeaderList: {
+            "& .MuiListItem-root": {
+                padding: '0px',
+                alignItems: 'flex-start'
+            },
+            "& .MuiListItemText-root": {
+                flex: "inherit"
+            },
+            ...removePadding
+        },
+        docListDefault: {
+            "& .MuiListItem-root": {
+                padding: '0px'
+            },
+            "& .MuiListItemText-root": {
+                flex: 'inherit'
+            },
+            ...removePadding
+        },
+    }),
+);
+
+export const useStatementEditorStyles = makeStyles(() =>
+    createStyles({
+        mainStatementWrapper: {
+            display: 'flex',
+            height: 'auto',
+            width: 700,
+            flexDirection: 'column',
+        },
+        stmtEditorInnerWrapper: {
+            fontSize: '13px',
+            fontFamily: 'Gilmer',
+            overflowY: 'hidden',
+            ...stmtEditorPadding
+        },
+        statementExpressionWrapper: {
+            height: 'calc(100vh - 110px)',
+            '&.overlay': {
+                display: 'block',
+                position: 'relative',
+                backgroundColor: '#fff',
+                opacity: '0.7',
+                zIndex: -1
+            },
+            overflowY: 'hidden',
+            display: 'flex',
+            flexDirection: 'column'
+        },
+        suggestionsSection: {
+            display: 'flex',
+            flexDirection: 'column',
+            borderBottom: '1px solid #e6e7ec',
+            overflowX: 'hidden',
+            height: 'inherit'
+        },
+        stmtEditorContentWrapper: {
+            backgroundColor: '#f9fafc',
+            display: 'flex',
+            flexDirection: 'column',
+            padding: "11px 0px 8px 0px",
+            borderBottom: '1px solid #e6e7ec'
+        },
+        statementExpressionTitle: {
+            display: 'flex',
+            alignItems: 'center',
+            paddingBottom: '15px',
+            fontWeight: 500
+        },
+        statementExpressionContent: {
+            fontSize: "15px",
+            'user-select': 'none',
+            fontFamily: 'Droid sans mono'
+        },
+        footer: {
+            height: 'auto',
+            display: 'flex',
+            width: '100%',
+            padding: '10px 20px',
+            borderTop: '1px solid #e6e7ec'
+        },
+        buttonWrapper: {
+            display: 'flex',
+            justifyContent: 'flex-end',
+            width: '50%'
+        },
+        stmtEditorToggle: {
+            width: '50%'
+        },
+        separatorLine: {
+            height: '1px',
+            opacity: '0.52',
+            backgroundColor: '#DCDEE4',
+            marginBottom: '25px'
+        },
+        stmtEditorExpressionWrapper: {
+            paddingLeft: '15px',
+            paddingRight: '25px',
+            fontSize: '13px',
+            fontFamily: 'Gilmer',
+            height: 'inherit',
+            overflowY: 'scroll',
+        },
+        helpText: {
+            fontStyle: "italic"
+        },
+        editorsBreadcrumb: {
+            width: '90%',
+            '& > * + *': {
+                marginTop: theme.spacing(2),
+            },
         },
         statementEditorHeader: {
             minHeight: '5vh',
@@ -635,6 +697,22 @@ export const useStatementEditorStyles = makeStyles(() =>
             display: 'flex',
             justifyContent: 'flex-end',
             width: '10%'
+        },
+        inlineDocumentation: {
+            borderWidth: '2px',
+            backgroundColor: 'white',
+            marginTop: '15px'
+        },
+        inlineDocList: {
+            "& .MuiListItem-root": {
+                padding: '0px'
+            },
+            "& .MuiListItemText-root": {
+                paddingLeft: '12.5px',
+                paddingRight: '12.5px'
+            },
+            ...removePadding
         }
+
     }),
 );

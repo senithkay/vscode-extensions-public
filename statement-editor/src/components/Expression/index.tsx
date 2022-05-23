@@ -15,7 +15,7 @@ import React, { useContext } from "react";
 import { useIntl } from "react-intl";
 
 import { TooltipIcon } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
-import { STNode } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import cn from "classnames";
 
 import { StatementEditorContext } from "../../store/statement-editor-context";
@@ -27,12 +27,13 @@ export interface ExpressionComponentProps {
     model: STNode;
     children?: React.ReactElement[];
     classNames?: string;
+    stmtPosition?: NodePosition
 }
 
 export function ExpressionComponent(props: ExpressionComponentProps) {
-    const { model, children, classNames } = props;
+    const { model, children, classNames, stmtPosition } = props;
 
-    const component = getExpressionTypeComponent(model);
+    const component = getExpressionTypeComponent(model, stmtPosition);
 
     const [isHovered, setHovered] = React.useState(false);
 
@@ -64,7 +65,7 @@ export function ExpressionComponent(props: ExpressionComponentProps) {
         if (!hasSyntaxDiagnostics) {
             e.stopPropagation();
             e.preventDefault();
-            changeCurrentModel(model);
+            changeCurrentModel(model, stmtPosition);
         }
     }
 

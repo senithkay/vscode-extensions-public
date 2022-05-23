@@ -10,16 +10,12 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js jsx-no-lambda
+// tslint:disable: jsx-no-multiline-js
 import React, { useContext } from "react";
-
-import { FormControl, FormControlLabel, FormGroup, Switch } from "@material-ui/core";
-import PrimarySwitchToggle from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import Breadcrumb from "../Breadcrumb";
 import { Diagnostics } from "../Diagnostics";
-import DocumentationSwitchToggle from "../Documentation/DocumentationToggle";
 import { InlineDocumentation } from "../Documentation/InlineDocumentation";
 import { HelperPane } from "../HelperPane";
 import { StatementRenderer } from "../StatementRenderer";
@@ -30,6 +26,7 @@ export function EditorPane() {
     const statementEditorClasses = useStatementEditorStyles();
     const [docEnabled, setDocEnabled] = React.useState(false);
     const [docExpandClicked, setDocExpand] = React.useState(false);
+    const [isParameterTabEnabled, setParameterTabEnabled] = React.useState(false);
 
     const stmtCtx = useContext(StatementEditorContext);
 
@@ -37,16 +34,19 @@ export function EditorPane() {
         modelCtx: {
             statementModel
         },
-        documentation
     } = stmtCtx;
 
-    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setDocEnabled(event.target.checked);
-    };
-
     const documentationHandler = () => {
-        setDocEnabled(false);
-        setDocExpand(true);
+        // tslint:disable-next-line:no-shadowed-variable
+        setDocExpand((docExpandClicked) => !docExpandClicked);
+    }
+
+    const inlineDocumentHandler = (docBtnEnabled: boolean) => {
+        setDocEnabled(docBtnEnabled);
+    }
+
+    const paramTabHandler = (isEnabled: boolean) => {
+        setParameterTabEnabled(isEnabled);
     }
 
     return (
@@ -54,29 +54,21 @@ export function EditorPane() {
             <div className={statementEditorClasses.stmtEditorContentWrapper}>
                 <div className={statementEditorClasses.stmtEditorInnerWrapper}>
                     <div className={statementEditorClasses.statementExpressionTitle}>
-                        <Toolbar />
-                        <FormGroup style={{ float: 'right' }}>
-                            <FormControlLabel
-                                control={<DocumentationSwitchToggle checked={docEnabled} onChange={handleChange} />}
-                                label={"Documentation"}
-                                labelPlacement={"start"}
-                            />
-                        </FormGroup>
+                        <Toolbar inlineDocumentHandler={inlineDocumentHandler}/>
                     </div>
                     <div className={statementEditorClasses.statementExpressionContent}>
                         <StatementRenderer
                             model={statementModel}
                         />
                     </div>
-                    {docEnabled && documentation &&
-                        !(documentation.documentation === undefined) && (
-                            <InlineDocumentation documentationHandler={documentationHandler} />
-                        )}
-                    <Diagnostics />
+                    {docEnabled && !isParameterTabEnabled && (
+                        <InlineDocumentation documentationHandler={documentationHandler}/>
+                    )}
+                    <Diagnostics/>
                 </div>
             </div>
             <div className={statementEditorClasses.suggestionsSection}>
-                <HelperPane docExpandClicked={docExpandClicked} />
+                <HelperPane docExpandClicked={docExpandClicked} paramTabHandler={paramTabHandler}/>
             </div>
         </>
     );

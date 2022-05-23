@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { ALL_LIBS_IDENTIFIER, LANG_LIBS_IDENTIFIER, STD_LIBS_IDENTIFIER } from "../../constants";
 import { KeyboardNavigationManager } from "../../utils/keyboard-navigation-manager";
@@ -32,14 +32,14 @@ enum TabElements {
 
 export interface HelperPaneProps{
     docExpandClicked : boolean
+    paramTabHandler : (isEnabled : boolean) => void
 }
 
 export function HelperPane(props: HelperPaneProps) {
-    const { docExpandClicked } = props;
+    const { docExpandClicked, paramTabHandler } = props;
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
     const statementEditorClasses = useStatementEditorStyles();
-    const initialVal2 = docExpandClicked ? TabElements.parameters : TabElements.suggestions;
-    const [selectedTab, setSelectedTab] = useState(initialVal2);
+    const [selectedTab, setSelectedTab] = useState(TabElements.suggestions);
     const [libraryType, setLibraryType] = useState('');
 
     const onTabElementSelection = async (value: TabElements) => {
@@ -59,15 +59,22 @@ export function HelperPane(props: HelperPaneProps) {
         keyboardNavigationManager.bindNewKey(client, ['ctrl+shift+s', 'command+shift+s'], setSelectedTab, TabElements.suggestions)
         keyboardNavigationManager.bindNewKey(client, ['ctrl+shift+e', 'command+shift+e'], setSelectedTab, TabElements.expressions)
         keyboardNavigationManager.bindNewKey(client, ['ctrl+shift+l', 'command+shift+l'], setSelectedTab, TabElements.libraries)
+        keyboardNavigationManager.bindNewKey(client, ['ctrl+shift+d', 'command+shift+d'], setSelectedTab, TabElements.parameters)
 
         return () => {
             keyboardNavigationManager.resetMouseTrapInstance(client);
         }
     }, []);
 
-    React.useEffect(() => {
-        setSelectedTab(initialVal2);
-    }, [initialVal2])
+    useEffect(() => {
+        if (docExpandClicked){
+            setSelectedTab(TabElements.parameters);
+        }
+    }, [docExpandClicked])
+
+    useEffect(() => {
+        selectedTab === TabElements.parameters ? paramTabHandler(true) : paramTabHandler(false);
+    }, [selectedTab])
 
     return (
         <>
@@ -76,9 +83,8 @@ export function HelperPane(props: HelperPaneProps) {
 
                     <TabPanel
                         values={[TabElements.suggestions, TabElements.expressions, TabElements.libraries, TabElements.parameters]}
-                        defaultValue={initialVal2}
+                        defaultValue={TabElements.suggestions}
                         onSelection={onTabElementSelection}
-                        docExpandClicked={docExpandClicked}
                         selectedTab={selectedTab}
                     />
                     <div className={stmtEditorHelperClasses.libraryTypeSelector}>

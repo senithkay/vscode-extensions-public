@@ -142,12 +142,17 @@ export function ExpressionSuggestions() {
                         )}
                     />
                 </FormControl>
-                {!!filteredExpressions.length && (
-                    <>
-                        {filteredExpressions.map((group, groupIndex) => (
-                            <>
-                                <div className={stmtEditorHelperClasses.librarySearchSubHeader}>{group.name}</div>
-                                <div className={statementEditorClasses.stmtEditorExpressionWrapper}>
+                {!filteredExpressions.length && (
+                    <div className={statementEditorClasses.stmtEditorInnerWrapper}>
+                        <p>Expressions not available</p>
+                    </div>
+                )}
+                <div className={statementEditorClasses.stmtEditorExpressionWrapper}>
+                    {!!filteredExpressions.length && (
+                        <>
+                            {filteredExpressions.map((group, groupIndex) => (
+                                <>
+                                    <div className={stmtEditorHelperClasses.librarySearchSubHeader}>{group.name}</div>
                                     <List className={stmtEditorHelperClasses.expressionList}>
                                         {
                                             group.expressions.map((expression, index) => (
@@ -171,18 +176,13 @@ export function ExpressionSuggestions() {
                                             ))
                                         }
                                     </List>
-                                </div>
-                                <div className={statementEditorClasses.separatorLine} />
-                            </>
-                        ))}
-                    </>
-                )}
-            </div>
-            {!filteredExpressions.length && (
-                <div className={statementEditorClasses.stmtEditorInnerWrapper}>
-                    <p>Expressions not available</p>
+                                    <div className={statementEditorClasses.separatorLine} />
+                                </>
+                            ))}
+                        </>
+                    )}
                 </div>
-            )}
+            </div>
         </>
     );
 }

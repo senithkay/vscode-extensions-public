@@ -17,7 +17,7 @@ import { LibraryKind, STModification, SymbolInfoResponse } from "@wso2-enterpris
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { LowCodeEditorProps } from "../components/StatementEditorWrapper";
-import { EditorModel, StmtDiagnostic, SuggestionItem } from "../models/definitions";
+import { EditorModel, EmptySymbolInfo, StmtDiagnostic, SuggestionItem } from "../models/definitions";
 
 import { InputEditorContextProvider } from "./input-editor-context";
 
@@ -26,7 +26,7 @@ export const StatementEditorContext = React.createContext({
         initialSource: '',
         statementModel: null,
         currentModel: null,
-        changeCurrentModel: (model: STNode) => {},
+        changeCurrentModel: (model: STNode, stmtPosition?: NodePosition) => {},
         handleChange: (codeSnippet: string, isEditedViaInputEditor?: boolean) => {},
         updateModel: (codeSnippet: string, position: NodePosition) => {},
         undo: () => undefined,
@@ -83,7 +83,7 @@ export const StatementEditorContext = React.createContext({
 export interface CtxProviderProps extends LowCodeEditorProps {
     children?: React.ReactNode,
     model: STNode,
-    currentModel: { model: STNode },
+    currentModel: { model: STNode, stmtPosition? : NodePosition },
     changeCurrentModel?: (model: STNode) => void,
     handleChange?: (codeSnippet: string, isEditedViaInputEditor?: boolean) => void,
     updateModel?: (codeSnippet: string, position: NodePosition) => void,
@@ -97,7 +97,7 @@ export interface CtxProviderProps extends LowCodeEditorProps {
     diagnostics?: StmtDiagnostic[],
     lsSuggestions?: SuggestionItem[],
     hasSyntaxDiagnostics?: boolean,
-    documentation?: SymbolInfoResponse,
+    documentation?: SymbolInfoResponse | EmptySymbolInfo,
     restArg?: (restCheckClicked: boolean) => void,
     hasRestArg?: boolean,
     handleStmtEditorToggle: () => void,

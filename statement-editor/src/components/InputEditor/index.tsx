@@ -72,7 +72,7 @@ export function InputEditor(props: InputEditorProps) {
     const [prevUserInput, setPrevUserInput] = useState<string>(userInput);
 
     const placeHolder = useMemo(() => {
-        const trimmedInput = userInput.trim();
+        const trimmedInput = !!userInput ? userInput.trim() : EXPR_PLACEHOLDER;
         if (statementModel && INPUT_EDITOR_PLACEHOLDERS.has(trimmedInput)) {
             if (isPositionsEquals(statementModel.position, model.position)) {
                 // override the placeholder when the statement is empty
@@ -137,7 +137,9 @@ export function InputEditor(props: InputEditorProps) {
     const handleEditEnd = () => {
         setPrevUserInput(userInput);
         if (userInput !== "") {
-            updateModel(userInput, model ? model.position : targetPosition);
+            // Replace empty interpolation with placeholder value
+            const codeSnippet = userInput.replaceAll('${}', "${" + EXPR_PLACEHOLDER + "}");
+            updateModel(codeSnippet, model ? model.position : targetPosition);
         }
         setIsEditing(false);
     }
