@@ -36,7 +36,7 @@ import classNames from "classnames";
 
 import { StmtDiagnostic } from "../../../models/definitions";
 import { getUpdatedSource } from "../../../utils";
-import { getPartialSTForModulePart } from "../../../utils/ls-utils";
+import {getPartialSTForModulePart, getPartialSTForTopLevelComponents} from "../../../utils/ls-utils";
 import { FormEditorField } from "../Types";
 import { getListenerConfig } from "../Utils/FormUtils";
 
@@ -67,14 +67,23 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
     const [currentComponentSyntaxDiag, setCurrentComponentSyntaxDiag] = useState<StmtDiagnostic[]>(undefined);
 
     let serviceModel: ServiceDeclaration;
+    let portSemDiagMsg: string;
+    let nameSemDiagMsg: string;
     if (STKindChecker.isModulePart(model)) {
         model.members.forEach(m => {
             if (STKindChecker.isServiceDeclaration(m)) {
                 serviceModel = m;
+            } else if (STKindChecker.isListenerDeclaration(m)) {
+                portSemDiagMsg = m.initializer?.parenthesizedArgList?.viewState?.diagnosticsInRange[0]?.message;
+                nameSemDiagMsg = m.variableName?.viewState?.diagnosticsInRange[0]?.message;
             }
         })
-    } else {
+    } else if (STKindChecker.isServiceDeclaration(model)) {
         serviceModel = model;
+        const serviceListenerExpression = model.expressions.length > 0 && model.expressions[0];
+        if (STKindChecker.isExplicitNewExpression(serviceListenerExpression)) {
+            portSemDiagMsg = serviceListenerExpression?.viewState?.diagnosticsInRange[0]?.message;
+        }
     }
     const path = serviceModel?.absoluteResourcePath
         .map((pathSegments) => pathSegments.value)
@@ -107,9 +116,16 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
         }, updatePosition));
         const updatedContent = await getUpdatedSource(codeSnippet, model?.source, updatePosition, undefined,
             true);
-        const partialST = await getPartialSTForModulePart(
-            {codeSnippet: updatedContent.trim()}, getLangClient
-        );
+        let partialST;
+        if (config.createNewListener) {
+            partialST = await getPartialSTForModulePart(
+                {codeSnippet: updatedContent.trim()}, getLangClient
+            );
+        } else {
+            partialST = await getPartialSTForTopLevelComponents(
+                {codeSnippet: updatedContent.trim()}, getLangClient
+            );
+        }
         if (!partialST.syntaxDiagnostics.length) {
             setCurrentComponentSyntaxDiag(undefined);
             onChange(updatedContent, partialST, HTTP_IMPORT);
@@ -240,6 +256,9 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
                         listenerConfig={listenerConfig}
                         listenerList={listenerList}
                         targetPosition={serviceModel ? serviceModel.position : targetPosition}
+                        syntaxDiag={currentComponentSyntaxDiag}
+                        portSemDiagMsg={portSemDiagMsg}
+                        nameSemDiagMsg={nameSemDiagMsg}
                         onChange={onListenerChange}
                     />
                 </div>

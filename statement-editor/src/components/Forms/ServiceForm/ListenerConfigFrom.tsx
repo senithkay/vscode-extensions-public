@@ -22,22 +22,34 @@ import {
     SelectDropdownWithButton,
     wizardStyles as useFormStyles
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
-import { NodePosition, ServiceDeclaration, STNode } from "@wso2-enterprise/syntax-tree";
+import { ModulePart, NodePosition, ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
 
+import { StmtDiagnostic } from "../../../models/definitions";
 import { FormEditorField } from "../Types";
 
 interface ListenerConfigFormProps {
-    model?: ServiceDeclaration;
+    model?: ServiceDeclaration | ModulePart;
     listenerList: string[];
     targetPosition: NodePosition;
     isEdit?: boolean;
     listenerConfig?: ListenerConfigFormState;
+    syntaxDiag?: StmtDiagnostic[];
+    portSemDiagMsg: string;
+    nameSemDiagMsg: string;
     onChange: (listenerConfig?: ListenerConfigFormState) => void;
 }
 
 export function ListenerConfigForm(props: ListenerConfigFormProps) {
     const formClasses = useFormStyles();
-    const { listenerList, model, targetPosition, isEdit, listenerConfig, onChange } = props;
+    const { listenerList, model, targetPosition, isEdit, syntaxDiag, listenerConfig, portSemDiagMsg, nameSemDiagMsg,
+            onChange } = props;
+
+    // if (STKindChecker.isModulePart(model)) {
+    //
+    // }
+
+    // States related to syntax diagnostics
+    const [currentComponentName, setCurrentComponentName] = useState<string>("");
 
     const [listenerName, setListenerName] = useState<FormEditorField>({isInteracted: false, value:
         listenerConfig.listenerName});
@@ -54,35 +66,44 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
             setCreateNewListener(true);
         }
         if (mode.length === 0) {
-            onChange({listenerName: listenerName.value, listenerPort: "", fromVar: fromVarRef,
-                      createNewListener});
+            setListenerPort({isInteracted: false, value: "9090"});
+            setListenerName({isInteracted: false, value: "l"});
+            onChange({listenerName: "l", listenerPort: "9090", fromVar: true, createNewListener: true});
         } else {
-            onChange({listenerName: listenerName.value, listenerPort: "", fromVar: false,
-                      createNewListener: false});
+            setListenerPort({isInteracted: false, value: "9090"});
+            onChange({listenerName: "", listenerPort: "9090", fromVar: false, createNewListener: false});
         }
+        setCreateNewListener(mode.length === 0);
         setFromVarRef(mode.length === 0);
     }
 
     const onListenerNameChange = (name: string) => {
+        setCurrentComponentName("Listener Name");
         setListenerName({isInteracted: true, value: name});
         onChange({listenerName: name, listenerPort: listenerPort.value, fromVar: fromVarRef,
                   createNewListener});
     }
 
     const onListenerPortChange = (port: string) => {
+        setCurrentComponentName("Listener Port");
         setListenerPort({isInteracted: true, value: port});
         onChange({listenerName: listenerName.value, listenerPort: port, fromVar: fromVarRef,
                   createNewListener});
     }
 
     const onListenerSelect = (name: string) => {
+        setCurrentComponentName("Listener Selector");
         if (name === 'Create New') {
             setCreateNewListener(true);
+            setListenerPort({isInteracted: false, value: "9090"});
+            setListenerName({isInteracted: false, value: "l"});
+            onChange({listenerName: "l", listenerPort: "9090", fromVar: false,
+                      createNewListener: true});
         } else {
             setCreateNewListener(false);
             setListenerName({isInteracted: true, value: name});
-            onChange({listenerName: listenerName.value, listenerPort: "", fromVar: false,
-                      createNewListener: false});
+            setListenerPort({isInteracted: false, value: ""});
+            onChange({listenerName: name, listenerPort: "", fromVar: false, createNewListener: false});
         }
     }
 
@@ -110,14 +131,16 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
             defaultValue={(listenerName?.isInteracted) ? listenerName.value : ""}
             onChange={onListenerNameChange}
             customProps={{
-                isErrored: false
+                isErrored: listenerName.isInteracted && (syntaxDiag !== undefined &&
+                    currentComponentName === "Listener Name" || nameSemDiagMsg !== undefined)
             }}
-            errorMessage={""}
+            errorMessage={(syntaxDiag && currentComponentName === "Listener Name" && syntaxDiag[0].message) ||
+                nameSemDiagMsg}
             onBlur={null}
             // onFocus={onNameFocus}
             placeholder={"listener"}
             size="small"
-            // disabled={addingNewParam || (currentComponentSyntaxDiag && currentComponentName !== "Name")}
+            disabled={syntaxDiag && currentComponentName !== "Listener Name"}
         />
     );
 
@@ -128,23 +151,18 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
             defaultValue={(listenerPort?.isInteracted) ? listenerPort.value : ""}
             onChange={onListenerPortChange}
             customProps={{
-                isErrored: false
+                isErrored: listenerPort.isInteracted && (syntaxDiag !== undefined &&
+                    currentComponentName === "Listener Port" || portSemDiagMsg !== undefined)
             }}
-            errorMessage={""}
+            errorMessage={(syntaxDiag && currentComponentName === "Listener Port" && syntaxDiag[0].message) ||
+                portSemDiagMsg}
             onBlur={null}
             // onFocus={onNameFocus}
             placeholder={"9090"}
             size="small"
-            // disabled={addingNewParam || (currentComponentSyntaxDiag && currentComponentName !== "Name")}
+            disabled={syntaxDiag && currentComponentName !== "Listener Port"}
         />
     );
-
-    // React.useEffect(() => {
-    //     // Identify initial edit
-    //     if (!isEdit) {
-    //         setCreateNewListener(true);
-    //     }
-    // }, []);
 
     return (
         <>
