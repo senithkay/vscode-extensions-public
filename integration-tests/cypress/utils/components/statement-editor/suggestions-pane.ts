@@ -14,9 +14,8 @@ export class SuggestionsPane {
 
     static clickSuggestionsTab(selectedTab: string) {
         cy.get(`[data-testid="tab-panel-wrapper"]`).within(() => {
-            cy.contains(selectedTab)
-                .click()
-                .get('[class*="Mui-selected"]')
+            cy.contains(selectedTab).focus()
+                .click({ force: true })
         });
         return this;
     }
@@ -25,7 +24,6 @@ export class SuggestionsPane {
         cy.get(`[data-testid="suggestion-list"]`).within(() => {
             cy.contains(selectedSuggestion)
                 .click({ force: true })
-                .get('[class*="Mui-selected"]')
         });
         return this;
     }
@@ -33,8 +31,7 @@ export class SuggestionsPane {
     static clickExpressionSuggestion(selectedExpression: string) {
         cy.get(`[data-testid="expression-list"]`).within(() => {
             cy.contains(selectedExpression)
-                .click()
-                .get('[class*="Mui-selected"]')
+                .click({ force: true })
         })
         return this;
     }

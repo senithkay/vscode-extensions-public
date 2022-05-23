@@ -68,11 +68,10 @@ describe('Test statement editor toolbar functionality', () => {
 
         EditorPane
             .getExpression("SimpleNameReference")
-            .clickExpressionContent('<add-expression>')
+            .doubleClickExpressionContent('<add-expression>')
 
-        SuggestionsPane
-            .clickSuggestionsTab("Suggestions")
-            .clickLsSuggestion('var1')
+        InputEditor
+            .typeInput("var1")
 
         EditorPane
             .getExpression("SimpleNameReference")
@@ -90,11 +89,10 @@ describe('Test statement editor toolbar functionality', () => {
 
         EditorPane
             .getExpression("NumericLiteral")
-            .clickExpressionContent(`123`)
+            .doubleClickExpressionContent(`123`)
 
-        SuggestionsPane
-            .clickSuggestionsTab("Suggestions")
-            .clickLsSuggestion('var2')
+        InputEditor
+            .typeInput("var2")
 
         EditorPane
             .validateNewExpression("SimpleNameReference","var2")

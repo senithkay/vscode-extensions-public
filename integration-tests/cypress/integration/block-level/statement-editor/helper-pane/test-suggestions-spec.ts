@@ -102,14 +102,20 @@ describe('Test helper pane functionality', () => {
             .clickLsSuggestion('int')
 
         EditorPane
+            .validateNewExpression("TypedBindingPattern","int")
+
+        SuggestionsPane
+            .clickSuggestionsTab("Expressions")
+
+        EditorPane
             .getExpression("SimpleNameReference")
             .clickExpressionContent(`<add-expression>`)
 
         SuggestionsPane
-            .clickSuggestionsTab("Expressions")
             .clickExpressionSuggestion('Es + Ex')
 
         EditorPane
+            .validateNewExpression("BinaryExpression","<add-expression> + <add-expression>")
             .getExpression("BinaryExpression")
             .clickSpecificExpression("SimpleNameReference",0,`<add-expression>`)
 
@@ -118,6 +124,7 @@ describe('Test helper pane functionality', () => {
             .clickLsSuggestion('var2')
 
         EditorPane
+            .validateNewExpression("BinaryExpression","var2")
             .getExpression("BinaryExpression")
             .clickExpressionContent('+')
         SuggestionsPane
@@ -162,25 +169,32 @@ describe('Test helper pane functionality', () => {
         EditorPane
             .getStatementRenderer()
             .getExpression("TypedBindingPattern")
-            .doubleClickExpressionContent('var')
+            .clickExpressionContent('var')
 
-        InputEditor
-            .typeInput('int')
+        SuggestionsPane
+            .clickSuggestionsTab("Suggestions")
+            .clickLsSuggestion('int')
+
+        EditorPane
+            .validateNewExpression("TypedBindingPattern","int")
+
+        SuggestionsPane
+            .clickSuggestionsTab("Expressions")
 
         EditorPane
             .getExpression("TypedBindingPattern")
             .clickExpressionContent('int')
 
         SuggestionsPane
-            .clickSuggestionsTab("Expressions")
             .clickExpressionSuggestion('Es | Ex')
-            .clickSuggestionsTab("Suggestions")
 
         EditorPane
+            .validateNewExpression("TypedBindingPattern","int | <add-type>")
             .getExpression("UnionTypeDesc")
             .clickSpecificExpression("SimpleNameReference", 0, '<add-type>' )
 
         SuggestionsPane
+            .clickSuggestionsTab("Suggestions")
             .clickLsSuggestion('float')
 
         EditorPane

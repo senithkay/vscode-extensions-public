@@ -29,8 +29,7 @@ export class EditorPane {
             cy.get(`[data-testid="input-editor-span"]`)
                 .contains(text)
                 .click()
-                .parent()
-                .get('[class*="expressionElementSelected"]')
+                .parent('[class*="expressionElementSelected"]',{timeout:20000})
         });
         return this;
     }
@@ -49,8 +48,7 @@ export class EditorPane {
             cy.get(`[data-testid="${modelType}"]`).eq(position)
                 .contains(text)
                 .click()
-                .parent()
-                .get('[class*="expressionElementSelected"]');
+                .parent('[class*="expressionElementSelected"]',{timeout:20000})
         });
         return this;
     }
