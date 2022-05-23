@@ -708,15 +708,15 @@ export async function renderFirstDiagramElement(client: ExtendedLangClient) {
 
 		const documentIdentifiers: DocumentIdentifier[] = [{ uri: currentFileUri }];
 		let projectResponse;
-
-		for (let i = 0; i < 5; i++) {
+		let i = 0;
+		do {
 			projectResponse = await client.getBallerinaProjectComponents({ documentIdentifiers });
 			if (projectResponse === NOT_SUPPORTED) {
 				await new Promise(resolve => setTimeout(resolve, 300));
 			} else {
 				break;
 			}
-		}
+		} while (i++ < 5)
 
 		const response = projectResponse as BallerinaProjectComponents;
 		if (!response.packages || response.packages.length == 0 || !response.packages[0].modules) {
