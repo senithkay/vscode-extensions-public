@@ -53,7 +53,8 @@ export default function Toolbar(props: ToolbarProps) {
         hasUndo,
         statementModel: completeModel,
         updateModel,
-        currentModel
+        currentModel,
+        hasSyntaxDiagnostics
     } = modelCtx;
     const {
         editors,
@@ -154,7 +155,7 @@ export default function Toolbar(props: ToolbarProps) {
             <div className={statementEditorClasses.toolbarSet}>
                 <IconButton
                     onClick={undo}
-                    disabled={!hasUndo}
+                    disabled={!hasUndo || hasSyntaxDiagnostics}
                     className={statementEditorClasses.toolbarIcons}
                 >
                     <ToolbarUndoIcon />
@@ -162,7 +163,7 @@ export default function Toolbar(props: ToolbarProps) {
                 <div className={statementEditorClasses.undoRedoSeparator} />
                 <IconButton
                     onClick={redo}
-                    disabled={!hasRedo}
+                    disabled={!hasRedo || hasSyntaxDiagnostics}
                     className={statementEditorClasses.toolbarIcons}
                 >
                     <ToolbarRedoIcon />
