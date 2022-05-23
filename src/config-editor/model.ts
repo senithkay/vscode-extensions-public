@@ -20,13 +20,15 @@
 export const EXECUTE_RUN_WITH_CONFIGS: string = 'ballerina.executeRunWithConfigs';
 
 export interface ConfigProperty {
+    id: string;
     headerNames: string[];
     configs: ConfigValue[];
+    isNested?: boolean;
 }
 
 export interface ConfigValue {
     configName: string;
     configType: string;
     configArrayType?: string;
-    configValue?: any[];
+    configValue?: any;
 }

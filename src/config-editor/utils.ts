@@ -27,7 +27,12 @@ let configProperties: ConfigProperty[] = [];
  * @param tomlContent The TOML content as a string value.
  */
 export function parseTomlToConfig(tomlContent: string): object {
-    return toml.parse(tomlContent);
+    try {
+        return toml.parse(tomlContent);
+    } catch (error) {
+        console.debug("Error while parsing the Config.toml file content: " + error);
+    }
+    return {};
 }
 
 /**
@@ -45,75 +50,144 @@ export function generateExistingValues(tomlContent: object, orgName: string, pac
  * Extract a TOML string from the data object received from the configurable editor on submit. 
  * @param configInputs The JSON data object received from the configurable editor on primary button click.
  */
-export function parseConfigToToml(configInputs: any): string {
-
+ export function parseConfigToToml(configInputs: any, packageName: string): string {
     configProperties = [];
+
     // Iterate the root level configurable values.
-    configInputs.properties.forEach((object: any) => {
+    configInputs.properties.forEach((configObject: any) => {
         const configProperty: ConfigProperty = {
+            id: "1",
             configs: [],
             headerNames: [],
         };
-        getConfigProperty(object, configProperty);
+        addConfigProperties(configObject, configProperty, packageName);
     });
-
     return configToTomlString(configProperties);
 }
 
-function getConfigProperty(object: any, configProperty: ConfigProperty) {
-    if (object.hasOwnProperty("properties")) {
-        configProperty.headerNames.push(object.name);
-        object.properties.forEach((entry: any) => {
+function addConfigProperties(configObject: any, configProperty: ConfigProperty, packageName: string) {
+    const type: string = configObject["type"];
+    const arrayType: string = configObject["arrayType"];
+    switch(type) {
+        case "object": {
+            if (configObject.hasOwnProperty("properties")) {
+                if (configObject.name && configObject.name !== "") {
+                    configProperty.headerNames.push(configObject.name);
+                }
+                configObject.properties.forEach((entry: any) => {
+                    const newProperty: ConfigProperty = {
+                        id: configProperty.id + "-" + 1,
+                        configs: [],
+                        headerNames: configProperty.headerNames,
+                        isNested: configProperty.isNested,
+                    };
+                    if (entry.hasOwnProperty("properties")) {
+                        addConfigProperties(entry, newProperty, packageName);
+                    } else {
+                        getLeafConfig(entry, newProperty);
+                    }
+                });
+                if (configObject.name && configObject.name !== "") {
+                    configProperty.headerNames.pop();
+                }
+            } else if (arrayType === "object") {
+                return getLeafConfig(configObject, configProperty);
+            }
+           break;
+        }
+        case "module": {
+            configProperty.headerNames.push(packageName);
+            if (configObject.hasOwnProperty("properties")) {
+                configProperty.headerNames.push(configObject.name);
+                configObject.properties.forEach((entry: any) => {
+                    const newProperty: ConfigProperty = {
+                        id: configProperty.id + "-" + 1,
+                        configs: [],
+                        headerNames: configProperty.headerNames,
+                    };
+                    if (entry.hasOwnProperty("properties")) {
+                        addConfigProperties(entry, newProperty, packageName);
+                    } else {
+                        getLeafConfig(entry, newProperty);
+                    }
+                });
+                configProperty.headerNames.pop();
+            } else {
+                getLeafConfig(configObject, configProperty);
+            }
+            configProperty.headerNames.pop();
+            break;
+        }
+        case "array": {
+            let counter: number = 1;
             const newProperty: ConfigProperty = {
+                id: configProperty.id + "-" + counter,
                 configs: [],
                 headerNames: configProperty.headerNames,
             };
-            if (entry.hasOwnProperty("properties")) {
-                return getConfigProperty(entry, newProperty);
+            if (arrayType === "object") {
+                newProperty.headerNames.push(configObject["name"]);
+                newProperty.isNested = true;
+                const objectArrayValue = configObject["value"];
+                objectArrayValue.forEach( (element) => {
+                    newProperty.id = configProperty.id + "-" + counter,
+                    addConfigProperties(element, newProperty, packageName);
+                    counter = counter + 1;
+                });
             } else {
-                return getLeafConfig(entry, newProperty);
+                getLeafConfig(configObject, newProperty);
             }
-        });
-        configProperty.headerNames.pop();
-    } else {
-        return getLeafConfig(object, configProperty);
-    }
-}
-
-function getLeafConfig(object: any, configProperty: ConfigProperty) {
-    const name: string = "name";
-    const value: string = "value";
-    const type: string = "type";
-    const arrayType: string = "arrayType";
-    const headers = [...configProperty.headerNames];
-
-    if (object[name] === undefined || object[value] === undefined || object[value] === '' || object[value] === null) {
-        return;
-    }
-
-    const newConfigElement: ConfigValue = {
-        configName: object[name],
-        configType: object[type],
-        configArrayType: object[arrayType],
-        configValue: object[value],
-    };
-
-    const found = configProperties.some((element) => element.headerNames.join(".") === headers.join("."));
-    if (!found) {
-        configProperties.push({ headerNames: headers, configs: [newConfigElement] });
-    } else {
-        configProperties.find((element) => element.headerNames.join(".") === headers.join("."))!
-            .configs.push(newConfigElement);
+            break;
+        }
+        case "anyOf": {
+            const anyOfValue = configObject["value"];
+            const newProperty: ConfigProperty = {
+                id: configProperty.id + "-" + 1,
+                configs: [],
+                headerNames: configProperty.headerNames,
+            };
+            if (anyOfValue.hasOwnProperty("properties")) {
+                addConfigProperties(anyOfValue, newProperty, packageName);
+            } else {
+                getLeafConfig(anyOfValue, newProperty);
+            }
+            break;
+        }
+        case "enum": {
+            const enumValue = configObject["value"];
+            const newProperty: ConfigProperty = {
+                id: configProperty.id + "-" + 1,
+                configs: [],
+                headerNames: configProperty.headerNames,
+            };
+            if (enumValue.hasOwnProperty("properties")) {
+                addConfigProperties(enumValue, newProperty, packageName);
+            } else {
+                getLeafConfig(configObject, newProperty);
+            }
+            break;
+        }
+        default: {
+            getLeafConfig(configObject, configProperty);
+        }
     }
 }
 
 function configToTomlString(configs: ConfigProperty[]): string {
     let configToml: string = "";
+    configs.sort(function(first, second) {
+        return first.headerNames.length - second.headerNames.length;
+    });
     configs.forEach((entry: ConfigProperty) => {
         if (entry.headerNames.length > 0) {
             let header: string = "";
             header = entry.headerNames.join(".");
-            configToml = configToml.concat(`\n[${header}]\n`);
+            if (entry.isNested) {
+                configToml = configToml.concat(`\n[[${header}]]\n`);
+            } else {
+                configToml = configToml.concat(`\n[${header}]\n`);
+            }
+
             if (entry.configs) {
                 entry.configs.forEach((element: ConfigValue) => {
                     configToml = configToml.concat(`${element.configName} = ${getConfigJsonValue(element)}\n`);
@@ -135,17 +209,57 @@ function getConfigJsonValue(element: ConfigValue) {
     const configArrayType: any = element.configArrayType;
     let returnValue: any;
 
-    if (configType === "float") {
-        returnValue = element.configValue;
-    } else if (configArrayType === "float") {
-        let arrayValue: string = "[";
+    if (configType === "array") {
         const valueList: any = element.configValue;
-        valueList.forEach((entry: any) => {
-            arrayValue = arrayValue.concat(entry + ", ");
-        });
-        returnValue = arrayValue.slice(0, -2).concat("]")
+        if (configArrayType === "float") {
+            let arrayValue: string = "[";
+            valueList.forEach((entry: any) => {
+                arrayValue = arrayValue.concat(entry + ", ");
+            });
+            returnValue = arrayValue.slice(0, -2).concat("]")
+        } else {
+            returnValue = JSON.stringify(valueList);
+        }
     } else {
-        returnValue = JSON.stringify(element.configValue);
+        returnValue = getSimpleTypeValue(element.configValue, element.configType);
+    }
+    return returnValue;
+}
+
+function getLeafConfig(object: any, configProperty: ConfigProperty) {
+    const name: string = "name";
+    const value: string = "value";
+    const type: string = "type";
+    const arrayType: string = "arrayType";
+    const headers = [...configProperty.headerNames];
+
+    if (object[name] === undefined || object[value] === undefined || object[value] === '' || object[value] === null) {
+        return configProperty;
+    }
+
+    const configElement: ConfigValue = {
+        configName: object[name],
+        configType: object[type],
+        configValue: object[value],
+        configArrayType: object[arrayType],
+    };
+
+    const found = configProperties.some((element) => element.id === configProperty.id);
+    if (!found) {
+        configProperties.push({ headerNames: headers, configs: [configElement], id: configProperty.id,
+            isNested: configProperty.isNested });
+    } else {
+        configProperties.find((element) => element.id === configProperty.id)!.configs.push(configElement);
+    }
+}
+
+function getSimpleTypeValue(value: any, type: string) {
+    let returnValue: any;
+
+    if (type === "float") {
+        returnValue = value;
+    } else {
+        returnValue = JSON.stringify(value);
     }
     return returnValue;
 }
