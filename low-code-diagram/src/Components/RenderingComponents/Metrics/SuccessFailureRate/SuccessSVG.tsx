@@ -32,8 +32,8 @@ export function SuccessSVG(props: { x: number, y: number, successRate: number}) 
                     y2="1.128"
                     gradientUnits="objectBoundingBox"
                 >
-                    <stop offset="0" stopColor={successRate < 70 ? '#FFCC8C' : '#53c08a'} />
-                    <stop offset="1" stopColor= {successRate < 70 ? '#FF9D52' : '#2fa86c'} />
+                    <stop offset="0" stopColor={successRate < 70 ? "#FFCC8C" : "#53c08a"} />
+                    <stop offset="1" stopColor={successRate < 70 ? "#FF9D52" : "#2fa86c"} />
                 </linearGradient>
                 <filter
                     id="SuccessFilter"
