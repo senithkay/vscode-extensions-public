@@ -55,6 +55,7 @@ describe('Test helper pane functionality', () => {
             .clickLsSuggestion('int')
 
         EditorPane
+            .validateNewExpression("TypedBindingPattern","int")
             .getExpression("SimpleNameReference")
             .clickExpressionContent(`<add-expression>`)
 
@@ -168,7 +169,7 @@ describe('Test helper pane functionality', () => {
 
         EditorPane
             .getExpression("TypedBindingPattern")
-            .doubleClickExpressionContent('int')
+            .clickExpressionContent('int')
 
         SuggestionsPane
             .clickSuggestionsTab("Expressions")
@@ -184,10 +185,11 @@ describe('Test helper pane functionality', () => {
 
         EditorPane
             .getExpression("SimpleNameReference")
-            .doubleClickExpressionContent(`<add-expression>`)
+            .clickExpressionContent(`<add-expression>`)
 
-        InputEditor
-            .typeInput("var1")
+        SuggestionsPane
+            .clickSuggestionsTab("Suggestions")
+            .clickLsSuggestion('var1')
 
         EditorPane
             .validateNewExpression("SimpleNameReference","var1")
