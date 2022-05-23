@@ -12,7 +12,6 @@
  */
 import React, { ReactNode } from "react";
 
-import { LensTwoTone } from "@material-ui/icons";
 import { StatementViewState } from "@wso2-enterprise/ballerina-low-code-diagram";
 import {
     ActionConfig,
@@ -31,10 +30,9 @@ import {
     CheckExpression,
     ImplicitNewExpression, ListConstructor, LocalVarDecl, MappingConstructor, ModuleVarDecl, NamedArg, NodePosition, NumericLiteral,
     ParenthesizedArgList,
-    PositionalArg, RemoteMethodCallAction, RequiredParam, SimpleNameReference, SpecificField,
+    PositionalArg, RemoteMethodCallAction, SimpleNameReference, SpecificField,
     STKindChecker,
-    STNode, StringLiteral, TypeCastExpression, WildcardBindingPattern
-} from "@wso2-enterprise/syntax-tree";
+    STNode, StringLiteral, TypeCastExpression} from "@wso2-enterprise/syntax-tree";
 import { DocumentSymbol, SymbolInformation } from "vscode-languageserver-protocol";
 
 import * as ConstructIcons from "../../../../assets/icons"
