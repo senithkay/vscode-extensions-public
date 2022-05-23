@@ -24,6 +24,7 @@ import { AddCustomStatementConfig } from "./AddCustomStatementConfig";
 import { AddLogConfig } from "./AddLogConfig";
 import { AddVariableConfig } from "./AddVariableConfig";
 import { AddWorkerConfigForm } from "./AddWorkerConfig";
+import { AddSendStatement } from "./AddSendStatement";
 
 interface ProcessFormProps {
     config: ProcessConfig;
@@ -56,8 +57,6 @@ export function ProcessForm(props: ProcessFormProps) {
         else {
             config.config = "";
         }
-
-
     } else if (formType === "Log") {
         config.config = {
             type: "",
@@ -105,6 +104,11 @@ export function ProcessForm(props: ProcessFormProps) {
                             onWizardClose={onWizardClose}
                             onCancel={onCancel}
                         />
+                    )
+                }
+                {
+                    formType === "SendStatement" && (
+                        <AddSendStatement />
                     )
                 }
                 {
