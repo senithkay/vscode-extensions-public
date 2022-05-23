@@ -338,7 +338,7 @@
             },
             {
                 "command": "ballerina.source.debug",
-                "title": "Debug project in terminal",
+                "title": "Debug",
                 "icon": {
                     "dark": "./resources/images/icons/debug-inverse.svg",
                     "light": "./resources/images/icons/debug.svg"
@@ -414,14 +414,26 @@
             ],
             "editor/title": [
                 {
+                    "command": "ballerina.project.run",
+                    "group": "navigation@1",
+                    "title": "Run project in terminal",
+                    "when": "resourceLangId == ballerina || isBallerinaDiagram"
+                },
+                {
+                    "command": "ballerina.source.debug",
+                    "group": "navigation@2",
+                    "title": "Debug project in terminal",
+                    "when": "resourceLangId == ballerina"
+                },
+                {
                     "when": "resourceLangId == ballerina",
                     "command": "ballerina.show.diagram",
-                    "group": "navigation"
+                    "group": "navigation@3"
                 },
                 {
                     "when": "isBallerinaDiagram",
                     "command": "ballerina.show.source",
-                    "group": "navigation"
+                    "group": "navigation@4"
                 }
             ],
             "view/item/context": [
@@ -439,20 +451,6 @@
                     "command": "ballerina.deleteFileExplorerTree",
                     "when": "view == ballerinaExplorerTreeView && viewItem == file || viewItem == folder",
                     "group": "inline@2"
-                }
-            ],
-            "editor/title/run": [
-                {
-                    "command": "ballerina.project.run",
-                    "group": "navigation@1",
-                    "title": "Run project in terminal",
-                    "when": "resourceLangId == ballerina || isBallerinaDiagram"
-                },
-                {
-                    "command": "ballerina.source.debug",
-                    "group": "navigation@2",
-                    "title": "Debug project in terminal",
-                    "when": "resourceLangId == ballerina"
                 }
             ],
             "explorer/context": [
