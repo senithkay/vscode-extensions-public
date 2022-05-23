@@ -567,3 +567,15 @@ export function getUpdatedContentForNewNamedArg(currentModel: FunctionCall, user
     const content: string = currentModel.functionName.source + "(" + functionParameters.join(",") + ")";
     return content;
 }
+
+export function getParamsList(suggestionValue: string): string[] {
+    const paramRegex = /\(([^)]+)\)/;
+    if (paramRegex.exec(suggestionValue)) {
+        let paramArray = paramRegex.exec(suggestionValue)[1].split(',');
+        paramArray = paramArray.map((param: string) => {
+            return param.trim().split(' ').pop();
+        });
+        return paramArray;
+    }
+    return [];
+}

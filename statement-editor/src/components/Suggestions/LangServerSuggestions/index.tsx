@@ -25,7 +25,7 @@ import {
 import { SuggestionItem } from "../../../models/definitions";
 import { InputEditorContext } from "../../../store/input-editor-context";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
-import { getSuggestionIconStyle, isPositionsEquals } from "../../../utils";
+import { getParamsList, getSuggestionIconStyle, isPositionsEquals } from "../../../utils";
 import { KeyboardNavigationManager } from "../../../utils/keyboard-navigation-manager";
 import { useStatementEditorStyles, useStmtEditorHelperPanelStyles} from "../../styles";
 
@@ -80,24 +80,20 @@ export function LSSuggestions() {
 
     const onClickLSSuggestion = (suggestion: SuggestionItem) => {
         const completionKind = suggestion.completionKind;
-        let variable = completionKind === PROPERTY_COMPLETION_KIND ? suggestion.insertText : suggestion.value;
+        let value = completionKind === PROPERTY_COMPLETION_KIND ? suggestion.insertText : suggestion.value;
         if (inputEditorCtx.userInput.includes('.')) {
-            variable = resourceAccessRegex.exec(inputEditorCtx.userInput) + suggestion.value;
+            value = resourceAccessRegex.exec(inputEditorCtx.userInput) + suggestion.value;
         }
         if (completionKind === METHOD_COMPLETION_KIND || completionKind === FUNCTION_COMPLETION_KIND) {
-            const regExp = /\(([^)]+)\)/;
-            if (regExp.exec(variable)) {
-                const paramArray = regExp.exec(variable)[1].split(',')
-                for (let i = 0; i < paramArray.length; i++) {
-                    paramArray[i] = paramArray[i].split(' ').pop()
-                }
-                variable = variable.split('(')[0] + "(" + paramArray.toString() + ")";
-            }
+            const paramList = getParamsList(value);
+            value = value.split('(')[0] + `(${paramList.toString()})`;
         }
-
-        const nodePosition: NodePosition = currentModel ? (currentModel.stmtPosition ? currentModel.stmtPosition : currentModel.model.position) : targetPosition
-
-        updateModel(variable, nodePosition);
+        const nodePosition = currentModel
+            ? (currentModel.stmtPosition
+                ? currentModel.stmtPosition
+                : currentModel.model.position)
+            : targetPosition;
+        updateModel(value, nodePosition);
         inputEditorCtx.onInputChange('');
     }
 
