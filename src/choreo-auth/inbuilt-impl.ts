@@ -23,6 +23,7 @@ import { deleteChoreoKeytarSession, getChoreoKeytarSession, setChoreoKeytarSessi
 import jwt_decode from "jwt-decode";
 import { choreoAuthConfig } from "./activator";
 import { ChoreoFidp } from "./config";
+import { isPluginStartup } from "../extension";
 
 const pkceChallenge = require('pkce-challenge');
 const url = require('url');
@@ -238,7 +239,10 @@ export class OAuthTokenHandler {
             }
         }).catch((err) => {
             console.debug(err);
-            vscode.window.showErrorMessage(AUTH_FAIL + SessionExpired);
+
+            if (!isPluginStartup) {
+                vscode.window.showErrorMessage(AUTH_FAIL + SessionExpired);
+            }
             this.signOut();
         });
     }
