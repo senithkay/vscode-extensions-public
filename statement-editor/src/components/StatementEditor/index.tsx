@@ -336,9 +336,10 @@ export function StatementEditor(props: StatementEditorProps) {
         }
     };
 
-    const currentModelHandler = (cModel: STNode) => {
+    const currentModelHandler = (cModel: STNode, stmtPosition?: NodePosition) => {
         setCurrentModel({
-            model: cModel
+            model: cModel,
+            stmtPosition
         });
     };
 
