@@ -50,6 +50,9 @@ describe('Test helper pane functionality', () => {
             .clickSuggestionsTab("Suggestions")
             .clickLsSuggestion('var1')
 
+        EditorPane
+            .validateNewExpression("SimpleNameReference","var1")
+
         StatementEditor
             .save()
 
@@ -115,6 +118,9 @@ describe('Test helper pane functionality', () => {
         InputEditor
             .typeInput("1")
 
+        EditorPane
+            .validateNewExpression("NumericLiteral","1")
+
         StatementEditor
             .save()
 
@@ -170,6 +176,9 @@ describe('Test helper pane functionality', () => {
 
         InputEditor
             .typeInput("var1")
+
+        EditorPane
+            .validateNewExpression("SimpleNameReference","var1")
 
         StatementEditor
             .save()

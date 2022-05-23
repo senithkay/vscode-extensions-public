@@ -19,7 +19,6 @@ export class StatementEditor {
     }
 
     static save() {
-        cy.wait(500)
         this.getStatementEditor()
             .get('button')
             .contains("Save")
@@ -29,7 +28,6 @@ export class StatementEditor {
     }
 
     static saveDisabled() {
-        cy.wait(500)
         this.getStatementEditor()
             .get('button')
             .get(`[data-testid="save-btn"]`)

@@ -41,7 +41,15 @@ describe('Test statement editor toolbar functionality', () => {
         SuggestionsPane
             .clickSuggestionsTab("Suggestions")
             .clickLsSuggestion('int')
+
+        EditorPane
+            .validateNewExpression("TypedBindingPattern","int")
+
+        SuggestionsPane
             .clickLsSuggestion('float')
+
+        EditorPane
+            .validateNewExpression("TypedBindingPattern","float")
 
         Toolbar
             .clickUndoButton()
@@ -76,9 +84,20 @@ describe('Test statement editor toolbar functionality', () => {
             .clickSuggestionsTab("Suggestions")
             .clickLsSuggestion('var2')
 
+        EditorPane
+            .validateNewExpression("SimpleNameReference","var2")
+
         Toolbar
             .clickUndoButton()
+
+        EditorPane
+            .validateNewExpression("NumericLiteral","123")
+
+        Toolbar
             .clickRedoButton()
+
+        EditorPane
+            .validateNewExpression("SimpleNameReference","var2")
 
         StatementEditor
             .save()
