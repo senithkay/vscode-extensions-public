@@ -40,7 +40,7 @@ import { CMP_LS_CLIENT_COMPLETIONS, CMP_LS_CLIENT_DIAGNOSTICS, getMessageObject,
 export const CONNECTOR_LIST_CACHE = "CONNECTOR_LIST_CACHE";
 export const HTTP_CONNECTOR_LIST_CACHE = "HTTP_CONNECTOR_LIST_CACHE";
 export const BALLERINA_LANG_ID = "ballerina";
-const NOT_SUPPORTED = {};
+export const NOT_SUPPORTED = {};
 
 enum EXTENDED_APIS {
     DOCUMENT_ST_NODE = 'ballerinaDocument/syntaxTreeNode',
