@@ -133,10 +133,10 @@ export function StatementEditor(props: StatementEditorProps) {
     const redo = async () => {
         const redoItem = undoRedoManager.getRedoModel();
         if (redoItem) {
-            const updatedContent = getUpdatedSource(redoItem.oldModel.model.source, currentFile.content,
+            const updatedContent = getUpdatedSource(redoItem.newModel.model.source, currentFile.content,
                 targetPosition, moduleList);
             sendDidChange(fileURI, updatedContent, getLangClient).then();
-            const diagnostics = await handleDiagnostics(redoItem.oldModel.model.source);
+            const diagnostics = await handleDiagnostics(redoItem.newModel.model.source);
             setStmtModel(redoItem.newModel.model, diagnostics);
 
             const newCurrentModel = getCurrentModel(redoItem.newModel.selectedPosition, enrichModel(redoItem.newModel.model, targetPosition));
