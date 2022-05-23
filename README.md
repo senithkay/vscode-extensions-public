@@ -207,6 +207,7 @@ Run and debug code lenses are shown for the entry points of the Ballerina projec
 
 - **Show Examples**: It lists the available examples of the Ballerina language. By clicking on each example, you can explore each source code. 
 - **Build**: It is a quick access to build your Ballerina project. Once executed, the current Ballerina project relative to the currently-opened text editor is built using the `bal build` CLI command.
+- **Pack**: It is a quick access to pack your Ballerina library packages. Once executed, the current Ballerina project relative to the currently-opened text editor is packed using the `bal pack` CLI command.
 - **Run**: It runs your Ballerina project. Once executed, the opened Ballerina project is built using the `bal run` CLI command.
 - **Test**: It runs all the tests in your Ballerina project using the `bal test` CLI command.
 - **Build Documentation**: It is a quick guide to generate documentation for your Ballerina project. Once executed, the documentation is generated using the `bal doc` CLI command. The generated documentation can be found inside the `apidocs` directory in the project `target`.

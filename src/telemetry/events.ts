@@ -42,6 +42,9 @@ export const TM_EVENT_PROJECT_TEST = "execute.project.tests";
 // event for running build for current project
 export const TM_EVENT_PROJECT_BUILD = "execute.project.build";
 
+// event for running pack for current project
+export const TM_EVENT_PROJECT_PACK = "execute.project.pack";
+
 // event for executing the ballerina run command
 export const TM_EVENT_PROJECT_RUN = "execute.project.run";
 

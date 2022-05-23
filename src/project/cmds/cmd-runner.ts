@@ -24,6 +24,7 @@ import { isWindows } from "../../utils";
 export enum PALETTE_COMMANDS {
     ADD = 'ballerina.project.add',
     BUILD = 'ballerina.project.build',
+    PACK = 'ballerina.project.pack',
     CLOUD = 'ballerina.create.cloud',
     DOC = 'ballerina.project.doc',
     FOCUS_EXPLORER = 'ballerinaExplorerTreeView.focus',
@@ -42,8 +43,10 @@ export enum PALETTE_COMMANDS {
     SWAGGER_VIEW = 'ballerina.swaggerView.open'
 }
 
+
 export enum BALLERINA_COMMANDS {
-    TEST = "test", BUILD = "build", FORMAT = "format", RUN = "run", DOC = "doc", ADD = "add", OTHER = "other"
+    TEST = "test", BUILD = "build", FORMAT = "format", RUN = "run", DOC = "doc", ADD = "add", OTHER = "other",
+    PACK = "pack"
 }
 
 export enum PROJECT_TYPE {
@@ -59,6 +62,7 @@ export enum MESSAGES {
     MODULE_NAME = "Enter module name.",
     SELECT_OPTION = "Select a build option.",
     NOT_IN_PROJECT = "Current file does not belong to a ballerina project.",
+    INVALID_PACK = "Only a Ballerina package can be packed.",
     INVALID_JSON = "Invalid JSON String"
 }
 

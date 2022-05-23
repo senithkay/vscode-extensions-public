@@ -25,7 +25,7 @@ import {
   Position, Range,
   TestController, TestItem, TestItemCollection, TestRunProfileKind, tests, TextDocument, Uri, workspace
 } from 'vscode';
-import { BallerinaExtension, ExecutorPosition, ExtendedLangClient, } from "../core";
+import { BallerinaExtension, BallerinaProject, ExecutorPosition, ExecutorPositionsResponse, ExtendedLangClient, } from "../core";
 import path from 'path';
 import { runHandler } from './runner';
 import { startWatchingWorkspace } from './discover';
@@ -136,7 +136,8 @@ export async function createTests(uri: Uri) {
       documentIdentifier: {
         uri: uri.toString()
       }
-    }).then(async response => {
+    }).then(async execResponse => {
+      const response = execResponse as ExecutorPositionsResponse;
       if (!response.executorPositions) {
         return;
       }
@@ -230,7 +231,7 @@ async function setCurrentProjectRoot(uri: Uri) {
       documentIdentifier: {
         uri: uri.toString()
       }
-    })).path;
+    }) as BallerinaProject).path;
   });
 }
 

@@ -1,0 +1,5 @@
+{
+  "chromeWebSecurity": true,
+  "pageLoadTimeout": 150000,
+  "videoCompression": false
+}

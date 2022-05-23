@@ -19,10 +19,11 @@
 import vscode from "vscode";
 import axios from "axios";
 import { BallerinaExtension } from "../core";
-import { getChoreoKeytarSession, setChoreoKeytarSession } from "./auth-session";
+import { deleteChoreoKeytarSession, getChoreoKeytarSession, setChoreoKeytarSession } from "./auth-session";
 import jwt_decode from "jwt-decode";
 import { choreoAuthConfig } from "./activator";
 import { ChoreoFidp } from "./config";
+import { isPluginStartup } from "../extension";
 
 const pkceChallenge = require('pkce-challenge');
 const url = require('url');
@@ -238,12 +239,16 @@ export class OAuthTokenHandler {
             }
         }).catch((err) => {
             console.debug(err);
-            vscode.window.showErrorMessage(AUTH_FAIL + SessionExpired);
+
+            if (!isPluginStartup) {
+                vscode.window.showErrorMessage(AUTH_FAIL + SessionExpired);
+            }
             this.signOut();
         });
     }
 
     signOut() {
+        deleteChoreoKeytarSession();
         this.extension.setChoreoSession({
             loginStatus: false
         });

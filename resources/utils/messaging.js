@@ -390,6 +390,15 @@ function getLangClient() {
                 );
             })
         },
+        getSymbolDocumentation: (params) => {
+            return new Promise((resolve, _reject) => {
+                const start = new Date();
+                webViewRPCHandler.invokeRemoteMethod('getSymbolDocumentation', [params], (resp) => {
+                    consoleLog(start, 'getSymbolDocumentation');
+                    resolve(resp);
+                });
+            });
+        },
     }
 }
 

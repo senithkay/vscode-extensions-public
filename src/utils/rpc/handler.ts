@@ -262,7 +262,18 @@ const getLangClientMethods = (langClient: ExtendedLangClient): WebViewMethod[] =
                 return result;
             });
         }
-    }
+    }, {
+        methodName: 'getSymbolDocumentation',
+        handler: (args: any[]) => {
+            const start = new Date().getTime();
+            return langClient.onReady().then(() => {
+                return langClient.getSymbolDocumentation(args[0]).then(result => {
+                    consoleLog(start, 'getSymbolDocumentation');
+                    return Promise.resolve(result);
+                });
+            });
+        }
+    },
     ];
 };
 

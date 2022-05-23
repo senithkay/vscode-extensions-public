@@ -22,7 +22,7 @@ import { getCommonWebViewOptions, WebViewMethod, WebViewRPCHandler } from '../ut
 import { render } from './renderer';
 import { existsSync, mkdirSync, openSync, readFileSync, writeFile } from "fs";
 import { BAL_TOML, CONFIG_FILE, PALETTE_COMMANDS } from "../project";
-import { BallerinaExtension, BallerinaProject, ExtendedLangClient } from "../core";
+import { BallerinaExtension, BallerinaProject, ExtendedLangClient, PackageConfigSchemaResponse } from "../core";
 import { generateExistingValues, parseConfigToToml, parseTomlToConfig } from "./utils";
 import { getCurrentBallerinaProject } from "../utils/project-utils";
 import path from "path";
@@ -68,8 +68,9 @@ export async function openConfigEditor(ballerinaExtInstance: BallerinaExtension,
         documentIdentifier: {
             uri: Uri.file(filePath).toString()
         }
-    }).then(data => {
-        if (data.configSchema == null) {
+    }).then(response => {
+        const data = response as PackageConfigSchemaResponse
+        if (data.configSchema === undefined || data.configSchema === null) {
             window.showErrorMessage('Unable to render the configurable editor: Error while '
                 + 'retrieving the configurable schema.');
             return Promise.reject();
