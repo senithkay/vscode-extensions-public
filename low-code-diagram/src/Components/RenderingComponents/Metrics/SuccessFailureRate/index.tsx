@@ -29,13 +29,13 @@ export function SuccessFailureC(props: SuccessTextProps) {
     if (failureRate > successRate){
         return (
             <g>
-                <ErrorSVG x={x} y={y} text={failureRate + "% Failure"}/>
+                <ErrorSVG x={x} y={y} failureRate={failureRate}/>
             </g>
         );
     }else{
         return (
             <g>
-                <SuccessSVG x={x} y={y} text={successRate + "% Success "} bgColor1 = {successRate < 70 ? '#FFCC8C' : '#53c08a'} bgColor2 = {successRate < 70 ? '#FF9D52' : '#2fa86c'}/>
+                <SuccessSVG x={x} y={y} successRate={successRate} />
             </g>
         );
     }
