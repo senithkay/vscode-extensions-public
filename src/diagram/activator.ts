@@ -713,10 +713,8 @@ export async function renderFirstDiagramElement(client: ExtendedLangClient) {
 			projectResponse = await client.getBallerinaProjectComponents({ documentIdentifiers });
 			if (projectResponse === NOT_SUPPORTED) {
 				await new Promise(resolve => setTimeout(resolve, 300));
-			} else {
-				break;
 			}
-		} while (i++ < 5)
+		} while (i++ < 5 && projectResponse === NOT_SUPPORTED);
 
 		const response = projectResponse as BallerinaProjectComponents;
 		if (!response.packages || response.packages.length == 0 || !response.packages[0].modules) {
