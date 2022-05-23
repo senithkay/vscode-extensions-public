@@ -17,7 +17,7 @@
  *
  */
 
-import { GraphPoint, Range } from "../core";
+import { GraphPoint, PerformanceAnalyzerGraphResponse, PerformanceAnalyzerResponse, Range } from "../core";
 import { CODELENSE_TYPE } from "./codelens-provider";
 
 export enum ANALYZETYPE {
@@ -96,20 +96,15 @@ export class DataLabel {
     private concurrency: Values;
     private latency: Values;
     private tps: Values;
-    private resourceName: String;
-    private resourcePos: Range;
     private data: any;
 
-    constructor(type: CODELENSE_TYPE, file: String, range: Range, concurrency: Values, latency: Values, tps: Values,
-        resourceName: String, resourcePos: Range, data: any) {
+    constructor(type: CODELENSE_TYPE, file: String, range: Range, concurrency: Values, latency: Values, tps: Values, data: any) {
         this.type = type;
         this.file = file;
         this.range = range;
         this.concurrency = concurrency;
         this.latency = latency;
         this.tps = tps;
-        this.resourceName = resourceName;
-        this.resourcePos = resourcePos;
         this.data = data;
     }
 
@@ -137,16 +132,14 @@ export class DataLabel {
         return this.tps;
     }
 
-    public get getResourceName(): String {
-        return this.resourceName;
-    }
-
-    public get getResourcePos(): Range {
-        return this.resourcePos;
-    }
-
     public get getData(): any {
         return this.data;
     }
 
+}
+
+export interface PerfContext {
+    resourceData: PerformanceAnalyzerResponse | undefined;
+    advancedData: PerformanceAnalyzerGraphResponse | undefined;
+    file: string | undefined;
 }
