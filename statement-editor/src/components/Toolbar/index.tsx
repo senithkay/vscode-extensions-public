@@ -155,7 +155,7 @@ export default function Toolbar(props: ToolbarProps) {
             <div className={statementEditorClasses.toolbarSet}>
                 <IconButton
                     onClick={undo}
-                    disabled={!hasUndo || hasSyntaxDiagnostics}
+                    disabled={!hasUndo}
                     className={statementEditorClasses.toolbarIcons}
                 >
                     <ToolbarUndoIcon />
@@ -163,7 +163,7 @@ export default function Toolbar(props: ToolbarProps) {
                 <div className={statementEditorClasses.undoRedoSeparator} />
                 <IconButton
                     onClick={redo}
-                    disabled={!hasRedo || hasSyntaxDiagnostics}
+                    disabled={!hasRedo}
                     className={statementEditorClasses.toolbarIcons}
                 >
                     <ToolbarRedoIcon />

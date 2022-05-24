@@ -129,6 +129,7 @@ export function StatementEditor(props: StatementEditorProps) {
             setCurrentModel({model: newCurrentModel});
             await handleDocumentation(newCurrentModel);
         }
+        setHasSyntaxDiagnostics(false);
     };
 
     const redo = async () => {
@@ -144,6 +145,7 @@ export function StatementEditor(props: StatementEditorProps) {
             setCurrentModel({model: newCurrentModel});
             await handleDocumentation(newCurrentModel);
         }
+        setHasSyntaxDiagnostics(false);
     };
 
     useEffect(() => {
