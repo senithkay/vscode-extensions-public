@@ -66,7 +66,7 @@ export class BallerinaNotebookController {
         workspace.onDidChangeNotebookDocument(listner => {
             listner.contentChanges.forEach((change: NotebookDocumentContentChange) => {
                 change.removedCells.forEach( async (cell: NotebookCell) => {
-                    let failedVars = await this.deleteMetaInfoFromMemory(cell);
+                    let failedVars = await this.deleteMetaInfoFromMemoryForCell(cell);
                     failedVars.length && window.showInformationMessage(
                         `${failedVars.join(", ")} is/are not removed from memory since it/they have referred in other cells`
                     );
@@ -118,7 +118,7 @@ export class BallerinaNotebookController {
         // But if the cell contained executed code with definitions
         // remove them from the shell invokermemory
         if (!cellContent && !!langClient) {
-            let failedVars = await this.deleteMetaInfoFromMemory(cell);
+            let failedVars = await this.deleteMetaInfoFromMemoryForCell(cell);
             failedVars.length && appendTextToOutput(
                 `${failedVars.join(", ")} is/are not removed from memory since it/they have referred in other cells`
             );
@@ -188,12 +188,18 @@ export class BallerinaNotebookController {
             errors.forEach(appendTextToOutput);
             diagnostics.forEach(appendTextToOutput);
 
+            // Collect and store if there is any declarations cell meta data
+            if (output.metaInfo) {
+                let removedDefs = this.metaInfoHandler.handleNewMetaInfo(cell, output.metaInfo);
+                let failedVars = await this.deleteMetaInfoFromMemory(removedDefs);
+                failedVars.length && appendTextToOutput(
+                    `${failedVars.join(", ")} is/are not removed from memory since it/they have referred in other cells`
+                );
+            }
+
             // end execution with succes or fail
             // success if there are no diagnostics and errors
             execution.end(!(output.diagnostics.length) && !(output.errors.length), Date.now());
-
-            // Collect and store if there is any declarations cell meta data
-            output.metaInfo && this.metaInfoHandler.handleNewMetaInfo(cell, output.metaInfo);
         } catch (error) {
             if (error instanceof Error) {
                 sendTelemetryException(this.ballerinaExtension, error, CMP_NOTEBOOK);
@@ -221,13 +227,23 @@ export class BallerinaNotebookController {
      * @param cell Notebook cell which needs to remove definitions from memory
      * @returns List of definitions failed to remove from memory
      */
-    private async deleteMetaInfoFromMemory(cell: NotebookCell): Promise<string[]> {
+    private async deleteMetaInfoFromMemoryForCell(cell: NotebookCell): Promise<string[]> {
+        let varsToDelete = this.metaInfoHandler.getMetaForCell(cell);
+        return await this.deleteMetaInfoFromMemory(varsToDelete);
+    }
+
+    /**
+     * Removes given definitions from memory
+     * 
+     * @param varsToDelete definitions which need to remove from memory
+     * @returns List of definitions failed to remove from memory
+     */
+    private async deleteMetaInfoFromMemory(varsToDelete: string[]): Promise<string[]> {
         let langClient: ExtendedLangClient = <ExtendedLangClient>this.ballerinaExtension.langClient;
         if (!langClient) {
             return [];
         }
         let failedVars: string[] = [];
-        let varsToDelete = this.metaInfoHandler.getMetaForCell(cell);
         for (const varToDelete of varsToDelete) {
             if (!(await langClient.deleteDeclarations({varToDelete: varToDelete}))) {
                 failedVars.push(varToDelete);
@@ -237,7 +253,6 @@ export class BallerinaNotebookController {
         }
         return failedVars;
     }
-
     /**
      * Brings controller to initial state by
      *  - resetting execution counter
@@ -340,12 +355,18 @@ class MetoInfoHandler {
      * 
      * @param cell Notebook cell
      * @param metaInfo New info on the cell
+     * @returns 
      */
-    handleNewMetaInfo(cell: NotebookCell, metaInfo: NotebookCellMetaInfo) {
+    handleNewMetaInfo(cell: NotebookCell, metaInfo: NotebookCellMetaInfo): string[] {
         let found = false;
+        let removedDefs: string[] = [];
         for (const cellInfo of this.cellInfoList) {
             if (cellInfo.cell.document.uri === cell.document.uri) {
                 found = true;
+                // find defs previously associated with this cell due to an previous
+                // execution and not available after the new execution
+                removedDefs.push(...cellInfo.definedVars.filter(x => !metaInfo.definedVars.includes(x)));
+                removedDefs.push(...cellInfo.moduleDclns.filter(x => !metaInfo.moduleDclns.includes(x)));
                 cellInfo.definedVars = metaInfo.definedVars;
                 cellInfo.moduleDclns = metaInfo.moduleDclns;
                 break;
@@ -361,7 +382,7 @@ class MetoInfoHandler {
         // update varToCellMap
         metaInfo.definedVars.forEach((key: string) => this.varToCellMap.set(key, cell));
         metaInfo.moduleDclns.forEach((key: string) => this.varToCellMap.set(key, cell));
-        
+        return removedDefs.filter((key: string) => this.varToCellMap.get(key)?.document.uri === cell.document.uri);
     }
 
     clearVarFromMap(varToDelete: string) {
