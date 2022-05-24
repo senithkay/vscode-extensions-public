@@ -48,16 +48,18 @@ describe('Test statement editor toolbar functionality', () => {
         EditorPane
             .getStatementRenderer()
             .getExpression("TypedBindingPattern")
-            .clickExpressionContent('var')
+            .doubleClickExpressionContent('var')
 
-        SuggestionsPane
-            .clickSuggestionsTab("Suggestions")
-            .clickLsSuggestion('int')
+        InputEditor
+            .typeInput("int")
 
         EditorPane
             .validateNewExpression("TypedBindingPattern","int")
+            .getExpression("TypedBindingPattern")
+            .clickExpressionContent('int')
 
         SuggestionsPane
+            .clickSuggestionsTab("Suggestions")
             .clickLsSuggestion('float')
 
         EditorPane
