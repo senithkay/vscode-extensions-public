@@ -58,6 +58,7 @@ export function AddForeachForm(props: ForeachProps) {
             isMutationProgress: isMutationInProgress,
             stSymbolInfo,
             currentFile,
+            syntaxTree,
             importStatements,
             experimentalEnabled
         },
@@ -187,6 +188,11 @@ export function AddForeachForm(props: ForeachProps) {
         defaultMessage: "Save"
     });
 
+    const formTitle = intl.formatMessage({
+        id: "lowcode.develop.configForms.foreach.title",
+        defaultMessage: "Foreach"
+    });
+
     const currentValueVariableLabel = intl.formatMessage({
         id: "lowcode.develop.configForms.forEach.currentValueVariable.label",
         defaultMessage: "Current Value Variable"
@@ -250,10 +256,9 @@ export function AddForeachForm(props: ForeachProps) {
 
     const { handleStmtEditorToggle, stmtEditorComponent } = useStatementEditor(
         {
-            label: intl.formatMessage({ id: "lowcode.develop.configForms.forEach.statementEditor.label" }),
+            label: formTitle,
             initialSource,
             formArgs: { formArgs },
-            validForm: isValidExpression,
             config: condition,
             onWizardClose,
             handleStatementEditorChange,
@@ -262,6 +267,8 @@ export function AddForeachForm(props: ForeachProps) {
             getLangClient: getExpressionEditorLangClient,
             applyModifications: modifyDiagram,
             library,
+            syntaxTree,
+            stSymbolInfo,
             importStatements,
             experimentalEnabled
         }
@@ -294,12 +301,8 @@ export function AddForeachForm(props: ForeachProps) {
             <FormControl data-testid="foreach-form" className={classes.wizardFormControlExtended}>
                 <FormHeaderSection
                     onCancel={onCancel}
-                    statementEditor={true}
-                    formTitle={"lowcode.develop.configForms.foreach.title"}
+                    formTitle={formTitle}
                     defaultMessage={"Foreach"}
-                    handleStmtEditorToggle={handleStmtEditorToggle}
-                    toggleChecked={false}
-                    experimentalEnabled={experimentalEnabled}
                 />
                 <div className={classes.formContentWrapper}>
                     <div className={classes.formCodeBlockWrapper}>
@@ -346,6 +349,10 @@ export function AddForeachForm(props: ForeachProps) {
                     saveBtnText={saveForEachButtonLabel}
                     isMutationInProgress={isMutationInProgress}
                     validForm={isValidExpression && expressionValue.length > 0}
+                    statementEditor={true}
+                    toggleChecked={false}
+                    experimentalEnabled={experimentalEnabled}
+                    handleStmtEditorToggle={handleStmtEditorToggle}
                     onSave={handleSave}
                     onCancel={onCancel}
                 />

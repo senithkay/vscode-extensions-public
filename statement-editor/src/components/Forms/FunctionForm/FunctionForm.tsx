@@ -34,14 +34,17 @@ import {
     DefaultableParam,
     FunctionDefinition,
     IncludedRecordParam,
-    NodePosition, RequiredParam, RestParam,
-    STKindChecker, STNode
+    NodePosition,
+    RequiredParam,
+    RestParam,
+    STKindChecker,
+    STNode
 } from "@wso2-enterprise/syntax-tree";
 import debounce from "lodash.debounce";
 
 import { StmtDiagnostic } from "../../../models/definitions";
 import { getUpdatedSource } from "../../../utils";
-import { getPartialSTForTopLevelComponents } from "../../../utils/ls-utils";
+import { getPartialSTForModuleMembers } from "../../../utils/ls-utils";
 import { FormEditorField } from "../Types";
 import { recalculateItemIds } from "../Utils/FormUtils";
 
@@ -93,7 +96,7 @@ export function FunctionForm(props: FunctionProps) {
         const updatedContent = await getUpdatedSource(codeSnippet, model?.source, {
             ...model?.functionSignature?.position, startColumn : model?.functionName?.position?.startColumn
         }, undefined, true);
-        const partialST = await getPartialSTForTopLevelComponents(
+        const partialST = await getPartialSTForModuleMembers(
             {codeSnippet: updatedContent.trim()}, getLangClient
         );
         if (!partialST.syntaxDiagnostics.length) {
@@ -113,7 +116,7 @@ export function FunctionForm(props: FunctionProps) {
         const parametersStr = parameters.map((item) => `${item.type.value} ${item.name.value}`).join(",");
         await functionParamChange(value, parametersStr, returnType.value);
     }
-    const debouncedNameChange = debounce(onNameChange, 500);
+    const debouncedNameChange = debounce(onNameChange, 1000);
 
     // Return type related functions
     const onReturnTypeChange = async (value: string) => {
@@ -125,7 +128,7 @@ export function FunctionForm(props: FunctionProps) {
     const onReturnFocus = (value: string) => {
         setCurrentComponentName("Return");
     }
-    const debouncedReturnChange = debounce(onReturnTypeChange, 500);
+    const debouncedReturnChange = debounce(onReturnTypeChange, 1000);
 
     // Param related functions
     const openNewParamView = () => {

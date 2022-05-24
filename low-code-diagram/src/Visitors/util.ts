@@ -1,4 +1,4 @@
-import { RemoteMethodCallAction, STNode, traversNode, VisibleEndpoint } from "@wso2-enterprise/syntax-tree";
+import { RemoteMethodCallAction, STKindChecker, STNode, traversNode, VisibleEndpoint } from "@wso2-enterprise/syntax-tree";
 
 import { CLIENT_SVG_HEIGHT, CLIENT_SVG_WIDTH } from "../Components/RenderingComponents/Connector/ConnectorHeader/ConnectorClientSVG";
 import { CONNECTOR_PROCESS_SVG_HEIGHT } from "../Components/RenderingComponents/Connector/ConnectorProcess/ConnectorProcessSVG";
@@ -16,6 +16,24 @@ export function isSTActionInvocation(node: STNode): RemoteMethodCallAction {
     const actionFinder: ActionInvocationFinder = new ActionInvocationFinder();
     traversNode(node, actionFinder);
     return actionFinder.getIsAction();
+}
+
+export function isEndpointNode(node: STNode): boolean {
+    if (node?.typeData?.isEndpoint) {
+        return true;
+    }
+    // Check union type endpoints
+    if (node && (STKindChecker.isLocalVarDecl(node) || STKindChecker.isModuleVarDecl(node))
+        && node.typedBindingPattern?.typeDescriptor && STKindChecker.isUnionTypeDesc(node.typedBindingPattern.typeDescriptor)) {
+        const unionNode = node.typedBindingPattern.typeDescriptor;
+        if (isEndpointNode(unionNode.leftTypeDesc)) {
+            return true;
+        }
+        if (isEndpointNode(unionNode.rightTypeDesc)) {
+            return true;
+        }
+    }
+    return false;
 }
 
 export function haveBlockStatement(node: STNode): boolean {

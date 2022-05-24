@@ -11,28 +11,33 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React from 'react';
+import React, { useEffect } from 'react';
 
 import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
 
-import { useStatementEditorStyles } from "../styles";
+import { useStmtEditorHelperPanelStyles } from "../styles";
 
 interface TabPanelProps {
     values: string[]
     defaultValue: string
     onSelection: (value: string) => void
+    selectedTab: string
 }
 
 export default function TabPanel(props: TabPanelProps) {
-    const statementEditorClasses = useStatementEditorStyles();
-    const { values, defaultValue, onSelection } = props;
+    const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
+    const { values, defaultValue, onSelection, selectedTab } = props;
     const [value, setValue] = React.useState(defaultValue);
 
     const handleChange = (event: React.ChangeEvent<{}>, newValue: string) => {
         setValue(newValue);
         onSelection(newValue);
     };
+
+    useEffect(() => {
+        setValue(selectedTab);
+    }, [selectedTab])
 
     const tabs: React.ReactNode[] = [];
     if (values) {
@@ -47,7 +52,7 @@ export default function TabPanel(props: TabPanelProps) {
         <Tabs
             value={value}
             onChange={handleChange}
-            className={statementEditorClasses.tabsPanelSe}
+            className={stmtEditorHelperClasses.tabsPanelSe}
         >
             {tabs}
         </Tabs>

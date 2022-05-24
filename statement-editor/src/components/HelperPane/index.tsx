@@ -11,12 +11,14 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { ALL_LIBS_IDENTIFIER, LANG_LIBS_IDENTIFIER, STD_LIBS_IDENTIFIER } from "../../constants";
+import { KeyboardNavigationManager } from "../../utils/keyboard-navigation-manager";
 import SelectDropdown from "../Dropdown";
 import { LibraryBrowser } from "../LibraryBrowser";
-import { useStatementEditorStyles } from "../styles";
+import { ParameterSuggestions } from "../Parameters/ParameterSuggestions";
+import { useStatementEditorStyles, useStmtEditorHelperPanelStyles  } from "../styles";
 import { ExpressionSuggestions } from "../Suggestions/ExpressionSuggestions";
 import { LSSuggestions } from "../Suggestions/LangServerSuggestions";
 import TabPanel from "../Tab";
@@ -25,11 +27,18 @@ enum TabElements {
     suggestions = 'Suggestions',
     expressions = 'Expressions',
     libraries = 'Libraries',
+    parameters = 'Parameters'
 }
 
-export function HelperPane() {
-    const statementEditorClasses = useStatementEditorStyles();
+export interface HelperPaneProps{
+    docExpandClicked : boolean
+    paramTabHandler : (isEnabled : boolean) => void
+}
 
+export function HelperPane(props: HelperPaneProps) {
+    const { docExpandClicked, paramTabHandler } = props;
+    const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
+    const statementEditorClasses = useStatementEditorStyles();
     const [selectedTab, setSelectedTab] = useState(TabElements.suggestions);
     const [libraryType, setLibraryType] = useState('');
 
@@ -41,30 +50,60 @@ export function HelperPane() {
         setLibraryType(value);
     };
 
+    const keyboardNavigationManager = new KeyboardNavigationManager();
+
+    React.useEffect(() => {
+
+        const client = keyboardNavigationManager.getClient()
+
+        keyboardNavigationManager.bindNewKey(client, ['ctrl+shift+s', 'command+shift+s'], setSelectedTab, TabElements.suggestions)
+        keyboardNavigationManager.bindNewKey(client, ['ctrl+shift+e', 'command+shift+e'], setSelectedTab, TabElements.expressions)
+        keyboardNavigationManager.bindNewKey(client, ['ctrl+shift+l', 'command+shift+l'], setSelectedTab, TabElements.libraries)
+        keyboardNavigationManager.bindNewKey(client, ['ctrl+shift+d', 'command+shift+d'], setSelectedTab, TabElements.parameters)
+
+        return () => {
+            keyboardNavigationManager.resetMouseTrapInstance(client);
+        }
+    }, []);
+
+    useEffect(() => {
+        if (docExpandClicked){
+            setSelectedTab(TabElements.parameters);
+        }
+    }, [docExpandClicked])
+
+    useEffect(() => {
+        selectedTab === TabElements.parameters ? paramTabHandler(true) : paramTabHandler(false);
+    }, [selectedTab])
+
     return (
         <>
-            <div className={statementEditorClasses.tabPanelWrapper}>
-                <div className={statementEditorClasses.tabPanel}>
+            <div className={statementEditorClasses.stmtEditorInnerWrapper}>
+                <div className={stmtEditorHelperClasses.tabPanelWrapper}>
+
                     <TabPanel
-                        values={[TabElements.suggestions, TabElements.expressions, TabElements.libraries]}
+                        values={[TabElements.suggestions, TabElements.expressions, TabElements.libraries, TabElements.parameters]}
                         defaultValue={TabElements.suggestions}
                         onSelection={onTabElementSelection}
+                        selectedTab={selectedTab}
                     />
+                    <div className={stmtEditorHelperClasses.libraryTypeSelector}>
+                        {selectedTab === TabElements.libraries && (
+                            <SelectDropdown
+                                values={[ALL_LIBS_IDENTIFIER, LANG_LIBS_IDENTIFIER, STD_LIBS_IDENTIFIER]}
+                                defaultValue={ALL_LIBS_IDENTIFIER}
+                                onSelection={onLibTypeSelection}
+                            />
+                        )}
+                    </div>
                 </div>
-                <div className={statementEditorClasses.libraryTypeSelector}>
-                    {selectedTab === TabElements.libraries && (
-                        <SelectDropdown
-                            values={[ALL_LIBS_IDENTIFIER, LANG_LIBS_IDENTIFIER, STD_LIBS_IDENTIFIER]}
-                            defaultValue={ALL_LIBS_IDENTIFIER}
-                            onSelection={onLibTypeSelection}
-                        />
-                    )}
-                </div>
+                <div className={statementEditorClasses.separatorLine} />
             </div>
-            <div className={statementEditorClasses.suggestionsInner}>
+            <div className={stmtEditorHelperClasses.suggestionsInner}>
                 {selectedTab === TabElements.suggestions && <LSSuggestions />}
                 {selectedTab === TabElements.expressions && <ExpressionSuggestions />}
                 {selectedTab === TabElements.libraries && <LibraryBrowser libraryType={libraryType} />}
+                {selectedTab === TabElements.parameters && <ParameterSuggestions />}
             </div>
         </>
     );

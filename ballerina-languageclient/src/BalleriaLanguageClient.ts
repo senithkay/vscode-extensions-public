@@ -9,10 +9,48 @@ import { BLCTracer } from "./BLCTracer";
 import { BLCLogger } from "./BLCLogger";
 import { initializeRequest, didOpenTextDocumentParams } from "./messages"
 import {
-    ASTDidChangeParams, ASTDidChangeResponse, BallerinaConnectorRequest, BallerinaConnectorResponse, BallerinaConnectorsRequest, BallerinaConnectorsResponse, BallerinaExampleListParams,
-    BallerinaExampleListResponse, BallerinaProject, BallerinaProjectParams, BallerinaRecordRequest, BallerinaRecordResponse, BallerinaSTModifyRequest, BallerinaSTModifyResponse, BallerinaTriggerRequest, BallerinaTriggerResponse, BallerinaTriggersRequest, BallerinaTriggersResponse, CompletionParams, CompletionResponse, ExecutorPositionsResponse, ExpressionTypeRequest, ExpressionTypeResponse, EXTENDED_APIS, GetASTParams, GetASTResponse,
-    GetBallerinaProjectParams, GetProjectASTParams, GetProjectASTResponse, GetSyntaxTreeParams,
-    GetSyntaxTreeResponse, GoToSourceParams, IBallerinaLangClient, JsonToRecordRequest, JsonToRecordResponse, PartialSTRequest, PartialSTResponse, PerformanceAnalyzerRequest, PerformanceAnalyzerResponse, RevealRangeParams, TriggerModifyRequest
+    ASTDidChangeParams,
+    ASTDidChangeResponse,
+    BallerinaConnectorRequest,
+    BallerinaConnectorResponse,
+    BallerinaConnectorsRequest,
+    BallerinaConnectorsResponse,
+    BallerinaExampleListParams,
+    BallerinaExampleListResponse,
+    BallerinaProject,
+    BallerinaProjectParams,
+    BallerinaRecordRequest,
+    BallerinaRecordResponse,
+    BallerinaSTModifyRequest,
+    BallerinaSTModifyResponse,
+    BallerinaTriggerRequest,
+    BallerinaTriggerResponse,
+    BallerinaTriggersRequest,
+    BallerinaTriggersResponse,
+    CompletionParams,
+    CompletionResponse,
+    ExecutorPositionsResponse,
+    ExpressionTypeRequest,
+    ExpressionTypeResponse,
+    EXTENDED_APIS,
+    GetASTParams,
+    GetASTResponse,
+    GetBallerinaProjectParams,
+    GetProjectASTParams,
+    GetProjectASTResponse,
+    GetSyntaxTreeParams,
+    GetSyntaxTreeResponse,
+    GoToSourceParams,
+    IBallerinaLangClient,
+    JsonToRecordRequest,
+    JsonToRecordResponse,
+    PartialSTRequest,
+    PartialSTResponse,
+    PerformanceAnalyzerRequest,
+    PerformanceAnalyzerResponse,
+    RevealRangeParams,
+    SymbolInfoRequest, SymbolInfoResponse,
+    TriggerModifyRequest
 } from './IBallerinaLanguageClient'
 import { BallerinaASTNode, BallerinaEndpoint, BallerinaSourceFragment } from "./ast-models";
 import { LSConnection } from "./LSConnection";
@@ -214,6 +252,10 @@ export class BalleriaLanguageClient implements IBallerinaLangClient {
 
     public convert(params: JsonToRecordRequest): Thenable<JsonToRecordResponse> {
         return this._clientConnection.sendRequest(EXTENDED_APIS.JSON_TO_RECORD_CONVERT, params);
+    }
+
+    public getSymbolDocumentation(params: SymbolInfoRequest): Thenable<SymbolInfoResponse> {
+        return this._clientConnection.sendRequest(EXTENDED_APIS.SYMBOL_DOC, params);
     }
 
 }
