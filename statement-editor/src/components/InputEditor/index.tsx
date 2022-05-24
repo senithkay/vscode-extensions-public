@@ -95,6 +95,12 @@ export function InputEditor(props: InputEditorProps) {
         }
     }, [userInput]);
 
+    useEffect(() => {
+        if (hasSyntaxDiagnostics) {
+            setIsEditing(false);
+        }
+    }, [hasSyntaxDiagnostics]);
+
     const inputEnterHandler = (event: React.KeyboardEvent<HTMLInputElement>) => {
         if (event.key === "Enter" || event.key === "Tab") {
             handleEditEnd();
