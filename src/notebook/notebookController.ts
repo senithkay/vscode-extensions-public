@@ -19,7 +19,7 @@
 
 import { spawn } from 'child_process';
 import { NotebookCell, NotebookCellOutput, NotebookCellOutputItem, NotebookController, 
-    NotebookDocument, notebooks } from 'vscode';
+    NotebookDocument, NotebookDocumentContentChange, notebooks, window, workspace } from 'vscode';
 import { BallerinaExtension, ExtendedLangClient, NotebookCellMetaInfo, NoteBookCellOutputResponse } from '../core';
 import { CUSTOM_DESIGNED_MIME_TYPES, NOTEBOOK_TYPE } from './constants';
 import { VariableViewProvider } from './variableView';
@@ -61,6 +61,20 @@ export class BallerinaNotebookController {
         this.controller.supportedLanguages = this.supportedLanguages;
         this.controller.supportsExecutionOrder = true;
         this.controller.executeHandler = this.execute.bind(this);
+
+        // handle deletetions of cells
+        workspace.onDidChangeNotebookDocument(listner => {
+            listner.contentChanges.forEach((change: NotebookDocumentContentChange) => {
+                change.removedCells.forEach( async (cell: NotebookCell) => {
+                    let failedVars = await this.deleteMetaInfoFromMemory(cell);
+                    failedVars.length && window.showInformationMessage(
+                        `${failedVars.join(", ")} is/are not removed from memory since it/they have referred in other cells`
+                    );
+                    this.updateVariableView();
+                });
+            });
+            
+        });
     }
 
     /**
@@ -105,9 +119,11 @@ export class BallerinaNotebookController {
         // But if the cell contained executed code with definitions
         // remove them from the shell invokermemory
         if (!cellContent && !!langClient) {
-            let deleteSuccess = await langClient.deleteDeclarations(this.metaInfoHandler.getMetaForCell(cell));
-            deleteSuccess && this.metaInfoHandler.clearInfoForCell(cell);
-            execution.end(deleteSuccess, Date.now());
+            let failedVars = await this.deleteMetaInfoFromMemory(cell);
+            failedVars.length && appendTextToOutput(
+                `${failedVars.join(", ")} is/are not removed from memory since it/they have referred in other cells`
+            );
+            execution.end(!failedVars.length, Date.now());
             return;
         }
 
@@ -167,8 +183,11 @@ export class BallerinaNotebookController {
             }
 
             // finally errors and diagnostics
-            output.errors.length && output.errors.forEach(appendTextToOutput);
-            output.diagnostics.length && output.diagnostics.forEach(appendTextToOutput);
+            // remove duplicates
+            const errors = new Set(output.errors);
+            const diagnostics = new Set(output.diagnostics);
+            errors.forEach(appendTextToOutput);
+            diagnostics.forEach(appendTextToOutput);
 
             // end execution with succes or fail
             // success if there are no diagnostics and errors
@@ -198,6 +217,31 @@ export class BallerinaNotebookController {
     }
 
     /**
+     * Removes meta info from memory for a given cell
+     * 
+     * @param cell Notebook cell which needs to remove definitions from memory
+     * @returns List of definitions failed to remove from memory
+     */
+    private async deleteMetaInfoFromMemory(cell: NotebookCell): Promise<string[]> {
+        let langClient: ExtendedLangClient = <ExtendedLangClient>this.ballerinaExtension.langClient;
+        if (!langClient) {
+            return [];
+        }
+        let failedVars: string[] = [];
+        let varsToDelete = this.metaInfoHandler.getMetaForCell(cell);
+        for (const varToDelete of varsToDelete) {
+            if (!(await langClient.deleteDeclarations({varToDelete: varToDelete}))) {
+                failedVars.push(varToDelete);
+                console.log(varToDelete);
+                
+            } else {
+                this.metaInfoHandler.clearVarFromMap(varToDelete);
+            }
+        }
+        return failedVars;
+    }
+
+    /**
      * Brings controller to initial state by
      *  - resetting execution counter
      *  - updating variale view
@@ -223,12 +267,26 @@ interface CellInfo {
 /**
  * Stores and handles info on variable declarations and module declarations for
  * executed cells
+ * 
+ * **Notes:**
+ * - After each execution new variables and module declarations defined by cell
+ *   are added to cellInfoList.
+ * - varToCellMap will hold the last successfully executed cell for each variable 
+ *   and module declaration
+ * - On an event of empty cell invocation or cell delete variables and module dclns
+ *   need to be deleted will be identified by ensuring that each associated meto info 
+ *   for the cell are mapped to the cell in varToCellMap. If not matched those values 
+ *   have defined and executed in another cell after the execution of this cell.
  */
 class MetoInfoHandler {
     private cellInfoList: CellInfo[];
+    // NotebookCell instead of uri to address changes in notebook cell order
+    // (which affects uri) due to add, delete, join, and split.
+    private varToCellMap: Map<string, NotebookCell>;
 
     constructor() {
         this.cellInfoList = [];
+        this.varToCellMap = new Map<string,NotebookCell>();
     }
 
     /**
@@ -238,19 +296,30 @@ class MetoInfoHandler {
      * @param cell Notebook cell
      * @returns Variable declarations and module declarations for the cell
      */
-    getMetaForCell(cell: NotebookCell): NotebookCellMetaInfo {
-        let definedVarsForCell: string[] = [];
-        let moduleDclnsForCell: string[] = [];
+    getMetaForCell(cell: NotebookCell): string[] {
+        let definedForCell: string[] = [];
+        let varsToDelete: string[] = [];
+
+        // finding the defined values for cell
+        // this can include values that are redefined and excuted in another cell
         for (const cellInfo of this.cellInfoList) {
             if (cellInfo.cell.document.uri === cell.document.uri) {
-                definedVarsForCell = cellInfo.definedVars;
-                moduleDclnsForCell = cellInfo.moduleDclns;
+                definedForCell.push(...cellInfo.definedVars);
+                definedForCell.push(...cellInfo.moduleDclns);
+                break;
             }
         }
-        return {
-            definedVars: definedVarsForCell,
-            moduleDclns: moduleDclnsForCell
-        }
+
+        // check with variable to cell map
+        // if the cell mapped to variable is not the same cell then that variable decln
+        // has defined in another place and executed after this cell
+        definedForCell.forEach((key: string) => {
+            if (this.varToCellMap.get(key)?.document.uri === cell.document.uri){
+                varsToDelete.push(key);
+            }
+        });
+        
+        return varsToDelete;
     }
 
     /**
@@ -272,8 +341,6 @@ class MetoInfoHandler {
      * if the given cell is already in the cellinfoList, this will update info for thet cell
      * otherwise create a new entry with the info
      * 
-     * TODO: handle cell delete, split and join
-     * 
      * @param cell Notebook cell
      * @param metaInfo New info on the cell
      */
@@ -282,28 +349,33 @@ class MetoInfoHandler {
         for (const cellInfo of this.cellInfoList) {
             if (cellInfo.cell.document.uri === cell.document.uri) {
                 found = true;
-                // TODO: handle on changes of meta info
-                // Example: if the new meta info includes only part of previous meta info
-                // then those missing meta info must be deleted from invoker memory if they are
-                // not defined in another cell
-                // this approach should fix splitting of cells but it requires the execution of cells
                 cellInfo.definedVars = metaInfo.definedVars;
                 cellInfo.moduleDclns = metaInfo.moduleDclns;
+                break;
             }
         }
         if (!found) {
             this.cellInfoList.push({
                 cell: cell,
                 definedVars: metaInfo.definedVars,
-                moduleDclns: metaInfo.moduleDclns
+                moduleDclns: metaInfo.moduleDclns,
             })
         }
+        // update varToCellMap
+        metaInfo.definedVars.forEach((key: string) => this.varToCellMap.set(key, cell));
+        metaInfo.moduleDclns.forEach((key: string) => this.varToCellMap.set(key, cell));
+        
+    }
+
+    clearVarFromMap(varToDelete: string) {
+        this.varToCellMap.delete(varToDelete);
     }
 
     /**
-     * Clears out cell info list
+     * Clears out cell info list and map
      */
     reset() {
         this.cellInfoList = [];
+        this.varToCellMap = new Map<string, NotebookCell>();
     }
 }

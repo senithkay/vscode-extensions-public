@@ -181,6 +181,10 @@ export interface NotebookFileSourceResponse{
     filePath: string;
 }
 
+export interface NotebookDeleteDclnRequest {
+    varToDelete: string;
+}
+
 interface BallerinaInitializeParams {
     ballerinaClientCapabilities: BallerinaClientCapability[];
 }
@@ -634,7 +638,7 @@ export class ExtendedLangClient extends LanguageClient {
         return this.sendRequest(EXTENDED_APIS.NOTEBOOK_VARIABLES);
     }
 
-    deleteDeclarations(params: NotebookCellMetaInfo): Thenable<boolean> {
+    deleteDeclarations(params: NotebookDeleteDclnRequest): Thenable<boolean> {
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.NOTEBOOK_DELETE_DCLNS)) {
             Promise.resolve(NOT_SUPPORTED);
         }
