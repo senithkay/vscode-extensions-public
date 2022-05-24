@@ -397,7 +397,8 @@ export class ExtendedLangClient extends LanguageClient {
                 name: ""
             }]);
         }
-        const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.PERF_ANALYZER_RESOURCES_ENDPOINTS);
+        // const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.PERF_ANALYZER_RESOURCES_ENDPOINTS);
+        const isSupported = true;
         return isSupported ? this.sendRequest(EXTENDED_APIS.PERF_ANALYZER_RESOURCES_ENDPOINTS, params) :
             Promise.resolve(NOT_SUPPORTED);
     }
@@ -440,7 +441,8 @@ export class ExtendedLangClient extends LanguageClient {
         return this.sendRequest<BallerinaConnectorsResponse>(EXTENDED_APIS.CONNECTOR_CONNECTORS, params);
     }
     async getTriggers(params: BallerinaTriggersRequest): Promise<BallerinaTriggersResponse | NOT_SUPPORTED_TYPE> {
-        const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.TRIGGER_TRIGGERS);
+        // const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.TRIGGER_TRIGGERS);
+        const isSupported = true;
         return isSupported ? this.sendRequest<BallerinaTriggersResponse>(EXTENDED_APIS.TRIGGER_TRIGGERS, params) :
             Promise.resolve(NOT_SUPPORTED);
     }
@@ -450,7 +452,8 @@ export class ExtendedLangClient extends LanguageClient {
             Promise.resolve(NOT_SUPPORTED);
     }
     async getTrigger(params: BallerinaTriggerRequest): Promise<BallerinaTriggerResponse | NOT_SUPPORTED_TYPE> {
-        const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.TRIGGER_TRIGGER);
+        // const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.TRIGGER_TRIGGER);
+        const isSupported = true;
         return isSupported ? this.sendRequest<BallerinaTriggerResponse>(EXTENDED_APIS.TRIGGER_TRIGGER, params) :
             Promise.resolve(NOT_SUPPORTED);
     }
@@ -555,19 +558,22 @@ export class ExtendedLangClient extends LanguageClient {
     }
 
     async convertJsonToRecord(params: JsonToRecordRequest): Promise<JsonToRecordResponse | NOT_SUPPORTED_TYPE> {
-        const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.JSON_TO_RECORD_CONVERT);
+        // const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.JSON_TO_RECORD_CONVERT);
+        const isSupported = true;
         return isSupported ? this.sendRequest(EXTENDED_APIS.JSON_TO_RECORD_CONVERT, params) :
             Promise.resolve(NOT_SUPPORTED);
     }
 
     async getSTForSingleStatement(params: PartialSTRequestParams): Promise<PartialSTResponse | NOT_SUPPORTED_TYPE> {
-        const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.PARTIAL_PARSE_SINGLE_STATEMENT);
+        // const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.PARTIAL_PARSE_SINGLE_STATEMENT);
+        const isSupported = true;
         return isSupported ? this.sendRequest(EXTENDED_APIS.PARTIAL_PARSE_SINGLE_STATEMENT, params) :
             Promise.resolve(NOT_SUPPORTED);
     }
 
     async getSTForExpression(params: PartialSTRequestParams): Promise<PartialSTResponse | NOT_SUPPORTED_TYPE> {
-        const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.PARTIAL_PARSE_EXPRESSION);
+        // const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.PARTIAL_PARSE_EXPRESSION);
+        const isSupported = true;
         return isSupported ? this.sendRequest(EXTENDED_APIS.PARTIAL_PARSE_EXPRESSION, params) :
             Promise.resolve(NOT_SUPPORTED);
     }
@@ -589,7 +595,8 @@ export class ExtendedLangClient extends LanguageClient {
     }
 
     async convertToOpenAPI(params: OpenAPIConverterRequest): Promise<OpenAPIConverterResponse | NOT_SUPPORTED_TYPE> {
-        const isSupported: boolean = await this.isExtendedServiceSupported(EXTENDED_APIS.BALLERINA_TO_OPENAPI);
+        // const isSupported: boolean = await this.isExtendedServiceSupported(EXTENDED_APIS.BALLERINA_TO_OPENAPI);
+        const isSupported = true;
         return isSupported ? this.sendRequest(EXTENDED_APIS.BALLERINA_TO_OPENAPI, params) :
             Promise.resolve(NOT_SUPPORTED);
     }
