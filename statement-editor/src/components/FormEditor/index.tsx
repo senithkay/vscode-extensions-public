@@ -13,26 +13,35 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useEffect, useState } from 'react';
 
+import { ExpressionEditorLangClientInterface, STModification } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import * as monaco from "monaco-editor";
 
 import { enrichModel, getUpdatedSource} from "../../utils";
 import {
-    getPartialSTForTopLevelComponents,
+    getPartialSTForModuleMembers,
     handleDiagnostics,
     sendDidChange
 } from "../../utils/ls-utils";
 import { FormRenderer } from "../FormRenderer";
 import { getInitialSource } from "../Forms/Utils/FormUtils";
 import { EXPR_SCHEME, FILE_SCHEME } from "../InputEditor/constants";
-import { LowCodeEditorProps } from "../StatementEditor";
+import { LowCodeEditorProps } from "../StatementEditorWrapper";
 
-export interface FormEditorProps extends LowCodeEditorProps {
+export interface FormEditorProps {
     initialSource?: string;
     initialModel?: STNode;
+    currentFile: {
+        content: string,
+        path: string,
+        size: number
+    };
     targetPosition: NodePosition;
     type: string;
     onCancel: () => void;
+    applyModifications: (modifications: STModification[]) => void;
+    getLangClient: () => Promise<ExpressionEditorLangClientInterface>;
+    topLevelComponent?: boolean;
 }
 
 export function FormEditor(props: FormEditorProps) {
@@ -42,9 +51,7 @@ export function FormEditor(props: FormEditorProps) {
         onCancel,
         getLangClient,
         applyModifications,
-        library,
         currentFile,
-        importStatements,
         type,
         targetPosition,
         topLevelComponent
@@ -67,7 +74,7 @@ export function FormEditor(props: FormEditorProps) {
         if (initialSource) {
             (async () => {
                 if (topLevelComponent) {
-                    const partialST = await getPartialSTForTopLevelComponents(
+                    const partialST = await getPartialSTForModuleMembers(
                         { codeSnippet: initialSource.trim() }, getLangClient
                     );
                     setModel(partialST);
@@ -76,7 +83,7 @@ export function FormEditor(props: FormEditorProps) {
         } else {
             (async () => {
                 if (topLevelComponent) {
-                    const partialST = await getPartialSTForTopLevelComponents(
+                    const partialST = await getPartialSTForModuleMembers(
                         {codeSnippet: getInitialSource(type, targetPosition)}, getLangClient
                     );
                     setModel(partialST);

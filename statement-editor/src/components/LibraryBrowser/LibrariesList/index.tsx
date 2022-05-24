@@ -16,7 +16,7 @@ import React from 'react';
 import { List } from "@material-ui/core";
 import { LibraryDataResponse, LibraryInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
-import { useStatementEditorStyles } from "../../styles";
+import { useStmtEditorHelperPanelStyles } from "../../styles";
 import { Library } from '../Library';
 
 interface LibrariesListProps {
@@ -26,11 +26,11 @@ interface LibrariesListProps {
 }
 
 export function LibrariesList(props: LibrariesListProps) {
-    const statementEditorClasses = useStatementEditorStyles();
+    const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
     const { libraries, libraryBrowsingHandler, libraryDataFetchingHandler } = props;
 
     return (
-        <List className={statementEditorClasses.libraryListBlock}>
+        <List className={stmtEditorHelperClasses.libraryListBlock}>
             {libraries.map((library: LibraryInfo, index: number) => (
                 <Library
                     libraryInfo={library}

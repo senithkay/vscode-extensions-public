@@ -21,7 +21,7 @@ import { StatementEditorContext } from "../../../store/statement-editor-context"
 import { isPositionsEquals } from "../../../utils";
 import { ExpressionComponent } from "../../Expression";
 import { InputEditor } from "../../InputEditor";
-import { useStatementEditorStyles } from "../../styles";
+import { useStatementRendererStyles } from "../../styles";
 import { TokenComponent } from "../../Token";
 
 interface LocalVarDeclProps {
@@ -30,18 +30,17 @@ interface LocalVarDeclProps {
 
 export function LocalVarDeclC(props: LocalVarDeclProps) {
     const { model } = props;
-    const stmtCtx = useContext(StatementEditorContext);
     const {
         modelCtx: {
             currentModel,
             changeCurrentModel
         },
         config
-    } = stmtCtx;
+    } = useContext(StatementEditorContext);
     const hasTypedBindingPatternSelected = currentModel.model &&
         isPositionsEquals(currentModel.model.position, model.typedBindingPattern.position);
 
-    const statementEditorClasses = useStatementEditorStyles();
+    const statementRendererClasses = useStatementRendererStyles();
 
     const onClickOnBindingPattern = (event: any) => {
         event.stopPropagation();
@@ -71,8 +70,8 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
         typedBindingComponent = (
             <span
                 className={classNames(
-                    statementEditorClasses.expressionElement,
-                    hasTypedBindingPatternSelected && statementEditorClasses.expressionElementSelected
+                    statementRendererClasses.expressionElement,
+                    hasTypedBindingPatternSelected && statementRendererClasses.expressionElementSelected
                 )}
                 onClick={onClickOnBindingPattern}
             >

@@ -85,7 +85,7 @@ export function FunctionParamSegmentEditor(props: FunctionParamSegmentEditorProp
             type: {value, isInteracted: true}
         });
     };
-    const debouncedTypeChange = debounce(handleOnTypeChange, 500);
+    const debouncedTypeChange = debounce(handleOnTypeChange, 1000);
     const handleOnNameChange = (value: string) => {
         setSegmentName({value, isInteracted: true});
         setCurrentComponentName("Name");
@@ -95,7 +95,7 @@ export function FunctionParamSegmentEditor(props: FunctionParamSegmentEditorProp
             type: {value: segmentType.value, isInteracted: true}
         });
     };
-    const debouncedNameChange = debounce(handleOnNameChange, 500);
+    const debouncedNameChange = debounce(handleOnNameChange, 1000);
 
     return (
         <div className={classes.functionParamEditorWrap} >

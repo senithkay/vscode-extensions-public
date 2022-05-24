@@ -2,7 +2,12 @@
 import { IConnection } from "monaco-languageclient/lib/connection";
 import { InitializeParams, InitializeResult,
     Location, TextDocumentPositionParams } from "vscode-languageserver-protocol";
-import { BallerinaTriggerRequest, BallerinaTriggerResponse, BallerinaTriggersRequest, BallerinaTriggersResponse } from ".";
+import {
+    BallerinaTriggerRequest,
+    BallerinaTriggerResponse,
+    BallerinaTriggersRequest,
+    BallerinaTriggersResponse, SymbolInfoRequest, SymbolInfoResponse,
+} from ".";
 
 import { BallerinaASTNode, BallerinaEndpoint, BallerinaSourceFragment } from "./ast-models";
 import { ASTDidChangeParams, ASTDidChangeResponse, BallerinaConnectorRequest, BallerinaConnectorResponse, BallerinaConnectorsRequest, BallerinaConnectorsResponse, BallerinaExampleListParams,
@@ -97,6 +102,10 @@ export class BallerinaLangClient implements IBallerinaLangClient {
 
     public close(): void {
         this.lsConnection.shutdown();
+    }
+
+    public getSymbolDocumentation(params: SymbolInfoRequest): Thenable<SymbolInfoResponse> {
+        return this.lsConnection.sendRequest("ballerinaSymbol/getSymbol", params)
     }
 }
 
