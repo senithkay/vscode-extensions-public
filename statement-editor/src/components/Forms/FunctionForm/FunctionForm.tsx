@@ -116,7 +116,7 @@ export function FunctionForm(props: FunctionProps) {
         const parametersStr = parameters.map((item) => `${item.type.value} ${item.name.value}`).join(",");
         await functionParamChange(value, parametersStr, returnType.value);
     }
-    const debouncedNameChange = debounce(onNameChange, 500);
+    const debouncedNameChange = debounce(onNameChange, 1000);
 
     // Return type related functions
     const onReturnTypeChange = async (value: string) => {
@@ -127,7 +127,7 @@ export function FunctionForm(props: FunctionProps) {
     const onReturnFocus = (value: string) => {
         setCurrentComponentName("Return");
     }
-    const debouncedReturnChange = debounce(onReturnTypeChange, 500);
+    const debouncedReturnChange = debounce(onReturnTypeChange, 1000);
 
     // Param related functions
     const openNewParamView = () => {
