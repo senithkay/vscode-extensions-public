@@ -13,8 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useEffect, useState } from 'react';
 
-import { ExpressionEditorLangClientInterface, STModification } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
-import { STSymbolInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ExpressionEditorLangClientInterface, STModification, STSymbolInfo } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import * as monaco from "monaco-editor";
 

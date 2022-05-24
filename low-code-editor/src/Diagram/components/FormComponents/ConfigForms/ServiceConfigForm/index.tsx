@@ -88,7 +88,6 @@ export function ServiceConfigForm(props: ServiceConfigFormProps) {
                 type={"Service"}
                 currentFile={currentFile}
                 getLangClient={getExpressionEditorLangClient}
-                library={library}
                 applyModifications={modifyDiagram}
                 topLevelComponent={true}// todo: Remove this
             />

@@ -28,10 +28,9 @@ import { StmtDiagnostic } from "../../../models/definitions";
 import { FormEditorField } from "../Types";
 
 interface ListenerConfigFormProps {
-    model?: ServiceDeclaration | ModulePart;
     listenerList: string[];
-    targetPosition: NodePosition;
     isEdit?: boolean;
+    isDisabled?: boolean;
     listenerConfig?: ListenerConfigFormState;
     syntaxDiag?: StmtDiagnostic[];
     portSemDiagMsg: string;
@@ -41,12 +40,8 @@ interface ListenerConfigFormProps {
 
 export function ListenerConfigForm(props: ListenerConfigFormProps) {
     const formClasses = useFormStyles();
-    const { listenerList, model, targetPosition, isEdit, syntaxDiag, listenerConfig, portSemDiagMsg, nameSemDiagMsg,
+    const { listenerList, isDisabled, isEdit, syntaxDiag, listenerConfig, portSemDiagMsg, nameSemDiagMsg,
             onChange } = props;
-
-    // if (STKindChecker.isModulePart(model)) {
-    //
-    // }
 
     // States related to syntax diagnostics
     const [currentComponentName, setCurrentComponentName] = useState<string>("");
@@ -119,7 +114,9 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
                 customProps={listenerSelectionCustomProps}
                 onChange={onListenerSelect}
                 placeholder="Select Property"
-                defaultValue={!createNewListener  ? listenerName?.value : 'Create New'}
+                defaultValue={!createNewListener ? listenerName?.value : (isDisabled || syntaxDiag !== undefined)
+                    ? undefined : 'Create New'}
+                disabled={isDisabled}
             />
         </>
     );
@@ -140,7 +137,7 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
             // onFocus={onNameFocus}
             placeholder={"listener"}
             size="small"
-            disabled={syntaxDiag && currentComponentName !== "Listener Name"}
+            disabled={(syntaxDiag && currentComponentName !== "Listener Name") || isDisabled}
         />
     );
 
@@ -157,10 +154,9 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
             errorMessage={(syntaxDiag && currentComponentName === "Listener Port" && syntaxDiag[0].message) ||
                 portSemDiagMsg}
             onBlur={null}
-            // onFocus={onNameFocus}
             placeholder={"9090"}
             size="small"
-            disabled={syntaxDiag && currentComponentName !== "Listener Port"}
+            disabled={(syntaxDiag && currentComponentName !== "Listener Port") || isDisabled}
         />
     );
 
@@ -170,6 +166,7 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
                 values={["Define Inline"]}
                 defaultValues={fromVarRef ? [] : ['Define Inline']}
                 onChange={handleListenerDefModeChange}
+                disabled={isDisabled || syntaxDiag !== undefined}
             />
             {fromVarRef && listenerSelector}
             {fromVarRef && createNewListener && [listenerNameInputComponent, listenerPortInputComponent]}

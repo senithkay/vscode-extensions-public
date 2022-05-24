@@ -17,10 +17,10 @@ import {
     ExpressionEditorLangClientInterface,
     getDiagnosticMessage,
     getFilteredDiagnostics,
-    STModification,
-    STSymbolInfo
     LinePosition,
     ParameterInfo,
+    STModification,
+    STSymbolInfo,
     SymbolDocumentation
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {

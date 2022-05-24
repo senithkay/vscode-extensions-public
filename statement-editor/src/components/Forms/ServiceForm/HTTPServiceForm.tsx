@@ -36,7 +36,7 @@ import classNames from "classnames";
 
 import { StmtDiagnostic } from "../../../models/definitions";
 import { getUpdatedSource } from "../../../utils";
-import {getPartialSTForModulePart, getPartialSTForTopLevelComponents} from "../../../utils/ls-utils";
+import { getPartialSTForModulePart } from "../../../utils/ls-utils";
 import { FormEditorField } from "../Types";
 import { getListenerConfig } from "../Utils/FormUtils";
 
@@ -73,6 +73,9 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
         model.members.forEach(m => {
             if (STKindChecker.isServiceDeclaration(m)) {
                 serviceModel = m;
+                if (STKindChecker.isExplicitNewExpression(m?.expressions[0])) {
+                    portSemDiagMsg = m.expressions[0]?.viewState?.diagnosticsInRange[0]?.message;
+                }
             } else if (STKindChecker.isListenerDeclaration(m)) {
                 portSemDiagMsg = m.initializer?.parenthesizedArgList?.viewState?.diagnosticsInRange[0]?.message;
                 nameSemDiagMsg = m.variableName?.viewState?.diagnosticsInRange[0]?.message;
@@ -122,7 +125,7 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
                 {codeSnippet: updatedContent.trim()}, getLangClient
             );
         } else {
-            partialST = await getPartialSTForTopLevelComponents(
+            partialST = await getPartialSTForModulePart(
                 {codeSnippet: updatedContent.trim()}, getLangClient
             );
         }
@@ -144,8 +147,11 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
     }
 
     const onListenerChange = async (config: ListenerConfigFormState) => {
-        setCurrentComponentName("listener");
+        setCurrentComponentName("Listener");
         setListenerConfig(config);
+        // if (config.createNewListener && config.) {
+        //
+        // }
         await serviceParamChange(basePath.value, config);
     }
 
@@ -234,10 +240,14 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
                         defaultValue={basePath.value}
                         onChange={onBasePathChange}
                         customProps={{
-                            isErrored: (currentComponentSyntaxDiag !== undefined && currentComponentName === "path")
+                            isErrored: (currentComponentSyntaxDiag !== undefined && currentComponentName === "path") ||
+                                (portSemDiagMsg === undefined && nameSemDiagMsg === undefined && serviceModel?.
+                                    viewState?.diagnosticsInRange[0]?.message)
                         }}
                         errorMessage={(currentComponentSyntaxDiag && currentComponentName === "path"
-                            && currentComponentSyntaxDiag[0].message)}
+                            && currentComponentSyntaxDiag[0].message) ||
+                            portSemDiagMsg === undefined && nameSemDiagMsg === undefined && serviceModel?.viewState?.
+                                diagnosticsInRange[0]?.message}
                         onBlur={null}
                         onFocus={onBasePathFocus}
                         placeholder={"/"}
@@ -252,13 +262,12 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
                 </div>
                 <div className={classNames(formClasses.groupedForm, formClasses.marginTB)}>
                     <ListenerConfigForm
-                        model={serviceModel}
                         listenerConfig={listenerConfig}
                         listenerList={listenerList}
-                        targetPosition={serviceModel ? serviceModel.position : targetPosition}
-                        syntaxDiag={currentComponentSyntaxDiag}
+                        syntaxDiag={currentComponentName === "Listener" ? currentComponentSyntaxDiag : undefined}
                         portSemDiagMsg={portSemDiagMsg}
                         nameSemDiagMsg={nameSemDiagMsg}
+                        isDisabled={currentComponentSyntaxDiag !== undefined && currentComponentName !== "Listener"}
                         onChange={onListenerChange}
                     />
                 </div>
