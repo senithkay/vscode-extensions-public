@@ -42,6 +42,9 @@ export function ModuleIcon(props: ModuleIconProps) {
 
     if (node && (STKindChecker.isLocalVarDecl(node) || STKindChecker.isModuleVarDecl(node))) {
         let moduleInfo = node.typedBindingPattern.typeDescriptor?.typeData.typeSymbol?.moduleID;
+        if (STKindChecker.isUnionTypeDesc(node.typedBindingPattern.typeDescriptor)){
+            moduleInfo = node.typedBindingPattern.typeDescriptor?.leftTypeDesc.typeData.typeSymbol?.moduleID;
+        }
         if (STKindChecker.isArrayTypeDesc(node.typedBindingPattern.typeDescriptor)) {
             moduleInfo = node.typedBindingPattern.typeDescriptor?.typeData.typeSymbol?.memberTypeDescriptor.moduleID;
         }
