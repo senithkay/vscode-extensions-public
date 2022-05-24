@@ -73,7 +73,6 @@ export class BallerinaNotebookController {
                     this.updateVariableView();
                 });
             });
-            
         });
     }
 
@@ -232,8 +231,6 @@ export class BallerinaNotebookController {
         for (const varToDelete of varsToDelete) {
             if (!(await langClient.deleteDeclarations({varToDelete: varToDelete}))) {
                 failedVars.push(varToDelete);
-                console.log(varToDelete);
-                
             } else {
                 this.metaInfoHandler.clearVarFromMap(varToDelete);
             }
