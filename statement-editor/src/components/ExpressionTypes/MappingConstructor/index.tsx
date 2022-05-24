@@ -63,7 +63,7 @@ export function MappingConstructorComponent(props: MappingConstructorProps) {
                 arrayType={ArrayType.MAPPING_CONSTRUCTOR}
             />
             {(isEmpty || isSingleLine) && (<NewExprAddButton model={model} onClick={addNewExpression} />)}
-            <TokenComponent model={model.closeBrace} isMapLast={true} />
+            <TokenComponent model={model.closeBrace} />
         </>
     );
 }

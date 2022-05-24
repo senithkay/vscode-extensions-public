@@ -12,20 +12,20 @@
  */
 import React from "react";
 
-import { STNode } from "@wso2-enterprise/syntax-tree";
+import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
-import { getMinutiaeJSX } from "../../utils";
+import { getJSXForMinutiae } from "../../utils";
+import { StatementEditorViewState } from "../../utils/statement-editor-viewstate";
 import { useStatementRendererStyles } from "../styles";
 
 export interface TokenComponentProps {
     model: STNode;
     className?: string;
-    isMapLast?: boolean;
 }
 
 export function TokenComponent(props: TokenComponentProps) {
-    const { model, className, isMapLast } = props;
+    const { model, className } = props;
 
     const statementRendererClasses = useStatementRendererStyles();
 
@@ -35,10 +35,16 @@ export function TokenComponent(props: TokenComponentProps) {
         className
     );
 
-    const { leadingMinutiaeJSX, trailingMinutiaeJSX } = getMinutiaeJSX(model, isMapLast);
+    const mappingConstructorConfig = (model.viewState as StatementEditorViewState).mappingConstructorConfig;
+    const newLineRequired = mappingConstructorConfig.isClosingBraceWithNewLine;
+    const isLastMapField = mappingConstructorConfig.isLastMapField;
+
+    const leadingMinutiaeJSX = getJSXForMinutiae(model.leadingMinutiae);
+    const trailingMinutiaeJSX = getJSXForMinutiae(model.trailingMinutiae, isLastMapField);
 
     return (
         <span className={styleClassName} >
+            {STKindChecker.isCloseBraceToken(model) && newLineRequired && <br/>}
             {leadingMinutiaeJSX}
             {model.value}
             {trailingMinutiaeJSX}

@@ -24,14 +24,13 @@ export interface ExpressionComponentProps {
     model: STNode;
     children?: React.ReactElement[];
     classNames?: string;
-    stmtPosition?: NodePosition;
-    isLastExprArrayElement?: boolean;
+    stmtPosition?: NodePosition
 }
 
 export function ExpressionComponent(props: ExpressionComponentProps) {
-    const { model, children, classNames, stmtPosition, isLastExprArrayElement} = props;
+    const { model, children, classNames, stmtPosition } = props;
 
-    const component = getExpressionTypeComponent(model, stmtPosition, isLastExprArrayElement);
+    const component = getExpressionTypeComponent(model, stmtPosition);
 
     const [isHovered, setHovered] = React.useState(false);
 
