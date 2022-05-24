@@ -142,11 +142,7 @@ export const useStatementRendererStyles = makeStyles(() =>
             },
             '&.modifiable': {
                 position: 'absolute',
-                marginLeft: '10px',
-                '&.lastElement': {
-                    marginLeft: '250px',
-                    marginTop: '-20px'
-                }
+                marginLeft: '10px'
             }
         },
     }),
