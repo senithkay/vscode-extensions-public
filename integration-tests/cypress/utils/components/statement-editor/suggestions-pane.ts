@@ -13,15 +13,16 @@
 export class SuggestionsPane {
 
     static clickSuggestionsTab(selectedTab: string) {
-        cy.wait(500)
         cy.get(`[data-testid="tab-panel-wrapper"]`).within(() => {
             cy.contains(selectedTab).focus()
+                .wait(1000)
                 .click({ force: true })
         });
         return this;
     }
 
     static clickLsSuggestion(selectedSuggestion: string) {
+        cy.wait(500)
         cy.get(`[data-testid="suggestion-list"]`).within(() => {
             cy.get(`[data-testid="suggestion-value"]`)
                 .contains(selectedSuggestion)
