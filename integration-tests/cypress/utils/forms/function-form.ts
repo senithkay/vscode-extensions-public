@@ -5,28 +5,73 @@ export class FunctionForm {
     private static selector = '[data-testid="function-form"]';
 
     static typeFunctionName(fnName: string) {
-        ExpressionEditor
-            .getForField("Function Name", this.selector)
-            .clear()
-            .type(fnName)
-            .waitForValidations();
+        const typeInput = `{selectall}${fnName}`;
+        this.getForm()
+            .get('[data-testid="function-name"]')
+            .type(typeInput);
+        this.getForm().wait(1000);
         return this;
     }
 
     static typeReturnType(retType: string) {
-        ExpressionEditor
-            .getForField("Return Type", this.selector)
-            .clear()
-            .type(retType)
-            .waitForValidations();
+        const typeInput = `{selectall}${retType}`;
+        this.getForm()
+            .get('[data-testid="return-type"]')
+            .type(typeInput);
+        this.getForm().wait(1000);
         return this;
+    }
 
+    static typeParamType(type: string) {
+        const typeInput = `{selectall}${type}`;
+        this.getForm()
+            .get('[data-testid="function-param-type"]')
+            .type(typeInput);
+        this.getForm().wait(1000);
+        return this;
+    }
+
+    static typeParamName(name: string) {
+        const clearKeyStroke = `{selectall}${name}`;
+        this.getForm()
+            .get('[data-testid="function-param-name"]')
+            .type(clearKeyStroke);
+        this.getForm().wait(1000);
+        return this;
     }
 
     static shouldBeVisible() {
         this.getForm().should("be.visible");
         return this;
 
+    }
+
+    static saveShouldBeDisabled() {
+        this.getForm()
+            .contains("Save")
+            .should('be.disabled', { timeout: 5000 })
+        return this;
+    }
+
+    static saveShouldBeEnabled() {
+        this.getForm()
+            .contains("Save")
+            .should('be.enabled', { timeout: 5000 })
+        return this;
+    }
+
+    static paramSaveShouldBeDisabled() {
+        this.getForm()
+            .get('[data-testid="param-save-btn"]')
+            .should('be.disabled', { timeout: 5000 })
+        return this;
+    }
+
+    static paramSaveShouldBeEnabled() {
+        this.getForm()
+            .get('[data-testid="param-save-btn"]')
+            .should('be.enabled', { timeout: 5000 })
+        return this;
     }
 
     private static getForm() {
@@ -37,11 +82,10 @@ export class FunctionForm {
 
     static save() {
         this.getForm()
-            .get('button')
             .contains("Save")
+            .should('be.enabled', { timeout: 5000 })
             .click();
         return this;
-
     }
 
     static cancel() {
@@ -61,6 +105,16 @@ export class FunctionForm {
 
     }
 
+    static addParameterClick() {
+        this.getForm()
+            .get('button')
+            .contains("Add parameter")
+            .click();
+
+        return this;
+
+    }
+
     static addParameter(type: string, name: string) {
         this.getForm()
             .get('button')
@@ -68,8 +122,7 @@ export class FunctionForm {
             .click();
         FunctionForm.fillParameterForm(type, name);
         this.getForm()
-            .get('button')
-            .contains("Add")
+            .get('[data-testid="param-save-btn"]')
             .click();
 
         return this;
@@ -81,7 +134,7 @@ export class FunctionForm {
             .contains(parameter)
             .parent()
             .click();
-        FunctionForm.fillParameterForm(type, name);
+        FunctionForm.updateParameterForm(type, name);
         this.getForm()
             .get('button')
             .contains("Update")
@@ -92,15 +145,15 @@ export class FunctionForm {
     }
 
     private static fillParameterForm(type: string, name: string) {
-        ExpressionEditor
-            .getForField("Param Type", this.selector)
-            .clear()
-            .type(type)
-            .waitForValidations();
-        cy.get(`.MuiFormControl-root[data-testid="api-function-param-name"] .MuiInput-input`)
-            .clear()
-            .type(name);
+        FunctionForm.typeParamType(type);
+        FunctionForm.typeParamName(name);
 
+        return this;
+    }
+
+    private static updateParameterForm(type: string, name: string) {
+        FunctionForm.typeParamType(type);
+        FunctionForm.typeParamName(name);
         return this;
     }
 

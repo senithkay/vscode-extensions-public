@@ -18,10 +18,10 @@ import { FormTextInput, PrimaryButton, SecondaryButton } from "@wso2-enterprise/
 import {
     DefaultableParam,
     IncludedRecordParam,
-    NodePosition,
     RequiredParam,
     RestParam
 } from "@wso2-enterprise/syntax-tree";
+import debounce from "lodash.debounce";
 
 import { StmtDiagnostic } from "../../../../models/definitions";
 import { FormEditorField } from "../../Types";
@@ -85,6 +85,7 @@ export function FunctionParamSegmentEditor(props: FunctionParamSegmentEditorProp
             type: {value, isInteracted: true}
         });
     };
+    const debouncedTypeChange = debounce(handleOnTypeChange, 500);
     const handleOnNameChange = (value: string) => {
         setSegmentName({value, isInteracted: true});
         setCurrentComponentName("Name");
@@ -94,9 +95,10 @@ export function FunctionParamSegmentEditor(props: FunctionParamSegmentEditorProp
             type: {value: segmentType.value, isInteracted: true}
         });
     };
+    const debouncedNameChange = debounce(handleOnNameChange, 500);
 
     return (
-        <div className={classes.functionParamEditorWrap}>
+        <div className={classes.functionParamEditorWrap} >
             <div>
                 <Grid container={true} spacing={1}>
                     <Grid item={true} xs={5}>
@@ -113,36 +115,39 @@ export function FunctionParamSegmentEditor(props: FunctionParamSegmentEditorProp
                 <Grid container={true} item={true} spacing={2}>
                     <Grid item={true} xs={5}>
                         <FormTextInput
-                            dataTestId="api-function-param-type"
+                            dataTestId="function-param-type"
                             defaultValue={(segmentType.isInteracted || isEdit) ? segmentType.value : ""}
-                            onChange={handleOnTypeChange}
+                            onChange={debouncedTypeChange}
                             placeholder={"string"}
                             customProps={{
                                 optional: true,
-                                isErrored: (syntaxDiag !== undefined && currentComponentName === "Type" || (
-                                    param?.typeName?.viewState?.diagnostics?.length > 0
+                                isErrored: segmentType.isInteracted && (syntaxDiag !== undefined &&
+                                    currentComponentName === "Type" || (param?.typeName?.viewState?.
+                                            diagnosticsInRange?.length > 0
                                 ))
                             }}
-                            errorMessage={(syntaxDiag && currentComponentName === "Type" && syntaxDiag[0].message) ||
-                                param?.typeName?.viewState?.diagnostics[0]?.message
+                            errorMessage={(syntaxDiag && currentComponentName === "Type"
+                                && syntaxDiag[0].message) || segmentType.isInteracted && param?.typeName?.viewState?.
+                                diagnosticsInRange[0]?.message
                             }
                             disabled={(syntaxDiag?.length > 0) && currentComponentName !== "Type"}
                         />
                     </Grid>
                     <Grid item={true} xs={7}>
                         <FormTextInput
-                            dataTestId="api-function-param-name"
+                            dataTestId="function-param-name"
                             defaultValue={(segmentName.isInteracted || isEdit) ? segmentName.value : ""}
-                            onChange={handleOnNameChange}
+                            onChange={debouncedNameChange}
                             placeholder={"name"}
                             customProps={{
                                 optional: true,
-                                isErrored: ((syntaxDiag !== undefined && currentComponentName === "Name") || (
-                                    param?.paramName?.viewState?.diagnostics?.length > 0
+                                isErrored: segmentName.isInteracted && ((syntaxDiag !== undefined &&
+                                    currentComponentName === "Name") || (param?.paramName?.viewState?.
+                                        diagnosticsInRange?.length > 0
                                 ))
                             }}
-                            errorMessage={(syntaxDiag && currentComponentName === "Name" && syntaxDiag[0].message) ||
-                                param?.paramName?.viewState?.diagnostics[0]?.message
+                            errorMessage={(syntaxDiag && currentComponentName === "Name"
+                                && syntaxDiag[0].message) || param?.paramName?.viewState?.diagnosticsInRange[0]?.message
                             }
                             disabled={(syntaxDiag?.length > 0) && currentComponentName !== "Name"}
                         />
@@ -158,10 +163,10 @@ export function FunctionParamSegmentEditor(props: FunctionParamSegmentEditorProp
                                 onClick={onCancel}
                             />
                             <PrimaryButton
-                                dataTestId={"custom-expression-save-btn"}
+                                dataTestId={"param-save-btn"}
                                 text={onUpdate ? "Update" : " Add"}
-                                disabled={(syntaxDiag?.length > 0) || (param?.viewState?.diagnostics?.length > 0) ||
-                                    !(segmentName.isInteracted || isEdit) || !(segmentType.isInteracted || isEdit)
+                                disabled={(syntaxDiag?.length > 0) || (param?.viewState?.diagnosticsInRange?.length > 0)
+                                    || !(segmentName.isInteracted || isEdit) || !(segmentType.isInteracted || isEdit)
                                 }
                                 fullWidth={false}
                                 onClick={onUpdate ? handleOnUpdate : handleOnSave}
