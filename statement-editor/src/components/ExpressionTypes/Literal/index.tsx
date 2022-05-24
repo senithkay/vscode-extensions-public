@@ -28,12 +28,13 @@ interface LiteralProps {
         | NullLiteral
         | NumericLiteral
         | StringLiteral;
+    isLastExprArrayElement: boolean;
 }
 
 export function LiteralComponent(props: LiteralProps) {
-    const { model } = props;
+    const { model, isLastExprArrayElement } = props;
 
     return (
-        <ExpressionComponent model={model.literalToken} />
+        <ExpressionComponent model={model.literalToken} isLastExprArrayElement={isLastExprArrayElement} />
     );
 }

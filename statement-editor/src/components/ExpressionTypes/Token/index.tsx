@@ -51,10 +51,11 @@ interface TokenProps {
         | VarKeyword
         | IdentifierToken
         | TemplateString;
+    isLastExprArrayElement: boolean;
 }
 
 export function TokenComponent(props: TokenProps) {
-    const { model } = props;
+    const { model, isLastExprArrayElement } = props;
 
     const inputEditorProps = {
         model,
@@ -67,7 +68,7 @@ export function TokenComponent(props: TokenProps) {
         <>
             {leadingMinutiaeJSX}
             <InputEditor {...inputEditorProps} />
-            {trailingMinutiaeJSX}
+            {isLastExprArrayElement && trailingMinutiaeJSX}
         </>
     );
 }

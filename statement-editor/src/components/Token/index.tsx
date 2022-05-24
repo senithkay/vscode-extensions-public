@@ -21,10 +21,11 @@ import { useStatementRendererStyles } from "../styles";
 export interface TokenComponentProps {
     model: STNode;
     className?: string;
+    isMapLast?: boolean;
 }
 
 export function TokenComponent(props: TokenComponentProps) {
-    const { model, className } = props;
+    const { model, className, isMapLast } = props;
 
     const statementRendererClasses = useStatementRendererStyles();
 
@@ -34,7 +35,7 @@ export function TokenComponent(props: TokenComponentProps) {
         className
     );
 
-    const { leadingMinutiaeJSX, trailingMinutiaeJSX } = getMinutiaeJSX(model);
+    const { leadingMinutiaeJSX, trailingMinutiaeJSX } = getMinutiaeJSX(model, isMapLast);
 
     return (
         <span className={styleClassName} >

@@ -20,19 +20,20 @@ import { TokenComponent } from "../../Token";
 
 interface SpecificFieldProps {
     model: SpecificField;
+    isLastExprArrayElement: boolean;
 }
 
 export function SpecificFieldComponent(props: SpecificFieldProps) {
-    const { model } = props;
+    const { model, isLastExprArrayElement } = props;
 
     return (
         <>
-            <ExpressionComponent model={model.fieldName} />
+            <ExpressionComponent model={model.fieldName} isLastExprArrayElement={isLastExprArrayElement} />
 
             {model.colon && (
                 <>
                     <TokenComponent model={model.colon} />
-                    <ExpressionComponent model={model.valueExpr} />
+                    <ExpressionComponent model={model.valueExpr} isLastExprArrayElement={isLastExprArrayElement} />
                 </>
                 )
             }
