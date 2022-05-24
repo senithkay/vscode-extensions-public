@@ -63,7 +63,7 @@ export function ExpressionArrayComponent(props: ExpressionArrayProps) {
                             <NewExprAddButton
                                 model={expression}
                                 onClick={addNewExpression}
-                                classNames={`modifiable`}
+                                classNames={"modifiable"}
                             />
                         )}
                     </>
