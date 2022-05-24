@@ -22,7 +22,8 @@ export class SuggestionsPane {
 
     static clickLsSuggestion(selectedSuggestion: string) {
         cy.get(`[data-testid="suggestion-list"]`).within(() => {
-            cy.contains(selectedSuggestion)
+            cy.get(`[data-testid="suggestion-value"]`)
+                .contains(selectedSuggestion)
                 .click({ force: true })
         });
         return this;
