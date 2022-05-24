@@ -13,6 +13,7 @@
 export class SuggestionsPane {
 
     static clickSuggestionsTab(selectedTab: string) {
+        cy.wait(500)
         cy.get(`[data-testid="tab-panel-wrapper"]`).within(() => {
             cy.contains(selectedTab).focus()
                 .click({ force: true })
