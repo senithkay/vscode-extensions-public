@@ -34,8 +34,8 @@ import {
 import { Diagnostic } from "vscode-languageserver-protocol";
 
 import * as expressionTypeComponents from '../components/ExpressionTypes';
-import { INPUT_EDITOR_PLACEHOLDERS } from "../components/InputEditor/constants";
 import * as formComponents from '../components/Forms/Form';
+import { INPUT_EDITOR_PLACEHOLDERS } from "../components/InputEditor/constants";
 import * as statementTypeComponents from '../components/Statements';
 import {
     CUSTOM_CONFIG_TYPE,

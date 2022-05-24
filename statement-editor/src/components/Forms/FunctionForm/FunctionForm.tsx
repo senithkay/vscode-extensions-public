@@ -40,7 +40,7 @@ import {
 } from "@wso2-enterprise/syntax-tree";
 
 import { StmtDiagnostic } from "../../../models/definitions";
-import { getPartialSTForTopLevelComponents } from "../../../utils/ls-utils";
+import { getPartialSTForModuleMembers } from "../../../utils/ls-utils";
 import { FormEditorField } from "../Types";
 import { recalculateItemIds } from "../Utils/FormUtils";
 
@@ -92,7 +92,7 @@ export function FunctionForm(props: FunctionProps) {
         setFunctionName({value, isInteracted: true});
         const genSource = getSource(mutateFunctionSignature(accessModifier, value, "",
             returnType.value ? `returns ${returnType.value}` : "", targetPosition));
-        const partialST = await getPartialSTForTopLevelComponents(
+        const partialST = await getPartialSTForModuleMembers(
             {codeSnippet: genSource.trim()}, getLangClient
         );
         if (!partialST.syntaxDiagnostics.length) {
@@ -107,7 +107,7 @@ export function FunctionForm(props: FunctionProps) {
         setReturnType({value, isInteracted: true});
         const genSource = getSource(createFunctionSignature(accessModifier, functionName.value, "",
             value ? `returns ${value}` : "", targetPosition));
-        const partialST = await getPartialSTForTopLevelComponents(
+        const partialST = await getPartialSTForModuleMembers(
             {codeSnippet: genSource.trim()}, getLangClient
         );
         if (!partialST.syntaxDiagnostics.length) {
@@ -161,7 +161,7 @@ export function FunctionForm(props: FunctionProps) {
             .join(",");
         const genSource = getSource(mutateFunctionSignature(accessModifier, functionName.value, parametersStr,
             returnType.value ? `returns ${returnType.value}` : "", targetPosition));
-        const partialST = await getPartialSTForTopLevelComponents(
+        const partialST = await getPartialSTForModuleMembers(
             {codeSnippet: genSource.trim()}, getLangClient
         );
         if (!partialST.syntaxDiagnostics.length) {
@@ -180,7 +180,7 @@ export function FunctionForm(props: FunctionProps) {
             .join(",");
         const genSource = getSource(mutateFunctionSignature(accessModifier, functionName.value, parametersStr,
             returnType.value ? `returns ${returnType.value}` : "", targetPosition));
-        const partialST = await getPartialSTForTopLevelComponents(
+        const partialST = await getPartialSTForModuleMembers(
             {codeSnippet: genSource.trim()}, getLangClient
         );
         if (!partialST.syntaxDiagnostics.length) {

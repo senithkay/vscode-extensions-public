@@ -67,7 +67,6 @@ export interface StatementEditorProps extends StmtEditorWrapperProps {
     onWizardClose: () => void;
     onCancel: () => void;
     onStmtEditorModelChange?: (partialModel: STNode) => void;
-    topLevelComponent?: boolean;
 }
 
 export function StatementEditor(props: StatementEditorProps) {
