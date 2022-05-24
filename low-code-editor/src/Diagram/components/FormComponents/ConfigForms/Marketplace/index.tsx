@@ -364,10 +364,8 @@ export function Marketplace(props: MarketplaceProps) {
         <FormControl data-testid="log-form" className={classes.container}>
             <FormHeaderSection
                 onCancel={onCancel}
-                statementEditor={false}
                 formTitle={`lowcode.develop.configForms.${shortName.replaceAll(" ", "")}.title`}
                 defaultMessage={title}
-                toggleChecked={false}
             />
             <div id="module-list-container" className={formClasses.formWrapper} onWheel={preventDiagramScrolling}>
                 <Grid item={true} xs={12} container={true}>

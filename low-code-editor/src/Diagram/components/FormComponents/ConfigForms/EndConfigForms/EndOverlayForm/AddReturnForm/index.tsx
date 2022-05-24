@@ -40,6 +40,7 @@ export function AddReturnForm(props: ReturnFormProps) {
             isMutationProgress: isMutationInProgress,
             currentFile,
             syntaxTree,
+            stSymbolInfo,
             importStatements,
             experimentalEnabled
         },
@@ -97,6 +98,11 @@ export function AddReturnForm(props: ReturnFormProps) {
         defaultMessage: "Save"
     });
 
+    const formTitle = intl.formatMessage({
+        id: "lowcode.develop.configForms.Return.title",
+        defaultMessage: "Return"
+    });
+
     const returnStatementTooltipMessages = {
         title: intl.formatMessage({
             id: "lowcode.develop.configForms.returnStatementTooltipMessages.expressionEditor.tooltip.title",
@@ -123,10 +129,9 @@ export function AddReturnForm(props: ReturnFormProps) {
 
     const { handleStmtEditorToggle, stmtEditorComponent } = useStatementEditor(
         {
-            label: intl.formatMessage({ id: "lowcode.develop.configForms.return.statementEditor.label" }),
+            label: formTitle,
             initialSource,
             formArgs: { formArgs },
-            validForm: isValidValue,
             config,
             onWizardClose,
             handleStatementEditorChange,
@@ -135,6 +140,8 @@ export function AddReturnForm(props: ReturnFormProps) {
             getLangClient: getExpressionEditorLangClient,
             applyModifications: modifyDiagram,
             library,
+            syntaxTree,
+            stSymbolInfo,
             importStatements,
             experimentalEnabled
         }
@@ -145,12 +152,8 @@ export function AddReturnForm(props: ReturnFormProps) {
             <FormControl data-testid="return-form" className={classes.wizardFormControl}>
                 <FormHeaderSection
                     onCancel={onCancel}
-                    statementEditor={true}
-                    formTitle={"lowcode.develop.configForms.Return.title"}
+                    formTitle={formTitle}
                     defaultMessage={"Return"}
-                    handleStmtEditorToggle={handleStmtEditorToggle}
-                    toggleChecked={false}
-                    experimentalEnabled={experimentalEnabled}
                 />
                 <div className={classes.formContentWrapper}>
                     <div className={classes.formNameWrapper}>
@@ -180,6 +183,10 @@ export function AddReturnForm(props: ReturnFormProps) {
                     saveBtnText={saveReturnButtonLabel}
                     isMutationInProgress={isMutationInProgress}
                     validForm={isValidValue}
+                    statementEditor={true}
+                    toggleChecked={false}
+                    experimentalEnabled={experimentalEnabled}
+                    handleStmtEditorToggle={handleStmtEditorToggle}
                     onSave={onReturnExpressionSave}
                     onCancel={onCancel}
                 />

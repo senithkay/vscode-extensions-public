@@ -16,7 +16,7 @@ import { STNode } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
 import { getMinutiaeJSX } from "../../utils";
-import { useStatementEditorStyles } from "../styles";
+import { useStatementRendererStyles } from "../styles";
 
 export interface TokenComponentProps {
     model: STNode;
@@ -26,11 +26,11 @@ export interface TokenComponentProps {
 export function TokenComponent(props: TokenComponentProps) {
     const { model, className } = props;
 
-    const statementEditorClasses = useStatementEditorStyles();
+    const statementRendererClasses = useStatementRendererStyles();
 
     const styleClassName = classNames(
-        statementEditorClasses.expressionBlock,
-        statementEditorClasses.expressionBlockDisabled,
+        statementRendererClasses.expressionBlock,
+        statementRendererClasses.expressionBlockDisabled,
         className
     );
 

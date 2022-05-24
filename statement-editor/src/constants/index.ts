@@ -19,7 +19,12 @@ import {
     WhileStatement
 } from "@wso2-enterprise/syntax-tree";
 
-import { DEFAULT_BINDING_PATTERN, DEFAULT_EXPR, DEFAULT_TYPE_DESC } from "../visitors/expression-deleting-visitor";
+import {
+    BINDING_PATTERN_PLACEHOLDER,
+    EXPR_PLACEHOLDER,
+    STMT_PLACEHOLDER,
+    TYPE_DESC_PLACEHOLDER
+} from "../utils/expressions";
 
 export const VARIABLE = "Variable";
 export const ARITHMETIC = "Arithmetic";
@@ -58,15 +63,20 @@ export const TABLE_CONSTRUCTOR = "TableConstructor";
 export const OBJECT_CONSTRUCTOR = "ObjectConstructor";
 export const WHITESPACE_MINUTIAE = "WHITESPACE_MINUTIAE";
 export const END_OF_LINE_MINUTIAE = "END_OF_LINE_MINUTIAE";
-
+export const CONFIGURABLE_TYPE_STRING = "string";
+export const CONFIGURABLE_TYPE_BOOLEAN = "boolean";
+export const ADD_CONFIGURABLE_LABEL = "Add Configurable";
 
 export const TYPE_DESC_CONSTRUCTOR = "TYPE_DESCRIPTOR";
 export const EXPR_CONSTRUCTOR = "EXPRESSION";
 export const TYPED_BINDING_CONSTRUCTOR = "TYPE_DESCRIPTOR BINDING_PATTERN";
 export const MAPPING_CONSTRUCTOR = "key : EXPRESSION";
+export const CONFIGURABLE_NAME_CONSTRUCTOR = "CONF_NAME";
 
-export const PLACE_HOLDER_DIAGNOSTIC_MESSAGES: string[] = [
-    DEFAULT_EXPR, DEFAULT_TYPE_DESC, DEFAULT_BINDING_PATTERN
+export const CONFIGURABLE_VALUE_REQUIRED_TOKEN = "?";
+
+export const PLACEHOLDER_DIAGNOSTICS: string[] = [
+    EXPR_PLACEHOLDER, STMT_PLACEHOLDER, TYPE_DESC_PLACEHOLDER, BINDING_PATTERN_PLACEHOLDER
 ];
 
 // Statement types supported in function-body-block
@@ -102,4 +112,11 @@ export type OtherStatementNodeTypes = ActionStatement
 
 export enum ArrayType {
     MAPPING_CONSTRUCTOR
+}
+
+export enum SymbolParameterType {
+    REQUIRED = "REQUIRED",
+    DEFAULTABLE = "DEFAULTABLE",
+    INCLUDED_RECORD = "INCLUDED_RECORD",
+    REST = "REST"
 }
