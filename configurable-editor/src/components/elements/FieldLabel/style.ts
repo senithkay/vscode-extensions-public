@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -17,23 +17,17 @@
  *
  */
 
-import React from "react";
+import { createTheme } from "@material-ui/core/styles";
 
-import { Box, Button } from "@material-ui/core";
-import AddIcon from "@material-ui/icons/Add";
-
-export interface AddInputButtonProps {
-    onAdd: () => void;
-}
-
-export function AddInputButton(props: AddInputButtonProps) {
-    const { onAdd } = props;
-
-    return (
-        <Box mb={1} mt={1}>
-            <Button variant="text" color="primary" startIcon={<AddIcon />} onClick={onAdd}>
-                Add
-            </Button>
-        </Box>
-    );
-}
+export const theme = createTheme({
+    overrides: {
+        MuiFormLabel: {
+            asterisk: {
+                "&$error": {
+                    color: "#db3131",
+                },
+                "color": "#db3131",
+            },
+        },
+    },
+});

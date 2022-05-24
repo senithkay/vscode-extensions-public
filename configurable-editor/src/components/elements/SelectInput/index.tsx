@@ -19,48 +19,49 @@
 
 import React, { ReactElement, useEffect, useState } from "react";
 
-import { FormControlLabel, Radio, RadioGroup, Typography } from "@material-ui/core";
+import { FormControl, InputLabel, MenuItem, Select } from "@material-ui/core";
 
-import { useStyles } from "./style";
-
-export interface RadioGroupInputProps {
+export interface SelectInputProps {
     id: string;
+    isRequired: boolean;
     value: string;
     types: string[];
-    setRadioGroupValue: (key: string, value: any) => void;
+    setSelectValue: (key: string, value: any) => void;
 }
 
-export function RadioGroupInput(props: RadioGroupInputProps) {
-    const { id, value, types, setRadioGroupValue } = props;
-    const [inputValue, setInputValue] = useState(String(value));
+export function SelectInput(props: SelectInputProps) {
+    const { id, isRequired, types, value, setSelectValue } = props;
+    const [inputValue, setInputValue] = useState(String(value ? value : ""));
     const reactElements: ReactElement[] = [];
-    const classes = useStyles();
 
     const handleChange = (e: any) => {
         setInputValue(e.target.value);
     };
 
     useEffect(() => {
-        setRadioGroupValue(id, inputValue);
+        setSelectValue(id, inputValue);
     }, [inputValue]);
 
     types.forEach((type) => {
         reactElements.push(
             (
-                <FormControlLabel
-                    key={type}
-                    value={type}
-                    control={<Radio color="primary"/>}
-                    label={<Typography variant="body2">{type}</Typography>}
-                    className={classes.radioButton}
-                />
+                <MenuItem key={id + "-" + type} value={type} style={{fontSize: 14}}>{type}</MenuItem>
             ),
         );
     });
 
     return (
-        <RadioGroup name="booleanValue" row={true} onChange={handleChange} defaultValue={value}>
-            {reactElements}
-        </RadioGroup>
+        <FormControl variant="standard" size="small" fullWidth={true}>
+            <InputLabel id="demo-simple-select-standard-label">value</InputLabel>
+            <Select
+                id={id}
+                value={inputValue}
+                required={isRequired}
+                onChange={handleChange}
+                style={{fontSize: 14}}
+            >
+                {reactElements}
+            </Select>
+        </FormControl>
     );
 }

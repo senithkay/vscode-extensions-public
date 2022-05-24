@@ -19,29 +19,26 @@
 import React from "react";
 
 import { IconButton } from "@material-ui/core";
-import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 
-import { useStyles } from "./style";
+import { DeleteButtonSvg } from "../../../assets";
 
-interface ExpandMoreProps {
-    expand: boolean;
-    onClick: () => void;
+interface DeleteButtonProps {
+    id: string;
+    onDelete: (id: string) => void;
 }
-const ExpandMore = ({ expand, onClick }: ExpandMoreProps) => {
-    const classes = useStyles();
+const DeleteButton = ({ id, onDelete }: DeleteButtonProps) => {
+
+    const handleDelete = () => {
+        onDelete(id);
+    };
 
     return (
         <IconButton
-            className={!expand ? classes.expandMoreIcon : classes.expandLessIcon}
-            aria-expanded={expand}
-            onClick={onClick}
+            onClick={handleDelete}
             size={"small"}
         >
-            <ExpandMoreIcon />
+            <img src={DeleteButtonSvg} height={20} width={20}/>
         </IconButton>
     );
 };
-export default ExpandMore;
-ExpandMore.defaultProps = {
-    expand: true,
-};
+export default DeleteButton;
