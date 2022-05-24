@@ -57,7 +57,10 @@ describe('Test helper pane functionality', () => {
         EditorPane
             .validateNewExpression("SimpleNameReference","var1")
             .getExpression("TypedBindingPattern")
-            .clickExpressionContent('var')
+            .doubleClickExpressionContent('var')
+
+        InputEditor
+            .typeInput("float")
 
         SuggestionsPane
             .clickSuggestionsTab("Suggestions")
@@ -174,7 +177,10 @@ describe('Test helper pane functionality', () => {
         EditorPane
             .validateNewExpression("SimpleNameReference","var1")
             .getExpression("TypedBindingPattern")
-            .clickExpressionContent('var')
+            .doubleClickExpressionContent('var')
+
+        InputEditor
+            .typeInput("decimal")
 
         SuggestionsPane
             .clickSuggestionsTab("Suggestions")
