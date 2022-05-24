@@ -60,7 +60,7 @@ describe('Test statement editor toolbar functionality', () => {
 
         SuggestionsPane
             .clickSuggestionsTab("Suggestions")
-            .clickLsSuggestion('float')
+            .clickLsTypeSuggestion('float')
 
         EditorPane
             .validateNewExpression("TypedBindingPattern","float")

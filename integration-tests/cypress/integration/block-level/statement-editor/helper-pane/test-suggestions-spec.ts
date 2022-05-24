@@ -61,7 +61,7 @@ describe('Test helper pane functionality', () => {
 
         SuggestionsPane
             .clickSuggestionsTab("Suggestions")
-            .clickLsSuggestion('int')
+            .clickLsTypeSuggestion('int')
 
         EditorPane
             .validateNewExpression("TypedBindingPattern","int")
@@ -132,7 +132,7 @@ describe('Test helper pane functionality', () => {
 
         SuggestionsPane
             .clickSuggestionsTab("Suggestions")
-            .clickLsSuggestion('int')
+            .clickLsTypeSuggestion('int')
 
         EditorPane
             .validateNewExpression("TypedBindingPattern","int")
@@ -178,7 +178,7 @@ describe('Test helper pane functionality', () => {
 
         SuggestionsPane
             .clickSuggestionsTab("Suggestions")
-            .clickLsSuggestion('int')
+            .clickLsTypeSuggestion('int')
 
         EditorPane
             .validateNewExpression("TypedBindingPattern","int")
@@ -200,7 +200,7 @@ describe('Test helper pane functionality', () => {
 
         SuggestionsPane
             .clickSuggestionsTab("Suggestions")
-            .clickLsSuggestion('float')
+            .clickLsTypeSuggestion('float')
 
         StatementEditor
             .save()
