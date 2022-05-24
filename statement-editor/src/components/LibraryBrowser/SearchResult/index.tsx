@@ -20,7 +20,7 @@ import {
     LibrarySearchResponse
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
-import { useStatementEditorStyles } from "../../styles";
+import { useStmtEditorHelperPanelStyles } from "../../styles";
 import { Library } from "../Library";
 import { SearchCategory } from "../SearchCategory";
 
@@ -32,7 +32,7 @@ interface SearchResultProps {
 }
 
 export function SearchResult(props: SearchResultProps) {
-    const statementEditorClasses = useStatementEditorStyles();
+    const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
     const { librarySearchResponse, libraryBrowsingHandler, moduleSelected, libraryDataFetchingHandler } = props;
     const { modules, classes, functions, records, constants, errors, types, clients, listeners, annotations,
             objectTypes, enums } = librarySearchResponse;
@@ -41,8 +41,8 @@ export function SearchResult(props: SearchResultProps) {
         <>
             {modules.length > 0 && !moduleSelected && (
                     <div>
-                        <div className={statementEditorClasses.librarySearchSubHeader}>Modules</div>
-                        <List className={statementEditorClasses.libraryElementBlockContent} style={{paddingBottom: '25px'}}>
+                        <div className={stmtEditorHelperClasses.librarySearchSubHeader}>Modules</div>
+                        <List className={stmtEditorHelperClasses.libraryElementBlockContent} style={{paddingBottom: '25px'}}>
                             {modules.map((library: LibraryInfo, index: number) => (
                                 <Library
                                     libraryInfo={library}

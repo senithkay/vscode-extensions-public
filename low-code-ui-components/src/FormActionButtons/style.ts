@@ -14,12 +14,19 @@ import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 
 export const useStyles = makeStyles((theme: Theme) =>
     createStyles({
-        buttonWrapper: {
+        footer: {
             height: 'auto',
             display: 'flex',
-            justifyContent: 'flex-end',
             width: '100%',
-            paddingRight: theme.spacing(2.5),
+            padding: '15px 20px'
+        },
+        buttonWrapper: {
+            display: 'flex',
+            justifyContent: 'flex-end',
+            width: '50%',
+        },
+        stmtEditorToggle: {
+            width: '50%'
         },
         spaceBetween: {
             padding: `${theme.spacing(1)}px ${theme.spacing(0.1)}px`,

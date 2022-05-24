@@ -15,7 +15,7 @@ import {
     CompletionResponse,
     ExpressionEditorLangClientInterface,
     PartialSTRequest,
-    PublishDiagnosticsParams
+    PublishDiagnosticsParams, SymbolInfoResponse
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     NodePosition,
@@ -29,7 +29,7 @@ import {
 } from "../components/InputEditor/constants";
 import { CurrentModel, SuggestionItem } from '../models/definitions';
 
-import { sortSuggestions } from "./index";
+import { getSymbolPosition, sortSuggestions } from "./index";
 import { ModelType, StatementEditorViewState } from "./statement-editor-viewstate";
 
 export async function getPartialSTForStatement(
@@ -37,6 +37,14 @@ export async function getPartialSTForStatement(
             getLangClient: () => Promise<ExpressionEditorLangClientInterface>): Promise<STNode> {
     const langClient: ExpressionEditorLangClientInterface = await getLangClient();
     const resp = await langClient.getSTForSingleStatement(partialSTRequest);
+    return resp.syntaxTree;
+}
+
+export async function getPartialSTForModuleMembers(
+            partialSTRequest: PartialSTRequest,
+            getLangClient: () => Promise<ExpressionEditorLangClientInterface>): Promise<STNode> {
+    const langClient: ExpressionEditorLangClientInterface = await getLangClient();
+    const resp = await langClient.getSTForModuleMembers(partialSTRequest);
     return resp.syntaxTree;
 }
 
@@ -74,13 +82,6 @@ export async function getCompletions (docUri: string,
         },
         position: {
             character: targetPosition.startColumn + currentModelPosition.startColumn + userInput.length,
-            line: targetPosition.startLine + currentModelPosition.startLine
-        }
-    }
-
-    if (STKindChecker.isIfElseStatement(completeModel)) {
-        completionParams.position = {
-            character: currentModelPosition.startColumn + userInput.length,
             line: targetPosition.startLine + currentModelPosition.startLine
         }
     }
@@ -174,3 +175,22 @@ export async function getDiagnostics(
     return diagnostics;
 }
 
+export async function getSymbolDocumentation(
+    docUri: string,
+    targetPosition: NodePosition,
+    currentModel: STNode,
+    getLangClient: () => Promise<ExpressionEditorLangClientInterface>,
+    userInput: string = ''): Promise<SymbolInfoResponse> {
+    const langClient = await getLangClient();
+    const symbolPos = getSymbolPosition(targetPosition, currentModel, userInput);
+    const symbolDoc = await  langClient.getSymbolDocumentation({
+        textDocumentIdentifier : {
+            uri: docUri
+        },
+        position: {
+            line: symbolPos.line,
+            character: symbolPos.offset
+        }
+    });
+    return symbolDoc;
+}

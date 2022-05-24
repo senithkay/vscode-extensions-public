@@ -58,6 +58,7 @@ export function AddForeachForm(props: ForeachProps) {
             isMutationProgress: isMutationInProgress,
             stSymbolInfo,
             currentFile,
+            syntaxTree,
             importStatements,
             experimentalEnabled
         },
@@ -258,7 +259,6 @@ export function AddForeachForm(props: ForeachProps) {
             label: formTitle,
             initialSource,
             formArgs: { formArgs },
-            validForm: isValidExpression,
             config: condition,
             onWizardClose,
             handleStatementEditorChange,
@@ -267,6 +267,8 @@ export function AddForeachForm(props: ForeachProps) {
             getLangClient: getExpressionEditorLangClient,
             applyModifications: modifyDiagram,
             library,
+            syntaxTree,
+            stSymbolInfo,
             importStatements,
             experimentalEnabled
         }
@@ -299,12 +301,8 @@ export function AddForeachForm(props: ForeachProps) {
             <FormControl data-testid="foreach-form" className={classes.wizardFormControlExtended}>
                 <FormHeaderSection
                     onCancel={onCancel}
-                    statementEditor={true}
                     formTitle={formTitle}
                     defaultMessage={"Foreach"}
-                    handleStmtEditorToggle={handleStmtEditorToggle}
-                    toggleChecked={false}
-                    experimentalEnabled={experimentalEnabled}
                 />
                 <div className={classes.formContentWrapper}>
                     <div className={classes.formCodeBlockWrapper}>
@@ -351,6 +349,10 @@ export function AddForeachForm(props: ForeachProps) {
                     saveBtnText={saveForEachButtonLabel}
                     isMutationInProgress={isMutationInProgress}
                     validForm={isValidExpression && expressionValue.length > 0}
+                    statementEditor={true}
+                    toggleChecked={false}
+                    experimentalEnabled={experimentalEnabled}
+                    handleStmtEditorToggle={handleStmtEditorToggle}
                     onSave={handleSave}
                     onCancel={onCancel}
                 />

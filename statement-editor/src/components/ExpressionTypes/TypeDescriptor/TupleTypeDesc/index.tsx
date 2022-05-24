@@ -18,7 +18,7 @@ import { TupleTypeDesc } from "@wso2-enterprise/syntax-tree";
 import { TYPE_DESC_CONSTRUCTOR } from "../../../../constants";
 import { StatementEditorContext } from "../../../../store/statement-editor-context";
 import { ExpressionArrayComponent } from "../../../ExpressionArray";
-import { useStatementEditorStyles } from "../../../styles";
+import { useStatementRendererStyles } from "../../../styles";
 import { TokenComponent } from "../../../Token";
 
 interface TupleTypeDescProps {
@@ -34,7 +34,7 @@ export function TupleTypeDescComponent(props: TupleTypeDescProps) {
         }
     } = stmtCtx;
 
-    const statementEditorClasses = useStatementEditorStyles();
+    const statementRendererClasses = useStatementRendererStyles();
 
     const onClickOnPlusIcon = (event: any) => {
         event.stopPropagation();
@@ -57,7 +57,7 @@ export function TupleTypeDescComponent(props: TupleTypeDescProps) {
             <TokenComponent model={model.openBracketToken} />
             <ExpressionArrayComponent expressions={model.memberTypeDesc} />
             <span
-                className={statementEditorClasses.plusIcon}
+                className={statementRendererClasses.plusIcon}
                 onClick={onClickOnPlusIcon}
             >
                 +

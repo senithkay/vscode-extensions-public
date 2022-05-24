@@ -66,6 +66,15 @@
         }
     }
 
+    &.default {
+        background-color: #e6e7ec;
+        border: 1px dashed #cdcfd8;
+
+        &.expanded {
+            border: 1px solid #cdcfd8;
+        }
+    }
+
     .performance-label-container {
         font-weight: 300;
         color: #8d91a3;
@@ -178,6 +187,10 @@
 
             &.patch {
                 background-color: #5567d5;
+            }
+
+            &.default {
+                background-color: #8d91a3;
             }
         }
     }

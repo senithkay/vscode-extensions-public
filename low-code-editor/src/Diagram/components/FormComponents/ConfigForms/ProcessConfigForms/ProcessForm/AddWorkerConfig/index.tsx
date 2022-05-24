@@ -133,11 +133,8 @@ export function AddWorkerConfigForm(props: WorkerConfigFormProps) {
         <FormControl data-testid="worker-form" className={formClasses.wizardFormControl}>
             <FormHeaderSection
                 onCancel={onCancel}
-                statementEditor={false}
                 formTitle={"lowcode.develop.configForms.worker.title"}
                 defaultMessage={"Worker"}
-                toggleChecked={false}
-                experimentalEnabled={experimentalEnabled}
             />
             <div className={formClasses.formContentWrapper}>
                 <VariableNameInput

@@ -56,8 +56,8 @@ export function convertQueryParamStringToSegments(queryParamsString: string): Qu
             };
             if (value.includes("=")) {
                 const splitedParam: string[] = value.split("=");
-                if (splitedParam.length === 2 && splitedParam[1].startsWith("[") && splitedParam[1].endsWith("]")) {
-                    const formattedQueryParam = splitedParam[1].replace("[", "").replace("]", "");
+                if (splitedParam.length === 2 && splitedParam[1].startsWith("'[") && splitedParam[1].endsWith("']")) {
+                    const formattedQueryParam = splitedParam[1].replace("'[", "").replace("']", "");
                     const splitedNameAndType: string[] = formattedQueryParam.split(" ");
                     queryParam.id = index;
                     queryParam.name = splitedNameAndType[1];
@@ -203,9 +203,9 @@ export function generateQueryParamFromST(params: STNode[]): string {
             const type: string = splitedQueryParam[0];
             const name: string = queryParamSource.substr(type.length + 1, queryParamSource.length - 1);
             if (index === (array.length - 1)) {
-                queryParamString += name + "=[" + type + " " + name + "]";
+                queryParamString += name + "='[" + type + " " + name + "']";
             } else {
-                queryParamString += name + "=[" + type + " " + name + "]&";
+                queryParamString += name + "='[" + type + " " + name + "']&";
             }
         });
     }
@@ -247,12 +247,12 @@ export function extractPayloadFromSTNode(params: STNode[]): STNode {
 export function generateQueryParamFromQueryCollection(params: QueryParamCollection): string {
     let queryParamString: string = "";
     if (params && params.queryParams && params.queryParams.length > 0) {
-        queryParamString += "?";
+        queryParamString += "'?";
         params.queryParams.forEach((value, index, array) => {
             if (index === (array.length - 1)) {
-                queryParamString += value.name + "=[" + value.type + " " + value.name + "]";
+                queryParamString += value.name + "='[" + value.type + " " + value.name + "']";
             } else {
-                queryParamString += value.name + "=[" + value.type + " " + value.name + "]&";
+                queryParamString += value.name + "='[" + value.type + " " + value.name + "']&";
             }
         });
     }
