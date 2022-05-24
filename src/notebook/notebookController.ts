@@ -68,7 +68,7 @@ export class BallerinaNotebookController {
                 change.removedCells.forEach( async (cell: NotebookCell) => {
                     let failedVars = await this.deleteMetaInfoFromMemoryForCell(cell);
                     failedVars.length && window.showInformationMessage(
-                        `${failedVars.join(", ")} is/are not removed from memory since it/they have referred in other cells`
+                        `'${failedVars.join("', '")}' is/are not removed from memory since it/they have referred in other cells.`
                     );
                     this.updateVariableView();
                 });
@@ -110,7 +110,7 @@ export class BallerinaNotebookController {
 
         // handle request to cancel the running execution 
         execution.token.onCancellationRequested(() => {
-            appendTextToOutput('Execution Interrupted');
+            appendTextToOutput('Execution Interrupted.');
             execution.end(false, Date.now());
         });
         
@@ -120,7 +120,7 @@ export class BallerinaNotebookController {
         if (!cellContent && !!langClient) {
             let failedVars = await this.deleteMetaInfoFromMemoryForCell(cell);
             failedVars.length && appendTextToOutput(
-                `${failedVars.join(", ")} is/are not removed from memory since it/they have referred in other cells`
+                `'${failedVars.join("', '")}' is/are not removed from memory since it/they have referred in other cells.`
             );
             execution.end(!failedVars.length, Date.now());
             return;
@@ -129,7 +129,7 @@ export class BallerinaNotebookController {
         // handle if language client is not ready yet 
         if (!langClient) {
             execution.replaceOutput([new NotebookCellOutput([
-                NotebookCellOutputItem.text("Language client is not ready yet")
+                NotebookCellOutputItem.text("Language client is not ready yet.")
             ])]);
             execution.end(false, Date.now());
             return;
@@ -193,7 +193,7 @@ export class BallerinaNotebookController {
                 let removedDefs = this.metaInfoHandler.handleNewMetaInfo(cell, output.metaInfo);
                 let failedVars = await this.deleteMetaInfoFromMemory(removedDefs);
                 failedVars.length && appendTextToOutput(
-                    `${failedVars.join(", ")} is/are not removed from memory since it/they have referred in other cells`
+                    `'${failedVars.join("', '")}' is/are not removed from memory since it/they have referred in other cells.`
                 );
             }
 
@@ -253,6 +253,7 @@ export class BallerinaNotebookController {
         }
         return failedVars;
     }
+
     /**
      * Brings controller to initial state by
      *  - resetting execution counter
@@ -313,17 +314,16 @@ class MetoInfoHandler {
         let varsToDelete: string[] = [];
 
         // finding the defined values for cell
-        // this can include values that are redefined and excuted in another cell
+        // this can include values that are redefined and executed in another cell
         for (const cellInfo of this.cellInfoList) {
             if (cellInfo.cell.document.uri === cell.document.uri) {
-                definedForCell.push(...cellInfo.definedVars);
-                definedForCell.push(...cellInfo.moduleDclns);
+                definedForCell.push(...cellInfo.definedVars, ...cellInfo.moduleDclns);
                 break;
             }
         }
 
         // check with variable to cell map
-        // if the cell mapped to variable is not the same cell then that variable decln
+        // if the cell mapped to the variable is not the same cell then that variable decln
         // has defined in another place and executed after this cell
         definedForCell.forEach((key: string) => {
             if (this.varToCellMap.get(key)?.document.uri === cell.document.uri){
@@ -350,7 +350,8 @@ class MetoInfoHandler {
 
     /**
      * Handles collection of meta info for cells
-     * if the given cell is already in the cellinfoList, this will update info for thet cell
+     * if the given cell is already in the cellinfoList, this will update info for that cell
+     * and removes definitions that was in this cell but removed with the current execution. 
      * otherwise create a new entry with the info
      * 
      * @param cell Notebook cell
@@ -365,8 +366,10 @@ class MetoInfoHandler {
                 found = true;
                 // find defs previously associated with this cell due to an previous
                 // execution and not available after the new execution
-                removedDefs.push(...cellInfo.definedVars.filter(x => !metaInfo.definedVars.includes(x)));
-                removedDefs.push(...cellInfo.moduleDclns.filter(x => !metaInfo.moduleDclns.includes(x)));
+                removedDefs.push(
+                    ...cellInfo.definedVars.filter(x => !metaInfo.definedVars.includes(x)),
+                    ...cellInfo.moduleDclns.filter(x => !metaInfo.moduleDclns.includes(x))
+                );
                 cellInfo.definedVars = metaInfo.definedVars;
                 cellInfo.moduleDclns = metaInfo.moduleDclns;
                 break;
@@ -380,8 +383,7 @@ class MetoInfoHandler {
             })
         }
         // update varToCellMap
-        metaInfo.definedVars.forEach((key: string) => this.varToCellMap.set(key, cell));
-        metaInfo.moduleDclns.forEach((key: string) => this.varToCellMap.set(key, cell));
+        [...metaInfo.definedVars, ...metaInfo.moduleDclns].forEach((key: string) => this.varToCellMap.set(key, cell));
         return removedDefs.filter((key: string) => this.varToCellMap.get(key)?.document.uri === cell.document.uri);
     }
 
@@ -394,6 +396,6 @@ class MetoInfoHandler {
      */
     reset() {
         this.cellInfoList = [];
-        this.varToCellMap = new Map<string, NotebookCell>();
+        this.varToCellMap.clear();
     }
 }
