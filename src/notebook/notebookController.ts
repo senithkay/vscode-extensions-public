@@ -312,7 +312,6 @@ class MetoInfoHandler {
      */
     getMetaForCell(cell: NotebookCell): string[] {
         let definedForCell: string[] = [];
-        let varsToDelete: string[] = [];
 
         // finding the defined values for cell
         // this can include values that are redefined and executed in another cell
@@ -326,13 +325,7 @@ class MetoInfoHandler {
         // check with variable to cell map
         // if the cell mapped to the variable is not the same cell then that variable decln
         // has defined in another place and executed after this cell
-        definedForCell.forEach((key: string) => {
-            if (this.varToCellMap.get(key)?.document.uri === cell.document.uri){
-                varsToDelete.push(key);
-            }
-        });
-        
-        return varsToDelete;
+        return definedForCell.filter((key: string) => this.varToCellMap.get(key)?.document.uri === cell.document.uri);
     }
 
     /**
