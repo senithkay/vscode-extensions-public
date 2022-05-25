@@ -22,7 +22,7 @@ import assert = require('assert');
 import tcpPortUsed = require('tcp-port-used');
 import * as path from 'path';
 import * as child_process from "child_process";
-import * as http from 'http';
+// import * as http from 'http';
 
 import { getBallerinaHome, isWindows } from '../test-util';
 import { DebugClient } from "vscode-debugadapter-testsupport";
@@ -130,51 +130,51 @@ suite('Ballerina Debug Adapter', () => {
                 { path: `file://${program}`, line: 5, verified: false });
         });
 
-        test.skip('should stop on a breakpoint, hello world service', async () => {
-            const program = path.join(DATA_ROOT, 'hello_world_service.bal');
-            const debuggeePort = await getAvailablePort(5007);
-            const launchArgs = {
-                script: program,
-                "ballerina.home": BALLERINA_HOME,
-                request: "launch",
-                name: "Ballerina Debug",
-                "debugServer": DEBUG_PORT,
-                "debuggeePort": debuggeePort
-            };
+        // test.skip('should stop on a breakpoint, hello world service', async () => {
+        //     const program = path.join(DATA_ROOT, 'hello_world_service.bal');
+        //     const debuggeePort = await getAvailablePort(5007);
+        //     const launchArgs = {
+        //         script: program,
+        //         "ballerina.home": BALLERINA_HOME,
+        //         request: "launch",
+        //         name: "Ballerina Debug",
+        //         "debugServer": DEBUG_PORT,
+        //         "debuggeePort": debuggeePort
+        //     };
 
-            dc.on('output', (res) => {
-                if (res.body.output.indexOf("Running executable") > -1) {
-                    setTimeout(function () {
-                        http.get('http://0.0.0.0:9090/hello/sayHello');
-                    }, 5000);
-                }
-            });
-            return await dc.hitBreakpoint(launchArgs, { path: program, line: 10, verified: false },
-                { path: `file://${program}`, line: 10, verified: false });
-        });
+        //     dc.on('output', (res) => {
+        //         if (res.body.output.indexOf("Running executable") > -1) {
+        //             setTimeout(function () {
+        //                 http.get('http://0.0.0.0:9090/hello/sayHello');
+        //             }, 5000);
+        //         }
+        //     });
+        //     return await dc.hitBreakpoint(launchArgs, { path: program, line: 10, verified: false },
+        //         { path: `file://${program}`, line: 10, verified: false });
+        // });
 
-        test.skip('should stop on a breakpoint, hello world service - package', async () => {
-            const program = path.join(DATA_ROOT, 'helloServicePackage', 'hello_service.bal');
-            const debuggeePort = await getAvailablePort(5008);
-            const launchArgs = {
-                script: program,
-                "ballerina.home": BALLERINA_HOME,
-                request: "launch",
-                name: "Ballerina Debug",
-                "debugServer": DEBUG_PORT,
-                "debuggeePort": debuggeePort
-            };
+        // test.skip('should stop on a breakpoint, hello world service - package', async () => {
+        //     const program = path.join(DATA_ROOT, 'helloServicePackage', 'hello_service.bal');
+        //     const debuggeePort = await getAvailablePort(5008);
+        //     const launchArgs = {
+        //         script: program,
+        //         "ballerina.home": BALLERINA_HOME,
+        //         request: "launch",
+        //         name: "Ballerina Debug",
+        //         "debugServer": DEBUG_PORT,
+        //         "debuggeePort": debuggeePort
+        //     };
 
-            dc.on('output', (res) => {
-                if (res.body.output.indexOf("Running executable") > -1) {
-                    setTimeout(function () {
-                        http.get('http://0.0.0.0:9091/hello/sayHello');
-                    }, 5000);
-                }
-            });
-            return await dc.hitBreakpoint(launchArgs, { path: program, line: 11, verified: false },
-                { path: `file://${program}`, line: 11, verified: false });
-        });
+        //     dc.on('output', (res) => {
+        //         if (res.body.output.indexOf("Running executable") > -1) {
+        //             setTimeout(function () {
+        //                 http.get('http://0.0.0.0:9091/hello/sayHello');
+        //             }, 5000);
+        //         }
+        //     });
+        //     return await dc.hitBreakpoint(launchArgs, { path: program, line: 11, verified: false },
+        //         { path: `file://${program}`, line: 11, verified: false });
+        // });
 
         test.skip('step In, hello world service - package', async () => {
             const program = path.join(DATA_ROOT, 'helloPackage', 'modules', 'hello', 'hello_service.bal');

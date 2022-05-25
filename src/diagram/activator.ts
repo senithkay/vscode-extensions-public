@@ -23,10 +23,12 @@ import {
 } from 'vscode';
 import { render } from './renderer';
 import {
+	BallerinaProjectComponents,
 	CONNECTOR_LIST_CACHE,
 	DocumentIdentifier,
 	ExtendedLangClient,
 	HTTP_CONNECTOR_LIST_CACHE,
+	NOT_SUPPORTED,
 	PerformanceAnalyzerGraphResponse,
 	PerformanceAnalyzerRealtimeResponse
 } from '../core/extended-language-client';
@@ -61,6 +63,7 @@ import {
 	LibrarySearchResponse
 } from "../library-browser/model";
 import { getSentryConfig, SentryConfig } from './sentry';
+import { BallerinaConnectorsResponse, GetSyntaxTreeResponse } from '@wso2-enterprise/ballerina-low-code-editor-distribution';
 
 export let hasDiagram: boolean = false;
 
@@ -110,14 +113,22 @@ export async function showDiagramEditor(startLine: number, startColumn: number, 
 	DiagramPanel.create(isCommand ? ViewColumn.Two : ViewColumn.One);
 
 	// Reset cached connector list
-	langClient.getConnectors({ query: "", limit: 18 }, true).then((connectorList) => {
+	langClient.getConnectors({ query: "", limit: 18 }, true).then((response) => {
+		const connectorList = response as BallerinaConnectorsResponse;
+		if (connectorList.central === undefined) {
+			return;
+		}
 		if (connectorList && connectorList.central?.length > 0) {
 			ballerinaExtInstance.context?.globalState.update(CONNECTOR_LIST_CACHE, connectorList);
 		}
 	});
 
 	// Reset cached HTTP connector list
-	langClient.getConnectors({ query: "http", limit: 18 }, true).then((connectorList) => {
+	langClient.getConnectors({ query: "http", limit: 18 }, true).then((response) => {
+		const connectorList = response as BallerinaConnectorsResponse;
+		if (connectorList.central === undefined) {
+			return;
+		}
 		if (connectorList && connectorList.central?.length > 0) {
 			ballerinaExtInstance.context?.globalState.update(HTTP_CONNECTOR_LIST_CACHE, connectorList);
 		}
@@ -247,12 +258,13 @@ async function resolveMissingDependency(filePath: string, fileContent: string, l
 		progress.report({ increment: 0 });
 
 		// Resolve missing dependencies.
-		const response = await langClient.resolveMissingDependencies({
+		const dependenciesResponse = await langClient.resolveMissingDependencies({
 			documentIdentifier: {
 				uri: Uri.file(filePath).toString()
 			}
 		});
 
+		const response = dependenciesResponse as GetSyntaxTreeResponse;
 		progress.report({ increment: 20, message: "Updating code file..." });
 
 		if (response.parseSuccess) {
@@ -494,7 +506,7 @@ class DiagramPanel {
 				methodName: "getEnv",
 				handler: async (args: any[]): Promise<any> => {
 					const envName = args[0];
-					return (envName in process.env) ? process.env[envName]: "NOT_FOUND";
+					return (envName in process.env) ? process.env[envName] : "NOT_FOUND";
 				}
 			},
 		];
@@ -543,7 +555,8 @@ export async function refreshDiagramForEditorChange(change: Change) {
 			documentIdentifier: {
 				uri: change.fileUri.toString()
 			}
-		}).then(response => {
+		}).then(stResponse => {
+			const response = stResponse as GetSyntaxTreeResponse;
 			if (response.parseSuccess && response.syntaxTree) {
 				diagramElement = getChangedElement(response.syntaxTree, change);
 			}
@@ -551,7 +564,9 @@ export async function refreshDiagramForEditorChange(change: Change) {
 	}
 
 	if (!diagramElement!.isDiagram) {
-		return;
+		diagramElement!.fileUri = window.activeTextEditor?.document.uri;
+		diagramElement!.startLine = 0;
+		diagramElement!.startColumn = 0;
 	}
 	callUpdateDiagramMethod();
 }
@@ -618,7 +633,7 @@ function getChangedElement(st: SyntaxTree, change: Change): DiagramOptions {
 		const imports: Member[] = st["imports"].filter(importStatement => {
 			return isWithinRange(importStatement, change);
 		});
-		member = [ ...member, ...imports];
+		member = [...member, ...imports];
 	}
 
 	if (member.length == 0) {
@@ -644,18 +659,18 @@ function getChangedElement(st: SyntaxTree, change: Change): DiagramOptions {
 		member[0].kind === 'TypeDefinition' || member[0].kind === 'ConstDeclaration' ||
 		member[0].kind === 'EnumDeclaration' || member[0].kind === 'ClassDefinition' ||
 		member[0].kind === 'ImportDeclaration' || member[0].kind === 'FunctionDefinition') {
-			if (member[0].kind === 'FunctionDefinition') {
-				return {
-					isDiagram: true, fileUri: change.fileUri,
-					startLine: member[0].functionName?.position.startLine,
-					startColumn: member[0].functionName?.position.startColumn
-				};
-			} else {
-				return {
-					isDiagram: true, fileUri: change.fileUri, startLine: member[0].position.startLine,
-					startColumn: member[0].position.startColumn
-				};
-			}
+		if (member[0].kind === 'FunctionDefinition') {
+			return {
+				isDiagram: true, fileUri: change.fileUri,
+				startLine: member[0].functionName?.position.startLine,
+				startColumn: member[0].functionName?.position.startColumn
+			};
+		} else {
+			return {
+				isDiagram: true, fileUri: change.fileUri, startLine: member[0].position.startLine,
+				startColumn: member[0].position.startColumn
+			};
+		}
 	}
 	return { isDiagram: false };
 }
@@ -692,65 +707,73 @@ export async function renderFirstDiagramElement(client: ExtendedLangClient) {
 		});
 
 		const documentIdentifiers: DocumentIdentifier[] = [{ uri: currentFileUri }];
-		await client.getBallerinaProjectComponents({ documentIdentifiers }).then(async (response) => {
-			if (!response.packages || response.packages.length == 0 || !response.packages[0].modules) {
-				return;
+		let projectResponse;
+		let i = 0;
+		do {
+			projectResponse = await client.getBallerinaProjectComponents({ documentIdentifiers });
+			if (projectResponse === NOT_SUPPORTED) {
+				await new Promise(resolve => setTimeout(resolve, 300));
 			}
-			const defaultModules: Module[] = response.packages[0].modules.filter(module => {
-				return !module.name;
-			});
-			if (defaultModules.length == 0) {
-				return;
-			}
-			if ((defaultModules[0].functions && defaultModules[0].functions.length > 0) ||
-				(defaultModules[0].services && defaultModules[0].services.length > 0)) {
-				const mainFunctionNodes = defaultModules[0].functions.filter(fn => {
-					return fn.name === 'main';
-				});
-				if (mainFunctionNodes.length > 0) {
-					const path = join(folder.uri.path, mainFunctionNodes[0].filePath);
-					await showDiagramEditor(0, 0, path);
-					diagramElement = {
-						isDiagram: true,
-						fileUri: Uri.file(path),
-						startLine: mainFunctionNodes[0].endLine,
-						startColumn: mainFunctionNodes[0].endColumn - 1
-					};
-					callUpdateDiagramMethod();
-				} else if (defaultModules[0].services && defaultModules[0].services.length > 0) {
-					const path = join(folder.uri.path, defaultModules[0].services[0].filePath);
-					for (let i = 0; i < defaultModules[0].services.length; i++) {
-						await showDiagramEditor(0, 0, path);
-						let startLine: number;
-						let startColumn: number;
-						if (defaultModules[0].services[i].resources && defaultModules[0].services[i].resources.length > 0) {
-							startLine = defaultModules[0].services[i].resources[0].startLine;
-							startColumn = defaultModules[0].services[i].resources[0].startColumn;
-						} else {
-							startLine = defaultModules[0].services[i].startLine;
-							startColumn = defaultModules[0].services[i].startColumn;
-						}
-						diagramElement = {
-							isDiagram: true,
-							fileUri: Uri.file(path),
-							startLine,
-							startColumn
-						};
-						callUpdateDiagramMethod();
-						break;
-					}
-				} else if (defaultModules[0].functions.length > 0) {
-					const path = join(folder.uri.path, defaultModules[0].functions[0].filePath);
-					await showDiagramEditor(0, 0, path);
-					diagramElement = {
-						isDiagram: true,
-						fileUri: Uri.file(path),
-						startLine: defaultModules[0].functions[0].endLine,
-						startColumn: defaultModules[0].functions[0].endColumn - 1
-					};
-					callUpdateDiagramMethod();
-				}
-			}
+		} while (i++ < 5 && projectResponse === NOT_SUPPORTED);
+
+		const response = projectResponse as BallerinaProjectComponents;
+		if (!response.packages || response.packages.length == 0 || !response.packages[0].modules) {
+			return;
+		}
+		const defaultModules: Module[] = response.packages[0].modules.filter(module => {
+			return !module.name;
 		});
+		if (defaultModules.length == 0) {
+			return;
+		}
+		if ((defaultModules[0].functions && defaultModules[0].functions.length > 0) ||
+			(defaultModules[0].services && defaultModules[0].services.length > 0)) {
+			const mainFunctionNodes = defaultModules[0].functions.filter(fn => {
+				return fn.name === 'main';
+			});
+			if (mainFunctionNodes.length > 0) {
+				const path = join(folder.uri.path, mainFunctionNodes[0].filePath);
+				await showDiagramEditor(0, 0, path);
+				diagramElement = {
+					isDiagram: true,
+					fileUri: Uri.file(path),
+					startLine: mainFunctionNodes[0].endLine,
+					startColumn: mainFunctionNodes[0].endColumn - 1
+				};
+				callUpdateDiagramMethod();
+			} else if (defaultModules[0].services && defaultModules[0].services.length > 0) {
+				const path = join(folder.uri.path, defaultModules[0].services[0].filePath);
+				for (let i = 0; i < defaultModules[0].services.length; i++) {
+					await showDiagramEditor(0, 0, path);
+					let startLine: number;
+					let startColumn: number;
+					if (defaultModules[0].services[i].resources && defaultModules[0].services[i].resources.length > 0) {
+						startLine = defaultModules[0].services[i].resources[0].startLine;
+						startColumn = defaultModules[0].services[i].resources[0].startColumn;
+					} else {
+						startLine = defaultModules[0].services[i].startLine;
+						startColumn = defaultModules[0].services[i].startColumn;
+					}
+					diagramElement = {
+						isDiagram: true,
+						fileUri: Uri.file(path),
+						startLine,
+						startColumn
+					};
+					callUpdateDiagramMethod();
+					break;
+				}
+			} else if (defaultModules[0].functions.length > 0) {
+				const path = join(folder.uri.path, defaultModules[0].functions[0].filePath);
+				await showDiagramEditor(0, 0, path);
+				diagramElement = {
+					isDiagram: true,
+					fileUri: Uri.file(path),
+					startLine: defaultModules[0].functions[0].endLine,
+					startColumn: defaultModules[0].functions[0].endColumn - 1
+				};
+				callUpdateDiagramMethod();
+			}
+		}
 	});
 }
