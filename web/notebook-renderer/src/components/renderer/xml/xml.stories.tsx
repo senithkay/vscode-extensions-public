@@ -23,7 +23,6 @@ export const SimpleXml1 = {
     },
 };
 
-
 export const SimpleXml2 = {
     args: {
         notebookCellOutput:{

@@ -65,4 +65,3 @@ export const GraphForNotebookOutput: FunctionComponent<{ notebookCellOutput: Rea
     const graphContent = getGraphContent();
     return <Graph graphContent={graphContent} />;
 }
- 

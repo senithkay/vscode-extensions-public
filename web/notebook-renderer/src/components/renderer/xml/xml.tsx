@@ -40,4 +40,3 @@ export const Xml: FunctionComponent<{ notebookCellOutput: Readonly<NotebookCellR
             {renderXml(notebookCellOutput.shellValue.value)}
         </div>;
 }
- 
