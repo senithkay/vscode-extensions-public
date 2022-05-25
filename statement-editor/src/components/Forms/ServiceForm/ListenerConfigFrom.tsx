@@ -35,7 +35,8 @@ interface ListenerConfigFormProps {
     syntaxDiag?: StmtDiagnostic[];
     portSemDiagMsg: string;
     nameSemDiagMsg: string;
-    onChange: (listenerConfig?: ListenerConfigFormState) => void;
+    onChange: (listenerConfig?: ListenerConfigFormState, isPortInteracted?: boolean,
+               isNameInteracted?: boolean) => void;
 }
 
 export function ListenerConfigForm(props: ListenerConfigFormProps) {
@@ -76,14 +77,14 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
         setCurrentComponentName("Listener Name");
         setListenerName({isInteracted: true, value: name});
         onChange({listenerName: name, listenerPort: listenerPort.value, fromVar: fromVarRef,
-                  createNewListener});
+                  createNewListener}, listenerPort.isInteracted, true);
     }
 
     const onListenerPortChange = (port: string) => {
         setCurrentComponentName("Listener Port");
         setListenerPort({isInteracted: true, value: port});
         onChange({listenerName: listenerName.value, listenerPort: port, fromVar: fromVarRef,
-                  createNewListener});
+                  createNewListener}, true, listenerName.isInteracted);
     }
 
     const onListenerSelect = (name: string) => {
@@ -133,8 +134,6 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
             }}
             errorMessage={(syntaxDiag && currentComponentName === "Listener Name" && syntaxDiag[0].message) ||
                 nameSemDiagMsg}
-            onBlur={null}
-            // onFocus={onNameFocus}
             placeholder={"listener"}
             size="small"
             disabled={(syntaxDiag && currentComponentName !== "Listener Name") || isDisabled}
@@ -153,7 +152,6 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
             }}
             errorMessage={(syntaxDiag && currentComponentName === "Listener Port" && syntaxDiag[0].message) ||
                 portSemDiagMsg}
-            onBlur={null}
             placeholder={"9090"}
             size="small"
             disabled={(syntaxDiag && currentComponentName !== "Listener Port") || isDisabled}

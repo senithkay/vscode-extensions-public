@@ -93,7 +93,7 @@ export function FunctionForm(props: FunctionProps) {
                 ...targetPosition, startColumn : model?.functionName?.position?.startColumn
             })
         );
-        const updatedContent = await getUpdatedSource(codeSnippet, model?.source, {
+        const updatedContent = getUpdatedSource(codeSnippet, model?.source, {
             ...model?.functionSignature?.position, startColumn : model?.functionName?.position?.startColumn
         }, undefined, true);
         const partialST = await getPartialSTForModuleMembers(

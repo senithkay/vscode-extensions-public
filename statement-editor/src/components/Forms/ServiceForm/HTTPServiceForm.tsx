@@ -77,7 +77,7 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
                     portSemDiagMsg = m.expressions[0]?.viewState?.diagnosticsInRange[0]?.message;
                 }
             } else if (STKindChecker.isListenerDeclaration(m)) {
-                portSemDiagMsg = m.initializer?.parenthesizedArgList?.viewState?.diagnosticsInRange[0]?.message;
+                portSemDiagMsg = m.initializer?.viewState?.diagnosticsInRange[0]?.message;
                 nameSemDiagMsg = m.variableName?.viewState?.diagnosticsInRange[0]?.message;
             }
         })
@@ -96,6 +96,7 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
     const [basePath, setBsePath] = useState<FormEditorField>({isInteracted: true, value: path});
     const [listenerConfig, setListenerConfig] = useState<ListenerConfigFormState>(getListenerConfig(serviceModel,
         isEdit));
+    const [isListenerInteracted, setIsListenerInteracted] = useState<boolean>(false);
 
     const listenerList = Array.from(stSymbolInfo.listeners)
         .filter(([key, value]) =>
@@ -117,7 +118,7 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
         const codeSnippet = getSource(updateServiceDeclartion({
             serviceBasePath: servicePath, listenerConfig: lc
         }, updatePosition));
-        const updatedContent = await getUpdatedSource(codeSnippet, model?.source, updatePosition, undefined,
+        const updatedContent = getUpdatedSource(codeSnippet, model?.source, updatePosition, undefined,
             true);
         let partialST;
         if (config.createNewListener) {
@@ -146,12 +147,12 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
         await serviceParamChange(value, listenerConfig);
     }
 
-    const onListenerChange = async (config: ListenerConfigFormState) => {
+    const onListenerChange = async (config: ListenerConfigFormState, isPortInteracted?: boolean,
+                                    isNameInteracted?: boolean) => {
         setCurrentComponentName("Listener");
         setListenerConfig(config);
-        // if (config.createNewListener && config.) {
-        //
-        // }
+        setIsListenerInteracted((config.listenerPort ? isPortInteracted : true) &&
+            (config.listenerName ? (isNameInteracted || !config.fromVar) : true));
         await serviceParamChange(basePath.value, config);
     }
 
@@ -204,32 +205,6 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
         }
     }
 
-    const getCustomTemplate = () => {
-        if (serviceModel) {
-            const resourcePath = serviceModel?.absoluteResourcePath;
-            if (Array.isArray(resourcePath)) {
-                if (resourcePath.length) {
-                    return {
-                        defaultCodeSnippet: "",
-                        targetColumn: 1,
-                    }
-
-                } else {
-                    return {
-                        defaultCodeSnippet: " ",
-                        targetColumn: 1,
-                    }
-                }
-            }
-
-        } else {
-            return {
-                defaultCodeSnippet: `service  on new http:Listener(1234) {}`,
-                targetColumn: 9,
-            }
-        }
-    }
-
     return (
         <>
             <div className={formClasses.formContentWrapper}>
@@ -278,7 +253,8 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
                 saveBtnText={"Save"}
                 onSave={handleOnSave}
                 onCancel={onCancel}
-                validForm={true}
+                validForm={(isEdit || (isListenerInteracted && currentComponentSyntaxDiag === undefined &&
+                    portSemDiagMsg === undefined && nameSemDiagMsg === undefined))}
             />
         </>
     )

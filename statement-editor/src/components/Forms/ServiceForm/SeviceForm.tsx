@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, { useState } from "react";
+import React, {useEffect, useState} from "react";
 
 import { FormControl } from "@material-ui/core";
 import {
@@ -60,6 +60,10 @@ export function ServiceConfigForm(props: ServiceConfigFormProps) {
         default:
             // configForm = <TriggerServiceForm onSave={onSave} onCancel={onCancel} model={model} targetPosition={targetPosition} />
     }
+
+    useEffect(() => {
+        setServiceType(getServiceTypeFromModel(model, stSymbolInfo));
+    }, [model]);
 
     return (
         <FormControl data-testid="service-config-form" className={formClasses.wizardFormControl}>
