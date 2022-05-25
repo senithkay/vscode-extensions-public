@@ -41,9 +41,10 @@ export const activate: ActivationFunction = (context: RendererContext<any>) => (
                     break;
             }
         } catch {
+            let match = data.text().match(/^{\n\t"shellValue": {\n\t\t"value": (?<value>.*),\n\t\t"mimeType": "/);
             render(<div>
                 <p>Error in rendering output!</p>
-                <p>{data.text()}</p>
+                <p>{match?.groups ? match.groups.value : data.text()}</p>
             </div>, element);
         }
     }
