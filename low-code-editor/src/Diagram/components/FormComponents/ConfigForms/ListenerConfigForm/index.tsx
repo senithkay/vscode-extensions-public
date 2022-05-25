@@ -11,28 +11,18 @@
  * associated services.
  */
 import React, { useState } from "react";
-import { FormattedMessage } from "react-intl";
 
-import { Box, FormControl, FormHelperText, Typography } from "@material-ui/core";
 import { ExpressionEditorProps } from "@wso2-enterprise/ballerina-expression-editor";
 import {
     FormElementProps
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import {
-    FormActionButtons,
-    FormHeaderSection
-} from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
+import {FormEditor} from "@wso2-enterprise/ballerina-statement-editor";
 import { ListenerDeclaration, NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
-import { ListenerFormIcon } from "../../../../../assets/icons";
-import { PrimaryButton } from "../../../../../components/Buttons/PrimaryButton";
 import { useDiagramContext } from "../../../../../Contexts/Diagram";
 import { createImportStatement, createListenerDeclartion } from "../../../../utils/modification-util";
 import { useStyles as useFormStyles } from "../../DynamicConnectorForm/style";
-import { SelectDropdownWithButton } from "../../FormFieldComponents/DropDown/SelectDropdownWithButton";
 import { LowCodeExpressionEditor } from "../../FormFieldComponents/LowCodeExpressionEditor";
-import { TextLabel } from "../../FormFieldComponents/TextField/TextLabel";
-import { VariableNameInput } from "../Components/VariableNameInput";
 
 import { isListenerConfigValid } from "./util";
 import { ListenerConfig } from "./util/types";
@@ -48,9 +38,8 @@ interface ListenerConfigFormProps {
 
 // FixMe: show validation messages to listenerName and listenerPort
 export function ListenerConfigForm(props: ListenerConfigFormProps) {
-    const formClasses = useFormStyles();
     const { model, targetPosition, onCancel, onSave, formType, isLastMember } = props;
-    const { api: { code: { modifyDiagram } } } = useDiagramContext();
+    const { api: { code: { modifyDiagram }, ls: { getExpressionEditorLangClient } }, props: { currentFile }, } = useDiagramContext();
     let defaultState: ListenerConfig;
 
     if (model && STKindChecker.isListenerDeclaration(model)) {
@@ -157,45 +146,18 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
     }
 
     return (
-        <FormControl data-testid="listener-form" className={formClasses.wizardFormControl}>
-            <FormHeaderSection
+        <>
+            <FormEditor
+                initialSource={model ? model.source : undefined}
+                initialModel={model}
+                targetPosition={model ? model?.position : targetPosition}
                 onCancel={onCancel}
-                formTitle={"lowcode.develop.connectorForms.HTTP.title"}
-                defaultMessage={"Listener"}
-                formType={formType}
+                type={"Listener"}
+                currentFile={currentFile}
+                getLangClient={getExpressionEditorLangClient}
+                applyModifications={modifyDiagram}
+                topLevelComponent={true} // todo: Remove this
             />
-            <div className={formClasses.formContentWrapper}>
-                <div className={formClasses.formNameWrapper}>
-                    <TextLabel
-                        required={true}
-                        textLabelId="lowcode.develop.connectorForms.HTTP.listenerType"
-                        defaultMessage="Listener Type :"
-                    />
-                    <SelectDropdownWithButton
-                        customProps={{ values: ['HTTP'], disableCreateNew: true }}
-                        defaultValue={listenerType}
-                        placeholder="Select Type"
-                    />
-                    <VariableNameInput
-                        displayName={'Listener Name'}
-                        value={listenerName}
-                        onValueChange={onListenerNameChange}
-                        validateExpression={updateExpressionValidity}
-                        position={namePosition}
-                        isEdit={!!model}
-                        initialDiagnostics={model?.variableName?.typeData?.diagnostics}
-                    />
-                    {listenerPortInputComponent}
-                </div>
-            </div>
-            <FormActionButtons
-                cancelBtnText="Cancel"
-                cancelBtn={true}
-                saveBtnText="Save"
-                onSave={handleOnSave}
-                onCancel={onCancel}
-                validForm={saveBtnEnabled}
-            />
-        </FormControl>
+        </>
     )
 }

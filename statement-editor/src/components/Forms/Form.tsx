@@ -11,7 +11,9 @@
  * associated services.
  */
 import { FunctionForm } from "./FunctionForm/FunctionForm";
+import { ListenerForm } from "./ListenerForm/ListenerForm";
 import { ServiceConfigForm } from "./ServiceForm/SeviceForm";
 
 export { FunctionForm as Function };
 export { ServiceConfigForm as Service };
+export { ListenerForm as Listener };
