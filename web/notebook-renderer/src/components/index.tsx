@@ -41,7 +41,10 @@ export const activate: ActivationFunction = (context: RendererContext<any>) => (
                     break;
             }
         } catch {
-            render(<p>Error!</p>, element);
+            render(<div>
+                <p>Error in rendering output!</p>
+                <p>{data.text()}</p>
+            </div>, element);
         }
     }
 });
