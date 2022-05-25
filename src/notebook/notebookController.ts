@@ -158,10 +158,11 @@ export class BallerinaNotebookController {
 
             // code snippets
             sendTelemetryEvent(this.ballerinaExtension, TM_EVENT_RUN_NOTEBOOK_CODE_SNIPPET, CMP_NOTEBOOK);
-            let output: NoteBookCellOutputResponse = await langClient.getBalShellResult({
+            let response = await langClient.getBalShellResult({
                 source: cellContent
             });
-
+            let output = response as NoteBookCellOutputResponse;
+            
             // log console output first
             // since console output will be logged until an exception happens so it comes first
             output.consoleOut && appendTextToOutput(output.consoleOut);

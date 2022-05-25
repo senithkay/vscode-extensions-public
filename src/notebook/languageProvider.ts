@@ -17,13 +17,14 @@
  *
  */
 
-import { BallerinaExtension, ExtendedLangClient, LANGUAGE } from "../core";
+import { BallerinaExtension, ExtendedLangClient, LANGUAGE, NotebookFileSourceResponse } from "../core";
 import { CancellationToken, CompletionContext, CompletionItem, CompletionItemProvider, 
     CompletionList, Disposable, DocumentSelector, languages, Position, ProviderResult, 
     TextDocument, } from "vscode";
 import { CompletionItemKind as MonacoCompletionItemKind } from "monaco-languageclient";
 import { filterCompletions, getPlainTextSnippet, translateCompletionItemKind  } from "./utils";
 import { NOTEBOOK_TYPE } from "./constants";
+import { GetSyntaxTreeResponse } from "@wso2-enterprise/ballerina-low-code-editor-distribution";
 
 const selector: DocumentSelector = {
     notebookType: NOTEBOOK_TYPE,
@@ -52,7 +53,8 @@ export class NotebookCompletionItemProvider implements CompletionItemProvider{
         if (!langClient) {
             return [];
         }
-        let { content, filePath } = await langClient.getShellBufferFilePath();
+        let response = await langClient.getShellBufferFilePath();
+        let { content, filePath } = response as NotebookFileSourceResponse;
         performDidOpen(langClient, filePath, content);
         let endPositionOfMain = await this.getEndPositionOfMain(langClient, filePath);
         let textToWrite = content ? `${content.substring(0, content.length - 1)}${document.getText()}\n}` : document.getText();
@@ -89,11 +91,12 @@ export class NotebookCompletionItemProvider implements CompletionItemProvider{
     }
 
     private async getEndPositionOfMain(langClient: ExtendedLangClient, filePath: string) {
-        let syntaxTree = await langClient.getSyntaxTree({
+        let response = await langClient.getSyntaxTree({
             documentIdentifier: {
                 uri: filePath
             }
         });
+        let syntaxTree = response as GetSyntaxTreeResponse;
         if (syntaxTree && syntaxTree.syntaxTree && syntaxTree.syntaxTree.members) {
             var main = syntaxTree.syntaxTree.members.find((member: { kind: string; functionName: { value: string; }; }) => 
                 member.kind === 'FunctionDefinition' && member.functionName.value === 'main'
