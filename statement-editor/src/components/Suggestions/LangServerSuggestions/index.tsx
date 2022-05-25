@@ -99,7 +99,7 @@ export function LSSuggestions() {
                 <>
                     <div className={stmtEditorHelperClasses.lsSuggestionList}>
                         <div className={statementEditorClasses.stmtEditorExpressionWrapper}>
-                            <List className={stmtEditorHelperClasses.suggestionList}>
+                            <List className={stmtEditorHelperClasses.suggestionList} data-testid="suggestion-list">
                                 {
                                     lsSuggestions.map((suggestion: SuggestionItem, index: number) => (
                                         <ListItem
@@ -115,6 +115,7 @@ export function LSSuggestions() {
                                                 style={{ minWidth: '22px', textAlign: 'left' }}
                                             />
                                             <ListItemText
+                                                data-testid="suggestion-value"
                                                 title={suggestion.value}
                                                 style={{ flex: 'none', maxWidth: '80%' }}
                                                 primary={(
