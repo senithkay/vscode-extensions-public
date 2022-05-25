@@ -131,11 +131,10 @@ describe('Test helper pane functionality', () => {
         EditorPane
             .validateNewExpression("NumericLiteral","1")
             .getExpression("TypedBindingPattern")
-            .clickExpressionContent('var')
+            .doubleClickExpressionContent('var')
 
-        SuggestionsPane
-            .clickSuggestionsTab("Suggestions")
-            .clickLsTypeSuggestion('int')
+        InputEditor
+            .typeInput("int")
 
         EditorPane
             .validateNewExpression("TypedBindingPattern","int")
