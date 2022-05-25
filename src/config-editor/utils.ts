@@ -17,6 +17,7 @@
  *
  */
 
+import { debug } from "../utils/logger";
 import toml from "toml";
 import { ConfigProperty, ConfigValue, Constants } from "./model";
 
@@ -30,7 +31,7 @@ export function parseTomlToConfig(tomlContent: string): object {
     try {
         return toml.parse(tomlContent);
     } catch (error) {
-        console.debug("Error while parsing the Config.toml file content: " + error);
+        debug("Error while parsing the Config.toml file content: " + error);
     }
     return {};
 }
@@ -252,12 +253,5 @@ function getLeafConfig(object: any, configProperty: ConfigProperty) {
 }
 
 function getSimpleTypeValue(value: any, type: string) {
-    let returnValue: any;
-
-    if (type === Constants.FLOAT) {
-        returnValue = value;
-    } else {
-        returnValue = JSON.stringify(value);
-    }
-    return returnValue;
+    return type === Constants.FLOAT ? value : JSON.stringify(value);
 }
