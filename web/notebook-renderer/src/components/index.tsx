@@ -42,8 +42,11 @@ export const activate: ActivationFunction = (context: RendererContext<any>) => (
             }
         } catch {
             let match = data.text().match(/^{\n\t"shellValue": {\n\t\t"value": (?<value>.*),\n\t\t"mimeType": "/);
+            const darkMode = document.body.getAttribute('data-vscode-theme-kind')?.includes('dark') ?? false;
             render(<div>
-                <p>Error in rendering output!</p>
+                <p style={darkMode ? {color: "rgb(244,135,113)"} : {color: "rgb(161, 38, 13)"}}>
+                    Error in rendering output!
+                </p>
                 <p>{match?.groups ? match.groups.value : data.text()}</p>
             </div>, element);
         }
