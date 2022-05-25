@@ -94,10 +94,10 @@ describe('Test statement editor toolbar functionality', () => {
             .doubleClickExpressionContent(`123`)
 
         InputEditor
-            .typeInput("var2")
+            .typeInput("456")
 
         EditorPane
-            .validateNewExpression("SimpleNameReference","var2")
+            .validateNewExpression("NumericLiteral","456")
 
         Toolbar
             .clickUndoButton()
@@ -109,7 +109,7 @@ describe('Test statement editor toolbar functionality', () => {
             .clickRedoButton()
 
         EditorPane
-            .validateNewExpression("SimpleNameReference","var2")
+            .validateNewExpression("NumericLiteral","456")
 
         StatementEditor
             .save()

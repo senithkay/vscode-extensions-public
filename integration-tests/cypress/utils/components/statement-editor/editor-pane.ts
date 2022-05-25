@@ -55,7 +55,7 @@ export class EditorPane {
 
     static validateNewExpression(modelType:string, text:string){
         cy.get(`[data-testid="${modelType}"]`)
-            .contains(text);
+            .contains(text,{timeout:20000});
         return this;
     }
 
@@ -76,7 +76,7 @@ export class EditorPane {
 
     static validateEmptyDiagnostics(){
         cy.get(`[data-testid="diagnostics-pane"] [data-testid="diagnostic-message"]`)
-            .should("not.exist");
+            .should("not.exist", { timeout: 20000 });
         return this;
     }
 }

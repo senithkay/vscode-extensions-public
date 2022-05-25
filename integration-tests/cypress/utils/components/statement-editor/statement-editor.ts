@@ -34,6 +34,7 @@ export class StatementEditor {
         this.getStatementEditor()
             .get('button')
             .contains("Save")
+            .should('not.be.disabled')
             .click();
         return this;
 
