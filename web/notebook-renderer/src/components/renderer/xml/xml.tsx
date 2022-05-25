@@ -22,9 +22,10 @@ import { h, FunctionComponent } from "preact";
 import XMLViewer from 'react-xml-viewer';
 import { XML_DARK_THEME, XML_LIGHT_THEME } from "../constants";
 import { NotebookCellResult } from "../types";
+import { getIsDarkMode } from "../utils";
  
 export const Xml: FunctionComponent<{ notebookCellOutput: Readonly<NotebookCellResult> }> = ({ notebookCellOutput }) => {    
-    const darkMode = document.body.getAttribute('data-vscode-theme-kind')?.includes('dark') ?? false;
+    const darkMode = getIsDarkMode();
     const renderXml = (xml: string) => {
         return <XMLViewer xml={xml} theme={darkMode ? XML_DARK_THEME : XML_LIGHT_THEME} />
     }

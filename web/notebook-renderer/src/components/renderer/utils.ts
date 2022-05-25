@@ -17,6 +17,6 @@
  *
  */
 
-export function typeOf(obj: any): string {
-    return {}.toString.call(obj).split(' ')[1].slice(0, -1).toLowerCase();
+export function getIsDarkMode() {
+    return document.body.getAttribute('data-vscode-theme-kind')?.includes('dark') ?? false;
 }

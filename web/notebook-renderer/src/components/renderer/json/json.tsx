@@ -21,9 +21,10 @@ import { h, FunctionComponent } from "preact";
 import ReactJson from "react-json-view";
 import { JSON_DARK_THEME, JSON_LIGHT_THEME } from "../constants";
 import { NotebookCellResult } from "../types";
+import { getIsDarkMode } from "../utils";
 
 export const Json: FunctionComponent<{ notebookCellOutput: Readonly<NotebookCellResult> }> = ({ notebookCellOutput }) => {  
-    const darkMode = document.body.getAttribute('data-vscode-theme-kind')?.includes('dark') ?? false;
+    const darkMode = getIsDarkMode();
     const renderJson = (value: Object) => {
         return <ReactJson
             src={value}

@@ -21,8 +21,9 @@ import { h, render } from 'preact';
 import { ActivationFunction, OutputItem, RendererContext } from 'vscode-notebook-renderer';
 import { MIME_TYPE_JSON, MIME_TYPE_TABLE, MIME_TYPE_XML } from './renderer/constants';
 import { Json } from './renderer/json/json';
-import { Xml } from "./renderer/xml/xml";
 import { TableForNotebookOutput } from './renderer/table/table';
+import { getIsDarkMode } from './renderer/utils';
+import { Xml } from "./renderer/xml/xml";
 
 export const activate: ActivationFunction = (context: RendererContext<any>) => ({
     renderOutputItem(data: OutputItem, element) {
@@ -42,7 +43,7 @@ export const activate: ActivationFunction = (context: RendererContext<any>) => (
             }
         } catch {
             let match = data.text().match(/^{\n\t"shellValue": {\n\t\t"value": (?<value>.*),\n\t\t"mimeType": "/);
-            const darkMode = document.body.getAttribute('data-vscode-theme-kind')?.includes('dark') ?? false;
+            const darkMode = getIsDarkMode();
             render(<div>
                 <p style={darkMode ? {color: "rgb(244,135,113)"} : {color: "rgb(161, 38, 13)"}}>
                     Error in rendering output!
