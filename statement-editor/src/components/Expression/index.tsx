@@ -42,6 +42,7 @@ export function ExpressionComponent(props: ExpressionComponentProps) {
     const statementEditorClasses = useStatementEditorStyles();
 
     const isSelected = selectedModel.model && model && isPositionsEquals(selectedModel.model.position, model.position);
+    const hasError = model?.syntaxDiagnostics?.length > 0
 
     const onMouseOver = (e: React.MouseEvent) => {
         setHovered(true);
@@ -66,18 +67,31 @@ export function ExpressionComponent(props: ExpressionComponentProps) {
         {
             "hovered": !isSelected && isHovered,
         },
+        hasError && statementEditorClasses.errorHighlight,
         classNames
     )
 
     return (
+
         <span
             onMouseOver={onMouseOver}
             onMouseOut={onMouseOut}
             className={styleClassNames}
             onClick={onMouseClick}
         >
-            {component}
-            {children}
+            {hasError ? 
+        
+            <>
+                {component} 
+                {children}
+            </>
+            :
+                <>
+                {component} 
+                {children}
+                </>
+
+            }
         </span>
     );
 }

@@ -607,6 +607,11 @@ export const useStatementEditorStyles = makeStyles(() =>
         },
         helpText: {
             fontStyle: "italic"
-        }
+        },
+        errorHighlight: {
+            textDecoration: 'underline',
+            textDecorationColor: 'red',
+            textDecorationStyle: 'wavy'
+        } 
     }),
 );

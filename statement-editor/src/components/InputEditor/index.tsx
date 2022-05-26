@@ -70,6 +70,9 @@ export function InputEditor(props: InputEditorProps) {
     const [userInput, setUserInput] = useState<string>(originalValue);
     const [prevUserInput, setPrevUserInput] = useState<string>(userInput);
 
+    const hasError = model?.syntaxDiagnostics?.length > 0
+
+
     useEffect(() => {
         setUserInput(originalValue);
     }, [originalValue]);
@@ -141,6 +144,7 @@ export function InputEditor(props: InputEditorProps) {
             <span
                 className={statementEditorClasses.inputEditorTemplate + ' ' + classNames}
                 onDoubleClick={handleDoubleClick}
+                style={{ width: userInput === '' ? '10px' : `${userInput.length + 100}px` }}
             >
                 {INPUT_EDITOR_PLACE_HOLDERS.has(userInput) ? INPUT_EDITOR_PLACE_HOLDERS.get(userInput) : userInput}
             </span>
