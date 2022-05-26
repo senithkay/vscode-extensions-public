@@ -239,8 +239,7 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
         if (partialModel.initializer.source !== "?") {
             onHasDefaultValChange(['Include Default Value']);
             onValueChange(partialModel.initializer.source);
-        }
-        else{
+        } else {
             onHasDefaultValChange([]);
         }
     }
