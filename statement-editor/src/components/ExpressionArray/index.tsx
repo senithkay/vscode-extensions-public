@@ -33,18 +33,23 @@ export function ExpressionArrayComponent(props: ExpressionArrayProps) {
     const {
         modelCtx: {
             updateModel,
+            setNewQueryPos
         }
     } = useContext(StatementEditorContext);
 
     const addNewExpression = (model: STNode) => {
-        const template = arrayType === ArrayType.MAPPING_CONSTRUCTOR ? MAPPING_CONSTRUCTOR : EXPR_CONSTRUCTOR;
-        const newField = `,\n${template}`;
         const newPosition: NodePosition = {
-                ...model.position,
-                startLine: model.position.endLine,
-                startColumn: model.position.endColumn
-            }
-        updateModel(newField, newPosition);
+            ...model.position,
+            startLine: model.position.endLine,
+            startColumn: model.position.endColumn
+        }
+        if (ArrayType.INTERMEDIATE_CLAUSE){
+            setNewQueryPos(newPosition);
+        } else {
+            const template = arrayType === ArrayType.MAPPING_CONSTRUCTOR ? MAPPING_CONSTRUCTOR : EXPR_CONSTRUCTOR;
+            const newField = `,\n${template}`;
+            updateModel(newField, newPosition);
+        }
     };
 
     return (

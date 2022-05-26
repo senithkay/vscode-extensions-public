@@ -111,7 +111,8 @@ export type OtherStatementNodeTypes = ActionStatement
     | TransactionStatement;
 
 export enum ArrayType {
-    MAPPING_CONSTRUCTOR
+    MAPPING_CONSTRUCTOR,
+    INTERMEDIATE_CLAUSE
 }
 
 export enum SymbolParameterType {

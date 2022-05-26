@@ -17,6 +17,7 @@ import {
     FormControl,
     Input, InputAdornment, List, ListItem, ListItemText, Typography
 } from "@material-ui/core";
+import { STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import LibrarySearchIcon from "../../../assets/icons/LibrarySearchIcon";
 import { CONFIGURABLE_VALUE_REQUIRED_TOKEN } from "../../../constants";
@@ -45,6 +46,7 @@ export function ExpressionSuggestions() {
         modelCtx: {
             currentModel,
             updateModel,
+            newQueryPosition
         }
     } = useContext(StatementEditorContext);
 
@@ -55,17 +57,21 @@ export function ExpressionSuggestions() {
         const text = currentModelSource !== CONFIGURABLE_VALUE_REQUIRED_TOKEN
             ? expression.template.replace(SELECTED_EXPRESSION, currentModelSource)
             : expression.template.replace(SELECTED_EXPRESSION, EXPR_PLACEHOLDER);
-        updateModel(text, currentModel.model.position);
+        newQueryPosition ? updateModel(`\n${text}`, newQueryPosition) : updateModel(text, currentModel.model.position);
         inputEditorCtx.onInputChange('');
     }
 
     useEffect(() => {
         if (currentModel.model) {
-            const filteredGroups: ExpressionGroup[] = expressions.filter(
+            let filteredGroups: ExpressionGroup[] = expressions.filter(
                 (exprGroup) => exprGroup.relatedModelType === currentModel.model.viewState.modelType);
+            if (STKindChecker.isQueryPipeline(currentModel.model) || STKindChecker.isQueryExpression(currentModel.model)){
+                filteredGroups = expressions.filter(
+                    (exprGroup) =>  exprGroup.name === "Query Intermediate-Clauses");
+            }
             setFilteredExpressions(filteredGroups);
         }
-    }, [currentModel.model]);
+    }, [currentModel.model, newQueryPosition]);
 
     const changeSelected = (key: number) => {
         const newSelected = selectedListItem + key;

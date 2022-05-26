@@ -14,6 +14,7 @@ import React from "react";
 
 import { QueryPipeline } from "@wso2-enterprise/syntax-tree";
 
+import { ArrayType } from "../../../constants";
 import { ExpressionComponent } from "../../Expression";
 import { ExpressionArrayComponent } from "../../ExpressionArray";
 
@@ -27,7 +28,11 @@ export function QueryPipelineComponent(props: QueryPipelineProps) {
     return (
         <>
             <ExpressionComponent model={model.fromClause} />
-            <ExpressionArrayComponent expressions={model.intermediateClauses} />
+            <ExpressionArrayComponent
+                modifiable={true}
+                arrayType={ArrayType.INTERMEDIATE_CLAUSE}
+                expressions={model.intermediateClauses}
+            />
         </>
     );
 }
