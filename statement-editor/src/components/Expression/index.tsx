@@ -95,7 +95,7 @@ export function ExpressionComponent(props: ExpressionComponentProps) {
                 {component}
                 {children}
             </span>
-            <span style={{ position: 'absolute', top: '-10px' }}>
+            <span className={statementRendererClasses.syntaxErrorTooltip}>
                 {isSelected && hasSyntaxDiagnostics && (
                     <TooltipIcon title={syntaxErrorMessage} placement='top-end' arrow={true} />
                 )}

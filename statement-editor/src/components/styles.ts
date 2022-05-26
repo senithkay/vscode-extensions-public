@@ -196,6 +196,10 @@ export const useStatementRendererStyles = makeStyles(() =>
                 marginLeft: '10px'
             }
         },
+        syntaxErrorTooltip : {
+            position: 'absolute',
+            top: '-10px'
+        }
     }),
 );
 
