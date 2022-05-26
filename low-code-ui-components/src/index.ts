@@ -25,3 +25,4 @@ export * from "./wizardStyles";
 export * from "./DropDown/SelectDropdownWithButton";
 export * from "./CheckBox";
 export * from "./TextLabel";
+export * from "./Panel";
