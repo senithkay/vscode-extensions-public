@@ -30,12 +30,13 @@ export function Diagnostics() {
     } = stmtCtx;
 
     return (
-        <div className={statementEditorDiagnosticClasses.diagnosticsPane}>
+        <div className={statementEditorDiagnosticClasses.diagnosticsPane} data-testid="diagnostics-pane">
             <List>
                 {
                     diagnostics && diagnostics.map((diag: StmtDiagnostic, index: number) => (
                         !diag.isPlaceHolderDiag && (
                             <ListItemText
+                                data-testid="diagnostic-message"
                                 key={index}
                                 primary={(
                                     <Typography style={{ display: 'flex', flexDirection: 'row' }}>

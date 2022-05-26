@@ -26,7 +26,7 @@ export const StatementEditorContext = React.createContext({
         initialSource: '',
         statementModel: null,
         currentModel: null,
-        changeCurrentModel: (model: STNode) => {},
+        changeCurrentModel: (model: STNode, stmtPosition?: NodePosition) => {},
         handleChange: (codeSnippet: string, isEditedViaInputEditor?: boolean) => {},
         updateModel: (codeSnippet: string, position: NodePosition) => {},
         undo: () => undefined,
@@ -82,7 +82,7 @@ export const StatementEditorContext = React.createContext({
 export interface CtxProviderProps extends LowCodeEditorProps {
     children?: React.ReactNode,
     model: STNode,
-    currentModel: { model: STNode },
+    currentModel: { model: STNode, stmtPosition? : NodePosition },
     changeCurrentModel?: (model: STNode) => void,
     handleChange?: (codeSnippet: string, isEditedViaInputEditor?: boolean) => void,
     updateModel?: (codeSnippet: string, position: NodePosition) => void,

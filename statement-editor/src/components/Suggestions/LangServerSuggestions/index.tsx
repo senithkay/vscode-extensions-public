@@ -14,11 +14,12 @@
 import React, { useContext, useEffect, useState } from "react";
 
 import { List, ListItem, ListItemIcon, ListItemText, Typography } from "@material-ui/core";
+import { NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { SuggestionItem } from "../../../models/definitions";
 import { InputEditorContext } from "../../../store/input-editor-context";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
-import { getSuggestionIconStyle } from "../../../utils";
+import { getSuggestionIconStyle, isPositionsEquals } from "../../../utils";
 import { KeyboardNavigationManager } from "../../../utils/keyboard-navigation-manager";
 import { acceptedCompletionKindForTypes } from "../../InputEditor/constants";
 import { useStatementEditorStyles, useStmtEditorHelperPanelStyles} from "../../styles";
@@ -85,7 +86,10 @@ export function LSSuggestions() {
             }
             variable = variable.split('(')[0] + "(" + paramArray.toString() + ")";
         }
-        updateModel(variable, currentModel ? currentModel.model.position : targetPosition);
+
+        const nodePosition: NodePosition = currentModel ? (currentModel.stmtPosition ? currentModel.stmtPosition : currentModel.model.position) : targetPosition
+
+        updateModel(variable, nodePosition);
         inputEditorCtx.onInputChange('');
     }
 
@@ -95,7 +99,7 @@ export function LSSuggestions() {
                 <>
                     <div className={stmtEditorHelperClasses.lsSuggestionList}>
                         <div className={statementEditorClasses.stmtEditorExpressionWrapper}>
-                            <List className={stmtEditorHelperClasses.suggestionList}>
+                            <List className={stmtEditorHelperClasses.suggestionList} data-testid="suggestion-list">
                                 {
                                     lsSuggestions.map((suggestion: SuggestionItem, index: number) => (
                                         <ListItem
@@ -111,6 +115,8 @@ export function LSSuggestions() {
                                                 style={{ minWidth: '22px', textAlign: 'left' }}
                                             />
                                             <ListItemText
+                                                data-testid="suggestion-value"
+                                                title={suggestion.value}
                                                 style={{ flex: 'none', maxWidth: '80%' }}
                                                 primary={(
                                                     <Typography className={stmtEditorHelperClasses.suggestionValue}>

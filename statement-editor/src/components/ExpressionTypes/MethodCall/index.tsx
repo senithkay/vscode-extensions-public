@@ -12,7 +12,7 @@
  */
 import React from "react";
 
-import { MethodCall } from "@wso2-enterprise/syntax-tree";
+import { MethodCall, NodePosition } from "@wso2-enterprise/syntax-tree";
 
 import { ExpressionComponent } from "../../Expression";
 import { ExpressionArrayComponent } from "../../ExpressionArray";
@@ -25,11 +25,15 @@ interface MethodCallProps {
 export function MethodCallComponent(props: MethodCallProps) {
     const { model } = props;
 
+    const methodPosition: NodePosition = model.methodName.position
+    methodPosition.endLine = model.closeParenToken.position.endLLine;
+    methodPosition.endColumn = model.closeParenToken.position.endColumn;
+
     return (
         <>
             <ExpressionComponent model={model.expression} />
             <TokenComponent model={model.dotToken} />
-            <ExpressionComponent model={model.methodName} >
+            <ExpressionComponent model={model.methodName} stmtPosition={methodPosition} >
                 <TokenComponent model={model.openParenToken} />
                 <ExpressionArrayComponent expressions={model.arguments} />
                 <TokenComponent model={model.closeParenToken} />

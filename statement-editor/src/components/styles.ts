@@ -97,6 +97,7 @@ export const useStatementRendererStyles = makeStyles(() =>
             height: '24px',
             width: '15px',
             letterSpacing: 0,
+            ...removePadding
         },
         inputEditorTemplate: {
             minWidth: '20px',
@@ -141,11 +142,7 @@ export const useStatementRendererStyles = makeStyles(() =>
             },
             '&.modifiable': {
                 position: 'absolute',
-                marginLeft: '10px',
-                '&.lastElement': {
-                    marginLeft: '250px',
-                    marginTop: '-20px'
-                }
+                marginLeft: '10px'
             }
         },
     }),

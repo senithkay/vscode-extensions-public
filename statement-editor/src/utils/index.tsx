@@ -46,6 +46,7 @@ import { CurrentModel, MinutiaeJSX, RemainingContent, StmtDiagnostic, StmtOffset
 import { visitor as DeleteConfigSetupVisitor } from "../visitors/delete-config-setup-visitor";
 import { visitor as DiagnosticsMappingVisitor } from "../visitors/diagnostics-mapping-visitor";
 import { visitor as ExpressionDeletingVisitor } from "../visitors/expression-deleting-visitor";
+import { visitor as MappingConstructorConfigSetupVisitor } from "../visitors/mapping-constructor-config-setup-visitor";
 import { visitor as ModelFindingVisitor } from "../visitors/model-finding-visitor";
 import { visitor as ModelTypeSetupVisitor } from "../visitors/model-type-setup-visitor";
 import {nextNodeSetupVisitor} from "../visitors/next-node--setup-visitor"
@@ -75,7 +76,7 @@ export function getModifications(model: STNode, configType: string, targetPositi
     return modifications;
 }
 
-export function getExpressionTypeComponent(expression: STNode): ReactNode {
+export function getExpressionTypeComponent(expression: STNode, stmtPosition?: NodePosition): ReactNode {
     let ExprTypeComponent = (expressionTypeComponents as any)[expression.kind];
 
     if (!ExprTypeComponent) {
@@ -85,6 +86,7 @@ export function getExpressionTypeComponent(expression: STNode): ReactNode {
     return (
         <ExprTypeComponent
             model={expression}
+            stmtPosition={stmtPosition}
         />
     );
 }
@@ -132,6 +134,7 @@ export function getPreviousNode(currentModel: STNode, statementModel: STNode): S
 export function enrichModel(model: STNode, targetPosition: NodePosition, diagnostics?: Diagnostic[]): STNode {
     traversNode(model, ViewStateSetupVisitor);
     traversNode(model, parentSetupVisitor);
+    traversNode(model, MappingConstructorConfigSetupVisitor);
     model = enrichModelWithDiagnostics(model, targetPosition, diagnostics);
     return enrichModelWithViewState(model);
 }
@@ -206,11 +209,11 @@ export function getFilteredDiagnosticMessages(statement: string, targetPosition:
     return stmtDiagnostics;
 }
 
-export async function getUpdatedSource(updatedStatement: string, currentFileContent: string,
-                                       targetPosition: NodePosition, moduleList?: Set<string>): Promise<string> {
+export function getUpdatedSource(statement: string, currentFileContent: string,
+                                 targetPosition: NodePosition, moduleList?: Set<string>): string {
 
-    const statement = updatedStatement.trim().endsWith(';') ? updatedStatement : updatedStatement + ';';
-    let updatedContent: string = addToTargetPosition(currentFileContent, targetPosition, statement);
+    const updatedStatement = statement.trim().endsWith(';') ? statement : statement + ';';
+    let updatedContent: string = addToTargetPosition(currentFileContent, targetPosition, updatedStatement);
     if (moduleList && !!moduleList.size) {
         updatedContent = addImportStatements(updatedContent, Array.from(moduleList) as string[]);
     }
@@ -218,21 +221,21 @@ export async function getUpdatedSource(updatedStatement: string, currentFileCont
     return updatedContent;
 }
 
-export function addToTargetPosition(currentContent: string, position: NodePosition, updatedStatement: string): string {
+export function addToTargetPosition(currentContent: string, position: NodePosition, codeSnippet: string): string {
 
     const splitContent: string[] = currentContent.split(/\n/g) || [];
-    const splitUpdatedStatement: string[] = updatedStatement.trimEnd().split(/\n/g) || [];
+    const splitCodeSnippet: string[] = codeSnippet.trimEnd().split(/\n/g) || [];
     const noOfLines: number = position.endLine - position.startLine + 1;
     const startLine = splitContent[position.startLine].slice(0, position.startColumn);
     const endLine = isFinite(position?.endLine) ?
         splitContent[position.endLine].slice(position.endColumn || position.startColumn) : '';
 
-    const replacements = splitUpdatedStatement.map((line, index) => {
+    const replacements = splitCodeSnippet.map((line, index) => {
         let modifiedLine = line;
         if (index === 0) {
             modifiedLine = startLine + modifiedLine;
         }
-        if (index === splitUpdatedStatement.length - 1) {
+        if (index === splitCodeSnippet.length - 1) {
             modifiedLine = modifiedLine + endLine;
         }
         if (index > 0) {
@@ -263,11 +266,11 @@ export function getMinutiaeJSX(model: STNode): MinutiaeJSX {
     };
 }
 
-function getJSXForMinutiae(minutiae: Minutiae[]): ReactNode[] {
+export function getJSXForMinutiae(minutiae: Minutiae[], dropEndOfLineMinutiaeJSX: boolean = false): ReactNode[] {
     return minutiae.map((element) => {
         if (element.kind === WHITESPACE_MINUTIAE) {
             return Array.from({length: element.minutiae.length}, () => <>&nbsp;</>);
-        } else if (element.kind === END_OF_LINE_MINUTIAE) {
+        } else if (element.kind === END_OF_LINE_MINUTIAE && !dropEndOfLineMinutiaeJSX) {
             return <br/>;
         }
     });
