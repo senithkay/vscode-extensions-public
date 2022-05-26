@@ -19,7 +19,7 @@
 
 import React, { useState, useEffect } from 'react';
 import "./style.css";
-import { sortArrayOfObjectsByKey } from "./utils";
+import { getIsDarkMode, sortArrayOfObjectsByKey } from "./utils";
 
 interface TableProps {
     header: HeaderValue[];
@@ -84,6 +84,7 @@ export const Table = ({ header, values, sortHandler }: TableProps): JSX.Element 
 };
 
 export const VariableView = ({ getVariableValues, container }: VariableViewProps): JSX.Element => {
+    const darkMode = getIsDarkMode();
     const header = [
         {key: "name", sortable: true},
         {key: "type", sortable: false},
@@ -135,7 +136,7 @@ export const VariableView = ({ getVariableValues, container }: VariableViewProps
             setSortConfig({ key: key, isAscending: true});
     }
 
-    return <div id="variables-view" className="variables-view">
+    return <div id="variables-view" className={`variables-view ${darkMode ? 'dark' : 'light'}`}>
             <Table header={header} values={tableValues} sortHandler={updateSortConfig}/> 
         </div>;
 }

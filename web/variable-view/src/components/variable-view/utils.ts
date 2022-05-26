@@ -25,7 +25,12 @@
  * @param ascending sort direction
  * @returns sorted array
  */
+
 export function sortArrayOfObjectsByKey(values: any[], key: string, ascending: boolean = true) {
     const sorted = values.sort((val1, val2) => val1[key].localeCompare(val2[key]));
     return ascending ? sorted : sorted.reverse();
+}
+
+export function getIsDarkMode() {
+    return document.body.getAttribute('data-vscode-theme-kind')?.includes('dark') ?? false;
 }

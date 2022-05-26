@@ -2,6 +2,7 @@
     margin-top: 2px;
     margin-left: 4px;
     background-color: transparent;
+    font-family: "Ubuntu Mono","Liberation Mono","DejaVu Sans Mono","Courier New", monospace;
 }
 
 .variables-view table {
@@ -15,19 +16,11 @@
 .variables-view td, 
 .variables-view th {
     padding-left: 4px;
-    border: 1px solid #ddd;
-}
-
-.variables-view tr {
-    background-color: #f2f2f2;
+    border: 1px solid;
 }
 
 .variables-view  tr { 
     height: 1em;  
-}
-
-.variables-view tr:hover {
-    background-color: #ddd;
 }
 
 .variables-view th {
@@ -35,7 +28,6 @@
   padding-bottom: 3px;
   font-size: small;
   text-align: center;
-  background-color: #ddd;
 }
 
 .variables-view th[data-key="name"], 
@@ -63,8 +55,6 @@
 
 .variables-view .table-data .tooltip-text {
     visibility: hidden;
-    background-color: rgb(78, 76, 76);
-    color: #fff;
     text-align: left;
     border-radius: 3px;
     padding: 3px 10px;
@@ -96,11 +86,73 @@
 }
 
 .variables-view th i.sort-by:before {
-	border-bottom-color: #666;
 	margin-top: -9px;
 }
 
 .variables-view th i.sort-by:after {
-	border-top-color: #666;
 	margin-top: 1px;
+}
+
+.variables-view.light td, 
+.variables-view.light th {
+    border-color: #e8e8e8;
+}
+
+.variables-view.dark td, 
+.variables-view.dark th {
+    border-color: #37373d;
+}
+
+.variables-view.light th {
+    background-color: #c4c4c4;
+    color: #333333;
+}
+
+.variables-view.dark th {
+    background-color: #4d4d4d;
+    color: #e7e7e799;
+}
+
+.variables-view.light tr {
+    background-color: transparent;
+    color: #616161;
+}
+
+.variables-view.dark tr {
+    background-color: transparent;
+    color: #cccccc;
+}
+
+.variables-view.light tr:hover {
+    background-color: rgb(240, 240, 240);
+}
+
+.variables-view.dark tr:hover {
+    background-color: rgba(55, 57, 58, 0.8);
+}
+
+.variables-view.light .table-data .tooltip-text {
+    background-color: rgb(61, 61, 61);
+    color: rgb(179, 179, 179);
+}
+
+.variables-view.dark .table-data .tooltip-text {
+    background-color: rgb(61, 61, 61);
+    color: white;
+}
+
+.variables-view.light th i.sort-by:before {
+	border-bottom-color: #333333;
+}
+
+.variables-view.light th i.sort-by:after {
+	border-top-color: #333333;
+}
+
+.variables-view.dark th i.sort-by:before {
+	border-bottom-color: #e7e7e799;
+}
+
+.variables-view.dark th i.sort-by:after {
+	border-top-color: #e7e7e799;
 }
