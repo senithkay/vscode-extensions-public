@@ -28,7 +28,66 @@ describe('Test statement editor toolbar functionality', () => {
         cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH))
     })
 
-    it('Test Undo, Redo and Delete options', () => {
+    it('Test Delete option', () => {
+        Canvas.getFunction("testStatementEditorComponents")
+            .nameShouldBe("testStatementEditorComponents")
+            .shouldBeExpanded()
+            .getDiagram()
+            .shouldBeRenderedProperly()
+            .clickDefaultWorkerPlusBtn(2)
+            .getBlockLevelPlusWidget()
+            .clickOption("Variable");
+
+        VariableFormBlockLevel
+            .shouldBeVisible()
+            .toggleStatementEditor()
+
+        StatementEditor
+            .shouldBeVisible()
+
+        EditorPane
+            .getStatementRenderer()
+            .getExpression("TypedBindingPattern")
+            .doubleClickExpressionContent('var')
+
+        InputEditor
+            .typeInput("int")
+
+        EditorPane
+            .validateNewExpression("TypedBindingPattern","int")
+            .getExpression("SimpleNameReference")
+            .doubleClickExpressionContent('<add-expression>')
+
+        InputEditor
+            .typeInput("var1")
+
+        EditorPane
+            .getExpression("SimpleNameReference")
+            .clickExpressionContent('var1')
+
+        Toolbar
+            .clickDeleteButton()
+
+        EditorPane
+            .getExpression("SimpleNameReference")
+            .doubleClickExpressionContent(`<add-expression>`)
+
+        InputEditor
+            .typeInput("456")
+
+        EditorPane
+            .validateNewExpression("NumericLiteral","456")
+            .validateEmptyDiagnostics()
+
+        StatementEditor
+            .save()
+
+        SourceCode.shouldBeEqualTo(
+            getCurrentSpecFolder() + "toolbar-functionality.expected.bal");
+
+    });
+
+    it('Test Undo, Redo options', () => {
         Canvas.getFunction("testStatementEditorComponents")
             .nameShouldBe("testStatementEditorComponents")
             .shouldBeExpanded()
@@ -69,47 +128,18 @@ describe('Test statement editor toolbar functionality', () => {
             .clickUndoButton()
 
         EditorPane
+            .validateNewExpression("TypedBindingPattern","int")
+
+        EditorPane
             .getExpression("SimpleNameReference")
             .doubleClickExpressionContent('<add-expression>')
-
-        InputEditor
-            .typeInput("var1")
-
-        EditorPane
-            .getExpression("SimpleNameReference")
-            .clickExpressionContent('var1')
-
-        Toolbar
-            .clickDeleteButton()
-
-        EditorPane
-            .getExpression("SimpleNameReference")
-            .doubleClickExpressionContent(`<add-expression>`)
-
-        InputEditor
-            .typeInput("123")
-
-        EditorPane
-            .getExpression("NumericLiteral")
-            .doubleClickExpressionContent(`123`)
 
         InputEditor
             .typeInput("456")
 
         EditorPane
-            .validateNewExpression("NumericLiteral","456")
-
-        Toolbar
-            .clickUndoButton()
-
-        EditorPane
-            .validateNewExpression("NumericLiteral","123")
-
-        Toolbar
-            .clickRedoButton()
-
-        EditorPane
-            .validateNewExpression("NumericLiteral","456")
+            .validateNewExpression("NumericLiteral", "456")
+            .validateEmptyDiagnostics()
 
         StatementEditor
             .save()
