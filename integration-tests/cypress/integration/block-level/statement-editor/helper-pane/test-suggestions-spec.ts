@@ -68,6 +68,7 @@ describe('Test helper pane functionality', () => {
 
         EditorPane
             .validateNewExpression("TypedBindingPattern","int")
+            .validateEmptyDiagnostics()
 
         StatementEditor
             .save()
@@ -130,6 +131,7 @@ describe('Test helper pane functionality', () => {
 
         EditorPane
             .validateNewExpression("NumericLiteral","1")
+            .validateEmptyDiagnostics()
 
         StatementEditor
             .save()
@@ -198,6 +200,9 @@ describe('Test helper pane functionality', () => {
         SuggestionsPane
             .clickSuggestionsTab("Suggestions")
             .clickLsTypeSuggestion('float')
+
+        EditorPane
+            .validateEmptyDiagnostics()
 
         StatementEditor
             .save()

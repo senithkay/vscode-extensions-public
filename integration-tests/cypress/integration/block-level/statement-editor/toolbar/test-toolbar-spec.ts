@@ -110,6 +110,7 @@ describe('Test statement editor toolbar functionality', () => {
 
         EditorPane
             .validateNewExpression("NumericLiteral","456")
+            .validateEmptyDiagnostics()
 
         StatementEditor
             .save()

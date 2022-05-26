@@ -24,8 +24,7 @@ export class SuggestionsPane {
     static clickLsSuggestion(selectedSuggestion: string) {
         cy.wait(500)
         cy.get(`[data-testid="suggestion-list"]`).within(() => {
-            cy.get(`[data-testid="suggestion-value"]`)
-                .contains(selectedSuggestion)
+            cy.contains(`[data-testid="suggestion-value"]`, selectedSuggestion)
                 .click({ force: true })
         });
         return this;
@@ -34,8 +33,7 @@ export class SuggestionsPane {
     static clickLsTypeSuggestion(selectedSuggestion: string) {
         cy.wait(500)
         cy.get(`[data-testid="suggestion-list"]`).within(() => {
-            cy.get(`[data-testid="suggestion-value"]`)
-                .contains(selectedSuggestion).should((elem) => {
+            cy.contains(`[data-testid="suggestion-value"]`, selectedSuggestion).should((elem) => {
                 expect(elem.text()).to.equal(selectedSuggestion);
             })
                 .click({ force: true })
