@@ -187,7 +187,7 @@ export function updateServiceDeclartion(config: HTTPServiceConfigState, targetPo
                 'BASE_PATH': serviceBasePath,
             }
         }
-    } else if (!fromVar && listenerPort) {
+    } else if (listenerPort) {
         return {
             ...modification,
             type: 'SERVICE_DECLARATION_WITH_INLINE_LISTENER_UPDATE',

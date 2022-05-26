@@ -16,14 +16,14 @@ import React, { useState } from "react";
 import {
     ExpressionEditorLangClientInterface,
     getSource,
-    ListenerConfigFormState, STModification,
+    STModification,
     STSymbolInfo,
     updateServiceDeclartion
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     dynamicConnectorStyles as useFormStyles,
-    FormActionButtons, FormTextInput,
-    TextLabel
+    FormActionButtons,
+    FormTextInput
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import {
     ListenerDeclaration, ModulePart,
@@ -52,6 +52,11 @@ interface HttpServiceFormProps {
     stSymbolInfo?: STSymbolInfo;
     isEdit?: boolean;
     getLangClient: () => Promise<ExpressionEditorLangClientInterface>;
+    currentFile: {
+        content: string,
+        path: string,
+        size: number
+    };
     applyModifications: (modifications: STModification[]) => void;
 }
 
@@ -60,7 +65,8 @@ const HTTP_IMPORT = new Set<string>(['ballerina/http']);
 
 export function HttpServiceForm(props: HttpServiceFormProps) {
     const formClasses = useFormStyles();
-    const { model, targetPosition, onCancel, onSave, isLastMember, stSymbolInfo, isEdit, getLangClient, onChange, applyModifications } = props;
+    const { model, targetPosition, onCancel, onSave, isLastMember, currentFile, stSymbolInfo, isEdit, getLangClient,
+            onChange, applyModifications } = props;
 
     // States related to syntax diagnostics
     const [currentComponentName, setCurrentComponentName] = useState<string>("");
@@ -88,15 +94,17 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
             portSemDiagMsg = serviceListenerExpression?.viewState?.diagnosticsInRange[0]?.message;
         }
     }
+
     const path = serviceModel?.absoluteResourcePath
         .map((pathSegments) => pathSegments.value)
         .join('');
 
     // States related fields
     const [basePath, setBsePath] = useState<FormEditorField>({isInteracted: true, value: path});
-    const [listenerConfig, setListenerConfig] = useState<ListenerConfigFormState>(getListenerConfig(serviceModel,
-        isEdit));
     const [isListenerInteracted, setIsListenerInteracted] = useState<boolean>(false);
+    const [listenerPort, setListenerPort] = useState<string>("");
+    const [listenerName, setListenerName] = useState<string>("");
+    const [selectedListener, setSelectedListener] = useState<string>("");
 
     const listenerList = Array.from(stSymbolInfo.listeners)
         .filter(([key, value]) =>
@@ -104,7 +112,7 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
             && (value as ListenerDeclaration).typeDescriptor.modulePrefix.value === HTTP_MODULE_QUALIFIER)
         .map(([key, value]) => key);
 
-    const serviceParamChange = async (servicePath: string, config: ListenerConfigFormState) => {
+    const serviceParamChange = async (servicePath: string, port: string, name: string) => {
         const modelPosition = model.position as NodePosition;
         const openBracePosition = serviceModel.openBraceToken.position as NodePosition;
         const updatePosition = {
@@ -113,23 +121,14 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
             endLine: openBracePosition.startLine,
             endColumn: openBracePosition.startColumn - 1
         };
-        const lc: ListenerConfigFormState =
-            (config.listenerPort !== "" && config.fromVar === true) ? {...config, fromVar: false} : config;
         const codeSnippet = getSource(updateServiceDeclartion({
-            serviceBasePath: servicePath, listenerConfig: lc
+            serviceBasePath: servicePath, listenerConfig: {createNewListener: false, listenerName: name, listenerPort: port, fromVar: false}
         }, updatePosition));
         const updatedContent = getUpdatedSource(codeSnippet, model?.source, updatePosition, undefined,
             true);
-        let partialST;
-        if (config.createNewListener) {
-            partialST = await getPartialSTForModulePart(
-                {codeSnippet: updatedContent.trim()}, getLangClient
-            );
-        } else {
-            partialST = await getPartialSTForModulePart(
-                {codeSnippet: updatedContent.trim()}, getLangClient
-            );
-        }
+        const partialST = await getPartialSTForModulePart(
+            {codeSnippet: updatedContent.trim()}, getLangClient
+        );
         if (!partialST.syntaxDiagnostics.length) {
             setCurrentComponentSyntaxDiag(undefined);
             onChange(updatedContent, partialST, HTTP_IMPORT);
@@ -144,16 +143,22 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
 
     const onBasePathChange = async (value: string) => {
         setBsePath({isInteracted: true, value});
-        await serviceParamChange(value, listenerConfig);
+        await serviceParamChange(value, listenerPort, listenerName);
     }
 
-    const onListenerChange = async (config: ListenerConfigFormState, isPortInteracted?: boolean,
-                                    isNameInteracted?: boolean) => {
-        setCurrentComponentName("Listener");
-        setListenerConfig(config);
-        setIsListenerInteracted((config.listenerPort ? isPortInteracted : true) &&
-            (config.listenerName ? (isNameInteracted || !config.fromVar) : true));
-        await serviceParamChange(basePath.value, config);
+    const onListenerChange = async (port: string, name: string) => {
+        setIsListenerInteracted(true);
+        setListenerPort(port);
+        setListenerName(name);
+        await serviceParamChange(basePath.value, port, name);
+    }
+
+    const onListenerConfigSave = (modifications: STModification[]) => {
+        const listenerMod: STModification = modifications.find(l => l.type === "LISTENER_DECLARATION");
+        setSelectedListener(listenerMod.config.LISTENER_NAME);
+        setListenerName(listenerMod.config.LISTENER_NAME);
+        setListenerPort("");
+        applyModifications(modifications);
     }
 
     const handleOnSave = () => {
@@ -182,28 +187,13 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
         onSave();
     }
 
-    const getAbsolutePathPositions = () => {
-        const resourcePath = serviceModel?.absoluteResourcePath;
-        if (Array.isArray(resourcePath)) {
-            if (resourcePath.length) {
-                const firstElement =  resourcePath[0]?.position;
-                const lastElement =  resourcePath[resourcePath.length - 1]?.position;
-                return {
-                    ...lastElement,
-                    startColumn: firstElement?.startColumn,
-                    startLine: firstElement?.startLine
-                }
-
-            } else {
-                const onKeyPath = serviceModel?.onKeyword?.position;
-                return {
-                    ...onKeyPath,
-                    startColumn: onKeyPath?.startColumn,
-                    endColumn: onKeyPath?.startColumn
-                }
-            }
-        }
-    }
+    // useEffect(() => {
+    //     setSelectedListener(selectedListener);
+    // }, [selectedListener]);
+    //
+    // useEffect(() => {
+    //     setListenerPort(listenerPort);
+    // }, [listenerPort]);
 
     return (
         <>
@@ -216,35 +206,31 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
                         onChange={onBasePathChange}
                         customProps={{
                             isErrored: (currentComponentSyntaxDiag !== undefined && currentComponentName === "path") ||
-                                (portSemDiagMsg === undefined && nameSemDiagMsg === undefined && serviceModel?.
-                                    viewState?.diagnosticsInRange[0]?.message)
+                                (false)
                         }}
                         errorMessage={(currentComponentSyntaxDiag && currentComponentName === "path"
-                            && currentComponentSyntaxDiag[0].message) ||
-                            portSemDiagMsg === undefined && nameSemDiagMsg === undefined && serviceModel?.viewState?.
-                                diagnosticsInRange[0]?.message}
+                            && currentComponentSyntaxDiag[0].message) || ""}
                         onBlur={null}
                         onFocus={onBasePathFocus}
                         placeholder={"/"}
                         size="small"
                         disabled={currentComponentSyntaxDiag && currentComponentName !== "path"}
                     />
-                    <TextLabel
-                        required={true}
-                        textLabelId="lowcode.develop.connectorForms.HTTP.configureNewListener"
-                        defaultMessage="Configure Listener :"
-                    />
-                </div>
-                <div className={classNames(formClasses.groupedForm, formClasses.marginTB)}>
-                    <ListenerConfigForm
-                        listenerConfig={listenerConfig}
-                        listenerList={listenerList}
-                        syntaxDiag={currentComponentName === "Listener" ? currentComponentSyntaxDiag : undefined}
-                        portSemDiagMsg={portSemDiagMsg}
-                        nameSemDiagMsg={nameSemDiagMsg}
-                        isDisabled={currentComponentSyntaxDiag !== undefined && currentComponentName !== "Listener"}
-                        onChange={onListenerChange}
-                    />
+                    <div className={classNames(formClasses.groupedForm, formClasses.marginTB)}>
+                        <ListenerConfigForm
+                            listenerConfig={getListenerConfig(serviceModel, isEdit)}
+                            listenerList={listenerList}
+                            syntaxDiag={currentComponentName === "Listener" ? currentComponentSyntaxDiag : undefined}
+                            portSemDiagMsg={portSemDiagMsg}
+                            activeListener={selectedListener}
+                            isDisabled={currentComponentSyntaxDiag !== undefined && currentComponentName !== "Listener"}
+                            onChange={onListenerChange}
+                            currentFile={currentFile}
+                            getLangClient={getLangClient}
+                            applyModifications={onListenerConfigSave}
+                            targetPosition={targetPosition}
+                        />
+                    </div>
                 </div>
             </div>
             <FormActionButtons
@@ -253,8 +239,7 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
                 saveBtnText={"Save"}
                 onSave={handleOnSave}
                 onCancel={onCancel}
-                validForm={(isEdit || (isListenerInteracted && currentComponentSyntaxDiag === undefined &&
-                    portSemDiagMsg === undefined && nameSemDiagMsg === undefined))}
+                validForm={true}
             />
         </>
     )

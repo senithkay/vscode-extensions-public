@@ -69,7 +69,7 @@ export function FormEditor(props: FormEditorProps) {
                 newModuleList.add(module);
             }
         })
-        const updatedContent = await getUpdatedSource(genSource.trim(), currentFile.content, initialModel ?
+        const updatedContent = getUpdatedSource(genSource.trim(), currentFile.content, initialModel ?
                 initialModel.position : {...targetPosition, endLine: targetPosition.startLine, startColumn: 0,
                                          endColumn: 0}, newModuleList, true);
         sendDidChange(fileURI, updatedContent, getLangClient).then();
@@ -111,6 +111,7 @@ export function FormEditor(props: FormEditorProps) {
                 onChange={onChange}
                 onCancel={onCancel}
                 getLangClient={getLangClient}
+                currentFile={currentFile}
                 isEdit={initialSource !== undefined}
                 applyModifications={applyModifications}
             />

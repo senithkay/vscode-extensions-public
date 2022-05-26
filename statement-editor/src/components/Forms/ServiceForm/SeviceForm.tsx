@@ -15,13 +15,14 @@ import React, {useEffect, useState} from "react";
 import { FormControl } from "@material-ui/core";
 import {
     ExpressionEditorLangClientInterface,
-    getSource,
     STModification,
     STSymbolInfo,
-    updateFunctionSignature
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { dynamicConnectorStyles as useFormStyles, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
-import {NodePosition, ServiceDeclaration, STNode} from "@wso2-enterprise/syntax-tree";
+import {
+    dynamicConnectorStyles as useFormStyles,
+    FormHeaderSection
+} from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
+import { ModulePart, NodePosition, ServiceDeclaration, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { getServiceTypeFromModel } from "../Utils/FormUtils";
 
@@ -29,7 +30,7 @@ import { HttpServiceForm } from "./HTTPServiceForm";
 import { ServiceTypeSelector } from "./ServiceTypeSelector";
 
 interface ServiceConfigFormProps {
-    model?: ServiceDeclaration;
+    model?: ServiceDeclaration | ModulePart;
     targetPosition?: NodePosition;
     onCancel: () => void;
     onSave: () => void;
@@ -37,6 +38,11 @@ interface ServiceConfigFormProps {
     isLastMember?: boolean;
     stSymbolInfo?: STSymbolInfo;
     isEdit?: boolean;
+    currentFile: {
+        content: string,
+        path: string,
+        size: number
+    };
     onChange: (genSource: string, partialST: STNode, moduleList?: Set<string>) => void;
     applyModifications: (modifications: STModification[]) => void;
     getLangClient: () => Promise<ExpressionEditorLangClientInterface>;
@@ -48,21 +54,33 @@ export enum ServiceTypes {
 
 export function ServiceConfigForm(props: ServiceConfigFormProps) {
     const formClasses = useFormStyles();
-    const { model, targetPosition, onSave, onCancel, formType, isLastMember, stSymbolInfo, isEdit, onChange, applyModifications, getLangClient } = props;
-    const [serviceType, setServiceType] = useState<string>(getServiceTypeFromModel(model, stSymbolInfo));
+    const { model, targetPosition, onSave, onCancel, formType, isLastMember, stSymbolInfo, isEdit, currentFile,
+            onChange, applyModifications, getLangClient } = props;
+
+    let serviceModel : ServiceDeclaration;
+    if (model && STKindChecker.isModulePart(model)) {
+        model.members.forEach(m => {
+            if (STKindChecker.isServiceDeclaration(m)) {
+                serviceModel = m;
+            }
+        });
+    } else if (model && STKindChecker.isServiceDeclaration(model)) {
+        serviceModel = model;
+    }
+    const [serviceType, setServiceType] = useState<string>(getServiceTypeFromModel(serviceModel, stSymbolInfo));
 
     let configForm;
 
     switch (serviceType) {
         case ServiceTypes.HTTP:
-            configForm = <HttpServiceForm onSave={onSave} onCancel={onCancel} model={model} targetPosition={targetPosition} stSymbolInfo={stSymbolInfo} isLastMember={isLastMember} onChange={onChange}  applyModifications={applyModifications} getLangClient={getLangClient}/>
+            configForm = <HttpServiceForm onSave={onSave} onCancel={onCancel} model={model} targetPosition={targetPosition} stSymbolInfo={stSymbolInfo} isLastMember={isLastMember} onChange={onChange}  applyModifications={applyModifications} getLangClient={getLangClient} currentFile={currentFile}/>
             break;
         default:
             // configForm = <TriggerServiceForm onSave={onSave} onCancel={onCancel} model={model} targetPosition={targetPosition} />
     }
 
     useEffect(() => {
-        setServiceType(getServiceTypeFromModel(model, stSymbolInfo));
+        setServiceType(getServiceTypeFromModel(serviceModel, stSymbolInfo));
     }, [model]);
 
     return (

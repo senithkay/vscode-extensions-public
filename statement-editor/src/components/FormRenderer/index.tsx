@@ -26,6 +26,11 @@ export interface FormRendererProps {
     model: STNode;
     targetPosition: NodePosition;
     isEdit: boolean;
+    currentFile: {
+        content: string,
+        path: string,
+        size: number
+    };
     stSymbolInfo?: STSymbolInfo;
     onChange: (code: string, partialST: STNode, moduleList?: Set<string>) => void;
     onCancel: () => void;
@@ -34,11 +39,11 @@ export interface FormRendererProps {
 }
 
 export function FormRenderer(props: FormRendererProps) {
-    const { type, model, targetPosition, stSymbolInfo, onChange, onCancel, getLangClient, isEdit, applyModifications }
-        = props;
+    const { type, model, targetPosition, stSymbolInfo, onChange, onCancel, getLangClient, isEdit,
+            applyModifications, currentFile } = props;
 
-    const component = getFormComponent(type, model, targetPosition, onChange, onCancel, getLangClient, isEdit,
-        applyModifications, stSymbolInfo);
+    const component = getFormComponent(type, model, targetPosition, onChange, onCancel, getLangClient, currentFile,
+        isEdit, applyModifications, stSymbolInfo);
 
     return (
        <>

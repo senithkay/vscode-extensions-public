@@ -112,8 +112,9 @@ export function getStatementTypeComponent(
 
 export function getFormComponent(
     type: string, model: STNode, targetPosition: NodePosition, onChange: (code: string, partialST: STNode) => void,
-    onCancel: () => void, getLangClient: () => Promise<ExpressionEditorLangClientInterface>, isEdit: boolean,
-    applyModifications: (modifications: STModification[]) => void, stSymbolInfo?: STSymbolInfo
+    onCancel: () => void, getLangClient: () => Promise<ExpressionEditorLangClientInterface>, currentFile:
+        { content: string, path: string, size: number },
+    isEdit: boolean, applyModifications: (modifications: STModification[]) => void, stSymbolInfo?: STSymbolInfo
 ): ReactNode {
     const FormComponent = (formComponents as any)[type];
     return (
@@ -123,6 +124,7 @@ export function getFormComponent(
             onChange={onChange}
             onCancel={onCancel}
             getLangClient={getLangClient}
+            currentFile={currentFile}
             isEdit={isEdit}
             stSymbolInfo={stSymbolInfo}
             applyModifications={applyModifications}
