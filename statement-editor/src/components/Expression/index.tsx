@@ -90,6 +90,7 @@ export function ExpressionComponent(props: ExpressionComponentProps) {
                 onMouseOut={onMouseOut}
                 className={styleClassNames}
                 onClick={onMouseClick}
+                data-testid={model.kind}
             >
                 {component}
                 {children}

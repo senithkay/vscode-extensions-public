@@ -79,7 +79,7 @@ export function HelperPane(props: HelperPaneProps) {
     return (
         <>
             <div className={statementEditorClasses.stmtEditorInnerWrapper}>
-                <div className={stmtEditorHelperClasses.tabPanelWrapper}>
+                <div className={stmtEditorHelperClasses.tabPanelWrapper} data-testid="tab-panel-wrapper">
 
                     <TabPanel
                         values={[TabElements.suggestions, TabElements.expressions, TabElements.libraries, TabElements.parameters]}
@@ -99,7 +99,7 @@ export function HelperPane(props: HelperPaneProps) {
                 </div>
                 <div className={statementEditorClasses.separatorLine} />
             </div>
-            <div className={stmtEditorHelperClasses.suggestionsInner}>
+            <div className={stmtEditorHelperClasses.suggestionsInner} data-testid="suggestions-inner">
                 {selectedTab === TabElements.suggestions && <LSSuggestions />}
                 {selectedTab === TabElements.expressions && <ExpressionSuggestions />}
                 {selectedTab === TabElements.libraries && <LibraryBrowser libraryType={libraryType} />}
