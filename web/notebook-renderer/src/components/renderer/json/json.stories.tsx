@@ -64,8 +64,8 @@ export const SimpleJson4 = {
                         "Attribute":"value",
                         "urlAttribute":"https://dummy.com/dummy"
                     },
-                    "stringAttribute":"**Description:** We cannot pass defaultable params and rest params when invoking function pointers. ```ballerina function test() returns int { function (int, int, int...) returns int pow = calculatePow; // Syntax error. return pow(10, j = 20, 30); // Semantic error. } function calculatePow(int i, int j = 1, int... k) returns int { return i * j * k[0]; } ```",
-                    "HTMLAttribute":"<p dir=\"auto\"><strong>Description:</strong></p> <p dir=\"auto\">Some description</p> <div class=\"highlight highlight-source-ballerina position-relative overflow-auto\" data-snippet-clipboard-copy-content=\"function test() returns int { function (int, int, int...) returns int pow = calculatePow; // Syntax error. return pow(10, j = 20, 30); // Semantic error. } function calculatePow(int i, int j = 1, int... k) returns int { return i * j * k[0]; }\"></div>",
+                    "stringAttribute":"**Description:** ``` function test() returns int {  returns 10; } ```",
+                    "HTMLAttribute":"<p dir=\"auto\"><strong>Description:</strong></p> <p dir=\"auto\">Some description</p> <div class=\"highlight overflow-auto\"></div>",
                     "BoolAttribute":false,
                     "nullAttribute":null,
                     "intAttribute":365591912,
