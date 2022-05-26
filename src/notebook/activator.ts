@@ -76,7 +76,7 @@ function registerRestartNotebook(ballerinaExtInstance: BallerinaExtension,
     notebookController: BallerinaNotebookController): Disposable {
     return commands.registerCommand(RESTART_NOTEBOOK_COMMAND , async () => {
         sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_RESTART_NOTEBOOK, CMP_NOTEBOOK);
-		const langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
+        const langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
         if (!langClient) {
             return;
         }
