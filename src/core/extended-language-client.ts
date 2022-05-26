@@ -652,7 +652,8 @@ export class ExtendedLangClient extends LanguageClient {
     }
 
     async getSTForModuleMembers(params: PartialSTRequestParams): Promise<PartialSTResponse | NOT_SUPPORTED_TYPE> {
-        const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.PARTIAL_PARSE_MODULE_MEMBER);
+        // const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.PARTIAL_PARSE_MODULE_MEMBER);
+        const isSupported = true;
         return isSupported ? this.sendRequest(EXTENDED_APIS.PARTIAL_PARSE_MODULE_MEMBER, params) :
             Promise.resolve(NOT_SUPPORTED);
     }

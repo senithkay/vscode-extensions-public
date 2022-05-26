@@ -33,12 +33,12 @@ let langClient: ExtendedLangClient;
 
 export async function openConfigEditor(ballerinaExtInstance: BallerinaExtension, filePath: string): Promise<void> {
     let configFile: string = filePath;
+    let packageName: string = "packageName";
 
     if (!filePath || !filePath.toString().endsWith(CONFIG_FILE)) {
         let currentProject: BallerinaProject = {};
         if (window.activeTextEditor) {
             currentProject = await getCurrentBallerinaProject();
-
         } else {
             const document = ballerinaExtInstance.getDocumentContext().getLatestDocument();
             if (document) {
@@ -52,7 +52,8 @@ export async function openConfigEditor(ballerinaExtInstance: BallerinaExtension,
 
         filePath = `${currentProject.path}/${BAL_TOML}`;
 
-        const directory = path.join(os.tmpdir(), "ballerina-project", currentProject.packageName!);
+        packageName = currentProject.packageName!;
+        const directory = path.join(os.tmpdir(), "ballerina-project", packageName);
         if (!existsSync(directory)) {
             mkdirSync(directory, { recursive: true });
         }
@@ -75,11 +76,12 @@ export async function openConfigEditor(ballerinaExtInstance: BallerinaExtension,
                 + 'retrieving the configurable schema.');
             return Promise.reject();
         }
-        showConfigEditor(ballerinaExtInstance, data.configSchema, Uri.parse(configFile));
+        showConfigEditor(ballerinaExtInstance, data.configSchema, Uri.parse(configFile), packageName);
     });
 }
 
-async function showConfigEditor(ballerinaExtInstance: BallerinaExtension, configSchema: any, currentFileUri: Uri) {
+async function showConfigEditor(ballerinaExtInstance: BallerinaExtension, configSchema: any,
+                                currentFileUri: Uri, packageName: string) {
     if (configEditorPanel) {
         configEditorPanel.dispose();
     }
@@ -92,7 +94,6 @@ async function showConfigEditor(ballerinaExtInstance: BallerinaExtension, config
     ballerinaExtInstance.setBallerinaConfigPath(currentFileUri.fsPath);
     langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
     let projectOrg: string = "orgName"; // TODO: set the correct project organization name
-    let packageName: string = "packageName"; // TODO: set the correct package name
 
     // Create and show a new webview
     configEditorPanel = window.createWebviewPanel(
@@ -103,7 +104,7 @@ async function showConfigEditor(ballerinaExtInstance: BallerinaExtension, config
     );
 
     function handleConfigInputs(configInputs: any) {
-        writeFile(currentFileUri.fsPath, parseConfigToToml(configInputs), function (error) {
+        writeFile(currentFileUri.fsPath, parseConfigToToml(configInputs, packageName), function (error) {
             if (error) {
                 return window.showInformationMessage("Unable to update the configurable values: " + error);
             }
