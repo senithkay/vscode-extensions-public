@@ -166,7 +166,7 @@ export function ViewContainer(props: ViewContainerProps) {
                             text={activeEditorId !== 0 && isConfigurableStmt ? backButtonText : cancelButtonText}
                             disabled={activeEditorId !== editors.length - 1}
                             fullWidth={false}
-                            onClick={activeEditorId !== 0 && isConfigurableStmt ? onCancelClick : onCancelClick}
+                            onClick={activeEditorId !== 0 && isConfigurableStmt ? onBackClick : onCancelClick}
                         />
                         <PrimaryButton
                             dataTestId="save-btn"

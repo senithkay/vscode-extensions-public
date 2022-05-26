@@ -242,14 +242,13 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
         }
         else{
             onHasDefaultValChange([]);
-
         }
     }
 
     const visibilityQualifier = state.isPublic ? 'public' : '';
     const varType = state.varType ? state.varType : 'boolean';
     const varName = state.varName ? state.varName : 'CONF_NAME';
-    const varValue = state.hasDefaultValue && state.varValue ? state.varValue : '?'
+    const varValue = state.hasDefaultValue && state.varValue ? state.varValue : '?';
 
     const initialSource = `${visibilityQualifier} configurable ${varType} ${varName} = ${varValue};`
 
