@@ -19,8 +19,8 @@ export const SUCCESS_LABEL_SVG_WIDTH = 89;
 export const SUCCESS_LABEL_SVG_HEIGHT = 25;
 export const SUCCESS_LABEL_SHADOW_OFFSET = SUCCESS_LABEL_SVG_HEIGHT_WITH_SHADOW - SUCCESS_LABEL_SVG_HEIGHT;
 
-export function SuccessSVG(props: { x: number, y: number, text: string }) {
-    const { text, ...xyProps } = props;
+export function SuccessSVG(props: { x: number, y: number, successRate: number}) {
+    const { successRate, ...xyProps } = props;
     return (
         <svg {...xyProps} width={SUCCESS_LABEL_SVG_WIDTH_WITH_SHADOW} height={SUCCESS_LABEL_SVG_HEIGHT_WITH_SHADOW}>
             <defs>
@@ -32,8 +32,8 @@ export function SuccessSVG(props: { x: number, y: number, text: string }) {
                     y2="1.128"
                     gradientUnits="objectBoundingBox"
                 >
-                    <stop offset="0" stopColor="#53c08a" />
-                    <stop offset="1" stopColor="#2fa86c" />
+                    <stop offset="0" stopColor={successRate < 70 ? "#FFCC8C" : "#53c08a"} />
+                    <stop offset="1" stopColor={successRate < 70 ? "#FF9D52" : "#2fa86c"} />
                 </linearGradient>
                 <filter
                     id="SuccessFilter"
@@ -67,7 +67,7 @@ export function SuccessSVG(props: { x: number, y: number, text: string }) {
                     transform="translate(45.5 16)"
                 >
                     <tspan x="0" y="0" textAnchor="middle">
-                        {text}
+                        {successRate}% Success
                     </tspan>
                 </text>
             </g>
