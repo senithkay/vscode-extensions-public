@@ -335,7 +335,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                     defaultMessage="Initialize Variable"
                 />
             </Typography>
-            <SwitchToggle onChange={handleVarInitialize} initSwitch={initialized} />
+            <SwitchToggle onChange={handleVarInitialize} initSwitch={initialized} dataTestId={"initialize-varible"}  />
         </div>
     );
 
