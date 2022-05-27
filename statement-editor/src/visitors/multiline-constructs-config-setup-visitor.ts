@@ -43,6 +43,7 @@ class MultilineConstructsConfigSetupVisitor implements Visitor {
     }
 
     public beginVisitQueryPipeline(node: QueryPipeline, parent?: STNode) {
+        (node.fromClause.viewState as StatementEditorViewState).multilineConstructConfig.isLastField = true;
         node.intermediateClauses.map((clause: STNode, index: number) => {
             (clause.viewState as StatementEditorViewState).multilineConstructConfig.isLastField = true;
         })

@@ -39,7 +39,7 @@ export function TokenComponent(props: TokenComponentProps) {
     const newLineRequired = mappingConstructorConfig.isClosingBraceWithNewLine;
     const isLastMapField = mappingConstructorConfig.isLastField;
 
-    const leadingMinutiaeJSX = getJSXForMinutiae(model.leadingMinutiae);
+    const leadingMinutiaeJSX = getJSXForMinutiae(model.leadingMinutiae, isLastMapField);
     const trailingMinutiaeJSX = getJSXForMinutiae(model.trailingMinutiae, isLastMapField);
 
     return (
