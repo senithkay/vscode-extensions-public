@@ -20,7 +20,7 @@ import {
 import { STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import LibrarySearchIcon from "../../../assets/icons/LibrarySearchIcon";
-import { CONFIGURABLE_VALUE_REQUIRED_TOKEN } from "../../../constants";
+import { CONFIGURABLE_VALUE_REQUIRED_TOKEN, QUERY_INTERMEDIATE_CLAUSES } from "../../../constants";
 import { InputEditorContext } from "../../../store/input-editor-context";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import {
@@ -69,7 +69,7 @@ export function ExpressionSuggestions() {
                 (exprGroup) => exprGroup.relatedModelType === currentModel.model.viewState.modelType);
             if (newQueryPosition){
                 filteredGroups = expressions.filter(
-                    (exprGroup) =>  exprGroup.name === "Query Intermediate-Clauses");
+                    (exprGroup) =>  exprGroup.name === QUERY_INTERMEDIATE_CLAUSES);
             }
             setFilteredExpressions(filteredGroups);
         }
