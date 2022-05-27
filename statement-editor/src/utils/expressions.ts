@@ -392,23 +392,19 @@ const queryIntermediateClauses : ExpressionGroup = {
         {
             name: "From-Clause",
             template: `from ${TYPE_DESC_PLACEHOLDER} ${BINDING_PATTERN_PLACEHOLDER} in ${EXPR_PLACEHOLDER}`,
-            example: "from Ex in Es"
+            example: "from var i in Ex"
         }, {
             name: "Where-Clause",
             template: `where ${EXPR_PLACEHOLDER}`,
-            example: "where Es"
+            example: "where Ex"
         }, {
             name: "Let-Clause",
-            template: `let ${EXPR_PLACEHOLDER}`,
-            example: "let Es"
+            template: `let ${TYPE_DESC_PLACEHOLDER} ${BINDING_PATTERN_PLACEHOLDER} = ${EXPR_PLACEHOLDER}`,
+            example: "let var i = Ex"
         }, {
             name: "Limit-Clause",
             template: `limit ${EXPR_PLACEHOLDER}`,
-            example: "limit Es"
-        }, {
-            name: "Select-Clause",
-            template: `select ${EXPR_PLACEHOLDER}`,
-            example: "select Es"
+            example: "limit Ex"
         }
     ],
     relatedModelType: ModelType.EXPRESSION
