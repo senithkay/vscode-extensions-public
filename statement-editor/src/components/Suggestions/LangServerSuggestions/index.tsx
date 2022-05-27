@@ -16,12 +16,17 @@ import React, { useContext, useEffect, useState } from "react";
 import { List, ListItem, ListItemIcon, ListItemText, Typography } from "@material-ui/core";
 import { NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
+import {
+    acceptedCompletionKindForTypes,
+    FUNCTION_COMPLETION_KIND,
+    METHOD_COMPLETION_KIND,
+    PROPERTY_COMPLETION_KIND
+} from "../../../constants";
 import { SuggestionItem } from "../../../models/definitions";
 import { InputEditorContext } from "../../../store/input-editor-context";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
-import { getSuggestionIconStyle, isPositionsEquals } from "../../../utils";
+import { getParamsList, getSuggestionIconStyle, isPositionsEquals } from "../../../utils";
 import { KeyboardNavigationManager } from "../../../utils/keyboard-navigation-manager";
-import { acceptedCompletionKindForTypes } from "../../InputEditor/constants";
 import { useStatementEditorStyles, useStmtEditorHelperPanelStyles} from "../../styles";
 
 export function LSSuggestions() {
@@ -74,22 +79,21 @@ export function LSSuggestions() {
     }, [selectedListItem]);
 
     const onClickLSSuggestion = (suggestion: SuggestionItem) => {
-        let variable = suggestion.value;
+        const completionKind = suggestion.completionKind;
+        let value = completionKind === PROPERTY_COMPLETION_KIND ? suggestion.insertText : suggestion.value;
         if (inputEditorCtx.userInput.includes('.')) {
-            variable = resourceAccessRegex.exec(inputEditorCtx.userInput) + suggestion.value;
+            value = resourceAccessRegex.exec(inputEditorCtx.userInput) + suggestion.value;
         }
-        const regExp = /\(([^)]+)\)/;
-        if (regExp.exec(variable)) {
-            const paramArray = regExp.exec(variable)[1].split(',')
-            for (let i = 0; i < paramArray.length; i++) {
-                paramArray[i] = paramArray[i].split(' ').pop()
-            }
-            variable = variable.split('(')[0] + "(" + paramArray.toString() + ")";
+        if (completionKind === METHOD_COMPLETION_KIND || completionKind === FUNCTION_COMPLETION_KIND) {
+            const paramList = getParamsList(value);
+            value = value.split('(')[0] + `(${paramList.toString()})`;
         }
-
-        const nodePosition: NodePosition = currentModel ? (currentModel.stmtPosition ? currentModel.stmtPosition : currentModel.model.position) : targetPosition
-
-        updateModel(variable, nodePosition);
+        const nodePosition = currentModel
+            ? (currentModel.stmtPosition
+                ? currentModel.stmtPosition
+                : currentModel.model.position)
+            : targetPosition;
+        updateModel(value, nodePosition);
         inputEditorCtx.onInputChange('');
     }
 
@@ -111,7 +115,7 @@ export function LSSuggestions() {
                                             disableRipple={true}
                                         >
                                             <ListItemIcon
-                                                className={getSuggestionIconStyle(suggestion.suggestionType)}
+                                                className={getSuggestionIconStyle(suggestion.completionKind)}
                                                 style={{ minWidth: '22px', textAlign: 'left' }}
                                             />
                                             <ListItemText
@@ -124,7 +128,7 @@ export function LSSuggestions() {
                                                     </Typography>
                                                 )}
                                             />
-                                            {!acceptedCompletionKindForTypes.includes(suggestion.suggestionType) && (
+                                            {!acceptedCompletionKindForTypes.includes(suggestion.completionKind) && (
                                                 <ListItemText
                                                     style={{ minWidth: '10%', marginLeft: '8px' }}
                                                     primary={(

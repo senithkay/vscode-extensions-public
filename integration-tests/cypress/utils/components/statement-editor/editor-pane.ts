@@ -26,8 +26,7 @@ export class EditorPane {
 
     static clickExpressionContent(text:string){
         cy.get(`${this.parentSelector}`).within(() => {
-            cy.get(`[data-testid="input-editor-span"]`)
-                .contains(text)
+            cy.contains(`[data-testid="input-editor-span"]`,text)
                 .click()
                 .parent('[class*="expressionElementSelected"]',{timeout:20000})
         });
@@ -36,8 +35,7 @@ export class EditorPane {
 
     static doubleClickExpressionContent(text:string){
         cy.get(`${this.parentSelector}`).within(() => {
-            cy.get(`[data-testid="input-editor-span"]`)
-                .contains(text)
+            cy.contains(`[data-testid="input-editor-span"]`,text)
                 .dblclick();
         })
         return this;
@@ -54,8 +52,7 @@ export class EditorPane {
     }
 
     static validateNewExpression(modelType:string, text:string){
-        cy.get(`[data-testid="${modelType}"]`)
-            .contains(text,{timeout:20000});
+        cy.contains(`[data-testid="${modelType}"]`,text,{timeout:20000}).should('exist');
         return this;
     }
 
@@ -64,8 +61,7 @@ export class EditorPane {
     }
 
     static validateDiagnosticMessage(diagMessage:string){
-        cy.get(`[data-testid="diagnostics-pane"] [data-testid="diagnostic-message"]`)
-            .contains(diagMessage)
+        cy.contains(`[data-testid="diagnostics-pane"] [data-testid="diagnostic-message"]`,diagMessage)
         return this;
     }
 
