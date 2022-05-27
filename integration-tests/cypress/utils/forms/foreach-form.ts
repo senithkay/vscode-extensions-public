@@ -1,4 +1,5 @@
 import { ExpressionEditor } from "../components/expression-editor"
+import { StatementEditorToggle } from "../components/statement-editor-toggle";
 
 export class ForEachForm {
 
@@ -46,6 +47,12 @@ export class ForEachForm {
         return cy
             .get(this.selector);
 
+    }
+
+    static toggleStatementEditor() {
+        StatementEditorToggle
+            .clickStatementEditorToggle()
+        return this;
     }
 
     static save() {

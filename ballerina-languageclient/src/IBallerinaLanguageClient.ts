@@ -41,7 +41,8 @@ export enum EXTENDED_APIS {
     EXAMPLE_LIST = 'ballerinaExample/list',
     PERF_ANALYZER_ENDPOINTS = 'performanceAnalyzer/getResourcesWithEndpoints',
     RESOLVE_MISSING_DEPENDENCIES = 'ballerinaDocument/resolveMissingDependencies',
-    BALLERINA_TO_OPENAPI = 'openAPILSExtension/generateOpenAPI'
+    BALLERINA_TO_OPENAPI = 'openAPILSExtension/generateOpenAPI',
+    SYMBOL_DOC = 'ballerinaSymbol/getSymbol'
 }
 
 
@@ -696,6 +697,35 @@ export interface LineRange {
     startLine: LinePosition;
     endLine: LinePosition;
 }
+export interface SymbolInfoRequest {
+    textDocumentIdentifier: {
+        uri: string;
+    },
+    position: {
+        line: number;
+        character: number;
+    }
+}
+
+export interface ParameterInfo {
+    name : string,
+    description : string,
+    kind : string,
+    type : string
+}
+
+export interface SymbolDocumentation {
+    description : string,
+    parameters? : ParameterInfo[],
+    returnValueDescription? : string,
+    deprecatedDocumentation? : string,
+    deprecatedParams? : ParameterInfo[]
+}
+
+export interface SymbolInfoResponse {
+    symbolKind: string,
+    documentation : SymbolDocumentation
+}
 
 export interface BallerinaFunctionSTRequest {
     lineRange: RRange;
@@ -767,6 +797,8 @@ export interface IBallerinaLangClient {
     getExecutorPositions: (params: GetBallerinaProjectParams) => Thenable<ExecutorPositionsResponse>;
 
     getSTForFunction: (params: BallerinaFunctionSTRequest) => Thenable<BallerinaSTModifyResponse>;
+
+    getSymbolDocumentation: (params: SymbolInfoRequest) => Thenable<SymbolInfoResponse>;
 
     // close: () => void;
 }

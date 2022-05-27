@@ -14,16 +14,18 @@
 import React, { useContext, useEffect, useState } from "react";
 
 import { List, ListItem, ListItemIcon, ListItemText, Typography } from "@material-ui/core";
+import { NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { SuggestionItem } from "../../../models/definitions";
 import { InputEditorContext } from "../../../store/input-editor-context";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
-import { getSuggestionIconStyle } from "../../../utils";
+import { getSuggestionIconStyle, isPositionsEquals } from "../../../utils";
 import { KeyboardNavigationManager } from "../../../utils/keyboard-navigation-manager";
 import { acceptedCompletionKindForTypes } from "../../InputEditor/constants";
-import { useStatementEditorStyles } from "../../styles";
+import { useStatementEditorStyles, useStmtEditorHelperPanelStyles} from "../../styles";
 
 export function LSSuggestions() {
+    const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
     const statementEditorClasses = useStatementEditorStyles();
     const inputEditorCtx = useContext(InputEditorContext);
     const [selectedListItem, setSelectedItem] = React.useState(0);
@@ -36,9 +38,7 @@ export function LSSuggestions() {
         suggestionsCtx: {
             lsSuggestions
         },
-        formCtx: {
-            formModelPosition
-        }
+        targetPosition
     } = useContext(StatementEditorContext);
     const resourceAccessRegex = /.+\./gm;
     const [lenghtOfSuggestions, setLength] = useState<number>(lsSuggestions.length)
@@ -86,57 +86,66 @@ export function LSSuggestions() {
             }
             variable = variable.split('(')[0] + "(" + paramArray.toString() + ")";
         }
-        updateModel(variable, currentModel ? currentModel.model.position : formModelPosition);
+
+        const nodePosition: NodePosition = currentModel ? (currentModel.stmtPosition ? currentModel.stmtPosition : currentModel.model.position) : targetPosition
+
+        updateModel(variable, nodePosition);
         inputEditorCtx.onInputChange('');
     }
 
     return (
         <>
-            { !!lsSuggestions?.length && (
+            {!!lsSuggestions?.length && (
                 <>
-                    <div className={statementEditorClasses.lsSuggestionList}>
-                        <List className={statementEditorClasses.suggestionList}>
-                            {
-                                lsSuggestions.map((suggestion: SuggestionItem, index: number) => (
-                                    <ListItem
-                                        button={true}
-                                        key={index}
-                                        onClick={() => onClickLSSuggestion(suggestion)}
-                                        selected={index === selectedListItem}
-                                        className={statementEditorClasses.suggestionListItem}
-                                        disableRipple={true}
-                                    >
-                                        <ListItemIcon
-                                            className={getSuggestionIconStyle(suggestion.suggestionType)}
-                                            style={{ minWidth: '8%', textAlign: 'left' }}
-                                        />
-                                        <ListItemText
-                                            style={{ flex: 'none', maxWidth: '80%' }}
-                                            primary={(
-                                                <Typography className={statementEditorClasses.suggestionValue}>
-                                                    {suggestion.value}
-                                                </Typography>
-                                            )}
-                                        />
-                                        { !acceptedCompletionKindForTypes.includes(suggestion.suggestionType) && (
+                    <div className={stmtEditorHelperClasses.lsSuggestionList}>
+                        <div className={statementEditorClasses.stmtEditorExpressionWrapper}>
+                            <List className={stmtEditorHelperClasses.suggestionList} data-testid="suggestion-list">
+                                {
+                                    lsSuggestions.map((suggestion: SuggestionItem, index: number) => (
+                                        <ListItem
+                                            button={true}
+                                            key={index}
+                                            selected={index === selectedListItem}
+                                            onClick={() => onClickLSSuggestion(suggestion)}
+                                            className={stmtEditorHelperClasses.suggestionListItem}
+                                            disableRipple={true}
+                                        >
+                                            <ListItemIcon
+                                                className={getSuggestionIconStyle(suggestion.suggestionType)}
+                                                style={{ minWidth: '22px', textAlign: 'left' }}
+                                            />
                                             <ListItemText
-                                                style={{ minWidth: '10%', marginLeft: '8px' }}
+                                                data-testid="suggestion-value"
+                                                title={suggestion.value}
+                                                style={{ flex: 'none', maxWidth: '80%' }}
                                                 primary={(
-                                                    <Typography className={statementEditorClasses.suggestionDataType}>
-                                                        {suggestion.kind}
+                                                    <Typography className={stmtEditorHelperClasses.suggestionValue}>
+                                                        {suggestion.value}
                                                     </Typography>
                                                 )}
                                             />
-                                        )}
-                                    </ListItem>
-                                ))
-                            }
-                        </List>
+                                            {!acceptedCompletionKindForTypes.includes(suggestion.suggestionType) && (
+                                                <ListItemText
+                                                    style={{ minWidth: '10%', marginLeft: '8px' }}
+                                                    primary={(
+                                                        <Typography className={stmtEditorHelperClasses.suggestionDataType}>
+                                                            {suggestion.kind}
+                                                        </Typography>
+                                                    )}
+                                                />
+                                            )}
+                                        </ListItem>
+                                    ))
+                                }
+                            </List>
+                        </div>
                     </div>
                 </>
             )}
-            { !lsSuggestions?.length && (
-                <p className={statementEditorClasses.noSuggestionText}>Suggestions not available</p>
+            {!lsSuggestions?.length && (
+                <div className={statementEditorClasses.stmtEditorInnerWrapper}>
+                    <p>Suggestions not available</p>
+                </div>
             )}
         </>
     );

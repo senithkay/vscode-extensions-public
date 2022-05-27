@@ -13,23 +13,24 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext } from "react";
 
-import { STNode } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import cn from "classnames";
 
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { getExpressionTypeComponent, isPositionsEquals } from "../../utils";
-import { useStatementEditorStyles } from "../styles";
+import { useStatementRendererStyles } from "../styles";
 
 export interface ExpressionComponentProps {
     model: STNode;
     children?: React.ReactElement[];
     classNames?: string;
+    stmtPosition?: NodePosition
 }
 
 export function ExpressionComponent(props: ExpressionComponentProps) {
-    const { model, children, classNames } = props;
+    const { model, children, classNames, stmtPosition } = props;
 
-    const component = getExpressionTypeComponent(model);
+    const component = getExpressionTypeComponent(model, stmtPosition);
 
     const [isHovered, setHovered] = React.useState(false);
 
@@ -39,7 +40,7 @@ export function ExpressionComponent(props: ExpressionComponentProps) {
         changeCurrentModel
     } = modelCtx;
 
-    const statementEditorClasses = useStatementEditorStyles();
+    const statementRendererClasses = useStatementRendererStyles();
 
     const isSelected = selectedModel.model && model && isPositionsEquals(selectedModel.model.position, model.position);
 
@@ -58,11 +59,11 @@ export function ExpressionComponent(props: ExpressionComponentProps) {
     const onMouseClick = (e: React.MouseEvent) => {
         e.stopPropagation();
         e.preventDefault();
-        changeCurrentModel(model);
+        changeCurrentModel(model, stmtPosition);
     }
 
-    const styleClassNames = cn(statementEditorClasses.expressionElement,
-        isSelected && statementEditorClasses.expressionElementSelected,
+    const styleClassNames = cn(statementRendererClasses.expressionElement,
+        isSelected && statementRendererClasses.expressionElementSelected,
         {
             "hovered": !isSelected && isHovered,
         },
@@ -75,6 +76,7 @@ export function ExpressionComponent(props: ExpressionComponentProps) {
             onMouseOut={onMouseOut}
             className={styleClassNames}
             onClick={onMouseClick}
+            data-testid={model.kind}
         >
             {component}
             {children}

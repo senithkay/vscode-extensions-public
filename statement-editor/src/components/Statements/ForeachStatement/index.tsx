@@ -18,7 +18,7 @@ import classNames from "classnames";
 
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { ExpressionComponent } from "../../Expression";
-import { useStatementEditorStyles } from "../../styles";
+import { useStatementRendererStyles } from "../../styles";
 import { TokenComponent } from "../../Token";
 
 interface ForeachStatementProps {
@@ -36,7 +36,7 @@ export function ForeachStatementC(props: ForeachStatementProps) {
         }
     } = stmtCtx;
 
-    const statementEditorClasses = useStatementEditorStyles();
+    const statementRendererClasses = useStatementRendererStyles();
 
     if (!currentModel.model) {
         changeCurrentModel(model.actionOrExpressionNode);
@@ -50,8 +50,8 @@ export function ForeachStatementC(props: ForeachStatementProps) {
             <ExpressionComponent model={model.actionOrExpressionNode} />
             <span
                 className={classNames(
-                    statementEditorClasses.expressionBlock,
-                    statementEditorClasses.expressionBlockDisabled
+                    statementRendererClasses.expressionBlock,
+                    statementRendererClasses.expressionBlockDisabled
                 )}
             >
                 &nbsp;{model.blockStatement.openBraceToken.value}

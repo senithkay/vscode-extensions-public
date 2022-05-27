@@ -15,7 +15,7 @@ import React from "react";
 
 import { STNode } from "@wso2-enterprise/syntax-tree";
 
-import { useStatementEditorStyles } from "../../styles";
+import { useStatementRendererStyles } from "../../styles";
 
 export interface AddButtonProps {
     model: STNode;
@@ -26,7 +26,7 @@ export interface AddButtonProps {
 export function NewExprAddButton(props: AddButtonProps) {
     const { model, onClick, classNames } = props;
 
-    const statementEditorClasses = useStatementEditorStyles();
+    const statementRendererClasses = useStatementRendererStyles();
 
     const onClickOnAddButton = () => {
         onClick(model);
@@ -34,7 +34,7 @@ export function NewExprAddButton(props: AddButtonProps) {
 
     return (
         <span
-            className={`${statementEditorClasses.plusIcon} ${classNames}`}
+            className={`${statementRendererClasses.plusIcon} ${classNames}`}
             onClick={onClickOnAddButton}
         >
             +
