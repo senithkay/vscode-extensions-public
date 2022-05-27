@@ -46,7 +46,8 @@ export function ExpressionSuggestions() {
         modelCtx: {
             currentModel,
             updateModel,
-            newQueryPosition
+            newQueryPosition,
+            setNewQueryPos
         }
     } = useContext(StatementEditorContext);
 
@@ -58,6 +59,7 @@ export function ExpressionSuggestions() {
             ? expression.template.replace(SELECTED_EXPRESSION, currentModelSource)
             : expression.template.replace(SELECTED_EXPRESSION, EXPR_PLACEHOLDER);
         newQueryPosition ? updateModel(`\n${text}`, newQueryPosition) : updateModel(text, currentModel.model.position);
+        setNewQueryPos(null)
         inputEditorCtx.onInputChange('');
     }
 
@@ -65,7 +67,7 @@ export function ExpressionSuggestions() {
         if (currentModel.model) {
             let filteredGroups: ExpressionGroup[] = expressions.filter(
                 (exprGroup) => exprGroup.relatedModelType === currentModel.model.viewState.modelType);
-            if (STKindChecker.isQueryPipeline(currentModel.model) || STKindChecker.isQueryExpression(currentModel.model)){
+            if (newQueryPosition){
                 filteredGroups = expressions.filter(
                     (exprGroup) =>  exprGroup.name === "Query Intermediate-Clauses");
             }

@@ -35,9 +35,9 @@ export function TokenComponent(props: TokenComponentProps) {
         className
     );
 
-    const mappingConstructorConfig = (model.viewState as StatementEditorViewState).mappingConstructorConfig;
+    const mappingConstructorConfig = (model.viewState as StatementEditorViewState).multilineConstructConfig;
     const newLineRequired = mappingConstructorConfig.isClosingBraceWithNewLine;
-    const isLastMapField = mappingConstructorConfig.isLastMapField;
+    const isLastMapField = mappingConstructorConfig.isLastField;
 
     const leadingMinutiaeJSX = getJSXForMinutiae(model.leadingMinutiae);
     const trailingMinutiaeJSX = getJSXForMinutiae(model.trailingMinutiae, isLastMapField);

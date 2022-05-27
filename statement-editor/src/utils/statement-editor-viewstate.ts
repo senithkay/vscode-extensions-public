@@ -26,13 +26,13 @@ export class StatementEditorViewState {
     public templateExprDeletable: boolean = false;
     public isWithinBlockStatement: boolean = false;
     public modelType: ModelType = ModelType.EXPRESSION;
-    public mappingConstructorConfig: MappingConstructorConfig = {
-        isLastMapField: false,
+    public multilineConstructConfig: MultilineConstructConfig = {
+        isLastField: false,
         isClosingBraceWithNewLine: false
     };
 }
 
-interface MappingConstructorConfig {
-    isLastMapField?: boolean;
+interface MultilineConstructConfig {
+    isLastField?: boolean;
     isClosingBraceWithNewLine?: boolean;
 }

@@ -46,9 +46,9 @@ import { CurrentModel, MinutiaeJSX, RemainingContent, StmtDiagnostic, StmtOffset
 import { visitor as DeleteConfigSetupVisitor } from "../visitors/delete-config-setup-visitor";
 import { visitor as DiagnosticsMappingVisitor } from "../visitors/diagnostics-mapping-visitor";
 import { visitor as ExpressionDeletingVisitor } from "../visitors/expression-deleting-visitor";
-import { visitor as MappingConstructorConfigSetupVisitor } from "../visitors/mapping-constructor-config-setup-visitor";
 import { visitor as ModelFindingVisitor } from "../visitors/model-finding-visitor";
 import { visitor as ModelTypeSetupVisitor } from "../visitors/model-type-setup-visitor";
+import { visitor as MultilineConstructsConfigSetupVisitor } from "../visitors/multiline-constructs-config-setup-visitor";
 import {nextNodeSetupVisitor} from "../visitors/next-node--setup-visitor"
 import { parentSetupVisitor } from '../visitors/parent-setup-visitor';
 import { viewStateSetupVisitor as ViewStateSetupVisitor } from "../visitors/view-state-setup-visitor";
@@ -134,7 +134,7 @@ export function getPreviousNode(currentModel: STNode, statementModel: STNode): S
 export function enrichModel(model: STNode, targetPosition: NodePosition, diagnostics?: Diagnostic[]): STNode {
     traversNode(model, ViewStateSetupVisitor);
     traversNode(model, parentSetupVisitor);
-    traversNode(model, MappingConstructorConfigSetupVisitor);
+    traversNode(model, MultilineConstructsConfigSetupVisitor);
     model = enrichModelWithDiagnostics(model, targetPosition, diagnostics);
     return enrichModelWithViewState(model);
 }
