@@ -27,12 +27,12 @@ export class StatementEditorViewState {
     public isWithinBlockStatement: boolean = false;
     public modelType: ModelType = ModelType.EXPRESSION;
     public multilineConstructConfig: MultilineConstructConfig = {
-        isLastField: false,
+        isFieldWithNewLine: false,
         isClosingBraceWithNewLine: false
     };
 }
 
 interface MultilineConstructConfig {
-    isLastField?: boolean;
+    isFieldWithNewLine?: boolean;
     isClosingBraceWithNewLine?: boolean;
 }
