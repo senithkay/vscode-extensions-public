@@ -79,17 +79,19 @@ export function ExpressionComponent(props: ExpressionComponentProps) {
             className={styleClassNames}
             onClick={onMouseClick}
         >
-            {hasError ? 
-        
+            {hasError ? (
+
             <>
-                {component} 
+                {component}
                 {children}
             </>
-            :
+            )
+            : (
                 <>
-                {component} 
+                {component}
                 {children}
                 </>
+            )
 
             }
         </span>

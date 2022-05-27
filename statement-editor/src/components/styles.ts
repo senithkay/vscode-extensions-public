@@ -612,6 +612,6 @@ export const useStatementEditorStyles = makeStyles(() =>
             textDecoration: 'underline',
             textDecorationColor: 'red',
             textDecorationStyle: 'wavy'
-        } 
+        }
     }),
 );
