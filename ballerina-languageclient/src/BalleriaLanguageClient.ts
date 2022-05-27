@@ -254,7 +254,7 @@ export class BalleriaLanguageClient implements IBallerinaLangClient {
     public getSTForFunction(params: BallerinaFunctionSTRequest): Thenable<BallerinaSTModifyResponse> {
         return this._clientConnection.sendRequest<BallerinaSTModifyResponse>(EXTENDED_APIS.DOCUMENT_ST_FUNCTION_FIND, params);
     }
-    
+
     public getSymbolDocumentation(params: SymbolInfoRequest): Thenable<SymbolInfoResponse> {
         return this._clientConnection.sendRequest(EXTENDED_APIS.SYMBOL_DOC, params);
     }

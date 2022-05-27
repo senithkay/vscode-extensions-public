@@ -1331,8 +1331,7 @@ export class SizingVisitor implements Visitor {
                 // }
             }
         }
-        if (viewState.functionNode) {
-            if (viewState.functionNodeExpanded) {
+        if (viewState.functionNode && viewState.functionNodeExpanded) {
                 recalculateSizingAndPositioning(viewState.functionNode);
                 viewState.bBox.h += viewState.functionNode.viewState.bBox.h;
                 // height += viewState.functionNode.viewState.bBox.h;
@@ -1340,7 +1339,6 @@ export class SizingVisitor implements Visitor {
                 viewState.bBox.rw += viewState.functionNode.viewState.bBox.w + 50;
                 viewState.bBox.w = viewState.bBox.rw + viewState.bBox.lw;
                 // }
-            }
         }
     }
 

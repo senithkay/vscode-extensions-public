@@ -76,13 +76,16 @@ export function ShowFunctionBtn(props: ShowFunctionBtnProps) {
   useEffect(() => {
     if (isDiagramFunctionExpanded) {
       fetchDefinition();
+    } else {
+      nodeViewState.functionNodeExpanded = false;
+      diagramRedraw(recalculateSizingAndPositioning(syntaxTree));
+      setConfirmDialogActive(false);
     }
   }, [isDiagramFunctionExpanded]);
 
   const fetchDefinition = async () => {
     if (isConfirmDialogActive) {
       nodeViewState.functionNodeExpanded = false;
-      nodeViewState.functionNode = undefined;
       diagramRedraw(recalculateSizingAndPositioning(syntaxTree));
       setConfirmDialogActive(false);
     } else {

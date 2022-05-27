@@ -121,13 +121,13 @@ export function FunctionExpand(props: FunctionProps) {
       <g className={arrowClasses}>
         <ControlFlowArrow
           isDotted={false}
-          x={model.viewState.bBox.cx + 40}
+          x={model.viewState.bBox.cx + 70}
           y={model.viewState.bBox.cy}
           w={100}
         />
         <ControlFlowArrow
           isDotted={true}
-          x={model.viewState.bBox.cx + 40}
+          x={model.viewState.bBox.cx + 70}
           y={model.viewState.bBox.cy + 10}
           w={50}
           h={blockHeight}
@@ -135,7 +135,7 @@ export function FunctionExpand(props: FunctionProps) {
         />
       </g>
       <svg
-        x={model.viewState.bBox.cx + 150 / 2 + 40}
+        x={model.viewState.bBox.cx + 150 / 2 + 70}
         y={model.viewState.bBox.cy - 80}
       >
         <rect
