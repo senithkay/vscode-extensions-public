@@ -32,7 +32,7 @@ export class VariableFormBlockLevel {
     }
 
     static toggleInitializeVariable() {
-        this.getForm().get('.MuiSwitch-root')
+        this.getForm().get('[data-testid="initialize-varible"]')
             .click()
         return this;
     }
