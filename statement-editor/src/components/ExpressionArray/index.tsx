@@ -43,7 +43,7 @@ export function ExpressionArrayComponent(props: ExpressionArrayProps) {
             startLine: model.position.endLine,
             startColumn: model.position.endColumn
         }
-        if (ArrayType.INTERMEDIATE_CLAUSE){
+        if (arrayType === ArrayType.INTERMEDIATE_CLAUSE){
             setNewQueryPos(newPosition);
         } else {
             const template = arrayType === ArrayType.MAPPING_CONSTRUCTOR ? MAPPING_CONSTRUCTOR : EXPR_CONSTRUCTOR;
@@ -65,11 +65,16 @@ export function ExpressionArrayComponent(props: ExpressionArrayProps) {
                             model={expression}
                         />
                         {modifiable && (
-                            <NewExprAddButton
-                                model={expression}
-                                onClick={addNewExpression}
-                                classNames={"modifiable"}
-                            />
+                            <>
+                                <NewExprAddButton
+                                    model={expression}
+                                    onClick={addNewExpression}
+                                    classNames={"modifiable"}
+                                />
+                                {arrayType === ArrayType.INTERMEDIATE_CLAUSE && (
+                                    <br/>
+                                )}
+                            </>
                         )}
                     </>
                 )
