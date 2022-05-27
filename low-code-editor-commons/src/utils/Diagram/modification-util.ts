@@ -18,6 +18,24 @@ import { HTTPServiceConfigState, ListenerConfigFormState, STModification } from 
 
 import { getInsertComponentSource } from "./template-utils";
 
+export const keywords = [
+    "if", "else", "fork", "join", "while", "foreach",
+    "in", "return", "returns", "break", "transaction",
+    "transactional", "retry", "commit", "rollback", "continue",
+    "typeof", "enum", "wait", "check", "checkpanic", "panic",
+    "trap", "match", "import", "version", "public", "private",
+    "as", "lock", "new", "record", "limit", "start", "flush",
+    "untainted", "tainted", "abstract", "external", "final",
+    "listener", "remote", "is", "from", "on", "select", "where",
+    "annotation", "type", "function", "resource", "service", "worker",
+    "object", "client", "const", "let", "source", "parameter", "field",
+    "xmlns", "true", "false", "null", "table", "key", "default", "do",
+    "base16", "base64", "conflict", "outer", "equals", "boolean", "int",
+    "float", "string", "decimal", "handle", "var", "any", "anydata", "byte",
+    "future", "typedesc", "map", "json", "xml", "error", "never", "readonly",
+    "distinct", "stream"
+];
+
 export async function InsertorDelete(modifications: STModification[]): Promise<STModification[]> {
     const stModifications: STModification[] = [];
     /* tslint:disable prefer-for-of */
@@ -108,7 +126,7 @@ export function createServiceDeclartion(
         type: ''
     };
 
-    if (createNewListener && fromVar) {
+    if (createNewListener) {
         return {
             ...modification,
             type: 'SERVICE_AND_LISTENER_DECLARATION',
@@ -118,7 +136,7 @@ export function createServiceDeclartion(
                 'BASE_PATH': serviceBasePath,
             }
         }
-    } else if (!fromVar) {
+    } else if (listenerPort) {
         return {
             ...modification,
             type: 'SERVICE_DECLARATION_WITH_NEW_INLINE_LISTENER',
@@ -207,6 +225,42 @@ export function updateServiceDeclartion(config: HTTPServiceConfigState, targetPo
             }
         }
     }
+}
+
+export function createImportStatement(org: string, module: string, targetPosition: NodePosition): STModification {
+    const moduleName = module;
+    const formattedName = getFormattedModuleName(module);
+    let moduleNameStr = org + "/" + module;
+
+    const subModuleName = moduleName.split('.').pop();
+    if (moduleName.includes('.') && subModuleName !== formattedName) {
+        if (keywords.includes(subModuleName)){
+            module = module.replace(subModuleName, "'" + subModuleName);
+        }
+        // add alias if module name is different with formatted name
+        moduleNameStr = org + "/" + module + " as " + formattedName
+    }
+
+    const importStatement: STModification = {
+        startLine: 0,
+        startColumn: 0,
+        endLine: 0,
+        endColumn: 0,
+        type: "IMPORT",
+        config: {
+            "TYPE": moduleNameStr
+        }
+    };
+
+    return importStatement;
+}
+
+export function getFormattedModuleName(moduleName: string): string {
+    let formattedModuleName = moduleName.includes('.') ? moduleName.split('.').pop() : moduleName;
+    if (keywords.includes(formattedModuleName)) {
+        formattedModuleName = `${formattedModuleName}0`;
+    }
+    return formattedModuleName;
 }
 
 export function getComponentSource(insertTempName: string, config: { [key: string]: any }) {

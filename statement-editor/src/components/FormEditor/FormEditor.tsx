@@ -37,6 +37,7 @@ export interface FormEditorProps {
     };
     targetPosition: NodePosition;
     stSymbolInfo?: STSymbolInfo;
+    syntaxTree?: STNode;
     type: string;
     onCancel: () => void;
     applyModifications: (modifications: STModification[]) => void;
@@ -48,6 +49,7 @@ export function FormEditor(props: FormEditorProps) {
     const {
         initialSource,
         initialModel,
+        syntaxTree,
         onCancel,
         getLangClient,
         applyModifications,
@@ -108,6 +110,7 @@ export function FormEditor(props: FormEditorProps) {
                 model={model}
                 targetPosition={targetPosition}
                 stSymbolInfo={stSymbolInfo}
+                syntaxTree={syntaxTree}
                 onChange={onChange}
                 onCancel={onCancel}
                 getLangClient={getLangClient}

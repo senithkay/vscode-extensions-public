@@ -37,6 +37,7 @@ interface ServiceConfigFormProps {
     formType: string;
     isLastMember?: boolean;
     stSymbolInfo?: STSymbolInfo;
+    syntaxTree?: STNode;
     isEdit?: boolean;
     currentFile: {
         content: string,
@@ -55,7 +56,7 @@ export enum ServiceTypes {
 export function ServiceConfigForm(props: ServiceConfigFormProps) {
     const formClasses = useFormStyles();
     const { model, targetPosition, onSave, onCancel, formType, isLastMember, stSymbolInfo, isEdit, currentFile,
-            onChange, applyModifications, getLangClient } = props;
+            syntaxTree, onChange, applyModifications, getLangClient } = props;
 
     let serviceModel : ServiceDeclaration;
     if (model && STKindChecker.isModulePart(model)) {
@@ -73,14 +74,16 @@ export function ServiceConfigForm(props: ServiceConfigFormProps) {
 
     switch (serviceType) {
         case ServiceTypes.HTTP:
-            configForm = <HttpServiceForm onSave={onSave} onCancel={onCancel} model={model} targetPosition={targetPosition} stSymbolInfo={stSymbolInfo} isLastMember={isLastMember} onChange={onChange}  applyModifications={applyModifications} getLangClient={getLangClient} currentFile={currentFile}/>
+            configForm = <HttpServiceForm onSave={onSave} onCancel={onCancel} model={model} targetPosition={targetPosition} stSymbolInfo={stSymbolInfo} isLastMember={isLastMember} onChange={onChange} isEdit={isEdit} applyModifications={applyModifications} getLangClient={getLangClient} currentFile={currentFile} syntaxTree={syntaxTree}/>
             break;
         default:
             // configForm = <TriggerServiceForm onSave={onSave} onCancel={onCancel} model={model} targetPosition={targetPosition} />
     }
 
     useEffect(() => {
-        setServiceType(getServiceTypeFromModel(serviceModel, stSymbolInfo));
+        if (isEdit) {
+            setServiceType(getServiceTypeFromModel(serviceModel, stSymbolInfo));
+        }
     }, [model]);
 
     return (

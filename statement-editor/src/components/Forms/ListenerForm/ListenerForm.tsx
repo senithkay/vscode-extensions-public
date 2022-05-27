@@ -15,6 +15,7 @@ import React, { useEffect, useState } from 'react';
 
 import { FormControl } from "@material-ui/core";
 import {
+    createImportStatement,
     createListenerDeclartion,
     ExpressionEditorLangClientInterface,
     getSource,
@@ -107,8 +108,10 @@ export function ListenerForm(props: FunctionProps) {
 
     const handleOnSave = () => {
         applyModifications([
+            createImportStatement('ballerina', 'http', {startColumn: 0, startLine: 0}),
             createListenerDeclartion({listenerPort: listenerPort.value, listenerName: listenerName.value},
-                targetPosition, false)
+                {...targetPosition, endLine: targetPosition.startLine, startColumn: 0,
+                 endColumn: 0}, false)
         ]);
         onCancel();
     }

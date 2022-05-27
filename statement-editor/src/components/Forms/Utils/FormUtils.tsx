@@ -34,7 +34,7 @@ export function getInitialSource(type: string, targetPosition: NodePosition): st
         case "Service": {
             return getSource(createServiceDeclartion({
                 serviceBasePath: "/", listenerConfig: {
-                    createNewListener: true, listenerName: "listener", listenerPort: "9090"
+                    createNewListener: false, listenerName: "", listenerPort: "9090"
                 }
             }, targetPosition, false));
         }

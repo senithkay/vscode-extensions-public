@@ -114,13 +114,15 @@ export function getFormComponent(
     type: string, model: STNode, targetPosition: NodePosition, onChange: (code: string, partialST: STNode) => void,
     onCancel: () => void, getLangClient: () => Promise<ExpressionEditorLangClientInterface>, currentFile:
         { content: string, path: string, size: number },
-    isEdit: boolean, applyModifications: (modifications: STModification[]) => void, stSymbolInfo?: STSymbolInfo
+    isEdit: boolean, applyModifications: (modifications: STModification[]) => void, stSymbolInfo?: STSymbolInfo,
+    syntaxTree?: STNode
 ): ReactNode {
     const FormComponent = (formComponents as any)[type];
     return (
         <FormComponent
             model={model}
             targetPosition={targetPosition}
+            syntaxTree={syntaxTree}
             onChange={onChange}
             onCancel={onCancel}
             getLangClient={getLangClient}
@@ -247,7 +249,7 @@ export function getUpdatedSource(statement: string, currentFileContent: string,
 
     const updatedStatement = skipSemiColon ? statement : (statement.trim().endsWith(';') ? statement : statement + ';');
     let updatedContent: string = addToTargetPosition(currentFileContent, targetPosition, updatedStatement);
-    if (moduleList && !moduleList?.size) {
+    if (moduleList && !!moduleList?.size) {
         updatedContent = addImportStatements(updatedContent, Array.from(moduleList) as string[]);
     }
 

@@ -24,6 +24,7 @@ import { getFormComponent } from "../../utils";
 export interface FormRendererProps {
     type: string;
     model: STNode;
+    syntaxTree?: STNode;
     targetPosition: NodePosition;
     isEdit: boolean;
     currentFile: {
@@ -40,10 +41,10 @@ export interface FormRendererProps {
 
 export function FormRenderer(props: FormRendererProps) {
     const { type, model, targetPosition, stSymbolInfo, onChange, onCancel, getLangClient, isEdit,
-            applyModifications, currentFile } = props;
+            applyModifications, currentFile, syntaxTree } = props;
 
     const component = getFormComponent(type, model, targetPosition, onChange, onCancel, getLangClient, currentFile,
-        isEdit, applyModifications, stSymbolInfo);
+        isEdit, applyModifications, stSymbolInfo, syntaxTree);
 
     return (
        <>

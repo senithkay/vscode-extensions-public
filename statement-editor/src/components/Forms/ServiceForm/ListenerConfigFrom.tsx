@@ -28,7 +28,7 @@ import {
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 import { StmtDiagnostic } from "../../../models/definitions";
-import { FormEditor } from "../../FormEditor";
+import { FormEditor } from "../../FormEditor/FormEditor";
 import { FormEditorField } from "../Types";
 
 interface ListenerConfigFormProps {
@@ -46,7 +46,7 @@ interface ListenerConfigFormProps {
         path: string,
         size: number
     };
-    onChange: (port: string, name: string) => void;
+    onChange: (port: string, name: string, isListenerInteracted: boolean) => void;
     applyModifications: (modifications: STModification[]) => void;
 }
 
@@ -59,22 +59,28 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
     const [currentComponentName, setCurrentComponentName] = useState<string>("");
 
     const [isAddListenerInProgress, setIsAddListenerInProgress] = useState<boolean>(false);
-    const [selectedListener, setSelectedListener] = useState<string>(activeListener);
-    const [isInline, setIsInline] = useState<boolean>(true);
+    const [selectedListener, setSelectedListener] = useState<string>(activeListener ||
+        listenerConfig.listenerName);
+    const [isInline, setIsInline] = useState<boolean>(!selectedListener);
 
-    const [listenerPort, setListenerPort] = useState<FormEditorField>({isInteracted: false, value:
+    const [listenerPort, setListenerPort] = useState<FormEditorField>({isInteracted: isEdit, value:
         listenerConfig.listenerPort});
 
     const handleListenerDefModeChange = (mode: string[]) => {
+        if (listenerList.length === 0 && mode.length === 0) {
+            setIsAddListenerInProgress(true);
+        } else {
+            setListenerPort({isInteracted: false, value: "9090"});
+            setSelectedListener("");
+            onChange("9090", "", false);
+        }
         setIsInline(mode.length > 0);
-        setListenerPort({isInteracted: false, value: "9090"});
-        onChange("9090", "");
     }
 
     const onListenerPortChange = (port: string) => {
         setCurrentComponentName("Listener Port");
         setListenerPort({isInteracted: true, value: port});
-        onChange(port, "");
+        onChange(port, "", true);
     }
 
     const onListenerFormCancel = () => {
@@ -88,13 +94,18 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
         } else {
             setSelectedListener(name);
             setIsAddListenerInProgress(false);
-            onChange("", name);
+            onChange("", name, true);
         }
     }
 
     useEffect(() => {
         setSelectedListener(activeListener);
     }, [activeListener]);
+    useEffect(() => {
+        if (listenerConfig.listenerName) {
+            setSelectedListener(listenerConfig.listenerName);
+        }
+    }, [listenerConfig.listenerName]);
 
     return (
         <>

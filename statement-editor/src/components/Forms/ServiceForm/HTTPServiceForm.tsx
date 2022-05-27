@@ -14,6 +14,8 @@
 import React, { useState } from "react";
 
 import {
+    createImportStatement,
+    createServiceDeclartion,
     ExpressionEditorLangClientInterface,
     getSource,
     STModification,
@@ -35,7 +37,7 @@ import {
 import classNames from "classnames";
 
 import { StmtDiagnostic } from "../../../models/definitions";
-import { getUpdatedSource } from "../../../utils";
+import {getModuleElementDeclPosition, getUpdatedSource} from "../../../utils";
 import { getPartialSTForModulePart } from "../../../utils/ls-utils";
 import { FormEditorField } from "../Types";
 import { getListenerConfig } from "../Utils/FormUtils";
@@ -50,6 +52,7 @@ interface HttpServiceFormProps {
     onChange: (genSource: string, partialST: STNode, moduleList?: Set<string>) => void;
     isLastMember?: boolean;
     stSymbolInfo?: STSymbolInfo;
+    syntaxTree?: STNode;
     isEdit?: boolean;
     getLangClient: () => Promise<ExpressionEditorLangClientInterface>;
     currentFile: {
@@ -66,7 +69,7 @@ const HTTP_IMPORT = new Set<string>(['ballerina/http']);
 export function HttpServiceForm(props: HttpServiceFormProps) {
     const formClasses = useFormStyles();
     const { model, targetPosition, onCancel, onSave, isLastMember, currentFile, stSymbolInfo, isEdit, getLangClient,
-            onChange, applyModifications } = props;
+            syntaxTree, onChange, applyModifications } = props;
 
     // States related to syntax diagnostics
     const [currentComponentName, setCurrentComponentName] = useState<string>("");
@@ -74,7 +77,6 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
 
     let serviceModel: ServiceDeclaration;
     let portSemDiagMsg: string;
-    let nameSemDiagMsg: string;
     if (STKindChecker.isModulePart(model)) {
         model.members.forEach(m => {
             if (STKindChecker.isServiceDeclaration(m)) {
@@ -84,7 +86,6 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
                 }
             } else if (STKindChecker.isListenerDeclaration(m)) {
                 portSemDiagMsg = m.initializer?.viewState?.diagnosticsInRange[0]?.message;
-                nameSemDiagMsg = m.variableName?.viewState?.diagnosticsInRange[0]?.message;
             }
         })
     } else if (STKindChecker.isServiceDeclaration(model)) {
@@ -98,13 +99,17 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
     const path = serviceModel?.absoluteResourcePath
         .map((pathSegments) => pathSegments.value)
         .join('');
+    const listenerConfig = getListenerConfig(serviceModel, isEdit);
+
+    const moduleElementPosition = getModuleElementDeclPosition(syntaxTree);
 
     // States related fields
     const [basePath, setBsePath] = useState<FormEditorField>({isInteracted: true, value: path});
-    const [isListenerInteracted, setIsListenerInteracted] = useState<boolean>(false);
-    const [listenerPort, setListenerPort] = useState<string>("");
-    const [listenerName, setListenerName] = useState<string>("");
-    const [selectedListener, setSelectedListener] = useState<string>("");
+    const [isListenerInteracted, setIsListenerInteracted] = useState<boolean>(!!listenerConfig.listenerPort || !!listenerConfig.listenerName);
+    const [listenerPort, setListenerPort] = useState<string>(listenerConfig.listenerPort);
+    const [listenerName, setListenerName] = useState<string>(listenerConfig.listenerName);
+    const [shouldAddNewLine, setShouldAddNewLine] = useState<boolean>(false);
+    const [createdListerCount, setCreatedListerCount] = useState<number>(0);
 
     const listenerList = Array.from(stSymbolInfo.listeners)
         .filter(([key, value]) =>
@@ -121,8 +126,8 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
             endLine: openBracePosition.startLine,
             endColumn: openBracePosition.startColumn - 1
         };
-        const codeSnippet = getSource(updateServiceDeclartion({
-            serviceBasePath: servicePath, listenerConfig: {createNewListener: false, listenerName: name, listenerPort: port, fromVar: false}
+        const codeSnippet = getSource(updateServiceDeclartion({serviceBasePath: servicePath, listenerConfig:
+                {createNewListener: false, listenerName: name, listenerPort: port, fromVar: false}
         }, updatePosition));
         const updatedContent = getUpdatedSource(codeSnippet, model?.source, updatePosition, undefined,
             true);
@@ -146,54 +151,58 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
         await serviceParamChange(value, listenerPort, listenerName);
     }
 
-    const onListenerChange = async (port: string, name: string) => {
-        setIsListenerInteracted(true);
+    const onListenerChange = async (port: string, name: string, isInteracted: boolean) => {
+        setIsListenerInteracted(isInteracted);
         setListenerPort(port);
         setListenerName(name);
+        setCurrentComponentName("Listener");
         await serviceParamChange(basePath.value, port, name);
     }
 
     const onListenerConfigSave = (modifications: STModification[]) => {
         const listenerMod: STModification = modifications.find(l => l.type === "LISTENER_DECLARATION");
-        setSelectedListener(listenerMod.config.LISTENER_NAME);
+        if (modifications.find(l => l.type === "IMPORT")) {
+            HTTP_IMPORT.forEach(module => {
+                if (!currentFile.content.includes(module)){
+                    setShouldAddNewLine(true);
+                }
+            })
+        }
         setListenerName(listenerMod.config.LISTENER_NAME);
         setListenerPort("");
+        setIsListenerInteracted(true);
+        setCreatedListerCount(createdListerCount + 1);
         applyModifications(modifications);
     }
 
     const handleOnSave = () => {
-        if (serviceModel) {
-            const modelPosition = serviceModel.position as NodePosition;
-            const openBracePosition = serviceModel.openBraceToken.position as NodePosition;
-            const updatePosition = {
-                startLine: modelPosition.startLine,
-                startColumn: 0,
-                endLine: openBracePosition.startLine,
-                endColumn: openBracePosition.startColumn - 1
-            };
-
-            // modifyDiagram([
-            //     updateServiceDeclartion(
-            //         state,
-            //         updatePosition
-            //     )
-            // ]);
+        if (isEdit) {
+            const serviceUpdatePosition: NodePosition = {
+                ...targetPosition , endLine: targetPosition.endLine + (createdListerCount * 2),
+                startLine: targetPosition.startLine + (createdListerCount * 2)
+            }
+            applyModifications([
+                updateServiceDeclartion({serviceBasePath: basePath.value, listenerConfig:
+                            {createNewListener: false, listenerName, listenerPort, fromVar: false}},
+                    serviceUpdatePosition
+                )
+            ]);
         } else {
-            // modifyDiagram([
-            //     createImportStatement('ballerina', 'http', { startColumn: 0, startLine: 0 }),
-            //     createServiceDeclartion(state, targetPosition, isLastMember)
-            // ]);
+            const serviceInsertPosition: NodePosition = {
+                startColumn: 0, endColumn: 0, endLine: targetPosition.endLine + (createdListerCount * 2),
+                startLine: targetPosition.startLine + (createdListerCount * 2)
+            }
+            applyModifications([
+                createImportStatement('ballerina', 'http', {startColumn: 0, startLine: 0}),
+                createServiceDeclartion({serviceBasePath: basePath.value, listenerConfig:
+                        {createNewListener: false, listenerName, listenerPort, fromVar: false}},
+                    shouldAddNewLine ? {
+                    ...serviceInsertPosition, startLine: serviceInsertPosition.startLine + 1, endLine:
+                            serviceInsertPosition.endLine + 1} : serviceInsertPosition, isLastMember)
+            ]);
         }
-        onSave();
+        onCancel();
     }
-
-    // useEffect(() => {
-    //     setSelectedListener(selectedListener);
-    // }, [selectedListener]);
-    //
-    // useEffect(() => {
-    //     setListenerPort(listenerPort);
-    // }, [listenerPort]);
 
     return (
         <>
@@ -206,10 +215,13 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
                         onChange={onBasePathChange}
                         customProps={{
                             isErrored: (currentComponentSyntaxDiag !== undefined && currentComponentName === "path") ||
-                                (false)
+                                (portSemDiagMsg === undefined /*&& nameSemDiagMsg === undefined*/ && serviceModel?.
+                                    viewState?.diagnosticsInRange[0]?.message)
                         }}
                         errorMessage={(currentComponentSyntaxDiag && currentComponentName === "path"
-                            && currentComponentSyntaxDiag[0].message) || ""}
+                            && currentComponentSyntaxDiag[0].message) ||
+                            portSemDiagMsg === undefined /*&& nameSemDiagMsg === undefined*/ && serviceModel?.viewState?.
+                                diagnosticsInRange[0]?.message}
                         onBlur={null}
                         onFocus={onBasePathFocus}
                         placeholder={"/"}
@@ -218,17 +230,18 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
                     />
                     <div className={classNames(formClasses.groupedForm, formClasses.marginTB)}>
                         <ListenerConfigForm
-                            listenerConfig={getListenerConfig(serviceModel, isEdit)}
+                            listenerConfig={listenerConfig}
                             listenerList={listenerList}
+                            isEdit={isEdit}
                             syntaxDiag={currentComponentName === "Listener" ? currentComponentSyntaxDiag : undefined}
                             portSemDiagMsg={portSemDiagMsg}
-                            activeListener={selectedListener}
+                            activeListener={listenerName}
                             isDisabled={currentComponentSyntaxDiag !== undefined && currentComponentName !== "Listener"}
                             onChange={onListenerChange}
                             currentFile={currentFile}
                             getLangClient={getLangClient}
                             applyModifications={onListenerConfigSave}
-                            targetPosition={targetPosition}
+                            targetPosition={moduleElementPosition}
                         />
                     </div>
                 </div>
@@ -239,7 +252,9 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
                 saveBtnText={"Save"}
                 onSave={handleOnSave}
                 onCancel={onCancel}
-                validForm={true}
+                validForm={(isEdit || basePath.isInteracted) && (listenerName !== "" ||
+                    (listenerPort && portSemDiagMsg === undefined)) && (currentComponentSyntaxDiag === undefined)
+                    && isListenerInteracted}
             />
         </>
     )
