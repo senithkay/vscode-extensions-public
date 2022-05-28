@@ -85,11 +85,13 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
 
     const onListenerFormCancel = () => {
         setIsAddListenerInProgress(false);
+        setSelectedListener("");
     }
 
     const onListenerSelect = (name: string) => {
         setCurrentComponentName("Listener Selector");
         if (name === 'Create New') {
+            setSelectedListener("");
             setIsAddListenerInProgress(true);
         } else {
             setSelectedListener(name);
@@ -149,7 +151,7 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
                         customProps={{disableCreateNew: false, values: listenerList || []}}
                         onChange={onListenerSelect}
                         placeholder="Select Property"
-                        defaultValue={selectedListener}
+                        defaultValue={isAddListenerInProgress ? "" : selectedListener}
                         disabled={isDisabled}
                     />
                     {isAddListenerInProgress && (
