@@ -75,6 +75,8 @@ export const CONFIGURABLE_NAME_CONSTRUCTOR = "CONF_NAME";
 
 export const CONFIGURABLE_VALUE_REQUIRED_TOKEN = "?";
 
+export const BAL_SOURCE = "```ballerina";
+
 export const METHOD_COMPLETION_KIND = 2;
 export const FUNCTION_COMPLETION_KIND = 3;
 const FIELD_COMPLETION_KIND = 5;

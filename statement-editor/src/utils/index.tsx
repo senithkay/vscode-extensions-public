@@ -34,6 +34,7 @@ import * as expressionTypeComponents from '../components/ExpressionTypes';
 import { INPUT_EDITOR_PLACEHOLDERS } from "../components/InputEditor/constants";
 import * as statementTypeComponents from '../components/Statements';
 import {
+    BAL_SOURCE,
     CUSTOM_CONFIG_TYPE,
     END_OF_LINE_MINUTIAE, EXPR_CONSTRUCTOR,
     OTHER_EXPRESSION,
@@ -181,6 +182,14 @@ export function isOperator(modelType: number): boolean {
 
 export function isBindingPattern(modelType: number): boolean {
     return modelType === ModelType.BINDING_PATTERN;
+}
+
+export function isDescriptionWithExample(doc : string): boolean {
+    return doc.includes(BAL_SOURCE);
+}
+
+export function getDocDescription(doc: string) : string[] {
+    return doc.split(BAL_SOURCE);
 }
 
 export function getFilteredDiagnosticMessages(statement: string, targetPosition: NodePosition,

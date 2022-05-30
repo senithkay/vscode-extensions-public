@@ -519,6 +519,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
         },
         docDescription: {
             marginBottom: '13px',
+            whiteSpace: 'pre',
             "& .MuiListItem-root": {
                 paddingLeft: '0px',
                 paddingTop: '0px',
