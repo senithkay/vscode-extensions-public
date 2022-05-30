@@ -48,7 +48,7 @@ export function Constant(props: ConstantProps) {
 
     const handleDeleteBtnClick = () => {
         if (deleteComponent) {
-            deleteComponent(model.position);
+            deleteComponent(model);
         }
     }
 
