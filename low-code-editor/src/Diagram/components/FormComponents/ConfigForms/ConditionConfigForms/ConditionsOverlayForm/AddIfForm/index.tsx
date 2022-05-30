@@ -98,7 +98,7 @@ export function AddIfForm(props: IfProps) {
     }
 
     const handleStatementEditorChange = (partialModel: IfElseStatement) => {
-        compList[0].expression = partialModel.condition.source.trim();
+        compList[0].expression = partialModel.condition?.source.trim();
         let elseIfModel = partialModel.elseBody ? partialModel.elseBody : null;
         compList.map((element, index) => {
             if (index !== 0 && elseIfModel) {

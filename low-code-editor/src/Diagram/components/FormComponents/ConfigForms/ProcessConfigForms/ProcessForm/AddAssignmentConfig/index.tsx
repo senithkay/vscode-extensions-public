@@ -78,8 +78,8 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
     ));
 
     const handleStatementEditorChange = (partialModel: AssignmentStatement) => {
-        setVarName(partialModel.varRef.source.trim());
-        setVariableExpression(partialModel.expression.source.trim());
+        setVarName(partialModel.varRef?.source.trim());
+        setVariableExpression(partialModel.expression?.source.trim());
     }
 
     const stmtEditorComponent = StatementEditorWrapper(
