@@ -234,6 +234,14 @@ export function getFilteredDiagnosticMessages(statement: string, targetPosition:
     return stmtDiagnostics;
 }
 
+export function isPlaceHolderExists (statement: string) : boolean {
+    if (PLACE_HOLDER_DIAGNOSTIC_MESSAGES.some(placeHolder => statement.includes(placeHolder))) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
 export async function getUpdatedSource(updatedStatement: string, currentFileContent: string,
                                        targetPosition: NodePosition, moduleList?: Set<string>,
                                        skipSemiColon?: boolean): Promise<string> {

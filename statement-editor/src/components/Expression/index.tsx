@@ -17,7 +17,7 @@ import { STNode } from "@wso2-enterprise/syntax-tree";
 import cn from "classnames";
 
 import { StatementEditorContext } from "../../store/statement-editor-context";
-import { getExpressionTypeComponent, isPositionsEquals } from "../../utils";
+import { getExpressionTypeComponent, isPlaceHolderExists, isPositionsEquals } from "../../utils";
 import { useStatementEditorStyles } from "../styles";
 
 export interface ExpressionComponentProps {
@@ -42,7 +42,7 @@ export function ExpressionComponent(props: ExpressionComponentProps) {
     const statementEditorClasses = useStatementEditorStyles();
 
     const isSelected = selectedModel.model && model && isPositionsEquals(selectedModel.model.position, model.position);
-    const hasError = model?.syntaxDiagnostics?.length > 0
+    const hasError = model?.syntaxDiagnostics?.length > 0 && !isPlaceHolderExists(model?.source);
 
     const onMouseOver = (e: React.MouseEvent) => {
         setHovered(true);
@@ -79,21 +79,8 @@ export function ExpressionComponent(props: ExpressionComponentProps) {
             className={styleClassNames}
             onClick={onMouseClick}
         >
-            {hasError ? (
-
-            <>
-                {component}
-                {children}
-            </>
-            )
-            : (
-                <>
-                {component}
-                {children}
-                </>
-            )
-
-            }
+            {component}
+            {children}
         </span>
     );
 }

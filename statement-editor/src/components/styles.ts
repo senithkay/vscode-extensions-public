@@ -609,9 +609,13 @@ export const useStatementEditorStyles = makeStyles(() =>
             fontStyle: "italic"
         },
         errorHighlight: {
-            textDecoration: 'underline',
-            textDecorationColor: 'red',
-            textDecorationStyle: 'wavy'
+            backgroundImage: `linear-gradient(45deg, transparent 65%, red 80%, transparent 90%),
+                linear-gradient(135deg, transparent 5%, red 15%, transparent 25%),
+                linear-gradient(135deg, transparent 45%, red 55%, transparent 65%),
+                linear-gradient(45deg, transparent 25%, red 35%, transparent 50%)`,
+            backgroundRepeat: "repeat-x",
+            backgroundSize: "8px 2px",
+            backgroundPosition: "0 95%"
         }
     }),
 );
