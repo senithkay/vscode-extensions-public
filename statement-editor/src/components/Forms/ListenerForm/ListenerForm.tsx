@@ -197,6 +197,7 @@ export function ListenerForm(props: FunctionProps) {
                     && !(model?.variableName?.viewState?.diagnosticsInRange[0]?.message)
                     && !(model?.initializer?.parenthesizedArgList?.arguments[0]?.viewState?.
                         diagnosticsInRange[0]?.message)
+                    && (model?.viewState?.diagnosticsInRange.length === 0)
                     && !(currentComponentSyntaxDiag && currentComponentSyntaxDiag[0]?.message)}
             />
         </FormControl>
