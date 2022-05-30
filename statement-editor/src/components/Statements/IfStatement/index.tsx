@@ -19,7 +19,7 @@ import classNames from "classnames";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { ExpressionComponent } from "../../Expression";
 import { StatementRenderer } from "../../StatementRenderer";
-import { useStatementEditorStyles } from "../../styles";
+import { useStatementRendererStyles } from "../../styles";
 import { TokenComponent } from "../../Token";
 
 interface IfStatementProps {
@@ -36,7 +36,7 @@ export function IfStatementC(props: IfStatementProps) {
         }
     } = stmtCtx;
 
-    const statementEditorClasses = useStatementEditorStyles();
+    const statementRendererClasses = useStatementRendererStyles();
 
 
     if (!currentModel.model && !STKindChecker.isElseBlock(model)) {
@@ -49,8 +49,8 @@ export function IfStatementC(props: IfStatementProps) {
             <ExpressionComponent model={model.condition} />
             <span
                 className={classNames(
-                    statementEditorClasses.expressionBlock,
-                    statementEditorClasses.expressionBlockDisabled
+                    statementRendererClasses.expressionBlock,
+                    statementRendererClasses.expressionBlockDisabled
                 )}
             >
                 &nbsp;{model.ifBody.openBraceToken.value}

@@ -45,7 +45,6 @@ export function QueryParamSegmentEditor(props: QueryParamSegmentEditorProps) {
     if (queryParamValue) {
         queryParamValue = {
             ...queryParamValue,
-            type: "string"
         }
     }
     const initValue: QueryParam = queryParamValue ? { ...queryParamValue } : {

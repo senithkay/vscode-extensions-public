@@ -33,7 +33,7 @@ import LibraryModuleIcon from "../../assets/icons/LibraryModuleIcon";
 import LibrarySearchIcon from "../../assets/icons/LibrarySearchIcon";
 import { LANG_LIBS_IDENTIFIER, STD_LIBS_IDENTIFIER } from "../../constants";
 import { StatementEditorContext } from "../../store/statement-editor-context";
-import { useStatementEditorStyles } from "../styles";
+import { useStatementEditorStyles, useStmtEditorHelperPanelStyles } from "../styles";
 
 import { LibrariesList } from "./LibrariesList";
 import { SearchResult } from "./SearchResult";
@@ -53,14 +53,14 @@ const DEFAULT_SEARCH_SCOPE = "distribution";
 
 export function LibraryBrowser(props: LibraryBrowserProps) {
     const { libraryType } = props;
+    const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
     const statementEditorClasses = useStatementEditorStyles();
-    const stmtCtx = useContext(StatementEditorContext);
     const {
         library: {
             getLibrariesList,
             getLibrariesData
         }
-    } = stmtCtx;
+    } = useContext(StatementEditorContext);
 
     const [libraryBrowserMode, setLibraryBrowserMode] = useState(LibraryBrowserMode.LIB_LIST);
     const [keyword, setKeyword] = useState('');
@@ -137,15 +137,15 @@ export function LibraryBrowser(props: LibraryBrowserProps) {
         setKeyword('');
     }
 
-    const libraryDataFetchingHandler = (isFetching: boolean, moduleElement?: string) => {
+    const libraryDataFetchingHandler = (isFetching: boolean) => {
         setIsLoading(isFetching);
     }
 
     const loadingScreen = (
-        <Grid sm={12} item={true} container={true} className={statementEditorClasses.loadingContainer}>
+        <Grid sm={12} item={true} container={true} className={stmtEditorHelperClasses.loadingContainer}>
             <Grid item={true} sm={12}>
                 <Box display="flex" justifyContent="center">
-                    <CircularProgress/>
+                    <CircularProgress />
                 </Box>
                 <Box display="flex" justifyContent="center" mt={2}>
                     <Typography variant="body1">Loading...</Typography>
@@ -155,30 +155,24 @@ export function LibraryBrowser(props: LibraryBrowserProps) {
     );
 
     return (
-        <div className={statementEditorClasses.libraryBrowser}>
-            <div className={statementEditorClasses.libraryBrowserHeader}>
+        <div className={stmtEditorHelperClasses.libraryBrowser}>
+            <div className={stmtEditorHelperClasses.libraryBrowserHeader}>
                 {(libraryBrowserMode !== LibraryBrowserMode.LIB_LIST || searchScope !== DEFAULT_SEARCH_SCOPE) && (
                     <>
-                        <IconButton onClick={onClickOnReturnIcon} className={statementEditorClasses.libraryReturnIcon}>
-                            <ArrowBack className={statementEditorClasses.arrowBack}/>
+                        <IconButton onClick={onClickOnReturnIcon} className={stmtEditorHelperClasses.libraryReturnIcon}>
+                            <ArrowBack className={stmtEditorHelperClasses.arrowBack} />
                         </IconButton>
-                        {moduleTitle && (
-                            <div className={statementEditorClasses.libraryModuleIcon}>
-                                <LibraryModuleIcon/>
-                            </div>
-                        )}
-                        <div className={statementEditorClasses.moduleTitle}>{moduleTitle}</div>
                     </>
                 )}
-                <FormControl style={{width: 'inherit', marginRight: '10px'}}>
+                <FormControl style={{ width: 'inherit' }}>
                     <Input
-                        className={statementEditorClasses.librarySearchBox}
+                        className={stmtEditorHelperClasses.librarySearchBox}
                         value={keyword}
                         placeholder={`search in ${searchScope}`}
                         onChange={(e) => setKeyword(e.target.value)}
                         endAdornment={(
-                            <InputAdornment position={"end"} style={{padding: '8.5px'}}>
-                                <LibrarySearchIcon/>
+                            <InputAdornment position={"end"} style={{ padding: '8.5px' }}>
+                                <LibrarySearchIcon />
                             </InputAdornment>
                         )}
                     />
@@ -186,30 +180,33 @@ export function LibraryBrowser(props: LibraryBrowserProps) {
             </div>
             {isLoading ? loadingScreen : (
                 <>
-                    {libraryBrowserMode === LibraryBrowserMode.LIB_LIST && !moduleTitle && (
-                        <LibrariesList
-                            libraries={libraries}
-                            libraryBrowsingHandler={libraryBrowsingHandler}
-                            libraryDataFetchingHandler={libraryDataFetchingHandler}
-                        />
-                    )}
-                    {libraryBrowserMode === LibraryBrowserMode.LIB_BROWSE && (
-                        <SearchResult
-                            librarySearchResponse={libraryData.searchData}
-                            moduleSelected={moduleSelected}
-                            libraryDataFetchingHandler={libraryDataFetchingHandler}
-                        />
-                    )}
-                    {libraryBrowserMode === LibraryBrowserMode.LIB_SEARCH && filteredSearchData && (
-                        <SearchResult
-                            librarySearchResponse={filteredSearchData}
-                            libraryBrowsingHandler={libraryBrowsingHandler}
-                            moduleSelected={moduleSelected}
-                            libraryDataFetchingHandler={libraryDataFetchingHandler}
-                        />
-                    )}
+                    <div className={statementEditorClasses.stmtEditorExpressionWrapper}>
+                        {libraryBrowserMode === LibraryBrowserMode.LIB_LIST && !moduleTitle && (
+                            <LibrariesList
+                                libraries={libraries}
+                                libraryBrowsingHandler={libraryBrowsingHandler}
+                                libraryDataFetchingHandler={libraryDataFetchingHandler}
+                            />
+                        )}
+                        {libraryBrowserMode === LibraryBrowserMode.LIB_BROWSE && (
+                            <SearchResult
+                                librarySearchResponse={libraryData.searchData}
+                                moduleSelected={moduleSelected}
+                                libraryDataFetchingHandler={libraryDataFetchingHandler}
+                            />
+                        )}
+                        {libraryBrowserMode === LibraryBrowserMode.LIB_SEARCH && filteredSearchData && (
+                            <SearchResult
+                                librarySearchResponse={filteredSearchData}
+                                libraryBrowsingHandler={libraryBrowsingHandler}
+                                moduleSelected={moduleSelected}
+                                libraryDataFetchingHandler={libraryDataFetchingHandler}
+                            />
+                        )}
+                    </div>
                 </>
-            )}
-        </div>
+            )
+            }
+        </div >
     );
 }

@@ -10,6 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+// tslint:disable: jsx-no-multiline-js
 import React from "react";
 
 import { SpecificField } from "@wso2-enterprise/syntax-tree";
@@ -27,8 +28,14 @@ export function SpecificFieldComponent(props: SpecificFieldProps) {
     return (
         <>
             <ExpressionComponent model={model.fieldName} />
-            <TokenComponent model={model.colon} />
-            <ExpressionComponent model={model.valueExpr} />
+
+            {model.colon && (
+                <>
+                    <TokenComponent model={model.colon} />
+                    <ExpressionComponent model={model.valueExpr} />
+                </>
+                )
+            }
         </>
     );
 }
