@@ -61,6 +61,13 @@ const stmtEditorPadding = {
     paddingLeft: '25px',
     paddingRight: '25px'
 }
+
+const statementFontStyles = {
+    fontSize: "15px",
+    'user-select': 'none',
+    fontFamily: 'Droid sans mono'
+}
+
 export const useStatementEditorToolbarStyles = makeStyles(() =>
     createStyles({
         toolbar: {
@@ -106,7 +113,8 @@ export const useStatementRendererStyles = makeStyles(() =>
             border: 'none',
             '&:focus': {
                 outline: 'none'
-            }
+            },
+            ...statementFontStyles
         },
         expressionElement: {
             position: 'relative',
@@ -590,9 +598,7 @@ export const useStatementEditorStyles = makeStyles(() =>
             fontWeight: 500
         },
         statementExpressionContent: {
-            fontSize: "15px",
-            'user-select': 'none',
-            fontFamily: 'Droid sans mono'
+           ...statementFontStyles
         },
         footer: {
             height: 'auto',
