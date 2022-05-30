@@ -10,10 +10,13 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React from "react";
+import React, { useContext } from "react";
 
-import { QueryPipeline } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, QueryPipeline, STNode } from "@wso2-enterprise/syntax-tree";
 
+import { ArrayType } from "../../../constants";
+import { StatementEditorContext } from "../../../store/statement-editor-context";
+import { NewExprAddButton } from "../../Button/NewExprAddButton";
 import { ExpressionComponent } from "../../Expression";
 import { ExpressionArrayComponent } from "../../ExpressionArray";
 
@@ -24,10 +27,32 @@ interface QueryPipelineProps {
 export function QueryPipelineComponent(props: QueryPipelineProps) {
     const { model } = props;
 
+    const {
+        modelCtx: {
+            setNewQueryPos
+        }
+    } = useContext(StatementEditorContext);
+
+    const addNewExpression = (fromClauseModel: STNode) => {
+        const newPosition: NodePosition = {
+            ...fromClauseModel.position,
+            startLine: fromClauseModel.position.endLine,
+            startColumn: fromClauseModel.position.endColumn
+        }
+        setNewQueryPos(newPosition);
+    };
+
+
     return (
         <>
             <ExpressionComponent model={model.fromClause} />
-            <ExpressionArrayComponent expressions={model.intermediateClauses} />
+            <NewExprAddButton model={model.fromClause} onClick={addNewExpression} />
+            <br/>
+            <ExpressionArrayComponent
+                modifiable={true}
+                arrayType={ArrayType.INTERMEDIATE_CLAUSE}
+                expressions={model.intermediateClauses}
+            />
         </>
     );
 }
