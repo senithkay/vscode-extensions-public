@@ -349,14 +349,14 @@ export function ConnectorForm(props: FormGeneratorProps) {
     const onActionAddEvent = () => {
         const event: LowcodeEvent = {
             type: SAVE_CONNECTOR,
-            connectorName: connectorName,
+            connectorName,
         };
         onEvent(event);
     };
     const onConnectorAddEvent = () => {
         const event: LowcodeEvent = {
             type: SAVE_CONNECTOR_INIT,
-            connectorName: connectorName,
+            connectorName,
         };
         onEvent(event);
     };
@@ -364,7 +364,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
         setFormState(FormStates.OperationForm);
         const event: LowcodeEvent = {
             type: SAVE_CONNECTOR_INVOKE,
-            connectorName: connectorName,
+            connectorName,
         };
         onEvent(event);
     };
