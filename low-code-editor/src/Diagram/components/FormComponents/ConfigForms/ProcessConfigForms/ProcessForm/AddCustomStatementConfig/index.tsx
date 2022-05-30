@@ -36,8 +36,6 @@ interface LogConfigProps {
 }
 
 export function AddCustomStatementConfig(props: LogConfigProps) {
-    const formClasses = useFormStyles();
-    const overlayClasses = wizardStyles();
     const intl = useIntl();
 
     const {
@@ -61,8 +59,6 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
 
     const { config, formArgs, onCancel, onSave, onWizardClose } = props;
 
-    const expressionFormConfig: CustomExpressionConfig = config.config as CustomExpressionConfig;
-
     // Insight event to send when loading the component
     useEffect(() => {
         // const event: LowcodeEvent = {
@@ -78,51 +74,11 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
     }
 
     const [expression, setExpression] = useState(defaultExpression);
-    const [isFormValid, setIsFormValid] = useState(!!expression);
-
-    const onExpressionChange = (value: any) => {
-        setExpression(value);
-    };
-
-    const onSaveBtnClick = () => {
-        expressionFormConfig.expression = expression;
-        onSave();
-        // const event: LowcodeEvent = {
-        //     type: SAVE_OTHER_STATEMENT,
-        //     name: expression
-        // };
-        // onEvent(event);
-    }
-
-    const validateExpression = (_field: string, isInvalid: boolean) => {
-        const isValidExpression = !isInvalid ? (expression !== undefined && expression !== "") : false;
-        setIsFormValid(isValidExpression);
-    }
 
     const formTitle = intl.formatMessage({
         id: "lowcode.develop.configForms.customStatement.title",
         defaultMessage: "Other"
     });
-
-    const saveCustomStatementButtonLabel = intl.formatMessage({
-        id: "lowcode.develop.configForms.customStatement.saveButton.label",
-        defaultMessage: "Save"
-    });
-
-    const customStatementTooltipMessages = {
-        title: intl.formatMessage({
-            id: "lowcode.develop.configForms.customStatement.expressionEditor.tooltip.title",
-            defaultMessage: "Press CTRL+Spacebar for suggestions."
-        }),
-        actionText: intl.formatMessage({
-            id: "lowcode.develop.configForms.customStatement.expressionEditor.tooltip.actionText",
-            defaultMessage: "Learn about Ballerina expressions here"
-        }),
-        actionLink: intl.formatMessage({
-            id: "lowcode.develop.configForms.customStatement.expressionEditor.tooltip.actionTitle",
-            defaultMessage: "{learnBallerina}"
-        }, { learnBallerina: "https://ballerina.io/learn/by-example/" })
-    }
 
     const handleStatementEditorChange = (partialModel: STNode) => {
         setExpression(partialModel.source.trim());

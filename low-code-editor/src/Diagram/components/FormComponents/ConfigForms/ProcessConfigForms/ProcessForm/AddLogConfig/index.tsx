@@ -39,7 +39,6 @@ export const DEFINE_LOG_EXR: string = "Define Log Expression";
 export const SELECT_PROPERTY: string = "Select Existing Property";
 
 export function AddLogConfig(props: LogConfigProps) {
-    const formClasses = useFormStyles();
     const intl = useIntl();
 
     const {
@@ -67,8 +66,6 @@ export function AddLogConfig(props: LogConfigProps) {
         ['printWarn', 'Warn'],
         ['printError', 'Error']
     ])
-    const logTypes: string[] = Array.from(logTypeFunctionNameMap.values());
-    const logFormConfig: LogConfig = config.config as LogConfig;
 
     const logModel: CallStatement = config.model as CallStatement;
 
@@ -81,50 +78,11 @@ export function AddLogConfig(props: LogConfigProps) {
     }
     const [logType, setLogType] = useState(defaultType);
     const [expression, setExpression] = useState(defaultExpression);
-    const [isFormValid, setIsFormValid] = useState(logType && logType.length > 0 && expression && expression.length > 0);
-
-    const onExpressionChange = (value: any) => {
-        setExpression(value);
-    };
-
-    const onTypeChange = (value: any) => {
-        setLogType(value);
-    };
-
-    const onSaveBtnClick = () => {
-        logFormConfig.expression = expression;
-        logFormConfig.type = logType;
-        onSave();
-    };
-
-    const validateExpression = (field: string, isInvalid: boolean) => {
-        setIsFormValid(!isInvalid && logType && logType.length > 0);
-    };
-
-    const saveLogButtonLabel = intl.formatMessage({
-        id: "lowcode.develop.configForms.log.saveButton.label",
-        defaultMessage: "Save"
-    });
 
     const formTitle = intl.formatMessage({
         id: "lowcode.develop.configForms.log.title",
         defaultMessage: "Log"
     });
-
-    const logTooltipMessages = {
-        title: intl.formatMessage({
-            id: "lowcode.develop.configForms.logTooltipMessages.expressionEditor.tooltip.title",
-            defaultMessage: "Press CTRL+Spacebar for suggestions."
-        }),
-        actionText: intl.formatMessage({
-            id: "lowcode.develop.configForms.logTooltipMessages.expressionEditor.tooltip.actionText",
-            defaultMessage: "Learn about Ballerina expressions here"
-        }),
-        actionLink: intl.formatMessage({
-            id: "lowcode.develop.configForms.logTooltipMessages.expressionEditor.tooltip.actionTitle",
-            defaultMessage: "{learnBallerina}"
-        }, { learnBallerina: "https://ballerina.io/1.2/learn/by-example/log-api" })
-    }
 
     const initialSource = getInitialSource(createLogStatement(
         logType,
@@ -135,8 +93,6 @@ export function AddLogConfig(props: LogConfigProps) {
         const functionCallModel: FunctionCall = partialModel.expression as FunctionCall;
         setLogType(logTypeFunctionNameMap.get((functionCallModel.functionName as QualifiedNameReference).identifier.value));
         setExpression(functionCallModel.arguments[0].source);
-
-
     }
 
     const stmtEditorComponent = StatementEditorWrapper(
