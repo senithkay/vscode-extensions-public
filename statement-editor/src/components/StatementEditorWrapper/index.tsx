@@ -13,6 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useEffect, useState } from 'react';
 
+import { FormControl } from '@material-ui/core';
 import {
     ExpressionEditorLangClientInterface,
     LibraryDataResponse,
@@ -61,7 +62,6 @@ export interface LowCodeEditorProps {
 export interface FormHandlingProps extends LowCodeEditorProps {
     handleStatementEditorChange?: (partialModel: STNode) => void;
     onStmtEditorModelChange?: (partialModel: STNode) => void;
-    handleStmtEditorToggle?: () => void;
 }
 
 export interface StatementEditorWrapperProps extends FormHandlingProps {
@@ -85,13 +85,12 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
         syntaxTree,
         stSymbolInfo,
         importStatements,
-        experimentalEnabled,
-        handleStmtEditorToggle
+        experimentalEnabled
     } = props;
 
     const {
-        formArgs : {
-            targetPosition : targetPosition
+        formArgs: {
+            targetPosition: targetPosition
         }
     } = formArgs;
 
@@ -150,33 +149,33 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
     };
 
     useEffect(() => {
-            (async () => {
-                let model = null;
-                if (initialSource) {
-                    const updatedContent = await getUpdatedSource(initialSource.trim(), currentFile.content,
-                        targetPosition);
+        (async () => {
+            let model = null;
+            if (initialSource) {
+                const updatedContent = await getUpdatedSource(initialSource.trim(), currentFile.content,
+                    targetPosition);
 
-                    await sendDidOpen(fileURI, updatedContent, getLangClient);
+                await sendDidOpen(fileURI, updatedContent, getLangClient);
 
-                    const partialST = await getPartialSTForStatement(
-                        { codeSnippet: initialSource.trim() }, getLangClient);
+                const partialST = await getPartialSTForStatement(
+                    { codeSnippet: initialSource.trim() }, getLangClient);
 
-                    if (!partialST.syntaxDiagnostics.length || config.type === CUSTOM_CONFIG_TYPE) {
-                        model = partialST;
-                    }
+                if (!partialST.syntaxDiagnostics.length || config.type === CUSTOM_CONFIG_TYPE) {
+                    model = partialST;
                 }
-                const newEditor: EditorModel = {
-                    label,
-                    model,
-                    source: initialSource,
-                    position: targetPosition,
-                    undoRedoManager: new StmtEditorUndoRedoManager()
-                };
+            }
+            const newEditor: EditorModel = {
+                label,
+                model,
+                source: initialSource,
+                position: targetPosition,
+                undoRedoManager: new StmtEditorUndoRedoManager()
+            };
 
-                setEditors((prevEditors: EditorModel[]) => {
-                    return [...prevEditors, newEditor];
-                });
-            })();
+            setEditors((prevEditors: EditorModel[]) => {
+                return [...prevEditors, newEditor];
+            });
+        })();
 
     }, []);
 
@@ -188,38 +187,39 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
     }, [editors]);
 
     return (
-        editor
-            ? (
-                <>
-                    <StatementEditor
-                        editor={editor}
-                        editorManager={{
-                            switchEditor,
-                            updateEditor,
-                            dropLastEditor,
-                            addConfigurable,
-                            activeEditorId,
-                            editors
-                        }}
-                        onWizardClose={onWizardClose}
-                        onCancel={onCancel}
-                        onStmtEditorModelChange={onStmtEditorModelChange}
-                        config={config}
-                        formArgs={formArgs}
-                        getLangClient={getLangClient}
-                        applyModifications={applyModifications}
-                        currentFile={currentFile}
-                        library={library}
-                        importStatements={importStatements}
-                        syntaxTree={syntaxTree}
-                        stSymbolInfo={stSymbolInfo}
-                        experimentalEnabled={experimentalEnabled}
-                        handleStmtEditorToggle={handleStmtEditorToggle}
-                    />
-                </>
-            )
-            : (
-                <></>
-            )
+        <FormControl data-testid="property-form">
+            {editor
+                ? (
+                    <>
+                        <StatementEditor
+                            editor={editor}
+                            editorManager={{
+                                switchEditor,
+                                updateEditor,
+                                dropLastEditor,
+                                addConfigurable,
+                                activeEditorId,
+                                editors
+                            }}
+                            onWizardClose={onWizardClose}
+                            onCancel={onCancel}
+                            onStmtEditorModelChange={onStmtEditorModelChange}
+                            config={config}
+                            formArgs={formArgs}
+                            getLangClient={getLangClient}
+                            applyModifications={applyModifications}
+                            currentFile={currentFile}
+                            library={library}
+                            importStatements={importStatements}
+                            syntaxTree={syntaxTree}
+                            stSymbolInfo={stSymbolInfo}
+                            experimentalEnabled={experimentalEnabled}
+                        />
+                    </>
+                )
+                : (
+                    <></>
+                )}
+        </FormControl>
     )
 }

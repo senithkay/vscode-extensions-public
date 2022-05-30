@@ -29,7 +29,7 @@ import { useStyles } from "../../../../DynamicConnectorForm/style";
 import { SelectDropdownWithButton } from "../../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
 import { ExpressionEditorProps } from "@wso2-enterprise/ballerina-expression-editor";
 import { FormTextInput } from "../../../../FormFieldComponents/TextField/FormTextInput";
-import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
+import { StatementEditorWrapper } from "@wso2-enterprise/ballerina-statement-editor";
 import { FormElementProps } from "../../../../Types";
 import { wizardStyles } from "../../../style";
 import { VariableTypeInput, VariableTypeInputProps } from "../../../Components/VariableTypeInput";
@@ -250,18 +250,18 @@ export function AddForeachForm(props: ForeachProps) {
     const handleStatementEditorChange = (partialModel: ForeachStatement) => {
         conditionExpression.type = partialModel.typedBindingPattern.typeDescriptor.source.trim();
         conditionExpression.variable = partialModel.typedBindingPattern.bindingPattern.source.trim();
-        conditionExpression.collection = partialModel.actionOrExpressionNode.source.trim();
+        conditionExpression.collection = partialModel.actionOrExpressionNode?.source.trim();
         setSelectedType(partialModel.typedBindingPattern.typeDescriptor.source.trim());
     }
 
-    const { handleStmtEditorToggle, stmtEditorComponent } = useStatementEditor(
+    const stmtEditorComponent = StatementEditorWrapper(
         {
             label: formTitle,
             initialSource,
             formArgs: { formArgs },
             config: condition,
             onWizardClose,
-            handleStatementEditorChange,
+            onStmtEditorModelChange: handleStatementEditorChange,
             onCancel,
             currentFile,
             getLangClient: getExpressionEditorLangClient,
@@ -296,70 +296,5 @@ export function AddForeachForm(props: ForeachProps) {
         </div>
     );
 
-    if (!stmtEditorComponent) {
-        return (
-            <FormControl data-testid="foreach-form" className={classes.wizardFormControlExtended}>
-                <FormHeaderSection
-                    onCancel={onCancel}
-                    formTitle={formTitle}
-                    defaultMessage={"Foreach"}
-                />
-                <div className={classes.formContentWrapper}>
-                    <div className={classes.formCodeBlockWrapper}>
-                        <div className={classes.formCodeExpressionWrapper}>
-                            <Typography variant='body2' className={classes.startTitleCode}>foreach</Typography>
-                            <div className={classes.variableExpEditorWrapper}>
-                                {variableTypeInput}
-                            </div>
-                            <div className={classes.variableExpEditorWrapper}>
-                                <FormTextInput
-                                    customProps={{
-                                        validate: validateNameValue,
-                                    }}
-                                    onChange={onVariableNameChange}
-                                    defaultValue={conditionExpression.variable}
-                                    label="Current Value"
-                                    placeholder="Current Value"
-                                    errorMessage={invalidConnectionErrorMessage}
-                                />
-                            </div>
-                        </div>
-                        <div className={classes.formCodeExpressionEndWrapper}>
-                            <Typography variant='body2' className={classnames(classes.forEachEndCode)}>in</Typography>
-                            <div className={classes.formCodeExpressionLargeField}>
-                                <div className={classes.stmtEditorWrapper}>
-                                    <LowCodeExpressionEditor {...expElementProps} />
-                                </div>
-                            </div>
-                            <Typography variant='body2' className={classes.forEachEndCode}>{`{`}</Typography>
-                        </div>
-                    </div>
-                    <div className={classes.formCodeBlockWrapper}>
-                        <div className={classes.middleDottedwrapper}>
-                            <Tooltip type='info' text={{ content: forEachTooltipMessages.codeBlockTooltip }}>
-                                <Typography variant='body2' className={classes.middleCode}>{`...`}</Typography>
-                            </Tooltip>
-                        </div>
-                        <Typography variant='body2' className={classes.endCode}>{`}`}</Typography>
-                    </div>
-                </div>
-                <FormActionButtons
-                    cancelBtnText={cancelForEachButtonLabel}
-                    cancelBtn={true}
-                    saveBtnText={saveForEachButtonLabel}
-                    isMutationInProgress={isMutationInProgress}
-                    validForm={isValidExpression && expressionValue.length > 0}
-                    statementEditor={true}
-                    toggleChecked={false}
-                    experimentalEnabled={experimentalEnabled}
-                    handleStmtEditorToggle={handleStmtEditorToggle}
-                    onSave={handleSave}
-                    onCancel={onCancel}
-                />
-            </FormControl>
-        );
-    }
-    else {
-        return stmtEditorComponent;
-    }
+    return stmtEditorComponent;
 }

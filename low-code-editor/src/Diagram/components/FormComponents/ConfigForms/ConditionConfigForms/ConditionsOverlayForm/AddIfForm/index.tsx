@@ -33,7 +33,7 @@ import {
 } from "../../../../../../utils/modification-util";
 import { useStyles } from "../../../../DynamicConnectorForm/style";
 import { ExpressionEditorProps } from "@wso2-enterprise/ballerina-expression-editor";
-import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
+import { StatementEditorWrapper } from "@wso2-enterprise/ballerina-statement-editor";
 import { FormElementProps } from "../../../../Types";
 import Tooltip from '../../../../../../../components/TooltipV2'
 import { LowCodeExpressionEditor } from "../../../../FormFieldComponents/LowCodeExpressionEditor";
@@ -275,14 +275,14 @@ export function AddIfForm(props: IfProps) {
 
     const initialSource = getCompleteSource();
 
-    const { handleStmtEditorToggle, stmtEditorComponent } = useStatementEditor(
+    const stmtEditorComponent = StatementEditorWrapper(
         {
             label: formTitle,
             initialSource,
             formArgs: { formArgs },
             config: condition,
             onWizardClose,
-            handleStatementEditorChange,
+            onStmtEditorModelChange: handleStatementEditorChange,
             onCancel,
             currentFile,
             getLangClient: getExpressionEditorLangClient,
@@ -295,106 +295,5 @@ export function AddIfForm(props: IfProps) {
         }
     );
 
-    const ElseIfElement = (order: number) => {
-        return (
-            <div className={classes.elseBlockWrapper}>
-                <div className={classes.elseIfExpressionWrapper}>
-                    <Typography variant='body2' className={classes.endCode}>{`}`}</Typography>
-                    {formArgs?.wizardType === 0 && (
-                        <div className={classes.formCodeMinusWrapper}>
-                            <IconButton
-                                color="primary"
-                                onClick={handleMinusButton(order)}
-                                className={classes.button}
-                                data-testid="minus-button"
-                            >
-                                <RemoveCircleOutlineRounded />
-                            </IconButton>
-                        </div>
-                    )}
-                    <Typography variant='body2' className={classes.startCode}>else if</Typography>
-                    <div className={classes.formCodeExpressionSmallField}>
-                        <LowCodeExpressionEditor {...setElementProps(order)} hideLabelTooltips={true} />
-                    </div>
-                    <Typography variant='body2' className={classes.endCode}>{`{`}</Typography>
-                </div>
-                <div className={classes.middleDottedwrapper}>
-                    <Tooltip type='info' text={{ content: IFStatementTooltipMessages.codeBlockTooltip }}>
-                        <Typography variant='body2' className={classes.middleCode}>...</Typography>
-                    </Tooltip>
-                </div>
-            </div>
-        )
-    }
-
-    if (!stmtEditorComponent) {
-        return (
-            <FormControl data-testid="if-form" className={classes.wizardFormControl}>
-                <FormHeaderSection
-                    onCancel={onCancel}
-                    formTitle={formTitle}
-                    defaultMessage={"If"}
-                />
-                <div className={classes.formContentWrapper}>
-                    <div className={classes.formCodeBlockWrapper}>
-                        <div className={classes.formCodeExpressionEndWrapper}>
-                            <Typography variant='body2' className={classes.ifStartCode}>if</Typography>
-                            <div className={classes.formCodeExpressionField}>
-                                <LowCodeExpressionEditor {...setElementProps(0)} />
-                            </div>
-                            <Typography variant='body2' className={classes.endCode}>{`{`}</Typography>
-                        </div>
-                    </div>
-                    <div className={classes.middleDottedwrapper}>
-                        <Tooltip type='info' text={{ content: IFStatementTooltipMessages.codeBlockTooltip }}>
-                            <Typography variant='body2' className={classes.middleCode}>...</Typography>
-                        </Tooltip>
-                    </div>
-                    {compList.slice(1, compList.length).map((comp) => {
-                        return <React.Fragment key={comp.id}>{ElseIfElement(comp.id)}</React.Fragment>
-                    })}
-                    <div className={classes.formCodeExpressionCenterWrapper}>
-                        <Typography variant='body2' className={classes.endCode}>{`}`}</Typography>
-                        <div className={classes.formCodePlusWrapper}>
-                            {formArgs?.wizardType === 0 && (
-                                <IconButton
-                                    color="primary"
-                                    onClick={handlePlusButton(-1)}
-                                    className={classes.button}
-                                    data-testid="plus-button"
-                                >
-                                    <ControlPoint />
-                                </IconButton>
-                            )}
-                        </div>
-                        <Typography variant='body2' className={classes.startCode}>else</Typography>
-                        <Typography variant='body2' className={classes.endCode}>{`{`}</Typography>
-                    </div>
-                    <div className={classes.formCodeBlockWrapper}>
-                        <div className={classes.middleDottedwrapper}>
-                            <Tooltip type='info' text={{ content: IFStatementTooltipMessages.codeBlockTooltip }}>
-                                <Typography variant='body2' className={classes.middleCode}>{`...`}</Typography>
-                            </Tooltip>
-                        </div>
-                        <Typography variant='body2' className={classes.endCode}>{`}`}</Typography>
-                    </div>
-                </div>
-                <FormActionButtons
-                    cancelBtnText={cancelIfButtonLabel}
-                    cancelBtn={true}
-                    saveBtnText={saveIfConditionButtonLabel}
-                    isMutationInProgress={isMutationInProgress}
-                    validForm={validForm}
-                    statementEditor={true}
-                    toggleChecked={false}
-                    experimentalEnabled={experimentalEnabled}
-                    handleStmtEditorToggle={handleStmtEditorToggle}
-                    onSave={handleOnSaveClick}
-                    onCancel={onCancel}
-                />
-            </FormControl>
-        );
-    } else {
-        return stmtEditorComponent;
-    }
+    return stmtEditorComponent;
 }
