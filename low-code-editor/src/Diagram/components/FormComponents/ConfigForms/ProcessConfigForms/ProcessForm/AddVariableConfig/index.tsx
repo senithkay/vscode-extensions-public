@@ -18,7 +18,7 @@ import { FormControl, Typography } from "@material-ui/core";
 import { ExpressionEditorProps } from "@wso2-enterprise/ballerina-expression-editor";
 import { ADD_VARIABLE, LowcodeEvent, ProcessConfig, SAVE_VARIABLE } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FormActionButtons, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
-import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
+import { StatementEditorWrapper } from "@wso2-enterprise/ballerina-statement-editor";
 import { LocalVarDecl, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../../../Contexts/Diagram";
@@ -283,14 +283,14 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         setVariableExpression(partialModel.initializer?.source.trim())
     }
 
-    const { handleStmtEditorToggle, stmtEditorComponent } = useStatementEditor(
+    const stmtEditorComponent = StatementEditorWrapper(
         {
             label: formTitle,
             initialSource,
             formArgs: { formArgs },
             config,
             onWizardClose,
-            handleStatementEditorChange,
+            onStmtEditorModelChange: handleStatementEditorChange,
             onCancel,
             currentFile,
             getLangClient: getExpressionEditorLangClient,
@@ -339,56 +339,5 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         </div>
     );
 
-    if (!stmtEditorComponent) {
-        return (
-            <FormControl data-testid="property-form" className={classes.wizardFormControlExtended}>
-                <FormHeaderSection
-                    onCancel={onCancel}
-                    formTitle={formTitle}
-                    defaultMessage={"Variable"}
-                />
-                <div className={classes.formContentWrapper}>
-                    <div className={classes.formDeclarationWrapper}>
-                        <div className={classes.formNameNValueWrapper}>
-                            {variableTypeInput}
-                        </div>
-                        <div className={classes.formNameNValueWrapper}>
-                            {variableNameInput}
-                        </div>
-                    </div>
-                    <div className={classes.formEqualWrapper}>
-                        {
-                            initialized && (
-                                <div className={classes.formEqualContainer}>
-                                    <div className={classes.equalContainer}>
-                                        <Typography variant='body2'>=</Typography>
-                                    </div>
-                                    <div className={classes.valueContainer}>
-                                        {expressionEditor}
-                                    </div>
-                                </div>
-                            )
-                        }
-                    </div>
-                    {initializedToggle}
-                </div>
-                <FormActionButtons
-                    cancelBtnText={cancelVariableButtonText}
-                    cancelBtn={true}
-                    saveBtnText={saveVariableButtonText}
-                    isMutationInProgress={isMutationInProgress}
-                    validForm={validForm}
-                    statementEditor={true}
-                    toggleChecked={false}
-                    experimentalEnabled={experimentalEnabled}
-                    handleStmtEditorToggle={handleStmtEditorToggle}
-                    onSave={handleSave}
-                    onCancel={onCancel}
-                />
-            </FormControl >
-        );
-    }
-    else {
-        return stmtEditorComponent;
-    }
+    return stmtEditorComponent;
 }

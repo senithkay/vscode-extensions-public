@@ -18,7 +18,7 @@ import { useIntl } from "react-intl";
 import { FormControl } from "@material-ui/core";
 import { ADD_OTHER_STATEMENT, LowcodeEvent, SAVE_OTHER_STATEMENT, ProcessConfig, CustomExpressionConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FormActionButtons, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
-import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
+import { StatementEditorWrapper } from "@wso2-enterprise/ballerina-statement-editor";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../../../Contexts/Diagram";
@@ -128,14 +128,14 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
         setExpression(partialModel.source.trim());
     }
 
-    const { handleStmtEditorToggle, stmtEditorComponent } = useStatementEditor(
+    const stmtEditorComponent = StatementEditorWrapper(
         {
             label: formTitle,
             initialSource: expression ? expression : "STATEMENT",
             formArgs: { formArgs },
             config,
             onWizardClose,
-            handleStatementEditorChange,
+            onStmtEditorModelChange: handleStatementEditorChange,
             onCancel,
             currentFile,
             getLangClient: getExpressionEditorLangClient,
@@ -148,55 +148,5 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
         }
     );
 
-    if (!stmtEditorComponent) {
-        return (
-            <FormControl data-testid="custom-expression-form" className={formClasses.wizardFormControl}>
-                <FormHeaderSection
-                    onCancel={onCancel}
-                    formTitle={formTitle}
-                    defaultMessage={"Other"}
-                />
-                <div className={formClasses.formContentWrapper}>
-                    <div className={formClasses.formNameWrapper}>
-                        <LowCodeExpressionEditor
-                            model={{ name: "statement", value: expression }}
-                            customProps={{
-                                validate: validateExpression,
-                                tooltipTitle: customStatementTooltipMessages.title,
-                                tooltipActionText: customStatementTooltipMessages.actionText,
-                                tooltipActionLink: customStatementTooltipMessages.actionLink,
-                                interactive: true,
-                                customTemplate: {
-                                    defaultCodeSnippet: ' ',
-                                    targetColumn: 1,
-                                },
-                                editPosition: config?.model?.position || formArgs?.targetPosition,
-                                initialDiagnostics: config?.model?.typeData?.diagnostics,
-                                disableFiltering: true,
-                                diagnosticsFilterExtraColumns: { end: 1 },
-                                diagnosticsFilterExtraRows: { end: 1 }
-                            }}
-                            onChange={onExpressionChange}
-                        />
-                    </div>
-                </div>
-                <FormActionButtons
-                    cancelBtnText="Cancel"
-                    cancelBtn={true}
-                    saveBtnText={saveCustomStatementButtonLabel}
-                    isMutationInProgress={isMutationInProgress}
-                    validForm={isFormValid}
-                    onSave={onSaveBtnClick}
-                    onCancel={onCancel}
-                    statementEditor={true}
-                    toggleChecked={false}
-                    experimentalEnabled={experimentalEnabled}
-                    handleStmtEditorToggle={handleStmtEditorToggle}
-                />
-            </FormControl>
-        );
-    }
-    else {
-        return stmtEditorComponent;
-    }
+    return stmtEditorComponent;
 }

@@ -21,7 +21,7 @@ import { Box, FormControl, Typography } from "@material-ui/core";
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { useStyles as useFormStyles } from "../../../../DynamicConnectorForm/style";
 import { SelectDropdownWithButton } from "../../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
-import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
+import { StatementEditorWrapper } from "@wso2-enterprise/ballerina-statement-editor";
 import { createLogStatement, getInitialSource } from "../../../../../../utils/modification-util";
 import { LowCodeExpressionEditor } from "../../../../FormFieldComponents/LowCodeExpressionEditor";
 import { LogConfig, ProcessConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
@@ -139,14 +139,14 @@ export function AddLogConfig(props: LogConfigProps) {
 
     }
 
-    const { handleStmtEditorToggle, stmtEditorComponent } = useStatementEditor(
+    const stmtEditorComponent = StatementEditorWrapper(
         {
             label: formTitle,
             initialSource,
             formArgs: { formArgs },
             config,
             onWizardClose,
-            handleStatementEditorChange,
+            onStmtEditorModelChange: handleStatementEditorChange,
             onCancel,
             currentFile,
             getLangClient: getExpressionEditorLangClient,
@@ -159,71 +159,5 @@ export function AddLogConfig(props: LogConfigProps) {
         }
     );
 
-    if (!stmtEditorComponent) {
-        return (
-            <FormControl data-testid="log-form" className={formClasses.wizardFormControl}>
-                <FormHeaderSection
-                    onCancel={onCancel}
-                    formTitle={formTitle}
-                    defaultMessage={"Log"}
-                />
-                <div className={formClasses.formContentWrapper}>
-                    <div className={formClasses.formNameWrapper}>
-                        <SelectDropdownWithButton
-                            defaultValue={logType}
-                            onChange={onTypeChange}
-                            customProps={{
-                                disableCreateNew: true,
-                                values: logTypes
-                            }}
-                            placeholder=""
-                            label="Type"
-                        />
-                    </div>
-                    <div className={formClasses.formEqualWrapper}>
-                        <LowCodeExpressionEditor
-                            model={{ name: "expression", value: expression, typeName: 'string' }}
-                            customProps={{
-                                validate: validateExpression,
-                                tooltipTitle: logTooltipMessages.title,
-                                tooltipActionText: logTooltipMessages.actionText,
-                                tooltipActionLink: logTooltipMessages.actionLink,
-                                interactive: true,
-                                statementType: 'string',
-                                expressionInjectables: {
-                                    list: formArgs?.expressionInjectables?.list,
-                                    setInjectables: formArgs?.expressionInjectables?.setInjectables
-                                },
-                                editPosition: {
-                                    startLine: logModel ? logModel.position.startLine : formArgs.targetPosition.startLine,
-                                    endLine: logModel ? logModel.position.startLine : formArgs.targetPosition.startLine,
-                                    startColumn: 0,
-                                    endColumn: 0
-                                },
-                                initialDiagnostics: config?.model?.typeData?.diagnostics,
-                            }}
-                            onChange={onExpressionChange}
-                            defaultValue={expression}
-                        />
-                    </div>
-                </div>
-                <FormActionButtons
-                    cancelBtnText="Cancel"
-                    cancelBtn={true}
-                    saveBtnText={saveLogButtonLabel}
-                    isMutationInProgress={isMutationInProgress}
-                    validForm={isFormValid}
-                    statementEditor={true}
-                    toggleChecked={false}
-                    experimentalEnabled={experimentalEnabled}
-                    handleStmtEditorToggle={handleStmtEditorToggle}
-                    onSave={onSaveBtnClick}
-                    onCancel={onCancel}
-                />
-            </FormControl>
-        );
-    }
-    else {
-        return stmtEditorComponent;
-    }
+    return stmtEditorComponent;
 }
