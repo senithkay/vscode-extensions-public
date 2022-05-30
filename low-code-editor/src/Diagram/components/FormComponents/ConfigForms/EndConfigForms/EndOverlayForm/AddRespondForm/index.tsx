@@ -17,7 +17,7 @@ import { FormattedMessage, useIntl } from "react-intl";
 import { FormControl } from "@material-ui/core";
 import { EndConfig, httpResponse, PrimitiveBalType, RespondConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FormActionButtons, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
-import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
+import { StatementEditorWrapper } from "@wso2-enterprise/ballerina-statement-editor";
 import { ActionStatement, RemoteMethodCallAction } from "@wso2-enterprise/syntax-tree";
 import cn from "classnames";
 
@@ -175,14 +175,14 @@ export function AddRespondForm(props: RespondFormProps) {
         resExp ? resExp : "EXPRESSION"
     ));
 
-    const { handleStmtEditorToggle, stmtEditorComponent } = useStatementEditor(
+    const stmtEditorComponent = StatementEditorWrapper(
         {
             label: formTitle,
             initialSource,
             formArgs: { formArgs },
             config,
             onWizardClose,
-            handleStatementEditorChange,
+            onStmtEditorModelChange: handleStatementEditorChange,
             onCancel,
             currentFile,
             getLangClient: getExpressionEditorLangClient,
@@ -206,61 +206,5 @@ export function AddRespondForm(props: RespondFormProps) {
 
     const statementType = [PrimitiveBalType.String, PrimitiveBalType.Xml, PrimitiveBalType.Json, httpResponse];
 
-    if (!stmtEditorComponent) {
-        return (
-            <FormControl data-testid="respond-form" className={cn(formClasses.wizardFormControl)}>
-                <FormHeaderSection
-                    onCancel={onCancel}
-                    formTitle={formTitle}
-                    defaultMessage={"Respond"}
-                />
-                <div className={formClasses.formContentWrapper}>
-                    <div className={formClasses.formNameWrapper}>
-                        <LowCodeExpressionEditor
-                            model={{
-                                name: "respond expression",
-                                value: respondFormConfig.respondExpression,
-                                type: PrimitiveBalType.Union,
-                                fields: fieilTypes
-                            }}
-                            customProps={{
-                                validate: validateExpression,
-                                tooltipTitle: respondStatementTooltipMessages.title,
-                                // TODO:Uncomment when Ballerina docs are available for Respond
-                                // tooltipActionText: respondStatementTooltipMessages.actionText,
-                                // tooltipActionLink: respondStatementTooltipMessages.actionLink,
-                                interactive: true,
-                                statementType,
-                                customTemplate: {
-                                    defaultCodeSnippet: 'checkpanic caller->respond( );',
-                                    targetColumn: 28
-                                },
-                                editPosition: formArgs.targetPosition,
-                            }}
-                            onChange={onExpressionChange}
-                        />
-                    </div>
-                    <div className={formClasses.formEqualWrapper}>
-                        {(!config.model) ? statusCodeComp : null}
-                    </div>
-                </div>
-                <FormActionButtons
-                    cancelBtnText="Cancel"
-                    cancelBtn={true}
-                    saveBtnText={saveRespondButtonLabel}
-                    isMutationInProgress={isMutationInProgress}
-                    validForm={validForm}
-                    statementEditor={true}
-                    toggleChecked={false}
-                    experimentalEnabled={experimentalEnabled}
-                    handleStmtEditorToggle={handleStmtEditorToggle}
-                    onSave={onSaveWithTour}
-                    onCancel={onCancel}
-                />
-            </FormControl>
-        );
-    }
-    else {
-        return stmtEditorComponent;
-    }
+    return stmtEditorComponent;
 }
