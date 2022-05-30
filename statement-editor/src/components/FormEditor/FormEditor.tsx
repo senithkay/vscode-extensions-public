@@ -66,7 +66,7 @@ export function FormEditor(props: FormEditorProps) {
 
     const onChange = async (genSource: string, partialST: STNode, moduleList: Set<string>) => {
         const newModuleList = new Set<string>();
-        moduleList.forEach(module => {
+        moduleList?.forEach(module => {
             if (!currentFile.content.includes(module)){
                 newModuleList.add(module);
             }
