@@ -20,6 +20,7 @@ import {
     DecimalKeyword,
     FalseKeyword,
     FloatKeyword,
+    FunctionKeyword,
     IdentifierToken,
     IntKeyword,
     JsonKeyword,
@@ -40,6 +41,7 @@ interface TokenProps {
         | FalseKeyword
         | TrueKeyword
         | NullKeyword
+        | FunctionKeyword
         | DecimalFloatingPointLiteralToken
         | DecimalIntegerLiteralToken
         | StringLiteralToken
