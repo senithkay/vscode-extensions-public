@@ -31,7 +31,8 @@ import {
     VarKeyword
 } from "@wso2-enterprise/syntax-tree";
 
-import {getClassNameForToken, getMinutiaeJSX} from "../../../utils";
+import { getClassNameForToken, getMinutiaeJSX } from "../../../utils";
+import { StatementEditorViewState } from "../../../utils/statement-editor-viewstate";
 import { InputEditor } from "../../InputEditor";
 
 interface TokenProps {
@@ -63,11 +64,13 @@ export function TokenComponent(props: TokenProps) {
 
     const { leadingMinutiaeJSX, trailingMinutiaeJSX } = getMinutiaeJSX(model);
 
+    const isLastMapField = (model.viewState as StatementEditorViewState).mappingConstructorConfig.isLastMapField;
+
     return (
         <>
             {leadingMinutiaeJSX}
             <InputEditor {...inputEditorProps} />
-            {trailingMinutiaeJSX}
+            {!isLastMapField && trailingMinutiaeJSX}
         </>
     );
 }

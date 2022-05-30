@@ -43,6 +43,8 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
         props: {
             isMutationProgress: isMutationInProgress,
             currentFile,
+            syntaxTree,
+            stSymbolInfo,
             importStatements,
             experimentalEnabled
         },
@@ -182,7 +184,6 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
             label: formTitle,
             initialSource,
             formArgs: { formArgs },
-            validForm,
             config,
             onWizardClose,
             handleStatementEditorChange,
@@ -191,6 +192,8 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
             getLangClient: getExpressionEditorLangClient,
             applyModifications: modifyDiagram,
             library,
+            syntaxTree,
+            stSymbolInfo,
             importStatements,
             experimentalEnabled
         }
@@ -201,12 +204,8 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
             <FormControl data-testid="property-form" className={classes.wizardFormControl}>
                 <FormHeaderSection
                     onCancel={onCancel}
-                    statementEditor={true}
                     formTitle={formTitle}
                     defaultMessage={"Assignment"}
-                    handleStmtEditorToggle={handleStmtEditorToggle}
-                    toggleChecked={false}
-                    experimentalEnabled={experimentalEnabled}
                 />
                 <div className={classes.formContentWrapper}>
                     <div className={classes.formNameWrapper}>
@@ -231,6 +230,10 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
                     saveBtnText={saveVariableButtonText}
                     isMutationInProgress={isMutationInProgress}
                     validForm={validForm}
+                    statementEditor={true}
+                    toggleChecked={false}
+                    experimentalEnabled={experimentalEnabled}
+                    handleStmtEditorToggle={handleStmtEditorToggle}
                     onSave={handleSave}
                     onCancel={onCancel}
                 />

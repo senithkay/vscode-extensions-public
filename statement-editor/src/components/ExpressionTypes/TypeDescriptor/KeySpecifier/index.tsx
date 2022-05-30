@@ -17,7 +17,7 @@ import { KeySpecifier } from "@wso2-enterprise/syntax-tree";
 import { EXPR_CONSTRUCTOR } from "../../../../constants";
 import { StatementEditorContext } from "../../../../store/statement-editor-context";
 import { ExpressionArrayComponent } from "../../../ExpressionArray";
-import { useStatementEditorStyles } from "../../../styles";
+import { useStatementRendererStyles } from "../../../styles";
 import { TokenComponent } from "../../../Token";
 
 interface KeySpecifierProps {
@@ -33,7 +33,7 @@ export function KeySpecifierComponent(props: KeySpecifierProps) {
         }
     } = stmtCtx;
 
-    const statementEditorClasses = useStatementEditorStyles();
+    const statementRendererClasses = useStatementRendererStyles();
 
     const onClickOnPlusIcon = (event: any) => {
         event.stopPropagation();
@@ -57,7 +57,7 @@ export function KeySpecifierComponent(props: KeySpecifierProps) {
             <TokenComponent model={model.openParenToken} />
             <ExpressionArrayComponent expressions={model.fieldNames} />
             <span
-                className={statementEditorClasses.plusIcon}
+                className={statementRendererClasses.plusIcon}
                 onClick={onClickOnPlusIcon}
             >
                 +

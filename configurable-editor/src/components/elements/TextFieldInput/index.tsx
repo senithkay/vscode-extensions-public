@@ -17,44 +17,43 @@
  *
  */
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 import { TextField } from "@material-ui/core";
 
-import { ConfigType } from "../../model";
 import { useStyles } from "../../style";
 
 export interface TextFieldInputProps {
     id: string;
     isRequired: boolean;
-    existingValue: any;
+    value: any;
     type: string;
-    setTextFieldValue: (key: string, value: any) => void;
+    inputProps?: object;
+    placeholder?: string;
+    setTextFieldValue: (id: string, value: any) => void;
 }
 
 export function TextFieldInput(props: TextFieldInputProps) {
     const classes = useStyles();
-    const { id, isRequired, existingValue, type, setTextFieldValue } =
-        props;
+    const { id, isRequired, value, type, inputProps, placeholder, setTextFieldValue } = props;
+    const [inputValue, setInputValue] = useState(value ? String(value) : undefined);
 
-    const placeholder: string = isRequired ? "Required value" : "Leave blank to use default value";
+    useEffect(() => {
+        setTextFieldValue(id, inputValue);
+    }, [inputValue]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        let value = e.target.value;
+        let newValue = e.target.value;
         if (type === "string") {
-            value = handleQuotes(value);
+            newValue = handleQuotes(newValue);
         }
-        setTextFieldValue(id, value);
+        setInputValue(newValue);
     };
 
-    let fieldType: string = type;
-    let inputProps: object = {};
-    if (type === ConfigType.INTEGER) {
-        fieldType = "number";
-    } else if (type === ConfigType.NUMBER) {
-        fieldType = "text";
-        inputProps = { inputMode: "numeric", pattern: "[\-\+]?[0-9]*(\.[0-9]+)?" };
-    }
+    const newInputProps = {
+        ...inputProps,
+        style: { fontSize: 14 },
+    };
 
     return (
         <TextField
@@ -62,14 +61,14 @@ export function TextFieldInput(props: TextFieldInputProps) {
             variant="outlined"
             placeholder={placeholder}
             fullWidth={true}
-            defaultValue={existingValue}
-            type={fieldType}
+            defaultValue={inputValue}
+            type={type}
             margin="none"
             onChange={handleChange}
             size="small"
             classes={{ root: classes.textInputRoot }}
             InputLabelProps={{ shrink: false }}
-            inputProps={inputProps}
+            inputProps={newInputProps}
         />
     );
 }
