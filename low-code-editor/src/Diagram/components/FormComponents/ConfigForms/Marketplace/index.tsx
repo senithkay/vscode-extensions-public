@@ -17,7 +17,6 @@ import { Box, CircularProgress, FormControl, Grid, Typography } from "@material-
 import { CloseRounded } from "@material-ui/icons";
 import { PlusViewState } from "@wso2-enterprise/ballerina-low-code-diagram";
 import {
-    ADD_CONNECTOR,
     BallerinaConstruct,
     BallerinaModuleResponse,
     DiagramEditorLangClientInterface,
@@ -188,11 +187,11 @@ export function Marketplace(props: MarketplaceProps) {
     const onSearchButtonClick = (query: string) => {
         setSearchQuery(query);
         if (query && query.length >= 3) {
-            // const event: LowcodeEvent = {
-            //     type: SEARCH_CONNECTOR,
-            //     name: query,
-            // };
-            // onEvent(event);
+            const event: LowcodeEvent = {
+                type: SEARCH_CONNECTOR,
+                connectorName: query
+            };
+            onEvent(event);
         }
     };
 

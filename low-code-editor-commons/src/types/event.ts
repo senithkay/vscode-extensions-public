@@ -32,8 +32,9 @@ export type EVENT_NAME = typeof ADD_STATEMENT |
 export interface LowcodeEvent {
     /** Name of the app insights event */
     type: EVENT_NAME;
-    /** scope property within custom dimensions */
     name?: string;
+    /** scope property within custom dimensions */
+    connectorName?: string;
     /** Custom dimensions sent to app insights */
     property?: { [key: string]: string };
     /** Custom measurements sent to app insights */

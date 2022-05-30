@@ -24,6 +24,7 @@ import {
     LowcodeEvent,
     SAVE_CONNECTOR,
     SAVE_CONNECTOR_INIT,
+    SAVE_CONNECTOR_INVOKE,
     STModification,
     WizardType,
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
@@ -243,7 +244,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
             modifications.push(addImport);
             const addConnectorInit = createPropertyStatement(endpointStatement, targetPosition);
             modifications.push(addConnectorInit);
-            // onConnectorAddEvent();
+            onConnectorAddEvent();
             if (checkDBConnector(moduleName) && !isModuleEndpoint) {
                 const closeStatement = `check ${config.name}.close();`;
                 const addCloseStatement = createPropertyStatement(closeStatement, targetPosition);
@@ -310,7 +311,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
         } else {
             const addActionInvocation = createPropertyStatement(actionStatement, targetPosition);
             modifications.push(addActionInvocation);
-            // onActionAddEvent();
+            onActionAddEvent();
         }
 
         if (isNewConnectorInitWizard && checkDBConnector(connectorModule)) {
@@ -348,24 +349,24 @@ export function ConnectorForm(props: FormGeneratorProps) {
     const onActionAddEvent = () => {
         const event: LowcodeEvent = {
             type: SAVE_CONNECTOR,
-            name: connectorName,
+            connectorName: connectorName,
         };
         onEvent(event);
     };
     const onConnectorAddEvent = () => {
         const event: LowcodeEvent = {
             type: SAVE_CONNECTOR_INIT,
-            name: connectorName,
+            connectorName: connectorName,
         };
         onEvent(event);
     };
     const handleCreateConnectorSaveNext = () => {
         setFormState(FormStates.OperationForm);
-        // const event: LowcodeEvent = {
-        //     type: SAVE_CONNECTOR_INVOKE,
-        //     name: connectorName,
-        // };
-        // onEvent(event);
+        const event: LowcodeEvent = {
+            type: SAVE_CONNECTOR_INVOKE,
+            connectorName: connectorName,
+        };
+        onEvent(event);
     };
 
     const openDocPanel = () => {
