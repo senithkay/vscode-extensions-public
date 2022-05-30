@@ -98,141 +98,18 @@ export function AddForeachForm(props: ForeachProps) {
         }
 
     }
-
-    const classes = useStyles();
-    const overlayClasses = wizardStyles();
     const intl = useIntl();
-
-    const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$|^\[[a-zA-Z0-9_]*, *[a-zA-Z0-9_]*\]$");
-
-    // const conditionExpression: ForeachConfig = condition.conditionExpression as ForeachConfig;
-
-    const validateNameValue = (value: string) => {
-        if (value && value !== '') {
-            return value.match(nameRegex) !== null;
-        }
-        return true;
-    };
-
-    const onVariableNameChange = (value: string) => {
-        conditionExpression.variable = value.match(nameRegex) !== null ? value : '';
-    };
 
     if (!conditionExpression.variable || (conditionExpression.variable === '')) {
         conditionExpression.variable = genVariableName("item", getAllVariables(stSymbolInfo));
     };
 
-    const [expressionValue, setExpressionValue] = useState(conditionExpression.collection)
-    const [isValidExpression, setIsValidExpression] = useState(!!conditionExpression.collection);
-
-    // FIXME: Replace with type selection expression editor!
-    const variableTypes: string[] = ["var", "int", "float", "decimal", "boolean", "string", "json", "xml"];
-
     const [selectedType, setSelectedType] = useState(conditionExpression.type ? conditionExpression.type : "var");
-
-    const handleTypeChange = (type: string) => {
-        setSelectedType(type);
-        conditionExpression.type = type;
-    };
-
-    const handleExpEditorChange = (value: string) => {
-        conditionExpression.collection = value;
-        setExpressionValue(value);
-    }
-
-    const handleSave = () => {
-        condition.conditionExpression = conditionExpression;
-        conditionExpression.type = selectedType;
-        onSave();
-    }
-
-    const validateField = (fieldName: string, isInvalidFromField: boolean) => {
-        setIsValidExpression(!isInvalidFromField)
-    }
-
-    const formField: FormField = {
-        name: "iterable expression",
-        displayName: "Iterable Expression",
-        typeName: selectedType + "[]",
-        value: expressionValue,
-    };
-
-    const forEachTooltipMessages = {
-        expressionEditor: {
-            title: intl.formatMessage({
-                id: "lowcode.develop.configForms.forEach.expressionEditor.tooltip.title",
-                defaultMessage: "Press CTRL+Spacebar for suggestions."
-            }),
-            actionText: intl.formatMessage({
-                id: "lowcode.develop.configForms.forEach.expressionEditor.tooltip.actionText",
-                defaultMessage: "Learn about Ballerina expressions here"
-            }),
-            actionLink: intl.formatMessage({
-                id: "lowcode.develop.configForms.forEach.expressionEditor.tooltip.actionTitle",
-                defaultMessage: "{learnBallerina}"
-            }, { learnBallerina: "https://ballerina.io/learn/by-example/foreach-statement.html?is_ref_by_example=true" })
-        },
-        currentValueVariable: {
-            title: intl.formatMessage({
-                id: "lowcode.develop.configForms.forEach.currentValueVariable.tooltip.title",
-                defaultMessage: "Current Value Variable"
-            }),
-        },
-        codeBlockTooltip: intl.formatMessage({
-            id: "lowcode.develop.configForms.IFStatementTooltipMessages.expressionEditor.tooltip.codeBlock",
-            defaultMessage: "To add code inside the foreach block, save foreach statement form and use the diagram add buttons",
-        }),
-    };
-    const saveForEachButtonLabel = intl.formatMessage({
-        id: "lowcode.develop.configForms.forEach.saveButton.label",
-        defaultMessage: "Save"
-    });
 
     const formTitle = intl.formatMessage({
         id: "lowcode.develop.configForms.foreach.title",
         defaultMessage: "Foreach"
     });
-
-    const currentValueVariableLabel = intl.formatMessage({
-        id: "lowcode.develop.configForms.forEach.currentValueVariable.label",
-        defaultMessage: "Current Value Variable"
-    });
-
-    const invalidConnectionErrorMessage = intl.formatMessage({
-        id: "lowcode.develop.configForms.forEach.invalidConnectionErrorMessage",
-        defaultMessage: "Invalid collection name."
-    });
-
-    const cancelForEachButtonLabel = intl.formatMessage({
-        id: "lowcode.develop.configForms.forEach.cancelButton.label",
-        defaultMessage: "Cancel"
-    });
-
-    const expElementProps: FormElementProps<ExpressionEditorProps> = {
-        model: formField,
-        customProps: {
-            validate: validateField,
-            tooltipTitle: forEachTooltipMessages.expressionEditor.title,
-            tooltipActionText: forEachTooltipMessages.expressionEditor.actionText,
-            tooltipActionLink: forEachTooltipMessages.expressionEditor.actionLink,
-            interactive: true,
-            statementType: selectedType,
-            changed: selectedType,
-            customTemplate: {
-                defaultCodeSnippet: `foreach ${selectedType} temp_var in  {}`,
-                targetColumn: 22 + selectedType.length,
-            },
-            initialDiagnostics: formArgs?.model?.actionOrExpressionNode?.typeData?.diagnostics,
-            editPosition: {
-                startLine: formArgs?.model ? formArgs?.model.position.startLine : formArgs.targetPosition.startLine,
-                endLine: formArgs?.model ? formArgs?.model.position.startLine : formArgs.targetPosition.startLine,
-                startColumn: 0,
-                endColumn: 0
-            }
-        },
-        onChange: handleExpEditorChange,
-        defaultValue: conditionExpression.collection
-    };
 
     const initialSource = formArgs.model ? getInitialSource(createForeachStatementWithBlock(
                                 conditionExpression.collection ? conditionExpression.collection : 'EXPRESSION',
@@ -272,28 +149,6 @@ export function AddForeachForm(props: ForeachProps) {
             importStatements,
             experimentalEnabled
         }
-    );
-
-    const validateExpression = (fieldName: string, isInvalidType: boolean) => {
-        setIsValidExpression(!isInvalidType)
-    };
-
-    const variableTypeConfig: VariableTypeInputProps = {
-        displayName: 'Variable Type',
-        value: selectedType,
-        onValueChange: handleTypeChange,
-        validateExpression,
-        position: formArgs?.model ? {
-            ...(formArgs?.model).position,
-            endLine: 0,
-            endColumn: 0,
-        } : formArgs.targetPosition,
-    }
-
-    const variableTypeInput = (
-        <div className="exp-wrapper">
-            <VariableTypeInput {...variableTypeConfig} />
-        </div>
     );
 
     return stmtEditorComponent;

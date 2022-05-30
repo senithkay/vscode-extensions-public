@@ -75,8 +75,7 @@ export function AddIfForm(props: IfProps) {
             library
         },
     } = useContext(Context);
-    const { condition, formArgs, onCancel, onSave, onWizardClose } = props;
-    const classes = useStyles();
+    const { condition, formArgs, onCancel, onWizardClose } = props;
     const intl = useIntl();
 
     let statementConditions: ExpressionsArray[];
@@ -89,38 +88,6 @@ export function AddIfForm(props: IfProps) {
             isValid: item.diagnostics?.length === 0,
         }))
     );
-
-    const handlePlusButton = (order: number) => () => {
-        if (order === -1) {
-            setCompList((prev) => {
-                return [...prev, { id: prev.length, expression: "", position: {}, isValid: false }];
-            });
-        } else {
-            setCompList((prev) => {
-                return [...prev.slice(0, order), { id: order, expression: "", position: {}, isValid: false }, ...prev.slice(order, prev.length)];
-            });
-        }
-    };
-
-    const handleMinusButton = (order: number) => () => {
-        setCompList(
-            compList.filter((comp) => {
-                return comp.id !== order;
-            })
-        );
-    };
-
-    const handleExpEditorChange = (order: number) => (value: string) => {
-        setCompList((prevState) => {
-            return [...prevState.slice(0, order), { ...prevState[order], expression: value }, ...prevState.slice(order + 1, prevState.length)];
-        });
-    };
-
-    const validateExpEditor = (isInvalid: boolean, order: number) => {
-        setCompList((prevState) => {
-            return [...prevState.slice(0, order), { ...prevState[order], isValid: !isInvalid }, ...prevState.slice(order + 1, prevState.length)];
-        });
-    };
 
     const updateElseIfExpressions = (obj: ElseBlock, element: ExpressionsArray): ElseBlock => {
         if (STKindChecker.isIfElseStatement(obj.elseBody)) {
@@ -140,88 +107,10 @@ export function AddIfForm(props: IfProps) {
         })
     }
 
-    const setFormField = (order: number): FormField => {
-        return {
-            name: "condition",
-            displayName: "Condition",
-            typeName: "boolean",
-            value: compList[order]?.expression,
-        };
-    };
-
-    const getInitialDiagnostics = (order: number): DiagramDiagnostic[] => compList[order]?.diagnostics;
-
-    const IFStatementTooltipMessages = {
-        title: intl.formatMessage({
-            id: "lowcode.develop.configForms.IFStatementTooltipMessages.expressionEditor.tooltip.title",
-            defaultMessage: "Press CTRL+Spacebar for suggestions.",
-        }),
-        actionText: intl.formatMessage({
-            id: "lowcode.develop.configForms.IFStatementTooltipMessages.expressionEditor.tooltip.actionText",
-            defaultMessage: "Learn about Ballerina expressions here",
-        }),
-        actionLink: intl.formatMessage(
-            {
-                id: "lowcode.develop.configForms.IFStatementTooltipMessages.expressionEditor.tooltip.actionTitle",
-                defaultMessage: "{learnBallerina}",
-            },
-            { learnBallerina: "https://ballerina.io/1.2/learn/by-example/if-else.html?is_ref_by_example=true#iMainNavigation" }
-        ),
-        codeBlockTooltip: intl.formatMessage({
-            id: "lowcode.develop.configForms.IFStatementTooltipMessages.expressionEditor.tooltip.codeBlock",
-            defaultMessage: "To add code inside the if block, save if condition and use the diagram add buttons",
-        }),
-    };
-
-    const setElementProps = (order: number): FormElementProps<ExpressionEditorProps> => {
-        return {
-            model: setFormField(order),
-            customProps: {
-                validate: (_name: string, isInvalid: boolean) => validateExpEditor(isInvalid, order),
-                tooltipTitle: IFStatementTooltipMessages.title,
-                tooltipActionText: IFStatementTooltipMessages.actionText,
-                tooltipActionLink: IFStatementTooltipMessages.actionLink,
-                interactive: true,
-                statementType: setFormField(order).typeName,
-                expressionInjectables: {
-                    list: formArgs?.expressionInjectables?.list,
-                    setInjectables: formArgs?.expressionInjectables?.setInjectables,
-                },
-                initialDiagnostics: getInitialDiagnostics(order),
-                editPosition: {
-                    startLine: formArgs?.model ? formArgs?.model.position.startLine : formArgs.targetPosition.startLine,
-                    endLine: formArgs?.model ? formArgs?.model.position.startLine : formArgs.targetPosition.startLine,
-                    startColumn: 0,
-                    endColumn: 0
-                }
-
-            },
-            onChange: handleExpEditorChange(order),
-            defaultValue: compList[order]?.expression
-        };
-    };
-
-    const handleOnSaveClick = () => {
-        condition.conditionExpression = { values: compList };
-        onSave();
-    };
-
-    const saveIfConditionButtonLabel = intl.formatMessage({
-        id: "lowcode.develop.configForms.if.saveButton.label",
-        defaultMessage: "Save",
-    });
-
-    const cancelIfButtonLabel = intl.formatMessage({
-        id: "lowcode.develop.configForms.if.cancelButton.label",
-        defaultMessage: "Cancel",
-    });
-
     const formTitle = intl.formatMessage({
         id: "lowcode.develop.configForms.if.title",
         defaultMessage: "If"
     });
-
-    const validForm = compList.every((item) => item.isValid) && compList[0]?.expression !== "";
 
     const getCompleteSource = () => {
         let source = "";
