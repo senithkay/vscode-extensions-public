@@ -53,71 +53,15 @@ export function AddReturnForm(props: ReturnFormProps) {
         }
     } = useContext(Context);
 
-    const { config, formArgs, onCancel, onSave, onWizardClose } = props;
-    const classes = useStyles();
+    const { config, formArgs, onCancel, onWizardClose } = props;
     const intl = useIntl();
 
     const [returnExpression, setReturnExpression] = useState(config.expression);
-    const onReturnValueChange = (value: any) => {
-        setReturnExpression(value);
-    };
-
-    const onReturnExpressionSave = () => {
-        config.expression = returnExpression;
-        onSave();
-    }
-
-    const isOptionalReturn = () => {
-        const st = syntaxTree as ModulePart;
-        let noReturn = true;
-        /*
-         TODO: Revise this logic as this will not work for blocks like
-         Services and Class as functions are wrapped inside them. So you need to
-         again do a iteration to find the function level.
-        */
-        st?.members.forEach((def: FunctionDefinition) => {
-            if (def.position?.startLine < formArgs?.targetPosition.startLine
-                && formArgs?.targetPosition.startLine <= def.position?.endLine
-                && (STKindChecker.isFunctionDefinition(def) || STKindChecker.isResourceAccessorDefinition(def))) {
-                if (def.functionSignature && def.functionSignature.returnTypeDesc) {
-                    noReturn = false;
-                }
-            }
-        });
-        return noReturn;
-    }
-    const isOptional = isOptionalReturn();
-
-    const [isValidValue, setIsValidValue] = useState(isOptional);
-    const validateExpression = (fieldName: string, isInvalid: boolean) => {
-        setIsValidValue(!isInvalid && (isOptional || returnExpression !== ""));
-    };
-
-    const saveReturnButtonLabel = intl.formatMessage({
-        id: "lowcode.develop.configForms.return.saveButton.label",
-        defaultMessage: "Save"
-    });
 
     const formTitle = intl.formatMessage({
         id: "lowcode.develop.configForms.Return.title",
         defaultMessage: "Return"
     });
-
-    const returnStatementTooltipMessages = {
-        title: intl.formatMessage({
-            id: "lowcode.develop.configForms.returnStatementTooltipMessages.expressionEditor.tooltip.title",
-            defaultMessage: "Press CTRL+Spacebar for suggestions."
-        }),
-        // TODO:Uncomment when Ballerina docs are available for Return
-        // actionText: intl.formatMessage({
-        //     id: "lowcode.develop.configForms.returnStatementTooltipMessages.expressionEditor.tooltip.actionText",
-        //     defaultMessage: "Learn about Ballerina expressions here"
-        // }),
-        // actionLink: intl.formatMessage({
-        //     id: "lowcode.develop.configForms.returnStatementTooltipMessages.expressionEditor.tooltip.actionTitle",
-        //     defaultMessage: "{learnBallerina}"
-        // }, { learnBallerina: "https://ballerina.io/learn/by-example/" })
-    };
 
     const initialSource = getInitialSource(createReturnStatement(
         returnExpression ? returnExpression as string : 'EXPRESSION'
