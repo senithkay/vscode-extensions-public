@@ -42,6 +42,9 @@ export const TM_EVENT_PROJECT_TEST = "execute.project.tests";
 // event for running build for current project
 export const TM_EVENT_PROJECT_BUILD = "execute.project.build";
 
+// event for running pack for current project
+export const TM_EVENT_PROJECT_PACK = "execute.project.pack";
+
 // event for executing the ballerina run command
 export const TM_EVENT_PROJECT_RUN = "execute.project.run";
 
@@ -81,3 +84,9 @@ export const TM_EVENT_EDIT_SOURCE = "editor-workspace-edit-source";
 export const TM_EVENT_EDIT_DIAGRAM = "editor-workspace-edit-diagram"
 
 export const TM_EVENT_LANG_CLIENT = "ballerina.langclient.event";
+
+// performance analyzer events
+export const TM_EVENT_PERF_REQUEST = "perfomance-analyzer-request";
+export const TM_EVENT_PERF_LS_REQUEST = "perfomance-analyzer-ls-request";
+export const TM_EVENT_OPEN_PERF_GRAPH = "perfomance-graph-open";
+export const TM_EVENT_CLICK_PERF_GRAPH = "perfomance-graph-click";

@@ -26,6 +26,9 @@ const INSTRUMENTATION_KEY = process.env.CODE_SERVER_ENV && process.env.VSCODE_CH
 const isWSO2User = process.env.VSCODE_CHOREO_USER_EMAIL ? process.env.VSCODE_CHOREO_USER_EMAIL.endsWith('@wso2.com') : false;
 const isAnonymous = process.env.VSCODE_CHOREO_USER_EMAIL ? process.env.VSCODE_CHOREO_USER_EMAIL.endsWith('@choreo.dev') : false;
 const CORRELATION_ID = process.env.VSCODE_CHOREO_CORRELATION_ID ? process.env.VSCODE_CHOREO_CORRELATION_ID : '';
+const CHOREO_COMPONENT_ID = process.env.VSCODE_CHOREO_COMPONENT_ID ? process.env.VSCODE_CHOREO_COMPONENT_ID : '';
+const CHOREO_PROJECT_ID = process.env.VSCODE_CHOREO_PROJECT_ID ? process.env.VSCODE_CHOREO_PROJECT_ID : '';
+const CHOREO_ORG_ID = process.env.VSCODE_CHOREO_ORG_ID ? process.env.VSCODE_CHOREO_ORG_ID : '';
 
 export function createTelemetryReporter(ext: BallerinaExtension): TelemetryReporter {
     const reporter = new TelemetryReporter(ext.getID(), ext.getVersion(), INSTRUMENTATION_KEY);
@@ -62,6 +65,9 @@ export function getTelemetryProperties(extension: BallerinaExtension, component:
         'timeZone': Intl.DateTimeFormat().resolvedOptions().timeZone,
         'AnonymousUser': isAnonymous ? 'true' : 'false',
         'correlationId': CORRELATION_ID,
+        'component': CHOREO_COMPONENT_ID,
+        'project': CHOREO_PROJECT_ID,
+        'org': CHOREO_ORG_ID,
     };
 }
 

@@ -22,240 +22,85 @@
  * Test explorer implemntation.
  */
 import {
-  CancellationToken, debug, DebugConfiguration, Position, Range,
-  RelativePattern,
-  TestController, TestItem, TestItemCollection, TestMessage, TestRunProfileKind, TestRunRequest,
-  tests, TextDocument, Uri, window, workspace, WorkspaceFolder
+  Position, Range,
+  TestController, TestItem, TestItemCollection, TestRunProfileKind, tests, TextDocument, Uri, workspace
 } from 'vscode';
-import { BallerinaExtension, ExecutorPosition, ExtendedLangClient, LANGUAGE, } from "../core";
-import { BALLERINA_COMMANDS } from '../project';
-import fileUriToPath from 'file-uri-to-path';
-import { DEBUG_REQUEST, DEBUG_CONFIG } from '../debugger';
-import child_process from 'child_process';
+import { BallerinaExtension, BallerinaProject, ExecutorPosition, ExecutorPositionsResponse, ExtendedLangClient, } from "../core";
 import path from 'path';
-import { debug as log } from '../utils';
+import { runHandler } from './runner';
+import { startWatchingWorkspace } from './discover';
 
 enum EXEC_POSITION_TYPE {
   SOURCE = 'source',
   TEST = 'test'
 }
-enum EXEC_ARG {
-  TESTS = '--tests',
-  COVERAGE = '--code-coverage'
-}
-enum TEST_STATUS {
-  PASSED = 'PASSED',
-  FAILED = 'FAILURE'
-}
 
-const fs = require('fs');
-const TEST_RESULTS_PATH = path.join("target", "report", "test_results.json").toString();
+export let testController: TestController;
+export let projectRoot;
 let langClient: ExtendedLangClient | undefined;
 let currentProjectRoot;
-let ctrl;
-let root;
+const testFiles: string[] = [];
 
 export async function activate(ballerinaExtInstance: BallerinaExtension) {
-  ctrl = tests.createTestController('ballerina-tests', 'Ballerina Tests');
-  ballerinaExtInstance.context?.subscriptions.push(ctrl);
+  testController = tests.createTestController('ballerina-tests', 'Ballerina Tests');
+  ballerinaExtInstance.context?.subscriptions.push(testController);
 
   langClient = ballerinaExtInstance.langClient;
 
-  // run tests.
-  const runHandler = (request: TestRunRequest, cancellation: CancellationToken) => {
-    const queue: { test: TestItem; data: any }[] = [];
-    const run = ctrl.createTestRun(request);
-
-    const discoverTests = async (tests: Iterable<TestItem>) => {
-      for (const test of tests) {
-        if (request.exclude?.includes(test)) {
-          continue;
-        }
-
-        if (test.canResolveChildren) {
-          await discoverTests(gatherTestItems(test.children));
-        } else {
-          queue.push({ test: test, data: null });
-        }
-      }
-    };
-
-    const runTestQueue = async () => {
-      if (!root) {
-        run.end();
-        return;
-      }
-
-      const startTime = Date.now();
-      run.appendOutput(`Running Tests\r\n`);
-
-      if (request.profile?.kind == TestRunProfileKind.Run) {
-        let testNames = "";
-        for (const { test, } of queue) {
-          testNames = testNames == "" ? test.label : `${testNames},${test.label}`;
-          run.started(test);
-        }
-        let testsJson: JSON | undefined = undefined;
-        try {
-          // execute test
-          const executor = ballerinaExtInstance.getBallerinaCmd();
-          const commandText = `${executor} ${BALLERINA_COMMANDS.TEST} ${EXEC_ARG.TESTS} ${testNames} ${EXEC_ARG.COVERAGE}`;
-          await runCommand(commandText, root);
-
-        } catch {
-          // exception.
-        } finally {
-          const EndTime = Date.now();
-
-          testsJson = await readTestJson(path.join(root!, TEST_RESULTS_PATH).toString());
-          if (!testsJson) {
-            run.end();
-            return;
-          }
-
-          const moduleStatus = testsJson["moduleStatus"];
-          const timeElapsed = (EndTime - startTime) / queue.length;
-
-          for (const { test, } of queue) {
-            let found = false;
-            for (const status of moduleStatus) {
-              const testResults = status["tests"];
-              for (const testResult of testResults) {
-                if (test.label !== testResult.name) {
-                  continue;
-                }
-
-                if (testResult.status === TEST_STATUS.PASSED) {
-                  run.passed(test, timeElapsed);
-                  found = true;
-                  break;
-                } else if (testResult.status === TEST_STATUS.FAILED) {
-                  // test failed
-                  const testMessage: TestMessage = new TestMessage(testResult.failureMessage);
-                  run.failed(test, testMessage, timeElapsed);
-                  found = true;
-                  break;
-                }
-              }
-              if (found) {
-                break;
-              }
-              // test failed
-              const testMessage: TestMessage = new TestMessage("");
-              run.failed(test, testMessage, timeElapsed);
-            }
-          }
-        }
-      } else if (request.profile?.kind == TestRunProfileKind.Debug) {
-        for (const { test, } of queue) {
-          if (window.activeTextEditor) {
-            // Debugs tests.
-            await startDebugging(window.activeTextEditor.document.uri, true,
-              ballerinaExtInstance.getBallerinaCmd(),
-              ballerinaExtInstance.getBallerinaHome(), [test.label]);
-
-          }
-        }
-      }
-      run.appendOutput(`Tests Completed\r\n`);
-
-      run.end();
-    };
-
-    discoverTests(request.include ?? gatherTestItems(ctrl.items)).then(runTestQueue);
-  };
-
   // create test profiles to display.
-  ctrl.createRunProfile('Run Tests', TestRunProfileKind.Run, runHandler, true);
-  ctrl.createRunProfile('Debug Tests', TestRunProfileKind.Debug, runHandler, true);
+  testController.createRunProfile('Run Tests', TestRunProfileKind.Run, runHandler, true);
+  testController.createRunProfile('Debug Tests', TestRunProfileKind.Debug, runHandler, true);
 
-  async function updateNodeForDocument(document: TextDocument) {
-    if (document.uri.scheme !== 'file' || !document.uri.path.endsWith('.bal')) {
+  // update test tree when file open.
+  workspace.onDidOpenTextDocument(e => {
+    if (!langClient || currentProjectRoot) {
       return;
     }
+    // search for all the test.
+    langClient.onReady().then(() => {
+      startWatchingWorkspace(testController);
+    });
+  });
 
-    await createTests(document.uri);
-  }
+  // update test tree when file updated.
+  workspace.onDidChangeTextDocument(async e => updateTestTree(e.document));
+  workspace.onDidOpenTextDocument(async document => updateTestTree(document));
 
-  for (const document of workspace.textDocuments) {
-    updateNodeForDocument(document);
-  }
-
-  ballerinaExtInstance.context?.subscriptions.push(
-    workspace.onDidOpenTextDocument(updateNodeForDocument),
-    workspace.onDidChangeTextDocument(e => updateNodeForDocument(e.document)),
-    workspace.onDidSaveTextDocument(doc => updateNodeForDocument(doc)),
-  );
+  // update test tree when file deleted.
+  workspace.onDidDeleteFiles(e => {
+    e.files.forEach(file => {
+      deleteFileNode(testController.items, file)
+    })
+  });
 
   if (!langClient) {
     return;
   }
 
+  // search for all the tests.
   langClient.onReady().then(() => {
-    startWatchingWorkspace(ctrl);
-    if (!window.activeTextEditor) {
-      return;
-    }
-    updateNodeForDocument(window.activeTextEditor.document);
+    startWatchingWorkspace(testController);
   });
+
 }
 
-/** 
- * Run terminal command.
- * @param command Command to run.
- * @param pathToRun Path to execute the command.
+/**
+ * Update test tree.
+ * @param document text docuemnt
  */
-async function runCommand(command, pathToRun: string | undefined) {
-  return new Promise<string>(function (resolve, reject) {
-    if (pathToRun == undefined) {
-      return;
-    } else if (pathToRun.endsWith(".bal")) {
-      const lastIndex = pathToRun.lastIndexOf(path.sep);
-      pathToRun = pathToRun.slice(0, lastIndex);
-    }
-    child_process.exec(`${command}`, { cwd: pathToRun }, async (err, stdout, stderr) => {
-      if (err) {
-        log(`error: ${err}`);
-        window.showInformationMessage(
-          err.message
-        );
-        reject(err);
-      } else {
-        resolve("OK");
-      }
-    });
-  });
-}
-
-/** 
- * Run terminal command.
- * @param file File path of the json.
- */
-async function readTestJson(file): Promise<JSON | undefined> {
-  try {
-    let rawdata = fs.readFileSync(file);
-    return JSON.parse(rawdata);
-  } catch {
-    return undefined;
+async function updateTestTree(document: TextDocument) {
+  if (!langClient || document.uri.scheme !== 'file' || !document.uri.path.endsWith('.bal')) {
+    return;
   }
-}
+  await setCurrentProjectRoot(document.uri);
+  // if project changed
+  if (currentProjectRoot !== projectRoot) {
+    startWatchingWorkspace(testController);
 
-async function startDebugging(uri: Uri, testDebug: boolean, ballerinaCmd: string, ballerinaHome: string, args: any[])
-  : Promise<void> {
-  const workspaceFolder: WorkspaceFolder | undefined = workspace.getWorkspaceFolder(uri);
-  const debugConfig: DebugConfiguration = await constructDebugConfig(testDebug, ballerinaCmd,
-    ballerinaHome, args);
-  return debug.startDebugging(workspaceFolder, debugConfig).then(
-    // Wait for debug session to be complete.
-    () => {
-      return new Promise<void>((resolve) => {
-        debug.onDidTerminateDebugSession(() => {
-          resolve();
-        });
-      });
-    },
-    (ex) => log('Failed to start debugging tests' + ex),
-  );
+  } else {
+    await createTests(document.uri);
+
+  }
 }
 
 /** 
@@ -265,123 +110,133 @@ async function startDebugging(uri: Uri, testDebug: boolean, ballerinaCmd: string
  * @param ballerinaExtInstance Balleina extension instace.
  */
 export async function createTests(uri: Uri) {
-  if (!langClient || !ctrl) {
+  if (!langClient || !testController) {
     return;
   }
 
-  // create tests for current project
-  root = (await langClient.getBallerinaProject({
-    documentIdentifier: {
-      uri: uri.toString()
-    }
-  })).path;
+  if (!projectRoot) {
+    // create tests for current project
+    await setCurrentProjectRoot(uri);
+  }
 
-  if (!root) {
+  if (!uri.fsPath.startsWith(projectRoot)) {
     return;
   }
 
-  if (!uri.fsPath.startsWith(root)) {
-    return;
-  }
-
-  if (currentProjectRoot && currentProjectRoot !== root) {
-    ctrl.items.forEach(item => {
-      ctrl.items.delete(item.id);
+  if (currentProjectRoot && currentProjectRoot !== projectRoot) {
+    testController.items.forEach(item => {
+      testController.items.delete(item.id);
     });
   }
-  currentProjectRoot = root;
+  currentProjectRoot = projectRoot;
 
   // Get tests from LS.
-  langClient.getExecutorPositions({
-    documentIdentifier: {
-      uri: uri.toString()
-    }
-  }).then(async response => {
-    if (!response.executorPositions) {
-      return;
-    }
-
-    let positions: ExecutorPosition[] = [];
-    response.executorPositions.forEach(position => {
-      if (position.kind === EXEC_POSITION_TYPE.TEST) {
-        positions.push(position);
+  langClient.onReady().then(() => {
+    langClient!.getExecutorPositions({
+      documentIdentifier: {
+        uri: uri.toString()
       }
-    });
+    }).then(async execResponse => {
+      const response = execResponse as ExecutorPositionsResponse;
+      if (!response.executorPositions) {
+        return;
+      }
 
-    if (positions.length === 0) {
-      return;
-    }
-
-    const ancestors: TestItem[] = [];
-
-    let relativePath = path.relative(root!, uri.fsPath).toString().split(path.sep);
-
-    let level = relativePath[0];
-    let fullPath = path.join(root!, level).toString();
-    let depth = 0;
-
-    // if already added to the test explorer.
-    let rootNode = ctrl.items.get(fullPath);
-    if (rootNode) {
-      let parentNode: TestItem = rootNode;
-      let pathToFind = uri.fsPath;
-      while (pathToFind != '') {
-        parentNode = getTestItemNode(rootNode, pathToFind);
-        if (parentNode.id == pathToFind) {
-          relativePath = path.relative(pathToFind, uri.fsPath).split(path.sep);
-          break;
+      let positions: ExecutorPosition[] = [];
+      response.executorPositions.forEach(position => {
+        if (position.kind === EXEC_POSITION_TYPE.TEST) {
+          positions.push(position);
         }
-        const lastIndex = pathToFind.lastIndexOf(path.sep);
-        pathToFind = pathToFind.slice(0, lastIndex);
-      }
+      });
 
-      if (parentNode && parentNode.id === uri.fsPath) {
-        let testCaseItems: TestItem[] = [];
+      let relativePath = path.relative(projectRoot!, uri.fsPath).toString().split(path.sep);
 
-        positions.forEach(position => {
-          const tcase = createTestCase(ctrl, fullPath, position);
-          testCaseItems.push(tcase);
-        });
-        parentNode.children.replace(testCaseItems);
+      let level = relativePath[0];
+      let testRoot = path.join(projectRoot!, level).toString();
+      let depth = 0;
 
+      if (positions.length === 0) {
+        deleteFileNode(testController.items, uri);
         return;
       } else {
-        rootNode = parentNode;
-        ancestors.push(rootNode);
-        depth = 0;
+        testFiles.push(uri.toString());
       }
-    } else {
-      rootNode = createTestItem(ctrl, fullPath, fullPath, level);
-      ctrl.items.add(rootNode);
-      ancestors.push(rootNode);
-      depth = 1;
-    }
 
-    for (depth; depth < relativePath.length; depth++) {
+      const ancestors: TestItem[] = [];
+
+      // if already added to the test explorer.
+      let rootNode = testController.items.get(testRoot);
+      if (rootNode) {
+        let parentNode: TestItem = rootNode;
+        let pathToFind = uri.fsPath;
+        while (pathToFind != '') {
+          parentNode = getTestItemNode(rootNode, pathToFind);
+          if (parentNode.id == pathToFind) {
+            relativePath = path.relative(pathToFind, uri.fsPath).split(path.sep);
+            break;
+          }
+          const lastIndex = pathToFind.lastIndexOf(path.sep);
+          pathToFind = pathToFind.slice(0, lastIndex);
+        }
+
+        if (parentNode && parentNode.id === uri.fsPath) {
+          let testCaseItems: TestItem[] = [];
+
+          positions.forEach(position => {
+            const tcase = createTestCase(testController, testRoot, position);
+            testCaseItems.push(tcase);
+          });
+          parentNode.children.replace(testCaseItems);
+
+          return;
+        } else {
+          rootNode = parentNode;
+          ancestors.push(rootNode);
+          depth = 0;
+        }
+      } else {
+        rootNode = createTestItem(testController, testRoot, testRoot, level);
+        testController.items.add(rootNode);
+        ancestors.push(rootNode);
+        depth = 1;
+      }
+
+      for (depth; depth < relativePath.length; depth++) {
+        const parent = ancestors.pop()!;
+        const level = relativePath[depth];
+        testRoot = path.join(testRoot, level).toString();
+        const middleNode = createTestItem(testController, testRoot, testRoot, level);
+        middleNode.canResolveChildren = true;
+        parent.children.add(middleNode);
+        ancestors.push(middleNode);
+      }
+
       const parent = ancestors.pop()!;
-      const level = relativePath[depth];
-      fullPath = path.join(fullPath, level).toString();
-      const middleNode = createTestItem(ctrl, fullPath, fullPath, level);
-      middleNode.canResolveChildren = true;
-      parent.children.add(middleNode);
-      ancestors.push(middleNode);
-    }
+      let testCaseItems: TestItem[] = [];
+      positions.forEach(position => {
+        const tcase = createTestCase(testController, testRoot, position);
+        testCaseItems.push(tcase);
+      });
+      parent.children.replace(testCaseItems);
 
-    const parent = ancestors.pop()!;
-    let testCaseItems: TestItem[] = [];
-    positions.forEach(position => {
-      const tcase = createTestCase(ctrl, fullPath, position);
-      testCaseItems.push(tcase);
+      rootNode.canResolveChildren = true;
+    }, _error => {
     });
-    parent.children.replace(testCaseItems);
+  });
+}
 
-    rootNode.canResolveChildren = true;
-  }, _error => {
+async function setCurrentProjectRoot(uri: Uri) {
+  await langClient!.onReady().then(async () => {
+    projectRoot = (await langClient!.getBallerinaProject({
+      documentIdentifier: {
+        uri: uri.toString()
+      }
+    }) as BallerinaProject).path;
   });
 }
 
 /**
- * Create folder level node in test explorer tree. 
+ * Create test item for file. 
  */
 function createTestCase(controller: TestController, fullPath: string, position: ExecutorPosition) {
   const tcase = createTestItem(controller, `${fullPath}/${position.name}`, fullPath, position.name);
@@ -392,7 +247,7 @@ function createTestCase(controller: TestController, fullPath: string, position: 
 }
 
 /**
- * Create test item. 
+ * Create test tree item. 
  */
 function createTestItem(controller: TestController, id: string, path: string, label: string): TestItem {
   const uri = Uri.file(path);
@@ -420,82 +275,36 @@ function getTestItemNode(testNode: TestItem, id: string):
   return testNode;
 }
 
-function gatherTestItems(collection: TestItemCollection) {
-  const items: TestItem[] = [];
-  collection.forEach(item => items.push(item));
-  return items;
-}
-
-function startWatchingWorkspace(controller: TestController) {
-  if (!workspace.workspaceFolders) {
-    return [];
-  }
-
-  return workspace.workspaceFolders.map(workspaceFolder => {
-    const pattern = new RelativePattern(workspaceFolder, '**/*.bal');
-    const watcher = workspace.createFileSystemWatcher(pattern);
-
-    watcher.onDidCreate(uri => createTests(uri));
-    watcher.onDidChange(async uri => {
-      await createTests(uri);
-    });
-    watcher.onDidDelete(uri => controller.items.delete(uri.toString()));
-
-    workspace.findFiles(pattern).then(async files => {
-      for (const fileX of files) {
-        await createTests(fileX);
-      }
-    });
-
-    return watcher;
-  });
-}
-
-async function constructDebugConfig(testDebug: boolean, ballerinaCmd: string, ballerinaHome: string, args: any[])
-  : Promise<DebugConfiguration> {
-
-  let programArgs = [];
-  let commandOptions = [];
-  let env = {};
-  const debugConfigs: DebugConfiguration[] = workspace.getConfiguration(DEBUG_REQUEST.LAUNCH).configurations;
-  if (debugConfigs.length > 0) {
-    let debugConfig: DebugConfiguration | undefined;
-    for (let i = 0; i < debugConfigs.length; i++) {
-      if ((testDebug && debugConfigs[i].name == DEBUG_CONFIG.TEST_DEBUG_NAME) ||
-        (!testDebug && debugConfigs[i].name == DEBUG_CONFIG.SOURCE_DEBUG_NAME)) {
-        debugConfig = debugConfigs[i];
-        break;
-      }
-    }
-    if (debugConfig) {
-      if (debugConfig.programArgs) {
-        programArgs = debugConfig.programArgs;
-      }
-      if (debugConfig.commandOptions) {
-        commandOptions = debugConfig.commandOptions;
-      }
-      if (debugConfig.env) {
-        env = debugConfig.env;
-      }
+/**
+ * Delete file from test tree.
+ * 
+ * @param items Test items
+ * @param uri file uri
+ */
+function deleteFileNode(items: TestItemCollection, uri: Uri) {
+  // check the file in test files list
+  let found = false;
+  for (let i = 0; i < testFiles.length; i++) {
+    if (testFiles[i] === uri.toString()) {
+      delete testFiles[i];
+      found = true;
+      break;
     }
   }
+  if (!found) return;
 
-  const debugConfig: DebugConfiguration = {
-    type: LANGUAGE.BALLERINA,
-    name: testDebug ? DEBUG_CONFIG.TEST_DEBUG_NAME : DEBUG_CONFIG.SOURCE_DEBUG_NAME,
-    request: DEBUG_REQUEST.LAUNCH,
-    script: fileUriToPath(window.activeTextEditor!.document.uri.toString()),
-    networkLogs: false,
-    debugServer: '10001',
-    debuggeePort: '5010',
-    'ballerina.home': ballerinaHome,
-    'ballerina.command': ballerinaCmd,
-    debugTests: testDebug,
-    tests: testDebug ? args : [],
-    programArgs,
-    commandOptions,
-    env,
-    capabilities: { supportsReadOnlyEditors: true }
-  };
-  return debugConfig;
+  let relativePath = path.relative(projectRoot!, uri.fsPath).toString().split(path.sep);
+  let id = `${projectRoot}`;
+
+  // iterate through the test tree and delete.
+  for (let i = 0; i < relativePath.length; i++) {
+    const path = relativePath[i];
+    id = `${id}/${path}`
+
+    if (i === relativePath.length - 1) {
+      items.delete(id);
+    } else {
+      items = items.get(id)?.children!;
+    }
+  }
 }

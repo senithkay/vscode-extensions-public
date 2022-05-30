@@ -17,7 +17,7 @@
  *
  */
 
-import { BallerinaExtension, ExecutorPosition, ExtendedLangClient, LANGUAGE } from '../core';
+import { BallerinaExtension, ExecutorPosition, ExecutorPositionsResponse, ExtendedLangClient, LANGUAGE } from '../core';
 import {
     CancellationToken, CodeLens, CodeLensProvider, commands, debug, DebugConfiguration, Event, EventEmitter,
     ProviderResult, Range, TextDocument, Uri, window, workspace, WorkspaceFolder
@@ -102,32 +102,35 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
             return codeLenses;
         }
 
-        await langClient.getExecutorPositions({
-            documentIdentifier: {
-                uri: window.activeTextEditor!.document.uri.toString()
-            }
-        }).then(response => {
-            if (response.executorPositions) {
-                response.executorPositions.forEach(position => {
-                    codeLenses.push(this.createCodeLens(position, EXEC_TYPE.RUN));
-                    codeLenses.push(this.createCodeLens(position, EXEC_TYPE.DEBUG));
-                    
-                    if (position.kind == 'source' && position.name != 'main') {
-                        const codeLens = new CodeLens(new Range(position.range.startLine.line, 0, position.range.endLine.line, 0));
-                        codeLens.command = {
-                            title: "Try it",
-                            tooltip: "Try running this service on swagger view",
-                            command: PALETTE_COMMANDS.SWAGGER_VIEW,
-                            arguments: [position.name]
-                        };
-                        codeLenses.push(codeLens);
-                    }
-                });
-            }
-        }, _error => {
-            return codeLenses;
-        });
+        await langClient.onReady().then(async () => {
+            await langClient!.getExecutorPositions({
+                documentIdentifier: {
+                    uri: window.activeTextEditor!.document.uri.toString()
+                }
+            }).then(executorsResponse => {
+                const response = executorsResponse as ExecutorPositionsResponse;
+                if (response.executorPositions) {
+                    response.executorPositions.forEach(position => {
+                        codeLenses.push(this.createCodeLens(position, EXEC_TYPE.RUN));
+                        codeLenses.push(this.createCodeLens(position, EXEC_TYPE.DEBUG));
 
+                        if (position.kind == 'source' && position.name != 'main') {
+                            const codeLens = new CodeLens(new Range(position.range.startLine.line, 0, position.range.endLine.line, 0));
+                            codeLens.command = {
+                                title: "Try it",
+                                tooltip: "Try running this service on swagger view",
+                                command: PALETTE_COMMANDS.SWAGGER_VIEW,
+                                arguments: [position.name]
+                            };
+                            codeLenses.push(codeLens);
+                        }
+                    });
+                }
+            }, _error => {
+                return codeLenses;
+            });
+
+        });
         return codeLenses;
     }
 

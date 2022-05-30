@@ -17,7 +17,7 @@
  *
  */
 
-import { BallerinaExtension } from "../core";
+import { BallerinaExtension, SyntaxTreeNodeResponse } from "../core";
 import { Disposable, Position, Range, TextDocumentChangeEvent, TextDocumentContentChangeEvent, window, workspace } from "vscode";
 import { CMP_STRING_SPLIT, sendTelemetryEvent, TM_EVENT_STRING_SPLIT } from "../telemetry";
 import { isWindows } from "../utils";
@@ -32,8 +32,8 @@ export class StringSplitter {
 
     public updateDocument(event: TextDocumentChangeEvent) {
         const editor = window.activeTextEditor;
-        if (!editor || !editor.document.fileName.endsWith('.bal') || event.contentChanges.length === 0 || 
-                event.document.fileName.includes("extension-output-wso2.ballerina")) {
+        if (!editor || !editor.document.fileName.endsWith('.bal') || event.contentChanges.length === 0 ||
+            event.document.fileName.includes("extension-output-wso2.ballerina")) {
             return;
         }
         if (this instanceof BallerinaExtension) {
@@ -75,7 +75,8 @@ export class StringSplitter {
                         character: range.end.character
                     }
                 }
-            }).then((response) => {
+            }).then((stResponse) => {
+                const response = stResponse as SyntaxTreeNodeResponse;
                 if (!response.kind) {
                     return;
                 }

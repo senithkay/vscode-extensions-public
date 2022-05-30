@@ -38,7 +38,7 @@ task installDeps() {
 
 task copyDeps(type: Copy) {
     dependsOn installDeps
-    from "$rootDir/node_modules/@wso2-enterprise/ballerina-low-code-editor/build/"
+    from "$rootDir/node_modules/@wso2-enterprise/ballerina-low-code-editor-distribution/build/"
     into "$rootDir/resources/jslibs"
     include "BLCEditor.js"
 }
@@ -50,20 +50,12 @@ task copyConfigEditorDeps(type: Copy) {
     include "ConfigEditor.js"
 }
 
-task copyPakoDeps(type: Copy) {
-    dependsOn installDeps
-    from "$rootDir/node_modules/pako/dist"
-    into "$rootDir/resources/jslibs"
-    include "pako.min.js"
-}
-
 npmBuild() {
     dependsOn ':bbe-viewer:buildBBEViewer'
     dependsOn ':perf-viewer:buildPerfViewer'
     dependsOn ':swagger-viewer:buildSwaggerViewer'
     dependsOn copyDeps
     dependsOn copyConfigEditorDeps
-    dependsOn copyPakoDeps
     PatternSet patternSet = new PatternSet();
     patternSet.exclude("**/node_modules/**");
     patternSet.exclude("**/dist/**");

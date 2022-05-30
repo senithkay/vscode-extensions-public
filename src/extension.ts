@@ -39,6 +39,7 @@ import { activate as activateLibraryBrowser } from './library-browser';
 import { debug, log } from './utils';
 
 let langClient: ExtendedLangClient;
+export let isPluginStartup = true;
 
 // TODO initializations should be contributions from each component
 function onBeforeInit(langClient: ExtendedLangClient) {
@@ -108,6 +109,7 @@ export function activate(context: ExtensionContext): Promise<any> {
                 }
             });
         });
+        isPluginStartup = false;
     }).catch((e) => {
         log("Failed to activate Ballerina extension. " + (e.message ? e.message : e));
         if (e.message && e.message.includes('Error when checking ballerina version.')) {
@@ -141,5 +143,6 @@ export function deactivate(): Thenable<void> | undefined {
     if (!langClient) {
         return;
     }
+    ballerinaExtInstance.telemetryReporter.dispose();
     return langClient.stop();
 }

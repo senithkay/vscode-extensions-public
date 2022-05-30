@@ -44,7 +44,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
         return;
     }
     if (ballerinaExtInstance.isAllCodeLensEnabled() && isSupportedVersion(ballerinaExtInstance, VERSION.BETA, 1)) {
-        languages.registerCodeLensProvider([{ language: LANGUAGE.BALLERINA }],
+        languages.registerCodeLensProvider([{ language: LANGUAGE.BALLERINA, scheme: 'file' }],
             new ExecutorCodeLensProvider(ballerinaExtInstance));
     }
 }

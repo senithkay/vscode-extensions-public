@@ -19,7 +19,7 @@
 
 import { PALETTE_COMMANDS } from "../project";
 import { commands, window } from "vscode";
-import { BallerinaExtension, ExtendedLangClient } from "../core";
+import { BallerinaExtension, ExtendedLangClient, OpenAPIConverterResponse } from "../core";
 import { showSwaggerView } from "./swaggerViewPanel";
 import { MESSAGE_TYPE, showMessage } from "../utils/showMessage";
 import { log } from "../utils";
@@ -65,8 +65,9 @@ async function createSwaggerView(documentFilePath: string, serviceName: any) {
     }
     await langClient.convertToOpenAPI({
         documentFilePath
-    }).then(async (response) => {
-        if (response.error) {
+    }).then(async (lSesponse) => {
+        const response = lSesponse as OpenAPIConverterResponse;
+        if (response.content === undefined || response.error) {
             showMessage(`Unable to open the swagger view. ${response.error}`,
                 MESSAGE_TYPE.ERROR, false);
             return;

@@ -17,11 +17,11 @@
  *
  */
 
-import { ANALYZETYPE, DataLabel, GraphData, PerformanceGraphRequest } from "./model";
-import { commands, ExtensionContext, languages, Range as VRange, TextDocument, Uri, ViewColumn, window } from "vscode";
+import { ANALYZETYPE, DataLabel, GraphData, PerfContext, PerformanceGraphRequest } from "./model";
+import { commands, ExtensionContext, languages, Range as VRange, Uri, ViewColumn, window } from "vscode";
 import {
     BallerinaExtension, ExtendedLangClient, GraphPoint, LANGUAGE, PerformanceAnalyzerGraphResponse,
-    PerformanceAnalyzerRealtimeResponse, PerformanceAnalyzerResponse, Range, WEBVIEW_TYPE
+    PerformanceAnalyzerRealtimeResponse, PerformanceAnalyzerResponse, WEBVIEW_TYPE
 } from "../core";
 import { CODELENSE_TYPE, ExecutorCodeLensProvider } from "./codelens-provider";
 import { debug } from "../utils";
@@ -29,6 +29,7 @@ import { DefaultWebviewPanel } from "./performanceGraphPanel";
 import { MESSAGE_TYPE, showMessage } from "../utils/showMessage";
 import { PALETTE_COMMANDS } from "../project";
 import { URL } from "url";
+import { CMP_PERF_ANALYZER, sendTelemetryEvent, sendTelemetryException, TM_EVENT_OPEN_PERF_GRAPH, TM_EVENT_PERF_LS_REQUEST, TM_EVENT_PERF_REQUEST } from "../telemetry";
 
 export const SHOW_GRAPH_COMMAND = "ballerina.forecast.performance.showGraph";
 export const CHOREO_API_PF = process.env.VSCODE_CHOREO_GATEWAY_BASE_URI ?
@@ -42,14 +43,13 @@ const https = require('https');
 let langClient: ExtendedLangClient;
 let uiData: GraphData;
 let extension: BallerinaExtension;
-let advancedData: PerformanceAnalyzerGraphResponse;
-let currentResourceName: String;
-let currentResourcePos: Range;
-let currentFile: TextDocument | undefined;
-let currentFileUri: String | undefined;
-let currentResourceData: PerformanceAnalyzerResponse;
 let retryAttempts = 0;
 const cachedResponses = new Map<any, PerformanceAnalyzerRealtimeResponse | PerformanceAnalyzerGraphResponse>();
+const perfContext: PerfContext = {
+    resourceData: undefined,
+    advancedData: undefined,
+    file: undefined
+};
 
 /**
  * Endpoint performance analyzer.
@@ -62,17 +62,23 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
     const getEndpoints = commands.registerCommand(SHOW_GRAPH_COMMAND, async (...args: any[]) => {
         const activeEditor = window.activeTextEditor;
         const document = activeEditor?.document;
-        const uri = activeEditor?.document.uri.fsPath.toString();
         const currentDataLabels: DataLabel[] = Array.from(ExecutorCodeLensProvider.dataLabels);
-        currentFile = document;
-        currentFileUri = uri;
-        ExecutorCodeLensProvider.dataLabels = [];
+        ExecutorCodeLensProvider.dataLabels.length = 0;
 
-        if (args.length < 3) {
+        if (args.length < 1) {
             showMessage("Insufficient data to provide detailed estimations", MESSAGE_TYPE.INFO, false);
             return;
+        }        
+        const data = args[0];
+
+        if (!data) {
+            return;
         }
-        await addPerfData(uri!, args[0], ANALYZETYPE.ADVANCED, args[1], args[2]);
+
+        DefaultWebviewPanel.clearCodeLenses = false;
+        perfContext.file = document?.uri.fsPath;
+        perfContext.resourceData = data;
+        await addPerfData(ANALYZETYPE.ADVANCED, data);
 
         // if no advanced code lenses
         if (ExecutorCodeLensProvider.dataLabels.length === 0) {
@@ -84,7 +90,7 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
     context.subscriptions.push(getEndpoints);
 
     if (ballerinaExtInstance.isAllCodeLensEnabled()) {
-        languages.registerCodeLensProvider([{ language: LANGUAGE.BALLERINA }],
+        languages.registerCodeLensProvider([{ language: LANGUAGE.BALLERINA, scheme: 'file' }],
             new ExecutorCodeLensProvider(ballerinaExtInstance));
     }
 
@@ -102,11 +108,7 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
 export async function createPerformanceGraphAndCodeLenses(uri: string | undefined, type: ANALYZETYPE) {
 
     if (!extension.enabledPerformanceForecasting() || retryAttempts >= maxRetries ||
-        extension.getPerformanceForecastContext().temporaryDisabled) {
-        return;
-    }
-
-    if (!uri || !langClient) {
+        extension.getPerformanceForecastContext().temporaryDisabled || !uri || !langClient) {
         return;
     }
 
@@ -114,44 +116,47 @@ export async function createPerformanceGraphAndCodeLenses(uri: string | undefine
         documentIdentifier: {
             uri
         }
-    }).then(async (response) => {
+    }).then(async (epResponse) => {
+        const response = epResponse as PerformanceAnalyzerResponse[];
         for (var resource of response) {
             if (resource.type === SUCCESS) {
-                currentResourceData = resource;
+                perfContext.resourceData = resource;
+                perfContext.file = uri;
 
-                await addPerfData(uri, resource.resourcePos, type, resource.name, resource);
+                sendTelemetryEvent(extension, TM_EVENT_PERF_LS_REQUEST, CMP_PERF_ANALYZER, { 'is_successful': "true" });
+                await addPerfData(type, resource);
             } else {
+                sendTelemetryEvent(extension, TM_EVENT_PERF_LS_REQUEST, CMP_PERF_ANALYZER,
+                    { 'is_successful': "false", 'error_code': `${resource.message}` });
                 checkErrors(resource);
             }
         }
 
     }).catch(error => {
+        sendTelemetryException(extension, error, CMP_PERF_ANALYZER);
         debug(`${error} ${new Date()}`);
     });
 }
 
-async function addPerfData(uri: string, pos: Range, type: ANALYZETYPE, name: String, endpoints: PerformanceAnalyzerResponse) {
+async function addPerfData(type: ANALYZETYPE, endpoints: PerformanceAnalyzerResponse) {
     const data = await getDataFromChoreo(endpoints, type);
-
-    currentFileUri = uri;
-    currentResourceName = name;
-    currentResourcePos = pos;
 
     if (!data) {
         return;
     }
 
     if (type == ANALYZETYPE.REALTIME) {
-        addEndpointPerformanceLabels(data as PerformanceAnalyzerRealtimeResponse);
+        addEndpointPerformanceLabel(data as PerformanceAnalyzerRealtimeResponse);
     } else {
-        advancedData = data as PerformanceAnalyzerGraphResponse;
-        addPerformanceLabels(1);
+        perfContext.advancedData = data as PerformanceAnalyzerGraphResponse;
+        addInvocationsPerformanceLabels(1);
 
-        if (!uiData || !currentFile) {
+        if (!uiData || !perfContext.file) {
             return;
         }
 
-        DefaultWebviewPanel.create(langClient, uiData, currentFile.uri, `Performance Forecast of ${uiData.name}`,
+        sendTelemetryEvent(extension, TM_EVENT_OPEN_PERF_GRAPH, CMP_PERF_ANALYZER, { 'initiator': "codelense" });
+        DefaultWebviewPanel.create(langClient, uiData, Uri.parse(perfContext.file), `Performance Forecast of ${uiData.name}`,
             ViewColumn.Three, extension, WEBVIEW_TYPE.PERFORMANCE_FORECAST);
 
     }
@@ -169,7 +174,8 @@ function checkErrors(response: PerformanceAnalyzerRealtimeResponse | Performance
         // AI Error
         showMessage("Performance plots are not available due to insufficient data", MESSAGE_TYPE.INFO, false);
 
-    } else if (response.message !== 'NO_DATA' && response.message !== 'ESTIMATOR_ERROR' && response.message !== 'INVALID_DATA' && response.message !== 'MODEL_NOT_FOUND') {
+    } else if (response.message !== 'NO_DATA' && response.message !== 'ESTIMATOR_ERROR' && response.message !== 'INVALID_DATA' &&
+        response.message !== 'MODEL_NOT_FOUND' && response.message !== 'ENDPOINT_RESOLVE_ERROR') {
         debug(`Retry counted. ${new Date()}`);
         handleRetries();
     }
@@ -183,12 +189,12 @@ export function handleRetries() {
     }
 }
 
-function addPerformanceLabels(concurrencyValue: number) {
-    if (!advancedData || !currentResourcePos || !currentResourceName) {
+function addInvocationsPerformanceLabels(concurrencyValue: number) {
+    if (!perfContext.advancedData || !perfContext.resourceData) {
         return;
     }
-    const sequenceDiagramData = advancedData.sequenceDiagramData;
-    const graphData = advancedData.graphData;
+    const sequenceDiagramData = perfContext.advancedData.sequenceDiagramData;
+    const graphData = perfContext.advancedData.graphData;
 
     if (!sequenceDiagramData) {
         return;
@@ -223,7 +229,7 @@ function addPerformanceLabels(concurrencyValue: number) {
     }
     let data = sequenceDiagramData[concurrency];
     const values = data.values;
-    addEndpointPerformanceLabels(graphData[concurrency]);
+    addEndpointPerformanceLabel(graphData[concurrency]);
 
     let file;
     for (let i = 0; i < values.length; i++) {
@@ -238,15 +244,15 @@ function addPerformanceLabels(concurrencyValue: number) {
             parseInt(end[0]), parseInt(end[1]));
         const dataLabel = new DataLabel(CODELENSE_TYPE.ADVANCED, file, range,
             { max: concurrencyValue }, { max: latency }, { max: tps },
-            currentResourceName, currentResourcePos, null);
+            null);
         ExecutorCodeLensProvider.addDataLabel(dataLabel);
 
     }
-    uiData = { name: currentResourceName, graphData: advancedData.graphData };
+    uiData = { name: perfContext.resourceData.name, graphData: perfContext.advancedData.graphData };
 }
 
-function addEndpointPerformanceLabels(data: PerformanceAnalyzerRealtimeResponse | GraphPoint) {
-    if (!data || !currentResourcePos || !currentFileUri || !currentResourceData) {
+function addEndpointPerformanceLabel(data: PerformanceAnalyzerRealtimeResponse | GraphPoint) {
+    if (!data || !perfContext.file || !perfContext.resourceData) {
         return;
     }
 
@@ -255,18 +261,18 @@ function addEndpointPerformanceLabels(data: PerformanceAnalyzerRealtimeResponse 
     if ((data.concurrency as any).max) {
         // If realtime response
         const realtimeData = data as PerformanceAnalyzerRealtimeResponse;
-        dataLabel = new DataLabel(CODELENSE_TYPE.REALTIME, currentFileUri, currentResourcePos,
+        dataLabel = new DataLabel(CODELENSE_TYPE.REALTIME, perfContext.file, perfContext.resourceData.resourcePos,
             { min: realtimeData.concurrency.min, max: realtimeData.concurrency.max },
             { min: realtimeData.latency.min, max: realtimeData.latency.max },
             { min: realtimeData.tps.min, max: realtimeData.tps.max },
-            currentResourceName, currentResourcePos, currentResourceData);
+            perfContext.resourceData);
     } else {
         // if graph point
-        dataLabel = new DataLabel(CODELENSE_TYPE.ADVANCED, currentFileUri, currentResourcePos,
+        dataLabel = new DataLabel(CODELENSE_TYPE.ADVANCED, perfContext.file, perfContext.resourceData.resourcePos,
             { max: Number(data.concurrency) },
             { max: Number(data.latency) },
             { max: Number(data.tps) },
-            currentResourceName, currentResourcePos, currentResourceData);
+            perfContext.resourceData);
     }
     ExecutorCodeLensProvider.addDataLabel(dataLabel);
 
@@ -274,16 +280,17 @@ function addEndpointPerformanceLabels(data: PerformanceAnalyzerRealtimeResponse 
 
 export function updateCodeLenses(concurrency: number, column: ViewColumn | undefined) {
     ExecutorCodeLensProvider.dataLabels = [];
-    addPerformanceLabels(concurrency);
+    addInvocationsPerformanceLabels(concurrency);
     ExecutorCodeLensProvider.onDidChangeCodeLenses.fire();
 
-    if (!currentFile) {
+    if (!perfContext.file) {
         return;
     }
-    window.showTextDocument(currentFile, column ?? ViewColumn.Beside);
+    window.showTextDocument(Uri.parse(perfContext.file), { viewColumn: column ?? ViewColumn.Beside });
 }
 
 export function openPerformanceDiagram(request: PerformanceGraphRequest) {
+    sendTelemetryEvent(extension, TM_EVENT_OPEN_PERF_GRAPH, CMP_PERF_ANALYZER, { 'initiator': "button" });
     DefaultWebviewPanel.create(langClient, request.data, Uri.parse(request.file),
         `Performance Forecast of ${request.data.name}`, ViewColumn.Three, extension,
         WEBVIEW_TYPE.PERFORMANCE_FORECAST);
@@ -319,6 +326,7 @@ export function getDataFromChoreo(data: any, analyzeType: ANALYZETYPE): Promise<
             return reject();
         }
 
+        data = Object.assign({}, data);
         data["analyzeType"] = analyzeType;
         delete data.type;
         delete data.message;
@@ -356,6 +364,8 @@ export function getDataFromChoreo(data: any, analyzeType: ANALYZETYPE): Promise<
                 if (res.statusCode != 200) {
                     debug(`Perf Error - ${res.statusCode} Status code. Retry counted. ${new Date()}`);
                     debug(str);
+                    sendTelemetryEvent(extension, TM_EVENT_PERF_REQUEST, CMP_PERF_ANALYZER,
+                        { 'is_successful': "false", 'error_code': `${res.statusCode}` });
                     handleRetries();
                     reject();
                 }
@@ -367,16 +377,32 @@ export function getDataFromChoreo(data: any, analyzeType: ANALYZETYPE): Promise<
 
                     if (res.message) {
                         debug(`Perf Error ${new Date()}`);
+                        sendTelemetryEvent(extension, TM_EVENT_PERF_REQUEST, CMP_PERF_ANALYZER,
+                            { 'is_successful': "false", 'error_code': `${res.message}` });
                         checkErrors(res);
                         return reject();
                     }
+
                     cachedResponses.set(data, res);
+                    if (analyzeType === ANALYZETYPE.REALTIME) {
+                        sendTelemetryEvent(extension, TM_EVENT_PERF_REQUEST, CMP_PERF_ANALYZER,
+                            {
+                                'is_successful': "true", 'type': `${analyzeType}`,
+                                'is_low_data': `${((res as PerformanceAnalyzerRealtimeResponse).concurrency.max == 1)}`
+                            });
+
+                    } else {
+                        sendTelemetryEvent(extension, TM_EVENT_PERF_REQUEST, CMP_PERF_ANALYZER,
+                            { 'is_successful': "true", 'type': `${analyzeType}` });
+
+                    }
                     return resolve(res);
 
                 } catch (e: any) {
                     debug(`Perf Error - Response json parsing failed. Retry counted. ${new Date()}`);
                     debug(str);
                     debug(e.toString())
+                    sendTelemetryException(extension, e, CMP_PERF_ANALYZER);
                     handleRetries();
                     reject();
                 }
@@ -386,6 +412,7 @@ export function getDataFromChoreo(data: any, analyzeType: ANALYZETYPE): Promise<
         req.on('error', error => {
             debug(`Perf Error - Connection Error. Retry counted. ${new Date()}`);
             debug(error);
+            sendTelemetryException(extension, error, CMP_PERF_ANALYZER);
             handleRetries();
             reject();
         })
