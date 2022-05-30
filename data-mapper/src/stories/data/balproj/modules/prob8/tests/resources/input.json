@@ -1,0 +1,71 @@
+[
+    {
+        "Assets": [
+            {
+                "Type": 2,
+                "Id": "ABSDRV"
+            }
+        ],
+        "CreateDate": "2021-12-10T22:54:30.1462242+00:00",
+        "ContentType": "TMWSystems.MobileConnect.Shared.Models.Messages.DriverHosMetrics",
+        "Content": {
+            "Metrics": {
+                "DayDrive": 0.0,
+                "DayOnDuty": 39992.0,
+                "DayOffDuty": 2013.0,
+                "DaySleeperBerth": 0.0,
+                "WorkDayDriveRemaining": -128789.0,
+                "WorkDayOnDutyRemaining": -128789.0,
+                "CycleDutyRemaining": -128789.0
+            },
+            "AdditionalDataElements": [
+                {
+                    "Label": "TodaysMiles",
+                    "Value": "364"
+                }
+            ],
+            "TripInformation": null,
+            "HeaderInformation": {
+                "CreateDateUtc": "2021-12-10T22:54:30.1462242+00:00"
+            }
+        },
+        "MessageProperties": {
+            "EventType": "com.trimble.transportation.telematics.inbound.driver-hos-metrics",
+            "AuditId": "{{$guid}}",
+            "MessageId": "{{$guid}}"
+        }
+    },
+    {
+        "Assets": [
+            {
+                "Type": 2,
+                "Id": "ABSDRV"
+            }
+        ],
+        "CreateDate": "2021-12-09T22:54:30.1462242+00:00",
+        "ContentType": "TMWSystems.MobileConnect.Shared.Models.Messages.DriverHosMetrics",
+        "Content": {
+            "Metrics": {
+                "DayDrive": 0.0,
+                "DayOnDuty": 0.0,
+                "DayOffDuty": 0.0,
+                "DaySleeperBerth": 0.0
+            },
+            "AdditionalDataElements": [
+                {
+                    "Label": "TodaysMiles",
+                    "Value": "364"
+                }
+            ],
+            "TripInformation": null,
+            "HeaderInformation": {
+                "CreateDateUtc": "2021-12-09T22:54:30.1462242+00:00"
+            }
+        },
+        "MessageProperties": {
+            "EventType": "com.trimble.transportation.telematics.inbound.driver-hos-metrics",
+            "AuditId": "{{$guid}}",
+            "MessageId": "{{$guid}}"
+        }
+    }
+]
