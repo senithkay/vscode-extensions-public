@@ -110,26 +110,11 @@ export function getStatementTypeComponent(
     );
 }
 
-export function getFormComponent(
-    type: string, model: STNode, targetPosition: NodePosition, onChange: (code: string, partialST: STNode) => void,
-    onCancel: () => void, getLangClient: () => Promise<ExpressionEditorLangClientInterface>, currentFile:
-        { content: string, path: string, size: number },
-    isEdit: boolean, applyModifications: (modifications: STModification[]) => void, stSymbolInfo?: STSymbolInfo,
-    syntaxTree?: STNode
-): ReactNode {
+export function getFormComponent(type: string, model: STNode): ReactNode {
     const FormComponent = (formComponents as any)[type];
     return (
         <FormComponent
             model={model}
-            targetPosition={targetPosition}
-            syntaxTree={syntaxTree}
-            onChange={onChange}
-            onCancel={onCancel}
-            getLangClient={getLangClient}
-            currentFile={currentFile}
-            isEdit={isEdit}
-            stSymbolInfo={stSymbolInfo}
-            applyModifications={applyModifications}
         />
     );
 }

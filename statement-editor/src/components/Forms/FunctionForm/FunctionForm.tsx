@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useEffect, useState } from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 
 import { Button, Divider, FormControl } from "@material-ui/core";
 import { default as AddIcon } from "@material-ui/icons/Add";
@@ -43,6 +43,7 @@ import {
 import debounce from "lodash.debounce";
 
 import { StmtDiagnostic } from "../../../models/definitions";
+import { FormEditorContext } from "../../../store/form-editor-context";
 import { getUpdatedSource } from "../../../utils";
 import { getPartialSTForModuleMembers } from "../../../utils/ls-utils";
 import { FormEditorField } from "../Types";
@@ -53,16 +54,12 @@ import { FunctionParamSegmentEditor } from "./FunctionParamEditor/FunctionSegmen
 
 export interface FunctionProps {
     model: FunctionDefinition;
-    targetPosition: NodePosition;
-    isEdit: boolean;
-    onChange: (genSource: string, partialST: STNode, moduleList?: Set<string>) => void;
-    onCancel: () => void;
-    getLangClient: () => Promise<ExpressionEditorLangClientInterface>;
-    applyModifications: (modifications: STModification[]) => void;
 }
 
 export function FunctionForm(props: FunctionProps) {
-    const { targetPosition, model, isEdit, onChange, onCancel, getLangClient, applyModifications } = props;
+    const { model } = props;
+
+    const { targetPosition, isEdit, onChange, applyModifications, onCancel, getLangClient } = useContext(FormEditorContext);
 
     const formClasses = useFormStyles();
     const connectorClasses = connectorStyles();

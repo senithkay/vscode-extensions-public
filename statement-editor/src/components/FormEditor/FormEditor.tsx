@@ -17,6 +17,7 @@ import { ExpressionEditorLangClientInterface, STModification, STSymbolInfo } fro
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import * as monaco from "monaco-editor";
 
+import { FormEditorContextProvider } from "../../store/form-editor-context";
 import { enrichModel, getUpdatedSource} from "../../utils";
 import {
     getPartialSTForModuleMembers,
@@ -105,19 +106,34 @@ export function FormEditor(props: FormEditorProps) {
 
     return (
         <div>
-            <FormRenderer
-                type={type}
+            <FormEditorContextProvider
                 model={model}
                 targetPosition={targetPosition}
                 stSymbolInfo={stSymbolInfo}
                 syntaxTree={syntaxTree}
                 onChange={onChange}
                 onCancel={onCancel}
+                onSave={onCancel}
                 getLangClient={getLangClient}
                 currentFile={currentFile}
                 isEdit={initialSource !== undefined}
+                isLastMember={false}
                 applyModifications={applyModifications}
-            />
+            >
+                <FormRenderer
+                    type={type}
+                    model={model}
+                    targetPosition={targetPosition}
+                    stSymbolInfo={stSymbolInfo}
+                    syntaxTree={syntaxTree}
+                    onChange={onChange}
+                    onCancel={onCancel}
+                    getLangClient={getLangClient}
+                    currentFile={currentFile}
+                    isEdit={initialSource !== undefined}
+                    applyModifications={applyModifications}
+                />
+            </FormEditorContextProvider>
         </div>
     )
 }

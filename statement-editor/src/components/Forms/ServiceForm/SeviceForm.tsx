@@ -10,20 +10,16 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, {useEffect, useState} from "react";
+import React, { useContext, useEffect, useState } from "react";
 
 import { FormControl } from "@material-ui/core";
-import {
-    ExpressionEditorLangClientInterface,
-    STModification,
-    STSymbolInfo,
-} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     dynamicConnectorStyles as useFormStyles,
     FormHeaderSection
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
-import { ModulePart, NodePosition, ServiceDeclaration, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { ModulePart, ServiceDeclaration, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
+import { FormEditorContext } from "../../../store/form-editor-context";
 import { getServiceTypeFromModel } from "../Utils/FormUtils";
 
 import { HttpServiceForm } from "./HTTPServiceForm";
@@ -31,22 +27,6 @@ import { ServiceTypeSelector } from "./ServiceTypeSelector";
 
 interface ServiceConfigFormProps {
     model?: ServiceDeclaration | ModulePart;
-    targetPosition?: NodePosition;
-    onCancel: () => void;
-    onSave: () => void;
-    formType: string;
-    isLastMember?: boolean;
-    stSymbolInfo?: STSymbolInfo;
-    syntaxTree?: STNode;
-    isEdit?: boolean;
-    currentFile: {
-        content: string,
-        path: string,
-        size: number
-    };
-    onChange: (genSource: string, partialST: STNode, moduleList?: Set<string>) => void;
-    applyModifications: (modifications: STModification[]) => void;
-    getLangClient: () => Promise<ExpressionEditorLangClientInterface>;
 }
 
 export enum ServiceTypes {
@@ -55,8 +35,8 @@ export enum ServiceTypes {
 
 export function ServiceConfigForm(props: ServiceConfigFormProps) {
     const formClasses = useFormStyles();
-    const { model, targetPosition, onSave, onCancel, formType, isLastMember, stSymbolInfo, isEdit, currentFile,
-            syntaxTree, onChange, applyModifications, getLangClient } = props;
+    const { model } = props;
+    const { isEdit, stSymbolInfo, onCancel } = useContext(FormEditorContext);
 
     let serviceModel : ServiceDeclaration;
     if (model && STKindChecker.isModulePart(model)) {
@@ -74,7 +54,7 @@ export function ServiceConfigForm(props: ServiceConfigFormProps) {
 
     switch (serviceType) {
         case ServiceTypes.HTTP:
-            configForm = <HttpServiceForm onSave={onSave} onCancel={onCancel} model={model} targetPosition={targetPosition} stSymbolInfo={stSymbolInfo} isLastMember={isLastMember} onChange={onChange} isEdit={isEdit} applyModifications={applyModifications} getLangClient={getLangClient} currentFile={currentFile} syntaxTree={syntaxTree}/>
+            configForm = <HttpServiceForm model={model} />
             break;
         default:
             // configForm = <TriggerServiceForm onSave={onSave} onCancel={onCancel} model={model} targetPosition={targetPosition} />
@@ -92,7 +72,6 @@ export function ServiceConfigForm(props: ServiceConfigFormProps) {
                 onCancel={onCancel}
                 formTitle={"lowcode.develop.configForms.ServiceConfigForm.title"}
                 defaultMessage={"Service"}
-                formType={formType}
             />
             {!serviceType && <ServiceTypeSelector onSelect={setServiceType} />}
             {serviceType && configForm}

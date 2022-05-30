@@ -11,15 +11,13 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useEffect, useState } from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 
 import { FormControl } from "@material-ui/core";
 import {
     createImportStatement,
     createListenerDeclartion,
-    ExpressionEditorLangClientInterface,
     getSource,
-    STModification,
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     dynamicConnectorStyles as connectorStyles,
@@ -30,30 +28,25 @@ import {
     useStyles as useFormStyles
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import {
-    ListenerDeclaration,
-    NodePosition,
-    STNode
+    ListenerDeclaration
 } from "@wso2-enterprise/syntax-tree";
 
 import { StmtDiagnostic } from "../../../models/definitions";
+import { FormEditorContext } from "../../../store/form-editor-context";
 import { getUpdatedSource } from "../../../utils";
 import { getPartialSTForModuleMembers } from "../../../utils/ls-utils";
 import { FormEditorField } from "../Types";
 
 export interface FunctionProps {
     model: ListenerDeclaration;
-    targetPosition: NodePosition;
-    isEdit: boolean;
-    onChange: (genSource: string, partialST: STNode, moduleList?: Set<string>) => void;
-    onCancel: () => void;
-    getLangClient: () => Promise<ExpressionEditorLangClientInterface>;
-    applyModifications: (modifications: STModification[]) => void;
 }
 
 const HTTP_IMPORT = new Set<string>(['ballerina/http']);
 
 export function ListenerForm(props: FunctionProps) {
-    const { targetPosition, model, isEdit, onChange, onCancel, getLangClient, applyModifications } = props;
+    const { model} = props;
+
+    const { targetPosition, isEdit, onChange, applyModifications, onCancel, getLangClient } = useContext(FormEditorContext);
 
     const formClasses = useFormStyles();
     const connectorClasses = connectorStyles();

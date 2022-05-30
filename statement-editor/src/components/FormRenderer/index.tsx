@@ -40,11 +40,9 @@ export interface FormRendererProps {
 }
 
 export function FormRenderer(props: FormRendererProps) {
-    const { type, model, targetPosition, stSymbolInfo, onChange, onCancel, getLangClient, isEdit,
-            applyModifications, currentFile, syntaxTree } = props;
+    const { type, model } = props;
 
-    const component = getFormComponent(type, model, targetPosition, onChange, onCancel, getLangClient, currentFile,
-        isEdit, applyModifications, stSymbolInfo, syntaxTree);
+    const component = getFormComponent(type, model);
 
     return (
        <>

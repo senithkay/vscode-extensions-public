@@ -11,15 +11,13 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 
 import {
     createImportStatement,
     createServiceDeclartion,
-    ExpressionEditorLangClientInterface,
     getSource,
     STModification,
-    STSymbolInfo,
     updateServiceDeclartion
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
@@ -31,13 +29,13 @@ import {
     ListenerDeclaration, ModulePart,
     NodePosition,
     ServiceDeclaration,
-    STKindChecker,
-    STNode
+    STKindChecker
 } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
 import { StmtDiagnostic } from "../../../models/definitions";
-import {getModuleElementDeclPosition, getUpdatedSource} from "../../../utils";
+import { FormEditorContext } from "../../../store/form-editor-context";
+import { getModuleElementDeclPosition, getUpdatedSource } from "../../../utils";
 import { getPartialSTForModulePart } from "../../../utils/ls-utils";
 import { FormEditorField } from "../Types";
 import { getListenerConfig } from "../Utils/FormUtils";
@@ -46,21 +44,6 @@ import { ListenerConfigForm } from "./ListenerConfigFrom";
 
 interface HttpServiceFormProps {
     model?: ServiceDeclaration | ModulePart;
-    targetPosition?: NodePosition;
-    onCancel: () => void;
-    onSave: () => void;
-    onChange: (genSource: string, partialST: STNode, moduleList?: Set<string>) => void;
-    isLastMember?: boolean;
-    stSymbolInfo?: STSymbolInfo;
-    syntaxTree?: STNode;
-    isEdit?: boolean;
-    getLangClient: () => Promise<ExpressionEditorLangClientInterface>;
-    currentFile: {
-        content: string,
-        path: string,
-        size: number
-    };
-    applyModifications: (modifications: STModification[]) => void;
 }
 
 const HTTP_MODULE_QUALIFIER = 'http';
@@ -68,8 +51,10 @@ const HTTP_IMPORT = new Set<string>(['ballerina/http']);
 
 export function HttpServiceForm(props: HttpServiceFormProps) {
     const formClasses = useFormStyles();
-    const { model, targetPosition, onCancel, onSave, isLastMember, currentFile, stSymbolInfo, isEdit, getLangClient,
-            syntaxTree, onChange, applyModifications } = props;
+    const { model } = props;
+
+    const { targetPosition, isEdit, isLastMember, currentFile, stSymbolInfo, syntaxTree, onChange, applyModifications,
+            onCancel, getLangClient } = useContext(FormEditorContext);
 
     // States related to syntax diagnostics
     const [currentComponentName, setCurrentComponentName] = useState<string>("");
