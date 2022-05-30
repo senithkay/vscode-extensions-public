@@ -47,7 +47,7 @@ jobs:
           file: .github/workflows/resources/code-server/2/Dockerfile
           platforms: linux/amd64
           push: true
-          tags: tharindulak/lowcode-code-server:0.${{ steps.date.outputs.date }}
+          tags: prabushi/lowcode-code-server:0.${{ steps.date.outputs.date }}
           build-args: |
             BALLERINA_DEB_URI=${{ github.event.inputs.ballerina_dist_uri }}
             BALLERINA_VSIX_URI=${{ github.event.inputs.vsix_uri }}

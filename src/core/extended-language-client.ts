@@ -63,6 +63,7 @@ enum EXTENDED_APIS {
     PARTIAL_PARSE_SINGLE_STATEMENT = 'partialParser/getSTForSingleStatement',
     PARTIAL_PARSE_EXPRESSION = 'partialParser/getSTForExpression',
     PARTIAL_PARSE_MODULE_MEMBER = 'partialParser/getSTForModuleMembers',
+    PARTIAL_PARSE_MODULE_PART = 'partialParser/getSTForModulePart',
     EXAMPLE_LIST = 'ballerinaExample/list',
     PERF_ANALYZER_RESOURCES_ENDPOINTS = 'performanceAnalyzer/getResourcesWithEndpoints',
     RESOLVE_MISSING_DEPENDENCIES = 'ballerinaDocument/resolveMissingDependencies',
@@ -575,6 +576,13 @@ export class ExtendedLangClient extends LanguageClient {
         // const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.PARTIAL_PARSE_EXPRESSION);
         const isSupported = true;
         return isSupported ? this.sendRequest(EXTENDED_APIS.PARTIAL_PARSE_EXPRESSION, params) :
+            Promise.resolve(NOT_SUPPORTED);
+    }
+
+    getSTForModulePart(params: PartialSTRequestParams): Promise<PartialSTResponse | NOT_SUPPORTED_TYPE> {
+        // const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.PARTIAL_PARSE_MODULE_PART);
+        const isSupported = true;
+        return isSupported ? this.sendRequest(EXTENDED_APIS.PARTIAL_PARSE_MODULE_PART, params) :
             Promise.resolve(NOT_SUPPORTED);
     }
 
