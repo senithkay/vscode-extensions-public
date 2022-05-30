@@ -1,17 +1,17 @@
 export class ExpressionEditor {
 
-    private constructor(private fieldName: string, private parentSelector: string, private position: number) { }
+    private constructor (private fieldName: string, private parentSelector: string, private position: number) { }
 
     static getForField(fieldName: string, parentSelector: string = '', position: number = 0) {
         return new ExpressionEditor(fieldName, parentSelector, position);
     }
 
-    private getEditor() {
-        return cy.get(`${this.parentSelector} .exp-container[field-name="${this.fieldName}"] .view-lines`);
+    private getEditor(index: number = 0) {
+        return cy.get(`${this.parentSelector} .exp-container[field-name="${this.fieldName}"] .view-lines`).eq(index);
     }
 
     public clickEditor() {
-        this.getEditor().click()
+        this.getEditor().click();
         return this;
     }
 
@@ -23,9 +23,10 @@ export class ExpressionEditor {
         return cy.get(`${this.parentSelector}`);
     }
 
-    public type(text: string, clearSuggestions: boolean = true) {
+    public type(text: string, editorIndex: number = 0, clearSuggestions: boolean = true) {
         if (this.position == 0) {
-            clearSuggestions ? this.getEditor().type("{esc}" + text, { delay: 100 }) : this.getEditor().type(text, { delay: 100 }); // Adding escpate first to close suggetions if any
+            clearSuggestions ? this.getEditor(editorIndex).type("{esc}" + text, { delay: 100 }) :
+                this.getEditor(editorIndex).type(text, { delay: 100 }); // Adding escape first to close suggestion if any
         } else {
             this.getEditorConditions().children().get('.view-lines').eq(this.position - 1).type("{esc}" + text, { delay: 100 });
         }
@@ -75,7 +76,7 @@ export class ExpressionEditor {
     public clearSuggestions(clearSuggestions: boolean = true) {
         this.getEditor().parent().parent().parent().within(() => {
             cy.get('textarea').click();
-        })
+        });
         clearSuggestions ? this.getEditor().type("{esc}") : null;
         return this;
     }
