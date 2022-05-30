@@ -407,7 +407,7 @@ const queryIntermediateClauses : ExpressionGroup = {
             example: "limit Ex"
         }
     ],
-    relatedModelType: ModelType.EXPRESSION
+    relatedModelType: ModelType.QUERY_EXPRESSION
 }
 
 //     6.36 XML navigation expression
