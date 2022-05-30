@@ -59,11 +59,10 @@ export function AddWhileForm(props: WhileProps) {
     const { condition, formArgs, onCancel, onWizardClose } = props;
     const intl = useIntl();
 
-    const [isInvalid, setIsInvalid] = useState(true);
     const [conditionExpression, setConditionExpression] = useState(condition.conditionExpression);
 
     const handleStatementEditorChange = (partialModel: WhileStatement) => {
-        setConditionExpression(partialModel.condition.expression.source.trim());
+        setConditionExpression(partialModel.condition?.expression?.source.trim());
     }
 
     const formTitle = intl.formatMessage({
