@@ -48,10 +48,11 @@ export function genInterfacesFileCode(modelInfo: any) {
             severity: string;
         }
 
-        export interface Minutiae {
-          isInvalid: boolean;
-          kind: string;
-          minutiae: string;
+        export interface PerfData {
+            concurrency: string;
+            latency: string;
+            tps: string;
+            analyzeType: string;
         }
 
         export interface STNode {
@@ -68,8 +69,7 @@ export function genInterfacesFileCode(modelInfo: any) {
             configurablePosition?: NodePosition;
             controlFlow?: ControlFlow;
             syntaxDiagnostics: SyntaxDiagnostics[];
-            leadingMinutiae: Minutiae[];
-            trailingMinutiae: Minutiae[];
+            performance?: PerfData;
         }
 
         ${interfaces.join("\n")}
@@ -181,6 +181,7 @@ function genInterfaceCode(kind: string, model: any) {
     return `
         interface ${kind} extends STNode {
             ${getPropertyCode(model).join("\n            ")}
+            ${kind === "FunctionDefinition" || kind === "ServiceDeclaration" ? "isRunnable?: boolean;\n            runArgs?: any[];": ""}
         }
     `;
 }
@@ -204,7 +205,7 @@ function getPropertyCode(model: any) {
         if (property.elementTypes) {
             const elementTypesFound: any = Object.keys(property.elementTypes).sort();
             if (elementTypesFound.length > 1) {
-                type = `${elementTypesFound.join("|")}[]`;
+                type = `(${elementTypesFound.join("|")})[]`;
             } else if (elementTypesFound.length === 1) {
                 type = `${elementTypesFound[0]}[]`;
             }
