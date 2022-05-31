@@ -117,10 +117,12 @@ service {{{ BASE_PATH }}} on {{{ LISTENER_NAME }}}`,
     TYPE_DEFINITION: `
 {{#if ACCESS_MODIFIER }}{{{ ACCESS_MODIFIER }}} {{/if}}type {{{ TYPE_NAME }}} {{{ TYPE_DESCRIPTOR }}}`,
     TRIGGER: `
-    configurable {{triggerType}}:ListenerConfig config = ?;
+    {{#if (checkConfigurable listenerParams)}}
+        configurable {{triggerType}}:ListenerConfig config = ?;
+    {{/if}}
 
         {{#if httpBased }}listener http:Listener httpListener = new(8090);{{/if}}
-        listener {{triggerType}}:Listener webhookListener = new(config{{#if httpBased }}, httpListener{{/if}});
+        listener {{triggerType}}:Listener webhookListener = new({{#if (checkConfigurable listenerParams)}}config,{{/if}}{{#if httpBased }}httpListener{{/if}});
 
         {{#each serviceTypes}}
         service {{../triggerType}}:{{ this.name }} on webhookListener {

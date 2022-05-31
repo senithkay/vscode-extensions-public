@@ -20,6 +20,7 @@ import {
     DecimalKeyword,
     FalseKeyword,
     FloatKeyword,
+    FunctionKeyword,
     IdentifierToken,
     IntKeyword,
     JsonKeyword,
@@ -40,6 +41,7 @@ interface TokenProps {
         | FalseKeyword
         | TrueKeyword
         | NullKeyword
+        | FunctionKeyword
         | DecimalFloatingPointLiteralToken
         | DecimalIntegerLiteralToken
         | StringLiteralToken
@@ -64,13 +66,13 @@ export function TokenComponent(props: TokenProps) {
 
     const { leadingMinutiaeJSX, trailingMinutiaeJSX } = getMinutiaeJSX(model);
 
-    const isLastMapField = (model.viewState as StatementEditorViewState).mappingConstructorConfig.isLastMapField;
+    const isFieldWithNewLine = (model.viewState as StatementEditorViewState).multilineConstructConfig.isFieldWithNewLine;
 
     return (
         <>
             {leadingMinutiaeJSX}
             <InputEditor {...inputEditorProps} />
-            {!isLastMapField && trailingMinutiaeJSX}
+            {!isFieldWithNewLine && trailingMinutiaeJSX}
         </>
     );
 }

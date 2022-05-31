@@ -115,6 +115,7 @@ export function StatementEditor(props: StatementEditorProps) {
     const [lsSuggestionsList, setLSSuggestionsList] = useState([]);
     const [documentation, setDocumentation] = useState<SymbolInfoResponse | EmptySymbolInfo>(initSymbolInfo);
     const [isRestArg, setRestArg] = useState(false);
+    const [newQueryPos, setNewQueryPos] = useState<NodePosition>(null)
 
     const undo = async () => {
         const undoItem = undoRedoManager.getUndoModel();
@@ -228,6 +229,10 @@ export function StatementEditor(props: StatementEditorProps) {
 
     const restArg = (restCheckClicked: boolean) => {
         setRestArg(restCheckClicked);
+    }
+
+    const newQueryExpr = (intermediateClausePos: NodePosition) => {
+        setNewQueryPos(intermediateClausePos);
     }
 
     const handleChange = async (newValue: string) => {
@@ -433,6 +438,8 @@ export function StatementEditor(props: StatementEditorProps) {
                     restArg={restArg}
                     hasRestArg={isRestArg}
                     hasSyntaxDiagnostics={hasSyntaxDiagnostics}
+                    newQueryPosition={newQueryPos}
+                    setNewQueryPos={newQueryExpr}
                 >
                     <ViewContainer
                         isStatementValid={!stmtDiagnostics.length}

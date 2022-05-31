@@ -42,13 +42,13 @@ import {
     StatementNodes, SymbolParameterType,
     WHITESPACE_MINUTIAE
 } from "../constants";
-import { CurrentModel, MinutiaeJSX, RemainingContent, StmtDiagnostic, StmtOffset } from '../models/definitions';
+import { MinutiaeJSX, RemainingContent, StmtDiagnostic, StmtOffset } from '../models/definitions';
 import { visitor as DeleteConfigSetupVisitor } from "../visitors/delete-config-setup-visitor";
 import { visitor as DiagnosticsMappingVisitor } from "../visitors/diagnostics-mapping-visitor";
 import { visitor as ExpressionDeletingVisitor } from "../visitors/expression-deleting-visitor";
-import { visitor as MappingConstructorConfigSetupVisitor } from "../visitors/mapping-constructor-config-setup-visitor";
 import { visitor as ModelFindingVisitor } from "../visitors/model-finding-visitor";
 import { visitor as ModelTypeSetupVisitor } from "../visitors/model-type-setup-visitor";
+import { visitor as MultilineConstructsConfigSetupVisitor } from "../visitors/multiline-constructs-config-setup-visitor";
 import {nextNodeSetupVisitor} from "../visitors/next-node--setup-visitor"
 import { parentSetupVisitor } from '../visitors/parent-setup-visitor';
 import { viewStateSetupVisitor as ViewStateSetupVisitor } from "../visitors/view-state-setup-visitor";
@@ -134,7 +134,7 @@ export function getPreviousNode(currentModel: STNode, statementModel: STNode): S
 export function enrichModel(model: STNode, targetPosition: NodePosition, diagnostics?: Diagnostic[]): STNode {
     traversNode(model, ViewStateSetupVisitor);
     traversNode(model, parentSetupVisitor);
-    traversNode(model, MappingConstructorConfigSetupVisitor);
+    traversNode(model, MultilineConstructsConfigSetupVisitor);
     model = enrichModelWithDiagnostics(model, targetPosition, diagnostics);
     return enrichModelWithViewState(model);
 }
@@ -568,4 +568,16 @@ export function getUpdatedContentForNewNamedArg(currentModel: FunctionCall, user
     functionParameters.push(`${userInput} = ${EXPR_CONSTRUCTOR}`);
     const content: string = currentModel.functionName.source + "(" + functionParameters.join(",") + ")";
     return content;
+}
+
+export function getParamsList(suggestionValue: string): string[] {
+    const paramRegex = /\(([^)]+)\)/;
+    if (paramRegex.exec(suggestionValue)) {
+        let paramArray = paramRegex.exec(suggestionValue)[1].split(',');
+        paramArray = paramArray.map((param: string) => {
+            return param.trim().split(' ').pop();
+        });
+        return paramArray;
+    }
+    return [];
 }
