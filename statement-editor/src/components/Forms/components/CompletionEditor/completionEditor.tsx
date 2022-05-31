@@ -1,5 +1,6 @@
 import React, { ChangeEvent, ReactNode, useEffect, useState } from "react";
 
+import { InputAdornment } from "@material-ui/core";
 import TextField from "@material-ui/core/TextField";
 import Autocomplete, { AutocompleteRenderInputParams } from '@material-ui/lab/Autocomplete';
 import { Diagnostic, NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
@@ -8,10 +9,8 @@ import { SuggestionItem } from "../../../../models/definitions";
 
 import { useStyles as useTextInputStyles } from "./style";
 import { ExpressionEditorHintProps } from "./utils";
-import { InputAdornment } from "@material-ui/core";
 
 interface CompletionEditorProps {
-    model?: STNode;
     defaultValue?: string;
     completions?: SuggestionItem[];
     isActive?: boolean;
@@ -30,7 +29,7 @@ interface CompletionEditorProps {
 }
 
 export function CompletionEditor(props: CompletionEditorProps) {
-    const { model, completions, isActive, placeholder, disabled, errorMessage, defaultValue, diagsInRange, dataTestId, onChange, onFocus } = props;
+    const {completions, placeholder, disabled, errorMessage, defaultValue, dataTestId, onChange, onFocus } = props;
     const customProps = props.customProps;
     const [options, setOptions] = useState([]);
     const [hints, setHints] = useState<ExpressionEditorHintProps[]>([]);
@@ -59,23 +58,24 @@ export function CompletionEditor(props: CompletionEditorProps) {
     }, [completions]);
 
     const renderInput = (params: AutocompleteRenderInputParams): ReactNode => {
+        const inputProps = {
+            ...params.InputProps,
+            disableUnderline: true,
+            // tslint:disable-next-line: jsx-curly-spacing
+            classes: {
+                root: textFieldClasses.textFeild,
+                error: textFieldClasses.errorField,
+            },
+            startAdornment: customProps.startAdornment ?
+                <InputAdornment position="start">{customProps.startAdornment}</InputAdornment> : null
+        };
         return (
             <TextField
                 {...params}
                 placeholder={placeholder}
                 error={customProps.isErrored}
                 helperText={errorMessage}
-                InputProps={{
-                    ...params.InputProps,
-                    disableUnderline: true,
-                    // tslint:disable-next-line: jsx-curly-spacing
-                    classes: {
-                        root: textFieldClasses.textFeild,
-                        error: textFieldClasses.errorField,
-                    },
-                    startAdornment: customProps.startAdornment ?
-                        <InputAdornment position="start">{customProps.startAdornment}</InputAdornment> : null
-                }}
+                InputProps={inputProps}
             />
         )
     };

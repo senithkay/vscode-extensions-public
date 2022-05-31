@@ -18,48 +18,41 @@ export function FieldTitle(props: FieldEditorProps) {
 
     const textFieldClasses = useTextInputStyles();
 
+    const optionalUI = (
+        <div className={textFieldClasses.inputWrapper}>
+            <div className={textFieldClasses.inputWrapper}>
+                <div className={textFieldClasses.labelWrapper}>
+                    <FormHelperText className={textFieldClasses.inputLabelForRequired}>
+                        {title}
+                    </FormHelperText>
+                    <FormHelperText className={textFieldClasses.optionalLabel}>
+                        <FormattedMessage
+                            id="lowcode.develop.elements.textField.formTextInput.optional.label"
+                            defaultMessage="Optional"
+                        />
+                    </FormHelperText>
+                </div>
+
+            </div>
+            {tooltipTitle && (<TooltipIcon title={tooltipTitle} arrow={true} />)}
+        </div>
+    );
+
+    const requiredUI = (
+        <div className={textFieldClasses.inputWrapper}>
+            <div className={textFieldClasses.labelWrapper}>
+                <FormHelperText className={textFieldClasses.inputLabelForRequired}>
+                    {title}
+                </FormHelperText>
+                <FormHelperText className={textFieldClasses.starLabelForRequired}>*</FormHelperText>
+            </div>
+            {tooltipTitle && (<TooltipIcon title={tooltipTitle} arrow={true} />)}
+        </div>
+    );
+
     return (
         <>
-            {(title !== "") ?
-                (optional ?
-                    (
-                        <div className={textFieldClasses.inputWrapper}>
-                            <div className={textFieldClasses.inputWrapper}>
-                                <div className={textFieldClasses.labelWrapper}>
-                                    <FormHelperText className={textFieldClasses.inputLabelForRequired}>
-                                        {title}
-                                    </FormHelperText>
-                                    <FormHelperText className={textFieldClasses.optionalLabel}>
-                                        <FormattedMessage
-                                            id="lowcode.develop.elements.textField.formTextInput.optional.label"
-                                            defaultMessage="Optional"
-                                        />
-                                    </FormHelperText>
-                                </div>
-
-                            </div>
-                            {tooltipTitle &&
-                                (
-                                    <TooltipIcon title={tooltipTitle} arrow={true} />
-                                )
-                            }
-                        </div>
-                    ) : (
-                        <div className={textFieldClasses.inputWrapper}>
-                            <div className={textFieldClasses.labelWrapper}>
-                                <FormHelperText className={textFieldClasses.inputLabelForRequired}>
-                                    {title}
-                                </FormHelperText>
-                                <FormHelperText className={textFieldClasses.starLabelForRequired}>*</FormHelperText>
-                            </div>
-                            {tooltipTitle &&
-                                (<TooltipIcon title={tooltipTitle} arrow={true} />)
-                            }
-                        </div>
-
-                    )
-                ) : null
-            }
+            {(title !== "") ? (optional ? optionalUI : requiredUI) : null}
         </>
     );
 }

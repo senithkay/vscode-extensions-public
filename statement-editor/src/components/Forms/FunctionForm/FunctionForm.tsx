@@ -47,12 +47,12 @@ import { getUpdatedSource } from "../../../utils";
 import { getPartialSTForModuleMembers } from "../../../utils/ls-utils";
 import { completionEditorTypeKinds } from '../../InputEditor/constants';
 import { CompletionEditor } from '../components/CompletionEditor/completionEditor';
+import { FieldTitle } from '../components/FieldTitle/fieldTitle';
 import { FormEditorField } from "../Types";
 import { recalculateItemIds } from "../Utils/FormUtils";
 
 import { FunctionParam, FunctionParamItem } from "./FunctionParamEditor/FunctionParamItem";
 import { FunctionParamSegmentEditor } from "./FunctionParamEditor/FunctionSegmentEditor";
-import { FieldTitle } from '../components/FieldTitle/fieldTitle';
 
 export interface FunctionProps {
     model: FunctionDefinition;
@@ -92,28 +92,7 @@ export function FunctionForm(props: FunctionProps) {
     const functionBodyBlock = model && STKindChecker.isFunctionBodyBlock(model.functionBody) && model?.functionBody;
     const params = model?.functionSignature?.parameters.filter(param => !STKindChecker.isCommaToken(param));
 
-    // const onNameFocus = () => {
-    //     setCurrentComponentName("Name");
-    // }
-    // const onNameChange = async (value: string) => {
-    //     setFunctionName({ value, isInteracted: true });
-    //     const genSource = getSource(mutateFunctionSignature(accessModifier, value, "",
-    //         returnType.value ? `returns ${returnType.value}` : "", targetPosition));
-    //     const partialST = await getPartialSTForTopLevelComponents(
-    //         { codeSnippet: genSource.trim() }, getLangClient
-    //     );
-    //     if (!partialST.syntaxDiagnostics.length) {
-    //         setCurrentComponentSyntaxDiag(undefined);
-    //         if (model && model.functionName) {
-    //             onChange(genSource, {
-    //                 model: model.functionName
-    //             }, value);
-    //         }
-    //     } else {
-    //         setCurrentComponentSyntaxDiag(partialST.syntaxDiagnostics);
-    //     }
-    // }
-    const functionParamChange = async (funcName: string, parametersStr: string, returnTypeStr: string) => {
+    const functionParamChange = async (funcName: string, parametersStr: string, returnTypeStr: string, currentModel?: CurrentModel, newValue?: string, completionKinds?: number[]) => {
         const codeSnippet = getSource(updateFunctionSignature(funcName, parametersStr,
             returnTypeStr ? `returns ${returnTypeStr}` : "", {
             ...targetPosition, startColumn: model?.functionName?.position?.startColumn
@@ -127,7 +106,11 @@ export function FunctionForm(props: FunctionProps) {
         );
         if (!partialST.syntaxDiagnostics.length) {
             setCurrentComponentSyntaxDiag(undefined);
-            onChange(updatedContent, partialST);
+            if (newValue && currentModel) {
+                onChange(updatedContent, partialST, currentModel, newValue, completionKinds);
+            } else {
+                onChange(updatedContent, partialST);
+            }
         } else {
             setCurrentComponentSyntaxDiag(partialST.syntaxDiagnostics);
         }
@@ -140,33 +123,21 @@ export function FunctionForm(props: FunctionProps) {
     const onNameChange = async (value: string) => {
         setFunctionName({ value, isInteracted: true });
         const parametersStr = parameters.map((item) => `${item.type.value} ${item.name.value}`).join(",");
-        await functionParamChange(value, parametersStr, returnType.value);
+        const currentModel: CurrentModel = {
+            model: model.functionName
+        };
+        await functionParamChange(value, parametersStr, returnType.value, currentModel, value);
     }
     const debouncedNameChange = debounce(onNameChange, 1000);
 
     // Return type related functions
     const onReturnTypeChange = async (value: string) => {
-        // setReturnType({ value, isInteracted: true });
-        // const genSource = getSource(createFunctionSignature(accessModifier, functionName.value, "",
-        //     value ? `returns ${value}` : "", targetPosition));
-        // const partialST = await getPartialSTForTopLevelComponents(
-        //     { codeSnippet: genSource.trim() }, getLangClient
-        // );
-        // if (!partialST.syntaxDiagnostics.length) {
-        //     setCurrentComponentSyntaxDiag(undefined);
-        //     if (model && model.functionSignature?.returnTypeDesc?.type) {
-        //         onChange(genSource, {
-        //             model: model.functionSignature?.returnTypeDesc?.type
-        //         }, value, completionEditorTypeKinds);
-        //     } else {
-        //         onChange(genSource);
-        //     }
-        // } else {
-        //     setCurrentComponentSyntaxDiag(partialST.syntaxDiagnostics);
-        // }
         setReturnType({ value, isInteracted: true });
         const parametersStr = parameters.map((item) => `${item.type.value} ${item.name.value}`).join(",");
-        await functionParamChange(functionName.value, parametersStr, value);
+        const currentModel: CurrentModel = {
+            model: model.functionSignature?.returnTypeDesc?.type
+        };
+        await functionParamChange(functionName.value, parametersStr, value, currentModel, value, completionEditorTypeKinds);
     }
     const onReturnFocus = () => {
         setCurrentComponentName("Return");
@@ -211,17 +182,6 @@ export function FunctionForm(props: FunctionProps) {
         const parametersStr = newParams
             .map((item) => `${item.type.value} ${item.name.value}`)
             .join(",");
-        // const genSource = getSource(mutateFunctionSignature(accessModifier, functionName.value, parametersStr,
-        //     returnType.value ? `returns ${returnType.value}` : "", targetPosition));
-        // const partialST = await getPartialSTForTopLevelComponents(
-        //     { codeSnippet: genSource.trim() }, getLangClient
-        // );
-        // if (!partialST.syntaxDiagnostics.length) {
-        //     setCurrentComponentSyntaxDiag(undefined);
-        //     onChange(genSource);
-        // } else {
-        //     setCurrentComponentSyntaxDiag(partialST.syntaxDiagnostics);
-        // }
         await functionParamChange(functionName.value, parametersStr, returnType.value);
     };
     const onUpdateParamChange = async (param: FunctionParam) => {
@@ -231,17 +191,6 @@ export function FunctionForm(props: FunctionProps) {
         const parametersStr = newParams
             .map((item) => `${item.type.value} ${item.name.value}`)
             .join(",");
-        // const genSource = getSource(mutateFunctionSignature(accessModifier, functionName.value, parametersStr,
-        //     returnType.value ? `returns ${returnType.value}` : "", targetPosition));
-        // const partialST = await getPartialSTForTopLevelComponents(
-        //     { codeSnippet: genSource.trim() }, getLangClient
-        // );
-        // if (!partialST.syntaxDiagnostics.length) {
-        //     setCurrentComponentSyntaxDiag(undefined);
-        //     onChange(genSource);
-        // } else {
-        //     setCurrentComponentSyntaxDiag(partialST.syntaxDiagnostics);
-        // }
         await functionParamChange(functionName.value, parametersStr, returnType.value);
     };
     const onSaveNewParam = (param: FunctionParam) => {
@@ -332,7 +281,6 @@ export function FunctionForm(props: FunctionProps) {
                 <div className={connectorClasses.formNameWrapper}>
                     <FieldTitle title='Name' optional={false} />
                     <CompletionEditor
-                        model={model}
                         dataTestId="function-name"
                         isActive={currentComponentName === "Name"}
                         completions={currentComponentCompletions}
@@ -379,9 +327,8 @@ export function FunctionForm(props: FunctionProps) {
                         )}
                     </ConfigPanelSection>
                     <Divider className={connectorClasses.sectionSeperatorHR} />
-                    <FieldTitle title='Return Type' optional />
+                    <FieldTitle title='Return Type' optional={true} />
                     <CompletionEditor
-                        model={model}
                         isActive={currentComponentName === "Return"}
                         completions={currentComponentCompletions}
                         onChange={debouncedReturnChange}
