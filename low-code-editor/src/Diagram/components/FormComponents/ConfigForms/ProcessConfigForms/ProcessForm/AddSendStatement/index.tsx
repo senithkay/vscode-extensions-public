@@ -10,13 +10,15 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, { useContext } from 'react';
+import { useContext, useEffect } from 'react';
 import { useIntl } from 'react-intl';
 
-import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
-import { createModuleVarDecl, createSendStatement, getInitialSource } from '../../../../../../utils';
 import { ProcessConfig, SendStatementConfig } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
+
 import { Context } from '../../../../../../../Contexts/Diagram';
+import { createSendStatement, getInitialSource } from '../../../../../../utils';
+
 interface AddSendStatementProps {
     // test
     config: ProcessConfig;
@@ -59,7 +61,7 @@ export function AddSendStatement(props: AddSendStatementProps) {
 
     const formTitle = intl.formatMessage({
         id: "lowcode.develop.configForms.variable.title",
-        defaultMessage: "Variable"
+        defaultMessage: "Async Send Statement"
     });
 
     const initialSource = getInitialSource(createSendStatement(config.config as SendStatementConfig));
@@ -83,6 +85,10 @@ export function AddSendStatement(props: AddSendStatementProps) {
             experimentalEnabled
         }
     );
+
+    useEffect(() => {
+        handleStmtEditorToggle();
+    }, []);
 
     return (
         stmtEditorComponent
