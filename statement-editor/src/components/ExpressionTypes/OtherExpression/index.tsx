@@ -15,7 +15,7 @@ import React from "react";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 
 import { InputEditor, InputEditorProps } from "../../InputEditor";
-import { useStatementEditorStyles } from "../../styles";
+import { useStatementRendererStyles } from "../../styles";
 
 interface OtherExpressionProps {
     model: STNode;
@@ -24,12 +24,11 @@ interface OtherExpressionProps {
 export function OtherExpressionComponent(props: OtherExpressionProps) {
     const { model } = props;
 
-    const statementEditorClasses = useStatementEditorStyles();
+    const statementRendererClasses = useStatementRendererStyles();
 
     const inputEditorProps: InputEditorProps = {
         model,
-        isToken: model.value ? true : false,
-        classNames: statementEditorClasses.expressionElement
+        classNames: statementRendererClasses.expressionElement
     };
 
     return (

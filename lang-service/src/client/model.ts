@@ -63,6 +63,36 @@ export interface RevealRangeParams {
     range: Range;
 }
 
+export interface SymbolInfoRequest {
+    textDocumentIdentifier: {
+        uri: string;
+    },
+    position: {
+        line: number;
+        character: number;
+    }
+}
+
+export interface ParameterInfo {
+    name : string,
+    description : string,
+    kind : string,
+    type : string
+}
+
+export interface SymbolDocumentation {
+    description : string,
+    parameters? : ParameterInfo[],
+    returnValueDescription? : string,
+    deprecatedDocumentation? : string,
+    deprecatedParams? : ParameterInfo[]
+}
+
+export interface SymbolInfoResponse {
+    symbolKind: string,
+    documentation : SymbolDocumentation
+}
+
 export interface BallerinaExample {
     title: string;
     url: string;
@@ -126,12 +156,15 @@ export interface BallerinaRecordResponse {
 export interface VisibleEndpoint {
     kind?: string;
     isCaller: boolean;
+    isExternal: boolean;
+    isModuleVar: boolean;
     moduleName: string;
     name: string;
     packageName: string;
     orgName: string;
     version: string;
     typeName: string;
+    position: NodePosition;
     viewState?: any;
 }
 export interface NodePosition {
@@ -166,6 +199,7 @@ export interface FormField {
     label?: string;
     displayName?: string;
     collectionDataType?: FormField;
+    paramType?: FormField;
     selectedDataType?: string;
     description?: string;
     defaultValue?: any;
@@ -396,6 +430,8 @@ export interface IBallerinaLangClient {
     goToSource: (params: GoToSourceParams) => void;
 
     revealRange: (params: RevealRangeParams) => void;
+
+    getSymbolDocumentation: (params: SymbolInfoRequest) => Thenable<SymbolInfoResponse>
 
     close: () => void;
 }

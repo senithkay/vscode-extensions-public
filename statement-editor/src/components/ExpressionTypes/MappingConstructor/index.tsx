@@ -13,13 +13,12 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import React, { useContext } from "react";
 
-import { MappingConstructor } from "@wso2-enterprise/syntax-tree";
+import { MappingConstructor, NodePosition } from "@wso2-enterprise/syntax-tree";
 
-import { MAPPING_CONSTRUCTOR } from "../../../constants";
+import { ArrayType, MAPPING_CONSTRUCTOR } from "../../../constants";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
-import { generateExpressionTemplate } from "../../../utils/utils";
+import { NewExprAddButton } from "../../Button/NewExprAddButton";
 import { ExpressionArrayComponent } from "../../ExpressionArray";
-import { useStatementEditorStyles } from "../../styles";
 import { TokenComponent } from "../../Token";
 
 interface MappingConstructorProps {
@@ -29,30 +28,41 @@ interface MappingConstructorProps {
 export function MappingConstructorComponent(props: MappingConstructorProps) {
     const { model } = props;
 
-    const statementEditorClasses = useStatementEditorStyles();
-
     const {
         modelCtx: {
             updateModel,
         }
     } = useContext(StatementEditorContext);
 
-    const onClickOnPlusIcon = () => {
-        const expressionTemplate = generateExpressionTemplate(MAPPING_CONSTRUCTOR);
-        const newField = model.fields.length !== 0 ? `, ${expressionTemplate} }` : `${expressionTemplate} }`;
-        updateModel(newField, model.closeBrace.position);
+    const isSingleLine = model.position.startLine === model.position.endLine;
+    const isEmpty = model.fields.length === 0;
+
+    const addNewExpression = () => {
+        const expressionTemplate = MAPPING_CONSTRUCTOR;
+        const newField = isEmpty ? expressionTemplate : `,\n${expressionTemplate}`;
+        const newPosition: NodePosition = isEmpty
+            ? {
+                ...model.closeBrace.position,
+                endColumn: model.closeBrace.position.startColumn
+            }
+            : {
+                startLine: model.fields[model.fields.length - 1].position.endLine,
+                startColumn:  model.fields[model.fields.length - 1].position.endColumn,
+                endLine: model.closeBrace.position.startLine,
+                endColumn: model.closeBrace.position.startColumn
+            }
+        updateModel(newField, newPosition);
     };
 
     return (
         <>
             <TokenComponent model={model.openBrace} />
-            <ExpressionArrayComponent expressions={model.fields} />
-            <span
-                className={statementEditorClasses.plusIcon}
-                onClick={onClickOnPlusIcon}
-            >
-                +
-            </span>
+            <ExpressionArrayComponent
+                expressions={model.fields}
+                modifiable={!isSingleLine}
+                arrayType={ArrayType.MAPPING_CONSTRUCTOR}
+            />
+            {(isEmpty || isSingleLine) && (<NewExprAddButton model={model} onClick={addNewExpression} />)}
             <TokenComponent model={model.closeBrace} />
         </>
     );

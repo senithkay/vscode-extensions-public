@@ -12,6 +12,7 @@ describe('Add worker to function via Low Code', () => {
     })
 
     it('Add a worker to function', () => {
+        cy.wait(10000);
         Canvas.getFunction("sampleFunction")
             .nameShouldBe("sampleFunction")
             .shouldBeExpanded()
@@ -23,7 +24,8 @@ describe('Add worker to function via Low Code', () => {
         WorkerForm
             .shouldBeVisible()
             .typeWorkerName("Test")
-            .save();
+            .save()
+            .waitForDiagramUpdate();
 
         SourceCode.shouldBeEqualTo(
             getCurrentSpecFolder() + "add-worker-to-function.expected.bal");

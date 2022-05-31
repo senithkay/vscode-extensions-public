@@ -31,7 +31,6 @@ export function ModuleIcon(props: ModuleIconProps) {
     const { node, module, cx, cy, width, scale } = props;
     const balCentralCdn = "https://bcentral-packageicons.azureedge.net/images";
     const iconWidth = width || 42;
-    const marginError = iconWidth / 4;
     let iconUrl = "";
     const defaultProps: DefaultIconProps = { scale: scale || 1, cx, cy, width: iconWidth };
 
@@ -43,17 +42,20 @@ export function ModuleIcon(props: ModuleIconProps) {
 
     if (node && (STKindChecker.isLocalVarDecl(node) || STKindChecker.isModuleVarDecl(node))) {
         let moduleInfo = node.typedBindingPattern.typeDescriptor?.typeData.typeSymbol?.moduleID;
+        if (STKindChecker.isUnionTypeDesc(node.typedBindingPattern.typeDescriptor)){
+            moduleInfo = node.typedBindingPattern.typeDescriptor?.leftTypeDesc.typeData.typeSymbol?.moduleID;
+        }
         if (STKindChecker.isArrayTypeDesc(node.typedBindingPattern.typeDescriptor)) {
             moduleInfo = node.typedBindingPattern.typeDescriptor?.typeData.typeSymbol?.memberTypeDescriptor.moduleID;
         }
-        iconUrl = moduleInfo
-            ? getIconUrl(balCentralCdn, moduleInfo.orgName, moduleInfo.moduleName, moduleInfo.version)
-            : "";
+        if (moduleInfo){
+            iconUrl = getIconUrl(balCentralCdn, moduleInfo.orgName, moduleInfo.moduleName, moduleInfo.version);
+        }
     } else if (node && STKindChecker.isActionStatement(node) && node.expression.expression.typeData?.symbol?.moduleID) {
         const moduleInfo = node.expression.expression.typeData?.symbol?.moduleID;
-        iconUrl = moduleInfo
-            ? getIconUrl(balCentralCdn, moduleInfo.orgName, moduleInfo.moduleName, moduleInfo.version)
-            : "";
+        if (moduleInfo){
+            iconUrl = getIconUrl(balCentralCdn, moduleInfo.orgName, moduleInfo.moduleName, moduleInfo.version);
+        }
     } else if (module && module.icon === "" && !showDefaultIcon) {
         setShowDefaultIcon(true);
     } else if (module) {

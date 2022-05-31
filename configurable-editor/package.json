@@ -1,6 +1,6 @@
 {
   "name": "@wso2-enterprise/ballerina-configurable-editor",
-  "version": "0.9.4",
+  "version": "1.0.0",
   "description": "Ballerina Configurable Editor",
   "files": [
     "build"
@@ -34,6 +34,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.15.5",
+    "@material-ui/lab": "^4.0.0-alpha.61",
     "@storybook/addon-actions": "^6.4.1",
     "@storybook/addon-essentials": "^6.4.1",
     "@storybook/addon-links": "^6.4.1",

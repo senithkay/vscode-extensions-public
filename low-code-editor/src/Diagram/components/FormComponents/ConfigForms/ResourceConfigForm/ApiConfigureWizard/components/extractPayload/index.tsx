@@ -57,7 +57,9 @@ export function PayloadEditor(props: PayloadEditorProps) {
         payloadTypeArray.push(initValue.type);
     }
 
-    const [segmentState, setSegmentState] = useState<Payload>(initValue);
+    const [payloadType, setPayloadType] = useState<string>(initValue.type);
+    const [payloadName, setPayloadName] = useState<string>(initValue.name);
+
     const [payloadVarNameError, setPayloadVarNameError] = useState<string>("");
     const payloadNode = extractPayloadFromSTNode(funcSignature?.parameters);
 
@@ -107,36 +109,28 @@ export function PayloadEditor(props: PayloadEditorProps) {
             onError(false);
             setPayloadVarNameError("");
         } else {
-            const validPayload = validatePayloadNameValue(segmentState.name);
+            const validPayload = validatePayloadNameValue(payloadName);
             onError(!validPayload);
         }
     }, [disabled]);
 
-    const onChangeSegmentType = (text: string) => {
-        const payloadSegment: Payload = {
-            ...segmentState,
-        };
-        payloadSegment.type = text;
-        setSegmentState(payloadSegment);
+    useEffect(() => {
         if (onChange) {
-            onChange(payloadSegment);
+            onChange({ name: payloadName, type: payloadType });
         }
+    }, [payloadName, payloadType]);
+
+    const onChangeSegmentType = (type: string) => {
+        setPayloadType(type);
     };
 
-    const onChangeSegmentName = (text: string) => {
-        const payloadSegment: Payload = {
-            ...segmentState,
-        };
-        payloadSegment.name = text;
-        setSegmentState(payloadSegment);
-        if (onChange) {
-            onChange(payloadSegment);
-        }
+    const onChangeSegmentName = (name: string) => {
+        setPayloadName(name);
     };
 
     const validatePayloadNameValue = (value: string) => {
         const varValidationResponse = checkVariableName("payload name", value,
-            segmentState.name, stSymbolInfo);
+            payloadName, stSymbolInfo);
         setPayloadVarNameError(varValidationResponse.message);
         if (varValidationResponse?.error) {
             onError(true);
@@ -167,7 +161,7 @@ export function PayloadEditor(props: PayloadEditorProps) {
     // }
     const variableTypeConfig: VariableTypeInputProps = {
         displayName: 'Payload type',
-        value: segmentState?.type,
+        value: payloadType,
         onValueChange: onChangeSegmentType,
         validateExpression,
         hideLabel: true,
@@ -175,7 +169,7 @@ export function PayloadEditor(props: PayloadEditorProps) {
         position: targetPosition,
         initialDiagnostics: payloadNode?.typeData?.diagnostics,
         diagnosticsFilterExtraColumns: {
-            end: 1 + segmentState?.name?.length,
+            end: 1 + payloadName.length,
         }
     }
 
@@ -204,7 +198,7 @@ export function PayloadEditor(props: PayloadEditorProps) {
                                 <FormTextInput
                                     dataTestId="api-extract-segment"
                                     disabled={disabled}
-                                    defaultValue={segmentState?.name}
+                                    defaultValue={payloadName}
                                     customProps={{ validate: validatePayloadNameValue }}
                                     onChange={onChangeSegmentName}
                                     errorMessage={payloadVarNameError}

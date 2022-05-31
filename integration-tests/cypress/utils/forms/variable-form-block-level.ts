@@ -1,5 +1,6 @@
 import { ExpressionEditor } from "../components/expression-editor"
 import { SelectDropDown } from "../components/select-drop-down";
+import { StatementEditorToggle } from "../components/statement-editor-toggle";
 
 export class VariableFormBlockLevel {
 
@@ -31,8 +32,14 @@ export class VariableFormBlockLevel {
     }
 
     static toggleInitializeVariable() {
-        this.getForm().get('.MuiSwitch-root')
+        this.getForm().get('[data-testid="initialize-varible"]')
             .click()
+        return this;
+    }
+
+    static toggleStatementEditor() {
+        StatementEditorToggle
+            .clickStatementEditorToggle()
         return this;
     }
 
@@ -79,8 +86,17 @@ export class VariableFormBlockLevel {
 
     static close() {
         this.getForm()
-        .get('.close-btn-wrap button')
-        .click();
+            .get('.close-btn-wrap button')
+            .click();
+    }
+
+    static waitForDiagramUpdate() {
+        cy.wait(20000);
+        cy.get(`[id="canvas-overlay"]`)
+            .children().should("have.length", 0)
+        cy.get(`[data-testid="diagram-loader"]`)
+            .should("not.exist")
+        return this;
     }
 
 }

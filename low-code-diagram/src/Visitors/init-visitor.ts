@@ -55,7 +55,7 @@ import { DraftStatementViewState } from "../ViewState/draft";
 import { WorkerDeclarationViewState } from "../ViewState/worker-declaration";
 
 import { DefaultConfig } from "./default";
-import { haveBlockStatement, isSTActionInvocation } from "./util";
+import { haveBlockStatement, isEndpointNode, isSTActionInvocation } from "./util";
 
 let allEndpoints: Map<string, Endpoint> = new Map<string, Endpoint>();
 let currentFnBody: FunctionBodyBlock | ExpressionFunctionBody;
@@ -85,6 +85,7 @@ export class InitVisitor implements Visitor {
                 viewState.initPlus = undefined;
             }
         }
+        allEndpoints = new Map<string, Endpoint>();
     }
 
     public beginVisitListenerDeclaration(node: ListenerDeclaration, parent?: STNode) {
@@ -147,11 +148,11 @@ export class InitVisitor implements Visitor {
 
     public beginVisitServiceDeclaration(node: ServiceDeclaration, parent?: STNode) {
         node.viewState = new ServiceViewState();
+        allEndpoints = new Map<string, Endpoint>();
     }
 
     public beginVisitFunctionBodyBlock(node: FunctionBodyBlock, parent?: STNode) {
         currentFnBody = node;
-        allEndpoints = new Map<string, Endpoint>();
         this.visitBlock(node, parent);
     }
 
@@ -281,8 +282,7 @@ export class InitVisitor implements Visitor {
         // todo: Check if this is the function to replace beginVisitExpressionStatement
         node.viewState = new BlockViewState();
         currentFnBody = node;
-        allEndpoints = new Map<string, Endpoint>();
-        // this.visitBlock(node, parent);
+
         node.viewState.isEndComponentAvailable = true;
     }
 
@@ -371,12 +371,10 @@ export class InitVisitor implements Visitor {
 
         if (STKindChecker.isLocalVarDecl(node)) {
             // Check whether node is an endpoint initialization.
-            if (node.typeData && node.typeData.isEndpoint) {
+            if (isEndpointNode(node)) {
                 const bindingPattern: CaptureBindingPattern = node.typedBindingPattern.bindingPattern as CaptureBindingPattern;
                 stmtViewState.endpoint.epName = bindingPattern.variableName.value;
-                const endpoint = allEndpoints.get(stmtViewState.endpoint.epName);
-                if (endpoint) {
-                    const vEp = endpoint.visibleEndpoint;
+                if (allEndpoints.has(stmtViewState.endpoint.epName)){
                     stmtViewState.isEndpoint = true;
                 }
             }

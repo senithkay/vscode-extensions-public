@@ -16,9 +16,11 @@
         "clean": "rimraf build/",
         "clean:nm": "rimraf node_modules",
         "lint": "tslint --project .",
-        "lint:fix": "tslint --fix --project ."
+        "lint:fix": "tslint --fix --project .",
+        "storybook": "node tools/setup-storybook.js"
     },
     "dependencies": {
+        "@wso2-enterprise/ballerina-languageclient": "^1.0.0",
         "@wso2-enterprise/syntax-tree": "^1.0.0",
         "@wso2-enterprise/ballerina-low-code-edtior-commons": "^1.0.0",
         "@wso2-enterprise/ballerina-low-code-edtior-ui-components": "^1.0.0",
@@ -108,7 +110,8 @@
         "typescript": "^4.1.3",
         "webpack": "^5.50.0",
         "webpack-cli": "^4.8.0",
-        "webpack-dev-server": "^4.1.1"
+        "webpack-dev-server": "^4.1.1",
+        "mousetrap": "^1.6.5"
     },
     "peerDependencies": {
         "@material-ui/core": "^4.9.13",

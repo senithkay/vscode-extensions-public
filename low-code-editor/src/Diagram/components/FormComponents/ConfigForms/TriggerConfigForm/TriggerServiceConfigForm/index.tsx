@@ -74,26 +74,6 @@ export function TriggerForm(props: FormGeneratorProps) {
         setNewChannel(false);
     }
 
-    // TODO: The function needs to be removed once the default value is added from the ballerina central trigger api
-    // This function will add the defaultValue property to the linstenerParams
-    const handleListenerParamTypes = (triggerData: BallerinaTriggerResponse, triggerlabel: string) => {
-        // TODO: Need to perform the below logic after checking the 'listenerConfig' type
-        const listenerParamFields = triggerData.listenerParams[0].fields;
-        const paramField = listenerParamFields.map((params) => {
-            if (params.typeName === "string") {
-                return { ...params, defaultValue: "\"\"" }
-            } else if (params.typeName === "enum") {
-                return { ...params, defaultValue: `${triggerlabel}:${params.members[0].typeName}` }
-            } else if (params.typeName === "union") {
-                return { ...params, defaultValue: params.members[0].typeName }
-            } else if (params.typeName === "int") {
-                return { ...params, defaultValue: 0 }
-            }
-        })
-        triggerData.listenerParams[0] = { ...triggerData.listenerParams[0], fields: paramField }
-        return triggerData.listenerParams;
-    }
-
     const createTriggerCode = () => {
         let httpBased: boolean = true;
         const triggerId = triggerInfo.moduleName.split(".");
@@ -103,13 +83,11 @@ export function TriggerForm(props: FormGeneratorProps) {
         if (triggerAlias === 'asb' || triggerAlias === 'salesforce') {
             httpBased = false;
         }
-        const newListenerParams = handleListenerParamTypes(triggerInfo, triggerAlias)
         const newTriggerInfo = {
             ...triggerInfo,
             serviceTypes,
             triggerType: triggerAlias,
-            httpBased,
-            listenerParams: newListenerParams
+            httpBased
         };
         // This is for initial imports only. Initially stModification import for nonHttpBased triggers
         const stModification = [
@@ -198,7 +176,6 @@ export function TriggerForm(props: FormGeneratorProps) {
             <FormControl data-testid="trigger-form" className={formClasses.wizardFormControl}>
                 <FormHeaderSection
                     onCancel={onCancel}
-                    statementEditor={false}
                     formTitle={"lowcode.develop.triggerConfigForm.trigger.header.title"}
                     defaultMessage={`${label} Trigger`}
                 />

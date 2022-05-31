@@ -16,98 +16,166 @@ import { useIntl } from "react-intl";
 
 import {
     PrimaryButton,
-    SecondaryButton
+    SecondaryButton,
+    StatementEditorButton
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
+import { ModuleVarDecl } from "@wso2-enterprise/syntax-tree";
 
+import { EditorModel } from "../../models/definitions";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { getModifications } from "../../utils";
-import { sendDidChange, sendDidClose, sendDidOpen } from "../../utils/ls-utils";
+import { sendDidChange, sendDidClose } from "../../utils/ls-utils";
+import Breadcrumb from "../Breadcrumb";
+import { CloseButton } from "../Button/CloseButton";
 import { EditorPane } from '../EditorPane';
 import { useStatementEditorStyles } from "../styles";
 
 export interface ViewContainerProps {
-    label: string;
-    formArgs: any;
     isStatementValid: boolean;
-    onWizardClose: () => void;
-    onCancel: () => void;
+    isConfigurableStmt: boolean;
 }
 
 export function ViewContainer(props: ViewContainerProps) {
     const {
-        label,
-        formArgs,
         isStatementValid,
-        onWizardClose,
-        onCancel
+        isConfigurableStmt
     } = props;
     const intl = useIntl();
     const overlayClasses = useStatementEditorStyles();
-    const stmtCtx = useContext(StatementEditorContext);
+    const {
+        currentFile,
+        config,
+        applyModifications,
+        getLangClient,
+        onCancel,
+        onWizardClose
+    } = useContext(StatementEditorContext);
     const {
         modelCtx: {
             statementModel
         },
-        getLangClient,
-        applyModifications,
-        currentFile,
-        config,
         modules: {
             modulesToBeImported
-        }
-    } = stmtCtx;
+        },
+        editorCtx: {
+            editors,
+            dropLastEditor,
+            updateEditor,
+            activeEditorId
+        },
+        targetPosition,
+        experimentalEnabled,
+        handleStmtEditorToggle
+    } =  useContext(StatementEditorContext);
     const exprSchemeURI = `expr://${currentFile.path}`;
     const fileSchemeURI = `file://${currentFile.path}`;
 
-    const saveVariableButtonText = intl.formatMessage({
-        id: "lowcode.develop.configForms.variable.saveButton.text",
+    const saveButtonText = intl.formatMessage({
+        id: "lowcode.develop.configForms.statementEditor.saveButton.text",
         defaultMessage: "Save"
     });
 
-    const cancelVariableButtonText = intl.formatMessage({
-        id: "lowcode.develop.configForms.variable.cancelButton.text",
+    const cancelButtonText = intl.formatMessage({
+        id: "lowcode.develop.configForms.statementEditor.cancelButton.text",
         defaultMessage: "Cancel"
     });
 
-    const onSaveClick = () => {
-        sendDidClose(exprSchemeURI, getLangClient).then();
-        sendDidOpen(fileSchemeURI, currentFile.content, getLangClient).then();
-        const modifications = getModifications(statementModel, config, formArgs, Array.from(modulesToBeImported) as string[]);
-        applyModifications(modifications);
+    const addConfigurableButtonText = intl.formatMessage({
+        id: "lowcode.develop.configForms.statementEditor.addConfigurableButton.text",
+        defaultMessage: "Add"
+    });
+
+    const backButtonText = intl.formatMessage({
+        id: "lowcode.develop.configForms.statementEditor.backButton.text",
+        defaultMessage: "Back"
+    });
+
+    const onSaveClick = async () => {
+        await handleModifications();
         onWizardClose();
-        sendDidClose(fileSchemeURI, getLangClient).then();
+        await sendDidClose(fileSchemeURI, getLangClient);
+    };
+
+    const onAddConfigurableClick = async () => {
+        await handleModifications();
+
+        const model = statementModel as ModuleVarDecl;
+
+        const noOfLines = editors[activeEditorId].isExistingStmt ? 0 : model.source.split('\n').length;
+        const nextEditor: EditorModel = editors[activeEditorId - 1];
+
+        updateEditor(activeEditorId - 1, {
+            ...nextEditor,
+            newConfigurableName : model.typedBindingPattern.bindingPattern.source
+        });
+
+        dropLastEditor(noOfLines);
+    };
+
+    const onBackClick = async () => {
+        await handleClose();
+        dropLastEditor();
     };
 
     const onCancelClick = async () => {
-        await sendDidChange(exprSchemeURI, currentFile.content, getLangClient);
-        sendDidClose(exprSchemeURI, getLangClient).then();
+        await handleClose();
         onCancel();
-    }
+    };
+
+    const handleModifications = async () => {
+        await sendDidClose(exprSchemeURI, getLangClient);
+        await sendDidChange(fileSchemeURI, currentFile.content, getLangClient);
+        const imports = Array.from(modulesToBeImported) as string[];
+        const modifications = getModifications(statementModel, config.type, targetPosition, imports);
+        applyModifications(modifications);
+    };
+
+    const handleClose = async () => {
+        await sendDidChange(exprSchemeURI, currentFile.content, getLangClient);
+        await sendDidClose(exprSchemeURI, getLangClient);
+    };
 
     return (
         (
-            <div className={overlayClasses.mainStatementWrapper}>
-                <div className={overlayClasses.statementExpressionWrapper}>
-                    <EditorPane
-                        label={label}
-                    />
+            <div className={overlayClasses.mainStatementWrapper} data-testid="statement-editor">
+                <div className={overlayClasses.statementEditorHeader}>
+                    <Breadcrumb/>
+                    <div className={overlayClasses.closeButton} data-testid="close-btn">
+                        {onCancel && <CloseButton onCancel={onCancel} />}
+                    </div>
                 </div>
-                <div className={overlayClasses.statementBtnWrapper}>
-                    <div className={overlayClasses.bottomPane}>
-                        <div className={overlayClasses.buttonWrapper}>
-                            <SecondaryButton
-                                text={cancelVariableButtonText}
-                                fullWidth={false}
-                                onClick={onCancelClick}
+                <div
+                    className={`${overlayClasses.statementExpressionWrapper} ${
+                        activeEditorId !== editors.length - 1 && 'overlay'}`
+                    }
+                >
+                    <EditorPane data-testid="editor-pane"/>
+                </div>
+                <div className={overlayClasses.footer}>
+                    <div className={overlayClasses.stmtEditorToggle}>
+                        {experimentalEnabled && (
+                            <StatementEditorButton
+                                handleChange={handleStmtEditorToggle}
+                                checked={true}
+                                disabled={editors.length > 1}
                             />
-                            <PrimaryButton
-                                dataTestId="save-btn"
-                                text={saveVariableButtonText}
-                                disabled={!isStatementValid}
-                                fullWidth={false}
-                                onClick={onSaveClick}
-                            />
-                        </div>
+                        )}
+                    </div>
+                    <div className={overlayClasses.buttonWrapper}>
+                        <SecondaryButton
+                            text={isConfigurableStmt ? backButtonText : cancelButtonText}
+                            disabled={activeEditorId !== editors.length - 1}
+                            fullWidth={false}
+                            onClick={isConfigurableStmt ? onBackClick : onCancelClick}
+                            dataTestId="cancel-btn"
+                        />
+                        <PrimaryButton
+                            dataTestId="save-btn"
+                            text={isConfigurableStmt ? addConfigurableButtonText : saveButtonText}
+                            disabled={!isStatementValid || activeEditorId !== editors.length - 1}
+                            fullWidth={false}
+                            onClick={isConfigurableStmt ? onAddConfigurableClick : onSaveClick}
+                        />
                     </div>
                 </div>
             </div>

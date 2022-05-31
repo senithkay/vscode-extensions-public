@@ -11,35 +11,108 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 
 import {
+    FormControl,
     Input, InputAdornment, List, ListItem, ListItemText, Typography
 } from "@material-ui/core";
+import { STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import LibrarySearchIcon from "../../../assets/icons/LibrarySearchIcon";
+import { CONFIGURABLE_VALUE_REQUIRED_TOKEN, QUERY_INTERMEDIATE_CLAUSES } from "../../../constants";
 import { InputEditorContext } from "../../../store/input-editor-context";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
-import { Expression, ExpressionGroup, expressions, SELECTED_EXPRESSION } from "../../../utils/expressions";
-import { useStatementEditorStyles } from "../../styles";
+import {
+    Expression,
+    ExpressionGroup,
+    expressions,
+    EXPR_PLACEHOLDER,
+    SELECTED_EXPRESSION
+} from "../../../utils/expressions";
+import { KeyboardNavigationManager } from "../../../utils/keyboard-navigation-manager";
+import { useStatementEditorStyles, useStmtEditorHelperPanelStyles  } from "../../styles";
 
 export function ExpressionSuggestions() {
+    const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
     const statementEditorClasses = useStatementEditorStyles();
     const inputEditorCtx = useContext(InputEditorContext);
     const [keyword, setKeyword] = useState('');
     const [filteredExpressions, setFilteredExpressions] = useState(expressions);
+    const [selectedGroup, setSelectedGroup] = React.useState(0);
+    const [selectedListItem, setSelectedItem] = React.useState(0);
+
     const {
         modelCtx: {
             currentModel,
             updateModel,
+            newQueryPosition,
+            setNewQueryPos
         }
     } = useContext(StatementEditorContext);
 
     const onClickExpressionSuggestion = (expression: Expression) => {
-        const text = expression.template.replace(SELECTED_EXPRESSION, currentModel.model.source.trim());
-        updateModel(text, currentModel.model.position);
+        const currentModelSource = currentModel.model.source
+            ? currentModel.model.source.trim()
+            : currentModel.model.value.trim();
+        const text = currentModelSource !== CONFIGURABLE_VALUE_REQUIRED_TOKEN
+            ? expression.template.replace(SELECTED_EXPRESSION, currentModelSource)
+            : expression.template.replace(SELECTED_EXPRESSION, EXPR_PLACEHOLDER);
+        newQueryPosition ? updateModel(`\n${text}`, newQueryPosition) : updateModel(text, currentModel.model.position);
+        setNewQueryPos(null)
         inputEditorCtx.onInputChange('');
     }
+
+    useEffect(() => {
+        if (currentModel.model) {
+            let filteredGroups: ExpressionGroup[] = expressions.filter(
+                (exprGroup) => exprGroup.relatedModelType === currentModel.model.viewState.modelType);
+            if (newQueryPosition){
+                filteredGroups = expressions.filter(
+                    (exprGroup) =>  exprGroup.name === QUERY_INTERMEDIATE_CLAUSES);
+            }
+            setFilteredExpressions(filteredGroups);
+        }
+    }, [currentModel.model, newQueryPosition]);
+
+    const changeSelected = (key: number) => {
+        const newSelected = selectedListItem + key;
+        if (newSelected >= 0 && newSelected < filteredExpressions[selectedGroup].expressions.length){
+            setSelectedItem(newSelected)
+        }
+        else if (newSelected < 0){
+            if (selectedGroup > 0) {
+                const newGroup = selectedGroup - 1;
+                setSelectedGroup(newGroup)
+                setSelectedItem(filteredExpressions[newGroup].expressions.length - 1)
+            }
+        }
+        else {
+            if (selectedGroup < filteredExpressions.length - 1){
+                const newGroup = selectedGroup + 1;
+                setSelectedGroup(newGroup)
+                setSelectedItem(0)
+            }
+
+        }
+    }
+
+    const keyboardNavigationManager = new KeyboardNavigationManager()
+
+    React.useEffect(() => {
+
+        const client = keyboardNavigationManager.getClient()
+
+        keyboardNavigationManager.bindNewKey(client, ['right'], changeSelected, 1);
+        keyboardNavigationManager.bindNewKey(client, ['left'], changeSelected, -1);
+        keyboardNavigationManager.bindNewKey(client, ['up'], changeSelected, -2);
+        keyboardNavigationManager.bindNewKey(client, ['down'], changeSelected, 2);
+        keyboardNavigationManager.bindNewKey(client, ['enter'], onClickExpressionSuggestion, filteredExpressions[selectedGroup].expressions[selectedListItem]);
+
+        return () => {
+            keyboardNavigationManager.resetMouseTrapInstance(client)
+        }
+    }, [selectedListItem]);
 
     const searchExpressions = (searchValue: string) => {
         setKeyword(searchValue);
@@ -52,7 +125,8 @@ export function ExpressionSuggestions() {
             if (filtered.length > 0) {
                 filteredGroups.push({
                     name: group.name,
-                    expressions: filtered
+                    expressions: filtered,
+                    relatedModelType: group.relatedModelType
                 })
             }
         });
@@ -61,53 +135,63 @@ export function ExpressionSuggestions() {
 
     return (
         <>
-            <div className={statementEditorClasses.expressionSuggestionList}>
-                <Input
-                    className={statementEditorClasses.librarySearchBox}
-                    value={keyword}
-                    placeholder={`Search Expression`}
-                    onChange={(e) => searchExpressions(e.target.value)}
-                    endAdornment={(
-                        <InputAdornment position={"end"} style={{ padding: '8.5px' }}>
-                            <LibrarySearchIcon />
-                        </InputAdornment>
-                    )}
-                />
-                {!!filteredExpressions.length && (
-                    <>
-                        {filteredExpressions.map((group) => (
-                            <>
-                                <h3 className={statementEditorClasses.librarySearchSubHeader}>{group.name}</h3>
-                                <List className={statementEditorClasses.expressionList}>
-                                    {
-                                        group.expressions.map((expression, index) => (
-                                            <ListItem
-                                                button={true}
-                                                className={statementEditorClasses.suggestionListItem}
-                                                key={index}
-                                                onClick={() => onClickExpressionSuggestion(expression)}
-                                                disableRipple={true}
-                                            >
-                                                <ListItemText
-                                                    title={expression.name}
-                                                    primary={(
-                                                        <Typography>
-                                                            {expression.example}
-                                                        </Typography>
-                                                    )}
-                                                />
-                                            </ListItem>
-                                        ))
-                                    }
-                                </List>
-                            </>
-                        ))}
-                    </>
+
+            <div className={stmtEditorHelperClasses.expressionSuggestionList} data-testid="expression-list">
+                <FormControl style={{ width: '100%', padding: '0 25px'}}>
+                    <Input
+                        className={stmtEditorHelperClasses.librarySearchBox}
+                        value={keyword}
+                        placeholder={`Search Expression`}
+                        onChange={(e) => searchExpressions(e.target.value)}
+                        endAdornment={(
+                            <InputAdornment position={"end"} style={{ padding: '8.5px' }}>
+                                <LibrarySearchIcon />
+                            </InputAdornment>
+                        )}
+                    />
+                </FormControl>
+                {!filteredExpressions.length && (
+                    <div className={statementEditorClasses.stmtEditorInnerWrapper}>
+                        <p>Expressions not available</p>
+                    </div>
                 )}
+                <div className={statementEditorClasses.stmtEditorExpressionWrapper}>
+                    {!!filteredExpressions.length && (
+                        <>
+                            {filteredExpressions.map((group, groupIndex) => (
+                                <>
+                                    <div className={stmtEditorHelperClasses.librarySearchSubHeader}>{group.name}</div>
+                                    <List className={stmtEditorHelperClasses.expressionList}>
+                                        {
+                                            group.expressions.map((expression, index) => (
+                                                <ListItem
+                                                    button={true}
+                                                    className={stmtEditorHelperClasses.expressionListItem}
+                                                    key={index}
+                                                    selected={groupIndex === selectedGroup && index === selectedListItem}
+                                                    onClick={() => onClickExpressionSuggestion(expression)}
+                                                    disableRipple={true}
+                                                >
+                                                    <ListItemText
+                                                        data-testid="expression-title"
+                                                        title={expression.name}
+                                                        primary={(
+                                                            <Typography style={{ fontFamily: 'monospace' }}>
+                                                                {expression.example}
+                                                            </Typography>
+                                                        )}
+                                                    />
+                                                </ListItem>
+                                            ))
+                                        }
+                                    </List>
+                                    <div className={statementEditorClasses.separatorLine} />
+                                </>
+                            ))}
+                        </>
+                    )}
+                </div>
             </div>
-            {!filteredExpressions.length && (
-                <p className={statementEditorClasses.noSuggestionText}>Expressions not available</p>
-            )}
         </>
     );
 }

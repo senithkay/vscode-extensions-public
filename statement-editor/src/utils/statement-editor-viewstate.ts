@@ -10,11 +10,29 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+export enum ModelType {
+    EXPRESSION,
+    OPERATOR,
+    BINDING_PATTERN,
+    TYPE_DESCRIPTOR,
+    QUERY_CLAUSE,
+    METHOD_CALL,
+    FIELD_ACCESS,
+    QUERY_EXPRESSION
+}
+
 export class StatementEditorViewState {
     public exprNotDeletable: boolean = false;
     public templateExprDeletable: boolean = false;
     public isWithinBlockStatement: boolean = false;
-    public isTypeDescriptor: boolean = false;
-    public isOperator: boolean = false;
-    public isBindingPattern: boolean = false;
+    public modelType: ModelType = ModelType.EXPRESSION;
+    public multilineConstructConfig: MultilineConstructConfig = {
+        isFieldWithNewLine: false,
+        isClosingBraceWithNewLine: false
+    };
+}
+
+interface MultilineConstructConfig {
+    isFieldWithNewLine?: boolean;
+    isClosingBraceWithNewLine?: boolean;
 }

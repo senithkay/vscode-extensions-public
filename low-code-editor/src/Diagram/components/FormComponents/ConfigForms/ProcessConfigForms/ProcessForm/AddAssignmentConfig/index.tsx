@@ -43,6 +43,8 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
         props: {
             isMutationProgress: isMutationInProgress,
             currentFile,
+            syntaxTree,
+            stSymbolInfo,
             importStatements,
             experimentalEnabled
         },
@@ -96,6 +98,11 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
     const cancelVariableButtonText = intl.formatMessage({
         id: "lowcode.develop.configForms.assignment.cancelButton.text",
         defaultMessage: "Cancel"
+    });
+
+    const formTitle = intl.formatMessage({
+        id: "lowcode.develop.configForms.assignment.title",
+        defaultMessage: "Assignment"
     });
 
     const validForm: boolean = varName.length > 0 && variableExpression.length > 0;
@@ -174,10 +181,9 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
 
     const { handleStmtEditorToggle, stmtEditorComponent } = useStatementEditor(
         {
-            label: intl.formatMessage({ id: "lowcode.develop.configForms.assignment.statementEditor.label", defaultMessage: 'Assignment' }),
+            label: formTitle,
             initialSource,
             formArgs: { formArgs },
-            validForm,
             config,
             onWizardClose,
             handleStatementEditorChange,
@@ -186,6 +192,8 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
             getLangClient: getExpressionEditorLangClient,
             applyModifications: modifyDiagram,
             library,
+            syntaxTree,
+            stSymbolInfo,
             importStatements,
             experimentalEnabled
         }
@@ -196,12 +204,8 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
             <FormControl data-testid="property-form" className={classes.wizardFormControl}>
                 <FormHeaderSection
                     onCancel={onCancel}
-                    statementEditor={true}
-                    formTitle={"lowcode.develop.configForms.assignment.title"}
+                    formTitle={formTitle}
                     defaultMessage={"Assignment"}
-                    handleStmtEditorToggle={handleStmtEditorToggle}
-                    toggleChecked={false}
-                    experimentalEnabled={experimentalEnabled}
                 />
                 <div className={classes.formContentWrapper}>
                     <div className={classes.formNameWrapper}>
@@ -226,6 +230,10 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
                     saveBtnText={saveVariableButtonText}
                     isMutationInProgress={isMutationInProgress}
                     validForm={validForm}
+                    statementEditor={true}
+                    toggleChecked={false}
+                    experimentalEnabled={experimentalEnabled}
+                    handleStmtEditorToggle={handleStmtEditorToggle}
                     onSave={handleSave}
                     onCancel={onCancel}
                 />

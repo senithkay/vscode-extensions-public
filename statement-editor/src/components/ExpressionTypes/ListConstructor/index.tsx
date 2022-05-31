@@ -15,10 +15,10 @@ import React, { useContext } from "react";
 
 import { ListConstructor } from "@wso2-enterprise/syntax-tree";
 
-import { APPEND_EXPR_LIST_CONSTRUCTOR, INIT_EXPR_LIST_CONSTRUCTOR } from "../../../constants";
+import { EXPR_CONSTRUCTOR } from "../../../constants";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
+import { NewExprAddButton } from "../../Button/NewExprAddButton";
 import { ExpressionArrayComponent } from "../../ExpressionArray";
-import { useStatementEditorStyles } from "../../styles";
 import { TokenComponent } from "../../Token";
 
 interface ListConstructorProps {
@@ -34,24 +34,26 @@ export function ListConstructorComponent(props: ListConstructorProps) {
         }
     } = stmtCtx;
 
-    const statementEditorClasses = useStatementEditorStyles();
-
-    const onClickOnPlusIcon = (event: any) => {
-        event.stopPropagation();
-        const newExpression = model.expressions.length !== 0 ? APPEND_EXPR_LIST_CONSTRUCTOR : INIT_EXPR_LIST_CONSTRUCTOR;
-        updateModel(newExpression, model.closeBracket.position);
+    const addNewExpression = () => {
+        const isEmpty = model.expressions.length === 0;
+        const expr = isEmpty ? EXPR_CONSTRUCTOR : `, ${EXPR_CONSTRUCTOR}`;
+        const newPosition = isEmpty ? {
+            ...model.closeBracket.position,
+            endColumn: model.closeBracket.position.startColumn
+        } : {
+            startLine: model.expressions[model.expressions.length - 1].position.endLine,
+            startColumn: model.expressions[model.expressions.length - 1].position.endColumn,
+            endLine: model.closeBracket.position.startLine,
+            endColumn: model.closeBracket.position.startColumn
+        }
+        updateModel(expr, newPosition);
     };
 
     return (
         <>
             <TokenComponent model={model.openBracket} />
             <ExpressionArrayComponent expressions={model.expressions} />
-            <span
-                className={statementEditorClasses.plusIcon}
-                onClick={onClickOnPlusIcon}
-            >
-                +
-            </span>
+            <NewExprAddButton model={model} onClick={addNewExpression}/>
             <TokenComponent model={model.closeBracket} />
         </>
     );

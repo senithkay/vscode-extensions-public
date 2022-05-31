@@ -62,6 +62,8 @@ export function AddIfForm(props: IfProps) {
         props: {
             isMutationProgress: isMutationInProgress,
             currentFile,
+            syntaxTree,
+            stSymbolInfo,
             importStatements,
             experimentalEnabled
         },
@@ -214,6 +216,11 @@ export function AddIfForm(props: IfProps) {
         defaultMessage: "Cancel",
     });
 
+    const formTitle = intl.formatMessage({
+        id: "lowcode.develop.configForms.if.title",
+        defaultMessage: "If"
+    });
+
     const validForm = compList.every((item) => item.isValid) && compList[0]?.expression !== "";
 
     const getCompleteSource = () => {
@@ -245,6 +252,8 @@ export function AddIfForm(props: IfProps) {
                         return statement.source
                     })
                 ));
+            } else {
+                source = source + "}";
             }
 
         }
@@ -268,10 +277,9 @@ export function AddIfForm(props: IfProps) {
 
     const { handleStmtEditorToggle, stmtEditorComponent } = useStatementEditor(
         {
-            label: intl.formatMessage({ id: "lowcode.develop.configForms.if.statementEditor.label" }),
+            label: formTitle,
             initialSource,
             formArgs: { formArgs },
-            validForm,
             config: condition,
             onWizardClose,
             handleStatementEditorChange,
@@ -280,6 +288,8 @@ export function AddIfForm(props: IfProps) {
             getLangClient: getExpressionEditorLangClient,
             applyModifications: modifyDiagram,
             library,
+            syntaxTree,
+            stSymbolInfo,
             importStatements,
             experimentalEnabled
         }
@@ -322,12 +332,8 @@ export function AddIfForm(props: IfProps) {
             <FormControl data-testid="if-form" className={classes.wizardFormControl}>
                 <FormHeaderSection
                     onCancel={onCancel}
-                    statementEditor={true}
-                    formTitle={"lowcode.develop.configForms.if.title"}
+                    formTitle={formTitle}
                     defaultMessage={"If"}
-                    handleStmtEditorToggle={handleStmtEditorToggle}
-                    toggleChecked={false}
-                    experimentalEnabled={experimentalEnabled}
                 />
                 <div className={classes.formContentWrapper}>
                     <div className={classes.formCodeBlockWrapper}>
@@ -379,6 +385,10 @@ export function AddIfForm(props: IfProps) {
                     saveBtnText={saveIfConditionButtonLabel}
                     isMutationInProgress={isMutationInProgress}
                     validForm={validForm}
+                    statementEditor={true}
+                    toggleChecked={false}
+                    experimentalEnabled={experimentalEnabled}
+                    handleStmtEditorToggle={handleStmtEditorToggle}
                     onSave={handleOnSaveClick}
                     onCancel={onCancel}
                 />

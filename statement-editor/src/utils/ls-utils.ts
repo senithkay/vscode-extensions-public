@@ -15,7 +15,7 @@ import {
     CompletionResponse,
     ExpressionEditorLangClientInterface,
     PartialSTRequest,
-    PublishDiagnosticsParams
+    PublishDiagnosticsParams, SymbolInfoResponse
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     NodePosition,
@@ -25,18 +25,27 @@ import {
 
 import {
     acceptedCompletionKindForExpressions,
-    acceptedCompletionKindForTypes
-} from "../components/InputEditor/constants";
+    acceptedCompletionKindForTypes,
+    PROPERTY_COMPLETION_KIND
+} from "../constants";
 import { CurrentModel, SuggestionItem } from '../models/definitions';
 
-import { sortSuggestions } from "./index";
-import { StatementEditorViewState } from "./statement-editor-viewstate";
+import { getSymbolPosition, sortSuggestions } from "./index";
+import { ModelType, StatementEditorViewState } from "./statement-editor-viewstate";
 
 export async function getPartialSTForStatement(
             partialSTRequest: PartialSTRequest,
             getLangClient: () => Promise<ExpressionEditorLangClientInterface>): Promise<STNode> {
     const langClient: ExpressionEditorLangClientInterface = await getLangClient();
     const resp = await langClient.getSTForSingleStatement(partialSTRequest);
+    return resp.syntaxTree;
+}
+
+export async function getPartialSTForModuleMembers(
+            partialSTRequest: PartialSTRequest,
+            getLangClient: () => Promise<ExpressionEditorLangClientInterface>): Promise<STNode> {
+    const langClient: ExpressionEditorLangClientInterface = await getLangClient();
+    const resp = await langClient.getSTForModuleMembers(partialSTRequest);
     return resp.syntaxTree;
 }
 
@@ -56,12 +65,13 @@ export async function getCompletions (docUri: string,
                                       userInput: string = ''
                                     ) : Promise<SuggestionItem[]> {
 
-    const isTypeDescriptor = (currentModel.model.viewState as StatementEditorViewState).isTypeDescriptor;
+    const isTypeDescriptor = (currentModel.model.viewState as StatementEditorViewState).modelType === ModelType.TYPE_DESCRIPTOR;
     const varName = STKindChecker.isLocalVarDecl(completeModel)
         && completeModel.typedBindingPattern.bindingPattern.source.trim();
     const currentModelPosition = currentModel.model.position;
-    const currentModelSource = STKindChecker.isIdentifierToken(currentModel.model) ?
-        currentModel.model.value.trim() : currentModel.model.source.trim();
+    const currentModelSource = currentModel.model.source
+        ? currentModel.model.source.trim()
+        : currentModel.model.value.trim();
     const suggestions: SuggestionItem[] = [];
 
     const completionParams: CompletionParams = {
@@ -103,7 +113,28 @@ export async function getCompletions (docUri: string,
     filteredCompletionItems.sort(sortSuggestions);
 
     filteredCompletionItems.map((completion) => {
-        suggestions.push({ value: completion.label, kind: completion.detail, suggestionType: completion.kind  });
+        let updatedInsertText = completion.insertText;
+        const isProperty = completion.kind === PROPERTY_COMPLETION_KIND;
+        if (isProperty) {
+            const regex = /\${\d+:?(""|0|0.0|false|\(\)|xml ``|{})?}/gm;
+            let placeHolder;
+            // tslint:disable-next-line:no-conditional-assignment
+            while ((placeHolder = regex.exec(completion.insertText)) !== null) {
+                // This is necessary to avoid infinite loops with zero-width matches
+                if (placeHolder.index === regex.lastIndex) {
+                    regex.lastIndex++;
+                }
+                updatedInsertText = updatedInsertText.replace(placeHolder[0], placeHolder[1] || '');
+            }
+        }
+        suggestions.push(
+            {
+                value: completion.label,
+                kind: completion.detail,
+                insertText: isProperty && updatedInsertText,
+                completionKind: completion.kind
+            }
+        );
     });
 
     return suggestions;
@@ -166,50 +197,22 @@ export async function getDiagnostics(
     return diagnostics;
 }
 
-export async function addStatementToTargetLine(
-            currentFileContent: string,
-            position: NodePosition,
-            currentStatement: string,
-            getLangClient: () => Promise<ExpressionEditorLangClientInterface>): Promise<string> {
-    const modelContent: string[] = currentFileContent.split(/\n/g) || [];
-    if (position?.startColumn && position?.endColumn && position?.endLine) {
-        return getModifiedStatement(currentFileContent, currentStatement, position, getLangClient);
-    } else {
-        // TODO: Change the backend to accomodate STModifications without endline and endcolumn values and then remove the following logic
-        // Issue: https://github.com/wso2-enterprise/choreo/issues/11069
-        if (!!position?.startColumn) {
-            currentStatement = " ".repeat(position.startColumn) + currentStatement;
+export async function getSymbolDocumentation(
+    docUri: string,
+    targetPosition: NodePosition,
+    currentModel: STNode,
+    getLangClient: () => Promise<ExpressionEditorLangClientInterface>,
+    userInput: string = ''): Promise<SymbolInfoResponse> {
+    const langClient = await getLangClient();
+    const symbolPos = getSymbolPosition(targetPosition, currentModel, userInput);
+    const symbolDoc = await  langClient.getSymbolDocumentation({
+        textDocumentIdentifier : {
+            uri: docUri
+        },
+        position: {
+            line: symbolPos.line,
+            character: symbolPos.offset
         }
-        modelContent.splice(position?.startLine, 0, currentStatement);
-        return modelContent.join('\n');
-    }
-}
-
-export async function addImportStatements(
-            currentFileContent: string,
-            modulesToBeImported: string[]): Promise<string> {
-    let moduleList : string = "";
-    modulesToBeImported.forEach(module => {
-        moduleList += "import " + module + "; ";
-   });
-    return moduleList + currentFileContent;
-}
-
-async function getModifiedStatement(
-            currentFileContent: string,
-            codeSnippet: string,
-            position: NodePosition,
-            getLangClient: () => Promise<ExpressionEditorLangClientInterface>): Promise<string> {
-    const stModification = {
-        startLine: position.startLine,
-        startColumn: position.startColumn,
-        endLine: position.endLine,
-        endColumn: position.endColumn,
-        newCodeSnippet: codeSnippet
-    }
-    const partialST: STNode = await getPartialSTForStatement({
-        codeSnippet: currentFileContent,
-        stModification
-    }, getLangClient);
-    return partialST.source;
+    });
+    return symbolDoc;
 }

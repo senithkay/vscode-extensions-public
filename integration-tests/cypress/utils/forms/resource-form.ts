@@ -78,6 +78,16 @@ export class ResourceForm {
         ;
         return this;
     }
+
+    static typePayloadName(payloadName: string) {
+        const clearKeyStroke = "{selectall}{del}";
+        this.getForm()
+            .get('[data-testid="api-extract-segment"]')
+            .click()
+            .type(clearKeyStroke)
+            .type(payloadName);
+        return this;
+    }
     
     static clickAddQueryParam() {
         this.getForm()

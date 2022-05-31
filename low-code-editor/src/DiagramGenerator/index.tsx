@@ -63,6 +63,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     const getLibrariesData: () => Promise<LibrarySearchResponse | undefined> = props.getLibrariesData;
     const getLibraryData: (orgName: string, moduleName: string, version: string) => Promise<LibraryDataResponse | undefined> = props.getLibraryData;
     const getSentryConfig: () => Promise<SentryConfig | undefined> = props.getSentryConfig;
+    const getEnv: (name: string) => Promise<any> = props.getEnv;
 
     const defaultZoomStatus = {
         scale: defaultScale,
@@ -77,7 +78,8 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     const [isModulePullInProgress, setModulePullInProgress] = React.useState<boolean>(false);
     const [loaderText, setLoaderText] = React.useState<string>('Loading...');
     const [performanceData, setPerformanceData] = React.useState(undefined);
-
+    const [lowCodeResourcesVersion, setLowCodeResourcesVersion] = React.useState(undefined);
+    const [lowCodeEnvInstance, setLowCodeEnvInstance] = React.useState("");
     const initSelectedPosition = startColumn === 0 && startLine === 0 && syntaxTree ? // TODO: change to use undefined for unselection
         getDefaultSelectedPosition(syntaxTree)
         : { startLine, startColumn }
@@ -101,7 +103,8 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                 setSyntaxTree(vistedSyntaxTree);
                 undoRedo.updateContent(filePath, content);
                 setFileContent(content);
-
+                setLowCodeResourcesVersion(await getEnv("BALLERINA_LOW_CODE_RESOURCES_VERSION"));
+                setLowCodeEnvInstance(await getEnv("VSCODE_CHOREO_SENTRY_ENV"));
                 // Add performance data
                 await addPerfData(vistedSyntaxTree);
 
@@ -254,6 +257,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                             isReadOnly={false}
                             syntaxTree={syntaxTree}
                             zoomStatus={zoomStatus}
+                            environment={lowCodeEnvInstance}
                             stSymbolInfo={getSymbolInfo()}
                             // tslint:disable-next-line: jsx-no-multiline-js
                             currentFile={{
@@ -265,6 +269,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                             performanceData={performanceData}
                             importStatements={getImportStatements(syntaxTree)}
                             experimentalEnabled={experimentalEnabled}
+                            lowCodeResourcesVersion={lowCodeResourcesVersion}
                             // tslint:disable-next-line: jsx-no-multiline-js
                             api={{
                                 helpPanel: {
@@ -290,12 +295,13 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                 code: {
                                     modifyDiagram: async (mutations: STModification[], options?: any) => {
                                         const langClient = await langClientPromise;
+                                        const uri = monaco.Uri.file(filePath).toString();
                                         setMutationInProgress(true);
                                         setLoaderText('Updating...');
                                         const { parseSuccess, source, syntaxTree: newST } = await langClient.stModify({
                                             astModifications: await InsertorDelete(mutations),
                                             documentIdentifier: {
-                                                uri: monaco.Uri.file(filePath).toString()
+                                                uri
                                             }
                                         });
                                         let vistedSyntaxTree: STNode;
@@ -313,11 +319,24 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                                 if (isAvailable) {
                                                     setModulePullInProgress(true);
                                                     setLoaderText('Pulling packages...');
-                                                    await resolveMissingDependency(filePath, source);
+                                                    const { parseSuccess: pullSuccess } = await resolveMissingDependency(filePath, source);
+                                                    if (pullSuccess) {
+                                                        // Rebuild the file At backend
+                                                        langClient.didChange({
+                                                            textDocument: { uri, version: 1 },
+                                                            contentChanges: [
+                                                                {
+                                                                    text: source
+                                                                }
+                                                            ],
+                                                        })
+                                                        const { syntaxTree: stWithoutDiagnostics } = await langClient.getSyntaxTree({ documentIdentifier: { uri }})
+                                                        vistedSyntaxTree = await getLowcodeST(stWithoutDiagnostics, filePath, langClient);
+                                                        setSyntaxTree(vistedSyntaxTree);
+                                                    }
                                                     setModulePullInProgress(false);
                                                 }
                                             }
-
 
                                             let newActivePosition: SelectedPosition = { ...selectedPosition };
                                             for (const mutation of mutations) {
