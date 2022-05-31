@@ -314,14 +314,12 @@ export function FunctionForm(props: FunctionProps) {
                             optional: true,
                             isErrored: returnType?.isInteracted && ((currentComponentSyntaxDiag !== undefined &&
                                     currentComponentName === "Return") || model?.functionSignature?.returnTypeDesc?.
-                                    viewState?.diagnosticsInRange?.length > 0 || (functionBodyBlock?.closeBraceToken?.
-                                    viewState?.diagnosticsInRange?.length > 0))
+                                    viewState?.diagnosticsInRange?.length > 0)
                         }}
                         errorMessage={returnType?.isInteracted && ((currentComponentSyntaxDiag &&
                                 currentComponentName === "Return" && currentComponentSyntaxDiag[0].message) || model?.
                                 functionSignature?.returnTypeDesc?.viewState?.diagnosticsInRange[0]?.message ||
-                                (functionBodyBlock?.closeBraceToken?.viewState?.diagnosticsInRange &&
-                                    functionBodyBlock?.closeBraceToken?.viewState?.diagnosticsInRange[0]?.message))}
+                                (functionBodyBlock?.closeBraceToken?.viewState?.diagnosticsInRange))}
                         onChange={debouncedReturnChange}
                         onBlur={null}
                         onFocus={onReturnFocus}
@@ -339,7 +337,6 @@ export function FunctionForm(props: FunctionProps) {
                 onCancel={onCancel}
                 validForm={(isEdit || functionName.isInteracted === true)
                     && !(model?.functionSignature?.viewState?.diagnosticsInRange?.length > 0)
-                    && !(functionBodyBlock?.closeBraceToken?.viewState?.diagnosticsInRange?.length > 0)
                     && !(model?.functionName?.viewState?.diagnosticsInRange?.length > 0)
                     && !(currentComponentSyntaxDiag?.length > 0)}
             />

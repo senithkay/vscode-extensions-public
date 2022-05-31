@@ -94,7 +94,7 @@ listener http:Listener {{{ LISTENER_NAME }}} = new ({{{ PORT }}});
 {{{ ACCESS_MODIFIER }}} function {{{ NAME }}} ({{{ PARAMETERS }}}) {{{ RETURN_TYPE }}} {
 
 }`,
-    FUNCTION_DEFINITION_SIGNATURE: `{{{ NAME }}} ({{{ PARAMETERS }}}) {{{ RETURN_TYPE }}}`,
+    FUNCTION_DEFINITION_SIGNATURE: `{{{ NAME }}}({{{ PARAMETERS }}}) {{{ RETURN_TYPE }}}`,
     SERVICE_WITH_LISTENER_DECLARATION_UPDATE: `
 listener http:Listener {{{ LISTENER_NAME }}} = new ({{{ PORT }}});
 
