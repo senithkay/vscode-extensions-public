@@ -571,7 +571,7 @@ export function getUpdatedContentForNewNamedArg(currentModel: FunctionCall, user
 }
 
 export function getParamsList(suggestionValue: string): string[] {
-    const paramRegex = /\w+\((.*)\)/m;
+    const paramRegex = /\w*\((.*)\)/m;
     if (paramRegex.exec(suggestionValue)) {
         let paramArray = paramRegex.exec(suggestionValue)[1].split(',');
         paramArray = paramArray.map((param: string) => {
