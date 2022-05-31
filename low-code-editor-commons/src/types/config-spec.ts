@@ -76,6 +76,7 @@ export interface FormField {
     displayName?: string;
     memberType?: FormField;
     inclusionType?: FormField;
+    paramType?: FormField;
     selectedDataType?: string;
     description?: string;
     defaultValue?: any;
@@ -257,7 +258,7 @@ export interface ElseIfConfig {
 
 export interface ProcessConfig {
     type: string;
-    config?: string | LogConfig | RespondConfig | CustomExpressionConfig | WorkerConfig;
+    config?: string | LogConfig | RespondConfig | CustomExpressionConfig | WorkerConfig | SendStatementConfig;
     scopeSymbols?: string[];
     model?: STNode;
     wizardType?: WizardType;
@@ -273,6 +274,11 @@ export interface LogConfig {
 export interface WorkerConfig {
     name: string;
     returnType: string;
+}
+
+export interface SendStatementConfig {
+    expression: string;
+    targetWorker: string;
 }
 
 export interface CustomExpressionConfig {

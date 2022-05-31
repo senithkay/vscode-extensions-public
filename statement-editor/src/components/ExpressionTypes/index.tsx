@@ -10,6 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+import { AnnotationComponent } from './Annotation';
 import { BinaryExpressionComponent } from './BinaryExpression';
 import { BracedExpressionComponent } from './BracedExpression';
 import { CaptureBindingPatternComponent } from './CaptureBindingPattern';
@@ -18,10 +19,14 @@ import { ConditionalExpressionComponent } from "./ConditionalExpression";
 import { FieldAccessComponent } from "./FieldAccess";
 import { FromClauseComponent } from './FromClause';
 import { FunctionCallComponent } from "./FunctionCall";
+import { FunctionSignatureComponent } from "./FunctionSignature";
+import { ImplicitAnonymousFunctionExprComponent } from './ImplicitAnonymousFunctionExpression';
 import { IndexedExpressionComponent } from "./IndexedExpression";
+import { InferParamListComponent } from './InferParamList';
 import { InterpolationComponent } from './Interpolation';
 import { LetClauseComponent } from './LetClause';
 import { LetExpressionComponent } from './LetExpression';
+import { LetVarDeclComponent } from './LetVarDecl';
 import { LimitClauseComponent } from './LimitClause';
 import { ListBindingPatternComponent } from './ListBindingPattern';
 import { ListConstructorComponent } from './ListConstructor';
@@ -50,6 +55,7 @@ import { TrapExpressionComponent } from './TrapExpression';
 import { TypeCastExpressionComponent } from './TypeCast';
 import { TypedBindingPatternComponent } from './TypedBindingPattern';
 import { TypeDescComponent } from "./TypeDescriptor";
+import { FunctionTypeDescComponent } from "./TypeDescriptor/FunctionTypeDesc";
 import { IntersectionTypeDescComponent } from "./TypeDescriptor/IntersectionTypeDesc";
 import { KeySpecifierComponent } from "./TypeDescriptor/KeySpecifier";
 import { KeyTypeConstraintComponent } from "./TypeDescriptor/KeyTypeConstraint";
@@ -58,6 +64,7 @@ import { ParenthesisedTypeDescComponent } from "./TypeDescriptor/ParenthesisedTy
 import { RecordFieldComponent} from "./TypeDescriptor/RecordField";
 import { RecordFieldWithDefaultValueComponent } from "./TypeDescriptor/RecordFieldWithDefaultValue";
 import { RecordTypeDescComponent } from "./TypeDescriptor/RecordTypeDesc";
+import { ReturnTypeDescComponent } from "./TypeDescriptor/ReturnTypeDesc";
 import { TableTypeDescComponent } from "./TypeDescriptor/TableTypeDesc";
 import { TupleTypeDescComponent} from "./TypeDescriptor/TupleTypeDesc";
 import { TypeParameterComponent } from "./TypeDescriptor/TypeParameter";
@@ -97,6 +104,7 @@ export { InterpolationComponent as Interpolation };
 export { LetClauseComponent as LetClause };
 export { LimitClauseComponent as LimitClause };
 export { LetExpressionComponent as LetExpression };
+export { LetVarDeclComponent as LetVarDecl };
 export { TrapExpressionComponent as TrapExpression };
 export { QueryExpressionComponent as QueryExpression };
 export { QueryPipelineComponent as QueryPipeline };
@@ -149,3 +157,9 @@ export { TokenComponent as IdentifierToken };
 export { TokenComponent as TemplateString };
 export { NamedArgComponent as NamedArg };
 export { RestArgComponent as RestArg };
+export { InferParamListComponent as InferParamList };
+export { ImplicitAnonymousFunctionExprComponent as ImplicitAnonymousFunctionExpression };
+export { AnnotationComponent as Annotation };
+export { FunctionSignatureComponent as FunctionSignature };
+export { FunctionTypeDescComponent as FunctionTypeDesc };
+export { ReturnTypeDescComponent as ReturnTypeDescriptor };

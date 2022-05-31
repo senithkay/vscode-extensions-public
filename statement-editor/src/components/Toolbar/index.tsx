@@ -150,12 +150,13 @@ export default function Toolbar(props: ToolbarProps) {
     }, [docEnabled])
 
     return (
-        <div className={statementEditorClasses.toolbar}>
+        <div className={statementEditorClasses.toolbar} data-testid="toolbar">
             <div className={statementEditorClasses.toolbarSet}>
                 <IconButton
                     onClick={undo}
                     disabled={!hasUndo}
                     className={statementEditorClasses.toolbarIcons}
+                    data-testid="toolbar-undo"
                 >
                     <ToolbarUndoIcon />
                 </IconButton>
@@ -164,6 +165,7 @@ export default function Toolbar(props: ToolbarProps) {
                     onClick={redo}
                     disabled={!hasRedo}
                     className={statementEditorClasses.toolbarIcons}
+                    data-testid="toolbar-redo"
                 >
                     <ToolbarRedoIcon />
                 </IconButton>
@@ -174,6 +176,7 @@ export default function Toolbar(props: ToolbarProps) {
                     disabled={!deletable}
                     style={{color: deletable ? '#FE523C' : '#8D91A3', padding: deletable && '10px'}}
                     className={statementEditorClasses.toolbarIcons}
+                    data-testid="toolbar-delete"
                 >
                     <ToolbarDeleteIcon/>
                 </IconButton>

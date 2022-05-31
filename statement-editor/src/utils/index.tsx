@@ -46,10 +46,11 @@ import {
     StatementNodes, SymbolParameterType,
     WHITESPACE_MINUTIAE
 } from "../constants";
-import { CurrentModel, MinutiaeJSX, RemainingContent, StmtDiagnostic, StmtOffset } from '../models/definitions';
+import { MinutiaeJSX, RemainingContent, StmtDiagnostic, StmtOffset } from '../models/definitions';
 import { visitor as DeleteConfigSetupVisitor } from "../visitors/delete-config-setup-visitor";
 import { visitor as DiagnosticsMappingVisitor } from "../visitors/diagnostics-mapping-visitor";
 import { visitor as ExpressionDeletingVisitor } from "../visitors/expression-deleting-visitor";
+import { visitor as MappingConstructorConfigSetupVisitor } from "../visitors/mapping-constructor-config-setup-visitor";
 import { visitor as ModelFindingVisitor } from "../visitors/model-finding-visitor";
 import { visitor as ModelTypeSetupVisitor } from "../visitors/model-type-setup-visitor";
 import { nextNodeSetupVisitor } from "../visitors/next-node--setup-visitor"
@@ -156,6 +157,7 @@ export function getPreviousNode(currentModel: STNode, statementModel: STNode): S
 export function enrichModel(model: STNode, targetPosition: NodePosition, diagnostics?: Diagnostic[]): STNode {
     traversNode(model, ViewStateSetupVisitor);
     traversNode(model, parentSetupVisitor);
+    traversNode(model, MappingConstructorConfigSetupVisitor);
     model = enrichModelWithDiagnostics(model, targetPosition, diagnostics);
     return enrichModelWithViewState(model);
 }
@@ -296,11 +298,11 @@ export function getMinutiaeJSX(model: STNode): MinutiaeJSX {
     };
 }
 
-function getJSXForMinutiae(minutiae: Minutiae[]): ReactNode[] {
+export function getJSXForMinutiae(minutiae: Minutiae[], dropEndOfLineMinutiaeJSX: boolean = false): ReactNode[] {
     return minutiae.map((element) => {
         if (element.kind === WHITESPACE_MINUTIAE) {
             return Array.from({length: element.minutiae.length}, () => <>&nbsp;</>);
-        } else if (element.kind === END_OF_LINE_MINUTIAE) {
+        } else if (element.kind === END_OF_LINE_MINUTIAE && !dropEndOfLineMinutiaeJSX) {
             return <br/>;
         }
     });
@@ -598,4 +600,16 @@ export function getUpdatedContentForNewNamedArg(currentModel: FunctionCall, user
     functionParameters.push(`${userInput} = ${EXPR_CONSTRUCTOR}`);
     const content: string = currentModel.functionName.source + "(" + functionParameters.join(",") + ")";
     return content;
+}
+
+export function getParamsList(suggestionValue: string): string[] {
+    const paramRegex = /\(([^)]+)\)/;
+    if (paramRegex.exec(suggestionValue)) {
+        let paramArray = paramRegex.exec(suggestionValue)[1].split(',');
+        paramArray = paramArray.map((param: string) => {
+            return param.trim().split(' ').pop();
+        });
+        return paramArray;
+    }
+    return [];
 }

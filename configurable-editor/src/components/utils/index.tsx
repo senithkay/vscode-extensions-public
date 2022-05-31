@@ -16,19 +16,10 @@
  * under the License.
  *
  */
+import { __String } from "typescript";
 
-import { ConfigElementProps, setConfigElementProps } from "../ConfigElement";
-import { ConfigObjectProps } from "../ConfigObject";
-import { ConfigType, ConfigValue, MetaData, SchemaConstants } from "../model";
-
-/**
- * Checks if the provided object is a leaf property or not.
- * @param data The object that needs to be evaluated.
- * @returns    A boolean value if the object is an `ConfigElement` or not.
- */
-export function instanceOfConfigElement(data: any): boolean {
-    return data.type !== undefined;
-}
+import { ConfigElementProps } from "../ConfigElement";
+import { ConfigSchema, ConfigType, MetaData, SchemaConstants } from "../model";
 
 /**
  * Gets the `ConfigType` enum type from a string value.
@@ -36,6 +27,9 @@ export function instanceOfConfigElement(data: any): boolean {
  * @returns    The corresponding `ConfigType` enum.
  */
 export function getType(type: string): ConfigType {
+    if (type === ConfigType.NUMBER) {
+        type = ConfigType.FLOAT;
+    }
     const keys = Object.keys(ConfigType).filter((x) => ConfigType[x] === type);
     return keys.length > 0 ? ConfigType[keys[0]] : ConfigType.UNSUPPORTED;
 }
@@ -49,40 +43,72 @@ export function getType(type: string): ConfigType {
  * @returns         A populated config `ConfigObjectProps` object.
  */
 export function getConfigProperties(configObj: object, id: string = "1", name: string = "root",
-                                    requiredItem = true): ConfigObjectProps {
+                                    requiredItem = true): ConfigElementProps {
     const propertiesObj: object = configObj[SchemaConstants.PROPERTIES];
+    const addPropertiesObj: object = configObj[SchemaConstants.ADDITIONAL_PROPERTIES];
     const requiredProperties: string[] = configObj[SchemaConstants.REQUIRED];
-    const configProperty: ConfigObjectProps = { id: String(id), name, isRequired: requiredItem, properties: [] };
+    const propertyType: string = configObj[SchemaConstants.TYPE];
+    const propertyDesc: string = configObj[SchemaConstants.DESCRIPTION];
+
+    const configProperty: ConfigElementProps = {
+        description: propertyDesc,
+        id: String(id),
+        isRequired: requiredItem,
+        name,
+        properties: [],
+        type: getType(propertyType),
+    };
+
+    if (propertiesObj === undefined) {
+        return {
+            ...configProperty,
+            schema: addPropertiesObj,
+        };
+    }
 
     Object.keys(propertiesObj).forEach((key, index) => {
-        let isArrayProperty: boolean = false;
         const configPropertyValues = propertiesObj[key];
-        let configPropertyType: string = configPropertyValues[SchemaConstants.TYPE];
+        const unionType: string = configPropertyValues[SchemaConstants.ANY_OF];
+        const enumType: string = configPropertyValues[SchemaConstants.ENUM];
+        const configPropertyType: string = configPropertyValues[SchemaConstants.TYPE];
         const configPropertyDesc: string = configPropertyValues[SchemaConstants.DESCRIPTION];
+        const properties: object = configPropertyValues[SchemaConstants.PROPERTIES];
         const required = isRequired(key, requiredProperties);
+        const elementType: ConfigType = getElementType(unionType, enumType, configPropertyType);
 
-        if (configPropertyType === ConfigType.OBJECT) {
-            // Iterate through nested objects.
-            const childProperty: ConfigObjectProps = getConfigProperties(configPropertyValues,
+        const element: ConfigElementProps = {
+            description: configPropertyDesc,
+            id: configProperty.id + "-" + (index + 1),
+            isRequired: required,
+            name: key,
+            schema: configPropertyValues,
+            type: elementType,
+        };
+
+        if (configPropertyType === ConfigType.OBJECT && properties !== undefined) {
+            const elementName: string = configPropertyValues[SchemaConstants.NAME];
+            const childProperty: ConfigElementProps = getConfigProperties(configPropertyValues,
                 id + "-" + (index + 1), key, required);
+            childProperty.type = ConfigType.OBJECT;
+            childProperty.description = configPropertyDesc;
+            childProperty.schema = configPropertyValues;
+            childProperty.isRequired = !elementName ? true : required;
             configProperty.properties.push(childProperty);
         } else {
-            // Handle array values.
-            if (configPropertyType === ConfigType.ARRAY) {
-                isArrayProperty = true;
-                configPropertyType = configPropertyValues[SchemaConstants.ITEMS][SchemaConstants.TYPE];
-            }
-
-            const idValue = configProperty.id + "-" + (index + 1);
-
-            const element: ConfigElementProps = setConfigElementProps(idValue, isArrayProperty,
-                configPropertyType, key, required, configPropertyDesc);
-            if (element) {
-                configProperty.properties.push(element);
-            }
+            configProperty.properties.push(element);
         }
     });
     return configProperty;
+}
+
+function getElementType(unionType: string, enumType: string, type: string): ConfigType {
+    let returnType: ConfigType = getType(type);
+    if (unionType) {
+        returnType = ConfigType.ANY_OF;
+    } else if (enumType) {
+        returnType = ConfigType.ENUM;
+    }
+    return returnType;
 }
 
 /**
@@ -91,7 +117,7 @@ export function getConfigProperties(configObj: object, id: string = "1", name: s
  * @param requiredList Array of required properties.
  * @returns            Returns true if the property is required and vice versa.
  */
-function isRequired(propertyName: string, requiredList: string[]): boolean {
+export function isRequired(propertyName: string, requiredList: string[]): boolean {
     let required: boolean = false;
     if (requiredList && requiredList.length > 0) {
         required = requiredList.indexOf(propertyName) > -1;
@@ -105,8 +131,8 @@ function isRequired(propertyName: string, requiredList: string[]): boolean {
  * @param configs    Existing config values provided as an object complying with the config schema.
  * @returns          The config `ConfigObjectProps` object updated with the value property.
  */
-export function setExistingValues(properties: ConfigObjectProps,
-                                  configs: object, metaData: MetaData): ConfigObjectProps {
+export function setExistingValues(properties: ConfigElementProps,
+                                  configs: object, metaData: MetaData): ConfigElementProps {
     const orgName = Object.keys(configs)[0];
     if (orgName === undefined) {
         return;
@@ -136,31 +162,37 @@ export function setExistingValues(properties: ConfigObjectProps,
 }
 
 /**
- * Updates the existing config values of a `ConfigObjectProps` with the values
- * provided in the `ConfigValue[]` array.
- * @param configObjects The `ConfigObjectProps` that needs to be updated.
- * @param configValues  The `ConfigValue[]` array containing the new key value pairs.
- * @returns             The updated `ConfigObjectProps` object.
+ * Returns a `MetaData` object containing the values of orgName and packageName.
+ * @param configSchema The original config schema object.
+ * @returns            The `MetaData` object.
  */
-export function updateConfigObjectProps(configObjects: ConfigObjectProps,
-                                        configValues: ConfigValue[]): ConfigObjectProps {
-    if (configObjects && configValues && configObjects.properties) {
-        Object.keys(configObjects.properties).forEach((key) => {
-            if (instanceOfConfigElement(configObjects.properties[key])) {
-                const property: ConfigElementProps = configObjects.properties[key];
-                const existingConfig = configValues.findIndex((item) => item.key === property.id);
-                delete configObjects.properties[key].setConfigElement;
-                if (existingConfig > -1) {
-                    configObjects.properties[key].value = configValues[existingConfig].value;
-                }
-            } else {
-                delete configObjects.properties[key].setConfigElement;
-                updateConfigObjectProps(configObjects.properties[key], configValues);
-            }
-        });
-    }
+export function getMetaData(configSchema: ConfigSchema): MetaData {
+    const orgConfig: object = configSchema.properties;
+    const orgName = Object.keys(orgConfig)[0];
 
-    return configObjects;
+    const packageConfig: object = orgConfig[orgName][SchemaConstants.PROPERTIES];
+    const packageName = Object.keys(packageConfig)[0];
+
+    return {
+        orgName,
+        packageName,
+    };
+}
+
+/**
+ * Returns the config schema values for a package, removes the 2 top most root
+ * properties and sets the meta data values.
+ * @param configSchema The original config schema object.
+ * @returns            The config schema object without the 2 top most root properties.
+ */
+export function getPackageConfig(configSchema: ConfigSchema): object {
+    const orgConfig: object = configSchema.properties;
+    const orgName = Object.keys(orgConfig)[0];
+
+    const packageConfig: object = orgConfig[orgName][SchemaConstants.PROPERTIES];
+    const packageName = Object.keys(packageConfig)[0];
+
+    return packageConfig[packageName];
 }
 
 /**
@@ -168,16 +200,17 @@ export function updateConfigObjectProps(configObjects: ConfigObjectProps,
  * @param configProperties The config properties object, could be a `ConfigProperty` or `ConfigElement`.
  * @param configValues     The config values object, could be a nested value.
  */
-function setConfigValue(configProperties: object, configValues: object) {
+export function setConfigValue(configProperties: ConfigElementProps[], configValues: object): ConfigElementProps[] {
+    if (configProperties === undefined) {
+        return;
+    }
     Object.keys(configProperties).forEach((key) => {
-        if (instanceOfConfigElement(configProperties[key])) {
-            const value = getValue(configProperties[key].name, configValues);
+        const value = getValue(configProperties[key].name, configValues);
+        if (value !== undefined) {
             configProperties[key].value = value;
-        } else {
-            const value = getValue(configProperties[key].name, configValues);
-            setConfigValue(configProperties[key][SchemaConstants.PROPERTIES], value);
         }
     });
+    return configProperties;
 }
 
 /**
@@ -193,4 +226,12 @@ function getValue(key: string, obj: object): any {
             return obj[keys[0]];
         }
     }
+}
+
+export function getRecordName(name: string): string {
+    if (name === undefined) {
+        return name;
+    }
+
+    return name.split("/")[1];
 }

@@ -27,9 +27,10 @@ import { Diagnostic } from "vscode-languageserver-protocol";
 
 import {
     acceptedCompletionKindForExpressions,
-    acceptedCompletionKindForTypes
-} from "../components/InputEditor/constants";
-import { CurrentModel, StmtDiagnostic, SuggestionItem } from '../models/definitions';
+    acceptedCompletionKindForTypes,
+    PROPERTY_COMPLETION_KIND
+} from "../constants";
+import { CurrentModel, SuggestionItem } from '../models/definitions';
 
 import { getFilteredDiagnosticMessages, getSymbolPosition, sortSuggestions } from "./index";
 import { ModelType, StatementEditorViewState } from "./statement-editor-viewstate";
@@ -114,7 +115,28 @@ export async function getCompletions (docUri: string,
     filteredCompletionItems.sort(sortSuggestions);
 
     filteredCompletionItems.map((completion) => {
-        suggestions.push({ value: completion.label, kind: completion.detail, suggestionType: completion.kind  });
+        let updatedInsertText = completion.insertText;
+        const isProperty = completion.kind === PROPERTY_COMPLETION_KIND;
+        if (isProperty) {
+            const regex = /\${\d+:?(""|0|0.0|false|\(\)|xml ``|{})?}/gm;
+            let placeHolder;
+            // tslint:disable-next-line:no-conditional-assignment
+            while ((placeHolder = regex.exec(completion.insertText)) !== null) {
+                // This is necessary to avoid infinite loops with zero-width matches
+                if (placeHolder.index === regex.lastIndex) {
+                    regex.lastIndex++;
+                }
+                updatedInsertText = updatedInsertText.replace(placeHolder[0], placeHolder[1] || '');
+            }
+        }
+        suggestions.push(
+            {
+                value: completion.label,
+                kind: completion.detail,
+                insertText: isProperty && updatedInsertText,
+                completionKind: completion.kind
+            }
+        );
     });
 
     return suggestions;

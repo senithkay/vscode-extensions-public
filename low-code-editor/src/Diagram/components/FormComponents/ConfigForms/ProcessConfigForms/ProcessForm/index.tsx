@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext } from "react";
 
-import { ConfigOverlayFormStatus, ProcessConfig, WizardType, WorkerConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ConfigOverlayFormStatus, ProcessConfig, SendStatementConfig, WizardType, WorkerConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { LocalVarDecl, NamedWorkerDeclaration } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../../Contexts/Diagram";
@@ -22,6 +22,7 @@ import { TextPreloaderVertical } from "../../../../../../PreLoader/TextPreloader
 import { AddAssignmentConfig } from "./AddAssignmentConfig";
 import { AddCustomStatementConfig } from "./AddCustomStatementConfig";
 import { AddLogConfig } from "./AddLogConfig";
+import { AddSendStatement } from "./AddSendStatement";
 import { AddVariableConfig } from "./AddVariableConfig";
 import { AddWorkerConfigForm } from "./AddWorkerConfig";
 
@@ -56,8 +57,6 @@ export function ProcessForm(props: ProcessFormProps) {
         else {
             config.config = "";
         }
-
-
     } else if (formType === "Log") {
         config.config = {
             type: "",
@@ -75,6 +74,13 @@ export function ProcessForm(props: ProcessFormProps) {
         }
 
         config.config = workerConfig;
+    } else if (formType === 'AsyncSend') {
+        const sendConfig: SendStatementConfig = {
+            targetWorker: '',
+            expression: '',
+        }
+
+        config.config = sendConfig;
     } else {
         formType = "Custom";
         config.config = {
@@ -99,6 +105,17 @@ export function ProcessForm(props: ProcessFormProps) {
                 {
                     formType === "Variable" && (
                         <AddVariableConfig
+                            config={config}
+                            formArgs={formArgs}
+                            onSave={onSave}
+                            onWizardClose={onWizardClose}
+                            onCancel={onCancel}
+                        />
+                    )
+                }
+                {
+                    formType === "AsyncSend" && (
+                        <AddSendStatement
                             config={config}
                             formArgs={formArgs}
                             onSave={onSave}

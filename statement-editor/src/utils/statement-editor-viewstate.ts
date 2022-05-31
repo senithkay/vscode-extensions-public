@@ -29,4 +29,13 @@ export class StatementEditorViewState {
     public isWithinBlockStatement: boolean = false;
     public modelType: ModelType = ModelType.EXPRESSION;
     public diagnosticsInRange?: Diagnostic[] = [];
+    public mappingConstructorConfig: MappingConstructorConfig = {
+        isLastMapField: false,
+        isClosingBraceWithNewLine: false
+    };
+}
+
+interface MappingConstructorConfig {
+    isLastMapField?: boolean;
+    isClosingBraceWithNewLine?: boolean;
 }

@@ -56,6 +56,8 @@ export function ProcessConfigForm(props: any) {
     const { onCancel, onSave, configOverlayFormStatus, targetPosition } = props as AddProcessFormProps;
     const { formArgs, formType, isLastMember } = configOverlayFormStatus;
 
+    console.log('>>>', formType, formArgs);
+
     const processConfig: ProcessConfig = {
         type: formType,
         scopeSymbols: [],
@@ -71,6 +73,7 @@ export function ProcessConfigForm(props: any) {
             })
         }
         if (processConfig.model) {
+            console.log('>>>', processConfig.type);
             switch (processConfig.type) {
                 case 'Variable':
                     const propertyConfig: string = processConfig.config as string;

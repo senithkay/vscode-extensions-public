@@ -63,7 +63,7 @@ export function ExpressionArrayComponent(props: ExpressionArrayProps) {
                             <NewExprAddButton
                                 model={expression}
                                 onClick={addNewExpression}
-                                classNames={`modifiable ${index === expressions.length - 1 && 'lastElement'}`}
+                                classNames={"modifiable"}
                             />
                         )}
                     </>
