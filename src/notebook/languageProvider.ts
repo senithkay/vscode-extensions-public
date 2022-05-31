@@ -26,11 +26,6 @@ import { filterCompletions, getPlainTextSnippet, translateCompletionItemKind  } 
 import { NOTEBOOK_TYPE } from "./constants";
 import { GetSyntaxTreeResponse } from "@wso2-enterprise/ballerina-low-code-editor-distribution";
 
-const selector: DocumentSelector = {
-    notebookType: NOTEBOOK_TYPE,
-    language: LANGUAGE.BALLERINA
-};
-
 export class NotebookCompletionItemProvider implements CompletionItemProvider{
     private ballerinaExtension: BallerinaExtension;
 
@@ -116,6 +111,10 @@ export class NotebookCompletionItemProvider implements CompletionItemProvider{
 }
 
 export function registerLanguageProviders(ballerinaExtInstance: BallerinaExtension): Disposable {
+    const selector: DocumentSelector = {
+        notebookType: NOTEBOOK_TYPE,
+        language: LANGUAGE.BALLERINA
+    };
     const disposables: Disposable[] = [];
     disposables.push(
         languages.registerCompletionItemProvider(selector, new NotebookCompletionItemProvider(ballerinaExtInstance)));
