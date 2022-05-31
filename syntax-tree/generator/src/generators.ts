@@ -130,7 +130,7 @@ export function findModelInfo(node: any, modelInfo: any = {}) {
     model.__count++;
 
     Object.keys(node).forEach((key) => {
-        if (["kind", "id", "position", "source", "typeData", "leadingMinutiae", "trailingMinutiae"].includes(key)) {
+        if (["kind", "id", "position", "source", "typeData", "leadingMinutiae", "trailingMinutiae", "syntaxDiagnostics"].includes(key)) {
             // These properties are in the interface STNode
             // Other interfaces we generate extends it, so no need to add it.
             return;

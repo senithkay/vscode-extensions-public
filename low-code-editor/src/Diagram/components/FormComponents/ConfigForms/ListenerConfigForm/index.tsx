@@ -53,11 +53,14 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
     const { api: { code: { modifyDiagram } } } = useDiagramContext();
     let defaultState: ListenerConfig;
 
-    if (model && STKindChecker.isListenerDeclaration(model)) {
+    if (model && STKindChecker.isListenerDeclaration(model)
+        && (STKindChecker.isImplicitNewExpression(model.initializer) || STKindChecker.isExplicitNewExpression(model.initializer))) {
         defaultState = {
             listenerName: model.variableName.value,
             listenerPort: model.initializer.parenthesizedArgList.arguments[0].source,
-            listenerType: model.typeDescriptor.modulePrefix.value.toUpperCase(),
+            listenerType: STKindChecker.isQualifiedNameReference(model.typeDescriptor)
+                ? model.typeDescriptor.modulePrefix.value.toUpperCase()
+                : "",
             isExpressionValid: true
         };
     } else {

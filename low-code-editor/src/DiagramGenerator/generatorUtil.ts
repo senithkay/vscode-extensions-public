@@ -56,7 +56,7 @@ export function getDefaultSelectedPosition(modulePart: ModulePart): SelectedPosi
     } else if (services && services.length > 0) { // select first resource fn of first service if availble
         const resources = services[0].members;
         if (resources && resources.length > 0) {
-            return getFnStartPosition(resources[0]);
+            return getFnStartPosition(resources[0] as ResourceAccessorDefinition);
         }
     } else if (functions && functions.length > 0) { // select first fn if availble
         return getFnStartPosition(functions[0]);
@@ -94,7 +94,7 @@ export function getSelectedPosition(modulePart: ModulePart, startLine: number, s
                 if (selectedResourceNode) {
                     return { startLine, startColumn };
                 }
-                return getFnStartPosition(resources[0]);
+                return getFnStartPosition(resources[0] as ResourceAccessorDefinition);
             }
         }
     }

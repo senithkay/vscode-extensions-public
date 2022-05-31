@@ -26,6 +26,7 @@ import {
     MethodCall, ModuleVarDecl, NumericLiteral,
     QualifiedNameReference,
     RecordTypeDesc,
+    RemoteMethodCallAction,
     RequiredParam,
     SimpleNameReference,
     STKindChecker,
@@ -171,7 +172,7 @@ class SymbolFindingVisitor implements Visitor {
     }
 
     public beginVisitActionStatement(node: ActionStatement) {
-        const actionName = (node.expression as CheckAction)?.expression?.methodName?.name?.value;
+        const actionName = ((node.expression as CheckAction)?.expression as RemoteMethodCallAction)?.methodName?.name?.value;
         if (actionName) {
             actions.set(actionName, node);
         }
@@ -210,7 +211,7 @@ function getType(typeNode: any): any {
         STKindChecker.isStringTypeDesc(typeNode) || STKindChecker.isJsonTypeDesc(typeNode)) {
         return typeNode.name.value;
     } else if (STKindChecker.isXmlTypeDesc(typeNode)) {
-        return typeNode.xmlKeywordToken?.value || typeNode.keywordToken?.value;
+        return typeNode.keywordToken.value;
     } else if (STKindChecker.isQualifiedNameReference(typeNode)) {
         const nameRef: QualifiedNameReference = typeNode as QualifiedNameReference;
         const packageName = (nameRef.modulePrefix.value === "") ? "" : nameRef.modulePrefix.value + ":";
@@ -231,8 +232,8 @@ function getType(typeNode: any): any {
             }
         });
         return "[" + tupleTypes.map((memType) => getType(memType)) + "]";
-    } else if (STKindChecker.isParameterizedTypeDesc(typeNode)) {
-        return "map<" + getType(typeNode.typeParameter.typeNode) + ">";
+    } else if (STKindChecker.isMapTypeDesc(typeNode)) {
+        return "map<" + getType(typeNode.mapTypeParamsNode.value) + ">";
     } else if (STKindChecker.isStreamTypeDesc(typeNode)) {
         return "stream<" + getType(typeNode.streamTypeParamsNode.leftTypeDescNode) + ">";
     } else if (STKindChecker.isErrorTypeDesc(typeNode)) {
