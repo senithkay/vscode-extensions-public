@@ -118,6 +118,7 @@ export function FunctionForm(props: FunctionProps) {
 
     // Function name related functions
     const onNameFocus = () => {
+        setCurrentComponentCompletions([]);
         setCurrentComponentName("Name");
     }
     const onNameChange = async (value: string) => {
@@ -134,14 +135,48 @@ export function FunctionForm(props: FunctionProps) {
     const onReturnTypeChange = async (value: string) => {
         setReturnType({ value, isInteracted: true });
         const parametersStr = parameters.map((item) => `${item.type.value} ${item.name.value}`).join(",");
+        const codeSnippet = getSource(updateFunctionSignature(functionName.value, parametersStr,
+            value ? `returns ${value}` : "", {
+            ...targetPosition, startColumn: model?.functionName?.position?.startColumn
+        })
+        );
+        const updatedContent = await getUpdatedSource(codeSnippet, model?.source, {
+            ...model?.functionSignature?.position, startColumn: model?.functionName?.position?.startColumn
+        }, undefined, true);
+        const partialST = await getPartialSTForModuleMembers(
+            { codeSnippet: updatedContent.trim() }, getLangClient
+        );
         const currentModel: CurrentModel = {
-            model: model.functionSignature?.returnTypeDesc?.type
+            model: partialST.functionSignature?.returnTypeDesc?.type
         };
-        await functionParamChange(functionName.value, parametersStr, value, currentModel, value, completionEditorTypeKinds);
+        if (!partialST.syntaxDiagnostics.length) {
+            setCurrentComponentSyntaxDiag(undefined);
+            if (value && currentModel) {
+                onChange(updatedContent, partialST, currentModel, value, completionEditorTypeKinds);
+            } else {
+                onChange(updatedContent, partialST);
+            }
+        } else {
+            if (currentModel) {
+                onChange(updatedContent, partialST, currentModel, value, completionEditorTypeKinds);
+            }
+            setCurrentComponentSyntaxDiag(partialST.syntaxDiagnostics);
+        }
+       
+
+        //await functionParamChange(functionName.value, parametersStr, value, currentModel, value, );
     }
-    const onReturnFocus = () => {
+    
+    const onReturnFocus = async () => {
+        // const parametersStr = parameters.map((item) => `${item.type.value} ${item.name.value}`).join(",");
+        // const currentModel: CurrentModel = {
+        //     model: model.functionSignature?.returnTypeDesc?.type
+        // };
+        // await functionParamChange(functionName.value, parametersStr, returnType.value, currentModel, "");
+        setCurrentComponentCompletions([]);
         setCurrentComponentName("Return");
     }
+
     const debouncedReturnChange = debounce(onReturnTypeChange, 1000);
 
     // Param related functions
@@ -149,6 +184,7 @@ export function FunctionForm(props: FunctionProps) {
         setAddingNewParam(true);
         setEditingSegmentId(-1);
     };
+
     const handleOnEdit = (funcParam: FunctionParam) => {
         const id = parameters.findIndex(param => param.id === funcParam.id);
         // Once edit is clicked
@@ -283,7 +319,6 @@ export function FunctionForm(props: FunctionProps) {
                     <CompletionEditor
                         dataTestId="function-name"
                         isActive={currentComponentName === "Name"}
-                        completions={currentComponentCompletions}
                         onChange={debouncedNameChange}
                         onFocus={onNameFocus}
                         placeholder={"Ex: name"}

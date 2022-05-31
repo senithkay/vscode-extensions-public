@@ -165,7 +165,12 @@ export async function getCompletionsForType(docUri: string,
     filteredCompletionItems.sort(sortSuggestions);
 
     filteredCompletionItems.map((completion) => {
-        suggestions.push({ value: completion.label, kind: completion.detail, suggestionType: completion.kind });
+        suggestions.push({ 
+            value: completion.insertText,
+            kind: completion.detail,
+            suggestionType: completion.kind,
+            label: completion.label
+        });
     });
 
     return suggestions;

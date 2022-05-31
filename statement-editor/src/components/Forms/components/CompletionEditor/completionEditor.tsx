@@ -29,11 +29,22 @@ interface CompletionEditorProps {
 }
 
 export function CompletionEditor(props: CompletionEditorProps) {
-    const {completions, placeholder, disabled, errorMessage, defaultValue, dataTestId, onChange, onFocus } = props;
+    const { completions, placeholder, disabled, errorMessage, defaultValue, dataTestId, onChange, onFocus } = props;
     const customProps = props.customProps;
     const [options, setOptions] = useState([]);
     const [hints, setHints] = useState<ExpressionEditorHintProps[]>([]);
     const textFieldClasses = useTextInputStyles();
+
+    // const filterByLabel = (label: string): SuggestionItem => {
+    //     let suggestionItem: SuggestionItem = undefined;
+    //     for (const completion of completions) {
+    //         if (completion.label === label) {
+    //             suggestionItem = completion;
+    //             break;
+    //         }
+    //     }
+    //     return suggestionItem;
+    // };
 
     const handleChange = (event: ChangeEvent<{}>, value: string) => {
         if (onChange) {
@@ -85,6 +96,7 @@ export function CompletionEditor(props: CompletionEditorProps) {
                 data-testid={dataTestId}
                 freeSolo={true}
                 options={options}
+                open={options.length > 0}
                 disabled={disabled}
                 renderInput={renderInput}
                 onChange={handleChange}
