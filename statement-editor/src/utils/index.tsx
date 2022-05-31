@@ -38,6 +38,7 @@ import * as formComponents from '../components/Forms/Form';
 import { INPUT_EDITOR_PLACEHOLDERS } from "../components/InputEditor/constants";
 import * as statementTypeComponents from '../components/Statements';
 import {
+    BAL_SOURCE,
     CUSTOM_CONFIG_TYPE,
     END_OF_LINE_MINUTIAE, EXPR_CONSTRUCTOR,
     OTHER_EXPRESSION,
@@ -46,12 +47,13 @@ import {
     StatementNodes, SymbolParameterType,
     WHITESPACE_MINUTIAE
 } from "../constants";
-import { CurrentModel, MinutiaeJSX, RemainingContent, StmtDiagnostic, StmtOffset } from '../models/definitions';
+import { MinutiaeJSX, RemainingContent, StmtDiagnostic, StmtOffset } from '../models/definitions';
 import { visitor as DeleteConfigSetupVisitor } from "../visitors/delete-config-setup-visitor";
 import { visitor as DiagnosticsMappingVisitor } from "../visitors/diagnostics-mapping-visitor";
 import { visitor as ExpressionDeletingVisitor } from "../visitors/expression-deleting-visitor";
 import { visitor as ModelFindingVisitor } from "../visitors/model-finding-visitor";
 import { visitor as ModelTypeSetupVisitor } from "../visitors/model-type-setup-visitor";
+import { visitor as MultilineConstructsConfigSetupVisitor } from "../visitors/multiline-constructs-config-setup-visitor";
 import { nextNodeSetupVisitor } from "../visitors/next-node--setup-visitor"
 import { parentSetupVisitor } from '../visitors/parent-setup-visitor';
 import { viewStateSetupVisitor as ViewStateSetupVisitor } from "../visitors/view-state-setup-visitor";
@@ -156,6 +158,7 @@ export function getPreviousNode(currentModel: STNode, statementModel: STNode): S
 export function enrichModel(model: STNode, targetPosition: NodePosition, diagnostics?: Diagnostic[]): STNode {
     traversNode(model, ViewStateSetupVisitor);
     traversNode(model, parentSetupVisitor);
+    traversNode(model, MultilineConstructsConfigSetupVisitor);
     model = enrichModelWithDiagnostics(model, targetPosition, diagnostics);
     return enrichModelWithViewState(model);
 }
@@ -210,6 +213,14 @@ export function isOperator(modelType: number): boolean {
 
 export function isBindingPattern(modelType: number): boolean {
     return modelType === ModelType.BINDING_PATTERN;
+}
+
+export function isDescriptionWithExample(doc : string): boolean {
+    return doc.includes(BAL_SOURCE);
+}
+
+export function getDocDescription(doc: string) : string[] {
+    return doc.split(BAL_SOURCE);
 }
 
 export function getFilteredDiagnosticMessages(statement: string, targetPosition: NodePosition,
@@ -296,11 +307,11 @@ export function getMinutiaeJSX(model: STNode): MinutiaeJSX {
     };
 }
 
-function getJSXForMinutiae(minutiae: Minutiae[]): ReactNode[] {
+export function getJSXForMinutiae(minutiae: Minutiae[], dropEndOfLineMinutiaeJSX: boolean = false): ReactNode[] {
     return minutiae.map((element) => {
         if (element.kind === WHITESPACE_MINUTIAE) {
             return Array.from({length: element.minutiae.length}, () => <>&nbsp;</>);
-        } else if (element.kind === END_OF_LINE_MINUTIAE) {
+        } else if (element.kind === END_OF_LINE_MINUTIAE && !dropEndOfLineMinutiaeJSX) {
             return <br/>;
         }
     });
@@ -598,4 +609,16 @@ export function getUpdatedContentForNewNamedArg(currentModel: FunctionCall, user
     functionParameters.push(`${userInput} = ${EXPR_CONSTRUCTOR}`);
     const content: string = currentModel.functionName.source + "(" + functionParameters.join(",") + ")";
     return content;
+}
+
+export function getParamsList(suggestionValue: string): string[] {
+    const paramRegex = /\w*\((.*)\)/m;
+    if (paramRegex.exec(suggestionValue)) {
+        let paramArray = paramRegex.exec(suggestionValue)[1].split(',');
+        paramArray = paramArray.map((param: string) => {
+            return param.trim().split(' ').pop();
+        });
+        return paramArray;
+    }
+    return [];
 }

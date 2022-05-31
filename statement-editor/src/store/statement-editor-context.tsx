@@ -33,8 +33,11 @@ export const StatementEditorContext = React.createContext({
         redo: () => undefined,
         hasUndo: false,
         hasRedo: false,
+        hasSyntaxDiagnostics: false,
         restArg: (restCheckClicked: boolean) => undefined,
-        hasRestArg: false
+        hasRestArg: false,
+        newQueryPosition: null,
+        setNewQueryPos: (newQueryPos: NodePosition) => undefined
     },
     statementCtx: {
         diagnostics: []
@@ -95,6 +98,7 @@ export interface CtxProviderProps extends LowCodeEditorProps {
     hasRedo?: boolean,
     diagnostics?: StmtDiagnostic[],
     lsSuggestions?: SuggestionItem[],
+    hasSyntaxDiagnostics?: boolean,
     documentation?: SymbolInfoResponse | EmptySymbolInfo,
     restArg?: (restCheckClicked: boolean) => void,
     hasRestArg?: boolean,
@@ -107,7 +111,9 @@ export interface CtxProviderProps extends LowCodeEditorProps {
         activeEditorId?: number,
         editors?: EditorModel[]
     },
-    targetPosition: NodePosition
+    targetPosition: NodePosition,
+    newQueryPosition?: NodePosition,
+    setNewQueryPos?: (newQueryPos: NodePosition) => void
 }
 
 export const StatementEditorContextProvider = (props: CtxProviderProps) => {
@@ -136,6 +142,9 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
         formArgs,
         importStatements,
         experimentalEnabled,
+        hasSyntaxDiagnostics,
+        newQueryPosition,
+        setNewQueryPos,
         ...restProps
     } = props;
 
@@ -154,7 +163,10 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
                     hasRedo,
                     hasUndo,
                     restArg,
-                    hasRestArg
+                    hasRestArg,
+                    hasSyntaxDiagnostics,
+                    newQueryPosition,
+                    setNewQueryPos,
                 },
                 statementCtx: {
                     diagnostics
