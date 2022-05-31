@@ -372,16 +372,14 @@ export function FunctionForm(props: FunctionProps) {
                         customProps={{
                             optional: true,
                             isErrored: returnType?.isInteracted && ((currentComponentSyntaxDiag !== undefined &&
-                                currentComponentName === "Return") || model?.functionSignature?.returnTypeDesc?.
-                                    viewState?.diagnosticsInRange?.length > 0 || (functionBodyBlock?.closeBraceToken?.
-                                        viewState?.diagnosticsInRange?.length > 0))
+                                    currentComponentName === "Return") || model?.functionSignature?.returnTypeDesc?.
+                                    viewState?.diagnosticsInRange?.length > 0)
                         }}
                         diagsInRange={model?.functionSignature?.returnTypeDesc?.viewState?.diagnosticsInRange}
                         errorMessage={returnType?.isInteracted && ((currentComponentSyntaxDiag &&
                             currentComponentName === "Return" && currentComponentSyntaxDiag[0].message) || model?.
                                 functionSignature?.returnTypeDesc?.viewState?.diagnosticsInRange[0]?.message ||
-                            (functionBodyBlock?.closeBraceToken?.viewState?.diagnosticsInRange &&
-                                functionBodyBlock?.closeBraceToken?.viewState?.diagnosticsInRange[0]?.message))}
+                                (functionBodyBlock?.closeBraceToken?.viewState?.diagnosticsInRange))}
                         disabled={addingNewParam || (currentComponentSyntaxDiag && currentComponentName !== "Return")}
                     />
                 </div>
@@ -394,7 +392,6 @@ export function FunctionForm(props: FunctionProps) {
                 onCancel={onCancel}
                 validForm={(isEdit || functionName.isInteracted === true)
                     && !(model?.functionSignature?.viewState?.diagnosticsInRange?.length > 0)
-                    && !(functionBodyBlock?.closeBraceToken?.viewState?.diagnosticsInRange?.length > 0)
                     && !(model?.functionName?.viewState?.diagnosticsInRange?.length > 0)
                     && !(currentComponentSyntaxDiag?.length > 0)}
             />
