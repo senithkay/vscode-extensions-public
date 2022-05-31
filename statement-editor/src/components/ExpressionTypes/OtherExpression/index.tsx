@@ -14,6 +14,8 @@ import React from "react";
 
 import { STNode } from "@wso2-enterprise/syntax-tree";
 
+import { getMinutiaeJSX } from "../../../utils";
+import { StatementEditorViewState } from "../../../utils/statement-editor-viewstate";
 import { InputEditor, InputEditorProps } from "../../InputEditor";
 import { useStatementRendererStyles } from "../../styles";
 
@@ -31,7 +33,15 @@ export function OtherExpressionComponent(props: OtherExpressionProps) {
         classNames: statementRendererClasses.expressionElement
     };
 
+    const { leadingMinutiaeJSX, trailingMinutiaeJSX } = getMinutiaeJSX(model);
+
+    const isFieldWithNewLine = (model?.viewState as StatementEditorViewState)?.multilineConstructConfig?.isFieldWithNewLine;
+
     return (
-        <InputEditor {...inputEditorProps} />
+        <>
+            {leadingMinutiaeJSX}
+            <InputEditor {...inputEditorProps} />
+            {!isFieldWithNewLine && trailingMinutiaeJSX}
+        </>
     );
 }
