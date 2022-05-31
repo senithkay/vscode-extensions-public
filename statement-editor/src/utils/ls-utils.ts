@@ -35,8 +35,8 @@ import { getFilteredDiagnosticMessages, getSymbolPosition, sortSuggestions } fro
 import { ModelType, StatementEditorViewState } from "./statement-editor-viewstate";
 
 export async function getPartialSTForStatement(
-            partialSTRequest: PartialSTRequest,
-            getLangClient: () => Promise<ExpressionEditorLangClientInterface>): Promise<STNode> {
+    partialSTRequest: PartialSTRequest,
+    getLangClient: () => Promise<ExpressionEditorLangClientInterface>): Promise<STNode> {
     const langClient: ExpressionEditorLangClientInterface = await getLangClient();
     const resp = await langClient.getSTForSingleStatement(partialSTRequest);
     return resp.syntaxTree;
@@ -51,20 +51,20 @@ export async function getPartialSTForModuleMembers(
 }
 
 export async function getPartialSTForExpression(
-            partialSTRequest: PartialSTRequest,
-            getLangClient: () => Promise<ExpressionEditorLangClientInterface>): Promise<STNode> {
+    partialSTRequest: PartialSTRequest,
+    getLangClient: () => Promise<ExpressionEditorLangClientInterface>): Promise<STNode> {
     const langClient: ExpressionEditorLangClientInterface = await getLangClient();
     const resp = await langClient.getSTForExpression(partialSTRequest);
     return resp.syntaxTree;
 }
 
-export async function getCompletions (docUri: string,
-                                      targetPosition: NodePosition,
-                                      completeModel: STNode,
-                                      currentModel: CurrentModel,
-                                      getLangClient: () => Promise<ExpressionEditorLangClientInterface>,
-                                      userInput: string = ''
-                                    ) : Promise<SuggestionItem[]> {
+export async function getCompletions(docUri: string,
+                                     targetPosition: NodePosition,
+                                     completeModel: STNode,
+                                     currentModel: CurrentModel,
+                                     getLangClient: () => Promise<ExpressionEditorLangClientInterface>,
+                                     userInput: string = ''
+): Promise<SuggestionItem[]> {
 
     const isTypeDescriptor = (currentModel.model.viewState as StatementEditorViewState).modelType === ModelType.TYPE_DESCRIPTOR;
     const varName = STKindChecker.isLocalVarDecl(completeModel)
@@ -97,8 +97,8 @@ export async function getCompletions (docUri: string,
     const filteredCompletionItems = completions.filter((completionResponse: CompletionResponse) => (
         (!completionResponse.kind ||
             (isTypeDescriptor ?
-                    acceptedCompletionKindForTypes.includes(completionResponse.kind) :
-                    acceptedCompletionKindForExpressions.includes(completionResponse.kind)
+                acceptedCompletionKindForTypes.includes(completionResponse.kind) :
+                acceptedCompletionKindForExpressions.includes(completionResponse.kind)
             )
         ) &&
         completionResponse.label !== varName &&
@@ -114,7 +114,63 @@ export async function getCompletions (docUri: string,
     filteredCompletionItems.sort(sortSuggestions);
 
     filteredCompletionItems.map((completion) => {
-        suggestions.push({ value: completion.label, kind: completion.detail, suggestionType: completion.kind  });
+        suggestions.push({ value: completion.label, kind: completion.detail, suggestionType: completion.kind });
+    });
+
+    return suggestions;
+}
+
+export async function getCompletionsForType(docUri: string,
+                                            targetPosition: NodePosition,
+                                            completeModel: STNode,
+                                            currentModel: CurrentModel,
+                                            getLangClient: () => Promise<ExpressionEditorLangClientInterface>,
+                                            userInput: string = '',
+                                            completionKinds: number[] = []
+): Promise<SuggestionItem[]> {
+
+    const isTypeDescriptor = (currentModel.model.viewState as StatementEditorViewState).modelType === ModelType.TYPE_DESCRIPTOR;
+    const varName = STKindChecker.isLocalVarDecl(completeModel)
+        && completeModel.typedBindingPattern.bindingPattern.source.trim();
+    const currentModelPosition = currentModel.model.position;
+    const currentModelSource = currentModel.model.source
+        ? currentModel.model.source.trim()
+        : currentModel.model.value.trim();
+    const suggestions: SuggestionItem[] = [];
+
+    const completionParams: CompletionParams = {
+        textDocument: {
+            uri: docUri
+        },
+        context: {
+            triggerKind: 1
+        },
+        position: {
+            character: targetPosition.startColumn + currentModelPosition.startColumn + userInput.length,
+            line: targetPosition.startLine + currentModelPosition.startLine
+        }
+    }
+
+    // CodeSnippet is split to get the suggestions for field-access-expr (expression.field-name)
+    const inputElements = userInput.split('.');
+
+    const langClient = await getLangClient();
+    const completions: CompletionResponse[] = await langClient.getCompletion(completionParams);
+
+    const filteredCompletionItems = completions
+        .filter((completionResponse: CompletionResponse) => (
+            (!completionResponse.kind || completionKinds.includes(completionResponse.kind) || !completionKinds || completionKinds.length <= 0)
+        ));
+
+    filteredCompletionItems.sort(sortSuggestions);
+
+    filteredCompletionItems.map((completion) => {
+        suggestions.push({ 
+            value: completion.insertText,
+            kind: completion.detail,
+            suggestionType: completion.kind,
+            label: completion.label
+        });
     });
 
     return suggestions;
@@ -147,9 +203,9 @@ export async function sendDidClose(
 }
 
 export async function sendDidChange(
-            docUri: string,
-            content: string,
-            getLangClient: () => Promise<ExpressionEditorLangClientInterface>) {
+    docUri: string,
+    content: string,
+    getLangClient: () => Promise<ExpressionEditorLangClientInterface>) {
     const langClient = await getLangClient();
     langClient.didChange({
         contentChanges: [
@@ -165,8 +221,8 @@ export async function sendDidChange(
 }
 
 export async function getDiagnostics(
-        docUri: string,
-        getLangClient: () => Promise<ExpressionEditorLangClientInterface>): Promise<PublishDiagnosticsParams[]> {
+    docUri: string,
+    getLangClient: () => Promise<ExpressionEditorLangClientInterface>): Promise<PublishDiagnosticsParams[]> {
     const langClient = await getLangClient();
     const diagnostics = await langClient.getDiagnostics({
         documentIdentifier: {
@@ -199,9 +255,9 @@ export async function getSymbolDocumentation(
 
 export const handleDiagnostics = async (source: string, fileURI: string, targetPosition: NodePosition,
                                         getLangClient: () => Promise<ExpressionEditorLangClientInterface>):
-        Promise<Diagnostic[]> => {
+    Promise<Diagnostic[]> => {
     const diagResp = await getDiagnostics(fileURI, getLangClient);
-    const diag  = diagResp[0]?.diagnostics ? diagResp[0].diagnostics : [];
+    const diag = diagResp[0]?.diagnostics ? diagResp[0].diagnostics : [];
     const filtered = getFilteredDiagnosticMessages(source, targetPosition, diag);
     return diag;
 }

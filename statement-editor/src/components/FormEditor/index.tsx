@@ -17,8 +17,10 @@ import { ExpressionEditorLangClientInterface, STModification } from '@wso2-enter
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import * as monaco from "monaco-editor";
 
-import { enrichModel, getUpdatedSource} from "../../utils";
+import { CurrentModel } from '../../models/definitions';
+import { enrichModel, getUpdatedSource } from "../../utils";
 import {
+getCompletionsForType,
     getPartialSTForModuleMembers,
     handleDiagnostics,
     sendDidChange
@@ -58,16 +60,26 @@ export function FormEditor(props: FormEditorProps) {
     } = props;
 
     const [model, setModel] = useState<STNode>(null);
+    const [completions, setCompletions] = useState([]);
 
     const fileURI = monaco.Uri.file(currentFile.path).toString().replace(FILE_SCHEME, EXPR_SCHEME);
 
-    const onChange = async (genSource: string, partialST: STNode) => {
+    const onChange = async (genSource: string, partialST: STNode, currentModel?: CurrentModel, newValue?: string, completionKinds?: number[]) => {
         const updatedContent = await getUpdatedSource(genSource.trim(), currentFile.content, initialModel ?
-                initialModel.position : targetPosition, undefined, true);
+            initialModel.position : targetPosition, undefined, true);
         sendDidChange(fileURI, updatedContent, getLangClient).then();
         const diagnostics = await handleDiagnostics(genSource, fileURI, targetPosition, getLangClient).then();
         setModel(enrichModel(partialST, initialModel ?
             initialModel.position : targetPosition, diagnostics));
+        if (currentModel && newValue && completionKinds) {
+            handleCompletions(newValue, currentModel, completionKinds);
+        }
+    };
+
+    const handleCompletions = async (newValue: string, currentModel: CurrentModel, completionKinds: number[]) => {
+        const lsSuggestions = await getCompletionsForType(fileURI, targetPosition, model,
+            currentModel, getLangClient, newValue, completionKinds);
+        setCompletions(lsSuggestions);
     };
 
     useEffect(() => {
@@ -97,6 +109,7 @@ export function FormEditor(props: FormEditorProps) {
             <FormRenderer
                 type={type}
                 model={model}
+                completions={completions}
                 targetPosition={targetPosition}
                 onChange={onChange}
                 onCancel={onCancel}
