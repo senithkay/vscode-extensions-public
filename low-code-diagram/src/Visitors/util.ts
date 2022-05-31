@@ -130,7 +130,7 @@ export function getDraftComponentSizes(type: string, subType: string): { h: numb
                 case "Variable":
                 case "AssignmentStatement":
                 case "Custom":
-                case "SendStatement":
+                case "AsyncSend":
                 case "ReceiveStatement":
                 case "WaitStatement":
                 case "FlushStatement":

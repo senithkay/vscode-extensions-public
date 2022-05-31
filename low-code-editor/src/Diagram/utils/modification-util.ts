@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { FormField, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FormField, SendStatementConfig, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, StringTemplateExpression } from "@wso2-enterprise/syntax-tree";
 
 import { ConfigurableFormState } from "../components/FormComponents/ConfigForms/ConfigurableForm/util";
@@ -241,7 +241,7 @@ export function updateWhileStatementCondition(conditionExpression: string, targe
 }
 
 export function createPropertyStatement(property: string, targetPosition?: NodePosition,
-                                        isLastMember?: boolean): STModification {
+    isLastMember?: boolean): STModification {
     const propertyStatement: STModification = {
         startLine: targetPosition ? targetPosition.startLine : 0,
         startColumn: isLastMember ? targetPosition.endColumn : 0,
@@ -398,7 +398,7 @@ export function createImportStatement(org: string, module: string, targetPositio
 
     const subModuleName = moduleName.split('.').pop();
     if (moduleName.includes('.') && subModuleName !== formattedName) {
-        if (keywords.includes(subModuleName)){
+        if (keywords.includes(subModuleName)) {
             module = module.replace(subModuleName, "'" + subModuleName);
         }
         // add alias if module name is different with formatted name
@@ -653,7 +653,7 @@ export function createCheckedPayloadFunctionInvocation(variable: string, type: s
 }
 
 export function createModuleVarDecl(config: ModuleVariableFormState, targetPosition?: NodePosition,
-                                    isLastMember?: boolean): STModification {
+    isLastMember?: boolean): STModification {
     const { varName, varOptions, varType, varValue } = config;
 
     return {
@@ -672,8 +672,22 @@ export function createModuleVarDecl(config: ModuleVariableFormState, targetPosit
     }
 }
 
+export function createSendStatement(config: SendStatementConfig, targetPosition?: NodePosition): STModification {
+    return {
+        startLine: targetPosition ? targetPosition.startLine : 0,
+        endLine: targetPosition ? targetPosition.startLine : 0,
+        startColumn: targetPosition ? targetPosition.endColumn : 0,
+        endColumn: targetPosition ? targetPosition.endColumn : 0,
+        type: 'ASYNC_SEND_STATEMENT',
+        config: {
+            'EXPRESSION': config.expression,
+            'TARGET_WORKER': config.targetWorker
+        }
+    }
+}
+
 export function createModuleVarDeclWithoutInitialization(config: ModuleVariableFormState, targetPosition?: NodePosition,
-                                                         isLastMember?: boolean): STModification {
+    isLastMember?: boolean): STModification {
     const { varName, varOptions, varType } = config;
 
     return {
@@ -711,7 +725,7 @@ export function updateModuleVarDecl(config: ModuleVariableFormState, targetPosit
 }
 
 export function createConfigurableDecl(config: ConfigurableFormState, targetPosition: NodePosition,
-                                       isLastMember?: boolean, skipNewLine?: boolean): STModification {
+    isLastMember?: boolean, skipNewLine?: boolean): STModification {
     const { isPublic, varName, varType, varValue, label } = config;
 
     const modification: STModification = {
@@ -768,7 +782,7 @@ export function updateConfigurableVarDecl(config: ConfigurableFormState, targetP
 }
 
 export function createConstDeclaration(config: ConstantConfigFormState, targetPosition: NodePosition,
-                                       isLastMember?: boolean): STModification {
+    isLastMember?: boolean): STModification {
     const { isPublic, constantName, constantType, constantValue } = config;
 
     return {
@@ -849,7 +863,7 @@ export function createServiceDeclartion(
 }
 
 export function createListenerDeclartion(config: ListenerConfig, targetPosition: NodePosition, isNew: boolean,
-                                         isLastMember?: boolean): STModification {
+    isLastMember?: boolean): STModification {
     const { listenerName, listenerPort } = config;
     let modification: STModification;
     if (isNew) {
@@ -1038,7 +1052,7 @@ export function updateHeaderObjectDeclaration(headerObject: HeaderObjectConfig[]
 
 
 export function createFunctionSignature(accessModifier: string, name: string, parameters: string, returnTypes: string,
-                                        targetPosition: NodePosition, isLastMember?: boolean): STModification {
+    targetPosition: NodePosition, isLastMember?: boolean): STModification {
     const functionStatement: STModification = {
         startLine: targetPosition.startLine,
         startColumn: isLastMember ? targetPosition.endColumn : 0,
@@ -1074,7 +1088,7 @@ export function updateFunctionSignature(name: string, parameters: string, return
 }
 
 export function mutateTypeDefinition(typeName: string, typeDesc: string, targetPosition: NodePosition, isNew: boolean,
-                                     accessModifier?: string): STModification {
+    accessModifier?: string): STModification {
     let modification: STModification;
     if (isNew) {
         modification = {
@@ -1121,7 +1135,7 @@ export function createTrigger(config: any, targetPosition?: NodePosition, isLast
 }
 
 export function mutateEnumDefinition(name: string, members: string[], targetPosition: NodePosition, isNew: boolean,
-                                     accessModifier?: string): STModification {
+    accessModifier?: string): STModification {
     let modification: STModification;
     if (isNew) {
         modification = {

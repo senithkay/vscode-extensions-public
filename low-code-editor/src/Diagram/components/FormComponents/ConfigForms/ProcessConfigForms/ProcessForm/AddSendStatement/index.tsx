@@ -10,16 +10,81 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React from 'react';
+import React, { useContext } from 'react';
+import { useIntl } from 'react-intl';
 
+import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
+import { createModuleVarDecl, createSendStatement, getInitialSource } from '../../../../../../utils';
+import { ProcessConfig, SendStatementConfig } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { Context } from '../../../../../../../Contexts/Diagram';
 interface AddSendStatementProps {
-
+    // test
+    config: ProcessConfig;
+    formArgs: any;
+    onCancel: () => void;
+    onSave: () => void;
+    onWizardClose: () => void;
 }
 
 export function AddSendStatement(props: AddSendStatementProps) {
+    const { config, formArgs, onCancel, onSave, onWizardClose } = props;
+    const intl = useIntl();
+    const {
+        props: {
+            currentFile,
+            isMutationProgress: isMutationInProgress,
+            stSymbolInfo,
+            syntaxTree,
+            importStatements,
+            experimentalEnabled
+        },
+        api: {
+            ls: { getExpressionEditorLangClient },
+            code: {
+                modifyDiagram
+            },
+            insights: { onEvent },
+            library
+        }
+    } = useContext(Context);
+    const saveVariableButtonText = intl.formatMessage({
+        id: "lowcode.develop.configForms.variable.saveButton.text",
+        defaultMessage: "Save"
+    });
+
+    const cancelVariableButtonText = intl.formatMessage({
+        id: "lowcode.develop.configForms.variable.cancelButton.text",
+        defaultMessage: "Cancel"
+    });
+
+    const formTitle = intl.formatMessage({
+        id: "lowcode.develop.configForms.variable.title",
+        defaultMessage: "Variable"
+    });
+
+    const initialSource = getInitialSource(createSendStatement(config.config as SendStatementConfig));
+
+    const { handleStmtEditorToggle, stmtEditorComponent } = useStatementEditor(
+        {
+            label: formTitle,
+            initialSource,
+            formArgs: { formArgs },
+            config,
+            onWizardClose,
+            handleStatementEditorChange: () => {},
+            onCancel,
+            currentFile,
+            getLangClient: getExpressionEditorLangClient,
+            applyModifications: modifyDiagram,
+            library,
+            syntaxTree,
+            stSymbolInfo,
+            importStatements,
+            experimentalEnabled
+        }
+    );
+
     return (
-        <div>
-            yo
-        </div>
+        stmtEditorComponent
     )
 }

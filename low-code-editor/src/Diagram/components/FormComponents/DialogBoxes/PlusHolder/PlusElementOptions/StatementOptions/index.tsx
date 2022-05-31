@@ -290,7 +290,7 @@ export function StatementOptions(props: StatementOptionsProps) {
                 <div
                     className="sub-option enabled"
                     data-testid="addSend"
-                    onClick={onSelectStatement.bind(undefined, "SendStatement")}
+                    onClick={onSelectStatement.bind(undefined, "AsyncSend")}
                 >
                     <div className="icon-wrapper">
                         <AsyncSend />

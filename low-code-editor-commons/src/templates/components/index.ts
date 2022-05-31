@@ -155,5 +155,8 @@ service {{{ BASE_PATH }}} on {{{ LISTENER_NAME }}}`,
     worker {{{NAME}}} returns {{{RETURN_TYPE}}} {
 
     }
+    `,
+    ASYNC_SEND_STATEMENT: `
+    {{{EXPRESSION}}} -> {{{TARGET_WORKER}}};
     `
 }

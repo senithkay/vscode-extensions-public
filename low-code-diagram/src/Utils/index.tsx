@@ -99,7 +99,7 @@ export function getDraftComponent(viewState: BlockViewState, state: any, insertC
                 case "Worker":
                 case "AssignmentStatement":
                 case "Variable":
-                case "SendStatement":
+                case "AsyncSend":
                 case "ReceiveStatement":
                 case "WaitStatement":
                 case "FlushStatement":
