@@ -128,7 +128,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
     } = props.configOverlayFormStatus.formArgs as ConnectorConfigWizardProps;
 
     const {
-        props: { syntaxTree },
+        props: { syntaxTree, environment },
     } = useDiagramContext();
     const {
         connector,
@@ -372,7 +372,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
         if (connectorInfo?.package) {
             const { organization, name } = connectorInfo?.package;
             if (organization && name) {
-                const docURL = generateDocUrl(organization, name, "", connectorInfo?.name);
+                const docURL = generateDocUrl(organization, name, "", connectorInfo?.name, environment);
                 if (docURL) {
                     showDocumentationView(docURL);
                 }
@@ -497,7 +497,6 @@ export function ConnectorForm(props: FormGeneratorProps) {
         <FormControl data-testid="connector-form" className={formClasses.wizardFormControl}>
             <FormHeaderSection
                 onCancel={onClose}
-                statementEditor={false}
                 formTitle={"lowcode.develop.configForms.connector.title"}
                 defaultMessage={"Connector"}
             />

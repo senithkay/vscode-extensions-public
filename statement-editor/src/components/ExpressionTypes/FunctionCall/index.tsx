@@ -10,10 +10,13 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React from "react";
+import React, { useContext } from "react";
 
 import { FunctionCall } from "@wso2-enterprise/syntax-tree";
 
+import { EXPR_CONSTRUCTOR } from "../../../constants";
+import { StatementEditorContext } from "../../../store/statement-editor-context";
+import { NewExprAddButton } from "../../Button/NewExprAddButton";
 import { ExpressionArrayComponent } from "../../ExpressionArray";
 import { InputEditor, InputEditorProps } from "../../InputEditor";
 import { TokenComponent } from "../../Token";
@@ -24,16 +27,38 @@ interface FunctionCallProps {
 
 export function FunctionCallComponent(props: FunctionCallProps) {
     const { model } = props;
+    const {
+        modelCtx: {
+            updateModel,
+            hasRestArg
+        }
+    } = useContext(StatementEditorContext);
 
     const inputEditorProps: InputEditorProps = {
         model: model.functionName,
         notEditable: true
     }
+
+    const addNewExpression = () => {
+        const isEmpty = model.arguments.length === 0;
+        const expr = isEmpty ? EXPR_CONSTRUCTOR : `, ${EXPR_CONSTRUCTOR}`;
+        const newPosition = isEmpty ? {
+            ...model.closeParenToken.position,
+            endColumn: model.closeParenToken.position.startColumn
+        } : {
+            startLine: model.arguments[model.arguments.length - 1].position.endLine,
+            startColumn: model.arguments[model.arguments.length - 1].position.endColumn,
+            endLine: model.closeParenToken.position.startLine,
+            endColumn: model.closeParenToken.position.startColumn
+        }
+        updateModel(expr, newPosition);
+    };
     return (
         <>
             <InputEditor {...inputEditorProps} />
             <TokenComponent model={model.openParenToken} />
             <ExpressionArrayComponent expressions={model.arguments} />
+            {hasRestArg && (<NewExprAddButton model={model} onClick={addNewExpression}/>)}
             <TokenComponent model={model.closeParenToken} />
         </>
     );

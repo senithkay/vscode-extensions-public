@@ -44,6 +44,8 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
         props: {
             isMutationProgress: isMutationInProgress,
             currentFile,
+            stSymbolInfo,
+            syntaxTree,
             importStatements,
             experimentalEnabled
         },
@@ -97,6 +99,11 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
         setIsFormValid(isValidExpression);
     }
 
+    const formTitle = intl.formatMessage({
+        id: "lowcode.develop.configForms.customStatement.title",
+        defaultMessage: "Other"
+    });
+
     const saveCustomStatementButtonLabel = intl.formatMessage({
         id: "lowcode.develop.configForms.customStatement.saveButton.label",
         defaultMessage: "Save"
@@ -123,10 +130,9 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
 
     const { handleStmtEditorToggle, stmtEditorComponent } = useStatementEditor(
         {
-            label: intl.formatMessage({ id: "lowcode.develop.configForms.customStatement.statementEditor.label" }),
-            initialSource: expression ? expression : "EXPRESSION",
+            label: formTitle,
+            initialSource: expression ? expression : "STATEMENT",
             formArgs: { formArgs },
-            validForm: isFormValid,
             config,
             onWizardClose,
             handleStatementEditorChange,
@@ -135,6 +141,8 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
             getLangClient: getExpressionEditorLangClient,
             applyModifications: modifyDiagram,
             library,
+            syntaxTree,
+            stSymbolInfo,
             importStatements,
             experimentalEnabled
         }
@@ -145,12 +153,8 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
             <FormControl data-testid="custom-expression-form" className={formClasses.wizardFormControl}>
                 <FormHeaderSection
                     onCancel={onCancel}
-                    statementEditor={true}
-                    formTitle={"lowcode.develop.configForms.customStatement.title"}
+                    formTitle={formTitle}
                     defaultMessage={"Other"}
-                    handleStmtEditorToggle={handleStmtEditorToggle}
-                    toggleChecked={false}
-                    experimentalEnabled={experimentalEnabled}
                 />
                 <div className={formClasses.formContentWrapper}>
                     <div className={formClasses.formNameWrapper}>
@@ -184,6 +188,10 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
                     validForm={isFormValid}
                     onSave={onSaveBtnClick}
                     onCancel={onCancel}
+                    statementEditor={true}
+                    toggleChecked={false}
+                    experimentalEnabled={experimentalEnabled}
+                    handleStmtEditorToggle={handleStmtEditorToggle}
                 />
             </FormControl>
         );

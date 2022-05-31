@@ -93,6 +93,36 @@ export interface PartialSTModification {
     newCodeSnippet: string;
 }
 
+export interface SymbolInfoRequest {
+    textDocumentIdentifier: {
+        uri: string;
+    },
+    position: {
+        line: number;
+        character: number;
+    }
+}
+
+export interface ParameterInfo {
+    name : string,
+    description : string,
+    kind : string,
+    type : string
+}
+
+export interface SymbolDocumentation {
+    description : string,
+    parameters? : ParameterInfo[],
+    returnValueDescription? : string,
+    deprecatedDocumentation? : string,
+    deprecatedParams? : ParameterInfo[]
+}
+
+export interface SymbolInfoResponse {
+    symbolKind: string,
+    documentation : SymbolDocumentation
+}
+
 export interface ExpressionEditorLangClientInterface extends BaseLangClientInterface {
     getDiagnostics: (
         params: BallerinaProjectParams
@@ -112,4 +142,7 @@ export interface ExpressionEditorLangClientInterface extends BaseLangClientInter
     getSTForModuleMembers: (
         param: PartialSTRequest
     ) => Thenable<PartialSTResponse>;
+    getSymbolDocumentation: (
+        params: SymbolInfoRequest
+    ) => Thenable<SymbolInfoResponse>
 }

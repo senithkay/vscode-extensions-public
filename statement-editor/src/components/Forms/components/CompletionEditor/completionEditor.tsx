@@ -26,10 +26,11 @@ interface CompletionEditorProps {
     }
     errorMessage?: string;
     disabled?: boolean;
+    dataTestId?: string;
 }
 
 export function CompletionEditor(props: CompletionEditorProps) {
-    const { model, completions, isActive, placeholder, disabled, errorMessage, defaultValue, diagsInRange, onChange, onFocus } = props;
+    const { model, completions, isActive, placeholder, disabled, errorMessage, defaultValue, diagsInRange, dataTestId, onChange, onFocus } = props;
     const customProps = props.customProps;
     const [options, setOptions] = useState([]);
     const [hints, setHints] = useState<ExpressionEditorHintProps[]>([]);
@@ -81,6 +82,7 @@ export function CompletionEditor(props: CompletionEditorProps) {
     return (
         <div>
             <Autocomplete
+                data-testid={dataTestId}
                 freeSolo={true}
                 options={options}
                 disabled={disabled}

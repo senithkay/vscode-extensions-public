@@ -30,10 +30,9 @@ import {
     CheckExpression,
     ImplicitNewExpression, ListConstructor, LocalVarDecl, MappingConstructor, ModuleVarDecl, NamedArg, NodePosition, NumericLiteral,
     ParenthesizedArgList,
-    PositionalArg, RemoteMethodCallAction, RequiredParam, SimpleNameReference, SpecificField,
+    PositionalArg, RemoteMethodCallAction, SimpleNameReference, SpecificField,
     STKindChecker,
-    STNode, StringLiteral, TypeCastExpression, WildcardBindingPattern
-} from "@wso2-enterprise/syntax-tree";
+    STNode, StringLiteral, TypeCastExpression} from "@wso2-enterprise/syntax-tree";
 import { DocumentSymbol, SymbolInformation } from "vscode-languageserver-protocol";
 
 import * as ConstructIcons from "../../../../assets/icons"
@@ -339,10 +338,20 @@ export function matchEndpointToFormField(endPoint: LocalVarDecl | ModuleVarDecl,
         let formField = formFields[nextValueIndex];
         if (STKindChecker.isNamedArg(positionalArg)) {
             const argName = positionalArg.argumentName.name.value;
-            const matchedField = formFields.find(field => field.name === argName);
-            if (matchedField) {
-                formField = matchedField;
-            }
+            formFields.forEach((field) => {
+                if (field.name === argName) {
+                    formField = field;
+                    return;
+                }
+                if (field.typeName === "inclusion") {
+                    field.inclusionType?.fields?.forEach((subField) => {
+                        if (subField.name === argName) {
+                            formField = subField;
+                            return;
+                        }
+                    });
+                }
+            });
         }
         if (positionalArg.kind === "PositionalArg" || positionalArg.kind === "NamedArg") {
             if (formField.typeName === "string" || formField.typeName === "int" || formField.typeName === "boolean" ||
