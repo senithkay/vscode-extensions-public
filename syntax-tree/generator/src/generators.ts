@@ -31,6 +31,12 @@ export function genInterfacesFileCode(modelInfo: any) {
             endColumn?: number;
         }
 
+        export interface Minutiae {
+            isInvalid: boolean;
+            kind: string;
+            minutiae: string;
+        }
+
         export interface ControlFlow {
             isReached?: boolean;
             isCompleted?: boolean;
@@ -70,6 +76,8 @@ export function genInterfacesFileCode(modelInfo: any) {
             controlFlow?: ControlFlow;
             syntaxDiagnostics: SyntaxDiagnostics[];
             performance?: PerfData;
+            leadingMinutiae: Minutiae[];
+            trailingMinutiae: Minutiae[];
         }
 
         ${interfaces.join("\n")}
@@ -122,7 +130,7 @@ export function findModelInfo(node: any, modelInfo: any = {}) {
     model.__count++;
 
     Object.keys(node).forEach((key) => {
-        if (["kind", "id", "position", "source", "typeData"].includes(key)) {
+        if (["kind", "id", "position", "source", "typeData", "leadingMinutiae", "trailingMinutiae"].includes(key)) {
             // These properties are in the interface STNode
             // Other interfaces we generate extends it, so no need to add it.
             return;

@@ -241,12 +241,6 @@ export class STKindChecker {
     return node.kind === 'ByteTypeDesc';
   }
 
-  public static isCOMMENT_MINUTIAE(
-    node: Ballerina.STNode
-  ): node is Ballerina.COMMENT_MINUTIAE {
-    return node.kind === 'COMMENT_MINUTIAE';
-  }
-
   public static isCallStatement(
     node: Ballerina.STNode
   ): node is Ballerina.CallStatement {
@@ -537,12 +531,6 @@ export class STKindChecker {
     node: Ballerina.STNode
   ): node is Ballerina.DoubleSlashDoubleAsteriskLtToken {
     return node.kind === 'DoubleSlashDoubleAsteriskLtToken';
-  }
-
-  public static isEND_OF_LINE_MINUTIAE(
-    node: Ballerina.STNode
-  ): node is Ballerina.END_OF_LINE_MINUTIAE {
-    return node.kind === 'END_OF_LINE_MINUTIAE';
   }
 
   public static isEllipsisToken(
@@ -869,12 +857,6 @@ export class STKindChecker {
     node: Ballerina.STNode
   ): node is Ballerina.HexIntegerLiteralToken {
     return node.kind === 'HexIntegerLiteralToken';
-  }
-
-  public static isINVALID_NODE_MINUTIAE(
-    node: Ballerina.STNode
-  ): node is Ballerina.INVALID_NODE_MINUTIAE {
-    return node.kind === 'INVALID_NODE_MINUTIAE';
   }
 
   public static isIdentifierToken(
@@ -2213,12 +2195,6 @@ export class STKindChecker {
     return node.kind === 'VariableDocReferenceToken';
   }
 
-  public static isWHITESPACE_MINUTIAE(
-    node: Ballerina.STNode
-  ): node is Ballerina.WHITESPACE_MINUTIAE {
-    return node.kind === 'WHITESPACE_MINUTIAE';
-  }
-
   public static isWaitAction(
     node: Ballerina.STNode
   ): node is Ballerina.WaitAction {
@@ -2439,5 +2415,11 @@ export class STKindChecker {
     node: Ballerina.STNode
   ): node is Ballerina.XmlnsKeyword {
     return node.kind === 'XmlnsKeyword';
+  }
+
+  public static isundefined(
+    node: Ballerina.STNode
+  ): node is Ballerina.undefined {
+    return node.kind === 'undefined';
   }
 }

@@ -360,15 +360,6 @@ export interface Visitor {
     parent?: Ballerina.STNode
   ): void;
 
-  beginVisitCOMMENT_MINUTIAE?(
-    node: Ballerina.COMMENT_MINUTIAE,
-    parent?: Ballerina.STNode
-  ): void;
-  endVisitCOMMENT_MINUTIAE?(
-    node: Ballerina.COMMENT_MINUTIAE,
-    parent?: Ballerina.STNode
-  ): void;
-
   beginVisitCallStatement?(
     node: Ballerina.CallStatement,
     parent?: Ballerina.STNode
@@ -804,15 +795,6 @@ export interface Visitor {
   ): void;
   endVisitDoubleSlashDoubleAsteriskLtToken?(
     node: Ballerina.DoubleSlashDoubleAsteriskLtToken,
-    parent?: Ballerina.STNode
-  ): void;
-
-  beginVisitEND_OF_LINE_MINUTIAE?(
-    node: Ballerina.END_OF_LINE_MINUTIAE,
-    parent?: Ballerina.STNode
-  ): void;
-  endVisitEND_OF_LINE_MINUTIAE?(
-    node: Ballerina.END_OF_LINE_MINUTIAE,
     parent?: Ballerina.STNode
   ): void;
 
@@ -1299,15 +1281,6 @@ export interface Visitor {
   ): void;
   endVisitHexIntegerLiteralToken?(
     node: Ballerina.HexIntegerLiteralToken,
-    parent?: Ballerina.STNode
-  ): void;
-
-  beginVisitINVALID_NODE_MINUTIAE?(
-    node: Ballerina.INVALID_NODE_MINUTIAE,
-    parent?: Ballerina.STNode
-  ): void;
-  endVisitINVALID_NODE_MINUTIAE?(
-    node: Ballerina.INVALID_NODE_MINUTIAE,
     parent?: Ballerina.STNode
   ): void;
 
@@ -3306,15 +3279,6 @@ export interface Visitor {
   ): void;
   endVisitVariableDocReferenceToken?(
     node: Ballerina.VariableDocReferenceToken,
-    parent?: Ballerina.STNode
-  ): void;
-
-  beginVisitWHITESPACE_MINUTIAE?(
-    node: Ballerina.WHITESPACE_MINUTIAE,
-    parent?: Ballerina.STNode
-  ): void;
-  endVisitWHITESPACE_MINUTIAE?(
-    node: Ballerina.WHITESPACE_MINUTIAE,
     parent?: Ballerina.STNode
   ): void;
 
