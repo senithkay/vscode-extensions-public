@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext } from "react";
 
-import { ReturnStatement } from "@wso2-enterprise/syntax-tree";
+import { ActionStatement } from "@wso2-enterprise/syntax-tree";
 
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { ExpressionComponent } from "../../Expression";
@@ -21,10 +21,10 @@ import { TokenComponent } from "../../Token";
 
 
 interface ReturnStatementProps {
-    model: ReturnStatement;
+    model: ActionStatement;
 }
 
-export function RespondStatementC(props: ReturnStatementProps) {
+export function ActionStatementC(props: ReturnStatementProps) {
     const { model } = props;
     const stmtCtx = useContext(StatementEditorContext);
     const {
@@ -38,10 +38,28 @@ export function RespondStatementC(props: ReturnStatementProps) {
         changeCurrentModel(model.expression);
     }
 
+    let component: JSX.Element = undefined;
+
+    if (model.expression?.kind === "AsyncSendAction") {
+        const expressionModel: any = model.expression as any;
+        component = (
+            <>
+                <ExpressionComponent model={expressionModel.expression} />
+                <TokenComponent model={expressionModel.rightArrowToken} /> 
+                <ExpressionComponent model={expressionModel.peerWorker} />
+                <TokenComponent model={model.semicolonToken} />
+            </>
+        )
+    } else {
+        component = (
+            <>
+                <ExpressionComponent model={model.expression} />
+                <TokenComponent model={model.semicolonToken} />
+            </>
+        )
+    }
+
     return (
-        <>
-            <ExpressionComponent model={model.expression} />
-            <TokenComponent model={model.semicolonToken} />
-        </>
+        component
     );
 }

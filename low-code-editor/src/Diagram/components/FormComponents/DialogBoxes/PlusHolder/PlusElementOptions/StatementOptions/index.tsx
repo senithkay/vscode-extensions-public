@@ -279,7 +279,7 @@ export function StatementOptions(props: StatementOptionsProps) {
     }
     const sendStmt: StatementComponent = {
         name: "send",
-        category: 'process',
+        category: 'generics',
         component: (
             <Tooltip
                 title={plusHolderStatementTooltipMessages.send.title}
@@ -307,7 +307,7 @@ export function StatementOptions(props: StatementOptionsProps) {
     }
     const receiveStmt: StatementComponent = {
         name: "receive",
-        category: 'process',
+        category: 'generics',
         component: (
             <Tooltip
                 title={plusHolderStatementTooltipMessages.receive.title}
@@ -335,7 +335,7 @@ export function StatementOptions(props: StatementOptionsProps) {
     }
     const waitStmt: StatementComponent = {
         name: "wait",
-        category: 'process',
+        category: 'generics',
         component: (
             <Tooltip
                 title={plusHolderStatementTooltipMessages.wait.title}
@@ -363,7 +363,7 @@ export function StatementOptions(props: StatementOptionsProps) {
     }
     const flushStmt: StatementComponent = {
         name: "flush",
-        category: 'process',
+        category: 'generics',
         component: (
             <Tooltip
                 title={plusHolderStatementTooltipMessages.flush.title}
@@ -636,26 +636,36 @@ export function StatementOptions(props: StatementOptionsProps) {
     if (selectedCompName !== "") {
         const stmts: StatementComponent[] = initStatements.statement.filter(el => el.name.toLowerCase().includes(selectedCompName.toLowerCase()));
         stmts.forEach((stmt) => {
-            if (stmt.category === "actors") {
-                actorsComp.push(stmt.component);
-            } else if (stmt.category === "generics") {
-                genericsComp.push(stmt.component);
-            } else if (stmt.category === "controlflows") {
-                controlFlowComp.push(stmt.component);
-            } else if (stmt.category === "communications") {
-                communicationComp.push(stmt.component);
+            switch (stmt.category) {
+                case "actors":
+                    actorsComp.push(stmt.component);
+                    break;
+                case "generics":
+                    genericsComp.push(stmt.component);
+                    break;
+                case "controlflows":
+                    controlFlowComp.push(stmt.component);
+                    break;
+                case "communications":
+                    communicationComp.push(stmt.component);
+                    break;
             }
         });
     } else {
         initStatements.statement.forEach((stmt) => {
-            if (stmt.category === "actors") {
-                actorsComp.push(stmt.component);
-            } else if (stmt.category === "generics") {
-                genericsComp.push(stmt.component);
-            } else if (stmt.category === "controlflows") {
-                controlFlowComp.push(stmt.component);
-            } else if (stmt.category === "communications") {
-                communicationComp.push(stmt.component);
+            switch (stmt.category) {
+                case "actors":
+                    actorsComp.push(stmt.component);
+                    break;
+                case "generics":
+                    genericsComp.push(stmt.component);
+                    break;
+                case "controlflows":
+                    controlFlowComp.push(stmt.component);
+                    break;
+                case "communications":
+                    communicationComp.push(stmt.component);
+                    break;
             }
         });
     }

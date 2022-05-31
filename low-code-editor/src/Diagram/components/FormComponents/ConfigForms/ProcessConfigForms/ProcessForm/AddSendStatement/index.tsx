@@ -64,7 +64,11 @@ export function AddSendStatement(props: AddSendStatementProps) {
         defaultMessage: "Async Send Statement"
     });
 
-    const initialSource = getInitialSource(createSendStatement(config.config as SendStatementConfig));
+    const sendStatementConfig: SendStatementConfig = config.config as SendStatementConfig;
+    sendStatementConfig.expression = sendStatementConfig.expression === '' ? 'EXPRESSION' : sendStatementConfig.expression;
+    sendStatementConfig.targetWorker = sendStatementConfig.targetWorker === '' ? 'EXPRESSION' : sendStatementConfig.targetWorker;
+
+    const initialSource = getInitialSource(createSendStatement(sendStatementConfig));
 
     const { handleStmtEditorToggle, stmtEditorComponent } = useStatementEditor(
         {
@@ -73,7 +77,7 @@ export function AddSendStatement(props: AddSendStatementProps) {
             formArgs: { formArgs },
             config,
             onWizardClose,
-            handleStatementEditorChange: () => {},
+            handleStatementEditorChange: undefined,
             onCancel,
             currentFile,
             getLangClient: getExpressionEditorLangClient,

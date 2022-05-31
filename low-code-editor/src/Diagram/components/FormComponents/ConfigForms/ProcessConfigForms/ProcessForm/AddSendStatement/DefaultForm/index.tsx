@@ -19,19 +19,19 @@ import { FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-ui
 import { useStyles as useFormStyles } from "../../../../../DynamicConnectorForm/style";
 
 interface DefaultFormProps {
-
+    test?: string;
 }
 
 export function DefaultForm(props: DefaultFormProps) {
     const formClasses = useFormStyles();
+    // <FormHeaderSection
+    //     onCancel={}
+    //     formTitle={""}
+    //     defaultMessage={"Log"}
+    // />
     return (
         <FormControl data-testid="log-form" className={formClasses.wizardFormControl}>
-            <FormHeaderSection
-                onCancel={() => {}}
-                formTitle={""}
-                defaultMessage={"Log"}
-            />
-
+            yo
         </FormControl>
     )
 }
