@@ -121,7 +121,9 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
         );
         if (!partialST.syntaxDiagnostics.length) {
             setCurrentComponentSyntaxDiag(undefined);
-            onChange(updatedContent, partialST, HTTP_IMPORT);
+            const offset = isEdit ? (createdListerCount * 2) :
+                (shouldAddNewLine ? (createdListerCount * 2 + 1) : createdListerCount * 2);
+            onChange(updatedContent, partialST, HTTP_IMPORT, offset);
         } else {
             setCurrentComponentSyntaxDiag(partialST.syntaxDiagnostics);
         }

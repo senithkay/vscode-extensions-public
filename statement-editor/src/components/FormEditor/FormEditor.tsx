@@ -65,21 +65,39 @@ export function FormEditor(props: FormEditorProps) {
 
     const fileURI = monaco.Uri.file(currentFile.path).toString().replace(FILE_SCHEME, EXPR_SCHEME);
 
-    const onChange = async (genSource: string, partialST: STNode, moduleList: Set<string>) => {
+    const onChange = async (genSource: string, partialST: STNode, moduleList: Set<string>,
+                            offsetLineCount: number = 0) => {
+        // Offset line position is to add some extra line if we do multiple code generations
+
         const newModuleList = new Set<string>();
         moduleList?.forEach(module => {
             if (!currentFile.content.includes(module)){
                 newModuleList.add(module);
             }
         })
-        const updatedContent = getUpdatedSource(genSource.trim(), currentFile.content, initialModel ?
-                initialModel.position : {...targetPosition, endLine: targetPosition.startLine, startColumn: 0,
-                                         endColumn: 0}, newModuleList, true);
+        const updatedContent = getUpdatedSource(genSource.trim(), currentFile.content, initialModel ? {
+            ...initialModel.position,
+            startLine: initialModel.position.startLine + offsetLineCount,
+            endLine: initialModel.position.endLine + offsetLineCount} : {
+                ...targetPosition,
+                startLine: targetPosition.startLine + offsetLineCount,
+                endLine: targetPosition.startLine + offsetLineCount,
+                startColumn: 0,
+                endColumn: 0
+            }, newModuleList, true);
         sendDidChange(fileURI, updatedContent, getLangClient).then();
         const diagnostics = await handleDiagnostics(genSource, fileURI, targetPosition, getLangClient).then();
-        setModel(enrichModel(partialST, initialModel ?
-            initialModel.position : {...targetPosition, endLine: targetPosition.startLine, startColumn: 0,
-                                     endColumn: 0}, diagnostics));
+        setModel(enrichModel(partialST, initialModel ? {
+            ...initialModel.position,
+            startLine: initialModel.position.startLine + offsetLineCount ,
+            endLine: initialModel.position.endLine + offsetLineCount
+        } : {
+            ...targetPosition,
+            startLine: targetPosition.startLine + offsetLineCount,
+            endLine: targetPosition.startLine + offsetLineCount,
+            startColumn: 0,
+            endColumn: 0
+        }, diagnostics));
     };
 
     useEffect(() => {

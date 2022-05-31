@@ -41,7 +41,7 @@ export const FormEditorContext = React.createContext({
     stSymbolInfo: null,
     onCancel: () => undefined,
     onSave: () => undefined,
-    onChange: (code: string, partialST: STNode, moduleList?: Set<string>) => undefined,
+    onChange: (code: string, partialST: STNode, moduleList?: Set<string>, offsetLineCount?: number) => undefined,
     getLangClient: () => (Promise.resolve({} as any)),
     applyModifications: (modifications: STModification[]) => undefined
 });
@@ -57,7 +57,7 @@ export interface FormEditorProps {
     syntaxTree?: STNode;
     isEdit?: boolean;
     getLangClient: () => Promise<ExpressionEditorLangClientInterface>;
-    onChange: (code: string, partialST: STNode, moduleList?: Set<string>) => void;
+    onChange: (code: string, partialST: STNode, moduleList?: Set<string>, offsetLineCount?: number) => void;
     currentFile: {
         content: string,
         path: string,
