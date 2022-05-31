@@ -61,6 +61,13 @@ const stmtEditorPadding = {
     paddingLeft: '25px',
     paddingRight: '25px'
 }
+
+const statementFontStyles = {
+    fontSize: "15px",
+    'user-select': 'none',
+    fontFamily: 'Droid sans mono'
+}
+
 export const useStatementEditorToolbarStyles = makeStyles(() =>
     createStyles({
         toolbar: {
@@ -106,7 +113,8 @@ export const useStatementRendererStyles = makeStyles(() =>
             border: 'none',
             '&:focus': {
                 outline: 'none'
-            }
+            },
+            ...statementFontStyles
         },
         expressionElement: {
             position: 'relative',
@@ -406,7 +414,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
         },
         parameterCheckbox: {
             color: '#2FA86C',
-            paddingLeft: '0px',
+            padding: '0 6px 0 0',
             "& .MuiCheckbox-colorSecondary.Mui-checked": {
                 color: "#2FA86C"
             },
@@ -443,7 +451,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
         checked: {},
         disabledCheckbox : {
             color: 'rgba(47,168,108,0.5)',
-            paddingLeft: '0px',
+            padding: '0 6px 0 0',
             "&$checked": {
                 color: "rgba(47,168,108,0.5)",
                 "&:hover": {
@@ -479,7 +487,9 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             opacity: '0.52',
             backgroundColor: "#DCDEE4",
             display: 'block',
-            float: 'left'
+            float: 'left',
+            marginTop: '20px',
+            marginBottom: '18px'
         },
         docListItemText: {
             ...removePadding
@@ -502,12 +512,14 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
                 flex: 'inherit'
             },
             "& .MuiListItemText-root": {
-                flex: "inherit"
+                flex: "inherit",
+                margin: '0 6px 0 0'
             },
             ...removePadding
         },
         docDescription: {
             marginBottom: '13px',
+            whiteSpace: 'pre',
             "& .MuiListItem-root": {
                 paddingLeft: '0px',
                 paddingTop: '0px',
@@ -535,7 +547,8 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
                 padding: '0px'
             },
             "& .MuiListItemText-root": {
-                flex: 'inherit'
+                flex: 'inherit',
+                margin: '0 6px 0 0'
             },
             ...removePadding
         },
@@ -554,6 +567,7 @@ export const useStatementEditorStyles = makeStyles(() =>
             fontSize: '13px',
             fontFamily: 'Gilmer',
             overflowY: 'hidden',
+            paddingTop: '0px',
             ...stmtEditorPadding
         },
         statementExpressionWrapper: {
@@ -590,9 +604,7 @@ export const useStatementEditorStyles = makeStyles(() =>
             fontWeight: 500
         },
         statementExpressionContent: {
-            fontSize: "15px",
-            'user-select': 'none',
-            fontFamily: 'Droid sans mono'
+           ...statementFontStyles
         },
         footer: {
             height: 'auto',
