@@ -74,6 +74,7 @@ export const MAPPING_CONSTRUCTOR = "key : EXPRESSION";
 export const CONFIGURABLE_NAME_CONSTRUCTOR = "CONF_NAME";
 
 export const CONFIGURABLE_VALUE_REQUIRED_TOKEN = "?";
+export const QUERY_INTERMEDIATE_CLAUSES = "Query Intermediate-Clauses";
 
 export const BAL_SOURCE = "```ballerina";
 
@@ -124,7 +125,8 @@ export type OtherStatementNodeTypes = ActionStatement
     | TransactionStatement;
 
 export enum ArrayType {
-    MAPPING_CONSTRUCTOR
+    MAPPING_CONSTRUCTOR,
+    INTERMEDIATE_CLAUSE
 }
 
 export enum SymbolParameterType {
