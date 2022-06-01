@@ -12,13 +12,16 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext } from "react";
+import { useIntl } from "react-intl";
 
+import { TooltipIcon } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import cn from "classnames";
 
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { getExpressionTypeComponent, isPositionsEquals } from "../../utils";
 import { useStatementRendererStyles } from "../styles";
+
 
 export interface ExpressionComponentProps {
     model: STNode;
@@ -37,9 +40,11 @@ export function ExpressionComponent(props: ExpressionComponentProps) {
     const { modelCtx } = useContext(StatementEditorContext);
     const {
         currentModel: selectedModel,
-        changeCurrentModel
+        changeCurrentModel,
+        hasSyntaxDiagnostics
     } = modelCtx;
 
+    const intl = useIntl();
     const statementRendererClasses = useStatementRendererStyles();
 
     const isSelected = selectedModel.model && model && isPositionsEquals(selectedModel.model.position, model.position);
@@ -57,29 +62,44 @@ export function ExpressionComponent(props: ExpressionComponentProps) {
     }
 
     const onMouseClick = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        e.preventDefault();
-        changeCurrentModel(model, stmtPosition);
+        if (!hasSyntaxDiagnostics) {
+            e.stopPropagation();
+            e.preventDefault();
+            changeCurrentModel(model, stmtPosition);
+        }
     }
 
     const styleClassNames = cn(statementRendererClasses.expressionElement,
-        isSelected && statementRendererClasses.expressionElementSelected,
+        isSelected && !hasSyntaxDiagnostics && statementRendererClasses.expressionElementSelected,
+        isSelected && hasSyntaxDiagnostics && statementRendererClasses.syntaxErrorElementSelected,
         {
-            "hovered": !isSelected && isHovered,
+            "hovered": !isSelected && isHovered && !hasSyntaxDiagnostics,
         },
         classNames
     )
 
+    const syntaxErrorMessage = intl.formatMessage({
+        id: "statement.editor.syntaxError.warning",
+        defaultMessage: "Fix the error first"
+    });
+
     return (
-        <span
-            onMouseOver={onMouseOver}
-            onMouseOut={onMouseOut}
-            className={styleClassNames}
-            onClick={onMouseClick}
-            data-testid={model.kind}
-        >
-            {component}
-            {children}
-        </span>
+        <>
+            <span
+                onMouseOver={onMouseOver}
+                onMouseOut={onMouseOut}
+                className={styleClassNames}
+                onClick={onMouseClick}
+                data-testid={model.kind}
+            >
+                {component}
+                {children}
+            </span>
+            <span className={statementRendererClasses.syntaxErrorTooltip}>
+                {isSelected && hasSyntaxDiagnostics && (
+                    <TooltipIcon title={syntaxErrorMessage} placement='top-end' arrow={true} />
+                )}
+            </span>
+        </>
     );
 }
