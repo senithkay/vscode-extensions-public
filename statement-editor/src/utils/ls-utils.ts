@@ -168,7 +168,7 @@ export async function getCompletionsForType(docUri: string,
             triggerKind: 1
         },
         position: {
-            character: targetPosition.startColumn + currentModelPosition.startColumn + userInput.length,
+            character: targetPosition.startColumn + currentModelPosition.startColumn + userInput.length + 1,
             line: targetPosition.startLine + currentModelPosition.startLine
         }
     }
