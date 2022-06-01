@@ -11,9 +11,10 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 
 import { ALL_LIBS_IDENTIFIER, LANG_LIBS_IDENTIFIER, STD_LIBS_IDENTIFIER } from "../../constants";
+import { StatementEditorContext } from "../../store/statement-editor-context";
 import { KeyboardNavigationManager } from "../../utils/keyboard-navigation-manager";
 import SelectDropdown from "../Dropdown";
 import { LibraryBrowser } from "../LibraryBrowser";
@@ -42,6 +43,12 @@ export function HelperPane(props: HelperPaneProps) {
     const [selectedTab, setSelectedTab] = useState(TabElements.suggestions);
     const [libraryType, setLibraryType] = useState('');
 
+    const {
+        modelCtx: {
+            newQueryPosition
+        }
+    } = useContext(StatementEditorContext);
+
     const onTabElementSelection = async (value: TabElements) => {
         setSelectedTab(value);
     };
@@ -69,8 +76,10 @@ export function HelperPane(props: HelperPaneProps) {
     useEffect(() => {
         if (docExpandClicked){
             setSelectedTab(TabElements.parameters);
+        } else if (newQueryPosition){
+            setSelectedTab(TabElements.expressions);
         }
-    }, [docExpandClicked])
+    }, [docExpandClicked, newQueryPosition])
 
     useEffect(() => {
         selectedTab === TabElements.parameters ? paramTabHandler(true) : paramTabHandler(false);
@@ -79,7 +88,7 @@ export function HelperPane(props: HelperPaneProps) {
     return (
         <>
             <div className={statementEditorClasses.stmtEditorInnerWrapper}>
-                <div className={stmtEditorHelperClasses.tabPanelWrapper}>
+                <div className={stmtEditorHelperClasses.tabPanelWrapper} data-testid="tab-panel-wrapper">
 
                     <TabPanel
                         values={[TabElements.suggestions, TabElements.expressions, TabElements.libraries, TabElements.parameters]}
@@ -99,7 +108,7 @@ export function HelperPane(props: HelperPaneProps) {
                 </div>
                 <div className={statementEditorClasses.separatorLine} />
             </div>
-            <div className={stmtEditorHelperClasses.suggestionsInner}>
+            <div className={stmtEditorHelperClasses.suggestionsInner} data-testid="suggestions-inner">
                 {selectedTab === TabElements.suggestions && <LSSuggestions />}
                 {selectedTab === TabElements.expressions && <ExpressionSuggestions />}
                 {selectedTab === TabElements.libraries && <LibraryBrowser libraryType={libraryType} />}

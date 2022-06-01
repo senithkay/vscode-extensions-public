@@ -26,4 +26,13 @@ export class StatementEditorViewState {
     public templateExprDeletable: boolean = false;
     public isWithinBlockStatement: boolean = false;
     public modelType: ModelType = ModelType.EXPRESSION;
+    public multilineConstructConfig: MultilineConstructConfig = {
+        isFieldWithNewLine: false,
+        isClosingBraceWithNewLine: false
+    };
+}
+
+interface MultilineConstructConfig {
+    isFieldWithNewLine?: boolean;
+    isClosingBraceWithNewLine?: boolean;
 }

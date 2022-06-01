@@ -10,15 +10,12 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js
 import React, { useContext } from "react";
 
 import { WhileStatement } from "@wso2-enterprise/syntax-tree";
-import classNames from "classnames";
 
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { ExpressionComponent } from "../../Expression";
-import { useStatementRendererStyles } from "../../styles";
 import { TokenComponent } from "../../Token";
 
 interface WhileStatementProps {
@@ -35,28 +32,17 @@ export function WhileStatementC(props: WhileStatementProps) {
         }
     } = stmtCtx;
 
-    const statementRendererClasses = useStatementRendererStyles();
-
     if (!currentModel.model) {
         changeCurrentModel(model.condition);
     }
 
     return (
         <>
-            <TokenComponent model={model.whileKeyword}  className="keyword" />
-            <ExpressionComponent model={model.condition} />
-            <span
-                className={classNames(
-                    statementRendererClasses.expressionBlock,
-                    statementRendererClasses.expressionBlockDisabled
-                )}
-            >
-                &nbsp;{model.whileBody.openBraceToken.value}
-                <br/>
-                &nbsp;&nbsp;&nbsp;{"..."}
-                <br/>
-                {model.whileBody.closeBraceToken.value}
-            </span>
+            <TokenComponent model={model.whileKeyword} className="keyword"/>
+            <ExpressionComponent model={model.condition}/>
+            <TokenComponent model={model.whileBody.openBraceToken}/>
+            &nbsp;&nbsp;&nbsp;{"..."}
+            <TokenComponent model={model.whileBody.closeBraceToken}/>
         </>
     );
 }

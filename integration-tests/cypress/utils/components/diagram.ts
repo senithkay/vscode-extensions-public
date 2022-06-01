@@ -15,9 +15,19 @@ export class FunctionDiagram {
 
     public clickDefaultWorkerPlusBtn(index: number = 0) {
         this.container.within(() => {
-            cy.get(`.diagram-canvas .main-plus-wrapper[data-plus-index="${index}"] svg.plus-holder #SmallPlus`)
+            cy.get(`.diagram-canvas .function-body`)
+                .children('g')
+                .not('.worker-body')
+                .find(`.main-plus-wrapper[data-plus-index="${index}"]`)
                 .click();
         })
+        return this;
+    }
+
+    public clickWokerPlusBtn(workerName: string, plusIndex: number = 0) {
+        cy.get(`.diagram-canvas .function-body g#worker-${workerName}`)
+            .find(`.main-plus-wrapper[data-plus-index="${plusIndex}"]`)
+            .click();
         return this;
     }
 

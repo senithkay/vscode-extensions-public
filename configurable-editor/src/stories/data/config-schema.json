@@ -8,60 +8,225 @@
                 "simpleconfigs": {
                     "type": "object",
                     "properties": {
-                        "prices": {
-                            "type": "array",
-                            "items": {
-                              "type": "integer"
-                            },
-                            "description": ""
-                        },
                         "itemCode": {
                             "type": "string",
-                            "description": "description"
+                            "description": ""
                         },
                         "discount": {
                             "type": "number",
-                            "description": "description"
+                            "description": "Sample description of the discount configurable."
+                        },
+                        "age": {
+                            "type": "integer",
+                            "description": "Sample description of the discount configurable."
                         },
                         "testMode": {
                             "type": "boolean",
-                            "description": "description"
+                            "description": "Sample description of the testMode configurable."
+                        },
+                        "country": {
+                            "enum": ["United States", "Sri Lanka"],
+                            "description": ""
                         },
                         "mod1": {
                             "type": "object",
                             "properties": {
-                                "nameVal": {
-                                    "type": "string",
-                                    "description": "description"
-                                }
-                            }
+                                "company": {
+                                    "type": "object",
+                                    "properties": { "companyName": { "type": "string" } },
+                                    "additionalProperties": false,
+                                    "required": ["companyName"],
+                                    "name": "user/test4.mod1:0.1.0:Company",
+                                    "description": ""
+                                },
+                                "id": { "type": "integer", "description": "" }
+                            },
+                            "additionalProperties": false,
+                            "required": ["company"]
                         },
                         "person": {
                             "type": "object",
                             "properties": {
-                              "name": {
-                                "type": "string"
-                              },
-                              "age": {
-                                "type": "integer"
-                              },
-                              "category": {
-                                "type": "object",
-                                "properties": {
-                                  "fullTime": {
-                                    "type": "boolean"
-                                  }
+                                "name": {
+                                    "type": "string"
                                 },
-                                "additionalProperties": false,
-                                "description": ""
-                              }
+                                "age": {
+                                    "type": "integer"
+                                },
+                                "category": {
+                                    "type": "object",
+                                    "properties": {
+                                        "fullTime": {
+                                            "type": "boolean"
+                                        }
+                                    },
+                                    "additionalProperties": false,
+                                    "required": ["fullTime"],
+                                    "name": "user/arrayTypes:0.1.0:Category"
+                                }
                             },
                             "additionalProperties": false,
+                            "required": ["name", "age", "category"],
+                            "name": "user/arrayTypes:0.1.0:Person",
+                            "description": "Sample description of the person configurable."
+                        },
+                        "prices": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            },
+                            "description": "Sample description of the prices configurable."
+                        },
+                        "mapValueString": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            },
+                            "description": "Sample description of the mapValueString configurable."
+                        },
+                        "mapValueInteger": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "integer"
+                            },
+                            "description": "Sample description of the mapValueInteger configurable."
+                        },
+                        "mapValueBoolean": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "boolean"
+                            },
+                            "description": "Sample description of the mapValueIntBoolean configurable."
+                        },
+                        "mapValueRecord": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "object",
+                                "properties": {
+                                    "age": {
+                                        "type": "integer"
+                                    },
+                                    "name": {
+                                        "type": "string"
+                                    }
+                                },
+                                "name": "user/arrayTypes:0.1.0:Person",
+                                "additionalProperties": false,
+                                "required": [
+                                    "name"
+                                ]
+                            },
+                            "description": "Sample description of the mapValueRecord configurable."
+                        },
+                        "mapValueUnion": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "anyOf": [
+                                    {
+                                        "type": "object",
+                                        "properties": {
+                                            "age": {
+                                                "type": "integer"
+                                            },
+                                            "name": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "name": "user/arrayTypes:0.1.0:Person",
+                                        "additionalProperties": false,
+                                        "required": [
+                                            "age",
+                                            "name"
+                                        ]
+                                    },
+                                    {
+                                        "type": "string"
+                                    }
+                                ]
+                            },
+                            "description": "Sample description of the mapValueUnion configurable."
+                        },
+                        "intArray": {
+                            "type": "array",
+                            "items": { "type": "integer" },
+                            "description": ""
+                        },
+                        "stringArray": {
+                            "type": "array",
+                            "items": { "type": "string" },
+                            "description": ""
+                        },
+                        "decimalArray": {
+                            "type": "array",
+                            "items": { "type": "number" },
+                            "description": ""
+                        },
+                        "floatArray": {
+                            "type": "array",
+                            "items": { "type": "number" },
+                            "description": ""
+                        },
+                        "booleanArray": {
+                            "type": "array",
+                            "items": { "type": "boolean" },
+                            "description": ""
+                        },
+                        "recordArray": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "name": { "type": "string" },
+                                    "id": { "type": "integer" },
+                                    "weight": { "type": "number" },
+                                    "employeed": { "type": "boolean" }
+                                },
+                                "name": "user/arrayTypes:0.1.0:Employee",
+                                "additionalProperties": false,
+                                "required": ["name", "id", "weight"]
+                            },
+                            "description": ""
+                        },
+                        "unionType": {
+                            "anyOf": [{ "type": "integer" }, { "type": "string" }],
+                            "description": ""
+                        },
+                        "code": {
+                            "anyOf": [
+                                { "type": "integer" },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "name": { "type": "string" },
+                                        "age": { "type": "integer" }
+                                    },
+                                    "additionalProperties": false,
+                                    "required": ["name", "age"],
+                                    "name": "user/arrayTypes:0.1.0:Person"
+                                }
+                            ],
+                            "description": ""
+                        },
+                        "users": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "additionalProperties": { "type": "string" }
+                            },
                             "description": ""
                         }
                     },
                     "required": [
-                        "testMode"
+                        "code",
+                        "testMode",
+                        "users",
+                        "country",
+                        "discount",
+                        "person",
+                        "prices",
+                        "mapValueRecord",
+                        "mapValueInteger",
+                        "unionType"
                     ]
                 }
             }

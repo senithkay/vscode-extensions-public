@@ -71,7 +71,8 @@ export function getDiagramGeneratorProps(filePath: string, enableSave: boolean =
     getLibrariesData: () => Promise.resolve(undefined),
     getLibraryData: () => Promise.resolve(undefined),
     getSentryConfig: () => Promise.resolve(undefined),
-    getEnv: (name: string) => Promise.resolve(undefined)
+    getEnv: (name: string) => Promise.resolve(undefined),
+    experimentalEnabled: true
   }
 }
 

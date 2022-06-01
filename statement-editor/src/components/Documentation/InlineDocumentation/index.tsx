@@ -17,6 +17,7 @@ import { List, ListItem, ListItemText } from "@material-ui/core";
 import { ExpandMore } from "@material-ui/icons";
 
 import { StatementEditorContext } from "../../../store/statement-editor-context";
+import { getDocDescription, isDescriptionWithExample } from "../../../utils";
 import { useStatementEditorStyles } from "../../styles";
 
 export interface InlineDocumentationProps {
@@ -29,6 +30,11 @@ export function InlineDocumentation(props: InlineDocumentationProps) {
         documentation
     } = useContext(StatementEditorContext);
     const statementEditorClasses = useStatementEditorStyles();
+
+    const documentationDescription = () : string => {
+        const doc = documentation.documentation.description;
+        return isDescriptionWithExample(doc) ? getDocDescription(doc)[0] : doc;
+    }
 
     return (
         <>
@@ -45,7 +51,7 @@ export function InlineDocumentation(props: InlineDocumentationProps) {
                 <div className={statementEditorClasses.inlineDocumentation}>
                     <List className={statementEditorClasses.inlineDocList}>
                         <ListItem>
-                            <ListItemText primary={documentation.documentation.description}/>
+                            <ListItemText primary={documentationDescription()}/>
                             <ExpandMore onClick={documentationHandler}/>
                         </ListItem>
                     </List>
