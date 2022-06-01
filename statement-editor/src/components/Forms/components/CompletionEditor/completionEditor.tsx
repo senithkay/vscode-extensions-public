@@ -96,7 +96,6 @@ export function CompletionEditor(props: CompletionEditorProps) {
                 data-testid={dataTestId}
                 freeSolo={true}
                 options={options}
-                open={options.length > 0}
                 disabled={disabled}
                 renderInput={renderInput}
                 onChange={handleChange}
