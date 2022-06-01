@@ -11,6 +11,19 @@
  * associated services.
  */
 
+export const completionEditorTypeKinds : number[] = [
+    // Type
+    11,
+    // Union
+    25,
+    // Record
+    22,
+    // Module
+    9,
+    // Class
+    8
+]
+
 export const FILE_SCHEME = "file://";
 export const EXPR_SCHEME = "expr://";
 
