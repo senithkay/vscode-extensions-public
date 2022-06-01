@@ -96,7 +96,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                 // if (genSyntaxTree?.typeData?.diagnostics && genSyntaxTree?.typeData?.diagnostics?.length > 0) {
                 //     resolveMissingDependency(filePath, content);
                 // }
-                const vistedSyntaxTree: STNode = await getLowcodeST(genSyntaxTree, filePath, langClient);
+                const vistedSyntaxTree: STNode = await getLowcodeST(genSyntaxTree, filePath, langClient, experimentalEnabled);
                 if (!vistedSyntaxTree) {
                     return (<div><h1>Parse error...!</h1></div>);
                 }
@@ -193,7 +193,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                 }
             });
             const genSyntaxTree = await getSyntaxTree(path, langClient);
-            const vistedSyntaxTree: STNode = await getLowcodeST(genSyntaxTree, path, langClient);
+            const vistedSyntaxTree: STNode = await getLowcodeST(genSyntaxTree, path, langClient, experimentalEnabled);
             setSyntaxTree(vistedSyntaxTree);
             setFileContent(lastsource);
             props.updateFileContent(path, lastsource);
@@ -221,7 +221,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                 }
             });
             const genSyntaxTree = await getSyntaxTree(path, langClient);
-            const vistedSyntaxTree: STNode = await getLowcodeST(genSyntaxTree, path, langClient);
+            const vistedSyntaxTree: STNode = await getLowcodeST(genSyntaxTree, path, langClient, experimentalEnabled);
             setSyntaxTree(vistedSyntaxTree);
             setFileContent(lastUndoSource);
             props.updateFileContent(path, lastUndoSource);
@@ -309,7 +309,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                             undoRedo.addModification(source);
                                             setFileContent(source);
                                             props.updateFileContent(filePath, source);
-                                            vistedSyntaxTree = await getLowcodeST(newST, filePath, langClient);
+                                            vistedSyntaxTree = await getLowcodeST(newST, filePath, langClient, experimentalEnabled);
                                             setSyntaxTree(vistedSyntaxTree);
                                             if (isDeleteModificationAvailable(mutations)) {
                                                 showMessage("Undo your changes by using Ctrl + Z or Cmd + Z", MESSAGE_TYPE.INFO, true);
@@ -331,7 +331,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                                             ],
                                                         })
                                                         const { syntaxTree: stWithoutDiagnostics } = await langClient.getSyntaxTree({ documentIdentifier: { uri }})
-                                                        vistedSyntaxTree = await getLowcodeST(stWithoutDiagnostics, filePath, langClient);
+                                                        vistedSyntaxTree = await getLowcodeST(stWithoutDiagnostics, filePath, langClient, experimentalEnabled);
                                                         setSyntaxTree(vistedSyntaxTree);
                                                     }
                                                     setModulePullInProgress(false);
