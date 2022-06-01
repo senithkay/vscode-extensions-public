@@ -56,9 +56,14 @@ export function EndOverlayForm(props: EndOverlayFormProps) {
 
     if (config.model && formType === "Respond") {
         const respondModel: ActionStatement = config.model as ActionStatement;
-        const remoteCallModel: RemoteMethodCallAction = respondModel?.expression.expression as RemoteMethodCallAction;
-        const respondFormConfig: RespondConfig = config.expression as RespondConfig;
-        respondFormConfig.respondExpression = remoteCallModel?.arguments[0].source;
+        // TODO handle other cases
+        if (STKindChecker.isCheckAction(respondModel.expression)) {
+            if (STKindChecker.isRemoteMethodCallAction(respondModel.expression.expression)) {
+                const remoteCallModel = respondModel?.expression.expression;
+                const respondFormConfig: RespondConfig = config.expression as RespondConfig;
+                respondFormConfig.respondExpression = remoteCallModel?.arguments[0].source;
+            }
+        }
     } else if (config.model && formType === "Return") {
         if (isExpressionFunctionBody) {
             const expressionEditor: ExpressionFunctionBody = config?.model as ExpressionFunctionBody;
