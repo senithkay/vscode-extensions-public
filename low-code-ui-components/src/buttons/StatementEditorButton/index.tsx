@@ -40,6 +40,7 @@ export function StatementEditorButton(props: StatementEditorButtonProps) {
                         checked={checked}
                         onClick={onClick}
                         disabled={disabled}
+                        data-testid="statement-editor-toggle"
                     />
                 )}
                 label=""

@@ -15,7 +15,6 @@ import React from 'react';
 import { NamedWorkerDeclaration } from '@wso2-enterprise/syntax-tree';
 
 import { BlockViewState } from '../../../ViewState';
-import { WorkerDeclarationViewState } from '../../../ViewState/worker-declaration';
 import { End } from '../End';
 import { WorkerBody } from '../WorkerBody';
 import { WorkerLine } from '../WorkerLine';
@@ -32,11 +31,11 @@ export function Worker(props: WorkerProps) {
     const workerBodyVS: BlockViewState = model.workerBody.viewState as BlockViewState;
 
     return (
-        <>
+        <g id={`worker-${model.workerName.value}`} className={'worker-body'}>
             <WorkerLine viewState={model.viewState} />
             <WorkerHead model={model} />
             <WorkerBody model={model.workerBody} viewState={workerBodyVS} />
             {!workerBodyVS.isEndComponentAvailable && <End viewState={model.viewState.end} />}
-        </>
+        </g>
     )
 }

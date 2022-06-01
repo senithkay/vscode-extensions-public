@@ -7,6 +7,7 @@ export type topLevelOptions =
     | "Function"
     | "Configurable"
     | "Constant"
+    | "Connector"
     | "Listener"
     | "Enum"
     | "Class"

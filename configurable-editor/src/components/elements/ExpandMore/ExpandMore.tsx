@@ -35,6 +35,7 @@ const ExpandMore = ({ expand, onClick }: ExpandMoreProps) => {
             className={!expand ? classes.expandMoreIcon : classes.expandLessIcon}
             aria-expanded={expand}
             onClick={onClick}
+            size={"small"}
         >
             <ExpandMoreIcon />
         </IconButton>

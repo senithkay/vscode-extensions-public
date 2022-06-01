@@ -109,11 +109,13 @@ export function StatementEditor(props: StatementEditorProps) {
 
     const [model, setModel] = useState<STNode>(null);
     const [currentModel, setCurrentModel] = useState<CurrentModel>({ model });
+    const [hasSyntaxDiagnostics, setHasSyntaxDiagnostics] = useState<boolean>(false);
     const [stmtDiagnostics, setStmtDiagnostics] = useState<StmtDiagnostic[]>([]);
     const [moduleList, setModuleList] = useState(new Set<string>());
     const [lsSuggestionsList, setLSSuggestionsList] = useState([]);
     const [documentation, setDocumentation] = useState<SymbolInfoResponse | EmptySymbolInfo>(initSymbolInfo);
     const [isRestArg, setRestArg] = useState(false);
+    const [newQueryPos, setNewQueryPos] = useState<NodePosition>(null)
 
     const undo = async () => {
         const undoItem = undoRedoManager.getUndoModel();
@@ -128,6 +130,7 @@ export function StatementEditor(props: StatementEditorProps) {
             setCurrentModel({model: newCurrentModel});
             await handleDocumentation(newCurrentModel);
         }
+        setHasSyntaxDiagnostics(false);
     };
 
     const redo = async () => {
@@ -143,6 +146,7 @@ export function StatementEditor(props: StatementEditorProps) {
             setCurrentModel({model: newCurrentModel});
             await handleDocumentation(newCurrentModel);
         }
+        setHasSyntaxDiagnostics(false);
     };
 
     useEffect(() => {
@@ -227,6 +231,10 @@ export function StatementEditor(props: StatementEditorProps) {
         setRestArg(restCheckClicked);
     }
 
+    const newQueryExpr = (intermediateClausePos: NodePosition) => {
+        setNewQueryPos(intermediateClausePos);
+    }
+
     const handleChange = async (newValue: string) => {
         const updatedStatement = addToTargetPosition(model.source, currentModel.model.position, newValue);
         const updatedContent = getUpdatedSource(updatedStatement, currentFile.content, targetPosition, moduleList);
@@ -261,9 +269,14 @@ export function StatementEditor(props: StatementEditorProps) {
         if (!partialST.syntaxDiagnostics.length || config.type === CUSTOM_CONFIG_TYPE) {
             setStmtModel(partialST, diagnostics);
             const selectedPosition = getSelectedModelPosition(codeSnippet, position);
-            const oldModel : StackElement = {
-                model,
-                selectedPosition : currentModel.model.position
+            let oldModel : StackElement;
+            if (undoRedoManager.hasUndo()) {
+                oldModel = undoRedoManager.getCurrentModel().newModel;
+            } else {
+                oldModel = {
+                    model,
+                    selectedPosition : currentModel.model.position
+                }
             }
             const newModel : StackElement = {
                 model: partialST,
@@ -273,6 +286,10 @@ export function StatementEditor(props: StatementEditorProps) {
 
             const newCurrentModel = getCurrentModel(selectedPosition, enrichModel(partialST, targetPosition));
             setCurrentModel({model: newCurrentModel});
+            setHasSyntaxDiagnostics(false);
+
+        } else if (partialST.syntaxDiagnostics.length){
+            setHasSyntaxDiagnostics(true);
         }
     }
 
@@ -425,6 +442,9 @@ export function StatementEditor(props: StatementEditorProps) {
                     documentation={documentation}
                     restArg={restArg}
                     hasRestArg={isRestArg}
+                    hasSyntaxDiagnostics={hasSyntaxDiagnostics}
+                    newQueryPosition={newQueryPos}
+                    setNewQueryPos={newQueryExpr}
                 >
                     <ViewContainer
                         isStatementValid={!stmtDiagnostics.length}
