@@ -259,7 +259,9 @@ export function StatementEditor(props: StatementEditorProps) {
                 ? await getPartialSTForModuleMembers({ codeSnippet: existingModel.source , stModification }, getLangClient)
                 : await getPartialSTForStatement({ codeSnippet: existingModel.source , stModification }, getLangClient);
         } else {
-            partialST = await getPartialSTForStatement({ codeSnippet }, getLangClient);
+            partialST = isConfigurableStmt
+                ? await getPartialSTForModuleMembers({ codeSnippet }, getLangClient)
+                : await getPartialSTForStatement({ codeSnippet }, getLangClient);
         }
 
         const updatedContent = getUpdatedSource(partialST.source, currentFile.content, targetPosition, moduleList);
