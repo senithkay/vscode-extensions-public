@@ -13,10 +13,11 @@
 import { ActionInvocationFinder, FunctionViewState, initVisitor, positionVisitor, sizingVisitor } from "@wso2-enterprise/ballerina-low-code-diagram";
 import { BallerinaConnectorInfo, BallerinaRecord, Connector, FunctionDefinitionInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
+    BooleanLiteral,
     CallStatement, CaptureBindingPattern, ElseBlock, FunctionDefinition, IdentifierToken, IfElseStatement, LocalVarDecl,
-    ModulePart, ModuleVarDecl, NodePosition, RemoteMethodCallAction, ResourceKeyword, ServiceDeclaration,
+    ModulePart, ModuleVarDecl, NodePosition, NumericLiteral, RemoteMethodCallAction, ResourceKeyword, ServiceDeclaration,
     STKindChecker,
-    STNode, traversNode
+    STNode, StringLiteral, traversNode
 } from '@wso2-enterprise/syntax-tree';
 import { subMinutes } from "date-fns";
 import { Diagnostic } from 'vscode-languageserver-protocol';
@@ -459,4 +460,12 @@ export function isEndpointNode(node: STNode): boolean {
 
 export function getVarNamePositionFromST(node: LocalVarDecl | ModuleVarDecl): NodePosition {
     return node?.typedBindingPattern?.bindingPattern?.position;
+}
+
+export function isLiteral(node: STNode): node is StringLiteral | NumericLiteral | BooleanLiteral {
+    return node && (
+            STKindChecker.isStringLiteral(node)
+            || STKindChecker.isNumericLiteral(node)
+            || STKindChecker.isBooleanLiteral(node)
+        );
 }

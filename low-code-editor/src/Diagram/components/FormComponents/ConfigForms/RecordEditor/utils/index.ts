@@ -20,6 +20,7 @@ import {
     STNode
 } from "@wso2-enterprise/syntax-tree";
 
+import { isLiteral } from "../../../../../utils";
 import { Field, RecordModel, SimpleField } from "../types";
 
 export async function convertToRecord(json: string, name: string, isClosed: boolean,
@@ -65,6 +66,10 @@ export function getRecordModel(typeDesc: RecordTypeDesc, name: string, isInline:
     };
     if (typeDesc.fields.length > 0) {
         typeDesc.fields.forEach((field) => {
+            if (STKindChecker.isTypeReference(field)) {
+                // TODO: handle type reference
+                return;
+            }
             // FIXME: Handle record field with default value
             if (STKindChecker.isRecordFieldWithDefaultValue(field.typeName)) {
                 // when there is a inline record with a default value
@@ -83,20 +88,20 @@ export function getRecordModel(typeDesc: RecordTypeDesc, name: string, isInline:
                     };
                 recField.isFieldTypeOptional = true;
                 if (STKindChecker.isRecordFieldWithDefaultValue(field)) {
-                    recField.value = field.expression.literalToken ? field.expression.literalToken.value :
+                    recField.value = isLiteral(field.expression) ? field.expression.literalToken.value :
                         field.expression.source.trim();
                 }
                 recordModel.fields.push(recField);
             } else if (STKindChecker.isArrayTypeDesc(field.typeName)) {
                 const recField = (getArrayField(field) as SimpleField)
                 if (STKindChecker.isRecordFieldWithDefaultValue(field)) {
-                    recField.value = field.expression.literalToken ? field.expression.literalToken.value :
+                    recField.value = isLiteral(field.expression) ? field.expression.literalToken.value :
                         field.expression.source.trim();
                 }
                 recordModel.fields.push(recField);
             } else if (STKindChecker.isIntTypeDesc(field.typeName) || STKindChecker.isBooleanTypeDesc(field.typeName)
                 || STKindChecker.isFloatTypeDesc(field.typeName) || STKindChecker.isStringTypeDesc(field.typeName) ||
-                STKindChecker.isErrorTypeDesc(field.typeName) || STKindChecker.isNeverTypeDesc(field.typeName) ||
+                STKindChecker.isNeverTypeDesc(field.typeName) ||
                 STKindChecker.isSimpleNameReference(field.typeName)) {
                 // when there is a simple field or when there is a referenced record
                 const recField: SimpleField = {
@@ -107,7 +112,7 @@ export function getRecordModel(typeDesc: RecordTypeDesc, name: string, isInline:
                     isFieldTypeOptional: false,
                 }
                 if (STKindChecker.isRecordFieldWithDefaultValue(field)) {
-                    recField.value = field.expression.literalToken ? field.expression.literalToken.value :
+                    recField.value = isLiteral(field.expression) ? field.expression.literalToken.value :
                         field.expression.source.trim();
                 }
                 recordModel.fields.push(recField);
@@ -119,7 +124,7 @@ export function getRecordModel(typeDesc: RecordTypeDesc, name: string, isInline:
                         false,
                 }
                 if (STKindChecker.isRecordFieldWithDefaultValue(field)) {
-                    recField.value = field.expression.literalToken ? field.expression.literalToken.value :
+                    recField.value = isLiteral(field.expression) ? field.expression.literalToken.value :
                         field.expression.source.trim();
                 }
                 recordModel.fields.push(recField);
