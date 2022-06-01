@@ -269,9 +269,14 @@ export function StatementEditor(props: StatementEditorProps) {
         if (!partialST.syntaxDiagnostics.length || config.type === CUSTOM_CONFIG_TYPE) {
             setStmtModel(partialST, diagnostics);
             const selectedPosition = getSelectedModelPosition(codeSnippet, position);
-            const oldModel : StackElement = {
-                model,
-                selectedPosition : currentModel.model.position
+            let oldModel : StackElement;
+            if (undoRedoManager.hasUndo()) {
+                oldModel = undoRedoManager.getCurrentModel().newModel;
+            } else {
+                oldModel = {
+                    model,
+                    selectedPosition : currentModel.model.position
+                }
             }
             const newModel : StackElement = {
                 model: partialST,
