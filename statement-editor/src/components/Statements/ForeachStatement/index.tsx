@@ -10,15 +10,12 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js
 import React, { useContext } from "react";
 
 import { ForeachStatement } from "@wso2-enterprise/syntax-tree";
-import classNames from "classnames";
 
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { ExpressionComponent } from "../../Expression";
-import { useStatementRendererStyles } from "../../styles";
 import { TokenComponent } from "../../Token";
 
 interface ForeachStatementProps {
@@ -36,30 +33,19 @@ export function ForeachStatementC(props: ForeachStatementProps) {
         }
     } = stmtCtx;
 
-    const statementRendererClasses = useStatementRendererStyles();
-
     if (!currentModel.model) {
         changeCurrentModel(model.actionOrExpressionNode);
     }
 
     return (
         <>
-            <TokenComponent model={model.forEachKeyword}  className="keyword" />
-            <ExpressionComponent model={model.typedBindingPattern} />
-            <TokenComponent model={model.inKeyword}  className="keyword" />
-            <ExpressionComponent model={model.actionOrExpressionNode} />
-            <span
-                className={classNames(
-                    statementRendererClasses.expressionBlock,
-                    statementRendererClasses.expressionBlockDisabled
-                )}
-            >
-                &nbsp;{model.blockStatement.openBraceToken.value}
-                <br/>
-                &nbsp;&nbsp;&nbsp;{"..."}
-                <br/>
-                {model.blockStatement.closeBraceToken.value}
-            </span>
+            <TokenComponent model={model.forEachKeyword} className="keyword"/>
+            <ExpressionComponent model={model.typedBindingPattern}/>
+            <TokenComponent model={model.inKeyword} className="keyword"/>
+            <ExpressionComponent model={model.actionOrExpressionNode}/>
+            <TokenComponent model={model.blockStatement.openBraceToken}/>
+            &nbsp;&nbsp;&nbsp;{"..."}
+            <TokenComponent model={model.blockStatement.closeBraceToken}/>
         </>
     );
 }

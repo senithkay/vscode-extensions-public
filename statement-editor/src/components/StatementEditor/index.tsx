@@ -109,6 +109,7 @@ export function StatementEditor(props: StatementEditorProps) {
 
     const [model, setModel] = useState<STNode>(null);
     const [currentModel, setCurrentModel] = useState<CurrentModel>({ model });
+    const [hasSyntaxDiagnostics, setHasSyntaxDiagnostics] = useState<boolean>(false);
     const [stmtDiagnostics, setStmtDiagnostics] = useState<StmtDiagnostic[]>([]);
     const [moduleList, setModuleList] = useState(new Set<string>());
     const [lsSuggestionsList, setLSSuggestionsList] = useState([]);
@@ -129,6 +130,7 @@ export function StatementEditor(props: StatementEditorProps) {
             setCurrentModel({model: newCurrentModel});
             await handleDocumentation(newCurrentModel);
         }
+        setHasSyntaxDiagnostics(false);
     };
 
     const redo = async () => {
@@ -144,6 +146,7 @@ export function StatementEditor(props: StatementEditorProps) {
             setCurrentModel({model: newCurrentModel});
             await handleDocumentation(newCurrentModel);
         }
+        setHasSyntaxDiagnostics(false);
     };
 
     useEffect(() => {
@@ -266,9 +269,14 @@ export function StatementEditor(props: StatementEditorProps) {
         if (!partialST.syntaxDiagnostics.length || config.type === CUSTOM_CONFIG_TYPE) {
             setStmtModel(partialST, diagnostics);
             const selectedPosition = getSelectedModelPosition(codeSnippet, position);
-            const oldModel : StackElement = {
-                model,
-                selectedPosition : currentModel.model.position
+            let oldModel : StackElement;
+            if (undoRedoManager.hasUndo()) {
+                oldModel = undoRedoManager.getCurrentModel().newModel;
+            } else {
+                oldModel = {
+                    model,
+                    selectedPosition : currentModel.model.position
+                }
             }
             const newModel : StackElement = {
                 model: partialST,
@@ -278,6 +286,10 @@ export function StatementEditor(props: StatementEditorProps) {
 
             const newCurrentModel = getCurrentModel(selectedPosition, enrichModel(partialST, targetPosition));
             setCurrentModel({model: newCurrentModel});
+            setHasSyntaxDiagnostics(false);
+
+        } else if (partialST.syntaxDiagnostics.length){
+            setHasSyntaxDiagnostics(true);
         }
     }
 
@@ -430,6 +442,7 @@ export function StatementEditor(props: StatementEditorProps) {
                     documentation={documentation}
                     restArg={restArg}
                     hasRestArg={isRestArg}
+                    hasSyntaxDiagnostics={hasSyntaxDiagnostics}
                     newQueryPosition={newQueryPos}
                     setNewQueryPos={newQueryExpr}
                 >

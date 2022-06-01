@@ -15,12 +15,66 @@ export interface Visitor {
     parent?: Ballerina.STNode
   ): void;
 
+  beginVisitAnnotAccess?(
+    node: Ballerina.AnnotAccess,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitAnnotAccess?(
+    node: Ballerina.AnnotAccess,
+    parent?: Ballerina.STNode
+  ): void;
+
+  beginVisitAnnotChainingToken?(
+    node: Ballerina.AnnotChainingToken,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitAnnotChainingToken?(
+    node: Ballerina.AnnotChainingToken,
+    parent?: Ballerina.STNode
+  ): void;
+
   beginVisitAnnotation?(
     node: Ballerina.Annotation,
     parent?: Ballerina.STNode
   ): void;
   endVisitAnnotation?(
     node: Ballerina.Annotation,
+    parent?: Ballerina.STNode
+  ): void;
+
+  beginVisitAnnotationAttachPoint?(
+    node: Ballerina.AnnotationAttachPoint,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitAnnotationAttachPoint?(
+    node: Ballerina.AnnotationAttachPoint,
+    parent?: Ballerina.STNode
+  ): void;
+
+  beginVisitAnnotationDeclaration?(
+    node: Ballerina.AnnotationDeclaration,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitAnnotationDeclaration?(
+    node: Ballerina.AnnotationDeclaration,
+    parent?: Ballerina.STNode
+  ): void;
+
+  beginVisitAnnotationDocReferenceToken?(
+    node: Ballerina.AnnotationDocReferenceToken,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitAnnotationDocReferenceToken?(
+    node: Ballerina.AnnotationDocReferenceToken,
+    parent?: Ballerina.STNode
+  ): void;
+
+  beginVisitAnnotationKeyword?(
+    node: Ballerina.AnnotationKeyword,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitAnnotationKeyword?(
+    node: Ballerina.AnnotationKeyword,
     parent?: Ballerina.STNode
   ): void;
 
@@ -60,6 +114,15 @@ export interface Visitor {
     parent?: Ballerina.STNode
   ): void;
 
+  beginVisitArrayDimension?(
+    node: Ballerina.ArrayDimension,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitArrayDimension?(
+    node: Ballerina.ArrayDimension,
+    parent?: Ballerina.STNode
+  ): void;
+
   beginVisitArrayTypeDesc?(
     node: Ballerina.ArrayTypeDesc,
     parent?: Ballerina.STNode
@@ -75,6 +138,15 @@ export interface Visitor {
   ): void;
   endVisitAsKeyword?(
     node: Ballerina.AsKeyword,
+    parent?: Ballerina.STNode
+  ): void;
+
+  beginVisitAscendingKeyword?(
+    node: Ballerina.AscendingKeyword,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitAscendingKeyword?(
+    node: Ballerina.AscendingKeyword,
     parent?: Ballerina.STNode
   ): void;
 
@@ -105,17 +177,17 @@ export interface Visitor {
     parent?: Ballerina.STNode
   ): void;
 
+  beginVisitAsyncSendAction?(
+    node: Ballerina.AsyncSendAction,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitAsyncSendAction?(
+    node: Ballerina.AsyncSendAction,
+    parent?: Ballerina.STNode
+  ): void;
+
   beginVisitAtToken?(node: Ballerina.AtToken, parent?: Ballerina.STNode): void;
   endVisitAtToken?(node: Ballerina.AtToken, parent?: Ballerina.STNode): void;
-
-  beginVisitBacktickContent?(
-    node: Ballerina.BacktickContent,
-    parent?: Ballerina.STNode
-  ): void;
-  endVisitBacktickContent?(
-    node: Ballerina.BacktickContent,
-    parent?: Ballerina.STNode
-  ): void;
 
   beginVisitBacktickToken?(
     node: Ballerina.BacktickToken,
@@ -123,6 +195,15 @@ export interface Visitor {
   ): void;
   endVisitBacktickToken?(
     node: Ballerina.BacktickToken,
+    parent?: Ballerina.STNode
+  ): void;
+
+  beginVisitBallerinaNameReference?(
+    node: Ballerina.BallerinaNameReference,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitBallerinaNameReference?(
+    node: Ballerina.BallerinaNameReference,
     parent?: Ballerina.STNode
   ): void;
 
@@ -207,6 +288,15 @@ export interface Visitor {
     parent?: Ballerina.STNode
   ): void;
 
+  beginVisitBracedAction?(
+    node: Ballerina.BracedAction,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitBracedAction?(
+    node: Ballerina.BracedAction,
+    parent?: Ballerina.STNode
+  ): void;
+
   beginVisitBracedExpression?(
     node: Ballerina.BracedExpression,
     parent?: Ballerina.STNode
@@ -231,6 +321,15 @@ export interface Visitor {
   ): void;
   endVisitBreakStatement?(
     node: Ballerina.BreakStatement,
+    parent?: Ballerina.STNode
+  ): void;
+
+  beginVisitByKeyword?(
+    node: Ballerina.ByKeyword,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitByKeyword?(
+    node: Ballerina.ByKeyword,
     parent?: Ballerina.STNode
   ): void;
 
@@ -378,6 +477,15 @@ export interface Visitor {
     parent?: Ballerina.STNode
   ): void;
 
+  beginVisitCodeContent?(
+    node: Ballerina.CodeContent,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitCodeContent?(
+    node: Ballerina.CodeContent,
+    parent?: Ballerina.STNode
+  ): void;
+
   beginVisitColonToken?(
     node: Ballerina.ColonToken,
     parent?: Ballerina.STNode
@@ -450,12 +558,30 @@ export interface Visitor {
     parent?: Ballerina.STNode
   ): void;
 
+  beginVisitConflictKeyword?(
+    node: Ballerina.ConflictKeyword,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitConflictKeyword?(
+    node: Ballerina.ConflictKeyword,
+    parent?: Ballerina.STNode
+  ): void;
+
   beginVisitConstDeclaration?(
     node: Ballerina.ConstDeclaration,
     parent?: Ballerina.STNode
   ): void;
   endVisitConstDeclaration?(
     node: Ballerina.ConstDeclaration,
+    parent?: Ballerina.STNode
+  ): void;
+
+  beginVisitConstDocReferenceToken?(
+    node: Ballerina.ConstDocReferenceToken,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitConstDocReferenceToken?(
+    node: Ballerina.ConstDocReferenceToken,
     parent?: Ballerina.STNode
   ): void;
 
@@ -540,6 +666,33 @@ export interface Visitor {
     parent?: Ballerina.STNode
   ): void;
 
+  beginVisitDescendingKeyword?(
+    node: Ballerina.DescendingKeyword,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitDescendingKeyword?(
+    node: Ballerina.DescendingKeyword,
+    parent?: Ballerina.STNode
+  ): void;
+
+  beginVisitDistinctKeyword?(
+    node: Ballerina.DistinctKeyword,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitDistinctKeyword?(
+    node: Ballerina.DistinctKeyword,
+    parent?: Ballerina.STNode
+  ): void;
+
+  beginVisitDistinctTypeDesc?(
+    node: Ballerina.DistinctTypeDesc,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitDistinctTypeDesc?(
+    node: Ballerina.DistinctTypeDesc,
+    parent?: Ballerina.STNode
+  ): void;
+
   beginVisitDoKeyword?(
     node: Ballerina.DoKeyword,
     parent?: Ballerina.STNode
@@ -567,12 +720,12 @@ export interface Visitor {
     parent?: Ballerina.STNode
   ): void;
 
-  beginVisitDocumentationReference?(
-    node: Ballerina.DocumentationReference,
+  beginVisitDotLtToken?(
+    node: Ballerina.DotLtToken,
     parent?: Ballerina.STNode
   ): void;
-  endVisitDocumentationReference?(
-    node: Ballerina.DocumentationReference,
+  endVisitDotLtToken?(
+    node: Ballerina.DotLtToken,
     parent?: Ballerina.STNode
   ): void;
 
@@ -581,6 +734,15 @@ export interface Visitor {
     parent?: Ballerina.STNode
   ): void;
   endVisitDotToken?(node: Ballerina.DotToken, parent?: Ballerina.STNode): void;
+
+  beginVisitDoubleBacktickToken?(
+    node: Ballerina.DoubleBacktickToken,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitDoubleBacktickToken?(
+    node: Ballerina.DoubleBacktickToken,
+    parent?: Ballerina.STNode
+  ): void;
 
   beginVisitDoubleDotLtToken?(
     node: Ballerina.DoubleDotLtToken,
@@ -624,6 +786,15 @@ export interface Visitor {
   ): void;
   endVisitDoubleQuoteToken?(
     node: Ballerina.DoubleQuoteToken,
+    parent?: Ballerina.STNode
+  ): void;
+
+  beginVisitDoubleSlashDoubleAsteriskLtToken?(
+    node: Ballerina.DoubleSlashDoubleAsteriskLtToken,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitDoubleSlashDoubleAsteriskLtToken?(
+    node: Ballerina.DoubleSlashDoubleAsteriskLtToken,
     parent?: Ballerina.STNode
   ): void;
 
@@ -705,6 +876,15 @@ export interface Visitor {
     parent?: Ballerina.STNode
   ): void;
 
+  beginVisitEqualsKeyword?(
+    node: Ballerina.EqualsKeyword,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitEqualsKeyword?(
+    node: Ballerina.EqualsKeyword,
+    parent?: Ballerina.STNode
+  ): void;
+
   beginVisitErrorBindingPattern?(
     node: Ballerina.ErrorBindingPattern,
     parent?: Ballerina.STNode
@@ -747,15 +927,6 @@ export interface Visitor {
   ): void;
   endVisitErrorTypeDesc?(
     node: Ballerina.ErrorTypeDesc,
-    parent?: Ballerina.STNode
-  ): void;
-
-  beginVisitErrorTypeParams?(
-    node: Ballerina.ErrorTypeParams,
-    parent?: Ballerina.STNode
-  ): void;
-  endVisitErrorTypeParams?(
-    node: Ballerina.ErrorTypeParams,
     parent?: Ballerina.STNode
   ): void;
 
@@ -849,6 +1020,24 @@ export interface Visitor {
     parent?: Ballerina.STNode
   ): void;
 
+  beginVisitFieldBindingPattern?(
+    node: Ballerina.FieldBindingPattern,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitFieldBindingPattern?(
+    node: Ballerina.FieldBindingPattern,
+    parent?: Ballerina.STNode
+  ): void;
+
+  beginVisitFieldKeyword?(
+    node: Ballerina.FieldKeyword,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitFieldKeyword?(
+    node: Ballerina.FieldKeyword,
+    parent?: Ballerina.STNode
+  ): void;
+
   beginVisitFieldMatchPattern?(
     node: Ballerina.FieldMatchPattern,
     parent?: Ballerina.STNode
@@ -882,6 +1071,24 @@ export interface Visitor {
   ): void;
   endVisitFloatTypeDesc?(
     node: Ballerina.FloatTypeDesc,
+    parent?: Ballerina.STNode
+  ): void;
+
+  beginVisitFlushAction?(
+    node: Ballerina.FlushAction,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitFlushAction?(
+    node: Ballerina.FlushAction,
+    parent?: Ballerina.STNode
+  ): void;
+
+  beginVisitFlushKeyword?(
+    node: Ballerina.FlushKeyword,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitFlushKeyword?(
+    node: Ballerina.FlushKeyword,
     parent?: Ballerina.STNode
   ): void;
 
@@ -966,6 +1173,15 @@ export interface Visitor {
     parent?: Ballerina.STNode
   ): void;
 
+  beginVisitFunctionDocReferenceToken?(
+    node: Ballerina.FunctionDocReferenceToken,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitFunctionDocReferenceToken?(
+    node: Ballerina.FunctionDocReferenceToken,
+    parent?: Ballerina.STNode
+  ): void;
+
   beginVisitFunctionKeyword?(
     node: Ballerina.FunctionKeyword,
     parent?: Ballerina.STNode
@@ -999,6 +1215,15 @@ export interface Visitor {
   ): void;
   endVisitFutureKeyword?(
     node: Ballerina.FutureKeyword,
+    parent?: Ballerina.STNode
+  ): void;
+
+  beginVisitFutureTypeDesc?(
+    node: Ballerina.FutureTypeDesc,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitFutureTypeDesc?(
+    node: Ballerina.FutureTypeDesc,
     parent?: Ballerina.STNode
   ): void;
 
@@ -1038,6 +1263,24 @@ export interface Visitor {
   ): void;
   endVisitHashToken?(
     node: Ballerina.HashToken,
+    parent?: Ballerina.STNode
+  ): void;
+
+  beginVisitHexFloatingPointLiteralToken?(
+    node: Ballerina.HexFloatingPointLiteralToken,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitHexFloatingPointLiteralToken?(
+    node: Ballerina.HexFloatingPointLiteralToken,
+    parent?: Ballerina.STNode
+  ): void;
+
+  beginVisitHexIntegerLiteralToken?(
+    node: Ballerina.HexIntegerLiteralToken,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitHexIntegerLiteralToken?(
+    node: Ballerina.HexIntegerLiteralToken,
     parent?: Ballerina.STNode
   ): void;
 
@@ -1158,6 +1401,24 @@ export interface Visitor {
     parent?: Ballerina.STNode
   ): void;
 
+  beginVisitInferredTypedescDefault?(
+    node: Ballerina.InferredTypedescDefault,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitInferredTypedescDefault?(
+    node: Ballerina.InferredTypedescDefault,
+    parent?: Ballerina.STNode
+  ): void;
+
+  beginVisitInlineCodeReference?(
+    node: Ballerina.InlineCodeReference,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitInlineCodeReference?(
+    node: Ballerina.InlineCodeReference,
+    parent?: Ballerina.STNode
+  ): void;
+
   beginVisitIntKeyword?(
     node: Ballerina.IntKeyword,
     parent?: Ballerina.STNode
@@ -1203,6 +1464,15 @@ export interface Visitor {
     parent?: Ballerina.STNode
   ): void;
 
+  beginVisitInvalidExpressionStatement?(
+    node: Ballerina.InvalidExpressionStatement,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitInvalidExpressionStatement?(
+    node: Ballerina.InvalidExpressionStatement,
+    parent?: Ballerina.STNode
+  ): void;
+
   beginVisitIsKeyword?(
     node: Ballerina.IsKeyword,
     parent?: Ballerina.STNode
@@ -1218,6 +1488,24 @@ export interface Visitor {
   ): void;
   endVisitIsolatedKeyword?(
     node: Ballerina.IsolatedKeyword,
+    parent?: Ballerina.STNode
+  ): void;
+
+  beginVisitJoinClause?(
+    node: Ballerina.JoinClause,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitJoinClause?(
+    node: Ballerina.JoinClause,
+    parent?: Ballerina.STNode
+  ): void;
+
+  beginVisitJoinKeyword?(
+    node: Ballerina.JoinKeyword,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitJoinKeyword?(
+    node: Ballerina.JoinKeyword,
     parent?: Ballerina.STNode
   ): void;
 
@@ -1263,6 +1551,15 @@ export interface Visitor {
   ): void;
   endVisitKeyTypeConstraint?(
     node: Ballerina.KeyTypeConstraint,
+    parent?: Ballerina.STNode
+  ): void;
+
+  beginVisitLeftArrowToken?(
+    node: Ballerina.LeftArrowToken,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitLeftArrowToken?(
+    node: Ballerina.LeftArrowToken,
     parent?: Ballerina.STNode
   ): void;
 
@@ -1431,6 +1728,15 @@ export interface Visitor {
     parent?: Ballerina.STNode
   ): void;
 
+  beginVisitMapTypeDesc?(
+    node: Ballerina.MapTypeDesc,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitMapTypeDesc?(
+    node: Ballerina.MapTypeDesc,
+    parent?: Ballerina.STNode
+  ): void;
+
   beginVisitMappingBindingPattern?(
     node: Ballerina.MappingBindingPattern,
     parent?: Ballerina.STNode
@@ -1458,11 +1764,28 @@ export interface Visitor {
     parent?: Ballerina.STNode
   ): void;
 
+  beginVisitMarkdownCodeBlock?(
+    node: Ballerina.MarkdownCodeBlock,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitMarkdownCodeBlock?(
+    node: Ballerina.MarkdownCodeBlock,
+    parent?: Ballerina.STNode
+  ): void;
+
+  beginVisitMarkdownCodeLine?(
+    node: Ballerina.MarkdownCodeLine,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitMarkdownCodeLine?(
+    node: Ballerina.MarkdownCodeLine,
+    parent?: Ballerina.STNode
+  ): void;
+
   beginVisitMarkdownDeprecationDocumentationLine?(
     node: Ballerina.MarkdownDeprecationDocumentationLine,
     parent?: Ballerina.STNode
   ): void;
-
   endVisitMarkdownDeprecationDocumentationLine?(
     node: Ballerina.MarkdownDeprecationDocumentationLine,
     parent?: Ballerina.STNode
@@ -1472,7 +1795,6 @@ export interface Visitor {
     node: Ballerina.MarkdownDocumentation,
     parent?: Ballerina.STNode
   ): void;
-
   endVisitMarkdownDocumentation?(
     node: Ballerina.MarkdownDocumentation,
     parent?: Ballerina.STNode
@@ -1520,6 +1842,15 @@ export interface Visitor {
   ): void;
   endVisitMatchClause?(
     node: Ballerina.MatchClause,
+    parent?: Ballerina.STNode
+  ): void;
+
+  beginVisitMatchGuard?(
+    node: Ballerina.MatchGuard,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitMatchGuard?(
+    node: Ballerina.MatchGuard,
     parent?: Ballerina.STNode
   ): void;
 
@@ -1592,6 +1923,15 @@ export interface Visitor {
     parent?: Ballerina.STNode
   ): void;
 
+  beginVisitModuleXmlNamespaceDeclaration?(
+    node: Ballerina.ModuleXmlNamespaceDeclaration,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitModuleXmlNamespaceDeclaration?(
+    node: Ballerina.ModuleXmlNamespaceDeclaration,
+    parent?: Ballerina.STNode
+  ): void;
+
   beginVisitNamedArg?(
     node: Ballerina.NamedArg,
     parent?: Ballerina.STNode
@@ -1631,6 +1971,15 @@ export interface Visitor {
   ): void;
   endVisitNamedWorkerDeclarator?(
     node: Ballerina.NamedWorkerDeclarator,
+    parent?: Ballerina.STNode
+  ): void;
+
+  beginVisitNegationToken?(
+    node: Ballerina.NegationToken,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitNegationToken?(
+    node: Ballerina.NegationToken,
     parent?: Ballerina.STNode
   ): void;
 
@@ -1694,6 +2043,15 @@ export interface Visitor {
   ): void;
   endVisitNotEqualToken?(
     node: Ballerina.NotEqualToken,
+    parent?: Ballerina.STNode
+  ): void;
+
+  beginVisitNotIsKeyword?(
+    node: Ballerina.NotIsKeyword,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitNotIsKeyword?(
+    node: Ballerina.NotIsKeyword,
     parent?: Ballerina.STNode
   ): void;
 
@@ -1766,6 +2124,21 @@ export interface Visitor {
   ): void;
   endVisitObjectTypeDesc?(
     node: Ballerina.ObjectTypeDesc,
+    parent?: Ballerina.STNode
+  ): void;
+
+  beginVisitOnClause?(
+    node: Ballerina.OnClause,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitOnClause?(node: Ballerina.OnClause, parent?: Ballerina.STNode): void;
+
+  beginVisitOnConflictClause?(
+    node: Ballerina.OnConflictClause,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitOnConflictClause?(
+    node: Ballerina.OnConflictClause,
     parent?: Ballerina.STNode
   ): void;
 
@@ -1850,6 +2223,39 @@ export interface Visitor {
     parent?: Ballerina.STNode
   ): void;
 
+  beginVisitOrderByClause?(
+    node: Ballerina.OrderByClause,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitOrderByClause?(
+    node: Ballerina.OrderByClause,
+    parent?: Ballerina.STNode
+  ): void;
+
+  beginVisitOrderKey?(
+    node: Ballerina.OrderKey,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitOrderKey?(node: Ballerina.OrderKey, parent?: Ballerina.STNode): void;
+
+  beginVisitOrderKeyword?(
+    node: Ballerina.OrderKeyword,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitOrderKeyword?(
+    node: Ballerina.OrderKeyword,
+    parent?: Ballerina.STNode
+  ): void;
+
+  beginVisitOuterKeyword?(
+    node: Ballerina.OuterKeyword,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitOuterKeyword?(
+    node: Ballerina.OuterKeyword,
+    parent?: Ballerina.STNode
+  ): void;
+
   beginVisitPanicKeyword?(
     node: Ballerina.PanicKeyword,
     parent?: Ballerina.STNode
@@ -1868,21 +2274,30 @@ export interface Visitor {
     parent?: Ballerina.STNode
   ): void;
 
+  beginVisitParameterDocReferenceToken?(
+    node: Ballerina.ParameterDocReferenceToken,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitParameterDocReferenceToken?(
+    node: Ballerina.ParameterDocReferenceToken,
+    parent?: Ballerina.STNode
+  ): void;
+
+  beginVisitParameterKeyword?(
+    node: Ballerina.ParameterKeyword,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitParameterKeyword?(
+    node: Ballerina.ParameterKeyword,
+    parent?: Ballerina.STNode
+  ): void;
+
   beginVisitParameterName?(
     node: Ballerina.ParameterName,
     parent?: Ballerina.STNode
   ): void;
   endVisitParameterName?(
     node: Ballerina.ParameterName,
-    parent?: Ballerina.STNode
-  ): void;
-
-  beginVisitParameterizedTypeDesc?(
-    node: Ballerina.ParameterizedTypeDesc,
-    parent?: Ballerina.STNode
-  ): void;
-  endVisitParameterizedTypeDesc?(
-    node: Ballerina.ParameterizedTypeDesc,
     parent?: Ballerina.STNode
   ): void;
 
@@ -2039,6 +2454,24 @@ export interface Visitor {
     parent?: Ballerina.STNode
   ): void;
 
+  beginVisitReceiveAction?(
+    node: Ballerina.ReceiveAction,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitReceiveAction?(
+    node: Ballerina.ReceiveAction,
+    parent?: Ballerina.STNode
+  ): void;
+
+  beginVisitReceiveFields?(
+    node: Ballerina.ReceiveFields,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitReceiveFields?(
+    node: Ballerina.ReceiveFields,
+    parent?: Ballerina.STNode
+  ): void;
+
   beginVisitRecordField?(
     node: Ballerina.RecordField,
     parent?: Ballerina.STNode
@@ -2120,6 +2553,15 @@ export interface Visitor {
     parent?: Ballerina.STNode
   ): void;
 
+  beginVisitResourceAccessorDeclaration?(
+    node: Ballerina.ResourceAccessorDeclaration,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitResourceAccessorDeclaration?(
+    node: Ballerina.ResourceAccessorDeclaration,
+    parent?: Ballerina.STNode
+  ): void;
+
   beginVisitResourceAccessorDefinition?(
     node: Ballerina.ResourceAccessorDefinition,
     parent?: Ballerina.STNode
@@ -2135,6 +2577,24 @@ export interface Visitor {
   ): void;
   endVisitResourceKeyword?(
     node: Ballerina.ResourceKeyword,
+    parent?: Ballerina.STNode
+  ): void;
+
+  beginVisitResourcePathRestParam?(
+    node: Ballerina.ResourcePathRestParam,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitResourcePathRestParam?(
+    node: Ballerina.ResourcePathRestParam,
+    parent?: Ballerina.STNode
+  ): void;
+
+  beginVisitResourcePathSegmentParam?(
+    node: Ballerina.ResourcePathSegmentParam,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitResourcePathSegmentParam?(
+    node: Ballerina.ResourcePathSegmentParam,
     parent?: Ballerina.STNode
   ): void;
 
@@ -2165,6 +2625,21 @@ export interface Visitor {
   ): void;
   endVisitRestParam?(
     node: Ballerina.RestParam,
+    parent?: Ballerina.STNode
+  ): void;
+
+  beginVisitRestType?(
+    node: Ballerina.RestType,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitRestType?(node: Ballerina.RestType, parent?: Ballerina.STNode): void;
+
+  beginVisitRetryKeyword?(
+    node: Ballerina.RetryKeyword,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitRetryKeyword?(
+    node: Ballerina.RetryKeyword,
     parent?: Ballerina.STNode
   ): void;
 
@@ -2267,30 +2742,21 @@ export interface Visitor {
     parent?: Ballerina.STNode
   ): void;
 
-  beginVisitServiceBody?(
-    node: Ballerina.ServiceBody,
-    parent?: Ballerina.STNode
-  ): void;
-  endVisitServiceBody?(
-    node: Ballerina.ServiceBody,
-    parent?: Ballerina.STNode
-  ): void;
-
-  beginVisitServiceConstructorExpression?(
-    node: Ballerina.ServiceConstructorExpression,
-    parent?: Ballerina.STNode
-  ): void;
-  endVisitServiceConstructorExpression?(
-    node: Ballerina.ServiceConstructorExpression,
-    parent?: Ballerina.STNode
-  ): void;
-
   beginVisitServiceDeclaration?(
     node: Ballerina.ServiceDeclaration,
     parent?: Ballerina.STNode
   ): void;
   endVisitServiceDeclaration?(
     node: Ballerina.ServiceDeclaration,
+    parent?: Ballerina.STNode
+  ): void;
+
+  beginVisitServiceDocReferenceToken?(
+    node: Ballerina.ServiceDocReferenceToken,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitServiceDocReferenceToken?(
+    node: Ballerina.ServiceDocReferenceToken,
     parent?: Ballerina.STNode
   ): void;
 
@@ -2303,21 +2769,39 @@ export interface Visitor {
     parent?: Ballerina.STNode
   ): void;
 
-  beginVisitServiceTypeDesc?(
-    node: Ballerina.ServiceTypeDesc,
-    parent?: Ballerina.STNode
-  ): void;
-  endVisitServiceTypeDesc?(
-    node: Ballerina.ServiceTypeDesc,
-    parent?: Ballerina.STNode
-  ): void;
-
   beginVisitSimpleNameReference?(
     node: Ballerina.SimpleNameReference,
     parent?: Ballerina.STNode
   ): void;
   endVisitSimpleNameReference?(
     node: Ballerina.SimpleNameReference,
+    parent?: Ballerina.STNode
+  ): void;
+
+  beginVisitSingleQuoteToken?(
+    node: Ballerina.SingleQuoteToken,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitSingleQuoteToken?(
+    node: Ballerina.SingleQuoteToken,
+    parent?: Ballerina.STNode
+  ): void;
+
+  beginVisitSingletonTypeDesc?(
+    node: Ballerina.SingletonTypeDesc,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitSingletonTypeDesc?(
+    node: Ballerina.SingletonTypeDesc,
+    parent?: Ballerina.STNode
+  ): void;
+
+  beginVisitSlashAsteriskToken?(
+    node: Ballerina.SlashAsteriskToken,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitSlashAsteriskToken?(
+    node: Ballerina.SlashAsteriskToken,
     parent?: Ballerina.STNode
   ): void;
 
@@ -2336,6 +2820,15 @@ export interface Visitor {
   ): void;
   endVisitSlashToken?(
     node: Ballerina.SlashToken,
+    parent?: Ballerina.STNode
+  ): void;
+
+  beginVisitSourceKeyword?(
+    node: Ballerina.SourceKeyword,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitSourceKeyword?(
+    node: Ballerina.SourceKeyword,
     parent?: Ballerina.STNode
   ): void;
 
@@ -2447,6 +2940,24 @@ export interface Visitor {
     parent?: Ballerina.STNode
   ): void;
 
+  beginVisitSyncSendAction?(
+    node: Ballerina.SyncSendAction,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitSyncSendAction?(
+    node: Ballerina.SyncSendAction,
+    parent?: Ballerina.STNode
+  ): void;
+
+  beginVisitSyncSendToken?(
+    node: Ballerina.SyncSendToken,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitSyncSendToken?(
+    node: Ballerina.SyncSendToken,
+    parent?: Ballerina.STNode
+  ): void;
+
   beginVisitTableConstructor?(
     node: Ballerina.TableConstructor,
     parent?: Ballerina.STNode
@@ -2501,12 +3012,57 @@ export interface Visitor {
     parent?: Ballerina.STNode
   ): void;
 
+  beginVisitTransactionalExpression?(
+    node: Ballerina.TransactionalExpression,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitTransactionalExpression?(
+    node: Ballerina.TransactionalExpression,
+    parent?: Ballerina.STNode
+  ): void;
+
   beginVisitTransactionalKeyword?(
     node: Ballerina.TransactionalKeyword,
     parent?: Ballerina.STNode
   ): void;
   endVisitTransactionalKeyword?(
     node: Ballerina.TransactionalKeyword,
+    parent?: Ballerina.STNode
+  ): void;
+
+  beginVisitTrapAction?(
+    node: Ballerina.TrapAction,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitTrapAction?(
+    node: Ballerina.TrapAction,
+    parent?: Ballerina.STNode
+  ): void;
+
+  beginVisitTrapExpression?(
+    node: Ballerina.TrapExpression,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitTrapExpression?(
+    node: Ballerina.TrapExpression,
+    parent?: Ballerina.STNode
+  ): void;
+
+  beginVisitTrapKeyword?(
+    node: Ballerina.TrapKeyword,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitTrapKeyword?(
+    node: Ballerina.TrapKeyword,
+    parent?: Ballerina.STNode
+  ): void;
+
+  beginVisitTripleBacktickToken?(
+    node: Ballerina.TripleBacktickToken,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitTripleBacktickToken?(
+    node: Ballerina.TripleBacktickToken,
     parent?: Ballerina.STNode
   ): void;
 
@@ -2627,6 +3183,42 @@ export interface Visitor {
     parent?: Ballerina.STNode
   ): void;
 
+  beginVisitTypedescKeyword?(
+    node: Ballerina.TypedescKeyword,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitTypedescKeyword?(
+    node: Ballerina.TypedescKeyword,
+    parent?: Ballerina.STNode
+  ): void;
+
+  beginVisitTypedescTypeDesc?(
+    node: Ballerina.TypedescTypeDesc,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitTypedescTypeDesc?(
+    node: Ballerina.TypedescTypeDesc,
+    parent?: Ballerina.STNode
+  ): void;
+
+  beginVisitTypeofExpression?(
+    node: Ballerina.TypeofExpression,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitTypeofExpression?(
+    node: Ballerina.TypeofExpression,
+    parent?: Ballerina.STNode
+  ): void;
+
+  beginVisitTypeofKeyword?(
+    node: Ballerina.TypeofKeyword,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitTypeofKeyword?(
+    node: Ballerina.TypeofKeyword,
+    parent?: Ballerina.STNode
+  ): void;
+
   beginVisitUnaryExpression?(
     node: Ballerina.UnaryExpression,
     parent?: Ballerina.STNode
@@ -2636,12 +3228,30 @@ export interface Visitor {
     parent?: Ballerina.STNode
   ): void;
 
+  beginVisitUnderscoreKeyword?(
+    node: Ballerina.UnderscoreKeyword,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitUnderscoreKeyword?(
+    node: Ballerina.UnderscoreKeyword,
+    parent?: Ballerina.STNode
+  ): void;
+
   beginVisitUnionTypeDesc?(
     node: Ballerina.UnionTypeDesc,
     parent?: Ballerina.STNode
   ): void;
   endVisitUnionTypeDesc?(
     node: Ballerina.UnionTypeDesc,
+    parent?: Ballerina.STNode
+  ): void;
+
+  beginVisitVarDocReferenceToken?(
+    node: Ballerina.VarDocReferenceToken,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitVarDocReferenceToken?(
+    node: Ballerina.VarDocReferenceToken,
     parent?: Ballerina.STNode
   ): void;
 
@@ -2660,6 +3270,15 @@ export interface Visitor {
   ): void;
   endVisitVarTypeDesc?(
     node: Ballerina.VarTypeDesc,
+    parent?: Ballerina.STNode
+  ): void;
+
+  beginVisitVariableDocReferenceToken?(
+    node: Ballerina.VariableDocReferenceToken,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitVariableDocReferenceToken?(
+    node: Ballerina.VariableDocReferenceToken,
     parent?: Ballerina.STNode
   ): void;
 
@@ -2753,6 +3372,15 @@ export interface Visitor {
     parent?: Ballerina.STNode
   ): void;
 
+  beginVisitXmlAtomicNamePattern?(
+    node: Ballerina.XmlAtomicNamePattern,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitXmlAtomicNamePattern?(
+    node: Ballerina.XmlAtomicNamePattern,
+    parent?: Ballerina.STNode
+  ): void;
+
   beginVisitXmlAttribute?(
     node: Ballerina.XmlAttribute,
     parent?: Ballerina.STNode
@@ -2768,6 +3396,30 @@ export interface Visitor {
   ): void;
   endVisitXmlAttributeValue?(
     node: Ballerina.XmlAttributeValue,
+    parent?: Ballerina.STNode
+  ): void;
+
+  beginVisitXmlCdata?(
+    node: Ballerina.XmlCdata,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitXmlCdata?(node: Ballerina.XmlCdata, parent?: Ballerina.STNode): void;
+
+  beginVisitXmlCdataEndToken?(
+    node: Ballerina.XmlCdataEndToken,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitXmlCdataEndToken?(
+    node: Ballerina.XmlCdataEndToken,
+    parent?: Ballerina.STNode
+  ): void;
+
+  beginVisitXmlCdataStartToken?(
+    node: Ballerina.XmlCdataStartToken,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitXmlCdataStartToken?(
+    node: Ballerina.XmlCdataStartToken,
     parent?: Ballerina.STNode
   ): void;
 
@@ -2825,6 +3477,24 @@ export interface Visitor {
     parent?: Ballerina.STNode
   ): void;
 
+  beginVisitXmlEmptyElement?(
+    node: Ballerina.XmlEmptyElement,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitXmlEmptyElement?(
+    node: Ballerina.XmlEmptyElement,
+    parent?: Ballerina.STNode
+  ): void;
+
+  beginVisitXmlFilterExpression?(
+    node: Ballerina.XmlFilterExpression,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitXmlFilterExpression?(
+    node: Ballerina.XmlFilterExpression,
+    parent?: Ballerina.STNode
+  ): void;
+
   beginVisitXmlKeyword?(
     node: Ballerina.XmlKeyword,
     parent?: Ballerina.STNode
@@ -2840,6 +3510,36 @@ export interface Visitor {
   ): void;
   endVisitXmlNamePatternChain?(
     node: Ballerina.XmlNamePatternChain,
+    parent?: Ballerina.STNode
+  ): void;
+
+  beginVisitXmlNamespaceDeclaration?(
+    node: Ballerina.XmlNamespaceDeclaration,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitXmlNamespaceDeclaration?(
+    node: Ballerina.XmlNamespaceDeclaration,
+    parent?: Ballerina.STNode
+  ): void;
+
+  beginVisitXmlPi?(node: Ballerina.XmlPi, parent?: Ballerina.STNode): void;
+  endVisitXmlPi?(node: Ballerina.XmlPi, parent?: Ballerina.STNode): void;
+
+  beginVisitXmlPiEndToken?(
+    node: Ballerina.XmlPiEndToken,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitXmlPiEndToken?(
+    node: Ballerina.XmlPiEndToken,
+    parent?: Ballerina.STNode
+  ): void;
+
+  beginVisitXmlPiStartToken?(
+    node: Ballerina.XmlPiStartToken,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitXmlPiStartToken?(
+    node: Ballerina.XmlPiStartToken,
     parent?: Ballerina.STNode
   ): void;
 
@@ -2897,6 +3597,24 @@ export interface Visitor {
   ): void;
   endVisitXmlTypeDesc?(
     node: Ballerina.XmlTypeDesc,
+    parent?: Ballerina.STNode
+  ): void;
+
+  beginVisitXmlnsKeyword?(
+    node: Ballerina.XmlnsKeyword,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitXmlnsKeyword?(
+    node: Ballerina.XmlnsKeyword,
+    parent?: Ballerina.STNode
+  ): void;
+
+  beginVisitundefined?(
+    node: Ballerina.undefined,
+    parent?: Ballerina.STNode
+  ): void;
+  endVisitundefined?(
+    node: Ballerina.undefined,
     parent?: Ballerina.STNode
   ): void;
 }

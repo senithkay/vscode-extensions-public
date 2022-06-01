@@ -20,6 +20,7 @@ import {
     ModulePart,
     NamedWorkerDeclaration,
     ObjectMethodDefinition,
+    RemoteMethodCallAction,
     ResourceAccessorDefinition,
     STKindChecker,
     STNode,
@@ -758,7 +759,7 @@ export class PositioningVisitor implements Visitor {
                         epCount++;
                     } else if (STKindChecker.isLocalVarDecl(statement) &&
                         STKindChecker.isCheckAction(statement.initializer) &&
-                        statement.initializer?.expression.expression.typeData?.symbol?.kind === "PARAMETER" &&
+                        (statement.initializer?.expression as RemoteMethodCallAction).expression.typeData?.symbol?.kind === "PARAMETER" &&
                         !endpoint.firstAction) {
                         // Add parameter level endpoints to the action view statement.
                         statementViewState.endpoint = mainEp;
