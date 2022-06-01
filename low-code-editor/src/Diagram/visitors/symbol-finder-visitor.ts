@@ -233,7 +233,7 @@ function getType(typeNode: any): any {
         });
         return "[" + tupleTypes.map((memType) => getType(memType)) + "]";
     } else if (STKindChecker.isMapTypeDesc(typeNode)) {
-        return "map<" + getType(typeNode.mapTypeParamsNode.value) + ">";
+        return "map<" + getType(typeNode.mapTypeParamsNode.typeNode) + ">";
     } else if (STKindChecker.isStreamTypeDesc(typeNode)) {
         return "stream<" + getType(typeNode.streamTypeParamsNode.leftTypeDescNode) + ">";
     } else if (STKindChecker.isErrorTypeDesc(typeNode)) {
