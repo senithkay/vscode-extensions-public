@@ -104,7 +104,7 @@ export function FunctionForm(props: FunctionProps) {
         if (!partialST.syntaxDiagnostics.length) {
             setCurrentComponentSyntaxDiag(undefined);
             if (newValue && currentModel) {
-                onChange(updatedContent, partialST, currentModel, newValue, completionKinds);
+                onChange(updatedContent, partialST, undefined, currentModel, newValue, completionKinds);
             } else {
                 onChange(updatedContent, partialST);
             }
@@ -150,13 +150,13 @@ export function FunctionForm(props: FunctionProps) {
         if (!partialST.syntaxDiagnostics.length) {
             setCurrentComponentSyntaxDiag(undefined);
             if (value && currentModel) {
-                onChange(updatedContent, partialST, currentModel, value, completionEditorTypeKinds);
+                onChange(updatedContent, partialST, undefined, currentModel, value, completionEditorTypeKinds);
             } else {
                 onChange(updatedContent, partialST);
             }
         } else {
             if (currentModel) {
-                onChange(updatedContent, partialST, currentModel, value, completionEditorTypeKinds);
+                onChange(updatedContent, partialST, undefined, currentModel, value, completionEditorTypeKinds);
             }
             setCurrentComponentSyntaxDiag(partialST.syntaxDiagnostics);
         }

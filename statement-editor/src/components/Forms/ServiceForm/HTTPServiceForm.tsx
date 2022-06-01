@@ -123,7 +123,7 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
             setCurrentComponentSyntaxDiag(undefined);
             const offset = isEdit ? (createdListerCount * 2) :
                 (shouldAddNewLine ? (createdListerCount * 2 + 1) : createdListerCount * 2);
-            onChange(updatedContent, partialST, HTTP_IMPORT, offset);
+            onChange(updatedContent, partialST, HTTP_IMPORT, undefined, "", [], offset);
         } else {
             setCurrentComponentSyntaxDiag(partialST.syntaxDiagnostics);
         }

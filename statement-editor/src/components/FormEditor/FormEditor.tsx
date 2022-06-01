@@ -141,7 +141,6 @@ export function FormEditor(props: FormEditorProps) {
                 targetPosition={targetPosition}
                 stSymbolInfo={stSymbolInfo}
                 syntaxTree={syntaxTree}
-                completions={completions}
                 onChange={onChange}
                 onCancel={onCancel}
                 onSave={onCancel}
@@ -157,6 +156,7 @@ export function FormEditor(props: FormEditorProps) {
                     targetPosition={targetPosition}
                     stSymbolInfo={stSymbolInfo}
                     syntaxTree={syntaxTree}
+                    completions={completions}
                     onChange={onChange}
                     onCancel={onCancel}
                     getLangClient={getLangClient}

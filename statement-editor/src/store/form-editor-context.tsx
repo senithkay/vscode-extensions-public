@@ -23,7 +23,7 @@ import {
 import {ModulePart, NodePosition, ServiceDeclaration, STNode} from "@wso2-enterprise/syntax-tree";
 
 import { LowCodeEditorProps } from "../components/StatementEditorWrapper";
-import { EditorModel, EmptySymbolInfo, StmtDiagnostic, SuggestionItem } from "../models/definitions";
+import {CurrentModel, EditorModel, EmptySymbolInfo, StmtDiagnostic, SuggestionItem} from "../models/definitions";
 
 import { InputEditorContextProvider } from "./input-editor-context";
 
@@ -41,7 +41,8 @@ export const FormEditorContext = React.createContext({
     stSymbolInfo: null,
     onCancel: () => undefined,
     onSave: () => undefined,
-    onChange: (code: string, partialST: STNode, moduleList?: Set<string>, offsetLineCount?: number) => undefined,
+    onChange: (code: string, partialST: STNode, moduleList?: Set<string>, currentModel?: CurrentModel,
+               newValue?: string, completionKinds?: number[], offsetLineCount?: number) => undefined,
     getLangClient: () => (Promise.resolve({} as any)),
     applyModifications: (modifications: STModification[]) => undefined
 });
@@ -57,7 +58,8 @@ export interface FormEditorProps {
     syntaxTree?: STNode;
     isEdit?: boolean;
     getLangClient: () => Promise<ExpressionEditorLangClientInterface>;
-    onChange: (code: string, partialST: STNode, moduleList?: Set<string>, offsetLineCount?: number) => void;
+    onChange: (code: string, partialST: STNode, moduleList?: Set<string>, currentModel?: CurrentModel,
+               newValue?: string, completionKinds?: number[], offsetLineCount?: number) => void;
     currentFile: {
         content: string,
         path: string,
