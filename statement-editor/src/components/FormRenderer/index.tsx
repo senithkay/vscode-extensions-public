@@ -19,11 +19,13 @@ import {
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
+import { SuggestionItem } from "../../models/definitions";
 import { getFormComponent } from "../../utils";
 
 export interface FormRendererProps {
     type: string;
     model: STNode;
+    completions: SuggestionItem[];
     syntaxTree?: STNode;
     targetPosition: NodePosition;
     isEdit: boolean;
@@ -40,9 +42,9 @@ export interface FormRendererProps {
 }
 
 export function FormRenderer(props: FormRendererProps) {
-    const { type, model } = props;
+    const { type, model, completions } = props;
 
-    const component = getFormComponent(type, model);
+    const component = getFormComponent(type, model, completions);
 
     return (
        <>

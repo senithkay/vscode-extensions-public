@@ -53,7 +53,12 @@ export function EndpointList(props: FormGeneratorProps) {
             onSelect(connector, name);
         };
         return (
-            <ListItem key={`endpoint-${name.toLowerCase()}`} button={true} onClick={handleOnSelect}>
+            <ListItem
+                key={`endpoint-${name.toLowerCase()}`}
+                data-testid={`${name.toLowerCase().replaceAll(" ", "-")}`}
+                button={true}
+                onClick={handleOnSelect}
+            >
                 <Typography variant="h4">{name}</Typography>
             </ListItem>
         );

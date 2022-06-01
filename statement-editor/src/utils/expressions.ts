@@ -386,6 +386,30 @@ select Ex3`
     relatedModelType: ModelType.EXPRESSION
 }
 
+const queryIntermediateClauses : ExpressionGroup = {
+    name: "Query Intermediate-Clauses",
+    expressions: [
+        {
+            name: "From-Clause",
+            template: `from ${TYPE_DESC_PLACEHOLDER} ${BINDING_PATTERN_PLACEHOLDER} in ${EXPR_PLACEHOLDER}`,
+            example: "from var i in Ex"
+        }, {
+            name: "Where-Clause",
+            template: `where ${EXPR_PLACEHOLDER}`,
+            example: "where Ex"
+        }, {
+            name: "Let-Clause",
+            template: `let ${TYPE_DESC_PLACEHOLDER} ${BINDING_PATTERN_PLACEHOLDER} = ${EXPR_PLACEHOLDER}`,
+            example: "let var i = Ex"
+        }, {
+            name: "Limit-Clause",
+            template: `limit ${EXPR_PLACEHOLDER}`,
+            example: "limit Ex"
+        }
+    ],
+    relatedModelType: ModelType.QUERY_EXPRESSION
+}
+
 //     6.36 XML navigation expression
 //         6.36.1 XML name pattern
 //         6.36.2 XML filter expression
@@ -564,5 +588,6 @@ export const expressions: ExpressionGroup[] = [
     range,
     shift,
     typeDescriptors,
-    operatorSymbols
+    operatorSymbols,
+    queryIntermediateClauses
 ];

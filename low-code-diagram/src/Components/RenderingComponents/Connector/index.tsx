@@ -62,7 +62,7 @@ export function Connector(props: ConnectorProps) {
                 y={yPosition}
                 textAnchor="middle"
                 dominantBaseline="central"
-                className='endpont-name'
+                className='endpoint-name'
             >
                 {connectorName.length > 15 ? `${connectorName.slice(0, 16)}...` : connectorName}
             </text>

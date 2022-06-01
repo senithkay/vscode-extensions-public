@@ -186,6 +186,7 @@ export interface FormField {
     label?: string;
     displayName?: string;
     collectionDataType?: FormField;
+    paramType?: FormField;
     selectedDataType?: string;
     description?: string;
     defaultValue?: any;

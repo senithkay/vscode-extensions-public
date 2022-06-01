@@ -1,5 +1,3 @@
-import { Diagnostic } from "@wso2-enterprise/syntax-tree";
-
 /*
  * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
  *
@@ -12,6 +10,8 @@ import { Diagnostic } from "@wso2-enterprise/syntax-tree";
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+import { Diagnostic } from "@wso2-enterprise/syntax-tree";
+
 export enum ModelType {
     EXPRESSION,
     OPERATOR,
@@ -29,4 +29,13 @@ export class StatementEditorViewState {
     public isWithinBlockStatement: boolean = false;
     public modelType: ModelType = ModelType.EXPRESSION;
     public diagnosticsInRange?: Diagnostic[] = [];
+    public multilineConstructConfig: MultilineConstructConfig = {
+        isFieldWithNewLine: false,
+        isClosingBraceWithNewLine: false
+    };
+}
+
+interface MultilineConstructConfig {
+    isFieldWithNewLine?: boolean;
+    isClosingBraceWithNewLine?: boolean;
 }
