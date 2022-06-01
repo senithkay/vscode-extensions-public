@@ -27,11 +27,13 @@ export interface ExpressionComponentProps {
     model: STNode;
     children?: React.ReactElement[];
     classNames?: string;
-    stmtPosition?: NodePosition
+    stmtPosition?: NodePosition;
+    onMouseEnter?: (e: React.MouseEvent) => void
+    onMouseLeave?: (e: React.MouseEvent) => void
 }
 
 export function ExpressionComponent(props: ExpressionComponentProps) {
-    const { model, children, classNames, stmtPosition } = props;
+    const { model, children, classNames, stmtPosition, onMouseEnter, onMouseLeave } = props;
 
     const component = getExpressionTypeComponent(model, stmtPosition);
 
@@ -91,6 +93,8 @@ export function ExpressionComponent(props: ExpressionComponentProps) {
                 className={styleClassNames}
                 onClick={onMouseClick}
                 data-testid={model.kind}
+                onMouseEnter={onMouseEnter}
+                onMouseLeave={onMouseLeave}
             >
                 {component}
                 {children}

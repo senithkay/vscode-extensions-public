@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js
+// tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import React, { useContext } from "react";
 
 import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
@@ -29,6 +29,8 @@ export interface ExpressionArrayProps {
 
 export function ExpressionArrayComponent(props: ExpressionArrayProps) {
     const { expressions, modifiable, arrayType } = props;
+
+    const [isHovered, setHovered] = React.useState(null);
 
     const {
         modelCtx: {
@@ -52,14 +54,26 @@ export function ExpressionArrayComponent(props: ExpressionArrayProps) {
         }
     };
 
+    const onMouseEnter = (e: React.MouseEvent , index: number) => {
+        setHovered(index);
+        e.stopPropagation();
+        e.preventDefault();
+    }
+
+    const onMouseLeave = (e: React.MouseEvent) => {
+        setHovered(null);
+        e.stopPropagation();
+        e.preventDefault();
+    }
+
     return (
-        <>
+        <span onMouseLeave={onMouseLeave}>
             { expressions.map((expression: STNode, index: number) => {
                 return (STKindChecker.isCommaToken(expression))
                 ? (
                      <TokenComponent key={index} model={expression} />
                 ) : (
-                    <>
+                    <span onMouseEnter={e => onMouseEnter(e, index)}>
                         <ExpressionComponent
                             key={index}
                             model={expression}
@@ -69,16 +83,18 @@ export function ExpressionArrayComponent(props: ExpressionArrayProps) {
                                 <NewExprAddButton
                                     model={expression}
                                     onClick={addNewExpression}
-                                    classNames={"modifiable"}
+                                    classNames={(expressions.length !== index + 1 && arrayType === ArrayType.MAPPING_CONSTRUCTOR ? "modifiable" : "")
+                                                + " "
+                                                + (isHovered === index ? "view" : "hide")}
                                 />
                                 {arrayType === ArrayType.INTERMEDIATE_CLAUSE && (
                                     <br/>
                                 )}
                             </>
                         )}
-                    </>
+                    </span>
                 )
             })}
-        </>
+        </span>
     );
 }

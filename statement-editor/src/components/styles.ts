@@ -201,7 +201,13 @@ export const useStatementRendererStyles = makeStyles(() =>
             },
             '&.modifiable': {
                 position: 'absolute',
-                marginLeft: '10px'
+                marginLeft: '10px',
+            },
+            '&.view': {
+                display: "inline"
+            },
+            '&.hide': {
+                display: "none"
             }
         },
         syntaxErrorTooltip : {

@@ -33,6 +33,8 @@ export function QueryPipelineComponent(props: QueryPipelineProps) {
         }
     } = useContext(StatementEditorContext);
 
+    const [isHovered, setHovered] = React.useState(false);
+
     const addNewExpression = (fromClauseModel: STNode) => {
         const newPosition: NodePosition = {
             ...fromClauseModel.position,
@@ -42,11 +44,28 @@ export function QueryPipelineComponent(props: QueryPipelineProps) {
         setNewQueryPos(newPosition);
     };
 
+    const onMouseEnter = (e: React.MouseEvent) => {
+        setHovered(true);
+        e.stopPropagation();
+        e.preventDefault();
+    }
+
+    const onMouseLeave = (e: React.MouseEvent) => {
+        setHovered(false);
+        e.stopPropagation();
+        e.preventDefault();
+    }
 
     return (
         <>
-            <ExpressionComponent model={model.fromClause} />
-            <NewExprAddButton model={model.fromClause} onClick={addNewExpression} />
+            <span onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave} >
+                <ExpressionComponent model={model.fromClause} />
+                <NewExprAddButton
+                    model={model.fromClause}
+                    onClick={addNewExpression}
+                    classNames={isHovered ? "view" : "hide"}
+                />
+            </span>
             <br/>
             <ExpressionArrayComponent
                 modifiable={true}
