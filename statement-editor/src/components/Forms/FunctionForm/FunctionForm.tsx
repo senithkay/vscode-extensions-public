@@ -145,9 +145,9 @@ export function FunctionForm(props: FunctionProps) {
         }, undefined, true);
         const partialST = await getPartialSTForModuleMembers(
             { codeSnippet: updatedContent.trim() }, getLangClient
-        );
+        ) as FunctionDefinition;
         const currentModel: CurrentModel = {
-            model: partialST.functionSignature?.returnTypeDesc?.type
+            model: partialST?.functionSignature?.returnTypeDesc?.type
         };
         if (!partialST.syntaxDiagnostics.length) {
             setCurrentComponentSyntaxDiag(undefined);
@@ -162,11 +162,11 @@ export function FunctionForm(props: FunctionProps) {
             }
             setCurrentComponentSyntaxDiag(partialST.syntaxDiagnostics);
         }
-       
 
-        //await functionParamChange(functionName.value, parametersStr, value, currentModel, value, );
+
+        // await functionParamChange(functionName.value, parametersStr, value, currentModel, value, );
     }
-    
+
     const onReturnFocus = async () => {
         // const parametersStr = parameters.map((item) => `${item.type.value} ${item.name.value}`).join(",");
         // const currentModel: CurrentModel = {

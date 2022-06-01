@@ -146,7 +146,7 @@ export async function getCompletionsForType(docUri: string,
             triggerKind: 1
         },
         position: {
-            character: targetPosition.startColumn + currentModelPosition.startColumn + userInput.length,
+            character: targetPosition.startColumn + currentModelPosition.startColumn + userInput.length + 1,
             line: targetPosition.startLine + currentModelPosition.startLine
         }
     }
@@ -165,7 +165,7 @@ export async function getCompletionsForType(docUri: string,
     filteredCompletionItems.sort(sortSuggestions);
 
     filteredCompletionItems.map((completion) => {
-        suggestions.push({ 
+        suggestions.push({
             value: completion.insertText,
             kind: completion.detail,
             suggestionType: completion.kind,
