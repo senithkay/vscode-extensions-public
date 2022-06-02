@@ -39,7 +39,7 @@ export function WhereClauseComponent(props: WhereClauseProps) {
 
     return (
         <>
-            {model.expression.source.includes(DEFAULT_INTERMEDIATE_CLAUSE) ?
+            {model.expression?.source?.includes(DEFAULT_INTERMEDIATE_CLAUSE) ?
                 <>
                     {leadingMinutiaeJSX}
                     <ExpressionComponent model={exprModel()}/>
