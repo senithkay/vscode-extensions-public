@@ -13,12 +13,12 @@
     "gen-models": "npm run build && node lib/generate"
   },
   "dependencies": {
-    "@wso2-enterprise/lang-service": "file:../../lang-service",
+    "@wso2-enterprise/ballerina-languageclient": "file:../../ballerina-languageclient",
     "dts-generator": "^3.0.0",
     "glob": "^7.1.3",
     "lodash": "^4.17.11",
-    "prettier": "^1.5.2",
-    "prettier-tslint": "^0.4.0",
+    "prettier": "^2.6.1",
+    "prettier-tslint": "^0.4.2",
     "vscode-uri": "^1.0.6"
   },
   "devDependencies": {
@@ -26,7 +26,7 @@
     "copyfiles": "^2.1.0",
     "rimraf": "^3.0.2",
     "tslint": "^6.1.3",
-    "typescript": "^4.0.5"
+    "typescript": "^4.1.3"
   },
   "author": "",
   "license": "Apache-2.0"

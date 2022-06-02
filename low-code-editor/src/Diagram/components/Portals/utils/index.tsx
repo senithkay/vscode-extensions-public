@@ -758,7 +758,7 @@ export async function fetchConnectorInfo(
                             remoteCall = variable.initializer as RemoteMethodCallAction;
                             break;
                         default:
-                            remoteCall = (variable.initializer as CheckAction).expression;
+                            remoteCall = (variable.initializer as CheckAction).expression as RemoteMethodCallAction;
                     }
                     if (variable?.typedBindingPattern?.bindingPattern) {
                         if (STKindChecker.isCaptureBindingPattern(variable.typedBindingPattern.bindingPattern)) {
@@ -773,7 +773,7 @@ export async function fetchConnectorInfo(
 
                 case "ActionStatement":
                     const statement = model as ActionStatement;
-                    remoteCall = (statement.expression as CheckAction).expression;
+                    remoteCall = (statement.expression as CheckAction).expression as RemoteMethodCallAction;
                     break;
 
                 default:

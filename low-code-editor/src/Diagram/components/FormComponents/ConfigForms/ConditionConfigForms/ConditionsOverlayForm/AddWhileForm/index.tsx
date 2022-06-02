@@ -72,7 +72,7 @@ export function AddWhileForm(props: WhileProps) {
     }
 
     const handleStatementEditorChange = (partialModel: WhileStatement) => {
-        setConditionExpression(partialModel.condition.expression.source.trim());
+        setConditionExpression(partialModel.condition.source.trim());
     }
 
 

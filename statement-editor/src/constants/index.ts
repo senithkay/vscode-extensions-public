@@ -78,6 +78,8 @@ export const DEFAULT_WHERE_INTERMEDIATE_CLAUSE = `where ${DEFAULT_INTERMEDIATE_C
 export const CONFIGURABLE_VALUE_REQUIRED_TOKEN = "?";
 export const QUERY_INTERMEDIATE_CLAUSES = "Query Intermediate-Clauses";
 
+export const BAL_SOURCE = "```ballerina";
+
 export const METHOD_COMPLETION_KIND = 2;
 export const FUNCTION_COMPLETION_KIND = 3;
 const FIELD_COMPLETION_KIND = 5;
