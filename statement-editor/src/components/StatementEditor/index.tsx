@@ -29,6 +29,7 @@ import {
 import { StatementEditorContextProvider } from "../../store/statement-editor-context";
 import {
     addToTargetPosition,
+    enclosableWithParentheses,
     enrichModel,
     getCurrentModel,
     getFilteredDiagnosticMessages,
@@ -172,9 +173,12 @@ export function StatementEditor(props: StatementEditorProps) {
                 const currentModelViewState = currentModel.model?.viewState as StatementEditorViewState;
 
                 if (!isOperator(currentModelViewState.modelType) && !isBindingPattern(currentModelViewState.modelType)) {
-                    const selectionWithDot = `${currentModel.model.source
+                    const selection = currentModel.model.source
                         ? currentModel.model.source.trim()
-                        : currentModel.model.value.trim()}.`;
+                        : currentModel.model.value.trim();
+                    const selectionWithDot = enclosableWithParentheses(currentModel.model)
+                        ? `(${selection}).`
+                        : `${selection}.`;
                     const statements = [model.source];
                     if ((currentModel.model.viewState as StatementEditorViewState).modelType === ModelType.EXPRESSION) {
                         const dotAdded = addToTargetPosition(model.source, currentModel.model.position, selectionWithDot);
