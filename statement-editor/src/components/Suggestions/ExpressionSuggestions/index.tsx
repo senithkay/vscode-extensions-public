@@ -49,9 +49,7 @@ export function ExpressionSuggestions() {
     const {
         modelCtx: {
             currentModel,
-            updateModel,
-            newQueryPosition,
-            setNewQueryPos
+            updateModel
         }
     } = useContext(StatementEditorContext);
 
@@ -63,7 +61,6 @@ export function ExpressionSuggestions() {
             ? expression.template.replace(SELECTED_EXPRESSION, currentModelSource)
             : expression.template.replace(SELECTED_EXPRESSION, EXPR_PLACEHOLDER);
         updateModel(text, currentModel.model.position)
-        setNewQueryPos(null)
         inputEditorCtx.onInputChange('');
     }
 
@@ -71,13 +68,13 @@ export function ExpressionSuggestions() {
         if (currentModel.model) {
             let filteredGroups: ExpressionGroup[] = expressions.filter(
                 (exprGroup) => exprGroup.relatedModelType === currentModel.model.viewState.modelType);
-            if (newQueryPosition || currentModel.model.source?.trim() === DEFAULT_WHERE_INTERMEDIATE_CLAUSE){
+            if (currentModel.model.source?.trim() === DEFAULT_WHERE_INTERMEDIATE_CLAUSE){
                 filteredGroups = expressions.filter(
                     (exprGroup) =>  exprGroup.name === QUERY_INTERMEDIATE_CLAUSES);
             }
             setFilteredExpressions(filteredGroups);
         }
-    }, [currentModel.model, newQueryPosition]);
+    }, [currentModel.model]);
 
     const changeSelected = (key: number) => {
         const newSelected = selectedListItem + key;

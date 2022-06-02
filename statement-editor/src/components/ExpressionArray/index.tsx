@@ -37,8 +37,7 @@ export function ExpressionArrayComponent(props: ExpressionArrayProps) {
 
     const {
         modelCtx: {
-            updateModel,
-            setNewQueryPos
+            updateModel
         }
     } = useContext(StatementEditorContext);
 
@@ -49,7 +48,6 @@ export function ExpressionArrayComponent(props: ExpressionArrayProps) {
             startColumn: model.position.endColumn
         }
         if (arrayType === ArrayType.INTERMEDIATE_CLAUSE){
-            setNewQueryPos(newPosition);
             updateModel(`\n ${DEFAULT_WHERE_INTERMEDIATE_CLAUSE}`, newPosition);
         } else {
             const template = arrayType === ArrayType.MAPPING_CONSTRUCTOR ? MAPPING_CONSTRUCTOR : EXPR_CONSTRUCTOR;
