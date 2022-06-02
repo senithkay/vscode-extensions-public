@@ -448,12 +448,35 @@ export function isConfigAllowedTypeDesc(typeDescNode: STNode): boolean {
         && !STKindChecker.isJsonTypeDesc(typeDescNode)
         && !STKindChecker.isObjectTypeDesc(typeDescNode)
         && !STKindChecker.isOptionalTypeDesc(typeDescNode)
-        && !STKindChecker.isParameterizedTypeDesc(typeDescNode)
-        && !STKindChecker.isServiceTypeDesc(typeDescNode)
+        && !STKindChecker.isMapTypeDesc(typeDescNode)
         && !STKindChecker.isStreamTypeDesc(typeDescNode)
         && !STKindChecker.isTableTypeDesc(typeDescNode)
         && !STKindChecker.isVarTypeDesc(typeDescNode)
     );
+}
+
+export function enclosableWithParentheses(model: any): boolean {
+    return (model.viewState as StatementEditorViewState).modelType === ModelType.EXPRESSION
+        && (
+            !STKindChecker.isBracedExpression(model)
+            && !STKindChecker.isBlockStatement(model)
+            && !STKindChecker.isFieldAccess(model)
+            && !STKindChecker.isOptionalFieldAccess(model)
+            && !STKindChecker.isFunctionCall(model)
+            && !STKindChecker.isMethodCall(model)
+            && !STKindChecker.isInterpolation(model)
+            && !STKindChecker.isListConstructor(model)
+            && !STKindChecker.isMappingConstructor(model)
+            && !STKindChecker.isTableConstructor(model)
+            && !STKindChecker.isQualifiedNameReference(model)
+            && !STKindChecker.isRawTemplateExpression(model)
+            && !STKindChecker.isStringTemplateExpression(model)
+            && !STKindChecker.isXmlTemplateExpression(model)
+            && !STKindChecker.isComputedNameField(model)
+            && !STKindChecker.isSpecificField(model)
+            && !STKindChecker.isTypeTestExpression(model)
+            && !model?.isToken
+        );
 }
 
 export function getExistingConfigurable(selectedModel: STNode, stSymbolInfo: STSymbolInfo): STNode {
@@ -612,14 +635,15 @@ export function getUpdatedContentForNewNamedArg(currentModel: FunctionCall, user
     return content;
 }
 
-export function getParamsList(suggestionValue: string): string[] {
-    const paramRegex = /\w*\((.*)\)/m;
-    if (paramRegex.exec(suggestionValue)) {
-        let paramArray = paramRegex.exec(suggestionValue)[1].split(',');
-        paramArray = paramArray.map((param: string) => {
+export function getExprWithArgs(suggestionValue: string): string {
+    const paramRegex = /\w+\((.*)\)/m;
+    const params = paramRegex.exec(suggestionValue);
+    if (params) {
+        let paramList = params[1].split(',');
+        paramList = paramList.map((param: string) => {
             return param.trim().split(' ').pop();
         });
-        return paramArray;
+        return suggestionValue.replace(params[1], paramList.toString());
     }
-    return [];
+    return suggestionValue;
 }
