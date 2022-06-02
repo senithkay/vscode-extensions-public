@@ -237,6 +237,15 @@ const getLangClientMethods = (langClient: ExtendedLangClient): WebViewMethod[] =
             });
         }
     }, {
+        methodName: 'getSTForModulePart',
+        handler: (args: any[]) => {
+            const start = new Date().getTime();
+            return langClient.getSTForModulePart(args[0]).then(result => {
+                consoleLog(start, 'getSTForModulePart');
+                return result;
+            });
+        }
+    }, {
         methodName: 'getPerfEndpoints',
         handler: (args: any[]) => {
             const start = new Date().getTime();

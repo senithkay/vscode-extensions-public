@@ -352,6 +352,15 @@ function getLangClient() {
                 });
             })
         },
+        getSTForModulePart: (params) => {
+            return new Promise((resolve, _reject) => {
+                const start = new Date();
+                webViewRPCHandler.invokeRemoteMethod('getSTForModulePart', [params], (resp) => {
+                    consoleLog(start, 'getSTForModulePart');
+                    resolve(resp);
+                });
+            })
+        },
         getPerfEndpoints: (params) => {
             return new Promise((resolve, _reject) => {
                 const start = new Date();
