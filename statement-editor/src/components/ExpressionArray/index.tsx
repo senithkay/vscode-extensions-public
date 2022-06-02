@@ -56,13 +56,11 @@ export function ExpressionArrayComponent(props: ExpressionArrayProps) {
 
     const onMouseEnter = (e: React.MouseEvent , index: number) => {
         setHovered(index);
-        e.stopPropagation();
         e.preventDefault();
     }
 
     const onMouseLeave = (e: React.MouseEvent) => {
         setHovered(null);
-        e.stopPropagation();
         e.preventDefault();
     }
 
