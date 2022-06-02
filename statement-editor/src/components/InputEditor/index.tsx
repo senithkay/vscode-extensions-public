@@ -16,6 +16,7 @@ import React, { useContext, useEffect, useMemo, useState } from "react";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 import debounce from "lodash.debounce";
 
+import { DEFAULT_INTERMEDIATE_CLAUSE } from "../../constants";
 import { InputEditorContext } from "../../store/input-editor-context";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { isPositionsEquals } from "../../utils";
@@ -136,6 +137,7 @@ export function InputEditor(props: InputEditorProps) {
         if (userInput !== "") {
             // Replace empty interpolation with placeholder value
             const codeSnippet = userInput.replaceAll('${}', "${" + EXPR_PLACEHOLDER + "}");
+            originalValue === DEFAULT_INTERMEDIATE_CLAUSE ? updateModel(codeSnippet, model ? model.parent.parent.position : targetPosition) :
             updateModel(codeSnippet, model ? model.position : targetPosition);
         }
     }

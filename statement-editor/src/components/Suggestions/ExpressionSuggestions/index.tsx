@@ -20,7 +20,11 @@ import {
 import { STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import LibrarySearchIcon from "../../../assets/icons/LibrarySearchIcon";
-import { CONFIGURABLE_VALUE_REQUIRED_TOKEN, QUERY_INTERMEDIATE_CLAUSES } from "../../../constants";
+import {
+    CONFIGURABLE_VALUE_REQUIRED_TOKEN,
+    DEFAULT_WHERE_INTERMEDIATE_CLAUSE,
+    QUERY_INTERMEDIATE_CLAUSES
+} from "../../../constants";
 import { InputEditorContext } from "../../../store/input-editor-context";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import {
@@ -58,7 +62,7 @@ export function ExpressionSuggestions() {
         const text = currentModelSource !== CONFIGURABLE_VALUE_REQUIRED_TOKEN
             ? expression.template.replace(SELECTED_EXPRESSION, currentModelSource)
             : expression.template.replace(SELECTED_EXPRESSION, EXPR_PLACEHOLDER);
-        newQueryPosition ? updateModel(`\n${text}`, newQueryPosition) : updateModel(text, currentModel.model.position);
+        updateModel(text, currentModel.model.position)
         setNewQueryPos(null)
         inputEditorCtx.onInputChange('');
     }
@@ -67,7 +71,7 @@ export function ExpressionSuggestions() {
         if (currentModel.model) {
             let filteredGroups: ExpressionGroup[] = expressions.filter(
                 (exprGroup) => exprGroup.relatedModelType === currentModel.model.viewState.modelType);
-            if (newQueryPosition){
+            if (newQueryPosition || currentModel.model.source?.trim() === DEFAULT_WHERE_INTERMEDIATE_CLAUSE){
                 filteredGroups = expressions.filter(
                     (exprGroup) =>  exprGroup.name === QUERY_INTERMEDIATE_CLAUSES);
             }

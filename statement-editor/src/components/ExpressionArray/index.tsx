@@ -15,7 +15,12 @@ import React, { useContext } from "react";
 
 import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
-import { ArrayType, EXPR_CONSTRUCTOR, MAPPING_CONSTRUCTOR } from "../../constants";
+import {
+    ArrayType,
+    DEFAULT_WHERE_INTERMEDIATE_CLAUSE,
+    EXPR_CONSTRUCTOR,
+    MAPPING_CONSTRUCTOR
+} from "../../constants";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { NewExprAddButton } from "../Button/NewExprAddButton";
 import { ExpressionComponent } from "../Expression";
@@ -45,6 +50,7 @@ export function ExpressionArrayComponent(props: ExpressionArrayProps) {
         }
         if (arrayType === ArrayType.INTERMEDIATE_CLAUSE){
             setNewQueryPos(newPosition);
+            updateModel(`\n ${DEFAULT_WHERE_INTERMEDIATE_CLAUSE}`, newPosition);
         } else {
             const template = arrayType === ArrayType.MAPPING_CONSTRUCTOR ? MAPPING_CONSTRUCTOR : EXPR_CONSTRUCTOR;
             const newField = `,\n${template}`;

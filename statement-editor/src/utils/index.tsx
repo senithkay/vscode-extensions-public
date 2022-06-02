@@ -357,7 +357,7 @@ export function getSelectedModelPosition(codeSnippet: string, targetedPosition: 
         endColumn: targetedPosition.startColumn + codeSnippet.length
     };
 
-    if (codeSnippet.startsWith(',\n')) {
+    if (codeSnippet.startsWith(',\n') || codeSnippet.startsWith('\n')) {
         selectedModelPosition = {
             startLine: targetedPosition.startLine + 1,
             endLine: targetedPosition.endLine + codeSnippet.split('\n').length - 1,

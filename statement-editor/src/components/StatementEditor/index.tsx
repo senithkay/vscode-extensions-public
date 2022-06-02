@@ -18,7 +18,7 @@ import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tre
 import * as monaco from "monaco-editor";
 import { Diagnostic } from "vscode-languageserver-protocol";
 
-import { CUSTOM_CONFIG_TYPE } from "../../constants";
+import { CUSTOM_CONFIG_TYPE, DEFAULT_INTERMEDIATE_CLAUSE } from "../../constants";
 import {
     CurrentModel,
     EditorModel,
@@ -342,10 +342,17 @@ export function StatementEditor(props: StatementEditorProps) {
     };
 
     const currentModelHandler = (cModel: STNode, stmtPosition?: NodePosition) => {
-        setCurrentModel({
-            model: cModel,
-            stmtPosition
-        });
+        if (cModel.value && cModel.value === DEFAULT_INTERMEDIATE_CLAUSE){
+            setCurrentModel({
+                model: cModel.parent.parent,
+                stmtPosition
+            });
+        } else {
+            setCurrentModel({
+                model: cModel,
+                stmtPosition
+            });
+        }
     };
 
     const parentModelHandler = () => {
