@@ -24,9 +24,8 @@ import { Box, Card, CardContent, Collapse } from "@material-ui/core";
 import ConfigElement, { ConfigElementProps } from "../../ConfigElement";
 import ExpandMore from "../../elements/ExpandMore";
 import { FieldLabel, FieldLabelProps } from "../../elements/FieldLabel";
-import { ConfigType, SchemaConstants } from "../../model";
+import { ConfigType } from "../../model";
 import { useStyles } from "../../style";
-import { getRecordName } from "../../utils";
 import { ObjectTypeProps } from "../ObjectType";
 
 /**
@@ -38,8 +37,7 @@ export interface RecordTypeProps extends ObjectTypeProps {
 
 export const RecordType = (props: RecordTypeProps) => {
     const classes = useStyles();
-    const recordName: string = getRecordName(props.schema[SchemaConstants.NAME]);
-    const [recordValue, setRecordValue] = useState<ConfigElementProps>(getObjectElement(props, recordName));
+    const [recordValue, setRecordValue] = useState<ConfigElementProps>(getObjectElement(props));
     const [expanded, setExpanded] = useState(true);
     const returnElement: ReactElement[] = [];
 
@@ -79,7 +77,7 @@ export const RecordType = (props: RecordTypeProps) => {
         label: props.label,
         name: props.name,
         required: props.isRequired,
-        type: recordName ? recordName : ConfigType.MODULE,
+        type: ConfigType.RECORD,
     };
 
     return (
@@ -121,7 +119,7 @@ function updateRecordValue(recordObject: ConfigElementProps, id: string, value: 
     return recordObject;
 }
 
-function getObjectElement(configObject: ConfigElementProps, recordName: string): ConfigElementProps {
+function getObjectElement(configObject: ConfigElementProps): ConfigElementProps {
     const nestedProperties: ConfigElementProps[] = getNestedElements(configObject.properties);
     return {
         description: configObject.description,
@@ -130,7 +128,7 @@ function getObjectElement(configObject: ConfigElementProps, recordName: string):
         name: configObject.name,
         properties: nestedProperties,
         schema: configObject.schema,
-        type: recordName ? configObject.type : ConfigType.MODULE,
+        type: configObject.type,
     };
 }
 
