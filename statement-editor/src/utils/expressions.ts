@@ -433,9 +433,17 @@ const typeDescriptors : ExpressionGroup = {
             template: `[${SELECTED_EXPRESSION}]`,
             example: "[Es, Ex]"
         }, {
+            name: "Map",
+            template: `map<${SELECTED_EXPRESSION}>`,
+            example: "map<Es>"
+        }, {
             name: "Table",
             template: `table<${SELECTED_EXPRESSION}>`,
             example: "table<Es>"
+        }, {
+            name: "Stream",
+            template: `stream<${SELECTED_EXPRESSION}>`,
+            example: "stream<Es>"
         }, {
             name: "Table with Key-Fields",
             template: `table<${SELECTED_EXPRESSION}> key(${EXPR_PLACEHOLDER})`,
