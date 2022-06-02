@@ -32,13 +32,11 @@ export function MappingBindingPatternComponent(props: MappingBindingPatternProps
 
     const { leadingMinutiaeJSX, trailingMinutiaeJSX } = getMinutiaeJSX(model);
 
-    const isFieldWithNewLine = (model.viewState as StatementEditorViewState).multilineConstructConfig.isFieldWithNewLine;
-
     return (
         <>
             {leadingMinutiaeJSX}
             <InputEditor {...inputEditorProps} />
-            {!isFieldWithNewLine && trailingMinutiaeJSX}
+            {trailingMinutiaeJSX}
         </>
     );
 }
