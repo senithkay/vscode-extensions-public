@@ -22,12 +22,13 @@ import { expect } from 'chai';
 import { join } from 'path';
 import {
     BallerinaExampleListResponse, BallerinaProject, BallerinaProjectComponents, ExecutorPositionsResponse,
-    ExtendedLangClient, SyntaxTreeNodeResponse
+    ExtendedLangClient, JsonToRecordResponse, SyntaxTreeNodeResponse
 } from "../../src/core/extended-language-client";
 import { getServerOptions } from "../../src/server/server";
 import { getBallerinaCmd, isWindows } from "../test-util";
 import { commands, Uri } from "vscode";
 import { runSemanticTokensTestCases } from './semantic-tokens.test';
+import { readFileSync } from 'fs';
 
 const PROJECT_ROOT = join(__dirname, '..', '..', '..', 'test', 'data');
 
@@ -793,6 +794,20 @@ suite("Language Server Tests", function () {
             return Promise.reject();
 
         });
+    });
+
+    test("Test json to record", function (done): void {
+        const json:string = readFileSync(join(PROJECT_ROOT, 'record.json'), 'utf-8');
+        const expected:string = readFileSync(join(PROJECT_ROOT, 'record.bal'), 'utf-8');
+        langClient.convertJsonToRecord({ jsonString: json, isClosed: false, isRecordTypeDesc: false, recordName: "" })
+            .then(lSResponse => {
+                const response = lSResponse as JsonToRecordResponse;
+                expect(response).to.contain.keys("codeBlock");
+                assert.strictEqual(response.codeBlock, expected, "Invalid codeblock");
+                done();
+            }, error => {
+                done(error);
+            });
     });
 
     test("Test Language Server Stop", (done) => {
