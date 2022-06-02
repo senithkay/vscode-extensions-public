@@ -13,7 +13,7 @@
 import React from "react";
 
 import { OtherStatementNodeTypes } from "../../../constants";
-import { getMinutiaeJSX } from "../../../utils";
+import { getJSXForMinutiae, getMinutiaeJSX } from "../../../utils";
 import { StatementEditorViewState } from "../../../utils/statement-editor-viewstate";
 import { InputEditor } from "../../InputEditor";
 import { useStatementRendererStyles } from "../../styles";
@@ -31,16 +31,16 @@ export function OtherStatementTypes(props: OtherStatementProps) {
         model
     };
 
-    const { leadingMinutiaeJSX, trailingMinutiaeJSX } = getMinutiaeJSX(model);
-
     const isFieldWithNewLine = (model?.viewState as StatementEditorViewState)?.multilineConstructConfig?.isFieldWithNewLine;
 
+    const leadingMinutiaeJSX = getJSXForMinutiae(model?.leadingMinutiae, isFieldWithNewLine);
+    const trailingMinutiaeJSX = getJSXForMinutiae(model?.trailingMinutiae, isFieldWithNewLine);
 
     return (
         <span className={statementRendererClasses.expressionElement}>
             {leadingMinutiaeJSX}
             <InputEditor {...inputEditorProps} />
-            {!isFieldWithNewLine && trailingMinutiaeJSX}
+            {trailingMinutiaeJSX}
         </span>
     );
 }
