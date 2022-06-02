@@ -39,6 +39,7 @@ export interface FormEditorProps {
     targetPosition: NodePosition;
     stSymbolInfo?: STSymbolInfo;
     syntaxTree?: STNode;
+    isLastMember?: boolean;
     type: string;
     onCancel: () => void;
     applyModifications: (modifications: STModification[]) => void;
@@ -51,6 +52,7 @@ export function FormEditor(props: FormEditorProps) {
         initialSource,
         initialModel,
         syntaxTree,
+        isLastMember,
         onCancel,
         getLangClient,
         applyModifications,
@@ -78,26 +80,45 @@ export function FormEditor(props: FormEditorProps) {
         const updatedContent = getUpdatedSource(genSource.trim(), currentFile.content, initialModel ? {
             ...initialModel.position,
             startLine: initialModel.position.startLine + offsetLineCount,
-            endLine: initialModel.position.endLine + offsetLineCount} : {
+            endLine: initialModel.position.endLine + offsetLineCount
+        } : isLastMember ? (
+            {
+                ...targetPosition,
+                startLine: targetPosition.startLine + offsetLineCount,
+                endLine: targetPosition.startLine + offsetLineCount
+            }
+        ) : (
+            {
                 ...targetPosition,
                 startLine: targetPosition.startLine + offsetLineCount,
                 endLine: targetPosition.startLine + offsetLineCount,
                 startColumn: 0,
                 endColumn: 0
-            }, newModuleList, true);
+            }
+        ), newModuleList, true);
         sendDidChange(fileURI, updatedContent, getLangClient).then();
         const diagnostics = await handleDiagnostics(genSource, fileURI, targetPosition, getLangClient).then();
         setModel(enrichModel(partialST, initialModel ? {
             ...initialModel.position,
             startLine: initialModel.position.startLine + offsetLineCount ,
             endLine: initialModel.position.endLine + offsetLineCount
-        } : {
-            ...targetPosition,
-            startLine: targetPosition.startLine + offsetLineCount,
-            endLine: targetPosition.startLine + offsetLineCount,
-            startColumn: 0,
-            endColumn: 0
-        }, diagnostics));
+        } : (
+            isLastMember ? (
+                {
+                    ...targetPosition,
+                    startLine: targetPosition.startLine + offsetLineCount,
+                    endLine: targetPosition.startLine + offsetLineCount
+                }
+            ) : (
+                {
+                    ...targetPosition,
+                    startLine: targetPosition.startLine + offsetLineCount,
+                    endLine: targetPosition.startLine + offsetLineCount,
+                    startColumn: 0,
+                    endColumn: 0
+                }
+            )
+        ), diagnostics));
     };
 
     useEffect(() => {
@@ -135,7 +156,7 @@ export function FormEditor(props: FormEditorProps) {
                 getLangClient={getLangClient}
                 currentFile={currentFile}
                 isEdit={initialSource !== undefined}
-                isLastMember={false}
+                isLastMember={isLastMember}
                 applyModifications={applyModifications}
             >
                 <FormRenderer
