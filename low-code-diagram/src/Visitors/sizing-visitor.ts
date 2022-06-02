@@ -69,7 +69,6 @@ import { ConflictResolutionVisitor } from "./conflict-resolution-visitor";
 import { DefaultConfig } from "./default";
 import { getDraftComponentSizes, getPlusViewState, haveBlockStatement, isSTActionInvocation } from "./util";
 
-let allEndpoints: Map<string, Endpoint> = new Map<string, Endpoint>();
 
 export interface AsyncSendInfo {
     to: string;
@@ -116,6 +115,7 @@ export class SizingVisitor implements Visitor {
     private senderReceiverInfo: Map<string, { sends: AsyncSendInfo[], receives: AsyncReceiveInfo[], waits: WaitInfo[] }>;
     private workerMap: Map<string, NamedWorkerDeclaration>;
     private experimentalEnabled: boolean;
+    private allEndpoints: Map<string, Endpoint>;
 
     constructor(experimentalEnabled: boolean = false) {
         this.currentWorker = [];
@@ -135,6 +135,7 @@ export class SizingVisitor implements Visitor {
         this.currentWorker = [];
         this.senderReceiverInfo = new Map();
         this.workerMap = new Map();
+        this.allEndpoints = new Map();
     }
 
     public beginVisitModulePart(node: ModulePart, parent?: STNode) {
@@ -396,7 +397,7 @@ export class SizingVisitor implements Visitor {
 
         viewState.bBox.h = lifeLine.h + trigger.h + end.bBox.h + (DefaultConfig.serviceVerticalPadding * 2) + DefaultConfig.functionHeaderHeight;
         viewState.bBox.lw = (trigger.lw > bodyViewState.bBox.lw ? trigger.lw : bodyViewState.bBox.lw) + DefaultConfig.serviceFrontPadding;
-        viewState.bBox.rw = (trigger.rw > bodyViewState.bBox.rw ? trigger.rw : bodyViewState.bBox.rw) + DefaultConfig.serviceRearPadding + (allEndpoints.size * (DefaultConfig.connectorEPWidth + DefaultConfig.epGap));
+        viewState.bBox.rw = (trigger.rw > bodyViewState.bBox.rw ? trigger.rw : bodyViewState.bBox.rw) + DefaultConfig.serviceRearPadding + (this.allEndpoints.size * (DefaultConfig.connectorEPWidth + DefaultConfig.epGap));
         viewState.bBox.w = viewState.bBox.lw + viewState.bBox.rw;
 
         if (viewState.initPlus && viewState.initPlus.selectedComponent === "PROCESS") {
@@ -475,7 +476,7 @@ export class SizingVisitor implements Visitor {
 
             viewState.bBox.h = lifeLine.h + trigger.h + end.bBox.h + DefaultConfig.serviceVerticalPadding * 2 + DefaultConfig.functionHeaderHeight;
             viewState.bBox.lw = (trigger.lw > bodyViewState.bBox.lw ? trigger.lw : bodyViewState.bBox.lw) + DefaultConfig.serviceFrontPadding;
-            viewState.bBox.rw = (trigger.rw > bodyViewState.bBox.rw ? trigger.rw : bodyViewState.bBox.rw) + DefaultConfig.serviceRearPadding + totalWorkerWidth + (allEndpoints.size * (DefaultConfig.connectorEPWidth + DefaultConfig.epGap));
+            viewState.bBox.rw = (trigger.rw > bodyViewState.bBox.rw ? trigger.rw : bodyViewState.bBox.rw) + DefaultConfig.serviceRearPadding + totalWorkerWidth + (this.allEndpoints.size * (DefaultConfig.connectorEPWidth + DefaultConfig.epGap));
             viewState.bBox.w = viewState.bBox.lw + viewState.bBox.rw;
 
             const maxWorkerFullHeight = body.namedWorkerDeclarator.workerInitStatements.length * 72 + maxWorkerHeight;
@@ -755,7 +756,7 @@ export class SizingVisitor implements Visitor {
 
         viewState.bBox.h = lifeLine.h + trigger.h + end.bBox.h + DefaultConfig.serviceVerticalPadding * 2 + DefaultConfig.functionHeaderHeight;
         viewState.bBox.lw = (trigger.lw > bodyViewState.bBox.lw ? trigger.lw : bodyViewState.bBox.lw) + DefaultConfig.serviceFrontPadding;
-        viewState.bBox.rw = (trigger.rw > bodyViewState.bBox.rw ? trigger.rw : bodyViewState.bBox.rw) + DefaultConfig.serviceRearPadding + (allEndpoints.size * (DefaultConfig.connectorEPWidth + DefaultConfig.epGap));
+        viewState.bBox.rw = (trigger.rw > bodyViewState.bBox.rw ? trigger.rw : bodyViewState.bBox.rw) + DefaultConfig.serviceRearPadding + (this.allEndpoints.size * (DefaultConfig.connectorEPWidth + DefaultConfig.epGap));
         viewState.bBox.w = viewState.bBox.lw + viewState.bBox.rw;
 
         if (viewState.initPlus && viewState.initPlus.selectedComponent === "PROCESS") {
@@ -774,7 +775,7 @@ export class SizingVisitor implements Visitor {
 
     public beginVisitFunctionBodyBlock(node: FunctionBodyBlock) {
         const viewState: BlockViewState = node.viewState;
-        allEndpoints = viewState.connectors;
+        this.allEndpoints = viewState.connectors;
         if (node.statements.length > 0 && STKindChecker.isReturnStatement(node.statements[node.statements.length - 1])) {
             viewState.isEndComponentInMain = true;
         }
@@ -825,12 +826,13 @@ export class SizingVisitor implements Visitor {
 
     public beginVisitExpressionFunctionBody(node: ExpressionFunctionBody) {
         const viewState: BlockViewState = node.viewState;
-        allEndpoints = viewState.connectors;
+        this.allEndpoints = viewState.connectors;
         viewState.isEndComponentInMain = true;
     }
 
     public endVisitExpressionFunctionBody(node: ExpressionFunctionBody) {
         // TODO: Work on this after proper design review for showing expression bodied functions.
+        this.cleanMaps();
     }
 
     public endVisitFunctionBodyBlock(node: FunctionBodyBlock) {
@@ -1373,7 +1375,7 @@ export class SizingVisitor implements Visitor {
 
             if (isSTActionInvocation(element)
                 && !haveBlockStatement(element)
-                && allEndpoints.has(stmtViewState.action.endpointName)
+                && this.allEndpoints.has(stmtViewState.action.endpointName)
             ) {
                 // check if it's the same as actioninvocation
                 stmtViewState.isAction = true;
