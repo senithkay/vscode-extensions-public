@@ -264,9 +264,9 @@ export function StatementEditor(props: StatementEditorProps) {
 
         const updatedContent = getUpdatedSource(partialST.source, currentFile.content, targetPosition, moduleList);
         sendDidChange(fileURI, updatedContent, getLangClient).then();
-        const diagnostics = await handleDiagnostics(partialST.source);
 
         if (!partialST.syntaxDiagnostics.length || config.type === CUSTOM_CONFIG_TYPE) {
+            const diagnostics = await handleDiagnostics(partialST.source);
             setStmtModel(partialST, diagnostics);
             const selectedPosition = getSelectedModelPosition(codeSnippet, position);
             let oldModel : StackElement;
