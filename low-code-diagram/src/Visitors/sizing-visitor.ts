@@ -414,14 +414,15 @@ export class SizingVisitor implements Visitor {
 
         const matchedStatements = this.syncAsyncStatements(node);
 
-        if (this.experimentalEnabled) {
-            const resolutionVisitor = new ConflictResolutionVisitor(matchedStatements, this.workerMap.size + 1);
-
-            do {
-                resolutionVisitor.resetConflictStatus();
-                traversNode(node, resolutionVisitor);
-            } while (resolutionVisitor.conflictFound())
-        }
+        const resolutionVisitor = new ConflictResolutionVisitor(matchedStatements, this.workerMap.size + 1);
+        const startDate = new Date();
+        do {
+            resolutionVisitor.resetConflictStatus();
+            traversNode(node, resolutionVisitor);
+            if ((new Date()).getTime() - startDate.getTime() > 5000) {
+                break;
+            }
+        } while (resolutionVisitor.conflictFound())
 
         if (bodyViewState.hasWorkerDecl) {
             let maxWorkerHeight = 0;
