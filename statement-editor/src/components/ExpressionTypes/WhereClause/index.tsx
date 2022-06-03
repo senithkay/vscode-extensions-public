@@ -27,12 +27,9 @@ interface WhereClauseProps {
 export function WhereClauseComponent(props: WhereClauseProps) {
     const { model } = props;
 
-    const exprModel = (): STNode => {
-        const newModel: STNode = {
-            ...model.expression,
-            position: model.position
-        }
-        return newModel;
+    const exprModel: STNode = {
+        ...model.expression,
+        position: model.position
     }
 
     const { leadingMinutiaeJSX } = getMinutiaeJSX(model);
@@ -42,7 +39,7 @@ export function WhereClauseComponent(props: WhereClauseProps) {
             {model.expression?.source?.includes(DEFAULT_INTERMEDIATE_CLAUSE) ?
                 <>
                     {leadingMinutiaeJSX}
-                    <ExpressionComponent model={exprModel()}/>
+                    <ExpressionComponent model={exprModel}/>
                 </>
                 : (
                     <>
