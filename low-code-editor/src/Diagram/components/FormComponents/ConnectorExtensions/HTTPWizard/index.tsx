@@ -63,7 +63,7 @@ export function HTTPWizard(props: WizardProps) {
     const classes = useStyles();
     const wizardClasses = wizardStyles();
     const { functionDefinitions, connectorConfig, connector, onSave, onClose, isNewConnectorInitWizard, targetPosition,
-        model, selectedConnector, isModuleEndpoint, isAction, functionNode } = props;
+            model, selectedConnector, isModuleEndpoint, isAction, functionNode } = props;
     const {
         api: {
             insights: {
