@@ -65,7 +65,6 @@ export function ViewContainer(props: ViewContainerProps) {
         },
         targetPosition,
         experimentalEnabled,
-        handleStmtEditorToggle
     } =  useContext(StatementEditorContext);
     const exprSchemeURI = `expr://${currentFile.path}`;
     const fileSchemeURI = `file://${currentFile.path}`;
@@ -152,15 +151,6 @@ export function ViewContainer(props: ViewContainerProps) {
                     <EditorPane data-testid="editor-pane"/>
                 </div>
                 <div className={overlayClasses.footer}>
-                    <div className={overlayClasses.stmtEditorToggle}>
-                        {experimentalEnabled && (
-                            <StatementEditorButton
-                                handleChange={handleStmtEditorToggle}
-                                checked={true}
-                                disabled={editors.length > 1}
-                            />
-                        )}
-                    </div>
                     <div className={overlayClasses.buttonWrapper}>
                         <SecondaryButton
                             text={activeEditorId !== 0 && isConfigurableStmt ? backButtonText : cancelButtonText}

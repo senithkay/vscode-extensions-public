@@ -18,7 +18,7 @@ import { FormControl, Typography } from "@material-ui/core";
 import { ExpressionEditorProps } from "@wso2-enterprise/ballerina-expression-editor";
 import { ADD_VARIABLE, LowcodeEvent, ProcessConfig, SAVE_VARIABLE } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FormActionButtons, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
-import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
+import { StatementEditorWrapper } from "@wso2-enterprise/ballerina-statement-editor";
 import { LocalVarDecl, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../../../Contexts/Diagram";
@@ -108,29 +108,12 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
     const [variableExpression, setVariableExpression] = useState<string>(varExpression);
     const [initialized, setIsInitialized] = useState<boolean>(initializedState);
 
-    const onPropertyChange = (property: string) => {
-        setVariableExpression(property);
-    };
-
-
     let variableHasReferences = false;
 
     if (existingProperty && STKindChecker.isLocalVarDecl(config.model)) {
         const symbolRefArray = stSymbolInfo.variableNameReferences.get(variableName);
         variableHasReferences = symbolRefArray ? symbolRefArray.length > 0 : false;
     }
-
-    const validateExpression = (fieldName: string, isInvalid: boolean) => {
-        // TODO Implement when validations are re-enabled
-    };
-
-    const validateVarName = (fieldName: string, isInvalid: boolean) => {
-        // TODO Implement when validations are re-enabled
-    };
-
-    const validateVarType = (fieldName: string, isInvalid: boolean) => {
-        // TODO Implement when validations are re-enabled
-    };
 
     // Insight event to send when loading the component
     useEffect(() => {
@@ -141,120 +124,10 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         // onEvent(event);
     }, []);
 
-    const handleSave = () => {
-        if (initialized) {
-            if (variableExpression) {
-                config.config = selectedType + " " + varName + " = " + variableExpression + ";";
-                onSave();
-            }
-        } else {
-            config.config = selectedType + " " + varName + ";";
-            onSave();
-        }
-        // const event: LowcodeEvent = {
-        //     type: SAVE_VARIABLE,
-        //     name: config.config
-        // };
-        // onEvent(event);
-    };
-
-    const saveVariableButtonText = intl.formatMessage({
-        id: "lowcode.develop.configForms.variable.saveButton.text",
-        defaultMessage: "Save"
-    });
-
-    const cancelVariableButtonText = intl.formatMessage({
-        id: "lowcode.develop.configForms.variable.cancelButton.text",
-        defaultMessage: "Cancel"
-    });
-
     const formTitle = intl.formatMessage({
         id: "lowcode.develop.configForms.variable.title",
         defaultMessage: "Variable"
     });
-
-    const variableTooltipMessages = {
-        customVariableType: {
-            title: intl.formatMessage({
-                id: "lowcode.develop.configForms.variable.customVariableType.tooltip.title",
-                defaultMessage: "Enter the variable type."
-            })
-        },
-        expressionEditor: {
-            title: intl.formatMessage({
-                id: "lowcode.develop.configForms.variable.expressionEditor.tooltip.title",
-                defaultMessage: "Press CTRL+Spacebar for suggestions."
-            }),
-            actionText: intl.formatMessage({
-                id: "lowcode.develop.configForms.variable.expressionEditor.tooltip.actionText",
-                defaultMessage: "Learn about Ballerina expressions here"
-            }),
-            actionLink: intl.formatMessage({
-                id: "lowcode.develop.configForms.variable.expressionEditor.tooltip.actionTitle",
-                defaultMessage: "{learnBallerina}"
-            }, { learnBallerina: "https://ballerina.io/1.2/learn/by-example/variables.html?is_ref_by_example=true" })
-        }
-    };
-
-
-    const validForm: boolean = initialized
-        ? varName.length > 0 && variableExpression?.length > 0 && selectedType.length > 0
-        : varName.length > 0 && selectedType.length > 0;
-
-    const variableTypeConfig: VariableTypeInputProps = {
-        displayName: 'Variable Type',
-        value: selectedType,
-        onValueChange: setSelectedType,
-        validateExpression: validateVarType,
-        position: config.model ? {
-            ...(config.model as LocalVarDecl).typedBindingPattern.position,
-            endLine: (config.model as LocalVarDecl).typedBindingPattern.position.startLine,
-            endColumn: (config.model as LocalVarDecl).typedBindingPattern.position.startColumn,
-        } : formArgs.targetPosition,
-        initialDiagnostics: (config.model as LocalVarDecl)?.typedBindingPattern?.typeDescriptor?.typeData?.diagnostics
-    }
-
-    const variableNameConfig: VariableNameInputProps = {
-        displayName: 'Variable Name',
-        value: varName,
-        onValueChange: setVarName,
-        validateExpression: validateVarName,
-        position: config.model ?
-        getVarNamePositionFromST(config?.model as LocalVarDecl)
-            : formArgs.targetPosition,
-        isEdit: !!config.model,
-        initialDiagnostics: (config.model as LocalVarDecl)?.typedBindingPattern?.bindingPattern?.typeData?.diagnostics
-    }
-
-    const expressionEditorConfig: FormElementProps<ExpressionEditorProps> = {
-        model: {
-            name: "Expression",
-            displayName: "Value Expression",
-            typeName: selectedType || 'any|error',
-            value: variableExpression,
-        },
-        customProps: {
-            validate: validateExpression,
-            statementType: selectedType,
-            interactive: true,
-            tooltipTitle: variableTooltipMessages.expressionEditor.title,
-            tooltipActionText: variableTooltipMessages.expressionEditor.actionText,
-            tooltipActionLink: variableTooltipMessages.expressionEditor.actionLink,
-            expressionInjectables: {
-                list: formArgs?.expressionInjectables?.list,
-                setInjectables: formArgs?.expressionInjectables?.setInjectables
-            },
-            editPosition: config.model ? {
-                ...config.model?.position,
-                endLine: config.model.position.startLine,
-                endColumn: config.model.position.startColumn,
-            } : formArgs.targetPosition,
-            initialDiagnostics: (config.model as LocalVarDecl)?.initializer?.typeData?.diagnostics,
-            changed: selectedType
-        },
-        onChange: onPropertyChange,
-        defaultValue: variableExpression,
-    };
 
     const initialSource = initialized ? (
                 getInitialSource(createModuleVarDecl(
@@ -283,14 +156,14 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         setVariableExpression(partialModel.initializer?.source.trim())
     }
 
-    const { handleStmtEditorToggle, stmtEditorComponent } = useStatementEditor(
+    const stmtEditorComponent = StatementEditorWrapper(
         {
             label: formTitle,
             initialSource,
             formArgs: { formArgs },
             config,
             onWizardClose,
-            handleStatementEditorChange,
+            onStmtEditorModelChange: handleStatementEditorChange,
             onCancel,
             currentFile,
             getLangClient: getExpressionEditorLangClient,
@@ -303,92 +176,5 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         }
     );
 
-    const variableTypeInput = (
-        <div className="exp-wrapper">
-            <VariableTypeInput {...variableTypeConfig} />
-        </div>
-    );
-
-    const variableNameInput = (
-        <div className="exp-wrapper">
-            <VariableNameInput {...variableNameConfig} />
-        </div>
-    );
-
-    const expressionEditor = (
-        <div className="exp-wrapper">
-            <LowCodeExpressionEditor
-                {...expressionEditorConfig}
-            />
-        </div>
-    );
-
-    const handleVarInitialize = () => {
-        setIsInitialized(!initialized);
-    };
-
-    const initializedToggle = (
-        <div className={classes.toggle}>
-            <Typography variant="body1">
-                <FormattedMessage
-                    id="lowcode.develop.configForms.variable.initialize.button"
-                    defaultMessage="Initialize Variable"
-                />
-            </Typography>
-            <SwitchToggle onChange={handleVarInitialize} initSwitch={initialized} dataTestId={"initialize-varible"}  />
-        </div>
-    );
-
-    if (!stmtEditorComponent) {
-        return (
-            <FormControl data-testid="property-form" className={classes.wizardFormControlExtended}>
-                <FormHeaderSection
-                    onCancel={onCancel}
-                    formTitle={formTitle}
-                    defaultMessage={"Variable"}
-                />
-                <div className={classes.formContentWrapper}>
-                    <div className={classes.formDeclarationWrapper}>
-                        <div className={classes.formNameNValueWrapper}>
-                            {variableTypeInput}
-                        </div>
-                        <div className={classes.formNameNValueWrapper}>
-                            {variableNameInput}
-                        </div>
-                    </div>
-                    <div className={classes.formEqualWrapper}>
-                        {
-                            initialized && (
-                                <div className={classes.formEqualContainer}>
-                                    <div className={classes.equalContainer}>
-                                        <Typography variant='body2'>=</Typography>
-                                    </div>
-                                    <div className={classes.valueContainer}>
-                                        {expressionEditor}
-                                    </div>
-                                </div>
-                            )
-                        }
-                    </div>
-                    {initializedToggle}
-                </div>
-                <FormActionButtons
-                    cancelBtnText={cancelVariableButtonText}
-                    cancelBtn={true}
-                    saveBtnText={saveVariableButtonText}
-                    isMutationInProgress={isMutationInProgress}
-                    validForm={validForm}
-                    statementEditor={true}
-                    toggleChecked={false}
-                    experimentalEnabled={experimentalEnabled}
-                    handleStmtEditorToggle={handleStmtEditorToggle}
-                    onSave={handleSave}
-                    onCancel={onCancel}
-                />
-            </FormControl >
-        );
-    }
-    else {
-        return stmtEditorComponent;
-    }
+    return stmtEditorComponent;
 }

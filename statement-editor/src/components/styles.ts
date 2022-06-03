@@ -665,13 +665,13 @@ export const useStatementEditorStyles = makeStyles(() =>
             height: 'auto',
             display: 'flex',
             width: '100%',
-            padding: '10px 20px',
+            padding: '10px 25px',
             borderTop: '1px solid #e6e7ec'
         },
         buttonWrapper: {
             display: 'flex',
             justifyContent: 'flex-end',
-            width: '50%'
+            width: '100%'
         },
         stmtEditorToggle: {
             width: '50%'

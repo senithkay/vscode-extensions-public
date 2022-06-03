@@ -86,8 +86,7 @@ export function StatementEditor(props: StatementEditorProps) {
         syntaxTree,
         stSymbolInfo,
         importStatements,
-        experimentalEnabled,
-        handleStmtEditorToggle
+        experimentalEnabled
     } = props;
 
     const {
@@ -446,7 +445,6 @@ export function StatementEditor(props: StatementEditorProps) {
                     experimentalEnabled={experimentalEnabled}
                     onWizardClose={onWizardClose}
                     onCancel={onCancel}
-                    handleStmtEditorToggle={handleStmtEditorToggle}
                     documentation={documentation}
                     restArg={restArg}
                     hasRestArg={isRestArg}
