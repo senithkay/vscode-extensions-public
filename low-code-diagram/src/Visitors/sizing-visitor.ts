@@ -116,12 +116,17 @@ export class SizingVisitor implements Visitor {
     private senderReceiverInfo: Map<string, { sends: AsyncSendInfo[], receives: AsyncReceiveInfo[], waits: WaitInfo[] }>;
     private workerMap: Map<string, NamedWorkerDeclaration>;
     private experimentalEnabled: boolean;
+    private conflictResolutionFailed = false;
 
     constructor(experimentalEnabled: boolean = false) {
         this.currentWorker = [];
         this.senderReceiverInfo = new Map();
         this.workerMap = new Map();
         this.experimentalEnabled = experimentalEnabled;
+    }
+
+    public getConflictResulutionFailureStatus() {
+        return this.conflictResolutionFailed;
     }
 
     public endVisitSTNode(node: STNode, parent?: STNode) {
@@ -420,9 +425,10 @@ export class SizingVisitor implements Visitor {
             resolutionVisitor.resetConflictStatus();
             traversNode(node, resolutionVisitor);
             if ((new Date()).getTime() - startDate.getTime() > 5000) {
+                this.conflictResolutionFailed = true;
                 break;
             }
-        } while (resolutionVisitor.conflictFound())
+        } while (true || resolutionVisitor.conflictFound())
 
         if (bodyViewState.hasWorkerDecl) {
             let maxWorkerHeight = 0;
