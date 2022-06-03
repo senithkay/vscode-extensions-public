@@ -140,7 +140,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
         isLoading: isConnectorLoading,
     } = configWizardArgs;
     const isOauthConnector = false;
-    const connectorName = connector?.displayAnnotation?.label || `${connector?.package.name} / ${connector?.name}`;
+    const connectorName = connector?.displayAnnotation?.label || `${connector?.package.name} / ${connector?.name}` || connectorInfo?.displayAnnotation?.label;
     const connectorModule = connector?.moduleName;
     const config = connectorConfig ? connectorConfig : new ConnectorConfig();
     const selectedOperation = config?.action?.name;
@@ -176,7 +176,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
         config.action = new ActionConfig();
     }
 
-    if (isModuleEndpoint && model){
+    if (isModuleEndpoint && model) {
         config.qualifiers = getAccessModifiers(model);
     }
 
@@ -228,9 +228,8 @@ export function ConnectorForm(props: FormGeneratorProps) {
         }
 
         const moduleName = getFormattedModuleName(connectorModule);
-        let endpointStatement = `${moduleName}:${connector.name} ${config.name} = ${
-            isInitReturnError ? "check" : ""
-        } new (${getParams(config.connectorInit).join()});`;
+        let endpointStatement = `${moduleName}:${connector.name} ${config.name} = ${isInitReturnError ? "check" : ""
+            } new (${getParams(config.connectorInit).join()});`;
 
         endpointStatement = addAccessModifiers(config.qualifiers, endpointStatement);
 
@@ -290,9 +289,8 @@ export function ConnectorForm(props: FormGeneratorProps) {
             );
             modifications.push(addImport);
             addDbExtraImport(modifications, syntaxTree, connector.package.organization, connectorModule);
-            const endpointStatement = `${moduleName}:${connector.name} ${config.name} = ${
-                isInitReturnError ? "check" : ""
-            } new (${getParams(config.connectorInit).join()});`;
+            const endpointStatement = `${moduleName}:${connector.name} ${config.name} = ${isInitReturnError ? "check" : ""
+                } new (${getParams(config.connectorInit).join()});`;
             const addConnectorInit = createPropertyStatement(endpointStatement, targetPosition);
             modifications.push(addConnectorInit);
         }
@@ -301,9 +299,8 @@ export function ConnectorForm(props: FormGeneratorProps) {
             addReturnTypeImports(modifications, currentActionReturnType);
             actionStatement += `${currentActionReturnType.returnType} ${config.action.returnVariableName} = `;
         }
-        actionStatement += `${currentActionReturnType.hasError ? "check" : ""} ${config.name}${
-            config.action.isRemote ? "->" : "."
-        }${config.action.name}(${getParams(config.action.fields).join()});`;
+        actionStatement += `${currentActionReturnType.hasError ? "check" : ""} ${config.name}${config.action.isRemote ? "->" : "."
+            }${config.action.name}(${getParams(config.action.fields).join()});`;
 
         if (!isNewConnectorInitWizard && isAction) {
             const updateActionInvocation = updatePropertyStatement(actionStatement, model.position);
@@ -349,14 +346,18 @@ export function ConnectorForm(props: FormGeneratorProps) {
     const onActionAddEvent = () => {
         const event: LowcodeEvent = {
             type: SAVE_CONNECTOR,
-            connectorName,
+            property: {
+                connectorName
+            }
         };
         onEvent(event);
     };
     const onConnectorAddEvent = () => {
         const event: LowcodeEvent = {
             type: SAVE_CONNECTOR_INIT,
-            connectorName,
+            property: {
+                connectorName
+            }
         };
         onEvent(event);
     };
@@ -364,7 +365,9 @@ export function ConnectorForm(props: FormGeneratorProps) {
         setFormState(FormStates.OperationForm);
         const event: LowcodeEvent = {
             type: SAVE_CONNECTOR_INVOKE,
-            connectorName,
+            property: {
+                connectorName
+            }
         };
         onEvent(event);
     };

@@ -218,11 +218,11 @@ export function Marketplace(props: MarketplaceProps) {
     const trackItemSelect = (balModule: BallerinaConstruct) => {
         const customDimensions: any = {
             organization: balModule?.package?.organization,
-            name: balModule?.package?.name,
+            connectorName: balModule?.package?.name,
             version: balModule?.package?.version,
             // queryFilterBy needs to added once properly implemented
         }
-        if (selectedCategory){
+        if (selectedCategory) {
             customDimensions.queryCategory = selectedCategory;
             const [mainCategory, subCategory] = selectedCategory.split('/');
             customDimensions.mainCategory = mainCategory;
@@ -230,7 +230,7 @@ export function Marketplace(props: MarketplaceProps) {
                 customDimensions.subCategory = subCategory;
             }
         }
-        if (searchQuery){
+        if (searchQuery) {
             customDimensions.querySearch = searchQuery;
         }
         const event: LowcodeEvent = {
@@ -241,9 +241,9 @@ export function Marketplace(props: MarketplaceProps) {
     }
 
     const trackFilterChange = () => {
-        if (selectedCategory || searchQuery){
+        if (selectedCategory || searchQuery) {
             const customDimensions: any = {}
-            if (selectedCategory){
+            if (selectedCategory) {
                 customDimensions.queryCategory = selectedCategory;
                 const [mainCategory, subCategory] = selectedCategory.split('/');
                 customDimensions.mainCategory = mainCategory;
@@ -251,7 +251,7 @@ export function Marketplace(props: MarketplaceProps) {
                     customDimensions.subCategory = subCategory;
                 }
             }
-            if (searchQuery){
+            if (searchQuery) {
                 customDimensions.querySearch = searchQuery;
             }
             const event: LowcodeEvent = {

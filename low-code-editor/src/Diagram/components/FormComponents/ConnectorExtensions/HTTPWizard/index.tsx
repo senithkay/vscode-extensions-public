@@ -63,7 +63,7 @@ export function HTTPWizard(props: WizardProps) {
     const classes = useStyles();
     const wizardClasses = wizardStyles();
     const { functionDefinitions, connectorConfig, connector, onSave, onClose, isNewConnectorInitWizard, targetPosition,
-            model, selectedConnector, isModuleEndpoint, isAction, functionNode } = props;
+        model, selectedConnector, isModuleEndpoint, isAction, functionNode } = props;
     const {
         api: {
             insights: {
@@ -134,7 +134,9 @@ export function HTTPWizard(props: WizardProps) {
         setState(InitFormState.SelectInputOutput);
         const event: LowcodeEvent = {
             type: SAVE_CONNECTOR_INVOKE,
-            connectorName: connector.displayName
+            property: {
+                connectorName: connector?.displayName || connector?.moduleName
+            }
         };
         onEvent(event);
     };
@@ -146,7 +148,9 @@ export function HTTPWizard(props: WizardProps) {
     const handleFormClose = () => {
         const event: LowcodeEvent = {
             type: CONNECTOR_CLOSED,
-            connectorName: connector.displayName
+            property: {
+                connectorName: connector?.displayName || connector?.moduleName
+            }
         };
         onEvent(event);
         onClose();
@@ -181,7 +185,9 @@ export function HTTPWizard(props: WizardProps) {
     const handleCreateConnectorOnSave = () => {
         const event: LowcodeEvent = {
             type: SAVE_CONNECTOR_INIT,
-            connectorName: connector.displayName
+            property: {
+                connectorName: connector?.displayName || connector?.moduleName
+            }
         };
         onEvent(event);
         const modifications: STModification[] = [];
@@ -255,7 +261,7 @@ export function HTTPWizard(props: WizardProps) {
     const onActionAddEvent = () => {
         const event: LowcodeEvent = {
             type: SAVE_CONNECTOR,
-            connectorName: "http"
+            connectorName: connector?.displayName || connector?.moduleName
         };
         onEvent(event);
     };
