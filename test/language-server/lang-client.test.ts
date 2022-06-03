@@ -22,7 +22,7 @@ import { expect } from 'chai';
 import { join } from 'path';
 import {
     BallerinaExampleListResponse, BallerinaProject, BallerinaProjectComponents, ExecutorPositionsResponse,
-    ExtendedLangClient, JsonToRecordResponse, PartialSTResponse, PerformanceAnalyzerResponse, SyntaxTreeNodeResponse
+    ExtendedLangClient, JsonToRecordResponse, OpenAPIConverterResponse, PartialSTResponse, PerformanceAnalyzerResponse, SyntaxTreeNodeResponse
 } from "../../src/core/extended-language-client";
 import { getServerOptions } from "../../src/server/server";
 import { getBallerinaCmd, isWindows } from "../test-util";
@@ -33,7 +33,7 @@ import { readFileSync } from 'fs';
 const PROJECT_ROOT = join(__dirname, '..', '..', '..', 'test', 'data');
 
 suite("Language Server Tests", function () {
-    this.timeout(10000);
+    this.timeout(20000);
     let langClient: ExtendedLangClient;
 
     suiteSetup((done): any => {
@@ -828,7 +828,6 @@ suite("Language Server Tests", function () {
         });
     });
 
-
     test("Test partial parser - get ST for single statement", function (done): void {
         langClient.getSTForSingleStatement({
             codeSnippet: "int x = 0;"
@@ -840,6 +839,25 @@ suite("Language Server Tests", function () {
             done();
         }, error => {
             done(error);
+        });
+    });
+
+    test("Test open API generator", function (done): void {
+        const uri = Uri.file(join(PROJECT_ROOT, 'helloServicePackage', 'hello_service.bal').toString());
+        commands.executeCommand('vscode.open', uri).then(() => {
+            langClient.onReady().then(() => {
+                langClient.convertToOpenAPI({
+                    documentFilePath: uri.fsPath
+                }).then(async (res) => {
+                    const response = res as OpenAPIConverterResponse;
+                    expect(response).to.contain.keys("content");
+                    assert.strictEqual(response.content.length, 1, "Invalid open API content");
+                    assert.strictEqual(response.content[0].diagnostics.length, 0, "Invalid open API content");
+                    done();
+                }, error => {
+                    done(error);
+                });
+            });
         });
     });
 
