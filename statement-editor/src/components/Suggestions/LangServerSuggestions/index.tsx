@@ -13,11 +13,9 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import React, { useContext, useEffect, useState } from "react";
 
-import { List, ListItem, ListItemIcon, ListItemText, Typography } from "@material-ui/core";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 import {
-    acceptedCompletionKindForTypes,
     FUNCTION_COMPLETION_KIND,
     METHOD_COMPLETION_KIND,
     PROPERTY_COMPLETION_KIND
@@ -25,9 +23,11 @@ import {
 import { SuggestionItem } from "../../../models/definitions";
 import { InputEditorContext } from "../../../store/input-editor-context";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
-import { getExprWithArgs, getSuggestionIconStyle} from "../../../utils";
+import { getExprWithArgs } from "../../../utils";
 import { KeyboardNavigationManager } from "../../../utils/keyboard-navigation-manager";
 import { useStatementEditorStyles, useStmtEditorHelperPanelStyles} from "../../styles";
+
+import { SuggestionsList } from "./SuggestionsList";
 
 export function LSSuggestions() {
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
@@ -105,86 +105,19 @@ export function LSSuggestions() {
                 <>
                     <div className={stmtEditorHelperClasses.lsSuggestionList}>
                         <div className={statementEditorClasses.stmtEditorExpressionWrapper}>
-                            <List className={stmtEditorHelperClasses.suggestionList} data-testid="suggestion-list">
-                                {
-                                    lsSuggestions.map((suggestion: SuggestionItem, index: number) => (
-                                        <ListItem
-                                            button={true}
-                                            key={index}
-                                            selected={index === selectedListItem}
-                                            onClick={() => onClickLSSuggestion(suggestion)}
-                                            className={stmtEditorHelperClasses.suggestionListItem}
-                                            disableRipple={true}
-                                        >
-                                            <ListItemIcon
-                                                className={getSuggestionIconStyle(suggestion.completionKind)}
-                                                style={{ minWidth: '22px', textAlign: 'left' }}
-                                            />
-                                            <ListItemText
-                                                data-testid="suggestion-value"
-                                                title={suggestion.value}
-                                                style={{ flex: 'none', maxWidth: '80%' }}
-                                                primary={(
-                                                    <Typography className={stmtEditorHelperClasses.suggestionValue}>
-                                                        {suggestion.value}
-                                                    </Typography>
-                                                )}
-                                            />
-                                            {!acceptedCompletionKindForTypes.includes(suggestion.completionKind) && (
-                                                <ListItemText
-                                                    style={{ minWidth: '10%', marginLeft: '8px' }}
-                                                    primary={(
-                                                        <Typography className={stmtEditorHelperClasses.suggestionDataType}>
-                                                            {suggestion.kind}
-                                                        </Typography>
-                                                    )}
-                                                />
-                                            )}
-                                        </ListItem>
-                                    ))
-                                }
-                            </List>
+                            <SuggestionsList
+                                lsSuggestions={lsSuggestions}
+                                selectedListItem={selectedListItem}
+                                onClickLSSuggestion={onClickLSSuggestion}
+                            />
                             <br/>
                             <div className={stmtEditorHelperClasses.librarySearchSubHeader}>{selection.slice(0, -1)}</div>
-                            <List className={stmtEditorHelperClasses.suggestionList} data-testid="suggestion-list">
-                                {
-                                    secondLevelSuggestions.map((suggestion: SuggestionItem, index: number) => (
-                                        <ListItem
-                                            button={true}
-                                            key={index}
-                                            selected={index === selectedListItem}
-                                            onClick={() => onClickLSSuggestion(suggestion)}
-                                            className={stmtEditorHelperClasses.suggestionListItem}
-                                            disableRipple={true}
-                                        >
-                                            <ListItemIcon
-                                                className={getSuggestionIconStyle(suggestion.completionKind)}
-                                                style={{ minWidth: '22px', textAlign: 'left' }}
-                                            />
-                                            <ListItemText
-                                                data-testid="suggestion-value"
-                                                title={suggestion.value}
-                                                style={{ flex: 'none', maxWidth: '80%' }}
-                                                primary={(
-                                                    <Typography className={stmtEditorHelperClasses.suggestionValue}>
-                                                        {suggestion.value.replace(selection, '.')}
-                                                    </Typography>
-                                                )}
-                                            />
-                                            {!acceptedCompletionKindForTypes.includes(suggestion.completionKind) && (
-                                                <ListItemText
-                                                    style={{ minWidth: '10%', marginLeft: '8px' }}
-                                                    primary={(
-                                                        <Typography className={stmtEditorHelperClasses.suggestionDataType}>
-                                                            {suggestion.kind}
-                                                        </Typography>
-                                                    )}
-                                                />
-                                            )}
-                                        </ListItem>
-                                    ))
-                                }
-                            </List>
+                            <SuggestionsList
+                                lsSuggestions={secondLevelSuggestions}
+                                selectedListItem={selectedListItem}
+                                onClickLSSuggestion={onClickLSSuggestion}
+                                selection={selection}
+                            />
                         </div>
                     </div>
                 </>
