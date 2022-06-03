@@ -61,6 +61,13 @@ const stmtEditorPadding = {
     paddingLeft: '25px',
     paddingRight: '25px'
 }
+
+const statementFontStyles = {
+    fontSize: "15px",
+    'user-select': 'none',
+    fontFamily: 'Droid sans mono'
+}
+
 export const useStatementEditorToolbarStyles = makeStyles(() =>
     createStyles({
         toolbar: {
@@ -106,7 +113,8 @@ export const useStatementRendererStyles = makeStyles(() =>
             border: 'none',
             '&:focus': {
                 outline: 'none'
-            }
+            },
+            ...statementFontStyles
         },
         expressionElement: {
             position: 'relative',
@@ -124,7 +132,58 @@ export const useStatementRendererStyles = makeStyles(() =>
             '&': {
                 backgroundColor: '#ccd1f29c'
             },
+            '&.hovered': {
+                backgroundColor: '#e5ebf1',
+            },
             ...hoverColor2
+        },
+        syntaxErrorElementSelected: {
+            '&': {
+                boxSizing: 'border-box',
+                height: '25px',
+                weight: '75px',
+                border: '1px solid #FE523C',
+                borderRadius: '2px',
+                backgroundColor: '#FCEDED',
+                boxShadow: '0 1px 4px 0 rgba(0,0,0,0.11)',
+                color: '#FE523C',
+            }
+        },
+        addNewExpressionButton: {
+            backgroundColor: '#f7f8fb',
+            border: '#6830e9',
+            borderStyle: 'solid',
+            color: '#6830e9',
+            textAlign: 'center',
+            fontSize: '16px',
+            margin: '4px 2px',
+            borderRadius: '50%'
+        },
+        libraryDropdown: {
+            flex: '0 0 50%',
+            display: 'flex',
+            justifyContent: 'flex-end'
+        },
+        rhsComponent: {
+            position: 'relative',
+            top: '10px',
+            width: '90%',
+            marginLeft: '5%'
+        },
+        propertyDivider: {
+            height: '1px',
+            marginTop: '2%',
+            marginBottom: '10px',
+            width: '94%',
+            opacity: 0.52,
+            backgroundColor: '#DCDEE4'
+        },
+        buttonWrapper: {
+            height: 'auto',
+            display: 'flex',
+            justifyContent: 'flex-end',
+            width: '100%',
+            zIndex: 100,
         },
         plusIcon: {
             boxSizing: 'border-box',
@@ -145,6 +204,10 @@ export const useStatementRendererStyles = makeStyles(() =>
                 marginLeft: '10px'
             }
         },
+        syntaxErrorTooltip : {
+            position: 'absolute',
+            top: '-10px'
+        }
     }),
 );
 
@@ -406,7 +469,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
         },
         parameterCheckbox: {
             color: '#2FA86C',
-            paddingLeft: '0px',
+            padding: '0 6px 0 0',
             "& .MuiCheckbox-colorSecondary.Mui-checked": {
                 color: "#2FA86C"
             },
@@ -443,7 +506,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
         checked: {},
         disabledCheckbox : {
             color: 'rgba(47,168,108,0.5)',
-            paddingLeft: '0px',
+            padding: '0 6px 0 0',
             "&$checked": {
                 color: "rgba(47,168,108,0.5)",
                 "&:hover": {
@@ -479,7 +542,9 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             opacity: '0.52',
             backgroundColor: "#DCDEE4",
             display: 'block',
-            float: 'left'
+            float: 'left',
+            marginTop: '20px',
+            marginBottom: '18px'
         },
         docListItemText: {
             ...removePadding
@@ -502,12 +567,14 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
                 flex: 'inherit'
             },
             "& .MuiListItemText-root": {
-                flex: "inherit"
+                flex: "inherit",
+                margin: '0 6px 0 0'
             },
             ...removePadding
         },
         docDescription: {
             marginBottom: '13px',
+            whiteSpace: 'pre',
             "& .MuiListItem-root": {
                 paddingLeft: '0px',
                 paddingTop: '0px',
@@ -535,7 +602,8 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
                 padding: '0px'
             },
             "& .MuiListItemText-root": {
-                flex: 'inherit'
+                flex: 'inherit',
+                margin: '0 6px 0 0'
             },
             ...removePadding
         },
@@ -554,6 +622,7 @@ export const useStatementEditorStyles = makeStyles(() =>
             fontSize: '13px',
             fontFamily: 'Gilmer',
             overflowY: 'hidden',
+            paddingTop: '0px',
             ...stmtEditorPadding
         },
         statementExpressionWrapper: {
@@ -590,9 +659,7 @@ export const useStatementEditorStyles = makeStyles(() =>
             fontWeight: 500
         },
         statementExpressionContent: {
-            fontSize: "15px",
-            'user-select': 'none',
-            fontFamily: 'Droid sans mono'
+           ...statementFontStyles
         },
         footer: {
             height: 'auto',

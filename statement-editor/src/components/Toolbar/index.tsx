@@ -53,7 +53,8 @@ export default function Toolbar(props: ToolbarProps) {
         hasUndo,
         statementModel: completeModel,
         updateModel,
-        currentModel
+        currentModel,
+        hasSyntaxDiagnostics
     } = modelCtx;
     const {
         editors,

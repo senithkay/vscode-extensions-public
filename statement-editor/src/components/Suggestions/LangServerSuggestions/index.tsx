@@ -14,7 +14,7 @@
 import React, { useContext, useEffect, useState } from "react";
 
 import { List, ListItem, ListItemIcon, ListItemText, Typography } from "@material-ui/core";
-import { NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 import {
     acceptedCompletionKindForTypes,
@@ -25,7 +25,7 @@ import {
 import { SuggestionItem } from "../../../models/definitions";
 import { InputEditorContext } from "../../../store/input-editor-context";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
-import { getParamsList, getSuggestionIconStyle, isPositionsEquals } from "../../../utils";
+import { getExprWithArgs, getSuggestionIconStyle} from "../../../utils";
 import { KeyboardNavigationManager } from "../../../utils/keyboard-navigation-manager";
 import { useStatementEditorStyles, useStmtEditorHelperPanelStyles} from "../../styles";
 
@@ -85,10 +85,9 @@ export function LSSuggestions() {
             value = resourceAccessRegex.exec(inputEditorCtx.userInput) + suggestion.value;
         }
         if (completionKind === METHOD_COMPLETION_KIND || completionKind === FUNCTION_COMPLETION_KIND) {
-            const paramList = getParamsList(value);
-            value = value.split('(')[0] + `(${paramList.toString()})`;
+            value = getExprWithArgs(value);
         }
-        const nodePosition = currentModel
+        const nodePosition : NodePosition = currentModel
             ? (currentModel.stmtPosition
                 ? currentModel.stmtPosition
                 : currentModel.model.position)

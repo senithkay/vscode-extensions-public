@@ -208,7 +208,7 @@ export function Marketplace(props: MarketplaceProps) {
     };
 
     const handleModulesListScroll = (e: React.UIEvent<HTMLElement>) => {
-        const bottom = e.currentTarget.scrollHeight - e.currentTarget.scrollTop === e.currentTarget.clientHeight;
+        const bottom = Math.floor(e.currentTarget.scrollHeight - e.currentTarget.scrollTop) <= e.currentTarget.clientHeight;
         if (!isLastPage.current && bottom && !isSearchResultsFetching) {
             currentPage.current = currentPage.current + 1;
             fetchModulesList(currentPage.current);
