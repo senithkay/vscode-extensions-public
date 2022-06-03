@@ -75,6 +75,7 @@ export const CONFIGURABLE_NAME_CONSTRUCTOR = "CONF_NAME";
 
 export const CONFIGURABLE_VALUE_REQUIRED_TOKEN = "?";
 export const QUERY_INTERMEDIATE_CLAUSES = "Query Intermediate-Clauses";
+export const LET_VAR_DECL = `${TYPED_BINDING_CONSTRUCTOR} = ${EXPR_CONSTRUCTOR}`;
 
 export const BAL_SOURCE = "```ballerina";
 

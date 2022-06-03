@@ -29,7 +29,7 @@ export function OrderKeyComponent(props: OrderKeyProps) {
         <>
             <ExpressionComponent model={model.expression}/>
             {model.orderDirection &&
-            <TokenComponent model={model.orderDirection} className={"keyword"}/>
+                <ExpressionComponent model={model.orderDirection}/>
             }
         </>
     );

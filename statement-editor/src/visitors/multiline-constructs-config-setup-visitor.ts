@@ -11,6 +11,7 @@
  * associated services.
  */
 import {
+    LetClause,
     MappingConstructor, QueryPipeline,
     STKindChecker,
     STNode,
@@ -47,6 +48,14 @@ class MultilineConstructsConfigSetupVisitor implements Visitor {
         node.intermediateClauses.map((clause: STNode, index: number) => {
             (clause.viewState as StatementEditorViewState).multilineConstructConfig.isFieldWithNewLine = true;
         })
+    }
+
+    public beginVisitLetClause(node: LetClause, parent?: STNode) {
+        (node.viewState as StatementEditorViewState).multilineConstructConfig.isFieldWithNewLine = false;
+        node.letVarDeclarations.map((letVarDeclaration: STNode, index: number) => {
+            (letVarDeclaration.viewState as StatementEditorViewState).multilineConstructConfig.isFieldWithNewLine =
+                node.letVarDeclarations.length - 1 === index;
+        });
     }
 }
 

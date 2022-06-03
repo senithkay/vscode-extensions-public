@@ -15,7 +15,7 @@ import React, { useContext } from "react";
 
 import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
-import { ArrayType, EXPR_CONSTRUCTOR, MAPPING_CONSTRUCTOR } from "../../constants";
+import { ArrayType, EXPR_CONSTRUCTOR, LET_VAR_DECL, MAPPING_CONSTRUCTOR } from "../../constants";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { NewExprAddButton } from "../Button/NewExprAddButton";
 import { ExpressionComponent } from "../Expression";
@@ -43,7 +43,9 @@ export function ExpressionArrayComponent(props: ExpressionArrayProps) {
             startLine: model.position.endLine,
             startColumn: model.position.endColumn
         }
-        if (arrayType === ArrayType.INTERMEDIATE_CLAUSE){
+        if (STKindChecker.isLetVarDecl(model)){
+            updateModel(`,\n${LET_VAR_DECL}`, newPosition);
+        } else if (arrayType === ArrayType.INTERMEDIATE_CLAUSE){
             setNewQueryPos(newPosition);
         } else {
             const template = arrayType === ArrayType.MAPPING_CONSTRUCTOR ? MAPPING_CONSTRUCTOR : EXPR_CONSTRUCTOR;
