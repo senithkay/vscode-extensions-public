@@ -41,10 +41,13 @@ export function LSSuggestions() {
             updateModel,
         },
         suggestionsCtx: {
-            lsSuggestions
+            lsSuggestions,
+            lsSecondLevelSuggestions
         },
         targetPosition
     } = useContext(StatementEditorContext);
+    const selection = lsSecondLevelSuggestions?.selection;
+    const secondLevelSuggestions = lsSecondLevelSuggestions?.secondLevelSuggestions;
     const resourceAccessRegex = /.+\./gm;
     const [lenghtOfSuggestions, setLength] = useState<number>(lsSuggestions.length)
     const [Suggestions, setSuggestions] = useState<SuggestionItem[]>(lsSuggestions);
@@ -124,6 +127,47 @@ export function LSSuggestions() {
                                                 primary={(
                                                     <Typography className={stmtEditorHelperClasses.suggestionValue}>
                                                         {suggestion.value}
+                                                    </Typography>
+                                                )}
+                                            />
+                                            {!acceptedCompletionKindForTypes.includes(suggestion.completionKind) && (
+                                                <ListItemText
+                                                    style={{ minWidth: '10%', marginLeft: '8px' }}
+                                                    primary={(
+                                                        <Typography className={stmtEditorHelperClasses.suggestionDataType}>
+                                                            {suggestion.kind}
+                                                        </Typography>
+                                                    )}
+                                                />
+                                            )}
+                                        </ListItem>
+                                    ))
+                                }
+                            </List>
+                            <br/>
+                            <div className={stmtEditorHelperClasses.librarySearchSubHeader}>{selection.slice(0, -1)}</div>
+                            <List className={stmtEditorHelperClasses.suggestionList} data-testid="suggestion-list">
+                                {
+                                    secondLevelSuggestions.map((suggestion: SuggestionItem, index: number) => (
+                                        <ListItem
+                                            button={true}
+                                            key={index}
+                                            selected={index === selectedListItem}
+                                            onClick={() => onClickLSSuggestion(suggestion)}
+                                            className={stmtEditorHelperClasses.suggestionListItem}
+                                            disableRipple={true}
+                                        >
+                                            <ListItemIcon
+                                                className={getSuggestionIconStyle(suggestion.completionKind)}
+                                                style={{ minWidth: '22px', textAlign: 'left' }}
+                                            />
+                                            <ListItemText
+                                                data-testid="suggestion-value"
+                                                title={suggestion.value}
+                                                style={{ flex: 'none', maxWidth: '80%' }}
+                                                primary={(
+                                                    <Typography className={stmtEditorHelperClasses.suggestionValue}>
+                                                        {suggestion.value.replace(selection, '.')}
                                                     </Typography>
                                                 )}
                                             />

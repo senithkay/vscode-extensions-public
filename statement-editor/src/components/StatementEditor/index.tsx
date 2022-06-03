@@ -23,6 +23,7 @@ import {
     CurrentModel,
     EditorModel,
     EmptySymbolInfo,
+    LSSuggestions,
     StmtDiagnostic,
     SuggestionItem
 } from "../../models/definitions";
@@ -113,7 +114,7 @@ export function StatementEditor(props: StatementEditorProps) {
     const [hasSyntaxDiagnostics, setHasSyntaxDiagnostics] = useState<boolean>(false);
     const [stmtDiagnostics, setStmtDiagnostics] = useState<StmtDiagnostic[]>([]);
     const [moduleList, setModuleList] = useState(new Set<string>());
-    const [lsSuggestionsList, setLSSuggestionsList] = useState([]);
+    const [lsSuggestionsList, setLSSuggestionsList] = useState<LSSuggestions>({ directSuggestions: [] });
     const [documentation, setDocumentation] = useState<SymbolInfoResponse | EmptySymbolInfo>(initSymbolInfo);
     const [isRestArg, setRestArg] = useState(false);
 
@@ -168,16 +169,17 @@ export function StatementEditor(props: StatementEditorProps) {
     useEffect(() => {
         (async () => {
             if (model && currentModel.model) {
-                const lsSuggestions : SuggestionItem[] = [];
+                let directSuggestions: SuggestionItem[] = [];
+                let secondLevelSuggestions: SuggestionItem[] = [];
                 const currentModelViewState = currentModel.model?.viewState as StatementEditorViewState;
+                const selection = currentModel.model.source
+                    ? currentModel.model.source.trim()
+                    : currentModel.model.value.trim();
+                const selectionWithDot = enclosableWithParentheses(currentModel.model)
+                    ? `(${selection}).`
+                    : `${selection}.`;
 
                 if (!isOperator(currentModelViewState.modelType) && !isBindingPattern(currentModelViewState.modelType)) {
-                    const selection = currentModel.model.source
-                        ? currentModel.model.source.trim()
-                        : currentModel.model.value.trim();
-                    const selectionWithDot = enclosableWithParentheses(currentModel.model)
-                        ? `(${selection}).`
-                        : `${selection}.`;
                     const statements = [model.source];
                     if ((currentModel.model.viewState as StatementEditorViewState).modelType === ModelType.EXPRESSION) {
                         const dotAdded = addToTargetPosition(model.source, currentModel.model.position, selectionWithDot);
@@ -192,22 +194,25 @@ export function StatementEditor(props: StatementEditorProps) {
                         let completions: SuggestionItem[];
 
                         if (index === 0) {
-                            completions = await getCompletions(fileURI, targetPosition, model, currentModel,
+                            directSuggestions = await getCompletions(fileURI, targetPosition, model, currentModel,
                                 getLangClient);
                         } else {
                             completions = await getCompletions(fileURI, targetPosition, model, currentModel,
                                 getLangClient, selectionWithDot);
-                            completions = completions.map((suggestionItem) => ({
+                            secondLevelSuggestions = completions.map((suggestionItem) => ({
                                 ...suggestionItem,
                                 value: `${selectionWithDot}${suggestionItem.value}`
                             }));
                         }
-
-                        lsSuggestions.push(...completions);
                     }
                 }
-
-                setLSSuggestionsList(lsSuggestions);
+                setLSSuggestionsList({
+                    directSuggestions,
+                    secondLevelSuggestions: {
+                        selection: selectionWithDot,
+                        secondLevelSuggestions
+                    }
+                });
                 await handleDocumentation(currentModel.model);
             }
         })();
@@ -312,7 +317,9 @@ export function StatementEditor(props: StatementEditorProps) {
     const handleCompletions = async (newValue: string) => {
         const lsSuggestions = await getCompletions(fileURI, targetPosition, model,
             currentModel, getLangClient, newValue);
-        setLSSuggestionsList(lsSuggestions);
+        setLSSuggestionsList({
+            directSuggestions: lsSuggestions
+        });
     }
 
     const handleDiagnostics = async (statement: string): Promise<Diagnostic[]> => {
