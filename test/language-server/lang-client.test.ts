@@ -22,7 +22,7 @@ import { expect } from 'chai';
 import { join } from 'path';
 import {
     BallerinaExampleListResponse, BallerinaProject, BallerinaProjectComponents, ExecutorPositionsResponse,
-    ExtendedLangClient, JsonToRecordResponse, PerformanceAnalyzerResponse, SyntaxTreeNodeResponse
+    ExtendedLangClient, JsonToRecordResponse, PartialSTResponse, PerformanceAnalyzerResponse, SyntaxTreeNodeResponse
 } from "../../src/core/extended-language-client";
 import { getServerOptions } from "../../src/server/server";
 import { getBallerinaCmd, isWindows } from "../test-util";
@@ -822,6 +822,21 @@ suite("Language Server Tests", function () {
             assert.strictEqual(response[0].type, "Success", "Endpoint resolve error");
             assert.strictEqual(Object.keys(response[0].endpoints).length, 1, "Invalid endpoints");
             assert.strictEqual(Object.keys(response[0].actionInvocations).length, 1, "Invalid action invocations");
+            done();
+        }, error => {
+            done(error);
+        });
+    });
+
+
+    test("Test partial parser - get ST for single statement", function (done): void {
+        langClient.getSTForSingleStatement({
+            codeSnippet: "int x = 0;"
+        }).then(async (epResponse) => {
+            const response = epResponse as PartialSTResponse;
+            expect(response).to.contain.keys("syntaxTree");
+
+            assert.strictEqual(response.syntaxTree.position.endColumn, 10, "Invalid st response");
             done();
         }, error => {
             done(error);
