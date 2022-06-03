@@ -13,25 +13,28 @@
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
 
-import { QueryConstructType } from "@wso2-enterprise/syntax-tree";
+import { JoinClause } from "@wso2-enterprise/syntax-tree";
 
 import { ExpressionComponent } from "../../Expression";
 import { TokenComponent } from "../../Token";
 
-
-interface QueryConstructTypeProps {
-    model: QueryConstructType;
+interface JoinClauseProps {
+    model: JoinClause;
 }
 
-export function QueryConstructTypeComponent(props: QueryConstructTypeProps) {
+export function JoinClauseComponent(props: JoinClauseProps) {
     const { model } = props;
 
     return (
         <>
-            <TokenComponent model={model.keyword} className={"keyword"}/>
-            {model.keySpecifier &&
-            <ExpressionComponent model={model.keySpecifier}/>
-            }
+            {model.outerKeyword && (
+                <TokenComponent model={model.outerKeyword} className={"keyword"} />
+            )}
+            <TokenComponent model={model.joinKeyword} className={"keyword"} />
+            <ExpressionComponent model={model.typedBindingPattern} />
+            <TokenComponent model={model.inKeyword} className={"keyword"} />
+            <ExpressionComponent model={model.expression} />
+            <ExpressionComponent model={model.joinOnCondition} />
         </>
     );
 }

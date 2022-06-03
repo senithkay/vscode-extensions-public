@@ -10,28 +10,25 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js
 import React from "react";
 
-import { QueryConstructType } from "@wso2-enterprise/syntax-tree";
+import { OrderByClause } from "@wso2-enterprise/syntax-tree";
 
-import { ExpressionComponent } from "../../Expression";
+import { ExpressionArrayComponent } from "../../ExpressionArray";
 import { TokenComponent } from "../../Token";
 
-
-interface QueryConstructTypeProps {
-    model: QueryConstructType;
+interface OrderByClauseProps {
+    model: OrderByClause;
 }
 
-export function QueryConstructTypeComponent(props: QueryConstructTypeProps) {
+export function OrderByClauseComponent(props: OrderByClauseProps) {
     const { model } = props;
 
     return (
         <>
-            <TokenComponent model={model.keyword} className={"keyword"}/>
-            {model.keySpecifier &&
-            <ExpressionComponent model={model.keySpecifier}/>
-            }
+            <TokenComponent model={model.orderKeyword} className={"keyword"} />
+            <TokenComponent model={model.byKeyword} className={"keyword"} />
+            <ExpressionArrayComponent modifiable={true} expressions={model.orderKey} />
         </>
     );
 }

@@ -13,24 +13,23 @@
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
 
-import { QueryConstructType } from "@wso2-enterprise/syntax-tree";
+import { OrderKey } from "@wso2-enterprise/syntax-tree";
 
 import { ExpressionComponent } from "../../Expression";
 import { TokenComponent } from "../../Token";
 
-
-interface QueryConstructTypeProps {
-    model: QueryConstructType;
+interface OrderKeyProps {
+    model: OrderKey;
 }
 
-export function QueryConstructTypeComponent(props: QueryConstructTypeProps) {
+export function OrderKeyComponent(props: OrderKeyProps) {
     const { model } = props;
 
     return (
         <>
-            <TokenComponent model={model.keyword} className={"keyword"}/>
-            {model.keySpecifier &&
-            <ExpressionComponent model={model.keySpecifier}/>
+            <ExpressionComponent model={model.expression}/>
+            {model.orderDirection &&
+            <TokenComponent model={model.orderDirection} className={"keyword"}/>
             }
         </>
     );
