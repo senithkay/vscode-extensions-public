@@ -428,7 +428,7 @@ export class SizingVisitor implements Visitor {
                 this.conflictResolutionFailed = true;
                 break;
             }
-        } while (true || resolutionVisitor.conflictFound())
+        } while (resolutionVisitor.conflictFound())
 
         if (bodyViewState.hasWorkerDecl) {
             let maxWorkerHeight = 0;
