@@ -16,6 +16,7 @@ import React, { useContext, useEffect, useMemo, useState } from "react";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 import debounce from "lodash.debounce";
 
+import { DEFAULT_INTERMEDIATE_CLAUSE } from "../../constants";
 import { InputEditorContext } from "../../store/input-editor-context";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { isPositionsEquals } from "../../utils";
@@ -42,7 +43,9 @@ export function InputEditor(props: InputEditorProps) {
             initialSource,
             statementModel,
             updateModel,
-            handleChange
+            handleChange,
+            hasSyntaxDiagnostics,
+            currentModel
         },
         targetPosition,
     } = useContext(StatementEditorContext);
@@ -93,6 +96,12 @@ export function InputEditor(props: InputEditorProps) {
         }
     }, [userInput]);
 
+    useEffect(() => {
+        if (hasSyntaxDiagnostics) {
+            setIsEditing(false);
+        }
+    }, [hasSyntaxDiagnostics]);
+
     const inputEnterHandler = (event: React.KeyboardEvent<HTMLInputElement>) => {
         if (event.key === "Enter" || event.key === "Tab") {
             handleEditEnd();
@@ -125,25 +134,29 @@ export function InputEditor(props: InputEditorProps) {
     const debouncedContentChange = debounce(handleChange, 500);
 
     const handleDoubleClick = () => {
-        if (!notEditable){
+        if (!notEditable && !hasSyntaxDiagnostics) {
+            setIsEditing(true);
+        } else if (!notEditable && hasSyntaxDiagnostics && (currentModel.model === model)) {
             setIsEditing(true);
         }
     };
 
     const handleEditEnd = () => {
-        setIsEditing(false);
         setPrevUserInput(userInput);
         if (userInput !== "") {
             // Replace empty interpolation with placeholder value
             const codeSnippet = userInput.replaceAll('${}', "${" + EXPR_PLACEHOLDER + "}");
+            originalValue === DEFAULT_INTERMEDIATE_CLAUSE ? updateModel(codeSnippet, model ? model.parent.parent.position : targetPosition) :
             updateModel(codeSnippet, model ? model.position : targetPosition);
         }
+        setIsEditing(false);
     }
 
     return isEditing ?
         (
             <>
                 <input
+                    data-testid="input-editor"
                     value={INPUT_EDITOR_PLACEHOLDERS.has(userInput.trim()) ? "" : userInput}
                     className={statementRendererClasses.inputEditorTemplate + ' ' + classNames}
                     onKeyDown={inputEnterHandler}
@@ -156,6 +169,7 @@ export function InputEditor(props: InputEditorProps) {
             </>
         ) : (
             <span
+                data-testid="input-editor-span"
                 className={statementRendererClasses.inputEditorTemplate + ' ' + classNames}
                 onDoubleClick={handleDoubleClick}
             >

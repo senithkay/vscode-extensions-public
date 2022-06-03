@@ -15,7 +15,12 @@ import React, { useContext } from "react";
 
 import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
-import { ArrayType, EXPR_CONSTRUCTOR, MAPPING_CONSTRUCTOR } from "../../constants";
+import {
+    ArrayType,
+    DEFAULT_WHERE_INTERMEDIATE_CLAUSE,
+    EXPR_CONSTRUCTOR,
+    MAPPING_CONSTRUCTOR
+} from "../../constants";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { NewExprAddButton } from "../Button/NewExprAddButton";
 import { ExpressionComponent } from "../Expression";
@@ -32,19 +37,23 @@ export function ExpressionArrayComponent(props: ExpressionArrayProps) {
 
     const {
         modelCtx: {
-            updateModel,
+            updateModel
         }
     } = useContext(StatementEditorContext);
 
     const addNewExpression = (model: STNode) => {
-        const template = arrayType === ArrayType.MAPPING_CONSTRUCTOR ? MAPPING_CONSTRUCTOR : EXPR_CONSTRUCTOR;
-        const newField = `,\n${template}`;
         const newPosition: NodePosition = {
-                ...model.position,
-                startLine: model.position.endLine,
-                startColumn: model.position.endColumn
-            }
-        updateModel(newField, newPosition);
+            ...model.position,
+            startLine: model.position.endLine,
+            startColumn: model.position.endColumn
+        }
+        if (arrayType === ArrayType.INTERMEDIATE_CLAUSE){
+            updateModel(`\n ${DEFAULT_WHERE_INTERMEDIATE_CLAUSE}`, newPosition);
+        } else {
+            const template = arrayType === ArrayType.MAPPING_CONSTRUCTOR ? MAPPING_CONSTRUCTOR : EXPR_CONSTRUCTOR;
+            const newField = `,\n${template}`;
+            updateModel(newField, newPosition);
+        }
     };
 
     return (
@@ -60,11 +69,16 @@ export function ExpressionArrayComponent(props: ExpressionArrayProps) {
                             model={expression}
                         />
                         {modifiable && (
-                            <NewExprAddButton
-                                model={expression}
-                                onClick={addNewExpression}
-                                classNames={`modifiable ${index === expressions.length - 1 && 'lastElement'}`}
-                            />
+                            <>
+                                <NewExprAddButton
+                                    model={expression}
+                                    onClick={addNewExpression}
+                                    classNames={"modifiable"}
+                                />
+                                {arrayType === ArrayType.INTERMEDIATE_CLAUSE && (
+                                    <br/>
+                                )}
+                            </>
                         )}
                     </>
                 )

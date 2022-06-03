@@ -76,6 +76,7 @@ export interface FormField {
     displayName?: string;
     memberType?: FormField;
     inclusionType?: FormField;
+    paramType?: FormField;
     selectedDataType?: string;
     description?: string;
     defaultValue?: any;

@@ -17,9 +17,14 @@ import {
     FormControl,
     Input, InputAdornment, List, ListItem, ListItemText, Typography
 } from "@material-ui/core";
+import { STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import LibrarySearchIcon from "../../../assets/icons/LibrarySearchIcon";
-import { CONFIGURABLE_VALUE_REQUIRED_TOKEN } from "../../../constants";
+import {
+    CONFIGURABLE_VALUE_REQUIRED_TOKEN,
+    DEFAULT_WHERE_INTERMEDIATE_CLAUSE,
+    QUERY_INTERMEDIATE_CLAUSES
+} from "../../../constants";
 import { InputEditorContext } from "../../../store/input-editor-context";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import {
@@ -44,7 +49,7 @@ export function ExpressionSuggestions() {
     const {
         modelCtx: {
             currentModel,
-            updateModel,
+            updateModel
         }
     } = useContext(StatementEditorContext);
 
@@ -55,14 +60,18 @@ export function ExpressionSuggestions() {
         const text = currentModelSource !== CONFIGURABLE_VALUE_REQUIRED_TOKEN
             ? expression.template.replace(SELECTED_EXPRESSION, currentModelSource)
             : expression.template.replace(SELECTED_EXPRESSION, EXPR_PLACEHOLDER);
-        updateModel(text, currentModel.model.position);
+        updateModel(text, currentModel.model.position)
         inputEditorCtx.onInputChange('');
     }
 
     useEffect(() => {
         if (currentModel.model) {
-            const filteredGroups: ExpressionGroup[] = expressions.filter(
+            let filteredGroups: ExpressionGroup[] = expressions.filter(
                 (exprGroup) => exprGroup.relatedModelType === currentModel.model.viewState.modelType);
+            if (currentModel.model.source?.trim() === DEFAULT_WHERE_INTERMEDIATE_CLAUSE){
+                filteredGroups = expressions.filter(
+                    (exprGroup) =>  exprGroup.name === QUERY_INTERMEDIATE_CLAUSES);
+            }
             setFilteredExpressions(filteredGroups);
         }
     }, [currentModel.model]);
@@ -128,7 +137,7 @@ export function ExpressionSuggestions() {
     return (
         <>
 
-            <div className={stmtEditorHelperClasses.expressionSuggestionList}>
+            <div className={stmtEditorHelperClasses.expressionSuggestionList} data-testid="expression-list">
                 <FormControl style={{ width: '100%', padding: '0 25px'}}>
                     <Input
                         className={stmtEditorHelperClasses.librarySearchBox}
@@ -165,6 +174,7 @@ export function ExpressionSuggestions() {
                                                     disableRipple={true}
                                                 >
                                                     <ListItemText
+                                                        data-testid="expression-title"
                                                         title={expression.name}
                                                         primary={(
                                                             <Typography style={{ fontFamily: 'monospace' }}>

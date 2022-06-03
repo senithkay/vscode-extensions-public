@@ -18,7 +18,7 @@ import { FormControl } from "@material-ui/core";
 import { EndConfig, httpResponse, PrimitiveBalType, RespondConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FormActionButtons, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { StatementEditorWrapper } from "@wso2-enterprise/ballerina-statement-editor";
-import { ActionStatement, RemoteMethodCallAction } from "@wso2-enterprise/syntax-tree";
+import { ActionStatement, RemoteMethodCallAction, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import cn from "classnames";
 
 import { Context } from "../../../../../../../Contexts/Diagram";
@@ -70,9 +70,11 @@ export function AddRespondForm(props: RespondFormProps) {
     const intl = useIntl();
 
     const handleStatementEditorChange = (partialModel: ActionStatement) => {
-        const remoteCallModel: RemoteMethodCallAction = partialModel?.expression.expression as RemoteMethodCallAction;
-        respondFormConfig.respondExpression = remoteCallModel?.arguments[0].source;
-        setResExp(remoteCallModel?.arguments[0].source);
+        if (STKindChecker.isRemoteMethodCallAction(partialModel?.expression)) {
+            const remoteCallModel: RemoteMethodCallAction = partialModel?.expression;
+            respondFormConfig.respondExpression = remoteCallModel?.arguments[0].source;
+            setResExp(remoteCallModel?.arguments[0].source);
+        }
         setValidForm(false);
     }
 

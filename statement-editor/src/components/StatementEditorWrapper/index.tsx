@@ -57,6 +57,7 @@ export interface LowCodeEditorProps {
     stSymbolInfo: STSymbolInfo;
     importStatements?: string[];
     experimentalEnabled?: boolean;
+    isConfigurableStmt?: boolean;
 }
 
 export interface FormHandlingProps extends LowCodeEditorProps {
@@ -85,7 +86,8 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
         syntaxTree,
         stSymbolInfo,
         importStatements,
-        experimentalEnabled
+        experimentalEnabled,
+        isConfigurableStmt
     } = props;
 
     const {
@@ -157,8 +159,9 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
 
                 await sendDidOpen(fileURI, updatedContent, getLangClient);
 
-                const partialST = await getPartialSTForStatement(
-                    { codeSnippet: initialSource.trim() }, getLangClient);
+                const partialST = isConfigurableStmt
+                        ? await getPartialSTForModuleMembers({ codeSnippet: initialSource.trim() }, getLangClient)
+                    : await getPartialSTForStatement({ codeSnippet: initialSource.trim() }, getLangClient);
 
                 if (!partialST.syntaxDiagnostics.length || config.type === CUSTOM_CONFIG_TYPE) {
                     model = partialST;
@@ -169,8 +172,9 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
                 model,
                 source: initialSource,
                 position: targetPosition,
+                isConfigurableStmt,
                 undoRedoManager: new StmtEditorUndoRedoManager()
-            };
+                };
 
             setEditors((prevEditors: EditorModel[]) => {
                 return [...prevEditors, newEditor];
