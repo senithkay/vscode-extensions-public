@@ -29,6 +29,7 @@ import { getBallerinaCmd, isWindows } from "../test-util";
 import { commands, Uri } from "vscode";
 import { runSemanticTokensTestCases } from './semantic-tokens.test';
 import { readFileSync } from 'fs';
+import { BallerinaTriggerResponse, BallerinaTriggersResponse } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 
 const PROJECT_ROOT = join(__dirname, '..', '..', '..', 'test', 'data');
 
@@ -858,6 +859,33 @@ suite("Language Server Tests", function () {
                     done(error);
                 });
             });
+        });
+    });
+
+    test("Test triggers", function (done): void {
+        langClient.getTriggers({
+            query: "ballerinax"
+        }).then(async (res) => {
+            const response = res as BallerinaTriggersResponse;
+            expect(response).to.contains.keys("central");
+            expect(response).not.contains.keys("error");
+            assert.strictEqual(response.central[0].name, "Trigger", "Invalid triggers");
+            done();
+        }, error => {
+            done(error);
+        });
+    });
+
+    test("Test trigger", function (done): void {
+        langClient.getTrigger({
+            id: "36"
+        }).then(async (res) => {
+            const response = res as BallerinaTriggerResponse;
+            expect(response).not.contains.keys("error");
+            assert.strictEqual(response.name, "Trigger", "Invalid triggers");
+            done();
+        }, error => {
+            done(error);
         });
     });
 
