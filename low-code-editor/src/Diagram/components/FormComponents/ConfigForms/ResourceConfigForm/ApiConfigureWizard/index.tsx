@@ -15,7 +15,12 @@ import { FormattedMessage, useIntl } from "react-intl";
 
 import { FormControl, Link } from "@material-ui/core";
 import { ConfigOverlayFormStatus, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { FormHeaderSection, PrimaryButton, SecondaryButton } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
+import {
+    FormHeaderSection,
+    ParamEditor,
+    PrimaryButton,
+    SecondaryButton
+} from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { FunctionDefinition, NodePosition, ObjectMethodDefinition, ResourceAccessorDefinition } from "@wso2-enterprise/syntax-tree";
 
 import { Section } from "../../../../../../components/ConfigPanel";
@@ -548,16 +553,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                 </Section>
             </div>
             <div className={classes.sectionSeparator}>
-                <Section
-                    title={queryParamTitle}
-                    tooltipWithExample={{ title: queryParamContenttitle, content: queryParamExample }}
-                >
-                    <QueryParamEditor
-                        queryParams={resource.queryParams}
-                        onChange={handleOnChangeQueryParamFromUI}
-                        targetPosition={segmentTargetPosition}
-                    />
-                </Section>
+                <ParamEditor onSave={null} onCancel={null}/>
             </div>
             <div className={classes.sectionSeparator}>
                 <Section
