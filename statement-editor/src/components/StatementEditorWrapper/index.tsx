@@ -173,7 +173,7 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
                 source: initialSource,
                 position: targetPosition,
                 isConfigurableStmt,
-                    undoRedoManager: new StmtEditorUndoRedoManager()
+                undoRedoManager: new StmtEditorUndoRedoManager()
                 };
 
             setEditors((prevEditors: EditorModel[]) => {

@@ -61,11 +61,6 @@ export function AddWhileForm(props: WhileProps) {
 
     const [conditionExpression, setConditionExpression] = useState(condition.conditionExpression);
 
-    const handleStatementEditorChange = (partialModel: WhileStatement) => {
-        setConditionExpression(partialModel.condition?.expression?.source.trim());
-        setConditionExpression(partialModel.condition.source.trim());
-    }
-
     const formTitle = intl.formatMessage({
         id: "lowcode.develop.configForms.while.title",
         defaultMessage: "If"
@@ -87,7 +82,6 @@ export function AddWhileForm(props: WhileProps) {
             formArgs: { formArgs },
             config: condition,
             onWizardClose,
-            onStmtEditorModelChange: handleStatementEditorChange,
             onCancel,
             currentFile,
             getLangClient: getExpressionEditorLangClient,
