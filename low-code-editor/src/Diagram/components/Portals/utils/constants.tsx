@@ -1,12 +1,12 @@
 export const keywords = [
-    "public", "private", "remote", "abstract", "client", "import", "function", "const", "listener", "service", 
-    "xmlns", "annotation", "type", "record", "object", "version", "as", "on", "resource", "final", "source", 
-    "worker", "parameter", "field", "isolated", "returns", "return", "external", "true", "false", "if", "else", 
-    "while", "check", "checkpanic", "panic", "continue", "break", "typeof", "is", "null", "lock", "fork", "trap", 
-    "in", "foreach", "table", "key", "let", "new", "from", "where", "select", "start", "flush", "configurable", 
-    "wait", "do", "transaction", "transactional", "commit", "rollback", "retry", "enum", "base16", "base64", 
-    "match", "conflict", "limit", "join", "outer", "equals", "class", "order", "by", "ascending", "descending", 
-    "_", "!is", "int", "byte", "float", "decimal", "string", "boolean", "xml", "json", "handle", "any", "anydata", 
+    "public", "private", "remote", "abstract", "client", "import", "function", "const", "listener", "service",
+    "xmlns", "annotation", "type", "record", "object", "version", "as", "on", "resource", "final", "source",
+    "worker", "parameter", "field", "isolated", "returns", "return", "external", "true", "false", "if", "else",
+    "while", "check", "checkpanic", "panic", "continue", "break", "typeof", "is", "null", "lock", "fork", "trap",
+    "in", "foreach", "table", "key", "let", "new", "from", "where", "select", "start", "flush", "configurable",
+    "wait", "do", "transaction", "transactional", "commit", "rollback", "retry", "enum", "base16", "base64",
+    "match", "conflict", "limit", "join", "outer", "equals", "class", "order", "by", "ascending", "descending",
+    "_", "!is", "int", "byte", "float", "decimal", "string", "boolean", "xml", "json", "handle", "any", "anydata",
     "never", "var", "map", "future", "typedesc", "error", "stream", "readonly", "distinct", "fail",
     "tainted", "untainted", "default"
 ]
