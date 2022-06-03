@@ -10,6 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+import { ActionStatementC } from "./ActionStatement";
 import { AssignmentStatementComponent } from "./AssignmentStatement";
 import { CallStatementC } from "./CallStatement";
 import { ElseBlockC } from "./ElseIfStatement";
@@ -18,7 +19,6 @@ import { IfStatementC } from "./IfStatement";
 import { LocalVarDeclC } from './LocalVarDecl';
 import { ModuleVarDeclC } from './ModuleVarDecl';
 import { OtherStatementTypes } from "./OtherStatement";
-import { ActionStatementC } from "./ActionStatement";
 import { ReturnStatementC } from "./ReturnStatement";
 import { WhileStatementC } from "./WhileStatement";
 

@@ -38,14 +38,14 @@ export function ActionStatementC(props: ReturnStatementProps) {
         changeCurrentModel(model.expression);
     }
 
-    let component: JSX.Element = undefined;
+    let component: JSX.Element;
 
     if (model.expression?.kind === "AsyncSendAction") {
         const expressionModel: any = model.expression as any;
         component = (
             <>
                 <ExpressionComponent model={expressionModel.expression} />
-                <TokenComponent model={expressionModel.rightArrowToken} /> 
+                <TokenComponent model={expressionModel.rightArrowToken} />
                 <ExpressionComponent model={expressionModel.peerWorker} />
                 <TokenComponent model={model.semicolonToken} />
             </>
