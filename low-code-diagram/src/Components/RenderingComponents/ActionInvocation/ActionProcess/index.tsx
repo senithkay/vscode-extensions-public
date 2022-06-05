@@ -217,6 +217,7 @@ export function ActionProcessor(props: ProcessorProps) {
                     toolTipTitle={toolTip}
                     isReferencedInCode={isReferencedVariable}
                     showOnRight={true}
+                    isConnector={true}
                     onDraftDelete={onDraftDelete}
                 />
             </g>

@@ -35,9 +35,7 @@ export const StatementEditorContext = React.createContext({
         hasRedo: false,
         hasSyntaxDiagnostics: false,
         restArg: (restCheckClicked: boolean) => undefined,
-        hasRestArg: false,
-        newQueryPosition: null,
-        setNewQueryPos: (newQueryPos: NodePosition) => undefined
+        hasRestArg: false
     },
     statementCtx: {
         diagnostics: []
@@ -111,9 +109,7 @@ export interface CtxProviderProps extends LowCodeEditorProps {
         activeEditorId?: number,
         editors?: EditorModel[]
     },
-    targetPosition: NodePosition,
-    newQueryPosition?: NodePosition,
-    setNewQueryPos?: (newQueryPos: NodePosition) => void
+    targetPosition: NodePosition
 }
 
 export const StatementEditorContextProvider = (props: CtxProviderProps) => {
@@ -143,8 +139,6 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
         importStatements,
         experimentalEnabled,
         hasSyntaxDiagnostics,
-        newQueryPosition,
-        setNewQueryPos,
         ...restProps
     } = props;
 
@@ -165,8 +159,6 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
                     restArg,
                     hasRestArg,
                     hasSyntaxDiagnostics,
-                    newQueryPosition,
-                    setNewQueryPos,
                 },
                 statementCtx: {
                     diagnostics

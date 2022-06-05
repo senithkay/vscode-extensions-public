@@ -10,10 +10,13 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React from "react";
+import React, { useContext } from "react";
 
 import { InferParamList } from "@wso2-enterprise/syntax-tree";
 
+import { DEFAULT_IDENTIFIER } from "../../../constants";
+import { StatementEditorContext } from "../../../store/statement-editor-context";
+import { NewExprAddButton } from "../../Button/NewExprAddButton";
 import { ExpressionArrayComponent } from "../../ExpressionArray";
 import { TokenComponent } from "../../Token";
 
@@ -23,11 +26,33 @@ interface InferParamListComponentProps {
 
 export function InferParamListComponent(props: InferParamListComponentProps) {
     const { model } = props;
+    const stmtCtx = useContext(StatementEditorContext);
+    const {
+        modelCtx: {
+            updateModel,
+        }
+    } = stmtCtx;
+
+    const addNewExpression = () => {
+        const isEmpty = model.parameters.length === 0;
+        const expr = isEmpty ? DEFAULT_IDENTIFIER : `, ${DEFAULT_IDENTIFIER}`;
+        const newPosition = isEmpty ? {
+            ...model.closeParenToken.position,
+            endColumn: model.closeParenToken.position.startColumn
+        } : {
+            startLine: model.parameters[model.parameters.length - 1].position.endLine,
+            startColumn: model.parameters[model.parameters.length - 1].position.endColumn,
+            endLine: model.closeParenToken.position.startLine,
+            endColumn: model.closeParenToken.position.startColumn
+        }
+        updateModel(expr, newPosition);
+    };
 
     return (
         <>
             <TokenComponent model={model.openParenToken} />
             <ExpressionArrayComponent expressions={model.parameters} />
+            <NewExprAddButton model={model} onClick={addNewExpression}/>
             <TokenComponent model={model.closeParenToken} />
         </>
     );
