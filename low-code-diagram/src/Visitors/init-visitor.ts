@@ -60,7 +60,7 @@ import { haveBlockStatement, isEndpointNode, isSTActionInvocation } from "./util
 let currentFnBody: FunctionBodyBlock | ExpressionFunctionBody;
 
 export class InitVisitor implements Visitor {
-    private allEndpoints: Map<string, Endpoint>;
+    private allEndpoints: Map<string, Endpoint> = new Map();
 
     public beginVisitSTNode(node: STNode, parent?: STNode) {
         if (!node.viewState) {
