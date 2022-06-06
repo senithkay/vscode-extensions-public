@@ -125,7 +125,7 @@ export function getParams(formFields: FormField[], depth = 1): string[] {
             if (formField.defaultable &&
                 ((formField.typeName !== "record" && formField.value) ||
                     (formField.typeName === "record" && !isAllFieldsEmpty(formField.fields)))) {
-                paramString += `${formField.name} = `;
+                paramString += `${getFieldName(formField.name)} = `;
             }
             if (formField.typeName === "string" && (formField.value || formField.defaultValue)) {
                 paramString += formField.value || formField.defaultValue;
@@ -394,7 +394,7 @@ export function mapRecordLiteralToRecordTypeFormField(specificFields: SpecificFi
     specificFields.forEach(specificField => {
         if (specificField.kind !== "CommaToken") {
             formFields.forEach(formField => {
-                if (formField.name === specificField.fieldName.value) {
+                if (getFieldName(formField.name) === specificField.fieldName.value) {
                     // if the assigned value is one of inbuilt type
                     formField.value = (STKindChecker.isStringLiteral(specificField.valueExpr) ||
                         STKindChecker.isNumericLiteral(specificField.valueExpr) ||
