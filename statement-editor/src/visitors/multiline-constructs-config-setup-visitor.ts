@@ -49,14 +49,6 @@ class MultilineConstructsConfigSetupVisitor implements Visitor {
             (clause.viewState as StatementEditorViewState).multilineConstructConfig.isFieldWithNewLine = true;
         })
     }
-
-    public beginVisitLetClause(node: LetClause, parent?: STNode) {
-        (node.viewState as StatementEditorViewState).multilineConstructConfig.isFieldWithNewLine = false;
-        node.letVarDeclarations.map((letVarDeclaration: STNode, index: number) => {
-            (letVarDeclaration.viewState as StatementEditorViewState).multilineConstructConfig.isFieldWithNewLine =
-                node.letVarDeclarations.length - 1 === index;
-        });
-    }
 }
 
 export const visitor = new MultilineConstructsConfigSetupVisitor();
