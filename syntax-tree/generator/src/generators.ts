@@ -28,6 +28,12 @@ export function genInterfacesFileCode(modelInfo: any) {
             endColumn?: number;
         }
 
+        export interface Minutiae {
+            isInvalid: boolean;
+            kind: string;
+            minutiae: string;
+        }
+
         export interface ControlFlow {
             isReached?: boolean;
             isCompleted?: boolean;
@@ -50,10 +56,11 @@ export function genInterfacesFileCode(modelInfo: any) {
             severity: string;
         }
 
-        export interface Minutiae {
-          isInvalid: boolean;
-          kind: string;
-          minutiae: string;
+        export interface PerfData {
+            concurrency: string;
+            latency: string;
+            tps: string;
+            analyzeType: string;
         }
 
         export interface STNode {
@@ -70,6 +77,7 @@ export function genInterfacesFileCode(modelInfo: any) {
             configurablePosition?: NodePosition;
             controlFlow?: ControlFlow;
             syntaxDiagnostics: SyntaxDiagnostics[];
+            performance?: PerfData;
             leadingMinutiae: Minutiae[];
             trailingMinutiae: Minutiae[];
         }
@@ -124,7 +132,7 @@ export function findModelInfo(node: any, modelInfo: any = {}) {
     model.__count++;
 
     Object.keys(node).forEach((key) => {
-        if (["kind", "id", "position", "source", "typeData"].includes(key)) {
+        if (["kind", "id", "position", "source", "typeData", "leadingMinutiae", "trailingMinutiae", "syntaxDiagnostics"].includes(key)) {
             // These properties are in the interface STNode
             // Other interfaces we generate extends it, so no need to add it.
             return;
@@ -183,6 +191,7 @@ function genInterfaceCode(kind: string, model: any) {
     return `
         interface ${kind} extends STNode {
             ${getPropertyCode(model).join("\n            ")}
+            ${kind === "FunctionDefinition" || kind === "ServiceDeclaration" ? "isRunnable?: boolean;\n            runArgs?: any[];": ""}
         }
     `;
 }
@@ -206,7 +215,7 @@ function getPropertyCode(model: any) {
         if (property.elementTypes) {
             const elementTypesFound: any = Object.keys(property.elementTypes).sort();
             if (elementTypesFound.length > 1) {
-                type = `${elementTypesFound.join("|")}[]`;
+                type = `(${elementTypesFound.join("|")})[]`;
             } else if (elementTypesFound.length === 1) {
                 type = `${elementTypesFound[0]}[]`;
             }

@@ -215,13 +215,13 @@ export function getMatchingConnector(actionInvo: STNode): BallerinaConnectorInfo
                         actionVariable = variable.initializer as RemoteMethodCallAction;
                         break;
                     default:
-                        actionVariable = (variable.initializer as CheckAction).expression;
+                        actionVariable = (variable.initializer as CheckAction).expression as RemoteMethodCallAction;
                 }
                 break;
 
             case "ActionStatement":
                 const statement = actionInvo as ActionStatement;
-                actionVariable = (statement.expression as CheckAction).expression;
+                actionVariable = (statement.expression as CheckAction).expression as RemoteMethodCallAction;
                 break;
 
             default:

@@ -21,7 +21,7 @@ import { Box, FormControl, Typography } from "@material-ui/core";
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { useStyles as useFormStyles } from "../../../../DynamicConnectorForm/style";
 import { SelectDropdownWithButton } from "../../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
-import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
+import { StatementEditorWrapper } from "@wso2-enterprise/ballerina-statement-editor";
 import { createLogStatement, getInitialSource } from "../../../../../../utils/modification-util";
 import { LowCodeExpressionEditor } from "../../../../FormFieldComponents/LowCodeExpressionEditor";
 import { LogConfig, ProcessConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
@@ -39,7 +39,6 @@ export const DEFINE_LOG_EXR: string = "Define Log Expression";
 export const SELECT_PROPERTY: string = "Select Existing Property";
 
 export function AddLogConfig(props: LogConfigProps) {
-    const formClasses = useFormStyles();
     const intl = useIntl();
 
     const {
@@ -67,8 +66,6 @@ export function AddLogConfig(props: LogConfigProps) {
         ['printWarn', 'Warn'],
         ['printError', 'Error']
     ])
-    const logTypes: string[] = Array.from(logTypeFunctionNameMap.values());
-    const logFormConfig: LogConfig = config.config as LogConfig;
 
     const logModel: CallStatement = config.model as CallStatement;
 
@@ -81,50 +78,11 @@ export function AddLogConfig(props: LogConfigProps) {
     }
     const [logType, setLogType] = useState(defaultType);
     const [expression, setExpression] = useState(defaultExpression);
-    const [isFormValid, setIsFormValid] = useState(logType && logType.length > 0 && expression && expression.length > 0);
-
-    const onExpressionChange = (value: any) => {
-        setExpression(value);
-    };
-
-    const onTypeChange = (value: any) => {
-        setLogType(value);
-    };
-
-    const onSaveBtnClick = () => {
-        logFormConfig.expression = expression;
-        logFormConfig.type = logType;
-        onSave();
-    };
-
-    const validateExpression = (field: string, isInvalid: boolean) => {
-        setIsFormValid(!isInvalid && logType && logType.length > 0);
-    };
-
-    const saveLogButtonLabel = intl.formatMessage({
-        id: "lowcode.develop.configForms.log.saveButton.label",
-        defaultMessage: "Save"
-    });
 
     const formTitle = intl.formatMessage({
         id: "lowcode.develop.configForms.log.title",
         defaultMessage: "Log"
     });
-
-    const logTooltipMessages = {
-        title: intl.formatMessage({
-            id: "lowcode.develop.configForms.logTooltipMessages.expressionEditor.tooltip.title",
-            defaultMessage: "Press CTRL+Spacebar for suggestions."
-        }),
-        actionText: intl.formatMessage({
-            id: "lowcode.develop.configForms.logTooltipMessages.expressionEditor.tooltip.actionText",
-            defaultMessage: "Learn about Ballerina expressions here"
-        }),
-        actionLink: intl.formatMessage({
-            id: "lowcode.develop.configForms.logTooltipMessages.expressionEditor.tooltip.actionTitle",
-            defaultMessage: "{learnBallerina}"
-        }, { learnBallerina: "https://ballerina.io/1.2/learn/by-example/log-api" })
-    }
 
     const initialSource = getInitialSource(createLogStatement(
         logType,
@@ -135,18 +93,16 @@ export function AddLogConfig(props: LogConfigProps) {
         const functionCallModel: FunctionCall = partialModel.expression as FunctionCall;
         setLogType(logTypeFunctionNameMap.get((functionCallModel.functionName as QualifiedNameReference).identifier.value));
         setExpression(functionCallModel.arguments[0].source);
-
-
     }
 
-    const { handleStmtEditorToggle, stmtEditorComponent } = useStatementEditor(
+    const stmtEditorComponent = StatementEditorWrapper(
         {
             label: formTitle,
             initialSource,
             formArgs: { formArgs },
             config,
             onWizardClose,
-            handleStatementEditorChange,
+            onStmtEditorModelChange: handleStatementEditorChange,
             onCancel,
             currentFile,
             getLangClient: getExpressionEditorLangClient,
@@ -159,71 +115,5 @@ export function AddLogConfig(props: LogConfigProps) {
         }
     );
 
-    if (!stmtEditorComponent) {
-        return (
-            <FormControl data-testid="log-form" className={formClasses.wizardFormControl}>
-                <FormHeaderSection
-                    onCancel={onCancel}
-                    formTitle={formTitle}
-                    defaultMessage={"Log"}
-                />
-                <div className={formClasses.formContentWrapper}>
-                    <div className={formClasses.formNameWrapper}>
-                        <SelectDropdownWithButton
-                            defaultValue={logType}
-                            onChange={onTypeChange}
-                            customProps={{
-                                disableCreateNew: true,
-                                values: logTypes
-                            }}
-                            placeholder=""
-                            label="Type"
-                        />
-                    </div>
-                    <div className={formClasses.formEqualWrapper}>
-                        <LowCodeExpressionEditor
-                            model={{ name: "expression", value: expression, typeName: 'string' }}
-                            customProps={{
-                                validate: validateExpression,
-                                tooltipTitle: logTooltipMessages.title,
-                                tooltipActionText: logTooltipMessages.actionText,
-                                tooltipActionLink: logTooltipMessages.actionLink,
-                                interactive: true,
-                                statementType: 'string',
-                                expressionInjectables: {
-                                    list: formArgs?.expressionInjectables?.list,
-                                    setInjectables: formArgs?.expressionInjectables?.setInjectables
-                                },
-                                editPosition: {
-                                    startLine: logModel ? logModel.position.startLine : formArgs.targetPosition.startLine,
-                                    endLine: logModel ? logModel.position.startLine : formArgs.targetPosition.startLine,
-                                    startColumn: 0,
-                                    endColumn: 0
-                                },
-                                initialDiagnostics: config?.model?.typeData?.diagnostics,
-                            }}
-                            onChange={onExpressionChange}
-                            defaultValue={expression}
-                        />
-                    </div>
-                </div>
-                <FormActionButtons
-                    cancelBtnText="Cancel"
-                    cancelBtn={true}
-                    saveBtnText={saveLogButtonLabel}
-                    isMutationInProgress={isMutationInProgress}
-                    validForm={isFormValid}
-                    statementEditor={true}
-                    toggleChecked={false}
-                    experimentalEnabled={experimentalEnabled}
-                    handleStmtEditorToggle={handleStmtEditorToggle}
-                    onSave={onSaveBtnClick}
-                    onCancel={onCancel}
-                />
-            </FormControl>
-        );
-    }
-    else {
-        return stmtEditorComponent;
-    }
+    return stmtEditorComponent;
 }

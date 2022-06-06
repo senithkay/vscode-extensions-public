@@ -109,7 +109,6 @@ function getStatementEditorContextProps(statement: any): CtxProviderProps {
             switchEditor: (index: number) => null,
             updateEditor: (index: number, newContent: EditorModel) => null
         },
-        targetPosition: null,
-        handleStmtEditorToggle: () => null
+        targetPosition: null
     }
 }

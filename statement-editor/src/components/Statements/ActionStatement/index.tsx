@@ -39,7 +39,6 @@ export function ActionStatementC(props: ReturnStatementProps) {
     }
 
     let component: JSX.Element;
-
     if (model.expression?.kind === "AsyncSendAction") {
         const expressionModel: any = model.expression as any;
         component = (

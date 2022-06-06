@@ -14,7 +14,7 @@ import { useContext, useEffect } from 'react';
 import { useIntl } from 'react-intl';
 
 import { ProcessConfig, SendStatementConfig } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
-import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
+import { StatementEditorWrapper } from "@wso2-enterprise/ballerina-statement-editor";
 
 import { Context } from '../../../../../../../Contexts/Diagram';
 import { createSendStatement, getInitialSource } from '../../../../../../utils';
@@ -70,7 +70,7 @@ export function AddSendStatement(props: AddSendStatementProps) {
 
     const initialSource = getInitialSource(createSendStatement(sendStatementConfig));
 
-    const { handleStmtEditorToggle, stmtEditorComponent } = useStatementEditor(
+    const stmtEditorComponent = StatementEditorWrapper(
         {
             label: formTitle,
             initialSource,
@@ -89,10 +89,6 @@ export function AddSendStatement(props: AddSendStatementProps) {
             experimentalEnabled
         }
     );
-
-    useEffect(() => {
-        handleStmtEditorToggle();
-    }, []);
 
     return (
         stmtEditorComponent

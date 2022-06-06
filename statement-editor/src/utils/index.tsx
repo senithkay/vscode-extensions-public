@@ -47,14 +47,14 @@ import {
     StatementNodes, SymbolParameterType,
     WHITESPACE_MINUTIAE
 } from "../constants";
-import { MinutiaeJSX, RemainingContent, StmtDiagnostic, StmtOffset } from '../models/definitions';
+import { MinutiaeJSX, RemainingContent, StmtDiagnostic, StmtOffset, SuggestionItem } from '../models/definitions';
 import { visitor as DeleteConfigSetupVisitor } from "../visitors/delete-config-setup-visitor";
 import { visitor as DiagnosticsMappingVisitor } from "../visitors/diagnostics-mapping-visitor";
 import { visitor as ExpressionDeletingVisitor } from "../visitors/expression-deleting-visitor";
 import { visitor as ModelFindingVisitor } from "../visitors/model-finding-visitor";
 import { visitor as ModelTypeSetupVisitor } from "../visitors/model-type-setup-visitor";
 import { visitor as MultilineConstructsConfigSetupVisitor } from "../visitors/multiline-constructs-config-setup-visitor";
-import {nextNodeSetupVisitor} from "../visitors/next-node--setup-visitor"
+import { nextNodeSetupVisitor } from "../visitors/next-node--setup-visitor"
 import { parentSetupVisitor } from '../visitors/parent-setup-visitor';
 import { viewStateSetupVisitor as ViewStateSetupVisitor } from "../visitors/view-state-setup-visitor";
 
@@ -113,7 +113,7 @@ export function getStatementTypeComponent(
 }
 
 export function getFormComponent(
-    type: string, model: STNode, targetPosition: NodePosition, onChange: (code: string, partialST: STNode) => void,
+    type: string, model: STNode, completions: SuggestionItem[], targetPosition: NodePosition, onChange: (code: string, partialST: STNode) => void,
     onCancel: () => void, getLangClient: () => Promise<ExpressionEditorLangClientInterface>, isEdit: boolean,
     applyModifications: (modifications: STModification[]) => void
 ): ReactNode {
@@ -121,6 +121,7 @@ export function getFormComponent(
     return (
         <FormComponent
             model={model}
+            completions={completions}
             targetPosition={targetPosition}
             onChange={onChange}
             onCancel={onCancel}
@@ -398,7 +399,7 @@ export function getSelectedModelPosition(codeSnippet: string, targetedPosition: 
         endColumn: targetedPosition.startColumn + codeSnippet.length
     };
 
-    if (codeSnippet.startsWith(',\n')) {
+    if (codeSnippet.startsWith(',\n') || codeSnippet.startsWith('\n')) {
         selectedModelPosition = {
             startLine: targetedPosition.startLine + 1,
             endLine: targetedPosition.endLine + codeSnippet.split('\n').length - 1,
@@ -447,12 +448,35 @@ export function isConfigAllowedTypeDesc(typeDescNode: STNode): boolean {
         && !STKindChecker.isJsonTypeDesc(typeDescNode)
         && !STKindChecker.isObjectTypeDesc(typeDescNode)
         && !STKindChecker.isOptionalTypeDesc(typeDescNode)
-        && !STKindChecker.isParameterizedTypeDesc(typeDescNode)
-        && !STKindChecker.isServiceTypeDesc(typeDescNode)
+        && !STKindChecker.isMapTypeDesc(typeDescNode)
         && !STKindChecker.isStreamTypeDesc(typeDescNode)
         && !STKindChecker.isTableTypeDesc(typeDescNode)
         && !STKindChecker.isVarTypeDesc(typeDescNode)
     );
+}
+
+export function enclosableWithParentheses(model: any): boolean {
+    return (model.viewState as StatementEditorViewState).modelType === ModelType.EXPRESSION
+        && (
+            !STKindChecker.isBracedExpression(model)
+            && !STKindChecker.isBlockStatement(model)
+            && !STKindChecker.isFieldAccess(model)
+            && !STKindChecker.isOptionalFieldAccess(model)
+            && !STKindChecker.isFunctionCall(model)
+            && !STKindChecker.isMethodCall(model)
+            && !STKindChecker.isInterpolation(model)
+            && !STKindChecker.isListConstructor(model)
+            && !STKindChecker.isMappingConstructor(model)
+            && !STKindChecker.isTableConstructor(model)
+            && !STKindChecker.isQualifiedNameReference(model)
+            && !STKindChecker.isRawTemplateExpression(model)
+            && !STKindChecker.isStringTemplateExpression(model)
+            && !STKindChecker.isXmlTemplateExpression(model)
+            && !STKindChecker.isComputedNameField(model)
+            && !STKindChecker.isSpecificField(model)
+            && !STKindChecker.isTypeTestExpression(model)
+            && !model?.isToken
+        );
 }
 
 export function getExistingConfigurable(selectedModel: STNode, stSymbolInfo: STSymbolInfo): STNode {
@@ -611,14 +635,15 @@ export function getUpdatedContentForNewNamedArg(currentModel: FunctionCall, user
     return content;
 }
 
-export function getParamsList(suggestionValue: string): string[] {
-    const paramRegex = /\w*\((.*)\)/m;
-    if (paramRegex.exec(suggestionValue)) {
-        let paramArray = paramRegex.exec(suggestionValue)[1].split(',');
-        paramArray = paramArray.map((param: string) => {
+export function getExprWithArgs(suggestionValue: string): string {
+    const paramRegex = /\w+\((.*)\)/m;
+    const params = paramRegex.exec(suggestionValue);
+    if (params) {
+        let paramList = params[1].split(',');
+        paramList = paramList.map((param: string) => {
             return param.trim().split(' ').pop();
         });
-        return paramArray;
+        return suggestionValue.replace(params[1], paramList.toString());
     }
-    return [];
+    return suggestionValue;
 }
