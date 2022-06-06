@@ -29,7 +29,7 @@ import { getBallerinaCmd, isWindows } from "../test-util";
 import { commands, Uri } from "vscode";
 import { runSemanticTokensTestCases } from './semantic-tokens.test';
 import { readFileSync } from 'fs';
-import { BallerinaTriggerResponse, BallerinaTriggersResponse } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { BallerinaTriggerResponse, BallerinaTriggersResponse, PublishDiagnosticsParams } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 
 const PROJECT_ROOT = join(__dirname, '..', '..', '..', 'test', 'data');
 
@@ -900,6 +900,26 @@ suite("Language Server Tests", function () {
             done();
         }, error => {
             done(error);
+        });
+    });
+
+    test("Test get diagnostics", function (done): void {
+        const uri = Uri.file(join(PROJECT_ROOT, 'error.bal'));
+        commands.executeCommand('vscode.open', uri).then(() => {
+            langClient.onReady().then(() => {
+                langClient.getDiagnostics({
+                    documentIdentifier: {
+                        uri: uri.toString()
+                    }
+                }).then(async (res) => {
+                    const response = res[0] as PublishDiagnosticsParams;
+                    expect(response).to.contains.keys("diagnostics");
+                    assert.strictEqual(response.diagnostics.length, 3, "Invalid diagnostics");
+                    done();
+                }, error => {
+                    done(error);
+                });
+            });
         });
     });
 
