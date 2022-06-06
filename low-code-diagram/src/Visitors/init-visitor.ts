@@ -320,8 +320,7 @@ export class InitVisitor implements Visitor {
             const stmtViewState: StatementViewState = node.viewState as StatementViewState;
 
             if (STKindChecker.isCheckAction(node.expression) && STKindChecker.isRemoteMethodCallAction(node.expression.expression)) {
-                const checkAction: CheckAction = node.expression;
-                const remoteAction: RemoteMethodCallAction = checkAction.expression;
+                const remoteAction: RemoteMethodCallAction = node.expression.expression;
                 const varRef: SimpleNameReference = remoteAction.expression as SimpleNameReference;
                 stmtViewState.action.endpointName = varRef.name.value;
                 stmtViewState.action.actionName = remoteAction.methodName.name.value;
@@ -522,9 +521,9 @@ export class InitVisitor implements Visitor {
         } else if (STKindChecker.isServiceDeclaration(parent)) {
             const service = parent as ServiceDeclaration;
             service.members.forEach(member => {
-                const body = member.functionBody as FunctionBodyBlock;
-
-                if (body) {
+                if (STKindChecker.isResourceAccessorDefinition(member)) {
+                    // TODO check for other functionbody types
+                    const body = member.functionBody as FunctionBodyBlock;
                     const filteredStatements = body.statements.filter(statement => {
                         if (statement.kind !== "XmlNamespaceDeclaration") {
                             return statement;

@@ -51,7 +51,8 @@ export function ModuleIcon(props: ModuleIconProps) {
         if (moduleInfo){
             iconUrl = getIconUrl(balCentralCdn, moduleInfo.orgName, moduleInfo.moduleName, moduleInfo.version);
         }
-    } else if (node && STKindChecker.isActionStatement(node) && node.expression.expression.typeData?.symbol?.moduleID) {
+    } else if (node && STKindChecker.isActionStatement(node) && STKindChecker.isRemoteMethodCallAction(node.expression)
+        && node.expression.expression.typeData?.symbol?.moduleID) {
         const moduleInfo = node.expression.expression.typeData?.symbol?.moduleID;
         if (moduleInfo){
             iconUrl = getIconUrl(balCentralCdn, moduleInfo.orgName, moduleInfo.moduleName, moduleInfo.version);

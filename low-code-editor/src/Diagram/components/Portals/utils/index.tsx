@@ -125,7 +125,7 @@ export function getParams(formFields: FormField[], depth = 1): string[] {
             if (formField.defaultable &&
                 ((formField.typeName !== "record" && formField.value) ||
                     (formField.typeName === "record" && !isAllFieldsEmpty(formField.fields)))) {
-                paramString += `${formField.name} = `;
+                paramString += `${getFieldName(formField.name)} = `;
             }
             if (formField.typeName === "string" && (formField.value || formField.defaultValue)) {
                 paramString += formField.value || formField.defaultValue;
@@ -394,7 +394,7 @@ export function mapRecordLiteralToRecordTypeFormField(specificFields: SpecificFi
     specificFields.forEach(specificField => {
         if (specificField.kind !== "CommaToken") {
             formFields.forEach(formField => {
-                if (formField.name === specificField.fieldName.value) {
+                if (getFieldName(formField.name) === specificField.fieldName.value) {
                     // if the assigned value is one of inbuilt type
                     formField.value = (STKindChecker.isStringLiteral(specificField.valueExpr) ||
                         STKindChecker.isNumericLiteral(specificField.valueExpr) ||
@@ -758,7 +758,7 @@ export async function fetchConnectorInfo(
                             remoteCall = variable.initializer as RemoteMethodCallAction;
                             break;
                         default:
-                            remoteCall = (variable.initializer as CheckAction).expression;
+                            remoteCall = (variable.initializer as CheckAction).expression as RemoteMethodCallAction;
                     }
                     if (variable?.typedBindingPattern?.bindingPattern) {
                         if (STKindChecker.isCaptureBindingPattern(variable.typedBindingPattern.bindingPattern)) {
@@ -773,7 +773,7 @@ export async function fetchConnectorInfo(
 
                 case "ActionStatement":
                     const statement = model as ActionStatement;
-                    remoteCall = (statement.expression as CheckAction).expression;
+                    remoteCall = (statement.expression as CheckAction).expression as RemoteMethodCallAction;
                     break;
 
                 default:

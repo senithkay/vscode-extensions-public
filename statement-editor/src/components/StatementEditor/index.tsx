@@ -18,7 +18,7 @@ import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tre
 import * as monaco from "monaco-editor";
 import { Diagnostic } from "vscode-languageserver-protocol";
 
-import { CUSTOM_CONFIG_TYPE } from "../../constants";
+import { CUSTOM_CONFIG_TYPE, DEFAULT_INTERMEDIATE_CLAUSE } from "../../constants";
 import {
     CurrentModel,
     EditorModel,
@@ -29,6 +29,7 @@ import {
 import { StatementEditorContextProvider } from "../../store/statement-editor-context";
 import {
     addToTargetPosition,
+    enclosableWithParentheses,
     enrichModel,
     getCurrentModel,
     getFilteredDiagnosticMessages,
@@ -115,7 +116,6 @@ export function StatementEditor(props: StatementEditorProps) {
     const [lsSuggestionsList, setLSSuggestionsList] = useState([]);
     const [documentation, setDocumentation] = useState<SymbolInfoResponse | EmptySymbolInfo>(initSymbolInfo);
     const [isRestArg, setRestArg] = useState(false);
-    const [newQueryPos, setNewQueryPos] = useState<NodePosition>(null)
 
     const undo = async () => {
         const undoItem = undoRedoManager.getUndoModel();
@@ -172,9 +172,12 @@ export function StatementEditor(props: StatementEditorProps) {
                 const currentModelViewState = currentModel.model?.viewState as StatementEditorViewState;
 
                 if (!isOperator(currentModelViewState.modelType) && !isBindingPattern(currentModelViewState.modelType)) {
-                    const selectionWithDot = `${currentModel.model.source
+                    const selection = currentModel.model.source
                         ? currentModel.model.source.trim()
-                        : currentModel.model.value.trim()}.`;
+                        : currentModel.model.value.trim();
+                    const selectionWithDot = enclosableWithParentheses(currentModel.model)
+                        ? `(${selection}).`
+                        : `${selection}.`;
                     const statements = [model.source];
                     if ((currentModel.model.viewState as StatementEditorViewState).modelType === ModelType.EXPRESSION) {
                         const dotAdded = addToTargetPosition(model.source, currentModel.model.position, selectionWithDot);
@@ -231,10 +234,6 @@ export function StatementEditor(props: StatementEditorProps) {
         setRestArg(restCheckClicked);
     }
 
-    const newQueryExpr = (intermediateClausePos: NodePosition) => {
-        setNewQueryPos(intermediateClausePos);
-    }
-
     const handleChange = async (newValue: string) => {
         const updatedStatement = addToTargetPosition(model.source, currentModel.model.position, newValue);
         const updatedContent = getUpdatedSource(updatedStatement, currentFile.content, targetPosition, moduleList);
@@ -259,7 +258,9 @@ export function StatementEditor(props: StatementEditorProps) {
                 ? await getPartialSTForModuleMembers({ codeSnippet: existingModel.source , stModification }, getLangClient)
                 : await getPartialSTForStatement({ codeSnippet: existingModel.source , stModification }, getLangClient);
         } else {
-            partialST = await getPartialSTForStatement({ codeSnippet }, getLangClient);
+            partialST = isConfigurableStmt
+                ? await getPartialSTForModuleMembers({ codeSnippet }, getLangClient)
+                : await getPartialSTForStatement({ codeSnippet }, getLangClient);
         }
 
         const updatedContent = getUpdatedSource(partialST.source, currentFile.content, targetPosition, moduleList);
@@ -269,9 +270,14 @@ export function StatementEditor(props: StatementEditorProps) {
         if (!partialST.syntaxDiagnostics.length || config.type === CUSTOM_CONFIG_TYPE) {
             setStmtModel(partialST, diagnostics);
             const selectedPosition = getSelectedModelPosition(codeSnippet, position);
-            const oldModel : StackElement = {
-                model,
-                selectedPosition : currentModel.model.position
+            let oldModel : StackElement;
+            if (undoRedoManager.hasUndo()) {
+                oldModel = undoRedoManager.getCurrentModel().newModel;
+            } else {
+                oldModel = {
+                    model,
+                    selectedPosition : currentModel.model.position
+                }
             }
             const newModel : StackElement = {
                 model: partialST,
@@ -349,10 +355,17 @@ export function StatementEditor(props: StatementEditorProps) {
     };
 
     const currentModelHandler = (cModel: STNode, stmtPosition?: NodePosition) => {
-        setCurrentModel({
-            model: cModel,
-            stmtPosition
-        });
+        if (cModel.value && cModel.value === DEFAULT_INTERMEDIATE_CLAUSE){
+            setCurrentModel({
+                model: cModel.parent.parent,
+                stmtPosition
+            });
+        } else {
+            setCurrentModel({
+                model: cModel,
+                stmtPosition
+            });
+        }
     };
 
     const parentModelHandler = () => {
@@ -438,8 +451,6 @@ export function StatementEditor(props: StatementEditorProps) {
                     restArg={restArg}
                     hasRestArg={isRestArg}
                     hasSyntaxDiagnostics={hasSyntaxDiagnostics}
-                    newQueryPosition={newQueryPos}
-                    setNewQueryPos={newQueryExpr}
                 >
                     <ViewContainer
                         isStatementValid={!stmtDiagnostics.length}

@@ -1,49 +1,42 @@
-import { createStdioLangClient, StdioBallerinaLangServer } from "@wso2-enterprise/lang-service";
-import { ChildProcess } from "child_process";
+import { StdioConnection, BalleriaLanguageClient } from "@wso2-enterprise/ballerina-languageclient";
 import { readFileSync } from 'fs';
 import URI from "vscode-uri";
 
-let server: any;
-let client: any;
-
-const clientPromise = init();
-
-export async function init() {
-    server = new StdioBallerinaLangServer(process.env.BALLERINA_SDK_PATH);
-    server.start();
-
-    client = await createStdioLangClient(server.lsProcess as ChildProcess, () => {/**/}, () => {/**/});
-    if (!client) {
-        // tslint:disable-next-line:no-console
-        console.error("Could not initiate language client");
-    }
-
-    await client.init();
-}
+let bls = new BalleriaLanguageClient(new StdioConnection(process.env.BALLERINA_SDK_PATH));
 
 export function shutdown() {
-    client.close();
-    server.shutdown();
+    bls.onReady().then(() => {
+        bls.stop()
+    })
+}
+
+export async function restart() {
+    bls.stop();
+    bls = new BalleriaLanguageClient(new StdioConnection(process.env.BALLERINA_SDK_PATH));
+    return bls.onReady();
 }
 
 export async function genSyntaxTree(balFilePath: string) {
+    const uri =  URI.file(balFilePath).toString();
     let syntaxTree;
     try {
         const data = readFileSync(balFilePath, 'utf8')
-        await clientPromise;
-        await client.didOpen({
+        await bls.onReady();
+        bls.didOpen({
             textDocument: {
-                uri: URI.file(balFilePath).toString(),
+                uri,
                 languageId: "ballerina",
                 text: data,
                 version: 1
             }
         });
 
-        const astResp = await client.getSyntaxTree({
-            documentIdentifier: { uri: URI.file(balFilePath).toString() }
+        const astResp = await bls.getSyntaxTree({
+            documentIdentifier: { uri }
         });
         syntaxTree = astResp.syntaxTree;
+        bls.didClose({ textDocument: { uri } });
+
     } catch (e) {
         // tslint:disable-next-line:no-console
         console.log(`Error when parsing ${balFilePath} \n ${e}`);

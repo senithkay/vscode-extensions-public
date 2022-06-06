@@ -13,6 +13,7 @@
 import {
     BinaryExpression,
     FieldAccess,
+    ImplicitAnonymousFunctionExpression,
     IntersectionTypeDesc,
     MethodCall,
     OptionalTypeDesc,
@@ -131,6 +132,10 @@ class ModelTypeSetupVisitor implements Visitor {
         if (node?.queryConstructType) {
             (node.queryConstructType.viewState as StatementEditorViewState).modelType = ModelType.QUERY_EXPRESSION;
         }
+    }
+
+    public beginVisitImplicitAnonymousFunctionExpression(node: ImplicitAnonymousFunctionExpression) {
+        (node.viewState as StatementEditorViewState).modelType = ModelType.FUNCTION;
     }
 
 }

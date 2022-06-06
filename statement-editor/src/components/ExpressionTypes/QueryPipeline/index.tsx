@@ -14,7 +14,7 @@ import React, { useContext } from "react";
 
 import { NodePosition, QueryPipeline, STNode } from "@wso2-enterprise/syntax-tree";
 
-import { ArrayType } from "../../../constants";
+import { ArrayType, DEFAULT_WHERE_INTERMEDIATE_CLAUSE } from "../../../constants";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { NewExprAddButton } from "../../Button/NewExprAddButton";
 import { ExpressionComponent } from "../../Expression";
@@ -29,7 +29,7 @@ export function QueryPipelineComponent(props: QueryPipelineProps) {
 
     const {
         modelCtx: {
-            setNewQueryPos
+            updateModel
         }
     } = useContext(StatementEditorContext);
 
@@ -41,7 +41,7 @@ export function QueryPipelineComponent(props: QueryPipelineProps) {
             startLine: fromClauseModel.position.endLine,
             startColumn: fromClauseModel.position.endColumn
         }
-        setNewQueryPos(newPosition);
+        updateModel(`\n ${DEFAULT_WHERE_INTERMEDIATE_CLAUSE}`, newPosition);
     };
 
     const onMouseEnter = (e: React.MouseEvent) => {
