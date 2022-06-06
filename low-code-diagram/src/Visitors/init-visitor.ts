@@ -136,16 +136,16 @@ export class InitVisitor implements Visitor {
         if (!node.viewState) {
             const viewState = new FunctionViewState();
             node.viewState = viewState;
-            this.allEndpoints = new Map<string, Endpoint>();
         }
+        this.allEndpoints = new Map<string, Endpoint>();
     }
 
     public beginVisitObjectMethodDefinition(node: ObjectMethodDefinition, parent?: STNode) {
         if (!node.viewState) {
             const viewState = new FunctionViewState();
             node.viewState = viewState;
-            this.allEndpoints = new Map<string, Endpoint>();
         }
+        this.allEndpoints = new Map<string, Endpoint>();
     }
 
     public beginVisitServiceDeclaration(node: ServiceDeclaration, parent?: STNode) {
