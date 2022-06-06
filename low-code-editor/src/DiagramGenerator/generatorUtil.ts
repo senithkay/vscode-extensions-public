@@ -29,9 +29,9 @@ export async function resolveMissingDependencies(filePath: string, langClient: D
 }
 
 export async function getLowcodeST(payload: any, filePath: string, langClient: DiagramEditorLangClientInterface,
-                                   experimentalEnabled?: boolean, 
+                                   experimentalEnabled?: boolean,
                                    showMessage?: (arg: string, messageType: MESSAGE_TYPE, ignorable: boolean,
-                                     filePath?: string, fileContent?: string, bypassChecks?: boolean) => void) {
+                                                  filePath?: string, fileContent?: string, bypassChecks?: boolean) => void) {
 
     const modulePart: ModulePart = payload;
     const members: STNode[] = modulePart?.members || [];
@@ -119,8 +119,8 @@ export function isNodeSelected(selectedPosition: SelectedPosition, node: any): b
         && selectedPosition?.startLine <= node.position?.endLine;
 }
 
-export function sizingAndPositioningST(st: STNode, experimentalEnabled?: boolean, 
-    showMessage?: (arg: string, messageType: MESSAGE_TYPE, ignorable: boolean, filePath?: string, fileContent?: string, bypassChecks?: boolean) => void): STNode {
+export function sizingAndPositioningST(st: STNode, experimentalEnabled?: boolean,
+                                       showMessage?: (arg: string, messageType: MESSAGE_TYPE, ignorable: boolean, filePath?: string, fileContent?: string, bypassChecks?: boolean) => void): STNode {
     traversNode(st, initVisitor);
     const sizingVisitor = new SizingVisitor(experimentalEnabled);
     traversNode(st, sizingVisitor);
