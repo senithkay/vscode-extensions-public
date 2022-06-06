@@ -843,6 +843,20 @@ suite("Language Server Tests", function () {
         });
     });
 
+    test("Test partial parser - get ST for module members", function (done): void {
+        langClient.getSTForModuleMembers({
+            codeSnippet: "configurable STATEMENT  CONF_NAME = ?;"
+        }).then(async (res) => {
+            const response = res as PartialSTResponse;
+            expect(response).to.contain.keys("syntaxTree");
+
+            assert.strictEqual(response.syntaxTree.position.endColumn, 37, "Invalid st response");
+            done();
+        }, error => {
+            done(error);
+        });
+    });
+
     test("Test open API generator", function (done): void {
         const uri = Uri.file(join(PROJECT_ROOT, 'helloServicePackage', 'hello_service.bal').toString());
         commands.executeCommand('vscode.open', uri).then(() => {
