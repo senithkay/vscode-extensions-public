@@ -312,7 +312,11 @@ export async function addConnectorToCache(connector: BallerinaConnectorInfo) {
         connectors = JSON.parse(connectorsStr);
     }
     connectors[key] = connector;
-    localStorage.setItem(CONNECTOR_CACHE, JSON.stringify(connectors));
+    try {
+        localStorage.setItem(CONNECTOR_CACHE, JSON.stringify(connectors));
+    } catch (error) {
+        // TODO: need to handle error when adding connector cache
+    }
 }
 
 export function getConnectorFromCache(connector: Connector): BallerinaConnectorInfo {
