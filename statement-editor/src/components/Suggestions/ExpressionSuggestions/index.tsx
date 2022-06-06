@@ -13,10 +13,8 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import React, { useContext, useEffect, useState } from "react";
 
-import {
-    FormControl,
-    Input, InputAdornment, List, ListItem, ListItemText, Typography
-} from "@material-ui/core";
+import { FormControl, Input, InputAdornment, List, ListItem, ListItemText, Typography } from "@material-ui/core";
+import { STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import LibrarySearchIcon from "../../../assets/icons/LibrarySearchIcon";
 import {
@@ -34,7 +32,8 @@ import {
     SELECTED_EXPRESSION
 } from "../../../utils/expressions";
 import { KeyboardNavigationManager } from "../../../utils/keyboard-navigation-manager";
-import { useStatementEditorStyles, useStmtEditorHelperPanelStyles  } from "../../styles";
+import { ModelType } from "../../../utils/statement-editor-viewstate";
+import { useStatementEditorStyles, useStmtEditorHelperPanelStyles } from "../../styles";
 
 export function ExpressionSuggestions() {
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
@@ -53,9 +52,8 @@ export function ExpressionSuggestions() {
     } = useContext(StatementEditorContext);
 
     const onClickExpressionSuggestion = (expression: Expression) => {
-        const currentModelSource = currentModel.model.source
-            ? currentModel.model.source.trim()
-            : currentModel.model.value.trim();
+        const currentModelSource = STKindChecker.isOrderKey(currentModel.model) ? currentModel.model.expression.source :
+            (currentModel.model.source ? currentModel.model.source.trim() : currentModel.model.value.trim());
         const text = currentModelSource !== CONFIGURABLE_VALUE_REQUIRED_TOKEN
             ? expression.template.replace(SELECTED_EXPRESSION, currentModelSource)
             : expression.template.replace(SELECTED_EXPRESSION, EXPR_PLACEHOLDER);
@@ -66,7 +64,9 @@ export function ExpressionSuggestions() {
     useEffect(() => {
         if (currentModel.model) {
             let filteredGroups: ExpressionGroup[] = expressions.filter(
-                (exprGroup) => exprGroup.relatedModelType === currentModel.model.viewState.modelType);
+                (exprGroup) => exprGroup.relatedModelType === currentModel.model.viewState.modelType ||
+                    (currentModel.model.viewState.modelType === ModelType.FIELD_ACCESS &&
+                        exprGroup.relatedModelType === ModelType.EXPRESSION));
             if (currentModel.model.source?.trim() === DEFAULT_WHERE_INTERMEDIATE_CLAUSE){
                 filteredGroups = expressions.filter(
                     (exprGroup) =>  exprGroup.name === QUERY_INTERMEDIATE_CLAUSES);
