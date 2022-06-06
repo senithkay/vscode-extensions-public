@@ -25,7 +25,7 @@ import { StatementEditorContext } from "../../store/statement-editor-context";
 import { NewExprAddButton } from "../Button/NewExprAddButton";
 
 
-export interface ExpressionArrayelementProps {
+export interface ExpressionArrayElementProps {
     expression: STNode;
     children?: React.ReactElement[] | React.ReactElement;
     modifiable?: boolean;
@@ -37,7 +37,7 @@ export interface ExpressionArrayelementProps {
 
 }
 
-export function ExpressionArrayElementComponent(props: ExpressionArrayelementProps) {
+export function ExpressionArrayElementComponent(props: ExpressionArrayElementProps) {
     const { expression, children, modifiable, arrayType, index, length, onMouseEnterCallback, isHovered } = props;
 
     const {
@@ -53,7 +53,7 @@ export function ExpressionArrayElementComponent(props: ExpressionArrayelementPro
             startColumn: model.position.endColumn
         }
         if (STKindChecker.isLetVarDecl(model)){
-            updateModel(`,\n${LET_VAR_DECL}`, newPosition);
+            updateModel(`, ${LET_VAR_DECL}`, newPosition);
         } else if (arrayType === ArrayType.INTERMEDIATE_CLAUSE){
             updateModel(`\n ${DEFAULT_WHERE_INTERMEDIATE_CLAUSE}`, newPosition);
         } else {

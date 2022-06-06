@@ -14,9 +14,9 @@ import {
     AssignmentStatement,
     BinaryExpression,
     IdentifierToken,
-    KeySpecifier,
+    KeySpecifier, LetClause,
     ListConstructor,
-    MappingConstructor,
+    MappingConstructor, OrderByClause,
     QueryExpression,
     QueryPipeline,
     RecordField,
@@ -76,6 +76,26 @@ class DeleteConfigSetupVisitor implements Visitor {
         } else {
             node.fieldNames.map((fieldNames: STNode) => {
                 (fieldNames.viewState as StatementEditorViewState).templateExprDeletable = true;
+            });
+        }
+    }
+
+    public beginVisitOrderByClause(node: OrderByClause, parent?: STNode) {
+        if (node.orderKey.length === 1) {
+            (node.orderKey[0].viewState as StatementEditorViewState).templateExprDeletable = false;
+        } else {
+            node.orderKey.map((orderKey: STNode) => {
+                (orderKey.viewState as StatementEditorViewState).templateExprDeletable = true;
+            });
+        }
+    }
+
+    public beginVisitLetClause(node: LetClause, parent?: STNode) {
+        if (node.letVarDeclarations.length === 1) {
+            (node.letVarDeclarations[0].viewState as StatementEditorViewState).templateExprDeletable = false;
+        } else {
+            node.letVarDeclarations.map((orderKey: STNode) => {
+                (orderKey.viewState as StatementEditorViewState).templateExprDeletable = true;
             });
         }
     }
