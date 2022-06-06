@@ -29,15 +29,15 @@ export interface ExpressionArrayProps {
 export function ExpressionArrayComponent(props: ExpressionArrayProps) {
     const { expressions, modifiable, arrayType } = props;
 
-    const [isHovered, setHovered] = React.useState(null);
+    const [hoverIndex, setHoverIndex] = React.useState(null);
 
     const onMouseEnter = (e: React.MouseEvent , index: number) => {
-        setHovered(index);
+        setHoverIndex(index);
         e.preventDefault();
     }
 
     const onMouseLeave = (e: React.MouseEvent) => {
-        setHovered(null);
+        setHoverIndex(null);
         e.preventDefault();
     }
 
@@ -55,7 +55,7 @@ export function ExpressionArrayComponent(props: ExpressionArrayProps) {
                         index={index}
                         length={expressions.length}
                         onMouseEnterCallback={onMouseEnter}
-                        isHovered={isHovered === index}
+                        isHovered={hoverIndex === index}
                     >
                         <ExpressionComponent
                             key={index}
