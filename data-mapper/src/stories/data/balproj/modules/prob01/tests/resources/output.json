@@ -1,0 +1,26 @@
+{
+    "dtos": [{
+            "type": "com.trimble.transportation.telematics.inbound.structured-form",
+            "data": {
+                "MessageGuid": "ce17a80f-4fef-4271-8871-2170896d9374",
+                "ParentMessageGuid": "2b3f30be-f499-42dc-9f7f-da2ef0f61604",
+                "MessageContentType": "com.trimble.transportation.telematics.inbound.structured-form",
+                "MessageContent": {
+                    "FormId": "taskComplete.loadedCall",
+                    "Content": ["bol123", "5000", "2", "seal098", "d", "PT1"],
+                    "Coordinates": {
+                        "Latitude": 123.123123,
+                        "Longitude": -21.212121
+                    },
+                    "Assets": [{
+                            "Type": 2,
+                            "Id": "TheJoshTruck",
+                            "Confirmed": false
+                        }
+                    ],
+                    "CreateDate": "2021-11-22T20:57:00+00:00"
+                }
+            }
+        }
+    ]
+}
