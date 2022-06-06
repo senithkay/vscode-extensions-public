@@ -29,7 +29,7 @@ import { getBallerinaCmd, isWindows } from "../test-util";
 import { commands, Uri } from "vscode";
 import { runSemanticTokensTestCases } from './semantic-tokens.test';
 import { readFileSync } from 'fs';
-import { BallerinaTriggerResponse, BallerinaTriggersResponse, PublishDiagnosticsParams } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { BallerinaTriggerResponse, BallerinaTriggersResponse, CompletionResponse, PublishDiagnosticsParams } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 
 const PROJECT_ROOT = join(__dirname, '..', '..', '..', 'test', 'data');
 
@@ -912,9 +912,36 @@ suite("Language Server Tests", function () {
                         uri: uri.toString()
                     }
                 }).then(async (res) => {
-                    const response = res[0] as PublishDiagnosticsParams;
-                    expect(response).to.contains.keys("diagnostics");
-                    assert.strictEqual(response.diagnostics.length, 3, "Invalid diagnostics");
+                    const response = res as PublishDiagnosticsParams[];
+                    expect(response).to.lengthOf(1);
+                    assert.strictEqual(response[0].diagnostics.length, 3, "Invalid diagnostics");
+                    done();
+                }, error => {
+                    done(error);
+                });
+            });
+        });
+    });
+
+    test("Test get completion", function (done): void {
+        const uri = Uri.file(join(PROJECT_ROOT, 'hello_world.bal'));
+        commands.executeCommand('vscode.open', uri).then(() => {
+            langClient.onReady().then(() => {
+                langClient.getCompletion({
+                    textDocument: {
+                        uri: uri.toString()
+                    },
+                    position: {
+                        character: 4,
+                        line: 4
+                    },
+                    context: {
+                        triggerKind: 1
+                    }
+                }).then(async (res) => {
+                    const response = res as CompletionResponse[];
+                    expect(response).to.lengthOf(113);
+                    assert.strictEqual(response[0].detail, "Snippet", "Invalid diagnostics");
                     done();
                 }, error => {
                     done(error);
