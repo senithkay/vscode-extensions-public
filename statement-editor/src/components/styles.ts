@@ -613,7 +613,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             },
             ...removePadding
         },
-        ExampleHeader :  {
+        exampleHeader :  {
             fontSize: '13px',
             color: '#1D2028',
             letterSpacing: '0',
@@ -622,6 +622,9 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             marginBottom: '7px',
             marginTop: '20px'
         },
+        exampleCode : {
+            color: '#1D2028'
+        }
     }),
 );
 

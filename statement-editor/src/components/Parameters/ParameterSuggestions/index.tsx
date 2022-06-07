@@ -58,11 +58,11 @@ export function ParameterSuggestions(){
            return (
                <>
                    <ListItemText primary={des[0]}/>
-                   <ListSubheader className={stmtEditorHelperClasses.ExampleHeader}>
+                   <ListSubheader className={stmtEditorHelperClasses.exampleHeader}>
                        Example
                    </ListSubheader>
                    <ListItem className={stmtEditorHelperClasses.docDescription}>
-                       <ListItemText primary={docEx[1]}/>
+                       <code className={stmtEditorHelperClasses.exampleCode}>{docEx[1]}</code>
                    </ListItem>
                </>
            );
