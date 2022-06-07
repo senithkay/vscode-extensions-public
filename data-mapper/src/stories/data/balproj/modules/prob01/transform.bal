@@ -26,7 +26,7 @@ function transform(InputMessage input) returns TransformedMessage =>
                        select {
                            Type: i.Type,
                            Id: dictionary_lookup(i.Id),
-                           Confirmed: i.Confirmed ?: false
+                           Confirmed: i.Confirmed
                        },
                    CreateDate: input.CreateDate
                }

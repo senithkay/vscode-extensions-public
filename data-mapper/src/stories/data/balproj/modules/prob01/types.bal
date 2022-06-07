@@ -24,7 +24,7 @@ type Content record {
 type Assets record {
    int Type;
    string Id;
-   boolean Confirmed?;
+   boolean Confirmed;
 };
  
 type MessageProperties record {
