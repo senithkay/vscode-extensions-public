@@ -41,6 +41,7 @@ export interface SuggestionItem {
     kind?: string;
     insertText?: string;
     completionKind?: number;
+    prefix?: string;
 }
 
 export interface SecondLevelSuggestions {

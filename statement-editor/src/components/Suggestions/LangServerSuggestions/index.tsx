@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js jsx-no-lambda
+// tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useState } from "react";
 
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
@@ -46,7 +46,7 @@ export function LSSuggestions() {
         },
         targetPosition
     } = useContext(StatementEditorContext);
-    const selection = lsSecondLevelSuggestions?.selection;
+    const selectionForSecondLevel = lsSecondLevelSuggestions?.selection;
     const secondLevelSuggestions = lsSecondLevelSuggestions?.secondLevelSuggestions;
     const resourceAccessRegex = /.+\./gm;
     const [lenghtOfSuggestions, setLength] = useState<number>(lsSuggestions.length)
@@ -84,11 +84,10 @@ export function LSSuggestions() {
     const onClickLSSuggestion = (suggestion: SuggestionItem) => {
         const completionKind = suggestion.completionKind;
         let value = completionKind === PROPERTY_COMPLETION_KIND ? suggestion.insertText : suggestion.value;
-        if (inputEditorCtx.userInput.includes('.')) {
-            value = resourceAccessRegex.exec(inputEditorCtx.userInput) + suggestion.value;
-        }
+        const prefix = (inputEditorCtx.userInput.includes('.') && resourceAccessRegex.exec(inputEditorCtx.userInput)[0])
+            || suggestion.prefix ;
         if (completionKind === METHOD_COMPLETION_KIND || completionKind === FUNCTION_COMPLETION_KIND) {
-            value = getExprWithArgs(value);
+            value = getExprWithArgs(value, prefix);
         }
         const nodePosition : NodePosition = currentModel
             ? (currentModel.stmtPosition
@@ -110,13 +109,11 @@ export function LSSuggestions() {
                                 selectedListItem={selectedListItem}
                                 onClickLSSuggestion={onClickLSSuggestion}
                             />
-                            <br/>
-                            <div className={stmtEditorHelperClasses.librarySearchSubHeader}>{selection.slice(0, -1)}</div>
                             <SuggestionsList
                                 lsSuggestions={secondLevelSuggestions}
                                 selectedListItem={selectedListItem}
                                 onClickLSSuggestion={onClickLSSuggestion}
-                                selection={selection}
+                                selection={selectionForSecondLevel}
                             />
                         </div>
                     </div>

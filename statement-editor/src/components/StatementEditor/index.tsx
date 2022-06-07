@@ -201,7 +201,7 @@ export function StatementEditor(props: StatementEditorProps) {
                                 getLangClient, selectionWithDot);
                             secondLevelSuggestions = completions.map((suggestionItem) => ({
                                 ...suggestionItem,
-                                value: `${selectionWithDot}${suggestionItem.value}`
+                                prefix: `${selectionWithDot}`
                             }));
                         }
                     }

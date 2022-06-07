@@ -33,6 +33,12 @@ export function SuggestionsList(props: SuggestionsListProps) {
 
     return (
         <>
+            {(selection) && (!!lsSuggestions.length) && (
+                <>
+                    <br/>
+                    <div className={stmtEditorHelperClasses.librarySearchSubHeader}>{selection}</div>
+                </>
+            )}
             <List className={stmtEditorHelperClasses.suggestionList} data-testid="suggestion-list">
                 {
                     lsSuggestions.map((suggestion: SuggestionItem, index: number) => (
@@ -54,7 +60,7 @@ export function SuggestionsList(props: SuggestionsListProps) {
                                 style={{ flex: 'none', maxWidth: '80%' }}
                                 primary={(
                                     <Typography className={stmtEditorHelperClasses.suggestionValue}>
-                                        {selection ? suggestion.value.replace(selection, '.') : suggestion.value}
+                                        {suggestion.value}
                                     </Typography>
                                 )}
                             />
