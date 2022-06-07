@@ -22,8 +22,8 @@ function convertDatePatternTwo(string date) returns string {
     }
 }
 
-function transform(InputMessage[] inputPayload) returns TransformedMessage {
-    return {
+function transform(InputMessage[] inputPayload) returns TransformedMessage =>
+    {
         dtos: from InputMessage input in inputPayload
             select {
                 data: {
@@ -58,6 +58,4 @@ function transform(InputMessage[] inputPayload) returns TransformedMessage {
                 },
                 'type: input.MessageProperties.EventType
             }
-    }
-    ;
-}
+    };
