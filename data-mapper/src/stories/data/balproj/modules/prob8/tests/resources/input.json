@@ -31,8 +31,8 @@
         },
         "MessageProperties": {
             "EventType": "com.trimble.transportation.telematics.inbound.driver-hos-metrics",
-            "AuditId": "{{$guid}}",
-            "MessageId": "{{$guid}}"
+            "AuditId": "14912002-85cb-4ce0-8039-080436368e80",
+            "MessageId": "e6ad39a0-d7a8-4a14-b0fd-5d3b8c6c37ed"
         }
     },
     {
@@ -64,8 +64,8 @@
         },
         "MessageProperties": {
             "EventType": "com.trimble.transportation.telematics.inbound.driver-hos-metrics",
-            "AuditId": "{{$guid}}",
-            "MessageId": "{{$guid}}"
+            "AuditId": "b60010bc-1d41-419c-800e-a8e39efbce71",
+            "MessageId": "2765d79d-cc03-47a7-8441-8faff0705f5e"
         }
     }
 ]
