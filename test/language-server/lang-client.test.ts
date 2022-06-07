@@ -29,7 +29,7 @@ import { getBallerinaCmd, isWindows } from "../test-util";
 import { commands, Uri } from "vscode";
 import { runSemanticTokensTestCases } from './semantic-tokens.test';
 import { readFileSync } from 'fs';
-import { BallerinaTriggerResponse, BallerinaTriggersResponse, CompletionResponse, PublishDiagnosticsParams } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { BallerinaConnectorResponse, BallerinaConnectorsResponse, BallerinaTriggerResponse, BallerinaTriggersResponse, CompletionResponse, PublishDiagnosticsParams } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 
 const PROJECT_ROOT = join(__dirname, '..', '..', '..', 'test', 'data');
 
@@ -947,6 +947,34 @@ suite("Language Server Tests", function () {
                     done(error);
                 });
             });
+        });
+    });
+
+    test("Test get connectors", function (done): void {
+        langClient.getConnectors({
+            query: "",
+            limit: 2
+        }).then(async (res) => {
+            const response = res as BallerinaConnectorsResponse;
+            expect(response).not.contains.keys("error");
+            assert.strictEqual(response.central.length, 2, "Invalid triggers");
+            assert.strictEqual(response.central[0].name, "Client", "Invalid triggers");
+            done();
+        }, error => {
+            done(error);
+        });
+    });
+
+    test("Test get connector", function (done): void {
+        langClient.getConnector({
+            id: "2151",
+        }).then(async (res) => {
+            const response = res as BallerinaConnectorResponse;
+            expect(response).not.contains.keys("error");
+            assert.strictEqual(response.name, "Client", "Invalid trigger");
+            done();
+        }, error => {
+            done(error);
         });
     });
 
