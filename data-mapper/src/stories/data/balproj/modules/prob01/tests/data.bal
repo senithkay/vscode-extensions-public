@@ -1,8 +1,8 @@
 function dataIn() returns string[][]|error {
     return [
         [
-            "modules/prob1/tests/resources/input.json",
-            "modules/prob1/tests/resources/output.json"
+            "modules/prob01/tests/resources/input.json",
+            "modules/prob01/tests/resources/output.json"
         ]
     ];
 }

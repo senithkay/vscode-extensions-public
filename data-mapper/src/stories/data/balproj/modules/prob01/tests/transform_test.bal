@@ -4,7 +4,7 @@ import ballerina/test;
 @test:Config {
     dataProvider: dataIn
 }
-function transformTest(string inputFile, string expectedFile) returns error? {
+function transformTestProb0(string inputFile, string expectedFile) returns error? {
     json inputJson = check io:fileReadJson(inputFile);
     InputMessage input = check inputJson.cloneWithType();
     TransformedMessage transformResult = transform(input);

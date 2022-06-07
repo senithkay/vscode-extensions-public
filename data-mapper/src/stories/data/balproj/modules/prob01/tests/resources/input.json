@@ -1,7 +1,8 @@
 {
 	"Assets":[{
 		"Type":2,
-		"Id":"SAMSUNG"
+		"Id":"SAMSUNG",
+		"Confirmed": false
 	}],
 	"FormId":"loadedCall",
 	"CreateDate":"2021-11-22T20:57:00+00:00",
