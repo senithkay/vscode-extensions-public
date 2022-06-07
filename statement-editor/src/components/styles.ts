@@ -579,8 +579,8 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             ...removePadding
         },
         docDescription: {
-            marginBottom: '13px',
             whiteSpace: 'pre',
+            display: 'block',
             "& .MuiListItem-root": {
                 paddingLeft: '0px',
                 paddingTop: '0px',
@@ -612,6 +612,15 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
                 margin: '0 6px 0 0'
             },
             ...removePadding
+        },
+        ExampleHeader :  {
+            fontSize: '13px',
+            color: '#1D2028',
+            letterSpacing: '0',
+            lineHeight: '14px',
+            paddingLeft: '0px',
+            marginBottom: '7px',
+            marginTop: '20px'
         },
     }),
 );
