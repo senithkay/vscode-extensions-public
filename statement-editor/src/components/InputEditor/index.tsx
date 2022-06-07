@@ -65,7 +65,7 @@ export function InputEditor(props: InputEditorProps) {
             source = model.source;
         }
 
-        return source;
+        return source.trim();
     }, [model]);
 
     const [isEditing, setIsEditing] = useState(false);
@@ -157,7 +157,7 @@ export function InputEditor(props: InputEditorProps) {
             <>
                 <input
                     data-testid="input-editor"
-                    value={INPUT_EDITOR_PLACEHOLDERS.has(userInput.trim()) ? "" : userInput}
+                    value={INPUT_EDITOR_PLACEHOLDERS.has(userInput) ? "" : userInput}
                     className={statementRendererClasses.inputEditorTemplate + ' ' + classNames}
                     onKeyDown={inputEnterHandler}
                     onInput={inputChangeHandler}
