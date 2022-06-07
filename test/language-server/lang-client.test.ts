@@ -29,12 +29,12 @@ import { getBallerinaCmd, isWindows } from "../test-util";
 import { commands, Uri } from "vscode";
 import { runSemanticTokensTestCases } from './semantic-tokens.test';
 import { readFileSync } from 'fs';
-import { BallerinaConnectorResponse, BallerinaConnectorsResponse, BallerinaTriggerResponse, BallerinaTriggersResponse, CompletionResponse, PublishDiagnosticsParams } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { BallerinaConnectorResponse, BallerinaConnectorsResponse, BallerinaSTModifyResponse, BallerinaTriggerResponse, BallerinaTriggersResponse, CompletionResponse, PublishDiagnosticsParams } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 
 const PROJECT_ROOT = join(__dirname, '..', '..', '..', 'test', 'data');
 
 suite("Language Server Tests", function () {
-    this.timeout(20000);
+    this.timeout(30000);
     let langClient: ExtendedLangClient;
 
     suiteSetup((done): any => {
@@ -940,8 +940,8 @@ suite("Language Server Tests", function () {
                     }
                 }).then(async (res) => {
                     const response = res as CompletionResponse[];
-                    expect(response).to.lengthOf(113);
-                    assert.strictEqual(response[0].detail, "Snippet", "Invalid diagnostics");
+                    expect(response).length.to.greaterThan(100);
+                    assert.strictEqual(response[0].detail, "Snippet", "Invalid completion");
                     done();
                 }, error => {
                     done(error);
@@ -972,6 +972,34 @@ suite("Language Server Tests", function () {
             const response = res as BallerinaConnectorResponse;
             expect(response).not.contains.keys("error");
             assert.strictEqual(response.name, "Client", "Invalid trigger");
+            done();
+        }, error => {
+            done(error);
+        });
+    });
+
+    test("Test st modify", function (done): void {
+        const uri = Uri.file(join(PROJECT_ROOT, 'error.bal')).toString();
+        langClient.stModify({
+            documentIdentifier: {
+                uri
+            },
+            astModifications: [{
+                config: {
+                    STATEMENT:
+                        'int age;'
+                },
+                startColumn: 0,
+                startLine: 0,
+                endColumn: 2,
+                endLine: 0,
+                type: 'INSERT'
+            }]
+        }).then(async (res) => {
+            const response = res as BallerinaSTModifyResponse;
+            expect(response).to.contains.keys("source");
+            assert.strictEqual(response.parseSuccess, true, "Invalid st modification");
+            assert.strictEqual(response.source, "int age;\n", "Invalid st modification");
             done();
         }, error => {
             done(error);
