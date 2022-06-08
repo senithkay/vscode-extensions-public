@@ -22,10 +22,10 @@ import { TextPreloaderVertical } from "../../../../../../PreLoader/TextPreloader
 import { AddAssignmentConfig } from "./AddAssignmentConfig";
 import { AddCustomStatementConfig } from "./AddCustomStatementConfig";
 import { AddLogConfig } from "./AddLogConfig";
+import { AddReceiveStatement } from "./AddReceiveStatement";
 import { AddSendStatement } from "./AddSendStatement";
 import { AddVariableConfig } from "./AddVariableConfig";
 import { AddWorkerConfigForm } from "./AddWorkerConfig";
-import { AddReceiveStatement } from "./AddReceiveStatement";
 
 interface ProcessFormProps {
     config: ProcessConfig;

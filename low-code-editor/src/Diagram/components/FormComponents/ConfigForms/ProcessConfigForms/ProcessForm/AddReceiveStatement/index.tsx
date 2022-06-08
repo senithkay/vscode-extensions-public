@@ -68,7 +68,7 @@ export function AddReceiveStatement(props: AddReceiveStatementProps) {
     const receiveStatementConfig: ReceivestatementConfig = config.config as ReceivestatementConfig;
     receiveStatementConfig.type = receiveStatementConfig.type === '' ? 'var' : receiveStatementConfig.type;
     receiveStatementConfig.varName = receiveStatementConfig.varName === '' ? 'EXPRESSION' : receiveStatementConfig.varName;
-    receiveStatementConfig.senderWorker = receiveStatementConfig.senderWorker === '' ? 'EXPRESSION' : receiveStatementConfig.senderWorker; 
+    receiveStatementConfig.senderWorker = receiveStatementConfig.senderWorker === '' ? 'EXPRESSION' : receiveStatementConfig.senderWorker;
 
     const initialSource = getInitialSource(createReceiveStatement(receiveStatementConfig));
 

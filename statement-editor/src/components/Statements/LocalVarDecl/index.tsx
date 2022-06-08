@@ -97,7 +97,7 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
                 <ExpressionComponent model={model.initializer} />
             </>
         );
-    } 
+    }
 
     return (
         <>
