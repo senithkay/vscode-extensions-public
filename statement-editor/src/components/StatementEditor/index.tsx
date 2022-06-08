@@ -224,7 +224,7 @@ export function StatementEditor(props: StatementEditorProps) {
     }, [currentFile.content]);
 
     useEffect(() => {
-        if (!!model) {
+        if (!!model && onStmtEditorModelChange) {
             onStmtEditorModelChange(model);
         }
     }, [model]);

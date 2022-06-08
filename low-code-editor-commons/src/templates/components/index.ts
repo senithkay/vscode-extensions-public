@@ -158,5 +158,8 @@ service {{{ BASE_PATH }}} on {{{ LISTENER_NAME }}}`,
     `,
     ASYNC_SEND_STATEMENT: `
     {{{EXPRESSION}}} -> {{{TARGET_WORKER}}};
+    `,
+    ASYNC_RECEIVE_STATEMENT: `
+    {{{TYPE}}} {{{VAR_NAME}}} = <- {{{SENDER_WORKER}}};
     `
 }

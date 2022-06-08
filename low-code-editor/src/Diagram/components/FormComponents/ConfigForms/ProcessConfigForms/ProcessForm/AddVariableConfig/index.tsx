@@ -11,32 +11,19 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
-import React, { useContext, useEffect, useRef, useState } from "react";
-import { FormattedMessage, useIntl } from "react-intl";
+import { useContext, useEffect, useState } from "react";
+import { useIntl } from "react-intl";
 
-import { FormControl, Typography } from "@material-ui/core";
-import { ExpressionEditorProps } from "@wso2-enterprise/ballerina-expression-editor";
-import { ADD_VARIABLE, LowcodeEvent, ProcessConfig, SAVE_VARIABLE } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { FormActionButtons, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
+import { ProcessConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { StatementEditorWrapper } from "@wso2-enterprise/ballerina-statement-editor";
 import { LocalVarDecl, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../../../Contexts/Diagram";
-import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
 import { getAllVariables } from "../../../../../../utils/mixins";
 import { createModuleVarDecl, createModuleVarDeclWithoutInitialization, getInitialSource } from "../../../../../../utils/modification-util";
-import { getVariableNameFromST, getVarNamePositionFromST } from "../../../../../../utils/st-util";
+import { getVariableNameFromST } from "../../../../../../utils/st-util";
 import { genVariableName } from "../../../../../Portals/utils";
 import { useStyles } from "../../../../DynamicConnectorForm/style";
-import { SelectDropdownWithButton } from "../../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
-import { LowCodeExpressionEditor } from "../../../../FormFieldComponents/LowCodeExpressionEditor";
-import { SwitchToggle } from "../../../../FormFieldComponents/SwitchToggle";
-import { FormElementProps } from "../../../../Types";
-import { VariableNameInput, VariableNameInputProps } from "../../../Components/VariableNameInput";
-import {
-    VariableTypeInput,
-    VariableTypeInputProps
-} from "../../../Components/VariableTypeInput";
 
 interface AddVariableConfigProps {
     config: ProcessConfig;

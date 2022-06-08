@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext } from "react";
 
-import { ConfigOverlayFormStatus, ProcessConfig, SendStatementConfig, WizardType, WorkerConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ConfigOverlayFormStatus, ProcessConfig, ReceivestatementConfig, SendStatementConfig, WizardType, WorkerConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { LocalVarDecl, NamedWorkerDeclaration } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../../Contexts/Diagram";
@@ -25,6 +25,7 @@ import { AddLogConfig } from "./AddLogConfig";
 import { AddSendStatement } from "./AddSendStatement";
 import { AddVariableConfig } from "./AddVariableConfig";
 import { AddWorkerConfigForm } from "./AddWorkerConfig";
+import { AddReceiveStatement } from "./AddReceiveStatement";
 
 interface ProcessFormProps {
     config: ProcessConfig;
@@ -81,6 +82,14 @@ export function ProcessForm(props: ProcessFormProps) {
         }
 
         config.config = sendConfig;
+    } else if (formType === 'ReceiveStatement') {
+        const receiveConfig: ReceivestatementConfig = {
+            type: '',
+            varName: '',
+            senderWorker: '',
+        };
+
+        config.config = receiveConfig;
     } else {
         formType = "Custom";
         config.config = {
@@ -116,6 +125,17 @@ export function ProcessForm(props: ProcessFormProps) {
                 {
                     formType === "AsyncSend" && (
                         <AddSendStatement
+                            config={config}
+                            formArgs={formArgs}
+                            onSave={onSave}
+                            onWizardClose={onWizardClose}
+                            onCancel={onCancel}
+                        />
+                    )
+                }
+                {
+                    formType === "ReceiveStatement" && (
+                        <AddReceiveStatement
                             config={config}
                             formArgs={formArgs}
                             onSave={onSave}
