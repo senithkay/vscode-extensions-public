@@ -38,6 +38,7 @@ import {
 import { KeyboardNavigationManager } from "../../utils/keyboard-navigation-manager";
 import { ModelType, StatementEditorViewState } from "../../utils/statement-editor-viewstate";
 import { useStatementEditorToolbarStyles } from "../styles";
+import { DiagramTooltipCodeSnippet } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 
 interface ToolbarProps {
     inlineDocumentHandler: (docBtnEnabled: boolean) => void
@@ -153,53 +154,62 @@ export default function Toolbar(props: ToolbarProps) {
     return (
         <div className={statementEditorClasses.toolbar} data-testid="toolbar">
             <div className={statementEditorClasses.toolbarSet}>
-                <IconButton
-                    onClick={undo}
-                    disabled={!hasUndo}
-                    className={statementEditorClasses.toolbarIcons}
-                    data-testid="toolbar-undo"
-                >
-                    <ToolbarUndoIcon />
-                </IconButton>
+                <DiagramTooltipCodeSnippet content={"Undo"}> 
+                    <IconButton
+                        onClick={undo}
+                        disabled={!hasUndo}
+                        className={statementEditorClasses.toolbarIcons}
+                        data-testid="toolbar-undo"
+                    >
+                        <ToolbarUndoIcon />
+                    </IconButton>
+                </DiagramTooltipCodeSnippet>
                 <div className={statementEditorClasses.undoRedoSeparator} />
-                <IconButton
-                    onClick={redo}
-                    disabled={!hasRedo}
-                    className={statementEditorClasses.toolbarIcons}
-                    data-testid="toolbar-redo"
-                >
-                    <ToolbarRedoIcon />
-                </IconButton>
+                <DiagramTooltipCodeSnippet content={"Redo"}> 
+                    <IconButton
+                        onClick={redo}
+                        disabled={!hasRedo}
+                        className={statementEditorClasses.toolbarIcons}
+                        data-testid="toolbar-redo"
+                    >
+                        <ToolbarRedoIcon />
+                    </IconButton>
+                </DiagramTooltipCodeSnippet>
             </div>
             <div className={statementEditorClasses.toolbarSet}>
-                <IconButton
-                    onClick={onClickOnDelete}
-                    disabled={!deletable}
-                    style={{color: deletable ? '#FE523C' : '#8D91A3', padding: deletable && '10px'}}
-                    className={statementEditorClasses.toolbarIcons}
-                    data-testid="toolbar-delete"
-                >
-                    <ToolbarDeleteIcon/>
-                </IconButton>
+                <DiagramTooltipCodeSnippet content={"Delete"}> 
+                    <IconButton
+                        onClick={onClickOnDelete}
+                        disabled={!deletable}
+                        style={{color: deletable ? '#FE523C' : '#8D91A3', padding: deletable && '10px'}}
+                        className={statementEditorClasses.toolbarIcons}
+                        data-testid="toolbar-delete"
+                    >
+                        <ToolbarDeleteIcon/>
+                    </IconButton>
+                </DiagramTooltipCodeSnippet>
             </div>
             <div className={statementEditorClasses.toolbarSet}>
-                <IconButton
-                    onClick={onClickOnConfigurable}
-                    disabled={!configurable}
-                    className={statementEditorClasses.toolbarIcons}
-                >
-                    <ToolbarConfigurableIcon/>
-                </IconButton>
+                <DiagramTooltipCodeSnippet content={"Add configurable"}> 
+                    <IconButton
+                        onClick={onClickOnConfigurable}
+                        disabled={!configurable}
+                        className={statementEditorClasses.toolbarIcons}
+                    >
+                        <ToolbarConfigurableIcon/>
+                    </IconButton>
+                </DiagramTooltipCodeSnippet>
             </div>
             <div className={statementEditorClasses.toolbarSet}>
-                <IconButton
-                    onClick={onClickOnDocumentation}
-                    style={docEnabled ? ({color : '#5567d5'}) : ({color: '#40404B'})}
-                    className={statementEditorClasses.toolbarIcons}
-                >
-                    <ToolbarDocumentationIcon />
-                </IconButton>
-
+                <DiagramTooltipCodeSnippet content={"Documentation"}> 
+                    <IconButton
+                        onClick={onClickOnDocumentation}
+                        style={docEnabled ? ({color : '#5567d5'}) : ({color: '#40404B'})}
+                        className={statementEditorClasses.toolbarIcons}
+                    >
+                        <ToolbarDocumentationIcon />
+                    </IconButton>
+                </DiagramTooltipCodeSnippet>
             </div>
         </div>
     );
