@@ -67,6 +67,7 @@ export interface EditorModel {
     position: NodePosition;
     undoRedoManager: StmtEditorUndoRedoManager;
     isConfigurableStmt?: boolean;
+    isModuleVar?: boolean;
     isExistingStmt?: boolean;
     selectedNodePosition?: NodePosition;
     newConfigurableName?: string;

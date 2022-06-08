@@ -95,6 +95,7 @@ export function StatementEditor(props: StatementEditorProps) {
         position : targetPosition,
         undoRedoManager,
         isConfigurableStmt,
+        isModuleVar,
         selectedNodePosition,
         newConfigurableName
     } = editor;
@@ -253,11 +254,11 @@ export function StatementEditor(props: StatementEditorProps) {
                 endColumn: position.endColumn,
                 newCodeSnippet: codeSnippet
             }
-            partialST = STKindChecker.isModuleVarDecl(existingModel)
+            partialST = (STKindChecker.isModuleVarDecl(existingModel) || STKindChecker.isConstDeclaration(existingModel))
                 ? await getPartialSTForModuleMembers({ codeSnippet: existingModel.source , stModification }, getLangClient)
                 : await getPartialSTForStatement({ codeSnippet: existingModel.source , stModification }, getLangClient);
         } else {
-            partialST = isConfigurableStmt
+            partialST = (isConfigurableStmt || isModuleVar)
                 ? await getPartialSTForModuleMembers({ codeSnippet }, getLangClient)
                 : await getPartialSTForStatement({ codeSnippet }, getLangClient);
         }
