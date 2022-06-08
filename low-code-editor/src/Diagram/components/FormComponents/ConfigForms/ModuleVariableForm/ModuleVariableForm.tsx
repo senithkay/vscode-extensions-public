@@ -12,24 +12,12 @@
  */
 import React, { useContext, useEffect, useReducer } from 'react';
 
-import { FormControl } from '@material-ui/core';
-import { ExpressionEditorProps } from '@wso2-enterprise/ballerina-expression-editor';
-import { FormElementProps, STModification } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
-import { FormActionButtons, FormHeaderSection } from '@wso2-enterprise/ballerina-low-code-edtior-ui-components';
 import { StatementEditorWrapper } from '@wso2-enterprise/ballerina-statement-editor';
 import { ModuleVarDecl, NodePosition } from '@wso2-enterprise/syntax-tree';
 
 import { Context, useDiagramContext } from '../../../../../Contexts/Diagram';
-import { getAllModuleVariables } from '../../../../utils/mixins';
-import { createModuleVarDecl, updateModuleVarDecl } from '../../../../utils/modification-util';
 import { getVarNamePositionFromST } from '../../../../utils/st-util';
-import { genVariableName } from '../../../Portals/utils';
 import { useStyles as useFormStyles } from "../../DynamicConnectorForm/style";
-import CheckBoxGroup from '../../FormFieldComponents/CheckBox';
-import { LowCodeExpressionEditor } from "../../FormFieldComponents/LowCodeExpressionEditor";
-import { TextLabel } from '../../FormFieldComponents/TextField/TextLabel';
-import { VariableNameInput } from '../Components/VariableNameInput';
-import { VariableTypeInput, VariableTypeInputProps } from '../Components/VariableTypeInput';
 
 import { getFormConfigFromModel, isFormConfigValid, ModuleVarNameRegex, VariableOptions } from './util';
 import { ModuleVarFormActionTypes, moduleVarFormReducer } from './util/reducer';
@@ -78,31 +66,6 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
         variableTypes.unshift('var');
     }
 
-    const handleOnSave = () => {
-        const modifications: STModification[] = []
-        state.varName = genVariableName(state.varName, getAllModuleVariables(stSymbolInfo));
-        if (model) {
-            modifications.push(updateModuleVarDecl(state, model.position));
-        } else {
-            modifications.push(createModuleVarDecl(state, targetPosition, isLastMember));
-        }
-        modifyDiagram(modifications);
-        onSave();
-        // const event: LowcodeEvent = {
-        //     type: SAVE_VARIABLE,
-        //     name: `${state.varType} ${state.varName} = ${state.varValue};`
-        // };
-        // onEvent(event);
-    }
-
-    const onAccessModifierChange = (modifierList: string[]) => {
-        dispatch({ type: ModuleVarFormActionTypes.SET_VAR_OPTIONS, payload: modifierList });
-        if (modifierList.indexOf('public') > -1 && state.varType === 'var') {
-            // var type  cannot be public
-            dispatch({ type: ModuleVarFormActionTypes.RESET_VARIABLE_TYPE });
-        }
-    }
-
     const onVarTypeChange = (type: string) => {
         dispatch({ type: ModuleVarFormActionTypes.SET_VAR_TYPE, payload: type });
     }
@@ -111,59 +74,9 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
         dispatch({ type: ModuleVarFormActionTypes.SET_VAR_VALUE, payload: value });
     }
 
-    const updateExpressionValidity = (fieldName: string, isInValid: boolean) => {
-        dispatch({ type: ModuleVarFormActionTypes.UPDATE_EXPRESSION_VALIDITY, payload: !isInValid });
-    }
-
     const handleOnVarNameChange = (value: string) => {
         dispatch({ type: ModuleVarFormActionTypes.SET_VAR_NAME, payload: value });
     }
-
-    const validateNameValue = (value: string) => {
-        if (value && value !== '') {
-            return ModuleVarNameRegex.test(value);
-        }
-        return true;
-    };
-
-    const expressionEditorConfig: FormElementProps<ExpressionEditorProps> = {
-        model: {
-            name: "valueExpression",
-            displayName: "Value Expression",
-            typeName: state.varType,
-            value: state.varValue,
-        },
-        customProps: {
-            validate: updateExpressionValidity,
-            interactive: true,
-            statementType: state.varType,
-            editPosition: {
-                startLine: model ? model.position.startLine : targetPosition.startLine,
-                endLine: model ? model.position.startLine : targetPosition.startLine,
-                startColumn: 0,
-                endColumn: 0
-            },
-            initialDiagnostics: model?.initializer?.typeData?.diagnostics,
-        },
-        onChange: onValueChange,
-        defaultValue: state.varValue
-    };
-
-    const enableSaveBtn: boolean = isFormConfigValid(state);
-
-    const typeSelectorCustomProps = {
-        disableCreateNew: true,
-        values: variableTypes,
-    };
-
-    const variableNameTextFieldCustomProps = {
-        validate: validateNameValue
-    };
-
-    const variableQualifierSelectorCustomProps = {
-        collection: Object.values(VariableOptions),
-        disabled: false
-    };
 
     let namePosition: NodePosition = { startLine: 0, startColumn: 0, endLine: 0, endColumn: 0 }
 
@@ -173,32 +86,6 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
         namePosition.startLine = targetPosition.startLine;
         namePosition.endLine = targetPosition.startLine;
     }
-
-    const validateExpression = (fieldName: string, isInvalidType: boolean) => {
-        updateExpressionValidity(fieldName, isInvalidType);
-    };
-
-    const variableTypeConfig: VariableTypeInputProps = {
-        displayName: 'Select type',
-        value: state.varType,
-        onValueChange: onVarTypeChange,
-        validateExpression,
-        position: model ? {
-            ...model.position,
-            endLine: 0,
-            endColumn: 0,
-        } : targetPosition,
-        overrideTemplate: {
-            defaultCodeSnippet: `|()  tempVarType = ();`,
-            targetColumn: 1
-        }
-    }
-
-    const variableTypeInput = (
-        <div className="exp-wrapper">
-            <VariableTypeInput {...variableTypeConfig} />
-        </div>
-    );
 
     const handleStatementEditorChange = (partialModel: ModuleVarDecl) => {
         handleOnVarNameChange(partialModel.typedBindingPattern.bindingPattern.source);
