@@ -16,7 +16,7 @@ import { FormControl } from '@material-ui/core';
 import { ExpressionEditorProps } from '@wso2-enterprise/ballerina-expression-editor';
 import { FormElementProps, STModification } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { FormActionButtons, FormHeaderSection } from '@wso2-enterprise/ballerina-low-code-edtior-ui-components';
-import { useStatementEditor } from '@wso2-enterprise/ballerina-statement-editor';
+import { StatementEditorWrapper } from '@wso2-enterprise/ballerina-statement-editor';
 import { ModuleVarDecl, NodePosition } from '@wso2-enterprise/syntax-tree';
 
 import { Context, useDiagramContext } from '../../../../../Contexts/Diagram';
@@ -214,16 +214,14 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
 
     const initialSource = `${visibilityQualifier} ${finalKeyword} ${varType} ${varName} = ${varValue};`
 
-    const { handleStmtEditorToggle, stmtEditorComponent } = useStatementEditor(
+    const stmtEditorComponent = StatementEditorWrapper(
         {
             label: 'Variable',
             initialSource,
-            formArgs: {
-                formArgs: {
-                    targetPosition: model ? targetPosition : { startLine: targetPosition.startLine, startColumn: targetPosition.startColumn }
-                }
-            },
-            config: { type: formType, model },
+            formArgs: {formArgs: {
+                targetPosition: model ? targetPosition : { startLine: targetPosition.startLine, startColumn: targetPosition.startColumn }
+            }},
+            config: { type: formType, model},
             onWizardClose: onCancel,
             handleStatementEditorChange,
             onCancel,
@@ -239,58 +237,6 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
         }
     );
 
-    if (!stmtEditorComponent) {
 
-        return (
-            <FormControl data-testid="module-variable-config-form" className={formClasses.wizardFormControl}>
-                <FormHeaderSection
-                    onCancel={onCancel}
-                    formTitle={"lowcode.develop.configForms.ModuleVarDecl.title"}
-                    defaultMessage={"Variables"}
-                    formType={formType}
-                />
-                <div className={formClasses.formContentWrapper}>
-                    <div className={formClasses.formNameWrapper}>
-                        <TextLabel
-                            textLabelId="lowcode.develop.configForms.ConstDecl.accessModifier"
-                            defaultMessage="Access Modifier :"
-                            required={true}
-                        />
-                        <CheckBoxGroup
-                            values={['public', 'final']}
-                            defaultValues={state.varOptions}
-                            onChange={onAccessModifierChange}
-                        />
-                        {variableTypeInput}
-                        <VariableNameInput
-                            displayName={'Variable Name'}
-                            value={state.varName}
-                            onValueChange={handleOnVarNameChange}
-                            validateExpression={updateExpressionValidity}
-                            position={namePosition}
-                            isEdit={!!model}
-                            initialDiagnostics={model?.typedBindingPattern?.typeData?.diagnostics}
-                        />
-                        <LowCodeExpressionEditor
-                            {...expressionEditorConfig}
-                        />
-                    </div>
-                </div>
-                <FormActionButtons
-                    cancelBtnText="Cancel"
-                    cancelBtn={true}
-                    saveBtnText="Save"
-                    onSave={handleOnSave}
-                    onCancel={onCancel}
-                    validForm={enableSaveBtn}
-                    statementEditor={true}
-                    toggleChecked={false}
-                    experimentalEnabled={experimentalEnabled}
-                    handleStmtEditorToggle={handleStmtEditorToggle}
-                />
-            </FormControl>
-        )
-    } else {
-        return stmtEditorComponent;
-    }
+    return stmtEditorComponent;
 }

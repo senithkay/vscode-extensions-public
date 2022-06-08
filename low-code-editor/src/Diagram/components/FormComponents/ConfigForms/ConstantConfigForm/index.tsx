@@ -25,7 +25,7 @@ import {
     PrimaryButton,
     SecondaryButton
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
-import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
+import { StatementEditorWrapper } from "@wso2-enterprise/ballerina-statement-editor";
 import { ConstDeclaration, ModuleVarDecl, NodePosition } from "@wso2-enterprise/syntax-tree"
 import { v4 as uuid } from 'uuid';
 
@@ -188,16 +188,14 @@ export function ConstantConfigForm(props: ConstantConfigFormProps) {
 
     const initialSource = `${visibilityQualifier} const ${varType} ${varName} = ${varValue};`
 
-    const { handleStmtEditorToggle, stmtEditorComponent } = useStatementEditor(
+    const stmtEditorComponent = StatementEditorWrapper(
         {
             label: 'Constant',
             initialSource,
-            formArgs: {
-                formArgs: {
-                    targetPosition: model ? targetPosition : { startLine: targetPosition.startLine, startColumn: targetPosition.startColumn }
-                }
-            },
-            config: { type: formType, model },
+            formArgs: {formArgs: {
+                targetPosition: model ? targetPosition : { startLine: targetPosition.startLine, startColumn: targetPosition.startColumn }
+            }},
+            config: { type: formType, model},
             onWizardClose: onCancel,
             handleStatementEditorChange,
             onCancel,
@@ -213,63 +211,5 @@ export function ConstantConfigForm(props: ConstantConfigFormProps) {
         }
     );
 
-    if (!stmtEditorComponent) {
-
-        return (
-            <FormControl data-testid="module-variable-config-form" className={formClasses.wizardFormControl}>
-                <FormHeaderSection
-                    onCancel={onCancel}
-                    formTitle={"lowcode.develop.configForms.ConstDecl.title"}
-                    defaultMessage={"Constant"}
-                    formType={formType}
-                />
-                <div className={formClasses.formContentWrapper}>
-                    <div className={formClasses.formNameWrapper}>
-                        <TextLabel
-                            textLabelId="lowcode.develop.configForms.ConstDecl.accessModifier"
-                            defaultMessage="Access Modifier :"
-                            required={true}
-                        />
-                        <CheckBoxGroup
-                            values={["public"]}
-                            defaultValues={config.isPublic ? ["public"] : []}
-                            onChange={handleAccessModifierChange}
-                        />
-                        <VariableNameInput
-                            displayName={"Constant Name"}
-                            value={config.constantName}
-                            onValueChange={handleNameChange}
-                            validateExpression={updateExpressionValidity}
-                            position={namePosition}
-                            isEdit={!!model}
-                            initialDiagnostics={model?.variableName?.typeData?.diagnostics}
-                        />
-                        <CheckBoxGroup
-                            values={["Include type in declaration"]}
-                            defaultValues={config.isTypeDefined ? ["Include type in declaration"] : []}
-                            onChange={handleTypeEnableToggle}
-                        />
-                        {config.isTypeDefined && typeSelector}
-                        <LowCodeExpressionEditor
-                            {...expressionEditorConfig}
-                        />
-                    </div>
-                </div>
-                <FormActionButtons
-                    cancelBtnText="Cancel"
-                    cancelBtn={true}
-                    saveBtnText="Save"
-                    onSave={handleOnSave}
-                    onCancel={onCancel}
-                    statementEditor={true}
-                    toggleChecked={false}
-                    experimentalEnabled={experimentalEnabled}
-                    handleStmtEditorToggle={handleStmtEditorToggle}
-                    validForm={enableSaveBtn}
-                />
-            </FormControl>
-        )
-    } else {
-        return stmtEditorComponent;
-    }
+    return stmtEditorComponent;
 }
