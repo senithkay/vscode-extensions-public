@@ -394,6 +394,7 @@ export function createImportStatement(org: string, module: string, targetPositio
     let moduleNameStr = org + "/" + module;
     if (keywords.includes(moduleName)) {
         module = module.replace(moduleName, "'" + moduleName);
+        moduleNameStr = org + "/" + module;
         if (!moduleName.includes('.') && module !== formattedName) {
             moduleNameStr = moduleNameStr + " as " + formattedName;
         }
