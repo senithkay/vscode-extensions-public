@@ -14,6 +14,7 @@
 import React, { useContext, useEffect, useMemo } from "react";
 
 import IconButton from "@material-ui/core/IconButton";
+import { DiagramTooltipCodeSnippet } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
 import ToolbarConfigurableIcon from "../../assets/icons/ToolbarConfigurableIcon";
@@ -38,7 +39,6 @@ import {
 import { KeyboardNavigationManager } from "../../utils/keyboard-navigation-manager";
 import { ModelType, StatementEditorViewState } from "../../utils/statement-editor-viewstate";
 import { useStatementEditorToolbarStyles } from "../styles";
-import { DiagramTooltipCodeSnippet } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 
 interface ToolbarProps {
     inlineDocumentHandler: (docBtnEnabled: boolean) => void
@@ -154,7 +154,7 @@ export default function Toolbar(props: ToolbarProps) {
     return (
         <div className={statementEditorClasses.toolbar} data-testid="toolbar">
             <div className={statementEditorClasses.toolbarSet}>
-                <DiagramTooltipCodeSnippet content={"Undo"}> 
+                <DiagramTooltipCodeSnippet content={"Undo"}>
                     <IconButton
                         onClick={undo}
                         disabled={!hasUndo}
@@ -165,7 +165,7 @@ export default function Toolbar(props: ToolbarProps) {
                     </IconButton>
                 </DiagramTooltipCodeSnippet>
                 <div className={statementEditorClasses.undoRedoSeparator} />
-                <DiagramTooltipCodeSnippet content={"Redo"}> 
+                <DiagramTooltipCodeSnippet content={"Redo"}>
                     <IconButton
                         onClick={redo}
                         disabled={!hasRedo}
@@ -177,7 +177,7 @@ export default function Toolbar(props: ToolbarProps) {
                 </DiagramTooltipCodeSnippet>
             </div>
             <div className={statementEditorClasses.toolbarSet}>
-                <DiagramTooltipCodeSnippet content={"Delete"}> 
+                <DiagramTooltipCodeSnippet content={"Delete"}>
                     <IconButton
                         onClick={onClickOnDelete}
                         disabled={!deletable}
@@ -190,7 +190,7 @@ export default function Toolbar(props: ToolbarProps) {
                 </DiagramTooltipCodeSnippet>
             </div>
             <div className={statementEditorClasses.toolbarSet}>
-                <DiagramTooltipCodeSnippet content={"Add configurable"}> 
+                <DiagramTooltipCodeSnippet content={"Add configurable"}>
                     <IconButton
                         onClick={onClickOnConfigurable}
                         disabled={!configurable}
@@ -201,7 +201,7 @@ export default function Toolbar(props: ToolbarProps) {
                 </DiagramTooltipCodeSnippet>
             </div>
             <div className={statementEditorClasses.toolbarSet}>
-                <DiagramTooltipCodeSnippet content={"Documentation"}> 
+                <DiagramTooltipCodeSnippet content={"Documentation"}>
                     <IconButton
                         onClick={onClickOnDocumentation}
                         style={docEnabled ? ({color : '#5567d5'}) : ({color: '#40404B'})}
