@@ -22,7 +22,7 @@ import { expect } from 'chai';
 import { join } from 'path';
 import {
     BallerinaExampleListResponse, BallerinaProject, BallerinaProjectComponents, ExecutorPositionsResponse,
-    ExtendedLangClient, JsonToRecordResponse, OpenAPIConverterResponse, PartialSTResponse, PerformanceAnalyzerResponse, SymbolInfoResponse, SyntaxTreeNodeResponse
+    ExtendedLangClient, JsonToRecordResponse, OpenAPIConverterResponse, PackageConfigSchemaResponse, PartialSTResponse, PerformanceAnalyzerResponse, SymbolInfoResponse, SyntaxTreeNodeResponse
 } from "../../src/core/extended-language-client";
 import { getServerOptions } from "../../src/server/server";
 import { getBallerinaCmd, isWindows } from "../test-util";
@@ -1031,6 +1031,22 @@ suite("Language Server Tests", function () {
             expect(response).to.contains.keys("documentation", "symbolKind");
             assert.strictEqual(response.documentation.parameters?.length, 2, "Invalid symbol documentation");
             assert.strictEqual(response.documentation.parameters[0].name, "receiver", "Invalid symbol documentation");
+            done();
+        }, error => {
+            done(error);
+        });
+    });
+
+    test("Test get project config", function (done): void {
+        const uri = Uri.file(join(PROJECT_ROOT, 'helloServicePackage', 'Ballerina.toml')).toString();
+        langClient.getBallerinaProjectConfigSchema({
+            documentIdentifier: {
+                uri
+            },
+        }).then(async (res) => {
+            const response = res as PackageConfigSchemaResponse;
+            expect(response).to.contains.keys("configSchema");
+            assert.strictEqual(response.configSchema.$schema, "http://json-schema.org/draft-07/schema#", "Invalid project config");
             done();
         }, error => {
             done(error);
