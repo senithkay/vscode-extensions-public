@@ -34,7 +34,7 @@ export function SearchCategory(props: SearchCategoryProps) {
         <div className={stmtEditorHelperClasses.libraryElementBlock}>
             <div
                 className={classNames(
-                    stmtEditorHelperClasses.librarySearchSubHeader,
+                    stmtEditorHelperClasses.helperPaneSubHeader,
                     stmtEditorHelperClasses.libraryElementBlockLabel
                 )}
             >

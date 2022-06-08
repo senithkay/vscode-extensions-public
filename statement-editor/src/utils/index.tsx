@@ -602,15 +602,16 @@ export function getUpdatedContentForNewNamedArg(currentModel: FunctionCall, user
     return content;
 }
 
-export function getExprWithArgs(suggestionValue: string): string {
+export function getExprWithArgs(suggestionValue: string, prefix?: string): string {
     const paramRegex = /\w+\((.*)\)/m;
     const params = paramRegex.exec(suggestionValue);
+    let exprWithArgs = suggestionValue;
     if (params) {
         let paramList = params[1].split(',');
         paramList = paramList.map((param: string) => {
             return param.trim().split(' ').pop();
         });
-        return suggestionValue.replace(params[1], paramList.toString());
+        exprWithArgs = suggestionValue.replace(params[1], paramList.toString());
     }
-    return suggestionValue;
+    return prefix ? prefix + exprWithArgs : exprWithArgs;
 }

@@ -163,7 +163,7 @@ export function ExpressionSuggestions() {
                         <>
                             {filteredExpressions.map((group, groupIndex) => (
                                 <>
-                                    <div className={stmtEditorHelperClasses.librarySearchSubHeader}>{group.name}</div>
+                                    <div className={stmtEditorHelperClasses.helperPaneSubHeader}>{group.name}</div>
                                     <List className={stmtEditorHelperClasses.expressionList}>
                                         {
                                             group.expressions.map((expression, index) => (

@@ -381,7 +381,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             marginBottom: '16px',
             paddingLeft: '10px'
         },
-        librarySearchSubHeader: {
+        helperPaneSubHeader: {
             color: '#1D2028',
             marginBottom: '4px',
             fontWeight: 500,
