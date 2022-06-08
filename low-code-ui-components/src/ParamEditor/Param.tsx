@@ -12,25 +12,64 @@
  */
 // tslint:disable: jsx-no-multiline-js
 
-import React from 'react';
+import React, { useState } from 'react';
+
+import debounce from "lodash.debounce";
 
 import { SelectDropdownWithButton } from "../DropDown/SelectDropdownWithButton";
 import { FormTextInput } from "../FormTextInput";
 
 import { useStyles } from "./style";
+import { FormEditorField } from "./Types";
 
-
-export interface SwitchToggleProps {
-    onSave: () => void,
-    onCancel: string;
+export interface Param {
+    id: number;
+    type?: string;
+    name: string;
 }
 
-export function Param(props: SwitchToggleProps) {
+export interface ParamProps {
+    param?: Param;
+    isEdit?: boolean;
+    optionList?: string[];
+    option?: string;
+    onSave: () => void;
+    onChange: (param: Param, selectedOption?: string) => void;
+    onCancel: () => void;
+}
+
+export function Param(props: ParamProps) {
+    const { param, isEdit = true, optionList, option, onChange, onSave, onCancel } = props;
+    const { id, name, type } = param;
 
     const classes = useStyles();
 
-    const handleOnSelect = () => {
-    // s
+    const [paramType, setParamType] = useState<FormEditorField>({value: type, isInteracted: false});
+    const [paramName, setParamName] = useState<FormEditorField>({value: name, isInteracted: false});
+    const [selectedOption, setSelectedOption] = useState<string>(option);
+
+    const handleNameChange = (value: string) => {
+        setParamName({value, isInteracted: true});
+        if (optionList) {
+            onChange({id, name: value, type: paramType.value}, selectedOption);
+        } else {
+            onChange({id, name: value, type: paramType.value});
+        }
+    };
+    const debouncedNameChange = debounce(handleNameChange, 1000);
+
+    const handleTypeChange = (value: string) => {
+        setParamType({value, isInteracted: true});
+        if (optionList) {
+            onChange({id, name: paramName.value, type: value}, selectedOption);
+        } else {
+            onChange({id, name: paramName.value, type: value});
+        }
+    };
+    const debouncedTypeChange = debounce(handleTypeChange, 1000);
+
+    const handleOnSelect = (value: string) => {
+        setSelectedOption(value);
     };
 
     return (
@@ -39,17 +78,17 @@ export function Param(props: SwitchToggleProps) {
                 <SelectDropdownWithButton
                     dataTestId="param-type-selector"
                     // defaultValue={}
-                    customProps={{ values: ["A", "B", "C"], disableCreateNew: true }}
+                    customProps={{ values: optionList, disableCreateNew: true }}
                     onChange={handleOnSelect}
                     label="HTTP Method"
                 />
             </div>
             <div className={classes.paramItemWrapper}>
                 <FormTextInput
-                    label="Name"
-                    dataTestId="function-name"
-                    // defaultValue={(functionName?.isInteracted || isEdit) ? functionName.value : ""}
-                    // onChange={debouncedNameChange}
+                    label="Type"
+                    dataTestId="param-type"
+                    defaultValue={(paramType?.isInteracted || isEdit) ? paramType.value : ""}
+                    onChange={debouncedTypeChange}
                     customProps={{
                         // isErrored: ((currentComponentSyntaxDiag !== undefined && currentComponentName === "Name") ||
                         //     model?.functionName?.viewState?.diagnosticsInRange[0]?.message)
@@ -67,9 +106,9 @@ export function Param(props: SwitchToggleProps) {
             <div className={classes.paramItemWrapper}>
                 <FormTextInput
                     label="Name"
-                    dataTestId="function-name"
-                    // defaultValue={(functionName?.isInteracted || isEdit) ? functionName.value : ""}
-                    // onChange={debouncedNameChange}
+                    dataTestId="param-name"
+                    defaultValue={(paramName?.isInteracted || isEdit) ? paramName.value : ""}
+                    onChange={debouncedNameChange}
                     customProps={{
                         // isErrored: ((currentComponentSyntaxDiag !== undefined && currentComponentName === "Name") ||
                         //     model?.functionName?.viewState?.diagnosticsInRange[0]?.message)

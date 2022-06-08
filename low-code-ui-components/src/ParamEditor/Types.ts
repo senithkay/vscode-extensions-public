@@ -10,10 +10,8 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-export interface SwitchToggleProps {
-    onSave: () => void,
-    onCancel?: string;
-    className?: string;
-    initSwitch?: boolean;
-    dataTestId?: string;
+export interface FormEditorField {
+    value: string;
+    isInteracted: boolean;
 }
+

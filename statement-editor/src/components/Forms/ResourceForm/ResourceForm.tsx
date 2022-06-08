@@ -1,0 +1,210 @@
+/*
+ * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 Inc. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein is strictly forbidden, unless permitted by WSO2 in accordance with
+ * the WSO2 Commercial License available at http://wso2.com/licenses.
+ * For specific language governing the permissions and limitations under
+ * this license, please see the license as well as any agreement you’ve
+ * entered into with WSO2 governing the purchase of this software and any
+ * associated services.
+ */
+// tslint:disable: jsx-no-multiline-js
+import React, {useContext, useEffect, useState} from 'react';
+import { useIntl } from "react-intl";
+
+import { FormControl } from "@material-ui/core";
+import {
+    createImportStatement,
+    createListenerDeclartion,
+    getSource,
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import {
+    ConfigPanelSection,
+    dynamicConnectorStyles as connectorStyles,
+    FormActionButtons, FormHeaderSection,
+    FormTextInput,
+    SelectDropdownWithButton,
+    TextLabel,
+    useStyles as useFormStyles
+} from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
+import {
+    ListenerDeclaration
+} from "@wso2-enterprise/syntax-tree";
+
+import { StmtDiagnostic } from "../../../models/definitions";
+import { FormEditorContext } from "../../../store/form-editor-context";
+import { getUpdatedSource } from "../../../utils";
+import { getPartialSTForModuleMembers } from "../../../utils/ls-utils";
+import { FormEditorField } from "../Types";
+
+import { useStyles } from "./styles";
+
+export const HTTP_GET = "GET";
+export const HTTP_POST = "POST";
+export const HTTP_PUT = "PUT";
+export const HTTP_DELETE = "DELETE";
+export const HTTP_OPTIONS = "OPTIONS";
+export const HTTP_HEAD = "HEAD";
+export const HTTP_PATCH = "PATCH";
+
+export const SERVICE_METHODS = [HTTP_GET, HTTP_PUT, HTTP_DELETE, HTTP_POST, HTTP_OPTIONS, HTTP_HEAD, HTTP_PATCH];
+
+export interface FunctionProps {
+    model: ListenerDeclaration;
+}
+
+export function ResourceForm(props: FunctionProps) {
+    const { model} = props;
+
+    const { targetPosition, isEdit, onChange, applyModifications, onCancel, getLangClient } = useContext(FormEditorContext);
+
+    const classes = useStyles();
+    const formClasses = useFormStyles();
+    const connectorClasses = connectorStyles();
+    const intl = useIntl();
+
+    // States related to component model
+    const [listenerName, setListenerName] = useState<FormEditorField>({
+        value: model ? model.variableName.value : "", isInteracted: false
+    });
+    const [listenerPort, setListenerPort] = useState<FormEditorField>({
+        value: model ? model.initializer.parenthesizedArgList.arguments[0]?.source : "", isInteracted: false
+    });
+    const type = model?.typeDescriptor.modulePrefix.value.toUpperCase();
+    const [listenerType, setListenerType] = useState<string>(type ? type : "HTTP");
+
+    // States related to syntax diagnostics
+    const [currentComponentName, setCurrentComponentName] = useState<string>("");
+    const [currentComponentSyntaxDiag, setCurrentComponentSyntaxDiag] = useState<StmtDiagnostic[]>(undefined);
+
+    const resourceConfigTitle = intl.formatMessage({
+        id: "lowcode.develop.apiConfigWizard.resourceConfig.title",
+        defaultMessage: "Configure Resource"
+    });
+    const httpMethodTitle = intl.formatMessage({
+        id: "lowcode.develop.apiConfigWizard.httpMethod.title",
+        defaultMessage: "HTTP Method"
+    });
+    const pathTitle = intl.formatMessage({
+        id: "lowcode.develop.apiConfigWizard.path.title",
+        defaultMessage: "Path"
+    });
+
+    const listenerParamChange = async (name: string, port: string) => {
+        const codeSnippet = getSource(createListenerDeclartion({listenerPort: port, listenerName: name},
+            targetPosition, false));
+        const updatedContent = getUpdatedSource(codeSnippet, model?.source, model?.position, undefined,
+            true);
+        const partialST = await getPartialSTForModuleMembers(
+            {codeSnippet: updatedContent.trim()}, getLangClient
+        );
+        if (!partialST.syntaxDiagnostics.length) {
+            setCurrentComponentSyntaxDiag(undefined);
+            // onChange(updatedContent, partialST, HTTP_IMPORT);
+        } else {
+            setCurrentComponentSyntaxDiag(partialST.syntaxDiagnostics);
+        }
+    }
+
+    // Functions related to name
+    const handleNameFocus = (value: string) => {
+        setCurrentComponentName("Name");
+    }
+    const handleNameChange = async (value: string) => {
+        setListenerName({value, isInteracted: true});
+        await listenerParamChange(value, listenerPort.value);
+    }
+
+    // Functions related to port
+    const handlePortFocus = (value: string) => {
+        setCurrentComponentName("Port");
+    }
+    const handlePortChange = async (value: string) => {
+        setListenerPort({value, isInteracted: true});
+        await listenerParamChange(listenerName.value, value);
+    }
+
+    const handleOnSave = () => {
+        applyModifications([
+            createImportStatement('ballerina', 'http', {startColumn: 0, startLine: 0}),
+            createListenerDeclartion({listenerPort: listenerPort.value, listenerName: listenerName.value},
+                {...targetPosition, endLine: targetPosition.startLine, startColumn: 0,
+                 endColumn: 0}, false)
+        ]);
+        onCancel();
+    }
+
+    return (
+        <FormControl data-testid="resource-form" className={connectorClasses.wizardFormControlExtended}>
+            <div
+                key={"resource"}
+                className={classes.resourceWrapper}
+            >
+                <FormHeaderSection
+                    onCancel={onCancel}
+                    formTitle={resourceConfigTitle}
+                    defaultMessage={'Configure Resource'}
+                />
+                <div className={connectorClasses.formWrapper}>
+                    <div className={connectorClasses.formFeilds}>
+                        <div className={connectorClasses.resourceMethodPathWrapper}>
+                            <div className={connectorClasses.methodTypeContainer}>
+                                <div className={connectorClasses.resourceMethodTitle}>{httpMethodTitle}</div>
+                                <SelectDropdownWithButton
+                                    dataTestId="api-return-type"
+                                    defaultValue={/*resource.method.toUpperCase()*/""}
+                                    customProps={{ values: SERVICE_METHODS, disableCreateNew: true }}
+                                    onChange={null}
+                                    label="HTTP Method"
+                                    hideLabel={true}
+                                />
+                            </div>
+                            <div className={connectorClasses.resourcePathWrapper}>
+                                <ConfigPanelSection
+                                    title={pathTitle}
+                                    // tooltipWithExample={{ title, content: pathExample }}
+                                >
+                                    <FormTextInput
+                                        label="Resource path"
+                                        dataTestId="resource-path"
+                                        // defaultValue={(paramName?.isInteracted || isEdit) ? paramName.value : ""}
+                                        // onChange={debouncedNameChange}
+                                        customProps={{
+                                            // isErrored: ((currentComponentSyntaxDiag !== undefined && currentComponentName === "Name") ||
+                                            //     model?.functionName?.viewState?.diagnosticsInRange[0]?.message)
+                                        }}
+                                        // errorMessage={(currentComponentSyntaxDiag && currentComponentName === "Name"
+                                        //         && currentComponentSyntaxDiag[0].message) ||
+                                        //     model?.functionName?.viewState?.diagnosticsInRange[0]?.message}
+                                        onBlur={null}
+                                        // onFocus={onNameFocus}
+                                        placeholder={"name"}
+                                        size="small"
+                                        // disabled={addingNewParam || (currentComponentSyntaxDiag && currentComponentName !== "Name")}
+                                    />
+                                </ConfigPanelSection>
+                            </div>
+                        </div>
+                        {/*<div className={connectorClasses.advancedSwitchText}>*/}
+                        {/*    {advanceSwitch}*/}
+                        {/*</div>*/}
+                        {/*<div>*/}
+                        {/*    {toggleMainAdvancedMenu && advanceUI}*/}
+                        {/*</div>*/}
+                        {/*<Section*/}
+                        {/*    title={returnTypeTitle}*/}
+                        {/*    tooltipWithExample={{ title: returnTitle, content: returnTypeExample }}*/}
+                        {/*>*/}
+                        {/*    {initialLoaded && returnUIWithExpressionEditor}*/}
+                        {/*</Section>*/}
+                    </div>
+                    {/*<div>*/}
+                    {/*    {buttonLayer}*/}
+                    {/*</div>*/}
+                </div>
+            </div>
+        </FormControl>
+    )
+}

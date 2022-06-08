@@ -28,7 +28,7 @@ export function ParamEditor(props: PramProps) {
 
     return (
         <div>
-            <Param onSave={null} onCancel={null}/>
+            <Param onChange={null} onSave={null} onCancel={null}/>
         </div>
     );
 }

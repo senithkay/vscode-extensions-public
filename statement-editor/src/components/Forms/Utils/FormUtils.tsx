@@ -44,6 +44,12 @@ export function getInitialSource(type: string, targetPosition: NodePosition): st
                 listenerPort: "9090"
             }, targetPosition, false));
         }
+        case "Resource": {
+            return getSource(createListenerDeclartion({
+                listenerName: "name",
+                listenerPort: "9090"
+            }, targetPosition, false));
+        }
     }
     return;
 }
