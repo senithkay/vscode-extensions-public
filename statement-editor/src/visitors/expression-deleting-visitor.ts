@@ -348,10 +348,6 @@ class ExpressionDeletingVisitor implements Visitor {
 
     public beginVisitLetClause(node: LetClause) {
         if (!this.isNodeFound) {
-            if (isPositionsEquals(this.deletePosition, node.letVarDeclarations[0].position)) {
-                this.setProperties(`${DEFAULT_TYPE_DESC} ${DEFAULT_BINDING_PATTERN} = ${DEFAULT_EXPR}`,
-                    node.letVarDeclarations[0].position);
-            } else {
                 const hasItemsToBeDeleted = node.letVarDeclarations.some((item: STNode) => {
                     return isPositionsEquals(this.deletePosition, item.position);
                 });
@@ -369,13 +365,12 @@ class ExpressionDeletingVisitor implements Visitor {
                         startColumn: node.letVarDeclarations[0].position.startColumn
                     });
                 }
-            }
         }
     }
 
     public beginVisitOrderByClause(node: OrderByClause) {
         if (!this.isNodeFound) {
-            if (isPositionsEquals(this.deletePosition, node.orderKey[0].position)) {
+            if (node.orderKey.length === 1 && isPositionsEquals(this.deletePosition, node.orderKey[0].position)) {
                 this.setProperties(DEFAULT_EXPR, node.orderKey[0].position);
             } else {
                 const hasItemsToBeDeleted = node.orderKey.some((item: STNode) => {

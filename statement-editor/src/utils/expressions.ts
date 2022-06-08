@@ -435,7 +435,7 @@ const orderKey : ExpressionGroup = {
             example: "Es descending"
         }
     ],
-    relatedModelType: ModelType.EXPRESSION
+    relatedModelType: ModelType.ORDER_KEY
 }
 
 //     6.36 XML navigation expression

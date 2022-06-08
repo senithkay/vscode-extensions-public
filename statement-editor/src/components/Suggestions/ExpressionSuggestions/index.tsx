@@ -66,10 +66,12 @@ export function ExpressionSuggestions() {
             let filteredGroups: ExpressionGroup[] = expressions.filter(
                 (exprGroup) => exprGroup.relatedModelType === currentModel.model.viewState.modelType ||
                     (currentModel.model.viewState.modelType === ModelType.FIELD_ACCESS &&
-                        exprGroup.relatedModelType === ModelType.EXPRESSION));
-            if (currentModel.model.source?.trim() === DEFAULT_WHERE_INTERMEDIATE_CLAUSE){
+                        exprGroup.relatedModelType === ModelType.EXPRESSION) ||
+                    (currentModel.model.viewState.modelType === ModelType.ORDER_KEY && (exprGroup.relatedModelType === ModelType.EXPRESSION ||
+                        exprGroup.relatedModelType === ModelType.ORDER_KEY)));
+            if (currentModel.model.source?.trim() === DEFAULT_WHERE_INTERMEDIATE_CLAUSE) {
                 filteredGroups = expressions.filter(
-                    (exprGroup) =>  exprGroup.name === QUERY_INTERMEDIATE_CLAUSES);
+                    (exprGroup) => exprGroup.name === QUERY_INTERMEDIATE_CLAUSES);
             }
             setFilteredExpressions(filteredGroups);
         }
@@ -77,18 +79,16 @@ export function ExpressionSuggestions() {
 
     const changeSelected = (key: number) => {
         const newSelected = selectedListItem + key;
-        if (newSelected >= 0 && newSelected < filteredExpressions[selectedGroup].expressions.length){
+        if (newSelected >= 0 && newSelected < filteredExpressions[selectedGroup].expressions.length) {
             setSelectedItem(newSelected)
-        }
-        else if (newSelected < 0){
+        } else if (newSelected < 0) {
             if (selectedGroup > 0) {
                 const newGroup = selectedGroup - 1;
                 setSelectedGroup(newGroup)
                 setSelectedItem(filteredExpressions[newGroup].expressions.length - 1)
             }
-        }
-        else {
-            if (selectedGroup < filteredExpressions.length - 1){
+        } else {
+            if (selectedGroup < filteredExpressions.length - 1) {
                 const newGroup = selectedGroup + 1;
                 setSelectedGroup(newGroup)
                 setSelectedItem(0)
@@ -137,7 +137,7 @@ export function ExpressionSuggestions() {
         <>
 
             <div className={stmtEditorHelperClasses.expressionSuggestionList} data-testid="expression-list">
-                <FormControl style={{ width: '100%', padding: '0 25px'}}>
+                <FormControl style={{ width: '100%', padding: '0 25px' }}>
                     <Input
                         className={stmtEditorHelperClasses.librarySearchBox}
                         value={keyword}
@@ -145,7 +145,7 @@ export function ExpressionSuggestions() {
                         onChange={(e) => searchExpressions(e.target.value)}
                         endAdornment={(
                             <InputAdornment position={"end"} style={{ padding: '8.5px' }}>
-                                <LibrarySearchIcon />
+                                <LibrarySearchIcon/>
                             </InputAdornment>
                         )}
                     />
@@ -185,7 +185,7 @@ export function ExpressionSuggestions() {
                                             ))
                                         }
                                     </List>
-                                    <div className={statementEditorClasses.separatorLine} />
+                                    <div className={statementEditorClasses.separatorLine}/>
                                 </>
                             ))}
                         </>

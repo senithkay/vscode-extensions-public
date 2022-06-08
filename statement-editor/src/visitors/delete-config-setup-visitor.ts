@@ -82,6 +82,7 @@ class DeleteConfigSetupVisitor implements Visitor {
 
     public beginVisitOrderByClause(node: OrderByClause, parent?: STNode) {
         if (node.orderKey.length === 1) {
+            (node.orderKey[0].viewState as StatementEditorViewState).exprNotDeletable = true;
             (node.orderKey[0].viewState as StatementEditorViewState).templateExprDeletable = false;
         } else {
             node.orderKey.map((orderKey: STNode) => {
@@ -92,6 +93,7 @@ class DeleteConfigSetupVisitor implements Visitor {
 
     public beginVisitLetClause(node: LetClause, parent?: STNode) {
         if (node.letVarDeclarations.length === 1) {
+            (node.letVarDeclarations[0].viewState as StatementEditorViewState).exprNotDeletable = true;
             (node.letVarDeclarations[0].viewState as StatementEditorViewState).templateExprDeletable = false;
         } else {
             node.letVarDeclarations.map((orderKey: STNode) => {
