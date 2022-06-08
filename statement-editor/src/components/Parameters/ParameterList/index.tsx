@@ -150,7 +150,7 @@ export function ParameterList(props: ParameterListProps) {
             {!!parameters?.length && (
                 <>
                     <ListSubheader className={stmtEditorHelperClasses.parameterHeader}>
-                        Parameters
+                        Configure Parameters
                     </ListSubheader>
                     {parameters?.map((param: ParameterInfo, value: number) => (
                             <>
