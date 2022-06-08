@@ -110,7 +110,7 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
             }},
             config: { type: formType, model},
             onWizardClose: onCancel,
-            handleStatementEditorChange,
+            onStmtEditorModelChange: handleStatementEditorChange,
             onCancel,
             currentFile,
             getLangClient: getExpressionEditorLangClient,

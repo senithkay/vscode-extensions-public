@@ -260,7 +260,7 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
             }},
             config: { type: formType, model},
             onWizardClose: onCancel,
-            handleStatementEditorChange,
+            onStmtEditorModelChange: handleStatementEditorChange,
             onCancel,
             currentFile,
             getLangClient: getExpressionEditorLangClient,
