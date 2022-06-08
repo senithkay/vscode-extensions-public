@@ -17,20 +17,20 @@ import { PositioningVisitor } from "../Visitors/positioning-visitor";
 import { SizingVisitor } from "../Visitors/sizing-visitor";
 import { isSTActionInvocation } from "../Visitors/util";
 
-export function sizingAndPositioning(st: STNode): STNode {
+export function sizingAndPositioning(st: STNode, experimentalEnabled?: boolean): STNode {
     traversNode(st, new InitVisitor());
-    traversNode(st, new SizingVisitor());
+    traversNode(st, new SizingVisitor(experimentalEnabled));
     traversNode(st, new PositioningVisitor());
     const clone = { ...st };
     return clone;
 }
 
-export function recalculateSizingAndPositioning(st: STNode): STNode {
-    traversNode(st, new SizingVisitor());
+export function recalculateSizingAndPositioning(st: STNode, experimentalEnabled?: boolean): STNode {
+    traversNode(st, new SizingVisitor(experimentalEnabled));
     traversNode(st, new PositioningVisitor());
     if (STKindChecker.isFunctionDefinition(st) && st?.viewState?.onFail) {
         const viewState = st.viewState as FunctionViewState;
-        traversNode(viewState.onFail, new SizingVisitor());
+        traversNode(viewState.onFail, new SizingVisitor(experimentalEnabled));
         traversNode(viewState.onFail, new PositioningVisitor());
     }
     const clone = { ...st };
@@ -219,13 +219,13 @@ export function getMatchingConnector(actionInvo: STNode): BallerinaConnectorInfo
                         actionVariable = variable.initializer as RemoteMethodCallAction;
                         break;
                     default:
-                        actionVariable = (variable.initializer as CheckAction).expression;
+                        actionVariable = (variable.initializer as CheckAction).expression as RemoteMethodCallAction;
                 }
                 break;
 
             case "ActionStatement":
                 const statement = actionInvo as ActionStatement;
-                actionVariable = (statement.expression as CheckAction).expression;
+                actionVariable = (statement.expression as CheckAction).expression as RemoteMethodCallAction;
                 break;
 
             default:

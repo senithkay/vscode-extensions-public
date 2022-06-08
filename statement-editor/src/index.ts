@@ -11,4 +11,4 @@
  * associated services.
  */
 export {FormEditor} from "./components/FormEditor";
-export {useStatementEditor} from "./hooks";
+export {StatementEditorWrapper} from "./components/StatementEditorWrapper";

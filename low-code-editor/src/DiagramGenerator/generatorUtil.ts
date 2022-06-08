@@ -28,10 +28,10 @@ export async function resolveMissingDependencies(filePath: string, langClient: D
     return resp;
 }
 
-export async function getLowcodeST(payload: any, filePath: string, langClient: DiagramEditorLangClientInterface) {
+export async function getLowcodeST(payload: any, filePath: string, langClient: DiagramEditorLangClientInterface, experimentalEnabled?: boolean) {
     const modulePart: ModulePart = payload;
     const members: STNode[] = modulePart?.members || [];
-    const st = sizingAndPositioningST(payload);
+    const st = sizingAndPositioningST(payload, experimentalEnabled);
     cleanLocalSymbols();
     cleanModuleLevelSymbols();
     traversNode(st, SymbolVisitor);
@@ -56,7 +56,7 @@ export function getDefaultSelectedPosition(modulePart: ModulePart): SelectedPosi
     } else if (services && services.length > 0) { // select first resource fn of first service if availble
         const resources = services[0].members;
         if (resources && resources.length > 0) {
-            return getFnStartPosition(resources[0]);
+            return getFnStartPosition(resources[0] as ResourceAccessorDefinition);
         }
     } else if (functions && functions.length > 0) { // select first fn if availble
         return getFnStartPosition(functions[0]);
@@ -94,7 +94,7 @@ export function getSelectedPosition(modulePart: ModulePart, startLine: number, s
                 if (selectedResourceNode) {
                     return { startLine, startColumn };
                 }
-                return getFnStartPosition(resources[0]);
+                return getFnStartPosition(resources[0] as ResourceAccessorDefinition);
             }
         }
     }
@@ -115,9 +115,9 @@ export function isNodeSelected(selectedPosition: SelectedPosition, node: any): b
         && selectedPosition?.startLine <= node.position?.endLine;
 }
 
-export function sizingAndPositioningST(st: STNode): STNode {
+export function sizingAndPositioningST(st: STNode, experimentalEnabled?: boolean): STNode {
     traversNode(st, initVisitor);
-    traversNode(st, new SizingVisitor());
+    traversNode(st, new SizingVisitor(experimentalEnabled));
     traversNode(st, new PositioningVisitor());
     const clone = { ...st };
     return clone;

@@ -32,10 +32,12 @@ export interface VariableUserInputs {
 }
 
 export interface SuggestionItem {
-    value: string,
+    value: string;
     label?: string,
-    kind?: string,
-    suggestionType?: number
+    kind?: string;
+    insertText?: string;
+    completionKind?: number;
+    suggestionType?: number;
 }
 
 export interface RemainingContent {

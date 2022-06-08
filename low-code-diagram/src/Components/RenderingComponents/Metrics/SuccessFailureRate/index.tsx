@@ -20,23 +20,22 @@ import { SuccessSVG } from "./SuccessSVG";
 export interface SuccessTextProps {
     x: number,
     y: number,
-    successRate: string
-    failureRate: string
+    successRate: number,
+    failureRate: number
 }
 
 export function SuccessFailureC(props: SuccessTextProps) {
     const { x, y, successRate, failureRate } = props;
-
     if (failureRate > successRate){
         return (
             <g>
-                <ErrorSVG x={x} y={y} text={failureRate + "% Failure"}/>
+                <ErrorSVG x={x} y={y} failureRate={failureRate}/>
             </g>
         );
     }else{
         return (
             <g>
-                <SuccessSVG x={x} y={y} text={successRate + "% Success"}/>
+                <SuccessSVG x={x} y={y} successRate={successRate} />
             </g>
         );
     }

@@ -17,6 +17,7 @@ import {
 } from "@wso2-enterprise/syntax-tree";
 
 import { INPUT_EDITOR_PLACEHOLDERS } from "../components/InputEditor/constants";
+import { DEFAULT_INTERMEDIATE_CLAUSE, DEFAULT_WHERE_INTERMEDIATE_CLAUSE } from "../constants";
 import { isPositionsEquals } from "../utils";
 
 class ModelFindingVisitor implements Visitor {
@@ -26,14 +27,15 @@ class ModelFindingVisitor implements Visitor {
     public beginVisitSTNode(node: STNode, parent?: STNode) {
         if (isPositionsEquals(node.position, this.position)) {
             this.model = node;
-        } else if (INPUT_EDITOR_PLACEHOLDERS.has(node?.source?.trim())) {
-            const isWithinRange = this.position.startLine <= node.position.startLine
-                && this.position.endLine >= node.position.endLine
-                && this.position.startColumn <= node.position.endColumn
-                && this.position.endColumn >= node.position.startColumn;
-            if (isWithinRange) {
-                this.model = node;
-            }
+        } else if ((INPUT_EDITOR_PLACEHOLDERS.has(node?.source?.trim()) && !node?.source?.startsWith(DEFAULT_INTERMEDIATE_CLAUSE)) ||
+            node?.source?.trim().includes(DEFAULT_WHERE_INTERMEDIATE_CLAUSE)) {
+                const isWithinRange = this.position.startLine <= node.position.startLine
+                    && this.position.endLine >= node.position.endLine
+                    && this.position.startColumn <= node.position.endColumn
+                    && this.position.endColumn >= node.position.startColumn;
+                if (isWithinRange) {
+                    this.model = node;
+                }
         }
     }
 

@@ -82,7 +82,7 @@ export class HttpForm {
     static saveAndDone() {
         this.getForm()
             .get('button')
-            .contains("Save & Done")
+            .contains("Save Connection")
             .click();
         return this;
     }

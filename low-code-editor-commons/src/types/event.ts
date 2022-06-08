@@ -11,6 +11,7 @@ export const SAVE_CONNECTOR_INVOKE = "editor-workspace-save-connector-invoke";
 export const CONNECTOR_CLOSED = "editor-workspace-connector-form-closed";
 export const DIAGRAM_MODIFIED = "editor-workspace-edit-diagram";
 export const SELECT_CONNECTOR = "editor-workspace-select-connector";
+export const DELETE_CONNECTOR = "editor-workspace-delete-connector";
 
 export const ADD_CONFIGURABLE = "editor-workspace-add-configurable";
 
@@ -27,13 +28,14 @@ export type EVENT_NAME = typeof ADD_STATEMENT |
     typeof SAVE_CONNECTOR_INVOKE |
     typeof CONNECTOR_CLOSED | typeof ADD_VARIABLE | typeof SAVE_VARIABLE | typeof ADD_CONNECTOR | typeof SAVE_CONNECTOR |
     typeof ADD_OTHER_STATEMENT | typeof SAVE_OTHER_STATEMENT | typeof SEARCH_CONNECTOR | typeof ADD_CONFIGURABLE |
-    typeof OPEN_LOW_CODE | typeof DIAGRAM_MODIFIED | typeof LOAD_CONNECTOR_LIST | typeof SELECT_CONNECTOR;
+    typeof OPEN_LOW_CODE | typeof DIAGRAM_MODIFIED | typeof LOAD_CONNECTOR_LIST | typeof SELECT_CONNECTOR | typeof DELETE_CONNECTOR;
 
 export interface LowcodeEvent {
     /** Name of the app insights event */
     type: EVENT_NAME;
-    /** scope property within custom dimensions */
     name?: string;
+    /** scope property within custom dimensions */
+    connectorName?: string;
     /** Custom dimensions sent to app insights */
     property?: { [key: string]: string };
     /** Custom measurements sent to app insights */

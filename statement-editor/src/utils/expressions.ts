@@ -30,6 +30,7 @@ export const EXPR_PLACEHOLDER = "EXPRESSION";
 export const STMT_PLACEHOLDER = "STATEMENT";
 export const TYPE_DESC_PLACEHOLDER = "TYPE_DESCRIPTOR";
 export const BINDING_PATTERN_PLACEHOLDER = "BINDING_PATTERN";
+export const DEFAULT_INTERMEDIATE_CLAUSE_PLACEHOLDER = "DEFAULT_INTERMEDIATE_CLAUSE";
 /* tslint:disable-next-line */
 export const SELECTED_EXPRESSION = "${SELECTED_EXPRESSION}";
 
@@ -109,6 +110,17 @@ const structuralConstructors: ExpressionGroup = {
 //     6.16 Method call expression
 //     6.17 Error constructor
 //     6.18 Anonymous function expression
+const anonymousFunction: ExpressionGroup = {
+    name: "Anonymous Functions",
+    expressions: [
+        {
+            name: "Implicit Anonymous Function",
+            template: `() => ${EXPR_PLACEHOLDER}`,
+            example: "() => Es"
+        }
+    ],
+    relatedModelType: ModelType.EXPRESSION
+}
 //     6.19 Let expression
 //     6.21 Typeof expression
 const typeofEx: ExpressionGroup = {
@@ -386,6 +398,30 @@ select Ex3`
     relatedModelType: ModelType.EXPRESSION
 }
 
+const queryIntermediateClauses : ExpressionGroup = {
+    name: "Query Intermediate-Clauses",
+    expressions: [
+        {
+            name: "From-Clause",
+            template: `from ${TYPE_DESC_PLACEHOLDER} ${BINDING_PATTERN_PLACEHOLDER} in ${EXPR_PLACEHOLDER}`,
+            example: "from var i in Ex"
+        }, {
+            name: "Where-Clause",
+            template: `where ${EXPR_PLACEHOLDER}`,
+            example: "where Ex"
+        }, {
+            name: "Let-Clause",
+            template: `let ${TYPE_DESC_PLACEHOLDER} ${BINDING_PATTERN_PLACEHOLDER} = ${EXPR_PLACEHOLDER}`,
+            example: "let var i = Ex"
+        }, {
+            name: "Limit-Clause",
+            template: `limit ${EXPR_PLACEHOLDER}`,
+            example: "limit Ex"
+        }
+    ],
+    relatedModelType: ModelType.QUERY_EXPRESSION
+}
+
 //     6.36 XML navigation expression
 //         6.36.1 XML name pattern
 //         6.36.2 XML filter expression
@@ -409,9 +445,17 @@ const typeDescriptors : ExpressionGroup = {
             template: `[${SELECTED_EXPRESSION}]`,
             example: "[Es, Ex]"
         }, {
+            name: "Map",
+            template: `map<${SELECTED_EXPRESSION}>`,
+            example: "map<Es>"
+        }, {
             name: "Table",
             template: `table<${SELECTED_EXPRESSION}>`,
             example: "table<Es>"
+        }, {
+            name: "Stream",
+            template: `stream<${SELECTED_EXPRESSION}>`,
+            example: "stream<Es>"
         }, {
             name: "Table with Key-Fields",
             template: `table<${SELECTED_EXPRESSION}> key(${EXPR_PLACEHOLDER})`,
@@ -561,8 +605,10 @@ export const expressions: ExpressionGroup[] = [
     typeCastEx,
     templates,
     structuralConstructors,
+    anonymousFunction,
     range,
     shift,
     typeDescriptors,
-    operatorSymbols
+    operatorSymbols,
+    queryIntermediateClauses
 ];
