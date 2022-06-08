@@ -117,17 +117,18 @@ export function InputEditor(props: InputEditorProps) {
     };
 
     const changeInput = (newValue: string) => {
+        let input = newValue;
         if (!newValue) {
             if (isPositionsEquals(statementModel.position, model.position)) {
                 // placeholder for empty custom statements
-                newValue = STMT_PLACEHOLDER;
+                input = STMT_PLACEHOLDER;
             } else {
-                newValue = (model.viewState as StatementEditorViewState).modelType === ModelType.TYPE_DESCRIPTOR
+                input = (model.viewState as StatementEditorViewState).modelType === ModelType.TYPE_DESCRIPTOR
                     ? TYPE_DESC_PLACEHOLDER : EXPR_PLACEHOLDER;
             }
         }
-        setUserInput(newValue);
-        inputEditorCtx.onInputChange(newValue);
+        setUserInput(input);
+        inputEditorCtx.onInputChange(input);
         debouncedContentChange(newValue, true);
     }
 
