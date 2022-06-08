@@ -79,7 +79,7 @@ export const DEFAULT_WHERE_INTERMEDIATE_CLAUSE = `where ${DEFAULT_INTERMEDIATE_C
 export const CONFIGURABLE_VALUE_REQUIRED_TOKEN = "?";
 export const QUERY_INTERMEDIATE_CLAUSES = "Query Intermediate-Clauses";
 export const BINDING_PATTERN = "BINDING_PATTERN"
-export const LET_VAR_DECL = `TYPE_DESCRIPTOR BINDING_PATTERN = EXPRESSION`;
+export const LET_VAR_DECL = `var varName = EXPRESSION`;
 
 export const BAL_SOURCE = "```ballerina";
 
