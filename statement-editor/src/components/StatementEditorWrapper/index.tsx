@@ -161,8 +161,8 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
 
                 await sendDidOpen(fileURI, updatedContent, getLangClient);
 
-                    const partialST = (isConfigurableStmt || isModuleVar)
-                        ? await getPartialSTForModuleMembers({ codeSnippet: initialSource.trim() }, getLangClient)
+                const partialST = (isConfigurableStmt || isModuleVar)
+                    ? await getPartialSTForModuleMembers({ codeSnippet: initialSource.trim() }, getLangClient)
                     : await getPartialSTForStatement({ codeSnippet: initialSource.trim() }, getLangClient);
 
                 if (!partialST.syntaxDiagnostics.length || config.type === CUSTOM_CONFIG_TYPE) {
