@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, { useReducer, useState } from "react"
+import React, { useContext, useReducer, useState } from "react"
 import { FormattedMessage } from "react-intl";
 
 import { Box, FormControl, FormHelperText, Typography } from "@material-ui/core";
@@ -25,10 +25,11 @@ import {
     PrimaryButton,
     SecondaryButton
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
-import { ConstDeclaration, NodePosition } from "@wso2-enterprise/syntax-tree"
+import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
+import { ConstDeclaration, ModuleVarDecl, NodePosition } from "@wso2-enterprise/syntax-tree"
 import { v4 as uuid } from 'uuid';
 
-import { useDiagramContext } from "../../../../../Contexts/Diagram";
+import { Context, useDiagramContext } from "../../../../../Contexts/Diagram";
 import { createConstDeclaration, updateConstDeclaration } from "../../../../utils/modification-util";
 import { useStyles as useFormStyles } from "../../DynamicConnectorForm/style";
 import CheckBoxGroup from "../../FormFieldComponents/CheckBox";
@@ -50,7 +51,20 @@ interface ConstantConfigFormProps {
 
 export function ConstantConfigForm(props: ConstantConfigFormProps) {
     const formClasses = useFormStyles();
-    const { api: { code: { modifyDiagram } } } = useDiagramContext();
+    const { api: { code: { modifyDiagram } }, props: { stSymbolInfo } } = useDiagramContext();
+    const {
+        props: {
+            isMutationProgress: isMutationInProgress,
+            currentFile,
+            syntaxTree,
+            importStatements,
+            experimentalEnabled
+        },
+        api: {
+            ls: { getExpressionEditorLangClient },
+            library
+        },
+    } = useContext(Context);
     const { model, targetPosition, onCancel, onSave, formType } = props;
     const [config, dispatch] = useReducer(constantConfigFormReducer, generateConfigFromModel(model));
     const variableTypes: string[] = ["int", "float", "byte", "boolean", "string"];
@@ -161,54 +175,101 @@ export function ConstantConfigForm(props: ConstantConfigFormProps) {
         namePosition.endLine = targetPosition.startLine;
     }
 
-    return (
-        <FormControl data-testid="module-variable-config-form" className={formClasses.wizardFormControl}>
-            <FormHeaderSection
-                onCancel={onCancel}
-                formTitle={"lowcode.develop.configForms.ConstDecl.title"}
-                defaultMessage={"Constant"}
-                formType={formType}
-            />
-            <div className={formClasses.formContentWrapper}>
-                <div className={formClasses.formNameWrapper}>
-                    <TextLabel
-                        textLabelId="lowcode.develop.configForms.ConstDecl.accessModifier"
-                        defaultMessage="Access Modifier :"
-                        required={true}
-                    />
-                    <CheckBoxGroup
-                        values={["public"]}
-                        defaultValues={config.isPublic ? ["public"] : []}
-                        onChange={handleAccessModifierChange}
-                    />
-                    <VariableNameInput
-                        displayName={"Constant Name"}
-                        value={config.constantName}
-                        onValueChange={handleNameChange}
-                        validateExpression={updateExpressionValidity}
-                        position={namePosition}
-                        isEdit={!!model}
-                        initialDiagnostics={model?.variableName?.typeData?.diagnostics}
-                    />
-                    <CheckBoxGroup
-                        values={["Include type in declaration"]}
-                        defaultValues={config.isTypeDefined ? ["Include type in declaration"] : []}
-                        onChange={handleTypeEnableToggle}
-                    />
-                    {config.isTypeDefined && typeSelector}
-                    <LowCodeExpressionEditor
-                        {...expressionEditorConfig}
-                    />
+    const handleStatementEditorChange = (partialModel: ConstDeclaration) => {
+        handleNameChange(partialModel.variableName.value);
+        handleTypeChange(partialModel.typeDescriptor.source.trim());
+        handleValueChange(partialModel.initializer.source);
+    }
+
+    const visibilityQualifier = config.isPublic ? 'public' : '';
+    const varType = config.constantType ? config.constantType : '';
+    const varName = config.constantName ? config.constantName : 'CONST_NAME';
+    const varValue = config.constantValue ? config.constantValue : '0';
+
+    const initialSource = `${visibilityQualifier} const ${varType} ${varName} = ${varValue};`
+
+    const { handleStmtEditorToggle, stmtEditorComponent } = useStatementEditor(
+        {
+            label: 'Constant',
+            initialSource,
+            formArgs: {
+                formArgs: {
+                    targetPosition: model ? targetPosition : { startLine: targetPosition.startLine, startColumn: targetPosition.startColumn }
+                }
+            },
+            config: { type: formType, model },
+            onWizardClose: onCancel,
+            handleStatementEditorChange,
+            onCancel,
+            currentFile,
+            getLangClient: getExpressionEditorLangClient,
+            applyModifications: modifyDiagram,
+            library,
+            syntaxTree,
+            stSymbolInfo,
+            importStatements,
+            experimentalEnabled,
+            isModuleVar: true
+        }
+    );
+
+    if (!stmtEditorComponent) {
+
+        return (
+            <FormControl data-testid="module-variable-config-form" className={formClasses.wizardFormControl}>
+                <FormHeaderSection
+                    onCancel={onCancel}
+                    formTitle={"lowcode.develop.configForms.ConstDecl.title"}
+                    defaultMessage={"Constant"}
+                    formType={formType}
+                />
+                <div className={formClasses.formContentWrapper}>
+                    <div className={formClasses.formNameWrapper}>
+                        <TextLabel
+                            textLabelId="lowcode.develop.configForms.ConstDecl.accessModifier"
+                            defaultMessage="Access Modifier :"
+                            required={true}
+                        />
+                        <CheckBoxGroup
+                            values={["public"]}
+                            defaultValues={config.isPublic ? ["public"] : []}
+                            onChange={handleAccessModifierChange}
+                        />
+                        <VariableNameInput
+                            displayName={"Constant Name"}
+                            value={config.constantName}
+                            onValueChange={handleNameChange}
+                            validateExpression={updateExpressionValidity}
+                            position={namePosition}
+                            isEdit={!!model}
+                            initialDiagnostics={model?.variableName?.typeData?.diagnostics}
+                        />
+                        <CheckBoxGroup
+                            values={["Include type in declaration"]}
+                            defaultValues={config.isTypeDefined ? ["Include type in declaration"] : []}
+                            onChange={handleTypeEnableToggle}
+                        />
+                        {config.isTypeDefined && typeSelector}
+                        <LowCodeExpressionEditor
+                            {...expressionEditorConfig}
+                        />
+                    </div>
                 </div>
-            </div>
-            <FormActionButtons
-                cancelBtnText="Cancel"
-                cancelBtn={true}
-                saveBtnText="Save"
-                onSave={handleOnSave}
-                onCancel={onCancel}
-                validForm={enableSaveBtn}
-            />
-        </FormControl>
-    )
+                <FormActionButtons
+                    cancelBtnText="Cancel"
+                    cancelBtn={true}
+                    saveBtnText="Save"
+                    onSave={handleOnSave}
+                    onCancel={onCancel}
+                    statementEditor={true}
+                    toggleChecked={false}
+                    experimentalEnabled={experimentalEnabled}
+                    handleStmtEditorToggle={handleStmtEditorToggle}
+                    validForm={enableSaveBtn}
+                />
+            </FormControl>
+        )
+    } else {
+        return stmtEditorComponent;
+    }
 }
