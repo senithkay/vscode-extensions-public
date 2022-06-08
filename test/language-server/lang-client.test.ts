@@ -22,7 +22,7 @@ import { expect } from 'chai';
 import { join } from 'path';
 import {
     BallerinaExampleListResponse, BallerinaProject, BallerinaProjectComponents, ExecutorPositionsResponse,
-    ExtendedLangClient, JsonToRecordResponse, OpenAPIConverterResponse, PartialSTResponse, PerformanceAnalyzerResponse, SyntaxTreeNodeResponse
+    ExtendedLangClient, JsonToRecordResponse, OpenAPIConverterResponse, PartialSTResponse, PerformanceAnalyzerResponse, SymbolInfoResponse, SyntaxTreeNodeResponse
 } from "../../src/core/extended-language-client";
 import { getServerOptions } from "../../src/server/server";
 import { getBallerinaCmd, isWindows } from "../test-util";
@@ -1000,6 +1000,37 @@ suite("Language Server Tests", function () {
             expect(response).to.contains.keys("source");
             assert.strictEqual(response.parseSuccess, true, "Invalid st modification");
             assert.strictEqual(response.source, "int age;\n", "Invalid st modification");
+            done();
+        }, error => {
+            done(error);
+        });
+    });
+
+    test("Test get symbol documentation", function (done): void {
+        const uri = Uri.file(join(PROJECT_ROOT, 'error.bal'));
+        langClient.didChange({
+            textDocument: {
+                uri: uri.toString(),
+                version: 1
+            },
+            contentChanges: [{
+                text: 'import ballerina/regex; \nconfigurable string token = ?;\n\npublic function main() returns error? {\n\nvar variable = regex:split(receiver, delimiter);\n}\n'
+            }]
+        });
+
+        langClient.getSymbolDocumentation({
+            textDocumentIdentifier: {
+                uri: uri.toString()
+            },
+            position: {
+                character: 25,
+                line: 5,
+            }
+        }).then(async (res) => {
+            const response = res as SymbolInfoResponse;
+            expect(response).to.contains.keys("documentation", "symbolKind");
+            assert.strictEqual(response.documentation.parameters?.length, 2, "Invalid symbol documentation");
+            assert.strictEqual(response.documentation.parameters[0].name, "receiver", "Invalid symbol documentation");
             done();
         }, error => {
             done(error);
