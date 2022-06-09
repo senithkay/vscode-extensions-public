@@ -95,7 +95,7 @@ export const RecordType = (props: RecordTypeProps) => {
                             onClick={handleExpandClick}
                         />
                     </Box>
-                    <Collapse in={expanded} timeout="auto" unmountOnExit={true}>
+                    <Collapse in={expanded} timeout="auto" unmountOnExit={false}>
                         {returnElement}
                     </Collapse>
                 </CardContent>
