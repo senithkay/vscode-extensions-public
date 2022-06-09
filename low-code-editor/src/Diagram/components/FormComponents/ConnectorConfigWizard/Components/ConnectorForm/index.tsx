@@ -90,7 +90,7 @@ enum FormStates {
     OperationForm,
     SingleForm,
 }
-export interface ConnectorConfigWizardProps {
+interface ConnectorConfigWizardProps {
     connectorInfo: BallerinaConnectorInfo;
     targetPosition: NodePosition;
     configWizardArgs?: ConfigWizardState;

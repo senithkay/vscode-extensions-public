@@ -65,6 +65,7 @@ export interface StatementEditorProps extends StmtEditorWrapperProps {
         activeEditorId: number;
         editors: EditorModel[];
     };
+    extraModules?: Set<string>;
     onWizardClose: () => void;
     onCancel: () => void;
     onStmtEditorModelChange?: (partialModel: STNode) => void;
@@ -86,7 +87,8 @@ export function StatementEditor(props: StatementEditorProps) {
         syntaxTree,
         stSymbolInfo,
         importStatements,
-        experimentalEnabled
+        experimentalEnabled,
+        extraModules
     } = props;
 
     const {
@@ -112,7 +114,7 @@ export function StatementEditor(props: StatementEditorProps) {
     const [currentModel, setCurrentModel] = useState<CurrentModel>({ model });
     const [hasSyntaxDiagnostics, setHasSyntaxDiagnostics] = useState<boolean>(false);
     const [stmtDiagnostics, setStmtDiagnostics] = useState<StmtDiagnostic[]>([]);
-    const [moduleList, setModuleList] = useState(new Set<string>());
+    const [moduleList, setModuleList] = useState(extraModules?.size > 0 ? extraModules : new Set<string>());
     const [lsSuggestionsList, setLSSuggestionsList] = useState([]);
     const [documentation, setDocumentation] = useState<SymbolInfoResponse | EmptySymbolInfo>(initSymbolInfo);
     const [isRestArg, setRestArg] = useState(false);
@@ -215,7 +217,7 @@ export function StatementEditor(props: StatementEditorProps) {
 
     useEffect(() => {
         (async () => {
-            if (config.type !== CUSTOM_CONFIG_TYPE) {
+            if (config?.type !== CUSTOM_CONFIG_TYPE) {
                 if (editorModel && newConfigurableName) {
                     await updateModel(newConfigurableName, selectedNodePosition, editorModel);
                     updateEditor(activeEditorId, {...editors[activeEditorId], newConfigurableName: undefined});

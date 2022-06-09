@@ -30,7 +30,7 @@ export interface EndpointListProps {
     functionNode: STNode;
     onSelect: (connector: BallerinaConnectorInfo, endpointName: string) => void;
     onCancel: () => void;
-    onAddConnector: () => void;
+    addNewEndpoint: () => void;
 }
 
 export function EndpointList(props: FormGeneratorProps) {
@@ -42,7 +42,7 @@ export function EndpointList(props: FormGeneratorProps) {
         },
     } = useContext(Context);
     const { targetPosition, onCancel } = props;
-    const { functionNode, onSelect, onAddConnector } = props.configOverlayFormStatus.formArgs as EndpointListProps;
+    const { functionNode, onSelect, addNewEndpoint } = props.configOverlayFormStatus.formArgs as EndpointListProps;
     const endpointElementList: ReactNode[] = [];
     const visitedEndpoints: string[] = [];
     let isEndpointExists = false;
@@ -138,7 +138,7 @@ export function EndpointList(props: FormGeneratorProps) {
                                     />
                                 </Typography>
                                 <Box marginY={2}>
-                                    <PrimaryButton text="Add Connector" fullWidth={false} onClick={onAddConnector} />
+                                    <PrimaryButton text="Add Connector" fullWidth={false} onClick={addNewEndpoint} />
                                 </Box>
                             </Box>
                         )}

@@ -69,6 +69,7 @@ export interface FormHandlingProps extends LowCodeEditorProps {
 export interface StatementEditorWrapperProps extends FormHandlingProps {
     label: string;
     initialSource: string;
+    extraModules?: Set<string>;
 }
 
 export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
@@ -89,7 +90,8 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
         importStatements,
         experimentalEnabled,
         isConfigurableStmt,
-        isModuleVar
+        isModuleVar,
+        extraModules
     } = props;
 
     const {
@@ -157,7 +159,7 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
             let model = null;
             if (initialSource) {
                 const updatedContent = await getUpdatedSource(initialSource.trim(), currentFile.content,
-                    targetPosition);
+                    targetPosition, extraModules);
 
                 await sendDidOpen(fileURI, updatedContent, getLangClient);
 
@@ -220,6 +222,7 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
                             importStatements={importStatements}
                             syntaxTree={syntaxTree}
                             stSymbolInfo={stSymbolInfo}
+                            extraModules={extraModules}
                             experimentalEnabled={experimentalEnabled}
                         />
                     </>

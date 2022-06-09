@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js align  jsx-wrap-multiline
 import React, { useContext, useEffect, useState } from "react";
 
-import { BallerinaConnectorInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { BallerinaConnectorInfo, ConnectorWizardType, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { CaptureBindingPattern, LocalVarDecl, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import cn from "classnames";
 
@@ -150,35 +150,21 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
     const toolTip = isReferencedVariable ? "API is referred in the code below" : undefined;
 
     useEffect(() => {
-        if (draftVS && renderAddForm && renderConnectorWizard) {
-            if (!model && !connector && !specialConnectorName) {
-                renderAddForm(draftVS.targetPosition, {
-                    formType: "ConnectorList",
-                    formArgs: {
-                        onSelect: onConnectorSelect,
-                        onCancel: onWizardClose,
-                    },
-                    isLoading: true,
-                }, onWizardClose);
-            } else if (connector || specialConnectorName) {
+        if ((draftVS || model) && renderConnectorWizard) {
                 renderConnectorWizard({
                     connectorInfo: connector,
-                    position: {
+                    diagramPosition: {
                         x: viewState.bBox.cx + 80,
                         y: viewState.bBox.cy,
                     },
                     targetPosition: draftVS.targetPosition || model?.position,
-                    selectedConnector: draftVS.selectedConnector,
-                    specialConnectorName,
                     model,
-                    onClose: onConnectorFormClose,
+                    onClose: onWizardClose,
                     onSave: onWizardClose,
-                    isAction: false,
-                    isEdit: isEditConnector
+                    wizardType: ConnectorWizardType.ENDPOINT
                 });
-            }
         }
-    }, [model, connector, specialConnectorName]);
+    }, [model, connector, isEditConnector]);
 
     // const connectorList = (
     //     <FormGenerator

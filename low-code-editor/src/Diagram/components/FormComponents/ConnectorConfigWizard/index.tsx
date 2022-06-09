@@ -20,7 +20,6 @@ import {
     BallerinaConstruct,
     Connector,
     ConnectorConfig,
-    ConnectorConfigWizardProps,
     CONNECTOR_CLOSED,
     DiagramOverlayPosition,
     FunctionDefinitionInfo,
@@ -44,7 +43,7 @@ export interface ConfigWizardState {
     wizardType?: WizardType;
 }
 
-export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
+export function ConnectorConfigWizard(props: any) {
     const {
         actions: {
             toggleDiagramOverlay
