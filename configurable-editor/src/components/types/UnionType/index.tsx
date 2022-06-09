@@ -36,9 +36,12 @@ export interface UnionTypeProps extends SimpleTypeProps {
 }
 
 export const UnionType = (props: UnionTypeProps): ReactElement => {
+    const defaultFieldId: string = props.id + "-" + 1;
+    const [fieldId, setFieldId] = useState<string>(defaultFieldId);
+
     const schema: object[] = props.schema[SchemaConstants.ANY_OF];
-    const typeLabels: string[] = getAllTypeLabels(schema);
-    const [fieldType, setFieldType] = useState<string>(typeLabels[0]);
+    const schemaProperties: object[] = getSchemaProperties(schema, props.id);
+    const typeMap = getTypeMap(schema, props.id);
 
     const unionValue: ConfigElementProps = {
         description: props.description,
@@ -77,23 +80,31 @@ export const UnionType = (props: UnionTypeProps): ReactElement => {
         return configElementProps;
     };
 
-    let innerElement: ConfigElementProps = getConfigElementProps(schema[0], typeLabels[0], props);
+    let innerElement: ConfigElementProps = getConfigElementProps(schema[0], typeMap.get(defaultFieldId), props);
 
-    const setReturnType = (elementId: string, elementType: string) => {
-        if (props.id === elementId) {
-            const typeName: string = getTypeFromLabel(schema, elementType);
-            const innerSchema = getCurrentSchema(schema, typeName);
-            innerElement = getConfigElementProps(innerSchema, elementType, props);
-            setFieldType(elementType);
+    const setReturnType = (parentId: string, elementId: string) => {
+        if (props.id === parentId) {
+            const hasPropperty: boolean = schemaProperties.some((obj) => obj[SchemaConstants.ID] === elementId);
+            if (hasPropperty) {
+                const innerSchema = schemaProperties.filter((obj) => {
+                    return obj[SchemaConstants.ID] === elementId;
+                });
+                innerElement = getConfigElementProps(innerSchema[0], elementId, props);
+                setFieldId(elementId);
+            }
         }
     };
 
-    const getFieldElement = (elementType: string): ReactElement => {
+    const getFieldElement = (): ReactElement => {
         let returnElement: ReactElement = <></>;
-        if (schema && typeLabels.length > 0) {
-            const innerSchema = getCurrentSchema(schema,  getTypeFromLabel(schema, elementType));
+        if (schema && fieldId) {
+            const elementType = typeMap.get(fieldId);
+            const innerSchema: object = schemaProperties.filter((obj) => {
+                return obj[SchemaConstants.ID] === fieldId;
+            });
+            innerElement = getConfigElementProps(innerSchema[0], fieldId, props);
             if (innerSchema) {
-                const configElementProps = getConfigElementProps(innerSchema, elementType, innerElement);
+                const configElementProps = getConfigElementProps(innerSchema[0], elementType, innerElement);
                 returnElement = <ConfigElement {...configElementProps}/>;
             }
         }
@@ -105,14 +116,14 @@ export const UnionType = (props: UnionTypeProps): ReactElement => {
         label: props.label,
         name: props.name,
         required: props.isRequired,
-        type: getUnionType(typeLabels),
+        type: getUnionType(Array.from(typeMap.values())),
     };
 
     const radioGroupInputProps: RadioGroupInputProps = {
         id: props.id,
         setRadioGroupValue: setReturnType,
-        types: typeLabels,
-        value: typeLabels[0],
+        types: typeMap,
+        value: defaultFieldId,
     };
 
     return(
@@ -120,7 +131,7 @@ export const UnionType = (props: UnionTypeProps): ReactElement => {
             <FieldLabel {...fieldLabelProps} />
             <RadioGroupInput {...radioGroupInputProps}/>
             <Box>
-                {getFieldElement(fieldType)}
+                {getFieldElement}
             </Box>
         </div>
     );
@@ -128,14 +139,28 @@ export const UnionType = (props: UnionTypeProps): ReactElement => {
 
 export default UnionType;
 
-function getCurrentSchema(schema: object[], type: string): object {
-    let currentSchema: object;
+function getSchemaProperties(schema: object[], id: string): object[] {
+    const currentSchema: object[] = [];
+    let count: number = 1;
     Object.keys(schema).forEach((key) => {
-        if (schema[key].type !== undefined && schema[key].type === type) {
-            currentSchema = schema[key];
-        }
+        const property = schema[key];
+        property.id = id + "-" + count;
+        count = count + 1;
+        currentSchema.push(property);
     });
     return currentSchema;
+}
+
+function getTypeMap(properties: object[], id: string) {
+    const typeMap = new Map<string, string>();
+    if (properties === undefined) {
+        return typeMap;
+    }
+    Object.keys(properties).forEach((key, index) => {
+        const name: string = getRecordName(properties[key].name);
+        typeMap.set(id + "-" + (index + 1), name ? name : properties[key].type);
+    });
+    return typeMap;
 }
 
 function getTypeFromLabel(schema: object[], name: string): string {

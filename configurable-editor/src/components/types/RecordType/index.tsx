@@ -42,6 +42,10 @@ export const RecordType = (props: RecordTypeProps) => {
     const returnElement: ReactElement[] = [];
 
     useEffect(() => {
+        setRecordValue(getObjectElement(props));
+    }, [props.properties]);
+
+    useEffect(() => {
         setExpanded(props.isRequired);
     }, []);
 
