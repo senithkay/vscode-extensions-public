@@ -140,6 +140,7 @@ export function ExpressionSuggestions() {
             <div className={stmtEditorHelperClasses.expressionSuggestionList} data-testid="expression-list">
                 <FormControl style={{ width: '100%', padding: '0 25px'}}>
                     <Input
+                        data-testid="expr-suggestions-searchbar"
                         className={stmtEditorHelperClasses.librarySearchBox}
                         value={keyword}
                         placeholder={`Search Expression`}
