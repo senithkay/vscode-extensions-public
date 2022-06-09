@@ -21,6 +21,7 @@ import React, { ReactElement, useEffect } from "react";
 import { ConfigElementProps } from "../../ConfigElement";
 import { FieldLabel, FieldLabelProps } from "../../elements/FieldLabel";
 import { SelectInput, SelectInputProps } from "../../elements/SelectInput";
+import { TextFieldInput, TextFieldInputProps } from "../../elements/TextFieldInput";
 import { SchemaConstants } from "../../model";
 import { SimpleTypeProps } from "../SimpleType";
 
@@ -58,20 +59,42 @@ export const EnumType = (props: EnumTypeProps): ReactElement => {
         type: props.type,
     };
 
-    const selectInputProps: SelectInputProps = {
-        id: props.id,
-        isRequired: props.isRequired,
-        setSelectValue: setEnumValue,
-        types: props.schema[SchemaConstants.ENUM],
-        value: props.value,
-    };
+    if (props.schema) {
+        let enumType = [];
+        enumType = props.schema[SchemaConstants.ENUM];
+        if (enumType) {
+            const selectInputProps: SelectInputProps = {
+                id: props.id,
+                isRequired: props.isRequired,
+                setSelectValue: setEnumValue,
+                types: enumType,
+                value: props.value,
+            };
 
-    return(
-        <div key={props.id + "-FIELD"}>
-            <FieldLabel {...fieldLabelProps} />
-            <SelectInput {...selectInputProps}/>
-        </div>
-    );
+            return(
+                <div key={props.id + "-FIELD"}>
+                    <FieldLabel {...fieldLabelProps} />
+                    <SelectInput {...selectInputProps}/>
+                </div>
+            );
+        }
+    } else {
+        const textFieldInputProps: TextFieldInputProps = {
+            id: props.id,
+            isRequired: props.isRequired,
+            placeholder: props.placeholder,
+            setTextFieldValue: setEnumValue,
+            type: "text",
+            value: props.value,
+        };
+
+        return(
+            <div key={props.id + "-FIELD"}>
+                <FieldLabel {...fieldLabelProps} />
+                <TextFieldInput {...textFieldInputProps}/>
+            </div>
+        );
+    }
 };
 
 export default EnumType;
