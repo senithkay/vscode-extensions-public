@@ -28,6 +28,7 @@ import {
     CMP_EXECUTOR_CODELENS, sendTelemetryEvent, TM_EVENT_SOURCE_DEBUG_CODELENS, TM_EVENT_TEST_DEBUG_CODELENS
 } from '../telemetry';
 import { DEBUG_CONFIG, DEBUG_REQUEST } from '../debugger';
+import { openConfigEditor } from '../config-editor/configEditorPanel';
 
 export enum EXEC_POSITION_TYPE {
     SOURCE = 'source',
@@ -43,7 +44,7 @@ enum EXEC_ARG {
     TESTS = '--tests'
 }
 
-const SOURCE_DEBUG_COMMAND = "ballerina.source.debug";
+const INTERNAL_DEBUG_COMMAND = "ballerina.internal.debug";
 const TEST_DEBUG_COMMAND = "ballerina.test.debug";
 const FOCUS_DEBUG_CONSOLE_COMMAND = 'workbench.debug.action.focusRepl';
 
@@ -70,12 +71,22 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
             }
         });
 
-        commands.registerCommand(SOURCE_DEBUG_COMMAND, async (...args: any[]) => {
+        commands.registerCommand(INTERNAL_DEBUG_COMMAND, async (...args: any[]) => {
+            console.debug("vjv");
             sendTelemetryEvent(this.ballerinaExtension, TM_EVENT_SOURCE_DEBUG_CODELENS, CMP_EXECUTOR_CODELENS);
             clearTerminal();
             commands.executeCommand(FOCUS_DEBUG_CONSOLE_COMMAND);
             startDebugging(window.activeTextEditor!.document.uri, false, this.ballerinaExtension.getBallerinaCmd(),
                 this.ballerinaExtension.getBallerinaHome(), args);
+        });
+
+        commands.registerCommand(PALETTE_COMMANDS.DEBUG, async (...args: any[]) => {
+            if (!this.ballerinaExtension.isConfigurableEditorEnabled() &&
+                !this.ballerinaExtension.getDocumentContext().isActiveDiagram()) {
+                commands.executeCommand(PALETTE_COMMANDS.RUN_CMD);
+                return;
+            }
+            openConfigEditor(this.ballerinaExtension, window.activeTextEditor!.document.uri, true);
         });
 
         commands.registerCommand(TEST_DEBUG_COMMAND, async (...args: any[]) => {
@@ -144,7 +155,7 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
             title: execType.toString(),
             tooltip: `${execType.toString()} ${execPosition.name}`,
             command: execPosition.kind === EXEC_POSITION_TYPE.SOURCE ? (execType === EXEC_TYPE.RUN ?
-                PALETTE_COMMANDS.RUN_CMD : SOURCE_DEBUG_COMMAND) : (execType === EXEC_TYPE.RUN ? PALETTE_COMMANDS.TEST :
+                PALETTE_COMMANDS.RUN_CMD : PALETTE_COMMANDS.DEBUG) : (execType === EXEC_TYPE.RUN ? PALETTE_COMMANDS.TEST :
                     TEST_DEBUG_COMMAND),
             arguments: execPosition.kind === EXEC_POSITION_TYPE.SOURCE ? [] : (execType === EXEC_TYPE.RUN ?
                 [EXEC_ARG.TESTS, execPosition.name] : [execPosition.name])

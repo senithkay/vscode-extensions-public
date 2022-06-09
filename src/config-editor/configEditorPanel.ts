@@ -31,7 +31,8 @@ import os from "os";
 let configEditorPanel: WebviewPanel | undefined;
 let langClient: ExtendedLangClient;
 
-export async function openConfigEditor(ballerinaExtInstance: BallerinaExtension, filePath: string): Promise<void> {
+export async function openConfigEditor(ballerinaExtInstance: BallerinaExtension, filePath: string, 
+                                       isDebug: boolean): Promise<void> {
     let configFile: string = filePath;
     let packageName: string = "packageName";
 
@@ -76,18 +77,18 @@ export async function openConfigEditor(ballerinaExtInstance: BallerinaExtension,
                 + 'retrieving the configurable schema.');
             return Promise.reject();
         }
-        showConfigEditor(ballerinaExtInstance, data.configSchema, Uri.parse(configFile), packageName);
+        showConfigEditor(ballerinaExtInstance, data.configSchema, Uri.parse(configFile), packageName, isDebug);
     });
 }
 
 async function showConfigEditor(ballerinaExtInstance: BallerinaExtension, configSchema: any,
-                                currentFileUri: Uri, packageName: string) {
+                                currentFileUri: Uri, packageName: string, isDebug: boolean) {
     if (configEditorPanel) {
         configEditorPanel.dispose();
     }
 
     if (Object.keys(configSchema.properties).length === 0) {
-        commands.executeCommand(PALETTE_COMMANDS.RUN_CMD);
+        isDebug ? commands.executeCommand.PALETTE_COMMANDS.DEBUG : commands.executeCommand(PALETTE_COMMANDS.RUN_CMD);
         return;
     }
 
@@ -123,7 +124,8 @@ async function showConfigEditor(ballerinaExtInstance: BallerinaExtension, config
             methodName: "onClickPrimaryButton",
             handler: (args: any[]) => {
                 handleConfigInputs(args[0]);
-                commands.executeCommand(PALETTE_COMMANDS.RUN_CMD);
+                isDebug ? commands.executeCommand.PALETTE_COMMANDS.DEBUG
+                        : commands.executeCommand(PALETTE_COMMANDS.RUN_CMD);
                 configEditorPanel?.dispose();
             }
         }
