@@ -25,6 +25,10 @@ export function getInitialSource(type: string, targetPosition: NodePosition): st
             return getSource(createFunctionSignature("", "name", "", "",
                 targetPosition));
         }
+        case "Main": {
+            return getSource(createFunctionSignature("public", "main", "", "",
+                targetPosition));
+        }
     }
     return;
 }
