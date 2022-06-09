@@ -61,7 +61,6 @@ import { DefaultConfig } from "./default";
 import { AsyncReceiveInfo, AsyncSendInfo, SendRecievePairInfo, WaitInfo } from "./sizing-visitor";
 import { getPlusViewState, updateConnectorCX } from "./util";
 
-let allEndpoints: Map<string, Endpoint> = new Map<string, Endpoint>();
 let epCount: number = 0;
 
 // This holds the plus widget height diff to be added to the function when its open.
@@ -71,6 +70,7 @@ export class PositioningVisitor implements Visitor {
     private senderReceiverInfo: Map<string, { sends: AsyncSendInfo[], receives: AsyncReceiveInfo[], waits: WaitInfo[] }>;
     private workerMap: Map<string, NamedWorkerDeclaration>;
     private currentWorker: string[] = []
+    private allEndpoints: Map<string, Endpoint>;
 
     constructor() {
         this.senderReceiverInfo = new Map();
@@ -80,7 +80,8 @@ export class PositioningVisitor implements Visitor {
     private cleanMaps() {
         this.senderReceiverInfo = new Map();
         this.currentWorker = [];
-        this.workerMap = new Map()
+        this.workerMap = new Map();
+        this.allEndpoints = new Map();
     }
 
     private addToSendReceiveMap(type: 'Send' | 'Receive' | 'Wait', entry: AsyncReceiveInfo | AsyncSendInfo | WaitInfo) {
@@ -259,7 +260,7 @@ export class PositioningVisitor implements Visitor {
             plusHolderHeight = 0;
         }
 
-        updateConnectorCX(bodyViewState.bBox.rw + widthOfWorkers, bodyViewState.bBox.cx, allEndpoints, viewState.trigger.cy);
+        updateConnectorCX(bodyViewState.bBox.rw + widthOfWorkers, bodyViewState.bBox.cx, bodyViewState.connectors, viewState.trigger.cy);
 
         // Update First Control Flow line
         this.updateFunctionEdgeControlFlow(viewState, body);
@@ -397,7 +398,7 @@ export class PositioningVisitor implements Visitor {
             plusHolderHeight = 0;
         }
 
-        updateConnectorCX(bodyViewState.bBox.rw, bodyViewState.bBox.cx, allEndpoints);
+        updateConnectorCX(bodyViewState.bBox.rw, bodyViewState.bBox.cx, this.allEndpoints);
 
         // Update First Control Flow line
         this.updateFunctionEdgeControlFlow(viewState, body);
@@ -405,7 +406,7 @@ export class PositioningVisitor implements Visitor {
 
     public beginVisitFunctionBodyBlock(node: FunctionBodyBlock) {
         const blockViewState: BlockViewState = node.viewState;
-        allEndpoints = blockViewState.connectors;
+        this.allEndpoints = blockViewState.connectors;
         epCount = 0;
         let height = 0;
         let index = 0;
@@ -459,7 +460,7 @@ export class PositioningVisitor implements Visitor {
 
     public beginVisitExpressionFunctionBody(node: ExpressionFunctionBody) {
         const blockViewState: BlockViewState = node.viewState;
-        allEndpoints = blockViewState.connectors;
+        this.allEndpoints = blockViewState.connectors;
         epCount = 0;
     }
 
@@ -730,9 +731,9 @@ export class PositioningVisitor implements Visitor {
                 // ignore if it is collapsed
                 if (statementViewState.isAction && statementViewState.action.endpointName
                     && !statementViewState.isCallerAction && !statementViewState.collapsed &&
-                    !statementViewState.hidden && allEndpoints.get(statementViewState.action.endpointName)) {
+                    !statementViewState.hidden && this.allEndpoints.get(statementViewState.action.endpointName)) {
                     // action invocation for a connector ( var result1 = ep1->get("/context") )
-                    const endpoint: Endpoint = allEndpoints.get(statementViewState.action.endpointName);
+                    const endpoint: Endpoint = this.allEndpoints.get(statementViewState.action.endpointName);
                     const visibleEndpoint: VisibleEndpoint = endpoint.visibleEndpoint as VisibleEndpoint;
                     const mainEp: EndpointViewState = visibleEndpoint.viewState;
                     statementViewState.endpoint.typeName = visibleEndpoint.typeName;
@@ -799,7 +800,7 @@ export class PositioningVisitor implements Visitor {
                     endpointViewState.lifeLine.cx = blockViewState.bBox.cx +
                         endpointViewState.bBox.rw + epGap + (epGap * epCount);
                     endpointViewState.lifeLine.cy = statementViewState.bBox.cy;
-                    const endpoint: Endpoint = allEndpoints.get(statementViewState.endpoint.epName);
+                    const endpoint: Endpoint = this.allEndpoints.get(statementViewState.endpoint.epName);
                     const visibleEndpoint: VisibleEndpoint = endpoint.visibleEndpoint;
                     const mainEp = endpointViewState;
                     visibleEndpoint.viewState = mainEp;

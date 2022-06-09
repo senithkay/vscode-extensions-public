@@ -30,8 +30,6 @@ import { FormGenerator, FormGeneratorProps } from "../../FormGenerator";
 import { wizardStyles as useFormStyles } from "../style";
 
 import useStyles from "./style";
-import { fetchConnectorInfo } from "../../../Portals/utils";
-import { ConfigWizardState } from "../../ConnectorConfigWizard";
 
 enum WizardStep {
     MARKETPLACE = "marketplace",
