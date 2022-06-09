@@ -59,6 +59,7 @@ export interface FunctionProps {
     completions: SuggestionItem[];
     targetPosition: NodePosition;
     isEdit: boolean;
+    type?: string;
     onChange: (genSource: string, partialST: STNode, currentModel?: CurrentModel, newValue?: string, completionKinds?: number[]) => void;
     onCancel: () => void;
     getLangClient: () => Promise<ExpressionEditorLangClientInterface>;
@@ -66,10 +67,12 @@ export interface FunctionProps {
 }
 
 export function FunctionForm(props: FunctionProps) {
-    const { targetPosition, model, completions, isEdit, onChange, onCancel, getLangClient, applyModifications } = props;
+    const { targetPosition, model, completions, isEdit, type, onChange, onCancel, getLangClient,
+            applyModifications } = props;
 
     const formClasses = useFormStyles();
     const connectorClasses = connectorStyles();
+    const isMainFunction = (type === "Main");
 
     // States related to component model
     const [functionName, setFunctionName] = useState<FormEditorField>({
@@ -246,7 +249,7 @@ export function FunctionForm(props: FunctionProps) {
             ]);
         } else {
             applyModifications([
-                createFunctionSignature("", functionName.value, parametersStr,
+                createFunctionSignature(isMainFunction ? "public" : "", functionName.value, parametersStr,
                     returnType.value ? `returns ${returnType.value}` : "", targetPosition)
             ]);
         }
@@ -306,6 +309,10 @@ export function FunctionForm(props: FunctionProps) {
         }
     }, [model, completions]);
 
+    useEffect(() => {
+        setFunctionName({ ...functionName, value: model?.functionName?.value});
+    }, [model?.functionName?.value]);
+
     return (
         <FormControl data-testid="function-form" className={formClasses.wizardFormControl}>
             <FormHeaderSection
@@ -322,7 +329,7 @@ export function FunctionForm(props: FunctionProps) {
                         onChange={debouncedNameChange}
                         onFocus={onNameFocus}
                         placeholder={"Ex: name"}
-                        defaultValue={(functionName?.isInteracted || isEdit) ? functionName.value : ""}
+                        defaultValue={(functionName?.isInteracted || isEdit || isMainFunction) ? functionName.value : ""}
                         customProps={{
                             optional: false,
                             isErrored: functionName?.isInteracted && ((currentComponentSyntaxDiag !== undefined && currentComponentName === "Name") ||
@@ -332,7 +339,7 @@ export function FunctionForm(props: FunctionProps) {
                         errorMessage={(currentComponentSyntaxDiag && currentComponentName === "Name"
                             && currentComponentSyntaxDiag[0].message) ||
                             model?.functionName?.viewState?.diagnosticsInRange[0]?.message}
-                        disabled={addingNewParam || (currentComponentSyntaxDiag && currentComponentName !== "Name")}
+                        disabled={addingNewParam || isMainFunction || (currentComponentSyntaxDiag && currentComponentName !== "Name")}
                     />
                     <Divider className={connectorClasses.sectionSeperatorHR} />
                     <ConfigPanelSection title={"Parameters"}>

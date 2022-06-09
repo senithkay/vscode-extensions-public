@@ -38,14 +38,6 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
     const intl = useIntl();
 
     const isMainFunction: boolean = (configOverlayFormStatus.formName && configOverlayFormStatus.formName === MAIN_TEXT) || (model && model.functionName.value === MAIN_TEXT.toLowerCase());
-    const functionName = isMainFunction ? MAIN_TEXT.toLowerCase() : (model ? model.functionName.value : "name");
-    const parameters = "";
-    const returnType = model ? (model?.functionSignature?.returnTypeDesc?.type?.source || "") : "error?";
-
-    const position = model ? {
-        ...model?.functionSignature?.position,
-        startColumn: model?.functionName?.position?.startColumn,
-    } : targetPosition;
 
     const {
         props: { syntaxTree, currentFile, experimentalEnabled, importStatements },
@@ -63,7 +55,7 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
                 initialModel={model}
                 targetPosition={model ? model?.functionSignature?.position : targetPosition}
                 onCancel={onCancel}
-                type={"Function"}
+                type={isMainFunction ? MAIN_TEXT : "Function"}
                 currentFile={currentFile}
                 getLangClient={getExpressionEditorLangClient}
                 applyModifications={modifyDiagram}

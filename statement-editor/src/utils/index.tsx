@@ -127,6 +127,7 @@ export function getFormComponent(
             onCancel={onCancel}
             getLangClient={getLangClient}
             isEdit={isEdit}
+            type={type}
             applyModifications={applyModifications}
         />
     );
