@@ -176,6 +176,13 @@ export function isPositionsEquals(position1: NodePosition, position2: NodePositi
         position1?.endColumn === position2?.endColumn;
 }
 
+export function isNodeInRange(nodePosition: NodePosition, parentPosition: NodePosition): boolean {
+    return nodePosition?.startLine >= parentPosition?.startLine &&
+        (nodePosition?.startLine === parentPosition?.startLine ? nodePosition?.startColumn >= parentPosition?.startColumn : true) &&
+        nodePosition?.endLine <= parentPosition?.endLine &&
+        (nodePosition?.endLine === parentPosition?.endLine ? nodePosition?.endColumn <= parentPosition?.endColumn : true);
+}
+
 export function isOperator(modelType: number): boolean {
     return modelType === ModelType.OPERATOR;
 }
