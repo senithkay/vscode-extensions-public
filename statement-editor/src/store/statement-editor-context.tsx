@@ -17,7 +17,7 @@ import { LibraryKind, STModification, SymbolInfoResponse } from "@wso2-enterpris
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { LowCodeEditorProps } from "../components/StatementEditorWrapper";
-import { EditorModel, EmptySymbolInfo, StmtDiagnostic, SuggestionItem } from "../models/definitions";
+import { EditorModel, EmptySymbolInfo, LSSuggestions, StmtDiagnostic } from "../models/definitions";
 
 import { InputEditorContextProvider } from "./input-editor-context";
 
@@ -41,7 +41,11 @@ export const StatementEditorContext = React.createContext({
         diagnostics: []
     },
     suggestionsCtx: {
-        lsSuggestions: []
+        lsSuggestions: [],
+        lsSecondLevelSuggestions: {
+            selection: '',
+            secondLevelSuggestions: []
+        }
     },
     modules: {
         modulesToBeImported: new Set(),
@@ -95,7 +99,7 @@ export interface CtxProviderProps extends LowCodeEditorProps {
     hasUndo?: boolean,
     hasRedo?: boolean,
     diagnostics?: StmtDiagnostic[],
-    lsSuggestions?: SuggestionItem[],
+    lsSuggestions?: LSSuggestions,
     hasSyntaxDiagnostics?: boolean,
     documentation?: SymbolInfoResponse | EmptySymbolInfo,
     restArg?: (restCheckClicked: boolean) => void,
@@ -164,7 +168,8 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
                     diagnostics
                 },
                 suggestionsCtx: {
-                    lsSuggestions
+                    lsSuggestions: lsSuggestions.directSuggestions,
+                    lsSecondLevelSuggestions: lsSuggestions?.secondLevelSuggestions
                 },
                 modules: {
                     modulesToBeImported,
