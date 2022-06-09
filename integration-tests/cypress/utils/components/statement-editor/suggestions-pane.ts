@@ -48,4 +48,18 @@ export class SuggestionsPane {
         })
         return this;
     }
+
+    static typeExpressionInSearchBar(suggestion:string){
+        cy.get(`[data-testid="expr-suggestions-searchbar"]`)
+            .children('input')
+            .clear()
+            .type(suggestion);
+        return this;
+    }
+
+    static validateUnrelatedSuggestions(suggestion:string){
+        cy.get(`[data-testid="expression-list"]`)
+            .children().should('not.contain',suggestion)
+        return this;
+    }
 }
