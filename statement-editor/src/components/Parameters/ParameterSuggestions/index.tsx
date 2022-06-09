@@ -56,7 +56,15 @@ export function ParameterSuggestions(){
            const des = getDocDescription(doc);
            const docEx = docRegex.exec(doc);
            return (
-               <ListItemText primary={des[0]} secondary={docEx[1]}/>
+               <>
+                   <ListItemText primary={des[0]}/>
+                   <ListSubheader className={stmtEditorHelperClasses.exampleHeader}>
+                       Example
+                   </ListSubheader>
+                   <ListItem className={stmtEditorHelperClasses.docDescription}>
+                       <code className={stmtEditorHelperClasses.exampleCode}>{docEx[1]}</code>
+                   </ListItem>
+               </>
            );
        } else {
            return (
@@ -75,10 +83,14 @@ export function ParameterSuggestions(){
                 <>
                     {documentation && !(documentation.documentation === undefined) ? (
                         <List className={statementEditorClasses.stmtEditorInnerWrapper}>
+                            <ParameterList checkedList={checked} setCheckedList={setCheckedList} />
+                            <hr className={stmtEditorHelperClasses.returnSeparator}/>
+                            <ListSubheader className={stmtEditorHelperClasses.parameterHeader}>
+                                Description
+                            </ListSubheader>
                             <ListItem className={stmtEditorHelperClasses.docDescription}>
                                 {getDocumentationDescription()}
                             </ListItem>
-                            <ParameterList checkedList={checked} setCheckedList={setCheckedList} />
                             {documentation.documentation.returnValueDescription && (
                                 <>
                                     <hr className={stmtEditorHelperClasses.returnSeparator}/>
