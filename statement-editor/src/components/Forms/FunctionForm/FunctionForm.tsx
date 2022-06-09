@@ -379,7 +379,7 @@ export function FunctionForm(props: FunctionProps) {
                         errorMessage={returnType?.isInteracted && ((currentComponentSyntaxDiag &&
                             currentComponentName === "Return" && currentComponentSyntaxDiag[0].message) || model?.
                                 functionSignature?.returnTypeDesc?.viewState?.diagnosticsInRange[0]?.message ||
-                                (functionBodyBlock?.closeBraceToken?.viewState?.diagnosticsInRange.length > 0 
+                                (functionBodyBlock?.closeBraceToken?.viewState?.diagnosticsInRange.length > 0
                                     && functionBodyBlock?.closeBraceToken?.viewState?.diagnosticsInRange[0]?.message))}
                         disabled={addingNewParam || (currentComponentSyntaxDiag && currentComponentName !== "Return")}
                     />

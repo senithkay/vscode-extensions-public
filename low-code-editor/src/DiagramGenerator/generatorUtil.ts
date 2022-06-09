@@ -6,7 +6,7 @@ import { FunctionDefinition, ModulePart, ResourceAccessorDefinition, ServiceDecl
 
 import { cleanLocalSymbols, cleanModuleLevelSymbols } from "../Diagram/visitors/symbol-finder-visitor";
 import { SymbolVisitor } from "../index";
-import { SelectedPosition } from "../types";
+import { MESSAGE_TYPE, SelectedPosition } from "../types";
 
 import { addExecutorPositions } from "./executor";
 
@@ -28,10 +28,14 @@ export async function resolveMissingDependencies(filePath: string, langClient: D
     return resp;
 }
 
-export async function getLowcodeST(payload: any, filePath: string, langClient: DiagramEditorLangClientInterface, experimentalEnabled?: boolean) {
+export async function getLowcodeST(payload: any, filePath: string, langClient: DiagramEditorLangClientInterface,
+                                   experimentalEnabled?: boolean,
+                                   showMessage?: (arg: string, messageType: MESSAGE_TYPE, ignorable: boolean,
+                                                  filePath?: string, fileContent?: string, bypassChecks?: boolean) => void) {
+
     const modulePart: ModulePart = payload;
     const members: STNode[] = modulePart?.members || [];
-    const st = sizingAndPositioningST(payload, experimentalEnabled);
+    const st = sizingAndPositioningST(payload, experimentalEnabled, showMessage);
     cleanLocalSymbols();
     cleanModuleLevelSymbols();
     traversNode(st, SymbolVisitor);
@@ -115,9 +119,14 @@ export function isNodeSelected(selectedPosition: SelectedPosition, node: any): b
         && selectedPosition?.startLine <= node.position?.endLine;
 }
 
-export function sizingAndPositioningST(st: STNode, experimentalEnabled?: boolean): STNode {
+export function sizingAndPositioningST(st: STNode, experimentalEnabled?: boolean,
+                                       showMessage?: (arg: string, messageType: MESSAGE_TYPE, ignorable: boolean, filePath?: string, fileContent?: string, bypassChecks?: boolean) => void): STNode {
     traversNode(st, initVisitor);
-    traversNode(st, new SizingVisitor(experimentalEnabled));
+    const sizingVisitor = new SizingVisitor(experimentalEnabled);
+    traversNode(st, sizingVisitor);
+    if (sizingVisitor.getConflictResulutionFailureStatus()) {
+        showMessage("Something went wrong in the diagram rendering.", MESSAGE_TYPE.ERROR, false, undefined, undefined, true);
+    }
     traversNode(st, new PositioningVisitor());
     const clone = { ...st };
     return clone;
