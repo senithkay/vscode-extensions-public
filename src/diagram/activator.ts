@@ -434,13 +434,13 @@ class DiagramPanel {
 			{
 				methodName: "showMessage",
 				handler: async (args: any[]): Promise<boolean> => {
+					if (!args[5] && (!ballerinaExtension.enabledPerformanceForecasting() ||
+						ballerinaExtension.getPerformanceForecastContext().temporaryDisabled)) {
+						return false;
+					}
 					let callBack = async (filePath: string, fileContent: string) => {
 						await resolveMissingDependency(filePath, fileContent, langClient);
 					};
-					if (!ballerinaExtension.enabledPerformanceForecasting() ||
-						ballerinaExtension.getPerformanceForecastContext().temporaryDisabled) {
-						return false;
-					}
 					showMessage(args[0], args[1], args[2], args[3], args[4], callBack);
 					return true;
 				}
