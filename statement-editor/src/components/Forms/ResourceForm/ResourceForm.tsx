@@ -11,15 +11,10 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, {useContext, useEffect, useState} from 'react';
+import React, { useContext, useState } from 'react';
 import { useIntl } from "react-intl";
 
 import { FormControl } from "@material-ui/core";
-import {
-    createImportStatement,
-    createListenerDeclartion,
-    getSource,
-} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     ConfigPanelSection,
     dynamicConnectorStyles as connectorStyles,
@@ -35,9 +30,6 @@ import {
 
 import { StmtDiagnostic } from "../../../models/definitions";
 import { FormEditorContext } from "../../../store/form-editor-context";
-import { getUpdatedSource } from "../../../utils";
-import { getPartialSTForModuleMembers } from "../../../utils/ls-utils";
-import { FormEditorField } from "../Types";
 
 import { useStyles } from "./styles";
 
@@ -66,14 +58,9 @@ export function ResourceForm(props: FunctionProps) {
     const intl = useIntl();
 
     // States related to component model
-    const [listenerName, setListenerName] = useState<FormEditorField>({
-        value: model ? model.variableName.value : "", isInteracted: false
-    });
-    const [listenerPort, setListenerPort] = useState<FormEditorField>({
-        value: model ? model.initializer.parenthesizedArgList.arguments[0]?.source : "", isInteracted: false
-    });
-    const type = model?.typeDescriptor.modulePrefix.value.toUpperCase();
-    const [listenerType, setListenerType] = useState<string>(type ? type : "HTTP");
+    // const [listenerName, setListenerName] = useState<FormEditorField>({
+    //     value: model ? model.variableName.value : "", isInteracted: false
+    // });
 
     // States related to syntax diagnostics
     const [currentComponentName, setCurrentComponentName] = useState<string>("");
@@ -91,50 +78,6 @@ export function ResourceForm(props: FunctionProps) {
         id: "lowcode.develop.apiConfigWizard.path.title",
         defaultMessage: "Path"
     });
-
-    const listenerParamChange = async (name: string, port: string) => {
-        const codeSnippet = getSource(createListenerDeclartion({listenerPort: port, listenerName: name},
-            targetPosition, false));
-        const updatedContent = getUpdatedSource(codeSnippet, model?.source, model?.position, undefined,
-            true);
-        const partialST = await getPartialSTForModuleMembers(
-            {codeSnippet: updatedContent.trim()}, getLangClient
-        );
-        if (!partialST.syntaxDiagnostics.length) {
-            setCurrentComponentSyntaxDiag(undefined);
-            // onChange(updatedContent, partialST, HTTP_IMPORT);
-        } else {
-            setCurrentComponentSyntaxDiag(partialST.syntaxDiagnostics);
-        }
-    }
-
-    // Functions related to name
-    const handleNameFocus = (value: string) => {
-        setCurrentComponentName("Name");
-    }
-    const handleNameChange = async (value: string) => {
-        setListenerName({value, isInteracted: true});
-        await listenerParamChange(value, listenerPort.value);
-    }
-
-    // Functions related to port
-    const handlePortFocus = (value: string) => {
-        setCurrentComponentName("Port");
-    }
-    const handlePortChange = async (value: string) => {
-        setListenerPort({value, isInteracted: true});
-        await listenerParamChange(listenerName.value, value);
-    }
-
-    const handleOnSave = () => {
-        applyModifications([
-            createImportStatement('ballerina', 'http', {startColumn: 0, startLine: 0}),
-            createListenerDeclartion({listenerPort: listenerPort.value, listenerName: listenerName.value},
-                {...targetPosition, endLine: targetPosition.startLine, startColumn: 0,
-                 endColumn: 0}, false)
-        ]);
-        onCancel();
-    }
 
     return (
         <FormControl data-testid="resource-form" className={connectorClasses.wizardFormControlExtended}>

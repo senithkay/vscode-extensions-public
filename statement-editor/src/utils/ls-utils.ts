@@ -44,9 +44,10 @@ export async function getPartialSTForStatement(
 
 export async function getPartialSTForModuleMembers(
             partialSTRequest: PartialSTRequest,
-            getLangClient: () => Promise<ExpressionEditorLangClientInterface>): Promise<STNode> {
+            getLangClient: () => Promise<ExpressionEditorLangClientInterface>, isResource?: boolean): Promise<STNode> {
     const langClient: ExpressionEditorLangClientInterface = await getLangClient();
-    const resp = await langClient.getSTForModuleMembers(partialSTRequest);
+    const resp = isResource ? await langClient.getSTForResource(partialSTRequest) :
+        await langClient.getSTForModuleMembers(partialSTRequest);
     return resp.syntaxTree;
 }
 

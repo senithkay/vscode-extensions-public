@@ -11,7 +11,7 @@
  * associated services.
  */
 import {
-    createFunctionSignature, createListenerDeclartion,
+    createFunctionSignature, createListenerDeclartion, createResource,
     createServiceDeclartion,
     getSource,
     ListenerConfigFormState,
@@ -45,10 +45,8 @@ export function getInitialSource(type: string, targetPosition: NodePosition): st
             }, targetPosition, false));
         }
         case "Resource": {
-            return getSource(createListenerDeclartion({
-                listenerName: "name",
-                listenerPort: "9090"
-            }, targetPosition, false));
+            return getSource(createResource("get", ".", "", "", false,
+                false, "", targetPosition));
         }
     }
     return;

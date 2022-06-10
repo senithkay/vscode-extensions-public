@@ -126,7 +126,8 @@ export function FormEditor(props: FormEditorProps) {
             (async () => {
                 if (topLevelComponent) {
                     const partialST = await getPartialSTForModuleMembers(
-                        { codeSnippet: initialSource.trim() }, getLangClient
+                        { codeSnippet: initialSource.trim() }, getLangClient,
+                        type === "Resource"
                     );
                     setModel(partialST);
                 }
@@ -135,7 +136,8 @@ export function FormEditor(props: FormEditorProps) {
             (async () => {
                 if (topLevelComponent) {
                     const partialST = await getPartialSTForModuleMembers(
-                        {codeSnippet: getInitialSource(type, targetPosition)}, getLangClient
+                        {codeSnippet: getInitialSource(type, targetPosition)} , getLangClient,
+                        type === "Resource"
                     );
                     setModel(partialST);
                 }
