@@ -75,6 +75,10 @@ export function AddWhileForm(props: WhileProps) {
                                 conditionExpression ? conditionExpression as string : 'EXPRESSION'
                             ));
 
+    const handleStatementEditorChange = (partialModel: WhileStatement) => {
+        setConditionExpression(partialModel.condition.source.trim());
+    }
+
     const stmtEditorComponent = StatementEditorWrapper(
         {
             label: formTitle,
@@ -82,6 +86,7 @@ export function AddWhileForm(props: WhileProps) {
             formArgs: { formArgs },
             config: condition,
             onWizardClose,
+            onStmtEditorModelChange: handleStatementEditorChange,
             onCancel,
             currentFile,
             getLangClient: getExpressionEditorLangClient,
