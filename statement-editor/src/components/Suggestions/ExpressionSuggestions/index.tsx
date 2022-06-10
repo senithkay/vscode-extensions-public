@@ -34,6 +34,7 @@ import {
     SELECTED_EXPRESSION
 } from "../../../utils/expressions";
 import { KeyboardNavigationManager } from "../../../utils/keyboard-navigation-manager";
+import { ModelType } from "../../../utils/statement-editor-viewstate";
 import { useStatementEditorStyles, useStmtEditorHelperPanelStyles  } from "../../styles";
 
 export function ExpressionSuggestions() {
@@ -66,7 +67,9 @@ export function ExpressionSuggestions() {
     useEffect(() => {
         if (currentModel.model) {
             let filteredGroups: ExpressionGroup[] = expressions.filter(
-                (exprGroup) => exprGroup.relatedModelType === currentModel.model.viewState.modelType);
+                (exprGroup) => exprGroup.relatedModelType === currentModel.model.viewState.modelType ||
+                    (currentModel.model.viewState.modelType === ModelType.FIELD_ACCESS &&
+                        exprGroup.relatedModelType === ModelType.EXPRESSION));
             if (currentModel.model.source?.trim() === DEFAULT_WHERE_INTERMEDIATE_CLAUSE){
                 filteredGroups = expressions.filter(
                     (exprGroup) =>  exprGroup.name === QUERY_INTERMEDIATE_CLAUSES);
@@ -160,7 +163,7 @@ export function ExpressionSuggestions() {
                         <>
                             {filteredExpressions.map((group, groupIndex) => (
                                 <>
-                                    <div className={stmtEditorHelperClasses.librarySearchSubHeader}>{group.name}</div>
+                                    <div className={stmtEditorHelperClasses.helperPaneSubHeader}>{group.name}</div>
                                     <List className={stmtEditorHelperClasses.expressionList}>
                                         {
                                             group.expressions.map((expression, index) => (
