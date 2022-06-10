@@ -26,10 +26,9 @@ export function FieldAccessComponent(props: FieldAccessProps) {
 
     return (
         <>
-            <ExpressionComponent model={model.expression} >
-                <TokenComponent model={model.dotToken} />
-                <ExpressionComponent model={model.fieldName} />
-            </ExpressionComponent>
+            <ExpressionComponent model={model.expression} />
+            <TokenComponent model={model.dotToken} />
+            <ExpressionComponent model={model.fieldName} />
         </>
     );
 }
