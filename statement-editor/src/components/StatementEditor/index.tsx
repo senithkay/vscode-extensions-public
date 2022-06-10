@@ -208,7 +208,7 @@ export function StatementEditor(props: StatementEditorProps) {
                 }
                 setLSSuggestionsList({
                     directSuggestions,
-                    secondLevelSuggestions: {
+                    secondLevelSuggestions: !!secondLevelSuggestions.length && {
                         selection: selectionWithDot,
                         secondLevelSuggestions
                     }

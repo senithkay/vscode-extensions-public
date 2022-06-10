@@ -109,12 +109,14 @@ export function LSSuggestions() {
                                 selectedListItem={selectedListItem}
                                 onClickLSSuggestion={onClickLSSuggestion}
                             />
-                            <SuggestionsList
-                                lsSuggestions={secondLevelSuggestions}
-                                selectedListItem={selectedListItem}
-                                onClickLSSuggestion={onClickLSSuggestion}
-                                selection={selectionForSecondLevel}
-                            />
+                            {!!secondLevelSuggestions?.length && (
+                                <SuggestionsList
+                                    lsSuggestions={secondLevelSuggestions}
+                                    selectedListItem={selectedListItem}
+                                    onClickLSSuggestion={onClickLSSuggestion}
+                                    selection={selectionForSecondLevel}
+                                />
+                            )}
                         </div>
                     </div>
                 </>
