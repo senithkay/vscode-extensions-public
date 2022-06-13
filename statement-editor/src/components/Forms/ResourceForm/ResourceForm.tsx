@@ -11,26 +11,34 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext, useState } from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import { useIntl } from "react-intl";
 
 import { FormControl } from "@material-ui/core";
 import {
+    getSource,
+    updateResourceSignature
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import {
     ConfigPanelSection,
     dynamicConnectorStyles as connectorStyles,
     FormActionButtons, FormHeaderSection,
-    FormTextInput,
+    FormTextInput, ParamEditor,
     SelectDropdownWithButton,
-    TextLabel,
     useStyles as useFormStyles
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import {
-    ListenerDeclaration
+    ResourceAccessorDefinition,
+    STKindChecker
 } from "@wso2-enterprise/syntax-tree";
 
 import { StmtDiagnostic } from "../../../models/definitions";
 import { FormEditorContext } from "../../../store/form-editor-context";
+import { getUpdatedSource } from "../../../utils";
+import { getPartialSTForModuleMembers } from "../../../utils/ls-utils";
+import { FormEditorField } from "../Types";
 
+import { PathEditor } from "./PathEditor";
 import { useStyles } from "./styles";
 
 export const HTTP_GET = "GET";
@@ -43,8 +51,11 @@ export const HTTP_PATCH = "PATCH";
 
 export const SERVICE_METHODS = [HTTP_GET, HTTP_PUT, HTTP_DELETE, HTTP_POST, HTTP_OPTIONS, HTTP_HEAD, HTTP_PATCH];
 
+export const getPathOfResources = (resources: any[] = []) =>
+    resources?.map((path: any) => path?.value || path?.source).join('');
+
 export interface FunctionProps {
-    model: ListenerDeclaration;
+    model: ResourceAccessorDefinition;
 }
 
 export function ResourceForm(props: FunctionProps) {
@@ -58,9 +69,9 @@ export function ResourceForm(props: FunctionProps) {
     const intl = useIntl();
 
     // States related to component model
-    // const [listenerName, setListenerName] = useState<FormEditorField>({
-    //     value: model ? model.variableName.value : "", isInteracted: false
-    // });
+    const [path, setPath] = useState<FormEditorField>({
+        value: model ? getPathOfResources(model.relativeResourcePath) : "", isInteracted: false
+    });
 
     // States related to syntax diagnostics
     const [currentComponentName, setCurrentComponentName] = useState<string>("");
@@ -78,6 +89,39 @@ export function ResourceForm(props: FunctionProps) {
         id: "lowcode.develop.apiConfigWizard.path.title",
         defaultMessage: "Path"
     });
+
+    const resourceParamChange = async (resMethod: string, pathStr: string, queryParamStr: string, payloadStr: string,
+                                       caller: boolean, request: boolean, returnStr: string) => {
+        const codeSnippet = getSource(updateResourceSignature(resMethod, pathStr, queryParamStr, payloadStr, caller,
+            request, returnStr, targetPosition));
+        const position = model ? ({
+            startLine: model.functionName.position.startLine - 1,
+            startColumn: model.functionName.position.startColumn,
+            endLine: model.functionSignature.position.endLine - 1,
+            endColumn: model.functionSignature.position.endColumn
+        }) : targetPosition;
+        const updatedContent = getUpdatedSource(codeSnippet, model?.source, position, undefined,
+            true);
+        const partialST = await getPartialSTForModuleMembers(
+            {codeSnippet: updatedContent.trim()}, getLangClient, true
+        );
+        if (!partialST.syntaxDiagnostics.length) {
+            setCurrentComponentSyntaxDiag(undefined);
+            onChange(updatedContent, partialST);
+        } else {
+            setCurrentComponentSyntaxDiag(partialST.syntaxDiagnostics);
+        }
+    }
+
+    const pathChange = async (value: string) => {
+        setPath({value, isInteracted: true});
+        await resourceParamChange("get", value, "", "", false, false,
+            "");
+    }
+
+    useEffect(() => {
+        setPath({value: model ? getPathOfResources(model.relativeResourcePath) : "", isInteracted: false})
+    }, [model]);
 
     return (
         <FormControl data-testid="resource-form" className={connectorClasses.wizardFormControlExtended}>
@@ -110,10 +154,10 @@ export function ResourceForm(props: FunctionProps) {
                                     // tooltipWithExample={{ title, content: pathExample }}
                                 >
                                     <FormTextInput
-                                        label="Resource path"
                                         dataTestId="resource-path"
                                         // defaultValue={(paramName?.isInteracted || isEdit) ? paramName.value : ""}
-                                        // onChange={debouncedNameChange}
+                                        defaultValue={path.value}
+                                        onChange={pathChange}
                                         customProps={{
                                             // isErrored: ((currentComponentSyntaxDiag !== undefined && currentComponentName === "Name") ||
                                             //     model?.functionName?.viewState?.diagnosticsInRange[0]?.message)
@@ -130,7 +174,7 @@ export function ResourceForm(props: FunctionProps) {
                                 </ConfigPanelSection>
                             </div>
                         </div>
-                        {/*<div className={connectorClasses.advancedSwitchText}>*/}
+                        <PathEditor onSave={null} onCancel={null} />
                         {/*    {advanceSwitch}*/}
                         {/*</div>*/}
                         {/*<div>*/}

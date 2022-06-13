@@ -17,7 +17,6 @@ import { FormControl, Link } from "@material-ui/core";
 import { ConfigOverlayFormStatus, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     FormHeaderSection,
-    ParamEditor,
     PrimaryButton,
     SecondaryButton
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
@@ -556,7 +555,16 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                 </Section>
             </div>
             <div className={classes.sectionSeparator}>
-                <ParamEditor onSave={null} onCancel={null}/>
+                <Section
+                    title={queryParamTitle}
+                    tooltipWithExample={{ title: queryParamContenttitle, content: queryParamExample }}
+                >
+                    <QueryParamEditor
+                        queryParams={resource.queryParams}
+                        onChange={handleOnChangeQueryParamFromUI}
+                        targetPosition={segmentTargetPosition}
+                    />
+                </Section>
             </div>
             <div className={classes.sectionSeparator}>
                 <Section
