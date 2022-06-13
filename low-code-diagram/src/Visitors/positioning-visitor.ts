@@ -801,10 +801,12 @@ export class PositioningVisitor implements Visitor {
                         endpointViewState.bBox.rw + epGap + (epGap * epCount);
                     endpointViewState.lifeLine.cy = statementViewState.bBox.cy;
                     const endpoint: Endpoint = this.allEndpoints.get(statementViewState.endpoint.epName);
-                    const visibleEndpoint: VisibleEndpoint = endpoint.visibleEndpoint;
-                    const mainEp = endpointViewState;
-                    visibleEndpoint.viewState = mainEp;
-                    epCount++;
+                    if (endpoint) {
+                        const visibleEndpoint: VisibleEndpoint = endpoint?.visibleEndpoint;
+                        const mainEp = endpointViewState;
+                        visibleEndpoint.viewState = mainEp;
+                        epCount++;
+                    }
                 }
 
                 if ((statementViewState.isEndpoint && statementViewState.isAction && !statementViewState.hidden)
