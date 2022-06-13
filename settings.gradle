@@ -8,15 +8,3 @@
  */
 
 rootProject.name = 'ballerina-plugin-vscode'
-
-include(':bbe-viewer')
-
-project(':bbe-viewer').projectDir = file('web/bbe')
-
-include(':perf-viewer')
-
-project(':perf-viewer').projectDir = file('web/perf-forecast')
-
-include(':swagger-viewer')
-
-project(':swagger-viewer').projectDir = file('web/swagger')
