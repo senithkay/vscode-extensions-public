@@ -28,8 +28,8 @@ import {
     LibraryKind,
     LibrarySearchResponse
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import debounce from "lodash.debounce";
 
-import LibraryModuleIcon from "../../assets/icons/LibraryModuleIcon";
 import LibrarySearchIcon from "../../assets/icons/LibrarySearchIcon";
 import { LANG_LIBS_IDENTIFIER, STD_LIBS_IDENTIFIER } from "../../constants";
 import { StatementEditorContext } from "../../store/statement-editor-context";
@@ -63,7 +63,6 @@ export function LibraryBrowser(props: LibraryBrowserProps) {
     } = useContext(StatementEditorContext);
 
     const [libraryBrowserMode, setLibraryBrowserMode] = useState(LibraryBrowserMode.LIB_LIST);
-    const [keyword, setKeyword] = useState('');
     const [searchScope, setSearchScope] = useState(DEFAULT_SEARCH_SCOPE);
     const [librariesSearchData, setLibrariesSearchData] = useState<LibrarySearchResponse>();
     const [libraries, setLibraries] = useState([]);
@@ -101,25 +100,9 @@ export function LibraryBrowser(props: LibraryBrowserProps) {
             setSearchScope(DEFAULT_SEARCH_SCOPE);
             setModuleTitle('');
             setModuleSelected(false);
-            setKeyword('');
+            resetKeyword();
         })();
     }, [libraryType]);
-
-    useEffect(() => {
-        if (keyword === '') {
-            setLibraryBrowserMode(LibraryBrowserMode.LIB_LIST);
-            setSearchScope(DEFAULT_SEARCH_SCOPE);
-        } else {
-            let filteredData;
-            if (librariesSearchData && searchScope === DEFAULT_SEARCH_SCOPE) {
-                filteredData = filterByKeyword(librariesSearchData, keyword);
-            } else if (libraryData && searchScope !== DEFAULT_SEARCH_SCOPE) {
-                filteredData = filterByKeyword(libraryData.searchData, keyword);
-            }
-            setFilteredSearchData(filteredData);
-            setLibraryBrowserMode(LibraryBrowserMode.LIB_SEARCH);
-        }
-    }, [keyword]);
 
     const libraryBrowsingHandler = (data: LibraryDataResponse) => {
         setLibraryData(data);
@@ -134,11 +117,16 @@ export function LibraryBrowser(props: LibraryBrowserProps) {
         setSearchScope(DEFAULT_SEARCH_SCOPE);
         setModuleTitle('');
         setModuleSelected(false);
-        setKeyword('');
+        resetKeyword();
     }
 
     const libraryDataFetchingHandler = (isFetching: boolean) => {
         setIsLoading(isFetching);
+    }
+
+    const resetKeyword = () => {
+        const searchInput = (document.getElementById("searchKeyword") as HTMLInputElement);
+        searchInput.value = '';
     }
 
     const loadingScreen = (
@@ -154,6 +142,29 @@ export function LibraryBrowser(props: LibraryBrowserProps) {
         </Grid>
     );
 
+    const searchLibrary = (event: React.ChangeEvent<HTMLInputElement>) => {
+        libraryDataFetchingHandler(true)
+        const searchValue: string = event.target.value;
+
+        if (searchValue === '') {
+            setLibraryBrowserMode(LibraryBrowserMode.LIB_LIST);
+            setSearchScope(DEFAULT_SEARCH_SCOPE);
+        } else {
+            let filteredData;
+            if (librariesSearchData && searchScope === DEFAULT_SEARCH_SCOPE) {
+                filteredData = filterByKeyword(librariesSearchData, searchValue);
+            } else if (libraryData && searchScope !== DEFAULT_SEARCH_SCOPE) {
+                filteredData = filterByKeyword(libraryData.searchData, searchValue);
+            }
+            setLibraryBrowserMode(LibraryBrowserMode.LIB_SEARCH);
+            setFilteredSearchData(filteredData);
+        }
+
+        libraryDataFetchingHandler(false);
+    }
+
+    const debounceLibrarySearch = debounce(searchLibrary, 500);
+
     return (
         <div className={stmtEditorHelperClasses.libraryBrowser}>
             <div className={stmtEditorHelperClasses.libraryBrowserHeader}>
@@ -166,11 +177,11 @@ export function LibraryBrowser(props: LibraryBrowserProps) {
                 )}
                 <FormControl style={{ width: 'inherit' }}>
                     <Input
+                        id={"searchKeyword"}
                         className={stmtEditorHelperClasses.librarySearchBox}
-                        value={keyword}
                         autoFocus={true}
                         placeholder={`search in ${searchScope}`}
-                        onChange={(e) => setKeyword(e.target.value)}
+                        onChange={debounceLibrarySearch}
                         endAdornment={(
                             <InputAdornment position={"end"} style={{ padding: '8.5px' }}>
                                 <LibrarySearchIcon />
