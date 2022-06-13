@@ -1,7 +1,7 @@
 import { DiagramEngine, PortModel } from '@projectstorm/react-diagrams';
 import { AbstractModelFactory } from '@projectstorm/react-canvas-core';
 
-export class SimplePortFactory extends AbstractModelFactory<PortModel, DiagramEngine> {
+export class DataMapperPortFactory extends AbstractModelFactory<PortModel, DiagramEngine> {
 	cb: (initialConfig?: any) => PortModel;
 
 	constructor(type: string, cb: (initialConfig?: any) => PortModel) {
@@ -9,7 +9,7 @@ export class SimplePortFactory extends AbstractModelFactory<PortModel, DiagramEn
 		this.cb = cb;
 	}
 
-	generateModel(event): PortModel {
+	generateModel(event: { initialConfig: any; }): PortModel {
 		return this.cb(event.initialConfig);
 	}
 }

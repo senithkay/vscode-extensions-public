@@ -4,6 +4,8 @@ import { DiagramEditorLangClientInterface } from "@wso2-enterprise/ballerina-low
 
 import { CodeEditor } from './CodeEditor/CodeEditor';
 
+import DataMapper from "./../components/DiagramModel/DataMapperNode";
+
 export interface DataMapperWrapperProps {
     getFileContent: (url: string) => Promise<string>;
     updateFileContent: (filePath: string, content: string) => Promise<boolean>;
@@ -64,7 +66,7 @@ export function DataMapperWrapper(props: DataMapperWrapperProps) {
         :
         // tslint:disable-next-line: jsx-wrap-multiline
         <>
-            {/* Add component here */}
+            <DataMapper />
             <hr/>
             <CodeEditor
                 content={fileContent}
