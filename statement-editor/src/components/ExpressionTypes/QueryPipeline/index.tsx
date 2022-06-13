@@ -14,7 +14,7 @@ import React, { useContext } from "react";
 
 import { NodePosition, QueryPipeline, STNode } from "@wso2-enterprise/syntax-tree";
 
-import { ArrayType } from "../../../constants";
+import { ArrayType, DEFAULT_WHERE_INTERMEDIATE_CLAUSE } from "../../../constants";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { NewExprAddButton } from "../../Button/NewExprAddButton";
 import { ExpressionComponent } from "../../Expression";
@@ -29,9 +29,11 @@ export function QueryPipelineComponent(props: QueryPipelineProps) {
 
     const {
         modelCtx: {
-            setNewQueryPos
+            updateModel
         }
     } = useContext(StatementEditorContext);
+
+    const [isHovered, setHovered] = React.useState(false);
 
     const addNewExpression = (fromClauseModel: STNode) => {
         const newPosition: NodePosition = {
@@ -39,14 +41,31 @@ export function QueryPipelineComponent(props: QueryPipelineProps) {
             startLine: fromClauseModel.position.endLine,
             startColumn: fromClauseModel.position.endColumn
         }
-        setNewQueryPos(newPosition);
+        updateModel(`\n ${DEFAULT_WHERE_INTERMEDIATE_CLAUSE}`, newPosition);
     };
 
+    const onMouseEnter = (e: React.MouseEvent) => {
+        setHovered(true);
+        e.stopPropagation();
+        e.preventDefault();
+    }
+
+    const onMouseLeave = (e: React.MouseEvent) => {
+        setHovered(false);
+        e.stopPropagation();
+        e.preventDefault();
+    }
 
     return (
         <>
-            <ExpressionComponent model={model.fromClause} />
-            <NewExprAddButton model={model.fromClause} onClick={addNewExpression} />
+            <span onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave} >
+                <ExpressionComponent model={model.fromClause} />
+                <NewExprAddButton
+                    model={model.fromClause}
+                    onClick={addNewExpression}
+                    classNames={isHovered ? "view" : "hide"}
+                />
+            </span>
             <br/>
             <ExpressionArrayComponent
                 modifiable={true}

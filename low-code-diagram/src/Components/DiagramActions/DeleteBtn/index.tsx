@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
 import React, { useContext, useState } from "react";
 
-import { STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { DELETE_CONNECTOR, LowcodeEvent, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../Context/diagram";
@@ -31,18 +31,21 @@ export interface DeleteBtnProps {
     isReferencedInCode?: boolean;
     isButtonDisabled?: boolean;
     showOnRight?: boolean;
+    isConnector?: boolean;
     onDraftDelete?: () => void;
     createModifications?: (model: STNode) => STModification[];
 }
 
 export function DeleteBtn(props: DeleteBtnProps) {
     const diagramContext = useContext(Context);
+
     const { isReadOnly } = diagramContext.props;
+    const onEvent = diagramContext?.api?.insights?.onEvent;
     const deleteComponent = diagramContext?.api?.edit?.deleteComponent;
     const renderDialogBox = diagramContext?.api?.edit?.renderDialogBox;
     const { overlayId } = useFunctionContext();
 
-    const { cx, cy, model, onDraftDelete, toolTipTitle, isButtonDisabled, isReferencedInCode, showOnRight } = props;
+    const { cx, cy, model, onDraftDelete, toolTipTitle, isButtonDisabled, isReferencedInCode, showOnRight, isConnector } = props;
 
     const [isConfirmDialogActive, setConfirmDialogActive] = useState(false);
     const [, setBtnActive] = useState(false);
@@ -71,12 +74,25 @@ export function DeleteBtn(props: DeleteBtnProps) {
         }
     };
 
+    const onConnectorDeleteEvent = () => {
+        const event: LowcodeEvent = {
+            type: DELETE_CONNECTOR,
+            property: {
+                connectorName: model?.typeData?.typeSymbol?.moduleID?.packageName
+            }
+        };
+        onEvent(event);
+    };
+
     const closeConfirmDialog = () => {
         setConfirmDialogActive(false);
         setBtnActive(false);
     };
 
     const onDeleteConfirm = () => {
+        if (isConnector) {
+            onConnectorDeleteEvent();
+        }
         // delete logic
         if (model && deleteComponent) {
             deleteComponent(model, closeConfirmDialog)

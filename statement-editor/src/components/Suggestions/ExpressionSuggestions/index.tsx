@@ -17,10 +17,13 @@ import {
     FormControl,
     Input, InputAdornment, List, ListItem, ListItemText, Typography
 } from "@material-ui/core";
-import { STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import LibrarySearchIcon from "../../../assets/icons/LibrarySearchIcon";
-import { CONFIGURABLE_VALUE_REQUIRED_TOKEN, QUERY_INTERMEDIATE_CLAUSES } from "../../../constants";
+import {
+    CONFIGURABLE_VALUE_REQUIRED_TOKEN,
+    DEFAULT_WHERE_INTERMEDIATE_CLAUSE,
+    QUERY_INTERMEDIATE_CLAUSES
+} from "../../../constants";
 import { InputEditorContext } from "../../../store/input-editor-context";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import {
@@ -31,6 +34,7 @@ import {
     SELECTED_EXPRESSION
 } from "../../../utils/expressions";
 import { KeyboardNavigationManager } from "../../../utils/keyboard-navigation-manager";
+import { ModelType } from "../../../utils/statement-editor-viewstate";
 import { useStatementEditorStyles, useStmtEditorHelperPanelStyles  } from "../../styles";
 
 export function ExpressionSuggestions() {
@@ -45,9 +49,7 @@ export function ExpressionSuggestions() {
     const {
         modelCtx: {
             currentModel,
-            updateModel,
-            newQueryPosition,
-            setNewQueryPos
+            updateModel
         }
     } = useContext(StatementEditorContext);
 
@@ -58,22 +60,23 @@ export function ExpressionSuggestions() {
         const text = currentModelSource !== CONFIGURABLE_VALUE_REQUIRED_TOKEN
             ? expression.template.replace(SELECTED_EXPRESSION, currentModelSource)
             : expression.template.replace(SELECTED_EXPRESSION, EXPR_PLACEHOLDER);
-        newQueryPosition ? updateModel(`\n${text}`, newQueryPosition) : updateModel(text, currentModel.model.position);
-        setNewQueryPos(null)
+        updateModel(text, currentModel.model.position)
         inputEditorCtx.onInputChange('');
     }
 
     useEffect(() => {
         if (currentModel.model) {
             let filteredGroups: ExpressionGroup[] = expressions.filter(
-                (exprGroup) => exprGroup.relatedModelType === currentModel.model.viewState.modelType);
-            if (newQueryPosition){
+                (exprGroup) => exprGroup.relatedModelType === currentModel.model.viewState.modelType ||
+                    (currentModel.model.viewState.modelType === ModelType.FIELD_ACCESS &&
+                        exprGroup.relatedModelType === ModelType.EXPRESSION));
+            if (currentModel.model.source?.trim() === DEFAULT_WHERE_INTERMEDIATE_CLAUSE){
                 filteredGroups = expressions.filter(
                     (exprGroup) =>  exprGroup.name === QUERY_INTERMEDIATE_CLAUSES);
             }
             setFilteredExpressions(filteredGroups);
         }
-    }, [currentModel.model, newQueryPosition]);
+    }, [currentModel.model]);
 
     const changeSelected = (key: number) => {
         const newSelected = selectedListItem + key;
@@ -160,7 +163,7 @@ export function ExpressionSuggestions() {
                         <>
                             {filteredExpressions.map((group, groupIndex) => (
                                 <>
-                                    <div className={stmtEditorHelperClasses.librarySearchSubHeader}>{group.name}</div>
+                                    <div className={stmtEditorHelperClasses.helperPaneSubHeader}>{group.name}</div>
                                     <List className={stmtEditorHelperClasses.expressionList}>
                                         {
                                             group.expressions.map((expression, index) => (

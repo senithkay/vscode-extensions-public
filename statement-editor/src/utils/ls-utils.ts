@@ -142,7 +142,9 @@ export async function getCompletions(docUri: string,
                 value: completion.label,
                 kind: completion.detail,
                 insertText: isProperty && updatedInsertText,
-                completionKind: completion.kind });
+                completionKind: completion.kind
+            }
+        );
     });
 
     return suggestions;

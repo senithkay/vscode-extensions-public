@@ -57,11 +57,11 @@ import { WorkerDeclarationViewState } from "../ViewState/worker-declaration";
 import { DefaultConfig } from "./default";
 import { haveBlockStatement, isEndpointNode, isSTActionInvocation } from "./util";
 
-let allEndpoints: Map<string, Endpoint> = new Map<string, Endpoint>();
 let currentFnBody: FunctionBodyBlock | ExpressionFunctionBody;
-const allDiagnostics: Diagnostic[] = [];
 
 export class InitVisitor implements Visitor {
+    private allEndpoints: Map<string, Endpoint> = new Map();
+
     public beginVisitSTNode(node: STNode, parent?: STNode) {
         if (!node.viewState) {
             node.viewState = new ViewState();
@@ -85,6 +85,7 @@ export class InitVisitor implements Visitor {
                 viewState.initPlus = undefined;
             }
         }
+        this.allEndpoints = new Map<string, Endpoint>();
     }
 
     public beginVisitListenerDeclaration(node: ListenerDeclaration, parent?: STNode) {
@@ -102,7 +103,7 @@ export class InitVisitor implements Visitor {
 
         if (node.typeData && node.typeData.isEndpoint) {
             const bindingPattern = node.typedBindingPattern.bindingPattern as CaptureBindingPattern;
-            if (allEndpoints.get(bindingPattern.variableName.value)) {
+            if (this.allEndpoints.get(bindingPattern.variableName.value)) {
                 node.viewState.endpoint.epName = bindingPattern.variableName.value;
                 node.viewState.isEndpoint = true;
             }
@@ -136,6 +137,7 @@ export class InitVisitor implements Visitor {
             const viewState = new FunctionViewState();
             node.viewState = viewState;
         }
+        this.allEndpoints = new Map<string, Endpoint>();
     }
 
     public beginVisitObjectMethodDefinition(node: ObjectMethodDefinition, parent?: STNode) {
@@ -143,6 +145,7 @@ export class InitVisitor implements Visitor {
             const viewState = new FunctionViewState();
             node.viewState = viewState;
         }
+        this.allEndpoints = new Map<string, Endpoint>();
     }
 
     public beginVisitServiceDeclaration(node: ServiceDeclaration, parent?: STNode) {
@@ -151,7 +154,7 @@ export class InitVisitor implements Visitor {
 
     public beginVisitFunctionBodyBlock(node: FunctionBodyBlock, parent?: STNode) {
         currentFnBody = node;
-        allEndpoints = new Map<string, Endpoint>();
+        this.allEndpoints = new Map<string, Endpoint>();
         this.visitBlock(node, parent);
     }
 
@@ -262,7 +265,7 @@ export class InitVisitor implements Visitor {
 
     public endVisitFunctionBodyBlock(node: FunctionBodyBlock, parent?: STNode) {
         const blockViewState: BlockViewState = node.viewState;
-        blockViewState.connectors = allEndpoints;
+        blockViewState.connectors = this.allEndpoints;
         blockViewState.hasWorkerDecl = !!node.namedWorkerDeclarator;
         currentFnBody = undefined;
     }
@@ -281,7 +284,7 @@ export class InitVisitor implements Visitor {
         // todo: Check if this is the function to replace beginVisitExpressionStatement
         node.viewState = new BlockViewState();
         currentFnBody = node;
-        allEndpoints = new Map<string, Endpoint>();
+        this.allEndpoints = new Map<string, Endpoint>();
         // this.visitBlock(node, parent);
         node.viewState.isEndComponentAvailable = true;
     }
@@ -289,13 +292,13 @@ export class InitVisitor implements Visitor {
     public endVisitExpressionFunctionBody(node: ExpressionFunctionBody) {
         // todo: Check if this is the function to replace endVisitExpressionStatement
         const blockViewState: BlockViewState = node.viewState;
-        blockViewState.connectors = allEndpoints;
+        blockViewState.connectors = this.allEndpoints;
         currentFnBody = undefined;
     }
 
     public beginVisitIfElseStatement(node: IfElseStatement, parent?: STNode) {
         node.viewState = new IfViewState();
-        if (!STKindChecker.isElseBlock(parent)){
+        if (!STKindChecker.isElseBlock(parent)) {
             (node.viewState as IfViewState).isMainIfBody = true;
         }
         if (node.elseBody) {
@@ -373,7 +376,7 @@ export class InitVisitor implements Visitor {
             if (isEndpointNode(node)) {
                 const bindingPattern: CaptureBindingPattern = node.typedBindingPattern.bindingPattern as CaptureBindingPattern;
                 stmtViewState.endpoint.epName = bindingPattern.variableName.value;
-                if (allEndpoints.has(stmtViewState.endpoint.epName)){
+                if (this.allEndpoints.has(stmtViewState.endpoint.epName)) {
                     stmtViewState.isEndpoint = true;
                 }
             }
@@ -422,7 +425,7 @@ export class InitVisitor implements Visitor {
                     stmtViewState.isCallerAction = typeCastViewState.isCallerAction;
                 }
 
-                if (!allEndpoints.has(stmtViewState.action.endpointName)) {
+                if (!this.allEndpoints.has(stmtViewState.action.endpointName)) {
                     stmtViewState.isAction = false;
                     return;
                 }
@@ -487,7 +490,7 @@ export class InitVisitor implements Visitor {
                     visibleEndpoint: ep,
                     actions
                 };
-                if (!allEndpoints.has(ep.typeName) && ep.name !== callerParamName) {
+                if (!this.allEndpoints.has(ep.typeName) && ep.name !== callerParamName) {
                     // Update endpoint lifeline values.
                     const endpointViewState: EndpointViewState = new EndpointViewState();
                     endpointViewState.bBox.w = DefaultConfig.connectorStart.width;
@@ -498,7 +501,7 @@ export class InitVisitor implements Visitor {
                     const mainEp = endpointViewState;
                     mainEp.isUsed = endpoint.firstAction !== undefined;
                     visibleEndpoint.viewState = mainEp;
-                    allEndpoints.set(ep.name, endpoint);
+                    this.allEndpoints.set(ep.name, endpoint);
                 }
             });
         }

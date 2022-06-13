@@ -31,13 +31,24 @@ export interface VariableUserInputs {
     formField?: string
 }
 
+export interface LSSuggestions {
+    directSuggestions: SuggestionItem[];
+    secondLevelSuggestions?: SecondLevelSuggestions;
+}
+
 export interface SuggestionItem {
     value: string;
     label?: string,
     kind?: string;
     insertText?: string;
-    suggestionType?: number
     completionKind?: number;
+    suggestionType?: number;
+    prefix?: string;
+}
+
+export interface SecondLevelSuggestions {
+    selection: string;
+    secondLevelSuggestions: SuggestionItem[];
 }
 
 export interface RemainingContent {
@@ -67,6 +78,7 @@ export interface EditorModel {
     position: NodePosition;
     undoRedoManager: StmtEditorUndoRedoManager;
     isConfigurableStmt?: boolean;
+    isModuleVar?: boolean;
     isExistingStmt?: boolean;
     selectedNodePosition?: NodePosition;
     newConfigurableName?: string;

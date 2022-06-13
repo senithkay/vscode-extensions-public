@@ -201,7 +201,13 @@ export const useStatementRendererStyles = makeStyles(() =>
             },
             '&.modifiable': {
                 position: 'absolute',
-                marginLeft: '10px'
+                marginLeft: '10px',
+            },
+            '&.view': {
+                display: "inline"
+            },
+            '&.hide': {
+                display: "none"
             }
         },
         syntaxErrorTooltip : {
@@ -375,7 +381,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             marginBottom: '16px',
             paddingLeft: '10px'
         },
-        librarySearchSubHeader: {
+        helperPaneSubHeader: {
             color: '#1D2028',
             marginBottom: '4px',
             fontWeight: 500,
@@ -573,8 +579,8 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             ...removePadding
         },
         docDescription: {
-            marginBottom: '13px',
             whiteSpace: 'pre',
+            display: 'block',
             "& .MuiListItem-root": {
                 paddingLeft: '0px',
                 paddingTop: '0px',
@@ -607,6 +613,18 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             },
             ...removePadding
         },
+        exampleHeader :  {
+            fontSize: '13px',
+            color: '#1D2028',
+            letterSpacing: '0',
+            lineHeight: '14px',
+            paddingLeft: '0px',
+            marginBottom: '7px',
+            marginTop: '20px'
+        },
+        exampleCode : {
+            color: '#1D2028'
+        }
     }),
 );
 
@@ -665,13 +683,13 @@ export const useStatementEditorStyles = makeStyles(() =>
             height: 'auto',
             display: 'flex',
             width: '100%',
-            padding: '10px 20px',
+            padding: '10px 25px',
             borderTop: '1px solid #e6e7ec'
         },
         buttonWrapper: {
             display: 'flex',
             justifyContent: 'flex-end',
-            width: '50%'
+            width: '100%'
         },
         stmtEditorToggle: {
             width: '50%'

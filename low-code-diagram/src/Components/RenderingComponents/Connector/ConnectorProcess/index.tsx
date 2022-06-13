@@ -258,6 +258,7 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
                                     DELETE_SVG_HEIGHT_WITH_SHADOW / 3
                                 }
                                 model={model}
+                                isConnector={true}
                                 toolTipTitle={toolTip}
                                 isReferencedInCode={isReferencedVariable}
                                 showOnRight={true}

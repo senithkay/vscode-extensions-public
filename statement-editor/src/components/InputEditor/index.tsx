@@ -16,6 +16,7 @@ import React, { useContext, useEffect, useMemo, useState } from "react";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 import debounce from "lodash.debounce";
 
+import { DEFAULT_INTERMEDIATE_CLAUSE } from "../../constants";
 import { InputEditorContext } from "../../store/input-editor-context";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { isPositionsEquals } from "../../utils";
@@ -64,7 +65,7 @@ export function InputEditor(props: InputEditorProps) {
             source = model.source;
         }
 
-        return source;
+        return source.trim();
     }, [model]);
 
     const [isEditing, setIsEditing] = useState(false);
@@ -116,17 +117,18 @@ export function InputEditor(props: InputEditorProps) {
     };
 
     const changeInput = (newValue: string) => {
+        let input = newValue;
         if (!newValue) {
             if (isPositionsEquals(statementModel.position, model.position)) {
                 // placeholder for empty custom statements
-                newValue = STMT_PLACEHOLDER;
+                input = STMT_PLACEHOLDER;
             } else {
-                newValue = (model.viewState as StatementEditorViewState).modelType === ModelType.TYPE_DESCRIPTOR
+                input = (model.viewState as StatementEditorViewState).modelType === ModelType.TYPE_DESCRIPTOR
                     ? TYPE_DESC_PLACEHOLDER : EXPR_PLACEHOLDER;
             }
         }
-        setUserInput(newValue);
-        inputEditorCtx.onInputChange(newValue);
+        setUserInput(input);
+        inputEditorCtx.onInputChange(input);
         debouncedContentChange(newValue, true);
     }
 
@@ -145,6 +147,7 @@ export function InputEditor(props: InputEditorProps) {
         if (userInput !== "") {
             // Replace empty interpolation with placeholder value
             const codeSnippet = userInput.replaceAll('${}', "${" + EXPR_PLACEHOLDER + "}");
+            originalValue === DEFAULT_INTERMEDIATE_CLAUSE ? updateModel(codeSnippet, model ? model.parent.parent.position : targetPosition) :
             updateModel(codeSnippet, model ? model.position : targetPosition);
         }
         setIsEditing(false);
@@ -155,7 +158,7 @@ export function InputEditor(props: InputEditorProps) {
             <>
                 <input
                     data-testid="input-editor"
-                    value={INPUT_EDITOR_PLACEHOLDERS.has(userInput.trim()) ? "" : userInput}
+                    value={INPUT_EDITOR_PLACEHOLDERS.has(userInput) ? "" : userInput}
                     className={statementRendererClasses.inputEditorTemplate + ' ' + classNames}
                     onKeyDown={inputEnterHandler}
                     onInput={inputChangeHandler}

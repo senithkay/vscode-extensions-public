@@ -16,10 +16,11 @@ import { FormControl } from '@material-ui/core';
 import { ExpressionEditorProps } from '@wso2-enterprise/ballerina-expression-editor';
 import { ADD_CONFIGURABLE, ConfigOverlayFormStatus, FormElementProps, LowcodeEvent, STModification } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { FormActionButtons, FormHeaderSection } from '@wso2-enterprise/ballerina-low-code-edtior-ui-components';
+import { StatementEditorWrapper } from "@wso2-enterprise/ballerina-statement-editor";
 import { CaptureBindingPattern, ModuleVarDecl, NodePosition } from '@wso2-enterprise/syntax-tree';
 import { v4 as uuid } from "uuid";
 
-import { useDiagramContext } from '../../../../../Contexts/Diagram';
+import { Context, useDiagramContext } from '../../../../../Contexts/Diagram';
 import { getAllModuleVariables } from '../../../../utils/mixins';
 import { createConfigurableDecl, updateConfigurableVarDecl } from '../../../../utils/modification-util';
 import { genVariableName } from '../../../Portals/utils';
@@ -50,6 +51,20 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
     const { api: { code: { modifyDiagram }, insights: { onEvent } }, props: { stSymbolInfo } } = useDiagramContext();
     const { onSave, onCancel, targetPosition, model, configOverlayFormStatus, formType, isLastMember } = props;
     const [state, dispatch] = useReducer(moduleVarFormReducer, getFormConfigFromModel(model, stSymbolInfo));
+
+    const {
+        props: {
+            isMutationProgress: isMutationInProgress,
+            currentFile,
+            syntaxTree,
+            importStatements,
+            experimentalEnabled
+        },
+        api: {
+            ls: { getExpressionEditorLangClient },
+            library
+        },
+    } = useContext(Context);
 
     const { updateInjectables, updateParentConfigurable, configurableId } = configOverlayFormStatus?.formArgs || {};
     const isFromExpressionEditor = !!updateInjectables;
@@ -218,62 +233,46 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
         </div>
     );
 
-    return (
-        <FormControl data-testid="module-variable-config-form" className={formClasses.wizardFormControl}>
-            <FormHeaderSection
-                onCancel={onCancel}
-                formTitle={isFromExpressionEditor ? "lowcode.develop.configForms.ModuleVarDecl.AddConfigurableTitle" : "lowcode.develop.configForms.ModuleVarDecl.ConfigurableTitle"}
-                defaultMessage={isFromExpressionEditor ? 'Add Configurable' : 'Configurable'}
-                formType={formType}
-            />
-            <div className={formClasses.formContentWrapper}>
-                <div className={formClasses.formNameWrapper}>
-                    <TextLabel
-                        required={true}
-                        textLabelId="lowcode.develop.configForms.ModuleVarDecl.configureNewListener"
-                        defaultMessage="Access Modifier :"
-                    />
-                    <CheckBoxGroup
-                        values={["public"]}
-                        defaultValues={state.isPublic ? ['public'] : []}
-                        onChange={onAccessModifierChange}
-                    />
-                    {variableTypeInput}
-                    <VariableNameInput
-                        // Fixme: Prevent editing name if the configurable is being referenced somewhere
-                        displayName={'Configurable Name'}
-                        value={state.varName}
-                        onValueChange={handleOnVarNameChange}
-                        validateExpression={updateExpressionValidity}
-                        position={namePosition}
-                        isEdit={!isFromExpressionEditor && !!model}
-                        initialDiagnostics={model?.typedBindingPattern?.typeData?.diagnostics}
-                    />
-                    <TextLabel
-                        required={true}
-                        textLabelId="lowcode.develop.configForms.ModuleVarDecl.defaultValueIncluded"
-                        defaultMessage="Default Value :"
-                    />
-                    <CheckBoxGroup
-                        values={["Include Default Value"]}
-                        defaultValues={state.hasDefaultValue ? ['Include Default Value'] : []}
-                        onChange={onHasDefaultValChange}
-                    />
-                    <div hidden={!state.hasDefaultValue}>
-                        <LowCodeExpressionEditor
-                            {...expressionEditorConfigForValue}
-                        />
-                    </div>
-                </div>
-            </div>
-            <FormActionButtons
-                cancelBtnText="Cancel"
-                cancelBtn={true}
-                saveBtnText="Save"
-                onSave={handleOnSave}
-                onCancel={onCancel}
-                validForm={disableSaveBtn}
-            />
-        </FormControl>
-    )
+    const handleStatementEditorChange = (partialModel: ModuleVarDecl) => {
+        handleOnVarNameChange(partialModel.typedBindingPattern.bindingPattern.source);
+        onVarTypeChange(partialModel.typedBindingPattern.typeDescriptor.source);
+        if (partialModel.initializer.source !== "?") {
+            onHasDefaultValChange(['Include Default Value']);
+            onValueChange(partialModel.initializer.source);
+        } else {
+            onHasDefaultValChange([]);
+        }
+    }
+
+    const visibilityQualifier = state.isPublic ? 'public' : '';
+    const varType = state.varType ? state.varType : 'boolean';
+    const varName = state.varName ? state.varName : 'CONF_NAME';
+    const varValue = state.hasDefaultValue && state.varValue ? state.varValue : '?';
+
+    const initialSource = `${visibilityQualifier} configurable ${varType} ${varName} = ${varValue};`
+
+    const stmtEditorComponent = StatementEditorWrapper(
+        {
+            label: isFromExpressionEditor ? 'Add Configurable' : 'Configurable',
+            initialSource,
+            formArgs: {formArgs: {
+                targetPosition: model ? targetPosition : { startLine: targetPosition.startLine, startColumn: targetPosition.startColumn }
+            }},
+            config: { type: formType, model},
+            onWizardClose: onCancel,
+            onStmtEditorModelChange: handleStatementEditorChange,
+            onCancel,
+            currentFile,
+            getLangClient: getExpressionEditorLangClient,
+            applyModifications: modifyDiagram,
+            library,
+            syntaxTree,
+            stSymbolInfo,
+            importStatements,
+            experimentalEnabled,
+            isConfigurableStmt: true
+        }
+    );
+
+    return stmtEditorComponent;
 }

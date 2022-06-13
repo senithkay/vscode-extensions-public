@@ -32,6 +32,10 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
     const MAIN_TEXT: string = "Main";
     const { targetPosition, model, onSave, onCancel, configOverlayFormStatus, isLastMember } = props;
 
+    const intl = useIntl();
+
+    const isMainFunction: boolean = (configOverlayFormStatus.formName && configOverlayFormStatus.formName === MAIN_TEXT) || (model && model.functionName.value === MAIN_TEXT.toLowerCase());
+
     const {
         props: { syntaxTree, currentFile, experimentalEnabled, importStatements },
         api: {
@@ -48,7 +52,7 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
                 initialModel={model}
                 targetPosition={model ? model?.functionSignature?.position : targetPosition}
                 onCancel={onCancel}
-                type={"Function"}
+                type={isMainFunction ? MAIN_TEXT : "Function"}
                 currentFile={currentFile}
                 getLangClient={getExpressionEditorLangClient}
                 applyModifications={modifyDiagram}

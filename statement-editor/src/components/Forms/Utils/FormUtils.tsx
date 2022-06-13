@@ -17,7 +17,7 @@ import {
     ListenerConfigFormState,
     STSymbolInfo
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import {ListenerDeclaration, NodePosition, ServiceDeclaration, STKindChecker} from "@wso2-enterprise/syntax-tree";
+import { ListenerDeclaration, NodePosition, ServiceDeclaration, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 export function recalculateItemIds(items: any[]) {
     items.forEach((item, index) => {
@@ -43,6 +43,10 @@ export function getInitialSource(type: string, targetPosition: NodePosition): st
                 listenerName: "name",
                 listenerPort: "9090"
             }, targetPosition, false));
+        }
+        case "Main": {
+            return getSource(createFunctionSignature("public", "main", "", "",
+                targetPosition));
         }
     }
     return;

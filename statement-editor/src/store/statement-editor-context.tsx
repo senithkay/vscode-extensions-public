@@ -17,7 +17,7 @@ import { LibraryKind, STModification, SymbolInfoResponse } from "@wso2-enterpris
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { LowCodeEditorProps } from "../components/StatementEditorWrapper";
-import { EditorModel, EmptySymbolInfo, StmtDiagnostic, SuggestionItem } from "../models/definitions";
+import { EditorModel, EmptySymbolInfo, LSSuggestions, StmtDiagnostic } from "../models/definitions";
 
 import { InputEditorContextProvider } from "./input-editor-context";
 
@@ -35,15 +35,17 @@ export const StatementEditorContext = React.createContext({
         hasRedo: false,
         hasSyntaxDiagnostics: false,
         restArg: (restCheckClicked: boolean) => undefined,
-        hasRestArg: false,
-        newQueryPosition: null,
-        setNewQueryPos: (newQueryPos: NodePosition) => undefined
+        hasRestArg: false
     },
     statementCtx: {
         diagnostics: []
     },
     suggestionsCtx: {
-        lsSuggestions: []
+        lsSuggestions: [],
+        lsSecondLevelSuggestions: {
+            selection: '',
+            secondLevelSuggestions: []
+        }
     },
     modules: {
         modulesToBeImported: new Set(),
@@ -76,7 +78,6 @@ export const StatementEditorContext = React.createContext({
     syntaxTree: null,
     stSymbolInfo: null,
     importStatements: [],
-    handleStmtEditorToggle: () => undefined,
     onWizardClose: () => undefined,
     onCancel: () => undefined,
     experimentalEnabled: false
@@ -97,12 +98,11 @@ export interface CtxProviderProps extends LowCodeEditorProps {
     hasUndo?: boolean,
     hasRedo?: boolean,
     diagnostics?: StmtDiagnostic[],
-    lsSuggestions?: SuggestionItem[],
+    lsSuggestions?: LSSuggestions,
     hasSyntaxDiagnostics?: boolean,
     documentation?: SymbolInfoResponse | EmptySymbolInfo,
     restArg?: (restCheckClicked: boolean) => void,
     hasRestArg?: boolean,
-    handleStmtEditorToggle: () => void,
     editorManager: {
         switchEditor?: (index: number) => void,
         updateEditor?: (index: number, newContent: EditorModel) => void,
@@ -111,9 +111,7 @@ export interface CtxProviderProps extends LowCodeEditorProps {
         activeEditorId?: number,
         editors?: EditorModel[]
     },
-    targetPosition: NodePosition,
-    newQueryPosition?: NodePosition,
-    setNewQueryPos?: (newQueryPos: NodePosition) => void
+    targetPosition: NodePosition
 }
 
 export const StatementEditorContextProvider = (props: CtxProviderProps) => {
@@ -143,8 +141,6 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
         importStatements,
         experimentalEnabled,
         hasSyntaxDiagnostics,
-        newQueryPosition,
-        setNewQueryPos,
         ...restProps
     } = props;
 
@@ -165,14 +161,13 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
                     restArg,
                     hasRestArg,
                     hasSyntaxDiagnostics,
-                    newQueryPosition,
-                    setNewQueryPos,
                 },
                 statementCtx: {
                     diagnostics
                 },
                 suggestionsCtx: {
-                    lsSuggestions
+                    lsSuggestions: lsSuggestions.directSuggestions,
+                    lsSecondLevelSuggestions: lsSuggestions?.secondLevelSuggestions
                 },
                 modules: {
                     modulesToBeImported,

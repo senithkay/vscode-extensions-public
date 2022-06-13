@@ -13,7 +13,14 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useState } from "react";
 
-import { ALL_LIBS_IDENTIFIER, LANG_LIBS_IDENTIFIER, STD_LIBS_IDENTIFIER } from "../../constants";
+import { STKindChecker } from "@wso2-enterprise/syntax-tree";
+
+import {
+    ALL_LIBS_IDENTIFIER,
+    DEFAULT_WHERE_INTERMEDIATE_CLAUSE,
+    LANG_LIBS_IDENTIFIER,
+    STD_LIBS_IDENTIFIER
+} from "../../constants";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { KeyboardNavigationManager } from "../../utils/keyboard-navigation-manager";
 import SelectDropdown from "../Dropdown";
@@ -45,7 +52,7 @@ export function HelperPane(props: HelperPaneProps) {
 
     const {
         modelCtx: {
-            newQueryPosition
+            currentModel
         }
     } = useContext(StatementEditorContext);
 
@@ -74,12 +81,12 @@ export function HelperPane(props: HelperPaneProps) {
     }, []);
 
     useEffect(() => {
-        if (docExpandClicked){
+        if (currentModel.model && STKindChecker.isFunctionCall(currentModel.model)){
             setSelectedTab(TabElements.parameters);
-        } else if (newQueryPosition){
+        } else if (currentModel.model?.source?.trim() === DEFAULT_WHERE_INTERMEDIATE_CLAUSE){
             setSelectedTab(TabElements.expressions);
         }
-    }, [docExpandClicked, newQueryPosition])
+    }, [docExpandClicked, currentModel.model])
 
     useEffect(() => {
         selectedTab === TabElements.parameters ? paramTabHandler(true) : paramTabHandler(false);

@@ -17,3 +17,4 @@ import { ServiceConfigForm } from "./ServiceForm/SeviceForm";
 export { FunctionForm as Function };
 export { ServiceConfigForm as Service };
 export { ListenerForm as Listener };
+export { FunctionForm as Main };
