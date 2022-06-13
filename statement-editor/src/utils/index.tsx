@@ -277,13 +277,13 @@ export function addImportStatements(
 
 export function getMinutiaeJSX(model: STNode): MinutiaeJSX {
     return {
-        leadingMinutiaeJSX: getJSXForMinutiae(model.leadingMinutiae),
-        trailingMinutiaeJSX: getJSXForMinutiae(model.trailingMinutiae)
+        leadingMinutiaeJSX: getJSXForMinutiae(model?.leadingMinutiae),
+        trailingMinutiaeJSX: getJSXForMinutiae(model?.trailingMinutiae)
     };
 }
 
 export function getJSXForMinutiae(minutiae: Minutiae[], dropEndOfLineMinutiaeJSX: boolean = false): ReactNode[] {
-    return minutiae.map((element) => {
+    return minutiae?.map((element) => {
         if (element.kind === WHITESPACE_MINUTIAE) {
             return Array.from({length: element.minutiae.length}, () => <>&nbsp;</>);
         } else if (element.kind === END_OF_LINE_MINUTIAE && !dropEndOfLineMinutiaeJSX) {

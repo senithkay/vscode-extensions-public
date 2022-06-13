@@ -14,6 +14,8 @@ import React from "react";
 
 import { CaptureBindingPattern } from "@wso2-enterprise/syntax-tree";
 
+import { getMinutiaeJSX } from "../../../utils";
+import { StatementEditorViewState } from "../../../utils/statement-editor-viewstate";
 import { InputEditor } from "../../InputEditor";
 
 interface CaptureBindingPatternProps {
@@ -27,7 +29,14 @@ export function CaptureBindingPatternComponent(props: CaptureBindingPatternProps
         model
     };
 
+    const { leadingMinutiaeJSX, trailingMinutiaeJSX } = getMinutiaeJSX(model);
+
     return (
-        <InputEditor {...inputEditorProps} />
+        <>
+            {leadingMinutiaeJSX}
+            <InputEditor {...inputEditorProps} />
+            {trailingMinutiaeJSX}
+        </>
     );
 }
+
