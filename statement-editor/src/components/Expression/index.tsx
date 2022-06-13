@@ -65,12 +65,7 @@ export function ExpressionComponent(props: ExpressionComponentProps) {
         if (!hasSyntaxDiagnostics) {
             e.stopPropagation();
             e.preventDefault();
-            if (e.shiftKey) {
-                changeCurrentModel(model, stmtPosition, true);
-
-            } else {
-                changeCurrentModel(model, stmtPosition);
-            }
+            changeCurrentModel(model, stmtPosition, e.shiftKey);
         }
     }
 
