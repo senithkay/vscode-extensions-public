@@ -120,6 +120,10 @@ export function LibraryBrowser(props: LibraryBrowserProps) {
         resetKeyword();
     }
 
+    const isEmptyFilteredList = (filteredData: LibrarySearchResponse) => {
+       return !Object.values(filteredData).some(it => it.length > 0);
+    }
+
     const libraryDataFetchingHandler = (isFetching: boolean) => {
         setIsLoading(isFetching);
     }
@@ -207,13 +211,21 @@ export function LibraryBrowser(props: LibraryBrowserProps) {
                                 libraryDataFetchingHandler={libraryDataFetchingHandler}
                             />
                         )}
-                        {libraryBrowserMode === LibraryBrowserMode.LIB_SEARCH && filteredSearchData && (
-                            <SearchResult
-                                librarySearchResponse={filteredSearchData}
-                                libraryBrowsingHandler={libraryBrowsingHandler}
-                                moduleSelected={moduleSelected}
-                                libraryDataFetchingHandler={libraryDataFetchingHandler}
-                            />
+                        {libraryBrowserMode === LibraryBrowserMode.LIB_SEARCH && filteredSearchData &&
+                        (isEmptyFilteredList(filteredSearchData) ?
+                            (
+                                <div className={statementEditorClasses.stmtEditorInnerWrapper}>
+                                    <p>No libraries found for the searched keyword</p>
+                                </div>
+                            ) :
+                            (
+                                <SearchResult
+                                    librarySearchResponse={filteredSearchData}
+                                    libraryBrowsingHandler={libraryBrowsingHandler}
+                                    moduleSelected={moduleSelected}
+                                    libraryDataFetchingHandler={libraryDataFetchingHandler}
+                                />
+                            )
                         )}
                     </div>
                 </>
