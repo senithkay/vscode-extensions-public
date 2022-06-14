@@ -30,6 +30,7 @@ import {
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import debounce from "lodash.debounce";
 
+import LibraryModuleIcon from "../../assets/icons/LibraryModuleIcon";
 import LibrarySearchIcon from "../../assets/icons/LibrarySearchIcon";
 import { LANG_LIBS_IDENTIFIER, STD_LIBS_IDENTIFIER } from "../../constants";
 import { StatementEditorContext } from "../../store/statement-editor-context";
@@ -177,6 +178,12 @@ export function LibraryBrowser(props: LibraryBrowserProps) {
                         <IconButton onClick={onClickOnReturnIcon} className={stmtEditorHelperClasses.libraryReturnIcon}>
                             <ArrowBack className={stmtEditorHelperClasses.arrowBack} />
                         </IconButton>
+                        {moduleTitle && (
+                            <div className={stmtEditorHelperClasses.libraryModuleIcon}>
+                                <LibraryModuleIcon/>
+                            </div>
+                        )}
+                        <div className={stmtEditorHelperClasses.moduleTitle}>{moduleTitle}</div>
                     </>
                 )}
                 <FormControl style={{ width: 'inherit' }}>

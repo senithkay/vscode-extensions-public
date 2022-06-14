@@ -432,7 +432,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
         moduleTitle: {
             marginRight: '43px',
             marginLeft: '4.25px',
-            marginBottom: '2px',
+            marginBottom: '16px',
         },
         libraryReturnIcon: {
             alignSelf: 'center',
@@ -447,7 +447,8 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             color: '#5567D5'
         },
         libraryModuleIcon: {
-            marginLeft: '8.25px'
+            marginLeft: '8.25px',
+            marginBottom: '12px'
         },
         libraryListBlock: {
             paddingBottom: '50px',
