@@ -1,4 +1,4 @@
-import createEngine, { DefaultNodeModel, DiagramModel, PortModelAlignment } from '@projectstorm/react-diagrams';
+import createEngine, { DefaultLinkModel, DefaultNodeModel, DiagramModel, PortModelAlignment } from '@projectstorm/react-diagrams';
 import * as React from 'react';
 
 import { DataMapperNodeModel } from './DataMapperNode';
@@ -29,8 +29,14 @@ export function DataMapper(): React.ReactElement {
 	var node3 = new DataMapperNodeModel(middle, true, true);
 	node3.setPosition(500, 100);
 
+	var assetsInPort = node2.getPort("Assets_in");
+	var assetsOutPort = node1.getPort("Assets_out");
+	var link = new DefaultLinkModel();
+	link.setSourcePort(assetsInPort);
+	link.setTargetPort(assetsOutPort);
 
-	model.addAll(node1, node2, node3);
+
+	model.addAll(node1, node2, node3, link);
 
 	engine.setModel(model);
 

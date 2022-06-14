@@ -17,7 +17,7 @@ export class DataMapperNodeModel extends NodeModel<NodeModelGenerics & DiamondNo
 		this.stNode = stNode;
 		this.supportInput = supportInput;
 		this.supportOutput = supportOutput;
-		this.addPorts(this.stNode);		
+		this.addPorts(this.stNode);	
 	}
 
 	private addPorts(stNode: Object) {
@@ -34,4 +34,6 @@ export class DataMapperNodeModel extends NodeModel<NodeModelGenerics & DiamondNo
 			}
 		});
 	}
+
+	
 }
