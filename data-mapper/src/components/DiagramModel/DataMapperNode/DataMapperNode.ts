@@ -1,5 +1,6 @@
 import { NodeModel, NodeModelGenerics } from '@projectstorm/react-diagrams';
 import { DataMapperPortModel } from './DataMapperPortModel';
+import { isObject } from './utils';
 
 export interface DiamondNodeModelGenerics {
 	PORT: DataMapperPortModel;
@@ -16,14 +17,20 @@ export class DataMapperNodeModel extends NodeModel<NodeModelGenerics & DiamondNo
 		this.stNode = stNode;
 		this.supportInput = supportInput;
 		this.supportOutput = supportOutput;
+		this.addPorts(this.stNode);		
+	}
 
+	private addPorts(stNode: Object) {
 		// Add ports
 		Object.entries(stNode).forEach((entry: [string, any]) => {
-			if (supportInput) {
+			if (this.supportInput) {
 				this.addPort(new DataMapperPortModel(entry[0]+"_in","IN"));
 			}
-			if (supportOutput) {
+			if (this.supportOutput) {
 				this.addPort(new DataMapperPortModel(entry[0]+"_out","OUT"));
+			}
+			if (isObject(entry[1])) {
+				this.addPorts(entry[1]);
 			}
 		});
 	}

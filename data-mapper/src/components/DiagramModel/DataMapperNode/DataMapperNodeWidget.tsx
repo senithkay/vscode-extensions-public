@@ -1,26 +1,33 @@
 import * as React from 'react';
 import { DataMapperNodeModel } from './DataMapperNode';
-import { DiagramEngine, PortModelAlignment } from '@projectstorm/react-diagrams';
+import { DiagramEngine } from '@projectstorm/react-diagrams';
 
-import TreeView from '@material-ui/lab/TreeView';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import ChevronRightIcon from '@material-ui/icons/ChevronRight';
-import TreeItem from '@material-ui/lab/TreeItem';
-import { DataMapperPortWidget } from './DataMapperPortWidget';
 import { DataMapperNodeField } from './DataMapperNodeField';
 import { List } from '@material-ui/core';
 
-export interface DataMapperNodeWidgetProps {
+import { createStyles, withStyles, WithStyles, Theme } from "@material-ui/core/styles";
+
+const styles = (theme: Theme) => createStyles({
+	root: {
+		width: '100%',
+		maxWidth: 500,
+		backgroundColor: theme.palette.background.default,
+		color: theme.palette.primary.main
+	}
+});
+
+export interface DataMapperNodeWidgetProps extends WithStyles<typeof styles> {
 	node: DataMapperNodeModel;
 	engine: DiagramEngine;
 	size?: number;
 }
 
 
-export class DataMapperNodeWidget extends React.Component<DataMapperNodeWidgetProps> {
+class DataMapperNodeWidgetC extends React.Component<DataMapperNodeWidgetProps> {
 	render() {
 		const node = this.props.node;
 		const stNode = node.stNode;
+		const classes = this.props.classes;
 
 		return (
 			<div
@@ -32,16 +39,18 @@ export class DataMapperNodeWidget extends React.Component<DataMapperNodeWidgetPr
 					color: 'white'
 				}}
 			>
-				<List dense={true}>
-				{
-					Object.entries(stNode).map((entry: [string, any]): JSX.Element => 
-						<DataMapperNodeField
-							nodeModel={node} label={entry[0]} value={entry[1]} engine={this.props.engine} 
-						/>)
-				}
+				<List dense component="nav" className={classes.root}>
+					{
+						Object.entries(stNode).map((entry: [string, any]): JSX.Element =>
+							<DataMapperNodeField
+								nodeModel={node} label={entry[0]} value={entry[1]} engine={this.props.engine}
+							/>)
+					}
 				</List>
 
 			</div>
 		);
 	}
 }
+
+export const DataMapperNodeWidget = withStyles(styles, { withTheme: true })(DataMapperNodeWidgetC);
