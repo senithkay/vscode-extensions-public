@@ -69,9 +69,11 @@ export function ExpressionComponent(props: ExpressionComponentProps) {
         }
     }
 
+    const isIdenticalNode = isPositionsEquals(model.position, model.parent.position);
+
     const styleClassNames = cn(statementRendererClasses.expressionElement,
         isSelected && !hasSyntaxDiagnostics && statementRendererClasses.expressionElementSelected,
-        isSelected && hasSyntaxDiagnostics  && statementRendererClasses.syntaxErrorElementSelected,
+        isSelected && hasSyntaxDiagnostics && !isIdenticalNode && statementRendererClasses.syntaxErrorElementSelected,
         {
             "hovered": !isSelected && isHovered && !hasSyntaxDiagnostics,
         },
@@ -91,7 +93,7 @@ export function ExpressionComponent(props: ExpressionComponentProps) {
                 {children}
             </span>
             <span className={statementRendererClasses.syntaxErrorTooltip}>
-                {isSelected && hasSyntaxDiagnostics &&  (
+                {isSelected && hasSyntaxDiagnostics && !isIdenticalNode &&  (
                     <SyntaxErrorWarning />
                 )}
             </span>
