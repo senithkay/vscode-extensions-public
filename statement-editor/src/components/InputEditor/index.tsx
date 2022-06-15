@@ -99,6 +99,8 @@ export function InputEditor(props: InputEditorProps) {
     useEffect(() => {
         if (hasSyntaxDiagnostics) {
             setIsEditing(false);
+        } else {
+            setUserInput(originalValue)
         }
     }, [hasSyntaxDiagnostics]);
 

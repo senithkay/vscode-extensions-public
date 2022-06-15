@@ -120,7 +120,16 @@ export function StatementEditor(props: StatementEditorProps) {
 
     const undo = async () => {
         const undoItem = undoRedoManager.getUndoModel();
-        if (undoItem) {
+        if (hasSyntaxDiagnostics) {
+            let source: string;
+            if (currentModel.model?.value) {
+                source = currentModel.model.value;
+            } else {
+                source = currentModel.model.source;
+            }
+            handleChange(source).then();
+            setHasSyntaxDiagnostics(false);
+        } else if (undoItem) {
             const updatedContent = getUpdatedSource(undoItem.oldModel.model.source, currentFile.content,
                 targetPosition, moduleList);
             sendDidChange(fileURI, updatedContent, getLangClient).then();
@@ -269,8 +278,9 @@ export function StatementEditor(props: StatementEditorProps) {
 
         const updatedContent = getUpdatedSource(partialST.source, currentFile.content, targetPosition, moduleList);
         sendDidChange(fileURI, updatedContent, getLangClient).then();
+        const diagnostics = await handleDiagnostics(partialST.source);
+
         if (!partialST.syntaxDiagnostics.length || config.type === CUSTOM_CONFIG_TYPE) {
-            const diagnostics = await handleDiagnostics(partialST.source);
             setStmtModel(partialST, diagnostics);
             const selectedPosition = getSelectedModelPosition(codeSnippet, position);
             let oldModel : StackElement;
@@ -434,7 +444,7 @@ export function StatementEditor(props: StatementEditorProps) {
                     undo={undo}
                     redo={redo}
                     hasRedo={undoRedoManager.hasRedo()}
-                    hasUndo={undoRedoManager.hasUndo()}
+                    hasUndo={undoRedoManager.hasUndo() || hasSyntaxDiagnostics}
                     diagnostics={stmtDiagnostics}
                     lsSuggestions={lsSuggestionsList}
                     editorManager={editorManager}
