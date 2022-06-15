@@ -252,11 +252,7 @@ export function getFilteredDiagnosticMessages(statement: string, targetPosition:
 }
 
 export function isPlaceHolderExists (statement: string) : boolean {
-    if (PLACEHOLDER_DIAGNOSTICS.some(placeHolder => statement.includes(placeHolder))) {
-        return true;
-    } else {
-        return false;
-    }
+    return PLACEHOLDER_DIAGNOSTICS.some(placeHolder => (statement ? statement : "").includes(placeHolder))
 }
 
 export function getUpdatedSource(statement: string, currentFileContent: string,

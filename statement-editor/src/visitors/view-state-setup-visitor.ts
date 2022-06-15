@@ -17,7 +17,9 @@ import { StatementEditorViewState } from "../utils/statement-editor-viewstate";
 class ViewStateSetupVisitor implements Visitor {
 
     public beginVisitSTNode(node: STNode, parent?: STNode) {
-        node.viewState = new StatementEditorViewState();
+        if (!node.viewState) {
+            node.viewState = new StatementEditorViewState();
+        }
     }
 }
 
