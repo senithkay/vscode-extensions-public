@@ -32,8 +32,6 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
     const MAIN_TEXT: string = "Main";
     const { targetPosition, model, onSave, onCancel, configOverlayFormStatus, isLastMember } = props;
 
-    const intl = useIntl();
-
     const isMainFunction: boolean = (configOverlayFormStatus.formName && configOverlayFormStatus.formName === MAIN_TEXT) || (model && model.functionName.value === MAIN_TEXT.toLowerCase());
 
     const {

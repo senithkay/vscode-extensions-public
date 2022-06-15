@@ -117,12 +117,6 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
                 onChange={handleListenerDefModeChange}
                 disabled={isDisabled || syntaxDiag !== undefined}
             />
-            <FormHelperText className={formClasses.inputLabelForRequired}>
-                <FormattedMessage
-                    id="lowcode.develop.connectorForms.HTTP.selectlListener"
-                    defaultMessage="Select Listener :"
-                />
-            </FormHelperText>
             {isInline ? (
                 <FormTextInput
                     label="Port"

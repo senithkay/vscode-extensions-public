@@ -97,9 +97,11 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
     const [createdListerCount, setCreatedListerCount] = useState<number>(0);
 
     const listenerList = Array.from(stSymbolInfo.listeners)
-        .filter(([key, value]) =>
-            STKindChecker.isQualifiedNameReference((value as ListenerDeclaration).typeDescriptor)
-            && (value as ListenerDeclaration).typeDescriptor.modulePrefix.value === HTTP_MODULE_QUALIFIER)
+        .filter(([key, value]) => {
+            const typeDescriptor = (value as ListenerDeclaration).typeDescriptor;
+            return STKindChecker.isQualifiedNameReference(typeDescriptor)
+                && typeDescriptor.modulePrefix.value === HTTP_MODULE_QUALIFIER
+        })
         .map(([key, value]) => key);
 
     const serviceParamChange = async (servicePath: string, port: string, name: string) => {

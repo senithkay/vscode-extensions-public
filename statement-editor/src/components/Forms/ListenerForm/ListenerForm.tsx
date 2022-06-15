@@ -28,7 +28,7 @@ import {
     useStyles as useFormStyles
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import {
-    ListenerDeclaration
+    ListenerDeclaration, ParenthesizedArgList, STKindChecker
 } from "@wso2-enterprise/syntax-tree";
 
 import { StmtDiagnostic } from "../../../models/definitions";
@@ -51,22 +51,33 @@ export function ListenerForm(props: FunctionProps) {
     const formClasses = useFormStyles();
     const connectorClasses = connectorStyles();
 
+    let port = "";
+    let parenthesizedArgList;
+    if (model?.initializer && (STKindChecker.isExplicitNewExpression(model?.initializer)
+        || STKindChecker.isImplicitNewExpression(model?.initializer))) {
+        parenthesizedArgList = model?.initializer?.parenthesizedArgList;
+        model?.initializer?.parenthesizedArgList?.arguments.forEach((argument) => {
+            port += argument.source?.trim();
+        });
+    }
+    const type = (model?.typeDescriptor && STKindChecker.isQualifiedNameReference(model?.typeDescriptor)) ?
+        model?.typeDescriptor?.modulePrefix?.value : "";
+
     // States related to component model
     const [listenerName, setListenerName] = useState<FormEditorField>({
         value: model ? model.variableName.value : "", isInteracted: false
     });
     const [listenerPort, setListenerPort] = useState<FormEditorField>({
-        value: model ? model.initializer.parenthesizedArgList.arguments[0]?.source : "", isInteracted: false
+        value: model ? port : "", isInteracted: false
     });
-    const type = model?.typeDescriptor.modulePrefix.value.toUpperCase();
     const [listenerType, setListenerType] = useState<string>(type ? type : "HTTP");
 
     // States related to syntax diagnostics
     const [currentComponentName, setCurrentComponentName] = useState<string>("");
     const [currentComponentSyntaxDiag, setCurrentComponentSyntaxDiag] = useState<StmtDiagnostic[]>(undefined);
 
-    const listenerParamChange = async (name: string, port: string) => {
-        const codeSnippet = getSource(createListenerDeclartion({listenerPort: port, listenerName: name},
+    const listenerParamChange = async (name: string, portValue: string) => {
+        const codeSnippet = getSource(createListenerDeclartion({listenerPort: portValue, listenerName: name},
             targetPosition, false));
         const updatedContent = getUpdatedSource(codeSnippet, model?.source, model?.position, undefined,
             true);
@@ -110,14 +121,17 @@ export function ListenerForm(props: FunctionProps) {
     }
 
     useEffect(() => {
-        // const type = model?.typeDescriptor.modulePrefix.value.toUpperCase();
-        // setListenerType(type ? type :  'HTTP');
+        let argList;
+        if (model?.initializer && (STKindChecker.isExplicitNewExpression(model?.initializer)
+            || STKindChecker.isImplicitNewExpression(model?.initializer))) {
+            argList = model?.initializer?.parenthesizedArgList;
+        }
         setListenerName({
             value: model ? model.variableName.value : "", isInteracted:
             listenerName.isInteracted
         })
         setListenerPort({
-            value: model ? model.initializer.parenthesizedArgList.arguments[0]?.source : "", isInteracted:
+            value: model ? argList?.arguments[0]?.source : "", isInteracted:
             listenerPort.isInteracted
         })
     }, [model]);
@@ -188,9 +202,9 @@ export function ListenerForm(props: FunctionProps) {
                 onCancel={onCancel}
                 validForm={(isEdit || (listenerName.isInteracted === true && listenerPort.isInteracted))
                     && !(model?.variableName?.viewState?.diagnosticsInRange[0]?.message)
-                    && !(model?.initializer?.parenthesizedArgList?.arguments[0]?.viewState?.
+                    && !(parenthesizedArgList?.arguments[0]?.viewState?.
                         diagnosticsInRange[0]?.message)
-                    && (model?.viewState?.diagnosticsInRange.length === 0)
+                    && (model?.viewState?.diagnosticsInRange ? model?.viewState?.diagnosticsInRange.length === 0 : true)
                     && !(currentComponentSyntaxDiag && currentComponentSyntaxDiag[0]?.message)}
             />
         </FormControl>

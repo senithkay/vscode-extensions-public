@@ -138,6 +138,7 @@ export function FormEditor(props: FormEditorProps) {
         <div>
             <FormEditorContextProvider
                 model={model}
+                type={type}
                 targetPosition={targetPosition}
                 stSymbolInfo={stSymbolInfo}
                 syntaxTree={syntaxTree}

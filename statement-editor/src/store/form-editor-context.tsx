@@ -29,6 +29,7 @@ import { InputEditorContextProvider } from "./input-editor-context";
 
 export const FormEditorContext = React.createContext({
     model: null,
+    type: "",
     isLastMember: false,
     isEdit: false,
     targetPosition: null,
@@ -50,6 +51,7 @@ export const FormEditorContext = React.createContext({
 export interface FormEditorProps {
     children?: React.ReactNode,
     model?: STNode;
+    type?: string;
     targetPosition?: NodePosition;
     onCancel: () => void;
     onSave: () => void;
@@ -72,6 +74,7 @@ export const FormEditorContextProvider = (props: FormEditorProps) => {
     const {
         children,
         model,
+        type,
         isEdit,
         stSymbolInfo,
         isLastMember,
@@ -89,6 +92,7 @@ export const FormEditorContextProvider = (props: FormEditorProps) => {
         <FormEditorContext.Provider
             value={{
                 model,
+                type,
                 isEdit,
                 stSymbolInfo,
                 isLastMember,
