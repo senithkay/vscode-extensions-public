@@ -51,9 +51,9 @@ task copyConfigEditorDeps(type: Copy) {
 }
 
 npmBuild() {
-    // dependsOn ':bbe-viewer:buildBBEViewer'
-    // dependsOn ':perf-viewer:buildPerfViewer'
-    // dependsOn ':swagger-viewer:buildSwaggerViewer'
+    dependsOn ':bbe-viewer:buildBBEViewer'
+    dependsOn ':perf-viewer:buildPerfViewer'
+    dependsOn ':swagger-viewer:buildSwaggerViewer'
     dependsOn copyDeps
     dependsOn copyConfigEditorDeps
     PatternSet patternSet = new PatternSet();
