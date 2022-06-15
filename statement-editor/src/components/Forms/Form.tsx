@@ -13,3 +13,4 @@
 import { FunctionForm } from "./FunctionForm/FunctionForm";
 
 export { FunctionForm as Function };
+export { FunctionForm as Main };

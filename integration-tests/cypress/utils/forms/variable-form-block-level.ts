@@ -1,5 +1,6 @@
 import { ExpressionEditor } from "../components/expression-editor"
 import { SelectDropDown } from "../components/select-drop-down";
+import { StatementEditorToggle } from "../components/statement-editor-toggle";
 
 export class VariableFormBlockLevel {
 
@@ -31,8 +32,14 @@ export class VariableFormBlockLevel {
     }
 
     static toggleInitializeVariable() {
-        this.getForm().get('.MuiSwitch-root')
+        this.getForm().get('[data-testid="initialize-varible"]')
             .click()
+        return this;
+    }
+
+    static toggleStatementEditor() {
+        StatementEditorToggle
+            .clickStatementEditorToggle()
         return this;
     }
 

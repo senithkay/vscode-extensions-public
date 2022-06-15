@@ -14,7 +14,7 @@
 import React, { useContext, useEffect, useState } from 'react'
 
 import { DeleteButton, EditButton, ListenerIcon } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
-import { ListenerDeclaration, STNode } from "@wso2-enterprise/syntax-tree";
+import { ListenerDeclaration, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from '../../../Context/diagram';
 import { DefaultTooltip } from '../DefaultTooltip';
@@ -43,11 +43,17 @@ export function ListenerC(props: ListenerProps) {
 
     const listenerModel: ListenerDeclaration = model as ListenerDeclaration;
     const listenerName = listenerModel.variableName.value;
-    const listenerType = listenerModel.typeDescriptor.modulePrefix.value;
+    // TODO derive listener type for other cases
+    const listenerType = STKindChecker.isQualifiedNameReference(listenerModel.typeDescriptor)
+        ? listenerModel.typeDescriptor.modulePrefix.value
+        : "";
     let listenerPort = "";
-    listenerModel.initializer.parenthesizedArgList?.arguments.forEach((argument) => {
-        listenerPort += argument.source?.trim();
-    });
+    if (STKindChecker.isExplicitNewExpression(listenerModel.initializer)
+        || STKindChecker.isImplicitNewExpression(listenerModel.initializer)) {
+            listenerModel.initializer.parenthesizedArgList?.arguments.forEach((argument) => {
+                listenerPort += argument.source?.trim();
+            });
+        }
     const typeMaxWidth = listenerType.length >= 10;
     const nameMaxWidth = listenerName.length >= 20;
 
@@ -63,7 +69,8 @@ export function ListenerC(props: ListenerProps) {
     }
 
     const handleEditBtnClick = () => {
-        const supportedListenerType: boolean = listenerModel.initializer.parenthesizedArgList !== undefined;
+        const supportedListenerType: boolean = STKindChecker.isExplicitNewExpression(listenerModel.initializer)
+                        || STKindChecker.isImplicitNewExpression(listenerModel.initializer);
         if (supportedListenerType) {
             renderEditForm(model, model.position, { formType: model.kind, isLoading: false });
         } else {

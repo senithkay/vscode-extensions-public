@@ -10,15 +10,14 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js
-import React, { useContext } from "react";
+// tslint:disable: jsx-no-multiline-js jsx-no-lambda
+import React from "react";
 
-import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
-import { ArrayType, EXPR_CONSTRUCTOR, MAPPING_CONSTRUCTOR } from "../../constants";
-import { StatementEditorContext } from "../../store/statement-editor-context";
-import { NewExprAddButton } from "../Button/NewExprAddButton";
+import { ArrayType } from "../../constants";
 import { ExpressionComponent } from "../Expression";
+import { ExpressionArrayElementComponent } from "../ExpressionArrayElement";
 import { TokenComponent } from "../Token";
 
 export interface ExpressionArrayProps {
@@ -30,45 +29,41 @@ export interface ExpressionArrayProps {
 export function ExpressionArrayComponent(props: ExpressionArrayProps) {
     const { expressions, modifiable, arrayType } = props;
 
-    const {
-        modelCtx: {
-            updateModel,
-        }
-    } = useContext(StatementEditorContext);
+    const [hoverIndex, setHoverIndex] = React.useState(null);
 
-    const addNewExpression = (model: STNode) => {
-        const template = arrayType === ArrayType.MAPPING_CONSTRUCTOR ? MAPPING_CONSTRUCTOR : EXPR_CONSTRUCTOR;
-        const newField = `,\n${template}`;
-        const newPosition: NodePosition = {
-                ...model.position,
-                startLine: model.position.endLine,
-                startColumn: model.position.endColumn
-            }
-        updateModel(newField, newPosition);
-    };
+    const onMouseEnter = (e: React.MouseEvent , index: number) => {
+        setHoverIndex(index);
+        e.preventDefault();
+    }
+
+    const onMouseLeave = (e: React.MouseEvent) => {
+        setHoverIndex(null);
+        e.preventDefault();
+    }
 
     return (
-        <>
+        <span onMouseLeave={onMouseLeave}>
             { expressions.map((expression: STNode, index: number) => {
                 return (STKindChecker.isCommaToken(expression))
                 ? (
                      <TokenComponent key={index} model={expression} />
                 ) : (
-                    <>
+                    <ExpressionArrayElementComponent
+                        expression={expression}
+                        modifiable={modifiable}
+                        arrayType={arrayType}
+                        index={index}
+                        length={expressions.length}
+                        onMouseEnterCallback={onMouseEnter}
+                        isHovered={hoverIndex === index}
+                    >
                         <ExpressionComponent
                             key={index}
                             model={expression}
                         />
-                        {modifiable && (
-                            <NewExprAddButton
-                                model={expression}
-                                onClick={addNewExpression}
-                                classNames={`modifiable ${index === expressions.length - 1 && 'lastElement'}`}
-                            />
-                        )}
-                    </>
+                    </ExpressionArrayElementComponent>
                 )
             })}
-        </>
+        </span>
     );
 }

@@ -38,6 +38,7 @@ import * as formComponents from '../components/Forms/Form';
 import { INPUT_EDITOR_PLACEHOLDERS } from "../components/InputEditor/constants";
 import * as statementTypeComponents from '../components/Statements';
 import {
+    BAL_SOURCE,
     CUSTOM_CONFIG_TYPE,
     END_OF_LINE_MINUTIAE, EXPR_CONSTRUCTOR,
     OTHER_EXPRESSION,
@@ -46,12 +47,13 @@ import {
     StatementNodes, SymbolParameterType,
     WHITESPACE_MINUTIAE
 } from "../constants";
-import { CurrentModel, MinutiaeJSX, RemainingContent, StmtDiagnostic, StmtOffset } from '../models/definitions';
+import { MinutiaeJSX, RemainingContent, StmtDiagnostic, StmtOffset, SuggestionItem } from '../models/definitions';
 import { visitor as DeleteConfigSetupVisitor } from "../visitors/delete-config-setup-visitor";
 import { visitor as DiagnosticsMappingVisitor } from "../visitors/diagnostics-mapping-visitor";
 import { visitor as ExpressionDeletingVisitor } from "../visitors/expression-deleting-visitor";
 import { visitor as ModelFindingVisitor } from "../visitors/model-finding-visitor";
 import { visitor as ModelTypeSetupVisitor } from "../visitors/model-type-setup-visitor";
+import { visitor as MultilineConstructsConfigSetupVisitor } from "../visitors/multiline-constructs-config-setup-visitor";
 import { nextNodeSetupVisitor } from "../visitors/next-node--setup-visitor"
 import { parentSetupVisitor } from '../visitors/parent-setup-visitor';
 import { viewStateSetupVisitor as ViewStateSetupVisitor } from "../visitors/view-state-setup-visitor";
@@ -111,7 +113,7 @@ export function getStatementTypeComponent(
 }
 
 export function getFormComponent(
-    type: string, model: STNode, targetPosition: NodePosition, onChange: (code: string, partialST: STNode) => void,
+    type: string, model: STNode, completions: SuggestionItem[], targetPosition: NodePosition, onChange: (code: string, partialST: STNode) => void,
     onCancel: () => void, getLangClient: () => Promise<ExpressionEditorLangClientInterface>, isEdit: boolean,
     applyModifications: (modifications: STModification[]) => void
 ): ReactNode {
@@ -119,11 +121,13 @@ export function getFormComponent(
     return (
         <FormComponent
             model={model}
+            completions={completions}
             targetPosition={targetPosition}
             onChange={onChange}
             onCancel={onCancel}
             getLangClient={getLangClient}
             isEdit={isEdit}
+            type={type}
             applyModifications={applyModifications}
         />
     );
@@ -156,6 +160,7 @@ export function getPreviousNode(currentModel: STNode, statementModel: STNode): S
 export function enrichModel(model: STNode, targetPosition: NodePosition, diagnostics?: Diagnostic[]): STNode {
     traversNode(model, ViewStateSetupVisitor);
     traversNode(model, parentSetupVisitor);
+    traversNode(model, MultilineConstructsConfigSetupVisitor);
     model = enrichModelWithDiagnostics(model, targetPosition, diagnostics);
     return enrichModelWithViewState(model);
 }
@@ -210,6 +215,14 @@ export function isOperator(modelType: number): boolean {
 
 export function isBindingPattern(modelType: number): boolean {
     return modelType === ModelType.BINDING_PATTERN;
+}
+
+export function isDescriptionWithExample(doc : string): boolean {
+    return doc.includes(BAL_SOURCE);
+}
+
+export function getDocDescription(doc: string) : string[] {
+    return doc.split(BAL_SOURCE);
 }
 
 export function getFilteredDiagnosticMessages(statement: string, targetPosition: NodePosition,
@@ -304,11 +317,11 @@ export function getMinutiaeJSX(model: STNode): MinutiaeJSX {
     };
 }
 
-function getJSXForMinutiae(minutiae: Minutiae[]): ReactNode[] {
+export function getJSXForMinutiae(minutiae: Minutiae[], dropEndOfLineMinutiaeJSX: boolean = false): ReactNode[] {
     return minutiae.map((element) => {
         if (element.kind === WHITESPACE_MINUTIAE) {
             return Array.from({length: element.minutiae.length}, () => <>&nbsp;</>);
-        } else if (element.kind === END_OF_LINE_MINUTIAE) {
+        } else if (element.kind === END_OF_LINE_MINUTIAE && !dropEndOfLineMinutiaeJSX) {
             return <br/>;
         }
     });
@@ -395,7 +408,7 @@ export function getSelectedModelPosition(codeSnippet: string, targetedPosition: 
         endColumn: targetedPosition.startColumn + codeSnippet.length
     };
 
-    if (codeSnippet.startsWith(',\n')) {
+    if (codeSnippet.startsWith(',\n') || codeSnippet.startsWith('\n')) {
         selectedModelPosition = {
             startLine: targetedPosition.startLine + 1,
             endLine: targetedPosition.endLine + codeSnippet.split('\n').length - 1,
@@ -444,12 +457,35 @@ export function isConfigAllowedTypeDesc(typeDescNode: STNode): boolean {
         && !STKindChecker.isJsonTypeDesc(typeDescNode)
         && !STKindChecker.isObjectTypeDesc(typeDescNode)
         && !STKindChecker.isOptionalTypeDesc(typeDescNode)
-        && !STKindChecker.isParameterizedTypeDesc(typeDescNode)
-        && !STKindChecker.isServiceTypeDesc(typeDescNode)
+        && !STKindChecker.isMapTypeDesc(typeDescNode)
         && !STKindChecker.isStreamTypeDesc(typeDescNode)
         && !STKindChecker.isTableTypeDesc(typeDescNode)
         && !STKindChecker.isVarTypeDesc(typeDescNode)
     );
+}
+
+export function enclosableWithParentheses(model: any): boolean {
+    return (model.viewState as StatementEditorViewState).modelType === ModelType.EXPRESSION
+        && (
+            !STKindChecker.isBracedExpression(model)
+            && !STKindChecker.isBlockStatement(model)
+            && !STKindChecker.isFieldAccess(model)
+            && !STKindChecker.isOptionalFieldAccess(model)
+            && !STKindChecker.isFunctionCall(model)
+            && !STKindChecker.isMethodCall(model)
+            && !STKindChecker.isInterpolation(model)
+            && !STKindChecker.isListConstructor(model)
+            && !STKindChecker.isMappingConstructor(model)
+            && !STKindChecker.isTableConstructor(model)
+            && !STKindChecker.isQualifiedNameReference(model)
+            && !STKindChecker.isRawTemplateExpression(model)
+            && !STKindChecker.isStringTemplateExpression(model)
+            && !STKindChecker.isXmlTemplateExpression(model)
+            && !STKindChecker.isComputedNameField(model)
+            && !STKindChecker.isSpecificField(model)
+            && !STKindChecker.isTypeTestExpression(model)
+            && !model?.isToken
+        );
 }
 
 export function getExistingConfigurable(selectedModel: STNode, stSymbolInfo: STSymbolInfo): STNode {
@@ -606,4 +642,18 @@ export function getUpdatedContentForNewNamedArg(currentModel: FunctionCall, user
     functionParameters.push(`${userInput} = ${EXPR_CONSTRUCTOR}`);
     const content: string = currentModel.functionName.source + "(" + functionParameters.join(",") + ")";
     return content;
+}
+
+export function getExprWithArgs(suggestionValue: string, prefix?: string): string {
+    const paramRegex = /\w+\((.*)\)/m;
+    const params = paramRegex.exec(suggestionValue);
+    let exprWithArgs = suggestionValue;
+    if (params) {
+        let paramList = params[1].split(',');
+        paramList = paramList.map((param: string) => {
+            return param.trim().split(' ').pop();
+        });
+        exprWithArgs = suggestionValue.replace(params[1], paramList.toString());
+    }
+    return prefix ? prefix + exprWithArgs : exprWithArgs;
 }

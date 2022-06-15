@@ -20,6 +20,7 @@ import {
     DecimalKeyword,
     FalseKeyword,
     FloatKeyword,
+    FunctionKeyword,
     IdentifierToken,
     IntKeyword,
     JsonKeyword,
@@ -31,7 +32,8 @@ import {
     VarKeyword
 } from "@wso2-enterprise/syntax-tree";
 
-import {getClassNameForToken, getMinutiaeJSX} from "../../../utils";
+import { getClassNameForToken, getMinutiaeJSX } from "../../../utils";
+import { StatementEditorViewState } from "../../../utils/statement-editor-viewstate";
 import { InputEditor } from "../../InputEditor";
 
 interface TokenProps {
@@ -39,6 +41,7 @@ interface TokenProps {
         | FalseKeyword
         | TrueKeyword
         | NullKeyword
+        | FunctionKeyword
         | DecimalFloatingPointLiteralToken
         | DecimalIntegerLiteralToken
         | StringLiteralToken
@@ -63,11 +66,13 @@ export function TokenComponent(props: TokenProps) {
 
     const { leadingMinutiaeJSX, trailingMinutiaeJSX } = getMinutiaeJSX(model);
 
+    const isFieldWithNewLine = (model.viewState as StatementEditorViewState).multilineConstructConfig.isFieldWithNewLine;
+
     return (
         <>
             {leadingMinutiaeJSX}
             <InputEditor {...inputEditorProps} />
-            {trailingMinutiaeJSX}
+            {!isFieldWithNewLine && trailingMinutiaeJSX}
         </>
     );
 }

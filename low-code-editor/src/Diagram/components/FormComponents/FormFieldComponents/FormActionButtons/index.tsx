@@ -29,18 +29,17 @@ export interface FormActionButtonsProps {
     statementEditor?: boolean;
     toggleChecked?: boolean;
     experimentalEnabled?: boolean;
-    handleStmtEditorToggle?: () => void;
 }
 
 export function FormActionButtons(props: FormActionButtonsProps) {
     const classes = useStyles();
     const { cancelBtnText, saveBtnText, isMutationInProgress, validForm, onSave, onCancel, statementEditor,
-            handleStmtEditorToggle, toggleChecked, experimentalEnabled } = props;
+            toggleChecked, experimentalEnabled } = props;
     return (
         <div className={classes.formSave}>
             <div className={classes.stmtEditorToggle}>
                 {experimentalEnabled && statementEditor && (
-                    <StatementEditorButton handleChange={handleStmtEditorToggle} checked={toggleChecked} />
+                    <StatementEditorButton checked={toggleChecked} />
                 )}
             </div>
             <div className={classes.buttonWrapper}>

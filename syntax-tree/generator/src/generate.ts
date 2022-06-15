@@ -5,7 +5,7 @@ import { fix } from "prettier-tslint";
 
 import { findModelInfo, genBaseVisitorFileCode, genCheckKindUtilCode,
     genInterfacesFileCode } from "./generators";
-import { genSyntaxTree, shutdown } from "./lang-client";
+import { genSyntaxTree, restart, shutdown } from "./lang-client";
 
 const sdkPath = process.env.BALLERINA_SDK_PATH;
 const repoPath = process.env.BALLERINA_REPO_PATH;
@@ -25,14 +25,14 @@ const CHECK_KIND_UTIL_PATH = "../src/check-kind-util.ts";
 
 const bbeBalFiles = globSync(path.join(bbePath, "**", "*.bal"), {});
 const testBalFiles = globSync(path.join(repoPath, "tests", "**", "*.bal"), {});
-const balFiles = [ ...bbeBalFiles, ...testBalFiles ];
+const balFiles = [  ...bbeBalFiles, ...testBalFiles ];
 
 const triedBalFiles: string[] = [];
 const notParsedBalFiles: string[] = [];
 const usedBalFiles: string[] = [];
 const timedOutBalFiles: string[] = [];
 
-processPart(0, 100);
+processFiles();
 
 function printSummary() {
     const { log } = console;
@@ -47,44 +47,44 @@ function printSummary() {
     log(`${timedOut} timed out while parsing`);
 }
 
-function processPart(start: number, count: number) {
-    const syntaxTreePromises: any[] = [];
-    const filesPart = balFiles.slice(start, start + count);
-    filesPart.forEach((file) => {
+async function processFiles() {
+    for (const file of balFiles)  {
+        let timeoutTriggerred = false;
+        let gotST = false;
         triedBalFiles.push(file);
-        const promise = genSyntaxTree(file).then((syntaxTree) => {
+        try {
+            const timeout = new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    if (gotST) { return }
+                    timedOutBalFiles.push(file);
+                     // tslint:disable-next-line: no-console
+                    console.log(`Timeout Triggered for ${file}`);
+                    timeoutTriggerred = true;
+                    resolve(undefined);
+                }, 7500);
+            });
+            const syntaxTree = await Promise.race([genSyntaxTree(file), timeout]);
             if (!syntaxTree) {
+                if (timeoutTriggerred) {
+                    await restart();
+                }
                 // could not parse
                 notParsedBalFiles.push(file);
-                return;
+                continue;
+            } else {
+                gotST = true;
             }
             usedBalFiles.push(file);
             findModelInfo(syntaxTree, modelInfo);
-        }).catch((err) => {
+        } catch (err) {
             notParsedBalFiles.push(file);
             // tslint:disable-next-line: no-console
             console.log(err);
-        });
-
-        const timeout = new Promise((resolve, reject) => {
-            setTimeout(() => {
-                timedOutBalFiles.push(file);
-                resolve(undefined);
-            }, 20000);
-        });
-        syntaxTreePromises.push(Promise.race([promise, timeout]));
-    });
-
-    Promise.all(syntaxTreePromises).then(() => {
-        if (syntaxTreePromises.length < count) {
-            genFiles();
-            shutdown();
-            printSummary();
-            return;
         }
-
-        processPart(start + count, count);
-    });
+    }
+    genFiles();
+    shutdown();
+    printSummary();
 }
 
 function genFiles() {

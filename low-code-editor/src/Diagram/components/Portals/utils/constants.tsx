@@ -1,20 +1,15 @@
 export const keywords = [
-    "if", "else", "fork", "join", "while", "foreach",
-    "in", "return", "returns", "break", "transaction",
-    "transactional", "retry", "commit", "rollback", "continue",
-    "typeof", "enum", "wait", "check", "checkpanic", "panic",
-    "trap", "match", "import", "version", "public", "private",
-    "as", "lock", "new", "record", "limit", "start", "flush",
-    "untainted", "tainted", "abstract", "external", "final",
-    "listener", "remote", "is", "from", "on", "select", "where",
-    "annotation", "type", "function", "resource", "service", "worker",
-    "object", "client", "const", "let", "source", "parameter", "field",
-    "xmlns", "true", "false", "null", "table", "key", "default", "do",
-    "base16", "base64", "conflict", "outer", "equals", "boolean", "int",
-    "float", "string", "decimal", "handle", "var", "any", "anydata", "byte",
-    "future", "typedesc", "map", "json", "xml", "error", "never", "readonly",
-    "distinct", "stream"
-];
+    "public", "private", "remote", "abstract", "client", "import", "function", "const", "listener", "service",
+    "xmlns", "annotation", "type", "record", "object", "version", "as", "on", "resource", "final", "source",
+    "worker", "parameter", "field", "isolated", "returns", "return", "external", "true", "false", "if", "else",
+    "while", "check", "checkpanic", "panic", "continue", "break", "typeof", "is", "null", "lock", "fork", "trap",
+    "in", "foreach", "table", "key", "let", "new", "from", "where", "select", "start", "flush", "configurable",
+    "wait", "do", "transaction", "transactional", "commit", "rollback", "retry", "enum", "base16", "base64",
+    "match", "conflict", "limit", "join", "outer", "equals", "class", "order", "by", "ascending", "descending",
+    "_", "!is", "int", "byte", "float", "decimal", "string", "boolean", "xml", "json", "handle", "any", "anydata",
+    "never", "var", "map", "future", "typedesc", "error", "stream", "readonly", "distinct", "fail",
+    "tainted", "untainted", "default"
+]
 
 // Currently int, string, boolean, collection is used in AI
 export const symbolKind: Record<number, string> = {

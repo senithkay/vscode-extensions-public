@@ -24,12 +24,12 @@ const reducer = (state: LowCodeEditorState, action: any) => {
         case 'DIAGRAM_CLEAN_DRAW':
             return {
                 ...state,
-                syntaxTree: sizingAndPositioning(action.payload),
+                syntaxTree: sizingAndPositioning(action.payload, state.experimentalEnabled),
             }
         case 'DIAGRAM_REDRAW':
             return {
                 ...state,
-                syntaxTree: recalculateSizingAndPositioning(action.payload)
+                syntaxTree: recalculateSizingAndPositioning(action.payload, state.experimentalEnabled)
             }
         case 'INSERT_COMPONENT_START':
             return {
@@ -116,7 +116,7 @@ export const Context = React.createContext<LowCodeEditorContext>(defaultState); 
 
 export const Provider: React.FC<LowCodeEditorProps> = (props) => {
     const { children, api, ...restProps } = props;
-    const [state, dispatch] = useReducer(reducer, {});
+    const [state, dispatch] = useReducer(reducer, { experimentalEnabled: props.experimentalEnabled });
 
     const actions = {
         updateState: updateState(dispatch),

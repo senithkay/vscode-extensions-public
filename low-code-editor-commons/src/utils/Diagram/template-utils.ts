@@ -10,15 +10,21 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { compile } from "handlebars";
+import * as hbs from "handlebars";
 
 import templates from "../../templates/components";
+import { Parameter } from "../../types";
 
 export async function getInsertTemplate(insertTempName: string) {
     return templates[insertTempName];
 }
 
+const hbsInstance = hbs.create();
+hbsInstance.registerHelper('checkConfigurable', (listenerParam: Parameter[]) => {
+    const data = listenerParam.find((params) => params.name === 'listenerConfig')
+    return !!data;
+});
 export async function getInsertComponentSource(insertTempName: string, config: { [key: string]: any }) {
-    const hbTemplate = compile(await getInsertTemplate(insertTempName));
+    const hbTemplate = hbsInstance.compile(await getInsertTemplate(insertTempName));
     return hbTemplate(config);
 }

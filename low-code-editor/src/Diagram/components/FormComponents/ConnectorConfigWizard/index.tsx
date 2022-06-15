@@ -16,16 +16,16 @@ import { useIntl } from "react-intl";
 
 import { DefaultConfig } from "@wso2-enterprise/ballerina-low-code-diagram";
 import {
-  BallerinaConnectorInfo,
-  BallerinaConstruct,
-  Connector,
-  ConnectorConfig,
-  ConnectorConfigWizardProps,
-  CONNECTOR_CLOSED,
-  DiagramOverlayPosition,
-  FunctionDefinitionInfo,
-  LowcodeEvent,
-  WizardType
+    BallerinaConnectorInfo,
+    BallerinaConstruct,
+    Connector,
+    ConnectorConfig,
+    ConnectorConfigWizardProps,
+    CONNECTOR_CLOSED,
+    DiagramOverlayPosition,
+    FunctionDefinitionInfo,
+    LowcodeEvent,
+    WizardType
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { LocalVarDecl, NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
@@ -100,7 +100,7 @@ export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
         wizardType: isEdit ? WizardType.EXISTING : WizardType.NEW
     };
 
-    const [ wizardState, setWizardState ] = useState<ConfigWizardState>(
+    const [wizardState, setWizardState] = useState<ConfigWizardState>(
         initWizardState
     );
 
@@ -131,8 +131,8 @@ export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
                     const ballerinaConnectorInfo = await fetchConnectorsList(queryParams, currentFile.path,
                         langClient, userInfo);
                     connector = ballerinaConnectorInfo.central.find((balModule: BallerinaConstruct) =>
-                        (balModule.moduleName === specialConnectorName.toLocaleLowerCase() &&
-                            balModule.name === "Client")) as BallerinaConnectorInfo;
+                    (balModule.moduleName === specialConnectorName.toLocaleLowerCase() &&
+                        balModule.name === "Client")) as BallerinaConnectorInfo;
                 }
 
                 const connectorInfoResponse = await fetchConnectorInfo(
@@ -145,7 +145,7 @@ export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
                 );
                 if (connectorInfoResponse) {
                     connectorInfoResponse.wizardType = isEdit ? WizardType.EXISTING : WizardType.NEW;
-                    if (endpointName && isAction && !isEdit){
+                    if (endpointName && isAction && !isEdit) {
                         connectorInfoResponse.connectorConfig.name = endpointName;
                     }
                     setWizardState(connectorInfoResponse);
@@ -156,17 +156,19 @@ export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
             })();
             toggleDiagramOverlay();
         }
-    }, [ wizardState ]);
+    }, [wizardState]);
 
     const handleClose = () => {
         onClose();
         dispatchOverlayClose();
         toggleDiagramOverlay();
-        // const event: LowcodeEvent = {
-        //     type: CONNECTOR_CLOSED,
-        //     name: connectorInfo?.displayName
-        // };
-        // onEvent(event);
+        const event: LowcodeEvent = {
+            type: CONNECTOR_CLOSED,
+            property: {
+                connectorName: connectorInfo?.displayName
+            }
+        };
+        onEvent(event);
     };
 
     const handleSave = () => {
@@ -175,10 +177,10 @@ export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
 
     return (
         <div>
-            { !isCodeEditorActive ? (
+            {!isCodeEditorActive ? (
                 <FormGenerator
                     onCancel={handleClose}
-                    configOverlayFormStatus={ {
+                    configOverlayFormStatus={{
                         formType: "Connector",
                         formArgs: {
                             selectedConnector,
@@ -192,9 +194,9 @@ export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
                             onSave: handleSave,
                         },
                         isLoading: true,
-                    } }
+                    }}
                 />
-            ) : null }
+            ) : null}
         </div>
     );
 }
