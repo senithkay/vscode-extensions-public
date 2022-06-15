@@ -387,10 +387,10 @@ export class ExtendedLangClient extends LanguageClient {
         debug(`didChange at ${new Date()} - ${new Date().getTime()}`);
         this.sendNotification("textDocument/didChange", params);
     }
-    async getResourcesWithEndpoints(params: PerformanceAnalyzerRequest): Promise<PerformanceAnalyzerResponse[] | NOT_SUPPORTED_TYPE> {
-        if (!this.ballerinaExtInstance?.enabledPerformanceForecasting() ||
+    async getResourcesWithEndpoints(params: PerformanceAnalyzerRequest, skipLogin?: boolean): Promise<PerformanceAnalyzerResponse[] | NOT_SUPPORTED_TYPE> {
+        if (!skipLogin && (!this.ballerinaExtInstance?.enabledPerformanceForecasting() ||
             !this.ballerinaExtInstance?.getChoreoSession().loginStatus ||
-            this.ballerinaExtInstance.getPerformanceForecastContext().temporaryDisabled) {
+            this.ballerinaExtInstance.getPerformanceForecastContext().temporaryDisabled)) {
             return Promise.resolve([{
                 type: 'error', message: "error",
                 endpoints: null, actionInvocations: null,
