@@ -10,24 +10,16 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js ordered-imports
-import React, { useContext, useState } from "react";
-import { FormattedMessage, useIntl } from "react-intl";
+// tslint:disable: jsx-no-multiline-js
+import React, { useContext } from "react";
+import { useIntl } from "react-intl";
 
+import { ConditionConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { StatementEditorWrapper } from "@wso2-enterprise/ballerina-statement-editor";
 import { WhileStatement } from "@wso2-enterprise/syntax-tree";
-import { FormControl, Typography } from "@material-ui/core";
 
-import { FormField, ConditionConfig, } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { FormActionButtons, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
-import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { createWhileStatement, createWhileStatementWithBlock, getInitialSource } from "../../../../../../utils/modification-util";
-import { ExpressionEditorProps } from "@wso2-enterprise/ballerina-expression-editor";
-import { useStyles } from "../../../../DynamicConnectorForm/style";
-import { StatementEditorWrapper } from "@wso2-enterprise/ballerina-statement-editor";
-import { FormElementProps } from "../../../../Types";
-import Tooltip from '../../../../../../../components/TooltipV2';
-import { LowCodeExpressionEditor } from "../../../../FormFieldComponents/LowCodeExpressionEditor";
 
 export interface WhileProps {
     condition: ConditionConfig;
@@ -40,7 +32,6 @@ export interface WhileProps {
 export function AddWhileForm(props: WhileProps) {
     const {
         props: {
-            isMutationProgress: isMutationInProgress,
             currentFile,
             syntaxTree,
             stSymbolInfo,
@@ -59,25 +50,18 @@ export function AddWhileForm(props: WhileProps) {
     const { condition, formArgs, onCancel, onWizardClose } = props;
     const intl = useIntl();
 
-    const [conditionExpression, setConditionExpression] = useState(condition.conditionExpression);
+    const conditionExpression = condition?.conditionExpression ? condition.conditionExpression as string : 'EXPRESSION';
 
     const formTitle = intl.formatMessage({
         id: "lowcode.develop.configForms.while.title",
         defaultMessage: "If"
     });
 
-    const initialSource = formArgs.model ? getInitialSource(createWhileStatementWithBlock(
-                                conditionExpression ? conditionExpression as string : 'EXPRESSION',
+    const initialSource = formArgs.model ? getInitialSource(createWhileStatementWithBlock(conditionExpression,
                                 (formArgs.model as WhileStatement).whileBody.statements.map(statement => {
                                     return statement.source
                                 })
-                            )) : getInitialSource(createWhileStatement(
-                                conditionExpression ? conditionExpression as string : 'EXPRESSION'
-                            ));
-
-    const handleStatementEditorChange = (partialModel: WhileStatement) => {
-        setConditionExpression(partialModel.condition.source.trim());
-    }
+                            )) : getInitialSource(createWhileStatement(conditionExpression));
 
     const stmtEditorComponent = StatementEditorWrapper(
         {
@@ -86,7 +70,6 @@ export function AddWhileForm(props: WhileProps) {
             formArgs: { formArgs },
             config: condition,
             onWizardClose,
-            onStmtEditorModelChange: handleStatementEditorChange,
             onCancel,
             currentFile,
             getLangClient: getExpressionEditorLangClient,
