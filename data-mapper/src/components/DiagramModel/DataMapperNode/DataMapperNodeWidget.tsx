@@ -11,8 +11,8 @@ const styles = (theme: Theme) => createStyles({
 	root: {
 		width: '100%',
 		maxWidth: 500,
-		backgroundColor: theme.palette.background.default,
-		color: theme.palette.primary.main
+		// backgroundColor: theme.palette.background.default,
+		color: "white"
 	}
 });
 

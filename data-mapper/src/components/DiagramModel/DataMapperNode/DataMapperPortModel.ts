@@ -17,7 +17,7 @@ export class DataMapperPortModel extends PortModel {
 			},
 			targetPortChanged: (evt) => {
 
-				lm.addLabel(lm.getSourcePort().getName() + " = " + evt.port.getName());
+				lm.addLabel( evt.port.getName() + " = " + lm.getSourcePort().getName());
 			}
 		});
 		return lm;

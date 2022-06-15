@@ -1,4 +1,4 @@
-import createEngine, { DefaultLinkModel, DefaultNodeModel, DiagramModel, PortModelAlignment } from '@projectstorm/react-diagrams';
+import createEngine, { DefaultDiagramState, DefaultLinkModel, DefaultNodeModel, DiagramModel, PortModelAlignment } from '@projectstorm/react-diagrams';
 import * as React from 'react';
 
 import { DataMapperNodeModel } from './DataMapperNode';
@@ -8,6 +8,7 @@ import { DataMapperPortModel } from './DataMapperPortModel';
 import { CanvasWidget } from '@projectstorm/react-canvas-core';
 import { DemoCanvasWidget } from '../Canvas/DemoCanvasWidget';
 import { input as inputST, middle, output as outputST } from './data';
+import { DefaultState as LinkState } from './LinkState/DefaultState';
 
 export function DataMapper(): React.ReactElement {
 	var engine = createEngine();
@@ -16,6 +17,13 @@ export function DataMapper(): React.ReactElement {
 		.getPortFactories()
 		.registerFactory(new DataMapperPortFactory('datamapper', (config) => new DataMapperPortModel(config.id, config.type)));
 	engine.getNodeFactories().registerFactory(new DataMapperNodeFactory());
+
+	const state = engine.getStateMachine().getCurrentState();
+	if (state instanceof DefaultDiagramState) {
+		state.dragNewLink.config.allowLooseLinks = false;
+	}
+
+	engine.getStateMachine().pushState(new LinkState());
 
 	var model = new DiagramModel();
 
