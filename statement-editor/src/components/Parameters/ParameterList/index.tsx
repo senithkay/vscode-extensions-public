@@ -65,7 +65,7 @@ export function ParameterList(props: ParameterListProps) {
                 if (param.kind === SymbolParameterType.REST) {
                     restArg(true);
                 }
-                updateModel(getUpdatedContentOnCheck(currentModel.model, param), currentModel.model.position);
+                updateModel(getUpdatedContentOnCheck(currentModel.model, param, parameters), currentModel.model.position);
             }
         } else {
             newChecked.splice(currentIndex, 1);
@@ -202,7 +202,7 @@ export function ParameterList(props: ParameterListProps) {
                                                         />
                                                         {param.description !== undefined && (
                                                             <ListItemText
-                                                                className={stmtEditorHelperClasses.docListItemText}
+                                                                className={stmtEditorHelperClasses.docParamDescriptionText}
                                                                 primary={" : " + param.description}
                                                             />
                                                         )}
