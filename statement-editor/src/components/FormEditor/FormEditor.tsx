@@ -17,9 +17,11 @@ import { ExpressionEditorLangClientInterface, STModification, STSymbolInfo } fro
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import * as monaco from "monaco-editor";
 
+import { CurrentModel } from '../../models/definitions';
 import { FormEditorContextProvider } from "../../store/form-editor-context";
 import { enrichModel, getUpdatedSource} from "../../utils";
 import {
+    getCompletionsForType,
     getPartialSTForModuleMembers,
     handleDiagnostics,
     sendDidChange
@@ -64,11 +66,12 @@ export function FormEditor(props: FormEditorProps) {
     } = props;
 
     const [model, setModel] = useState<STNode>(null);
+    const [completions, setCompletions] = useState([]);
 
     const fileURI = monaco.Uri.file(currentFile.path).toString().replace(FILE_SCHEME, EXPR_SCHEME);
 
     const onChange = async (genSource: string, partialST: STNode, moduleList: Set<string>,
-                            offsetLineCount: number = 0) => {
+                            currentModel?: CurrentModel, newValue?: string, completionKinds?: number[], offsetLineCount: number = 0) => {
         // Offset line position is to add some extra line if we do multiple code generations
 
         const newModuleList = new Set<string>();
@@ -119,6 +122,15 @@ export function FormEditor(props: FormEditorProps) {
                 }
             )
         ), diagnostics));
+        if (currentModel && newValue && completionKinds) {
+            handleCompletions(newValue, currentModel, completionKinds);
+        }
+    };
+
+    const handleCompletions = async (newValue: string, currentModel: CurrentModel, completionKinds: number[]) => {
+        const lsSuggestions = await getCompletionsForType(fileURI, targetPosition, model,
+            currentModel, getLangClient, newValue, completionKinds);
+        setCompletions(lsSuggestions);
     };
 
     useEffect(() => {
@@ -149,6 +161,7 @@ export function FormEditor(props: FormEditorProps) {
         <div>
             <FormEditorContextProvider
                 model={model}
+                type={type}
                 targetPosition={targetPosition}
                 stSymbolInfo={stSymbolInfo}
                 syntaxTree={syntaxTree}
@@ -167,6 +180,7 @@ export function FormEditor(props: FormEditorProps) {
                     targetPosition={targetPosition}
                     stSymbolInfo={stSymbolInfo}
                     syntaxTree={syntaxTree}
+                    completions={completions}
                     onChange={onChange}
                     onCancel={onCancel}
                     getLangClient={getLangClient}

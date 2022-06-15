@@ -64,11 +64,11 @@ export function RecordDefinitionComponent(props: RecordDefComponentProps) {
 
         const record = [];
         for (const field of (recordModel.typeDescriptor as RecordTypeDesc).fields) {
-            if (field.kind === "RecordField") {
+            if (STKindChecker.isRecordField(field)) {
                 const fieldName = field.fieldName.value;
                 const fieldType = field.typeName.source?.trim();
                 record.push([fieldType, fieldName]);
-            } else if (field.kind === "RecordFieldWithDefaultValue") {
+            } else if (STKindChecker.isRecordFieldWithDefaultValue(field)) {
                 const fieldName = field.fieldName.value;
                 const fieldType = field.typeName.source?.trim();
                 const fieldValue = (field as RecordFieldWithDefaultValue).expression.source

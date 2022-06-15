@@ -18,6 +18,7 @@ import classNames from "classnames";
 
 import { StatementRenderer } from "../../StatementRenderer";
 import { useStatementRendererStyles } from "../../styles";
+import { TokenComponent } from "../../Token";
 
 interface ElseBlockProps {
     model: ElseBlock;
@@ -30,19 +31,12 @@ export function ElseBlockC(props: ElseBlockProps) {
 
     const conditionComponent: ReactNode = (STKindChecker.isBlockStatement(model.elseBody)) ?
         (
-            <span
-                className={classNames(
-                    statementRendererClasses.expressionBlock,
-                    statementRendererClasses.expressionBlockDisabled
-                )}
-            >
-                <span className="keyword">{model.elseKeyword.value}</span>
-                &nbsp;{model.elseBody.openBraceToken.value}
-                <br/>
+            <>
+                <TokenComponent model={model.elseKeyword} className="keyword"/>
+                <TokenComponent model={model.elseBody.openBraceToken}/>
                 &nbsp;&nbsp;&nbsp;{"..."}
-                <br/>
-                {model.elseBody.closeBraceToken.value}
-            </span>
+                <TokenComponent model={model.elseBody.closeBraceToken}/>
+            </>
         ) : (
             <span>
                 <span

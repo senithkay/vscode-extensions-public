@@ -53,9 +53,9 @@ export function Metrics(props: MetricsProps) {
                 </g>
             );
         }else if (metrics?.totalCount){
-            const { totalCount = 0, successRate = 0, errorRate = 0, meanTimeMS = 0 } = metrics;
-            const successRateRounded = Math.round(successRate).toString()
-            const errorRateRounded = Math.round(errorRate).toString()
+            const { totalCount = 0, successRate = 0, failRate = 0, meanTimeMS = 0 } = metrics;
+            const successRateRounded = Math.round(successRate);
+            const errorRateRounded = Math.round(failRate);
             return (
                 <g className={"metrics"}>
                     <SuccesFailure successRate={successRateRounded} failureRate={errorRateRounded} {...successText} />

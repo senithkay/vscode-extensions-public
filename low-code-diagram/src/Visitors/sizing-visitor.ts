@@ -30,6 +30,7 @@ import {
     ServiceDeclaration,
     STKindChecker,
     STNode,
+    traversNode,
     TypeDefinition,
     Visitor, WhileStatement
 } from "@wso2-enterprise/syntax-tree";
@@ -64,11 +65,10 @@ import { ServiceViewState } from "../ViewState/service";
 import { WhileViewState } from "../ViewState/while";
 import { WorkerDeclarationViewState } from "../ViewState/worker-declaration";
 
-
+import { ConflictResolutionVisitor } from "./conflict-resolution-visitor";
 import { DefaultConfig } from "./default";
 import { getDraftComponentSizes, getPlusViewState, haveBlockStatement, isSTActionInvocation } from "./util";
 
-let allEndpoints: Map<string, Endpoint> = new Map<string, Endpoint>();
 
 export interface AsyncSendInfo {
     to: string;
@@ -97,6 +97,15 @@ export interface SendRecievePairInfo {
     targetName: string;
     targetViewState: ViewState;
     targetIndex: number;
+    restrictedSpace?: ConflictRestrictSpace;
+    pairHeight?: number;
+}
+
+export interface ConflictRestrictSpace {
+    x1: number;
+    x2: number;
+    y1: number;
+    y2: number;
 }
 
 export const DEFAULT_WORKER_NAME = 'function'; // todo: move to appropriate place.
@@ -105,11 +114,19 @@ export class SizingVisitor implements Visitor {
     private currentWorker: string[];
     private senderReceiverInfo: Map<string, { sends: AsyncSendInfo[], receives: AsyncReceiveInfo[], waits: WaitInfo[] }>;
     private workerMap: Map<string, NamedWorkerDeclaration>;
+    private experimentalEnabled: boolean;
+    private allEndpoints: Map<string, Endpoint>;
+    private conflictResolutionFailed = false;
 
-    constructor() {
+    constructor(experimentalEnabled: boolean = false) {
         this.currentWorker = [];
         this.senderReceiverInfo = new Map();
         this.workerMap = new Map();
+        this.experimentalEnabled = experimentalEnabled;
+    }
+
+    public getConflictResulutionFailureStatus() {
+        return this.conflictResolutionFailed;
     }
 
     public endVisitSTNode(node: STNode, parent?: STNode) {
@@ -123,6 +140,7 @@ export class SizingVisitor implements Visitor {
         this.currentWorker = [];
         this.senderReceiverInfo = new Map();
         this.workerMap = new Map();
+        this.allEndpoints = new Map();
     }
 
     public beginVisitModulePart(node: ModulePart, parent?: STNode) {
@@ -380,7 +398,7 @@ export class SizingVisitor implements Visitor {
 
         viewState.bBox.h = lifeLine.h + trigger.h + end.bBox.h + (DefaultConfig.serviceVerticalPadding * 2) + DefaultConfig.functionHeaderHeight;
         viewState.bBox.lw = (trigger.lw > bodyViewState.bBox.lw ? trigger.lw : bodyViewState.bBox.lw) + DefaultConfig.serviceFrontPadding;
-        viewState.bBox.rw = (trigger.rw > bodyViewState.bBox.rw ? trigger.rw : bodyViewState.bBox.rw) + DefaultConfig.serviceRearPadding + (allEndpoints.size * (DefaultConfig.connectorEPWidth + DefaultConfig.epGap));
+        viewState.bBox.rw = (trigger.rw > bodyViewState.bBox.rw ? trigger.rw : bodyViewState.bBox.rw) + DefaultConfig.serviceRearPadding + (this.allEndpoints.size * (DefaultConfig.connectorEPWidth + DefaultConfig.epGap));
         viewState.bBox.w = viewState.bBox.lw + viewState.bBox.rw;
 
         if (viewState.initPlus && viewState.initPlus.selectedComponent === "PROCESS") {
@@ -396,7 +414,18 @@ export class SizingVisitor implements Visitor {
             }
         }
 
-        this.syncAsyncStatements(node);
+        const matchedStatements = this.syncAsyncStatements(node);
+
+        const resolutionVisitor = new ConflictResolutionVisitor(matchedStatements, this.workerMap.size + 1);
+        const startDate = new Date();
+        do {
+            resolutionVisitor.resetConflictStatus();
+            traversNode(node, resolutionVisitor);
+            if ((new Date()).getTime() - startDate.getTime() > 5000) {
+                this.conflictResolutionFailed = true;
+                break;
+            }
+        } while (resolutionVisitor.conflictFound())
 
         if (bodyViewState.hasWorkerDecl) {
             let maxWorkerHeight = 0;
@@ -450,7 +479,7 @@ export class SizingVisitor implements Visitor {
 
             viewState.bBox.h = lifeLine.h + trigger.h + end.bBox.h + DefaultConfig.serviceVerticalPadding * 2 + DefaultConfig.functionHeaderHeight;
             viewState.bBox.lw = (trigger.lw > bodyViewState.bBox.lw ? trigger.lw : bodyViewState.bBox.lw) + DefaultConfig.serviceFrontPadding;
-            viewState.bBox.rw = (trigger.rw > bodyViewState.bBox.rw ? trigger.rw : bodyViewState.bBox.rw) + DefaultConfig.serviceRearPadding + totalWorkerWidth + (allEndpoints.size * (DefaultConfig.connectorEPWidth + DefaultConfig.epGap));
+            viewState.bBox.rw = (trigger.rw > bodyViewState.bBox.rw ? trigger.rw : bodyViewState.bBox.rw) + DefaultConfig.serviceRearPadding + totalWorkerWidth + (this.allEndpoints.size * (DefaultConfig.connectorEPWidth + DefaultConfig.epGap));
             viewState.bBox.w = viewState.bBox.lw + viewState.bBox.rw;
 
             const maxWorkerFullHeight = body.namedWorkerDeclarator.workerInitStatements.length * 72 + maxWorkerHeight;
@@ -486,7 +515,7 @@ export class SizingVisitor implements Visitor {
         }
     }
 
-    private syncAsyncStatements(funcitonDef: FunctionDefinition) {
+    private syncAsyncStatements(funcitonDef: FunctionDefinition): SendRecievePairInfo[] {
         const matchedStatements: SendRecievePairInfo[] = [];
         const mainWorkerBody: FunctionBodyBlock = funcitonDef.functionBody as FunctionBodyBlock;
 
@@ -534,6 +563,7 @@ export class SizingVisitor implements Visitor {
                         sourceViewState: sourceViewstate,
                         targetViewState: waitInfo.node.viewState,
                         targetIndex: waitInfo.index,
+                        pairHeight: 0,
                     });
                 }
             });
@@ -570,7 +600,8 @@ export class SizingVisitor implements Visitor {
                         targetName: sendInfo.to,
                         sourceViewState,
                         targetViewState,
-                        targetIndex: matchedReceive.index
+                        targetIndex: matchedReceive.index,
+                        pairHeight: 0,
                     });
                 }
             });
@@ -607,7 +638,8 @@ export class SizingVisitor implements Visitor {
                         sourceViewState: matchedSend.node.viewState,
                         targetName: matchedSend.to,
                         targetIndex: receiveInfo.index,
-                        targetViewState: receiveInfo.node.viewState
+                        targetViewState: receiveInfo.node.viewState,
+                        pairHeight: 0,
                     });
                 }
             });
@@ -633,6 +665,8 @@ export class SizingVisitor implements Visitor {
             return 0;
         });
 
+        const workerNameArr = Array.from(this.workerMap.keys());
+        workerNameArr.unshift(DEFAULT_WORKER_NAME);
 
         // for each pair calculate the heights until the send or receive statement and add the diff to the shorter one
         matchedStatements.forEach(matchedPair => {
@@ -665,7 +699,21 @@ export class SizingVisitor implements Visitor {
                 const sourceVS = matchedPair.sourceViewState as StatementViewState;
                 sourceVS.bBox.offsetFromTop = DefaultConfig.offSet + (receiveHeight - sendHeight);
             }
+
+            const sourceWorkerIndex = workerNameArr.indexOf(matchedPair.sourceName);
+            const receiveWorkerIndex = workerNameArr.indexOf(matchedPair.targetName);
+
+            matchedPair.restrictedSpace = {
+                x1: sourceWorkerIndex < receiveWorkerIndex ? sourceWorkerIndex : receiveWorkerIndex,
+                x2: sourceWorkerIndex < receiveWorkerIndex ? receiveWorkerIndex : sourceWorkerIndex,
+                y1: DefaultConfig.offSet + (sendHeight > receiveHeight ? sendHeight : receiveHeight),
+                y2: matchedPair.sourceViewState.bBox.h + DefaultConfig.offSet + (sendHeight > receiveHeight ? sendHeight : receiveHeight)
+            }
+
+            matchedPair.pairHeight = matchedPair.restrictedSpace.y1;
         });
+
+        return matchedStatements;
     }
 
     private calculateHeightUptoIndex(targetIndex: number, workerBody: BlockStatement) {
@@ -711,7 +759,7 @@ export class SizingVisitor implements Visitor {
 
         viewState.bBox.h = lifeLine.h + trigger.h + end.bBox.h + DefaultConfig.serviceVerticalPadding * 2 + DefaultConfig.functionHeaderHeight;
         viewState.bBox.lw = (trigger.lw > bodyViewState.bBox.lw ? trigger.lw : bodyViewState.bBox.lw) + DefaultConfig.serviceFrontPadding;
-        viewState.bBox.rw = (trigger.rw > bodyViewState.bBox.rw ? trigger.rw : bodyViewState.bBox.rw) + DefaultConfig.serviceRearPadding + (allEndpoints.size * (DefaultConfig.connectorEPWidth + DefaultConfig.epGap));
+        viewState.bBox.rw = (trigger.rw > bodyViewState.bBox.rw ? trigger.rw : bodyViewState.bBox.rw) + DefaultConfig.serviceRearPadding + (this.allEndpoints.size * (DefaultConfig.connectorEPWidth + DefaultConfig.epGap));
         viewState.bBox.w = viewState.bBox.lw + viewState.bBox.rw;
 
         if (viewState.initPlus && viewState.initPlus.selectedComponent === "PROCESS") {
@@ -730,7 +778,7 @@ export class SizingVisitor implements Visitor {
 
     public beginVisitFunctionBodyBlock(node: FunctionBodyBlock) {
         const viewState: BlockViewState = node.viewState;
-        allEndpoints = viewState.connectors;
+        this.allEndpoints = viewState.connectors;
         if (node.statements.length > 0 && STKindChecker.isReturnStatement(node.statements[node.statements.length - 1])) {
             viewState.isEndComponentInMain = true;
         }
@@ -781,12 +829,13 @@ export class SizingVisitor implements Visitor {
 
     public beginVisitExpressionFunctionBody(node: ExpressionFunctionBody) {
         const viewState: BlockViewState = node.viewState;
-        allEndpoints = viewState.connectors;
+        this.allEndpoints = viewState.connectors;
         viewState.isEndComponentInMain = true;
     }
 
     public endVisitExpressionFunctionBody(node: ExpressionFunctionBody) {
         // TODO: Work on this after proper design review for showing expression bodied functions.
+        this.cleanMaps();
     }
 
     public endVisitFunctionBodyBlock(node: FunctionBodyBlock) {
@@ -1049,7 +1098,7 @@ export class SizingVisitor implements Visitor {
         }
 
         if (node.elseBody) {
-            if (node.elseBody.elseBody.kind === "BlockStatement") {
+            if (STKindChecker.isBlockStatement(node.elseBody.elseBody)) {
                 const elseStmt: BlockStatement = node.elseBody.elseBody as BlockStatement;
                 const elseViewState: ElseViewState = elseStmt.viewState as ElseViewState;
 
@@ -1074,7 +1123,7 @@ export class SizingVisitor implements Visitor {
                 elseViewState.elseTopHorizontalLine.length = diffIfWidthWithHeadWidth + viewState.offSetBetweenIfElse + elseLeftWidth;
                 elseViewState.elseBottomHorizontalLine.length = elseViewState.ifHeadWidthOffset +
                     diffIfWidthWithHeadWidth + viewState.offSetBetweenIfElse + elseLeftWidth;
-            } else if (node.elseBody.elseBody.kind === "IfElseStatement") {
+            } else if (STKindChecker.isIfElseStatement(node.elseBody.elseBody)) {
                 const elseIfStmt: IfElseStatement = node.elseBody.elseBody as IfElseStatement;
                 const elseIfViewState: IfViewState = elseIfStmt.viewState as IfViewState;
                 const elseIfBodyViewState: BlockViewState = elseIfStmt.ifBody.viewState;
@@ -1329,7 +1378,7 @@ export class SizingVisitor implements Visitor {
 
             if (isSTActionInvocation(element)
                 && !haveBlockStatement(element)
-                && allEndpoints.has(stmtViewState.action.endpointName)
+                && this.allEndpoints.has(stmtViewState.action.endpointName)
             ) {
                 // check if it's the same as actioninvocation
                 stmtViewState.isAction = true;

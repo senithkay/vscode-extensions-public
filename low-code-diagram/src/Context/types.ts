@@ -29,6 +29,7 @@ export interface LowCodeDiagramProperties {
     stSymbolInfo?: STSymbolInfo;
     performanceData?: Map<string, PerformanceData>;
     zoomStatus?: ZoomStatus;
+    experimentalEnabled?: boolean;
 }
 
 export interface LowCodeDiagramState {

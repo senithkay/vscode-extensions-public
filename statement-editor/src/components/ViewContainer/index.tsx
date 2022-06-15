@@ -65,7 +65,6 @@ export function ViewContainer(props: ViewContainerProps) {
         },
         targetPosition,
         experimentalEnabled,
-        handleStmtEditorToggle
     } =  useContext(StatementEditorContext);
     const exprSchemeURI = `expr://${currentFile.path}`;
     const fileSchemeURI = `file://${currentFile.path}`;
@@ -137,10 +136,10 @@ export function ViewContainer(props: ViewContainerProps) {
 
     return (
         (
-            <div className={overlayClasses.mainStatementWrapper}>
+            <div className={overlayClasses.mainStatementWrapper} data-testid="statement-editor">
                 <div className={overlayClasses.statementEditorHeader}>
                     <Breadcrumb/>
-                    <div className={overlayClasses.closeButton}>
+                    <div className={overlayClasses.closeButton} data-testid="close-btn">
                         {onCancel && <CloseButton onCancel={onCancel} />}
                     </div>
                 </div>
@@ -149,31 +148,23 @@ export function ViewContainer(props: ViewContainerProps) {
                         activeEditorId !== editors.length - 1 && 'overlay'}`
                     }
                 >
-                    <EditorPane />
+                    <EditorPane data-testid="editor-pane"/>
                 </div>
                 <div className={overlayClasses.footer}>
-                    <div className={overlayClasses.stmtEditorToggle}>
-                        {experimentalEnabled && (
-                            <StatementEditorButton
-                                handleChange={handleStmtEditorToggle}
-                                checked={true}
-                                disabled={editors.length > 1}
-                            />
-                        )}
-                    </div>
                     <div className={overlayClasses.buttonWrapper}>
                         <SecondaryButton
-                            text={isConfigurableStmt ? backButtonText : cancelButtonText}
+                            text={activeEditorId !== 0 && isConfigurableStmt ? backButtonText : cancelButtonText}
                             disabled={activeEditorId !== editors.length - 1}
                             fullWidth={false}
-                            onClick={isConfigurableStmt ? onBackClick : onCancelClick}
+                            onClick={activeEditorId !== 0 && isConfigurableStmt ? onBackClick : onCancelClick}
+                            dataTestId="cancel-btn"
                         />
                         <PrimaryButton
                             dataTestId="save-btn"
-                            text={isConfigurableStmt ? addConfigurableButtonText : saveButtonText}
+                            text={activeEditorId !== 0 && isConfigurableStmt ? addConfigurableButtonText : saveButtonText}
                             disabled={!isStatementValid || activeEditorId !== editors.length - 1}
                             fullWidth={false}
-                            onClick={isConfigurableStmt ? onAddConfigurableClick : onSaveClick}
+                            onClick={activeEditorId !== 0 && isConfigurableStmt ? onAddConfigurableClick : onSaveClick}
                         />
                     </div>
                 </div>

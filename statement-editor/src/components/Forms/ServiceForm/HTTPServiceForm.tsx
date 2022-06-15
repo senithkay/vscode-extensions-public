@@ -97,9 +97,11 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
     const [createdListerCount, setCreatedListerCount] = useState<number>(0);
 
     const listenerList = Array.from(stSymbolInfo.listeners)
-        .filter(([key, value]) =>
-            STKindChecker.isQualifiedNameReference((value as ListenerDeclaration).typeDescriptor)
-            && (value as ListenerDeclaration).typeDescriptor.modulePrefix.value === HTTP_MODULE_QUALIFIER)
+        .filter(([key, value]) => {
+            const typeDescriptor = (value as ListenerDeclaration).typeDescriptor;
+            return STKindChecker.isQualifiedNameReference(typeDescriptor)
+                && typeDescriptor.modulePrefix.value === HTTP_MODULE_QUALIFIER
+        })
         .map(([key, value]) => key);
 
     const serviceParamChange = async (servicePath: string, port: string, name: string) => {
@@ -123,7 +125,7 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
             setCurrentComponentSyntaxDiag(undefined);
             const offset = isEdit ? (createdListerCount * 2) :
                 (shouldAddNewLine ? (createdListerCount * 2 + 1) : createdListerCount * 2);
-            onChange(updatedContent, partialST, HTTP_IMPORT, offset);
+            onChange(updatedContent, partialST, HTTP_IMPORT, undefined, "", [], offset);
         } else {
             setCurrentComponentSyntaxDiag(partialST.syntaxDiagnostics);
         }

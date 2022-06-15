@@ -19,8 +19,8 @@ export const ERROR_LABEL_SVG_WIDTH = 89;
 export const ERROR_LABEL_SVG_HEIGHT = 25;
 export const ERROR_LABEL_SHADOW_OFFSET = ERROR_LABEL_SVG_HEIGHT_WITH_SHADOW - ERROR_LABEL_SVG_HEIGHT;
 
-export function ErrorSVG(props: { x: number, y: number, text: string }) {
-    const { text, ...xyProps } = props;
+export function ErrorSVG(props: { x: number, y: number, failureRate: number }) {
+    const { failureRate, ...xyProps } = props;
     return (
         <svg {...xyProps} width={ERROR_LABEL_SVG_WIDTH_WITH_SHADOW} height={ERROR_LABEL_SVG_HEIGHT_WITH_SHADOW}>
             <defs>
@@ -56,7 +56,7 @@ export function ErrorSVG(props: { x: number, y: number, text: string }) {
                     transform="translate(45.5 16)"
                 >
                     <tspan x="0" y="0" textAnchor="middle">
-                        {text}
+                        {failureRate}% Failure
                     </tspan>
                 </text>
             </g>
