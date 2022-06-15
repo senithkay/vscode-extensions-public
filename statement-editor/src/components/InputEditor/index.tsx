@@ -173,7 +173,6 @@ export function InputEditor(props: InputEditorProps) {
                 data-testid="input-editor-span"
                 className={statementRendererClasses.inputEditorTemplate + ' ' + classNames}
                 onDoubleClick={handleDoubleClick}
-                style={{ width: userInput === '' ? '10px' : `${userInput.length + 100}px` }}
             >
                 {placeHolder}
             </span>
