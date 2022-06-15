@@ -16,7 +16,8 @@ import {
     ImplicitAnonymousFunctionExpression,
     IntersectionTypeDesc,
     MethodCall,
-    OptionalTypeDesc, OrderByClause,
+    OptionalTypeDesc,
+    OrderByClause,
     OrderKey,
     ParenthesisedTypeDesc,
     QueryExpression,
@@ -47,8 +48,6 @@ class ModelTypeSetupVisitor implements Visitor {
             (node.viewState as StatementEditorViewState).modelType = ModelType.METHOD_CALL;
         } else if (parent && (parent.viewState as StatementEditorViewState).modelType === ModelType.FIELD_ACCESS) {
             (node.viewState as StatementEditorViewState).modelType = ModelType.FIELD_ACCESS;
-        } else if (parent && (parent.viewState as StatementEditorViewState).modelType === ModelType.ORDER_KEY) {
-            (node.viewState as StatementEditorViewState).modelType = ModelType.ORDER_KEY;
         }
     }
 
@@ -145,6 +144,12 @@ class ModelTypeSetupVisitor implements Visitor {
 
     public beginVisitImplicitAnonymousFunctionExpression(node: ImplicitAnonymousFunctionExpression) {
         (node.viewState as StatementEditorViewState).modelType = ModelType.FUNCTION;
+    }
+
+    public beginVisitOrderKey(node: OrderKey) {
+        if (node?.orderDirection){
+            (node.orderDirection.viewState as StatementEditorViewState).modelType = ModelType.ORDER_DIRECTION_KEYWORDS;
+        }
     }
 
 }

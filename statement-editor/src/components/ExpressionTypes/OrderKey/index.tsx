@@ -16,7 +16,7 @@ import React from "react";
 import { OrderKey } from "@wso2-enterprise/syntax-tree";
 
 import { ExpressionComponent } from "../../Expression";
-import { TokenComponent } from "../../Token";
+import { KeywordComponent } from "../../Keyword";
 
 interface OrderKeyProps {
     model: OrderKey;
@@ -29,7 +29,7 @@ export function OrderKeyComponent(props: OrderKeyProps) {
         <>
             <ExpressionComponent model={model.expression}/>
             {model.orderDirection &&
-                <TokenComponent model={model.orderDirection} className={"keyword"} />
+            <KeywordComponent model={model.orderDirection}/>
             }
         </>
     );
