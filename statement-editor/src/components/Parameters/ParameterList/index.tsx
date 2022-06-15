@@ -196,7 +196,7 @@ export function ParameterList(props: ParameterListProps) {
                                                             className={stmtEditorHelperClasses.paramDataType}
                                                             primary={(
                                                                 <Typography className={stmtEditorHelperClasses.suggestionDataType}>
-                                                                    {param.type}
+                                                                    {param.type.includes("?") ? param.type + " (Optional)" : param.type}
                                                                 </Typography>
                                                             )}
                                                         />
