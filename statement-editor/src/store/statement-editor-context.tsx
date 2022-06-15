@@ -17,7 +17,7 @@ import { LibraryKind, STModification, SymbolInfoResponse } from "@wso2-enterpris
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { LowCodeEditorProps } from "../components/StatementEditorWrapper";
-import { EditorModel, EmptySymbolInfo, LSSuggestions, StmtDiagnostic } from "../models/definitions";
+import { CurrentModel, EditorModel, EmptySymbolInfo, LSSuggestions, StmtDiagnostic } from "../models/definitions";
 
 import { InputEditorContextProvider } from "./input-editor-context";
 
@@ -87,7 +87,7 @@ export const StatementEditorContext = React.createContext({
 export interface CtxProviderProps extends LowCodeEditorProps {
     children?: React.ReactNode,
     model: STNode,
-    currentModel: { model: STNode, stmtPosition? : NodePosition },
+    currentModel: CurrentModel,
     changeCurrentModel?: (model: STNode) => void,
     handleChange?: (codeSnippet: string, isEditedViaInputEditor?: boolean) => void,
     updateModel?: (codeSnippet: string, position: NodePosition) => void,
