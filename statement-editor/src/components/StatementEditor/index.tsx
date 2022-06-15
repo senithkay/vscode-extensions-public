@@ -30,6 +30,7 @@ import {
 import { StatementEditorContextProvider } from "../../store/statement-editor-context";
 import {
     addToTargetPosition,
+    eligibleForLevelTwoSuggestions,
     enclosableWithParentheses,
     enrichModel,
     getCurrentModel,
@@ -50,7 +51,7 @@ import {
     getSymbolDocumentation,
     sendDidChange
 } from "../../utils/ls-utils";
-import { ModelType, StatementEditorViewState } from "../../utils/statement-editor-viewstate";
+import { StatementEditorViewState } from "../../utils/statement-editor-viewstate";
 import { StackElement } from "../../utils/undo-redo";
 import { EXPR_SCHEME, FILE_SCHEME } from "../InputEditor/constants";
 import { FormHandlingProps as StmtEditorWrapperProps} from "../StatementEditorWrapper";
@@ -181,7 +182,7 @@ export function StatementEditor(props: StatementEditorProps) {
 
                 if (!isOperator(currentModelViewState.modelType) && !isBindingPattern(currentModelViewState.modelType)) {
                     const statements = [model.source];
-                    if ((currentModel.model.viewState as StatementEditorViewState).modelType === ModelType.EXPRESSION) {
+                    if (eligibleForLevelTwoSuggestions(currentModel.model, selection)) {
                         const dotAdded = addToTargetPosition(model.source, currentModel.model.position, selectionWithDot);
                         statements.push(dotAdded);
                     }

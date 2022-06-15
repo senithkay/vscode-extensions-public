@@ -615,3 +615,8 @@ export function getExprWithArgs(suggestionValue: string, prefix?: string): strin
     }
     return prefix ? prefix + exprWithArgs : exprWithArgs;
 }
+
+export function eligibleForLevelTwoSuggestions(selectedModel: STNode, selection: string): boolean {
+    return (selectedModel.viewState as StatementEditorViewState).modelType === ModelType.EXPRESSION
+        && selection !== '?';
+}
