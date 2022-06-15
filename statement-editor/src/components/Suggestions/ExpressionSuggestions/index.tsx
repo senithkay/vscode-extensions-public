@@ -26,6 +26,7 @@ import {
 } from "../../../constants";
 import { InputEditorContext } from "../../../store/input-editor-context";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
+import { getFilteredExpressions } from "../../../utils";
 import {
     Expression,
     ExpressionGroup,
@@ -66,10 +67,7 @@ export function ExpressionSuggestions() {
 
     useEffect(() => {
         if (currentModel.model) {
-            let filteredGroups: ExpressionGroup[] = expressions.filter(
-                (exprGroup) => exprGroup.relatedModelType === currentModel.model.viewState.modelType ||
-                    (currentModel.model.viewState.modelType === ModelType.FIELD_ACCESS &&
-                        exprGroup.relatedModelType === ModelType.EXPRESSION));
+            let filteredGroups: ExpressionGroup[] = getFilteredExpressions(expressions, currentModel.model);
             if (currentModel.model.source?.trim() === DEFAULT_WHERE_INTERMEDIATE_CLAUSE){
                 filteredGroups = expressions.filter(
                     (exprGroup) =>  exprGroup.name === QUERY_INTERMEDIATE_CLAUSES);
@@ -133,7 +131,7 @@ export function ExpressionSuggestions() {
                 })
             }
         });
-        setFilteredExpressions(filteredGroups);
+        setFilteredExpressions(getFilteredExpressions(filteredGroups, currentModel.model));
     }
 
     return (
@@ -142,6 +140,7 @@ export function ExpressionSuggestions() {
             <div className={stmtEditorHelperClasses.expressionSuggestionList} data-testid="expression-list">
                 <FormControl style={{ width: '100%', padding: '0 25px'}}>
                     <Input
+                        data-testid="expr-suggestions-searchbar"
                         className={stmtEditorHelperClasses.librarySearchBox}
                         value={keyword}
                         placeholder={`Search Expression`}

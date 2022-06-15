@@ -54,6 +54,7 @@ import {nextNodeSetupVisitor} from "../visitors/next-node--setup-visitor"
 import { parentSetupVisitor } from '../visitors/parent-setup-visitor';
 import { viewStateSetupVisitor as ViewStateSetupVisitor } from "../visitors/view-state-setup-visitor";
 
+import { ExpressionGroup, expressions } from "./expressions";
 import { ModelType, StatementEditorViewState } from "./statement-editor-viewstate";
 import { getImportModification, getStatementModification, keywords } from "./statement-modifications";
 
@@ -621,4 +622,11 @@ export function getExprWithArgs(suggestionValue: string, prefix?: string): strin
         exprWithArgs = suggestionValue.replace(params[1], paramList.toString());
     }
     return prefix ? prefix + exprWithArgs : exprWithArgs;
+}
+
+export function getFilteredExpressions(expression : ExpressionGroup[], currentModel: STNode): ExpressionGroup[] {
+    return expression.filter(
+        (exprGroup) => exprGroup.relatedModelType === currentModel.viewState.modelType ||
+            (currentModel.viewState.modelType === ModelType.FIELD_ACCESS &&
+                exprGroup.relatedModelType === ModelType.EXPRESSION));
 }
