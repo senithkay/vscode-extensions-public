@@ -210,4 +210,45 @@ describe('Test helper pane functionality', () => {
         SourceCode.shouldBeEqualTo(
             getCurrentSpecFolder() + "type-suggestion.expected.bal");
     });
+
+    it('Validate correct expression suggestion filtering with search', () => {
+        Canvas.getFunction("testStatementEditorComponents")
+            .nameShouldBe("testStatementEditorComponents")
+            .shouldBeExpanded()
+            .getDiagram()
+            .shouldBeRenderedProperly()
+            .clickDefaultWorkerPlusBtn(2)
+            .getBlockLevelPlusWidget()
+            .clickOption("Variable");
+
+        VariableFormBlockLevel
+            .shouldBeVisible()
+            .toggleStatementEditor()
+
+        StatementEditor
+            .shouldBeVisible()
+            .getEditorPane()
+
+        EditorPane
+            .getStatementRenderer()
+            .getExpression("SimpleNameReference")
+            .clickExpressionContent(`<add-expression>`)
+
+        SuggestionsPane
+            .clickSuggestionsTab("Expressions")
+            .typeExpressionInSearchBar("record")
+            .validateUnrelatedSuggestions("record{Es Ex;}")
+
+        EditorPane
+            .getExpression("TypedBindingPattern")
+            .clickExpressionContent("var")
+
+        SuggestionsPane
+            .typeExpressionInSearchBar("record")
+            .clickExpressionSuggestion("record{Es Ex;}")
+
+        EditorPane
+            .validateDiagnostics()
+
+    });
 })

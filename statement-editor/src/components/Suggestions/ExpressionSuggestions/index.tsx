@@ -24,6 +24,7 @@ import {
 } from "../../../constants";
 import { InputEditorContext } from "../../../store/input-editor-context";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
+import { getFilteredExpressions } from "../../../utils";
 import {
     Expression,
     ExpressionGroup,
@@ -63,13 +64,8 @@ export function ExpressionSuggestions() {
 
     useEffect(() => {
         if (currentModel.model) {
-            let filteredGroups: ExpressionGroup[] = expressions.filter(
-                (exprGroup) => exprGroup.relatedModelType === currentModel.model.viewState.modelType ||
-                    (currentModel.model.viewState.modelType === ModelType.FIELD_ACCESS &&
-                        exprGroup.relatedModelType === ModelType.EXPRESSION) ||
-                    (currentModel.model.viewState.modelType === ModelType.ORDER_KEY && (exprGroup.relatedModelType === ModelType.EXPRESSION ||
-                        exprGroup.relatedModelType === ModelType.ORDER_KEY)));
-            if (currentModel.model.source?.trim() === DEFAULT_WHERE_INTERMEDIATE_CLAUSE) {
+            let filteredGroups: ExpressionGroup[] = getFilteredExpressions(expressions, currentModel.model);
+            if (currentModel.model.source?.trim() === DEFAULT_WHERE_INTERMEDIATE_CLAUSE){
                 filteredGroups = expressions.filter(
                     (exprGroup) => exprGroup.name === QUERY_INTERMEDIATE_CLAUSES);
             }
@@ -130,7 +126,7 @@ export function ExpressionSuggestions() {
                 })
             }
         });
-        setFilteredExpressions(filteredGroups);
+        setFilteredExpressions(getFilteredExpressions(filteredGroups, currentModel.model));
     }
 
     return (
@@ -139,6 +135,7 @@ export function ExpressionSuggestions() {
             <div className={stmtEditorHelperClasses.expressionSuggestionList} data-testid="expression-list">
                 <FormControl style={{ width: '100%', padding: '0 25px' }}>
                     <Input
+                        data-testid="expr-suggestions-searchbar"
                         className={stmtEditorHelperClasses.librarySearchBox}
                         value={keyword}
                         placeholder={`Search Expression`}
@@ -160,7 +157,7 @@ export function ExpressionSuggestions() {
                         <>
                             {filteredExpressions.map((group, groupIndex) => (
                                 <>
-                                    <div className={stmtEditorHelperClasses.librarySearchSubHeader}>{group.name}</div>
+                                    <div className={stmtEditorHelperClasses.helperPaneSubHeader}>{group.name}</div>
                                     <List className={stmtEditorHelperClasses.expressionList}>
                                         {
                                             group.expressions.map((expression, index) => (

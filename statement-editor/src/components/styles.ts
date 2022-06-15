@@ -119,7 +119,6 @@ export const useStatementRendererStyles = makeStyles(() =>
         expressionElement: {
             position: 'relative',
             width: 'fit-content',
-            margin: '0px 2px',
             '&': {
                 width: 'fit-content',
                 borderRadius: '4px',
@@ -381,7 +380,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             marginBottom: '16px',
             paddingLeft: '10px'
         },
-        librarySearchSubHeader: {
+        helperPaneSubHeader: {
             color: '#1D2028',
             marginBottom: '4px',
             fontWeight: 500,
@@ -579,8 +578,8 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             ...removePadding
         },
         docDescription: {
-            marginBottom: '13px',
             whiteSpace: 'pre',
+            display: 'block',
             "& .MuiListItem-root": {
                 paddingLeft: '0px',
                 paddingTop: '0px',
@@ -613,6 +612,18 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             },
             ...removePadding
         },
+        exampleHeader :  {
+            fontSize: '13px',
+            color: '#1D2028',
+            letterSpacing: '0',
+            lineHeight: '14px',
+            paddingLeft: '0px',
+            marginBottom: '7px',
+            marginTop: '20px'
+        },
+        exampleCode : {
+            color: '#1D2028'
+        }
     }),
 );
 
