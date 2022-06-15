@@ -151,6 +151,9 @@ export function ParameterList(props: ParameterListProps) {
                 <>
                     <ListSubheader className={stmtEditorHelperClasses.parameterHeader}>
                         Configure Parameters
+                        <ListItemText
+                            secondary={"Select parameters from the list given below"}
+                        />
                     </ListSubheader>
                     {parameters?.map((param: ParameterInfo, value: number) => (
                             <>
