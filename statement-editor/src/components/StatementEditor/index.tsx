@@ -273,11 +273,10 @@ export function StatementEditor(props: StatementEditorProps) {
                 : await getPartialSTForStatement({ codeSnippet }, getLangClient);
         }
 
-        const updatedContent = getUpdatedSource(partialST.source, currentFile.content, targetPosition, moduleList);
-        sendDidChange(fileURI, updatedContent, getLangClient).then();
-        const diagnostics = await handleDiagnostics(partialST.source);
-
         if (!partialST.syntaxDiagnostics.length || config.type === CUSTOM_CONFIG_TYPE) {
+            const updatedContent = getUpdatedSource(partialST.source, currentFile.content, targetPosition, moduleList);
+            sendDidChange(fileURI, updatedContent, getLangClient).then();
+            const diagnostics = await handleDiagnostics(partialST.source);
             setStmtModel(partialST, diagnostics);
             const selectedPosition = getSelectedModelPosition(codeSnippet, position);
             let oldModel : StackElement;
@@ -301,6 +300,9 @@ export function StatementEditor(props: StatementEditorProps) {
 
         } else if (partialST.syntaxDiagnostics.length){
             const updatedStatement = addToTargetPosition(model.source, currentModel.model.position, codeSnippet);
+            const updatedContent = getUpdatedSource(updatedStatement, currentFile.content, targetPosition, moduleList);
+
+            sendDidChange(fileURI, updatedContent, getLangClient).then();
             handleDiagnostics(updatedStatement).then();
             setHasSyntaxDiagnostics(true);
         }
