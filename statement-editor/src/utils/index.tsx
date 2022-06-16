@@ -450,6 +450,11 @@ export function enclosableWithParentheses(model: any): boolean {
             && !STKindChecker.isComputedNameField(model)
             && !STKindChecker.isSpecificField(model)
             && !STKindChecker.isTypeTestExpression(model)
+            && !STKindChecker.isStringLiteral(model)
+            && !STKindChecker.isNumericLiteral(model)
+            && !STKindChecker.isBooleanLiteral(model)
+            && !STKindChecker.isNilLiteral(model)
+            && !STKindChecker.isNullLiteral(model)
             && !model?.isToken
         );
 }
