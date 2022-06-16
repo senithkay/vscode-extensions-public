@@ -89,13 +89,12 @@ export function ExpressionComponent(props: ExpressionComponentProps) {
                 onClick={onMouseClick}
                 data-testid={model.kind}
             >
-                {component}
-                
                 <span className={statementRendererClasses.syntaxErrorTooltip}>
                     {isSelected && hasSyntaxDiagnostics && !isIdenticalNode && (
                         <SyntaxErrorWarning />
                     )}
                 </span>
+                {component}
                 {children}
             </span>
         </>
