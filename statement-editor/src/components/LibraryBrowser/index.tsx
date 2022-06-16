@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 
 import {
     Box,
@@ -121,9 +121,11 @@ export function LibraryBrowser(props: LibraryBrowserProps) {
         resetKeyword();
     }
 
-    const isEmptyFilteredList = (filteredData: LibrarySearchResponse) => {
-       return !Object.values(filteredData).some(it => it.length > 0);
-    }
+    const isEmptyFilteredList = useMemo(() => {
+        if (filteredSearchData){
+            return !Object.values(filteredSearchData).some(it => it.length > 0);
+        }
+    }, [filteredSearchData]);
 
     const libraryDataFetchingHandler = (isFetching: boolean) => {
         setIsLoading(isFetching);
@@ -179,11 +181,13 @@ export function LibraryBrowser(props: LibraryBrowserProps) {
                             <ArrowBack className={stmtEditorHelperClasses.arrowBack} />
                         </IconButton>
                         {moduleTitle && (
-                            <div className={stmtEditorHelperClasses.libraryModuleIcon}>
-                                <LibraryModuleIcon/>
-                            </div>
+                            <>
+                                <div className={stmtEditorHelperClasses.libraryModuleIcon}>
+                                    <LibraryModuleIcon/>
+                                </div>
+                                <div className={stmtEditorHelperClasses.moduleTitle}>{moduleTitle}</div>
+                            </>
                         )}
-                        <div className={stmtEditorHelperClasses.moduleTitle}>{moduleTitle}</div>
                     </>
                 )}
                 <FormControl style={{ width: 'inherit' }}>
@@ -219,7 +223,7 @@ export function LibraryBrowser(props: LibraryBrowserProps) {
                             />
                         )}
                         {libraryBrowserMode === LibraryBrowserMode.LIB_SEARCH && filteredSearchData &&
-                        (isEmptyFilteredList(filteredSearchData) ?
+                        (isEmptyFilteredList ?
                             (
                                 <div className={statementEditorClasses.stmtEditorInnerWrapper}>
                                     <p>No result found for the searched keyword</p>
