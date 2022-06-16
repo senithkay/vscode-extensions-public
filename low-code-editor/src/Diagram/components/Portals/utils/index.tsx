@@ -158,7 +158,7 @@ export function getParams(formFields: FormField[], depth = 1): string[] {
                         }
                         recordFieldsString += getFieldName(field.name) + ": " + field.value;
                     }
-                    else if ((field.typeName === "int" || field.typeName === "boolean" || field.typeName === "float" || formField.typeName === "decimal") && field.value) {
+                    else if ((field.typeName === "int" || field.typeName === "boolean" || field.typeName === "float" || field.typeName === "decimal") && field.value) {
                         if (firstRecordField) {
                             recordFieldsString += ", ";
                         } else {
