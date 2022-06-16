@@ -11,21 +11,15 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-// tslint:disable: ordered-imports
-import React, { useContext, useState } from "react";
-import { FormattedMessage, useIntl } from "react-intl";
+import React, { useContext } from "react";
+import { useIntl } from "react-intl";
 
+import { ProcessConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { StatementEditorWrapper } from "@wso2-enterprise/ballerina-statement-editor";
 import { CallStatement, FunctionCall, QualifiedNameReference } from "@wso2-enterprise/syntax-tree";
-import { Box, FormControl, Typography } from "@material-ui/core";
 
 import { Context } from "../../../../../../../Contexts/Diagram";
-import { useStyles as useFormStyles } from "../../../../DynamicConnectorForm/style";
-import { SelectDropdownWithButton } from "../../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
-import { StatementEditorWrapper } from "@wso2-enterprise/ballerina-statement-editor";
 import { createLogStatement, getInitialSource } from "../../../../../../utils/modification-util";
-import { LowCodeExpressionEditor } from "../../../../FormFieldComponents/LowCodeExpressionEditor";
-import { LogConfig, ProcessConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { FormActionButtons, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 
 interface LogConfigProps {
     config: ProcessConfig;
@@ -35,15 +29,11 @@ interface LogConfigProps {
     onWizardClose: () => void;
 }
 
-export const DEFINE_LOG_EXR: string = "Define Log Expression";
-export const SELECT_PROPERTY: string = "Select Existing Property";
-
 export function AddLogConfig(props: LogConfigProps) {
     const intl = useIntl();
 
     const {
         props: {
-            isMutationProgress: isMutationInProgress,
             currentFile,
             syntaxTree,
             stSymbolInfo,
@@ -59,7 +49,7 @@ export function AddLogConfig(props: LogConfigProps) {
         }
     } = useContext(Context);
 
-    const { config, formArgs, onCancel, onSave, onWizardClose } = props;
+    const { config, formArgs, onCancel, onWizardClose } = props;
     const logTypeFunctionNameMap: Map<string, string> = new Map([
         ['printInfo', 'Info'],
         ['printDebug', 'Debug'],
@@ -76,8 +66,6 @@ export function AddLogConfig(props: LogConfigProps) {
         defaultType = logTypeFunctionNameMap.get((functionCallModel.functionName as QualifiedNameReference).identifier.value);
         defaultExpression = functionCallModel.arguments.length > 0 && functionCallModel.arguments[0].source;
     }
-    const [logType, setLogType] = useState(defaultType);
-    const [expression, setExpression] = useState(defaultExpression);
 
     const formTitle = intl.formatMessage({
         id: "lowcode.develop.configForms.log.title",
@@ -85,15 +73,9 @@ export function AddLogConfig(props: LogConfigProps) {
     });
 
     const initialSource = getInitialSource(createLogStatement(
-        logType,
-        expression ? expression : 'EXPRESSION'
+        defaultType,
+        defaultExpression ? defaultExpression : 'EXPRESSION'
     ));
-
-    const handleStatementEditorChange = (partialModel: CallStatement) => {
-        const functionCallModel: FunctionCall = partialModel.expression as FunctionCall;
-        setLogType(logTypeFunctionNameMap.get((functionCallModel.functionName as QualifiedNameReference).identifier.value));
-        setExpression(functionCallModel.arguments[0].source);
-    }
 
     const stmtEditorComponent = StatementEditorWrapper(
         {
@@ -102,7 +84,6 @@ export function AddLogConfig(props: LogConfigProps) {
             formArgs: { formArgs },
             config,
             onWizardClose,
-            onStmtEditorModelChange: handleStatementEditorChange,
             onCancel,
             currentFile,
             getLangClient: getExpressionEditorLangClient,

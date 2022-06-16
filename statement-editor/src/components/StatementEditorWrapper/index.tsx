@@ -61,12 +61,7 @@ export interface LowCodeEditorProps {
     isModuleVar?: boolean;
 }
 
-export interface FormHandlingProps extends LowCodeEditorProps {
-    handleStatementEditorChange?: (partialModel: STNode) => void;
-    onStmtEditorModelChange?: (partialModel: STNode) => void;
-}
-
-export interface StatementEditorWrapperProps extends FormHandlingProps {
+export interface StatementEditorWrapperProps extends LowCodeEditorProps {
     label: string;
     initialSource: string;
 }
@@ -79,7 +74,6 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
         config,
         onCancel,
         onWizardClose,
-        onStmtEditorModelChange,
         getLangClient,
         applyModifications,
         library,
@@ -156,7 +150,7 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
         (async () => {
             let model = null;
             if (initialSource) {
-                const updatedContent = await getUpdatedSource(initialSource.trim(), currentFile.content,
+                const updatedContent = getUpdatedSource(initialSource.trim(), currentFile.content,
                     targetPosition);
 
                 await sendDidOpen(fileURI, updatedContent, getLangClient);
@@ -210,7 +204,6 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
                             }}
                             onWizardClose={onWizardClose}
                             onCancel={onCancel}
-                            onStmtEditorModelChange={onStmtEditorModelChange}
                             config={config}
                             formArgs={formArgs}
                             getLangClient={getLangClient}
