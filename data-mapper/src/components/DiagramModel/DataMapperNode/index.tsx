@@ -10,7 +10,7 @@ import { DemoCanvasWidget } from '../Canvas/DemoCanvasWidget';
 import { input as inputST, middle, output as outputST } from './data';
 import { DefaultState as LinkState } from './LinkState/DefaultState';
 
-export function DataMapper(): React.ReactElement {
+function DataMapperDiagram(): React.ReactElement {
 	var engine = createEngine();
 
 	engine
@@ -55,4 +55,4 @@ export function DataMapper(): React.ReactElement {
 	);
 };
 
-export default React.memo(DataMapper);
+export default React.memo(DataMapperDiagram);

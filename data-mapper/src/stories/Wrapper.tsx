@@ -4,7 +4,8 @@ import { DiagramEditorLangClientInterface } from "@wso2-enterprise/ballerina-low
 
 import { CodeEditor } from './CodeEditor/CodeEditor';
 
-import DataMapper from "./../components/DiagramModel/DataMapperNode";
+import { DataMapper } from '../components/DataMapper/DataMapper';
+import { FunctionDefinition, ModulePart, STKindChecker } from '@wso2-enterprise/syntax-tree';
 
 export interface DataMapperWrapperProps {
     getFileContent: (url: string) => Promise<string>;
@@ -16,9 +17,10 @@ export interface DataMapperWrapperProps {
 
 export function DataMapperWrapper(props: DataMapperWrapperProps) {
     const { langClientPromise, getFileContent, filePath, updateFileContent, lastUpdatedAt } = props;
-    const [didOpen, setDidOpen ] = React.useState(false);
-    const [fileContent, setFileContent ] = React.useState("");
-    const [lastUpdated, setLastUpdated ] = React.useState(lastUpdatedAt);
+    const [didOpen, setDidOpen] = React.useState(false);
+    const [fileContent, setFileContent] = React.useState("");
+    const [lastUpdated, setLastUpdated] = React.useState(lastUpdatedAt);
+    const [functionST, setFunctionST] = React.useState<FunctionDefinition>(undefined);
 
     const updateFileContentOverride = (fPath: string, newContent: string) => {
         setFileContent(newContent);
@@ -32,15 +34,37 @@ export function DataMapperWrapper(props: DataMapperWrapperProps) {
     }
 
     useEffect(() => {
+        async function getSyntaxTree() {
+            if (didOpen) {
+                const langClient = await langClientPromise;
+                const { parseSuccess, syntaxTree } = await langClient.getSyntaxTree({
+                    documentIdentifier: {
+                        uri: `file://${filePath}`
+                    }
+                });
+                if (parseSuccess) {
+                    const modPart = syntaxTree as ModulePart;
+                    const fns = modPart.members.filter((mem) => STKindChecker.isFunctionDefinition(mem)) as FunctionDefinition[];
+                    setFunctionST(fns.find((mem) => mem.functionName.value === "transform"));
+                    return;
+                }
+                
+            }
+            setFunctionST(undefined);
+        }
+        getSyntaxTree();
+    }, [didOpen])
+
+    useEffect(() => {
         async function openFileInLS() {
             const text = await getFileContent(filePath);
             const langClient = await langClientPromise;
             langClient.didOpen({
                 textDocument: {
-                  languageId: "ballerina",
-                  text,
-                  uri: `file://${filePath}`,
-                  version: 1
+                    languageId: "ballerina",
+                    text,
+                    uri: `file://${filePath}`,
+                    version: 1
                 }
             });
             setDidOpen(true);
@@ -51,7 +75,7 @@ export function DataMapperWrapper(props: DataMapperWrapperProps) {
             const langClient = await langClientPromise;
             langClient.didClose({
                 textDocument: {
-                  uri: `file://${filePath}`,
+                    uri: `file://${filePath}`,
                 }
             });
             setDidOpen(true);
@@ -62,12 +86,15 @@ export function DataMapperWrapper(props: DataMapperWrapperProps) {
         }
     }, []);
 
-    return !didOpen ? <>Opening the document...</>
+    return !didOpen || !functionST ? <>Opening the document...</>
         :
         // tslint:disable-next-line: jsx-wrap-multiline
         <>
-            <DataMapper />
-            <hr/>
+            <DataMapper
+                fnST={functionST}
+                langClientPromise={langClientPromise}
+            />
+            <hr />
             <CodeEditor
                 content={fileContent}
                 filePath={filePath}
