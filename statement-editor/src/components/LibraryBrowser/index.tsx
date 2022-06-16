@@ -106,7 +106,7 @@ export function LibraryBrowser(props: LibraryBrowserProps) {
     }, [libraryType]);
 
     useEffect(() => {
-        if (keyword === '') {
+        if (keyword === '' && !moduleSelected) {
             setLibraryBrowserMode(LibraryBrowserMode.LIB_LIST);
             setSearchScope(DEFAULT_SEARCH_SCOPE);
         } else {
@@ -127,6 +127,7 @@ export function LibraryBrowser(props: LibraryBrowserProps) {
         setSearchScope(data.searchData.modules[0].id);
         setModuleTitle(data.searchData.modules[0].id);
         setModuleSelected(true);
+        setKeyword('');
     };
 
     const onClickOnReturnIcon = async () => {
