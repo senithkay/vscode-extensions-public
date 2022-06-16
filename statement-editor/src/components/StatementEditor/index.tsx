@@ -185,7 +185,7 @@ export function StatementEditor(props: StatementEditorProps) {
                     const statements = [model.source];
                     if ((currentModel.model.viewState as StatementEditorViewState).modelType === ModelType.EXPRESSION) {
                         const dotAdded = addToTargetPosition(model.source, currentModel.model.position, selectionWithDot);
-                        statements.push(dotAdded);
+                        statements.unshift(dotAdded);
                     }
 
                     for (const statement of statements) {
