@@ -628,5 +628,8 @@ export function getFilteredExpressions(expression : ExpressionGroup[], currentMo
     return expression.filter(
         (exprGroup) => exprGroup.relatedModelType === currentModel.viewState.modelType ||
             (currentModel.viewState.modelType === ModelType.FIELD_ACCESS &&
-                exprGroup.relatedModelType === ModelType.EXPRESSION));
+                exprGroup.relatedModelType === ModelType.EXPRESSION) ||
+            (currentModel.viewState.modelType === ModelType.ORDER_KEY &&
+                (exprGroup.relatedModelType === ModelType.EXPRESSION ||
+                    exprGroup.relatedModelType === ModelType.ORDER_KEY)));
 }

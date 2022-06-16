@@ -13,19 +13,19 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import React, { useContext } from "react";
 
-import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
 import {
     ArrayType,
     DEFAULT_WHERE_INTERMEDIATE_CLAUSE,
-    EXPR_CONSTRUCTOR,
+    EXPR_CONSTRUCTOR, LET_VAR_DECL,
     MAPPING_CONSTRUCTOR
 } from "../../constants";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { NewExprAddButton } from "../Button/NewExprAddButton";
 
 
-export interface ExpressionArrayelementProps {
+export interface ExpressionArrayElementProps {
     expression: STNode;
     children?: React.ReactElement[] | React.ReactElement;
     modifiable?: boolean;
@@ -37,7 +37,7 @@ export interface ExpressionArrayelementProps {
 
 }
 
-export function ExpressionArrayElementComponent(props: ExpressionArrayelementProps) {
+export function ExpressionArrayElementComponent(props: ExpressionArrayElementProps) {
     const { expression, children, modifiable, arrayType, index, length, onMouseEnterCallback, isHovered } = props;
 
     const {
@@ -52,7 +52,9 @@ export function ExpressionArrayElementComponent(props: ExpressionArrayelementPro
             startLine: model.position.endLine,
             startColumn: model.position.endColumn
         }
-        if (arrayType === ArrayType.INTERMEDIATE_CLAUSE){
+        if (STKindChecker.isLetVarDecl(model)){
+            updateModel(`, ${LET_VAR_DECL}`, newPosition);
+        } else if (arrayType === ArrayType.INTERMEDIATE_CLAUSE){
             updateModel(`\n ${DEFAULT_WHERE_INTERMEDIATE_CLAUSE}`, newPosition);
         } else {
             const template = arrayType === ArrayType.MAPPING_CONSTRUCTOR ? MAPPING_CONSTRUCTOR : EXPR_CONSTRUCTOR;
