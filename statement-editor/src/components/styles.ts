@@ -552,6 +552,16 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             marginBottom: '18px'
         },
         docListItemText: {
+            "& .MuiListItem-root": {
+                padding: '0px'
+            },
+            "& .MuiListItemText-root": {
+                flex: "none"
+            },
+            ...removePadding
+        },
+        docParamDescriptionText: {
+            flex: "inherit",
             ...removePadding
         },
         includedRecordPlusBtn: {
@@ -568,13 +578,15 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
         },
         requiredArgList: {
             "& .MuiListItem-root": {
-                padding: '0px',
-                flex: 'inherit'
+                padding: '0px'
             },
             "& .MuiListItemText-root": {
-                flex: "inherit",
-                margin: '0 6px 0 0'
+                margin: '0 6px 0 0',
+                flex: 'inherit',
+                minWidth: 'auto'
             },
+            alignItems: 'flex-start',
+            overflowX: 'hidden',
             ...removePadding
         },
         docDescription: {
@@ -608,6 +620,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             },
             "& .MuiListItemText-root": {
                 flex: 'inherit',
+                minWidth: 'auto',
                 margin: '0 6px 0 0'
             },
             ...removePadding
