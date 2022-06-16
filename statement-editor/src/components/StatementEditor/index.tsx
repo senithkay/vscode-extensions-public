@@ -121,13 +121,8 @@ export function StatementEditor(props: StatementEditorProps) {
     const undo = async () => {
         const undoItem = undoRedoManager.getUndoModel();
         if (hasSyntaxDiagnostics) {
-            let source: string;
-            if (currentModel.model?.value) {
-                source = currentModel.model.value;
-            } else {
-                source = currentModel.model.source;
-            }
-            handleChange(source).then();
+            const currentSource = (currentModel.model?.value) ? currentModel.model.value : currentModel.model.source;
+            handleChange(currentSource).then();
             setHasSyntaxDiagnostics(false);
         } else if (undoItem) {
             const updatedContent = getUpdatedSource(undoItem.oldModel.model.source, currentFile.content,
@@ -303,6 +298,8 @@ export function StatementEditor(props: StatementEditorProps) {
             setHasSyntaxDiagnostics(false);
 
         } else if (partialST.syntaxDiagnostics.length){
+            const updatedStatement = addToTargetPosition(model.source, currentModel.model.position, codeSnippet);
+            handleDiagnostics(updatedStatement).then();
             setHasSyntaxDiagnostics(true);
         }
     }
