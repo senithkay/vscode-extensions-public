@@ -54,6 +54,7 @@ import {nextNodeSetupVisitor} from "../visitors/next-node--setup-visitor"
 import { parentSetupVisitor } from '../visitors/parent-setup-visitor';
 import { viewStateSetupVisitor as ViewStateSetupVisitor } from "../visitors/view-state-setup-visitor";
 
+import { ExpressionGroup, expressions } from "./expressions";
 import { ModelType, StatementEditorViewState } from "./statement-editor-viewstate";
 import { getImportModification, getStatementModification, keywords } from "./statement-modifications";
 
@@ -176,6 +177,13 @@ export function isPositionsEquals(position1: NodePosition, position2: NodePositi
         position1?.endColumn === position2?.endColumn;
 }
 
+export function isNodeInRange(nodePosition: NodePosition, parentPosition: NodePosition): boolean {
+    return nodePosition?.startLine >= parentPosition?.startLine &&
+        (nodePosition?.startLine === parentPosition?.startLine ? nodePosition?.startColumn >= parentPosition?.startColumn : true) &&
+        nodePosition?.endLine <= parentPosition?.endLine &&
+        (nodePosition?.endLine === parentPosition?.endLine ? nodePosition?.endColumn <= parentPosition?.endColumn : true);
+}
+
 export function isOperator(modelType: number): boolean {
     return modelType === ModelType.OPERATOR;
 }
@@ -270,13 +278,13 @@ export function addImportStatements(
 
 export function getMinutiaeJSX(model: STNode): MinutiaeJSX {
     return {
-        leadingMinutiaeJSX: getJSXForMinutiae(model.leadingMinutiae),
-        trailingMinutiaeJSX: getJSXForMinutiae(model.trailingMinutiae)
+        leadingMinutiaeJSX: getJSXForMinutiae(model?.leadingMinutiae),
+        trailingMinutiaeJSX: getJSXForMinutiae(model?.trailingMinutiae)
     };
 }
 
 export function getJSXForMinutiae(minutiae: Minutiae[], dropEndOfLineMinutiaeJSX: boolean = false): ReactNode[] {
-    return minutiae.map((element) => {
+    return minutiae?.map((element) => {
         if (element.kind === WHITESPACE_MINUTIAE) {
             return Array.from({length: element.minutiae.length}, () => <>&nbsp;</>);
         } else if (element.kind === END_OF_LINE_MINUTIAE && !dropEndOfLineMinutiaeJSX) {
@@ -614,4 +622,14 @@ export function getExprWithArgs(suggestionValue: string, prefix?: string): strin
         exprWithArgs = suggestionValue.replace(params[1], paramList.toString());
     }
     return prefix ? prefix + exprWithArgs : exprWithArgs;
+}
+
+export function getFilteredExpressions(expression : ExpressionGroup[], currentModel: STNode): ExpressionGroup[] {
+    return expression.filter(
+        (exprGroup) => exprGroup.relatedModelType === currentModel.viewState.modelType ||
+            (currentModel.viewState.modelType === ModelType.FIELD_ACCESS &&
+                exprGroup.relatedModelType === ModelType.EXPRESSION) ||
+            (currentModel.viewState.modelType === ModelType.ORDER_KEY &&
+                (exprGroup.relatedModelType === ModelType.EXPRESSION ||
+                    exprGroup.relatedModelType === ModelType.ORDER_KEY)));
 }

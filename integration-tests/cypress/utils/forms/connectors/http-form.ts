@@ -1,5 +1,4 @@
 import { ExpressionEditor } from "../../components/expression-editor"
-import { SelectDropDown } from "../../components/select-drop-down";
 import { methods } from "../../type-utils";
 
 export class HttpForm {
@@ -82,7 +81,7 @@ export class HttpForm {
     static saveAndDone() {
         this.getForm()
             .get('button')
-            .contains("Save Connection")
+            .contains("Save & Done")
             .click();
         return this;
     }

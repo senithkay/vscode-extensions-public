@@ -262,15 +262,22 @@ export function IfElse(props: IfElseProps) {
         const children = getSTComponents(ifStatement.ifBody.statements);
         const pluses: React.ReactNode[] = [];
         const controlFlowLines: React.ReactNode[] = [];
+
+        const ifBodyPlusBtns: JSX.Element[] = [];
         for (const plusView of ifStatement.ifBody.viewState.plusButtons) {
-            pluses.push(<PlusButton viewState={plusView} model={ifStatement.ifBody} initPlus={false} />)
+            ifBodyPlusBtns.push(<PlusButton viewState={plusView} model={ifStatement.ifBody} initPlus={false} />)
         }
 
+        pluses.push(<g className="if-body-pluses">{ifBodyPlusBtns}</g>);
+
+        const elseBodyPlusBtns: JSX.Element[] = [];
         if (isElseExist) {
             for (const plusView of ifStatement.elseBody.elseBody.viewState.plusButtons) {
-                pluses.push(<PlusButton viewState={plusView} model={ifStatement.elseBody.elseBody as BlockStatement} initPlus={false} />)
+                elseBodyPlusBtns.push(<PlusButton viewState={plusView} model={ifStatement.elseBody.elseBody as BlockStatement} initPlus={false} />)
             }
         }
+        pluses.push(<g className="else-body-pluses">{elseBodyPlusBtns}</g>);
+
 
         if (bodyViewState.collapseView) {
             children.push(<Collapse blockViewState={bodyViewState} />)

@@ -10,28 +10,25 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js
 import React from "react";
 
-import { QueryConstructType } from "@wso2-enterprise/syntax-tree";
+import { OnConflictClause } from "@wso2-enterprise/syntax-tree";
 
 import { ExpressionComponent } from "../../Expression";
 import { TokenComponent } from "../../Token";
 
-
-interface QueryConstructTypeProps {
-    model: QueryConstructType;
+interface OnConflictClauseProps {
+    model: OnConflictClause;
 }
 
-export function QueryConstructTypeComponent(props: QueryConstructTypeProps) {
+export function OnConflictClauseComponent(props: OnConflictClauseProps) {
     const { model } = props;
 
     return (
         <>
-            <TokenComponent model={model.keyword} className={"keyword"}/>
-            {model.keySpecifier &&
-            <ExpressionComponent model={model.keySpecifier}/>
-            }
+            <TokenComponent model={model.onKeyword} className={"keyword"}/>
+            <TokenComponent model={model.conflictKeyword} className={"keyword"}/>
+            <ExpressionComponent model={model.expression}/>
         </>
     );
 }

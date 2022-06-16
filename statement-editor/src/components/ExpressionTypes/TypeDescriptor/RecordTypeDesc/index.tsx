@@ -14,7 +14,7 @@ import React, { useContext } from "react";
 
 import { RecordTypeDesc } from "@wso2-enterprise/syntax-tree";
 
-import { TYPED_BINDING_CONSTRUCTOR } from "../../../../constants";
+import { FIELD_DESCRIPTOR } from "../../../../constants";
 import { StatementEditorContext } from "../../../../store/statement-editor-context";
 import { ExpressionComponent } from "../../../Expression";
 import { ExpressionArrayComponent } from "../../../ExpressionArray";
@@ -47,7 +47,7 @@ export function RecordTypeDescComponent(props: RecordTypeDescProps) {
             endLine: model.bodyEndDelimiter.position.startLine,
             endColumn: model.bodyEndDelimiter.position.startColumn
         }
-        updateModel(`${TYPED_BINDING_CONSTRUCTOR};`, newPosition);
+        updateModel(`${FIELD_DESCRIPTOR};`, newPosition);
     };
 
     return (
