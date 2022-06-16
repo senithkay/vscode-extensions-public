@@ -120,16 +120,9 @@ export default function Toolbar(props: ToolbarProps) {
 
     const createNewConfigurable = () => {
         const configurableInsertPosition = getModuleElementDeclPosition(syntaxTree);
-        let configurableType = CONFIGURABLE_TYPE_STRING;
-
-        if (STKindChecker.isModuleVarDecl(completeModel) || STKindChecker.isLocalVarDecl(completeModel)) {
-            const typeDescNode = completeModel.typedBindingPattern.typeDescriptor;
-            if (isConfigAllowedTypeDesc(typeDescNode)) {
-                configurableType = completeModel.typedBindingPattern.typeDescriptor.source;
-            }
-        } else if (STKindChecker.isWhileStatement(completeModel) || STKindChecker.isIfElseStatement(completeModel)) {
-            configurableType = CONFIGURABLE_TYPE_BOOLEAN;
-        }
+        // TODO: Use the expected type provided by the LS, once it is available
+        //  (https://github.com/wso2-enterprise/internal-support-ballerina/issues/112)
+        const configurableType = CONFIGURABLE_TYPE_STRING;
 
         const configurableStmt = `configurable ${configurableType} ${CONFIGURABLE_NAME_CONSTRUCTOR} = ?;`;
 

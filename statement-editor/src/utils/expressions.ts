@@ -422,6 +422,38 @@ const queryIntermediateClauses : ExpressionGroup = {
     relatedModelType: ModelType.QUERY_EXPRESSION
 }
 
+const orderKey : ExpressionGroup = {
+    name: "Order-key",
+    expressions: [
+        {
+            name: "Ascending order key",
+            template: `${SELECTED_EXPRESSION} ascending`,
+            example: "Es ascending"
+        }, {
+            name: "Descending order key",
+            template: `${SELECTED_EXPRESSION} descending`,
+            example: "Es descending"
+        }
+    ],
+    relatedModelType: ModelType.ORDER_KEY
+}
+
+const orderDirectionKeywords: ExpressionGroup = {
+    name: "Order Direction Keywords",
+    expressions: [
+        {
+            name: "Ascending order",
+            template: `ascending`,
+            example: "ascending"
+        }, {
+            name: "Descending order",
+            template: `descending`,
+            example: "descending"
+        }
+    ],
+    relatedModelType: ModelType.ORDER_DIRECTION_KEYWORDS
+}
+
 //     6.36 XML navigation expression
 //         6.36.1 XML name pattern
 //         6.36.2 XML filter expression
@@ -610,5 +642,7 @@ export const expressions: ExpressionGroup[] = [
     shift,
     typeDescriptors,
     operatorSymbols,
-    queryIntermediateClauses
+    queryIntermediateClauses,
+    orderKey,
+    orderDirectionKeywords
 ];

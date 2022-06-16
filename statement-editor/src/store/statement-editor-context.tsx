@@ -26,7 +26,7 @@ export const StatementEditorContext = React.createContext({
         initialSource: '',
         statementModel: null,
         currentModel: null,
-        changeCurrentModel: (model: STNode, stmtPosition?: NodePosition) => {},
+        changeCurrentModel: (model: STNode, stmtPosition?: NodePosition, isShift?: boolean) => {},
         handleChange: (codeSnippet: string, isEditedViaInputEditor?: boolean) => {},
         updateModel: (codeSnippet: string, position: NodePosition) => {},
         undo: () => undefined,

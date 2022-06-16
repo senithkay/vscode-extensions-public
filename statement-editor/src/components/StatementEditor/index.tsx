@@ -14,7 +14,7 @@
 import React, { useEffect, useState } from 'react';
 
 import { SymbolInfoResponse } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 import * as monaco from "monaco-editor";
 import { Diagnostic } from "vscode-languageserver-protocol";
 
@@ -53,9 +53,11 @@ import {
 } from "../../utils/ls-utils";
 import { StatementEditorViewState } from "../../utils/statement-editor-viewstate";
 import { StackElement } from "../../utils/undo-redo";
+import { visitor as CommonParentFindingVisitor } from "../../visitors/common-parent-finding-visitor";
 import { EXPR_SCHEME, FILE_SCHEME } from "../InputEditor/constants";
 import { FormHandlingProps as StmtEditorWrapperProps} from "../StatementEditorWrapper";
 import { ViewContainer } from "../ViewContainer";
+
 
 export interface StatementEditorProps extends StmtEditorWrapperProps {
     editor: EditorModel;
@@ -362,8 +364,17 @@ export function StatementEditor(props: StatementEditorProps) {
         }
     };
 
-    const currentModelHandler = (cModel: STNode, stmtPosition?: NodePosition) => {
-        if (cModel.value && cModel.value === DEFAULT_INTERMEDIATE_CLAUSE){
+    const currentModelHandler = (cModel: STNode, stmtPosition?: NodePosition, isShift?: boolean) => {
+        if (isShift){
+            CommonParentFindingVisitor.setPositions(cModel.position, currentModel.model.position);
+            traversNode(model, CommonParentFindingVisitor);
+            const parentModel: STNode = CommonParentFindingVisitor.getModel()
+            setCurrentModel({
+                model: parentModel ? parentModel : cModel,
+                stmtPosition: parentModel ? parentModel.position : stmtPosition
+            });
+
+        } else if (cModel.value && cModel.value === DEFAULT_INTERMEDIATE_CLAUSE){
             setCurrentModel({
                 model: cModel.parent.parent,
                 stmtPosition
