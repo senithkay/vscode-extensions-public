@@ -222,7 +222,7 @@ export function LibraryBrowser(props: LibraryBrowserProps) {
                         (isEmptyFilteredList(filteredSearchData) ?
                             (
                                 <div className={statementEditorClasses.stmtEditorInnerWrapper}>
-                                    <p>No libraries found for the searched keyword</p>
+                                    <p>No result found for the searched keyword</p>
                                 </div>
                             ) :
                             (
