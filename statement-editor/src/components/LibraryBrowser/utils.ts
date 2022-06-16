@@ -49,7 +49,7 @@ export function filterByKeyword(libraryData: LibrarySearchResponse , searchTxt: 
 function getFilteredModulesList(libraryInfo: LibraryInfo[], searchTxt: string): LibraryInfo[] {
     return libraryInfo.filter((item) => {
         const lc = item.id.toLowerCase();
-        const filter = searchTxt.toLowerCase();
+        const filter = searchTxt.toLowerCase().trim();
         return lc.includes(filter);
     });
 }
@@ -57,7 +57,7 @@ function getFilteredModulesList(libraryInfo: LibraryInfo[], searchTxt: string): 
 function getFilteredModulePropertiesList(libraryData: ModuleProperty[], searchTxt: string): ModuleProperty[] {
     return libraryData.filter((item) => {
         const lc = item.id.toLowerCase();
-        const filter = searchTxt.toLowerCase();
+        const filter = searchTxt.toLowerCase().trim();
         return lc.includes(filter);
     });
 }
