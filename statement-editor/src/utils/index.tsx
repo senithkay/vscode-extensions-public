@@ -592,13 +592,16 @@ export function getUpdatedContentOnCheck(currentModel: FunctionCall, param: Para
 
 function containsMultipleDefaultableParams(parameters: ParameterInfo[]): boolean {
     let defaultableParams = 0;
-    let containsMultiple : boolean;
-    parameters.find((param) => {
+    const found = parameters.find((param) => {
         if (param.kind === SymbolParameterType.DEFAULTABLE) {
-            defaultableParams > 0 ? containsMultiple = true : defaultableParams += 1;
+            if (defaultableParams > 0) {
+                return param;
+            } else {
+                defaultableParams++;
+            }
         }
     })
-    return containsMultiple
+    return !!found;
 }
 
 export function getUpdatedContentOnUncheck(currentModel: FunctionCall, currentIndex: number) : string {
