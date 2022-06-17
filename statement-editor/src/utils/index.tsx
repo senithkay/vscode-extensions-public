@@ -112,23 +112,12 @@ export function getStatementTypeComponent(
     );
 }
 
-export function getFormComponent(
-    type: string, model: STNode, completions: SuggestionItem[], targetPosition: NodePosition, onChange: (code: string, partialST: STNode) => void,
-    onCancel: () => void, getLangClient: () => Promise<ExpressionEditorLangClientInterface>, isEdit: boolean,
-    applyModifications: (modifications: STModification[]) => void
-): ReactNode {
+export function getFormComponent(type: string, model: STNode, completions: SuggestionItem[]): ReactNode {
     const FormComponent = (formComponents as any)[type];
     return (
         <FormComponent
             model={model}
             completions={completions}
-            targetPosition={targetPosition}
-            onChange={onChange}
-            onCancel={onCancel}
-            getLangClient={getLangClient}
-            isEdit={isEdit}
-            type={type}
-            applyModifications={applyModifications}
         />
     );
 }

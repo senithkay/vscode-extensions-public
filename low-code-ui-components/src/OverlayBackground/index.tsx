@@ -10,11 +10,22 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { FunctionForm } from "./FunctionForm/FunctionForm";
-import { ListenerForm } from "./ListenerForm/ListenerForm";
-import { ServiceConfigForm } from "./ServiceForm/SeviceForm";
+import * as React from "react";
 
-export { FunctionForm as Function };
-export { ServiceConfigForm as Service };
-export { ListenerForm as Listener };
-export { FunctionForm as Main };
+import { useStyles } from "./style";
+
+export interface OverlayBackgroundProps {
+    confirmationOverlay?: boolean;
+}
+
+export function OverlayBackground(props: OverlayBackgroundProps) {
+    const classes = useStyles();
+    const overlayClassName = props.confirmationOverlay ? classes.confirmationOverlayBackground : classes.overlayBackground;
+    return (
+        <svg
+            height={'1000vh'}
+            width={'1000vw'}
+            className={overlayClassName}
+        />
+    );
+}

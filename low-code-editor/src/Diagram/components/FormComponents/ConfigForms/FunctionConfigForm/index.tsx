@@ -12,14 +12,12 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
-import { useIntl } from "react-intl";
 
 import { ConfigOverlayFormStatus } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FormEditor } from "@wso2-enterprise/ballerina-statement-editor";
-import { FunctionDefinition, LocalVarDecl, NodePosition } from "@wso2-enterprise/syntax-tree";
+import { FunctionDefinition, NodePosition } from "@wso2-enterprise/syntax-tree";
 
 import { useDiagramContext } from "../../../../../Contexts/Diagram";
-import { useStyles as useFormStyles } from "../../DynamicConnectorForm/style";
 
 interface FunctionConfigFormProps {
     model?: FunctionDefinition;
@@ -32,10 +30,7 @@ interface FunctionConfigFormProps {
 
 export function FunctionConfigForm(props: FunctionConfigFormProps) {
     const MAIN_TEXT: string = "Main";
-    const formClasses = useFormStyles();
     const { targetPosition, model, onSave, onCancel, configOverlayFormStatus, isLastMember } = props;
-
-    const intl = useIntl();
 
     const isMainFunction: boolean = (configOverlayFormStatus.formName && configOverlayFormStatus.formName === MAIN_TEXT) || (model && model.functionName.value === MAIN_TEXT.toLowerCase());
 
