@@ -22,23 +22,23 @@ import { FormTextInput } from "../FormTextInput";
 import { useStyles } from "./style";
 import { FormEditorField } from "./Types";
 
-export interface Param {
+export interface ParamItem {
     id: number;
     type?: string;
     name: string;
 }
 
-export interface ParamProps {
-    param?: Param;
+export interface Props {
+    param?: ParamItem;
     isEdit?: boolean;
     optionList?: string[];
     option?: string;
     onSave: () => void;
-    onChange: (param: Param, selectedOption?: string) => void;
+    onChange: (param: ParamItem, selectedOption?: string) => void;
     onCancel: () => void;
 }
 
-export function Param(props: ParamProps) {
+export function Param(props: Props) {
     const { param, isEdit = true, optionList, option, onChange, onSave, onCancel } = props;
     const { id, name, type } = param;
 
@@ -78,15 +78,16 @@ export function Param(props: ParamProps) {
                 <SelectDropdownWithButton
                     dataTestId="param-type-selector"
                     // defaultValue={}
+                    placeholder={"Select Type"}
                     customProps={{ values: optionList, disableCreateNew: true }}
                     onChange={handleOnSelect}
-                    label="HTTP Method"
+                    label="Param Type"
                 />
             </div>
             <div className={classes.paramItemWrapper}>
                 <FormTextInput
-                    label="Type"
-                    dataTestId="param-type"
+                    label="Data Type"
+                    dataTestId="data-type"
                     defaultValue={(paramType?.isInteracted || isEdit) ? paramType.value : ""}
                     onChange={debouncedTypeChange}
                     customProps={{
@@ -98,7 +99,7 @@ export function Param(props: ParamProps) {
                     //     model?.functionName?.viewState?.diagnosticsInRange[0]?.message}
                     onBlur={null}
                     // onFocus={onNameFocus}
-                    placeholder={"name"}
+                    placeholder={"Data Type"}
                     size="small"
                     // disabled={addingNewParam || (currentComponentSyntaxDiag && currentComponentName !== "Name")}
                 />
