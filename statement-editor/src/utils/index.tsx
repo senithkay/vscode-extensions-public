@@ -54,6 +54,7 @@ import {nextNodeSetupVisitor} from "../visitors/next-node--setup-visitor"
 import { parentSetupVisitor } from '../visitors/parent-setup-visitor';
 import { viewStateSetupVisitor as ViewStateSetupVisitor } from "../visitors/view-state-setup-visitor";
 
+import { ExpressionGroup, expressions } from "./expressions";
 import { ModelType, StatementEditorViewState } from "./statement-editor-viewstate";
 import { getImportModification, getStatementModification, keywords } from "./statement-modifications";
 
@@ -176,6 +177,13 @@ export function isPositionsEquals(position1: NodePosition, position2: NodePositi
         position1?.endColumn === position2?.endColumn;
 }
 
+export function isNodeInRange(nodePosition: NodePosition, parentPosition: NodePosition): boolean {
+    return nodePosition?.startLine >= parentPosition?.startLine &&
+        (nodePosition?.startLine === parentPosition?.startLine ? nodePosition?.startColumn >= parentPosition?.startColumn : true) &&
+        nodePosition?.endLine <= parentPosition?.endLine &&
+        (nodePosition?.endLine === parentPosition?.endLine ? nodePosition?.endColumn <= parentPosition?.endColumn : true);
+}
+
 export function isOperator(modelType: number): boolean {
     return modelType === ModelType.OPERATOR;
 }
@@ -270,13 +278,13 @@ export function addImportStatements(
 
 export function getMinutiaeJSX(model: STNode): MinutiaeJSX {
     return {
-        leadingMinutiaeJSX: getJSXForMinutiae(model.leadingMinutiae),
-        trailingMinutiaeJSX: getJSXForMinutiae(model.trailingMinutiae)
+        leadingMinutiaeJSX: getJSXForMinutiae(model?.leadingMinutiae),
+        trailingMinutiaeJSX: getJSXForMinutiae(model?.trailingMinutiae)
     };
 }
 
 export function getJSXForMinutiae(minutiae: Minutiae[], dropEndOfLineMinutiaeJSX: boolean = false): ReactNode[] {
-    return minutiae.map((element) => {
+    return minutiae?.map((element) => {
         if (element.kind === WHITESPACE_MINUTIAE) {
             return Array.from({length: element.minutiae.length}, () => <>&nbsp;</>);
         } else if (element.kind === END_OF_LINE_MINUTIAE && !dropEndOfLineMinutiaeJSX) {
@@ -526,7 +534,9 @@ export function getParamCheckedList(paramsInModel: STNode[], documentation : Sym
         if (STKindChecker.isNamedArg(param)) {
             for (let i = 0; i < documentation.parameters.length; i++){
                 const docParam : ParameterInfo = documentation.parameters[i];
-                if (param.argumentName.name.value === docParam.name ||
+                if (keywords.includes(docParam.name) ?
+                    param.argumentName.name.value === "'" + docParam.name :
+                    param.argumentName.name.value === docParam.name ||
                     docParam.kind === SymbolParameterType.INCLUDED_RECORD || docParam.kind === SymbolParameterType.REST){
                     if (checkedList.indexOf(i) === -1){
                         checkedList.push(i);
@@ -556,7 +566,7 @@ export function isAllowedIncludedArgsAdded(parameters: ParameterInfo[], checkedL
     return isIncluded;
 }
 
-export function getUpdatedContentOnCheck(currentModel: FunctionCall, param: ParameterInfo) : string {
+export function getUpdatedContentOnCheck(currentModel: FunctionCall, param: ParameterInfo, parameters: ParameterInfo[]) : string {
     const functionParameters: string[] = [];
     currentModel.arguments.filter((parameter: any) => !STKindChecker.isCommaToken(parameter)).
     map((parameter: STNode) => {
@@ -564,9 +574,12 @@ export function getUpdatedContentOnCheck(currentModel: FunctionCall, param: Para
     });
 
     if (param.kind === SymbolParameterType.DEFAULTABLE) {
-        functionParameters.push((keywords.includes(param.name) ?
-            `'${param.name} = ${EXPR_CONSTRUCTOR}` :
-            `${param.name} = ${EXPR_CONSTRUCTOR}`));
+        containsMultipleDefaultableParams(parameters) ? (
+            functionParameters.push((keywords.includes(param.name) ?
+                `'${param.name} = ${EXPR_CONSTRUCTOR}` :
+                `${param.name} = ${EXPR_CONSTRUCTOR}`))
+            ) :
+            functionParameters.push(`${EXPR_CONSTRUCTOR}`);
     } else if (param.kind === SymbolParameterType.REST) {
         functionParameters.push(EXPR_CONSTRUCTOR);
     } else {
@@ -575,6 +588,20 @@ export function getUpdatedContentOnCheck(currentModel: FunctionCall, param: Para
 
     const content: string = currentModel.functionName.source + "(" + functionParameters.join(",") + ")";
     return content;
+}
+
+function containsMultipleDefaultableParams(parameters: ParameterInfo[]): boolean {
+    let defaultableParams = 0;
+    const found = parameters.find((param) => {
+        if (param.kind === SymbolParameterType.DEFAULTABLE) {
+            if (defaultableParams > 0) {
+                return param;
+            } else {
+                defaultableParams++;
+            }
+        }
+    })
+    return !!found;
 }
 
 export function getUpdatedContentOnUncheck(currentModel: FunctionCall, currentIndex: number) : string {
@@ -602,15 +629,26 @@ export function getUpdatedContentForNewNamedArg(currentModel: FunctionCall, user
     return content;
 }
 
-export function getExprWithArgs(suggestionValue: string): string {
+export function getExprWithArgs(suggestionValue: string, prefix?: string): string {
     const paramRegex = /\w+\((.*)\)/m;
     const params = paramRegex.exec(suggestionValue);
+    let exprWithArgs = suggestionValue;
     if (params) {
         let paramList = params[1].split(',');
         paramList = paramList.map((param: string) => {
             return param.trim().split(' ').pop();
         });
-        return suggestionValue.replace(params[1], paramList.toString());
+        exprWithArgs = suggestionValue.replace(params[1], paramList.toString());
     }
-    return suggestionValue;
+    return prefix ? prefix + exprWithArgs : exprWithArgs;
+}
+
+export function getFilteredExpressions(expression : ExpressionGroup[], currentModel: STNode): ExpressionGroup[] {
+    return expression.filter(
+        (exprGroup) => exprGroup.relatedModelType === currentModel.viewState.modelType ||
+            (currentModel.viewState.modelType === ModelType.FIELD_ACCESS &&
+                exprGroup.relatedModelType === ModelType.EXPRESSION) ||
+            (currentModel.viewState.modelType === ModelType.ORDER_KEY &&
+                (exprGroup.relatedModelType === ModelType.EXPRESSION ||
+                    exprGroup.relatedModelType === ModelType.ORDER_KEY)));
 }

@@ -48,11 +48,9 @@ export class FunctionDiagram {
     //This is not working
     public clickIfConditionWorkerPlusBtn(index: number = 0) {
         this.container.within(() => {
-            cy.get(`.diagram-canvas .if-else`).within(() => {
+            cy.get(`.diagram-canvas .if-else .if-body-pluses`).within(() => {
                 cy.get(`.main-plus-wrapper[data-plus-index="${index}"] svg.plus-holder #SmallPlus`)
-                    .not('.else-line')
                     .click();
-
             })
         })
         return this;

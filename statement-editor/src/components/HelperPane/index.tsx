@@ -13,6 +13,8 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useState } from "react";
 
+import { STKindChecker } from "@wso2-enterprise/syntax-tree";
+
 import {
     ALL_LIBS_IDENTIFIER,
     DEFAULT_WHERE_INTERMEDIATE_CLAUSE,
@@ -79,7 +81,7 @@ export function HelperPane(props: HelperPaneProps) {
     }, []);
 
     useEffect(() => {
-        if (docExpandClicked){
+        if (currentModel.model && STKindChecker.isFunctionCall(currentModel.model)){
             setSelectedTab(TabElements.parameters);
         } else if (currentModel.model?.source?.trim() === DEFAULT_WHERE_INTERMEDIATE_CLAUSE){
             setSelectedTab(TabElements.expressions);

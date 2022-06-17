@@ -17,12 +17,14 @@ import {
     IndexedExpression,
     IntersectionTypeDesc,
     KeySpecifier,
+    LetClause,
+    LimitClause,
     ListConstructor,
     MappingConstructor,
     MethodCall,
     NodePosition,
     OptionalFieldAccess,
-    OptionalTypeDesc,
+    OptionalTypeDesc, OrderByClause,
     ParenthesisedTypeDesc,
     QueryExpression,
     QueryPipeline,
@@ -37,7 +39,8 @@ import {
     TypeParameter,
     TypeTestExpression,
     UnionTypeDesc,
-    Visitor
+    Visitor,
+    WhereClause
 } from "@wso2-enterprise/syntax-tree";
 
 import { END_OF_LINE_MINUTIAE } from "../constants";
@@ -343,6 +346,72 @@ class ExpressionDeletingVisitor implements Visitor {
             this.setProperties(DEFAULT_TYPE_DESC, node.typeName.position);
         } else if (!this.isNodeFound && isPositionsEquals(this.deletePosition, node.fieldName.position)){
             this.setProperties(DEFAULT_BINDING_PATTERN, node.fieldName.position);
+        }
+    }
+
+    public beginVisitLetClause(node: LetClause) {
+        if (!this.isNodeFound) {
+            if (node.letVarDeclarations.length === 1 && isPositionsEquals(this.deletePosition, node.letVarDeclarations[0].position)) {
+                    this.setProperties("", node.position);
+            } else {
+                const hasItemsToBeDeleted = node.letVarDeclarations.some((item: STNode) => {
+                    return isPositionsEquals(this.deletePosition, item.position);
+                });
+
+                if (hasItemsToBeDeleted) {
+                    const expressions: string[] = [];
+                    node.letVarDeclarations.map((expr: STNode) => {
+                        if (!isPositionsEquals(this.deletePosition, expr.position) && !STKindChecker.isCommaToken(expr)) {
+                            expressions.push(expr.source);
+                        }
+                    });
+
+                    this.setProperties(expressions.join(','), {
+                        ...node.position,
+                        startColumn: node.letVarDeclarations[0].position.startColumn
+                    });
+                }
+            }
+        }
+    }
+
+    public beginVisitOrderByClause(node: OrderByClause) {
+        if (!this.isNodeFound) {
+            if (node.orderKey.length === 1 && isPositionsEquals(this.deletePosition, node.orderKey[0].position)) {
+                node.orderKey[0].source.trim() === DEFAULT_EXPR ?
+                    this.setProperties("", node.position) :
+                    this.setProperties(DEFAULT_EXPR, node.orderKey[0].position);
+            } else {
+                const hasItemsToBeDeleted = node.orderKey.some((item: STNode) => {
+                    return isPositionsEquals(this.deletePosition, item.position);
+                });
+
+                if (hasItemsToBeDeleted) {
+                    const expressions: string[] = [];
+                    node.orderKey.map((expr: STNode) => {
+                        if (!isPositionsEquals(this.deletePosition, expr.position) && !STKindChecker.isCommaToken(expr)) {
+                            expressions.push(expr.source);
+                        }
+                    });
+
+                    this.setProperties(expressions.join(','), {
+                        ...node.position,
+                        startColumn: node.orderKey[0].position.startColumn
+                    });
+                }
+            }
+        }
+    }
+
+    public beginVisitWhereClause(node: WhereClause) {
+        if (node.expression.source.trim() === DEFAULT_EXPR) {
+            this.setProperties("", node.position);
+        }
+    }
+
+    public beginVisitLimitClause(node: LimitClause) {
+        if (node.expression.source.trim() === DEFAULT_EXPR) {
+            this.setProperties("", node.position);
         }
     }
 
