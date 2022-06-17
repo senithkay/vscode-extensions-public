@@ -539,7 +539,9 @@ export function getParamCheckedList(paramsInModel: STNode[], documentation : Sym
         if (STKindChecker.isNamedArg(param)) {
             for (let i = 0; i < documentation.parameters.length; i++){
                 const docParam : ParameterInfo = documentation.parameters[i];
-                if (param.argumentName.name.value === docParam.name ||
+                if (keywords.includes(docParam.name) ?
+                    param.argumentName.name.value === "'" + docParam.name :
+                    param.argumentName.name.value === docParam.name ||
                     docParam.kind === SymbolParameterType.INCLUDED_RECORD || docParam.kind === SymbolParameterType.REST){
                     if (checkedList.indexOf(i) === -1){
                         checkedList.push(i);
@@ -569,7 +571,7 @@ export function isAllowedIncludedArgsAdded(parameters: ParameterInfo[], checkedL
     return isIncluded;
 }
 
-export function getUpdatedContentOnCheck(currentModel: FunctionCall, param: ParameterInfo) : string {
+export function getUpdatedContentOnCheck(currentModel: FunctionCall, param: ParameterInfo, parameters: ParameterInfo[]) : string {
     const functionParameters: string[] = [];
     currentModel.arguments.filter((parameter: any) => !STKindChecker.isCommaToken(parameter)).
     map((parameter: STNode) => {
@@ -577,9 +579,12 @@ export function getUpdatedContentOnCheck(currentModel: FunctionCall, param: Para
     });
 
     if (param.kind === SymbolParameterType.DEFAULTABLE) {
-        functionParameters.push((keywords.includes(param.name) ?
-            `'${param.name} = ${EXPR_CONSTRUCTOR}` :
-            `${param.name} = ${EXPR_CONSTRUCTOR}`));
+        containsMultipleDefaultableParams(parameters) ? (
+            functionParameters.push((keywords.includes(param.name) ?
+                `'${param.name} = ${EXPR_CONSTRUCTOR}` :
+                `${param.name} = ${EXPR_CONSTRUCTOR}`))
+            ) :
+            functionParameters.push(`${EXPR_CONSTRUCTOR}`);
     } else if (param.kind === SymbolParameterType.REST) {
         functionParameters.push(EXPR_CONSTRUCTOR);
     } else {
@@ -588,6 +593,20 @@ export function getUpdatedContentOnCheck(currentModel: FunctionCall, param: Para
 
     const content: string = currentModel.functionName.source + "(" + functionParameters.join(",") + ")";
     return content;
+}
+
+function containsMultipleDefaultableParams(parameters: ParameterInfo[]): boolean {
+    let defaultableParams = 0;
+    const found = parameters.find((param) => {
+        if (param.kind === SymbolParameterType.DEFAULTABLE) {
+            if (defaultableParams > 0) {
+                return param;
+            } else {
+                defaultableParams++;
+            }
+        }
+    })
+    return !!found;
 }
 
 export function getUpdatedContentOnUncheck(currentModel: FunctionCall, currentIndex: number) : string {
