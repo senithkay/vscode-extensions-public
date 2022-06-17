@@ -73,9 +73,9 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
 
     const visibilityQualifier = formConfig.varOptions.includes(VariableOptions.PUBLIC) ? 'public' : '';
     const finalKeyword = formConfig.varOptions.includes(VariableOptions.FINAL) ? 'final' : '';
-    const varType = formConfig.varType ? formConfig.varType : 'int';
-    const varName = formConfig.varName ? formConfig.varName : 'VAR_NAME';
-    const varValue = formConfig.varValue ? formConfig.varValue : '0';
+    const varType = formConfig.varType ? formConfig.varType : 'var';
+    const varName = formConfig.varName ? formConfig.varName : 'variable';
+    const varValue = formConfig.varValue ? formConfig.varValue : 'EXPRESSION';
 
     const initialSource = `${visibilityQualifier} ${finalKeyword} ${varType} ${varName} = ${varValue};`
 
