@@ -14,13 +14,14 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { useIntl } from "react-intl";
 
-import { ConfigOverlayFormStatus, ProcessConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { BallerinaConnectorInfo, ConfigOverlayFormStatus, ProcessConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { StatementEditorWrapper } from "@wso2-enterprise/ballerina-statement-editor";
 import { LocalVarDecl } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../Contexts/Diagram";
 import { createModuleVarDecl, getAllVariables, getInitialSource } from "../../../../utils";
 import { genVariableName, getFormattedModuleName } from "../../../Portals/utils";
+import { getDefaultParams } from "../ConnectorWizard/util";
 
 interface EndpointFormProps {
     config: ProcessConfig;
@@ -68,23 +69,19 @@ export function EndpointForm(props: EndpointFormProps) {
     // });
 
     const imports = new Set<string>([`${connector.package.organization}/${connector.moduleName}`]);
-    // imports.add(`${connector.package.organization}/${connector.moduleName}`);
     const moduleName = getFormattedModuleName(connector.moduleName);
+
+    const initFunction = (connector as BallerinaConnectorInfo).functions?.find(func => func.name === "init");
+    const defaultParameters = getDefaultParams(initFunction.parameters);
 
     const initialSource = getInitialSource(
         createModuleVarDecl({
             varName: varName ? varName : genVariableName(`${moduleName}Ep`, getAllVariables(stSymbolInfo)),
             varOptions: [],
             varType: selectedType ? selectedType : `${moduleName}:${connector.name}`,
-            varValue: variableExpression ? variableExpression : "check new ()",
+            varValue: variableExpression ? variableExpression : `new (${defaultParameters?.join()});`,
         })
     );
-
-    const handleStatementEditorChange = (partialModel: LocalVarDecl) => {
-        // setSelectedType(partialModel.typedBindingPattern.typeDescriptor.source.trim())
-        // setVarName(partialModel.typedBindingPattern.bindingPattern.source.trim())
-        // setVariableExpression(partialModel.initializer?.source.trim())
-    };
 
     const stmtEditorComponent = StatementEditorWrapper({
         label: "Endpoint",
@@ -92,7 +89,6 @@ export function EndpointForm(props: EndpointFormProps) {
         formArgs: { formArgs },
         config: { type: "Custom" },
         onWizardClose: onCancel,
-        onStmtEditorModelChange: handleStatementEditorChange,
         onCancel,
         currentFile,
         getLangClient: getExpressionEditorLangClient,

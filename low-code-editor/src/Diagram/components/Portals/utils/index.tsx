@@ -824,7 +824,7 @@ export async function fetchConnectorInfo(
 
     return {
         isLoading: false,
-        connector,
+        connector: connectorInfo,
         functionDefInfo,
         connectorConfig,
         model,

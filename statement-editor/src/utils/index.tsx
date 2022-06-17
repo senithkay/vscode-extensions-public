@@ -207,7 +207,7 @@ export function isBindingPattern(modelType: number): boolean {
 }
 
 export function isDescriptionWithExample(doc : string): boolean {
-    return doc.includes(BAL_SOURCE);
+    return doc?.includes(BAL_SOURCE);
 }
 
 export function getDocDescription(doc: string) : string[] {

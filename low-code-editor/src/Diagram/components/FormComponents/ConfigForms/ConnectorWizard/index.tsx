@@ -26,12 +26,15 @@ import { FormHeaderSection, PrimaryButton } from "@wso2-enterprise/ballerina-low
 import { LocalVarDecl, NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../Contexts/Diagram";
+import { ConfigWizardState } from "../../ConnectorConfigWizard";
 import { FormGenerator, FormGeneratorProps } from "../../FormGenerator";
 import { wizardStyles as useFormStyles } from "../style";
 
 import useStyles from "./style";
+import { fetchConnectorInfo } from "./util";
 
 enum WizardStep {
+    LOADING = "loading",
     MARKETPLACE = "marketplace",
     ENDPOINT_FORM = "endpointForm",
     ENDPOINT_LIST = "endpointList",
@@ -94,9 +97,26 @@ export function ConnectorWizard(props: ConnectorWizardProps) {
         }
     }
 
+    async function fetchMetadata(connector: BallerinaConnectorInfo) {
+        const connectorMetadata = await fetchConnectorInfo(
+            connector,
+            langServerURL,
+            currentFile.path,
+            getDiagramEditorLangClient
+        );
+        if (connectorMetadata) {
+            setSelectedConnector(connectorMetadata);
+            setWizardStep(WizardStep.ENDPOINT_FORM);
+        }
+    }
+
     function handleSelectConnector(connector: BallerinaConnectorInfo, node: LocalVarDecl) {
-        setSelectedConnector(connector);
-        setWizardStep(WizardStep.ENDPOINT_FORM);
+        setWizardStep(WizardStep.LOADING);
+        // (async () => {
+        //     // TODO: fix this with propper loading
+        //     fetchMetadata(connector);
+        // })();
+        fetchMetadata(connector);
     }
 
     function closeEndpointForm() {
@@ -115,6 +135,7 @@ export function ConnectorWizard(props: ConnectorWizardProps) {
 
     return (
         <>
+            {wizardStep === WizardStep.LOADING && <>Fetching...</>}
             {wizardStep === WizardStep.MARKETPLACE && (
                 <FormGenerator
                     onCancel={onClose}

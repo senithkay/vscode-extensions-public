@@ -36,7 +36,7 @@ import { FormGenerator } from "../FormGenerator";
 
 export interface ConfigWizardState {
     isLoading: boolean;
-    connector: Connector;
+    connector: BallerinaConnectorInfo;
     functionDefInfo: Map<string, FunctionDefinitionInfo>;
     connectorConfig: ConnectorConfig;
     model?: STNode;

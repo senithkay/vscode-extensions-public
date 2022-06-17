@@ -326,7 +326,7 @@ export function StatementEditor(props: StatementEditorProps) {
     }
 
     const handleDocumentation = async (newCurrentModel: STNode) => {
-        if (newCurrentModel && STKindChecker.isFunctionCall(newCurrentModel)){
+        if (newCurrentModel){
             setDocumentation(await getSymbolDocumentation(fileURI, targetPosition, newCurrentModel, getLangClient));
         } else {
             setDocumentation(initSymbolInfo)
