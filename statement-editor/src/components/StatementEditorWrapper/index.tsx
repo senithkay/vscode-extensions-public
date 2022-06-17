@@ -155,10 +155,7 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
             (async () => {
                 let model = null;
                 if (initialSource) {
-                    const updatedContent = await getUpdatedSource(initialSource.trim(), currentFile.content,
-                        targetPosition);
-
-                    await sendDidOpen(fileURI, updatedContent, getLangClient);
+                    await sendDidOpen(fileURI, currentFile.content, getLangClient);
 
                     const partialST = isConfigurableStmt
                         ? await getPartialSTForModuleMembers({ codeSnippet: initialSource.trim() }, getLangClient)
