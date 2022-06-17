@@ -10,17 +10,15 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, { useContext, useEffect, useReducer } from 'react';
+import React, { useContext, useEffect } from 'react';
 
 import { StatementEditorWrapper } from '@wso2-enterprise/ballerina-statement-editor';
 import { ModuleVarDecl, NodePosition } from '@wso2-enterprise/syntax-tree';
 
 import { Context, useDiagramContext } from '../../../../../Contexts/Diagram';
 import { getVarNamePositionFromST } from '../../../../utils/st-util';
-import { useStyles as useFormStyles } from "../../DynamicConnectorForm/style";
 
-import { getFormConfigFromModel, isFormConfigValid, ModuleVarNameRegex, VariableOptions } from './util';
-import { ModuleVarFormActionTypes, moduleVarFormReducer } from './util/reducer';
+import { getFormConfigFromModel, VariableOptions } from './util';
 
 
 interface ModuleVariableFormProps {
@@ -33,11 +31,9 @@ interface ModuleVariableFormProps {
 }
 
 export function ModuleVariableForm(props: ModuleVariableFormProps) {
-    const formClasses = useFormStyles();
     const { api: { code: { modifyDiagram }, insights: { onEvent } }, props: { stSymbolInfo } } = useDiagramContext();
     const {
         props: {
-            isMutationProgress: isMutationInProgress,
             currentFile,
             syntaxTree,
             importStatements,
@@ -49,8 +45,8 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
         },
     } = useContext(Context);
 
-    const { onSave, onCancel, targetPosition, model, formType, isLastMember } = props;
-    const [state, dispatch] = useReducer(moduleVarFormReducer, getFormConfigFromModel(model));
+    const { onCancel, targetPosition, model, formType } = props;
+    const formConfig = getFormConfigFromModel(model);
     const variableTypes: string[] = ["int", "float", "boolean", "string", "json", "xml"];
 
     // Insight event to send when loading the component
@@ -62,20 +58,8 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
         // onEvent(event);
     }, []);
 
-    if (state.varOptions.indexOf(VariableOptions.PUBLIC) === -1) {
+    if (formConfig.varOptions.indexOf(VariableOptions.PUBLIC) === -1) {
         variableTypes.unshift('var');
-    }
-
-    const onVarTypeChange = (type: string) => {
-        dispatch({ type: ModuleVarFormActionTypes.SET_VAR_TYPE, payload: type });
-    }
-
-    const onValueChange = (value: string) => {
-        dispatch({ type: ModuleVarFormActionTypes.SET_VAR_VALUE, payload: value });
-    }
-
-    const handleOnVarNameChange = (value: string) => {
-        dispatch({ type: ModuleVarFormActionTypes.SET_VAR_NAME, payload: value });
     }
 
     let namePosition: NodePosition = { startLine: 0, startColumn: 0, endLine: 0, endColumn: 0 }
@@ -87,17 +71,11 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
         namePosition.endLine = targetPosition.startLine;
     }
 
-    const handleStatementEditorChange = (partialModel: ModuleVarDecl) => {
-        handleOnVarNameChange(partialModel.typedBindingPattern.bindingPattern.source);
-        onVarTypeChange(partialModel.typedBindingPattern.typeDescriptor.source);
-        onValueChange(partialModel.initializer.source);
-    }
-
-    const visibilityQualifier = state.varOptions.includes(VariableOptions.PUBLIC) ? 'public' : '';
-    const finalKeyword = state.varOptions.includes(VariableOptions.FINAL) ? 'final' : '';
-    const varType = state.varType ? state.varType : 'int';
-    const varName = state.varName ? state.varName : 'VAR_NAME';
-    const varValue = state.varValue ? state.varValue : '0';
+    const visibilityQualifier = formConfig.varOptions.includes(VariableOptions.PUBLIC) ? 'public' : '';
+    const finalKeyword = formConfig.varOptions.includes(VariableOptions.FINAL) ? 'final' : '';
+    const varType = formConfig.varType ? formConfig.varType : 'int';
+    const varName = formConfig.varName ? formConfig.varName : 'VAR_NAME';
+    const varValue = formConfig.varValue ? formConfig.varValue : '0';
 
     const initialSource = `${visibilityQualifier} ${finalKeyword} ${varType} ${varName} = ${varValue};`
 
@@ -110,7 +88,6 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
             }},
             config: { type: formType, model},
             onWizardClose: onCancel,
-            onStmtEditorModelChange: handleStatementEditorChange,
             onCancel,
             currentFile,
             getLangClient: getExpressionEditorLangClient,
