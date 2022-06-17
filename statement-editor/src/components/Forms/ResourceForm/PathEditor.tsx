@@ -12,7 +12,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { Button } from "@material-ui/core";
 import { default as AddIcon } from "@material-ui/icons/Add";
@@ -24,18 +24,19 @@ import {
 
 import { useStyles } from "./styles";
 import { Path, PathSegment } from "./types";
-import { convertPathStringToSegments } from "./util";
+import { convertPathStringToSegments, recalculateItemIds } from "./util";
 const pathParameterOption = "Path Parameter";
 const pathSegmentOption = "Param Segment";
 
 export interface PathEditorProps {
     relativeResourcePath: string;
-    onSave: () => void,
-    onCancel: string;
+    readonly?: boolean;
+    onChange: () => void,
+    onInProgressChange: (isInProgress: boolean) => void;
 }
 
 export function PathEditor(props: PathEditorProps) {
-    const { relativeResourcePath } = props;
+    const { relativeResourcePath, readonly, onInProgressChange, onChange } = props;
     const options = [pathSegmentOption, pathParameterOption];
 
     const connectorClasses = connectorStyles();
@@ -56,33 +57,50 @@ export function PathEditor(props: PathEditorProps) {
         setAddingParam(false);
         setDraftPath(undefined);
         setEditingSegmentId(-1);
+        onInProgressChange(false);
     };
     const onPathUpdate = (param : {id: number, name: string, dataType?: string}, option: string) => {
         const { id, name, dataType } = param;
         const clonePath = { ...pathState }
         const foundPath = pathState.segments.find(segment => segment.id === id);
         if (foundPath) {
-            setEditingSegmentId(id);
             clonePath.segments[id] = {id, name, type: dataType, isParam: option === pathParameterOption};
         }
         setPathState(clonePath);
         setAddingParam(false);
         setDraftPath(undefined);
         setEditingSegmentId(-1);
+        onInProgressChange(false);
     };
 
     const onEdit = (param : {id: number, name: string, dataType?: string, option?: string}) => {
         const { id } = param;
         const foundPath = pathState.segments.find(segment => segment.id === id);
-        // Once edit is clicked
         if (foundPath) {
             setEditingSegmentId(id);
         }
         setAddingParam(false);
         setDraftPath(undefined);
+        onInProgressChange(true);
     };
-    const onPathChange = (param : {id: number, name: string, dataType: string}, option?: string,
-                          optionChanged?: boolean) => {
+
+    const onDelete = (param : {id: number, name: string, dataType?: string, option?: string}) => {
+        const { id } = param;
+        const foundPath = pathState.segments.find(segment => segment.id === id);
+        if (foundPath) {
+            const pathClone = { ...pathState };
+            pathClone.segments.splice(id, 1);
+            recalculateItemIds(pathClone.segments);
+            setPathState(pathClone);
+        }
+        setAddingParam(false);
+        setDraftPath(undefined);
+        setEditingSegmentId(-1);
+        onInProgressChange(false);
+    };
+
+    const onParamChange = (param : {id: number, name: string, dataType: string}, option?: string,
+                           optionChanged?: boolean) => {
         const { id, name, dataType } = param;
         const foundPath = pathState.segments.find(segment => segment.id === id);
         const isParam = (option === pathParameterOption);
@@ -103,12 +121,14 @@ export function PathEditor(props: PathEditorProps) {
     const addPath = () => {
         setDraftPath({id: pathState.segments.length, name: "name", type: "string", isParam: false});
         setAddingParam(true);
+        onInProgressChange(true);
     };
 
     const cancelAddPath = () => {
         setAddingParam(false);
         setDraftPath(undefined);
         setEditingSegmentId(-1);
+        onInProgressChange(false);
     };
 
     const pathComponents: React.ReactElement[] = [];
@@ -119,8 +139,8 @@ export function PathEditor(props: PathEditorProps) {
                     <ParamItem
                         param={{id: index, name: value.name, type: value.type, option:
                                 value.isParam ? pathParameterOption : pathSegmentOption}}
-                        addInProgress={editingSegmentId === -1}
-                        onDelete={null}
+                        readonly={editingSegmentId !== -1 || readonly}
+                        onDelete={onDelete}
                         onEditClick={onEdit}
                     />
                 );
@@ -132,7 +152,7 @@ export function PathEditor(props: PathEditorProps) {
                         param={param}
                         optionList={options}
                         option={value.isParam ? pathParameterOption : pathSegmentOption}
-                        onChange={onPathChange}
+                        onChange={onParamChange}
                         onUpdate={onPathUpdate}
                         onCancel={cancelAddPath}
                     />
@@ -152,7 +172,7 @@ export function PathEditor(props: PathEditorProps) {
                 <ParamEditor
                     param={{id: draftPath.id, dataType: draftPath.type, name: draftPath.name}}
                     optionList={options}
-                    onChange={onPathChange}
+                    onChange={onParamChange}
                     onAdd={onPathAdd}
                     onCancel={cancelAddPath}
                 />

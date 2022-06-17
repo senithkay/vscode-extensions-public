@@ -73,6 +73,7 @@ export function ResourceForm(props: FunctionProps) {
     const [path, setPath] = useState<FormEditorField>({
         value: model ? getPathOfResources(model.relativeResourcePath) : "", isInteracted: false
     });
+    const [isParamInProgress, setIsParamInProgress] = useState(false);
 
     // States related to syntax diagnostics
     const [currentComponentName, setCurrentComponentName] = useState<string>("");
@@ -112,13 +113,17 @@ export function ResourceForm(props: FunctionProps) {
         } else {
             setCurrentComponentSyntaxDiag(partialST.syntaxDiagnostics);
         }
-    }
+    };
 
     const pathChange = async (value: string) => {
         setPath({value, isInteracted: true});
         await resourceParamChange("get", value, "", "", false, false,
             "");
-    }
+    };
+
+    const handleParamInProgressChange = (isInProgress: boolean) => {
+        setIsParamInProgress(isInProgress);
+    };
 
     useEffect(() => {
         setPath({value: model ? getPathOfResources(model.relativeResourcePath) : "", isInteracted: false})
@@ -147,6 +152,7 @@ export function ResourceForm(props: FunctionProps) {
                                     onChange={null}
                                     label="HTTP Method"
                                     hideLabel={true}
+                                    disabled={isParamInProgress}
                                 />
                             </div>
                             <div className={connectorClasses.resourcePathWrapper}>
@@ -171,11 +177,12 @@ export function ResourceForm(props: FunctionProps) {
                                         placeholder={"name"}
                                         size="small"
                                         // disabled={addingNewParam || (currentComponentSyntaxDiag && currentComponentName !== "Name")}
+                                        disabled={isParamInProgress}
                                     />
                                 </ConfigPanelSection>
                             </div>
                         </div>
-                        <PathEditor relativeResourcePath={path.value} onSave={null} onCancel={null} />
+                        <PathEditor relativeResourcePath={path.value} onChange={null} onInProgressChange={handleParamInProgressChange} />
                         {/*    {advanceSwitch}*/}
                         {/*</div>*/}
                         {/*<div>*/}

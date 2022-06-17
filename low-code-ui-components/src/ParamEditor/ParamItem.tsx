@@ -10,6 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+// tslint:disable: jsx-no-multiline-js
 import React from "react";
 
 import { CloseRounded } from "@material-ui/icons";
@@ -20,13 +21,13 @@ import { useStyles } from './style';
 
 interface ParamItemProps {
     param: { id: number, name: string, type?: string, option?: string };
-    addInProgress: boolean;
+    readonly: boolean;
     onDelete?: (param : {id: number, name: string, type?: string, option?: string}) => void;
     onEditClick?: (param : {id: number, name: string, type?: string, option?: string}) => void;
 }
 
 export function ParamItem(props: ParamItemProps) {
-    const { param, addInProgress, onDelete,  onEditClick } = props;
+    const { param, readonly, onDelete,  onEditClick } = props;
     const classes = useStyles();
 
     const label = param?.type ? `${param.type} ${param.name}` : `${param.name}`;
@@ -34,18 +35,24 @@ export function ParamItem(props: ParamItemProps) {
         onDelete(param);
     };
     const handleEdit = () => {
-        onEditClick(param);
+        if (!readonly) {
+            onEditClick(param);
+        }
     };
 
     return (
         <div className={classes.headerWrapper} data-testid={`${label}-item`}>
-            <div className={addInProgress ? classes.headerLabel : classes.headerLabelWithCursor} onClick={handleEdit}>
-                {label}
-                <ButtonWithIcon
-                    onClick={handleDelete}
-                    icon={<CloseRounded data-testid={`${label}-close-btn`} fontSize="small" />}
-                    className={classes.iconBtn}
-                />
+            <div className={classes.headerLabel}>
+                <div data-test-id={`${label}-param`} className={readonly ? classes.disabledColor : classes.headerLabelCursor} onClick={handleEdit}>
+                    {label}
+                </div>
+                {!readonly && (
+                    <ButtonWithIcon
+                        onClick={handleDelete}
+                        icon={<CloseRounded data-testid={`${label}-close-btn`} fontSize="small"/>}
+                        className={classes.iconBtn}
+                    />
+                )}
             </div>
         </div>
     );
