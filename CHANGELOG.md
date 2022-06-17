@@ -1,5 +1,18 @@
 # Change Log
 
+## **3.0.1**
+### Added
+- A palette command that creates the distribution format of the Ballerina package. [#180](https://github.com/wso2/ballerina-plugin-vscode/issues/180)
+
+### Improved
+- The low-code diagram editor. [#186](https://github.com/wso2/ballerina-plugin-vscode/issues/186)
+- Executor options. [#168](https://github.com/wso2/ballerina-plugin-vscode/issues/168)
+
+### Fixed
+- Ballerina syntax highlighting. [#170](https://github.com/wso2/ballerina-plugin-vscode/issues/170) [#184](https://github.com/wso2/ballerina-plugin-vscode/issues/184) [#185](https://github.com/wso2/ballerina-plugin-vscode/issues/185) [#188](https://github.com/wso2/ballerina-plugin-vscode/issues/188) [#190](https://github.com/wso2/ballerina-plugin-vscode/issues/190) [#191](https://github.com/wso2/ballerina-plugin-vscode/issues/191)
+- Diagram editor reflection on paste, undo, redo, etc. operations. [#151](https://github.com/wso2/ballerina-plugin-vscode/issues/151)
+- Choreo login error at startup. [#189](https://github.com/wso2/ballerina-plugin-vscode/issues/189)
+
 ## **3.0.0**
 ### Added
 - The `Ballerina Low-Code` activity. [#118](https://github.com/wso2/ballerina-plugin-vscode/issues/118)
@@ -19,7 +32,7 @@
 - Diagram and source parallel editing capability.
 
 ### Fixed
-- Ballerina syntax highlighting [#120](https://github.com/wso2/ballerina-plugin-vscode/issues/120) [#121](https://github.com/wso2/ballerina-plugin-vscode/issues/121) [#122](https://github.com/wso2/ballerina-plugin-vscode/issues/122) [#123](https://github.com/wso2/ballerina-plugin-vscode/issues/123) [#126](https://github.com/wso2/ballerina-plugin-vscode/issues/126) [#128](https://github.com/wso2/ballerina-plugin-vscode/issues/128) [#129](https://github.com/wso2/ballerina-plugin-vscode/issues/129)
+- Ballerina syntax highlighting. [#120](https://github.com/wso2/ballerina-plugin-vscode/issues/120) [#121](https://github.com/wso2/ballerina-plugin-vscode/issues/121) [#122](https://github.com/wso2/ballerina-plugin-vscode/issues/122) [#123](https://github.com/wso2/ballerina-plugin-vscode/issues/123) [#126](https://github.com/wso2/ballerina-plugin-vscode/issues/126) [#128](https://github.com/wso2/ballerina-plugin-vscode/issues/128) [#129](https://github.com/wso2/ballerina-plugin-vscode/issues/129)
 
 ## **2.1.1**
 ### Improved
