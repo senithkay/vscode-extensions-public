@@ -450,6 +450,11 @@ export function enclosableWithParentheses(model: any): boolean {
             && !STKindChecker.isComputedNameField(model)
             && !STKindChecker.isSpecificField(model)
             && !STKindChecker.isTypeTestExpression(model)
+            && !STKindChecker.isStringLiteral(model)
+            && !STKindChecker.isNumericLiteral(model)
+            && !STKindChecker.isBooleanLiteral(model)
+            && !STKindChecker.isNilLiteral(model)
+            && !STKindChecker.isNullLiteral(model)
             && !model?.isToken
         );
 }
@@ -651,4 +656,9 @@ export function getFilteredExpressions(expression : ExpressionGroup[], currentMo
             (currentModel.viewState.modelType === ModelType.ORDER_KEY &&
                 (exprGroup.relatedModelType === ModelType.EXPRESSION ||
                     exprGroup.relatedModelType === ModelType.ORDER_KEY)));
+}
+
+export function eligibleForLevelTwoSuggestions(selectedModel: STNode, selection: string): boolean {
+    return (selectedModel.viewState as StatementEditorViewState).modelType === ModelType.EXPRESSION
+        && selection !== '?';
 }

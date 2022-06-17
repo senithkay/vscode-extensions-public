@@ -111,6 +111,7 @@ export function LibraryBrowser(props: LibraryBrowserProps) {
         setSearchScope(data.searchData.modules[0].id);
         setModuleTitle(data.searchData.modules[0].id);
         setModuleSelected(true);
+        resetKeyword();
     };
 
     const onClickOnReturnIcon = async () => {
@@ -153,7 +154,7 @@ export function LibraryBrowser(props: LibraryBrowserProps) {
         libraryDataFetchingHandler(true)
         const searchValue: string = event.target.value;
 
-        if (searchValue === '') {
+        if (searchValue === '' && !moduleSelected) {
             setLibraryBrowserMode(LibraryBrowserMode.LIB_LIST);
             setSearchScope(DEFAULT_SEARCH_SCOPE);
         } else {
