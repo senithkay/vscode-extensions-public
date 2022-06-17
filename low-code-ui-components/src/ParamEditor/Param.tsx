@@ -22,19 +22,19 @@ import { FormTextInput } from "../FormTextInput";
 import { useStyles } from "./style";
 import { FormEditorField } from "./Types";
 
-export interface ParamItem {
+export interface Param {
     id: number;
     type?: string;
     name: string;
 }
 
 export interface Props {
-    param?: ParamItem;
+    param?: Param;
     isEdit?: boolean;
     optionList?: string[];
     option?: string;
     onSave: () => void;
-    onChange: (param: ParamItem, selectedOption?: string) => void;
+    onChange: (param: Param, selectedOption?: string) => void;
     onCancel: () => void;
 }
 
@@ -73,7 +73,7 @@ export function Param(props: Props) {
     };
 
     return (
-        <div className={classes.paramRoot}>
+        <div className={classes.paramContainer}>
             <div className={classes.paramTypeWrapper}>
                 <SelectDropdownWithButton
                     dataTestId="param-type-selector"

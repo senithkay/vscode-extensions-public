@@ -12,10 +12,11 @@
  */
 // tslint:disable: jsx-no-multiline-js
 
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 
 import debounce from "lodash.debounce";
 
+import { PrimaryButton, SecondaryButton } from "../buttons";
 import { SelectDropdownWithButton } from "../DropDown/SelectDropdownWithButton";
 import { FormTextInput } from "../FormTextInput";
 
@@ -24,7 +25,7 @@ import { FormEditorField } from "./Types";
 
 export interface Param {
     id: number;
-    type?: string;
+    dataType?: string;
     name: string;
 }
 
@@ -33,94 +34,143 @@ export interface ParamProps {
     isEdit?: boolean;
     optionList?: string[];
     option?: string;
-    onSave: () => void;
-    onChange: (param: Param, selectedOption?: string) => void;
+    onAdd?: (param: Param, selectedOption?: string) => void;
+    onUpdate?: (param: Param, selectedOption?: string) => void;
+    onChange: (param: Param, selectedOption?: string, optionChanged?: boolean) => void;
     onCancel: () => void;
 }
 
 export function ParamEditor(props: ParamProps) {
-    const { param, isEdit = true, optionList, option, onChange, onSave, onCancel } = props;
-    const { id, name, type } = param;
+    const { param, isEdit = true, optionList, option = "", onChange, onAdd, onUpdate, onCancel } = props;
+    const { id, name, dataType } = param;
 
     const classes = useStyles();
 
-    const [paramType, setParamType] = useState<FormEditorField>({value: type, isInteracted: false});
+    const [paramDataType, setParamDataType] = useState<FormEditorField>({value: dataType, isInteracted: false});
     const [paramName, setParamName] = useState<FormEditorField>({value: name, isInteracted: false});
     const [selectedOption, setSelectedOption] = useState<string>(option);
 
     const handleNameChange = (value: string) => {
         setParamName({value, isInteracted: true});
         if (optionList) {
-            onChange({id, name: value, type: paramType.value}, selectedOption);
+            onChange({id, name: value, dataType: paramDataType.value}, selectedOption);
         } else {
-            onChange({id, name: value, type: paramType.value});
+            onChange({id, name: value, dataType: paramDataType.value});
         }
     };
-    const debouncedNameChange = debounce(handleNameChange, 1000);
+    const debouncedNameChange = debounce(handleNameChange, 500);
 
     const handleTypeChange = (value: string) => {
-        setParamType({value, isInteracted: true});
+        setParamDataType({value, isInteracted: true});
         if (optionList) {
-            onChange({id, name: paramName.value, type: value}, selectedOption);
+            onChange({id, name: paramName.value, dataType: value}, selectedOption);
         } else {
-            onChange({id, name: paramName.value, type: value});
+            onChange({id, name: paramName.value, dataType: value});
         }
     };
-    const debouncedTypeChange = debounce(handleTypeChange, 1000);
+    const debouncedTypeChange = debounce(handleTypeChange, 500);
 
     const handleOnSelect = (value: string) => {
         setSelectedOption(value);
+        onChange({id, name: paramName.value, dataType: paramDataType.value}, value, true);
     };
 
+    const handleAddParam = () => {
+        if (onUpdate) {
+            if (optionList) {
+                onUpdate({id, name: paramName.value, dataType: paramDataType.value}, selectedOption);
+            } else {
+                onUpdate({id, name: paramName.value, dataType: paramDataType.value});
+            }
+        } else {
+            if (optionList) {
+                onAdd({id, name: paramName.value, dataType: paramDataType.value}, selectedOption);
+            } else {
+                onAdd({id, name: paramName.value, dataType: paramDataType.value});
+            }
+        }
+    };
+
+    useEffect(() => {
+        setParamDataType({value: dataType, isInteracted: false});
+    }, [dataType]);
+
+    useEffect(() => {
+        setParamName({value: name, isInteracted: false});
+    }, [name]);
+
     return (
-        <div className={classes.paramRoot}>
-            <div className={classes.paramTypeWrapper}>
-                <SelectDropdownWithButton
-                    dataTestId="param-type-selector"
-                    // defaultValue={}
-                    customProps={{ values: optionList, disableCreateNew: true }}
-                    onChange={handleOnSelect}
-                    label="HTTP Method"
-                />
+        <div className={classes.paramContainer}>
+            <div className={classes.paramContent}>
+                {optionList && (
+                    <div className={classes.paramTypeWrapper}>
+                        <SelectDropdownWithButton
+                            dataTestId="param-type-selector"
+                            defaultValue={selectedOption}
+                            placeholder={"Select Type"}
+                            customProps={{ values: optionList, disableCreateNew: true }}
+                            onChange={handleOnSelect}
+                            label="Param Type"
+                        />
+                    </div>
+                )}
+                {dataType && (
+                    <div className={classes.paramItemWrapper}>
+                        <FormTextInput
+                            label="Data Type"
+                            dataTestId="data-type"
+                            defaultValue={(paramDataType?.isInteracted || isEdit) ? paramDataType.value : ""}
+                            onChange={debouncedTypeChange}
+                            customProps={{
+                                // isErrored: ((currentComponentSyntaxDiag !== undefined && currentComponentName === "Name") ||
+                                //     model?.functionName?.viewState?.diagnosticsInRange[0]?.message)
+                            }}
+                            // errorMessage={(currentComponentSyntaxDiag && currentComponentName === "Name"
+                            //         && currentComponentSyntaxDiag[0].message) ||
+                            //     model?.functionName?.viewState?.diagnosticsInRange[0]?.message}
+                            onBlur={null}
+                            // onFocus={onNameFocus}
+                            placeholder={"Type"}
+                            size="small"
+                            // disabled={addingNewParam || (currentComponentSyntaxDiag && currentComponentName !== "Name")}
+                        />
+                    </div>
+                )}
+                <div className={classes.paramItemWrapper}>
+                    <FormTextInput
+                        label="Name"
+                        dataTestId="param-name"
+                        defaultValue={(paramName?.isInteracted || isEdit) ? paramName.value : ""}
+                        onChange={debouncedNameChange}
+                        customProps={{
+                            // isErrored: ((currentComponentSyntaxDiag !== undefined && currentComponentName === "Name") ||
+                            //     model?.functionName?.viewState?.diagnosticsInRange[0]?.message)
+                        }}
+                        // errorMessage={(currentComponentSyntaxDiag && currentComponentName === "Name"
+                        //         && currentComponentSyntaxDiag[0].message) ||
+                        //     model?.functionName?.viewState?.diagnosticsInRange[0]?.message}
+                        onBlur={null}
+                        // onFocus={onNameFocus}
+                        placeholder={"name"}
+                        size="small"
+                        // disabled={addingNewParam || (currentComponentSyntaxDiag && currentComponentName !== "Name")}
+                    />
+                </div>
             </div>
-            <div className={classes.paramItemWrapper}>
-                <FormTextInput
-                    label="Type"
-                    dataTestId="param-type"
-                    defaultValue={(paramType?.isInteracted || isEdit) ? paramType.value : ""}
-                    onChange={debouncedTypeChange}
-                    customProps={{
-                        // isErrored: ((currentComponentSyntaxDiag !== undefined && currentComponentName === "Name") ||
-                        //     model?.functionName?.viewState?.diagnosticsInRange[0]?.message)
-                    }}
-                    // errorMessage={(currentComponentSyntaxDiag && currentComponentName === "Name"
-                    //         && currentComponentSyntaxDiag[0].message) ||
-                    //     model?.functionName?.viewState?.diagnosticsInRange[0]?.message}
-                    onBlur={null}
-                    // onFocus={onNameFocus}
-                    placeholder={"name"}
-                    size="small"
-                    // disabled={addingNewParam || (currentComponentSyntaxDiag && currentComponentName !== "Name")}
+            <div className={classes.btnContainer}>
+                <SecondaryButton
+                    text="Cancel"
+                    fullWidth={false}
+                    onClick={onCancel}
+                    className={classes.actionBtn}
                 />
-            </div>
-            <div className={classes.paramItemWrapper}>
-                <FormTextInput
-                    label="Name"
-                    dataTestId="param-name"
-                    defaultValue={(paramName?.isInteracted || isEdit) ? paramName.value : ""}
-                    onChange={debouncedNameChange}
-                    customProps={{
-                        // isErrored: ((currentComponentSyntaxDiag !== undefined && currentComponentName === "Name") ||
-                        //     model?.functionName?.viewState?.diagnosticsInRange[0]?.message)
-                    }}
-                    // errorMessage={(currentComponentSyntaxDiag && currentComponentName === "Name"
-                    //         && currentComponentSyntaxDiag[0].message) ||
-                    //     model?.functionName?.viewState?.diagnosticsInRange[0]?.message}
-                    onBlur={null}
-                    // onFocus={onNameFocus}
-                    placeholder={"name"}
-                    size="small"
-                    // disabled={addingNewParam || (currentComponentSyntaxDiag && currentComponentName !== "Name")}
+                <PrimaryButton
+                    dataTestId={"path-segment-add-btn"}
+                    text={onUpdate ? "Update" : " Add"}
+                    // disabled={!segmentState.name || segmentState.name === "" || (segmentState.isParam && (!segmentState.type || segmentState.type === "" || !validSelectedType)) || pathError !== ""}
+                    fullWidth={false}
+                    onClick={handleAddParam}
+                    className={classes.actionBtn}
                 />
             </div>
         </div>

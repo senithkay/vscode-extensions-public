@@ -61,7 +61,8 @@ export interface FunctionProps {
 export function ResourceForm(props: FunctionProps) {
     const { model} = props;
 
-    const { targetPosition, isEdit, onChange, applyModifications, onCancel, getLangClient } = useContext(FormEditorContext);
+    const { targetPosition, isEdit, onChange, applyModifications, onCancel, getLangClient } =
+        useContext(FormEditorContext);
 
     const classes = useStyles();
     const formClasses = useFormStyles();
@@ -174,7 +175,7 @@ export function ResourceForm(props: FunctionProps) {
                                 </ConfigPanelSection>
                             </div>
                         </div>
-                        <PathEditor onSave={null} onCancel={null} />
+                        <PathEditor relativeResourcePath={path.value} onSave={null} onCancel={null} />
                         {/*    {advanceSwitch}*/}
                         {/*</div>*/}
                         {/*<div>*/}
