@@ -38,15 +38,6 @@ export const tooltipInvertedStyles = {
     }
 };
 
-export const toolbarHintStyles = {
-    tooltip: {
-        color: "#1D2028",
-        backgroundColor: "#fdfdfd",
-        border: "1px solid #e6e7ec",
-        borderRadius: "4px"
-    },
-};
-
 const useStyles = makeStyles(() =>
     createStyles({
         componentWrapper: {
