@@ -11,21 +11,14 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { ReactNode, useContext, useState } from "react";
-import { FormattedMessage, useIntl } from "react-intl";
+import React, { useContext } from "react";
+import { useIntl } from "react-intl";
 
-import { FormControl } from "@material-ui/core";
-import { EndConfig, httpResponse, PrimitiveBalType, RespondConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { FormActionButtons, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
+import { EndConfig, RespondConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { StatementEditorWrapper } from "@wso2-enterprise/ballerina-statement-editor";
-import { ActionStatement, RemoteMethodCallAction, STKindChecker } from "@wso2-enterprise/syntax-tree";
-import cn from "classnames";
 
 import { Context } from "../../../../../../../Contexts/Diagram";
-import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
 import { createRespond, getInitialSource } from "../../../../../../utils/modification-util";
-import { useStyles as useFormStyles } from "../../../../DynamicConnectorForm/style";
-import { LowCodeExpressionEditor } from "../../../../FormFieldComponents/LowCodeExpressionEditor";
 
 interface RespondFormProps {
     config: EndConfig;
@@ -35,13 +28,9 @@ interface RespondFormProps {
     onWizardClose: () => void;
 }
 
-export const DEFINE_RESPOND_EXP: string = "Define Respond Expression";
-export const EXISTING_PROPERTY: string = "Select Existing Property";
-
 export function AddRespondForm(props: RespondFormProps) {
     const {
         props: {
-            isMutationProgress: isMutationInProgress,
             currentFile,
             syntaxTree,
             stSymbolInfo,
@@ -57,26 +46,11 @@ export function AddRespondForm(props: RespondFormProps) {
         }
     } = useContext(Context);
 
-    const { config, formArgs, onCancel, onSave, onWizardClose } = props;
+    const { config, formArgs, onCancel, onWizardClose } = props;
 
     const respondFormConfig: RespondConfig = config.expression as RespondConfig;
 
-    const isFormValid = (respondExp: string): boolean => {
-        return (respondFormConfig.caller !== '') && (respondExp !== '');
-    };
-
-    const [validForm, setValidForm] = useState(isFormValid(respondFormConfig.respondExpression));
-    const [resExp, setResExp] = useState(undefined);
     const intl = useIntl();
-
-    const handleStatementEditorChange = (partialModel: ActionStatement) => {
-        if (STKindChecker.isRemoteMethodCallAction(partialModel?.expression)) {
-            const remoteCallModel: RemoteMethodCallAction = partialModel?.expression;
-            respondFormConfig.respondExpression = remoteCallModel?.arguments[0].source;
-            setResExp(remoteCallModel?.arguments[0].source);
-        }
-        setValidForm(false);
-    }
 
     const formTitle = intl.formatMessage({
         id: "lowcode.develop.configForms.Respond.title",
@@ -87,7 +61,7 @@ export function AddRespondForm(props: RespondFormProps) {
         respondFormConfig.genType,
         respondFormConfig.variable,
         respondFormConfig.caller,
-        resExp ? resExp : "EXPRESSION"
+        respondFormConfig?.respondExpression || "EXPRESSION"
     ));
 
     const stmtEditorComponent = StatementEditorWrapper(
@@ -97,7 +71,6 @@ export function AddRespondForm(props: RespondFormProps) {
             formArgs: { formArgs },
             config,
             onWizardClose,
-            onStmtEditorModelChange: handleStatementEditorChange,
             onCancel,
             currentFile,
             getLangClient: getExpressionEditorLangClient,

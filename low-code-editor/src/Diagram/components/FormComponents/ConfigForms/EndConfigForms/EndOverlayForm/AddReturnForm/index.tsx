@@ -11,20 +11,14 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext, useState } from "react";
-import { FormattedMessage, useIntl } from "react-intl";
+import React, { useContext } from "react";
+import { useIntl } from "react-intl";
 
-import { Box, FormControl, Typography } from "@material-ui/core";
 import { EndConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { FormActionButtons, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { StatementEditorWrapper } from "@wso2-enterprise/ballerina-statement-editor";
-import { FunctionDefinition, ModulePart, ReturnStatement, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../../../Contexts/Diagram";
-import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
 import { createReturnStatement, getInitialSource } from "../../../../../../utils/modification-util";
-import { useStyles } from "../../../../DynamicConnectorForm/style";
-import { LowCodeExpressionEditor } from "../../../../FormFieldComponents/LowCodeExpressionEditor";
 
 interface ReturnFormProps {
     config: EndConfig;
@@ -37,7 +31,6 @@ interface ReturnFormProps {
 export function AddReturnForm(props: ReturnFormProps) {
     const {
         props: {
-            isMutationProgress: isMutationInProgress,
             currentFile,
             syntaxTree,
             stSymbolInfo,
@@ -56,20 +49,14 @@ export function AddReturnForm(props: ReturnFormProps) {
     const { config, formArgs, onCancel, onWizardClose } = props;
     const intl = useIntl();
 
-    const [returnExpression, setReturnExpression] = useState(config.expression);
-
     const formTitle = intl.formatMessage({
         id: "lowcode.develop.configForms.Return.title",
         defaultMessage: "Return"
     });
 
     const initialSource = getInitialSource(createReturnStatement(
-        returnExpression ? returnExpression as string : 'EXPRESSION'
+        config?.expression ? config.expression as string : 'EXPRESSION'
     ));
-
-    const handleStatementEditorChange = (partialModel: ReturnStatement) => {
-        setReturnExpression(partialModel.expression?.source.trim())
-    }
 
     const stmtEditorComponent = StatementEditorWrapper(
         {
@@ -78,7 +65,6 @@ export function AddReturnForm(props: ReturnFormProps) {
             formArgs: { formArgs },
             config,
             onWizardClose,
-            onStmtEditorModelChange: handleStatementEditorChange,
             onCancel,
             currentFile,
             getLangClient: getExpressionEditorLangClient,

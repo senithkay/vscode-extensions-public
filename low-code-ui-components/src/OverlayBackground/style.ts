@@ -10,11 +10,24 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { FunctionForm } from "./FunctionForm/FunctionForm";
-import { ListenerForm } from "./ListenerForm/ListenerForm";
-import { ServiceConfigForm } from "./ServiceForm/SeviceForm";
+import { createStyles, makeStyles } from '@material-ui/core/styles';
 
-export { FunctionForm as Function };
-export { ServiceConfigForm as Service };
-export { ListenerForm as Listener };
-export { FunctionForm as Main };
+export const useStyles = makeStyles(() =>
+    createStyles({
+        overlayBackground: {
+            background: '#e6e7ec6e',
+            position: 'fixed',
+            zIndex: 1,
+            top: '-100rem',
+            left: '-100rem'
+        },
+
+        confirmationOverlayBackground: {
+            background: '#e6e7ec6e',
+            position: 'fixed',
+            zIndex: 2,
+            top: 0,
+            left: 0
+        },
+    }),
+);

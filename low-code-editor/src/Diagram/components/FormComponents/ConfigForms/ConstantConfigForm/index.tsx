@@ -10,16 +10,14 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, { useContext, useReducer, useState } from "react"
+import React, { useContext } from "react"
 
 import { StatementEditorWrapper } from "@wso2-enterprise/ballerina-statement-editor";
 import { ConstDeclaration, NodePosition } from "@wso2-enterprise/syntax-tree"
 
 import { Context, useDiagramContext } from "../../../../../Contexts/Diagram";
-import { useStyles as useFormStyles } from "../../DynamicConnectorForm/style";
 
 import { generateConfigFromModel } from "./util";
-import { ConstantConfigFormActionTypes, constantConfigFormReducer } from "./util/reducer";
 
 interface ConstantConfigFormProps {
     model?: ConstDeclaration;
@@ -30,7 +28,6 @@ interface ConstantConfigFormProps {
 }
 
 export function ConstantConfigForm(props: ConstantConfigFormProps) {
-    const formClasses = useFormStyles();
     const { api: { code: { modifyDiagram } }, props: { stSymbolInfo } } = useDiagramContext();
     const {
         props: {
@@ -45,20 +42,8 @@ export function ConstantConfigForm(props: ConstantConfigFormProps) {
             library
         },
     } = useContext(Context);
-    const { model, targetPosition, onCancel, onSave, formType } = props;
-    const [config, dispatch] = useReducer(constantConfigFormReducer, generateConfigFromModel(model));
-
-    const handleTypeChange = (type: string) => {
-        dispatch({ type: ConstantConfigFormActionTypes.SET_CONSTANT_TYPE, payload: type });
-    }
-
-    const handleNameChange = (name: string) => {
-        dispatch({ type: ConstantConfigFormActionTypes.SET_CONSTANT_NAME, payload: name })
-    }
-
-    const handleValueChange = (value: string) => {
-        dispatch({ type: ConstantConfigFormActionTypes.SET_CONSTANT_VALUE, payload: value })
-    }
+    const { model, targetPosition, onCancel, formType } = props;
+    const constantConfig = generateConfigFromModel(model);
 
     let namePosition: NodePosition = { startLine: 0, startColumn: 0, endLine: 0, endColumn: 0 }
 
@@ -69,16 +54,10 @@ export function ConstantConfigForm(props: ConstantConfigFormProps) {
         namePosition.endLine = targetPosition.startLine;
     }
 
-    const handleStatementEditorChange = (partialModel: ConstDeclaration) => {
-        handleNameChange(partialModel.variableName.value);
-        handleTypeChange(partialModel.typeDescriptor.source.trim());
-        handleValueChange(partialModel.initializer.source);
-    }
-
-    const visibilityQualifier = config.isPublic ? 'public' : '';
-    const varType = config.constantType ? config.constantType : '';
-    const varName = config.constantName ? config.constantName : 'CONST_NAME';
-    const varValue = config.constantValue ? config.constantValue : '0';
+    const visibilityQualifier = constantConfig.isPublic ? 'public' : '';
+    const varType = constantConfig.constantType ? constantConfig.constantType : '';
+    const varName = constantConfig.constantName ? constantConfig.constantName : 'CONST_NAME';
+    const varValue = constantConfig.constantValue ? constantConfig.constantValue : '0';
 
     const initialSource = `${visibilityQualifier} const ${varType} ${varName} = ${varValue};`
 
@@ -91,7 +70,6 @@ export function ConstantConfigForm(props: ConstantConfigFormProps) {
             }},
             config: { type: formType, model},
             onWizardClose: onCancel,
-            onStmtEditorModelChange: handleStatementEditorChange,
             onCancel,
             currentFile,
             getLangClient: getExpressionEditorLangClient,

@@ -53,10 +53,10 @@ import {
 import { ModelType, StatementEditorViewState } from "../../utils/statement-editor-viewstate";
 import { StackElement } from "../../utils/undo-redo";
 import { EXPR_SCHEME, FILE_SCHEME } from "../InputEditor/constants";
-import { FormHandlingProps as StmtEditorWrapperProps} from "../StatementEditorWrapper";
+import { LowCodeEditorProps } from "../StatementEditorWrapper";
 import { ViewContainer } from "../ViewContainer";
 
-export interface StatementEditorProps extends StmtEditorWrapperProps {
+export interface StatementEditorProps extends LowCodeEditorProps {
     editor: EditorModel;
     editorManager: {
         switchEditor: (index: number) => void;
@@ -69,7 +69,6 @@ export interface StatementEditorProps extends StmtEditorWrapperProps {
     extraModules?: Set<string>;
     onWizardClose: () => void;
     onCancel: () => void;
-    onStmtEditorModelChange?: (partialModel: STNode) => void;
 }
 
 export function StatementEditor(props: StatementEditorProps) {
@@ -77,7 +76,6 @@ export function StatementEditor(props: StatementEditorProps) {
         editor,
         onCancel,
         onWizardClose,
-        onStmtEditorModelChange,
         editorManager,
         formArgs,
         config,
@@ -230,12 +228,6 @@ export function StatementEditor(props: StatementEditorProps) {
             }
         })();
     }, [currentFile.content]);
-
-    useEffect(() => {
-        if (!!model) {
-            onStmtEditorModelChange(model);
-        }
-    }, [model]);
 
     const restArg = (restCheckClicked: boolean) => {
         setRestArg(restCheckClicked);

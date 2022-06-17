@@ -10,5 +10,5 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-export {FormEditor} from "./components/FormEditor";
+export {FormEditor} from "./components/FormEditor/FormEditor";
 export {StatementEditorWrapper} from "./components/StatementEditorWrapper";

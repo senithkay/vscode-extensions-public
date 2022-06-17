@@ -10,21 +10,16 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
-import React, { useContext, useState } from "react";
+// tslint:disable: jsx-no-multiline-js
+import React, { useContext } from "react";
 import { useIntl } from "react-intl";
 
-import { FormControl, Typography } from "@material-ui/core";
-import { ExpressionEditorProps } from "@wso2-enterprise/ballerina-expression-editor";
-import { FormElementProps, ProcessConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { FormActionButtons, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
+import { ProcessConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { StatementEditorWrapper } from "@wso2-enterprise/ballerina-statement-editor";
-import { AssignmentStatement, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { createPropertyStatement, getInitialSource } from "../../../../../../utils/modification-util";
-import { useStyles } from "../../../../DynamicConnectorForm/style";
-import { LowCodeExpressionEditor } from "../../../../FormFieldComponents/LowCodeExpressionEditor";
 
 interface AddAssignmentConfigProps {
     config: ProcessConfig;
@@ -36,11 +31,10 @@ interface AddAssignmentConfigProps {
 
 export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
     const intl = useIntl();
-    const { config, formArgs, onCancel, onSave, onWizardClose } = props;
+    const { config, formArgs, onCancel, onWizardClose } = props;
 
     const {
         props: {
-            isMutationProgress: isMutationInProgress,
             currentFile,
             syntaxTree,
             stSymbolInfo,
@@ -65,22 +59,14 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
         variableName = config.model?.varRef?.source?.trim();
     }
 
-    const [varName, setVarName] = useState(variableName);
-    const [variableExpression, setVariableExpression] = useState<string>(varExpression);
-
     const formTitle = intl.formatMessage({
         id: "lowcode.develop.configForms.assignment.title",
         defaultMessage: "Assignment"
     });
 
     const initialSource = getInitialSource(createPropertyStatement(
-        `${varName ? varName : "default"} = ${variableExpression ? variableExpression : "EXPRESSION"} ;`
+        `${variableName ? variableName : "default"} = ${varExpression ? varExpression : "EXPRESSION"} ;`
     ));
-
-    const handleStatementEditorChange = (partialModel: AssignmentStatement) => {
-        setVarName(partialModel.varRef?.source.trim());
-        setVariableExpression(partialModel.expression?.source.trim());
-    }
 
     const stmtEditorComponent = StatementEditorWrapper(
         {
@@ -89,7 +75,6 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
             formArgs: { formArgs },
             config,
             onWizardClose,
-            onStmtEditorModelChange: handleStatementEditorChange,
             onCancel,
             currentFile,
             getLangClient: getExpressionEditorLangClient,
