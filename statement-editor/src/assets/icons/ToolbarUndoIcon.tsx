@@ -15,7 +15,6 @@ import React from 'react';
 export default function ToolbarUndoIcon(){
     return(
         <svg width="14px" height="16px" viewBox="0 0 14 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
-            <title>Undo</title>
             <g id="Tree-Editor" stroke="none" stroke-width="1" fill="currentColor" fill-rule="evenodd">
                 <g id="SE-f9-suggestions" transform="translate(-1336.000000, -276.000000)" fill="currentColor" fill-rule="nonzero">
                     <g id="Icon/Toolbar-Undo" transform="translate(1336.000000, 276.000000)">

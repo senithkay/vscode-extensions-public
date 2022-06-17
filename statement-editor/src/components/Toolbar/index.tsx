@@ -14,6 +14,7 @@
 import React, { useContext, useEffect, useMemo } from "react";
 
 import IconButton from "@material-ui/core/IconButton";
+import { StatementEditorHint } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
 import ToolbarConfigurableIcon from "../../assets/icons/ToolbarConfigurableIcon";
@@ -146,53 +147,62 @@ export default function Toolbar(props: ToolbarProps) {
     return (
         <div className={statementEditorClasses.toolbar} data-testid="toolbar">
             <div className={statementEditorClasses.toolbarSet}>
-                <IconButton
-                    onClick={undo}
-                    disabled={!hasUndo}
-                    className={statementEditorClasses.toolbarIcons}
-                    data-testid="toolbar-undo"
-                >
-                    <ToolbarUndoIcon />
-                </IconButton>
+                <StatementEditorHint content={"Undo"} >
+                    <IconButton
+                        onClick={undo}
+                        disabled={!hasUndo}
+                        className={statementEditorClasses.toolbarIcons}
+                        data-testid="toolbar-undo"
+                    >
+                        <ToolbarUndoIcon />
+                    </IconButton>
+                </StatementEditorHint>
                 <div className={statementEditorClasses.undoRedoSeparator} />
-                <IconButton
-                    onClick={redo}
-                    disabled={!hasRedo}
-                    className={statementEditorClasses.toolbarIcons}
-                    data-testid="toolbar-redo"
-                >
-                    <ToolbarRedoIcon />
-                </IconButton>
+                <StatementEditorHint content={"Redo"} >
+                    <IconButton
+                        onClick={redo}
+                        disabled={!hasRedo}
+                        className={statementEditorClasses.toolbarIcons}
+                        data-testid="toolbar-redo"
+                    >
+                        <ToolbarRedoIcon />
+                    </IconButton>
+                </StatementEditorHint>
             </div>
             <div className={statementEditorClasses.toolbarSet}>
-                <IconButton
-                    onClick={onClickOnDelete}
-                    disabled={!deletable}
-                    style={{color: deletable ? '#FE523C' : '#8D91A3', padding: deletable && '10px'}}
-                    className={statementEditorClasses.toolbarIcons}
-                    data-testid="toolbar-delete"
-                >
-                    <ToolbarDeleteIcon/>
-                </IconButton>
+                <StatementEditorHint content={"Delete"} >
+                    <IconButton
+                        onClick={onClickOnDelete}
+                        disabled={!deletable}
+                        style={{color: deletable ? '#FE523C' : '#8D91A3', padding: deletable && '10px'}}
+                        className={statementEditorClasses.toolbarIcons}
+                        data-testid="toolbar-delete"
+                    >
+                        <ToolbarDeleteIcon/>
+                    </IconButton>
+                </StatementEditorHint>
             </div>
             <div className={statementEditorClasses.toolbarSet}>
-                <IconButton
-                    onClick={onClickOnConfigurable}
-                    disabled={!configurable}
-                    className={statementEditorClasses.toolbarIcons}
-                >
-                    <ToolbarConfigurableIcon/>
-                </IconButton>
+                <StatementEditorHint content={"Add configurable"} >
+                    <IconButton
+                        onClick={onClickOnConfigurable}
+                        disabled={!configurable}
+                        className={statementEditorClasses.toolbarIcons}
+                    >
+                        <ToolbarConfigurableIcon/>
+                    </IconButton>
+                </StatementEditorHint>
             </div>
             <div className={statementEditorClasses.toolbarSet}>
-                <IconButton
-                    onClick={onClickOnDocumentation}
-                    style={docEnabled ? ({color : '#5567d5'}) : ({color: '#40404B'})}
-                    className={statementEditorClasses.toolbarIcons}
-                >
-                    <ToolbarDocumentationIcon />
-                </IconButton>
-
+                <StatementEditorHint content={"Documentation"} >
+                    <IconButton
+                        onClick={onClickOnDocumentation}
+                        style={docEnabled ? ({color : '#5567d5'}) : ({color: '#40404B'})}
+                        className={statementEditorClasses.toolbarIcons}
+                    >
+                        <ToolbarDocumentationIcon />
+                    </IconButton>
+                </StatementEditorHint>
             </div>
         </div>
     );
