@@ -147,7 +147,7 @@ export function convertPathParamStringToSegment(pathParamString: string): PathSe
     return pathSegment;
 }
 
-export function genrateBallerinaResourcePath(path: Path): string {
+export function generateBallerinaResourcePath(path: Path): string {
     let pathAsString: string = "";
     path.segments.forEach((value, index, array) => {
         if (index === (array.length - 1)) {
@@ -400,6 +400,6 @@ export function extractPathData(text: string): Resource {
         resource.queryParams = generateQueryParamFromQueryCollection(queryParams);
     }
     resource.id = 0;
-    resource.path = genrateBallerinaResourcePath(path);
+    resource.path = generateBallerinaResourcePath(path);
     return resource;
 }

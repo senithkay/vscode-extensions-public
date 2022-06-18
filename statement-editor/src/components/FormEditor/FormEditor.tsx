@@ -71,7 +71,9 @@ export function FormEditor(props: FormEditorProps) {
     const fileURI = monaco.Uri.file(currentFile.path).toString().replace(FILE_SCHEME, EXPR_SCHEME);
 
     const onChange = async (genSource: string, partialST: STNode, moduleList: Set<string>,
-                            currentModel?: CurrentModel, newValue?: string, completionKinds?: number[], offsetLineCount: number = 0) => {
+                            currentModel?: CurrentModel, newValue?: string, completionKinds?: number[],
+                            offsetLineCount: number = 0,
+                            diagnosticOffSet: NodePosition = { startLine: 0, startColumn: 0 }) => {
         // Offset line position is to add some extra line if we do multiple code generations
 
         const newModuleList = new Set<string>();
@@ -102,23 +104,25 @@ export function FormEditor(props: FormEditorProps) {
         sendDidChange(fileURI, updatedContent, getLangClient).then();
         const diagnostics = await handleDiagnostics(genSource, fileURI, targetPosition, getLangClient).then();
         setModel(enrichModel(partialST, initialModel ? {
-            ...initialModel.position,
-            startLine: initialModel.position.startLine + offsetLineCount ,
-            endLine: initialModel.position.endLine + offsetLineCount
+            // ...initialModel.position,
+            startLine: initialModel.position.startLine + offsetLineCount + diagnosticOffSet.startLine,
+            endLine: initialModel.position.endLine + offsetLineCount + diagnosticOffSet.startLine,
+            startColumn: initialModel.position.startColumn + offsetLineCount + diagnosticOffSet.startColumn,
+            endColumn: initialModel.position.endColumn + offsetLineCount + diagnosticOffSet.startColumn
         } : (
             isLastMember ? (
                 {
-                    ...targetPosition,
-                    startLine: targetPosition.startLine + offsetLineCount,
-                    endLine: targetPosition.startLine + offsetLineCount
+                    startLine: targetPosition.startLine + offsetLineCount + diagnosticOffSet.startLine,
+                    endLine: targetPosition.startLine + offsetLineCount + diagnosticOffSet.startLine,
+                    startColumn: targetPosition.startColumn + diagnosticOffSet.startColumn,
+                    endColumn: targetPosition.endColumn + diagnosticOffSet.startColumn,
                 }
             ) : (
                 {
-                    ...targetPosition,
-                    startLine: targetPosition.startLine + offsetLineCount,
-                    endLine: targetPosition.startLine + offsetLineCount,
-                    startColumn: 0,
-                    endColumn: 0
+                    startLine: targetPosition.startLine + offsetLineCount + diagnosticOffSet.startLine,
+                    endLine: targetPosition.startLine + offsetLineCount + diagnosticOffSet.startLine,
+                    startColumn: diagnosticOffSet.startColumn,
+                    endColumn: diagnosticOffSet.startColumn
                 }
             )
         ), diagnostics));

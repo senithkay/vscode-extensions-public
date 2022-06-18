@@ -92,6 +92,21 @@ export function ResourceForm(props: FunctionProps) {
         defaultMessage: "Path"
     });
 
+    let pathNameSemDiagnostics = "";
+    let pathTypeSemDiagnostics = "";
+    if (model) {
+        const diagPath = model.relativeResourcePath?.find(
+            resPath => resPath?.viewState?.diagnosticsInRange?.length > 0);
+        if (diagPath && STKindChecker.isResourcePathSegmentParam(diagPath)) {
+            pathNameSemDiagnostics = diagPath?.paramName?.viewState?.diagnosticsInRange && diagPath?.paramName?.
+                viewState?.diagnosticsInRange[0]?.message;
+            pathTypeSemDiagnostics = diagPath?.typeDescriptor?.viewState?.diagnosticsInRange && diagPath?.
+                typeDescriptor?.viewState?.diagnosticsInRange[0]?.message;
+        } else if (diagPath && STKindChecker.isIdentifierToken(diagPath)) {
+            pathNameSemDiagnostics = diagPath?.viewState?.diagnostics[0]?.message;
+        }
+    }
+
     const resourceParamChange = async (resMethod: string, pathStr: string, queryParamStr: string, payloadStr: string,
                                        caller: boolean, request: boolean, returnStr: string) => {
         const codeSnippet = getSource(updateResourceSignature(resMethod, pathStr, queryParamStr, payloadStr, caller,
@@ -109,24 +124,36 @@ export function ResourceForm(props: FunctionProps) {
         );
         if (!partialST.syntaxDiagnostics.length) {
             setCurrentComponentSyntaxDiag(undefined);
-            onChange(updatedContent, partialST);
+            onChange(updatedContent, partialST, undefined, undefined, undefined, undefined, 0,
+                {startLine: -1, startColumn: -4});
         } else {
             setCurrentComponentSyntaxDiag(partialST.syntaxDiagnostics);
         }
     };
 
-    const pathChange = async (value: string) => {
-        setPath({value, isInteracted: true});
+    const pathChange = async (value: string, avoidValueCommit?: boolean) => {
+        if (avoidValueCommit) {
+            setPath({...path, isInteracted: true});
+        } else {
+            setPath({value, isInteracted: true});
+        }
+        setCurrentComponentName("pathParam");
         await resourceParamChange("get", value, "", "", false, false,
             "");
     };
 
-    const handleParamInProgressChange = (isInProgress: boolean) => {
+    const handleParamChangeInProgress = (isInProgress: boolean) => {
         setIsParamInProgress(isInProgress);
     };
 
     useEffect(() => {
-        setPath({value: model ? getPathOfResources(model.relativeResourcePath) : "", isInteracted: false})
+        if (model) {
+            if (!isParamInProgress) {
+                setPath({value: getPathOfResources(model.relativeResourcePath), isInteracted: false});
+            }
+        } else {
+            setPath({value: "", isInteracted: false});
+        }
     }, [model]);
 
     return (
@@ -182,7 +209,14 @@ export function ResourceForm(props: FunctionProps) {
                                 </ConfigPanelSection>
                             </div>
                         </div>
-                        <PathEditor relativeResourcePath={path.value} onChange={null} onInProgressChange={handleParamInProgressChange} />
+                        <PathEditor
+                            relativeResourcePath={path.value}
+                            syntaxDiag={currentComponentSyntaxDiag}
+                            pathNameSemDiag={pathNameSemDiagnostics}
+                            pathTypeSemDiag={pathTypeSemDiagnostics}
+                            onChange={pathChange}
+                            onChangeInProgress={handleParamChangeInProgress}
+                        />
                         {/*    {advanceSwitch}*/}
                         {/*</div>*/}
                         {/*<div>*/}
