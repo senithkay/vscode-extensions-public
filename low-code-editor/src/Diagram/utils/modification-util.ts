@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { FormField, ReceivestatementConfig, SendStatementConfig, STModification, WaitStatementConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FlushStatementConfig, FormField, ReceivestatementConfig, SendStatementConfig, STModification, WaitStatementConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, StringTemplateExpression } from "@wso2-enterprise/syntax-tree";
 
 import { ConfigurableFormState } from "../components/FormComponents/ConfigForms/ConfigurableForm/util";
@@ -707,6 +707,20 @@ export function createWaitStatement(config: WaitStatementConfig, targetPosition?
         type: 'WAIT_STATEMENT',
         config: {
             'TYPE': config.type,
+            'VAR_NAME': config.varName,
+            'WORKER_NAME': config.expression
+        }
+    }
+}
+
+export function createFlushStatement(config: FlushStatementConfig, targetPosition?: NodePosition): STModification {
+    return {
+        startLine: targetPosition ? targetPosition.startLine : 0,
+        endLine: targetPosition ? targetPosition.startLine : 0,
+        startColumn: targetPosition ? targetPosition.endColumn : 0,
+        endColumn: targetPosition ? targetPosition.endColumn : 0,
+        type: 'FLUSH_STATEMENT',
+        config: {
             'VAR_NAME': config.varName,
             'WORKER_NAME': config.expression
         }

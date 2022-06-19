@@ -96,6 +96,13 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
                 <ExpressionComponent model={model.initializer.waitFutureExpr} />
             </>
         );
+    } else if (model.initializer && STKindChecker.isFlushAction(model.initializer)) {
+        expressionComponent = (
+            <>
+                <TokenComponent model={model.initializer.flushKeyword} className="operator" />
+                <ExpressionComponent model={model.initializer.peerWorker} />
+            </>
+        );
     } else if (model.initializer) {
         expressionComponent = (
             <>

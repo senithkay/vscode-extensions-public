@@ -164,5 +164,8 @@ service {{{ BASE_PATH }}} on {{{ LISTENER_NAME }}}`,
     `,
     WAIT_STATEMENT: `
     {{{TYPE}}} {{{VAR_NAME}}} = wait {{{WORKER_NAME}}};
+    `,
+    FLUSH_STATEMENT: `
+    error? {{{VAR_NAME}}} = flush {{{WORKER_NAME}}};
     `
 }

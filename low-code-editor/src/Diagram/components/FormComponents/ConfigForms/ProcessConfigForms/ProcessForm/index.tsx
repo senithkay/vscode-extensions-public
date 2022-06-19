@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext } from "react";
 
-import { ConfigOverlayFormStatus, ProcessConfig, ReceivestatementConfig, SendStatementConfig, WaitStatementConfig, WizardType, WorkerConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ConfigOverlayFormStatus, FlushStatementConfig, ProcessConfig, ReceivestatementConfig, SendStatementConfig, WaitStatementConfig, WizardType, WorkerConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { LocalVarDecl, NamedWorkerDeclaration } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../../Contexts/Diagram";
@@ -27,6 +27,7 @@ import { AddSendStatement } from "./AddSendStatement";
 import { AddVariableConfig } from "./AddVariableConfig";
 import { AddWorkerConfigForm } from "./AddWorkerConfig";
 import { AddWaitStatement } from "./AddWaitStatement";
+import { AddFlushStatement } from "./AddFlushStatement";
 
 interface ProcessFormProps {
     config: ProcessConfig;
@@ -98,6 +99,13 @@ export function ProcessForm(props: ProcessFormProps) {
         };
 
         config.config = waitConfig;
+    } else if (formType === 'FlushStatement') {
+        const flushStatementConfig: FlushStatementConfig = {
+            varName: '',
+            expression: ''
+        };
+
+        config.config = flushStatementConfig;
     } else {
         formType = "Custom";
         config.config = {
@@ -155,6 +163,17 @@ export function ProcessForm(props: ProcessFormProps) {
                 {
                     formType === "WaitStatement" && (
                         <AddWaitStatement
+                            config={config}
+                            formArgs={formArgs}
+                            onSave={onSave}
+                            onWizardClose={onWizardClose}
+                            onCancel={onCancel}
+                        />
+                    )
+                }
+                {
+                    formType === "FlushStatement" && (
+                        <AddFlushStatement
                             config={config}
                             formArgs={formArgs}
                             onSave={onSave}

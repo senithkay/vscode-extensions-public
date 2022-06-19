@@ -294,6 +294,11 @@ export interface WaitStatementConfig {
     expression: string;
 }
 
+export interface FlushStatementConfig {
+    varName: string;
+    expression: string;
+}
+
 export interface CustomExpressionConfig {
     expression: string;
 }
