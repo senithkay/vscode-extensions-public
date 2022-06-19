@@ -87,6 +87,7 @@ export function CompletionEditor(props: CompletionEditorProps) {
                 error={customProps.isErrored}
                 helperText={errorMessage}
                 InputProps={inputProps}
+                defaultValue={defaultValue ? defaultValue : ""}
             />
         )
     };
@@ -101,7 +102,7 @@ export function CompletionEditor(props: CompletionEditorProps) {
                 onChange={handleChange}
                 onFocus={handleOnFocus}
                 onInputChange={handleChange}
-                defaultValue={defaultValue}
+                value={defaultValue ? defaultValue : ""}
             />
         </div>
     );

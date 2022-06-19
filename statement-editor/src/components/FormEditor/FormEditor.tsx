@@ -13,14 +13,15 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useEffect, useState } from 'react';
 
-import { ExpressionEditorLangClientInterface, STModification } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { ExpressionEditorLangClientInterface, STModification, STSymbolInfo } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import * as monaco from "monaco-editor";
 
 import { CurrentModel } from '../../models/definitions';
-import { enrichModel, getUpdatedSource } from "../../utils";
+import { FormEditorContextProvider } from "../../store/form-editor-context";
+import { enrichModel, getUpdatedSource} from "../../utils";
 import {
-getCompletionsForType,
+    getCompletionsForType,
     getPartialSTForModuleMembers,
     handleDiagnostics,
     sendDidChange
@@ -28,7 +29,6 @@ getCompletionsForType,
 import { FormRenderer } from "../FormRenderer";
 import { getInitialSource } from "../Forms/Utils/FormUtils";
 import { EXPR_SCHEME, FILE_SCHEME } from "../InputEditor/constants";
-import { LowCodeEditorProps } from "../StatementEditorWrapper";
 
 export interface FormEditorProps {
     initialSource?: string;
@@ -39,6 +39,8 @@ export interface FormEditorProps {
         size: number
     };
     targetPosition: NodePosition;
+    stSymbolInfo?: STSymbolInfo;
+    syntaxTree?: STNode;
     type: string;
     onCancel: () => void;
     applyModifications: (modifications: STModification[]) => void;
@@ -50,13 +52,15 @@ export function FormEditor(props: FormEditorProps) {
     const {
         initialSource,
         initialModel,
+        syntaxTree,
         onCancel,
         getLangClient,
         applyModifications,
         currentFile,
         type,
         targetPosition,
-        topLevelComponent
+        topLevelComponent,
+        stSymbolInfo
     } = props;
 
     const [model, setModel] = useState<STNode>(null);
@@ -64,13 +68,39 @@ export function FormEditor(props: FormEditorProps) {
 
     const fileURI = monaco.Uri.file(currentFile.path).toString().replace(FILE_SCHEME, EXPR_SCHEME);
 
-    const onChange = async (genSource: string, partialST: STNode, currentModel?: CurrentModel, newValue?: string, completionKinds?: number[]) => {
-        const updatedContent = await getUpdatedSource(genSource.trim(), currentFile.content, initialModel ?
-            initialModel.position : targetPosition, undefined, true);
+    const onChange = async (genSource: string, partialST: STNode, moduleList: Set<string>,
+                            currentModel?: CurrentModel, newValue?: string, completionKinds?: number[], offsetLineCount: number = 0) => {
+        // Offset line position is to add some extra line if we do multiple code generations
+
+        const newModuleList = new Set<string>();
+        moduleList?.forEach(module => {
+            if (!currentFile.content.includes(module)){
+                newModuleList.add(module);
+            }
+        })
+        const updatedContent = getUpdatedSource(genSource.trim(), currentFile.content, initialModel ? {
+            ...initialModel.position,
+            startLine: initialModel.position.startLine + offsetLineCount,
+            endLine: initialModel.position.endLine + offsetLineCount} : {
+                ...targetPosition,
+                startLine: targetPosition.startLine + offsetLineCount,
+                endLine: targetPosition.startLine + offsetLineCount,
+                startColumn: 0,
+                endColumn: 0
+            }, newModuleList, true);
         sendDidChange(fileURI, updatedContent, getLangClient).then();
         const diagnostics = await handleDiagnostics(genSource, fileURI, targetPosition, getLangClient).then();
-        setModel(enrichModel(partialST, initialModel ?
-            initialModel.position : targetPosition, diagnostics));
+        setModel(enrichModel(partialST, initialModel ? {
+            ...initialModel.position,
+            startLine: initialModel.position.startLine + offsetLineCount ,
+            endLine: initialModel.position.endLine + offsetLineCount
+        } : {
+            ...targetPosition,
+            startLine: targetPosition.startLine + offsetLineCount,
+            endLine: targetPosition.startLine + offsetLineCount,
+            startColumn: 0,
+            endColumn: 0
+        }, diagnostics));
         if (currentModel && newValue && completionKinds) {
             handleCompletions(newValue, currentModel, completionKinds);
         }
@@ -106,17 +136,36 @@ export function FormEditor(props: FormEditorProps) {
 
     return (
         <div>
-            <FormRenderer
-                type={type}
+            <FormEditorContextProvider
                 model={model}
-                completions={completions}
+                type={type}
                 targetPosition={targetPosition}
+                stSymbolInfo={stSymbolInfo}
+                syntaxTree={syntaxTree}
                 onChange={onChange}
                 onCancel={onCancel}
+                onSave={onCancel}
                 getLangClient={getLangClient}
+                currentFile={currentFile}
                 isEdit={initialSource !== undefined}
+                isLastMember={false}
                 applyModifications={applyModifications}
-            />
+            >
+                <FormRenderer
+                    type={type}
+                    model={model}
+                    targetPosition={targetPosition}
+                    stSymbolInfo={stSymbolInfo}
+                    syntaxTree={syntaxTree}
+                    completions={completions}
+                    onChange={onChange}
+                    onCancel={onCancel}
+                    getLangClient={getLangClient}
+                    currentFile={currentFile}
+                    isEdit={initialSource !== undefined}
+                    applyModifications={applyModifications}
+                />
+            </FormEditorContextProvider>
         </div>
     )
 }

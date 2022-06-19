@@ -112,22 +112,12 @@ export function getStatementTypeComponent(
     );
 }
 
-export function getFormComponent(
-    type: string, model: STNode, completions: SuggestionItem[], targetPosition: NodePosition, onChange: (code: string, partialST: STNode) => void,
-    onCancel: () => void, getLangClient: () => Promise<ExpressionEditorLangClientInterface>, isEdit: boolean,
-    applyModifications: (modifications: STModification[]) => void
-): ReactNode {
+export function getFormComponent(type: string, model: STNode, completions: SuggestionItem[]): ReactNode {
     const FormComponent = (formComponents as any)[type];
     return (
         <FormComponent
             model={model}
             completions={completions}
-            targetPosition={targetPosition}
-            onChange={onChange}
-            onCancel={onCancel}
-            getLangClient={getLangClient}
-            isEdit={isEdit}
-            applyModifications={applyModifications}
         />
     );
 }
@@ -256,7 +246,7 @@ export function getUpdatedSource(statement: string, currentFileContent: string,
 
     const updatedStatement = skipSemiColon ? statement : (statement.trim().endsWith(';') ? statement : statement + ';');
     let updatedContent: string = addToTargetPosition(currentFileContent, targetPosition, updatedStatement);
-    if (moduleList && !moduleList?.size) {
+    if (moduleList && !!moduleList?.size) {
         updatedContent = addImportStatements(updatedContent, Array.from(moduleList) as string[]);
     }
 
@@ -635,15 +625,16 @@ export function getUpdatedContentForNewNamedArg(currentModel: FunctionCall, user
     return content;
 }
 
-export function getExprWithArgs(suggestionValue: string): string {
+export function getExprWithArgs(suggestionValue: string, prefix?: string): string {
     const paramRegex = /\w+\((.*)\)/m;
     const params = paramRegex.exec(suggestionValue);
+    let exprWithArgs = suggestionValue;
     if (params) {
         let paramList = params[1].split(',');
         paramList = paramList.map((param: string) => {
             return param.trim().split(' ').pop();
         });
-        return suggestionValue.replace(params[1], paramList.toString());
+        exprWithArgs = suggestionValue.replace(params[1], paramList.toString());
     }
-    return suggestionValue;
+    return prefix ? prefix + exprWithArgs : exprWithArgs;
 }

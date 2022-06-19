@@ -351,3 +351,16 @@ export interface EndConfig {
     wizardType?: WizardType;
     model?: STNode;
 }
+
+export interface HTTPServiceConfigState {
+    serviceBasePath: string;
+    listenerConfig: ListenerConfigFormState,
+    hasInvalidConfig?: boolean
+}
+
+export interface ListenerConfigFormState {
+    createNewListener?: boolean;
+    fromVar?: boolean,
+    listenerName?: string,
+    listenerPort?: string,
+}

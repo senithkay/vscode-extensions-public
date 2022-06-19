@@ -110,6 +110,17 @@ const structuralConstructors: ExpressionGroup = {
 //     6.16 Method call expression
 //     6.17 Error constructor
 //     6.18 Anonymous function expression
+const anonymousFunction: ExpressionGroup = {
+    name: "Anonymous Functions",
+    expressions: [
+        {
+            name: "Implicit Anonymous Function",
+            template: `() => ${EXPR_PLACEHOLDER}`,
+            example: "() => Es"
+        }
+    ],
+    relatedModelType: ModelType.EXPRESSION
+}
 //     6.19 Let expression
 //     6.21 Typeof expression
 const typeofEx: ExpressionGroup = {
@@ -434,9 +445,17 @@ const typeDescriptors : ExpressionGroup = {
             template: `[${SELECTED_EXPRESSION}]`,
             example: "[Es, Ex]"
         }, {
+            name: "Map",
+            template: `map<${SELECTED_EXPRESSION}>`,
+            example: "map<Es>"
+        }, {
             name: "Table",
             template: `table<${SELECTED_EXPRESSION}>`,
             example: "table<Es>"
+        }, {
+            name: "Stream",
+            template: `stream<${SELECTED_EXPRESSION}>`,
+            example: "stream<Es>"
         }, {
             name: "Table with Key-Fields",
             template: `table<${SELECTED_EXPRESSION}> key(${EXPR_PLACEHOLDER})`,
@@ -586,6 +605,7 @@ export const expressions: ExpressionGroup[] = [
     typeCastEx,
     templates,
     structuralConstructors,
+    anonymousFunction,
     range,
     shift,
     typeDescriptors,

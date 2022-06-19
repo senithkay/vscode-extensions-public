@@ -122,7 +122,7 @@ service {{{ BASE_PATH }}} on {{{ LISTENER_NAME }}}`,
     {{/if}}
 
         {{#if httpBased }}listener http:Listener httpListener = new(8090);{{/if}}
-        listener {{triggerType}}:Listener webhookListener = new({{#if (checkConfigurable listenerParams)}}config,{{/if}}{{#if httpBased }}httpListener{{/if}});
+        listener {{triggerType}}:Listener webhookListener =  new({{#if (checkConfigurable listenerParams)}}config{{/if}}{{#if (checkConfigurable listenerParams)}}{{#if httpBased }},{{/if}}{{/if}}{{#if httpBased }}httpListener{{/if}});
 
         {{#each serviceTypes}}
         service {{../triggerType}}:{{ this.name }} on webhookListener {

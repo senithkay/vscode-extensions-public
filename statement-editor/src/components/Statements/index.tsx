@@ -13,6 +13,7 @@
 import { ActionStatementC } from "./ActionStatement";
 import { AssignmentStatementComponent } from "./AssignmentStatement";
 import { CallStatementC } from "./CallStatement";
+import { ConstantDeclC } from './ConstantDecl';
 import { ElseBlockC } from "./ElseIfStatement";
 import { ForeachStatementC } from "./ForeachStatement";
 import { IfStatementC } from "./IfStatement";
@@ -34,3 +35,4 @@ export { ReturnStatementC as ReturnStatement };
 export { CallStatementC as CallStatement };
 export { AssignmentStatementComponent as AssignmentStatement };
 export { ActionStatementC as ActionStatement };
+export { ConstantDeclC as ConstDeclaration }

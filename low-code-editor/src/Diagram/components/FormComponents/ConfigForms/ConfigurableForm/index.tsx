@@ -10,32 +10,16 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, { useContext, useReducer, useState } from 'react';
+import React, { useContext } from 'react';
 
-import { FormControl } from '@material-ui/core';
-import { ExpressionEditorProps } from '@wso2-enterprise/ballerina-expression-editor';
-import { ADD_CONFIGURABLE, ConfigOverlayFormStatus, FormElementProps, LowcodeEvent, STModification } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
-import { FormActionButtons, FormHeaderSection } from '@wso2-enterprise/ballerina-low-code-edtior-ui-components';
+import { ConfigOverlayFormStatus } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { StatementEditorWrapper } from "@wso2-enterprise/ballerina-statement-editor";
 import { CaptureBindingPattern, ModuleVarDecl, NodePosition } from '@wso2-enterprise/syntax-tree';
-import { v4 as uuid } from "uuid";
 
 import { Context, useDiagramContext } from '../../../../../Contexts/Diagram';
-import { getAllModuleVariables } from '../../../../utils/mixins';
-import { createConfigurableDecl, updateConfigurableVarDecl } from '../../../../utils/modification-util';
-import { genVariableName } from '../../../Portals/utils';
-import { useStyles as useFormStyles } from "../../DynamicConnectorForm/style";
-import CheckBoxGroup from '../../FormFieldComponents/CheckBox';
-import { LowCodeExpressionEditor } from "../../FormFieldComponents/LowCodeExpressionEditor";
-import { TextLabel } from '../../FormFieldComponents/TextField/TextLabel';
-import { InjectableItem } from '../../FormGenerator';
-import { VariableNameInput } from '../Components/VariableNameInput';
-import { VariableTypeInput, VariableTypeInputProps } from '../Components/VariableTypeInput';
 
-import { ConfigurableFormState, getFormConfigFromModel, isFormConfigValid } from './util';
-import { ConfigurableFormActionTypes, moduleVarFormReducer } from './util/reducer';
+import { getFormConfigFromModel } from './util';
 
-const variableTypes: string[] = ["int", "float", "boolean", "string", "xml"];
 interface ConfigurableFormProps {
     model?: ModuleVarDecl;
     targetPosition?: NodePosition;
@@ -47,14 +31,12 @@ interface ConfigurableFormProps {
 }
 
 export function ConfigurableForm(props: ConfigurableFormProps) {
-    const formClasses = useFormStyles();
     const { api: { code: { modifyDiagram }, insights: { onEvent } }, props: { stSymbolInfo } } = useDiagramContext();
-    const { onSave, onCancel, targetPosition, model, configOverlayFormStatus, formType, isLastMember } = props;
-    const [state, dispatch] = useReducer(moduleVarFormReducer, getFormConfigFromModel(model, stSymbolInfo));
+    const { onCancel, targetPosition, model, configOverlayFormStatus, formType } = props;
+    const formConfig = getFormConfigFromModel(model, stSymbolInfo);
 
     const {
         props: {
-            isMutationProgress: isMutationInProgress,
             currentFile,
             syntaxTree,
             importStatements,
@@ -66,137 +48,8 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
         },
     } = useContext(Context);
 
-    const { updateInjectables, updateParentConfigurable, configurableId } = configOverlayFormStatus?.formArgs || {};
+    const { updateInjectables } = configOverlayFormStatus?.formArgs || {};
     const isFromExpressionEditor = !!updateInjectables;
-    const [uniqueId] = useState(uuid());
-    const tempVarName: string = `temp_var_${uniqueId.replaceAll('-', '_')}`;
-    const handleOnSave = () => {
-        state.varName  = genVariableName(state.varName, getAllModuleVariables(stSymbolInfo));
-        const modifyState: ConfigurableFormState = {
-            ...state,
-            varValue: state.hasDefaultValue ? state.varValue : '?',
-        }
-        if (isFromExpressionEditor && updateParentConfigurable) {
-            const modification = createConfigurableDecl(modifyState, targetPosition, isLastMember, true);
-            const editItemIndex = updateInjectables?.list.findIndex((item: InjectableItem) => item.id === configurableId);
-            let newInjectableList = updateInjectables?.list;
-            const newInjectable = {
-                id: configurableId,
-                name: state.varName,
-                value: state.varValue,
-                modification,
-            }
-            if (editItemIndex >= 0) {
-                newInjectableList[editItemIndex] = newInjectable;
-            } else {
-                newInjectableList = [...newInjectableList, newInjectable]
-            }
-            updateInjectables?.setInjectables(newInjectableList);
-            setTimeout(() => {
-                updateParentConfigurable(state.varName);
-                onCancel();
-            }, 250)
-
-        } else {
-            const modifications: STModification[] = []
-            if (model) {
-                modifications.push(updateConfigurableVarDecl(modifyState, model.position));
-            } else {
-                modifications.push(createConfigurableDecl(modifyState, targetPosition));
-            }
-            modifyDiagram(modifications);
-            onSave();
-            // const event: LowcodeEvent = {
-            //     type: ADD_CONFIGURABLE,
-            //     name: state.varName
-            // };
-            // onEvent(event);
-        }
-    }
-
-    const onAccessModifierChange = (modifierList: string[]) => {
-        dispatch({ type: ConfigurableFormActionTypes.UPDATE_ACCESS_MODIFIER, payload: modifierList.length > 0 });
-    }
-
-    const onHasDefaultValChange = (defaultValList: string[]) => {
-        dispatch({ type: ConfigurableFormActionTypes.SET_DEFAULT_INCLUDED, payload: defaultValList.length > 0 });
-    }
-
-    const onVarTypeChange = (type: string) => {
-        dispatch({ type: ConfigurableFormActionTypes.SET_VAR_TYPE, payload: type });
-    }
-
-    const onValueChange = (value: string) => {
-        dispatch({ type: ConfigurableFormActionTypes.SET_VAR_VALUE, payload: value });
-    }
-
-    const onLabelChange = (value: string) => {
-        dispatch({ type: ConfigurableFormActionTypes.SET_VAR_LABEL, payload: value });
-    }
-
-    const updateExpressionValidity = (fieldName: string, isInValid: boolean) => {
-        dispatch({ type: ConfigurableFormActionTypes.UPDATE_EXPRESSION_VALIDITY, payload: !isInValid });
-    }
-
-    const handleOnVarNameChange = (value: string) => {
-        dispatch({ type: ConfigurableFormActionTypes.SET_VAR_NAME, payload: value });
-    }
-
-    const expressionEditorConfigForValue: FormElementProps<ExpressionEditorProps> = {
-        model: {
-            name: "valueExpression",
-            displayName: "Value Expression",
-            typeName: state.varType,
-            value: state.varValue,
-        },
-        customProps: {
-            validate: updateExpressionValidity,
-            interactive: true,
-            statementType: state.varType,
-            editPosition: {
-                startLine: model ? model.position.startLine : targetPosition.startLine,
-                endLine: model ? model.position.startLine : targetPosition.startLine,
-                startColumn: 0,
-                endColumn: 0
-            },
-            customTemplate: {
-                defaultCodeSnippet: `configurable ${state.varType} ${tempVarName} = ;`,
-                targetColumn: 62 + state.varType.length,
-            },
-            hideTextLabel: true,
-            initialDiagnostics: model?.initializer?.typeData?.diagnostics,
-            customTemplateVarName: tempVarName
-        },
-        onChange: onValueChange,
-        defaultValue: state.varValue
-    };
-
-    const expressionEditorConfigForLabel = {
-        model: {
-            name: "Label",
-            displayName: "Configurable Description",
-            typeName: 'string',
-            optional: true
-        },
-        customProps: {
-            validate: updateExpressionValidity,
-            interactive: true,
-            statementType: 'string',
-            editPosition: {
-                startLine: model ? model.position.startLine : targetPosition.startLine,
-                endLine: model ? model.position.startLine : targetPosition.startLine,
-                startColumn: 0,
-                endColumn: 0
-            }
-        },
-        onChange: onLabelChange,
-        defaultValue: state.label,
-    };
-    const disableSaveBtn: boolean = isFormConfigValid(state);
-    const typeSelectorCustomProps = {
-        disableCreateNew: true,
-        values: variableTypes,
-    };
 
     let namePosition: NodePosition = { startLine: 0, startColumn: 0, endLine: 0, endColumn: 0 }
 
@@ -207,47 +60,10 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
         namePosition.endLine = targetPosition.startLine;
     }
 
-    const validateExpression = (fieldName: string, isInvalidType: boolean) => {
-        updateExpressionValidity(fieldName, isInvalidType);
-    };
-
-    const variableTypeConfig: VariableTypeInputProps = {
-        displayName: 'Variable Type',
-        value: state.varType,
-        onValueChange: onVarTypeChange,
-        validateExpression,
-        position: model ? {
-            ...model.position,
-            endLine: 0,
-            endColumn: 0,
-        } : targetPosition,
-        overrideTemplate: {
-            defaultCodeSnippet: `|()  tempVarType = ();`,
-            targetColumn: 1
-        }
-    }
-
-    const variableTypeInput = (
-        <div className="exp-wrapper">
-            <VariableTypeInput {...variableTypeConfig} />
-        </div>
-    );
-
-    const handleStatementEditorChange = (partialModel: ModuleVarDecl) => {
-        handleOnVarNameChange(partialModel.typedBindingPattern.bindingPattern.source);
-        onVarTypeChange(partialModel.typedBindingPattern.typeDescriptor.source);
-        if (partialModel.initializer.source !== "?") {
-            onHasDefaultValChange(['Include Default Value']);
-            onValueChange(partialModel.initializer.source);
-        } else {
-            onHasDefaultValChange([]);
-        }
-    }
-
-    const visibilityQualifier = state.isPublic ? 'public' : '';
-    const varType = state.varType ? state.varType : 'boolean';
-    const varName = state.varName ? state.varName : 'CONF_NAME';
-    const varValue = state.hasDefaultValue && state.varValue ? state.varValue : '?';
+    const visibilityQualifier = formConfig.isPublic ? 'public' : '';
+    const varType = formConfig.varType ? formConfig.varType : 'boolean';
+    const varName = formConfig.varName ? formConfig.varName : 'CONF_NAME';
+    const varValue = formConfig.hasDefaultValue && formConfig.varValue ? formConfig.varValue : '?';
 
     const initialSource = `${visibilityQualifier} configurable ${varType} ${varName} = ${varValue};`
 
@@ -260,7 +76,6 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
             }},
             config: { type: formType, model},
             onWizardClose: onCancel,
-            handleStatementEditorChange,
             onCancel,
             currentFile,
             getLangClient: getExpressionEditorLangClient,
