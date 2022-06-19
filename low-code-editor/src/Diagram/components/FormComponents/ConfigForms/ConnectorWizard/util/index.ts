@@ -11,8 +11,13 @@
  * associated services.
  */
 
-import { BallerinaConnectorInfo, BallerinaConnectorRequest, DiagramEditorLangClientInterface, FormField, PrimitiveBalType }
+import { BallerinaConnectorInfo, BallerinaConnectorRequest, DiagramEditorLangClientInterface, FormField, FormFieldReturnType, PrimitiveBalType }
     from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { STNode, STKindChecker, QualifiedNameReference } from "@wso2-enterprise/syntax-tree";
+import { isEndpointNode } from "../../../../../utils";
+
+import { getFormattedModuleName } from "../../../../Portals/utils";
+import { isAllDefaultableFields } from "../../../Utils";
 
 export async function fetchConnectorInfo(
     connector: BallerinaConnectorInfo,
@@ -43,6 +48,33 @@ export async function fetchConnectorInfo(
         }
     }
     return connectorInfo;
+}
+
+export function getMatchingConnector(node: STNode): BallerinaConnectorInfo {
+    let connector: BallerinaConnectorInfo;
+    if (
+        node && isEndpointNode(node) &&
+        (STKindChecker.isLocalVarDecl(node) || STKindChecker.isModuleVarDecl(node)) &&
+        STKindChecker.isQualifiedNameReference(node.typedBindingPattern.typeDescriptor)
+    ) {
+        const nameReference = node.typedBindingPattern.typeDescriptor as QualifiedNameReference;
+        const typeSymbol = nameReference.typeData?.typeSymbol;
+        const module = typeSymbol?.moduleID;
+        if (typeSymbol && module) {
+            connector = {
+                name: typeSymbol.name,
+                moduleName: module.moduleName,
+                package: {
+                    organization: module.orgName,
+                    name: module.packageName || module.moduleName,
+                    version: module.version,
+                },
+                functions: [],
+            };
+        }
+    }
+
+    return connector;
 }
 
 export function getDefaultParams(parameters: FormField[], depth = 1): string[] {
@@ -93,6 +125,9 @@ export function getDefaultParams(parameters: FormField[], depth = 1): string[] {
                 draftParameter = getFieldValuePair(parameter, defaultParam, depth);
                 break;
             case "inclusion":
+                if (isAllDefaultableFields(parameter.inclusionType?.fields)){
+                    break;
+                }
                 const inclusionParams = getDefaultParams([ parameter.inclusionType ], depth + 1);
                 draftParameter = getFieldValuePair(parameter, `${inclusionParams?.join()}`, depth);
                 break;
@@ -112,4 +147,187 @@ function getFieldValuePair(parameter: FormField, defaultValue: string, depth: nu
         return `${parameter.name}: ${defaultValue}`;
     }
     return defaultValue;
+}
+
+
+export function getFormFieldReturnType(formField: FormField, depth = 1): FormFieldReturnType {
+    const response: FormFieldReturnType = {
+        hasError: formField?.isErrorType ? true : false,
+        hasReturn: false,
+        returnType: "var",
+        importTypeInfo: []
+    };
+    const primitives = [ "string", "int", "float", "decimal", "boolean", "json", "xml", "handle", "byte", "object", "handle", "anydata" ];
+    const returnTypes: string[] = [];
+
+    if (formField) {
+        switch (formField.typeName) {
+            case "union":
+                formField?.members?.forEach(field => {
+                    const returnTypeResponse = getFormFieldReturnType(field, depth + 1);
+                    const returnType = returnTypeResponse.returnType;
+                    response.hasError = returnTypeResponse.hasError || response.hasError;
+                    response.hasReturn = returnTypeResponse.hasReturn || response.hasReturn;
+                    response.importTypeInfo = [ ...response.importTypeInfo, ...returnTypeResponse.importTypeInfo ];
+
+                    // collector
+                    if (returnType && returnType !== "var") {
+                        returnTypes.push(returnType);
+                    }
+                });
+
+                if (returnTypes.length > 0) {
+                    if (returnTypes.length > 1) {
+                        // concat all return types with | character
+                        response.returnType = returnTypes.reduce((fullType, subType) => {
+                            return `${fullType}${subType !== '?' ? '|' : ''}${subType}`;
+                        });
+                    } else {
+                        response.returnType = returnTypes[ 0 ];
+                        if (response.returnType === '?') {
+                            response.hasReturn = false;
+                        }
+                    }
+                }
+                break;
+
+            case "map":
+                const paramType = getFormFieldReturnType(formField.paramType, depth + 1);
+                response.hasError = paramType.hasError;
+                response.hasReturn = true;
+                response.returnType = `map<${paramType.returnType}>`;
+                break;
+
+            case "array":
+                if (formField?.memberType) {
+                    const returnTypeResponse = getFormFieldReturnType(formField.memberType, depth + 1);
+                    response.returnType = returnTypeResponse.returnType;
+                    response.hasError = returnTypeResponse.hasError || response.hasError;
+                    response.hasReturn = returnTypeResponse.hasReturn || response.hasReturn;
+                    response.importTypeInfo = [ ...response.importTypeInfo, ...returnTypeResponse.importTypeInfo ];
+                }
+
+                if (response.returnType && formField.typeName === PrimitiveBalType.Array) {
+                    // set array type
+                    response.returnType = response.returnType.includes('|') ? `(${response.returnType})[]` : `${response.returnType}[]`;
+                }
+                break;
+
+            case "stream":
+                let returnTypeResponseLeft = null;
+                let returnTypeResponseRight = null;
+                if (formField?.leftTypeParam) {
+                    returnTypeResponseLeft = getFormFieldReturnType(formField.leftTypeParam, depth + 1);
+                    response.importTypeInfo = [ ...response.importTypeInfo, ...returnTypeResponseLeft.importTypeInfo ];
+                }
+                if (formField?.rightTypeParam) {
+                    returnTypeResponseRight = getFormFieldReturnType(formField.rightTypeParam, depth + 1);
+                    response.importTypeInfo = [ ...response.importTypeInfo, ...returnTypeResponseRight.importTypeInfo ];
+                }
+                if (returnTypeResponseLeft.returnType && returnTypeResponseRight && (returnTypeResponseRight.returnType || returnTypeResponseRight.hasError)) {
+                    const rightType = returnTypeResponseRight.hasError ? "error?" : returnTypeResponseRight.returnType;
+                    response.returnType = `stream<${returnTypeResponseLeft.returnType},${rightType}>`;
+                }
+                if (returnTypeResponseLeft.returnType && !returnTypeResponseRight?.returnType) {
+                    response.returnType = `stream<${returnTypeResponseLeft.returnType}>`;
+                }
+                if (response.returnType) {
+                    response.hasReturn = true;
+                    formField.isErrorType = false;
+                    response.hasError = false;
+                }
+                break;
+
+            case "tuple":
+                formField?.fields.forEach(field => {
+                    const returnTypeResponse = getFormFieldReturnType(field, depth + 1);
+                    const returnType = returnTypeResponse.returnType;
+                    response.hasError = returnTypeResponse.hasError || response.hasError;
+                    response.hasReturn = returnTypeResponse.hasReturn || response.hasReturn;
+                    response.importTypeInfo = [ ...response.importTypeInfo, ...returnTypeResponse.importTypeInfo ];
+                    // collector
+                    if (returnType && returnType !== "var") {
+                        returnTypes.push(returnType);
+                    }
+                });
+
+                if (returnTypes.length > 0) {
+                    response.returnType = returnTypes.length > 1 ? `[${returnTypes.join(',')}]` : returnTypes[ 0 ];
+                }
+                break;
+
+            default:
+                let type = "";
+                if (depth <= 2 && (formField.typeName.trim() === "error" || formField.isErrorType)) {
+                    formField.isErrorType = true;
+                    response.hasError = true;
+                }
+                if (depth > 2 && (formField.typeName.trim() === "error" || formField.isErrorType)) {
+                    response.hasReturn = true;
+                    response.returnType = "error";
+                }
+                if (type === "" && formField.typeInfo && !formField.isErrorType) {
+                    // set class/record types
+                    type = `${getFormattedModuleName(formField.typeInfo.moduleName)}:${formField.typeInfo.name}`;
+                    response.hasReturn = true;
+                    response.importTypeInfo.push(formField.typeInfo);
+                }
+                if (type === "" && formField.typeInfo && formField?.isStream && formField.isErrorType) {
+                    // set stream record type with error
+                    type = `${getFormattedModuleName(formField.typeInfo.moduleName)}:${formField.typeInfo.name},error`;
+                    response.hasReturn = true;
+                    response.importTypeInfo.push(formField.typeInfo);
+                    // remove error return
+                    response.hasError = false;
+                }
+                if (type === "" && !formField.typeInfo && primitives.includes(formField.typeName) &&
+                    formField?.isStream && formField.isErrorType) {
+                    // set stream record type with error
+                    type = `${formField.typeName},error`;
+                    response.hasReturn = true;
+                    // remove error return
+                    response.hasError = false;
+                }
+                if (type === "" && formField.typeName.includes("map<")) {
+                    // map type
+                    type = formField.typeName;
+                    response.hasReturn = true;
+                }
+                if (type === "" && formField.typeName.includes("[") && formField.typeName.includes("]")) {
+                    // tuple type
+                    type = formField.typeName;
+                    response.hasReturn = true;
+                }
+                if (type === "" && !formField.isStream && formField.typeName && primitives.includes(formField.typeName)) {
+                    // set primitive types
+                    type = formField.typeName;
+                    response.hasReturn = true;
+                }
+                if (formField.typeName === "parameterized") {
+                    type = "record{}";
+                    response.hasReturn = true;
+                }
+                // filters
+                if (type !== "" && formField.typeName === PrimitiveBalType.Array) {
+                    // set array type
+                    type = type.includes('|') ? `(${type})[]` : `${type}[]`;
+                }
+                if ((type !== "" || formField.isErrorType) && formField?.optional) {
+                    // set optional tag
+                    type = type.includes('|') ? `(${type})?` : `${type}?`;
+                }
+                if (type === "" && depth > 1 && formField.typeName.trim() === "()") {
+                    // set optional tag for nil return types
+                    type = "?";
+                }
+                if (type) {
+                    response.returnType = type;
+                }
+        }
+    }
+    if (formField === null) {
+        response.returnType = "record{}";
+        response.hasReturn = true;
+    }
+    return response;
 }

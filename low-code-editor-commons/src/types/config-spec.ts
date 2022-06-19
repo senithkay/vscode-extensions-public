@@ -68,6 +68,7 @@ export interface FunctionDefinitionInfo {
     parameters: FormField[];
     returnType?: FormField;
     isRemote?: boolean;
+    displayAnnotation?: any;
 }
 
 export interface FormField {

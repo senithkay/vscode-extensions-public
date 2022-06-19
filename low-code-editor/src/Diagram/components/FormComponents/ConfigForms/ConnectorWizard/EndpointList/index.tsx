@@ -19,17 +19,17 @@ import { BallerinaConnectorInfo } from "@wso2-enterprise/ballerina-low-code-edti
 import { FormHeaderSection, PrimaryButton } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
-import { Context } from "../../../../../Contexts/Diagram";
-import { FormGeneratorProps } from "../../FormGenerator";
-import { wizardStyles as useFormStyles } from "../style";
+import { Context } from "../../../../../../Contexts/Diagram";
+import { FormGeneratorProps } from "../../../FormGenerator";
+import { wizardStyles as useFormStyles } from "../../style";
+import useStyles from "../style";
 
-import useStyles from "./style";
-import { getMatchingConnector } from "./util";
+import { getMatchingConnector } from "../util";
+
 
 export interface EndpointListProps {
     functionNode: STNode;
     onSelect: (connector: BallerinaConnectorInfo, endpointName: string) => void;
-    onCancel: () => void;
     addNewEndpoint: () => void;
 }
 
@@ -43,6 +43,7 @@ export function EndpointList(props: FormGeneratorProps) {
     } = useContext(Context);
     const { targetPosition, onCancel } = props;
     const { functionNode, onSelect, addNewEndpoint } = props.configOverlayFormStatus.formArgs as EndpointListProps;
+    
     const endpointElementList: ReactNode[] = [];
     const visitedEndpoints: string[] = [];
     let isEndpointExists = false;
@@ -120,7 +121,7 @@ export function EndpointList(props: FormGeneratorProps) {
     }
 
     return (
-        <FormControl data-testid="endpoint-list-form" className={formClasses.wizardFormControl}>
+        <FormControl data-testid="endpoint-list-form" className={formClasses.wizardFormControlExtended}>
             <FormHeaderSection
                 onCancel={onCancel}
                 formTitle={"lowcode.develop.configForms.endpointList.title"}

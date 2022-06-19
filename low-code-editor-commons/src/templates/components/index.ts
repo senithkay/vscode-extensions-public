@@ -1,6 +1,7 @@
 export default {
     CHECKED_PAYLOAD_FUNCTION_INVOCATION: '{{{ TYPE }}} {{{ VARIABLE }}} = check {{{ RESPONSE }}}.{{{ PAYLOAD }}}();',
-    DECLARATION: '{{{ TYPE }}} {{{ VARIABLE }}} = new ({{{ PARAMS }}});',
+    DECLARATION: '{{{ TYPE }}} {{{ VARIABLE }}} = {{{CHECK}}} new ({{{ PARAMS }}});',
+    DECLARATION_CHECK: '{{{ TYPE }}} {{{ VARIABLE }}} = check new ({{{ PARAMS }}});',
     FOREACH_STATEMENT_CONDITION: '{{{ TYPE }}} {{{ VARIABLE }}} in {{{ COLLECTION }}}',
     FOREACH_STATEMENT: `
 foreach {{{ TYPE }}} {{{ VARIABLE }}} in {{{ COLLECTION }}} {

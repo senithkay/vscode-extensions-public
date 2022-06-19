@@ -229,6 +229,7 @@ export interface FunctionDefinitionInfo {
     parameters: FormField[];
     returnType?: FormField;
     isRemote?: boolean;
+    displayAnnotation?: DisplayAnnotation;
 }
 
 export interface BallerinaConnectorInfo extends Connector {
@@ -268,7 +269,9 @@ export interface Parameter {
     defaultable?:       boolean;
 }
 
-export interface DisplayAnnotation {}
+export interface DisplayAnnotation {
+    label?: string;
+}
 
 export interface Field {
     name?:        string;
@@ -384,7 +387,7 @@ export interface BallerinaConstruct {
     displayName?: string;
     moduleName?: string;
     package: Package;
-    displayAnnotation?: any;
+    displayAnnotation?: DisplayAnnotation;
     icon?: string;
 }
 

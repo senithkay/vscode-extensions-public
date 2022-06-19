@@ -30,7 +30,7 @@ import { LocalVarDecl, NodePosition, STNode } from "@wso2-enterprise/syntax-tree
 
 import { Context } from "../../../../Contexts/Diagram";
 import { fetchConnectorInfo } from "../../Portals/utils";
-import { fetchConnectorsList } from "../ConfigForms/ConnectorList";
+import { fetchConnectorsList } from "../ConfigForms/ConnectorWizard/ConnectorList";
 import { SearchQueryParams } from "../ConfigForms/Marketplace";
 import { FormGenerator } from "../FormGenerator";
 

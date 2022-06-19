@@ -16,10 +16,10 @@ import React from "react";
 import { BallerinaConnectorInfo, BallerinaConnectorsRequest, BallerinaModuleResponse, DiagramEditorLangClientInterface } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { LocalVarDecl } from "@wso2-enterprise/syntax-tree";
 
-import { UserState } from "../../../../../types";
-import { APIHeightStates } from "../../DialogBoxes/PlusHolder";
-import { FormGeneratorProps } from "../../FormGenerator";
-import { BallerinaModuleType, Marketplace, SearchQueryParams } from "../Marketplace";
+import { UserState } from "../../../../../../types";
+import { APIHeightStates } from "../../../DialogBoxes/PlusHolder";
+import { FormGeneratorProps } from "../../../FormGenerator";
+import { BallerinaModuleType, Marketplace, SearchQueryParams } from "../../Marketplace";
 
 export interface ConnectorListProps {
     onSelect: (connector: BallerinaConnectorInfo, selectedConnector: LocalVarDecl) => void;

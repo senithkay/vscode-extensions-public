@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js align  jsx-wrap-multiline
 import React, { useContext, useEffect, useState } from "react";
 
-import { BallerinaConnectorInfo, ConnectorWizardType, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { BallerinaConnectorInfo, ConnectorWizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { CaptureBindingPattern, LocalVarDecl, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import cn from "classnames";
 
@@ -42,10 +42,8 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
     const diagramCleanDraw = diagramContext?.actions?.diagramCleanDraw;
     const gotoSource = diagramContext?.api?.code?.gotoSource;
     const renderConnectorWizard = diagramContext?.api?.edit?.renderConnectorWizard;
-    const renderAddForm = diagramContext?.api?.edit?.renderAddForm;
 
     const { syntaxTree, stSymbolInfo, isReadOnly } = diagramContext.props;
-
     const { model, blockViewState, specialConnectorName } = props;
 
     const viewState: ViewState =
@@ -54,9 +52,7 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
             : (model.viewState as StatementViewState);
 
     const sourceSnippet: string = model?.source;
-
     const diagnostics = model?.typeData?.diagnostics;
-
     const diagnosticMsgs = getDiagnosticInfo(diagnostics);
 
     const errorSnippet = {
@@ -71,11 +67,8 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
     const draftVS: DraftStatementViewState = viewState as DraftStatementViewState;
 
     const [isEditConnector, setIsConnectorEdit] = useState<boolean>(false);
-    // const [isClosed, setIsClosed] = useState<boolean>(false);
 
-    const [connector, setConnector] = useState<BallerinaConnectorInfo>(
-        specialConnectorName ? null : draftVS.connector
-    );
+    const [connector, setConnector] = useState<BallerinaConnectorInfo>(draftVS.connector);
 
     const toggleSelection = () => {
         setIsConnectorEdit(!isEditConnector);
@@ -88,7 +81,6 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
         ? cn("main-connector-process-wrapper active-connector-processor")
         : cn("main-connector-process-wrapper connector-processor");
 
-    // const connectorDefDeleteMutation = (delModel: STNode): STModification[] => {
     const connectorDefDeleteMutation = (): any => {
         const invokedEPCount: number = 0;
         if (invokedEPCount === 1) {
@@ -104,29 +96,15 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
     };
 
     const onWizardClose = () => {
+        setIsConnectorEdit(false);
+        setConnector(undefined);
         if (blockViewState) {
             blockViewState.draft = undefined;
             diagramCleanDraw(syntaxTree);
         }
-        setIsConnectorEdit(false);
-        setConnector(undefined);
-    };
-
-    const onConnectorFormClose = () => {
-        if (blockViewState && blockViewState.draft && specialConnectorName) {
-            blockViewState.draft = undefined;
-            diagramCleanDraw(syntaxTree);
-        }
-        setIsConnectorEdit(false);
-        setConnector(undefined);
-    };
-
-    const onConnectorSelect = (balConnector: BallerinaConnectorInfo) => {
-        setConnector(balConnector);
     };
 
     let isReferencedVariable = false;
-    let targetPosition: NodePosition;
     const isLocalVariableDecl = model && STKindChecker.isLocalVarDecl(model);
     if (isLocalVariableDecl && STKindChecker.isCaptureBindingPattern(model.typedBindingPattern.bindingPattern)) {
         const captureBingingPattern = (model as LocalVarDecl).typedBindingPattern.bindingPattern as CaptureBindingPattern;
@@ -134,7 +112,6 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
             stSymbolInfo.variableNameReferences.get(captureBingingPattern.variableName.value)?.length > 0) {
             isReferencedVariable = true;
         }
-        targetPosition = captureBingingPattern.position;
     }
     draftVS.targetPosition = draftVS.targetPosition ? draftVS.targetPosition : model?.position;
 
@@ -166,45 +143,12 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
         }
     }, [model, connector, isEditConnector]);
 
-    // const connectorList = (
-    //     <FormGenerator
-    //         onCancel={onWizardClose}
-    //         // onSave={onSave}
-    //         configOverlayFormStatus={ {
-    //             formType: "ConnectorList",
-    //             formArgs: {
-    //                 onSelect: onConnectorSelect,
-    //                 onCancel: onWizardClose,
-    //             },
-    //             isLoading: true,
-    //         } }
-    //     />
-    // );
-
     const onClickOpenInCodeView = () => {
         if (model) {
             const position: NodePosition = model.position as NodePosition;
             gotoSource({ startLine: position.startLine, startColumn: position.startColumn });
         }
     }
-
-    // const connectorWizard = (
-    //     <ConnectorConfigWizard
-    //         connectorInfo={connector}
-    //         position={ {
-    //             x: viewState.bBox.cx + 80,
-    //             y: viewState.bBox.cy,
-    //         } }
-    //         targetPosition={draftVS.targetPosition || targetPosition}
-    //         selectedConnector={draftVS.selectedConnector}
-    //         specialConnectorName={specialConnectorName}
-    //         model={model}
-    //         onClose={onConnectorFormClose}
-    //         onSave={onWizardClose}
-    //         isAction={false}
-    //         isEdit={isEditConnector}
-    //     />
-    // );
 
     return (
         <>
@@ -216,8 +160,6 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
                     diagnostics={errorSnippet}
                     openInCodeView={onClickOpenInCodeView}
                 />
-                {/* {!model && !connector && !specialConnectorName && connectorList} */}
-                {/* {(connector || specialConnectorName) && connectorWizard} */}
                 {model && !isReadOnly && (
                     <g
                         className="connector-process-options-wrapper"

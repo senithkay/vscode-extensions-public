@@ -20,7 +20,7 @@ import {
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         container: {
-            width: 270,
+            width: 700,
         },
         emptyTitle: {
             marginTop: theme.spacing(6),
