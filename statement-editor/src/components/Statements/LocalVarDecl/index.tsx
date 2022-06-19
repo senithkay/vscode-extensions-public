@@ -85,15 +85,20 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
     if (model.initializer && STKindChecker.isReceiveAction(model.initializer)) {
         expressionComponent = (
             <>
-                <TokenComponent model={model.equalsToken} className="operator" />
                 <TokenComponent model={model.initializer.leftArrow} className="operator" />
                 <ExpressionComponent model={model.initializer.receiveWorkers} />
+            </>
+        );
+    } else if (model.initializer && STKindChecker.isWaitAction(model.initializer)) {
+        expressionComponent = (
+            <>
+                <TokenComponent model={model.initializer.waitKeyword} className="operator" />
+                <ExpressionComponent model={model.initializer.waitFutureExpr} />
             </>
         );
     } else if (model.initializer) {
         expressionComponent = (
             <>
-                <TokenComponent model={model.equalsToken} className="operator" />
                 <ExpressionComponent model={model.initializer} />
             </>
         );
@@ -102,10 +107,11 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
     return (
         <>
             {typedBindingComponent}
+            {model.initializer && <TokenComponent model={model.equalsToken} className="operator" />}
             {expressionComponent}
             {
                 model.semicolonToken.position.startColumn !== model.semicolonToken.position.endColumn &&
-                    <TokenComponent model={model.semicolonToken} />
+                <TokenComponent model={model.semicolonToken} />
             }
         </>
     );

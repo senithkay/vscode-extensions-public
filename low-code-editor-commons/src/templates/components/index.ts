@@ -160,6 +160,9 @@ service {{{ BASE_PATH }}} on {{{ LISTENER_NAME }}}`,
     {{{EXPRESSION}}} -> {{{TARGET_WORKER}}};
     `,
     ASYNC_RECEIVE_STATEMENT: `
-    {{{TYPE}}} {{{VAR_NAME}}} = <- {{{SENDER_WORKER}}};
+    error|{{{TYPE}}} {{{VAR_NAME}}} = <- {{{SENDER_WORKER}}};
+    `,
+    WAIT_STATEMENT: `
+    {{{TYPE}}} {{{VAR_NAME}}} = wait {{{WORKER_NAME}}};
     `
 }

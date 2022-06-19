@@ -258,7 +258,8 @@ export interface ElseIfConfig {
 
 export interface ProcessConfig {
     type: string;
-    config?: string | LogConfig | RespondConfig | CustomExpressionConfig | WorkerConfig | SendStatementConfig | ReceivestatementConfig;
+    config?: string | LogConfig | RespondConfig | CustomExpressionConfig | WorkerConfig | SendStatementConfig 
+    | ReceivestatementConfig | WaitStatementConfig;
     scopeSymbols?: string[];
     model?: STNode;
     wizardType?: WizardType;
@@ -285,6 +286,12 @@ export interface ReceivestatementConfig {
     type: string;
     varName: string;
     senderWorker: string;
+}
+
+export interface WaitStatementConfig {
+    type: string;
+    varName: string;
+    expression: string;
 }
 
 export interface CustomExpressionConfig {

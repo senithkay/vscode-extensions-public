@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { FormField, ReceivestatementConfig, SendStatementConfig, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FormField, ReceivestatementConfig, SendStatementConfig, STModification, WaitStatementConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, StringTemplateExpression } from "@wso2-enterprise/syntax-tree";
 
 import { ConfigurableFormState } from "../components/FormComponents/ConfigForms/ConfigurableForm/util";
@@ -694,6 +694,21 @@ export function createReceiveStatement(config: ReceivestatementConfig, targetPos
             'TYPE': config.type,
             'VAR_NAME': config.varName,
             'SENDER_WORKER': config.senderWorker
+        }
+    }
+}
+
+export function createWaitStatement(config: WaitStatementConfig, targetPosition?: NodePosition): STModification {
+    return {
+        startLine: targetPosition ? targetPosition.startLine : 0,
+        endLine: targetPosition ? targetPosition.startLine : 0,
+        startColumn: targetPosition ? targetPosition.endColumn : 0,
+        endColumn: targetPosition ? targetPosition.endColumn : 0,
+        type: 'WAIT_STATEMENT',
+        config: {
+            'TYPE': config.type,
+            'VAR_NAME': config.varName,
+            'WORKER_NAME': config.expression
         }
     }
 }

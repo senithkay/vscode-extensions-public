@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext } from "react";
 
-import { ConfigOverlayFormStatus, ProcessConfig, ReceivestatementConfig, SendStatementConfig, WizardType, WorkerConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ConfigOverlayFormStatus, ProcessConfig, ReceivestatementConfig, SendStatementConfig, WaitStatementConfig, WizardType, WorkerConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { LocalVarDecl, NamedWorkerDeclaration } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../../Contexts/Diagram";
@@ -26,6 +26,7 @@ import { AddReceiveStatement } from "./AddReceiveStatement";
 import { AddSendStatement } from "./AddSendStatement";
 import { AddVariableConfig } from "./AddVariableConfig";
 import { AddWorkerConfigForm } from "./AddWorkerConfig";
+import { AddWaitStatement } from "./AddWaitStatement";
 
 interface ProcessFormProps {
     config: ProcessConfig;
@@ -48,7 +49,6 @@ export function ProcessForm(props: ProcessFormProps) {
     } = useContext(Context);
 
     let formType: string = type;
-
     if (formType === "Variable") {
         if (config.wizardType === WizardType.EXISTING) {
             const existingVariableModelValue: LocalVarDecl = config.model as LocalVarDecl;
@@ -90,6 +90,14 @@ export function ProcessForm(props: ProcessFormProps) {
         };
 
         config.config = receiveConfig;
+    } else if (formType === 'WaitStatement') {
+        const waitConfig: WaitStatementConfig = {
+            type: '',
+            varName: '',
+            expression: '',
+        };
+
+        config.config = waitConfig;
     } else {
         formType = "Custom";
         config.config = {
@@ -136,6 +144,17 @@ export function ProcessForm(props: ProcessFormProps) {
                 {
                     formType === "ReceiveStatement" && (
                         <AddReceiveStatement
+                            config={config}
+                            formArgs={formArgs}
+                            onSave={onSave}
+                            onWizardClose={onWizardClose}
+                            onCancel={onCancel}
+                        />
+                    )
+                }
+                {
+                    formType === "WaitStatement" && (
+                        <AddWaitStatement
                             config={config}
                             formArgs={formArgs}
                             onSave={onSave}
