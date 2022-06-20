@@ -29,6 +29,18 @@ export const pathParamTypes: string[] = ["string", "int"];
 export const returnTypes: string[] = ["http:Response", "json", "xml", "string", "int", "boolean", "float"];
 export const functionParamTypes: string[] = ["json", "xml", "string", "int", "boolean", "float"];
 export const functionReturnTypes: string[] = ["json", "xml", "string", "int", "boolean", "float", "error"];
+export const HTTP_GET = "GET";
+export const HTTP_POST = "POST";
+export const HTTP_PUT = "PUT";
+export const HTTP_DELETE = "DELETE";
+export const HTTP_OPTIONS = "OPTIONS";
+export const HTTP_HEAD = "HEAD";
+export const HTTP_PATCH = "PATCH";
+
+export const SERVICE_METHODS = [HTTP_GET, HTTP_PUT, HTTP_DELETE, HTTP_POST, HTTP_OPTIONS, HTTP_HEAD, HTTP_PATCH];
+
+export const getPathOfResources = (resources: any[] = []) =>
+    resources?.map((path: any) => path?.value || path?.source).join('');
 
 export function convertPayloadStringToPayload(payloadString: string): Payload {
     const payload: Payload = {

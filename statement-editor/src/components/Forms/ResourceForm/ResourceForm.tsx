@@ -40,19 +40,7 @@ import { FormEditorField } from "../Types";
 
 import { PathEditor } from "./PathEditor";
 import { useStyles } from "./styles";
-
-export const HTTP_GET = "GET";
-export const HTTP_POST = "POST";
-export const HTTP_PUT = "PUT";
-export const HTTP_DELETE = "DELETE";
-export const HTTP_OPTIONS = "OPTIONS";
-export const HTTP_HEAD = "HEAD";
-export const HTTP_PATCH = "PATCH";
-
-export const SERVICE_METHODS = [HTTP_GET, HTTP_PUT, HTTP_DELETE, HTTP_POST, HTTP_OPTIONS, HTTP_HEAD, HTTP_PATCH];
-
-export const getPathOfResources = (resources: any[] = []) =>
-    resources?.map((path: any) => path?.value || path?.source).join('');
+import { getPathOfResources, SERVICE_METHODS } from "./util";
 
 export interface FunctionProps {
     model: ResourceAccessorDefinition;
@@ -135,7 +123,16 @@ export function ResourceForm(props: FunctionProps) {
         if (!avoidValueCommit) {
             setPath({value, isInteracted: true});
         }
-        setCurrentComponentName("pathParam");
+        setCurrentComponentName("Path");
+        await resourceParamChange("get", value, "", "", false, false,
+            "");
+    };
+
+    const pathParamEditorChange = async (value: string, avoidValueCommit?: boolean) => {
+        if (!avoidValueCommit) {
+            setPath({value, isInteracted: true});
+        }
+        setCurrentComponentName("PathParam");
         await resourceParamChange("get", value, "", "", false, false,
             "");
     };
@@ -187,22 +184,21 @@ export function ResourceForm(props: FunctionProps) {
                                 >
                                     <FormTextInput
                                         dataTestId="resource-path"
-                                        // defaultValue={(paramName?.isInteracted || isEdit) ? paramName.value : ""}
                                         defaultValue={(path?.isInteracted || isEdit) ? path.value : ""}
                                         onChange={pathChange}
                                         customProps={{
-                                            // isErrored: ((currentComponentSyntaxDiag !== undefined && currentComponentName === "Name") ||
-                                            //     model?.functionName?.viewState?.diagnosticsInRange[0]?.message)
+                                            isErrored: ((currentComponentSyntaxDiag !== undefined &&
+                                                currentComponentName === "Path") || pathNameSemDiagnostics !== "" ||
+                                                pathTypeSemDiagnostics !== "")
                                         }}
-                                        // errorMessage={(currentComponentSyntaxDiag && currentComponentName === "Name"
-                                        //         && currentComponentSyntaxDiag[0].message) ||
-                                        //     model?.functionName?.viewState?.diagnosticsInRange[0]?.message}
+                                        errorMessage={(currentComponentSyntaxDiag && currentComponentName === "Path"
+                                                && currentComponentSyntaxDiag[0].message) || pathNameSemDiagnostics ||
+                                            pathTypeSemDiagnostics}
                                         onBlur={null}
-                                        // onFocus={onNameFocus}
-                                        placeholder={"name"}
+                                        placeholder={"."}
                                         size="small"
-                                        // disabled={addingNewParam || (currentComponentSyntaxDiag && currentComponentName !== "Name")}
-                                        disabled={isParamInProgress}
+                                        disabled={isParamInProgress || (currentComponentSyntaxDiag &&
+                                            currentComponentName !== "Path")}
                                     />
                                 </ConfigPanelSection>
                             </div>
@@ -210,10 +206,11 @@ export function ResourceForm(props: FunctionProps) {
                         <PathEditor
                             relativeResourcePath={(path?.isInteracted || isEdit) ? path.value : ""}
                             syntaxDiag={currentComponentSyntaxDiag}
-                            readonly={false}
+                            readonly={!isParamInProgress && (currentComponentSyntaxDiag?.length > 0 ||
+                                (pathTypeSemDiagnostics !== "" || pathNameSemDiagnostics !== ""))}
                             pathNameSemDiag={pathNameSemDiagnostics}
                             pathTypeSemDiag={pathTypeSemDiagnostics}
-                            onChange={pathChange}
+                            onChange={pathParamEditorChange}
                             onChangeInProgress={handleParamChangeInProgress}
                         />
                         {/*    {advanceSwitch}*/}
