@@ -42,7 +42,7 @@ export interface PathEditorProps {
 }
 
 export function PathEditor(props: PathEditorProps) {
-    const { relativeResourcePath, syntaxDiag, pathTypeSemDiag, pathNameSemDiag, readonly, onChangeInProgress,
+    const { relativeResourcePath, syntaxDiag = "", pathTypeSemDiag, pathNameSemDiag, readonly, onChangeInProgress,
             onChange } = props;
     const options = [pathSegmentOption, pathParameterOption];
 
@@ -116,15 +116,15 @@ export function PathEditor(props: PathEditorProps) {
         const isParam = (option === pathParameterOption);
         if (foundPath) {
             // When we have are editing an existing param
-            const newPath = optionChanged ? (isParam ? {id, name: "name", type: "string", isParam} :
+            const newPath = optionChanged ? (isParam ? {id, name: (name ? name : "name"), type: "string", isParam} :
                     {id, name: "name", isParam}) : {id, name, type: dataType, isParam};
             setEditingSegmentId(id);
             setDraftPath(newPath);
             pathState.segments[id] = newPath;
-            onChange(generateBallerinaResourcePath(pathState));
+            onChange(generateBallerinaResourcePath(pathState), true);
         } else {
             // When we have are editing a new param
-            const newPath = optionChanged ? (isParam ? {id, name: "name", type: "string", isParam} :
+            const newPath = optionChanged ? (isParam ? {id, name: (name ? name : "name"), type: "string", isParam} :
                 {id, name: "name", isParam}) : {id, name, type: dataType, isParam};
             setDraftPath(newPath);
             const newParams = [...pathState.segments, newPath];
@@ -149,34 +149,36 @@ export function PathEditor(props: PathEditorProps) {
 
     const pathComponents: React.ReactElement[] = [];
     pathState.segments.forEach((value, index) => {
-        if (value.name) {
-            if (editingSegmentId !== index) {
-                pathComponents.push(
-                    <ParamItem
-                        param={{id: index, name: value.name, type: value.type, option:
-                                value.isParam ? pathParameterOption : pathSegmentOption}}
-                        readonly={editingSegmentId !== -1 || readonly || addingParam}
-                        onDelete={onDelete}
-                        onEditClick={onEdit}
-                    />
-                );
-            } else if (editingSegmentId === index) {
-                const param = draftPath ? {id: draftPath.id, dataType: draftPath.type, name: draftPath.name} :
-                    {id: value.id, dataType: value.type, name: value.name}
-                pathComponents.push(
-                    <ParamEditor
-                        syntaxDiag={syntaxDiag ? syntaxDiag[0].message : ""}
-                        nameDiagnostics={pathNameSemDiag}
-                        typeDiagnostics={pathTypeSemDiag}
-                        param={param}
-                        optionList={options}
-                        option={value.isParam ? pathParameterOption : pathSegmentOption}
-                        onChange={onParamChange}
-                        onUpdate={onPathUpdate}
-                        onCancel={cancelAddPath}
-                    />
-                )
-            }
+        if ((editingSegmentId !== index) && value.name) {
+            pathComponents.push(
+                <ParamItem
+                    param={{
+                        id: index, name: value.name, type: value.type, option:
+                            value.isParam ? pathParameterOption : pathSegmentOption
+                    }}
+                    readonly={editingSegmentId !== -1 || readonly || addingParam}
+                    onDelete={onDelete}
+                    onEditClick={onEdit}
+                />
+            );
+        } else if (editingSegmentId === index) {
+            const param = draftPath ? {id: draftPath.id, dataType: draftPath.type, name: draftPath.name} :
+                {id: value.id, dataType: value.type, name: value.name}
+            pathComponents.push(
+                <ParamEditor
+                    syntaxDiag={syntaxDiag ? syntaxDiag[0].message : ""}
+                    nameDiagnostics={pathNameSemDiag}
+                    typeDiagnostics={pathTypeSemDiag}
+                    param={param}
+                    isEdit={true}
+                    optionList={options}
+                    dataTypeReqOptions={[pathParameterOption]}
+                    option={value.isParam ? pathParameterOption : pathSegmentOption}
+                    onChange={onParamChange}
+                    onUpdate={onPathUpdate}
+                    onCancel={cancelAddPath}
+                />
+            )
         }
     });
 
@@ -194,6 +196,8 @@ export function PathEditor(props: PathEditorProps) {
                     typeDiagnostics={pathTypeSemDiag}
                     syntaxDiag={syntaxDiag ? syntaxDiag[0].message : ""}
                     optionList={options}
+                    dataTypeReqOptions={[pathParameterOption]}
+                    isEdit={false}
                     option={pathSegmentOption}
                     onChange={onParamChange}
                     onAdd={onPathAdd}
@@ -208,7 +212,7 @@ export function PathEditor(props: PathEditorProps) {
                         className={connectorClasses.addParameterBtn}
                         startIcon={<AddIcon />}
                         color="primary"
-                        // disabled={currentComponentSyntaxDiag?.length > 0}
+                        disabled={(syntaxDiag !== "") || readonly}
                     >
                         Add parameter
                     </Button>

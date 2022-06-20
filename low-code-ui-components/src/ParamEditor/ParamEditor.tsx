@@ -35,6 +35,7 @@ export interface ParamProps {
     typeDiagnostics?: string;
     nameDiagnostics?: string;
     isEdit?: boolean;
+    dataTypeReqOptions: string[];
     optionList?: string[];
     option?: string;
     onAdd?: (param: Param, selectedOption?: string) => void;
@@ -44,8 +45,8 @@ export interface ParamProps {
 }
 
 export function ParamEditor(props: ParamProps) {
-    const { param, typeDiagnostics, nameDiagnostics, syntaxDiag, isEdit = true, optionList, option = "", onChange,
-            onAdd, onUpdate, onCancel } = props;
+    const { param, typeDiagnostics, nameDiagnostics, syntaxDiag, isEdit, optionList, dataTypeReqOptions, option = "",
+            onChange, onAdd, onUpdate, onCancel } = props;
     const { id, name, dataType } = param;
 
     const classes = useStyles();
@@ -55,6 +56,8 @@ export function ParamEditor(props: ParamProps) {
     const [selectedOption, setSelectedOption] = useState<string>(option);
     // States related to syntax diagnostics
     const [currentComponentName, setCurrentComponentName] = useState<string>("");
+
+    const isTypeVisible = dataTypeReqOptions.includes(selectedOption);
 
     const handleNameChange = (value: string) => {
         setParamName({value, isInteracted: true});
@@ -100,11 +103,11 @@ export function ParamEditor(props: ParamProps) {
     };
 
     useEffect(() => {
-        setParamDataType({value: dataType, isInteracted: false});
+        setParamDataType({...paramDataType, value: dataType});
     }, [dataType]);
 
     useEffect(() => {
-        setParamName({value: name, isInteracted: false});
+        setParamName({...paramName, value: name});
     }, [name]);
 
     return (
@@ -122,7 +125,7 @@ export function ParamEditor(props: ParamProps) {
                         />
                     </div>
                 )}
-                {dataType && (
+                {isTypeVisible && (
                     <div className={classes.paramItemWrapper}>
                         <FormTextInput
                             label="Data Type"
@@ -134,7 +137,8 @@ export function ParamEditor(props: ParamProps) {
                                 isErrored: ((syntaxDiag !== "" && currentComponentName === "Type") ||
                                     (typeDiagnostics !== "" && typeDiagnostics !== undefined))
                             }}
-                            errorMessage={(currentComponentName === "Name" && syntaxDiag) || typeDiagnostics}
+                            errorMessage={((currentComponentName === "Type" && syntaxDiag) ? syntaxDiag : "")
+                                || typeDiagnostics}
                             placeholder={"Type"}
                             size="small"
                             disabled={syntaxDiag && currentComponentName !== "Type"}
@@ -151,7 +155,8 @@ export function ParamEditor(props: ParamProps) {
                             isErrored: ((syntaxDiag !== "" && currentComponentName === "Name") ||
                                 (nameDiagnostics !== "" && nameDiagnostics !== undefined))
                         }}
-                        errorMessage={(currentComponentName === "Name" && syntaxDiag) || nameDiagnostics}
+                        errorMessage={((currentComponentName === "Name" && syntaxDiag) ? syntaxDiag : "")
+                            || nameDiagnostics}
                         onBlur={null}
                         placeholder={"name"}
                         size="small"
@@ -169,7 +174,10 @@ export function ParamEditor(props: ParamProps) {
                 <PrimaryButton
                     dataTestId={"path-segment-add-btn"}
                     text={onUpdate ? "Update" : " Add"}
-                    // disabled={!segmentState.name || segmentState.name === "" || (segmentState.isParam && (!segmentState.type || segmentState.type === "" || !validSelectedType)) || pathError !== ""}
+                    disabled={(syntaxDiag !== "") || (typeDiagnostics !== "") || (nameDiagnostics !== "")
+                        || !(paramName.isInteracted || isEdit) || !(paramDataType.isInteracted || isEdit ||
+                            !isTypeVisible)
+                    }
                     fullWidth={false}
                     onClick={handleAddParam}
                     className={classes.actionBtn}

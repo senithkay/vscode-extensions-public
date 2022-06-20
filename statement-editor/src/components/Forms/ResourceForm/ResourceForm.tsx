@@ -132,9 +132,7 @@ export function ResourceForm(props: FunctionProps) {
     };
 
     const pathChange = async (value: string, avoidValueCommit?: boolean) => {
-        if (avoidValueCommit) {
-            setPath({...path, isInteracted: true});
-        } else {
+        if (!avoidValueCommit) {
             setPath({value, isInteracted: true});
         }
         setCurrentComponentName("pathParam");
@@ -149,10 +147,10 @@ export function ResourceForm(props: FunctionProps) {
     useEffect(() => {
         if (model) {
             if (!isParamInProgress) {
-                setPath({value: getPathOfResources(model.relativeResourcePath), isInteracted: false});
+                setPath({...path, value: getPathOfResources(model.relativeResourcePath)});
             }
         } else {
-            setPath({value: "", isInteracted: false});
+            setPath({...path, value: ""});
         }
     }, [model]);
 
@@ -190,7 +188,7 @@ export function ResourceForm(props: FunctionProps) {
                                     <FormTextInput
                                         dataTestId="resource-path"
                                         // defaultValue={(paramName?.isInteracted || isEdit) ? paramName.value : ""}
-                                        defaultValue={path.value}
+                                        defaultValue={(path?.isInteracted || isEdit) ? path.value : ""}
                                         onChange={pathChange}
                                         customProps={{
                                             // isErrored: ((currentComponentSyntaxDiag !== undefined && currentComponentName === "Name") ||
@@ -210,8 +208,9 @@ export function ResourceForm(props: FunctionProps) {
                             </div>
                         </div>
                         <PathEditor
-                            relativeResourcePath={path.value}
+                            relativeResourcePath={(path?.isInteracted || isEdit) ? path.value : ""}
                             syntaxDiag={currentComponentSyntaxDiag}
+                            readonly={false}
                             pathNameSemDiag={pathNameSemDiagnostics}
                             pathTypeSemDiag={pathTypeSemDiagnostics}
                             onChange={pathChange}
