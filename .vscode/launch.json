@@ -4,68 +4,73 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-      {
-        "name": "Extension",
-        "type": "extensionHost",
-        "request": "launch",
-        "runtimeExecutable": "${execPath}",
-        "args": [
-            "--extensionDevelopmentPath=${workspaceFolder}"
-        ],
-        "env": {
-            "LS_EXTENSIONS_PATH":  "",
-            "LSDEBUG": "false",
-            "COMPOSER_DEBUG": "false",
-            "COMPOSER_DEV_HOST": "http://localhost:9000",
-            "BALLERINA_STAGE_CENTRAL": "false"
+        {
+            "name": "Extension",
+            "type": "extensionHost",
+            "request": "launch",
+            "runtimeExecutable": "${execPath}",
+            "args": [
+                "--extensionDevelopmentPath=${workspaceFolder}"
+            ],
+            "env": {
+                "LS_EXTENSIONS_PATH": "",
+                "LSDEBUG": "false",
+                "COMPOSER_DEBUG": "false",
+                "COMPOSER_DEV_HOST": "http://localhost:9000",
+                "BALLERINA_STAGE_CENTRAL": "false"
+            },
+            "outFiles": [
+                "${workspaceFolder}/dist/**/*.js"
+            ],
+            "preLaunchTask": "npm: watch"
         },
-        "outFiles": [
-            "${workspaceFolder}/dist/**/*.js"
-        ],
-        "preLaunchTask": "npm: watch"
-    },
-    {
-        "name": "Extension Tests",
-        "type": "extensionHost",
-        "request": "launch",
-        "runtimeExecutable": "${execPath}",
-        "env": {
-            "LS_EXTENSIONS_PATH":  "",
-            "LSDEBUG": "false",
-            "COMPOSER_DEBUG": "false"
+        {
+            "name": "Extension Tests",
+            "type": "extensionHost",
+            "request": "launch",
+            "runtimeExecutable": "${execPath}",
+            "env": {
+                "LS_EXTENSIONS_PATH": "",
+                "LSDEBUG": "false",
+                "COMPOSER_DEBUG": "false"
+            },
+            "args": [
+                "--extensionDevelopmentPath=${workspaceFolder}",
+                "--extensionTestsPath=${workspaceFolder}/out/test"
+            ],
+            "outFiles": [
+                "${workspaceFolder}/out/test/**/*.js"
+            ],
+            "preLaunchTask": "npm: test-compile"
         },
-        "args": [
-            "--extensionDevelopmentPath=${workspaceFolder}",
-            "--extensionTestsPath=${workspaceFolder}/out/test"
-        ],
-        "outFiles": [
-            "${workspaceFolder}/out/test/**/*.js"
-        ],
-        "preLaunchTask": "npm: test-compile"
-    },
-    {
-        "name": "Debug UI Tests",
-        "type": "node",
-        "request": "launch",
-        "program": "${workspaceFolder}/node_modules/.bin/extest",
-        "args": [
-            "setup-and-run",
-            "${workspaceFolder}/out/test/ui-test/*.js",
-            "--mocha_config",
-            "${workspaceFolder}/test/ui-test/.mocharc.js",
-            "-y"
-        ],
-        "console": "integratedTerminal",
-        "internalConsoleOptions": "neverOpen"
-    },
-    {
-        "type": "node",
-        "request": "launch",
-        "name": "Server",
-        "cwd": "${workspaceFolder}",
-        "program": "${workspaceFolder}/src/debugger/index.js",
-        "args": [ "--server=4711" ],
-        "outFiles": [ "${workspaceFolder}/out/src/debugger/**/*.js" ],
-    },
+        {
+            "name": "Debug UI Tests",
+            "type": "node",
+            "request": "launch",
+            "program": "${workspaceFolder}/node_modules/.bin/extest",
+            "args": [
+                "setup-and-run",
+                "${workspaceFolder}/out/test/ui-test/*.js",
+                "--mocha_config",
+                "${workspaceFolder}/test/ui-test/.mocharc.js",
+                "-y"
+            ],
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+            "preLaunchTask": "npm: test-compile"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Server",
+            "cwd": "${workspaceFolder}",
+            "program": "${workspaceFolder}/src/debugger/index.js",
+            "args": [
+                "--server=4711"
+            ],
+            "outFiles": [
+                "${workspaceFolder}/out/src/debugger/**/*.js"
+            ],
+        },
     ]
 }
