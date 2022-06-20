@@ -40,18 +40,20 @@ export function createTelemetryReporter(ext: BallerinaExtension): TelemetryRepor
 
 export function sendTelemetryEvent(extension: BallerinaExtension, eventName: string, componentName: string,
     customDimensions: { [key: string]: string; } = {}, measurements: { [key: string]: number; } = {}) {
-    if (extension.isTelemetryEnabled()) {
-        extension.telemetryReporter.sendTelemetryEvent(eventName, getTelemetryProperties(extension, componentName,
-            customDimensions), measurements);
-    }
+    // temporarily disabled due to GDPR issue
+    // if (extension.isTelemetryEnabled()) {
+    //     extension.telemetryReporter.sendTelemetryEvent(eventName, getTelemetryProperties(extension, componentName,
+    //         customDimensions), measurements);
+    // }
 }
 
 export function sendTelemetryException(extension: BallerinaExtension, error: Error, componentName: string,
     params: { [key: string]: string } = {}) {
-    if (extension.isTelemetryEnabled()) {
-        extension.telemetryReporter.sendTelemetryException(error, getTelemetryProperties(extension, componentName,
-            params));
-    }
+    // temporarily disabled due to GDPR issue
+    // if (extension.isTelemetryEnabled()) {
+    //     extension.telemetryReporter.sendTelemetryException(error, getTelemetryProperties(extension, componentName,
+    //         params));
+    // }
 }
 
 export function getTelemetryProperties(extension: BallerinaExtension, component: string, params: { [key: string]: string; } = {})

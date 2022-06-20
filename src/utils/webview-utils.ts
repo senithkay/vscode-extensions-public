@@ -105,59 +105,59 @@ export function getLibraryWebViewContent(options: WebViewOptions) {
     </script>
     <!-- End VWO Async SmartCode -->` : '';
 
-    const sentryScript = isCodeServer ?
-        `<script>
-        window.SENTRY_SDK = {
-        url: "https://cdn.ravenjs.com/3.26.4/raven.min.js",
-        dsn: "https://42f7b8a64c79469f8dd38f75c176681e@o350818.ingest.sentry.io/6250789",
-        options: {
-            release: "3.12.0",
-            environment: "${process.env.VSCODE_CHOREO_SENTRY_ENV}"
-        },
-        };
-        (function(a, b, g, e, h) {
-        var k = a.SENTRY_SDK,
-            f = function(a) {
-            f.data.push(a);
-            };
-        f.data = [];
-        var l = a[e];
-        a[e] = function(c, b, e, d, h) {
-            f({ e: [].slice.call(arguments) });
-            l && l.apply(a, arguments);
-        };
-        var m = a[h];
-        a[h] = function(c) {
-            f({ p: c.reason });
-            m && m.apply(a, arguments);
-        };
-        var n = b.getElementsByTagName(g)[0];
-        b = b.createElement(g);
-        b.src = k.url;
-        b.crossorigin = "anonymous";
-        b.addEventListener("load", function() {
-            try {
-            a[e] = l;
-            a[h] = m;
-            var c = f.data,
-                b = a.Raven;
-            b.config(k.dsn, k.options).install();
-            var g = a[e];
-            if (c.length)
-                for (var d = 0; d < c.length; d++)
-                c[d].e
-                    ? g.apply(b.TraceKit, c[d].e)
-                    : c[d].p && b.captureException(c[d].p);
-            } catch (p) {
-            console.log(p);
-            }
-        });
-        n.parentNode.insertBefore(b, n);
-        })(window, document, "script", "onerror", "onunhandledrejection");
-    </script>` : '';
+    // const sentryScript = isCodeServer ?
+    //     `<script>
+    //     window.SENTRY_SDK = {
+    //     url: "https://cdn.ravenjs.com/3.26.4/raven.min.js",
+    //     dsn: "https://42f7b8a64c79469f8dd38f75c176681e@o350818.ingest.sentry.io/6250789",
+    //     options: {
+    //         release: "3.12.0",
+    //         environment: "${process.env.VSCODE_CHOREO_SENTRY_ENV}"
+    //     },
+    //     };
+    //     (function(a, b, g, e, h) {
+    //     var k = a.SENTRY_SDK,
+    //         f = function(a) {
+    //         f.data.push(a);
+    //         };
+    //     f.data = [];
+    //     var l = a[e];
+    //     a[e] = function(c, b, e, d, h) {
+    //         f({ e: [].slice.call(arguments) });
+    //         l && l.apply(a, arguments);
+    //     };
+    //     var m = a[h];
+    //     a[h] = function(c) {
+    //         f({ p: c.reason });
+    //         m && m.apply(a, arguments);
+    //     };
+    //     var n = b.getElementsByTagName(g)[0];
+    //     b = b.createElement(g);
+    //     b.src = k.url;
+    //     b.crossorigin = "anonymous";
+    //     b.addEventListener("load", function() {
+    //         try {
+    //         a[e] = l;
+    //         a[h] = m;
+    //         var c = f.data,
+    //             b = a.Raven;
+    //         b.config(k.dsn, k.options).install();
+    //         var g = a[e];
+    //         if (c.length)
+    //             for (var d = 0; d < c.length; d++)
+    //             c[d].e
+    //                 ? g.apply(b.TraceKit, c[d].e)
+    //                 : c[d].p && b.captureException(c[d].p);
+    //         } catch (p) {
+    //         console.log(p);
+    //         }
+    //     });
+    //     n.parentNode.insertBefore(b, n);
+    //     })(window, document, "script", "onerror", "onunhandledrejection");
+    // </script>` : '';
 
     const hotJarConfig = (isCodeServer && process.env.VSCODE_HOTJAR_ID) ?
-    ` <script>
+        ` <script>
         (function(h,o,t,j,a,r){
             h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};
             h._hjSettings={hjid:"${process.env.VSCODE_HOTJAR_ID}",hjsv:6};
@@ -218,7 +218,6 @@ export function getLibraryWebViewContent(options: WebViewOptions) {
                 ${hotJarConfig}
                 ${whatFix}
                 ${vwoScript}
-                ${sentryScript}
             </head>
             
             <body class="${bodyCss}">
