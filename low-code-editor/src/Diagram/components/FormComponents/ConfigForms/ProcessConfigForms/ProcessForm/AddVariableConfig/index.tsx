@@ -14,15 +14,17 @@
 import React, { useContext, useEffect } from "react";
 import { useIntl } from "react-intl";
 
-import { ProcessConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import {
+    genVariableName,
+    getAllVariables,
+    ProcessConfig
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { StatementEditorWrapper } from "@wso2-enterprise/ballerina-statement-editor";
 import { LocalVarDecl, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../../../Contexts/Diagram";
-import { getAllVariables } from "../../../../../../utils/mixins";
 import { createModuleVarDecl, createModuleVarDeclWithoutInitialization, getInitialSource } from "../../../../../../utils/modification-util";
 import { getVariableNameFromST } from "../../../../../../utils/st-util";
-import { genVariableName } from "../../../../../Portals/utils";
 
 interface AddVariableConfigProps {
     config: ProcessConfig;

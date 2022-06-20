@@ -12,7 +12,11 @@
  */
 import React, { useContext } from 'react';
 
-import { ConfigOverlayFormStatus } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import {
+    ConfigOverlayFormStatus,
+    genVariableName,
+    getAllVariables
+} from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { StatementEditorWrapper } from "@wso2-enterprise/ballerina-statement-editor";
 import { CaptureBindingPattern, ModuleVarDecl, NodePosition } from '@wso2-enterprise/syntax-tree';
 

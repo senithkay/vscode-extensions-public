@@ -12,12 +12,18 @@
  */
 import React from "react";
 
-import { ConnectorConfig, FormField, FormFieldReturnType, STModification, STSymbolInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import {
+    ConnectorConfig,
+    FormField,
+    FormFieldReturnType,
+    genVariableName,
+    getAllVariables,
+    STModification,
+    STSymbolInfo
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FunctionDefinition, ModulePart, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
-import { getAllVariables } from "../../../utils/mixins";
 import { createImportStatement, createPropertyStatement, createQueryWhileStatement, updateFunctionSignature } from "../../../utils/modification-util";
-import { genVariableName } from "../../Portals/utils";
 import * as Forms from "../ConfigForms";
 import { FormFieldChecks } from "../Types";
 
