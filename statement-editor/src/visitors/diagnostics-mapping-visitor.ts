@@ -65,6 +65,19 @@ class DiagnosticsMappingVisitor implements Visitor {
                     message: this.diagnostic.message
                 });
             }
+
+            // Statement Editor viewState will hold the diagnostics for
+            // each node which matched with the position.
+            // To use when highlighting an error
+            if (node && node.viewState && this.diagnostic.severity === 1) {
+                node?.viewState?.diagnosticsInPosition.push({
+                    diagnosticInfo: {
+                        code: this.diagnostic.code.toString(),
+                        severity: this.diagnostic.severity.toString()
+                    },
+                    message: this.diagnostic.message
+                });
+            }
         }
         if (isDiagnosticInRange(diagPosition, nodePosition)) {
             // Statement Editor viewState will hold the diagnostics for

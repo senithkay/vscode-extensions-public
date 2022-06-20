@@ -19,7 +19,7 @@ import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import cn from "classnames";
 
 import { StatementEditorContext } from "../../store/statement-editor-context";
-import { getExpressionTypeComponent, isPositionsEquals } from "../../utils";
+import { getExpressionTypeComponent, isPlaceHolderExists, isPositionsEquals } from "../../utils";
 import { useStatementRendererStyles } from "../styles";
 
 
@@ -48,6 +48,7 @@ export function ExpressionComponent(props: ExpressionComponentProps) {
     const statementRendererClasses = useStatementRendererStyles();
 
     const isSelected = selectedModel.model && model && isPositionsEquals(selectedModel.model.position, model.position);
+    const hasError = model?.viewState?.diagnosticsInPosition?.length > 0 && !isPlaceHolderExists(model?.source ? model.source : model?.value);
 
     const onMouseOver = (e: React.MouseEvent) => {
         setHovered(true);
@@ -76,6 +77,7 @@ export function ExpressionComponent(props: ExpressionComponentProps) {
         {
             "hovered": !isSelected && isHovered && !hasSyntaxDiagnostics,
         },
+        hasError && statementRendererClasses.errorHighlight,
         classNames
     )
 
