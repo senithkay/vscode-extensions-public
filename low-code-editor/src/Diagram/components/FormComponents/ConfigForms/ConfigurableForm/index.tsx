@@ -66,7 +66,7 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
 
     const visibilityQualifier = formConfig.isPublic ? 'public' : '';
     const varType = formConfig.varType ? formConfig.varType : 'boolean';
-    const varName = formConfig.varName ? formConfig.varName : 'CONF_NAME';
+    const varName = formConfig.varName ? formConfig.varName : genVariableName('conf', getAllVariables(stSymbolInfo));
     const varValue = formConfig.hasDefaultValue && formConfig.varValue ? formConfig.varValue : '?';
 
     const initialSource = `${visibilityQualifier} configurable ${varType} ${varName} = ${varValue};`
