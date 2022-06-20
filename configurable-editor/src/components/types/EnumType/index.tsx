@@ -16,7 +16,7 @@
  * under the License.
  *
  */
-import React, { ReactElement, useEffect } from "react";
+import React, { ReactElement, useEffect, useState } from "react";
 
 import { ConfigElementProps } from "../../ConfigElement";
 import { FieldLabel, FieldLabelProps } from "../../elements/FieldLabel";
@@ -33,6 +33,8 @@ export interface EnumTypeProps extends SimpleTypeProps {
 }
 
 export const EnumType = (props: EnumTypeProps): ReactElement => {
+    const [inputValue, setInputValue] = useState(String(props.value ? props.value : ""));
+
     const element: ConfigElementProps = {
         description: props.description,
         id: props.id,
@@ -43,12 +45,14 @@ export const EnumType = (props: EnumTypeProps): ReactElement => {
     };
 
     useEffect(() => {
+        element.value = inputValue;
         props.setEnumType(props.id, element);
-    }, []);
+    }, [inputValue]);
 
     const setEnumValue = (id: string, value: any) => {
-        element.value = value;
-        props.setEnumType(id, element);
+        if (id === props.id && value) {
+            setInputValue(value);
+        }
     };
 
     const fieldLabelProps: FieldLabelProps = {
@@ -68,7 +72,7 @@ export const EnumType = (props: EnumTypeProps): ReactElement => {
                 isRequired: props.isRequired,
                 setSelectValue: setEnumValue,
                 types: enumType,
-                value: props.value,
+                value: inputValue,
             };
 
             return(
@@ -85,7 +89,7 @@ export const EnumType = (props: EnumTypeProps): ReactElement => {
             placeholder: props.placeholder,
             setTextFieldValue: setEnumValue,
             type: "text",
-            value: props.value,
+            value: inputValue,
         };
 
         return(

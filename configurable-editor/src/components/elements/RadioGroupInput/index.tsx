@@ -26,7 +26,7 @@ import { useStyles } from "./style";
 export interface RadioGroupInputProps {
     id: string;
     value: string;
-    types: string[];
+    types: Map<string, string>;
     setRadioGroupValue: (key: string, value: any) => void;
 }
 
@@ -44,14 +44,14 @@ export function RadioGroupInput(props: RadioGroupInputProps) {
         setRadioGroupValue(id, inputValue);
     }, [inputValue]);
 
-    types.forEach((type) => {
+    types.forEach((label: string, key: string) => {
         reactElements.push(
             (
                 <FormControlLabel
-                    key={type}
-                    value={type}
+                    key={key}
+                    value={key}
                     control={<Radio color="primary"/>}
-                    label={<Typography variant="body2">{type}</Typography>}
+                    label={<Typography variant="body2">{label}</Typography>}
                     className={classes.radioButton}
                 />
             ),
