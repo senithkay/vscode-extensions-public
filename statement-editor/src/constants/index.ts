@@ -95,6 +95,10 @@ export const PLACEHOLDER_DIAGNOSTICS: string[] = [
     EXPR_PLACEHOLDER, STMT_PLACEHOLDER, TYPE_DESC_PLACEHOLDER, BINDING_PATTERN_PLACEHOLDER, DEFAULT_INTERMEDIATE_CLAUSE_PLACEHOLDER
 ];
 
+export const IGNORABLE_DIAGNOSTICS: string[] = [
+    'expression is not a constant expression'
+];
+
 // Statement types supported in function-body-block
 export type StatementNodes = ActionStatement
     | AssignmentStatement
