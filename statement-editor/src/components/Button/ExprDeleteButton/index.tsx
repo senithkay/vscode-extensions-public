@@ -17,25 +17,25 @@ import { STNode } from "@wso2-enterprise/syntax-tree";
 
 import { useStatementRendererStyles } from "../../styles";
 
-export interface AddButtonProps {
+export interface DeleteButtonProps {
     model: STNode;
     onClick?: (model?: STNode) => void;
     classNames?: string;
 }
 
-export function ExprDeleteButton(props: AddButtonProps) {
+export function ExprDeleteButton(props: DeleteButtonProps) {
     const { model, onClick, classNames } = props;
 
     const statementRendererClasses = useStatementRendererStyles();
 
-    const onClickOnAddButton = () => {
+    const onClickOnMinusButton = () => {
         onClick(model);
     };
 
     return (
         <span
             className={`${statementRendererClasses.plusIcon} ${classNames}`}
-            onClick={onClickOnAddButton}
+            onClick={onClickOnMinusButton}
         >
             -
         </span>
