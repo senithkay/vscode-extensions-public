@@ -134,6 +134,31 @@ describe('Add Demo connectors one via Low Code', {
 
     DiagramElement.isActionExists("viewMessage", "viewMessageResponse");
 
+    Canvas.getFunction("myfunction")
+      .nameShouldBe("myfunction")
+      .shouldBeExpanded()
+      .getDiagram()
+      .shouldBeRenderedProperly()
+      .clickDefaultWorkerPlusBtn(stmtLine++)
+      .getBlockLevelPlusWidget()
+      .clickOption("Action", true);
+
+    EndpointListForm
+      .shouldBeVisible()
+      .selectEndpoint("oneEp");
+
+    DemoConnectorForm
+      .shouldBeVisible()
+      .waitForConnectorLoad()
+      .selectOperation("testKeyword")
+      .typeInField("'client", "1234")
+      .typeInField("order", "5678")
+      .typeInField("amount", "200.50")
+      .typeInField("note", `"test note"`)
+      .save();
+
+    DiagramElement.isActionExists("testKeyword", "testKeywordResponse");
+
     SourceCode.shouldBeEqualTo(
       getCurrentSpecFolder() + "demo-con-one-expected.bal.bal");
   });
