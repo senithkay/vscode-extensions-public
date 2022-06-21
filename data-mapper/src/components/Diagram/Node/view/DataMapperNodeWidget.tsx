@@ -1,11 +1,12 @@
 import * as React from 'react';
-import { DataMapperNodeModel } from './DataMapperNode';
+import { DataMapperNodeModel } from '../model/DataMapperNode';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 
 import { DataMapperNodeField } from './DataMapperNodeField';
 import { List } from '@material-ui/core';
 
 import { createStyles, withStyles, WithStyles, Theme } from "@material-ui/core/styles";
+import { STKindChecker } from '@wso2-enterprise/syntax-tree';
 
 const styles = (theme: Theme) => createStyles({
 	root: {
@@ -26,8 +27,10 @@ export interface DataMapperNodeWidgetProps extends WithStyles<typeof styles> {
 class DataMapperNodeWidgetC extends React.Component<DataMapperNodeWidgetProps> {
 	render() {
 		const node = this.props.node;
-		const stNode = node.stNode;
+		const typeDesc = node.typeDef.typeDescriptor;
+		const name = node.name;
 		const classes = this.props.classes;
+		const engine = this.props.engine;
 
 		return (
 			<div
@@ -41,10 +44,35 @@ class DataMapperNodeWidgetC extends React.Component<DataMapperNodeWidgetProps> {
 			>
 				<List dense component="nav" className={classes.root}>
 					{
-						Object.entries(stNode).map((entry: [string, any]): JSX.Element =>
+						STKindChecker.isRecordTypeDesc(typeDesc) && (
+							typeDesc.fields.map((field) => {
+								if (STKindChecker.isRecordField(field)) {
+									return <DataMapperNodeField
+										engine={engine}
+										name={field.fieldName.value}
+										typeDesc={field.typeName}
+										nodeModel={node}
+										parentId={name}
+									/>;
+								} else {
+									// TODO handle fields with default values and included records
+									return <></>;
+								}
+							})
+						)
+					}
+					{
+						!STKindChecker.isRecordTypeDesc(typeDesc) && (
 							<DataMapperNodeField
-								nodeModel={node} label={entry[0]} value={entry[1]} engine={this.props.engine}
-							/>)
+								engine={engine}
+								name={name}
+								typeDesc={typeDesc}
+								nodeModel={node}
+								parentId={""}
+							/>
+						)
+					} {
+						// TODO handle other simple types
 					}
 				</List>
 

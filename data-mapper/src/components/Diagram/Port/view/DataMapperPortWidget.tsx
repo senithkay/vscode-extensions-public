@@ -1,6 +1,6 @@
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import React from "react";
-import { DataMapperPortModel } from "./DataMapperPortModel";
+import { DataMapperPortModel } from "./../model/DataMapperPortModel";
 import RadioButtonUncheckedIcon from '@material-ui/icons/RadioButtonUnchecked';
 
 
