@@ -20,7 +20,7 @@ import { ErrorIcon, InfoIcon, WarningIcon } from '@wso2-enterprise/ballerina-low
 import { STNode } from '@wso2-enterprise/syntax-tree';
 import * as MonacoEditor from 'monaco-editor';
 
-import useStyles, { tooltipInvertedStyles, tooltipStyles } from "./style";
+import useStyles, { toolbarHintStyles, tooltipInvertedStyles, tooltipStyles } from "./style";
 import { getDiagnosticsFromST, getSourceFromST } from './utils';
 
 export { TooltipProps } from '@material-ui/core/Tooltip';
@@ -38,11 +38,13 @@ interface TooltipPropsExtended extends TooltipProps {
     typeExamples?: string;
     componentModel?: STNode;
     onClick: () => void;
-    toolTipContent?: string
+    toolTipContent?: string;
+    stmtEditorHint?: boolean;
 };
 
 const TooltipComponent = withStyles(tooltipStyles)(TooltipBase);
 const TooltipBaseInverted = withStyles(tooltipInvertedStyles)(TooltipBase);
+const ToolbarHint = withStyles(toolbarHintStyles)(TooltipBase);
 
 export function Tooltip(props: Partial<TooltipPropsExtended>) {
     const styles = useStyles();
@@ -69,7 +71,7 @@ export function Tooltip(props: Partial<TooltipPropsExtended>) {
         }
     };
 
-    const { children, heading, title, content, example, actionText, actionLink, inverted, disabled, codeSnippet, openInCodeView, typeExamples, componentModel, onClick, toolTipContent, ...restProps } = props;
+    const { children, heading, title, content, example, actionText, actionLink, inverted, disabled, codeSnippet, openInCodeView, typeExamples, componentModel, onClick, toolTipContent, stmtEditorHint, ...restProps } = props;
 
     // Skip Tooltip rendering if disabled prop provided.
     if (disabled) return (<>{children}</>);
@@ -79,6 +81,10 @@ export function Tooltip(props: Partial<TooltipPropsExtended>) {
     // Always invert background color if interactive prop set to `true`
     if (props.interactive) {
         TooltipComponentRef = TooltipBaseInverted;
+    }
+
+    if (stmtEditorHint) {
+        TooltipComponentRef = ToolbarHint;
     }
 
     const GenericExamples = () => (
@@ -220,6 +226,24 @@ export function DiagramTooltipCodeSnippet(props: Partial<TooltipPropsExtended>) 
             placement="right"
             arrow={true}
             toolTipContent={content}
+        >
+            {children}
+        </Tooltip>
+    );
+}
+
+export function StatementEditorHint(props: Partial<TooltipPropsExtended>) {
+    const { onClick, children, componentModel, content, ...restProps } = props;
+
+    return (
+        <Tooltip
+            {...restProps}
+            interactive={true}
+            componentModel={componentModel}
+            placement="bottom-start"
+            arrow={false}
+            toolTipContent={content}
+            stmtEditorHint={true}
         >
             {children}
         </Tooltip>

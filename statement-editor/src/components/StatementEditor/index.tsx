@@ -30,6 +30,7 @@ import {
 import { StatementEditorContextProvider } from "../../store/statement-editor-context";
 import {
     addToTargetPosition,
+    eligibleForLevelTwoSuggestions,
     enclosableWithParentheses,
     enrichModel,
     getCurrentModel,
@@ -50,7 +51,7 @@ import {
     getSymbolDocumentation,
     sendDidChange
 } from "../../utils/ls-utils";
-import { ModelType, StatementEditorViewState } from "../../utils/statement-editor-viewstate";
+import { StatementEditorViewState } from "../../utils/statement-editor-viewstate";
 import { StackElement } from "../../utils/undo-redo";
 import { visitor as CommonParentFindingVisitor } from "../../visitors/common-parent-finding-visitor";
 import { EXPR_SCHEME, FILE_SCHEME } from "../InputEditor/constants";
@@ -186,7 +187,7 @@ export function StatementEditor(props: StatementEditorProps) {
 
                 if (!isOperator(currentModelViewState.modelType) && !isBindingPattern(currentModelViewState.modelType)) {
                     const statements = [model.source];
-                    if ((currentModel.model.viewState as StatementEditorViewState).modelType === ModelType.EXPRESSION) {
+                    if (eligibleForLevelTwoSuggestions(currentModel.model, selection)) {
                         const dotAdded = addToTargetPosition(model.source, currentModel.model.position, selectionWithDot);
                         statements.push(dotAdded);
                     }
@@ -213,7 +214,7 @@ export function StatementEditor(props: StatementEditorProps) {
                 }
                 setLSSuggestionsList({
                     directSuggestions,
-                    secondLevelSuggestions: {
+                    secondLevelSuggestions: !!secondLevelSuggestions.length && {
                         selection: selectionWithDot,
                         secondLevelSuggestions
                     }
@@ -279,14 +280,9 @@ export function StatementEditor(props: StatementEditorProps) {
             const diagnostics = await handleDiagnostics(partialST.source);
             setStmtModel(partialST, diagnostics);
             const selectedPosition = getSelectedModelPosition(codeSnippet, position);
-            let oldModel : StackElement;
-            if (undoRedoManager.hasUndo()) {
-                oldModel = undoRedoManager.getCurrentModel().newModel;
-            } else {
-                oldModel = {
-                    model,
-                    selectedPosition : currentModel.model.position
-                }
+            const oldModel : StackElement = {
+                model: existingModel,
+                selectedPosition: currentModel.model.position
             }
             const newModel : StackElement = {
                 model: partialST,
