@@ -40,7 +40,8 @@ export function createTelemetryReporter(ext: BallerinaExtension): TelemetryRepor
 
 export function sendTelemetryEvent(extension: BallerinaExtension, eventName: string, componentName: string,
     customDimensions: { [key: string]: string; } = {}, measurements: { [key: string]: number; } = {}) {
-    if (extension.isTelemetryEnabled()) {
+    // temporarily disabled in codeserver due to GDPR issue
+    if (extension.isTelemetryEnabled() && !extension.getCodeServerContext().codeServerEnv) {
         extension.telemetryReporter.sendTelemetryEvent(eventName, getTelemetryProperties(extension, componentName,
             customDimensions), measurements);
     }
@@ -48,7 +49,8 @@ export function sendTelemetryEvent(extension: BallerinaExtension, eventName: str
 
 export function sendTelemetryException(extension: BallerinaExtension, error: Error, componentName: string,
     params: { [key: string]: string } = {}) {
-    if (extension.isTelemetryEnabled()) {
+    // temporarily disabled in codeserver due to GDPR issue
+    if (extension.isTelemetryEnabled() && !extension.getCodeServerContext().codeServerEnv) {
         extension.telemetryReporter.sendTelemetryException(error, getTelemetryProperties(extension, componentName,
             params));
     }
