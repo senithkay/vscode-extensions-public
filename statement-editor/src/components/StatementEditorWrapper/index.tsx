@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useEffect, useState } from 'react';
 
-import { FormControl } from '@material-ui/core';
+import { Box, FormControl } from '@material-ui/core';
 import {
     ExpressionEditorLangClientInterface,
     LibraryDataResponse,
@@ -64,6 +64,7 @@ export interface LowCodeEditorProps {
 export interface StatementEditorWrapperProps extends LowCodeEditorProps {
     label: string;
     initialSource: string;
+    isLoading?: boolean;
     extraModules?: Set<string>;
 }
 
@@ -85,6 +86,7 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
         experimentalEnabled,
         isConfigurableStmt,
         isModuleVar,
+        isLoading,
         extraModules
     } = props;
 
@@ -191,7 +193,12 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
 
     return (
         <FormControl data-testid="property-form">
-            {editor
+            {isLoading && (
+                <>
+                    <Box width={700} height={500} justifyContent="center" alignItems="center">Loading...</Box>
+                </>
+            )}
+            {!isLoading && editor
                 ? (
                     <>
                         <StatementEditor

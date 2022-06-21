@@ -50,7 +50,7 @@ export function ActionList(props: FormGeneratorProps) {
     } = useContext(Context);
 
     const actionElementList = actions?.map((action) => {
-        if(action.name === "init"){
+        if (action.name === "init"){
             return;
         }
         const name = action.displayAnnotation?.label || action.name;

@@ -60,7 +60,7 @@ export function ActionForm(props: FormGeneratorProps) {
         // Adding new endpoint
         const defaultParameters = getDefaultParams(action.parameters);
         const returnType = getFormFieldReturnType(action.returnType);
-        
+
         initialSource = getInitialSource(
             returnType.hasError
                 ? createCheckedRemoteServiceCall(
@@ -81,7 +81,7 @@ export function ActionForm(props: FormGeneratorProps) {
                   )
         );
     }
-    
+
     // HACK
     formArgs.targetPosition = targetPosition;
 
@@ -98,8 +98,9 @@ export function ActionForm(props: FormGeneratorProps) {
         library,
         syntaxTree,
         stSymbolInfo,
+        isLoading,
         experimentalEnabled,
     });
 
-    return isLoading ? <>Loading...</> : stmtEditorComponent;
+    return stmtEditorComponent;
 }

@@ -23,7 +23,6 @@ import { Context } from "../../../../../../Contexts/Diagram";
 import { FormGeneratorProps } from "../../../FormGenerator";
 import { wizardStyles as useFormStyles } from "../../style";
 import useStyles from "../style";
-
 import { getMatchingConnector } from "../util";
 
 
@@ -43,7 +42,7 @@ export function EndpointList(props: FormGeneratorProps) {
     } = useContext(Context);
     const { targetPosition, onCancel } = props;
     const { functionNode, onSelect, addNewEndpoint } = props.configOverlayFormStatus.formArgs as EndpointListProps;
-    
+
     const endpointElementList: ReactNode[] = [];
     const visitedEndpoints: string[] = [];
     let isEndpointExists = false;

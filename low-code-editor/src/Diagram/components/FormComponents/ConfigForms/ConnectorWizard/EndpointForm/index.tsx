@@ -11,8 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
-import React, { useContext } from "react";
-import { useIntl } from "react-intl";
+import { useContext } from "react";
 
 import { BallerinaConnectorInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { StatementEditorWrapper } from "@wso2-enterprise/ballerina-statement-editor";
@@ -27,18 +26,12 @@ import {
 import { genVariableName, getFormattedModuleName } from "../../../../Portals/utils";
 import { FormGeneratorProps } from "../../../FormGenerator";
 import { getDefaultParams, getFormFieldReturnType } from "../util";
-import { wizardStyles as useFormStyles } from "../../style";
-import useStyles from "../style";
-import { Box, FormControl, Typography } from "@material-ui/core";
-import { FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 
 interface EndpointFormProps {
     connector: BallerinaConnectorInfo;
 }
 
 export function EndpointForm(props: FormGeneratorProps) {
-    const classes = useStyles();
-    const formClasses = useFormStyles();
 
     const { model, targetPosition, onCancel, onSave, configOverlayFormStatus } = props;
     const { isLoading, formArgs } = configOverlayFormStatus;
@@ -105,27 +98,9 @@ export function EndpointForm(props: FormGeneratorProps) {
         syntaxTree,
         stSymbolInfo,
         extraModules: imports,
+        isLoading,
         experimentalEnabled,
     });
 
-    const loadingComponent = (
-        <FormControl data-testid="endpoint-list-form" className={formClasses.wizardFormControlExtended}>
-            <FormHeaderSection
-                onCancel={onCancel}
-                formTitle={"lowcode.develop.configForms.endpointForm.title"}
-                defaultMessage={"Endpoint"}
-            />
-            <div className={formClasses.formWrapper}>
-                <div className={formClasses.formFeilds}>
-                    <div className={classes.container}>
-                        <Box>
-                            <Typography className={classes.emptyTitle}>Loading...</Typography>
-                        </Box>
-                    </div>
-                </div>
-            </div>
-        </FormControl>
-    );
-
-    return isLoading ? loadingComponent : stmtEditorComponent;
+    return stmtEditorComponent;
 }

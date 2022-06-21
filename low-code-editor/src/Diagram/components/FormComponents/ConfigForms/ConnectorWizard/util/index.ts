@@ -13,9 +13,9 @@
 
 import { BallerinaConnectorInfo, BallerinaConnectorRequest, DiagramEditorLangClientInterface, FormField, FormFieldReturnType, PrimitiveBalType }
     from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { STNode, STKindChecker, QualifiedNameReference } from "@wso2-enterprise/syntax-tree";
-import { isEndpointNode } from "../../../../../utils";
+import { QualifiedNameReference, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
+import { isEndpointNode } from "../../../../../utils";
 import { getFormattedModuleName } from "../../../../Portals/utils";
 import { isAllDefaultableFields } from "../../../Utils";
 
