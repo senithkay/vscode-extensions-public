@@ -44,7 +44,7 @@ export class DataMapperNodeModel extends NodeModel<NodeModelGenerics & DiamondNo
 			typeDesc.fields.forEach((field) => {
 				if (STKindChecker.isRecordField(field)) {
 					if (STKindChecker.isRecordTypeDesc(field.typeName)) {
-						this.addPorts(field.typeName, field.fieldName.value);
+						this.addPorts(field.typeName, parentId + "." + field.fieldName.value);
 					} else {
 						if (this.supportInput) {
 							this.addPort(new DataMapperPortModel(parentId + "." + field.fieldName.value +".in","IN"));
@@ -59,15 +59,12 @@ export class DataMapperNodeModel extends NodeModel<NodeModelGenerics & DiamondNo
 					// TODO handle field with default val and included records
 				}
 			})
-		} else if (STKindChecker.isStringTypeDesc(typeDesc)) {
-			if (this.supportInput) {
-				this.addPort(new DataMapperPortModel(parentId + ".in","IN"));
-			}
-			if (this.supportOutput) {
-				this.addPort(new DataMapperPortModel(parentId + ".out","OUT"));
-			}
-		} else {
-			// TODO handle other simple types
+		}
+		if (this.supportInput) {
+			this.addPort(new DataMapperPortModel(parentId + ".in","IN"));
+		}
+		if (this.supportOutput) {
+			this.addPort(new DataMapperPortModel(parentId + ".out","OUT"));
 		}
 	}
 }

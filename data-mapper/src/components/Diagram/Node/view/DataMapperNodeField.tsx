@@ -28,26 +28,27 @@ export interface DataMapperNodeFieldProps {
 export function DataMapperNodeField(props: DataMapperNodeFieldProps) {
     const { parentId, name, typeDesc, nodeModel, engine, classNames } = props;
     const classes = useStyles();
+    const portIn = nodeModel.getPort(parentId + "." + name + ".in");
+    const portOut = nodeModel.getPort(parentId + "." + name + ".out");
+
     return (
         <>
-            {!STKindChecker.isRecordTypeDesc(typeDesc) &&
-                <ListItem className={classNames}>
-                    {nodeModel.supportInput &&
-                        <ListItemIcon>
-                            <DataMapperPortWidget engine={engine} port={nodeModel.getPort(parentId + "." + name + ".in")} />
-                        </ListItemIcon>
-                    }
-                    <ListItemText
-                        primary={name}
-                    />
-                    {nodeModel.supportOutput &&
-                        <ListItemSecondaryAction>
-                            <DataMapperPortWidget engine={engine} port={nodeModel.getPort(parentId + "." + name + ".out")} />
-                        </ListItemSecondaryAction>
+            <ListItem className={classNames}>
+                {nodeModel.supportInput && portIn &&
+                    <ListItemIcon>
+                        <DataMapperPortWidget engine={engine} port={portIn} />
+                    </ListItemIcon>
+                }
+                <ListItemText
+                    primary={name}
+                />
+                {nodeModel.supportOutput && portOut &&
+                    <ListItemSecondaryAction>
+                        <DataMapperPortWidget engine={engine} port={portOut} />
+                    </ListItemSecondaryAction>
 
-                    }
-                </ListItem>
-            }
+                }
+            </ListItem>
             {STKindChecker.isRecordTypeDesc(typeDesc) &&
                 <List dense component="div" disablePadding>
                     {
@@ -58,7 +59,7 @@ export function DataMapperNodeField(props: DataMapperNodeFieldProps) {
                                     name={field.fieldName.value}
                                     typeDesc={field.typeName}
                                     nodeModel={nodeModel}
-                                    parentId={name}
+                                    parentId={parentId + "." + name}
                                     classNames={classes.nested}
                                 />;
                             } else {

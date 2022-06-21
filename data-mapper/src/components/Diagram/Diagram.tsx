@@ -1,4 +1,4 @@
-import createEngine, { DefaultDiagramState, DefaultLinkModel, DefaultNodeModel, DiagramModel, PortModelAlignment } from '@projectstorm/react-diagrams';
+import createEngine, { DefaultDiagramState, DefaultLinkModel, DefaultNodeModel, DiagramEngine, DiagramModel, PortModelAlignment } from '@projectstorm/react-diagrams';
 import * as React from 'react';
 
 import { DataMapperNodeModel } from './Node/model/DataMapperNode';
@@ -33,30 +33,41 @@ function initDiagramEngine() {
 }
 
 function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
-	const engine = initDiagramEngine();
-	const model = new DiagramModel();
 
-	const paramNodes: DataMapperNodeModel[] = [];
-	let lastParamY = 0;
-	props.paramTypes.forEach((typeDef, paramName) => {
-		const paramNode = new DataMapperNodeModel(paramName, typeDef, true, false);
-		paramNode.setPosition(100, lastParamY + 100);
-		lastParamY += 300;// Fix this line with proper calculated height of current node
-		paramNodes.push(paramNode);
-	});
+	const { paramTypes, returnType } = props;
 	
-	const returnNode = new DataMapperNodeModel("Output", props.returnType, false, true);
-	returnNode.setPosition(500, 100);
+	const [engine, setEngine] = React.useState<DiagramEngine>(initDiagramEngine());
+	const [model, setModel] = React.useState(new DiagramModel());
 
-	model.addAll(...paramNodes, returnNode);
+	React.useEffect(() => {
+		const model = new DiagramModel();
 
-	engine.setModel(model);
+		const paramNodes: DataMapperNodeModel[] = [];
+		let lastParamY = 0;
+		paramTypes.forEach((typeDef, paramName) => {
+			const paramNode = new DataMapperNodeModel(paramName, typeDef, true, false);
+			paramNode.setPosition(100, lastParamY + 100);
+			lastParamY += 300;// Fix this line with proper calculated height of current node
+			paramNodes.push(paramNode);
+		});
+		
+		const returnNode = new DataMapperNodeModel(returnType.typeName.value, returnType, false, true);
+		returnNode.setPosition(500, 100);
 
-	return (
-		<DemoCanvasWidget>
-			<CanvasWidget engine={engine} />
-		</DemoCanvasWidget>
-	);
+		model.addAll(...paramNodes, returnNode);
+		engine.setModel(model);
+		setModel(model);
+	}, [paramTypes, returnType]);
+
+	return <>
+		{engine && engine.getModel() &&
+			<DemoCanvasWidget>
+				<CanvasWidget engine={engine} />
+			</DemoCanvasWidget>
+		}
+	</>;
+
+
 };
 
 export default React.memo(DataMapperDiagram);

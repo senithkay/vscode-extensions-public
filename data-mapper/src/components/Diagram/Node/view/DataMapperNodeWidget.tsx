@@ -3,7 +3,7 @@ import { DataMapperNodeModel } from '../model/DataMapperNode';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 
 import { DataMapperNodeField } from './DataMapperNodeField';
-import { List } from '@material-ui/core';
+import { List, Typography } from '@material-ui/core';
 
 import { createStyles, withStyles, WithStyles, Theme } from "@material-ui/core/styles";
 import { STKindChecker } from '@wso2-enterprise/syntax-tree';
@@ -42,6 +42,9 @@ class DataMapperNodeWidgetC extends React.Component<DataMapperNodeWidgetProps> {
 					color: 'white'
 				}}
 			>
+				<Typography variant="h5">
+					{name}
+				</Typography>
 				<List dense component="nav" className={classes.root}>
 					{
 						STKindChecker.isRecordTypeDesc(typeDesc) && (
