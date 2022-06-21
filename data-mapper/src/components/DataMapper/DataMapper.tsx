@@ -4,6 +4,7 @@ import DataMapperDiagram from "../Diagram/Diagram";
 import { FunctionDefinition, STKindChecker, TypeDefinition } from "@wso2-enterprise/syntax-tree";
 import { BalleriaLanguageClient } from "@wso2-enterprise/ballerina-languageclient";
 import { getTypeDefinitionForTypeDesc } from "../../utils/st-utils";
+import { useDMStore } from "../../store/store";
 
 export interface DataMapperProps {
     fnST: FunctionDefinition;
@@ -16,6 +17,10 @@ export function DataMapper(props: DataMapperProps) {
 
     const [retType, setRetType] = useState<TypeDefinition>();
     const [paramTypes, setParamTypes] = useState<Map<string, TypeDefinition>>(undefined);
+
+    const setFunctionST = useDMStore((state) => state.setFunctionST);
+    const setFilePath = useDMStore((state) => state.setFilePath);
+    const setLangClientPromise = useDMStore((state) => state.setLangClientPromise);
 
     useEffect(() => {
         async function fetchTypes() {
@@ -39,6 +44,15 @@ export function DataMapper(props: DataMapperProps) {
         }
         fetchTypes();
     }, [fnST, filePath])
+
+    useEffect(() => {
+        setFilePath(filePath);
+        setFunctionST(fnST);
+    }, [filePath, fnST]);
+
+    useEffect(() => {
+        setLangClientPromise(langClientPromise);
+    }, [langClientPromise]);
 
     return <>
         {paramTypes && retType &&
