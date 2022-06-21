@@ -28,3 +28,5 @@ project(':notebook-renderer').projectDir = file('web/notebook-renderer')
 include(':variable-view')
 
 project(':variable-view').projectDir = file('web/variable-view')
+
+rootProject.name = 'ballerina-plugin-vscode'
