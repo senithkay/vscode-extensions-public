@@ -3,7 +3,7 @@ import { join } from 'path';
 import { expect } from 'chai';
 import { wait } from './util';
 
-describe('Hello World Example UI Tests', () => {
+describe('VSCode Webview UI Tests', () => {
     const PROJECT_ROOT = join(__dirname, '..', '..', '..', 'test', 'data');
 
     before(async () => {
@@ -11,7 +11,7 @@ describe('Hello World Example UI Tests', () => {
         await wait(2000);
     });
 
-    it('Test Webview', async () => {
+    it('Test Diagram', async () => {
         const activityBar = new ActivityBar();
 
         const lowCodeActivity = await activityBar.getViewControl('Ballerina Low-Code');

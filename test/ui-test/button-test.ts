@@ -3,7 +3,7 @@ import { join } from 'path';
 import { expect } from 'chai';
 import { wait } from './util';
 
-describe('Hello World Example UI Tests', () => {
+describe('VSCode UI Tests', () => {
     const PROJECT_ROOT = join(__dirname, '..', '..', '..', 'test', 'data');
 
     before(async () => {
