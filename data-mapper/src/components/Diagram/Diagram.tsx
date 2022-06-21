@@ -52,7 +52,7 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 		});
 		
 		const returnNode = new DataMapperNodeModel(returnType.typeName.value, returnType, false, true);
-		returnNode.setPosition(500, 100);
+		returnNode.setPosition(800, 100);
 
 		model.addAll(...paramNodes, returnNode);
 		engine.setModel(model);

@@ -93,11 +93,8 @@ type Data record {
     string MessageGuid;
 };
 
-type DtosItem record {
+type Output record {
     Data data;
     string 'type;
 };
 
-type Output record {
-    DtosItem[] dtos;
-};
