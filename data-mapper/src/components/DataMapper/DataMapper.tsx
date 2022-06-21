@@ -18,15 +18,14 @@ export function DataMapper(props: DataMapperProps) {
     const [paramTypes, setParamTypes] = useState<Map<string, TypeDefinition>>(undefined);
 
     useEffect(() => {
-        async function fetchReturnType() {
+        async function fetchTypes() {
             const typeDesc = fnST.functionSignature.returnTypeDesc?.type;
             const typeDef = await getTypeDefinitionForTypeDesc(filePath, typeDesc, langClientPromise);
             setRetType(typeDef);
-        }
-        async function fetchParamTypes() {
             const params = fnST.functionSignature.parameters;
             const paramTypesMap = new Map<string, TypeDefinition>();
-            params.forEach(async (param) => {
+            for (let i = 0; i < params.length; i++) {
+                const param = params[i];
                 if (STKindChecker.isRequiredParam(param)) {
                     console.log(param);
                     const paramName = param?.paramName?.value;
@@ -35,11 +34,10 @@ export function DataMapper(props: DataMapperProps) {
                 } else {
                     // TODO for other param types
                 }
-            })
+            }
             setParamTypes(paramTypesMap);
         }
-        fetchReturnType();
-        fetchParamTypes();
+        fetchTypes();
     }, [fnST, filePath])
 
     return <>
