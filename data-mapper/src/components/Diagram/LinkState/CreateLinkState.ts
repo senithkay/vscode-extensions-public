@@ -25,6 +25,11 @@ export class CreateLinkState extends State<DiagramEngine> {
 
 					if (element instanceof PortModel && !this.sourcePort) {
 						this.sourcePort = element;
+						const { x, y } = element.getPosition();
+						const dx = element.getBoundingBox().getWidth() / 2;
+						const dy = element.getBoundingBox().getHeight() / 2;
+
+
 
 						/* would be cool if link creating could be done somewhat like
                         const link = createLink({
@@ -34,8 +39,8 @@ export class CreateLinkState extends State<DiagramEngine> {
                         */
 						const link = this.sourcePort.createLinkModel();
 						link.setSourcePort(this.sourcePort);
-						link.getFirstPoint().setPosition(clientX - ox, clientY - oy);
-						link.getLastPoint().setPosition(clientX - ox + 20, clientY - oy + 20);
+						link.getFirstPoint().setPosition(x + dx, y + dy);
+						link.getLastPoint().setPosition(clientX, clientY);
 
 						this.link = this.engine.getModel().addLink(link);
 					} else if (element instanceof PortModel && this.sourcePort && element != this.sourcePort) {
@@ -46,7 +51,7 @@ export class CreateLinkState extends State<DiagramEngine> {
 							this.eject();
 						}
 					} else if (element === this.link.getLastPoint()) {
-						this.link.point(clientX - ox, clientY - oy, -1);
+						this.link.point(clientX, clientY, -1);
 					}
 
 					this.engine.repaintCanvas();
@@ -60,7 +65,7 @@ export class CreateLinkState extends State<DiagramEngine> {
 				fire: (actionEvent: ActionEvent<React.MouseEvent>) => {
 					if (!this.link) return;
 					const { event } = actionEvent;
-					this.link.getLastPoint().setPosition(event.clientX, event.clientY);
+					this.link.getLastPoint().setPosition(event.clientX - 13, event.clientY - 13);
 					this.engine.repaintCanvas();
 				}
 			})

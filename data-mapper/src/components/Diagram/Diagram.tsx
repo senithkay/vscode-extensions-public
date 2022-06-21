@@ -28,7 +28,7 @@ function initDiagramEngine() {
 		state.dragNewLink.config.allowLooseLinks = false;
 	}
 
-	// engine.getStateMachine().pushState(new LinkState());
+	engine.getStateMachine().pushState(new LinkState());
 	return engine;
 }
 
