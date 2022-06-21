@@ -145,6 +145,7 @@ export function PathEditor(props: PathEditorProps) {
         setDraftPath(undefined);
         setEditingSegmentId(-1);
         onChangeInProgress(false);
+        onChange(generateBallerinaResourcePath(path));
     };
 
     const pathComponents: React.ReactElement[] = [];

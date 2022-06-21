@@ -23,6 +23,18 @@ import {
     ReturnTypeCollection,
 } from "./types";
 
+export const queryParameterOption = "Query Parameter";
+export const payloadParameterOption = "Payload Parameter";
+export const requestParameterOption = "Request Parameter";
+export const callerParameterOption = "Caller Parameter";
+export const allOptions = [queryParameterOption, payloadParameterOption, requestParameterOption, callerParameterOption];
+export const optionsWithoutCaller = [queryParameterOption, payloadParameterOption, requestParameterOption];
+export const optionsWithoutRequest = [queryParameterOption, payloadParameterOption, callerParameterOption];
+export const optionsWithoutPayload = [queryParameterOption, requestParameterOption, callerParameterOption];
+export const queryNPayloadOption = [queryParameterOption, payloadParameterOption];
+export const queryNRequest = [queryParameterOption, requestParameterOption];
+export const queryNCaller = [queryParameterOption, callerParameterOption];
+
 export const payloadTypes: string[] = ["json", "xml", "byte[]", "string"];
 export const queryParamTypes: string[] = ["string", "int"];
 export const pathParamTypes: string[] = ["string", "int"];
@@ -63,6 +75,18 @@ export function getBallerinaPayloadType(payload: Payload, addComma?: boolean): s
         && payload.name !== "" ? ("@http:Payload " + payload.type + " " + payload.name + (addComma ? ", " : "")) : "";
 }
 
+export function getQueryParamOptionType(type: string): string {
+    if (type.includes("@http:Payload")) {
+        return payloadParameterOption;
+    } else if (type.includes("http:Request")) {
+        return requestParameterOption;
+    } else if (type.includes("http:Caller")) {
+        return callerParameterOption;
+    } else {
+        return queryParameterOption;
+    }
+}
+
 export function convertQueryParamStringToSegments(queryParamsString: string): QueryParamCollection {
     const queryParamCollection: QueryParamCollection = {
         queryParams: []
@@ -74,7 +98,8 @@ export function convertQueryParamStringToSegments(queryParamsString: string): Qu
             const queryParam: QueryParam = {
                 id: index,
                 name: "",
-                type: ""
+                type: "",
+                option: ""
             };
             if (value.includes("=")) {
                 const splitedParam: string[] = value.split("=");
@@ -82,9 +107,17 @@ export function convertQueryParamStringToSegments(queryParamsString: string): Qu
                     const formattedQueryParam = splitedParam[1].replace("'[", "").replace("']", "");
                     const splitedNameAndType: string[] = formattedQueryParam.split(" ");
                     queryParam.id = index;
-                    queryParam.name = splitedNameAndType[1];
-                    queryParam.type = splitedNameAndType[0];
-                    queryParamCollection.queryParams.push(queryParam);
+                    if (splitedNameAndType[0].includes("@http:Payload")) {
+                        queryParam.name = splitedNameAndType[2];
+                        queryParam.type = `${splitedNameAndType[0]} ${splitedNameAndType[1]}`;
+                        queryParam.option = payloadParameterOption;
+                        queryParamCollection.queryParams.push(queryParam);
+                    } else {
+                        queryParam.name = splitedNameAndType[1];
+                        queryParam.type = splitedNameAndType[0];
+                        queryParam.option = getQueryParamOptionType(splitedNameAndType[0]);
+                        queryParamCollection.queryParams.push(queryParam);
+                    }
                 } else if (splitedParam.length === 2 && splitedParam[1].startsWith("{") && splitedParam[1].endsWith("}")) {
                     const formattedQueryParam = splitedParam[1].replace("{", "").replace("}", "");
                     queryParam.id = index;
@@ -92,6 +125,38 @@ export function convertQueryParamStringToSegments(queryParamsString: string): Qu
                     queryParam.type = "string";
                     queryParamCollection.queryParams.push(queryParam);
                 }
+            }
+        });
+    }
+
+    return queryParamCollection;
+}
+
+export function getQueryParamCollection(queryParamsString: string): QueryParamCollection {
+    const queryParamCollection: QueryParamCollection = {
+        queryParams: []
+    };
+
+    if (queryParamsString && queryParamsString !== "") {
+        const queryParamSplited: string[] = queryParamsString.trim().split(",");
+        queryParamSplited.forEach((value, index) => {
+            const queryParam: QueryParam = {
+                id: index,
+                name: "",
+                type: "",
+                option: ""
+            };
+            const paramSplit: string[] = value.trim().split(" ");
+            if (paramSplit[0].includes("@http:Payload")) {
+                queryParam.name = paramSplit[2];
+                queryParam.type = `${paramSplit[0]} ${paramSplit[1]}`;
+                queryParam.option = payloadParameterOption;
+                queryParamCollection.queryParams.push(queryParam);
+            } else {
+                queryParam.name = paramSplit[1];
+                queryParam.type = paramSplit[0];
+                queryParam.option = getQueryParamOptionType(paramSplit[0]);
+                queryParamCollection.queryParams.push(queryParam);
             }
         });
     }
@@ -210,24 +275,24 @@ export function generateQueryParamFromST(params: STNode[]): string {
 
         const filteredParams: STNode[] = [];
         params.forEach((value) => {
-            if (!STKindChecker.isCommaToken(value) && !value.source.includes("@http:Payload") && !value.source.includes("http:Request") && !value.source.includes("http") && !value.source.includes("Request") && !value.source.includes("http:Caller") && !value.source.includes("Caller")) {
+            if (!STKindChecker.isCommaToken(value)) {
                 filteredParams.push(value);
             }
         });
 
-        if (filteredParams.length > 0) {
-            queryParamString += "?";
-        }
-
         filteredParams.forEach((value, index, array) => {
             const queryParamSource = value.source.trim();
             const splitedQueryParam = queryParamSource.split(" ");
-            const type: string = splitedQueryParam[0];
-            const name: string = queryParamSource.substr(type.length + 1, queryParamSource.length - 1);
+            let type: string = splitedQueryParam[0];
+            let name: string = queryParamSource.substr(type.length + 1, queryParamSource.length - 1);
+            if (value.source.includes("@http:Payload")) {
+                type = `${splitedQueryParam[0].trim()} ${splitedQueryParam[1].trim()}`;
+                name = splitedQueryParam[2].trim();
+            }
             if (index === (array.length - 1)) {
-                queryParamString += name + "='[" + type + " " + name + "']";
+                queryParamString += `${type} ${name}`;
             } else {
-                queryParamString += name + "='[" + type + " " + name + "']&";
+                queryParamString += `${type} ${name}, `;
             }
         });
     }
@@ -275,6 +340,20 @@ export function generateQueryParamFromQueryCollection(params: QueryParamCollecti
                 queryParamString += value.name + "='[" + value.type + " " + value.name + "']";
             } else {
                 queryParamString += value.name + "='[" + value.type + " " + value.name + "']&";
+            }
+        });
+    }
+    return queryParamString;
+}
+
+export function generateQueryStringFromQueryCollection(params: QueryParamCollection): string {
+    let queryParamString: string = "";
+    if (params && params.queryParams && params.queryParams.length > 0) {
+        params.queryParams.forEach((value, index, array) => {
+            if (index === (array.length - 1)) {
+                queryParamString += `${value.type} ${value.name}`;
+            } else {
+                queryParamString += `${value.type} ${value.name}, `;
             }
         });
     }

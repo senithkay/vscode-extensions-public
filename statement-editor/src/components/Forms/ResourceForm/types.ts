@@ -28,6 +28,7 @@ export interface QueryParam {
     id: number;
     type: string;
     name: string;
+    option: string;
 }
 
 export interface ReturnType {

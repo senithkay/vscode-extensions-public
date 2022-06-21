@@ -14,7 +14,7 @@
 import React, {useContext, useEffect, useState} from 'react';
 import { useIntl } from "react-intl";
 
-import { FormControl } from "@material-ui/core";
+import { Divider, FormControl } from "@material-ui/core";
 import {
     getSource,
     updateResourceSignature
@@ -39,8 +39,14 @@ import { getPartialSTForModuleMembers } from "../../../utils/ls-utils";
 import { FormEditorField } from "../Types";
 
 import { PathEditor } from "./PathEditor";
+import { QueryParamEditor } from "./QueryParamEditor";
 import { useStyles } from "./styles";
-import { getPathOfResources, SERVICE_METHODS } from "./util";
+import {
+    getQueryParamCollection,
+    generateQueryParamFromST, generateQueryStringFromQueryCollection,
+    getPathOfResources,
+    SERVICE_METHODS
+} from "./util";
 
 export interface FunctionProps {
     model: ResourceAccessorDefinition;
@@ -58,10 +64,16 @@ export function ResourceForm(props: FunctionProps) {
     const intl = useIntl();
 
     // States related to component model
+    const [functionName, setFunctionName] = useState<string>(model?.functionName?.value);
     const [path, setPath] = useState<FormEditorField>({
         value: model ? getPathOfResources(model.relativeResourcePath) : "", isInteracted: false
     });
     const [isParamInProgress, setIsParamInProgress] = useState(false);
+    const [queryParam, setQueryParam] = useState<FormEditorField>({
+        value: generateQueryParamFromST(model?.functionSignature?.parameters),
+        isInteracted: false
+    });
+    const [isQueryInProgress, setIsQueryInProgress] = useState(false);
 
     // States related to syntax diagnostics
     const [currentComponentName, setCurrentComponentName] = useState<string>("");
@@ -95,8 +107,9 @@ export function ResourceForm(props: FunctionProps) {
         }
     }
 
-    const resourceParamChange = async (resMethod: string, pathStr: string, queryParamStr: string, payloadStr: string,
-                                       caller: boolean, request: boolean, returnStr: string) => {
+    const handleResourceParamChange = async (resMethod: string, pathStr: string, queryParamStr: string,
+                                             payloadStr: string, caller: boolean, request: boolean,
+                                             returnStr: string) => {
         const codeSnippet = getSource(updateResourceSignature(resMethod, pathStr, queryParamStr, payloadStr, caller,
             request, returnStr, targetPosition));
         const position = model ? ({
@@ -119,26 +132,45 @@ export function ResourceForm(props: FunctionProps) {
         }
     };
 
-    const pathChange = async (value: string, avoidValueCommit?: boolean) => {
+    const handleMethodChange = async (value: string) => {
+        setFunctionName(value);
+        await handleResourceParamChange(value, path.value, queryParam.value, "", false, false,
+            "");
+    };
+
+    const handlePathChange = async (value: string, avoidValueCommit?: boolean) => {
         if (!avoidValueCommit) {
             setPath({value, isInteracted: true});
         }
         setCurrentComponentName("Path");
-        await resourceParamChange("get", value, "", "", false, false,
-            "");
+        await handleResourceParamChange(functionName, value, queryParam.value, "",
+            false, false, "");
     };
 
-    const pathParamEditorChange = async (value: string, avoidValueCommit?: boolean) => {
+    const handlePathParamEditorChange = async (value: string, avoidValueCommit?: boolean) => {
         if (!avoidValueCommit) {
             setPath({value, isInteracted: true});
         }
         setCurrentComponentName("PathParam");
-        await resourceParamChange("get", value, "", "", false, false,
-            "");
+        await handleResourceParamChange(functionName, value, "", "", false,
+            false, "");
+    };
+
+    const handleQueryParamEditorChange = async (value: string, avoidValueCommit?: boolean) => {
+        if (!avoidValueCommit) {
+            setQueryParam({value, isInteracted: true});
+        }
+        setCurrentComponentName("QueryParam");
+        await handleResourceParamChange(functionName, path.value, value, "", false,
+            false, "");
     };
 
     const handleParamChangeInProgress = (isInProgress: boolean) => {
         setIsParamInProgress(isInProgress);
+    };
+
+    const handleQueryChangeInProgress = (isInProgress: boolean) => {
+        setIsQueryInProgress(isInProgress);
     };
 
     useEffect(() => {
@@ -146,9 +178,16 @@ export function ResourceForm(props: FunctionProps) {
             if (!isParamInProgress) {
                 setPath({...path, value: getPathOfResources(model.relativeResourcePath)});
             }
+            if (!isQueryInProgress) {
+                setQueryParam({
+                    ...queryParam,
+                    value: generateQueryParamFromST(model?.functionSignature?.parameters),
+                });
+            }
         } else {
             setPath({...path, value: ""});
         }
+        setFunctionName(model?.functionName?.value);
     }, [model]);
 
     return (
@@ -169,9 +208,9 @@ export function ResourceForm(props: FunctionProps) {
                                 <div className={connectorClasses.resourceMethodTitle}>{httpMethodTitle}</div>
                                 <SelectDropdownWithButton
                                     dataTestId="api-return-type"
-                                    defaultValue={/*resource.method.toUpperCase()*/""}
+                                    defaultValue={functionName?.toUpperCase()}
                                     customProps={{ values: SERVICE_METHODS, disableCreateNew: true }}
-                                    onChange={null}
+                                    onChange={handleMethodChange}
                                     label="HTTP Method"
                                     hideLabel={true}
                                     disabled={isParamInProgress}
@@ -185,7 +224,7 @@ export function ResourceForm(props: FunctionProps) {
                                     <FormTextInput
                                         dataTestId="resource-path"
                                         defaultValue={(path?.isInteracted || isEdit) ? path.value : ""}
-                                        onChange={pathChange}
+                                        onChange={handlePathChange}
                                         customProps={{
                                             isErrored: ((currentComponentSyntaxDiag !== undefined &&
                                                 currentComponentName === "Path") || pathNameSemDiagnostics !== "" ||
@@ -210,8 +249,18 @@ export function ResourceForm(props: FunctionProps) {
                                 (pathTypeSemDiagnostics !== "" || pathNameSemDiagnostics !== ""))}
                             pathNameSemDiag={pathNameSemDiagnostics}
                             pathTypeSemDiag={pathTypeSemDiagnostics}
-                            onChange={pathParamEditorChange}
+                            onChange={handlePathParamEditorChange}
                             onChangeInProgress={handleParamChangeInProgress}
+                        />
+                        <Divider className={connectorClasses.sectionSeperatorHR} />
+                        <QueryParamEditor
+                            queryParamString={queryParam.value}
+                            readonly={false}
+                            syntaxDiag={null}
+                            onChangeInProgress={handleQueryChangeInProgress}
+                            nameSemDiag={""}
+                            typeSemDiag={""}
+                            onChange={handleQueryParamEditorChange}
                         />
                         {/*    {advanceSwitch}*/}
                         {/*</div>*/}

@@ -45,8 +45,8 @@ export interface ParamProps {
 }
 
 export function ParamEditor(props: ParamProps) {
-    const { param, typeDiagnostics, nameDiagnostics, syntaxDiag, isEdit, optionList, dataTypeReqOptions, option = "",
-            onChange, onAdd, onUpdate, onCancel } = props;
+    const { param, typeDiagnostics, nameDiagnostics, syntaxDiag, isEdit, optionList, dataTypeReqOptions,
+            option = "", onChange, onAdd, onUpdate, onCancel } = props;
     const { id, name, dataType } = param;
 
     const classes = useStyles();

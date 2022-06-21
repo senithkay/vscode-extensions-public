@@ -28,8 +28,8 @@ import { useStyles } from "./styles";
 import { QueryParam, QueryParamCollection } from "./types";
 import {
     allOptions, callerParameterOption,
-    getQueryParamCollection,
     generateQueryStringFromQueryCollection,
+    getQueryParamCollection,
     optionsWithoutCaller,
     optionsWithoutPayload,
     optionsWithoutRequest, payloadParameterOption, queryNCaller,
