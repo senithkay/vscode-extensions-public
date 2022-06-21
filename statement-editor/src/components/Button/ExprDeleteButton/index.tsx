@@ -17,13 +17,13 @@ import { STNode } from "@wso2-enterprise/syntax-tree";
 
 import { useStatementRendererStyles } from "../../styles";
 
-export interface DeleteButtonProps {
+export interface ExprDeleteButtonProps {
     model: STNode;
     onClick?: (model?: STNode) => void;
     classNames?: string;
 }
 
-export function ExprDeleteButton(props: DeleteButtonProps) {
+export function ExprDeleteButton(props: ExprDeleteButtonProps) {
     const { model, onClick, classNames } = props;
 
     const statementRendererClasses = useStatementRendererStyles();
