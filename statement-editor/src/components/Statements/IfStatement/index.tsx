@@ -13,9 +13,11 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext } from "react";
 
-import { IfElseStatement, STKindChecker } from "@wso2-enterprise/syntax-tree"
+import { IfElseStatement, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree"
 
+import { ELSEIF_CLAUSE } from "../../../constants";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
+import { NewExprAddButton } from "../../Button/NewExprAddButton";
 import { ExpressionComponent } from "../../Expression";
 import { StatementRenderer } from "../../StatementRenderer";
 import { TokenComponent } from "../../Token";
@@ -30,7 +32,8 @@ export function IfStatementC(props: IfStatementProps) {
     const {
         modelCtx: {
             currentModel,
-            changeCurrentModel
+            changeCurrentModel,
+            updateModel
         }
     } = stmtCtx;
 
@@ -38,14 +41,29 @@ export function IfStatementC(props: IfStatementProps) {
         changeCurrentModel(model.condition);
     }
 
+    const isFinalIfElseStatement = !(model.elseBody?.elseBody as IfElseStatement)?.ifBody;
+
+    const addNewExpression = (ifBodyModel: STNode) => {
+        const newPosition: NodePosition = {
+            ...ifBodyModel.position
+        }
+        updateModel(`${ELSEIF_CLAUSE}`, newPosition);
+    };
+
     return (
         <>
-            <TokenComponent model={model.ifKeyword} className="keyword"/>
-            <ExpressionComponent model={model.condition}/>
-            <TokenComponent model={model.ifBody.openBraceToken}/>
+            <TokenComponent model={model.ifKeyword} className="keyword" />
+            <ExpressionComponent model={model.condition} />
+            <TokenComponent model={model.ifBody.openBraceToken} />
             &nbsp;&nbsp;&nbsp;{"..."}
-            <TokenComponent model={model.ifBody.closeBraceToken}/>
-            {!!model.elseBody && <StatementRenderer model={model.elseBody}/>}
+            <TokenComponent model={model.ifBody.closeBraceToken} />
+            {isFinalIfElseStatement && (
+                <>
+                    <NewExprAddButton model={model.ifBody.closeBraceToken} onClick={addNewExpression} />
+                    &nbsp;
+                </>
+            )}
+            {!!model.elseBody && <StatementRenderer model={model.elseBody} />}
         </>
     );
 }
