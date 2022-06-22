@@ -4,7 +4,7 @@ import {
 	DistinctTypeDesc, ErrorTypeDesc, FloatTypeDesc, FunctionTypeDesc, FutureTypeDesc, HandleTypeDesc,
 	IntersectionTypeDesc, IntTypeDesc, JsonTypeDesc, MapTypeDesc, NeverTypeDesc, NilTypeDesc, ObjectTypeDesc,
 	OptionalTypeDesc, ParenthesisedTypeDesc, QualifiedNameReference, ReadonlyTypeDesc, RecordTypeDesc,
-	SimpleNameReference, SingletonTypeDesc, STKindChecker, StreamTypeDesc, StringTypeDesc, TableTypeDesc,
+	SimpleNameReference, SingletonTypeDesc, STKindChecker, STNode, StreamTypeDesc, StringTypeDesc, TableTypeDesc,
 	TupleTypeDesc, TypeDefinition, TypedescTypeDesc, UnionTypeDesc, XmlTypeDesc
 } from '@wso2-enterprise/syntax-tree';
 
@@ -26,45 +26,45 @@ export class DataMapperNodeModel extends NodeModel<NodeModelGenerics & DiamondNo
 	public readonly typeDef: TypeDefinition;
 	public readonly supportOutput: boolean;
 	public readonly supportInput: boolean
-	public readonly name: string;
+	public readonly value: STNode;
  
-	constructor(name: string, typeDef: TypeDefinition, supportOutput: boolean, supportInput: boolean) {
+	constructor(value: STNode, typeDef: TypeDefinition, supportOutput: boolean, supportInput: boolean) {
 		super({
 			type: 'datamapper'
 		});
-		this.name = name;
+		this.value = value;
 		this.typeDef = typeDef;
 		this.supportInput = supportInput;
 		this.supportOutput = supportOutput;
-		this.addPorts(this.typeDef.typeDescriptor, this.name);
+		this.addPorts(this.typeDef.typeDescriptor, this.value);
 	}
 
-	private addPorts(typeDesc: TypeDescriptor, parentId: string = "") {
-		if (STKindChecker.isRecordTypeDesc(typeDesc)) {
-			typeDesc.fields.forEach((field) => {
-				if (STKindChecker.isRecordField(field)) {
-					if (STKindChecker.isRecordTypeDesc(field.typeName)) {
-						this.addPorts(field.typeName, parentId + "." + field.fieldName.value);
-					} else {
-						if (this.supportInput) {
-							this.addPort(new DataMapperPortModel(parentId + "." + field.fieldName.value +".in"));
-						}
-						if (this.supportOutput) {
-							this.addPort(new DataMapperPortModel(parentId + "." + field.fieldName.value +".out"));
-						}
-					} {
-						// TODO handle other simple types
-					}
-				} else {
-					// TODO handle field with default val and included records
-				}
-			})
-		}
-		if (this.supportInput) {
-			this.addPort(new DataMapperPortModel(parentId + ".in"));
-		}
-		if (this.supportOutput) {
-			this.addPort(new DataMapperPortModel(parentId + ".out"));
-		}
+	private addPorts(typeDesc: TypeDescriptor, parent: STNode) {
+		// if (STKindChecker.isRecordTypeDesc(typeDesc)) {
+		// 	typeDesc.fields.forEach((field) => {
+		// 		if (STKindChecker.isRecordField(field)) {
+		// 			if (STKindChecker.isRecordTypeDesc(field.typeName)) {
+		// 				this.addPorts(field.typeName, parentId + "." + field.fieldName.value);
+		// 			} else {
+		// 				if (this.supportInput) {
+		// 					this.addPort(new DataMapperPortModel(parentId + "." + field.fieldName.value +".in"));
+		// 				}
+		// 				if (this.supportOutput) {
+		// 					this.addPort(new DataMapperPortModel(parentId + "." + field.fieldName.value +".out"));
+		// 				}
+		// 			} {
+		// 				// TODO handle other simple types
+		// 			}
+		// 		} else {
+		// 			// TODO handle field with default val and included records
+		// 		}
+		// 	})
+		// }
+		// if (this.supportInput) {
+		// 	this.addPort(new DataMapperPortModel(parentId + ".in"));
+		// }
+		// if (this.supportOutput) {
+		// 	this.addPort(new DataMapperPortModel(parentId + ".out"));
+		// }
 	}
 }
