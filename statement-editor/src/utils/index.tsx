@@ -240,6 +240,10 @@ export function getFilteredDiagnosticMessages(statement: string, targetPosition:
     return stmtDiagnostics;
 }
 
+export function isPlaceHolderExists (statement: string) : boolean {
+    return PLACEHOLDER_DIAGNOSTICS.some(placeHolder => (statement ? statement : "").includes(placeHolder))
+}
+
 export function getUpdatedSource(statement: string, currentFileContent: string,
                                  targetPosition: NodePosition, moduleList?: Set<string>,
                                  skipSemiColon?: boolean): string {

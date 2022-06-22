@@ -30,6 +30,7 @@ export class StatementEditorViewState {
     public isWithinBlockStatement: boolean = false;
     public modelType: ModelType = ModelType.EXPRESSION;
     public diagnosticsInRange?: Diagnostic[] = [];
+    public diagnosticsInPosition?: Diagnostic[] = [];
     public multilineConstructConfig: MultilineConstructConfig = {
         isFieldWithNewLine: false,
         isClosingBraceWithNewLine: false
