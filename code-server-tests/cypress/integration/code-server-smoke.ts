@@ -19,6 +19,7 @@ describe("Code server smoke test", () => {
 
   before(() => {
     cy.visit(Cypress.env("workspaceUrl"));
+    cy.wait(5000);
     cy.get("h2", {
       timeout: 120000,
     }).should("be.visible");
