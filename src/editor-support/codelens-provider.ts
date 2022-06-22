@@ -45,6 +45,8 @@ enum EXEC_ARG {
 }
 
 export const INTERNAL_DEBUG_COMMAND = "ballerina.internal.debug";
+
+const SOURCE_DEBUG_COMMAND = "ballerina.source.debug";
 const TEST_DEBUG_COMMAND = "ballerina.test.debug";
 const FOCUS_DEBUG_CONSOLE_COMMAND = 'workbench.debug.action.focusRepl';
 
@@ -80,7 +82,7 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
                 this.ballerinaExtension.getBallerinaHome(), args);
         });
 
-        commands.registerCommand(PALETTE_COMMANDS.DEBUG, async () => {
+        commands.registerCommand(SOURCE_DEBUG_COMMAND, async () => {
             this.activeTextEditor = window.activeTextEditor!.document.uri;
             if (!this.ballerinaExtension.isConfigurableEditorEnabled() &&
                 !this.ballerinaExtension.getDocumentContext().isActiveDiagram()) {
@@ -157,7 +159,7 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
             title: execType.toString(),
             tooltip: `${execType.toString()} ${execPosition.name}`,
             command: execPosition.kind === EXEC_POSITION_TYPE.SOURCE ? (execType === EXEC_TYPE.RUN ?
-                PALETTE_COMMANDS.RUN_CMD : PALETTE_COMMANDS.DEBUG) : (execType === EXEC_TYPE.RUN ? PALETTE_COMMANDS.TEST :
+                PALETTE_COMMANDS.RUN_CMD : SOURCE_DEBUG_COMMAND) : (execType === EXEC_TYPE.RUN ? PALETTE_COMMANDS.TEST :
                     TEST_DEBUG_COMMAND),
             arguments: execPosition.kind === EXEC_POSITION_TYPE.SOURCE ? [] : (execType === EXEC_TYPE.RUN ?
                 [EXEC_ARG.TESTS, execPosition.name] : [execPosition.name])

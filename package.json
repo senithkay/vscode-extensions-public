@@ -265,11 +265,6 @@
                 "category": "Ballerina"
             },
             {
-                "command": "ballerina.source.debug",
-                "title": "Debug",
-                "category": "Ballerina"
-            },
-            {
                 "command": "ballerina.choreo.signin",
                 "title": "Choreo Sign In",
                 "category": "Ballerina"

@@ -25,7 +25,6 @@ export enum PALETTE_COMMANDS {
     ADD = 'ballerina.project.add',
     BUILD = 'ballerina.project.build',
     PACK = 'ballerina.project.pack',
-    DEBUG = 'ballerina.source.debug',
     CLOUD = 'ballerina.create.cloud',
     DOC = 'ballerina.project.doc',
     FOCUS_EXPLORER = 'ballerinaExplorerTreeView.focus',
