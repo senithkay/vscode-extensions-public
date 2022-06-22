@@ -44,7 +44,7 @@ enum EXEC_ARG {
     TESTS = '--tests'
 }
 
-const INTERNAL_DEBUG_COMMAND = "ballerina.internal.debug";
+export const INTERNAL_DEBUG_COMMAND = "ballerina.internal.debug";
 const TEST_DEBUG_COMMAND = "ballerina.test.debug";
 const FOCUS_DEBUG_CONSOLE_COMMAND = 'workbench.debug.action.focusRepl';
 
@@ -52,6 +52,7 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
 
     private _onDidChangeCodeLenses: EventEmitter<void> = new EventEmitter<void>();
     public readonly onDidChangeCodeLenses: Event<void> = this._onDidChangeCodeLenses.event;
+    private activeTextEditor: Uri | undefined;
 
     private ballerinaExtension: BallerinaExtension;
 
@@ -71,22 +72,22 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
             }
         });
 
-        commands.registerCommand(INTERNAL_DEBUG_COMMAND, async (...args: any[]) => {
-            console.debug("vjv");
+        commands.registerCommand(INTERNAL_DEBUG_COMMAND, async (args: any) => {
             sendTelemetryEvent(this.ballerinaExtension, TM_EVENT_SOURCE_DEBUG_CODELENS, CMP_EXECUTOR_CODELENS);
             clearTerminal();
             commands.executeCommand(FOCUS_DEBUG_CONSOLE_COMMAND);
-            startDebugging(window.activeTextEditor!.document.uri, false, this.ballerinaExtension.getBallerinaCmd(),
+            startDebugging(this.activeTextEditor!, false, this.ballerinaExtension.getBallerinaCmd(),
                 this.ballerinaExtension.getBallerinaHome(), args);
         });
 
-        commands.registerCommand(PALETTE_COMMANDS.DEBUG, async (...args: any[]) => {
+        commands.registerCommand(PALETTE_COMMANDS.DEBUG, async () => {
+            this.activeTextEditor = window.activeTextEditor!.document.uri;
             if (!this.ballerinaExtension.isConfigurableEditorEnabled() &&
                 !this.ballerinaExtension.getDocumentContext().isActiveDiagram()) {
-                commands.executeCommand(PALETTE_COMMANDS.RUN_CMD);
+                commands.executeCommand(INTERNAL_DEBUG_COMMAND);
                 return;
             }
-            openConfigEditor(this.ballerinaExtension, window.activeTextEditor!.document.uri, true);
+            openConfigEditor(this.ballerinaExtension, window.activeTextEditor!.document.uri.fsPath, true);
         });
 
         commands.registerCommand(TEST_DEBUG_COMMAND, async (...args: any[]) => {
@@ -99,7 +100,7 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
     }
 
     provideCodeLenses(_document: TextDocument, _token: CancellationToken): ProviderResult<any[]> {
-        if (this.ballerinaExtension.langClient && window.activeTextEditor) {
+        if (this.ballerinaExtension.langClient && (window.activeTextEditor || this.activeTextEditor)) {
             return this.getCodeLensList();
         }
         return [];
@@ -114,9 +115,10 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
         }
 
         await langClient.onReady().then(async () => {
+            const activeEditor = this.activeTextEditor ? this.activeTextEditor : window.activeTextEditor!.document.uri;
             await langClient!.getExecutorPositions({
                 documentIdentifier: {
-                    uri: window.activeTextEditor!.document.uri.toString()
+                    uri: activeEditor.toString()
                 }
             }).then(executorsResponse => {
                 const response = executorsResponse as ExecutorPositionsResponse;
@@ -167,13 +169,13 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
 async function startDebugging(uri: Uri, testDebug: boolean, ballerinaCmd: string, ballerinaHome: string, args: any[])
     : Promise<boolean> {
     const workspaceFolder: WorkspaceFolder | undefined = workspace.getWorkspaceFolder(uri);
-    const debugConfig: DebugConfiguration = await constructDebugConfig(testDebug, ballerinaCmd,
+    const debugConfig: DebugConfiguration = await constructDebugConfig(uri, testDebug, ballerinaCmd,
         ballerinaHome, args);
     return debug.startDebugging(workspaceFolder, debugConfig);
 }
 
-async function constructDebugConfig(testDebug: boolean, ballerinaCmd: string, ballerinaHome: string, args: any[])
-    : Promise<DebugConfiguration> {
+async function constructDebugConfig(uri: Uri, testDebug: boolean, ballerinaCmd: string, ballerinaHome: string,
+    args: any): Promise<DebugConfiguration> {
 
     let programArgs = [];
     let commandOptions = [];
@@ -205,7 +207,7 @@ async function constructDebugConfig(testDebug: boolean, ballerinaCmd: string, ba
         type: LANGUAGE.BALLERINA,
         name: testDebug ? DEBUG_CONFIG.TEST_DEBUG_NAME : DEBUG_CONFIG.SOURCE_DEBUG_NAME,
         request: DEBUG_REQUEST.LAUNCH,
-        script: fileUriToPath(window.activeTextEditor!.document.uri.toString()),
+        script: fileUriToPath(uri.toString()),
         networkLogs: false,
         debugServer: '10001',
         debuggeePort: '5010',
@@ -213,6 +215,7 @@ async function constructDebugConfig(testDebug: boolean, ballerinaCmd: string, ba
         'ballerina.command': ballerinaCmd,
         debugTests: testDebug,
         tests: testDebug ? args : [],
+        configEnv: !testDebug ? args : undefined,
         programArgs,
         commandOptions,
         env,

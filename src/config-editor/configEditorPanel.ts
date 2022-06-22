@@ -21,6 +21,7 @@ import { ViewColumn, window, WebviewPanel, Uri, commands } from "vscode";
 import { getCommonWebViewOptions, WebViewMethod, WebViewRPCHandler } from '../utils';
 import { render } from './renderer';
 import { existsSync, mkdirSync, openSync, readFileSync, writeFile } from "fs";
+import { INTERNAL_DEBUG_COMMAND } from "../editor-support/codelens-provider";
 import { BAL_TOML, CONFIG_FILE, PALETTE_COMMANDS } from "../project";
 import { BallerinaExtension, BallerinaProject, ExtendedLangClient, PackageConfigSchemaResponse } from "../core";
 import { generateExistingValues, parseConfigToToml, parseTomlToConfig } from "./utils";
@@ -88,7 +89,7 @@ async function showConfigEditor(ballerinaExtInstance: BallerinaExtension, config
     }
 
     if (Object.keys(configSchema.properties).length === 0) {
-        isDebug ? commands.executeCommand.PALETTE_COMMANDS.DEBUG : commands.executeCommand(PALETTE_COMMANDS.RUN_CMD);
+        isDebug ? commands.executeCommand(INTERNAL_DEBUG_COMMAND) : commands.executeCommand(PALETTE_COMMANDS.RUN_CMD);
         return;
     }
 
@@ -124,7 +125,8 @@ async function showConfigEditor(ballerinaExtInstance: BallerinaExtension, config
             methodName: "onClickPrimaryButton",
             handler: (args: any[]) => {
                 handleConfigInputs(args[0]);
-                isDebug ? commands.executeCommand.PALETTE_COMMANDS.DEBUG
+                const env = { BAL_CONFIG_FILES: currentFileUri.fsPath };
+                isDebug ? commands.executeCommand(INTERNAL_DEBUG_COMMAND, env)
                         : commands.executeCommand(PALETTE_COMMANDS.RUN_CMD);
                 configEditorPanel?.dispose();
             }
