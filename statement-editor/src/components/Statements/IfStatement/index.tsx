@@ -41,7 +41,7 @@ export function IfStatementC(props: IfStatementProps) {
         changeCurrentModel(model.condition);
     }
 
-    const isFinalIfElseStatement =  STKindChecker.isBlockStatement(model.elseBody?.elseBody);
+    const isFinalIfElseStatement = !(model.elseBody?.elseBody as IfElseStatement)?.ifBody;
 
     const addNewExpression = (ifBodyModel: STNode) => {
         const newPosition: NodePosition = {
@@ -63,7 +63,7 @@ export function IfStatementC(props: IfStatementProps) {
                     &nbsp;
                 </>
             )}
-            {!!model.elseBody && <StatementRenderer model={model.elseBody} />}
+            {!!model.elseBody ? <StatementRenderer model={model.elseBody} /> : <br />}
         </>
     );
 }
