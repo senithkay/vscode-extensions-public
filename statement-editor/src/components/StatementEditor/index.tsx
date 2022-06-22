@@ -409,6 +409,12 @@ export function StatementEditor(props: StatementEditorProps) {
         });
     };
 
+    const enterKeyHandler = () => {
+        setCurrentModel(() => {
+            return {model: currentModel.model, isEntered: true};
+        });
+    };
+
     function setStmtModel(editedModel: STNode, diagnostics?: Diagnostic[]) {
         setModel({...enrichModel(editedModel, targetPosition, diagnostics)});
     }
@@ -423,6 +429,7 @@ export function StatementEditor(props: StatementEditorProps) {
         keyboardNavigationManager.bindNewKey(client, ['ctrl+right', 'command+right'], parentModelHandler);
         keyboardNavigationManager.bindNewKey(client, ['tab'], nextModelHandler);
         keyboardNavigationManager.bindNewKey(client, ['shift+tab'], previousModelHandler);
+        keyboardNavigationManager.bindNewKey(client, ['enter'], enterKeyHandler);
 
         return () => {
             keyboardNavigationManager.resetMouseTrapInstance(client)
