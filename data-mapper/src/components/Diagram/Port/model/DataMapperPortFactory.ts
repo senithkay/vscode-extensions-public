@@ -1,15 +1,14 @@
 import { DiagramEngine, PortModel } from '@projectstorm/react-diagrams';
 import { AbstractModelFactory } from '@projectstorm/react-canvas-core';
+import { DataMapperPortModel } from './DataMapperPortModel';
 
 export class DataMapperPortFactory extends AbstractModelFactory<PortModel, DiagramEngine> {
-	cb: (initialConfig?: any) => PortModel;
 
-	constructor(type: string, cb: (initialConfig?: any) => PortModel) {
-		super(type);
-		this.cb = cb;
+	constructor() {
+		super('datamapper');
 	}
 
-	generateModel(event: { initialConfig: any; }): PortModel {
-		return this.cb(event.initialConfig);
+	generateModel(event: { initialConfig: { id: string }; }): PortModel {
+		return new DataMapperPortModel(event.initialConfig.id);
 	}
 }

@@ -9,6 +9,8 @@ import { CanvasWidget } from '@projectstorm/react-canvas-core';
 import { DemoCanvasWidget } from './Canvas/DemoCanvasWidget';
 import { DefaultState as LinkState } from './LinkState/DefaultState';
 import { TypeDefinition } from '@wso2-enterprise/syntax-tree';
+import { useDMStore } from '../../store/store';
+import { DataMapperLinkFactory } from './Link/model/DataMapperLinkFactory';
 
 interface DataMapperDiagramProps {
 	returnType: TypeDefinition;
@@ -18,10 +20,9 @@ interface DataMapperDiagramProps {
 function initDiagramEngine() {
 	const engine = createEngine();
 
-	engine
-		.getPortFactories()
-		.registerFactory(new DataMapperPortFactory('datamapper', (config) => new DataMapperPortModel(config.id, config.type)));
+	engine.getPortFactories().registerFactory(new DataMapperPortFactory());
 	engine.getNodeFactories().registerFactory(new DataMapperNodeFactory());
+	engine.getLinkFactories().registerFactory(new DataMapperLinkFactory());
 
 	const state = engine.getStateMachine().getCurrentState();
 	if (state instanceof DefaultDiagramState) {
@@ -38,6 +39,8 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 	
 	const [engine, setEngine] = React.useState<DiagramEngine>(initDiagramEngine());
 	const [model, setModel] = React.useState(new DiagramModel());
+
+	const fnST = useDMStore((state) => state.functionST);
 
 	React.useEffect(() => {
 		const model = new DiagramModel();

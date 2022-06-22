@@ -47,10 +47,10 @@ export class DataMapperNodeModel extends NodeModel<NodeModelGenerics & DiamondNo
 						this.addPorts(field.typeName, parentId + "." + field.fieldName.value);
 					} else {
 						if (this.supportInput) {
-							this.addPort(new DataMapperPortModel(parentId + "." + field.fieldName.value +".in","IN"));
+							this.addPort(new DataMapperPortModel(parentId + "." + field.fieldName.value +".in"));
 						}
 						if (this.supportOutput) {
-							this.addPort(new DataMapperPortModel(parentId + "." + field.fieldName.value +".out","OUT"));
+							this.addPort(new DataMapperPortModel(parentId + "." + field.fieldName.value +".out"));
 						}
 					} {
 						// TODO handle other simple types
@@ -61,10 +61,10 @@ export class DataMapperNodeModel extends NodeModel<NodeModelGenerics & DiamondNo
 			})
 		}
 		if (this.supportInput) {
-			this.addPort(new DataMapperPortModel(parentId + ".in","IN"));
+			this.addPort(new DataMapperPortModel(parentId + ".in"));
 		}
 		if (this.supportOutput) {
-			this.addPort(new DataMapperPortModel(parentId + ".out","OUT"));
+			this.addPort(new DataMapperPortModel(parentId + ".out"));
 		}
 	}
 }
