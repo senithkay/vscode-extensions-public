@@ -15,7 +15,6 @@
 /// <reference types="cypress-xpath" />
 
 describe("Code server smoke test", () => {
-  const testEndpoint = "http://localhost:9090/";
 
   before(() => {
     Cypress.on('uncaught:exception', (err, runnable) => {
@@ -42,7 +41,7 @@ describe("Code server smoke test", () => {
     cy.contains(
       "div[id='wso2.ballerina']", 
       'Swan Lake', 
-      { timeout: 30000 }  
+      { timeout: 60000 }  
     );  
     cy.get('a[class="action-label codicon codicon-extensions-view-icon"]', {
       timeout: 60000,
@@ -60,12 +59,10 @@ describe("Code server smoke test", () => {
       }
     });
     //Verify main.bal diagram tab
-    // cy.wait(25000);
-    // cy.get("div[title='main.bal Diagram']").contains("main.bal Diagram");
     cy.contains(
       "div[title='main.bal Diagram']", 
       'main.bal Diagram', 
-      { timeout: 25000 }  
+      { timeout: 30000 }  
     );  
     cy.wait(10000);
     cy.screenshot();
@@ -80,10 +77,6 @@ describe("Code server smoke test", () => {
     cy.xpath(
       "//div[@aria-label='main.bal Diagram']/div[@class='tab-actions']//a[@role='button']"
     ).click();
-    //Close welcome tab
-    // cy.xpath(
-    //   "//div[@title='Welcome']/div[@class='tab-actions']//a[@role='button']"
-    // ).click();
     // Verify code rendering
     cy.get(".view-lines", {
       timeout: 60000,
