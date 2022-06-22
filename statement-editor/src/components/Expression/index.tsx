@@ -27,7 +27,7 @@ export interface ExpressionComponentProps {
     model: STNode;
     children?: React.ReactElement[];
     classNames?: string;
-    stmtPosition?: NodePosition
+    stmtPosition?: NodePosition;
 }
 
 export function ExpressionComponent(props: ExpressionComponentProps) {
@@ -65,9 +65,10 @@ export function ExpressionComponent(props: ExpressionComponentProps) {
         if (!hasSyntaxDiagnostics) {
             e.stopPropagation();
             e.preventDefault();
-            changeCurrentModel(model, stmtPosition);
+            changeCurrentModel(model, stmtPosition, e.shiftKey);
         }
     }
+
 
     const styleClassNames = cn(statementRendererClasses.expressionElement,
         isSelected && !hasSyntaxDiagnostics && statementRendererClasses.expressionElementSelected,

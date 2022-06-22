@@ -28,7 +28,7 @@ describe('Worker Scenario with Conflicts', () => {
             .haveDefaultName()
             .typeConnectionName("boo")
             .typeUrl('"https://foo.com"')
-            .saveAndDone();
+            .saveConnection();
 
         SourceCode.shouldBeEqualTo(
             getCurrentSpecFolder() + "worker-with-conflict-scenario.expected.bal");

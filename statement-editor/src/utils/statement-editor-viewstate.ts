@@ -18,7 +18,10 @@ export enum ModelType {
     QUERY_CLAUSE,
     METHOD_CALL,
     FIELD_ACCESS,
-    QUERY_EXPRESSION
+    QUERY_EXPRESSION,
+    FUNCTION,
+    ORDER_KEY,
+    ORDER_DIRECTION_KEYWORDS
 }
 
 export class StatementEditorViewState {

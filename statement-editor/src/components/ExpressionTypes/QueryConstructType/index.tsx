@@ -10,9 +10,10 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+// tslint:disable: jsx-no-multiline-js
 import React from "react";
 
-import { QueryConstructType, QueryExpression } from "@wso2-enterprise/syntax-tree";
+import { QueryConstructType } from "@wso2-enterprise/syntax-tree";
 
 import { ExpressionComponent } from "../../Expression";
 import { TokenComponent } from "../../Token";
@@ -27,7 +28,10 @@ export function QueryConstructTypeComponent(props: QueryConstructTypeProps) {
 
     return (
         <>
-            <TokenComponent model={model.keyword} className={"keyword"} />
+            <TokenComponent model={model.keyword} className={"keyword"}/>
+            {model.keySpecifier &&
+            <ExpressionComponent model={model.keySpecifier}/>
+            }
         </>
     );
 }

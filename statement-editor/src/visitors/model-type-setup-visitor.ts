@@ -13,9 +13,12 @@
 import {
     BinaryExpression,
     FieldAccess,
+    ImplicitAnonymousFunctionExpression,
     IntersectionTypeDesc,
     MethodCall,
     OptionalTypeDesc,
+    OrderByClause,
+    OrderKey,
     ParenthesisedTypeDesc,
     QueryExpression,
     QueryPipeline,
@@ -69,6 +72,12 @@ class ModelTypeSetupVisitor implements Visitor {
         (node.fromClause.viewState as StatementEditorViewState).modelType = ModelType.QUERY_CLAUSE;
         node.intermediateClauses.map((intermediateClause: STNode) => {
             (intermediateClause.viewState as StatementEditorViewState).modelType = ModelType.QUERY_CLAUSE;
+        });
+    }
+
+    public beginVisitOrderByClause(node: OrderByClause, parent?: STNode) {
+        node.orderKey.map((orderKey: STNode) => {
+            (orderKey.viewState as StatementEditorViewState).modelType = ModelType.ORDER_KEY;
         });
     }
 
@@ -130,6 +139,16 @@ class ModelTypeSetupVisitor implements Visitor {
         (node.selectClause.viewState as StatementEditorViewState).modelType = ModelType.QUERY_EXPRESSION;
         if (node?.queryConstructType) {
             (node.queryConstructType.viewState as StatementEditorViewState).modelType = ModelType.QUERY_EXPRESSION;
+        }
+    }
+
+    public beginVisitImplicitAnonymousFunctionExpression(node: ImplicitAnonymousFunctionExpression) {
+        (node.viewState as StatementEditorViewState).modelType = ModelType.FUNCTION;
+    }
+
+    public beginVisitOrderKey(node: OrderKey) {
+        if (node?.orderDirection){
+            (node.orderDirection.viewState as StatementEditorViewState).modelType = ModelType.ORDER_DIRECTION_KEYWORDS;
         }
     }
 
