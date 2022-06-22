@@ -15,7 +15,6 @@ import React from 'react';
 export default function SyntaxErrorWarning(props: any) {
   return (
     <svg width="139px" height="63px" viewBox="0 0 139 63" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
-      <title>37F95FF1-263D-4E79-BE6B-1164218F865F</title>
       <defs>
         <path d="M6,0 L111,0 C114.313708,-8.55003309e-15 117,2.6862915 117,6 L117,26 C117,29.3137085 114.313708,32 111,32 L7.39946528,32 L7.39946528,32 L0,40 L0,6 C-4.05812251e-16,2.6862915 2.6862915,6.08718376e-16 6,0 Z" id="path-30" />
         <filter x="-13.7%" y="-37.5%" width="127.4%" height="181.9%" filterUnits="objectBoundingBox" id="filter-2">
