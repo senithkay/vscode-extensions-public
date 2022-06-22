@@ -258,7 +258,7 @@ export interface ElseIfConfig {
 
 export interface ProcessConfig {
     type: string;
-    config?: string | LogConfig | RespondConfig | CustomExpressionConfig | WorkerConfig | SendStatementConfig 
+    config?: string | LogConfig | RespondConfig | CustomExpressionConfig | WorkerConfig | SendStatementConfig
     | ReceivestatementConfig | WaitStatementConfig;
     scopeSymbols?: string[];
     model?: STNode;

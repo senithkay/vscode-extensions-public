@@ -68,7 +68,6 @@ export function AddWaitStatement(props: AddWaitStatementProps) {
             formArgs: { formArgs },
             config,
             onWizardClose,
-            handleStatementEditorChange: undefined,
             onCancel,
             currentFile,
             getLangClient: getExpressionEditorLangClient,

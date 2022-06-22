@@ -67,7 +67,6 @@ export function AddFlushStatement(props: AddFlushStatementProps) {
             formArgs: { formArgs },
             config,
             onWizardClose,
-            handleStatementEditorChange: undefined,
             onCancel,
             currentFile,
             getLangClient: getExpressionEditorLangClient,

@@ -21,13 +21,13 @@ import { TextPreloaderVertical } from "../../../../../../PreLoader/TextPreloader
 
 import { AddAssignmentConfig } from "./AddAssignmentConfig";
 import { AddCustomStatementConfig } from "./AddCustomStatementConfig";
+import { AddFlushStatement } from "./AddFlushStatement";
 import { AddLogConfig } from "./AddLogConfig";
 import { AddReceiveStatement } from "./AddReceiveStatement";
 import { AddSendStatement } from "./AddSendStatement";
 import { AddVariableConfig } from "./AddVariableConfig";
-import { AddWorkerConfigForm } from "./AddWorkerConfig";
 import { AddWaitStatement } from "./AddWaitStatement";
-import { AddFlushStatement } from "./AddFlushStatement";
+import { AddWorkerConfigForm } from "./AddWorkerConfig";
 
 interface ProcessFormProps {
     config: ProcessConfig;

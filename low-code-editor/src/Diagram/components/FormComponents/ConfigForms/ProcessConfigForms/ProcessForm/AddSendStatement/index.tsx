@@ -77,7 +77,6 @@ export function AddSendStatement(props: AddSendStatementProps) {
             formArgs: { formArgs },
             config,
             onWizardClose,
-            handleStatementEditorChange: undefined,
             onCancel,
             currentFile,
             getLangClient: getExpressionEditorLangClient,

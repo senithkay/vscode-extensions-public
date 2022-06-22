@@ -167,12 +167,8 @@ export function StatementEditor(props: StatementEditorProps) {
     useEffect(() => {
         (async () => {
             if (model && currentModel.model) {
-<<<<<<< HEAD
-                const lsSuggestions: SuggestionItem[] = [];
-=======
                 let directSuggestions: SuggestionItem[] = [];
                 let secondLevelSuggestions: SuggestionItem[] = [];
->>>>>>> 11439e50a69171e973ef69e9f713e3853b4fde0e
                 const currentModelViewState = currentModel.model?.viewState as StatementEditorViewState;
                 const selection = currentModel.model.source
                     ? currentModel.model.source.trim()
@@ -231,15 +227,6 @@ export function StatementEditor(props: StatementEditorProps) {
         })();
     }, [currentFile.content]);
 
-<<<<<<< HEAD
-    useEffect(() => {
-        if (!!model && onStmtEditorModelChange) {
-            onStmtEditorModelChange(model);
-        }
-    }, [model]);
-
-=======
->>>>>>> 11439e50a69171e973ef69e9f713e3853b4fde0e
     const restArg = (restCheckClicked: boolean) => {
         setRestArg(restCheckClicked);
     }
@@ -264,15 +251,9 @@ export function StatementEditor(props: StatementEditorProps) {
                 endColumn: position.endColumn,
                 newCodeSnippet: codeSnippet
             }
-<<<<<<< HEAD
-            partialST = STKindChecker.isModuleVarDecl(existingModel)
-                ? await getPartialSTForModuleMembers({ codeSnippet: existingModel.source, stModification }, getLangClient)
-                : await getPartialSTForStatement({ codeSnippet: existingModel.source, stModification }, getLangClient);
-=======
             partialST = (STKindChecker.isModuleVarDecl(existingModel) || STKindChecker.isConstDeclaration(existingModel))
                 ? await getPartialSTForModuleMembers({ codeSnippet: existingModel.source , stModification }, getLangClient)
                 : await getPartialSTForStatement({ codeSnippet: existingModel.source , stModification }, getLangClient);
->>>>>>> 11439e50a69171e973ef69e9f713e3853b4fde0e
         } else {
             partialST = (isConfigurableStmt || isModuleVar)
                 ? await getPartialSTForModuleMembers({ codeSnippet }, getLangClient)

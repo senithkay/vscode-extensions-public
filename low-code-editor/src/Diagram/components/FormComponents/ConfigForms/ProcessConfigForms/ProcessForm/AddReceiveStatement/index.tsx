@@ -79,7 +79,6 @@ export function AddReceiveStatement(props: AddReceiveStatementProps) {
             formArgs: { formArgs },
             config,
             onWizardClose,
-            handleStatementEditorChange: undefined,
             onCancel,
             currentFile,
             getLangClient: getExpressionEditorLangClient,
