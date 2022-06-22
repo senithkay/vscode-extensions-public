@@ -67,7 +67,7 @@ export function ElseBlockC(props: ElseBlockProps) {
                         model={model.elseBody.ifBody}
                         onClick={deleteIfStatement}
                     />&nbsp;
-                    {"else"}
+                    {"else"}&nbsp;
                 </span>
                 <StatementRenderer
                     model={model?.elseBody}
