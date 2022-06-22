@@ -28,6 +28,7 @@ import { generateExistingValues, parseConfigToToml, parseTomlToConfig } from "./
 import { getCurrentBallerinaProject } from "../utils/project-utils";
 import path from "path";
 import os from "os";
+import { Commands } from "./model";
 
 let configEditorPanel: WebviewPanel | undefined;
 let langClient: ExtendedLangClient;
@@ -137,7 +138,7 @@ async function showConfigEditor(ballerinaExtInstance: BallerinaExtension, config
 
     const tomlContent: string = readFileSync(currentFileUri.fsPath, 'utf8');
     const existingConfigs: object = generateExistingValues(parseTomlToConfig(tomlContent), projectOrg, packageName);
-    const html = render(configSchema, existingConfigs);
+    const html = render(configSchema, existingConfigs, isDebug ? Commands.DEBUG : Commands.RUN);
 
     if (configEditorPanel && html) {
         configEditorPanel.webview.html = html;
