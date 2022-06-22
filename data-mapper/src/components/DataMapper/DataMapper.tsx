@@ -12,7 +12,7 @@ export interface DataMapperProps {
     filePath: string;
 }
 
-export function DataMapper(props: DataMapperProps) {
+function DataMapperC(props: DataMapperProps) {
     const { fnST, langClientPromise, filePath } = props;
 
     const [retType, setRetType] = useState<TypeDefinition>();
@@ -63,3 +63,5 @@ export function DataMapper(props: DataMapperProps) {
         }
     </>
 }
+
+export const DataMapper = React.memo(DataMapperC);

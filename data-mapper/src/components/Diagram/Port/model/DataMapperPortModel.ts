@@ -1,4 +1,5 @@
 import { LinkModel, PortModel, DefaultLinkModel, PortModelAlignment } from '@projectstorm/react-diagrams';
+import { DataMapperLinkModel } from '../../Link/model/DataMapperLink';
 
 export class DataMapperPortModel extends PortModel {
 	constructor(id: string, type: "IN" | "OUT") {
@@ -10,7 +11,7 @@ export class DataMapperPortModel extends PortModel {
 	}
 
 	createLinkModel(): LinkModel {
-		const lm = new DefaultLinkModel();
+		const lm = new DataMapperLinkModel();
 		lm.registerListener({
 			sourcePortChanged: (evt) => {
 				// lm.addLabel(evt.port.getName() + " = " + lm.getTargetPort().getName());
