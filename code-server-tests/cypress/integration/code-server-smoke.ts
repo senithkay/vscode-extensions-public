@@ -81,9 +81,9 @@ describe("Code server smoke test", () => {
       "//div[@aria-label='main.bal Diagram']/div[@class='tab-actions']//a[@role='button']"
     ).click();
     //Close welcome tab
-    cy.xpath(
-      "//div[@title='Welcome']/div[@class='tab-actions']//a[@role='button']"
-    ).click();
+    // cy.xpath(
+    //   "//div[@title='Welcome']/div[@class='tab-actions']//a[@role='button']"
+    // ).click();
     // Verify code rendering
     cy.get(".view-lines", {
       timeout: 60000,
