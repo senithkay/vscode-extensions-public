@@ -35,6 +35,7 @@ export interface ParamProps {
     typeDiagnostics?: string;
     nameDiagnostics?: string;
     isEdit?: boolean;
+    isTypeReadOnly?: boolean;
     dataTypeReqOptions: string[];
     optionList?: string[];
     option?: string;
@@ -45,8 +46,8 @@ export interface ParamProps {
 }
 
 export function ParamEditor(props: ParamProps) {
-    const { param, typeDiagnostics, nameDiagnostics, syntaxDiag, isEdit, optionList, dataTypeReqOptions,
-            option = "", onChange, onAdd, onUpdate, onCancel } = props;
+    const { param, typeDiagnostics, nameDiagnostics, syntaxDiag, isEdit, isTypeReadOnly, optionList,
+            dataTypeReqOptions, option = "", onChange, onAdd, onUpdate, onCancel } = props;
     const { id, name, dataType } = param;
 
     const classes = useStyles();
@@ -134,7 +135,8 @@ export function ParamEditor(props: ParamProps) {
                         <FormTextInput
                             label="Data Type"
                             dataTestId="data-type"
-                            defaultValue={(paramDataType?.isInteracted || isEdit) ? paramDataType.value : ""}
+                            defaultValue={(paramDataType?.isInteracted || isEdit || isTypeReadOnly) ?
+                                paramDataType.value : ""}
                             onChange={debouncedTypeChange}
                             onBlur={null}
                             customProps={{
@@ -145,7 +147,7 @@ export function ParamEditor(props: ParamProps) {
                                 ((currentComponentName === "Type" && syntaxDiag ? syntaxDiag : "") || typeDiagnostics)}
                             placeholder={"Type"}
                             size="small"
-                            disabled={syntaxDiag && currentComponentName !== "Type"}
+                            disabled={syntaxDiag && currentComponentName !== "Type" || isTypeReadOnly}
                         />
                     </div>
                 )}
@@ -181,8 +183,8 @@ export function ParamEditor(props: ParamProps) {
                     dataTestId={"path-segment-add-btn"}
                     text={onUpdate ? "Update" : " Add"}
                     disabled={(syntaxDiag !== "") || (typeDiagnostics !== "") || (nameDiagnostics !== "")
-                        || !(paramName.isInteracted || isEdit) || !(paramDataType.isInteracted || isEdit ||
-                            !isTypeVisible)
+                        || !(paramName.isInteracted || isEdit) || !(paramDataType.isInteracted || isTypeReadOnly
+                            || isEdit || !isTypeVisible)
                     }
                     fullWidth={false}
                     onClick={handleAddParam}
