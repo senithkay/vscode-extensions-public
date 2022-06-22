@@ -59,7 +59,11 @@ export class DataMapperNodeModel extends NodeModel<NodeModelGenerics & DataMappe
 				this.addPortOv(field, type, recPort);
 			});
 		} else if (STKindChecker.isRecordField(typeNode)) {
-			this.addPort(new DataMapperPortModel(typeNode, type, parent))
+			const fieldPort = new DataMapperPortModel(typeNode, type, parent);
+			this.addPort(fieldPort)
+			if (STKindChecker.isRecordTypeDesc(typeNode.typeName)) {
+				this.addPortOv(typeNode.typeName, type, fieldPort);
+			}
 		}
 	}
 }

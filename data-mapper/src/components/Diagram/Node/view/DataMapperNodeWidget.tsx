@@ -27,7 +27,7 @@ export interface DataMapperNodeWidgetProps extends WithStyles<typeof styles> {
 class DataMapperNodeWidgetC extends React.Component<DataMapperNodeWidgetProps> {
 	render() {
 		const node = this.props.node;
-		const typeDesc = node.typeDef.typeDescriptor;
+		const typeDesc = node.typeDef.typeDescriptor as RecordTypeDesc;
 		const name = STKindChecker.isRequiredParam(node.value) ? node.value.paramName.value : (node.typeDef).typeName.value;
 		const classes = this.props.classes;
 		const engine = this.props.engine;
@@ -53,7 +53,7 @@ class DataMapperNodeWidgetC extends React.Component<DataMapperNodeWidgetProps> {
 									return <DataMapperNodeField
 										engine={engine}
 										name={field.fieldName.value}
-										typeDesc={field.typeName}
+										typeNode={field}
 										nodeModel={node}
 										parentId={name}
 									/>;
@@ -69,7 +69,7 @@ class DataMapperNodeWidgetC extends React.Component<DataMapperNodeWidgetProps> {
 							<DataMapperNodeField
 								engine={engine}
 								name={name}
-								typeDesc={typeDesc}
+								typeNode={typeDesc}
 								nodeModel={node}
 								parentId={""}
 							/>
