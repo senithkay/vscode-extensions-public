@@ -793,7 +793,7 @@ export interface IBallerinaLangClient {
 
     getSymbolDocumentation: (params: SymbolInfoRequest) => Thenable<SymbolInfoResponse>;
 
-    definition: (params: DefinitionParams) => Promise<Location|Location[]|LocationLink[]|null>;
+    definition: (params: DefinitionParams) => Promise<Location | Location[] | LocationLink[] | null>;
 
 
     // close: () => void;

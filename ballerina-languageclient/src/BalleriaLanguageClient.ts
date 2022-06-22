@@ -111,8 +111,8 @@ export class BalleriaLanguageClient implements IBallerinaLangClient {
         return this._lsConnection.stop();
     }
 
-    public definition(params: DefinitionParams): Promise<Location|Location[]|LocationLink[]> {
-        return this._clientConnection.sendRequest<Location|Location[]|LocationLink[]>("textDocument/definition", params);
+    public definition(params: DefinitionParams): Promise<Location | Location[] | LocationLink[]> {
+        return this._clientConnection.sendRequest<Location | Location[] | LocationLink[]>("textDocument/definition", params);
     }
 
     public didOpen(params: DidOpenTextDocumentParams) {

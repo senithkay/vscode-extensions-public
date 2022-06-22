@@ -11,7 +11,7 @@
  * associated services.
  */
 
-import { InitializeParams, InitializeResult, DefinitionParams, Location, LocationLink } from "vscode-languageserver-protocol";
+import { DefinitionParams, InitializeParams, InitializeResult, Location, LocationLink } from "vscode-languageserver-protocol";
 
 export interface DidOpenParams {
     textDocument: {
@@ -45,6 +45,6 @@ export interface BaseLangClientInterface {
     didOpen: (Params: DidOpenParams) => void;
     didClose: (params: DidCloseParams) => void;
     didChange: (params: DidChangeParams) => void;
-    definition: (params: DefinitionParams) => Promise<Location|Location[]|LocationLink[]|null>;
+    definition: (params: DefinitionParams) => Promise<Location | Location[] | LocationLink[] | null>;
     close?: () => void;
 }
