@@ -22,8 +22,8 @@ import {
 import {
     ConfigPanelSection,
     dynamicConnectorStyles as connectorStyles,
-    FormActionButtons, FormHeaderSection,
-    FormTextInput, ParamEditor,
+    FormHeaderSection,
+    FormTextInput, PrimaryButton, SecondaryButton,
     SelectDropdownWithButton,
     useStyles as useFormStyles
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
@@ -42,8 +42,7 @@ import { PathEditor } from "./PathEditor";
 import { QueryParamEditor } from "./QueryParamEditor";
 import { useStyles } from "./styles";
 import {
-    getQueryParamCollection,
-    generateQueryParamFromST, generateQueryStringFromQueryCollection,
+    generateQueryParamFromST,
     getPathOfResources,
     SERVICE_METHODS
 } from "./util";
@@ -74,6 +73,9 @@ export function ResourceForm(props: FunctionProps) {
         isInteracted: false
     });
     const [isQueryInProgress, setIsQueryInProgress] = useState(false);
+    const [returnType, setReturnType] = useState<FormEditorField>({
+        value: model ? model.functionSignature?.returnTypeDesc?.type?.source?.trim() : "", isInteracted: false
+    });
 
     // States related to syntax diagnostics
     const [currentComponentName, setCurrentComponentName] = useState<string>("");
@@ -91,6 +93,10 @@ export function ResourceForm(props: FunctionProps) {
         id: "lowcode.develop.apiConfigWizard.path.title",
         defaultMessage: "Path"
     });
+    const saveButtonText = intl.formatMessage({
+        id: "lowcode.develop.apiConfigWizard.saveButton.text",
+        defaultMessage: "Save"
+    });
 
     let pathNameSemDiagnostics = "";
     let pathTypeSemDiagnostics = "";
@@ -106,10 +112,6 @@ export function ResourceForm(props: FunctionProps) {
                 viewState?.diagnosticsInRange[0]?.message;
             pathTypeSemDiagnostics = diagPath?.typeDescriptor?.viewState?.diagnosticsInRange && diagPath?.
                 typeDescriptor?.viewState?.diagnosticsInRange[0]?.message;
-            // queryNameSemDiagnostics = diagQuery?.paramName?.viewState?.diagnosticsInRange && diagPath?.paramName?.
-            //     viewState?.diagnosticsInRange[0]?.message;
-            // queryTypeSemDiagnostics = diagQuery?.typeDescriptor?.viewState?.diagnosticsInRange && diagPath?.
-            //     typeDescriptor?.viewState?.diagnosticsInRange[0]?.message;
         } else if (diagPath && STKindChecker.isIdentifierToken(diagPath)) {
             pathNameSemDiagnostics = diagPath?.viewState?.diagnostics[0]?.message;
         } else if (diagQuery && STKindChecker.isRequiredParam(diagQuery)) {
@@ -148,7 +150,7 @@ export function ResourceForm(props: FunctionProps) {
     const handleMethodChange = async (value: string) => {
         setFunctionName(value);
         await handleResourceParamChange(value, path.value, queryParam.value, "", false, false,
-            "");
+            returnType.value);
     };
 
     const handlePathChange = async (value: string, avoidValueCommit?: boolean) => {
@@ -157,7 +159,7 @@ export function ResourceForm(props: FunctionProps) {
         }
         setCurrentComponentName("Path");
         await handleResourceParamChange(functionName, value, queryParam.value, "",
-            false, false, "");
+            false, false, returnType.value);
     };
 
     const handlePathParamEditorChange = async (value: string, avoidValueCommit?: boolean) => {
@@ -166,7 +168,7 @@ export function ResourceForm(props: FunctionProps) {
         }
         setCurrentComponentName("PathParam");
         await handleResourceParamChange(functionName, value, queryParam.value, "", false,
-            false, "");
+            false, returnType.value);
     };
 
     const handleQueryParamEditorChange = async (value: string, avoidValueCommit?: boolean) => {
@@ -175,8 +177,16 @@ export function ResourceForm(props: FunctionProps) {
         }
         setCurrentComponentName("QueryParam");
         await handleResourceParamChange(functionName, path.value, value, "", false,
-            false, "", -3);
+            false, returnType.value, -3);
     };
+
+    // Return type related functions
+    const onReturnTypeChange = async (value: string) => {
+        setCurrentComponentName("Return");
+        setReturnType({value, isInteracted: true});
+        await handleResourceParamChange(functionName, path.value, queryParam.value, "",
+            false, false, value, -3);
+    }
 
     const handleParamChangeInProgress = (isInProgress: boolean) => {
         setIsParamInProgress(isInProgress);
@@ -201,6 +211,9 @@ export function ResourceForm(props: FunctionProps) {
             setPath({...path, value: ""});
         }
         setFunctionName(model?.functionName?.value);
+        setReturnType({
+            value: model ? model.functionSignature?.returnTypeDesc?.type?.source?.trim() : "", isInteracted: false
+        });
     }, [model]);
 
     return (
@@ -275,6 +288,26 @@ export function ResourceForm(props: FunctionProps) {
                             typeSemDiag={queryTypeSemDiagnostics}
                             onChange={handleQueryParamEditorChange}
                         />
+                        <Divider className={connectorClasses.sectionSeperatorHR} />
+                        <FormTextInput
+                            label="Return Type"
+                            dataTestId="return-type"
+                            defaultValue={returnType.value}
+                            customProps={{
+                                optional: true,
+                                isErrored: returnType?.isInteracted && ((currentComponentSyntaxDiag !== undefined &&
+                                    currentComponentName === "Return") || model?.functionSignature?.returnTypeDesc?.
+                                    viewState?.diagnosticsInRange?.length > 0)
+                            }}
+                            errorMessage={returnType?.isInteracted && ((currentComponentSyntaxDiag &&
+                                    currentComponentName === "Return" && currentComponentSyntaxDiag[0].message)
+                                || model?.functionSignature?.returnTypeDesc?.viewState?.diagnosticsInRange[0]?.message)}
+                            onChange={onReturnTypeChange}
+                            placeholder={"Enter Return Type"}
+                            size="small"
+                            disabled={isParamInProgress || isQueryInProgress || (currentComponentSyntaxDiag
+                                && currentComponentName !== "Return")}
+                        />
                         {/*    {advanceSwitch}*/}
                         {/*</div>*/}
                         {/*<div>*/}
@@ -287,9 +320,22 @@ export function ResourceForm(props: FunctionProps) {
                         {/*    {initialLoaded && returnUIWithExpressionEditor}*/}
                         {/*</Section>*/}
                     </div>
-                    {/*<div>*/}
-                    {/*    {buttonLayer}*/}
-                    {/*</div>*/}
+                    <div className={classes.serviceFooterWrapper}>
+                        <SecondaryButton
+                            text="Cancel"
+                            fullWidth={false}
+                            onClick={onCancel}
+                        />
+                        <div id="product-tour-save" >
+                            <PrimaryButton
+                                dataTestId="save-btn"
+                                text={saveButtonText}
+                                className={classes.saveBtn}
+                                onClick={null}
+                                // disabled={isFileSaving || !isValidReturnExpr || (!isValidPath && !toggleMainAdvancedMenu) || (togglePayload && !isValidPayload)}
+                            />
+                        </div>
+                    </div>
                 </div>
             </div>
         </FormControl>
