@@ -1,16 +1,17 @@
 import { NodeModel, NodeModelGenerics } from '@projectstorm/react-diagrams';
 import {
 	AnydataTypeDesc, AnyTypeDesc, ArrayTypeDesc, BooleanTypeDesc, ByteTypeDesc, DecimalTypeDesc,
-	DistinctTypeDesc, ErrorTypeDesc, FloatTypeDesc, FunctionTypeDesc, FutureTypeDesc, HandleTypeDesc,
+	DistinctTypeDesc, ErrorTypeDesc, ExpressionFunctionBody, FloatTypeDesc, FunctionTypeDesc, FutureTypeDesc, HandleTypeDesc,
 	IntersectionTypeDesc, IntTypeDesc, JsonTypeDesc, MapTypeDesc, NeverTypeDesc, NilTypeDesc, ObjectTypeDesc,
-	OptionalTypeDesc, ParenthesisedTypeDesc, QualifiedNameReference, ReadonlyTypeDesc, RecordTypeDesc,
+	OptionalTypeDesc, ParenthesisedTypeDesc, QualifiedNameReference, ReadonlyTypeDesc, RecordField, RecordFieldWithDefaultValue, RecordTypeDesc,
+	RequiredParam,
 	SimpleNameReference, SingletonTypeDesc, STKindChecker, STNode, StreamTypeDesc, StringTypeDesc, TableTypeDesc,
-	TupleTypeDesc, TypeDefinition, TypedescTypeDesc, UnionTypeDesc, XmlTypeDesc
+	TupleTypeDesc, TypeDefinition, TypedescTypeDesc, TypeReference, UnionTypeDesc, XmlTypeDesc
 } from '@wso2-enterprise/syntax-tree';
 
 import { DataMapperPortModel } from '../../Port/model/DataMapperPortModel';
 
-export interface DiamondNodeModelGenerics {
+export interface DataMapperNodeModelGenerics {
 	PORT: DataMapperPortModel;
 }
 
@@ -22,13 +23,13 @@ export type TypeDescriptor = AnyTypeDesc | AnydataTypeDesc | ArrayTypeDesc | Boo
 	| XmlTypeDesc;
 
 
-export class DataMapperNodeModel extends NodeModel<NodeModelGenerics & DiamondNodeModelGenerics> {
+export class DataMapperNodeModel extends NodeModel<NodeModelGenerics & DataMapperNodeModelGenerics> {
 	public readonly typeDef: TypeDefinition;
 	public readonly supportOutput: boolean;
 	public readonly supportInput: boolean
-	public readonly value: STNode;
- 
-	constructor(value: STNode, typeDef: TypeDefinition, supportOutput: boolean, supportInput: boolean) {
+	public readonly value: ExpressionFunctionBody | RequiredParam;
+
+	constructor(value: ExpressionFunctionBody | RequiredParam, typeDef: TypeDefinition, supportOutput: boolean, supportInput: boolean) {
 		super({
 			type: 'datamapper'
 		});
@@ -36,35 +37,29 @@ export class DataMapperNodeModel extends NodeModel<NodeModelGenerics & DiamondNo
 		this.typeDef = typeDef;
 		this.supportInput = supportInput;
 		this.supportOutput = supportOutput;
-		this.addPorts(this.typeDef.typeDescriptor, this.value);
+		this.addPorts();
 	}
 
-	private addPorts(typeDesc: TypeDescriptor, parent: STNode) {
-		// if (STKindChecker.isRecordTypeDesc(typeDesc)) {
-		// 	typeDesc.fields.forEach((field) => {
-		// 		if (STKindChecker.isRecordField(field)) {
-		// 			if (STKindChecker.isRecordTypeDesc(field.typeName)) {
-		// 				this.addPorts(field.typeName, parentId + "." + field.fieldName.value);
-		// 			} else {
-		// 				if (this.supportInput) {
-		// 					this.addPort(new DataMapperPortModel(parentId + "." + field.fieldName.value +".in"));
-		// 				}
-		// 				if (this.supportOutput) {
-		// 					this.addPort(new DataMapperPortModel(parentId + "." + field.fieldName.value +".out"));
-		// 				}
-		// 			} {
-		// 				// TODO handle other simple types
-		// 			}
-		// 		} else {
-		// 			// TODO handle field with default val and included records
-		// 		}
-		// 	})
-		// }
-		// if (this.supportInput) {
-		// 	this.addPort(new DataMapperPortModel(parentId + ".in"));
-		// }
-		// if (this.supportOutput) {
-		// 	this.addPort(new DataMapperPortModel(parentId + ".out"));
-		// }
+	private addPorts() {
+
+		if (this.supportInput) {
+			this.addPortOv(this.typeDef.typeDescriptor as RecordTypeDesc, "IN");
+		}
+		if (this.supportOutput) {
+			this.addPortOv(this.typeDef.typeDescriptor as RecordTypeDesc, "OUT");
+		}
+	}
+
+	private addPortOv(typeNode: RecordField | RecordTypeDesc | RecordFieldWithDefaultValue | TypeReference,
+		type: "IN" | "OUT", parent?: DataMapperPortModel) {
+		if (STKindChecker.isRecordTypeDesc(typeNode)) {
+			const recPort = new DataMapperPortModel(typeNode, type, parent);
+			this.addPort(recPort);
+			typeNode.fields.forEach((field) => {
+				this.addPortOv(field, type, recPort);
+			});
+		} else if (STKindChecker.isRecordField(typeNode)) {
+			this.addPort(new DataMapperPortModel(typeNode, type, parent))
+		}
 	}
 }

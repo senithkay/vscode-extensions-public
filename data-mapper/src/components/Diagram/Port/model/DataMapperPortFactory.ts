@@ -1,6 +1,7 @@
 import { DiagramEngine, PortModel } from '@projectstorm/react-diagrams';
 import { AbstractModelFactory } from '@projectstorm/react-canvas-core';
 import { DataMapperPortModel } from './DataMapperPortModel';
+import { RecordField, RecordTypeDesc } from '@wso2-enterprise/syntax-tree';
 
 export class DataMapperPortFactory extends AbstractModelFactory<PortModel, DiagramEngine> {
 
@@ -8,7 +9,7 @@ export class DataMapperPortFactory extends AbstractModelFactory<PortModel, Diagr
 		super('datamapper');
 	}
 
-	generateModel(event: { initialConfig: { id: string }; }): PortModel {
-		return new DataMapperPortModel(event.initialConfig.id);
+	generateModel(event: { initialConfig: { typeNode: RecordField | RecordTypeDesc; type: "IN" | "OUT"; parentModel: DataMapperPortModel; }; }): PortModel {
+		return new DataMapperPortModel(event.initialConfig.typeNode, event.initialConfig.type, event.initialConfig.parentModel);
 	}
 }

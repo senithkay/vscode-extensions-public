@@ -1,13 +1,23 @@
-import { LinkModel, PortModel, DefaultLinkModel, PortModelAlignment } from '@projectstorm/react-diagrams';
-import { DataMapperLinkModel } from '../../Link/model/DataMapperLink';
+import { LinkModel, PortModel, PortModelGenerics } from '@projectstorm/react-diagrams';
+import { RecordField, RecordTypeDesc } from '@wso2-enterprise/syntax-tree';
 
-export class DataMapperPortModel extends PortModel {
-	constructor(id: string, type: "IN" | "OUT") {
+import { DataMapperLinkModel } from '../../Link/model/DataMapperLink';
+export interface DataMapperNodeModelGenerics {
+	PORT: DataMapperPortModel;
+}
+export class DataMapperPortModel extends PortModel<PortModelGenerics & DataMapperNodeModelGenerics> {
+	public readonly typeNode: RecordField | RecordTypeDesc;
+	public readonly parentModel: DataMapperPortModel;
+	public readonly portType: "IN" | "OUT";
+
+	constructor(typeNode: RecordField | RecordTypeDesc, type: "IN" | "OUT", parentModel?: DataMapperPortModel) {
 		super({
 			type: 'datamapper',
-			name: id,
-			alignment: type == 'IN' ? PortModelAlignment.LEFT : PortModelAlignment.RIGHT
+			name: typeNode.position.toString() + type,
 		});
+		this.typeNode = typeNode;
+		this.parentModel = parentModel;
+		this.portType = type;
 	}
 
 	createLinkModel(): LinkModel {
@@ -18,7 +28,7 @@ export class DataMapperPortModel extends PortModel {
 			},
 			targetPortChanged: (evt) => {
 
-				lm.addLabel( evt.port.getName() + " = " + lm.getSourcePort().getName());
+				lm.addLabel(evt.port.getName() + " = " + lm.getSourcePort().getName());
 			}
 		});
 		return lm;

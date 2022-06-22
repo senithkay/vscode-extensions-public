@@ -9,7 +9,7 @@ export interface DataMapperPortWidgetProps {
 	port: DataMapperPortModel;
 }
 
-export function DataMapperPortWidget(props: DataMapperPortWidgetProps) {
+export const DataMapperPortWidget: React.FC<DataMapperPortWidgetProps> = (props: DataMapperPortWidgetProps) =>  {
 	const { engine, port } = props;
 	return <PortWidget
 		port={port}

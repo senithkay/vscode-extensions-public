@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import DataMapperDiagram from "../Diagram/Diagram";
 
-import { FunctionDefinition, STKindChecker, TypeDefinition } from "@wso2-enterprise/syntax-tree";
+import { ExpressionFunctionBody, FunctionDefinition, STKindChecker, TypeDefinition } from "@wso2-enterprise/syntax-tree";
 import { BalleriaLanguageClient } from "@wso2-enterprise/ballerina-languageclient";
 import { getTypeDefinitionForTypeDesc } from "../../utils/st-utils";
 import { useDMStore } from "../../store/store";
@@ -27,7 +27,7 @@ function DataMapperC(props: DataMapperProps) {
             const typeDesc = fnST.functionSignature.returnTypeDesc?.type;
             const typeDef = await getTypeDefinitionForTypeDesc(filePath, typeDesc, langClientPromise);
             const outputNode = new DataMapperNodeModel(
-                STKindChecker.isExpressionFunctionBody(fnST.functionBody) ? fnST.functionBody.expression : fnST.functionBody,
+                fnST.functionBody as ExpressionFunctionBody, // TODO fix once we support other forms of functions
                 typeDef,
                 false,
                 true

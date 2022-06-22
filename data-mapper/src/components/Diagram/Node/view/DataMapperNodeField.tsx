@@ -1,13 +1,16 @@
-import { Collapse, List, ListItem, ListItemIcon, ListItemSecondaryAction, ListItemText } from "@material-ui/core";
-import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
-
-import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import React from "react";
-import { DataMapperNodeModel, TypeDescriptor } from "../model/DataMapperNode";
-import { DataMapperPortWidget } from "../../Port/view/DataMapperPortWidget";
-import { isObject } from "../../../../utils/st-utils";
+
+import { List, ListItem, ListItemIcon, ListItemSecondaryAction, ListItemText } from "@material-ui/core";
+import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
+// tslint:disable-next-line: no-implicit-dependencies
+import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { STKindChecker } from "@wso2-enterprise/syntax-tree";
 
+import { DataMapperPortWidget } from "../../Port/view/DataMapperPortWidget";
+import { DataMapperNodeModel, TypeDescriptor } from "../model/DataMapperNode";
+import { DataMapperPortModel } from "../../Port/model/DataMapperPortModel";
+
+// tslint:disable: jsx-no-multiline-js
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         nested: {
@@ -28,12 +31,13 @@ export interface DataMapperNodeFieldProps {
 export function DataMapperNodeField(props: DataMapperNodeFieldProps) {
     const { parentId, name, typeDesc, nodeModel, engine, classNames } = props;
     const classes = useStyles();
-    const portIn = nodeModel.getPort(parentId + "." + name + ".in");
-    const portOut = nodeModel.getPort(parentId + "." + name + ".out");
+    const portIn = nodeModel.getPort(typeDesc.position.toString() + "IN") as DataMapperPortModel;
+    const portOut = nodeModel.getPort(typeDesc.position.toString() + "OUT") as DataMapperPortModel;
 
     return (
         <>
             <ListItem className={classNames}>
+
                 {nodeModel.supportInput && portIn &&
                     <ListItemIcon>
                         <DataMapperPortWidget engine={engine} port={portIn} />
@@ -50,7 +54,7 @@ export function DataMapperNodeField(props: DataMapperNodeFieldProps) {
                 }
             </ListItem>
             {STKindChecker.isRecordTypeDesc(typeDesc) &&
-                <List dense component="div" disablePadding>
+                <List dense={true} component="div" disablePadding={true}>
                     {
                         typeDesc.fields.map((field) => {
                             if (STKindChecker.isRecordField(field)) {

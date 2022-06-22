@@ -6,7 +6,7 @@ import { DataMapperNodeField } from './DataMapperNodeField';
 import { List, Typography } from '@material-ui/core';
 
 import { createStyles, withStyles, WithStyles, Theme } from "@material-ui/core/styles";
-import { STKindChecker } from '@wso2-enterprise/syntax-tree';
+import { RecordTypeDesc, STKindChecker } from '@wso2-enterprise/syntax-tree';
 
 const styles = (theme: Theme) => createStyles({
 	root: {
@@ -28,7 +28,7 @@ class DataMapperNodeWidgetC extends React.Component<DataMapperNodeWidgetProps> {
 	render() {
 		const node = this.props.node;
 		const typeDesc = node.typeDef.typeDescriptor;
-		const name = node.name;
+		const name = STKindChecker.isRequiredParam(node.value) ? node.value.paramName.value : (node.typeDef).typeName.value;
 		const classes = this.props.classes;
 		const engine = this.props.engine;
 
