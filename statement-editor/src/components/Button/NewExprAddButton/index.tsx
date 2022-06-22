@@ -11,11 +11,12 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React from "react";
+import React, { useContext } from "react";
 
 import { STNode } from "@wso2-enterprise/syntax-tree";
 
 import { useStatementRendererStyles } from "../../styles";
+import { StatementEditorContext } from "../../../store/statement-editor-context";
 
 export interface AddButtonProps {
     model: STNode;
@@ -26,6 +27,11 @@ export interface AddButtonProps {
 export function NewExprAddButton(props: AddButtonProps) {
     const { model, onClick, classNames } = props;
 
+    const { modelCtx } = useContext(StatementEditorContext);
+    const {
+        hasSyntaxDiagnostics
+    } = modelCtx;
+
     const statementRendererClasses = useStatementRendererStyles();
 
     const onClickOnAddButton = () => {
@@ -34,7 +40,7 @@ export function NewExprAddButton(props: AddButtonProps) {
 
     return (
         <span
-            className={`${statementRendererClasses.plusIcon} ${classNames}`}
+            className={`${statementRendererClasses.plusIcon} ${classNames} ${hasSyntaxDiagnostics && "hide"}`}
             onClick={onClickOnAddButton}
         >
             +
