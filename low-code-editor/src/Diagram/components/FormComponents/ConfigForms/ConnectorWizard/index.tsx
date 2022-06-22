@@ -77,10 +77,10 @@ export function ConnectorWizard(props: ConnectorWizardProps) {
         }
     }
 
-    function handleSelectConnector(connector: BallerinaConnectorInfo, node: LocalVarDecl) {
+    async function handleSelectConnector(connector: BallerinaConnectorInfo, node: LocalVarDecl) {
         setIsLoading(true);
         setWizardStep(WizardStep.ENDPOINT_FORM);
-        fetchMetadata(connector);
+        await fetchMetadata(connector);
     }
 
     function closeEndpointForm() {
@@ -103,7 +103,9 @@ export function ConnectorWizard(props: ConnectorWizardProps) {
     }
 
     function handleAddNewEndpoint() {
-        return WizardStep.ENDPOINT_LIST;
+        setSelectedConnector(undefined);
+        setSelectedAction(undefined);
+        setWizardStep(WizardStep.MARKETPLACE);
     }
 
     function handleSelectAction(action: FunctionDefinitionInfo) {
@@ -153,6 +155,8 @@ export function ConnectorWizard(props: ConnectorWizardProps) {
                         },
                         isLoading,
                     }}
+                    targetPosition={targetPosition}
+                    model={model}
                 />
             )}
             {wizardStep === WizardStep.ACTION_LIST && (

@@ -11,9 +11,26 @@
  * associated services.
  */
 
-import { BallerinaConnectorInfo, BallerinaConnectorRequest, DiagramEditorLangClientInterface, FormField, FormFieldReturnType, PrimitiveBalType }
-    from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { QualifiedNameReference, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import {
+    BallerinaConnectorInfo,
+    BallerinaConnectorRequest,
+    DiagramEditorLangClientInterface,
+    FormField,
+    FormFieldReturnType,
+    PrimitiveBalType,
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import {
+    BlockStatement,
+    DoStatement,
+    ForeachStatement,
+    IfElseStatement,
+    NodePosition,
+    QualifiedNameReference,
+    STKindChecker,
+    STNode,
+    VisibleEndpoint,
+    WhileStatement,
+} from "@wso2-enterprise/syntax-tree";
 
 import { isEndpointNode } from "../../../../../utils";
 import { getFormattedModuleName } from "../../../../Portals/utils";
@@ -53,7 +70,8 @@ export async function fetchConnectorInfo(
 export function getMatchingConnector(node: STNode): BallerinaConnectorInfo {
     let connector: BallerinaConnectorInfo;
     if (
-        node && isEndpointNode(node) &&
+        node &&
+        isEndpointNode(node) &&
         (STKindChecker.isLocalVarDecl(node) || STKindChecker.isModuleVarDecl(node)) &&
         STKindChecker.isQualifiedNameReference(node.typedBindingPattern.typeDescriptor)
     ) {
@@ -77,12 +95,12 @@ export function getMatchingConnector(node: STNode): BallerinaConnectorInfo {
     return connector;
 }
 
-export function getDefaultParams(parameters: FormField[], depth = 1): string[] {
+export function getDefaultParams(parameters: FormField[], depth = 1, valueOnly = false): string[] {
     if (!parameters) {
         return [];
     }
     const parameterList: string[] = [];
-    parameters.forEach(parameter => {
+    parameters.forEach((parameter) => {
         if (parameter.defaultable || parameter.optional) {
             return;
         }
@@ -103,7 +121,7 @@ export function getDefaultParams(parameters: FormField[], depth = 1): string[] {
                 draftParameter = getFieldValuePair(parameter, `[]`, depth);
                 break;
             case PrimitiveBalType.Xml:
-                draftParameter = getFieldValuePair(parameter, 'xml ``', depth);
+                draftParameter = getFieldValuePair(parameter, "xml ``", depth);
                 break;
             case PrimitiveBalType.Nil:
             case "()":
@@ -115,17 +133,15 @@ export function getDefaultParams(parameters: FormField[], depth = 1): string[] {
                 break;
             case PrimitiveBalType.Record:
                 const insideParamList = getDefaultParams(parameter.fields, depth + 1);
-                draftParameter = getFieldValuePair(parameter, `{${insideParamList?.join()}}`, depth);
+                draftParameter = getFieldValuePair(parameter, `{\n${insideParamList?.join()}\n}`, depth, valueOnly);
                 break;
             case PrimitiveBalType.Union:
                 const firstMember = parameter.members[ 0 ];
-                const firstMemberParams = getDefaultParams([ firstMember ], depth + 1);
-                const defaultParam = (firstMember.typeName === PrimitiveBalType.Record) ?
-                    `{${firstMemberParams?.join()}}` : `${firstMemberParams?.join()}`;
-                draftParameter = getFieldValuePair(parameter, defaultParam, depth);
+                const firstMemberParams = getDefaultParams([ firstMember ], depth + 1, true);
+                draftParameter = getFieldValuePair(parameter, firstMemberParams?.join(), depth);
                 break;
             case "inclusion":
-                if (isAllDefaultableFields(parameter.inclusionType?.fields)){
+                if (isAllDefaultableFields(parameter.inclusionType?.fields)) {
                     break;
                 }
                 const inclusionParams = getDefaultParams([ parameter.inclusionType ], depth + 1);
@@ -142,28 +158,44 @@ export function getDefaultParams(parameters: FormField[], depth = 1): string[] {
     return parameterList;
 }
 
-function getFieldValuePair(parameter: FormField, defaultValue: string, depth: number): string {
-    if (depth > 1) {
+function getFieldValuePair(parameter: FormField, defaultValue: string, depth: number, valueOnly = false): string {
+    if (depth === 1 && !valueOnly) {
+        // Handle named args
+        return `${parameter.name} = ${defaultValue}`;
+    }
+    if (depth > 1 && !valueOnly) {
         return `${parameter.name}: ${defaultValue}`;
     }
     return defaultValue;
 }
-
 
 export function getFormFieldReturnType(formField: FormField, depth = 1): FormFieldReturnType {
     const response: FormFieldReturnType = {
         hasError: formField?.isErrorType ? true : false,
         hasReturn: false,
         returnType: "var",
-        importTypeInfo: []
+        importTypeInfo: [],
     };
-    const primitives = [ "string", "int", "float", "decimal", "boolean", "json", "xml", "handle", "byte", "object", "handle", "anydata" ];
+    const primitives = [
+        "string",
+        "int",
+        "float",
+        "decimal",
+        "boolean",
+        "json",
+        "xml",
+        "handle",
+        "byte",
+        "object",
+        "handle",
+        "anydata",
+    ];
     const returnTypes: string[] = [];
 
     if (formField) {
         switch (formField.typeName) {
             case "union":
-                formField?.members?.forEach(field => {
+                formField?.members?.forEach((field) => {
                     const returnTypeResponse = getFormFieldReturnType(field, depth + 1);
                     const returnType = returnTypeResponse.returnType;
                     response.hasError = returnTypeResponse.hasError || response.hasError;
@@ -180,11 +212,11 @@ export function getFormFieldReturnType(formField: FormField, depth = 1): FormFie
                     if (returnTypes.length > 1) {
                         // concat all return types with | character
                         response.returnType = returnTypes.reduce((fullType, subType) => {
-                            return `${fullType}${subType !== '?' ? '|' : ''}${subType}`;
+                            return `${fullType}${subType !== "?" ? "|" : ""}${subType}`;
                         });
                     } else {
                         response.returnType = returnTypes[ 0 ];
-                        if (response.returnType === '?') {
+                        if (response.returnType === "?") {
                             response.hasReturn = false;
                         }
                     }
@@ -209,7 +241,9 @@ export function getFormFieldReturnType(formField: FormField, depth = 1): FormFie
 
                 if (response.returnType && formField.typeName === PrimitiveBalType.Array) {
                     // set array type
-                    response.returnType = response.returnType.includes('|') ? `(${response.returnType})[]` : `${response.returnType}[]`;
+                    response.returnType = response.returnType.includes("|")
+                        ? `(${response.returnType})[]`
+                        : `${response.returnType}[]`;
                 }
                 break;
 
@@ -224,7 +258,11 @@ export function getFormFieldReturnType(formField: FormField, depth = 1): FormFie
                     returnTypeResponseRight = getFormFieldReturnType(formField.rightTypeParam, depth + 1);
                     response.importTypeInfo = [ ...response.importTypeInfo, ...returnTypeResponseRight.importTypeInfo ];
                 }
-                if (returnTypeResponseLeft.returnType && returnTypeResponseRight && (returnTypeResponseRight.returnType || returnTypeResponseRight.hasError)) {
+                if (
+                    returnTypeResponseLeft.returnType &&
+                    returnTypeResponseRight &&
+                    (returnTypeResponseRight.returnType || returnTypeResponseRight.hasError)
+                ) {
                     const rightType = returnTypeResponseRight.hasError ? "error?" : returnTypeResponseRight.returnType;
                     response.returnType = `stream<${returnTypeResponseLeft.returnType},${rightType}>`;
                 }
@@ -239,7 +277,7 @@ export function getFormFieldReturnType(formField: FormField, depth = 1): FormFie
                 break;
 
             case "tuple":
-                formField?.fields.forEach(field => {
+                formField?.fields.forEach((field) => {
                     const returnTypeResponse = getFormFieldReturnType(field, depth + 1);
                     const returnType = returnTypeResponse.returnType;
                     response.hasError = returnTypeResponse.hasError || response.hasError;
@@ -252,7 +290,7 @@ export function getFormFieldReturnType(formField: FormField, depth = 1): FormFie
                 });
 
                 if (returnTypes.length > 0) {
-                    response.returnType = returnTypes.length > 1 ? `[${returnTypes.join(',')}]` : returnTypes[ 0 ];
+                    response.returnType = returnTypes.length > 1 ? `[${returnTypes.join(",")}]` : returnTypes[ 0 ];
                 }
                 break;
 
@@ -280,8 +318,13 @@ export function getFormFieldReturnType(formField: FormField, depth = 1): FormFie
                     // remove error return
                     response.hasError = false;
                 }
-                if (type === "" && !formField.typeInfo && primitives.includes(formField.typeName) &&
-                    formField?.isStream && formField.isErrorType) {
+                if (
+                    type === "" &&
+                    !formField.typeInfo &&
+                    primitives.includes(formField.typeName) &&
+                    formField?.isStream &&
+                    formField.isErrorType
+                ) {
                     // set stream record type with error
                     type = `${formField.typeName},error`;
                     response.hasReturn = true;
@@ -298,7 +341,12 @@ export function getFormFieldReturnType(formField: FormField, depth = 1): FormFie
                     type = formField.typeName;
                     response.hasReturn = true;
                 }
-                if (type === "" && !formField.isStream && formField.typeName && primitives.includes(formField.typeName)) {
+                if (
+                    type === "" &&
+                    !formField.isStream &&
+                    formField.typeName &&
+                    primitives.includes(formField.typeName)
+                ) {
                     // set primitive types
                     type = formField.typeName;
                     response.hasReturn = true;
@@ -310,11 +358,11 @@ export function getFormFieldReturnType(formField: FormField, depth = 1): FormFie
                 // filters
                 if (type !== "" && formField.typeName === PrimitiveBalType.Array) {
                     // set array type
-                    type = type.includes('|') ? `(${type})[]` : `${type}[]`;
+                    type = type.includes("|") ? `(${type})[]` : `${type}[]`;
                 }
                 if ((type !== "" || formField.isErrorType) && formField?.optional) {
                     // set optional tag
-                    type = type.includes('|') ? `(${type})?` : `${type}?`;
+                    type = type.includes("|") ? `(${type})?` : `${type}?`;
                 }
                 if (type === "" && depth > 1 && formField.typeName.trim() === "()") {
                     // set optional tag for nil return types
@@ -330,4 +378,87 @@ export function getFormFieldReturnType(formField: FormField, depth = 1): FormFie
         response.hasReturn = true;
     }
     return response;
+}
+
+export function getTargetBlock(targetPosition: NodePosition, blockNode: STNode): BlockStatement {
+    // Go through block statements to identify which block represent the target position
+    if (
+        STKindChecker.isBlockStatement(blockNode) ||
+        (STKindChecker.isFunctionBodyBlock(blockNode) &&
+            blockNode.position?.startLine < targetPosition.startLine &&
+            blockNode.position?.endLine >= targetPosition.startLine)
+    ) {
+        // Go through each statements to find exact block
+        const blockStatements = blockNode.statements as STNode[];
+        if (!blockStatements || blockStatements.length === 0) {
+            // Empty block
+            return blockNode;
+        }
+
+        const targetBlock = blockStatements?.find(
+            (block) =>
+                block.position?.startLine < targetPosition.startLine &&
+                block.position?.endLine >= targetPosition.startLine
+        );
+        if (!targetBlock) {
+            return blockNode;
+        }
+
+        switch (targetBlock.kind) {
+            case "IfElseStatement":
+                const ifBlock = getTargetIfBlock(targetPosition, targetBlock as IfElseStatement);
+                return getTargetBlock(targetPosition, ifBlock);
+            case "ForeachStatement":
+                return getTargetBlock(targetPosition, (targetBlock as ForeachStatement).blockStatement);
+            case "WhileStatement":
+                return getTargetBlock(targetPosition, (targetBlock as WhileStatement).whileBody);
+            case "DoStatement":
+                return getTargetBlock(targetPosition, (targetBlock as DoStatement).blockStatement);
+            default:
+                return targetBlock as BlockStatement;
+        }
+    }
+    return null;
+}
+
+export function getTargetIfBlock(targetPosition: NodePosition, blockNode: IfElseStatement): BlockStatement {
+    if (
+        STKindChecker.isIfElseStatement(blockNode) &&
+        blockNode.ifBody.position?.startLine < targetPosition.startLine &&
+        blockNode.ifBody.position?.endLine >= targetPosition.startLine
+    ) {
+        return blockNode.ifBody;
+    }
+    if (
+        STKindChecker.isIfElseStatement(blockNode) &&
+        STKindChecker.isElseBlock(blockNode.elseBody) &&
+        STKindChecker.isIfElseStatement(blockNode.elseBody.elseBody) &&
+        blockNode.elseBody.elseBody.position?.startLine < targetPosition.startLine &&
+        blockNode.elseBody.elseBody.position?.endLine >= targetPosition.startLine
+    ) {
+        return getTargetIfBlock(targetPosition, blockNode.elseBody.elseBody);
+    }
+    if (
+        STKindChecker.isElseBlock(blockNode.elseBody) &&
+        STKindChecker.isBlockStatement(blockNode.elseBody.elseBody) &&
+        blockNode.elseBody.position?.startLine < targetPosition.startLine &&
+        blockNode.elseBody.position?.endLine >= targetPosition.startLine
+    ) {
+        return blockNode.elseBody.elseBody;
+    }
+    return null;
+}
+
+export function getConnectorFromVisibleEp(endpoint: VisibleEndpoint) {
+    const connector: BallerinaConnectorInfo = {
+        name: endpoint.typeName,
+        moduleName: endpoint.moduleName,
+        package: {
+            organization: endpoint.orgName,
+            name: endpoint.packageName,
+            version: endpoint.version,
+        },
+        functions: [],
+    };
+    return connector;
 }

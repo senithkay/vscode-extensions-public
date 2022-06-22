@@ -27,6 +27,7 @@ import { FormHeaderSection, PrimaryButton } from "@wso2-enterprise/ballerina-low
 import { STKindChecker, STNode, VisibleEndpoint } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../../Contexts/Diagram";
+import { TextPreLoader } from "../../../../../../PreLoader/TextPreLoader";
 import { FormGeneratorProps } from "../../../FormGenerator";
 import { wizardStyles as useFormStyles } from "../../style";
 import useStyles from "../style";
@@ -46,8 +47,9 @@ export function EndpointList(props: FormGeneratorProps) {
             stSymbolInfo: { moduleEndpoints, localEndpoints },
         },
     } = useContext(Context);
-    const { targetPosition, onCancel } = props;
-    const { functionNode, onSelect, addNewEndpoint } = props.configOverlayFormStatus.formArgs as EndpointListProps;
+    const { targetPosition, onCancel, configOverlayFormStatus } = props;
+    const { isLoading, formArgs } = configOverlayFormStatus;
+    const { functionNode, onSelect, addNewEndpoint } = formArgs as EndpointListProps;
 
     const endpointElementList: ReactNode[] = [];
     const visitedEndpoints: string[] = [];
@@ -155,7 +157,12 @@ export function EndpointList(props: FormGeneratorProps) {
             <div className={formClasses.formWrapper}>
                 <div className={formClasses.formFeilds}>
                     <div className={classes.container}>
-                        {!isEndpointExists && (
+                        {isLoading && (
+                            <Box display="flex" justifyContent="center" alignItems="center" height="80vh">
+                                <TextPreLoader position="absolute" text="Fetching Endpoints..." />
+                            </Box>
+                        )}
+                        {!isLoading && !isEndpointExists && (
                             <Box>
                                 <Typography className={classes.emptyTitle}>
                                     <FormattedMessage
@@ -168,12 +175,12 @@ export function EndpointList(props: FormGeneratorProps) {
                                 </Box>
                             </Box>
                         )}
-                        {isEndpointExists && (
+                        {!isLoading && isEndpointExists && (
                             <>
                                 <Typography>
                                     <FormattedMessage
-                                        id="lowcode.develop.configForms.endpoint.subtitle"
-                                        defaultMessage="Select a connector"
+                                        id="lowcode.develop.configForms.endpointList.subtitle"
+                                        defaultMessage="Select an existing connector endpoint"
                                     />
                                 </Typography>
                                 <List>{endpointElementList}</List>

@@ -20,12 +20,32 @@ import {
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         container: {
-            width: 700,
+            width: '100%',
         },
         emptyTitle: {
             marginTop: theme.spacing(6),
             color: theme.palette.text.secondary
         },
+        fullHeight: {
+            height: '80vh',
+        },
+        actionList: {
+            height: '83vh',
+            overflowY: 'scroll',
+        },
+        searchBox: {
+            position: 'relative',
+            height: '32px',
+            width: 'inherit',
+            border: '1px #E0E3E9',
+            borderRadius: '5px',
+            boxShadow: 'inset 0 0 0 1px #DEE0E7, inset 0 2px 1px 0 rgba(0,0,0,0.07), 0 0 0 0 rgba(50,50,77,0.07)',
+            color: '#545558',
+            textIndent: '12px',
+            textAlign: 'left',
+            marginBottom: '16px',
+            paddingLeft: '10px'
+        }
     })
 );
 

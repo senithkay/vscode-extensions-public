@@ -12,6 +12,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
+import { useIntl } from "react-intl";
 
 import { BallerinaConnectorInfo, BallerinaConnectorsRequest, BallerinaModuleResponse, DiagramEditorLangClientInterface } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { LocalVarDecl } from "@wso2-enterprise/syntax-tree";
@@ -53,8 +54,14 @@ export const fetchConnectorsList = async (
 };
 
 export function ConnectorList(props: FormGeneratorProps) {
+    const intl = useIntl();
     const { onCancel } = props;
     const { onSelect } = props.configOverlayFormStatus.formArgs as ConnectorListProps;
+
+    const formTitle = intl.formatMessage({
+        id: "lowcode.develop.configForms.connectorList.title",
+        defaultMessage: "Connectors"
+    });
 
     return (
         <Marketplace
@@ -62,7 +69,7 @@ export function ConnectorList(props: FormGeneratorProps) {
             onSelect={onSelect}
             onCancel={onCancel}
             fetchModulesList={fetchConnectorsList}
-            title="Connectors"
+            title={formTitle}
             shortName="connectors"
         />
     );

@@ -12,6 +12,7 @@
  */
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
 import { useContext } from "react";
+import { useIntl } from "react-intl";
 
 import { BallerinaConnectorInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { StatementEditorWrapper } from "@wso2-enterprise/ballerina-statement-editor";
@@ -32,7 +33,7 @@ interface EndpointFormProps {
 }
 
 export function EndpointForm(props: FormGeneratorProps) {
-
+    const intl = useIntl();
     const { model, targetPosition, onCancel, onSave, configOverlayFormStatus } = props;
     const { isLoading, formArgs } = configOverlayFormStatus;
     const { connector } = formArgs as EndpointFormProps;
@@ -46,10 +47,10 @@ export function EndpointForm(props: FormGeneratorProps) {
         },
     } = useContext(Context);
 
-    // const formTitle = Intl.formatMessage({
-    //     id: "lowcode.develop.configForms.endpointForm.title",
-    //     defaultMessage: "Endpoint"
-    // });
+    const formTitle = intl.formatMessage({
+        id: "lowcode.develop.configForms.endpointForm.title",
+        defaultMessage: "Endpoint"
+    });
 
     const imports = new Set<string>([`${connector.package.organization}/${connector.moduleName}`]);
     const moduleName = getFormattedModuleName(connector.moduleName);
@@ -85,7 +86,7 @@ export function EndpointForm(props: FormGeneratorProps) {
     formArgs.targetPosition = targetPosition;
 
     const stmtEditorComponent = StatementEditorWrapper({
-        label: "Endpoint",
+        label: formTitle,
         initialSource,
         formArgs: { formArgs },
         config: { type: "Custom" },
