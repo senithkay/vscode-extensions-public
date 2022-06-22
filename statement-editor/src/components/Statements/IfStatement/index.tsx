@@ -63,7 +63,7 @@ export function IfStatementC(props: IfStatementProps) {
                     &nbsp;
                 </>
             )}
-            {!!model.elseBody ? <StatementRenderer model={model.elseBody} /> : <br />}
+            {!!model.elseBody && <StatementRenderer model={model.elseBody} />}
         </>
     );
 }
