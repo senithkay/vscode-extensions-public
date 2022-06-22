@@ -94,22 +94,35 @@ export function ResourceForm(props: FunctionProps) {
 
     let pathNameSemDiagnostics = "";
     let pathTypeSemDiagnostics = "";
+    let queryNameSemDiagnostics = "";
+    let queryTypeSemDiagnostics = "";
     if (model) {
         const diagPath = model.relativeResourcePath?.find(
+            resPath => resPath?.viewState?.diagnosticsInRange?.length > 0);
+        const diagQuery = model.functionSignature?.parameters?.find(
             resPath => resPath?.viewState?.diagnosticsInRange?.length > 0);
         if (diagPath && STKindChecker.isResourcePathSegmentParam(diagPath)) {
             pathNameSemDiagnostics = diagPath?.paramName?.viewState?.diagnosticsInRange && diagPath?.paramName?.
                 viewState?.diagnosticsInRange[0]?.message;
             pathTypeSemDiagnostics = diagPath?.typeDescriptor?.viewState?.diagnosticsInRange && diagPath?.
                 typeDescriptor?.viewState?.diagnosticsInRange[0]?.message;
+            // queryNameSemDiagnostics = diagQuery?.paramName?.viewState?.diagnosticsInRange && diagPath?.paramName?.
+            //     viewState?.diagnosticsInRange[0]?.message;
+            // queryTypeSemDiagnostics = diagQuery?.typeDescriptor?.viewState?.diagnosticsInRange && diagPath?.
+            //     typeDescriptor?.viewState?.diagnosticsInRange[0]?.message;
         } else if (diagPath && STKindChecker.isIdentifierToken(diagPath)) {
             pathNameSemDiagnostics = diagPath?.viewState?.diagnostics[0]?.message;
+        } else if (diagQuery && STKindChecker.isRequiredParam(diagQuery)) {
+            queryNameSemDiagnostics = diagQuery?.paramName?.viewState?.diagnosticsInRange && diagQuery?.paramName?.
+                viewState?.diagnosticsInRange[0]?.message;
+            queryTypeSemDiagnostics = diagQuery?.typeName?.viewState?.diagnosticsInRange && diagQuery?.
+                typeName?.viewState?.diagnosticsInRange[0]?.message;
         }
     }
 
     const handleResourceParamChange = async (resMethod: string, pathStr: string, queryParamStr: string,
                                              payloadStr: string, caller: boolean, request: boolean,
-                                             returnStr: string) => {
+                                             returnStr: string, diagColumnOffset: number = -4) => {
         const codeSnippet = getSource(updateResourceSignature(resMethod, pathStr, queryParamStr, payloadStr, caller,
             request, returnStr, targetPosition));
         const position = model ? ({
@@ -126,7 +139,7 @@ export function ResourceForm(props: FunctionProps) {
         if (!partialST.syntaxDiagnostics.length) {
             setCurrentComponentSyntaxDiag(undefined);
             onChange(updatedContent, partialST, undefined, undefined, undefined, undefined, 0,
-                {startLine: -1, startColumn: -4});
+                {startLine: -1, startColumn: diagColumnOffset});
         } else {
             setCurrentComponentSyntaxDiag(partialST.syntaxDiagnostics);
         }
@@ -152,7 +165,7 @@ export function ResourceForm(props: FunctionProps) {
             setPath({value, isInteracted: true});
         }
         setCurrentComponentName("PathParam");
-        await handleResourceParamChange(functionName, value, "", "", false,
+        await handleResourceParamChange(functionName, value, queryParam.value, "", false,
             false, "");
     };
 
@@ -162,7 +175,7 @@ export function ResourceForm(props: FunctionProps) {
         }
         setCurrentComponentName("QueryParam");
         await handleResourceParamChange(functionName, path.value, value, "", false,
-            false, "");
+            false, "", -3);
     };
 
     const handleParamChangeInProgress = (isInProgress: boolean) => {
@@ -256,10 +269,10 @@ export function ResourceForm(props: FunctionProps) {
                         <QueryParamEditor
                             queryParamString={queryParam.value}
                             readonly={false}
-                            syntaxDiag={null}
+                            syntaxDiag={currentComponentSyntaxDiag}
                             onChangeInProgress={handleQueryChangeInProgress}
-                            nameSemDiag={""}
-                            typeSemDiag={""}
+                            nameSemDiag={queryNameSemDiagnostics}
+                            typeSemDiag={queryTypeSemDiagnostics}
                             onChange={handleQueryParamEditorChange}
                         />
                         {/*    {advanceSwitch}*/}

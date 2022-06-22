@@ -27,14 +27,13 @@ import { StmtDiagnostic } from "../../../models/definitions";
 import { useStyles } from "./styles";
 import { QueryParam, QueryParamCollection } from "./types";
 import {
-    allOptions, callerParameterOption,
+    callerParameterOption,
     generateQueryStringFromQueryCollection,
-    getQueryParamCollection,
-    optionsWithoutCaller,
-    optionsWithoutPayload,
-    optionsWithoutRequest, payloadParameterOption, queryNCaller,
-    queryNPayloadOption, queryNRequest, queryParameterOption,
-    recalculateItemIds, requestParameterOption
+    getQueryParamCollection, getQueryParamConfig,
+    payloadParameterOption,
+    queryParameterOption,
+    recalculateItemIds,
+    requestParameterOption
 } from "./util";
 
 export interface QueryParamEditorProps {
@@ -54,39 +53,19 @@ export function QueryParamEditor(props: QueryParamEditorProps) {
     const connectorClasses = connectorStyles();
     const classes = useStyles();
 
-    const payloadAvailable = queryParamString?.includes("@http:Payload");
-    const requestAvailable = queryParamString?.includes("http:Request");
-    const callerAvailable = queryParamString?.includes("http:Caller");
-    let options: string[];
-    if (!payloadAvailable && !requestAvailable && !callerAvailable) {
-        options = allOptions;
-    } else if (!payloadAvailable && !requestAvailable && callerAvailable){
-        options = optionsWithoutCaller;
-    } else if (!payloadAvailable && requestAvailable && !callerAvailable) {
-        options = optionsWithoutRequest;
-    } else if (!payloadAvailable && !requestAvailable && !callerAvailable) {
-        options = optionsWithoutPayload;
-    } else if (!payloadAvailable && requestAvailable && callerAvailable) {
-        options = queryNPayloadOption;
-    } else if (payloadAvailable && requestAvailable && !callerAvailable) {
-        options = queryNRequest;
-    } else if (payloadAvailable && !requestAvailable && callerAvailable) {
-        options = queryNCaller;
-    } else {
-        options = [queryParameterOption];
-    }
+    const paramOptions: string[] = getQueryParamConfig(queryParamString);
+    const queryParamCollection = getQueryParamCollection(queryParamString);
 
     // editingSegmentId > -1 when editing and -1 when no edit in progress
     const [editingSegmentId, setEditingSegmentId] = useState<number>(-1);
     const [addingParam, setAddingParam] = useState<boolean>(false);
-    const [queryParamState, setQueryParamState] = useState<QueryParamCollection>(
-        getQueryParamCollection(queryParamString));
+    const [queryParamState, setQueryParamState] = useState<QueryParamCollection>(queryParamCollection);
     const [draftParam, setDraftParam] = useState<QueryParam>(undefined);
 
     let payloadPosition: number = -1;
     let callerPosition: number;
     let reqPosition: number;
-    getQueryParamCollection(queryParamString)?.queryParams.forEach((param, index) => {
+    queryParamCollection?.queryParams.forEach((param, index) => {
         if (param?.option === payloadParameterOption) {
             payloadPosition = index;
         } else if (param?.option === callerParameterOption) {
@@ -94,8 +73,6 @@ export function QueryParamEditor(props: QueryParamEditorProps) {
         } else if (param?.option === requestParameterOption) {
             reqPosition = index;
         }
-        callerPosition = (param?.option === callerParameterOption) ? index : -1;
-        reqPosition = (param?.option === requestParameterOption) ? index : -1;
     })
     const [payloadPos, setPayloadPos] = useState(payloadPosition);
     const [callerPos, setCallerPos] = useState(callerPosition);
@@ -163,8 +140,9 @@ export function QueryParamEditor(props: QueryParamEditorProps) {
                                                                     option} : {id, name, type: dataType, option};
             setEditingSegmentId(id);
             setDraftParam(newParam);
-            queryParamState.queryParams[id] = newParam;
-            onChange(generateQueryStringFromQueryCollection(queryParamState), true);
+            const clonedParamState: QueryParamCollection = { queryParams : [...queryParamState.queryParams] };
+            clonedParamState.queryParams[id] = newParam;
+            onChange(generateQueryStringFromQueryCollection(clonedParamState), true);
         } else {
             // When we have are editing a new param
             const newParam = (option === payloadParameterOption) ? {id, name, type: `@http:Payload ${dataType}`, option} : {id, name, type: dataType, option};
@@ -188,6 +166,7 @@ export function QueryParamEditor(props: QueryParamEditorProps) {
         setDraftParam(undefined);
         setEditingSegmentId(-1);
         onChangeInProgress(false);
+        onChange(queryParamString);
     };
 
     const pathComponents: React.ReactElement[] = [];
@@ -207,7 +186,7 @@ export function QueryParamEditor(props: QueryParamEditorProps) {
             let type;
             let name;
             if (draftParam) {
-                if (value.type.includes("@http:Payload")) {
+                if (draftParam.type.includes("@http:Payload")) {
                     const typeSplit = draftParam.type.split(" ");
                     type = typeSplit[1].trim();
                 } else {
@@ -238,8 +217,10 @@ export function QueryParamEditor(props: QueryParamEditorProps) {
                     typeDiagnostics={typeSemDiag}
                     param={{id: value.id, name, dataType: type}}
                     isEdit={true}
-                    optionList={options.includes(currentEditingOption) ? options : [...options, currentEditingOption]}
-                    dataTypeReqOptions={options.includes(currentEditingOption) ? options : [...options, currentEditingOption]}
+                    optionList={paramOptions.includes(currentEditingOption) ?
+                        paramOptions : [...paramOptions, currentEditingOption]}
+                    dataTypeReqOptions={paramOptions.includes(currentEditingOption) ?
+                        paramOptions : [...paramOptions, currentEditingOption]}
                     option={value.option}
                     onChange={onParamChange}
                     onUpdate={onParamUpdate}
@@ -274,8 +255,8 @@ export function QueryParamEditor(props: QueryParamEditorProps) {
                     nameDiagnostics={nameSemDiag}
                     typeDiagnostics={typeSemDiag}
                     syntaxDiag={syntaxDiag ? syntaxDiag[0].message : ""}
-                    optionList={options}
-                    dataTypeReqOptions={options}
+                    optionList={paramOptions}
+                    dataTypeReqOptions={paramOptions}
                     isEdit={false}
                     option={queryParameterOption}
                     onChange={onParamChange}

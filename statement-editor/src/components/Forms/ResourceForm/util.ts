@@ -75,6 +75,32 @@ export function getBallerinaPayloadType(payload: Payload, addComma?: boolean): s
         && payload.name !== "" ? ("@http:Payload " + payload.type + " " + payload.name + (addComma ? ", " : "")) : "";
 }
 
+export function getQueryParamConfig(queryParamString: string): string[] {
+    const payloadAvailable = queryParamString?.includes("@http:Payload");
+    const requestAvailable = queryParamString?.includes("http:Request");
+    const callerAvailable = queryParamString?.includes("http:Caller");
+
+    let paramOptions: string[];
+    if (!payloadAvailable && !requestAvailable && !callerAvailable) {
+        paramOptions = allOptions;
+    } else if (!payloadAvailable && !requestAvailable && callerAvailable){
+        paramOptions = optionsWithoutCaller;
+    } else if (!payloadAvailable && requestAvailable && !callerAvailable) {
+        paramOptions = optionsWithoutRequest;
+    } else if (!payloadAvailable && !requestAvailable && !callerAvailable) {
+        paramOptions = optionsWithoutPayload;
+    } else if (!payloadAvailable && requestAvailable && callerAvailable) {
+        paramOptions = queryNPayloadOption;
+    } else if (payloadAvailable && requestAvailable && !callerAvailable) {
+        paramOptions = queryNCaller;
+    } else if (payloadAvailable && !requestAvailable && callerAvailable) {
+        paramOptions = queryNRequest;
+    } else {
+        paramOptions = [queryParameterOption];
+    }
+    return paramOptions;
+}
+
 export function getQueryParamOptionType(type: string): string {
     if (type.includes("@http:Payload")) {
         return payloadParameterOption;

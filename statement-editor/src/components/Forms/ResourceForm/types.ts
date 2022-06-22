@@ -37,13 +37,6 @@ export interface ReturnType {
     isOptional: boolean
 }
 
-export const ReturnTypesMap: Map<string, string> = new Map([
-    ["string", `""`],
-    ["int", "1"],
-    ["boolean", "false"],
-    ["error", "()"],
-]);
-
 export interface ReturnTypeCollection {
     types: ReturnType[];
     defaultReturnValue?: string;

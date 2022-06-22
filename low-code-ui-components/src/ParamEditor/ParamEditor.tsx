@@ -110,6 +110,10 @@ export function ParamEditor(props: ParamProps) {
         setParamName({...paramName, value: name});
     }, [name]);
 
+    useEffect(() => {
+        setSelectedOption(option);
+    }, [option]);
+
     return (
         <div className={classes.paramContainer}>
             <div className={classes.paramContent}>
@@ -134,11 +138,11 @@ export function ParamEditor(props: ParamProps) {
                             onChange={debouncedTypeChange}
                             onBlur={null}
                             customProps={{
-                                isErrored: ((syntaxDiag !== "" && currentComponentName === "Type") ||
-                                    (typeDiagnostics !== "" && typeDiagnostics !== undefined))
+                                isErrored: (paramDataType?.isInteracted || isEdit) && (syntaxDiag !== "" && currentComponentName === "Type") ||
+                                    (typeDiagnostics !== "" && typeDiagnostics !== undefined)
                             }}
-                            errorMessage={((currentComponentName === "Type" && syntaxDiag) ? syntaxDiag : "")
-                                || typeDiagnostics}
+                            errorMessage={(paramDataType?.isInteracted || isEdit) &&
+                                ((currentComponentName === "Type" && syntaxDiag ? syntaxDiag : "") || typeDiagnostics)}
                             placeholder={"Type"}
                             size="small"
                             disabled={syntaxDiag && currentComponentName !== "Type"}
@@ -152,11 +156,12 @@ export function ParamEditor(props: ParamProps) {
                         defaultValue={(paramName?.isInteracted || isEdit) ? paramName.value : ""}
                         onChange={debouncedNameChange}
                         customProps={{
-                            isErrored: ((syntaxDiag !== "" && currentComponentName === "Name") ||
-                                (nameDiagnostics !== "" && nameDiagnostics !== undefined))
+                            isErrored: (paramName?.isInteracted || isEdit) && ((syntaxDiag !== "" &&
+                                currentComponentName === "Name") || (nameDiagnostics !== ""
+                                && nameDiagnostics !== undefined))
                         }}
-                        errorMessage={((currentComponentName === "Name" && syntaxDiag) ? syntaxDiag : "")
-                            || nameDiagnostics}
+                        errorMessage={(paramName?.isInteracted || isEdit) && ((currentComponentName === "Name"
+                                        && (syntaxDiag) ? syntaxDiag : "") || nameDiagnostics)}
                         onBlur={null}
                         placeholder={"name"}
                         size="small"
@@ -169,6 +174,7 @@ export function ParamEditor(props: ParamProps) {
                     text="Cancel"
                     fullWidth={false}
                     onClick={onCancel}
+                    // disabled={(syntaxDiag !== "")}
                     className={classes.actionBtn}
                 />
                 <PrimaryButton
