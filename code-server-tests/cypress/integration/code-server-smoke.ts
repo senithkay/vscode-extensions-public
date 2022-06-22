@@ -18,6 +18,9 @@ describe("Code server smoke test", () => {
   const testEndpoint = "http://localhost:9090/";
 
   before(() => {
+    Cypress.on('uncaught:exception', (err, runnable) => {
+      return false;
+    });
     cy.visit(Cypress.env("workspaceUrl"));
     cy.wait(5000);
     cy.get("h2", {
