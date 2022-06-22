@@ -1,17 +1,17 @@
 import React, { useEffect } from 'react';
 
-import { DiagramEditorLangClientInterface } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { CodeEditor } from './CodeEditor/CodeEditor';
 
 import { DataMapper } from '../components/DataMapper/DataMapper';
 import { FunctionDefinition, ModulePart, STKindChecker } from '@wso2-enterprise/syntax-tree';
+import { BalleriaLanguageClient } from '@wso2-enterprise/ballerina-languageclient';
 
 export interface DataMapperWrapperProps {
     getFileContent: (url: string) => Promise<string>;
     updateFileContent: (filePath: string, content: string) => Promise<boolean>;
     filePath: string;
-    langClientPromise: Promise<DiagramEditorLangClientInterface>;
+    langClientPromise: Promise<BalleriaLanguageClient>;
     lastUpdatedAt: string;
 }
 
@@ -93,6 +93,7 @@ export function DataMapperWrapper(props: DataMapperWrapperProps) {
             <DataMapper
                 fnST={functionST}
                 langClientPromise={langClientPromise}
+                filePath={filePath}
             />
             <hr />
             <CodeEditor

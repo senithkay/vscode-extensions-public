@@ -1,4 +1,4 @@
-import { DataMapperNodeWidget } from './DataMapperNodeWidget';
+import { DataMapperNodeWidget } from './../view/DataMapperNodeWidget';
 import { DataMapperNodeModel } from './DataMapperNode';
 import * as React from 'react';
 import { AbstractReactFactory } from '@projectstorm/react-canvas-core';
@@ -14,6 +14,6 @@ export class DataMapperNodeFactory extends AbstractReactFactory<DataMapperNodeMo
 	}
 
 	generateModel(event: { initialConfig: any }) {
-		return new DataMapperNodeModel(event.initialConfig.model, event.initialConfig.supportOutput, event.initialConfig.supportInput);
+		return new DataMapperNodeModel(event.initialConfig.name, event.initialConfig.model, event.initialConfig.supportOutput, event.initialConfig.supportInput);
 	}
 }

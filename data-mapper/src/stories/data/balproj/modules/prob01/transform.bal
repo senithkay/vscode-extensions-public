@@ -1,8 +1,6 @@
 
 function transform(InputMessage input) returns TransformedMessage => 
 {
-   dtos: [
-       {
            'type: input.MessageProperties.EventType,
            data: {
                MessageGuid: input.MessageProperties.AuditId,
@@ -31,9 +29,7 @@ function transform(InputMessage input) returns TransformedMessage =>
                    CreateDate: input.CreateDate
                }
            }
-       }
-   ]
-};
+       };
  
  
 function dictionary_lookup(string i) returns string {

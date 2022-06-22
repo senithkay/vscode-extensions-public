@@ -39,7 +39,6 @@ type InputMessage record {
 // Output types
  
 type TransformedMessage record {
-    record {
         record {
             string MessageContentType;
             record {
@@ -60,5 +59,4 @@ type TransformedMessage record {
             string MessageGuid;
         } data;
         string 'type;
-    }[] dtos;
-};
+    };

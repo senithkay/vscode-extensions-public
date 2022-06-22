@@ -17,8 +17,6 @@ function transform(Input input) returns Output {
     var {Message, Recipients, HeaderInformation} = Content;
     var {EventType, MessageId, AuditId} = MessageProperties;
     return {
-        dtos: [
-            {
                 'type: EventType,
                 data: {
                     MessageContentType: EventType,
@@ -57,7 +55,5 @@ function transform(Input input) returns Output {
                     ParentMessageGuid: AuditId,
                     MessageGuid: MessageId
                 }
-            }
-        ]
-    };
+            };
 }

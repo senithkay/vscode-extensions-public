@@ -1,12 +1,13 @@
 import { STNode } from "@wso2-enterprise/syntax-tree";
 import {
+    DefinitionParams,
     Diagnostic,
     DidChangeTextDocumentParams,
     DidCloseTextDocumentParams,
     DidOpenTextDocumentParams,
     DocumentSymbol,
     DocumentSymbolParams,
-    InitializeParams, InitializeResult, Location, Position,
+    InitializeParams, InitializeResult, Location, LocationLink, Position,
     PublishDiagnosticsParams,
     Range, SymbolInformation, TextDocumentPositionParams
 } from "vscode-languageserver-protocol";
@@ -791,6 +792,9 @@ export interface IBallerinaLangClient {
     getExecutorPositions: (params: GetBallerinaProjectParams) => Thenable<ExecutorPositionsResponse>;
 
     getSymbolDocumentation: (params: SymbolInfoRequest) => Thenable<SymbolInfoResponse>;
+
+    definition: (params: DefinitionParams) => Promise<Location|Location[]|LocationLink[]|null>;
+
 
     // close: () => void;
 }
