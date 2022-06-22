@@ -15,8 +15,8 @@ import React, { useContext } from "react";
 
 import { STNode } from "@wso2-enterprise/syntax-tree";
 
-import { useStatementRendererStyles } from "../../styles";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
+import { useStatementRendererStyles } from "../../styles";
 
 export interface AddButtonProps {
     model: STNode;
