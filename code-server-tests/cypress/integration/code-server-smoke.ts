@@ -22,7 +22,6 @@ describe("Code server smoke test", () => {
       return false;
     });
     cy.visit(Cypress.env("workspaceUrl"));
-    cy.wait(5000);
     cy.get("h2", {
       timeout: 120000,
     }).should("be.visible");
@@ -40,9 +39,11 @@ describe("Code server smoke test", () => {
       }
     });
     //Verify ballerina extension
-    cy.get("div[id='wso2.ballerina']", { timeout: 60000 }).contains(
-      "Ballerina SDK: Swan Lake"
-    );
+    cy.contains(
+      "div[id='wso2.ballerina']", 
+      'Swan Lake', 
+      { timeout: 30000 }  
+    );  
     cy.get('a[class="action-label codicon codicon-extensions-view-icon"]', {
       timeout: 60000,
     }).click({ force: true });
@@ -59,7 +60,13 @@ describe("Code server smoke test", () => {
       }
     });
     //Verify main.bal diagram tab
-    cy.get("div[title='main.bal Diagram']").contains("main.bal Diagram");
+    // cy.wait(25000);
+    // cy.get("div[title='main.bal Diagram']").contains("main.bal Diagram");
+    cy.contains(
+      "div[title='main.bal Diagram']", 
+      'main.bal Diagram', 
+      { timeout: 25000 }  
+    );  
     cy.wait(10000);
     cy.screenshot();
     //Take a snapshot of the diagram and compare with reference snapshot at /snapshots/code-server-smoke.ts/
