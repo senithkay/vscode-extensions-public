@@ -34,7 +34,6 @@ export function DataMapperNodeField(props: DataMapperNodeFieldProps) {
     const { parentId, name, typeNode, nodeModel, engine, classNames } = props;
     const classes = useStyles();
     
-    console.log(JSON.stringify(typeNode.position));
     const portIn = nodeModel.getPort(md5(JSON.stringify(typeNode.position) + "IN")) as DataMapperPortModel;
     const portOut = nodeModel.getPort(md5(JSON.stringify(typeNode.position) + "OUT")) as DataMapperPortModel;
 
