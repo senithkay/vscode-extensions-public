@@ -16,7 +16,9 @@ import { StatementEditorWrapper } from '@wso2-enterprise/ballerina-statement-edi
 import { ModuleVarDecl, NodePosition } from '@wso2-enterprise/syntax-tree';
 
 import { Context, useDiagramContext } from '../../../../../Contexts/Diagram';
+import { getAllVariables } from "../../../../utils";
 import { getVarNamePositionFromST } from '../../../../utils/st-util';
+import { genVariableName } from '../../../Portals/utils';
 
 import { getFormConfigFromModel, VariableOptions } from './util';
 
@@ -73,9 +75,9 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
 
     const visibilityQualifier = formConfig.varOptions.includes(VariableOptions.PUBLIC) ? 'public' : '';
     const finalKeyword = formConfig.varOptions.includes(VariableOptions.FINAL) ? 'final' : '';
-    const varType = formConfig.varType ? formConfig.varType : 'int';
-    const varName = formConfig.varName ? formConfig.varName : 'VAR_NAME';
-    const varValue = formConfig.varValue ? formConfig.varValue : '0';
+    const varType = formConfig.varType ? formConfig.varType : 'var';
+    const varName = formConfig.varName ? formConfig.varName : genVariableName("variable", getAllVariables(stSymbolInfo));
+    const varValue = formConfig.varValue ? formConfig.varValue : 'EXPRESSION';
 
     const initialSource = `${visibilityQualifier} ${finalKeyword} ${varType} ${varName} = ${varValue};`
 
