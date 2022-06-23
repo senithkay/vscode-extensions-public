@@ -28,6 +28,7 @@ function DataMapperC(props: DataMapperProps) {
             const typeDesc = fnST.functionSignature.returnTypeDesc?.type;
             const typeDef = await getTypeDefinitionForTypeDesc(filePath, typeDesc, langClientPromise);
             const outputNode = new DataMapperNodeModel(
+                fnST,
                 fnST.functionBody as ExpressionFunctionBody, // TODO fix once we support other forms of functions
                 typeDef,
                 false,
@@ -46,6 +47,7 @@ function DataMapperC(props: DataMapperProps) {
                 if (STKindChecker.isRequiredParam(param)) {
                     const paramTypeDef = await getTypeDefinitionForTypeDesc(filePath, param.typeName, langClientPromise);
                     const paramNode = new DataMapperNodeModel(
+                        fnST,
                         param,
                         paramTypeDef,
                         true,

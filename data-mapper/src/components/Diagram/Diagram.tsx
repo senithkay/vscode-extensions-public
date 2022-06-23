@@ -44,6 +44,10 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 	React.useEffect(() => {
 		const model = new DiagramModel();
 		model.addAll(...nodes);
+		nodes.forEach((node) => {
+			node.setModel(model);
+			// node.initLinks();
+		});
 		engine.setModel(model);
 		setModel(model);
 	}, [nodes]);

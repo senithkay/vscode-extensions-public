@@ -1,9 +1,9 @@
-import { NodeModel, NodeModelGenerics } from '@projectstorm/react-diagrams';
+import { DiagramModel, NodeModel, NodeModelGenerics } from '@projectstorm/react-diagrams';
 import { BalleriaLanguageClient } from '@wso2-enterprise/ballerina-languageclient';
 import {
 	AnydataTypeDesc, AnyTypeDesc, ArrayTypeDesc, BooleanTypeDesc, ByteTypeDesc, DecimalTypeDesc,
-	DistinctTypeDesc, ErrorTypeDesc, ExpressionFunctionBody, FloatTypeDesc, FunctionTypeDesc, FutureTypeDesc, HandleTypeDesc,
-	IntersectionTypeDesc, IntTypeDesc, JsonTypeDesc, MapTypeDesc, NeverTypeDesc, NilTypeDesc, ObjectTypeDesc,
+	DistinctTypeDesc, ErrorTypeDesc, ExpressionFunctionBody, FieldAccess, FloatTypeDesc, FunctionDefinition, FunctionTypeDesc, FutureTypeDesc, HandleTypeDesc,
+	IntersectionTypeDesc, IntTypeDesc, JsonTypeDesc, MappingConstructor, MapTypeDesc, NeverTypeDesc, NilTypeDesc, ObjectTypeDesc,
 	OptionalTypeDesc, ParenthesisedTypeDesc, QualifiedNameReference, ReadonlyTypeDesc, RecordField, RecordFieldWithDefaultValue, RecordTypeDesc,
 	RequiredParam,
 	SimpleNameReference, SingletonTypeDesc, STKindChecker, STNode, StreamTypeDesc, StringTypeDesc, TableTypeDesc,
@@ -25,6 +25,7 @@ export type TypeDescriptor = AnyTypeDesc | AnydataTypeDesc | ArrayTypeDesc | Boo
 
 
 export class DataMapperNodeModel extends NodeModel<NodeModelGenerics & DataMapperNodeModelGenerics> {
+	public readonly fnST: FunctionDefinition;
 	public readonly typeDef: TypeDefinition;
 	public readonly supportOutput: boolean;
 	public readonly supportInput: boolean
@@ -32,14 +33,15 @@ export class DataMapperNodeModel extends NodeModel<NodeModelGenerics & DataMappe
 	public readonly filePath: string;
 	public readonly langClientPromise: Promise<BalleriaLanguageClient>;
     public readonly updateFileContent: (filePath: string, content: string) => Promise<boolean>;
+	private diagramModel: DiagramModel;
 
-
-	constructor(value: ExpressionFunctionBody | RequiredParam, typeDef: TypeDefinition, supportOutput: boolean, supportInput: boolean,
+	constructor(fnST: FunctionDefinition, value: ExpressionFunctionBody | RequiredParam, typeDef: TypeDefinition, supportOutput: boolean, supportInput: boolean,
 				filePath: string, lCP: Promise<BalleriaLanguageClient>,
 				updateFileContent: (filePath: string, content: string) => Promise<boolean>) {
 		super({
 			type: 'datamapper'
 		});
+		this.fnST = fnST;
 		this.value = value;
 		this.typeDef = typeDef;
 		this.supportInput = supportInput;
@@ -50,8 +52,15 @@ export class DataMapperNodeModel extends NodeModel<NodeModelGenerics & DataMappe
 		this.addPorts();
 	}
 
-	private addPorts() {
+	public setModel(model: DiagramModel) {
+		this.diagramModel = model;
+	}
 
+	public getModel() {
+		return this.diagramModel;
+	}
+
+	private addPorts() {
 		if (this.supportInput) {
 			this.addPortOv(this.typeDef.typeDescriptor as RecordTypeDesc, "IN");
 		}
@@ -75,5 +84,56 @@ export class DataMapperNodeModel extends NodeModel<NodeModelGenerics & DataMappe
 				this.addPortOv(typeNode.typeName, type, fieldPort);
 			}
 		}
+	}
+
+	public initLinks() {
+		if (STKindChecker.isExpressionFunctionBody(this.value)) {
+			this.addLinks(this.value.expression as MappingConstructor, this.typeDef.typeDescriptor as RecordTypeDesc);
+		} else if (STKindChecker.isRequiredParam(this.value)) {
+			// Only create links from target side
+		}
+	}
+
+	private addLinks(val: MappingConstructor|FieldAccess, typeNode: RecordField | RecordTypeDesc) {
+		if (STKindChecker.isMappingConstructor(val)) {
+			val.fields.forEach((field) => {
+				if (STKindChecker.isSpecificField(field)) {
+					let valueExpr = field.valueExpr;
+					if (STKindChecker.isFieldAccess(valueExpr)) {
+						const fieldNames: string[] = [];
+						while (STKindChecker.isFieldAccess(valueExpr)) {
+							fieldNames.push(valueExpr.fieldName.value);
+							valueExpr = valueExpr.expression as FieldAccess|SimpleNameReference;
+						}
+						if (STKindChecker.isSimpleNameReference(valueExpr)) {
+							fieldNames.push(valueExpr.name.value);
+						}
+						const paramNode = this.fnST.functionSignature.parameters
+							.find((param) => 
+								STKindChecker.isRequiredParam(param) 
+								&& param.paramName?.value === fieldNames[fieldNames.length - 1]
+							) as RequiredParam;
+						const findNode = this.findNodeByValueNode.bind(this);
+						const nodeForParam = findNode(paramNode);
+						if (nodeForParam) {
+
+						}
+					}
+				}
+			})
+		}
+	}
+
+	private findNodeByValueNode(value: ExpressionFunctionBody | RequiredParam) {
+		let foundNode: DataMapperNodeModel;
+		this.getModel().getNodes().find((node) => {
+			var dmNode = node as DataMapperNodeModel;
+			if (STKindChecker.isRequiredParam(value)
+				&& STKindChecker.isRequiredParam(dmNode.value)
+				&& value.paramName.value === dmNode.value.paramName.value) {
+					foundNode = dmNode;
+			} 
+		});
+		return foundNode;
 	}
 }

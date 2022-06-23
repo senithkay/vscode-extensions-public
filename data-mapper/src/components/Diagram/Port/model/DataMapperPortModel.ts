@@ -110,7 +110,7 @@ async function createSpecificFieldSource(link: DataMapperLinkModel) {
 			}
 			targetPos = targetMappingConstruct.openBrace.position as NodePosition;
 			if (targetMappingConstruct.fields.length > 0) {
-				source += ".\n";
+				source += ",\n";
 			}
 			const langClient = await targetNode.langClientPromise;
 			const updateFileContent = targetNode.updateFileContent;
