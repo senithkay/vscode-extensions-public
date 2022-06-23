@@ -24,6 +24,7 @@ import { useStyles as useTextInputStyles } from "../style";
 
 export interface SelectDropdownProps {
     values?: string[];
+    enabledValues?: string[];
     disableCreateNew?: boolean;
     optional?: boolean;
     className?: string;
@@ -41,7 +42,7 @@ export function SelectDropdownWithButton(props: FormElementProps<SelectDropdownP
     const dropDownClasses = useTextInputStyles();
     const textFieldClasses = useTextInputStyles();
     const { onChange, onClick, defaultValue, label, hideLabel, placeholder, customProps = {}, disabled } = props;
-    const { values, disableCreateNew, optional, className,
+    const { values, disableCreateNew, optional, className, enabledValues,
             clearSelection, onOpenSelect, onCloseSelect } = customProps;
 
     const handleChange = (event: any) => {
@@ -50,12 +51,14 @@ export function SelectDropdownWithButton(props: FormElementProps<SelectDropdownP
         }
     };
 
+    const enabled = enabledValues ? enabledValues : values;
+
     const menuItems: React.ReactNode[] = [];
     if (values) {
         const items: string[] = values;
         items.forEach((value) => {
             menuItems.push(
-                <MenuItem key={value} value={value} className={`product-tour-payload-${value.toLowerCase()}`} data-testid={`connector-payload-${value.toLowerCase()}`}>
+                <MenuItem disabled={!enabled?.includes(value)} key={value} value={value} className={`product-tour-payload-${value.toLowerCase()}`} data-testid={`connector-payload-${value.toLowerCase()}`}>
                     <span className="TextSpan">{value}</span>
                 </MenuItem>
             );

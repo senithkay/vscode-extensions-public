@@ -37,6 +37,7 @@ export interface ParamProps {
     isEdit?: boolean;
     isTypeReadOnly?: boolean;
     dataTypeReqOptions: string[];
+    enabledOptions?: string[];
     optionList?: string[];
     option?: string;
     onAdd?: (param: Param, selectedOption?: string) => void;
@@ -46,7 +47,7 @@ export interface ParamProps {
 }
 
 export function ParamEditor(props: ParamProps) {
-    const { param, typeDiagnostics, nameDiagnostics, syntaxDiag, isEdit, isTypeReadOnly, optionList,
+    const { param, typeDiagnostics, nameDiagnostics, syntaxDiag, isEdit, isTypeReadOnly, optionList, enabledOptions,
             dataTypeReqOptions, option = "", onChange, onAdd, onUpdate, onCancel } = props;
     const { id, name, dataType } = param;
 
@@ -124,7 +125,7 @@ export function ParamEditor(props: ParamProps) {
                             dataTestId="param-type-selector"
                             defaultValue={selectedOption}
                             placeholder={"Select Type"}
-                            customProps={{ values: optionList, disableCreateNew: true }}
+                            customProps={{ values: optionList, enabledValues: enabledOptions, disableCreateNew: true }}
                             onChange={handleOnSelect}
                             label="Param Type"
                         />
