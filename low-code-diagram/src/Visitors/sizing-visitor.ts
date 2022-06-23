@@ -100,6 +100,7 @@ export interface SendRecievePairInfo {
 }
 
 export const DEFAULT_WORKER_NAME = 'function'; // todo: move to appropriate place.
+const METRICS_LABEL_MARGIN = 60;
 
 export class SizingVisitor implements Visitor {
     private currentWorker: string[];
@@ -1407,7 +1408,7 @@ export class SizingVisitor implements Visitor {
         }
 
 
-        blockViewState.bBox.lw = leftWidth > 0 ? leftWidth : DefaultConfig.defaultBlockWidth / 2;
+        blockViewState.bBox.lw = leftWidth > 0 ? leftWidth + (node?.controlFlow ? METRICS_LABEL_MARGIN : 0) : DefaultConfig.defaultBlockWidth / 2;
         blockViewState.bBox.rw = rightWidth > 0 ? rightWidth : DefaultConfig.defaultBlockWidth / 2;
 
         blockViewState.bBox.w = blockViewState.bBox.lw + blockViewState.bBox.rw;
