@@ -10,6 +10,7 @@ import {
 	TupleTypeDesc, TypeDefinition, TypedescTypeDesc, TypeReference, UnionTypeDesc, XmlTypeDesc
 } from '@wso2-enterprise/syntax-tree';
 import md5 from 'blueimp-md5';
+import { DataMapperLinkModel } from '../../Link/model/DataMapperLink';
 
 import { DataMapperPortModel } from '../../Port/model/DataMapperPortModel';
 import { getFieldNames } from '../../utils';
@@ -109,31 +110,35 @@ export class DataMapperNodeModel extends NodeModel<NodeModelGenerics & DataMappe
 			if (inputNode) {
 				inPort = this.getInputPortsForExpr(inputNode, value);	
 			}
-			console.log(inPort);
-		})
-		// if (STKindChecker.isSpecificField(val)) {
-		// 	let valueExpr = val.valueExpr;
-		// 	if (STKindChecker.isFieldAccess(valueExpr)) {
-		// 		const fieldNames: string[] = [];
-		// 		while (STKindChecker.isFieldAccess(valueExpr)) {
-		// 			fieldNames.push(valueExpr.fieldName.value);
-		// 			valueExpr = valueExpr.expression as FieldAccess|SimpleNameReference;
-		// 		}
-		// 		if (STKindChecker.isSimpleNameReference(valueExpr)) {
-		// 			fieldNames.push(valueExpr.name.value);
-		// 		}
-		// 		const paramNode = this.fnST.functionSignature.parameters
-		// 			.find((param) => 
-		// 				STKindChecker.isRequiredParam(param) 
-		// 				&& param.paramName?.value === fieldNames[fieldNames.length - 1]
-		// 			) as RequiredParam;
-		// 		const findNode = this.findNodeByValueNode.bind(this);
-		// 		const nodeForParam = findNode(paramNode);
-		// 		if (nodeForParam) {
-					
-		// 		}
-		// 	}
-		// }
+			const outPort = this.getOutputPortForField(fields);
+			const lm = new DataMapperLinkModel();
+			lm.addLabel(value.source);
+			lm.setTargetPort(outPort);
+			lm.setSourcePort(inPort);
+			this.getModel().addAll(lm);
+		});
+	}
+
+	private getOutputPortForField(fields: SpecificField[]) {
+		let nextTypeNode = this.typeDef.typeDescriptor as RecordTypeDesc;
+		let recField: RecordField;
+		for (let i = 0; i < fields.length; i++) {
+			const specificField = fields[i];
+			const recFieldTemp = nextTypeNode.fields.find(
+				(recF) => STKindChecker.isRecordField(recF) && recF.fieldName.value === specificField.fieldName.value);
+			if (recFieldTemp) {
+				if (i === fields.length - 1) {
+					recField = recFieldTemp as RecordField;
+				} else if (STKindChecker.isRecordTypeDesc(recFieldTemp.typeName)){
+					nextTypeNode = recFieldTemp.typeName
+				}
+			}
+		}
+		if (recField) {
+			const portId =  md5(JSON.stringify(recField.position) + "IN");
+			const outPort = this.getPort(portId);
+			return outPort;
+		}
 	}
 
 	// Improve to return multiple ports for complex expressions
