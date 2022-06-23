@@ -21,6 +21,7 @@ export default function ControlFlowArrow(props: ControlFlowArrowProps) {
                 x2={x}
                 y={y}
                 h={h}
+                w={w}
                 isDotted={isDotted}
                 isTurnArrow={isTurnArrow}
             />

@@ -25,10 +25,11 @@ export function ControlFLowArrowSVG(props: {
   h: number;
   isDotted: boolean;
   isTurnArrow: boolean;
+  w?: number;
 }) {
-  const { isDotted, isTurnArrow, x1, x2, y, h } = props;
+  const { isDotted, isTurnArrow, x1, x2, y, h, w } = props;
   const pointX = isDotted ? x2 : x1;
-  const w = x1 - x2;
+  const turnSpace = w;
 
   const pointsR = `${pointX - ARROW_HEIGHT},${y - ARROW_WIDTH} ${
     pointX - ARROW_HEIGHT
@@ -70,9 +71,9 @@ export function ControlFLowArrowSVG(props: {
           />
           <line
             className={isDotted ? "line-dashed" : "line"}
-            x1={x1 + 50}
+            x1={x1 + turnSpace}
             y1={h - 50}
-            x2={x2 + 50}
+            x2={x2 + turnSpace}
             y2={h - 50}
             fill="none"
             stroke="#32324d"
