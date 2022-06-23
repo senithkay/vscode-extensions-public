@@ -18,7 +18,7 @@ import { FormControl } from "@material-ui/core";
 import { EndConfig, httpResponse, PrimitiveBalType, RespondConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FormActionButtons, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
-import { ActionStatement, RemoteMethodCallAction } from "@wso2-enterprise/syntax-tree";
+import { ActionStatement, RemoteMethodCallAction, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import cn from "classnames";
 
 import { Context } from "../../../../../../../Contexts/Diagram";
@@ -44,6 +44,8 @@ export function AddRespondForm(props: RespondFormProps) {
         props: {
             isMutationProgress: isMutationInProgress,
             currentFile,
+            syntaxTree,
+            stSymbolInfo,
             importStatements,
             experimentalEnabled
         },
@@ -109,9 +111,11 @@ export function AddRespondForm(props: RespondFormProps) {
     }
 
     const handleStatementEditorChange = (partialModel: ActionStatement) => {
-        const remoteCallModel: RemoteMethodCallAction = partialModel?.expression.expression as RemoteMethodCallAction;
-        respondFormConfig.respondExpression = remoteCallModel?.arguments[0].source;
-        setResExp(remoteCallModel?.arguments[0].source);
+        if (STKindChecker.isRemoteMethodCallAction(partialModel?.expression)) {
+            const remoteCallModel: RemoteMethodCallAction = partialModel?.expression;
+            respondFormConfig.respondExpression = remoteCallModel?.arguments[0].source;
+            setResExp(remoteCallModel?.arguments[0].source);
+        }
         setValidForm(false);
     }
 
@@ -178,7 +182,6 @@ export function AddRespondForm(props: RespondFormProps) {
             label: formTitle,
             initialSource,
             formArgs: { formArgs },
-            validForm,
             config,
             onWizardClose,
             handleStatementEditorChange,
@@ -187,6 +190,8 @@ export function AddRespondForm(props: RespondFormProps) {
             getLangClient: getExpressionEditorLangClient,
             applyModifications: modifyDiagram,
             library,
+            syntaxTree,
+            stSymbolInfo,
             importStatements,
             experimentalEnabled
         }
@@ -208,12 +213,8 @@ export function AddRespondForm(props: RespondFormProps) {
             <FormControl data-testid="respond-form" className={cn(formClasses.wizardFormControl)}>
                 <FormHeaderSection
                     onCancel={onCancel}
-                    statementEditor={true}
                     formTitle={formTitle}
                     defaultMessage={"Respond"}
-                    handleStmtEditorToggle={handleStmtEditorToggle}
-                    toggleChecked={false}
-                    experimentalEnabled={experimentalEnabled}
                 />
                 <div className={formClasses.formContentWrapper}>
                     <div className={formClasses.formNameWrapper}>
@@ -251,6 +252,10 @@ export function AddRespondForm(props: RespondFormProps) {
                     saveBtnText={saveRespondButtonLabel}
                     isMutationInProgress={isMutationInProgress}
                     validForm={validForm}
+                    statementEditor={true}
+                    toggleChecked={false}
+                    experimentalEnabled={experimentalEnabled}
+                    handleStmtEditorToggle={handleStmtEditorToggle}
                     onSave={onSaveWithTour}
                     onCancel={onCancel}
                 />

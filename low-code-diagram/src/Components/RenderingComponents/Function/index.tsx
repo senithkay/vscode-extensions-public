@@ -88,7 +88,7 @@ export function Function(props: FunctionProps) {
         const bodyViewState: BlockViewState = block.viewState;
 
         component = (
-            <g>
+            <g className="function-body">
                 <>
                     {!isReadOnly &&
                         isInitPlusAvailable &&

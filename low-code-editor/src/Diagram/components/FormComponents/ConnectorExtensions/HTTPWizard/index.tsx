@@ -74,7 +74,8 @@ export function HTTPWizard(props: WizardProps) {
             }
         },
         props: {
-            stSymbolInfo
+            stSymbolInfo,
+            environment
         }
     } = useContext(Context);
 
@@ -131,11 +132,13 @@ export function HTTPWizard(props: WizardProps) {
 
     const handleCreateConnectorOnSaveNext = () => {
         setState(InitFormState.SelectInputOutput);
-        // const event: LowcodeEvent = {
-        //     type: SAVE_CONNECTOR_INVOKE,
-        //     name: connector.displayName
-        // };
-        // onEvent(event);
+        const event: LowcodeEvent = {
+            type: SAVE_CONNECTOR_INVOKE,
+            property: {
+                connectorName: connector?.displayName || connector?.moduleName
+            }
+        };
+        onEvent(event);
     };
 
     const handleConnectionChange = () => {
@@ -143,11 +146,13 @@ export function HTTPWizard(props: WizardProps) {
     };
 
     const handleFormClose = () => {
-        // const event: LowcodeEvent = {
-        //     type: CONNECTOR_CLOSED,
-        //     name: connector.displayName
-        // };
-        // onEvent(event);
+        const event: LowcodeEvent = {
+            type: CONNECTOR_CLOSED,
+            property: {
+                connectorName: connector?.displayName || connector?.moduleName
+            }
+        };
+        onEvent(event);
         onClose();
     };
 
@@ -178,11 +183,13 @@ export function HTTPWizard(props: WizardProps) {
     };
 
     const handleCreateConnectorOnSave = () => {
-        // const event: LowcodeEvent = {
-        //     type: SAVE_CONNECTOR_INIT,
-        //     name: connector.displayName
-        // };
-        // onEvent(event);
+        const event: LowcodeEvent = {
+            type: SAVE_CONNECTOR_INIT,
+            property: {
+                connectorName: connector?.displayName || connector?.moduleName
+            }
+        };
+        onEvent(event);
         const modifications: STModification[] = [];
         const functionSignature = updateFunctionSignatureWithError();
         if (functionSignature) {
@@ -245,7 +252,7 @@ export function HTTPWizard(props: WizardProps) {
         } else {
             const addActionInvocation = createPropertyStatement(actionStatement, targetPosition);
             modifications.push(addActionInvocation);
-            // onActionAddEvent();
+            onActionAddEvent();
         }
 
         onSave(modifications);
@@ -254,7 +261,7 @@ export function HTTPWizard(props: WizardProps) {
     const onActionAddEvent = () => {
         const event: LowcodeEvent = {
             type: SAVE_CONNECTOR,
-            name: "http"
+            connectorName: connector?.displayName || connector?.moduleName
         };
         onEvent(event);
     };
@@ -263,7 +270,7 @@ export function HTTPWizard(props: WizardProps) {
         if (connector?.package) {
             const { organization, name } = connector?.package;
             if (organization && name) {
-                const docURL = generateDocUrl(organization, name, "", connector?.name);
+                const docURL = generateDocUrl(organization, name, "", connector?.name, environment);
                 if (docURL) {
                     showDocumentationView(docURL);
                 }

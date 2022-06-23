@@ -42,6 +42,8 @@ export function AddWhileForm(props: WhileProps) {
         props: {
             isMutationProgress: isMutationInProgress,
             currentFile,
+            syntaxTree,
+            stSymbolInfo,
             importStatements,
             experimentalEnabled
         },
@@ -70,7 +72,7 @@ export function AddWhileForm(props: WhileProps) {
     }
 
     const handleStatementEditorChange = (partialModel: WhileStatement) => {
-        setConditionExpression(partialModel.condition.expression.source.trim());
+        setConditionExpression(partialModel.condition.source.trim());
     }
 
 
@@ -158,7 +160,6 @@ export function AddWhileForm(props: WhileProps) {
             label: formTitle,
             initialSource,
             formArgs: { formArgs },
-            validForm: !isInvalid,
             config: condition,
             onWizardClose,
             handleStatementEditorChange,
@@ -167,6 +168,8 @@ export function AddWhileForm(props: WhileProps) {
             getLangClient: getExpressionEditorLangClient,
             applyModifications: modifyDiagram,
             library,
+            syntaxTree,
+            stSymbolInfo,
             importStatements,
             experimentalEnabled
         }
@@ -177,12 +180,8 @@ export function AddWhileForm(props: WhileProps) {
             <FormControl data-testid="while-form" className={classes.wizardFormControl}>
                 <FormHeaderSection
                     onCancel={onCancel}
-                    statementEditor={true}
                     formTitle={formTitle}
                     defaultMessage={"While"}
-                    handleStmtEditorToggle={handleStmtEditorToggle}
-                    toggleChecked={false}
-                    experimentalEnabled={experimentalEnabled}
                 />
                 <div className={classes.formContentWrapper}>
                     <div className={classes.formCodeBlockWrapper}>
@@ -209,6 +208,10 @@ export function AddWhileForm(props: WhileProps) {
                     saveBtnText={saveWhileButtonLabel}
                     isMutationInProgress={isMutationInProgress}
                     validForm={!isInvalid && (conditionExpression as string)?.length > 0}
+                    statementEditor={true}
+                    toggleChecked={false}
+                    experimentalEnabled={experimentalEnabled}
+                    handleStmtEditorToggle={handleStmtEditorToggle}
                     onSave={handleOnSaveClick}
                     onCancel={onCancel}
                 />

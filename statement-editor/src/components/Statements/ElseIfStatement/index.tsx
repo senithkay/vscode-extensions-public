@@ -17,7 +17,8 @@ import { ElseBlock, STKindChecker } from "@wso2-enterprise/syntax-tree"
 import classNames from "classnames";
 
 import { StatementRenderer } from "../../StatementRenderer";
-import { useStatementEditorStyles } from "../../styles";
+import { useStatementRendererStyles } from "../../styles";
+import { TokenComponent } from "../../Token";
 
 interface ElseBlockProps {
     model: ElseBlock;
@@ -26,29 +27,22 @@ interface ElseBlockProps {
 export function ElseBlockC(props: ElseBlockProps) {
     const { model } = props;
 
-    const statementEditorClasses = useStatementEditorStyles();
+    const statementRendererClasses = useStatementRendererStyles();
 
     const conditionComponent: ReactNode = (STKindChecker.isBlockStatement(model.elseBody)) ?
         (
-            <span
-                className={classNames(
-                    statementEditorClasses.expressionBlock,
-                    statementEditorClasses.expressionBlockDisabled
-                )}
-            >
-                <span className="keyword">{model.elseKeyword.value}</span>
-                &nbsp;{model.elseBody.openBraceToken.value}
-                <br/>
+            <>
+                <TokenComponent model={model.elseKeyword} className="keyword"/>
+                <TokenComponent model={model.elseBody.openBraceToken}/>
                 &nbsp;&nbsp;&nbsp;{"..."}
-                <br/>
-                {model.elseBody.closeBraceToken.value}
-            </span>
+                <TokenComponent model={model.elseBody.closeBraceToken}/>
+            </>
         ) : (
             <span>
                 <span
                     className={classNames(
-                        statementEditorClasses.expressionBlock,
-                        statementEditorClasses.expressionBlockDisabled,
+                        statementRendererClasses.expressionBlock,
+                        statementRendererClasses.expressionBlockDisabled,
                         "keyword"
                     )}
                 >

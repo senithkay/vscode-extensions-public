@@ -91,14 +91,14 @@ export function ForEach(props: ForeachProps) {
         y2: (viewState.foreachLifeLine.cy + viewState.foreachLifeLine.h)
     };
     const rectProps = {
-        x: viewState.foreachBodyRect.cx - (viewState.foreachBodyRect.w / 2),
+        x: viewState.foreachBodyRect.cx - (viewState.foreachBodyRect.lw),
         y: viewState.foreachBodyRect.cy,
         width: viewState.foreachBodyRect.w,
         height: viewState.foreachBodyRect.h,
         rx: r
     };
     const foldProps = {
-        x: x + (viewState.foreachBodyRect.w / 2) - paddingUnfold - COLLAPSE_SVG_WIDTH,
+        x: x + (viewState.foreachBodyRect.rw) - paddingUnfold - COLLAPSE_SVG_WIDTH,
         y: y + (FOREACH_SVG_HEIGHT_WITH_SHADOW / 2) + paddingUnfold
     };
 

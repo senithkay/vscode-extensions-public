@@ -17,65 +17,50 @@
  *
  */
 
-import React from "react";
+import React, { ReactElement, useEffect, useState } from "react";
 
 import { FormControlLabel, Radio, RadioGroup, Typography } from "@material-ui/core";
 
+import { useStyles } from "./style";
+
 export interface RadioGroupInputProps {
     id: string;
-    existingValue: boolean;
-    isRequired: boolean;
+    value: string;
+    types: Map<string, string>;
     setRadioGroupValue: (key: string, value: any) => void;
 }
 
 export function RadioGroupInput(props: RadioGroupInputProps) {
-    const { id, existingValue, isRequired, setRadioGroupValue } = props;
+    const { id, value, types, setRadioGroupValue } = props;
+    const [inputValue, setInputValue] = useState(String(value));
+    const reactElements: ReactElement[] = [];
+    const classes = useStyles();
 
     const handleChange = (e: any) => {
-        setRadioGroupValue(id, getBooleanValue(e.target.value));
+        setInputValue(e.target.value);
     };
 
-    const getBooleanValue = (value: string): boolean => {
-        switch (value) {
-            case "true":
-                return true;
-            case "false":
-                return false;
-            default:
-                return undefined;
-            }
-    };
+    useEffect(() => {
+        setRadioGroupValue(id, inputValue);
+    }, [inputValue]);
 
-    const getRadioButton = (value: string, label: string) => {
-        return (
-            <FormControlLabel
-                value={value}
-                control={<Radio color="primary"/>}
-                label={<Typography variant="body2">{label}</Typography>}
-            />
+    types.forEach((label: string, key: string) => {
+        reactElements.push(
+            (
+                <FormControlLabel
+                    key={key}
+                    value={key}
+                    control={<Radio color="primary"/>}
+                    label={<Typography variant="body2">{label}</Typography>}
+                    className={classes.radioButton}
+                />
+            ),
         );
-    };
-
-    const getUndefinedRadioButton = () => {
-        if (!isRequired) {
-            return (
-                <div>
-                    {getRadioButton("undefined", "Use default value")}
-                </div>
-            );
-        }
-    };
-
-    let defaultValue = "true";
-    if (!isRequired || (isRequired && existingValue !== undefined)) {
-        defaultValue = String(existingValue);
-    }
+    });
 
     return (
-        <RadioGroup name="booleanValue" row={true} onChange={handleChange} defaultValue={defaultValue}>
-            {getRadioButton("true", "True")}
-            {getRadioButton("false", "False")}
-            {getUndefinedRadioButton()}
+        <RadioGroup name="booleanValue" row={true} onChange={handleChange} defaultValue={value}>
+            {reactElements}
         </RadioGroup>
     );
 }

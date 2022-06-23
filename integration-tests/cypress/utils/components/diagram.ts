@@ -15,9 +15,19 @@ export class FunctionDiagram {
 
     public clickDefaultWorkerPlusBtn(index: number = 0) {
         this.container.within(() => {
-            cy.get(`.diagram-canvas .main-plus-wrapper[data-plus-index="${index}"] svg.plus-holder #SmallPlus`)
+            cy.get(`.diagram-canvas .function-body`)
+                .children('g')
+                .not('.worker-body')
+                .find(`.main-plus-wrapper[data-plus-index="${index}"]`)
                 .click();
         })
+        return this;
+    }
+
+    public clickWokerPlusBtn(workerName: string, plusIndex: number = 0) {
+        cy.get(`.diagram-canvas .function-body g#worker-${workerName}`)
+            .find(`.main-plus-wrapper[data-plus-index="${plusIndex}"]`)
+            .click();
         return this;
     }
 
@@ -38,11 +48,9 @@ export class FunctionDiagram {
     //This is not working
     public clickIfConditionWorkerPlusBtn(index: number = 0) {
         this.container.within(() => {
-            cy.get(`.diagram-canvas .if-else`).within(() => {
+            cy.get(`.diagram-canvas .if-else .if-body-pluses`).within(() => {
                 cy.get(`.main-plus-wrapper[data-plus-index="${index}"] svg.plus-holder #SmallPlus`)
-                    .not('.else-line')
                     .click();
-
             })
         })
         return this;

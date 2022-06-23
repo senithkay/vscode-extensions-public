@@ -17,13 +17,17 @@ import {
     IndexedExpression,
     IntersectionTypeDesc,
     KeySpecifier,
+    LetClause,
+    LimitClause,
     ListConstructor,
     MappingConstructor,
     MethodCall,
     NodePosition,
     OptionalFieldAccess,
-    OptionalTypeDesc,
+    OptionalTypeDesc, OrderByClause,
     ParenthesisedTypeDesc,
+    QueryExpression,
+    QueryPipeline,
     RecordField,
     RecordFieldWithDefaultValue,
     RecordTypeDesc,
@@ -35,9 +39,11 @@ import {
     TypeParameter,
     TypeTestExpression,
     UnionTypeDesc,
-    Visitor
+    Visitor,
+    WhereClause
 } from "@wso2-enterprise/syntax-tree";
 
+import { END_OF_LINE_MINUTIAE } from "../constants";
 import { RemainingContent } from "../models/definitions";
 import { isPositionsEquals } from "../utils";
 
@@ -102,7 +108,7 @@ class ExpressionDeletingVisitor implements Visitor {
                 });
             } else {
                 const hasArgToBeDeleted = node.arguments.some((arg: STNode) => {
-                    return this.deletePosition === arg.position;
+                    return isPositionsEquals(this.deletePosition, arg.position);
                 });
 
                 if (hasArgToBeDeleted) {
@@ -115,13 +121,13 @@ class ExpressionDeletingVisitor implements Visitor {
     public beginVisitListConstructor(node: ListConstructor) {
         if (!this.isNodeFound) {
             const hasItemsToBeDeleted = node.expressions.some((item: STNode) => {
-                return this.deletePosition === item.position;
+                return isPositionsEquals(this.deletePosition, item.position);
             });
 
             if (hasItemsToBeDeleted) {
                 const expressions: string[] = [];
                 node.expressions.map((expr: STNode) => {
-                    if (this.deletePosition !== expr.position && !STKindChecker.isCommaToken(expr)) {
+                    if (!isPositionsEquals(this.deletePosition, expr.position) && !STKindChecker.isCommaToken(expr)) {
                         expressions.push(expr.source);
                     }
                 });
@@ -138,13 +144,13 @@ class ExpressionDeletingVisitor implements Visitor {
     public beginVisitTupleTypeDesc(node: TupleTypeDesc) {
         if (!this.isNodeFound) {
             const hasItemsToBeDeleted = node.memberTypeDesc.some((item: STNode) => {
-                return this.deletePosition === item.position;
+                return isPositionsEquals(this.deletePosition, item.position);
             });
 
             if (hasItemsToBeDeleted) {
                 const typeDescList: string[] = [];
                 node.memberTypeDesc.map((types: STNode) => {
-                    if (this.deletePosition !== types.position && !STKindChecker.isCommaToken(types)) {
+                    if (!isPositionsEquals(this.deletePosition, types.position) && !STKindChecker.isCommaToken(types)) {
                         typeDescList.push(types.source);
                     }
                 });
@@ -161,18 +167,24 @@ class ExpressionDeletingVisitor implements Visitor {
     public beginVisitMappingConstructor(node: MappingConstructor) {
         if (!this.isNodeFound) {
             const hasItemsToBeDeleted = node.fields.some((field: STNode) => {
-                return this.deletePosition === field.position;
+                return isPositionsEquals(this.deletePosition, field.position);
             });
 
             if (hasItemsToBeDeleted) {
                 const expressions: string[] = [];
+                let separator;
                 node.fields.map((field: STNode) => {
-                    if (this.deletePosition !== field.position && !STKindChecker.isCommaToken(field)) {
-                        expressions.push(field.source);
+                    if (!isPositionsEquals(this.deletePosition, field.position)) {
+                        if (!STKindChecker.isCommaToken(field)) {
+                            expressions.push(field.source);
+                        } else {
+                            separator = field.trailingMinutiae.some(minutiae => minutiae.kind === END_OF_LINE_MINUTIAE)
+                                ? ',\n' : ',';
+                        }
                     }
                 });
 
-                this.setProperties(expressions.join(','), {
+                this.setProperties(expressions.join(separator), {
                     startLine: node.openBrace.position.startLine,
                     startColumn: node.openBrace.position.endColumn,
                     endLine: node.closeBrace.position.endLine,
@@ -194,7 +206,7 @@ class ExpressionDeletingVisitor implements Visitor {
                 this.setProperties(DEFAULT_EXPR, node.position);
             } else {
                 const hasKeyExprToBeDeleted = node.keyExpression.some((expr: STNode) => {
-                    return this.deletePosition === expr.position;
+                    return isPositionsEquals(this.deletePosition, expr.position);
                 });
 
                 if (hasKeyExprToBeDeleted) {
@@ -207,7 +219,7 @@ class ExpressionDeletingVisitor implements Visitor {
     public beginVisitFunctionCall(node: FunctionCall) {
         if (!this.isNodeFound) {
             const hasArgToBeDeleted = node.arguments.some((arg: STNode) => {
-                return this.deletePosition === arg.position;
+                return isPositionsEquals(this.deletePosition, arg.position);
             });
 
             if (hasArgToBeDeleted) {
@@ -271,13 +283,13 @@ class ExpressionDeletingVisitor implements Visitor {
     public beginVisitKeySpecifier(node: KeySpecifier) {
         if (!this.isNodeFound) {
             const hasItemsToBeDeleted = node.fieldNames.some((item: STNode) => {
-                return this.deletePosition === item.position;
+                return isPositionsEquals(this.deletePosition, item.position);
             });
 
             if (hasItemsToBeDeleted) {
                 const expressions: string[] = [];
                 node.fieldNames.map((expr: STNode) => {
-                    if (this.deletePosition !== expr.position && !STKindChecker.isCommaToken(expr)) {
+                    if (!isPositionsEquals(this.deletePosition, expr.position) && !STKindChecker.isCommaToken(expr)) {
                         expressions.push(expr.value);
                     }
                 });
@@ -294,13 +306,13 @@ class ExpressionDeletingVisitor implements Visitor {
     public beginVisitRecordTypeDesc(node: RecordTypeDesc) {
         if (!this.isNodeFound) {
                 const hasItemsToBeDeleted = node.fields.some((item: STNode) => {
-                    return this.deletePosition === item.position;
+                    return isPositionsEquals(this.deletePosition, item.position);
                 });
 
                 if (hasItemsToBeDeleted) {
                     const expressions: string[] = [];
                     node.fields.map((expr: STNode) => {
-                        if (this.deletePosition !== expr.position) {
+                        if (!isPositionsEquals(this.deletePosition, expr.position)) {
                             expressions.push(expr.source);
                         }
                     });
@@ -334,6 +346,98 @@ class ExpressionDeletingVisitor implements Visitor {
             this.setProperties(DEFAULT_TYPE_DESC, node.typeName.position);
         } else if (!this.isNodeFound && isPositionsEquals(this.deletePosition, node.fieldName.position)){
             this.setProperties(DEFAULT_BINDING_PATTERN, node.fieldName.position);
+        }
+    }
+
+    public beginVisitLetClause(node: LetClause) {
+        if (!this.isNodeFound) {
+            if (node.letVarDeclarations.length === 1 && isPositionsEquals(this.deletePosition, node.letVarDeclarations[0].position)) {
+                    this.setProperties("", node.position);
+            } else {
+                const hasItemsToBeDeleted = node.letVarDeclarations.some((item: STNode) => {
+                    return isPositionsEquals(this.deletePosition, item.position);
+                });
+
+                if (hasItemsToBeDeleted) {
+                    const expressions: string[] = [];
+                    node.letVarDeclarations.map((expr: STNode) => {
+                        if (!isPositionsEquals(this.deletePosition, expr.position) && !STKindChecker.isCommaToken(expr)) {
+                            expressions.push(expr.source);
+                        }
+                    });
+
+                    this.setProperties(expressions.join(','), {
+                        ...node.position,
+                        startColumn: node.letVarDeclarations[0].position.startColumn
+                    });
+                }
+            }
+        }
+    }
+
+    public beginVisitOrderByClause(node: OrderByClause) {
+        if (!this.isNodeFound) {
+            if (node.orderKey.length === 1 && isPositionsEquals(this.deletePosition, node.orderKey[0].position)) {
+                node.orderKey[0].source.trim() === DEFAULT_EXPR ?
+                    this.setProperties("", node.position) :
+                    this.setProperties(DEFAULT_EXPR, node.orderKey[0].position);
+            } else {
+                const hasItemsToBeDeleted = node.orderKey.some((item: STNode) => {
+                    return isPositionsEquals(this.deletePosition, item.position);
+                });
+
+                if (hasItemsToBeDeleted) {
+                    const expressions: string[] = [];
+                    node.orderKey.map((expr: STNode) => {
+                        if (!isPositionsEquals(this.deletePosition, expr.position) && !STKindChecker.isCommaToken(expr)) {
+                            expressions.push(expr.source);
+                        }
+                    });
+
+                    this.setProperties(expressions.join(','), {
+                        ...node.position,
+                        startColumn: node.orderKey[0].position.startColumn
+                    });
+                }
+            }
+        }
+    }
+
+    public beginVisitWhereClause(node: WhereClause) {
+        if (node.expression.source.trim() === DEFAULT_EXPR) {
+            this.setProperties("", node.position);
+        }
+    }
+
+    public beginVisitLimitClause(node: LimitClause) {
+        if (node.expression.source.trim() === DEFAULT_EXPR) {
+            this.setProperties("", node.position);
+        }
+    }
+
+    public beginVisitQueryPipeline(node: QueryPipeline, parent?: QueryExpression) {
+        if (!this.isNodeFound) {
+            const hasClausesToBeDeleted = node.intermediateClauses.some((clause: STNode) => {
+                return isPositionsEquals(this.deletePosition, clause.position);
+            });
+
+            if (hasClausesToBeDeleted) {
+                const expressions: string[] = [];
+                node.intermediateClauses.map((clause: STNode) => {
+                    if (!isPositionsEquals(this.deletePosition, clause.position)) {
+                        expressions.push(clause.source);
+                    }
+                });
+
+                if (parent) {
+                    this.setProperties(!!expressions.length ? expressions.join('\n') : ' ', {
+                        startLine: node.fromClause.position.endLine,
+                        endLine: parent.selectClause.position.startLine,
+                        startColumn: node.fromClause.position.endColumn,
+                        endColumn: parent.selectClause.position.startColumn
+                    });
+                }
+            }
         }
     }
 

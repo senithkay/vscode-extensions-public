@@ -15,7 +15,7 @@ import {
     CompletionResponse,
     ExpressionEditorLangClientInterface,
     PartialSTRequest,
-    PublishDiagnosticsParams
+    PublishDiagnosticsParams, SymbolInfoResponse
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     NodePosition,
@@ -25,11 +25,12 @@ import {
 
 import {
     acceptedCompletionKindForExpressions,
-    acceptedCompletionKindForTypes
-} from "../components/InputEditor/constants";
+    acceptedCompletionKindForTypes,
+    PROPERTY_COMPLETION_KIND
+} from "../constants";
 import { CurrentModel, SuggestionItem } from '../models/definitions';
 
-import { sortSuggestions } from "./index";
+import { getSymbolPosition, sortSuggestions } from "./index";
 import { ModelType, StatementEditorViewState } from "./statement-editor-viewstate";
 
 export async function getPartialSTForStatement(
@@ -37,6 +38,14 @@ export async function getPartialSTForStatement(
             getLangClient: () => Promise<ExpressionEditorLangClientInterface>): Promise<STNode> {
     const langClient: ExpressionEditorLangClientInterface = await getLangClient();
     const resp = await langClient.getSTForSingleStatement(partialSTRequest);
+    return resp.syntaxTree;
+}
+
+export async function getPartialSTForModuleMembers(
+            partialSTRequest: PartialSTRequest,
+            getLangClient: () => Promise<ExpressionEditorLangClientInterface>): Promise<STNode> {
+    const langClient: ExpressionEditorLangClientInterface = await getLangClient();
+    const resp = await langClient.getSTForModuleMembers(partialSTRequest);
     return resp.syntaxTree;
 }
 
@@ -78,13 +87,6 @@ export async function getCompletions (docUri: string,
         }
     }
 
-    if (STKindChecker.isIfElseStatement(completeModel)) {
-        completionParams.position = {
-            character: currentModelPosition.startColumn + userInput.length,
-            line: targetPosition.startLine + currentModelPosition.startLine
-        }
-    }
-
     // CodeSnippet is split to get the suggestions for field-access-expr (expression.field-name)
     const inputElements = userInput.split('.');
 
@@ -111,7 +113,28 @@ export async function getCompletions (docUri: string,
     filteredCompletionItems.sort(sortSuggestions);
 
     filteredCompletionItems.map((completion) => {
-        suggestions.push({ value: completion.label, kind: completion.detail, suggestionType: completion.kind  });
+        let updatedInsertText = completion.insertText;
+        const isProperty = completion.kind === PROPERTY_COMPLETION_KIND;
+        if (isProperty) {
+            const regex = /\${\d+:?(""|0|0.0|false|\(\)|xml ``|{})?}/gm;
+            let placeHolder;
+            // tslint:disable-next-line:no-conditional-assignment
+            while ((placeHolder = regex.exec(completion.insertText)) !== null) {
+                // This is necessary to avoid infinite loops with zero-width matches
+                if (placeHolder.index === regex.lastIndex) {
+                    regex.lastIndex++;
+                }
+                updatedInsertText = updatedInsertText.replace(placeHolder[0], placeHolder[1] || '');
+            }
+        }
+        suggestions.push(
+            {
+                value: completion.label,
+                kind: completion.detail,
+                insertText: isProperty && updatedInsertText,
+                completionKind: completion.kind
+            }
+        );
     });
 
     return suggestions;
@@ -174,3 +197,22 @@ export async function getDiagnostics(
     return diagnostics;
 }
 
+export async function getSymbolDocumentation(
+    docUri: string,
+    targetPosition: NodePosition,
+    currentModel: STNode,
+    getLangClient: () => Promise<ExpressionEditorLangClientInterface>,
+    userInput: string = ''): Promise<SymbolInfoResponse> {
+    const langClient = await getLangClient();
+    const symbolPos = getSymbolPosition(targetPosition, currentModel, userInput);
+    const symbolDoc = await  langClient.getSymbolDocumentation({
+        textDocumentIdentifier : {
+            uri: docUri
+        },
+        position: {
+            line: symbolPos.line,
+            character: symbolPos.offset
+        }
+    });
+    return symbolDoc;
+}

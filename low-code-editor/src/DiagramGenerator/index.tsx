@@ -58,7 +58,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     const defaultPanX = panX ? Number(panX) : 0;
     const defaultPanY = panY ? Number(panY) : 0;
     const runCommand: (command: PALETTE_COMMANDS, args: any[]) => Promise<boolean> = props.runCommand;
-    const showMessage: (message: string, type: MESSAGE_TYPE, isIgnorable: boolean) => Promise<boolean> = props.showMessage;
+    const showMessage: (message: string, type: MESSAGE_TYPE, isIgnorable: boolean, filePath?: string, fileContent?: string, bypassChecks?: boolean) => Promise<boolean> = props.showMessage;
     const getLibrariesList: (kind?: LibraryKind) => Promise<LibraryDocResponse | undefined> = props.getLibrariesList;
     const getLibrariesData: () => Promise<LibrarySearchResponse | undefined> = props.getLibrariesData;
     const getLibraryData: (orgName: string, moduleName: string, version: string) => Promise<LibraryDataResponse | undefined> = props.getLibraryData;
@@ -79,7 +79,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     const [loaderText, setLoaderText] = React.useState<string>('Loading...');
     const [performanceData, setPerformanceData] = React.useState(undefined);
     const [lowCodeResourcesVersion, setLowCodeResourcesVersion] = React.useState(undefined);
-
+    const [lowCodeEnvInstance, setLowCodeEnvInstance] = React.useState("");
     const initSelectedPosition = startColumn === 0 && startLine === 0 && syntaxTree ? // TODO: change to use undefined for unselection
         getDefaultSelectedPosition(syntaxTree)
         : { startLine, startColumn }
@@ -96,7 +96,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                 // if (genSyntaxTree?.typeData?.diagnostics && genSyntaxTree?.typeData?.diagnostics?.length > 0) {
                 //     resolveMissingDependency(filePath, content);
                 // }
-                const vistedSyntaxTree: STNode = await getLowcodeST(genSyntaxTree, filePath, langClient);
+                const vistedSyntaxTree: STNode = await getLowcodeST(genSyntaxTree, filePath, langClient, experimentalEnabled, showMessage);
                 if (!vistedSyntaxTree) {
                     return (<div><h1>Parse error...!</h1></div>);
                 }
@@ -104,7 +104,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                 undoRedo.updateContent(filePath, content);
                 setFileContent(content);
                 setLowCodeResourcesVersion(await getEnv("BALLERINA_LOW_CODE_RESOURCES_VERSION"));
-
+                setLowCodeEnvInstance(await getEnv("VSCODE_CHOREO_SENTRY_ENV"));
                 // Add performance data
                 await addPerfData(vistedSyntaxTree);
 
@@ -193,7 +193,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                 }
             });
             const genSyntaxTree = await getSyntaxTree(path, langClient);
-            const vistedSyntaxTree: STNode = await getLowcodeST(genSyntaxTree, path, langClient);
+            const vistedSyntaxTree: STNode = await getLowcodeST(genSyntaxTree, path, langClient, experimentalEnabled, showMessage);
             setSyntaxTree(vistedSyntaxTree);
             setFileContent(lastsource);
             props.updateFileContent(path, lastsource);
@@ -221,7 +221,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                 }
             });
             const genSyntaxTree = await getSyntaxTree(path, langClient);
-            const vistedSyntaxTree: STNode = await getLowcodeST(genSyntaxTree, path, langClient);
+            const vistedSyntaxTree: STNode = await getLowcodeST(genSyntaxTree, path, langClient, experimentalEnabled, showMessage);
             setSyntaxTree(vistedSyntaxTree);
             setFileContent(lastUndoSource);
             props.updateFileContent(path, lastUndoSource);
@@ -257,6 +257,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                             isReadOnly={false}
                             syntaxTree={syntaxTree}
                             zoomStatus={zoomStatus}
+                            environment={lowCodeEnvInstance}
                             stSymbolInfo={getSymbolInfo()}
                             // tslint:disable-next-line: jsx-no-multiline-js
                             currentFile={{
@@ -308,7 +309,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                             undoRedo.addModification(source);
                                             setFileContent(source);
                                             props.updateFileContent(filePath, source);
-                                            vistedSyntaxTree = await getLowcodeST(newST, filePath, langClient);
+                                            vistedSyntaxTree = await getLowcodeST(newST, filePath, langClient, experimentalEnabled, showMessage);
                                             setSyntaxTree(vistedSyntaxTree);
                                             if (isDeleteModificationAvailable(mutations)) {
                                                 showMessage("Undo your changes by using Ctrl + Z or Cmd + Z", MESSAGE_TYPE.INFO, true);
@@ -330,7 +331,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                                             ],
                                                         })
                                                         const { syntaxTree: stWithoutDiagnostics } = await langClient.getSyntaxTree({ documentIdentifier: { uri }})
-                                                        vistedSyntaxTree = await getLowcodeST(stWithoutDiagnostics, filePath, langClient);
+                                                        vistedSyntaxTree = await getLowcodeST(stWithoutDiagnostics, filePath, langClient, experimentalEnabled, showMessage);
                                                         setSyntaxTree(vistedSyntaxTree);
                                                     }
                                                     setModulePullInProgress(false);

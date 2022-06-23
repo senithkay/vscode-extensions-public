@@ -122,14 +122,14 @@ export function While(props: WhileProps) {
         y2: (viewState.whileLifeLine.cy + viewState.whileLifeLine.h)
     };
     const rectProps = {
-        x: viewState.whileBodyRect.cx - (viewState.whileBodyRect.w / 2),
+        x: viewState.whileBodyRect.cx - (viewState.whileBodyRect.lw),
         y: viewState.whileBodyRect.cy,
         width: viewState.whileBodyRect.w,
         height: viewState.whileBodyRect.h,
         rx: r
     };
     const foldProps = {
-        x: x + (viewState.whileBodyRect.w / 2) - paddingUnfold - COLLAPSE_SVG_WIDTH,
+        x: x + (viewState.whileBodyRect.rw) - paddingUnfold - COLLAPSE_SVG_WIDTH,
         y: y + (WHILE_SVG_HEIGHT_WITH_SHADOW / 2) + paddingUnfold
     };
 

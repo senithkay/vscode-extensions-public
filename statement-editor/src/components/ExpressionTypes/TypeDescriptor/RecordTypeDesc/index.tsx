@@ -14,11 +14,11 @@ import React, { useContext } from "react";
 
 import { RecordTypeDesc } from "@wso2-enterprise/syntax-tree";
 
-import { TYPED_BINDING_CONSTRUCTOR } from "../../../../constants";
+import { FIELD_DESCRIPTOR } from "../../../../constants";
 import { StatementEditorContext } from "../../../../store/statement-editor-context";
 import { ExpressionComponent } from "../../../Expression";
 import { ExpressionArrayComponent } from "../../../ExpressionArray";
-import { useStatementEditorStyles } from "../../../styles";
+import { useStatementRendererStyles } from "../../../styles";
 import { TokenComponent } from "../../../Token";
 
 interface RecordTypeDescProps {
@@ -34,7 +34,7 @@ export function RecordTypeDescComponent(props: RecordTypeDescProps) {
         }
     } = stmtCtx;
 
-    const statementEditorClasses = useStatementEditorStyles();
+    const statementRendererClasses = useStatementRendererStyles();
 
     const onClickOnPlusIcon = (event: any) => {
         event.stopPropagation();
@@ -47,7 +47,7 @@ export function RecordTypeDescComponent(props: RecordTypeDescProps) {
             endLine: model.bodyEndDelimiter.position.startLine,
             endColumn: model.bodyEndDelimiter.position.startColumn
         }
-        updateModel(`${TYPED_BINDING_CONSTRUCTOR};`, newPosition);
+        updateModel(`${FIELD_DESCRIPTOR};`, newPosition);
     };
 
     return (
@@ -56,7 +56,7 @@ export function RecordTypeDescComponent(props: RecordTypeDescProps) {
             <TokenComponent model={model.bodyStartDelimiter} />
             <ExpressionArrayComponent expressions={model.fields} />
             <span
-                className={statementEditorClasses.plusIcon}
+                className={statementRendererClasses.plusIcon}
                 onClick={onClickOnPlusIcon}
             >
                 +

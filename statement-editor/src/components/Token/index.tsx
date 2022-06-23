@@ -12,11 +12,12 @@
  */
 import React from "react";
 
-import { STNode } from "@wso2-enterprise/syntax-tree";
+import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
-import { getMinutiaeJSX } from "../../utils";
-import { useStatementEditorStyles } from "../styles";
+import { getJSXForMinutiae } from "../../utils";
+import { StatementEditorViewState } from "../../utils/statement-editor-viewstate";
+import { useStatementRendererStyles } from "../styles";
 
 export interface TokenComponentProps {
     model: STNode;
@@ -26,18 +27,24 @@ export interface TokenComponentProps {
 export function TokenComponent(props: TokenComponentProps) {
     const { model, className } = props;
 
-    const statementEditorClasses = useStatementEditorStyles();
+    const statementRendererClasses = useStatementRendererStyles();
 
     const styleClassName = classNames(
-        statementEditorClasses.expressionBlock,
-        statementEditorClasses.expressionBlockDisabled,
+        statementRendererClasses.expressionBlock,
+        statementRendererClasses.expressionBlockDisabled,
         className
     );
 
-    const { leadingMinutiaeJSX, trailingMinutiaeJSX } = getMinutiaeJSX(model);
+    const mappingConstructorConfig = (model.viewState as StatementEditorViewState).multilineConstructConfig;
+    const newLineRequired = mappingConstructorConfig.isClosingBraceWithNewLine;
+    const isFieldWithNewLine = mappingConstructorConfig.isFieldWithNewLine;
+
+    const leadingMinutiaeJSX = getJSXForMinutiae(model.leadingMinutiae, isFieldWithNewLine);
+    const trailingMinutiaeJSX = getJSXForMinutiae(model.trailingMinutiae, isFieldWithNewLine);
 
     return (
         <span className={styleClassName} >
+            {STKindChecker.isCloseBraceToken(model) && newLineRequired && <br/>}
             {leadingMinutiaeJSX}
             {model.value}
             {trailingMinutiaeJSX}

@@ -14,12 +14,10 @@
 import React, { useContext } from "react";
 
 import { IfElseStatement, STKindChecker } from "@wso2-enterprise/syntax-tree"
-import classNames from "classnames";
 
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { ExpressionComponent } from "../../Expression";
 import { StatementRenderer } from "../../StatementRenderer";
-import { useStatementEditorStyles } from "../../styles";
 import { TokenComponent } from "../../Token";
 
 interface IfStatementProps {
@@ -36,30 +34,18 @@ export function IfStatementC(props: IfStatementProps) {
         }
     } = stmtCtx;
 
-    const statementEditorClasses = useStatementEditorStyles();
-
-
     if (!currentModel.model && !STKindChecker.isElseBlock(model)) {
         changeCurrentModel(model.condition);
     }
 
     return (
         <>
-            <TokenComponent model={model.ifKeyword}  className="keyword" />
-            <ExpressionComponent model={model.condition} />
-            <span
-                className={classNames(
-                    statementEditorClasses.expressionBlock,
-                    statementEditorClasses.expressionBlockDisabled
-                )}
-            >
-                &nbsp;{model.ifBody.openBraceToken.value}
-                <br/>
-                &nbsp;&nbsp;&nbsp;{"..."}
-                <br/>
-                {model.ifBody.closeBraceToken.value}
-            </span>
-            {!!model.elseBody && <StatementRenderer model={model.elseBody} />}
+            <TokenComponent model={model.ifKeyword} className="keyword"/>
+            <ExpressionComponent model={model.condition}/>
+            <TokenComponent model={model.ifBody.openBraceToken}/>
+            &nbsp;&nbsp;&nbsp;{"..."}
+            <TokenComponent model={model.ifBody.closeBraceToken}/>
+            {!!model.elseBody && <StatementRenderer model={model.elseBody}/>}
         </>
     );
 }

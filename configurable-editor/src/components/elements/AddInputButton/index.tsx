@@ -30,7 +30,7 @@ export function AddInputButton(props: AddInputButtonProps) {
     const { onAdd } = props;
 
     return (
-        <Box mb={2} mt={2}>
+        <Box mb={1} mt={1}>
             <Button variant="text" color="primary" startIcon={<AddIcon />} onClick={onAdd}>
                 Add
             </Button>

@@ -13,16 +13,16 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useMemo, useState } from "react";
 
-import { ClickAwayListener } from "@material-ui/core";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 import debounce from "lodash.debounce";
 
+import { DEFAULT_INTERMEDIATE_CLAUSE } from "../../constants";
 import { InputEditorContext } from "../../store/input-editor-context";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { isPositionsEquals } from "../../utils";
 import { EXPR_PLACEHOLDER, STMT_PLACEHOLDER, TYPE_DESC_PLACEHOLDER } from "../../utils/expressions";
 import { ModelType, StatementEditorViewState } from "../../utils/statement-editor-viewstate";
-import { useStatementEditorStyles } from "../styles";
+import { useStatementRendererStyles } from "../styles";
 
 import {
     INPUT_EDITOR_PLACEHOLDERS
@@ -38,22 +38,21 @@ export function InputEditor(props: InputEditorProps) {
 
     const { model, classNames, notEditable } = props;
 
-    const stmtCtx = useContext(StatementEditorContext);
     const {
         modelCtx: {
             initialSource,
             statementModel,
             updateModel,
-            handleChange
+            handleChange,
+            hasSyntaxDiagnostics,
+            currentModel
         },
-        formCtx: {
-            formModelPosition: targetPosition
-        }
-    } = stmtCtx;
+        targetPosition,
+    } = useContext(StatementEditorContext);
 
     const inputEditorCtx = useContext(InputEditorContext);
 
-    const statementEditorClasses = useStatementEditorStyles();
+    const statementRendererClasses = useStatementRendererStyles();
 
     const originalValue = React.useMemo(() => {
         let source: string;
@@ -66,7 +65,7 @@ export function InputEditor(props: InputEditorProps) {
             source = model.source;
         }
 
-        return source;
+        return source.trim();
     }, [model]);
 
     const [isEditing, setIsEditing] = useState(false);
@@ -74,7 +73,7 @@ export function InputEditor(props: InputEditorProps) {
     const [prevUserInput, setPrevUserInput] = useState<string>(userInput);
 
     const placeHolder = useMemo(() => {
-        const trimmedInput = userInput.trim();
+        const trimmedInput = !!userInput ? userInput.trim() : EXPR_PLACEHOLDER;
         if (statementModel && INPUT_EDITOR_PLACEHOLDERS.has(trimmedInput)) {
             if (isPositionsEquals(statementModel.position, model.position)) {
                 // override the placeholder when the statement is empty
@@ -92,10 +91,22 @@ export function InputEditor(props: InputEditorProps) {
     }, [originalValue]);
 
     useEffect(() => {
+        if (currentModel.model && isPositionsEquals(currentModel.model.position, model.position)){
+            setIsEditing(currentModel.isEntered ? currentModel.isEntered : false);
+        }
+    }, [currentModel]);
+
+    useEffect(() => {
         if (userInput === '') {
             setIsEditing(true);
         }
     }, [userInput]);
+
+    useEffect(() => {
+        if (hasSyntaxDiagnostics) {
+            setIsEditing(false);
+        }
+    }, [hasSyntaxDiagnostics]);
 
     const inputEnterHandler = (event: React.KeyboardEvent<HTMLInputElement>) => {
         if (event.key === "Enter" || event.key === "Tab") {
@@ -112,46 +123,49 @@ export function InputEditor(props: InputEditorProps) {
     };
 
     const changeInput = (newValue: string) => {
+        let input = newValue;
         if (!newValue) {
             if (isPositionsEquals(statementModel.position, model.position)) {
                 // placeholder for empty custom statements
-                newValue = STMT_PLACEHOLDER;
+                input = STMT_PLACEHOLDER;
             } else {
-                newValue = (model.viewState as StatementEditorViewState).modelType === ModelType.TYPE_DESCRIPTOR
+                input = (model.viewState as StatementEditorViewState).modelType === ModelType.TYPE_DESCRIPTOR
                     ? TYPE_DESC_PLACEHOLDER : EXPR_PLACEHOLDER;
             }
         }
-        setUserInput(newValue);
-        inputEditorCtx.onInputChange(newValue);
+        setUserInput(input);
+        inputEditorCtx.onInputChange(input);
         debouncedContentChange(newValue, true);
     }
 
     const debouncedContentChange = debounce(handleChange, 500);
 
     const handleDoubleClick = () => {
-        if (!notEditable){
+        if (!notEditable && !hasSyntaxDiagnostics) {
+            setIsEditing(true);
+        } else if (!notEditable && hasSyntaxDiagnostics && (currentModel.model === model)) {
             setIsEditing(true);
         }
     };
 
     const handleEditEnd = () => {
-        setIsEditing(false);
         setPrevUserInput(userInput);
         if (userInput !== "") {
-            updateModel(userInput, model ? model.position : targetPosition);
+            // Replace empty interpolation with placeholder value
+            const codeSnippet = userInput.replaceAll('${}', "${" + EXPR_PLACEHOLDER + "}");
+            originalValue === DEFAULT_INTERMEDIATE_CLAUSE ? updateModel(codeSnippet, model ? model.parent.parent.position : targetPosition) :
+            updateModel(codeSnippet, model ? model.position : targetPosition);
         }
+        setIsEditing(false);
     }
 
     return isEditing ?
         (
-            <ClickAwayListener
-                mouseEvent="onMouseDown"
-                touchEvent="onTouchStart"
-                onClickAway={handleEditEnd}
-            >
+            <>
                 <input
-                    value={INPUT_EDITOR_PLACEHOLDERS.has(userInput.trim()) ? "" : userInput}
-                    className={statementEditorClasses.inputEditorTemplate + ' ' + classNames}
+                    data-testid="input-editor"
+                    value={INPUT_EDITOR_PLACEHOLDERS.has(userInput) ? "" : userInput}
+                    className={statementRendererClasses.inputEditorTemplate + ' ' + classNames}
                     onKeyDown={inputEnterHandler}
                     onInput={inputChangeHandler}
                     size={userInput.length}
@@ -159,10 +173,11 @@ export function InputEditor(props: InputEditorProps) {
                     style={{ maxWidth: userInput === '' ? '10px' : 'fit-content' }}
                     spellCheck="false"
                 />
-            </ClickAwayListener>
+            </>
         ) : (
             <span
-                className={statementEditorClasses.inputEditorTemplate + ' ' + classNames}
+                data-testid="input-editor-span"
+                className={statementRendererClasses.inputEditorTemplate + ' ' + classNames}
                 onDoubleClick={handleDoubleClick}
             >
                 {placeHolder}

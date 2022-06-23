@@ -60,7 +60,12 @@ export function EndpointList(props: FormGeneratorProps) {
             onSelect(connector, name);
         };
         return (
-            <ListItem key={`endpoint-${name.toLowerCase()}`} button={true} onClick={handleOnSelect}>
+            <ListItem
+                key={`endpoint-${name.toLowerCase()}`}
+                data-testid={`${name.toLowerCase().replaceAll(" ", "-")}`}
+                button={true}
+                onClick={handleOnSelect}
+            >
                 <Typography variant="h4">{name}</Typography>
             </ListItem>
         );
@@ -145,10 +150,8 @@ export function EndpointList(props: FormGeneratorProps) {
         <FormControl data-testid="endpoint-list-form" className={formClasses.wizardFormControl}>
             <FormHeaderSection
                 onCancel={onCancel}
-                statementEditor={false}
                 formTitle={"lowcode.develop.configForms.endpointList.title"}
                 defaultMessage={"Action"}
-                toggleChecked={false}
             />
             <div className={formClasses.formWrapper}>
                 <div className={formClasses.formFeilds}>

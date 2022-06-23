@@ -21,24 +21,38 @@
  * Common properties in the config schema.
  */
 export enum SchemaConstants {
+    ENUM = "enum",
+    ID = "id",
     ITEMS = "items",
     TYPE = "type",
+    VALUE = "value",
+    NAME = "name",
     DESCRIPTION = "description",
     PROPERTIES = "properties",
     REQUIRED = "required",
+    ADDITIONAL_PROPERTIES = "additionalProperties",
+    ANY_OF = "anyOf",
 }
 
 /**
  * Types of config values mapped into the model from the config schema.
  */
+
 export enum ConfigType {
     ARRAY = "array",
     BOOLEAN = "boolean",
+    ENUM = "enum",
     INTEGER = "integer",
+    FLOAT = "float",
+    RECORD = "record",
+    MAP = "map",
+    MODULE = "module",
     NUMBER = "number",
     OBJECT = "object",
     STRING = "string",
-    UNSUPPORTED = "unsupported", // Types other than the above ones.
+    UNION = "union",
+    UNSUPPORTED = "unsupported",
+    ANY_OF = "anyOf",
 }
 
 /**
@@ -64,16 +78,4 @@ export interface ConfigSchema {
     $schema: string;
     type: string;
     properties: object;
-}
-
-/**
- * Set the metadata values.
- * @param orgName     The organization of the Ballerina project.
- * @param packageName The package name of the Ballerina project.
- */
-export function setMetaData(orgName: string, packageName: string): MetaData {
-    return {
-        orgName,
-        packageName,
-    };
 }

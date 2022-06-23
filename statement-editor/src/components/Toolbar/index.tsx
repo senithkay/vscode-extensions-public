@@ -11,25 +11,60 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useMemo } from "react";
 
 import IconButton from "@material-ui/core/IconButton";
+import { StatementEditorHint } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
+import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
+import ToolbarConfigurableIcon from "../../assets/icons/ToolbarConfigurableIcon";
 import ToolbarDeleteIcon from "../../assets/icons/ToolbarDeleteIcon";
+import ToolbarDocumentationIcon from "../../assets/icons/ToolbarDocumentationIcon";
 import ToolbarRedoIcon from "../../assets/icons/ToolbarRedoIcon";
 import ToolbarUndoIcon from "../../assets/icons/ToolbarUndoIcon";
-import { CurrentModel } from "../../models/definitions";
+import {
+    ADD_CONFIGURABLE_LABEL,
+    CONFIGURABLE_NAME_CONSTRUCTOR,
+    CONFIGURABLE_TYPE_BOOLEAN,
+    CONFIGURABLE_TYPE_STRING
+} from "../../constants";
 import { StatementEditorContext } from "../../store/statement-editor-context";
-import { getRemainingContent } from "../../utils";
+import {
+    getExistingConfigurable,
+    getModuleElementDeclPosition,
+    getRemainingContent,
+    isConfigAllowedTypeDesc,
+    isNodeDeletable
+} from "../../utils";
 import { KeyboardNavigationManager } from "../../utils/keyboard-navigation-manager";
-import { StatementEditorViewState } from "../../utils/statement-editor-viewstate";
-import { INPUT_EDITOR_PLACEHOLDERS } from "../InputEditor/constants";
-import { useStatementEditorStyles } from "../styles";
+import { ModelType, StatementEditorViewState } from "../../utils/statement-editor-viewstate";
+import { useStatementEditorToolbarStyles } from "../styles";
 
-export default function Toolbar(){
-    const statementEditorClasses = useStatementEditorStyles();
-    const { modelCtx} = useContext(StatementEditorContext);
-    const { undo, redo, hasRedo, hasUndo, statementModel: completeModel, updateModel, currentModel } = modelCtx;
+interface ToolbarProps {
+    inlineDocumentHandler: (docBtnEnabled: boolean) => void
+}
+
+export default function Toolbar(props: ToolbarProps) {
+    const statementEditorClasses = useStatementEditorToolbarStyles();
+    const {  modelCtx, editorCtx, syntaxTree, stSymbolInfo } = useContext(StatementEditorContext);
+    const {
+        undo,
+        redo,
+        hasRedo,
+        hasUndo,
+        statementModel: completeModel,
+        updateModel,
+        currentModel,
+        hasSyntaxDiagnostics
+    } = modelCtx;
+    const {
+        editors,
+        updateEditor,
+        addConfigurable,
+        activeEditorId
+    } = editorCtx;
+    const { inlineDocumentHandler } = props;
+    const [docEnabled, setDocEnabled] = React.useState(false);
 
     const keyboardNavigationManager = new KeyboardNavigationManager()
     React.useEffect(() => {
@@ -43,21 +78,20 @@ export default function Toolbar(){
         }
     }, [currentModel]);
 
-    const isExprDeletable = (): boolean => {
-        if (currentModel.model){
-            const stmtViewState: StatementEditorViewState = currentModel.model.viewState as StatementEditorViewState;
-            let exprDeletable = !stmtViewState.exprNotDeletable;
-            if (currentModel.model.source && INPUT_EDITOR_PLACEHOLDERS.has(currentModel.model.source.trim())) {
-                exprDeletable =  stmtViewState.templateExprDeletable;
-            } else if (currentModel.model.value && INPUT_EDITOR_PLACEHOLDERS.has(currentModel.model.value.trim())) {
-                exprDeletable =  stmtViewState.templateExprDeletable;
-            }
-            return exprDeletable;
+    const [deletable, configurable] = useMemo(() => {
+        let modelDeletable = false;
+        let modelConfigurable = false;
+
+        if (currentModel.model) {
+            modelDeletable = isNodeDeletable(currentModel.model);
+            modelConfigurable = (currentModel.model.viewState as StatementEditorViewState).modelType === ModelType.EXPRESSION;
         }
-    }
+
+        return [modelDeletable, modelConfigurable]
+    }, [currentModel.model]);
 
     const onDelFunction = () => {
-        if (!!currentModel.model && isExprDeletable()){
+        if (!!currentModel.model && deletable){
             onClickOnDelete();
         }
     }
@@ -70,41 +104,106 @@ export default function Toolbar(){
         updateModel(newCode, newPosition);
     }
 
-    return(
-        <span className={statementEditorClasses.toolbar}>
-            <IconButton
-                onClick={undo}
-                disabled={!hasUndo}
-                className={statementEditorClasses.toolbarIcons}
-                style={{marginLeft: '14px', marginRight: '7px'}}
-            >
-                 <ToolbarUndoIcon/>
-            </IconButton>
-            <IconButton
-                onClick={redo}
-                disabled={!hasRedo}
-                className={statementEditorClasses.toolbarIcons}
-                style={{marginRight: '7px'}}
-            >
-                <ToolbarRedoIcon />
-            </IconButton>
-            {currentModel.model && isExprDeletable() ? (
-                <IconButton
-                    onClick={onClickOnDelete}
-                    style={{color: '#FE523C', marginRight: '14px'}}
-                    className={statementEditorClasses.toolbarIcons}
-                >
-                    <ToolbarDeleteIcon/>
-                </IconButton>
-            ) : (
-                <IconButton
-                    disabled={true}
-                    style={{color: '#8D91A3', marginRight: '14px'}}
-                    className={statementEditorClasses.toolbarIcons}
-                >
-                    <ToolbarDeleteIcon/>
-                </IconButton>
-            )}
-        </span>
+    const onClickOnConfigurable = () => {
+        updateEditor(activeEditorId, {
+            ...editors[activeEditorId],
+            model: completeModel,
+            source: completeModel.source,
+            selectedNodePosition: currentModel.model.position
+        });
+        const existingConfigurable = getExistingConfigurable(currentModel.model, stSymbolInfo);
+        if (existingConfigurable) {
+            editExistingConfigurable(existingConfigurable);
+        } else {
+            createNewConfigurable();
+        }
+    }
+
+    const createNewConfigurable = () => {
+        const configurableInsertPosition = getModuleElementDeclPosition(syntaxTree);
+        // TODO: Use the expected type provided by the LS, once it is available
+        //  (https://github.com/wso2-enterprise/internal-support-ballerina/issues/112)
+        const configurableType = CONFIGURABLE_TYPE_STRING;
+
+        const configurableStmt = `configurable ${configurableType} ${CONFIGURABLE_NAME_CONSTRUCTOR} = ?;`;
+
+        addConfigurable(ADD_CONFIGURABLE_LABEL, configurableInsertPosition, configurableStmt);
+    }
+
+    const editExistingConfigurable = (confModel: STNode) => {
+        const configurableInsertPosition = confModel.position;
+        const configurableStmt = confModel.source;
+        addConfigurable(ADD_CONFIGURABLE_LABEL, configurableInsertPosition, configurableStmt, true);
+    }
+
+    const onClickOnDocumentation = () => {
+        docEnabled ? setDocEnabled(false) : setDocEnabled(true);
+    }
+
+    useEffect(() => {
+        inlineDocumentHandler(docEnabled);
+    }, [docEnabled])
+
+    return (
+        <div className={statementEditorClasses.toolbar} data-testid="toolbar">
+            <div className={statementEditorClasses.toolbarSet}>
+                <StatementEditorHint content={"Undo"} >
+                    <IconButton
+                        onClick={undo}
+                        disabled={!hasUndo}
+                        className={statementEditorClasses.toolbarIcons}
+                        data-testid="toolbar-undo"
+                    >
+                        <ToolbarUndoIcon />
+                    </IconButton>
+                </StatementEditorHint>
+                <div className={statementEditorClasses.undoRedoSeparator} />
+                <StatementEditorHint content={"Redo"} >
+                    <IconButton
+                        onClick={redo}
+                        disabled={!hasRedo}
+                        className={statementEditorClasses.toolbarIcons}
+                        data-testid="toolbar-redo"
+                    >
+                        <ToolbarRedoIcon />
+                    </IconButton>
+                </StatementEditorHint>
+            </div>
+            <div className={statementEditorClasses.toolbarSet}>
+                <StatementEditorHint content={"Delete"} >
+                    <IconButton
+                        onClick={onClickOnDelete}
+                        disabled={!deletable}
+                        style={{color: deletable ? '#FE523C' : '#8D91A3', padding: deletable && '10px'}}
+                        className={statementEditorClasses.toolbarIcons}
+                        data-testid="toolbar-delete"
+                    >
+                        <ToolbarDeleteIcon/>
+                    </IconButton>
+                </StatementEditorHint>
+            </div>
+            <div className={statementEditorClasses.toolbarSet}>
+                <StatementEditorHint content={"Add configurable"} >
+                    <IconButton
+                        onClick={onClickOnConfigurable}
+                        disabled={!configurable}
+                        className={statementEditorClasses.toolbarIcons}
+                    >
+                        <ToolbarConfigurableIcon/>
+                    </IconButton>
+                </StatementEditorHint>
+            </div>
+            <div className={statementEditorClasses.toolbarSet}>
+                <StatementEditorHint content={"Documentation"} >
+                    <IconButton
+                        onClick={onClickOnDocumentation}
+                        style={docEnabled ? ({color : '#5567d5'}) : ({color: '#40404B'})}
+                        className={statementEditorClasses.toolbarIcons}
+                    >
+                        <ToolbarDocumentationIcon />
+                    </IconButton>
+                </StatementEditorHint>
+            </div>
+        </div>
     );
 }

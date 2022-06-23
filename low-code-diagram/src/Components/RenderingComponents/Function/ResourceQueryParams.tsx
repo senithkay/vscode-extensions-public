@@ -17,9 +17,12 @@ import {
     AnyTypeDesc,
     CommaToken,
     DefaultableParam,
+    DotToken,
     IdentifierToken,
     IncludedRecordParam,
     RequiredParam,
+    ResourcePathRestParam,
+    ResourcePathSegmentParam,
     RestParam,
     SlashToken,
     STKindChecker,
@@ -35,7 +38,7 @@ interface ResourceQueryParamsProps {
         | RequiredParam
         | RestParam
     )[];
-    relativeResourcePath: (IdentifierToken | SlashToken)[];
+    relativeResourcePath: (DotToken | IdentifierToken | ResourcePathRestParam | ResourcePathSegmentParam | SlashToken)[];
 }
 
 export function ResourceQueryParams(props: ResourceQueryParamsProps) {

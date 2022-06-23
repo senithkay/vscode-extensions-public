@@ -10,20 +10,27 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js jsx-no-lambda
+// tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useState } from "react";
 
-import { List, ListItem, ListItemIcon, ListItemText, Typography } from "@material-ui/core";
+import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
+import {
+    FUNCTION_COMPLETION_KIND,
+    METHOD_COMPLETION_KIND,
+    PROPERTY_COMPLETION_KIND
+} from "../../../constants";
 import { SuggestionItem } from "../../../models/definitions";
 import { InputEditorContext } from "../../../store/input-editor-context";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
-import { getSuggestionIconStyle } from "../../../utils";
+import { getExprWithArgs } from "../../../utils";
 import { KeyboardNavigationManager } from "../../../utils/keyboard-navigation-manager";
-import { acceptedCompletionKindForTypes } from "../../InputEditor/constants";
-import { useStatementEditorStyles } from "../../styles";
+import { useStatementEditorStyles, useStmtEditorHelperPanelStyles} from "../../styles";
+
+import { SuggestionsList } from "./SuggestionsList";
 
 export function LSSuggestions() {
+    const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
     const statementEditorClasses = useStatementEditorStyles();
     const inputEditorCtx = useContext(InputEditorContext);
     const [selectedListItem, setSelectedItem] = React.useState(0);
@@ -34,12 +41,13 @@ export function LSSuggestions() {
             updateModel,
         },
         suggestionsCtx: {
-            lsSuggestions
+            lsSuggestions,
+            lsSecondLevelSuggestions
         },
-        formCtx: {
-            formModelPosition
-        }
+        targetPosition
     } = useContext(StatementEditorContext);
+    const selectionForSecondLevel = lsSecondLevelSuggestions?.selection;
+    const secondLevelSuggestions = lsSecondLevelSuggestions?.secondLevelSuggestions;
     const resourceAccessRegex = /.+\./gm;
     const [lenghtOfSuggestions, setLength] = useState<number>(lsSuggestions.length)
     const [Suggestions, setSuggestions] = useState<SuggestionItem[]>(lsSuggestions);
@@ -74,69 +82,49 @@ export function LSSuggestions() {
     }, [selectedListItem]);
 
     const onClickLSSuggestion = (suggestion: SuggestionItem) => {
-        let variable = suggestion.value;
-        if (inputEditorCtx.userInput.includes('.')) {
-            variable = resourceAccessRegex.exec(inputEditorCtx.userInput) + suggestion.value;
+        const completionKind = suggestion.completionKind;
+        let value = completionKind === PROPERTY_COMPLETION_KIND ? suggestion.insertText : suggestion.value;
+        const prefix = (inputEditorCtx.userInput.includes('.') && resourceAccessRegex.exec(inputEditorCtx.userInput)[0])
+            || suggestion.prefix ;
+        if (completionKind === METHOD_COMPLETION_KIND || completionKind === FUNCTION_COMPLETION_KIND) {
+            value = getExprWithArgs(value, prefix);
         }
-        const regExp = /\(([^)]+)\)/;
-        if (regExp.exec(variable)) {
-            const paramArray = regExp.exec(variable)[1].split(',')
-            for (let i = 0; i < paramArray.length; i++) {
-                paramArray[i] = paramArray[i].split(' ').pop()
-            }
-            variable = variable.split('(')[0] + "(" + paramArray.toString() + ")";
-        }
-        updateModel(variable, currentModel ? currentModel.model.position : formModelPosition);
+        const nodePosition : NodePosition = currentModel
+            ? (currentModel.stmtPosition
+                ? currentModel.stmtPosition
+                : currentModel.model.position)
+            : targetPosition;
+        updateModel(value, nodePosition);
         inputEditorCtx.onInputChange('');
     }
 
     return (
         <>
-            { !!lsSuggestions?.length && (
+            {!!lsSuggestions?.length && (
                 <>
-                    <div className={statementEditorClasses.lsSuggestionList}>
-                        <List className={statementEditorClasses.suggestionList}>
-                            {
-                                lsSuggestions.map((suggestion: SuggestionItem, index: number) => (
-                                    <ListItem
-                                        button={true}
-                                        key={index}
-                                        onClick={() => onClickLSSuggestion(suggestion)}
-                                        selected={index === selectedListItem}
-                                        className={statementEditorClasses.suggestionListItem}
-                                        disableRipple={true}
-                                    >
-                                        <ListItemIcon
-                                            className={getSuggestionIconStyle(suggestion.suggestionType)}
-                                            style={{ minWidth: '8%', textAlign: 'left' }}
-                                        />
-                                        <ListItemText
-                                            style={{ flex: 'none', maxWidth: '80%' }}
-                                            primary={(
-                                                <Typography className={statementEditorClasses.suggestionValue}>
-                                                    {suggestion.value}
-                                                </Typography>
-                                            )}
-                                        />
-                                        { !acceptedCompletionKindForTypes.includes(suggestion.suggestionType) && (
-                                            <ListItemText
-                                                style={{ minWidth: '10%', marginLeft: '8px' }}
-                                                primary={(
-                                                    <Typography className={statementEditorClasses.suggestionDataType}>
-                                                        {suggestion.kind}
-                                                    </Typography>
-                                                )}
-                                            />
-                                        )}
-                                    </ListItem>
-                                ))
-                            }
-                        </List>
+                    <div className={stmtEditorHelperClasses.lsSuggestionList}>
+                        <div className={statementEditorClasses.stmtEditorExpressionWrapper}>
+                            <SuggestionsList
+                                lsSuggestions={lsSuggestions}
+                                selectedListItem={selectedListItem}
+                                onClickLSSuggestion={onClickLSSuggestion}
+                            />
+                            {!!secondLevelSuggestions?.length && (
+                                <SuggestionsList
+                                    lsSuggestions={secondLevelSuggestions}
+                                    selectedListItem={selectedListItem}
+                                    onClickLSSuggestion={onClickLSSuggestion}
+                                    selection={selectionForSecondLevel}
+                                />
+                            )}
+                        </div>
                     </div>
                 </>
             )}
-            { !lsSuggestions?.length && (
-                <p className={statementEditorClasses.noSuggestionText}>Suggestions not available</p>
+            {!lsSuggestions?.length && (
+                <div className={statementEditorClasses.stmtEditorInnerWrapper}>
+                    <p>Suggestions not available</p>
+                </div>
             )}
         </>
     );
