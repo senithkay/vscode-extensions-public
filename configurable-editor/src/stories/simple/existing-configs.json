@@ -8,11 +8,11 @@
             "port2": 0,
             "age2": 45,
             "isAdmin1": false,
-            "salary1": 1000.0,
+            "salary1": 1000.7,
             "height1": 23.2,
             "name1": "Jack",
             "port1": 9091,
-            "age1": 22
+            "age1": 22.9
         }
     }
 }

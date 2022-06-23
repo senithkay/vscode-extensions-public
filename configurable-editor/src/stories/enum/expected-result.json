@@ -1,54 +1,60 @@
 {
-    "orgName": {
-        "test": {
-            "switches": [
-                true,
-                false,
-                false
-            ],
-            "rates": [
-                11.56,
-                0.98
-            ],
-            "values": [
-                12.2
-            ],
-            "colors": [
-                "green",
-                "red"
-            ],
-            "count": [
-                12.8,
-                55.0
-            ],
-            "ports": [
-                12,
-                10
-            ],
-            "people": [
+    "id": "1",
+    "isRequired": true,
+    "name": "root",
+    "properties": [
+        {
+            "description": "",
+            "id": "1-2",
+            "isRequired": true,
+            "name": "person",
+            "properties": [
                 {
-                    "name": "Jack",
-                    "type": "student"
+                    "id": "1-2-1",
+                    "isRequired": true,
+                    "name": "name",
+                    "type": "string",
+                    "value": "Jessica"
                 },
                 {
-                    "name": "Jill"
+                    "id": "1-2-2",
+                    "isRequired": true,
+                    "name": "country",
+                    "type": "enum",
+                    "value": "United States"
                 }
             ],
-            "employees": [
-                {
-                    "name": "Jane",
-                    "age": 45
+            "schema": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "country": {
+                        "enum": [
+                            "United States",
+                            "Sri Lanka"
+                        ]
+                    }
                 },
-                {
-                    "name": "Robin",
-                    "age": 23
-                }
-            ],
-            "users": [
-                {
-                    "hello": "everyone"
-                }
-            ]
+                "additionalProperties": false,
+                "required": [
+                    "name",
+                    "country"
+                ],
+                "name": "user/test:0.1.0:Person",
+                "description": ""
+            },
+            "type": "object"
+        },
+        {
+            "description": "",
+            "id": "1-1",
+            "isRequired": false,
+            "name": "country",
+            "type": "enum",
+            "value": "Sri Lanka"
         }
-    }
+    ],
+    "type": "object"
 }

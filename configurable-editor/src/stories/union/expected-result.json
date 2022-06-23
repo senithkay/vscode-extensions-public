@@ -1,54 +1,163 @@
 {
-    "orgName": {
-        "test": {
-            "switches": [
-                true,
-                false,
-                false
-            ],
-            "rates": [
-                11.56,
-                0.98
-            ],
-            "values": [
-                12.2
-            ],
-            "colors": [
-                "green",
-                "red"
-            ],
-            "count": [
-                12.8,
-                55.0
-            ],
-            "ports": [
-                12,
-                10
-            ],
-            "people": [
-                {
-                    "name": "Jack",
-                    "type": "student"
+    "id": "1",
+    "isRequired": true,
+    "name": "root",
+    "properties": [
+        {
+            "description": "",
+            "id": "1-1",
+            "isRequired": true,
+            "name": "code1",
+            "schema": {
+                "anyOf": [
+                    {
+                        "type": "integer"
+                    },
+                    {
+                        "type": "string"
+                    }
+                ],
+                "description": ""
+            },
+            "type": "anyOf",
+            "value": {
+                "description": "",
+                "id": "1-1",
+                "isRequired": true,
+                "name": "code1",
+                "type": "integer",
+                "value": 85
+            }
+        },
+        {
+            "description": "",
+            "id": "1-2",
+            "isRequired": true,
+            "name": "code2",
+            "schema": {
+                "anyOf": [
+                    {
+                        "type": "integer"
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "type": "string"
+                            },
+                            "age": {
+                                "type": "integer"
+                            }
+                        },
+                        "additionalProperties": false,
+                        "required": [
+                            "name",
+                            "age"
+                        ],
+                        "name": "user/test:0.1.0:Person"
+                    }
+                ],
+                "description": ""
+            },
+            "type": "anyOf",
+            "value": {
+                "description": "",
+                "id": "1-2",
+                "isRequired": true,
+                "name": "code2",
+                "properties": [
+                    {
+                        "id": "1-2-1",
+                        "isRequired": true,
+                        "name": "name",
+                        "type": "string",
+                        "value": "Kylie"
+                    },
+                    {
+                        "id": "1-2-2",
+                        "isRequired": true,
+                        "name": "age",
+                        "type": "integer",
+                        "value": 12
+                    }
+                ],
+                "schema": {
+                    "type": "object",
+                    "properties": {
+                        "name": {
+                            "type": "string"
+                        },
+                        "age": {
+                            "type": "integer"
+                        }
+                    },
+                    "additionalProperties": false,
+                    "required": [
+                        "name",
+                        "age"
+                    ],
+                    "name": "user/test:0.1.0:Person"
                 },
-                {
-                    "name": "Jill"
+                "type": "object"
+            }
+        },
+        {
+            "description": "",
+            "id": "1-3",
+            "isRequired": false,
+            "name": "code3",
+            "schema": {
+                "anyOf": [
+                    {
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "type": "string"
+                            },
+                            "id": {
+                                "type": "integer"
+                            }
+                        },
+                        "additionalProperties": false,
+                        "required": [
+                            "name",
+                            "id"
+                        ],
+                        "name": "user/test:0.1.0:Student"
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "type": "string"
+                            },
+                            "age": {
+                                "type": "integer"
+                            }
+                        },
+                        "additionalProperties": false,
+                        "required": [
+                            "name",
+                            "age"
+                        ],
+                        "name": "user/test:0.1.0:Person"
+                    }
+                ],
+                "description": ""
+            },
+            "type": "anyOf",
+            "value": {
+                "description": "",
+                "id": "1-3",
+                "isRequired": false,
+                "name": "code3",
+                "type": "unsupported",
+                "value": {
+                    "name": "Nathan",
+                    "id": 3451
                 }
-            ],
-            "employees": [
-                {
-                    "name": "Jane",
-                    "age": 45
-                },
-                {
-                    "name": "Robin",
-                    "age": 23
-                }
-            ],
-            "users": [
-                {
-                    "hello": "everyone"
-                }
-            ]
+            }
         }
-    }
+    ],
+    "type": "object"
 }
