@@ -6,7 +6,7 @@ import {
 	IntersectionTypeDesc, IntTypeDesc, JsonTypeDesc, MappingConstructor, MapTypeDesc, NeverTypeDesc, NilTypeDesc, ObjectTypeDesc,
 	OptionalTypeDesc, ParenthesisedTypeDesc, QualifiedNameReference, ReadonlyTypeDesc, RecordField, RecordFieldWithDefaultValue, RecordTypeDesc,
 	RequiredParam,
-	SimpleNameReference, SingletonTypeDesc, STKindChecker, STNode, StreamTypeDesc, StringTypeDesc, TableTypeDesc,
+	SimpleNameReference, SingletonTypeDesc, SpecificField, STKindChecker, STNode, StreamTypeDesc, StringTypeDesc, TableTypeDesc,
 	TupleTypeDesc, TypeDefinition, TypedescTypeDesc, TypeReference, UnionTypeDesc, XmlTypeDesc
 } from '@wso2-enterprise/syntax-tree';
 
@@ -23,6 +23,10 @@ export type TypeDescriptor = AnyTypeDesc | AnydataTypeDesc | ArrayTypeDesc | Boo
 	| SingletonTypeDesc | StreamTypeDesc | StringTypeDesc | TableTypeDesc | TupleTypeDesc | TypedescTypeDesc | UnionTypeDesc
 	| XmlTypeDesc;
 
+export interface SpecificFieldMappingFieldAccess {
+	fields: SpecificField[];
+	value: FieldAccess|SimpleNameReference;
+}
 
 export class DataMapperNodeModel extends NodeModel<NodeModelGenerics & DataMapperNodeModelGenerics> {
 	public readonly fnST: FunctionDefinition;
@@ -88,40 +92,64 @@ export class DataMapperNodeModel extends NodeModel<NodeModelGenerics & DataMappe
 
 	public initLinks() {
 		if (STKindChecker.isExpressionFunctionBody(this.value)) {
-			this.addLinks(this.value.expression as MappingConstructor, this.typeDef.typeDescriptor as RecordTypeDesc);
+			const mappings = this.genMappings(this.value.expression as MappingConstructor);
+			console.log(mappings);
 		} else if (STKindChecker.isRequiredParam(this.value)) {
 			// Only create links from target side
 		}
 	}
 
-	private addLinks(val: MappingConstructor|FieldAccess, typeNode: RecordField | RecordTypeDesc) {
-		if (STKindChecker.isMappingConstructor(val)) {
+	private createLinks() {
+		// if (STKindChecker.isSpecificField(val)) {
+		// 	let valueExpr = val.valueExpr;
+		// 	if (STKindChecker.isFieldAccess(valueExpr)) {
+		// 		const fieldNames: string[] = [];
+		// 		while (STKindChecker.isFieldAccess(valueExpr)) {
+		// 			fieldNames.push(valueExpr.fieldName.value);
+		// 			valueExpr = valueExpr.expression as FieldAccess|SimpleNameReference;
+		// 		}
+		// 		if (STKindChecker.isSimpleNameReference(valueExpr)) {
+		// 			fieldNames.push(valueExpr.name.value);
+		// 		}
+		// 		const paramNode = this.fnST.functionSignature.parameters
+		// 			.find((param) => 
+		// 				STKindChecker.isRequiredParam(param) 
+		// 				&& param.paramName?.value === fieldNames[fieldNames.length - 1]
+		// 			) as RequiredParam;
+		// 		const findNode = this.findNodeByValueNode.bind(this);
+		// 		const nodeForParam = findNode(paramNode);
+		// 		if (nodeForParam) {
+					
+		// 		}
+		// 	}
+		// }
+	}
+
+	private genMappings(val: MappingConstructor, parentFields?: SpecificField[]) {
+		let foundMappings: SpecificFieldMappingFieldAccess[] = [];
+		let currentFields = [...(parentFields ? parentFields : [])];
+		if (val) {
 			val.fields.forEach((field) => {
 				if (STKindChecker.isSpecificField(field)) {
-					let valueExpr = field.valueExpr;
-					if (STKindChecker.isFieldAccess(valueExpr)) {
-						const fieldNames: string[] = [];
-						while (STKindChecker.isFieldAccess(valueExpr)) {
-							fieldNames.push(valueExpr.fieldName.value);
-							valueExpr = valueExpr.expression as FieldAccess|SimpleNameReference;
-						}
-						if (STKindChecker.isSimpleNameReference(valueExpr)) {
-							fieldNames.push(valueExpr.name.value);
-						}
-						const paramNode = this.fnST.functionSignature.parameters
-							.find((param) => 
-								STKindChecker.isRequiredParam(param) 
-								&& param.paramName?.value === fieldNames[fieldNames.length - 1]
-							) as RequiredParam;
-						const findNode = this.findNodeByValueNode.bind(this);
-						const nodeForParam = findNode(paramNode);
-						if (nodeForParam) {
-
-						}
+					if (STKindChecker.isMappingConstructor(field.valueExpr)) {
+						foundMappings = [...foundMappings, ...this.genMappings(field.valueExpr, [...currentFields, field])];
+					} else if (STKindChecker.isFieldAccess(field.valueExpr)) {
+						foundMappings.push({
+							fields: [...currentFields, field],
+							value: field.valueExpr
+						});
+					} else if (STKindChecker.isSimpleNameReference(field.valueExpr)) {
+						foundMappings.push({
+							fields: [...currentFields, field],
+							value: field.valueExpr
+						});
+					} else {
+						// TODO handle other types of expressions here
 					}
 				}
 			})
 		}
+		return foundMappings;
 	}
 
 	private findNodeByValueNode(value: ExpressionFunctionBody | RequiredParam) {
