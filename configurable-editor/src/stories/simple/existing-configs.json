@@ -1,0 +1,18 @@
+{
+    "orgName": {
+        "test": {
+            "isAdmin2": true,
+            "salary2": 14234.6,
+            "height2": 34.2,
+            "name2": "Kevin",
+            "port2": 0,
+            "age2": 45,
+            "isAdmin1": false,
+            "salary1": 1000.0,
+            "height1": 23.2,
+            "name1": "Jack",
+            "port1": 9091,
+            "age1": 22
+        }
+    }
+}

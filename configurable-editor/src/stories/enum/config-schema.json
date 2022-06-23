@@ -1,0 +1,50 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+        "user": {
+            "type": "object",
+            "properties": {
+                "test": {
+                    "type": "object",
+                    "properties": {
+                        "country": {
+                            "enum": [
+                                "United States",
+                                "Sri Lanka"
+                            ],
+                            "description": ""
+                        },
+                        "person": {
+                            "type": "object",
+                            "properties": {
+                                "name": {
+                                    "type": "string"
+                                },
+                                "country": {
+                                    "enum": [
+                                        "United States",
+                                        "Sri Lanka"
+                                    ]
+                                }
+                            },
+                            "additionalProperties": false,
+                            "required": [
+                                "name",
+                                "country"
+                            ],
+                            "name": "user/test:0.1.0:Person",
+                            "description": ""
+                        }
+                    },
+                    "additionalProperties": false,
+                    "required": [
+                        "person"
+                    ]
+                }
+            },
+            "additionalProperties": false
+        }
+    },
+    "additionalProperties": false
+}

@@ -1,0 +1,54 @@
+{
+    "orgName": {
+        "test": {
+            "switches": [
+                true,
+                false,
+                false
+            ],
+            "rates": [
+                11.56,
+                0.98
+            ],
+            "values": [
+                12.2
+            ],
+            "colors": [
+                "green",
+                "red"
+            ],
+            "count": [
+                12.8,
+                55.1
+            ],
+            "ports": [
+                12,
+                10
+            ],
+            "people": [
+                {
+                    "name": "Jack",
+                    "type": "student"
+                },
+                {
+                    "name": "Jill"
+                }
+            ],
+            "employees": [
+                {
+                    "name": "Jane",
+                    "age": 45
+                },
+                {
+                    "name": "Robin",
+                    "age": 23
+                }
+            ],
+            "users": [
+                {
+                    "hello": "everyone"
+                }
+            ]
+        }
+    }
+}
