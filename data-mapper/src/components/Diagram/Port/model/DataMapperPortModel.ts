@@ -29,16 +29,15 @@ export class DataMapperPortModel extends PortModel<PortModelGenerics & DataMappe
 			sourcePortChanged: (evt) => {
 				// lm.addLabel(evt.port.getName() + " = " + lm.getTargetPort().getName());
 			},
-			targetPortChanged: (evt) => {
-
-				lm.addLabel(createSpecificFieldSource(lm));
+			targetPortChanged: async (evt) => {
+				lm.addLabel(await createSpecificFieldSource(lm));
 			}
 		});
 		return lm;
 	}
 }
 
-function createSpecificFieldSource(link: DataMapperLinkModel) {
+async function createSpecificFieldSource(link: DataMapperLinkModel) {
 	let source = "";
 	let lhs = "";
 	let rhs = "";
@@ -75,8 +74,8 @@ function createSpecificFieldSource(link: DataMapperLinkModel) {
 		const targetNode = targetPort.getNode() as DataMapperNodeModel;
 		if (STKindChecker.isExpressionFunctionBody(targetNode.value)) {
 			let mappingConstruct = targetNode.value.expression as MappingConstructor;
-			let targetPos = undefined;
-			let targetMappingConstruct = undefined;
+			let targetPos: NodePosition = undefined;
+			let targetMappingConstruct = mappingConstruct;
 			let fromFieldIdx = -1;
 			if (parentFieldNames.length > 0) {
 				const fieldNames = parentFieldNames.reverse();
@@ -98,7 +97,7 @@ function createSpecificFieldSource(link: DataMapperLinkModel) {
 					if (missingFields.length > 0) {
 						source = `\t${missingFields[0]}: {\n${createSpeficField(missingFields.slice(1))}}`;
 					} else {
-						source = `\t${lhs}: ${rhs}\n`;
+						source = `\t${lhs}: ${rhs}`;
 					}
 					return source;
 				}
@@ -106,14 +105,35 @@ function createSpecificFieldSource(link: DataMapperLinkModel) {
 					const missingFields = fieldNames.slice(fromFieldIdx);
 					source = createSpeficField(missingFields);
 				}
-				console.log(source);
 			} else {
-				const openBrancePos = mappingConstruct.openBrace.position as NodePosition;
-				console.log(openBrancePos);
 				source = `${lhs}: ${rhs}`;
-				console.log(source);
 			}
+			targetPos = targetMappingConstruct.openBrace.position as NodePosition;
+			if (targetMappingConstruct.fields.length > 0) {
+				source += ".\n";
+			}
+			const langClient = await targetNode.langClientPromise;
+			const updateFileContent = targetNode.updateFileContent;
+			const stModifyResp = await langClient.stModify({
+				documentIdentifier: {
+					uri: `file://${targetNode.filePath}`
+				},
+				astModifications: [
+					{ 
+						type: "INSERT",
+						config: {
+							"STATEMENT": source,
+						},
+						endColumn: targetPos.endColumn,
+						endLine: targetPos.endLine,
+						startColumn: targetPos.endColumn,
+						startLine: targetPos.endLine
+					}
+				]
+			});
+			updateFileContent(targetNode.filePath, stModifyResp.source);
+			console.log(stModifyResp);
 		}
 	}
-	return source;
+	return `${lhs} = ${rhs}`;
 }

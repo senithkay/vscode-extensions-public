@@ -1,4 +1,5 @@
 import { NodeModel, NodeModelGenerics } from '@projectstorm/react-diagrams';
+import { BalleriaLanguageClient } from '@wso2-enterprise/ballerina-languageclient';
 import {
 	AnydataTypeDesc, AnyTypeDesc, ArrayTypeDesc, BooleanTypeDesc, ByteTypeDesc, DecimalTypeDesc,
 	DistinctTypeDesc, ErrorTypeDesc, ExpressionFunctionBody, FloatTypeDesc, FunctionTypeDesc, FutureTypeDesc, HandleTypeDesc,
@@ -28,8 +29,14 @@ export class DataMapperNodeModel extends NodeModel<NodeModelGenerics & DataMappe
 	public readonly supportOutput: boolean;
 	public readonly supportInput: boolean
 	public readonly value: ExpressionFunctionBody | RequiredParam;
+	public readonly filePath: string;
+	public readonly langClientPromise: Promise<BalleriaLanguageClient>;
+    public readonly updateFileContent: (filePath: string, content: string) => Promise<boolean>;
 
-	constructor(value: ExpressionFunctionBody | RequiredParam, typeDef: TypeDefinition, supportOutput: boolean, supportInput: boolean) {
+
+	constructor(value: ExpressionFunctionBody | RequiredParam, typeDef: TypeDefinition, supportOutput: boolean, supportInput: boolean,
+				filePath: string, lCP: Promise<BalleriaLanguageClient>,
+				updateFileContent: (filePath: string, content: string) => Promise<boolean>) {
 		super({
 			type: 'datamapper'
 		});
@@ -37,6 +44,9 @@ export class DataMapperNodeModel extends NodeModel<NodeModelGenerics & DataMappe
 		this.typeDef = typeDef;
 		this.supportInput = supportInput;
 		this.supportOutput = supportOutput;
+		this.filePath = filePath;
+		this.langClientPromise = lCP;
+		this.updateFileContent = updateFileContent;
 		this.addPorts();
 	}
 

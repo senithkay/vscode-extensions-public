@@ -24,7 +24,8 @@ export function DataMapperWrapper(props: DataMapperWrapperProps) {
 
     const updateFileContentOverride = (fPath: string, newContent: string) => {
         setFileContent(newContent);
-        return updateFileContent(fPath, newContent);
+        return Promise.resolve(true);
+        // return updateFileContent(fPath, newContent);
     }
 
     const newProps = {
@@ -53,7 +54,7 @@ export function DataMapperWrapper(props: DataMapperWrapperProps) {
             setFunctionST(undefined);
         }
         getSyntaxTree();
-    }, [didOpen])
+    }, [didOpen, fileContent])
 
     useEffect(() => {
         async function openFileInLS() {
@@ -94,6 +95,7 @@ export function DataMapperWrapper(props: DataMapperWrapperProps) {
                 fnST={functionST}
                 langClientPromise={langClientPromise}
                 filePath={filePath}
+                updateFileContent={updateFileContentOverride}
             />
             <hr />
             <CodeEditor

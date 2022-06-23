@@ -11,10 +11,11 @@ export interface DataMapperProps {
     fnST: FunctionDefinition;
     langClientPromise: Promise<BalleriaLanguageClient>;
     filePath: string;
+    updateFileContent: (filePath: string, content: string) => Promise<boolean>;
 }
 
 function DataMapperC(props: DataMapperProps) {
-    const { fnST, langClientPromise, filePath } = props;
+    const { fnST, langClientPromise, filePath, updateFileContent } = props;
     const [nodes, setNodes] = useState<DataMapperNodeModel[]>([]);
 
     const setFunctionST = useDMStore((state) => state.setFunctionST);
@@ -30,7 +31,10 @@ function DataMapperC(props: DataMapperProps) {
                 fnST.functionBody as ExpressionFunctionBody, // TODO fix once we support other forms of functions
                 typeDef,
                 false,
-                true
+                true,
+                filePath,
+                langClientPromise,
+                updateFileContent
             );
             outputNode.setPosition(800, 100);
 
@@ -45,7 +49,10 @@ function DataMapperC(props: DataMapperProps) {
                         param,
                         paramTypeDef,
                         true,
-                        false
+                        false,
+                        filePath,
+                        langClientPromise,
+                        updateFileContent
                     );
                     paramNode.setPosition(100, 100 + i * 400); // 400 is an arbitary value, need to calculate exact heigt;
                     inputNodes.push(paramNode);

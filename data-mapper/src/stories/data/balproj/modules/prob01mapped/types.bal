@@ -1,7 +1,4 @@
 
-function transform(InputMessage input) returns TransformedMessage =>
-{};
-
 type InputMessage record {
     record {
         string EventType;
@@ -38,27 +35,28 @@ type InputMessage record {
     string CreateDate;
 };
 
+ 
 // Output types
-
+ 
 type TransformedMessage record {
-    record {
-        string MessageContentType;
         record {
-            string[] Content;
+            string MessageContentType;
             record {
-                int Type;
-                string Id;
-                boolean Confirmed;
-            }[] Assets;
-            record {
-                decimal Latitude;
-                decimal Longitude;
-            } Coordinates;
-            string FormId;
-            string CreateDate;
-        } MessageContent;
-        string ParentMessageGuid;
-        string MessageGuid;
-    } data;
-    string 'type;
-};
+                string[] Content;
+                record {
+                    int Type;
+                    string Id;
+                    boolean Confirmed;
+                }[] Assets;
+                record {
+                    decimal Latitude;
+                    decimal Longitude;
+                } Coordinates;
+                string FormId;
+                string CreateDate;
+            } MessageContent;
+            string ParentMessageGuid;
+            string MessageGuid;
+        } data;
+        string 'type;
+    };
