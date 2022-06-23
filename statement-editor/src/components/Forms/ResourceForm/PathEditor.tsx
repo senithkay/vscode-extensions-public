@@ -215,7 +215,7 @@ export function PathEditor(props: PathEditorProps) {
                         color="primary"
                         disabled={(syntaxDiag !== "") || readonly}
                     >
-                        Add parameter
+                        Add Path
                     </Button>
                 </div>
             )}

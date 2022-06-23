@@ -75,7 +75,7 @@ export function getBallerinaPayloadType(payload: Payload, addComma?: boolean): s
         && payload.name !== "" ? ("@http:Payload " + payload.type + " " + payload.name + (addComma ? ", " : "")) : "";
 }
 
-export function getQueryParamConfig(queryParamString: string): string[] {
+export function getEnabledQueryParams(queryParamString: string): string[] {
     const payloadAvailable = queryParamString?.includes("@http:Payload");
     const requestAvailable = queryParamString?.includes("http:Request");
     const callerAvailable = queryParamString?.includes("http:Caller");
@@ -87,7 +87,7 @@ export function getQueryParamConfig(queryParamString: string): string[] {
         paramOptions = optionsWithoutCaller;
     } else if (!payloadAvailable && requestAvailable && !callerAvailable) {
         paramOptions = optionsWithoutRequest;
-    } else if (!payloadAvailable && !requestAvailable && !callerAvailable) {
+    } else if (payloadAvailable && !requestAvailable && !callerAvailable) {
         paramOptions = optionsWithoutPayload;
     } else if (!payloadAvailable && requestAvailable && callerAvailable) {
         paramOptions = queryNPayloadOption;

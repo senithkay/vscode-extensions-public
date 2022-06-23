@@ -16,6 +16,7 @@ import { useIntl } from "react-intl";
 
 import { Divider, FormControl } from "@material-ui/core";
 import {
+    createResource,
     getSource,
     updateResourceSignature
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
@@ -62,10 +63,11 @@ export function ResourceForm(props: FunctionProps) {
     const connectorClasses = connectorStyles();
     const intl = useIntl();
 
+    const resources = getPathOfResources(model?.relativeResourcePath);
     // States related to component model
     const [functionName, setFunctionName] = useState<string>(model?.functionName?.value);
     const [path, setPath] = useState<FormEditorField>({
-        value: model ? getPathOfResources(model.relativeResourcePath) : "", isInteracted: false
+        value: model ? (resources === "." ? "" : resources) : "", isInteracted: false
     });
     const [isParamInProgress, setIsParamInProgress] = useState(false);
     const [queryParam, setQueryParam] = useState<FormEditorField>({
@@ -125,7 +127,8 @@ export function ResourceForm(props: FunctionProps) {
     const handleResourceParamChange = async (resMethod: string, pathStr: string, queryParamStr: string,
                                              payloadStr: string, caller: boolean, request: boolean,
                                              returnStr: string, diagColumnOffset: number = -4) => {
-        const codeSnippet = getSource(updateResourceSignature(resMethod, pathStr, queryParamStr, payloadStr, caller,
+        const pathString = pathStr ? pathStr : ".";
+        const codeSnippet = getSource(updateResourceSignature(resMethod, pathString, queryParamStr, payloadStr, caller,
             request, returnStr, targetPosition));
         const position = model ? ({
             startLine: model.functionName.position.startLine - 1,
@@ -149,7 +152,8 @@ export function ResourceForm(props: FunctionProps) {
 
     const handleMethodChange = async (value: string) => {
         setFunctionName(value);
-        await handleResourceParamChange(value, path.value, queryParam.value, "", false, false,
+        await handleResourceParamChange(value.toLowerCase(), path.value, queryParam.value, "",
+            false, false,
             returnType.value);
     };
 
@@ -188,6 +192,21 @@ export function ResourceForm(props: FunctionProps) {
             false, false, value, -3);
     }
 
+    const handleOnSave = () => {
+        if (isEdit) {
+            applyModifications([
+                updateResourceSignature(functionName, path.value ? path.value : ".", queryParam.value,
+                    "", false, false, returnType?.value, targetPosition)
+            ]);
+        } else {
+            applyModifications([
+                createResource(functionName, path.value, path.value ? path.value : ".", "",
+                    false, false, returnType?.value, targetPosition)
+            ]);
+        }
+        onCancel();
+    }
+
     const handleParamChangeInProgress = (isInProgress: boolean) => {
         setIsParamInProgress(isInProgress);
     };
@@ -199,7 +218,7 @@ export function ResourceForm(props: FunctionProps) {
     useEffect(() => {
         if (model) {
             if (!isParamInProgress) {
-                setPath({...path, value: getPathOfResources(model.relativeResourcePath)});
+                setPath({...path, value: (resources === "." ? "" : resources)});
             }
             if (!isQueryInProgress) {
                 setQueryParam({
@@ -210,10 +229,10 @@ export function ResourceForm(props: FunctionProps) {
         } else {
             setPath({...path, value: ""});
         }
-        setFunctionName(model?.functionName?.value);
         setReturnType({
             value: model ? model.functionSignature?.returnTypeDesc?.type?.source?.trim() : "", isInteracted: false
         });
+        setFunctionName(model?.functionName?.value);
     }, [model]);
 
     return (
@@ -233,13 +252,13 @@ export function ResourceForm(props: FunctionProps) {
                             <div className={connectorClasses.methodTypeContainer}>
                                 <div className={connectorClasses.resourceMethodTitle}>{httpMethodTitle}</div>
                                 <SelectDropdownWithButton
-                                    dataTestId="api-return-type"
-                                    defaultValue={functionName?.toUpperCase()}
+                                    dataTestId="api-method"
+                                    defaultValue={functionName ? functionName?.toUpperCase() : ""}
                                     customProps={{ values: SERVICE_METHODS, disableCreateNew: true }}
                                     onChange={handleMethodChange}
                                     label="HTTP Method"
                                     hideLabel={true}
-                                    disabled={isParamInProgress}
+                                    disabled={isParamInProgress || isQueryInProgress}
                                 />
                             </div>
                             <div className={connectorClasses.resourcePathWrapper}>
@@ -262,8 +281,8 @@ export function ResourceForm(props: FunctionProps) {
                                         onBlur={null}
                                         placeholder={"."}
                                         size="small"
-                                        disabled={isParamInProgress || (currentComponentSyntaxDiag &&
-                                            currentComponentName !== "Path")}
+                                        disabled={(isParamInProgress || (currentComponentSyntaxDiag &&
+                                            currentComponentName !== "Path")) || isQueryInProgress}
                                     />
                                 </ConfigPanelSection>
                             </div>
@@ -271,8 +290,8 @@ export function ResourceForm(props: FunctionProps) {
                         <PathEditor
                             relativeResourcePath={(path?.isInteracted || isEdit) ? path.value : ""}
                             syntaxDiag={currentComponentSyntaxDiag}
-                            readonly={!isParamInProgress && (currentComponentSyntaxDiag?.length > 0 ||
-                                (pathTypeSemDiagnostics !== "" || pathNameSemDiagnostics !== ""))}
+                            readonly={(!isParamInProgress && (currentComponentSyntaxDiag?.length > 0 ||
+                                (pathTypeSemDiagnostics !== "" || pathNameSemDiagnostics !== "")) || isQueryInProgress)}
                             pathNameSemDiag={pathNameSemDiagnostics}
                             pathTypeSemDiag={pathTypeSemDiagnostics}
                             onChange={handlePathParamEditorChange}
@@ -281,7 +300,7 @@ export function ResourceForm(props: FunctionProps) {
                         <Divider className={connectorClasses.sectionSeperatorHR} />
                         <QueryParamEditor
                             queryParamString={queryParam.value}
-                            readonly={false}
+                            readonly={(currentComponentSyntaxDiag?.length > 0) || (isParamInProgress)}
                             syntaxDiag={currentComponentSyntaxDiag}
                             onChangeInProgress={handleQueryChangeInProgress}
                             nameSemDiag={queryNameSemDiagnostics}
@@ -308,17 +327,6 @@ export function ResourceForm(props: FunctionProps) {
                             disabled={isParamInProgress || isQueryInProgress || (currentComponentSyntaxDiag
                                 && currentComponentName !== "Return")}
                         />
-                        {/*    {advanceSwitch}*/}
-                        {/*</div>*/}
-                        {/*<div>*/}
-                        {/*    {toggleMainAdvancedMenu && advanceUI}*/}
-                        {/*</div>*/}
-                        {/*<Section*/}
-                        {/*    title={returnTypeTitle}*/}
-                        {/*    tooltipWithExample={{ title: returnTitle, content: returnTypeExample }}*/}
-                        {/*>*/}
-                        {/*    {initialLoaded && returnUIWithExpressionEditor}*/}
-                        {/*</Section>*/}
                     </div>
                     <div className={classes.serviceFooterWrapper}>
                         <SecondaryButton
@@ -331,8 +339,10 @@ export function ResourceForm(props: FunctionProps) {
                                 dataTestId="save-btn"
                                 text={saveButtonText}
                                 className={classes.saveBtn}
-                                onClick={null}
-                                // disabled={isFileSaving || !isValidReturnExpr || (!isValidPath && !toggleMainAdvancedMenu) || (togglePayload && !isValidPayload)}
+                                onClick={handleOnSave}
+                                disabled={(currentComponentSyntaxDiag !== undefined) || (pathTypeSemDiagnostics !== "")
+                                    || (pathNameSemDiagnostics !== "") || (queryTypeSemDiagnostics !== "") ||
+                                    (queryNameSemDiagnostics !== "")}
                             />
                         </div>
                     </div>

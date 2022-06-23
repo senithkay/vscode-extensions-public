@@ -27,15 +27,15 @@ import { StmtDiagnostic } from "../../../models/definitions";
 import { useStyles } from "./styles";
 import { QueryParam, QueryParamCollection } from "./types";
 import {
+    allOptions,
     callerParameterOption,
     generateQueryStringFromQueryCollection,
-    getQueryParamCollection, getQueryParamConfig,
+    getEnabledQueryParams,
+    getQueryParamCollection,
     payloadParameterOption,
     queryParameterOption,
-    recalculateItemIds,
-    requestParameterOption
+    recalculateItemIds, requestParameterOption
 } from "./util";
-import {options} from "joi";
 
 export interface QueryParamEditorProps {
     queryParamString: string;
@@ -54,7 +54,7 @@ export function QueryParamEditor(props: QueryParamEditorProps) {
     const connectorClasses = connectorStyles();
     const classes = useStyles();
 
-    const paramOptions: string[] = getQueryParamConfig(queryParamString);
+    const paramOptions: string[] = getEnabledQueryParams(queryParamString);
     const queryParamCollection = getQueryParamCollection(queryParamString);
 
     // editingSegmentId > -1 when editing and -1 when no edit in progress
@@ -83,7 +83,8 @@ export function QueryParamEditor(props: QueryParamEditorProps) {
 
     const onParamAdd = (param : {id: number, name: string, dataType?: string}, option: string) => {
         const { id, name, dataType } = param;
-        queryParamState.queryParams.push({id, name, type: dataType, option});
+        const type = (option === payloadParameterOption) ? `@http:Payload ${dataType}` : dataType;
+        queryParamState.queryParams.push({id, name, type, option});
         setQueryParamState(queryParamState);
         setAddingParam(false);
         setDraftParam(undefined);
@@ -93,10 +94,11 @@ export function QueryParamEditor(props: QueryParamEditorProps) {
     };
     const onParamUpdate = (param : {id: number, name: string, dataType?: string}, option: string) => {
         const { id, name, dataType } = param;
+        const type = (option === payloadParameterOption) ? `@http:Payload ${dataType}` : dataType;
         const clonePath = { ...queryParamState }
         const foundPath = queryParamState.queryParams.find(qParam => qParam.id === id);
         if (foundPath) {
-            clonePath.queryParams[id] = {id, name, type: dataType, option};
+            clonePath.queryParams[id] = {id, name, type, option};
         }
         setQueryParamState(clonePath);
         setAddingParam(false);
@@ -261,10 +263,10 @@ export function QueryParamEditor(props: QueryParamEditorProps) {
                     typeDiagnostics={typeSemDiag}
                     param={{id: value.id, name, dataType: type}}
                     isEdit={true}
-                    optionList={paramOptions.includes(currentEditingOption) ?
+                    optionList={allOptions}
+                    enabledOptions={paramOptions.includes(currentEditingOption) ?
                         paramOptions : [...paramOptions, currentEditingOption]}
-                    dataTypeReqOptions={paramOptions.includes(currentEditingOption) ?
-                        paramOptions : [...paramOptions, currentEditingOption]}
+                    dataTypeReqOptions={allOptions}
                     option={value.option}
                     onChange={onParamChange}
                     onUpdate={onParamUpdate}
@@ -273,6 +275,14 @@ export function QueryParamEditor(props: QueryParamEditorProps) {
             )
         }
     });
+
+    let addingParamType;
+    if (draftParam?.type.includes("@http:Payload")) {
+        const typeSplit = draftParam.type.split(" ");
+        addingParamType = typeSplit[1].trim();
+    } else {
+        addingParamType = draftParam?.type;
+    }
 
     useEffect(() => {
         setQueryParamState(getQueryParamCollection(queryParamString));
@@ -295,12 +305,13 @@ export function QueryParamEditor(props: QueryParamEditorProps) {
             {pathComponents}
             {addingParam && (
                 <ParamEditor
-                    param={{id: draftParam.id, dataType: draftParam.type, name: draftParam.name}}
+                    param={{id: draftParam.id, dataType: addingParamType, name: draftParam.name}}
                     nameDiagnostics={nameSemDiag}
                     typeDiagnostics={typeSemDiag}
                     syntaxDiag={syntaxDiag ? syntaxDiag[0].message : ""}
-                    optionList={paramOptions}
-                    dataTypeReqOptions={paramOptions}
+                    optionList={allOptions}
+                    enabledOptions={paramOptions}
+                    dataTypeReqOptions={allOptions}
                     isEdit={false}
                     isTypeReadOnly={typeReadOnly}
                     option={queryParameterOption}
