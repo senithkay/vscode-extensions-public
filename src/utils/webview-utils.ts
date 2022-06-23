@@ -17,7 +17,7 @@
  *
  */
 
-import { Uri, ExtensionContext, WebviewOptions, WebviewPanelOptions } from "vscode";
+import { Uri, ExtensionContext, WebviewOptions, WebviewPanelOptions, WebviewPanel } from "vscode";
 import { join, sep } from "path";
 import { ballerinaExtInstance } from "../core";
 
@@ -56,6 +56,8 @@ export interface WebViewOptions {
     scripts: string;
     styles: string;
     bodyCss?: string;
+    webViewPanel?: WebviewPanel;
+    extensionUri?: Uri;
 }
 
 export function getLibraryWebViewContent(options: WebViewOptions) {
@@ -65,7 +67,9 @@ export function getLibraryWebViewContent(options: WebViewOptions) {
         body,
         scripts,
         styles,
-        bodyCss
+        bodyCss,
+        webViewPanel,
+        extensionUri
     } = options;
     const externalScripts = jsFiles
         ? jsFiles.map(jsFile =>
@@ -75,6 +79,12 @@ export function getLibraryWebViewContent(options: WebViewOptions) {
         ? cssFiles.map(cssFile =>
             '<link rel="stylesheet" type="text/css" href="' + cssFile + '" />').join('\n')
         : '';
+    let codicons;
+    if (webViewPanel && extensionUri) {
+        const codiconsUri = webViewPanel.webview.asWebviewUri(
+            Uri.joinPath(extensionUri, 'node_modules', '@vscode/codicons', 'dist', 'codicon.css'));
+        codicons = `<link href="${codiconsUri}" rel="stylesheet" />`;
+    }
 
     const fontDir = join(getComposerURI(), 'font');
 
@@ -181,6 +191,7 @@ export function getLibraryWebViewContent(options: WebViewOptions) {
                 <meta http-equiv="X-UA-Compatible" content="IE=edge">
                 <meta name="viewport" content="width=device-width, initial-scale=1">
                 ${externalStyles}
+                ${codicons}
                 <style>
                     /* use this class for loader that are shown until the module js is loaded */
                     .root-loader {

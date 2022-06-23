@@ -17,15 +17,16 @@
  *
  */
 
-import { Uri } from 'vscode';
+import { Uri, WebviewPanel } from 'vscode';
 import { getLibraryWebViewContent, WebViewOptions, getComposerWebViewOptions } from '../utils';
 
-export function render(filePath: Uri, startLine: number, startColumn: number, experimental: boolean): string {
-    return renderDiagram(filePath, startLine, startColumn, experimental);
+export function render(filePath: Uri, startLine: number, startColumn: number, experimental: boolean,
+                       webViewPanel: WebviewPanel, extensionUri: Uri): string {
+    return renderDiagram(filePath, startLine, startColumn, experimental, webViewPanel, extensionUri);
 }
 
-function renderDiagram(filePath: Uri, startLine: number, startColumn: number, experimental: boolean): string {
-
+function renderDiagram(filePath: Uri, startLine: number, startColumn: number, experimental: boolean,
+                       webViewPanel: WebviewPanel, extensionUri: Uri): string {
     const body = `
         <div class="ballerina-editor design-view-container" id="diagram"><div class="loader" /></div>
     `;
@@ -364,7 +365,7 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ex
 
     const webViewOptions: WebViewOptions = {
         ...getComposerWebViewOptions("BLCEditor"),
-        body, scripts, styles, bodyCss
+        body, scripts, styles, bodyCss, webViewPanel, extensionUri
     };
 
     return getLibraryWebViewContent(webViewOptions);
