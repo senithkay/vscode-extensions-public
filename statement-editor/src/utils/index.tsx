@@ -48,7 +48,14 @@ import {
     StatementNodes, SymbolParameterType,
     WHITESPACE_MINUTIAE
 } from "../constants";
-import { MinutiaeJSX, RemainingContent, StmtDiagnostic, StmtOffset, SuggestionItem } from '../models/definitions';
+import {
+    MinutiaeJSX,
+    RemainingContent,
+    StmtDiagnostic,
+    StmtOffset,
+    SuggestionItem,
+    SymbolIcon
+} from '../models/definitions';
 import { visitor as DeleteConfigSetupVisitor } from "../visitors/delete-config-setup-visitor";
 import { visitor as DiagnosticsMappingVisitor } from "../visitors/diagnostics-mapping-visitor";
 import { visitor as ExpressionDeletingVisitor } from "../visitors/expression-deleting-visitor";
@@ -350,7 +357,7 @@ export function getClassNameForToken(model: STNode): string {
     return className;
 }
 
-export function getSuggestionIconStyle(suggestionType: number): string {
+export function getSuggestionIconStyle(suggestionType: number): SymbolIcon {
     let suggestionIconStyle: string;
     switch (suggestionType) {
         case 3:
@@ -381,7 +388,10 @@ export function getSuggestionIconStyle(suggestionType: number): string {
             suggestionIconStyle = "suggest-icon codicon codicon-symbol-variable"
             break;
     }
-    return suggestionIconStyle;
+    return {
+        className: suggestionIconStyle,
+        color: '#FF0000'
+    };
 }
 
 export function sortSuggestions(x: CompletionResponse, y: CompletionResponse) {

@@ -85,5 +85,10 @@ export interface EditorModel {
     newConfigurableName?: string;
 }
 
+export interface SymbolIcon {
+    className: string;
+    color: string;
+}
+
 // tslint:disable-next-line:no-empty-interface
 export interface EmptySymbolInfo {}
