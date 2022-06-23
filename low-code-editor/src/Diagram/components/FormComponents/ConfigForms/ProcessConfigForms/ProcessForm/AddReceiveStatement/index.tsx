@@ -20,7 +20,6 @@ import { Context } from '../../../../../../../Contexts/Diagram';
 import { createReceiveStatement, createSendStatement, getInitialSource } from '../../../../../../utils';
 
 interface AddReceiveStatementProps {
-    // test
     config: ProcessConfig;
     formArgs: any;
     onCancel: () => void;
@@ -66,9 +65,11 @@ export function AddReceiveStatement(props: AddReceiveStatementProps) {
     });
 
     const receiveStatementConfig: ReceivestatementConfig = config.config as ReceivestatementConfig;
-    receiveStatementConfig.type = receiveStatementConfig.type === '' ? 'var' : receiveStatementConfig.type;
-    receiveStatementConfig.varName = receiveStatementConfig.varName === '' ? 'EXPRESSION' : receiveStatementConfig.varName;
-    receiveStatementConfig.senderWorker = receiveStatementConfig.senderWorker === '' ? 'EXPRESSION' : receiveStatementConfig.senderWorker;
+    receiveStatementConfig.type = receiveStatementConfig.type === '' ? 'EXPRESSION' : receiveStatementConfig.type;
+    receiveStatementConfig.varName = receiveStatementConfig.varName === '' ?
+        'EXPRESSION' : receiveStatementConfig.varName;
+    receiveStatementConfig.senderWorker = receiveStatementConfig.senderWorker === '' ?
+        'EXPRESSION' : receiveStatementConfig.senderWorker;
 
     const initialSource = getInitialSource(createReceiveStatement(receiveStatementConfig));
 

@@ -48,6 +48,7 @@ export interface StatementOptionsProps {
     viewState: PlusViewState;
     isResource?: boolean;
     isCallerAvailable?: boolean;
+    hasWorkerDecl?: boolean;
 }
 
 export interface StatementComponent {
@@ -64,7 +65,7 @@ export interface Statements {
 export function StatementOptions(props: StatementOptionsProps) {
     const { api: { insights: { onEvent } } } = useContext(Context);
     const intl = useIntl();
-    const { onSelect, viewState, isCallerAvailable, isResource } = props;
+    const { onSelect, viewState, isCallerAvailable, isResource, hasWorkerDecl } = props;
 
     const plusHolderStatementTooltipMessages = {
         logStatement: {
@@ -279,7 +280,7 @@ export function StatementOptions(props: StatementOptionsProps) {
     }
     const sendStmt: StatementComponent = {
         name: "send",
-        category: 'generics',
+        category: 'concurrency',
         component: (
             <Tooltip
                 title={plusHolderStatementTooltipMessages.send.title}
@@ -307,7 +308,7 @@ export function StatementOptions(props: StatementOptionsProps) {
     }
     const receiveStmt: StatementComponent = {
         name: "receive",
-        category: 'generics',
+        category: 'concurrency',
         component: (
             <Tooltip
                 title={plusHolderStatementTooltipMessages.receive.title}
@@ -335,7 +336,7 @@ export function StatementOptions(props: StatementOptionsProps) {
     }
     const waitStmt: StatementComponent = {
         name: "wait",
-        category: 'generics',
+        category: 'concurrency',
         component: (
             <Tooltip
                 title={plusHolderStatementTooltipMessages.wait.title}
@@ -363,7 +364,7 @@ export function StatementOptions(props: StatementOptionsProps) {
     }
     const flushStmt: StatementComponent = {
         name: "flush",
-        category: 'generics',
+        category: 'concurrency',
         component: (
             <Tooltip
                 title={plusHolderStatementTooltipMessages.flush.title}
@@ -628,26 +629,27 @@ export function StatementOptions(props: StatementOptionsProps) {
     };
     const [selectedCompName, setSelectedCompName] = useState("");
 
-    const actorsComp: ReactNode[] = [];
-    const genericsComp: ReactNode[] = [];
-    const controlFlowComp: ReactNode[] = [];
-    const communicationComp: ReactNode[] = [];
+    const actorElements: ReactNode[] = [];
+    const genericElements: ReactNode[] = [];
+    const concurrencyElements: ReactNode[] = [];
+    const controlFlowElements: ReactNode[] = [];
+    const communicationElements: ReactNode[] = [];
 
     if (selectedCompName !== "") {
         const stmts: StatementComponent[] = initStatements.statement.filter(el => el.name.toLowerCase().includes(selectedCompName.toLowerCase()));
         stmts.forEach((stmt) => {
             switch (stmt.category) {
                 case "actors":
-                    actorsComp.push(stmt.component);
+                    actorElements.push(stmt.component);
                     break;
                 case "generics":
-                    genericsComp.push(stmt.component);
+                    genericElements.push(stmt.component);
                     break;
                 case "controlflows":
-                    controlFlowComp.push(stmt.component);
+                    controlFlowElements.push(stmt.component);
                     break;
                 case "communications":
-                    communicationComp.push(stmt.component);
+                    communicationElements.push(stmt.component);
                     break;
             }
         });
@@ -655,32 +657,43 @@ export function StatementOptions(props: StatementOptionsProps) {
         initStatements.statement.forEach((stmt) => {
             switch (stmt.category) {
                 case "actors":
-                    actorsComp.push(stmt.component);
+                    actorElements.push(stmt.component);
                     break;
                 case "generics":
-                    genericsComp.push(stmt.component);
+                    genericElements.push(stmt.component);
                     break;
                 case "controlflows":
-                    controlFlowComp.push(stmt.component);
+                    controlFlowElements.push(stmt.component);
                     break;
                 case "communications":
-                    communicationComp.push(stmt.component);
+                    communicationElements.push(stmt.component);
+                    break;
+                case "concurrency":
+                    concurrencyElements.push(stmt.component);
                     break;
             }
         });
     }
 
+    const concurrencyComp = (
+        <>
+            {(concurrencyElements.length > 0 ? <Divider className="options-divider" /> : null)}
+            {concurrencyElements}
+        </>
+    )
+
     return (
         <>
             <div className="element-option-holder" >
                 <div className="options-wrapper">
-                    {actorsComp}
-                    {(controlFlowComp.length > 0 ? <Divider className="options-divider" /> : null)}
-                    {controlFlowComp}
-                    {(genericsComp.length > 0 ? <Divider className="options-divider" /> : null)}
-                    {genericsComp}
-                    {(communicationComp.length > 0 ? <Divider className="options-divider" /> : null)}
-                    {communicationComp}
+                    {actorElements}
+                    {(controlFlowElements.length > 0 ? <Divider className="options-divider" /> : null)}
+                    {controlFlowElements}
+                    {(genericElements.length > 0 ? <Divider className="options-divider" /> : null)}
+                    {genericElements}
+                    {hasWorkerDecl && concurrencyComp}
+                    {(communicationElements.length > 0 ? <Divider className="options-divider" /> : null)}
+                    {communicationElements}
                 </div>
             </div>
         </>

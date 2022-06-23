@@ -56,8 +56,10 @@ export function AddFlushStatement(props: AddFlushStatementProps) {
     });
 
     const flushStatementConfig: FlushStatementConfig = config.config as FlushStatementConfig;
-    flushStatementConfig.expression = flushStatementConfig.expression === '' ? 'EXPRESSION' : flushStatementConfig.expression;
-    flushStatementConfig.varName = flushStatementConfig.varName === '' ? 'EXPRESSION' : flushStatementConfig.varName;
+    flushStatementConfig.expression = flushStatementConfig.expression === '' ?
+        'EXPRESSION' : flushStatementConfig.expression;
+    flushStatementConfig.varName = flushStatementConfig.varName === '' ?
+        'EXPRESSION' : flushStatementConfig.varName;
 
     const initialSource = getInitialSource(createFlushStatement(flushStatementConfig));
     const stmtEditorComponent = StatementEditorWrapper(

@@ -20,7 +20,6 @@ import { Context } from '../../../../../../../Contexts/Diagram';
 import { createSendStatement, getInitialSource } from '../../../../../../utils';
 
 interface AddSendStatementProps {
-    // test
     config: ProcessConfig;
     formArgs: any;
     onCancel: () => void;
