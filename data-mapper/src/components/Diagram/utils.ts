@@ -1,4 +1,4 @@
-import { ExpressionFunctionBody, RecordField, RecordTypeDesc, RequiredParam, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { ExpressionFunctionBody, FieldAccess, RecordField, RecordTypeDesc, RequiredParam, SimpleNameReference, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import { DataMapperPortModel } from "./Port/model/DataMapperPortModel";
 
 export function generatePortId(typeNode: RecordField|RecordTypeDesc, type: "IN" | "OUT", nodeValue: ExpressionFunctionBody|RequiredParam,
@@ -25,4 +25,14 @@ export function generatePortId(typeNode: RecordField|RecordTypeDesc, type: "IN" 
     //     parent = parent.parentModel;
     // }
     // return id;
+}
+
+export function getFieldNames(expr: FieldAccess) {
+    const fieldNames: string[] = [];
+    let nextExp: FieldAccess = expr;
+    while(nextExp && STKindChecker.isFieldAccess(nextExp)) {
+        fieldNames.push((nextExp.fieldName as SimpleNameReference).name.value);
+        nextExp = STKindChecker.isFieldAccess(nextExp.expression) ? nextExp.expression : undefined;
+    } 
+    return fieldNames.reverse();
 }

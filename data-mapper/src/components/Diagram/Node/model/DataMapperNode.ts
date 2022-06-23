@@ -9,8 +9,10 @@ import {
 	SimpleNameReference, SingletonTypeDesc, SpecificField, STKindChecker, STNode, StreamTypeDesc, StringTypeDesc, TableTypeDesc,
 	TupleTypeDesc, TypeDefinition, TypedescTypeDesc, TypeReference, UnionTypeDesc, XmlTypeDesc
 } from '@wso2-enterprise/syntax-tree';
+import md5 from 'blueimp-md5';
 
 import { DataMapperPortModel } from '../../Port/model/DataMapperPortModel';
+import { getFieldNames } from '../../utils';
 
 export interface DataMapperNodeModelGenerics {
 	PORT: DataMapperPortModel;
@@ -93,13 +95,22 @@ export class DataMapperNodeModel extends NodeModel<NodeModelGenerics & DataMappe
 	public initLinks() {
 		if (STKindChecker.isExpressionFunctionBody(this.value)) {
 			const mappings = this.genMappings(this.value.expression as MappingConstructor);
-			console.log(mappings);
+			this.createLinks(mappings);
 		} else if (STKindChecker.isRequiredParam(this.value)) {
 			// Only create links from target side
 		}
 	}
 
-	private createLinks() {
+	private createLinks(mappings: SpecificFieldMappingFieldAccess[]) {
+		mappings.forEach((mapping) => {
+			const { fields, value } = mapping;
+			const inputNode = this.getInputNodeExpr(value);
+			let inPort: DataMapperPortModel; 
+			if (inputNode) {
+				inPort = this.getInputPortsForExpr(inputNode, value);	
+			}
+			console.log(inPort);
+		})
 		// if (STKindChecker.isSpecificField(val)) {
 		// 	let valueExpr = val.valueExpr;
 		// 	if (STKindChecker.isFieldAccess(valueExpr)) {
@@ -123,6 +134,51 @@ export class DataMapperNodeModel extends NodeModel<NodeModelGenerics & DataMappe
 		// 		}
 		// 	}
 		// }
+	}
+
+	// Improve to return multiple ports for complex expressions
+	private getInputPortsForExpr(node: DataMapperNodeModel, expr: FieldAccess|SimpleNameReference) {
+		const typeDesc = node.typeDef.typeDescriptor;
+		if (STKindChecker.isRecordTypeDesc(typeDesc)) {
+			if (STKindChecker.isFieldAccess(expr)) {
+				const fieldNames = getFieldNames(expr);
+				let nextTypeNode: RecordTypeDesc = typeDesc;
+				for (let i = 0; i < fieldNames.length; i++) {
+					const fieldName = fieldNames[i];
+					const recField = nextTypeNode.fields.find(
+						(field) => STKindChecker.isRecordField(field) && field.fieldName.value === fieldName);
+					if (recField) {
+						if (i === fieldNames.length - 1) {
+							const portId = md5(JSON.stringify(recField.position) + "OUT");
+							const port = (node.getPort(portId) as DataMapperPortModel);
+							return port;
+						} else if (STKindChecker.isRecordTypeDesc(recField.typeName)) {
+							nextTypeNode = recField.typeName;
+						}
+					}
+				}
+			} else {
+				// handle this when direct mapping parameters is enabled
+			}
+		}
+	}
+
+	private getInputNodeExpr(expr: FieldAccess|SimpleNameReference) {
+		let nameRef = STKindChecker.isSimpleNameReference(expr) ? expr: undefined;
+		if (!nameRef && STKindChecker.isFieldAccess(expr)) {
+			let valueExpr = expr.expression;
+			while (valueExpr && STKindChecker.isFieldAccess(valueExpr)) {
+				valueExpr = valueExpr.expression;
+			}
+			if (valueExpr && STKindChecker.isSimpleNameReference(valueExpr)) {
+				const paramNode = this.fnST.functionSignature.parameters
+					.find((param) => 
+						STKindChecker.isRequiredParam(param) 
+						&& param.paramName?.value === (valueExpr as  SimpleNameReference).name.value
+					) as RequiredParam;
+				return this.findNodeByValueNode(paramNode);	
+			}
+		}
 	}
 
 	private genMappings(val: MappingConstructor, parentFields?: SpecificField[]) {
