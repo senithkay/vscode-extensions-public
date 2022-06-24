@@ -1,7 +1,7 @@
-import { ActivityBar, CustomTreeSection, EditorView, SideBarView, VSBrowser } from 'vscode-extension-tester';
+import { EditorView, VSBrowser } from 'vscode-extension-tester';
 import { join } from 'path';
 import { expect } from 'chai';
-import { wait } from './util';
+import { getDiagramExplorer, wait } from './util';
 
 describe('VSCode UI Tests', () => {
     const PROJECT_ROOT = join(__dirname, '..', '..', '..', 'test', 'data');
@@ -26,20 +26,7 @@ describe('VSCode UI Tests', () => {
     });
 
     it('Test Side bar', async () => {
-        const activityBar = new ActivityBar();
-
-        // test side bar low code activity
-        const lowCodeActivity = await activityBar.getViewControl('Ballerina Low-Code');
-        expect(lowCodeActivity).is.not.undefined;
-        lowCodeActivity!.openView();
-
-        const sideBar = new SideBarView();
-        // test tree views
-        expect(await sideBar.getTitlePart().getTitle()).is.equal("BALLERINA LOW-CODE");
-        const diagramExplorer = await sideBar.getContent().getSection('Diagram Explorer') as CustomTreeSection;
-        const choreoLogin = await sideBar.getContent().getSection('Choreo') as CustomTreeSection;
-        expect(diagramExplorer).is.not.undefined;
-        expect(choreoLogin).is.not.undefined;
+        const diagramExplorer = await getDiagramExplorer();
 
         // test root buttons
         expect(diagramExplorer.getAction("Add Module")).is.not.undefined;

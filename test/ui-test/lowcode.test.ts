@@ -1,7 +1,7 @@
-import { ActivityBar, CustomTreeSection, WebView, SideBarView, VSBrowser, By } from 'vscode-extension-tester';
+import { WebView, VSBrowser, By } from 'vscode-extension-tester';
 import { join } from 'path';
 import { expect } from 'chai';
-import { wait } from './util';
+import { getDiagramExplorer, wait } from './util';
 
 describe('VSCode Webview UI Tests', () => {
     const PROJECT_ROOT = join(__dirname, '..', '..', '..', 'test', 'data');
@@ -12,12 +12,7 @@ describe('VSCode Webview UI Tests', () => {
     });
 
     it('Test Diagram', async () => {
-        const activityBar = new ActivityBar();
-
-        const lowCodeActivity = await activityBar.getViewControl('Ballerina Low-Code');
-        lowCodeActivity!.openView();
-        const sideBar = new SideBarView();
-        const diagramExplorer = await sideBar.getContent().getSection('Diagram Explorer') as CustomTreeSection;
+        const diagramExplorer = await getDiagramExplorer();
 
         // test diagram explorer tree view
         await wait(5000);
