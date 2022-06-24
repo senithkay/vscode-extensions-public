@@ -200,7 +200,7 @@ export function ResourceForm(props: FunctionProps) {
             ]);
         } else {
             applyModifications([
-                createResource(functionName, path.value, path.value ? path.value : ".", "",
+                createResource(functionName, path.value ? path.value : ".", queryParam.value, "",
                     false, false, returnType?.value, targetPosition)
             ]);
         }
@@ -298,15 +298,17 @@ export function ResourceForm(props: FunctionProps) {
                             onChangeInProgress={handleParamChangeInProgress}
                         />
                         <Divider className={connectorClasses.sectionSeperatorHR} />
-                        <QueryParamEditor
-                            queryParamString={queryParam.value}
-                            readonly={(currentComponentSyntaxDiag?.length > 0) || (isParamInProgress)}
-                            syntaxDiag={currentComponentSyntaxDiag}
-                            onChangeInProgress={handleQueryChangeInProgress}
-                            nameSemDiag={queryNameSemDiagnostics}
-                            typeSemDiag={queryTypeSemDiagnostics}
-                            onChange={handleQueryParamEditorChange}
-                        />
+                        <ConfigPanelSection title={"Query Parameters"}>
+                            <QueryParamEditor
+                                queryParamString={queryParam.value}
+                                readonly={(currentComponentSyntaxDiag?.length > 0) || (isParamInProgress)}
+                                syntaxDiag={currentComponentSyntaxDiag}
+                                onChangeInProgress={handleQueryChangeInProgress}
+                                nameSemDiag={queryNameSemDiagnostics}
+                                typeSemDiag={queryTypeSemDiagnostics}
+                                onChange={handleQueryParamEditorChange}
+                            />
+                        </ConfigPanelSection>
                         <Divider className={connectorClasses.sectionSeperatorHR} />
                         <FormTextInput
                             label="Return Type"

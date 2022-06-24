@@ -141,14 +141,16 @@ export function ParamEditor(props: ParamProps) {
                             onChange={debouncedTypeChange}
                             onBlur={null}
                             customProps={{
-                                isErrored: (paramDataType?.isInteracted || isEdit) && (syntaxDiag !== "" && currentComponentName === "Type") ||
-                                    (typeDiagnostics !== "" && typeDiagnostics !== undefined)
+                                isErrored: (paramDataType?.isInteracted || isEdit) && (syntaxDiag !== ""
+                                        && currentComponentName === "Type") || (typeDiagnostics !== "" &&
+                                    typeDiagnostics !== undefined),
+                                readonly: isTypeReadOnly
                             }}
                             errorMessage={(paramDataType?.isInteracted || isEdit) &&
                                 ((currentComponentName === "Type" && syntaxDiag ? syntaxDiag : "") || typeDiagnostics)}
                             placeholder={"Type"}
                             size="small"
-                            disabled={syntaxDiag && currentComponentName !== "Type" || isTypeReadOnly}
+                            disabled={syntaxDiag && currentComponentName !== "Type"}
                         />
                     </div>
                 )}

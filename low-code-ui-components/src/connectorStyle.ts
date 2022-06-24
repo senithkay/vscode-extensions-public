@@ -204,6 +204,16 @@ export const connectorStyles = makeStyles((theme: Theme) =>
             lineHeight: '35px',
             fontWeight: 300,
         },
+        readOnlyEditor: {
+            width: 130,
+            padding: 0,
+            color: '#000209',
+            fontSize: 13,
+            textTransform: 'capitalize',
+            display: 'inline-block',
+            lineHeight: '25px',
+            fontWeight: 300,
+        },
         starLabelForRequired: {
             padding: 0,
             color: '#DC143C',

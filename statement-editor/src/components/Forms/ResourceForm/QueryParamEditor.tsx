@@ -268,6 +268,7 @@ export function QueryParamEditor(props: QueryParamEditorProps) {
                         paramOptions : [...paramOptions, currentEditingOption]}
                     dataTypeReqOptions={allOptions}
                     option={value.option}
+                    isTypeReadOnly={typeReadOnly}
                     onChange={onParamChange}
                     onUpdate={onParamUpdate}
                     onCancel={cancelAddParam}
