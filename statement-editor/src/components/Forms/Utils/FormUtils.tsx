@@ -11,7 +11,9 @@
  * associated services.
  */
 import {
-    createFunctionSignature, createListenerDeclartion,
+    createFunctionSignature,
+    createListenerDeclartion,
+    createResource,
     createServiceDeclartion,
     getSource,
     ListenerConfigFormState,
@@ -47,6 +49,10 @@ export function getInitialSource(type: string, targetPosition: NodePosition): st
         case "Main": {
             return getSource(createFunctionSignature("public", "main", "", "",
                 targetPosition));
+        }
+        case "Resource": {
+            return getSource(createResource("get", ".", "", "", false,
+                false, "", targetPosition));
         }
     }
     return;

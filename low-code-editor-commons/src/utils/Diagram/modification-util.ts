@@ -227,6 +227,47 @@ export function updateServiceDeclartion(config: HTTPServiceConfigState, targetPo
     }
 }
 
+export function createResource(method: string, path: string, queryParam: string, payload: string, isCaller: boolean, isRequest: boolean, addReturn: string, targetPosition: NodePosition): STModification {
+    const resource: STModification = {
+        startLine: targetPosition.startLine,
+        startColumn: 0,
+        endLine: targetPosition.startLine,
+        endColumn: 0,
+        type: "RESOURCE",
+        config: {
+            "METHOD": method,
+            "PATH": path,
+            "QUERY_PARAM": queryParam,
+            "PAYLOAD": payload,
+            "ADD_CALLER": isCaller,
+            "ADD_REQUEST": isRequest,
+            "ADD_RETURN": addReturn
+        }
+    };
+    return resource;
+}
+
+export function updateResourceSignature(method: string, path: string, queryParam: string, payload: string, isCaller: boolean, isRequest: boolean, addReturn: string, targetPosition: NodePosition): STModification {
+    const resourceSignature: STModification = {
+        startLine: targetPosition.startLine,
+        startColumn: targetPosition.startColumn,
+        endLine: targetPosition.endLine,
+        endColumn: targetPosition.endColumn,
+        type: "RESOURCE_SIGNATURE",
+        config: {
+            "METHOD": method,
+            "PATH": path,
+            "QUERY_PARAM": queryParam,
+            "PAYLOAD": payload,
+            "ADD_CALLER": isCaller,
+            "ADD_REQUEST": isRequest,
+            "ADD_RETURN": addReturn
+        }
+    };
+
+    return resourceSignature;
+}
+
 export function createImportStatement(org: string, module: string, targetPosition: NodePosition): STModification {
     const moduleName = module;
     const formattedName = getFormattedModuleName(module);

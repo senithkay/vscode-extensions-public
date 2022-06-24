@@ -85,6 +85,7 @@ export function ServiceConfigForm(props: ServiceConfigFormProps) {
                 targetPosition={position}
                 stSymbolInfo={stSymbolInfo}
                 syntaxTree={syntaxTree}
+                isLastMember={isLastMember}
                 onCancel={onCancel}
                 type={"Service"}
                 currentFile={currentFile}

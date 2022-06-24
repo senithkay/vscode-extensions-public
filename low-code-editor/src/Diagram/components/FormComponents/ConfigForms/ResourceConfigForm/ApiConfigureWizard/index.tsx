@@ -15,7 +15,12 @@ import { FormattedMessage, useIntl } from "react-intl";
 
 import { FormControl, Link } from "@material-ui/core";
 import { ConfigOverlayFormStatus, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { FormHeaderSection, PrimaryButton, SecondaryButton } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
+import {
+    FormHeaderSection,
+    PrimaryButton,
+    SecondaryButton
+} from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
+import { FormEditor } from "@wso2-enterprise/ballerina-statement-editor";
 import { FunctionDefinition, NodePosition, ObjectMethodDefinition, ResourceAccessorDefinition } from "@wso2-enterprise/syntax-tree";
 
 import { Section } from "../../../../../../components/ConfigPanel";
@@ -84,12 +89,14 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
             },
             code: {
                 modifyDiagram
-            }
+            },
+            ls: { getExpressionEditorLangClient }
         },
         props: {
+            currentFile,
             isMutationProgress: isFileSaving,
             isLoadingSuccess: isFileSaved,
-        }
+        },
     } = useContext(Context);
 
     const { model, targetPosition, onSave, onCancel, formType } = props;
@@ -675,9 +682,27 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
         </div>
     );
 
+    const position = model ? ({
+        startLine: model.functionName.position.startLine,
+        startColumn: model.functionName.position.startColumn,
+        endLine: model.functionSignature.position.endLine,
+        endColumn: model.functionSignature.position.endColumn
+    }) : targetPosition;
+
     return (
-        <FormControl data-testid="resource-form" className={formClasses.wizardFormControlExtended}>
-            {resource && resourceUI}
-        </FormControl>
+        <>
+            <FormEditor
+                initialSource={model ? model.source : undefined}
+                initialModel={model}
+                isLastMember={false}
+                targetPosition={position}
+                onCancel={onCancel}
+                type={"Resource"}
+                currentFile={currentFile}
+                getLangClient={getExpressionEditorLangClient}
+                applyModifications={modifyDiagram}
+                topLevelComponent={true} // todo: Remove this
+            />
+        </>
     );
 }

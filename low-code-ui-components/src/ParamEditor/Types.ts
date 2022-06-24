@@ -10,13 +10,8 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { FunctionForm } from "./FunctionForm/FunctionForm";
-import { ListenerForm } from "./ListenerForm/ListenerForm";
-import { ResourceForm } from "./ResourceForm/ResourceForm";
-import { ServiceConfigForm } from "./ServiceForm/SeviceForm";
+export interface FormEditorField {
+    value: string;
+    isInteracted: boolean;
+}
 
-export { FunctionForm as Function };
-export { ServiceConfigForm as Service };
-export { ListenerForm as Listener };
-export { FunctionForm as Main };
-export { ResourceForm as Resource };

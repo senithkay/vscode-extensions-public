@@ -30,6 +30,7 @@ interface FormTextInputProps {
     startAdornment?: string;
     tooltipTitle?: string;
     focused?: boolean;
+    readonly?: boolean;
     disabled?: boolean;
     secret?: boolean;
     isErrored?: boolean;
@@ -171,37 +172,42 @@ export function FormTextInput(props: FormElementProps<FormTextInputProps>) {
                     )
                 ) : null
             }
-
-            <MuiTextField
-                data-testid={dataTestId}
-                error={isInvalid}
-                key={index}
-                InputProps={{
-                    disableUnderline: true,
-                    // tslint:disable-next-line: jsx-curly-spacing
-                    classes: {
-                        root: textFieldClasses.textFeild,
-                        error: textFieldClasses.errorField,
-                    },
-                    startAdornment: customProps?.startAdornment ?
-                        <InputAdornment position="start">{customProps.startAdornment}</InputAdornment> : null
-                }}
-                placeholder={placeholder}
-                fullWidth={true}
-                size={size}
-                margin="normal"
-                InputLabelProps={{ shrink: true }}
-                onChange={handleOnChange}
-                onKeyUp={handleOnKeyUp}
-                onBlur={handleOnBlur}
-                onClick={handleOnClick}
-                onFocus={handleOnFocus}
-                value={inputValue}
-                helperText={isInvalid ? errorMsg : ""}
-                autoFocus={customProps?.focused}
-                disabled={disabled}
-                type={customProps?.secret ? "password" : "text"}
-            />
+            {customProps.readonly ? (
+                <FormHelperText className={formClasses.readOnlyEditor}>
+                    {inputValue}
+                </FormHelperText>
+            ) : (
+                <MuiTextField
+                    data-testid={dataTestId}
+                    error={isInvalid}
+                    key={index}
+                    InputProps={{
+                        disableUnderline: true,
+                        // tslint:disable-next-line: jsx-curly-spacing
+                        classes: {
+                            root: textFieldClasses.textFeild,
+                            error: textFieldClasses.errorField,
+                        },
+                        startAdornment: customProps?.startAdornment ?
+                            <InputAdornment position="start">{customProps.startAdornment}</InputAdornment> : null
+                    }}
+                    placeholder={placeholder}
+                    fullWidth={true}
+                    size={size}
+                    margin="normal"
+                    InputLabelProps={{ shrink: true }}
+                    onChange={handleOnChange}
+                    onKeyUp={handleOnKeyUp}
+                    onBlur={handleOnBlur}
+                    onClick={handleOnClick}
+                    onFocus={handleOnFocus}
+                    value={inputValue}
+                    helperText={isInvalid ? errorMsg : ""}
+                    autoFocus={customProps?.focused}
+                    disabled={disabled}
+                    type={customProps?.secret ? "password" : "text"}
+                />
+            )}
 
         </>
     );

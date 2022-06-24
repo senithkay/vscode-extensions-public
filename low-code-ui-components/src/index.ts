@@ -26,3 +26,5 @@ export * from "./DropDown/SelectDropdownWithButton";
 export * from "./CheckBox";
 export * from "./TextLabel";
 export * from "./Panel";
+export * from "./ParamEditor/ParamEditor";
+export * from "./ParamEditor/ParamItem";
