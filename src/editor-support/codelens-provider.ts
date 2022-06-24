@@ -54,7 +54,7 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
 
     private _onDidChangeCodeLenses: EventEmitter<void> = new EventEmitter<void>();
     public readonly onDidChangeCodeLenses: Event<void> = this._onDidChangeCodeLenses.event;
-    private activeTextEditor: Uri | undefined;
+    private activeTextEditorUri: Uri | undefined;
 
     private ballerinaExtension: BallerinaExtension;
 
@@ -78,12 +78,12 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
             sendTelemetryEvent(this.ballerinaExtension, TM_EVENT_SOURCE_DEBUG_CODELENS, CMP_EXECUTOR_CODELENS);
             clearTerminal();
             commands.executeCommand(FOCUS_DEBUG_CONSOLE_COMMAND);
-            startDebugging(this.activeTextEditor!, false, this.ballerinaExtension.getBallerinaCmd(),
+            startDebugging(this.activeTextEditorUri!, false, this.ballerinaExtension.getBallerinaCmd(),
                 this.ballerinaExtension.getBallerinaHome(), args);
         });
 
         commands.registerCommand(SOURCE_DEBUG_COMMAND, async () => {
-            this.activeTextEditor = window.activeTextEditor!.document.uri;
+            this.activeTextEditorUri = window.activeTextEditor!.document.uri;
             if (!this.ballerinaExtension.isConfigurableEditorEnabled() &&
                 !this.ballerinaExtension.getDocumentContext().isActiveDiagram()) {
                 commands.executeCommand(INTERNAL_DEBUG_COMMAND);
@@ -102,7 +102,7 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
     }
 
     provideCodeLenses(_document: TextDocument, _token: CancellationToken): ProviderResult<any[]> {
-        if (this.ballerinaExtension.langClient && (window.activeTextEditor || this.activeTextEditor)) {
+        if (this.ballerinaExtension.langClient && (window.activeTextEditor || this.activeTextEditorUri)) {
             return this.getCodeLensList();
         }
         return [];
@@ -117,7 +117,8 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
         }
 
         await langClient.onReady().then(async () => {
-            const activeEditor = this.activeTextEditor ? this.activeTextEditor : window.activeTextEditor!.document.uri;
+            const activeEditor = this.activeTextEditorUri ? this.activeTextEditorUri
+                                                          : window.activeTextEditor!.document.uri;
             await langClient!.getExecutorPositions({
                 documentIdentifier: {
                     uri: activeEditor.toString()
