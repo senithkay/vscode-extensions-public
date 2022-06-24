@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { describe, it } from 'mocha';
+import { before, describe, it } from 'mocha';
 import { join } from 'path';
 import { By, VSBrowser, WebView } from 'vscode-extension-tester';
 import { getDiagramExplorer, wait } from './util';
