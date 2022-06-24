@@ -30,8 +30,8 @@ jobs:
           NPM_ACCESS_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}     
       - name: Run Tests
         run: |
-          export DISPLAY=:99.0
-          Xvfb -ac :99 -screen 0 1920x1080x16 & 
+          export DISPLAY=:98.0
+          Xvfb -ac :98 -screen 0 1920x1080x16 & 
           npm run ui-test
       - name: Upload screenshots
         uses: actions/upload-artifact@v2
