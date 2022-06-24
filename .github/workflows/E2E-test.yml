@@ -13,6 +13,16 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 16
+      - name: Install java 11
+        uses: actions/setup-java@v1
+        with:
+          java-version: '11'
+      - run: mkdir extractedDistribution
+      - run: sudo apt-get install unzip
+      - name: Download latest ballerina distribution
+        run: curl -s https://api.github.com/repos/ballerina-platform/ballerina-distribution/releases | grep -wo -m1 "https.*ballerina-swan-lake-.*zip" | wget -qi - -O ballerina.zip
+      - run: unzip -qq ./ballerina.zip -d ./extractedDistribution
+      - run: rm ballerina.zip
       - name: "Build plugin repo"
         run: sudo apt-get install xvfb && xvfb-run --auto-servernum ./gradlew clean build
         env:
