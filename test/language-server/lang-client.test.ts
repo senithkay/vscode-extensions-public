@@ -526,40 +526,6 @@ suite("Language Server Tests", function () {
         });
     });
 
-    test("Test Optimize Imports Action - Single file", (done) => {
-        const uri = Uri.file(join(PROJECT_ROOT, 'sample1.bal').toString());
-        commands.executeCommand('vscode.open', uri).then(() => {
-            langClient.onReady().then(() => {
-                const actionParam = {
-                    textDocument: {
-                        uri: Uri.file(join(PROJECT_ROOT, 'sample1.bal')).toString()
-                    },
-                    range: {
-                        start: {
-                            line: 3,
-                            character: 3
-                        },
-                        end: {
-                            line: 3,
-                            character: 4
-                        }
-                    },
-                    context: {
-                        diagnostics: []
-                    }
-                };
-                langClient.sendRequest('textDocument/codeAction', actionParam).then((response: any) => {
-                    assert.equal(response.length, 2, 'Invalid number of code actions.');
-                    assert.equal(response[0].title, 'Optimize all imports', 'Invalid \'Optimize all imports\' action.');
-                    assert.equal(response[0].kind, "source.organizeImports", "Invalid code action kind - 1st.");
-                    assert.equal(response[1].title, 'Pull unresolved modules', 'Invalid \'Pull unresolved modules\' action.');
-                    assert.equal(response[1].kind, "quickfix", "Invalid code action kind - 2nd.");
-                    done();
-                });
-            });
-        });
-    });
-
     test("Test Incompatible Params Action - Single file", (done) => {
         const uri = Uri.file(join(PROJECT_ROOT, 'sample1.bal').toString());
         commands.executeCommand('vscode.open', uri).then(() => {
