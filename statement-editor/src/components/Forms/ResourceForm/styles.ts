@@ -134,6 +134,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             justifyContent: "flex-end"
         },
         serviceFooterWrapper: {
+            marginTop: 10,
             marginLeft: 24,
             marginBottom: 11,
             display: "flex",

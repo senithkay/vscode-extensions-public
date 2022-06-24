@@ -104,7 +104,6 @@ export function FormEditor(props: FormEditorProps) {
         sendDidChange(fileURI, updatedContent, getLangClient).then();
         const diagnostics = await handleDiagnostics(genSource, fileURI, targetPosition, getLangClient).then();
         setModel(enrichModel(partialST, initialModel ? {
-            // ...initialModel.position,
             startLine: initialModel.position.startLine + offsetLineCount + diagnosticOffSet.startLine,
             endLine: initialModel.position.endLine + offsetLineCount + diagnosticOffSet.startLine,
             startColumn: initialModel.position.startColumn + offsetLineCount + diagnosticOffSet.startColumn,

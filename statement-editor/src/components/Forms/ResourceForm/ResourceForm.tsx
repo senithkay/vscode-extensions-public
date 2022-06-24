@@ -287,6 +287,8 @@ export function ResourceForm(props: FunctionProps) {
                                 </ConfigPanelSection>
                             </div>
                         </div>
+                    </div>
+                    <div className={connectorClasses.resourceParamWrapper}>
                         <PathEditor
                             relativeResourcePath={(path?.isInteracted || isEdit) ? path.value : ""}
                             syntaxDiag={currentComponentSyntaxDiag}
@@ -329,23 +331,23 @@ export function ResourceForm(props: FunctionProps) {
                             disabled={isParamInProgress || isQueryInProgress || (currentComponentSyntaxDiag
                                 && currentComponentName !== "Return")}
                         />
-                    </div>
-                    <div className={classes.serviceFooterWrapper}>
-                        <SecondaryButton
-                            text="Cancel"
-                            fullWidth={false}
-                            onClick={onCancel}
-                        />
-                        <div id="product-tour-save" >
-                            <PrimaryButton
-                                dataTestId="save-btn"
-                                text={saveButtonText}
-                                className={classes.saveBtn}
-                                onClick={handleOnSave}
-                                disabled={(currentComponentSyntaxDiag !== undefined) || (pathTypeSemDiagnostics !== "")
-                                    || (pathNameSemDiagnostics !== "") || (queryTypeSemDiagnostics !== "") ||
-                                    (queryNameSemDiagnostics !== "")}
+                        <div className={classes.serviceFooterWrapper}>
+                            <SecondaryButton
+                                text="Cancel"
+                                fullWidth={false}
+                                onClick={onCancel}
                             />
+                            <div id="product-tour-save" >
+                                <PrimaryButton
+                                    dataTestId="save-btn"
+                                    text={saveButtonText}
+                                    className={classes.saveBtn}
+                                    onClick={handleOnSave}
+                                    disabled={(currentComponentSyntaxDiag !== undefined) ||
+                                        (pathTypeSemDiagnostics !== "") || (pathNameSemDiagnostics !== "") ||
+                                        (queryTypeSemDiagnostics !== "") || (queryNameSemDiagnostics !== "")}
+                                />
+                            </div>
                         </div>
                     </div>
                 </div>

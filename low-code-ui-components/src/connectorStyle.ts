@@ -657,8 +657,11 @@ export const connectorStyles = makeStyles((theme: Theme) =>
             padding: '15px 20px',
         },
         formFeilds: {
-            marginBottom: theme.spacing(2.5),
+            width: '100%'
+        },
+        resourceParamWrapper: {
             width: '100%',
+            paddingLeft: 5
         },
         codeWrapper: {
             width: '100%',
@@ -868,7 +871,7 @@ export const connectorStyles = makeStyles((theme: Theme) =>
         resourceMethodPathWrapper: {
             display: 'flex',
             flexDirection: 'row',
-            padding: '15px 5px'
+            padding: '15px 5px 0px 5px'
         },
         resourceMethodTitle: {
             width: '100%',
