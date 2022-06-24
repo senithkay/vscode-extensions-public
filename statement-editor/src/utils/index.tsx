@@ -231,7 +231,7 @@ export function getFilteredDiagnosticMessages(statement: string, targetPosition:
     getDiagnosticMessage(diag, diagTargetPosition, 0, statement.length, 0, 0).split('. ').map(message => {
             let isPlaceHolderDiag = false;
             if (PLACEHOLDER_DIAGNOSTICS.some(msg => message.includes(msg))
-                || (/.+=\s*EXPRESSION;/.test(statement) && IGNORABLE_DIAGNOSTICS.includes(message))) {
+                || (/const.+=.*EXPRESSION.*;/.test(statement) && IGNORABLE_DIAGNOSTICS.includes(message))) {
                 isPlaceHolderDiag = true;
             }
             if (!!message) {
