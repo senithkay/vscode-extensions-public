@@ -1,6 +1,7 @@
-import { EditorView, VSBrowser } from 'vscode-extension-tester';
-import { join } from 'path';
 import { expect } from 'chai';
+import { describe, it } from 'mocha';
+import { join } from 'path';
+import { EditorView, VSBrowser } from 'vscode-extension-tester';
 import { getDiagramExplorer, wait } from './util';
 
 describe('VSCode UI Tests', () => {
