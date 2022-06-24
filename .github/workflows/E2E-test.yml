@@ -6,26 +6,18 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node: [16]
-        version: [1.61.2, 1.62.3, 1.63.2, 1.64.2, 1.65.2]
-      fail-fast: false
     
     steps:
       - uses: actions/checkout@v2
       - name: Setup Node
         uses: actions/setup-node@v1
         with:
-          node-version: ${{ matrix.node }}
+          node-version: 16
       - name: "Build plugin repo"
         run: sudo apt-get install xvfb && xvfb-run --auto-servernum ./gradlew clean build
         env:
           NPM_ACCESS_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}     
       - name: Run Tests
-        env: 
-          CODE_VERSION: ${{ matrix.version }}
         run: |
           export DISPLAY=:99.0
           Xvfb -ac :99 -screen 0 1920x1080x16 & 
