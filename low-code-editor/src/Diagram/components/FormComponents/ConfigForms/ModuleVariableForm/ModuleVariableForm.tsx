@@ -12,6 +12,7 @@
  */
 import React, { useContext, useEffect } from 'react';
 
+import { genVariableName, getAllVariables } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { StatementEditorWrapper } from '@wso2-enterprise/ballerina-statement-editor';
 import { ModuleVarDecl, NodePosition } from '@wso2-enterprise/syntax-tree';
 
@@ -73,9 +74,9 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
 
     const visibilityQualifier = formConfig.varOptions.includes(VariableOptions.PUBLIC) ? 'public' : '';
     const finalKeyword = formConfig.varOptions.includes(VariableOptions.FINAL) ? 'final' : '';
-    const varType = formConfig.varType ? formConfig.varType : 'int';
-    const varName = formConfig.varName ? formConfig.varName : 'VAR_NAME';
-    const varValue = formConfig.varValue ? formConfig.varValue : '0';
+    const varType = formConfig.varType ? formConfig.varType : 'var';
+    const varName = formConfig.varName ? formConfig.varName : genVariableName("variable", getAllVariables(stSymbolInfo));
+    const varValue = formConfig.varValue ? formConfig.varValue : 'EXPRESSION';
 
     const initialSource = `${visibilityQualifier} ${finalKeyword} ${varType} ${varName} = ${varValue};`
 
