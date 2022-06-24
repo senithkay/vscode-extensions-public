@@ -58,7 +58,7 @@ export const EXISTING_PLUS_HOLDER_API_HEIGHT_COLLAPSED = 660;
 export function PlusElements(props: FormGeneratorProps) {
 
     const { onCancel } = props;
-    const { onChange, viewState, isResource, isCallerAvailable } = props.configOverlayFormStatus.formArgs;
+    const { onChange, viewState, isResource, isCallerAvailable, hasWorkerDecl } = props.configOverlayFormStatus.formArgs;
 
     const onStatementTypeSelect = (processType: string) => {
         switch (processType) {
@@ -77,7 +77,13 @@ export function PlusElements(props: FormGeneratorProps) {
     const plusHolder: ReactNode = (
         <div className="holder-wrapper-large">
             <div className="element-options">
-                <StatementOptions onSelect={onStatementTypeSelect} viewState={viewState} isResource={isResource} isCallerAvailable={isCallerAvailable} />
+                <StatementOptions
+                    onSelect={onStatementTypeSelect}
+                    viewState={viewState}
+                    isResource={isResource}
+                    isCallerAvailable={isCallerAvailable}
+                    hasWorkerDecl={hasWorkerDecl}
+                />
             </div>
         </div>
     );

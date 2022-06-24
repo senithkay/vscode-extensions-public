@@ -41,9 +41,11 @@ export interface PlusStates {
 
 export const PlusButton = (props: PlusProps) => {
     const diagramContext = useContext(Context);
+    const functionContext = useFunctionContext();
     const { syntaxTree, isReadOnly } = diagramContext.props;
     const renderPlusWidget = diagramContext?.api?.edit?.renderPlusWidget;
     const { diagramCleanDraw, diagramRedraw } = diagramContext.actions;
+    const hasWorkerDecl: boolean = functionContext?.hasWorker;
 
     const { overlayId, overlayNode } = useFunctionContext();
 
@@ -102,7 +104,8 @@ export const PlusButton = (props: PlusProps) => {
             isCallerAvailable: (model.viewState as BlockViewState)?.isCallerAvailable,
             isResource: (model.viewState as BlockViewState)?.isResource,
             overlayId: overlayId,
-            overlayNode: overlayNode
+            overlayNode: overlayNode,
+            hasWorkerDecl: hasWorkerDecl
         }, viewState as PlusViewState));
     };
 

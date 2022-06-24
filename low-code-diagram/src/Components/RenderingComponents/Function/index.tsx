@@ -113,7 +113,12 @@ export function Function(props: FunctionProps) {
     const functionBody = (
         <div className={"lowcode-diagram"}>
             <PerformanceBar model={model} />
-            <FunctionProvider overlayId={overlayId} overlayNode={overlayNode} functionNode={model}>
+            <FunctionProvider
+                overlayId={overlayId}
+                overlayNode={overlayNode}
+                functionNode={model}
+                hasWorker={!!(model.functionBody as FunctionBodyBlock).namedWorkerDeclarator}
+            >
                 <PanAndZoom>
                     <div ref={overlayRef} id={overlayId} className={"function-overlay-container"} />
                     <Canvas h={model.viewState.bBox.h} w={model.viewState.bBox.w}>

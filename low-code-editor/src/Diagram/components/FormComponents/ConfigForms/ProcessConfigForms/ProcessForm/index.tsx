@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext } from "react";
 
-import { ConfigOverlayFormStatus, ProcessConfig, WizardType, WorkerConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ConfigOverlayFormStatus, FlushStatementConfig, ProcessConfig, ReceivestatementConfig, SendStatementConfig, WaitStatementConfig, WizardType, WorkerConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { LocalVarDecl, NamedWorkerDeclaration } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../../Contexts/Diagram";
@@ -21,8 +21,12 @@ import { TextPreloaderVertical } from "../../../../../../PreLoader/TextPreloader
 
 import { AddAssignmentConfig } from "./AddAssignmentConfig";
 import { AddCustomStatementConfig } from "./AddCustomStatementConfig";
+import { AddFlushStatement } from "./AddFlushStatement";
 import { AddLogConfig } from "./AddLogConfig";
+import { AddReceiveStatement } from "./AddReceiveStatement";
+import { AddSendStatement } from "./AddSendStatement";
 import { AddVariableConfig } from "./AddVariableConfig";
+import { AddWaitStatement } from "./AddWaitStatement";
 import { AddWorkerConfigForm } from "./AddWorkerConfig";
 
 interface ProcessFormProps {
@@ -46,7 +50,6 @@ export function ProcessForm(props: ProcessFormProps) {
     } = useContext(Context);
 
     let formType: string = type;
-
     if (formType === "Variable") {
         if (config.wizardType === WizardType.EXISTING) {
             const existingVariableModelValue: LocalVarDecl = config.model as LocalVarDecl;
@@ -56,8 +59,6 @@ export function ProcessForm(props: ProcessFormProps) {
         else {
             config.config = "";
         }
-
-
     } else if (formType === "Log") {
         config.config = {
             type: "",
@@ -75,6 +76,36 @@ export function ProcessForm(props: ProcessFormProps) {
         }
 
         config.config = workerConfig;
+    } else if (formType === 'AsyncSend') {
+        const sendConfig: SendStatementConfig = {
+            targetWorker: '',
+            expression: '',
+        }
+
+        config.config = sendConfig;
+    } else if (formType === 'ReceiveStatement') {
+        const receiveConfig: ReceivestatementConfig = {
+            type: '',
+            varName: '',
+            senderWorker: '',
+        };
+
+        config.config = receiveConfig;
+    } else if (formType === 'WaitStatement') {
+        const waitConfig: WaitStatementConfig = {
+            type: '',
+            varName: '',
+            expression: '',
+        };
+
+        config.config = waitConfig;
+    } else if (formType === 'FlushStatement') {
+        const flushStatementConfig: FlushStatementConfig = {
+            varName: '',
+            expression: ''
+        };
+
+        config.config = flushStatementConfig;
     } else {
         formType = "Custom";
         config.config = {
@@ -99,6 +130,50 @@ export function ProcessForm(props: ProcessFormProps) {
                 {
                     formType === "Variable" && (
                         <AddVariableConfig
+                            config={config}
+                            formArgs={formArgs}
+                            onSave={onSave}
+                            onWizardClose={onWizardClose}
+                            onCancel={onCancel}
+                        />
+                    )
+                }
+                {
+                    formType === "AsyncSend" && (
+                        <AddSendStatement
+                            config={config}
+                            formArgs={formArgs}
+                            onSave={onSave}
+                            onWizardClose={onWizardClose}
+                            onCancel={onCancel}
+                        />
+                    )
+                }
+                {
+                    formType === "ReceiveStatement" && (
+                        <AddReceiveStatement
+                            config={config}
+                            formArgs={formArgs}
+                            onSave={onSave}
+                            onWizardClose={onWizardClose}
+                            onCancel={onCancel}
+                        />
+                    )
+                }
+                {
+                    formType === "WaitStatement" && (
+                        <AddWaitStatement
+                            config={config}
+                            formArgs={formArgs}
+                            onSave={onSave}
+                            onWizardClose={onWizardClose}
+                            onCancel={onCancel}
+                        />
+                    )
+                }
+                {
+                    formType === "FlushStatement" && (
+                        <AddFlushStatement
                             config={config}
                             formArgs={formArgs}
                             onSave={onSave}

@@ -1378,6 +1378,7 @@ export class SizingVisitor implements Visitor {
 
             if (isSTActionInvocation(element)
                 && !haveBlockStatement(element)
+                && this.allEndpoints
                 && this.allEndpoints.has(stmtViewState.action.endpointName)
             ) {
                 // check if it's the same as actioninvocation
