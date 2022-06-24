@@ -208,6 +208,10 @@ export function StatementEditor(props: StatementEditorProps) {
                                 ...suggestionItem,
                                 prefix: `${selectionWithDot}`
                             }));
+
+                            const content = getUpdatedSource(model.source, currentFile.content,
+                                targetPosition, moduleList);
+                            await sendDidChange(fileURI, content, getLangClient);
                         }
                     }
                 }
