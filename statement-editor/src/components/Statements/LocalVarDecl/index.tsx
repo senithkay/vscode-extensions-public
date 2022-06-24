@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { ReactNode, useContext } from "react";
 
-import { LocalVarDecl } from "@wso2-enterprise/syntax-tree";
+import { LocalVarDecl, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
 import { CUSTOM_CONFIG_TYPE } from "../../../constants";
@@ -80,22 +80,46 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
         )
     }
 
+    let expressionComponent: JSX.Element;
+
+    if (model.initializer && STKindChecker.isReceiveAction(model.initializer)) {
+        expressionComponent = (
+            <>
+                <TokenComponent model={model.initializer.leftArrow} className="operator" />
+                <ExpressionComponent model={model.initializer.receiveWorkers} />
+            </>
+        );
+    } else if (model.initializer && STKindChecker.isWaitAction(model.initializer)) {
+        expressionComponent = (
+            <>
+                <TokenComponent model={model.initializer.waitKeyword} className="operator" />
+                <ExpressionComponent model={model.initializer.waitFutureExpr} />
+            </>
+        );
+    } else if (model.initializer && STKindChecker.isFlushAction(model.initializer)) {
+        expressionComponent = (
+            <>
+                <TokenComponent model={model.initializer.flushKeyword} className="operator" />
+                <ExpressionComponent model={model.initializer.peerWorker} />
+            </>
+        );
+    } else if (model.initializer) {
+        expressionComponent = (
+            <>
+                <ExpressionComponent model={model.initializer} />
+            </>
+        );
+    }
 
     return (
         <>
             {typedBindingComponent}
+            {model.initializer && <TokenComponent model={model.equalsToken} className="operator" />}
+            {expressionComponent}
             {
-                model.equalsToken && (
-                    <>
-                        <TokenComponent model={model.equalsToken}  className="operator" />
-                        <ExpressionComponent model={model.initializer} />
-                    </>
-                )
+                model.semicolonToken.position.startColumn !== model.semicolonToken.position.endColumn &&
+                <TokenComponent model={model.semicolonToken} />
             }
-
-            {/* TODO: use model.semicolonToken.isMissing when the ST interface is supporting */}
-            {model.semicolonToken.position.startColumn !== model.semicolonToken.position.endColumn &&
-                <TokenComponent model={model.semicolonToken} />}
         </>
     );
 }

@@ -91,7 +91,7 @@ export function StatementEditor(props: StatementEditorProps) {
     const {
         model: editorModel,
         source,
-        position : targetPosition,
+        position: targetPosition,
         undoRedoManager,
         isConfigurableStmt,
         isModuleVar,
@@ -105,7 +105,7 @@ export function StatementEditor(props: StatementEditorProps) {
     } = editorManager;
 
     const fileURI = monaco.Uri.file(currentFile.path).toString().replace(FILE_SCHEME, EXPR_SCHEME);
-    const initSymbolInfo : EmptySymbolInfo = {}
+    const initSymbolInfo: EmptySymbolInfo = {}
 
     const [model, setModel] = useState<STNode>(null);
     const [currentModel, setCurrentModel] = useState<CurrentModel>({ model });
@@ -126,7 +126,7 @@ export function StatementEditor(props: StatementEditorProps) {
             setStmtModel(undoItem.oldModel.model, diagnostics);
 
             const newCurrentModel = getCurrentModel(undoItem.oldModel.selectedPosition, enrichModel(undoItem.oldModel.model, targetPosition));
-            setCurrentModel({model: newCurrentModel});
+            setCurrentModel({ model: newCurrentModel });
             await handleDocumentation(newCurrentModel);
         }
         setHasSyntaxDiagnostics(false);
@@ -142,7 +142,7 @@ export function StatementEditor(props: StatementEditorProps) {
             setStmtModel(redoItem.newModel.model, diagnostics);
 
             const newCurrentModel = getCurrentModel(redoItem.newModel.selectedPosition, enrichModel(redoItem.newModel.model, targetPosition));
-            setCurrentModel({model: newCurrentModel});
+            setCurrentModel({ model: newCurrentModel });
             await handleDocumentation(newCurrentModel);
         }
         setHasSyntaxDiagnostics(false);
@@ -221,7 +221,7 @@ export function StatementEditor(props: StatementEditorProps) {
             if (config.type !== CUSTOM_CONFIG_TYPE) {
                 if (editorModel && newConfigurableName) {
                     await updateModel(newConfigurableName, selectedNodePosition, editorModel);
-                    updateEditor(activeEditorId, {...editors[activeEditorId], newConfigurableName: undefined});
+                    updateEditor(activeEditorId, { ...editors[activeEditorId], newConfigurableName: undefined });
                 }
             }
         })();
@@ -267,39 +267,39 @@ export function StatementEditor(props: StatementEditorProps) {
         if (!partialST.syntaxDiagnostics.length || config.type === CUSTOM_CONFIG_TYPE) {
             setStmtModel(partialST, diagnostics);
             const selectedPosition = getSelectedModelPosition(codeSnippet, position);
-            let oldModel : StackElement;
+            let oldModel: StackElement;
             if (undoRedoManager.hasUndo()) {
                 oldModel = undoRedoManager.getCurrentModel().newModel;
             } else {
                 oldModel = {
                     model,
-                    selectedPosition : currentModel.model.position
+                    selectedPosition: currentModel.model.position
                 }
             }
-            const newModel : StackElement = {
+            const newModel: StackElement = {
                 model: partialST,
                 selectedPosition
             }
             undoRedoManager.add(oldModel, newModel);
 
             const newCurrentModel = getCurrentModel(selectedPosition, enrichModel(partialST, targetPosition));
-            setCurrentModel({model: newCurrentModel});
+            setCurrentModel({ model: newCurrentModel });
             setHasSyntaxDiagnostics(false);
 
-        } else if (partialST.syntaxDiagnostics.length){
+        } else if (partialST.syntaxDiagnostics.length) {
             setHasSyntaxDiagnostics(true);
         }
     }
 
     const handleModules = (module: string) => {
-        let moduleIncluded : boolean;
+        let moduleIncluded: boolean;
         importStatements.forEach(importedModule => {
-            if (importedModule.includes(module)){
+            if (importedModule.includes(module)) {
                 moduleIncluded = true;
             }
         });
 
-        if (!moduleIncluded){
+        if (!moduleIncluded) {
             setModuleList((prevModuleList: Set<string>) => {
                 return new Set(prevModuleList.add(module));
             });
@@ -316,7 +316,7 @@ export function StatementEditor(props: StatementEditorProps) {
 
     const handleDiagnostics = async (statement: string): Promise<Diagnostic[]> => {
         const diagResp = await getDiagnostics(fileURI, getLangClient);
-        const diag  = diagResp[0]?.diagnostics ? diagResp[0].diagnostics : [];
+        const diag = diagResp[0]?.diagnostics ? diagResp[0].diagnostics : [];
         removeUnusedModules(diag);
         const messages = getFilteredDiagnosticMessages(statement, targetPosition, diag);
         setStmtDiagnostics(messages);
@@ -324,37 +324,37 @@ export function StatementEditor(props: StatementEditorProps) {
     }
 
     const handleDocumentation = async (newCurrentModel: STNode) => {
-        if (newCurrentModel && STKindChecker.isFunctionCall(newCurrentModel)){
+        if (newCurrentModel && STKindChecker.isFunctionCall(newCurrentModel)) {
             setDocumentation(await getSymbolDocumentation(fileURI, targetPosition, newCurrentModel, getLangClient));
         } else {
             setDocumentation(initSymbolInfo)
         }
     }
 
-    const removeUnusedModules = (completeDiagnostic:  Diagnostic[]) => {
+    const removeUnusedModules = (completeDiagnostic: Diagnostic[]) => {
         if (!!moduleList.size) {
             const unusedModuleName = new RegExp(/'(.*?[^\\])'/g);
             completeDiagnostic.forEach(diagnostic => {
                 let extracted;
                 if (diagnostic.message.includes("unused module prefix '") ||
                     diagnostic.message.includes("undefined module '")) {
-                        extracted = unusedModuleName.exec(diagnostic.message);
-                        if (extracted) {
-                            const extractedModule = extracted[1]
-                            moduleList.forEach(moduleName => {
-                                if (moduleName.includes(extractedModule)) {
-                                    moduleList.delete(moduleName);
-                                    setModuleList(moduleList);
-                                }
-                            });
-                        }
+                    extracted = unusedModuleName.exec(diagnostic.message);
+                    if (extracted) {
+                        const extractedModule = extracted[1]
+                        moduleList.forEach(moduleName => {
+                            if (moduleName.includes(extractedModule)) {
+                                moduleList.delete(moduleName);
+                                setModuleList(moduleList);
+                            }
+                        });
+                    }
                 }
             });
         }
     };
 
     const currentModelHandler = (cModel: STNode, stmtPosition?: NodePosition) => {
-        if (cModel.value && cModel.value === DEFAULT_INTERMEDIATE_CLAUSE){
+        if (cModel.value && cModel.value === DEFAULT_INTERMEDIATE_CLAUSE) {
             setCurrentModel({
                 model: cModel.parent.parent,
                 stmtPosition
@@ -369,8 +369,8 @@ export function StatementEditor(props: StatementEditorProps) {
 
     const parentModelHandler = () => {
         setCurrentModel(() => {
-            if (!!currentModel.model?.parent){
-                return {model: currentModel.model.parent}
+            if (!!currentModel.model?.parent) {
+                return { model: currentModel.model.parent }
             }
             else {
                 return currentModel
@@ -381,19 +381,19 @@ export function StatementEditor(props: StatementEditorProps) {
     const nextModelHandler = () => {
         const nextModel = getNextNode(currentModel.model, model)
         setCurrentModel(() => {
-            return {model: nextModel}
+            return { model: nextModel }
         });
     };
 
     const previousModelHandler = () => {
         const previousModel = getPreviousNode(currentModel.model, model)
         setCurrentModel(() => {
-            return {model: previousModel};
+            return { model: previousModel };
         });
     };
 
     function setStmtModel(editedModel: STNode, diagnostics?: Diagnostic[]) {
-        setModel({...enrichModel(editedModel, targetPosition, diagnostics)});
+        setModel({ ...enrichModel(editedModel, targetPosition, diagnostics) });
     }
 
     const keyboardNavigationManager = new KeyboardNavigationManager()
@@ -411,7 +411,6 @@ export function StatementEditor(props: StatementEditorProps) {
             keyboardNavigationManager.resetMouseTrapInstance(client)
         }
     }, [currentModel.model]);
-
 
     return (
         (

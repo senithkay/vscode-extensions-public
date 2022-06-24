@@ -25,12 +25,6 @@ interface ConstantDeclProps {
 
 export function ConstantDeclC(props: ConstantDeclProps) {
     const { model } = props;
-    const {
-        modelCtx: {
-            currentModel,
-            changeCurrentModel
-        }
-    } = useContext(StatementEditorContext);
 
     return (
         <>
@@ -39,8 +33,7 @@ export function ConstantDeclC(props: ConstantDeclProps) {
             <ExpressionComponent model={model.variableName}/>
             <TokenComponent model={model.equalsToken} className={"operator"} />
             <ExpressionComponent model={model.initializer}/>
-            {/* TODO: use model.semicolonToken.isMissing when the ST interface is supporting */}
-            {model.semicolonToken.position.startColumn !== model.semicolonToken.position.endColumn &&
+            {!model.semicolonToken.isMissing &&
                 <TokenComponent model={model.semicolonToken} />}
         </>
     );

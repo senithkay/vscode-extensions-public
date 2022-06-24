@@ -155,5 +155,17 @@ service {{{ BASE_PATH }}} on {{{ LISTENER_NAME }}}`,
     worker {{{NAME}}} returns {{{RETURN_TYPE}}} {
 
     }
+    `,
+    ASYNC_SEND_STATEMENT: `
+    {{{EXPRESSION}}} -> {{{TARGET_WORKER}}};
+    `,
+    ASYNC_RECEIVE_STATEMENT: `
+    error|{{{TYPE}}} {{{VAR_NAME}}} = <- {{{SENDER_WORKER}}};
+    `,
+    WAIT_STATEMENT: `
+    {{{TYPE}}} {{{VAR_NAME}}} = wait {{{WORKER_NAME}}};
+    `,
+    FLUSH_STATEMENT: `
+    error? {{{VAR_NAME}}} = flush {{{WORKER_NAME}}};
     `
 }

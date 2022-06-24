@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { FormField, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FlushStatementConfig, FormField, ReceivestatementConfig, SendStatementConfig, STModification, WaitStatementConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, StringTemplateExpression } from "@wso2-enterprise/syntax-tree";
 
 import { ConfigurableFormState } from "../components/FormComponents/ConfigForms/ConfigurableForm/util";
@@ -395,7 +395,7 @@ export function createImportStatement(org: string, module: string, targetPositio
 
     const subModuleName = moduleName.split('.').pop();
     if (moduleName.includes('.') && subModuleName !== formattedName) {
-        if (keywords.includes(subModuleName)){
+        if (keywords.includes(subModuleName)) {
             module = module.replace(subModuleName, "'" + subModuleName);
         }
         // add alias if module name is different with formatted name
@@ -665,6 +665,64 @@ export function createModuleVarDecl(config: ModuleVariableFormState, targetPosit
             'VAR_TYPE': varType,
             'VAR_NAME': varName,
             'VAR_VALUE': varValue
+        }
+    }
+}
+
+export function createSendStatement(config: SendStatementConfig, targetPosition?: NodePosition): STModification {
+    return {
+        startLine: targetPosition ? targetPosition.startLine : 0,
+        endLine: targetPosition ? targetPosition.startLine : 0,
+        startColumn: targetPosition ? targetPosition.endColumn : 0,
+        endColumn: targetPosition ? targetPosition.endColumn : 0,
+        type: 'ASYNC_SEND_STATEMENT',
+        config: {
+            'EXPRESSION': config.expression,
+            'TARGET_WORKER': config.targetWorker
+        }
+    }
+}
+
+export function createReceiveStatement(config: ReceivestatementConfig, targetPosition?: NodePosition): STModification {
+    return {
+        startLine: targetPosition ? targetPosition.startLine : 0,
+        endLine: targetPosition ? targetPosition.startLine : 0,
+        startColumn: targetPosition ? targetPosition.endColumn : 0,
+        endColumn: targetPosition ? targetPosition.endColumn : 0,
+        type: 'ASYNC_RECEIVE_STATEMENT',
+        config: {
+            'TYPE': config.type,
+            'VAR_NAME': config.varName,
+            'SENDER_WORKER': config.senderWorker
+        }
+    }
+}
+
+export function createWaitStatement(config: WaitStatementConfig, targetPosition?: NodePosition): STModification {
+    return {
+        startLine: targetPosition ? targetPosition.startLine : 0,
+        endLine: targetPosition ? targetPosition.startLine : 0,
+        startColumn: targetPosition ? targetPosition.endColumn : 0,
+        endColumn: targetPosition ? targetPosition.endColumn : 0,
+        type: 'WAIT_STATEMENT',
+        config: {
+            'TYPE': config.type,
+            'VAR_NAME': config.varName,
+            'WORKER_NAME': config.expression
+        }
+    }
+}
+
+export function createFlushStatement(config: FlushStatementConfig, targetPosition?: NodePosition): STModification {
+    return {
+        startLine: targetPosition ? targetPosition.startLine : 0,
+        endLine: targetPosition ? targetPosition.startLine : 0,
+        startColumn: targetPosition ? targetPosition.endColumn : 0,
+        endColumn: targetPosition ? targetPosition.endColumn : 0,
+        type: 'FLUSH_STATEMENT',
+        config: {
+            'VAR_NAME': config.varName,
+            'WORKER_NAME': config.expression
         }
     }
 }

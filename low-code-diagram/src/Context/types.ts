@@ -110,4 +110,5 @@ export interface FunctionProperties {
     overlayId: string;
     overlayNode: HTMLDivElement;
     functionNode: STNode;
+    hasWorker: boolean;
 }
