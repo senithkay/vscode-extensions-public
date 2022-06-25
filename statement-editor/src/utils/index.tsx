@@ -536,12 +536,18 @@ export function getSymbolPosition(targetPos: NodePosition, currentModel: STNode,
 
         }
         return  position;
-    } else if (STKindChecker.isImplicitNewExpression(currentModel)){
+    } else if (STKindChecker.isImplicitNewExpression(currentModel) || STKindChecker.isExplicitNewExpression(currentModel)){
         position = {
             line : targetPos.startLine + currentModel.position.startLine,
             offset : targetPos.startColumn + currentModel.parenthesizedArgList.position.startColumn
         }
         return  position;
+    } else if (STKindChecker.isMethodCall(currentModel)) {
+        position = {
+            line: targetPos.startLine + currentModel.methodName.position.startLine,
+            offset: targetPos.startColumn + currentModel.methodName.position.startColumn
+        }
+        return position;
     }
     position = {
         line : targetPos.startLine + currentModel.position.startLine,
@@ -550,10 +556,21 @@ export function getSymbolPosition(targetPos: NodePosition, currentModel: STNode,
     return position;
 }
 
+export function isDocumentationSupportedModel(currentModel: STNode): boolean {
+    return (STKindChecker.isFunctionCall(currentModel) || STKindChecker.isMethodCall(currentModel) ||
+        STKindChecker.isImplicitNewExpression(currentModel) || STKindChecker.isExplicitNewExpression(currentModel));
+}
+
 export function getCurrentModelParams(currentModel: STNode): STNode[] {
     const paramsInModel: STNode[] = [];
-    if (STKindChecker.isFunctionCall(currentModel)) {
+    if (STKindChecker.isFunctionCall(currentModel) || STKindChecker.isMethodCall(currentModel)) {
         currentModel.arguments.forEach((parameter: any) => {
+            if (!parameter.isToken) {
+                paramsInModel.push(parameter);
+            }
+        });
+    } else if (STKindChecker.isImplicitNewExpression(currentModel) || STKindChecker.isExplicitNewExpression(currentModel)) {
+        currentModel.parenthesizedArgList.arguments.forEach((parameter: any) => {
             if (!parameter.isToken) {
                 paramsInModel.push(parameter);
             }
@@ -600,27 +617,23 @@ export function isAllowedIncludedArgsAdded(parameters: ParameterInfo[], checkedL
     return isIncluded;
 }
 
-export function getUpdatedContentOnCheck(currentModel: FunctionCall, param: ParameterInfo, parameters: ParameterInfo[]) : string {
-    const functionParameters: string[] = [];
-    currentModel.arguments.filter((parameter: any) => !STKindChecker.isCommaToken(parameter)).
-    map((parameter: STNode) => {
-        functionParameters.push(parameter.source);
-    });
+export function getUpdatedContentOnCheck(currentModel: STNode, param: ParameterInfo, parameters: ParameterInfo[]) : string {
+    const modelParams: string[] = getModelParamSourceList(currentModel);
 
     if (param.kind === SymbolParameterType.DEFAULTABLE) {
         containsMultipleDefaultableParams(parameters) ? (
-            functionParameters.push((keywords.includes(param.name) ?
+                modelParams.push((keywords.includes(param.name) ?
                 `'${param.name} = ${EXPR_CONSTRUCTOR}` :
                 `${param.name} = ${EXPR_CONSTRUCTOR}`))
             ) :
-            functionParameters.push(`${EXPR_CONSTRUCTOR}`);
+            modelParams.push(`${EXPR_CONSTRUCTOR}`);
     } else if (param.kind === SymbolParameterType.REST) {
-        functionParameters.push(EXPR_CONSTRUCTOR);
+        modelParams.push(EXPR_CONSTRUCTOR);
     } else {
-        functionParameters.push(param.name);
+        modelParams.push(param.name);
     }
 
-    const content: string = currentModel.functionName.source + "(" + functionParameters.join(",") + ")";
+    const content: string = "(" + modelParams.join(",") + ")";
     return content;
 }
 
@@ -638,29 +651,33 @@ function containsMultipleDefaultableParams(parameters: ParameterInfo[]): boolean
     return !!found;
 }
 
-export function getUpdatedContentOnUncheck(currentModel: FunctionCall, currentIndex: number) : string {
-    const functionParameters: string[] = [];
-    currentModel.arguments.filter((parameter: any) => !STKindChecker.isCommaToken(parameter)).
-    map((parameter: STNode, pos: number) => {
-        if (pos !== currentIndex) {
-            functionParameters.push(parameter.source);
-        }
-    });
+export function getUpdatedContentOnUncheck(currentModel: STNode, currentIndex: number) : string {
+    const modelParams: string[] = [];
+    if (STKindChecker.isFunctionCall(currentModel) || STKindChecker.isMethodCall(currentModel)) {
+        currentModel.arguments.filter((parameter: any) => !STKindChecker.isCommaToken(parameter)).
+        map((parameter: STNode, pos: number) => {
+            if (pos !== currentIndex) {
+                modelParams.push(parameter.source);
+            }
+        });
+    } else if (STKindChecker.isImplicitNewExpression(currentModel) || STKindChecker.isExplicitNewExpression(currentModel)){
+        currentModel.parenthesizedArgList.arguments.filter((parameter: any) => !STKindChecker.isCommaToken(parameter)).
+        map((parameter: STNode, pos: number) => {
+            if (pos !== currentIndex) {
+                modelParams.push(parameter.source);
+            }
+        });
+    }
 
-    const content: string = currentModel.functionName.source + "(" + functionParameters.join(",") + ")";
+    const content: string = "(" + modelParams.join(",") + ")";
     return content;
 }
 
-export function getUpdatedContentForNewNamedArg(currentModel: FunctionCall, userInput: string) : string {
-    const functionParameters: string[] = [];
-    currentModel.arguments.filter((parameter: any) => !STKindChecker.isCommaToken(parameter)).
-    map((parameter: STNode) => {
-        functionParameters.push(parameter.source);
-    });
-
-    functionParameters.push(`${userInput} = ${EXPR_CONSTRUCTOR}`);
-    const content: string = currentModel.functionName.source + "(" + functionParameters.join(",") + ")";
-    return content;
+export function getUpdatedContentForNewNamedArg(currentModel: STNode, userInput: string) : string {
+    const modelParams: string[] = getModelParamSourceList(currentModel);
+    modelParams.push(`${userInput} = ${EXPR_CONSTRUCTOR}`);
+    const content: string = "(" + modelParams.join(",") + ")";
+    return content
 }
 
 export function getExprWithArgs(suggestionValue: string, prefix?: string): string {
@@ -690,4 +707,40 @@ export function getFilteredExpressions(expression : ExpressionGroup[], currentMo
 export function eligibleForLevelTwoSuggestions(selectedModel: STNode, selection: string): boolean {
     return (selectedModel.viewState as StatementEditorViewState).modelType === ModelType.EXPRESSION
         && selection !== '?';
+}
+
+function getModelParamSourceList(currentModel: STNode): string[] {
+    const modelParams: string[] = [];
+    if (STKindChecker.isFunctionCall(currentModel) || STKindChecker.isMethodCall(currentModel)) {
+        currentModel.arguments.filter((parameter: any) => !STKindChecker.isCommaToken(parameter)).
+        map((parameter: STNode) => {
+            modelParams.push(parameter.source);
+        });
+    } else if (STKindChecker.isImplicitNewExpression(currentModel) || STKindChecker.isExplicitNewExpression(currentModel)){
+        currentModel.parenthesizedArgList.arguments.filter((parameter: any) => !STKindChecker.isCommaToken(parameter)).
+        map((parameter: STNode) => {
+            modelParams.push(parameter.source);
+        });
+    }
+    return modelParams;
+}
+
+export function getParamUpdateModelPosition(model: STNode) {
+    let position : NodePosition;
+    if (STKindChecker.isFunctionCall(model) || STKindChecker.isMethodCall(model)) {
+        position = {
+            startLine: model.openParenToken.position.startLine,
+            startColumn: model.openParenToken.position.startColumn,
+            endLine: model.closeParenToken.position.endLine,
+            endColumn: model.closeParenToken.position.endColumn,
+        }
+    } else if (STKindChecker.isImplicitNewExpression(model) || STKindChecker.isExplicitNewExpression(model)){
+        position = {
+            startLine: model.parenthesizedArgList.openParenToken.position.startLine,
+            startColumn: model.parenthesizedArgList.openParenToken.position.startColumn,
+            endLine: model.parenthesizedArgList.closeParenToken.position.endLine,
+            endColumn: model.parenthesizedArgList.closeParenToken.position.endColumn,
+        }
+    }
+    return position;
 }

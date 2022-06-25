@@ -39,7 +39,7 @@ import {
     getPreviousNode,
     getSelectedModelPosition,
     getUpdatedSource,
-    isBindingPattern,
+    isBindingPattern, isDocumentationSupportedModel,
     isOperator,
 } from "../../utils";
 import { KeyboardNavigationManager } from '../../utils/keyboard-navigation-manager';
@@ -332,7 +332,7 @@ export function StatementEditor(props: StatementEditorProps) {
     }
 
     const handleDocumentation = async (newCurrentModel: STNode) => {
-        if (newCurrentModel && STKindChecker.isFunctionCall(newCurrentModel)) {
+        if (newCurrentModel && isDocumentationSupportedModel(newCurrentModel)){
             setDocumentation(await getSymbolDocumentation(fileURI, targetPosition, newCurrentModel, getLangClient));
         } else {
             setDocumentation(initSymbolInfo);
