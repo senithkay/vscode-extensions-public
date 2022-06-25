@@ -657,6 +657,13 @@ export function getUpdatedContentForNewNamedArg(currentModel: STNode, userInput:
     return content
 }
 
+// TODO: Remove this function once the methodCall param filter is added to the LS
+export function updateParamListFordMethodCallDoc(paramsInModel: STNode[],  documentation : SymbolDocumentation) {
+    if (paramsInModel[0]?.source === undefined || documentation.parameters[0]?.name !==  paramsInModel[0]?.source){
+        documentation.parameters.splice(0, 1);
+    }
+}
+
 export function getExprWithArgs(suggestionValue: string, prefix?: string): string {
     const paramRegex = /\w+\((.*)\)/m;
     const params = paramRegex.exec(suggestionValue);
