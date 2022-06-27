@@ -137,6 +137,7 @@ export function StatementEditor(props: StatementEditorProps) {
             const newCurrentModel = getCurrentModel(undoItem.oldModel.selectedPosition, enrichModel(undoItem.oldModel.model, targetPosition));
             setCurrentModel({model: newCurrentModel});
             await handleDocumentation(newCurrentModel);
+            setHasSyntaxDiagnostics(false);
         }
     };
 
