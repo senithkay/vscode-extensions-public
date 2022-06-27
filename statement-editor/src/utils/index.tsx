@@ -525,6 +525,10 @@ export function getModuleIconStyle(label: string): string {
     return suggestionIconStyle;
 }
 
+export function isFunctionOrMethodCall(currentModel: STNode): boolean {
+    return STKindChecker.isFunctionCall(currentModel) || STKindChecker.isMethodCall(currentModel);
+}
+
 export function getSymbolPosition(targetPos: NodePosition, currentModel: STNode, userInput: string): LinePosition{
     let position: LinePosition;
     if (STKindChecker.isFunctionCall(currentModel)){
