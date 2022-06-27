@@ -37,6 +37,8 @@ export enum EXTENDED_APIS {
     PARTIAL_PARSE_SINGLE_STATEMENT = 'partialParser/getSTForSingleStatement',
     PARTIAL_PARSE_EXPRESSION = 'partialParser/getSTForExpression',
     PARTIAL_PARSE_MODULE_MEMBER = 'partialParser/getSTForModuleMembers',
+    PARTIAL_PARSE_MODULE_PART = 'partialParser/getSTForModulePart',
+    PARTIAL_PARSE_RESOURCE = 'partialParser/getSTForResource',
     EXAMPLE_LIST = 'ballerinaExample/list',
     PERF_ANALYZER_ENDPOINTS = 'performanceAnalyzer/getResourcesWithEndpoints',
     RESOLVE_MISSING_DEPENDENCIES = 'ballerinaDocument/resolveMissingDependencies',
@@ -157,15 +159,12 @@ export interface BallerinaRecordResponse {
 export interface VisibleEndpoint {
     kind?: string;
     isCaller: boolean;
-    isExternal: boolean;
-    isModuleVar: boolean;
     moduleName: string;
     name: string;
     packageName: string;
     orgName: string;
     version: string;
     typeName: string;
-    position: NodePosition;
     viewState?: any;
 }
 export interface NodePosition {
@@ -773,6 +772,10 @@ export interface IBallerinaLangClient {
     getSTForExpression	: (param: PartialSTRequest) => Thenable<PartialSTResponse>;
 
     getSTForModuleMembers: (param: PartialSTRequest) => Thenable<PartialSTResponse>;
+
+    getSTForModulePart: (param: PartialSTRequest) => Thenable<PartialSTResponse>;
+
+    getSTForResource: (param: PartialSTRequest) => Thenable<PartialSTResponse>;
 
     getTriggers: (params: BallerinaTriggersRequest) => Thenable<BallerinaTriggersResponse>;
 

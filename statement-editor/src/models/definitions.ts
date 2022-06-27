@@ -39,9 +39,11 @@ export interface LSSuggestions {
 
 export interface SuggestionItem {
     value: string;
+    label?: string,
     kind?: string;
     insertText?: string;
     completionKind?: number;
+    suggestionType?: number;
     prefix?: string;
 }
 
@@ -77,6 +79,7 @@ export interface EditorModel {
     position: NodePosition;
     undoRedoManager: StmtEditorUndoRedoManager;
     isConfigurableStmt?: boolean;
+    isModuleVar?: boolean;
     isExistingStmt?: boolean;
     selectedNodePosition?: NodePosition;
     newConfigurableName?: string;

@@ -13,6 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useEffect, useState } from 'react';
 
+import { FormControl } from '@material-ui/core';
 import {
     ExpressionEditorLangClientInterface,
     LibraryDataResponse,
@@ -26,7 +27,6 @@ import * as monaco from "monaco-editor";
 
 import { CUSTOM_CONFIG_TYPE } from "../../constants";
 import { EditorModel } from "../../models/definitions";
-import { getUpdatedSource } from "../../utils";
 import { getPartialSTForModuleMembers, getPartialSTForStatement, sendDidOpen } from "../../utils/ls-utils";
 import { StmtEditorUndoRedoManager } from "../../utils/undo-redo";
 import { EXPR_SCHEME, FILE_SCHEME } from "../InputEditor/constants";
@@ -57,15 +57,10 @@ export interface LowCodeEditorProps {
     importStatements?: string[];
     experimentalEnabled?: boolean;
     isConfigurableStmt?: boolean;
+    isModuleVar?: boolean;
 }
 
-export interface FormHandlingProps extends LowCodeEditorProps {
-    handleStatementEditorChange?: (partialModel: STNode) => void;
-    onStmtEditorModelChange?: (partialModel: STNode) => void;
-    handleStmtEditorToggle?: () => void;
-}
-
-export interface StatementEditorWrapperProps extends FormHandlingProps {
+export interface StatementEditorWrapperProps extends LowCodeEditorProps {
     label: string;
     initialSource: string;
 }
@@ -78,7 +73,6 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
         config,
         onCancel,
         onWizardClose,
-        onStmtEditorModelChange,
         getLangClient,
         applyModifications,
         library,
@@ -87,13 +81,13 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
         stSymbolInfo,
         importStatements,
         experimentalEnabled,
-        handleStmtEditorToggle,
-        isConfigurableStmt
+        isConfigurableStmt,
+        isModuleVar
     } = props;
 
     const {
-        formArgs : {
-            targetPosition : targetPosition
+        formArgs: {
+            targetPosition: targetPosition
         }
     } = formArgs;
 
@@ -157,27 +151,28 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
                 if (initialSource) {
                     await sendDidOpen(fileURI, currentFile.content, getLangClient);
 
-                    const partialST = isConfigurableStmt
+                    const partialST = (isConfigurableStmt || isModuleVar)
                         ? await getPartialSTForModuleMembers({ codeSnippet: initialSource.trim() }, getLangClient)
                         : await getPartialSTForStatement({ codeSnippet: initialSource.trim() }, getLangClient);
 
                     if (!partialST.syntaxDiagnostics.length || config.type === CUSTOM_CONFIG_TYPE) {
                         model = partialST;
                     }
-                }
+            }
                 const newEditor: EditorModel = {
                     label,
                     model,
                     source: initialSource,
                     position: targetPosition,
                     isConfigurableStmt,
+                    isModuleVar,
                     undoRedoManager: new StmtEditorUndoRedoManager()
                 };
 
                 setEditors((prevEditors: EditorModel[]) => {
                     return [...prevEditors, newEditor];
                 });
-            })();
+        })();
 
     }, []);
 
@@ -189,38 +184,38 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
     }, [editors]);
 
     return (
-        editor
-            ? (
-                <>
-                    <StatementEditor
-                        editor={editor}
-                        editorManager={{
-                            switchEditor,
-                            updateEditor,
-                            dropLastEditor,
-                            addConfigurable,
-                            activeEditorId,
-                            editors
-                        }}
-                        onWizardClose={onWizardClose}
-                        onCancel={onCancel}
-                        onStmtEditorModelChange={onStmtEditorModelChange}
-                        config={config}
-                        formArgs={formArgs}
-                        getLangClient={getLangClient}
-                        applyModifications={applyModifications}
-                        currentFile={currentFile}
-                        library={library}
-                        importStatements={importStatements}
-                        syntaxTree={syntaxTree}
-                        stSymbolInfo={stSymbolInfo}
-                        experimentalEnabled={experimentalEnabled}
-                        handleStmtEditorToggle={handleStmtEditorToggle}
-                    />
-                </>
-            )
-            : (
-                <></>
-            )
+        <FormControl data-testid="property-form">
+            {editor
+                ? (
+                    <>
+                        <StatementEditor
+                            editor={editor}
+                            editorManager={{
+                                switchEditor,
+                                updateEditor,
+                                dropLastEditor,
+                                addConfigurable,
+                                activeEditorId,
+                                editors
+                            }}
+                            onWizardClose={onWizardClose}
+                            onCancel={onCancel}
+                            config={config}
+                            formArgs={formArgs}
+                            getLangClient={getLangClient}
+                            applyModifications={applyModifications}
+                            currentFile={currentFile}
+                            library={library}
+                            importStatements={importStatements}
+                            syntaxTree={syntaxTree}
+                            stSymbolInfo={stSymbolInfo}
+                            experimentalEnabled={experimentalEnabled}
+                        />
+                    </>
+                )
+                : (
+                    <></>
+                )}
+        </FormControl>
     )
 }

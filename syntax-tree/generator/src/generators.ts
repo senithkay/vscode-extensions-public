@@ -12,15 +12,12 @@ export function genInterfacesFileCode(modelInfo: any) {
         export interface VisibleEndpoint {
             kind?: string;
             isCaller: boolean;
-            isExternal: boolean;
-            isModuleVar: boolean;
             moduleName: string;
             name: string;
             packageName: string;
             orgName: string;
             version: string;
             typeName: string;
-            position: NodePosition;
             viewState?: any;
         }
 
@@ -45,6 +42,11 @@ export function genInterfacesFileCode(modelInfo: any) {
         }
 
         export interface SyntaxDiagnostics {
+            diagnosticInfo: DiagnosticInfo;
+            message: string;
+        }
+
+        export interface Diagnostic {
             diagnosticInfo: DiagnosticInfo;
             message: string;
         }

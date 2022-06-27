@@ -209,6 +209,15 @@ export const useStatementRendererStyles = makeStyles(() =>
                 display: "none"
             }
         },
+        errorHighlight: {
+            backgroundImage: `linear-gradient(45deg, transparent 65%, red 80%, transparent 90%),
+                linear-gradient(135deg, transparent 5%, red 15%, transparent 25%),
+                linear-gradient(135deg, transparent 45%, red 55%, transparent 65%),
+                linear-gradient(45deg, transparent 25%, red 35%, transparent 50%)`,
+            backgroundRepeat: "repeat-x",
+            backgroundSize: "8px 2px",
+            backgroundPosition: "0 95%"
+        },
         syntaxErrorTooltip : {
             position: 'absolute',
             top: '-10px'
@@ -696,13 +705,13 @@ export const useStatementEditorStyles = makeStyles(() =>
             height: 'auto',
             display: 'flex',
             width: '100%',
-            padding: '10px 20px',
+            padding: '10px 25px',
             borderTop: '1px solid #e6e7ec'
         },
         buttonWrapper: {
             display: 'flex',
             justifyContent: 'flex-end',
-            width: '50%'
+            width: '100%'
         },
         stmtEditorToggle: {
             width: '50%'

@@ -154,6 +154,7 @@ export class InitVisitor implements Visitor {
 
     public beginVisitFunctionBodyBlock(node: FunctionBodyBlock, parent?: STNode) {
         currentFnBody = node;
+        this.allEndpoints = new Map<string, Endpoint>();
         this.visitBlock(node, parent);
     }
 
@@ -283,7 +284,8 @@ export class InitVisitor implements Visitor {
         // todo: Check if this is the function to replace beginVisitExpressionStatement
         node.viewState = new BlockViewState();
         currentFnBody = node;
-
+        this.allEndpoints = new Map<string, Endpoint>();
+        // this.visitBlock(node, parent);
         node.viewState.isEndComponentAvailable = true;
     }
 

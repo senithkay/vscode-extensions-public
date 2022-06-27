@@ -258,7 +258,8 @@ export interface ElseIfConfig {
 
 export interface ProcessConfig {
     type: string;
-    config?: string | LogConfig | RespondConfig | CustomExpressionConfig | WorkerConfig;
+    config?: string | LogConfig | RespondConfig | CustomExpressionConfig | WorkerConfig | SendStatementConfig
+    | ReceivestatementConfig | WaitStatementConfig;
     scopeSymbols?: string[];
     model?: STNode;
     wizardType?: WizardType;
@@ -274,6 +275,28 @@ export interface LogConfig {
 export interface WorkerConfig {
     name: string;
     returnType: string;
+}
+
+export interface SendStatementConfig {
+    expression: string;
+    targetWorker: string;
+}
+
+export interface ReceivestatementConfig {
+    type: string;
+    varName: string;
+    senderWorker: string;
+}
+
+export interface WaitStatementConfig {
+    type: string;
+    varName: string;
+    expression: string;
+}
+
+export interface FlushStatementConfig {
+    varName: string;
+    expression: string;
 }
 
 export interface CustomExpressionConfig {
@@ -327,4 +350,17 @@ export interface EndConfig {
     scopeSymbols?: string[];
     wizardType?: WizardType;
     model?: STNode;
+}
+
+export interface HTTPServiceConfigState {
+    serviceBasePath: string;
+    listenerConfig: ListenerConfigFormState,
+    hasInvalidConfig?: boolean
+}
+
+export interface ListenerConfigFormState {
+    createNewListener?: boolean;
+    fromVar?: boolean,
+    listenerName?: string,
+    listenerPort?: string,
 }

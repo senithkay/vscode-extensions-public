@@ -19,7 +19,7 @@ import {
     SecondaryButton,
     StatementEditorButton
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
-import { ModuleVarDecl } from "@wso2-enterprise/syntax-tree";
+import { ModuleVarDecl, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { EditorModel } from "../../models/definitions";
 import { StatementEditorContext } from "../../store/statement-editor-context";
@@ -64,8 +64,7 @@ export function ViewContainer(props: ViewContainerProps) {
             activeEditorId
         },
         targetPosition,
-        experimentalEnabled,
-        handleStmtEditorToggle
+        syntaxTree
     } =  useContext(StatementEditorContext);
     const exprSchemeURI = `expr://${currentFile.path}`;
     const fileSchemeURI = `file://${currentFile.path}`;
@@ -101,7 +100,11 @@ export function ViewContainer(props: ViewContainerProps) {
 
         const model = statementModel as ModuleVarDecl;
 
-        const noOfLines = editors[activeEditorId].isExistingStmt ? 0 : model.source.split('\n').length;
+        const noOfLines = editors[activeEditorId].isExistingStmt
+            ? 0
+            : STKindChecker.isModulePart(syntaxTree) && !!syntaxTree.imports.length
+                ? model.source.split('\n').length
+                : 1;
         const nextEditor: EditorModel = editors[activeEditorId - 1];
 
         updateEditor(activeEditorId - 1, {
@@ -152,15 +155,6 @@ export function ViewContainer(props: ViewContainerProps) {
                     <EditorPane data-testid="editor-pane"/>
                 </div>
                 <div className={overlayClasses.footer}>
-                    <div className={overlayClasses.stmtEditorToggle}>
-                        {experimentalEnabled && (
-                            <StatementEditorButton
-                                handleChange={handleStmtEditorToggle}
-                                checked={true}
-                                disabled={editors.length > 1}
-                            />
-                        )}
-                    </div>
                     <div className={overlayClasses.buttonWrapper}>
                         <SecondaryButton
                             text={activeEditorId !== 0 && isConfigurableStmt ? backButtonText : cancelButtonText}

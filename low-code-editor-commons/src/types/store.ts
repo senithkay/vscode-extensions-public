@@ -161,4 +161,5 @@ export interface PlusWidgetProps {
     overlayId?: string;
     overlayNode? : HTMLDivElement;
     offset?: any;
+    hasWorkerDecl?: boolean;
 }

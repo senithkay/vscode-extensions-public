@@ -5,6 +5,7 @@ import { PlusViewState } from "../ViewState";
 
 export interface LowCodeDiagramProps extends LowCodeDiagramProperties {
     api?: LowCodeDiagramAPI;
+    experimentalEnabled?: boolean;
 }
 
 export interface ZoomStatus {
@@ -109,4 +110,5 @@ export interface FunctionProperties {
     overlayId: string;
     overlayNode: HTMLDivElement;
     functionNode: STNode;
+    hasWorker: boolean;
 }

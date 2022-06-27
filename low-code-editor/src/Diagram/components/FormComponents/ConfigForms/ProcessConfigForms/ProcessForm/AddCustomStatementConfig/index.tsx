@@ -11,21 +11,13 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-// tslint:disable: ordered-imports
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect } from "react";
 import { useIntl } from "react-intl";
 
-import { FormControl } from "@material-ui/core";
-import { ADD_OTHER_STATEMENT, LowcodeEvent, SAVE_OTHER_STATEMENT, ProcessConfig, CustomExpressionConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { FormActionButtons, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
-import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
-import { STNode } from "@wso2-enterprise/syntax-tree";
+import { ProcessConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { StatementEditorWrapper } from "@wso2-enterprise/ballerina-statement-editor";
 
 import { Context } from "../../../../../../../Contexts/Diagram";
-import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
-import { useStyles as useFormStyles } from "../../../../DynamicConnectorForm/style";
-import { wizardStyles } from "../../../style";
-import { LowCodeExpressionEditor } from "../../../../FormFieldComponents/LowCodeExpressionEditor";
 
 interface LogConfigProps {
     config: ProcessConfig;
@@ -36,13 +28,10 @@ interface LogConfigProps {
 }
 
 export function AddCustomStatementConfig(props: LogConfigProps) {
-    const formClasses = useFormStyles();
-    const overlayClasses = wizardStyles();
     const intl = useIntl();
 
     const {
         props: {
-            isMutationProgress: isMutationInProgress,
             currentFile,
             stSymbolInfo,
             syntaxTree,
@@ -59,9 +48,7 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
         }
     } = useContext(Context);
 
-    const { config, formArgs, onCancel, onSave, onWizardClose } = props;
-
-    const expressionFormConfig: CustomExpressionConfig = config.config as CustomExpressionConfig;
+    const { config, formArgs, onCancel, onWizardClose } = props;
 
     // Insight event to send when loading the component
     useEffect(() => {
@@ -77,65 +64,18 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
         defaultExpression = config?.model?.source.trim();
     }
 
-    const [expression, setExpression] = useState(defaultExpression);
-    const [isFormValid, setIsFormValid] = useState(!!expression);
-
-    const onExpressionChange = (value: any) => {
-        setExpression(value);
-    };
-
-    const onSaveBtnClick = () => {
-        expressionFormConfig.expression = expression;
-        onSave();
-        // const event: LowcodeEvent = {
-        //     type: SAVE_OTHER_STATEMENT,
-        //     name: expression
-        // };
-        // onEvent(event);
-    }
-
-    const validateExpression = (_field: string, isInvalid: boolean) => {
-        const isValidExpression = !isInvalid ? (expression !== undefined && expression !== "") : false;
-        setIsFormValid(isValidExpression);
-    }
-
     const formTitle = intl.formatMessage({
         id: "lowcode.develop.configForms.customStatement.title",
         defaultMessage: "Other"
     });
 
-    const saveCustomStatementButtonLabel = intl.formatMessage({
-        id: "lowcode.develop.configForms.customStatement.saveButton.label",
-        defaultMessage: "Save"
-    });
-
-    const customStatementTooltipMessages = {
-        title: intl.formatMessage({
-            id: "lowcode.develop.configForms.customStatement.expressionEditor.tooltip.title",
-            defaultMessage: "Press CTRL+Spacebar for suggestions."
-        }),
-        actionText: intl.formatMessage({
-            id: "lowcode.develop.configForms.customStatement.expressionEditor.tooltip.actionText",
-            defaultMessage: "Learn about Ballerina expressions here"
-        }),
-        actionLink: intl.formatMessage({
-            id: "lowcode.develop.configForms.customStatement.expressionEditor.tooltip.actionTitle",
-            defaultMessage: "{learnBallerina}"
-        }, { learnBallerina: "https://ballerina.io/learn/by-example/" })
-    }
-
-    const handleStatementEditorChange = (partialModel: STNode) => {
-        setExpression(partialModel.source.trim());
-    }
-
-    const { handleStmtEditorToggle, stmtEditorComponent } = useStatementEditor(
+    const stmtEditorComponent = StatementEditorWrapper(
         {
             label: formTitle,
-            initialSource: expression ? expression : "STATEMENT",
+            initialSource: defaultExpression ? defaultExpression : "STATEMENT",
             formArgs: { formArgs },
             config,
             onWizardClose,
-            handleStatementEditorChange,
             onCancel,
             currentFile,
             getLangClient: getExpressionEditorLangClient,
@@ -148,55 +88,5 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
         }
     );
 
-    if (!stmtEditorComponent) {
-        return (
-            <FormControl data-testid="custom-expression-form" className={formClasses.wizardFormControl}>
-                <FormHeaderSection
-                    onCancel={onCancel}
-                    formTitle={formTitle}
-                    defaultMessage={"Other"}
-                />
-                <div className={formClasses.formContentWrapper}>
-                    <div className={formClasses.formNameWrapper}>
-                        <LowCodeExpressionEditor
-                            model={{ name: "statement", value: expression }}
-                            customProps={{
-                                validate: validateExpression,
-                                tooltipTitle: customStatementTooltipMessages.title,
-                                tooltipActionText: customStatementTooltipMessages.actionText,
-                                tooltipActionLink: customStatementTooltipMessages.actionLink,
-                                interactive: true,
-                                customTemplate: {
-                                    defaultCodeSnippet: ' ',
-                                    targetColumn: 1,
-                                },
-                                editPosition: config?.model?.position || formArgs?.targetPosition,
-                                initialDiagnostics: config?.model?.typeData?.diagnostics,
-                                disableFiltering: true,
-                                diagnosticsFilterExtraColumns: { end: 1 },
-                                diagnosticsFilterExtraRows: { end: 1 }
-                            }}
-                            onChange={onExpressionChange}
-                        />
-                    </div>
-                </div>
-                <FormActionButtons
-                    cancelBtnText="Cancel"
-                    cancelBtn={true}
-                    saveBtnText={saveCustomStatementButtonLabel}
-                    isMutationInProgress={isMutationInProgress}
-                    validForm={isFormValid}
-                    onSave={onSaveBtnClick}
-                    onCancel={onCancel}
-                    statementEditor={true}
-                    toggleChecked={false}
-                    experimentalEnabled={experimentalEnabled}
-                    handleStmtEditorToggle={handleStmtEditorToggle}
-                />
-            </FormControl>
-        );
-    }
-    else {
-        return stmtEditorComponent;
-    }
+    return stmtEditorComponent;
 }
