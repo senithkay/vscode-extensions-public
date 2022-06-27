@@ -24,9 +24,11 @@ jobs:
           curl -s https://api.github.com/repos/ballerina-platform/ballerina-distribution/releases | grep -wo -m1 "https.*ballerina-.*swan-lake.zip" | wget -qi - -O ballerina.zip
           unzip -qq ./ballerina.zip -d ./extractedDistribution
           rm ballerina.zip
-          balFolder=$(ls $GITHUB_WORKSPACE/extractedDistribution)
+          balVersion=$(ls $GITHUB_WORKSPACE/extractedDistribution)
+          balHome=$GITHUB_WORKSPACE/extractedDistribution/$balVersion
           touch settings.json
-          echo \{\"ballerina.home\": \"$GITHUB_WORKSPACE/extractedDistribution/$balFolder\"\} >> settings.json
+          echo \{\"ballerina.home\": \"$balHome\"\} >> settings.json
+          echo "BALLERINA_HOME=$balHome" >> $GITHUB_ENV
       - name: "Build plugin repo"
         run: sudo apt-get install xvfb && xvfb-run --auto-servernum ./gradlew clean build -x test
         env:
