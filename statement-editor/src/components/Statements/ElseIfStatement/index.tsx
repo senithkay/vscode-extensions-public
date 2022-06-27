@@ -53,6 +53,8 @@ export function ElseBlockC(props: ElseBlockProps) {
                 <TokenComponent model={model.elseBody.openBraceToken} />
                 &nbsp;&nbsp;&nbsp;{"..."}
                 <TokenComponent model={model.elseBody.closeBraceToken} />
+                &nbsp;
+                <ExprDeleteButton model={model.elseBody} onClick={deleteIfStatement} />;
             </>
         ) : (
             <span>
