@@ -90,7 +90,7 @@ export function ParameterSuggestions(){
                             <ParameterList checkedList={checked} setCheckedList={setCheckedList} />
                             {documentation.documentation.description && (
                                 <>
-                                    {documentation.documentation.parameters.length > 0 && (
+                                    {documentation.documentation.parameters?.length > 0 && (
                                         <hr className={stmtEditorHelperClasses.returnSeparator}/>
                                     )}
                                     <ListSubheader className={stmtEditorHelperClasses.parameterHeader}>
