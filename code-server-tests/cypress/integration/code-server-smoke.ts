@@ -15,9 +15,11 @@
 /// <reference types="cypress-xpath" />
 
 describe("Code server smoke test", () => {
-  const testEndpoint = "http://localhost:9090/";
 
   before(() => {
+    Cypress.on('uncaught:exception', (err, runnable) => {
+      return false;
+    });
     cy.visit(Cypress.env("workspaceUrl"));
     cy.get("h2", {
       timeout: 120000,
@@ -36,9 +38,11 @@ describe("Code server smoke test", () => {
       }
     });
     //Verify ballerina extension
-    cy.get("div[id='wso2.ballerina']", { timeout: 60000 }).contains(
-      "Ballerina SDK: Swan Lake"
-    );
+    cy.contains(
+      "div[id='wso2.ballerina']", 
+      'Swan Lake', 
+      { timeout: 60000 }  
+    );  
     cy.get('a[class="action-label codicon codicon-extensions-view-icon"]', {
       timeout: 60000,
     }).click({ force: true });
@@ -55,7 +59,11 @@ describe("Code server smoke test", () => {
       }
     });
     //Verify main.bal diagram tab
-    cy.get("div[title='main.bal Diagram']").contains("main.bal Diagram");
+    cy.contains(
+      "div[title='main.bal Diagram']", 
+      'main.bal Diagram', 
+      { timeout: 30000 }  
+    );  
     cy.wait(10000);
     cy.screenshot();
     //Take a snapshot of the diagram and compare with reference snapshot at /snapshots/code-server-smoke.ts/
@@ -68,10 +76,6 @@ describe("Code server smoke test", () => {
     // Close the diagram
     cy.xpath(
       "//div[@aria-label='main.bal Diagram']/div[@class='tab-actions']//a[@role='button']"
-    ).click();
-    //Close welcome tab
-    cy.xpath(
-      "//div[@title='Welcome']/div[@class='tab-actions']//a[@role='button']"
     ).click();
     // Verify code rendering
     cy.get(".view-lines", {

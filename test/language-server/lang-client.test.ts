@@ -22,17 +22,19 @@ import { expect } from 'chai';
 import { join } from 'path';
 import {
     BallerinaExampleListResponse, BallerinaProject, BallerinaProjectComponents, ExecutorPositionsResponse,
-    ExtendedLangClient, SyntaxTreeNodeResponse
+    ExtendedLangClient, JsonToRecordResponse, OpenAPIConverterResponse, PackageConfigSchemaResponse, PartialSTResponse, PerformanceAnalyzerResponse, SymbolInfoResponse, SyntaxTreeNodeResponse
 } from "../../src/core/extended-language-client";
 import { getServerOptions } from "../../src/server/server";
 import { getBallerinaCmd, isWindows } from "../test-util";
 import { commands, Uri } from "vscode";
 import { runSemanticTokensTestCases } from './semantic-tokens.test';
+import { readFileSync } from 'fs';
+import { BallerinaConnectorResponse, BallerinaConnectorsResponse, BallerinaSTModifyResponse, BallerinaTriggerResponse, BallerinaTriggersResponse, CompletionResponse, PublishDiagnosticsParams } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 
 const PROJECT_ROOT = join(__dirname, '..', '..', '..', 'test', 'data');
 
 suite("Language Server Tests", function () {
-    this.timeout(10000);
+    this.timeout(30000);
     let langClient: ExtendedLangClient;
 
     suiteSetup((done): any => {
@@ -524,40 +526,6 @@ suite("Language Server Tests", function () {
         });
     });
 
-    test("Test Optimize Imports Action - Single file", (done) => {
-        const uri = Uri.file(join(PROJECT_ROOT, 'sample1.bal').toString());
-        commands.executeCommand('vscode.open', uri).then(() => {
-            langClient.onReady().then(() => {
-                const actionParam = {
-                    textDocument: {
-                        uri: Uri.file(join(PROJECT_ROOT, 'sample1.bal')).toString()
-                    },
-                    range: {
-                        start: {
-                            line: 3,
-                            character: 3
-                        },
-                        end: {
-                            line: 3,
-                            character: 4
-                        }
-                    },
-                    context: {
-                        diagnostics: []
-                    }
-                };
-                langClient.sendRequest('textDocument/codeAction', actionParam).then((response: any) => {
-                    assert.equal(response.length, 2, 'Invalid number of code actions.');
-                    assert.equal(response[0].title, 'Optimize all imports', 'Invalid \'Optimize all imports\' action.');
-                    assert.equal(response[0].kind, "source.organizeImports", "Invalid code action kind - 1st.");
-                    assert.equal(response[1].title, 'Pull unresolved modules', 'Invalid \'Pull unresolved modules\' action.');
-                    assert.equal(response[1].kind, "quickfix", "Invalid code action kind - 2nd.");
-                    done();
-                });
-            });
-        });
-    });
-
     test("Test Incompatible Params Action - Single file", (done) => {
         const uri = Uri.file(join(PROJECT_ROOT, 'sample1.bal').toString());
         commands.executeCommand('vscode.open', uri).then(() => {
@@ -792,6 +760,262 @@ suite("Language Server Tests", function () {
         }).catch((err) => {
             return Promise.reject();
 
+        });
+    });
+
+    test("Test json to record", function (done): void {
+        const json: string = readFileSync(join(PROJECT_ROOT, 'record.json'), 'utf-8');
+        const expected: string = readFileSync(join(PROJECT_ROOT, 'record.bal'), 'utf-8');
+        langClient.convertJsonToRecord({ jsonString: json, isClosed: false, isRecordTypeDesc: false, recordName: "" })
+            .then(lSResponse => {
+                const response = lSResponse as JsonToRecordResponse;
+                expect(response).to.contain.keys("codeBlock");
+                assert.strictEqual(response.codeBlock, expected, "Invalid codeblock");
+                done();
+            }, error => {
+                done(error);
+            });
+    });
+
+    test("Test performance analyzer endpoints", function (done): void {
+        const uri = Uri.file(join(PROJECT_ROOT, 'helloPackage', 'perf.bal')).fsPath;
+        langClient.getResourcesWithEndpoints({
+            documentIdentifier: {
+                uri
+            }
+        }, true).then(async (epResponse) => {
+            const response = epResponse as PerformanceAnalyzerResponse[];
+            expect(response).to.lengthOf(1);
+            assert.strictEqual(response[0].type, "Success", "Endpoint resolve error");
+            assert.strictEqual(Object.keys(response[0].endpoints).length, 1, "Invalid endpoints");
+            assert.strictEqual(Object.keys(response[0].actionInvocations).length, 1, "Invalid action invocations");
+            done();
+        }, error => {
+            done(error);
+        });
+    });
+
+    test("Test partial parser - get ST for single statement", function (done): void {
+        langClient.getSTForSingleStatement({
+            codeSnippet: "int x = 0;"
+        }).then(async (epResponse) => {
+            const response = epResponse as PartialSTResponse;
+            expect(response).to.contain.keys("syntaxTree");
+
+            assert.strictEqual(response.syntaxTree.position.endColumn, 10, "Invalid st response");
+            done();
+        }, error => {
+            done(error);
+        });
+    });
+
+    test("Test partial parser - get ST for module members", function (done): void {
+        langClient.getSTForModuleMembers({
+            codeSnippet: "configurable STATEMENT  CONF_NAME = ?;"
+        }).then(async (res) => {
+            const response = res as PartialSTResponse;
+            expect(response).to.contain.keys("syntaxTree");
+
+            assert.strictEqual(response.syntaxTree.position.endColumn, 37, "Invalid st response");
+            done();
+        }, error => {
+            done(error);
+        });
+    });
+
+    test("Test open API generator", function (done): void {
+        const uri = Uri.file(join(PROJECT_ROOT, 'helloServicePackage', 'hello_service.bal').toString());
+        commands.executeCommand('vscode.open', uri).then(() => {
+            langClient.onReady().then(() => {
+                langClient.convertToOpenAPI({
+                    documentFilePath: uri.fsPath
+                }).then(async (res) => {
+                    const response = res as OpenAPIConverterResponse;
+                    expect(response).to.contain.keys("content");
+                    assert.strictEqual(response.content.length, 1, "Invalid open API content");
+                    assert.strictEqual(response.content[0].diagnostics.length, 0, "Invalid open API content");
+                    done();
+                }, error => {
+                    done(error);
+                });
+            });
+        });
+    });
+
+    test("Test triggers", function (done): void {
+        langClient.getTriggers({
+            query: "ballerinax"
+        }).then(async (res) => {
+            const response = res as BallerinaTriggersResponse;
+            expect(response).to.contains.keys("central");
+            expect(response).not.contains.keys("error");
+            assert.strictEqual(response.central[0].name, "Trigger", "Invalid triggers");
+            done();
+        }, error => {
+            done(error);
+        });
+    });
+
+    test("Test trigger", function (done): void {
+        langClient.getTrigger({
+            id: "36"
+        }).then(async (res) => {
+            const response = res as BallerinaTriggerResponse;
+            expect(response).not.contains.keys("error");
+            assert.strictEqual(response.name, "Trigger", "Invalid triggers");
+            done();
+        }, error => {
+            done(error);
+        });
+    });
+
+    test("Test get diagnostics", function (done): void {
+        const uri = Uri.file(join(PROJECT_ROOT, 'error.bal'));
+        commands.executeCommand('vscode.open', uri).then(() => {
+            langClient.onReady().then(() => {
+                langClient.getDiagnostics({
+                    documentIdentifier: {
+                        uri: uri.toString()
+                    }
+                }).then(async (res) => {
+                    const response = res as PublishDiagnosticsParams[];
+                    expect(response).to.lengthOf(1);
+                    assert.strictEqual(response[0].diagnostics.length, 3, "Invalid diagnostics");
+                    done();
+                }, error => {
+                    done(error);
+                });
+            });
+        });
+    });
+
+    test("Test get completion", function (done): void {
+        const uri = Uri.file(join(PROJECT_ROOT, 'hello_world.bal'));
+        commands.executeCommand('vscode.open', uri).then(() => {
+            langClient.onReady().then(() => {
+                langClient.getCompletion({
+                    textDocument: {
+                        uri: uri.toString()
+                    },
+                    position: {
+                        character: 4,
+                        line: 4
+                    },
+                    context: {
+                        triggerKind: 1
+                    }
+                }).then(async (res) => {
+                    const response = res as CompletionResponse[];
+                    expect(response).length.to.greaterThan(100);
+                    assert.strictEqual(response[0].detail, "Snippet", "Invalid completion");
+                    done();
+                }, error => {
+                    done(error);
+                });
+            });
+        });
+    });
+
+    test("Test get connectors", function (done): void {
+        langClient.getConnectors({
+            query: "",
+            limit: 2
+        }).then(async (res) => {
+            const response = res as BallerinaConnectorsResponse;
+            expect(response).not.contains.keys("error");
+            assert.strictEqual(response.central.length, 2, "Invalid triggers");
+            assert.strictEqual(response.central[0].name, "Client", "Invalid triggers");
+            done();
+        }, error => {
+            done(error);
+        });
+    });
+
+    test("Test get connector", function (done): void {
+        langClient.getConnector({
+            id: "2151",
+        }).then(async (res) => {
+            const response = res as BallerinaConnectorResponse;
+            expect(response).not.contains.keys("error");
+            assert.strictEqual(response.name, "Client", "Invalid trigger");
+            done();
+        }, error => {
+            done(error);
+        });
+    });
+
+    test("Test st modify", function (done): void {
+        const uri = Uri.file(join(PROJECT_ROOT, 'error.bal')).toString();
+        langClient.stModify({
+            documentIdentifier: {
+                uri
+            },
+            astModifications: [{
+                config: {
+                    STATEMENT:
+                        'int age;'
+                },
+                startColumn: 0,
+                startLine: 0,
+                endColumn: 2,
+                endLine: 0,
+                type: 'INSERT'
+            }]
+        }).then(async (res) => {
+            const response = res as BallerinaSTModifyResponse;
+            expect(response).to.contains.keys("source");
+            assert.strictEqual(response.parseSuccess, true, "Invalid st modification");
+            assert.strictEqual(response.source, "int age;\n", "Invalid st modification");
+            done();
+        }, error => {
+            done(error);
+        });
+    });
+
+    test("Test get symbol documentation", function (done): void {
+        const uri = Uri.file(join(PROJECT_ROOT, 'error.bal'));
+        langClient.didChange({
+            textDocument: {
+                uri: uri.toString(),
+                version: 1
+            },
+            contentChanges: [{
+                text: 'import ballerina/regex; \nconfigurable string token = ?;\n\npublic function main() returns error? {\n\nvar variable = regex:split(receiver, delimiter);\n}\n'
+            }]
+        });
+
+        langClient.getSymbolDocumentation({
+            textDocumentIdentifier: {
+                uri: uri.toString()
+            },
+            position: {
+                character: 25,
+                line: 5,
+            }
+        }).then(async (res) => {
+            const response = res as SymbolInfoResponse;
+            expect(response).to.contains.keys("documentation", "symbolKind");
+            assert.strictEqual(response.documentation.parameters?.length, 2, "Invalid symbol documentation");
+            assert.strictEqual(response.documentation.parameters[0].name, "receiver", "Invalid symbol documentation");
+            done();
+        }, error => {
+            done(error);
+        });
+    });
+
+    test("Test get project config", function (done): void {
+        const uri = Uri.file(join(PROJECT_ROOT, 'helloServicePackage', 'Ballerina.toml')).toString();
+        langClient.getBallerinaProjectConfigSchema({
+            documentIdentifier: {
+                uri
+            },
+        }).then(async (res) => {
+            const response = res as PackageConfigSchemaResponse;
+            expect(response).to.contains.keys("configSchema");
+            assert.strictEqual(response.configSchema.$schema, "http://json-schema.org/draft-07/schema#", "Invalid project config");
+            done();
+        }, error => {
+            done(error);
         });
     });
 

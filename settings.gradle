@@ -20,3 +20,4 @@ project(':perf-viewer').projectDir = file('web/perf-forecast')
 include(':swagger-viewer')
 
 project(':swagger-viewer').projectDir = file('web/swagger')
+rootProject.name = 'ballerina-plugin-vscode'

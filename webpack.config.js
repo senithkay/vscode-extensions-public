@@ -5,9 +5,9 @@
 const SentryPlugin = require("@sentry/webpack-plugin");
 const path = require('path');
 const MergeIntoSingleFile = require('webpack-merge-and-include-globally');
-const APP_VERSION = "20220526-0355";
+const APP_VERSION = "20220622-0457";
 const optionalPlugins = [];
-const BALLERINA_VS_CODE_PATH = "~/config/extensions/wso2.ballerina-3.0.1-preview/resources/jslibs";
+const BALLERINA_VS_CODE_PATH = "~/config/extensions/wso2.ballerina-3.0.2-snapshot/resources/jslibs";
 const logging = require('webpack/lib/logging/runtime');
 
 logging.getLogger("plugin-vscode").info('IS_RELEASE: ' + process.env.IS_RELEASE);
@@ -15,13 +15,13 @@ logging.getLogger("plugin-vscode").info('IS_RELEASE: ' + process.env.IS_RELEASE)
 if (process.env.IS_RELEASE) {
   optionalPlugins.push(
     new SentryPlugin({
-        release: APP_VERSION,
-        include: ["./node_modules/@wso2-enterprise/ballerina-low-code-editor-distribution/build/"],
-        urlPrefix: BALLERINA_VS_CODE_PATH,
-        authToken: process.env.SENTRY_AUTH_TOKEN,
-        org: "platformer-cloud-rm",
-        project: "choreo-low-code",
-        ignore: ["node_modules", "webpack.config.js"],
+      release: APP_VERSION,
+      include: ["./node_modules/@wso2-enterprise/ballerina-low-code-editor-distribution/build/"],
+      urlPrefix: BALLERINA_VS_CODE_PATH,
+      authToken: process.env.SENTRY_AUTH_TOKEN,
+      org: "platformer-cloud-rm",
+      project: "choreo-low-code",
+      ignore: ["node_modules", "webpack.config.js"],
     })
   )
 }
