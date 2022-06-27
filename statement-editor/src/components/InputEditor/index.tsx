@@ -91,6 +91,12 @@ export function InputEditor(props: InputEditorProps) {
     }, [originalValue]);
 
     useEffect(() => {
+        if (currentModel.model && isPositionsEquals(currentModel.model.position, model.position)){
+            setIsEditing(currentModel.isEntered ? currentModel.isEntered : false);
+        }
+    }, [currentModel]);
+
+    useEffect(() => {
         if (userInput === '') {
             setIsEditing(true);
         }

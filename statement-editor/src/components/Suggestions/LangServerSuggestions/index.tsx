@@ -88,6 +88,8 @@ export function LSSuggestions() {
             || suggestion.prefix ;
         if (completionKind === METHOD_COMPLETION_KIND || completionKind === FUNCTION_COMPLETION_KIND) {
             value = getExprWithArgs(value, prefix);
+        } else if (prefix) {
+            value = prefix + value;
         }
         const nodePosition : NodePosition = currentModel
             ? (currentModel.stmtPosition
