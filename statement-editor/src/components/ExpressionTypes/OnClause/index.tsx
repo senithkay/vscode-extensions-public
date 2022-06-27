@@ -10,38 +10,26 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js
-import React, { useContext } from "react";
+import React from "react";
 
-import { ReturnStatement } from "@wso2-enterprise/syntax-tree";
+import { OnClause } from "@wso2-enterprise/syntax-tree";
 
-import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { ExpressionComponent } from "../../Expression";
 import { TokenComponent } from "../../Token";
 
-
-interface ReturnStatementProps {
-    model: ReturnStatement;
+interface OnClauseProps {
+    model: OnClause;
 }
 
-export function RespondStatementC(props: ReturnStatementProps) {
+export function OnClauseComponent(props: OnClauseProps) {
     const { model } = props;
-    const stmtCtx = useContext(StatementEditorContext);
-    const {
-        modelCtx: {
-            currentModel,
-            changeCurrentModel
-        }
-    } = stmtCtx;
-
-    if (!currentModel.model) {
-        changeCurrentModel(model.expression);
-    }
 
     return (
         <>
-            <ExpressionComponent model={model.expression} />
-            <TokenComponent model={model.semicolonToken} />
+            <TokenComponent model={model.onKeyword} className={"keyword"} />
+            <ExpressionComponent model={model.lhsExpression} />
+            <TokenComponent model={model.equalsKeyword} className={"keyword"} />
+            <ExpressionComponent model={model.rhsExpression} />
         </>
     );
 }

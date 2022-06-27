@@ -21,7 +21,9 @@ export enum ModelType {
     METHOD_CALL,
     FIELD_ACCESS,
     QUERY_EXPRESSION,
-    FUNCTION
+    FUNCTION,
+    ORDER_KEY,
+    ORDER_DIRECTION_KEYWORDS
 }
 
 export class StatementEditorViewState {
@@ -30,6 +32,7 @@ export class StatementEditorViewState {
     public isWithinBlockStatement: boolean = false;
     public modelType: ModelType = ModelType.EXPRESSION;
     public diagnosticsInRange?: Diagnostic[] = [];
+    public diagnosticsInPosition?: Diagnostic[] = [];
     public multilineConstructConfig: MultilineConstructConfig = {
         isFieldWithNewLine: false,
         isClosingBraceWithNewLine: false

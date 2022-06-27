@@ -31,10 +31,10 @@ export const INPUT_EDITOR_PLACEHOLDERS = new Map<string, string>([
     ['EXPRESSION', '<add-expression>'],
     ['STATEMENT', '<add-statement>'],
     ['TYPE_DESCRIPTOR', '<add-type>'],
-    ['BINDING_PATTERN', '<add-field-name>'],
+    ['FIELD_NAME', '<add-field-name>'],
     ['CONF_NAME', '<add-config-name>'],
     ['DEFAULT_INTERMEDIATE_CLAUSE', '<add-intermediate-clause>'],
+    ['BINDING_PATTERN', '<add-binding-pattern>'],
     ['VAR_NAME', '<add-variable-name>'],
-    ['ACCESS_MODIFIER', '<add-access-modifier>'],
-    ['CONST_NAME', '<add-constant-name>']
+    ['ACCESS_MODIFIER', '<add-access-modifier>']
 ]);

@@ -15,15 +15,21 @@ import React, { useContext, useState } from "react";
 import { useIntl } from "react-intl";
 
 import { FormControl } from "@material-ui/core";
-import { Connector, ConnectorConfig, FormField, FunctionDefinitionInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import {
+    Connector,
+    ConnectorConfig,
+    FormField,
+    FunctionDefinitionInfo,
+    genVariableName,
+    getAllVariables
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { LinePrimaryButton, PrimaryButton } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
 import { Section } from "../../../../../../components/ConfigPanel";
 import { Context } from "../../../../../../Contexts/Diagram";
-import { getAllVariables } from "../../../../../utils/mixins";
-import { checkVariableName, genVariableName } from "../../../../Portals/utils";
+import { checkVariableName } from "../../../../Portals/utils";
 import { wizardStyles } from "../../../ConnectorConfigWizard/style";
 import { Form } from "../../../DynamicConnectorForm";
 import { useStyles } from "../../../DynamicConnectorForm/style";

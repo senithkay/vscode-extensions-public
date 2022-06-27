@@ -84,13 +84,17 @@ export function ParameterSuggestions(){
                     {documentation && !(documentation.documentation === undefined) ? (
                         <List className={statementEditorClasses.stmtEditorInnerWrapper}>
                             <ParameterList checkedList={checked} setCheckedList={setCheckedList} />
-                            <hr className={stmtEditorHelperClasses.returnSeparator}/>
-                            <ListSubheader className={stmtEditorHelperClasses.parameterHeader}>
-                                Description
-                            </ListSubheader>
-                            <ListItem className={stmtEditorHelperClasses.docDescription}>
-                                {getDocumentationDescription()}
-                            </ListItem>
+                            {documentation.documentation.description && (
+                                <>
+                                    <hr className={stmtEditorHelperClasses.returnSeparator}/>
+                                    <ListSubheader className={stmtEditorHelperClasses.parameterHeader}>
+                                        Description
+                                    </ListSubheader>
+                                    <ListItem className={stmtEditorHelperClasses.docDescription}>
+                                        {getDocumentationDescription()}
+                                    </ListItem>
+                                </>
+                            )}
                             {documentation.documentation.returnValueDescription && (
                                 <>
                                     <hr className={stmtEditorHelperClasses.returnSeparator}/>

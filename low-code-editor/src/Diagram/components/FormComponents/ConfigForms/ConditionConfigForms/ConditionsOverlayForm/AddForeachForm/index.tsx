@@ -14,14 +14,12 @@
 import React, { useContext, useState } from "react";
 import { useIntl } from "react-intl";
 
-import { ConditionConfig, ForeachConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ConditionConfig, ForeachConfig, genVariableName, getAllVariables } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { StatementEditorWrapper } from "@wso2-enterprise/ballerina-statement-editor";
 import { BinaryExpression, ForeachStatement } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../../../Contexts/Diagram";
-import { getAllVariables } from "../../../../../../utils/mixins";
 import { createForeachStatement, createForeachStatementWithBlock, getInitialSource } from "../../../../../../utils/modification-util";
-import { genVariableName } from "../../../../../Portals/utils";
 
 interface Iterations {
     start?: string;

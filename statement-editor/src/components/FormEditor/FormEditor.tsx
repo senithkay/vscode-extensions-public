@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 Inc. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -41,6 +41,7 @@ export interface FormEditorProps {
     targetPosition: NodePosition;
     stSymbolInfo?: STSymbolInfo;
     syntaxTree?: STNode;
+    isLastMember?: boolean;
     type: string;
     onCancel: () => void;
     applyModifications: (modifications: STModification[]) => void;
@@ -53,6 +54,7 @@ export function FormEditor(props: FormEditorProps) {
         initialSource,
         initialModel,
         syntaxTree,
+        isLastMember,
         onCancel,
         getLangClient,
         applyModifications,
@@ -69,7 +71,9 @@ export function FormEditor(props: FormEditorProps) {
     const fileURI = monaco.Uri.file(currentFile.path).toString().replace(FILE_SCHEME, EXPR_SCHEME);
 
     const onChange = async (genSource: string, partialST: STNode, moduleList: Set<string>,
-                            currentModel?: CurrentModel, newValue?: string, completionKinds?: number[], offsetLineCount: number = 0) => {
+                            currentModel?: CurrentModel, newValue?: string, completionKinds?: number[],
+                            offsetLineCount: number = 0,
+                            diagnosticOffSet: NodePosition = { startLine: 0, startColumn: 0 }) => {
         // Offset line position is to add some extra line if we do multiple code generations
 
         const newModuleList = new Set<string>();
@@ -81,26 +85,46 @@ export function FormEditor(props: FormEditorProps) {
         const updatedContent = getUpdatedSource(genSource.trim(), currentFile.content, initialModel ? {
             ...initialModel.position,
             startLine: initialModel.position.startLine + offsetLineCount,
-            endLine: initialModel.position.endLine + offsetLineCount} : {
+            endLine: initialModel.position.endLine + offsetLineCount
+        } : isLastMember ? (
+            {
+                ...targetPosition,
+                startLine: targetPosition.startLine + offsetLineCount,
+                endLine: targetPosition.startLine + offsetLineCount
+            }
+        ) : (
+            {
                 ...targetPosition,
                 startLine: targetPosition.startLine + offsetLineCount,
                 endLine: targetPosition.startLine + offsetLineCount,
                 startColumn: 0,
                 endColumn: 0
-            }, newModuleList, true);
+            }
+        ), newModuleList, true);
         sendDidChange(fileURI, updatedContent, getLangClient).then();
         const diagnostics = await handleDiagnostics(genSource, fileURI, targetPosition, getLangClient).then();
         setModel(enrichModel(partialST, initialModel ? {
-            ...initialModel.position,
-            startLine: initialModel.position.startLine + offsetLineCount ,
-            endLine: initialModel.position.endLine + offsetLineCount
-        } : {
-            ...targetPosition,
-            startLine: targetPosition.startLine + offsetLineCount,
-            endLine: targetPosition.startLine + offsetLineCount,
-            startColumn: 0,
-            endColumn: 0
-        }, diagnostics));
+            startLine: initialModel.position.startLine + offsetLineCount + diagnosticOffSet.startLine,
+            endLine: initialModel.position.endLine + offsetLineCount + diagnosticOffSet.startLine,
+            startColumn: initialModel.position.startColumn + offsetLineCount + diagnosticOffSet.startColumn,
+            endColumn: initialModel.position.endColumn + offsetLineCount + diagnosticOffSet.startColumn
+        } : (
+            isLastMember ? (
+                {
+                    startLine: targetPosition.startLine + offsetLineCount + diagnosticOffSet.startLine,
+                    endLine: targetPosition.startLine + offsetLineCount + diagnosticOffSet.startLine,
+                    startColumn: targetPosition.startColumn + diagnosticOffSet.startColumn,
+                    endColumn: targetPosition.endColumn + diagnosticOffSet.startColumn,
+                }
+            ) : (
+                {
+                    startLine: targetPosition.startLine + offsetLineCount + diagnosticOffSet.startLine,
+                    endLine: targetPosition.startLine + offsetLineCount + diagnosticOffSet.startLine,
+                    startColumn: diagnosticOffSet.startColumn,
+                    endColumn: diagnosticOffSet.startColumn
+                }
+            )
+        ), diagnostics));
         if (currentModel && newValue && completionKinds) {
             handleCompletions(newValue, currentModel, completionKinds);
         }
@@ -117,7 +141,8 @@ export function FormEditor(props: FormEditorProps) {
             (async () => {
                 if (topLevelComponent) {
                     const partialST = await getPartialSTForModuleMembers(
-                        { codeSnippet: initialSource.trim() }, getLangClient
+                        { codeSnippet: initialSource.trim() }, getLangClient,
+                        type === "Resource"
                     );
                     setModel(partialST);
                 }
@@ -126,7 +151,8 @@ export function FormEditor(props: FormEditorProps) {
             (async () => {
                 if (topLevelComponent) {
                     const partialST = await getPartialSTForModuleMembers(
-                        {codeSnippet: getInitialSource(type, targetPosition)}, getLangClient
+                        {codeSnippet: getInitialSource(type, targetPosition)} , getLangClient,
+                        type === "Resource"
                     );
                     setModel(partialST);
                 }
@@ -148,7 +174,7 @@ export function FormEditor(props: FormEditorProps) {
                 getLangClient={getLangClient}
                 currentFile={currentFile}
                 isEdit={initialSource !== undefined}
-                isLastMember={false}
+                isLastMember={isLastMember}
                 applyModifications={applyModifications}
             >
                 <FormRenderer

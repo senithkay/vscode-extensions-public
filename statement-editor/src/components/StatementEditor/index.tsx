@@ -14,7 +14,7 @@
 import React, { useEffect, useState } from 'react';
 
 import { SymbolInfoResponse } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 import * as monaco from "monaco-editor";
 import { Diagnostic } from "vscode-languageserver-protocol";
 
@@ -30,6 +30,7 @@ import {
 import { StatementEditorContextProvider } from "../../store/statement-editor-context";
 import {
     addToTargetPosition,
+    eligibleForLevelTwoSuggestions,
     enclosableWithParentheses,
     enrichModel,
     getCurrentModel,
@@ -50,8 +51,9 @@ import {
     getSymbolDocumentation,
     sendDidChange
 } from "../../utils/ls-utils";
-import { ModelType, StatementEditorViewState } from "../../utils/statement-editor-viewstate";
+import { StatementEditorViewState } from "../../utils/statement-editor-viewstate";
 import { StackElement } from "../../utils/undo-redo";
+import { visitor as CommonParentFindingVisitor } from "../../visitors/common-parent-finding-visitor";
 import { EXPR_SCHEME, FILE_SCHEME } from "../InputEditor/constants";
 import { LowCodeEditorProps } from "../StatementEditorWrapper";
 import { ViewContainer } from "../ViewContainer";
@@ -94,7 +96,7 @@ export function StatementEditor(props: StatementEditorProps) {
     const {
         model: editorModel,
         source,
-        position : targetPosition,
+        position: targetPosition,
         undoRedoManager,
         isConfigurableStmt,
         isModuleVar,
@@ -108,7 +110,7 @@ export function StatementEditor(props: StatementEditorProps) {
     } = editorManager;
 
     const fileURI = monaco.Uri.file(currentFile.path).toString().replace(FILE_SCHEME, EXPR_SCHEME);
-    const initSymbolInfo : EmptySymbolInfo = {}
+    const initSymbolInfo: EmptySymbolInfo = {}
 
     const [model, setModel] = useState<STNode>(null);
     const [currentModel, setCurrentModel] = useState<CurrentModel>({ model });
@@ -130,7 +132,7 @@ export function StatementEditor(props: StatementEditorProps) {
             setStmtModel(undoItem.oldModel.model, diagnostics);
 
             const newCurrentModel = getCurrentModel(undoItem.oldModel.selectedPosition, enrichModel(undoItem.oldModel.model, targetPosition));
-            setCurrentModel({model: newCurrentModel});
+            setCurrentModel({ model: newCurrentModel });
             await handleDocumentation(newCurrentModel);
         }
         setHasSyntaxDiagnostics(false);
@@ -146,7 +148,7 @@ export function StatementEditor(props: StatementEditorProps) {
             setStmtModel(redoItem.newModel.model, diagnostics);
 
             const newCurrentModel = getCurrentModel(redoItem.newModel.selectedPosition, enrichModel(redoItem.newModel.model, targetPosition));
-            setCurrentModel({model: newCurrentModel});
+            setCurrentModel({ model: newCurrentModel });
             await handleDocumentation(newCurrentModel);
         }
         setHasSyntaxDiagnostics(false);
@@ -154,17 +156,19 @@ export function StatementEditor(props: StatementEditorProps) {
 
     useEffect(() => {
         (async () => {
-            const updatedContent = getUpdatedSource(source.trim(), currentFile.content, targetPosition, moduleList);
+            if (!newConfigurableName) {
+                const updatedContent = getUpdatedSource(source.trim(), currentFile.content, targetPosition, moduleList);
 
-            sendDidChange(fileURI, updatedContent, getLangClient).then();
-            const diagnostics = await handleDiagnostics(source);
+                sendDidChange(fileURI, updatedContent, getLangClient).then();
+                const diagnostics = await handleDiagnostics(source);
 
-            const newCurrentModel: STNode = selectedNodePosition
-                ? getCurrentModel(selectedNodePosition, editorModel) : undefined;
+                const newCurrentModel: STNode = selectedNodePosition
+                    ? getCurrentModel(selectedNodePosition, editorModel) : undefined;
 
-            setStmtModel(editorModel, diagnostics);
-            setCurrentModel({ model: newCurrentModel });
-            await handleDocumentation(newCurrentModel);
+                setStmtModel(editorModel, diagnostics);
+                setCurrentModel({ model: newCurrentModel });
+                await handleDocumentation(newCurrentModel);
+            }
         })();
     }, [editor, isPullingModule]);
 
@@ -183,10 +187,10 @@ export function StatementEditor(props: StatementEditorProps) {
 
                 if (!isOperator(currentModelViewState.modelType) && !isBindingPattern(currentModelViewState.modelType)) {
                     const statements = [model.source];
-                    // if ((currentModel.model.viewState as StatementEditorViewState).modelType === ModelType.EXPRESSION) {
-                    //     const dotAdded = addToTargetPosition(model.source, currentModel.model.position, selectionWithDot);
-                    //     statements.push(dotAdded);
-                    // }
+                    if (eligibleForLevelTwoSuggestions(currentModel.model, selection)) {
+                        const dotAdded = addToTargetPosition(model.source, currentModel.model.position, selectionWithDot);
+                        statements.push(dotAdded);
+                    }
 
                     for (const statement of statements) {
                         const index = statements.indexOf(statement);
@@ -205,12 +209,16 @@ export function StatementEditor(props: StatementEditorProps) {
                                 ...suggestionItem,
                                 prefix: `${selectionWithDot}`
                             }));
+
+                            const content = getUpdatedSource(model.source, currentFile.content,
+                                targetPosition, moduleList);
+                            await sendDidChange(fileURI, content, getLangClient);
                         }
                     }
                 }
                 setLSSuggestionsList({
                     directSuggestions,
-                    secondLevelSuggestions: {
+                    secondLevelSuggestions: !!secondLevelSuggestions.length && {
                         selection: selectionWithDot,
                         secondLevelSuggestions
                     }
@@ -225,7 +233,7 @@ export function StatementEditor(props: StatementEditorProps) {
             if (config?.type !== CUSTOM_CONFIG_TYPE) {
                 if (editorModel && newConfigurableName) {
                     await updateModel(newConfigurableName, selectedNodePosition, editorModel);
-                    updateEditor(activeEditorId, {...editors[activeEditorId], newConfigurableName: undefined});
+                    updateEditor(activeEditorId, { ...editors[activeEditorId], newConfigurableName: undefined });
                 }
             }
         })();
@@ -271,39 +279,34 @@ export function StatementEditor(props: StatementEditorProps) {
         if (!partialST.syntaxDiagnostics.length || config.type === CUSTOM_CONFIG_TYPE) {
             setStmtModel(partialST, diagnostics);
             const selectedPosition = getSelectedModelPosition(codeSnippet, position);
-            let oldModel : StackElement;
-            if (undoRedoManager.hasUndo()) {
-                oldModel = undoRedoManager.getCurrentModel().newModel;
-            } else {
-                oldModel = {
-                    model,
-                    selectedPosition : currentModel.model.position
-                }
+            const oldModel: StackElement = {
+                model: existingModel,
+                selectedPosition: currentModel.model.position
             }
-            const newModel : StackElement = {
+            const newModel: StackElement = {
                 model: partialST,
                 selectedPosition
             }
             undoRedoManager.add(oldModel, newModel);
 
             const newCurrentModel = getCurrentModel(selectedPosition, enrichModel(partialST, targetPosition));
-            setCurrentModel({model: newCurrentModel});
+            setCurrentModel({ model: newCurrentModel });
             setHasSyntaxDiagnostics(false);
 
-        } else if (partialST.syntaxDiagnostics.length){
+        } else if (partialST.syntaxDiagnostics.length) {
             setHasSyntaxDiagnostics(true);
         }
     }
 
     const handleModules = (module: string) => {
-        let moduleIncluded : boolean;
+        let moduleIncluded: boolean;
         importStatements.forEach(importedModule => {
-            if (importedModule.includes(module)){
+            if (importedModule.includes(module)) {
                 moduleIncluded = true;
             }
         });
 
-        if (!moduleIncluded){
+        if (!moduleIncluded) {
             setModuleList((prevModuleList: Set<string>) => {
                 return new Set(prevModuleList.add(module));
             });
@@ -329,20 +332,14 @@ export function StatementEditor(props: StatementEditorProps) {
     }
 
     const handleDocumentation = async (newCurrentModel: STNode) => {
-        if (
-            newCurrentModel
-            // &&
-            // (STKindChecker.isFunctionCall(newCurrentModel) ||
-            //     STKindChecker.isImplicitNewExpression(newCurrentModel) ||
-            //     STKindChecker.isRemoteMethodCallAction(newCurrentModel))
-        ) {
+        if (newCurrentModel && STKindChecker.isFunctionCall(newCurrentModel)) {
             setDocumentation(await getSymbolDocumentation(fileURI, targetPosition, newCurrentModel, getLangClient));
         } else {
             setDocumentation(initSymbolInfo);
         }
     };
 
-    const removeUnusedModules = (completeDiagnostic:  Diagnostic[]) => {
+    const removeUnusedModules = (completeDiagnostic: Diagnostic[]) => {
         if (!!moduleList.size) {
             const unusedModuleName = new RegExp(/'(.*?[^\\])'/g);
             completeDiagnostic.forEach(diagnostic => {
@@ -385,8 +382,17 @@ export function StatementEditor(props: StatementEditorProps) {
         }
     };
 
-    const currentModelHandler = (cModel: STNode, stmtPosition?: NodePosition) => {
-        if (cModel.value && cModel.value === DEFAULT_INTERMEDIATE_CLAUSE){
+    const currentModelHandler = (cModel: STNode, stmtPosition?: NodePosition, isShift?: boolean) => {
+        if (isShift){
+            CommonParentFindingVisitor.setPositions(cModel.position, currentModel.model.position);
+            traversNode(model, CommonParentFindingVisitor);
+            const parentModel: STNode = CommonParentFindingVisitor.getModel()
+            setCurrentModel({
+                model: parentModel ? parentModel : cModel,
+                stmtPosition: parentModel ? parentModel.position : stmtPosition
+            });
+
+        } else if (cModel.value && cModel.value === DEFAULT_INTERMEDIATE_CLAUSE) {
             setCurrentModel({
                 model: cModel.parent.parent,
                 stmtPosition
@@ -401,8 +407,8 @@ export function StatementEditor(props: StatementEditorProps) {
 
     const parentModelHandler = () => {
         setCurrentModel(() => {
-            if (!!currentModel.model?.parent){
-                return {model: currentModel.model.parent}
+            if (!!currentModel.model?.parent) {
+                return { model: currentModel.model.parent }
             }
             else {
                 return currentModel
@@ -413,19 +419,25 @@ export function StatementEditor(props: StatementEditorProps) {
     const nextModelHandler = () => {
         const nextModel = getNextNode(currentModel.model, model)
         setCurrentModel(() => {
-            return {model: nextModel}
+            return { model: nextModel }
         });
     };
 
     const previousModelHandler = () => {
         const previousModel = getPreviousNode(currentModel.model, model)
         setCurrentModel(() => {
-            return {model: previousModel};
+            return { model: previousModel };
+        });
+    };
+
+    const enterKeyHandler = () => {
+        setCurrentModel(() => {
+            return {model: currentModel.model, isEntered: true};
         });
     };
 
     function setStmtModel(editedModel: STNode, diagnostics?: Diagnostic[]) {
-        setModel({...enrichModel(editedModel, targetPosition, diagnostics)});
+        setModel({ ...enrichModel(editedModel, targetPosition, diagnostics) });
     }
 
     const keyboardNavigationManager = new KeyboardNavigationManager()
@@ -438,12 +450,12 @@ export function StatementEditor(props: StatementEditorProps) {
         keyboardNavigationManager.bindNewKey(client, ['ctrl+right', 'command+right'], parentModelHandler);
         keyboardNavigationManager.bindNewKey(client, ['tab'], nextModelHandler);
         keyboardNavigationManager.bindNewKey(client, ['shift+tab'], previousModelHandler);
+        keyboardNavigationManager.bindNewKey(client, ['enter'], enterKeyHandler);
 
         return () => {
             keyboardNavigationManager.resetMouseTrapInstance(client)
         }
     }, [currentModel.model]);
-
 
     return (
         (

@@ -145,6 +145,9 @@ export interface ExpressionEditorLangClientInterface extends BaseLangClientInter
     getSTForModulePart: (
         param: PartialSTRequest
     ) => Thenable<PartialSTResponse>;
+    getSTForResource: (
+        param: PartialSTRequest
+    ) => Thenable<PartialSTResponse>;
     getSymbolDocumentation: (
         params: SymbolInfoRequest
     ) => Thenable<SymbolInfoResponse>

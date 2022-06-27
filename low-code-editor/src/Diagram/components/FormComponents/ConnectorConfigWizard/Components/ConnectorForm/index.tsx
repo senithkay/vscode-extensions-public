@@ -21,12 +21,14 @@ import {
     BallerinaConnectorInfo,
     ConnectorConfig,
     FormField,
+    genVariableName,
+    getAllVariables,
     LowcodeEvent,
     SAVE_CONNECTOR,
     SAVE_CONNECTOR_INIT,
     SAVE_CONNECTOR_INVOKE,
     STModification,
-    WizardType,
+    WizardType
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     FormHeaderSection
@@ -43,7 +45,6 @@ import {
 import { DocIcon } from "../../../../../../assets";
 import { Context, useDiagramContext } from "../../../../../../Contexts/Diagram";
 import { TextPreloaderVertical } from "../../../../../../PreLoader/TextPreloaderVertical";
-import { getAllVariables } from "../../../../../utils/mixins";
 import {
     createImportStatement,
     createPropertyStatement,
@@ -51,7 +52,6 @@ import {
 } from "../../../../../utils/modification-util";
 import {
     addAccessModifiers,
-    genVariableName,
     getAccessModifiers,
     getActionReturnType,
     getConnectorComponent,

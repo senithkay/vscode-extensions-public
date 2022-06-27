@@ -13,12 +13,11 @@
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
 import React, { useContext } from "react";
 
-import { FunctionDefinitionInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FunctionDefinitionInfo, genVariableName, getAllVariables } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { StatementEditorWrapper } from "@wso2-enterprise/ballerina-statement-editor";
 
 import { Context } from "../../../../../../Contexts/Diagram";
-import { createCheckedRemoteServiceCall, createRemoteServiceCall, getAllVariables, getInitialSource } from "../../../../../utils";
-import { genVariableName } from "../../../../Portals/utils";
+import { createCheckedRemoteServiceCall, createRemoteServiceCall, getInitialSource } from "../../../../../utils";
 import { FormGeneratorProps } from "../../../FormGenerator";
 import { getDefaultParams, getFormFieldReturnType } from "../util";
 

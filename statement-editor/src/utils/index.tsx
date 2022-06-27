@@ -14,7 +14,6 @@ import React, { ReactNode } from 'react';
 
 import {
     CompletionResponse,
-    ExpressionEditorLangClientInterface,
     getDiagnosticMessage,
     getFilteredDiagnostics,
     LinePosition,
@@ -40,7 +39,9 @@ import * as statementTypeComponents from '../components/Statements';
 import {
     BAL_SOURCE,
     CUSTOM_CONFIG_TYPE,
-    END_OF_LINE_MINUTIAE, EXPR_CONSTRUCTOR,
+    END_OF_LINE_MINUTIAE,
+    EXPR_CONSTRUCTOR,
+    IGNORABLE_DIAGNOSTICS,
     OTHER_EXPRESSION,
     OTHER_STATEMENT,
     PLACEHOLDER_DIAGNOSTICS,
@@ -58,6 +59,7 @@ import { nextNodeSetupVisitor } from "../visitors/next-node--setup-visitor"
 import { parentSetupVisitor } from '../visitors/parent-setup-visitor';
 import { viewStateSetupVisitor as ViewStateSetupVisitor } from "../visitors/view-state-setup-visitor";
 
+import { ExpressionGroup } from "./expressions";
 import { ModelType, StatementEditorViewState } from "./statement-editor-viewstate";
 import { getImportModification, getStatementModification, keywords } from "./statement-modifications";
 
@@ -198,6 +200,13 @@ export function isDiagnosticInRange(diagPosition: NodePosition, nodePosition: No
             endLine)) ? (diagPosition?.endColumn <= nodePosition?.endColumn) : true);
 }
 
+export function isNodeInRange(nodePosition: NodePosition, parentPosition: NodePosition): boolean {
+    return nodePosition?.startLine >= parentPosition?.startLine &&
+        (nodePosition?.startLine === parentPosition?.startLine ? nodePosition?.startColumn >= parentPosition?.startColumn : true) &&
+        nodePosition?.endLine <= parentPosition?.endLine &&
+        (nodePosition?.endLine === parentPosition?.endLine ? nodePosition?.endColumn <= parentPosition?.endColumn : true);
+}
+
 export function isOperator(modelType: number): boolean {
     return modelType === ModelType.OPERATOR;
 }
@@ -229,7 +238,8 @@ export function getFilteredDiagnosticMessages(statement: string, targetPosition:
 
     getDiagnosticMessage(diag, diagTargetPosition, 0, statement.length, 0, 0).split('. ').map(message => {
             let isPlaceHolderDiag = false;
-            if (PLACEHOLDER_DIAGNOSTICS.some(msg => message.includes(msg))) {
+            if (PLACEHOLDER_DIAGNOSTICS.some(msg => message.includes(msg))
+                || (/const.+=.*EXPRESSION.*;/.test(statement) && IGNORABLE_DIAGNOSTICS.includes(message))) {
                 isPlaceHolderDiag = true;
             }
             if (!!message) {
@@ -238,6 +248,10 @@ export function getFilteredDiagnosticMessages(statement: string, targetPosition:
         });
 
     return stmtDiagnostics;
+}
+
+export function isPlaceHolderExists (statement: string) : boolean {
+    return PLACEHOLDER_DIAGNOSTICS.some(placeHolder => (statement ? statement : "").includes(placeHolder))
 }
 
 export function getUpdatedSource(statement: string, currentFileContent: string,
@@ -293,13 +307,13 @@ export function addImportStatements(
 
 export function getMinutiaeJSX(model: STNode): MinutiaeJSX {
     return {
-        leadingMinutiaeJSX: getJSXForMinutiae(model.leadingMinutiae),
-        trailingMinutiaeJSX: getJSXForMinutiae(model.trailingMinutiae)
+        leadingMinutiaeJSX: getJSXForMinutiae(model?.leadingMinutiae),
+        trailingMinutiaeJSX: getJSXForMinutiae(model?.trailingMinutiae)
     };
 }
 
 export function getJSXForMinutiae(minutiae: Minutiae[], dropEndOfLineMinutiaeJSX: boolean = false): ReactNode[] {
-    return minutiae.map((element) => {
+    return minutiae?.map((element) => {
         if (element.kind === WHITESPACE_MINUTIAE) {
             return Array.from({length: element.minutiae.length}, () => <>&nbsp;</>);
         } else if (element.kind === END_OF_LINE_MINUTIAE && !dropEndOfLineMinutiaeJSX) {
@@ -334,12 +348,6 @@ export function getClassNameForToken(model: STNode): string {
     }
 
     return className;
-}
-
-export function getStringForMinutiae(minutiae: Minutiae[]): string {
-    return minutiae.map((element) => {
-        return element.minutiae;
-    }).join('');
 }
 
 export function getSuggestionIconStyle(suggestionType: number): string {
@@ -465,6 +473,11 @@ export function enclosableWithParentheses(model: any): boolean {
             && !STKindChecker.isComputedNameField(model)
             && !STKindChecker.isSpecificField(model)
             && !STKindChecker.isTypeTestExpression(model)
+            && !STKindChecker.isStringLiteral(model)
+            && !STKindChecker.isNumericLiteral(model)
+            && !STKindChecker.isBooleanLiteral(model)
+            && !STKindChecker.isNilLiteral(model)
+            && !STKindChecker.isNullLiteral(model)
             && !model?.isToken
         );
 }
@@ -555,7 +568,9 @@ export function getParamCheckedList(paramsInModel: STNode[], documentation : Sym
         if (STKindChecker.isNamedArg(param)) {
             for (let i = 0; i < documentation.parameters.length; i++){
                 const docParam : ParameterInfo = documentation.parameters[i];
-                if (param.argumentName.name.value === docParam.name ||
+                if (keywords.includes(docParam.name) ?
+                    param.argumentName.name.value === "'" + docParam.name :
+                    param.argumentName.name.value === docParam.name ||
                     docParam.kind === SymbolParameterType.INCLUDED_RECORD || docParam.kind === SymbolParameterType.REST){
                     if (checkedList.indexOf(i) === -1){
                         checkedList.push(i);
@@ -585,7 +600,7 @@ export function isAllowedIncludedArgsAdded(parameters: ParameterInfo[], checkedL
     return isIncluded;
 }
 
-export function getUpdatedContentOnCheck(currentModel: FunctionCall, param: ParameterInfo) : string {
+export function getUpdatedContentOnCheck(currentModel: FunctionCall, param: ParameterInfo, parameters: ParameterInfo[]) : string {
     const functionParameters: string[] = [];
     currentModel.arguments.filter((parameter: any) => !STKindChecker.isCommaToken(parameter)).
     map((parameter: STNode) => {
@@ -593,9 +608,12 @@ export function getUpdatedContentOnCheck(currentModel: FunctionCall, param: Para
     });
 
     if (param.kind === SymbolParameterType.DEFAULTABLE) {
-        functionParameters.push((keywords.includes(param.name) ?
-            `'${param.name} = ${EXPR_CONSTRUCTOR}` :
-            `${param.name} = ${EXPR_CONSTRUCTOR}`));
+        containsMultipleDefaultableParams(parameters) ? (
+            functionParameters.push((keywords.includes(param.name) ?
+                `'${param.name} = ${EXPR_CONSTRUCTOR}` :
+                `${param.name} = ${EXPR_CONSTRUCTOR}`))
+            ) :
+            functionParameters.push(`${EXPR_CONSTRUCTOR}`);
     } else if (param.kind === SymbolParameterType.REST) {
         functionParameters.push(EXPR_CONSTRUCTOR);
     } else {
@@ -604,6 +622,20 @@ export function getUpdatedContentOnCheck(currentModel: FunctionCall, param: Para
 
     const content: string = currentModel.functionName.source + "(" + functionParameters.join(",") + ")";
     return content;
+}
+
+function containsMultipleDefaultableParams(parameters: ParameterInfo[]): boolean {
+    let defaultableParams = 0;
+    const found = parameters.find((param) => {
+        if (param.kind === SymbolParameterType.DEFAULTABLE) {
+            if (defaultableParams > 0) {
+                return param;
+            } else {
+                defaultableParams++;
+            }
+        }
+    })
+    return !!found;
 }
 
 export function getUpdatedContentOnUncheck(currentModel: FunctionCall, currentIndex: number) : string {
@@ -643,4 +675,19 @@ export function getExprWithArgs(suggestionValue: string, prefix?: string): strin
         exprWithArgs = suggestionValue.replace(params[1], paramList.toString());
     }
     return prefix ? prefix + exprWithArgs : exprWithArgs;
+}
+
+export function getFilteredExpressions(expression : ExpressionGroup[], currentModel: STNode): ExpressionGroup[] {
+    return expression.filter(
+        (exprGroup) => exprGroup.relatedModelType === currentModel.viewState.modelType ||
+            (currentModel.viewState.modelType === ModelType.FIELD_ACCESS &&
+                exprGroup.relatedModelType === ModelType.EXPRESSION) ||
+            (currentModel.viewState.modelType === ModelType.ORDER_KEY &&
+                (exprGroup.relatedModelType === ModelType.EXPRESSION ||
+                    exprGroup.relatedModelType === ModelType.ORDER_KEY)));
+}
+
+export function eligibleForLevelTwoSuggestions(selectedModel: STNode, selection: string): boolean {
+    return (selectedModel.viewState as StatementEditorViewState).modelType === ModelType.EXPRESSION
+        && selection !== '?';
 }

@@ -117,7 +117,8 @@ export const PlusOptionsSelector = (props: PlusOptionsProps) => {
                     configOverlayFormStatus={{
                         formType: selectedOption.type,
                         formName: selectedOption.name,
-                        isLoading: false
+                        isLoading: false,
+                        isLastMember: isLastMember
                     }}
                     onCancel={handleOnClose}
                     onSave={handleOnSave}

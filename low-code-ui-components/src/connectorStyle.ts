@@ -204,6 +204,16 @@ export const connectorStyles = makeStyles((theme: Theme) =>
             lineHeight: '35px',
             fontWeight: 300,
         },
+        readOnlyEditor: {
+            width: 130,
+            padding: 0,
+            color: '#000209',
+            fontSize: 13,
+            textTransform: 'capitalize',
+            display: 'inline-block',
+            lineHeight: '25px',
+            fontWeight: 300,
+        },
         starLabelForRequired: {
             padding: 0,
             color: '#DC143C',
@@ -647,8 +657,11 @@ export const connectorStyles = makeStyles((theme: Theme) =>
             padding: '15px 20px',
         },
         formFeilds: {
-            marginBottom: theme.spacing(2.5),
+            width: '100%'
+        },
+        resourceParamWrapper: {
             width: '100%',
+            paddingLeft: 5
         },
         codeWrapper: {
             width: '100%',
@@ -858,7 +871,7 @@ export const connectorStyles = makeStyles((theme: Theme) =>
         resourceMethodPathWrapper: {
             display: 'flex',
             flexDirection: 'row',
-            padding: '15px 5px'
+            padding: '15px 5px 0px 5px'
         },
         resourceMethodTitle: {
             width: '100%',

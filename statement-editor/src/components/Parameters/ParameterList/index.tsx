@@ -65,7 +65,7 @@ export function ParameterList(props: ParameterListProps) {
                 if (param.kind === SymbolParameterType.REST) {
                     restArg(true);
                 }
-                updateModel(getUpdatedContentOnCheck(currentModel.model, param), currentModel.model.position);
+                updateModel(getUpdatedContentOnCheck(currentModel.model, param, parameters), currentModel.model.position);
             }
         } else {
             newChecked.splice(currentIndex, 1);
@@ -151,6 +151,9 @@ export function ParameterList(props: ParameterListProps) {
                 <>
                     <ListSubheader className={stmtEditorHelperClasses.parameterHeader}>
                         Configure Parameters
+                        <ListItemText
+                            secondary={"Select parameters from the list given below"}
+                        />
                     </ListSubheader>
                     {parameters?.map((param: ParameterInfo, value: number) => (
                             <>
@@ -193,13 +196,13 @@ export function ParameterList(props: ParameterListProps) {
                                                             className={stmtEditorHelperClasses.paramDataType}
                                                             primary={(
                                                                 <Typography className={stmtEditorHelperClasses.suggestionDataType}>
-                                                                    {param.type}
+                                                                    {param.type.includes("?") ? param.type + " (Optional)" : param.type}
                                                                 </Typography>
                                                             )}
                                                         />
                                                         {param.description !== undefined && (
                                                             <ListItemText
-                                                                className={stmtEditorHelperClasses.docListItemText}
+                                                                className={stmtEditorHelperClasses.docParamDescriptionText}
                                                                 primary={" : " + param.description}
                                                             />
                                                         )}

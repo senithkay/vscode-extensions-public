@@ -12,16 +12,7 @@
  */
 import { BallerinaConnectorInfo, STSymbolInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
-import { getAllVariablesForAi, getFormattedModuleName } from "../../Diagram/components/Portals/utils";
-
-export function getAllVariables(symbolInfo: STSymbolInfo): string[] {
-    const variableCollection: string[] = [];
-    const variableInfo = getAllVariablesForAi(symbolInfo);
-    Object.keys(variableInfo).map((variable) => {
-        variableCollection.push(variable);
-    });
-    return variableCollection;
-}
+import { getFormattedModuleName } from "../../Diagram/components/Portals/utils";
 
 export function getAllModuleVariables(symbolInfo: STSymbolInfo): string[] {
     const moduleVariableCollection: string[] = [];

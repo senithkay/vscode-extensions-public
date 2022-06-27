@@ -48,6 +48,7 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
             <FormEditor
                 initialSource={model ? model.source : undefined}
                 initialModel={model}
+                isLastMember={isLastMember}
                 targetPosition={model ? model?.functionSignature?.position : targetPosition}
                 onCancel={onCancel}
                 type={isMainFunction ? MAIN_TEXT : "Function"}

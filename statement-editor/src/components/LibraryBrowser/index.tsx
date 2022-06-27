@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 
 import {
     Box,
@@ -28,6 +28,7 @@ import {
     LibraryKind,
     LibrarySearchResponse
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import debounce from "lodash.debounce";
 
 import LibraryModuleIcon from "../../assets/icons/LibraryModuleIcon";
 import LibrarySearchIcon from "../../assets/icons/LibrarySearchIcon";
@@ -63,7 +64,6 @@ export function LibraryBrowser(props: LibraryBrowserProps) {
     } = useContext(StatementEditorContext);
 
     const [libraryBrowserMode, setLibraryBrowserMode] = useState(LibraryBrowserMode.LIB_LIST);
-    const [keyword, setKeyword] = useState('');
     const [searchScope, setSearchScope] = useState(DEFAULT_SEARCH_SCOPE);
     const [librariesSearchData, setLibrariesSearchData] = useState<LibrarySearchResponse>();
     const [libraries, setLibraries] = useState([]);
@@ -101,25 +101,9 @@ export function LibraryBrowser(props: LibraryBrowserProps) {
             setSearchScope(DEFAULT_SEARCH_SCOPE);
             setModuleTitle('');
             setModuleSelected(false);
-            setKeyword('');
+            resetKeyword();
         })();
     }, [libraryType]);
-
-    useEffect(() => {
-        if (keyword === '') {
-            setLibraryBrowserMode(LibraryBrowserMode.LIB_LIST);
-            setSearchScope(DEFAULT_SEARCH_SCOPE);
-        } else {
-            let filteredData;
-            if (librariesSearchData && searchScope === DEFAULT_SEARCH_SCOPE) {
-                filteredData = filterByKeyword(librariesSearchData, keyword);
-            } else if (libraryData && searchScope !== DEFAULT_SEARCH_SCOPE) {
-                filteredData = filterByKeyword(libraryData.searchData, keyword);
-            }
-            setFilteredSearchData(filteredData);
-            setLibraryBrowserMode(LibraryBrowserMode.LIB_SEARCH);
-        }
-    }, [keyword]);
 
     const libraryBrowsingHandler = (data: LibraryDataResponse) => {
         setLibraryData(data);
@@ -127,6 +111,7 @@ export function LibraryBrowser(props: LibraryBrowserProps) {
         setSearchScope(data.searchData.modules[0].id);
         setModuleTitle(data.searchData.modules[0].id);
         setModuleSelected(true);
+        resetKeyword();
     };
 
     const onClickOnReturnIcon = async () => {
@@ -134,11 +119,22 @@ export function LibraryBrowser(props: LibraryBrowserProps) {
         setSearchScope(DEFAULT_SEARCH_SCOPE);
         setModuleTitle('');
         setModuleSelected(false);
-        setKeyword('');
+        resetKeyword();
     }
+
+    const isEmptyFilteredList = useMemo(() => {
+        if (filteredSearchData){
+            return !Object.values(filteredSearchData).some(it => it.length > 0);
+        }
+    }, [filteredSearchData]);
 
     const libraryDataFetchingHandler = (isFetching: boolean) => {
         setIsLoading(isFetching);
+    }
+
+    const resetKeyword = () => {
+        const searchInput = (document.getElementById("searchKeyword") as HTMLInputElement);
+        searchInput.value = '';
     }
 
     const loadingScreen = (
@@ -154,6 +150,29 @@ export function LibraryBrowser(props: LibraryBrowserProps) {
         </Grid>
     );
 
+    const searchLibrary = (event: React.ChangeEvent<HTMLInputElement>) => {
+        libraryDataFetchingHandler(true)
+        const searchValue: string = event.target.value;
+
+        if (searchValue === '' && !moduleSelected) {
+            setLibraryBrowserMode(LibraryBrowserMode.LIB_LIST);
+            setSearchScope(DEFAULT_SEARCH_SCOPE);
+        } else {
+            let filteredData;
+            if (librariesSearchData && searchScope === DEFAULT_SEARCH_SCOPE) {
+                filteredData = filterByKeyword(librariesSearchData, searchValue);
+            } else if (libraryData && searchScope !== DEFAULT_SEARCH_SCOPE) {
+                filteredData = filterByKeyword(libraryData.searchData, searchValue);
+            }
+            setLibraryBrowserMode(LibraryBrowserMode.LIB_SEARCH);
+            setFilteredSearchData(filteredData);
+        }
+
+        libraryDataFetchingHandler(false);
+    }
+
+    const debounceLibrarySearch = debounce(searchLibrary, 500);
+
     return (
         <div className={stmtEditorHelperClasses.libraryBrowser}>
             <div className={stmtEditorHelperClasses.libraryBrowserHeader}>
@@ -162,15 +181,23 @@ export function LibraryBrowser(props: LibraryBrowserProps) {
                         <IconButton onClick={onClickOnReturnIcon} className={stmtEditorHelperClasses.libraryReturnIcon}>
                             <ArrowBack className={stmtEditorHelperClasses.arrowBack} />
                         </IconButton>
+                        {moduleTitle && (
+                            <>
+                                <div className={stmtEditorHelperClasses.libraryModuleIcon}>
+                                    <LibraryModuleIcon/>
+                                </div>
+                                <div className={stmtEditorHelperClasses.moduleTitle}>{moduleTitle}</div>
+                            </>
+                        )}
                     </>
                 )}
                 <FormControl style={{ width: 'inherit' }}>
                     <Input
+                        id={"searchKeyword"}
                         className={stmtEditorHelperClasses.librarySearchBox}
-                        value={keyword}
                         autoFocus={true}
                         placeholder={`search in ${searchScope}`}
-                        onChange={(e) => setKeyword(e.target.value)}
+                        onChange={debounceLibrarySearch}
                         endAdornment={(
                             <InputAdornment position={"end"} style={{ padding: '8.5px' }}>
                                 <LibrarySearchIcon />
@@ -196,13 +223,21 @@ export function LibraryBrowser(props: LibraryBrowserProps) {
                                 libraryDataFetchingHandler={libraryDataFetchingHandler}
                             />
                         )}
-                        {libraryBrowserMode === LibraryBrowserMode.LIB_SEARCH && filteredSearchData && (
-                            <SearchResult
-                                librarySearchResponse={filteredSearchData}
-                                libraryBrowsingHandler={libraryBrowsingHandler}
-                                moduleSelected={moduleSelected}
-                                libraryDataFetchingHandler={libraryDataFetchingHandler}
-                            />
+                        {libraryBrowserMode === LibraryBrowserMode.LIB_SEARCH && filteredSearchData &&
+                        (isEmptyFilteredList ?
+                            (
+                                <div className={statementEditorClasses.stmtEditorInnerWrapper}>
+                                    <p>No result found for the searched keyword</p>
+                                </div>
+                            ) :
+                            (
+                                <SearchResult
+                                    librarySearchResponse={filteredSearchData}
+                                    libraryBrowsingHandler={libraryBrowsingHandler}
+                                    moduleSelected={moduleSelected}
+                                    libraryDataFetchingHandler={libraryDataFetchingHandler}
+                                />
+                            )
                         )}
                     </div>
                 </>
