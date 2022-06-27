@@ -26,16 +26,16 @@ jobs:
           rm ballerina.zip
           balVersion=$(ls $GITHUB_WORKSPACE/extractedDistribution)
           balHome=$GITHUB_WORKSPACE/extractedDistribution/$balVersion
+          echo "$balHome/bin" >> $GITHUB_PATH
           touch settings.json
           echo \{\"ballerina.home\": \"$balHome\"\} >> settings.json
-          echo "BALLERINA_HOME=$balHome" >> $GITHUB_ENV
       - name: "Build plugin repo"
         run: sudo apt-get install xvfb && xvfb-run --auto-servernum ./gradlew clean build -x test
         env:
           NPM_ACCESS_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}     
       - name: Run Tests
         run: |
-          echo BALLERINA_HOME=$BALLERINA_HOME
+          bal home
           export DISPLAY=:98.0
           Xvfb -ac :98 -screen 0 1920x1080x16 & 
           npm run ui-test-ci
