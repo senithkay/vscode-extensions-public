@@ -361,6 +361,15 @@ function getLangClient() {
                 });
             })
         },
+        getSTForResource: (params) => {
+            return new Promise((resolve, _reject) => {
+                const start = new Date();
+                webViewRPCHandler.invokeRemoteMethod('getSTForResource', [params], (resp) => {
+                    consoleLog(start, 'getSTForResource');
+                    resolve(resp);
+                });
+            })
+        },
         getPerfEndpoints: (params) => {
             return new Promise((resolve, _reject) => {
                 const start = new Date();
