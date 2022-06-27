@@ -30,9 +30,15 @@ export async function runCommandInBackground(command: string) {
     return new Promise<CommandResponse>(function (resolve) {
         child_process.exec(`${command}`, async (err, stdout, stderr) => {
             if (err) {
-                resolve({error: true, message: stderr});
+                resolve({
+                    error: true,
+                    message: stderr
+                });
             } else {
-                resolve({error: false, message: stdout});
+                resolve({
+                    error: false,
+                    message: stdout
+                });
             }
         });
     });
