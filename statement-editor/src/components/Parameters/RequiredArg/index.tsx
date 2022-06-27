@@ -51,7 +51,7 @@ export function RequiredArg(props : RequiredArgProps){
             />
             {param.description !== undefined && (
                 <ListItemText
-                    className={statementEditorHelperClasses.docListItemText}
+                    className={statementEditorHelperClasses.docParamDescriptionText}
                     primary={" : " + param.description}
                 />
             )}

@@ -391,11 +391,14 @@ export function updateReturnStatement(returnExpr: string, targetPosition: NodePo
 export function createImportStatement(org: string, module: string, targetPosition: NodePosition): STModification {
     const moduleName = module;
     const formattedName = getFormattedModuleName(module);
+    if (keywords.includes(moduleName)) {
+        module = module.replace(moduleName, "'" + moduleName);
+    }
     let moduleNameStr = org + "/" + module;
 
     const subModuleName = moduleName.split('.').pop();
     if (moduleName.includes('.') && subModuleName !== formattedName) {
-        if (keywords.includes(subModuleName)) {
+        if (keywords.includes(subModuleName)){
             module = module.replace(subModuleName, "'" + subModuleName);
         }
         // add alias if module name is different with formatted name

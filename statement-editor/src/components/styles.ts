@@ -119,7 +119,6 @@ export const useStatementRendererStyles = makeStyles(() =>
         expressionElement: {
             position: 'relative',
             width: 'fit-content',
-            margin: '0px 2px',
             '&': {
                 width: 'fit-content',
                 borderRadius: '4px',
@@ -441,7 +440,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
         moduleTitle: {
             marginRight: '43px',
             marginLeft: '4.25px',
-            marginBottom: '2px',
+            marginBottom: '16px',
         },
         libraryReturnIcon: {
             alignSelf: 'center',
@@ -456,7 +455,8 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             color: '#5567D5'
         },
         libraryModuleIcon: {
-            marginLeft: '8.25px'
+            marginLeft: '8.25px',
+            marginBottom: '12px'
         },
         libraryListBlock: {
             paddingBottom: '50px',
@@ -562,6 +562,16 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             marginBottom: '18px'
         },
         docListItemText: {
+            "& .MuiListItem-root": {
+                padding: '0px'
+            },
+            "& .MuiListItemText-root": {
+                flex: "none"
+            },
+            ...removePadding
+        },
+        docParamDescriptionText: {
+            flex: "inherit",
             ...removePadding
         },
         includedRecordPlusBtn: {
@@ -578,13 +588,15 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
         },
         requiredArgList: {
             "& .MuiListItem-root": {
-                padding: '0px',
-                flex: 'inherit'
+                padding: '0px'
             },
             "& .MuiListItemText-root": {
-                flex: "inherit",
-                margin: '0 6px 0 0'
+                margin: '0 6px 0 0',
+                flex: 'inherit',
+                minWidth: 'auto'
             },
+            alignItems: 'flex-start',
+            overflowX: 'hidden',
             ...removePadding
         },
         docDescription: {
@@ -618,6 +630,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             },
             "& .MuiListItemText-root": {
                 flex: 'inherit',
+                minWidth: 'auto',
                 margin: '0 6px 0 0'
             },
             ...removePadding

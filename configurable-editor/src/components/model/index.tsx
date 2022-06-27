@@ -22,6 +22,7 @@
  */
 export enum SchemaConstants {
     ENUM = "enum",
+    ID = "id",
     ITEMS = "items",
     TYPE = "type",
     VALUE = "value",

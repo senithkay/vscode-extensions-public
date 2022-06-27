@@ -40,7 +40,7 @@ export function SuggestionsList(props: SuggestionsListProps) {
             )}
             <List className={stmtEditorHelperClasses.suggestionList} data-testid="suggestion-list">
                 {
-                    lsSuggestions?.map((suggestion: SuggestionItem, index: number) => (
+                    lsSuggestions.map((suggestion: SuggestionItem, index: number) => (
                         <SuggestionListItem
                             key={index}
                             suggestion={suggestion}

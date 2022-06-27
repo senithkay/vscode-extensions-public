@@ -66,7 +66,7 @@ export function ExpressionComponent(props: ExpressionComponentProps) {
         if (!hasSyntaxDiagnostics) {
             e.stopPropagation();
             e.preventDefault();
-            changeCurrentModel(model, stmtPosition);
+            changeCurrentModel(model, stmtPosition, e.shiftKey);
         }
     }
 

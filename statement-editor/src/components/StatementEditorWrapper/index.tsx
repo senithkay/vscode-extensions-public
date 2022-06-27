@@ -27,7 +27,6 @@ import * as monaco from "monaco-editor";
 
 import { CUSTOM_CONFIG_TYPE } from "../../constants";
 import { EditorModel } from "../../models/definitions";
-import { getUpdatedSource } from "../../utils";
 import { getPartialSTForModuleMembers, getPartialSTForStatement, sendDidOpen } from "../../utils/ls-utils";
 import { StmtEditorUndoRedoManager } from "../../utils/undo-redo";
 import { EXPR_SCHEME, FILE_SCHEME } from "../InputEditor/constants";
@@ -147,35 +146,32 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
     };
 
     useEffect(() => {
-        (async () => {
-            let model = null;
-            if (initialSource) {
-                const updatedContent = getUpdatedSource(initialSource.trim(), currentFile.content,
-                    targetPosition);
+            (async () => {
+                let model = null;
+                if (initialSource) {
+                    await sendDidOpen(fileURI, currentFile.content, getLangClient);
 
-                await sendDidOpen(fileURI, updatedContent, getLangClient);
+                    const partialST = (isConfigurableStmt || isModuleVar)
+                        ? await getPartialSTForModuleMembers({ codeSnippet: initialSource.trim() }, getLangClient)
+                        : await getPartialSTForStatement({ codeSnippet: initialSource.trim() }, getLangClient);
 
-                const partialST = (isConfigurableStmt || isModuleVar)
-                    ? await getPartialSTForModuleMembers({ codeSnippet: initialSource.trim() }, getLangClient)
-                    : await getPartialSTForStatement({ codeSnippet: initialSource.trim() }, getLangClient);
-
-                if (!partialST.syntaxDiagnostics.length || config.type === CUSTOM_CONFIG_TYPE) {
-                    model = partialST;
-                }
+                    if (!partialST.syntaxDiagnostics.length || config.type === CUSTOM_CONFIG_TYPE) {
+                        model = partialST;
+                    }
             }
-            const newEditor: EditorModel = {
-                label,
-                model,
-                source: initialSource,
-                position: targetPosition,
-                isConfigurableStmt,
-                isModuleVar,
-                undoRedoManager: new StmtEditorUndoRedoManager()
+                const newEditor: EditorModel = {
+                    label,
+                    model,
+                    source: initialSource,
+                    position: targetPosition,
+                    isConfigurableStmt,
+                    isModuleVar,
+                    undoRedoManager: new StmtEditorUndoRedoManager()
                 };
 
-            setEditors((prevEditors: EditorModel[]) => {
-                return [...prevEditors, newEditor];
-            });
+                setEditors((prevEditors: EditorModel[]) => {
+                    return [...prevEditors, newEditor];
+                });
         })();
 
     }, []);
