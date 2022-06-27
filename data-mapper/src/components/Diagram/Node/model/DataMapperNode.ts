@@ -10,6 +10,7 @@ import {
 	TupleTypeDesc, TypeDefinition, TypedescTypeDesc, TypeReference, UnionTypeDesc, XmlTypeDesc
 } from '@wso2-enterprise/syntax-tree';
 import md5 from 'blueimp-md5';
+import { IDataMapperContext } from '../../../../utils/DataMapperContext/DataMapperContext';
 import { DataMapperLinkModel } from '../../Link/model/DataMapperLink';
 
 import { DataMapperPortModel } from '../../Port/model/DataMapperPortModel';
@@ -32,31 +33,25 @@ export interface SpecificFieldMappingFieldAccess {
 }
 
 export class DataMapperNodeModel extends NodeModel<NodeModelGenerics & DataMapperNodeModelGenerics> {
-	public readonly fnST: FunctionDefinition;
 	public readonly typeDef: TypeDefinition;
 	public readonly supportOutput: boolean;
 	public readonly supportInput: boolean
 	public readonly value: ExpressionFunctionBody | RequiredParam;
-	public readonly filePath: string;
-	public readonly langClientPromise: Promise<BalleriaLanguageClient>;
-    public readonly updateFileContent: (filePath: string, content: string) => Promise<boolean>;
+	public readonly context: IDataMapperContext;
 	private diagramModel: DiagramModel;
 
-	constructor(fnST: FunctionDefinition, value: ExpressionFunctionBody | RequiredParam, typeDef: TypeDefinition, supportOutput: boolean, supportInput: boolean,
-				filePath: string, lCP: Promise<BalleriaLanguageClient>,
-				updateFileContent: (filePath: string, content: string) => Promise<boolean>) {
+	constructor(context: IDataMapperContext,
+		value: ExpressionFunctionBody | RequiredParam,
+		typeDef: TypeDefinition, supportOutput: boolean,
+		supportInput: boolean) {
 		super({
 			type: 'datamapper'
 		});
-		this.fnST = fnST;
+		this.context = context;
 		this.value = value;
 		this.typeDef = typeDef;
 		this.supportInput = supportInput;
 		this.supportOutput = supportOutput;
-		this.filePath = filePath;
-		this.langClientPromise = lCP;
-		this.updateFileContent = updateFileContent;
-		this.addPorts();
 	}
 
 	public setModel(model: DiagramModel) {
@@ -67,7 +62,7 @@ export class DataMapperNodeModel extends NodeModel<NodeModelGenerics & DataMappe
 		return this.diagramModel;
 	}
 
-	private addPorts() {
+	public initPorts() {
 		if (this.supportInput) {
 			this.addPortOv(this.typeDef.typeDescriptor as RecordTypeDesc, "IN");
 		}
@@ -176,7 +171,7 @@ export class DataMapperNodeModel extends NodeModel<NodeModelGenerics & DataMappe
 				valueExpr = valueExpr.expression;
 			}
 			if (valueExpr && STKindChecker.isSimpleNameReference(valueExpr)) {
-				const paramNode = this.fnST.functionSignature.parameters
+				const paramNode = this.context.functionST.functionSignature.parameters
 					.find((param) => 
 						STKindChecker.isRequiredParam(param) 
 						&& param.paramName?.value === (valueExpr as  SimpleNameReference).name.value

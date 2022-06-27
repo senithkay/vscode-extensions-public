@@ -13,7 +13,7 @@ export class DataMapperNodeFactory extends AbstractReactFactory<DataMapperNodeMo
 		return <DataMapperNodeWidget engine={this.engine} size={200} node={event.model} />;
 	}
 
-	generateModel(event: { initialConfig: any }) {
-		return new DataMapperNodeModel(event.initialConfig.name, event.initialConfig.model, event.initialConfig.supportOutput, event.initialConfig.supportInput);
+	generateModel(event: { initialConfig: any }): any {
+		return undefined;
 	}
 }

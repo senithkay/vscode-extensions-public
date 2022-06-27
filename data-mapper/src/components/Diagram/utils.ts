@@ -114,11 +114,10 @@ export async function createSpecificFieldSource(link: DataMapperLinkModel) {
 			if (targetMappingConstruct.fields.length > 0) {
 				source += ",\n";
 			}
-			const langClient = await targetNode.langClientPromise;
-			const updateFileContent = targetNode.updateFileContent;
+			const langClient = await targetNode.context.getLangClient();
 			const stModifyResp = await langClient.stModify({
 				documentIdentifier: {
-					uri: `file://${targetNode.filePath}`
+					uri: `file://${targetNode.context.filePath}`
 				},
 				astModifications: [
 					{ 
@@ -133,7 +132,7 @@ export async function createSpecificFieldSource(link: DataMapperLinkModel) {
 					}
 				]
 			});
-			updateFileContent(targetNode.filePath, stModifyResp.source);
+			targetNode.context.updateFileContent(targetNode.context.filePath, stModifyResp.source);
 			console.log(stModifyResp);
 		}
 	}

@@ -46,6 +46,7 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 		model.addAll(...nodes);
 		nodes.forEach((node) => {
 			node.setModel(model);
+			node.initPorts();
 			node.initLinks();
 		});
 		engine.setModel(model);

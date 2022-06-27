@@ -4,8 +4,8 @@ import DataMapperDiagram from "../Diagram/Diagram";
 import { ExpressionFunctionBody, FunctionDefinition, STKindChecker, TypeDefinition } from "@wso2-enterprise/syntax-tree";
 import { BalleriaLanguageClient } from "@wso2-enterprise/ballerina-languageclient";
 import { getTypeDefinitionForTypeDesc } from "../../utils/st-utils";
-import { useDMStore } from "../../store/store";
 import { DataMapperNodeModel } from "../Diagram/Node/model/DataMapperNode";
+import { DataMapperContext } from "../../utils/DataMapperContext/DataMapperContext";
 
 export interface DataMapperProps {
     fnST: FunctionDefinition;
@@ -15,27 +15,28 @@ export interface DataMapperProps {
 }
 
 function DataMapperC(props: DataMapperProps) {
+
     const { fnST, langClientPromise, filePath, updateFileContent } = props;
     const [nodes, setNodes] = useState<DataMapperNodeModel[]>([]);
 
-    const setFunctionST = useDMStore((state) => state.setFunctionST);
-    const setFilePath = useDMStore((state) => state.setFilePath);
-    const setLangClientPromise = useDMStore((state) => state.setLangClientPromise);
-
     useEffect(() => {
         async function generateNodes() {
+            
+            const context = new DataMapperContext(
+                filePath,
+                fnST,
+                langClientPromise,
+                updateFileContent
+            );
             // create output nodes
             const typeDesc = fnST.functionSignature.returnTypeDesc?.type;
             const typeDef = await getTypeDefinitionForTypeDesc(filePath, typeDesc, langClientPromise);
             const outputNode = new DataMapperNodeModel(
-                fnST,
+                context,
                 fnST.functionBody as ExpressionFunctionBody, // TODO fix once we support other forms of functions
                 typeDef,
                 false,
-                true,
-                filePath,
-                langClientPromise,
-                updateFileContent
+                true
             );
             outputNode.setPosition(800, 100);
 
@@ -47,14 +48,11 @@ function DataMapperC(props: DataMapperProps) {
                 if (STKindChecker.isRequiredParam(param)) {
                     const paramTypeDef = await getTypeDefinitionForTypeDesc(filePath, param.typeName, langClientPromise);
                     const paramNode = new DataMapperNodeModel(
-                        fnST,
+                        context,
                         param,
                         paramTypeDef,
                         true,
-                        false,
-                        filePath,
-                        langClientPromise,
-                        updateFileContent
+                        false
                     );
                     paramNode.setPosition(100, 100 + i * 400); // 400 is an arbitary value, need to calculate exact heigt;
                     inputNodes.push(paramNode);
@@ -65,21 +63,12 @@ function DataMapperC(props: DataMapperProps) {
             setNodes([...inputNodes, outputNode]);
         }
         generateNodes();
-    }, [fnST, filePath])
-
-    useEffect(() => {
-        setFilePath(filePath);
-        setFunctionST(fnST);
-    }, [filePath, fnST]);
-
-    useEffect(() => {
-        setLangClientPromise(langClientPromise);
-    }, [langClientPromise]);
+    }, [fnST, filePath]);
 
     return <>
         {<DataMapperDiagram
-                nodes={nodes}
-            />
+            nodes={nodes}
+        />
         }
     </>
 }
