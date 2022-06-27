@@ -132,8 +132,11 @@ export function getDefaultParams(parameters: FormField[], depth = 1, valueOnly =
                 draftParameter = getFieldValuePair(parameter, `{}`, depth);
                 break;
             case PrimitiveBalType.Record:
+                if (isAllDefaultableFields(parameter?.fields)) {
+                    break;
+                }
                 const insideParamList = getDefaultParams(parameter.fields, depth + 1);
-                draftParameter = getFieldValuePair(parameter, `{\n${insideParamList?.join()}\n}`, depth, valueOnly);
+                draftParameter = getFieldValuePair(parameter, `{\n${insideParamList?.join()}}`, depth, valueOnly);
                 break;
             case PrimitiveBalType.Union:
                 const firstMember = parameter.members[ 0 ];

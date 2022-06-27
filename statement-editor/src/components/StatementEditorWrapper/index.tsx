@@ -15,6 +15,7 @@ import React, { useEffect, useState } from 'react';
 
 import { Box, FormControl } from '@material-ui/core';
 import {
+    CommandResponse,
     ExpressionEditorLangClientInterface,
     LibraryDataResponse,
     LibraryDocResponse,
@@ -32,6 +33,7 @@ import { getPartialSTForModuleMembers, getPartialSTForStatement, sendDidOpen } f
 import { StmtEditorUndoRedoManager } from "../../utils/undo-redo";
 import { EXPR_SCHEME, FILE_SCHEME } from "../InputEditor/constants";
 import { StatementEditor } from "../StatementEditor";
+import { useStatementEditorStyles } from '../styles';
 
 export interface LowCodeEditorProps {
     getLangClient: () => Promise<ExpressionEditorLangClientInterface>;
@@ -59,6 +61,7 @@ export interface LowCodeEditorProps {
     experimentalEnabled?: boolean;
     isConfigurableStmt?: boolean;
     isModuleVar?: boolean;
+    runCommandInBackground?: (command: string) => Promise<CommandResponse>;
 }
 
 export interface StatementEditorWrapperProps extends LowCodeEditorProps {
@@ -69,6 +72,7 @@ export interface StatementEditorWrapperProps extends LowCodeEditorProps {
 }
 
 export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
+    const overlayClasses = useStatementEditorStyles();
     const {
         label,
         initialSource,
@@ -87,7 +91,8 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
         isConfigurableStmt,
         isModuleVar,
         isLoading,
-        extraModules
+        extraModules,
+        runCommandInBackground
     } = props;
 
     const {
@@ -155,7 +160,7 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
             let model = null;
             if (initialSource) {
                 const updatedContent = getUpdatedSource(initialSource.trim(), currentFile.content,
-                    targetPosition);
+                    targetPosition, extraModules);
 
                 await sendDidOpen(fileURI, updatedContent, getLangClient);
 
@@ -194,9 +199,9 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
     return (
         <FormControl data-testid="property-form">
             {isLoading && (
-                <>
-                    <Box width={700} height={500} justifyContent="center" alignItems="center">Loading...</Box>
-                </>
+                <div className={overlayClasses.mainStatementWrapper} data-testid="statement-editor-loader">
+                    <div className={overlayClasses.loadingWrapper}>Loading...</div>
+                </div>
             )}
             {!isLoading && editor
                 ? (
@@ -224,6 +229,7 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
                             stSymbolInfo={stSymbolInfo}
                             extraModules={extraModules}
                             experimentalEnabled={experimentalEnabled}
+                            runCommandInBackground={runCommandInBackground}
                         />
                     </>
                 )

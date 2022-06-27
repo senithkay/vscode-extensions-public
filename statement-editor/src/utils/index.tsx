@@ -523,6 +523,12 @@ export function getSymbolPosition(targetPos: NodePosition, currentModel: STNode,
 
         }
         return  position;
+    } else if (STKindChecker.isImplicitNewExpression(currentModel)){
+        position = {
+            line : targetPos.startLine + currentModel.position.startLine,
+            offset : targetPos.startColumn + currentModel.parenthesizedArgList.position.startColumn
+        }
+        return  position;
     }
     position = {
         line : targetPos.startLine + currentModel.position.startLine,
