@@ -157,6 +157,7 @@ export function ParameterList(props: ParameterListProps) {
                             secondary={"Select parameters from the list given below"}
                         />
                     </ListSubheader>
+                    <div className={stmtEditorHelperClasses.paramList}>
                     {parameters?.map((param: ParameterInfo, value: number) => (
                             <>
                                 {param.kind === SymbolParameterType.REQUIRED ? (
@@ -217,6 +218,7 @@ export function ParameterList(props: ParameterListProps) {
                             </>
                         )
                     )}
+                    </div>
                 </>
             )}
         </>

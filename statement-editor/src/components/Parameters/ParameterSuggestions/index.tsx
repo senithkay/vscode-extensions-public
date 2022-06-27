@@ -86,7 +86,7 @@ export function ParameterSuggestions(){
             ) : (
                 <>
                     {documentation && !(documentation.documentation === undefined) ? (
-                        <List className={statementEditorClasses.stmtEditorInnerWrapper}>
+                        <List className={stmtEditorHelperClasses.docParamSuggestions}>
                             <ParameterList checkedList={checked} setCheckedList={setCheckedList} />
                             {documentation.documentation.description && (
                                 <>
