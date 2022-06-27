@@ -35,6 +35,7 @@ jobs:
           NPM_ACCESS_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}     
       - name: Run Tests
         run: |
+          echo BALLERINA_HOME=$BALLERINA_HOME
           export DISPLAY=:98.0
           Xvfb -ac :98 -screen 0 1920x1080x16 & 
           npm run ui-test-ci
