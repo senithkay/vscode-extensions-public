@@ -18,31 +18,41 @@
  */
 
 import { h, FunctionComponent } from "preact";
-import ReactJson from "react-json-view";
-import { JSON_DARK_THEME, JSON_LIGHT_THEME } from "../constants";
+import ReactJson, { ThemeKeys, ThemeObject } from "react-json-view";
+import { DEFAULT_FONT_STYLE, JSON_DARK_THEME, JSON_LIGHT_THEME } from "../themes";
 import { NotebookCellResult } from "../types";
 import { getIsDarkMode } from "../utils";
 
-export const Json: FunctionComponent<{ notebookCellOutput: Readonly<NotebookCellResult> }> = ({ notebookCellOutput }) => {  
+export const JsonForNotebookOutput: FunctionComponent<{
+    notebookCellOutput: Readonly<NotebookCellResult>
+}> = ({ notebookCellOutput }) => {
     const darkMode = getIsDarkMode();
-    const renderJson = (value: Object) => {
-        return <ReactJson
-            src={value}
-            name={false}
-            enableClipboard={false}
+    return <div style={{
+        maxHeight: "600px",
+        overflowY: "scroll"
+    }}>
+        <Json
+            value={JSON.parse(notebookCellOutput.shellValue.value)}
             theme={darkMode ? JSON_DARK_THEME : JSON_LIGHT_THEME}
             collapsed={3}
-            style={{
-                fontFamily: "monospace",
-                letterSpacing: "1px",
-                padding: 24,
-            }}
         />
-    }
-    return <div style={{
-            maxHeight: "400px", 
-            overflowY: "scroll"
-        }}>
-            {renderJson(JSON.parse(notebookCellOutput.shellValue.value))}
-        </div>;
+    </div>;
+}
+
+export const Json: FunctionComponent<{
+    value: Object, theme: ThemeObject | ThemeKeys, styles?: Object, collapsed?: number
+}> = ({ value, theme, styles, collapsed }) => {
+    return <ReactJson
+        src={value}
+        name={false}
+        enableClipboard={false}
+        displayDataTypes={false}
+        groupArraysAfterLength={20}
+        theme={theme}
+        collapsed={collapsed ?? false}
+        style={{
+            padding: 24,
+            ...DEFAULT_FONT_STYLE,
+            ...styles
+        }} />;
 }

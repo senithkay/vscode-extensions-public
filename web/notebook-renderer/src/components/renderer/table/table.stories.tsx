@@ -55,6 +55,97 @@ export const SimpleTable2 = {
     },
 };
 
+export const SimpleTable3 = {
+    args: {
+        notebookCellOutput:{
+            shellValue: {
+                value: `[
+                    {
+                        "username":"John",
+                        "salary":100,
+                        "fullname":{
+                            "firstname":"John",
+                            "lastname":"Doe"
+                        },
+                        "friends":[
+                            {
+                                "username":"Adam",
+                                "salary":300,
+                                "fullname":{
+                                    "firstname":"Adam",
+                                    "lastname":"Smith"
+                                }
+                            },
+                            {
+                                "username":"Jake",
+                                "salary":100,
+                                "fullname":{
+                                    "firstname":"jake",
+                                    "lastname":"Peralta"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "username":"Adam",
+                        "salary":300,
+                        "fullname":{
+                            "firstname":"Adam",
+                            "lastname":"Smith"
+                        },
+                        "friends":[
+                            {
+                                "username":"John",
+                                "salary":100,
+                                "fullname":{
+                                    "firstname":"John",
+                                    "lastname":"Doe"
+                                }
+                            },
+                            {
+                                "username":"Jake",
+                                "salary":100,
+                                "fullname":{
+                                    "firstname":"jake",
+                                    "lastname":"Peralta"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "username":"Jake",
+                        "salary":100,
+                        "fullname":{
+                            "firstname":"jake",
+                            "lastname":"Peralta"
+                        },
+                        "friends":[
+                            {
+                                "username":"John",
+                                "salary":100,
+                                "fullname":{
+                                    "firstname":"John",
+                                    "lastname":"Doe"
+                                }
+                            },
+                            {
+                                "username":"Adam",
+                                "salary":300,
+                                "fullname":{
+                                    "firstname":"Adam",
+                                    "lastname":"Smith"
+                                }
+                            }
+                        ]
+                    }
+                ]`,
+                mimeType: 'table',
+                type: 'table'
+            }
+        }
+    },
+};
+
 export const InconsistentTable1 = {
     args: {
         notebookCellOutput:{
@@ -62,7 +153,7 @@ export const InconsistentTable1 = {
                 value: `[
                     {"username":"John","salary":100,"region":"LA"},
                     {"username":"Adam","salary":300,"title":"Manager"},
-                    {"username":"Jake","salary":100}
+                    {"username":"Jake","salary":100,"region":""}
                 ]`,
                 mimeType: 'table',
                 type: 'table'

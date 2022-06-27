@@ -20,7 +20,7 @@
 import { h, render } from 'preact';
 import { ActivationFunction, OutputItem, RendererContext } from 'vscode-notebook-renderer';
 import { MIME_TYPE_JSON, MIME_TYPE_TABLE, MIME_TYPE_XML } from './renderer/constants';
-import { Json } from './renderer/json/json';
+import { JsonForNotebookOutput } from './renderer/json/json';
 import { TableForNotebookOutput } from './renderer/table/table';
 import { getIsDarkMode } from './renderer/utils';
 import { Xml } from "./renderer/xml/xml";
@@ -33,7 +33,7 @@ export const activate: ActivationFunction = (context: RendererContext<any>) => (
                     render(<TableForNotebookOutput notebookCellOutput={data.json()}/>, element);
                     break;
                 case MIME_TYPE_JSON:
-                    render(<Json notebookCellOutput={data.json()}/>, element);
+                    render(<JsonForNotebookOutput notebookCellOutput={data.json()}/>, element);
                     break;
                 case MIME_TYPE_XML:
                     render(<Xml notebookCellOutput={data.json()}/>, element);
