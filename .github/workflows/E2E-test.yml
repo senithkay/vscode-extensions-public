@@ -19,11 +19,14 @@ jobs:
           java-version: '11'
       - run: mkdir extractedDistribution
       - run: sudo apt-get install unzip
-      - name: Download latest ballerina distribution
+      - name: Setup Ballerina
         run: |
           curl -s https://api.github.com/repos/ballerina-platform/ballerina-distribution/releases | grep -wo -m1 "https.*ballerina-.*swan-lake.zip" | wget -qi - -O ballerina.zip
           unzip -qq ./ballerina.zip -d ./extractedDistribution
           rm ballerina.zip
+          balFolder=$(ls $github_workspace/extractedDistribution)
+          touch settings.json
+          echo \{\"ballerina.home\": \"$github_workspace/extractedDistribution/$balFolder\"\} >> settings.json
       - name: "Build plugin repo"
         run: sudo apt-get install xvfb && xvfb-run --auto-servernum ./gradlew clean build -x test
         env:
@@ -32,7 +35,7 @@ jobs:
         run: |
           export DISPLAY=:98.0
           Xvfb -ac :98 -screen 0 1920x1080x16 & 
-          npm run ui-test
+          npm run ui-test-ci
         env:
           NPM_ACCESS_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}    
       - name: Upload screenshots
