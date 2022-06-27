@@ -561,8 +561,8 @@ export function getSymbolPosition(targetPos: NodePosition, currentModel: STNode,
 }
 
 export function isDocumentationSupportedModel(currentModel: STNode): boolean {
-    return (STKindChecker.isFunctionCall(currentModel) || STKindChecker.isMethodCall(currentModel) ||
-        STKindChecker.isImplicitNewExpression(currentModel) || STKindChecker.isExplicitNewExpression(currentModel));
+    return (isFunctionOrMethodCall(currentModel) || STKindChecker.isImplicitNewExpression(currentModel) ||
+        STKindChecker.isExplicitNewExpression(currentModel));
 }
 
 export function getCurrentModelParams(currentModel: STNode): STNode[] {
