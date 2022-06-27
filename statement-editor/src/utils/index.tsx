@@ -664,7 +664,9 @@ export function getUpdatedContentForNewNamedArg(currentModel: STNode, userInput:
 // TODO: Remove this function once the methodCall param filter is added to the LS
 export function updateParamListFordMethodCallDoc(paramsInModel: STNode[],  documentation : SymbolDocumentation) {
     if (paramsInModel[0]?.source === undefined || documentation.parameters[0]?.name !==  paramsInModel[0]?.source){
-        documentation.parameters.splice(0, 1);
+        if (documentation.parameters[0]?.kind === SymbolParameterType.REQUIRED){
+            documentation.parameters.splice(0, 1);
+        }
     }
 }
 
