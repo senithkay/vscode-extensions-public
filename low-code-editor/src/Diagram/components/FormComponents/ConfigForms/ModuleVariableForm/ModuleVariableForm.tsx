@@ -12,13 +12,12 @@
  */
 import React, { useContext, useEffect } from 'react';
 
+import { genVariableName, getAllVariables } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { StatementEditorWrapper } from '@wso2-enterprise/ballerina-statement-editor';
 import { ModuleVarDecl, NodePosition } from '@wso2-enterprise/syntax-tree';
 
 import { Context, useDiagramContext } from '../../../../../Contexts/Diagram';
-import { getAllVariables } from "../../../../utils";
 import { getVarNamePositionFromST } from '../../../../utils/st-util';
-import { genVariableName } from '../../../Portals/utils';
 
 import { getFormConfigFromModel, VariableOptions } from './util';
 

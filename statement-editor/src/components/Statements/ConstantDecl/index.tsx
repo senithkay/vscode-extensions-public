@@ -15,6 +15,7 @@ import React, { useContext } from "react";
 
 import { ConstDeclaration } from "@wso2-enterprise/syntax-tree";
 
+import { CUSTOM_CONFIG_TYPE } from "../../../constants";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { ExpressionComponent } from "../../Expression";
 import { TokenComponent } from "../../Token";
@@ -25,16 +26,32 @@ interface ConstantDeclProps {
 
 export function ConstantDeclC(props: ConstantDeclProps) {
     const { model } = props;
+    const {
+        modelCtx: {
+            currentModel,
+            changeCurrentModel
+        },
+        config
+    } = useContext(StatementEditorContext);
+
+    if (!currentModel.model) {
+        if (model.initializer) {
+            changeCurrentModel(model.initializer);
+        } else if (config.type === CUSTOM_CONFIG_TYPE) {
+            changeCurrentModel(model);
+        }
+    }
 
     return (
         <>
+            {/*TODO: Use keyword component once it is available instead of the token component*/}
+            {model.visibilityQualifier && <TokenComponent model={model.visibilityQualifier} className={"keyword"}/>}
             <TokenComponent model={model.constKeyword} className={"keyword"} />
             {model.typeDescriptor && <ExpressionComponent model={model.typeDescriptor}/>}
             <ExpressionComponent model={model.variableName}/>
             <TokenComponent model={model.equalsToken} className={"operator"} />
             <ExpressionComponent model={model.initializer}/>
-            {!model.semicolonToken.isMissing &&
-                <TokenComponent model={model.semicolonToken} />}
+            {!model.semicolonToken.isMissing && <TokenComponent model={model.semicolonToken} />}
         </>
     );
 }

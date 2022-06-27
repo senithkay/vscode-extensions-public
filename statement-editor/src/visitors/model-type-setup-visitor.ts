@@ -12,6 +12,7 @@
  */
 import {
     BinaryExpression,
+    ConstDeclaration,
     FieldAccess,
     ImplicitAnonymousFunctionExpression,
     IntersectionTypeDesc,
@@ -136,6 +137,12 @@ class ModelTypeSetupVisitor implements Visitor {
 
     public beginVisitImplicitAnonymousFunctionExpression(node: ImplicitAnonymousFunctionExpression) {
         (node.viewState as StatementEditorViewState).modelType = ModelType.FUNCTION;
+    }
+
+    public beginVisitConstDeclaration(node: ConstDeclaration) {
+        if (node?.typeDescriptor) {
+            (node.typeDescriptor.viewState as StatementEditorViewState).modelType = ModelType.TYPE_DESCRIPTOR;
+        }
     }
 
 }

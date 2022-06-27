@@ -55,9 +55,9 @@ export function ConstantConfigForm(props: ConstantConfigFormProps) {
     }
 
     const visibilityQualifier = constantConfig.isPublic ? 'public' : '';
-    const varType = constantConfig.constantType ? constantConfig.constantType : '';
+    const varType = constantConfig.constantType ? constantConfig.constantType : 'string';
     const varName = constantConfig.constantName ? constantConfig.constantName : 'CONST_NAME';
-    const varValue = constantConfig.constantValue ? constantConfig.constantValue : '0';
+    const varValue = constantConfig.constantValue ? constantConfig.constantValue : 'EXPRESSION';
 
     const initialSource = `${visibilityQualifier} const ${varType} ${varName} = ${varValue};`
 

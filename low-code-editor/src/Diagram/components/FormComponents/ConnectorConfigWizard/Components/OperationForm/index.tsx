@@ -21,6 +21,8 @@ import {
     ConnectorConfig,
     FormField,
     FunctionDefinitionInfo,
+    genVariableName,
+    getAllVariables,
     STModification,
     STSymbolInfo
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
@@ -33,8 +35,7 @@ import classNames from 'classnames';
 
 import {DocIcon} from "../../../../../../assets";
 import { Context } from '../../../../../../Contexts/Diagram';
-import { getAllVariables } from "../../../../../utils/mixins";
-import { checkVariableName, genVariableName, getActionReturnType } from "../../../../Portals/utils";
+import { checkVariableName, getActionReturnType } from "../../../../Portals/utils";
 import { VariableTypeInput } from '../../../ConfigForms/Components/VariableTypeInput';
 import { Form } from "../../../DynamicConnectorForm";
 import { useStyles } from "../../../DynamicConnectorForm/style";

@@ -14,7 +14,6 @@ import React, { ReactNode } from 'react';
 
 import {
     CompletionResponse,
-    ExpressionEditorLangClientInterface,
     getDiagnosticMessage,
     getFilteredDiagnostics,
     LinePosition,
@@ -40,7 +39,9 @@ import * as statementTypeComponents from '../components/Statements';
 import {
     BAL_SOURCE,
     CUSTOM_CONFIG_TYPE,
-    END_OF_LINE_MINUTIAE, EXPR_CONSTRUCTOR,
+    END_OF_LINE_MINUTIAE,
+    EXPR_CONSTRUCTOR,
+    IGNORABLE_DIAGNOSTICS,
     OTHER_EXPRESSION,
     OTHER_STATEMENT,
     PLACEHOLDER_DIAGNOSTICS,
@@ -229,7 +230,8 @@ export function getFilteredDiagnosticMessages(statement: string, targetPosition:
 
     getDiagnosticMessage(diag, diagTargetPosition, 0, statement.length, 0, 0).split('. ').map(message => {
             let isPlaceHolderDiag = false;
-            if (PLACEHOLDER_DIAGNOSTICS.some(msg => message.includes(msg))) {
+            if (PLACEHOLDER_DIAGNOSTICS.some(msg => message.includes(msg))
+                || (/const.+=.*EXPRESSION.*;/.test(statement) && IGNORABLE_DIAGNOSTICS.includes(message))) {
                 isPlaceHolderDiag = true;
             }
             if (!!message) {
@@ -338,12 +340,6 @@ export function getClassNameForToken(model: STNode): string {
     }
 
     return className;
-}
-
-export function getStringForMinutiae(minutiae: Minutiae[]): string {
-    return minutiae.map((element) => {
-        return element.minutiae;
-    }).join('');
 }
 
 export function getSuggestionIconStyle(suggestionType: number): string {
