@@ -71,6 +71,9 @@ export function ParameterList(props: ParameterListProps) {
             }
         } else {
             newChecked.splice(currentIndex, 1);
+            if (param.kind === SymbolParameterType.REST) {
+                restArg(false);
+            }
             if (isDocumentationSupportedModel(model)) {
                 updateModel(getUpdatedContentOnUncheck(model, currentIndex), getParamUpdateModelPosition(model));
             }
