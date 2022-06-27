@@ -84,6 +84,7 @@ export function LibraryBrowser(props: LibraryBrowserProps) {
 
     useEffect(() => {
         (async () => {
+            libraryDataFetchingHandler(true);
             let response;
             if (libraryType === LANG_LIBS_IDENTIFIER) {
                 response = await getLibrariesList(LibraryKind.langLib);
@@ -102,6 +103,7 @@ export function LibraryBrowser(props: LibraryBrowserProps) {
             setModuleTitle('');
             setModuleSelected(false);
             resetKeyword();
+            libraryDataFetchingHandler(false);
         })();
     }, [libraryType]);
 
