@@ -12,11 +12,10 @@
  */
 import { getIntegrationTestPageURL } from "../../../../utils/story-url-utils";
 import { Canvas } from "../../../../utils/components/canvas";
-import { VariableFormBlockLevel } from "../../../../utils/forms/variable-form-block-level";
 import { StatementEditor } from "../../../../utils/components/statement-editor/statement-editor";
 import { EditorPane } from "../../../../utils/components/statement-editor/editor-pane";
 import { InputEditor } from "../../../../utils/components/statement-editor/input-editor";
-import { ForEachForm } from "../../../../utils/forms/foreach-form";
+import { BlockLevelPlusWidget } from "../../../../utils/components/block-level-plus-widget";
 
 const BAL_FILE_PATH = "block-level/statement-editor/statement-editor-init.bal";
 
@@ -31,48 +30,44 @@ describe('Test statement editor diagnostics', () => {
             .shouldBeExpanded()
             .getDiagram()
             .shouldBeRenderedProperly()
-            .clickDefaultWorkerPlusBtn(2)
-            .getBlockLevelPlusWidget()
-            .clickOption("Variable");
+            .clickDefaultWorkerPlusBtn(2);
 
-        VariableFormBlockLevel
-            .shouldBeVisible()
-            .toggleStatementEditor()
+        BlockLevelPlusWidget.clickOption("Variable");
 
         StatementEditor
-            .shouldBeVisible()
+            .shouldBeVisible();
 
         EditorPane
             .getStatementRenderer()
             .getExpression("TypedBindingPattern")
-            .doubleClickExpressionContent('var')
+            .doubleClickExpressionContent('var');
 
         InputEditor
-            .typeInput("string")
+            .typeInput("string");
 
         EditorPane
             .validateEmptyDiagnostics()
             .getExpression("SimpleNameReference")
-            .doubleClickExpressionContent(`<add-expression>`)
+            .doubleClickExpressionContent(`<add-expression>`);
 
         InputEditor
-            .typeInput("\"testing LS diagnostics functionality\"")
+            .typeInput("\"testing LS diagnostics functionality\"");
 
         EditorPane
             .validateEmptyDiagnostics()
             .getExpression("TypedBindingPattern")
-            .doubleClickExpressionContent('string')
+            .doubleClickExpressionContent('string');
 
         InputEditor
-            .typeInput("int")
+            .typeInput("int");
 
         EditorPane
             .validateNewExpression("TypedBindingPattern","int")
-            .validateDiagnosticMessage("incompatible types: expected 'int', found 'string'")
+            .validateDiagnosticMessage("incompatible types: expected 'int', found 'string'");
 
         StatementEditor
             .saveDisabled()
-            .close()
+            .close();
     });
 
 
@@ -82,37 +77,33 @@ describe('Test statement editor diagnostics', () => {
             .shouldBeExpanded()
             .getDiagram()
             .shouldBeRenderedProperly()
-            .clickDefaultWorkerPlusBtn(2)
-            .getBlockLevelPlusWidget()
-            .clickOption("Variable");
+            .clickDefaultWorkerPlusBtn(2);
 
-        VariableFormBlockLevel
-            .shouldBeVisible()
-            .toggleStatementEditor()
+        BlockLevelPlusWidget.clickOption("Variable");
 
         StatementEditor
-            .shouldBeVisible()
+            .shouldBeVisible();
 
         EditorPane
             .getStatementRenderer()
             .getExpression("TypedBindingPattern")
-            .doubleClickExpressionContent('var')
+            .doubleClickExpressionContent('var');
 
         InputEditor
-            .typeInput("int")
+            .typeInput("int");
 
         EditorPane
             .getExpression("SimpleNameReference")
-            .doubleClickExpressionContent(`<add-expression>`)
+            .doubleClickExpressionContent(`<add-expression>`);
 
         InputEditor
-            .typeInput("1 +")
+            .typeInput("1 +");
 
         EditorPane
-            .validateDiagnosticMessage("missing identifier")
+            .validateDiagnosticMessage("missing identifier");
 
         StatementEditor
-            .saveDisabled()
+            .saveDisabled();
     });
 
     it('Test statement with multiple diagnostics', () => {
@@ -121,39 +112,35 @@ describe('Test statement editor diagnostics', () => {
             .shouldBeExpanded()
             .getDiagram()
             .shouldBeRenderedProperly()
-            .clickDefaultWorkerPlusBtn(2)
-            .getBlockLevelPlusWidget()
-            .clickOption("ForEach");
+            .clickDefaultWorkerPlusBtn(2);
 
-        ForEachForm
-            .shouldBeVisible()
-            .toggleStatementEditor()
+        BlockLevelPlusWidget.clickOption("ForEach");
 
         StatementEditor
             .shouldBeVisible()
-            .getEditorPane()
+            .getEditorPane();
 
         EditorPane
             .getStatementRenderer()
             .getExpression("TypedBindingPattern")
-            .doubleClickExpressionContent('var')
+            .doubleClickExpressionContent('var');
 
         InputEditor
-            .typeInput("json")
+            .typeInput("json");
 
         EditorPane
             .getExpression("SimpleNameReference")
-            .doubleClickExpressionContent(`<add-expression>`)
+            .doubleClickExpressionContent(`<add-expression>`);
 
         InputEditor
-            .typeInput("var1")
+            .typeInput("var1");
 
         EditorPane
             .validateNewExpression("SimpleNameReference","var1")
-            .checkForMultipleDiagnostics()
+            .checkForMultipleDiagnostics();
 
         StatementEditor
             .saveDisabled()
-            .cancel()
+            .cancel();
     });
 })

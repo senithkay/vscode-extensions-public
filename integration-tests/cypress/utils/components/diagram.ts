@@ -89,7 +89,7 @@ export class FunctionDiagram {
     }
 
     public getBlockLevelPlusWidget() {
-        return new BlockLevelPlusWidget(this.container);
+        return new BlockLevelPlusWidget();
     }
 
     public clickExistingLogStatement() {
