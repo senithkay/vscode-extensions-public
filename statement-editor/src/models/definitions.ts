@@ -20,7 +20,8 @@ import { StmtEditorUndoRedoManager } from "../utils/undo-redo";
 
 export interface CurrentModel {
     model: STNode,
-    stmtPosition?: NodePosition
+    stmtPosition?: NodePosition,
+    isEntered?: boolean
 }
 
 export interface VariableUserInputs {

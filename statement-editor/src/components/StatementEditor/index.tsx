@@ -155,17 +155,19 @@ export function StatementEditor(props: StatementEditorProps) {
 
     useEffect(() => {
         (async () => {
-            const updatedContent = getUpdatedSource(source.trim(), currentFile.content, targetPosition, moduleList);
+            if (!newConfigurableName) {
+                const updatedContent = getUpdatedSource(source.trim(), currentFile.content, targetPosition, moduleList);
 
-            sendDidChange(fileURI, updatedContent, getLangClient).then();
-            const diagnostics = await handleDiagnostics(source);
+                sendDidChange(fileURI, updatedContent, getLangClient).then();
+                const diagnostics = await handleDiagnostics(source);
 
-            const newCurrentModel: STNode = selectedNodePosition
-                ? getCurrentModel(selectedNodePosition, editorModel) : undefined;
+                const newCurrentModel: STNode = selectedNodePosition
+                    ? getCurrentModel(selectedNodePosition, editorModel) : undefined;
 
-            setStmtModel(editorModel, diagnostics);
-            setCurrentModel({ model: newCurrentModel });
-            await handleDocumentation(newCurrentModel);
+                setStmtModel(editorModel, diagnostics);
+                setCurrentModel({ model: newCurrentModel });
+                await handleDocumentation(newCurrentModel);
+            }
         })();
     }, [editor]);
 
@@ -206,6 +208,10 @@ export function StatementEditor(props: StatementEditorProps) {
                                 ...suggestionItem,
                                 prefix: `${selectionWithDot}`
                             }));
+
+                            const content = getUpdatedSource(model.source, currentFile.content,
+                                targetPosition, moduleList);
+                            await sendDidChange(fileURI, content, getLangClient);
                         }
                     }
                 }
@@ -407,6 +413,12 @@ export function StatementEditor(props: StatementEditorProps) {
         });
     };
 
+    const enterKeyHandler = () => {
+        setCurrentModel(() => {
+            return {model: currentModel.model, isEntered: true};
+        });
+    };
+
     function setStmtModel(editedModel: STNode, diagnostics?: Diagnostic[]) {
         setModel({...enrichModel(editedModel, targetPosition, diagnostics)});
     }
@@ -421,6 +433,7 @@ export function StatementEditor(props: StatementEditorProps) {
         keyboardNavigationManager.bindNewKey(client, ['ctrl+right', 'command+right'], parentModelHandler);
         keyboardNavigationManager.bindNewKey(client, ['tab'], nextModelHandler);
         keyboardNavigationManager.bindNewKey(client, ['shift+tab'], previousModelHandler);
+        keyboardNavigationManager.bindNewKey(client, ['enter'], enterKeyHandler);
 
         return () => {
             keyboardNavigationManager.resetMouseTrapInstance(client)
