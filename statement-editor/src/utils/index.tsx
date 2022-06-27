@@ -216,7 +216,7 @@ export function isBindingPattern(modelType: number): boolean {
 }
 
 export function isDescriptionWithExample(doc : string): boolean {
-    return doc.includes(BAL_SOURCE);
+    return doc?.includes(BAL_SOURCE);
 }
 
 export function getDocDescription(doc: string) : string[] {
@@ -260,7 +260,7 @@ export function getUpdatedSource(statement: string, currentFileContent: string,
 
     const updatedStatement = skipSemiColon ? statement : (statement.trim().endsWith(';') ? statement : statement + ';');
     let updatedContent: string = addToTargetPosition(currentFileContent, targetPosition, updatedStatement);
-    if (moduleList && !!moduleList?.size) {
+    if (moduleList?.size > 0) {
         updatedContent = addImportStatements(updatedContent, Array.from(moduleList) as string[]);
     }
 
@@ -534,6 +534,12 @@ export function getSymbolPosition(targetPos: NodePosition, currentModel: STNode,
                 targetPos.startColumn + currentModel.functionName.identifier.position.endColumn - 1 :
                 targetPos.startColumn + currentModel.functionName.name.position.endColumn - 1
 
+        }
+        return  position;
+    } else if (STKindChecker.isImplicitNewExpression(currentModel)){
+        position = {
+            line : targetPos.startLine + currentModel.position.startLine,
+            offset : targetPos.startColumn + currentModel.parenthesizedArgList.position.startColumn
         }
         return  position;
     }

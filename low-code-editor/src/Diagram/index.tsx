@@ -14,7 +14,7 @@
 import React, { useContext, useState } from "react";
 
 import { DefaultConfig, LowCodeDiagram, PlusViewState, ViewState } from "@wso2-enterprise/ballerina-low-code-diagram";
-import { ConfigOverlayFormStatus, ConnectorConfigWizardProps, DiagramOverlayPosition, LowcodeEvent, OPEN_LOW_CODE, PlusWidgetProps, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ConfigOverlayFormStatus, ConnectorWizardProps, DiagramOverlayPosition, LowcodeEvent, OPEN_LOW_CODE, PlusWidgetProps, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { DiagramTooltipCodeSnippet } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
@@ -22,6 +22,7 @@ import { Context as DiagramContext } from "../Contexts/Diagram";
 import { addAdvancedLabels } from "../DiagramGenerator/performanceUtil";
 import { TextPreLoader } from "../PreLoader/TextPreLoader";
 
+import { ConnectorWizard } from "./components/FormComponents/ConfigForms/ConnectorWizard";
 import { ConnectorConfigWizard } from "./components/FormComponents/ConnectorConfigWizard";
 import * as DialogBoxes from "./components/FormComponents/DialogBoxes";
 import { FormGenerator, FormGeneratorProps } from "./components/FormComponents/FormGenerator";
@@ -76,7 +77,7 @@ export function Diagram() {
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [formConfig, setFormConfig] = useState<FormGeneratorProps>(undefined);
     const [isConnectorConfigWizardOpen, setIsConnectorConfigWizardOpen] = useState(false);
-    const [connectorConfigWizardProps, setConnectorConfigWizardProps] = useState<ConnectorConfigWizardProps>(undefined);
+    const [connectorWizardProps, setConnectorWizardProps] = useState<ConnectorWizardProps>(undefined);
     const [isDialogActive, setIsDialogActive] = useState(false);
     const [activeDialog, setActiveDialog] = useState(undefined);
     const [activePlusWidget, setActivePlusWidget] = useState(undefined);
@@ -146,19 +147,19 @@ export function Diagram() {
         setIsConnectorConfigWizardOpen(false);
     };
 
-    const handleConnectorConfigWizard = (connectorConfig: ConnectorConfigWizardProps) => {
-        setConnectorConfigWizardProps({
-            ...connectorConfig,
+    const handleConnectorWizard = (props: ConnectorWizardProps) => {
+        setConnectorWizardProps({
+            ...props,
             onSave: () => {
                 setIsConnectorConfigWizardOpen(false);
-                if (connectorConfig.onSave) {
-                    connectorConfig.onSave();
+                if (props.onSave) {
+                    props.onSave();
                 }
             },
             onClose: () => {
                 setIsConnectorConfigWizardOpen(false);
-                if (connectorConfig.onClose) {
-                    connectorConfig.onClose();
+                if (props.onClose) {
+                    props.onClose();
                 }
             }
         });
@@ -350,7 +351,7 @@ export function Diagram() {
                                 deleteComponent: handleDeleteComponent,
                                 renderAddForm: handleDiagramAdd,
                                 renderEditForm: handleDiagramEdit,
-                                renderConnectorWizard: handleConnectorConfigWizard,
+                                renderConnectorWizard: handleConnectorWizard,
                                 renderDialogBox: handleRenderDialogBox,
                                 closeAllOpenedForms: handleCloseAllOpenedForms,
                                 renderPlusWidget: handleRenderPlusWidget,
@@ -377,7 +378,7 @@ export function Diagram() {
                         <FormGenerator {...formConfig} />
                     )}
                     {!isFormOpen && isConnectorConfigWizardOpen && (
-                        <ConnectorConfigWizard {...connectorConfigWizardProps} />
+                        <ConnectorWizard {...connectorWizardProps} />
                     )}
                     {isDialogActive && activeDialog}
                 </div>

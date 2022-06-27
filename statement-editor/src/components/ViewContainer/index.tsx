@@ -33,12 +33,14 @@ import { useStatementEditorStyles } from "../styles";
 export interface ViewContainerProps {
     isStatementValid: boolean;
     isConfigurableStmt: boolean;
+    isPullingModule: boolean;
 }
 
 export function ViewContainer(props: ViewContainerProps) {
     const {
         isStatementValid,
-        isConfigurableStmt
+        isConfigurableStmt,
+        isPullingModule
     } = props;
     const intl = useIntl();
     const overlayClasses = useStatementEditorStyles();
@@ -147,31 +149,46 @@ export function ViewContainer(props: ViewContainerProps) {
                         {onCancel && <CloseButton onCancel={onCancel} />}
                     </div>
                 </div>
-                <div
-                    className={`${overlayClasses.statementExpressionWrapper} ${
-                        activeEditorId !== editors.length - 1 && 'overlay'}`
-                    }
-                >
-                    <EditorPane data-testid="editor-pane"/>
-                </div>
-                <div className={overlayClasses.footer}>
-                    <div className={overlayClasses.buttonWrapper}>
-                        <SecondaryButton
-                            text={activeEditorId !== 0 && isConfigurableStmt ? backButtonText : cancelButtonText}
-                            disabled={activeEditorId !== editors.length - 1}
-                            fullWidth={false}
-                            onClick={activeEditorId !== 0 && isConfigurableStmt ? onBackClick : onCancelClick}
-                            dataTestId="cancel-btn"
-                        />
-                        <PrimaryButton
-                            dataTestId="save-btn"
-                            text={activeEditorId !== 0 && isConfigurableStmt ? addConfigurableButtonText : saveButtonText}
-                            disabled={!isStatementValid || activeEditorId !== editors.length - 1}
-                            fullWidth={false}
-                            onClick={activeEditorId !== 0 && isConfigurableStmt ? onAddConfigurableClick : onSaveClick}
-                        />
+                {isPullingModule && (
+                    <div className={overlayClasses.mainStatementWrapper} data-testid="statement-editor-loader">
+                        <div className={overlayClasses.loadingWrapper}>Pulling package...</div>
                     </div>
-                </div>
+                )}
+                {!isPullingModule && (
+                    <>
+                        <div
+                            className={`${overlayClasses.statementExpressionWrapper} ${
+                                activeEditorId !== editors.length - 1 && "overlay"
+                            }`}
+                        >
+                            <EditorPane data-testid="editor-pane" />
+                        </div>
+                        <div className={overlayClasses.footer}>
+                            <div className={overlayClasses.buttonWrapper}>
+                                <SecondaryButton
+                                    text={activeEditorId !== 0 && isConfigurableStmt ? backButtonText : cancelButtonText}
+                                    disabled={activeEditorId !== editors.length - 1}
+                                    fullWidth={false}
+                                    onClick={activeEditorId !== 0 && isConfigurableStmt ? onBackClick : onCancelClick}
+                                    dataTestId="cancel-btn"
+                                />
+                                <PrimaryButton
+                                    dataTestId="save-btn"
+                                    text={
+                                        activeEditorId !== 0 && isConfigurableStmt
+                                            ? addConfigurableButtonText
+                                            : saveButtonText
+                                    }
+                                    disabled={!isStatementValid || activeEditorId !== editors.length - 1}
+                                    fullWidth={false}
+                                    onClick={
+                                        activeEditorId !== 0 && isConfigurableStmt ? onAddConfigurableClick : onSaveClick
+                                    }
+                                />
+                            </div>
+                        </div>
+                    </>
+                )}
             </div>
         )
     )

@@ -159,12 +159,15 @@ export interface BallerinaRecordResponse {
 export interface VisibleEndpoint {
     kind?: string;
     isCaller: boolean;
+    isExternal: boolean;
+    isModuleVar: boolean;
     moduleName: string;
     name: string;
     packageName: string;
     orgName: string;
     version: string;
     typeName: string;
+    position: NodePosition;
     viewState?: any;
 }
 export interface NodePosition {
@@ -220,6 +223,7 @@ export interface FunctionDefinitionInfo {
     parameters: FormField[];
     returnType?: FormField;
     isRemote?: boolean;
+    displayAnnotation?: DisplayAnnotation;
 }
 
 export interface BallerinaConnectorInfo extends Connector {
@@ -286,7 +290,7 @@ export interface Connector {
     displayName?: string;
     moduleName?: string;
     package: Package;
-    displayAnnotation?: any;
+    displayAnnotation?: DisplayAnnotation;
 }
 
 export interface BallerinaProjectParams {
@@ -375,7 +379,7 @@ export interface BallerinaModule {
     displayName?: string;
     moduleName?: string;
     package: Package;
-    displayAnnotation?: any;
+    displayAnnotation?: DisplayAnnotation;
     icon?: string;
 }
 
@@ -454,8 +458,9 @@ export interface Parameter {
     defaultable?: boolean;
 }
 
-// tslint:disable-next-line: no-empty-interface
-export interface DisplayAnnotation { }
+export interface DisplayAnnotation {
+    label?: string;
+}
 
 export interface MemberField {
     typeName?: string;

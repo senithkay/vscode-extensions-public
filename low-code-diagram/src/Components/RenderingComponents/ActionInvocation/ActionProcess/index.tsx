@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js align  jsx-wrap-multiline
 import React, { useContext, useState } from "react";
 
-import { BallerinaConnectorInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { BallerinaConnectorInfo, ConnectorWizardType, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { LocalVarDecl, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import cn from "classnames";
 
@@ -118,16 +118,28 @@ export function ActionProcessor(props: ProcessorProps) {
         if (!isReadOnly && !model && !draftViewState?.connector && blockViewState) {
             const draftVS = blockViewState.draft[1];
             setConfigWizardOpen(true);
-            renderAddForm(draftVS.targetPosition, {
-                formType: "EndpointList",
-                formArgs: {
-                    functionNode,
-                    onSelect: onSelectEndpoint,
-                    onCancel: onWizardClose,
-                    onAddConnector,
+            renderConnectorWizard({
+                diagramPosition: {
+                    x: viewState.bBox.cx + 80,
+                    y: viewState.bBox.cy,
                 },
-                isLoading: true,
-            }, onWizardClose);
+                targetPosition: draftVS.targetPosition || model?.position,
+                functionNode,
+                model,
+                onClose: onWizardClose,
+                onSave: onWizardClose,
+                wizardType: ConnectorWizardType.ACTION,
+            });
+            // renderAddForm(draftVS.targetPosition, {
+            //     formType: "EndpointList",
+            //     formArgs: {
+            //         functionNode,
+            //         onSelect: onSelectEndpoint,
+            //         onCancel: onWizardClose,
+            //         onAddConnector,
+            //     },
+            //     isLoading: true,
+            // }, onWizardClose);
         }
     }, []);
 
@@ -153,17 +165,16 @@ export function ActionProcessor(props: ProcessorProps) {
             setConfigWizardOpen(true);
             renderConnectorWizard({
                 connectorInfo: matchedConnector,
-                position: {
+                diagramPosition: {
                     x: viewState.bBox.cx + 80,
                     y: viewState.bBox.cy,
                 },
                 targetPosition: draftViewState.targetPosition || model?.position,
-                selectedConnector: draftViewState.selectedConnector,
+                // selectedConnector: draftViewState.selectedConnector,
                 model,
                 onClose: onWizardClose,
                 onSave: onWizardClose,
-                isAction: true,
-                isEdit: true,
+                wizardType: ConnectorWizardType.ACTION,
                 functionNode
             });
         }
@@ -184,16 +195,15 @@ export function ActionProcessor(props: ProcessorProps) {
         setConfigWizardOpen(true);
         renderConnectorWizard({
             connectorInfo: connector,
-            endpointName,
-            position: {
+            // endpointName,
+            diagramPosition: {
                 x: viewState.bBox.cx + 80,
                 y: viewState.bBox.cy,
             },
             targetPosition: draftViewState.targetPosition,
             onClose: onWizardClose,
             onSave: onWizardClose,
-            isAction: true,
-            isEdit: false,
+            wizardType: ConnectorWizardType.ACTION,
             functionNode,
         });
     };

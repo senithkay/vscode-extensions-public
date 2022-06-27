@@ -20,7 +20,6 @@ import {
     BallerinaConstruct,
     Connector,
     ConnectorConfig,
-    ConnectorConfigWizardProps,
     CONNECTOR_CLOSED,
     DiagramOverlayPosition,
     FunctionDefinitionInfo,
@@ -31,20 +30,20 @@ import { LocalVarDecl, NodePosition, STNode } from "@wso2-enterprise/syntax-tree
 
 import { Context } from "../../../../Contexts/Diagram";
 import { fetchConnectorInfo } from "../../Portals/utils";
-import { fetchConnectorsList } from "../ConfigForms/ConnectorList";
+import { fetchConnectorsList } from "../ConfigForms/ConnectorWizard/ConnectorList";
 import { SearchQueryParams } from "../ConfigForms/Marketplace";
 import { FormGenerator } from "../FormGenerator";
 
 export interface ConfigWizardState {
     isLoading: boolean;
-    connector: Connector;
+    connector: BallerinaConnectorInfo;
     functionDefInfo: Map<string, FunctionDefinitionInfo>;
     connectorConfig: ConnectorConfig;
     model?: STNode;
     wizardType?: WizardType;
 }
 
-export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
+export function ConnectorConfigWizard(props: any) {
     const {
         actions: {
             toggleDiagramOverlay

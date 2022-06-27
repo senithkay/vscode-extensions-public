@@ -13,8 +13,9 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useEffect, useState } from 'react';
 
-import { FormControl } from '@material-ui/core';
+import { Box, FormControl } from '@material-ui/core';
 import {
+    CommandResponse,
     ExpressionEditorLangClientInterface,
     LibraryDataResponse,
     LibraryDocResponse,
@@ -31,6 +32,7 @@ import { getPartialSTForModuleMembers, getPartialSTForStatement, sendDidOpen } f
 import { StmtEditorUndoRedoManager } from "../../utils/undo-redo";
 import { EXPR_SCHEME, FILE_SCHEME } from "../InputEditor/constants";
 import { StatementEditor } from "../StatementEditor";
+import { useStatementEditorStyles } from '../styles';
 
 export interface LowCodeEditorProps {
     getLangClient: () => Promise<ExpressionEditorLangClientInterface>;
@@ -58,14 +60,18 @@ export interface LowCodeEditorProps {
     experimentalEnabled?: boolean;
     isConfigurableStmt?: boolean;
     isModuleVar?: boolean;
+    runCommandInBackground?: (command: string) => Promise<CommandResponse>;
 }
 
 export interface StatementEditorWrapperProps extends LowCodeEditorProps {
     label: string;
     initialSource: string;
+    isLoading?: boolean;
+    extraModules?: Set<string>;
 }
 
 export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
+    const overlayClasses = useStatementEditorStyles();
     const {
         label,
         initialSource,
@@ -82,7 +88,10 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
         importStatements,
         experimentalEnabled,
         isConfigurableStmt,
-        isModuleVar
+        isModuleVar,
+        isLoading,
+        extraModules,
+        runCommandInBackground
     } = props;
 
     const {
@@ -185,7 +194,12 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
 
     return (
         <FormControl data-testid="property-form">
-            {editor
+            {isLoading && (
+                <div className={overlayClasses.mainStatementWrapper} data-testid="statement-editor-loader">
+                    <div className={overlayClasses.loadingWrapper}>Loading...</div>
+                </div>
+            )}
+            {!isLoading && editor
                 ? (
                     <>
                         <StatementEditor
@@ -209,7 +223,9 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
                             importStatements={importStatements}
                             syntaxTree={syntaxTree}
                             stSymbolInfo={stSymbolInfo}
+                            extraModules={extraModules}
                             experimentalEnabled={experimentalEnabled}
+                            runCommandInBackground={runCommandInBackground}
                         />
                     </>
                 )

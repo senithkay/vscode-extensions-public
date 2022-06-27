@@ -96,6 +96,11 @@ export interface PerformanceAnalyzerResponse {
     name: string;
 }
 
+export interface CommandResponse {
+    error: boolean;
+    message: string;
+}
+
 export interface DiagramEditorLangClientInterface extends BaseLangClientInterface {
     getConnectors: (
         params: BallerinaConnectorsRequest

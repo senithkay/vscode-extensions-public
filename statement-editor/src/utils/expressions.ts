@@ -533,6 +533,18 @@ const typeDescriptors : ExpressionGroup = {
     relatedModelType: ModelType.TYPE_DESCRIPTOR
 }
 
+const remoteMethodCall: ExpressionGroup = {
+    name: "Remote Method Call",
+    expressions: [
+        {
+            name: "Remote Method Call",
+            template: `${SELECTED_EXPRESSION}->${EXPR_PLACEHOLDER}()`,
+            example: "Es->m()"
+        }
+    ],
+    relatedModelType: ModelType.EXPRESSION
+}
+
 const operatorSymbols : ExpressionGroup = {
     name: "Operators",
     expressions: [
@@ -656,6 +668,7 @@ export const expressions: ExpressionGroup[] = [
     typeDescriptors,
     operatorSymbols,
     queryIntermediateClauses,
+    remoteMethodCall,
     orderKey,
     orderDirectionKeywords
 ];

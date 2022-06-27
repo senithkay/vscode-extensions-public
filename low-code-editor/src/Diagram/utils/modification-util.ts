@@ -429,11 +429,12 @@ export function createObjectDeclaration(type: string, variableName: string, para
         config: {
             "TYPE": type,
             "VARIABLE": variableName,
-            "PARAMS": params
+            "PARAMS": params?.join()
         }
     };
     return objectDeclaration;
 }
+
 
 export function updateObjectDeclaration(type: string, variableName: string, params: string[], targetPosition: NodePosition): STModification {
     const objectDeclaration: STModification = {
@@ -446,6 +447,22 @@ export function updateObjectDeclaration(type: string, variableName: string, para
             "TYPE": type,
             "VARIABLE": variableName,
             "PARAMS": params
+        }
+    };
+    return objectDeclaration;
+}
+
+export function createCheckObjectDeclaration(type: string, variableName: string, params: string[], targetPosition: NodePosition): STModification {
+    const objectDeclaration: STModification = {
+        startLine: targetPosition.startLine,
+        startColumn: 0,
+        endLine: targetPosition.startLine,
+        endColumn: 0,
+        type: "DECLARATION_CHECK",
+        config: {
+            "TYPE": type,
+            "VARIABLE": variableName,
+            "PARAMS": params?.join()
         }
     };
     return objectDeclaration;
@@ -482,7 +499,7 @@ export function updateRemoteServiceCall(type: string, variable: string, callerNa
             "VARIABLE": variable,
             "CALLER": callerName,
             "FUNCTION": functionName,
-            "PARAMS": params
+            "PARAMS": params.join()
         }
     };
 
@@ -501,7 +518,7 @@ export function createCheckedRemoteServiceCall(type: string, variable: string, c
             "VARIABLE": variable,
             "CALLER": callerName,
             "FUNCTION": functionName,
-            "PARAMS": params
+            "PARAMS": params.join()
         }
     };
 

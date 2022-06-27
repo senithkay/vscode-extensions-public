@@ -68,6 +68,7 @@ export interface StatementEditorProps extends LowCodeEditorProps {
         activeEditorId: number;
         editors: EditorModel[];
     };
+    extraModules?: Set<string>;
     onWizardClose: () => void;
     onCancel: () => void;
 }
@@ -87,7 +88,9 @@ export function StatementEditor(props: StatementEditorProps) {
         syntaxTree,
         stSymbolInfo,
         importStatements,
-        experimentalEnabled
+        experimentalEnabled,
+        extraModules,
+        runCommandInBackground
     } = props;
 
     const {
@@ -113,10 +116,11 @@ export function StatementEditor(props: StatementEditorProps) {
     const [currentModel, setCurrentModel] = useState<CurrentModel>({ model });
     const [hasSyntaxDiagnostics, setHasSyntaxDiagnostics] = useState<boolean>(false);
     const [stmtDiagnostics, setStmtDiagnostics] = useState<StmtDiagnostic[]>([]);
-    const [moduleList, setModuleList] = useState(new Set<string>());
+    const [moduleList, setModuleList] = useState(extraModules?.size > 0 ? extraModules : new Set<string>());
     const [lsSuggestionsList, setLSSuggestionsList] = useState<LSSuggestions>({ directSuggestions: [] });
     const [documentation, setDocumentation] = useState<SymbolInfoResponse | EmptySymbolInfo>(initSymbolInfo);
     const [isRestArg, setRestArg] = useState(false);
+    const [isPullingModule, setIsPullingModule] = useState(false);
 
     const undo = async () => {
         const undoItem = undoRedoManager.getUndoModel();
@@ -166,7 +170,7 @@ export function StatementEditor(props: StatementEditorProps) {
                 await handleDocumentation(newCurrentModel);
             }
         })();
-    }, [editor]);
+    }, [editor, isPullingModule]);
 
     useEffect(() => {
         (async () => {
@@ -226,7 +230,7 @@ export function StatementEditor(props: StatementEditorProps) {
 
     useEffect(() => {
         (async () => {
-            if (config.type !== CUSTOM_CONFIG_TYPE) {
+            if (config?.type !== CUSTOM_CONFIG_TYPE) {
                 if (editorModel && newConfigurableName) {
                     await updateModel(newConfigurableName, selectedNodePosition, editorModel);
                     updateEditor(activeEditorId, { ...editors[activeEditorId], newConfigurableName: undefined });
@@ -319,7 +323,8 @@ export function StatementEditor(props: StatementEditorProps) {
 
     const handleDiagnostics = async (statement: string): Promise<Diagnostic[]> => {
         const diagResp = await getDiagnostics(fileURI, getLangClient);
-        const diag = diagResp[0]?.diagnostics ? diagResp[0].diagnostics : [];
+        const diag  = diagResp[0]?.diagnostics ? diagResp[0].diagnostics : [];
+        pullUnresolvedModules(diag);
         removeUnusedModules(diag);
         const messages = getFilteredDiagnosticMessages(statement, targetPosition, diag);
         setStmtDiagnostics(messages);
@@ -330,27 +335,48 @@ export function StatementEditor(props: StatementEditorProps) {
         if (newCurrentModel && STKindChecker.isFunctionCall(newCurrentModel)) {
             setDocumentation(await getSymbolDocumentation(fileURI, targetPosition, newCurrentModel, getLangClient));
         } else {
-            setDocumentation(initSymbolInfo)
+            setDocumentation(initSymbolInfo);
         }
-    }
+    };
 
     const removeUnusedModules = (completeDiagnostic: Diagnostic[]) => {
         if (!!moduleList.size) {
             const unusedModuleName = new RegExp(/'(.*?[^\\])'/g);
             completeDiagnostic.forEach(diagnostic => {
                 let extracted;
-                if (diagnostic.message.includes("unused module prefix '") ||
-                    diagnostic.message.includes("undefined module '")) {
-                    extracted = unusedModuleName.exec(diagnostic.message);
-                    if (extracted) {
-                        const extractedModule = extracted[1]
-                        moduleList.forEach(moduleName => {
-                            if (moduleName.includes(extractedModule)) {
-                                moduleList.delete(moduleName);
-                                setModuleList(moduleList);
-                            }
-                        });
-                    }
+                if (diagnostic.message.includes("unused module prefix '")) {
+                        extracted = unusedModuleName.exec(diagnostic.message);
+                        if (extracted) {
+                            const extractedModule = extracted[1]
+                            moduleList.forEach(moduleName => {
+                                if (moduleName.includes(extractedModule)) {
+                                    moduleList.delete(moduleName);
+                                    setModuleList(moduleList);
+                                }
+                            });
+                        }
+                }
+            });
+        }
+    };
+
+    const pullUnresolvedModules = (completeDiagnostic: Diagnostic[]) => {
+        if (!!moduleList.size && !!extraModules.size && runCommandInBackground) {
+            completeDiagnostic?.forEach((diagnostic) => {
+                if (diagnostic.message?.includes("cannot resolve module '")) {
+                    extraModules.forEach((module) => {
+                        if (diagnostic.message?.includes(module)) {
+                            // Pull module in background
+                            setIsPullingModule(true);
+                            runCommandInBackground(`bal pull ${module}`)
+                                .then((response) => {
+                                    // TODO: handle pull command response
+                                })
+                                .finally(() => {
+                                    setIsPullingModule(false);
+                                });
+                        }
+                    });
                 }
             });
         }
@@ -471,6 +497,7 @@ export function StatementEditor(props: StatementEditorProps) {
                     <ViewContainer
                         isStatementValid={!stmtDiagnostics.length}
                         isConfigurableStmt={isConfigurableStmt}
+                        isPullingModule={isPullingModule}
                     />
                 </StatementEditorContextProvider>
             </>

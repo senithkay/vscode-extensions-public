@@ -678,6 +678,21 @@ export const useStatementEditorStyles = makeStyles(() =>
             display: 'flex',
             flexDirection: 'column'
         },
+        loadingWrapper: {
+            height: 'calc(100vh - 110px)',
+            '&.overlay': {
+                display: 'block',
+                position: 'relative',
+                backgroundColor: '#fff',
+                opacity: '0.7',
+                zIndex: -1
+            },
+            overflowY: 'hidden',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center'
+        },
         suggestionsSection: {
             display: 'flex',
             flexDirection: 'column',
