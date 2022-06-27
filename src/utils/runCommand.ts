@@ -19,7 +19,21 @@
 
 import { PALETTE_COMMANDS } from 'src/project';
 import * as vscode from 'vscode';
+import child_process from 'child_process';
+import { CommandResponse } from 'src/diagram/model';
 
 export function runCommand(command: PALETTE_COMMANDS, args: any[]) {
     vscode.commands.executeCommand(command, ...args);
+}
+
+export async function runCommandInBackground(command: string) {
+    return new Promise<CommandResponse>(function (resolve) {
+        child_process.exec(`${command}`, async (err, stdout, stderr) => {
+            if (err) {
+                resolve({error: true, message: stderr});
+            } else {
+                resolve({error: false, message: stdout});
+            }
+        });
+    });
 }

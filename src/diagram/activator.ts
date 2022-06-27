@@ -40,9 +40,9 @@ import { CHOREO_API_PF, getDataFromChoreo, openPerformanceDiagram, PFSession } f
 import { showMessage } from '../utils/showMessage';
 import { Module } from '../tree-view';
 import { sep } from "path";
-import { DiagramOptions, Member, SyntaxTree } from './model';
+import { CommandResponse, DiagramOptions, Member, SyntaxTree } from './model';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
-import { runCommand } from '../utils/runCommand';
+import { runCommand, runCommandInBackground } from '../utils/runCommand';
 import { Diagnostic } from '.';
 import { createTests } from '../testing/activator';
 import {
@@ -459,6 +459,12 @@ class DiagramPanel {
 					//editor-lowcode-code-run
 					sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_LOW_CODE_RUN, CMP_DIAGRAM_VIEW);
 					return Promise.resolve(true);
+				}
+			},
+			{
+				methodName: "runCommandInBackground",
+				handler: async (args: any[]): Promise<CommandResponse> => {
+					return await runCommandInBackground(args[0]);
 				}
 			},
 			{
