@@ -90,8 +90,10 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
 
     // States related fields
     const [basePath, setBsePath] = useState<FormEditorField>({isInteracted: true, value: path});
-    const [isListenerInteracted, setIsListenerInteracted] = useState<boolean>(!!listenerConfig.listenerPort || !!listenerConfig.listenerName);
-    const [listenerPort, setListenerPort] = useState<string>(listenerConfig.listenerPort);
+    const [isListenerInteracted, setIsListenerInteracted] = useState<boolean>(
+        !!listenerConfig.listenerPort || !!listenerConfig.listenerName);
+    const [listenerPort, setListenerPort] = useState<FormEditorField>(
+        {isInteracted: false, value: listenerConfig.listenerPort});
     const [listenerName, setListenerName] = useState<string>(listenerConfig.listenerName);
     const [shouldAddNewLine, setShouldAddNewLine] = useState<boolean>(false);
     const [createdListerCount, setCreatedListerCount] = useState<number>(0);
@@ -137,12 +139,12 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
 
     const onBasePathChange = async (value: string) => {
         setBsePath({isInteracted: true, value});
-        await serviceParamChange(value, listenerPort, listenerName);
+        await serviceParamChange(value, listenerPort.value, listenerName);
     }
 
     const onListenerChange = async (port: string, name: string, isInteracted: boolean) => {
         setIsListenerInteracted(isInteracted);
-        setListenerPort(port);
+        setListenerPort({isInteracted: true, value: port});
         setListenerName(name);
         setCurrentComponentName("Listener");
         await serviceParamChange(basePath.value, port, name);
@@ -158,7 +160,7 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
             })
         }
         setListenerName(listenerMod.config.LISTENER_NAME);
-        setListenerPort("");
+        setListenerPort({isInteracted: true, value: ""});
         setIsListenerInteracted(true);
         setCreatedListerCount(createdListerCount + 1);
         applyModifications(modifications);
@@ -172,8 +174,8 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
             }
             applyModifications([
                 updateServiceDeclartion({serviceBasePath: basePath.value, listenerConfig:
-                            {createNewListener: false, listenerName, listenerPort, fromVar: false}},
-                    serviceUpdatePosition
+                            {createNewListener: false, listenerName, listenerPort: listenerPort.value, fromVar: false}}
+                    , serviceUpdatePosition
                 )
             ]);
         } else {
@@ -184,7 +186,7 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
             applyModifications([
                 createImportStatement('ballerina', 'http', {startColumn: 0, startLine: 0}),
                 createServiceDeclartion({serviceBasePath: basePath.value, listenerConfig:
-                        {createNewListener: false, listenerName, listenerPort, fromVar: false}},
+                        {createNewListener: false, listenerName, listenerPort: listenerPort.value, fromVar: false}},
                     shouldAddNewLine ? {
                     ...serviceInsertPosition, startLine: serviceInsertPosition.startLine + 1, endLine:
                             serviceInsertPosition.endLine + 1} : serviceInsertPosition, isLastMember)
@@ -241,7 +243,7 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
                 saveBtnText={"Save"}
                 onSave={handleOnSave}
                 onCancel={onCancel}
-                validForm={(isEdit || basePath.isInteracted) && (listenerName !== "" ||
+                validForm={listenerPort.isInteracted && (isEdit || basePath.isInteracted) && (listenerName !== "" ||
                     (listenerPort && portSemDiagMsg === undefined)) && (currentComponentSyntaxDiag === undefined)
                     && isListenerInteracted}
             />
