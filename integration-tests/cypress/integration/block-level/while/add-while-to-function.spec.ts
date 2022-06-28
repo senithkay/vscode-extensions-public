@@ -1,9 +1,11 @@
 import { Canvas } from "../../../utils/components/canvas";
 import { SourceCode } from "../../../utils/components/code-view";
-import { TopLevelPlusWidget } from "../../../utils/components/top-level-plus-widget";
 import { getCurrentSpecFolder } from "../../../utils/file-utils";
-import { WhileForm } from "../../../utils/forms/while-form";
 import { getIntegrationTestPageURL } from "../../../utils/story-url-utils";
+import { BlockLevelPlusWidget } from "../../../utils/components/block-level-plus-widget";
+import { StatementEditor } from "../../../utils/components/statement-editor/statement-editor";
+import { EditorPane } from "../../../utils/components/statement-editor/editor-pane";
+import { InputEditor } from "../../../utils/components/statement-editor/input-editor";
 
 const BAL_FILE_PATH = "block-level/while/add-while-to-function.bal";
 
@@ -18,13 +20,24 @@ describe('Add while to function via Low Code', () => {
       .shouldBeExpanded()
       .getDiagram()
       .shouldBeRenderedProperly()
-      .getBlockLevelPlusWidget()
-      .clickOption("While");
+      .clickDefaultWorkerPlusBtn(0);
 
-    WhileForm
-      .shouldBeVisible()
-      .typeCondition("1<5")
-      .save()
+    BlockLevelPlusWidget.clickOption("While");
+
+    StatementEditor
+        .shouldBeVisible()
+        .getEditorPane();
+
+    EditorPane
+        .getStatementRenderer()
+        .getExpression("SimpleNameReference")
+        .doubleClickExpressionContent(`<add-expression>`);
+
+    InputEditor
+        .typeInput("1<5");
+
+    StatementEditor
+        .save();
 
     SourceCode.shouldBeEqualTo(
       getCurrentSpecFolder() + "add-while-to-function.expected.bal");
@@ -36,27 +49,30 @@ describe('Add while to function via Low Code', () => {
       .shouldBeExpanded()
       .getDiagram()
       .shouldBeRenderedProperly()
-      .getBlockLevelPlusWidget()
-      .clickOption("While");
+      .clickDefaultWorkerPlusBtn(0);
 
-    WhileForm
-      .shouldBeVisible()
-      .cancel();
+    BlockLevelPlusWidget.clickOption("While");
+
+    StatementEditor
+        .shouldBeVisible()
+        .cancel();
 
   });
 
-  it('Open and Cancel Form', () => {
+  it('Open and Close Form', () => {
     Canvas.getFunction("sampleFunction")
       .nameShouldBe("sampleFunction")
       .shouldBeExpanded()
       .getDiagram()
       .shouldBeRenderedProperly()
-      .getBlockLevelPlusWidget()
-      .clickOption("While");
+      .clickDefaultWorkerPlusBtn(0);
 
-    WhileForm
-      .shouldBeVisible()
-      .close();
+    BlockLevelPlusWidget
+        .clickOption("While");
+
+    StatementEditor
+        .shouldBeVisible()
+        .close();
 
   });
 
