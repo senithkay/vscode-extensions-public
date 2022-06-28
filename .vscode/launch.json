@@ -49,11 +49,10 @@
             "request": "launch",
             "program": "${workspaceFolder}/node_modules/.bin/extest",
             "args": [
-                "setup-and-run",
-                "${workspaceFolder}/out/test/ui-test/*.js",
+                "run-tests",
+                "${workspaceFolder}/out/ui-test/*.js",
                 "--mocha_config",
-                "${workspaceFolder}/test/ui-test/.mocharc.js",
-                "-y"
+                "${workspaceFolder}/ui-test/.mocharc.js"
             ],
             "console": "integratedTerminal",
             "internalConsoleOptions": "neverOpen",

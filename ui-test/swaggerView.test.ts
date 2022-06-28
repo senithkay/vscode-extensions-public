@@ -6,7 +6,7 @@ import { wait, getDiagramExplorer } from './util';
 import { DIAGRAM_LOADING_TIME, PROJECT_RUN_TIME } from './constants';
 
 describe('Swagger view UI Tests', () => {
-    const PROJECT_ROOT = join(__dirname, '..', '..', '..', 'test', 'data', 'helloServicePackage');
+    const PROJECT_ROOT = join(__dirname, '..', '..', 'test', 'data', 'helloServicePackage');
 
     before(async () => {
         await VSBrowser.instance.openResources(PROJECT_ROOT);
