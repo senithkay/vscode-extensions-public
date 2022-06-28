@@ -233,7 +233,7 @@ describe('Test helper pane functionality', () => {
             .clickExpressionSuggestion("record{Es Ex;}");
 
         EditorPane
-            .validateDiagnostics();
+            .checkForDiagnostics();
 
     });
 })

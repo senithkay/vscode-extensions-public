@@ -56,8 +56,10 @@ export class EditorPane {
         return this;
     }
 
-    static validateDiagnostics(){
-        cy.get(`[data-testid="diagnostics-pane"] [data-testid="diagnostic-message"]`);
+    static checkForDiagnostics() {
+        cy.get(`[data-testid="diagnostics-pane"] [data-testid="diagnostic-message"]`)
+            .should("be.visible");
+        return this;
     }
 
     static validateDiagnosticMessage(diagMessage:string){
