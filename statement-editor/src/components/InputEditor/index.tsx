@@ -103,8 +103,12 @@ export function InputEditor(props: InputEditorProps) {
     }, [userInput]);
 
     useEffect(() => {
+        const suggestion = inputEditorCtx.suggestionInput
         if (hasSyntaxDiagnostics) {
             setIsEditing(false);
+            if (currentModel.model === model && suggestion) {
+                setUserInput(suggestion);
+            }
         } else {
             setUserInput(originalValue)
         }
@@ -137,6 +141,7 @@ export function InputEditor(props: InputEditorProps) {
         }
         setUserInput(input);
         inputEditorCtx.onInputChange(input);
+        inputEditorCtx.onSuggestionSelection('');
         debouncedContentChange(newValue, true);
     }
 

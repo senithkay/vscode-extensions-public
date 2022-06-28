@@ -126,7 +126,6 @@ export function StatementEditor(props: StatementEditorProps) {
         if (hasSyntaxDiagnostics) {
             const currentSource = (currentModel.model?.value) ? currentModel.model.value : currentModel.model.source;
             handleChange(currentSource).then();
-            setHasSyntaxDiagnostics(false);
         } else if (undoItem) {
             const updatedContent = getUpdatedSource(undoItem.oldModel.model.source, currentFile.content,
                 targetPosition, moduleList);
@@ -137,8 +136,8 @@ export function StatementEditor(props: StatementEditorProps) {
             const newCurrentModel = getCurrentModel(undoItem.oldModel.selectedPosition, enrichModel(undoItem.oldModel.model, targetPosition));
             setCurrentModel({model: newCurrentModel});
             await handleDocumentation(newCurrentModel);
-            setHasSyntaxDiagnostics(false);
         }
+        setHasSyntaxDiagnostics(false);
     };
 
     const redo = async () => {
