@@ -868,19 +868,23 @@ export const dynamicConnectorStyles = makeStyles((theme: Theme) =>
         resourceMethodPathWrapper: {
             display: 'flex',
             flexDirection: 'row',
-            padding: '15px 5px 0px 5px'
+            padding: '15px 0px 0px 5px'
         },
         resourceMethodTitle: {
             width: '100%',
             marginRight: 5,
         },
         resourcePathWrapper: {
-            width: '63%',
+            width: '65%',
             marginLeft: theme.spacing(1.25)
         },
         methodTypeContainer: {
             display: 'block',
-            width: '35%',
+            width: '25%',
+        },
+        advancedToggleWrapper: {
+            width: '10%',
+            marginTop: 32
         },
         advancedSwitchText: {
             textAlign: 'right',

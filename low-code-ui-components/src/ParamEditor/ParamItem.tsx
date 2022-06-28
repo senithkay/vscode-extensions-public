@@ -43,16 +43,33 @@ export function ParamItem(props: ParamItemProps) {
     return (
         <div className={classes.headerWrapper} data-testid={`${label}-item`}>
             <div className={classes.headerLabel}>
-                <div data-test-id={`${label}-param`} className={readonly ? classes.disabledColor : classes.headerLabelCursor} onClick={handleEdit}>
-                    {label}
+                <div className={classes.iconSection}>
+                    <div className={classes.iconWrapper}>
+                    </div>
+                    <div className={classes.iconTextWrapper}>
+                        {param?.option?.toUpperCase()}
+                    </div>
                 </div>
-                {!readonly && (
-                    <ButtonWithIcon
-                        onClick={handleDelete}
-                        icon={<CloseRounded data-testid={`${label}-close-btn`} fontSize="small"/>}
-                        className={classes.iconBtn}
-                    />
-                )}
+                <div className={classes.contentSection}>
+                    <div data-test-id={`${label}-param`} className={readonly ? classes.disabledHeaderLabel : classes.enabledHeaderLabel} onClick={handleEdit}>
+                        {label}
+                    </div>
+                    {!readonly && (
+                        <>
+                            <div className={classes.contentIconWrapper}>
+                            </div>
+                            <div className={classes.contentIconWrapper}>
+                            </div>
+                        </>
+                    )}
+                </div>
+                {/*{!readonly && (*/}
+                {/*    <ButtonWithIcon*/}
+                {/*        onClick={handleDelete}*/}
+                {/*        icon={<CloseRounded data-testid={`${label}-close-btn`} fontSize="small"/>}*/}
+                {/*        className={classes.iconBtn}*/}
+                {/*    />*/}
+                {/*)}*/}
             </div>
         </div>
     );

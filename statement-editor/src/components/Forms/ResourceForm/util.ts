@@ -23,10 +23,10 @@ import {
     ReturnTypeCollection,
 } from "./types";
 
-export const queryParameterOption = "Query Parameter";
-export const payloadParameterOption = "Payload Parameter";
-export const requestParameterOption = "Request Parameter";
-export const callerParameterOption = "Caller Parameter";
+export const queryParameterOption = "Query";
+export const payloadParameterOption = "Payload";
+export const requestParameterOption = "Request";
+export const callerParameterOption = "Caller";
 export const allOptions = [queryParameterOption, payloadParameterOption, requestParameterOption, callerParameterOption];
 export const optionsWithoutCaller = [queryParameterOption, payloadParameterOption, requestParameterOption];
 export const optionsWithoutRequest = [queryParameterOption, payloadParameterOption, callerParameterOption];

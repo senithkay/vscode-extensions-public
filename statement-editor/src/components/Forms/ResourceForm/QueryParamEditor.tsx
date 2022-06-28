@@ -24,7 +24,6 @@ import {
 
 import { StmtDiagnostic } from "../../../models/definitions";
 
-import { useStyles } from "./styles";
 import { QueryParam, QueryParamCollection } from "./types";
 import {
     allOptions,
@@ -52,7 +51,6 @@ export function QueryParamEditor(props: QueryParamEditorProps) {
             onChange } = props;
 
     const connectorClasses = connectorStyles();
-    const classes = useStyles();
 
     const paramOptions: string[] = getEnabledQueryParams(queryParamString);
     const queryParamCollection = getQueryParamCollection(queryParamString);

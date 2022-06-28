@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, {useContext, useEffect, useState} from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useIntl } from "react-intl";
 
 import { Divider, FormControl } from "@material-ui/core";
@@ -25,13 +25,13 @@ import {
     dynamicConnectorStyles as connectorStyles,
     FormHeaderSection,
     FormTextInput, PrimaryButton, SecondaryButton,
-    SelectDropdownWithButton,
-    useStyles as useFormStyles
+    SelectDropdownWithButton
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import {
     ResourceAccessorDefinition,
     STKindChecker
 } from "@wso2-enterprise/syntax-tree";
+import debounce from "lodash.debounce";
 
 import { StmtDiagnostic } from "../../../models/definitions";
 import { FormEditorContext } from "../../../store/form-editor-context";
@@ -59,7 +59,6 @@ export function ResourceForm(props: FunctionProps) {
         useContext(FormEditorContext);
 
     const classes = useStyles();
-    const formClasses = useFormStyles();
     const connectorClasses = connectorStyles();
     const intl = useIntl();
 
@@ -165,6 +164,7 @@ export function ResourceForm(props: FunctionProps) {
         await handleResourceParamChange(functionName, value, queryParam.value, "",
             false, false, returnType.value);
     };
+    const debouncedPathChange = debounce(handlePathChange, 500);
 
     const handlePathParamEditorChange = async (value: string, avoidValueCommit?: boolean) => {
         if (!avoidValueCommit) {
@@ -191,6 +191,7 @@ export function ResourceForm(props: FunctionProps) {
         await handleResourceParamChange(functionName, path.value, queryParam.value, "",
             false, false, value, -3);
     }
+    const debouncedReturnTypeChange = debounce(onReturnTypeChange, 500);
 
     const handleOnSave = () => {
         if (isEdit) {
@@ -250,41 +251,39 @@ export function ResourceForm(props: FunctionProps) {
                     <div className={connectorClasses.formFeilds}>
                         <div className={connectorClasses.resourceMethodPathWrapper}>
                             <div className={connectorClasses.methodTypeContainer}>
-                                <div className={connectorClasses.resourceMethodTitle}>{httpMethodTitle}</div>
                                 <SelectDropdownWithButton
                                     dataTestId="api-method"
                                     defaultValue={functionName ? functionName?.toUpperCase() : ""}
                                     customProps={{ values: SERVICE_METHODS, disableCreateNew: true }}
                                     onChange={handleMethodChange}
-                                    label="HTTP Method"
-                                    hideLabel={true}
+                                    label={httpMethodTitle}
                                     disabled={isParamInProgress || isQueryInProgress}
                                 />
                             </div>
                             <div className={connectorClasses.resourcePathWrapper}>
-                                <ConfigPanelSection
-                                    title={pathTitle}
-                                    // tooltipWithExample={{ title, content: pathExample }}
-                                >
-                                    <FormTextInput
-                                        dataTestId="resource-path"
-                                        defaultValue={(path?.isInteracted || isEdit) ? path.value : ""}
-                                        onChange={handlePathChange}
-                                        customProps={{
-                                            isErrored: ((currentComponentSyntaxDiag !== undefined &&
+                                <FormTextInput
+                                    dataTestId="resource-path"
+                                    label={pathTitle}
+                                    defaultValue={(path?.isInteracted || isEdit) ? path.value : ""}
+                                    onChange={debouncedPathChange}
+                                    customProps={{
+                                        isErrored: ((currentComponentSyntaxDiag !== undefined &&
                                                 currentComponentName === "Path") || pathNameSemDiagnostics !== "" ||
-                                                pathTypeSemDiagnostics !== "")
-                                        }}
-                                        errorMessage={(currentComponentSyntaxDiag && currentComponentName === "Path"
-                                                && currentComponentSyntaxDiag[0].message) || pathNameSemDiagnostics ||
-                                            pathTypeSemDiagnostics}
-                                        onBlur={null}
-                                        placeholder={"."}
-                                        size="small"
-                                        disabled={(isParamInProgress || (currentComponentSyntaxDiag &&
-                                            currentComponentName !== "Path")) || isQueryInProgress}
-                                    />
-                                </ConfigPanelSection>
+                                            pathTypeSemDiagnostics !== "")
+                                    }}
+                                    errorMessage={(currentComponentSyntaxDiag && currentComponentName === "Path"
+                                            && currentComponentSyntaxDiag[0].message) || pathNameSemDiagnostics ||
+                                        pathTypeSemDiagnostics}
+                                    onBlur={null}
+                                    placeholder={"."}
+                                    size="small"
+                                    disabled={(isParamInProgress || (currentComponentSyntaxDiag &&
+                                        currentComponentName !== "Path")) || isQueryInProgress}
+                                />
+                            </div>
+                            <div className={connectorClasses.advancedToggleWrapper}>
+                                <div className={classes.contentIconWrapper}>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -325,7 +324,7 @@ export function ResourceForm(props: FunctionProps) {
                             errorMessage={returnType?.isInteracted && ((currentComponentSyntaxDiag &&
                                     currentComponentName === "Return" && currentComponentSyntaxDiag[0].message)
                                 || model?.functionSignature?.returnTypeDesc?.viewState?.diagnosticsInRange[0]?.message)}
-                            onChange={onReturnTypeChange}
+                            onChange={debouncedReturnTypeChange}
                             placeholder={"Enter Return Type"}
                             size="small"
                             disabled={isParamInProgress || isQueryInProgress || (currentComponentSyntaxDiag
