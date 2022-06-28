@@ -21,17 +21,20 @@ import { ViewColumn, window, WebviewPanel, Uri, commands } from "vscode";
 import { getCommonWebViewOptions, WebViewMethod, WebViewRPCHandler } from '../utils';
 import { render } from './renderer';
 import { existsSync, mkdirSync, openSync, readFileSync, writeFile } from "fs";
+import { INTERNAL_DEBUG_COMMAND } from "../editor-support/codelens-provider";
 import { BAL_TOML, CONFIG_FILE, PALETTE_COMMANDS } from "../project";
 import { BallerinaExtension, BallerinaProject, ExtendedLangClient, PackageConfigSchemaResponse } from "../core";
 import { generateExistingValues, parseConfigToToml, parseTomlToConfig } from "./utils";
 import { getCurrentBallerinaProject } from "../utils/project-utils";
 import path from "path";
 import os from "os";
+import { Commands } from "./model";
 
 let configEditorPanel: WebviewPanel | undefined;
 let langClient: ExtendedLangClient;
 
-export async function openConfigEditor(ballerinaExtInstance: BallerinaExtension, filePath: string): Promise<void> {
+export async function openConfigEditor(ballerinaExtInstance: BallerinaExtension, filePath: string, 
+                                       isDebug: boolean): Promise<void> {
     let configFile: string = filePath;
     let packageName: string = "packageName";
 
@@ -76,18 +79,18 @@ export async function openConfigEditor(ballerinaExtInstance: BallerinaExtension,
                 + 'retrieving the configurable schema.');
             return Promise.reject();
         }
-        showConfigEditor(ballerinaExtInstance, data.configSchema, Uri.parse(configFile), packageName);
+        showConfigEditor(ballerinaExtInstance, data.configSchema, Uri.parse(configFile), packageName, isDebug);
     });
 }
 
 async function showConfigEditor(ballerinaExtInstance: BallerinaExtension, configSchema: any,
-                                currentFileUri: Uri, packageName: string) {
+                                currentFileUri: Uri, packageName: string, isDebug: boolean) {
     if (configEditorPanel) {
         configEditorPanel.dispose();
     }
 
     if (Object.keys(configSchema.properties).length === 0) {
-        commands.executeCommand(PALETTE_COMMANDS.RUN_CMD);
+        isDebug ? commands.executeCommand(INTERNAL_DEBUG_COMMAND) : commands.executeCommand(PALETTE_COMMANDS.RUN_CMD);
         return;
     }
 
@@ -123,7 +126,9 @@ async function showConfigEditor(ballerinaExtInstance: BallerinaExtension, config
             methodName: "onClickPrimaryButton",
             handler: (args: any[]) => {
                 handleConfigInputs(args[0]);
-                commands.executeCommand(PALETTE_COMMANDS.RUN_CMD);
+                const env = { BAL_CONFIG_FILES: currentFileUri.fsPath };
+                isDebug ? commands.executeCommand(INTERNAL_DEBUG_COMMAND, env)
+                        : commands.executeCommand(PALETTE_COMMANDS.RUN_CMD);
                 configEditorPanel?.dispose();
             }
         }
@@ -133,7 +138,7 @@ async function showConfigEditor(ballerinaExtInstance: BallerinaExtension, config
 
     const tomlContent: string = readFileSync(currentFileUri.fsPath, 'utf8');
     const existingConfigs: object = generateExistingValues(parseTomlToConfig(tomlContent), projectOrg, packageName);
-    const html = render(configSchema, existingConfigs);
+    const html = render(configSchema, existingConfigs, isDebug ? Commands.DEBUG : Commands.RUN);
 
     if (configEditorPanel && html) {
         configEditorPanel.webview.html = html;
