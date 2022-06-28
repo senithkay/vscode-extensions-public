@@ -18,6 +18,7 @@ import { EditorPane } from "../../../../utils/components/statement-editor/editor
 import { InputEditor } from "../../../../utils/components/statement-editor/input-editor";
 import { SourceCode } from "../../../../utils/components/code-view";
 import { getCurrentSpecFolder } from "../../../../utils/file-utils";
+import {BlockLevelPlusWidget} from "../../../../utils/components/block-level-plus-widget";
 
 const BAL_FILE_PATH = "block-level/statement-editor/statement-editor-init.bal";
 
@@ -32,37 +33,35 @@ describe('Test input editor functionality', () => {
             .shouldBeExpanded()
             .getDiagram()
             .shouldBeRenderedProperly()
-            .clickDefaultWorkerPlusBtn(2)
-            .getBlockLevelPlusWidget()
-            .clickOption("Variable");
+            .clickDefaultWorkerPlusBtn(2);
 
-        VariableFormBlockLevel
-            .shouldBeVisible()
-            .toggleStatementEditor()
+        BlockLevelPlusWidget.clickOption("Variable");
 
         StatementEditor
             .shouldBeVisible()
-            .getEditorPane()
+            .getEditorPane();
 
         EditorPane
             .getStatementRenderer()
             .getExpression("TypedBindingPattern")
-            .doubleClickExpressionContent('var')
+            .doubleClickExpressionContent('var');
+
         InputEditor
-            .typeInput("float")
+            .typeInput("float");
 
         EditorPane
             .getExpression("SimpleNameReference")
-            .doubleClickExpressionContent(`<add-expression>`)
+            .doubleClickExpressionContent(`<add-expression>`);
+
         InputEditor
-            .typeInput("3.14")
+            .typeInput("3.14");
 
         EditorPane
             .validateNewExpression("NumericLiteral","3.14")
-            .validateEmptyDiagnostics()
+            .validateEmptyDiagnostics();
 
         StatementEditor
-            .save()
+            .save();
 
         SourceCode.shouldBeEqualTo(
             getCurrentSpecFolder() + "input-editor-functionality.expected.bal");
