@@ -1,9 +1,11 @@
 import { Canvas } from "../../../utils/components/canvas";
 import { SourceCode } from "../../../utils/components/code-view";
-import { TopLevelPlusWidget } from "../../../utils/components/top-level-plus-widget";
 import { getCurrentSpecFolder } from "../../../utils/file-utils";
-import { IfForm } from "../../../utils/forms/if-form";
 import { getIntegrationTestPageURL } from "../../../utils/story-url-utils";
+import { BlockLevelPlusWidget } from "../../../utils/components/block-level-plus-widget";
+import { StatementEditor } from "../../../utils/components/statement-editor/statement-editor";
+import { EditorPane } from "../../../utils/components/statement-editor/editor-pane";
+import { InputEditor } from "../../../utils/components/statement-editor/input-editor";
 
 const BAL_FILE_PATH = "block-level/if/add-if-to-function.bal";
 
@@ -12,19 +14,30 @@ describe('Add if to function via Low Code', () => {
     cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH))
   })
 
-  it.skip('Add a if to function', () => {
+  it('Add a if to function', () => {
     Canvas.getFunction("sampleFunction")
       .nameShouldBe("sampleFunction")
       .shouldBeExpanded()
       .getDiagram()
       .shouldBeRenderedProperly()
-      .getBlockLevelPlusWidget()
-      .clickOption("If");
+      .clickDefaultWorkerPlusBtn(0);
 
-    IfForm
-      .shouldBeVisible()
-      .typeCondition(true, 0)
-      .save()
+    BlockLevelPlusWidget.clickOption("If");
+
+    StatementEditor
+        .shouldBeVisible()
+        .getEditorPane();
+
+    EditorPane
+        .getStatementRenderer()
+        .getExpression("SimpleNameReference")
+        .doubleClickExpressionContent(`<add-expression>`);
+
+    InputEditor
+        .typeInput("true");
+
+    StatementEditor
+        .save();
 
     SourceCode.shouldBeEqualTo(
       getCurrentSpecFolder() + "add-if-to-function.expected.bal");
@@ -36,10 +49,11 @@ describe('Add if to function via Low Code', () => {
       .shouldBeExpanded()
       .getDiagram()
       .shouldBeRenderedProperly()
-      .getBlockLevelPlusWidget()
-      .clickOption("If");
+      .clickDefaultWorkerPlusBtn(0);
 
-    IfForm
+    BlockLevelPlusWidget.clickOption("If");
+
+    StatementEditor
       .shouldBeVisible()
       .cancel();
 
@@ -51,10 +65,12 @@ describe('Add if to function via Low Code', () => {
       .shouldBeExpanded()
       .getDiagram()
       .shouldBeRenderedProperly()
-      .getBlockLevelPlusWidget()
-      .clickOption("If");
+      .clickDefaultWorkerPlusBtn(0);
 
-    IfForm
+    BlockLevelPlusWidget
+       .clickOption("If");
+
+    StatementEditor
       .shouldBeVisible()
       .close();
 
