@@ -159,7 +159,7 @@ export function InputEditor(props: InputEditorProps) {
         setPrevUserInput(userInput);
         if (userInput !== "") {
             let input = userInput
-            //Remove semicolon
+            // Remove semicolon
             if (userInput.includes(";") && !STKindChecker.isLocalVarDecl(model)) {
                 input = userInput.replace(/(;)(?=(?:[^"]|"[^"]*")*$)/g, "");
                 setUserInput(input);
