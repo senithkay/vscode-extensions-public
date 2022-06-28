@@ -1,12 +1,12 @@
 import { Canvas } from "../../../utils/components/canvas";
 import { SourceCode } from "../../../utils/components/code-view";
-import { TopLevelPlusWidget } from "../../../utils/components/top-level-plus-widget";
 import { getCurrentSpecFolder } from "../../../utils/file-utils";
-import { FunctionForm } from "../../../utils/forms/function-form";
-import { LogForm } from "../../../utils/forms/log-form";
-import { ReturnForm } from "../../../utils/forms/return-form";
-import { VariableFormBlockLevel } from "../../../utils/forms/variable-form-block-level";
 import { getIntegrationTestPageURL } from "../../../utils/story-url-utils";
+import { BlockLevelPlusWidget } from "../../../utils/components/block-level-plus-widget";
+import { StatementEditor } from "../../../utils/components/statement-editor/statement-editor";
+import { EditorPane } from "../../../utils/components/statement-editor/editor-pane";
+import { InputEditor } from "../../../utils/components/statement-editor/input-editor";
+import { SuggestionsPane } from "../../../utils/components/statement-editor/suggestions-pane";
 
 const BAL_FILE_PATH = "block-level/variable/add-variable-to-function.bal";
 
@@ -21,15 +21,43 @@ describe('Add variable to function via Low Code', () => {
       .shouldBeExpanded()
       .getDiagram()
       .shouldBeRenderedProperly()
-      .getBlockLevelPlusWidget()
-      .clickOption("Variable");
+      .clickDefaultWorkerPlusBtn(0);
 
-    VariableFormBlockLevel
-      .shouldBeVisible()
-      .typeVariableType("int")
-      .typeVariableName("varName")
-      .typeVariableValue(14)
-      .save()
+    BlockLevelPlusWidget.clickOption("Variable");
+
+    StatementEditor
+        .shouldBeVisible()
+        .getEditorPane();
+
+    EditorPane
+        .getStatementRenderer()
+        .getExpression("SimpleNameReference")
+        .doubleClickExpressionContent(`<add-expression>`);
+
+    InputEditor
+        .typeInput("14");
+
+    EditorPane
+        .validateNewExpression("NumericLiteral", "14")
+        .getExpression("VarTypeDesc")
+        .clickExpressionContent("var");
+
+    SuggestionsPane
+        .clickLsSuggestion('int');
+
+    EditorPane
+        .validateNewExpression("IntTypeDesc", "int")
+        .getExpression("CaptureBindingPattern")
+        .doubleClickExpressionContent("variable");
+
+    InputEditor
+        .typeInput("varName");
+
+    EditorPane
+        .validateNewExpression("CaptureBindingPattern", "varName")
+
+    StatementEditor
+        .save();
 
     SourceCode.shouldBeEqualTo(
       getCurrentSpecFolder() + "add-variable-to-function.expected.bal");
@@ -41,13 +69,13 @@ describe('Add variable to function via Low Code', () => {
       .shouldBeExpanded()
       .getDiagram()
       .shouldBeRenderedProperly()
-      .getBlockLevelPlusWidget()
-      .clickOption("Variable");
+      .clickDefaultWorkerPlusBtn(0);
 
-    VariableFormBlockLevel
-      .shouldBeVisible()
-      .cancel();
+    BlockLevelPlusWidget.clickOption("Variable");
 
+    StatementEditor
+        .shouldBeVisible()
+        .cancel();
   });
 
   it('Open and Close Form', () => {
@@ -56,12 +84,13 @@ describe('Add variable to function via Low Code', () => {
       .shouldBeExpanded()
       .getDiagram()
       .shouldBeRenderedProperly()
-      .getBlockLevelPlusWidget()
-      .clickOption("Variable");
+      .clickDefaultWorkerPlusBtn(0);
 
-    VariableFormBlockLevel
-      .shouldBeVisible()
-      .close();
+    BlockLevelPlusWidget.clickOption("Variable");
+
+    StatementEditor
+        .shouldBeVisible()
+        .close();
     
   });
 
