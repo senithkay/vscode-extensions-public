@@ -10,70 +10,70 @@ import { InputEditor } from "../../../utils/components/statement-editor/input-ed
 const BAL_FILE_PATH = "block-level/while/add-while-to-function.bal";
 
 describe('Add while to function via Low Code', () => {
-  beforeEach(() => {
-    cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH))
-  })
+    beforeEach(() => {
+        cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH))
+    })
 
-  it('Add a while to function', () => {
-    Canvas.getFunction("sampleFunction")
-      .nameShouldBe("sampleFunction")
-      .shouldBeExpanded()
-      .getDiagram()
-      .shouldBeRenderedProperly()
-      .clickDefaultWorkerPlusBtn(0);
+    it('Add a while to function', () => {
+        Canvas.getFunction("sampleFunction")
+            .nameShouldBe("sampleFunction")
+            .shouldBeExpanded()
+            .getDiagram()
+            .shouldBeRenderedProperly()
+            .clickDefaultWorkerPlusBtn(0);
 
-    BlockLevelPlusWidget.clickOption("While");
+        BlockLevelPlusWidget.clickOption("While");
 
-    StatementEditor
-        .shouldBeVisible()
-        .getEditorPane();
+        StatementEditor
+            .shouldBeVisible()
+            .getEditorPane();
 
-    EditorPane
-        .getStatementRenderer()
-        .getExpression("SimpleNameReference")
-        .doubleClickExpressionContent(`<add-expression>`);
+        EditorPane
+            .getStatementRenderer()
+            .getExpression("SimpleNameReference")
+            .doubleClickExpressionContent(`<add-expression>`);
 
-    InputEditor
-        .typeInput("1<5");
+        InputEditor
+            .typeInput("1<5");
 
-    StatementEditor
-        .save();
+        StatementEditor
+            .save();
 
-    SourceCode.shouldBeEqualTo(
-      getCurrentSpecFolder() + "add-while-to-function.expected.bal");
-  })
+        SourceCode.shouldBeEqualTo(
+            getCurrentSpecFolder() + "add-while-to-function.expected.bal");
+    })
 
-  it('Open and Cancel Form', () => {
-    Canvas.getFunction("sampleFunction")
-      .nameShouldBe("sampleFunction")
-      .shouldBeExpanded()
-      .getDiagram()
-      .shouldBeRenderedProperly()
-      .clickDefaultWorkerPlusBtn(0);
+    it('Open and Cancel Form', () => {
+        Canvas.getFunction("sampleFunction")
+            .nameShouldBe("sampleFunction")
+            .shouldBeExpanded()
+            .getDiagram()
+            .shouldBeRenderedProperly()
+            .clickDefaultWorkerPlusBtn(0);
 
-    BlockLevelPlusWidget.clickOption("While");
+        BlockLevelPlusWidget.clickOption("While");
 
-    StatementEditor
-        .shouldBeVisible()
-        .cancel();
+        StatementEditor
+            .shouldBeVisible()
+            .cancel();
 
-  });
+    });
 
-  it('Open and Close Form', () => {
-    Canvas.getFunction("sampleFunction")
-      .nameShouldBe("sampleFunction")
-      .shouldBeExpanded()
-      .getDiagram()
-      .shouldBeRenderedProperly()
-      .clickDefaultWorkerPlusBtn(0);
+    it('Open and Close Form', () => {
+        Canvas.getFunction("sampleFunction")
+            .nameShouldBe("sampleFunction")
+            .shouldBeExpanded()
+            .getDiagram()
+            .shouldBeRenderedProperly()
+            .clickDefaultWorkerPlusBtn(0);
 
-    BlockLevelPlusWidget
-        .clickOption("While");
+        BlockLevelPlusWidget
+            .clickOption("While");
 
-    StatementEditor
-        .shouldBeVisible()
-        .close();
+        StatementEditor
+            .shouldBeVisible()
+            .close();
 
-  });
+    });
 
 })

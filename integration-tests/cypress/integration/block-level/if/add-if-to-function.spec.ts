@@ -59,7 +59,7 @@ describe('Add if to function via Low Code', () => {
 
     });
 
-    it('Open and Cancel Form', () => {
+    it('Open and Close Form', () => {
         Canvas.getFunction("sampleFunction")
             .nameShouldBe("sampleFunction")
             .shouldBeExpanded()
