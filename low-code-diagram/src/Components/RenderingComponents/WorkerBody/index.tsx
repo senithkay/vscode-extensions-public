@@ -24,13 +24,14 @@ import { ControlFlowLine } from "../ControlFlowLine";
 
 export interface DiagramProps {
     model: FunctionBodyBlock | BlockStatement,
-    viewState: BlockViewState
+    viewState: BlockViewState;
+    expandReadonly?: boolean;
 }
 
 export function WorkerBody(props: DiagramProps) {
     const { state, actions: { insertComponentStart } } = useContext(Context);
 
-    const { model, viewState } = props;
+    const { expandReadonly, model, viewState } = props;
     const pluses: React.ReactNode[] = [];
     const workerArrows: React.ReactNode[] = [];
     let children: React.ReactNode[] = [];
@@ -40,17 +41,19 @@ export function WorkerBody(props: DiagramProps) {
     const workerIndicatorLine: React.ReactNode[] = [];
 
     if (STKindChecker.isFunctionBodyBlock(model) && viewState.hasWorkerDecl) {
-        children = children.concat(getSTComponents(model.namedWorkerDeclarator.workerInitStatements, viewState));
-        children = children.concat(getSTComponents(model.namedWorkerDeclarator.namedWorkerDeclarations, viewState))
+        children = children.concat(getSTComponents(model.namedWorkerDeclarator.workerInitStatements, viewState, model));
+        children = children.concat(getSTComponents(model.namedWorkerDeclarator.namedWorkerDeclarations, viewState, model))
     }
-    children = children.concat(getSTComponents(model.statements, viewState))
+    children = children.concat(getSTComponents(model.statements, viewState, model))
 
     for (const controlFlowLine of viewState.controlFlow.lineStates) {
         controlFlowLines.push(<ControlFlowLine controlFlowViewState={controlFlowLine} />);
     }
 
     for (const plusView of viewState.plusButtons) {
-        pluses.push(<PlusButton viewState={plusView} model={model} initPlus={false} />)
+        if (!expandReadonly) {
+            pluses.push(<PlusButton viewState={plusView} model={model} initPlus={false} />)
+        }
     }
 
     for (const workerArrow of viewState.workerArrows) {

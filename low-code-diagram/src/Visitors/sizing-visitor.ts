@@ -58,7 +58,7 @@ import { WHILE_SVG_HEIGHT, WHILE_SVG_WIDTH } from "../Components/RenderingCompon
 import { Endpoint } from "../Types/type";
 import { getNodeSignature, isVarTypeDescriptor, recalculateSizingAndPositioning, sizingAndPositioning } from "../Utils";
 import expandTracker from "../Utils/expand-tracker";
-import { BlockViewState, CollapseViewState, CompilationUnitViewState, DoViewState, ElseViewState, EndViewState, ForEachViewState, FunctionViewState, IfViewState, OnErrorViewState, PlusViewState, StatementViewState, ViewState } from "../ViewState";
+import { BlockViewState, CollapseViewState, CompilationUnitViewState, DoViewState, ElseViewState, EndpointViewState, EndViewState, ForEachViewState, FunctionViewState, IfViewState, OnErrorViewState, PlusViewState, StatementViewState, ViewState } from "../ViewState";
 import { DraftStatementViewState } from "../ViewState/draft";
 import { ModuleMemberViewState } from "../ViewState/module-member";
 import { ServiceViewState } from "../ViewState/service";
@@ -116,11 +116,25 @@ export class SizingVisitor implements Visitor {
     private allEndpoints: Map<string, Endpoint> = new Map<string, Endpoint>();
     private experimentalEnabled: boolean;
 
-    constructor(experimentalEnabled: boolean = false) {
+    private parentConnectors: Map<string, Endpoint> = new Map<string, Endpoint>();
+
+    constructor(experimentalEnabled: boolean = false, parentConnectors: Map<string, Endpoint> = undefined) {
         this.currentWorker = [];
         this.senderReceiverInfo = new Map();
         this.workerMap = new Map();
         this.experimentalEnabled = experimentalEnabled;
+        this.parentConnectors = parentConnectors;
+    }
+
+    private getConnectorSize() {
+        let size = 0;
+        this.allEndpoints.forEach((value: Endpoint, key: string) => {
+            const found = this.parentConnectors?.get(key);
+            if(!found) {
+                size++;
+            }
+        })
+        return size;
     }
 
     public endVisitSTNode(node: STNode, parent?: STNode) {
@@ -395,7 +409,7 @@ export class SizingVisitor implements Visitor {
 
         viewState.bBox.h = lifeLine.h + trigger.h + end.bBox.h + (DefaultConfig.serviceVerticalPadding * 2) + DefaultConfig.functionHeaderHeight;
         viewState.bBox.lw = (trigger.lw > bodyViewState.bBox.lw ? trigger.lw : bodyViewState.bBox.lw) + DefaultConfig.serviceFrontPadding;
-        viewState.bBox.rw = (trigger.rw > bodyViewState.bBox.rw ? trigger.rw : bodyViewState.bBox.rw) + DefaultConfig.serviceRearPadding + (this.allEndpoints.size * (DefaultConfig.connectorEPWidth + DefaultConfig.epGap));
+        viewState.bBox.rw = (trigger.rw > bodyViewState.bBox.rw ? trigger.rw : bodyViewState.bBox.rw) + DefaultConfig.serviceRearPadding + (this.getConnectorSize() * (DefaultConfig.connectorEPWidth + DefaultConfig.epGap));
         viewState.bBox.w = viewState.bBox.lw + viewState.bBox.rw;
 
         if (viewState.initPlus && viewState.initPlus.selectedComponent === "PROCESS") {
@@ -474,7 +488,7 @@ export class SizingVisitor implements Visitor {
 
             viewState.bBox.h = lifeLine.h + trigger.h + end.bBox.h + DefaultConfig.serviceVerticalPadding * 2 + DefaultConfig.functionHeaderHeight;
             viewState.bBox.lw = (trigger.lw > bodyViewState.bBox.lw ? trigger.lw : bodyViewState.bBox.lw) + DefaultConfig.serviceFrontPadding;
-            viewState.bBox.rw = (trigger.rw > bodyViewState.bBox.rw ? trigger.rw : bodyViewState.bBox.rw) + DefaultConfig.serviceRearPadding + totalWorkerWidth + (this.allEndpoints.size * (DefaultConfig.connectorEPWidth + DefaultConfig.epGap));
+            viewState.bBox.rw = (trigger.rw > bodyViewState.bBox.rw ? trigger.rw : bodyViewState.bBox.rw) + DefaultConfig.serviceRearPadding + totalWorkerWidth + (this.getConnectorSize() * (DefaultConfig.connectorEPWidth + DefaultConfig.epGap));
             viewState.bBox.w = viewState.bBox.lw + viewState.bBox.rw;
 
             const maxWorkerFullHeight = body.namedWorkerDeclarator.workerInitStatements.length * 72 + maxWorkerHeight;
@@ -754,7 +768,7 @@ export class SizingVisitor implements Visitor {
 
         viewState.bBox.h = lifeLine.h + trigger.h + end.bBox.h + DefaultConfig.serviceVerticalPadding * 2 + DefaultConfig.functionHeaderHeight;
         viewState.bBox.lw = (trigger.lw > bodyViewState.bBox.lw ? trigger.lw : bodyViewState.bBox.lw) + DefaultConfig.serviceFrontPadding;
-        viewState.bBox.rw = (trigger.rw > bodyViewState.bBox.rw ? trigger.rw : bodyViewState.bBox.rw) + DefaultConfig.serviceRearPadding + (this.allEndpoints.size * (DefaultConfig.connectorEPWidth + DefaultConfig.epGap));
+        viewState.bBox.rw = (trigger.rw > bodyViewState.bBox.rw ? trigger.rw : bodyViewState.bBox.rw) + DefaultConfig.serviceRearPadding + (this.getConnectorSize() * (DefaultConfig.connectorEPWidth + DefaultConfig.epGap));
         viewState.bBox.w = viewState.bBox.lw + viewState.bBox.rw;
 
         if (viewState.initPlus && viewState.initPlus.selectedComponent === "PROCESS") {
@@ -1332,11 +1346,20 @@ export class SizingVisitor implements Visitor {
             }
         }
         if (viewState.functionNode && viewState.functionNodeExpanded) {
-                recalculateSizingAndPositioning(viewState.functionNode);
+                const parentConnectors = this.allEndpoints;
+                recalculateSizingAndPositioning(viewState.functionNode, null, parentConnectors);
                 viewState.bBox.h += viewState.functionNode.viewState.bBox.h;
                 // height += viewState.functionNode.viewState.bBox.h;
                 // if (viewState.bBox.rw < viewState.functionNode.viewState.bBox.w) {
-                viewState.bBox.rw += viewState.functionNode.viewState.bBox.w + 50;
+                let parentCount = 0;
+                viewState.functionNode.functionBody.viewState.connectors.forEach((value: Endpoint, key: string) => {
+                    const found = parentConnectors?.get(key);
+                    if(found && found.actions.length > 0) {
+                        parentCount++;
+                    }
+                })
+                const newRw = (parentCount * (DefaultConfig.connectorEPWidth + DefaultConfig.epGap));
+                viewState.bBox.rw += viewState.functionNode.viewState.bBox.w;
                 viewState.bBox.w = viewState.bBox.rw + viewState.bBox.lw;
                 // }
         }
