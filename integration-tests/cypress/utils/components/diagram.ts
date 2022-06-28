@@ -164,4 +164,12 @@ export class FunctionDiagram {
                 )
             });
     }
+
+    public clickEditExistingBlockStatement(targetLine: number) {
+        this.container.within(() => {
+            cy.get(`.diagram-canvas .main-process-wrapper[target-line="${targetLine}"] .process-options-wrapper [data-testid="editBtn"]`)
+                .click({ force: true });
+        })
+        return this;
+    }
 }
