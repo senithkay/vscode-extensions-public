@@ -108,6 +108,7 @@ export interface ConflictRestrictSpace {
 }
 
 export const DEFAULT_WORKER_NAME = 'function'; // todo: move to appropriate place.
+const METRICS_LABEL_MARGIN = 60;
 
 export class SizingVisitor implements Visitor {
     private currentWorker: string[];
@@ -115,6 +116,7 @@ export class SizingVisitor implements Visitor {
     private workerMap: Map<string, NamedWorkerDeclaration>;
     private allEndpoints: Map<string, Endpoint> = new Map<string, Endpoint>();
     private experimentalEnabled: boolean;
+    private conflictResolutionFailed = false;
 
     private parentConnectors: Map<string, Endpoint> = new Map<string, Endpoint>();
 
@@ -137,6 +139,10 @@ export class SizingVisitor implements Visitor {
         return size;
     }
 
+    public getConflictResulutionFailureStatus() {
+        return this.conflictResolutionFailed;
+    }
+
     public endVisitSTNode(node: STNode, parent?: STNode) {
         if (!node.viewState) {
             return;
@@ -148,6 +154,7 @@ export class SizingVisitor implements Visitor {
         this.currentWorker = [];
         this.senderReceiverInfo = new Map();
         this.workerMap = new Map();
+        this.allEndpoints = new Map();
     }
 
     public beginVisitModulePart(node: ModulePart, parent?: STNode) {
@@ -427,14 +434,16 @@ export class SizingVisitor implements Visitor {
 
         const matchedStatements = this.syncAsyncStatements(node);
 
-        if (this.experimentalEnabled) {
-            const resolutionVisitor = new ConflictResolutionVisitor(matchedStatements, this.workerMap.size + 1);
-
-            do {
-                resolutionVisitor.resetConflictStatus();
-                traversNode(node, resolutionVisitor);
-            } while (resolutionVisitor.conflictFound())
-        }
+        const resolutionVisitor = new ConflictResolutionVisitor(matchedStatements, this.workerMap.size + 1);
+        const startDate = new Date();
+        do {
+            resolutionVisitor.resetConflictStatus();
+            traversNode(node, resolutionVisitor);
+            if ((new Date()).getTime() - startDate.getTime() > 5000) {
+                this.conflictResolutionFailed = true;
+                break;
+            }
+        } while (resolutionVisitor.conflictFound())
 
         if (bodyViewState.hasWorkerDecl) {
             let maxWorkerHeight = 0;
@@ -844,6 +853,7 @@ export class SizingVisitor implements Visitor {
 
     public endVisitExpressionFunctionBody(node: ExpressionFunctionBody) {
         // TODO: Work on this after proper design review for showing expression bodied functions.
+        this.cleanMaps();
     }
 
     public endVisitFunctionBodyBlock(node: FunctionBodyBlock) {
@@ -1404,6 +1414,7 @@ export class SizingVisitor implements Visitor {
 
             if (isSTActionInvocation(element)
                 && !haveBlockStatement(element)
+                && this.allEndpoints
                 && this.allEndpoints.has(stmtViewState.action.endpointName)
             ) {
                 // check if it's the same as actioninvocation
@@ -1478,7 +1489,7 @@ export class SizingVisitor implements Visitor {
         }
 
 
-        blockViewState.bBox.lw = leftWidth > 0 ? leftWidth : DefaultConfig.defaultBlockWidth / 2;
+        blockViewState.bBox.lw = leftWidth > 0 ? leftWidth + (node?.controlFlow ? METRICS_LABEL_MARGIN : 0) : DefaultConfig.defaultBlockWidth / 2;
         blockViewState.bBox.rw = rightWidth > 0 ? rightWidth : DefaultConfig.defaultBlockWidth / 2;
 
         blockViewState.bBox.w = blockViewState.bBox.lw + blockViewState.bBox.rw;

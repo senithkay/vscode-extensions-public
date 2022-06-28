@@ -13,15 +13,18 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import React, { useContext, useEffect, useState } from "react";
 
-import {
-    FormControl,
-    Input, InputAdornment, List, ListItem, ListItemText, Typography
-} from "@material-ui/core";
+import { FormControl, Input, InputAdornment, List, ListItem, ListItemText, Typography } from "@material-ui/core";
+import { STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import LibrarySearchIcon from "../../../assets/icons/LibrarySearchIcon";
-import { CONFIGURABLE_VALUE_REQUIRED_TOKEN } from "../../../constants";
+import {
+    CONFIGURABLE_VALUE_REQUIRED_TOKEN,
+    DEFAULT_WHERE_INTERMEDIATE_CLAUSE,
+    QUERY_INTERMEDIATE_CLAUSES
+} from "../../../constants";
 import { InputEditorContext } from "../../../store/input-editor-context";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
+import { getFilteredExpressions } from "../../../utils";
 import {
     Expression,
     ExpressionGroup,
@@ -30,7 +33,8 @@ import {
     SELECTED_EXPRESSION
 } from "../../../utils/expressions";
 import { KeyboardNavigationManager } from "../../../utils/keyboard-navigation-manager";
-import { useStatementEditorStyles, useStmtEditorHelperPanelStyles  } from "../../styles";
+import { ModelType } from "../../../utils/statement-editor-viewstate";
+import { useStatementEditorStyles, useStmtEditorHelperPanelStyles } from "../../styles";
 
 export function ExpressionSuggestions() {
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
@@ -44,43 +48,43 @@ export function ExpressionSuggestions() {
     const {
         modelCtx: {
             currentModel,
-            updateModel,
+            updateModel
         }
     } = useContext(StatementEditorContext);
 
     const onClickExpressionSuggestion = (expression: Expression) => {
-        const currentModelSource = currentModel.model.source
-            ? currentModel.model.source.trim()
-            : currentModel.model.value.trim();
+        const currentModelSource = STKindChecker.isOrderKey(currentModel.model) ? currentModel.model.expression.source :
+            (currentModel.model.source ? currentModel.model.source.trim() : currentModel.model.value.trim());
         const text = currentModelSource !== CONFIGURABLE_VALUE_REQUIRED_TOKEN
             ? expression.template.replace(SELECTED_EXPRESSION, currentModelSource)
             : expression.template.replace(SELECTED_EXPRESSION, EXPR_PLACEHOLDER);
-        updateModel(text, currentModel.model.position);
+        updateModel(text, currentModel.model.position)
         inputEditorCtx.onInputChange('');
     }
 
     useEffect(() => {
         if (currentModel.model) {
-            const filteredGroups: ExpressionGroup[] = expressions.filter(
-                (exprGroup) => exprGroup.relatedModelType === currentModel.model.viewState.modelType);
+            let filteredGroups: ExpressionGroup[] = getFilteredExpressions(expressions, currentModel.model);
+            if (currentModel.model.source?.trim() === DEFAULT_WHERE_INTERMEDIATE_CLAUSE){
+                filteredGroups = expressions.filter(
+                    (exprGroup) => exprGroup.name === QUERY_INTERMEDIATE_CLAUSES);
+            }
             setFilteredExpressions(filteredGroups);
         }
     }, [currentModel.model]);
 
     const changeSelected = (key: number) => {
         const newSelected = selectedListItem + key;
-        if (newSelected >= 0 && newSelected < filteredExpressions[selectedGroup].expressions.length){
+        if (newSelected >= 0 && newSelected < filteredExpressions[selectedGroup].expressions.length) {
             setSelectedItem(newSelected)
-        }
-        else if (newSelected < 0){
+        } else if (newSelected < 0) {
             if (selectedGroup > 0) {
                 const newGroup = selectedGroup - 1;
                 setSelectedGroup(newGroup)
                 setSelectedItem(filteredExpressions[newGroup].expressions.length - 1)
             }
-        }
-        else {
-            if (selectedGroup < filteredExpressions.length - 1){
+        } else {
+            if (selectedGroup < filteredExpressions.length - 1) {
                 const newGroup = selectedGroup + 1;
                 setSelectedGroup(newGroup)
                 setSelectedItem(0)
@@ -122,22 +126,23 @@ export function ExpressionSuggestions() {
                 })
             }
         });
-        setFilteredExpressions(filteredGroups);
+        setFilteredExpressions(getFilteredExpressions(filteredGroups, currentModel.model));
     }
 
     return (
         <>
 
             <div className={stmtEditorHelperClasses.expressionSuggestionList} data-testid="expression-list">
-                <FormControl style={{ width: '100%', padding: '0 25px'}}>
+                <FormControl style={{ width: '100%', padding: '0 25px' }}>
                     <Input
+                        data-testid="expr-suggestions-searchbar"
                         className={stmtEditorHelperClasses.librarySearchBox}
                         value={keyword}
                         placeholder={`Search Expression`}
                         onChange={(e) => searchExpressions(e.target.value)}
                         endAdornment={(
                             <InputAdornment position={"end"} style={{ padding: '8.5px' }}>
-                                <LibrarySearchIcon />
+                                <LibrarySearchIcon/>
                             </InputAdornment>
                         )}
                     />
@@ -152,7 +157,7 @@ export function ExpressionSuggestions() {
                         <>
                             {filteredExpressions.map((group, groupIndex) => (
                                 <>
-                                    <div className={stmtEditorHelperClasses.librarySearchSubHeader}>{group.name}</div>
+                                    <div className={stmtEditorHelperClasses.helperPaneSubHeader}>{group.name}</div>
                                     <List className={stmtEditorHelperClasses.expressionList}>
                                         {
                                             group.expressions.map((expression, index) => (
@@ -177,7 +182,7 @@ export function ExpressionSuggestions() {
                                             ))
                                         }
                                     </List>
-                                    <div className={statementEditorClasses.separatorLine} />
+                                    <div className={statementEditorClasses.separatorLine}/>
                                 </>
                             ))}
                         </>

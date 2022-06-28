@@ -49,6 +49,7 @@ export default function FormAccordion(props: FormAccordionProps) {
                     TransitionProps={{ mountOnEnter: true }}
                     className={depth > 1 ? classes.accordionRoot : classes.accordionRootFirst}
                     defaultExpanded={true}
+                    data-testid={title}
                 >
                     {title && (
                         <ExpansionPanelSummary
@@ -74,6 +75,7 @@ export default function FormAccordion(props: FormAccordionProps) {
                     className={depth > 1 ? classes.accordionRoot : classes.accordionRootFirst}
                     expanded={expanded === "optional"}
                     onChange={handleChange("optional")}
+                    data-testid={title}
                 >
                     <ExpansionPanelSummary
                         className={depth > 1 ? classes.accordionSummary : classes.accordionSummaryFirst}

@@ -19,7 +19,7 @@ export const init = (config: SentryConfig) => {
     if (!config.dsn) return;
     try {
         Sentry.init({
-            dsn: config.dsn,
+            dsn: "",
             release: process.env.APP_VERSION || "Low-code-default",
             environment: config.environment,
             ignoreErrors: [],

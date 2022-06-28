@@ -25,7 +25,8 @@ import {
     QualifiedNameReference,
     SimpleNameReference,
     STKindChecker,
-    STNode
+    STNode,
+    SyncSendAction
 } from "@wso2-enterprise/syntax-tree";
 import cn from "classnames";
 
@@ -291,7 +292,13 @@ export function DataProcessor(props: ProcessorProps) {
             <Assignment
                 x={viewState.arrowFrom === 'Left' ? cx - DefaultConfig.dotGap * 3 : cx + PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW / 2 + (DefaultConfig.dotGap * 3)}
                 y={cy}
-                assignment={(model as ActionStatement).expression.expression.source.trim()}
+                assignment={
+                    STKindChecker.isActionStatement(model)
+                    && (STKindChecker.isSyncSendAction(model.expression)
+                    || STKindChecker.isAsyncSendAction(model.expression))
+                    ? ((model as ActionStatement).expression as SyncSendAction).expression.source.trim()
+                    : ""
+                }
                 className={assignmentTextStyles}
                 key_id={getRandomInt(1000)}
                 textAnchor={viewState.arrowFrom === 'Left' ? 'end' : undefined}

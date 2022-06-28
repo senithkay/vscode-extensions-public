@@ -15,7 +15,6 @@ import React from 'react';
 export default function ToolbarConfigurableIcon() {
     return (
         <svg width="13px" height="16px" viewBox="0 0 13 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
-            <title>Add Configurable</title>
             <g id="Tree-Editor" stroke="none" stroke-width="1" fill="currentColor" fill-rule="evenodd">
                 <g id="SE_bread-crumbs" transform="translate(-1287.000000, -224.000000)" fill="currentColor" fill-rule="nonzero">
                     <g id="State" transform="translate(1188.000000, 216.000000)">

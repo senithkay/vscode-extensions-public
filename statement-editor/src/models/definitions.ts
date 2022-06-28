@@ -20,7 +20,8 @@ import { StmtEditorUndoRedoManager } from "../utils/undo-redo";
 
 export interface CurrentModel {
     model: STNode,
-    stmtPosition?: NodePosition
+    stmtPosition?: NodePosition,
+    isEntered?: boolean
 }
 
 export interface VariableUserInputs {
@@ -31,10 +32,22 @@ export interface VariableUserInputs {
     formField?: string
 }
 
+export interface LSSuggestions {
+    directSuggestions: SuggestionItem[];
+    secondLevelSuggestions?: SecondLevelSuggestions;
+}
+
 export interface SuggestionItem {
-    value: string,
-    kind?: string,
-    suggestionType?: number
+    value: string;
+    kind?: string;
+    insertText?: string;
+    completionKind?: number;
+    prefix?: string;
+}
+
+export interface SecondLevelSuggestions {
+    selection: string;
+    secondLevelSuggestions: SuggestionItem[];
 }
 
 export interface RemainingContent {

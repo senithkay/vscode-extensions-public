@@ -16,7 +16,12 @@ import { List, ListItem, ListItemText, ListSubheader } from "@material-ui/core";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 
 import { StatementEditorContext } from "../../../store/statement-editor-context";
-import { getCurrentModelParams, getParamCheckedList } from "../../../utils";
+import {
+    getCurrentModelParams,
+    getDocDescription,
+    getParamCheckedList,
+    isDescriptionWithExample
+} from "../../../utils";
 import { useStatementEditorStyles, useStmtEditorHelperPanelStyles } from "../../styles";
 import { ParameterList } from "../ParameterList";
 
@@ -44,6 +49,29 @@ export function ParameterSuggestions(){
         setChecked(newChecked);
     }
 
+    const getDocumentationDescription = () => {
+        const doc = documentation.documentation.description;
+        const docRegex = /```ballerina\n(.*?)\n```/gms;
+        if (isDescriptionWithExample(doc)) {
+           const des = getDocDescription(doc);
+           const docEx = docRegex.exec(doc);
+           return (
+               <>
+                   <ListItemText primary={des[0]}/>
+                   <ListSubheader className={stmtEditorHelperClasses.exampleHeader}>
+                       Example
+                   </ListSubheader>
+                   <ListItem className={stmtEditorHelperClasses.docDescription}>
+                       <code className={stmtEditorHelperClasses.exampleCode}>{docEx[1]}</code>
+                   </ListItem>
+               </>
+           );
+       } else {
+           return (
+               <ListItemText primary={doc}/>
+           );
+       }
+    }
 
     return(
         <>
@@ -55,10 +83,18 @@ export function ParameterSuggestions(){
                 <>
                     {documentation && !(documentation.documentation === undefined) ? (
                         <List className={statementEditorClasses.stmtEditorInnerWrapper}>
-                            <ListItem className={stmtEditorHelperClasses.docDescription}>
-                                <ListItemText primary={documentation.documentation.description}/>
-                            </ListItem>
                             <ParameterList checkedList={checked} setCheckedList={setCheckedList} />
+                            {documentation.documentation.description && (
+                                <>
+                                    <hr className={stmtEditorHelperClasses.returnSeparator}/>
+                                    <ListSubheader className={stmtEditorHelperClasses.parameterHeader}>
+                                        Description
+                                    </ListSubheader>
+                                    <ListItem className={stmtEditorHelperClasses.docDescription}>
+                                        {getDocumentationDescription()}
+                                    </ListItem>
+                                </>
+                            )}
                             {documentation.documentation.returnValueDescription && (
                                 <>
                                     <hr className={stmtEditorHelperClasses.returnSeparator}/>

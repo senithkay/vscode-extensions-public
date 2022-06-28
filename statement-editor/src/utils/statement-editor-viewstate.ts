@@ -18,7 +18,10 @@ export enum ModelType {
     QUERY_CLAUSE,
     METHOD_CALL,
     FIELD_ACCESS,
-    QUERY_EXPRESSION
+    QUERY_EXPRESSION,
+    FUNCTION,
+    ORDER_KEY,
+    ORDER_DIRECTION_KEYWORDS
 }
 
 export class StatementEditorViewState {
@@ -26,13 +29,13 @@ export class StatementEditorViewState {
     public templateExprDeletable: boolean = false;
     public isWithinBlockStatement: boolean = false;
     public modelType: ModelType = ModelType.EXPRESSION;
-    public mappingConstructorConfig: MappingConstructorConfig = {
-        isLastMapField: false,
+    public multilineConstructConfig: MultilineConstructConfig = {
+        isFieldWithNewLine: false,
         isClosingBraceWithNewLine: false
     };
 }
 
-interface MappingConstructorConfig {
-    isLastMapField?: boolean;
+interface MultilineConstructConfig {
+    isFieldWithNewLine?: boolean;
     isClosingBraceWithNewLine?: boolean;
 }

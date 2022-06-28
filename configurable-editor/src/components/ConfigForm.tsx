@@ -139,7 +139,7 @@ export const ConfigForm = (props: ConfigFormProps) => {
                                     onClick={handleExpandClick}
                                 />
                             </Box>
-                            <Collapse in={expanded} timeout="auto" unmountOnExit={true}>
+                            <Collapse in={expanded} timeout="auto" unmountOnExit={false}>
                                 {defaultableElements.map(ConfigElement)}
                             </Collapse>
                         </CardContent>

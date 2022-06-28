@@ -125,7 +125,7 @@ export function getParams(formFields: FormField[], depth = 1): string[] {
             if (formField.defaultable &&
                 ((formField.typeName !== "record" && formField.value) ||
                     (formField.typeName === "record" && !isAllFieldsEmpty(formField.fields)))) {
-                paramString += `${formField.name} = `;
+                paramString += `${getFieldName(formField.name)} = `;
             }
             if (formField.typeName === "string" && (formField.value || formField.defaultValue)) {
                 paramString += formField.value || formField.defaultValue;
@@ -158,7 +158,7 @@ export function getParams(formFields: FormField[], depth = 1): string[] {
                         }
                         recordFieldsString += getFieldName(field.name) + ": " + field.value;
                     }
-                    else if ((field.typeName === "int" || field.typeName === "boolean" || field.typeName === "float" || formField.typeName === "decimal") && field.value) {
+                    else if ((field.typeName === "int" || field.typeName === "boolean" || field.typeName === "float" || field.typeName === "decimal") && field.value) {
                         if (firstRecordField) {
                             recordFieldsString += ", ";
                         } else {
@@ -394,7 +394,7 @@ export function mapRecordLiteralToRecordTypeFormField(specificFields: SpecificFi
     specificFields.forEach(specificField => {
         if (specificField.kind !== "CommaToken") {
             formFields.forEach(formField => {
-                if (formField.name === specificField.fieldName.value) {
+                if (getFieldName(formField.name) === specificField.fieldName.value) {
                     // if the assigned value is one of inbuilt type
                     formField.value = (STKindChecker.isStringLiteral(specificField.valueExpr) ||
                         STKindChecker.isNumericLiteral(specificField.valueExpr) ||
@@ -758,7 +758,7 @@ export async function fetchConnectorInfo(
                             remoteCall = variable.initializer as RemoteMethodCallAction;
                             break;
                         default:
-                            remoteCall = (variable.initializer as CheckAction).expression;
+                            remoteCall = (variable.initializer as CheckAction).expression as RemoteMethodCallAction;
                     }
                     if (variable?.typedBindingPattern?.bindingPattern) {
                         if (STKindChecker.isCaptureBindingPattern(variable.typedBindingPattern.bindingPattern)) {
@@ -773,7 +773,7 @@ export async function fetchConnectorInfo(
 
                 case "ActionStatement":
                     const statement = model as ActionStatement;
-                    remoteCall = (statement.expression as CheckAction).expression;
+                    remoteCall = (statement.expression as CheckAction).expression as RemoteMethodCallAction;
                     break;
 
                 default:
@@ -886,6 +886,13 @@ function getFormFieldReturnType(formField: FormField, depth = 1): FormFieldRetur
                 }
                 break;
 
+            case "map":
+                const paramType = getFormFieldReturnType(formField.paramType, depth + 1);
+                response.hasError = paramType.hasError;
+                response.hasReturn = true;
+                response.returnType = `map<${paramType.returnType}>`
+                break;
+
             case "array":
                 if (formField?.memberType) {
                     const returnTypeResponse = getFormFieldReturnType(formField.memberType, depth + 1);
@@ -946,9 +953,13 @@ function getFormFieldReturnType(formField: FormField, depth = 1): FormFieldRetur
 
             default:
                 let type = "";
-                if (formField.typeName.trim() === "error" || formField.isErrorType) {
+                if (depth <= 2 && (formField.typeName.trim() === "error" || formField.isErrorType)) {
                     formField.isErrorType = true;
                     response.hasError = true;
+                }
+                if (depth > 2 && (formField.typeName.trim() === "error" || formField.isErrorType)) {
+                    response.hasReturn = true;
+                    response.returnType = "error";
                 }
                 if (type === "" && formField.typeInfo && !formField.isErrorType) {
                     // set class/record types
@@ -978,6 +989,12 @@ function getFormFieldReturnType(formField: FormField, depth = 1): FormFieldRetur
                     type = formField.typeName;
                     response.hasReturn = true;
                 }
+                if (type === "" && formField.typeName.includes("[") && formField.typeName.includes("]")) {
+                    // tuple type
+                    // INFO: Need to update tuple type metadata generation to extract inside type
+                    type = formField.typeName;
+                    response.hasReturn = true;
+                }
                 if (type === "" && !formField.isStream && formField.typeName && primitives.includes(formField.typeName)) {
                     // set primitive types
                     type = formField.typeName;
@@ -995,6 +1012,10 @@ function getFormFieldReturnType(formField: FormField, depth = 1): FormFieldRetur
                 if ((type !== "" || formField.isErrorType) && formField?.optional) {
                     // set optional tag
                     type = type.includes('|') ? `(${type})?` : `${type}?`;
+                }
+                if (type === "" && depth > 1 && formField.typeName.trim() === "()") {
+                    // set optional tag for nil return types
+                    type = "?";
                 }
                 if (type) {
                     response.returnType = type;

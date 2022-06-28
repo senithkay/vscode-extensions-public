@@ -20,6 +20,7 @@ import {
     ModulePart,
     NamedWorkerDeclaration,
     ObjectMethodDefinition,
+    RemoteMethodCallAction,
     ResourceAccessorDefinition,
     STKindChecker,
     STNode,
@@ -61,6 +62,11 @@ import { DefaultConfig } from "./default";
 import { AsyncReceiveInfo, AsyncSendInfo, SendRecievePairInfo, WaitInfo } from "./sizing-visitor";
 import { getPlusViewState, updateConnectorCX } from "./util";
 
+let epCount: number = 0;
+
+// This holds the plus widget height diff to be added to the function when its open.
+// This will be reset on every rerender.
+let plusHolderHeight: number = 0;
 export class PositioningVisitor implements Visitor {
     private allEndpoints: Map<string, Endpoint> = new Map<string, Endpoint>();
     private epCount: number = 0;
@@ -80,7 +86,8 @@ export class PositioningVisitor implements Visitor {
     private cleanMaps() {
         this.senderReceiverInfo = new Map();
         this.currentWorker = [];
-        this.workerMap = new Map()
+        this.workerMap = new Map();
+        this.allEndpoints = new Map();
     }
 
     private addToSendReceiveMap(type: 'Send' | 'Receive' | 'Wait', entry: AsyncReceiveInfo | AsyncSendInfo | WaitInfo) {
@@ -259,7 +266,7 @@ export class PositioningVisitor implements Visitor {
             this.plusHolderHeight = 0;
         }
 
-        updateConnectorCX(bodyViewState.bBox.rw + widthOfWorkers, bodyViewState.bBox.cx, this.allEndpoints, viewState.trigger.cy);
+        updateConnectorCX(bodyViewState.bBox.rw + widthOfWorkers, bodyViewState.bBox.cx, bodyViewState.connectors, viewState.trigger.cy);
 
         // Update First Control Flow line
         this.updateFunctionEdgeControlFlow(viewState, body);
@@ -406,7 +413,7 @@ export class PositioningVisitor implements Visitor {
     public beginVisitFunctionBodyBlock(node: FunctionBodyBlock) {
         const blockViewState: BlockViewState = node.viewState;
         this.allEndpoints = blockViewState.connectors;
-        this.epCount = 0;
+        epCount = 0;
         let height = 0;
         let index = 0;
 
@@ -460,7 +467,7 @@ export class PositioningVisitor implements Visitor {
     public beginVisitExpressionFunctionBody(node: ExpressionFunctionBody) {
         const blockViewState: BlockViewState = node.viewState;
         this.allEndpoints = blockViewState.connectors;
-        this.epCount = 0;
+        epCount = 0;
     }
 
     private beginBlockPosition(node: BlockStatement, lastStatementIndex: number, height: number = 0, index: number = 0) {
@@ -651,8 +658,8 @@ export class PositioningVisitor implements Visitor {
             // Control flow execution time
             if (statement?.controlFlow?.executionTime !== undefined) {
                 const isIf = STKindChecker.isIfElseStatement(statement);
-                // Neglect if width dueto drawing lines in left side
-                const offsetX = (isIf ? EXECUTION_TIME_IF_X_OFFSET : (statementViewState.bBox.w / 2) + EXECUTION_TIME_DEFAULT_X_OFFSET);
+                // Neglect if width due to drawing lines in left side
+                const offsetX = (isIf ? EXECUTION_TIME_IF_X_OFFSET : (statementViewState.bBox.lw) + EXECUTION_TIME_DEFAULT_X_OFFSET);
                 let offsetY;
                 if (STKindChecker.isIfElseStatement(statement)) {
                     offsetY = (statementViewState as IfViewState).headIf.h / 2;
@@ -758,7 +765,7 @@ export class PositioningVisitor implements Visitor {
                         this.epCount++;
                     } else if (STKindChecker.isLocalVarDecl(statement) &&
                         STKindChecker.isCheckAction(statement.initializer) &&
-                        statement.initializer?.expression.expression.typeData?.symbol?.kind === "PARAMETER" &&
+                        (statement.initializer?.expression as RemoteMethodCallAction).expression.typeData?.symbol?.kind === "PARAMETER" &&
                         !endpoint.firstAction) {
                         // Add parameter level endpoints to the action view statement.
                         statementViewState.endpoint = mainEp;
