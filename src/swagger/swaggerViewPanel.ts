@@ -21,23 +21,17 @@ import { ViewColumn, window, WebviewPanel } from "vscode";
 import { WebViewRPCHandler, getCommonWebViewOptions } from '../utils';
 import { render } from './render';
 import { ballerinaExtInstance, ExtendedLangClient, OASpec } from "../core";
+import { SwaggerServer } from "./server";
 import { CMP_TRYIT_VIEW, sendTelemetryEvent, TM_EVENT_SWAGGER_RUN } from "../telemetry";
-import { getPortPromise } from "portfinder";
 
 let swaggerViewPanel: WebviewPanel | undefined;
-let cors_proxy = require('cors-anywhere');
 
 export async function showSwaggerView(langClient: ExtendedLangClient,
     specs: OASpec[], file: string, serviceName: string | undefined): Promise<void> {
     if (swaggerViewPanel) {
         swaggerViewPanel.dispose();
     }
-    const port = await getPortPromise({ port: 1000, stopPort: 3000 });
-
-    cors_proxy.createServer({
-        originWhitelist: [], // Allow all origins
-        requireHeader: ['origin', 'x-requested-with']
-    }).listen(port, '0.0.0.0');
+    const swaggerServer: SwaggerServer = new SwaggerServer();
 
     // Create and show a new SwaggerView
     swaggerViewPanel = window.createWebviewPanel(
@@ -47,9 +41,23 @@ export async function showSwaggerView(langClient: ExtendedLangClient,
         getCommonWebViewOptions()
     );
 
-    const proxy = `http://localhost:${port}/`;
+    // Swagger Request
+    swaggerViewPanel.webview.onDidReceiveMessage(
+        async message => {
+            if (message.command !== 'swaggerRequest') {
+                return;
+            }
+            await swaggerServer.sendRequest(message.req).then((response) => {
+                swaggerViewPanel!.webview.postMessage({
+                    command: 'swaggerResponse',
+                    res: response
+                });
+            });
+        }
+    );
+
     WebViewRPCHandler.create(swaggerViewPanel, langClient);
-    const html = render({ specs, file, serviceName, proxy });
+    const html = render({ specs, file, serviceName });
     if (swaggerViewPanel && html) {
         swaggerViewPanel.webview.html = html;
     }
