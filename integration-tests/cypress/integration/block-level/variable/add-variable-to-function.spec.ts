@@ -11,87 +11,87 @@ import { SuggestionsPane } from "../../../utils/components/statement-editor/sugg
 const BAL_FILE_PATH = "block-level/variable/add-variable-to-function.bal";
 
 describe('Add variable to function via Low Code', () => {
-  beforeEach(() => {
-    cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH))
-  })
+    beforeEach(() => {
+        cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH))
+    })
 
-  it('Add a variable to function', () => {
-    Canvas.getFunction("myfunction")
-      .nameShouldBe("myfunction")
-      .shouldBeExpanded()
-      .getDiagram()
-      .shouldBeRenderedProperly()
-      .clickDefaultWorkerPlusBtn(0);
+    it('Add a variable to function', () => {
+        Canvas.getFunction("myfunction")
+            .nameShouldBe("myfunction")
+            .shouldBeExpanded()
+            .getDiagram()
+            .shouldBeRenderedProperly()
+            .clickDefaultWorkerPlusBtn(0);
 
-    BlockLevelPlusWidget.clickOption("Variable");
+        BlockLevelPlusWidget.clickOption("Variable");
 
-    StatementEditor
-        .shouldBeVisible()
-        .getEditorPane();
+        StatementEditor
+            .shouldBeVisible()
+            .getEditorPane();
 
-    EditorPane
-        .getStatementRenderer()
-        .getExpression("SimpleNameReference")
-        .doubleClickExpressionContent(`<add-expression>`);
+        EditorPane
+            .getStatementRenderer()
+            .getExpression("SimpleNameReference")
+            .doubleClickExpressionContent(`<add-expression>`);
 
-    InputEditor
-        .typeInput("14");
+        InputEditor
+            .typeInput("14");
 
-    EditorPane
-        .validateNewExpression("NumericLiteral", "14")
-        .getExpression("VarTypeDesc")
-        .clickExpressionContent("var");
+        EditorPane
+            .validateNewExpression("NumericLiteral", "14")
+            .getExpression("VarTypeDesc")
+            .clickExpressionContent("var");
 
-    SuggestionsPane
-        .clickLsSuggestion('int');
+        SuggestionsPane
+            .clickLsSuggestion('int');
 
-    EditorPane
-        .validateNewExpression("IntTypeDesc", "int")
-        .getExpression("CaptureBindingPattern")
-        .doubleClickExpressionContent("variable");
+        EditorPane
+            .validateNewExpression("IntTypeDesc", "int")
+            .getExpression("CaptureBindingPattern")
+            .doubleClickExpressionContent("variable");
 
-    InputEditor
-        .typeInput("varName");
+        InputEditor
+            .typeInput("varName");
 
-    EditorPane
-        .validateNewExpression("CaptureBindingPattern", "varName")
+        EditorPane
+            .validateNewExpression("CaptureBindingPattern", "varName")
 
-    StatementEditor
-        .save();
+        StatementEditor
+            .save();
 
-    SourceCode.shouldBeEqualTo(
-      getCurrentSpecFolder() + "add-variable-to-function.expected.bal");
-  })
+        SourceCode.shouldBeEqualTo(
+            getCurrentSpecFolder() + "add-variable-to-function.expected.bal");
+    })
 
-  it('Open and Cancel Form', () => {
-    Canvas.getFunction("myfunction")
-      .nameShouldBe("myfunction")
-      .shouldBeExpanded()
-      .getDiagram()
-      .shouldBeRenderedProperly()
-      .clickDefaultWorkerPlusBtn(0);
+    it('Open and Cancel Form', () => {
+        Canvas.getFunction("myfunction")
+            .nameShouldBe("myfunction")
+            .shouldBeExpanded()
+            .getDiagram()
+            .shouldBeRenderedProperly()
+            .clickDefaultWorkerPlusBtn(0);
 
-    BlockLevelPlusWidget.clickOption("Variable");
+        BlockLevelPlusWidget.clickOption("Variable");
 
-    StatementEditor
-        .shouldBeVisible()
-        .cancel();
-  });
+        StatementEditor
+            .shouldBeVisible()
+            .cancel();
+    });
 
-  it('Open and Close Form', () => {
-    Canvas.getFunction("myfunction")
-      .nameShouldBe("myfunction")
-      .shouldBeExpanded()
-      .getDiagram()
-      .shouldBeRenderedProperly()
-      .clickDefaultWorkerPlusBtn(0);
+    it('Open and Close Form', () => {
+        Canvas.getFunction("myfunction")
+            .nameShouldBe("myfunction")
+            .shouldBeExpanded()
+            .getDiagram()
+            .shouldBeRenderedProperly()
+            .clickDefaultWorkerPlusBtn(0);
 
-    BlockLevelPlusWidget.clickOption("Variable");
+        BlockLevelPlusWidget.clickOption("Variable");
 
-    StatementEditor
-        .shouldBeVisible()
-        .close();
-    
-  });
+        StatementEditor
+            .shouldBeVisible()
+            .close();
+
+    });
 
 })
