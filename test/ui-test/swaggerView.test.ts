@@ -70,6 +70,10 @@ describe('Swagger view UI Tests', () => {
         await execute.click();
         await wait(2000);
 
+        // scroll down
+        await reqBody.sendKeys(Key.PAGE_DOWN, Key.PAGE_DOWN);
+        await wait(500);
+
         // check response
         const codeBlock = await swaggerWebView.findWebElement(By.className("highlight-code"));
         expect(execute).is.not.undefined;
