@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useMemo, useState } from "react";
 
-import { STNode } from "@wso2-enterprise/syntax-tree";
+import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import debounce from "lodash.debounce";
 
 import { DEFAULT_INTERMEDIATE_CLAUSE } from "../../constants";
@@ -158,8 +158,14 @@ export function InputEditor(props: InputEditorProps) {
     const handleEditEnd = () => {
         setPrevUserInput(userInput);
         if (userInput !== "") {
+            let input = userInput
+            //Remove semicolon
+            if (userInput.includes(";") && !STKindChecker.isLocalVarDecl(model)) {
+                input = userInput.replace(/(;)(?=(?:[^"]|"[^"]*")*$)/g, "");
+                setUserInput(input);
+            }
             // Replace empty interpolation with placeholder value
-            const codeSnippet = userInput.replaceAll('${}', "${" + EXPR_PLACEHOLDER + "}");
+            const codeSnippet = input.replaceAll('${}', "${" + EXPR_PLACEHOLDER + "}");
             originalValue === DEFAULT_INTERMEDIATE_CLAUSE ? updateModel(codeSnippet, model ? model.parent.parent.position : targetPosition) :
             updateModel(codeSnippet, model ? model.position : targetPosition);
         }
