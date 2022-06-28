@@ -1,0 +1,2 @@
+export const DIAGRAM_LOADING_TIME = 5000;
+export const PROJECT_RUN_TIME = 15000;

@@ -18,5 +18,6 @@ export async function getDiagramExplorer() {
     const choreoLogin = await sideBar.getContent().getSection('Choreo') as CustomTreeSection;
     expect(diagramExplorer).is.not.undefined;
     expect(choreoLogin).is.not.undefined;
+    await wait(5000);
     return diagramExplorer;
 }

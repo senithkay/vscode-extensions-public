@@ -34,7 +34,6 @@ describe('VSCode UI Tests', () => {
         expect(diagramExplorer.getAction("Refresh")).is.not.undefined;
 
         // test diagram explorer tree view
-        await wait(5000);
         const rootFolder = (await diagramExplorer.getVisibleItems())[0];
         expect(rootFolder).is.not.undefined;
         expect(await rootFolder.getLabel()).is.equal("data");

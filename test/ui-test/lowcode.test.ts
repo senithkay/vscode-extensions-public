@@ -2,6 +2,7 @@ import { expect } from 'chai';
 import { before, describe, it } from 'mocha';
 import { join } from 'path';
 import { By, VSBrowser, WebView } from 'vscode-extension-tester';
+import { DIAGRAM_LOADING_TIME } from './constants';
 import { getDiagramExplorer, wait } from './util';
 
 describe('VSCode Webview UI Tests', () => {
@@ -16,11 +17,10 @@ describe('VSCode Webview UI Tests', () => {
         const diagramExplorer = await getDiagramExplorer();
 
         // test diagram explorer tree view
-        await wait(5000);
         const rootFolder = (await diagramExplorer.getVisibleItems())[0];
         await rootFolder.expand();
         (await rootFolder.findChildItem("hello_world.bal"))?.click();
-        await wait(5000)
+        await wait(DIAGRAM_LOADING_TIME)
         const webview = new WebView();
         await webview.switchToFrame();
         const element = await webview.findWebElement(By.id("canvas-overlay"));

@@ -3,6 +3,7 @@ import { join } from 'path';
 import { before, describe, it } from 'mocha';
 import { expect } from 'chai';
 import { wait, getDiagramExplorer } from './util';
+import { DIAGRAM_LOADING_TIME, PROJECT_RUN_TIME } from './constants';
 
 describe('Swagger view UI Tests', () => {
     const PROJECT_ROOT = join(__dirname, '..', '..', '..', 'test', 'data', 'helloServicePackage');
@@ -17,13 +18,12 @@ describe('Swagger view UI Tests', () => {
         await editorView.closeAllEditors();
         const diagramExplorer = await getDiagramExplorer();
 
-        await wait(5000);
         const rootFolder = (await diagramExplorer.getVisibleItems())[0];
         await rootFolder.expand();
 
         // Open low code diagram
         (await rootFolder.findChildItem("hello_service.bal"))?.click();
-        await wait(5000)
+        await wait(DIAGRAM_LOADING_TIME)
 
         // switch to low code window
         const webview = new WebView();
@@ -33,7 +33,7 @@ describe('Swagger view UI Tests', () => {
         const runButton = (await webview.findWebElements(By.className("action-button")))[0];
         expect(runButton).is.not.undefined;
         await runButton.click();
-        await wait(15000)
+        await wait(PROJECT_RUN_TIME)
 
         // open swagger view
         const tryItButton = (await webview.findWebElements(By.className("action-button")))[1];
@@ -45,7 +45,7 @@ describe('Swagger view UI Tests', () => {
         // switch to swagger window
         const swaggerWebView = await new EditorView().openEditor('Swagger', 1) as WebView;
         swaggerWebView.switchToFrame();
-        await wait(3000);
+        await wait(2000);
 
         // expand get
         const getTab = await swaggerWebView.findWebElement(By.className("operation-tag-content"));
