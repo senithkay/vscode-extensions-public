@@ -12,13 +12,12 @@
  */
 import { Canvas } from "../../../../utils/components/canvas";
 import { getIntegrationTestPageURL } from "../../../../utils/story-url-utils";
-import { VariableFormBlockLevel } from "../../../../utils/forms/variable-form-block-level";
 import { StatementEditor } from "../../../../utils/components/statement-editor/statement-editor";
 import { EditorPane } from "../../../../utils/components/statement-editor/editor-pane";
 import { InputEditor } from "../../../../utils/components/statement-editor/input-editor";
 import { SourceCode } from "../../../../utils/components/code-view";
 import { getCurrentSpecFolder } from "../../../../utils/file-utils";
-import {BlockLevelPlusWidget} from "../../../../utils/components/block-level-plus-widget";
+import { BlockLevelPlusWidget } from "../../../../utils/components/block-level-plus-widget";
 
 const BAL_FILE_PATH = "block-level/statement-editor/statement-editor-init.bal";
 
@@ -57,7 +56,7 @@ describe('Test input editor functionality', () => {
             .typeInput("3.14");
 
         EditorPane
-            .validateNewExpression("NumericLiteral","3.14")
+            .validateNewExpression("NumericLiteral", "3.14")
             .validateEmptyDiagnostics();
 
         StatementEditor

@@ -12,14 +12,13 @@
  */
 import { getIntegrationTestPageURL } from "../../../../utils/story-url-utils";
 import { Canvas } from "../../../../utils/components/canvas";
-import { VariableFormBlockLevel } from "../../../../utils/forms/variable-form-block-level";
 import { StatementEditor } from "../../../../utils/components/statement-editor/statement-editor";
 import { EditorPane } from "../../../../utils/components/statement-editor/editor-pane";
 import { SuggestionsPane } from "../../../../utils/components/statement-editor/suggestions-pane";
 import { SourceCode } from "../../../../utils/components/code-view";
 import { getCurrentSpecFolder } from "../../../../utils/file-utils";
 import { InputEditor } from "../../../../utils/components/statement-editor/input-editor";
-import {BlockLevelPlusWidget} from "../../../../utils/components/block-level-plus-widget";
+import { BlockLevelPlusWidget } from "../../../../utils/components/block-level-plus-widget";
 
 const BAL_FILE_PATH = "block-level/statement-editor/statement-editor-init.bal";
 
@@ -52,7 +51,7 @@ describe('Test helper pane functionality', () => {
             .clickLsSuggestion('var1');
 
         EditorPane
-            .validateNewExpression("SimpleNameReference","var1")
+            .validateNewExpression("SimpleNameReference", "var1")
             .getExpression("TypedBindingPattern")
             .doubleClickExpressionContent('var');
 
@@ -64,7 +63,7 @@ describe('Test helper pane functionality', () => {
             .clickLsTypeSuggestion('int');
 
         EditorPane
-            .validateNewExpression("TypedBindingPattern","int")
+            .validateNewExpression("TypedBindingPattern", "int")
             .validateEmptyDiagnostics();
 
         StatementEditor
@@ -99,16 +98,16 @@ describe('Test helper pane functionality', () => {
             .clickExpressionSuggestion('Es + Ex');
 
         EditorPane
-            .validateNewExpression("BinaryExpression","<add-expression> + <add-expression>")
+            .validateNewExpression("BinaryExpression", "<add-expression> + <add-expression>")
             .getExpression("BinaryExpression")
-            .clickSpecificExpression("SimpleNameReference",0,`<add-expression>`);
+            .clickSpecificExpression("SimpleNameReference", 0, `<add-expression>`);
 
         SuggestionsPane
             .clickSuggestionsTab("Suggestions")
             .clickLsSuggestion('var2');
 
         EditorPane
-            .validateNewExpression("BinaryExpression","var2")
+            .validateNewExpression("BinaryExpression", "var2")
             .getExpression("BinaryExpression")
             .clickExpressionContent('+');
 
@@ -124,7 +123,7 @@ describe('Test helper pane functionality', () => {
             .typeInput("1");
 
         EditorPane
-            .validateNewExpression("NumericLiteral","1")
+            .validateNewExpression("NumericLiteral", "1")
             .validateEmptyDiagnostics();
 
         StatementEditor
@@ -158,7 +157,7 @@ describe('Test helper pane functionality', () => {
             .clickLsSuggestion('var1');
 
         EditorPane
-            .validateNewExpression("SimpleNameReference","var1")
+            .validateNewExpression("SimpleNameReference", "var1")
             .getExpression("TypedBindingPattern")
             .doubleClickExpressionContent('var');
 
@@ -170,7 +169,7 @@ describe('Test helper pane functionality', () => {
             .clickLsTypeSuggestion('int');
 
         EditorPane
-            .validateNewExpression("TypedBindingPattern","int");
+            .validateNewExpression("TypedBindingPattern", "int");
 
         SuggestionsPane
             .clickSuggestionsTab("Expressions");
@@ -183,9 +182,9 @@ describe('Test helper pane functionality', () => {
             .clickExpressionSuggestion('Es | Ex');
 
         EditorPane
-            .validateNewExpression("TypedBindingPattern","int | <add-type>")
+            .validateNewExpression("TypedBindingPattern", "int | <add-type>")
             .getExpression("UnionTypeDesc")
-            .clickSpecificExpression("SimpleNameReference", 0, '<add-type>' );
+            .clickSpecificExpression("SimpleNameReference", 0, '<add-type>');
 
         SuggestionsPane
             .clickSuggestionsTab("Suggestions")

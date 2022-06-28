@@ -62,7 +62,7 @@ describe('Test statement editor diagnostics', () => {
             .typeInput("int");
 
         EditorPane
-            .validateNewExpression("TypedBindingPattern","int")
+            .validateNewExpression("TypedBindingPattern", "int")
             .validateDiagnosticMessage("incompatible types: expected 'int', found 'string'");
 
         StatementEditor
@@ -136,7 +136,7 @@ describe('Test statement editor diagnostics', () => {
             .typeInput("var1");
 
         EditorPane
-            .validateNewExpression("SimpleNameReference","var1")
+            .validateNewExpression("SimpleNameReference", "var1")
             .checkForMultipleDiagnostics();
 
         StatementEditor

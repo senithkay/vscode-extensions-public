@@ -12,7 +12,6 @@
  */
 import { getIntegrationTestPageURL } from "../../../../utils/story-url-utils";
 import { Canvas } from "../../../../utils/components/canvas";
-import { VariableFormBlockLevel } from "../../../../utils/forms/variable-form-block-level";
 import { StatementEditor } from "../../../../utils/components/statement-editor/statement-editor";
 import { EditorPane } from "../../../../utils/components/statement-editor/editor-pane";
 import { SuggestionsPane } from "../../../../utils/components/statement-editor/suggestions-pane";
@@ -20,7 +19,7 @@ import { Toolbar } from "../../../../utils/components/statement-editor/toolbar";
 import { InputEditor } from "../../../../utils/components/statement-editor/input-editor";
 import { SourceCode } from "../../../../utils/components/code-view";
 import { getCurrentSpecFolder } from "../../../../utils/file-utils";
-import {BlockLevelPlusWidget} from "../../../../utils/components/block-level-plus-widget";
+import { BlockLevelPlusWidget } from "../../../../utils/components/block-level-plus-widget";
 
 const BAL_FILE_PATH = "block-level/statement-editor/statement-editor-init.bal";
 
@@ -51,7 +50,7 @@ describe('Test statement editor toolbar functionality', () => {
             .typeInput("int");
 
         EditorPane
-            .validateNewExpression("TypedBindingPattern","int")
+            .validateNewExpression("TypedBindingPattern", "int")
             .getExpression("SimpleNameReference")
             .doubleClickExpressionContent('<add-expression>');
 
@@ -73,7 +72,7 @@ describe('Test statement editor toolbar functionality', () => {
             .typeInput("456");
 
         EditorPane
-            .validateNewExpression("NumericLiteral","456")
+            .validateNewExpression("NumericLiteral", "456")
             .validateEmptyDiagnostics();
 
         StatementEditor
@@ -106,7 +105,7 @@ describe('Test statement editor toolbar functionality', () => {
             .typeInput("int");
 
         EditorPane
-            .validateNewExpression("TypedBindingPattern","int")
+            .validateNewExpression("TypedBindingPattern", "int")
             .getExpression("TypedBindingPattern")
             .clickExpressionContent('int');
 
@@ -115,13 +114,13 @@ describe('Test statement editor toolbar functionality', () => {
             .clickLsTypeSuggestion('float');
 
         EditorPane
-            .validateNewExpression("TypedBindingPattern","float");
+            .validateNewExpression("TypedBindingPattern", "float");
 
         Toolbar
             .clickUndoButton();
 
         EditorPane
-            .validateNewExpression("TypedBindingPattern","int");
+            .validateNewExpression("TypedBindingPattern", "int");
 
         EditorPane
             .getExpression("SimpleNameReference")

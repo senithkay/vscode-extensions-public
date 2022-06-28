@@ -10,70 +10,70 @@ import { InputEditor } from "../../../utils/components/statement-editor/input-ed
 const BAL_FILE_PATH = "block-level/if/add-if-to-function.bal";
 
 describe('Add if to function via Low Code', () => {
-  beforeEach(() => {
-    cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH))
-  })
+    beforeEach(() => {
+        cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH))
+    })
 
-  it('Add a if to function', () => {
-    Canvas.getFunction("sampleFunction")
-      .nameShouldBe("sampleFunction")
-      .shouldBeExpanded()
-      .getDiagram()
-      .shouldBeRenderedProperly()
-      .clickDefaultWorkerPlusBtn(0);
+    it('Add a if to function', () => {
+        Canvas.getFunction("sampleFunction")
+            .nameShouldBe("sampleFunction")
+            .shouldBeExpanded()
+            .getDiagram()
+            .shouldBeRenderedProperly()
+            .clickDefaultWorkerPlusBtn(0);
 
-    BlockLevelPlusWidget.clickOption("If");
+        BlockLevelPlusWidget.clickOption("If");
 
-    StatementEditor
-        .shouldBeVisible()
-        .getEditorPane();
+        StatementEditor
+            .shouldBeVisible()
+            .getEditorPane();
 
-    EditorPane
-        .getStatementRenderer()
-        .getExpression("SimpleNameReference")
-        .doubleClickExpressionContent(`<add-expression>`);
+        EditorPane
+            .getStatementRenderer()
+            .getExpression("SimpleNameReference")
+            .doubleClickExpressionContent(`<add-expression>`);
 
-    InputEditor
-        .typeInput("true");
+        InputEditor
+            .typeInput("true");
 
-    StatementEditor
-        .save();
+        StatementEditor
+            .save();
 
-    SourceCode.shouldBeEqualTo(
-      getCurrentSpecFolder() + "add-if-to-function.expected.bal");
-  })
+        SourceCode.shouldBeEqualTo(
+            getCurrentSpecFolder() + "add-if-to-function.expected.bal");
+    })
 
-  it('Open and Cancel Form', () => {
-    Canvas.getFunction("sampleFunction")
-      .nameShouldBe("sampleFunction")
-      .shouldBeExpanded()
-      .getDiagram()
-      .shouldBeRenderedProperly()
-      .clickDefaultWorkerPlusBtn(0);
+    it('Open and Cancel Form', () => {
+        Canvas.getFunction("sampleFunction")
+            .nameShouldBe("sampleFunction")
+            .shouldBeExpanded()
+            .getDiagram()
+            .shouldBeRenderedProperly()
+            .clickDefaultWorkerPlusBtn(0);
 
-    BlockLevelPlusWidget.clickOption("If");
+        BlockLevelPlusWidget.clickOption("If");
 
-    StatementEditor
-      .shouldBeVisible()
-      .cancel();
+        StatementEditor
+            .shouldBeVisible()
+            .cancel();
 
-  });
+    });
 
-  it('Open and Cancel Form', () => {
-    Canvas.getFunction("sampleFunction")
-      .nameShouldBe("sampleFunction")
-      .shouldBeExpanded()
-      .getDiagram()
-      .shouldBeRenderedProperly()
-      .clickDefaultWorkerPlusBtn(0);
+    it('Open and Cancel Form', () => {
+        Canvas.getFunction("sampleFunction")
+            .nameShouldBe("sampleFunction")
+            .shouldBeExpanded()
+            .getDiagram()
+            .shouldBeRenderedProperly()
+            .clickDefaultWorkerPlusBtn(0);
 
-    BlockLevelPlusWidget
-       .clickOption("If");
+        BlockLevelPlusWidget
+            .clickOption("If");
 
-    StatementEditor
-      .shouldBeVisible()
-      .close();
+        StatementEditor
+            .shouldBeVisible()
+            .close();
 
-  });
+    });
 
 })
