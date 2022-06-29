@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+
 import DataMapperDiagram from "../Diagram/Diagram";
 
 import { ExpressionFunctionBody, FunctionDefinition, STKindChecker, TypeDefinition } from "@wso2-enterprise/syntax-tree";
@@ -6,6 +7,7 @@ import { BalleriaLanguageClient } from "@wso2-enterprise/ballerina-languageclien
 import { getTypeDefinitionForTypeDesc } from "../../utils/st-utils";
 import { DataMapperNodeModel } from "../Diagram/Node/model/DataMapperNode";
 import { DataMapperContext } from "../../utils/DataMapperContext/DataMapperContext";
+import { ExpressionFunctionBodyNode, RequiredParamNode } from "../Diagram/Node";
 
 export interface DataMapperProps {
     fnST: FunctionDefinition;
@@ -31,12 +33,11 @@ function DataMapperC(props: DataMapperProps) {
             // create output nodes
             const typeDesc = fnST.functionSignature.returnTypeDesc?.type;
             const typeDef = await getTypeDefinitionForTypeDesc(filePath, typeDesc, langClientPromise);
-            const outputNode = new DataMapperNodeModel(
+            
+            const outputNode = new ExpressionFunctionBodyNode(
                 context,
                 fnST.functionBody as ExpressionFunctionBody, // TODO fix once we support other forms of functions
-                typeDef,
-                false,
-                true
+                typeDef
             );
             outputNode.setPosition(800, 100);
 
@@ -47,12 +48,10 @@ function DataMapperC(props: DataMapperProps) {
                 const param = params[i];
                 if (STKindChecker.isRequiredParam(param)) {
                     const paramTypeDef = await getTypeDefinitionForTypeDesc(filePath, param.typeName, langClientPromise);
-                    const paramNode = new DataMapperNodeModel(
+                    const paramNode = new RequiredParamNode(
                         context,
                         param,
-                        paramTypeDef,
-                        true,
-                        false
+                        paramTypeDef
                     );
                     paramNode.setPosition(100, 100 + i * 400); // 400 is an arbitary value, need to calculate exact heigt;
                     inputNodes.push(paramNode);

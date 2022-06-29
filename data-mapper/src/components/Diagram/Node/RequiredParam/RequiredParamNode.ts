@@ -1,4 +1,4 @@
-import { RequiredParam, TypeDefinition } from "@wso2-enterprise/syntax-tree";
+import { RecordTypeDesc, RequiredParam, TypeDefinition } from "@wso2-enterprise/syntax-tree";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { DataMapperNodeModel } from "../model/DataMapperNode";
 
@@ -20,10 +20,9 @@ export class RequiredParamNode extends DataMapperNodeModel {
     }
 
     initPorts(): void {
-        this.value
-        throw new Error("Method not implemented.");
+        this.addPorts(this.typeDef.typeDescriptor as RecordTypeDesc, "OUT");
     }
+
     initLinks(): void {
-        throw new Error("Method not implemented.");
     }
 }
