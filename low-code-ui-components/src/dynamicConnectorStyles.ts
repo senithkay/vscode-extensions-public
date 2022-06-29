@@ -868,7 +868,8 @@ export const dynamicConnectorStyles = makeStyles((theme: Theme) =>
         resourceMethodPathWrapper: {
             display: 'flex',
             flexDirection: 'row',
-            padding: '15px 0px 0px 5px'
+            paddingLeft: 5,
+            marginBottom: -10
         },
         resourceMethodTitle: {
             width: '100%',

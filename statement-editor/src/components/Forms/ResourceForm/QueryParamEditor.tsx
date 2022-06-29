@@ -149,6 +149,7 @@ export function QueryParamEditor(props: QueryParamEditorProps) {
             if (optionChanged) {
                 if (option === payloadParameterOption) {
                     newParam = {id, name, type: `@http:Payload json`, option};
+                    setTypeReadOnly(false);
                 } else if (option === requestParameterOption) {
                     newParam = {id, name, type: `http:Request`, option};
                     setTypeReadOnly(true);
@@ -174,6 +175,7 @@ export function QueryParamEditor(props: QueryParamEditorProps) {
             if (optionChanged) {
                 if (option === payloadParameterOption) {
                     newParam = {id, name, type: `@http:Payload json`, option};
+                    setTypeReadOnly(false);
                 } else if (option === requestParameterOption) {
                     newParam = {id, name, type: `http:Request`, option};
                     setTypeReadOnly(true);

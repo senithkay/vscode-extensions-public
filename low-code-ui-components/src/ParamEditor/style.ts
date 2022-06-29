@@ -19,6 +19,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             width: "40%"
         },
         paramItemWrapper: {
+            width: '30%',
             marginLeft: 5
         },
         headerWrapper: {
