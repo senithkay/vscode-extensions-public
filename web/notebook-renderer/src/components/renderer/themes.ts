@@ -23,7 +23,7 @@ export const DEFAULT_FONT_STYLE = {
     fontSize: `var(--vscode-editor-font-size)`
 }
 
-const CODE_EDITOR_COLORS = {
+export const CODE_EDITOR_COLORS = {
     GREEN: "#05A26B",
     BLUE: "#0095FF",
     ORANGE: "#FF9D52",

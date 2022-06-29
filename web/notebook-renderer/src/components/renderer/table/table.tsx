@@ -19,7 +19,12 @@
 
 import { h, FunctionComponent } from "preact";
 import { Json } from "../json/json";
-import { DEFAULT_FONT_STYLE, JSON_DARK_THEME, JSON_LIGHT_THEME } from "../themes";
+import {
+    CODE_EDITOR_COLORS,
+    DEFAULT_FONT_STYLE,
+    JSON_DARK_THEME,
+    JSON_LIGHT_THEME,
+} from "../themes";
 import { NotebookCellResult } from "../types";
 import { getIsDarkMode } from "../utils";
 
@@ -29,7 +34,7 @@ interface TableProps {
 }
 
 export const Table: FunctionComponent<{
-    tableContent: Readonly<TableProps>
+    tableContent: Readonly<TableProps>;
 }> = ({ tableContent }) => {
     const darkMode = getIsDarkMode();
     const tableContentValues = tableContent.values;
@@ -39,7 +44,10 @@ export const Table: FunctionComponent<{
     const renderHeader = () => {
         return tableContent.header.map((key) => {
             return (
-                <th key={key} style={{ textAlign: "center", letterSpacing: "0.05em" }}>
+                <th
+                    key={key}
+                    style={{ textAlign: "center", letterSpacing: "0.05em" }}
+                >
                     {key}
                 </th>
             );
@@ -54,7 +62,7 @@ export const Table: FunctionComponent<{
                     {tableContent.header.map((key) => {
                         let value = getValue(tableContentValues[index], key);
                         return (
-                            <td style={{ textAlign: "left" }} >
+                            <td style={{ textAlign: "left" }}>
                                 {value === Object(value) ? (
                                     <Json
                                         value={value}
@@ -63,7 +71,11 @@ export const Table: FunctionComponent<{
                                     />
                                 ) : (
                                     value != null && (
-                                        <pre>{JSON.stringify(value, undefined, 2)}</pre>
+                                        <pre
+                                            style={{color: darkMode ? CODE_EDITOR_COLORS.WHITE : CODE_EDITOR_COLORS.DARKER}}
+                                        >
+                                            {JSON.stringify(value, undefined, 2)}
+                                        </pre>
                                     )
                                 )}
                             </td>
@@ -92,7 +104,11 @@ export const TableForNotebookOutput: FunctionComponent<{
     const values = JSON.parse(notebookCellOutput.shellValue.value);
 
     if (!values.length) {
-        return <p style={{ ...DEFAULT_FONT_STYLE, textAlign: "left" }}>Empty table!</p>;
+        return (
+            <p style={{ ...DEFAULT_FONT_STYLE, textAlign: "left" }}>
+                Empty table!
+            </p>
+        );
     }
 
     const getKeys = () => {
