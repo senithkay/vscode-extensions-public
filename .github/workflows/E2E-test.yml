@@ -7,6 +7,11 @@ jobs:
   test:
     runs-on: ubuntu-latest
     
+    strategy:
+      matrix:
+        vscVersion: [1.60.0, latest]
+      fail-fast: false
+
     steps:
       - uses: actions/checkout@v2
       - name: Setup Node
@@ -27,18 +32,16 @@ jobs:
           balVersion=$(ls $GITHUB_WORKSPACE/extractedDistribution)
           balHome=$GITHUB_WORKSPACE/extractedDistribution/$balVersion
           echo "$balHome/bin" >> $GITHUB_PATH
-          touch settings.json
-          echo \{\"ballerina.home\": \"$balHome\"\} >> settings.json
       - name: "Build plugin repo"
-        run: sudo apt-get install xvfb && xvfb-run --auto-servernum ./gradlew clean build -x test
+        run: sudo apt-get install xvfb && xvfb-run --auto-servernum ./gradlew clean build -x test -x uiTest
         env:
           NPM_ACCESS_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}     
       - name: Run Tests
         run: |
-          bal home
+          npx extest get-vscode -c ${{ matrix.vscVersion }} && npx extest get-chromedriver -c ${{ matrix.vscVersion }} && npx extest install-vsix -f $(ls *.vsix)
           export DISPLAY=:98.0
           Xvfb -ac :98 -screen 0 1920x1080x16 & 
-          npm run ui-test-ci
+          npm run ui-test
         env:
           NPM_ACCESS_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}    
       - name: Upload screenshots
