@@ -46,34 +46,12 @@ interface LinePosition {
     offset: number;
 }
 
-declare const vscode: vscode;
-interface vscode {
-    postMessage(message: any): void;
-}
-
-interface Request {
-    url: string,
-    headers: string,
-    method: string,
-    body?: string,
-}
-
-interface Response {
-    status: number,
-    statusText: string,
-    data?: string,
-    text?: string,
-    body?: string,
-    obj?: string,
-    headers?: Record<string, string>,
-}
-
 export const SwaggerView = (props: any) => {
     const services: Option[] = [];
     const specs: OASpec[] = props.data.specs;
     const file: string | undefined = props.data.file;
     const serviceName: string | undefined = props.data.serviceName;
-    let response: Response;
+    const proxy: string | undefined = props.data.proxy;
 
     let selectedService = 0;
     specs.forEach((spec, index) => {
@@ -98,49 +76,8 @@ export const SwaggerView = (props: any) => {
     }
 
     async function requestInterceptor(req: any) {
-        const request: Request = {
-            url: req.url,
-            method: req.method,
-            headers: req.headers,
-            body: req.body,
-        }
-
-        vscode.postMessage({
-            command: 'swaggerRequest',
-            req: request
-        });
-
-        const res = await new Promise(resolve => {
-            window.addEventListener('message', event => {
-                const message = event.data;
-                switch (message.command) {
-                    case 'swaggerResponse':
-                        if (!message.res) {
-                            resolve(false);
-                        }
-                        response = message.res;
-                        resolve(response);
-                }
-            })
-        });
-        if (res) {
-            req.url = "";
-        }
+        req.url = proxy + req.url;
         return req;
-    }
-
-    function responseInterceptor(res: any) {
-        res.ok = true;
-        res.status = response.status;
-        res.statusText = response.statusText;
-        res.text = response.text;
-        res.data = response.data;
-        res.body = response.body;
-        res.obj = response.obj;
-        res.headers = response.headers;
-        delete res.parseError
-
-        return res;
     }
 
     return (
@@ -148,7 +85,6 @@ export const SwaggerView = (props: any) => {
             <div className='dropdown-container'>
                 <Dropdown options={services} onChange={selectService} value={selectedOption} placeholder="Select a service" />
             </div>
-            <SwaggerUI requestInterceptor={requestInterceptor}
-                responseInterceptor={responseInterceptor} spec={spec} showMutatedRequest={false} />
+            <SwaggerUI requestInterceptor={requestInterceptor} spec={spec} showMutatedRequest={false} />
         </div>);
 };
