@@ -18,6 +18,8 @@ import { Divider, FormControl } from "@material-ui/core";
 import {
     createResource,
     getSource,
+    SettingsIcon,
+    SettingsIconSelected,
     updateResourceSignature
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
@@ -77,6 +79,7 @@ export function ResourceForm(props: FunctionProps) {
     const [returnType, setReturnType] = useState<FormEditorField>({
         value: model ? model.functionSignature?.returnTypeDesc?.type?.source?.trim() : "", isInteracted: false
     });
+    const [isAdvanceView, setIsAdvanceView] = useState<boolean>(false);
 
     // States related to syntax diagnostics
     const [currentComponentName, setCurrentComponentName] = useState<string>("");
@@ -147,6 +150,10 @@ export function ResourceForm(props: FunctionProps) {
         } else {
             setCurrentComponentSyntaxDiag(partialST.syntaxDiagnostics);
         }
+    };
+
+    const handleSettingsToggle = () => {
+        setIsAdvanceView(!isAdvanceView);
     };
 
     const handleMethodChange = async (value: string) => {
@@ -283,21 +290,28 @@ export function ResourceForm(props: FunctionProps) {
                             </div>
                             <div className={connectorClasses.advancedToggleWrapper}>
                                 <div className={classes.contentIconWrapper}>
+                                    {isAdvanceView ? (
+                                        <SettingsIcon onClick={handleSettingsToggle}/>
+                                    ) : (
+                                        <SettingsIconSelected onClick={handleSettingsToggle}/>
+                                    )}
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div className={connectorClasses.resourceParamWrapper}>
-                        <PathEditor
-                            relativeResourcePath={(path?.isInteracted || isEdit) ? path.value : ""}
-                            syntaxDiag={currentComponentSyntaxDiag}
-                            readonly={(!isParamInProgress && (currentComponentSyntaxDiag?.length > 0 ||
-                                (pathTypeSemDiagnostics !== "" || pathNameSemDiagnostics !== "")) || isQueryInProgress)}
-                            pathNameSemDiag={pathNameSemDiagnostics}
-                            pathTypeSemDiag={pathTypeSemDiagnostics}
-                            onChange={handlePathParamEditorChange}
-                            onChangeInProgress={handleParamChangeInProgress}
-                        />
+                        {isAdvanceView && (
+                            <PathEditor
+                                relativeResourcePath={(path?.isInteracted || isEdit) ? path.value : ""}
+                                syntaxDiag={currentComponentSyntaxDiag}
+                                readonly={(!isParamInProgress && (currentComponentSyntaxDiag?.length > 0 ||
+                                    (pathTypeSemDiagnostics !== "" || pathNameSemDiagnostics !== "")) || isQueryInProgress)}
+                                pathNameSemDiag={pathNameSemDiagnostics}
+                                pathTypeSemDiag={pathTypeSemDiagnostics}
+                                onChange={handlePathParamEditorChange}
+                                onChangeInProgress={handleParamChangeInProgress}
+                            />
+                        )}
                         <Divider className={connectorClasses.sectionSeperatorHR} />
                         <ConfigPanelSection title={"Query Parameters"}>
                             <QueryParamEditor

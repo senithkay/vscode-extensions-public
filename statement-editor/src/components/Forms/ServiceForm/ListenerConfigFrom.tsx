@@ -26,11 +26,11 @@ import {
     wizardStyles as useFormStyles
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import debounce from "lodash.debounce";
 
 import { StmtDiagnostic } from "../../../models/definitions";
 import { FormEditor } from "../../FormEditor/FormEditor";
 import { FormEditorField } from "../Types";
-import debounce from "lodash.debounce";
 
 interface ListenerConfigFormProps {
     listenerList: string[];

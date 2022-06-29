@@ -320,12 +320,11 @@ export const useStyles = makeStyles((theme: Theme) =>
         },
         contentIconWrapper: {
             cursor: "pointer",
-            height: 14,
-            width: 14,
-            marginTop: 13,
-            marginBottom: 13,
-            marginLeft: 18,
-            backgroundColor: "green"
+            height: 16,
+            width: 16,
+            marginTop: 12,
+            marginBottom: 12,
+            marginLeft: 17
         }
     })
 );
