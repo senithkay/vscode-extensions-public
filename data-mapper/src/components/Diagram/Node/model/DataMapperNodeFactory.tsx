@@ -6,7 +6,7 @@ import { DiagramEngine } from '@projectstorm/react-diagrams-core';
 
 export class DataMapperNodeFactory extends AbstractReactFactory<DataMapperNodeModel, DiagramEngine> {
 	constructor() {
-		super('datamapper');
+		super('datamapper-node');
 	}
 
 	generateReactWidget(event: { model: DataMapperNodeModel; }): JSX.Element {

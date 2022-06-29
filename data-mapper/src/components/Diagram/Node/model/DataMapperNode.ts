@@ -32,16 +32,17 @@ export interface SpecificFieldMappingFieldAccess {
 	value: FieldAccess|SimpleNameReference;
 }
 
-export class DataMapperNodeModel extends NodeModel<NodeModelGenerics & DataMapperNodeModelGenerics> {
+export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & DataMapperNodeModelGenerics> {
 
 	private diagramModel: DiagramModel;
 
 	constructor(public context: IDataMapperContext,
 		public value: ExpressionFunctionBody | RequiredParam,
 		public typeDef: TypeDefinition, public supportOutput: boolean,
-		public supportInput: boolean) {
+		public supportInput: boolean,
+		type: string = 'datamapper-node') {
 		super({
-			type: 'datamapper'
+			type
 		});
 	}
 
@@ -53,14 +54,18 @@ export class DataMapperNodeModel extends NodeModel<NodeModelGenerics & DataMappe
 		return this.diagramModel;
 	}
 
-	public initPorts() {
-		if (this.supportInput) {
-			this.addPortOv(this.typeDef.typeDescriptor as RecordTypeDesc, "IN");
-		}
-		if (this.supportOutput) {
-			this.addPortOv(this.typeDef.typeDescriptor as RecordTypeDesc, "OUT");
-		}
-	}
+	abstract initPorts(): void;
+	abstract initLinks(): void;
+
+	
+	// {
+	// 	if (this.supportInput) {
+	// 		this.addPortOv(this.typeDef.typeDescriptor as RecordTypeDesc, "IN");
+	// 	}
+	// 	if (this.supportOutput) {
+	// 		this.addPortOv(this.typeDef.typeDescriptor as RecordTypeDesc, "OUT");
+	// 	}
+	// }
 
 	private addPortOv(typeNode: RecordField | RecordTypeDesc | RecordFieldWithDefaultValue | TypeReference,
 		type: "IN" | "OUT", parent?: DataMapperPortModel) {
@@ -79,14 +84,14 @@ export class DataMapperNodeModel extends NodeModel<NodeModelGenerics & DataMappe
 		}
 	}
 
-	public initLinks() {
-		if (STKindChecker.isExpressionFunctionBody(this.value)) {
-			const mappings = this.genMappings(this.value.expression as MappingConstructor);
-			this.createLinks(mappings);
-		} else if (STKindChecker.isRequiredParam(this.value)) {
-			// Only create links from target side
-		}
-	}
+	// public initLinks() {
+	// 	if (STKindChecker.isExpressionFunctionBody(this.value)) {
+	// 		const mappings = this.genMappings(this.value.expression as MappingConstructor);
+	// 		this.createLinks(mappings);
+	// 	} else if (STKindChecker.isRequiredParam(this.value)) {
+	// 		// Only create links from target side
+	// 	}
+	// }
 
 	private createLinks(mappings: SpecificFieldMappingFieldAccess[]) {
 		mappings.forEach((mapping) => {
