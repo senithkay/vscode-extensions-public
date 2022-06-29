@@ -87,17 +87,6 @@ describe('Add assignment to function via Low Code', () => {
         StatementEditor
             .save();
 
-        // TODO: There is a bug with node deletion in tests. The below additional form open is added as a workaround.
-        //  Remove the below form open once the issue is fixed.
-        Canvas.getFunction("myFunction")
-            .shouldBeExpanded()
-            .getDiagram()
-            .shouldBeRenderedProperly()
-            .clickEditExistingBlockStatement(2);
-
-        StatementEditor
-            .close();
-
         Canvas.getFunction("myFunction")
             .shouldBeExpanded()
             .getDiagram()
