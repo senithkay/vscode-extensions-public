@@ -1,7 +1,7 @@
 import ballerina/http;
 import ballerina/io;
 
-public function main() {
+public function main() returns error? {
 
     worker A {
         // Use `-> W` to send a message to worker `W`.
@@ -24,7 +24,7 @@ public function main() {
         x2 -> function;
     }
 
-    http:Client boo = check new ("https://foo.com");
+    http:Client httpEp = check new (url = "https://foo.com");
     int y1 = <- B;
     int y2 = <- C;
 
