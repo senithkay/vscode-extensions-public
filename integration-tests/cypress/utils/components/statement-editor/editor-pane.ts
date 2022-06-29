@@ -41,6 +41,12 @@ export class EditorPane {
         return this;
     }
 
+    static doubleClickStatementContent(text:string){
+        cy.contains(`[data-testid="input-editor-span"]`,text)
+            .dblclick();
+        return this;
+    }
+
     static clickSpecificExpression(modelType:string, position?:number, text?:string){
         cy.get(`${this.parentSelector}`).within(() =>{
             cy.get(`[data-testid="${modelType}"]`).eq(position)
