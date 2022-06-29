@@ -23,8 +23,10 @@ import { render } from './render';
 import { ballerinaExtInstance, ExtendedLangClient, OASpec } from "../core";
 import { SwaggerServer } from "./server";
 import { CMP_TRYIT_VIEW, sendTelemetryEvent, TM_EVENT_SWAGGER_RUN } from "../telemetry";
+import { getPortPromise } from "portfinder";
 
 let swaggerViewPanel: WebviewPanel | undefined;
+let cors_proxy = require('cors-anywhere');
 
 export async function showSwaggerView(langClient: ExtendedLangClient,
     specs: OASpec[], file: string, serviceName: string | undefined): Promise<void> {
@@ -32,6 +34,12 @@ export async function showSwaggerView(langClient: ExtendedLangClient,
         swaggerViewPanel.dispose();
     }
     const swaggerServer: SwaggerServer = new SwaggerServer();
+    const port = await getPortPromise({ port: 1000, stopPort: 3000 });
+
+    cors_proxy.createServer({
+        originWhitelist: [], // Allow all origins
+        requireHeader: ['origin', 'x-requested-with']
+    }).listen(port, '0.0.0.0');
 
     // Create and show a new SwaggerView
     swaggerViewPanel = window.createWebviewPanel(
@@ -56,8 +64,9 @@ export async function showSwaggerView(langClient: ExtendedLangClient,
         }
     );
 
+    const proxy = `http://localhost:${port}/`;
     WebViewRPCHandler.create(swaggerViewPanel, langClient);
-    const html = render({ specs, file, serviceName });
+    const html = render({ specs, file, serviceName, proxy });
     if (swaggerViewPanel && html) {
         swaggerViewPanel.webview.html = html;
     }
