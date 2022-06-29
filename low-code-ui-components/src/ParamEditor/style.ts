@@ -97,8 +97,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             width: 14,
             marginTop: 13,
             marginBottom: 13,
-            marginLeft: 10.5,
-            backgroundColor: "green"
+            marginLeft: 10.5
         },
         iconBtn: {
             padding: 0

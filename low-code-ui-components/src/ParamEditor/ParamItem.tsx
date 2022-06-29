@@ -13,10 +13,9 @@
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
 
-import { CloseRounded } from "@material-ui/icons";
+import { DeleteButton, ParamEditButton } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 
-import { ButtonWithIcon } from "../buttons";
-
+import { ParamIcons } from "./ParamIcon";
 import { useStyles } from './style';
 
 interface ParamItemProps {
@@ -40,12 +39,17 @@ export function ParamItem(props: ParamItemProps) {
         }
     };
 
+    const icon = (<ParamIcons option={param?.option}/>);
+
     return (
         <div className={classes.headerWrapper} data-testid={`${label}-item`}>
             <div className={classes.headerLabel}>
                 <div className={classes.iconSection}>
-                    <div className={classes.iconWrapper}>
-                    </div>
+                    {icon && (
+                        <div className={classes.iconWrapper}>
+                            {icon}
+                        </div>
+                    )}
                     <div className={classes.iconTextWrapper}>
                         {param?.option?.toUpperCase()}
                     </div>
@@ -56,9 +60,11 @@ export function ParamItem(props: ParamItemProps) {
                     </div>
                     {!readonly && (
                         <>
-                            <div className={classes.contentIconWrapper}>
+                            <div className={classes.contentIconWrapper} onClick={handleEdit}>
+                                <ParamEditButton />
                             </div>
-                            <div className={classes.contentIconWrapper}>
+                            <div className={classes.contentIconWrapper} onClick={handleDelete}>
+                                <DeleteButton />
                             </div>
                         </>
                     )}
