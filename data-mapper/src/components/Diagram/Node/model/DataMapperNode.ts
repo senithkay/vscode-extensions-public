@@ -33,25 +33,16 @@ export interface SpecificFieldMappingFieldAccess {
 }
 
 export class DataMapperNodeModel extends NodeModel<NodeModelGenerics & DataMapperNodeModelGenerics> {
-	public readonly typeDef: TypeDefinition;
-	public readonly supportOutput: boolean;
-	public readonly supportInput: boolean
-	public readonly value: ExpressionFunctionBody | RequiredParam;
-	public readonly context: IDataMapperContext;
+
 	private diagramModel: DiagramModel;
 
-	constructor(context: IDataMapperContext,
-		value: ExpressionFunctionBody | RequiredParam,
-		typeDef: TypeDefinition, supportOutput: boolean,
-		supportInput: boolean) {
+	constructor(public context: IDataMapperContext,
+		public value: ExpressionFunctionBody | RequiredParam,
+		public typeDef: TypeDefinition, public supportOutput: boolean,
+		public supportInput: boolean) {
 		super({
 			type: 'datamapper'
 		});
-		this.context = context;
-		this.value = value;
-		this.typeDef = typeDef;
-		this.supportInput = supportInput;
-		this.supportOutput = supportOutput;
 	}
 
 	public setModel(model: DiagramModel) {

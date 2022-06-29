@@ -24,6 +24,15 @@ module.exports = {
       },
     }
   },
+  babel: async options => ({
+      ...options,
+      presets: [
+          ["@babel/preset-env", { shippedProposals: true }],
+          "@babel/preset-typescript",
+          ["@babel/preset-react", { runtime: "automatic" }],
+      ],
+      plugins: ["@babel/plugin-transform-typescript", ...options.plugins],
+  }),
   webpackFinal: async (config, { configType }) => {
     config.module.rules.push({
         test: /\.(js|mjs|jsx|ts|tsx)$/,

@@ -9,18 +9,15 @@ export interface DataMapperNodeModelGenerics {
 	PORT: DataMapperPortModel;
 }
 export class DataMapperPortModel extends PortModel<PortModelGenerics & DataMapperNodeModelGenerics> {
-	public readonly typeNode: RecordField | RecordTypeDesc;
-	public readonly parentModel: DataMapperPortModel;
-	public readonly portType: "IN" | "OUT";
 
-	constructor(typeNode: RecordField | RecordTypeDesc, type: "IN" | "OUT", parentModel?: DataMapperPortModel) {
+	constructor(
+		public typeNode: RecordField | RecordTypeDesc,
+		public portType: "IN" | "OUT",
+		public parentModel?: DataMapperPortModel) {
 		super({
 			type: 'datamapper',
-			name: md5(JSON.stringify(typeNode.position) + type),
+			name: md5(JSON.stringify(typeNode.position) + portType),
 		});
-		this.typeNode = typeNode;
-		this.parentModel = parentModel;
-		this.portType = type;
 	}
 
 	createLinkModel(): LinkModel {
