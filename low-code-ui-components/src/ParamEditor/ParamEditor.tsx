@@ -70,7 +70,7 @@ export function ParamEditor(props: ParamProps) {
             onChange({id, name: value, dataType: paramDataType.value});
         }
     };
-    const debouncedNameChange = debounce(handleNameChange, 500);
+    const debouncedNameChange = debounce(handleNameChange, 800);
 
     const handleTypeChange = (value: string) => {
         setParamDataType({value, isInteracted: true});
@@ -81,7 +81,7 @@ export function ParamEditor(props: ParamProps) {
             onChange({id, name: paramName.value, dataType: value});
         }
     };
-    const debouncedTypeChange = debounce(handleTypeChange, 500);
+    const debouncedTypeChange = debounce(handleTypeChange, 800);
 
     const handleOnSelect = (value: string) => {
         setSelectedOption(value);

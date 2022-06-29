@@ -171,7 +171,7 @@ export function ResourceForm(props: FunctionProps) {
         await handleResourceParamChange(functionName, value, queryParam.value, "",
             false, false, returnType.value);
     };
-    const debouncedPathChange = debounce(handlePathChange, 500);
+    const debouncedPathChange = debounce(handlePathChange, 800);
 
     const handlePathParamEditorChange = async (value: string, avoidValueCommit?: boolean) => {
         if (!avoidValueCommit) {
@@ -198,7 +198,7 @@ export function ResourceForm(props: FunctionProps) {
         await handleResourceParamChange(functionName, path.value, queryParam.value, "",
             false, false, value, -3);
     }
-    const debouncedReturnTypeChange = debounce(onReturnTypeChange, 500);
+    const debouncedReturnTypeChange = debounce(onReturnTypeChange, 800);
 
     const handleOnSave = () => {
         if (isEdit) {

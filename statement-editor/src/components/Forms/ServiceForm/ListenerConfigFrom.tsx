@@ -83,7 +83,7 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
         setListenerPort({isInteracted: true, value: port});
         onChange(port, "", true);
     }
-    const debouncedPortChange = debounce(onListenerPortChange, 500);
+    const debouncedPortChange = debounce(onListenerPortChange, 800);
 
     const onListenerFormCancel = () => {
         setIsAddListenerInProgress(false);

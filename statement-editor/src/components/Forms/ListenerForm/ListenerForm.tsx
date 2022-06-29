@@ -99,7 +99,7 @@ export function ListenerForm(props: FunctionProps) {
         setListenerName({value, isInteracted: true});
         await listenerParamChange(value, listenerPort.value);
     }
-    const debouncedNameChange = debounce(handleNameChange, 500);
+    const debouncedNameChange = debounce(handleNameChange, 800);
 
     // Functions related to port
     const handlePortFocus = (value: string) => {
@@ -109,7 +109,7 @@ export function ListenerForm(props: FunctionProps) {
         setListenerPort({value, isInteracted: true});
         await listenerParamChange(listenerName.value, value);
     }
-    const debouncedPortChange = debounce(handlePortChange, 500);
+    const debouncedPortChange = debounce(handlePortChange, 800);
 
     const handleOnSave = () => {
         applyModifications([

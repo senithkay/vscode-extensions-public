@@ -142,7 +142,7 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
         setBsePath({isInteracted: true, value});
         await serviceParamChange(value, listenerPort.value, listenerName);
     }
-    const debouncedPortChange = debounce(onBasePathChange, 500);
+    const debouncedPortChange = debounce(onBasePathChange, 800);
 
     const onListenerChange = async (port: string, name: string, isInteracted: boolean) => {
         setIsListenerInteracted(isInteracted);
