@@ -5,6 +5,7 @@ import { DataMapperNodeModel } from "../model/DataMapperNode";
 export const EXPR_FN_BODY_NODE_TYPE = "datamapper-node-expression-fn-body";
 
 export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
+
     constructor(
         public context: IDataMapperContext,
 		public value: ExpressionFunctionBody,
@@ -17,5 +18,12 @@ export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
             true,
             EXPR_FN_BODY_NODE_TYPE
         );
+    }
+
+    initPorts(): void {
+        throw new Error("Method not implemented.");
+    }
+    initLinks(): void {
+        throw new Error("Method not implemented.");
     }
 }

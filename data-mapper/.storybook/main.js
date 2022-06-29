@@ -31,7 +31,10 @@ module.exports = {
           "@babel/preset-typescript",
           ["@babel/preset-react", { runtime: "automatic" }],
       ],
-      plugins: ["@babel/plugin-transform-typescript", ...options.plugins],
+      plugins: [
+        "babel-plugin-transform-typescript-metadata",
+        "@babel/plugin-transform-typescript",
+      ...options.plugins],
   }),
   webpackFinal: async (config, { configType }) => {
     config.module.rules.push({

@@ -10,21 +10,12 @@ export interface IDataMapperContext {
 
 export class DataMapperContext implements IDataMapperContext {
 
-    public filePath: string;
-    private _functionST: FunctionDefinition;
-    private _langClientPromise: Promise<BalleriaLanguageClient>;
-    private _updateFileContet: (filePath: string, fileContent: string) => Promise<boolean>;
-
     constructor(
-        filePath: string,
-        functionST: FunctionDefinition,
-        langClientPromise: Promise<BalleriaLanguageClient>,
-        updateFileContet: (filePath: string, fileContent: string) => Promise<boolean>
+        public filePath: string,
+        private _functionST: FunctionDefinition,
+        private _langClientPromise: Promise<BalleriaLanguageClient>,
+        private _updateFileContet: (filePath: string, fileContent: string) => Promise<boolean>
         ) {
-        this.filePath = filePath;
-        this._functionST = functionST;
-        this._langClientPromise = langClientPromise;
-        this._updateFileContet = updateFileContet;
     }
 
     public get functionST(): FunctionDefinition {

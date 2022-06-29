@@ -5,8 +5,8 @@ import { AbstractReactFactory } from '@projectstorm/react-canvas-core';
 import { DiagramEngine } from '@projectstorm/react-diagrams-core';
 
 export class DataMapperNodeFactory extends AbstractReactFactory<DataMapperNodeModel, DiagramEngine> {
-	constructor() {
-		super('datamapper-node');
+	constructor(type: string = 'datamapper-node') {
+		super(type);
 	}
 
 	generateReactWidget(event: { model: DataMapperNodeModel; }): JSX.Element {

@@ -16,6 +16,7 @@
         "declaration": true,
         "declarationDir": "lib",
         "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
         "moduleResolution": "node",
         "forceConsistentCasingInFileNames": true,
         "noImplicitReturns": false,

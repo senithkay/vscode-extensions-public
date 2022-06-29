@@ -32,6 +32,10 @@ export interface SpecificFieldMappingFieldAccess {
 	value: FieldAccess|SimpleNameReference;
 }
 
+export interface IDataMapperNodeFactory {
+
+}
+
 export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & DataMapperNodeModelGenerics> {
 
 	private diagramModel: DiagramModel;

@@ -18,4 +18,12 @@ export class RequiredParamNode extends DataMapperNodeModel {
             REQ_PARAM_NODE_TYPE
         );
     }
+
+    initPorts(): void {
+        this.value
+        throw new Error("Method not implemented.");
+    }
+    initLinks(): void {
+        throw new Error("Method not implemented.");
+    }
 }

@@ -1,7 +1,9 @@
 import createEngine, { DefaultDiagramState, DefaultLinkModel, DefaultNodeModel, DiagramEngine, DiagramModel, PortModelAlignment } from '@projectstorm/react-diagrams';
 import * as React from 'react';
+import "reflect-metadata";
+import {container} from "tsyringe";
 
-import { DataMapperNodeModel } from './Node/model/DataMapperNode';
+import { DataMapperNodeModel, IDataMapperNodeFactory } from './Node/model/DataMapperNode';
 import { DataMapperNodeFactory } from './Node/model/DataMapperNodeFactory';
 import { DataMapperPortFactory } from './Port/model/DataMapperPortFactory';
 import { CanvasWidget } from '@projectstorm/react-canvas-core';
@@ -10,6 +12,8 @@ import { DefaultState as LinkState } from './LinkState/DefaultState';
 import { useDMStore } from '../../store/store';
 import { DataMapperLinkFactory } from './Link/model/DataMapperLinkFactory';
 import { DataMapperLinkModel } from './Link/model/DataMapperLink';
+import { DataMapperDIContext } from '../../utils/DataMapperDIContext/DataMapperDIContext';
+import * as Nodes from "./Node"
 
 interface DataMapperDiagramProps {
 	nodes?: DataMapperNodeModel[];
@@ -17,6 +21,8 @@ interface DataMapperDiagramProps {
 }
 
 function initDiagramEngine() {
+	const _NF = Nodes;// TODO: this is a hack to load all modules for DI to work properly
+	const diContext = container.resolve(DataMapperDIContext);
 	const engine = createEngine();
 
 	engine.getPortFactories().registerFactory(new DataMapperPortFactory());

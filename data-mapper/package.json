@@ -58,6 +58,8 @@
         "react-lottie": "^1.2.3",
         "react-monaco-editor": "0.43.0",
         "react-zoom-pan-pinch": "^1.6.1",
+        "reflect-metadata": "^0.1.13",
+        "tsyringe": "^4.7.0",
         "uuid": "^8.3.0",
         "vscode-languageserver-protocol": "^3.16.0",
         "zustand": "^4.0.0-rc.1"
@@ -86,6 +88,7 @@
         "@types/uuid": "^8.3.0",
         "@types/webpack": "^4.41.26",
         "babel-loader": "^8.2.2",
+        "babel-plugin-transform-typescript-metadata": "^0.3.2",
         "copy-webpack-plugin": "^9.0.1",
         "copyfiles": "^2.4.1",
         "css-loader": "^3.4.2",
