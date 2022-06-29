@@ -191,7 +191,11 @@ export async function getCompletionsForType(docUri: string,
             value: completion.insertText,
             kind: completion.detail,
             suggestionType: completion.kind,
-            label: completion.label
+            label: completion.label,
+            sortText: completion.sortText,
+            insertTextFormat: completion.insertTextFormat,
+            detail: completion.detail,
+            insertText: completion.insertText
         });
     });
 

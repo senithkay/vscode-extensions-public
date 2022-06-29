@@ -15,6 +15,7 @@ import React, { useEffect, useState } from 'react';
 
 import { Button, Divider, FormControl } from "@material-ui/core";
 import { default as AddIcon } from "@material-ui/icons/Add";
+import { LiteExpressionEditor } from "@wso2-enterprise/ballerina-expression-editor";
 import {
     createFunctionSignature,
     ExpressionEditorLangClientInterface,
@@ -123,7 +124,7 @@ export function FunctionForm(props: FunctionProps) {
     }
     const onNameChange = async (value: string) => {
         setFunctionName({ value, isInteracted: true });
-        const parametersStr = parameters.map((item) => `${item.type.value} ${item.name.value}`).join(",");
+        const parametersStr = parameters ? parameters.map((item) => `${item.type.value} ${item.name.value}`).join(",") : "";
         const currentModel: CurrentModel = {
             model: model.functionName
         };
@@ -134,7 +135,7 @@ export function FunctionForm(props: FunctionProps) {
     // Return type related functions
     const onReturnTypeChange = async (value: string) => {
         setReturnType({ value, isInteracted: true });
-        const parametersStr = parameters.map((item) => `${item.type.value} ${item.name.value}`).join(",");
+        const parametersStr = parameters ? parameters.map((item) => `${item.type.value} ${item.name.value}`).join(",") : "";
         const codeSnippet = getSource(updateFunctionSignature(functionName.value, parametersStr,
             value ? `returns ${value}` : "", {
             ...targetPosition, startColumn: model?.functionName?.position?.startColumn
@@ -236,7 +237,7 @@ export function FunctionForm(props: FunctionProps) {
     };
 
     const handleOnSave = () => {
-        const parametersStr = parameters.map((item) => `${item.type.value} ${item.name.value}`).join(",");
+        const parametersStr = parameters ? parameters.map((item) => `${item.type.value} ${item.name.value}`).join(",") : "";
         if (isEdit) {
             applyModifications([
                 updateFunctionSignature(functionName.value, parametersStr,
@@ -316,23 +317,19 @@ export function FunctionForm(props: FunctionProps) {
             <div className={connectorClasses.formContentWrapper}>
                 <div className={connectorClasses.formNameWrapper}>
                     <FieldTitle title='Name' optional={false} />
-                    <CompletionEditor
-                        dataTestId="function-name"
-                        isActive={currentComponentName === "Name"}
+                    <LiteExpressionEditor
+                        defaultValue={functionName.value}
+                        diagnostics={model?.functionName?.viewState?.diagnosticsInRange}
+                        focus={true}
                         onChange={debouncedNameChange}
                         onFocus={onNameFocus}
-                        placeholder={"Ex: name"}
-                        defaultValue={(functionName?.isInteracted || isEdit) ? functionName.value : ""}
-                        customProps={{
-                            optional: false,
-                            isErrored: functionName?.isInteracted && ((currentComponentSyntaxDiag !== undefined && currentComponentName === "Name") ||
-                                model?.functionName?.viewState?.diagnosticsInRange[0]?.message)
-                        }}
-                        diagsInRange={model?.functionSignature?.returnTypeDesc?.viewState?.diagnosticsInRange}
-                        errorMessage={(currentComponentSyntaxDiag && currentComponentName === "Name"
-                            && currentComponentSyntaxDiag[0].message) ||
-                            model?.functionName?.viewState?.diagnosticsInRange[0]?.message}
+                        stModel={model}
                         disabled={addingNewParam || (currentComponentSyntaxDiag && currentComponentName !== "Name")}
+                        hideSuggestions={true}
+                        customProps={{
+                            index: 1,
+                            optional: false
+                        }}
                     />
                     <Divider className={connectorClasses.sectionSeperatorHR} />
                     <ConfigPanelSection title={"Parameters"}>
@@ -363,7 +360,7 @@ export function FunctionForm(props: FunctionProps) {
                     </ConfigPanelSection>
                     <Divider className={connectorClasses.sectionSeperatorHR} />
                     <FieldTitle title='Return Type' optional={true} />
-                    <CompletionEditor
+                    {/* <CompletionEditor
                         isActive={currentComponentName === "Return"}
                         completions={currentComponentCompletions}
                         onChange={debouncedReturnChange}
@@ -372,15 +369,27 @@ export function FunctionForm(props: FunctionProps) {
                         customProps={{
                             optional: true,
                             isErrored: returnType?.isInteracted && ((currentComponentSyntaxDiag !== undefined &&
-                                    currentComponentName === "Return") || model?.functionSignature?.returnTypeDesc?.
+                                currentComponentName === "Return") || model?.functionSignature?.returnTypeDesc?.
                                     viewState?.diagnosticsInRange?.length > 0)
                         }}
                         diagsInRange={model?.functionSignature?.returnTypeDesc?.viewState?.diagnosticsInRange}
                         errorMessage={returnType?.isInteracted && ((currentComponentSyntaxDiag &&
                             currentComponentName === "Return" && currentComponentSyntaxDiag[0].message) || model?.
                                 functionSignature?.returnTypeDesc?.viewState?.diagnosticsInRange[0]?.message ||
-                                (functionBodyBlock?.closeBraceToken?.viewState?.diagnosticsInRange))}
+                            (functionBodyBlock?.closeBraceToken?.viewState?.diagnosticsInRange))}
                         disabled={addingNewParam || (currentComponentSyntaxDiag && currentComponentName !== "Return")}
+                    /> */}
+                    <LiteExpressionEditor
+                        diagnostics={model?.functionSignature?.returnTypeDesc?.viewState?.diagnosticsInRange}
+                        onChange={debouncedReturnChange}
+                        completions={currentComponentCompletions}
+                        stModel={model}
+                        onFocus={onReturnFocus}
+                        disabled={addingNewParam || (currentComponentSyntaxDiag && currentComponentName !== "Return")}
+                        customProps={{
+                            index: 2,
+                            optional: true
+                        }}
                     />
                 </div>
             </div>

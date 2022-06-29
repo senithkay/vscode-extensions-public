@@ -38,6 +38,9 @@ export interface SuggestionItem {
     insertText?: string;
     completionKind?: number;
     suggestionType?: number;
+    sortText?: string,
+    insertTextFormat?: number,
+    detail?: string
 }
 
 export interface RemainingContent {
