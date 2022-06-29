@@ -8,6 +8,8 @@ import { createSpecificFieldSource } from '../../utils';
 export interface DataMapperNodeModelGenerics {
 	PORT: DataMapperPortModel;
 }
+export const PORT_TYPE_ID = "datamapper-port";
+
 export class DataMapperPortModel extends PortModel<PortModelGenerics & DataMapperNodeModelGenerics> {
 
 	constructor(
@@ -15,7 +17,7 @@ export class DataMapperPortModel extends PortModel<PortModelGenerics & DataMappe
 		public portType: "IN" | "OUT",
 		public parentModel?: DataMapperPortModel) {
 		super({
-			type: 'datamapper',
+			type: PORT_TYPE_ID,
 			name: md5(JSON.stringify(typeNode.position) + portType),
 		});
 	}

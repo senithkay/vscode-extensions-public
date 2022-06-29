@@ -13,7 +13,10 @@ import { useDMStore } from '../../store/store';
 import { DataMapperLinkFactory } from './Link/model/DataMapperLinkFactory';
 import { DataMapperLinkModel } from './Link/model/DataMapperLink';
 import { DataMapperDIContext } from '../../utils/DataMapperDIContext/DataMapperDIContext';
-import * as Nodes from "./Node"
+import * as Nodes from "./Node";
+import * as Ports from "./Port";
+import * as Links from "./Link";
+
 
 interface DataMapperDiagramProps {
 	nodes?: DataMapperNodeModel[];
@@ -21,12 +24,19 @@ interface DataMapperDiagramProps {
 }
 
 function initDiagramEngine() {
-	const _NF = Nodes;// TODO: this is a hack to load all modules for DI to work properly
+	// START TODO: clear this up
+	// this is a hack to load all modules for DI to work properly
+	const _NF = Nodes;
+	const _PF = Ports;
+	const _LF = Links;
+	// END TODO
+
 	const diContext = container.resolve(DataMapperDIContext);
 	const engine = createEngine();
 
+	diContext.nodeFactories.forEach((nf)=> 
+		engine.getNodeFactories().registerFactory(nf));
 	engine.getPortFactories().registerFactory(new DataMapperPortFactory());
-	engine.getNodeFactories().registerFactory(new DataMapperNodeFactory());
 	engine.getLinkFactories().registerFactory(new DataMapperLinkFactory());
 
 	const state = engine.getStateMachine().getCurrentState();

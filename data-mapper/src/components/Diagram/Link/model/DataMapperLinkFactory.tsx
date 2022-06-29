@@ -1,10 +1,13 @@
 import { DefaultLinkFactory, DefaultLinkWidget } from "@projectstorm/react-diagrams";
 import React from "react";
-import { DataMapperLinkModel } from "./DataMapperLink";
+import { DataMapperLinkModel, LINK_TYPE_ID } from "./DataMapperLink";
+import { container, injectable, singleton } from 'tsyringe';
 
+@injectable()
+@singleton()
 export class DataMapperLinkFactory extends DefaultLinkFactory {
 	constructor() {
-		super('datamapper');
+		super(LINK_TYPE_ID);
 	}
 
 	generateModel(): DataMapperLinkModel {
@@ -15,3 +18,4 @@ export class DataMapperLinkFactory extends DefaultLinkFactory {
 		return <DefaultLinkWidget link={event.model} diagramEngine={this.engine} />;
 	}
 }
+container.register("LinkFactory", {useClass: DataMapperLinkFactory});
