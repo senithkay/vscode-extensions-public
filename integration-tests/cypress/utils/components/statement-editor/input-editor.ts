@@ -21,7 +21,7 @@ export class InputEditor {
             .clear()
             .type(text);
 
-        cy.wait(500)
+        cy.wait(1000)
 
         this.getInputEditor()
             .type('{enter}');
