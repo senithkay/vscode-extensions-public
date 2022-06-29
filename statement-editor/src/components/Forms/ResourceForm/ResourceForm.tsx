@@ -288,15 +288,18 @@ export function ResourceForm(props: FunctionProps) {
                                         currentComponentName !== "Path")) || isQueryInProgress}
                                 />
                             </div>
-                            <div className={connectorClasses.advancedToggleWrapper}>
-                                <div className={classes.contentIconWrapper}>
-                                    {isAdvanceView ? (
-                                        <SettingsIcon onClick={handleSettingsToggle}/>
-                                    ) : (
-                                        <SettingsIconSelected onClick={handleSettingsToggle}/>
-                                    )}
+                            {!((isParamInProgress || (currentComponentSyntaxDiag && currentComponentName !== "Path"))
+                                || isQueryInProgress) && (
+                                <div className={connectorClasses.advancedToggleWrapper}>
+                                    <div className={classes.contentIconWrapper}>
+                                        {isAdvanceView ? (
+                                            <SettingsIcon onClick={handleSettingsToggle}/>
+                                        ) : (
+                                            <SettingsIconSelected onClick={handleSettingsToggle}/>
+                                        )}
+                                    </div>
                                 </div>
-                            </div>
+                            )}
                         </div>
                     </div>
                     <div className={connectorClasses.resourceParamWrapper}>
