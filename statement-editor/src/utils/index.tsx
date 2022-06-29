@@ -69,7 +69,7 @@ export function getModifications(model: STNode, configType: string, targetPositi
     const modifications: STModification[] = [];
     let source = model.source;
 
-    if (configType === CUSTOM_CONFIG_TYPE && source.trim().slice(-1) !== ';') {
+    if (configType === CUSTOM_CONFIG_TYPE && !isEndsWithoutSemicolon(model) && source.trim().slice(-1) !== ';') {
         source += ';';
     }
     modifications.push(getStatementModification(source, targetPosition));
@@ -690,4 +690,17 @@ export function getFilteredExpressions(expression : ExpressionGroup[], currentMo
 export function eligibleForLevelTwoSuggestions(selectedModel: STNode, selection: string): boolean {
     return (selectedModel.viewState as StatementEditorViewState).modelType === ModelType.EXPRESSION
         && selection !== '?';
+}
+
+export function isEndsWithoutSemicolon(completeModel: STNode): boolean {
+    return STKindChecker.isForeachStatement(completeModel)
+        || STKindChecker.isIfElseStatement(completeModel)
+        || STKindChecker.isWhileStatement(completeModel)
+        || STKindChecker.isDoStatement(completeModel)
+        || STKindChecker.isMatchStatement(completeModel)
+        || STKindChecker.isNamedWorkerDeclaration(completeModel)
+        || STKindChecker.isTransactionStatement(completeModel)
+        || STKindChecker.isForkStatement(completeModel)
+        || STKindChecker.isLockStatement(completeModel)
+        || STKindChecker.isBlockStatement(completeModel)
 }
