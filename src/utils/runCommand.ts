@@ -26,7 +26,7 @@ export function runCommand(command: PALETTE_COMMANDS, args: any[]) {
     vscode.commands.executeCommand(command, ...args);
 }
 
-export async function runCommandInBackground(command: string) {
+export async function runBackgroundTerminalCommand(command: string) {
     return new Promise<CommandResponse>(function (resolve) {
         child_process.exec(`${command}`, async (err, stdout, stderr) => {
             if (err) {

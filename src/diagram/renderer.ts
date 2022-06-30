@@ -203,10 +203,10 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ex
                     );
                 })
             }
-            function runCommandInBackground(command, args) {
+            function runBackgroundTerminalCommand(command, args) {
                 return new Promise((resolve, _reject) => {
                     webViewRPCHandler.invokeRemoteMethod(
-                        'runCommandInBackground',
+                        'runBackgroundTerminalCommand',
                         [command, args],
                         (response) => {
                             resolve(response);
@@ -262,7 +262,7 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ex
                             resolveMissingDependency,
                             resolveMissingDependencyByCodeAction,
                             runCommand,
-                            runCommandInBackground,
+                            runBackgroundTerminalCommand,
                             sendTelemetryEvent,
                             getLibrariesList,
                             getLibrariesData,

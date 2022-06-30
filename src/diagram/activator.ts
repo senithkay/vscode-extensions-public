@@ -42,7 +42,7 @@ import { Module } from '../tree-view';
 import { sep } from "path";
 import { CommandResponse, DiagramOptions, Member, SyntaxTree } from './model';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
-import { runCommand, runCommandInBackground } from '../utils/runCommand';
+import { runCommand, runBackgroundTerminalCommand } from '../utils/runCommand';
 import { Diagnostic } from '.';
 import { createTests } from '../testing/activator';
 import {
@@ -462,9 +462,9 @@ class DiagramPanel {
 				}
 			},
 			{
-				methodName: "runCommandInBackground",
+				methodName: "runBackgroundTerminalCommand",
 				handler: async (args: any[]): Promise<CommandResponse> => {
-					return await runCommandInBackground(args[0]);
+					return await runBackgroundTerminalCommand(args[0]);
 				}
 			},
 			{
