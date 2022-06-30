@@ -1,15 +1,15 @@
 import { Canvas } from "../../utils/components/canvas";
-import { SourceCode } from "../../utils/components/code-view";
 import { TopLevelPlusWidget } from "../../utils/components/top-level-plus-widget";
-import { getCurrentSpecFolder } from "../../utils/file-utils";
-import { ConfigurableForm } from "../../utils/forms/configurable-form";
-import { ConstantForm } from "../../utils/forms/constant-form";
-import { EnumerationForm } from "../../utils/forms/enumeration-form";
-import { ListenerForm } from "../../utils/forms/listener-form";
-import { OtherForm } from "../../utils/forms/other-form";
-import { RecordForm } from "../../utils/forms/record-form";
-import { VariableFormModuleLevel } from "../../utils/forms/variable-form-module-level";
 import { getIntegrationTestPageURL } from "../../utils/story-url-utils";
+import { StatementEditor } from "../../utils/components/statement-editor/statement-editor";
+import { EditorPane } from "../../utils/components/statement-editor/editor-pane";
+import { InputEditor } from "../../utils/components/statement-editor/input-editor";
+import { SuggestionsPane } from "../../utils/components/statement-editor/suggestions-pane";
+import { RecordForm } from "../../utils/forms/record-form";
+import { ListenerForm } from "../../utils/forms/listener-form";
+import { EnumerationForm } from "../../utils/forms/enumeration-form";
+import { SourceCode } from "../../utils/components/code-view";
+import { getCurrentSpecFolder } from "../../utils/file-utils";
 
 const BAL_FILE_PATH = "default/empty-file.bal";
 
@@ -22,40 +22,40 @@ describe("Add module-level statements via Low Code", () => {
     Canvas.welcomeMessageShouldBeVisible().clickTopLevelPlusButton();
     TopLevelPlusWidget.clickOption("Variable");
 
-    VariableFormModuleLevel.shouldBeVisible()
-      .togglePublickAccessModifier()
-      .isAccessModifierChecked("public")
-      .toggleFinalkAccessModifier()
-      .isAccessModifierChecked("public,final")
-      .typeVariableType("string")
-      .typeLabalShouldBeVisible("string")
-      .typeVariableName("foo")
-      .typeVariableValue('"Hello World"')
-      .save();
+    StatementEditor
+        .shouldBeVisible()
+        .getEditorPane();
 
-    Canvas.clickTopLevelPlusButton(2);
-    TopLevelPlusWidget.clickOption("Variable");
+    EditorPane
+        .getStatementRenderer()
+        .getExpression("SimpleNameReference")
+        .doubleClickExpressionContent(`<add-expression>`);
 
-    VariableFormModuleLevel.shouldBeVisible()
-      .togglePublickAccessModifier()
-      .isAccessModifierChecked("public")
-      .typeVariableType("string")
-      .typeLabalShouldBeVisible("string")
-      .typeVariableName("foo_public")
-      .typeVariableValue('"Hello"')
-      .save();
+    InputEditor
+        .typeInput('"Hello World"');
 
-    Canvas.clickTopLevelPlusButton(3);
-    TopLevelPlusWidget.clickOption("Variable");
+    EditorPane
+        .validateNewExpression("StringLiteral", "Hello World")
+        .getExpression("IntTypeDesc")
+        .clickExpressionContent('int');
 
-    VariableFormModuleLevel.shouldBeVisible()
-      .toggleFinalkAccessModifier()
-      .isAccessModifierChecked("final")
-      .typeVariableType("string")
-      .typeLabalShouldBeVisible("string")
-      .typeVariableName("foo_final")
-      .typeVariableValue('"World"')
-      .save();
+    SuggestionsPane
+        .clickSuggestionsTab("Suggestions")
+        .clickLsSuggestion('string');
+
+    EditorPane
+        .validateNewExpression("StringTypeDesc", "string")
+        .getExpression("CaptureBindingPattern")
+        .doubleClickExpressionContent('variable');
+
+    InputEditor
+        .typeInput("foo");
+
+    EditorPane
+        .validateNewExpression("CaptureBindingPattern", "foo");
+
+    StatementEditor
+        .save();
   });
 
   it("Add a record to empty file", () => {
@@ -77,76 +77,103 @@ describe("Add module-level statements via Low Code", () => {
       .addNewField("int", "world")
       .deleteFirstField("hello")
       .save()
-  })
+  });
 
-  it.skip('Add a configurable to empty file', () => {
+  it("Add a configurable to empty file", () => {
+    Canvas.welcomeMessageShouldBeVisible().clickTopLevelPlusButton();
+    TopLevelPlusWidget.clickOption("Configurable");
 
-    it("Add a configurable to empty file", () => {
-      // cy.on('uncaught:exception', () => false); //Need to fix this
+    StatementEditor
+        .shouldBeVisible()
+        .getEditorPane();
 
-      Canvas.welcomeMessageShouldBeVisible().clickTopLevelPlusButton();
-      TopLevelPlusWidget.clickOption("Configurable");
+    EditorPane
+        .getStatementRenderer()
+        .getExpression("CaptureBindingPattern")
+        .doubleClickExpressionContent('conf');
 
-      ConfigurableForm.shouldBeVisible()
-        .togglePublickAccessModifier()
-        .isAccessModifierChecked("public")
-        .typeConfigurableType("string")
-        .typeConfigurableName("foo")
-        .toggleDefaultValue()
-        .typeVariableValueShouldBeVisible()
-        .typeLabalShouldBeVisible("string")
-        .typeVariableValue('"Hello World"')
+    InputEditor
+        .typeInput("foo");
+
+    EditorPane
+        .validateNewExpression("CaptureBindingPattern", "foo")
+        .getExpression("RequiredExpression")
+        .doubleClickExpressionContent('?');
+
+    InputEditor
+        .typeInput('"Hello World"');
+
+    EditorPane
+        .validateNewExpression("StringLiteral", "Hello World")
+        .getExpression("IntTypeDesc")
+        .doubleClickExpressionContent('int');
+
+    InputEditor
+        .typeInput('string');
+
+    EditorPane
+        .validateNewExpression("StringTypeDesc", "string");
+
+    StatementEditor
+      .save();
+  });
+
+  it("Add a constant to empty file", () => {
+    Canvas.welcomeMessageShouldBeVisible().clickTopLevelPlusButton();
+    TopLevelPlusWidget.clickOption("Constant");
+
+    StatementEditor
+        .shouldBeVisible()
+        .getEditorPane();
+
+    EditorPane
+        .getStatementRenderer()
+        .getExpression("IdentifierToken")
+        .doubleClickExpressionContent('CONST_NAME');
+
+    InputEditor
+        .typeInput("FOO");
+
+    EditorPane
+        .validateNewExpression("IdentifierToken", "FOO")
+        .getExpression("SimpleNameReference")
+        .doubleClickExpressionContent(`<add-expression>`);
+
+    InputEditor
+        .typeInput('"Hello World"');
+
+    EditorPane
+        .validateNewExpression("StringLiteral", "Hello World");
+
+    StatementEditor
         .save();
-    });
+  });
 
-    it("Add a constant to empty file", () => {
-      Canvas.welcomeMessageShouldBeVisible().clickTopLevelPlusButton();
-      TopLevelPlusWidget.clickOption("Constant");
+  it("Add a listener to empty file", () => {
+    Canvas.welcomeMessageShouldBeVisible().clickTopLevelPlusButton();
+    TopLevelPlusWidget.clickOption("Listener");
 
-      ConstantForm.shouldBeVisible()
-        .togglePublickAccessModifier()
-        .isAccessModifierChecked("public")
-        .typeConstantName("foo")
-        .toggleTypeDeclaration()
-        .selectType("string")
-        .typeLabalShouldBeVisible("string")
-        .typeVariableValue('"Hello World"')
-        .save();
-    });
+    ListenerForm.shouldBeVisible()
+      .typeListenerName("hello")
+      .typeListenerPortValue(9090)
+      .save();
+  });
 
-    it("Add a listener to empty file", () => {
-      Canvas.welcomeMessageShouldBeVisible().clickTopLevelPlusButton();
-      TopLevelPlusWidget.clickOption("Listener");
+  it("Add a enum to empty file", () => {
+    Canvas.welcomeMessageShouldBeVisible().clickTopLevelPlusButton();
+    TopLevelPlusWidget.clickOption("Enum");
 
-      ListenerForm.shouldBeVisible()
-        .typeListenerName("hello")
-        .typeListenerPortValue(9090)
-        .save();
-    });
+    EnumerationForm.shouldBeVisible()
+      .typeEnumName("Foo")
+      .clickWhiteSpace()
+      .haveEnumName("Foo")
+      .addNewMember("RED")
+      .addNewMember("GREEN")
+      .addNewMember("BLUE")
+      .save();
 
-    it("Add a enum to empty file", () => {
-      Canvas.welcomeMessageShouldBeVisible().clickTopLevelPlusButton();
-      TopLevelPlusWidget.clickOption("Enum");
-
-      EnumerationForm.shouldBeVisible()
-        .typeEnumName("Foo")
-        .clickWhiteSpace()
-        .haveEnumName("Foo")
-        .addNewMember("RED")
-        .addNewMember("GREEN")
-        .addNewMember("BLUE")
-        .save();
-
-      SourceCode.shouldBeEqualTo(
-        getCurrentSpecFolder() + "add-enum.expected.bal"
-      );
-    });
-
-    it("Add a other statement to empty file", () => {
-      Canvas.welcomeMessageShouldBeVisible().clickTopLevelPlusButton();
-      TopLevelPlusWidget.clickOption("Other");
-
-      OtherForm.shouldBeVisible().typeStatement("int x = 123;").save();
-    });
+    SourceCode.shouldBeEqualTo(
+      getCurrentSpecFolder() + "add-enum.expected.bal"
+    );
   });
 });
