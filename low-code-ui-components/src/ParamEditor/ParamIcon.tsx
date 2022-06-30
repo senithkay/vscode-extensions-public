@@ -14,11 +14,11 @@ import React from "react";
 
 import {
     CallerIcon,
-    QueryIcon,
-    SegmentIcon,
     ParamIcon,
     PayloadIcon,
-    RequestIcon
+    QueryIcon,
+    RequestIcon,
+    SegmentIcon
 } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 
 export interface Props {
