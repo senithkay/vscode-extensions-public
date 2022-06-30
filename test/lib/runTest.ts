@@ -103,7 +103,9 @@ export interface TestOptions {
  */
 export async function runTests(options: TestOptions): Promise<number> {
 	if (!options.vscodeExecutablePath) {
+		console.log("Start downloading vscode");
 		options.vscodeExecutablePath = await downloadAndUnzipVSCode(options.version, options.platform);
+		console.log("Finish downloading vscode");
 	}
 
 	let args = [
@@ -115,6 +117,7 @@ export async function runTests(options: TestOptions): Promise<number> {
 	if (options.launchArgs) {
 		args = options.launchArgs.concat(args);
 	}
+	console.log("Start running tests");
 	return innerRunTests(options.vscodeExecutablePath!, args, options.extensionTestsEnv);
 }
 
