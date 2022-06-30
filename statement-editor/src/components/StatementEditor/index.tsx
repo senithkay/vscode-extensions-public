@@ -90,7 +90,7 @@ export function StatementEditor(props: StatementEditorProps) {
         importStatements,
         experimentalEnabled,
         extraModules,
-        runCommandInBackground
+        runBackgroundTerminalCommand
     } = props;
 
     const {
@@ -361,14 +361,14 @@ export function StatementEditor(props: StatementEditorProps) {
     };
 
     const pullUnresolvedModules = (completeDiagnostic: Diagnostic[]) => {
-        if (!!moduleList.size && !!extraModules.size && runCommandInBackground && !isPullingModule) {
+        if (!!moduleList.size && !!extraModules.size && runBackgroundTerminalCommand && !isPullingModule) {
             completeDiagnostic?.forEach((diagnostic) => {
                 if (diagnostic.message?.includes("cannot resolve module '")) {
                     extraModules.forEach((module) => {
                         if (diagnostic.message?.includes(module)) {
                             // Pull module in background
                             setIsPullingModule(true);
-                            runCommandInBackground(`bal pull ${module}`)
+                            runBackgroundTerminalCommand(`bal pull ${module}`)
                                 .then((response) => {
                                     // TODO: handle pull command response
                                 })

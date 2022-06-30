@@ -111,7 +111,7 @@ export interface LowCodeEditorAPI {
         getLibrariesData: () => Promise<LibrarySearchResponse>;
         getLibraryData: (orgName: string, moduleName: string, version: string) => Promise<LibraryDataResponse>;
     },
-    runCommandInBackground?: (command: string) => Promise<CommandResponse>
+    runBackgroundTerminalCommand?: (command: string) => Promise<CommandResponse>
 }
 
 // FIXME Some of these props should be moved to low code state

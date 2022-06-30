@@ -60,7 +60,7 @@ export interface LowCodeEditorProps {
     experimentalEnabled?: boolean;
     isConfigurableStmt?: boolean;
     isModuleVar?: boolean;
-    runCommandInBackground?: (command: string) => Promise<CommandResponse>;
+    runBackgroundTerminalCommand?: (command: string) => Promise<CommandResponse>;
 }
 
 export interface StatementEditorWrapperProps extends LowCodeEditorProps {
@@ -91,7 +91,7 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
         isModuleVar,
         isLoading,
         extraModules,
-        runCommandInBackground
+        runBackgroundTerminalCommand
     } = props;
 
     const {
@@ -224,7 +224,7 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
                             stSymbolInfo={stSymbolInfo}
                             extraModules={extraModules}
                             experimentalEnabled={experimentalEnabled}
-                            runCommandInBackground={runCommandInBackground}
+                            runBackgroundTerminalCommand={runBackgroundTerminalCommand}
                         />
                     </>
                 )}
