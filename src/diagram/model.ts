@@ -62,3 +62,8 @@ export interface Diagnostic {
     diagnosticInfo: DiagnosticInfo;
     range: Position;
 }
+
+export interface CommandResponse {
+    error: boolean;
+    message: string;
+}
