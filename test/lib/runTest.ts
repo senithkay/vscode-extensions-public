@@ -115,9 +115,6 @@ export async function runTests(options: TestOptions): Promise<number> {
 	if (options.launchArgs) {
 		args = options.launchArgs.concat(args);
 	}
-	console.log("Start running test");
-	console.log(options.vscodeExecutablePath!);
-	console.log(args);
 	return innerRunTests(options.vscodeExecutablePath!, args, options.extensionTestsEnv);
 }
 
@@ -129,7 +126,6 @@ async function innerRunTests(
 	}
 ): Promise<number> {
 	return new Promise<number>((resolve, reject) => {
-		console.log("Start running tests");
 		const fullEnv = Object.assign({}, process.env, testRunnerEnv);
 		const cmd = cp.spawn(executable, args, { env: fullEnv });
 

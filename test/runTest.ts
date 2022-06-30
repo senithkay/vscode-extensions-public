@@ -29,7 +29,6 @@ async function go() {
 			extensionTestsPath
 		});
 	} catch (err) {
-		console.log("Test runer failed: " + err);
 		process.exit(1);
 	}
 }
