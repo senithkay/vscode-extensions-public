@@ -317,6 +317,14 @@ export const useStyles = makeStyles((theme: Theme) =>
         },
         returnTextBoxWrapper: {
             marginBottom: 10
+        },
+        contentIconWrapper: {
+            cursor: "pointer",
+            height: 16,
+            width: 16,
+            marginTop: 12,
+            marginBottom: 12,
+            marginLeft: 17
         }
     })
 );
