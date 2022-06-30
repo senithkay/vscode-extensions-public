@@ -99,6 +99,14 @@ export const useStyles = makeStyles((theme: Theme) =>
             marginBottom: 13,
             marginLeft: 10.5
         },
+        deleteButtonWrapper: {
+            cursor: "pointer",
+            height: 14,
+            width: 14,
+            marginTop: 12,
+            marginBottom: 13,
+            marginLeft: 10.5
+        },
         iconBtn: {
             padding: 0
         },
