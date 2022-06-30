@@ -156,7 +156,7 @@ export function StatementEditor(props: StatementEditorProps) {
 
     useEffect(() => {
         (async () => {
-            if (!newConfigurableName) {
+            if (!newConfigurableName || isPullingModule) {
                 const updatedContent = getUpdatedSource(source.trim(), currentFile.content, targetPosition, moduleList);
 
                 sendDidChange(fileURI, updatedContent, getLangClient).then();
@@ -361,7 +361,7 @@ export function StatementEditor(props: StatementEditorProps) {
     };
 
     const pullUnresolvedModules = (completeDiagnostic: Diagnostic[]) => {
-        if (!!moduleList.size && !!extraModules.size && runCommandInBackground) {
+        if (!!moduleList.size && !!extraModules.size && runCommandInBackground && !isPullingModule) {
             completeDiagnostic?.forEach((diagnostic) => {
                 if (diagnostic.message?.includes("cannot resolve module '")) {
                     extraModules.forEach((module) => {

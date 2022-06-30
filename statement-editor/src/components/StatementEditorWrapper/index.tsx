@@ -194,13 +194,12 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
 
     return (
         <FormControl data-testid="property-form">
-            {isLoading && (
+            {(isLoading || !editor) && (
                 <div className={overlayClasses.mainStatementWrapper} data-testid="statement-editor-loader">
                     <div className={overlayClasses.loadingWrapper}>Loading...</div>
                 </div>
             )}
-            {!isLoading && editor
-                ? (
+            {!isLoading && editor && (
                     <>
                         <StatementEditor
                             editor={editor}
@@ -228,9 +227,6 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
                             runCommandInBackground={runCommandInBackground}
                         />
                     </>
-                )
-                : (
-                    <></>
                 )}
         </FormControl>
     )
