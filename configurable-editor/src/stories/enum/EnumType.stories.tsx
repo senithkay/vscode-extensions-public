@@ -29,11 +29,6 @@ import { ConfigSchema } from "../../components/model";
 import configSchema from "./config-schema.json";
 import existingConfigs from "./existing-configs.json";
 
-export default {
-    component: ConfigForm,
-    title: "Configurable Editor",
-};
-
 const onClickDefaultButton = () => {
     // tslint:disable-next-line: no-console
     console.log("Default Button clicked");
@@ -44,7 +39,13 @@ const onClickPrimaryButton = (configProperties: ConfigElementProps) => {
     console.log(JSON.stringify(configProperties));
 };
 
-export const EnumTypes: Story = () => (
+export default {
+    args: { onClickPrimaryButton },
+    component: ConfigForm,
+    title: "Configurable Editor",
+};
+
+export const EnumTypes: Story = (args) => (
     <ConfigEditor>
         <ConfigForm
             configSchema={configSchema as ConfigSchema}
@@ -52,7 +53,7 @@ export const EnumTypes: Story = () => (
             defaultButtonText={"Cancel"}
             primaryButtonText={"Run"}
             onClickDefaultButton={onClickDefaultButton}
-            onClickPrimaryButton={onClickPrimaryButton}
+            onClickPrimaryButton={args.onClickPrimaryButton}
         />
     </ConfigEditor>
 );

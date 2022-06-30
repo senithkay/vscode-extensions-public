@@ -22,13 +22,18 @@ import * as React from "react";
 import { composeStories } from "@storybook/testing-react";
 import { fireEvent, render, screen } from "@testing-library/react";
 
+import { ConfigElementProps } from "../components/ConfigElement";
 import * as stories from "../stories/enum/EnumType.stories";
+import expectedResult from "../stories/enum/expected-result.json";
 
 const { EnumTypes } = composeStories(stories);
 
 test("Renders the ConfigForm", () => {
-    render(<EnumTypes />);
+    const onClickPrimaryButton = (configProperties: ConfigElementProps) => {
+        expect(configProperties).toMatchObject(expectedResult);
+    };
+
+    render(<EnumTypes onClickPrimaryButton={onClickPrimaryButton}/>);
 
     fireEvent.click(screen.getByText("Run"));
-    // expect(screen.getByText("Run"))
 });

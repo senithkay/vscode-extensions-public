@@ -22,13 +22,20 @@ import * as React from "react";
 import { composeStories } from "@storybook/testing-react";
 import { fireEvent, render, screen } from "@testing-library/react";
 
+import { ConfigElementProps } from "../components/ConfigElement";
+import expectedResult from "../stories/union/expected-result.json";
 import * as stories from "../stories/union/UnionType.stories";
 
 const { UnionTypes } = composeStories(stories);
 
 test("Renders the ConfigForm", () => {
-    render(<UnionTypes />);
+    const onClickPrimaryButton = (configProperties: ConfigElementProps) => {
+        expect(configProperties).toMatchObject(expectedResult);
+    };
 
+    render(<UnionTypes onClickPrimaryButton={onClickPrimaryButton}/>);
+
+    const radioOption = screen.getAllByLabelText("test:0.1.0:Person");
+    fireEvent.click(radioOption[0]);
     fireEvent.click(screen.getByText("Run"));
-    // expect(screen.getByText("Run"))
 });

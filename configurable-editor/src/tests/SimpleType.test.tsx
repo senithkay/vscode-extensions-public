@@ -21,13 +21,18 @@ import * as React from "react";
 import { composeStories } from "@storybook/testing-react";
 import { fireEvent, render, screen } from "@testing-library/react";
 
+import { ConfigElementProps } from "../components/ConfigElement";
+import expectedResult from "../stories/simple/expected-result.json";
 import * as stories from "../stories/simple/SimpleType.stories";
 
 const { SimpleTypes } = composeStories(stories);
 
 test("Renders the ConfigForm", () => {
-    render(<SimpleTypes />);
+    const onClickPrimaryButton = (configProperties: ConfigElementProps) => {
+        expect(JSON.stringify(configProperties)).toBe(JSON.stringify(expectedResult));
+    };
+
+    render(<SimpleTypes onClickPrimaryButton={onClickPrimaryButton}/>);
 
     fireEvent.click(screen.getByText("Run"));
-    // expect(screen.getByText("Run"))
 });
