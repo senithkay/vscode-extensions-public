@@ -316,7 +316,7 @@ export function ResourceForm(props: FunctionProps) {
                             />
                         )}
                         <Divider className={connectorClasses.sectionSeperatorHR} />
-                        <ConfigPanelSection title={"Query Parameters"}>
+                        <ConfigPanelSection title={"Parameters"}>
                             <QueryParamEditor
                                 queryParamString={queryParam.value}
                                 readonly={(currentComponentSyntaxDiag?.length > 0) || (isParamInProgress)}
