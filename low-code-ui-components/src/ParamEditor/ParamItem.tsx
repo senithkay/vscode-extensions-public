@@ -69,13 +69,6 @@ export function ParamItem(props: ParamItemProps) {
                         </>
                     )}
                 </div>
-                {/*{!readonly && (*/}
-                {/*    <ButtonWithIcon*/}
-                {/*        onClick={handleDelete}*/}
-                {/*        icon={<CloseRounded data-testid={`${label}-close-btn`} fontSize="small"/>}*/}
-                {/*        className={classes.iconBtn}*/}
-                {/*    />*/}
-                {/*)}*/}
             </div>
         </div>
     );

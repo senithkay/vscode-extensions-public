@@ -42,7 +42,7 @@ export function getInitialSource(type: string, targetPosition: NodePosition): st
         }
         case "Listener": {
             return getSource(createListenerDeclartion({
-                listenerName: "name",
+                listenerName: "l",
                 listenerPort: "9090"
             }, targetPosition, false));
         }
@@ -52,7 +52,7 @@ export function getInitialSource(type: string, targetPosition: NodePosition): st
         }
         case "Resource": {
             return getSource(createResource("get", ".", "", "", false,
-                false, "", targetPosition));
+                false, "error?", targetPosition));
         }
     }
     return;
