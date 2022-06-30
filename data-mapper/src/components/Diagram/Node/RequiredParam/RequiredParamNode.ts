@@ -24,5 +24,6 @@ export class RequiredParamNode extends DataMapperNodeModel {
     }
 
     initLinks(): void {
+        // Currently we create links from "IN" ports and back tracing the inputs.
     }
 }

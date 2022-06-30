@@ -42,18 +42,12 @@ export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
 				if (STKindChecker.isSpecificField(field)) {
 					if (STKindChecker.isMappingConstructor(field.valueExpr)) {
 						foundMappings = [...foundMappings, ...this.genMappings(field.valueExpr, [...currentFields, field])];
-					} else if (STKindChecker.isFieldAccess(field.valueExpr)) {
-						foundMappings.push({
-							fields: [...currentFields, field],
-							value: field.valueExpr
-						});
-					} else if (STKindChecker.isSimpleNameReference(field.valueExpr)) {
-						foundMappings.push({
-							fields: [...currentFields, field],
-							value: field.valueExpr
-						});
+					} else if (STKindChecker.isFieldAccess(field.valueExpr)
+						|| STKindChecker.isSimpleNameReference(field.valueExpr)) {
+						foundMappings.push(new FieldAccessToSpecificFied([...currentFields, field], field.valueExpr));
 					} else {
 						// TODO handle other types of expressions here
+						foundMappings.push(new FieldAccessToSpecificFied([...currentFields, field], undefined , field.valueExpr));
 					}
 				}
 			})
@@ -65,6 +59,10 @@ export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
 	private createLinks(mappings: FieldAccessToSpecificFied[]) {
 		mappings.forEach((mapping) => {
 			const { fields, value } = mapping;
+			if (!value) {
+				console.log(mapping);
+				return;
+			}
 			const inputNode = this.getInputNodeExpr(value);
 			let inPort: DataMapperPortModel; 
 			if (inputNode) {
