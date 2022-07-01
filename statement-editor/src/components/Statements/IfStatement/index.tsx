@@ -15,7 +15,7 @@ import React, { useContext } from "react";
 
 import { IfElseStatement, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree"
 
-import { ELSEIF_CLAUSE } from "../../../constants";
+import { ELSECLAUSE, ELSEIF_CLAUSE } from "../../../constants";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { NewExprAddButton } from "../../Button/NewExprAddButton";
 import { ExpressionComponent } from "../../Expression";
@@ -42,12 +42,22 @@ export function IfStatementC(props: IfStatementProps) {
     }
 
     const isFinalIfElseStatement = !(model.elseBody?.elseBody as IfElseStatement)?.ifBody;
+    let isElseAvailable;
+    (model.elseBody?.elseBody) ? isElseAvailable = STKindChecker.isBlockStatement(model.elseBody?.elseBody)
+        : isElseAvailable = false;
 
-    const addNewExpression = (ifBodyModel: STNode) => {
+    const addNewIfStatement = (ifBodyModel: STNode) => {
         const newPosition: NodePosition = {
             ...ifBodyModel.position
         }
         updateModel(`${ELSEIF_CLAUSE}`, newPosition);
+    };
+
+    const addNewElseStatement = (ifBodyModel: STNode) => {
+        const newPosition: NodePosition = {
+            ...ifBodyModel.position
+        }
+        updateModel(`${ELSECLAUSE}`, newPosition);
     };
 
     return (
@@ -58,10 +68,17 @@ export function IfStatementC(props: IfStatementProps) {
             &nbsp;&nbsp;&nbsp;{"..."}
             <TokenComponent model={model.ifBody.closeBraceToken} />
             {isFinalIfElseStatement && (
-                <>
-                    <NewExprAddButton model={model.ifBody.closeBraceToken} onClick={addNewExpression} />
-                    &nbsp;
-                </>
+                isElseAvailable ? (
+                    <>
+                        <NewExprAddButton model={model.ifBody.closeBraceToken} onClick={addNewIfStatement} />
+                        &nbsp;
+                    </>
+                ) : (
+                    <>
+                        &nbsp;
+                        <NewExprAddButton model={model.ifBody.closeBraceToken} onClick={addNewElseStatement} />
+                    </>
+                )
             )}
             {!!model.elseBody && <StatementRenderer model={model.elseBody} />}
         </>
