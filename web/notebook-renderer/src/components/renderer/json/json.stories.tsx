@@ -1,15 +1,15 @@
 import { Attributes, ComponentChildren, h, Ref } from 'preact';
 import { Meta } from '@storybook/react';
-import { Json } from './json';
+import { JsonForNotebookOutput } from './json';
 import { NotebookCellResult } from '../types';
 
 export default {
-    component: Json,
+    component: JsonForNotebookOutput,
     title: 'Components/Json',
 } as Meta;
 
 const Template = (args: JSX.IntrinsicAttributes & { notebookCellOutput: Readonly<NotebookCellResult>; } 
-    & Readonly<Attributes & { children?: ComponentChildren; ref?: Ref<any>; }>) => <Json {...args} />;
+    & Readonly<Attributes & { children?: ComponentChildren; ref?: Ref<any>; }>) => <JsonForNotebookOutput {...args} />;
 
 export const SimpleJson1 = {
     args: {
@@ -69,6 +69,7 @@ export const SimpleJson4 = {
                     "BoolAttribute":false,
                     "nullAttribute":null,
                     "intAttribute":365591912,
+                    "floatAttribute":3655.91912,
                 }),
                 mimeType: 'ballerina-notebook/json-view',
                 type: 'json'
@@ -76,3 +77,41 @@ export const SimpleJson4 = {
         }
     },
 };
+
+export const SimpleArray = {
+    args: {
+        notebookCellOutput:{
+            shellValue: {
+                value: JSON.stringify([
+                    1,
+                    false,
+                    null,
+                    "foo",
+                    {
+                        "first": "John",
+                        "last": "Doe"
+                    },
+                    {
+                        string: 'this is a test string',
+                        integer: 42,
+                        empty_array: [],
+                        empty_object: {},
+                        array: [1, 2, 3, 'test'],
+                        float: -2.757,
+                        undefined_var: undefined,
+                        parent: {
+                            sibling1: true,
+                            sibling2: false,
+                            sibling3: null
+                        },
+                        string_number: '1234'
+                    }
+                ]),
+                mimeType: 'ballerina-notebook/json-view',
+                type: 'json'
+            }
+        }
+    },
+};
+
+

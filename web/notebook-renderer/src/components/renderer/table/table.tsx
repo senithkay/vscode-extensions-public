@@ -18,21 +18,39 @@
  */
 
 import { h, FunctionComponent } from "preact";
+import { Json } from "../json/json";
+import {
+    CODE_EDITOR_COLORS,
+    DEFAULT_FONT_STYLE,
+    JSON_DARK_THEME,
+    JSON_LIGHT_THEME,
+} from "../themes";
 import { NotebookCellResult } from "../types";
+import { getIsDarkMode } from "../utils";
 
 interface TableProps {
     header: string[];
     values: Object[];
 }
 
-export const Table: FunctionComponent<{ tableContent: Readonly<TableProps> }> = ({ tableContent }) => {
+export const Table: FunctionComponent<{
+    tableContent: Readonly<TableProps>;
+}> = ({ tableContent }) => {
+    const darkMode = getIsDarkMode();
     const tableContentValues = tableContent.values;
-    const getValue = (element: { [x: string]: any; }, key: string | number) => 
-        element[key] ? JSON.stringify(element[key], undefined, 2) : '';
+    const getValue = (element: { [x: string]: any }, key: string | number) =>
+        element[key] ?? null;
 
     const renderHeader = () => {
         return tableContent.header.map((key) => {
-            return <th key={ key } style={{textAlign: "center"}}>{ key }</th>;
+            return (
+                <th
+                    key={key}
+                    style={{ textAlign: "center", letterSpacing: "0.05em" }}
+                >
+                    {key}
+                </th>
+            );
         });
     };
 
@@ -40,28 +58,57 @@ export const Table: FunctionComponent<{ tableContent: Readonly<TableProps> }> = 
         let body: h.JSX.Element[] = [];
         for (let index = 0; index < tableContentValues.length; index++) {
             body.push(
-                <tr>{ tableContent.header.map( key =>{ 
-                    return <td style={{textAlign: "left"}}><pre>{getValue(tableContentValues[index], key)}</pre></td>; 
-                }) }</tr>
+                <tr>
+                    {tableContent.header.map((key) => {
+                        let value = getValue(tableContentValues[index], key);
+                        return (
+                            <td style={{ textAlign: "left" }}>
+                                {value === Object(value) ? (
+                                    <Json
+                                        value={value}
+                                        theme={darkMode ? JSON_DARK_THEME : JSON_LIGHT_THEME}
+                                        collapsed={1}
+                                    />
+                                ) : (
+                                    value != null && (
+                                        <pre
+                                            style={{color: darkMode ? CODE_EDITOR_COLORS.WHITE : CODE_EDITOR_COLORS.DARKER}}
+                                        >
+                                            {JSON.stringify(value, undefined, 2)}
+                                        </pre>
+                                    )
+                                )}
+                            </td>
+                        );
+                    })}
+                </tr>
             );
         }
         return body;
     };
 
     const renderTable = () => {
-        return <table>
-                <thead>{ renderHeader() }</thead>
-                <tbody>{ renderBody() }</tbody>
-            </table>;
+        return (
+            <table>
+                <thead>{renderHeader()}</thead>
+                <tbody>{renderBody()}</tbody>
+            </table>
+        );
     };
-    return <div>{ renderTable() }</div>;
+    return <div>{renderTable()}</div>;
 };
 
-export const TableForNotebookOutput: FunctionComponent<{ notebookCellOutput: Readonly<NotebookCellResult> }> = ({ notebookCellOutput }) => {
+export const TableForNotebookOutput: FunctionComponent<{
+    notebookCellOutput: Readonly<NotebookCellResult>;
+}> = ({ notebookCellOutput }) => {
     const values = JSON.parse(notebookCellOutput.shellValue.value);
 
     if (!values.length) {
-        return <p>Empty table!</p>
+        return (
+            <p style={{ ...DEFAULT_FONT_STYLE, textAlign: "left" }}>
+                Empty table!
+            </p>
+        );
     }
 
     const getKeys = () => {
@@ -74,16 +121,21 @@ export const TableForNotebookOutput: FunctionComponent<{ notebookCellOutput: Rea
             }
         }
         return cols;
-    }
-    
+    };
+
     const tableProps = {
         header: getKeys(),
-        values: values
+        values: values,
     };
-    return <div style={{
-        maxHeight: "400px", 
-        overflowY: "scroll"
-    }}>
-        <Table tableContent={tableProps} />
-    </div>;
-}
+    return (
+        <div
+            style={{
+                ...DEFAULT_FONT_STYLE,
+                maxHeight: "600px",
+                overflowY: "scroll",
+            }}
+        >
+            <Table tableContent={tableProps} />
+        </div>
+    );
+};
