@@ -149,13 +149,14 @@ class BallerinaDebugAdapterDescriptorFactory implements DebugAdapterDescriptorFa
     createDebugAdapterDescriptor(session: DebugSession, executable: DebugAdapterExecutable | undefined):
         Thenable<DebugAdapterDescriptor> {
         const port = session.configuration.debugServer;
+        const configEnv = session.configuration.configEnv;
         const cwd = this.getCurrentWorkingDir();
         let args: string[] = [];
         const cmd = this.getScriptPath(args);
         args.push(port.toString());
 
         let opt: ExecutableOptions = { cwd: cwd };
-        opt.env = Object.assign({}, process.env);
+        opt.env = Object.assign({}, process.env, configEnv);
 
         const serverProcess = child_process.spawn(cmd, args, opt);
 
