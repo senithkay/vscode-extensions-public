@@ -13,14 +13,14 @@
 import React, { useContext, useEffect } from "react";
 
 import { List, ListItem, ListItemText, ListSubheader } from "@material-ui/core";
-import { STNode } from "@wso2-enterprise/syntax-tree";
+import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import {
     getCurrentModelParams,
     getDocDescription,
     getParamCheckedList,
-    isDescriptionWithExample
+    isDescriptionWithExample, updateParamListFordMethodCallDoc
 } from "../../../utils";
 import { useStatementEditorStyles, useStmtEditorHelperPanelStyles } from "../../styles";
 import { ParameterList } from "../ParameterList";
@@ -41,6 +41,10 @@ export function ParameterSuggestions(){
     useEffect(() => {
         if (currentModel.model && documentation && documentation.documentation?.parameters) {
             const paramsInModel: STNode[] = getCurrentModelParams(currentModel.model);
+            // TODO: Remove this check once the methodCall param filter is added to the LS
+            if (STKindChecker.isMethodCall(currentModel.model)){
+                updateParamListFordMethodCallDoc(paramsInModel, documentation.documentation);
+            }
             setChecked(getParamCheckedList(paramsInModel, documentation.documentation));
         }
     }, [currentModel.model, documentation]);
@@ -82,11 +86,13 @@ export function ParameterSuggestions(){
             ) : (
                 <>
                     {documentation && !(documentation.documentation === undefined) ? (
-                        <List className={statementEditorClasses.stmtEditorInnerWrapper}>
+                        <List className={stmtEditorHelperClasses.docParamSuggestions}>
                             <ParameterList checkedList={checked} setCheckedList={setCheckedList} />
                             {documentation.documentation.description && (
                                 <>
-                                    <hr className={stmtEditorHelperClasses.returnSeparator}/>
+                                    {documentation.documentation.parameters?.length > 0 && (
+                                        <hr className={stmtEditorHelperClasses.returnSeparator}/>
+                                    )}
                                     <ListSubheader className={stmtEditorHelperClasses.parameterHeader}>
                                         Description
                                     </ListSubheader>
