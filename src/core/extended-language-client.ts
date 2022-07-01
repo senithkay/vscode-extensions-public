@@ -177,9 +177,15 @@ export interface NoteBookCellOutputResponse {
     consoleOut: string;
 }
 
-export interface NotebookFileSourceResponse{
+export interface NotebookFileSourceResponse {
     content: string;
     filePath: string;
+}
+
+export interface NotebookVariable {
+    name: string;
+    type: string;
+    value: string;
 }
 
 export interface NotebookDeleteDclnRequest {
@@ -624,7 +630,7 @@ export class ExtendedLangClient extends LanguageClient {
             Promise.resolve(NOT_SUPPORTED);
     }
 
-    async getNotebookVariables(): Promise<Object[] | NOT_SUPPORTED_TYPE> {
+    async getNotebookVariables(): Promise<NotebookVariable[] | NOT_SUPPORTED_TYPE> {
         // const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.NOTEBOOK_VARIABLES);
         const isSupported = true;
         return isSupported ? this.sendRequest(EXTENDED_APIS.NOTEBOOK_VARIABLES) :
