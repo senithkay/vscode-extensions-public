@@ -51,6 +51,8 @@ import { visitor as ModelFindingVisitor } from "../visitors/model-finding-visito
 import { visitor as ModelTypeSetupVisitor } from "../visitors/model-type-setup-visitor";
 import { visitor as MultilineConstructsConfigSetupVisitor } from "../visitors/multiline-constructs-config-setup-visitor";
 import {nextNodeSetupVisitor} from "../visitors/next-node--setup-visitor"
+import { visitor as ParentModelFindingVisitor } from "../visitors/parent-function-finding-visitor";
+import { parentFunctionSetupVisitor } from "../visitors/parent-function-setup-visitor";
 import { parentSetupVisitor } from '../visitors/parent-setup-visitor';
 import { viewStateSetupVisitor as ViewStateSetupVisitor } from "../visitors/view-state-setup-visitor";
 
@@ -116,6 +118,13 @@ export function getCurrentModel(position: NodePosition, model: STNode): STNode {
     return ModelFindingVisitor.getModel();
 }
 
+export function getParentFunctionModel(position: NodePosition, model: STNode): STNode {
+    ParentModelFindingVisitor.setPosition(position);
+    traversNode(model, ParentModelFindingVisitor);
+
+    return ParentModelFindingVisitor.getModel();
+}
+
 export function getNextNode(currentModel: STNode, statementModel: STNode): STNode {
     nextNodeSetupVisitor.setPropetiesDefault();
     nextNodeSetupVisitor.setCurrentNode(currentModel)
@@ -159,6 +168,7 @@ export function enrichModelWithDiagnostics(model: STNode, targetPosition: NodePo
 export function enrichModelWithViewState(model: STNode): STNode  {
     traversNode(model, DeleteConfigSetupVisitor);
     traversNode(model, ModelTypeSetupVisitor);
+    traversNode(model, parentFunctionSetupVisitor);
 
     return model;
 }

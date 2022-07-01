@@ -20,10 +20,13 @@ import { NamedArg, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import { SymbolParameterType } from "../../../constants";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import {
-    getCurrentModelParams, getParamUpdateModelPosition, getUpdatedContentForNewNamedArg,
+    enrichModel,
+    getCurrentModel,
+    getCurrentModelParams, getParamUpdateModelPosition, getParentFunctionModel, getUpdatedContentForNewNamedArg,
     getUpdatedContentOnCheck, getUpdatedContentOnUncheck,
     isAllowedIncludedArgsAdded, isDocumentationSupportedModel
 } from "../../../utils";
+import { StatementEditorViewState } from "../../../utils/statement-editor-viewstate";
 import { useStatementEditorStyles, useStmtEditorHelperPanelStyles } from "../../styles";
 import { NamedArgIncludedRecord } from "../NamedArgIncludedRecord";
 import { RequiredArg } from "../RequiredArg";
@@ -41,14 +44,18 @@ export function ParameterList(props: ParameterListProps) {
     const {
         modelCtx: {
             currentModel : {
-                model
+                model,
             },
+            statementModel,
             updateModel,
             restArg
         },
+        targetPosition,
         documentation : {
             documentation : {
-                parameters
+                documentation : {
+                    parameters
+                }
             }
         }
     } = useContext(StatementEditorContext);
@@ -62,12 +69,15 @@ export function ParameterList(props: ParameterListProps) {
 
         if (currentIndex === -1) {
             newChecked.push(value);
-
+            if (param.kind === SymbolParameterType.REST) {
+                restArg(true);
+            }
             if (isDocumentationSupportedModel(model)) {
-                if (param.kind === SymbolParameterType.REST) {
-                    restArg(true);
-                }
                 updateModel(getUpdatedContentOnCheck(model, param, parameters), getParamUpdateModelPosition(model));
+            } else {
+                const parentModel : STNode = getParentFunctionModel((model.parent.viewState as StatementEditorViewState)?.parentFunctionPos,
+                    statementModel);
+                updateModel(getUpdatedContentOnCheck(parentModel, param, parameters), getParamUpdateModelPosition(parentModel));
             }
         } else {
             newChecked.splice(currentIndex, 1);
@@ -76,6 +86,10 @@ export function ParameterList(props: ParameterListProps) {
             }
             if (isDocumentationSupportedModel(model)) {
                 updateModel(getUpdatedContentOnUncheck(model, currentIndex), getParamUpdateModelPosition(model));
+            } else {
+                const parentModel : STNode = getParentFunctionModel((model.parent.viewState as StatementEditorViewState)?.parentFunctionPos,
+                    statementModel);
+                updateModel(getUpdatedContentOnUncheck(parentModel, currentIndex), getParamUpdateModelPosition(parentModel));
             }
         }
 

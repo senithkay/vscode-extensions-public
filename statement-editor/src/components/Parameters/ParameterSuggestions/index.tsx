@@ -17,11 +17,14 @@ import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import {
+    enrichModel,
+    getCurrentModel,
     getCurrentModelParams,
     getDocDescription,
-    getParamCheckedList,
-    isDescriptionWithExample, updateParamListFordMethodCallDoc
+    getParamCheckedList, getParentFunctionModel,
+    isDescriptionWithExample, isDocumentationSupportedModel, updateParamListFordMethodCallDoc
 } from "../../../utils";
+import { StatementEditorViewState } from "../../../utils/statement-editor-viewstate";
 import { useStatementEditorStyles, useStmtEditorHelperPanelStyles } from "../../styles";
 import { ParameterList } from "../ParameterList";
 
@@ -29,9 +32,13 @@ import { ParameterList } from "../ParameterList";
 export function ParameterSuggestions(){
     const {
         modelCtx: {
-            currentModel
+            currentModel,
+            statementModel
         },
-        documentation
+        targetPosition,
+        documentation: {
+            documentation
+        }
     } = useContext(StatementEditorContext);
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
     const statementEditorClasses = useStatementEditorStyles();
@@ -40,7 +47,10 @@ export function ParameterSuggestions(){
 
     useEffect(() => {
         if (currentModel.model && documentation && documentation.documentation?.parameters) {
-            const paramsInModel: STNode[] = getCurrentModelParams(currentModel.model);
+            const paramsInModel: STNode[] = isDocumentationSupportedModel(currentModel.model) ?
+                getCurrentModelParams(currentModel.model) : getCurrentModelParams(
+                getParentFunctionModel((currentModel.model.parent.viewState as StatementEditorViewState)?.parentFunctionPos,
+                    statementModel));
             // TODO: Remove this check once the methodCall param filter is added to the LS
             if (STKindChecker.isMethodCall(currentModel.model)){
                 updateParamListFordMethodCallDoc(paramsInModel, documentation.documentation);
