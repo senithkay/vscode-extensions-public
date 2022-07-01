@@ -13,6 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useMemo, useState } from "react";
 
+import { ClickAwayListener } from "@material-ui/core";
 import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import debounce from "lodash.debounce";
 
@@ -124,6 +125,14 @@ export function InputEditor(props: InputEditorProps) {
         }
     };
 
+    const clickAwayHandler = (event: any) => {
+        if (!event.path[0].className.includes("suggestion")){
+            handleEditEnd();
+        }
+        setIsEditing(false);
+    };
+
+
     const inputChangeHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
         changeInput(event.target.value);
     };
@@ -174,7 +183,7 @@ export function InputEditor(props: InputEditorProps) {
 
     return isEditing ?
         (
-            <>
+            <ClickAwayListener  mouseEvent="onMouseDown" onClickAway={clickAwayHandler}>
                 <input
                     data-testid="input-editor"
                     value={INPUT_EDITOR_PLACEHOLDERS.has(userInput) ? "" : userInput}
@@ -186,7 +195,7 @@ export function InputEditor(props: InputEditorProps) {
                     style={{ maxWidth: userInput === '' ? '10px' : 'fit-content' }}
                     spellCheck="false"
                 />
-            </>
+            </ClickAwayListener>
         ) : (
             <span
                 data-testid="input-editor-span"
