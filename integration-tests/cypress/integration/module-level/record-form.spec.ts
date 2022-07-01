@@ -38,8 +38,11 @@ describe('Record', () => {
             .clickWhiteSpace()
             .haveRecordName("Person")
             .addNewField('string', 'firstName')
+            .clickWhiteSpace()
             .addNewField('string', 'lastName')
-            //.addNewField('string', 'address', '"none"') // Need to fix this
+            .clickWhiteSpace()
+            .addNewField('string', 'address', '"none"')
+            .clickWhiteSpace()
             .addNewField('int', 'test')
             .save();
 
