@@ -25,6 +25,7 @@ export class CreateLinkState extends State<DiagramEngine> {
 
 					if (element instanceof PortModel && !this.sourcePort) {
 						this.sourcePort = element;
+						element.fireEvent({}, "mappingStartedFrom");
 						const { x, y } = element.getPosition();
 						const dx = element.getBoundingBox().getWidth() / 2;
 						const dy = element.getBoundingBox().getHeight() / 2;
@@ -39,19 +40,23 @@ export class CreateLinkState extends State<DiagramEngine> {
                         */
 						const link = this.sourcePort.createLinkModel();
 						link.setSourcePort(this.sourcePort);
-						link.getFirstPoint().setPosition(x + dx, y + dy);
-						link.getLastPoint().setPosition(clientX, clientY);
+						link.getFirstPoint().setPosition(0, 0);
+						link.getLastPoint().setPosition(0, 0);
 
 						this.link = this.engine.getModel().addLink(link);
 					} else if (element instanceof PortModel && this.sourcePort && element != this.sourcePort) {
+						element.fireEvent({}, "mappingFinishedTo");
 						if (this.sourcePort.canLinkToPort(element)) {
+
 							this.link.setTargetPort(element);
-							element.reportPosition();
+							// element.reportPosition();
+							this.link.getLastPoint().setPosition(0, 0);
+
 							this.clearState();
 							this.eject();
 						}
 					} else if (element === this.link.getLastPoint()) {
-						this.link.point(clientX, clientY, -1);
+						this.link.point(0, 0, -1);
 					}
 
 					this.engine.repaintCanvas();
@@ -65,7 +70,7 @@ export class CreateLinkState extends State<DiagramEngine> {
 				fire: (actionEvent: ActionEvent<React.MouseEvent>) => {
 					if (!this.link) return;
 					const { event } = actionEvent;
-					this.link.getLastPoint().setPosition(event.clientX - 13, event.clientY - 13);
+					this.link.getLastPoint().setPosition(0, 0);
 					this.engine.repaintCanvas();
 				}
 			})
