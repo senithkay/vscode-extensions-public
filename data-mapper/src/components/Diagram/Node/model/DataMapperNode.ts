@@ -31,7 +31,8 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 
 	private diagramModel: DiagramModel;
 
-	constructor(public context: IDataMapperContext,
+	constructor(
+		public context: IDataMapperContext,
 		type: string = 'datamapper-node') {
 		super({
 			type

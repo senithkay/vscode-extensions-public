@@ -32,7 +32,7 @@ function DataMapperC(props: DataMapperProps) {
             );
 
             const nodeInitVisitor = new NodeInitVisitor(context);
-            await traversNodeAsync(fnST, nodeInitVisitor);
+            traversNode(fnST, nodeInitVisitor);
             setNodes(nodeInitVisitor.getNodes());
         }
         generateNodes();

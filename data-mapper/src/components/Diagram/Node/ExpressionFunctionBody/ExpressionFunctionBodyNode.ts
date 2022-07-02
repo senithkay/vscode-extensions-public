@@ -1,32 +1,36 @@
 import { ExpressionFunctionBody, FieldAccess, MappingConstructor, RecordField, RecordTypeDesc, RequiredParam, SimpleNameReference, SpecificField, STKindChecker, TypeDefinition } from "@wso2-enterprise/syntax-tree";
 import md5 from "blueimp-md5";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
+import { getTypeDefinitionForTypeDesc } from "../../../../utils/st-utils";
 import { DataMapperLinkModel } from "../../Link";
 import { FieldAccessToSpecificFied } from "../../Mappings/FieldAccessToSpecificFied";
 import { DataMapperPortModel } from "../../Port";
 import { getFieldNames } from "../../utils";
-import { DataMapperNodeModel } from "../model/DataMapperNode";
+import { DataMapperNodeModel, TypeDescriptor } from "../model/DataMapperNode";
 import { RequiredParamNode } from "../RequiredParam";
  
 export const EXPR_FN_BODY_NODE_TYPE = "datamapper-node-expression-fn-body";
 
 export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
 
+	public typeDef: TypeDefinition;
+
     constructor(
         public context: IDataMapperContext,
 		public value: ExpressionFunctionBody,
-		public typeDef: TypeDefinition) {
+		public typeDesc: TypeDescriptor) {
         super(
             context,
             EXPR_FN_BODY_NODE_TYPE
         );
     }
 
-    initPorts(): void {
+    async initPorts() {
+		this.typeDef = await getTypeDefinitionForTypeDesc(this.typeDesc, this.context);
         this.addPorts(this.typeDef.typeDescriptor as RecordTypeDesc, "IN");
     }
 
-    initLinks(): void {
+    async initLinks() {
         const mappings = this.genMappings(this.value.expression as MappingConstructor);
         this.createLinks(mappings);
     }

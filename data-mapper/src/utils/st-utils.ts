@@ -1,14 +1,15 @@
 import { BalleriaLanguageClient } from "@wso2-enterprise/ballerina-languageclient";
 import { ModulePart, NodePosition, STKindChecker, STNode, TypeDefinition } from "@wso2-enterprise/syntax-tree";
 import { Location } from 'vscode-languageserver-protocol';
+import { DataMapperContext, IDataMapperContext } from "./DataMapperContext/DataMapperContext";
 
 
-export async function getTypeDefinitionForTypeDesc(filePath: string, typeDesc: STNode,
-    langClientPromise: Promise<BalleriaLanguageClient>): Promise<TypeDefinition> {
+export async function getTypeDefinitionForTypeDesc(typeDesc: STNode,
+    context: IDataMapperContext): Promise<TypeDefinition> {
 
     if (typeDesc && STKindChecker.isSimpleNameReference(typeDesc)) {
         const { position } = typeDesc;
-        const langClient = await langClientPromise;
+        const langClient = await context.getLangClient();
 
         const defReply = await langClient.definition({
             position: {
@@ -16,7 +17,7 @@ export async function getTypeDefinitionForTypeDesc(filePath: string, typeDesc: S
                 character: position?.startColumn
             },
             textDocument: {
-                uri: `file://${filePath}`
+                uri: `file://${context.filePath}`
             }
         });
         let defLoc: Location;

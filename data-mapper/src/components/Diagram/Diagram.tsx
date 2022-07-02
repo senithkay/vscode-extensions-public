@@ -58,15 +58,19 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 	const fnST = useDMStore((state) => state.functionST);
 
 	React.useEffect(() => {
-		const model = new DiagramModel();
-		model.addAll(...nodes);
-		nodes.forEach((node) => {
-			node.setModel(model);
-			node.initPorts();
-			node.initLinks();
-		});
-		engine.setModel(model);
-		setModel(model);
+		async function genModel() {
+			const model = new DiagramModel();
+			model.addAll(...nodes);
+			for (let i = 0; i < nodes.length; i++) {
+				const node = nodes[i];
+				node.setModel(model);
+				await node.initPorts();
+				await node.initLinks();
+			}
+			engine.setModel(model);
+			setModel(model);
+        }
+        genModel();
 	}, [nodes]);
 
 	return <>
