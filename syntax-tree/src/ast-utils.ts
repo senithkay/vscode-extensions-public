@@ -47,3 +47,48 @@ export function traversNode(node: STNode, visitor: Visitor, parent?: STNode) {
     endVisitFn.bind(visitor)(node, parent);
   }
 }
+
+export async function traversNodeAsync(node: STNode, visitor: Visitor, parent?: STNode) {
+  let beginVisitFn: any = (visitor as any)[`beginVisit${node.kind}`];
+  if (!beginVisitFn) {
+    beginVisitFn = visitor.beginVisitSTNode && visitor.beginVisitSTNode;
+  }
+
+  if (beginVisitFn) {
+    await beginVisitFn.bind(visitor)(node, parent);
+  }
+
+  const keys = Object.keys(node);
+  for (let j = 0; j < keys.length; j++) {
+    const key = keys[j];
+    if (metaNodes.includes(key)) {
+      return;
+    }
+
+    const childNode = (node as any)[key] as any;
+    if (Array.isArray(childNode)) {
+      for (let i = 0; i < childNode.length; i++) {
+        const elementNode = childNode[i];
+        if (!elementNode?.kind) {
+          return;
+        }
+        await traversNodeAsync(elementNode, visitor, node);
+
+      }
+      return;
+    }
+    if (!childNode.kind) {
+      return;
+    }
+    await traversNodeAsync(childNode, visitor, node);
+  }
+
+  let endVisitFn: any = (visitor as any)[`endVisit${node.kind}`];
+  if (!endVisitFn) {
+    endVisitFn = visitor.endVisitSTNode && visitor.endVisitSTNode;
+  }
+
+  if (endVisitFn) {
+    await endVisitFn.bind(visitor)(node, parent);
+  }
+}

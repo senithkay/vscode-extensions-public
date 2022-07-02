@@ -2,12 +2,13 @@ import React, { useEffect, useState } from "react";
 
 import DataMapperDiagram from "../Diagram/Diagram";
 
-import { ExpressionFunctionBody, FunctionDefinition, STKindChecker, TypeDefinition } from "@wso2-enterprise/syntax-tree";
+import { ExpressionFunctionBody, FunctionDefinition, STKindChecker, traversNode, traversNodeAsync, TypeDefinition } from "@wso2-enterprise/syntax-tree";
 import { BalleriaLanguageClient } from "@wso2-enterprise/ballerina-languageclient";
 import { getTypeDefinitionForTypeDesc } from "../../utils/st-utils";
 import { DataMapperNodeModel } from "../Diagram/Node/model/DataMapperNode";
 import { DataMapperContext } from "../../utils/DataMapperContext/DataMapperContext";
 import { ExpressionFunctionBodyNode, RequiredParamNode } from "../Diagram/Node";
+import { NodeInitVisitor } from "../Diagram/visitors/NodeInitVisitor";
 
 export interface DataMapperProps {
     fnST: FunctionDefinition;
@@ -23,43 +24,16 @@ function DataMapperC(props: DataMapperProps) {
 
     useEffect(() => {
         async function generateNodes() {
-            
             const context = new DataMapperContext(
                 filePath,
                 fnST,
                 langClientPromise,
                 updateFileContent
             );
-            // create output nodes
-            const typeDesc = fnST.functionSignature.returnTypeDesc?.type;
-            const typeDef = await getTypeDefinitionForTypeDesc(filePath, typeDesc, langClientPromise);
-            
-            const outputNode = new ExpressionFunctionBodyNode(
-                context,
-                fnST.functionBody as ExpressionFunctionBody, // TODO fix once we support other forms of functions
-                typeDef
-            );
-            outputNode.setPosition(800, 100);
 
-            // create input nodes
-            const params = fnST.functionSignature.parameters;
-            const inputNodes: DataMapperNodeModel[] = [];
-            for (let i = 0; i < params.length; i++) {
-                const param = params[i];
-                if (STKindChecker.isRequiredParam(param)) {
-                    const paramTypeDef = await getTypeDefinitionForTypeDesc(filePath, param.typeName, langClientPromise);
-                    const paramNode = new RequiredParamNode(
-                        context,
-                        param,
-                        paramTypeDef
-                    );
-                    paramNode.setPosition(100, 100 + i * 400); // 400 is an arbitary value, need to calculate exact heigt;
-                    inputNodes.push(paramNode);
-                } else {
-                    // TODO for other param types
-                }
-            }
-            setNodes([...inputNodes, outputNode]);
+            const nodeInitVisitor = new NodeInitVisitor(context);
+            await traversNodeAsync(fnST, nodeInitVisitor);
+            setNodes(nodeInitVisitor.getNodes());
         }
         generateNodes();
     }, [fnST, filePath]);

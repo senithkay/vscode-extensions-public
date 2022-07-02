@@ -7,6 +7,8 @@ import { List, Typography } from '@material-ui/core';
 
 import { createStyles, withStyles, WithStyles, Theme } from "@material-ui/core/styles";
 import { RecordTypeDesc, STKindChecker } from '@wso2-enterprise/syntax-tree';
+import { RequiredParamNode } from '../RequiredParam';
+import { ExpressionFunctionBodyNode } from '../ExpressionFunctionBody';
 
 const styles = (theme: Theme) => createStyles({
 	root: {
@@ -18,7 +20,7 @@ const styles = (theme: Theme) => createStyles({
 });
 
 export interface DataMapperNodeWidgetProps extends WithStyles<typeof styles> {
-	node: DataMapperNodeModel;
+	node: RequiredParamNode|ExpressionFunctionBodyNode;
 	engine: DiagramEngine;
 	size?: number;
 }
