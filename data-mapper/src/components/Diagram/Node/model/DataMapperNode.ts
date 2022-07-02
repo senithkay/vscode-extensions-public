@@ -1,11 +1,10 @@
 import { DiagramModel, NodeModel, NodeModelGenerics } from '@projectstorm/react-diagrams';
 import {
 	AnydataTypeDesc, AnyTypeDesc, ArrayTypeDesc, BooleanTypeDesc, ByteTypeDesc, DecimalTypeDesc,
-	DistinctTypeDesc, ErrorTypeDesc, ExpressionFunctionBody, FieldAccess, FloatTypeDesc, FunctionDefinition, FunctionTypeDesc, FutureTypeDesc, HandleTypeDesc,
-	IntersectionTypeDesc, IntTypeDesc, JsonTypeDesc, MappingConstructor, MapTypeDesc, NeverTypeDesc, NilTypeDesc, ObjectTypeDesc,
+	DistinctTypeDesc, ErrorTypeDesc, FloatTypeDesc, FunctionTypeDesc, FutureTypeDesc, HandleTypeDesc,
+	IntersectionTypeDesc, IntTypeDesc, JsonTypeDesc, MapTypeDesc, NeverTypeDesc, NilTypeDesc, ObjectTypeDesc,
 	OptionalTypeDesc, ParenthesisedTypeDesc, QualifiedNameReference, ReadonlyTypeDesc, RecordField, RecordFieldWithDefaultValue, RecordTypeDesc,
-	RequiredParam,
-	SimpleNameReference, SingletonTypeDesc, SpecificField, STKindChecker, STNode, StreamTypeDesc, StringTypeDesc, TableTypeDesc,
+	SimpleNameReference, SingletonTypeDesc, STKindChecker, STNode, StreamTypeDesc, StringTypeDesc, TableTypeDesc,
 	TupleTypeDesc, TypeDefinition, TypedescTypeDesc, TypeReference, UnionTypeDesc, XmlTypeDesc
 } from '@wso2-enterprise/syntax-tree';
 import { IDataMapperContext } from '../../../../utils/DataMapperContext/DataMapperContext';
@@ -33,9 +32,6 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 	private diagramModel: DiagramModel;
 
 	constructor(public context: IDataMapperContext,
-		public value: ExpressionFunctionBody | RequiredParam,
-		public typeDef: TypeDefinition, public supportOutput: boolean,
-		public supportInput: boolean,
 		type: string = 'datamapper-node') {
 		super({
 			type

@@ -6,6 +6,7 @@ import { FieldAccessToSpecificFied } from "../../Mappings/FieldAccessToSpecificF
 import { DataMapperPortModel } from "../../Port";
 import { getFieldNames } from "../../utils";
 import { DataMapperNodeModel } from "../model/DataMapperNode";
+import { RequiredParamNode } from "../RequiredParam";
  
 export const EXPR_FN_BODY_NODE_TYPE = "datamapper-node-expression-fn-body";
 
@@ -17,10 +18,6 @@ export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
 		public typeDef: TypeDefinition) {
         super(
             context,
-            value,
-            typeDef,
-            false,
-            true,
             EXPR_FN_BODY_NODE_TYPE
         );
     }
@@ -100,7 +97,7 @@ export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
 	}
 
 	// Improve to return multiple ports for complex expressions
-	private getInputPortsForExpr(node: DataMapperNodeModel, expr: FieldAccess|SimpleNameReference) {
+	private getInputPortsForExpr(node: RequiredParamNode, expr: FieldAccess|SimpleNameReference) {
 		const typeDesc = node.typeDef.typeDescriptor;
 		if (STKindChecker.isRecordTypeDesc(typeDesc)) {
 			if (STKindChecker.isFieldAccess(expr)) {
@@ -144,14 +141,14 @@ export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
 		}
 	}
 
-	private findNodeByValueNode(value: ExpressionFunctionBody | RequiredParam) {
-		let foundNode: DataMapperNodeModel;
+	private findNodeByValueNode(value: ExpressionFunctionBody | RequiredParam): RequiredParamNode {
+		let foundNode: RequiredParamNode;
 		this.getModel().getNodes().find((node) => {
-			var dmNode = node as DataMapperNodeModel;
 			if (STKindChecker.isRequiredParam(value)
-				&& STKindChecker.isRequiredParam(dmNode.value)
-				&& value.paramName.value === dmNode.value.paramName.value) {
-					foundNode = dmNode;
+				&& node instanceof RequiredParamNode
+				&& STKindChecker.isRequiredParam(node.value)
+				&& value.paramName.value === node.value.paramName.value) {
+					foundNode = node;
 			} 
 		});
 		return foundNode;

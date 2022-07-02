@@ -11,10 +11,6 @@ export class RequiredParamNode extends DataMapperNodeModel {
 		public typeDef: TypeDefinition) {
         super(
             context,
-            value,
-            typeDef,
-            true,
-            false,
             REQ_PARAM_NODE_TYPE
         );
     }

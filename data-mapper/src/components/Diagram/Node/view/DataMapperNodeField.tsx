@@ -41,7 +41,7 @@ export function DataMapperNodeField(props: DataMapperNodeFieldProps) {
         <>
             <ListItem className={classNames}>
 
-                {nodeModel.supportInput && portIn &&
+                {portIn &&
                     <ListItemIcon>
                         <DataMapperPortWidget engine={engine} port={portIn} />
                     </ListItemIcon>
@@ -49,7 +49,7 @@ export function DataMapperNodeField(props: DataMapperNodeFieldProps) {
                 <ListItemText
                     primary={name}
                 />
-                {nodeModel.supportOutput && portOut &&
+                {portOut &&
                     <ListItemSecondaryAction>
                         <DataMapperPortWidget engine={engine} port={portOut} />
                     </ListItemSecondaryAction>
