@@ -1,17 +1,17 @@
-import { BinaryExpression, STNode, TypeDefinition } from "@wso2-enterprise/syntax-tree";
+import { QueryExpression, STNode } from "@wso2-enterprise/syntax-tree";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { DataMapperNodeModel } from "../model/DataMapperNode";
 
-export const BINARY_EXPR_NODE_TYPE = "datamapper-node-binary-expr";
+export const QUERY_EXPR_NODE_TYPE = "datamapper-node-query-expr";
 
-export class BinaryExpressionNode extends DataMapperNodeModel {
+export class QueryExpressionNode extends DataMapperNodeModel {
     constructor(
         public context: IDataMapperContext,
-		public value: BinaryExpression,
+		public value: QueryExpression,
         public parentNode: STNode) {
         super(
             context,
-            BINARY_EXPR_NODE_TYPE
+            QUERY_EXPR_NODE_TYPE
         );
     }
 

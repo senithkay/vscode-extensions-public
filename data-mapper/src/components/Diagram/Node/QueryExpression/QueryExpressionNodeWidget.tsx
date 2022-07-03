@@ -4,8 +4,7 @@ import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { List, Typography } from '@material-ui/core';
 
 import { createStyles, withStyles, WithStyles, Theme } from "@material-ui/core/styles";
-import { RecordTypeDesc, STKindChecker } from '@wso2-enterprise/syntax-tree';
-import { BinaryExpressionNode } from './BinaryExpressionNode';
+import { QueryExpressionNode } from './QueryExpressionNode';
 
 const styles = (theme: Theme) => createStyles({
 	root: {
@@ -16,12 +15,12 @@ const styles = (theme: Theme) => createStyles({
 	}
 });
 
-export interface BinaryExpressionNodeWidgetProps extends WithStyles<typeof styles> {
-	node: BinaryExpressionNode;
+export interface QueryExpressionNodeWidgetProps extends WithStyles<typeof styles> {
+	node: QueryExpressionNode;
 	engine: DiagramEngine;
 }
 
-class BinaryExpressionNodeWidgetC extends React.Component<BinaryExpressionNodeWidgetProps> {
+class QueryExpressionNodeWidgetC extends React.Component<QueryExpressionNodeWidgetProps> {
 	render() {
 		const node = this.props.node;
 		const classes = this.props.classes;
@@ -44,4 +43,4 @@ class BinaryExpressionNodeWidgetC extends React.Component<BinaryExpressionNodeWi
 	}
 }
 
-export const BinaryExpressionNodeWidget = withStyles(styles, { withTheme: true })(BinaryExpressionNodeWidgetC);
+export const QueryExpressionNodeWidget = withStyles(styles, { withTheme: true })(QueryExpressionNodeWidgetC);
