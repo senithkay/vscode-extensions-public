@@ -16,6 +16,7 @@ import { DataMapperDIContext } from '../../utils/DataMapperDIContext/DataMapperD
 import * as Nodes from "./Node";
 import * as Ports from "./Port";
 import * as Links from "./Link";
+import * as Labels from "./Label";
 
 
 interface DataMapperDiagramProps {
@@ -29,6 +30,7 @@ function initDiagramEngine() {
 	const _NF = Nodes;
 	const _PF = Ports;
 	const _LF = Links;
+	const _LAF = Labels;
 	// END TODO
 
 	const diContext = container.resolve(DataMapperDIContext);
@@ -36,8 +38,12 @@ function initDiagramEngine() {
 
 	diContext.nodeFactories.forEach((nf)=> 
 		engine.getNodeFactories().registerFactory(nf));
-	engine.getPortFactories().registerFactory(new DataMapperPortFactory());
-	engine.getLinkFactories().registerFactory(new DataMapperLinkFactory());
+	diContext.portFactories.forEach((pf) =>
+		engine.getPortFactories().registerFactory(pf));
+	diContext.linkFactories.forEach((lf) =>
+		engine.getLinkFactories().registerFactory(lf));
+	diContext.labelFactories.forEach((lbf) =>
+		engine.getLabelFactories().registerFactory(lbf));
 
 	const state = engine.getStateMachine().getCurrentState();
 	if (state instanceof DefaultDiagramState) {

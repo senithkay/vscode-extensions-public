@@ -2,6 +2,7 @@ import { ExpressionFunctionBody, FieldAccess, MappingConstructor, RecordField, R
 import md5 from "blueimp-md5";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { getTypeDefinitionForTypeDesc } from "../../../../utils/st-utils";
+import { ExpressionLabelModel } from "../../Label";
 import { DataMapperLinkModel } from "../../Link";
 import { FieldAccessToSpecificFied } from "../../Mappings/FieldAccessToSpecificFied";
 import { DataMapperPortModel } from "../../Port";
@@ -71,7 +72,9 @@ export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
 			}
 			const outPort = this.getOutputPortForField(fields);
 			const lm = new DataMapperLinkModel();
-			lm.addLabel(value.source);
+			lm.addLabel(new ExpressionLabelModel({
+				value: value.source
+			}));
 			lm.setTargetPort(outPort);
 			lm.setSourcePort(inPort);
 			this.getModel().addAll(lm);

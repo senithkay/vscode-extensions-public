@@ -11,6 +11,8 @@ export class DataMapperDIContext {
         @injectAll('PortFactory')
         public portFactories: any[],
         @injectAll('LinkFactory')
-        public linkFactories: any[]
+        public linkFactories: any[],
+        @injectAll('LabelFactory')
+        public labelFactories: any[]
     ) {}
 }
