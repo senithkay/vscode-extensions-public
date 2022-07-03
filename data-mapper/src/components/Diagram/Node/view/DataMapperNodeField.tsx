@@ -4,8 +4,6 @@ import md5 from "blueimp-md5";
 
 import { List, ListItem, ListItemIcon, ListItemSecondaryAction, ListItemText } from "@material-ui/core";
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
-import TreeItem from '@material-ui/lab/TreeItem';
-
 // tslint:disable-next-line: no-implicit-dependencies
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { RecordField, RecordTypeDesc, STKindChecker } from "@wso2-enterprise/syntax-tree";
@@ -20,17 +18,6 @@ const useStyles = makeStyles((theme: Theme) =>
         nested: {
             paddingLeft: theme.spacing(4),
         },
-        treeLabel: {
-            verticalAlign: "middle",
-            padding: "5px",
-            minWidth: "100px"
-        },
-        treeLabelOutPort: {
-            float: "right"
-        },
-        treeLabelInPort: {
-            float: "left"
-        }
     }),
 );
 
@@ -50,44 +37,47 @@ export function DataMapperNodeField(props: DataMapperNodeFieldProps) {
     const portIn = nodeModel.getPort(md5(JSON.stringify(typeNode.position) + "IN")) as DataMapperPortModel;
     const portOut = nodeModel.getPort(md5(JSON.stringify(typeNode.position) + "OUT")) as DataMapperPortModel;
 
-    const label = (
-        <div className={classes.treeLabel}>
-            <span className={classes.treeLabelInPort}>
-                {portIn &&
-                    <DataMapperPortWidget engine={engine} port={portIn} />
-                }
-            </span>
-            <span>
-                {name}
-            </span>
-            <span className={classes.treeLabelOutPort}>
-                {portOut &&
-                    <DataMapperPortWidget engine={engine} port={portOut} />
-                }
-            </span>
-        </div>
-    );
     return (
         <>
-            <TreeItem nodeId={parentId + "." + name} label={label}>
-                {STKindChecker.isRecordField(typeNode) && STKindChecker.isRecordTypeDesc(typeNode.typeName) &&
-                    typeNode.typeName.fields.map((field) => {
-                        if (STKindChecker.isRecordField(field)) {
-                            return <DataMapperNodeField
-                                engine={engine}
-                                name={field.fieldName.value}
-                                typeNode={field}
-                                nodeModel={nodeModel}
-                                parentId={parentId + "." + name}
-                                classNames={classes.nested}
-                            />;
-                        } else {
-                            // TODO handle fields with default values and included records
-                            return <></>;
-                        }
-                    })
+            <ListItem className={classNames}>
+
+                {portIn &&
+                    <ListItemIcon>
+                        <DataMapperPortWidget engine={engine} port={portIn} />
+                    </ListItemIcon>
                 }
-            </TreeItem>
+                <ListItemText
+                    primary={name}
+                />
+                {portOut &&
+                    <ListItemSecondaryAction>
+                        <DataMapperPortWidget engine={engine} port={portOut} />
+                    </ListItemSecondaryAction>
+
+                }
+            </ListItem>
+            {STKindChecker.isRecordField(typeNode) && STKindChecker.isRecordTypeDesc(typeNode.typeName) &&
+                <List dense={true} component="div" disablePadding={true}>
+                    {
+                        typeNode.typeName.fields.map((field) => {
+                            if (STKindChecker.isRecordField(field)) {
+                                return <DataMapperNodeField
+                                    engine={engine}
+                                    name={field.fieldName.value}
+                                    typeNode={field}
+                                    nodeModel={nodeModel}
+                                    parentId={parentId + "." + name}
+                                    classNames={classes.nested}
+                                />;
+                            } else {
+                                // TODO handle fields with default values and included records
+                                return <></>;
+                            }
+                        })
+                    }
+                </List>
+
+            }
         </>
     );
 }
