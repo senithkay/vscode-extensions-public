@@ -77,6 +77,17 @@ export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
 			}));
 			lm.setTargetPort(outPort);
 			lm.setSourcePort(inPort);
+			lm.registerListener({
+				selectionChanged(event) {
+					if (event.isSelected) {
+						inPort.fireEvent({}, "link-selected");
+						outPort.fireEvent({}, "link-selected");
+					} else {
+						inPort.fireEvent({}, "link-unselected");
+						outPort.fireEvent({}, "link-unselected");
+					}
+				},
+			})
 			this.getModel().addAll(lm);
 		});
 	}
