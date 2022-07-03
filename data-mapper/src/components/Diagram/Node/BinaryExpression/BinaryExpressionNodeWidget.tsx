@@ -36,7 +36,7 @@ class BinaryExpressionNodeWidgetC extends React.Component<BinaryExpressionNodeWi
 				}}
 			>
 				<Typography variant="subtitle1">
-					{node.value.source}
+					{/* {node.value.source} */}
 				</Typography>
 
 			</div>
