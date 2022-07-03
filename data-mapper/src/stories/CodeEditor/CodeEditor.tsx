@@ -101,9 +101,9 @@ export function CodeEditor(props: CodeEditorProps) {
 
     };
     return (
-        <div className="code-editor" data-testid="code-editor">
+        <div className="code-editor" data-testid="code-editor" style={{ height: "100%"}}>
             <MonacoEditor
-                height={500}
+                height={"100%"}
                 ref={monacoRef}
                 language={BALLERINA_LANG}
                 options={MONACO_OPTIONS}
