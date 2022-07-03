@@ -73,7 +73,9 @@ export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
 			const outPort = this.getOutputPortForField(fields);
 			const lm = new DataMapperLinkModel();
 			lm.addLabel(new ExpressionLabelModel({
-				value: value.source
+				value: value.source,
+				valueNode: value,
+				context: this.context
 			}));
 			lm.setTargetPort(outPort);
 			lm.setSourcePort(inPort);

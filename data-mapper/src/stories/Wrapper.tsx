@@ -115,7 +115,7 @@ export function DataMapperWrapper(props: DataMapperWrapperProps) {
         // tslint:disable-next-line: jsx-wrap-multiline
         <div className={classes.root}>
             <Grid container spacing={3} className={classes.gridContainer} >
-                <Grid item xs={6}>
+                <Grid item xs={8}>
                     <DataMapper
                         fnST={functionST}
                         langClientPromise={langClientPromise}
@@ -123,7 +123,7 @@ export function DataMapperWrapper(props: DataMapperWrapperProps) {
                         updateFileContent={updateFileContentOverride}
                     />
                 </Grid>
-                <Grid item xs={6}>
+                <Grid item xs={4}>
                     <CodeEditor
                         content={fileContent}
                         filePath={filePath}

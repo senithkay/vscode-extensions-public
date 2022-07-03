@@ -139,7 +139,6 @@ export async function createSpecificFieldSource(link: DataMapperLinkModel) {
 				]
 			});
 			targetNode.context.updateFileContent(targetNode.context.filePath, stModifyResp.source);
-			console.log(stModifyResp);
 		}
 	}
 	return `${lhs} = ${rhs}`;

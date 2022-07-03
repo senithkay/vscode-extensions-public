@@ -40,6 +40,9 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 							if(evt.key === "Escape") {
 								setEditable(false);
 							}
+							if(evt.key === "Enter") {
+								props.model.updateSource();
+							}
 						}
 					}
 					onBlur={() => setEditable(false)}
