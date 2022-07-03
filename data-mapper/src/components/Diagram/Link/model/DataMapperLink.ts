@@ -6,7 +6,10 @@ export class DataMapperLinkModel extends DefaultLinkModel {
 	constructor() {
 		super({
 			type: LINK_TYPE_ID,
-			width: 4
+			width: 4,
+			curvyness: 0,
+			locked: true,
+			color: "#BEB9B5"
 		});
 	}
 }
