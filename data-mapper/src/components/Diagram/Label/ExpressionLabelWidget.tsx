@@ -26,6 +26,7 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 		<S.Label>
 			{editable && 
 				<input
+					autoFocus
 					value={str}
 					onChange={(event) => {
 						const newVal = event.target.value;
@@ -41,6 +42,7 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 							}
 						}
 					}
+					onBlur={() => setEditable(false)}
 				/>
 			}
 			{!editable && <EditIcon onClick={() => setEditable(true)} />}
