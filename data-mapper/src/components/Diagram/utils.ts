@@ -1,5 +1,6 @@
 import { ExpressionFunctionBody, FieldAccess, MappingConstructor, NodePosition, RecordField, RecordTypeDesc, RequiredParam, SimpleNameReference, SpecificField, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import { DataMapperLinkModel } from "./Link/model/DataMapperLink";
+import { ExpressionFunctionBodyNode, RequiredParamNode } from "./Node";
 import { DataMapperNodeModel } from "./Node/model/DataMapperNode";
 import { DataMapperPortModel } from "./Port/model/DataMapperPortModel";
 
@@ -55,7 +56,7 @@ export async function createSpecificFieldSource(link: DataMapperLinkModel) {
 			parent = parent.parentModel;
 		}
 		const sourceNode = sourcePort.getNode() as DataMapperNodeModel;
-		if (STKindChecker.isRequiredParam(sourceNode.value)) {
+		if (sourceNode instanceof RequiredParamNode) {
 			rhs = sourceNode.value.paramName.value + "." + rhs;
 		}
 	}
@@ -74,7 +75,7 @@ export async function createSpecificFieldSource(link: DataMapperLinkModel) {
 			parent = parent.parentModel;
 		}
 		const targetNode = targetPort.getNode() as DataMapperNodeModel;
-		if (STKindChecker.isExpressionFunctionBody(targetNode.value)) {
+		if (targetNode instanceof ExpressionFunctionBodyNode) {
 			let mappingConstruct = targetNode.value.expression as MappingConstructor;
 			let targetPos: NodePosition = undefined;
 			let targetMappingConstruct = mappingConstruct;
@@ -87,6 +88,9 @@ export async function createSpecificFieldSource(link: DataMapperLinkModel) {
 						const specificField = mappingConstruct.fields.find((val) => STKindChecker.isSpecificField(val) && val.fieldName.value === fieldName) as SpecificField;
 						if (specificField && specificField.valueExpr) {
 							mappingConstruct = specificField.valueExpr as MappingConstructor;
+							if (i === fieldNames.length - 1) {
+								targetMappingConstruct = mappingConstruct;
+							}
 						} else {
 							fromFieldIdx = i;
 							targetMappingConstruct = mappingConstruct;
@@ -106,13 +110,15 @@ export async function createSpecificFieldSource(link: DataMapperLinkModel) {
 				if (fromFieldIdx >= 0 && fromFieldIdx <= fieldNames.length) {
 					const missingFields = fieldNames.slice(fromFieldIdx);
 					source = createSpeficField(missingFields);
+				} else {
+					source = `${lhs}: ${rhs}`;
 				}
 			} else {
 				source = `${lhs}: ${rhs}`;
 			}
 			targetPos = targetMappingConstruct.openBrace.position as NodePosition;
 			if (targetMappingConstruct.fields.length > 0) {
-				source += ",\n";
+				source += ",";
 			}
 			const langClient = await targetNode.context.getLangClient();
 			const stModifyResp = await langClient.stModify({
