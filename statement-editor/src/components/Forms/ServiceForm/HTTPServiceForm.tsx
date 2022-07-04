@@ -32,6 +32,7 @@ import {
     STKindChecker
 } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
+import debounce from "lodash.debounce";
 
 import { StmtDiagnostic } from "../../../models/definitions";
 import { FormEditorContext } from "../../../store/form-editor-context";
@@ -141,6 +142,7 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
         setBsePath({isInteracted: true, value});
         await serviceParamChange(value, listenerPort.value, listenerName);
     }
+    const debouncedPortChange = debounce(onBasePathChange, 800);
 
     const onListenerChange = async (port: string, name: string, isInteracted: boolean) => {
         setIsListenerInteracted(isInteracted);
@@ -203,7 +205,7 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
                         label="Path"
                         dataTestId="base-path"
                         defaultValue={basePath.value}
-                        onChange={onBasePathChange}
+                        onChange={debouncedPortChange}
                         customProps={{
                             isErrored: (currentComponentSyntaxDiag !== undefined && currentComponentName === "path") ||
                                 (portSemDiagMsg === undefined /*&& nameSemDiagMsg === undefined*/ && serviceModel?.

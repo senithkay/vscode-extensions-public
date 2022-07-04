@@ -24,7 +24,6 @@ import {
 
 import { StmtDiagnostic } from "../../../models/definitions";
 
-import { useStyles } from "./styles";
 import { QueryParam, QueryParamCollection } from "./types";
 import {
     allOptions,
@@ -52,7 +51,6 @@ export function QueryParamEditor(props: QueryParamEditorProps) {
             onChange } = props;
 
     const connectorClasses = connectorStyles();
-    const classes = useStyles();
 
     const paramOptions: string[] = getEnabledQueryParams(queryParamString);
     const queryParamCollection = getQueryParamCollection(queryParamString);
@@ -151,6 +149,7 @@ export function QueryParamEditor(props: QueryParamEditorProps) {
             if (optionChanged) {
                 if (option === payloadParameterOption) {
                     newParam = {id, name, type: `@http:Payload json`, option};
+                    setTypeReadOnly(false);
                 } else if (option === requestParameterOption) {
                     newParam = {id, name, type: `http:Request`, option};
                     setTypeReadOnly(true);
@@ -176,6 +175,7 @@ export function QueryParamEditor(props: QueryParamEditorProps) {
             if (optionChanged) {
                 if (option === payloadParameterOption) {
                     newParam = {id, name, type: `@http:Payload json`, option};
+                    setTypeReadOnly(false);
                 } else if (option === requestParameterOption) {
                     newParam = {id, name, type: `http:Request`, option};
                     setTypeReadOnly(true);

@@ -24,12 +24,11 @@ import {
 
 import { StmtDiagnostic } from "../../../models/definitions";
 
-import { useStyles } from "./styles";
 import { Path, PathSegment } from "./types";
 import { convertPathStringToSegments, generateBallerinaResourcePath, recalculateItemIds } from "./util";
 
-const pathParameterOption = "Path Parameter";
-const pathSegmentOption = "Param Segment";
+const pathParameterOption = "Parameter";
+const pathSegmentOption = "Segment";
 
 export interface PathEditorProps {
     relativeResourcePath: string;
@@ -47,7 +46,6 @@ export function PathEditor(props: PathEditorProps) {
     const options = [pathSegmentOption, pathParameterOption];
 
     const connectorClasses = connectorStyles();
-    const classes = useStyles();
 
     const path: Path = convertPathStringToSegments(relativeResourcePath);
 
