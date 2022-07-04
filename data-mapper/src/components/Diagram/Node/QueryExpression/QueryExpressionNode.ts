@@ -1,5 +1,8 @@
 import { QueryExpression, RecordField, RecordTypeDesc, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import md5 from "blueimp-md5";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
+import { DataMapperPortModel } from "../../Port";
+import { IntermediatePortModel } from "../../Port/IntermediatePort/IntermediatePortModel";
 import { getFieldNames, getParamForName } from "../../utils";
 import { DataMapperNodeModel } from "../model/DataMapperNode";
 import { RequiredParamNode } from "../RequiredParam";
@@ -10,6 +13,11 @@ export class QueryExpressionNode extends DataMapperNodeModel {
 
     public sourceTypeDesc: RecordTypeDesc;
     public targetTypeDesc: RecordTypeDesc;
+    public sourcePort: DataMapperPortModel;
+    public targetPort: DataMapperPortModel;
+
+    public inPort: IntermediatePortModel;
+    public outPort: IntermediatePortModel;
 
     constructor(
         public context: IDataMapperContext,
@@ -24,6 +32,14 @@ export class QueryExpressionNode extends DataMapperNodeModel {
     async initPorts() {
         await this.getSourceType();
         await this.getTargetType();
+        this.inPort = new IntermediatePortModel(
+            md5(JSON.stringify(this.value.position) + "IN")
+            , "IN"
+        );
+        this.outPort = new IntermediatePortModel(
+            md5(JSON.stringify(this.value.position) + "OUT")
+            , "OUT"
+        );
     }
 
     async getSourceType() {
@@ -46,6 +62,8 @@ export class QueryExpressionNode extends DataMapperNodeModel {
                     && STKindChecker.isRecordTypeDesc(fieldType.memberTypeDesc)) {
                     sourceTypeDesc = fieldType.memberTypeDesc;
                 }
+                this.sourcePort = paramNode.getPort(md5(JSON.stringify(field.position) + "OUT")) as DataMapperPortModel;
+                console.log(this.sourcePort);
               } else if (STKindChecker.isRecordTypeDesc(field.typeName)) {
                 nextRecTypeDesc = field.typeName; // TODO Handle other cases
               }
