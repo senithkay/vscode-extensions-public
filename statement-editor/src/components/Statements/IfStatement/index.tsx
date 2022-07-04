@@ -15,7 +15,7 @@ import React, { useContext } from "react";
 
 import { IfElseStatement, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree"
 
-import { ELSECLAUSE, ELSEIF_CLAUSE } from "../../../constants";
+import { ELSE_CLAUSE, ELSEIF_CLAUSE } from "../../../constants";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { NewExprAddButton } from "../../Button/NewExprAddButton";
 import { ExpressionComponent } from "../../Expression";
@@ -42,9 +42,7 @@ export function IfStatementC(props: IfStatementProps) {
     }
 
     const isFinalIfElseStatement = !(model.elseBody?.elseBody as IfElseStatement)?.ifBody;
-    let isElseAvailable;
-    (model.elseBody?.elseBody) ? isElseAvailable = STKindChecker.isBlockStatement(model.elseBody?.elseBody)
-        : isElseAvailable = false;
+    let isElseAvailable = model.elseBody?.elseBody && STKindChecker.isBlockStatement(model.elseBody?.elseBody);
 
     const addNewIfStatement = (ifBodyModel: STNode) => {
         const newPosition: NodePosition = {
@@ -57,7 +55,7 @@ export function IfStatementC(props: IfStatementProps) {
         const newPosition: NodePosition = {
             ...ifBodyModel.position
         }
-        updateModel(`${ELSECLAUSE}`, newPosition);
+        updateModel(`${ELSE_CLAUSE}`, newPosition);
     };
 
     return (
