@@ -12,7 +12,15 @@
  */
 
 import { STSymbolInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { CaptureBindingPattern, MappingConstructor, ModuleVarDecl, SimpleNameReference, SpecificField, STKindChecker, TypedBindingPattern } from "@wso2-enterprise/syntax-tree";
+import {
+    CaptureBindingPattern,
+    MappingConstructor,
+    ModuleVarDecl,
+    SimpleNameReference,
+    SpecificField,
+    STKindChecker,
+    TypedBindingPattern
+} from "@wso2-enterprise/syntax-tree";
 
 import { getAllModuleVariables } from "../../../../../utils/mixins";
 import { genVariableName } from "../../../../Portals/utils";
@@ -35,8 +43,7 @@ export enum VariableQualifiers {
     CONFIGURABLE = 'configurable',
 }
 
-export function getFormConfigFromModel(model: any, stSymbolInfo: STSymbolInfo): ConfigurableFormState {
-    // FixMe: model is set to any type due to missing properties in ST interface
+export function getFormConfigFromModel(model: ModuleVarDecl, stSymbolInfo: STSymbolInfo): ConfigurableFormState {
     const defaultFormState: ConfigurableFormState = {
         isPublic: false,
         varType: 'int',
@@ -51,11 +58,9 @@ export function getFormConfigFromModel(model: any, stSymbolInfo: STSymbolInfo): 
         const typeData = model.initializer.typeData;
 
         if (model?.typedBindingPattern?.typeDescriptor) {
-            if (STKindChecker.isQualifiedNameReference(model.typedBindingPattern.typeDescriptor)) {
-                defaultFormState.varType = model?.typedBindingPattern?.typeDescriptor?.source.trim();
-            } else if (STKindChecker.isSimpleNameReference(model.typedBindingPattern.typeDescriptor)) {
-                defaultFormState.varType = model?.typedBindingPattern?.typeDescriptor?.name?.value;
-            }
+            defaultFormState.varType = STKindChecker.isSimpleNameReference(model.typedBindingPattern.typeDescriptor)
+                ? model.typedBindingPattern.typeDescriptor?.name?.value
+                : model.typedBindingPattern.typeDescriptor?.source.trim();
         } else if (typeData) {
             const typeSymbol = typeData.typeSymbol;
             if (typeSymbol) {
