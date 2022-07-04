@@ -71,10 +71,11 @@ export class NodeInitVisitor implements Visitor {
 
     
     getNodes() {
-        const nodes = [...this.inputNodes, ...this.intermediateNodes];
+        const nodes = [...this.inputNodes];
         if (this.outputNode) {
             nodes.push(this.outputNode);
         }
+        nodes.push(...this.intermediateNodes);
         return nodes;
     }
 }

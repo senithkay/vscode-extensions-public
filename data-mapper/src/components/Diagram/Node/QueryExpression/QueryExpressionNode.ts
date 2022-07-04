@@ -1,9 +1,11 @@
 import { QueryExpression, RecordField, RecordTypeDesc, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import md5 from "blueimp-md5";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
+import { DataMapperLinkModel } from "../../Link";
 import { DataMapperPortModel } from "../../Port";
 import { IntermediatePortModel } from "../../Port/IntermediatePort/IntermediatePortModel";
 import { getFieldNames, getParamForName } from "../../utils";
+import { ExpressionFunctionBodyNode } from "../ExpressionFunctionBody";
 import { DataMapperNodeModel } from "../model/DataMapperNode";
 import { RequiredParamNode } from "../RequiredParam";
 
@@ -36,10 +38,13 @@ export class QueryExpressionNode extends DataMapperNodeModel {
             md5(JSON.stringify(this.value.position) + "IN")
             , "IN"
         );
+        this.addPort(this.inPort);
         this.outPort = new IntermediatePortModel(
             md5(JSON.stringify(this.value.position) + "OUT")
             , "OUT"
         );
+        this.addPort(this.outPort);
+
     }
 
     async getSourceType() {
@@ -80,5 +85,33 @@ export class QueryExpressionNode extends DataMapperNodeModel {
 
     initLinks(): void {
         // Currently we create links from "IN" ports and back tracing the inputs.
+        if (this.sourcePort && this.inPort) {
+            const link = new DataMapperLinkModel();
+            link.setSourcePort(this.sourcePort);
+            link.setTargetPort(this.inPort);
+            this.getModel().addAll(link);
+        }
+
+        // TODO - temp hack to render link
+        if (this.outPort) {
+            const targetNode = this.getModel().getNodes().find((node) => node instanceof ExpressionFunctionBodyNode);
+            const ports = Object.entries(targetNode.getPorts());
+            const targetPort = ports.find((entry) => {
+                const port = entry[1];
+                if (port instanceof DataMapperPortModel) {
+                    if (STKindChecker.isRecordField(port.typeNode)) {
+                        if (port.typeNode.fieldName.value === "Assets") {
+                            return true;
+                        }
+                    }
+                }
+            });
+            if (targetPort) {
+                const link = new DataMapperLinkModel();
+                link.setSourcePort(this.outPort);
+                link.setTargetPort(targetPort[1]);
+                this.getModel().addAll(link);
+            }
+        }
     }
 }
