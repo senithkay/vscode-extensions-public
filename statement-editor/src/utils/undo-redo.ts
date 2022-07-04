@@ -102,8 +102,4 @@ export class StmtEditorUndoRedoManager {
             return element;
         }
     }
-
-    public getCurrentModel() {
-        return this.undoStack.peek();
-    }
 }

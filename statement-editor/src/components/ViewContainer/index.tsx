@@ -19,7 +19,7 @@ import {
     SecondaryButton,
     StatementEditorButton
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
-import { ModuleVarDecl } from "@wso2-enterprise/syntax-tree";
+import { ModuleVarDecl, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { EditorModel } from "../../models/definitions";
 import { StatementEditorContext } from "../../store/statement-editor-context";
@@ -33,12 +33,14 @@ import { useStatementEditorStyles } from "../styles";
 export interface ViewContainerProps {
     isStatementValid: boolean;
     isConfigurableStmt: boolean;
+    isPullingModule: boolean;
 }
 
 export function ViewContainer(props: ViewContainerProps) {
     const {
         isStatementValid,
-        isConfigurableStmt
+        isConfigurableStmt,
+        isPullingModule
     } = props;
     const intl = useIntl();
     const overlayClasses = useStatementEditorStyles();
@@ -64,7 +66,7 @@ export function ViewContainer(props: ViewContainerProps) {
             activeEditorId
         },
         targetPosition,
-        experimentalEnabled,
+        syntaxTree
     } =  useContext(StatementEditorContext);
     const exprSchemeURI = `expr://${currentFile.path}`;
     const fileSchemeURI = `file://${currentFile.path}`;
@@ -100,7 +102,11 @@ export function ViewContainer(props: ViewContainerProps) {
 
         const model = statementModel as ModuleVarDecl;
 
-        const noOfLines = editors[activeEditorId].isExistingStmt ? 0 : model.source.split('\n').length;
+        const noOfLines = editors[activeEditorId].isExistingStmt
+            ? 0
+            : STKindChecker.isModulePart(syntaxTree) && !!syntaxTree.imports.length
+                ? model.source.split('\n').length
+                : 1;
         const nextEditor: EditorModel = editors[activeEditorId - 1];
 
         updateEditor(activeEditorId - 1, {
@@ -143,31 +149,46 @@ export function ViewContainer(props: ViewContainerProps) {
                         {onCancel && <CloseButton onCancel={onCancel} />}
                     </div>
                 </div>
-                <div
-                    className={`${overlayClasses.statementExpressionWrapper} ${
-                        activeEditorId !== editors.length - 1 && 'overlay'}`
-                    }
-                >
-                    <EditorPane data-testid="editor-pane"/>
-                </div>
-                <div className={overlayClasses.footer}>
-                    <div className={overlayClasses.buttonWrapper}>
-                        <SecondaryButton
-                            text={activeEditorId !== 0 && isConfigurableStmt ? backButtonText : cancelButtonText}
-                            disabled={activeEditorId !== editors.length - 1}
-                            fullWidth={false}
-                            onClick={activeEditorId !== 0 && isConfigurableStmt ? onBackClick : onCancelClick}
-                            dataTestId="cancel-btn"
-                        />
-                        <PrimaryButton
-                            dataTestId="save-btn"
-                            text={activeEditorId !== 0 && isConfigurableStmt ? addConfigurableButtonText : saveButtonText}
-                            disabled={!isStatementValid || activeEditorId !== editors.length - 1}
-                            fullWidth={false}
-                            onClick={activeEditorId !== 0 && isConfigurableStmt ? onAddConfigurableClick : onSaveClick}
-                        />
+                {isPullingModule && (
+                    <div className={overlayClasses.mainStatementWrapper} data-testid="statement-editor-loader">
+                        <div className={overlayClasses.loadingWrapper}>Pulling package...</div>
                     </div>
-                </div>
+                )}
+                {!isPullingModule && (
+                    <>
+                        <div
+                            className={`${overlayClasses.statementExpressionWrapper} ${
+                                activeEditorId !== editors.length - 1 && "overlay"
+                            }`}
+                        >
+                            <EditorPane data-testid="editor-pane" />
+                        </div>
+                        <div className={overlayClasses.footer}>
+                            <div className={overlayClasses.buttonWrapper}>
+                                <SecondaryButton
+                                    text={activeEditorId !== 0 && isConfigurableStmt ? backButtonText : cancelButtonText}
+                                    disabled={activeEditorId !== editors.length - 1}
+                                    fullWidth={false}
+                                    onClick={activeEditorId !== 0 && isConfigurableStmt ? onBackClick : onCancelClick}
+                                    dataTestId="cancel-btn"
+                                />
+                                <PrimaryButton
+                                    dataTestId="save-btn"
+                                    text={
+                                        activeEditorId !== 0 && isConfigurableStmt
+                                            ? addConfigurableButtonText
+                                            : saveButtonText
+                                    }
+                                    disabled={!isStatementValid || activeEditorId !== editors.length - 1}
+                                    fullWidth={false}
+                                    onClick={
+                                        activeEditorId !== 0 && isConfigurableStmt ? onAddConfigurableClick : onSaveClick
+                                    }
+                                />
+                            </div>
+                        </div>
+                    </>
+                )}
             </div>
         )
     )

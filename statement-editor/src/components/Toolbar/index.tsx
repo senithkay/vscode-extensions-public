@@ -14,6 +14,8 @@
 import React, { useContext, useEffect, useMemo } from "react";
 
 import IconButton from "@material-ui/core/IconButton";
+import { genVariableName, getAllVariables } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { StatementEditorHint } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
 import ToolbarConfigurableIcon from "../../assets/icons/ToolbarConfigurableIcon";
@@ -23,7 +25,6 @@ import ToolbarRedoIcon from "../../assets/icons/ToolbarRedoIcon";
 import ToolbarUndoIcon from "../../assets/icons/ToolbarUndoIcon";
 import {
     ADD_CONFIGURABLE_LABEL,
-    CONFIGURABLE_NAME_CONSTRUCTOR,
     CONFIGURABLE_TYPE_BOOLEAN,
     CONFIGURABLE_TYPE_STRING
 } from "../../constants";
@@ -120,18 +121,12 @@ export default function Toolbar(props: ToolbarProps) {
 
     const createNewConfigurable = () => {
         const configurableInsertPosition = getModuleElementDeclPosition(syntaxTree);
-        let configurableType = CONFIGURABLE_TYPE_STRING;
+        // TODO: Use the expected type provided by the LS, once it is available
+        //  (https://github.com/wso2-enterprise/internal-support-ballerina/issues/112)
+        const configurableType = CONFIGURABLE_TYPE_STRING;
 
-        if (STKindChecker.isModuleVarDecl(completeModel) || STKindChecker.isLocalVarDecl(completeModel)) {
-            const typeDescNode = completeModel.typedBindingPattern.typeDescriptor;
-            if (isConfigAllowedTypeDesc(typeDescNode)) {
-                configurableType = completeModel.typedBindingPattern.typeDescriptor.source;
-            }
-        } else if (STKindChecker.isWhileStatement(completeModel) || STKindChecker.isIfElseStatement(completeModel)) {
-            configurableType = CONFIGURABLE_TYPE_BOOLEAN;
-        }
-
-        const configurableStmt = `configurable ${configurableType} ${CONFIGURABLE_NAME_CONSTRUCTOR} = ?;`;
+        const confName = genVariableName('conf', getAllVariables(stSymbolInfo));
+        const configurableStmt = `configurable ${configurableType} ${confName} = ?;`;
 
         addConfigurable(ADD_CONFIGURABLE_LABEL, configurableInsertPosition, configurableStmt);
     }
@@ -153,53 +148,62 @@ export default function Toolbar(props: ToolbarProps) {
     return (
         <div className={statementEditorClasses.toolbar} data-testid="toolbar">
             <div className={statementEditorClasses.toolbarSet}>
-                <IconButton
-                    onClick={undo}
-                    disabled={!hasUndo}
-                    className={statementEditorClasses.toolbarIcons}
-                    data-testid="toolbar-undo"
-                >
-                    <ToolbarUndoIcon />
-                </IconButton>
+                <StatementEditorHint content={"Undo"} >
+                    <IconButton
+                        onClick={undo}
+                        disabled={!hasUndo}
+                        className={statementEditorClasses.toolbarIcons}
+                        data-testid="toolbar-undo"
+                    >
+                        <ToolbarUndoIcon />
+                    </IconButton>
+                </StatementEditorHint>
                 <div className={statementEditorClasses.undoRedoSeparator} />
-                <IconButton
-                    onClick={redo}
-                    disabled={!hasRedo}
-                    className={statementEditorClasses.toolbarIcons}
-                    data-testid="toolbar-redo"
-                >
-                    <ToolbarRedoIcon />
-                </IconButton>
+                <StatementEditorHint content={"Redo"} >
+                    <IconButton
+                        onClick={redo}
+                        disabled={!hasRedo}
+                        className={statementEditorClasses.toolbarIcons}
+                        data-testid="toolbar-redo"
+                    >
+                        <ToolbarRedoIcon />
+                    </IconButton>
+                </StatementEditorHint>
             </div>
             <div className={statementEditorClasses.toolbarSet}>
-                <IconButton
-                    onClick={onClickOnDelete}
-                    disabled={!deletable}
-                    style={{color: deletable ? '#FE523C' : '#8D91A3', padding: deletable && '10px'}}
-                    className={statementEditorClasses.toolbarIcons}
-                    data-testid="toolbar-delete"
-                >
-                    <ToolbarDeleteIcon/>
-                </IconButton>
+                <StatementEditorHint content={"Delete"} >
+                    <IconButton
+                        onClick={onClickOnDelete}
+                        disabled={!deletable}
+                        style={{color: deletable ? '#FE523C' : '#8D91A3', padding: deletable && '10px'}}
+                        className={statementEditorClasses.toolbarIcons}
+                        data-testid="toolbar-delete"
+                    >
+                        <ToolbarDeleteIcon/>
+                    </IconButton>
+                </StatementEditorHint>
             </div>
             <div className={statementEditorClasses.toolbarSet}>
-                <IconButton
-                    onClick={onClickOnConfigurable}
-                    disabled={!configurable}
-                    className={statementEditorClasses.toolbarIcons}
-                >
-                    <ToolbarConfigurableIcon/>
-                </IconButton>
+                <StatementEditorHint content={"Add configurable"} >
+                    <IconButton
+                        onClick={onClickOnConfigurable}
+                        disabled={!configurable}
+                        className={statementEditorClasses.toolbarIcons}
+                    >
+                        <ToolbarConfigurableIcon/>
+                    </IconButton>
+                </StatementEditorHint>
             </div>
             <div className={statementEditorClasses.toolbarSet}>
-                <IconButton
-                    onClick={onClickOnDocumentation}
-                    style={docEnabled ? ({color : '#5567d5'}) : ({color: '#40404B'})}
-                    className={statementEditorClasses.toolbarIcons}
-                >
-                    <ToolbarDocumentationIcon />
-                </IconButton>
-
+                <StatementEditorHint content={"Documentation"} >
+                    <IconButton
+                        onClick={onClickOnDocumentation}
+                        style={docEnabled ? ({color : '#5567d5'}) : ({color: '#40404B'})}
+                        className={statementEditorClasses.toolbarIcons}
+                    >
+                        <ToolbarDocumentationIcon />
+                    </IconButton>
+                </StatementEditorHint>
             </div>
         </div>
     );

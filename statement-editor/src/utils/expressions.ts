@@ -237,6 +237,18 @@ const range: ExpressionGroup = {
     ],
     relatedModelType: ModelType.EXPRESSION
 }
+//     6.26 Range expression
+const concurrency: ExpressionGroup = {
+    name: "Concurrency",
+    expressions: [
+        {
+            name: "Wait for a worker's return",
+            template: `wait ${EXPR_PLACEHOLDER}`,
+            example: "wait Ex"
+        }
+    ],
+    relatedModelType: ModelType.EXPRESSION
+}
 //     6.27 Relational expression
 const relational: ExpressionGroup = {
     name: "Relational",
@@ -422,6 +434,38 @@ const queryIntermediateClauses : ExpressionGroup = {
     relatedModelType: ModelType.QUERY_EXPRESSION
 }
 
+const orderKey : ExpressionGroup = {
+    name: "Order-key",
+    expressions: [
+        {
+            name: "Ascending order key",
+            template: `${SELECTED_EXPRESSION} ascending`,
+            example: "Es ascending"
+        }, {
+            name: "Descending order key",
+            template: `${SELECTED_EXPRESSION} descending`,
+            example: "Es descending"
+        }
+    ],
+    relatedModelType: ModelType.ORDER_KEY
+}
+
+const orderDirectionKeywords: ExpressionGroup = {
+    name: "Order Direction Keywords",
+    expressions: [
+        {
+            name: "Ascending order",
+            template: `ascending`,
+            example: "ascending"
+        }, {
+            name: "Descending order",
+            template: `descending`,
+            example: "descending"
+        }
+    ],
+    relatedModelType: ModelType.ORDER_DIRECTION_KEYWORDS
+}
+
 //     6.36 XML navigation expression
 //         6.36.1 XML name pattern
 //         6.36.2 XML filter expression
@@ -487,6 +531,18 @@ const typeDescriptors : ExpressionGroup = {
         }
     ],
     relatedModelType: ModelType.TYPE_DESCRIPTOR
+}
+
+const remoteMethodCall: ExpressionGroup = {
+    name: "Remote Method Call",
+    expressions: [
+        {
+            name: "Remote Method Call",
+            template: `${SELECTED_EXPRESSION}->${EXPR_PLACEHOLDER}()`,
+            example: "Es->m()"
+        }
+    ],
+    relatedModelType: ModelType.EXPRESSION
 }
 
 const operatorSymbols : ExpressionGroup = {
@@ -599,6 +655,7 @@ export const expressions: ExpressionGroup[] = [
     conditional,
     checking,
     trap,
+    concurrency,
     query,
     typeTest,
     typeofEx,
@@ -610,5 +667,8 @@ export const expressions: ExpressionGroup[] = [
     shift,
     typeDescriptors,
     operatorSymbols,
-    queryIntermediateClauses
+    queryIntermediateClauses,
+    remoteMethodCall,
+    orderKey,
+    orderDirectionKeywords
 ];

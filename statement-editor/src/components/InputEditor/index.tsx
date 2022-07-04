@@ -65,7 +65,7 @@ export function InputEditor(props: InputEditorProps) {
             source = model.source;
         }
 
-        return source;
+        return source.trim();
     }, [model]);
 
     const [isEditing, setIsEditing] = useState(false);
@@ -89,6 +89,12 @@ export function InputEditor(props: InputEditorProps) {
     useEffect(() => {
         setUserInput(originalValue);
     }, [originalValue]);
+
+    useEffect(() => {
+        if (currentModel.model && isPositionsEquals(currentModel.model.position, model.position)){
+            setIsEditing(currentModel.isEntered ? currentModel.isEntered : false);
+        }
+    }, [currentModel]);
 
     useEffect(() => {
         if (userInput === '') {
@@ -117,17 +123,18 @@ export function InputEditor(props: InputEditorProps) {
     };
 
     const changeInput = (newValue: string) => {
+        let input = newValue;
         if (!newValue) {
             if (isPositionsEquals(statementModel.position, model.position)) {
                 // placeholder for empty custom statements
-                newValue = STMT_PLACEHOLDER;
+                input = STMT_PLACEHOLDER;
             } else {
-                newValue = (model.viewState as StatementEditorViewState).modelType === ModelType.TYPE_DESCRIPTOR
+                input = (model.viewState as StatementEditorViewState).modelType === ModelType.TYPE_DESCRIPTOR
                     ? TYPE_DESC_PLACEHOLDER : EXPR_PLACEHOLDER;
             }
         }
-        setUserInput(newValue);
-        inputEditorCtx.onInputChange(newValue);
+        setUserInput(input);
+        inputEditorCtx.onInputChange(input);
         debouncedContentChange(newValue, true);
     }
 
@@ -157,7 +164,7 @@ export function InputEditor(props: InputEditorProps) {
             <>
                 <input
                     data-testid="input-editor"
-                    value={INPUT_EDITOR_PLACEHOLDERS.has(userInput.trim()) ? "" : userInput}
+                    value={INPUT_EDITOR_PLACEHOLDERS.has(userInput) ? "" : userInput}
                     className={statementRendererClasses.inputEditorTemplate + ' ' + classNames}
                     onKeyDown={inputEnterHandler}
                     onInput={inputChangeHandler}

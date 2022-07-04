@@ -11,21 +11,13 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-// tslint:disable: ordered-imports
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect } from "react";
 import { useIntl } from "react-intl";
 
-import { FormControl } from "@material-ui/core";
-import { ADD_OTHER_STATEMENT, LowcodeEvent, SAVE_OTHER_STATEMENT, ProcessConfig, CustomExpressionConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { FormActionButtons, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
+import { ProcessConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { StatementEditorWrapper } from "@wso2-enterprise/ballerina-statement-editor";
-import { STNode } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../../../Contexts/Diagram";
-import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
-import { useStyles as useFormStyles } from "../../../../DynamicConnectorForm/style";
-import { wizardStyles } from "../../../style";
-import { LowCodeExpressionEditor } from "../../../../FormFieldComponents/LowCodeExpressionEditor";
 
 interface LogConfigProps {
     config: ProcessConfig;
@@ -40,7 +32,6 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
 
     const {
         props: {
-            isMutationProgress: isMutationInProgress,
             currentFile,
             stSymbolInfo,
             syntaxTree,
@@ -57,7 +48,7 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
         }
     } = useContext(Context);
 
-    const { config, formArgs, onCancel, onSave, onWizardClose } = props;
+    const { config, formArgs, onCancel, onWizardClose } = props;
 
     // Insight event to send when loading the component
     useEffect(() => {
@@ -73,25 +64,18 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
         defaultExpression = config?.model?.source.trim();
     }
 
-    const [expression, setExpression] = useState(defaultExpression);
-
     const formTitle = intl.formatMessage({
         id: "lowcode.develop.configForms.customStatement.title",
         defaultMessage: "Other"
     });
 
-    const handleStatementEditorChange = (partialModel: STNode) => {
-        setExpression(partialModel.source.trim());
-    }
-
     const stmtEditorComponent = StatementEditorWrapper(
         {
             label: formTitle,
-            initialSource: expression ? expression : "STATEMENT",
+            initialSource: defaultExpression ? defaultExpression : "STATEMENT",
             formArgs: { formArgs },
             config,
             onWizardClose,
-            onStmtEditorModelChange: handleStatementEditorChange,
             onCancel,
             currentFile,
             getLangClient: getExpressionEditorLangClient,

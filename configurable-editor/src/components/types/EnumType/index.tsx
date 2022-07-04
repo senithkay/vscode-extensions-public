@@ -16,11 +16,12 @@
  * under the License.
  *
  */
-import React, { ReactElement, useEffect } from "react";
+import React, { ReactElement, useEffect, useState } from "react";
 
 import { ConfigElementProps } from "../../ConfigElement";
 import { FieldLabel, FieldLabelProps } from "../../elements/FieldLabel";
 import { SelectInput, SelectInputProps } from "../../elements/SelectInput";
+import { TextFieldInput, TextFieldInputProps } from "../../elements/TextFieldInput";
 import { SchemaConstants } from "../../model";
 import { SimpleTypeProps } from "../SimpleType";
 
@@ -32,6 +33,8 @@ export interface EnumTypeProps extends SimpleTypeProps {
 }
 
 export const EnumType = (props: EnumTypeProps): ReactElement => {
+    const [inputValue, setInputValue] = useState(String(props.value ? props.value : ""));
+
     const element: ConfigElementProps = {
         description: props.description,
         id: props.id,
@@ -42,12 +45,14 @@ export const EnumType = (props: EnumTypeProps): ReactElement => {
     };
 
     useEffect(() => {
+        element.value = inputValue;
         props.setEnumType(props.id, element);
-    }, []);
+    }, [inputValue]);
 
     const setEnumValue = (id: string, value: any) => {
-        element.value = value;
-        props.setEnumType(id, element);
+        if (id === props.id && value) {
+            setInputValue(value);
+        }
     };
 
     const fieldLabelProps: FieldLabelProps = {
@@ -58,20 +63,42 @@ export const EnumType = (props: EnumTypeProps): ReactElement => {
         type: props.type,
     };
 
-    const selectInputProps: SelectInputProps = {
-        id: props.id,
-        isRequired: props.isRequired,
-        setSelectValue: setEnumValue,
-        types: props.schema[SchemaConstants.ENUM],
-        value: props.value,
-    };
+    if (props.schema) {
+        let enumType = [];
+        enumType = props.schema[SchemaConstants.ENUM];
+        if (enumType) {
+            const selectInputProps: SelectInputProps = {
+                id: props.id,
+                isRequired: props.isRequired,
+                setSelectValue: setEnumValue,
+                types: enumType,
+                value: inputValue,
+            };
 
-    return(
-        <div key={props.id + "-FIELD"}>
-            <FieldLabel {...fieldLabelProps} />
-            <SelectInput {...selectInputProps}/>
-        </div>
-    );
+            return(
+                <div key={props.id + "-FIELD"}>
+                    <FieldLabel {...fieldLabelProps} />
+                    <SelectInput {...selectInputProps}/>
+                </div>
+            );
+        }
+    } else {
+        const textFieldInputProps: TextFieldInputProps = {
+            id: props.id,
+            isRequired: props.isRequired,
+            placeholder: props.placeholder,
+            setTextFieldValue: setEnumValue,
+            type: "text",
+            value: inputValue,
+        };
+
+        return(
+            <div key={props.id + "-FIELD"}>
+                <FieldLabel {...fieldLabelProps} />
+                <TextFieldInput {...textFieldInputProps}/>
+            </div>
+        );
+    }
 };
 
 export default EnumType;

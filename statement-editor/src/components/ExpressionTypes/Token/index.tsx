@@ -32,7 +32,7 @@ import {
     VarKeyword
 } from "@wso2-enterprise/syntax-tree";
 
-import { getClassNameForToken, getMinutiaeJSX } from "../../../utils";
+import { getClassNameForToken, getJSXForMinutiae, getMinutiaeJSX } from "../../../utils";
 import { StatementEditorViewState } from "../../../utils/statement-editor-viewstate";
 import { InputEditor } from "../../InputEditor";
 
@@ -64,15 +64,16 @@ export function TokenComponent(props: TokenProps) {
         classNames: getClassNameForToken(model)
     };
 
-    const { leadingMinutiaeJSX, trailingMinutiaeJSX } = getMinutiaeJSX(model);
-
     const isFieldWithNewLine = (model.viewState as StatementEditorViewState).multilineConstructConfig.isFieldWithNewLine;
+
+    const leadingMinutiaeJSX = getJSXForMinutiae(model?.leadingMinutiae, isFieldWithNewLine);
+    const trailingMinutiaeJSX = getJSXForMinutiae(model?.trailingMinutiae, isFieldWithNewLine);
 
     return (
         <>
             {leadingMinutiaeJSX}
             <InputEditor {...inputEditorProps} />
-            {!isFieldWithNewLine && trailingMinutiaeJSX}
+            {trailingMinutiaeJSX}
         </>
     );
 }

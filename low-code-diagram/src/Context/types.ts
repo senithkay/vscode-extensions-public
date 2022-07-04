@@ -1,4 +1,4 @@
-import { BallerinaConnectorInfo, ConfigOverlayFormStatus, ConnectorConfigWizardProps, DiagramOverlayPosition, LowcodeEvent, PerformanceData, PlusWidgetProps, STModification, STSymbolInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { BallerinaConnectorInfo, ConfigOverlayFormStatus, ConnectorWizardProps, DiagramOverlayPosition, LowcodeEvent, PerformanceData, PlusWidgetProps, STModification, STSymbolInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { PlusViewState } from "../ViewState";
@@ -53,7 +53,7 @@ export interface LowCodeDiagramAPI {
         deleteComponent?: (model: STNode, onDelete?: () => void) => void;
         renderEditForm?: (model: STNode, targetPosition: NodePosition, configOverlayFormStatus: ConfigOverlayFormStatus, onClose?: () => void, onSave?: () => void) => void;
         renderAddForm?: (targetPosition: NodePosition, configOverlayFormStatus: ConfigOverlayFormStatus, onClose?: () => void, onSave?: () => void) => void;
-        renderConnectorWizard?: (connectorConfigWizardProps: ConnectorConfigWizardProps) => void;
+        renderConnectorWizard?: (connectorWizardProps: ConnectorWizardProps) => void;
         renderDialogBox?: (type: string, onConfirm: () => void, onCancel?: () => void, position?: DiagramOverlayPosition, overlayId?: string, message?: string, removeText?: string, isFunctionMember?: boolean) => void;
         renderPlusWidget?: (type: string, plusWidgetProps: PlusWidgetProps, viewState?: PlusViewState) => any;
         closeAllOpenedForms?: (callBack?: () => void) => void;
@@ -110,4 +110,5 @@ export interface FunctionProperties {
     overlayId: string;
     overlayNode: HTMLDivElement;
     functionNode: STNode;
+    hasWorker: boolean;
 }

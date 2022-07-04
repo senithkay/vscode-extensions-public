@@ -11,30 +11,15 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-// tslint:disable: ordered-imports
 import React, { useContext, useState } from "react";
-import { FormattedMessage, useIntl } from "react-intl";
+import { useIntl } from "react-intl";
 
-import { BinaryExpression, ForeachStatement } from "@wso2-enterprise/syntax-tree";
-import classnames from "classnames";
-import { FormControl, Typography } from "@material-ui/core";
-
-import { FormField, ConditionConfig, ForeachConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { FormActionButtons, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
-import { Context } from "../../../../../../../Contexts/Diagram";
-import { getAllVariables } from "../../../../../../utils/mixins";
-import { createForeachStatement, createForeachStatementWithBlock, getInitialSource } from "../../../../../../utils/modification-util";
-import { genVariableName } from "../../../../../Portals/utils";
-import { useStyles } from "../../../../DynamicConnectorForm/style";
-import { SelectDropdownWithButton } from "../../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
-import { ExpressionEditorProps } from "@wso2-enterprise/ballerina-expression-editor";
-import { FormTextInput } from "../../../../FormFieldComponents/TextField/FormTextInput";
+import { ConditionConfig, ForeachConfig, genVariableName, getAllVariables } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { StatementEditorWrapper } from "@wso2-enterprise/ballerina-statement-editor";
-import { FormElementProps } from "../../../../Types";
-import { wizardStyles } from "../../../style";
-import { VariableTypeInput, VariableTypeInputProps } from "../../../Components/VariableTypeInput";
-import Tooltip from '../../../../../../../components/TooltipV2'
-import { LowCodeExpressionEditor } from "../../../../FormFieldComponents/LowCodeExpressionEditor";
+import { BinaryExpression, ForeachStatement } from "@wso2-enterprise/syntax-tree";
+
+import { Context } from "../../../../../../../Contexts/Diagram";
+import { createForeachStatement, createForeachStatementWithBlock, getInitialSource } from "../../../../../../utils/modification-util";
 
 interface Iterations {
     start?: string;
@@ -49,13 +34,9 @@ interface ForeachProps {
     onWizardClose: () => void;
 }
 
-export const DEFINE_RANGE: string = "Define Range";
-export const EXISTING_PROPERTY: string = "Select Existing Property";
-
 export function AddForeachForm(props: ForeachProps) {
     const {
         props: {
-            isMutationProgress: isMutationInProgress,
             stSymbolInfo,
             currentFile,
             syntaxTree,
@@ -71,7 +52,7 @@ export function AddForeachForm(props: ForeachProps) {
         }
     } = useContext(Context);
 
-    const { condition, formArgs, onCancel, onSave, onWizardClose } = props;
+    const { condition, formArgs, onCancel, onWizardClose } = props;
 
     const [conditionExpression] = useState(condition.conditionExpression);
     let initCollectionDefined: boolean = (condition.scopeSymbols.length > 0);
@@ -102,9 +83,9 @@ export function AddForeachForm(props: ForeachProps) {
 
     if (!conditionExpression.variable || (conditionExpression.variable === '')) {
         conditionExpression.variable = genVariableName("item", getAllVariables(stSymbolInfo));
-    };
+    }
 
-    const [selectedType, setSelectedType] = useState(conditionExpression.type ? conditionExpression.type : "var");
+    const selectedType = conditionExpression.type ? conditionExpression.type : "var";
 
     const formTitle = intl.formatMessage({
         id: "lowcode.develop.configForms.foreach.title",
@@ -124,13 +105,6 @@ export function AddForeachForm(props: ForeachProps) {
                                 selectedType
                             ));
 
-    const handleStatementEditorChange = (partialModel: ForeachStatement) => {
-        conditionExpression.type = partialModel.typedBindingPattern.typeDescriptor.source.trim();
-        conditionExpression.variable = partialModel.typedBindingPattern.bindingPattern.source.trim();
-        conditionExpression.collection = partialModel.actionOrExpressionNode?.source.trim();
-        setSelectedType(partialModel.typedBindingPattern.typeDescriptor.source.trim());
-    }
-
     const stmtEditorComponent = StatementEditorWrapper(
         {
             label: formTitle,
@@ -138,7 +112,6 @@ export function AddForeachForm(props: ForeachProps) {
             formArgs: { formArgs },
             config: condition,
             onWizardClose,
-            onStmtEditorModelChange: handleStatementEditorChange,
             onCancel,
             currentFile,
             getLangClient: getExpressionEditorLangClient,

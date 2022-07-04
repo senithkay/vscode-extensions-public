@@ -19,7 +19,7 @@ import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import cn from "classnames";
 
 import { StatementEditorContext } from "../../store/statement-editor-context";
-import { getExpressionTypeComponent, isPositionsEquals } from "../../utils";
+import { getExpressionTypeComponent, isPlaceHolderExists, isPositionsEquals } from "../../utils";
 import { useStatementRendererStyles } from "../styles";
 
 
@@ -27,7 +27,7 @@ export interface ExpressionComponentProps {
     model: STNode;
     children?: React.ReactElement[];
     classNames?: string;
-    stmtPosition?: NodePosition
+    stmtPosition?: NodePosition;
 }
 
 export function ExpressionComponent(props: ExpressionComponentProps) {
@@ -48,6 +48,7 @@ export function ExpressionComponent(props: ExpressionComponentProps) {
     const statementRendererClasses = useStatementRendererStyles();
 
     const isSelected = selectedModel.model && model && isPositionsEquals(selectedModel.model.position, model.position);
+    const hasError = model?.viewState?.diagnosticsInPosition?.length > 0 && !isPlaceHolderExists(model?.source ? model.source : model?.value);
 
     const onMouseOver = (e: React.MouseEvent) => {
         setHovered(true);
@@ -65,9 +66,10 @@ export function ExpressionComponent(props: ExpressionComponentProps) {
         if (!hasSyntaxDiagnostics) {
             e.stopPropagation();
             e.preventDefault();
-            changeCurrentModel(model, stmtPosition);
+            changeCurrentModel(model, stmtPosition, e.shiftKey);
         }
     }
+
 
     const styleClassNames = cn(statementRendererClasses.expressionElement,
         isSelected && !hasSyntaxDiagnostics && statementRendererClasses.expressionElementSelected,
@@ -75,6 +77,7 @@ export function ExpressionComponent(props: ExpressionComponentProps) {
         {
             "hovered": !isSelected && isHovered && !hasSyntaxDiagnostics,
         },
+        hasError && statementRendererClasses.errorHighlight,
         classNames
     )
 

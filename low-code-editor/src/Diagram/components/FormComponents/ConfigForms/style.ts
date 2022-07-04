@@ -142,7 +142,7 @@ export const wizardStyles = makeStyles((theme: Theme) =>
             },
         },
         wizardFormControlExtended: {
-            width: 500,
+            width: 700,
             "& .MuiFormControl-marginNormal": {
                 margin: '0 !important',
             },

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 Inc. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -11,5 +11,12 @@
  * associated services.
  */
 import { FunctionForm } from "./FunctionForm/FunctionForm";
+import { ListenerForm } from "./ListenerForm/ListenerForm";
+import { ResourceForm } from "./ResourceForm/ResourceForm";
+import { ServiceConfigForm } from "./ServiceForm/SeviceForm";
 
 export { FunctionForm as Function };
+export { ServiceConfigForm as Service };
+export { ListenerForm as Listener };
+export { FunctionForm as Main };
+export { ResourceForm as Resource };

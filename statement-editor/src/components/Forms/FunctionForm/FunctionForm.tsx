@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 
 import { Button, Divider, FormControl } from "@material-ui/core";
 import { default as AddIcon } from "@material-ui/icons/Add";
@@ -44,6 +44,7 @@ import {
 import debounce from "lodash.debounce";
 
 import { CurrentModel, StmtDiagnostic, SuggestionItem } from "../../../models/definitions";
+import { FormEditorContext } from "../../../store/form-editor-context";
 import { getUpdatedSource } from "../../../utils";
 import { getPartialSTForModuleMembers } from "../../../utils/ls-utils";
 import { completionEditorTypeKinds } from '../../InputEditor/constants';
@@ -58,19 +59,16 @@ import { FunctionParamSegmentEditor } from "./FunctionParamEditor/FunctionSegmen
 export interface FunctionProps {
     model: FunctionDefinition;
     completions: SuggestionItem[];
-    targetPosition: NodePosition;
-    isEdit: boolean;
-    onChange: (genSource: string, partialST: STNode, currentModel?: CurrentModel, newValue?: string, completionKinds?: number[]) => void;
-    onCancel: () => void;
-    getLangClient: () => Promise<ExpressionEditorLangClientInterface>;
-    applyModifications: (modifications: STModification[]) => void;
 }
 
 export function FunctionForm(props: FunctionProps) {
-    const { targetPosition, model, completions, isEdit, onChange, onCancel, getLangClient, applyModifications } = props;
+    const { model, completions } = props;
+
+    const { targetPosition, isEdit, type, onChange, applyModifications, onCancel, getLangClient } = useContext(FormEditorContext);
 
     const formClasses = useFormStyles();
     const connectorClasses = connectorStyles();
+    const isMainFunction = (type === "Main");
 
     // States related to component model
     const [functionName, setFunctionName] = useState<FormEditorField>({
@@ -99,7 +97,7 @@ export function FunctionForm(props: FunctionProps) {
             ...targetPosition, startColumn: model?.functionName?.position?.startColumn
         })
         );
-        const updatedContent = await getUpdatedSource(codeSnippet, model?.source, {
+        const updatedContent = getUpdatedSource(codeSnippet, model?.source, {
             ...model?.functionSignature?.position, startColumn: model?.functionName?.position?.startColumn
         }, undefined, true);
         const partialST = await getPartialSTForModuleMembers(
@@ -108,7 +106,7 @@ export function FunctionForm(props: FunctionProps) {
         if (!partialST.syntaxDiagnostics.length) {
             setCurrentComponentSyntaxDiag(undefined);
             if (newValue && currentModel) {
-                onChange(updatedContent, partialST, currentModel, newValue, completionKinds);
+                onChange(updatedContent, partialST, undefined, currentModel, newValue, completionKinds);
             } else {
                 onChange(updatedContent, partialST);
             }
@@ -134,6 +132,7 @@ export function FunctionForm(props: FunctionProps) {
 
     // Return type related functions
     const onReturnTypeChange = async (value: string) => {
+        // TODO: remove function return validations
         setReturnType({ value, isInteracted: true });
         const parametersStr = parameters ? parameters.map((item) => `${item.type.value} ${item.name.value}`).join(",") : "";
         const codeSnippet = getSource(updateFunctionSignature(functionName.value, parametersStr,
@@ -153,13 +152,13 @@ export function FunctionForm(props: FunctionProps) {
         if (!partialST.syntaxDiagnostics.length) {
             setCurrentComponentSyntaxDiag(undefined);
             if (value && currentModel) {
-                onChange(updatedContent, partialST, currentModel, value, completionEditorTypeKinds);
+                onChange(updatedContent, partialST, undefined, currentModel, value, completionEditorTypeKinds);
             } else {
                 onChange(updatedContent, partialST);
             }
         } else {
             if (currentModel) {
-                onChange(updatedContent, partialST, currentModel, value, completionEditorTypeKinds);
+                onChange(updatedContent, partialST, undefined, currentModel, value, completionEditorTypeKinds);
             }
             setCurrentComponentSyntaxDiag(partialST.syntaxDiagnostics);
         }
@@ -214,7 +213,7 @@ export function FunctionForm(props: FunctionProps) {
         setEditingSegmentId(-1);
     };
     const onParamChange = async (param: FunctionParam) => {
-        setCurrentComponentName("Param")
+        setCurrentComponentName("Param");
         const newParams = [...parameters, param];
         const parametersStr = newParams
             .map((item) => `${item.type.value} ${item.name.value}`)
@@ -247,7 +246,7 @@ export function FunctionForm(props: FunctionProps) {
             ]);
         } else {
             applyModifications([
-                createFunctionSignature("", functionName.value, parametersStr,
+                createFunctionSignature(isMainFunction ? "public" : "", functionName.value, parametersStr,
                     returnType.value ? `returns ${returnType.value}` : "", targetPosition)
             ]);
         }
@@ -307,6 +306,10 @@ export function FunctionForm(props: FunctionProps) {
         }
     }, [model, completions]);
 
+    useEffect(() => {
+        setFunctionName({ ...functionName, value: model?.functionName?.value});
+    }, [model?.functionName?.value]);
+
     return (
         <FormControl data-testid="function-form" className={formClasses.wizardFormControl}>
             <FormHeaderSection
@@ -326,10 +329,17 @@ export function FunctionForm(props: FunctionProps) {
                         stModel={model}
                         disabled={addingNewParam || (currentComponentSyntaxDiag && currentComponentName !== "Name")}
                         hideSuggestions={true}
+                        // placeholder={"Ex: name"}
+                        // defaultValue={(functionName?.isInteracted || isEdit || isMainFunction) ? functionName.value : ""}
                         customProps={{
                             index: 1,
                             optional: false
                         }}
+                        // diagsInRange={model?.functionSignature?.returnTypeDesc?.viewState?.diagnosticsInRange}
+                        // errorMessage={(currentComponentSyntaxDiag && currentComponentName === "Name"
+                        //     && currentComponentSyntaxDiag[0].message) ||
+                        //     model?.functionName?.viewState?.diagnosticsInRange[0]?.message}
+                        // disabled={addingNewParam || isMainFunction || (currentComponentSyntaxDiag && currentComponentName !== "Name")}
                     />
                     <Divider className={connectorClasses.sectionSeperatorHR} />
                     <ConfigPanelSection title={"Parameters"}>

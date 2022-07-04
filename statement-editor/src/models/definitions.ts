@@ -20,7 +20,8 @@ import { StmtEditorUndoRedoManager } from "../utils/undo-redo";
 
 export interface CurrentModel {
     model: STNode,
-    stmtPosition?: NodePosition
+    stmtPosition?: NodePosition,
+    isEntered?: boolean
 }
 
 export interface VariableUserInputs {
@@ -31,6 +32,11 @@ export interface VariableUserInputs {
     formField?: string
 }
 
+export interface LSSuggestions {
+    directSuggestions: SuggestionItem[];
+    secondLevelSuggestions?: SecondLevelSuggestions;
+}
+
 export interface SuggestionItem {
     value: string;
     label?: string,
@@ -38,9 +44,15 @@ export interface SuggestionItem {
     insertText?: string;
     completionKind?: number;
     suggestionType?: number;
-    sortText?: string,
-    insertTextFormat?: number,
-    detail?: string
+    insertTextFormat?: number;
+    prefix?: string;
+    sortText?: string;
+    detail?: string;
+}
+
+export interface SecondLevelSuggestions {
+    selection: string;
+    secondLevelSuggestions: SuggestionItem[];
 }
 
 export interface RemainingContent {
@@ -70,6 +82,7 @@ export interface EditorModel {
     position: NodePosition;
     undoRedoManager: StmtEditorUndoRedoManager;
     isConfigurableStmt?: boolean;
+    isModuleVar?: boolean;
     isExistingStmt?: boolean;
     selectedNodePosition?: NodePosition;
     newConfigurableName?: string;

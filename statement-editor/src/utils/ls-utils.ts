@@ -45,9 +45,18 @@ export async function getPartialSTForStatement(
 
 export async function getPartialSTForModuleMembers(
             partialSTRequest: PartialSTRequest,
-            getLangClient: () => Promise<ExpressionEditorLangClientInterface>): Promise<STNode> {
+            getLangClient: () => Promise<ExpressionEditorLangClientInterface>, isResource?: boolean): Promise<STNode> {
     const langClient: ExpressionEditorLangClientInterface = await getLangClient();
-    const resp = await langClient.getSTForModuleMembers(partialSTRequest);
+    const resp = isResource ? await langClient.getSTForResource(partialSTRequest) :
+        await langClient.getSTForModuleMembers(partialSTRequest);
+    return resp.syntaxTree;
+}
+
+export async function getPartialSTForModulePart(
+    partialSTRequest: PartialSTRequest,
+    getLangClient: () => Promise<ExpressionEditorLangClientInterface>): Promise<STNode> {
+    const langClient: ExpressionEditorLangClientInterface = await getLangClient();
+    const resp = await langClient.getSTForModulePart(partialSTRequest);
     return resp.syntaxTree;
 }
 
@@ -287,4 +296,3 @@ export const handleDiagnostics = async (source: string, fileURI: string, targetP
     const filtered = getFilteredDiagnosticMessages(source, targetPosition, diag);
     return diag;
 }
-

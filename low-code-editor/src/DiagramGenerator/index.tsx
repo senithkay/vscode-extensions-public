@@ -16,7 +16,7 @@ import { monaco } from "react-monaco-editor";
 
 import { MuiThemeProvider } from "@material-ui/core/styles";
 import { BlockViewState } from "@wso2-enterprise/ballerina-low-code-diagram";
-import { ConditionConfig, Connector, DiagramDiagnostic, DIAGRAM_MODIFIED, getImportStatements, LibraryDataResponse, LibraryDocResponse, LibraryKind, LibrarySearchResponse, LowcodeEvent, SentryConfig, STModification, STSymbolInfo, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { CommandResponse, ConditionConfig, Connector, DiagramDiagnostic, DIAGRAM_MODIFIED, getImportStatements, LibraryDataResponse, LibraryDocResponse, LibraryKind, LibrarySearchResponse, LowcodeEvent, SentryConfig, STModification, STSymbolInfo, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FunctionDefinition, ModulePart, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import cloneDeep from "lodash.clonedeep";
 import Mousetrap from 'mousetrap';
@@ -58,7 +58,8 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     const defaultPanX = panX ? Number(panX) : 0;
     const defaultPanY = panY ? Number(panY) : 0;
     const runCommand: (command: PALETTE_COMMANDS, args: any[]) => Promise<boolean> = props.runCommand;
-    const showMessage: (message: string, type: MESSAGE_TYPE, isIgnorable: boolean) => Promise<boolean> = props.showMessage;
+    const runCommandInBackground: (command: string) => Promise<CommandResponse> = props.runCommandInBackground;
+    const showMessage: (message: string, type: MESSAGE_TYPE, isIgnorable: boolean, filePath?: string, fileContent?: string, bypassChecks?: boolean) => Promise<boolean> = props.showMessage;
     const getLibrariesList: (kind?: LibraryKind) => Promise<LibraryDocResponse | undefined> = props.getLibrariesList;
     const getLibrariesData: () => Promise<LibrarySearchResponse | undefined> = props.getLibrariesData;
     const getLibraryData: (orgName: string, moduleName: string, version: string) => Promise<LibraryDataResponse | undefined> = props.getLibraryData;
@@ -96,7 +97,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                 // if (genSyntaxTree?.typeData?.diagnostics && genSyntaxTree?.typeData?.diagnostics?.length > 0) {
                 //     resolveMissingDependency(filePath, content);
                 // }
-                const vistedSyntaxTree: STNode = await getLowcodeST(genSyntaxTree, filePath, langClient, experimentalEnabled);
+                const vistedSyntaxTree: STNode = await getLowcodeST(genSyntaxTree, filePath, langClient, experimentalEnabled, showMessage);
                 if (!vistedSyntaxTree) {
                     return (<div><h1>Parse error...!</h1></div>);
                 }
@@ -193,7 +194,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                 }
             });
             const genSyntaxTree = await getSyntaxTree(path, langClient);
-            const vistedSyntaxTree: STNode = await getLowcodeST(genSyntaxTree, path, langClient, experimentalEnabled);
+            const vistedSyntaxTree: STNode = await getLowcodeST(genSyntaxTree, path, langClient, experimentalEnabled, showMessage);
             setSyntaxTree(vistedSyntaxTree);
             setFileContent(lastsource);
             props.updateFileContent(path, lastsource);
@@ -221,7 +222,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                 }
             });
             const genSyntaxTree = await getSyntaxTree(path, langClient);
-            const vistedSyntaxTree: STNode = await getLowcodeST(genSyntaxTree, path, langClient, experimentalEnabled);
+            const vistedSyntaxTree: STNode = await getLowcodeST(genSyntaxTree, path, langClient, experimentalEnabled, showMessage);
             setSyntaxTree(vistedSyntaxTree);
             setFileContent(lastUndoSource);
             props.updateFileContent(path, lastUndoSource);
@@ -309,7 +310,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                             undoRedo.addModification(source);
                                             setFileContent(source);
                                             props.updateFileContent(filePath, source);
-                                            vistedSyntaxTree = await getLowcodeST(newST, filePath, langClient, experimentalEnabled);
+                                            vistedSyntaxTree = await getLowcodeST(newST, filePath, langClient, experimentalEnabled, showMessage);
                                             setSyntaxTree(vistedSyntaxTree);
                                             if (isDeleteModificationAvailable(mutations)) {
                                                 showMessage("Undo your changes by using Ctrl + Z or Cmd + Z", MESSAGE_TYPE.INFO, true);
@@ -331,7 +332,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                                             ],
                                                         })
                                                         const { syntaxTree: stWithoutDiagnostics } = await langClient.getSyntaxTree({ documentIdentifier: { uri }})
-                                                        vistedSyntaxTree = await getLowcodeST(stWithoutDiagnostics, filePath, langClient, experimentalEnabled);
+                                                        vistedSyntaxTree = await getLowcodeST(stWithoutDiagnostics, filePath, langClient, experimentalEnabled, showMessage);
                                                         setSyntaxTree(vistedSyntaxTree);
                                                     }
                                                     setModulePullInProgress(false);
@@ -396,7 +397,8 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                     getLibrariesList,
                                     getLibrariesData,
                                     getLibraryData
-                                }
+                                },
+                                runCommandInBackground
                             }}
                         />
                     </DiagramGenErrorBoundary>

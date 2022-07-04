@@ -10,33 +10,21 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
-import React, { useContext, useEffect, useRef, useState } from "react";
-import { FormattedMessage, useIntl } from "react-intl";
+// tslint:disable: jsx-no-multiline-js
+import React, { useContext, useEffect } from "react";
+import { useIntl } from "react-intl";
 
-import { FormControl, Typography } from "@material-ui/core";
-import { ExpressionEditorProps } from "@wso2-enterprise/ballerina-expression-editor";
-import { ADD_VARIABLE, LowcodeEvent, ProcessConfig, SAVE_VARIABLE } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { FormActionButtons, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
+import {
+    genVariableName,
+    getAllVariables,
+    ProcessConfig
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { StatementEditorWrapper } from "@wso2-enterprise/ballerina-statement-editor";
 import { LocalVarDecl, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../../../Contexts/Diagram";
-import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
-import { getAllVariables } from "../../../../../../utils/mixins";
 import { createModuleVarDecl, createModuleVarDeclWithoutInitialization, getInitialSource } from "../../../../../../utils/modification-util";
-import { getVariableNameFromST, getVarNamePositionFromST } from "../../../../../../utils/st-util";
-import { genVariableName } from "../../../../../Portals/utils";
-import { useStyles } from "../../../../DynamicConnectorForm/style";
-import { SelectDropdownWithButton } from "../../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
-import { LowCodeExpressionEditor } from "../../../../FormFieldComponents/LowCodeExpressionEditor";
-import { SwitchToggle } from "../../../../FormFieldComponents/SwitchToggle";
-import { FormElementProps } from "../../../../Types";
-import { VariableNameInput, VariableNameInputProps } from "../../../Components/VariableNameInput";
-import {
-    VariableTypeInput,
-    VariableTypeInputProps
-} from "../../../Components/VariableTypeInput";
+import { getVariableNameFromST } from "../../../../../../utils/st-util";
 
 interface AddVariableConfigProps {
     config: ProcessConfig;
@@ -46,19 +34,13 @@ interface AddVariableConfigProps {
     onWizardClose: () => void;
 }
 
-// FIXME: remove variableTypes array once its references are removed from other places
-export const variableTypes: string[] = ["var", "int", "float", "decimal", "boolean", "string", "json",
-    "xml", "error", "any", "anydata", "other"];
-
 export function AddVariableConfig(props: AddVariableConfigProps) {
-    const classes = useStyles();
     const intl = useIntl();
-    const { config, formArgs, onCancel, onSave, onWizardClose } = props;
+    const { config, formArgs, onCancel, onWizardClose } = props;
 
     const {
         props: {
             currentFile,
-            isMutationProgress: isMutationInProgress,
             stSymbolInfo,
             syntaxTree,
             importStatements,
@@ -77,7 +59,6 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
     let initialModelType: string = '';
     let variableName: string = '';
     let varExpression: string = '';
-    const formField: string = 'Expression';
     let initializedState;
 
     const existingProperty = config && config.model;
@@ -103,18 +84,6 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         initializedState = true;
     }
 
-    const [selectedType, setSelectedType] = useState(initialModelType);
-    const [varName, setVarName] = useState(variableName);
-    const [variableExpression, setVariableExpression] = useState<string>(varExpression);
-    const [initialized, setIsInitialized] = useState<boolean>(initializedState);
-
-    let variableHasReferences = false;
-
-    if (existingProperty && STKindChecker.isLocalVarDecl(config.model)) {
-        const symbolRefArray = stSymbolInfo.variableNameReferences.get(variableName);
-        variableHasReferences = symbolRefArray ? symbolRefArray.length > 0 : false;
-    }
-
     // Insight event to send when loading the component
     useEffect(() => {
         // const event: LowcodeEvent = {
@@ -129,32 +98,26 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         defaultMessage: "Variable"
     });
 
-    const initialSource = initialized ? (
+    const initialSource = initializedState ? (
                 getInitialSource(createModuleVarDecl(
                     {
-                        varName: varName ? varName : genVariableName("variable", getAllVariables(stSymbolInfo)),
+                        varName: variableName ? variableName : genVariableName("variable", getAllVariables(stSymbolInfo)),
                         varOptions: [],
-                        varType: selectedType ? selectedType : "var",
-                        varValue: variableExpression ? variableExpression : "EXPRESSION"
+                        varType: initialModelType ? initialModelType : "var",
+                        varValue: varExpression ? varExpression : "EXPRESSION"
                     }
                 ))
             ) :
             (
                 getInitialSource(createModuleVarDeclWithoutInitialization(
                     {
-                        varName: varName ? varName : genVariableName("variable", getAllVariables(stSymbolInfo)),
+                        varName: variableName ? variableName : genVariableName("variable", getAllVariables(stSymbolInfo)),
                         varOptions: [],
-                        varType: selectedType ? selectedType : "var",
+                        varType: initialModelType ? initialModelType : "var",
                         varValue: null
                     }
                 ))
             );
-
-    const handleStatementEditorChange = (partialModel: LocalVarDecl) => {
-        setSelectedType(partialModel.typedBindingPattern.typeDescriptor.source.trim())
-        setVarName(partialModel.typedBindingPattern.bindingPattern.source.trim())
-        setVariableExpression(partialModel.initializer?.source.trim())
-    }
 
     const stmtEditorComponent = StatementEditorWrapper(
         {
@@ -163,7 +126,6 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
             formArgs: { formArgs },
             config,
             onWizardClose,
-            onStmtEditorModelChange: handleStatementEditorChange,
             onCancel,
             currentFile,
             getLangClient: getExpressionEditorLangClient,

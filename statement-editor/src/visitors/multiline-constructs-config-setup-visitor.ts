@@ -11,6 +11,7 @@
  * associated services.
  */
 import {
+    LetClause,
     MappingConstructor, QueryPipeline,
     STKindChecker,
     STNode,
