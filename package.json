@@ -185,6 +185,10 @@
                                     "integrated",
                                     "external"
                                 ],
+                                "enumDescriptions": [
+                                    "Launch program in an integrated VSCode terminal.",
+                                    "Launch program in an external terminal."
+                                ],
                                 "default": "integrated",
                                 "description": "Indicates the terminal kind to launch the debugging process in."
                             }
