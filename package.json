@@ -178,6 +178,15 @@
                                 "type": "boolean",
                                 "default": false,
                                 "description": "Indicates whether to capture network logs."
+                            },
+                            "terminal": {
+                                "type": "string",
+                                "enum": [
+                                    "integrated",
+                                    "external"
+                                ],
+                                "default": "integrated",
+                                "description": "Indicates the terminal kind to launch the debugging process in."
                             }
                         }
                     },
