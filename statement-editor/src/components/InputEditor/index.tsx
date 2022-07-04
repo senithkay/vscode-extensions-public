@@ -46,6 +46,7 @@ export function InputEditor(props: InputEditorProps) {
             updateModel,
             handleChange,
             hasSyntaxDiagnostics,
+            updateSyntaxDiagnostics,
             currentModel
         },
         targetPosition,
@@ -167,16 +168,21 @@ export function InputEditor(props: InputEditorProps) {
     const handleEditEnd = () => {
         setPrevUserInput(userInput);
         if (userInput !== "") {
-            let input = userInput
-            // Remove semicolon
+            // Check syntax diagnostics
+            let isIncorrectSyntax = false;
+            const semicolonRegex = new RegExp('(;)(?=(?:[^"]|"[^"]*")*$)');
             if (userInput.includes(";") && !STKindChecker.isLocalVarDecl(model)) {
-                input = userInput.replace(/(;)(?=(?:[^"]|"[^"]*")*$)/g, "");
-                setUserInput(input);
+                isIncorrectSyntax = semicolonRegex.test(userInput);
             }
-            // Replace empty interpolation with placeholder value
-            const codeSnippet = input.replaceAll('${}', "${" + EXPR_PLACEHOLDER + "}");
-            originalValue === DEFAULT_INTERMEDIATE_CLAUSE ? updateModel(codeSnippet, model ? model.parent.parent.position : targetPosition) :
-            updateModel(codeSnippet, model ? model.position : targetPosition);
+            if (isIncorrectSyntax) {
+                updateSyntaxDiagnostics(true);
+            } else {
+                setUserInput(userInput);
+                // Replace empty interpolation with placeholder value
+                const codeSnippet = userInput.replaceAll('${}', "${" + EXPR_PLACEHOLDER + "}");
+                originalValue === DEFAULT_INTERMEDIATE_CLAUSE ? updateModel(codeSnippet, model ? model.parent.parent.position : targetPosition) :
+                updateModel(codeSnippet, model ? model.position : targetPosition);
+            }
         }
         setIsEditing(false);
     }

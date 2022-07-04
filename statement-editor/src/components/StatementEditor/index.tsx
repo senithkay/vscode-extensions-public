@@ -260,6 +260,10 @@ export function StatementEditor(props: StatementEditorProps) {
         handleCompletions(newValue).then();
     }
 
+    const updateSyntaxDiagnostics = (hasSyntaxIssues: boolean) => {
+        setHasSyntaxDiagnostics(hasSyntaxIssues);
+    }
+
     const updateModel = async (codeSnippet: string, position: NodePosition, stmtModel?: STNode) => {
         const existingModel = stmtModel || model;
         let partialST: STNode;
@@ -485,6 +489,7 @@ export function StatementEditor(props: StatementEditorProps) {
                     restArg={restArg}
                     hasRestArg={isRestArg}
                     hasSyntaxDiagnostics={hasSyntaxDiagnostics}
+                    updateSyntaxDiagnostics={updateSyntaxDiagnostics}
                 >
                     <ViewContainer
                         isStatementValid={!stmtDiagnostics.length}
