@@ -35,12 +35,14 @@ export function NewExprAddButton(props: AddButtonProps) {
     const statementRendererClasses = useStatementRendererStyles();
 
     const onClickOnAddButton = () => {
-        onClick(model);
+        if (!hasSyntaxDiagnostics) {
+            onClick(model);
+        }
     };
 
     return (
         <span
-            className={`${statementRendererClasses.plusIcon} ${classNames} ${hasSyntaxDiagnostics && "hide"}`}
+            className={`${statementRendererClasses.plusIcon} ${classNames}`}
             onClick={onClickOnAddButton}
         >
             +
