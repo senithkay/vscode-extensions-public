@@ -267,6 +267,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             background: "linear-gradient(180deg, #FFFFFF 0%, #F7F7F9 100%)",
             boxShadow: "inset 0 0 0 1px #DEE0E7, 0 1px 2px -1px rgba(0,0,0,0.08)",
             cursor: "pointer",
+            width: "inherit",
             "&:active": {
                 background: "linear-gradient(180deg, #ffffff 0%, #f7f7f9 100%)",
                 boxShadow: "inset 0 0 0 1px #a6b3ff, 0 1px 1px 0 rgba(0, 0, 0, 0.06)",
@@ -624,7 +625,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             ...removePadding
         },
         paramList: {
-            maxHeight: '30%',
+            maxHeight: '40%',
             overflowY: 'scroll',
         },
         includedRecordHeaderList: {
@@ -659,6 +660,41 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
         },
         exampleCode : {
             color: '#1D2028'
+        },
+        paramTreeList: {
+            display: 'flex',
+            alignItems: 'flex-start'
+        },
+        listItemMultiLine: {
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'flex-start',
+            minHeight: '40px'
+        },
+        listItemHeader: {
+            display: 'flex',
+            alignItems: 'flex-start',
+            height: '28px'
+        },
+        listItemBody: {
+            marginLeft: '12px',
+            marginBottom: '8px',
+            paddingLeft: '16px',
+            borderLeft: "1px solid #d8d8d8",
+        },
+        listDropdownWrapper: {
+            width: '200px',
+        },
+        listOptionalWrapper: {
+            display: 'flex',
+            alignItems: 'center',
+            height: '32px',
+            marginBottom: '12px'
+        },
+        listOptionalBtn: {
+            textTransform: 'none',
+            minWidth: '32px',
+            color: theme.palette.primary.main
         }
     }),
 );
@@ -794,6 +830,5 @@ export const useStatementEditorStyles = makeStyles(() =>
             },
             ...removePadding
         }
-
     }),
 );
