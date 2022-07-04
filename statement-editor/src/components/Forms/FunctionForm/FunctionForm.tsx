@@ -124,7 +124,7 @@ export function FunctionForm(props: FunctionProps) {
         setFunctionName({ value, isInteracted: true });
         const parametersStr = parameters ? parameters.map((item) => `${item.type.value} ${item.name.value}`).join(",") : "";
         const currentModel: CurrentModel = {
-            model: model.functionName
+            model: model?.functionName
         };
         await functionParamChange(value, parametersStr, returnType.value, currentModel, value);
     }
@@ -307,8 +307,11 @@ export function FunctionForm(props: FunctionProps) {
     }, [model, completions]);
 
     useEffect(() => {
+        console.log('>>> function name effect', model?.functionName?.value)
         setFunctionName({ ...functionName, value: model?.functionName?.value});
     }, [model?.functionName?.value]);
+
+    console.log('>>>', model);
 
     return (
         <FormControl data-testid="function-form" className={formClasses.wizardFormControl}>
@@ -391,6 +394,7 @@ export function FunctionForm(props: FunctionProps) {
                     /> */}
                     <LiteExpressionEditor
                         diagnostics={model?.functionSignature?.returnTypeDesc?.viewState?.diagnosticsInRange}
+                        defaultValue={model?.functionSignature?.returnTypeDesc?.type.source.trim()}
                         onChange={debouncedReturnChange}
                         completions={currentComponentCompletions}
                         stModel={model}

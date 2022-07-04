@@ -172,7 +172,7 @@ export interface LiteExpressionEditorProps {
 export function LiteExpressionEditor(props: LiteExpressionEditorProps) {
     const [disposableTriggers] = useState([]);
     const {
-        defaultValue,
+        defaultValue = '',
         focus,
         targetPosition,
         onChange,
@@ -383,10 +383,10 @@ export function LiteExpressionEditor(props: LiteExpressionEditorProps) {
         }
     }, [focus]);
 
-    // useEffect(()=> {
-    //     const monacoModel = monacoRef.current.editor.getModel();
-    //     monacoModel.setValue(defaultValue);
-    // }, [defaultValue]);
+    useEffect(() => {
+        const monacoModel = monacoRef.current.editor.getModel();
+        monacoModel.setValue(defaultValue);
+    }, [defaultValue]);
 
     useEffect(() => {
         // !hideExpand
