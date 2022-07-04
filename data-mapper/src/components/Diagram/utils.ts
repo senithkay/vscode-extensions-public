@@ -1,43 +1,25 @@
-import { ExpressionFunctionBody, FieldAccess, MappingConstructor, NodePosition, RecordField, RecordTypeDesc, RequiredParam, SimpleNameReference, SpecificField, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { FieldAccess, FunctionDefinition, MappingConstructor, NodePosition, SimpleNameReference, SpecificField, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import { DataMapperLinkModel } from "./Link/model/DataMapperLink";
 import { ExpressionFunctionBodyNode, RequiredParamNode } from "./Node";
 import { DataMapperNodeModel } from "./Node/model/DataMapperNode";
 import { DataMapperPortModel } from "./Port/model/DataMapperPortModel";
-
-export function generatePortId(typeNode: RecordField|RecordTypeDesc, type: "IN" | "OUT", nodeValue: ExpressionFunctionBody|RequiredParam,
-         parentModel?: DataMapperPortModel) {
-    // let id: string = "." + type;
-    // if (STKindChecker.isRecordField(typeNode)) {
-    //     id = typeNode.fieldName.value + "." + id;
-    // } else if (STKindChecker.isRecordTypeDesc(typeNode)) {
-    //     if (parentModel) {
-            
-    //     } else {
-    //         const valueNode = 
-    //     }
-    //     console.log("No field ID");
-    // }
-    // let parent = parentModel;
-    // let parentTypeNode = parentModel?.typeNode;
-    // while (parent !== undefined) {
-    //     if (STKindChecker.isRecordField(parentTypeNode)) {
-    //         id = parentTypeNode.fieldName.value + "." + id;
-    //     } else if (STKindChecker.isRecordTypeDesc(parentTypeNode)) {
-            
-    //     }
-    //     parent = parent.parentModel;
-    // }
-    // return id;
-}
 
 export function getFieldNames(expr: FieldAccess) {
     const fieldNames: string[] = [];
     let nextExp: FieldAccess = expr;
     while(nextExp && STKindChecker.isFieldAccess(nextExp)) {
         fieldNames.push((nextExp.fieldName as SimpleNameReference).name.value);
+		if (STKindChecker.isSimpleNameReference(nextExp.expression)) {
+			fieldNames.push(nextExp.expression.name.value);
+		}
         nextExp = STKindChecker.isFieldAccess(nextExp.expression) ? nextExp.expression : undefined;
     } 
     return fieldNames.reverse();
+}
+
+export function getParamForName(name: string, st: FunctionDefinition) {
+	return st.functionSignature.parameters.find((param) => 
+		STKindChecker.isRequiredParam(param) && param.paramName?.value === name); // TODO add support for other param types
 }
 
 export async function createSpecificFieldSource(link: DataMapperLinkModel) {

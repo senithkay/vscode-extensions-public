@@ -128,7 +128,7 @@ export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
 			if (STKindChecker.isFieldAccess(expr)) {
 				const fieldNames = getFieldNames(expr);
 				let nextTypeNode: RecordTypeDesc = typeDesc;
-				for (let i = 0; i < fieldNames.length; i++) {
+				for (let i = 1; i < fieldNames.length; i++) { // Note i = 1 as we omit param name
 					const fieldName = fieldNames[i];
 					const recField = nextTypeNode.fields.find(
 						(field) => STKindChecker.isRecordField(field) && field.fieldName.value === fieldName);

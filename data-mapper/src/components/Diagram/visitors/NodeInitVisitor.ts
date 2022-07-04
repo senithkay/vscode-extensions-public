@@ -25,7 +25,7 @@ export class NodeInitVisitor implements Visitor {
             node.functionBody as ExpressionFunctionBody, 
             typeDesc
         );
-        this.outputNode.setPosition(800, 100);
+        this.outputNode.setPosition(1000, 100);
 
         // create input nodes
         const params = node.functionSignature.parameters;
@@ -53,7 +53,7 @@ export class NodeInitVisitor implements Visitor {
 
     beginVisitQueryExpression?(node: QueryExpression, parent?: STNode) {
         const queryNode = new QueryExpressionNode(this.context, node, parent);
-        queryNode.setPosition(400, 400);
+        queryNode.setPosition(425, 250);
         this.intermediateNodes.push(queryNode);
     };
     

@@ -5,13 +5,16 @@ import { List, Typography } from '@material-ui/core';
 
 import { createStyles, withStyles, WithStyles, Theme } from "@material-ui/core/styles";
 import { QueryExpressionNode } from './QueryExpressionNode';
+import { SourceNodeWidget } from './SourceNodeWidget';
 
 const styles = (theme: Theme) => createStyles({
 	root: {
 		width: '100%',
 		maxWidth: 500,
-		// backgroundColor: theme.palette.background.default,
-		color: "white"
+		backgroundColor: "#525564",
+		padding: "25px",
+		display: "flex", 
+		color: theme.palette.text.primary
 	}
 });
 
@@ -28,16 +31,9 @@ class QueryExpressionNodeWidgetC extends React.Component<QueryExpressionNodeWidg
 
 		return (
 			<div
-				className={'datamapper-node'}
-				style={{
-					position: 'relative',
-					color: 'white'
-				}}
+				className={classes.root}
 			>
-				<Typography variant="subtitle1">
-					{/* {node.value.source} */}
-				</Typography>
-
+				<SourceNodeWidget typeDesc={node.sourceTypeDesc} />
 			</div>
 		);
 	}
