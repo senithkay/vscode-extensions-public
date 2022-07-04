@@ -80,8 +80,8 @@ export class ExplorerDataProvider implements TreeDataProvider<ExplorerTreeItem> 
 
     getTreeItem(element: ExplorerTreeItem): TreeItem | Thenable<TreeItem> {
         const treeItem = new TreeItem(element.getUri(), element.getFileType() === FileType.Directory ?
-            element.label == 'workspace' ? TreeItemCollapsibleState.Expanded : TreeItemCollapsibleState.Collapsed
-            : TreeItemCollapsibleState.None);
+            element.label === 'workspace' || element.label === process.env.REPO_SUB_DIR ?
+                TreeItemCollapsibleState.Expanded : TreeItemCollapsibleState.Collapsed : TreeItemCollapsibleState.None);
         if (element.getFileType() === FileType.File) {
             if (element.getKind() === EXPLORER_ITEM_KIND.BAL_FILE) {
                 treeItem.command = {
