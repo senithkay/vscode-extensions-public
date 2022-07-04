@@ -98,7 +98,7 @@ export function LSSuggestions() {
             : targetPosition;
         updateModel(value, nodePosition);
         inputEditorCtx.onInputChange('');
-        inputEditorCtx.onSuggestionSelection(suggestion.value);
+        inputEditorCtx.onSuggestionSelection(value);
     }
 
     return (
