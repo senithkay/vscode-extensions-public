@@ -10,11 +10,23 @@ import { SourceNodeWidget } from './SourceNodeWidget';
 const styles = (theme: Theme) => createStyles({
 	root: {
 		width: '100%',
-		maxWidth: 500,
+		minWidth: 400,
 		backgroundColor: "#525564",
 		padding: "25px",
 		display: "flex", 
+		flexDirection: "column",
+		gap: "20px",
 		color: theme.palette.text.primary
+	},
+	fromClause: {
+		backgroundColor: "#74828F",
+		color: "white",
+		padding: "10px"
+	},
+	mappingPane: {
+		display: "flex", 
+		flexDirection: "row",
+		justifyContent: "space-between"
 	}
 });
 
@@ -33,7 +45,13 @@ class QueryExpressionNodeWidgetC extends React.Component<QueryExpressionNodeWidg
 			<div
 				className={classes.root}
 			>
-				<SourceNodeWidget typeDesc={node.sourceTypeDesc} />
+				<div className={classes.fromClause}>
+					{node.value.queryPipeline.fromClause.source}
+				</div>
+				<div className={classes.mappingPane}>
+					<SourceNodeWidget typeDesc={node.sourceTypeDesc} />
+					<SourceNodeWidget typeDesc={node.sourceTypeDesc} />
+				</div>
 			</div>
 		);
 	}

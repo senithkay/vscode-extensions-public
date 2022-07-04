@@ -13,6 +13,7 @@ import { RecordField, RecordTypeDesc, STKindChecker } from "@wso2-enterprise/syn
 import { DataMapperPortWidget } from "../../Port/view/DataMapperPortWidget";
 import { DataMapperNodeModel, TypeDescriptor } from "../model/DataMapperNode";
 import { DataMapperPortModel } from "../../Port/model/DataMapperPortModel";
+import { getFieldTypeName } from "../../utils";
 
 // tslint:disable: jsx-no-multiline-js
 const useStyles = makeStyles((theme: Theme) =>
@@ -32,6 +33,12 @@ const useStyles = makeStyles((theme: Theme) =>
         treeLabelInPort: {
             float: "left",
             marginRight: "25px"
+        },
+        typeLabel: {
+            marginLeft: "3px",
+            // color: "green",
+            backgroundColor: "green",
+            padding: "2px 5px 2px 5px"
         }
     }),
 );
@@ -51,6 +58,9 @@ export function DataMapperNodeField(props: DataMapperNodeFieldProps) {
     
     const portIn = nodeModel.getPort(md5(JSON.stringify(typeNode.position) + "IN")) as DataMapperPortModel;
     const portOut = nodeModel.getPort(md5(JSON.stringify(typeNode.position) + "OUT")) as DataMapperPortModel;
+    const typeName = STKindChecker.isRecordField(typeNode)
+        ? getFieldTypeName(typeNode)
+        : "record";
 
     const label = (
         <div className={classes.treeLabel}>
@@ -62,6 +72,11 @@ export function DataMapperNodeField(props: DataMapperNodeFieldProps) {
             <span>
                 {name}
             </span>
+            {typeName &&
+                <span className={classes.typeLabel}>
+                    {typeName}
+                </span>
+            }
             <span className={classes.treeLabelOutPort}>
                 {portOut &&
                     <DataMapperPortWidget engine={engine} port={portOut} />

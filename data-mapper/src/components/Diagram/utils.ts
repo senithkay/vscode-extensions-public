@@ -1,4 +1,4 @@
-import { FieldAccess, FunctionDefinition, MappingConstructor, NodePosition, SimpleNameReference, SpecificField, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { FieldAccess, FunctionDefinition, MappingConstructor, NodePosition, RecordField, SimpleNameReference, SpecificField, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import { DataMapperLinkModel } from "./Link/model/DataMapperLink";
 import { ExpressionFunctionBodyNode, RequiredParamNode } from "./Node";
 import { DataMapperNodeModel } from "./Node/model/DataMapperNode";
@@ -15,6 +15,18 @@ export function getFieldNames(expr: FieldAccess) {
         nextExp = STKindChecker.isFieldAccess(nextExp.expression) ? nextExp.expression : undefined;
     } 
     return fieldNames.reverse();
+}
+
+export function getFieldTypeName(field: RecordField) {
+	let name: string;
+	if (STKindChecker.isRecordTypeDesc(field.typeName)) {
+		name = "record";
+	} else if (STKindChecker.isArrayTypeDesc(field.typeName)) {
+		name = "array";
+	} else if ((field.typeName as any)?.name) {
+		name = (field.typeName as any)?.name.value;
+	}
+	return name;
 }
 
 export function getParamForName(name: string, st: FunctionDefinition) {
