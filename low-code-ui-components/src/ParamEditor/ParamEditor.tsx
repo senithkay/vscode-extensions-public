@@ -145,7 +145,7 @@ export function ParamEditor(props: ParamProps) {
                             }}
                             errorMessage={((currentComponentName === "Type" && syntaxDiag ? syntaxDiag : "")
                                 || typeDiagnostics)}
-                            placeholder={"Type"}
+                            placeholder={"Enter Type"}
                             size="small"
                             disabled={syntaxDiag && currentComponentName !== "Type"}
                         />
@@ -164,7 +164,7 @@ export function ParamEditor(props: ParamProps) {
                         errorMessage={((currentComponentName === "Name" && (syntaxDiag) ? syntaxDiag : "")
                             || nameDiagnostics)}
                         onBlur={null}
-                        placeholder={"name"}
+                        placeholder={"Enter Name"}
                         size="small"
                         disabled={syntaxDiag && currentComponentName !== "Name"}
                     />

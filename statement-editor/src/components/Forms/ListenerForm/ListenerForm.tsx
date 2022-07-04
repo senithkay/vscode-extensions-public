@@ -170,7 +170,7 @@ export function ListenerForm(props: FunctionProps) {
                             model?.variableName?.viewState?.diagnosticsInRange[0]?.message}
                         onBlur={null}
                         onFocus={handleNameFocus}
-                        placeholder={"name"}
+                        placeholder={"Enter Name"}
                         size="small"
                         disabled={currentComponentSyntaxDiag && currentComponentName !== "Name"}
                     />
@@ -189,7 +189,7 @@ export function ListenerForm(props: FunctionProps) {
                             viewState?.diagnosticsInRange[0]?.message}
                         onBlur={null}
                         onFocus={handlePortFocus}
-                        placeholder={"9090"}
+                        placeholder={"Enter Port"}
                         size="small"
                         disabled={currentComponentSyntaxDiag && currentComponentName !== "Port"}
                     />

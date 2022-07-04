@@ -214,7 +214,7 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
                             portSemDiagMsg === undefined && serviceModel?.viewState?.diagnosticsInRange[0]?.message}
                         onBlur={null}
                         onFocus={onBasePathFocus}
-                        placeholder={"/"}
+                        placeholder={"Enter Path"}
                         size="small"
                         disabled={currentComponentSyntaxDiag && currentComponentName !== "path"}
                     />

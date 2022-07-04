@@ -133,7 +133,7 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
                     }}
                     errorMessage={(syntaxDiag && currentComponentName === "Listener Port" && syntaxDiag[0].message) ||
                         portSemDiagMsg}
-                    placeholder={"9090"}
+                    placeholder={"Enter Port"}
                     size="small"
                     disabled={(syntaxDiag && currentComponentName !== "Listener Port") || isDisabled}
                 />

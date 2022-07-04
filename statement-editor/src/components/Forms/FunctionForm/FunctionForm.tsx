@@ -318,7 +318,7 @@ export function FunctionForm(props: FunctionProps) {
                         isActive={currentComponentName === "Name"}
                         onChange={debouncedNameChange}
                         onFocus={onNameFocus}
-                        placeholder={"Ex: name"}
+                        placeholder={"Enter Name"}
                         defaultValue={functionName}
                         customProps={{
                             optional: false,
@@ -365,7 +365,7 @@ export function FunctionForm(props: FunctionProps) {
                         completions={currentComponentCompletions}
                         onChange={debouncedReturnChange}
                         onFocus={onReturnFocus}
-                        placeholder={"Ex: string"}
+                        placeholder={"Enter Return Type"}
                         customProps={{
                             optional: true,
                             isErrored: ((currentComponentSyntaxDiag !== undefined &&

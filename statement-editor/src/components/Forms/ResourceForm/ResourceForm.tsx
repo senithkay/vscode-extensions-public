@@ -272,7 +272,7 @@ export function ResourceForm(props: FunctionProps) {
                                             && currentComponentSyntaxDiag[0].message) || pathNameSemDiagnostics ||
                                         pathTypeSemDiagnostics}
                                     onBlur={null}
-                                    placeholder={"."}
+                                    placeholder={"Enter Path"}
                                     size="small"
                                     disabled={(isParamInProgress || (currentComponentSyntaxDiag &&
                                         currentComponentName !== "Path")) || isQueryInProgress}
