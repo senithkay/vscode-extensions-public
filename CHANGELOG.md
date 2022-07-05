@@ -1,5 +1,12 @@
 # Change Log
 
+## **3.0.2**
+### Improved
+- The low-code diagram editor.
+
+### Fixed
+- Swagger View. [#416](https://github.com/wso2-enterprise/ballerina-plugin-vscode/issues/416)
+
 ## **3.0.1**
 ### Added
 - A palette command that creates the distribution format of the Ballerina package. [#180](https://github.com/wso2/ballerina-plugin-vscode/issues/180)
