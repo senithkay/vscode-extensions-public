@@ -160,7 +160,7 @@ export function InputEditor(props: InputEditorProps) {
     const handleDoubleClick = () => {
         if (!notEditable && !hasSyntaxDiagnostics) {
             setIsEditing(true);
-        } else if (!notEditable && hasSyntaxDiagnostics && (currentModel.model === model)) {
+        } else if (!notEditable && hasSyntaxDiagnostics && ((currentModel.model === model) || !model)) {
             setIsEditing(true);
         }
     };

@@ -286,24 +286,26 @@ export function StatementEditor(props: StatementEditorProps) {
 
         if (!partialST.syntaxDiagnostics.length || config.type === CUSTOM_CONFIG_TYPE) {
             const updatedContent = getUpdatedSource(partialST.source, currentFile.content, targetPosition, moduleList);
-            sendDidChange(fileURI, updatedContent, getLangClient).then();
-            const diagnostics = await handleDiagnostics(partialST.source);
-            setStmtModel(partialST, diagnostics);
-            const selectedPosition = getSelectedModelPosition(codeSnippet, position);
-            const oldModel : StackElement = {
-                model: existingModel,
-                selectedPosition: currentModel.model.position
-            }
-            const newModel : StackElement = {
-                model: partialST,
-                selectedPosition
-            }
-            undoRedoManager.add(oldModel, newModel);
+            const updatedStatement = addToTargetPosition(model.source, currentModel.model.position, codeSnippet);
+            if (updatedStatement.trim() === partialST.source.trim()) {
+                sendDidChange(fileURI, updatedContent, getLangClient).then();
+                const diagnostics = await handleDiagnostics(partialST.source);
+                setStmtModel(partialST, diagnostics);
+                const selectedPosition = getSelectedModelPosition(codeSnippet, position);
+                const oldModel : StackElement = {
+                    model: existingModel,
+                    selectedPosition: currentModel.model.position
+                }
+                const newModel : StackElement = {
+                    model: partialST,
+                    selectedPosition
+                }
+                undoRedoManager.add(oldModel, newModel);
 
-            const newCurrentModel = getCurrentModel(selectedPosition, enrichModel(partialST, targetPosition));
-            setCurrentModel({model: newCurrentModel});
-            setHasSyntaxDiagnostics(false);
-
+                const newCurrentModel = getCurrentModel(selectedPosition, enrichModel(partialST, targetPosition));
+                setCurrentModel({model: newCurrentModel});
+                setHasSyntaxDiagnostics(false);
+            }
         } else if (partialST.syntaxDiagnostics.length){
             const updatedStatement = addToTargetPosition(model.source, currentModel.model.position, codeSnippet);
             const updatedContent = getUpdatedSource(updatedStatement, currentFile.content, targetPosition, moduleList);
