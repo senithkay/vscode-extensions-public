@@ -10,6 +10,8 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+import { VisibleEndpoint } from "@wso2-enterprise/syntax-tree";
+import { Endpoint } from "../Types/type";
 import { CollapseViewState } from "./collapse";
 import { ControlFlowState } from './controlflow';
 import { DraftStatementViewState } from "./draft";
@@ -34,7 +36,9 @@ export class BlockViewState extends ViewState {
     public workerArrows: SimpleBBox[] = [];
     public workerIndicatorLine: SimpleBBox = new SimpleBBox();
     public functionNodeFilePath?: string = undefined;
-    public functionNodeSource?: string = undefined
+    public functionNodeSource?: string = undefined;
+    public parentBlock?: any = undefined;
+    public expandOffSet?: number = 0;
 
     constructor() {
         super();

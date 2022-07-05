@@ -1356,22 +1356,10 @@ export class SizingVisitor implements Visitor {
             }
         }
         if (viewState.functionNode && viewState.functionNodeExpanded) {
-                const parentConnectors = this.allEndpoints;
-                recalculateSizingAndPositioning(viewState.functionNode, null, parentConnectors);
-                viewState.bBox.h += viewState.functionNode.viewState.bBox.h;
-                // height += viewState.functionNode.viewState.bBox.h;
-                // if (viewState.bBox.rw < viewState.functionNode.viewState.bBox.w) {
-                let parentCount = 0;
-                viewState.functionNode.functionBody.viewState.connectors.forEach((value: Endpoint, key: string) => {
-                    const found = parentConnectors?.get(key);
-                    if(found && found.actions.length > 0) {
-                        parentCount++;
-                    }
-                })
-                const newRw = (parentCount * (DefaultConfig.connectorEPWidth + DefaultConfig.epGap));
-                viewState.bBox.rw += viewState.functionNode.viewState.bBox.w;
-                viewState.bBox.w = viewState.bBox.rw + viewState.bBox.lw;
-                // }
+            recalculateSizingAndPositioning(viewState.functionNode, null, this.allEndpoints);
+            viewState.bBox.h += viewState.functionNode.viewState.bBox.h;
+            viewState.bBox.rw += viewState.functionNode.viewState.bBox.w;
+            viewState.bBox.w = viewState.bBox.rw + viewState.bBox.lw;
         }
     }
 

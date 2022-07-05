@@ -232,7 +232,7 @@ export class PositioningVisitor implements Visitor {
         }
     }
 
-    public endVisitFunctionDefinition(node: FunctionDefinition) {
+    public endVisitFunctionDefinition(node: FunctionDefinition, parent?: STNode) {
         const viewState: FunctionViewState = node.viewState;
         const bodyViewState: BlockViewState = node.functionBody.viewState;
         const body: FunctionBodyBlock = node.functionBody as FunctionBodyBlock;
@@ -266,7 +266,7 @@ export class PositioningVisitor implements Visitor {
             this.plusHolderHeight = 0;
         }
 
-        updateConnectorCX(bodyViewState.bBox.rw + widthOfWorkers, bodyViewState.bBox.cx, bodyViewState.connectors, viewState.trigger.cy);
+        updateConnectorCX(bodyViewState.bBox.rw + widthOfWorkers, bodyViewState.bBox.cx, bodyViewState.connectors, viewState.trigger.cy, !!parent);
 
         // Update First Control Flow line
         this.updateFunctionEdgeControlFlow(viewState, body);
@@ -550,7 +550,7 @@ export class PositioningVisitor implements Visitor {
         statements.forEach((statement) => {
             const statementViewState: StatementViewState = statement.viewState;
             statementViewState.bBox.cx = blockViewState.bBox.cx;
-            statementViewState.bBox.cy = blockViewState.bBox.cy + statementViewState.bBox.offsetFromTop + height;
+            statementViewState.bBox.cy = blockViewState.bBox.cy + statementViewState.bBox.offsetFromTop + height + 100;
 
             const plusForIndex: PlusViewState = getPlusViewState(index, blockViewState.plusButtons);
 
@@ -795,8 +795,7 @@ export class PositioningVisitor implements Visitor {
                         // to skip updating EP heights which less than the current EP height
                         mainEp.lifeLine.h = statementViewState.action.trigger.cy - mainEp.lifeLine.cy + statementViewState.action.trigger.h + DefaultConfig.connectorLine.gap;
                     }
-
-                    // Add actions to the corresponding map item.
+                    statementViewState.expandOffSet = blockViewState.expandOffSet;
                     endpoint.actions.push(statementViewState);
                 }
 

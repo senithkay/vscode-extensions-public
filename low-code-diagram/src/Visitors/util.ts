@@ -67,44 +67,47 @@ export function getPlusViewState(index: number, viewStates: PlusViewState[]): Pl
     return matchingPlusViewState;
 }
 
-export function updateConnectorCX(maxContainerRightWidth: number, containerCX: number, allEndpoints: Map<string, Endpoint>, startCY?: number) {
+export function updateConnectorCX(maxContainerRightWidth: number, containerCX: number, allEndpoints: Map<string, Endpoint>, startCY?: number, haveParent?: boolean) {
     const containerRightMostConerCX = maxContainerRightWidth + containerCX;
     let prevX = 0;
-    let index: number = 0;
+    let foundFirst: boolean = false;
 
     allEndpoints.forEach((value: Endpoint, key: string) => {
         const visibleEndpoint: VisibleEndpoint = value.visibleEndpoint;
         const mainEp: EndpointViewState = visibleEndpoint.viewState;
         mainEp.collapsed = value.firstAction?.collapsed;
 
-        if (index === 0) {
-            if (mainEp.lifeLine.cx <= containerRightMostConerCX) {
-                mainEp.lifeLine.cx = containerRightMostConerCX + (mainEp.bBox.w / 2) + DefaultConfig.epGap;
-            } else if (mainEp.lifeLine.cx > containerRightMostConerCX) {
-                const diff = mainEp.lifeLine.cx - containerRightMostConerCX;
-                if (diff < DefaultConfig.epGap) {
-                    mainEp.lifeLine.cx = mainEp.lifeLine.cx + (mainEp.bBox.w / 2) + (DefaultConfig.epGap - diff);
+        if (haveParent || !value.isExpandedPoint) {
+            if (!foundFirst) {
+                if (mainEp.lifeLine.cx <= containerRightMostConerCX) {
+                    mainEp.lifeLine.cx = containerRightMostConerCX + (mainEp.bBox.w / 2) + DefaultConfig.epGap;
+                } else if (mainEp.lifeLine.cx > containerRightMostConerCX) {
+                    const diff = mainEp.lifeLine.cx - containerRightMostConerCX;
+                    if (diff < DefaultConfig.epGap) {
+                        mainEp.lifeLine.cx = mainEp.lifeLine.cx + (mainEp.bBox.w / 2) + (DefaultConfig.epGap - diff);
+                    }
                 }
+                foundFirst = true;
+            } else {
+                mainEp.lifeLine.cx = prevX + (mainEp.bBox.w / 2) + DefaultConfig.epGap;
             }
-            prevX = mainEp.lifeLine.cx;
-        } else {
-            mainEp.lifeLine.cx = prevX + (mainEp.bBox.w / 2) + DefaultConfig.epGap;
-            prevX = mainEp.lifeLine.cx;
-        }
 
-        if (mainEp.isExternal) { // Render external endpoints align with the start element
-            mainEp.lifeLine.h += mainEp.lifeLine.cy - (startCY + (CONNECTOR_PROCESS_SVG_HEIGHT / 2));
-            mainEp.lifeLine.cy = startCY + (CONNECTOR_PROCESS_SVG_HEIGHT / 2);
-        }
+            prevX = mainEp.lifeLine.cx;
 
-        updateActionTriggerCx(mainEp.lifeLine.cx, value.actions);
-        ++index;
+            if (mainEp.isExternal) { // Render external endpoints align with the start element
+                mainEp.lifeLine.h += mainEp.lifeLine.cy - (startCY + (CONNECTOR_PROCESS_SVG_HEIGHT / 2));
+                mainEp.lifeLine.cy = startCY + (CONNECTOR_PROCESS_SVG_HEIGHT / 2);
+            }
+            
+            updateActionTriggerCx(mainEp.lifeLine.cx, value.actions, value.isExpandedPoint);
+        }
     });
 }
 
-export function updateActionTriggerCx(connectorCX: number, actions: StatementViewState[]) {
+export function updateActionTriggerCx(connectorCX: number, actions: StatementViewState[], isExpanded: boolean) {
     actions.forEach((action) => {
-        action.action.trigger.cx = connectorCX;
+        const offset = isExpanded && action.expandOffSet > 0 ? action.expandOffSet  + 170 + 11 + 50 + 24 : 0;
+        action.action.trigger.cx = connectorCX - offset;
     });
 }
 

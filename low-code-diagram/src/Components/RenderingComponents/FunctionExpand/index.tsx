@@ -101,7 +101,7 @@ export function FunctionExpand(props: FunctionProps) {
         {isInitPlusAvailable && <StartButton model={model} />}
         {!isInitPlusAvailable && <StartButton model={model} />}
         {!isInitPlusAvailable && (
-          <WorkerBody model={block} viewState={block.viewState} />
+          <WorkerBody model={block} viewState={block.viewState} expandReadonly={true} />
         )}
         {!isInitPlusAvailable &&
           isStatementsAvailable &&
@@ -113,42 +113,34 @@ export function FunctionExpand(props: FunctionProps) {
 
   const arrowClasses = cn("action-invocation");
   const blockHeight = model.viewState.bBox.h;
-  const blockWidth = model.viewState.bBox.w;
-  // const svgWidth = model ? model.functionName.value.length * 5 : 0;
+
+  const expandViewX = 150;
+  const arrowSpaceX = 70;
+  const arrowSpaceY = 10;
+  const arrowWidth = 220;
 
   return (
-    <svg y={xyProps.y - 150 / 2} x={100} className="expand-expression">
+    <svg y={xyProps.y - expandViewX / 2} x={expandViewX} className="expand-expression">
       <g className={arrowClasses}>
         <ControlFlowArrow
           isDotted={false}
-          x={model.viewState.bBox.cx + 70}
+          x={model.viewState.bBox.cx + arrowSpaceX}
           y={model.viewState.bBox.cy}
-          w={100}
+          w={arrowWidth}
         />
         <ControlFlowArrow
           isDotted={true}
-          x={model.viewState.bBox.cx + 70}
-          y={model.viewState.bBox.cy + 10}
-          w={50}
+          x={model.viewState.bBox.cx + arrowSpaceX}
+          y={model.viewState.bBox.cy + arrowSpaceY}
+          w={arrowWidth / 2}
           h={blockHeight}
           isTurnArrow={true}
         />
       </g>
       <svg
-        x={model.viewState.bBox.cx + 150 / 2 + 70}
-        y={model.viewState.bBox.cy - 80}
+        x={model.viewState.bBox.cx + expandViewX / 2 + arrowSpaceX}
+        y={model.viewState.bBox.cy - (arrowSpaceX + arrowSpaceY)}
       >
-        <rect
-          y="35"
-          x="40"
-          width={blockWidth - 120}
-          height={blockHeight - 40}
-          rx="30"
-          strokeDasharray={"0.3em"}
-          strokeWidth={1}
-          fill={"rgba(240,241,251,0.5)"}
-          stroke={"#5567D5"}
-        />
         {component}
       </svg>
     </svg>

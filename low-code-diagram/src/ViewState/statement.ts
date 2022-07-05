@@ -33,6 +33,8 @@ export class StatementViewState extends ViewState {
     public arrowFrom: 'Left' | 'Right';
     public functionNodeExpanded: boolean;
     public functionNode: FunctionDefinition;
+    public parentAction?: boolean;
+    public expandOffSet?: number = 0;
 
     constructor() {
         super();

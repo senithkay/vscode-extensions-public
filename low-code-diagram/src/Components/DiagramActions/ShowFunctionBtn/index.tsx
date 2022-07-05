@@ -17,6 +17,7 @@ import { STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commo
 import {
   FunctionDefinition,
   IdentifierToken,
+  ModulePart,
   STNode,
 } from "@wso2-enterprise/syntax-tree";
 
@@ -76,9 +77,9 @@ export function ShowFunctionBtn(props: ShowFunctionBtnProps) {
   useEffect(() => {
     if (isDiagramFunctionExpanded) {
       fetchDefinition();
-    } else {
+    } else if (isDiagramFunctionExpanded !== undefined){
       nodeViewState.functionNodeExpanded = false;
-      diagramRedraw(recalculateSizingAndPositioning(syntaxTree));
+      diagramRedraw(recalculateSizingAndPositioning(initializeViewState(syntaxTree)));
       setConfirmDialogActive(false);
     }
   }, [isDiagramFunctionExpanded]);
@@ -86,7 +87,7 @@ export function ShowFunctionBtn(props: ShowFunctionBtnProps) {
   const fetchDefinition = async () => {
     if (isConfirmDialogActive) {
       nodeViewState.functionNodeExpanded = false;
-      diagramRedraw(recalculateSizingAndPositioning(syntaxTree));
+      diagramRedraw(recalculateSizingAndPositioning(initializeViewState(syntaxTree)));
       setConfirmDialogActive(false);
     } else {
       try {
@@ -102,7 +103,8 @@ export function ShowFunctionBtn(props: ShowFunctionBtnProps) {
             },
           };
           const funDef = await getFunctionDef(range, model.viewState.functionNodeFilePath);
-          const sizedBlock = initializeViewState(funDef.syntaxTree);
+          const offsetValue = model.viewState.bBox.cx;
+          const sizedBlock = initializeViewState(funDef.syntaxTree, model.viewState.parentBlock.viewState.connectors, offsetValue) as FunctionDefinition;
           sizedBlock.viewState.functionNodeFilePath = funDef.defFilePath;
           sizedBlock.viewState.functionNodeSource = sizedBlock.source;
           nodeViewState.functionNode = sizedBlock as FunctionDefinition;

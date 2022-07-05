@@ -63,7 +63,7 @@ const Template: Story<{ f1: string }> = (args: { f1: string }) => {
     // tslint:disable-next-line: jsx-wrap-multiline
     <>
         <Provider {...providerProps}>
-            <FunctionExpand model={visitedST} />
+            {/* <FunctionExpand model={visitedST} /> */}
         </Provider>
     </>;
 }

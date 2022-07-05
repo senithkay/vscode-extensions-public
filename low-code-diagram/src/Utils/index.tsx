@@ -16,9 +16,7 @@ import { InitVisitor } from "../Visitors/init-visitor";
 import { PositioningVisitor } from "../Visitors/positioning-visitor";
 import { SizingVisitor } from "../Visitors/sizing-visitor";
 import { isSTActionInvocation } from "../Visitors/util";
-import { InitExpandVisitor } from "../Visitors/init-expand-visitor";
 import { Endpoint } from "../Types/type";
-import { ConnectorSizingVisitor } from "../Visitors/connector-sizing-visitor";
 
 export function sizingAndPositioning(st: STNode, experimentalEnabled?: boolean): STNode {
     traversNode(st, new InitVisitor());
@@ -29,7 +27,6 @@ export function sizingAndPositioning(st: STNode, experimentalEnabled?: boolean):
 }
 
 export function recalculateSizingAndPositioning(st: STNode, experimentalEnabled?: boolean, parentConnectors?: Map<string, Endpoint>): STNode {
-    // traversNode(st, new ConnectorSizingVisitor(experimentalEnabled, parentEndpoints));
     traversNode(st, new SizingVisitor(experimentalEnabled, parentConnectors));
     traversNode(st, new PositioningVisitor());
     if (STKindChecker.isFunctionDefinition(st) && st?.viewState?.onFail) {
@@ -41,8 +38,8 @@ export function recalculateSizingAndPositioning(st: STNode, experimentalEnabled?
     return clone;
 }
 
-export function initializeViewState(st: STNode, parentConnectors?: Map<string, Endpoint>): STNode {
-    traversNode(st, new InitExpandVisitor(parentConnectors));
+export function initializeViewState(st: STNode, parentConnectors?: Map<string, Endpoint>, offsetValue?: number): STNode {
+    traversNode(st, new InitVisitor(parentConnectors, offsetValue));
     const clone = { ...st };
     return clone;
 }
@@ -59,7 +56,6 @@ export function getSTComponents(nodeArray: any, viewState?: any, model?: Functio
         const ChildComp = (stComponents as any)[node.kind];
         node.viewState.functionNodeFilePath = viewState.functionNodeFilePath;
         node.viewState.functionNodeSource = viewState.functionNodeSource;
-        // node.viewState.parentConnectors = viewState.parentConnectors;
         node.viewState.parentBlock = model;
         if (!ChildComp) {
             children.push(<Statement model={node} />);
