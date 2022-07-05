@@ -550,7 +550,7 @@ export class PositioningVisitor implements Visitor {
         statements.forEach((statement) => {
             const statementViewState: StatementViewState = statement.viewState;
             statementViewState.bBox.cx = blockViewState.bBox.cx;
-            statementViewState.bBox.cy = blockViewState.bBox.cy + statementViewState.bBox.offsetFromTop + height + 100;
+            statementViewState.bBox.cy = blockViewState.bBox.cy + statementViewState.bBox.offsetFromTop + height;
 
             const plusForIndex: PlusViewState = getPlusViewState(index, blockViewState.plusButtons);
 
