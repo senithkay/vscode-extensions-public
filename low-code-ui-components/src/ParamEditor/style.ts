@@ -55,13 +55,13 @@ export const useStyles = makeStyles((theme: Theme) =>
         },
         enabledHeaderLabel: {
             cursor: "pointer",
-            width: "80%",
+            width: "77%",
             marginTop: 7,
             marginLeft: 10,
             lineHeight: "24px"
         },
         disabledHeaderLabel: {
-            width: "80%",
+            width: "77%",
             color: "rgba(0, 0, 0, 0.26)",
             marginTop: 7,
             marginLeft: 10,
@@ -70,6 +70,7 @@ export const useStyles = makeStyles((theme: Theme) =>
         iconSection: {
             display: "flex",
             flexDirection: "row",
+            cursor: "pointer",
             height: 40,
             width: 225,
             borderRadius: "4px 0 0 4px",

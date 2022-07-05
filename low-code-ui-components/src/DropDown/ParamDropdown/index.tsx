@@ -63,11 +63,11 @@ export function ParamDropDown(props: FormElementProps<SelectDropdownProps>) {
             const icon = (<ParamIcons option={value}/>);
             menuItems.push(
                 <MenuItem disabled={!enabled?.includes(value)} key={value} value={value} className={`product-tour-payload-${value.toLowerCase()}`} data-testid={`connector-payload-${value.toLowerCase()}`}>
-                    <TooltipIcon
-                        title={description}
-                        placement="right"
-                        arrow={true}
-                    >
+                    {/*<TooltipIcon*/}
+                    {/*    title={description}*/}
+                    {/*    placement="right"*/}
+                    {/*    arrow={true}*/}
+                    {/*>*/}
                         <div className="MenuItemWrapper">
                             <div className={dropDownClasses.itemWrapper}>
                                 <div className={dropDownClasses.iconWrapper}>
@@ -78,7 +78,7 @@ export function ParamDropDown(props: FormElementProps<SelectDropdownProps>) {
                                 </div>
                             </div>
                         </div>
-                    </TooltipIcon>
+                    {/*</TooltipIcon>*/}
                 </MenuItem>
             );
         });

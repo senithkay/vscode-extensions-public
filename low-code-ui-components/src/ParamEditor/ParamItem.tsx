@@ -44,7 +44,7 @@ export function ParamItem(props: ParamItemProps) {
     return (
         <div className={classes.headerWrapper} data-testid={`${label}-item`}>
             <div className={classes.headerLabel}>
-                <div className={classes.iconSection}>
+                <div className={classes.iconSection} onClick={handleEdit}>
                     {icon && (
                         <div className={classes.iconWrapper}>
                             {icon}
