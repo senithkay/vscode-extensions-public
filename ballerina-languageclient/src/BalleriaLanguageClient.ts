@@ -3,7 +3,7 @@ import {
     InitializeParams, InitializeRequest, InitializeResult, ProtocolConnection,
     Trace, DidOpenTextDocumentNotification,
     DidOpenTextDocumentParams, TextDocumentItem, InitializedNotification, ShutdownRequest, ExitNotification, PublishDiagnosticsNotification, PublishDiagnosticsParams,
-    TextDocumentPositionParams, Location, DocumentSymbol, DocumentSymbolParams, SymbolInformation, DidCloseTextDocumentParams, DidChangeTextDocumentParams, DidChangeTextDocumentNotification, DidCloseTextDocumentNotification
+    TextDocumentPositionParams, Location, DocumentSymbol, DocumentSymbolParams, SymbolInformation, DidCloseTextDocumentParams, DidChangeTextDocumentParams, DidChangeTextDocumentNotification, DidCloseTextDocumentNotification, DefinitionParams, LocationLink
 } from 'vscode-languageserver-protocol';
 import { BLCTracer } from "./BLCTracer";
 import { BLCLogger } from "./BLCLogger";
@@ -109,6 +109,10 @@ export class BalleriaLanguageClient implements IBallerinaLangClient {
         });
 
         return this._lsConnection.stop();
+    }
+
+    public definition(params: DefinitionParams): Promise<Location | Location[] | LocationLink[]> {
+        return this._clientConnection.sendRequest<Location | Location[] | LocationLink[]>("textDocument/definition", params);
     }
 
     public didOpen(params: DidOpenTextDocumentParams) {

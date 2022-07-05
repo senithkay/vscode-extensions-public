@@ -1,0 +1,96 @@
+{
+    "dtos": [
+        {% assign dto_separator = "" %
+        }{% for hos_metric_dto in input %
+        }{
+            { dto_separator
+            }
+        }{
+            "type": "{{ hos_metric_dto.MessageProperties.EventType }}",
+            "data": {
+                "MessageGuid": "{{ hos_metric_dto.MessageProperties.MessageId }}",
+                "ParentMessageGuid": "{{ hos_metric_dto.MessageProperties.AuditId }}",
+                "MessageContentType": "{{ hos_metric_dto.MessageProperties.EventType }}",
+                "MessageContent": {
+                    "AdditionalDataElements": [
+                        {% assign separator = "" %
+                        }{% for element in hos_metric_dto.Content.AdditionalDataElements %
+                        }{
+                            { separator
+                            }
+                        }{
+                            "Label": "{{ element.Label}}",
+                            "Value": "{{ element.Value}}"
+                        }{% assign separator = "," %
+                        }{% endfor %
+                        }
+                    ],
+                    "Metrics": {
+                        {hos_metric_dto.Content.Metrics | strip_newlines
+                        }
+                    },
+                    "TripInformation": {
+                        "TripName": "{{hos_metric_dto.Content.TripInformation.TripName}}",
+                        "Move": {
+                            {hos_metric_dto.Content.TripInformation.Move | default: 0.0
+                            }
+                        },
+                        "Leg": {
+                            {hos_metric_dto.Content.TripInformation.Leg | default: 0.0
+                            }
+                        },
+                        "Stop": {
+                            {hos_metric_dto.Content.TripInformation.Stop | default: 0.0
+                            }
+                        },
+                        "OrderHeader": {
+                            {hos_metric_dto.Content.TripInformation.OrderHeader | default: 0.0
+                            }
+                        },
+                        "Assets": [
+                            {% assign separator = "" %
+                            }{% for asset in hos_metric_dto.Assets %
+                            }{
+                                { separator
+                                }
+                            } {
+                                "Type": {
+                                    { asset.Type
+                                    }
+                                },
+                                "Id": "{{ asset.Id | dictionary_lookup: "{
+                                    {DataDictionary_Inbound_LookupKey
+                                    }
+                                }" }}",
+                                "Confirmed": {
+                                    {asset.Confirmed | default: false
+                                    }
+                                }
+                            }{% assign separator = "," %
+                            }{% endfor %
+                            }
+                        ],
+                        "AdditionalDataElements": [
+                            {% assign separator = "" %
+                            }{% for element in hos_metric_dto.Content.TripInformation.AdditionalDataElements %
+                            }{
+                                { separator
+                                }
+                            }{
+                                "Label": "{{ element.Label}}",
+                                "Value": "{{ element.Value}}"
+                            }{% assign separator = "," %
+                            }{% endfor %
+                            }
+                        ]
+                    },
+                    "HeaderInformation": {
+                        "CreateDateUtc": "{{hos_metric_dto.Content.HeaderInformation.CreateDateUtc | date: "%Y-%m-%dT%H:%M:%S+00: 00" }}"
+                    }
+                }
+            }
+        }{% assign dto_separator = "," %
+        }{% endfor %
+        }
+    ]
+}

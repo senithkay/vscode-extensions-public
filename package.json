@@ -10,6 +10,7 @@
     "low-code-diagram",
     "statement-editor",
     "configurable-editor",
+    "data-mapper",
     "low-code-editor",
     "distribution",
     "integration-tests"
@@ -21,6 +22,7 @@
       "build:ls": "npm run build --workspace=lang-service",
       "build:se": "npm run build --workspace=statement-editor",
       "build:ce": "npm run build --workspace=configurable-editor",
+      "build:dm": "npm run build --workspace=data-mapper",
       "build:lce": "npm run build --workspace=low-code-editor",
       "build:lcec": "npm run build --workspace=low-code-editor-commons",
       "build:ee": "npm run build --workspace=expression-editor",

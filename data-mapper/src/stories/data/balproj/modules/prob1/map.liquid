@@ -1,0 +1,87 @@
+{
+    "dtos": [
+        {
+            "type": "{{ input.MessageProperties.EventType }}",
+            "data": {
+                "MessageGuid": "{{ input.MessageProperties.MessageId }}",
+                "ParentMessageGuid": "{{ input.MessageProperties.AuditId }}",
+                "MessageContentType": "{{ input.MessageProperties.EventType }}",
+                "MessageContent": {
+                    "Message": "{{input.Content.Message}}",
+                    "Recipients": [
+                        {% assign separator = "" %
+                        } {% for recipient in input.Content.Recipients %
+                        } {
+                            { separator
+                            }
+                        } {
+                            "UserId": "{{ recipient.UserId}}",
+                            "Name": "{{ recipient.Name}}",
+                            "EmailAddress": "{{recipient.EmailAddress}}"
+                        } {% assign separator = "," %
+                        } {% endfor %
+                        }
+                    ],
+                    "TripInformation": {
+                        "TripName": "{{input.Content.TripInformation.TripName}}",
+                        "Move": {
+                            {input.Content.TripInformation.Move | default: 0.0
+                            }
+                        },
+                        "Leg": {
+                            {input.Content.TripInformation.Leg | default: 0.0
+                            }
+                        },
+                        "Stop": {
+                            {input.Content.TripInformation.Stop | default: 0.0
+                            }
+                        },
+                        "OrderHeader": {
+                            {input.Content.TripInformation.OrderHeader | default: 0.0
+                            }
+                        },
+                        "Assets": [
+                            {% assign separator = "" %
+                            } {% for asset in input.Assets %
+                            } {
+                                { separator
+                                }
+                            } {
+                                "Type": {
+                                    { asset.Type
+                                    }
+                                },
+                                "Id": "{{ asset.Id | dictionary_lookup: "{
+                                    {DataDictionary_Inbound_LookupKey
+                                    }
+                                }"}}",
+                                "Confirmed": {
+                                    {asset.Confirmed | default: false
+                                    }
+                                }
+                            } {% assign separator = "," %
+                            } {% endfor %
+                            }
+                        ],
+                        "AdditionalDataElements": [
+                            {% assign separator = "" %
+                            }{% for element in input.Content.TripInformation.AdditionalDataElements %
+                            }{
+                                { separator
+                                }
+                            }{
+                                "Label": "{{ element.Label}}",
+                                "Value": "{{ element.Value}}"
+                            }{% assign separator = "," %
+                            }{% endfor %
+                            }
+                        ]
+                    },
+                    "HeaderInformation": {
+                        "CreateDateUtc": "{{input.Content.HeaderInformation.CreateDateUtc | date: "%Y-%m-%dT%H:%M:%S+00: 00" }}"
+                    }
+                }
+            }
+        }
+    ]
+}

@@ -1,0 +1,32 @@
+{
+	"Assets":[{
+		"Type":2,
+		"Id":"SAMSUNG",
+		"Confirmed": false
+	}],
+	"FormId":"loadedCall",
+	"CreateDate":"2021-11-22T20:57:00+00:00",
+	"Content":{
+		"TripId":"8450",
+		"StopId":"8450_1",
+		"Unit":null,
+		"Driver1":"SHDRV",
+		"Driver2":null,
+		"DroppedTrailer":"d",
+		"CurrOrPickedTrailer":"PT1",
+		"BillOfLading":"bol123",
+		"Weight":"5000",
+		"Pieces":"2",
+		"Seal":"seal098",
+		"ETA":"2021-11-22T18:56:00+00:00",
+		"Latitude":123.123123,
+		"Longitude":-21.212121,
+		"user_id":1709554290700544,
+		"form_meta":{"errors":[],"warnings":[]}
+	},
+	"MessageProperties":{
+		"EventType":"com.trimble.transportation.telematics.inbound.structured-form", 
+		"AuditId":"ce17a80f-4fef-4271-8871-2170896d9374", 
+		"MessageId":"2b3f30be-f499-42dc-9f7f-da2ef0f61604"
+	}
+}

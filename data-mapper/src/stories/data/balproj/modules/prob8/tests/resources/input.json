@@ -1,0 +1,71 @@
+[
+    {
+        "Assets": [
+            {
+                "Type": 2,
+                "Id": "ABSDRV"
+            }
+        ],
+        "CreateDate": "2021-12-10T22:54:30.1462242+00:00",
+        "ContentType": "TMWSystems.MobileConnect.Shared.Models.Messages.DriverHosMetrics",
+        "Content": {
+            "Metrics": {
+                "DayDrive": 0.0,
+                "DayOnDuty": 39992.0,
+                "DayOffDuty": 2013.0,
+                "DaySleeperBerth": 0.0,
+                "WorkDayDriveRemaining": -128789.0,
+                "WorkDayOnDutyRemaining": -128789.0,
+                "CycleDutyRemaining": -128789.0
+            },
+            "AdditionalDataElements": [
+                {
+                    "Label": "TodaysMiles",
+                    "Value": "364"
+                }
+            ],
+            "TripInformation": null,
+            "HeaderInformation": {
+                "CreateDateUtc": "2021-12-10T22:54:30.1462242+00:00"
+            }
+        },
+        "MessageProperties": {
+            "EventType": "com.trimble.transportation.telematics.inbound.driver-hos-metrics",
+            "AuditId": "14912002-85cb-4ce0-8039-080436368e80",
+            "MessageId": "e6ad39a0-d7a8-4a14-b0fd-5d3b8c6c37ed"
+        }
+    },
+    {
+        "Assets": [
+            {
+                "Type": 2,
+                "Id": "ABSDRV"
+            }
+        ],
+        "CreateDate": "2021-12-09T22:54:30.1462242+00:00",
+        "ContentType": "TMWSystems.MobileConnect.Shared.Models.Messages.DriverHosMetrics",
+        "Content": {
+            "Metrics": {
+                "DayDrive": 0.0,
+                "DayOnDuty": 0.0,
+                "DayOffDuty": 0.0,
+                "DaySleeperBerth": 0.0
+            },
+            "AdditionalDataElements": [
+                {
+                    "Label": "TodaysMiles",
+                    "Value": "364"
+                }
+            ],
+            "TripInformation": null,
+            "HeaderInformation": {
+                "CreateDateUtc": "2021-12-09T22:54:30.1462242+00:00"
+            }
+        },
+        "MessageProperties": {
+            "EventType": "com.trimble.transportation.telematics.inbound.driver-hos-metrics",
+            "AuditId": "b60010bc-1d41-419c-800e-a8e39efbce71",
+            "MessageId": "2765d79d-cc03-47a7-8441-8faff0705f5e"
+        }
+    }
+]
