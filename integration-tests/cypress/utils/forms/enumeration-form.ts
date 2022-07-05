@@ -21,11 +21,11 @@ export class EnumerationForm {
   }
 
   static typeEnumName(name: string) {
-    this.getForm()
-      .get('[placeholder="Enum name"]')
-      .type("{selectall}{del}{esc}", { delay: 100 })
-      .type(name, { delay: 100 })
-      .type("{enter}", { delay: 100 });
+    ExpressionEditor
+        .getForField("Enum name", this.selector)
+        .clear()
+        .type(name)
+        .waitForValidations();
     return this;
   }
 
