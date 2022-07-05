@@ -60,7 +60,7 @@ export interface LowCodeEditorProps {
     experimentalEnabled?: boolean;
     isConfigurableStmt?: boolean;
     isModuleVar?: boolean;
-    runCommandInBackground?: (command: string) => Promise<CommandResponse>;
+    runBackgroundTerminalCommand?: (command: string) => Promise<CommandResponse>;
 }
 
 export interface StatementEditorWrapperProps extends LowCodeEditorProps {
@@ -91,7 +91,7 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
         isModuleVar,
         isLoading,
         extraModules,
-        runCommandInBackground
+        runBackgroundTerminalCommand
     } = props;
 
     const {
@@ -194,13 +194,12 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
 
     return (
         <FormControl data-testid="property-form">
-            {isLoading && (
+            {(isLoading || !editor) && (
                 <div className={overlayClasses.mainStatementWrapper} data-testid="statement-editor-loader">
                     <div className={overlayClasses.loadingWrapper}>Loading...</div>
                 </div>
             )}
-            {!isLoading && editor
-                ? (
+            {!isLoading && editor && (
                     <>
                         <StatementEditor
                             editor={editor}
@@ -225,12 +224,9 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
                             stSymbolInfo={stSymbolInfo}
                             extraModules={extraModules}
                             experimentalEnabled={experimentalEnabled}
-                            runCommandInBackground={runCommandInBackground}
+                            runBackgroundTerminalCommand={runBackgroundTerminalCommand}
                         />
                     </>
-                )
-                : (
-                    <></>
                 )}
         </FormControl>
     )

@@ -13,17 +13,19 @@
 import React, { useContext, useEffect } from "react";
 
 import { List, ListItem, ListItemText, ListSubheader } from "@material-ui/core";
-import { STNode } from "@wso2-enterprise/syntax-tree";
+import { BallerinaConnectorInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import {
     getCurrentModelParams,
     getDocDescription,
     getParamCheckedList,
-    isDescriptionWithExample
+    isDescriptionWithExample, updateParamListFordMethodCallDoc
 } from "../../../utils";
 import { useStatementEditorStyles, useStmtEditorHelperPanelStyles } from "../../styles";
 import { ParameterList } from "../ParameterList";
+import { ParameterTree } from "../ParameterTree";
 
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
 export function ParameterSuggestions(){
@@ -31,16 +33,27 @@ export function ParameterSuggestions(){
         modelCtx: {
             currentModel
         },
+        formCtx: {
+            formArgs: {
+                connector
+            }
+        },
         documentation
     } = useContext(StatementEditorContext);
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
     const statementEditorClasses = useStatementEditorStyles();
     const [checked, setChecked] = React.useState<any[]>([]);
 
+    const connectorInfo = (connector as BallerinaConnectorInfo);
+    const connectorParams = connectorInfo?.functions.find(func => func.name === "init");
 
     useEffect(() => {
         if (currentModel.model && documentation && documentation.documentation?.parameters) {
             const paramsInModel: STNode[] = getCurrentModelParams(currentModel.model);
+            // TODO: Remove this check once the methodCall param filter is added to the LS
+            if (STKindChecker.isMethodCall(currentModel.model)){
+                updateParamListFordMethodCallDoc(paramsInModel, documentation.documentation);
+            }
             setChecked(getParamCheckedList(paramsInModel, documentation.documentation));
         }
     }, [currentModel.model, documentation]);
@@ -73,46 +86,78 @@ export function ParameterSuggestions(){
        }
     }
 
-    return(
+    return (
         <>
-            {documentation === null ? (
-                <div className={statementEditorClasses.stmtEditorInnerWrapper}>
-                    <p>Please upgrade to the latest Ballerina version</p>
-                </div>
-            ) : (
-                <>
-                    {documentation && !(documentation.documentation === undefined) ? (
-                        <List className={statementEditorClasses.stmtEditorInnerWrapper}>
-                            <ParameterList checkedList={checked} setCheckedList={setCheckedList} />
-                            {documentation.documentation.description && (
-                                <>
-                                    <hr className={stmtEditorHelperClasses.returnSeparator}/>
-                                    <ListSubheader className={stmtEditorHelperClasses.parameterHeader}>
-                                        Description
-                                    </ListSubheader>
-                                    <ListItem className={stmtEditorHelperClasses.docDescription}>
-                                        {getDocumentationDescription()}
-                                    </ListItem>
-                                </>
+            {!connectorInfo &&
+                (documentation === null && !connectorInfo ? (
+                    <div className={statementEditorClasses.stmtEditorInnerWrapper}>
+                        <p>Please upgrade to the latest Ballerina version</p>
+                    </div>
+                ) : (
+                    <>
+                        {documentation && !(documentation.documentation === undefined) ? (
+                            <List className={stmtEditorHelperClasses.docParamSuggestions}>
+                                <ParameterList checkedList={checked} setCheckedList={setCheckedList} />
+                                {documentation.documentation.description && (
+                                    <>
+                                        {documentation.documentation.parameters?.length > 0 && (
+                                            <hr className={stmtEditorHelperClasses.returnSeparator} />
+                                        )}
+                                        <ListSubheader className={stmtEditorHelperClasses.parameterHeader}>
+                                            Description
+                                        </ListSubheader>
+                                        <ListItem className={stmtEditorHelperClasses.docDescription}>
+                                            {getDocumentationDescription()}
+                                        </ListItem>
+                                    </>
+                                )}
+                                {documentation.documentation.returnValueDescription && (
+                                    <>
+                                        <hr className={stmtEditorHelperClasses.returnSeparator} />
+                                        <ListSubheader className={stmtEditorHelperClasses.parameterHeader}>
+                                            Return
+                                        </ListSubheader>
+                                        <ListItem className={stmtEditorHelperClasses.returnDescription}>
+                                            <ListItemText
+                                                primary={documentation.documentation.returnValueDescription}
+                                            />
+                                        </ListItem>
+                                    </>
+                                )}
+                            </List>
+                        ) : (
+                            <div className={statementEditorClasses.stmtEditorInnerWrapper}>
+                                <p>Please select a function to see the parameter information</p>
+                            </div>
+                        )}
+                    </>
+                ))}
+            {connectorInfo && connectorParams && (
+                <List className={stmtEditorHelperClasses.docParamSuggestions}>
+                    {connectorParams.parameters && (<ParameterTree parameters={connectorParams.parameters} />)}
+                    {connectorInfo.documentation && (
+                        <>
+                            {connectorParams.parameters?.length > 0 && (
+                                <hr className={stmtEditorHelperClasses.returnSeparator} />
                             )}
-                            {documentation.documentation.returnValueDescription && (
-                                <>
-                                    <hr className={stmtEditorHelperClasses.returnSeparator}/>
-                                    <ListSubheader className={stmtEditorHelperClasses.parameterHeader}>
-                                        Return
-                                    </ListSubheader>
-                                    <ListItem className={stmtEditorHelperClasses.returnDescription}>
-                                        <ListItemText primary={documentation.documentation.returnValueDescription}/>
-                                    </ListItem>
-                                </>
-                            )}
-                        </List>
-                    ) : (
-                        <div className={statementEditorClasses.stmtEditorInnerWrapper}>
-                            <p>Please select a function to see the parameter information</p>
-                        </div>
+                            <ListSubheader className={stmtEditorHelperClasses.parameterHeader}>
+                                Description
+                            </ListSubheader>
+                            <ListItem className={stmtEditorHelperClasses.docDescription}>
+                                {connectorInfo.documentation}
+                            </ListItem>
+                        </>
                     )}
-                </>
+                    {connectorParams.returnType?.documentation && (
+                        <>
+                            <hr className={stmtEditorHelperClasses.returnSeparator} />
+                            <ListSubheader className={stmtEditorHelperClasses.parameterHeader}>Return</ListSubheader>
+                            <ListItem className={stmtEditorHelperClasses.returnDescription}>
+                                <ListItemText primary={connectorParams.returnType?.documentation} />
+                            </ListItem>
+                        </>
+                    )}
+                </List>
             )}
         </>
     );

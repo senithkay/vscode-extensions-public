@@ -43,7 +43,7 @@ export function EndpointForm(props: FormGeneratorProps) {
             ls: { getExpressionEditorLangClient },
             code: { modifyDiagram },
             library,
-            runCommandInBackground,
+            runBackgroundTerminalCommand,
         },
     } = useContext(Context);
 
@@ -112,7 +112,7 @@ export function EndpointForm(props: FormGeneratorProps) {
         extraModules: imports,
         isLoading,
         experimentalEnabled,
-        runCommandInBackground
+        runBackgroundTerminalCommand
     });
 
     return stmtEditorComponent;
