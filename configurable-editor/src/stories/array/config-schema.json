@@ -1,0 +1,110 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+        "user": {
+            "type": "object",
+            "properties": {
+                "test": {
+                    "type": "object",
+                    "properties": {
+                        "ports": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            },
+                            "description": ""
+                        },
+                        "count": {
+                            "type": "array",
+                            "items": {
+                                "type": "number"
+                            },
+                            "description": ""
+                        },
+                        "colors": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            },
+                            "description": ""
+                        },
+                        "rates": {
+                            "type": "array",
+                            "items": {
+                                "type": "number"
+                            },
+                            "description": ""
+                        },
+                        "values": {
+                            "type": "array",
+                            "items": {
+                                "type": "number"
+                            },
+                            "description": ""
+                        },
+                        "switches": {
+                            "type": "array",
+                            "items": {
+                                "type": "boolean"
+                            },
+                            "description": ""
+                        },
+                        "people": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "additionalProperties": {
+                                    "type": "string"
+                                }
+                            },
+                            "description": ""
+                        },
+                        "employees": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "age": {
+                                        "type": "integer"
+                                    }
+                                },
+                                "additionalProperties": false,
+                                "required": [
+                                    "name",
+                                    "age"
+                                ],
+                                "name": "user/test:0.1.0:Person"
+                            },
+                            "description": ""
+                        },
+                        "users": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "additionalProperties": {
+                                    "type": "string"
+                                }
+                            },
+                            "description": ""
+                        }
+                    },
+                    "additionalProperties": false,
+                    "required": [
+                        "ports",
+                        "colors",
+                        "rates",
+                        "switches",
+                        "people",
+                        "employees"
+                    ]
+                }
+            },
+            "additionalProperties": false
+        }
+    },
+    "additionalProperties": false
+}
