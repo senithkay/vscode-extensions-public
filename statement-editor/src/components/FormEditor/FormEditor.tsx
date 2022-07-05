@@ -144,17 +144,40 @@ export function FormEditor(props: FormEditorProps) {
                         { codeSnippet: initialSource.trim() }, getLangClient,
                         type === "Resource"
                     );
-                    setModel(partialST);
+                    const updatedContent = getUpdatedSource(initialSource.trim(), currentFile.content,
+                        initialModel.position, undefined, true);
+                    sendDidChange(fileURI, updatedContent, getLangClient).then();
+                    const diagnostics = await handleDiagnostics(initialSource.trim(), fileURI, targetPosition,
+                        getLangClient).then();
+                    setModel(enrichModel(partialST, initialModel.position, diagnostics));
                 }
             })();
         } else {
             (async () => {
                 if (topLevelComponent) {
-                    const partialST = await getPartialSTForModuleMembers(
-                        {codeSnippet: getInitialSource(type, targetPosition)} , getLangClient,
-                        type === "Resource"
+                    const position = isLastMember ? targetPosition : (
+                        {
+                            startLine: targetPosition.startLine,
+                            endLine: targetPosition.startLine,
+                            startColumn: 0,
+                            endColumn: 0
+                        }
+                    )
+                    const source = getInitialSource(type, position).trim();
+                    const partialST = await getPartialSTForModuleMembers({codeSnippet: source},
+                        getLangClient, type === "Resource"
                     );
-                    setModel(partialST);
+                    let moduleList;
+                    if (!currentFile?.content?.includes("ballerina/http") && type === "Service") {
+                        moduleList = new Set<string>(['ballerina/http']);
+                    }
+                    const updatedContent = getUpdatedSource(source, currentFile.content, position, moduleList,
+                        true
+                    );
+                    sendDidChange(fileURI, updatedContent, getLangClient).then();
+                    const diagnostics = await handleDiagnostics(source, fileURI, position,
+                        getLangClient).then();
+                    setModel(enrichModel(partialST, position, diagnostics));
                 }
             })();
         }
