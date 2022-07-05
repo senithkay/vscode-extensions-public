@@ -24,7 +24,7 @@ import { EditorView, VSBrowser } from 'vscode-extension-tester';
 import { getDiagramExplorer, wait } from './util';
 
 describe('VSCode UI Tests', () => {
-    const PROJECT_ROOT = join(__dirname, '..', '..', 'test', 'data');
+    const PROJECT_ROOT = join(__dirname, '..', '..', 'ui-test', 'data');
 
     before(async () => {
         await VSBrowser.instance.openResources(PROJECT_ROOT, `${PROJECT_ROOT}/hello_world.bal`);
