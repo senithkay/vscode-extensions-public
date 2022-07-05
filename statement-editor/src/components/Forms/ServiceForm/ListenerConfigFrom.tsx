@@ -26,6 +26,7 @@ import {
     wizardStyles as useFormStyles
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import debounce from "lodash.debounce";
 
 import { StmtDiagnostic } from "../../../models/definitions";
 import { FormEditor } from "../../FormEditor/FormEditor";
@@ -82,6 +83,7 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
         setListenerPort({isInteracted: true, value: port});
         onChange(port, "", true);
     }
+    const debouncedPortChange = debounce(onListenerPortChange, 800);
 
     const onListenerFormCancel = () => {
         setIsAddListenerInProgress(false);
@@ -122,7 +124,7 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
                     label="Port"
                     dataTestId="listener-port"
                     defaultValue={(listenerPort?.isInteracted) ? listenerPort.value : ""}
-                    onChange={onListenerPortChange}
+                    onChange={debouncedPortChange}
                     customProps={{
                         isErrored: listenerPort.isInteracted && (syntaxDiag !== undefined &&
                             currentComponentName === "Listener Port" || portSemDiagMsg !== undefined)

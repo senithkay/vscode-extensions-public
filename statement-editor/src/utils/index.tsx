@@ -69,7 +69,7 @@ export function getModifications(model: STNode, configType: string, targetPositi
     const modifications: STModification[] = [];
     let source = model.source;
 
-    if (configType === CUSTOM_CONFIG_TYPE && source.trim().slice(-1) !== ';') {
+    if (configType === CUSTOM_CONFIG_TYPE && !isEndsWithoutSemicolon(model) && source.trim().slice(-1) !== ';') {
         source += ';';
     }
     modifications.push(getStatementModification(source, targetPosition));
@@ -552,6 +552,18 @@ export function getSymbolPosition(targetPos: NodePosition, currentModel: STNode,
             offset: targetPos.startColumn + currentModel.methodName.position.startColumn
         }
         return position;
+    } else if (STKindChecker.isImplicitNewExpression(currentModel)){
+        position = {
+            line : targetPos.startLine + currentModel.position.startLine,
+            offset : targetPos.startColumn + currentModel.parenthesizedArgList.position.startColumn
+        }
+        return  position;
+    } else if (STKindChecker.isMethodCall(currentModel)) {
+        position = {
+            line: targetPos.startLine + currentModel.methodName.position.startLine,
+            offset: targetPos.startColumn + currentModel.methodName.position.startColumn
+        }
+        return position;
     }
     position = {
         line : targetPos.startLine + currentModel.position.startLine,
@@ -763,4 +775,17 @@ export function getParamUpdateModelPosition(model: STNode) {
         };
     }
     return position;
+}
+
+export function isEndsWithoutSemicolon(completeModel: STNode): boolean {
+    return STKindChecker.isForeachStatement(completeModel)
+        || STKindChecker.isIfElseStatement(completeModel)
+        || STKindChecker.isWhileStatement(completeModel)
+        || STKindChecker.isDoStatement(completeModel)
+        || STKindChecker.isMatchStatement(completeModel)
+        || STKindChecker.isNamedWorkerDeclaration(completeModel)
+        || STKindChecker.isTransactionStatement(completeModel)
+        || STKindChecker.isForkStatement(completeModel)
+        || STKindChecker.isLockStatement(completeModel)
+        || STKindChecker.isBlockStatement(completeModel)
 }

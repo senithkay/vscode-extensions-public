@@ -1,0 +1,60 @@
+{
+    "id": "1",
+    "isRequired": true,
+    "name": "root",
+    "properties": [
+        {
+            "description": "",
+            "id": "1-2",
+            "isRequired": true,
+            "name": "person",
+            "properties": [
+                {
+                    "id": "1-2-1",
+                    "isRequired": true,
+                    "name": "name",
+                    "type": "string",
+                    "value": "Jessica"
+                },
+                {
+                    "id": "1-2-2",
+                    "isRequired": true,
+                    "name": "country",
+                    "type": "enum",
+                    "value": "United States"
+                }
+            ],
+            "schema": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "country": {
+                        "enum": [
+                            "United States",
+                            "Sri Lanka"
+                        ]
+                    }
+                },
+                "additionalProperties": false,
+                "required": [
+                    "name",
+                    "country"
+                ],
+                "name": "user/test:0.1.0:Person",
+                "description": ""
+            },
+            "type": "object"
+        },
+        {
+            "description": "",
+            "id": "1-1",
+            "isRequired": false,
+            "name": "country",
+            "type": "enum",
+            "value": "Sri Lanka"
+        }
+    ],
+    "type": "object"
+}

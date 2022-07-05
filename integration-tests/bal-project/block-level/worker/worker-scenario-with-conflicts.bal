@@ -1,6 +1,6 @@
 import ballerina/io;
 
-public function main() {
+public function main() returns error? {
 
     worker A {
         // Use `-> W` to send a message to worker `W`.
