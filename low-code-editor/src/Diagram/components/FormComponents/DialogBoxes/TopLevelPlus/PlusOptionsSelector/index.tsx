@@ -55,7 +55,8 @@ export const moduleLevelEntries: PlusMenuEntry[] = [
     { name: 'Listener', type: 'ListenerDeclaration', category: PlusMenuCategories.CONSTRUCT },
     { name: 'Enum', type: 'EnumDeclaration', category: PlusMenuCategories.CONSTRUCT },
     { name: 'Class', type: 'ClassDefinition', category: PlusMenuCategories.CONSTRUCT },
-    { name: 'Other', type: 'Custom', category: PlusMenuCategories.MODULE_INIT }
+    { name: 'Other', type: 'Custom', category: PlusMenuCategories.MODULE_INIT },
+    { name: 'Data Mapper', type: 'DataMapper', category: PlusMenuCategories.CONSTRUCT }
 ];
 
 export const classMemberEntries: PlusMenuEntry[] = [

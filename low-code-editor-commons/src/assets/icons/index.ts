@@ -69,6 +69,7 @@ export { default as ModuleVariableIcon } from './ModuleVariableIcon';
 export { default as EnumIcon } from './EnumIcon';
 export { default as ErrorCopyIcon } from './ErrorCopyIcon';
 export { default as DefaultConnectorIcon } from './DefaultConnectorIcon';
+export { default as DataMapper } from './DataMapper';
 export { QueryIcon } from './QueryIcon';
 export { SegmentIcon } from './SegmentIcon';
 export { CallerIcon } from './CallerIcon';

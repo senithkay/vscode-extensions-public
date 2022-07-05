@@ -1,6 +1,6 @@
 import * as ConfigurableIconSvg from "./configurable-icon.svg";
 import * as customSvg from "./custom.svg";
-import * as DataMapper from "./dataMapper.svg";
+import * as DataMapperSvg from "./dataMapper.svg";
 import * as defaultErrorSvg from "./default-error.svg";
 import * as deleteVariableNameSvg from "./delete-variable-name.svg";
 import * as DocIcon from "./doc.svg";
@@ -35,7 +35,7 @@ export { formCreateSvg };
 export { emailSvg };
 export { webhookSvg };
 export { customSvg };
-export { DataMapper };
+export { DataMapperSvg };
 export { ErrorSvg };
 export { ExpEditorCollapseSvg };
 export { ExpEditorExpandSvg };
