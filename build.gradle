@@ -101,6 +101,20 @@ task test(type: Exec) {
     }
 }
 
+task uiTest() {
+    dependsOn assemble
+    doFirst {
+        if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+            exec { commandLine 'cmd', '/c', 'npm', 'run', 'ui-test-setup' }
+            exec { commandLine 'cmd', '/c', 'npm', 'run', 'ui-test' }
+        } else {
+            exec { commandLine 'npm', 'run', 'ui-test-setup' }
+            exec { commandLine 'npm', 'run', 'ui-test' }
+        }
+    }
+}
+
 check {
     dependsOn test
+    dependsOn uiTest
 }
