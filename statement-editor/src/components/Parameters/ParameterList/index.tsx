@@ -20,9 +20,9 @@ import { NamedArg, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import { SymbolParameterType } from "../../../constants";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import {
-    getCurrentModelParams, getUpdatedContentForNewNamedArg,
+    getCurrentModelParams, getParamUpdateModelPosition, getUpdatedContentForNewNamedArg,
     getUpdatedContentOnCheck, getUpdatedContentOnUncheck,
-    isAllowedIncludedArgsAdded
+    isAllowedIncludedArgsAdded, isDocumentationSupportedModel
 } from "../../../utils";
 import { useStatementEditorStyles, useStmtEditorHelperPanelStyles } from "../../styles";
 import { NamedArgIncludedRecord } from "../NamedArgIncludedRecord";
@@ -40,7 +40,9 @@ export function ParameterList(props: ParameterListProps) {
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
     const {
         modelCtx: {
-            currentModel,
+            currentModel : {
+                model
+            },
             updateModel,
             restArg
         },
@@ -61,16 +63,19 @@ export function ParameterList(props: ParameterListProps) {
         if (currentIndex === -1) {
             newChecked.push(value);
 
-            if (STKindChecker.isFunctionCall(currentModel.model)) {
+            if (isDocumentationSupportedModel(model)) {
                 if (param.kind === SymbolParameterType.REST) {
                     restArg(true);
                 }
-                updateModel(getUpdatedContentOnCheck(currentModel.model, param, parameters), currentModel.model.position);
+                updateModel(getUpdatedContentOnCheck(model, param, parameters), getParamUpdateModelPosition(model));
             }
         } else {
             newChecked.splice(currentIndex, 1);
-            if (STKindChecker.isFunctionCall(currentModel.model)) {
-                updateModel(getUpdatedContentOnUncheck(currentModel.model, currentIndex), currentModel.model.position);
+            if (param.kind === SymbolParameterType.REST) {
+                restArg(false);
+            }
+            if (isDocumentationSupportedModel(model)) {
+                updateModel(getUpdatedContentOnUncheck(model, currentIndex), getParamUpdateModelPosition(model));
             }
         }
 
@@ -104,8 +109,8 @@ export function ParameterList(props: ParameterListProps) {
     const addIncludedRecords = (param: ParameterInfo, value: number) => {
 
         let argList: STNode[] = [];
-        if (currentModel.model) {
-            argList = getCurrentModelParams(currentModel.model);
+        if (model) {
+            argList = getCurrentModelParams(model);
         }
         const argument = checkedList.indexOf(value);
         return (
@@ -136,9 +141,9 @@ export function ParameterList(props: ParameterListProps) {
         const newChecked = [...checkedList];
         const currentIndex = checkedList.indexOf(value);
         if (currentIndex === -1) {
-            if (STKindChecker.isFunctionCall(currentModel.model)) {
+            if (isDocumentationSupportedModel(model)) {
                 newChecked.push(value);
-                updateModel(getUpdatedContentForNewNamedArg(currentModel.model, userInput), currentModel.model.position);
+                updateModel(getUpdatedContentForNewNamedArg(model, userInput), getParamUpdateModelPosition(model));
                 setCheckedList(newChecked);
                 setPlusButtonClicked(false);
             }
@@ -155,6 +160,7 @@ export function ParameterList(props: ParameterListProps) {
                             secondary={"Select parameters from the list given below"}
                         />
                     </ListSubheader>
+                    <div className={stmtEditorHelperClasses.paramList}>
                     {parameters?.map((param: ParameterInfo, value: number) => (
                             <>
                                 {param.kind === SymbolParameterType.REQUIRED ? (
@@ -215,6 +221,7 @@ export function ParameterList(props: ParameterListProps) {
                             </>
                         )
                     )}
+                    </div>
                 </>
             )}
         </>

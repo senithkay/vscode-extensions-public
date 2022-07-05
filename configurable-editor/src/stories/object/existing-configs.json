@@ -1,0 +1,24 @@
+{
+    "user": {
+        "test": {
+            "people": {
+                "student1": {
+                    "name": "Jill",
+                    "age": 23
+                },
+                "student2": {
+                    "name": "Kyle",
+                    "age": 27
+                }
+            },
+            "users": {
+                "America": "89",
+                "England": "55"
+            },
+            "student": {
+                "name": "Jane",
+                "age": 27
+            }
+        }
+    }
+}

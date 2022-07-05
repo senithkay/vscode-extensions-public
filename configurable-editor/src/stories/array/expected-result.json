@@ -1,0 +1,299 @@
+{
+    "id": "1",
+    "isRequired": true,
+    "name": "root",
+    "properties": [
+        {
+            "arrayType": "integer",
+            "description": "",
+            "id": "1-1",
+            "isRequired": true,
+            "name": "ports",
+            "schema": {
+                "type": "array",
+                "items": {
+                    "type": "integer"
+                },
+                "description": ""
+            },
+            "type": "array",
+            "value": [
+                12,
+                10
+            ]
+        },
+        {
+            "arrayType": "string",
+            "description": "",
+            "id": "1-3",
+            "isRequired": true,
+            "name": "colors",
+            "schema": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                },
+                "description": ""
+            },
+            "type": "array",
+            "value": [
+                "green",
+                "red"
+            ]
+        },
+        {
+            "arrayType": "float",
+            "description": "",
+            "id": "1-4",
+            "isRequired": true,
+            "name": "rates",
+            "schema": {
+                "type": "array",
+                "items": {
+                    "type": "number"
+                },
+                "description": ""
+            },
+            "type": "array",
+            "value": [
+                "11.56",
+                "0.98"
+            ]
+        },
+        {
+            "arrayType": "boolean",
+            "description": "",
+            "id": "1-6",
+            "isRequired": true,
+            "name": "switches",
+            "schema": {
+                "type": "array",
+                "items": {
+                    "type": "boolean"
+                },
+                "description": ""
+            },
+            "type": "array",
+            "value": [
+                true,
+                false,
+                false
+            ]
+        },
+        {
+            "arrayType": "object",
+            "description": "",
+            "id": "1-7",
+            "isRequired": true,
+            "name": "people",
+            "type": "array",
+            "value": [
+                {
+                    "description": "",
+                    "id": "1-7-1",
+                    "isRequired": true,
+                    "name": "",
+                    "schema": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "string"
+                        }
+                    },
+                    "type": "object",
+                    "value": {
+                        "name": "Jack",
+                        "type": "student"
+                    }
+                },
+                {
+                    "description": "",
+                    "id": "1-7-2",
+                    "isRequired": true,
+                    "name": "",
+                    "properties": [
+                        {
+                            "id": "1-7-2-1",
+                            "isRequired": false,
+                            "name": "name",
+                            "type": "string",
+                            "value": "Jill"
+                        }
+                    ],
+                    "schema": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "string"
+                        }
+                    },
+                    "type": "object"
+                }
+            ]
+        },
+        {
+            "arrayType": "object",
+            "description": "",
+            "id": "1-8",
+            "isRequired": true,
+            "name": "employees",
+            "type": "array",
+            "value": [
+                {
+                    "description": "",
+                    "id": "1-8-1",
+                    "isRequired": true,
+                    "name": "",
+                    "properties": [
+                        {
+                            "id": "1-8-1-1",
+                            "isRequired": true,
+                            "name": "name",
+                            "schema": {
+                                "type": "string"
+                            },
+                            "type": "string",
+                            "value": "Robin"
+                        },
+                        {
+                            "id": "1-8-1-2",
+                            "isRequired": true,
+                            "name": "age",
+                            "schema": {
+                                "type": "integer"
+                            },
+                            "type": "integer",
+                            "value": 23
+                        }
+                    ],
+                    "schema": {
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "type": "string"
+                            },
+                            "age": {
+                                "type": "integer"
+                            }
+                        },
+                        "additionalProperties": false,
+                        "required": [
+                            "name",
+                            "age"
+                        ],
+                        "name": "user/test:0.1.0:Person"
+                    },
+                    "type": "object"
+                },
+                {
+                    "description": "",
+                    "id": "1-8-2",
+                    "isRequired": true,
+                    "name": "",
+                    "properties": [
+                        {
+                            "id": "1-8-1-1",
+                            "isRequired": true,
+                            "name": "name",
+                            "type": "string",
+                            "value": "Robin"
+                        },
+                        {
+                            "id": "1-8-1-2",
+                            "isRequired": true,
+                            "name": "age",
+                            "type": "integer",
+                            "value": 23
+                        }
+                    ],
+                    "schema": {
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "type": "string"
+                            },
+                            "age": {
+                                "type": "integer"
+                            }
+                        },
+                        "additionalProperties": false,
+                        "required": [
+                            "name",
+                            "age"
+                        ],
+                        "name": "user/test:0.1.0:Person"
+                    },
+                    "type": "object"
+                }
+            ]
+        },
+        {
+            "arrayType": "float",
+            "description": "",
+            "id": "1-2",
+            "isRequired": false,
+            "name": "count",
+            "schema": {
+                "type": "array",
+                "items": {
+                    "type": "number"
+                },
+                "description": ""
+            },
+            "type": "array",
+            "value": [
+                "12.8",
+                "55.1"
+            ]
+        },
+        {
+            "arrayType": "float",
+            "description": "",
+            "id": "1-5",
+            "isRequired": false,
+            "name": "values",
+            "schema": {
+                "type": "array",
+                "items": {
+                    "type": "number"
+                },
+                "description": ""
+            },
+            "type": "array",
+            "value": [
+                "12.2"
+            ]
+        },
+        {
+            "arrayType": "object",
+            "description": "",
+            "id": "1-9",
+            "isRequired": false,
+            "name": "users",
+            "type": "array",
+            "value": [
+                {
+                    "description": "",
+                    "id": "1-9-1",
+                    "isRequired": true,
+                    "name": "",
+                    "properties": [
+                        {
+                            "id": "1-9-1-1",
+                            "isRequired": false,
+                            "name": "hello",
+                            "type": "string",
+                            "value": "everyone"
+                        }
+                    ],
+                    "schema": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "string"
+                        }
+                    },
+                    "type": "object"
+                }
+            ]
+        }
+    ],
+    "type": "object"
+}

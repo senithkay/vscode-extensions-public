@@ -543,6 +543,10 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             paddingLeft: '0px',
             marginBottom: '7px'
         },
+        docParamSuggestions: {
+            height: '100%',
+            ...stmtEditorPadding
+        },
         returnSeparator : {
             width: '616px',
             opacity: '0.52',
@@ -591,7 +595,9 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             ...removePadding
         },
         docDescription: {
-            whiteSpace: 'pre',
+            maxHeight: '50%',
+            overflowY: 'scroll',
+            whiteSpace: 'break-spaces',
             display: 'block',
             "& .MuiListItem-root": {
                 paddingLeft: '0px',
@@ -600,10 +606,17 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             ...removePadding
         },
         returnDescription: {
+            maxHeight: '15%',
+            overflowY: 'scroll',
+            whiteSpace: 'break-spaces',
             "& .MuiListItem-root": {
                 paddingLeft: '0px'
             },
             ...removePadding
+        },
+        paramList: {
+            maxHeight: '30%',
+            overflowY: 'scroll',
         },
         includedRecordHeaderList: {
             "& .MuiListItem-root": {
