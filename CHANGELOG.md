@@ -5,7 +5,7 @@
 - The low-code diagram editor.
 
 ### Fixed
-- Swagger View. [#416](https://github.com/wso2-enterprise/ballerina-plugin-vscode/issues/416)
+- Swagger View. [#416](https://github.com/wso2/ballerina-plugin-vscode/issues/197)
 
 ## **3.0.1**
 ### Added
