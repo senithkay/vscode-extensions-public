@@ -44,8 +44,8 @@ export const RecordType = (props: RecordTypeProps) => {
     const returnElement: ReactElement[] = [];
 
     useEffect(() => {
-        setRecordValue(getObjectElement(props));
-    }, [props.properties]);
+        setRecordValue(getObjectElement(props, recordName));
+    }, [props.unionId]);
 
     useEffect(() => {
         setExpanded(props.isRequired);
