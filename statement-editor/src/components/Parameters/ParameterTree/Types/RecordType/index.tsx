@@ -26,9 +26,10 @@ export default function RecordType(props: TypeProps) {
 
     const [paramSelected, setParamSelected] = useState(requiredParam);
 
-    const handleParamCheck = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const toggleParamCheck = () => {
         if (!requiredParam) {
-            setParamSelected(event.target.checked);
+            param.selected = !paramSelected
+            setParamSelected(!paramSelected);
         }
     };
 
@@ -38,26 +39,30 @@ export default function RecordType(props: TypeProps) {
                 <div className={stmtEditorHelperClasses.listItemHeader}>
                     <Checkbox
                         classes={{
-                            root: stmtEditorHelperClasses.parameterCheckbox,
+                            root: requiredParam
+                                ? stmtEditorHelperClasses.disabledCheckbox
+                                : stmtEditorHelperClasses.parameterCheckbox,
                             checked: stmtEditorHelperClasses.checked,
                         }}
                         checked={paramSelected}
                         disabled={requiredParam}
-                        onChange={handleParamCheck}
+                        onClick={toggleParamCheck}
                     />
                     <ListItemText className={stmtEditorHelperClasses.docListItemText} primary={param.name} />
-                    <ListItemText
-                        className={stmtEditorHelperClasses.paramDataType}
-                        primary={(
-                            <Typography className={stmtEditorHelperClasses.suggestionDataType}>
-                                {param.optional || param.defaultable ? param.name + " (Optional)" : param.name}
-                            </Typography>
-                        )}
-                    />
-                    {param.description !== undefined && (
+                    {param.typeInfo && (
+                        <ListItemText
+                            className={stmtEditorHelperClasses.paramDataType}
+                            primary={(
+                                <Typography className={stmtEditorHelperClasses.suggestionDataType}>
+                                    {(param.optional || param.defaultable) && " (Optional)"} {param.typeInfo.name}
+                                </Typography>
+                            )}
+                        />
+                    )}
+                    {param.documentation && (
                         <ListItemText
                             className={stmtEditorHelperClasses.docParamDescriptionText}
-                            primary={" : " + param.description}
+                            primary={" : " + param.documentation}
                         />
                     )}
                 </div>

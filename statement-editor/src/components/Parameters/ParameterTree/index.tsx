@@ -62,3 +62,7 @@ export function ParameterTree(props: ParameterTreeProps) {
 export function isRequiredParam(param: FormField): boolean {
     return !(param.optional || param.defaultable);
 }
+
+export function isAllDefaultableFields(recordFields: FormField[]): boolean {
+    return recordFields?.every((field) => field.defaultable || (field.fields && isAllDefaultableFields(field.fields)));
+}

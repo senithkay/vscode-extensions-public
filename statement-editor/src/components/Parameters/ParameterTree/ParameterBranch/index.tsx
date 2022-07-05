@@ -11,9 +11,9 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
-import { Button, List, ListItem, ListItemText } from "@material-ui/core";
+import { Button, List, ListItem, ListItemText, ListSubheader } from "@material-ui/core";
 import { FormField } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { isRequiredParam, TypeProps } from "..";
@@ -35,10 +35,6 @@ export function ParameterBranch(props: ParameterBranchProps) {
     const requiredParams: JSX.Element[] = [];
     const optionalParams: JSX.Element[] = [];
 
-    function toggleOptionalParams(e: any) {
-        setShowOptionalParams(!showOptionalParams);
-    }
-
     parameters?.forEach((param: FormField, index: number) => {
         let TypeComponent = (Types as any)[param.typeName];
         const typeProps: TypeProps = {
@@ -55,21 +51,25 @@ export function ParameterBranch(props: ParameterBranchProps) {
         }
     });
 
+    function toggleOptionalParams(e: any) {
+        setShowOptionalParams(!showOptionalParams);
+    }
+
     return (
         <List>
             {requiredParams}
             {optionalParams.length > 0 && (
                 <ListItem className={stmtEditorHelperClasses.listOptionalWrapper}>
-                    <ListItemText
-                        className={stmtEditorHelperClasses.parameterHeader}
-                        primary={"Optional parameters "}
-                    />
+                    {/* <ListSubheader className={stmtEditorHelperClasses.parameterHeader}>
+                        Optional fields
+                    </ListSubheader> */}
+                    <span className={stmtEditorHelperClasses.listOptionalHeader}>Optional fields </span>
                     <Button className={stmtEditorHelperClasses.listOptionalBtn} onClick={toggleOptionalParams}>
                         {showOptionalParams ? "Hide" : "Show"}
                     </Button>
                 </ListItem>
             )}
-            {showOptionalParams && optionalParams}
+            {showOptionalParams && (optionalParams.length > 0) && optionalParams}
         </List>
     );
 }

@@ -669,7 +669,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'flex-start',
-            minHeight: '40px'
+            minHeight: '32px'
         },
         listItemHeader: {
             display: 'flex',
@@ -695,7 +695,55 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             textTransform: 'none',
             minWidth: '32px',
             color: theme.palette.primary.main
-        }
+        },
+        listOptionalHeader :  {
+            fontSize: '13px',
+            color: theme.palette.text.secondary,
+            fontWeight: 500,
+            letterSpacing: '0',
+            lineHeight: '14px',
+            paddingLeft: '0px',
+        },
+        listSelectDropDown: {
+            height: '24px',
+            borderRadius: 4,
+            background: "linear-gradient(180deg, #FFFFFF 0%, #F7F7F9 100%)",
+            boxShadow: "inset 0 0 0 1px #DEE0E7, 0 1px 2px -1px rgba(0,0,0,0.08)",
+            cursor: "pointer",
+            width: "inherit",
+            "&:active": {
+                background: "linear-gradient(180deg, #ffffff 0%, #f7f7f9 100%)",
+                boxShadow: "inset 0 0 0 1px #a6b3ff, 0 1px 1px 0 rgba(0, 0, 0, 0.06)",
+                border: "1px solid #5567d5",
+            },
+            "&:focused": {
+                background: "linear-gradient(180deg, #ffffff 0%, #f7f7f9 100%)",
+                boxShadow: "inset 0 0 0 1px #a6b3ff, 0 1px 1px 0 rgba(0, 0, 0, 0.06)",
+                border: "1px solid #5567d5 !important"
+            },
+            '& .MuiSelect-icon': {
+                marginRight: 11,
+            },
+            "& .MuiSelect-selectMenu": {
+                height: "inherit !important",
+                paddingLeft: 10,
+                "& .TextSpan": {
+                    top: "calc(50% - 8px)",
+                    position: "absolute",
+                    maxWidth: "156px",
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                }
+            },
+            "& .MuiSelect-select.MuiSelect-select": {
+                padding: "0 0 0 10px",
+                minWidth: "100px"
+            },
+            "& .MuiSelect-select.MuiSelect-select:focus": {
+                backgroundColor: "transparent"
+            }
+        },
     }),
 );
 

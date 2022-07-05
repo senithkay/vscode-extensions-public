@@ -25,9 +25,10 @@ export default function CustomType(props: TypeProps) {
 
     const [paramSelected, setParamSelected] = useState(requiredParam);
 
-    const handleParamCheck = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const toggleParamCheck = () => {
         if (!requiredParam) {
-            setParamSelected(event.target.checked);
+            param.selected = !paramSelected
+            setParamSelected(!paramSelected);
         }
     };
 
@@ -37,12 +38,14 @@ export default function CustomType(props: TypeProps) {
                 <div className={stmtEditorHelperClasses.listItemHeader}>
                     <Checkbox
                         classes={{
-                            root: stmtEditorHelperClasses.parameterCheckbox,
+                            root: requiredParam
+                                ? stmtEditorHelperClasses.disabledCheckbox
+                                : stmtEditorHelperClasses.parameterCheckbox,
                             checked: stmtEditorHelperClasses.checked,
                         }}
                         checked={paramSelected}
                         disabled={requiredParam}
-                        onChange={handleParamCheck}
+                        onClick={toggleParamCheck}
                     />
                     <ListItemText className={stmtEditorHelperClasses.docListItemText} primary={param.name} />
                     <ListItemText
@@ -53,10 +56,10 @@ export default function CustomType(props: TypeProps) {
                             </Typography>
                         )}
                     />
-                    {param.description !== undefined && (
+                    {param.documentation && (
                         <ListItemText
                             className={stmtEditorHelperClasses.docParamDescriptionText}
-                            primary={" : " + param.description}
+                            primary={" : " + param.documentation}
                         />
                     )}
                 </div>

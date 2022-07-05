@@ -11,41 +11,25 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 
 import { Checkbox, ListItem, ListItemText, Typography } from "@material-ui/core";
-import { FormField } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
-import { isRequiredParam, TypeProps } from "../..";
-import SelectDropdown from "../../../../Dropdown";
+import { isAllDefaultableFields, isRequiredParam, TypeProps } from "../..";
 import { useStmtEditorHelperPanelStyles } from "../../../../styles";
 import { ParameterBranch } from "../../ParameterBranch";
 
-export default function UnionType(props: TypeProps) {
+export default function InclusionType(props: TypeProps) {
     const { param, depth } = props;
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
-
     const requiredParam = isRequiredParam(param);
-    const memberTypes = param.members?.map((field) => getUnionParamName(field));
+    const isAllIncludedParamDefaultable = isAllDefaultableFields(param.inclusionType?.fields);
 
-    const [paramSelected, setParamSelected] = useState(requiredParam);
-    const [selectedMemberType, setSelectedMemberType] = useState(memberTypes[0]);
-    const [parameter, setParameter] = useState<FormField>();
-
-    useEffect(() => {
-        const selectedMember = param.members.find((field) => getUnionParamName(field) === selectedMemberType);
-        setParameter(selectedMember);
-    }, [selectedMemberType]);
-
-    const handleMemberType = (type: string) => {
-        setSelectedMemberType(type);
-    };
+    const [paramSelected, setParamSelected] = useState(requiredParam && !isAllIncludedParamDefaultable);
 
     const toggleParamCheck = () => {
-        if (!requiredParam) {
-            param.selected = !paramSelected
-            setParamSelected(!paramSelected);
-        }
+        param.selected = !paramSelected;
+        setParamSelected(!paramSelected);
     };
 
     return (
@@ -54,34 +38,25 @@ export default function UnionType(props: TypeProps) {
                 <div className={stmtEditorHelperClasses.listItemHeader}>
                     <Checkbox
                         classes={{
-                            root: requiredParam
-                                ? stmtEditorHelperClasses.disabledCheckbox
-                                : stmtEditorHelperClasses.parameterCheckbox,
+                            root: stmtEditorHelperClasses.parameterCheckbox,
                             checked: stmtEditorHelperClasses.checked,
                         }}
                         checked={paramSelected}
-                        disabled={requiredParam}
+                        disabled={requiredParam && !isAllIncludedParamDefaultable}
                         onClick={toggleParamCheck}
                     />
                     <ListItemText className={stmtEditorHelperClasses.docListItemText} primary={param.name} />
-                    {(param.optional || param.defaultable) && (
+                    {param.inclusionType?.typeInfo && (
                         <ListItemText
                             className={stmtEditorHelperClasses.paramDataType}
                             primary={(
                                 <Typography className={stmtEditorHelperClasses.suggestionDataType}>
-                                    {"(Optional)"}
+                                    {(param.optional || param.defaultable) && " (Optional)"} *
+                                    {param.inclusionType.typeInfo.name}
                                 </Typography>
                             )}
                         />
                     )}
-                    <div className={stmtEditorHelperClasses.listDropdownWrapper}>
-                        <SelectDropdown
-                            className={stmtEditorHelperClasses.listSelectDropDown}
-                            values={memberTypes}
-                            defaultValue={memberTypes[0]}
-                            onSelection={handleMemberType}
-                        />
-                    </div>
                     {param.documentation && (
                         <ListItemText
                             className={stmtEditorHelperClasses.docParamDescriptionText}
@@ -89,16 +64,12 @@ export default function UnionType(props: TypeProps) {
                         />
                     )}
                 </div>
-                {paramSelected && parameter && (
+                {paramSelected && param.inclusionType?.fields?.length > 0 && (
                     <div className={stmtEditorHelperClasses.listItemBody}>
-                        <ParameterBranch parameters={[parameter]} depth={depth + 1} />
+                        <ParameterBranch parameters={param.inclusionType.fields} depth={depth + 1} />
                     </div>
                 )}
             </div>
         </ListItem>
     );
-}
-
-export function getUnionParamName(param: FormField) {
-    return param.name || param.typeName;
 }
