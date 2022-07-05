@@ -25,7 +25,7 @@ import { DIAGRAM_LOADING_TIME } from './constants';
 import { getDiagramExplorer, wait } from './util';
 
 describe('VSCode Webview UI Tests', () => {
-    const PROJECT_ROOT = join(__dirname, '..', '..', 'test', 'data');
+    const PROJECT_ROOT = join(__dirname, '..', '..', 'ui-test', 'data');
 
     before(async () => {
         await VSBrowser.instance.openResources(PROJECT_ROOT, `${PROJECT_ROOT}/hello_world.bal`);
