@@ -8,19 +8,25 @@ export const useStyles = makeStyles((theme: Theme) =>
             flexDirection: `column`,
             borderRadius: 5,
             border: '1px solid #dee0e7',
-            padding: 5
+            padding: '0px 5px 5px 0px'
         },
         paramContent: {
             display: 'flex',
             flexDirection: `row`,
         },
         paramTypeWrapper: {
+            padding: '0px 5px',
             display: 'block',
-            width: "40%"
+            width: "35%",
+            backgroundColor: "#F0F1FB"
         },
-        paramItemWrapper: {
-            width: '30%',
+        paramDataTypeWrapper: {
+            width: '32%',
             marginLeft: 5
+        },
+        paramNameWrapper: {
+            width: '32%',
+            marginLeft: 10
         },
         headerWrapper: {
             display: 'flex',
@@ -66,7 +72,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             display: "flex",
             flexDirection: "row",
             height: 40,
-            width: 140,
+            width: 225,
             borderRadius: "4px 0 0 4px",
             backgroundColor: "#F0F1FB",
         },
@@ -76,8 +82,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             width: 14,
             marginTop: 13,
             marginBottom: 13,
-            marginLeft: 10,
-            backgroundColor: "#FFF",
+            marginLeft: 10
         },
         iconTextWrapper: {
             marginTop: 13,

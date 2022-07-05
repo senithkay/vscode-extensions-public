@@ -84,8 +84,7 @@ export const useStyles = makeStyles(() =>
                 }
             },
             "& .MuiSelect-select.MuiSelect-select": {
-                padding: "0 15px",
-                // marginTop: 10
+                padding: "0 15px"
             }
         },
         dropdownStyle: {
@@ -115,6 +114,93 @@ export const useStyles = makeStyles(() =>
         createNewButton: {
             width: '100%',
 
-        }
+        },
+        itemWrapper: {
+            display: "flex",
+            flexDirection: "row"
+        },
+        iconTextWrapper: {
+            marginTop: 11,
+            marginLeft: 5,
+            fontSize: 12
+        },
+        iconWrapper: {
+            height: 14,
+            width: 14,
+            marginTop: 13,
+            marginBottom: 13,
+            marginLeft: 10
+        },
+        renderValueWrapper: {
+            display: "flex",
+            top: "calc(50% - 20px)",
+            left: "calc(50% - 75px)",
+            position: "absolute"
+        },
+        paramDropDown: {
+            height: 35,
+            width: "100%",
+            borderRadius: 5,
+            background: "linear-gradient(180deg, #F0F1FB 0%, #f7f7f9 100%)",
+            boxShadow: "inset 0 0 0 1px #dee0e7, 0 1px 1px 0 rgba(0, 0, 0, 0.06)",
+            cursor: "pointer",
+            marginBottom: theme.spacing(2.5),
+            border: 1,
+            "&:active": {
+                background: "linear-gradient(180deg, #F0F1FB 0%, #f7f7f9 100%)",
+                boxShadow: "inset 0 0 0 1px #a6b3ff, 0 1px 1px 0 rgba(0, 0, 0, 0.06)",
+                border: "1px solid #5567d5",
+            },
+            "&:focused": {
+                background: "linear-gradient(180deg, #F0F1FB 0%, #f7f7f9 100%)",
+                boxShadow: "inset 0 0 0 1px #a6b3ff, 0 1px 1px 0 rgba(0, 0, 0, 0.06)",
+                border: "1px solid #5567d5 !important",
+            },
+            '& .MuiSelect-icon': {
+                marginRight: 20,
+            },
+            "& .MuiSelect-selectMenu": {
+                height: "inherit !important",
+                paddingleft: 10,
+                "& .TextSpan": {
+                    top: "calc(50% - 8px)",
+                    position: "absolute",
+                    maxWidth: "156px",
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                },
+                "& .MenuItemWrapper": {
+                    top: "calc(50% - 20px)",
+                    left: "calc(50% - 75px)",
+                    position: "absolute",
+                    maxWidth: "156px",
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    display: "flex",
+                    flexDirection: "column",
+                    "& .IconWrapper": {
+                        height: 14,
+                        width: 14,
+                        marginTop: 13,
+                        marginBottom: 13,
+                        marginLeft: 10
+                    },
+                    "& .IconTextWrapper": {
+                        marginTop: 13,
+                        marginLeft: 5,
+                        lineHeight: "13px",
+                        fontSize: 12
+                    }
+                }
+            },
+            "& .MuiSelect-select.MuiSelect-select": {
+                padding: "0 15px",
+                "& $componentWrapper": {
+                    display: "none"
+                }
+            }
+        },
     })
 );

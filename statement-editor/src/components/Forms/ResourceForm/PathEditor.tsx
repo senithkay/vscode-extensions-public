@@ -27,8 +27,8 @@ import { StmtDiagnostic } from "../../../models/definitions";
 import { Path, PathSegment } from "./types";
 import { convertPathStringToSegments, generateBallerinaResourcePath, recalculateItemIds } from "./util";
 
-const pathParameterOption = "Parameter";
-const pathSegmentOption = "Segment";
+const pathParameterOption = "Path Parameter";
+const pathSegmentOption = "Path Segment";
 
 export interface PathEditorProps {
     relativeResourcePath: string;
