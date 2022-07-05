@@ -17,8 +17,7 @@ export const useStyles = makeStyles((theme: Theme) =>
         paramTypeWrapper: {
             padding: '0px 5px',
             display: 'block',
-            width: "35%",
-            backgroundColor: "#F0F1FB"
+            width: "35%"
         },
         paramDataTypeWrapper: {
             width: '32%',
