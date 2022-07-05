@@ -32,11 +32,12 @@ export interface StringTypeProps extends SimpleTypeProps {
 
 const StringType = (props: StringTypeProps): ReactElement => {
     const returnElement: ReactElement[] = [];
-    const { id, isRequired, value, setStringType, placeholder } = props;
+    const { id, isRequired, value, setStringType, placeholder, name } = props;
 
     const textFieldInputProps: TextFieldInputProps = {
         id,
         isRequired,
+        name,
         placeholder,
         setTextFieldValue: setStringType,
         type: "text",
