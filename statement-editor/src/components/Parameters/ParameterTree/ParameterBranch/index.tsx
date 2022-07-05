@@ -11,23 +11,25 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 
-import { Button, List, ListItem, ListItemText, ListSubheader } from "@material-ui/core";
+import { Button, List, ListItem } from "@material-ui/core";
 import { FormField } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
-import { isRequiredParam, TypeProps } from "..";
+import { TypeProps } from "..";
 import { useStmtEditorHelperPanelStyles } from "../../../styles";
+import { isRequiredParam } from "../utils";
 
 import * as Types from "./../Types";
 
 export interface ParameterBranchProps {
     parameters: FormField[];
     depth: number;
+    onChange: () => void;
 }
 
 export function ParameterBranch(props: ParameterBranchProps) {
-    const { parameters, depth } = props;
+    const { parameters, depth, onChange } = props;
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
 
     const [showOptionalParams, setShowOptionalParams] = useState(false);
@@ -40,6 +42,7 @@ export function ParameterBranch(props: ParameterBranchProps) {
         const typeProps: TypeProps = {
             param,
             depth,
+            onChange
         };
         if (!TypeComponent) {
             TypeComponent = (Types as any).custom;
@@ -60,10 +63,7 @@ export function ParameterBranch(props: ParameterBranchProps) {
             {requiredParams}
             {optionalParams.length > 0 && (
                 <ListItem className={stmtEditorHelperClasses.listOptionalWrapper}>
-                    {/* <ListSubheader className={stmtEditorHelperClasses.parameterHeader}>
-                        Optional fields
-                    </ListSubheader> */}
-                    <span className={stmtEditorHelperClasses.listOptionalHeader}>Optional fields </span>
+                    <div className={stmtEditorHelperClasses.listOptionalHeader}>Optional fields </div>
                     <Button className={stmtEditorHelperClasses.listOptionalBtn} onClick={toggleOptionalParams}>
                         {showOptionalParams ? "Hide" : "Show"}
                     </Button>

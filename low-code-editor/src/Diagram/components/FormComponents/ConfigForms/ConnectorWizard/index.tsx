@@ -45,14 +45,24 @@ export function ConnectorWizard(props: ConnectorWizardProps) {
     const { wizardType, connectorInfo, model, targetPosition, functionNode, onSave, onClose } = props;
 
     const [isLoading, setIsLoading] = useState(false);
-    const [wizardStep, setWizardStep] = useState<string>(getInitialWizardStep());
     const [selectedConnector, setSelectedConnector] = useState<BallerinaConnectorInfo>(connectorInfo);
     const [selectedEndpoint, setSelectedEndpoint] = useState<string>();
     const [selectedAction, setSelectedAction] = useState<FunctionDefinitionInfo>();
+    const [wizardStep, setWizardStep] = useState<string>(getInitialWizardStep());
 
     function getInitialWizardStep() {
         if (wizardType === ConnectorWizardType.ENDPOINT) {
             if (model) {
+                if (
+                    !isLoading &&
+                    connectorInfo &&
+                    (!selectedConnector || selectedConnector.functions?.length === 0)
+                ) {
+                    (async () => {
+                        setIsLoading(true);
+                        await fetchMetadata(connectorInfo);
+                    })();
+                }
                 return WizardStep.ENDPOINT_FORM;
             }
             return WizardStep.MARKETPLACE;

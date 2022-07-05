@@ -754,6 +754,13 @@ export function getParamUpdateModelPosition(model: STNode) {
             endLine: model.parenthesizedArgList.closeParenToken.position.endLine,
             endColumn: model.parenthesizedArgList.closeParenToken.position.endColumn,
         }
+    } else if (STKindChecker.isCheckExpression(model) && STKindChecker.isImplicitNewExpression(model.expression)) {
+        position = {
+            startLine: model.expression.parenthesizedArgList.openParenToken.position.startLine,
+            startColumn: model.expression.parenthesizedArgList.openParenToken.position.startColumn,
+            endLine: model.expression.parenthesizedArgList.closeParenToken.position.endLine,
+            endColumn: model.expression.parenthesizedArgList.closeParenToken.position.endColumn,
+        };
     }
     return position;
 }

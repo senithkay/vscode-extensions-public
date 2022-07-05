@@ -11,25 +11,31 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { Checkbox, ListItem, ListItemText, Typography } from "@material-ui/core";
 
-import { isAllDefaultableFields, isRequiredParam, TypeProps } from "../..";
+import { TypeProps } from "../..";
 import { useStmtEditorHelperPanelStyles } from "../../../../styles";
 import { ParameterBranch } from "../../ParameterBranch";
+import { isAllDefaultableFields, isRequiredParam } from "../../utils";
 
 export default function InclusionType(props: TypeProps) {
-    const { param, depth } = props;
+    const { param, depth, onChange } = props;
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
     const requiredParam = isRequiredParam(param);
     const isAllIncludedParamDefaultable = isAllDefaultableFields(param.inclusionType?.fields);
 
-    const [paramSelected, setParamSelected] = useState(requiredParam && !isAllIncludedParamDefaultable);
+    const [paramSelected, setParamSelected] = useState(param.selected || (requiredParam && !isAllIncludedParamDefaultable));
+
+    useEffect(() => {
+        param.selected = paramSelected;
+    }, [paramSelected]);
 
     const toggleParamCheck = () => {
         param.selected = !paramSelected;
         setParamSelected(!paramSelected);
+        onChange();
     };
 
     return (
@@ -66,7 +72,7 @@ export default function InclusionType(props: TypeProps) {
                 </div>
                 {paramSelected && param.inclusionType?.fields?.length > 0 && (
                     <div className={stmtEditorHelperClasses.listItemBody}>
-                        <ParameterBranch parameters={param.inclusionType.fields} depth={depth + 1} />
+                        <ParameterBranch parameters={param.inclusionType.fields} depth={depth + 1} onChange={onChange}/>
                     </div>
                 )}
             </div>

@@ -13,18 +13,21 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext } from "react";
 
-import { List, ListItemText, ListSubheader } from "@material-ui/core";
+import { ListItemText, ListSubheader } from "@material-ui/core";
 import { FormField } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 
 import { StatementEditorContext } from "../../../store/statement-editor-context";
+import { getParamUpdateModelPosition } from "../../../utils";
 import { useStmtEditorHelperPanelStyles } from "../../styles";
 
 import { ParameterBranch } from "./ParameterBranch";
+import { getDefaultParams } from "./utils";
 
 export interface TypeProps {
     param: FormField;
-    depth?: number;
+    depth: number;
+    onChange: () => void;
 }
 
 export interface ParameterTreeProps {
@@ -42,6 +45,16 @@ export function ParameterTree(props: ParameterTreeProps) {
         },
     } = useContext(StatementEditorContext);
 
+    // useEffect(() => {
+    //     mapEndpointToFormField(model, parameters);
+    // }, [model])
+
+    const handleOnChange = () => {
+        const modelParams = getDefaultParams(parameters);
+        const content = "(" + modelParams.join(",") + ")";
+        updateModel(content, getParamUpdateModelPosition(model));
+    }
+
     return (
         <>
             {!!parameters?.length && (
@@ -51,18 +64,10 @@ export function ParameterTree(props: ParameterTreeProps) {
                         <ListItemText secondary={"Select parameters from the list given below"} />
                     </ListSubheader>
                     <div className={stmtEditorHelperClasses.paramList}>
-                        <ParameterBranch parameters={parameters} depth={1}/>
+                        <ParameterBranch parameters={parameters} depth={1} onChange={handleOnChange}/>
                     </div>
                 </>
             )}
         </>
     );
-}
-
-export function isRequiredParam(param: FormField): boolean {
-    return !(param.optional || param.defaultable);
-}
-
-export function isAllDefaultableFields(recordFields: FormField[]): boolean {
-    return recordFields?.every((field) => field.defaultable || (field.fields && isAllDefaultableFields(field.fields)));
 }

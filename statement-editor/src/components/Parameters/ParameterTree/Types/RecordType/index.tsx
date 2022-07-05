@@ -11,25 +11,31 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { Checkbox, ListItem, ListItemText, Typography } from "@material-ui/core";
 
-import { isRequiredParam, TypeProps } from "../..";
+import { TypeProps } from "../..";
 import { useStmtEditorHelperPanelStyles } from "../../../../styles";
 import { ParameterBranch } from "../../ParameterBranch";
+import { isRequiredParam } from "../../utils";
 
 export default function RecordType(props: TypeProps) {
-    const { param, depth } = props;
+    const { param, depth, onChange } = props;
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
     const requiredParam = isRequiredParam(param);
 
-    const [paramSelected, setParamSelected] = useState(requiredParam);
+    const [paramSelected, setParamSelected] = useState(param.selected || requiredParam);
+
+    useEffect(() => {
+        param.selected = paramSelected;
+    }, [paramSelected]);
 
     const toggleParamCheck = () => {
         if (!requiredParam) {
             param.selected = !paramSelected
             setParamSelected(!paramSelected);
+            onChange();
         }
     };
 
@@ -68,7 +74,7 @@ export default function RecordType(props: TypeProps) {
                 </div>
                 {paramSelected && param.fields?.length > 0 && (
                     <div className={stmtEditorHelperClasses.listItemBody}>
-                        <ParameterBranch parameters={param.fields} depth={depth + 1} />
+                        <ParameterBranch parameters={param.fields} depth={depth + 1} onChange={onChange}/>
                     </div>
                 )}
             </div>

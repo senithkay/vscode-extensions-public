@@ -16,36 +16,49 @@ import React, { useEffect, useState } from "react";
 import { Checkbox, ListItem, ListItemText, Typography } from "@material-ui/core";
 import { FormField } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
-import { isRequiredParam, TypeProps } from "../..";
+import { TypeProps } from "../..";
 import SelectDropdown from "../../../../Dropdown";
 import { useStmtEditorHelperPanelStyles } from "../../../../styles";
 import { ParameterBranch } from "../../ParameterBranch";
+import { getSelectedUnionMember, isRequiredParam } from "../../utils";
 
 export default function UnionType(props: TypeProps) {
-    const { param, depth } = props;
+    const { param, depth, onChange } = props;
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
 
     const requiredParam = isRequiredParam(param);
     const memberTypes = param.members?.map((field) => getUnionParamName(field));
+    const initSelectedMember = getSelectedUnionMember(param);
 
-    const [paramSelected, setParamSelected] = useState(requiredParam);
-    const [selectedMemberType, setSelectedMemberType] = useState(memberTypes[0]);
+    const [paramSelected, setParamSelected] = useState(param.selected || requiredParam);
+    const [selectedMemberType, setSelectedMemberType] = useState(getUnionParamName(initSelectedMember));
     const [parameter, setParameter] = useState<FormField>();
 
     useEffect(() => {
+        param.selected = paramSelected;
+    }, [paramSelected]);
+
+    useEffect(() => {
         const selectedMember = param.members.find((field) => getUnionParamName(field) === selectedMemberType);
+        updateFormFieldMemberSelection(selectedMember);
         setParameter(selectedMember);
+        onChange();
     }, [selectedMemberType]);
+
+    const updateFormFieldMemberSelection = (unionField: FormField) => {
+        param.members.forEach((field) => {
+            field.selected = field.name === unionField.name;
+        });
+    };
 
     const handleMemberType = (type: string) => {
         setSelectedMemberType(type);
     };
 
     const toggleParamCheck = () => {
-        if (!requiredParam) {
-            param.selected = !paramSelected
-            setParamSelected(!paramSelected);
-        }
+        param.selected = !paramSelected;
+        setParamSelected(!paramSelected);
+        onChange();
     };
 
     return (
@@ -91,7 +104,7 @@ export default function UnionType(props: TypeProps) {
                 </div>
                 {paramSelected && parameter && (
                     <div className={stmtEditorHelperClasses.listItemBody}>
-                        <ParameterBranch parameters={[parameter]} depth={depth + 1} />
+                        <ParameterBranch parameters={[parameter]} depth={depth + 1} onChange={onChange} />
                     </div>
                 )}
             </div>

@@ -577,6 +577,10 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
         },
         docParamDescriptionText: {
             flex: "inherit",
+            width: '320px',
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
             ...removePadding
         },
         includedRecordPlusBtn: {

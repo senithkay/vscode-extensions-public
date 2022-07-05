@@ -11,24 +11,30 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { Checkbox, ListItem, ListItemText, Typography } from "@material-ui/core";
 
-import { isRequiredParam, TypeProps } from "../..";
+import { TypeProps } from "../..";
 import { useStmtEditorHelperPanelStyles } from "../../../../styles";
+import { isRequiredParam } from "../../utils";
 
 export default function CustomType(props: TypeProps) {
-    const { param } = props;
+    const { param, onChange } = props;
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
     const requiredParam = isRequiredParam(param);
 
-    const [paramSelected, setParamSelected] = useState(requiredParam);
+    const [paramSelected, setParamSelected] = useState(param.selected || requiredParam);
+
+    useEffect(() => {
+        param.selected = paramSelected;
+    }, [paramSelected]);
 
     const toggleParamCheck = () => {
         if (!requiredParam) {
-            param.selected = !paramSelected
+            param.selected = !paramSelected;
             setParamSelected(!paramSelected);
+            onChange();
         }
     };
 
