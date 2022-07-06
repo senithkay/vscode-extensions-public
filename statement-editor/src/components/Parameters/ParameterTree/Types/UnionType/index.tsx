@@ -91,7 +91,7 @@ export default function UnionType(props: TypeProps) {
                         <SelectDropdown
                             className={stmtEditorHelperClasses.listSelectDropDown}
                             values={memberTypes}
-                            defaultValue={memberTypes[0]}
+                            defaultValue={selectedMemberType}
                             onSelection={handleMemberType}
                         />
                     </div>

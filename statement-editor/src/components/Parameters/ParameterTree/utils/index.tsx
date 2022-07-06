@@ -47,6 +47,11 @@ export function isAllNotSelectedFields(recordFields: FormField[]): boolean {
 export function getSelectedUnionMember(unionFields: FormField): FormField {
     let selectedMember = unionFields.members?.find((member) => member.selected === true);
     if (!selectedMember) {
+        selectedMember = unionFields.members?.find(
+            (member) => getUnionFormFieldName(member) === unionFields.selectedDataType
+        );
+    }
+    if (!selectedMember) {
         selectedMember = unionFields.members[0];
     }
     return selectedMember;
@@ -58,7 +63,7 @@ export function getDefaultParams(parameters: FormField[], depth = 1, valueOnly =
     }
     const parameterList: string[] = [];
     parameters.forEach((parameter) => {
-        if ((parameter.defaultable || parameter.optional) && !parameter.selected) {
+        if ((parameter.defaultable || parameter.optional) && !parameter.selected && !parameter.value) {
             return;
         }
         let draftParameter = "";
@@ -354,7 +359,7 @@ export function getFormFieldReturnType(formField: FormField, depth = 1): FormFie
     return response;
 }
 
-export function mapEndpointToFormField(model: STNode, formFields: FormField[]) {
+export function mapEndpointToFormField(model: STNode, formFields: FormField[]): FormField[] {
     let expression: ImplicitNewExpression;
     if (model && STKindChecker.isCheckExpression(model) && STKindChecker.isImplicitNewExpression(model.expression)) {
         expression = model.expression;
@@ -441,6 +446,7 @@ export function mapEndpointToFormField(model: STNode, formFields: FormField[]) {
             }
         }
     }
+    return formFields;
 }
 
 export function mapRecordLiteralToRecordTypeFormField(specificFields: SpecificField[], formFields: FormField[]) {
@@ -468,7 +474,11 @@ export function mapRecordLiteralToRecordTypeFormField(specificFields: SpecificFi
                                         );
                                         let allFieldsFilled = true;
                                         subFields.forEach((field) => {
-                                            if (field.optional === false && !field.value) {
+                                            if (
+                                                field.optional === false &&
+                                                field.defaultable === false &&
+                                                !field.value
+                                            ) {
                                                 allFieldsFilled = false;
                                             }
                                         });

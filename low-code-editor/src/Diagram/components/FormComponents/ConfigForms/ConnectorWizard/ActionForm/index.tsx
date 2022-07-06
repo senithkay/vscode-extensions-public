@@ -45,11 +45,6 @@ export function ActionForm(props: FormGeneratorProps) {
         },
     } = useContext(Context);
 
-    // const formTitle = intl.formatMessage({
-    //     id: "lowcode.develop.configForms.endpoint.title",
-    //     defaultMessage: "Endpoint"
-    // });
-
     let initialSource = "EXPRESSION";
 
     if (model && model.source) {

@@ -52,7 +52,7 @@ export function ParameterSuggestions() {
     const [paramDoc, setParamDoc] = React.useState(documentation.documentation);
 
     const connectorInfo = (connector as BallerinaConnectorInfo);
-    const connectorParams = connectorInfo?.functions.find(func => func.name === "init");
+    const connectorInit = connectorInfo?.functions.find(func => func.name === "init");
 
     useEffect(() => {
         if (currentModel.model && documentation && documentation.documentation?.parameters) {
@@ -137,12 +137,12 @@ export function ParameterSuggestions() {
                         )}
                     </>
                 ))}
-            {connectorInfo && connectorParams && (
+            {connectorInfo && connectorInit && (
                 <List className={stmtEditorHelperClasses.docParamSuggestions}>
-                    {connectorParams.parameters && (<ParameterTree parameters={connectorParams.parameters} />)}
+                    {connectorInit.parameters && (<ParameterTree parameters={connectorInit.parameters} />)}
                     {connectorInfo.documentation && (
                         <>
-                            {connectorParams.parameters?.length > 0 && (
+                            {connectorInit.parameters?.length > 0 && (
                                 <hr className={stmtEditorHelperClasses.returnSeparator} />
                             )}
                             <ListSubheader className={stmtEditorHelperClasses.parameterHeader}>
@@ -153,12 +153,12 @@ export function ParameterSuggestions() {
                             </ListItem>
                         </>
                     )}
-                    {connectorParams.returnType?.documentation && (
+                    {connectorInit.returnType?.documentation && (
                         <>
                             <hr className={stmtEditorHelperClasses.returnSeparator} />
                             <ListSubheader className={stmtEditorHelperClasses.parameterHeader}>Return</ListSubheader>
                             <ListItem className={stmtEditorHelperClasses.returnDescription}>
-                                <ListItemText primary={connectorParams.returnType?.documentation} />
+                                <ListItemText primary={connectorInit.returnType?.documentation} />
                             </ListItem>
                         </>
                     )}

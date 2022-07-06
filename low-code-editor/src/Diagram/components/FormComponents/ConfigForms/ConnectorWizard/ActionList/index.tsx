@@ -52,7 +52,7 @@ export function ActionList(props: FormGeneratorProps) {
 
     useEffect(() => {
         const searchKeyword = keyword.toLowerCase().trim();
-        if (searchKeyword.length > 2 && searchKeyword !== "") {
+        if (searchKeyword.length > 1 && searchKeyword !== "") {
             const filter = actions.filter((action) => {
                 if (
                     action.name.toLowerCase().indexOf(searchKeyword) > -1 ||

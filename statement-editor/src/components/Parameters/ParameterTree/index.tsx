@@ -33,11 +33,10 @@ export interface TypeProps {
 
 export interface ParameterTreeProps {
     parameters: FormField[];
-    paramsInModel?: STNode[];
 }
 
 export function ParameterTree(props: ParameterTreeProps) {
-    const { parameters, paramsInModel } = props;
+    const { parameters } = props;
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
     const {
         modelCtx: {
@@ -45,16 +44,18 @@ export function ParameterTree(props: ParameterTreeProps) {
             statementModel,
             updateModel,
         },
+        formCtx: {
+            formArgs: {
+                isEditForm
+            }
+        },
     } = useContext(StatementEditorContext);
-
-    useEffect(() => {
-        mapEndpointToFormField(model, parameters);
-    }, [model]);
+    const formFieldUpdated = useRef(false);
 
     const handleOnChange = () => {
         const modelParams = getDefaultParams(parameters);
         const content = "(" + modelParams.join(",") + ")";
-        
+
         let updatingPosition: NodePosition;
         if (model.viewState?.parentFunctionPos) {
             const parentFunctionModel = getParentFunctionModel(
@@ -68,6 +69,11 @@ export function ParameterTree(props: ParameterTreeProps) {
 
         updateModel(content, updatingPosition);
     };
+
+    if(isEditForm && parameters && !formFieldUpdated.current){
+        mapEndpointToFormField(model, parameters);
+        formFieldUpdated.current = true;
+    }
 
     return (
         <>
