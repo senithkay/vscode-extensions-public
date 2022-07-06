@@ -10,7 +10,14 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { FunctionCall, STNode, Visitor } from "@wso2-enterprise/syntax-tree";
+import {
+    ExplicitNewExpression,
+    FunctionCall,
+    ImplicitNewExpression,
+    MethodCall,
+    STNode,
+    Visitor
+} from "@wso2-enterprise/syntax-tree";
 
 import { StatementEditorViewState } from "../utils/statement-editor-viewstate";
 
@@ -23,6 +30,18 @@ class ParentFunctionSetupVisitor implements Visitor {
     }
 
     public beginVisitFunctionCall(node: FunctionCall) {
+        (node.viewState as StatementEditorViewState).parentFunctionPos = node.position;
+    }
+
+    public beginVisitMethodCall(node: MethodCall) {
+        (node.viewState as StatementEditorViewState).parentFunctionPos = node.position;
+    }
+
+    public beginVisitExplicitNewExpression(node: ExplicitNewExpression) {
+        (node.viewState as StatementEditorViewState).parentFunctionPos = node.position;
+    }
+
+    public beginVisitImplicitNewExpression(node: ImplicitNewExpression) {
         (node.viewState as StatementEditorViewState).parentFunctionPos = node.position;
     }
 }
