@@ -638,6 +638,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
                 minWidth: 'auto',
                 margin: '0 6px 0 0'
             },
+            alignItems: 'flex-start',
             width: 'fit-content',
             ...removePadding
         },
