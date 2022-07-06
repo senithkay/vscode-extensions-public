@@ -30,7 +30,7 @@ import { useStatementEditorStyles, useStmtEditorHelperPanelStyles } from "../../
 import { ParameterList } from "../ParameterList";
 
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
-export function ParameterSuggestions(){
+export function ParameterSuggestions() {
     const {
         modelCtx: {
             currentModel,
@@ -48,11 +48,12 @@ export function ParameterSuggestions(){
     useEffect(() => {
         if (currentModel.model && documentation && documentation.documentation?.parameters) {
             const paramsInModel: STNode[] = isDocumentationSupportedModel(currentModel.model) ?
-                getCurrentModelParams(currentModel.model) : getCurrentModelParams(
-                getParentFunctionModel((currentModel.model.parent.viewState as StatementEditorViewState)?.parentFunctionPos,
-                    statementModel));
+                getCurrentModelParams(currentModel.model) :
+                getCurrentModelParams(
+                    getParentFunctionModel((currentModel.model.parent.viewState as StatementEditorViewState)?.parentFunctionPos,
+                        statementModel));
             // TODO: Remove this check once the methodCall param filter is added to the LS
-            if (STKindChecker.isMethodCall(currentModel.model)){
+            if (STKindChecker.isMethodCall(currentModel.model)) {
                 updateParamListFordMethodCallDoc(paramsInModel, documentation.documentation);
             }
             setParamDoc(updateParamDocWithParamPositions(paramsInModel, documentation.documentation));
@@ -63,27 +64,27 @@ export function ParameterSuggestions(){
         const doc = documentation.documentation.description;
         const docRegex = /```ballerina\n(.*?)\n```/gms;
         if (isDescriptionWithExample(doc)) {
-           const des = getDocDescription(doc);
-           const docEx = docRegex.exec(doc);
-           return (
-               <>
-                   <ListItemText primary={des[0]}/>
-                   <ListSubheader className={stmtEditorHelperClasses.exampleHeader}>
-                       Example
-                   </ListSubheader>
-                   <ListItem className={stmtEditorHelperClasses.docDescription}>
-                       <code className={stmtEditorHelperClasses.exampleCode}>{docEx[1]}</code>
-                   </ListItem>
-               </>
-           );
-       } else {
-           return (
-               <ListItemText primary={doc}/>
-           );
-       }
+            const des = getDocDescription(doc);
+            const docEx = docRegex.exec(doc);
+            return (
+                <>
+                    <ListItemText primary={des[0]}/>
+                    <ListSubheader className={stmtEditorHelperClasses.exampleHeader}>
+                        Example
+                    </ListSubheader>
+                    <ListItem className={stmtEditorHelperClasses.docDescription}>
+                        <code className={stmtEditorHelperClasses.exampleCode}>{docEx[1]}</code>
+                    </ListItem>
+                </>
+            );
+        } else {
+            return (
+                <ListItemText primary={doc}/>
+            );
+        }
     }
 
-    return(
+    return (
         <>
             {documentation === null ? (
                 <div className={statementEditorClasses.stmtEditorInnerWrapper}>
@@ -93,7 +94,7 @@ export function ParameterSuggestions(){
                 <>
                     {documentation && !(documentation.documentation === undefined) ? (
                         <List className={stmtEditorHelperClasses.docParamSuggestions}>
-                            {paramDoc &&  <ParameterList paramDocumentation={paramDoc}/>}
+                            {paramDoc && <ParameterList paramDocumentation={paramDoc}/>}
                             {documentation.documentation.description && (
                                 <>
                                     {documentation.documentation.parameters?.length > 0 && (

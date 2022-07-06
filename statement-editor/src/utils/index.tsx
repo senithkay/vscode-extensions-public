@@ -580,6 +580,7 @@ export function updateParamDocWithParamPositions(paramsInModel: STNode[], docume
                     param.argumentName.name.value === docParam.name ||
                     docParam.kind === SymbolParameterType.INCLUDED_RECORD ||
                     docParam.kind === SymbolParameterType.REST){
+                    // TODO: remove the special case for included records once the LS support the documentation for fields in records
                     if (docParam.kind === SymbolParameterType.INCLUDED_RECORD) {
                         const includedRecordFields : ParameterInfo = {
                             type: undefined,
@@ -611,20 +612,6 @@ export function updateParamDocWithParamPositions(paramsInModel: STNode[], docume
     });
 
     return updatedDocWithPositions;
-}
-
-export function isAllowedIncludedArgsAdded(parameters: ParameterInfo[], checkedList: any[]): boolean {
-    let isIncluded: boolean = true;
-    for (let i = 0; i < parameters.length; i++){
-        const docParam : ParameterInfo = parameters[i];
-        if (docParam.kind === SymbolParameterType.INCLUDED_RECORD){
-            if (!checkedList.includes(i)){
-                isIncluded = false;
-                break;
-            }
-        }
-    }
-    return isIncluded;
 }
 
 export function getUpdatedContentOnCheck(currentModel: STNode, param: ParameterInfo, parameters: ParameterInfo[]) : string {

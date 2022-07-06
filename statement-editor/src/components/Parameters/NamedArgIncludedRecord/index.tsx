@@ -14,7 +14,7 @@ import React, { useState } from "react";
 
 import { Checkbox, ListItem, OutlinedInput } from "@material-ui/core";
 
-import { useStatementEditorStyles, useStmtEditorHelperPanelStyles } from "../../styles";
+import { useStmtEditorHelperPanelStyles } from "../../styles";
 
 interface NamedArgIncludedRecordProps {
     isNewRecord: boolean
