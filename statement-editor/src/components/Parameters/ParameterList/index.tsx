@@ -10,12 +10,12 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, { useContext, useEffect, useMemo } from "react";
+import React, { useContext } from "react";
 
 import { Checkbox, IconButton, ListItem, ListItemText, ListSubheader, Typography } from "@material-ui/core";
 import { AddCircleOutline } from "@material-ui/icons";
 import { ParameterInfo, SymbolDocumentation } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { NamedArg, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { STNode } from "@wso2-enterprise/syntax-tree";
 
 import { SymbolParameterType } from "../../../constants";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
@@ -28,7 +28,8 @@ import {
     isDocumentationSupportedModel,
 } from "../../../utils";
 import { StatementEditorViewState } from "../../../utils/statement-editor-viewstate";
-import { useStatementEditorStyles, useStmtEditorHelperPanelStyles } from "../../styles";
+import { useStmtEditorHelperPanelStyles } from "../../styles";
+import { IncludedRecord } from "../IncludedRecord";
 import { NamedArgIncludedRecord } from "../NamedArgIncludedRecord";
 import { RequiredArg } from "../RequiredArg";
 
@@ -43,7 +44,7 @@ export function ParameterList(props: ParameterListProps) {
     const {
         modelCtx: {
             currentModel : {
-                model,
+                model
             },
             statementModel,
             updateModel,
@@ -54,17 +55,19 @@ export function ParameterList(props: ParameterListProps) {
     let isNewRecordBtnClicked: boolean = false;
     const [plusButtonClick, setPlusButtonClicked] = React.useState(false);
 
-    const handleCheckboxClick = (param?: ParameterInfo) => () => {
+    const handleCheckboxClick = (param: ParameterInfo) => () => {
         if (!param.modelPosition) {
             if (param.kind === SymbolParameterType.REST) {
                 restArg(true);
             }
             if (isDocumentationSupportedModel(model)) {
-                updateModel(getUpdatedContentOnCheck(model, param, paramDocumentation.parameters), getParamUpdateModelPosition(model));
+                updateModel(getUpdatedContentOnCheck(model, param, paramDocumentation.parameters),
+                    getParamUpdateModelPosition(model));
             } else {
                 const parentModel : STNode = getParentFunctionModel((model.parent.viewState as StatementEditorViewState)?.parentFunctionPos,
                     statementModel);
-                updateModel(getUpdatedContentOnCheck(parentModel, param, paramDocumentation.parameters), getParamUpdateModelPosition(parentModel));
+                updateModel(getUpdatedContentOnCheck(parentModel, param, paramDocumentation.parameters),
+                    getParamUpdateModelPosition(parentModel));
             }
         } else {
             if (param.kind === SymbolParameterType.REST) {
@@ -75,7 +78,8 @@ export function ParameterList(props: ParameterListProps) {
             } else {
                 const parentModel : STNode = getParentFunctionModel((model.parent.viewState as StatementEditorViewState)?.parentFunctionPos,
                     statementModel);
-                updateModel(getUpdatedContentOnUncheck(parentModel, param.modelPosition), getParamUpdateModelPosition(parentModel));
+                updateModel(getUpdatedContentOnUncheck(parentModel, param.modelPosition),
+                    getParamUpdateModelPosition(parentModel));
             }
         }
     };
@@ -102,49 +106,6 @@ export function ParameterList(props: ParameterListProps) {
 
     const handlePlusButton = () => () => {
         setPlusButtonClicked(true);
-    }
-
-    const addIncludedRecords = (param: ParameterInfo, value: number) => {
-        if (param.fields){
-            return (
-                param.fields.map((field) => (
-                    includedRecord(field)
-                ))
-            );
-        }else {
-            return (
-                includedRecord(param)
-            );
-        }
-    }
-
-    const includedRecord = (param: ParameterInfo) => {
-        return (
-            <>
-                {param.modelPosition && (
-                    <ListItem
-                        className={stmtEditorHelperClasses.docListDefault}
-                        style={model && param ?
-                            { backgroundColor: JSON.stringify(model.position) === JSON.stringify(param.modelPosition) ?
-                                    "rgba(204,209,242,0.61)" : 'inherit'} : undefined }
-                    >
-                        <Checkbox
-                            classes={{
-                                root: stmtEditorHelperClasses.parameterCheckbox,
-                                checked: stmtEditorHelperClasses.checked
-                            }}
-                            style={{ flex: 'inherit' }}
-                            checked={true}
-                            onClick={handleCheckboxClick(param)}
-                        />
-                        <ListItemText
-                            className={stmtEditorHelperClasses.docListItemText}
-                            primary={param.name}
-                        />
-                    </ListItem>
-                )}
-            </>
-        );
     }
 
     const addIncludedRecordToModel = (userInput: string) => {
@@ -174,7 +135,20 @@ export function ParameterList(props: ParameterListProps) {
                                         {param.kind === SymbolParameterType.INCLUDED_RECORD ? (
                                             <>
                                                 {addIncludedRecordHeader(param, value)}
-                                                {addIncludedRecords(param, value)}
+                                                {param.fields ? (
+                                                    param.fields.map((field, key: number) => (
+                                                        <IncludedRecord
+                                                            key={key}
+                                                            param={field}
+                                                            handleCheckboxClick={handleCheckboxClick}
+                                                        />
+                                                    ))
+                                                ) : (
+                                                    <IncludedRecord
+                                                        param={param}
+                                                        handleCheckboxClick={handleCheckboxClick}
+                                                    />
+                                                )}
                                                 {(!param.modelPosition && !isNewRecordBtnClicked) && (
                                                     <>
                                                         <NamedArgIncludedRecord
