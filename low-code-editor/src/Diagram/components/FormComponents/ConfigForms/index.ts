@@ -24,6 +24,7 @@ import { ConnectorList } from "./ConnectorWizard/ConnectorList";
 import { EndpointForm } from "./ConnectorWizard/EndpointForm";
 import { EndpointList } from "./ConnectorWizard/EndpointList";
 import { ConstantConfigForm } from "./ConstantConfigForm";
+import { DataMapperConfigForm } from "./DataMapperConfigForm";
 import { EndConfigForm } from "./EndConfigForms";
 import { EnumConfigForm } from "./EnumConfigForm";
 import { FunctionConfigForm } from './FunctionConfigForm';
@@ -65,6 +66,7 @@ export { ListenerConfigForm as ListenerDeclaration };
 export { ConstantConfigForm as ConstDeclaration }
 export { AddModuleFrom as ModuleConnectorDecl }
 export { TypeDefinitionConfigForm as TypeDefinition };
+export { DataMapperConfigForm as DataMapper };
 export { TriggerList as TriggerList };
 export { TriggerForm as TriggerForm };
 export { EnumConfigForm as EnumDeclaration };

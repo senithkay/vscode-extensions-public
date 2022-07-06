@@ -1,18 +1,18 @@
 import React, { useEffect, useState } from "react";
 
-import DataMapperDiagram from "../Diagram/Diagram";
-
-import { ExpressionFunctionBody, FunctionDefinition, STKindChecker, traversNode, traversNodeAsync, TypeDefinition } from "@wso2-enterprise/syntax-tree";
 import { BalleriaLanguageClient } from "@wso2-enterprise/ballerina-languageclient";
-import { getTypeDefinitionForTypeDesc } from "../../utils/st-utils";
-import { DataMapperNodeModel } from "../Diagram/Node/model/DataMapperNode";
+import { ExpressionEditorLangClientInterface } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FunctionDefinition, traversNode } from "@wso2-enterprise/syntax-tree";
+
 import { DataMapperContext } from "../../utils/DataMapperContext/DataMapperContext";
-import { ExpressionFunctionBodyNode, RequiredParamNode } from "../Diagram/Node";
+import DataMapperDiagram from "../Diagram/Diagram";
+import { DataMapperNodeModel } from "../Diagram/Node/model/DataMapperNode";
 import { NodeInitVisitor } from "../Diagram/visitors/NodeInitVisitor";
 
 export interface DataMapperProps {
     fnST: FunctionDefinition;
-    langClientPromise: Promise<BalleriaLanguageClient>;
+    langClientPromise?: Promise<BalleriaLanguageClient>;
+    getLangClient?: () => Promise<ExpressionEditorLangClientInterface>;
     filePath: string;
     updateFileContent: (filePath: string, content: string) => Promise<boolean>;
 }
