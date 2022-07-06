@@ -18,7 +18,7 @@ import {
 
 import { isPositionsEquals } from "../utils";
 
-class ParentFunctionModelFindingVisitor implements Visitor {
+class ParentModelFindingVisitor implements Visitor {
     private position: NodePosition;
     private model: STNode;
 
@@ -39,4 +39,4 @@ class ParentFunctionModelFindingVisitor implements Visitor {
     }
 }
 
-export const visitor = new ParentFunctionModelFindingVisitor();
+export const visitor = new ParentModelFindingVisitor();

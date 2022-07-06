@@ -51,8 +51,8 @@ import { visitor as ModelFindingVisitor } from "../visitors/model-finding-visito
 import { visitor as ModelTypeSetupVisitor } from "../visitors/model-type-setup-visitor";
 import { visitor as MultilineConstructsConfigSetupVisitor } from "../visitors/multiline-constructs-config-setup-visitor";
 import {nextNodeSetupVisitor} from "../visitors/next-node--setup-visitor"
-import { visitor as ParentModelFindingVisitor } from "../visitors/parent-function-finding-visitor";
 import { parentFunctionSetupVisitor } from "../visitors/parent-function-setup-visitor";
+import { visitor as ParentModelFindingVisitor } from "../visitors/parent-model-finding-visitor";
 import { parentSetupVisitor } from '../visitors/parent-setup-visitor';
 import { viewStateSetupVisitor as ViewStateSetupVisitor } from "../visitors/view-state-setup-visitor";
 
@@ -590,7 +590,7 @@ export function updateParamDocWithParamPositions(paramsInModel: STNode[], docume
                         }
                         if (docParam.fields) {
                             if (!docParam.fields.find((filedParam) => {
-                                return (JSON.stringify(filedParam.modelPosition) === JSON.stringify(param.position) &&
+                                return (isPositionsEquals(filedParam.modelPosition, param.position) &&
                                     filedParam.name === param.argumentName.name.value)
                             }
                             )){
@@ -754,7 +754,7 @@ export function getParamUpdateModelPosition(model: STNode) {
 export function getParamHighlight(currentModel : STNode, param: ParameterInfo){
     return (
         currentModel && param ?
-            { backgroundColor: JSON.stringify(currentModel.position) === JSON.stringify(param.modelPosition) ?
+            { backgroundColor: isPositionsEquals(currentModel.position, param.modelPosition) ?
                     "rgba(204,209,242,0.61)" : 'inherit'} : undefined
     );
 }
