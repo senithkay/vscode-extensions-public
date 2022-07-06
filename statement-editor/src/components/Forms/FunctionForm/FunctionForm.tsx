@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useState } from 'react';
 
-import { Button, Divider, FormControl } from "@material-ui/core";
+import { Button, CircularProgress, Divider, FormControl } from "@material-ui/core";
 import { default as AddIcon } from "@material-ui/icons/Add";
 import { LiteExpressionEditor } from "@wso2-enterprise/ballerina-expression-editor";
 import {
@@ -307,73 +307,65 @@ export function FunctionForm(props: FunctionProps) {
     }, [model, completions]);
 
     useEffect(() => {
-        console.log('>>> function name effect', model?.functionName?.value)
-        setFunctionName({ ...functionName, value: model?.functionName?.value});
-    }, [model?.functionName?.value]);
+        setFunctionName({ ...functionName, value: model?.functionName?.value });
+    }, [model]);
 
-    console.log('>>>', model);
+    const formContent = () => {
+        return (
 
-    return (
-        <FormControl data-testid="function-form" className={formClasses.wizardFormControl}>
-            <FormHeaderSection
-                onCancel={onCancel}
-                formTitle={"Function Configuration"}
-                defaultMessage={"Function Configuration"}
-            />
-            <div className={connectorClasses.formContentWrapper}>
-                <div className={connectorClasses.formNameWrapper}>
-                    <FieldTitle title='Name' optional={false} />
-                    <LiteExpressionEditor
-                        defaultValue={functionName.value}
-                        diagnostics={model?.functionName?.viewState?.diagnosticsInRange}
-                        focus={true}
-                        onChange={debouncedNameChange}
-                        onFocus={onNameFocus}
-                        stModel={model}
-                        disabled={addingNewParam || (currentComponentSyntaxDiag && currentComponentName !== "Name")}
-                        hideSuggestions={true}
-                        // placeholder={"Ex: name"}
-                        // defaultValue={(functionName?.isInteracted || isEdit || isMainFunction) ? functionName.value : ""}
-                        customProps={{
-                            index: 1,
-                            optional: false
-                        }}
-                        // diagsInRange={model?.functionSignature?.returnTypeDesc?.viewState?.diagnosticsInRange}
-                        // errorMessage={(currentComponentSyntaxDiag && currentComponentName === "Name"
-                        //     && currentComponentSyntaxDiag[0].message) ||
-                        //     model?.functionName?.viewState?.diagnosticsInRange[0]?.message}
-                        // disabled={addingNewParam || isMainFunction || (currentComponentSyntaxDiag && currentComponentName !== "Name")}
-                    />
-                    <Divider className={connectorClasses.sectionSeperatorHR} />
-                    <ConfigPanelSection title={"Parameters"}>
-                        {paramElements}
-                        {addingNewParam ? (
-                            <FunctionParamSegmentEditor
-                                param={params[parameters.length] as (DefaultableParam | IncludedRecordParam |
-                                    RequiredParam | RestParam)}
-                                id={parameters.length}
-                                syntaxDiag={currentComponentSyntaxDiag}
-                                onCancel={closeNewParamView}
-                                onChange={onParamChange}
-                                onSave={onSaveNewParam}
-                                isEdit={false}
-                            />
-                        ) : (
-                            <Button
-                                data-test-id="param-add-button"
-                                onClick={openNewParamView}
-                                className={connectorClasses.addParameterBtn}
-                                startIcon={<AddIcon />}
-                                color="primary"
-                                disabled={currentComponentSyntaxDiag?.length > 0}
-                            >
-                                Add parameter
-                            </Button>
-                        )}
-                    </ConfigPanelSection>
-                    <Divider className={connectorClasses.sectionSeperatorHR} />
-                    <FieldTitle title='Return Type' optional={true} />
-                    {/* <CompletionEditor
+            <div className={connectorClasses.formNameWrapper}>
+                <FieldTitle title='Name' optional={false} />
+                <LiteExpressionEditor
+                    defaultValue={functionName.value}
+                    diagnostics={model?.functionName?.viewState?.diagnosticsInRange}
+                    focus={true}
+                    onChange={debouncedNameChange}
+                    onFocus={onNameFocus}
+                    stModel={model}
+                    disabled={addingNewParam || (currentComponentSyntaxDiag && currentComponentName !== "Name")}
+                    hideSuggestions={true}
+                    // placeholder={"Ex: name"}
+                    // defaultValue={(functionName?.isInteracted || isEdit || isMainFunction) ? functionName.value : ""}
+                    customProps={{
+                        index: 1,
+                        optional: false
+                    }}
+                // diagsInRange={model?.functionSignature?.returnTypeDesc?.viewState?.diagnosticsInRange}
+                // errorMessage={(currentComponentSyntaxDiag && currentComponentName === "Name"
+                //     && currentComponentSyntaxDiag[0].message) ||
+                //     model?.functionName?.viewState?.diagnosticsInRange[0]?.message}
+                // disabled={addingNewParam || isMainFunction || (currentComponentSyntaxDiag && currentComponentName !== "Name")}
+                />
+                <Divider className={connectorClasses.sectionSeperatorHR} />
+                <ConfigPanelSection title={"Parameters"}>
+                    {paramElements}
+                    {addingNewParam ? (
+                        <FunctionParamSegmentEditor
+                            param={params[parameters.length] as (DefaultableParam | IncludedRecordParam |
+                                RequiredParam | RestParam)}
+                            id={parameters.length}
+                            syntaxDiag={currentComponentSyntaxDiag}
+                            onCancel={closeNewParamView}
+                            onChange={onParamChange}
+                            onSave={onSaveNewParam}
+                            isEdit={false}
+                        />
+                    ) : (
+                        <Button
+                            data-test-id="param-add-button"
+                            onClick={openNewParamView}
+                            className={connectorClasses.addParameterBtn}
+                            startIcon={<AddIcon />}
+                            color="primary"
+                            disabled={currentComponentSyntaxDiag?.length > 0}
+                        >
+                            Add parameter
+                        </Button>
+                    )}
+                </ConfigPanelSection>
+                <Divider className={connectorClasses.sectionSeperatorHR} />
+                <FieldTitle title='Return Type' optional={true} />
+                {/* <CompletionEditor
                         isActive={currentComponentName === "Return"}
                         completions={currentComponentCompletions}
                         onChange={debouncedReturnChange}
@@ -392,20 +384,35 @@ export function FunctionForm(props: FunctionProps) {
                             (functionBodyBlock?.closeBraceToken?.viewState?.diagnosticsInRange))}
                         disabled={addingNewParam || (currentComponentSyntaxDiag && currentComponentName !== "Return")}
                     /> */}
-                    <LiteExpressionEditor
-                        diagnostics={model?.functionSignature?.returnTypeDesc?.viewState?.diagnosticsInRange}
-                        defaultValue={model?.functionSignature?.returnTypeDesc?.type.source.trim()}
-                        onChange={debouncedReturnChange}
-                        completions={currentComponentCompletions}
-                        stModel={model}
-                        onFocus={onReturnFocus}
-                        disabled={addingNewParam || (currentComponentSyntaxDiag && currentComponentName !== "Return")}
-                        customProps={{
-                            index: 2,
-                            optional: true
-                        }}
-                    />
-                </div>
+                <LiteExpressionEditor
+                    diagnostics={model?.functionSignature?.returnTypeDesc?.viewState?.diagnosticsInRange}
+                    defaultValue={returnType.value}
+                    onChange={debouncedReturnChange}
+                    completions={currentComponentCompletions}
+                    stModel={model}
+                    onFocus={onReturnFocus}
+                    disabled={addingNewParam || (currentComponentSyntaxDiag && currentComponentName !== "Return")}
+                    customProps={{
+                        index: 2,
+                        optional: true
+                    }}
+                />
+            </div>
+        )
+    };
+
+    const contentRenderCondition = functionName.value || returnType.value;
+
+    return (
+        <FormControl data-testid="function-form" className={formClasses.wizardFormControl}>
+            <FormHeaderSection
+                onCancel={onCancel}
+                formTitle={"Function Configuration"}
+                defaultMessage={"Function Configuration"}
+            />
+            <div className={connectorClasses.formContentWrapper}>
+                {!contentRenderCondition && <CircularProgress />}
+                {contentRenderCondition && formContent()}
             </div>
             <FormActionButtons
                 cancelBtnText="Cancel"

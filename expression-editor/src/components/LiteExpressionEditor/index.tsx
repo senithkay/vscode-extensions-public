@@ -172,7 +172,7 @@ export interface LiteExpressionEditorProps {
 export function LiteExpressionEditor(props: LiteExpressionEditorProps) {
     const [disposableTriggers] = useState([]);
     const {
-        defaultValue = '',
+        defaultValue,
         focus,
         targetPosition,
         onChange,
@@ -194,6 +194,8 @@ export function LiteExpressionEditor(props: LiteExpressionEditorProps) {
         uri: undefined,
         diagnostic: diagnostics,
     });
+
+    const initialValue = defaultValue;
 
     // (self as any).MonacoEnvironment = {
     //     getWorkerUrl: () =>
@@ -336,8 +338,12 @@ export function LiteExpressionEditor(props: LiteExpressionEditorProps) {
                         monacoModel.setValue(trimmedContent);
                         return;
                     }
-
-                    debouncedContentChange(monacoModel.getValue(), monacoModel.getEOL(), lastPressedKey);
+                    // event.isFlush()
+                    if (!event.isFlush) {
+                        debouncedContentChange(monacoModel.getValue(), monacoModel.getEOL(), lastPressedKey);
+                    } else {
+                        setValidating(false);
+                    }
                 })
             );
 
@@ -383,10 +389,12 @@ export function LiteExpressionEditor(props: LiteExpressionEditorProps) {
         }
     }, [focus]);
 
-    useEffect(() => {
-        const monacoModel = monacoRef.current.editor.getModel();
-        monacoModel.setValue(defaultValue);
-    }, [defaultValue]);
+    // useEffect(() => {
+    //     if (defaultValue) {
+    //         const monacoModel = monacoRef.current.editor.getModel();
+    //         monacoModel.setValue(defaultValue.value);
+    //     }
+    // }, [defaultValue]);
 
     useEffect(() => {
         // !hideExpand
@@ -513,7 +521,8 @@ export function LiteExpressionEditor(props: LiteExpressionEditorProps) {
         if (existingModel) {
             existingModel.dispose();
         }
-        const currentModel = editor.createModel(defaultValue, BALLERINA_EXPR, MONACO_URI_INMEMO); // initalValue
+        console.log('>>> initial value', initialValue);
+        const currentModel = editor.createModel(initialValue, BALLERINA_EXPR, MONACO_URI_INMEMO); // initalValue
         monacoEditor.setModel(currentModel);
 
         // if (diagnosticCheckerExp(mainDiagnostics)) {
