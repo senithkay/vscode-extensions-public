@@ -23,8 +23,6 @@ import { dynamicConnectorStyles as useFormStyles } from "../../dynamicConnectorS
 import { ParamIcons } from "../../ParamEditor/ParamIcon";
 import { useStyles as useTextInputStyles } from "../style";
 
-import { getDescription } from "./utils";
-
 export interface SelectDropdownProps {
     values?: string[];
     enabledValues?: string[];
@@ -59,26 +57,25 @@ export function ParamDropDown(props: FormElementProps<SelectDropdownProps>) {
     if (values) {
         const items: string[] = values;
         items.forEach((value) => {
-            const description = getDescription(value);
             const icon = (<ParamIcons option={value}/>);
             menuItems.push(
-                <MenuItem disabled={!enabled?.includes(value)} key={value} value={value} className={`product-tour-payload-${value.toLowerCase()}`} data-testid={`connector-payload-${value.toLowerCase()}`}>
-                    {/*<TooltipIcon*/}
-                    {/*    title={description}*/}
-                    {/*    placement="right"*/}
-                    {/*    arrow={true}*/}
-                    {/*>*/}
-                        <div className="MenuItemWrapper">
-                            <div className={dropDownClasses.itemWrapper}>
-                                <div className={dropDownClasses.iconWrapper}>
-                                    {icon}
-                                </div>
-                                <div className={dropDownClasses.iconTextWrapper}>
-                                    {value}
-                                </div>
+                <MenuItem
+                    disabled={!enabled?.includes(value)}
+                    key={value}
+                    value={value}
+                    className={`product-tour-payload-${value.toLowerCase()}`}
+                    data-testid={`connector-payload-${value.toLowerCase()}`}
+                >
+                    <div className="MenuItemWrapper">
+                        <div className={dropDownClasses.itemWrapper}>
+                            <div className={dropDownClasses.iconWrapper}>
+                                {icon}
+                            </div>
+                            <div className={dropDownClasses.iconTextWrapper}>
+                                {value}
                             </div>
                         </div>
-                    {/*</TooltipIcon>*/}
+                    </div>
                 </MenuItem>
             );
         });
