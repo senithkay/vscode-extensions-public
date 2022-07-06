@@ -12,12 +12,12 @@
  */
 // tslint:disable: jsx-no-multiline-js
 
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 
 import debounce from "lodash.debounce";
 
 import { PrimaryButton, SecondaryButton } from "../buttons";
-import { SelectDropdownWithButton } from "../DropDown/SelectDropdownWithButton";
+import { ParamDropDown } from "../DropDown/ParamDropdown";
 import { FormTextInput } from "../FormTextInput";
 
 import { useStyles } from "./style";
@@ -120,18 +120,18 @@ export function ParamEditor(props: ParamProps) {
             <div className={classes.paramContent}>
                 {optionList && (
                     <div className={classes.paramTypeWrapper}>
-                        <SelectDropdownWithButton
+                        <ParamDropDown
                             dataTestId="param-type-selector"
                             defaultValue={selectedOption}
                             placeholder={"Select Type"}
-                            customProps={{ values: optionList, enabledValues: enabledOptions, disableCreateNew: true }}
+                            customProps={{ values: optionList, enabledValues: enabledOptions }}
                             onChange={handleOnSelect}
                             label="Param Type"
                         />
                     </div>
                 )}
                 {isTypeVisible && (
-                    <div className={classes.paramItemWrapper}>
+                    <div className={classes.paramDataTypeWrapper}>
                         <FormTextInput
                             label="Data Type"
                             dataTestId="data-type"
@@ -151,7 +151,7 @@ export function ParamEditor(props: ParamProps) {
                         />
                     </div>
                 )}
-                <div className={classes.paramItemWrapper}>
+                <div className={classes.paramNameWrapper}>
                     <FormTextInput
                         label="Name"
                         dataTestId="param-name"
