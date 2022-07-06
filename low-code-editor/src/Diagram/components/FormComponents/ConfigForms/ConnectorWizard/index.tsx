@@ -58,10 +58,8 @@ export function ConnectorWizard(props: ConnectorWizardProps) {
                     connectorInfo &&
                     (!selectedConnector || selectedConnector.functions?.length === 0)
                 ) {
-                    (async () => {
-                        setIsLoading(true);
-                        await fetchMetadata(connectorInfo);
-                    })();
+                    setIsLoading(true);
+                    fetchMetadata(connectorInfo);
                 }
                 return WizardStep.ENDPOINT_FORM;
             }
@@ -87,10 +85,11 @@ export function ConnectorWizard(props: ConnectorWizardProps) {
         }
     }
 
-    async function handleSelectConnector(connector: BallerinaConnectorInfo, node: LocalVarDecl) {
+    function handleSelectConnector(connector: BallerinaConnectorInfo, node: LocalVarDecl) {
         setIsLoading(true);
+        setSelectedConnector(connector);
         setWizardStep(WizardStep.ENDPOINT_FORM);
-        await fetchMetadata(connector);
+        fetchMetadata(connector);
     }
 
     function closeEndpointForm() {
@@ -104,8 +103,6 @@ export function ConnectorWizard(props: ConnectorWizardProps) {
     }
 
     function handleSelectEndpoint(connector: BallerinaConnectorInfo, endpointName: string) {
-        // setSelectedConnector(connector);
-        // setWizardStep(WizardStep.ACTION_LIST);
         setIsLoading(true);
         setSelectedEndpoint(endpointName);
         setWizardStep(WizardStep.ACTION_LIST);
@@ -138,14 +135,14 @@ export function ConnectorWizard(props: ConnectorWizardProps) {
                     }}
                 />
             )}
-            {wizardStep === WizardStep.ENDPOINT_FORM && (selectedConnector || (connectorInfo && model)) && (
+            {wizardStep === WizardStep.ENDPOINT_FORM && (selectedConnector?.package || connectorInfo?.package) && (
                 <FormGenerator
                     onCancel={closeEndpointForm}
                     onSave={saveEndpointForm}
                     configOverlayFormStatus={{
                         formType: "EndpointForm",
                         formArgs: {
-                            connector: selectedConnector || connectorInfo,
+                            connector: selectedConnector?.package ? selectedConnector : connectorInfo,
                         },
                         isLoading,
                     }}

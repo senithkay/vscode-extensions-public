@@ -40,7 +40,7 @@ export function isAllDefaultableFields(recordFields: FormField[]): boolean {
 }
 
 export function getSelectedUnionMember(unionFields: FormField): FormField {
-    let selectedMember = unionFields.members.find((member) => member.selected === true);
+    let selectedMember = unionFields.members?.find((member) => member.selected === true);
     if (!selectedMember) {
         selectedMember = unionFields.members[0];
     }

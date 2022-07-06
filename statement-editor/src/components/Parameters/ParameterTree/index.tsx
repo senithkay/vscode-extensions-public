@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useRef } from "react";
 
 import { ListItemText, ListSubheader } from "@material-ui/core";
 import { FormField } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
@@ -22,7 +22,7 @@ import { getParamUpdateModelPosition } from "../../../utils";
 import { useStmtEditorHelperPanelStyles } from "../../styles";
 
 import { ParameterBranch } from "./ParameterBranch";
-import { getDefaultParams } from "./utils";
+import { getDefaultParams, mapEndpointToFormField } from "./utils";
 
 export interface TypeProps {
     param: FormField;
@@ -45,9 +45,9 @@ export function ParameterTree(props: ParameterTreeProps) {
         },
     } = useContext(StatementEditorContext);
 
-    // useEffect(() => {
-    //     mapEndpointToFormField(model, parameters);
-    // }, [model])
+    useEffect(() => {
+        mapEndpointToFormField(model, parameters);
+    }, [model])
 
     const handleOnChange = () => {
         const modelParams = getDefaultParams(parameters);
