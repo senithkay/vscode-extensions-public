@@ -49,7 +49,6 @@ import { getPartialSTForModuleMembers } from "../../../utils/ls-utils";
 import { completionEditorTypeKinds } from '../../InputEditor/constants';
 import { CompletionEditor } from '../components/CompletionEditor/completionEditor';
 import { FieldTitle } from '../components/FieldTitle/fieldTitle';
-import { FormEditorField } from "../Types";
 import { recalculateItemIds } from "../Utils/FormUtils";
 
 import { FunctionParam, FunctionParamItem } from "./FunctionParamEditor/FunctionParamItem";
@@ -70,12 +69,9 @@ export function FunctionForm(props: FunctionProps) {
     const isMainFunction = (type === "Main");
 
     // States related to component model
-    const [functionName, setFunctionName] = useState<FormEditorField>({
-        value: model ? model.functionName.value : "", isInteracted: false
-    });
-    const [returnType, setReturnType] = useState<FormEditorField>({
-        value: model ? model.functionSignature?.returnTypeDesc?.type?.source?.trim() : "", isInteracted: false
-    });
+    const [functionName, setFunctionName] = useState<string>(model ? model.functionName.value : "");
+    const [returnType, setReturnType] = useState<string>(
+        model ? model.functionSignature?.returnTypeDesc?.type?.source?.trim() : "");
 
     // States related to syntax diagnostics
     const [currentComponentName, setCurrentComponentName] = useState<string>("");
@@ -120,21 +116,21 @@ export function FunctionForm(props: FunctionProps) {
         setCurrentComponentName("Name");
     }
     const onNameChange = async (value: string) => {
-        setFunctionName({ value, isInteracted: true });
+        setFunctionName(value);
         const parametersStr = parameters.map((item) => `${item.type.value} ${item.name.value}`).join(",");
         const currentModel: CurrentModel = {
             model: model.functionName
         };
-        await functionParamChange(value, parametersStr, returnType.value, currentModel, value);
+        await functionParamChange(value, parametersStr, returnType, currentModel, value);
     }
     const debouncedNameChange = debounce(onNameChange, 1000);
 
     // Return type related functions
     const onReturnTypeChange = async (value: string) => {
         // TODO: remove function return validations
-        setReturnType({ value, isInteracted: true });
+        setReturnType(value);
         const parametersStr = parameters.map((item) => `${item.type.value} ${item.name.value}`).join(",");
-        const codeSnippet = getSource(updateFunctionSignature(functionName.value, parametersStr,
+        const codeSnippet = getSource(updateFunctionSignature(functionName, parametersStr,
             value ? `returns ${value}` : "", {
             ...targetPosition, startColumn: model?.functionName?.position?.startColumn
         })
@@ -217,7 +213,7 @@ export function FunctionForm(props: FunctionProps) {
         const parametersStr = newParams
             .map((item) => `${item.type.value} ${item.name.value}`)
             .join(",");
-        await functionParamChange(functionName.value, parametersStr, returnType.value);
+        await functionParamChange(functionName, parametersStr, returnType);
     };
     const onUpdateParamChange = async (param: FunctionParam) => {
         setCurrentComponentName("Param")
@@ -226,7 +222,7 @@ export function FunctionForm(props: FunctionProps) {
         const parametersStr = newParams
             .map((item) => `${item.type.value} ${item.name.value}`)
             .join(",");
-        await functionParamChange(functionName.value, parametersStr, returnType.value);
+        await functionParamChange(functionName, parametersStr, returnType);
     };
     const onSaveNewParam = (param: FunctionParam) => {
         setParameters([...parameters, param]);
@@ -238,15 +234,15 @@ export function FunctionForm(props: FunctionProps) {
         const parametersStr = parameters.map((item) => `${item.type.value} ${item.name.value}`).join(",");
         if (isEdit) {
             applyModifications([
-                updateFunctionSignature(functionName.value, parametersStr,
-                    returnType.value ? `returns ${returnType.value}` : "", {
+                updateFunctionSignature(functionName, parametersStr,
+                    returnType ? `returns ${returnType}` : "", {
                     ...targetPosition, startColumn: model?.functionName?.position?.startColumn
                 })
             ]);
         } else {
             applyModifications([
-                createFunctionSignature(isMainFunction ? "public" : "", functionName.value, parametersStr,
-                    returnType.value ? `returns ${returnType.value}` : "", targetPosition)
+                createFunctionSignature(isMainFunction ? "public" : "", functionName, parametersStr,
+                    returnType ? `returns ${returnType}` : "", targetPosition)
             ]);
         }
         onCancel();
@@ -284,10 +280,8 @@ export function FunctionForm(props: FunctionProps) {
     });
 
     useEffect(() => {
-        setReturnType({
-            ...returnType, value: model ? model.functionSignature?.returnTypeDesc?.type?.source?.trim() : ""
-        });
-        setFunctionName({ ...functionName, value: model ? model.functionName.value : "" });
+        setReturnType(model ? model.functionSignature?.returnTypeDesc?.type?.source?.trim() : "");
+        setFunctionName(model ? model.functionName.value : "");
 
         if (currentComponentName === "") {
             const editParams: FunctionParam[] = model?.functionSignature.parameters
@@ -306,7 +300,7 @@ export function FunctionForm(props: FunctionProps) {
     }, [model, completions]);
 
     useEffect(() => {
-        setFunctionName({ ...functionName, value: model?.functionName?.value});
+        setFunctionName(model?.functionName?.value);
     }, [model?.functionName?.value]);
 
     return (
@@ -324,11 +318,11 @@ export function FunctionForm(props: FunctionProps) {
                         isActive={currentComponentName === "Name"}
                         onChange={debouncedNameChange}
                         onFocus={onNameFocus}
-                        placeholder={"Ex: name"}
-                        defaultValue={(functionName?.isInteracted || isEdit || isMainFunction) ? functionName.value : ""}
+                        placeholder={"Enter Name"}
+                        defaultValue={functionName}
                         customProps={{
                             optional: false,
-                            isErrored: functionName?.isInteracted && ((currentComponentSyntaxDiag !== undefined && currentComponentName === "Name") ||
+                            isErrored: ((currentComponentSyntaxDiag !== undefined && currentComponentName === "Name") ||
                                 model?.functionName?.viewState?.diagnosticsInRange[0]?.message)
                         }}
                         diagsInRange={model?.functionSignature?.returnTypeDesc?.viewState?.diagnosticsInRange}
@@ -372,15 +366,15 @@ export function FunctionForm(props: FunctionProps) {
                         completions={currentComponentCompletions}
                         onChange={debouncedReturnChange}
                         onFocus={onReturnFocus}
-                        placeholder={"Ex: string"}
+                        placeholder={"Enter Return Type"}
                         customProps={{
                             optional: true,
-                            isErrored: returnType?.isInteracted && ((currentComponentSyntaxDiag !== undefined &&
+                            isErrored: ((currentComponentSyntaxDiag !== undefined &&
                                     currentComponentName === "Return") || model?.functionSignature?.returnTypeDesc?.
                                     viewState?.diagnosticsInRange?.length > 0)
                         }}
                         diagsInRange={model?.functionSignature?.returnTypeDesc?.viewState?.diagnosticsInRange}
-                        errorMessage={returnType?.isInteracted && ((currentComponentSyntaxDiag &&
+                        errorMessage={((currentComponentSyntaxDiag &&
                             currentComponentName === "Return" && currentComponentSyntaxDiag[0].message) || model?.
                                 functionSignature?.returnTypeDesc?.viewState?.diagnosticsInRange[0]?.message ||
                                 (functionBodyBlock?.closeBraceToken?.viewState?.diagnosticsInRange.length > 0
@@ -395,8 +389,7 @@ export function FunctionForm(props: FunctionProps) {
                 saveBtnText="Save"
                 onSave={handleOnSave}
                 onCancel={onCancel}
-                validForm={(isEdit || functionName.isInteracted === true)
-                    && !(model?.functionSignature?.viewState?.diagnosticsInRange?.length > 0)
+                validForm={!(model?.functionSignature?.viewState?.diagnosticsInRange?.length > 0)
                     && !(model?.functionName?.viewState?.diagnosticsInRange?.length > 0)
                     && !(currentComponentSyntaxDiag?.length > 0)}
             />

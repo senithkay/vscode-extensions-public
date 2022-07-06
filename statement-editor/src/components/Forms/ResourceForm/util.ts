@@ -520,3 +520,13 @@ export function extractPathData(text: string): Resource {
     resource.path = generateBallerinaResourcePath(path);
     return resource;
 }
+
+export function genParamName(defaultName: string, variables: string[]): string {
+    let index = 0;
+    let varName = defaultName;
+    while (variables.includes(varName)) {
+        index++;
+        varName = defaultName + index;
+    }
+    return varName;
+}

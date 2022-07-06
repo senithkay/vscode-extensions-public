@@ -28,7 +28,7 @@ import { QueryParam, QueryParamCollection } from "./types";
 import {
     allOptions,
     callerParameterOption,
-    generateQueryStringFromQueryCollection,
+    generateQueryStringFromQueryCollection, genParamName,
     getEnabledQueryParams,
     getQueryParamCollection,
     payloadParameterOption,
@@ -199,8 +199,11 @@ export function QueryParamEditor(props: QueryParamEditorProps) {
     };
 
     const addParam = () => {
-        setDraftParam({id: queryParamState.queryParams.length, name: "name", type: "string", option:
-            queryParameterOption});
+        setDraftParam({
+            id: queryParamState.queryParams.length,
+            name: genParamName("param", paramNames), type: "string",
+            option: queryParameterOption
+        });
         setAddingParam(true);
         setTypeReadOnly(false);
         onChangeInProgress(true);
@@ -215,6 +218,7 @@ export function QueryParamEditor(props: QueryParamEditorProps) {
         onChange(queryParamString);
     };
 
+    const paramNames: string[] = [];
     const pathComponents: React.ReactElement[] = [];
     queryParamState.queryParams.forEach((value, index) => {
         if ((editingSegmentId !== index) && value.name) {
@@ -275,6 +279,7 @@ export function QueryParamEditor(props: QueryParamEditorProps) {
                 />
             )
         }
+        paramNames.push(value.name);
     });
 
     let addingParamType;

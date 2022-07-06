@@ -21,7 +21,6 @@ import { SelectDropdownWithButton } from "../DropDown/SelectDropdownWithButton";
 import { FormTextInput } from "../FormTextInput";
 
 import { useStyles } from "./style";
-import { FormEditorField } from "./Types";
 
 export interface Param {
     id: number;
@@ -53,8 +52,8 @@ export function ParamEditor(props: ParamProps) {
 
     const classes = useStyles();
 
-    const [paramDataType, setParamDataType] = useState<FormEditorField>({value: dataType, isInteracted: false});
-    const [paramName, setParamName] = useState<FormEditorField>({value: name, isInteracted: false});
+    const [paramDataType, setParamDataType] = useState<string>(dataType);
+    const [paramName, setParamName] = useState<string>(name);
     const [selectedOption, setSelectedOption] = useState<string>(option);
     // States related to syntax diagnostics
     const [currentComponentName, setCurrentComponentName] = useState<string>("");
@@ -62,54 +61,54 @@ export function ParamEditor(props: ParamProps) {
     const isTypeVisible = dataTypeReqOptions.includes(selectedOption);
 
     const handleNameChange = (value: string) => {
-        setParamName({value, isInteracted: true});
+        setParamName(value);
         setCurrentComponentName("Name");
         if (optionList) {
-            onChange({id, name: value, dataType: paramDataType.value}, selectedOption);
+            onChange({id, name: value, dataType: paramDataType}, selectedOption);
         } else {
-            onChange({id, name: value, dataType: paramDataType.value});
+            onChange({id, name: value, dataType: paramDataType});
         }
     };
     const debouncedNameChange = debounce(handleNameChange, 800);
 
     const handleTypeChange = (value: string) => {
-        setParamDataType({value, isInteracted: true});
+        setParamDataType(value);
         setCurrentComponentName("Type");
         if (optionList) {
-            onChange({id, name: paramName.value, dataType: value}, selectedOption);
+            onChange({id, name: paramName, dataType: value}, selectedOption);
         } else {
-            onChange({id, name: paramName.value, dataType: value});
+            onChange({id, name: paramName, dataType: value});
         }
     };
     const debouncedTypeChange = debounce(handleTypeChange, 800);
 
     const handleOnSelect = (value: string) => {
         setSelectedOption(value);
-        onChange({id, name: paramName.value, dataType: paramDataType.value}, value, true);
+        onChange({id, name: paramName, dataType: paramDataType}, value, true);
     };
 
     const handleAddParam = () => {
         if (onUpdate) {
             if (optionList) {
-                onUpdate({id, name: paramName.value, dataType: paramDataType.value}, selectedOption);
+                onUpdate({id, name: paramName, dataType: paramDataType}, selectedOption);
             } else {
-                onUpdate({id, name: paramName.value, dataType: paramDataType.value});
+                onUpdate({id, name: paramName, dataType: paramDataType});
             }
         } else {
             if (optionList) {
-                onAdd({id, name: paramName.value, dataType: paramDataType.value}, selectedOption);
+                onAdd({id, name: paramName, dataType: paramDataType}, selectedOption);
             } else {
-                onAdd({id, name: paramName.value, dataType: paramDataType.value});
+                onAdd({id, name: paramName, dataType: paramDataType});
             }
         }
     };
 
     useEffect(() => {
-        setParamDataType({...paramDataType, value: dataType});
+        setParamDataType(dataType);
     }, [dataType]);
 
     useEffect(() => {
-        setParamName({...paramName, value: name});
+        setParamName(name);
     }, [name]);
 
     useEffect(() => {
@@ -136,19 +135,17 @@ export function ParamEditor(props: ParamProps) {
                         <FormTextInput
                             label="Data Type"
                             dataTestId="data-type"
-                            defaultValue={(paramDataType?.isInteracted || isEdit || isTypeReadOnly) ?
-                                paramDataType.value : ""}
+                            defaultValue={paramDataType}
                             onChange={debouncedTypeChange}
                             onBlur={null}
                             customProps={{
-                                isErrored: (paramDataType?.isInteracted || isEdit) && (syntaxDiag !== ""
-                                        && currentComponentName === "Type") || (typeDiagnostics !== "" &&
-                                    typeDiagnostics !== undefined),
+                                isErrored: (syntaxDiag !== "" && currentComponentName === "Type")
+                                    || (typeDiagnostics !== "" && typeDiagnostics !== undefined),
                                 readonly: isTypeReadOnly
                             }}
-                            errorMessage={(paramDataType?.isInteracted || isEdit) &&
-                                ((currentComponentName === "Type" && syntaxDiag ? syntaxDiag : "") || typeDiagnostics)}
-                            placeholder={"Type"}
+                            errorMessage={((currentComponentName === "Type" && syntaxDiag ? syntaxDiag : "")
+                                || typeDiagnostics)}
+                            placeholder={"Enter Type"}
                             size="small"
                             disabled={syntaxDiag && currentComponentName !== "Type"}
                         />
@@ -158,17 +155,16 @@ export function ParamEditor(props: ParamProps) {
                     <FormTextInput
                         label="Name"
                         dataTestId="param-name"
-                        defaultValue={(paramName?.isInteracted || isEdit) ? paramName.value : ""}
+                        defaultValue={paramName}
                         onChange={debouncedNameChange}
                         customProps={{
-                            isErrored: (paramName?.isInteracted || isEdit) && ((syntaxDiag !== "" &&
-                                currentComponentName === "Name") || (nameDiagnostics !== ""
-                                && nameDiagnostics !== undefined))
+                            isErrored: ((syntaxDiag !== "" && currentComponentName === "Name") ||
+                                (nameDiagnostics !== "" && nameDiagnostics !== undefined))
                         }}
-                        errorMessage={(paramName?.isInteracted || isEdit) && ((currentComponentName === "Name"
-                                        && (syntaxDiag) ? syntaxDiag : "") || nameDiagnostics)}
+                        errorMessage={((currentComponentName === "Name" && (syntaxDiag) ? syntaxDiag : "")
+                            || nameDiagnostics)}
                         onBlur={null}
-                        placeholder={"name"}
+                        placeholder={"Enter Name"}
                         size="small"
                         disabled={syntaxDiag && currentComponentName !== "Name"}
                     />
@@ -179,15 +175,13 @@ export function ParamEditor(props: ParamProps) {
                     text="Cancel"
                     fullWidth={false}
                     onClick={onCancel}
-                    // disabled={(syntaxDiag !== "")}
                     className={classes.actionBtn}
                 />
                 <PrimaryButton
                     dataTestId={"path-segment-add-btn"}
                     text={onUpdate ? "Update" : " Add"}
                     disabled={(syntaxDiag !== "") || (typeDiagnostics !== "") || (nameDiagnostics !== "")
-                        || !(paramName.isInteracted || isEdit) || !(paramDataType.isInteracted || isTypeReadOnly
-                            || isEdit || !isTypeVisible)
+                        || !(paramName !== "") || !(paramDataType !== "" || isTypeReadOnly || !isTypeVisible)
                     }
                     fullWidth={false}
                     onClick={handleAddParam}
