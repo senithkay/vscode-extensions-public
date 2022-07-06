@@ -55,7 +55,9 @@ import { visitor as ExpressionDeletingVisitor } from "../visitors/expression-del
 import { visitor as ModelFindingVisitor } from "../visitors/model-finding-visitor";
 import { visitor as ModelTypeSetupVisitor } from "../visitors/model-type-setup-visitor";
 import { visitor as MultilineConstructsConfigSetupVisitor } from "../visitors/multiline-constructs-config-setup-visitor";
-import { nextNodeSetupVisitor } from "../visitors/next-node--setup-visitor"
+import { nextNodeSetupVisitor } from "../visitors/next-node--setup-visitor";
+import { visitor as ParentModelFindingVisitor } from "../visitors/parent-function-finding-visitor";
+import { parentFunctionSetupVisitor } from "../visitors/parent-function-setup-visitor";
 import { parentSetupVisitor } from '../visitors/parent-setup-visitor';
 import { viewStateSetupVisitor as ViewStateSetupVisitor } from "../visitors/view-state-setup-visitor";
 
@@ -131,6 +133,13 @@ export function getCurrentModel(position: NodePosition, model: STNode): STNode {
     return ModelFindingVisitor.getModel();
 }
 
+export function getParentFunctionModel(position: NodePosition, model: STNode): STNode {
+    ParentModelFindingVisitor.setPosition(position);
+    traversNode(model, ParentModelFindingVisitor);
+
+    return ParentModelFindingVisitor.getModel();
+}
+
 export function getNextNode(currentModel: STNode, statementModel: STNode): STNode {
     nextNodeSetupVisitor.setPropetiesDefault();
     nextNodeSetupVisitor.setCurrentNode(currentModel)
@@ -174,6 +183,7 @@ export function enrichModelWithDiagnostics(model: STNode, targetPosition: NodePo
 export function enrichModelWithViewState(model: STNode): STNode  {
     traversNode(model, DeleteConfigSetupVisitor);
     traversNode(model, ModelTypeSetupVisitor);
+    traversNode(model, parentFunctionSetupVisitor);
 
     return model;
 }
@@ -595,42 +605,48 @@ export function getCurrentModelParams(currentModel: STNode): STNode[] {
     return paramsInModel;
 }
 
-export function getParamCheckedList(paramsInModel: STNode[], documentation : SymbolDocumentation) : any[] {
-    const checkedList : any[] = [];
+export function updateParamDocWithParamPositions(paramsInModel: STNode[], documentation : SymbolDocumentation) : SymbolDocumentation {
+    const updatedDocWithPositions : SymbolDocumentation = JSON.parse(JSON.stringify(documentation));
     paramsInModel.map((param: STNode, value: number) => {
         if (STKindChecker.isNamedArg(param)) {
-            for (let i = 0; i < documentation.parameters.length; i++){
-                const docParam : ParameterInfo = documentation.parameters[i];
+            for (const docParam of updatedDocWithPositions.parameters){
                 if (keywords.includes(docParam.name) ?
                     param.argumentName.name.value === "'" + docParam.name :
                     param.argumentName.name.value === docParam.name ||
-                    docParam.kind === SymbolParameterType.INCLUDED_RECORD || docParam.kind === SymbolParameterType.REST){
-                    if (checkedList.indexOf(i) === -1){
-                        checkedList.push(i);
+                    docParam.kind === SymbolParameterType.INCLUDED_RECORD ||
+                    docParam.kind === SymbolParameterType.REST){
+                    // TODO: remove the special case for included records once the LS support the documentation for fields in records
+                    if (docParam.kind === SymbolParameterType.INCLUDED_RECORD) {
+                        const includedRecordFields : ParameterInfo = {
+                            type: undefined,
+                            name: param.argumentName.name.value,
+                            kind: undefined,
+                            modelPosition: param.position
+                        }
+                        if (docParam.fields) {
+                            if (!docParam.fields.find((filedParam) => {
+                                return (JSON.stringify(filedParam.modelPosition) === JSON.stringify(param.position) &&
+                                    filedParam.name === param.argumentName.name.value)
+                            }
+                            )){
+                                docParam.fields.push(includedRecordFields);
+                            }
+                        } else {
+                            const fieldList : ParameterInfo[] = [includedRecordFields];
+                            docParam.fields = fieldList;
+                        }
                         break;
                     }
+                    docParam.modelPosition = param.position;
+                    break;
                 }
             }
         } else {
-            checkedList.push(value);
+            updatedDocWithPositions.parameters[value].modelPosition = param.position;
         }
     });
 
-    return checkedList
-}
-
-export function isAllowedIncludedArgsAdded(parameters: ParameterInfo[], checkedList: any[]): boolean {
-    let isIncluded: boolean = true;
-    for (let i = 0; i < parameters.length; i++){
-        const docParam : ParameterInfo = parameters[i];
-        if (docParam.kind === SymbolParameterType.INCLUDED_RECORD){
-            if (!checkedList.includes(i)){
-                isIncluded = false;
-                break;
-            }
-        }
-    }
-    return isIncluded;
+    return updatedDocWithPositions;
 }
 
 export function getUpdatedContentOnCheck(currentModel: STNode, param: ParameterInfo, parameters: ParameterInfo[]) : string {
@@ -667,19 +683,19 @@ function containsMultipleDefaultableParams(parameters: ParameterInfo[]): boolean
     return !!found;
 }
 
-export function getUpdatedContentOnUncheck(currentModel: STNode, currentIndex: number) : string {
+export function getUpdatedContentOnUncheck(currentModel: STNode, paramPosition: NodePosition) : string {
     const modelParams: string[] = [];
     if (STKindChecker.isFunctionCall(currentModel) || STKindChecker.isMethodCall(currentModel)) {
         currentModel.arguments.filter((parameter: any) => !STKindChecker.isCommaToken(parameter)).
-        map((parameter: STNode, pos: number) => {
-            if (pos !== currentIndex) {
+        map((parameter: STNode) => {
+            if (parameter.position !== paramPosition) {
                 modelParams.push(parameter.source);
             }
         });
     } else if (STKindChecker.isImplicitNewExpression(currentModel) || STKindChecker.isExplicitNewExpression(currentModel)){
         currentModel.parenthesizedArgList.arguments.filter((parameter: any) => !STKindChecker.isCommaToken(parameter)).
-        map((parameter: STNode, pos: number) => {
-            if (pos !== currentIndex) {
+        map((parameter: STNode) => {
+            if (parameter.position !== paramPosition) {
                 modelParams.push(parameter.source);
             }
         });
@@ -788,4 +804,12 @@ export function isEndsWithoutSemicolon(completeModel: STNode): boolean {
         || STKindChecker.isForkStatement(completeModel)
         || STKindChecker.isLockStatement(completeModel)
         || STKindChecker.isBlockStatement(completeModel)
+}
+
+export function getParamHighlight(currentModel : STNode, param: ParameterInfo){
+    return (
+        currentModel && param ?
+            { backgroundColor: JSON.stringify(currentModel.position) === JSON.stringify(param.modelPosition) ?
+                    "rgba(204,209,242,0.61)" : 'inherit'} : undefined
+    );
 }

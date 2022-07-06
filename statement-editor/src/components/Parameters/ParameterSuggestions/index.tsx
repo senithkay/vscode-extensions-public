@@ -20,70 +20,77 @@ import { StatementEditorContext } from "../../../store/statement-editor-context"
 import {
     getCurrentModelParams,
     getDocDescription,
-    getParamCheckedList,
-    isDescriptionWithExample, updateParamListFordMethodCallDoc
+    getParentFunctionModel,
+    isDescriptionWithExample,
+    isDocumentationSupportedModel,
+    updateParamDocWithParamPositions,
+    updateParamListFordMethodCallDoc
 } from "../../../utils";
+import { StatementEditorViewState } from "../../../utils/statement-editor-viewstate";
 import { useStatementEditorStyles, useStmtEditorHelperPanelStyles } from "../../styles";
 import { ParameterList } from "../ParameterList";
 import { ParameterTree } from "../ParameterTree";
 
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
-export function ParameterSuggestions(){
+export function ParameterSuggestions() {
     const {
         modelCtx: {
-            currentModel
+            currentModel,
+            statementModel
         },
         formCtx: {
             formArgs: {
                 connector
             }
         },
-        documentation
+        documentation: {
+            documentation
+        }
     } = useContext(StatementEditorContext);
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
     const statementEditorClasses = useStatementEditorStyles();
-    const [checked, setChecked] = React.useState<any[]>([]);
+    const [paramDoc, setParamDoc] = React.useState(documentation.documentation);
 
     const connectorInfo = (connector as BallerinaConnectorInfo);
     const connectorParams = connectorInfo?.functions.find(func => func.name === "init");
 
     useEffect(() => {
         if (currentModel.model && documentation && documentation.documentation?.parameters) {
-            const paramsInModel: STNode[] = getCurrentModelParams(currentModel.model);
+            const paramsInModel: STNode[] = isDocumentationSupportedModel(currentModel.model) ?
+                getCurrentModelParams(currentModel.model) :
+                getCurrentModelParams(
+                    getParentFunctionModel((currentModel.model.parent.viewState as StatementEditorViewState)?.parentFunctionPos,
+                        statementModel));
             // TODO: Remove this check once the methodCall param filter is added to the LS
-            if (STKindChecker.isMethodCall(currentModel.model)){
+            if (STKindChecker.isMethodCall(currentModel.model)) {
                 updateParamListFordMethodCallDoc(paramsInModel, documentation.documentation);
             }
-            setChecked(getParamCheckedList(paramsInModel, documentation.documentation));
+            setParamDoc(updateParamDocWithParamPositions(paramsInModel, documentation.documentation));
         }
     }, [currentModel.model, documentation]);
-
-    const setCheckedList = (newChecked : []) => {
-        setChecked(newChecked);
-    }
 
     const getDocumentationDescription = () => {
         const doc = documentation.documentation.description;
         const docRegex = /```ballerina\n(.*?)\n```/gms;
         if (isDescriptionWithExample(doc)) {
-           const des = getDocDescription(doc);
-           const docEx = docRegex.exec(doc);
-           return (
-               <>
-                   <ListItemText primary={des[0]}/>
-                   <ListSubheader className={stmtEditorHelperClasses.exampleHeader}>
-                       Example
-                   </ListSubheader>
-                   <ListItem className={stmtEditorHelperClasses.docDescription}>
-                       <code className={stmtEditorHelperClasses.exampleCode}>{docEx[1]}</code>
-                   </ListItem>
-               </>
-           );
-       } else {
-           return (
-               <ListItemText primary={doc}/>
-           );
-       }
+            const des = getDocDescription(doc);
+            const docEx = docRegex.exec(doc);
+            return (
+                <>
+                    <ListItemText primary={des[0]}/>
+                    <ListSubheader className={stmtEditorHelperClasses.exampleHeader}>
+                        Example
+                    </ListSubheader>
+                    <ListItem className={stmtEditorHelperClasses.docDescription}>
+                        <code className={stmtEditorHelperClasses.exampleCode}>{docEx[1]}</code>
+                    </ListItem>
+                </>
+            );
+        } else {
+            return (
+                <ListItemText primary={doc}/>
+            );
+        }
     }
 
     return (
@@ -97,11 +104,11 @@ export function ParameterSuggestions(){
                     <>
                         {documentation && !(documentation.documentation === undefined) ? (
                             <List className={stmtEditorHelperClasses.docParamSuggestions}>
-                                <ParameterList checkedList={checked} setCheckedList={setCheckedList} />
+                                {paramDoc && <ParameterList paramDocumentation={paramDoc}/>}
                                 {documentation.documentation.description && (
                                     <>
                                         {documentation.documentation.parameters?.length > 0 && (
-                                            <hr className={stmtEditorHelperClasses.returnSeparator} />
+                                            <hr className={stmtEditorHelperClasses.returnSeparator}/>
                                         )}
                                         <ListSubheader className={stmtEditorHelperClasses.parameterHeader}>
                                             Description
@@ -113,14 +120,12 @@ export function ParameterSuggestions(){
                                 )}
                                 {documentation.documentation.returnValueDescription && (
                                     <>
-                                        <hr className={stmtEditorHelperClasses.returnSeparator} />
+                                        <hr className={stmtEditorHelperClasses.returnSeparator}/>
                                         <ListSubheader className={stmtEditorHelperClasses.parameterHeader}>
                                             Return
                                         </ListSubheader>
                                         <ListItem className={stmtEditorHelperClasses.returnDescription}>
-                                            <ListItemText
-                                                primary={documentation.documentation.returnValueDescription}
-                                            />
+                                            <ListItemText primary={documentation.documentation.returnValueDescription}/>
                                         </ListItem>
                                     </>
                                 )}
