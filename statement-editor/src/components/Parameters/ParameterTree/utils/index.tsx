@@ -30,6 +30,7 @@ import {
     STNode,
     StringLiteral,
 } from "@wso2-enterprise/syntax-tree";
+import { EXPR_PLACEHOLDER } from "../../../../utils/expressions";
 
 export function isRequiredParam(param: FormField): boolean {
     return !(param.optional || param.defaultable);
@@ -37,6 +38,10 @@ export function isRequiredParam(param: FormField): boolean {
 
 export function isAllDefaultableFields(recordFields: FormField[]): boolean {
     return recordFields?.every((field) => field.defaultable || (field.fields && isAllDefaultableFields(field.fields)));
+}
+
+export function isAllNotSelectedFields(recordFields: FormField[]): boolean {
+    return recordFields?.every((field) => !field.selected || (field.fields && isAllNotSelectedFields(field.fields)));
 }
 
 export function getSelectedUnionMember(unionFields: FormField): FormField {
@@ -84,7 +89,11 @@ export function getDefaultParams(parameters: FormField[], depth = 1, valueOnly =
                 draftParameter = getFieldValuePair(parameter, `{}`, depth);
                 break;
             case PrimitiveBalType.Record:
-                if (isAllDefaultableFields(parameter?.fields)) {
+                const allFieldsDefaultable = isAllDefaultableFields(parameter?.fields);
+                if (!parameter.selected && allFieldsDefaultable) {
+                    break;
+                }
+                if (parameter.selected && allFieldsDefaultable && isAllNotSelectedFields(parameter?.fields)) {
                     break;
                 }
                 const insideParamList = getDefaultParams(parameter.fields, depth + 1);
@@ -92,14 +101,14 @@ export function getDefaultParams(parameters: FormField[], depth = 1, valueOnly =
                 break;
             case PrimitiveBalType.Union:
                 const selectedMember = getSelectedUnionMember(parameter);
-                const firstMemberParams = getDefaultParams([selectedMember], depth + 1, true);
-                draftParameter = getFieldValuePair(parameter, firstMemberParams?.join(), depth);
+                const selectedMemberParams = getDefaultParams([selectedMember], depth + 1, true);
+                draftParameter = getFieldValuePair(parameter, selectedMemberParams?.join(), depth, false, false);
                 break;
             case "inclusion":
-                if (isAllDefaultableFields(parameter.inclusionType?.fields)) {
+                if (isAllDefaultableFields(parameter.inclusionType?.fields) && !parameter.selected) {
                     break;
                 }
-                const inclusionParams = getDefaultParams([parameter.inclusionType], depth + 1);
+                const inclusionParams = getDefaultParams([parameter.inclusionType], depth + 1, true);
                 draftParameter = getFieldValuePair(parameter, `${inclusionParams?.join()}`, depth);
                 break;
 
@@ -113,8 +122,17 @@ export function getDefaultParams(parameters: FormField[], depth = 1, valueOnly =
     return parameterList;
 }
 
-function getFieldValuePair(parameter: FormField, defaultValue: string, depth: number, valueOnly = false): string {
-    const value = parameter.value || defaultValue;
+function getFieldValuePair(
+    parameter: FormField,
+    defaultValue: string,
+    depth: number,
+    valueOnly = false,
+    useParamValue = true
+): string {
+    let value = defaultValue || EXPR_PLACEHOLDER;
+    if (useParamValue && parameter.value) {
+        value = parameter.value;
+    }
     if (depth === 1 && !valueOnly) {
         // Handle named args
         return `${parameter.name} = ${value}`;

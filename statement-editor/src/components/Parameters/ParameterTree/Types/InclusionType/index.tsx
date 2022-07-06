@@ -30,10 +30,12 @@ export default function InclusionType(props: TypeProps) {
 
     useEffect(() => {
         param.selected = paramSelected;
+        param.inclusionType.selected = paramSelected;
     }, [paramSelected]);
 
     const toggleParamCheck = () => {
         param.selected = !paramSelected;
+        param.inclusionType.selected = !paramSelected;
         setParamSelected(!paramSelected);
         onChange();
     };
