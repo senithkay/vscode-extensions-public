@@ -570,28 +570,47 @@ export function getCurrentModelParams(currentModel: STNode): STNode[] {
     return paramsInModel;
 }
 
-export function getParamCheckedList(paramsInModel: STNode[], documentation : SymbolDocumentation) : any[] {
-    const checkedList : any[] = [];
+export function updateParamDocWithParamPositions(paramsInModel: STNode[], documentation : SymbolDocumentation) : SymbolDocumentation {
+    const updatedDocWithPositions : SymbolDocumentation = JSON.parse(JSON.stringify(documentation));
     paramsInModel.map((param: STNode, value: number) => {
         if (STKindChecker.isNamedArg(param)) {
-            for (let i = 0; i < documentation.parameters.length; i++){
-                const docParam : ParameterInfo = documentation.parameters[i];
+            for (const docParam of updatedDocWithPositions.parameters){
                 if (keywords.includes(docParam.name) ?
                     param.argumentName.name.value === "'" + docParam.name :
                     param.argumentName.name.value === docParam.name ||
-                    docParam.kind === SymbolParameterType.INCLUDED_RECORD || docParam.kind === SymbolParameterType.REST){
-                    if (checkedList.indexOf(i) === -1){
-                        checkedList.push(i);
+                    docParam.kind === SymbolParameterType.INCLUDED_RECORD ||
+                    docParam.kind === SymbolParameterType.REST){
+                    if (docParam.kind === SymbolParameterType.INCLUDED_RECORD) {
+                        const includedRecordFields : ParameterInfo = {
+                            type: undefined,
+                            name: param.argumentName.name.value,
+                            kind: undefined,
+                            modelPosition: param.position
+                        }
+                        if (docParam.fields) {
+                            if (!docParam.fields.find((filedParam) => {
+                                return (JSON.stringify(filedParam.modelPosition) === JSON.stringify(param.position) &&
+                                    filedParam.name === param.argumentName.name.value)
+                            }
+                            )){
+                                docParam.fields.push(includedRecordFields);
+                            }
+                        } else {
+                            const fieldList : ParameterInfo[] = [includedRecordFields];
+                            docParam.fields = fieldList;
+                        }
                         break;
                     }
+                    docParam.modelPosition = param.position;
+                    break;
                 }
             }
         } else {
-            checkedList.push(value);
+            updatedDocWithPositions.parameters[value].modelPosition = param.position;
         }
     });
 
-    return checkedList
+    return updatedDocWithPositions;
 }
 
 export function isAllowedIncludedArgsAdded(parameters: ParameterInfo[], checkedList: any[]): boolean {
@@ -642,19 +661,19 @@ function containsMultipleDefaultableParams(parameters: ParameterInfo[]): boolean
     return !!found;
 }
 
-export function getUpdatedContentOnUncheck(currentModel: STNode, currentIndex: number) : string {
+export function getUpdatedContentOnUncheck(currentModel: STNode, paramPosition: NodePosition) : string {
     const modelParams: string[] = [];
     if (STKindChecker.isFunctionCall(currentModel) || STKindChecker.isMethodCall(currentModel)) {
         currentModel.arguments.filter((parameter: any) => !STKindChecker.isCommaToken(parameter)).
-        map((parameter: STNode, pos: number) => {
-            if (pos !== currentIndex) {
+        map((parameter: STNode) => {
+            if (parameter.position !== paramPosition) {
                 modelParams.push(parameter.source);
             }
         });
     } else if (STKindChecker.isImplicitNewExpression(currentModel) || STKindChecker.isExplicitNewExpression(currentModel)){
         currentModel.parenthesizedArgList.arguments.filter((parameter: any) => !STKindChecker.isCommaToken(parameter)).
-        map((parameter: STNode, pos: number) => {
-            if (pos !== currentIndex) {
+        map((parameter: STNode) => {
+            if (parameter.position !== paramPosition) {
                 modelParams.push(parameter.source);
             }
         });

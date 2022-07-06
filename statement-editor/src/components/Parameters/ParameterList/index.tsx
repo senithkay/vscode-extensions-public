@@ -10,21 +10,22 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useMemo } from "react";
 
 import { Checkbox, IconButton, ListItem, ListItemText, ListSubheader, Typography } from "@material-ui/core";
 import { AddCircleOutline } from "@material-ui/icons";
-import { ParameterInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ParameterInfo, SymbolDocumentation } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NamedArg, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { SymbolParameterType } from "../../../constants";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import {
-    enrichModel,
-    getCurrentModel,
-    getCurrentModelParams, getParamUpdateModelPosition, getParentFunctionModel, getUpdatedContentForNewNamedArg,
-    getUpdatedContentOnCheck, getUpdatedContentOnUncheck,
-    isAllowedIncludedArgsAdded, isDocumentationSupportedModel
+    getParamUpdateModelPosition,
+    getParentFunctionModel,
+    getUpdatedContentForNewNamedArg,
+    getUpdatedContentOnCheck,
+    getUpdatedContentOnUncheck,
+    isDocumentationSupportedModel,
 } from "../../../utils";
 import { StatementEditorViewState } from "../../../utils/statement-editor-viewstate";
 import { useStatementEditorStyles, useStmtEditorHelperPanelStyles } from "../../styles";
@@ -33,13 +34,11 @@ import { RequiredArg } from "../RequiredArg";
 
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
 export interface ParameterListProps {
-    checkedList: any[]
-    setCheckedList: (list: any[]) => void
-    paramsInModel?: STNode[]
+    paramDocumentation : SymbolDocumentation;
 }
 
 export function ParameterList(props: ParameterListProps) {
-    const { checkedList, setCheckedList } = props;
+    const { paramDocumentation } = props;
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
     const {
         modelCtx: {
@@ -49,51 +48,36 @@ export function ParameterList(props: ParameterListProps) {
             statementModel,
             updateModel,
             restArg
-        },
-        targetPosition,
-        documentation : {
-            documentation : {
-                documentation : {
-                    parameters
-                }
-            }
         }
     } = useContext(StatementEditorContext);
     let includedRecordHeader: boolean = false;
     let isNewRecordBtnClicked: boolean = false;
     const [plusButtonClick, setPlusButtonClicked] = React.useState(false);
 
-    const handleCheckboxClick = (value: number, param?: ParameterInfo) => () => {
-        const currentIndex = checkedList.indexOf(value);
-        const newChecked = [...checkedList];
-
-        if (currentIndex === -1) {
-            newChecked.push(value);
+    const handleCheckboxClick = (param?: ParameterInfo) => () => {
+        if (!param.modelPosition) {
             if (param.kind === SymbolParameterType.REST) {
                 restArg(true);
             }
             if (isDocumentationSupportedModel(model)) {
-                updateModel(getUpdatedContentOnCheck(model, param, parameters), getParamUpdateModelPosition(model));
+                updateModel(getUpdatedContentOnCheck(model, param, paramDocumentation.parameters), getParamUpdateModelPosition(model));
             } else {
                 const parentModel : STNode = getParentFunctionModel((model.parent.viewState as StatementEditorViewState)?.parentFunctionPos,
                     statementModel);
-                updateModel(getUpdatedContentOnCheck(parentModel, param, parameters), getParamUpdateModelPosition(parentModel));
+                updateModel(getUpdatedContentOnCheck(parentModel, param, paramDocumentation.parameters), getParamUpdateModelPosition(parentModel));
             }
         } else {
-            newChecked.splice(currentIndex, 1);
             if (param.kind === SymbolParameterType.REST) {
                 restArg(false);
             }
             if (isDocumentationSupportedModel(model)) {
-                updateModel(getUpdatedContentOnUncheck(model, currentIndex), getParamUpdateModelPosition(model));
+                updateModel(getUpdatedContentOnUncheck(model, param.modelPosition), getParamUpdateModelPosition(model));
             } else {
                 const parentModel : STNode = getParentFunctionModel((model.parent.viewState as StatementEditorViewState)?.parentFunctionPos,
                     statementModel);
-                updateModel(getUpdatedContentOnUncheck(parentModel, currentIndex), getParamUpdateModelPosition(parentModel));
+                updateModel(getUpdatedContentOnUncheck(parentModel, param.modelPosition), getParamUpdateModelPosition(parentModel));
             }
         }
-
-        setCheckedList(newChecked);
     };
 
     const addIncludedRecordHeader = (param: ParameterInfo, value: number) => {
@@ -105,7 +89,7 @@ export function ParameterList(props: ParameterListProps) {
                         <IconButton
                             className={stmtEditorHelperClasses.includedRecordPlusBtn}
                             onClick={handlePlusButton()}
-                            disabled={isAllowedIncludedArgsAdded(parameters, checkedList)}
+                            disabled={false}
                         >
                             <AddCircleOutline/>
                         </IconButton>
@@ -121,29 +105,41 @@ export function ParameterList(props: ParameterListProps) {
     }
 
     const addIncludedRecords = (param: ParameterInfo, value: number) => {
-
-        let argList: STNode[] = [];
-        if (model) {
-            argList = getCurrentModelParams(model);
+        if (param.fields){
+            return (
+                param.fields.map((field) => (
+                    includedRecord(field)
+                ))
+            );
+        }else {
+            return (
+                includedRecord(param)
+            );
         }
-        const argument = checkedList.indexOf(value);
+    }
+
+    const includedRecord = (param: ParameterInfo) => {
         return (
             <>
-                {argument !== -1 && (
-                    <ListItem className={stmtEditorHelperClasses.docListDefault}>
+                {param.modelPosition && (
+                    <ListItem
+                        className={stmtEditorHelperClasses.docListDefault}
+                        style={model && param ?
+                            { backgroundColor: JSON.stringify(model.position) === JSON.stringify(param.modelPosition) ?
+                                    "rgba(204,209,242,0.61)" : 'inherit'} : undefined }
+                    >
                         <Checkbox
                             classes={{
                                 root: stmtEditorHelperClasses.parameterCheckbox,
                                 checked: stmtEditorHelperClasses.checked
                             }}
                             style={{ flex: 'inherit' }}
-                            checked={argument !== -1}
-                            onClick={handleCheckboxClick(value, param)}
+                            checked={true}
+                            onClick={handleCheckboxClick(param)}
                         />
                         <ListItemText
                             className={stmtEditorHelperClasses.docListItemText}
-                            primary={(argList[argument] && STKindChecker.isNamedArg(argList[argument])) ?
-                                (argList[argument] as NamedArg).argumentName.source : param.name}
+                            primary={param.name}
                         />
                     </ListItem>
                 )}
@@ -151,22 +147,16 @@ export function ParameterList(props: ParameterListProps) {
         );
     }
 
-    const addIncludedRecordToModel = (userInput: string, value: number) => {
-        const newChecked = [...checkedList];
-        const currentIndex = checkedList.indexOf(value);
-        if (currentIndex === -1) {
-            if (isDocumentationSupportedModel(model)) {
-                newChecked.push(value);
-                updateModel(getUpdatedContentForNewNamedArg(model, userInput), getParamUpdateModelPosition(model));
-                setCheckedList(newChecked);
-                setPlusButtonClicked(false);
-            }
+    const addIncludedRecordToModel = (userInput: string) => {
+        if (isDocumentationSupportedModel(model)) {
+            updateModel(getUpdatedContentForNewNamedArg(model, userInput), getParamUpdateModelPosition(model));
+            setPlusButtonClicked(false);
         }
     }
 
     return (
         <>
-            {!!parameters?.length && (
+            {!!paramDocumentation.parameters?.length && (
                 <>
                     <ListSubheader className={stmtEditorHelperClasses.parameterHeader}>
                         Configure Parameters
@@ -175,21 +165,20 @@ export function ParameterList(props: ParameterListProps) {
                         />
                     </ListSubheader>
                     <div className={stmtEditorHelperClasses.paramList}>
-                    {parameters?.map((param: ParameterInfo, value: number) => (
+                    {paramDocumentation.parameters?.map((param: ParameterInfo, value: number) => (
                             <>
                                 {param.kind === SymbolParameterType.REQUIRED ? (
-                                    <RequiredArg param={param} value={value} checkedList={checkedList}/>
+                                    <RequiredArg param={param} value={value}/>
                                 ) : (
                                     <>
                                         {param.kind === SymbolParameterType.INCLUDED_RECORD ? (
                                             <>
                                                 {addIncludedRecordHeader(param, value)}
                                                 {addIncludedRecords(param, value)}
-                                                {(checkedList.indexOf(value) === -1 && !isNewRecordBtnClicked) && (
+                                                {(!param.modelPosition && !isNewRecordBtnClicked) && (
                                                     <>
                                                         <NamedArgIncludedRecord
                                                             isNewRecord={plusButtonClick}
-                                                            value={value}
                                                             addIncludedRecordToModel={addIncludedRecordToModel}
                                                         />
                                                         {isNewRecordBtnClicked = true}
@@ -199,14 +188,20 @@ export function ParameterList(props: ParameterListProps) {
                                         ) : (
                                             <>
                                                 {param.kind !== SymbolParameterType.INCLUDED_RECORD && (
-                                                    <ListItem key={value} className={stmtEditorHelperClasses.docListDefault}>
+                                                    <ListItem
+                                                        key={value}
+                                                        className={stmtEditorHelperClasses.docListDefault}
+                                                        style={model && param ?
+                                                            { backgroundColor: JSON.stringify(model.position) === JSON.stringify(param.modelPosition) ?
+                                                                    "rgba(204,209,242,0.61)" : 'inherit'} : undefined }
+                                                    >
                                                         <Checkbox
                                                             classes={{
                                                                 root: stmtEditorHelperClasses.parameterCheckbox,
                                                                 checked: stmtEditorHelperClasses.checked
                                                             }}
-                                                            checked={checkedList.indexOf(value) !== -1}
-                                                            onClick={handleCheckboxClick(value, param)}
+                                                            checked={param.modelPosition !== undefined}
+                                                            onClick={handleCheckboxClick(param)}
                                                         />
                                                         <ListItemText
                                                             className={stmtEditorHelperClasses.docListItemText}

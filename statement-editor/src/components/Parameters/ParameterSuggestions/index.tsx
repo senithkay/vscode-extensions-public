@@ -17,12 +17,13 @@ import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import {
-    enrichModel,
-    getCurrentModel,
     getCurrentModelParams,
     getDocDescription,
-    getParamCheckedList, getParentFunctionModel,
-    isDescriptionWithExample, isDocumentationSupportedModel, updateParamListFordMethodCallDoc
+    getParentFunctionModel,
+    isDescriptionWithExample,
+    isDocumentationSupportedModel,
+    updateParamDocWithParamPositions,
+    updateParamListFordMethodCallDoc
 } from "../../../utils";
 import { StatementEditorViewState } from "../../../utils/statement-editor-viewstate";
 import { useStatementEditorStyles, useStmtEditorHelperPanelStyles } from "../../styles";
@@ -35,14 +36,13 @@ export function ParameterSuggestions(){
             currentModel,
             statementModel
         },
-        targetPosition,
         documentation: {
             documentation
         }
     } = useContext(StatementEditorContext);
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
     const statementEditorClasses = useStatementEditorStyles();
-    const [checked, setChecked] = React.useState<any[]>([]);
+    const [paramDoc, setParamDoc] = React.useState(documentation.documentation);
 
 
     useEffect(() => {
@@ -55,13 +55,9 @@ export function ParameterSuggestions(){
             if (STKindChecker.isMethodCall(currentModel.model)){
                 updateParamListFordMethodCallDoc(paramsInModel, documentation.documentation);
             }
-            setChecked(getParamCheckedList(paramsInModel, documentation.documentation));
+            setParamDoc(updateParamDocWithParamPositions(paramsInModel, documentation.documentation));
         }
     }, [currentModel.model, documentation]);
-
-    const setCheckedList = (newChecked : []) => {
-        setChecked(newChecked);
-    }
 
     const getDocumentationDescription = () => {
         const doc = documentation.documentation.description;
@@ -97,7 +93,7 @@ export function ParameterSuggestions(){
                 <>
                     {documentation && !(documentation.documentation === undefined) ? (
                         <List className={stmtEditorHelperClasses.docParamSuggestions}>
-                            <ParameterList checkedList={checked} setCheckedList={setCheckedList} />
+                            {paramDoc &&  <ParameterList paramDocumentation={paramDoc}/>}
                             {documentation.documentation.description && (
                                 <>
                                     {documentation.documentation.parameters?.length > 0 && (

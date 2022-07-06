@@ -18,20 +18,19 @@ import { useStatementEditorStyles, useStmtEditorHelperPanelStyles } from "../../
 
 interface NamedArgIncludedRecordProps {
     isNewRecord: boolean
-    value: number
-    addIncludedRecordToModel: (userInput: string, value: number) => void
+    addIncludedRecordToModel: (userInput: string) => void
 }
 // tslint:disable: jsx-no-multiline-js
 export function NamedArgIncludedRecord(props: NamedArgIncludedRecordProps){
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
-    const {isNewRecord, value, addIncludedRecordToModel} = props;
+    const {isNewRecord, addIncludedRecordToModel} = props;
     const defaultNamedArg = "NamedArg";
     const [userInput, setUserInput] = useState<string>(defaultNamedArg);
 
 
     const inputEnterHandler = (event: React.KeyboardEvent<HTMLInputElement>) => {
         if (event.key === "Enter") {
-            addIncludedRecordToModel(userInput, value);
+            addIncludedRecordToModel(userInput);
         }
     };
 
