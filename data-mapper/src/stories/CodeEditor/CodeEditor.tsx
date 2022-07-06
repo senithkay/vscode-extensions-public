@@ -16,7 +16,7 @@ const MONACO_OPTIONS: monaco.editor.IEditorConstructionOptions = {
     automaticLayout: true,
     contextmenu: true,
     fontFamily: "monospace",
-    fontSize: 13,
+    fontSize: 16,
     lineHeight: 24,
     hideCursorInOverviewRuler: true,
     matchBrackets: "always",

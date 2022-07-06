@@ -89,6 +89,17 @@ export class QueryExpressionNode extends DataMapperNodeModel {
             const link = new DataMapperLinkModel();
             link.setSourcePort(this.sourcePort);
             link.setTargetPort(this.inPort);
+            link.registerListener({
+				selectionChanged(event) {
+					if (event.isSelected) {
+						this.sourcePort.fireEvent({}, "link-selected");
+						this.inPort.fireEvent({}, "link-selected");
+					} else {
+						this.sourcePort.fireEvent({}, "link-unselected");
+						this.inPort.fireEvent({}, "link-unselected");
+					}
+				},
+			})
             this.getModel().addAll(link);
         }
 
@@ -110,6 +121,17 @@ export class QueryExpressionNode extends DataMapperNodeModel {
                 const link = new DataMapperLinkModel();
                 link.setSourcePort(this.outPort);
                 link.setTargetPort(targetPort[1]);
+                link.registerListener({
+                    selectionChanged(event) {
+                        if (event.isSelected) {
+                            targetPort[1].fireEvent({}, "link-selected");
+                            this.outPort.fireEvent({}, "link-selected");
+                        } else {
+                            targetPort[1].fireEvent({}, "link-unselected");
+                            this.outPort.fireEvent({}, "link-unselected");
+                        }
+                    },
+                })
                 this.getModel().addAll(link);
             }
         }
