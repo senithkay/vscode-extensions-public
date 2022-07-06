@@ -18,7 +18,7 @@ import { NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterpri
 import * as monaco from "monaco-editor";
 import { Diagnostic } from "vscode-languageserver-protocol";
 
-import { CUSTOM_CONFIG_TYPE, DEFAULT_INTERMEDIATE_CLAUSE } from "../../constants";
+import { CONNECTOR, CUSTOM_CONFIG_TYPE, DEFAULT_INTERMEDIATE_CLAUSE } from "../../constants";
 import {
     CurrentModel,
     EditorModel,
@@ -56,6 +56,7 @@ import { StackElement } from "../../utils/undo-redo";
 import { visitor as CommonParentFindingVisitor } from "../../visitors/common-parent-finding-visitor";
 import { EXPR_SCHEME, FILE_SCHEME } from "../InputEditor/constants";
 import { LowCodeEditorProps } from "../StatementEditorWrapper";
+import { ReturnStatementC } from '../Statements/ReturnStatement';
 import { ViewContainer } from "../ViewContainer";
 
 export interface StatementEditorProps extends LowCodeEditorProps {
@@ -90,7 +91,7 @@ export function StatementEditor(props: StatementEditorProps) {
         importStatements,
         experimentalEnabled,
         extraModules,
-        runCommandInBackground
+        runBackgroundTerminalCommand
     } = props;
 
     const {
@@ -156,7 +157,7 @@ export function StatementEditor(props: StatementEditorProps) {
 
     useEffect(() => {
         (async () => {
-            if (!newConfigurableName) {
+            if (!newConfigurableName || isPullingModule) {
                 const updatedContent = getUpdatedSource(source.trim(), currentFile.content, targetPosition, moduleList);
 
                 sendDidChange(fileURI, updatedContent, getLangClient).then();
@@ -332,7 +333,7 @@ export function StatementEditor(props: StatementEditorProps) {
     }
 
     const handleDocumentation = async (newCurrentModel: STNode) => {
-        if (newCurrentModel && isDocumentationSupportedModel(newCurrentModel)) {
+        if (newCurrentModel && isDocumentationSupportedModel(newCurrentModel) && config.type !== CONNECTOR){
             setDocumentation(await getSymbolDocumentation(fileURI, targetPosition, newCurrentModel, getLangClient));
         } else {
             setDocumentation(initSymbolInfo);
@@ -361,14 +362,14 @@ export function StatementEditor(props: StatementEditorProps) {
     };
 
     const pullUnresolvedModules = (completeDiagnostic: Diagnostic[]) => {
-        if (!!moduleList.size && !!extraModules.size && runCommandInBackground) {
+        if (!!moduleList.size && !!extraModules.size && runBackgroundTerminalCommand && !isPullingModule) {
             completeDiagnostic?.forEach((diagnostic) => {
                 if (diagnostic.message?.includes("cannot resolve module '")) {
                     extraModules.forEach((module) => {
                         if (diagnostic.message?.includes(module)) {
                             // Pull module in background
                             setIsPullingModule(true);
-                            runCommandInBackground(`bal pull ${module}`)
+                            runBackgroundTerminalCommand(`bal pull ${module}`)
                                 .then((response) => {
                                     // TODO: handle pull command response
                                 })

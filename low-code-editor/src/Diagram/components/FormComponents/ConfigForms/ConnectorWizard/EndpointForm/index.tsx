@@ -43,7 +43,7 @@ export function EndpointForm(props: FormGeneratorProps) {
             ls: { getExpressionEditorLangClient },
             code: { modifyDiagram },
             library,
-            runCommandInBackground,
+            runBackgroundTerminalCommand,
         },
     } = useContext(Context);
 
@@ -59,7 +59,7 @@ export function EndpointForm(props: FormGeneratorProps) {
     if (model && model.source) {
         // Update existing endpoint
         initialSource = model.source;
-    } else {
+    } else if (connector?.functions) {
         // Adding new endpoint
         const initFunction = (connector as BallerinaConnectorInfo).functions?.find((func) => func.name === "init");
         if (initFunction) {
@@ -112,7 +112,7 @@ export function EndpointForm(props: FormGeneratorProps) {
         extraModules: imports,
         isLoading,
         experimentalEnabled,
-        runCommandInBackground
+        runBackgroundTerminalCommand
     });
 
     return stmtEditorComponent;
