@@ -7,7 +7,7 @@ import { DataMapperNodeModel, IDataMapperNodeFactory } from './Node/model/DataMa
 import { DataMapperNodeFactory } from './Node/model/DataMapperNodeFactory';
 import { DataMapperPortFactory } from './Port/model/DataMapperPortFactory';
 import { CanvasWidget } from '@projectstorm/react-canvas-core';
-import { DemoCanvasWidget } from './Canvas/DemoCanvasWidget';
+import { DataMapperCanvasWidget } from './Canvas/DataMapperCanvasWidget';
 import { DefaultState as LinkState } from './LinkState/DefaultState';
 import { useDMStore } from '../../store/store';
 import { DataMapperLinkFactory } from './Link/model/DataMapperLinkFactory';
@@ -81,9 +81,9 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 
 	return <>
 		{engine && engine.getModel() &&
-			<DemoCanvasWidget>
+			<DataMapperCanvasWidget>
 				<CanvasWidget engine={engine} />
-			</DemoCanvasWidget>
+			</DataMapperCanvasWidget>
 		}
 	</>;
 
