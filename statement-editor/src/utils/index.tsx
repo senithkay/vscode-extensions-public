@@ -750,3 +750,11 @@ export function getParamUpdateModelPosition(model: STNode) {
     }
     return position;
 }
+
+export function getParamHighlight(currentModel : STNode, param: ParameterInfo){
+    return (
+        currentModel && param ?
+            { backgroundColor: JSON.stringify(currentModel.position) === JSON.stringify(param.modelPosition) ?
+                    "rgba(204,209,242,0.61)" : 'inherit'} : undefined
+    );
+}

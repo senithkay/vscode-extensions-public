@@ -16,6 +16,7 @@ import { Checkbox, ListItem, ListItemText, Typography } from "@material-ui/core"
 import { ParameterInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { StatementEditorContext } from "../../../store/statement-editor-context";
+import { getParamHighlight } from "../../../utils";
 import { useStatementEditorStyles, useStmtEditorHelperPanelStyles } from "../../styles";
 // tslint:disable: jsx-no-multiline-js
 interface RequiredArgProps {
@@ -37,9 +38,7 @@ export function RequiredArg(props : RequiredArgProps){
         <ListItem
             key={value}
             className={statementEditorHelperClasses.requiredArgList}
-            style={currentModel.model && param ?
-                { backgroundColor: JSON.stringify(currentModel.model.position) === JSON.stringify(param.modelPosition) ?
-                        "rgba(204,209,242,0.61)" : 'inherit'} : undefined }
+            style={getParamHighlight(currentModel.model, param)}
         >
             <Checkbox
                 classes={{

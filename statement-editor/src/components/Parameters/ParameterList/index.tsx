@@ -20,6 +20,7 @@ import { STNode } from "@wso2-enterprise/syntax-tree";
 import { SymbolParameterType } from "../../../constants";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import {
+    getParamHighlight,
     getParamUpdateModelPosition,
     getParentFunctionModel,
     getUpdatedContentForNewNamedArg,
@@ -165,9 +166,7 @@ export function ParameterList(props: ParameterListProps) {
                                                     <ListItem
                                                         key={value}
                                                         className={stmtEditorHelperClasses.docListDefault}
-                                                        style={model && param ?
-                                                            { backgroundColor: JSON.stringify(model.position) === JSON.stringify(param.modelPosition) ?
-                                                                    "rgba(204,209,242,0.61)" : 'inherit'} : undefined }
+                                                        style={getParamHighlight(model, param)}
                                                     >
                                                         <Checkbox
                                                             classes={{

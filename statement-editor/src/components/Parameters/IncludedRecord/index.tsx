@@ -16,6 +16,7 @@ import { Checkbox, ListItem, ListItemText } from "@material-ui/core";
 import { ParameterInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { StatementEditorContext } from "../../../store/statement-editor-context";
+import { getParamHighlight } from "../../../utils";
 import { useStmtEditorHelperPanelStyles } from "../../styles";
 
 interface IncludedRecordProps {
@@ -42,9 +43,7 @@ export function IncludedRecord(props: IncludedRecordProps){
                 <ListItem
                     key={key}
                     className={stmtEditorHelperClasses.docListDefault}
-                    style={model && param ?
-                        { backgroundColor: JSON.stringify(model.position) === JSON.stringify(param.modelPosition) ?
-                                "rgba(204,209,242,0.61)" : 'inherit'} : undefined }
+                    style={getParamHighlight(model, param)}
                 >
                     <Checkbox
                         classes={{
