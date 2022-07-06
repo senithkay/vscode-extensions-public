@@ -94,7 +94,6 @@ export function ViewContainer(props: ViewContainerProps) {
     const onSaveClick = async () => {
         await handleModifications();
         onWizardClose();
-        await sendDidClose(fileSchemeURI, getLangClient);
     };
 
     const onAddConfigurableClick = async () => {

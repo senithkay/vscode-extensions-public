@@ -14,10 +14,11 @@ export class ListenerForm {
     }
 
     static typeListenerName(name: string) {
-        ExpressionEditor
-            .getForField("Listener Name", this.selector)
-            .type(name)
-            .waitForValidations();
+        const typeInput = `{selectall}${name}`;
+        this.getForm()
+            .get('[data-testid="listener-name"]')
+            .type(typeInput);
+        this.getForm().wait(1000);
         return this;
     }
 
@@ -36,11 +37,11 @@ export class ListenerForm {
     }
 
     static typeListenerPortValue(value: number) {
-        ExpressionEditor
-            .getForField("Listener Port", this.selector)
-            .type(value.toString())
-            .waitForValidations()
-            .clearSuggestions();
+        const typeInput = `{selectall}${value}`;
+        this.getForm()
+            .get('[data-testid="listener-port"]')
+            .type(typeInput);
+        this.getForm().wait(1000);
         return this;
     }
 

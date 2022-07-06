@@ -361,6 +361,7 @@ export function FunctionForm(props: FunctionProps) {
                     <Divider className={connectorClasses.sectionSeperatorHR} />
                     <FieldTitle title='Return Type' optional={true} />
                     <CompletionEditor
+                        dataTestId="return-type"
                         isActive={currentComponentName === "Return"}
                         completions={currentComponentCompletions}
                         onChange={debouncedReturnChange}

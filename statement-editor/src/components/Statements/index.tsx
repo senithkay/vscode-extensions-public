@@ -18,6 +18,7 @@ import { ElseBlockC } from "./ElseIfStatement";
 import { ForeachStatementC } from "./ForeachStatement";
 import { IfStatementC } from "./IfStatement";
 import { LocalVarDeclC } from './LocalVarDecl';
+import { MatchStatementC } from "./MatchStatement";
 import { ModuleVarDeclC } from './ModuleVarDecl';
 import { OtherStatementTypes } from "./OtherStatement";
 import { ReturnStatementC } from "./ReturnStatement";
@@ -36,3 +37,4 @@ export { CallStatementC as CallStatement };
 export { AssignmentStatementComponent as AssignmentStatement };
 export { ActionStatementC as ActionStatement };
 export { ConstantDeclC as ConstDeclaration }
+export { MatchStatementC as MatchStatement }
