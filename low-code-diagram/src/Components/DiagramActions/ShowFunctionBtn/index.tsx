@@ -79,7 +79,7 @@ export function ShowFunctionBtn(props: ShowFunctionBtnProps) {
       fetchDefinition();
     } else if (isDiagramFunctionExpanded !== undefined){
       nodeViewState.functionNodeExpanded = false;
-      diagramRedraw(recalculateSizingAndPositioning(initializeViewState(syntaxTree)));
+      diagramRedraw(recalculateSizingAndPositioning(syntaxTree));
       setConfirmDialogActive(false);
     }
   }, [isDiagramFunctionExpanded]);
@@ -87,7 +87,7 @@ export function ShowFunctionBtn(props: ShowFunctionBtnProps) {
   const fetchDefinition = async () => {
     if (isConfirmDialogActive) {
       nodeViewState.functionNodeExpanded = false;
-      diagramRedraw(recalculateSizingAndPositioning(initializeViewState(syntaxTree)));
+      diagramRedraw(recalculateSizingAndPositioning(syntaxTree));
       setConfirmDialogActive(false);
     } else {
       try {
