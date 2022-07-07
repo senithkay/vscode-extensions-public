@@ -122,7 +122,6 @@ export class BallerinaNotebookController {
             failedVars.length && appendTextToOutput(
                 `'${failedVars.join("', '")}' is/are not removed from memory since it/they have referred in other cells.`
             );
-            !failedVars.length && execution.clearOutput();
             execution.end(!failedVars.length, Date.now());
             return;
         }
@@ -196,7 +195,6 @@ export class BallerinaNotebookController {
             if (output.metaInfo) {
                 let removedDefs = this.metaInfoHandler.handleNewMetaInfo(cell, output.metaInfo);
                 let failedVars = await this.deleteMetaInfoFromMemory(removedDefs);
-                !failedVars.length && execution.clearOutput();
                 failedVars.length && appendTextToOutput(
                     `'${failedVars.join("', '")}' is/are not removed from memory since it/they have referred in other cells.`
                 );
