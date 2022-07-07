@@ -88,8 +88,8 @@ export function FunctionForm(props: FunctionProps) {
     const params = model?.functionSignature?.parameters.filter(param => !STKindChecker.isCommaToken(param));
 
     const functionParamChange = async (funcName: string, parametersStr: string, returnTypeStr: string,
-                                       currentModel?: CurrentModel, newValue?: string,
-                                       completionKinds?: number[]) => {
+        currentModel?: CurrentModel, newValue?: string,
+        completionKinds?: number[]) => {
 
         const codeSnippet = getSource(updateFunctionSignature(funcName, parametersStr,
             returnTypeStr ? `returns ${returnTypeStr}` : "", {
@@ -309,75 +309,94 @@ export function FunctionForm(props: FunctionProps) {
 
     const formContent = () => {
         return (
+            <>
 
-            <div className={connectorClasses.formNameWrapper}>
-                <FieldTitle title='Name' optional={false} />
-                <LiteExpressionEditor
-                    defaultValue={functionName}
-                    diagnostics={model?.functionName?.viewState?.diagnosticsInRange}
-                    focus={true}
-                    onChange={debouncedNameChange}
-                    onFocus={onNameFocus}
-                    stModel={model}
-                    disabled={addingNewParam || (currentComponentSyntaxDiag && currentComponentName !== "Name")}
-                    hideSuggestions={true}
-                    // placeholder={"Ex: name"}
-                    // defaultValue={(functionName?.isInteracted || isEdit || isMainFunction) ? functionName.value : ""}
-                    customProps={{
-                        index: 1,
-                        optional: false
-                    }}
-                // diagsInRange={model?.functionSignature?.returnTypeDesc?.viewState?.diagnosticsInRange}
-                // errorMessage={(currentComponentSyntaxDiag && currentComponentName === "Name"
-                //     && currentComponentSyntaxDiag[0].message) ||
-                //     model?.functionName?.viewState?.diagnosticsInRange[0]?.message}
-                // disabled={addingNewParam || isMainFunction || (currentComponentSyntaxDiag && currentComponentName !== "Name")}
-                />
-                <Divider className={connectorClasses.sectionSeperatorHR} />
-                <ConfigPanelSection title={"Parameters"}>
-                    {paramElements}
-                    {addingNewParam ? (
-                        <FunctionParamSegmentEditor
-                            param={params[parameters.length] as (DefaultableParam | IncludedRecordParam |
-                                RequiredParam | RestParam)}
-                            id={parameters.length}
-                            syntaxDiag={currentComponentSyntaxDiag}
-                            onCancel={closeNewParamView}
-                            onChange={onParamChange}
-                            onSave={onSaveNewParam}
-                            isEdit={false}
+                <div className={connectorClasses.formContentWrapper}>
+                    <div className={connectorClasses.formNameWrapper}>
+                        <FieldTitle title='Name' optional={false} />
+                        <LiteExpressionEditor
+                            defaultValue={functionName}
+                            diagnostics={model?.functionName?.viewState?.diagnosticsInRange}
+                            focus={true}
+                            onChange={debouncedNameChange}
+                            onFocus={onNameFocus}
+                            stModel={model}
+                            disabled={addingNewParam || (currentComponentSyntaxDiag && currentComponentName !== "Name")}
+                            hideSuggestions={true}
+                            // placeholder={"Ex: name"}
+                            // defaultValue={(functionName?.isInteracted || isEdit || isMainFunction) ? functionName.value : ""}
+                            customProps={{
+                                index: 1,
+                                optional: false
+                            }}
+                        // diagsInRange={model?.functionSignature?.returnTypeDesc?.viewState?.diagnosticsInRange}
+                        // errorMessage={(currentComponentSyntaxDiag && currentComponentName === "Name"
+                        //     && currentComponentSyntaxDiag[0].message) ||
+                        //     model?.functionName?.viewState?.diagnosticsInRange[0]?.message}
+                        // disabled={addingNewParam || isMainFunction || (currentComponentSyntaxDiag && currentComponentName !== "Name")}
                         />
-                    ) : (
-                        <Button
-                            data-test-id="param-add-button"
-                            onClick={openNewParamView}
-                            className={connectorClasses.addParameterBtn}
-                            startIcon={<AddIcon />}
-                            color="primary"
-                            disabled={currentComponentSyntaxDiag?.length > 0}
-                        >
-                            Add parameter
-                        </Button>
-                    )}
-                </ConfigPanelSection>
-                <Divider className={connectorClasses.sectionSeperatorHR} />
-                <FieldTitle title='Return Type' optional={true} />
-                <LiteExpressionEditor
-                    diagnostics={model?.functionSignature?.returnTypeDesc?.viewState?.diagnosticsInRange}
-                    defaultValue={returnType}
-                    onChange={debouncedReturnChange}
-                    completions={currentComponentCompletions}
-                    stModel={model}
-                    onFocus={onReturnFocus}
-                    disabled={addingNewParam || (currentComponentSyntaxDiag && currentComponentName !== "Return")}
-                    customProps={{
-                        index: 2,
-                        optional: true
-                    }}
+                        <Divider className={connectorClasses.sectionSeperatorHR} />
+                        <ConfigPanelSection title={"Parameters"}>
+                            {paramElements}
+                            {addingNewParam ? (
+                                <FunctionParamSegmentEditor
+                                    param={params[parameters.length] as (DefaultableParam | IncludedRecordParam |
+                                        RequiredParam | RestParam)}
+                                    id={parameters.length}
+                                    syntaxDiag={currentComponentSyntaxDiag}
+                                    onCancel={closeNewParamView}
+                                    onChange={onParamChange}
+                                    onSave={onSaveNewParam}
+                                    isEdit={false}
+                                />
+                            ) : (
+                                <Button
+                                    data-test-id="param-add-button"
+                                    onClick={openNewParamView}
+                                    className={connectorClasses.addParameterBtn}
+                                    startIcon={<AddIcon />}
+                                    color="primary"
+                                    disabled={currentComponentSyntaxDiag?.length > 0}
+                                >
+                                    Add parameter
+                                </Button>
+                            )}
+                        </ConfigPanelSection>
+                        <Divider className={connectorClasses.sectionSeperatorHR} />
+                        <FieldTitle title='Return Type' optional={true} />
+                        <LiteExpressionEditor
+                            diagnostics={model?.functionSignature?.returnTypeDesc?.viewState?.diagnosticsInRange}
+                            defaultValue={returnType}
+                            onChange={debouncedReturnChange}
+                            completions={currentComponentCompletions}
+                            stModel={model}
+                            onFocus={onReturnFocus}
+                            disabled={addingNewParam || (currentComponentSyntaxDiag && currentComponentName !== "Return")}
+                            customProps={{
+                                index: 2,
+                                optional: true
+                            }}
+                        />
+                    </div>
+                </div>
+                <FormActionButtons
+                    cancelBtnText="Cancel"
+                    cancelBtn={true}
+                    saveBtnText="Save"
+                    onSave={handleOnSave}
+                    onCancel={onCancel}
+                    validForm={!(model?.functionSignature?.viewState?.diagnosticsInRange?.length > 0)
+                        && !(model?.functionName?.viewState?.diagnosticsInRange?.length > 0)
+                        && !(currentComponentSyntaxDiag?.length > 0)}
                 />
-            </div>
+            </>
         )
     };
+    const loader = (
+        <div style={{ textAlign: 'center' }}>
+            <CircularProgress />
+        </div>
+    )
 
     const contentRenderCondition = functionName || returnType;
 
@@ -388,20 +407,8 @@ export function FunctionForm(props: FunctionProps) {
                 formTitle={"Function Configuration"}
                 defaultMessage={"Function Configuration"}
             />
-            <div className={connectorClasses.formContentWrapper}>
-                {!contentRenderCondition && <CircularProgress />}
-                {contentRenderCondition && formContent()}
-            </div>
-            <FormActionButtons
-                cancelBtnText="Cancel"
-                cancelBtn={true}
-                saveBtnText="Save"
-                onSave={handleOnSave}
-                onCancel={onCancel}
-                validForm={!(model?.functionSignature?.viewState?.diagnosticsInRange?.length > 0)
-                    && !(model?.functionName?.viewState?.diagnosticsInRange?.length > 0)
-                    && !(currentComponentSyntaxDiag?.length > 0)}
-            />
-        </FormControl>
+            {!contentRenderCondition && loader}
+            {contentRenderCondition && formContent()}
+        </FormControl >
     )
 }
