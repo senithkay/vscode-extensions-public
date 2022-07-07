@@ -44,6 +44,15 @@ export function isAllNotSelectedFields(recordFields: FormField[]): boolean {
     return recordFields?.every((field) => !field.selected || (field.fields && isAllNotSelectedFields(field.fields)));
 }
 
+export function isAllNotEmptyFields(recordFields: FormField[]): boolean {
+    return recordFields?.every(
+        (field) =>
+            field.value ||
+            (field.fields && isAllNotEmptyFields(field.fields)) ||
+            (field.members && isAllNotEmptyFields(field.members))
+    );
+}
+
 export function getSelectedUnionMember(unionFields: FormField): FormField {
     let selectedMember = unionFields.members?.find((member) => member.selected === true);
     if (!selectedMember) {
@@ -416,6 +425,7 @@ export function mapEndpointToFormField(model: STNode, formFields: FormField[]): 
                 } else {
                     formField.value = positionalArg.expression.source;
                 }
+                formField.selected = checkFormFieldValue(formField);
                 formField.initialDiagnostics = positionalArg?.typeData?.diagnostics;
                 nextValueIndex++;
             } else if (formField.typeName === "record" && formField.fields && formField.fields.length > 0) {
@@ -425,6 +435,7 @@ export function mapEndpointToFormField(model: STNode, formFields: FormField[]): 
                         mappingConstructor.fields as SpecificField[],
                         formField.fields
                     );
+                    formField.selected = isAllNotEmptyFields(formField.fields);
                     nextValueIndex++;
                 }
             } else if (
@@ -444,6 +455,7 @@ export function mapEndpointToFormField(model: STNode, formFields: FormField[]): 
                 formField.value = positionalArg.expression?.source;
                 formField.initialDiagnostics = positionalArg?.typeData?.diagnostics;
             }
+            formField.selected = formField.selected || checkFormFieldValue(formField);
         }
     }
     return formFields;
@@ -484,6 +496,7 @@ export function mapRecordLiteralToRecordTypeFormField(specificFields: SpecificFi
                                         });
                                         if (allFieldsFilled) {
                                             formField.selectedDataType = getUnionFormFieldName(subFormField);
+                                            formField.selected = true;
                                         }
                                     }
                                 }
@@ -493,6 +506,7 @@ export function mapRecordLiteralToRecordTypeFormField(specificFields: SpecificFi
                                 mappingField.fields as SpecificField[],
                                 formField.fields
                             );
+                            formField.selected = isAllNotEmptyFields(formField.fields);
                         }
                     }
 
@@ -503,6 +517,7 @@ export function mapRecordLiteralToRecordTypeFormField(specificFields: SpecificFi
                     }
                     formField.initialDiagnostics = specificField?.typeData?.diagnostics;
                 }
+                formField.selected = checkFormFieldValue(formField);
             });
         }
     });
@@ -514,4 +529,8 @@ export function getFieldName(fieldName: string): string {
 
 export function getUnionFormFieldName(field: FormField): string {
     return field.name || field.typeInfo?.name || field.typeName;
+}
+
+export function checkFormFieldValue(field: FormField): boolean {
+    return field.value !== undefined && field.value !== null;
 }

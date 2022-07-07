@@ -24,7 +24,9 @@ export default function CustomType(props: TypeProps) {
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
     const requiredParam = isRequiredParam(param);
 
-    const [paramSelected, setParamSelected] = useState(param.selected || requiredParam);
+    const [paramSelected, setParamSelected] = useState<boolean>(
+        param.selected || requiredParam || param.value !== undefined
+    );
 
     useEffect(() => {
         param.selected = paramSelected;
@@ -56,11 +58,11 @@ export default function CustomType(props: TypeProps) {
                     <ListItemText className={stmtEditorHelperClasses.docListItemText} primary={param.name} />
                     <ListItemText
                         className={stmtEditorHelperClasses.paramDataType}
-                        primary={(
+                        primary={
                             <Typography className={stmtEditorHelperClasses.suggestionDataType}>
                                 {param.optional || param.defaultable ? param.typeName + " (Optional)" : param.typeName}
                             </Typography>
-                        )}
+                        }
                     />
                     {param.documentation && (
                         <ListItemText

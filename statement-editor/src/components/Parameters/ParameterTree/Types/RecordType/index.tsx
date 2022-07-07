@@ -18,14 +18,15 @@ import { Checkbox, ListItem, ListItemText, Typography } from "@material-ui/core"
 import { TypeProps } from "../..";
 import { useStmtEditorHelperPanelStyles } from "../../../../styles";
 import { ParameterBranch } from "../../ParameterBranch";
-import { isRequiredParam } from "../../utils";
+import { isAllNotEmptyFields, isRequiredParam } from "../../utils";
 
 export default function RecordType(props: TypeProps) {
     const { param, depth, onChange } = props;
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
     const requiredParam = isRequiredParam(param);
+    const filledRecord = isAllNotEmptyFields(param.fields);
 
-    const [paramSelected, setParamSelected] = useState(param.selected || requiredParam);
+    const [paramSelected, setParamSelected] = useState(param.selected || requiredParam || filledRecord);
 
     useEffect(() => {
         param.selected = paramSelected;
@@ -33,7 +34,7 @@ export default function RecordType(props: TypeProps) {
 
     const toggleParamCheck = () => {
         if (!requiredParam) {
-            param.selected = !paramSelected
+            param.selected = !paramSelected;
             setParamSelected(!paramSelected);
             onChange();
         }
@@ -74,7 +75,7 @@ export default function RecordType(props: TypeProps) {
                 </div>
                 {paramSelected && param.fields?.length > 0 && (
                     <div className={stmtEditorHelperClasses.listItemBody}>
-                        <ParameterBranch parameters={param.fields} depth={depth + 1} onChange={onChange}/>
+                        <ParameterBranch parameters={param.fields} depth={depth + 1} onChange={onChange} />
                     </div>
                 )}
             </div>
