@@ -20,7 +20,7 @@
 import { ViewColumn, window, WebviewPanel } from "vscode";
 import { WebViewRPCHandler, getCommonWebViewOptions } from '../utils';
 import { render } from './render';
-import { ballerinaExtInstance, ExtendedLangClient, OASpec } from "../core";
+import { ballerinaExtInstance, CodeServerContext, ExtendedLangClient, OASpec } from "../core";
 import { SwaggerServer } from "./server";
 import { CMP_TRYIT_VIEW, sendTelemetryEvent, TM_EVENT_SWAGGER_RUN } from "../telemetry";
 import { getPortPromise } from "portfinder";
@@ -29,7 +29,7 @@ let swaggerViewPanel: WebviewPanel | undefined;
 let cors_proxy = require('cors-anywhere');
 
 export async function showSwaggerView(langClient: ExtendedLangClient,
-    specs: OASpec[], file: string, serviceName: string | undefined): Promise<void> {
+    specs: OASpec[], file: string, serviceName: string | undefined, codeServerContext: CodeServerContext): Promise<void> {
     if (swaggerViewPanel) {
         swaggerViewPanel.dispose();
     }
@@ -64,7 +64,7 @@ export async function showSwaggerView(langClient: ExtendedLangClient,
         }
     );
 
-    const proxy = `http://localhost:${port}/`;
+    const proxy = codeServerContext.codeServerEnv ? codeServerContext.manageChoreoRedirectUri :`http://localhost:${port}/`;
     WebViewRPCHandler.create(swaggerViewPanel, langClient);
     const html = render({ specs, file, serviceName, proxy });
     if (swaggerViewPanel && html) {
