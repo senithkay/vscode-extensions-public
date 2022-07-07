@@ -126,8 +126,11 @@ export function getDefaultParams(parameters: FormField[], depth = 1, valueOnly =
                 const inclusionParams = getDefaultParams([parameter.inclusionType], depth + 1, true);
                 draftParameter = getFieldValuePair(parameter, `${inclusionParams?.join()}`, depth);
                 break;
-
             default:
+                if (!parameter.name){
+                    // Handle Enum type
+                    draftParameter = getFieldValuePair(parameter, `"${parameter.typeName}"`, depth, true);
+                }
                 break;
         }
         if (draftParameter !== "") {
