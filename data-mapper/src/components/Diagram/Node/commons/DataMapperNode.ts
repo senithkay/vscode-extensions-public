@@ -33,7 +33,7 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 
 	constructor(
 		public context: IDataMapperContext,
-		type: string = 'datamapper-node') {
+		type: string) {
 		super({
 			type
 		});
@@ -50,19 +50,18 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 	abstract initPorts(): void;
 	abstract initLinks(): void;
 
-	protected addPorts(typeNode: RecordField | RecordTypeDesc | RecordFieldWithDefaultValue | TypeReference,
-		type: "IN" | "OUT", parent?: DataMapperPortModel) {
-		if (STKindChecker.isRecordTypeDesc(typeNode)) {
-			const recPort = new DataMapperPortModel(typeNode, type, parent);
-			this.addPort(recPort);
-			typeNode.fields.forEach((field) => {
-				this.addPorts(field, type, recPort);
-			});
-		} else if (STKindChecker.isRecordField(typeNode)) {
-			const fieldPort = new DataMapperPortModel(typeNode, type, parent);
+	protected addPorts(field: RecordField,
+		type: "IN" | "OUT", parentId: string, parent?: DataMapperPortModel) {
+		const fieldId = `${parentId}.${field.fieldName.value}`;
+		if (STKindChecker.isRecordField(field)) {
+			const fieldPort = new DataMapperPortModel(field, type, parentId, parent);
 			this.addPort(fieldPort)
-			if (STKindChecker.isRecordTypeDesc(typeNode.typeName)) {
-				this.addPorts(typeNode.typeName, type, fieldPort);
+			if (STKindChecker.isRecordTypeDesc(field.typeName)) {
+				field.typeName.fields.forEach((subField) => {
+					if (STKindChecker.isRecordField(subField)) {
+						this.addPorts(subField, type, fieldId, fieldPort);
+					}
+				});
 			}
 		}
 	}

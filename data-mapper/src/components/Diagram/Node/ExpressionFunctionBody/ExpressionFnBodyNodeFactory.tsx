@@ -8,7 +8,7 @@ import { AbstractReactFactory } from '@projectstorm/react-canvas-core';
 import { DiagramEngine } from '@projectstorm/react-diagrams-core';
 
 import { injectable, container, singleton } from "tsyringe";
-import { IDataMapperNodeFactory } from '../model/DataMapperNode';
+import { IDataMapperNodeFactory } from '../commons/DataMapperNode';
 import { RecordTypeTreeWidget } from '../commons/RecordTypeTreeWidget/RecordTypeTreeWidget';
 import { RecordTypeDesc } from '@wso2-enterprise/syntax-tree';
 import { DataMapperPortModel } from '../../Port';

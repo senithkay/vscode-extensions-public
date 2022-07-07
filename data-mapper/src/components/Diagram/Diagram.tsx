@@ -1,16 +1,13 @@
-import createEngine, { DefaultDiagramState, DefaultLinkModel, DefaultNodeModel, DiagramEngine, DiagramModel, PortModelAlignment } from '@projectstorm/react-diagrams';
+import createEngine, { DefaultDiagramState, DiagramEngine, DiagramModel } from '@projectstorm/react-diagrams';
 import * as React from 'react';
 import "reflect-metadata";
 import {container} from "tsyringe";
 
-import { DataMapperNodeModel, IDataMapperNodeFactory } from './Node/model/DataMapperNode';
-import { DataMapperNodeFactory } from './Node/model/DataMapperNodeFactory';
-import { DataMapperPortFactory } from './Port/model/DataMapperPortFactory';
+import { DataMapperNodeModel } from './Node/commons/DataMapperNode';
 import { CanvasWidget } from '@projectstorm/react-canvas-core';
 import { DataMapperCanvasWidget } from './Canvas/DataMapperCanvasWidget';
 import { DefaultState as LinkState } from './LinkState/DefaultState';
 import { useDMStore } from '../../store/store';
-import { DataMapperLinkFactory } from './Link/model/DataMapperLinkFactory';
 import { DataMapperLinkModel } from './Link/model/DataMapperLink';
 import { DataMapperDIContext } from '../../utils/DataMapperDIContext/DataMapperDIContext';
 import * as Nodes from "./Node";

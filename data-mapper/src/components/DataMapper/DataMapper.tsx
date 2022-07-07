@@ -5,7 +5,7 @@ import DataMapperDiagram from "../Diagram/Diagram";
 import { ExpressionFunctionBody, FunctionDefinition, STKindChecker, traversNode, traversNodeAsync, TypeDefinition } from "@wso2-enterprise/syntax-tree";
 import { BalleriaLanguageClient } from "@wso2-enterprise/ballerina-languageclient";
 import { getTypeDefinitionForTypeDesc } from "../../utils/st-utils";
-import { DataMapperNodeModel } from "../Diagram/Node/model/DataMapperNode";
+import { DataMapperNodeModel } from "../Diagram/Node/commons/DataMapperNode";
 import { DataMapperContext } from "../../utils/DataMapperContext/DataMapperContext";
 import { ExpressionFunctionBodyNode, RequiredParamNode } from "../Diagram/Node";
 import { NodeInitVisitor } from "../Diagram/visitors/NodeInitVisitor";

@@ -7,7 +7,7 @@ import { DataMapperLinkModel } from "../../Link";
 import { FieldAccessToSpecificFied } from "../../Mappings/FieldAccessToSpecificFied";
 import { DataMapperPortModel } from "../../Port";
 import { getFieldNames } from "../../utils";
-import { DataMapperNodeModel, TypeDescriptor } from "../model/DataMapperNode";
+import { DataMapperNodeModel, TypeDescriptor } from "../commons/DataMapperNode";
 import { RequiredParamNode } from "../RequiredParam";
  
 export const EXPR_FN_BODY_NODE_TYPE = "datamapper-node-expression-fn-body";
@@ -28,7 +28,12 @@ export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
 
     async initPorts() {
 		this.typeDef = await getTypeDefinitionForTypeDesc(this.typeDesc, this.context);
-        this.addPorts(this.typeDef.typeDescriptor as RecordTypeDesc, "IN");
+		const recordTypeDesc = this.typeDef.typeDescriptor as RecordTypeDesc;
+		recordTypeDesc.fields.forEach((subField) => {
+			if (STKindChecker.isRecordField(subField)) {
+				this.addPorts(subField, "IN", "exprFunctionBody");
+			}
+		});
     }
 
     async initLinks() {

@@ -1,6 +1,6 @@
 import { BinaryExpression, STNode, TypeDefinition } from "@wso2-enterprise/syntax-tree";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
-import { DataMapperNodeModel } from "../model/DataMapperNode";
+import { DataMapperNodeModel } from "../commons/DataMapperNode";
 
 export const BINARY_EXPR_NODE_TYPE = "datamapper-node-binary-expr";
 

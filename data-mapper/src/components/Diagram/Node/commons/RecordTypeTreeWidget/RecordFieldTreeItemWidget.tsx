@@ -46,8 +46,8 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
     const classes = useStyles();
     
     const fieldId = `${parentId}.${field.fieldName.value}`;
-    const portIn = getPort(fieldId + "IN");
-    const portOut = getPort(fieldId + "OUT");
+    const portIn = getPort(fieldId + ".IN");
+    const portOut = getPort(fieldId + ".OUT");
 
     const typeName = STKindChecker.isRecordField(field)
         ? getFieldTypeName(field)

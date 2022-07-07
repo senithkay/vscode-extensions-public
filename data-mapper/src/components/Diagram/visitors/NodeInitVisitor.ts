@@ -4,7 +4,7 @@ import { DataMapperContext } from "../../../utils/DataMapperContext/DataMapperCo
 import { getTypeDefinitionForTypeDesc } from "../../../utils/st-utils";
 import { ExpressionFunctionBodyNode, QueryExpressionNode, RequiredParamNode } from "../Node";
 import { BinaryExpressionNode } from "../Node/BinaryExpression/BinaryExpressionNode";
-import { DataMapperNodeModel } from "../Node/model/DataMapperNode";
+import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
 
 export class NodeInitVisitor implements Visitor {
 
