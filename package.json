@@ -597,7 +597,9 @@
         "update-version": "node ./scripts/update-version.js",
         "test-compile": "tsc -p ./",
         "test": "npm run test-compile && node ./out/test/runTest.js",
-        "test-coverage": "cross-env COVER_CONFIG=html npm run test",
+        "ui-test-setup": "npx extest get-vscode && npx extest get-chromedriver && npx extest install-vsix -f $(ls *.vsix)",
+		"ui-test": "npm run test-compile && npx extest run-tests 'out/ui-test/*.test.js' --mocha_config ui-test/.mocharc.js -o ui-test/settings.json",
+		"test-coverage": "cross-env COVER_CONFIG=html npm run test",
         "package": "vsce package --yarn",
         "build-tm-grammar": "js-yaml grammar/ballerina-grammar/syntaxes/ballerina.tmLanguage.yaml > grammar/ballerina-grammar/syntaxes/ballerina.tmLanguage.json",
         "lint": "tslint --fix 'src/**/*{.ts,.tsx}'"
@@ -649,6 +651,7 @@
         "typescript": "^4.5.4",
         "vsce": "^1.93.0",
         "vscode-debugadapter-testsupport": "^1.44.0",
+        "vscode-extension-tester": "^4.2.5",
         "webpack": "^5.66.0",
         "webpack-cli": "^4.9.1",
         "webpack-merge-and-include-globally": "^2.3.4",
