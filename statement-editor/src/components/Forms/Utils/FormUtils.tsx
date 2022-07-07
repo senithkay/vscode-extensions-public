@@ -30,8 +30,8 @@ export function recalculateItemIds(items: any[]) {
 export function getInitialSource(type: string, targetPosition: NodePosition): string {
     switch (type) {
         case "Function": {
-            return getSource(createFunctionSignature("", "name", "", "",
-                targetPosition));
+            return getSource(createFunctionSignature("", "name", "",
+                "returns error?", targetPosition));
         }
         case "Service": {
             return getSource(createServiceDeclartion({
@@ -47,8 +47,8 @@ export function getInitialSource(type: string, targetPosition: NodePosition): st
             }, targetPosition, false));
         }
         case "Main": {
-            return getSource(createFunctionSignature("public", "main", "", "",
-                targetPosition));
+            return getSource(createFunctionSignature("public", "main", "",
+                "returns error?", targetPosition));
         }
         case "Resource": {
             return getSource(createResource("get", ".", "", "", false,
