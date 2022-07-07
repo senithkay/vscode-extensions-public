@@ -1,5 +1,4 @@
 import { ExpressionFunctionBody, FieldAccess, MappingConstructor, RecordField, RecordTypeDesc, RequiredParam, SimpleNameReference, SpecificField, STKindChecker, TypeDefinition } from "@wso2-enterprise/syntax-tree";
-import md5 from "blueimp-md5";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { getTypeDefinitionForTypeDesc } from "../../../../utils/st-utils";
 import { ExpressionLabelModel } from "../../Label";
@@ -107,8 +106,10 @@ export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
 	private getOutputPortForField(fields: SpecificField[]) {
 		let nextTypeNode = this.typeDef.typeDescriptor as RecordTypeDesc;
 		let recField: RecordField;
+		let portIdBuffer = "exprFunctionBody";
 		for (let i = 0; i < fields.length; i++) {
 			const specificField = fields[i];
+			portIdBuffer += `.${specificField.fieldName.value}`
 			const recFieldTemp = nextTypeNode.fields.find(
 				(recF) => STKindChecker.isRecordField(recF) && recF.fieldName.value === specificField.fieldName.value);
 			if (recFieldTemp) {
@@ -120,7 +121,7 @@ export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
 			}
 		}
 		if (recField) {
-			const portId = md5(JSON.stringify(recField.position) + "IN");
+			const portId = portIdBuffer + ".IN";
 			const outPort = this.getPort(portId);
 			return outPort;
 		}
@@ -129,17 +130,19 @@ export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
 	// Improve to return multiple ports for complex expressions
 	private getInputPortsForExpr(node: RequiredParamNode, expr: FieldAccess|SimpleNameReference) {
 		const typeDesc = node.typeDef.typeDescriptor;
+		let portIdBuffer = node.value.paramName.value;
 		if (STKindChecker.isRecordTypeDesc(typeDesc)) {
 			if (STKindChecker.isFieldAccess(expr)) {
 				const fieldNames = getFieldNames(expr);
 				let nextTypeNode: RecordTypeDesc = typeDesc;
 				for (let i = 1; i < fieldNames.length; i++) { // Note i = 1 as we omit param name
 					const fieldName = fieldNames[i];
+					portIdBuffer += `.${fieldName}`;
 					const recField = nextTypeNode.fields.find(
 						(field) => STKindChecker.isRecordField(field) && field.fieldName.value === fieldName);
 					if (recField) {
 						if (i === fieldNames.length - 1) {
-							const portId = md5(JSON.stringify(recField.position) + "OUT");
+							const portId = portIdBuffer + ".OUT";
 							const port = (node.getPort(portId) as DataMapperPortModel);
 							return port;
 						} else if (STKindChecker.isRecordTypeDesc(recField.typeName)) {
