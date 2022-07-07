@@ -10,6 +10,8 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
+
 export enum ModelType {
     EXPRESSION,
     OPERATOR,
@@ -33,6 +35,7 @@ export class StatementEditorViewState {
         isFieldWithNewLine: false,
         isClosingBraceWithNewLine: false
     };
+    public parentFunctionPos: NodePosition = null;
 }
 
 interface MultilineConstructConfig {
