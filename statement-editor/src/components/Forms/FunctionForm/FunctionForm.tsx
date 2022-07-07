@@ -366,6 +366,7 @@ export function FunctionForm(props: FunctionProps) {
                         completions={currentComponentCompletions}
                         onChange={debouncedReturnChange}
                         onFocus={onReturnFocus}
+                        defaultValue={returnType}
                         placeholder={"Enter Return Type"}
                         customProps={{
                             optional: true,
