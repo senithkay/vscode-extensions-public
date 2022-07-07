@@ -58,11 +58,11 @@ export default function CustomType(props: TypeProps) {
                     <ListItemText className={stmtEditorHelperClasses.docListItemText} primary={param.name} />
                     <ListItemText
                         className={stmtEditorHelperClasses.paramDataType}
-                        primary={
+                        primary={(
                             <Typography className={stmtEditorHelperClasses.suggestionDataType}>
                                 {param.optional || param.defaultable ? param.typeName + " (Optional)" : param.typeName}
                             </Typography>
-                        }
+                        )}
                     />
                     {param.documentation && (
                         <ListItemText

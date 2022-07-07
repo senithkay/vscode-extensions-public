@@ -20,9 +20,9 @@ import { Diagnostic } from "vscode-languageserver-protocol";
 
 import { CONNECTOR, CUSTOM_CONFIG_TYPE, DEFAULT_INTERMEDIATE_CLAUSE } from "../../constants";
 import {
-    CurrentModel, 
-    EditorModel,
+    CurrentModel,
     DocumentationInfo,
+    EditorModel,
     LSSuggestions,
     StmtDiagnostic,
     SuggestionItem

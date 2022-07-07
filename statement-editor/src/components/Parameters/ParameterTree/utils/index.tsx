@@ -30,6 +30,7 @@ import {
     STNode,
     StringLiteral,
 } from "@wso2-enterprise/syntax-tree";
+
 import { EXPR_PLACEHOLDER } from "../../../../utils/expressions";
 
 export function isRequiredParam(param: FormField): boolean {

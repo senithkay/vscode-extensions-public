@@ -19,11 +19,11 @@ import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { getParamUpdateModelPosition, getParentFunctionModel } from "../../../utils";
+import { StatementEditorViewState } from "../../../utils/statement-editor-viewstate";
 import { useStmtEditorHelperPanelStyles } from "../../styles";
 
 import { ParameterBranch } from "./ParameterBranch";
 import { getDefaultParams, mapEndpointToFormField } from "./utils";
-import { StatementEditorViewState } from "../../../utils/statement-editor-viewstate";
 
 export interface TypeProps {
     param: FormField;
@@ -70,7 +70,7 @@ export function ParameterTree(props: ParameterTreeProps) {
         updateModel(content, updatingPosition);
     };
 
-    if(isEditForm && parameters && !formFieldUpdated.current){
+    if (isEditForm && parameters && !formFieldUpdated.current){
         mapEndpointToFormField(model, parameters);
         formFieldUpdated.current = true;
     }
