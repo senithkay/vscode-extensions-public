@@ -26,12 +26,13 @@ import {
 import * as child_process from "child_process";
 import { getPortPromise } from 'portfinder';
 import * as path from "path";
-import { ballerinaExtInstance, BallerinaExtension, LANGUAGE } from '../core';
+import { ballerinaExtInstance, BallerinaExtension, LANGUAGE, OLD_BALLERINA_VERSION_DEBUGGER_RUNINTERMINAL,
+    UNSUPPORTED_DEBUGGER_RUNINTERMINAL_KIND, INVALID_DEBUGGER_RUNINTERMINAL_KIND } from '../core';
 import { BallerinaProject, ExtendedLangClient } from '../core/extended-language-client';
 import { BALLERINA_HOME } from '../core/preferences';
 import { TM_EVENT_START_DEBUG_SESSION, CMP_DEBUGGER, sendTelemetryEvent, sendTelemetryException } from '../telemetry';
 import { log, debug as debugLog, isSupportedVersion, VERSION } from "../utils";
-import { ExecutableOptions } from 'vscode-languageclient/node';
+import { decimal, ExecutableOptions } from 'vscode-languageclient/node';
 
 const BALLERINA_COMMAND = "ballerina.command";
 const EXTENDED_CLIENT_CAPABILITIES = "capabilities";
@@ -121,6 +122,18 @@ async function getModifiedConfigs(config: DebugConfiguration) {
     // To make compatible with 1.2.x which supports scriptArguments
     if (config.programArgs) {
         config.scriptArguments = config.programArgs;
+    }
+
+    if (config.terminal) {
+        var balVersion: decimal = parseFloat(ballerinaExtInstance.ballerinaVersion);
+        if (balVersion < 2201.3) {
+            window.showWarningMessage(OLD_BALLERINA_VERSION_DEBUGGER_RUNINTERMINAL);
+        } else if (config.terminal.toLowerCase() === "external") {
+            window.showWarningMessage(UNSUPPORTED_DEBUGGER_RUNINTERMINAL_KIND);
+        } else if (config.terminal.toLowerCase() !== "integrated") {
+            window.showErrorMessage(INVALID_DEBUGGER_RUNINTERMINAL_KIND);
+            return Promise.reject();
+        }
     }
 
     config.debuggeePort = debuggeePort.toString();
