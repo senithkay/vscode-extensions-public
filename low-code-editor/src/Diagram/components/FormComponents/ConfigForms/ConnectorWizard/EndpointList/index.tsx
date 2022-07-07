@@ -76,7 +76,8 @@ export function EndpointList(props: FormGeneratorProps) {
         targetPosition &&
         functionNode &&
         (STKindChecker.isFunctionDefinition(functionNode) ||
-            STKindChecker.isResourceAccessorDefinition(functionNode)) &&
+            STKindChecker.isResourceAccessorDefinition(functionNode) ||
+            STKindChecker.isObjectMethodDefinition(functionNode)) &&
         STKindChecker.isFunctionBodyBlock(functionNode.functionBody)
     ) {
         const targetBlock = getTargetBlock(targetPosition, functionNode.functionBody);

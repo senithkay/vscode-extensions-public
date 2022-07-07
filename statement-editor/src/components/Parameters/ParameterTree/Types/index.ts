@@ -10,7 +10,13 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-export interface FormEditorField {
-    value: string;
-    isInteracted: boolean;
-}
+
+import CustomType from './CustomType';
+import InclusionType from "./InclusionType";
+import RecordType from "./RecordType";
+import UnionType from "./UnionType";
+
+export {RecordType as record};
+export {UnionType as union};
+export {InclusionType as inclusion};
+export {CustomType as custom};

@@ -107,6 +107,8 @@ export interface FormField {
     rightTypeParam?: any;
     initialDiagnostics?: DiagramDiagnostic[];
     documentation?: string;
+    position?: NodePosition;
+    selected?: boolean;
 }
 export interface FormFieldReturnType {
     hasError: boolean;

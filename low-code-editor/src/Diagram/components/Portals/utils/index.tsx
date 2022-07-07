@@ -1009,6 +1009,9 @@ export function checkErrorsReturnType(action: string, functionDefinitions: Map<s
 }
 
 export function getFormattedModuleName(moduleName: string): string {
+    if (!moduleName){
+        return "";
+    }
     let formattedModuleName = moduleName.includes('.') ? moduleName.split('.').pop() : moduleName;
     if (keywords.includes(formattedModuleName)) {
         formattedModuleName = `${formattedModuleName}0`;

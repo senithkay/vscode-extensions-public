@@ -28,9 +28,9 @@ export interface Props {
 export function ParamIcons(props: Props) {
     if (props?.option === "Query") {
         return <QueryIcon />;
-    } else if (props?.option === "Segment") {
+    } else if (props?.option === "Path Segment") {
         return <SegmentIcon />;
-    } else if (props?.option === "Parameter") {
+    } else if (props?.option === "Path Parameter") {
         return <ParamIcon />;
     } else if (props?.option === "Payload") {
         return <PayloadIcon />;

@@ -55,7 +55,9 @@ import { visitor as ExpressionDeletingVisitor } from "../visitors/expression-del
 import { visitor as ModelFindingVisitor } from "../visitors/model-finding-visitor";
 import { visitor as ModelTypeSetupVisitor } from "../visitors/model-type-setup-visitor";
 import { visitor as MultilineConstructsConfigSetupVisitor } from "../visitors/multiline-constructs-config-setup-visitor";
-import { nextNodeSetupVisitor } from "../visitors/next-node--setup-visitor"
+import { nextNodeSetupVisitor } from "../visitors/next-node--setup-visitor";
+import { visitor as ParentModelFindingVisitor } from "../visitors/parent-function-finding-visitor";
+import { parentFunctionSetupVisitor } from "../visitors/parent-function-setup-visitor";
 import { parentSetupVisitor } from '../visitors/parent-setup-visitor';
 import { viewStateSetupVisitor as ViewStateSetupVisitor } from "../visitors/view-state-setup-visitor";
 
@@ -69,7 +71,7 @@ export function getModifications(model: STNode, configType: string, targetPositi
     const modifications: STModification[] = [];
     let source = model.source;
 
-    if (configType === CUSTOM_CONFIG_TYPE && source.trim().slice(-1) !== ';') {
+    if (configType === CUSTOM_CONFIG_TYPE && !isEndsWithoutSemicolon(model) && source.trim().slice(-1) !== ';') {
         source += ';';
     }
     modifications.push(getStatementModification(source, targetPosition));
@@ -131,6 +133,13 @@ export function getCurrentModel(position: NodePosition, model: STNode): STNode {
     return ModelFindingVisitor.getModel();
 }
 
+export function getParentFunctionModel(position: NodePosition, model: STNode): STNode {
+    ParentModelFindingVisitor.setPosition(position);
+    traversNode(model, ParentModelFindingVisitor);
+
+    return ParentModelFindingVisitor.getModel();
+}
+
 export function getNextNode(currentModel: STNode, statementModel: STNode): STNode {
     nextNodeSetupVisitor.setPropetiesDefault();
     nextNodeSetupVisitor.setCurrentNode(currentModel)
@@ -174,6 +183,7 @@ export function enrichModelWithDiagnostics(model: STNode, targetPosition: NodePo
 export function enrichModelWithViewState(model: STNode): STNode  {
     traversNode(model, DeleteConfigSetupVisitor);
     traversNode(model, ModelTypeSetupVisitor);
+    traversNode(model, parentFunctionSetupVisitor);
 
     return model;
 }
@@ -525,6 +535,10 @@ export function getModuleIconStyle(label: string): string {
     return suggestionIconStyle;
 }
 
+export function isFunctionOrMethodCall(currentModel: STNode): boolean {
+    return STKindChecker.isFunctionCall(currentModel) || STKindChecker.isMethodCall(currentModel);
+}
+
 export function getSymbolPosition(targetPos: NodePosition, currentModel: STNode, userInput: string): LinePosition{
     let position: LinePosition;
     if (STKindChecker.isFunctionCall(currentModel)){
@@ -536,12 +550,30 @@ export function getSymbolPosition(targetPos: NodePosition, currentModel: STNode,
 
         }
         return  position;
+    } else if (STKindChecker.isImplicitNewExpression(currentModel) || STKindChecker.isExplicitNewExpression(currentModel)){
+        position = {
+            line : targetPos.startLine + currentModel.position.startLine,
+            offset : targetPos.startColumn + currentModel.parenthesizedArgList.position.startColumn
+        }
+        return  position;
+    } else if (STKindChecker.isMethodCall(currentModel)) {
+        position = {
+            line: targetPos.startLine + currentModel.methodName.position.startLine,
+            offset: targetPos.startColumn + currentModel.methodName.position.startColumn
+        }
+        return position;
     } else if (STKindChecker.isImplicitNewExpression(currentModel)){
         position = {
             line : targetPos.startLine + currentModel.position.startLine,
             offset : targetPos.startColumn + currentModel.parenthesizedArgList.position.startColumn
         }
         return  position;
+    } else if (STKindChecker.isMethodCall(currentModel)) {
+        position = {
+            line: targetPos.startLine + currentModel.methodName.position.startLine,
+            offset: targetPos.startColumn + currentModel.methodName.position.startColumn
+        }
+        return position;
     }
     position = {
         line : targetPos.startLine + currentModel.position.startLine,
@@ -550,10 +582,21 @@ export function getSymbolPosition(targetPos: NodePosition, currentModel: STNode,
     return position;
 }
 
+export function isDocumentationSupportedModel(currentModel: STNode): boolean {
+    return (isFunctionOrMethodCall(currentModel) || STKindChecker.isImplicitNewExpression(currentModel) ||
+        STKindChecker.isExplicitNewExpression(currentModel));
+}
+
 export function getCurrentModelParams(currentModel: STNode): STNode[] {
     const paramsInModel: STNode[] = [];
-    if (STKindChecker.isFunctionCall(currentModel)) {
+    if (STKindChecker.isFunctionCall(currentModel) || STKindChecker.isMethodCall(currentModel)) {
         currentModel.arguments.forEach((parameter: any) => {
+            if (!parameter.isToken) {
+                paramsInModel.push(parameter);
+            }
+        });
+    } else if (STKindChecker.isImplicitNewExpression(currentModel) || STKindChecker.isExplicitNewExpression(currentModel)) {
+        currentModel.parenthesizedArgList.arguments.forEach((parameter: any) => {
             if (!parameter.isToken) {
                 paramsInModel.push(parameter);
             }
@@ -562,65 +605,67 @@ export function getCurrentModelParams(currentModel: STNode): STNode[] {
     return paramsInModel;
 }
 
-export function getParamCheckedList(paramsInModel: STNode[], documentation : SymbolDocumentation) : any[] {
-    const checkedList : any[] = [];
+export function updateParamDocWithParamPositions(paramsInModel: STNode[], documentation : SymbolDocumentation) : SymbolDocumentation {
+    const updatedDocWithPositions : SymbolDocumentation = JSON.parse(JSON.stringify(documentation));
     paramsInModel.map((param: STNode, value: number) => {
         if (STKindChecker.isNamedArg(param)) {
-            for (let i = 0; i < documentation.parameters.length; i++){
-                const docParam : ParameterInfo = documentation.parameters[i];
+            for (const docParam of updatedDocWithPositions.parameters){
                 if (keywords.includes(docParam.name) ?
                     param.argumentName.name.value === "'" + docParam.name :
                     param.argumentName.name.value === docParam.name ||
-                    docParam.kind === SymbolParameterType.INCLUDED_RECORD || docParam.kind === SymbolParameterType.REST){
-                    if (checkedList.indexOf(i) === -1){
-                        checkedList.push(i);
+                    docParam.kind === SymbolParameterType.INCLUDED_RECORD ||
+                    docParam.kind === SymbolParameterType.REST){
+                    // TODO: remove the special case for included records once the LS support the documentation for fields in records
+                    if (docParam.kind === SymbolParameterType.INCLUDED_RECORD) {
+                        const includedRecordFields : ParameterInfo = {
+                            type: undefined,
+                            name: param.argumentName.name.value,
+                            kind: undefined,
+                            modelPosition: param.position
+                        }
+                        if (docParam.fields) {
+                            if (!docParam.fields.find((filedParam) => {
+                                return (JSON.stringify(filedParam.modelPosition) === JSON.stringify(param.position) &&
+                                    filedParam.name === param.argumentName.name.value)
+                            }
+                            )){
+                                docParam.fields.push(includedRecordFields);
+                            }
+                        } else {
+                            const fieldList : ParameterInfo[] = [includedRecordFields];
+                            docParam.fields = fieldList;
+                        }
                         break;
                     }
+                    docParam.modelPosition = param.position;
+                    break;
                 }
             }
         } else {
-            checkedList.push(value);
+            updatedDocWithPositions.parameters[value].modelPosition = param.position;
         }
     });
 
-    return checkedList
+    return updatedDocWithPositions;
 }
 
-export function isAllowedIncludedArgsAdded(parameters: ParameterInfo[], checkedList: any[]): boolean {
-    let isIncluded: boolean = true;
-    for (let i = 0; i < parameters.length; i++){
-        const docParam : ParameterInfo = parameters[i];
-        if (docParam.kind === SymbolParameterType.INCLUDED_RECORD){
-            if (!checkedList.includes(i)){
-                isIncluded = false;
-                break;
-            }
-        }
-    }
-    return isIncluded;
-}
-
-export function getUpdatedContentOnCheck(currentModel: FunctionCall, param: ParameterInfo, parameters: ParameterInfo[]) : string {
-    const functionParameters: string[] = [];
-    currentModel.arguments.filter((parameter: any) => !STKindChecker.isCommaToken(parameter)).
-    map((parameter: STNode) => {
-        functionParameters.push(parameter.source);
-    });
+export function getUpdatedContentOnCheck(currentModel: STNode, param: ParameterInfo, parameters: ParameterInfo[]) : string {
+    const modelParams: string[] = getModelParamSourceList(currentModel);
 
     if (param.kind === SymbolParameterType.DEFAULTABLE) {
         containsMultipleDefaultableParams(parameters) ? (
-            functionParameters.push((keywords.includes(param.name) ?
+                modelParams.push((keywords.includes(param.name) ?
                 `'${param.name} = ${EXPR_CONSTRUCTOR}` :
                 `${param.name} = ${EXPR_CONSTRUCTOR}`))
             ) :
-            functionParameters.push(`${EXPR_CONSTRUCTOR}`);
+            modelParams.push(`${EXPR_CONSTRUCTOR}`);
     } else if (param.kind === SymbolParameterType.REST) {
-        functionParameters.push(EXPR_CONSTRUCTOR);
+        modelParams.push(EXPR_CONSTRUCTOR);
     } else {
-        functionParameters.push(param.name);
+        modelParams.push(param.name);
     }
 
-    const content: string = currentModel.functionName.source + "(" + functionParameters.join(",") + ")";
+    const content: string = "(" + modelParams.join(",") + ")";
     return content;
 }
 
@@ -638,29 +683,42 @@ function containsMultipleDefaultableParams(parameters: ParameterInfo[]): boolean
     return !!found;
 }
 
-export function getUpdatedContentOnUncheck(currentModel: FunctionCall, currentIndex: number) : string {
-    const functionParameters: string[] = [];
-    currentModel.arguments.filter((parameter: any) => !STKindChecker.isCommaToken(parameter)).
-    map((parameter: STNode, pos: number) => {
-        if (pos !== currentIndex) {
-            functionParameters.push(parameter.source);
-        }
-    });
+export function getUpdatedContentOnUncheck(currentModel: STNode, paramPosition: NodePosition) : string {
+    const modelParams: string[] = [];
+    if (STKindChecker.isFunctionCall(currentModel) || STKindChecker.isMethodCall(currentModel)) {
+        currentModel.arguments.filter((parameter: any) => !STKindChecker.isCommaToken(parameter)).
+        map((parameter: STNode) => {
+            if (parameter.position !== paramPosition) {
+                modelParams.push(parameter.source);
+            }
+        });
+    } else if (STKindChecker.isImplicitNewExpression(currentModel) || STKindChecker.isExplicitNewExpression(currentModel)){
+        currentModel.parenthesizedArgList.arguments.filter((parameter: any) => !STKindChecker.isCommaToken(parameter)).
+        map((parameter: STNode) => {
+            if (parameter.position !== paramPosition) {
+                modelParams.push(parameter.source);
+            }
+        });
+    }
 
-    const content: string = currentModel.functionName.source + "(" + functionParameters.join(",") + ")";
+    const content: string = "(" + modelParams.join(",") + ")";
     return content;
 }
 
-export function getUpdatedContentForNewNamedArg(currentModel: FunctionCall, userInput: string) : string {
-    const functionParameters: string[] = [];
-    currentModel.arguments.filter((parameter: any) => !STKindChecker.isCommaToken(parameter)).
-    map((parameter: STNode) => {
-        functionParameters.push(parameter.source);
-    });
+export function getUpdatedContentForNewNamedArg(currentModel: STNode, userInput: string) : string {
+    const modelParams: string[] = getModelParamSourceList(currentModel);
+    modelParams.push(`${userInput} = ${EXPR_CONSTRUCTOR}`);
+    const content: string = "(" + modelParams.join(",") + ")";
+    return content
+}
 
-    functionParameters.push(`${userInput} = ${EXPR_CONSTRUCTOR}`);
-    const content: string = currentModel.functionName.source + "(" + functionParameters.join(",") + ")";
-    return content;
+// TODO: Remove this function once the methodCall param filter is added to the LS
+export function updateParamListFordMethodCallDoc(paramsInModel: STNode[],  documentation : SymbolDocumentation) {
+    if (paramsInModel[0]?.source === undefined || documentation.parameters[0]?.name !==  paramsInModel[0]?.source){
+        if (documentation.parameters[0]?.kind === SymbolParameterType.REQUIRED){
+            documentation.parameters.splice(0, 1);
+        }
+    }
 }
 
 export function getExprWithArgs(suggestionValue: string, prefix?: string): string {
@@ -690,4 +748,68 @@ export function getFilteredExpressions(expression : ExpressionGroup[], currentMo
 export function eligibleForLevelTwoSuggestions(selectedModel: STNode, selection: string): boolean {
     return (selectedModel.viewState as StatementEditorViewState).modelType === ModelType.EXPRESSION
         && selection !== '?';
+}
+
+function getModelParamSourceList(currentModel: STNode): string[] {
+    const modelParams: string[] = [];
+    if (STKindChecker.isFunctionCall(currentModel) || STKindChecker.isMethodCall(currentModel)) {
+        currentModel.arguments.filter((parameter: any) => !STKindChecker.isCommaToken(parameter)).
+        map((parameter: STNode) => {
+            modelParams.push(parameter.source);
+        });
+    } else if (STKindChecker.isImplicitNewExpression(currentModel) || STKindChecker.isExplicitNewExpression(currentModel)){
+        currentModel.parenthesizedArgList.arguments.filter((parameter: any) => !STKindChecker.isCommaToken(parameter)).
+        map((parameter: STNode) => {
+            modelParams.push(parameter.source);
+        });
+    }
+    return modelParams;
+}
+
+export function getParamUpdateModelPosition(model: STNode) {
+    let position : NodePosition;
+    if (STKindChecker.isFunctionCall(model) || STKindChecker.isMethodCall(model)) {
+        position = {
+            startLine: model.openParenToken.position.startLine,
+            startColumn: model.openParenToken.position.startColumn,
+            endLine: model.closeParenToken.position.endLine,
+            endColumn: model.closeParenToken.position.endColumn,
+        }
+    } else if (STKindChecker.isImplicitNewExpression(model) || STKindChecker.isExplicitNewExpression(model)){
+        position = {
+            startLine: model.parenthesizedArgList.openParenToken.position.startLine,
+            startColumn: model.parenthesizedArgList.openParenToken.position.startColumn,
+            endLine: model.parenthesizedArgList.closeParenToken.position.endLine,
+            endColumn: model.parenthesizedArgList.closeParenToken.position.endColumn,
+        }
+    } else if (STKindChecker.isCheckExpression(model) && STKindChecker.isImplicitNewExpression(model.expression)) {
+        position = {
+            startLine: model.expression.parenthesizedArgList.openParenToken.position.startLine,
+            startColumn: model.expression.parenthesizedArgList.openParenToken.position.startColumn,
+            endLine: model.expression.parenthesizedArgList.closeParenToken.position.endLine,
+            endColumn: model.expression.parenthesizedArgList.closeParenToken.position.endColumn,
+        };
+    }
+    return position;
+}
+
+export function isEndsWithoutSemicolon(completeModel: STNode): boolean {
+    return STKindChecker.isForeachStatement(completeModel)
+        || STKindChecker.isIfElseStatement(completeModel)
+        || STKindChecker.isWhileStatement(completeModel)
+        || STKindChecker.isDoStatement(completeModel)
+        || STKindChecker.isMatchStatement(completeModel)
+        || STKindChecker.isNamedWorkerDeclaration(completeModel)
+        || STKindChecker.isTransactionStatement(completeModel)
+        || STKindChecker.isForkStatement(completeModel)
+        || STKindChecker.isLockStatement(completeModel)
+        || STKindChecker.isBlockStatement(completeModel)
+}
+
+export function getParamHighlight(currentModel : STNode, param: ParameterInfo){
+    return (
+        currentModel && param ?
+            { backgroundColor: JSON.stringify(currentModel.position) === JSON.stringify(param.modelPosition) ?
+                    "rgba(204,209,242,0.61)" : 'inherit'} : undefined
+    );
 }

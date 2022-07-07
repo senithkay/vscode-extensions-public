@@ -22,6 +22,7 @@ import {
     STD_LIBS_IDENTIFIER
 } from "../../constants";
 import { StatementEditorContext } from "../../store/statement-editor-context";
+import { isFunctionOrMethodCall } from "../../utils";
 import { KeyboardNavigationManager } from "../../utils/keyboard-navigation-manager";
 import SelectDropdown from "../Dropdown";
 import { LibraryBrowser } from "../LibraryBrowser";
@@ -81,7 +82,7 @@ export function HelperPane(props: HelperPaneProps) {
     }, []);
 
     useEffect(() => {
-        if (currentModel.model && STKindChecker.isFunctionCall(currentModel.model)){
+        if (currentModel.model && isFunctionOrMethodCall(currentModel.model)){
             setSelectedTab(TabElements.parameters);
         } else if (currentModel.model?.source?.trim() === DEFAULT_WHERE_INTERMEDIATE_CLAUSE){
             setSelectedTab(TabElements.expressions);

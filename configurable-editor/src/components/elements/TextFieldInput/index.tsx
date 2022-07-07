@@ -26,17 +26,17 @@ import { useStyles } from "../../style";
 export interface TextFieldInputProps {
     id: string;
     isRequired: boolean;
+    name?: string;
     value: any;
     type: string;
     inputProps?: object;
     placeholder?: string;
-    label?: string;
     setTextFieldValue: (id: string, value: any) => void;
 }
 
 export function TextFieldInput(props: TextFieldInputProps) {
     const classes = useStyles();
-    const { id, isRequired, value, type, inputProps, label, placeholder, setTextFieldValue } = props;
+    const { id, isRequired, value, type, inputProps, placeholder, setTextFieldValue, name } = props;
     const [inputValue, setInputValue] = useState(value ? String(value) : undefined);
 
     useEffect(() => {
@@ -55,7 +55,6 @@ export function TextFieldInput(props: TextFieldInputProps) {
         ...inputProps,
         style: { fontSize: 14 },
     };
-
     return (
         <TextField
             required={isRequired}
@@ -70,7 +69,7 @@ export function TextFieldInput(props: TextFieldInputProps) {
             classes={{ root: classes.textInputRoot }}
             InputLabelProps={{ shrink: false }}
             inputProps={newInputProps}
-            data-cyid={label}
+            data-cyid={name}
         />
     );
 }

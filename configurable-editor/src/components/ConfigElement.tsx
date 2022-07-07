@@ -37,6 +37,7 @@ export interface ConfigElementProps {
     schema?: object;
     properties?: ConfigElementProps[];
     label?: string;
+    unionId?: string;
     value?: any;
     description?: string;
     placeholder?: string;

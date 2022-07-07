@@ -11,18 +11,18 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
-import React, { useContext, useRef, useState } from "react";
+import { useContext } from "react";
 import { useIntl } from "react-intl";
 
-import { BallerinaConnectorInfo, genVariableName, getAllVariables } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import {
+    BallerinaConnectorInfo,
+    genVariableName,
+    getAllVariables,
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { StatementEditorWrapper } from "@wso2-enterprise/ballerina-statement-editor";
 
 import { Context } from "../../../../../../Contexts/Diagram";
-import {
-    createCheckObjectDeclaration,
-    createObjectDeclaration,
-    getInitialSource,
-} from "../../../../../utils";
+import { createCheckObjectDeclaration, createObjectDeclaration, getInitialSource } from "../../../../../utils";
 import { getFormattedModuleName } from "../../../../Portals/utils";
 import { FormGeneratorProps } from "../../../FormGenerator";
 import { getDefaultParams, getFormFieldReturnType } from "../util";
@@ -43,7 +43,7 @@ export function EndpointForm(props: FormGeneratorProps) {
             ls: { getExpressionEditorLangClient },
             code: { modifyDiagram },
             library,
-            runCommandInBackground,
+            runBackgroundTerminalCommand,
         },
     } = useContext(Context);
 
@@ -59,7 +59,7 @@ export function EndpointForm(props: FormGeneratorProps) {
     if (model && model.source) {
         // Update existing endpoint
         initialSource = model.source;
-    } else {
+    } else if (connector?.functions) {
         // Adding new endpoint
         const initFunction = (connector as BallerinaConnectorInfo).functions?.find((func) => func.name === "init");
         if (initFunction) {
@@ -95,6 +95,7 @@ export function EndpointForm(props: FormGeneratorProps) {
 
     // HACK
     formArgs.targetPosition = targetPosition;
+    formArgs.isEditForm = model ? true : false;
 
     const stmtEditorComponent = StatementEditorWrapper({
         label: formTitle,
@@ -112,7 +113,7 @@ export function EndpointForm(props: FormGeneratorProps) {
         extraModules: imports,
         isLoading,
         experimentalEnabled,
-        runCommandInBackground
+        runBackgroundTerminalCommand,
     });
 
     return stmtEditorComponent;

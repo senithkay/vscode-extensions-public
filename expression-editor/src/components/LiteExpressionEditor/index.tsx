@@ -521,7 +521,6 @@ export function LiteExpressionEditor(props: LiteExpressionEditorProps) {
         if (existingModel) {
             existingModel.dispose();
         }
-        console.log('>>> initial value', initialValue);
         const currentModel = editor.createModel(initialValue, BALLERINA_EXPR, MONACO_URI_INMEMO); // initalValue
         monacoEditor.setModel(currentModel);
 

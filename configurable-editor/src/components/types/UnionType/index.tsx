@@ -105,6 +105,7 @@ export const UnionType = (props: UnionTypeProps): ReactElement => {
             innerElement = getConfigElementProps(innerSchema[0], fieldId, props);
             if (innerSchema) {
                 const configElementProps = getConfigElementProps(innerSchema[0], elementType, innerElement);
+                configElementProps.unionId = fieldId;
                 returnElement = <ConfigElement {...configElementProps}/>;
             }
         }
