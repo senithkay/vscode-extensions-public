@@ -35,7 +35,11 @@ export function getDataMapperWrapperProps(filePath: string): DataMapperWrapperPr
     return {
         getFileContent,
         updateFileContent,
-        langClientPromise,
+        langClientPromise: async () =>  {
+            const ls = await langClientPromise;
+            await ls.onReady();
+            return ls;
+        },
         lastUpdatedAt: Date.now().toLocaleString(),
         filePath
     }

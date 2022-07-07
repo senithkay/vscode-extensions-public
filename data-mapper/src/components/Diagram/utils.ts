@@ -1,4 +1,5 @@
 import { FieldAccess, FunctionDefinition, MappingConstructor, NodePosition, RecordField, SimpleNameReference, SpecificField, STKindChecker } from "@wso2-enterprise/syntax-tree";
+
 import { DataMapperLinkModel } from "./Link/model/DataMapperLink";
 import { ExpressionFunctionBodyNode, RequiredParamNode } from "./Node";
 import { DataMapperNodeModel } from "./Node/model/DataMapperNode";
@@ -7,13 +8,13 @@ import { DataMapperPortModel } from "./Port/model/DataMapperPortModel";
 export function getFieldNames(expr: FieldAccess) {
     const fieldNames: string[] = [];
     let nextExp: FieldAccess = expr;
-    while(nextExp && STKindChecker.isFieldAccess(nextExp)) {
+    while (nextExp && STKindChecker.isFieldAccess(nextExp)) {
         fieldNames.push((nextExp.fieldName as SimpleNameReference).name.value);
-		if (STKindChecker.isSimpleNameReference(nextExp.expression)) {
+		      if (STKindChecker.isSimpleNameReference(nextExp.expression)) {
 			fieldNames.push(nextExp.expression.name.value);
 		}
         nextExp = STKindChecker.isFieldAccess(nextExp.expression) ? nextExp.expression : undefined;
-    } 
+    }
     return fieldNames.reverse();
 }
 
@@ -30,7 +31,7 @@ export function getFieldTypeName(field: RecordField) {
 }
 
 export function getParamForName(name: string, st: FunctionDefinition) {
-	return st.functionSignature.parameters.find((param) => 
+	return st.functionSignature.parameters.find((param) =>
 		STKindChecker.isRequiredParam(param) && param.paramName?.value === name); // TODO add support for other param types
 }
 
@@ -60,7 +61,7 @@ export async function createSpecificFieldSource(link: DataMapperLinkModel) {
 		lhs = STKindChecker.isRecordField(targetPort.typeNode)
 			? targetPort.typeNode.fieldName.value : "";
 
-		let parentFieldNames: string[] = [];
+		const parentFieldNames: string[] = [];
 		let parent = targetPort.parentModel;
 		while (parent != null) {
 			if (STKindChecker.isRecordField(parent.typeNode)) {
@@ -71,7 +72,7 @@ export async function createSpecificFieldSource(link: DataMapperLinkModel) {
 		const targetNode = targetPort.getNode() as DataMapperNodeModel;
 		if (targetNode instanceof ExpressionFunctionBodyNode) {
 			let mappingConstruct = targetNode.value.expression as MappingConstructor;
-			let targetPos: NodePosition = undefined;
+			let targetPos: NodePosition;
 			let targetMappingConstruct = mappingConstruct;
 			let fromFieldIdx = -1;
 			if (parentFieldNames.length > 0) {
@@ -120,7 +121,7 @@ export async function createSpecificFieldSource(link: DataMapperLinkModel) {
 					uri: `file://${targetNode.context.filePath}`
 				},
 				astModifications: [
-					{ 
+					{
 						type: "INSERT",
 						config: {
 							"STATEMENT": source,

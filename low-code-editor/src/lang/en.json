@@ -528,6 +528,7 @@
     "lowcode.develop.connectorForms.HTTP.listenerPortNumber": "Listener Port :",
     "lowcode.develop.connectorForms.HTTP.listenerName": "Listener Name :",
     "lowcode.develop.connectorForms.HTTP.configureNewListener": "Configure Listener :",
+    "lowcode.develop.configForms.DataMapper.title": "Data Mapper",
     "lowcode.develop.configForms.ModuleVarDecl.configureNewListener": "Access Modifier :",
     "lowcode.develop.configForms.ModuleVarDecl.variableQualifier": "Select Variable Options :",
     "lowcode.develop.configForms.ConstDecl.accessModifier": "Access Modifier :",

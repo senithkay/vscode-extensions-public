@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 
-import { BalleriaLanguageClient } from "@wso2-enterprise/ballerina-languageclient";
-import { ExpressionEditorLangClientInterface } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import {
+    DiagramEditorLangClientInterface,
+    ExpressionEditorLangClientInterface
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FunctionDefinition, traversNode } from "@wso2-enterprise/syntax-tree";
 
 import { DataMapperContext } from "../../utils/DataMapperContext/DataMapperContext";
@@ -11,8 +13,8 @@ import { NodeInitVisitor } from "../Diagram/visitors/NodeInitVisitor";
 
 export interface DataMapperProps {
     fnST: FunctionDefinition;
-    langClientPromise?: Promise<BalleriaLanguageClient>;
-    getLangClient?: () => Promise<ExpressionEditorLangClientInterface>;
+    langClientPromise?: () => Promise<DiagramEditorLangClientInterface>;
+    getLangClient?: () => Promise<DiagramEditorLangClientInterface>;
     filePath: string;
     updateFileContent: (filePath: string, content: string) => Promise<boolean>;
 }
@@ -38,12 +40,13 @@ function DataMapperC(props: DataMapperProps) {
         generateNodes();
     }, [fnST, filePath]);
 
-    return <>
-        {<DataMapperDiagram
-            nodes={nodes}
-        />
-        }
-    </>
+    return (
+        <>
+            <DataMapperDiagram
+                nodes={nodes}
+            />
+        </>
+    )
 }
 
 export const DataMapper = React.memo(DataMapperC);

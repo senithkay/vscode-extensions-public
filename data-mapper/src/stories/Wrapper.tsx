@@ -32,7 +32,7 @@ export interface DataMapperWrapperProps {
     getFileContent: (url: string) => Promise<string>;
     updateFileContent: (filePath: string, content: string) => Promise<boolean>;
     filePath: string;
-    langClientPromise: Promise<BalleriaLanguageClient>;
+    langClientPromise: () => Promise<BalleriaLanguageClient>;
     lastUpdatedAt: string;
 }
 
@@ -60,7 +60,7 @@ export function DataMapperWrapper(props: DataMapperWrapperProps) {
     useEffect(() => {
         async function getSyntaxTree() {
             if (didOpen) {
-                const langClient = await langClientPromise;
+                const langClient = await langClientPromise();
                 const { parseSuccess, syntaxTree } = await langClient.getSyntaxTree({
                     documentIdentifier: {
                         uri: `file://${filePath}`
@@ -82,7 +82,7 @@ export function DataMapperWrapper(props: DataMapperWrapperProps) {
     useEffect(() => {
         async function openFileInLS() {
             const text = await getFileContent(filePath);
-            const langClient = await langClientPromise;
+            const langClient = await langClientPromise();
             langClient.didOpen({
                 textDocument: {
                     languageId: "ballerina",
@@ -96,7 +96,7 @@ export function DataMapperWrapper(props: DataMapperWrapperProps) {
         }
 
         async function closeFileInLS() {
-            const langClient = await langClientPromise;
+            const langClient = await langClientPromise();
             langClient.didClose({
                 textDocument: {
                     uri: `file://${filePath}`,
@@ -132,7 +132,7 @@ export function DataMapperWrapper(props: DataMapperWrapperProps) {
                             // tslint:disable-next-line: jsx-no-lambda
                             (fPath, newContent) => {
                                 updateFileContentOverride(fPath, newContent);
-                                langClientPromise.then((langClient) => {
+                                langClientPromise().then((langClient) => {
                                     langClient.didChange({
                                         textDocument: {
                                             uri: `file://${filePath}`,

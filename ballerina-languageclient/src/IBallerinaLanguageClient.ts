@@ -739,6 +739,8 @@ export interface IBallerinaLangClient {
 
     didChange: (params: DidChangeTextDocumentParams) => void;
 
+    didChangeNew: (params: DidChangeTextDocumentParams) => void;
+
     getProjectAST: (params: GetProjectASTParams) => Thenable<GetProjectASTResponse>;
 
     getAST: (params: GetASTParams) => Thenable<GetASTResponse>;
