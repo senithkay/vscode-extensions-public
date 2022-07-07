@@ -46,8 +46,9 @@ export default function UnionType(props: TypeProps) {
     }, [selectedMemberType]);
 
     const updateFormFieldMemberSelection = (unionField: FormField) => {
+        const unionFieldName = getUnionParamName(unionField);
         param.members.forEach((field) => {
-            field.selected = field.name === unionField.name;
+            field.selected = getUnionParamName(field) === unionFieldName;
         });
     };
 
