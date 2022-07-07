@@ -1021,7 +1021,7 @@ suite("Language Server Tests", function () {
         });
     });
 
-    test("Test notebook support - get result for code snippet", function (done): void {
+    test.skip("Test notebook support - get result for code snippet", function (done): void {
         langClient.getBalShellResult({
             source: "15*15"
         }).then((res) => {
@@ -1035,7 +1035,7 @@ suite("Language Server Tests", function () {
         });
     });
 
-    test("Test notebook support - get file source", function (done): void {
+    test.skip("Test notebook support - get file source", function (done): void {
         langClient.getShellBufferFilePath().then((res) => {
             const response = res as NotebookFileSourceResponse;
             expect(response).to.contain.keys("content", "filePath");
@@ -1047,7 +1047,7 @@ suite("Language Server Tests", function () {
         });
     });
 
-    test("Test notebook support - notebook restart", function (done): void {
+    test.skip("Test notebook support - notebook restart", function (done): void {
         langClient.restartNotebook().then((res) => {
             const response = res as boolean;
             assert.strictEqual(response, true, "Notebook not restarted correctly.");
@@ -1057,7 +1057,7 @@ suite("Language Server Tests", function () {
         });
     });
 
-    test("Test notebook support - get variable list", function (done): void {
+    test.skip("Test notebook support - get variable list", function (done): void {
         langClient.getBalShellResult({
             source: "int number = 10; string hello = \"hello world\";"
         }).then(async () => {
@@ -1078,7 +1078,7 @@ suite("Language Server Tests", function () {
         });
     });
 
-    test("Test notebook support - remove variables from memory", function (done): void {
+    test.skip("Test notebook support - remove variables from memory", function (done): void {
         langClient.getBalShellResult({
             source: "int number = 10; string hello = \"hello world\""
         }).then(async () => {
