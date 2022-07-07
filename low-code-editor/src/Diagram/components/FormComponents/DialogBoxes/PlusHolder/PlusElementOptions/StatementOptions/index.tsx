@@ -68,12 +68,6 @@ export function StatementOptions(props: StatementOptionsProps) {
     const { onSelect, viewState, isCallerAvailable, isResource, hasWorkerDecl } = props;
 
     const plusHolderStatementTooltipMessages = {
-        logStatement: {
-            title: intl.formatMessage({
-                id: "lowcode.develop.plusHolder.plusElements.statements.log.tooltip.title",
-                defaultMessage: "A log statement logs an event with an information statement, an error that occurs in a service, or an integration. If the event has not yet occurred, you can view the logs from the 'Run & Test' console . If the event has occurred, you can view the logs from the Observability page."
-            })
-        },
         worker: {
             title: intl.formatMessage({
                 id: "lowcode.develop.plusHolder.plusElements.statements.worker.tooltip.title",
@@ -191,26 +185,6 @@ export function StatementOptions(props: StatementOptionsProps) {
         onSelectStatement(type)
     }
 
-    const logStm: StatementComponent = {
-        name: "log",
-        category: 'generics',
-        component:
-            (
-                <Tooltip
-                    title={plusHolderStatementTooltipMessages.logStatement.title}
-                    placement="left"
-                    arrow={true}
-                    interactive={true}
-                >
-                    <div className="sub-option enabled" data-testid="addLog" onClick={onSelectStatement.bind(undefined, "Log")}>
-                        <div className="icon-wrapper">
-                            <LogIcon />
-                        </div>
-                        <div className="text-label"><FormattedMessage id="lowcode.develop.plusHolder.plusElements.statements.log.title" defaultMessage="Log" /></div>
-                    </div>
-                </Tooltip>
-            )
-    }
     const workerBlock: StatementComponent = {
         name: "worker",
         category: 'actors',
@@ -603,7 +577,6 @@ export function StatementOptions(props: StatementOptionsProps) {
     const statements: StatementComponent[] = [];
     statements.push(connectorStatement);
     statements.push(actionStatement);
-    statements.push(logStm);
     statements.push(propertyStm);
     statements.push(assignmentStm);
     statements.push(ifStm);
