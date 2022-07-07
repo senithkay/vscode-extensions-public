@@ -27,7 +27,7 @@ import DeleteButton from "../../elements/DeleteButton";
 import { FieldLabel, FieldLabelProps } from "../../elements/FieldLabel";
 import { SchemaConstants } from "../../model";
 import { useStyles } from "../../style";
-import { getConfigProperties } from "../../utils";
+import { getConfigProperties, getRecordName } from "../../utils";
 import ObjectType, { ObjectTypeProps } from "../ObjectType";
 
 import { ArrayTypeProps } from ".";
@@ -159,12 +159,12 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
         );
     });
 
-    const typeLabel: string = props.schema[SchemaConstants.ITEMS][SchemaConstants.ADDITIONAL_PROPERTIES];
+    const typeLabel: string = props.schema[SchemaConstants.ITEMS][SchemaConstants.NAME];
     const fieldLabelProps: FieldLabelProps = {
         description: props.description,
         name: props.name,
         required: props.isRequired,
-        type: (typeLabel ? "map" : "record") + " [ ]",
+        type: (typeLabel ? getRecordName(typeLabel) : "map") + " [ ]",
     };
 
     return (
