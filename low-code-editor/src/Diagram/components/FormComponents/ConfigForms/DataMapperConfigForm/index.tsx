@@ -18,14 +18,10 @@ import {
     DataMapper
 } from "@wso2-enterprise/ballerina-data-mapper";
 import {
-    ConfigOverlayFormStatus, DiagramEditorLangClientInterface,
-    ExpressionEditorLangClientInterface
+    ConfigOverlayFormStatus,
+    DiagramEditorLangClientInterface
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
-import {
-    getPartialSTForModuleMembers
-// tslint:disable-next-line:no-submodule-imports
-} from "@wso2-enterprise/ballerina-statement-editor/lib/utils/ls-utils";
 import {
     FunctionDefinition, ModulePart,
     NodePosition, STKindChecker,
@@ -34,6 +30,8 @@ import {
 
 import { Context } from "../../../../../Contexts/Diagram";
 import {wizardStyles} from "../style";
+
+import { dataMapperStyles } from "./style";
 
 export interface DataMapperProps {
     model?: STNode;
@@ -46,11 +44,16 @@ export interface DataMapperProps {
 export function DataMapperConfigForm(props: DataMapperProps) {
     const { model, onCancel } = props;
 
+    const dataMapperClasses = dataMapperStyles();
+
     const {
         props: {
             currentFile
         },
         api: {
+            code: {
+                modifyDiagram
+            },
             ls: {
                 getExpressionEditorLangClient,
                 getDiagramEditorLangClient
@@ -99,7 +102,7 @@ export function DataMapperConfigForm(props: DataMapperProps) {
             setFunctionST(undefined);
         }
         getSyntaxTree();
-    }, [])
+    }, [currentFile.content]);
 
     const updateFileContentOverride = (fPath: string, newContent: string) => {
         return Promise.resolve(true);
@@ -113,13 +116,17 @@ export function DataMapperConfigForm(props: DataMapperProps) {
                 defaultMessage={"Data Mapper"}
                 onCancel={onCancel}
             />
-            <DataMapper
-                fnST={functionST}
-                langClientPromise={getDiagramEditorLangClient}
-                getLangClient={getDiagramEditorLangClient}
-                filePath={currentFile.path}
-                updateFileContent={updateFileContentOverride}
-            />
+            <div className={dataMapperClasses.dataMapperContainer}>
+                <DataMapper
+                    fnST={functionST}
+                    langClientPromise={getDiagramEditorLangClient}
+                    getLangClient={getDiagramEditorLangClient}
+                    filePath={currentFile.path}
+                    currentFile={currentFile}
+                    updateFileContent={updateFileContentOverride}
+                    applyModifications={modifyDiagram}
+                />
+            </div>
         </FormControl>
     );
 }

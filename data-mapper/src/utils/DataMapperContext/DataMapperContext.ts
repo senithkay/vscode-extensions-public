@@ -1,14 +1,20 @@
 import {
-    DiagramEditorLangClientInterface, ExpressionEditorLangClientInterface
+    DiagramEditorLangClientInterface,
+    STModification
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FunctionDefinition, STKindChecker } from "@wso2-enterprise/syntax-tree";
-import {BalleriaLanguageClient} from "@wso2-enterprise/ballerina-languageclient";
 
 export interface IDataMapperContext {
     functionST: FunctionDefinition;
     filePath: string;
     getLangClient: () => Promise<DiagramEditorLangClientInterface>;
+    currentFile?: {
+        content: string,
+        path: string,
+        size: number
+    };
     updateFileContent: (filePath: string, fileContent: string) => Promise<boolean>;
+    applyModifications?: (modifications: STModification[]) => void;
 }
 
 export class DataMapperContext implements IDataMapperContext {
@@ -17,9 +23,14 @@ export class DataMapperContext implements IDataMapperContext {
         public filePath: string,
         private _functionST: FunctionDefinition,
         public getLangClient: () => Promise<DiagramEditorLangClientInterface>,
-        private _updateFileContet: (filePath: string, fileContent: string) => Promise<boolean>
-        ) {
-    }
+        public currentFile: {
+            content: string,
+            path: string,
+            size: number
+        },
+        private _updateFileContet: (filePath: string, fileContent: string) => Promise<boolean>,
+        public applyModifications: (modifications: STModification[]) => void
+    ){}
 
     public get functionST(): FunctionDefinition {
         return this._functionST;

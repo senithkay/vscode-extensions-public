@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 
 import {
     DiagramEditorLangClientInterface,
-    ExpressionEditorLangClientInterface
+    STModification
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FunctionDefinition, traversNode } from "@wso2-enterprise/syntax-tree";
 
@@ -16,12 +16,18 @@ export interface DataMapperProps {
     langClientPromise?: () => Promise<DiagramEditorLangClientInterface>;
     getLangClient?: () => Promise<DiagramEditorLangClientInterface>;
     filePath: string;
+    currentFile?: {
+        content: string,
+        path: string,
+        size: number
+    };
+    applyModifications?: (modifications: STModification[]) => void;
     updateFileContent: (filePath: string, content: string) => Promise<boolean>;
 }
 
 function DataMapperC(props: DataMapperProps) {
 
-    const { fnST, langClientPromise, filePath, updateFileContent } = props;
+    const { fnST, langClientPromise, filePath, currentFile, updateFileContent, applyModifications } = props;
     const [nodes, setNodes] = useState<DataMapperNodeModel[]>([]);
 
     useEffect(() => {
@@ -30,7 +36,9 @@ function DataMapperC(props: DataMapperProps) {
                 filePath,
                 fnST,
                 langClientPromise,
-                updateFileContent
+                currentFile,
+                updateFileContent,
+                applyModifications
             );
 
             const nodeInitVisitor = new NodeInitVisitor(context);

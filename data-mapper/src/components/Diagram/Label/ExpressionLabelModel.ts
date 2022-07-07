@@ -1,6 +1,7 @@
-import { LabelModel } from '@projectstorm/react-diagrams';
 import { BaseModelOptions, DeserializeEvent } from '@projectstorm/react-canvas-core';
+import { LabelModel } from '@projectstorm/react-diagrams';
 import { STNode } from '@wso2-enterprise/syntax-tree';
+
 import { IDataMapperContext } from '../../../utils/DataMapperContext/DataMapperContext';
 
 export interface ExpressionLabelOptions extends BaseModelOptions {
@@ -56,6 +57,6 @@ export class ExpressionLabelModel extends LabelModel {
 				}
 			]
 		});
-		this.context.updateFileContent(this.context.filePath, stModifyResp.source);
+		await this.context.updateFileContent(this.context.filePath, stModifyResp.source);
 	}
 }

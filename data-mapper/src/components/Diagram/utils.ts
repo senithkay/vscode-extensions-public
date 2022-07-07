@@ -116,24 +116,48 @@ export async function createSpecificFieldSource(link: DataMapperLinkModel) {
 				source += ",";
 			}
 			const langClient = await targetNode.context.getLangClient();
-			const stModifyResp = await langClient.stModify({
-				documentIdentifier: {
-					uri: `file://${targetNode.context.filePath}`
-				},
-				astModifications: [
+			langClient.didChange({
+				contentChanges: [
 					{
-						type: "INSERT",
-						config: {
-							"STATEMENT": source,
-						},
-						endColumn: targetPos.endColumn,
-						endLine: targetPos.endLine,
-						startColumn: targetPos.endColumn,
-						startLine: targetPos.endLine
+						text: targetNode.context.currentFile.content
 					}
-				]
+				],
+				textDocument: {
+					uri: `file://${targetNode.context.filePath}`,
+					version: 1
+				}
 			});
-			targetNode.context.updateFileContent(targetNode.context.filePath, stModifyResp.source);
+			const modifications = [
+				{
+					type: "INSERT",
+					config: {
+						"STATEMENT": source,
+					},
+					endColumn: targetPos.endColumn,
+					endLine: targetPos.endLine,
+					startColumn: targetPos.endColumn,
+					startLine: targetPos.endLine
+				}
+			];
+			targetNode.context.applyModifications(modifications);
+			// const stModifyResp = await langClient.stModify({
+			// 	documentIdentifier: {
+			// 		uri: `file://${targetNode.context.filePath}`
+			// 	},
+			// 	astModifications: [
+			// 		{
+			// 			type: "INSERT",
+			// 			config: {
+			// 				"STATEMENT": source,
+			// 			},
+			// 			endColumn: targetPos.endColumn,
+			// 			endLine: targetPos.endLine,
+			// 			startColumn: targetPos.endColumn,
+			// 			startLine: targetPos.endLine
+			// 		}
+			// 	]
+			// });
+			// targetNode.context.updateFileContent(targetNode.context.filePath, stModifyResp.source);
 		}
 	}
 	return `${lhs} = ${rhs}`;
