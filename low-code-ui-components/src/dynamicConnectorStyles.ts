@@ -881,7 +881,7 @@ export const dynamicConnectorStyles = makeStyles((theme: Theme) =>
         },
         methodTypeContainer: {
             display: 'block',
-            width: '25%',
+            width: '38%',
         },
         advancedToggleWrapper: {
             width: '10%',
