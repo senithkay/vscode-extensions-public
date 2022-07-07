@@ -31,6 +31,8 @@ import {
     StringLiteral,
 } from "@wso2-enterprise/syntax-tree";
 
+import { EXPR_PLACEHOLDER } from "../../../../utils/expressions";
+
 export function isRequiredParam(param: FormField): boolean {
     return !(param.optional || param.defaultable);
 }
@@ -39,8 +41,26 @@ export function isAllDefaultableFields(recordFields: FormField[]): boolean {
     return recordFields?.every((field) => field.defaultable || (field.fields && isAllDefaultableFields(field.fields)));
 }
 
+export function isAllNotSelectedFields(recordFields: FormField[]): boolean {
+    return recordFields?.every((field) => !field.selected || (field.fields && isAllNotSelectedFields(field.fields)));
+}
+
+export function isAllNotEmptyFields(recordFields: FormField[]): boolean {
+    return recordFields?.every(
+        (field) =>
+            field.value ||
+            (field.fields && isAllNotEmptyFields(field.fields)) ||
+            (field.members && isAllNotEmptyFields(field.members))
+    );
+}
+
 export function getSelectedUnionMember(unionFields: FormField): FormField {
     let selectedMember = unionFields.members?.find((member) => member.selected === true);
+    if (!selectedMember) {
+        selectedMember = unionFields.members?.find(
+            (member) => getUnionFormFieldName(member) === unionFields.selectedDataType
+        );
+    }
     if (!selectedMember) {
         selectedMember = unionFields.members[0];
     }
@@ -53,7 +73,7 @@ export function getDefaultParams(parameters: FormField[], depth = 1, valueOnly =
     }
     const parameterList: string[] = [];
     parameters.forEach((parameter) => {
-        if ((parameter.defaultable || parameter.optional) && !parameter.selected) {
+        if ((parameter.defaultable || parameter.optional) && !parameter.selected && !parameter.value) {
             return;
         }
         let draftParameter = "";
@@ -84,7 +104,11 @@ export function getDefaultParams(parameters: FormField[], depth = 1, valueOnly =
                 draftParameter = getFieldValuePair(parameter, `{}`, depth);
                 break;
             case PrimitiveBalType.Record:
-                if (isAllDefaultableFields(parameter?.fields)) {
+                const allFieldsDefaultable = isAllDefaultableFields(parameter?.fields);
+                if (!parameter.selected && allFieldsDefaultable) {
+                    break;
+                }
+                if (parameter.selected && allFieldsDefaultable && isAllNotSelectedFields(parameter?.fields)) {
                     break;
                 }
                 const insideParamList = getDefaultParams(parameter.fields, depth + 1);
@@ -92,14 +116,14 @@ export function getDefaultParams(parameters: FormField[], depth = 1, valueOnly =
                 break;
             case PrimitiveBalType.Union:
                 const selectedMember = getSelectedUnionMember(parameter);
-                const firstMemberParams = getDefaultParams([selectedMember], depth + 1, true);
-                draftParameter = getFieldValuePair(parameter, firstMemberParams?.join(), depth);
+                const selectedMemberParams = getDefaultParams([selectedMember], depth + 1, true);
+                draftParameter = getFieldValuePair(parameter, selectedMemberParams?.join(), depth, false, false);
                 break;
             case "inclusion":
-                if (isAllDefaultableFields(parameter.inclusionType?.fields)) {
+                if (isAllDefaultableFields(parameter.inclusionType?.fields) && !parameter.selected) {
                     break;
                 }
-                const inclusionParams = getDefaultParams([parameter.inclusionType], depth + 1);
+                const inclusionParams = getDefaultParams([parameter.inclusionType], depth + 1, true);
                 draftParameter = getFieldValuePair(parameter, `${inclusionParams?.join()}`, depth);
                 break;
 
@@ -113,8 +137,17 @@ export function getDefaultParams(parameters: FormField[], depth = 1, valueOnly =
     return parameterList;
 }
 
-function getFieldValuePair(parameter: FormField, defaultValue: string, depth: number, valueOnly = false): string {
-    const value = parameter.value || defaultValue;
+function getFieldValuePair(
+    parameter: FormField,
+    defaultValue: string,
+    depth: number,
+    valueOnly = false,
+    useParamValue = true
+): string {
+    let value = defaultValue || EXPR_PLACEHOLDER;
+    if (useParamValue && parameter.value) {
+        value = parameter.value;
+    }
     if (depth === 1 && !valueOnly) {
         // Handle named args
         return `${parameter.name} = ${value}`;
@@ -336,7 +369,7 @@ export function getFormFieldReturnType(formField: FormField, depth = 1): FormFie
     return response;
 }
 
-export function mapEndpointToFormField(model: STNode, formFields: FormField[]) {
+export function mapEndpointToFormField(model: STNode, formFields: FormField[]): FormField[] {
     let expression: ImplicitNewExpression;
     if (model && STKindChecker.isCheckExpression(model) && STKindChecker.isImplicitNewExpression(model.expression)) {
         expression = model.expression;
@@ -393,6 +426,7 @@ export function mapEndpointToFormField(model: STNode, formFields: FormField[]) {
                 } else {
                     formField.value = positionalArg.expression.source;
                 }
+                formField.selected = checkFormFieldValue(formField);
                 formField.initialDiagnostics = positionalArg?.typeData?.diagnostics;
                 nextValueIndex++;
             } else if (formField.typeName === "record" && formField.fields && formField.fields.length > 0) {
@@ -402,6 +436,7 @@ export function mapEndpointToFormField(model: STNode, formFields: FormField[]) {
                         mappingConstructor.fields as SpecificField[],
                         formField.fields
                     );
+                    formField.selected = isAllNotEmptyFields(formField.fields);
                     nextValueIndex++;
                 }
             } else if (
@@ -421,8 +456,10 @@ export function mapEndpointToFormField(model: STNode, formFields: FormField[]) {
                 formField.value = positionalArg.expression?.source;
                 formField.initialDiagnostics = positionalArg?.typeData?.diagnostics;
             }
+            formField.selected = formField.selected || checkFormFieldValue(formField);
         }
     }
+    return formFields;
 }
 
 export function mapRecordLiteralToRecordTypeFormField(specificFields: SpecificField[], formFields: FormField[]) {
@@ -450,12 +487,17 @@ export function mapRecordLiteralToRecordTypeFormField(specificFields: SpecificFi
                                         );
                                         let allFieldsFilled = true;
                                         subFields.forEach((field) => {
-                                            if (field.optional === false && !field.value) {
+                                            if (
+                                                field.optional === false &&
+                                                field.defaultable === false &&
+                                                !field.value
+                                            ) {
                                                 allFieldsFilled = false;
                                             }
                                         });
                                         if (allFieldsFilled) {
                                             formField.selectedDataType = getUnionFormFieldName(subFormField);
+                                            formField.selected = true;
                                         }
                                     }
                                 }
@@ -465,6 +507,7 @@ export function mapRecordLiteralToRecordTypeFormField(specificFields: SpecificFi
                                 mappingField.fields as SpecificField[],
                                 formField.fields
                             );
+                            formField.selected = isAllNotEmptyFields(formField.fields);
                         }
                     }
 
@@ -475,6 +518,7 @@ export function mapRecordLiteralToRecordTypeFormField(specificFields: SpecificFi
                     }
                     formField.initialDiagnostics = specificField?.typeData?.diagnostics;
                 }
+                formField.selected = checkFormFieldValue(formField);
             });
         }
     });
@@ -486,4 +530,8 @@ export function getFieldName(fieldName: string): string {
 
 export function getUnionFormFieldName(field: FormField): string {
     return field.name || field.typeInfo?.name || field.typeName;
+}
+
+export function checkFormFieldValue(field: FormField): boolean {
+    return field.value !== undefined && field.value !== null;
 }

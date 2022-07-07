@@ -24,7 +24,9 @@ export default function CustomType(props: TypeProps) {
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
     const requiredParam = isRequiredParam(param);
 
-    const [paramSelected, setParamSelected] = useState(param.selected || requiredParam);
+    const [paramSelected, setParamSelected] = useState<boolean>(
+        param.selected || requiredParam || param.value !== undefined
+    );
 
     useEffect(() => {
         param.selected = paramSelected;
