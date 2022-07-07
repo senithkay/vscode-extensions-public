@@ -429,6 +429,10 @@ const queryIntermediateClauses : ExpressionGroup = {
             name: "Limit-Clause",
             template: `limit ${EXPR_PLACEHOLDER}`,
             example: "limit Ex"
+        }, {
+            name: "OrderBy-Clause",
+            template: `order by ${EXPR_PLACEHOLDER} ascending`,
+            example: "order by Ex ascending"
         }
     ],
     relatedModelType: ModelType.QUERY_EXPRESSION
