@@ -67,9 +67,7 @@ export class BallerinaNotebookController {
             listner.contentChanges.forEach((change: NotebookDocumentContentChange) => {
                 change.removedCells.forEach( async (cell: NotebookCell) => {
                     let failedVars = await this.deleteMetaInfoFromMemoryForCell(cell);
-                    failedVars.length && window.showInformationMessage(
-                        `'${failedVars.join("', '")}' is/are not removed from memory since it/they have referred in other cells.`
-                    );
+                    failedVars.length && window.showInformationMessage(this.getFailedToDeleteErrorMsg(failedVars));
                     this.updateVariableView();
                 });
             });
@@ -108,6 +106,10 @@ export class BallerinaNotebookController {
             ])]);
         };
 
+        //append text to the output when failed to remove a value from memory
+        const appendFailedToDeleteErrorMsg = (failedVars: string[]) => 
+            failedVars.length && appendTextToOutput(this.getFailedToDeleteErrorMsg(failedVars));
+
         // handle request to cancel the running execution 
         execution.token.onCancellationRequested(() => {
             appendTextToOutput('Execution Interrupted.');
@@ -119,9 +121,7 @@ export class BallerinaNotebookController {
         // remove them from the shell invokermemory
         if (!cellContent && !!langClient) {
             let failedVars = await this.deleteMetaInfoFromMemoryForCell(cell);
-            failedVars.length && appendTextToOutput(
-                `'${failedVars.join("', '")}' is/are not removed from memory since it/they have referred in other cells.`
-            );
+            appendFailedToDeleteErrorMsg(failedVars);
             execution.end(!failedVars.length, Date.now());
             return;
         }
@@ -195,9 +195,7 @@ export class BallerinaNotebookController {
             if (output.metaInfo) {
                 let removedDefs = this.metaInfoHandler.handleNewMetaInfo(cell, output.metaInfo);
                 let failedVars = await this.deleteMetaInfoFromMemory(removedDefs);
-                failedVars.length && appendTextToOutput(
-                    `'${failedVars.join("', '")}' is/are not removed from memory since it/they have referred in other cells.`
-                );
+                appendFailedToDeleteErrorMsg(failedVars);
             }
 
             // end execution with succes or fail
@@ -267,6 +265,10 @@ export class BallerinaNotebookController {
         this.executionOrder = 0;
         this.updateVariableView();
         this.resetMetaInfoHandler();
+    }
+
+    private getFailedToDeleteErrorMsg(failedVars: string[]) {
+        return `'${failedVars.join("', '")}' is/are not removed from memory since it/they have referred in other cells.`
     }
 
     dispose(): void {
