@@ -39,24 +39,18 @@ export class ExpressionLabelModel extends LabelModel {
 	}
 
 	async updateSource() {
-		const langClient = await this.context.getLangClient();
-		const stModifyResp = await langClient.stModify({
-			documentIdentifier: {
-				uri: `file://${this.context.filePath}`
-			},
-			astModifications: [
-				{
-					type: "INSERT",
-					config: {
-						"STATEMENT": this.value,
-					},
-					endColumn: this.valueNode.position.endColumn,
-					endLine: this.valueNode.position.endLine,
-					startColumn: this.valueNode.position.startColumn,
-					startLine: this.valueNode.position.startLine
-				}
-			]
-		});
-		await this.context.updateFileContent(this.context.filePath, stModifyResp.source);
+		const modifications = [
+			{
+				type: "INSERT",
+				config: {
+					"STATEMENT": this.value,
+				},
+				endColumn: this.valueNode.position.endColumn,
+				endLine: this.valueNode.position.endLine,
+				startColumn: this.valueNode.position.startColumn,
+				startLine: this.valueNode.position.startLine
+			}
+		];
+		this.context.applyModifications(modifications);
 	}
 }

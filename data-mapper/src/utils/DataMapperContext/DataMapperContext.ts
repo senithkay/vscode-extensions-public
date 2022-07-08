@@ -13,8 +13,7 @@ export interface IDataMapperContext {
         path: string,
         size: number
     };
-    updateFileContent: (filePath: string, fileContent: string) => Promise<boolean>;
-    applyModifications?: (modifications: STModification[]) => void;
+    applyModifications: (modifications: STModification[]) => void;
 }
 
 export class DataMapperContext implements IDataMapperContext {
@@ -28,7 +27,6 @@ export class DataMapperContext implements IDataMapperContext {
             path: string,
             size: number
         },
-        private _updateFileContet: (filePath: string, fileContent: string) => Promise<boolean>,
         public applyModifications: (modifications: STModification[]) => void
     ){}
 
@@ -50,8 +48,4 @@ export class DataMapperContext implements IDataMapperContext {
     // public getLangClient() {
     //     return this._langClientPromise;
     // }
-
-    public updateFileContent(filePath: string, fileContent: string): Promise<boolean> {
-        return this._updateFileContet(filePath, fileContent);
-    }
 }

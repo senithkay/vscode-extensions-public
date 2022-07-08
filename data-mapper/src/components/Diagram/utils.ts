@@ -115,18 +115,6 @@ export async function createSpecificFieldSource(link: DataMapperLinkModel) {
 			if (targetMappingConstruct.fields.length > 0) {
 				source += ",";
 			}
-			const langClient = await targetNode.context.getLangClient();
-			langClient.didChange({
-				contentChanges: [
-					{
-						text: targetNode.context.currentFile.content
-					}
-				],
-				textDocument: {
-					uri: `file://${targetNode.context.filePath}`,
-					version: 1
-				}
-			});
 			const modifications = [
 				{
 					type: "INSERT",
@@ -140,24 +128,6 @@ export async function createSpecificFieldSource(link: DataMapperLinkModel) {
 				}
 			];
 			targetNode.context.applyModifications(modifications);
-			// const stModifyResp = await langClient.stModify({
-			// 	documentIdentifier: {
-			// 		uri: `file://${targetNode.context.filePath}`
-			// 	},
-			// 	astModifications: [
-			// 		{
-			// 			type: "INSERT",
-			// 			config: {
-			// 				"STATEMENT": source,
-			// 			},
-			// 			endColumn: targetPos.endColumn,
-			// 			endLine: targetPos.endLine,
-			// 			startColumn: targetPos.endColumn,
-			// 			startLine: targetPos.endLine
-			// 		}
-			// 	]
-			// });
-			// targetNode.context.updateFileContent(targetNode.context.filePath, stModifyResp.source);
 		}
 	}
 	return `${lhs} = ${rhs}`;

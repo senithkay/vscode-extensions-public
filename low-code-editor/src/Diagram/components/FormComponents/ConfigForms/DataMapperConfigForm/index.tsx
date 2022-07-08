@@ -123,7 +123,6 @@ export function DataMapperConfigForm(props: DataMapperProps) {
                     getLangClient={getDiagramEditorLangClient}
                     filePath={currentFile.path}
                     currentFile={currentFile}
-                    updateFileContent={updateFileContentOverride}
                     applyModifications={modifyDiagram}
                 />
             </div>

@@ -21,13 +21,12 @@ export interface DataMapperProps {
         path: string,
         size: number
     };
-    applyModifications?: (modifications: STModification[]) => void;
-    updateFileContent: (filePath: string, content: string) => Promise<boolean>;
+    applyModifications: (modifications: STModification[]) => void;
 }
 
 function DataMapperC(props: DataMapperProps) {
 
-    const { fnST, langClientPromise, filePath, currentFile, updateFileContent, applyModifications } = props;
+    const { fnST, langClientPromise, filePath, currentFile, applyModifications } = props;
     const [nodes, setNodes] = useState<DataMapperNodeModel[]>([]);
 
     useEffect(() => {
@@ -37,7 +36,6 @@ function DataMapperC(props: DataMapperProps) {
                 fnST,
                 langClientPromise,
                 currentFile,
-                updateFileContent,
                 applyModifications
             );
 

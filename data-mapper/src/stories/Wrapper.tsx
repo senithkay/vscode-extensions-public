@@ -1,14 +1,14 @@
 import React, { useEffect } from 'react';
 
-
-import { CodeEditor } from './CodeEditor/CodeEditor';
+import Grid from '@material-ui/core/Grid';
+import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
+import { BalleriaLanguageClient } from '@wso2-enterprise/ballerina-languageclient';
+import { STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FunctionDefinition, ModulePart, STKindChecker } from '@wso2-enterprise/syntax-tree';
 
 import { DataMapper } from '../components/DataMapper/DataMapper';
-import { FunctionDefinition, ModulePart, STKindChecker } from '@wso2-enterprise/syntax-tree';
-import { BalleriaLanguageClient } from '@wso2-enterprise/ballerina-languageclient';
-import { makeStyles, createStyles, Theme } from '@material-ui/core/styles';
-import Paper from '@material-ui/core/Paper';
-import Grid from '@material-ui/core/Grid';
+
+import { CodeEditor } from './CodeEditor/CodeEditor';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -51,6 +51,17 @@ export function DataMapperWrapper(props: DataMapperWrapperProps) {
         // return updateFileContent(fPath, newContent);
     }
 
+    const applyModifications = async (modifications: STModification[]) => {
+        const langClient = await langClientPromise();
+        const stModifyResp = await langClient.stModify({
+            documentIdentifier: {
+                uri: `file://${filePath}`
+            },
+            astModifications: modifications
+        });
+        await updateFileContentOverride(filePath, stModifyResp.source);
+    }
+
     const newProps = {
         ...props,
         lastUpdatedAt: lastUpdated,
@@ -72,7 +83,6 @@ export function DataMapperWrapper(props: DataMapperWrapperProps) {
                     setFunctionST(fns.find((mem) => mem.functionName.value === "transform"));
                     return;
                 }
-                
             }
             setFunctionST(undefined);
         }
@@ -114,16 +124,16 @@ export function DataMapperWrapper(props: DataMapperWrapperProps) {
         :
         // tslint:disable-next-line: jsx-wrap-multiline
         <div className={classes.root}>
-            <Grid container spacing={3} className={classes.gridContainer} >
-                <Grid item xs={8}>
+            <Grid container={true} spacing={3} className={classes.gridContainer} >
+                <Grid item={true} xs={8}>
                     <DataMapper
                         fnST={functionST}
                         langClientPromise={langClientPromise}
                         filePath={filePath}
-                        updateFileContent={updateFileContentOverride}
+                        applyModifications={applyModifications}
                     />
                 </Grid>
-                <Grid item xs={4}>
+                <Grid item={true} xs={4}>
                     <CodeEditor
                         content={fileContent}
                         filePath={filePath}
