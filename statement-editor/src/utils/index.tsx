@@ -607,7 +607,9 @@ export function updateParamDocWithParamPositions(paramsInModel: STNode[], docume
                 }
             }
         } else {
-            updatedDocWithPositions.parameters[value].modelPosition = param.position;
+            if (updatedDocWithPositions.parameters[value]){
+                updatedDocWithPositions.parameters[value].modelPosition = param.position;
+            }
         }
     });
 
@@ -678,12 +680,15 @@ export function getUpdatedContentForNewNamedArg(currentModel: STNode, userInput:
 }
 
 // TODO: Remove this function once the methodCall param filter is added to the LS
-export function updateParamListFordMethodCallDoc(paramsInModel: STNode[],  documentation : SymbolDocumentation) {
-    if (paramsInModel[0]?.source === undefined || documentation.parameters[0]?.name !==  paramsInModel[0]?.source){
-        if (documentation.parameters[0]?.kind === SymbolParameterType.REQUIRED){
-            documentation.parameters.splice(0, 1);
+export function updateParamListFordMethodCallDoc(paramsInModel: STNode[],  documentation : SymbolDocumentation) : SymbolDocumentation {
+    const updatedMethodParams : SymbolDocumentation = JSON.parse(JSON.stringify(documentation));
+    if (paramsInModel[0]?.source === undefined || updatedMethodParams.parameters[0]?.name !==  paramsInModel[0]?.source){
+        if (updatedMethodParams.parameters[0]?.kind === SymbolParameterType.REQUIRED){
+            updatedMethodParams.parameters.splice(0, 1);
         }
     }
+
+    return updatedMethodParams;
 }
 
 export function getExprWithArgs(suggestionValue: string, prefix?: string): string {
