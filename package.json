@@ -488,7 +488,7 @@
         "update-version": "node ./scripts/update-version.js",
         "test-compile": "tsc -p ./",
         "test": "npm run test-compile && node ./out/test/runTest.js",
-        "ui-test-setup": "npx extest get-vscode && npx extest get-chromedriver && npx extest install-vsix -f $(ls *.vsix)",
+        "ui-test-setup": "npx extest get-vscode -c 1.68.0 && npx extest get-chromedriver -c 1.68.0 && npx extest install-vsix -f $(ls *.vsix)",
 		"ui-test": "npm run test-compile && npx extest run-tests 'out/ui-test/*.test.js' --mocha_config ui-test/.mocharc.js -o ui-test/settings.json",
 		"test-coverage": "cross-env COVER_CONFIG=html npm run test",
         "package": "vsce package --yarn",
