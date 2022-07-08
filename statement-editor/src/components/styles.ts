@@ -474,6 +474,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             padding: '0 10px'
         },
         parameterCheckbox: {
+            alignSelf: "center",
             color: '#2FA86C',
             padding: '0 6px 0 0',
             "& .MuiCheckbox-colorSecondary.Mui-checked": {
@@ -486,8 +487,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
                     background: "transparent",
                 },
                 "& .MuiIconButton-label": {
-                    position: "relative",
-                    zIndex: 0,
+                    position: "relative"
                 },
                 "& .MuiIconButton-label::after": {
                     content: '""',
@@ -511,6 +511,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
         },
         checked: {},
         disabledCheckbox : {
+            alignSelf: "center",
             color: 'rgba(47,168,108,0.5)',
             padding: '0 6px 0 0',
             "&$checked": {
@@ -520,7 +521,6 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
                 },
                 "& .MuiIconButton-label": {
                     position: "relative",
-                    zIndex: 0,
                 },
                 "& .MuiIconButton-label::after": {
                     content: '""',
