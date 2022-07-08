@@ -53,3 +53,4 @@ resources/jslibs/index.d.ts
 resources/jslibs/themes/ballerina-default.css
 resources/jslibs/themes/ballerina-default.css.map
 web/
+test-resources
