@@ -13,8 +13,6 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useState } from "react";
 
-import { STKindChecker } from "@wso2-enterprise/syntax-tree";
-
 import {
     ALL_LIBS_IDENTIFIER,
     DEFAULT_WHERE_INTERMEDIATE_CLAUSE,
@@ -22,7 +20,7 @@ import {
     STD_LIBS_IDENTIFIER
 } from "../../constants";
 import { StatementEditorContext } from "../../store/statement-editor-context";
-import { isFunctionOrMethodCall } from "../../utils";
+import { isConfigurableEditor, isFunctionOrMethodCall, isInsideEndpointConfigs } from "../../utils";
 import { KeyboardNavigationManager } from "../../utils/keyboard-navigation-manager";
 import SelectDropdown from "../Dropdown";
 import { LibraryBrowser } from "../LibraryBrowser";
@@ -54,7 +52,12 @@ export function HelperPane(props: HelperPaneProps) {
     const {
         modelCtx: {
             currentModel
-        }
+        },
+        editorCtx: {
+            editors,
+            activeEditorId
+        },
+        config
     } = useContext(StatementEditorContext);
 
     const onTabElementSelection = async (value: TabElements) => {
@@ -66,6 +69,11 @@ export function HelperPane(props: HelperPaneProps) {
     };
 
     const keyboardNavigationManager = new KeyboardNavigationManager();
+    const helperTabs = [TabElements.suggestions, TabElements.expressions, TabElements.libraries];
+    const configurableEditor = isConfigurableEditor(editors, activeEditorId);
+    if (!configurableEditor) {
+        helperTabs.push(TabElements.parameters);
+    }
 
     React.useEffect(() => {
 
@@ -82,10 +90,16 @@ export function HelperPane(props: HelperPaneProps) {
     }, []);
 
     useEffect(() => {
-        if (currentModel.model && isFunctionOrMethodCall(currentModel.model)){
+        if (
+            currentModel.model &&
+            (isFunctionOrMethodCall(currentModel.model) || isInsideEndpointConfigs(currentModel.model, config.type)) &&
+            !configurableEditor
+        ) {
             setSelectedTab(TabElements.parameters);
         } else if (currentModel.model?.source?.trim() === DEFAULT_WHERE_INTERMEDIATE_CLAUSE){
             setSelectedTab(TabElements.expressions);
+        } else if (configurableEditor && selectedTab === TabElements.parameters) {
+            setSelectedTab(TabElements.suggestions);
         }
     }, [docExpandClicked, currentModel.model])
 
@@ -97,9 +111,8 @@ export function HelperPane(props: HelperPaneProps) {
         <>
             <div className={statementEditorClasses.stmtEditorInnerWrapper}>
                 <div className={stmtEditorHelperClasses.tabPanelWrapper} data-testid="tab-panel-wrapper">
-
                     <TabPanel
-                        values={[TabElements.suggestions, TabElements.expressions, TabElements.libraries, TabElements.parameters]}
+                        values={helperTabs}
                         defaultValue={TabElements.suggestions}
                         onSelection={onTabElementSelection}
                         selectedTab={selectedTab}
@@ -120,7 +133,7 @@ export function HelperPane(props: HelperPaneProps) {
                 {selectedTab === TabElements.suggestions && <LSSuggestions />}
                 {selectedTab === TabElements.expressions && <ExpressionSuggestions />}
                 {selectedTab === TabElements.libraries && <LibraryBrowser libraryType={libraryType} />}
-                {selectedTab === TabElements.parameters && <ParameterSuggestions />}
+                {selectedTab === TabElements.parameters && !configurableEditor && <ParameterSuggestions />}
             </div>
         </>
     );
