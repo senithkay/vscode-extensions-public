@@ -120,9 +120,8 @@ export function LSSuggestions() {
         <>
             <FormControl style={{ width: '100%', padding: '0 25px' }}>
                 <Input
-                    data-testid="expr-suggestions-searchbar"
+                    data-testid="ls-suggestions-searchbar"
                     className={stmtEditorHelperClasses.librarySearchBox}
-                    value={keyword}
                     placeholder={`Search Suggestions`}
                     onChange={searchSuggestions}
                     endAdornment={(
