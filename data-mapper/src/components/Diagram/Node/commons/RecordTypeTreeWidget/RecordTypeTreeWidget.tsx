@@ -17,7 +17,7 @@ const useStyles = makeStyles((theme: Theme) =>
 			maxWidth: 400,
 			color: "white",
 			position: "relative",
-			backgroundColor: "#525564"
+			backgroundColor: " #FFFFFF"
 		}
 	}),
 );
@@ -60,8 +60,8 @@ export function RecordTypeTreeWidget(props: RecordTypeTreeWidgetProps) {
 	return (
 		<TreeView
 			className={classes.root}
-			defaultCollapseIcon={<ExpandMoreIcon />}
-			defaultExpandIcon={<ChevronRightIcon />}
+			defaultCollapseIcon={<ExpandMoreIcon style={{color:"black"}}/>}
+			defaultExpandIcon={<ChevronRightIcon style={{color:"black"}}/>}
 			defaultExpanded={allNodeIds}
 		>
 			{

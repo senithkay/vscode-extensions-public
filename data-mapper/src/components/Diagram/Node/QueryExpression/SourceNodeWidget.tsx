@@ -5,7 +5,6 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import React from "react";
 import TreeItem from "@material-ui/lab/TreeItem";
-import { DataMapperNodeField } from "../view/DataMapperNodeField";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
