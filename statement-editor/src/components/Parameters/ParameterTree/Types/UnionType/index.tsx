@@ -48,7 +48,7 @@ export default function UnionType(props: TypeProps) {
         setSelectedMemberType(type);
         setParameter(selectedMember);
         if (initialRendering.current) {
-            //INFO: avoid onChange call in initial rendering to prevent multiple rendering.
+            // INFO: avoid onChange call in initial rendering to prevent multiple rendering.
             onChange();
         }
         initialRendering.current = true;
