@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useEffect, useState } from "react";
+import React, { useRef, useState } from "react";
 
 import { Checkbox, ListItem, ListItemText, Typography } from "@material-ui/core";
 import { FormField } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
@@ -32,18 +32,8 @@ export default function UnionType(props: TypeProps) {
 
     const [paramSelected, setParamSelected] = useState(param.selected || requiredParam);
     const [selectedMemberType, setSelectedMemberType] = useState(getUnionParamName(initSelectedMember));
-    const [parameter, setParameter] = useState<FormField>();
-
-    useEffect(() => {
-        param.selected = paramSelected;
-    }, [paramSelected]);
-
-    useEffect(() => {
-        const selectedMember = param.members.find((field) => getUnionParamName(field) === selectedMemberType);
-        updateFormFieldMemberSelection(selectedMember);
-        setParameter(selectedMember);
-        onChange();
-    }, [selectedMemberType]);
+    const [parameter, setParameter] = useState<FormField>(initSelectedMember);
+    const initialRendering = useRef(false);
 
     const updateFormFieldMemberSelection = (unionField: FormField) => {
         const unionFieldName = getUnionParamName(unionField);
@@ -53,7 +43,15 @@ export default function UnionType(props: TypeProps) {
     };
 
     const handleMemberType = (type: string) => {
+        const selectedMember = param.members.find((field) => getUnionParamName(field) === type);
+        updateFormFieldMemberSelection(selectedMember);
         setSelectedMemberType(type);
+        setParameter(selectedMember);
+        if (initialRendering.current) {
+            //INFO: avoid onChange call in initial rendering to prevent multiple rendering.
+            onChange();
+        }
+        initialRendering.current = true;
     };
 
     const toggleParamCheck = () => {
