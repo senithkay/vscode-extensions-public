@@ -28,6 +28,6 @@
       "build:lcuc": "npm run build --workspace=low-code-ui-components",
       "build": "npm run build --workspaces",
       "storybook": "npm run storybook --workspace=low-code-editor",
-      "test": "npm run test --workspace integration-tests"
+      "test": "npm run test --workspace integration-tests && npm run test --workspace configurable-editor"
   }
 }

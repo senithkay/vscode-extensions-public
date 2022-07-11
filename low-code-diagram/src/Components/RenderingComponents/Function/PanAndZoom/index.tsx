@@ -11,14 +11,23 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React from "react";
+import React, { useContext } from "react";
 import { TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
 
+import { Context } from "../../../../Context/diagram";
 import FitToScreenSVG from "../../../../PanAndZoom/images/fit-to-screen";
 import ZoomInSVG from "../../../../PanAndZoom/images/zoom-in";
 import ZoomOutSVG from "../../../../PanAndZoom/images/zoom-out";
 
 export default function PanAndZoom(props: any) {
+    const diagramContext = useContext(Context);
+    const { onDiagramDoubleClick } = diagramContext.props;
+
+    function handleDoubleClick() {
+        if (onDiagramDoubleClick) {
+            onDiagramDoubleClick();
+        }
+    }
 
     return (
         <TransformWrapper
@@ -32,7 +41,7 @@ export default function PanAndZoom(props: any) {
                 <React.Fragment>
                     <div className={'design-container-outer'}>
                         <TransformComponent>
-                            <div className={'design-container'}>
+                            <div className={'design-container'} onDoubleClick={handleDoubleClick}>
                                 {props.children}
                             </div>
                         </TransformComponent>

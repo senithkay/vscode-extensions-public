@@ -11,36 +11,69 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useRef } from "react";
 
-import { List, ListItemText, ListSubheader } from "@material-ui/core";
+import { ListItemText, ListSubheader } from "@material-ui/core";
 import { FormField } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { STNode } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { StatementEditorContext } from "../../../store/statement-editor-context";
+import { getParamUpdateModelPosition, getParentFunctionModel } from "../../../utils";
+import { StatementEditorViewState } from "../../../utils/statement-editor-viewstate";
 import { useStmtEditorHelperPanelStyles } from "../../styles";
 
 import { ParameterBranch } from "./ParameterBranch";
+import { getDefaultParams, mapEndpointToFormField } from "./utils";
 
 export interface TypeProps {
     param: FormField;
-    depth?: number;
+    depth: number;
+    onChange: () => void;
 }
 
 export interface ParameterTreeProps {
     parameters: FormField[];
-    paramsInModel?: STNode[];
 }
 
 export function ParameterTree(props: ParameterTreeProps) {
-    const { parameters, paramsInModel } = props;
+    const { parameters } = props;
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
     const {
         modelCtx: {
             currentModel: { model },
+            statementModel,
             updateModel,
         },
+        formCtx: {
+            formArgs: {
+                isEditForm
+            }
+        },
     } = useContext(StatementEditorContext);
+    const formFieldUpdated = useRef(false);
+
+    const handleOnChange = () => {
+        const modelParams = getDefaultParams(parameters);
+        const content = "(" + modelParams.join(",") + ")";
+
+        let updatingPosition: NodePosition;
+        if (model.viewState?.parentFunctionPos) {
+            const parentFunctionModel = getParentFunctionModel(
+                (model.parent.viewState as StatementEditorViewState)?.parentFunctionPos,
+                statementModel
+            );
+            updatingPosition = getParamUpdateModelPosition(parentFunctionModel);
+        } else {
+            updatingPosition = getParamUpdateModelPosition(model);
+        }
+
+        updateModel(content, updatingPosition);
+    };
+
+    if (isEditForm && parameters && !formFieldUpdated.current){
+        mapEndpointToFormField(model, parameters);
+        formFieldUpdated.current = true;
+    }
 
     return (
         <>
@@ -51,18 +84,10 @@ export function ParameterTree(props: ParameterTreeProps) {
                         <ListItemText secondary={"Select parameters from the list given below"} />
                     </ListSubheader>
                     <div className={stmtEditorHelperClasses.paramList}>
-                        <ParameterBranch parameters={parameters} depth={1}/>
+                        <ParameterBranch parameters={parameters} depth={1} onChange={handleOnChange} />
                     </div>
                 </>
             )}
         </>
     );
-}
-
-export function isRequiredParam(param: FormField): boolean {
-    return !(param.optional || param.defaultable);
-}
-
-export function isAllDefaultableFields(recordFields: FormField[]): boolean {
-    return recordFields?.every((field) => field.defaultable || (field.fields && isAllDefaultableFields(field.fields)));
 }

@@ -16,6 +16,7 @@ import { truncateText } from "./ExpressionEditorHint/utils";
 export * from "./ExpressionEditorHint";
 export * from "./ExpressionEditor";
 export * from "./ExpressionEditorLabel";
+export * from "./LiteExpressionEditor";
 export { createSortText };
 export { transformFormFieldTypeToString };
 export { getInitialValue };

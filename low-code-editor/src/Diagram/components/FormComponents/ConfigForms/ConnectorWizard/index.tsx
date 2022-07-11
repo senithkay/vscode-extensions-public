@@ -45,14 +45,22 @@ export function ConnectorWizard(props: ConnectorWizardProps) {
     const { wizardType, connectorInfo, model, targetPosition, functionNode, onSave, onClose } = props;
 
     const [isLoading, setIsLoading] = useState(false);
-    const [wizardStep, setWizardStep] = useState<string>(getInitialWizardStep());
     const [selectedConnector, setSelectedConnector] = useState<BallerinaConnectorInfo>(connectorInfo);
     const [selectedEndpoint, setSelectedEndpoint] = useState<string>();
     const [selectedAction, setSelectedAction] = useState<FunctionDefinitionInfo>();
+    const [wizardStep, setWizardStep] = useState<string>(getInitialWizardStep());
 
     function getInitialWizardStep() {
         if (wizardType === ConnectorWizardType.ENDPOINT) {
             if (model) {
+                if (
+                    !isLoading &&
+                    connectorInfo &&
+                    (!selectedConnector || selectedConnector.functions?.length === 0)
+                ) {
+                    setIsLoading(true);
+                    fetchMetadata(connectorInfo);
+                }
                 return WizardStep.ENDPOINT_FORM;
             }
             return WizardStep.MARKETPLACE;
@@ -77,10 +85,11 @@ export function ConnectorWizard(props: ConnectorWizardProps) {
         }
     }
 
-    async function handleSelectConnector(connector: BallerinaConnectorInfo, node: LocalVarDecl) {
+    function handleSelectConnector(connector: BallerinaConnectorInfo, node: LocalVarDecl) {
         setIsLoading(true);
+        setSelectedConnector(connector);
         setWizardStep(WizardStep.ENDPOINT_FORM);
-        await fetchMetadata(connector);
+        fetchMetadata(connector);
     }
 
     function closeEndpointForm() {
@@ -94,8 +103,6 @@ export function ConnectorWizard(props: ConnectorWizardProps) {
     }
 
     function handleSelectEndpoint(connector: BallerinaConnectorInfo, endpointName: string) {
-        // setSelectedConnector(connector);
-        // setWizardStep(WizardStep.ACTION_LIST);
         setIsLoading(true);
         setSelectedEndpoint(endpointName);
         setWizardStep(WizardStep.ACTION_LIST);
@@ -128,14 +135,14 @@ export function ConnectorWizard(props: ConnectorWizardProps) {
                     }}
                 />
             )}
-            {wizardStep === WizardStep.ENDPOINT_FORM && (selectedConnector || (connectorInfo && model)) && (
+            {wizardStep === WizardStep.ENDPOINT_FORM && (selectedConnector?.package || connectorInfo?.package) && (
                 <FormGenerator
                     onCancel={closeEndpointForm}
                     onSave={saveEndpointForm}
                     configOverlayFormStatus={{
                         formType: "EndpointForm",
                         formArgs: {
-                            connector: selectedConnector || connectorInfo,
+                            connector: selectedConnector?.package ? selectedConnector : connectorInfo,
                         },
                         isLoading,
                     }}

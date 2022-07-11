@@ -44,7 +44,7 @@ export function ParamItem(props: ParamItemProps) {
     return (
         <div className={classes.headerWrapper} data-testid={`${label}-item`}>
             <div className={classes.headerLabel}>
-                <div className={classes.iconSection}>
+                <div className={classes.iconSection} onClick={handleEdit}>
                     {icon && (
                         <div className={classes.iconWrapper}>
                             {icon}
@@ -60,22 +60,15 @@ export function ParamItem(props: ParamItemProps) {
                     </div>
                     {!readonly && (
                         <>
-                            <div className={classes.contentIconWrapper} onClick={handleEdit}>
-                                <ParamEditButton />
+                            <div className={classes.contentIconWrapper}>
+                                <ParamEditButton onClick={handleEdit}/>
                             </div>
-                            <div className={classes.contentIconWrapper} onClick={handleDelete}>
-                                <DeleteButton />
+                            <div className={classes.deleteButtonWrapper}>
+                                <DeleteButton onClick={handleDelete}/>
                             </div>
                         </>
                     )}
                 </div>
-                {/*{!readonly && (*/}
-                {/*    <ButtonWithIcon*/}
-                {/*        onClick={handleDelete}*/}
-                {/*        icon={<CloseRounded data-testid={`${label}-close-btn`} fontSize="small"/>}*/}
-                {/*        className={classes.iconBtn}*/}
-                {/*    />*/}
-                {/*)}*/}
             </div>
         </div>
     );

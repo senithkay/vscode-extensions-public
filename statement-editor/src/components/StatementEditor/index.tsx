@@ -21,8 +21,8 @@ import { Diagnostic } from "vscode-languageserver-protocol";
 import { CONNECTOR, CUSTOM_CONFIG_TYPE, DEFAULT_INTERMEDIATE_CLAUSE } from "../../constants";
 import {
     CurrentModel,
+    DocumentationInfo,
     EditorModel,
-    EmptySymbolInfo,
     LSSuggestions,
     StmtDiagnostic,
     SuggestionItem
@@ -111,7 +111,10 @@ export function StatementEditor(props: StatementEditorProps) {
     } = editorManager;
 
     const fileURI = monaco.Uri.file(currentFile.path).toString().replace(FILE_SCHEME, EXPR_SCHEME);
-    const initSymbolInfo: EmptySymbolInfo = {}
+    const initSymbolInfo : DocumentationInfo = {
+        modelPosition: null,
+        documentation: {}
+    }
 
     const [model, setModel] = useState<STNode>(null);
     const [currentModel, setCurrentModel] = useState<CurrentModel>({ model });
@@ -119,7 +122,7 @@ export function StatementEditor(props: StatementEditorProps) {
     const [stmtDiagnostics, setStmtDiagnostics] = useState<StmtDiagnostic[]>([]);
     const [moduleList, setModuleList] = useState(extraModules?.size > 0 ? extraModules : new Set<string>());
     const [lsSuggestionsList, setLSSuggestionsList] = useState<LSSuggestions>({ directSuggestions: [] });
-    const [documentation, setDocumentation] = useState<SymbolInfoResponse | EmptySymbolInfo>(initSymbolInfo);
+    const [documentation, setDocumentation] = useState<DocumentationInfo>(initSymbolInfo);
     const [isRestArg, setRestArg] = useState(false);
     const [isPullingModule, setIsPullingModule] = useState(false);
 
@@ -333,10 +336,29 @@ export function StatementEditor(props: StatementEditorProps) {
     }
 
     const handleDocumentation = async (newCurrentModel: STNode) => {
-        if (newCurrentModel && isDocumentationSupportedModel(newCurrentModel) && config.type !== CONNECTOR){
-            setDocumentation(await getSymbolDocumentation(fileURI, targetPosition, newCurrentModel, getLangClient));
+        if (config.type === CONNECTOR){
+            return setDocumentation(initSymbolInfo);
+        }
+        if (newCurrentModel && isDocumentationSupportedModel(newCurrentModel)){
+            setDocumentation({
+                modelPosition: newCurrentModel.position,
+                documentation: await getSymbolDocumentation(fileURI, targetPosition, newCurrentModel, getLangClient)
+            });
         } else {
-            setDocumentation(initSymbolInfo);
+            if (newCurrentModel && (newCurrentModel.parent.viewState as StatementEditorViewState)?.parentFunctionPos){
+                const parentModel =
+                    getCurrentModel((newCurrentModel.parent.viewState as StatementEditorViewState)?.parentFunctionPos,
+                        enrichModel(model, targetPosition));
+
+                if (isDocumentationSupportedModel(parentModel) && parentModel.position !== documentation.modelPosition){
+                    setDocumentation({
+                        modelPosition: (newCurrentModel.parent.viewState as StatementEditorViewState)?.parentFunctionPos,
+                        documentation: await getSymbolDocumentation(fileURI, targetPosition, parentModel, getLangClient)
+                    });
+                }
+            } else {
+                setDocumentation(initSymbolInfo);
+            }
         }
     };
 

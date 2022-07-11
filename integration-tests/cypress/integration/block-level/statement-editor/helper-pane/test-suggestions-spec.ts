@@ -12,13 +12,13 @@
  */
 import { getIntegrationTestPageURL } from "../../../../utils/story-url-utils";
 import { Canvas } from "../../../../utils/components/canvas";
-import { VariableFormBlockLevel } from "../../../../utils/forms/variable-form-block-level";
 import { StatementEditor } from "../../../../utils/components/statement-editor/statement-editor";
 import { EditorPane } from "../../../../utils/components/statement-editor/editor-pane";
 import { SuggestionsPane } from "../../../../utils/components/statement-editor/suggestions-pane";
 import { SourceCode } from "../../../../utils/components/code-view";
 import { getCurrentSpecFolder } from "../../../../utils/file-utils";
 import { InputEditor } from "../../../../utils/components/statement-editor/input-editor";
+import { BlockLevelPlusWidget } from "../../../../utils/components/block-level-plus-widget";
 
 const BAL_FILE_PATH = "block-level/statement-editor/statement-editor-init.bal";
 
@@ -33,45 +33,41 @@ describe('Test helper pane functionality', () => {
             .shouldBeExpanded()
             .getDiagram()
             .shouldBeRenderedProperly()
-            .clickDefaultWorkerPlusBtn(2)
-            .getBlockLevelPlusWidget()
-            .clickOption("Variable");
+            .clickDefaultWorkerPlusBtn(2);
 
-        VariableFormBlockLevel
-            .shouldBeVisible()
-            .toggleStatementEditor()
+        BlockLevelPlusWidget.clickOption("Variable");
 
         StatementEditor
             .shouldBeVisible()
-            .getEditorPane()
+            .getEditorPane();
 
         EditorPane
             .getStatementRenderer()
             .getExpression("SimpleNameReference")
-            .clickExpressionContent(`<add-expression>`)
+            .clickExpressionContent(`<add-expression>`);
 
         SuggestionsPane
             .clickSuggestionsTab("Suggestions")
-            .clickLsSuggestion('var1')
+            .clickLsSuggestion('var1');
 
         EditorPane
-            .validateNewExpression("SimpleNameReference","var1")
+            .validateNewExpression("SimpleNameReference", "var1")
             .getExpression("TypedBindingPattern")
-            .doubleClickExpressionContent('var')
+            .doubleClickExpressionContent('var');
 
         InputEditor
-            .typeInput("float")
+            .typeInput("float");
 
         SuggestionsPane
             .clickSuggestionsTab("Suggestions")
-            .clickLsTypeSuggestion('int')
+            .clickLsTypeSuggestion('int');
 
         EditorPane
-            .validateNewExpression("TypedBindingPattern","int")
-            .validateEmptyDiagnostics()
+            .validateNewExpression("TypedBindingPattern", "int")
+            .validateEmptyDiagnostics();
 
         StatementEditor
-            .save()
+            .save();
 
         SourceCode.shouldBeEqualTo(
             getCurrentSpecFolder() + "suggestions-functionality.expected.bal");
@@ -84,57 +80,54 @@ describe('Test helper pane functionality', () => {
             .shouldBeExpanded()
             .getDiagram()
             .shouldBeRenderedProperly()
-            .clickDefaultWorkerPlusBtn(2)
-            .getBlockLevelPlusWidget()
-            .clickOption("Variable");
+            .clickDefaultWorkerPlusBtn(2);
 
-        VariableFormBlockLevel
-            .shouldBeVisible()
-            .toggleStatementEditor()
+        BlockLevelPlusWidget.clickOption("Variable");
 
         StatementEditor
             .shouldBeVisible()
-            .getEditorPane()
+            .getEditorPane();
 
         EditorPane
             .getStatementRenderer()
             .getExpression("SimpleNameReference")
-            .clickExpressionContent(`<add-expression>`)
+            .clickExpressionContent(`<add-expression>`);
 
         SuggestionsPane
             .clickSuggestionsTab("Expressions")
-            .clickExpressionSuggestion('Es + Ex')
+            .clickExpressionSuggestion('Es + Ex');
 
         EditorPane
-            .validateNewExpression("BinaryExpression","<add-expression> + <add-expression>")
+            .validateNewExpression("BinaryExpression", "<add-expression> + <add-expression>")
             .getExpression("BinaryExpression")
-            .clickSpecificExpression("SimpleNameReference",0,`<add-expression>`)
+            .clickSpecificExpression("SimpleNameReference", 0, `<add-expression>`);
 
         SuggestionsPane
             .clickSuggestionsTab("Suggestions")
-            .clickLsSuggestion('var2')
+            .clickLsSuggestion('var2');
 
         EditorPane
-            .validateNewExpression("BinaryExpression","var2")
+            .validateNewExpression("BinaryExpression", "var2")
             .getExpression("BinaryExpression")
-            .clickExpressionContent('+')
+            .clickExpressionContent('+');
+
         SuggestionsPane
             .clickSuggestionsTab("Expressions")
-            .clickExpressionSuggestion('-')
+            .clickExpressionSuggestion('-');
 
         EditorPane
             .getExpression("BinaryExpression")
-            .doubleClickExpressionContent(`<add-expression>`)
+            .doubleClickExpressionContent(`<add-expression>`);
 
         InputEditor
-            .typeInput("1")
+            .typeInput("1");
 
         EditorPane
-            .validateNewExpression("NumericLiteral","1")
-            .validateEmptyDiagnostics()
+            .validateNewExpression("NumericLiteral", "1")
+            .validateEmptyDiagnostics();
 
         StatementEditor
-            .save()
+            .save();
 
         SourceCode.shouldBeEqualTo(
             getCurrentSpecFolder() + "expression-and-operator-suggestions.expected.bal");
@@ -146,66 +139,62 @@ describe('Test helper pane functionality', () => {
             .shouldBeExpanded()
             .getDiagram()
             .shouldBeRenderedProperly()
-            .clickDefaultWorkerPlusBtn(2)
-            .getBlockLevelPlusWidget()
-            .clickOption("Variable");
+            .clickDefaultWorkerPlusBtn(2);
 
-        VariableFormBlockLevel
-            .shouldBeVisible()
-            .toggleStatementEditor()
+        BlockLevelPlusWidget.clickOption("Variable");
 
         StatementEditor
             .shouldBeVisible()
-            .getEditorPane()
+            .getEditorPane();
 
         EditorPane
             .getStatementRenderer()
             .getExpression("SimpleNameReference")
-            .clickExpressionContent(`<add-expression>`)
+            .clickExpressionContent(`<add-expression>`);
 
         SuggestionsPane
             .clickSuggestionsTab("Suggestions")
-            .clickLsSuggestion('var1')
+            .clickLsSuggestion('var1');
 
         EditorPane
-            .validateNewExpression("SimpleNameReference","var1")
+            .validateNewExpression("SimpleNameReference", "var1")
             .getExpression("TypedBindingPattern")
-            .doubleClickExpressionContent('var')
+            .doubleClickExpressionContent('var');
 
         InputEditor
-            .typeInput("decimal")
+            .typeInput("decimal");
 
         SuggestionsPane
             .clickSuggestionsTab("Suggestions")
-            .clickLsTypeSuggestion('int')
+            .clickLsTypeSuggestion('int');
 
         EditorPane
-            .validateNewExpression("TypedBindingPattern","int")
+            .validateNewExpression("TypedBindingPattern", "int");
 
         SuggestionsPane
-            .clickSuggestionsTab("Expressions")
+            .clickSuggestionsTab("Expressions");
 
         EditorPane
             .getExpression("TypedBindingPattern")
-            .clickExpressionContent('int')
+            .clickExpressionContent('int');
 
         SuggestionsPane
-            .clickExpressionSuggestion('Es | Ex')
+            .clickExpressionSuggestion('Es | Ex');
 
         EditorPane
-            .validateNewExpression("TypedBindingPattern","int | <add-type>")
+            .validateNewExpression("TypedBindingPattern", "int | <add-type>")
             .getExpression("UnionTypeDesc")
-            .clickSpecificExpression("SimpleNameReference", 0, '<add-type>' )
+            .clickSpecificExpression("SimpleNameReference", 0, '<add-type>');
 
         SuggestionsPane
             .clickSuggestionsTab("Suggestions")
-            .clickLsTypeSuggestion('float')
+            .clickLsTypeSuggestion('float');
 
         EditorPane
-            .validateEmptyDiagnostics()
+            .validateEmptyDiagnostics();
 
         StatementEditor
-            .save()
+            .save();
 
         SourceCode.shouldBeEqualTo(
             getCurrentSpecFolder() + "type-suggestion.expected.bal");
@@ -217,38 +206,34 @@ describe('Test helper pane functionality', () => {
             .shouldBeExpanded()
             .getDiagram()
             .shouldBeRenderedProperly()
-            .clickDefaultWorkerPlusBtn(2)
-            .getBlockLevelPlusWidget()
-            .clickOption("Variable");
+            .clickDefaultWorkerPlusBtn(2);
 
-        VariableFormBlockLevel
-            .shouldBeVisible()
-            .toggleStatementEditor()
+        BlockLevelPlusWidget.clickOption("Variable");
 
         StatementEditor
             .shouldBeVisible()
-            .getEditorPane()
+            .getEditorPane();
 
         EditorPane
             .getStatementRenderer()
             .getExpression("SimpleNameReference")
-            .clickExpressionContent(`<add-expression>`)
+            .clickExpressionContent(`<add-expression>`);
 
         SuggestionsPane
             .clickSuggestionsTab("Expressions")
             .typeExpressionInSearchBar("record")
-            .validateUnrelatedSuggestions("record{Es Ex;}")
+            .validateUnrelatedSuggestions("record{Es Ex;}");
 
         EditorPane
             .getExpression("TypedBindingPattern")
-            .clickExpressionContent("var")
+            .clickExpressionContent("var");
 
         SuggestionsPane
             .typeExpressionInSearchBar("record")
-            .clickExpressionSuggestion("record{Es Ex;}")
+            .clickExpressionSuggestion("record{Es Ex;}");
 
         EditorPane
-            .validateDiagnostics()
+            .checkForDiagnostics();
 
     });
 })
