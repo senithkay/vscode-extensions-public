@@ -88,8 +88,8 @@ export function FunctionForm(props: FunctionProps) {
     const params = model?.functionSignature?.parameters.filter(param => !STKindChecker.isCommaToken(param));
 
     const functionParamChange = async (funcName: string, parametersStr: string, returnTypeStr: string,
-        currentModel?: CurrentModel, newValue?: string,
-        completionKinds?: number[]) => {
+                                       currentModel?: CurrentModel, newValue?: string,
+                                       completionKinds?: number[]) => {
 
         const codeSnippet = getSource(updateFunctionSignature(funcName, parametersStr,
             returnTypeStr ? `returns ${returnTypeStr}` : "", {

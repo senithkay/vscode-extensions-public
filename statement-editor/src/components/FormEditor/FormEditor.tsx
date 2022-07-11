@@ -168,7 +168,8 @@ export function FormEditor(props: FormEditorProps) {
                         getLangClient, type === "Resource"
                     );
                     let moduleList;
-                    if (!currentFile?.content?.includes("ballerina/http") && type === "Service") {
+                    if (!currentFile?.content?.includes("ballerina/http") && (type === "Service" ||
+                        type === "Listener")) {
                         moduleList = new Set<string>(['ballerina/http']);
                     }
                     const updatedContent = getUpdatedSource(source, currentFile.content, position, moduleList,

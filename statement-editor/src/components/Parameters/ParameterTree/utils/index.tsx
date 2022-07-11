@@ -41,17 +41,8 @@ export function isAllDefaultableFields(recordFields: FormField[]): boolean {
     return recordFields?.every((field) => field.defaultable || (field.fields && isAllDefaultableFields(field.fields)));
 }
 
-export function isAllNotSelectedFields(recordFields: FormField[]): boolean {
-    return recordFields?.every((field) => !field.selected || (field.fields && isAllNotSelectedFields(field.fields)));
-}
-
-export function isAllNotEmptyFields(recordFields: FormField[]): boolean {
-    return recordFields?.every(
-        (field) =>
-            field.value ||
-            (field.fields && isAllNotEmptyFields(field.fields)) ||
-            (field.members && isAllNotEmptyFields(field.members))
-    );
+export function isAnyFieldSelected(recordFields: FormField[]): boolean {
+    return recordFields?.some((field) => field.selected || (field.fields && isAnyFieldSelected(field.fields)));
 }
 
 export function getSelectedUnionMember(unionFields: FormField): FormField {
@@ -59,6 +50,11 @@ export function getSelectedUnionMember(unionFields: FormField): FormField {
     if (!selectedMember) {
         selectedMember = unionFields.members?.find(
             (member) => getUnionFormFieldName(member) === unionFields.selectedDataType
+        );
+    }
+    if (!selectedMember) {
+        selectedMember = unionFields.members?.find(
+            (member) => member.typeName === unionFields.value?.replace(/['"]+/g, "")
         );
     }
     if (!selectedMember) {
@@ -73,7 +69,7 @@ export function getDefaultParams(parameters: FormField[], depth = 1, valueOnly =
     }
     const parameterList: string[] = [];
     parameters.forEach((parameter) => {
-        if ((parameter.defaultable || parameter.optional) && !parameter.selected && !parameter.value) {
+        if ((parameter.defaultable || parameter.optional) && !parameter.selected) {
             return;
         }
         let draftParameter = "";
@@ -97,7 +93,7 @@ export function getDefaultParams(parameters: FormField[], depth = 1, valueOnly =
                 break;
             case PrimitiveBalType.Nil:
             case "()":
-                draftParameter = getFieldValuePair(parameter, `()`, depth);
+                draftParameter = getFieldValuePair(parameter, `()`, depth, true);
                 break;
             case PrimitiveBalType.Json:
             case "map":
@@ -108,7 +104,7 @@ export function getDefaultParams(parameters: FormField[], depth = 1, valueOnly =
                 if (!parameter.selected && allFieldsDefaultable) {
                     break;
                 }
-                if (parameter.selected && allFieldsDefaultable && isAllNotSelectedFields(parameter?.fields)) {
+                if (parameter.selected && allFieldsDefaultable && !isAnyFieldSelected(parameter?.fields)) {
                     break;
                 }
                 const insideParamList = getDefaultParams(parameter.fields, depth + 1);
@@ -127,7 +123,7 @@ export function getDefaultParams(parameters: FormField[], depth = 1, valueOnly =
                 draftParameter = getFieldValuePair(parameter, `${inclusionParams?.join()}`, depth);
                 break;
             default:
-                if (!parameter.name){
+                if (!parameter.name) {
                     // Handle Enum type
                     draftParameter = getFieldValuePair(parameter, `"${parameter.typeName}"`, depth, true);
                 }
@@ -374,7 +370,18 @@ export function getFormFieldReturnType(formField: FormField, depth = 1): FormFie
 
 export function mapEndpointToFormField(model: STNode, formFields: FormField[]): FormField[] {
     let expression: ImplicitNewExpression;
-    if (model && STKindChecker.isCheckExpression(model) && STKindChecker.isImplicitNewExpression(model.expression)) {
+    if (
+        model &&
+        (STKindChecker.isLocalVarDecl(model) || STKindChecker.isModuleVarDecl(model)) &&
+        STKindChecker.isCheckExpression(model.initializer) &&
+        STKindChecker.isImplicitNewExpression(model.initializer.expression)
+    ) {
+        expression = model.initializer.expression;
+    } else if (
+        model &&
+        STKindChecker.isCheckExpression(model) &&
+        STKindChecker.isImplicitNewExpression(model.expression)
+    ) {
         expression = model.expression;
     } else if (model && STKindChecker.isImplicitNewExpression(model)) {
         expression = model;
@@ -439,7 +446,7 @@ export function mapEndpointToFormField(model: STNode, formFields: FormField[]): 
                         mappingConstructor.fields as SpecificField[],
                         formField.fields
                     );
-                    formField.selected = isAllNotEmptyFields(formField.fields);
+                    formField.selected = isAnyFieldSelected(formField.fields);
                     nextValueIndex++;
                 }
             } else if (
@@ -455,11 +462,12 @@ export function mapEndpointToFormField(model: STNode, formFields: FormField[]): 
                     );
                     nextValueIndex++;
                 }
+                formField.selected = isAnyFieldSelected(formField.inclusionType?.fields);
             } else if (formField.typeName === "union") {
                 formField.value = positionalArg.expression?.source;
                 formField.initialDiagnostics = positionalArg?.typeData?.diagnostics;
+                formField.selected = isAnyFieldSelected(formField.members);
             }
-            formField.selected = formField.selected || checkFormFieldValue(formField);
         }
     }
     return formFields;
@@ -510,7 +518,7 @@ export function mapRecordLiteralToRecordTypeFormField(specificFields: SpecificFi
                                 mappingField.fields as SpecificField[],
                                 formField.fields
                             );
-                            formField.selected = isAllNotEmptyFields(formField.fields);
+                            formField.selected = isAnyFieldSelected(formField.fields);
                         }
                     }
 
@@ -521,7 +529,7 @@ export function mapRecordLiteralToRecordTypeFormField(specificFields: SpecificFi
                     }
                     formField.initialDiagnostics = specificField?.typeData?.diagnostics;
                 }
-                formField.selected = checkFormFieldValue(formField);
+                formField.selected = formField.selected || checkFormFieldValue(formField);
             });
         }
     });

@@ -97,7 +97,7 @@ export function ParameterSuggestions() {
     return (
         <>
             {!connectorInfo &&
-                (documentation === null && !connectorInfo ? (
+                (documentation === null ? (
                     <div className={statementEditorClasses.stmtEditorInnerWrapper}>
                         <p>Please upgrade to the latest Ballerina version</p>
                     </div>
