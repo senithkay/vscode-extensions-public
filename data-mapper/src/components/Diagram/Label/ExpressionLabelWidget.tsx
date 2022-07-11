@@ -3,6 +3,7 @@ import * as React from 'react';
 import { ExpressionLabelModel } from './ExpressionLabelModel';
 import styled from '@emotion/styled';
 import EditIcon from '@material-ui/icons/Edit';
+import CodeOutlinedIcon from '@material-ui/icons/CodeOutlined';
 
 
 export interface FlowAliasLabelWidgetProps {
@@ -14,6 +15,8 @@ namespace S {
 	export const Label = styled.div`
 		user-select: none;
 		pointer-events: auto;
+		cursor: pointer;
+		color: '#DEE0E7';
 	`;
 }
 
@@ -21,6 +24,15 @@ namespace S {
 export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetProps> = (props) => {
 	const [str, setStr] = React.useState(props.model.value);
 	const [editable, setEditable] = React.useState(false);
+	const [linkSelected, setLinkSelected] = React.useState(false);
+
+	React.useEffect(() => {
+		props.model.link.registerListener({
+			selectionChanged(event) {
+				setLinkSelected(event.isSelected);
+			},
+		})
+	});
 
 	return (
 		<S.Label>
@@ -48,7 +60,7 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 					onBlur={() => setEditable(false)}
 				/>
 			}
-			{!editable && <EditIcon onClick={() => setEditable(true)} />}
+			{!editable && linkSelected && <CodeOutlinedIcon onClick={() => setEditable(true)} />}
 		</S.Label>
 	);
 };
