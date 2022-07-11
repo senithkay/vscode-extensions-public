@@ -4,9 +4,11 @@ import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { List, Typography } from '@material-ui/core';
 
 import { createStyles, withStyles, WithStyles, Theme } from "@material-ui/core/styles";
-import { QueryExpressionNode } from './QueryExpressionNode';
-import { SourceNodeWidget } from './SourceNodeWidget';
-import { DataMapperPortWidget } from '../../Port';
+import { QueryExpressionNode, QUERY_SOURCE_PORT_PREFIX, QUERY_TARGET_PORT_PREFIX } from './QueryExpressionNode';
+import { DataMapperPortModel, DataMapperPortWidget } from '../../Port';
+import { RecordTypeTreeWidget } from '../commons/RecordTypeTreeWidget/RecordTypeTreeWidget';
+import { MappingConstructorWidget } from '../commons/MappingConstructorWidget/MappingConstructorWidget';
+import { STKindChecker } from '@wso2-enterprise/syntax-tree';
 
 const styles = (theme: Theme) => createStyles({
 	root: {
@@ -48,6 +50,14 @@ class QueryExpressionNodeWidgetC extends React.Component<QueryExpressionNodeWidg
 		const classes = this.props.classes;
 		const engine = this.props.engine;
 
+		const getSourcePort = (portId: string) => {
+			return node.getPort(portId) as DataMapperPortModel;
+		}
+
+		const getTargetPort = (portId: string) => {
+			return node.getPort(portId) as DataMapperPortModel;
+		}
+
 		return (
 			<div
 				className={classes.root}
@@ -61,8 +71,16 @@ class QueryExpressionNodeWidgetC extends React.Component<QueryExpressionNodeWidg
 					{node.value.queryPipeline.fromClause.source}
 				</div>
 				<div className={classes.mappingPane}>
-					<SourceNodeWidget typeDesc={node.sourceTypeDesc} />
-					<SourceNodeWidget typeDesc={node.sourceTypeDesc} />
+					<RecordTypeTreeWidget 
+						engine={engine}	
+						typeDesc={node.sourceTypeDesc} 
+						id={`${QUERY_SOURCE_PORT_PREFIX}.${node.sourceBindingPattern.variableName.value}`} 
+						getPort={getSourcePort} 
+					/>
+					{STKindChecker.isMappingConstructor(node.value.selectClause.expression) &&
+						<MappingConstructorWidget engine={engine} value={node.value.selectClause.expression} id={QUERY_TARGET_PORT_PREFIX} getPort={getTargetPort} />
+					}
+
 				</div>
 			</div>
 		);

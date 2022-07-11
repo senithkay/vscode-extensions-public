@@ -12,8 +12,8 @@ export class DataMapperPortFactory extends AbstractModelFactory<PortModel, Diagr
 		super(PORT_TYPE_ID);
 	}
 
-	generateModel(event: { initialConfig: { typeNode: RecordField | RecordTypeDesc; type: "IN" | "OUT"; parentModel: DataMapperPortModel; }; }): PortModel {
-		return new DataMapperPortModel(event.initialConfig.typeNode, event.initialConfig.type, event.initialConfig.parentModel);
+	generateModel(event: { initialConfig: { typeNode: RecordField; type: "IN" | "OUT"; parentModel: DataMapperPortModel; }; }): PortModel {
+		return undefined;
 	}
 }
 container.register("PortFactory", {useClass: DataMapperPortFactory});

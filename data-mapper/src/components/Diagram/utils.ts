@@ -2,7 +2,7 @@ import { FieldAccess, FunctionDefinition, MappingConstructor, NodePosition, Reco
 
 import { DataMapperLinkModel } from "./Link/model/DataMapperLink";
 import { ExpressionFunctionBodyNode, RequiredParamNode } from "./Node";
-import { DataMapperNodeModel } from "./Node/model/DataMapperNode";
+import { DataMapperNodeModel } from "./Node/commons/DataMapperNode";
 import { DataMapperPortModel } from "./Port/model/DataMapperPortModel";
 
 export function getFieldNames(expr: FieldAccess) {
@@ -42,12 +42,12 @@ export async function createSpecificFieldSource(link: DataMapperLinkModel) {
 	if (link.getSourcePort()) {
 		const sourcePort = link.getSourcePort() as DataMapperPortModel;
 
-		rhs = (STKindChecker.isRecordField(sourcePort.typeNode)
-			? sourcePort.typeNode.fieldName.value : "");
+		rhs = (STKindChecker.isRecordField(sourcePort.field)
+			? sourcePort.field.fieldName.value : "");
 		let parent = sourcePort.parentModel;
 		while (parent != null) {
-			rhs = (STKindChecker.isRecordField(parent.typeNode)
-				? parent.typeNode.fieldName.value + "." : "") + rhs;
+			rhs = (STKindChecker.isRecordField(parent.field)
+				? parent.field.fieldName.value + "." : "") + rhs;
 			parent = parent.parentModel;
 		}
 		const sourceNode = sourcePort.getNode() as DataMapperNodeModel;
@@ -58,14 +58,14 @@ export async function createSpecificFieldSource(link: DataMapperLinkModel) {
 
 	if (link.getTargetPort()) {
 		const targetPort = link.getTargetPort() as DataMapperPortModel;
-		lhs = STKindChecker.isRecordField(targetPort.typeNode)
-			? targetPort.typeNode.fieldName.value : "";
+		lhs = STKindChecker.isRecordField(targetPort.field)
+			? targetPort.field.fieldName.value : "";
 
 		const parentFieldNames: string[] = [];
 		let parent = targetPort.parentModel;
 		while (parent != null) {
-			if (STKindChecker.isRecordField(parent.typeNode)) {
-				parentFieldNames.push(parent.typeNode.fieldName.value);
+			if (STKindChecker.isRecordField(parent.field)) {
+				parentFieldNames.push(parent.field.fieldName.value);
 			};
 			parent = parent.parentModel;
 		}

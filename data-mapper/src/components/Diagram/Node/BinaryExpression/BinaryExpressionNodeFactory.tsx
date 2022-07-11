@@ -7,7 +7,7 @@ import { AbstractReactFactory } from '@projectstorm/react-canvas-core';
 import { DiagramEngine } from '@projectstorm/react-diagrams-core';
 
 import { injectable, container, singleton } from "tsyringe";
-import { IDataMapperNodeFactory } from '../model/DataMapperNode';
+import { IDataMapperNodeFactory } from '../commons/DataMapperNode';
 import { BinaryExpressionNodeWidget } from './BinaryExpressionNodeWidget';
 
 @injectable()

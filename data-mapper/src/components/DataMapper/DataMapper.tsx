@@ -8,7 +8,7 @@ import { FunctionDefinition, traversNode } from "@wso2-enterprise/syntax-tree";
 
 import { DataMapperContext } from "../../utils/DataMapperContext/DataMapperContext";
 import DataMapperDiagram from "../Diagram/Diagram";
-import { DataMapperNodeModel } from "../Diagram/Node/model/DataMapperNode";
+import { DataMapperNodeModel } from "../Diagram/Node/commons/DataMapperNode";
 import { NodeInitVisitor } from "../Diagram/visitors/NodeInitVisitor";
 
 export interface DataMapperProps {

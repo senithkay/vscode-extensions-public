@@ -23,7 +23,7 @@ function transform(InputMessage input) returns TransformedMessage =>
                    Assets: from var i in input.Assets
                        select {
                            Type: i.Type,
-                           Id: dictionary_lookup(i.Id),
+                           Id: i.Id,
                            Confirmed: i.Confirmed
                        },
                    CreateDate: input.CreateDate

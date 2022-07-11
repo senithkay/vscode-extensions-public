@@ -1,5 +1,4 @@
 import { ExpressionFunctionBody, FieldAccess, MappingConstructor, RecordField, RecordTypeDesc, RequiredParam, SimpleNameReference, SpecificField, STKindChecker, TypeDefinition } from "@wso2-enterprise/syntax-tree";
-import md5 from "blueimp-md5";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { getTypeDefinitionForTypeDesc } from "../../../../utils/st-utils";
 import { ExpressionLabelModel } from "../../Label";
@@ -7,7 +6,7 @@ import { DataMapperLinkModel } from "../../Link";
 import { FieldAccessToSpecificFied } from "../../Mappings/FieldAccessToSpecificFied";
 import { DataMapperPortModel } from "../../Port";
 import { getFieldNames } from "../../utils";
-import { DataMapperNodeModel, TypeDescriptor } from "../model/DataMapperNode";
+import { DataMapperNodeModel, TypeDescriptor } from "../commons/DataMapperNode";
 import { RequiredParamNode } from "../RequiredParam";
  
 export const EXPR_FN_BODY_NODE_TYPE = "datamapper-node-expression-fn-body";
@@ -28,7 +27,12 @@ export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
 
     async initPorts() {
 		this.typeDef = await getTypeDefinitionForTypeDesc(this.typeDesc, this.context);
-        this.addPorts(this.typeDef.typeDescriptor as RecordTypeDesc, "IN");
+		const recordTypeDesc = this.typeDef.typeDescriptor as RecordTypeDesc;
+		recordTypeDesc.fields.forEach((subField) => {
+			if (STKindChecker.isRecordField(subField)) {
+				this.addPorts(subField, "IN", "exprFunctionBody");
+			}
+		});
     }
 
     async initLinks() {
@@ -36,38 +40,11 @@ export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
         this.createLinks(mappings);
     }
 
-	private genMappings(val: MappingConstructor, parentFields?: SpecificField[]) {
-		let foundMappings: FieldAccessToSpecificFied[] = [];
-		let currentFields = [...(parentFields ? parentFields : [])];
-		if (val) {
-			val.fields.forEach((field) => {
-				if (STKindChecker.isSpecificField(field)) {
-					if (STKindChecker.isMappingConstructor(field.valueExpr)) {
-						foundMappings = [...foundMappings, ...this.genMappings(field.valueExpr, [...currentFields, field])];
-					} else if (STKindChecker.isFieldAccess(field.valueExpr)
-						|| STKindChecker.isSimpleNameReference(field.valueExpr)) {
-						foundMappings.push(new FieldAccessToSpecificFied([...currentFields, field], field.valueExpr));
-					} else if (STKindChecker.isBinaryExpression(field.valueExpr)
-						&& ((STKindChecker.isFieldAccess(field.valueExpr.rhsExpr)
-						|| STKindChecker.isSimpleNameReference(field.valueExpr.rhsExpr)))) {
-						// TODO handle other types of expressions here
-						foundMappings.push(new FieldAccessToSpecificFied([...currentFields, field], field.valueExpr.rhsExpr, field.valueExpr));
-					} else {
-						// TODO handle other types of expressions here
-						foundMappings.push(new FieldAccessToSpecificFied([...currentFields, field], undefined , field.valueExpr));
-					}
-				}
-			})
-		}
-		return foundMappings;
-	}
-
-    
 	private createLinks(mappings: FieldAccessToSpecificFied[]) {
 		mappings.forEach((mapping) => {
 			const { fields, value, otherVal } = mapping;
 			if (!value) {
-				console.log(mapping);
+				console.log("Unsupported mapping.");
 				return;
 			}
 			const inputNode = this.getInputNodeExpr(value);
@@ -102,8 +79,10 @@ export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
 	private getOutputPortForField(fields: SpecificField[]) {
 		let nextTypeNode = this.typeDef.typeDescriptor as RecordTypeDesc;
 		let recField: RecordField;
+		let portIdBuffer = "exprFunctionBody";
 		for (let i = 0; i < fields.length; i++) {
 			const specificField = fields[i];
+			portIdBuffer += `.${specificField.fieldName.value}`
 			const recFieldTemp = nextTypeNode.fields.find(
 				(recF) => STKindChecker.isRecordField(recF) && recF.fieldName.value === specificField.fieldName.value);
 			if (recFieldTemp) {
@@ -115,7 +94,7 @@ export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
 			}
 		}
 		if (recField) {
-			const portId = md5(JSON.stringify(recField.position) + "IN");
+			const portId = portIdBuffer + ".IN";
 			const outPort = this.getPort(portId);
 			return outPort;
 		}
@@ -124,17 +103,19 @@ export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
 	// Improve to return multiple ports for complex expressions
 	private getInputPortsForExpr(node: RequiredParamNode, expr: FieldAccess|SimpleNameReference) {
 		const typeDesc = node.typeDef.typeDescriptor;
+		let portIdBuffer = node.value.paramName.value;
 		if (STKindChecker.isRecordTypeDesc(typeDesc)) {
 			if (STKindChecker.isFieldAccess(expr)) {
 				const fieldNames = getFieldNames(expr);
 				let nextTypeNode: RecordTypeDesc = typeDesc;
 				for (let i = 1; i < fieldNames.length; i++) { // Note i = 1 as we omit param name
 					const fieldName = fieldNames[i];
+					portIdBuffer += `.${fieldName}`;
 					const recField = nextTypeNode.fields.find(
 						(field) => STKindChecker.isRecordField(field) && field.fieldName.value === fieldName);
 					if (recField) {
 						if (i === fieldNames.length - 1) {
-							const portId = md5(JSON.stringify(recField.position) + "OUT");
+							const portId = portIdBuffer + ".OUT";
 							const port = (node.getPort(portId) as DataMapperPortModel);
 							return port;
 						} else if (STKindChecker.isRecordTypeDesc(recField.typeName)) {

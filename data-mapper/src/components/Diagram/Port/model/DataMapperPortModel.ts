@@ -1,7 +1,5 @@
 import { LinkModel, PortModel, PortModelGenerics } from '@projectstorm/react-diagrams';
-import { RecordField, RecordTypeDesc } from '@wso2-enterprise/syntax-tree';
-
-import md5 from "blueimp-md5";
+import { RecordField, SpecificField } from '@wso2-enterprise/syntax-tree';
 
 import { DataMapperLinkModel } from '../../Link/model/DataMapperLink';
 import { createSpecificFieldSource } from '../../utils';
@@ -13,12 +11,13 @@ export const PORT_TYPE_ID = "datamapper-port";
 export class DataMapperPortModel extends PortModel<PortModelGenerics & DataMapperNodeModelGenerics> {
 
 	constructor(
-		public typeNode: RecordField | RecordTypeDesc,
+		public field: RecordField|SpecificField,
 		public portType: "IN" | "OUT",
+		public parentId: string,
 		public parentModel?: DataMapperPortModel) {
 		super({
 			type: PORT_TYPE_ID,
-			name: md5(JSON.stringify(typeNode.position) + portType),
+			name: `${parentId}.${field.fieldName.value}.${portType}`,
 		});
 	}
 
