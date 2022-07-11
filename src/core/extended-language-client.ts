@@ -219,6 +219,7 @@ export interface ExecutorPosition {
     kind: string;
     range: LineRange;
     name: string;
+    filePath: string;
 }
 
 export interface PartialSTRequestParams {

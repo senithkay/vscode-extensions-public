@@ -183,7 +183,7 @@ export async function createTests(uri: Uri) {
           let testCaseItems: TestItem[] = [];
 
           positions.forEach(position => {
-            const tcase = createTestCase(testController, testRoot, position);
+            const tcase = createTestCase(testController, position);
             testCaseItems.push(tcase);
           });
           parentNode.children.replace(testCaseItems);
@@ -214,7 +214,7 @@ export async function createTests(uri: Uri) {
       const parent = ancestors.pop()!;
       let testCaseItems: TestItem[] = [];
       positions.forEach(position => {
-        const tcase = createTestCase(testController, testRoot, position);
+        const tcase = createTestCase(testController, position);
         testCaseItems.push(tcase);
       });
       parent.children.replace(testCaseItems);
@@ -238,8 +238,8 @@ async function setCurrentProjectRoot(uri: Uri) {
 /**
  * Create test item for file. 
  */
-function createTestCase(controller: TestController, fullPath: string, position: ExecutorPosition) {
-  const tcase = createTestItem(controller, `${fullPath}/${position.name}`, fullPath, position.name);
+function createTestCase(controller: TestController, position: ExecutorPosition) {
+  const tcase = createTestItem(controller, `${position.filePath}/${position.name}`, position.filePath, position.name);
   tcase.canResolveChildren = false;
   tcase.range = new Range(new Position(position.range.startLine.line, position.range.startLine.offset),
     new Position(position.range.endLine.line, position.range.endLine.offset));
